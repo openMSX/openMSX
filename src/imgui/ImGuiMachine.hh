@@ -25,9 +25,10 @@ public:
 
 private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);
-	const std::vector<std::string>& getAllConfigs();
-	const std::string& getTestResult(const std::string& config);
-	const TclObject& getConfigInfo(const std::string& config);
+	[[nodiscard]] const std::vector<std::string>& getAllConfigs();
+	[[nodiscard]] const std::string& getTestResult(const std::string& config);
+	[[nodiscard]] const TclObject& getConfigInfo(const std::string& config);
+	[[nodiscard]] std::vector<std::string> getAllValuesFor(const TclObject& key);
 	bool printConfigInfo(const std::string& config);
 
 public:
@@ -39,6 +40,8 @@ private:
 	std::map<std::string, std::string> testCache;
 	std::map<std::string, TclObject> configInfoCache;
 	std::string newMachineConfig;
+	std::string filterType;
+	std::string filterRegion;
 };
 
 } // namespace openmsx

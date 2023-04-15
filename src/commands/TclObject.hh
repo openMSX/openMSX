@@ -160,6 +160,7 @@ public:
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {
 		return getDictValue(interp, TclObject(key));
 	}
+	[[nodiscard]] std::optional<TclObject> getOptionalDictValue(const TclObject& key) const;
 	[[nodiscard]] std::optional<int> getOptionalInt() const;
 
 	// STL-like interface when interpreting this TclObject as a list of

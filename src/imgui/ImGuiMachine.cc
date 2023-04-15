@@ -100,8 +100,38 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 
 	ImGui::TextUnformatted("Select machine:");
 	ImGui::Indent();
+	if (ImGui::TreeNode("filter")) {
+		auto combo = [&](std::string& selection, zstring_view key) {
+			if (ImGui::BeginCombo(key.c_str(), selection.empty() ? "--all--" : selection.c_str())) {
+				if (ImGui::Selectable("--all--")) {
+					selection.clear();
+				}
+				for (const auto& type : getAllValuesFor(TclObject(key))) {
+					if (ImGui::Selectable(type.c_str())) {
+						selection = type;
+					}
+				}
+				ImGui::EndCombo();
+			}
+		};
+		combo(filterType, "type");
+		combo(filterRegion, "region");
+		ImGui::TreePop();
+	}
 	if (ImGui::BeginCombo("##combo", newMachineConfig.c_str())) {
-		const auto& allConfigs = getAllConfigs();
+		auto allConfigs = getAllConfigs();
+		auto filter = [&](std::string_view key, const std::string& value) {
+			if (value.empty()) return;
+			TclObject keyObj(key);
+			std::erase_if(allConfigs, [&](const std::string& config) {
+				const auto& info = getConfigInfo(config);
+				auto val = info.getOptionalDictValue(keyObj);
+				if (!val) return true; // remove items that don't have the key
+				return *val != value;
+			});
+		};
+		filter("type", filterType);
+		filter("region", filterRegion);
 		ImGuiListClipper clipper; // only draw the actually visible rows
 		clipper.Begin(allConfigs.size());
 		while (clipper.Step()) {
@@ -175,6 +205,21 @@ const TclObject& ImGuiMachine::getConfigInfo(const std::string& config)
 			result = *r;
 		}
 	}
+	return result;
+}
+
+std::vector<std::string> ImGuiMachine::getAllValuesFor(const TclObject& key)
+{
+	std::vector<std::string> result;
+	for (const auto& config : getAllConfigs()) {
+		const auto& info = getConfigInfo(config);
+		if (auto type = info.getOptionalDictValue(key)) {
+			if (!contains(result, *type)) { // O(N^2), but that's fine
+				result.emplace_back(type->getString());
+			}
+		}
+	}
+	ranges::sort(result);
 	return result;
 }
 

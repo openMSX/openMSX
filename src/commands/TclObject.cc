@@ -177,6 +177,15 @@ TclObject TclObject::getDictValue(Interpreter& interp_, const TclObject& key) co
 	return value ? TclObject(value) : TclObject();
 }
 
+std::optional<TclObject> TclObject::getOptionalDictValue(const TclObject& key) const
+{
+	Tcl_Obj* value;
+	if ((Tcl_DictObjGet(nullptr, obj, key.obj, &value) != TCL_OK) || !value) {
+		return {};
+	}
+	return TclObject(value);
+}
+
 bool TclObject::evalBool(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;
