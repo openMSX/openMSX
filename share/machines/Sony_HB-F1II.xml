@@ -56,8 +56,7 @@
 
     <RTC id="Real time clock">
       <sramname>hb-f1ii.cmos</sramname>
-      <io base="0xB4" num="2" type="O"/>
-      <io base="0xB5" num="1" type="I"/>
+      <io base="0xB4" num="4" type="IO"/> <!-- S-1985 mirrors -->
     </RTC>
 
     <PrinterPort id="Printer Port">

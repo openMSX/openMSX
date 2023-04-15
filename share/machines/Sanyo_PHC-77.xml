@@ -67,8 +67,7 @@
 
     <RTC id="Real time clock">
       <sramname>phc-77.cmos</sramname>
-      <io base="0xB4" num="2" type="O"/>
-      <io base="0xB5" num="1" type="I"/>
+      <io base="0xB4" num="4" type="IO"/> <!-- S-1985 mirrors -->
     </RTC>
 
     <!-- It doesn't have a printer port but a built-in printer. But because that isn't emulated, we put in a printer port instead. -->
