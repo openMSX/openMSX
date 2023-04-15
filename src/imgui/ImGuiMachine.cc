@@ -63,7 +63,6 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				}();
 				if (ImGui::Selectable(display.c_str(), isCurrent)) {
 					// TODO error handling?
-					std::cerr << "DEBUG activate_machine " << name << "\n";
 					manager.executeDelayed(makeTclList("activate_machine", name));
 				}
 				if (ImGui::BeginPopupContextItem("instance context menu")) {
