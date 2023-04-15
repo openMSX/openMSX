@@ -88,6 +88,13 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			ImGui::TreePop();
 		}
 		if (newMachineConfig.empty()) newMachineConfig = machineName;
+		auto& defaultMachine = reactor.getMachineSetting();
+		if (defaultMachine.getString() != machineName) {
+			if (ImGui::Button("Make this the default machine")) {
+				defaultMachine.setValue(TclObject(machineName));
+			}
+			simpleToolTip("Use this as the default MSX machine when openMSX starts.");
+		}
 		ImGui::Separator();
 	}
 
