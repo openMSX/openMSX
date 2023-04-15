@@ -42,7 +42,7 @@
     </Kanji>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <sound>
         <volume>16000</volume>
       </sound>

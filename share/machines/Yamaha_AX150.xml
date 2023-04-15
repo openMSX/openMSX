@@ -40,7 +40,7 @@ Motherboard ID: GCMK-77X YAMAHA XB155[B]
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>ar</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>

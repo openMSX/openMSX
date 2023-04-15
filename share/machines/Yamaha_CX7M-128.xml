@@ -26,7 +26,7 @@ Not derived from real machine, but just copied from CX7/128 file.
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
