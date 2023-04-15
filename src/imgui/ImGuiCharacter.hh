@@ -44,6 +44,7 @@ private:
 	int manualBgCol = 4;
 	int manualFgBlink = 14;
 	int manualBgBlink = 1;
+	int manualBlink = 1;
 	int manualPatBase = 0;
 	int manualColBase = 0;
 	int manualNamBase = 0;

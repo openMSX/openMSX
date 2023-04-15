@@ -34,6 +34,7 @@ void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 	buf.appendf("bgCol=%d\n", manualBgCol);
 	buf.appendf("fgBlink=%d\n", manualFgBlink);
 	buf.appendf("bgBlink=%d\n", manualBgBlink);
+	buf.appendf("blink=%d\n", manualBlink);
 	buf.appendf("patBase=%d\n", manualPatBase);
 	buf.appendf("colBase=%d\n", manualColBase);
 	buf.appendf("namBase=%d\n", manualNamBase);
@@ -72,6 +73,8 @@ void ImGuiCharacter::loadLine(std::string_view name, zstring_view value)
 		checkIntRange(manualFgBlink, 16);
 	} else if (name == "bgBlink") {
 		checkIntRange(manualBgBlink, 16);
+	} else if (name == "blink") {
+		manualBlink = StringOp::stringToBool(value);
 	} else if (name == "patBase") {
 		checkIntRange(manualPatBase, 0x20000);
 	} else if (name == "colBase") {
@@ -117,13 +120,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode == OTHER)  return "non-character";
 		assert(false); return "ERROR";
 	};
-	auto patMult = [](int mode) { return mode == one_of(SCR2, SCR4) ? 0x2000 : 0x0800; };
-	auto colMult = [](int mode) { return mode == one_of(SCR2, SCR4) ? 0x2000 : 0x0040; };
-	auto namMult = [](int mode) { return mode == TEXT80 ? 0x1000 : 0x0400; };
+	auto patMult = [](int mode) { return 1 << (mode == one_of(SCR2, SCR4) ? 13 : 11); };
+	auto colMult = [](int mode) { return 1 << (mode == one_of(SCR2, SCR4) ? 13 :
+	                                           mode == TEXT80             ?  9 :  6); };
+	auto namMult = [](int mode) { return 1 << (mode == one_of(TEXT40, TEXT80) ? 12 : 10); };
 	int vdpFgCol = vdp->getForegroundColor() & 15;
 	int vdpBgCol = vdp->getBackgroundColor() & 15;
 	int vdpFgBlink = vdp->getBlinkForegroundColor() & 15;
 	int vdpBgBlink = vdp->getBlinkBackgroundColor() & 15;
+	bool vdpBlink = vdp->getBlinkState();
 	int vdpPatBase = vdp->getPatternTableBase() & ~(patMult(vdpMode) - 1);
 	int vdpColBase = vdp->getColorTableBase() & ~(colMult(vdpMode) - 1);
 	int vdpNamBase = vdp->getNameTableBase() & ~(namMult(vdpMode) - 1);
@@ -146,6 +151,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text("Background blink color: %d", vdpBgBlink);
 		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Blink: %s", vdpBlink ? "enabled" : "disabled");
+		ImGui::AlignTextToFramePadding();
 		ImGui::Text("Pattern table: 0x%05x", vdpPatBase);
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text("Color table: 0x%05x", vdpColBase);
@@ -166,10 +173,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::PushItemWidth(ImGui::GetFontSize() * 9.0f);
 		ImGui::Combo("##mode", &manualMode, "screen 0,40\000screen 0,80\000screen 1\000screen 2\000screen 3\000screen 4\000");
 		static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
+		ImGui::BeginDisabled(manualMode != one_of(TEXT40, TEXT80));
 		ImGui::Combo("##fgCol", &manualFgCol, range0_15);
 		ImGui::Combo("##bgCol", &manualBgCol, range0_15);
+		ImGui::EndDisabled();
+		ImGui::BeginDisabled(manualMode != TEXT80);
 		ImGui::Combo("##fgBlink", &manualFgBlink, range0_15);
 		ImGui::Combo("##bgBlink", &manualBgBlink, range0_15);
+		ImGui::Combo("##blink", &manualBlink, "disabled\000enabled\000");
+		ImGui::EndDisabled();
 		auto comboSequence = [](const char* label, int* value, int mult) {
 			*value &= ~(mult - 1);
 			auto preview = tmpStrCat("0x", hex_string<5>(*value));
@@ -184,7 +196,9 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			}
 		};
 		comboSequence("##pattern", &manualPatBase, patMult(manualMode));
+		ImGui::BeginDisabled(manualMode == one_of(TEXT40, SCR3));
 		comboSequence("##color", &manualColBase, colMult(manualMode));
+		ImGui::EndDisabled();
 		comboSequence("##name", &manualNamBase, namMult(manualMode));
 		ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
 		ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
@@ -240,6 +254,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	auto bgCol = manual ? manualBgCol : vdpBgCol;
 	auto fgBlink = manual ? manualFgBlink : vdpFgBlink;
 	auto bgBlink = manual ? manualBgBlink : vdpBgBlink;
+	auto blink = manual ? bool(manualBlink) : vdpBlink;
 
 	bool narrow = mode == TEXT80;
 	int zx = (1 + zoom) * (narrow ? 1 : 2);
@@ -248,7 +263,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 
 	// Render the patterns to a texture, we need this both to display the name-table and the pattern-table
 	auto patternTexSize = [&]() -> gl::ivec2 {
-		if (mode == one_of(TEXT40, TEXT80)) return {192, 64}; // 8 rows of 32 characters, each 6x8 pixels
+		if (mode == TEXT40) return {192,  64}; // 8 rows of 32 characters, each 6x8 pixels
+		if (mode == TEXT80) return {192, 128}; // 8 rows of 32 characters, each 6x8 pixels, x2 for blink
 		if (mode == SCR1) return {256,  64}; // 8 rows of 32 characters, each 8x8 pixels
 		if (mode == SCR2) return {256, lines == 192 ? 192 : 256}; // 8 rows of 32 characters, each 8x8 pixels, all this 3 or 4 times
 		if (mode == SCR3) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
@@ -257,11 +273,13 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	auto patternTexChars = [&]() -> gl::vec2 {
 		if (mode == SCR3) return {32.0f, 32.0f};
 		if (mode == SCR2) return {32.0f, lines == 192 ? 24.0f : 32.0f};
+		if (mode == TEXT80) return {32.0f, 16.0f};
 		return {32.0f, 8.0f};
 	}();
 	auto recipPatTexChars = recip(patternTexChars);
 	auto patternDisplaySize = [&]() -> gl::ivec2 {
-		if (mode == one_of(TEXT40, TEXT80)) return {192, 64};
+		if (mode == TEXT40) return {192,  64};
+		if (mode == TEXT80) return {192, 128};
 		if (mode == SCR2) return {256, lines == 192 ? 192 : 256};
 		if (mode == SCR3) return {256, 256};
 		return {256,  64}; // SCR1, OTHER
@@ -349,11 +367,14 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		auto* drawList = ImGui::GetWindowDrawList();
 
 		auto getPattern = [&](unsigned column, unsigned row) {
-			auto block = [&] {
-				// TODO blink
+			auto block = [&]() -> unsigned {
+				if (mode == TEXT80 && blink) {
+					auto colPat = vram[colBase + 10 * row + (column / 8)];
+					return (colPat & (0x80 >> (column % 8))) ? 1 : 0;
+				}
 				if (mode == SCR2) return row / 8;
 				if (mode == SCR3) return row % 4;
-				return 0u;
+				return 0;
 			}();
 			return vram[namBase + columns * row + column] + 256 * block;
 		};
@@ -448,9 +469,11 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 {
 	switch (mode) {
 	case TEXT40:
-	case TEXT80: { // TODO also render with blink colors
+	case TEXT80: {
 		auto fg = palette[fgCol];
 		auto bg = palette[bgCol];
+		auto fgB = palette[fgBlink];
+		auto bgB = palette[bgBlink];
 		for (auto row : xrange(8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
@@ -459,6 +482,10 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 					auto pattern = vram[addr + y];
 					auto out = subspan<6>(output, (8 * row + y) * 192 + 6 * column);
 					draw6(pattern, fg, bg, out);
+					if (mode == TEXT80) {
+						auto out2 = subspan<6>(output, (64 + 8 * row + y) * 192 + 6 * column);
+						draw6(pattern, fgB, bgB, out2);
+					}
 				}
 			}
 		}
