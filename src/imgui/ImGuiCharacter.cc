@@ -23,12 +23,65 @@ ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_)
 void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 {
 	buf.appendf("show=%d\n", show);
+
+	buf.appendf("override=%d\n", manual);
+	buf.appendf("zoom=%d\n", zoom);
+	buf.appendf("showGrid=%d\n", grid);
+	buf.appendf("gridColor=[ %f %f %f %f ]\n", gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+
+	buf.appendf("mode=%d\n", manualMode);
+	buf.appendf("fgCol=%d\n", manualFgCol);
+	buf.appendf("bgCol=%d\n", manualBgCol);
+	buf.appendf("fgBlink=%d\n", manualFgBlink);
+	buf.appendf("bgBlink=%d\n", manualBgBlink);
+	buf.appendf("patBase=%d\n", manualPatBase);
+	buf.appendf("colBase=%d\n", manualColBase);
+	buf.appendf("namBase=%d\n", manualNamBase);
+	buf.appendf("rows=%d\n", manualRows);
+	buf.appendf("color0=%d\n", manualColor0);
 }
 
 void ImGuiCharacter::loadLine(std::string_view name, zstring_view value)
 {
+	auto checkIntRange = [&](int& result, unsigned max) {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			if (*r < max) result = *r;
+		}
+	};
+
 	if (name == "show") {
 		show = StringOp::stringToBool(value);
+	} else if (name == "override") {
+		checkIntRange(manual, 2);
+	} else if (name == "zoom") {
+		checkIntRange(zoom, 8);
+	} else if (name == "showGrid") {
+		grid = StringOp::stringToBool(value);
+	} else if (name == "gridColor") {
+		gl::vec4 t;
+		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
+			gridColor = t;
+		}
+	} else if (name == "mode") {
+		checkIntRange(manualMode, OTHER);
+	} else if (name == "fgCol") {
+		checkIntRange(manualFgCol, 16);
+	} else if (name == "bgCol") {
+		checkIntRange(manualBgCol, 16);
+	} else if (name == "fgBlink") {
+		checkIntRange(manualFgBlink, 16);
+	} else if (name == "bgBlink") {
+		checkIntRange(manualBgBlink, 16);
+	} else if (name == "patBase") {
+		checkIntRange(manualPatBase, 0x20000);
+	} else if (name == "colBase") {
+		checkIntRange(manualColBase, 0x20000);
+	} else if (name == "namBase") {
+		checkIntRange(manualNamBase, 0x20000);
+	} else if (name == "rows") {
+		checkIntRange(manualRows, 3);
+	} else if (name == "color0") {
+		checkIntRange(manualColor0, 16 + 1);
 	}
 }
 
@@ -50,7 +103,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (base == DisplayMode::TEXT2) return TEXT80;
 		if (base == DisplayMode::GRAPHIC1) return SCR1;
 		if (base == DisplayMode::GRAPHIC2) return SCR2;
-		if (base == DisplayMode::GRAPHIC3) return SCR2;
+		if (base == DisplayMode::GRAPHIC3) return SCR4;
 		if (base == DisplayMode::MULTICOLOR) return SCR3;
 		return OTHER;
 	}();
@@ -58,18 +111,23 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode == TEXT40) return "screen 0, width 40";
 		if (mode == TEXT80) return "screen 0, width 80";
 		if (mode == SCR1)   return "screen 1";
-		if (mode == SCR2)   return "screen 2 or 4";
+		if (mode == SCR2)   return "screen 2";
 		if (mode == SCR3)   return "screen 3";
+		if (mode == SCR4)   return "screen 4";
 		if (mode == OTHER)  return "non-character";
 		assert(false); return "ERROR";
 	};
+	auto patMult = [](int mode) { return mode == one_of(SCR2, SCR4) ? 0x2000 : 0x0800; };
+	auto colMult = [](int mode) { return mode == one_of(SCR2, SCR4) ? 0x2000 : 0x0040; };
+	auto namMult = [](int mode) { return mode == TEXT80 ? 0x1000 : 0x0400; };
 	int vdpFgCol = vdp->getForegroundColor() & 15;
 	int vdpBgCol = vdp->getBackgroundColor() & 15;
 	int vdpFgBlink = vdp->getBlinkForegroundColor() & 15;
 	int vdpBgBlink = vdp->getBlinkBackgroundColor() & 15;
-	int vdpPatBase = vdp->getPatternTableBase();
-	int vdpColBase = vdp->getColorTableBase();
-	int vdpNamBase = vdp->getNameTableBase();
+	int vdpPatBase = vdp->getPatternTableBase() & ~(patMult(vdpMode) - 1);
+	int vdpColBase = vdp->getColorTableBase() & ~(colMult(vdpMode) - 1);
+	int vdpNamBase = vdp->getNameTableBase() & ~(namMult(vdpMode) - 1);
+	int vdpLines = vdp->getNumberOfLines();
 	int vdpColor0 = vdp->getTransparency() ? vdpBgCol
 	                                       : 16; // no replacement
 
@@ -88,13 +146,13 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::AlignTextToFramePadding();
 		ImGui::Text("Background blink color: %d", vdpBgBlink);
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("Name table: %04x", 0x0000); // TODO
+		ImGui::Text("Pattern table: 0x%05x", vdpPatBase);
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("Pattern table: %04x", 0x1800); // TODO
+		ImGui::Text("Color table: 0x%05x", vdpColBase);
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("Color table: %04x", 0x2000); // TODO
+		ImGui::Text("Name table: 0x%05x", vdpNamBase);
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("Visible rows: %d", 24);
+		ImGui::Text("Visible rows: %s", (vdpLines == 192) ? "24" : "26.5");
 		ImGui::AlignTextToFramePadding();
 		static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 		ImGui::Text("Replace color 0: %s", getComboString(vdpColor0, color0Str));
@@ -106,16 +164,29 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::RadioButton("Manual override", &manual, 1);
 		ImGui::BeginDisabled(manual != 1);
 		ImGui::PushItemWidth(ImGui::GetFontSize() * 9.0f);
-		int dummy = 0;
-		ImGui::Combo("##mode", &scrnMode, "screen 0,40\000screen 0,80\000screen 1\000screen 2\000screen 3");
-		ImGui::Combo("##fgCol", &manualFgCol, "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000");
-		ImGui::Combo("##bgCol", &manualBgCol, "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000");
-		ImGui::Combo("##fgBlink", &manualFgBlink, "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000");
-		ImGui::Combo("##bgBlink", &manualBgBlink, "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000");
-		ImGui::Combo("##name", &dummy, "0000\0000800\00010000\000");
-		ImGui::Combo("##pattern", &dummy, "0000\0000800\00010000\000");
-		ImGui::Combo("##color", &dummy, "0000\0000800\00010000\000");
-		ImGui::Combo("##rows", &dummy, "24\00026.5\00032\000");
+		ImGui::Combo("##mode", &manualMode, "screen 0,40\000screen 0,80\000screen 1\000screen 2\000screen 3\000screen 4\000");
+		static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
+		ImGui::Combo("##fgCol", &manualFgCol, range0_15);
+		ImGui::Combo("##bgCol", &manualBgCol, range0_15);
+		ImGui::Combo("##fgBlink", &manualFgBlink, range0_15);
+		ImGui::Combo("##bgBlink", &manualBgBlink, range0_15);
+		auto comboSequence = [](const char* label, int* value, int mult) {
+			*value &= ~(mult - 1);
+			auto preview = tmpStrCat("0x", hex_string<5>(*value));
+			if (ImGui::BeginCombo(label, preview.c_str())) {
+				for (int addr = 0; addr < 0x1ffff; addr += mult) {
+					auto str = tmpStrCat("0x", hex_string<5>(addr));
+					if (ImGui::Selectable(str.c_str())) {
+						*value = addr;
+					}
+				}
+				ImGui::EndCombo();
+			}
+		};
+		comboSequence("##pattern", &manualPatBase, patMult(manualMode));
+		comboSequence("##color", &manualColBase, colMult(manualMode));
+		comboSequence("##name", &manualNamBase, namMult(manualMode));
+		ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
 		ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
 		ImGui::PopItemWidth();
 		ImGui::EndDisabled();
@@ -142,18 +213,22 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::EndGroup();
 		ImGui::TreePop();
 	}
+	int manualLines = (manualRows == 0) ? 192
+	                : (manualRows == 1) ? 212
+	                                    : 256;
 
-	int mode = manual ? scrnMode : vdpMode;
+	int mode = manual ? manualMode : vdpMode;
+	if (mode == SCR4) mode = SCR2;
+
 	int patBase = manual ? manualPatBase : vdpPatBase;
 	int colBase = manual ? manualColBase : vdpColBase;
 	int namBase = manual ? manualNamBase : vdpNamBase;
+	int lines = manual ? manualLines : vdpLines;
 	int color0 = manual ? manualColor0 : vdpColor0;
 
-	if (mode == TEXT80) namBase &= ~0xfff;
-	if (mode == SCR2) {
-		patBase &= ~0x1fff;
-		colBase &= ~0x1fff;
-	}
+	assert((patBase % patMult(mode)) == 0);
+	assert((colBase % colMult(mode)) == 0);
+	assert((namBase % namMult(mode)) == 0);
 
 	std::array<uint32_t, 16> palette;
 	auto msxPalette = manager.palette.getPalette(vdp);
@@ -175,22 +250,24 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	auto patternTexSize = [&]() -> gl::ivec2 {
 		if (mode == one_of(TEXT40, TEXT80)) return {192, 64}; // 8 rows of 32 characters, each 6x8 pixels
 		if (mode == SCR1) return {256,  64}; // 8 rows of 32 characters, each 8x8 pixels
-		if (mode == SCR2) return {256, 256}; // 8 rows of 32 characters, each 8x8 pixels, all this 4 times
+		if (mode == SCR2) return {256, lines == 192 ? 192 : 256}; // 8 rows of 32 characters, each 8x8 pixels, all this 3 or 4 times
 		if (mode == SCR3) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
 		return {1, 1}; // OTHER -> dummy
 	}();
 	auto patternTexChars = [&]() -> gl::vec2 {
-		if (mode == one_of(SCR2, SCR3)) return {32.0f, 32.0f};
+		if (mode == SCR3) return {32.0f, 32.0f};
+		if (mode == SCR2) return {32.0f, lines == 192 ? 24.0f : 32.0f};
 		return {32.0f, 8.0f};
 	}();
 	auto recipPatTexChars = recip(patternTexChars);
 	auto patternDisplaySize = [&]() -> gl::ivec2 {
 		if (mode == one_of(TEXT40, TEXT80)) return {192, 64};
-		if (mode == one_of(SCR1, OTHER)) return {256,  64};
-		return {256, 256}; // SRC2, SRC3
+		if (mode == SCR2) return {256, lines == 192 ? 192 : 256};
+		if (mode == SCR3) return {256, 256};
+		return {256,  64}; // SCR1, OTHER
 	}();
 	std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
-	renderPatterns(mode, vram, palette, fgCol, bgCol, fgBlink, bgBlink, patBase, colBase, pixels);
+	renderPatterns(mode, vram, palette, fgCol, bgCol, fgBlink, bgBlink, patBase, colBase, lines, pixels);
 	if (!patternTex.get()) {
 		patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 	}
@@ -222,7 +299,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	}
 
 	ImGui::Separator();
-	if (ImGui::TreeNodeEx("Pattern Table")) {
+	if (ImGui::TreeNodeEx("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen)) {
 		auto size = gl::vec2(patternDisplaySize) * zm;
 		ImGui::BeginChild("##pattern", {0, size[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize);
 		auto pos1 = ImGui::GetCursorPos();
@@ -256,14 +333,14 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
-	if (ImGui::TreeNodeEx("Name Table")) {
-		auto rows = 24; // TODO
+	if (ImGui::TreeNodeEx("Name Table", ImGuiTreeNodeFlags_DefaultOpen)) {
+		float rows = float(lines) / 8.0f; // 24, 26.5 or 32
 		auto columns = [&] {
 			if (mode == TEXT40) return 40;
 			if (mode == TEXT80) return 80;
 			return 32;
 		}();
-		auto charsSize = gl::vec2(float(columns), float(rows)); // (x * y) number of characters
+		auto charsSize = gl::vec2(float(columns), rows); // (x * y) number of characters
 		auto msxSize = charSize * charsSize; // (x * y) number of MSX pixels
 		auto hostSize = msxSize * zm; // (x * y) number of host pixels
 
@@ -291,10 +368,12 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode == OTHER) {
 			drawList->AddRectFilled(scrnPos, scrnPos + hostSize, 0xff808080);
 		} else {
+			drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
 			drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
-			auto numChars = rows * columns;
+			int rowsCeil = int(ceilf(rows));
+			auto numChars = rowsCeil * columns;
 			drawList->PrimReserve(6 * numChars, 4 * numChars);
-			for (auto row : xrange(rows)) {
+			for (auto row : xrange(rowsCeil)) {
 				for (auto column : xrange(columns)) {
 					gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
 					gl::vec2 p2 = p1 + charZoom;
@@ -304,6 +383,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				}
 			}
 			drawList->PopTextureID();
+			drawList->PopClipRect();
 		}
 
 		auto pos1 = ImGui::GetCursorPos();
@@ -364,7 +444,7 @@ static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uin
 
 void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette,
                                     int fgCol, int bgCol, int fgBlink, int bgBlink,
-                                    int patBase, int colBase, std::span<uint32_t> output)
+                                    int patBase, int colBase, int lines, std::span<uint32_t> output)
 {
 	switch (mode) {
 	case TEXT40:
@@ -404,7 +484,7 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		}
 		break;
 	case SCR2:
-		for (auto row : xrange(4 * 8)) {
+		for (auto row : xrange((lines == 192 ? 3 : 4) * 8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
 				auto patAddr = patBase + 8 * patNum;
