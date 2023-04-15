@@ -37,13 +37,12 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	if (!show || !motherBoard) return;
 	VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 	if (!vdp) return;
-	const auto& vram_ = vdp->getVRAM();
-	const auto& vram = vram_.getData();
-
 	if (!ImGui::Begin("Tile viewer", &show)) {
 		ImGui::End();
 		return;
 	}
+	const auto& vram_ = vdp->getVRAM();
+	const auto& vram = vram_.getData();
 
 	int vdpMode = [&] {
 		auto base = vdp->getDisplayMode().getBase();
@@ -150,6 +149,12 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	int namBase = manual ? manualNamBase : vdpNamBase;
 	int color0 = manual ? manualColor0 : vdpColor0;
 
+	if (mode == TEXT80) namBase &= ~0xfff;
+	if (mode == SCR2) {
+		patBase &= ~0x1fff;
+		colBase &= ~0x1fff;
+	}
+
 	std::array<uint32_t, 16> palette;
 	auto msxPalette = manager.palette.getPalette(vdp);
 	ranges::transform(msxPalette, palette.data(),
@@ -161,8 +166,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	auto fgBlink = manual ? manualFgBlink : vdpFgBlink;
 	auto bgBlink = manual ? manualBgBlink : vdpBgBlink;
 
-	int zx = (1 + zoom) * (mode == TEXT80 ? 1 : 2);
+	bool narrow = mode == TEXT80;
+	int zx = (1 + zoom) * (narrow ? 1 : 2);
 	int zy = (1 + zoom) * 2;
+	gl::vec2 zm{float(zx), float(zy)};
 
 	// Render the patterns to a texture, we need this both to display the name-table and the pattern-table
 	auto patternTexSize = [&]() -> gl::ivec2 {
@@ -172,10 +179,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		if (mode == SCR3) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
 		return {1, 1}; // OTHER -> dummy
 	}();
+	auto patternTexChars = [&]() -> gl::vec2 {
+		if (mode == one_of(SCR2, SCR3)) return {32.0f, 32.0f};
+		return {32.0f, 8.0f};
+	}();
+	auto recipPatTexChars = recip(patternTexChars);
 	auto patternDisplaySize = [&]() -> gl::ivec2 {
 		if (mode == one_of(TEXT40, TEXT80)) return {192, 64};
-		if (mode == SCR1) return {256,  64};
-		return {256, 256}; // SRC2, SRC3, OTHER
+		if (mode == one_of(SCR1, OTHER)) return {256,  64};
+		return {256, 256}; // SRC2, SRC3
 	}();
 	std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
 	renderPatterns(mode, vram, palette, fgCol, bgCol, fgBlink, bgBlink, patBase, colBase, pixels);
@@ -188,6 +200,9 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 
 	// create grid texture
 	auto charWidth = mode == one_of(TEXT40, TEXT80) ? 6 : 8;
+	auto charSize = gl::vec2{float(charWidth), 8.0f};
+	auto charZoom = zm * charSize;
+	auto zoomCharSize = gl::vec2(narrow ? 6.0f : 12.0f, 12.0f) * charSize; // hovered size
 	if (grid) {
 		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
 		auto gridWidth = charWidth * zx;
@@ -208,134 +223,118 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 
 	ImGui::Separator();
 	if (ImGui::TreeNodeEx("Pattern Table")) {
-		auto pos = ImGui::GetCursorPos();
-		ImVec2 size(float(patternDisplaySize[0] * zx), float(patternDisplaySize[1] * zy));
+		auto size = gl::vec2(patternDisplaySize) * zm;
+		ImGui::BeginChild("##pattern", {0, size[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize);
+		auto pos1 = ImGui::GetCursorPos();
+		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		ImGui::Image(reinterpret_cast<void*>(patternTex.get()), size);
-		if (grid) {
-			ImGui::SetCursorPos(pos);
-			ImGui::Image(reinterpret_cast<void*>(gridTex.get()), size,
-			             ImVec2(0.0f, 0.0f),
-			             ImVec2(float(patternDisplaySize[0] / charWidth),
-			                    float(patternDisplaySize[1] / 8)));
+		bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		if (hovered) {
+			auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+			ImGui::Text("Pattern: %d", gridPos[0] + 32 * gridPos[1]);
+			auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
+			auto uv2 = uv1 + recipPatTexChars;
+			auto pos2 = ImGui::GetCursorPos();
+			ImGui::Image(reinterpret_cast<void*>(patternTex.get()), zoomCharSize, uv1, uv2);
+			if (grid) {
+				ImGui::SetCursorPos(pos2);
+				ImGui::Image(reinterpret_cast<void*>(gridTex.get()),
+				             zoomCharSize, {}, charSize);
+			}
+		} else {
+			ImGui::Dummy(zoomCharSize);
 		}
+		ImGui::EndGroup();
+		if (grid) {
+			ImGui::SetCursorPos(pos1);
+			ImGui::Image(reinterpret_cast<void*>(gridTex.get()), size,
+			             {}, patternTexChars);
+		}
+		ImGui::EndChild();
 		ImGui::TreePop();
 	}
 	ImGui::Separator();
 	if (ImGui::TreeNodeEx("Name Table")) {
-		auto pos = ImGui::GetCursorPos();
-		gl::vec2 scrn = ImGui::GetCursorScreenPos();
-
-		auto nameSize = [&]() -> gl::vec2 {
-			if (mode == TEXT40) return {240, 192};
-			if (mode == TEXT80) return {480, 192};
-			return {256, 192};
+		auto rows = 24; // TODO
+		auto columns = [&] {
+			if (mode == TEXT40) return 40;
+			if (mode == TEXT80) return 80;
+			return 32;
 		}();
-		gl::vec2 zoom{float(zx), float(zy)};
-		auto size = nameSize * zoom;
-		ImGui::Dummy(size);
+		auto charsSize = gl::vec2(float(columns), float(rows)); // (x * y) number of characters
+		auto msxSize = charSize * charsSize; // (x * y) number of MSX pixels
+		auto hostSize = msxSize * zm; // (x * y) number of host pixels
+
+		ImGui::BeginChild("##name", {0.0f, hostSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize);
+		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		auto* drawList = ImGui::GetWindowDrawList();
-		drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
 
-		auto numChars = [&] {
-			if (mode == OTHER) return 1;
-			if (mode == TEXT40) return 40 * 24;
-			if (mode == TEXT80) return 80 * 24;
-			return 32 * 24;
-		}();
-		drawList->PrimReserve(6 * numChars, 4 * numChars);
+		auto getPattern = [&](unsigned column, unsigned row) {
+			auto block = [&] {
+				// TODO blink
+				if (mode == SCR2) return row / 8;
+				if (mode == SCR3) return row % 4;
+				return 0u;
+			}();
+			return vram[namBase + columns * row + column] + 256 * block;
+		};
+		auto getPatternUV = [&](unsigned pattern) -> std::pair<gl::vec2, gl::vec2> {
+			auto patRow = pattern / 32;
+			auto patCol = pattern % 32;
+			gl::vec2 uv1 = gl::vec2{float(patCol), float(patRow)} * recipPatTexChars;
+			gl::vec2 uv2 = uv1 + recipPatTexChars;
+			return {uv1, uv2};
+		};
 
-		auto charZoom = zoom * gl::vec2{float(charWidth), 8.0f};
-
-		// TODO reduce code duplication
-		switch (mode) {
-		case TEXT40:
-			for (auto row : xrange(24)) {
-				for (auto column : xrange(40)) {
-					auto pattern = vram[namBase + 40 * row + column];
-					auto patRow = pattern / 32;
-					auto patCol = pattern % 32;
-					gl::vec2 p1 = scrn + charZoom * gl::vec2{float(column), float(row)};
+		if (mode == OTHER) {
+			drawList->AddRectFilled(scrnPos, scrnPos + hostSize, 0xff808080);
+		} else {
+			drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
+			auto numChars = rows * columns;
+			drawList->PrimReserve(6 * numChars, 4 * numChars);
+			for (auto row : xrange(rows)) {
+				for (auto column : xrange(columns)) {
+					gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
 					gl::vec2 p2 = p1 + charZoom;
-					gl::vec2 uv1{float(patCol + 0) / 32.0f, float(patRow + 0) / 8.0f};
-					gl::vec2 uv2{float(patCol + 1) / 32.0f, float(patRow + 1) / 8.0f};
+					auto pattern = getPattern(column, row);
+					auto [uv1, uv2] = getPatternUV(pattern);
 					drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
 				}
 			}
-			break;
-		case TEXT80:
-			// TODO blink
-			namBase &= ~0xfff;
-			for (auto row : xrange(24)) {
-				for (auto column : xrange(80)) {
-					auto pattern = vram[namBase + 80 * row + column];
-					auto patRow = pattern / 32;
-					auto patCol = pattern % 32;
-					gl::vec2 p1 = scrn + charZoom * gl::vec2{float(column), float(row)};
-					gl::vec2 p2 = p1 + charZoom;
-					gl::vec2 uv1{float(patCol + 0) / 32.0f, float(patRow + 0) / 8.0f};
-					gl::vec2 uv2{float(patCol + 1) / 32.0f, float(patRow + 1) / 8.0f};
-					drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-				}
-			}
-			break;
-		case SCR1:
-			for (auto row : xrange(24)) {
-				for (auto column : xrange(32)) {
-					auto pattern = vram[namBase + 32 * row + column];
-					auto patRow = pattern / 32;
-					auto patCol = pattern % 32;
-					gl::vec2 p1 = scrn + charZoom * gl::vec2{float(column), float(row)};
-					gl::vec2 p2 = p1 + charZoom;
-					gl::vec2 uv1{float(patCol + 0) / 32.0f, float(patRow + 0) / 8.0f};
-					gl::vec2 uv2{float(patCol + 1) / 32.0f, float(patRow + 1) / 8.0f};
-					drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-				}
-			}
-			break;
-		case SCR2:
-			for (auto group : xrange(3)) {
-				auto patOffset = 256 * group;
-				for (auto subRow : xrange(8)) {
-					auto row = 8 * group + subRow;
-					for (auto column : xrange(32)) {
-						auto pattern = vram[namBase + 32 * row + column] + patOffset;
-						auto patRow = pattern / 32;
-						auto patCol = pattern % 32;
-						gl::vec2 p1 = scrn + charZoom * gl::vec2{float(column), float(row)};
-						gl::vec2 p2 = p1 + charZoom;
-						gl::vec2 uv1{float(patCol + 0) / 32.0f, float(patRow + 0) / 32.0f};
-						gl::vec2 uv2{float(patCol + 1) / 32.0f, float(patRow + 1) / 32.0f};
-						drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-					}
-				}
-			}
-			break;
-		case SCR3:
-			for (auto row : xrange(24)) {
-				auto patOffset = 256 * (row % 4);
-				for (auto column : xrange(32)) {
-					auto pattern = vram[namBase + 32 * row + column] + patOffset;
-					auto patRow = pattern / 32;
-					auto patCol = pattern % 32;
-					gl::vec2 p1 = scrn + charZoom * gl::vec2{float(column), float(row)};
-					gl::vec2 p2 = p1 + charZoom;
-					gl::vec2 uv1{float(patCol + 0) / 32.0f, float(patRow + 0) / 32.0f};
-					gl::vec2 uv2{float(patCol + 1) / 32.0f, float(patRow + 1) / 32.0f};
-					drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
-				}
-			}
-			break;
-		default:
-			drawList->PrimRectUV(scrn, scrn + size, {0.0f, 0.0f}, {1.0f, 1.0f}, 0xffffffff);
-			break;
+			drawList->PopTextureID();
 		}
+
+		auto pos1 = ImGui::GetCursorPos();
+		ImGui::Dummy(hostSize);
+		bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		if (hovered) {
+			auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+			ImGui::Text("Column: %d Row: %d", gridPos[0], gridPos[1]);
+			auto pattern = getPattern(gridPos[0], gridPos[1]);
+			ImGui::Text("Pattern: %d", pattern);
+			auto [uv1, uv2] = getPatternUV(pattern);
+			auto pos2 = ImGui::GetCursorPos();
+			ImGui::Image(reinterpret_cast<void*>(patternTex.get()), zoomCharSize, uv1, uv2);
+			if (grid) {
+				ImGui::SetCursorPos(pos2);
+				ImGui::Image(reinterpret_cast<void*>(gridTex.get()),
+				             zoomCharSize, {}, charSize);
+			}
+		} else {
+			gl::vec2 textSize = ImGui::CalcTextSize("Column: 31 Row: 23");
+			ImGui::Dummy(max(zoomCharSize, textSize));
+		}
+		ImGui::EndGroup();
 		if (grid) {
-			ImGui::SetCursorPos(pos);
-			ImGui::Image(reinterpret_cast<void*>(gridTex.get()), size,
-			             ImVec2(0.0f, 0.0f),
-			             ImVec2(float(nameSize[0] / charWidth),
-			                    float(nameSize[1] / 8)));
+			ImGui::SetCursorPos(pos1);
+			ImGui::Image(reinterpret_cast<void*>(gridTex.get()), hostSize,
+			             {}, charsSize);
 		}
+		ImGui::EndChild();
 		ImGui::TreePop();
 	}
 	ImGui::End();
@@ -405,8 +404,6 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		}
 		break;
 	case SCR2:
-		patBase &= ~0x1fff;
-		colBase &= ~0x1fff;
 		for (auto row : xrange(4 * 8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
