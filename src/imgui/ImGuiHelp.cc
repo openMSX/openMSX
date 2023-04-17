@@ -1,24 +1,23 @@
 #include "ImGuiHelp.hh"
 
+#include "ImGuiCpp.hh"
+
 #include <imgui.h>
 
 namespace openmsx {
 
 void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!ImGui::BeginMenu("Help")) {
-		return;
-	}
-	ImGui::MenuItem("User manual", nullptr, &showHelpWindow);
-	ImGui::MenuItem("About TODO");
-	ImGui::EndMenu();
+	im::Menu("Help", [&]{
+		ImGui::MenuItem("User manual", nullptr, &showHelpWindow);
+		ImGui::MenuItem("About TODO");
+	});
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!showHelpWindow) return;
-	if (ImGui::Begin("Help", &showHelpWindow)) {
-
+	im::Window("Help", &showHelpWindow, [&]{
 		static const char* const TEST = R"(
 # User manual
 
@@ -64,8 +63,7 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
       * Item with bold [**link2**](#link1)
 )";
 		markdown.print(TEST);
-	}
-	ImGui::End();
+	});
 }
 
 } // namespace openmsx

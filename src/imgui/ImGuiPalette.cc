@@ -1,5 +1,7 @@
 #include "ImGuiPalette.hh"
 
+#include "ImGuiCpp.hh"
+
 #include "VDP.hh"
 
 #include "StringOp.hh"
@@ -78,11 +80,13 @@ uint32_t ImGuiPalette::toRGBA(uint16_t msxColor)
 
 static bool coloredButton(const char* id, ImU32 color, ImVec2 size)
 {
-	ImGui::PushStyleColor(ImGuiCol_Button, color);
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color);
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive, color);
-	bool result = ImGui::Button(id, size);
-	ImGui::PopStyleColor(3);
+	bool result = false;
+	auto col = ImGui::ColorConvertU32ToFloat4(color);
+	im::StyleColor(ImGuiCol_Button,        col,
+	               ImGuiCol_ButtonHovered, col,
+	               ImGuiCol_ButtonActive,  col, [&]{
+		result = ImGui::Button(id, size);
+	});
 	return result;
 }
 
@@ -100,91 +104,84 @@ std::span<const uint16_t, 16> ImGuiPalette::getPalette(VDP* vdp) const
 void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
-	if (!ImGui::Begin("Palette editor", &show)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("Palette editor", &show, [&]{
+		VDP* vdp = motherBoard ? dynamic_cast<VDP*>(motherBoard->findDevice("VDP")) : nullptr; // TODO name based OK?
 
-	VDP* vdp = motherBoard ? dynamic_cast<VDP*>(motherBoard->findDevice("VDP")) : nullptr; // TODO name based OK?
-
-	ImGui::BeginDisabled(vdp == nullptr);
-	ImGui::RadioButton("VDP palette", &whichPalette, PALETTE_VDP);
-	ImGui::EndDisabled();
-	ImGui::SameLine();
-	ImGui::RadioButton("Custom palette", &whichPalette, PALETTE_CUSTOM);
-	ImGui::SameLine();
-	ImGui::RadioButton("Fixed palette", &whichPalette, PALETTE_FIXED);
-
-	std::array<uint16_t, 16> paletteCopy;
-	std::span<uint16_t, 16> palette = customPalette;
-	bool disabled = (whichPalette == PALETTE_FIXED) ||
-			((whichPalette == PALETTE_VDP) && !vdp);
-	if (disabled) {
-		palette = std::span<uint16_t, 16>{const_cast<uint16_t*>(fixedPalette.data()), 16};
-	} else if (whichPalette == PALETTE_VDP) {
-		ranges::copy(vdp->getPalette(), paletteCopy);
-		palette = paletteCopy;
-	}
-
-	if (ImGui::BeginTable("left/right", 2)) {
-		ImGui::TableSetupColumn("left",  ImGuiTableColumnFlags_WidthFixed, 200.0f);
-		ImGui::TableSetupColumn("right", ImGuiTableColumnFlags_WidthFixed, 150.0f);
-
-		ImGui::TableNextColumn(); // left pane
-		if (ImGui::BeginTable("grid", 4)) {
-			for (auto i : xrange(16)) {
-				if (ImGui::TableNextColumn()) {
-					ImGui::PushID(i);
-					if (i == selectedColor) {
-						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
-					}
-					auto color = toRGBA(palette[i]);
-					if (coloredButton("", color, {44.0f, 30.0f})) {
-						selectedColor = i;
-					}
-					ImGui::PopID();
-				}
-			}
-			ImGui::EndTable();
-		}
-
-		ImGui::TableNextColumn(); // right pane
-		ImGui::Text("Color %d", selectedColor);
-		ImGui::TextUnformatted(" ");
+		im::Disabled(vdp == nullptr, [&]{
+			ImGui::RadioButton("VDP palette", &whichPalette, PALETTE_VDP);
+		});
 		ImGui::SameLine();
-		coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
-		ImGui::Spacing();
-		ImGui::Spacing();
+		ImGui::RadioButton("Custom palette", &whichPalette, PALETTE_CUSTOM);
+		ImGui::SameLine();
+		ImGui::RadioButton("Fixed palette", &whichPalette, PALETTE_FIXED);
 
-		ImGui::BeginDisabled(disabled);
-		static constexpr std::array names = {"R", "G", "B"};
-		auto rgb = extractRGB(palette[selectedColor]);
-		for (auto i : xrange(3)) { // rgb sliders
-			ImGui::PushID(i);
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(names[i]);
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.5f, 0.5f)));
-			ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.6f, 0.5f)));
-			ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.7f, 0.5f)));
-			ImGui::PushStyleColor(ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.9f, 0.9f)));
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			if (ImGui::SliderInt("##v", &rgb[i], 0, 7, "%d", ImGuiSliderFlags_AlwaysClamp)) {
-				assert(!disabled);
-				insertRGB(palette, selectedColor, rgb);
-				if (whichPalette == PALETTE_VDP) {
-					auto time = motherBoard->getCurrentTime();
-					vdp->setPalette(selectedColor, palette[selectedColor], time);
-				}
-			}
-			ImGui::PopStyleColor(4);
-			ImGui::PopID();
+		std::array<uint16_t, 16> paletteCopy;
+		std::span<uint16_t, 16> palette = customPalette;
+		bool disabled = (whichPalette == PALETTE_FIXED) ||
+				((whichPalette == PALETTE_VDP) && !vdp);
+		if (disabled) {
+			palette = std::span<uint16_t, 16>{const_cast<uint16_t*>(fixedPalette.data()), 16};
+		} else if (whichPalette == PALETTE_VDP) {
+			ranges::copy(vdp->getPalette(), paletteCopy);
+			palette = paletteCopy;
 		}
-		ImGui::EndDisabled();
 
-		ImGui::EndTable();
-	}
-	ImGui::End();
+		im::Table("left/right", 2, [&]{
+			ImGui::TableSetupColumn("left",  ImGuiTableColumnFlags_WidthFixed, 200.0f);
+			ImGui::TableSetupColumn("right", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+
+			ImGui::TableNextColumn(); // left pane
+			im::Table("grid", 4, [&]{
+				for (auto i : xrange(16)) {
+					if (ImGui::TableNextColumn()) {
+						im::ID(i, [&]{
+							if (i == selectedColor) {
+								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
+							}
+							auto color = toRGBA(palette[i]);
+							if (coloredButton("", color, {44.0f, 30.0f})) {
+								selectedColor = i;
+							}
+						});
+					}
+				}
+			});
+
+			ImGui::TableNextColumn(); // right pane
+			ImGui::Text("Color %d", selectedColor);
+			ImGui::TextUnformatted(" ");
+			ImGui::SameLine();
+			coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
+			ImGui::Spacing();
+			ImGui::Spacing();
+
+			im::Disabled(disabled, [&]{
+				static constexpr std::array names = {"R", "G", "B"};
+				auto rgb = extractRGB(palette[selectedColor]);
+				for (auto i : xrange(3)) { // rgb sliders
+					im::ID(i, [&]{
+						ImGui::AlignTextToFramePadding();
+						ImGui::TextUnformatted(names[i]);
+						ImGui::SameLine();
+						im::StyleColor(ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.5f, 0.5f)),
+						               ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.6f, 0.5f)),
+						               ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.7f, 0.5f)),
+						               ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.9f, 0.9f)), [&]{
+							ImGui::SetNextItemWidth(-FLT_MIN);
+							if (ImGui::SliderInt("##v", &rgb[i], 0, 7, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+								assert(!disabled);
+								insertRGB(palette, selectedColor, rgb);
+								if (whichPalette == PALETTE_VDP) {
+									auto time = motherBoard->getCurrentTime();
+									vdp->setPalette(selectedColor, palette[selectedColor], time);
+								}
+							}
+						});
+					});
+				}
+			});
+		});
+	});
 }
 
 } // namespace openmsx

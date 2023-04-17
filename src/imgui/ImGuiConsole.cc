@@ -1,5 +1,6 @@
 #include "ImGuiConsole.hh"
 
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 
 #include "BooleanSetting.hh"
@@ -111,14 +112,13 @@ static void drawLine(const ConsoleLine& line)
 {
 	auto n = line.numChunks();
 	for (auto i : xrange(n)) {
-		auto rgba = line.chunkColor(i);
-		ImGui::PushStyleColor(ImGuiCol_Text, rgba);
-		auto text = line.chunkText(i);
-		const char* begin = text.data();
-		const char* end = begin + text.size();
-		ImGui::TextUnformatted(begin, end);
-		if (i != (n - 1)) ImGui::SameLine(0.0f, 0.0f);
-		ImGui::PopStyleColor();
+		im::StyleColor(ImGuiCol_Text, line.chunkColor(i), [&]{
+			auto text = line.chunkText(i);
+			const char* begin = text.data();
+			const char* end = begin + text.size();
+			ImGui::TextUnformatted(begin, end);
+			if (i != (n - 1)) ImGui::SameLine(0.0f, 0.0f);
+		});
 	}
 }
 
@@ -129,151 +129,144 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 	if (!show) return;
 
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-	if (!ImGui::Begin("Console", &show)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("Console", &show, [&]{
+		// Reserve enough left-over height for 1 separator + 1 input text
+		auto& style = ImGui::GetStyle();
+		const float footerHeightToReserve = style.ItemSpacing.y +
+						ImGui::GetFrameHeightWithSpacing();
+		im::Child("ScrollingRegion",
+		          ImVec2(0, -footerHeightToReserve), false,
+		          ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::PopupContextWindow([&]{
+				if (ImGui::Selectable("Clear")) {
+					lines.clear();
+				}
+				ImGui::Checkbox("Wrap (new) output", &wrap);
+			});
 
-	// Reserve enough left-over height for 1 separator + 1 input text
-	auto& style = ImGui::GetStyle();
-	const float footerHeightToReserve = style.ItemSpacing.y +
-	                                    ImGui::GetFrameHeightWithSpacing();
-	if (ImGui::BeginChild("ScrollingRegion",
-	                      ImVec2(0, -footerHeightToReserve), false,
-	                      ImGuiWindowFlags_HorizontalScrollbar)) {
-		if (ImGui::BeginPopupContextWindow()) {
-			if (ImGui::Selectable("Clear")) {
-				lines.clear();
-			}
-			ImGui::Checkbox("Wrap (new) output", &wrap);
-			ImGui::EndPopup();
-		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
-		ImGuiListClipper clipper; // only draw the actually visible lines
-		clipper.Begin(narrow<int>(lines.size()));
-		while (clipper.Step()) {
-			for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
-				drawLine(lines[i]);
-			}
-		}
-		ImGui::PopStyleVar();
-
-		// Keep up at the bottom of the scroll region if we were already
-		// at the bottom at the beginning of the frame.
-		if (scrollToBottom || (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
-			scrollToBottom = false;
-			ImGui::SetScrollHereY(1.0f);
-		}
-
-		// recalculate the number of columns
-		auto width = ImGui::GetContentRegionMax().x;
-		auto charWidth = ImGui::CalcTextSize("M").x;
-		columns = narrow_cast<unsigned>(width / charWidth);
-	}
-	ImGui::EndChild();
-	ImGui::Separator();
-
-	// Command-line
-	ImGui::AlignTextToFramePadding();
-	ImGui::TextUnformatted(prompt.c_str());
-	ImGui::SameLine(0.0f, 0.0f);
-
-	ImGui::SetNextItemWidth(-FLT_MIN); // full window width
-	/**/ // Hack: see below
-	/**/ auto cursorScrnPos = ImGui::GetCursorScreenPos();
-	/**/ auto itemWidth = ImGui::CalcItemWidth();
-
-	ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue |
-	                            ImGuiInputTextFlags_EscapeClearsAll |
-	                            ImGuiInputTextFlags_CallbackEdit |
-	                            ImGuiInputTextFlags_CallbackCompletion |
-	                            ImGuiInputTextFlags_CallbackHistory;
-	if (ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this) &&
-	    (prompt != PROMPT_BUSY)) {
-		// print command in output buffer, with prompt prepended
-		ConsoleLine cmdLine(prompt);
-		cmdLine.addLine(coloredInputBuf);
-		newLineConsole(std::move(cmdLine));
-
-		// append (partial) command to a possibly multi-line command
-		strAppend(commandBuffer, inputBuf, '\n');
-
-		putHistory(std::move(inputBuf));
-		saveHistory(); // save at this point already, so that we don't lose history in case of a crash
-		inputBuf.clear();
-		coloredInputBuf.clear();
-		historyPos = -1;
-		historyBackupLine.clear();
-
-		auto& commandController = manager.getReactor().getGlobalCommandController();
-		if (commandController.isComplete(commandBuffer)) {
-			// Normally the busy prompt is NOT shown (not even briefly
-			// because the screen is not redrawn), though for some commands
-			// that potentially take a long time to execute, we explicitly
-			// do redraw.
-			prompt = PROMPT_BUSY;
-
-			manager.executeDelayed(TclObject(commandBuffer),
-				[this](const TclObject& result) {
-					if (const auto& s = result.getString(); !s.empty()) {
-						this->print(s);
+			im::StyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1), [&]{ // Tighten spacing
+				ImGuiListClipper clipper; // only draw the actually visible lines
+				clipper.Begin(narrow<int>(lines.size()));
+				while (clipper.Step()) {
+					for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
+						drawLine(lines[i]);
 					}
-					prompt = PROMPT_NEW;
-				},
-				[this](const std::string& error) {
-					this->print(error, 0xff0000ff);
-					prompt = PROMPT_NEW;
-				});
-			commandBuffer.clear();
-		} else {
-			prompt = PROMPT_CONT;
+				}
+			});
+
+			// Keep up at the bottom of the scroll region if we were already
+			// at the bottom at the beginning of the frame.
+			if (scrollToBottom || (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
+				scrollToBottom = false;
+				ImGui::SetScrollHereY(1.0f);
+			}
+
+			// recalculate the number of columns
+			auto width = ImGui::GetContentRegionMax().x;
+			auto charWidth = ImGui::CalcTextSize("M").x;
+			columns = narrow_cast<unsigned>(width / charWidth);
+		});
+		ImGui::Separator();
+
+		// Command-line
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(prompt.c_str());
+		ImGui::SameLine(0.0f, 0.0f);
+
+		ImGui::SetNextItemWidth(-FLT_MIN); // full window width
+		/**/ // Hack: see below
+		/**/ auto cursorScrnPos = ImGui::GetCursorScreenPos();
+		/**/ auto itemWidth = ImGui::CalcItemWidth();
+
+		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue |
+					ImGuiInputTextFlags_EscapeClearsAll |
+					ImGuiInputTextFlags_CallbackEdit |
+					ImGuiInputTextFlags_CallbackCompletion |
+					ImGuiInputTextFlags_CallbackHistory;
+		if (ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this) &&
+		(prompt != PROMPT_BUSY)) {
+			// print command in output buffer, with prompt prepended
+			ConsoleLine cmdLine(prompt);
+			cmdLine.addLine(coloredInputBuf);
+			newLineConsole(std::move(cmdLine));
+
+			// append (partial) command to a possibly multi-line command
+			strAppend(commandBuffer, inputBuf, '\n');
+
+			putHistory(std::move(inputBuf));
+			saveHistory(); // save at this point already, so that we don't lose history in case of a crash
+			inputBuf.clear();
+			coloredInputBuf.clear();
+			historyPos = -1;
+			historyBackupLine.clear();
+
+			auto& commandController = manager.getReactor().getGlobalCommandController();
+			if (commandController.isComplete(commandBuffer)) {
+				// Normally the busy prompt is NOT shown (not even briefly
+				// because the screen is not redrawn), though for some commands
+				// that potentially take a long time to execute, we explicitly
+				// do redraw.
+				prompt = PROMPT_BUSY;
+
+				manager.executeDelayed(TclObject(commandBuffer),
+					[this](const TclObject& result) {
+						if (const auto& s = result.getString(); !s.empty()) {
+							this->print(s);
+						}
+						prompt = PROMPT_NEW;
+					},
+					[this](const std::string& error) {
+						this->print(error, 0xff0000ff);
+						prompt = PROMPT_NEW;
+					});
+				commandBuffer.clear();
+			} else {
+				prompt = PROMPT_CONT;
+			}
+			reclaimFocus = true;
 		}
-		reclaimFocus = true;
-	}
-	ImGui::SetItemDefaultFocus();
+		ImGui::SetItemDefaultFocus();
 
-	if (reclaimFocus ||
-	    (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows) &&
-	     !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId) &&
-	     !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0) && !ImGui::IsMouseClicked(1))) {
-		ImGui::SetKeyboardFocusHere(-1); // focus the InputText widget
-	}
+		if (reclaimFocus ||
+		(ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows) &&
+		!ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId) &&
+		!ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0) && !ImGui::IsMouseClicked(1))) {
+			ImGui::SetKeyboardFocusHere(-1); // focus the InputText widget
+		}
 
-	/**/ // Hack: currently ImGui::InputText() does not support colored text.
-	/**/ // Though there are plans to extend this. See:
-	/**/ //     https://github.com/ocornut/imgui/pull/3130
-	/**/ //     https://github.com/ocornut/imgui/issues/902
-	/**/ // To work around this limitation, we use ImGui::InputText() as-is,
-	/**/ // but then overdraw the text using the correct colors. This works,
-	/**/ // but it's fragile because it depends on some internal implementation
-	/**/ // details. More specifically: the scroll-position. And obtaining this
-	/**/ // information required stuff from <imgui_internal.h>.
-	/**/ auto* font = ImGui::GetFont();
-	/**/ auto fontSize = ImGui::GetFontSize();
-	/**/ gl::vec2 frameSize(itemWidth, fontSize + style.FramePadding.y * 2.0f);
-	/**/ gl::vec2 topLeft = cursorScrnPos;
-	/**/ gl::vec2 bottomRight = topLeft + frameSize;
-	/**/ gl::vec2 drawPos = topLeft + gl::vec2(style.FramePadding);
-	/**/ if (ImGui::IsItemActive()) {
-	/**/	auto id = ImGui::GetID("##Input");
-	/**/	if (auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
-	/**/		drawPos[0] -= state->ScrollX;
-	/**/	}
-	/**/ }
-	/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
-	/**/ auto* drawList = ImGui::GetWindowDrawList();
-	/**/ for (auto i : xrange(coloredInputBuf.numChunks())) {
-	/**/ 	auto text = coloredInputBuf.chunkText(i);
-	/**/ 	auto rgba = coloredInputBuf.chunkColor(i);
-	/**/ 	const char* begin = text.data();
-	/**/ 	const char* end = begin + text.size();
-	/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
-	/**/ 	gl::vec2 chunkSize = ImGui::CalcTextSize(begin, end);
-	/**/ 	drawPos[0] += chunkSize[0];
-	/**/ }
-
-	ImGui::End();
+		/**/ // Hack: currently ImGui::InputText() does not support colored text.
+		/**/ // Though there are plans to extend this. See:
+		/**/ //     https://github.com/ocornut/imgui/pull/3130
+		/**/ //     https://github.com/ocornut/imgui/issues/902
+		/**/ // To work around this limitation, we use ImGui::InputText() as-is,
+		/**/ // but then overdraw the text using the correct colors. This works,
+		/**/ // but it's fragile because it depends on some internal implementation
+		/**/ // details. More specifically: the scroll-position. And obtaining this
+		/**/ // information required stuff from <imgui_internal.h>.
+		/**/ auto* font = ImGui::GetFont();
+		/**/ auto fontSize = ImGui::GetFontSize();
+		/**/ gl::vec2 frameSize(itemWidth, fontSize + style.FramePadding.y * 2.0f);
+		/**/ gl::vec2 topLeft = cursorScrnPos;
+		/**/ gl::vec2 bottomRight = topLeft + frameSize;
+		/**/ gl::vec2 drawPos = topLeft + gl::vec2(style.FramePadding);
+		/**/ if (ImGui::IsItemActive()) {
+		/**/	auto id = ImGui::GetID("##Input");
+		/**/	if (auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
+		/**/		drawPos[0] -= state->ScrollX;
+		/**/	}
+		/**/ }
+		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
+		/**/ auto* drawList = ImGui::GetWindowDrawList();
+		/**/ for (auto i : xrange(coloredInputBuf.numChunks())) {
+		/**/ 	auto text = coloredInputBuf.chunkText(i);
+		/**/ 	auto rgba = coloredInputBuf.chunkColor(i);
+		/**/ 	const char* begin = text.data();
+		/**/ 	const char* end = begin + text.size();
+		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
+		/**/ 	gl::vec2 chunkSize = ImGui::CalcTextSize(begin, end);
+		/**/ 	drawPos[0] += chunkSize[0];
+		/**/ }
+	});
 }
 
 int ImGuiConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)

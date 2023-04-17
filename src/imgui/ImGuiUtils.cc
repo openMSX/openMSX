@@ -1,5 +1,7 @@
 #include "ImGuiUtils.hh"
 
+#include "ImGuiCpp.hh"
+
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
@@ -16,11 +18,11 @@ namespace openmsx {
 void simpleToolTip(const char* desc)
 {
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
-		ImGui::BeginTooltip();
-		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-		ImGui::TextUnformatted(desc);
-		ImGui::PopTextWrapPos();
-		ImGui::EndTooltip();
+		im::Tooltip([&]{
+			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+				ImGui::TextUnformatted(desc);
+			});
+		});
 	}
 }
 
@@ -35,7 +37,7 @@ void HelpMarker(const char* desc)
 static void settingStuff(Setting& setting)
 {
 	simpleToolTip(setting.getDescription());
-	if (ImGui::BeginPopupContextItem()) {
+	im::PopupContextItem([&]{
 		auto defaultValue = setting.getDefaultValue();
 		auto defaultString = defaultValue.getString();
 		ImGui::Text("Default value: %s", defaultString.c_str());
@@ -47,8 +49,7 @@ static void settingStuff(Setting& setting)
 			setting.setValue(defaultValue);
 			ImGui::CloseCurrentPopup();
 		}
-		ImGui::EndPopup();
-	}
+	});
 }
 
 bool Checkbox(BooleanSetting& setting)
@@ -121,7 +122,7 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
 	assert(enumSetting);
 	auto current = setting.getValue().getString();
-	if (ImGui::BeginCombo(label, current.c_str())) {
+	im::Combo(label, current.c_str(), [&]{
 		for (const auto& entry : enumSetting->getMap()) {
 			bool selected = entry.name == current;
 			if (ImGui::Selectable(entry.name.c_str(), selected)) {
@@ -132,8 +133,7 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 				simpleToolTip(it->tip);
 			}
 		}
-		ImGui::EndCombo();
-	}
+	});
 	settingStuff(setting);
 }
 
@@ -141,15 +141,14 @@ void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
 {
 	std::string name(setting.getBaseName());
 	auto current = setting.getValue().getString();
-	if (ImGui::BeginCombo(name.c_str(), current.c_str())) {
+	im::Combo(name.c_str(), current.c_str(), [&]{
 		for (const auto& value : setting.getPossibleValues()) {
 			bool selected = value == current;
 			if (ImGui::Selectable(std::string(value).c_str(), selected)) {
 				setting.setValue(TclObject(value));
 			}
 		}
-		ImGui::EndCombo();
-	}
+	});
 	settingStuff(setting);
 }
 

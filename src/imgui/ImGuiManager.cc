@@ -1,5 +1,6 @@
 #include "ImGuiManager.hh"
 
+#include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
 
 #include "CommandException.hh"
@@ -199,14 +200,13 @@ void ImGuiManager::paint()
 		auto period = active ? 0.5f : 5.0f;
 		return calculateFade(menuAlpha, target, period);
 	}();
-	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, menuAlpha);
-	if (ImGui::BeginMainMenuBar()) {
-		for (auto* part : parts) {
-			part->showMenu(motherBoard);
-		}
-		ImGui::EndMainMenuBar();
-	}
-	ImGui::PopStyleVar();
+	im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
+		im::MainMenuBar([&]{
+			for (auto* part : parts) {
+				part->showMenu(motherBoard);
+			}
+		});
+	});
 }
 
 void ImGuiManager::iniReadInit()

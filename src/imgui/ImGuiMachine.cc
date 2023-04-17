@@ -1,5 +1,6 @@
 #include "ImGuiMachine.hh"
 
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -14,25 +15,22 @@ namespace openmsx {
 
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
-	if (!ImGui::BeginMenu("Machine")) {
-		return;
-	}
-	bool hasMachine = motherBoard != nullptr;
+	im::Menu("Machine", [&]{
+		bool hasMachine = motherBoard != nullptr;
 
-	ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
-	ImGui::MenuItem("Select extensions TODO", nullptr, nullptr, hasMachine);
+		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+		ImGui::MenuItem("Select extensions TODO", nullptr, nullptr, hasMachine);
 
-	auto& pauseSetting = manager.getReactor().getGlobalSettings().getPauseSetting();
-	bool pause = pauseSetting.getBoolean();
-	if (ImGui::MenuItem("Pause", "PAUSE", &pause)) {
-		pauseSetting.setBoolean(pause);
-	}
+		auto& pauseSetting = manager.getReactor().getGlobalSettings().getPauseSetting();
+		bool pause = pauseSetting.getBoolean();
+		if (ImGui::MenuItem("Pause", "PAUSE", &pause)) {
+			pauseSetting.setBoolean(pause);
+		}
 
-	if (ImGui::MenuItem("Reset", nullptr, nullptr, hasMachine)) {
-		manager.executeDelayed(TclObject("reset"));
-	}
-
-	ImGui::EndMenu();
+		if (ImGui::MenuItem("Reset", nullptr, nullptr, hasMachine)) {
+			manager.executeDelayed(TclObject("reset"));
+		}
+	});
 }
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
@@ -44,143 +42,131 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
-	if (!ImGui::Begin("Select MSX machine", &showSelectMachine)) {
-		ImGui::End();
-		return;
-	}
-
-	auto& reactor = manager.getReactor();
-	auto instances = reactor.getMachineIDs();
-	auto currentInstance = reactor.getMachineID();
-	if (instances.size() > 1 || currentInstance.empty()) {
-		ImGui::TextUnformatted("Instances:");
-		ImGui::Indent();
-		float height = (std::min(4.0f, float(instances.size())) + 0.25f) * ImGui::GetTextLineHeightWithSpacing();
-		if (ImGui::BeginListBox("##empty", {-FLT_MIN, height})) {
-			int i = 0;
-			for (const auto& name : instances) {
-				ImGui::PushID(++i);
-				bool isCurrent = name == currentInstance;
-				auto board = reactor.getMachine(name);
-				std::string display = [&]{
-					if (board) {
-						auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
-						return strCat(board->getMachineName(), " (", formatTime(time), ')');
-					} else {
-						return std::string(name);
+	im::Window("Select MSX machine", &showSelectMachine, [&]{
+		auto& reactor = manager.getReactor();
+		auto instances = reactor.getMachineIDs();
+		auto currentInstance = reactor.getMachineID();
+		if (instances.size() > 1 || currentInstance.empty()) {
+			ImGui::TextUnformatted("Instances:");
+			im::Indent([&]{
+				float height = (std::min(4.0f, float(instances.size())) + 0.25f) * ImGui::GetTextLineHeightWithSpacing();
+				im::ListBox("##empty", {-FLT_MIN, height}, [&]{
+					int i = 0;
+					for (const auto& name : instances) {
+						im::ID(++i, [&]{
+							bool isCurrent = name == currentInstance;
+							auto board = reactor.getMachine(name);
+							std::string display = [&]{
+								if (board) {
+									auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
+									return strCat(board->getMachineName(), " (", formatTime(time), ')');
+								} else {
+									return std::string(name);
+								}
+							}();
+							if (ImGui::Selectable(display.c_str(), isCurrent)) {
+								// TODO error handling?
+								manager.executeDelayed(makeTclList("activate_machine", name));
+							}
+							im::PopupContextItem("instance context menu", [&]{
+								if (ImGui::Selectable("Delete instance")) {
+									manager.executeDelayed(makeTclList("delete_machine", name));
+								}
+							});
+						});
 					}
-				}();
-				if (ImGui::Selectable(display.c_str(), isCurrent)) {
-					// TODO error handling?
-					manager.executeDelayed(makeTclList("activate_machine", name));
-				}
-				if (ImGui::BeginPopupContextItem("instance context menu")) {
-					if (ImGui::Selectable("Delete instance")) {
-						manager.executeDelayed(makeTclList("delete_machine", name));
-					}
-					ImGui::EndPopup();
-				}
-				ImGui::PopID();
-			}
-			ImGui::EndListBox();
-		}
-		ImGui::Unindent();
-		ImGui::Separator();
-	}
-
-	if (motherBoard) {
-		std::string machineName(motherBoard->getMachineName());
-		std::string display = strCat("Current machine: ", machineName);
-		if (ImGui::TreeNode(display.c_str())) {
-			printConfigInfo(machineName);
-			ImGui::TreePop();
-		}
-		if (newMachineConfig.empty()) newMachineConfig = machineName;
-		auto& defaultMachine = reactor.getMachineSetting();
-		if (defaultMachine.getString() != machineName) {
-			if (ImGui::Button("Make this the default machine")) {
-				defaultMachine.setValue(TclObject(machineName));
-			}
-			simpleToolTip("Use this as the default MSX machine when openMSX starts.");
-		}
-		ImGui::Separator();
-	}
-
-	ImGui::TextUnformatted("Select machine:");
-	ImGui::Indent();
-	if (ImGui::TreeNode("filter")) {
-		auto combo = [&](std::string& selection, zstring_view key) {
-			if (ImGui::BeginCombo(key.c_str(), selection.empty() ? "--all--" : selection.c_str())) {
-				if (ImGui::Selectable("--all--")) {
-					selection.clear();
-				}
-				for (const auto& type : getAllValuesFor(TclObject(key))) {
-					if (ImGui::Selectable(type.c_str())) {
-						selection = type;
-					}
-				}
-				ImGui::EndCombo();
-			}
-		};
-		combo(filterType, "type");
-		combo(filterRegion, "region");
-		ImGui::TreePop();
-	}
-	if (ImGui::BeginCombo("##combo", newMachineConfig.c_str())) {
-		auto allConfigs = getAllConfigs();
-		auto filter = [&](std::string_view key, const std::string& value) {
-			if (value.empty()) return;
-			TclObject keyObj(key);
-			std::erase_if(allConfigs, [&](const std::string& config) {
-				const auto& info = getConfigInfo(config);
-				auto val = info.getOptionalDictValue(keyObj);
-				if (!val) return true; // remove items that don't have the key
-				return *val != value;
+				});
 			});
-		};
-		filter("type", filterType);
-		filter("region", filterRegion);
-		ImGuiListClipper clipper; // only draw the actually visible rows
-		clipper.Begin(allConfigs.size());
-		while (clipper.Step()) {
-			for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-				const auto& config = allConfigs[i];
-				bool ok = getTestResult(config).empty();
-				if (!ok) ImGui::PushStyleColor(ImGuiCol_Text, 0xFF0000FF);
-				if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
-					newMachineConfig = config;
+			ImGui::Separator();
+		}
+
+		if (motherBoard) {
+			std::string machineName(motherBoard->getMachineName());
+			std::string display = strCat("Current machine: ", machineName);
+			im::TreeNode(display.c_str(), [&]{
+				printConfigInfo(machineName);
+			});
+			if (newMachineConfig.empty()) newMachineConfig = machineName;
+			auto& defaultMachine = reactor.getMachineSetting();
+			if (defaultMachine.getString() != machineName) {
+				if (ImGui::Button("Make this the default machine")) {
+					defaultMachine.setValue(TclObject(machineName));
 				}
-				if (!ok) ImGui::PopStyleColor();
+				simpleToolTip("Use this as the default MSX machine when openMSX starts.");
 			}
+			ImGui::Separator();
 		}
-		ImGui::EndCombo();
-	}
-	if (!newMachineConfig.empty()) {
-		bool ok = printConfigInfo(newMachineConfig);
 
-		ImGui::BeginDisabled(!ok);
-		if (ImGui::Button("Replace current machine instance")) {
-			// TODO error handling
-			manager.executeDelayed(makeTclList("machine", newMachineConfig));
-		}
-		if (ImGui::Button("Create new machine instance")) {
-			// TODO improve error handling
-			std::string script = strCat(
-				"set id [create_machine]\n"
-				"set err [catch {${id}::load_machine ", newMachineConfig, "} error_result]\n"
-				"if {$err} {\n"
-				"    delete_machine $id\n"
-				"    message \"Error activating new machine: $error_result\" error\n"
-				"} else {\n"
-				"    activate_machine $id\n"
-				"}\n");
-			manager.executeDelayed(TclObject(script));
-		}
-		ImGui::EndDisabled();
-	}
-	ImGui::Unindent();
-
-	ImGui::End();
+		ImGui::TextUnformatted("Select machine:");
+		im::Indent([&]{
+			im::TreeNode("filter", [&]{
+				auto combo = [&](std::string& selection, zstring_view key) {
+					im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
+						if (ImGui::Selectable("--all--")) {
+							selection.clear();
+						}
+						for (const auto& type : getAllValuesFor(TclObject(key))) {
+							if (ImGui::Selectable(type.c_str())) {
+								selection = type;
+							}
+						}
+					});
+				};
+				combo(filterType, "type");
+				combo(filterRegion, "region");
+			});
+			im::Combo("##combo", newMachineConfig.c_str(), [&]{
+				auto allConfigs = getAllConfigs();
+				auto filter = [&](std::string_view key, const std::string& value) {
+					if (value.empty()) return;
+					TclObject keyObj(key);
+					std::erase_if(allConfigs, [&](const std::string& config) {
+						const auto& info = getConfigInfo(config);
+						auto val = info.getOptionalDictValue(keyObj);
+						if (!val) return true; // remove items that don't have the key
+						return *val != value;
+					});
+				};
+				filter("type", filterType);
+				filter("region", filterRegion);
+				ImGuiListClipper clipper; // only draw the actually visible rows
+				clipper.Begin(allConfigs.size());
+				while (clipper.Step()) {
+					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+						const auto& config = allConfigs[i];
+						bool ok = getTestResult(config).empty();
+						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
+							if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
+								newMachineConfig = config;
+							}
+						});
+					}
+				}
+			});
+			if (!newMachineConfig.empty()) {
+				bool ok = printConfigInfo(newMachineConfig);
+				im::Disabled(!ok, [&]{
+					if (ImGui::Button("Replace current machine instance")) {
+						// TODO error handling
+						manager.executeDelayed(makeTclList("machine", newMachineConfig));
+					}
+					if (ImGui::Button("Create new machine instance")) {
+						// TODO improve error handling
+						std::string script = strCat(
+							"set id [create_machine]\n"
+							"set err [catch {${id}::load_machine ", newMachineConfig, "} error_result]\n"
+							"if {$err} {\n"
+							"    delete_machine $id\n"
+							"    message \"Error activating new machine: $error_result\" error\n"
+							"} else {\n"
+							"    activate_machine $id\n"
+							"}\n");
+						manager.executeDelayed(TclObject(script));
+					}
+				});
+			}
+		});
+	});
 }
 
 const std::vector<std::string>& ImGuiMachine::getAllConfigs()
@@ -244,9 +230,9 @@ bool ImGuiMachine::printConfigInfo(const std::string& config)
 			ImGui::TextWrapped("%s: %s", key.c_str(), value.c_str());
 		}
 	} else {
-		ImGui::PushStyleColor(ImGuiCol_Text, 0xFF0000FF);
-		ImGui::TextWrapped("%s", test.c_str());
-		ImGui::PopStyleColor();
+		im::StyleColor(ImGuiCol_Text, 0xFF0000FF, [&]{
+			ImGui::TextWrapped("%s", test.c_str());
+		});
 	}
 	return ok;
 }

@@ -1,14 +1,17 @@
 #include "ImGuiMarkdown.hh"
+
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+
 #include <SDL.h>
 
 namespace openmsx {
 
 void ImGuiMarkdown::print(std::string_view str)
 {
-	ImGui::PushFont(manager.vera13);
-	imgui_md::print(str.begin(), str.end());
-	ImGui::PopFont();
+	im::Font(manager.vera13, [&]{ // initial font
+		imgui_md::print(str.begin(), str.end()); // this can still change font
+	});
 }
 
 ImFont* ImGuiMarkdown::get_font() const

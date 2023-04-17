@@ -1,6 +1,7 @@
 #include "ImGuiDebugger.hh"
 
 #include "ImGuiBitmapViewer.hh"
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -151,36 +152,31 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
-	if (!ImGui::BeginMenu("Debugger", motherBoard != nullptr)) {
-		return;
-	}
-	assert(motherBoard);
-
-	ImGui::MenuItem("Tool bar", nullptr, &showControl);
-	ImGui::MenuItem("Disassembly", nullptr, &showDisassembly);
-	ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
-	ImGui::MenuItem("CPU flags", nullptr, &showFlags);
-	ImGui::MenuItem("Slots", nullptr, &showSlots);
-	ImGui::MenuItem("Stack", nullptr, &showStack);
-	if (auto* editor = lookup(debuggables, "memory")) {
-		ImGui::MenuItem("Memory", nullptr, &(*editor)->Open);
-	}
-	ImGui::Separator();
-	ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
-	ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);
-	ImGui::MenuItem("Palette editor", nullptr, &manager.palette.show);
-	ImGui::MenuItem("TODO several more");
-	ImGui::Separator();
-	if (ImGui::BeginMenu("All debuggables")) {
-		auto& debugger = motherBoard->getDebugger();
-		for (auto& [name, editor] : debuggables) {
-			if (debugger.findDebuggable(name)) {
-				ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
-			}
+	im::Menu("Debugger", motherBoard != nullptr, [&]{
+		ImGui::MenuItem("Tool bar", nullptr, &showControl);
+		ImGui::MenuItem("Disassembly", nullptr, &showDisassembly);
+		ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
+		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
+		ImGui::MenuItem("Slots", nullptr, &showSlots);
+		ImGui::MenuItem("Stack", nullptr, &showStack);
+		if (auto* editor = lookup(debuggables, "memory")) {
+			ImGui::MenuItem("Memory", nullptr, &(*editor)->Open);
 		}
-		ImGui::EndMenu();
-	}
-	ImGui::EndMenu();
+		ImGui::Separator();
+		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
+		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);
+		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.show);
+		ImGui::MenuItem("TODO several more");
+		ImGui::Separator();
+		im::Menu("All debuggables", [&]{
+			auto& debugger = motherBoard->getDebugger();
+			for (auto& [name, editor] : debuggables) {
+				if (debugger.findDebuggable(name)) {
+					ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+				}
+			}
+		});
+	});
 }
 
 void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
@@ -215,58 +211,51 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 {
 	if (!showControl) return;
-	if (!ImGui::Begin("Debugger tool bar", &showControl)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("Debugger tool bar", &showControl, [&]{
+		auto ButtonGlyph = [](const char* id, ImWchar c) {
+			const auto* font = ImGui::GetFont();
+			auto texId = font->ContainerAtlas->TexID;
+			const auto* g = font->FindGlyph(c);
+			bool result = ImGui::ImageButton(id, texId, {g->X1 - g->X0, g->Y1 - g->Y0}, {g->U0, g->V0}, {g->U1, g->V1});
+			simpleToolTip(id);
+			return result;
+		};
 
-	auto ButtonGlyph = [](const char* id, ImWchar c) {
-		const auto* font = ImGui::GetFont();
-		auto texId = font->ContainerAtlas->TexID;
-		const auto* g = font->FindGlyph(c);
-		bool result = ImGui::ImageButton(id, texId, {g->X1 - g->X0, g->Y1 - g->Y0}, {g->U0, g->V0}, {g->U1, g->V1});
-		simpleToolTip(id);
-		return result;
-	};
-
-	bool breaked = cpuInterface.isBreaked();
-	if (breaked) {
-		if (ButtonGlyph("run", DEBUGGER_ICON_RUN)) {
-			cpuInterface.doContinue();
+		bool breaked = cpuInterface.isBreaked();
+		if (breaked) {
+			if (ButtonGlyph("run", DEBUGGER_ICON_RUN)) {
+				cpuInterface.doContinue();
+			}
+		} else {
+			if (ButtonGlyph("break", DEBUGGER_ICON_BREAK)) {
+				cpuInterface.doBreak();
+			}
 		}
-	} else {
-		if (ButtonGlyph("break", DEBUGGER_ICON_BREAK)) {
-			cpuInterface.doBreak();
-		}
-	}
-	ImGui::SameLine();
-	ImGui::SetCursorPosX(50.0f);
+		ImGui::SameLine();
+		ImGui::SetCursorPosX(50.0f);
 
-	ImGui::BeginDisabled(!breaked);
+		im::Disabled(!breaked, [&]{
+			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN)) {
+				cpuInterface.doStep();
+			}
+			ImGui::SameLine();
 
-	if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN)) {
-		cpuInterface.doStep();
-	}
-	ImGui::SameLine();
+			if (ButtonGlyph("step-over", DEBUGGER_ICON_STEP_OVER)) {
+				manager.executeDelayed(TclObject("step_over"));
+			}
+			ImGui::SameLine();
 
-	if (ButtonGlyph("step-over", DEBUGGER_ICON_STEP_OVER)) {
-		manager.executeDelayed(TclObject("step_over"));
-	}
-	ImGui::SameLine();
+			if (ButtonGlyph("step-out",  DEBUGGER_ICON_STEP_OUT)) {
+				manager.executeDelayed(TclObject("step_out"));
+			}
+			ImGui::SameLine();
 
-	if (ButtonGlyph("step-out",  DEBUGGER_ICON_STEP_OUT)) {
-		manager.executeDelayed(TclObject("step_out"));
-	}
-	ImGui::SameLine();
-
-	if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK)) {
-		syncDisassemblyWithPC = true;
-		manager.executeDelayed(TclObject("step_back"));
-	}
-
-	ImGui::EndDisabled();
-
-	ImGui::End();
+			if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK)) {
+				syncDisassemblyWithPC = true;
+				manager.executeDelayed(TclObject("step_back"));
+			}
+		});
+	});
 }
 
 /** Parses the given string as a hexadecimal integer.
@@ -295,209 +284,195 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)
 {
 	if (!showDisassembly) return;
-	if (!ImGui::Begin("Disassembly", &showDisassembly)) {
-		ImGui::End();
-		return;
-	}
-
-	auto pc = regs.getPC();
-	if (followPC && !cpuInterface.isBreaked()) {
-		gotoTarget = pc;
-	}
-
-	// TODO can this be optimized/avoided?
-	std::vector<uint16_t> startAddresses;
-	unsigned startAddr = 0;
-	while (startAddr < 0x10000) {
-		auto addr = narrow<uint16_t>(startAddr);
-		startAddresses.push_back(addr);
-		startAddr += instructionLength(cpuInterface, addr, time);
-	}
-
-	int flags = ImGuiTableFlags_RowBg |
-	            ImGuiTableFlags_BordersV |
-	            ImGuiTableFlags_BordersOuterV |
-	            ImGuiTableFlags_Resizable |
-	            ImGuiTableFlags_Hideable |
-	            ImGuiTableFlags_Reorderable |
-	            ImGuiTableFlags_ScrollY |
-	            ImGuiTableFlags_ScrollX;
-	if (ImGui::BeginTable("table", 4, flags)) {
-		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-		ImGui::TableSetupColumn("bp", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("address", ImGuiTableColumnFlags_NoHide);
-		ImGui::TableSetupColumn("opcode");
-		ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
-		ImGui::TableHeadersRow();
-
-		std::string mnemonic;
-		std::string opcodesStr;
-		std::array<uint8_t, 4> opcodes;
-		ImGuiListClipper clipper; // only draw the actually visible rows
-		clipper.Begin(0x10000);
-		if (gotoTarget) {
-			clipper.ForceDisplayRangeByIndices(*gotoTarget, *gotoTarget + 1);
+	im::Window("Disassembly", &showDisassembly, [&]{
+		auto pc = regs.getPC();
+		if (followPC && !cpuInterface.isBreaked()) {
+			gotoTarget = pc;
 		}
-		std::optional<unsigned> nextGotoTarget;
-		while (clipper.Step()) {
-			auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
-				ImGui::TableNextRow();
-				if (it == startAddresses.end()) continue;
-				auto addr = *it++;
-				auto addrStr = tmpStrCat(hex_string<4>(addr));
-				ImGui::PushID(narrow<int>(addr));
 
-				if (gotoTarget && addr >= *gotoTarget) {
-					gotoTarget = {};
-					ImGui::SetScrollHereY(0.25f);
-				}
+		// TODO can this be optimized/avoided?
+		std::vector<uint16_t> startAddresses;
+		unsigned startAddr = 0;
+		while (startAddr < 0x10000) {
+			auto addr = narrow<uint16_t>(startAddr);
+			startAddresses.push_back(addr);
+			startAddr += instructionLength(cpuInterface, addr, time);
+		}
 
-				bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
-				if (rowAtPc) {
-					ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
-				}
-				ImGui::TableSetColumnIndex(0); // bp
-				ImGui::Selectable("##row", false,
-				                  ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-				if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-					ImGui::OpenPopup("disassembly-context");
-				}
-				if (ImGui::BeginPopup("disassembly-context")) {
-					if (ImGui::MenuItem("Set breakpoint TODO")) {
-						// TODO
-					}
-					auto setPc = strCat("Set PC to 0x", addrStr);
-					if (ImGui::MenuItem(setPc.c_str())) {
-						regs.setPC(addr);
-					}
-					ImGui::Separator();
-					if (ImGui::MenuItem("Scroll to PC")) {
-						nextGotoTarget = pc;
-					}
-					ImGui::Indent();
-					ImGui::Checkbox("Follow PC while running", &followPC);
-					ImGui::Unindent();
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted("Scroll to address:");
-					ImGui::SameLine();
-					// TODO also allow labels
-					if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-						if (auto a = parseHex(gotoAddr)) {
-							nextGotoTarget = *a;
-						}
-					}
-					ImGui::EndPopup();
-				}
+		int flags = ImGuiTableFlags_RowBg |
+			ImGuiTableFlags_BordersV |
+			ImGuiTableFlags_BordersOuterV |
+			ImGuiTableFlags_Resizable |
+			ImGuiTableFlags_Hideable |
+			ImGuiTableFlags_Reorderable |
+			ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_ScrollX;
+		im::Table("table", 4, flags, [&]{
+			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+			ImGui::TableSetupColumn("bp", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("address", ImGuiTableColumnFlags_NoHide);
+			ImGui::TableSetupColumn("opcode");
+			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
+			ImGui::TableHeadersRow();
 
-				// if (breakPointOn(addr))
-				//    ImGui::Bullet();
-
-				mnemonic.clear();
-				auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
-				assert(len >= 1);
-
-				ImGui::TableSetColumnIndex(1); // addr
-				ImGui::TextUnformatted(addrStr.c_str());
-
-				ImGui::TableSetColumnIndex(2); // opcode
-				opcodesStr.clear();
-				for (auto i : xrange(len)) {
-					strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
-				}
-				ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
-
-				ImGui::TableSetColumnIndex(3); // mnemonic
-				ImGui::TextUnformatted(mnemonic.c_str());
-
-				ImGui::PopID();
+			std::string mnemonic;
+			std::string opcodesStr;
+			std::array<uint8_t, 4> opcodes;
+			ImGuiListClipper clipper; // only draw the actually visible rows
+			clipper.Begin(0x10000);
+			if (gotoTarget) {
+				clipper.ForceDisplayRangeByIndices(*gotoTarget, *gotoTarget + 1);
 			}
-		}
-		gotoTarget = nextGotoTarget;
-		if (syncDisassemblyWithPC) {
-			syncDisassemblyWithPC = false; // only once
+			std::optional<unsigned> nextGotoTarget;
+			while (clipper.Step()) {
+				auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
+				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+					ImGui::TableNextRow();
+					if (it == startAddresses.end()) continue;
+					auto addr = *it++;
+					auto addrStr = tmpStrCat(hex_string<4>(addr));
+					im::ID(narrow<int>(addr), [&]{
+						if (gotoTarget && addr >= *gotoTarget) {
+							gotoTarget = {};
+							ImGui::SetScrollHereY(0.25f);
+						}
 
-			auto itemHeight = ImGui::GetTextLineHeightWithSpacing();
-			auto winHeight = ImGui::GetWindowHeight();
-			auto lines = size_t(winHeight / itemHeight); // approx
+						bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
+						if (rowAtPc) {
+							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
+						}
+						ImGui::TableSetColumnIndex(0); // bp
+						ImGui::Selectable("##row", false,
+								ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+							ImGui::OpenPopup("disassembly-context");
+						}
+						im::Popup("disassembly-context", [&]{
+							if (ImGui::MenuItem("Set breakpoint TODO")) {
+								// TODO
+							}
+							auto setPc = strCat("Set PC to 0x", addrStr);
+							if (ImGui::MenuItem(setPc.c_str())) {
+								regs.setPC(addr);
+							}
+							ImGui::Separator();
+							if (ImGui::MenuItem("Scroll to PC")) {
+								nextGotoTarget = pc;
+							}
+							im::Indent([&]{
+								ImGui::Checkbox("Follow PC while running", &followPC);
+							});
+							ImGui::AlignTextToFramePadding();
+							ImGui::TextUnformatted("Scroll to address:");
+							ImGui::SameLine();
+							// TODO also allow labels
+							if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+								if (auto a = parseHex(gotoAddr)) {
+									nextGotoTarget = *a;
+								}
+							}
+						});
 
-			auto n = std::distance(startAddresses.begin(), ranges::lower_bound(startAddresses, pc));
-			auto n2 = std::max(size_t(0), n - lines / 4);
-			auto topAddr = startAddresses[n2];
+						// if (breakPointOn(addr))
+						//    ImGui::Bullet();
 
-			ImGui::SetScrollY(topAddr * itemHeight);
-		}
-		ImGui::EndTable();
-	}
+						mnemonic.clear();
+						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
+						assert(len >= 1);
 
-	ImGui::End();
+						ImGui::TableSetColumnIndex(1); // addr
+						ImGui::TextUnformatted(addrStr.c_str());
+
+						ImGui::TableSetColumnIndex(2); // opcode
+						opcodesStr.clear();
+						for (auto i : xrange(len)) {
+							strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
+						}
+						ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
+
+						ImGui::TableSetColumnIndex(3); // mnemonic
+						ImGui::TextUnformatted(mnemonic.c_str());
+					});
+				}
+			}
+			gotoTarget = nextGotoTarget;
+			if (syncDisassemblyWithPC) {
+				syncDisassemblyWithPC = false; // only once
+
+				auto itemHeight = ImGui::GetTextLineHeightWithSpacing();
+				auto winHeight = ImGui::GetWindowHeight();
+				auto lines = size_t(winHeight / itemHeight); // approx
+
+				auto n = std::distance(startAddresses.begin(), ranges::lower_bound(startAddresses, pc));
+				auto n2 = std::max(size_t(0), n - lines / 4);
+				auto topAddr = startAddresses[n2];
+
+				ImGui::SetScrollY(topAddr * itemHeight);
+			}
+		});
+	});
 }
 
 void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
 	if (!showStack) return;
-	if (!ImGui::Begin("Slots", &showSlots)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("Slots", &showSlots, [&]{
+		int flags = ImGuiTableFlags_BordersInnerV |
+			ImGuiTableFlags_Resizable |
+			ImGuiTableFlags_Reorderable |
+			ImGuiTableFlags_Hideable |
+			ImGuiTableFlags_ContextMenuInBody;
+		im::Table("table", 4, flags, [&]{
+			ImGui::TableSetupColumn("Page");
+			ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_DefaultHide);
+			ImGui::TableSetupColumn("Slot");
+			ImGui::TableSetupColumn("Segment");
+			ImGui::TableHeadersRow();
 
-	int flags = ImGuiTableFlags_BordersInnerV |
-	            ImGuiTableFlags_Resizable |
-	            ImGuiTableFlags_Reorderable |
-	            ImGuiTableFlags_Hideable |
-	            ImGuiTableFlags_ContextMenuInBody;
-	if (ImGui::BeginTable("table", 4, flags)) {
-		ImGui::TableSetupColumn("Page");
-		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_DefaultHide);
-		ImGui::TableSetupColumn("Slot");
-		ImGui::TableSetupColumn("Segment");
-		ImGui::TableHeadersRow();
-
-		for (auto page : xrange(4)) {
-			auto addr = 0x4000 * page;
-			if (ImGui::TableNextColumn()) { // page
-				ImGui::Text("%d", page);
-			}
-			if (ImGui::TableNextColumn()) { // address
-				ImGui::Text("0x%04x", addr);
-			}
-			if (ImGui::TableNextColumn()) { // slot
-				int ps = cpuInterface.getPrimarySlot(page);
-				if (cpuInterface.isExpanded(ps)) {
-					int ss = cpuInterface.getSecondarySlot(page);
-					ImGui::Text("%d-%d", ps, ss);
-				} else {
-					ImGui::Text(" %d", ps);
+			for (auto page : xrange(4)) {
+				auto addr = 0x4000 * page;
+				if (ImGui::TableNextColumn()) { // page
+					ImGui::Text("%d", page);
 				}
-			}
-			if (ImGui::TableNextColumn()) { // segment
-				auto* device = cpuInterface.getVisibleMSXDevice(page);
-				Debuggable* romBlocks = nullptr;
-				if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
-					ImGui::Text("%d", mapper->getSelectedSegment(page));
-				} else if (!dynamic_cast<RomPlain*>(device) &&
-				           (romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
-					std::array<uint8_t, 4> segments;
-					for (auto sub : xrange(4)) {
-						segments[sub] = romBlocks->read(addr + 0x1000 * sub);
+				if (ImGui::TableNextColumn()) { // address
+					ImGui::Text("0x%04x", addr);
+				}
+				if (ImGui::TableNextColumn()) { // slot
+					int ps = cpuInterface.getPrimarySlot(page);
+					if (cpuInterface.isExpanded(ps)) {
+						int ss = cpuInterface.getSecondarySlot(page);
+						ImGui::Text("%d-%d", ps, ss);
+					} else {
+						ImGui::Text(" %d", ps);
 					}
-					if ((segments[0] == segments[1]) && (segments[2] == segments[3])) {
-						if (segments[0] == segments[2]) { // 16kB
-							ImGui::Text("R%d", segments[0]);
-						} else { // 8kB
-							ImGui::Text("R%d/%d", segments[0], segments[2]);
+				}
+				if (ImGui::TableNextColumn()) { // segment
+					auto* device = cpuInterface.getVisibleMSXDevice(page);
+					Debuggable* romBlocks = nullptr;
+					if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
+						ImGui::Text("%d", mapper->getSelectedSegment(page));
+					} else if (!dynamic_cast<RomPlain*>(device) &&
+						(romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
+						std::array<uint8_t, 4> segments;
+						for (auto sub : xrange(4)) {
+							segments[sub] = romBlocks->read(addr + 0x1000 * sub);
 						}
-					} else { // 4kB
-						ImGui::Text("R%d/%d/%d/%d", segments[0], segments[1], segments[2], segments[3]);
+						if ((segments[0] == segments[1]) && (segments[2] == segments[3])) {
+							if (segments[0] == segments[2]) { // 16kB
+								ImGui::Text("R%d", segments[0]);
+							} else { // 8kB
+								ImGui::Text("R%d/%d", segments[0], segments[2]);
+							}
+						} else { // 4kB
+							ImGui::Text("R%d/%d/%d/%d", segments[0], segments[1], segments[2], segments[3]);
+						}
+					} else {
+						ImGui::TextUnformatted("-");
 					}
-				} else {
-					ImGui::TextUnformatted("-");
 				}
 			}
-		}
-		ImGui::EndTable();
-	}
-	ImGui::End();
+		});
+	});
 }
 
 void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)
@@ -506,201 +481,183 @@ void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuT
 
 	auto line = ImGui::GetTextLineHeightWithSpacing();
 	ImGui::SetNextWindowSize(ImVec2(0.0f, 12 * line), ImGuiCond_FirstUseEver);
+	im::Window("stack", &showStack, [&]{
+		auto sp = regs.getSP();
 
-	if (!ImGui::Begin("stack", &showStack)) {
-		ImGui::End();
-		return;
-	}
+		int flags = ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_BordersInnerV |
+			ImGuiTableFlags_Resizable |
+			ImGuiTableFlags_Reorderable |
+			ImGuiTableFlags_Hideable |
+			ImGuiTableFlags_ContextMenuInBody;
+		im::Table("table", 3, flags, [&]{
+			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+			ImGui::TableSetupColumn("Address");
+			ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_DefaultHide);
+			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_NoHide);
+			ImGui::TableHeadersRow();
 
-	auto sp = regs.getSP();
-
-	int flags = ImGuiTableFlags_ScrollY |
-	            ImGuiTableFlags_BordersInnerV |
-	            ImGuiTableFlags_Resizable |
-	            ImGuiTableFlags_Reorderable |
-	            ImGuiTableFlags_Hideable |
-	            ImGuiTableFlags_ContextMenuInBody;
-	if (ImGui::BeginTable("table", 3, flags)) {
-		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-		ImGui::TableSetupColumn("Address");
-		ImGui::TableSetupColumn("Offset", ImGuiTableColumnFlags_DefaultHide);
-		ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_NoHide);
-		ImGui::TableHeadersRow();
-
-		ImGuiListClipper clipper; // only draw the actually visible rows
-		clipper.Begin(std::min(128, (0x10000 - sp) / 2));
-		while (clipper.Step()) {
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
-				auto offset = 2 * row;
-				auto addr = sp + offset;
-				if (ImGui::TableNextColumn()) { // address
-					ImGui::Text("%04X", addr);
-				}
-				if (ImGui::TableNextColumn()) { // offset
-					ImGui::Text("SP+%X", offset);
-				}
-				if (ImGui::TableNextColumn()) { // value
-					auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
-					auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
-					auto value = narrow<uint16_t>(256 * h + l);
-					ImGui::Text("%04X", value);
+			ImGuiListClipper clipper; // only draw the actually visible rows
+			clipper.Begin(std::min(128, (0x10000 - sp) / 2));
+			while (clipper.Step()) {
+				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+					auto offset = 2 * row;
+					auto addr = sp + offset;
+					if (ImGui::TableNextColumn()) { // address
+						ImGui::Text("%04X", addr);
+					}
+					if (ImGui::TableNextColumn()) { // offset
+						ImGui::Text("SP+%X", offset);
+					}
+					if (ImGui::TableNextColumn()) { // value
+						auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
+						auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
+						auto value = narrow<uint16_t>(256 * h + l);
+						ImGui::Text("%04X", value);
+					}
 				}
 			}
-		}
-		ImGui::EndTable();
-	}
-
-	ImGui::End();
+		});
+	});
 }
 
 void ImGuiDebugger::drawRegisters(CPURegs& regs)
 {
 	if (!showRegisters) return;
-	if (!ImGui::Begin("CPU registers", &showRegisters)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("CPU registers", &showRegisters, [&]{
+		const auto& style = ImGui::GetStyle();
+		auto padding = 2 * style.FramePadding.x;
+		auto width16 = ImGui::CalcTextSize("FFFF").x + padding;
+		auto edit16 = [&](const char* label, auto getter, auto setter) {
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(label);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(width16);
+			uint16_t value = getter();
+			if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
+				setter(value);
+			}
+		};
+		auto edit8 = [&](const char* label, auto getter, auto setter) {
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(label);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(width16);
+			uint8_t value = getter();
+			if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
+				setter(value);
+			}
+		};
 
-	const auto& style = ImGui::GetStyle();
-	auto padding = 2 * style.FramePadding.x;
-	auto width16 = ImGui::CalcTextSize("FFFF").x + padding;
-	auto edit16 = [&](const char* label, auto getter, auto setter) {
+		edit16("AF", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("AF'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
+
+		edit16("BC", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("BC'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
+
+		edit16("DE", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("DE'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
+
+		edit16("HL", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("HL'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
+
+		edit16("IX", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("IY ", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
+
+		edit16("PC", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit16("SP ", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
+
+		edit8("I ", [&]{ return regs.getI(); }, [&](uint8_t value) { regs.setI(value); });
+		ImGui::SameLine(0.0f, 20.0f);
+		edit8("R  ", [&]{ return regs.getR(); }, [&](uint8_t value) { regs.setR(value); });
+
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(label);
+		ImGui::TextUnformatted("IM");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(width16);
-		uint16_t value = getter();
-		if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
-			setter(value);
+		uint8_t im = regs.getIM();
+		if (ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
+			if (im <= 2) regs.setIM(im);
 		}
-	};
-	auto edit8 = [&](const char* label, auto getter, auto setter) {
+
+		ImGui::SameLine(0.0f, 20.0f);
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(label);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(width16);
-		uint8_t value = getter();
-		if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
-			setter(value);
+		bool ei = regs.getIFF1();
+		if (ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+				regs.setIFF1(!ei);
+				regs.setIFF2(!ei);
+			}
 		}
-	};
-
-	edit16("AF", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("AF'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
-
-	edit16("BC", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("BC'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
-
-	edit16("DE", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("DE'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
-
-	edit16("HL", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("HL'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
-
-	edit16("IX", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("IY ", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
-
-	edit16("PC", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit16("SP ", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
-
-	edit8("I ", [&]{ return regs.getI(); }, [&](uint8_t value) { regs.setI(value); });
-	ImGui::SameLine(0.0f, 20.0f);
-	edit8("R  ", [&]{ return regs.getR(); }, [&](uint8_t value) { regs.setR(value); });
-
-	ImGui::AlignTextToFramePadding();
-	ImGui::TextUnformatted("IM");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(width16);
-	uint8_t im = regs.getIM();
-	if (ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
-		if (im <= 2) regs.setIM(im);
-	}
-
-	ImGui::SameLine(0.0f, 20.0f);
-	ImGui::AlignTextToFramePadding();
-	bool ei = regs.getIFF1();
-	if (ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
-		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-			regs.setIFF1(!ei);
-			regs.setIFF2(!ei);
-		}
-	}
-	simpleToolTip("double-click to toggle");
-
-	ImGui::End();
+		simpleToolTip("double-click to toggle");
+	});
 }
 
 void ImGuiDebugger::drawFlags(CPURegs& regs)
 {
 	if (!showFlags) return;
-	if (!ImGui::Begin("CPU flags", &showFlags)) {
-		ImGui::End();
-		return;
-	}
+	im::Window("CPU flags", &showFlags, [&]{
+		auto sizeH1 = ImGui::CalcTextSize("NC");
+		auto sizeH2 = ImGui::CalcTextSize("X:0");
+		auto sizeV = ImGui::CalcTextSize("C 0 (NC)");
 
-	auto sizeH1 = ImGui::CalcTextSize("NC");
-	auto sizeH2 = ImGui::CalcTextSize("X:0");
-	auto sizeV = ImGui::CalcTextSize("C 0 (NC)");
+		auto f = regs.getF();
 
-	auto f = regs.getF();
-
-	auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
-		std::string s;
-		ImVec2 sz;
-		if (flagsLayout == 0) {
-			// horizontal
-			if (val0) {
-				s = (f & bit) ? val1 : val0;
-				sz = sizeH1;
+		auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
+			std::string s;
+			ImVec2 sz;
+			if (flagsLayout == 0) {
+				// horizontal
+				if (val0) {
+					s = (f & bit) ? val1 : val0;
+					sz = sizeH1;
+				} else {
+					s = strCat(name, ':', (f & bit) ? '1' : '0');
+					sz = sizeH2;
+				}
 			} else {
-				s = strCat(name, ':', (f & bit) ? '1' : '0');
-				sz = sizeH2;
+				// vertical
+				s = strCat(name, ' ', (f & bit) ? '1' : '0');
+				if (val0) {
+					strAppend(s, " (", (f & bit) ? val1 : val0, ')');
+				}
+				sz = sizeV;
 			}
-		} else {
-			// vertical
-			s = strCat(name, ' ', (f & bit) ? '1' : '0');
-			if (val0) {
-				strAppend(s, " (", (f & bit) ? val1 : val0, ')');
+			if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					regs.setF(f ^ bit);
+				}
 			}
-			sz = sizeV;
-		}
-		if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-				regs.setF(f ^ bit);
+			simpleToolTip("double-click to toggle");
+			if (flagsLayout == 0) {
+				// horizontal
+				ImGui::SameLine(0.0f, sizeH1.x);
 			}
-		}
-		simpleToolTip("double-click to toggle");
-		if (flagsLayout == 0) {
-			// horizontal
-			ImGui::SameLine(0.0f, sizeH1.x);
-		}
-	};
+		};
 
-	draw("S", 0x80, " P", " M");
-	draw("Z", 0x40, "NZ", " Z");
-	if (showXYFlags) draw("Y", 0x20);
-	draw("H", 0x10);
-	if (showXYFlags) draw("X", 0x08);
-	draw("P", 0x04, "PO", "PE");
-	draw("N", 0x02);
-	draw("C", 0x01, "NC", " C");
+		draw("S", 0x80, " P", " M");
+		draw("Z", 0x40, "NZ", " Z");
+		if (showXYFlags) draw("Y", 0x20);
+		draw("H", 0x10);
+		if (showXYFlags) draw("X", 0x08);
+		draw("P", 0x04, "PO", "PE");
+		draw("N", 0x02);
+		draw("C", 0x01, "NC", " C");
 
-	if (ImGui::BeginPopupContextWindow()) {
-		ImGui::TextUnformatted("Layout");
-		ImGui::RadioButton("horizontal", &flagsLayout, 0);
-		ImGui::RadioButton("vertical", &flagsLayout, 1);
-		ImGui::Separator();
-		ImGui::Checkbox("show undocumented", &showXYFlags);
-		ImGui::EndPopup();
-	}
-
-	ImGui::End();
+		im::PopupContextWindow([&]{
+			ImGui::TextUnformatted("Layout");
+			ImGui::RadioButton("horizontal", &flagsLayout, 0);
+			ImGui::RadioButton("vertical", &flagsLayout, 1);
+			ImGui::Separator();
+			ImGui::Checkbox("show undocumented", &showXYFlags);
+		});
+	});
 }
 
 } // namespace openmsx

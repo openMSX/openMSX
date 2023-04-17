@@ -1,4 +1,6 @@
 #include "ImGuiSoundChip.hh"
+
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -60,69 +62,65 @@ static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
 void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 {
 	auto restoreDefaultPopup = [](const char* label, Setting& setting) {
-		if (ImGui::BeginPopupContextItem()) {
+		im::PopupContextItem([&]{
 			if (ImGui::Button(label)) {
 				setting.setValue(setting.getDefaultValue());
 				ImGui::CloseCurrentPopup();
 			}
-			ImGui::EndPopup();
-		}
+		});
 	};
 
-	ImGui::Begin("Sound chip settings", &showSoundChipSettings);
-
-	auto& msxMixer = motherBoard.getMSXMixer();
-	auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
-	if (ImGui::BeginTable("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX)) {
-		for (auto& info : infos) {
-			auto& device = *info.device;
-			ImGui::TableNextColumn();
-			ImGui::TextUnformatted(device.getName().c_str());
-			simpleToolTip(device.getDescription());
-		}
-		for (auto& info : infos) {
-			auto& volumeSetting = *info.volumeSetting;
-			int volume = volumeSetting.getInt();
-			int min = volumeSetting.getMinValue();
-			int max = volumeSetting.getMaxValue();
-			ImGui::TableNextColumn();
-			ImGui::TextUnformatted("volume");
-			std::string id = "##volume-" + info.device->getName();
-			if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
-				volumeSetting.setInt(volume);
+	im::Window("Sound chip settings", &showSoundChipSettings, [&]{
+		auto& msxMixer = motherBoard.getMSXMixer();
+		auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
+		im::Table("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX, [&]{
+			for (auto& info : infos) {
+				auto& device = *info.device;
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted(device.getName().c_str());
+				simpleToolTip(device.getDescription());
 			}
-			restoreDefaultPopup("Set default", volumeSetting);
-		}
-		for (auto& info : infos) {
-			auto& balanceSetting = *info.balanceSetting;
-			int balance = balanceSetting.getInt();
-			int min = balanceSetting.getMinValue();
-			int max = balanceSetting.getMaxValue();
-			ImGui::TableNextColumn();
-			ImGui::TextUnformatted("balance");
-			std::string id = "##balance-" + info.device->getName();
-			if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
-				balanceSetting.setInt(balance);
+			for (auto& info : infos) {
+				auto& volumeSetting = *info.volumeSetting;
+				int volume = volumeSetting.getInt();
+				int min = volumeSetting.getMinValue();
+				int max = volumeSetting.getMaxValue();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("volume");
+				std::string id = "##volume-" + info.device->getName();
+				if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
+					volumeSetting.setInt(volume);
+				}
+				restoreDefaultPopup("Set default", volumeSetting);
 			}
-			restoreDefaultPopup("Set center", balanceSetting);
-		}
-		for (auto& info : infos) {
-			ImGui::TableNextColumn();
-			if (anySpecialChannelSettings(info)) {
-				ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
-				ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+			for (auto& info : infos) {
+				auto& balanceSetting = *info.balanceSetting;
+				int balance = balanceSetting.getInt();
+				int min = balanceSetting.getMinValue();
+				int max = balanceSetting.getMaxValue();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("balance");
+				std::string id = "##balance-" + info.device->getName();
+				if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
+					balanceSetting.setInt(balance);
+				}
+				restoreDefaultPopup("Set center", balanceSetting);
 			}
-			ImGui::TextUnformatted("channels");
-			const auto& name = info.device->getName();
-			std::string id = "##channels-" + name;
-			auto [it, inserted] = channels.try_emplace(name, false);
-			auto& enabled = it->second;
-			ImGui::Checkbox(id.c_str(), &enabled);
-		}
-		ImGui::EndTable();
-	}
-
-	ImGui::End();
+			for (auto& info : infos) {
+				ImGui::TableNextColumn();
+				if (anySpecialChannelSettings(info)) {
+					ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
+					ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+				}
+				ImGui::TextUnformatted("channels");
+				const auto& name = info.device->getName();
+				std::string id = "##channels-" + name;
+				auto [it, inserted] = channels.try_emplace(name, false);
+				auto& enabled = it->second;
+				ImGui::Checkbox(id.c_str(), &enabled);
+			}
+		});
+	});
 }
 
 void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled)
@@ -132,26 +130,23 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 	if (!info) return;
 
 	std::string label = name + " channel setting";
-	if (ImGui::Begin(label.c_str(), enabled)) {
-		if (ImGui::BeginTable("table", 3)) {
+	im::Window(label.c_str(), enabled, [&]{
+		im::Table("table", 3, [&]{
 			int counter = 0;
 			for (auto& channel : info->channelSettings) {
-				ImGui::PushID(counter);
-				++counter;
-				ImGui::TableNextColumn();
-				ImGui::Text("channel %d", counter);
+				im::ID(counter++, [&]{
+					ImGui::TableNextColumn();
+					ImGui::Text("channel %d", counter);
 
-				ImGui::TableNextColumn();
-				Checkbox("mute", *channel.mute);
+					ImGui::TableNextColumn();
+					Checkbox("mute", *channel.mute);
 
-				ImGui::TableNextColumn();
-				InputText("record", *channel.record);
-				ImGui::PopID();
+					ImGui::TableNextColumn();
+					InputText("record", *channel.record);
+				});
 			}
-			ImGui::EndTable();
-		}
-	}
-	ImGui::End();
+		});
+	});
 }
 
 } // namespace openmsx

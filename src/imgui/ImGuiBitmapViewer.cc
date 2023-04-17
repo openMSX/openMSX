@@ -1,5 +1,6 @@
 #include "ImGuiBitmapViewer.hh"
 
+#include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiUtils.hh"
@@ -77,167 +78,158 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	if (!showBitmapViewer) return;
 	if (!motherBoard) return;
 
-	if (!ImGui::Begin("Bitmap viewer", &showBitmapViewer)) {
-		ImGui::End();
-		return;
-	}
-	VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
-	if (!vdp) {
-		ImGui::End();
-		return;
-	}
+	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
+		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+		if (!vdp) return;
 
-	auto parseMode = [](DisplayMode mode) {
-		auto base = mode.getBase();
-		if (base == DisplayMode::GRAPHIC4) return SCR5;
-		if (base == DisplayMode::GRAPHIC5) return SCR6;
-		if (base == DisplayMode::GRAPHIC6) return SCR7;
-		if (base != DisplayMode::GRAPHIC7) return OTHER;
-		if (mode.getByte() & DisplayMode::YJK) {
-			if (mode.getByte() & DisplayMode::YAE) {
-				return SCR11;
-			} else {
-				return SCR12;
-			}
-		} else {
-			return SCR8;
-		}
-	};
-	int vdpMode = parseMode(vdp->getDisplayMode());
-
-	int vdpPages = vdpMode <= SCR6 ? 4 : 2;
-	int vdpPage = vdp->getDisplayPage();
-	if (vdpPage >= vdpPages) vdpPage &= 1;
-
-	int vdpLines = (vdp->getNumberOfLines() == 192) ? 0 : 1;
-
-	int vdpColor0 = [&]{
-		if (vdpMode == one_of(SCR8, SCR11, SCR12) || !vdp->getTransparency()) {
-			return 16; // no replacement
-		}
-		return vdp->getBackgroundColor() & 15;
-	}();
-
-	auto modeToStr = [](int mode) {
-		if (mode == SCR5 ) return "screen 5";
-		if (mode == SCR6 ) return "screen 6";
-		if (mode == SCR7 ) return "screen 7";
-		if (mode == SCR8 ) return "screen 8";
-		if (mode == SCR11) return "screen 11";
-		if (mode == SCR12) return "screen 12";
-		if (mode == OTHER) return "non-bitmap";
-		assert(false); return "ERROR";
-	};
-
-	ImGui::BeginGroup();
-	ImGui::RadioButton("Use VDP settings", &bitmapManual, 0);
-	ImGui::BeginDisabled(bitmapManual != 0);
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Screen mode: %s", modeToStr(vdpMode));
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Display page: %d", vdpPage);
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Visible lines: %d", vdpLines ? 212 : 192);
-	ImGui::AlignTextToFramePadding();
-	static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
-	ImGui::Text("Replace color 0: %s", getComboString(vdpColor0, color0Str));
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Interlace: %s", "TODO");
-	ImGui::EndDisabled();
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-	ImGui::BeginGroup();
-	ImGui::RadioButton("Manual override", &bitmapManual, 1);
-	ImGui::BeginDisabled(bitmapManual != 1);
-	ImGui::PushItemWidth(ImGui::GetFontSize() * 9.0f);
-	ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
-	int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
-	if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-	ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000" : "0\0001\0002\0003\000");
-	ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
-	ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
-	ImGui::PopItemWidth();
-	ImGui::EndDisabled();
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-	ImGui::Dummy(ImVec2(25, 1));
-	ImGui::SameLine();
-	ImGui::BeginGroup();
-	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-	ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
-	if (ImGui::Button("Open palette editor")) {
-		manager.palette.show = true;
-	}
-	ImGui::Separator();
-	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
-	ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
-	ImGui::Checkbox("grid", &bitmapGrid);
-	ImGui::SameLine();
-	ImGui::BeginDisabled(!bitmapGrid);
-	ImGui::ColorEdit4("Grid color", &bitmapGridColor[0],
-		ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
-	ImGui::EndDisabled();
-	ImGui::EndGroup();
-
-	ImGui::Separator();
-
-	auto& vram = vdp->getVRAM();
-	int mode   = bitmapManual ? bitmapScrnMode : vdpMode;
-	int page   = bitmapManual ? bitmapPage     : vdpPage;
-	int lines  = bitmapManual ? bitmapLines    : vdpLines;
-	int color0 = bitmapManual ? bitmapColor0   : vdpColor0;
-	int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
-	int height = (lines == 0) ? 192
-			: (lines == 1) ? 212
-					: 256;
-
-	std::array<uint32_t, 16> palette;
-	auto msxPalette = manager.palette.getPalette(vdp);
-	ranges::transform(msxPalette, palette.data(),
-		[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
-	if (color0 < 16) palette[0] = palette[color0];
-
-	std::array<uint32_t, 512 * 256> pixels;
-	renderBitmap(vram.getData(), palette, mode, height, page,
-			pixels.data());
-	if (!bitmapTex) {
-		bitmapTex.emplace(false, false); // no interpolation, no wrapping
-	}
-	bitmapTex->bind();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-	int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
-	int zy = (1 + bitmapZoom) * 2;
-
-	if (ImGui::BeginChild("##bitmap", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_HorizontalScrollbar)) {
-		auto pos = ImGui::GetCursorPos();
-		ImVec2 size(float(width * zx), float(height * zy));
-		ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);
-
-		if (bitmapGrid && (zx > 1) && (zy > 1)) {
-			auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
-			for (auto y : xrange(zy)) {
-				auto* line = &pixels[y * zx];
-				for (auto x : xrange(zx)) {
-					line[x] = (x == 0 || y == 0) ? color : 0;
+		auto parseMode = [](DisplayMode mode) {
+			auto base = mode.getBase();
+			if (base == DisplayMode::GRAPHIC4) return SCR5;
+			if (base == DisplayMode::GRAPHIC5) return SCR6;
+			if (base == DisplayMode::GRAPHIC6) return SCR7;
+			if (base != DisplayMode::GRAPHIC7) return OTHER;
+			if (mode.getByte() & DisplayMode::YJK) {
+				if (mode.getByte() & DisplayMode::YAE) {
+					return SCR11;
+				} else {
+					return SCR12;
 				}
+			} else {
+				return SCR8;
 			}
-			if (!bitmapGridTex) {
-				bitmapGridTex.emplace(false, true); // no interpolation, with wrapping
-			}
-			bitmapGridTex->bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-			ImGui::SetCursorPos(pos);
-			ImGui::Image(reinterpret_cast<void*>(bitmapGridTex->get()), size,
-					ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
-		}
-	}
-	ImGui::EndChild();
+		};
+		int vdpMode = parseMode(vdp->getDisplayMode());
 
-	ImGui::End();
+		int vdpPages = vdpMode <= SCR6 ? 4 : 2;
+		int vdpPage = vdp->getDisplayPage();
+		if (vdpPage >= vdpPages) vdpPage &= 1;
+
+		int vdpLines = (vdp->getNumberOfLines() == 192) ? 0 : 1;
+
+		int vdpColor0 = [&]{
+			if (vdpMode == one_of(SCR8, SCR11, SCR12) || !vdp->getTransparency()) {
+				return 16; // no replacement
+			}
+			return vdp->getBackgroundColor() & 15;
+		}();
+
+		auto modeToStr = [](int mode) {
+			if (mode == SCR5 ) return "screen 5";
+			if (mode == SCR6 ) return "screen 6";
+			if (mode == SCR7 ) return "screen 7";
+			if (mode == SCR8 ) return "screen 8";
+			if (mode == SCR11) return "screen 11";
+			if (mode == SCR12) return "screen 12";
+			if (mode == OTHER) return "non-bitmap";
+			assert(false); return "ERROR";
+		};
+
+		static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
+		im::Group([&]{
+			ImGui::RadioButton("Use VDP settings", &bitmapManual, 0);
+			im::Disabled(bitmapManual != 0, [&]{
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Screen mode: %s", modeToStr(vdpMode));
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Display page: %d", vdpPage);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Visible lines: %d", vdpLines ? 212 : 192);
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Replace color 0: %s", getComboString(vdpColor0, color0Str));
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Interlace: %s", "TODO");
+			});
+		});
+		ImGui::SameLine();
+		im::Group([&]{
+			ImGui::RadioButton("Manual override", &bitmapManual, 1);
+			im::Disabled(bitmapManual != 1, [&]{
+				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
+					ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+					int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
+					if (bitmapPage >= numPages) bitmapPage = numPages - 1;
+					ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000" : "0\0001\0002\0003\000");
+					ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
+					ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
+				});
+			});
+		});
+
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(25, 1));
+		ImGui::SameLine();
+		im::Group([&]{
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
+			ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
+			if (ImGui::Button("Open palette editor")) {
+				manager.palette.show = true;
+			}
+			ImGui::Separator();
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+			ImGui::Combo("Zoom", &bitmapZoom, "1x\0002x\0003x\0004x\0005x\0006x\0007x\0008x\000");
+			ImGui::Checkbox("grid", &bitmapGrid);
+			ImGui::SameLine();
+			im::Disabled(!bitmapGrid, [&]{
+				ImGui::ColorEdit4("Grid color", &bitmapGridColor[0],
+					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+			});
+		});
+
+		ImGui::Separator();
+
+		auto& vram = vdp->getVRAM();
+		int mode   = bitmapManual ? bitmapScrnMode : vdpMode;
+		int page   = bitmapManual ? bitmapPage     : vdpPage;
+		int lines  = bitmapManual ? bitmapLines    : vdpLines;
+		int color0 = bitmapManual ? bitmapColor0   : vdpColor0;
+		int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
+		int height = (lines == 0) ? 192
+				: (lines == 1) ? 212
+						: 256;
+
+		std::array<uint32_t, 16> palette;
+		auto msxPalette = manager.palette.getPalette(vdp);
+		ranges::transform(msxPalette, palette.data(),
+			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
+		if (color0 < 16) palette[0] = palette[color0];
+
+		std::array<uint32_t, 512 * 256> pixels;
+		renderBitmap(vram.getData(), palette, mode, height, page,
+				pixels.data());
+		if (!bitmapTex) {
+			bitmapTex.emplace(false, false); // no interpolation, no wrapping
+		}
+		bitmapTex->bind();
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
+		int zy = (1 + bitmapZoom) * 2;
+
+		im::Child("##bitmap", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			auto pos = ImGui::GetCursorPos();
+			ImVec2 size(float(width * zx), float(height * zy));
+			ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);
+
+			if (bitmapGrid && (zx > 1) && (zy > 1)) {
+				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
+				for (auto y : xrange(zy)) {
+					auto* line = &pixels[y * zx];
+					for (auto x : xrange(zx)) {
+						line[x] = (x == 0 || y == 0) ? color : 0;
+					}
+				}
+				if (!bitmapGridTex) {
+					bitmapGridTex.emplace(false, true); // no interpolation, with wrapping
+				}
+				bitmapGridTex->bind();
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
+						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+				ImGui::SetCursorPos(pos);
+				ImGui::Image(reinterpret_cast<void*>(bitmapGridTex->get()), size,
+						ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
+			}
+		});
+	});
 }
 
 // TODO avoid code duplication with src/video/BitmapConverter
