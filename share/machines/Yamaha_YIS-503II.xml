@@ -54,7 +54,7 @@
     </PSG>
 
     <PrinterPort id="Printer Port">
-      <io base="0x90" num="2"/>
+      <io base="0x90" num="8" type="IO"/> <!-- S-3527 mirrors -->
     </PrinterPort>
 
     <primary slot="0">

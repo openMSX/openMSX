@@ -43,6 +43,7 @@ private:
 
 	bool strobe = false; // != true
 	uint8_t data = 255;  // != 0
+	const bool hasBidirectionalSupport = false;
 };
 
 } // namespace openmsx

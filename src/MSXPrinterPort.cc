@@ -15,6 +15,7 @@ MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
 	            std::make_unique<DummyPrinterPortDevice>())
 	, debuggable(getMotherBoard(), MSXDevice::getName())
+        , hasBidirectionalSupport(config.getChildDataAsBool("bidirectional", false))
 {
 	reset(getCurrentTime());
 }
@@ -32,19 +33,25 @@ uint8_t MSXPrinterPort::readIO(uint16_t port, EmuTime::param time)
 
 uint8_t MSXPrinterPort::peekIO(uint16_t /*port*/, EmuTime::param time) const
 {
-	// bit 1 = status / other bits always 1
+	// bit 1 = status / other bits depend on something unknown, specified
+	// in the XML file
+	uint8_t result = uint8_t(0x00);
 	return getPluggedPrintDev().getStatus(time)
-	       ? 0xFF : 0xFD;
+		       ? (result | 0b10) : (result & ~0b01);
 }
 
 void MSXPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
-	switch (port & 0x01) {
+	switch (port & (hasBidirectionalSupport ? 0x03 : 0x01)) {
 	case 0:
 		setStrobe(value & 1, time); // bit 0 = strobe
 		break;
 	case 1:
 		writeData(value, time);
+		break;
+	case 2: // nothing here
+		break;
+	case 3: // 0x93 PDIR (BiDi) is not implemented.
 		break;
 	default:
 		UNREACHABLE;
