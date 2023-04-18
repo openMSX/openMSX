@@ -58,33 +58,29 @@ ImGuiDebugger::~ImGuiDebugger() = default;
 // Created from a .ttf file via:
 //    binary_to_compressed_c openmsx-debugger-icons.ttf myIcons > myfont.cpp
 //    https://github.com/ocornut/imgui/blob/master/misc/fonts/binary_to_compressed_c.cpp
-static const char icons_compressed_base85[2390+1] =
-	"7])#######8esT%'/###W),##/l:$#Q6>##SExF>J:9*kB5)=-LNE/1:]n420E`k'9,>>#ErEn/aNV=Bxwn=u5)m<-LN.U.Ya(*HAs:T.55YY#AARm/#-0%JXFW],2euH2Id68%--d<B"
-	"dPIG]Wumo%5>oY-TT$=(OO+M$=*m<-h8Bk0<_[FHahdF#n(35&2FC'#j2JuBreIL&4*m<-:xNn/EI[^I].4&#n)m<-jrEn/+>00FD)&,IAqEn/'7YY#[$S+HT@&$MSW:Tn?iW>-HP^8&"
-	"-DP31GuI=BddUS%le4R*uIbA#$i0B#m<v<B/%P&#7CpgL;=5,MYkLH--XW/17:r$#%*,##0f1$#X,QP0Gke%#.jd(#i:4gLoqm##;Yu##2fG<-Hk.U.9.`$#C?S>-K&l?-1;o^.>rC$#"
-	"fU3B-#YlS.:/5##G`O_.hQvV#.@qW.l+vj#L*m<-e/Vp.CbAD3j+[w'(PkA#Ob5-MF-l)#s1Lv#OYU7#'_L7#PL:kbFLt-$@j9I$uxefL$8T;-cW@fM%.gfLN4$##hEII-pR'8/Q.`$#"
-	"betgL;>H&#:&*)#?0f-#Ust.#b;L/#B$Biq%vF:vHG?9/C9F&#lC@fNY3:SMtk1iqTh5&5^-Z7vp[E5vp^r0v^'v/vWqc/v'NNh'3HvD-*5A8TJ:-##(mVE-i&nQNmF6##nv3MM.bI5("
-	"F?pi'GULS70nfc2%)###Vc?`a$#nIL;htIL6S@X(bUPk++ub&#Z:4gL@CuM(vQj-$aDSS7O9F`a&rT#$T%Uk+UI$>#)GY##=&nO$>^L7#S<M,#4b.-#Xl?0#+NF:.%QOZ6PX<9/c3rI3"
-	"ER7lLjl+G4N]4R*xco>,Ek[s$nbK+*>;2H*`Y0i)#&?)4*Y6R*Z%nG*vcO%6N:GH3JI,>%+str-?@i?#+5gF4x]DD3KU%],4j?T.Jc7C#t3xQ,Z$TE+fMBA,nvPo/U[@>-PM0+*du^.*"
-	"O<WR8?/YV.ciBi)6N_V%qMU+mu(`ImieH4o*NrQ0+]eW.W]JL2C)Wp/3%pQ0vqR29EaAIG=3^o8j19'HmsGp8]xf#IjoJp&iF7j:]%ZI)#ZtD#4j1-r%%ej#/U``5+thNMBdaI3Sc(=:"
-	"(Qc`5Sj]&?Rt^%8o(k>Hk/u4J9(1E-5TYI+[c?Q/X_J#0npAo8LfIk0xFke)@)juHRtvC+ld:G+Yj$wHcxPN)Bisb3BMte)wB>_7m4Y31js,T%Hl+^.*-.51*7:D7<$oFmv(`ImsU/m8"
-	"EdSeG<-To8j+taGC,;N0*HH3'(xY$I14:IV@=<G`olEYRt0lq2AW*i2tDS-=o19;8.Sp((jbISS:-4<-R-6&%f-[uPKvSoRAY^#/[@i?#_N3L#Glih)MM>c4%IuD#KjE.3qSID*F_3T."
-	"KkRP/PSs+Mrl(B#:G$98r%Z1ieYV60h''b,h/4D+e<Vg,`6)f)g>xF4;l1T.Nl=8Jn&qo/U4J60$kY59:^_V%nGovR,IxOC&c&q/FOPq&O`@q9OD9t@Fv/f3gtZs0W&nQ:LwOK1_4&q/"
-	"rP$L4Y+1#,)o7xt9dG/^E+([.uw-s:jtE*,lF:2FsRM0*E1Mp;-NQ3'/LiwI>?\?L-rjZ0%i1x-)8w@A,%^Qs.Z%?h)cmBu$MXXJ*0Zuk0c;.<.mDBA,#,fh(HVYYuf^3'tq0`E8FsK#$"
-	"l)3CEwE]5/s[NT/dW+T8p/T;.>ZY20a8<a46aX:.vohJsvrWv8n]N/2cjw^$,::D7eRvFmuuC.mfxkJsBJ,E*]2_ZdkLufAeI1=#a%f+M'+%V>B)tF%c&nO$OMt$M]em##0lA,MKC-##"
-	"<ah3v3Ih>$sH#hL=>d5MV7$##v;GF%kJXO4C%/5#qm[caOCn2L))###sKn-$4JX#$PaW1#b9*$#U-4&#(Q?(#PuJ*##CV,#Kgb.#t4n0#FX#3#.;1R#JSR[#EM,/$?nRfLiQrhLL]-mS"
-	"75N$#F`4?-v@g;-g>FgMoH6##CQCANbL?###5<3N*4pfL'1YCNWXQ##Lne/N,@,gL1$A:Nc3*$#'GW)#+MC;$54)=-qK.fMTF6##Q&.BNbL?##OeY5NVRH##>OZ*N+:#gLDgu0N,@,gL"
-	"SS_<NmIo9&[73;?,gpKFT@4W1prhaHuo1eG7M#hFulH]FN]8JCTIh%Feg=SI`3q.C9F+QBU(p+D.1kMC)&@X(D1jQaVXHe-*nGSC7;ZhFgLqk1,nXoL_wXrLb@]qLO4d.#uJ6(#Cm[*b"
-	"[^es/c:@bHdN4/#d>?L-NNei.Fn@-#afh]%mxtLF//5UCvs.>B,(rE-i<cM:^0[eF/1u'#.mk.#[5C/#-)IqLR`4rL;wXrLX.lrL1x.qLf.K-#J#`5/%$S-#c7]nLNM-X.Q####F/LMT"
-	"#]8=Y4$S(#";
-static constexpr ImWchar DEBUGGER_ICON_MIN       = 0xea1c;
-static constexpr ImWchar DEBUGGER_ICON_MAX       = 0xf203;
-static constexpr ImWchar DEBUGGER_ICON_RUN       = 0xea1c;
-static constexpr ImWchar DEBUGGER_ICON_BREAK     = 0xea1d;
-static constexpr ImWchar DEBUGGER_ICON_STEP_IN   = 0xf200;
-static constexpr ImWchar DEBUGGER_ICON_STEP_OUT  = 0xf201;
-static constexpr ImWchar DEBUGGER_ICON_STEP_OVER = 0xf202;
-static constexpr ImWchar DEBUGGER_ICON_STEP_BACK = 0xf203;
+static const char icons_compressed_base85[1815+1] =
+    "7])#######;9u/('/###W),##.f1$#Q6>##%[n42)[KU%G5)=-<NE/1aNV=BZrPSb]->>#ICi9.o`(*HGsO2(b6O3L+lQS%,5LsCC,H3AnAMeNA*&#Gb';9Cs3BMNvSN`sr1dD4Eo3R/"
+    "w/)8eXHkG2V3dW.;h^`I@cj`W)a4&>ZW%q/o6Q<Bou@GMQuuoJH`;-*0iR/Go%fr6jMWVRReK?-qmnUCC'Hv'<J]p]`;`Y5@C=GH?o6O+j#)*Mp]G&#70lQ#;0xfLQ7wj#O?DX-@1>F%"
+    "5[)<#8JFgL6SgV-xew@'uB5X7If]8QR3O%b'kS`a)%vW-iXx6*BfW>-'lB#$1fs-$R'Mk+(lB#$ckf&,peu.:J/PQ'-MYY#jFs9)*lXJgaDe8Qw(Y:v47Y&#*r[w'WQ1x'1/V:m^U4+3"
+    "7GJcM604,NJ:-##O]-x-e:k(NX@$##]jP]4ACh^X0(^fLHl/o#g]L7#N'+&#L)Qv$t@0+*I5^+4]77<.aQ9k0$g`,3$+h,3Pqji06rs-$=uG=3tq$>MOAQY>@'.`&K8P>#g>AvL9q*<#"
+    ")EEjLr^PA#m.Us-KRb'4g)Cb4%IuD#GKRL2KkRP/N7R20t3wK#-8/$jJA5U;0viS&[5AC>uIVS%3^oh24GbM(hIL>#xP%U#WE323lpd].B[A30GK_+,sX/D=dn5q&0####GBO&#.1d7$"
+    "3g1$#prgo.-<Tv->;gF4LZ>x#<)]L(/p^I*^nr?#&Y@C#cF&@'wvPJ(?nU^#pRpQ0gF*j0EPtdVN'+9%k*l)*0qi<%>=+dVKrdx0Iu(kLgk4DWX?/YGZv9dMb/q8/+fMO#W+WBOM>#`Q"
+    "xR--3bO1F*.D,G4rFuG-hwhH-AI7q.3B3I):[(cJ[pl6&]3KI%)B1se0fv]M6T3kuGSoBJNCZY#q+er?Y,8v,5cNY5*`$s$#]YV-[@i?#=@[s$G+TC4P#l8./=]s$1Pev6jlje3&-Xf-"
+    "e](jr145d3?;Rv$ZUvC%h5%fqxC$Y@8^CY$O,@H),W'Z-W-Rh27<C[Krsf;$.wg<L9br,4%.6v,>=+dVIIx:/@JJH)Z:Nu.iUkJ2tpPm:t0(Q$@OEp%Upn;%j&5QCa)iS0%5YY#IX$_]"
+    "2^x^]Zrju5Fhf-*i+YV-6'PA#(cK+*mtq;/qwkj1?f6<.0MbI),VW/23>%&4m$ie3%&AA4l'eq7+jkA#dlfj-&$+&^S8VTd.^AN-,CeM0l,'hoodPir`IofLX=$##5C.%T=UYF%^Yk*$"
+    "/)m<-]'LS-&%.20'>uu#OYU7#euQ['GPSw8P`&:)AF14+&YF&#WW`>$Mbk-$I&l-$Bp0.$eo4wLW(I3#Ys%(#U-4&#MXN1#EIc>#ik*$M0xSfLRq)$#@>[A-$Mg;-'Spr-gN<;Ni;-##"
+    "Jer=--`/,Mv_d##tg`=-5X`=-8sG<-*fG<-+C`T.3f1$#mrG<-8X`=-/#XN0Ht*A#e5>##_RFgLX%1kLF=`T.3xL$#)6xU.R,_'#RA`T.T5$C#<rG<-M2(@-xrG<-DKx>-#EfT%8nT`3"
+    "]kU.G-i@+H=DpTCuAo6D<B?hD-rI+HXhdxFL7-AFY'auGt$EJ1m,(@'un@VHdt6L#s[DYGB0-gD.X`'/4+auGpkn+H5-xF-^%/(#B_=?-kQU@-QRt7/uJ6(#Cm[*b[^es/c:@bHdN4/#"
+    "d>?L-NNei.Fn@-#afh]%mxtLF//5UCvs.>B,(rE-i<cM:^0[eF/1u'#.mk.#[5C/#-)IqLR`4rL;wXrLX.lrL1x.qLf.K-#J#`5/%$S-#c7]nLNM-X.Q####F/LMTxS&=u<7L8#";
+
+static constexpr ImWchar DEBUGGER_ICON_MIN       = 0xead1;
+static constexpr ImWchar DEBUGGER_ICON_MAX       = 0xeb8f;
+static constexpr ImWchar DEBUGGER_ICON_RUN       = 0xead3;
+static constexpr ImWchar DEBUGGER_ICON_BREAK     = 0xead1;
+static constexpr ImWchar DEBUGGER_ICON_STEP_IN   = 0xead4;
+static constexpr ImWchar DEBUGGER_ICON_STEP_OUT  = 0xead5;
+static constexpr ImWchar DEBUGGER_ICON_STEP_OVER = 0xead6;
+static constexpr ImWchar DEBUGGER_ICON_STEP_BACK = 0xeb8f;
 
 void ImGuiDebugger::loadIcons()
 {
