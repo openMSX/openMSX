@@ -37,7 +37,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <keyboard_type>int</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>

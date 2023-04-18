@@ -92,7 +92,7 @@ connect other Yamaha "units", like the SFG-01/05 modules.
     </primary>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>16000</volume>
       </sound>
