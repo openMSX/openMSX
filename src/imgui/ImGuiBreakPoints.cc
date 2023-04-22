@@ -8,6 +8,7 @@
 #include "BreakPoint.hh"
 #include "CPURegs.hh"
 #include "Dasm.hh"
+#include "DebugCondition.hh"
 #include "Debugger.hh"
 #include "Interpreter.hh"
 #include "MSXCPU.hh"
@@ -15,6 +16,7 @@
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
 #include "RomPlain.hh"
+#include "WatchPoint.hh"
 
 #include "narrow.hh"
 #include "ranges.hh"
@@ -57,13 +59,13 @@ void ImGuiBreakPoints::paint(MSXMotherBoard* motherBoard)
 		im::TabBar("tabs", [&]{
 			auto& cpuInterface = motherBoard->getCPUInterface();
 			im::TabItem("Breakpoints", [&]{
-				paintTab(cpuInterface);
+				paintTab<BreakPoint>(cpuInterface);
 			});
 			im::TabItem("Watchpoints", [&]{
 				ImGui::TextUnformatted("TODO");
 			});
 			im::TabItem("Conditions", [&]{
-				ImGui::TextUnformatted("TODO");
+				paintTab<DebugCondition>(cpuInterface);
 			});
 		});
 	});
@@ -166,8 +168,28 @@ std::string ParsedSlotCond::toDisplayString() const
 	return result;
 }
 
+template<typename Item> struct HasAddress : std::true_type {};
+template<> struct HasAddress<DebugCondition> : std::false_type {};
+
+template<typename Item> struct AllowEmptyCond : std::true_type {};
+template<> struct AllowEmptyCond<DebugCondition> : std::false_type {};
+
+static void remove(BreakPoint*, MSXCPUInterface& cpuInterface, unsigned id)
+{
+	cpuInterface.removeBreakPoint(id);
+}
+static void remove(DebugCondition*, MSXCPUInterface& cpuInterface, unsigned id)
+{
+	cpuInterface.removeCondition(id);
+}
+
+template<typename Item>
 void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface)
 {
+	constexpr bool hasAddress = HasAddress<Item>{};
+	Item* tag = nullptr;
+	auto& items = getItems(tag);
+
 	int flags = ImGuiTableFlags_RowBg |
 		ImGuiTableFlags_BordersV |
 		ImGuiTableFlags_BordersOuter |
@@ -180,21 +202,24 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface)
 		ImGuiTableFlags_ScrollY |
 		ImGuiTableFlags_ScrollX |
 		ImGuiTableFlags_SizingStretchProp;
-	im::Table("breakpoints", 4, flags, {-60, 0}, [&]{
-		synchronize(cpuInterface);
+	im::Table("items", 4, flags, {-60, 0}, [&]{
+		synchronize<Item>(items, cpuInterface);
 
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("Enable", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort);
-		ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_DefaultSort);
+		int addressFlags = hasAddress ? ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_DefaultSort
+		                              : ImGuiTableColumnFlags_Disabled;
+		ImGui::TableSetupColumn("Address", addressFlags);
 		ImGui::TableSetupColumn("Condition");
 		ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_DefaultHide);
 		ImGui::TableHeadersRow();
-		checkSort();
+
+		checkSort(items);
 
 		int row = 0;
-		for (auto& bp : guiBps) { // TODO c++23 enumerate
+		for (auto& item : items) { // TODO c++23 enumerate
 			im::ID(row, [&]{
-				drawRow(cpuInterface, row, bp);
+				drawRow<Item>(cpuInterface, row, item);
 			});
 			++row;
 		}
@@ -203,59 +228,88 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface)
 	im::Group([&] {
 		if (ImGui::Button("Add")) {
 			--idCounter;
-			guiBps.push_back(GuiBreakPoint{
+			items.push_back(GuiItem{
 				idCounter, true, {}, {}, {}, makeTclList("debug", "break")});
-			selectedBpRow = -1;
+			selectedRow = -1;
 		}
-		im::Disabled(selectedBpRow < 0 || selectedBpRow >= narrow<int>(guiBps.size()), [&]{
+		im::Disabled(selectedRow < 0 || selectedRow >= narrow<int>(items.size()), [&]{
 			if (ImGui::Button("Remove")) {
-				auto it = guiBps.begin() + selectedBpRow;
+				auto it = items.begin() + selectedRow;
 				if (it->id > 0) {
-					cpuInterface.removeBreakPoint(it->id);
+					remove(tag, cpuInterface, it->id);
 				}
-				guiBps.erase(it);
-				selectedBpRow = -1;
+				items.erase(it);
+				selectedRow = -1;
 			}
 		});
 	});
 }
 
-void ImGuiBreakPoints::synchronize(MSXCPUInterface& cpuInterface)
+static const std::vector<BreakPoint>& getOpenMSXItems(BreakPoint*, MSXCPUInterface& cpuInterface)
 {
-	// remove bp's that no longer exist on the openMSX side
-	const auto& openMsxBps = cpuInterface.getBreakPoints();
-	std::erase_if(guiBps, [&](auto& bp) {
-		int id = bp.id;
+	return cpuInterface.getBreakPoints();
+}
+/*static const std::vector<WatchPoint>& getOpenMSXItems(WatchPoint*, MSXCPUInterface& cpuInterface)
+{
+	return cpuInterface.getWatchPoints();
+}*/
+static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCPUInterface& cpuInterface)
+{
+	return cpuInterface.getConditions();
+}
+
+[[nodiscard]] static unsigned getId(const BreakPoint& bp) { return bp.getId(); }
+//[[nodiscard]] static unsigned getId(const WatchPoint& wp) { return wp.getId(); }
+[[nodiscard]] static unsigned getId(const DebugCondition& cond) { return cond.getId(); }
+
+template<typename Item>
+void ImGuiBreakPoints::synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)
+{
+	constexpr bool hasAddress = HasAddress<Item>{};
+	Item* tag = nullptr;
+
+	// remove items that no longer exist on the openMSX side
+	const auto& openMsxItems = getOpenMSXItems(tag, cpuInterface);
+	std::erase_if(items, [&](auto& item) {
+		int id = item.id;
 		if (id < 0) return false; // keep disabled bp
-		bool remove = !contains(openMsxBps, unsigned(id), &BreakPoint::getId);
+		bool remove = !contains(openMsxItems, unsigned(id), [](const auto& i) { return getId(i); });
 		if (remove) {
-			selectedBpRow = -1;
+			selectedRow = -1;
 		}
 		return remove;
 	});
-	for (const auto& bp : openMsxBps) {
-		if (auto it = ranges::find(guiBps, narrow<int>(bp.getId()), &GuiBreakPoint::id);
-			it != guiBps.end()) {
-			// bp exists on the openMSX side, make sure it's in sync
-			assert(it->addr);
-			if (auto addr = bp.getAddress(); *it->addr != addr) {
-				it->addr = addr;
-				it->addrStr = tmpStrCat("0x", hex_string<4>(addr));
+	for (const auto& item : openMsxItems) {
+		if (auto it = ranges::find(items, narrow<int>(getId(item)), &GuiItem::id);
+			it != items.end()) {
+			// item exists on the openMSX side, make sure it's in sync
+			if constexpr (hasAddress) {
+				assert(it->addr);
+				if (auto addr = item.getAddress(); *it->addr != addr) {
+					it->addr = addr;
+					it->addrStr = tmpStrCat("0x", hex_string<4>(addr));
+				}
+			} else {
+				assert(!it->addr);
 			}
-			it->cond = bp.getConditionObj();
-			it->cmd  = bp.getCommandObj();
+			it->cond = item.getConditionObj();
+			it->cmd  = item.getCommandObj();
 		} else {
-			// bp was added on the openMSX side, copy the GUI side
-			auto addr = bp.getAddress();
-			TclObject addrStr{tmpStrCat("0x", hex_string<4>(addr))};
-			guiBps.push_back(GuiBreakPoint{
-				narrow<int>(bp.getId()), true, addr, addrStr, bp.getConditionObj(), bp.getCommandObj()});
-			selectedBpRow = -1;
+			// item was added on the openMSX side, copy to the GUI side
+			std::optional<uint16_t> addr;
+			TclObject addrStr;
+			if constexpr (hasAddress) {
+				addr = item.getAddress();
+				addrStr = tmpStrCat("0x", hex_string<4>(*addr));
+			}
+			items.push_back(GuiItem{
+				narrow<int>(item.getId()), true, addr, std::move(addrStr), item.getConditionObj(), item.getCommandObj()});
+			selectedRow = -1;
 		}
 	}
 }
 
-void ImGuiBreakPoints::checkSort()
+void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items)
 {
 	auto* sortSpecs = ImGui::TableGetSortSpecs();
 	if (!sortSpecs->SpecsDirty) return;
@@ -264,16 +318,17 @@ void ImGuiBreakPoints::checkSort()
 	assert(sortSpecs->SpecsCount == 1);
 	assert(sortSpecs->Specs);
 	assert(sortSpecs->Specs->SortOrder == 0);
+
 	auto sortUpDown = [&](auto proj) {
 		if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-			ranges::stable_sort(guiBps, std::greater<>{}, proj);
+			ranges::stable_sort(items, std::greater<>{}, proj);
 		} else {
-			ranges::stable_sort(guiBps, std::less<>{}, proj);
+			ranges::stable_sort(items, std::less<>{}, proj);
 		}
 	};
 	switch (sortSpecs->Specs->ColumnIndex) {
 	case 1: // addr
-		sortUpDown(&GuiBreakPoint::addr);
+		sortUpDown(&GuiItem::addr);
 		break;
 	case 2: // cond
 		sortUpDown([](const auto& bp) { return bp.cond.getString(); });
@@ -286,8 +341,25 @@ void ImGuiBreakPoints::checkSort()
 	}
 }
 
-void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakPoint& bp)
+static void create(BreakPoint*, MSXCPUInterface& cpuInterface, ImGuiBreakPoints::GuiItem& item)
 {
+	BreakPoint newBp(*item.addr, item.cmd, item.cond, false);
+	item.id = narrow<int>(newBp.getId());
+	cpuInterface.insertBreakPoint(std::move(newBp));
+}
+static void create(DebugCondition*, MSXCPUInterface& cpuInterface, ImGuiBreakPoints::GuiItem& item)
+{
+	DebugCondition newCond(item.cmd, item.cond, false);
+	item.id = narrow<int>(newCond.getId());
+	cpuInterface.setCondition(std::move(newCond));
+}
+
+template<typename Item>
+void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiItem& item)
+{
+	constexpr bool hasAddress = HasAddress<Item>{};
+	Item* tag = nullptr;
+
 	auto& interp = manager.getInterpreter();
 	const auto& style = ImGui::GetStyle();
 	float rowHeight = 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
@@ -296,8 +368,9 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakP
 		if (valid) return;
 		ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, 0x400000ff);
 	};
-	auto isValidCond = [&](std::string_view cond) {
-		return cond.empty() || interp.validExpression(cond);
+	auto isValidCond = [&](std::string_view cond) -> bool {
+		if (cond.empty()) return AllowEmptyCond<Item>{};
+		return interp.validExpression(cond);
 	};
 	auto isValidCmd = [&](std::string_view cmd) {
 		return !cmd.empty() && interp.validCommand(cmd);
@@ -305,42 +378,42 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakP
 
 	bool needSync = false;
 
-	std::string addr{bp.addrStr.getString()};
-	std::string cond{bp.cond.getString()};
-	std::string cmd {bp.cmd .getString()};
-	bool validAddr = bp.addr.has_value();
+	std::string addr{item.addrStr.getString()};
+	std::string cond{item.cond.getString()};
+	std::string cmd {item.cmd .getString()};
+	bool validAddr = !hasAddress || item.addr.has_value();
 	bool validCond = isValidCond(cond);
 	bool validCmd  = isValidCmd(cmd);
 
 	if (ImGui::TableNextColumn()) { // enable
 		auto pos = ImGui::GetCursorPos();
-		if (ImGui::Selectable("##selection", selectedBpRow == row,
+		if (ImGui::Selectable("##selection", selectedRow == row,
 				ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap,
 				{0.0f, rowHeight})) {
-			selectedBpRow = row;
+			selectedRow = row;
 		}
 		ImGui::SetCursorPos(pos);
 		im::Disabled(!validAddr || !validCond || !validCmd, [&]{
-			if (ImGui::Checkbox("##enabled", &bp.wantEnable)) {
+			if (ImGui::Checkbox("##enabled", &item.wantEnable)) {
 				needSync = true;
 			}
-			if (ImGui::IsItemActive()) selectedBpRow = row;
+			if (ImGui::IsItemActive()) selectedRow = row;
 		});
 	}
 	if (ImGui::TableNextColumn()) { // address
 		setRedBg(validAddr);
 		im::ItemWidth(-FLT_MIN, [&]{
 			if (ImGui::InputText("##addr", &addr)) {
-				bp.addrStr = addr;
-				auto newAddr = bp.addrStr.getOptionalInt();
+				item.addrStr = addr;
+				auto newAddr = item.addrStr.getOptionalInt();
 				if (newAddr && ((*newAddr < 0) || (*newAddr > 0xffff))) {
 					newAddr.reset();
 				}
-				bp.addr = newAddr;
-				validAddr = bp.addr.has_value();
+				item.addr = newAddr;
+				validAddr = item.addr.has_value();
 				needSync = true;
 			}
-			if (ImGui::IsItemActive()) selectedBpRow = row;
+			if (ImGui::IsItemActive()) selectedRow = row;
 		});
 	}
 	if (ImGui::TableNextColumn()) { // condition
@@ -353,12 +426,12 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakP
 			if (ImGui::InvisibleButton("##cond-button", {-FLT_MIN, rowHeight})) {
 				ImGui::OpenPopup("cond-popup");
 			}
-			if (ImGui::IsItemActive()) selectedBpRow = row;
+			if (ImGui::IsItemActive()) selectedRow = row;
 			im::Popup("cond-popup", [&]{
 				if (editCondition(slot)) {
 					cond = slot.toTclExpression();
 					validCond = isValidCond(cond);
-					bp.cond = cond;
+					item.cond = cond;
 					needSync = true;
 				}
 			});
@@ -369,24 +442,22 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakP
 		im::ItemWidth(-FLT_MIN, [&]{
 			if (ImGui::InputText("##cmd", &cmd)) {
 				validCmd = isValidCmd(cmd);
-				bp.cmd = cmd;
+				item.cmd = cmd;
 				needSync = true;
 			}
-			if (ImGui::IsItemActive()) selectedBpRow = row;
+			if (ImGui::IsItemActive()) selectedRow = row;
 		});
 	}
 	if (needSync) {
-		if (bp.id > 0) {
+		if (item.id > 0) {
 			// (temporarily) remove it from the openMSX side
-			cpuInterface.removeBreakPoint(bp.id); // temp remove it
-			bp.id = --idCounter;
+			remove(tag, cpuInterface, item.id); // temp remove it
+			item.id = --idCounter;
 		}
-		if (bp.wantEnable && validAddr && validCond && validCmd) {
+		if (item.wantEnable && validAddr && validCond && validCmd) {
 			// (re)create on the openMSX side
-			BreakPoint newBp(*bp.addr, bp.cmd, bp.cond, false);
-			bp.id = narrow<int>(newBp.getId());
-			assert(bp.id > 0);
-			cpuInterface.insertBreakPoint(std::move(newBp));
+			create(tag, cpuInterface, item);
+			assert(item.id > 0);
 		}
 	}
 }

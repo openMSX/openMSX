@@ -10,6 +10,8 @@
 
 namespace openmsx {
 
+class BreakPoint;
+class DebugCondition;
 class ImGuiManager;
 class MSXCPUInterface;
 
@@ -30,7 +32,8 @@ struct ParsedSlotCond {
 
 class ImGuiBreakPoints final : public ImGuiPart
 {
-	struct GuiBreakPoint {
+public:
+	struct GuiItem {
 		int id; // id > 0: exists also on the openMSX side
 		        // id < 0: only exists on the GUI side
 		bool wantEnable; // only really enabled if it's also valid
@@ -49,11 +52,14 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	void paintTab(MSXCPUInterface& cpuInterface);
-	void synchronize(MSXCPUInterface& cpuInterface);
-	void checkSort();
-	void drawRow(MSXCPUInterface& cpuInterface, int row, GuiBreakPoint& bp);
+	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface);
+	template<typename Item> void synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
+	void checkSort(std::vector<GuiItem>& items);
+	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, int row, GuiItem& item);
 	bool editCondition(ParsedSlotCond& slot);
+
+	[[nodiscard]] auto& getItems(BreakPoint*) { return guiBps; }
+	[[nodiscard]] auto& getItems(DebugCondition*) { return guiConditions; }
 
 public:
 	bool show = false;
@@ -62,8 +68,9 @@ private:
 	ImGuiManager& manager;
 
 	static inline int idCounter = 0;
-	std::vector<GuiBreakPoint> guiBps;
-	int selectedBpRow = -1;
+	std::vector<GuiItem> guiBps;
+	std::vector<GuiItem> guiConditions;
+	int selectedRow = -1;
 };
 
 } // namespace openmsx

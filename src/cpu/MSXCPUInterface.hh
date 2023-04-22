@@ -257,6 +257,7 @@ public:
 
 	void setCondition(DebugCondition cond);
 	void removeCondition(const DebugCondition& cond);
+	void removeCondition(unsigned id);
 	using Conditions = std::vector<DebugCondition>;
 	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
 
@@ -315,7 +316,6 @@ private:
 
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	                                BreakPoints::const_iterator> range);
-	void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
 	void updateMemWatch(WatchPoint::Type type);
