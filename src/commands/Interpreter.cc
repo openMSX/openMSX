@@ -458,6 +458,22 @@ TclParser Interpreter::parse(std::string_view command)
 	return {interp, command};
 }
 
+bool Interpreter::validCommand(std::string_view command)
+{
+	Tcl_Parse parseInfo;
+	int result = Tcl_ParseCommand(interp, command.data(), narrow<int>(command.size()), 0, &parseInfo);
+	Tcl_FreeParse(&parseInfo);
+	return result == TCL_OK;
+}
+
+bool Interpreter::validExpression(std::string_view expression)
+{
+	Tcl_Parse parseInfo;
+	int result = Tcl_ParseExpr(interp, expression.data(), narrow<int>(expression.size()), &parseInfo);
+	Tcl_FreeParse(&parseInfo);
+	return result == TCL_OK;
+}
+
 void Interpreter::wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message)
 {
 	assert(argc <= tokens.size());

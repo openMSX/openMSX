@@ -200,3 +200,21 @@ float calculateFade(float current, float target, float period)
 }
 
 } // namespace openmsx
+
+namespace ImGui {
+
+void TextUnformatted(const std::string& str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
+}
+
+void TextUnformatted(std::string_view str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
+}
+
+} // namespace ImGui

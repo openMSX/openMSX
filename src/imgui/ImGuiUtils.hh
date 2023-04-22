@@ -46,4 +46,9 @@ float calculateFade(float current, float target, float period);
 
 } // namespace openmsx
 
+namespace ImGui {
+void TextUnformatted(const std::string& str);
+void TextUnformatted(std::string_view str);
+}
+
 #endif

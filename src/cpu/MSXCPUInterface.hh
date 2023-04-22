@@ -245,6 +245,7 @@ public:
 
 	void insertBreakPoint(BreakPoint bp);
 	void removeBreakPoint(const BreakPoint& bp);
+	void removeBreakPoint(unsigned id);
 	using BreakPoints = std::vector<BreakPoint>;
 	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
 
@@ -314,7 +315,6 @@ private:
 
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	                                BreakPoints::const_iterator> range);
-	void removeBreakPoint(unsigned id);
 	void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();

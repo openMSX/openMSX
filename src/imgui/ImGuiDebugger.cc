@@ -1,6 +1,7 @@
 #include "ImGuiDebugger.hh"
 
 #include "ImGuiBitmapViewer.hh"
+#include "ImGuiBreakPoints.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
@@ -8,12 +9,15 @@
 #include "CPURegs.hh"
 #include "Dasm.hh"
 #include "Debugger.hh"
+#include "Interpreter.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
 #include "RomPlain.hh"
 
+#include "narrow.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 
@@ -158,6 +162,8 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		if (auto* editor = lookup(debuggables, "memory")) {
 			ImGui::MenuItem("Memory", nullptr, &(*editor)->Open);
 		}
+		ImGui::Separator();
+		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints.show);
 		ImGui::Separator();
 		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
 		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);

@@ -367,6 +367,36 @@ inline void Table(const char* str_id, int column, std::invocable<> auto next)
 	Table(str_id, column, 0, {}, 0.0f, next);
 }
 
+// im::TabBar(): wrapper around ImGui::BeginTabBar() / ImGui::EndTabBar()
+inline void TabBar(const char* str_id, ImGuiTabBarFlags flags, std::invocable<> auto next)
+{
+	if (ImGui::BeginTabBar(str_id, flags)) {
+		next();
+		ImGui::EndTabBar();
+	}
+}
+inline void TabBar(const char* str_id, std::invocable<> auto next)
+{
+	TabBar(str_id, 0, next);
+}
+
+// im::TabItem(): wrapper around ImGui::BeginTabItem() / ImGui::EndTabItem()
+inline void TabItem(const char* label, bool* p_open, ImGuiTabItemFlags flags, std::invocable<> auto next)
+{
+	if (ImGui::BeginTabItem(label, p_open, flags)) {
+		next();
+		ImGui::EndTabItem();
+	}
+}
+inline void TabItem(const char* label, bool* p_open, std::invocable<> auto next)
+{
+	TabItem(label, p_open, 0, next);
+}
+inline void TabItem(const char* label, std::invocable<> auto next)
+{
+	TabItem(label, nullptr, 0, next);
+}
+
 // im::Disabled(): wrapper around ImGui::BeginDisabled() / ImGui::EndDisabled()
 inline void Disabled(bool b, std::invocable<> auto next)
 {

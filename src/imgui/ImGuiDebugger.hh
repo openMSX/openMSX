@@ -17,7 +17,6 @@ class DebuggableEditor;
 class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
-class MSXMotherBoard;
 
 class ImGuiDebugger final : public ImGuiPart
 {

@@ -51,6 +51,8 @@ public:
 	void deleteNamespace(const std::string& name);
 
 	[[nodiscard]] TclParser parse(std::string_view command);
+	[[nodiscard]] bool validCommand(std::string_view command);
+	[[nodiscard]] bool validExpression(std::string_view expression);
 
 	void poll();
 
