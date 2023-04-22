@@ -1003,6 +1003,7 @@ proc menu_controller_mapping_exec {config_item} {
 			  post-spacing 6] ]
 
 	set items [dict keys [set ::$config_item]]
+	set presentation [list]
 	foreach i $items {
 		set prefix [expr {([string length $i] == 1) ? "Trigger" : "Direction"}]
 		set mapping [dict get [set ::$config_item] $i]
