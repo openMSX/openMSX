@@ -913,6 +913,14 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
+void MSXCPUInterface::removeWatchPoint(unsigned id)
+{
+	if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+	    it != watchPoints.end()) {
+		removeWatchPoint(*it); // not efficient, does a 2nd search, but good enough
+	}
+}
+
 void MSXCPUInterface::setCondition(DebugCondition cond)
 {
 	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");

@@ -251,6 +251,7 @@ public:
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
+	void removeWatchPoint(unsigned id);
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }

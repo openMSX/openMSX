@@ -37,6 +37,11 @@ public:
 	void unregisterProbe(ProbeBase& probe);
 	[[nodiscard]] ProbeBase* findProbe(std::string_view name);
 
+	unsigned setWatchPoint(TclObject command, TclObject condition,
+	                       WatchPoint::Type type,
+	                       unsigned beginAddr, unsigned endAddr,
+	                       bool once, unsigned newId = -1);
+
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
 
@@ -52,11 +57,6 @@ private:
 		TclObject command, TclObject condition,
 		ProbeBase& probe, bool once, unsigned newId = -1);
 	void removeProbeBreakPoint(std::string_view name);
-
-	unsigned setWatchPoint(TclObject command, TclObject condition,
-	                       WatchPoint::Type type,
-	                       unsigned beginAddr, unsigned endAddr,
-	                       bool once, unsigned newId = -1);
 
 	MSXMotherBoard& motherBoard;
 

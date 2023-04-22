@@ -12,12 +12,14 @@ namespace openmsx {
 
 class BreakPoint;
 class DebugCondition;
+class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
+class WatchPoint;
 
 struct ParsedSlotCond {
-	ParsedSlotCond(std::string_view cond);
-	[[nodiscard]] std::string toTclExpression() const;
+	ParsedSlotCond(std::string_view checkCmd, std::string_view cond);
+	[[nodiscard]] std::string toTclExpression(std::string_view checkCmd) const;
 	[[nodiscard]] std::string toDisplayString() const;
 
 	std::string rest;
@@ -37,8 +39,11 @@ public:
 		int id; // id > 0: exists also on the openMSX side
 		        // id < 0: only exists on the GUI side
 		bool wantEnable; // only really enabled if it's also valid
-		std::optional<uint16_t> addr;
+		int wpType; // only used for Watchpoint
+		std::optional<uint16_t> addr; // not used for DebugCondition
+		std::optional<uint16_t> endAddr; // (inclusive) only used for WatchPoint
 		TclObject addrStr;
+		TclObject endAddrStr;
 		TclObject cond;
 		TclObject cmd;
 	};
@@ -52,13 +57,15 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface);
+	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger);
 	template<typename Item> void synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
 	void checkSort(std::vector<GuiItem>& items);
-	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, int row, GuiItem& item);
+	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item);
+	bool editRange(std::string& begin, std::string& end);
 	bool editCondition(ParsedSlotCond& slot);
 
 	[[nodiscard]] auto& getItems(BreakPoint*) { return guiBps; }
+	[[nodiscard]] auto& getItems(WatchPoint*) { return guiWps; }
 	[[nodiscard]] auto& getItems(DebugCondition*) { return guiConditions; }
 
 public:
@@ -69,6 +76,7 @@ private:
 
 	static inline int idCounter = 0;
 	std::vector<GuiItem> guiBps;
+	std::vector<GuiItem> guiWps;
 	std::vector<GuiItem> guiConditions;
 	int selectedRow = -1;
 };
