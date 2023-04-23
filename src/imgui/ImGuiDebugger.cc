@@ -343,57 +343,60 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						if (rowAtPc) {
 							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
 						}
-						ImGui::TableSetColumnIndex(0); // bp
-						ImGui::Selectable("##row", false,
-								ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-							ImGui::OpenPopup("disassembly-context");
-						}
-						im::Popup("disassembly-context", [&]{
-							if (ImGui::MenuItem("Set breakpoint TODO")) {
-								// TODO
+						if (ImGui::TableNextColumn()) { // bp
+							ImGui::Selectable("##row", false,
+									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+								ImGui::OpenPopup("disassembly-context");
 							}
-							auto setPc = strCat("Set PC to 0x", addrStr);
-							if (ImGui::MenuItem(setPc.c_str())) {
-								regs.setPC(addr);
-							}
-							ImGui::Separator();
-							if (ImGui::MenuItem("Scroll to PC")) {
-								nextGotoTarget = pc;
-							}
-							im::Indent([&]{
-								ImGui::Checkbox("Follow PC while running", &followPC);
-							});
-							ImGui::AlignTextToFramePadding();
-							ImGui::TextUnformatted("Scroll to address:");
-							ImGui::SameLine();
-							// TODO also allow labels
-							if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-								if (auto a = parseHex(gotoAddr)) {
-									nextGotoTarget = *a;
+							im::Popup("disassembly-context", [&]{
+								if (ImGui::MenuItem("Set breakpoint TODO")) {
+									// TODO
 								}
-							}
-						});
+								auto setPc = strCat("Set PC to 0x", addrStr);
+								if (ImGui::MenuItem(setPc.c_str())) {
+									regs.setPC(addr);
+								}
+								ImGui::Separator();
+								if (ImGui::MenuItem("Scroll to PC")) {
+									nextGotoTarget = pc;
+								}
+								im::Indent([&]{
+									ImGui::Checkbox("Follow PC while running", &followPC);
+								});
+								ImGui::AlignTextToFramePadding();
+								ImGui::TextUnformatted("Scroll to address:");
+								ImGui::SameLine();
+								// TODO also allow labels
+								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+									if (auto a = parseHex(gotoAddr)) {
+										nextGotoTarget = *a;
+									}
+								}
+							});
 
-						// if (breakPointOn(addr))
-						//    ImGui::Bullet();
-
+							// if (breakPointOn(addr))
+							//    ImGui::Bullet();
+						}
 						mnemonic.clear();
 						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
 						assert(len >= 1);
 
-						ImGui::TableSetColumnIndex(1); // addr
-						ImGui::TextUnformatted(addrStr.c_str());
-
-						ImGui::TableSetColumnIndex(2); // opcode
-						opcodesStr.clear();
-						for (auto i : xrange(len)) {
-							strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
+						if (ImGui::TableNextColumn()) { // addr
+							ImGui::TextUnformatted(addrStr.c_str());
 						}
-						ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
 
-						ImGui::TableSetColumnIndex(3); // mnemonic
-						ImGui::TextUnformatted(mnemonic.c_str());
+						if (ImGui::TableNextColumn()) { // opcode
+							opcodesStr.clear();
+							for (auto i : xrange(len)) {
+								strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
+							}
+							ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
+						}
+
+						if (ImGui::TableNextColumn()) { // mnemonic
+							ImGui::TextUnformatted(mnemonic.c_str());
+						}
 					});
 				}
 			}

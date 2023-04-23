@@ -130,56 +130,57 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 			ImGui::TableSetupColumn("left",  ImGuiTableColumnFlags_WidthFixed, 200.0f);
 			ImGui::TableSetupColumn("right", ImGuiTableColumnFlags_WidthFixed, 150.0f);
 
-			ImGui::TableNextColumn(); // left pane
-			im::Table("grid", 4, [&]{
-				for (auto i : xrange(16)) {
-					if (ImGui::TableNextColumn()) {
+			if (ImGui::TableNextColumn()) { // left pane
+				im::Table("grid", 4, [&]{
+					for (auto i : xrange(16)) {
+						if (ImGui::TableNextColumn()) {
+							im::ID(i, [&]{
+								if (i == selectedColor) {
+									ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
+								}
+								auto color = toRGBA(palette[i]);
+								if (coloredButton("", color, {44.0f, 30.0f})) {
+									selectedColor = i;
+								}
+							});
+						}
+					}
+				});
+			}
+			if (ImGui::TableNextColumn()) { // right pane
+				ImGui::Text("Color %d", selectedColor);
+				ImGui::TextUnformatted(" ");
+				ImGui::SameLine();
+				coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
+				ImGui::Spacing();
+				ImGui::Spacing();
+
+				im::Disabled(disabled, [&]{
+					static constexpr std::array names = {"R", "G", "B"};
+					auto rgb = extractRGB(palette[selectedColor]);
+					for (auto i : xrange(3)) { // rgb sliders
 						im::ID(i, [&]{
-							if (i == selectedColor) {
-								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
-							}
-							auto color = toRGBA(palette[i]);
-							if (coloredButton("", color, {44.0f, 30.0f})) {
-								selectedColor = i;
-							}
+							ImGui::AlignTextToFramePadding();
+							ImGui::TextUnformatted(names[i]);
+							ImGui::SameLine();
+							im::StyleColor(ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.5f, 0.5f)),
+								ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.6f, 0.5f)),
+								ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.7f, 0.5f)),
+								ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.9f, 0.9f)), [&]{
+								ImGui::SetNextItemWidth(-FLT_MIN);
+								if (ImGui::SliderInt("##v", &rgb[i], 0, 7, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+									assert(!disabled);
+									insertRGB(palette, selectedColor, rgb);
+									if (whichPalette == PALETTE_VDP) {
+										auto time = motherBoard->getCurrentTime();
+										vdp->setPalette(selectedColor, palette[selectedColor], time);
+									}
+								}
+							});
 						});
 					}
-				}
-			});
-
-			ImGui::TableNextColumn(); // right pane
-			ImGui::Text("Color %d", selectedColor);
-			ImGui::TextUnformatted(" ");
-			ImGui::SameLine();
-			coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
-			ImGui::Spacing();
-			ImGui::Spacing();
-
-			im::Disabled(disabled, [&]{
-				static constexpr std::array names = {"R", "G", "B"};
-				auto rgb = extractRGB(palette[selectedColor]);
-				for (auto i : xrange(3)) { // rgb sliders
-					im::ID(i, [&]{
-						ImGui::AlignTextToFramePadding();
-						ImGui::TextUnformatted(names[i]);
-						ImGui::SameLine();
-						im::StyleColor(ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.5f, 0.5f)),
-						               ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.6f, 0.5f)),
-						               ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.7f, 0.5f)),
-						               ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.9f, 0.9f)), [&]{
-							ImGui::SetNextItemWidth(-FLT_MIN);
-							if (ImGui::SliderInt("##v", &rgb[i], 0, 7, "%d", ImGuiSliderFlags_AlwaysClamp)) {
-								assert(!disabled);
-								insertRGB(palette, selectedColor, rgb);
-								if (whichPalette == PALETTE_VDP) {
-									auto time = motherBoard->getCurrentTime();
-									vdp->setPalette(selectedColor, palette[selectedColor], time);
-								}
-							}
-						});
-					});
-				}
-			});
+				});
+			}
 		});
 	});
 }

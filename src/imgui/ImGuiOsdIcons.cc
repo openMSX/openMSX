@@ -8,6 +8,7 @@
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "GLImage.hh"
+#include "Interpreter.hh"
 #include "StringOp.hh"
 #include "enumerate.hh"
 
@@ -219,16 +220,6 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	});
 }
 
-[[nodiscard]] static bool validExpression(const TclObject& expr, Interpreter& interp)
-{
-	try {
-		[[maybe_unused]] bool val = expr.evalBool(interp);
-		return true;
-	} catch (...) {
-		return false;
-	}
-}
-
 void ImGuiOsdIcons::paintConfigureIcons()
 {
 	im::Window("Configure Icons", &showConfigureIcons, [&]{
@@ -271,44 +262,44 @@ void ImGuiOsdIcons::paintConfigureIcons()
 			auto lastRow = iconInfo.size() - 1;
 			for (auto [row, icon] : enumerate(iconInfo)) {
 				im::ID(narrow<int>(row), [&]{
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-					auto pos = ImGui::GetCursorPos();
-					const auto& style = ImGui::GetStyle();
-					auto textHeight = ImGui::GetTextLineHeight();
-					float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
-								std::max(float(icon.on.size[1]), float(icon.off.size[1])));
-					ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, rowHeight));
-					if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-						ImGui::OpenPopup("config-icon-context");
-					}
-					im::Popup("config-icon-context", [&]{
-						if (lastRow >= 1) { // at least 2 rows
-							if (row != 0) {
-								if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
-								if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
-							}
-							if (row != lastRow) {
-								if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
-								if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
-							}
-							ImGui::Separator();
+					if (ImGui::TableNextColumn()) { // enabled
+						auto pos = ImGui::GetCursorPos();
+						const auto& style = ImGui::GetStyle();
+						auto textHeight = ImGui::GetTextLineHeight();
+						float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
+									std::max(float(icon.on.size[1]), float(icon.off.size[1])));
+						ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, rowHeight));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+							ImGui::OpenPopup("config-icon-context");
 						}
-						if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
-						if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
-					});
+						im::Popup("config-icon-context", [&]{
+							if (lastRow >= 1) { // at least 2 rows
+								if (row != 0) {
+									if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
+									if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
+								}
+								if (row != lastRow) {
+									if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
+									if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
+								}
+								ImGui::Separator();
+							}
+							if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
+							if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
+						});
 
-					ImGui::SetCursorPos(pos);
-					if (ImGui::Checkbox("##enabled", &icon.enable)) {
-						iconInfoDirty = true;
-					}
-
-					ImGui::TableSetColumnIndex(1);
-					im::Disabled(!iconsHideTitle, [&]{
-						if (ImGui::Checkbox("##fade-out", &icon.fade)) {
+						ImGui::SetCursorPos(pos);
+						if (ImGui::Checkbox("##enabled", &icon.enable)) {
 							iconInfoDirty = true;
 						}
-					});
+					}
+					if (ImGui::TableNextColumn()) { // fade-out
+						im::Disabled(!iconsHideTitle, [&]{
+							if (ImGui::Checkbox("##fade-out", &icon.fade)) {
+								iconInfoDirty = true;
+							}
+						});
+					}
 
 					auto image = [&](IconInfo::Icon& ic, const char* id) {
 						if (ic.tex.get()) {
@@ -333,24 +324,24 @@ void ImGuiOsdIcons::paintConfigureIcons()
 								});
 						}
 					};
-
-					ImGui::TableSetColumnIndex(2);
-					image(icon.on, "##on");
-
-					ImGui::TableSetColumnIndex(3);
-					image(icon.off, "##off");
-
-					ImGui::TableSetColumnIndex(4);
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					bool valid = validExpression(icon.expr, manager.getInterpreter());
-					im::StyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-					                                    : ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
-						auto expr = std::string(icon.expr.getString());
-						if (ImGui::InputText("##expr", &expr)) {
-							icon.expr = expr;
-							iconInfoDirty = true;
-						}
-					});
+					if (ImGui::TableNextColumn()) { // true-image
+						image(icon.on, "##on");
+					}
+					if (ImGui::TableNextColumn()) { // false-image
+						image(icon.off, "##off");
+					}
+					if (ImGui::TableNextColumn()) { // expression
+						ImGui::SetNextItemWidth(-FLT_MIN);
+						bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
+						im::StyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+										: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+							auto expr = std::string(icon.expr.getString());
+							if (ImGui::InputText("##expr", &expr)) {
+								icon.expr = expr;
+								iconInfoDirty = true;
+							}
+						});
+					}
 				});
 			}
 			if (int row = cmd.first; row != -1) {
