@@ -140,27 +140,27 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::RadioButton("Use VDP settings", &manual, 0);
 				im::Disabled(manual != 0, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Screen mode: %s", modeToStr(vdpMode));
+					ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Foreground color: %d", vdpFgCol);
+					ImGui::StrCat("Foreground color: ", vdpFgCol);
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Background color: %d", vdpBgCol);
+					ImGui::StrCat("Background color: ", vdpBgCol);
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Foreground blink color: %d", vdpFgBlink);
+					ImGui::StrCat("Foreground blink color: ", vdpFgBlink);
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Background blink color: %d", vdpBgBlink);
+					ImGui::StrCat("Background blink color: ", vdpBgBlink);
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Blink: %s", vdpBlink ? "enabled" : "disabled");
+					ImGui::StrCat("Blink: ", vdpBlink ? "enabled" : "disabled");
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Pattern table: 0x%05x", vdpPatBase);
+					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Color table: 0x%05x", vdpColBase);
+					ImGui::StrCat("Color table: 0x", hex_string<5>(vdpColBase));
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Name table: 0x%05x", vdpNamBase);
+					ImGui::StrCat("Name table: 0x", hex_string<5>(vdpNamBase));
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Visible rows: %s", (vdpLines == 192) ? "24" : "26.5");
+					ImGui::StrCat("Visible rows: ", (vdpLines == 192) ? "24" : "26.5");
 					ImGui::AlignTextToFramePadding();
-					ImGui::Text("Replace color 0: %s", getComboString(vdpColor0, color0Str));
+					ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
 				});
 			});
 			ImGui::SameLine();
@@ -323,7 +323,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						ImGui::Text("Pattern: %d", gridPos[0] + 32 * gridPos[1]);
+						ImGui::StrCat("Pattern: ", gridPos[0] + 32 * gridPos[1]);
 						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
 						auto uv2 = uv1 + recipPatTexChars;
 						auto pos2 = ImGui::GetCursorPos();
@@ -408,9 +408,9 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						ImGui::Text("Column: %d Row: %d", gridPos[0], gridPos[1]);
+						ImGui::StrCat("Column: ", gridPos[0], " Row: ", gridPos[1]);
 						auto pattern = getPattern(gridPos[0], gridPos[1]);
-						ImGui::Text("Pattern: %d", pattern);
+						ImGui::StrCat("Pattern: ", pattern);
 						auto [uv1, uv2] = getPatternUV(pattern);
 						auto pos2 = ImGui::GetCursorPos();
 						ImGui::Image(reinterpret_cast<void*>(patternTex.get()), zoomCharSize, uv1, uv2);

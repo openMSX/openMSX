@@ -439,25 +439,25 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 			for (auto page : xrange(4)) {
 				auto addr = 0x4000 * page;
 				if (ImGui::TableNextColumn()) { // page
-					ImGui::Text("%d", page);
+					ImGui::StrCat(page);
 				}
 				if (ImGui::TableNextColumn()) { // address
-					ImGui::Text("0x%04x", addr);
+					ImGui::StrCat("0x", hex_string<4>(addr));
 				}
 				if (ImGui::TableNextColumn()) { // slot
 					int ps = cpuInterface.getPrimarySlot(page);
 					if (cpuInterface.isExpanded(ps)) {
 						int ss = cpuInterface.getSecondarySlot(page);
-						ImGui::Text("%d-%d", ps, ss);
+						ImGui::StrCat(ps, '-', ss);
 					} else {
-						ImGui::Text(" %d", ps);
+						ImGui::StrCat(' ', ps);
 					}
 				}
 				if (ImGui::TableNextColumn()) { // segment
 					auto* device = cpuInterface.getVisibleMSXDevice(page);
 					Debuggable* romBlocks = nullptr;
 					if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
-						ImGui::Text("%d", mapper->getSelectedSegment(page));
+						ImGui::StrCat(mapper->getSelectedSegment(page));
 					} else if (!dynamic_cast<RomPlain*>(device) &&
 						(romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
 						std::array<uint8_t, 4> segments;
@@ -466,12 +466,12 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 						}
 						if ((segments[0] == segments[1]) && (segments[2] == segments[3])) {
 							if (segments[0] == segments[2]) { // 16kB
-								ImGui::Text("R%d", segments[0]);
+								ImGui::StrCat('R', segments[0]);
 							} else { // 8kB
-								ImGui::Text("R%d/%d", segments[0], segments[2]);
+								ImGui::StrCat('R', segments[0], '/', segments[2]);
 							}
 						} else { // 4kB
-							ImGui::Text("R%d/%d/%d/%d", segments[0], segments[1], segments[2], segments[3]);
+							ImGui::StrCat('R', segments[0], '/', segments[1], '/', segments[2], '/', segments[3]);
 						}
 					} else {
 						ImGui::TextUnformatted("-"sv);
@@ -511,7 +511,7 @@ void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuT
 					auto offset = 2 * row;
 					auto addr = sp + offset;
 					if (ImGui::TableNextColumn()) { // address
-						ImGui::Text("%04X", addr);
+						ImGui::StrCat(hex_string<4>(addr));
 					}
 					if (ImGui::TableNextColumn()) { // offset
 						ImGui::Text("SP+%X", offset);
@@ -520,7 +520,7 @@ void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuT
 						auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
 						auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
 						auto value = narrow<uint16_t>(256 * h + l);
-						ImGui::Text("%04X", value);
+						ImGui::StrCat(hex_string<4>(value));
 					}
 				}
 			}

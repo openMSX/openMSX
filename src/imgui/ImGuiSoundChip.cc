@@ -143,7 +143,7 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 			for (auto& channel : info->channelSettings) {
 				im::ID(counter++, [&]{
 					if (ImGui::TableNextColumn()) {
-						ImGui::Text("channel %d", counter);
+						ImGui::StrCat("channel ", counter);
 					}
 					if (ImGui::TableNextColumn()) {
 						Checkbox("mute", *channel.mute);

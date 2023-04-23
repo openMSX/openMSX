@@ -152,7 +152,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 				});
 			}
 			if (ImGui::TableNextColumn()) { // right pane
-				ImGui::Text("Color %d", selectedColor);
+				ImGui::StrCat("Color ", selectedColor);
 				ImGui::TextUnformatted(" "sv);
 				ImGui::SameLine();
 				coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});

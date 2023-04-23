@@ -129,15 +129,15 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::RadioButton("Use VDP settings", &bitmapManual, 0);
 			im::Disabled(bitmapManual != 0, [&]{
 				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Screen mode: %s", modeToStr(vdpMode));
+				ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
 				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Display page: %d", vdpPage);
+				ImGui::StrCat("Display page: ", vdpPage);
 				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Visible lines: %d", vdpLines ? 212 : 192);
+				ImGui::StrCat("Visible lines: ", vdpLines ? 212 : 192);
 				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Replace color 0: %s", getComboString(vdpColor0, color0Str));
+				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
 				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Interlace: %s", "TODO");
+				ImGui::StrCat("Interlace: ", "TODO");
 			});
 		});
 		ImGui::SameLine();

@@ -40,7 +40,7 @@ static void settingStuff(Setting& setting)
 	im::PopupContextItem([&]{
 		auto defaultValue = setting.getDefaultValue();
 		auto defaultString = defaultValue.getString();
-		ImGui::Text("Default value: %s", defaultString.c_str());
+		ImGui::StrCat("Default value: ", defaultString);
 		if (defaultString.empty()) {
 			ImGui::SameLine();
 			ImGui::TextDisabled("<empty>");

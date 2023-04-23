@@ -1,11 +1,14 @@
 #ifndef IMGUI_UTILS_HH
 #define IMGUI_UTILS_HH
 
+#include "strCat.hh"
+
 #include <imgui.h>
 
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace openmsx {
 
@@ -56,6 +59,13 @@ inline void TextUnformatted(std::string_view str)
 	const char* begin = str.data();
 	const char* end = begin + str.size();
 	ImGui::TextUnformatted(begin, end);
+}
+
+template<typename... Ts>
+void StrCat(Ts&& ...ts)
+{
+	auto s = tmpStrCat(std::forward<Ts>(ts)...);
+	TextUnformatted(std::string_view(s));
 }
 
 } // namespace ImGui
