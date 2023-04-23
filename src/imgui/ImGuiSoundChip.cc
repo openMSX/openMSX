@@ -11,6 +11,9 @@
 
 #include <imgui.h>
 
+using namespace std::literals;
+
+
 namespace openmsx {
 
 void ImGuiSoundChip::save(ImGuiTextBuffer& buf)
@@ -77,7 +80,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 			for (auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
 					auto& device = *info.device;
-					ImGui::TextUnformatted(device.getName().c_str());
+					ImGui::TextUnformatted(device.getName());
 					simpleToolTip(device.getDescription());
 				}
 			}
@@ -87,7 +90,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 					int volume = volumeSetting.getInt();
 					int min = volumeSetting.getMinValue();
 					int max = volumeSetting.getMaxValue();
-					ImGui::TextUnformatted("volume");
+					ImGui::TextUnformatted("volume"sv);
 					std::string id = "##volume-" + info.device->getName();
 					if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
 						volumeSetting.setInt(volume);
@@ -101,7 +104,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 					int balance = balanceSetting.getInt();
 					int min = balanceSetting.getMinValue();
 					int max = balanceSetting.getMaxValue();
-					ImGui::TextUnformatted("balance");
+					ImGui::TextUnformatted("balance"sv);
 					std::string id = "##balance-" + info.device->getName();
 					if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
 						balanceSetting.setInt(balance);
@@ -115,7 +118,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 						ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
 					}
-					ImGui::TextUnformatted("channels");
+					ImGui::TextUnformatted("channels"sv);
 					const auto& name = info.device->getName();
 					std::string id = "##channels-" + name;
 					auto [it, inserted] = channels.try_emplace(name, false);

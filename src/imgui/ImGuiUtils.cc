@@ -15,7 +15,7 @@
 
 namespace openmsx {
 
-void simpleToolTip(const char* desc)
+void simpleToolTip(std::string_view desc)
 {
 	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
 		im::Tooltip([&]{
@@ -26,7 +26,7 @@ void simpleToolTip(const char* desc)
 	}
 }
 
-void HelpMarker(const char* desc)
+void HelpMarker(std::string_view desc)
 {
 	ImGui::SameLine();
 	ImGui::TextDisabled("(?)");
@@ -200,21 +200,3 @@ float calculateFade(float current, float target, float period)
 }
 
 } // namespace openmsx
-
-namespace ImGui {
-
-void TextUnformatted(const std::string& str)
-{
-	const char* begin = str.data();
-	const char* end = begin + str.size();
-	ImGui::TextUnformatted(begin, end);
-}
-
-void TextUnformatted(std::string_view str)
-{
-	const char* begin = str.data();
-	const char* end = begin + str.size();
-	ImGui::TextUnformatted(begin, end);
-}
-
-} // namespace ImGui

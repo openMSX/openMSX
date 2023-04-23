@@ -25,6 +25,9 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+using namespace std::literals;
+
+
 namespace openmsx {
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
@@ -119,7 +122,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			auto& speedManager = globalSettings.getSpeedManager();
 			auto& fwdSetting = speedManager.getFastForwardSetting();
 			int fastForward = fwdSetting.getBoolean() ? 1 : 0;
-			ImGui::TextUnformatted("Speed:");
+			ImGui::TextUnformatted("Speed:"sv);
 			ImGui::SameLine();
 			bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
 			ImGui::SameLine();
@@ -146,7 +149,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{
-			ImGui::TextUnformatted("All settings");
+			ImGui::TextUnformatted("All settings"sv);
 			ImGui::Separator();
 			std::vector<Setting*> settings;
 			for (auto* setting : settingsManager.getAllSettings()) {

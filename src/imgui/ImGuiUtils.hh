@@ -1,11 +1,11 @@
 #ifndef IMGUI_UTILS_HH
 #define IMGUI_UTILS_HH
 
+#include <imgui.h>
+
 #include <span>
 #include <string>
 #include <string_view>
-
-using ImGuiSliderFlags = int;
 
 namespace openmsx {
 
@@ -21,11 +21,8 @@ struct EnumToolTip {
 };
 using EnumToolTips = std::span<const EnumToolTip>;
 
-void simpleToolTip(const char* desc);
-inline void simpleToolTip(const std::string& desc) { simpleToolTip(desc.c_str()); }
-inline void simpleToolTip(std::string_view desc) { simpleToolTip(std::string(desc)); }
-
-void HelpMarker(const char* desc);
+void simpleToolTip(std::string_view desc);
+void HelpMarker(std::string_view desc);
 
 bool Checkbox(BooleanSetting& setting);
 bool Checkbox(const char* label, BooleanSetting& setting);
@@ -47,8 +44,20 @@ float calculateFade(float current, float target, float period);
 } // namespace openmsx
 
 namespace ImGui {
-void TextUnformatted(const std::string& str);
-void TextUnformatted(std::string_view str);
+
+inline void TextUnformatted(const std::string& str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
 }
+inline void TextUnformatted(std::string_view str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
+}
+
+} // namespace ImGui
 
 #endif

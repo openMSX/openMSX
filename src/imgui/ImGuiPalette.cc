@@ -1,6 +1,7 @@
 #include "ImGuiPalette.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiUtils.hh"
 
 #include "VDP.hh"
 
@@ -10,6 +11,9 @@
 #include <imgui.h>
 
 #include <cassert>
+
+using namespace std::literals;
+
 
 namespace openmsx {
 
@@ -149,14 +153,14 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 			}
 			if (ImGui::TableNextColumn()) { // right pane
 				ImGui::Text("Color %d", selectedColor);
-				ImGui::TextUnformatted(" ");
+				ImGui::TextUnformatted(" "sv);
 				ImGui::SameLine();
 				coloredButton("##color", toRGBA(palette[selectedColor]), {150.0f, 30.0f});
 				ImGui::Spacing();
 				ImGui::Spacing();
 
 				im::Disabled(disabled, [&]{
-					static constexpr std::array names = {"R", "G", "B"};
+					static constexpr std::array names = {"R"sv, "G"sv, "B"sv};
 					auto rgb = extractRGB(palette[selectedColor]);
 					for (auto i : xrange(3)) { // rgb sliders
 						im::ID(i, [&]{

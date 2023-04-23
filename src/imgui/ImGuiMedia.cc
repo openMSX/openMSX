@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiUtils.hh"
 
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
@@ -12,6 +13,9 @@
 #include "view.hh"
 
 #include <imgui.h>
+
+using namespace std::literals;
+
 
 namespace openmsx {
 
@@ -104,7 +108,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						ImGui::MenuItem("patch files: TODO");
 					});
 					if (ImGui::MenuItem("insert extension")) {
-						ImGui::TextUnformatted("TODO");
+						ImGui::TextUnformatted("TODO"sv);
 					}
 				});
 			}

@@ -11,6 +11,9 @@
 
 #include <imgui.h>
 
+using namespace std::literals;
+
+
 namespace openmsx {
 
 ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
@@ -54,7 +57,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Load state ...", existingStates && !existingStates->empty(), [&]{
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("select savestate");
+					ImGui::TextUnformatted("select savestate"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
 						for (const auto& name : *existingStates) {
 							if (ImGui::Selectable(name.c_str())) {
@@ -84,7 +87,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					});
 				}
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("preview");
+					ImGui::TextUnformatted("preview"sv);
 					ImVec2 size(320, 240);
 					if (previewImage.texture.get()) {
 						ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
@@ -94,11 +97,11 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		ImGui::TextUnformatted("Save state ... TODO");
+		ImGui::TextUnformatted("Save state ... TODO"sv);
 		ImGui::Separator();
 
-		ImGui::TextUnformatted("Load replay ... TODO");
-		ImGui::TextUnformatted("Save replay ... TODO");
+		ImGui::TextUnformatted("Load replay ... TODO"sv);
+		ImGui::TextUnformatted("Save replay ... TODO"sv);
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 	});
 }
@@ -205,7 +208,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 				float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
 				auto timeOffset = totalLength * double(ratio);
 				im::Tooltip([&] {
-					ImGui::TextUnformatted(formatTime(timeOffset).c_str());
+					ImGui::TextUnformatted(formatTime(timeOffset));
 				});
 				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 					manager.executeDelayed(makeTclList("reverse", "goto", b + timeOffset));
@@ -224,7 +227,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 				});
 			});
 		} else {
-			ImGui::TextUnformatted("Reverse is disabled.");
+			ImGui::TextUnformatted("Reverse is disabled."sv);
 			if (ImGui::Button("Enable")) {
 				manager.executeDelayed(makeTclList("reverse", "start"));
 			}

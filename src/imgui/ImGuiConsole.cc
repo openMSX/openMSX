@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
@@ -113,10 +114,7 @@ static void drawLine(const ConsoleLine& line)
 	auto n = line.numChunks();
 	for (auto i : xrange(n)) {
 		im::StyleColor(ImGuiCol_Text, line.chunkColor(i), [&]{
-			auto text = line.chunkText(i);
-			const char* begin = text.data();
-			const char* end = begin + text.size();
-			ImGui::TextUnformatted(begin, end);
+			ImGui::TextUnformatted(line.chunkText(i));
 			if (i != (n - 1)) ImGui::SameLine(0.0f, 0.0f);
 		});
 	}
@@ -170,7 +168,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 
 		// Command-line
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(prompt.c_str());
+		ImGui::TextUnformatted(prompt);
 		ImGui::SameLine(0.0f, 0.0f);
 
 		ImGui::SetNextItemWidth(-FLT_MIN); // full window width

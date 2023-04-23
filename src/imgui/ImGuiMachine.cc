@@ -11,6 +11,9 @@
 
 #include <imgui.h>
 
+using namespace std::literals;
+
+
 namespace openmsx {
 
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
@@ -47,7 +50,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		auto instances = reactor.getMachineIDs();
 		auto currentInstance = reactor.getMachineID();
 		if (instances.size() > 1 || currentInstance.empty()) {
-			ImGui::TextUnformatted("Instances:");
+			ImGui::TextUnformatted("Instances:"sv);
 			im::Indent([&]{
 				float height = (std::min(4.0f, float(instances.size())) + 0.25f) * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##empty", {-FLT_MIN, height}, [&]{
@@ -97,7 +100,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		}
 
-		ImGui::TextUnformatted("Select machine:");
+		ImGui::TextUnformatted("Select machine:"sv);
 		im::Indent([&]{
 			im::TreeNode("filter", [&]{
 				auto combo = [&](std::string& selection, zstring_view key) {

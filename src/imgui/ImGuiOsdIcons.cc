@@ -17,6 +17,9 @@
 
 #include <cstdlib>
 
+using namespace std::literals;
+
+
 namespace openmsx {
 
 void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
@@ -223,7 +226,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 void ImGuiOsdIcons::paintConfigureIcons()
 {
 	im::Window("Configure Icons", &showConfigureIcons, [&]{
-		ImGui::TextUnformatted("Layout:");
+		ImGui::TextUnformatted("Layout:"sv);
 		ImGui::SameLine();
 		ImGui::RadioButton("Horizontal", &iconsHorizontal, 1);
 		ImGui::SameLine();
@@ -241,7 +244,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 		});
 		ImGui::Separator();
 
-		ImGui::TextUnformatted("Advanced:");
+		ImGui::TextUnformatted("Advanced:"sv);
 		HelpMarker("Right-click to reorder, insert, delete.");
 		int flags = ImGuiTableFlags_RowBg |
 				ImGuiTableFlags_BordersOuterH |

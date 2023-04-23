@@ -28,6 +28,8 @@
 #include <cstdint>
 #include <vector>
 
+using namespace std::literals;
+
 
 namespace openmsx {
 
@@ -365,7 +367,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									ImGui::Checkbox("Follow PC while running", &followPC);
 								});
 								ImGui::AlignTextToFramePadding();
-								ImGui::TextUnformatted("Scroll to address:");
+								ImGui::TextUnformatted("Scroll to address:"sv);
 								ImGui::SameLine();
 								// TODO also allow labels
 								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -383,7 +385,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						assert(len >= 1);
 
 						if (ImGui::TableNextColumn()) { // addr
-							ImGui::TextUnformatted(addrStr.c_str());
+							ImGui::TextUnformatted(addrStr);
 						}
 
 						if (ImGui::TableNextColumn()) { // opcode
@@ -395,7 +397,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						}
 
 						if (ImGui::TableNextColumn()) { // mnemonic
-							ImGui::TextUnformatted(mnemonic.c_str());
+							ImGui::TextUnformatted(mnemonic);
 						}
 					});
 				}
@@ -472,7 +474,7 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 							ImGui::Text("R%d/%d/%d/%d", segments[0], segments[1], segments[2], segments[3]);
 						}
 					} else {
-						ImGui::TextUnformatted("-");
+						ImGui::TextUnformatted("-"sv);
 					}
 				}
 			}
@@ -533,7 +535,7 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 		const auto& style = ImGui::GetStyle();
 		auto padding = 2 * style.FramePadding.x;
 		auto width16 = ImGui::CalcTextSize("FFFF").x + padding;
-		auto edit16 = [&](const char* label, auto getter, auto setter) {
+		auto edit16 = [&](std::string_view label, auto getter, auto setter) {
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(label);
 			ImGui::SameLine();
@@ -543,7 +545,7 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 				setter(value);
 			}
 		};
-		auto edit8 = [&](const char* label, auto getter, auto setter) {
+		auto edit8 = [&](std::string_view label, auto getter, auto setter) {
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(label);
 			ImGui::SameLine();
@@ -583,7 +585,7 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 		edit8("R  ", [&]{ return regs.getR(); }, [&](uint8_t value) { regs.setR(value); });
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("IM");
+		ImGui::TextUnformatted("IM"sv);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(width16);
 		uint8_t im = regs.getIM();
@@ -656,7 +658,7 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 		draw("C", 0x01, "NC", " C");
 
 		im::PopupContextWindow([&]{
-			ImGui::TextUnformatted("Layout");
+			ImGui::TextUnformatted("Layout"sv);
 			ImGui::RadioButton("horizontal", &flagsLayout, 0);
 			ImGui::RadioButton("vertical", &flagsLayout, 1);
 			ImGui::Separator();

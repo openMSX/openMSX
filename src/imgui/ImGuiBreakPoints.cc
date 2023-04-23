@@ -33,6 +33,8 @@
 #include <tuple>
 #include <vector>
 
+using namespace std::literals;
+
 
 namespace openmsx {
 
@@ -586,15 +588,15 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 bool ImGuiBreakPoints::editRange(std::string& begin, std::string& end)
 {
 	bool changed = false;
-	ImGui::TextUnformatted("address range");
+	ImGui::TextUnformatted("address range"sv);
 	im::Indent([&]{
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("begin:  ");
+		ImGui::TextUnformatted("begin:  "sv);
 		ImGui::SameLine();
 		changed |= ImGui::InputText("##begin", &begin);
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("end:");
+		ImGui::TextUnformatted("end:"sv);
 		HelpMarker("End address is included in the range.\n"
 		           "Leave empty for a single address.");
 		ImGui::SameLine();
@@ -606,7 +608,7 @@ bool ImGuiBreakPoints::editRange(std::string& begin, std::string& end)
 bool ImGuiBreakPoints::editCondition(ParsedSlotCond& slot)
 {
 	bool changed = false;
-	ImGui::TextUnformatted("slot");
+	ImGui::TextUnformatted("slot"sv);
 	im::Indent([&]{
 		uint8_t one = 1;
 		changed |= ImGui::Checkbox("primary  ", &slot.hasPs);
@@ -627,7 +629,7 @@ bool ImGuiBreakPoints::editCondition(ParsedSlotCond& slot)
 			});
 		});
 	});
-	ImGui::TextUnformatted("Tcl expression");
+	ImGui::TextUnformatted("Tcl expression"sv);
 	im::Indent([&]{
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		changed |= ImGui::InputText("##cond", &slot.rest);
