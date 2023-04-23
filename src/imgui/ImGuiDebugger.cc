@@ -319,6 +319,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
+			const auto& breakPoints = cpuInterface.getBreakPoints();
+			auto bpEt = breakPoints.end();
+
 			std::string mnemonic;
 			std::string opcodesStr;
 			std::array<uint8_t, 4> opcodes;
@@ -329,6 +332,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			}
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
+				auto bpIt = ranges::lower_bound(breakPoints, clipper.DisplayStart, {}, &BreakPoint::getAddress);
 				auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 					ImGui::TableNextRow();
@@ -346,6 +350,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
 						}
 						if (ImGui::TableNextColumn()) { // bp
+							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
 							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
@@ -376,9 +381,19 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									}
 								}
 							});
+							ImGui::SetCursorPos(pos);
 
-							// if (breakPointOn(addr))
-							//    ImGui::Bullet();
+							while ((bpIt != bpEt) && (bpIt->getAddress() < addr)) ++bpIt;
+							if ((bpIt != bpEt) && (bpIt->getAddress() == addr)) {
+								// TODO check slot
+								auto* drawList = ImGui::GetWindowDrawList();
+								gl::vec2 scrn = ImGui::GetCursorScreenPos();
+								auto textSize = ImGui::GetTextLineHeight();
+								auto center = scrn + gl::vec2(textSize * 0.5f);
+								drawList->AddCircleFilled(center, textSize * 0.4f, 0xFF0000E0);
+							}
+							// TODO hover: show bp details
+							// TODO (double?)-click: add/remove bp
 						}
 						mnemonic.clear();
 						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
