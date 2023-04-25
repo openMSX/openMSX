@@ -192,7 +192,7 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	auto& debugger = motherBoard->getDebugger();
 	auto time = motherBoard->getCurrentTime();
 	drawControl(cpuInterface);
-	drawDisassembly(regs, cpuInterface, time);
+	drawDisassembly(regs, cpuInterface, debugger, time);
 	drawSlots(cpuInterface, debugger);
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
@@ -285,7 +285,61 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 	return value;
 }
 
-void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)
+struct CurrentSlot {
+	int ps;
+	std::optional<int> ss;
+	std::optional<int> seg;
+};
+[[nodiscard]] static CurrentSlot getCurrentSlot(
+	MSXCPUInterface& cpuInterface, Debugger& debugger,
+	uint16_t addr, bool wantSs = true, bool wantSeg = true)
+{
+	CurrentSlot result;
+	int page = addr / 0x4000;
+	result.ps = cpuInterface.getPrimarySlot(page);
+
+	if (wantSs && cpuInterface.isExpanded(result.ps)) {
+		result.ss = cpuInterface.getSecondarySlot(page);
+	}
+	if (wantSeg) {
+		const auto* device = cpuInterface.getVisibleMSXDevice(page);
+		Debuggable* romBlocks = nullptr;
+		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
+			result.seg = mapper->getSelectedSegment(page);
+		} else if (!dynamic_cast<const RomPlain*>(device) &&
+		           (romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
+			result.seg = romBlocks->read(addr);
+		}
+	}
+	return result;
+}
+
+[[nodiscard]] static TclObject toTclExpression(const CurrentSlot& slot)
+{
+	std::string result = strCat("[pc_in_slot ", slot.ps);
+	if (slot.ss) {
+		strAppend(result, ' ', *slot.ss);
+	} else {
+		if (slot.seg) strAppend(result, " X");
+	}
+	if (slot.seg) strAppend(result, ' ', *slot.seg);
+	strAppend(result, ']');
+	return TclObject(result);
+}
+
+[[nodiscard]] static bool addrInSlot(
+	const ParsedSlotCond& slot, MSXCPUInterface& cpuInterface, Debugger& debugger, uint16_t addr)
+{
+	if (!slot.hasPs) return true; // no ps specified -> always ok
+
+	auto current = getCurrentSlot(cpuInterface, debugger, addr, slot.hasSs, slot.hasSeg);
+	if (slot.ps != current.ps) return false;
+	if (slot.hasSs && current.ss && (slot.ss != current.ss)) return false;
+	if (slot.hasSeg && current.seg && (slot.seg != current.seg)) return false;
+	return true;
+}
+
+void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time)
 {
 	if (!showDisassembly) return;
 	im::Window("Disassembly", &showDisassembly, [&]{
@@ -321,6 +375,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 			const auto& breakPoints = cpuInterface.getBreakPoints();
 			auto bpEt = breakPoints.end();
+			auto textSize = ImGui::GetTextLineHeight();
 
 			std::string mnemonic;
 			std::string opcodesStr;
@@ -350,6 +405,48 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
 						}
 						if (ImGui::TableNextColumn()) { // bp
+							while ((bpIt != bpEt) && (bpIt->getAddress() < addr)) ++bpIt;
+							bool hasBp = (bpIt != bpEt) && (bpIt->getAddress() == addr);
+							bool multiBp = hasBp && ((bpIt + 1) != bpEt) && ((bpIt + 1)->getAddress() == addr);
+							bool simpleBp = !multiBp;
+							if (hasBp) {
+								ParsedSlotCond bpSlot("pc_in_slot", bpIt->getCondition());
+								bool inSlot = addrInSlot(bpSlot, cpuInterface, debugger, addr);
+								bool defaultBp = bpSlot.rest.empty() && (bpIt->getCommand() == "debug break");
+								simpleBp &= defaultBp;
+
+								auto [r,g,b] = simpleBp ? std::tuple(0xE0, 0x00, 0x00)
+											: std::tuple(0xE0, 0xE0, 0x00);
+								auto a = inSlot ? 0xFF : 0x80;
+								auto col = IM_COL32(r, g, b, a);
+
+								auto* drawList = ImGui::GetWindowDrawList();
+								gl::vec2 scrn = ImGui::GetCursorScreenPos();
+								auto center = scrn + gl::vec2(textSize * 0.5f);
+								drawList->AddCircleFilled(center, textSize * 0.4f, col);
+							}
+							if (ImGui::InvisibleButton("##bp-button", {-FLT_MIN, textSize})) {
+								if (hasBp) {
+									// only allow to remove 'simple' breakpoints,
+									// others can be edited via the breakpoint viewer
+									if (simpleBp) {
+										cpuInterface.removeBreakPoint(bpIt->getId());
+									}
+								} else {
+									// create bp
+									auto slot = getCurrentSlot(cpuInterface, debugger, addr);
+									BreakPoint newBp(addr, TclObject("debug break"), toTclExpression(slot), false);
+									cpuInterface.insertBreakPoint(std::move(newBp));
+								}
+							}
+						}
+
+						mnemonic.clear();
+						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
+						assert(len >= 1);
+
+						if (ImGui::TableNextColumn()) { // addr
+							// do the full-row-selectable stuff in a column that cannot be hidden
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
@@ -357,9 +454,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::OpenPopup("disassembly-context");
 							}
 							im::Popup("disassembly-context", [&]{
-								if (ImGui::MenuItem("Set breakpoint TODO")) {
-									// TODO
-								}
 								auto setPc = strCat("Set PC to 0x", addrStr);
 								if (ImGui::MenuItem(setPc.c_str())) {
 									regs.setPC(addr);
@@ -383,23 +477,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							});
 							ImGui::SetCursorPos(pos);
 
-							while ((bpIt != bpEt) && (bpIt->getAddress() < addr)) ++bpIt;
-							if ((bpIt != bpEt) && (bpIt->getAddress() == addr)) {
-								// TODO check slot
-								auto* drawList = ImGui::GetWindowDrawList();
-								gl::vec2 scrn = ImGui::GetCursorScreenPos();
-								auto textSize = ImGui::GetTextLineHeight();
-								auto center = scrn + gl::vec2(textSize * 0.5f);
-								drawList->AddCircleFilled(center, textSize * 0.4f, 0xFF0000E0);
-							}
-							// TODO hover: show bp details
-							// TODO (double?)-click: add/remove bp
-						}
-						mnemonic.clear();
-						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
-						assert(len >= 1);
-
-						if (ImGui::TableNextColumn()) { // addr
 							ImGui::TextUnformatted(addrStr);
 						}
 

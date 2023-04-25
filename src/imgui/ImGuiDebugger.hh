@@ -36,7 +36,7 @@ public:
 
 private:
 	void drawControl(MSXCPUInterface& cpuInterface);
-	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
+	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time);
 	void drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger);
 	void drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time);
 	void drawRegisters(CPURegs& regs);
