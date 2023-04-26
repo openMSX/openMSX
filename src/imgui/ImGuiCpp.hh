@@ -228,6 +228,18 @@ inline void ID(int int_id, std::invocable<> auto next)
 	next();
 	ImGui::PopID();
 }
+inline void ID(const std::string& str, std::invocable<> auto next)
+{
+	auto begin = str.data();
+	auto end = begin + str.size();
+	ID(begin, end, next);
+}
+inline void ID(std::string_view str, std::invocable<> auto next)
+{
+	auto begin = str.data();
+	auto end = begin + str.size();
+	ID(begin, end, next);
+}
 
 // im::Combo(): wrapper around ImGui::BeginCombo() / ImGui::EndCombo()
 inline void Combo(const char* label, const char* preview_value, ImGuiComboFlags flags, std::invocable<> auto next)

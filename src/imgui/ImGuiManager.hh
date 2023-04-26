@@ -17,6 +17,7 @@
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
+#include "ImGuiSymbols.hh"
 
 #include "EventListener.hh"
 #include "TclObject.hh"
@@ -78,6 +79,7 @@ public:
 	ImGuiMachine machine;
 	ImGuiDebugger debugger;
 	ImGuiBreakPoints breakPoints;
+	ImGuiSymbols symbols;
 	ImGuiBitmapViewer bitmap;
 	ImGuiCharacter character;
 	ImGuiPalette palette;
