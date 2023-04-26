@@ -85,6 +85,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 			reinterpret_cast<const char*>(
 				glewGetErrorString(glew_error)));
 	}
+	if (!GLEW_VERSION_2_1) {
+		throw InitException(
+			"Failed to create " VERSION_STRING " context: ", SDL_GetError());
+	}
 
 	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
 	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
