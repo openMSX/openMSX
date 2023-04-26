@@ -133,6 +133,11 @@ VisibleSurface::VisibleSurface(
 			reinterpret_cast<const char*>(
 				glewGetErrorString(glew_error)));
 	}
+	if (!GLEW_VERSION_2_1) {
+		throw InitException(
+			"Need at least OpenGL version " VERSION_STRING);
+	}
+
 
 	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
 	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values

@@ -31,7 +31,7 @@
   <devices>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <sound>
         <volume>16000</volume>
       </sound>
@@ -55,8 +55,7 @@
       <sound>
         <volume>21000</volume>
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-3527 mirrors -->
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 

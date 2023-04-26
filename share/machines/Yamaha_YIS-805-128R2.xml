@@ -92,7 +92,7 @@ connect other Yamaha "units", like the SFG-01/05 modules.
     </primary>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>16000</volume>
       </sound>
@@ -112,8 +112,7 @@ connect other Yamaha "units", like the SFG-01/05 modules.
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>21000</volume>
       </sound>

@@ -35,7 +35,7 @@
     </S1985>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>16000</volume>
       </sound>
@@ -55,8 +55,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type> <!-- due to S1985, but mask is like AY8910... -->
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
       <sound>
         <volume>21000</volume>
       </sound>

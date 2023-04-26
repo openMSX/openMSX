@@ -18,6 +18,7 @@ variable directory [file normalize $::env(OPENMSX_USER_DATA)/../vgm_recordings]
 
 variable psg_logged       false
 variable fm_logged        false
+variable y2151_logged     false
 variable y8950_logged     false
 variable moonsound_logged false
 variable scc_logged       false
@@ -35,14 +36,14 @@ variable mbwave_title_hack       false
 variable mbwave_loop_hack	 false
 variable mbwave_basic_title_hack false
 
-variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC]
+variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC SFG-01]
 
 set_help_proc vgm_rec [namespace code vgm_rec_help]
 proc vgm_rec_help {args} {
         switch -- [lindex $args 1] {
                 "start"    {return {VGM recording will be initialised, specify one or more soundchips to record.
 
-Syntax: vgm_rec start <MSX-Audio|MSX-Music|MoonSound|PSG|SCC>
+Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC|SFG-01>
 
 Actual recording will start when audio is detected to avoid silence at the beginning of the recording. This mechanism will only work if the MSX and/or playback routine does not send data to the soundchip when not playing, recording will start immediately in those cases.
 }}
@@ -139,6 +140,7 @@ proc vgm_rec {args} {
 
 	variable psg_logged
 	variable fm_logged
+	variable y2151_logged
 	variable y8950_logged
 	variable moonsound_logged
 	variable scc_logged
@@ -211,6 +213,7 @@ proc vgm_rec {args} {
 		}
 		set psg_logged       false
 		set fm_logged        false
+		set y2151_logged     false
 		set y8950_logged     false
 		set moonsound_logged false
 		set scc_logged       false
@@ -218,6 +221,7 @@ proc vgm_rec {args} {
 		foreach a [lrange $args $index+1 end] {
 			if     {[string compare -nocase $a "PSG"      ] == 0} {set psg_logged       true} \
 			elseif {[string compare -nocase $a "MSX-Music"] == 0} {set fm_logged        true} \
+			elseif {[string compare -nocase $a "SFG-01"   ] == 0} {set y2151_logged     true} \
 			elseif {[string compare -nocase $a "MSX-Audio"] == 0} {set y8950_logged     true} \
 			elseif {[string compare -nocase $a "MoonSound"] == 0} {set moonsound_logged true} \
 			elseif {[string compare -nocase $a "SCC"      ] == 0} {set scc_logged       true} \
@@ -257,6 +261,7 @@ proc vgm_rec_start {} {
 
 	variable psg_register       -1
 	variable fm_register        -1
+	variable y2151_register     -1
 	variable y8950_register     -1
 	variable opl4_register_wave -1
 	variable opl4_register      -1
@@ -286,6 +291,14 @@ proc vgm_rec_start {} {
 		append recording_text " MSX-Music"
 	}
 
+	variable y2151_logged
+	if {$y2151_logged} {
+		foreach {ps ss} [find_all_sfg01] {
+			lappend watchpoints [debug set_watchpoint write_mem 0x3FF0 "\[watch_in_slot $ps $ss\]" {vgm::write_y2151_address}] \
+			                    [debug set_watchpoint write_mem 0x3FF1 "\[watch_in_slot $ps $ss\]" {vgm::write_y2151_data}]
+		}
+		append recording_text " SFG-01"
+	}
 	variable y8950_logged
 	if {$y8950_logged} {
 		lappend watchpoints [debug set_watchpoint write_io 0xC0 {} {vgm::write_y8950_address}] \
@@ -384,6 +397,26 @@ proc find_all_scc {} {
 	return $result
 }
 
+proc find_all_sfg01 {} {
+	set result [list]
+	for {set ps 0} {$ps < 4} {incr ps} {
+		for {set ss 0} {$ss < 4} {incr ss} {
+			set device_list [machine_info slot $ps $ss 0]
+			if {[llength $device_list] != 0} {
+				set device [lindex $device_list 0]
+				set device_info_dict [machine_info device $device]
+				set device_type [dict get $device_info_dict "type"]
+				# expected string is "YamahaSFG"
+				if {[string match -nocase *sfg* $device_type]} {
+					lappend result $ps $ss
+				}
+			}
+			if {![machine_info issubslotted $ps]} break
+		}
+	}
+	return $result
+}
+
 proc write_psg_address {} {
 	variable psg_register $::wp_last_value
 }
@@ -407,6 +440,18 @@ proc write_opll_data {} {
 		update_time
 		variable music_data
 		append music_data [binary format ccc 0x51 $opll_register $::wp_last_value]
+	}
+}
+
+proc write_y2151_address {} {
+	variable y2151_register $::wp_last_value
+}
+proc write_y2151_data {} {
+	variable y2151_register
+	if {$y2151_register >= 0} { # initialised to -1
+		update_time
+		variable music_data
+		append music_data [binary format ccc 0x54 $y2151_register $::wp_last_value]
 	}
 }
 
@@ -612,7 +657,15 @@ proc vgm_rec_end {abort} {
 		variable ticks
 		append header [little_endian_32 $ticks]
 		set ticks 0
-		append header [zeros 24]
+		append header [zeros 20]
+
+		variable y2151_logged
+		if {$y2151_logged} {
+			append header [little_endian_32 3579545]
+		} else {
+			append header [zeros 4]
+		}
+
 		# Data starts at offset 0x100
 		append header [little_endian_32 [expr {0x100 - 0x34}]] [zeros 32]
 

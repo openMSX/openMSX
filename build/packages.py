@@ -72,11 +72,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.37'
-	fileLength = 1495748
+	version = '1.6.39'
+	fileLength = 1507328
 	checksums = {
 		'sha256':
-			'daeb2620d829575513e35fecc83f0d3791a620b9b93d800b763542ece9390fb4',
+			'af4fb7f260f839919e5958e5ab01a275d4fe436d45442a36ee62f73e5beb75ba',
 		}
 
 	@classmethod
@@ -117,11 +117,11 @@ class SDL2(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.0.20'
-	fileLength = 7207221
+	version = '2.26.4'
+	fileLength = 8084255
 	checksums = {
 		'sha256':
-			'c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06',
+			'1a0f686498fb768ad9f3f80b39037a7d006eac093aad39cb4ebcc832a8887231',
 		}
 
 class SDL2_ttf(DownloadablePackage):
@@ -139,11 +139,11 @@ class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.6.12'
-	fileLength = 10353486
+	version = '8.6.13'
+	fileLength = 10834396
 	checksums = {
 		'sha256':
-			'26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6',
+			'43a1fae7412f61ff11de2cfd05d28cfc3a73762f354a417c62370a54e2caf066',
 		}
 
 	@classmethod

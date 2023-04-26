@@ -23,7 +23,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
@@ -34,8 +34,8 @@
     <VDP id="VDP">
       <version>V9938</version>
       <vram>128</vram>
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
     </VDP>
 
     <PSG id="PSG">
@@ -43,8 +43,7 @@
       <sound>
         <volume>21000</volume>
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 

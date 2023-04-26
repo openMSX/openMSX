@@ -37,7 +37,7 @@ VDP: TMS9118NL
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- as checked by Peter -->
@@ -56,8 +56,7 @@ VDP: TMS9118NL
       <sound>
         <volume>21000</volume>
       </sound>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-3527 mirrors -->
       <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 

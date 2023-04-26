@@ -71,8 +71,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     <PSG id="PSG">
       <keyboardlayout>JIS</keyboardlayout>
       <type>YM2149</type>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <sound>
         <volume>21000</volume>
       </sound>

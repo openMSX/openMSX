@@ -95,8 +95,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type>
-      <io base="0xA0" num="2" type="O"/>
-      <io base="0xA2" num="1" type="I"/>
+      <io base="0xA0" num="4" type="IO"/>
       <sound>
         <volume>21000</volume>
       </sound>
