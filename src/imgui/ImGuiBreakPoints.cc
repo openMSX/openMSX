@@ -297,6 +297,8 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCP
 [[nodiscard]] static TclObject getCommandObj(const BreakPointBase& bp) { return bp.getCommandObj(); }
 [[nodiscard]] static TclObject getCommandObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getCommandObj(); }
 
+
+
 template<typename Item>
 void ImGuiBreakPoints::synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)
 {
@@ -316,8 +318,11 @@ void ImGuiBreakPoints::synchronize(std::vector<GuiItem>& items, MSXCPUInterface&
 		return remove;
 	});
 	for (const auto& item : openMsxItems) {
-		auto formatAddr = [](uint16_t addr) {
-			return strCat("0x", hex_string<4>(addr));
+		auto formatAddr = [&](uint16_t addr) {
+			if (auto sym = manager.symbols.lookupValue(addr); !sym.empty()) {
+				return TclObject(sym);
+			}
+			return TclObject(tmpStrCat("0x", hex_string<4>(addr)));
 		};
 		if (auto it = ranges::find(items, narrow<int>(getId(item)), &GuiItem::id);
 			it != items.end()) {
@@ -337,7 +342,7 @@ void ImGuiBreakPoints::synchronize(std::vector<GuiItem>& items, MSXCPUInterface&
 					it->addr = addr;
 					it->endAddr = (addr != endAddr) ? std::optional<uint16_t>(endAddr) : std::nullopt;
 					it->addrStr = formatAddr(addr);
-					it->endAddrStr = (addr != endAddr) ? formatAddr(endAddr) : std::string{};
+					it->endAddrStr = (addr != endAddr) ? formatAddr(endAddr) : TclObject{};
 				}
 			} else {
 				assert(!it->addr);
@@ -499,12 +504,15 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		if (ImGui::IsItemActive()) selectedRow = row;
 	}
 	if (ImGui::TableNextColumn()) { // address
-		auto parseUint16 = [](const TclObject& o) {
-			auto result = o.getOptionalInt();
-			if (result && ((*result < 0) || (*result > 0xffff))) {
-				result.reset();
+		auto parseAddress = [&](const TclObject& o) {
+			return manager.symbols.parseSymbolOrValue(o.getString());
+		};
+		auto addrToolTip = [&]{
+			auto tip = strCat("0x", hex_string<4>(*item.addr));
+			if (item.endAddr) {
+				strAppend(tip, "...0x", hex_string<4>(*item.endAddr));
 			}
-			return result;
+			simpleToolTip(tip);
 		};
 		setRedBg(validAddr);
 		bool addrChanged = false;
@@ -518,6 +526,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 				strAppend(displayAddr, "...", endAddr);
 			}
 			ImGui::TextUnformatted(displayAddr);
+			addrToolTip();
 			ImGui::SetCursorPos(pos);
 			if (ImGui::InvisibleButton("##range-button", {-FLT_MIN, rowHeight})) {
 				ImGui::OpenPopup("range-popup");
@@ -529,13 +538,14 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		} else {
 			assert(endAddr.empty());
 			addrChanged |= ImGui::InputText("##addr", &addr);
+			addrToolTip();
 			if (ImGui::IsItemActive()) selectedRow = row;
 		}
 		if (addrChanged) {
 			item.addrStr = addr;
 			item.endAddrStr = endAddr;
-			item.addr    = parseUint16(item.addrStr);
-			item.endAddr = parseUint16(item.endAddrStr);
+			item.addr    = parseAddress(item.addrStr);
+			item.endAddr = parseAddress(item.endAddrStr);
 			if (item.endAddr && !item.addr) item.endAddr.reset();
 			validAddr = isValidAddr(item);
 			needSync = true;
