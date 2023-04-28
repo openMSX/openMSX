@@ -263,29 +263,6 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 	});
 }
 
-/** Parses the given string as a hexadecimal integer.
-  * TODO move this to StringOp? */
-[[nodiscard]] static constexpr std::optional<unsigned> parseHex(std::string_view str)
-{
-	if (str.empty()) {
-		return {};
-	}
-	unsigned value = 0;
-	for (const char c : str) {
-		value *= 16;
-		if ('0' <= c && c <= '9') {
-			value += c - '0';
-		} else if ('A' <= c && c <= 'F') {
-			value += c - 'A' + 10;
-		} else if ('a' <= c && c <= 'f') {
-			value += c - 'a' + 10;
-		} else {
-			return {};
-		}
-	}
-	return value;
-}
-
 struct CurrentSlot {
 	int ps;
 	std::optional<int> ss;
@@ -481,9 +458,16 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::TextUnformatted("Scroll to address:"sv);
 								ImGui::SameLine();
 								// TODO also allow labels
-								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-									if (auto a = parseHex(gotoAddr)) {
+								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
+									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
 										nextGotoTarget = *a;
+									}
+								}
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
+										im::Tooltip([&]{
+											ImGui::StrCat("0x", hex_string<4>(*a));
+										});
 									}
 								}
 							});

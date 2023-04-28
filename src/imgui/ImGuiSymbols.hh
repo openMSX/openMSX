@@ -6,6 +6,7 @@
 #include "hash_map.hh"
 
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -30,6 +31,7 @@ public:
 
 	[[nodiscard]] const std::vector<std::string>& getFiles();
 	[[nodiscard]] std::string_view lookupValue(uint16_t value);
+	std::optional<uint16_t> parseSymbolOrValue(std::string_view str) const;
 
 public:
 	bool show = false;

@@ -17,7 +17,6 @@
 #include <imgui.h>
 
 #include <cassert>
-#include <optional>
 
 namespace openmsx {
 
@@ -267,6 +266,22 @@ static std::optional<uint16_t> parseValue(std::string_view str)
 	// no prefix in interpreted as decimal
 	// "0" as a prefix for octal is intentionally NOT supported
 	return StringOp::stringTo<uint16_t>(str);
+}
+
+std::optional<uint16_t> ImGuiSymbols::parseSymbolOrValue(std::string_view str) const
+{
+	// linear search is fine: only used interactively
+	// prefer an exact match
+	if (auto it = ranges::find(symbols, str, &Symbol::name); it != symbols.end()) {
+		return it->value;
+	}
+	// but if not found, a case-insensitive match is fine as well
+	if (auto it = ranges::find_if(symbols, [&](const auto& sym) { return StringOp::casecmp{}(str, sym.name); });
+	    it != symbols.end()) {
+		return it->value;
+	}
+	// also not found, then try to parse as a numerical value
+	return parseValue(str);
 }
 
 std::vector<Symbol> ImGuiSymbols::load(const std::string& filename)
