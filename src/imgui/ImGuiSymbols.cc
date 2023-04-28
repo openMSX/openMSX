@@ -183,6 +183,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 void ImGuiSymbols::dropCaches()
 {
 	filesCache.clear();
+	lookupValueCache.clear();
 }
 
 const std::vector<std::string>& ImGuiSymbols::getFiles()
@@ -198,6 +199,21 @@ const std::vector<std::string>& ImGuiSymbols::getFiles()
 		ranges::sort(filesCache);
 	}
 	return filesCache;
+}
+
+std::string_view ImGuiSymbols::lookupValue(uint16_t value)
+{
+	if (lookupValueCache.empty()) {
+		for (const auto& sym : symbols) {
+			// does not replace existing values, meaning you can
+			// only query one symbol name for the same value
+			lookupValueCache.try_emplace(sym.value, sym.name);
+		}
+	}
+	if (auto* sym = lookup(lookupValueCache, value)) {
+		return *sym;
+	}
+	return {};
 }
 
 void ImGuiSymbols::reload(const std::string& file)

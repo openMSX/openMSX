@@ -394,7 +394,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 					ImGui::TableNextRow();
 					if (it == startAddresses.end()) continue;
 					auto addr = *it++;
-					auto addrStr = tmpStrCat(hex_string<4>(addr));
 					im::ID(narrow<int>(addr), [&]{
 						if (gotoTarget && addr >= *gotoTarget) {
 							gotoTarget = {};
@@ -443,7 +442,18 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						}
 
 						mnemonic.clear();
-						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time);
+						std::optional<uint16_t> mnemonicAddr;
+						bool mnemonicLabel = false;
+						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time,
+							[&](std::string& output, uint16_t a) {
+								mnemonicAddr = a;
+								if (auto label = manager.symbols.lookupValue(a); !label.empty()) {
+									output += label;
+									mnemonicLabel = true;
+								} else {
+									appendAddrAsHex(output, a);
+								}
+							});
 						assert(len >= 1);
 
 						if (ImGui::TableNextColumn()) { // addr
@@ -454,6 +464,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
 							}
+							auto addrStr = tmpStrCat(hex_string<4>(addr));
 							im::Popup("disassembly-context", [&]{
 								auto setPc = strCat("Set PC to 0x", addrStr);
 								if (ImGui::MenuItem(setPc.c_str())) {
@@ -476,9 +487,14 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									}
 								}
 							});
-							ImGui::SetCursorPos(pos);
 
-							ImGui::TextUnformatted(addrStr);
+							auto addrLabel = manager.symbols.lookupValue(addr);
+							std::string_view displayAddr = addrLabel.empty() ? addrStr : addrLabel;
+							ImGui::SetCursorPos(pos);
+							ImGui::TextUnformatted(displayAddr);
+							if (!addrLabel.empty()) {
+								simpleToolTip(addrStr);
+							}
 						}
 
 						if (ImGui::TableNextColumn()) { // opcode
@@ -490,7 +506,18 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						}
 
 						if (ImGui::TableNextColumn()) { // mnemonic
+							auto pos = ImGui::GetCursorPos();
 							ImGui::TextUnformatted(mnemonic);
+							if (mnemonicAddr) {
+								ImGui::SetCursorPos(pos);
+								if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
+									nextGotoTarget = *mnemonicAddr;
+								}
+								if (mnemonicLabel) {
+									auto str = tmpStrCat('#', hex_string<4>(*mnemonicAddr));
+									simpleToolTip(str);
+								}
+							}
 						}
 					});
 				}

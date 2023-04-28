@@ -3,6 +3,8 @@
 
 #include "ImGuiPart.hh"
 
+#include "hash_map.hh"
+
 #include <cstdint>
 #include <vector>
 
@@ -26,12 +28,14 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	[[nodiscard]] const std::vector<std::string>& getFiles();
+	[[nodiscard]] std::string_view lookupValue(uint16_t value);
+
 public:
 	bool show = false;
 
 private:
 	void dropCaches();
-	[[nodiscard]] const std::vector<std::string>& getFiles();
 
 	void reload(const std::string& file);
 	void remove(const std::string& file);
@@ -41,7 +45,8 @@ private:
 private:
 	ImGuiManager& manager;
 	std::vector<Symbol> symbols;
-	std::vector<std::string> filesCache; // calculated from symbols
+	std::vector<std::string> filesCache; // calculated from 'symbols'
+	hash_map<uint16_t, std::string_view> lookupValueCache; // calculated from 'symbols'
 };
 
 } // namespace openmsx

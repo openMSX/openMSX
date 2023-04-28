@@ -16,8 +16,14 @@ static constexpr int abs(uint8_t a)
 	return (a & 128) ? (256 - a) : a;
 }
 
+void appendAddrAsHex(std::string& output, uint16_t addr)
+{
+	strAppend(output, '#', hex_string<4>(addr));
+}
+
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
-              std::string& dest, EmuTime::param time)
+              std::string& dest, EmuTime::param time,
+              std::function<void(std::string&, uint16_t)> appendAddr)
 {
 	const char* r = nullptr;
 
@@ -56,9 +62,14 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
 			break;
 		case 'R':
 			buf[i] = interface.peekMem(narrow_cast<uint16_t>(pc + i), time);
-			strAppend(dest, '#', hex_string<4>(
-				pc + 2 + static_cast<int8_t>(buf[i])));
+			appendAddr(dest, pc + 2 + static_cast<int8_t>(buf[i]));
 			i += 1;
+			break;
+		case 'A':
+			buf[i + 0] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 0), time);
+			buf[i + 1] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 1), time);
+			appendAddr(dest, buf[i] + buf[i + 1] * 256);
+			i += 2;
 			break;
 		case 'W':
 			buf[i + 0] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 0), time);

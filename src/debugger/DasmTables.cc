@@ -2,6 +2,21 @@
 
 namespace openmsx {
 
+/*
+ * Letter codes in the instructions:
+ *
+ *   A - Address
+ *   B - Byte value
+ *   R - Relative jump offset
+ *   W - Word value
+ *   X - Indexed address ( 3 byte )
+ *   Y - Indexed address ( 4 byte )
+ *   I - IX or IY register
+ *   ! - Invalid opcode
+ *   @ - Invalid opcode
+ *   # - Invalid opcode
+ */
+
 const std::array<const char*, 256> mnemonic_xx_cb =
 {
 	"#","#","#","#","#","#","rlc Y"  ,"#",
@@ -84,14 +99,14 @@ const std::array<const char*, 256> mnemonic_ed =
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
-	"in b,(c)","out (c),b","sbc hl,bc","ld (W),bc","neg","retn","im 0","ld i,a",
-	"in c,(c)","out (c),c","adc hl,bc","ld bc,(W)","!"  ,"reti","!"   ,"ld r,a",
-	"in d,(c)","out (c),d","sbc hl,de","ld (W),de","!"  ,"!"   ,"im 1","ld a,i",
-	"in e,(c)","out (c),e","adc hl,de","ld de,(W)","!"  ,"!"   ,"im 2","ld a,r",
-	"in h,(c)","out (c),h","sbc hl,hl","ld (W),hl","!"  ,"!"   ,"!"   ,"rrd"   ,
-	"in l,(c)","out (c),l","adc hl,hl","ld hl,(W)","!"  ,"!"   ,"!"   ,"rld"   ,
-	"in f,(c)","out (c),0","sbc hl,sp","ld (W),sp","!"  ,"!"   ,"!"   ,"!"     ,
-	"in a,(c)","out (c),a","adc hl,sp","ld sp,(W)","!"  ,"!"   ,"!"   ,"!"     ,
+	"in b,(c)","out (c),b","sbc hl,bc","ld (A),bc","neg","retn","im 0","ld i,a",
+	"in c,(c)","out (c),c","adc hl,bc","ld bc,(A)","!"  ,"reti","!"   ,"ld r,a",
+	"in d,(c)","out (c),d","sbc hl,de","ld (A),de","!"  ,"!"   ,"im 1","ld a,i",
+	"in e,(c)","out (c),e","adc hl,de","ld de,(A)","!"  ,"!"   ,"im 2","ld a,r",
+	"in h,(c)","out (c),h","sbc hl,hl","ld (A),hl","!"  ,"!"   ,"!"   ,"rrd"   ,
+	"in l,(c)","out (c),l","adc hl,hl","ld hl,(A)","!"  ,"!"   ,"!"   ,"rld"   ,
+	"in f,(c)","out (c),0","sbc hl,sp","ld (A),sp","!"  ,"!"   ,"!"   ,"!"     ,
+	"in a,(c)","out (c),a","adc hl,sp","ld sp,(A)","!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
 	"!"       ,"!"        ,"!"        ,"!"        ,"!"  ,"!"   ,"!"   ,"!"     ,
@@ -116,8 +131,8 @@ const std::array<const char*, 256> mnemonic_xx =
 	"@"      ,"add I,bc","@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
 	"@"      ,"@"       ,"@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
 	"@"      ,"add I,de","@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
-	"@"      ,"ld I,W"  ,"ld (W),I","inc I"    ,"inc Ih"  ,"dec Ih"  ,"ld Ih,B","@"      ,
-	"@"      ,"add I,I" ,"ld I,(W)","dec I"    ,"inc Il"  ,"dec Il"  ,"ld Il,B","@"      ,
+	"@"      ,"ld I,W"  ,"ld (A),I","inc I"    ,"inc Ih"  ,"dec Ih"  ,"ld Ih,B","@"      ,
+	"@"      ,"add I,I" ,"ld I,(A)","dec I"    ,"inc Il"  ,"dec Il"  ,"ld Il,B","@"      ,
 	"@"      ,"@"       ,"@"       ,"@"        ,"inc X"   ,"dec X"   ,"ld X,B" ,"@"      ,
 	"@"      ,"add I,sp","@"       ,"@"        ,"@"       ,"@"       ,"@"      ,"@"      ,
 	"@"      ,"@"       ,"@"       ,"@"        ,"ld b,Ih" ,"ld b,Il" ,"ld b,X" ,"@"      ,
@@ -152,10 +167,10 @@ const std::array<const char*, 256> mnemonic_main =
 	"ex af,af'","add hl,bc","ld a,(bc)","dec bc"    ,"inc c"    ,"dec c"    ,"ld c,B"    ,"rrca"     ,
 	"djnz R"   ,"ld de,W"  ,"ld (de),a","inc de"    ,"inc d"    ,"dec d"    ,"ld d,B"    ,"rla"      ,
 	"jr R"     ,"add hl,de","ld a,(de)","dec de"    ,"inc e"    ,"dec e"    ,"ld e,B"    ,"rra"      ,
-	"jr nz,R"  ,"ld hl,W"  ,"ld (W),hl","inc hl"    ,"inc h"    ,"dec h"    ,"ld h,B"    ,"daa"      ,
-	"jr z,R"   ,"add hl,hl","ld hl,(W)","dec hl"    ,"inc l"    ,"dec l"    ,"ld l,B"    ,"cpl"      ,
-	"jr nc,R"  ,"ld sp,W"  ,"ld (W),a" ,"inc sp"    ,"inc (hl)" ,"dec (hl)" ,"ld (hl),B" ,"scf"      ,
-	"jr c,R"   ,"add hl,sp","ld a,(W)" ,"dec sp"    ,"inc a"    ,"dec a"    ,"ld a,B"    ,"ccf"      ,
+	"jr nz,R"  ,"ld hl,W"  ,"ld (A),hl","inc hl"    ,"inc h"    ,"dec h"    ,"ld h,B"    ,"daa"      ,
+	"jr z,R"   ,"add hl,hl","ld hl,(A)","dec hl"    ,"inc l"    ,"dec l"    ,"ld l,B"    ,"cpl"      ,
+	"jr nc,R"  ,"ld sp,W"  ,"ld (A),a" ,"inc sp"    ,"inc (hl)" ,"dec (hl)" ,"ld (hl),B" ,"scf"      ,
+	"jr c,R"   ,"add hl,sp","ld a,(A)" ,"dec sp"    ,"inc a"    ,"dec a"    ,"ld a,B"    ,"ccf"      ,
 	"ld b,b"   ,"ld b,c"   ,"ld b,d"   ,"ld b,e"    ,"ld b,h"   ,"ld b,l"   ,"ld b,(hl)" ,"ld b,a"   ,
 	"ld c,b"   ,"ld c,c"   ,"ld c,d"   ,"ld c,e"    ,"ld c,h"   ,"ld c,l"   ,"ld c,(hl)" ,"ld c,a"   ,
 	"ld d,b"   ,"ld d,c"   ,"ld d,d"   ,"ld d,e"    ,"ld d,h"   ,"ld d,l"   ,"ld d,(hl)" ,"ld d,a"   ,
@@ -172,14 +187,14 @@ const std::array<const char*, 256> mnemonic_main =
 	"xor b"    ,"xor c"    ,"xor d"    ,"xor e"     ,"xor h"    ,"xor l"    ,"xor (hl)"  ,"xor a"    ,
 	"or b"     ,"or c"     ,"or d"     ,"or e"      ,"or h"     ,"or l"     ,"or (hl)"   ,"or a"     ,
 	"cp b"     ,"cp c"     ,"cp d"     ,"cp e"      ,"cp h"     ,"cp l"     ,"cp (hl)"   ,"cp a"     ,
-	"ret nz"   ,"pop bc"   ,"jp nz,W"  ,"jp W"      ,"call nz,W","push bc"  ,"add a,B"   ,"rst 00h"  ,
-	"ret z"    ,"ret"      ,"jp z,W"   ,"cb"        ,"call z,W" ,"call W"   ,"adc a,B"   ,"rst 08h"  ,
-	"ret nc"   ,"pop de"   ,"jp nc,W"  ,"out (B),a" ,"call nc,W","push de"  ,"sub B"     ,"rst 10h"  ,
-	"ret c"    ,"exx"      ,"jp c,W"   ,"in a,(B)"  ,"call c,W" ,"dd"       ,"sbc a,B"   ,"rst 18h"  ,
-	"ret po"   ,"pop hl"   ,"jp po,W"  ,"ex (sp),hl","call po,W","push hl"  ,"and B"     ,"rst 20h"  ,
-	"ret pe"   ,"jp (hl)"  ,"jp pe,W"  ,"ex de,hl"  ,"call pe,W","ed"       ,"xor B"     ,"rst 28h"  ,
-	"ret p"    ,"pop af"   ,"jp p,W"   ,"di"        ,"call p,W" ,"push af"  ,"or B"      ,"rst 30h"  ,
-	"ret m"    ,"ld sp,hl" ,"jp m,W"   ,"ei"        ,"call m,W" ,"fd"       ,"cp B"      ,"rst 38h"
+	"ret nz"   ,"pop bc"   ,"jp nz,A"  ,"jp A"      ,"call nz,A","push bc"  ,"add a,B"   ,"rst 00h"  ,
+	"ret z"    ,"ret"      ,"jp z,A"   ,"cb"        ,"call z,A" ,"call A"   ,"adc a,B"   ,"rst 08h"  ,
+	"ret nc"   ,"pop de"   ,"jp nc,A"  ,"out (B),a" ,"call nc,A","push de"  ,"sub B"     ,"rst 10h"  ,
+	"ret c"    ,"exx"      ,"jp c,A"   ,"in a,(B)"  ,"call c,A" ,"dd"       ,"sbc a,B"   ,"rst 18h"  ,
+	"ret po"   ,"pop hl"   ,"jp po,A"  ,"ex (sp),hl","call po,A","push hl"  ,"and B"     ,"rst 20h"  ,
+	"ret pe"   ,"jp (hl)"  ,"jp pe,A"  ,"ex de,hl"  ,"call pe,A","ed"       ,"xor B"     ,"rst 28h"  ,
+	"ret p"    ,"pop af"   ,"jp p,A"   ,"di"        ,"call p,A" ,"push af"  ,"or B"      ,"rst 30h"  ,
+	"ret m"    ,"ld sp,hl" ,"jp m,A"   ,"ei"        ,"call m,A" ,"fd"       ,"cp B"      ,"rst 38h"
 };
 
 static constexpr uint8_t D = 8; // DD or FD
