@@ -183,6 +183,7 @@ void ImGuiSymbols::dropCaches()
 {
 	filesCache.clear();
 	lookupValueCache.clear();
+	manager.breakPoints.refreshSymbols();
 }
 
 const std::vector<std::string>& ImGuiSymbols::getFiles()
@@ -226,7 +227,7 @@ void ImGuiSymbols::reload(const std::string& file)
 				"\" doesn't contain any symbols");
 			return; // don't remove previous version
 		}
-		remove(file);
+		remove2(file); // do not yet refresh symbols
 		append(symbols, std::move(newSymbols));
 	} catch (MSXException& e) {
 		manager.getReactor().getCliComm().printWarning(
@@ -241,9 +242,13 @@ void ImGuiSymbols::removeAll()
 	dropCaches();
 }
 
-void ImGuiSymbols::remove(const std::string& file)
+void ImGuiSymbols::remove2(const std::string& file)
 {
 	std::erase_if(symbols, [&](auto& sym) { return sym.file == file; });
+}
+void ImGuiSymbols::remove(const std::string& file)
+{
+	remove2(file);
 	dropCaches();
 }
 

@@ -56,10 +56,16 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	void refreshSymbols();
+
 private:
 	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger);
-	template<typename Item> void synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
+	template<typename Item> void syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
 	void checkSort(std::vector<GuiItem>& items);
+	std::optional<uint16_t> parseAddress(const TclObject& o);
+	template<typename Item> void syncToOpenMsx(
+		MSXCPUInterface& cpuInterface, Debugger& debugger,
+		Interpreter& interp, GuiItem& item);
 	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item);
 	bool editRange(std::string& begin, std::string& end);
 	bool editCondition(ParsedSlotCond& slot);
@@ -67,6 +73,8 @@ private:
 	[[nodiscard]] auto& getItems(BreakPoint*) { return guiBps; }
 	[[nodiscard]] auto& getItems(WatchPoint*) { return guiWps; }
 	[[nodiscard]] auto& getItems(DebugCondition*) { return guiConditions; }
+
+	template<typename Item> void refresh(std::vector<GuiItem>& items);
 
 public:
 	bool show = false;

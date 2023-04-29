@@ -15,6 +15,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "RomPlain.hh"
 #include "WatchPoint.hh"
 
@@ -217,7 +218,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 		ImGuiTableFlags_ScrollX |
 		ImGuiTableFlags_SizingStretchProp;
 	im::Table("items", 5, flags, {-60, 0}, [&]{
-		synchronize<Item>(items, cpuInterface);
+		syncFromOpenMsx<Item>(items, cpuInterface);
 
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("Enable", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort);
@@ -300,7 +301,7 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCP
 
 
 template<typename Item>
-void ImGuiBreakPoints::synchronize(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)
+void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)
 {
 	constexpr bool hasAddress = HasAddress<Item>{};
 	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
@@ -416,6 +417,41 @@ void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items)
 	}
 }
 
+std::optional<uint16_t> ImGuiBreakPoints::parseAddress(const TclObject& o)
+{
+	return manager.symbols.parseSymbolOrValue(o.getString());
+}
+
+template<typename Item>
+static bool isValidAddr(const ImGuiBreakPoints::GuiItem& i)
+{
+	constexpr bool hasAddress = HasAddress<Item>{};
+	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
+
+	if (!hasAddress) return true;
+	if (!i.addr) return false;
+	if (isWatchPoint) {
+		if (i.endAddr && (*i.endAddr < *i.addr)) return false;
+		if ((i.wpType == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) &&
+			((*i.addr >= 0x100) || (i.endAddr && (*i.endAddr >= 0x100)))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename Item>
+static bool isValidCond(std::string_view cond, Interpreter& interp)
+{
+	if (cond.empty()) return AllowEmptyCond<Item>{};
+	return interp.validExpression(cond);
+}
+
+static bool isValidCmd(std::string_view cmd, Interpreter& interp)
+{
+	return !cmd.empty() && interp.validCommand(cmd);
+}
+
 static void create(BreakPoint*, MSXCPUInterface& cpuInterface, Debugger&, ImGuiBreakPoints::GuiItem& item)
 {
 	BreakPoint newBp(*item.addr, item.cmd, item.cond, false);
@@ -438,9 +474,30 @@ static void create(DebugCondition*, MSXCPUInterface& cpuInterface, Debugger&, Im
 }
 
 template<typename Item>
+void ImGuiBreakPoints::syncToOpenMsx(
+	MSXCPUInterface& cpuInterface, Debugger& debugger,
+	Interpreter& interp, GuiItem& item)
+{
+	Item* tag = nullptr;
+
+	if (item.id > 0) {
+		// (temporarily) remove it from the openMSX side
+		remove(tag, cpuInterface, item.id); // temp remove it
+		item.id = --idCounter;
+	}
+	if (item.wantEnable &&
+	    isValidAddr<Item>(item) &&
+	    isValidCond<Item>(item.cond.getString(), interp) &&
+	    isValidCmd(item.cmd.getString(), interp)) {
+		// (re)create on the openMSX side
+		create(tag, cpuInterface, debugger, item);
+		assert(item.id > 0);
+	}
+}
+
+template<typename Item>
 void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item)
 {
-	constexpr bool hasAddress = HasAddress<Item>{};
 	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
 	Item* tag = nullptr;
 
@@ -452,33 +509,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		if (valid) return;
 		ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, 0x400000ff);
 	};
-	auto isValidAddr = [&](const GuiItem& i) {
-		if (!hasAddress) return true;
-		if (!i.addr) return false;
-		if (isWatchPoint) {
-			if (i.endAddr && (*i.endAddr < *i.addr)) return false;
-			if ((i.wpType == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) &&
-			    ((*i.addr >= 0x100) || (i.endAddr && (*i.endAddr >= 0x100)))) {
-				return false;
-			}
-		}
-		return true;
-	};
-	auto isValidCond = [&](std::string_view cond) -> bool {
-		if (cond.empty()) return AllowEmptyCond<Item>{};
-		return interp.validExpression(cond);
-	};
-	auto isValidCmd = [&](std::string_view cmd) {
-		return !cmd.empty() && interp.validCommand(cmd);
-	};
 
 	bool needSync = false;
-
 	std::string cond{item.cond.getString()};
 	std::string cmd {item.cmd .getString()};
-	bool validAddr = isValidAddr(item);
-	bool validCond = isValidCond(cond);
-	bool validCmd  = isValidCmd(cmd);
+	bool validAddr = isValidAddr<Item>(item);
+	bool validCond = isValidCond<Item>(cond, interp);
+	bool validCmd  = isValidCmd(cmd, interp);
 
 	if (ImGui::TableNextColumn()) { // enable
 		auto pos = ImGui::GetCursorPos();
@@ -498,15 +535,12 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 	if (ImGui::TableNextColumn()) { // type
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::Combo("##type", &item.wpType, "read IO\000write IO\000read memory\000write memory\000")) {
-			validAddr = isValidAddr(item);
+			validAddr = isValidAddr<Item>(item);
 			needSync = true;
 		}
 		if (ImGui::IsItemActive()) selectedRow = row;
 	}
 	if (ImGui::TableNextColumn()) { // address
-		auto parseAddress = [&](const TclObject& o) {
-			return manager.symbols.parseSymbolOrValue(o.getString());
-		};
 		auto addrToolTip = [&]{
 			auto tip = strCat("0x", hex_string<4>(*item.addr));
 			if (item.endAddr) {
@@ -547,7 +581,6 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			item.addr    = parseAddress(item.addrStr);
 			item.endAddr = parseAddress(item.endAddrStr);
 			if (item.endAddr && !item.addr) item.endAddr.reset();
-			validAddr = isValidAddr(item);
 			needSync = true;
 		}
 	}
@@ -565,7 +598,6 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		im::Popup("cond-popup", [&]{
 			if (editCondition(slot)) {
 				cond = slot.toTclExpression(checkCmd);
-				validCond = isValidCond(cond);
 				item.cond = cond;
 				needSync = true;
 			}
@@ -575,23 +607,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		setRedBg(validCmd);
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::InputText("##cmd", &cmd)) {
-			validCmd = isValidCmd(cmd);
 			item.cmd = cmd;
 			needSync = true;
 		}
 		if (ImGui::IsItemActive()) selectedRow = row;
 	}
 	if (needSync) {
-		if (item.id > 0) {
-			// (temporarily) remove it from the openMSX side
-			remove(tag, cpuInterface, item.id); // temp remove it
-			item.id = --idCounter;
-		}
-		if (item.wantEnable && validAddr && validCond && validCmd) {
-			// (re)create on the openMSX side
-			create(tag, cpuInterface, debugger, item);
-			assert(item.id > 0);
-		}
+		syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
 	}
 }
 
@@ -645,6 +667,70 @@ bool ImGuiBreakPoints::editCondition(ParsedSlotCond& slot)
 		changed |= ImGui::InputText("##cond", &slot.rest);
 	});
 	return changed;
+}
+
+void ImGuiBreakPoints::refreshSymbols()
+{
+	refresh<BreakPoint>(guiBps);
+	refresh<WatchPoint>(guiWps);
+	//refresh<DebugCondition>(guiConditions); // not needed, doesn't have an address
+}
+
+template<typename Item>
+void ImGuiBreakPoints::refresh(std::vector<GuiItem>& items)
+{
+	assert(HasAddress<Item>::value);
+	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
+
+	auto* motherBoard = manager.getReactor().getMotherBoard();
+	if (!motherBoard) return;
+
+	for (auto& item : items) {
+		bool sync = false;
+		auto adjust = [&](std::optional<uint16_t>& addr, TclObject& str) {
+			if (addr) {
+				// was valid
+				if (auto newAddr = parseAddress(str)) {
+					// and is still valid
+					if (*newAddr != *addr) {
+						// but the value changed
+						addr = newAddr;
+						sync = true;
+					} else {
+						// heuristic: try to replace strings of the form "0x...." with a symbol name
+						auto s = str.getString();
+						if ((s.size() == 6) && s.starts_with("0x")) {
+							if (auto newSym = manager.symbols.lookupValue(*addr); !newSym.empty()) {
+								str = newSym;
+								// no need to sync with openMSX
+							}
+						}
+					}
+				} else {
+					// but now no longer valid, revert to hex string
+					str = TclObject(tmpStrCat("0x", hex_string<4>(*addr)));
+					// no need to sync with openMSX
+				}
+			} else {
+				// was invalid, (re-)try to resolve symbol
+				if (auto newAddr = parseAddress(str)) {
+					// and now became valid
+					addr = newAddr;
+					sync = true;
+				}
+			}
+		};
+		adjust(item.addr, item.addrStr);
+		if (isWatchPoint) {
+			adjust(item.endAddr, item.endAddrStr);
+		}
+		if (sync) {
+			auto& cpuInterface = motherBoard->getCPUInterface();
+			auto& debugger = motherBoard->getDebugger();
+			auto& interp = manager.getInterpreter();
+			syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
+		}
+	}
 }
 
 } // namespace openmsx

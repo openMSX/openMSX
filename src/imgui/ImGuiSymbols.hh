@@ -41,6 +41,7 @@ private:
 
 	void reload(const std::string& file);
 	void remove(const std::string& file);
+	void remove2(const std::string& file);
 	void removeAll();
 	std::vector<Symbol> load(const std::string& filename);
 
