@@ -10,6 +10,7 @@
 #include "ReverseManager.hh"
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 using namespace std::literals;
 
@@ -97,11 +98,25 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		ImGui::TextUnformatted("Save state ... TODO"sv);
+		im::Menu("Save state ...", [&]{
+			ImGui::TextUnformatted("Enter name:"sv);
+			ImGui::InputText("##save-state-name", &saveStateName);
+			ImGui::SameLine();
+			if (ImGui::Button("Create")) {
+				manager.executeDelayed(makeTclList("savestate", saveStateName));
+			}
+		});
 		ImGui::Separator();
 
 		ImGui::TextUnformatted("Load replay ... TODO"sv);
-		ImGui::TextUnformatted("Save replay ... TODO"sv);
+		im::Menu("Save replay ...", [&]{
+			ImGui::TextUnformatted("Enter name:"sv);
+			ImGui::InputText("##save-replay-name", &saveReplayName);
+			ImGui::SameLine();
+			if (ImGui::Button("Create")) {
+				manager.executeDelayed(makeTclList("reverse", "savereplay", saveReplayName));
+			}
+		});
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 	});
 }

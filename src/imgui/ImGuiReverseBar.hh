@@ -27,6 +27,10 @@ public:
 	bool showReverseBar;
 private:
 	ImGuiManager& manager;
+
+	std::string saveStateName;
+	std::string saveReplayName;
+
 	bool reverseHideTitle;
 	bool reverseFadeOut;
 	bool reverseAllowMove;
