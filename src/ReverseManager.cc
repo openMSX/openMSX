@@ -45,8 +45,6 @@ static constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
 // Max distance of one before last snapshot before the end time in replay file (in seconds)
 static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
 
-static constexpr const char* const REPLAY_DIR = "replays";
-
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an
 // existing motherboard state: the vector has to have at least one motherboard

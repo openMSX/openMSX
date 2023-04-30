@@ -4,10 +4,13 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
+#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "GLImage.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
+
+#include "foreach_file.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -58,7 +61,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Load state ...", existingStates && !existingStates->empty(), [&]{
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("select savestate"sv);
+					ImGui::TextUnformatted("Select save state"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
 						for (const auto& name : *existingStates) {
 							if (ImGui::Selectable(name.c_str())) {
@@ -88,7 +91,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					});
 				}
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("preview"sv);
+					ImGui::TextUnformatted("Preview"sv);
 					ImVec2 size(320, 240);
 					if (previewImage.texture.get()) {
 						ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
@@ -104,17 +107,38 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				manager.executeDelayed(makeTclList("savestate", saveStateName));
+				ImGui::CloseCurrentPopup();
 			}
 		});
 		ImGui::Separator();
 
-		ImGui::TextUnformatted("Load replay ... TODO"sv);
+		im::Menu("Load replay ...", [&]{
+			ImGui::TextUnformatted("Select replay"sv);
+			im::ListBox("##select-replay", [&]{
+				auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
+				for (const auto& path : context.getPaths()) {
+					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
+						if (name.ends_with(".omr")) {
+							name.remove_suffix(4);
+						} else if (name.ends_with(".xml.gz")) {
+							name.remove_suffix(7);
+						} else {
+							return;
+						}
+						if (ImGui::Selectable(std::string(name).c_str())) {
+							manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+						}
+					});
+				}
+			});
+		});
 		im::Menu("Save replay ...", [&]{
 			ImGui::TextUnformatted("Enter name:"sv);
 			ImGui::InputText("##save-replay-name", &saveReplayName);
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				manager.executeDelayed(makeTclList("reverse", "savereplay", saveReplayName));
+				ImGui::CloseCurrentPopup();
 			}
 		});
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);

@@ -13,6 +13,7 @@
 #include <span>
 #include <map>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -27,6 +28,9 @@ class TclObject;
 
 class ReverseManager final : private EventListener
 {
+public:
+	static constexpr std::string_view REPLAY_DIR = "replays";
+
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
