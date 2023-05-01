@@ -19,7 +19,6 @@ public:
 	ImGuiOpenFile(ImGuiManager& manager_)
 		: manager(manager_) {}
 
-	void selectFileCommand(const std::string& title, std::string filters, TclObject command);
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback);
 

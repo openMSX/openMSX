@@ -18,13 +18,6 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 	lastPath[std::string(name)] = value;
 }
 
-void ImGuiOpenFile::selectFileCommand(const std::string& title, std::string filters, TclObject command)
-{
-	selectFile(title, std::move(filters), [this, command](const std::string& filename) mutable {
-		command.addListElement(filename);
-		manager.executeDelayed(command);
-	});
-}
 void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
                             std::function<void(const std::string&)> callback)
 {
