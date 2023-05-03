@@ -14,7 +14,9 @@
 #include "ranges.hh"
 #include "view.hh"
 
+#include <CustomFont.h>
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <algorithm>
 
@@ -23,26 +25,43 @@ using namespace std::literals;
 
 namespace openmsx {
 
-static constexpr size_t HISTORY_SIZE = 8;
-
 void ImGuiMedia::save(ImGuiTextBuffer& buf)
 {
-	for (const auto& [media, history] : recentMedia) {
-		for (const auto& fn : history) {
-			buf.appendf("recent.%s=%s\n", media.c_str(), fn.c_str());
+	for (const auto& [media, info] : mediaStuff) {
+		for (const auto& item : info.recent) {
+			buf.appendf("recent.%s=%s\n", media.c_str(), item.filename.c_str());
+			for (const auto& patch : item.ipsPatches) {
+				buf.appendf("patch.%s=%s\n", media.c_str(), patch.c_str());
+			}
 		}
+		buf.appendf("show.%s=%d\n", media.c_str(), info.showAdvanced);
 	}
 }
 
 void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 {
+	auto getInfo = [&](size_t prefixLen) -> MediaInfo& {
+		std::string media(name.substr(prefixLen));
+		auto [it, inserted] = mediaStuff.try_emplace(media);
+		return it->second;
+	};
+
 	if (name.starts_with("recent.")) {
-		std::string media(name.substr(7));
-		auto [it, inserted] = recentMedia.try_emplace(media, HISTORY_SIZE);
-		auto& history = it->second;
-		if (!history.full()) {
-			history.push_back(value);
+		if (auto& history = getInfo(strlen("recent.")).recent; !history.full()) {
+			RecentItem item;
+			item.filename = value;
+			// no ips patches (yet)
+			history.push_back(std::move(item));
 		}
+	}
+	if (name.starts_with("patch.")) {
+		if (auto& history = getInfo(strlen("patch.")).recent; !history.empty()) {
+			history.back().ipsPatches.emplace_back(value);
+		}
+	}
+	if (name.starts_with("show.")) {
+		auto& info = getInfo(strlen("show."));
+		info.showAdvanced = StringOp::stringToBool(value);
 	}
 }
 
@@ -58,6 +77,21 @@ static std::string buildFilter(std::string_view description, std::span<const std
 		                     [](const auto& ext) { return strCat('.', ext); }),
 		     ','),
 		",.gz,.zip}");
+}
+
+static std::string diskFilter()
+{
+	return buildFilter("disk images", DiskImageCLI::getExtensions());
+}
+
+static std::string display(const ImGuiMedia::RecentItem& item, int count)
+{
+	std::string result = item.filename;
+	if (auto n = item.ipsPatches.size()) {
+		strAppend(result, " (+", n, " patch", (n == 1 ? "" : "es"), ')');
+	}
+	strAppend(result, "##", count);
+	return result;
 }
 
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
@@ -85,14 +119,16 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		};
 
-		auto showRecent = [&](const std::string& media) {
-			if (auto* recent = lookup(recentMedia, media); !recent->empty()) {
+		auto showRecent = [&](const std::string& media, MediaInfo& info) {
+			if (!info.recent.empty()) {
 				im::Indent([&] {
 					im::Menu("Recent", [&]{
-						for (const auto& fn : *recent) {
-							if (ImGui::MenuItem(fn.c_str())) {
-								insertMedia(media, fn);
+						int count = 0;
+						for (const auto& item : info.recent) {
+							if (ImGui::MenuItem(display(item, count).c_str())) {
+								insertMedia(media, info, item.filename, item.ipsPatches);
 							}
+							++count;
 						}
 					});
 				});
@@ -100,13 +136,14 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		};
 
 		// diskX
-		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard); // TODO use this or fully rely on commands?
+		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
 		std::string driveName = "diskX";
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 			if (!(*drivesInUse)[i]) continue;
 			driveName[4] = char('a' + i);
 			if (auto cmdResult = manager.execute(TclObject(driveName))) {
 				elementInGroup();
+				auto& info = mediaStuff.try_emplace(driveName).first->second;
 				im::Menu(driveName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "disk");
@@ -116,10 +153,11 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::MenuItem("Insert disk image...")) {
 						manager.openFile.selectFile(
 							"Select disk image for " + driveName,
-							buildFilter("disk images", DiskImageCLI::getExtensions()),
-							[this, driveName](const auto& fn) { this->insertMedia(driveName, fn); });
+							diskFilter(),
+							[this, driveName, &info](const auto& fn) { this->insertMedia(driveName, info, fn); });
 					}
-					showRecent(driveName);
+					showRecent(driveName, info);
+					ImGui::MenuItem("Insert disk window (advanced)", nullptr, &info.showAdvanced);
 				});
 			}
 		}
@@ -140,13 +178,14 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						manager.executeDelayed(makeTclList(cartName, "eject"));
 					}
 					im::Menu("ROM cartridge", [&]{
+						auto& info = mediaStuff.try_emplace(cartName).first->second;
 						if (ImGui::MenuItem("Select ROM file...")) {
 							manager.openFile.selectFile(
 								"Select ROM image for " + cartName,
 								buildFilter("Rom images", MSXRomCLI::getExtensions()),
-								[this, cartName](const auto& fn) { this->insertMedia(cartName, fn); });
+								[this, cartName, &info](const auto& fn) { this->insertMedia(cartName, info, fn); });
 						}
-						showRecent(cartName);
+						showRecent(cartName, info);
 						ImGui::MenuItem("select ROM type: TODO");
 						ImGui::MenuItem("patch files: TODO");
 					});
@@ -167,13 +206,14 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
 					manager.executeDelayed(makeTclList("cassetteplayer", "eject"));
 				}
+				auto& info = mediaStuff.try_emplace("cassetteplayer").first->second;
 				if (ImGui::MenuItem("Insert cassette image...")) {
 					manager.openFile.selectFile(
 						"Select cassette image",
 						buildFilter("Cassette images", CassettePlayerCLI::getExtensions()),
-						[this](const auto& fn) { this->insertMedia("cassetteplayer", fn); });
+						[this, &info](const auto& fn) { this->insertMedia("cassetteplayer", info, fn); });
 				}
-				showRecent("cassetteplayer");
+				showRecent("cassetteplayer", info);
 			});
 		}
 		endGroup();
@@ -187,36 +227,181 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
 					manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
 				}
+				auto& info = mediaStuff.try_emplace("laserdiscplayer").first->second;
 				if (ImGui::MenuItem("Insert laserdisc image...")) {
 					manager.openFile.selectFile(
 						"Select laserdisc image",
 						buildFilter("Laserdisk images", std::array<std::string_view, 1>{"ogv"}),
-						[this](const auto& fn) { this->insertMedia("laserdiscplayer", fn); });
+						[this, &info](const auto& fn) { this->insertMedia("laserdiscplayer", info, fn); });
 				}
-				showRecent("laserdiscplayer");
+				showRecent("laserdiscplayer", info);
 			});
 		}
 	});
 }
 
-void ImGuiMedia::insertMedia(const std::string& media, const std::string& filename)
+void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 {
-	manager.executeDelayed(makeTclList(media, "insert", filename));
-	addRecent(media, filename);
+	if (!motherBoard) return;
+	auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+	std::string driveName = "diskX";
+	for (auto i : xrange(RealDrive::MAX_DRIVES)) {
+		if (!(*drivesInUse)[i]) continue;
+		driveName[4] = char('a' + i);
+		auto& info = mediaStuff.try_emplace(driveName).first->second;
+		if (info.showAdvanced) {
+			advancedDiskMenu(driveName, info);
+		}
+	}
 }
 
-void ImGuiMedia::addRecent(const std::string& media, const std::string& filename)
+void ImGuiMedia::advancedDiskMenu(const std::string& driveName, MediaInfo& info)
 {
-	auto [it, inserted] = recentMedia.try_emplace(media, HISTORY_SIZE);
-	auto& recent = it->second;
+	im::Window(driveName.c_str(), &info.showAdvanced, [&]{
+		if (auto cmdResult = manager.execute(makeTclList("machine_info", "media", driveName))) {
+			bool copyCurrent = ImGui::SmallButton("Current disk:");
+			TclObject currentTarget;
+			TclObject currentPatches;
+			im::Indent([&]{
+				bool skip = false;
+				if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
+					auto s = type->getString();
+					if (s == "empty") {
+						ImGui::TextUnformatted("No disk inserted");
+						skip = true;
+					} else if (s == "ramdisk") {
+						ImGui::TextUnformatted("RAM disk");
+						skip = true;
+					} else if (s == "dirasdisk") {
+						ImGui::TextUnformatted("Dir as disk:");
+					} else {
+						assert(s == "file");
+						ImGui::TextUnformatted("Disk image:");
+					}
+				}
+				if (!skip) {
+					if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
+						currentTarget = *target;
+						ImGui::SameLine();
+						ImGui::TextUnformatted(currentTarget.getString());
+					}
+					if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
+						if (auto b = ro->getOptionalBool(); b && *b) {
+							ImGui::TextUnformatted("Read-only");
+						}
+					}
+					if (auto patches = cmdResult->getOptionalDictValue(TclObject("patches"));
+					    patches && !patches->empty()) {
+						currentPatches = *patches;
+						ImGui::TextUnformatted("IPS patches:");
+						im::Indent([&]{
+							for (const auto& patch : currentPatches) {
+								ImGui::TextUnformatted(patch);
+							}
+						});
+					}
+				}
+			});
+			if (copyCurrent) {
+				info.imageName = currentTarget.getString();
+				info.ipsPatches = to_vector<std::string>(currentPatches);
+			}
+			ImGui::Separator();
+		}
 
-	if (auto it2 = ranges::find(recent, filename); it2 != recent.end()) {
+		ImGui::TextUnformatted("Select new disk"sv);
+		HelpMarker("Type-in or browse-to the disk image. Or type the special name 'ramdisk'.");
+		im::Indent([&]{
+			ImGui::InputText("##disk", &info.imageName);
+			ImGui::SameLine(0.0f, 0.0f);
+			im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
+				int count = 0;
+				for (auto& item : info.recent) {
+					if (ImGui::Selectable(display(item, count).c_str())) {
+						info.imageName = item.filename;
+						info.ipsPatches = item.ipsPatches;
+					}
+					++count;
+				}
+			});
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
+				manager.openFile.selectFile( // TODO allow to select directory
+					"Select disk image for " + driveName,
+					diskFilter(),
+					[&](const auto& fn) { info.imageName = fn; });
+			}
+			simpleToolTip("browse");
+
+			std::string patchesTitle = "IPS patches";
+			if (!info.ipsPatches.empty()) {
+				strAppend(patchesTitle, " (", info.ipsPatches.size(), ')');
+			}
+			strAppend(patchesTitle, "###patches");
+			im::TreeNode(patchesTitle.c_str(), [&]{
+				ImGui::SetNextItemWidth(-60.0f);
+				im::Group([&]{
+					im::ListBox("##", [&]{
+						int count = 0;
+						for (const auto& patch : info.ipsPatches) {
+							if (ImGui::Selectable(patch.c_str(), count == patchIndex)) {
+								patchIndex = count;
+							}
+							++count;
+						}
+					});
+				});
+				ImGui::SameLine();
+				im::Group([&]{
+					if (ImGui::Button("Add")) {
+						manager.openFile.selectFile(
+							"Select disk IPS patch",
+							buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
+							[&](const std::string& ips) { info.ipsPatches.push_back(ips); });
+					}
+					im::Disabled(patchIndex < 0 ||  patchIndex >= narrow<int>(info.ipsPatches.size()), [&] {
+						if (ImGui::Button("Remove")) {
+							info.ipsPatches.erase(info.ipsPatches.begin() + patchIndex);
+						}
+					});
+				});
+			});
+		});
+		im::Disabled(info.imageName.empty(), [&]{
+			if (ImGui::Button("Insert disk")) {
+				insertMedia(driveName, info, info.imageName, info.ipsPatches);
+			}
+		});
+	});
+}
+
+void ImGuiMedia::insertMedia(
+	const std::string& media, MediaInfo& info,
+	const std::string& filename, std::span<const std::string> patches)
+{
+	if (filename.empty()) return;
+	auto cmd = makeTclList(media, "insert", filename);
+	for (const auto& patch : patches) {
+		cmd.addListElement("-ips");
+		cmd.addListElement(patch);
+	}
+	manager.executeDelayed(cmd,
+		[this, &info, filename, patches](const TclObject&) { addRecent(info, filename, patches); });
+}
+
+void ImGuiMedia::addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches)
+{
+	auto& recent = info.recent;
+	RecentItem item;
+	item.filename = filename;
+	item.ipsPatches.assign(patches.begin(), patches.end());
+	if (auto it2 = ranges::find(recent, item); it2 != recent.end()) {
 		// was already present, move to front
 		std::rotate(recent.begin(), it2, it2 + 1);
 	} else {
 		// new entry, add it, but possibly remove oldest entry
 		if (recent.full()) recent.pop_back();
-		recent.push_front(filename);
+		recent.push_front(std::move(item));
 	}
 }
 

@@ -99,6 +99,15 @@ bool TclObject::getBoolean(Interpreter& interp_) const
 	return result != 0;
 }
 
+std::optional<bool> TclObject::getOptionalBool() const
+{
+	int result;
+	if (Tcl_GetBooleanFromObj(nullptr, obj, &result) != TCL_OK) {
+		return {};
+	}
+	return result != 0;
+}
+
 float TclObject::getFloat(Interpreter& interp_) const
 {
 	// Tcl doesn't directly support 'float', only 'double', so use that.
