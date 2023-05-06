@@ -321,6 +321,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 {
 	if (!showDisassembly) return;
 	im::Window("Disassembly", &showDisassembly, [&]{
+		std::optional<BreakPoint> addBp;
+		std::optional<unsigned> removeBpId;
+
 		auto pc = regs.getPC();
 		if (followPC && !cpuInterface.isBreaked()) {
 			gotoTarget = pc;
@@ -407,13 +410,12 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									// only allow to remove 'simple' breakpoints,
 									// others can be edited via the breakpoint viewer
 									if (simpleBp) {
-										cpuInterface.removeBreakPoint(bpIt->getId());
+										removeBpId = bpIt->getId(); // schedule removal
 									}
 								} else {
-									// create bp
+									// schedule creation of new bp
 									auto slot = getCurrentSlot(cpuInterface, debugger, addr);
-									BreakPoint newBp(addr, TclObject("debug break"), toTclExpression(slot), false);
-									cpuInterface.insertBreakPoint(std::move(newBp));
+									addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
 								}
 							}
 						}
@@ -521,6 +523,13 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 				ImGui::SetScrollY(topAddr * itemHeight);
 			}
 		});
+		// only add/remove bp's after drawing (can't change list of bp's while iterating over it)
+		if (addBp) {
+			cpuInterface.insertBreakPoint(std::move(*addBp));
+		}
+		if (removeBpId) {
+			cpuInterface.removeBreakPoint(*removeBpId);
+		}
 	});
 }
 
