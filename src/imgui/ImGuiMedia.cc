@@ -9,6 +9,7 @@
 #include "DiskImageCLI.hh"
 #include "MSXRomCLI.hh"
 #include "RealDrive.hh"
+#include "RomInfo.hh"
 
 #include "join.hh"
 #include "ranges.hh"
@@ -32,6 +33,10 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 			buf.appendf("recent.%s=%s\n", media.c_str(), item.filename.c_str());
 			for (const auto& patch : item.ipsPatches) {
 				buf.appendf("patch.%s=%s\n", media.c_str(), patch.c_str());
+			}
+			if (item.romType != ROM_UNKNOWN) {
+				buf.appendf("romType.%s=%s\n", media.c_str(),
+				            std::string(RomInfo::romTypeToName(item.romType)).c_str());
 			}
 		}
 		buf.appendf("show.%s=%d\n", media.c_str(), info.showAdvanced);
@@ -59,6 +64,11 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 			history.back().ipsPatches.emplace_back(value);
 		}
 	}
+	if (name.starts_with("romType.")) {
+		if (auto& history = getInfo(strlen("romType.")).recent; !history.empty()) {
+			history.back().romType = RomInfo::nameToRomType(value);
+		}
+	}
 	if (name.starts_with("show.")) {
 		auto& info = getInfo(strlen("show."));
 		info.showAdvanced = StringOp::stringToBool(value);
@@ -84,9 +94,17 @@ static std::string diskFilter()
 	return buildFilter("disk images", DiskImageCLI::getExtensions());
 }
 
+static std::string romFilter()
+{
+	return buildFilter("Rom images", MSXRomCLI::getExtensions());
+}
+
 static std::string display(const ImGuiMedia::RecentItem& item, int count)
 {
 	std::string result = item.filename;
+	if (item.romType != ROM_UNKNOWN) {
+		strAppend(result, " (", RomInfo::romTypeToName(item.romType), ')');
+	}
 	if (auto n = item.ipsPatches.size()) {
 		strAppend(result, " (+", n, " patch", (n == 1 ? "" : "es"), ')');
 	}
@@ -126,7 +144,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						int count = 0;
 						for (const auto& item : info.recent) {
 							if (ImGui::MenuItem(display(item, count).c_str())) {
-								insertMedia(media, info, item.filename, item.ipsPatches);
+								insertMedia(media, info, item.filename, item.ipsPatches, item.romType);
 							}
 							++count;
 						}
@@ -177,19 +195,18 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
 						manager.executeDelayed(makeTclList(cartName, "eject"));
 					}
-					im::Menu("ROM cartridge", [&]{
-						auto& info = mediaStuff.try_emplace(cartName).first->second;
-						if (ImGui::MenuItem("Select ROM file...")) {
-							manager.openFile.selectFile(
-								"Select ROM image for " + cartName,
-								buildFilter("Rom images", MSXRomCLI::getExtensions()),
-								[this, cartName, &info](const auto& fn) { this->insertMedia(cartName, info, fn); });
-						}
-						showRecent(cartName, info);
-						ImGui::MenuItem("select ROM type: TODO");
-						ImGui::MenuItem("patch files: TODO");
-					});
-					if (ImGui::MenuItem("insert extension")) {
+					auto& info = mediaStuff.try_emplace(cartName).first->second;
+					if (ImGui::MenuItem("Select ROM file...")) {
+						manager.openFile.selectFile(
+							"Select ROM image for " + cartName,
+							romFilter(),
+							[this, cartName, &info](const auto& fn) { this->insertMedia(cartName, info, fn); });
+					}
+					showRecent(cartName, info);
+					ImGui::MenuItem("Insert ROM window (advanced)", nullptr, &info.showAdvanced);
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("insert extension TODO")) {
 						ImGui::TextUnformatted("TODO"sv);
 					}
 				});
@@ -243,141 +260,273 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 {
 	if (!motherBoard) return;
+
 	auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
-	std::string driveName = "diskX";
+	std::string media = "diskX";
 	for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 		if (!(*drivesInUse)[i]) continue;
-		driveName[4] = char('a' + i);
-		auto& info = mediaStuff.try_emplace(driveName).first->second;
+		media[4] = char('a' + i);
+		auto& info = mediaStuff.try_emplace(media).first->second;
 		if (info.showAdvanced) {
-			advancedDiskMenu(driveName, info);
+			advancedDiskMenu(media, info);
+		}
+	}
+
+	auto& slotManager = motherBoard->getSlotManager();
+	media = "cartX";
+	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+		if (!slotManager.slotExists(slot)) continue;
+		media[4] = char('a' + slot);
+		auto& info = mediaStuff.try_emplace(media).first->second;
+		if (info.showAdvanced) {
+			advancedRomMenu(media, info);
 		}
 	}
 }
 
-void ImGuiMedia::advancedDiskMenu(const std::string& driveName, MediaInfo& info)
+static void getAndPrintPatches(const TclObject& cmdResult, TclObject& result)
 {
-	im::Window(driveName.c_str(), &info.showAdvanced, [&]{
-		if (auto cmdResult = manager.execute(makeTclList("machine_info", "media", driveName))) {
-			bool copyCurrent = ImGui::SmallButton("Current disk:");
-			TclObject currentTarget;
-			TclObject currentPatches;
-			im::Indent([&]{
-				bool skip = false;
-				if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
-					auto s = type->getString();
-					if (s == "empty") {
-						ImGui::TextUnformatted("No disk inserted");
-						skip = true;
-					} else if (s == "ramdisk") {
-						ImGui::TextUnformatted("RAM disk");
-						skip = true;
-					} else if (s == "dirasdisk") {
-						ImGui::TextUnformatted("Dir as disk:");
-					} else {
-						assert(s == "file");
-						ImGui::TextUnformatted("Disk image:");
-					}
-				}
-				if (!skip) {
-					if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
-						currentTarget = *target;
-						ImGui::SameLine();
-						ImGui::TextUnformatted(currentTarget.getString());
-					}
-					if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
-						if (auto b = ro->getOptionalBool(); b && *b) {
-							ImGui::TextUnformatted("Read-only");
-						}
-					}
-					if (auto patches = cmdResult->getOptionalDictValue(TclObject("patches"));
-					    patches && !patches->empty()) {
-						currentPatches = *patches;
-						ImGui::TextUnformatted("IPS patches:");
-						im::Indent([&]{
-							for (const auto& patch : currentPatches) {
-								ImGui::TextUnformatted(patch);
-							}
-						});
-					}
-				}
-			});
-			if (copyCurrent) {
-				info.imageName = currentTarget.getString();
-				info.ipsPatches = to_vector<std::string>(currentPatches);
-			}
-			ImGui::Separator();
-		}
-
-		ImGui::TextUnformatted("Select new disk"sv);
-		HelpMarker("Type-in or browse-to the disk image. Or type the special name 'ramdisk'.");
+	if (auto patches = cmdResult.getOptionalDictValue(TclObject("patches"));
+	    patches && !patches->empty()) {
+		result = *patches;
+		ImGui::TextUnformatted("IPS patches:");
 		im::Indent([&]{
-			ImGui::InputText("##disk", &info.imageName);
-			ImGui::SameLine(0.0f, 0.0f);
-			im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
+			for (const auto& patch : result) {
+				ImGui::TextUnformatted(patch);
+			}
+		});
+	}
+}
+
+void ImGuiMedia::selectImage(MediaInfo& info, const std::string& title, std::function<std::string()> createFilter)
+{
+	ImGui::InputText("##image", &info.imageName);
+	ImGui::SameLine(0.0f, 0.0f);
+	im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
+		int count = 0;
+		for (auto& item : info.recent) {
+			if (ImGui::Selectable(display(item, count).c_str())) {
+				info.imageName = item.filename;
+				info.ipsPatches = item.ipsPatches;
+				info.romType = item.romType;
+			}
+			++count;
+		}
+	});
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
+		manager.openFile.selectFile(
+			title,
+			createFilter(),
+			[&](const auto& fn) { info.imageName = fn; });
+	}
+	simpleToolTip("browse");
+}
+
+void ImGuiMedia::selectMapperType(MediaInfo& info)
+{
+	bool isAutoDetect = info.romType == ROM_UNKNOWN;
+	constexpr const char* autoStr = "auto detect";
+	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(info.romType));
+	ImGui::SetNextItemWidth(-80.0f);
+	im::Combo("mapper-type", current.c_str(), [&]{
+		if (ImGui::Selectable(autoStr, isAutoDetect)) {
+			info.romType = ROM_UNKNOWN;
+		}
+		int count = 0;
+		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
+			bool selected = info.romType == static_cast<RomType>(count);
+			if (ImGui::Selectable(std::string(romInfo.name).c_str(), selected)) {
+				info.romType = static_cast<RomType>(count);
+			}
+			simpleToolTip(romInfo.description);
+			++count;
+		}
+	});
+}
+
+void ImGuiMedia::selectPatches(MediaInfo& info)
+{
+	std::string patchesTitle = "IPS patches";
+	if (!info.ipsPatches.empty()) {
+		strAppend(patchesTitle, " (", info.ipsPatches.size(), ')');
+	}
+	strAppend(patchesTitle, "###patches");
+	im::TreeNode(patchesTitle.c_str(), [&]{
+		ImGui::SetNextItemWidth(-60.0f);
+		im::Group([&]{
+			im::ListBox("##", [&]{
 				int count = 0;
-				for (auto& item : info.recent) {
-					if (ImGui::Selectable(display(item, count).c_str())) {
-						info.imageName = item.filename;
-						info.ipsPatches = item.ipsPatches;
+				for (const auto& patch : info.ipsPatches) {
+					if (ImGui::Selectable(patch.c_str(), count == patchIndex)) {
+						patchIndex = count;
 					}
 					++count;
 				}
 			});
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
-				manager.openFile.selectFile( // TODO allow to select directory
-					"Select disk image for " + driveName,
-					diskFilter(),
-					[&](const auto& fn) { info.imageName = fn; });
+		});
+		ImGui::SameLine();
+		im::Group([&]{
+			if (ImGui::Button("Add")) {
+				manager.openFile.selectFile(
+					"Select disk IPS patch",
+					buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
+					[&](const std::string& ips) { info.ipsPatches.push_back(ips); });
 			}
-			simpleToolTip("browse");
-
-			std::string patchesTitle = "IPS patches";
-			if (!info.ipsPatches.empty()) {
-				strAppend(patchesTitle, " (", info.ipsPatches.size(), ')');
-			}
-			strAppend(patchesTitle, "###patches");
-			im::TreeNode(patchesTitle.c_str(), [&]{
-				ImGui::SetNextItemWidth(-60.0f);
-				im::Group([&]{
-					im::ListBox("##", [&]{
-						int count = 0;
-						for (const auto& patch : info.ipsPatches) {
-							if (ImGui::Selectable(patch.c_str(), count == patchIndex)) {
-								patchIndex = count;
-							}
-							++count;
-						}
-					});
-				});
-				ImGui::SameLine();
-				im::Group([&]{
-					if (ImGui::Button("Add")) {
-						manager.openFile.selectFile(
-							"Select disk IPS patch",
-							buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
-							[&](const std::string& ips) { info.ipsPatches.push_back(ips); });
-					}
-					im::Disabled(patchIndex < 0 ||  patchIndex >= narrow<int>(info.ipsPatches.size()), [&] {
-						if (ImGui::Button("Remove")) {
-							info.ipsPatches.erase(info.ipsPatches.begin() + patchIndex);
-						}
-					});
-				});
+			im::Disabled(patchIndex < 0 ||  patchIndex >= narrow<int>(info.ipsPatches.size()), [&] {
+				if (ImGui::Button("Remove")) {
+					info.ipsPatches.erase(info.ipsPatches.begin() + patchIndex);
+				}
 			});
 		});
-		im::Disabled(info.imageName.empty(), [&]{
-			if (ImGui::Button("Insert disk")) {
-				insertMedia(driveName, info, info.imageName, info.ipsPatches);
+	});
+}
+
+void ImGuiMedia::insertMediaButton(MediaInfo& info, const std::string& media, zstring_view title)
+{
+	im::Disabled(info.imageName.empty(), [&]{
+		if (ImGui::Button(title.c_str())) {
+			insertMedia(media, info, info.imageName, info.ipsPatches, info.romType);
+		}
+	});
+}
+
+void ImGuiMedia::showDiskInfo(const std::string& media, MediaInfo& info)
+{
+	auto cmdResult = manager.execute(makeTclList("machine_info", "media", media));
+	if (!cmdResult) return;
+
+	bool copyCurrent = ImGui::SmallButton("Current disk:");
+	TclObject currentTarget;
+	TclObject currentPatches;
+	im::Indent([&]{
+		bool skip = false;
+		if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
+			auto s = type->getString();
+			if (s == "empty") {
+				ImGui::TextUnformatted("No disk inserted");
+				skip = true;
+			} else if (s == "ramdisk") {
+				ImGui::TextUnformatted("RAM disk");
+				skip = true;
+			} else if (s == "dirasdisk") {
+				ImGui::TextUnformatted("Dir as disk:");
+			} else {
+				assert(s == "file");
+				ImGui::TextUnformatted("Disk image:");
 			}
+		}
+		if (!skip) {
+			if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
+				currentTarget = *target;
+				ImGui::SameLine();
+				ImGui::TextUnformatted(currentTarget.getString());
+			}
+			if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
+				if (auto b = ro->getOptionalBool(); b && *b) {
+					ImGui::TextUnformatted("Read-only");
+				}
+			}
+			getAndPrintPatches(*cmdResult, currentPatches);
+		}
+	});
+	if (copyCurrent) {
+		info.imageName = currentTarget.getString();
+		info.ipsPatches = to_vector<std::string>(currentPatches);
+	}
+	// TODO eject
+	ImGui::Separator();
+}
+
+void ImGuiMedia::showRomInfo(const std::string& media, MediaInfo& info)
+{
+	auto cmdResult = manager.execute(makeTclList("machine_info", "media", media));
+	if (!cmdResult) return;
+
+	bool copyCurrent = ImGui::SmallButton("Current cartridge:");
+	TclObject currentTarget;
+	TclObject currentPatches;
+	RomType currentRomType = ROM_UNKNOWN;
+	im::Indent([&]{
+		if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
+			auto s = type->getString();
+			if (s == "extension") {
+				ImGui::TextUnformatted("Extension:");
+				if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
+					ImGui::TextUnformatted(target->getString());
+					if (auto device = cmdResult->getOptionalDictValue(TclObject("devicename"))) {
+						ImGui::TextUnformatted(device->getString());
+					}
+				}
+			} else {
+				assert(s == "rom");
+				ImGui::TextUnformatted("ROM:");
+				if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
+					currentTarget = *target;
+					ImGui::SameLine();
+					ImGui::TextUnformatted(target->getString());
+					if (auto mapper = cmdResult->getOptionalDictValue(TclObject("mappertype"))) {
+						ImGui::StrCat("Mapper-type: ", mapper->getString());
+						currentRomType = RomInfo::nameToRomType(mapper->getString());
+					}
+					getAndPrintPatches(*cmdResult, currentPatches);
+				}
+			}
+		} else {
+			ImGui::TextUnformatted("No cartridge inserted");
+		}
+	});
+	if (copyCurrent) {
+		info.imageName = currentTarget.getString();
+		info.ipsPatches = to_vector<std::string>(currentPatches);
+		info.romType = currentRomType;
+	}
+	// TODO eject
+	ImGui::Separator();
+}
+
+void ImGuiMedia::advancedDiskMenu(const std::string& media, MediaInfo& info)
+{
+	im::Window(media.c_str(), &info.showAdvanced, [&]{
+		showDiskInfo(media, info);
+		ImGui::TextUnformatted("Select new disk"sv);
+		HelpMarker("Type-in or browse-to the disk image. Or type the special name 'ramdisk'.");
+		im::Indent([&]{
+			selectImage(info, strCat("Select disk image for ", media), &diskFilter);
+			selectPatches(info);
+
 		});
+		insertMediaButton(info, media, "Insert selected disk");
+	});
+}
+
+void ImGuiMedia::advancedRomMenu(const std::string& media, MediaInfo& info)
+{
+	im::Window(media.c_str(), &info.showAdvanced, [&]{
+		showRomInfo(media, info);
+		ImGui::TextUnformatted("Select new ROM:"sv);
+		im::Indent([&]{
+			selectImage(info, strCat("Select ROM image for ", media), &romFilter);
+			selectMapperType(info);
+			selectPatches(info);
+		});
+		insertMediaButton(info, media, "Insert selected ROM");
+		ImGui::Separator();
+
+		ImGui::TextUnformatted("Select new extension:"sv);
+		im::Indent([&]{
+			im::Combo("##extension", "TODO", [&]{
+			});
+		});
+		if (ImGui::Button("Insert selected extension TODO")) {
+			std::cerr << "TODO\n";
+		}
 	});
 }
 
 void ImGuiMedia::insertMedia(
 	const std::string& media, MediaInfo& info,
-	const std::string& filename, std::span<const std::string> patches)
+	const std::string& filename, std::span<const std::string> patches, RomType romType)
 {
 	if (filename.empty()) return;
 	auto cmd = makeTclList(media, "insert", filename);
@@ -385,16 +534,24 @@ void ImGuiMedia::insertMedia(
 		cmd.addListElement("-ips");
 		cmd.addListElement(patch);
 	}
+	if (romType != ROM_UNKNOWN) {
+		cmd.addListElement("-romtype");
+		cmd.addListElement(RomInfo::romTypeToName(romType));
+	}
 	manager.executeDelayed(cmd,
-		[this, &info, filename, patches](const TclObject&) { addRecent(info, filename, patches); });
+		[this, &info, filename, patches, romType](const TclObject&) {
+			// only add to 'recent' when insert command succeeded
+			addRecent(info, filename, patches, romType);
+		});
 }
 
-void ImGuiMedia::addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches)
+void ImGuiMedia::addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches, RomType romType)
 {
 	auto& recent = info.recent;
 	RecentItem item;
 	item.filename = filename;
 	item.ipsPatches.assign(patches.begin(), patches.end());
+	item.romType = romType;
 	if (auto it2 = ranges::find(recent, item); it2 != recent.end()) {
 		// was already present, move to front
 		std::rotate(recent.begin(), it2, it2 + 1);

@@ -3,8 +3,12 @@
 
 #include "ImGuiPart.hh"
 
-#include "circular_buffer.hh"
+#include "RomTypes.hh"
 
+#include "circular_buffer.hh"
+#include "zstring_view.hh"
+
+#include <functional>
 #include <map>
 #include <span>
 #include <string>
@@ -21,7 +25,7 @@ public:
 	struct RecentItem {
 		std::string filename;
 		std::vector<std::string> ipsPatches; // used for disk<x> and cart<x>
-		// TODO RomType // only used for cart<x>
+		RomType romType = ROM_UNKNOWN;
 
 		auto operator<=>(const RecentItem&) const = default;
 	};
@@ -45,15 +49,27 @@ private:
 		circular_buffer<RecentItem> recent;
 
 		std::string imageName; // for the advanced menu
-		std::vector<std::string> ipsPatches; // for the advanced menu
+		std::vector<std::string> ipsPatches; // only disk and cart
+		RomType romType = ROM_UNKNOWN; // only for cart, 'ROM_UNKNOWN' means 'auto'
+
 		bool showAdvanced = false;
 	};
 
 private:
-	void advancedDiskMenu(const std::string& driveName, MediaInfo& info);
+	void showDiskInfo(const std::string& media, MediaInfo& info);
+	void showRomInfo (const std::string& media, MediaInfo& info);
+	void selectImage(MediaInfo& info, const std::string& title, std::function<std::string()> createFilter);
+	void selectMapperType(MediaInfo& info);
+	void selectPatches(MediaInfo& info);
+	void insertMediaButton(MediaInfo& info, const std::string& media, zstring_view title);
+	void advancedDiskMenu(const std::string& media, MediaInfo& info);
+	void advancedRomMenu (const std::string& media, MediaInfo& info);
 	void insertMedia(const std::string& media, MediaInfo& info,
-	                 const std::string& filename, std::span<const std::string> patches = {});
-	void addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches);
+	                 const std::string& filename,
+	                 std::span<const std::string> patches = {},
+	                 RomType romType = ROM_UNKNOWN);
+	void addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches,
+	               RomType romType);
 
 private:
 	ImGuiManager& manager;
