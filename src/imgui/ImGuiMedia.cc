@@ -399,6 +399,7 @@ void ImGuiMedia::showDiskInfo(const std::string& media, MediaInfo& info)
 	bool copyCurrent = ImGui::SmallButton("Current disk:");
 	TclObject currentTarget;
 	TclObject currentPatches;
+	bool showEject = true;
 	im::Indent([&]{
 		bool skip = false;
 		if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
@@ -406,6 +407,7 @@ void ImGuiMedia::showDiskInfo(const std::string& media, MediaInfo& info)
 			if (s == "empty") {
 				ImGui::TextUnformatted("No disk inserted");
 				skip = true;
+				showEject = false;
 			} else if (s == "ramdisk") {
 				ImGui::TextUnformatted("RAM disk");
 				skip = true;
@@ -434,7 +436,9 @@ void ImGuiMedia::showDiskInfo(const std::string& media, MediaInfo& info)
 		info.imageName = currentTarget.getString();
 		info.ipsPatches = to_vector<std::string>(currentPatches);
 	}
-	// TODO eject
+	if (showEject && ImGui::Button("Eject")) {
+		manager.executeDelayed(makeTclList(media, "eject"));
+	}
 	ImGui::Separator();
 }
 
@@ -447,6 +451,7 @@ void ImGuiMedia::showRomInfo(const std::string& media, MediaInfo& info)
 	TclObject currentTarget;
 	TclObject currentPatches;
 	RomType currentRomType = ROM_UNKNOWN;
+	bool showEject = true;
 	im::Indent([&]{
 		if (auto type = cmdResult->getOptionalDictValue(TclObject("type"))) {
 			auto s = type->getString();
@@ -474,6 +479,7 @@ void ImGuiMedia::showRomInfo(const std::string& media, MediaInfo& info)
 			}
 		} else {
 			ImGui::TextUnformatted("No cartridge inserted");
+			showEject = false;
 		}
 	});
 	if (copyCurrent) {
@@ -481,7 +487,9 @@ void ImGuiMedia::showRomInfo(const std::string& media, MediaInfo& info)
 		info.ipsPatches = to_vector<std::string>(currentPatches);
 		info.romType = currentRomType;
 	}
-	// TODO eject
+	if (showEject && ImGui::Button("Eject")) {
+		manager.executeDelayed(makeTclList(media, "eject"));
+	}
 	ImGui::Separator();
 }
 
