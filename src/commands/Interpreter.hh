@@ -36,6 +36,7 @@ public:
 	TclObject executeFile(zstring_view filename);
 
 	void setVariable(const TclObject& name, const TclObject& value);
+	void setVariable(const TclObject& arrayName, const TclObject& arrayIndex, const TclObject& value);
 	void unsetVariable(const char* name);
 	void registerSetting(BaseSetting& variable);
 	void unregisterSetting(BaseSetting& variable);

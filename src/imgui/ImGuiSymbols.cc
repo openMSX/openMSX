@@ -6,6 +6,7 @@
 
 #include "CliComm.hh"
 #include "File.hh"
+#include "Interpreter.hh"
 #include "MSXException.hh"
 #include "Reactor.hh"
 #include "StringOp.hh"
@@ -23,33 +24,6 @@ namespace openmsx {
 ImGuiSymbols::ImGuiSymbols(ImGuiManager& manager_)
 	: manager(manager_)
 {
-	if (0) { // test code, TODO remove this
-		symbols = load("/home/wouter/symbols.asm"); // HACK
-
-		symbols.emplace_back("chmod", "bios.asm", 0x005f);
-		symbols.emplace_back("start", "project.asm", 0x4000);
-		symbols.emplace_back("stop", "project.asm", 0x7fff);
-		symbols.emplace_back("label1", "test.asm", 0x0001);
-		symbols.emplace_back("label2", "test.asm", 0x0002);
-		symbols.emplace_back("label3", "test.asm", 0x0003);
-		symbols.emplace_back("label4", "test.asm", 0x0004);
-		symbols.emplace_back("label5", "test.asm", 0x0005);
-		symbols.emplace_back("label6", "test.asm", 0x0006);
-		symbols.emplace_back("label7", "test.asm", 0x0007);
-		symbols.emplace_back("label8", "test.asm", 0x0008);
-		symbols.emplace_back("label9", "test.asm", 0x0009);
-		symbols.emplace_back("label10", "test.asm", 0x000a);
-		symbols.emplace_back("label11", "test.asm", 0x000b);
-		symbols.emplace_back("label12", "test.asm", 0x000c);
-		symbols.emplace_back("label13", "test.asm", 0x000d);
-		symbols.emplace_back("label14", "test.asm", 0x000e);
-		symbols.emplace_back("label15", "test.asm", 0x000f);
-		symbols.emplace_back("label16", "test.asm", 0x0010);
-		symbols.emplace_back("label17", "test.asm", 0x0011);
-		symbols.emplace_back("label18", "test.asm", 0x0012);
-		symbols.emplace_back("label19", "test.asm", 0x0013);
-		symbols.emplace_back("label20", "test.asm", 0x0014);
-	}
 }
 
 void ImGuiSymbols::save(ImGuiTextBuffer& buf)
@@ -184,6 +158,14 @@ void ImGuiSymbols::dropCaches()
 	filesCache.clear();
 	lookupValueCache.clear();
 	manager.breakPoints.refreshSymbols();
+
+	// Allow to access symbol-values in Tcl expression with syntax: $sym(JIFFY)
+	auto& interp = manager.getInterpreter();
+	TclObject arrayName("sym");
+	interp.unsetVariable(arrayName.getString().c_str());
+	for (const auto& sym : symbols) {
+		interp.setVariable(arrayName, TclObject(sym.name), TclObject(sym.value));
+	}
 }
 
 const std::vector<std::string>& ImGuiSymbols::getFiles()

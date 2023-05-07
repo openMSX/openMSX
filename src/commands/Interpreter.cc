@@ -256,6 +256,15 @@ void Interpreter::setVariable(const TclObject& name, const TclObject& value)
 	}
 }
 
+void Interpreter::setVariable(const TclObject& arrayName, const TclObject& arrayIndex, const TclObject& value)
+{
+	if (!Tcl_ObjSetVar2(interp, arrayName.getTclObjectNonConst(), arrayIndex.getTclObjectNonConst(),
+		            value.getTclObjectNonConst(),
+		            TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+}
+
 void Interpreter::unsetVariable(const char* name)
 {
 	Tcl_UnsetVar(interp, name, TCL_GLOBAL_ONLY);
