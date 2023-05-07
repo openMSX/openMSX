@@ -51,6 +51,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		auto currentInstance = reactor.getMachineID();
 		if (instances.size() > 1 || currentInstance.empty()) {
 			ImGui::TextUnformatted("Instances:"sv);
+			HelpMarker("Switch between different machine instances. Right-click to delete an instance.");
 			im::Indent([&]{
 				float height = (std::min(4.0f, float(instances.size())) + 0.25f) * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##empty", {-FLT_MIN, height}, [&]{
@@ -102,6 +103,14 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 
 		ImGui::TextUnformatted("Select machine:"sv);
 		im::Indent([&]{
+			auto drawConfigSelectable = [&](const std::string& config) {
+				bool ok = getTestResult(config).empty();
+				im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
+					if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
+						newMachineConfig = config;
+					}
+				});
+			};
 			im::TreeNode("filter", [&]{
 				auto combo = [&](std::string& selection, zstring_view key) {
 					im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
@@ -117,13 +126,12 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				};
 				combo(filterType, "type");
 				combo(filterRegion, "region");
-			});
-			im::Combo("##combo", newMachineConfig.c_str(), [&]{
-				auto allConfigs = getAllConfigs();
+
+				auto filteredConfigs = getAllConfigs();
 				auto filter = [&](std::string_view key, const std::string& value) {
 					if (value.empty()) return;
 					TclObject keyObj(key);
-					std::erase_if(allConfigs, [&](const std::string& config) {
+					std::erase_if(filteredConfigs, [&](const std::string& config) {
 						const auto& info = getConfigInfo(config);
 						auto val = info.getOptionalDictValue(keyObj);
 						if (!val) return true; // remove items that don't have the key
@@ -132,17 +140,28 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				};
 				filter("type", filterType);
 				filter("region", filterRegion);
+
+				im::ListBox("##list", [&]{
+					if (filteredConfigs.empty()) {
+						ImGui::TextDisabled("No machines for this type/region");
+					} else {
+						ImGuiListClipper clipper; // only draw the actually visible rows
+						clipper.Begin(narrow<int>(filteredConfigs.size()));
+						while (clipper.Step()) {
+							for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+								drawConfigSelectable(filteredConfigs[i]);
+							}
+						}
+					}
+				});
+			});
+			im::Combo("##combo", newMachineConfig.c_str(), [&]{
+				const auto& allConfigs = getAllConfigs();
 				ImGuiListClipper clipper; // only draw the actually visible rows
-				clipper.Begin(allConfigs.size());
+				clipper.Begin(narrow<int>(allConfigs.size()));
 				while (clipper.Step()) {
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-						const auto& config = allConfigs[i];
-						bool ok = getTestResult(config).empty();
-						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
-							if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
-								newMachineConfig = config;
-							}
-						});
+						drawConfigSelectable(allConfigs[i]);
 					}
 				}
 			});
