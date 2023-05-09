@@ -1,6 +1,8 @@
 #ifndef IMGUI_UTILS_HH
 #define IMGUI_UTILS_HH
 
+#include "ImGuiCpp.hh"
+
 #include "strCat.hh"
 
 #include <imgui.h>
@@ -43,6 +45,20 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros);
 
 std::string formatTime(double time);
 float calculateFade(float current, float target, float period);
+
+template<int HexDigits>
+void comboHexSequence(const char* label, int* value, int mult) {
+	*value &= ~(mult - 1);
+	auto preview = tmpStrCat("0x", hex_string<HexDigits>(*value));
+	im::Combo(label, preview.c_str(), [&]{
+		for (int addr = 0; addr < 0x1ffff; addr += mult) {
+			auto str = tmpStrCat("0x", hex_string<HexDigits>(addr));
+			if (ImGui::Selectable(str.c_str())) {
+				*value = addr;
+			}
+		}
+	});
+};
 
 } // namespace openmsx
 

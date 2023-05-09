@@ -170,8 +170,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
 		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);
+		ImGui::MenuItem("VDP sprite viewer", nullptr, &manager.sprite.show);
+		ImGui::MenuItem("VDP register viewer TODO");
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.show);
-		ImGui::MenuItem("TODO several more");
 		ImGui::Separator();
 		im::Menu("All debuggables", [&]{
 			auto& debugger = motherBoard->getDebugger();

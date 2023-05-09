@@ -246,6 +246,14 @@ public:
 	[[nodiscard]] int getNameTableBase() const {
 		return controlRegs[2] << 10;
 	}
+	/** Get address of pattern table (only for debugger) */
+	[[nodiscard]] int getSpritePatternTableBase() const {
+		return controlRegs[6] << 11;
+	}
+	/** Get address of color table (only for debugger) */
+	[[nodiscard]] int getSpriteAttributeTableBase() const {
+		return (controlRegs[11] << 15) | (controlRegs[5] << 7);
+	}
 
 	/** Gets a palette entry.
 	  * @param index The index [0..15] in the palette.

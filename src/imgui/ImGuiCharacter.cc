@@ -95,8 +95,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	im::Window("Tile viewer", &show, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
-		const auto& vram_ = vdp->getVRAM();
-		const auto& vram = vram_.getData();
+		const auto& vram = vdp->getVRAM().getData();
 
 		int vdpMode = [&] {
 			auto base = vdp->getDisplayMode().getBase();
@@ -179,23 +178,11 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							ImGui::Combo("##bgBlink", &manualBgBlink, range0_15);
 							ImGui::Combo("##blink", &manualBlink, "disabled\000enabled\000");
 						});
-						auto comboSequence = [](const char* label, int* value, int mult) {
-							*value &= ~(mult - 1);
-							auto preview = tmpStrCat("0x", hex_string<5>(*value));
-							im::Combo(label, preview.c_str(), [&]{
-								for (int addr = 0; addr < 0x1ffff; addr += mult) {
-									auto str = tmpStrCat("0x", hex_string<5>(addr));
-									if (ImGui::Selectable(str.c_str())) {
-										*value = addr;
-									}
-								}
-							});
-						};
-						comboSequence("##pattern", &manualPatBase, patMult(manualMode));
+						comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode));
 						im::Disabled(manualMode == one_of(TEXT40, SCR3), [&]{
-							comboSequence("##color", &manualColBase, colMult(manualMode));
+							comboHexSequence<5>("##color", &manualColBase, colMult(manualMode));
 						});
-						comboSequence("##name", &manualNamBase, namMult(manualMode));
+						comboHexSequence<5>("##name", &manualNamBase, namMult(manualMode));
 						ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");
 						ImGui::Combo("##Color 0 replacement", &manualColor0, color0Str);
 					});

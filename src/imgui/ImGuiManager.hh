@@ -17,6 +17,7 @@
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
+#include "ImGuiSpriteViewer.hh"
 #include "ImGuiSymbols.hh"
 
 #include "EventListener.hh"
@@ -82,6 +83,7 @@ public:
 	ImGuiSymbols symbols;
 	ImGuiBitmapViewer bitmap;
 	ImGuiCharacter character;
+	ImGuiSpriteViewer sprite;
 	ImGuiPalette palette;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;
