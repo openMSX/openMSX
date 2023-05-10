@@ -40,7 +40,7 @@ uint8_t MSXPrinterPort::peekIO(uint16_t port, EmuTime::param time) const
 	// bit 1 = status / other bits depend on something unknown, specified
 	// in the XML file
 	return getPluggedPrintDev().getStatus(time)
-		       ? (unusedBits | 0b10) : (unusedBits & ~0b10)
+		       ? (unusedBits | 0b10) : (unusedBits & ~0b10);
 }
 
 void MSXPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
