@@ -131,7 +131,8 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		ar.serialize("banks", offsets);
 		for (auto i : xrange(NUM_BANKS)) {
-			if (offsets[i] == size_t(-1)) {
+			if (offsets[i] == size_t(-1) ||
+			    offsets[i] == unsigned(-1)) { // for bw-compat with old savestates
 				bankPtr[i] = unmappedRead.data();
 			} else if (offsets[i] < romSize) {
 				bankPtr[i] = &rom[offsets[i]];
