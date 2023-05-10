@@ -15,7 +15,9 @@ MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
 	            std::make_unique<DummyPrinterPortDevice>())
 	, debuggable(getMotherBoard(), MSXDevice::getName())
-        , hasBidirectionalSupport(config.getChildDataAsBool("bidirectional", false))
+        , writePortMask(config.getChildDataAsBool("bidirectional", false) ? 0x03 : 0x01)
+        , readPortMask(config.getChildDataAsBool("status_readable_on_all_ports", false) ? 0 : writePortMask)
+	, unusedBits(uint8_t(config.getChildDataAsInt("unused_bits", 0xFF))) // TODO: some machines use the port number as unused bits (e.g. lintweaker's Sanyo PHC-23)
 {
 	reset(getCurrentTime());
 }
@@ -31,18 +33,19 @@ uint8_t MSXPrinterPort::readIO(uint16_t port, EmuTime::param time)
 	return peekIO(port, time);
 }
 
-uint8_t MSXPrinterPort::peekIO(uint16_t /*port*/, EmuTime::param time) const
+uint8_t MSXPrinterPort::peekIO(uint16_t port, EmuTime::param time) const
 {
+	bool showStatus = (port & readPortMask) == 0;
+	if (!showStatus) return 0xFF;
 	// bit 1 = status / other bits depend on something unknown, specified
 	// in the XML file
-	uint8_t result = uint8_t(0x00); // TODO: value must depend on something from config XML file
 	return getPluggedPrintDev().getStatus(time)
-		       ? (result | 0b10) : (result & ~0b10);
+		       ? (unusedBits | 0b10) : (unusedBits & ~0b10)
 }
 
 void MSXPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
-	switch (port & (hasBidirectionalSupport ? 0x03 : 0x01)) {
+	switch (port & writePortMask) {
 	case 0:
 		setStrobe(value & 1, time); // bit 0 = strobe
 		break;

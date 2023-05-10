@@ -65,6 +65,7 @@ with serial FF02 621010083 and FF02 611010683
 
     <PrinterPort id="Printer Port">
       <io base="0x90" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <status_readable_on_all_ports>true</status_readable_on_all_ports> <!-- S-3527 property -->
     </PrinterPort>
 
     <primary slot="0">

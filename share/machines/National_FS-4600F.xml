@@ -72,6 +72,7 @@
     <PrinterPort id="Printer Port">
       <io base="0x90" num="8" type="IO"/> <!-- S-1985 mirrors -->
       <bidirectional>true</bidirectional> <!-- S-1985 feature (but not used, nor implemented) -->
+      <unused_bits>0x00</unused_bits>
     </PrinterPort>
 
     <primary slot="0">

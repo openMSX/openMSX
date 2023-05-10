@@ -64,6 +64,8 @@
 
     <PrinterPort id="Printer Port">
       <io base="0x90" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <status_readable_on_all_ports>true</status_readable_on_all_ports> <!-- S-3527 property -->
+      <unused_bits>0x00</unused_bits> <!-- as measured on one Sony HB-F500P -->
     </PrinterPort>
 
     <primary slot="0">
