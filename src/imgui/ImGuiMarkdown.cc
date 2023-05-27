@@ -10,7 +10,7 @@ namespace openmsx {
 void ImGuiMarkdown::print(std::string_view str)
 {
 	im::Font(manager.vera13, [&]{ // initial font
-		imgui_md::print(str.begin(), str.end()); // this can still change font
+		imgui_md::print(str.data(), str.data() + str.size()); // this can still change font
 	});
 }
 
