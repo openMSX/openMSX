@@ -10,8 +10,9 @@ namespace openmsx {
 
 class MSXMotherBoard;
 
-struct ImGuiPart
+class ImGuiPart
 {
+public:
 	[[nodiscard]] virtual zstring_view iniName() const { return ""; }
 	virtual void save(ImGuiTextBuffer& /*buf*/) {}
 	virtual void loadStart() {}
