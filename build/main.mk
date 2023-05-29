@@ -91,7 +91,11 @@ COMPILE_FLAGS:=-pthread
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
+LINK_FLAGS:=-pthread
+else
 LINK_FLAGS:=-pthread -ldl
+endif
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
