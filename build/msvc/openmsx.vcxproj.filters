@@ -47,7 +47,7 @@
       <UniqueIdentifier>{db111771-419a-4e9f-a046-87a88f567ce5}</UniqueIdentifier>
     </Filter>
     <Filter Include="imgui">
-      <UniqueIdentifier>{3bbe266f-68de-4a3d-a497-eb5db3a09a29}</UnqiueIdentifier>
+      <UniqueIdentifier>{3bbe266f-68de-4a3d-a497-eb5db3a09a29}</UniqueIdentifier>
     </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{39b914e9-534c-42eb-8b1c-7078665cd464}</UniqueIdentifier>
