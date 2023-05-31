@@ -295,7 +295,8 @@ std::vector<Symbol> ImGuiSymbols::load(const std::string& filename)
 		auto value = line.substr(pos + size);
 		StringOp::trim(value, whitespace);
 		if (auto num = parseValue(value)) {
-			result.emplace_back(std::string(label), filename, *num);
+			//result.emplace_back(std::string(label), filename, *num);
+			result.push_back(Symbol{std::string(label), filename, *num});
 		}
 	}
 	return result;
