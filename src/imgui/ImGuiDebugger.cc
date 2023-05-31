@@ -33,8 +33,9 @@ using namespace std::literals;
 
 namespace openmsx {
 
-struct DebuggableEditor : public MemoryEditor
+class DebuggableEditor : public MemoryEditor
 {
+public:
 	DebuggableEditor() {
 		Open = false;
 		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
