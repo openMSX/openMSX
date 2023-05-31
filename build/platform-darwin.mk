@@ -25,7 +25,9 @@ LIBRARYEXT:=.so
 # since libraries such as libxml2 can change soname between OS X versions.
 # Clang as shipped with Xcode requires OS X 10.7 or higher for compiling with
 # libc++, when compiling Clang and libc++ from source 10.6 works as well.
-OSX_VER:=10.13
+#
+# Version 10.15 required for std::filesystem
+OSX_VER:=10.15
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
 
 # Select Clang as the compiler and libc++ as the standard library.
