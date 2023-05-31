@@ -157,7 +157,9 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 		float scale = min_component(available / maxXY);
 
 		gl::vec2 origin = ImGui::GetCursorPos();
-		for (const auto& [i, key] : enumerate(keys)) {
+		for (const auto& [i_, key_] : enumerate(keys)) {
+			const auto& i = i_;
+			const auto& key = key_;
 			auto row    = key.matrixPos.getRow();
 			auto column = key.matrixPos.getColumn();
 			auto mask = 1 << column;
