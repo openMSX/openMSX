@@ -335,16 +335,10 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output)
 void convert(const th_ycbcr_buffer& input, RawFrame& output)
 {
 #ifdef __SSE2__
-	bool sse2 = true;
-#else
-	bool sse2 = false;
-#endif
-
-	if (sse2) {
 		convertHelperSSE2(input, output);
-	} else {
+		return;
+#endif
 		convertHelper(input, output);
-	}
 }
 
 } // namespace openmsx::yuv2rgb
