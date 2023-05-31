@@ -263,7 +263,9 @@ void ImGuiOsdIcons::paintConfigureIcons()
 			enum Cmd { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
 			std::pair<int, Cmd> cmd(-1, MOVE_FRONT);
 			auto lastRow = iconInfo.size() - 1;
-			for (auto [row, icon] : enumerate(iconInfo)) {
+			for (auto [row_, icon_] : enumerate(iconInfo)) {
+				auto& row = row_;
+				auto& icon = icon_;
 				im::ID(narrow<int>(row), [&]{
 					if (ImGui::TableNextColumn()) { // enabled
 						auto pos = ImGui::GetCursorPos();
