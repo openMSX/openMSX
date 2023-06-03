@@ -176,7 +176,7 @@ static int getSpriteAttrAddr(int base, int sprite, int mode)
 }
 static int getSpriteColorAddr(int base, int sprite, int mode)
 {
-	assert(mode == 2);
+	assert(mode == 2); (void)mode;
 	return base + 16 * sprite;
 }
 
