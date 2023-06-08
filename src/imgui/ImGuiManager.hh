@@ -18,6 +18,7 @@
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
 #include "ImGuiSpriteViewer.hh"
+#include "ImGuiVdpRegs.hh"
 #include "ImGuiSymbols.hh"
 
 #include "EventListener.hh"
@@ -84,6 +85,7 @@ public:
 	ImGuiBitmapViewer bitmap;
 	ImGuiCharacter character;
 	ImGuiSpriteViewer sprite;
+	ImGuiVdpRegs vdpRegs;
 	ImGuiPalette palette;
 	ImGuiReverseBar reverseBar;
 	ImGuiHelp help;

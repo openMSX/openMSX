@@ -120,7 +120,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		auto patMult = [](int mode) { return 1 << (mode == one_of(SCR2, SCR4) ? 13 : 11); };
 		auto colMult = [](int mode) { return 1 << (mode == one_of(SCR2, SCR4) ? 13 :
 							mode == TEXT80             ?  9 :  6); };
-		auto namMult = [](int mode) { return 1 << (mode == one_of(TEXT40, TEXT80) ? 12 : 10); };
+		auto namMult = [](int mode) { return 1 << (mode == TEXT80 ? 12 : 10); };
 		int vdpFgCol = vdp->getForegroundColor() & 15;
 		int vdpBgCol = vdp->getBackgroundColor() & 15;
 		int vdpFgBlink = vdp->getBlinkForegroundColor() & 15;

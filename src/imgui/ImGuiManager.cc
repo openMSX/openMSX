@@ -69,6 +69,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, bitmap(*this)
 	, character(*this)
 	, sprite(*this)
+	, vdpRegs(*this)
 	, reverseBar(*this)
 	, help(*this)
 	, osdIcons(*this)
@@ -129,7 +130,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	append(parts, std::initializer_list<ImGuiPart*>{
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
 		&soundChip, &keyboard, &breakPoints, &symbols,
-		&bitmap, &character, &sprite, &palette,
+		&bitmap, &character, &sprite, &vdpRegs, &palette,
 		&osdIcons, &openFile, &console});
 }
 

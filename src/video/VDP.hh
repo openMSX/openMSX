@@ -83,6 +83,14 @@ public:
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 
+	[[nodiscard]] byte peekRegister(unsigned address) const;
+	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
+
+	/** VDP control register has changed, work out the consequences.
+	  */
+	void changeRegister(byte reg, byte val, EmuTime::param time);
+
+
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
 	 * over the lifetime of the VDP object (on renderer switch).
@@ -943,12 +951,7 @@ private:
 
 	/** Read the contents of a status register
 	  */
-	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
 	[[nodiscard]] byte readStatusReg(byte reg, EmuTime::param time);
-
-	/** VDP control register has changed, work out the consequences.
-	  */
-	void changeRegister(byte reg, byte val, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */
