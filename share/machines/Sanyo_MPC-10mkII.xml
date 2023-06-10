@@ -49,7 +49,7 @@
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type> <!-- according to ident.bas PSGmask -->
+      <type>AY8910</type> <!-- but according to ident.bas PSGmask is YM2149 like -->
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
