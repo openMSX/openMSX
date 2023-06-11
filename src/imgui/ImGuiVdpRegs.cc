@@ -544,8 +544,18 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 				im::StyleColor(ImGuiCol_Text, textColor, [&]{
 					ImGui::TextUnformatted(s);
 				});
-				if (canHover && ImGui::IsItemHovered()) {
-					newHoveredFunction = f;
+				if (canHover) {
+					if (ImGui::IsItemHovered()) {
+						newHoveredFunction = f;
+					}
+					if (shift == 1) { // single bit
+						if (auto reg = func.subs[0].reg; reg < 64) { // non-status-register
+							if (ImGui::IsItemClicked()) {
+								auto mask = func.subs[0].mask;
+								vdp.changeRegister(reg, regValues[reg] ^ mask, time);
+							}
+						}
+					}
 				}
 				if (!s.ends_with('\n')) ImGui::SameLine();
 			}
