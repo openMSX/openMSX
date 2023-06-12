@@ -168,9 +168,12 @@ void CassettePlayer::autoRun()
 		"    debug remove_bp $auto_run_bp\n"
 		"    unset auto_run_bp\n"
 
-		// Without the 0.1s delay here, the type command gets messed up
+		// Without the 0.2s delay here, the type command gets messed up
 		// on MSX1 machines for some reason (starting to type too early?)
-		"    after time 0.1 \"type [lindex $args 0]\"\n"
+		// When using 0.1s delay only, the typing works, but still some
+		// things go wrong on some machines with some games (see #1509
+		// for instance)
+		"    after time 0.2 \"type [lindex $args 0]\"\n"
 
 		"    set next [lrange $args 1 end]\n"
 		"    if {[llength $next] == 0} return\n"

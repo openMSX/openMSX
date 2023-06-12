@@ -36,14 +36,14 @@ variable mbwave_title_hack       false
 variable mbwave_loop_hack	 false
 variable mbwave_basic_title_hack false
 
-variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC SFG-01]
+variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC SFG]
 
 set_help_proc vgm_rec [namespace code vgm_rec_help]
 proc vgm_rec_help {args} {
         switch -- [lindex $args 1] {
                 "start"    {return {VGM recording will be initialised, specify one or more soundchips to record.
 
-Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC|SFG-01>
+Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC|SFG>
 
 Actual recording will start when audio is detected to avoid silence at the beginning of the recording. This mechanism will only work if the MSX and/or playback routine does not send data to the soundchip when not playing, recording will start immediately in those cases.
 }}
@@ -221,7 +221,7 @@ proc vgm_rec {args} {
 		foreach a [lrange $args $index+1 end] {
 			if     {[string compare -nocase $a "PSG"      ] == 0} {set psg_logged       true} \
 			elseif {[string compare -nocase $a "MSX-Music"] == 0} {set fm_logged        true} \
-			elseif {[string compare -nocase $a "SFG-01"   ] == 0} {set y2151_logged     true} \
+			elseif {[string compare -nocase $a "SFG"      ] == 0} {set y2151_logged     true} \
 			elseif {[string compare -nocase $a "MSX-Audio"] == 0} {set y8950_logged     true} \
 			elseif {[string compare -nocase $a "MoonSound"] == 0} {set moonsound_logged true} \
 			elseif {[string compare -nocase $a "SCC"      ] == 0} {set scc_logged       true} \
@@ -293,11 +293,11 @@ proc vgm_rec_start {} {
 
 	variable y2151_logged
 	if {$y2151_logged} {
-		foreach {ps ss} [find_all_sfg01] {
+		foreach {ps ss} [find_all_sfg] {
 			lappend watchpoints [debug set_watchpoint write_mem 0x3FF0 "\[watch_in_slot $ps $ss\]" {vgm::write_y2151_address}] \
 			                    [debug set_watchpoint write_mem 0x3FF1 "\[watch_in_slot $ps $ss\]" {vgm::write_y2151_data}]
 		}
-		append recording_text " SFG-01"
+		append recording_text " SFG"
 	}
 	variable y8950_logged
 	if {$y8950_logged} {
@@ -397,7 +397,7 @@ proc find_all_scc {} {
 	return $result
 }
 
-proc find_all_sfg01 {} {
+proc find_all_sfg {} {
 	set result [list]
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {

@@ -1,3 +1,16 @@
+diff -ur libtheora-1.1.1.org/config.guess libtheora-1.1.1/config.guess
+--- libtheora-1.1.1.org/config.guess	2023-05-08 17:32:54
++++ libtheora-1.1.1/config.guess	2023-05-08 17:34:22
+@@ -792,6 +792,9 @@
+     arm*:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit 0 ;;
++    aarch64:Linux:*:*)
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
++	exit 0 ;;
+     ia64:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit 0 ;;
 diff -ru libtheora-1.1.1.org/configure libtheora-1.1.1/configure
 --- libtheora-1.1.1.org/configure	2009-10-01 20:04:08.000000000 +0200
 +++ libtheora-1.1.1/configure	2014-04-05 00:00:32.000000000 +0200

@@ -586,6 +586,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomPlain.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomPlayBall.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRamFile.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRetroHard31in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRType.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperLodeRunner.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSynthesizer.cc" />
@@ -1151,6 +1152,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomPlain.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomPlayBall.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomRamFile.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomRetroHard31in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomRType.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperLodeRunner.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSynthesizer.hh" />

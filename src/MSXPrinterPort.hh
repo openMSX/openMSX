@@ -43,6 +43,9 @@ private:
 
 	bool strobe = false; // != true
 	uint8_t data = 255;  // != 0
+	const uint8_t writePortMask;
+	const uint8_t readPortMask;
+	const uint8_t unusedBits;
 };
 
 } // namespace openmsx

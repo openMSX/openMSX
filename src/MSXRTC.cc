@@ -21,14 +21,14 @@ void MSXRTC::reset(EmuTime::param time)
 	rp5c01.reset(time);
 }
 
-byte MSXRTC::readIO(word /*port*/, EmuTime::param time)
+byte MSXRTC::readIO(word port, EmuTime::param time)
 {
-	return rp5c01.readPort(registerLatch, time) | 0xF0;
+	return port & 0x01 ? rp5c01.readPort(registerLatch, time) | 0xF0 : 0xFF;
 }
 
-byte MSXRTC::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte MSXRTC::peekIO(word port, EmuTime::param /*time*/) const
 {
-	return rp5c01.peekPort(registerLatch) | 0xF0;
+	return port & 0x01 ? rp5c01.peekPort(registerLatch) | 0xF0 : 0xFF;
 }
 
 void MSXRTC::writeIO(word port, byte value, EmuTime::param time)
