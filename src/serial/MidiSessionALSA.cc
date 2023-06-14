@@ -347,8 +347,7 @@ void MidiInALSA::run()
 				}
 			}
 			snd_seq_free_event(ev);
-			eventDistributor.distributeEvent(
-				Event::create<MidiInALSAEvent>());
+			eventDistributor.distributeEvent(MidiInALSAEvent());
 		}
 	}
 }

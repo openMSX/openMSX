@@ -121,7 +121,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	for (auto& e : toBeScheduledEvents) {
 #if PLATFORM_ANDROID
 		if (getType(e) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
-			const auto& keyEvent = get<KeyEvent>(e);
+			const auto& keyEvent = get_event<KeyEvent>(e);
 			int maskedKeyCode = int(keyEvent.getKeyCode()) & int(Keys::K_MASK);
 			auto it = ranges::find(nonMatchedKeyPresses, maskedKeyCode,
 			                       [](const auto& p) { return p.first; });
@@ -133,8 +133,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 				}
 			} else {
 				if (it != end(nonMatchedKeyPresses)) {
-					const auto& timedPressEvent   = get<TimedEvent>(it->second);
-					const auto& timedReleaseEvent = get<TimedEvent>(e);
+					const auto& timedPressEvent   = get_event<TimedEvent>(it->second);
+					const auto& timedReleaseEvent = get_event<TimedEvent>(e);
 					auto pressRealTime = timedPressEvent.getRealTime();
 					auto releaseRealTime = timedReleaseEvent.getRealTime();
 					auto deltaTime = releaseRealTime - pressRealTime;
@@ -143,7 +143,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						// Reschedule it for the next sync, with the realTime updated to now, so that it seems like the
 						// key was released now and not when android released it.
 						// Otherwise, the offset calculation for the emuTime further down below will go wrong on the next sync
-						Event newKeyupEvent = Event::create<KeyUpEvent>(keyEvent.getKeyCode());
+						Event newKeyupEvent = KeyUpEvent(keyEvent.getKeyCode());
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
@@ -153,7 +153,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 		}
 #endif
 		scheduledEvents.push_back(e);
-		const auto& timedEvent = get<TimedEvent>(e);
+		const auto& timedEvent = get_event<TimedEvent>(e);
 		auto eventRealTime = timedEvent.getRealTime();
 		assert(eventRealTime <= curRealTime);
 		auto offset = curRealTime - eventRealTime;

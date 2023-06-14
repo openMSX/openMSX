@@ -2,11 +2,10 @@
 #define MSXEVENTLISTENER_HH
 
 #include "EmuTime.hh"
+#include "Event.hh"
 #include <memory>
 
 namespace openmsx {
-
-class Event;
 
 class MSXEventListener
 {

@@ -163,7 +163,7 @@ void ImGuiManager::executeDelayed(TclObject command,
                                   std::function<void(const std::string&)> error)
 {
 	commandQueue.push_back(DelayedCommand{std::move(command), std::move(ok), std::move(error)});
-	reactor.getEventDistributor().distributeEvent(Event::create<ImGuiDelayedCommandEvent>());
+	reactor.getEventDistributor().distributeEvent(ImGuiDelayedCommandEvent());
 }
 
 int ImGuiManager::signalEvent(const Event& event)

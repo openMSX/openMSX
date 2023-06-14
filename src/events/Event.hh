@@ -21,52 +21,6 @@ namespace openmsx {
 
 class CliConnection;
 enum class EventType : uint8_t;
-struct RcEvent;
-
-// --- The Event class, this acts as a handle for the concrete event-type classes ---
-
-class Event {
-public:
-	template<typename T, typename ...Args>
-	[[nodiscard]] static Event create(Args&& ...args);
-
-	Event() = default;
-	Event(const Event& other) : ptr(other.ptr) { incr(); }
-	Event(Event&& other) noexcept : ptr(other.ptr) { other.ptr = nullptr; }
-	Event& operator=(const Event& other);
-	Event& operator=(Event&& other) noexcept;
-	~Event() { decr(); }
-
-	[[nodiscard]] explicit operator bool() const { return ptr; }
-	[[nodiscard]] const RcEvent* getPtr() const { return ptr; }
-
-private:
-	explicit Event(RcEvent* ptr);
-	void incr();
-	void decr();
-
-private:
-	RcEvent* ptr = nullptr;
-};
-
-
-// --- Event class, free functions ---
-
-[[nodiscard]] EventType getType(const Event& event);
-
-/** Get a string representation of this event. */
-[[nodiscard]] std::string toString(const Event& event);
-
-/** Similar to toString(), but retains the structure of the event. */
-[[nodiscard]] TclObject toTclList(const Event& event);
-
-[[nodiscard]] bool operator==(const Event& x, const Event& y);
-
-/** Does this event 'match' the given event. Normally an event
-  * only matches itself (as defined by operator==). But e.g.
-  * MouseMotionGroupEvent matches any MouseMotionEvent. */
-[[nodiscard]] bool matches(const Event& self, const Event& other);
-
 
 // --- The actual event classes (the Event class refers to one of these) ---
 
@@ -78,7 +32,7 @@ public:
 	[[nodiscard]] uint64_t getRealTime() const { return realtime; }
 
 private:
-	const uint64_t realtime = Timer::getTime(); // TODO use SDL2 event timestamp
+	uint64_t realtime = Timer::getTime(); // TODO use SDL2 event timestamp
 };
 
 
@@ -94,9 +48,9 @@ protected:
 		: keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_) {}
 
 private:
-	const Keys::KeyCode keyCode;
-	const Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
-	const uint32_t unicode;
+	Keys::KeyCode keyCode;
+	Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
+	uint32_t unicode;
 };
 
 class KeyUpEvent final : public KeyEvent
@@ -140,7 +94,7 @@ protected:
 		: button(button_) {}
 
 private:
-	const unsigned button;
+	unsigned button;
 };
 
 class MouseButtonUpEvent final : public MouseButtonEvent
@@ -167,8 +121,8 @@ public:
 	[[nodiscard]] int getY() const  { return y; }
 
 private:
-	const int x;
-	const int y;
+	int x;
+	int y;
 };
 
 class MouseMotionEvent final : public TimedEvent
@@ -184,10 +138,10 @@ public:
 	[[nodiscard]] int getAbsY() const { return yabs; }
 
 private:
-	const int xrel;
-	const int yrel;
-	const int xabs;
-	const int yabs;
+	int xrel;
+	int yrel;
+	int xabs;
+	int yabs;
 };
 
 
@@ -201,7 +155,7 @@ protected:
 		: joystick(joystick_) {}
 
 private:
-	const int joystick;
+	int joystick;
 };
 
 class JoystickButtonEvent : public JoystickEvent
@@ -214,7 +168,7 @@ protected:
 		: JoystickEvent(joystick_), button(button_) {}
 
 private:
-	const unsigned button;
+	unsigned button;
 };
 
 class JoystickButtonUpEvent final : public JoystickButtonEvent
@@ -244,8 +198,8 @@ public:
 	[[nodiscard]] int getValue() const { return value; }
 
 private:
-	const unsigned axis;
-	const int value;
+	unsigned axis;
+	int value;
 };
 
 class JoystickHatEvent final : public JoystickEvent
@@ -258,8 +212,8 @@ public:
 	[[nodiscard]] unsigned getValue() const { return value; }
 
 private:
-	const unsigned hat;
-	const unsigned value;
+	unsigned hat;
+	unsigned value;
 };
 
 
@@ -272,7 +226,7 @@ public:
 	[[nodiscard]] bool getGain() const { return gain; }
 
 private:
-	const bool gain;
+	bool gain;
 };
 
 
@@ -286,8 +240,8 @@ public:
 	[[nodiscard]] unsigned getY() const { return y; }
 
 private:
-	const unsigned x;
-	const unsigned y;
+	unsigned x;
+	unsigned y;
 };
 
 
@@ -296,11 +250,15 @@ class FileDropEvent final : public EventBase
 public:
 	explicit FileDropEvent(std::string_view fileName_)
 		: fileName(allocate_c_string(fileName_)) {}
+	FileDropEvent(const FileDropEvent&) { assert(false); }
+	FileDropEvent& operator=(const FileDropEvent&) { assert(false); return *this; }
+	FileDropEvent(FileDropEvent&&) = default;
+	FileDropEvent& operator=(FileDropEvent&&) = default;
 
 	[[nodiscard]] zstring_view getFileName() const { return fileName.get(); }
 
 private:
-	const StringStorage fileName;
+	StringStorage fileName;
 };
 
 
@@ -324,7 +282,7 @@ protected:
 		: button(button_) {}
 
 private:
-	const unsigned button;
+	unsigned button;
 };
 
 class OsdControlReleaseEvent final : public OsdControlEvent
@@ -353,8 +311,8 @@ public:
 	[[nodiscard]] const auto& getTclListComponents() const { return tclListComponents; }
 
 private:
-	const static_vector<EventType, 3> typesToMatch;
-	const TclObject tclListComponents;
+	static_vector<EventType, 3> typesToMatch;
+	TclObject tclListComponents;
 };
 
 /**
@@ -384,9 +342,9 @@ public:
 	[[nodiscard]] bool needRender() const { return !skipped && (thisSource == selectedSource); }
 
 private:
-	const int thisSource;
-	const int selectedSource;
-	const bool skipped;
+	int thisSource;
+	int selectedSource;
+	bool skipped;
 };
 
 /** Command received on CliComm connection. */
@@ -395,12 +353,16 @@ class CliCommandEvent final : public EventBase
 public:
 	CliCommandEvent(std::string_view command_, const CliConnection* id_)
 		: command(allocate_c_string(command_)), id(id_) {}
+	CliCommandEvent(const CliCommandEvent&) { assert(false); }
+	CliCommandEvent& operator=(const CliCommandEvent&) { assert(false); return *this; }
+	CliCommandEvent(CliCommandEvent&&) = default;
+	CliCommandEvent& operator=(CliCommandEvent&&) = default;
 
 	[[nodiscard]] zstring_view getCommand() const { return command.get(); }
 	[[nodiscard]] const CliConnection* getId() const { return id; }
 
 private:
-	const StringStorage command;
+	StringStorage command;
 	const CliConnection* id;
 };
 
@@ -449,7 +411,7 @@ class ImGuiDelayedCommandEvent   final : public SimpleEvent {};
 
 // --- Put all (non-abstract) Event classes into a std::variant ---
 
-using EventVariant = std::variant<
+using Event = std::variant<
 	KeyUpEvent,
 	KeyDownEvent,
 	MouseMotionEvent,
@@ -489,11 +451,11 @@ using EventVariant = std::variant<
 >;
 
 template<typename T>
-inline constexpr uint8_t event_index = get_index<T, EventVariant>::value;
+inline constexpr uint8_t event_index = get_index<T, Event>::value;
 
 
 // --- Define an enum for all concrete event types. ---
-// Use the numeric value from the corresponding index in the EventVariant.
+// Use the numeric value from the corresponding index in the Event.
 enum class EventType : uint8_t
 {
 	KEY_UP                   = event_index<KeyUpEvent>,
@@ -537,135 +499,42 @@ enum class EventType : uint8_t
 };
 
 
-// --- Add a reference-count ---
-struct RcEvent : EventVariant {
-	template<typename ...Args>
-	RcEvent(Args&& ...args) : EventVariant(std::forward<Args>(args)...) {}
+// --- Event class, free functions ---
 
-	uint8_t refCount = 1;
-};
+[[nodiscard]] EventType getType(const Event& event);
 
-// --- Store event objects into a pool ---
-inline ObjectPool<RcEvent> eventPool;
-// A note on threading:
-// * All threads are allowed to create and destroy Event objects.
-// * Copying Event objects within one thread is allowed. Copying across threads
-//   is not.
-// * Moving an object from one thread to another is allowed, but only when that
-//   object was not copied yet (when the internal reference count is still 1).
-// The technical reason for this is that we protect the 'eventPool' with a
-// mutex, but the reference count on each Event object is not protected. This is
-// sufficient for the following scenario:
-// * Most event handling in openMSX is solely done on the main thread. Here
-//   events can be freely copied. And shared Event objects (objects with
-//   reference count > 1) only exist on the main thread.
-// * In some cases a helper thread want to signal something to the main thread.
-//   It can then construct an Event object (construction is allowed on non-main
-//   thread), and _move_ this freshly created (not yet copied) object to the
-//   EventDistributor. The EventDistributor may or may not move this object into
-//   some queue. When it was moved then later the main-thread will pick it up
-//   (and processes and eventually destroy it). When it was not moved the (same)
-//   non-main thread will destroy the object.
-// So creation and destruction can be done in any thread and must be protected
-// with a mutex. Copying should only be done in the main-thread and thus it's
-// not required to protect the reference count.
-inline std::recursive_mutex eventPoolMutex;
+/** Get a string representation of this event. */
+[[nodiscard]] std::string toString(const Event& event);
 
+/** Similar to toString(), but retains the structure of the event. */
+[[nodiscard]] TclObject toTclList(const Event& event);
 
-// --- Event class implementation, member functions ---
+[[nodiscard]] bool operator==(const Event& x, const Event& y);
 
-template<typename T, typename ...Args>
-Event Event::create(Args&& ...args)
-{
-	std::scoped_lock lock(eventPoolMutex);
-	return Event(eventPool.emplace(std::in_place_type_t<T>{}, std::forward<Args>(args)...).ptr);
-}
-
-inline Event::Event(RcEvent* ptr_)
-	: ptr(ptr_)
-{
-	assert(ptr->refCount == 1);
-}
-
-inline Event& Event::operator=(const Event& other)
-{
-	if (this != &other) {
-		decr();
-		ptr = other.ptr;
-		incr();
-	}
-	return *this;
-}
-
-inline Event& Event::operator=(Event&& other) noexcept
-{
-	if (this != &other) {
-		decr();
-		ptr = other.ptr;
-		other.ptr = nullptr;
-	}
-	return *this;
-}
-
-inline void Event::incr()
-{
-	if (!ptr) return;
-	assert(Thread::isMainThread());
-	assert(ptr->refCount < std::numeric_limits<decltype(ptr->refCount)>::max());
-	++ptr->refCount;
-}
-
-inline void Event::decr()
-{
-	if (!ptr) return;
-	assert(Thread::isMainThread());
-	--ptr->refCount;
-	if (ptr->refCount == 0) {
-		std::scoped_lock lock(eventPoolMutex);
-		eventPool.remove(ptr);
-		ptr = nullptr;
-	}
-}
+/** Does this event 'match' the given event. Normally an event
+  * only matches itself (as defined by operator==). But e.g.
+  * MouseMotionGroupEvent matches any MouseMotionEvent. */
+[[nodiscard]] bool matches(const Event& self, const Event& other);
 
 
 // --- Event class implementation, free functions ---
 
-inline const EventVariant& getVariant(const Event& event)
-{
-	return *event.getPtr();
-}
-
 inline EventType getType(const Event& event)
 {
-	assert(event);
-	return EventType(getVariant(event).index());
-}
-
-// Similar to std::visit()
-template<typename Visitor>
-auto visit(Visitor&& visitor, const Event& event)
-{
-	assert(event);
-	return std::visit(std::forward<Visitor>(visitor), getVariant(event));
-}
-template<typename Visitor>
-auto visit(Visitor&& visitor, const Event& event1, const Event& event2)
-{
-	assert(event1 && event2);
-	return std::visit(std::forward<Visitor>(visitor), getVariant(event1), getVariant(event2));
+	return EventType(event.index());
 }
 
 // Similar to std::get() and std::get_if()
 template<typename T>
 struct GetIfEventHelper { // standard std::get_if() behavior
 	const T* operator()(const Event& event) {
-		return std::get_if<T>(&getVariant(event));
+		return std::get_if<T>(&event);
 	}
 };
 template<>
 struct GetIfEventHelper<TimedEvent> { // extension for base-classes
 	const TimedEvent* operator()(const Event& event) {
-		const auto& var = getVariant(event);
+		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
 		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
@@ -686,7 +555,7 @@ struct GetIfEventHelper<TimedEvent> { // extension for base-classes
 template<>
 struct GetIfEventHelper<KeyEvent> {
 	const KeyEvent* operator()(const Event& event) {
-		const auto& var = getVariant(event);
+		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::KEY_UP:   return &std::get<KeyUpEvent>(var);
 		case EventType::KEY_DOWN: return &std::get<KeyDownEvent>(var);
@@ -697,7 +566,7 @@ struct GetIfEventHelper<KeyEvent> {
 template<>
 struct GetIfEventHelper<JoystickEvent> {
 	const JoystickEvent* operator()(const Event& event) {
-		const auto& var = getVariant(event);
+		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::JOY_BUTTON_UP:   return &std::get<JoystickButtonUpEvent>(var);
 		case EventType::JOY_BUTTON_DOWN: return &std::get<JoystickButtonDownEvent>(var);
@@ -708,17 +577,15 @@ struct GetIfEventHelper<JoystickEvent> {
 	}
 };
 template<typename T>
-const T* get_if(const Event& event)
+const T* get_event_if(const Event& event)
 {
-	assert(event);
 	GetIfEventHelper<T> helper;
 	return helper(event);
 }
 template<typename T>
-const T& get(const Event& event)
+const T& get_event(const Event& event)
 {
-	assert(event);
-	const T* t = get_if<T>(event);
+	const T* t = get_event_if<T>(event);
 	assert(t);
 	return *t;
 }

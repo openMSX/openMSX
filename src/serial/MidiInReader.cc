@@ -91,8 +91,7 @@ void MidiInReader::run()
 			std::lock_guard<std::mutex> lock(mutex);
 			queue.push_back(buf[0]);
 		}
-		eventDistributor.distributeEvent(
-			Event::create<MidiInReaderEvent>());
+		eventDistributor.distributeEvent(MidiInReaderEvent());
 	}
 }
 

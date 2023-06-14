@@ -554,7 +554,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	const auto& keyEvent = get<KeyEvent>(event);
+	const auto& keyEvent = get_event<KeyEvent>(event);
 	bool down = getType(event) == EventType::KEY_DOWN;
 	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
 	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();
@@ -1197,7 +1197,7 @@ void Keyboard::MsxKeyEventQueue::clear()
 void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
-	Event event = eventQueue.front();
+	const Event& event = eventQueue.front();
 	auto& keyboard = OUTER(Keyboard, msxKeyEventQueue);
 	bool insertCodeKanaRelease = keyboard.processQueuedEvent(event, time);
 
@@ -1205,8 +1205,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(Event::create<KeyUpEvent>(
-			keyboard.keyboardSettings.getCodeKanaHostKey()));
+		eventQueue.push_front(KeyUpEvent(keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
@@ -1491,7 +1490,7 @@ int Keyboard::CapsLockAligner::signalEvent(const Event& event)
 
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
-		visit(overloaded{
+		std::visit(overloaded{
 			[&](const FocusEvent&) {
 				alignCapsLock(time);
 			},
@@ -1513,7 +1512,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			auto event = Event::create<KeyUpEvent>(Keys::K_CAPSLOCK);
+			auto event = KeyUpEvent(Keys::K_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1541,7 +1540,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		auto event = Event::create<KeyDownEvent>(Keys::K_CAPSLOCK);
+		auto event = KeyDownEvent(Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
 		keyboard.debug("Sending fake CAPS release\n");
 		state = MUST_DISTRIBUTE_KEY_RELEASE;

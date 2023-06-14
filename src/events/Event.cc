@@ -10,7 +10,7 @@ namespace openmsx {
 
 bool operator==(const Event& x, const Event& y)
 {
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[](const KeyUpEvent& a, const KeyUpEvent& b) {
 			// note: don't compare scancode, unicode
 			return a.getKeyCode() == b.getKeyCode();
@@ -88,7 +88,7 @@ TclObject toTclList(const Event& event)
 		"LEFT"sv, "RIGHT"sv, "UP"sv, "DOWN"sv, "A"sv, "B"sv
 	};
 
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[](const KeyEvent& e) {
 			// Note: 'scanCode' is not included (also not in operator==()).
 			//
@@ -184,8 +184,7 @@ std::string toString(const Event& event)
 
 bool matches(const Event& self, const Event& other)
 {
-	assert(self && other);
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[&](const GroupEvent& e) {
 			return contains(e.getTypesToMatch(), getType(other));
 		},

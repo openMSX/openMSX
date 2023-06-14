@@ -168,12 +168,11 @@ void Display::executeRT()
 
 int Display::signalEvent(const Event& event)
 {
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const FinishFrameEvent& e) {
 			if (e.needRender()) {
 				repaint();
-				reactor.getEventDistributor().distributeEvent(
-					Event::create<FrameDrawnEvent>());
+				reactor.getEventDistributor().distributeEvent(FrameDrawnEvent());
 			}
 		},
 		[&](const SwitchRendererEvent& /*e*/) {
@@ -260,8 +259,7 @@ void Display::checkRendererSwitch()
 		// it seems creating and destroying Settings (= Tcl vars)
 		// causes problems???
 		switchInProgress = true;
-		reactor.getEventDistributor().distributeEvent(
-			Event::create<SwitchRendererEvent>());
+		reactor.getEventDistributor().distributeEvent(SwitchRendererEvent());
 	}
 }
 

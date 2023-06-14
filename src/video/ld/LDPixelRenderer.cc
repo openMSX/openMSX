@@ -33,7 +33,7 @@ bool LDPixelRenderer::isActive() const
 
 void LDPixelRenderer::frameEnd()
 {
-	eventDistributor.distributeEvent(Event::create<FinishFrameEvent>(
+	eventDistributor.distributeEvent(FinishFrameEvent(
 		rasterizer->getPostProcessor()->getVideoSource(),
 		motherboard.getVideoSource().getSource(),
 		!isActive()));

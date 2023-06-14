@@ -105,8 +105,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 				queue.push_back(p->lpData[i]);
 			}
 		}
-		eventDistributor.distributeEvent(
-			Event::create<MidiInWindowsEvent>());
+		eventDistributor.distributeEvent(MidiInWindowsEvent());
 	}
 }
 
@@ -126,8 +125,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	eventDistributor.distributeEvent(
-		Event::create<MidiInWindowsEvent>());
+	eventDistributor.distributeEvent(MidiInWindowsEvent());
 }
 
 void MidiInWindows::run()

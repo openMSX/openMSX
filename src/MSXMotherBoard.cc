@@ -611,8 +611,7 @@ void MSXMotherBoard::doReset()
 	getCPU().doReset(time);
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	reactor.getEventDistributor().distributeEvent(
-		Event::create<BootEvent>());
+	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
 byte MSXMotherBoard::readIRQVector()
@@ -649,8 +648,7 @@ void MSXMotherBoard::powerUp()
 	msxMixer->unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	reactor.getEventDistributor().distributeEvent(
-		Event::create<BootEvent>());
+	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
 void MSXMotherBoard::powerDown()
@@ -676,8 +674,8 @@ void MSXMotherBoard::powerDown()
 void MSXMotherBoard::activate(bool active_)
 {
 	active = active_;
-	auto event = active ? Event::create<MachineActivatedEvent>()
-	                    : Event::create<MachineDeactivatedEvent>();
+	auto event = active ? Event(MachineActivatedEvent())
+	                    : Event(MachineDeactivatedEvent());
 	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		realTime->resync();

@@ -117,8 +117,7 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
 			packet = MIDIPacketNext(packet);
 		});
 	}
-	eventDistributor.distributeEvent(
-		Event::create<MidiInCoreMidiEvent>());
+	eventDistributor.distributeEvent(MidiInCoreMidiEvent());
 }
 
 // MidiInDevice
@@ -242,8 +241,7 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
 			packet = MIDIPacketNext(packet);
 		});
 	}
-	eventDistributor.distributeEvent(
-		Event::create<MidiInCoreMidiVirtualEvent>());
+	eventDistributor.distributeEvent(MidiInCoreMidiVirtualEvent());
 }
 
 // MidiInDevice

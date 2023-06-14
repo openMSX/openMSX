@@ -304,7 +304,7 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 void Joystick::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
-	const auto* joyEvent = get_if<JoystickEvent>(event);
+	const auto* joyEvent = get_event_if<JoystickEvent>(event);
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

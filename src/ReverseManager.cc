@@ -807,8 +807,7 @@ void ReverseManager::execNewSnapshot()
 	//     that's OK, we only require regular snapshots here, they
 	//     should not be *exactly* equally far apart in time.
 	pendingTakeSnapshot = true;
-	eventDistributor.distributeEvent(
-		Event::create<TakeReverseSnapshotEvent>());
+	eventDistributor.distributeEvent(TakeReverseSnapshotEvent());
 }
 
 void ReverseManager::execInputEvent()

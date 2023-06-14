@@ -460,8 +460,7 @@ void Reactor::switchBoard(Board newBoard)
 		std::lock_guard<std::mutex> lock(mbMutex);
 		activeBoard = newBoard;
 	}
-	eventDistributor->distributeEvent(
-		Event::create<MachineLoadedEvent>());
+	eventDistributor->distributeEvent(MachineLoadedEvent());
 	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard) {
 		activeBoard->activate(true);
@@ -631,7 +630,7 @@ void Reactor::update(const Setting& setting) noexcept
 // EventListener
 int Reactor::signalEvent(const Event& event)
 {
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const QuitEvent& /*e*/) {
 			enterMainLoop();
 			running = false;
@@ -683,7 +682,7 @@ void ExitCommand::execute(std::span<const TclObject> tokens, TclObject& /*result
 		exitCode = tokens[1].getInt(getInterpreter());
 		break;
 	}
-	distributor.distributeEvent(Event::create<QuitEvent>());
+	distributor.distributeEvent(QuitEvent());
 }
 
 string ExitCommand::help(std::span<const TclObject> /*tokens*/) const

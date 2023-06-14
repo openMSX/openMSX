@@ -139,9 +139,8 @@ unsigned PostProcessor::getLineWidth(
 void PostProcessor::executeUntil(EmuTime::param /*time*/)
 {
 	// insert fake end of frame event
-	eventDistributor.distributeEvent(
-		Event::create<FinishFrameEvent>(
-			getVideoSource(), getVideoSourceSetting(), false));
+	eventDistributor.distributeEvent(FinishFrameEvent(
+		getVideoSource(), getVideoSourceSetting(), false));
 }
 
 using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;

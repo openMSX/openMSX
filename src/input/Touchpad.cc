@@ -202,7 +202,7 @@ void Touchpad::signalMSXEvent(const Event& event,
 	ivec2 pos = hostPos;
 	auto b = hostButtons;
 
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const MouseMotionEvent& e) {
 			pos = transformCoords(ivec2(e.getAbsX(), e.getAbsY()));
 		},

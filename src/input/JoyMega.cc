@@ -222,14 +222,14 @@ unsigned JoyMega::calcInitialState()
 // MSXEventListener
 void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	const auto* joyEvent = get_if<JoystickEvent>(event);
+	const auto* joyEvent = get_event_if<JoystickEvent>(event);
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
 	//       sending the event to all joysticks.
 	if (joyEvent->getJoystick() != joyNum) return;
 
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const JoystickAxisMotionEvent& e) {
 			int value = e.getValue();
 			switch (e.getAxis() & 1) {

@@ -104,52 +104,42 @@ void HotKey::initDefaultBindings()
 
 	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_D, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_D, Keys::KM_META)),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_P, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_P, Keys::KM_META)),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_T, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_T, Keys::KM_META)),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_L, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_L, Keys::KM_META)),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_U, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_U, Keys::KM_META)),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_F, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_F, Keys::KM_META)),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_Q, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_Q, Keys::KM_META)),
 		                       "exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PRINT),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_PRINT),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PAUSE),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_PAUSE),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F9),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_F9),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F10),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_F10),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F11),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_F11),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F12),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_F12),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_F4, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_F4, Keys::KM_ALT)),
 		                       "exit"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
 		                       "exit"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent( Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
 		                       "toggle fullscreen"));
 		// and for Android
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_BACK),
+		bindDefault(HotKeyInfo(KeyDownEvent(Keys::K_BACK),
 		                       "quitmenu::quit_menu"));
 	}
 }
@@ -323,12 +313,12 @@ static HotKey::BindMap::const_iterator findMatch(
 
 void HotKey::executeRT()
 {
-	if (lastEvent) executeEvent(lastEvent);
+	if (lastEvent) executeEvent(*lastEvent);
 }
 
 int HotKey::signalEvent(const Event& event)
 {
-	if (lastEvent.getPtr() != event.getPtr()) {
+	if (lastEvent && *lastEvent != event) {
 		// If the newly received event is different from the repeating
 		// event, we stop the repeat process.
 		// Except when we're repeating a OsdControlEvent and the
@@ -337,9 +327,7 @@ int HotKey::signalEvent(const Event& event)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		if (lastEvent) {
-			stopRepeat();
-		}
+		stopRepeat();
 	}
 	return executeEvent(event);
 }
@@ -424,7 +412,7 @@ void HotKey::startRepeat(const Event& event)
 
 void HotKey::stopRepeat()
 {
-	lastEvent = Event{};
+	lastEvent.reset();
 	cancelRT();
 }
 
@@ -566,20 +554,20 @@ void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*
 		throw SyntaxError();
 	}
 
-	Event event;
+	std::optional<Event> event;
 	if (arguments.size() == 1) {
 		event = createEvent(arguments[0], getInterpreter());
 	}
 
 	if (defaultCmd) {
 		assert(event);
-		hotKey.unbindDefault(event);
+		hotKey.unbindDefault(*event);
 	} else if (layer.empty()) {
 		assert(event);
-		hotKey.unbind(event);
+		hotKey.unbind(*event);
 	} else {
 		if (event) {
-			hotKey.unbindLayer(event, layer);
+			hotKey.unbindLayer(*event, layer);
 		} else {
 			hotKey.unbindFullLayer(layer);
 		}

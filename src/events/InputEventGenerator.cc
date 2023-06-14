@@ -135,10 +135,10 @@ void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
 		if (deltaState & (1 << i)) {
 			if (newState & (1 << i)) {
 				eventDistributor.distributeEvent(
-					Event::create<OsdControlReleaseEvent>(i));
+					OsdControlReleaseEvent(i));
 			} else {
 				eventDistributor.distributeEvent(
-					Event::create<OsdControlPressEvent>(i));
+					OsdControlPressEvent(i));
 			}
 		}
 	}
@@ -245,14 +245,13 @@ static constexpr Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
 
 void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
 {
-	Event event;
 	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-		event = Event::create<JoystickButtonDownEvent>(0, 0);
+		event = JoystickButtonDownEvent(0, 0);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			0, false);
 		androidButtonA = true;
 	} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-		event = Event::create<JoystickButtonDownEvent>(0, 1);
+		event = JoystickButtonDownEvent(0, 1);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			1, false);
 		androidButtonB = true;
@@ -260,10 +259,10 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
-		event = Event::create<KeyDownEvent>(keyCode, scanCode, unicode);
+		Event event = KeyDownEvent(keyCode, scanCode, unicode);
 		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat);
+		eventDistributor.distributeEvent(std::move(event));
 	}
-	eventDistributor.distributeEvent(std::move(event));
 }
 
 void InputEventGenerator::handleText(const char* utf8)
@@ -272,13 +271,13 @@ void InputEventGenerator::handleText(const char* utf8)
 		auto unicode = utf8::unchecked::next(utf8);
 		if (unicode == 0) return;
 		eventDistributor.distributeEvent(
-			Event::create<KeyDownEvent>(Keys::K_NONE, unicode));
+			KeyDownEvent(Keys::K_NONE, unicode));
 	}
 }
 
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
-	Event event;
+	std::optional<Event> event;
 	switch (evt.type) {
 	case SDL_KEYUP:
 		// Virtual joystick of SDL Android port does not have joystick
@@ -289,18 +288,18 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		// and 1).
 		// TODO Android code should be rewritten for SDL2
 		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-			event = Event::create<JoystickButtonUpEvent>(0, 0);
+			event = JoystickButtonUpEvent(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(0, true);
 			androidButtonA = false;
 		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-			event = Event::create<JoystickButtonUpEvent>(0, 1);
+			event = JoystickButtonUpEvent(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(1, true);
 			androidButtonB = false;
 		} else*/ {
 			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
 			auto [keyCode, scanCode] = Keys::getCodes(
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
-			event = Event::create<KeyUpEvent>(keyCode, scanCode);
+			event = KeyUpEvent(keyCode, scanCode);
 			bool repeat = false;
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat);
 		}
@@ -310,10 +309,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event = Event::create<MouseButtonUpEvent>(evt.button.button);
+		event = MouseButtonUpEvent(evt.button.button);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event = Event::create<MouseButtonDownEvent>(evt.button.button);
+		event = MouseButtonDownEvent(evt.button.button);
 		break;
 	case SDL_MOUSEWHEEL: {
 		int x = evt.wheel.x;
@@ -322,23 +321,23 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			x = -x;
 			y = -y;
 		}
-		event = Event::create<MouseWheelEvent>(x, y);
+		event = MouseWheelEvent(x, y);
 		break;
 	}
 	case SDL_MOUSEMOTION:
-		event = Event::create<MouseMotionEvent>(
+		event = MouseMotionEvent(
 			evt.motion.xrel, evt.motion.yrel,
 			evt.motion.x,    evt.motion.y);
 		break;
 
 	case SDL_JOYBUTTONUP:
-		event = Event::create<JoystickButtonUpEvent>(
+		event = JoystickButtonUpEvent(
 			evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			evt.jbutton.button, true);
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event = Event::create<JoystickButtonDownEvent>(
+		event = JoystickButtonDownEvent(
 			evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			evt.jbutton.button, false);
@@ -349,15 +348,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
 		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
 		                                            : 0;
-		event = Event::create<JoystickAxisMotionEvent>(
+		event = JoystickAxisMotionEvent(
 			evt.jaxis.which, evt.jaxis.axis, value);
 		triggerOsdControlEventsFromJoystickAxisMotion(
 			evt.jaxis.axis, value);
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		event = Event::create<JoystickHatEvent>(
-			evt.jhat.which, evt.jhat.hat, evt.jhat.value);
+		event = JoystickHatEvent(evt.jhat.which, evt.jhat.hat, evt.jhat.value);
 		triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
 		break;
 
@@ -372,20 +370,19 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		}
 		switch (evt.window.event) {
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			event = Event::create<FocusEvent>(true);
+			event = FocusEvent(true);
 			break;
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			event = Event::create<FocusEvent>(false);
+			event = FocusEvent(false);
 			break;
 		case SDL_WINDOWEVENT_RESIZED:
-			event = Event::create<ResizeEvent>(
-				evt.window.data1, evt.window.data2);
+			event = ResizeEvent(evt.window.data1, evt.window.data2);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			event = Event::create<ExposeEvent>();
+			event = ExposeEvent();
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
-			event = Event::create<QuitEvent>();
+			event = QuitEvent();
 			break;
 		default:
 			break;
@@ -393,13 +390,13 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_DROPFILE:
-		event = Event::create<FileDropEvent>(
+		event = FileDropEvent(
 			FileOperations::getConventionalPath(evt.drop.file));
 		SDL_free(evt.drop.file);
 		break;
 
 	case SDL_QUIT:
-		event = Event::create<QuitEvent>();
+		event = QuitEvent();
 		break;
 
 	default:
@@ -414,7 +411,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	}
 #endif
 
-	if (event) eventDistributor.distributeEvent(std::move(event));
+	if (event) eventDistributor.distributeEvent(std::move(*event));
 }
 
 
@@ -426,7 +423,7 @@ void InputEventGenerator::updateGrab(bool grab)
 
 int InputEventGenerator::signalEvent(const Event& event)
 {
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const FocusEvent& fe) {
 			switch (escapeGrabState) {
 				case ESCAPE_GRAB_WAIT_CMD:

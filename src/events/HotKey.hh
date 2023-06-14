@@ -7,6 +7,7 @@
 #include "Event.hh"
 #include "TclObject.hh"
 #include <map>
+#include <optional>
 #include <string_view>
 #include <vector>
 #include <string>
@@ -144,7 +145,7 @@ private:
 	KeySet unboundKeys;
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
-	Event lastEvent;
+	std::optional<Event> lastEvent;
 };
 
 } // namespace openmsx

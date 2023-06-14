@@ -243,11 +243,10 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 	}
 	if (vdp.getMotherBoard().isActive() &&
 	    !vdp.getMotherBoard().isFastForwarding()) {
-		eventDistributor.distributeEvent(
-			Event::create<FinishFrameEvent>(
-				rasterizer->getPostProcessor()->getVideoSource(),
-				videoSourceSetting.getSource(),
-				!paintFrame));
+		eventDistributor.distributeEvent(FinishFrameEvent(
+			rasterizer->getPostProcessor()->getVideoSource(),
+			videoSourceSetting.getSource(),
+			!paintFrame));
 	}
 }
 

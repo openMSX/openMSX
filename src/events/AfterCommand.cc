@@ -299,12 +299,12 @@ void AfterCommand::afterSimpleEvent(std::span<const TclObject> tokens, TclObject
 }
 
 void AfterCommand::afterInputEvent(
-	const Event& event, std::span<const TclObject> tokens, TclObject& result)
+	Event event, std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "command");
 	auto [idx, ptr] = afterCmdPool.emplace(
 		std::in_place_type_t<AfterInputEventCmd>{},
-		*this, event, tokens[2]);
+		*this, std::move(event), tokens[2]);
 	result = std::get<AfterInputEventCmd>(*ptr).getIdStr();
 	afterCmds.push_back(idx);
 }
@@ -456,20 +456,20 @@ struct AfterEmuTimePred {
 };
 
 struct AfterInputEventPred {
-	explicit AfterInputEventPred(Event event_)
-		: event(std::move(event_)) {}
+	explicit AfterInputEventPred(const Event& event_)
+		: event(event_) {}
 	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
 			[&](AfterInputEventCmd& cmd) { return matches(cmd.getEvent(), event); },
 			[&](AfterCmd& /*cmd*/) { return false; }
 		}, afterCmdPool[idx]);
 	}
-	Event event;
+	const Event& event;
 };
 
 int AfterCommand::signalEvent(const Event& event)
 {
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const SimpleEvent&) {
 			executeSimpleEvents(getType(event));
 		},
@@ -553,8 +553,7 @@ void AfterTimedCmd::reschedule()
 void AfterTimedCmd::executeUntil(EmuTime::param /*time*/)
 {
 	time = 0.0; // execute on next event
-	afterCommand.eventDistributor.distributeEvent(
-		Event::create<AfterTimedEvent>());
+	afterCommand.eventDistributor.distributeEvent(AfterTimedEvent());
 }
 
 void AfterTimedCmd::schedulerDeleted()
