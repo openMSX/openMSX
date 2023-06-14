@@ -62,11 +62,6 @@ private:
 
 [[nodiscard]] bool operator==(const Event& x, const Event& y);
 
-/** Should 'bind -repeat' be stopped by 'other' event.
-	* Normally all events should stop auto-repeat of the previous
-	* event. But see OsdControlEvent for some exceptions. */
-[[nodiscard]] bool isRepeatStopper(const Event& self, const Event& other);
-
 /** Does this event 'match' the given event. Normally an event
   * only matches itself (as defined by operator==). But e.g.
   * MouseMotionGroupEvent matches any MouseMotionEvent. */
@@ -324,33 +319,26 @@ public:
 
 	[[nodiscard]] unsigned getButton() const { return button; }
 
-	/** Get the event that actually triggered the creation of this event.
-	 * Typically this will be a keyboard or joystick event. This could
-	 * also return nullptr (after a toString/fromString conversion).
-	 * For the current use (key-repeat) this is ok. */
-	[[nodiscard]] const Event& getOrigEvent() const { return origEvent; }
-
 protected:
-	OsdControlEvent(unsigned button_, Event origEvent_)
-		: origEvent(std::move(origEvent_)), button(button_) {}
+	OsdControlEvent(unsigned button_)
+		: button(button_) {}
 
 private:
-	const Event origEvent;
 	const unsigned button;
 };
 
 class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
-	OsdControlReleaseEvent(unsigned button_, Event origEvent_)
-		: OsdControlEvent(button_, std::move(origEvent_)) {}
+	OsdControlReleaseEvent(unsigned button_)
+		: OsdControlEvent(button_) {}
 };
 
 class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
-	OsdControlPressEvent(unsigned button_, Event origEvent_)
-		: OsdControlEvent(button_, std::move(origEvent_)) {}
+	OsdControlPressEvent(unsigned button_)
+		: OsdControlEvent(button_) {}
 };
 
 

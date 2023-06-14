@@ -337,7 +337,7 @@ int HotKey::signalEvent(const Event& event)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		if (lastEvent && isRepeatStopper(lastEvent, event)) {
+		if (lastEvent) {
 			stopRepeat();
 		}
 	}

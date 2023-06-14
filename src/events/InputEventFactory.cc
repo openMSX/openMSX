@@ -132,9 +132,9 @@ namespace openmsx::InputEventFactory {
 		}();
 		auto buttonAction = str.getListIndex(interp, 2).getString();
 		if (buttonAction == "RELEASE") {
-			return Event::create<OsdControlReleaseEvent>(button, Event{});
+			return Event::create<OsdControlReleaseEvent>(button);
 		} else if (buttonAction == "PRESS") {
-			return Event::create<OsdControlPressEvent>  (button, Event{});
+			return Event::create<OsdControlPressEvent>  (button);
 		}
 	}
 	throw CommandException("Invalid OSDcontrol event: ", str.getString());
