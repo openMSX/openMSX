@@ -16,9 +16,9 @@ namespace openmsx::InputEventFactory {
 		throw CommandException("Invalid keycode: ", str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
-		return KeyUpEvent(keyCode);
+		return KeyUpEvent(SDL_GetTicks(), keyCode);
 	} else {
-		return KeyDownEvent(keyCode, unicode);
+		return KeyDownEvent(SDL_GetTicks(), keyCode, unicode);
 	}
 }
 
@@ -74,6 +74,7 @@ namespace openmsx::InputEventFactory {
 					// for bw-compat also allow events without absX,absY
 				}
 				return MouseMotionEvent(
+					SDL_GetTicks(),
 					str.getListIndex(interp, 2).getInt(interp),
 					str.getListIndex(interp, 3).getInt(interp),
 					absX, absY);
@@ -86,9 +87,9 @@ namespace openmsx::InputEventFactory {
 			} else if (len == 3) {
 				if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
 					if (upDown(str.getListIndex(interp, 2).getString())) {
-						return MouseButtonUpEvent(*button);
+						return MouseButtonUpEvent(SDL_GetTicks(), *button);
 					} else {
-						return MouseButtonDownEvent(*button);
+						return MouseButtonDownEvent(SDL_GetTicks(), *button);
 					}
 				}
 			}
@@ -99,6 +100,7 @@ namespace openmsx::InputEventFactory {
 					makeTclList("mouse", comp1));
 			} else if (len == 4) {
 				return MouseWheelEvent(
+					SDL_GetTicks(),
 					str.getListIndex(interp, 2).getInt(interp),
 					str.getListIndex(interp, 3).getInt(interp));
 			}
@@ -132,9 +134,9 @@ namespace openmsx::InputEventFactory {
 		}();
 		auto buttonAction = str.getListIndex(interp, 2).getString();
 		if (buttonAction == "RELEASE") {
-			return OsdControlReleaseEvent(button);
+			return OsdControlReleaseEvent(SDL_GetTicks(), button);
 		} else if (buttonAction == "PRESS") {
-			return OsdControlPressEvent(button);
+			return OsdControlPressEvent(SDL_GetTicks(), button);
 		}
 	}
 	throw CommandException("Invalid OSDcontrol event: ", str.getString());
@@ -168,15 +170,15 @@ namespace openmsx::InputEventFactory {
 				if (comp1.starts_with("button")) {
 					if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
 						if (upDown(comp2.getString())) {
-							return JoystickButtonUpEvent  (joystick, *button);
+							return JoystickButtonUpEvent  (SDL_GetTicks(), joystick, *button);
 						} else {
-							return JoystickButtonDownEvent(joystick, *button);
+							return JoystickButtonDownEvent(SDL_GetTicks(), joystick, *button);
 						}
 					}
 				} else if (comp1.starts_with("axis")) {
 					if (auto axis = StringOp::stringToBase<10, unsigned>(comp1.substr(4))) {
 						int value = str.getListIndex(interp, 2).getInt(interp);
-						return JoystickAxisMotionEvent(joystick, *axis, value);
+						return JoystickAxisMotionEvent(SDL_GetTicks(), joystick, *axis, value);
 					}
 				} else if (comp1.starts_with("hat")) {
 					if (auto hat = StringOp::stringToBase<10, unsigned>(comp1.substr(3))) {
@@ -195,7 +197,7 @@ namespace openmsx::InputEventFactory {
 								throw CommandException("Invalid hat value: ", valueStr);
 							}
 						}();
-						return JoystickHatEvent(joystick, *hat, value);
+						return JoystickHatEvent(SDL_GetTicks(), joystick, *hat, value);
 					}
 				}
 			}
@@ -261,7 +263,7 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 	} else if (type == "quit") {
 		return parseQuitEvent(str, interp);
 	} else if (type == "command") {
-		return KeyUpEvent(Keys::K_UNKNOWN); // dummy event, for bw compat
+		return KeyUpEvent(0, Keys::K_UNKNOWN); // dummy event, for bw compat
 		//return parseCommandEvent(str);
 	} else if (type == "OSDcontrol") {
 		return parseOsdControlEvent(str, interp);

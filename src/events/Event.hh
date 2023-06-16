@@ -8,7 +8,6 @@
 #include "stl.hh"
 #include "TclObject.hh"
 #include "Thread.hh"
-#include "Timer.hh"
 #include <cassert>
 #include <cstdint>
 #include <limits>
@@ -29,10 +28,11 @@ class EventBase {};
 class TimedEvent : public EventBase
 {
 public:
-	[[nodiscard]] uint64_t getRealTime() const { return realtime; }
+	TimedEvent(uint32_t timestamp_) : timestamp(timestamp_) {}
+	[[nodiscard]] uint32_t getTimestamp() const { return timestamp; }
 
 private:
-	uint64_t realtime = Timer::getTime(); // TODO use SDL2 event timestamp
+	uint32_t timestamp;
 };
 
 
@@ -44,8 +44,8 @@ public:
 	[[nodiscard]] uint32_t getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
-		: keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_) {}
+	KeyEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+		: TimedEvent(timestamp_), keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_) {}
 
 private:
 	Keys::KeyCode keyCode;
@@ -56,27 +56,27 @@ private:
 class KeyUpEvent final : public KeyEvent
 {
 public:
-	explicit KeyUpEvent(Keys::KeyCode keyCode_)
-		: KeyUpEvent(keyCode_, keyCode_) {}
+	explicit KeyUpEvent(uint32_t timestamp_, Keys::KeyCode keyCode_)
+		: KeyUpEvent(timestamp_, keyCode_, keyCode_) {}
 
-	explicit KeyUpEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
-		: KeyEvent(keyCode_, scanCode_, 0) {}
+	explicit KeyUpEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyEvent(timestamp_, keyCode_, scanCode_, 0) {}
 };
 
 class KeyDownEvent final : public KeyEvent
 {
 public:
-	explicit KeyDownEvent(Keys::KeyCode keyCode_)
-		: KeyDownEvent(keyCode_, keyCode_, 0) {}
+	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_)
+		: KeyDownEvent(timestamp_, keyCode_, keyCode_, 0) {}
 
-	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
-		: KeyDownEvent(keyCode_, scanCode_, 0) {}
+	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyDownEvent(timestamp_, keyCode_, scanCode_, 0) {}
 
-	explicit KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
-		: KeyDownEvent(keyCode_, keyCode_, unicode_) {}
+	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, uint32_t unicode_)
+		: KeyDownEvent(timestamp_, keyCode_, keyCode_, unicode_) {}
 
-	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
-		: KeyEvent(keyCode_, scanCode_, unicode_) {}
+	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+		: KeyEvent(timestamp_, keyCode_, scanCode_, unicode_) {}
 };
 
 
@@ -90,8 +90,8 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	explicit MouseButtonEvent(unsigned button_)
-		: button(button_) {}
+	explicit MouseButtonEvent(uint32_t timestamp_, unsigned button_)
+		: TimedEvent(timestamp_), button(button_) {}
 
 private:
 	unsigned button;
@@ -100,36 +100,36 @@ private:
 class MouseButtonUpEvent final : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonUpEvent(unsigned button_)
-		: MouseButtonEvent(button_) {}
+	explicit MouseButtonUpEvent(uint32_t timestamp_, unsigned button_)
+		: MouseButtonEvent(timestamp_, button_) {}
 };
 
 class MouseButtonDownEvent final : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonDownEvent(unsigned button_)
-		: MouseButtonEvent(button_) {}
+	explicit MouseButtonDownEvent(uint32_t timestamp_, unsigned button_)
+		: MouseButtonEvent(timestamp_, button_) {}
 };
 
 class MouseWheelEvent final : public TimedEvent
 {
 public:
-	MouseWheelEvent(int x_, int y_)
-		: x(x_), y(y_) {}
+	MouseWheelEvent(uint32_t timestamp_, int x_, int y_)
+		: TimedEvent(timestamp_), x(x_), y(y_) {}
 
 	[[nodiscard]] int getX() const  { return x; }
 	[[nodiscard]] int getY() const  { return y; }
 
 private:
-	int x;
-	int y;
+	int x, y;
 };
 
 class MouseMotionEvent final : public TimedEvent
 {
 public:
-	MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)
-		: xrel(xrel_), yrel(yrel_)
+	MouseMotionEvent(uint32_t timestamp_, int xrel_, int yrel_, int xabs_, int yabs_)
+		: TimedEvent(timestamp_)
+		, xrel(xrel_), yrel(yrel_)
 		, xabs(xabs_), yabs(yabs_) {}
 
 	[[nodiscard]] int getX() const    { return xrel; }
@@ -138,10 +138,8 @@ public:
 	[[nodiscard]] int getAbsY() const { return yabs; }
 
 private:
-	int xrel;
-	int yrel;
-	int xabs;
-	int yabs;
+	int xrel, yrel;
+	int xabs, yabs;
 };
 
 
@@ -151,8 +149,8 @@ public:
 	[[nodiscard]] int getJoystick() const { return joystick; }
 
 protected:
-	explicit JoystickEvent(int joystick_)
-		: joystick(joystick_) {}
+	explicit JoystickEvent(uint32_t timestamp_, int joystick_)
+		: TimedEvent(timestamp_), joystick(joystick_) {}
 
 private:
 	int joystick;
@@ -164,8 +162,8 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	JoystickButtonEvent(int joystick_, unsigned button_)
-		: JoystickEvent(joystick_), button(button_) {}
+	JoystickButtonEvent(uint32_t timestamp_, int joystick_, unsigned button_)
+		: JoystickEvent(timestamp_, joystick_), button(button_) {}
 
 private:
 	unsigned button;
@@ -174,15 +172,15 @@ private:
 class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonUpEvent(int joystick_, unsigned button_)
-		: JoystickButtonEvent(joystick_, button_) {}
+	JoystickButtonUpEvent(uint32_t timestamp_, int joystick_, unsigned button_)
+		: JoystickButtonEvent(timestamp_, joystick_, button_) {}
 };
 
 class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonDownEvent(int joystick_, unsigned button_)
-		: JoystickButtonEvent(joystick_, button_) {}
+	JoystickButtonDownEvent(uint32_t timestamp_, int joystick_, unsigned button_)
+		: JoystickButtonEvent(timestamp_, joystick_, button_) {}
 };
 
 class JoystickAxisMotionEvent final : public JoystickEvent
@@ -191,8 +189,8 @@ public:
 	static constexpr unsigned X_AXIS = 0;
 	static constexpr unsigned Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(int joystick_, unsigned axis_, int value_)
-		: JoystickEvent(joystick_), axis(axis_), value(value_) {}
+	JoystickAxisMotionEvent(uint32_t timestamp_, int joystick_, unsigned axis_, int value_)
+		: JoystickEvent(timestamp_, joystick_), axis(axis_), value(value_) {}
 
 	[[nodiscard]] unsigned getAxis() const { return axis; }
 	[[nodiscard]] int getValue() const { return value; }
@@ -205,8 +203,8 @@ private:
 class JoystickHatEvent final : public JoystickEvent
 {
 public:
-	JoystickHatEvent(int joystick_, unsigned hat_, unsigned value_)
-		: JoystickEvent(joystick_), hat(hat_), value(value_) {}
+	JoystickHatEvent(uint32_t timestamp_, int joystick_, unsigned hat_, unsigned value_)
+		: JoystickEvent(timestamp_, joystick_), hat(hat_), value(value_) {}
 
 	[[nodiscard]] unsigned getHat()   const { return hat; }
 	[[nodiscard]] unsigned getValue() const { return value; }
@@ -278,8 +276,8 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	OsdControlEvent(unsigned button_)
-		: button(button_) {}
+	OsdControlEvent(uint32_t timestamp_, unsigned button_)
+		: TimedEvent(timestamp_), button(button_) {}
 
 private:
 	unsigned button;
@@ -288,15 +286,15 @@ private:
 class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
-	OsdControlReleaseEvent(unsigned button_)
-		: OsdControlEvent(button_) {}
+	OsdControlReleaseEvent(uint32_t timestamp_, unsigned button_)
+		: OsdControlEvent(timestamp_, button_) {}
 };
 
 class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
-	OsdControlPressEvent(unsigned button_)
-		: OsdControlEvent(button_) {}
+	OsdControlPressEvent(uint32_t timestamp_, unsigned button_)
+		: OsdControlEvent(timestamp_, button_) {}
 };
 
 

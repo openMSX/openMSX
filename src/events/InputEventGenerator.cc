@@ -108,7 +108,7 @@ void InputEventGenerator::poll()
 				auto unicode = utf8::unchecked::next(utf8);
 				handleKeyDown(prev->key, unicode);
 				if (unicode) { // possibly there are more characters
-					handleText(utf8);
+					handleText(curr->text.timestamp, utf8);
 				}
 				continue;
 			} else {
@@ -127,7 +127,7 @@ void InputEventGenerator::poll()
 	}
 }
 
-void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
+void InputEventGenerator::setNewOsdControlButtonState(uint32_t timestamp, unsigned newState)
 {
 	unsigned deltaState = osdControlButtonsState ^ newState;
 	for (unsigned i = OsdControlEvent::LEFT_BUTTON;
@@ -135,10 +135,10 @@ void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
 		if (deltaState & (1 << i)) {
 			if (newState & (1 << i)) {
 				eventDistributor.distributeEvent(
-					OsdControlReleaseEvent(i));
+					OsdControlReleaseEvent(timestamp, i));
 			} else {
 				eventDistributor.distributeEvent(
-					OsdControlPressEvent(i));
+					OsdControlPressEvent(timestamp, i));
 			}
 		}
 	}
@@ -146,7 +146,7 @@ void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
-	unsigned axis, int value)
+	uint32_t timestamp, unsigned axis, int value)
 {
 	auto [neg_button, pos_button] = [&] {
 		switch (axis) {
@@ -166,19 +166,19 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 	if (value > 0) {
 		// release negative button, press positive button
 		setNewOsdControlButtonState(
-			(osdControlButtonsState | neg_button) & ~pos_button);
+			timestamp, (osdControlButtonsState | neg_button) & ~pos_button);
 	} else if (value < 0) {
 		// press negative button, release positive button
 		setNewOsdControlButtonState(
-			(osdControlButtonsState | pos_button) & ~neg_button);
+			timestamp, (osdControlButtonsState | pos_button) & ~neg_button);
 	} else {
 		// release both buttons
 		setNewOsdControlButtonState(
-			osdControlButtonsState | neg_button | pos_button);
+			timestamp, osdControlButtonsState | neg_button | pos_button);
 	}
 }
 
-void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(int value)
+void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(uint32_t timestamp, int value)
 {
 	unsigned dir = 0;
 	if (!(value & SDL_HAT_UP   )) dir |= 1 << OsdControlEvent::UP_BUTTON;
@@ -187,27 +187,27 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(int value)
 	if (!(value & SDL_HAT_RIGHT)) dir |= 1 << OsdControlEvent::RIGHT_BUTTON;
 	unsigned ab = osdControlButtonsState & ((1 << OsdControlEvent::A_BUTTON) |
 	                                        (1 << OsdControlEvent::B_BUTTON));
-	setNewOsdControlButtonState(ab | dir);
+	setNewOsdControlButtonState(timestamp, ab | dir);
 }
 
-void InputEventGenerator::osdControlChangeButton(bool up, unsigned changedButtonMask)
+void InputEventGenerator::osdControlChangeButton(uint32_t timestamp, bool up, unsigned changedButtonMask)
 {
 	auto newButtonState = up
 		? osdControlButtonsState | changedButtonMask
 		: osdControlButtonsState & ~changedButtonMask;
-	setNewOsdControlButtonState(newButtonState);
+	setNewOsdControlButtonState(timestamp, newButtonState);
 }
 
-void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up)
+void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(uint32_t timestamp, unsigned button, bool up)
 {
 	osdControlChangeButton(
-		up,
+		timestamp, up,
 		((button & 1) ? (1 << OsdControlEvent::B_BUTTON)
 		              : (1 << OsdControlEvent::A_BUTTON)));
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
-	Keys::KeyCode keyCode, bool up, bool repeat)
+	uint32_t timestamp, Keys::KeyCode keyCode, bool up, bool repeat)
 {
 	unsigned buttonMask = [&] {
 		switch (static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK)) {
@@ -223,9 +223,9 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}();
 	if (buttonMask) {
 		if (repeat) {
-			osdControlChangeButton(!up, buttonMask);
+			osdControlChangeButton(timestamp, !up, buttonMask);
 		}
-		osdControlChangeButton(up, buttonMask);
+		osdControlChangeButton(timestamp, up, buttonMask);
 	}
 }
 
@@ -259,19 +259,19 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
-		Event event = KeyDownEvent(keyCode, scanCode, unicode);
-		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat);
+		Event event = KeyDownEvent(key.timestamp, keyCode, scanCode, unicode);
+		triggerOsdControlEventsFromKeyEvent(key.timestamp, keyCode, false, key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
 
-void InputEventGenerator::handleText(const char* utf8)
+void InputEventGenerator::handleText(uint32_t timestamp, const char* utf8)
 {
 	while (true) {
 		auto unicode = utf8::unchecked::next(utf8);
 		if (unicode == 0) return;
 		eventDistributor.distributeEvent(
-			KeyDownEvent(Keys::K_NONE, unicode));
+			KeyDownEvent(timestamp, Keys::K_NONE, unicode));
 	}
 }
 
@@ -299,9 +299,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
 			auto [keyCode, scanCode] = Keys::getCodes(
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
-			event = KeyUpEvent(keyCode, scanCode);
+			event = KeyUpEvent(evt.key.timestamp, keyCode, scanCode);
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat);
+			triggerOsdControlEventsFromKeyEvent(evt.key.timestamp, keyCode, true, repeat);
 		}
 		break;
 	case SDL_KEYDOWN:
@@ -309,10 +309,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event = MouseButtonUpEvent(evt.button.button);
+		event = MouseButtonUpEvent(evt.button.timestamp, evt.button.button);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event = MouseButtonDownEvent(evt.button.button);
+		event = MouseButtonDownEvent(evt.button.timestamp, evt.button.button);
 		break;
 	case SDL_MOUSEWHEEL: {
 		int x = evt.wheel.x;
@@ -321,26 +321,27 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			x = -x;
 			y = -y;
 		}
-		event = MouseWheelEvent(x, y);
+		event = MouseWheelEvent(evt.wheel.timestamp, x, y);
 		break;
 	}
 	case SDL_MOUSEMOTION:
 		event = MouseMotionEvent(
+			evt.motion.timestamp,
 			evt.motion.xrel, evt.motion.yrel,
 			evt.motion.x,    evt.motion.y);
 		break;
 
 	case SDL_JOYBUTTONUP:
 		event = JoystickButtonUpEvent(
-			evt.jbutton.which, evt.jbutton.button);
+			evt.jbutton.timestamp, evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.button, true);
+			evt.jbutton.timestamp, evt.jbutton.button, true);
 		break;
 	case SDL_JOYBUTTONDOWN:
 		event = JoystickButtonDownEvent(
-			evt.jbutton.which, evt.jbutton.button);
+			evt.jbutton.timestamp, evt.jbutton.which, evt.jbutton.button);
 		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.button, false);
+			evt.jbutton.timestamp, evt.jbutton.button, false);
 		break;
 	case SDL_JOYAXISMOTION: {
 		auto& setting = globalSettings.getJoyDeadZoneSetting(evt.jaxis.which);
@@ -349,18 +350,18 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
 		                                            : 0;
 		event = JoystickAxisMotionEvent(
-			evt.jaxis.which, evt.jaxis.axis, value);
+			evt.jaxis.timestamp, evt.jaxis.which, evt.jaxis.axis, value);
 		triggerOsdControlEventsFromJoystickAxisMotion(
-			evt.jaxis.axis, value);
+			evt.jaxis.timestamp, evt.jaxis.axis, value);
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		event = JoystickHatEvent(evt.jhat.which, evt.jhat.hat, evt.jhat.value);
-		triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
+		event = JoystickHatEvent(evt.jhat.timestamp, evt.jhat.which, evt.jhat.hat, evt.jhat.value);
+		triggerOsdControlEventsFromJoystickHat(evt.jhat.timestamp, evt.jhat.value);
 		break;
 
 	case SDL_TEXTINPUT:
-		handleText(evt.text.text);
+		handleText(evt.text.timestamp, evt.text.text);
 		break;
 
 	case SDL_WINDOWEVENT:

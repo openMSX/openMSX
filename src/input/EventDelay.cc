@@ -11,6 +11,8 @@
 #include "stl.hh"
 #include <cassert>
 
+#include <SDL.h>
+
 namespace openmsx {
 
 EventDelay::EventDelay(Scheduler& scheduler_,
@@ -154,9 +156,11 @@ void EventDelay::sync(EmuTime::param curEmu)
 #endif
 		scheduledEvents.push_back(e);
 		const auto& timedEvent = get_event<TimedEvent>(e);
-		auto eventRealTime = timedEvent.getRealTime();
-		assert(eventRealTime <= curRealTime);
-		auto offset = curRealTime - eventRealTime;
+		uint32_t eventSdlTime = timedEvent.getTimestamp();
+		uint32_t sdlNow = SDL_GetTicks();
+		auto sdlOffset = int32_t(sdlNow - eventSdlTime);
+		assert(sdlOffset >= 0);
+		auto offset = 1000 * int64_t(sdlOffset); // ms -> us
 		EmuDuration emuOffset(factor * narrow_cast<double>(offset));
 		auto schedTime = (emuOffset < extraDelay)
 		               ? time - emuOffset

@@ -1205,7 +1205,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(KeyUpEvent(keyboard.keyboardSettings.getCodeKanaHostKey()));
+		eventQueue.push_front(KeyUpEvent(SDL_GetTicks(), keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
@@ -1512,7 +1512,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			auto event = KeyUpEvent(Keys::K_CAPSLOCK);
+			auto event = KeyUpEvent(SDL_GetTicks(), Keys::K_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1540,7 +1540,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		auto event = KeyDownEvent(Keys::K_CAPSLOCK);
+		auto event = KeyDownEvent(SDL_GetTicks(), Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
 		keyboard.debug("Sending fake CAPS release\n");
 		state = MUST_DISTRIBUTE_KEY_RELEASE;
