@@ -361,9 +361,6 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 			event = FocusEvent(false);
 			break;
-		case SDL_WINDOWEVENT_RESIZED:
-			event = ResizeEvent(evt.window.data1, evt.window.data2);
-			break;
 		case SDL_WINDOWEVENT_EXPOSED:
 			event = ExposeEvent();
 			break;

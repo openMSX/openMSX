@@ -36,16 +36,10 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 	if (imGuiLayer) display.addLayer(*imGuiLayer);
 
 	renderSettings.getScaleFactorSetting().attach(*this);
-
-	reactor.getEventDistributor().registerEventListener(
-		EventType::RESIZE, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-	reactor.getEventDistributor().unregisterEventListener(
-		EventType::RESIZE, *this);
-
 	renderSettings.getScaleFactorSetting().detach(*this);
 
 	if (imGuiLayer) display.removeLayer(*imGuiLayer);

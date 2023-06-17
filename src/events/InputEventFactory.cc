@@ -266,16 +266,6 @@ namespace openmsx::InputEventFactory {
 		makeTclList("filename"));
 }
 
-[[nodiscard]] static Event parseResizeEvent(const TclObject& str, Interpreter& interp)
-{
-	if (str.getListLength(interp) != 3) {
-		throw CommandException("Invalid resize event: ", str.getString());
-	}
-	return ResizeEvent(
-		str.getListIndex(interp, 1).getInt(interp),
-		str.getListIndex(interp, 2).getInt(interp));
-}
-
 [[nodiscard]] static Event parseQuitEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 1) {
@@ -300,8 +290,6 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseFocusEvent(str, interp);
 	} else if (type == "filedrop") {
 		return parseFileDropEvent(str, interp);
-	} else if (type == "resize") {
-		return parseResizeEvent(str, interp);
 	} else if (type == "quit") {
 		return parseQuitEvent(str, interp);
 	} else if (type == "command") {

@@ -58,10 +58,6 @@ bool operator==(const Event& x, const Event& y)
 		[](const FocusEvent& a, const FocusEvent& b) {
 			return a.getGain() == b.getGain();
 		},
-		[](const ResizeEvent& a, const ResizeEvent& b) {
-			return std::tuple(a.getX(), a.getY()) ==
-			       std::tuple(b.getX(), b.getY());
-		},
 		[](const FileDropEvent& a, const FileDropEvent& b) {
 			return a.getFileName() == b.getFileName();
 		},
@@ -152,9 +148,6 @@ TclObject toTclList(const Event& event)
 		},
 		[](const FocusEvent& e) {
 			return makeTclList("focus", e.getGain());
-		},
-		[](const ResizeEvent& e) {
-			return makeTclList("resize", int(e.getX()), int(e.getY()));
 		},
 		[](const FileDropEvent& e) {
 			return makeTclList("filedrop", e.getFileName());

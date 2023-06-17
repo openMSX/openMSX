@@ -216,21 +216,6 @@ private:
 };
 
 
-class ResizeEvent final : public EventBase
-{
-public:
-	ResizeEvent(unsigned x_, unsigned y_)
-		: x(x_), y(y_) {}
-
-	[[nodiscard]] unsigned getX() const { return x; }
-	[[nodiscard]] unsigned getY() const { return y; }
-
-private:
-	unsigned x;
-	unsigned y;
-};
-
-
 class FileDropEvent final : public EventBase
 {
 public:
@@ -411,7 +396,6 @@ using Event = std::variant<
 	OsdControlReleaseEvent,
 	OsdControlPressEvent,
 	FocusEvent,
-	ResizeEvent,
 	FileDropEvent,
 	QuitEvent,
 	FinishFrameEvent,
@@ -457,7 +441,6 @@ enum class EventType : uint8_t
 	OSD_CONTROL_RELEASE      = event_index<OsdControlReleaseEvent>,
 	OSD_CONTROL_PRESS        = event_index<OsdControlPressEvent>,
 	FOCUS                    = event_index<FocusEvent>,
-	RESIZE                   = event_index<ResizeEvent>,
 	FILE_DROP                = event_index<FileDropEvent>,
 	QUIT                     = event_index<QuitEvent>,
 	GROUP                    = event_index<GroupEvent>,
