@@ -73,11 +73,15 @@ namespace openmsx::InputEventFactory {
 				} else {
 					// for bw-compat also allow events without absX,absY
 				}
-				return MouseMotionEvent(
-					SDL_GetTicks(),
-					str.getListIndex(interp, 2).getInt(interp),
-					str.getListIndex(interp, 3).getInt(interp),
-					absX, absY);
+				SDL_Event evt = {};
+				SDL_MouseMotionEvent& e = evt.motion;
+				e.type = SDL_MOUSEMOTION;
+				e.timestamp = SDL_GetTicks();
+				e.x = absX;
+				e.y = absY;
+				e.xrel = str.getListIndex(interp, 2).getInt(interp);
+				e.yrel = str.getListIndex(interp, 3).getInt(interp);
+				return MouseMotionEvent(evt);
 			}
 		} else if (comp1.starts_with("button")) {
 			if (len == 2) {
@@ -86,10 +90,18 @@ namespace openmsx::InputEventFactory {
 					makeTclList("mouse", "button"));
 			} else if (len == 3) {
 				if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
+					SDL_Event evt = {};
+					SDL_MouseButtonEvent& e = evt.button;
+					e.timestamp = SDL_GetTicks();
+					e.button = narrow<uint8_t>(*button);
 					if (upDown(str.getListIndex(interp, 2).getString())) {
-						return MouseButtonUpEvent(SDL_GetTicks(), *button);
+						e.type = SDL_MOUSEBUTTONUP;
+						e.state = SDL_RELEASED;
+						return MouseButtonUpEvent(evt);
 					} else {
-						return MouseButtonDownEvent(SDL_GetTicks(), *button);
+						e.type = SDL_MOUSEBUTTONDOWN;
+						e.state = SDL_PRESSED;
+						return MouseButtonDownEvent(evt);
 					}
 				}
 			}
@@ -99,10 +111,18 @@ namespace openmsx::InputEventFactory {
 					std::initializer_list<EventType>{EventType::MOUSE_WHEEL},
 					makeTclList("mouse", comp1));
 			} else if (len == 4) {
-				return MouseWheelEvent(
-					SDL_GetTicks(),
-					str.getListIndex(interp, 2).getInt(interp),
-					str.getListIndex(interp, 3).getInt(interp));
+				SDL_Event evt = {};
+				SDL_MouseWheelEvent& e = evt.wheel;
+				e.type = SDL_MOUSEWHEEL;
+				e.timestamp = SDL_GetTicks();
+				e.direction = SDL_MOUSEWHEEL_NORMAL;
+				e.x = str.getListIndex(interp, 2).getInt(interp);
+				e.y = str.getListIndex(interp, 3).getInt(interp);
+				#if (SDL_VERSION_ATLEAST(2, 0, 18))
+					e.preciseX = narrow_cast<float>(e.x);
+					e.preciseY = narrow_cast<float>(e.y);
+				#endif
+				return MouseWheelEvent(evt);
 			}
 		}
 	}
@@ -134,9 +154,9 @@ namespace openmsx::InputEventFactory {
 		}();
 		auto buttonAction = str.getListIndex(interp, 2).getString();
 		if (buttonAction == "RELEASE") {
-			return OsdControlReleaseEvent(SDL_GetTicks(), button);
+			return OsdControlReleaseEvent(button);
 		} else if (buttonAction == "PRESS") {
-			return OsdControlPressEvent(SDL_GetTicks(), button);
+			return OsdControlPressEvent(button);
 		}
 	}
 	throw CommandException("Invalid OSDcontrol event: ", str.getString());
@@ -169,16 +189,31 @@ namespace openmsx::InputEventFactory {
 				unsigned joystick = *j - 1;
 				if (comp1.starts_with("button")) {
 					if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
+						SDL_Event evt = {};
+						SDL_JoyButtonEvent& e = evt.jbutton;
+						e.timestamp = SDL_GetTicks();
+						e.which = joystick;
+						e.button = narrow_cast<uint8_t>(*button);
 						if (upDown(comp2.getString())) {
-							return JoystickButtonUpEvent  (SDL_GetTicks(), joystick, *button);
+							e.type = SDL_JOYBUTTONUP;
+							e.state = SDL_RELEASED;
+							return JoystickButtonUpEvent(evt);
 						} else {
-							return JoystickButtonDownEvent(SDL_GetTicks(), joystick, *button);
+							e.type = SDL_JOYBUTTONDOWN;
+							e.state = SDL_PRESSED;
+							return JoystickButtonDownEvent(evt);
 						}
 					}
 				} else if (comp1.starts_with("axis")) {
 					if (auto axis = StringOp::stringToBase<10, unsigned>(comp1.substr(4))) {
-						int value = str.getListIndex(interp, 2).getInt(interp);
-						return JoystickAxisMotionEvent(SDL_GetTicks(), joystick, *axis, value);
+						SDL_Event evt = {};
+						SDL_JoyAxisEvent& e = evt.jaxis;
+						e.type = SDL_JOYAXISMOTION;
+						e.timestamp = SDL_GetTicks();
+						e.which = joystick;
+						e.axis = narrow_cast<uint8_t>(*axis);
+						e.value = narrow_cast<int16_t>(str.getListIndex(interp, 2).getInt(interp));
+						return JoystickAxisMotionEvent(evt);
 					}
 				} else if (comp1.starts_with("hat")) {
 					if (auto hat = StringOp::stringToBase<10, unsigned>(comp1.substr(3))) {
@@ -197,7 +232,14 @@ namespace openmsx::InputEventFactory {
 								throw CommandException("Invalid hat value: ", valueStr);
 							}
 						}();
-						return JoystickHatEvent(SDL_GetTicks(), joystick, *hat, value);
+						SDL_Event evt = {};
+						SDL_JoyHatEvent& e = evt.jhat;
+						e.type = SDL_JOYHATMOTION;
+						e.timestamp = SDL_GetTicks();
+						e.which = joystick;
+						e.hat = narrow_cast<uint8_t>(*hat);
+						e.value = narrow_cast<uint8_t>(value);
+						return JoystickHatEvent(evt);
 					}
 				}
 			}

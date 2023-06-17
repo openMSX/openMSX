@@ -208,10 +208,10 @@ void Touchpad::signalMSXEvent(const Event& event,
 		},
 		[&](const MouseButtonDownEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				b |= 1;
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				b |= 2;
 				break;
 			default:
@@ -221,10 +221,10 @@ void Touchpad::signalMSXEvent(const Event& event,
 		},
 		[&](const MouseButtonUpEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				b &= ~1;
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				b &= ~2;
 				break;
 			default:

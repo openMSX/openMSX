@@ -274,10 +274,10 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 		},
 		[&](const MouseButtonDownEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				createMouseStateChange(time, 0, 0, JOY_BUTTONB, 0);
 				break;
 			default:
@@ -287,10 +287,10 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 		},
 		[&](const MouseButtonUpEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				createMouseStateChange(time, 0, 0, 0, JOY_BUTTONB);
 				break;
 			default:

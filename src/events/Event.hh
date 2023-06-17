@@ -16,6 +16,8 @@
 #include <utility>
 #include <variant>
 
+#include <SDL.h>
+
 namespace openmsx {
 
 class CliConnection;
@@ -24,6 +26,17 @@ enum class EventType : uint8_t;
 // --- The actual event classes (the Event class refers to one of these) ---
 
 class EventBase {};
+
+class SdlEvent : public EventBase
+{
+public:
+	SdlEvent(const SDL_Event& e) : evt(e) {}
+	[[nodiscard]] const SDL_Event& getSdlEvent() const { return evt; }
+	[[nodiscard]] const SDL_CommonEvent& getCommonSdlEvent() const { return evt.common; }
+
+protected:
+	SDL_Event evt;
+};
 
 class TimedEvent : public EventBase
 {
@@ -80,138 +93,113 @@ public:
 };
 
 
-class MouseButtonEvent : public TimedEvent
+class MouseButtonEvent : public SdlEvent
 {
 public:
-	static constexpr unsigned LEFT      = 1;
-	static constexpr unsigned MIDDLE    = 2;
-	static constexpr unsigned RIGHT     = 3;
-
-	[[nodiscard]] unsigned getButton() const { return button; }
+	[[nodiscard]] auto getButton() const { return evt.button.button; }
 
 protected:
-	explicit MouseButtonEvent(uint32_t timestamp_, unsigned button_)
-		: TimedEvent(timestamp_), button(button_) {}
-
-private:
-	unsigned button;
+	explicit MouseButtonEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
 };
 
 class MouseButtonUpEvent final : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonUpEvent(uint32_t timestamp_, unsigned button_)
-		: MouseButtonEvent(timestamp_, button_) {}
+	explicit MouseButtonUpEvent(const SDL_Event& e)
+		: MouseButtonEvent(e) {}
 };
 
 class MouseButtonDownEvent final : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonDownEvent(uint32_t timestamp_, unsigned button_)
-		: MouseButtonEvent(timestamp_, button_) {}
+	explicit MouseButtonDownEvent(const SDL_Event& e)
+		: MouseButtonEvent(e) {}
 };
 
-class MouseWheelEvent final : public TimedEvent
+class MouseWheelEvent final : public SdlEvent
 {
 public:
-	MouseWheelEvent(uint32_t timestamp_, int x_, int y_)
-		: TimedEvent(timestamp_), x(x_), y(y_) {}
+	MouseWheelEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
 
-	[[nodiscard]] int getX() const  { return x; }
-	[[nodiscard]] int getY() const  { return y; }
+	[[nodiscard]] int getX() const { return normalize(evt.wheel.x); }
+	[[nodiscard]] int getY() const { return normalize(evt.wheel.y); }
 
 private:
-	int x, y;
+	[[nodiscard]] int normalize(int x) const {
+		return evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -x : x;
+	}
 };
 
-class MouseMotionEvent final : public TimedEvent
+class MouseMotionEvent final : public SdlEvent
 {
 public:
-	MouseMotionEvent(uint32_t timestamp_, int xrel_, int yrel_, int xabs_, int yabs_)
-		: TimedEvent(timestamp_)
-		, xrel(xrel_), yrel(yrel_)
-		, xabs(xabs_), yabs(yabs_) {}
+	MouseMotionEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
 
-	[[nodiscard]] int getX() const    { return xrel; }
-	[[nodiscard]] int getY() const    { return yrel; }
-	[[nodiscard]] int getAbsX() const { return xabs; }
-	[[nodiscard]] int getAbsY() const { return yabs; }
-
-private:
-	int xrel, yrel;
-	int xabs, yabs;
+	[[nodiscard]] int getX() const    { return evt.motion.xrel; }
+	[[nodiscard]] int getY() const    { return evt.motion.yrel; }
+	[[nodiscard]] int getAbsX() const { return evt.motion.x; }
+	[[nodiscard]] int getAbsY() const { return evt.motion.y; }
 };
 
 
-class JoystickEvent : public TimedEvent
+class JoystickEvent : public SdlEvent
 {
 public:
-	[[nodiscard]] int getJoystick() const { return joystick; }
+	[[nodiscard]] int getJoystick() const { return evt.jbutton.which; }
 
 protected:
-	explicit JoystickEvent(uint32_t timestamp_, int joystick_)
-		: TimedEvent(timestamp_), joystick(joystick_) {}
-
-private:
-	int joystick;
+	explicit JoystickEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
 };
 
 class JoystickButtonEvent : public JoystickEvent
 {
 public:
-	[[nodiscard]] unsigned getButton() const { return button; }
+	[[nodiscard]] unsigned getButton() const { return evt.jbutton.button; }
 
 protected:
-	JoystickButtonEvent(uint32_t timestamp_, int joystick_, unsigned button_)
-		: JoystickEvent(timestamp_, joystick_), button(button_) {}
-
-private:
-	unsigned button;
+	JoystickButtonEvent(const SDL_Event& e)
+		: JoystickEvent(e) {}
 };
 
 class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonUpEvent(uint32_t timestamp_, int joystick_, unsigned button_)
-		: JoystickButtonEvent(timestamp_, joystick_, button_) {}
+	JoystickButtonUpEvent(const SDL_Event& e)
+		: JoystickButtonEvent(e) {}
 };
 
 class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonDownEvent(uint32_t timestamp_, int joystick_, unsigned button_)
-		: JoystickButtonEvent(timestamp_, joystick_, button_) {}
+	JoystickButtonDownEvent(const SDL_Event& e)
+		: JoystickButtonEvent(e) {}
 };
 
 class JoystickAxisMotionEvent final : public JoystickEvent
 {
 public:
-	static constexpr unsigned X_AXIS = 0;
-	static constexpr unsigned Y_AXIS = 1;
+	static constexpr uint8_t X_AXIS = 0;
+	static constexpr uint8_t Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(uint32_t timestamp_, int joystick_, unsigned axis_, int value_)
-		: JoystickEvent(timestamp_, joystick_), axis(axis_), value(value_) {}
+	JoystickAxisMotionEvent(const SDL_Event& e)
+		: JoystickEvent(e) {}
 
-	[[nodiscard]] unsigned getAxis() const { return axis; }
-	[[nodiscard]] int getValue() const { return value; }
-
-private:
-	unsigned axis;
-	int value;
+	[[nodiscard]] uint8_t getAxis() const { return evt.jaxis.axis; }
+	[[nodiscard]] int16_t getValue() const { return evt.jaxis.value; }
 };
 
 class JoystickHatEvent final : public JoystickEvent
 {
 public:
-	JoystickHatEvent(uint32_t timestamp_, int joystick_, unsigned hat_, unsigned value_)
-		: JoystickEvent(timestamp_, joystick_), hat(hat_), value(value_) {}
+	JoystickHatEvent(const SDL_Event& e)
+		: JoystickEvent(e) {}
 
-	[[nodiscard]] unsigned getHat()   const { return hat; }
-	[[nodiscard]] unsigned getValue() const { return value; }
-
-private:
-	unsigned hat;
-	unsigned value;
+	[[nodiscard]] uint8_t getHat()   const { return evt.jhat.hat; }
+	[[nodiscard]] uint8_t getValue() const { return evt.jhat.value; }
 };
 
 
@@ -267,7 +255,7 @@ class QuitEvent final : public EventBase {};
  * joystick events into one set of events that can be used to e.g. control
  * OSD elements.
  */
-class OsdControlEvent : public TimedEvent
+class OsdControlEvent : public EventBase
 {
 public:
 	enum { LEFT_BUTTON, RIGHT_BUTTON, UP_BUTTON, DOWN_BUTTON,
@@ -276,8 +264,8 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	OsdControlEvent(uint32_t timestamp_, unsigned button_)
-		: TimedEvent(timestamp_), button(button_) {}
+	OsdControlEvent(unsigned button_)
+		: button(button_) {}
 
 private:
 	unsigned button;
@@ -286,15 +274,15 @@ private:
 class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
-	OsdControlReleaseEvent(uint32_t timestamp_, unsigned button_)
-		: OsdControlEvent(timestamp_, button_) {}
+	explicit OsdControlReleaseEvent(unsigned button_)
+		: OsdControlEvent(button_) {}
 };
 
 class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
-	OsdControlPressEvent(uint32_t timestamp_, unsigned button_)
-		: OsdControlEvent(timestamp_, button_) {}
+	explicit OsdControlPressEvent(unsigned button_)
+		: OsdControlEvent(button_) {}
 };
 
 
@@ -530,12 +518,10 @@ struct GetIfEventHelper { // standard std::get_if() behavior
 	}
 };
 template<>
-struct GetIfEventHelper<TimedEvent> { // extension for base-classes
-	const TimedEvent* operator()(const Event& event) {
+struct GetIfEventHelper<SdlEvent> { // extension for base-classes
+	const SdlEvent* operator()(const Event& event) {
 		const auto& var = event;
 		switch (EventType(var.index())) {
-		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
-		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
 		case EventType::MOUSE_BUTTON_UP:     return &std::get<MouseButtonUpEvent>(var);
 		case EventType::MOUSE_BUTTON_DOWN:   return &std::get<MouseButtonDownEvent>(var);
 		case EventType::MOUSE_WHEEL:         return &std::get<MouseWheelEvent>(var);
@@ -544,8 +530,17 @@ struct GetIfEventHelper<TimedEvent> { // extension for base-classes
 		case EventType::JOY_BUTTON_DOWN:     return &std::get<JoystickButtonDownEvent>(var);
 		case EventType::JOY_AXIS_MOTION:     return &std::get<JoystickAxisMotionEvent>(var);
 		case EventType::JOY_HAT:             return &std::get<JoystickHatEvent>(var);
-		case EventType::OSD_CONTROL_RELEASE: return &std::get<OsdControlReleaseEvent>(var);
-		case EventType::OSD_CONTROL_PRESS:   return &std::get<OsdControlPressEvent>(var);
+		default: return nullptr;
+		}
+	}
+};
+template<>
+struct GetIfEventHelper<TimedEvent> {
+	const TimedEvent* operator()(const Event& event) {
+		const auto& var = event;
+		switch (EventType(var.index())) {
+		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
+		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
 		default: return nullptr;
 		}
 	}

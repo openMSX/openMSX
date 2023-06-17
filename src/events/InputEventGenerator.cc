@@ -127,18 +127,16 @@ void InputEventGenerator::poll()
 	}
 }
 
-void InputEventGenerator::setNewOsdControlButtonState(uint32_t timestamp, unsigned newState)
+void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
 {
 	unsigned deltaState = osdControlButtonsState ^ newState;
 	for (unsigned i = OsdControlEvent::LEFT_BUTTON;
 			i <= OsdControlEvent::B_BUTTON; ++i) {
 		if (deltaState & (1 << i)) {
 			if (newState & (1 << i)) {
-				eventDistributor.distributeEvent(
-					OsdControlReleaseEvent(timestamp, i));
+				eventDistributor.distributeEvent(OsdControlReleaseEvent(i));
 			} else {
-				eventDistributor.distributeEvent(
-					OsdControlPressEvent(timestamp, i));
+				eventDistributor.distributeEvent(OsdControlPressEvent(i));
 			}
 		}
 	}
@@ -146,7 +144,7 @@ void InputEventGenerator::setNewOsdControlButtonState(uint32_t timestamp, unsign
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
-	uint32_t timestamp, unsigned axis, int value)
+	unsigned axis, int value)
 {
 	auto [neg_button, pos_button] = [&] {
 		switch (axis) {
@@ -166,19 +164,19 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 	if (value > 0) {
 		// release negative button, press positive button
 		setNewOsdControlButtonState(
-			timestamp, (osdControlButtonsState | neg_button) & ~pos_button);
+			(osdControlButtonsState | neg_button) & ~pos_button);
 	} else if (value < 0) {
 		// press negative button, release positive button
 		setNewOsdControlButtonState(
-			timestamp, (osdControlButtonsState | pos_button) & ~neg_button);
+			(osdControlButtonsState | pos_button) & ~neg_button);
 	} else {
 		// release both buttons
 		setNewOsdControlButtonState(
-			timestamp, osdControlButtonsState | neg_button | pos_button);
+			osdControlButtonsState | neg_button | pos_button);
 	}
 }
 
-void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(uint32_t timestamp, int value)
+void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(int value)
 {
 	unsigned dir = 0;
 	if (!(value & SDL_HAT_UP   )) dir |= 1 << OsdControlEvent::UP_BUTTON;
@@ -187,27 +185,27 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(uint32_t timest
 	if (!(value & SDL_HAT_RIGHT)) dir |= 1 << OsdControlEvent::RIGHT_BUTTON;
 	unsigned ab = osdControlButtonsState & ((1 << OsdControlEvent::A_BUTTON) |
 	                                        (1 << OsdControlEvent::B_BUTTON));
-	setNewOsdControlButtonState(timestamp, ab | dir);
+	setNewOsdControlButtonState(ab | dir);
 }
 
-void InputEventGenerator::osdControlChangeButton(uint32_t timestamp, bool up, unsigned changedButtonMask)
+void InputEventGenerator::osdControlChangeButton(bool up, unsigned changedButtonMask)
 {
 	auto newButtonState = up
 		? osdControlButtonsState | changedButtonMask
 		: osdControlButtonsState & ~changedButtonMask;
-	setNewOsdControlButtonState(timestamp, newButtonState);
+	setNewOsdControlButtonState(newButtonState);
 }
 
-void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(uint32_t timestamp, unsigned button, bool up)
+void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up)
 {
 	osdControlChangeButton(
-		timestamp, up,
+		up,
 		((button & 1) ? (1 << OsdControlEvent::B_BUTTON)
 		              : (1 << OsdControlEvent::A_BUTTON)));
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
-	uint32_t timestamp, Keys::KeyCode keyCode, bool up, bool repeat)
+	Keys::KeyCode keyCode, bool up, bool repeat)
 {
 	unsigned buttonMask = [&] {
 		switch (static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK)) {
@@ -223,9 +221,9 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}();
 	if (buttonMask) {
 		if (repeat) {
-			osdControlChangeButton(timestamp, !up, buttonMask);
+			osdControlChangeButton(!up, buttonMask);
 		}
-		osdControlChangeButton(timestamp, up, buttonMask);
+		osdControlChangeButton(up, buttonMask);
 	}
 }
 
@@ -260,7 +258,7 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
 		Event event = KeyDownEvent(key.timestamp, keyCode, scanCode, unicode);
-		triggerOsdControlEventsFromKeyEvent(key.timestamp, keyCode, false, key.repeat);
+		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
@@ -301,7 +299,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
 			event = KeyUpEvent(evt.key.timestamp, keyCode, scanCode);
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent(evt.key.timestamp, keyCode, true, repeat);
+			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat);
 		}
 		break;
 	case SDL_KEYDOWN:
@@ -309,39 +307,27 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event = MouseButtonUpEvent(evt.button.timestamp, evt.button.button);
+		event = MouseButtonUpEvent(evt);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event = MouseButtonDownEvent(evt.button.timestamp, evt.button.button);
+		event = MouseButtonDownEvent(evt);
 		break;
-	case SDL_MOUSEWHEEL: {
-		int x = evt.wheel.x;
-		int y = evt.wheel.y;
-		if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED) {
-			x = -x;
-			y = -y;
-		}
-		event = MouseWheelEvent(evt.wheel.timestamp, x, y);
+	case SDL_MOUSEWHEEL:
+		event = MouseWheelEvent(evt);
 		break;
-	}
 	case SDL_MOUSEMOTION:
-		event = MouseMotionEvent(
-			evt.motion.timestamp,
-			evt.motion.xrel, evt.motion.yrel,
-			evt.motion.x,    evt.motion.y);
+		event = MouseMotionEvent(evt);
 		break;
 
 	case SDL_JOYBUTTONUP:
-		event = JoystickButtonUpEvent(
-			evt.jbutton.timestamp, evt.jbutton.which, evt.jbutton.button);
+		event = JoystickButtonUpEvent(evt);
 		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.timestamp, evt.jbutton.button, true);
+			evt.jbutton.button, true);
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event = JoystickButtonDownEvent(
-			evt.jbutton.timestamp, evt.jbutton.which, evt.jbutton.button);
+		event = JoystickButtonDownEvent(evt);
 		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.timestamp, evt.jbutton.button, false);
+			evt.jbutton.button, false);
 		break;
 	case SDL_JOYAXISMOTION: {
 		auto& setting = globalSettings.getJoyDeadZoneSetting(evt.jaxis.which);
@@ -349,15 +335,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
 		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
 		                                            : 0;
-		event = JoystickAxisMotionEvent(
-			evt.jaxis.timestamp, evt.jaxis.which, evt.jaxis.axis, value);
+		event = JoystickAxisMotionEvent(evt);
 		triggerOsdControlEventsFromJoystickAxisMotion(
-			evt.jaxis.timestamp, evt.jaxis.axis, value);
+			evt.jaxis.axis, value);
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		event = JoystickHatEvent(evt.jhat.timestamp, evt.jhat.which, evt.jhat.hat, evt.jhat.value);
-		triggerOsdControlEventsFromJoystickHat(evt.jhat.timestamp, evt.jhat.value);
+		event = JoystickHatEvent(evt);
+		triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
 		break;
 
 	case SDL_TEXTINPUT:

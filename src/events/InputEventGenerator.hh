@@ -70,12 +70,12 @@ private:
 	} escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 
 	// OsdControl
-	void setNewOsdControlButtonState(uint32_t timestamp, unsigned newState);
-	void triggerOsdControlEventsFromJoystickAxisMotion(uint32_t timestamp, unsigned axis, int value);
-	void triggerOsdControlEventsFromJoystickHat(uint32_t timestamp, int value);
-	void osdControlChangeButton(uint32_t timestamp, bool up, unsigned changedButtonMask);
-	void triggerOsdControlEventsFromJoystickButtonEvent(uint32_t timestamp, unsigned button, bool up);
-	void triggerOsdControlEventsFromKeyEvent(uint32_t timestamp, Keys::KeyCode keyCode, bool up, bool repeat);
+	void setNewOsdControlButtonState(unsigned newState);
+	void triggerOsdControlEventsFromJoystickAxisMotion(unsigned axis, int value);
+	void triggerOsdControlEventsFromJoystickHat(int value);
+	void osdControlChangeButton(bool up, unsigned changedButtonMask);
+	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up);
+	void triggerOsdControlEventsFromKeyEvent(Keys::KeyCode keyCode, bool up, bool repeat);
 
 
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released

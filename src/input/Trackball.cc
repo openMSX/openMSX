@@ -209,10 +209,10 @@ void Trackball::signalMSXEvent(const Event& event,
 		},
 		[&](const MouseButtonDownEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				createTrackballStateChange(time, 0, 0, JOY_BUTTONB, 0);
 				break;
 			default:
@@ -222,10 +222,10 @@ void Trackball::signalMSXEvent(const Event& event,
 		},
 		[&](const MouseButtonUpEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONB);
 				break;
 			default:
