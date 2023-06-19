@@ -108,8 +108,9 @@ void InputEventGenerator::poll()
 				auto unicode = utf8::unchecked::next(utf8);
 				handleKeyDown(prev->key, unicode);
 				if (unicode) { // possibly there are more characters
-					handleText(curr->text.timestamp, utf8);
+					splitText(curr->text.timestamp, utf8);
 				}
+				eventDistributor.distributeEvent(TextEvent(*curr));
 				continue;
 			} else {
 				handle(*prev);
@@ -263,7 +264,7 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 	}
 }
 
-void InputEventGenerator::handleText(uint32_t timestamp, const char* utf8)
+void InputEventGenerator::splitText(uint32_t timestamp, const char* utf8)
 {
 	while (true) {
 		auto unicode = utf8::unchecked::next(utf8);
@@ -347,7 +348,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_TEXTINPUT:
-		handleText(evt.text.timestamp, evt.text.text);
+		splitText(evt.text.timestamp, evt.text.text);
+		event = TextEvent(evt);
 		break;
 
 	case SDL_WINDOWEVENT:

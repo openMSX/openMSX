@@ -175,6 +175,9 @@ TclObject toTclList(const Event& event)
 			}
 			return makeTclList(); // other events don't need a textual representation (yet)
 		},
+		[](const TextEvent&) {
+			return makeTclList(); // doesn't need a textual representation (yet)
+		},
 		[](const FileDropEvent& e) {
 			return makeTclList("filedrop", e.getFileName());
 		},

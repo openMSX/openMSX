@@ -46,7 +46,7 @@ public:
 private:
 	void handle(const SDL_Event& evt);
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
-	void handleText(uint32_t timestamp, const char* utf8);
+	void splitText(uint32_t timestamp, const char* utf8);
 	void setGrabInput(bool grab);
 
 	// EventListener

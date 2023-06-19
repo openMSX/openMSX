@@ -228,6 +228,14 @@ private:
 };
 
 
+class TextEvent : public SdlEvent
+{
+public:
+	explicit TextEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
+};
+
+
 class FileDropEvent final : public EventBase
 {
 public:
@@ -404,6 +412,7 @@ using Event = std::variant<
 	OsdControlReleaseEvent,
 	OsdControlPressEvent,
 	WindowEvent,
+	TextEvent,
 	FileDropEvent,
 	QuitEvent,
 	FinishFrameEvent,
@@ -448,6 +457,7 @@ enum class EventType : uint8_t
 	OSD_CONTROL_RELEASE      = event_index<OsdControlReleaseEvent>,
 	OSD_CONTROL_PRESS        = event_index<OsdControlPressEvent>,
 	WINDOW                   = event_index<WindowEvent>,
+	TEXT                     = event_index<TextEvent>,
 	FILE_DROP                = event_index<FileDropEvent>,
 	QUIT                     = event_index<QuitEvent>,
 	GROUP                    = event_index<GroupEvent>,
@@ -522,6 +532,7 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 		case EventType::JOY_AXIS_MOTION:     return &std::get<JoystickAxisMotionEvent>(var);
 		case EventType::JOY_HAT:             return &std::get<JoystickHatEvent>(var);
 		case EventType::WINDOW:              return &std::get<WindowEvent>(var);
+		case EventType::TEXT:                return &std::get<TextEvent>(var);
 		default: return nullptr;
 		}
 	}
