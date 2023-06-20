@@ -12,8 +12,6 @@
 #include "build-info.hh"
 #include <memory>
 
-#include <imgui_impl_sdl2.h>
-
 namespace openmsx {
 
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
@@ -89,18 +87,6 @@ void InputEventGenerator::poll()
 	bool pending = false;
 
 	while (SDL_PollEvent(curr)) {
-		// First pass event to ImGui
-		ImGui_ImplSDL2_ProcessEvent(curr);
-		ImGuiIO& io = ImGui::GetIO();
-		if ((io.WantCaptureMouse &&
-		     curr->type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
-		                          SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
-		    (io.WantCaptureKeyboard &&
-		     curr->type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
-			continue;
-		}
-
-		// Only when ImGui hasn't captured the event, pass it to openMSX
 		if (pending) {
 			pending = false;
 			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {

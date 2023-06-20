@@ -14,6 +14,7 @@
 #include "StringOp.hh"
 
 #include <imgui.h>
+#include <imgui_impl_sdl2.h>
 #include <imgui_internal.h>
 #include <CustomFont.ii> // icons for ImGuiFileDialog
 
@@ -123,6 +124,14 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	ImGui::AddSettingsHandler(&ini_handler);
 
 	auto& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_UP,   *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::MOUSE_MOTION,      *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::MOUSE_WHEEL,       *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::KEY_UP,            *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::KEY_DOWN,          *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::TEXT,              *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::WINDOW,            *this, EventDistributor::IMGUI);
 	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
 
@@ -139,6 +148,14 @@ ImGuiManager::~ImGuiManager()
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
 	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
+	eventDistributor.unregisterEventListener(EventType::TEXT, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
 
 	cleanupImGui();
 }
@@ -168,25 +185,38 @@ void ImGuiManager::executeDelayed(TclObject command,
 
 int ImGuiManager::signalEvent(const Event& event)
 {
-	switch (getType(event)) {
-	case EventType::IMGUI_DELAYED_COMMAND: {
-		auto& interp = getInterpreter();
-		for (auto& [cmd, ok, error] : commandQueue) {
-			try {
-				auto result = cmd.executeCommand(interp);
-				if (ok) ok(result);
-			} catch (CommandException& e) {
-				if (error) error(e.getMessage());
-			}
+	if (auto* evt = get_event_if<SdlEvent>(event)) {
+		const SDL_Event& sdlEvent = evt->getSdlEvent();
+		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+		ImGuiIO& io = ImGui::GetIO();
+		if ((io.WantCaptureMouse &&
+		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
+		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
+		    (io.WantCaptureKeyboard &&
+		     sdlEvent.type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
+			return EventDistributor::MSX; // block event for the MSX
 		}
-		commandQueue.clear();
-		break;
-	}
-	case EventType::BREAK:
-		debugger.signalBreak();
-		break;
-	default:
-		UNREACHABLE;
+	} else {
+		switch (getType(event)) {
+		case EventType::IMGUI_DELAYED_COMMAND: {
+			auto& interp = getInterpreter();
+			for (auto& [cmd, ok, error] : commandQueue) {
+				try {
+					auto result = cmd.executeCommand(interp);
+					if (ok) ok(result);
+				} catch (CommandException& e) {
+					if (error) error(e.getMessage());
+				}
+			}
+			commandQueue.clear();
+			break;
+		}
+		case EventType::BREAK:
+			debugger.signalBreak();
+			break;
+		default:
+			UNREACHABLE;
+		}
 	}
 	return 0;
 }
