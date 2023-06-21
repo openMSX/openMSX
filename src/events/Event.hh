@@ -2,7 +2,7 @@
 #define EVENT_HH
 
 #include "ObjectPool.hh"
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include "static_vector.hh"
 #include "StringStorage.hh"
 #include "stl.hh"
@@ -38,58 +38,66 @@ protected:
 	SDL_Event evt;
 };
 
-class TimedEvent : public EventBase
+
+class KeyEvent : public SdlEvent
 {
 public:
-	TimedEvent(uint32_t timestamp_) : timestamp(timestamp_) {}
-	[[nodiscard]] uint32_t getTimestamp() const { return timestamp; }
-
-private:
-	uint32_t timestamp;
-};
-
-
-class KeyEvent : public TimedEvent
-{
-public:
-	[[nodiscard]] Keys::KeyCode getKeyCode() const { return keyCode; }
-	[[nodiscard]] Keys::KeyCode getScanCode() const { return scanCode; }
-	[[nodiscard]] uint32_t getUnicode() const { return unicode; }
+	[[nodiscard]] SDL_Keycode  getKeyCode()   const { return evt.key.keysym.sym; }
+	[[nodiscard]] SDL_Scancode getScanCode()  const { return evt.key.keysym.scancode; }
+	[[nodiscard]] uint16_t     getModifiers() const { return evt.key.keysym.mod; }
+	[[nodiscard]] uint32_t     getUnicode()   const {
+		// HACK: repurposed 'unused' field as 'unicode' field
+		return evt.key.keysym.unused;
+	}
+	[[nodiscard]] SDLKey getKey() const { return SDLKey{evt.key.keysym, evt.type == SDL_KEYDOWN}; }
 
 protected:
-	KeyEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
-		: TimedEvent(timestamp_), keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_) {}
-
-private:
-	Keys::KeyCode keyCode;
-	Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
-	uint32_t unicode;
+	KeyEvent(const SDL_Event& e) : SdlEvent(e) {}
 };
 
 class KeyUpEvent final : public KeyEvent
 {
 public:
-	explicit KeyUpEvent(uint32_t timestamp_, Keys::KeyCode keyCode_)
-		: KeyUpEvent(timestamp_, keyCode_, keyCode_) {}
+	explicit KeyUpEvent(const SDL_Event& e) : KeyEvent(e) {}
 
-	explicit KeyUpEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
-		: KeyEvent(timestamp_, keyCode_, scanCode_, 0) {}
+	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+		SDL_Event evt = {};
+		SDL_KeyboardEvent& e = evt.key;
+		e.type = SDL_KEYUP;
+		e.timestamp = SDL_GetTicks();
+		e.state = SDL_RELEASED;
+		e.keysym.sym = code;
+		e.keysym.mod = mod;
+		return KeyUpEvent(evt);
+	}
 };
 
 class KeyDownEvent final : public KeyEvent
 {
 public:
-	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_)
-		: KeyDownEvent(timestamp_, keyCode_, keyCode_, 0) {}
+	explicit KeyDownEvent(const SDL_Event& e) : KeyEvent(e) {}
 
-	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
-		: KeyDownEvent(timestamp_, keyCode_, scanCode_, 0) {}
-
-	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, uint32_t unicode_)
-		: KeyDownEvent(timestamp_, keyCode_, keyCode_, unicode_) {}
-
-	explicit KeyDownEvent(uint32_t timestamp_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
-		: KeyEvent(timestamp_, keyCode_, scanCode_, unicode_) {}
+	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+		SDL_Event evt = {};
+		SDL_KeyboardEvent& e = evt.key;
+		e.type = SDL_KEYDOWN;
+		e.timestamp = SDL_GetTicks();
+		e.state = SDL_PRESSED;
+		e.keysym.sym = code;
+		e.keysym.mod = mod;
+		return KeyDownEvent(evt);
+	}
+	[[nodiscard]] static KeyDownEvent create(uint32_t timestamp, unsigned unicode) {
+		SDL_Event evt = {};
+		SDL_KeyboardEvent& e = evt.key;
+		e.type = SDL_KEYDOWN;
+		e.timestamp = timestamp;
+		e.state = SDL_PRESSED;
+		e.keysym.sym = SDLK_UNKNOWN;
+		e.keysym.mod = KMOD_NONE;
+		e.keysym.unused = unicode;
+		return KeyDownEvent(evt);
+	}
 };
 
 
@@ -503,6 +511,8 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 	const SdlEvent* operator()(const Event& event) {
 		const auto& var = event;
 		switch (EventType(var.index())) {
+		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
+		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
 		case EventType::MOUSE_BUTTON_UP:     return &std::get<MouseButtonUpEvent>(var);
 		case EventType::MOUSE_BUTTON_DOWN:   return &std::get<MouseButtonDownEvent>(var);
 		case EventType::MOUSE_WHEEL:         return &std::get<MouseWheelEvent>(var);
@@ -512,17 +522,6 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 		case EventType::JOY_AXIS_MOTION:     return &std::get<JoystickAxisMotionEvent>(var);
 		case EventType::JOY_HAT:             return &std::get<JoystickHatEvent>(var);
 		case EventType::WINDOW:              return &std::get<WindowEvent>(var);
-		default: return nullptr;
-		}
-	}
-};
-template<>
-struct GetIfEventHelper<TimedEvent> {
-	const TimedEvent* operator()(const Event& event) {
-		const auto& var = event;
-		switch (EventType(var.index())) {
-		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
-		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
 		default: return nullptr;
 		}
 	}

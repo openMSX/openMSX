@@ -5,23 +5,25 @@
 
 namespace openmsx {
 
-[[nodiscard]] static EnumSetting<Keys::KeyCode>::Map getAllowedKeysMap()
+[[nodiscard]] static EnumSetting<SDL_Keycode>::Map getAllowedKeysMap()
 {
 	return {
-		{"RALT",        Keys::K_RALT},
-		{"MENU",        Keys::K_MENU},
-		{"RCTRL",       Keys::K_RCTRL},
-		{"HENKAN_MODE", Keys::K_HENKAN_MODE},
-		{"RSHIFT",      Keys::K_RSHIFT},
-		{"RMETA",       Keys::K_RSUPER}, // TODO correct???
-		{"LMETA",       Keys::K_LSUPER}, //
-		{"LSUPER",      Keys::K_LSUPER},
-		{"RSUPER",      Keys::K_RSUPER},
-		{"HELP",        Keys::K_HELP},
-		{"UNDO",        Keys::K_UNDO},
-		{"END",         Keys::K_END},
-		{"PAGEUP",      Keys::K_PAGEUP},
-		{"PAGEDOWN",    Keys::K_PAGEDOWN}
+		{"RALT",        SDLK_RALT},
+		{"MENU",        SDLK_MENU},
+		{"RCTRL",       SDLK_RCTRL},
+		//{"HENKAN_MODE", Keys::K_HENKAN_MODE},
+		{"RSHIFT",      SDLK_RSHIFT},
+		{"RGUI",        SDLK_RGUI},
+		{"LGUI",        SDLK_LGUI},
+		{"RMETA",       SDLK_RGUI}, // bw-compat
+		{"LMETA",       SDLK_LGUI}, // "
+		{"LSUPER",      SDLK_LGUI}, // "
+		{"RSUPER",      SDLK_RGUI}, // "
+		{"HELP",        SDLK_HELP},
+		{"UNDO",        SDLK_UNDO},
+		{"END",         SDLK_END},
+		{"PAGEUP",      SDLK_PAGEUP},
+		{"PAGEDOWN",    SDLK_PAGEDOWN}
 	};
 }
 
@@ -32,17 +34,17 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 			"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
 			"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
 		};
-		static constexpr std::array<Keys::KeyCode, 3> defaultKey = {
-			Keys::K_RCTRL, Keys::K_PAGEUP, Keys::K_PAGEDOWN,
+		static constexpr std::array<SDL_Keycode, 3> defaultKey = {
+			SDLK_RCTRL, SDLK_PAGEUP, SDLK_PAGEDOWN,
 		};
-		return EnumSetting<Keys::KeyCode>(
+		return EnumSetting<SDL_Keycode>(
 			commandController, tmpStrCat("kbd_deadkey", i + 1, "_host_key"),
 			description[i], defaultKey[i], getAllowedKeysMap());
 	}))
 	, codeKanaHostKey(commandController,
 		"kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
-		Keys::K_RALT, getAllowedKeysMap())
+		SDLK_RALT, getAllowedKeysMap())
 	, kpEnterMode(commandController,
 		"kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",

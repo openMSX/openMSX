@@ -32,6 +32,15 @@ class StateChange;
 class TclObject;
 class Interpreter;
 
+struct KeyCodeMsxMapping {
+	SDL_Keycode hostKeyCode;
+	KeyMatrixPosition msx;
+};
+struct ScanCodeMsxMapping {
+	SDL_Scancode hostScanCode;
+	KeyMatrixPosition msx;
+};
+
 class Keyboard final : private MSXEventListener, private StateChangeListener
                      , private Schedulable
 {
@@ -88,7 +97,7 @@ private:
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);
 	void processKeypadEnterKey(EmuTime::param time, bool down);
-	void processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key);
+	void processSdlKey(EmuTime::param time, SDLKey key);
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
@@ -112,7 +121,8 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	std::span<const KeyMatrixPosition, MAX_KEYSYM> keyTab;
+	std::vector<KeyCodeMsxMapping> keyCodeTab;
+	std::vector<ScanCodeMsxMapping> scanCodeTab;
 
 	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>& modifierPos;
 
@@ -227,7 +237,9 @@ private:
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;
-	std::array<unsigned, MAX_KEYSYM> dynKeymap;
+	// Remembers the last unicode for a key-press-keycode. To be used later
+	// on the corresponding key-release, because those don't have unicode info.
+	std::vector<std::pair<SDL_Keycode, uint32_t>> lastUnicodeForKeycode; // sorted on SDL_keycode
 
 	/** Keyboard matrix state for 'keymatrix' command. */
 	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> cmdKeyMatrix;
@@ -263,7 +275,7 @@ private:
 	  */
 	uint8_t locksOn = 0;
 };
-SERIALIZE_CLASS_VERSION(Keyboard, 3);
+SERIALIZE_CLASS_VERSION(Keyboard, 4);
 
 } // namespace openmsx
 

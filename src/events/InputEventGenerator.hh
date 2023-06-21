@@ -4,7 +4,7 @@
 #include "BooleanSetting.hh"
 #include "EventListener.hh"
 #include "Command.hh"
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include <SDL.h>
 
 namespace openmsx {
@@ -72,9 +72,9 @@ private:
 	void setNewOsdControlButtonState(unsigned newState);
 	void triggerOsdControlEventsFromJoystickAxisMotion(unsigned axis, int value);
 	void triggerOsdControlEventsFromJoystickHat(int value);
-	void osdControlChangeButton(bool up, unsigned changedButtonMask);
-	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up);
-	void triggerOsdControlEventsFromKeyEvent(Keys::KeyCode keyCode, bool up, bool repeat);
+	void osdControlChangeButton(bool down, unsigned changedButtonMask);
+	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool down);
+	void triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat);
 
 
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released

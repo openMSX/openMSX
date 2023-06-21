@@ -300,7 +300,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\events\SDLKey.cc">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc">
@@ -1726,7 +1726,7 @@
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh">
       <Filter>events</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\events\Keys.hh">
+    <None Include="$(OpenMSXSrcDir)\events\SDLKey.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh">

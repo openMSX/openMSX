@@ -104,43 +104,40 @@ void HotKey::initDefaultBindings()
 
 	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_D, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_d, KMOD_GUI),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_P, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_p, KMOD_GUI),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_T, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_t, KMOD_GUI),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_L, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_l, KMOD_GUI),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_U, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_u, KMOD_GUI),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_F, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_f, KMOD_GUI),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_Q, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_q, KMOD_GUI),
 		                       "exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_PRINT),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PRINTSCREEN),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_PAUSE),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_F9),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F9),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_F10),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F10),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_F11),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F11),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_F12),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F12),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_F4, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F4, KMOD_ALT),
 		                       "exit"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE, KMOD_CTRL),
 		                       "exit"));
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_RETURN, KMOD_ALT),
 		                       "toggle fullscreen"));
-		// and for Android
-		bindDefault(HotKeyInfo(KeyDownEvent(0, Keys::K_BACK),
-		                       "quitmenu::quit_menu"));
 	}
 }
 

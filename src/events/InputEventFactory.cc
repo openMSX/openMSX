@@ -1,7 +1,7 @@
 #include "InputEventFactory.hh"
 #include "Event.hh"
 #include "CommandException.hh"
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
 #include "one_of.hh"
@@ -11,14 +11,24 @@ namespace openmsx::InputEventFactory {
 
 [[nodiscard]] static Event parseKeyEvent(std::string_view str, uint32_t unicode)
 {
-	auto keyCode = Keys::getCode(str);
-	if (keyCode == Keys::K_NONE) {
+	auto key = SDLKey::fromString(str);
+	if (!key) {
 		throw CommandException("Invalid keycode: ", str);
 	}
-	if (keyCode & Keys::KD_RELEASE) {
-		return KeyUpEvent(SDL_GetTicks(), keyCode);
+
+	SDL_Event evt = {};
+	SDL_KeyboardEvent& e = evt.key;
+	e.timestamp = SDL_GetTicks();
+	e.keysym = key->sym;
+	e.keysym.unused = unicode;
+	if (key->down) {
+		e.type = SDL_KEYDOWN;
+		e.state = SDL_PRESSED;
+		return KeyDownEvent(evt);
 	} else {
-		return KeyDownEvent(SDL_GetTicks(), keyCode, unicode);
+		e.type = SDL_KEYUP;
+		e.state = SDL_RELEASED;
+		return KeyUpEvent(evt);
 	}
 }
 
@@ -301,13 +311,16 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 	} else if (type == "quit") {
 		return parseQuitEvent(str, interp);
 	} else if (type == "command") {
-		return KeyUpEvent(0, Keys::K_UNKNOWN); // dummy event, for bw compat
+		SDL_Event evt = {};
+		evt.key.type = SDL_KEYUP;
+		evt.key.state = SDL_RELEASED;
+		return KeyUpEvent(evt); // dummy event, for bw compat
 		//return parseCommandEvent(str);
 	} else if (type == "OSDcontrol") {
 		return parseOsdControlEvent(str, interp);
 	} else {
 		// fall back
-		return parseKeyEvent(type, 0);
+		return parseKeyEvent(str.getString(), 0);
 	}
 }
 Event createInputEvent(std::string_view str, Interpreter& interp)

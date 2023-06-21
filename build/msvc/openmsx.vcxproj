@@ -387,7 +387,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\HotKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\SDLKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
@@ -943,7 +943,7 @@
     <None Include="$(OpenMSXSrcDir)\events\HotKey.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh" />
-    <None Include="$(OpenMSXSrcDir)\events\Keys.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\SDLKey.hh" />
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Socket.hh" />
     <None Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.hh" />

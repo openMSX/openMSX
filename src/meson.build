@@ -129,7 +129,7 @@ sources = files(
     'events/HotKey.cc',
     'events/InputEventFactory.cc',
     'events/InputEventGenerator.cc',
-    'events/Keys.cc',
+    'events/SDLKey.cc',
     'events/MSXCliComm.cc',
     'events/MessageCommand.cc',
     'events/Socket.cc',

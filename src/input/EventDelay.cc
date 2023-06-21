@@ -155,15 +155,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 		}
 #endif
 		scheduledEvents.push_back(e);
-		uint32_t eventSdlTime = [&] {
-			if (const auto* timedEvent = get_event_if<TimedEvent>(e)) {
-				return timedEvent->getTimestamp();
-			} else if (const auto* sdlEvent = get_event_if<SdlEvent>(e)) {
-				return sdlEvent->getCommonSdlEvent().timestamp;
-			} else {
-				assert(false); return uint32_t(0);
-			}
-		}();
+		const auto& sdlEvent = get_event<SdlEvent>(e);
+		uint32_t eventSdlTime = sdlEvent.getCommonSdlEvent().timestamp;
 		uint32_t sdlNow = SDL_GetTicks();
 		auto sdlOffset = int32_t(sdlNow - eventSdlTime);
 		assert(sdlOffset >= 0);

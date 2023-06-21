@@ -1,6 +1,6 @@
 #include "SG1000Pause.hh"
 #include "Event.hh"
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include "MSXCPU.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
@@ -25,7 +25,7 @@ void SG1000Pause::signalMSXEvent(const Event& event, EmuTime::param time) noexce
 {
 	visit(overloaded{
 		[&](const KeyDownEvent& keyEvent) {
-			if (keyEvent.getKeyCode() == Keys::K_F5) {
+			if (keyEvent.getKeyCode() == SDLK_F5) {
 				setSyncPoint(time);
 			}
 		},

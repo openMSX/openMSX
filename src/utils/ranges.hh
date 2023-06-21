@@ -58,7 +58,7 @@ constexpr void sort(RandomAccessRange&& range, Compare comp)
 }
 
 template<typename RAIter, typename Compare = std::less<>, typename Proj>
-void sort(RAIter first, RAIter last, Compare comp, Proj proj)
+constexpr void sort(RAIter first, RAIter last, Compare comp, Proj proj)
 {
 	std::sort(first, last,
 		[&](const auto& x, const auto& y) {
@@ -67,7 +67,7 @@ void sort(RAIter first, RAIter last, Compare comp, Proj proj)
 }
 
 template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
-void sort(RandomAccessRange&& range, Compare comp, Proj proj)
+constexpr void sort(RandomAccessRange&& range, Compare comp, Proj proj)
 {
 	sort(std::begin(range), std::end(range), comp, proj);
 }

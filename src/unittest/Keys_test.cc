@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "Keys.hh"
+#include "SDLKey.hh"
 
 using namespace openmsx::Keys;
 

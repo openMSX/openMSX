@@ -1,7 +1,7 @@
 #ifndef KEYBOARDSETTINGS_HH
 #define KEYBOARDSETTINGS_HH
 
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
 #include <array>
@@ -19,11 +19,11 @@ public:
 
 	explicit KeyboardSettings(CommandController& commandController);
 
-	[[nodiscard]] Keys::KeyCode getDeadKeyHostKey(unsigned n) const {
+	[[nodiscard]] SDL_Keycode getDeadKeyHostKey(unsigned n) const {
 		assert(n < 3);
 		return deadKeyHostKey[n].getEnum();
 	}
-	[[nodiscard]] Keys::KeyCode getCodeKanaHostKey() const {
+	[[nodiscard]] SDL_Keycode getCodeKanaHostKey() const {
 		return codeKanaHostKey.getEnum();
 	}
 	[[nodiscard]] KpEnterMode getKpEnterMode() const {
@@ -43,8 +43,8 @@ public:
 	}
 
 private:
-	std::array<EnumSetting<Keys::KeyCode>, 3> deadKeyHostKey;
-	EnumSetting<Keys::KeyCode> codeKanaHostKey;
+	std::array<EnumSetting<SDL_Keycode>, 3> deadKeyHostKey;
+	EnumSetting<SDL_Keycode> codeKanaHostKey;
 	EnumSetting<KpEnterMode> kpEnterMode;
 	EnumSetting<MappingMode> mappingMode;
 	BooleanSetting alwaysEnableKeypad;

@@ -8,16 +8,30 @@ using namespace std::literals;
 
 namespace openmsx {
 
+[[nodiscard]] static constexpr uint16_t normalizeKeyMod(uint16_t m)
+{
+	// when either left or right modifier is pressed, add the other one as well
+	if (m & KMOD_SHIFT) m |= KMOD_SHIFT;
+	if (m & KMOD_CTRL)  m |= KMOD_CTRL;
+	if (m & KMOD_ALT)   m |= KMOD_ALT;
+	if (m & KMOD_GUI)   m |= KMOD_GUI;
+	// ignore stuff like: KMOD_NUM, KMOD_CAPS, KMOD_SCROLL
+	m &= (KMOD_SHIFT | KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE);
+	return m;
+}
+
 bool operator==(const Event& x, const Event& y)
 {
 	return std::visit(overloaded{
 		[](const KeyUpEvent& a, const KeyUpEvent& b) {
 			// note: don't compare scancode, unicode
-			return a.getKeyCode() == b.getKeyCode();
+			return std::tuple(a.getKeyCode(), normalizeKeyMod(a.getModifiers())) ==
+			       std::tuple(b.getKeyCode(), normalizeKeyMod(b.getModifiers()));
 		},
 		[](const KeyDownEvent& a, const KeyDownEvent& b) {
 			// note: don't compare scancode, unicode
-			return a.getKeyCode() == b.getKeyCode();
+			return std::tuple(a.getKeyCode(), normalizeKeyMod(a.getModifiers())) ==
+			       std::tuple(b.getKeyCode(), normalizeKeyMod(b.getModifiers()));
 		},
 		[](const MouseMotionEvent& a, const MouseMotionEvent& b) {
 			return std::tuple(a.getX(), a.getY(), a.getAbsX(), a.getAbsY()) ==
@@ -103,7 +117,7 @@ TclObject toTclList(const Event& event)
 			//
 			// Within these constraints it's fine to ignore 'scanCode' in this
 			// method.
-			auto result = makeTclList("keyb", Keys::getName(e.getKeyCode()));
+			auto result = makeTclList("keyb", e.getKey().toString());
 			if (e.getUnicode() != 0) {
 				result.addListElement(tmpStrCat("unicode", e.getUnicode()));
 			}
