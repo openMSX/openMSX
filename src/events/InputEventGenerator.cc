@@ -362,7 +362,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			event = FocusEvent(false);
 			break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			event = ExposeEvent();
+			event = WindowEvent(evt);
 			break;
 		case SDL_WINDOWEVENT_CLOSE:
 			event = QuitEvent();

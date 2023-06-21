@@ -146,6 +146,9 @@ TclObject toTclList(const Event& event)
 		[](const OsdControlPressEvent& e) {
 			return makeTclList("OSDcontrol", osdControlNames[e.getButton()], "PRESS");
 		},
+		[](const WindowEvent&) {
+			return makeTclList(); // no need for textual representation
+		},
 		[](const FocusEvent& e) {
 			return makeTclList("focus", e.getGain());
 		},

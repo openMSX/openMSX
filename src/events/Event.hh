@@ -203,6 +203,14 @@ public:
 };
 
 
+class WindowEvent : public SdlEvent
+{
+public:
+	explicit WindowEvent(const SDL_Event& e)
+		: SdlEvent(e) {}
+};
+
+
 class FocusEvent final : public EventBase
 {
 public:
@@ -367,10 +375,6 @@ class MachineLoadedEvent         final : public SimpleEvent {};
 class MachineActivatedEvent      final : public SimpleEvent {};
 class MachineDeactivatedEvent    final : public SimpleEvent {};
 
-/** Send when (part of) the openMSX window gets exposed, and thus
-  * should be repainted. */
-class ExposeEvent                final : public SimpleEvent {};
-
 class MidiInReaderEvent          final : public SimpleEvent {};
 class MidiInWindowsEvent         final : public SimpleEvent {};
 class MidiInCoreMidiEvent        final : public SimpleEvent {};
@@ -395,6 +399,7 @@ using Event = std::variant<
 	JoystickButtonDownEvent,
 	OsdControlReleaseEvent,
 	OsdControlPressEvent,
+	WindowEvent,
 	FocusEvent,
 	FileDropEvent,
 	QuitEvent,
@@ -410,7 +415,6 @@ using Event = std::variant<
 	MachineLoadedEvent,
 	MachineActivatedEvent,
 	MachineDeactivatedEvent,
-	ExposeEvent,
 	MidiInReaderEvent,
 	MidiInWindowsEvent,
 	MidiInCoreMidiEvent,
@@ -440,6 +444,7 @@ enum class EventType : uint8_t
 	JOY_BUTTON_DOWN          = event_index<JoystickButtonDownEvent>,
 	OSD_CONTROL_RELEASE      = event_index<OsdControlReleaseEvent>,
 	OSD_CONTROL_PRESS        = event_index<OsdControlPressEvent>,
+	WINDOW                   = event_index<WindowEvent>,
 	FOCUS                    = event_index<FocusEvent>,
 	FILE_DROP                = event_index<FileDropEvent>,
 	QUIT                     = event_index<QuitEvent>,
@@ -455,7 +460,6 @@ enum class EventType : uint8_t
 	MACHINE_LOADED           = event_index<MachineLoadedEvent>,
 	MACHINE_ACTIVATED        = event_index<MachineActivatedEvent>,
 	MACHINE_DEACTIVATED      = event_index<MachineDeactivatedEvent>,
-	EXPOSE                   = event_index<ExposeEvent>,
 	MIDI_IN_READER           = event_index<MidiInReaderEvent>,
 	MIDI_IN_WINDOWS          = event_index<MidiInWindowsEvent>,
 	MIDI_IN_COREMIDI         = event_index<MidiInCoreMidiEvent>,

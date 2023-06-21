@@ -55,7 +55,7 @@ Display::Display(Reactor& reactor_)
 			*this);
 	eventDistributor.registerEventListener(EventType::MACHINE_LOADED,
 			*this);
-	eventDistributor.registerEventListener(EventType::EXPOSE,
+	eventDistributor.registerEventListener(EventType::WINDOW,
 			*this);
 #if PLATFORM_ANDROID
 	eventDistributor.registerEventListener(EventType::FOCUS,
@@ -77,7 +77,7 @@ Display::~Display()
 	eventDistributor.unregisterEventListener(EventType::FOCUS,
 			*this);
 #endif
-	eventDistributor.unregisterEventListener(EventType::EXPOSE,
+	eventDistributor.unregisterEventListener(EventType::WINDOW,
 			*this);
 	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED,
 			*this);
@@ -181,10 +181,14 @@ int Display::signalEvent(const Event& event)
 		[&](const MachineLoadedEvent& /*e*/) {
 			videoSystem->updateWindowTitle();
 		},
-		[&](const ExposeEvent& /*e*/) {
-			// Don't render too often, and certainly not when the screen
-			// will anyway soon be rendered.
-			repaintDelayed(100 * 1000); // 10fps
+		[&](const WindowEvent& e) {
+			const auto& evt = e.getSdlEvent();
+			assert(evt.type == SDL_WINDOWEVENT);
+			if (evt.window.event == SDL_WINDOWEVENT_EXPOSED) {
+				// Don't render too often, and certainly not when the screen
+				// will anyway soon be rendered.
+				repaintDelayed(100 * 1000); // 10fps
+			}
 		},
 		[&](const FocusEvent& e) {
 			(void)e;
