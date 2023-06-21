@@ -55,8 +55,14 @@ bool operator==(const Event& x, const Event& y)
 		[](const OsdControlPressEvent& a, const OsdControlPressEvent& b) {
 			return a.getButton() == b.getButton();
 		},
-		[](const FocusEvent& a, const FocusEvent& b) {
-			return a.getGain() == b.getGain();
+		[](const WindowEvent& a_, const WindowEvent& b_) {
+			const auto& a = a_.getSdlWindowEvent();
+			const auto& b = b_.getSdlWindowEvent();
+			// don't compare timestamp
+			if (a.event != b.event) return false;
+			if (a.windowID != b.windowID) return false;
+			// TODO for specific events, compare data1 and data2
+			return true;
 		},
 		[](const FileDropEvent& a, const FileDropEvent& b) {
 			return a.getFileName() == b.getFileName();
@@ -146,11 +152,14 @@ TclObject toTclList(const Event& event)
 		[](const OsdControlPressEvent& e) {
 			return makeTclList("OSDcontrol", osdControlNames[e.getButton()], "PRESS");
 		},
-		[](const WindowEvent&) {
-			return makeTclList(); // no need for textual representation
-		},
-		[](const FocusEvent& e) {
-			return makeTclList("focus", e.getGain());
+		[](const WindowEvent& e_) {
+			const auto& e = e_.getSdlWindowEvent();
+			if (e.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				return makeTclList("focus", true);
+			} else if (e.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				return makeTclList("focus", false);
+			}
+			return makeTclList(); // other events don't need a textual representation (yet)
 		},
 		[](const FileDropEvent& e) {
 			return makeTclList("filedrop", e.getFileName());

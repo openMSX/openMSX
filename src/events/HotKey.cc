@@ -71,7 +71,7 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		EventType::JOY_HAT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		EventType::FOCUS, *this, EventDistributor::HOTKEY);
+		EventType::WINDOW, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		EventType::FILE_DROP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
@@ -85,7 +85,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_PRESS, *this);
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_RELEASE, *this);
 	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_UP, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
@@ -153,7 +153,7 @@ static Event createEvent(const TclObject& obj, Interpreter& interp)
 				     EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN,
 				     EventType::JOY_AXIS_MOTION, EventType::JOY_HAT,
 				     EventType::OSD_CONTROL_PRESS, EventType::OSD_CONTROL_RELEASE,
-				     EventType::FOCUS)) {
+				     EventType::WINDOW)) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;

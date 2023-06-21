@@ -94,7 +94,7 @@ VisibleSurface::VisibleSurface(
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
-	inputEventGenerator.setMainWindowId(SDL_GetWindowID(window.get()));
+	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
 	glContext = SDL_GL_CreateContext(window.get());
 	if (!glContext) {

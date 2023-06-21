@@ -253,7 +253,15 @@ namespace openmsx::InputEventFactory {
 	if (str.getListLength(interp) != 2) {
 		throw CommandException("Invalid focus event: ", str.getString());
 	}
-	return FocusEvent(str.getListIndex(interp, 1).getBoolean(interp));
+	bool gained = str.getListIndex(interp, 1).getBoolean(interp);
+
+	SDL_Event evt = {};
+	SDL_WindowEvent& e = evt.window;
+	e.type = SDL_WINDOWEVENT;
+	e.timestamp = SDL_GetTicks();
+	e.windowID = WindowEvent::getMainWindowId();
+	e.event = gained ? SDL_WINDOWEVENT_FOCUS_GAINED : SDL_WINDOWEVENT_FOCUS_LOST;
+	return WindowEvent(evt);
 }
 
 [[nodiscard]] static Event parseFileDropEvent(const TclObject& str, Interpreter& interp)

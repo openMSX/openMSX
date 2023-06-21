@@ -57,10 +57,6 @@ Display::Display(Reactor& reactor_)
 			*this);
 	eventDistributor.registerEventListener(EventType::WINDOW,
 			*this);
-#if PLATFORM_ANDROID
-	eventDistributor.registerEventListener(EventType::FOCUS,
-			*this);
-#endif
 	renderSettings.getRendererSetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
@@ -73,10 +69,6 @@ Display::~Display()
 	renderSettings.getScaleFactorSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-#if PLATFORM_ANDROID
-	eventDistributor.unregisterEventListener(EventType::FOCUS,
-			*this);
-#endif
 	eventDistributor.unregisterEventListener(EventType::WINDOW,
 			*this);
 	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED,
@@ -182,17 +174,14 @@ int Display::signalEvent(const Event& event)
 			videoSystem->updateWindowTitle();
 		},
 		[&](const WindowEvent& e) {
-			const auto& evt = e.getSdlEvent();
-			assert(evt.type == SDL_WINDOWEVENT);
-			if (evt.window.event == SDL_WINDOWEVENT_EXPOSED) {
+			const auto& evt = e.getSdlWindowEvent();
+			if (evt.event == SDL_WINDOWEVENT_EXPOSED) {
 				// Don't render too often, and certainly not when the screen
 				// will anyway soon be rendered.
 				repaintDelayed(100 * 1000); // 10fps
 			}
-		},
-		[&](const FocusEvent& e) {
-			(void)e;
-			if (PLATFORM_ANDROID) {
+			if (PLATFORM_ANDROID && e.isMainWindow() &&
+			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
 				// On Android, the rendering must be frozen when the app is sent to
 				// the background, because Android takes away all graphics resources
 				// from the app. It simply destroys the entire graphics context.
@@ -208,8 +197,9 @@ int Display::signalEvent(const Event& event)
 				// -When gaining the focus, this repaint does nothing as
 				//  the renderFrozen flag is still false
 				repaint();
-				ad_printf("Setting renderFrozen to %d", !e.getGain());
-				renderFrozen = !e.getGain();
+				bool lost = evt.event == SDL_WINDOWEVENT_FOCUS_LOST;
+				ad_printf("Setting renderFrozen to %d", lost);
+				renderFrozen = lost;
 			}
 		},
 		[](const EventBase&) { /*ignore*/ }

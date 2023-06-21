@@ -208,19 +208,15 @@ class WindowEvent : public SdlEvent
 public:
 	explicit WindowEvent(const SDL_Event& e)
 		: SdlEvent(e) {}
-};
+	[[nodiscard]] const SDL_WindowEvent& getSdlWindowEvent() const { return evt.window; }
+	[[nodiscard]] bool isMainWindow() const { return isMainWindow(evt.window.windowID); }
 
-
-class FocusEvent final : public EventBase
-{
 public:
-	explicit FocusEvent(bool gain_)
-		: gain(gain_) {}
-
-	[[nodiscard]] bool getGain() const { return gain; }
-
+	static void setMainWindowId(uint32_t id) { mainWindowId = id; }
+	static uint32_t getMainWindowId() { return mainWindowId; }
+	[[nodiscard]] static bool isMainWindow(unsigned id) { return id == mainWindowId; }
 private:
-	bool gain;
+	static inline uint32_t mainWindowId = unsigned(-1);
 };
 
 
@@ -400,7 +396,6 @@ using Event = std::variant<
 	OsdControlReleaseEvent,
 	OsdControlPressEvent,
 	WindowEvent,
-	FocusEvent,
 	FileDropEvent,
 	QuitEvent,
 	FinishFrameEvent,
@@ -445,7 +440,6 @@ enum class EventType : uint8_t
 	OSD_CONTROL_RELEASE      = event_index<OsdControlReleaseEvent>,
 	OSD_CONTROL_PRESS        = event_index<OsdControlPressEvent>,
 	WINDOW                   = event_index<WindowEvent>,
-	FOCUS                    = event_index<FocusEvent>,
 	FILE_DROP                = event_index<FileDropEvent>,
 	QUIT                     = event_index<QuitEvent>,
 	GROUP                    = event_index<GroupEvent>,
@@ -517,6 +511,7 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 		case EventType::JOY_BUTTON_DOWN:     return &std::get<JoystickButtonDownEvent>(var);
 		case EventType::JOY_AXIS_MOTION:     return &std::get<JoystickAxisMotionEvent>(var);
 		case EventType::JOY_HAT:             return &std::get<JoystickHatEvent>(var);
+		case EventType::WINDOW:              return &std::get<WindowEvent>(var);
 		default: return nullptr;
 		}
 	}

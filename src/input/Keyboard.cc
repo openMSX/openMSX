@@ -1472,12 +1472,12 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 	, eventDistributor(eventDistributor_)
 {
 	eventDistributor.registerEventListener(EventType::BOOT,  *this);
-	eventDistributor.registerEventListener(EventType::FOCUS, *this);
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 }
 
 Keyboard::CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
 }
 
@@ -1491,8 +1491,13 @@ int Keyboard::CapsLockAligner::signalEvent(const Event& event)
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
 		std::visit(overloaded{
-			[&](const FocusEvent&) {
-				alignCapsLock(time);
+			[&](const WindowEvent& e) {
+				if (e.isMainWindow()) {
+					const auto& evt = e.getSdlWindowEvent();
+					if (evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+						alignCapsLock(time);
+					}
+				}
 			},
 			[&](const BootEvent&) {
 				state = MUST_ALIGN_CAPSLOCK;

@@ -28,7 +28,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, escapeGrabCmd(commandController)
 {
 	setGrabInput(grabInput.getBoolean());
-	eventDistributor.registerEventListener(EventType::FOCUS, *this);
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 
 #ifndef SDL_JOYSTICK_DISABLED
 	SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
@@ -37,7 +37,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 
 InputEventGenerator::~InputEventGenerator()
 {
-	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 }
 
 void InputEventGenerator::wait()
@@ -350,24 +350,15 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_WINDOWEVENT:
-		if (mainWindowId && (evt.window.windowID != mainWindowId)) {
-			// ignore events not for the main window
-			break;
-		}
 		switch (evt.window.event) {
-		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			event = FocusEvent(true);
-			break;
-		case SDL_WINDOWEVENT_FOCUS_LOST:
-			event = FocusEvent(false);
-			break;
-		case SDL_WINDOWEVENT_EXPOSED:
-			event = WindowEvent(evt);
-			break;
 		case SDL_WINDOWEVENT_CLOSE:
-			event = QuitEvent();
-			break;
+			if (WindowEvent::isMainWindow(evt.window.windowID)) {
+				event = QuitEvent();
+				break;
+			}
+			[[fallthrough]];
 		default:
+			event = WindowEvent(evt);
 			break;
 		}
 		break;
@@ -407,24 +398,28 @@ void InputEventGenerator::updateGrab(bool grab)
 int InputEventGenerator::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
-		[&](const FocusEvent& fe) {
-			switch (escapeGrabState) {
-				case ESCAPE_GRAB_WAIT_CMD:
-					// nothing
-					break;
-				case ESCAPE_GRAB_WAIT_LOST:
-					if (!fe.getGain()) {
-						escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
-					}
-					break;
-				case ESCAPE_GRAB_WAIT_GAIN:
-					if (fe.getGain()) {
-						escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-					}
-					setGrabInput(true);
-					break;
-				default:
-					UNREACHABLE;
+		[&](const WindowEvent& e) {
+			const auto& evt = e.getSdlWindowEvent();
+			if (e.isMainWindow() &&
+			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+				switch (escapeGrabState) {
+					case ESCAPE_GRAB_WAIT_CMD:
+						// nothing
+						break;
+					case ESCAPE_GRAB_WAIT_LOST:
+						if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+							escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+						}
+						break;
+					case ESCAPE_GRAB_WAIT_GAIN:
+						if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+							escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+						}
+						setGrabInput(true);
+						break;
+					default:
+						UNREACHABLE;
+				}
 			}
 		},
 		[](const EventBase&) { UNREACHABLE; }

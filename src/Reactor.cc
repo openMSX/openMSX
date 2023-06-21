@@ -278,7 +278,7 @@ void Reactor::init()
 
 	eventDistributor->registerEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->registerEventListener(EventType::FOCUS, *this);
+	eventDistributor->registerEventListener(EventType::WINDOW, *this);
 #endif
 	isInit = true;
 }
@@ -290,7 +290,7 @@ Reactor::~Reactor()
 
 	eventDistributor->unregisterEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor->unregisterEventListener(EventType::WINDOW, *this);
 #endif
 
 	getGlobalSettings().getPauseSetting().detach(*this);
@@ -635,22 +635,24 @@ int Reactor::signalEvent(const Event& event)
 			enterMainLoop();
 			running = false;
 		},
-		[&](const FocusEvent& e) {
+		[&](const WindowEvent& e) {
 			(void)e;
 #if PLATFORM_ANDROID
-			// Android SDL port sends a (un)focus event when an app is put in background
-			// by the OS for whatever reason (like an incoming phone call) and all screen
-			// resources are taken away from the app.
-			// In such case the app is supposed to behave as a good citizen
-			// and minimize its resource usage and related battery drain.
-			// The SDL Android port already takes care of halting the Java
-			// part of the sound processing. The Display class makes sure that it wont try
-			// to render anything to the (temporary missing) graphics resources but the
-			// main emulation should also be temporary stopped, in order to minimize CPU usage
-			if (e.getGain()) {
-				unblock();
-			} else {
-				block();
+			if (e.isMainWindow()) {
+				// Android SDL port sends a (un)focus event when an app is put in background
+				// by the OS for whatever reason (like an incoming phone call) and all screen
+				// resources are taken away from the app.
+				// In such case the app is supposed to behave as a good citizen
+				// and minimize its resource usage and related battery drain.
+				// The SDL Android port already takes care of halting the Java
+				// part of the sound processing. The Display class makes sure that it wont try
+				// to render anything to the (temporary missing) graphics resources but the
+				// main emulation should also be temporary stopped, in order to minimize CPU usage
+				if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					unblock();
+				} else if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_LOST) {
+					block();
+				}
 			}
 #endif
 		},
