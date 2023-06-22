@@ -345,6 +345,10 @@ proc enable_reversebar {{visible true}} {
 	osd create text reverse.mousetime.text \
 		-size 5 -z 4 -rgba 0x000000ff
 
+	osd create rectangle reverse.viewonlymode \
+		-x 252 -y 0 -w 8 -h 8 \
+		-borderrgba 0xFFFFFFC0 -bordersize 1
+
 	update_reversebar
 
 	variable mouse_after_id
@@ -367,6 +371,13 @@ proc update_reversebar {} {
 	variable reverse_bar_update_interval
 	variable update_after_id
 	set update_after_id [after realtime $reverse_bar_update_interval [namespace code update_reversebar]]
+	
+	#FIXME: This should probably use actual skin logic from load_icons.tcl?
+	if {[reverse viewonlymode] == 1} {
+		osd configure reverse.viewonlymode -rgba 0xff0000ff -image "$::env(OPENMSX_SYSTEM_DATA)/skins/viewonlymode-on.png"
+	} else {
+		osd configure reverse.viewonlymode -rgba 0x00ff00ff -image "$::env(OPENMSX_SYSTEM_DATA)/skins/viewonlymode-off.png"
+	}
 }
 
 proc update_reversebar2 {} {
@@ -524,6 +535,14 @@ proc check_mouse {} {
 				reverse::jump_to_bookmark $bookmarkname
 			}
 			incr count
+		}
+		catch {lassign [osd info "reverse.viewonlymode" -mousecoord] x y}
+		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
+			if {[reverse viewonlymode] == 0} {
+				reverse viewonlymode 1
+			}  else  {
+				reverse viewonlymode 0
+			}
 		}
 	}
 	variable mouse_after_id
