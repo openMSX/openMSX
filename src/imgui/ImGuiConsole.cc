@@ -408,6 +408,25 @@ unsigned ImGuiConsole::getOutputColumns() const
 void ImGuiConsole::update(const Setting& /*setting*/) noexcept
 {
 	show = consoleSetting.getBoolean();
+	if (!show) {
+		// Close the console via the 'console' setting.  Typically this
+		// means via the F10 hotkey (or possibly by typing 'set console
+		// off' in the console).
+		//
+		// Give focus to the main openMSX window.
+		//
+		// This makes the following scenario work:
+		// * You were controlling the MSX, e.g. playing a game.
+		// * You press F10 to open the console.
+		// * You type a command (e.g. swap a game disk, for some people
+		//   the console is still more convenient and/or faster than the
+		//   new media menu).
+		// * You press F10 again to close the console
+		// * At this point the focus should go back to the main openMSX
+		//   window (so that MSX input works).
+		SDL_SetWindowInputFocus(SDL_GetWindowFromID(WindowEvent::getMainWindowId()));
+		ImGui::SetWindowFocus(nullptr);
+	}
 }
 
 } // namespace openmsx
