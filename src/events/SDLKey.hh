@@ -2,6 +2,7 @@
 #define SDLKEY_HH
 
 #include <SDL.h>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -15,11 +16,11 @@ struct SDLKey {
 	SDL_Keysym sym;
 	bool down; // down=press / up=release
 
-	[[nodiscard]] static SDLKey create(SDL_Keycode code, bool down) {
+	[[nodiscard]] static SDLKey create(SDL_Keycode code, bool down, uint16_t mod = 0) {
 		SDL_Keysym sym;
 		sym.scancode = SDL_SCANCODE_UNKNOWN;
 		sym.sym = code;
-		sym.mod = 0;
+		sym.mod = mod;
 		sym.unused = 0; // unicode
 		return {sym, down};
 	}
