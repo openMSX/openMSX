@@ -25,6 +25,15 @@ void ImGuiVdpRegs::save(ImGuiTextBuffer& buf)
 {
 	buf.appendf("show=%d\n", show);
 	buf.appendf("explanation=%d\n", explanation);
+	buf.appendf("openControl=%d\n", openControl);
+	buf.appendf("openMode=%d\n", openMode);
+	buf.appendf("openBase=%d\n", openBase);
+	buf.appendf("openColor=%d\n", openColor);
+	buf.appendf("openDisplay=%d\n", openDisplay);
+	buf.appendf("openAccess=%d\n", openAccess);
+	buf.appendf("openV9958=%d\n", openV9958);
+	buf.appendf("openCommand=%d\n", openCommand);
+	buf.appendf("openStatus=%d\n", openStatus);
 }
 
 void ImGuiVdpRegs::loadLine(std::string_view name, zstring_view value)
@@ -33,6 +42,24 @@ void ImGuiVdpRegs::loadLine(std::string_view name, zstring_view value)
 		show = StringOp::stringToBool(value);
 	} else if (name == "explanation") {
 		explanation = StringOp::stringToBool(value);
+	} else if (name == "openControl") {
+		openControl = StringOp::stringToBool(value);
+	} else if (name == "openMode") {
+		openMode = StringOp::stringToBool(value);
+	} else if (name == "openBase") {
+		openBase = StringOp::stringToBool(value);
+	} else if (name == "openColor") {
+		openColor = StringOp::stringToBool(value);
+	} else if (name == "openDisplay") {
+		openDisplay = StringOp::stringToBool(value);
+	} else if (name == "openAccess") {
+		openAccess = StringOp::stringToBool(value);
+	} else if (name == "openV9958") {
+		openV9958 = StringOp::stringToBool(value);
+	} else if (name == "openCommand") {
+		openCommand = StringOp::stringToBool(value);
+	} else if (name == "openStatus") {
+		openStatus = StringOp::stringToBool(value);
 	}
 }
 
@@ -585,51 +612,51 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 		auto make_span = [](const auto& array) {
 			return std::span<const uint8_t, std::dynamic_extent>(std::span(array));
 		};
-		im::TreeNode("Control registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			im::TreeNode("Mode registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		im::TreeNode("Control registers", &openControl, [&]{
+			im::TreeNode("Mode registers", &openMode, [&]{
 				static constexpr auto modeRegs1 = std::to_array<uint8_t>({0, 1});
 				static constexpr auto modeRegs2 = std::to_array<uint8_t>({0, 1, 8, 9});
 				auto modeRegs = tms99x8 ? make_span(modeRegs1) : make_span(modeRegs2);
 				drawSection(modeRegs, registerValues, *vdp, time);
 			});
-			im::TreeNode("Table base registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			im::TreeNode("Table base registers", &openBase, [&]{
 				static constexpr auto tableRegs1 = std::to_array<uint8_t>({2, 3, 4, 5, 6});
 				static constexpr auto tableRegs2 = std::to_array<uint8_t>({2, 3, 10, 4, 5, 11, 6});
 				auto tableRegs = tms99x8 ? make_span(tableRegs1) : make_span(tableRegs2);
 				drawSection(tableRegs, registerValues, *vdp, time);
 			});
-			im::TreeNode("Color registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			im::TreeNode("Color registers", &openColor, [&]{
 				static constexpr auto colorRegs1 = std::to_array<uint8_t>({7});
 				static constexpr auto colorRegs2 = std::to_array<uint8_t>({7, 12, 13, 20, 21, 22});
 				auto colorRegs = tms99x8 ? make_span(colorRegs1) : make_span(colorRegs2);
 				drawSection(colorRegs, registerValues, *vdp, time);
 			});
 			if (!tms99x8) {
-				im::TreeNode("Display registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				im::TreeNode("Display registers", &openDisplay, [&]{
 					static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
 					drawSection(displayRegs, registerValues, *vdp, time);
 				});
-				im::TreeNode("Access registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				im::TreeNode("Access registers", &openAccess, [&]{
 					static constexpr auto accessRegs = std::to_array<uint8_t>({14, 15, 16, 17});
 					drawSection(accessRegs, registerValues, *vdp, time);
 				});
 			}
 			if (v9958) {
-				im::TreeNode("V9958 registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				im::TreeNode("V9958 registers", &openV9958, [&]{
 					static constexpr auto v9958Regs = std::to_array<uint8_t>({25, 26, 27});
 					drawSection(v9958Regs, registerValues, *vdp, time);
 				});
 			}
 		});
 		if (!tms99x8) {
-			im::TreeNode("Command registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			im::TreeNode("Command registers", &openCommand, [&]{
 				static constexpr auto cmdRegs = std::to_array<uint8_t>({
 					32, 33, 34, 35,  36, 37, 38, 39,  40, 41, 42, 43,  44, 45, 46
 				});
 				drawSection(cmdRegs, registerValues, *vdp, time);
 			});
 		}
-		im::TreeNode("Status registers", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		im::TreeNode("Status registers", &openStatus, [&]{
 			static constexpr auto statusRegs1 = std::to_array<uint8_t>({64});
 			static constexpr auto statusRegs2 = std::to_array<uint8_t>({
 				64, 65, 66, 67, 68, 69, 70, 71, 72, 73

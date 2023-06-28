@@ -266,6 +266,17 @@ inline void TreeNode(const char* label, std::invocable<> auto next)
 {
 	TreeNode(label, 0, next);
 }
+inline void TreeNode(const char* label, bool* p_open, std::invocable<> auto next)
+{
+	assert(p_open);
+	ImGui::SetNextItemOpen(*p_open);
+	int flags = 0;
+	*p_open = ImGui::TreeNodeEx(label, flags);
+	if (*p_open) {
+		next();
+		ImGui::TreePop();
+	}
+}
 
 // im::ListBox(): wrapper around ImGui::BeginListBox() / ImGui::EndListBox()
 inline void ListBox(const char* label, const ImVec2& size, std::invocable<> auto next)

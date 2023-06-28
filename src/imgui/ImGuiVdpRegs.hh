@@ -35,6 +35,15 @@ private:
 	int hoveredFunction = -1;
 	int newHoveredFunction = -1;
 	bool explanation = true;
+	bool openControl = false;
+	bool openMode = false;
+	bool openBase = false;
+	bool openColor = false;
+	bool openDisplay = false;
+	bool openAccess = false;
+	bool openV9958 = false;
+	bool openCommand = false;
+	bool openStatus = false;
 };
 
 } // namespace openmsx
