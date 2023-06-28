@@ -75,6 +75,8 @@ New or improved emulator features:
 - fixed calculation of hash for e.g. hard disk images (unfortunately making it
   slower again)
 - fixed SaI3xScaler
+- fixed parsing of XML entities in e.g. replays, config files, etc. For example
+  fixes replays that include a load command like BLOAD"CAS:",R
 - fixed crash when video system cannot be initialized, show an error instead
 - fixed crash when using the Dooly mapper with a too small ROM image
 - added MIDI input support to ALSA (thanks to Cacodemon345!)
