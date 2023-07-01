@@ -28,14 +28,12 @@ ImGuiSymbols::ImGuiSymbols(ImGuiManager& manager_)
 
 void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 static void checkSort(std::vector<Symbol>& symbols)

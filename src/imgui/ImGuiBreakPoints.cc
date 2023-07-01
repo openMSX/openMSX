@@ -46,14 +46,12 @@ ImGuiBreakPoints::ImGuiBreakPoints(ImGuiManager& manager_)
 
 void ImGuiBreakPoints::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiBreakPoints::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiBreakPoints::paint(MSXMotherBoard* motherBoard)

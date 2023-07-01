@@ -22,14 +22,12 @@ namespace openmsx {
 
 void ImGuiKeyboard::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiKeyboard::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)

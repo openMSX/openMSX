@@ -60,6 +60,19 @@ private:
 	int flagsLayout = 1;
 
 	bool syncDisassemblyWithPC = false;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"showControl",     &ImGuiDebugger::showControl},
+		PersistentElement{"showDisassembly", &ImGuiDebugger::showDisassembly},
+		PersistentElement{"followPC",        &ImGuiDebugger::followPC},
+		PersistentElement{"showRegisters",   &ImGuiDebugger::showRegisters},
+		PersistentElement{"showSlots",       &ImGuiDebugger::showSlots},
+		PersistentElement{"showStack",       &ImGuiDebugger::showStack},
+		PersistentElement{"showFlags",       &ImGuiDebugger::showFlags},
+		PersistentElement{"showXYFlags",     &ImGuiDebugger::showXYFlags},
+		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2}
+		// manually handle "showDebuggable.xxx"
+	};
 };
 
 } // namespace openmsx

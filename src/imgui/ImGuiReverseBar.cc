@@ -27,23 +27,12 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", showReverseBar);
-	buf.appendf("hideTitle=%d\n", reverseHideTitle);
-	buf.appendf("fadeOut=%d\n", reverseFadeOut);
-	buf.appendf("allowMove=%d\n", reverseAllowMove);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		showReverseBar = StringOp::stringToBool(value);
-	} else if (name == "hideTitle") {
-		reverseHideTitle = StringOp::stringToBool(value);
-	} else if (name == "fadeOut") {
-		reverseFadeOut = StringOp::stringToBool(value);
-	} else if (name == "allowMove") {
-		reverseAllowMove = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)

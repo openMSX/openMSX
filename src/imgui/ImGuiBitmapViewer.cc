@@ -24,53 +24,12 @@ ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_)
 
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", showBitmapViewer);
-	buf.appendf("override=%d\n", bitmapManual);
-	buf.appendf("scrnMode=%d\n", bitmapScrnMode);
-	buf.appendf("page=%d\n", bitmapPage);
-	buf.appendf("lines=%d\n", bitmapLines);
-	buf.appendf("color0=%d\n", bitmapColor0);
-	buf.appendf("zoom=%d\n", bitmapZoom);
-	buf.appendf("showGrid=%d\n", bitmapGrid);
-	buf.appendf("gridColor=[ %f %f %f %f ]\n", bitmapGridColor[0], bitmapGridColor[1], bitmapGridColor[2], bitmapGridColor[3]);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		showBitmapViewer = StringOp::stringToBool(value);
-	} else if (name == "override") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 1) bitmapManual = *r;
-		}
-	} else if (name == "scrnMode") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= OTHER) bitmapScrnMode = *r;
-		}
-	} else if (name == "page") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 3) bitmapPage = *r;
-		}
-	} else if (name == "lines") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 2) bitmapLines = *r;
-		}
-	} else if (name == "color0") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 16) bitmapColor0 = *r;
-		}
-	} else if (name == "zoom") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 7) bitmapZoom = *r;
-		}
-	} else if (name == "showGrid") {
-		bitmapGrid = StringOp::stringToBool(value);
-	} else if (name == "gridColor") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			bitmapGridColor = t;
-		}
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)

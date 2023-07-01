@@ -23,70 +23,12 @@ ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_)
 
 void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
-
-	buf.appendf("override=%d\n", manual);
-	buf.appendf("zoom=%d\n", zoom);
-	buf.appendf("showGrid=%d\n", grid);
-	buf.appendf("gridColor=[ %f %f %f %f ]\n", gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-
-	buf.appendf("mode=%d\n", manualMode);
-	buf.appendf("fgCol=%d\n", manualFgCol);
-	buf.appendf("bgCol=%d\n", manualBgCol);
-	buf.appendf("fgBlink=%d\n", manualFgBlink);
-	buf.appendf("bgBlink=%d\n", manualBgBlink);
-	buf.appendf("blink=%d\n", manualBlink);
-	buf.appendf("patBase=%d\n", manualPatBase);
-	buf.appendf("colBase=%d\n", manualColBase);
-	buf.appendf("namBase=%d\n", manualNamBase);
-	buf.appendf("rows=%d\n", manualRows);
-	buf.appendf("color0=%d\n", manualColor0);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiCharacter::loadLine(std::string_view name, zstring_view value)
 {
-	auto checkIntRange = [&](int& result, unsigned max) {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r < max) result = *r;
-		}
-	};
-
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	} else if (name == "override") {
-		checkIntRange(manual, 2);
-	} else if (name == "zoom") {
-		checkIntRange(zoom, 8);
-	} else if (name == "showGrid") {
-		grid = StringOp::stringToBool(value);
-	} else if (name == "gridColor") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			gridColor = t;
-		}
-	} else if (name == "mode") {
-		checkIntRange(manualMode, OTHER);
-	} else if (name == "fgCol") {
-		checkIntRange(manualFgCol, 16);
-	} else if (name == "bgCol") {
-		checkIntRange(manualBgCol, 16);
-	} else if (name == "fgBlink") {
-		checkIntRange(manualFgBlink, 16);
-	} else if (name == "bgBlink") {
-		checkIntRange(manualBgBlink, 16);
-	} else if (name == "blink") {
-		manualBlink = StringOp::stringToBool(value);
-	} else if (name == "patBase") {
-		checkIntRange(manualPatBase, 0x20000);
-	} else if (name == "colBase") {
-		checkIntRange(manualColBase, 0x20000);
-	} else if (name == "namBase") {
-		checkIntRange(manualNamBase, 0x20000);
-	} else if (name == "rows") {
-		checkIntRange(manualRows, 3);
-	} else if (name == "color0") {
-		checkIntRange(manualColor0, 16 + 1);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)

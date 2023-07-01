@@ -53,6 +53,25 @@ private:
 
 	gl::Texture patternTex{gl::Null{}}; // TODO also deallocate when needed
 	gl::Texture gridTex   {gl::Null{}};
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement   {"show",      &ImGuiCharacter::show},
+		PersistentElementMax{"override",  &ImGuiCharacter::manual, 2},
+		PersistentElementMax{"zoom",      &ImGuiCharacter::zoom, 8},
+		PersistentElement   {"showGrid",  &ImGuiCharacter::grid},
+		PersistentElement   {"gridColor", &ImGuiCharacter::gridColor},
+		PersistentElementMax{"mode",      &ImGuiCharacter::manualMode, OTHER}, // TEXT40..SCR4
+		PersistentElementMax{"fgCol",     &ImGuiCharacter::manualFgCol, 16},
+		PersistentElementMax{"bgCol",     &ImGuiCharacter::manualBgCol, 16},
+		PersistentElementMax{"fgBlink",   &ImGuiCharacter::manualFgBlink, 16},
+		PersistentElementMax{"bgBlink",   &ImGuiCharacter::manualBgBlink, 16},
+		PersistentElement   {"blink",     &ImGuiCharacter::manualBlink},
+		PersistentElementMax{"patBase",   &ImGuiCharacter::manualPatBase, 0x20000},
+		PersistentElementMax{"colBase",   &ImGuiCharacter::manualColBase, 0x20000},
+		PersistentElementMax{"namBase",   &ImGuiCharacter::manualNamBase, 0x20000},
+		PersistentElementMax{"rows",      &ImGuiCharacter::manualRows, 3},
+		PersistentElementMax{"color0",    &ImGuiCharacter::manualColor0, 16 + 1}
+	};
 };
 
 } // namespace openmsx

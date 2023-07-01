@@ -44,6 +44,20 @@ private:
 	bool openV9958 = false;
 	bool openCommand = false;
 	bool openStatus = false;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show",        &ImGuiVdpRegs::show},
+		PersistentElement{"explanation", &ImGuiVdpRegs::explanation},
+		PersistentElement{"openControl", &ImGuiVdpRegs::openControl},
+		PersistentElement{"openMode",    &ImGuiVdpRegs::openMode},
+		PersistentElement{"openBase",    &ImGuiVdpRegs::openBase},
+		PersistentElement{"openColor",   &ImGuiVdpRegs::openColor},
+		PersistentElement{"openDisplay", &ImGuiVdpRegs::openDisplay},
+		PersistentElement{"openAccess",  &ImGuiVdpRegs::openAccess},
+		PersistentElement{"openV9958",   &ImGuiVdpRegs::openV9958},
+		PersistentElement{"openCommand", &ImGuiVdpRegs::openCommand},
+		PersistentElement{"openStatus",  &ImGuiVdpRegs::openStatus}
+	};
 };
 
 } // namespace openmsx

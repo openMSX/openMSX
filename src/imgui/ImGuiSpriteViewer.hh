@@ -52,6 +52,30 @@ private:
 	gl::Texture zoomGridTex{gl::Null{}};
 	gl::Texture checkerTex {gl::Null{}};
 	gl::Texture renderTex  {gl::Null{}};
+
+	static constexpr auto validSizes = {8, 16};
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show",                &ImGuiSpriteViewer::show},
+		PersistentElementMax{"override",         &ImGuiSpriteViewer::manual, 2},
+		PersistentElementMinMax{"mode",          &ImGuiSpriteViewer::manualMode, 1, 3}, // 1 or 2
+		PersistentElementEnum{"size",            &ImGuiSpriteViewer::manualSize, validSizes},
+		PersistentElementMax{"mag",              &ImGuiSpriteViewer::manualMag, 2},
+		PersistentElementMax{"transparent",      &ImGuiSpriteViewer::manualTransparent, 2},
+		PersistentElementMax{"patBase",          &ImGuiSpriteViewer::manualPatBase, 0x20000},
+		PersistentElementMax{"attBase",          &ImGuiSpriteViewer::manualAttBase, 0x20000},
+		PersistentElementMax{"verticalScroll",   &ImGuiSpriteViewer::manualVerticalScroll, 256},
+		PersistentElementMax{"lines",            &ImGuiSpriteViewer::manualLines, 3},
+		PersistentElementMax{"zoom",             &ImGuiSpriteViewer::zoom, 8},
+		PersistentElement{"showGrid",            &ImGuiSpriteViewer::grid},
+		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, 256},
+		PersistentElement{"gridColor",           &ImGuiSpriteViewer::gridColor},
+		PersistentElement{"checkerBoardColor1",  &ImGuiSpriteViewer::checkerBoardColor1},
+		PersistentElement{"checkerBoardColor2",  &ImGuiSpriteViewer::checkerBoardColor2},
+		PersistentElement{"boundingBox",         &ImGuiSpriteViewer::drawBoundingBox},
+		PersistentElement{"boundingBoxColor",    &ImGuiSpriteViewer::boundingBoxColor},
+		PersistentElement{"spritesPerLineLimit", &ImGuiSpriteViewer::enableLimitPerLine},
+		PersistentElement{"stopY",               &ImGuiSpriteViewer::enableStopY}
+	};
 };
 
 } // namespace openmsx

@@ -87,6 +87,10 @@ private:
 	std::vector<GuiItem> guiWps;
 	std::vector<GuiItem> guiConditions;
 	int selectedRow = -1;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show", &ImGuiBreakPoints::show}
+	};
 };
 
 } // namespace openmsx

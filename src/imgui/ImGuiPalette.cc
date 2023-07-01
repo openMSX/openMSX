@@ -31,7 +31,7 @@ ImGuiPalette::ImGuiPalette()
 
 void ImGuiPalette::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
+	savePersistent(buf, *this, persistentElements);
 
 	buf.append("customPalette=");
 	for (auto i : xrange(16)) {
@@ -39,14 +39,12 @@ void ImGuiPalette::save(ImGuiTextBuffer& buf)
 		buf.appendf("%d", customPalette[i]);
 	}
 	buf.append("\n");
-
-	buf.appendf("palette=%d\n", whichPalette);
 }
 
 void ImGuiPalette::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
 	} else if (name == "customPalette") {
 		int i = 0;
 		for (auto s : StringOp::split_view(value, ',')) {
@@ -54,10 +52,6 @@ void ImGuiPalette::loadLine(std::string_view name, zstring_view value)
 				customPalette[i] = *v;
 			}
 			if (++i == 16) break;
-		}
-	} else if (name == "palette") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 2) whichPalette = *r;
 		}
 	}
 }

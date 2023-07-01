@@ -23,44 +23,12 @@ ImGuiVdpRegs::ImGuiVdpRegs(ImGuiManager&)
 
 void ImGuiVdpRegs::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
-	buf.appendf("explanation=%d\n", explanation);
-	buf.appendf("openControl=%d\n", openControl);
-	buf.appendf("openMode=%d\n", openMode);
-	buf.appendf("openBase=%d\n", openBase);
-	buf.appendf("openColor=%d\n", openColor);
-	buf.appendf("openDisplay=%d\n", openDisplay);
-	buf.appendf("openAccess=%d\n", openAccess);
-	buf.appendf("openV9958=%d\n", openV9958);
-	buf.appendf("openCommand=%d\n", openCommand);
-	buf.appendf("openStatus=%d\n", openStatus);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiVdpRegs::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	} else if (name == "explanation") {
-		explanation = StringOp::stringToBool(value);
-	} else if (name == "openControl") {
-		openControl = StringOp::stringToBool(value);
-	} else if (name == "openMode") {
-		openMode = StringOp::stringToBool(value);
-	} else if (name == "openBase") {
-		openBase = StringOp::stringToBool(value);
-	} else if (name == "openColor") {
-		openColor = StringOp::stringToBool(value);
-	} else if (name == "openDisplay") {
-		openDisplay = StringOp::stringToBool(value);
-	} else if (name == "openAccess") {
-		openAccess = StringOp::stringToBool(value);
-	} else if (name == "openV9958") {
-		openV9958 = StringOp::stringToBool(value);
-	} else if (name == "openCommand") {
-		openCommand = StringOp::stringToBool(value);
-	} else if (name == "openStatus") {
-		openStatus = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 static const char* modeName(uint32_t v)

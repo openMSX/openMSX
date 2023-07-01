@@ -104,15 +104,7 @@ void ImGuiDebugger::signalBreak()
 
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("showControl=%d\n", showControl);
-	buf.appendf("showDisassembly=%d\n", showDisassembly);
-	buf.appendf("followPC=%d\n", followPC);
-	buf.appendf("showRegisters=%d\n", showRegisters);
-	buf.appendf("showSlots=%d\n", showSlots);
-	buf.appendf("showStack=%d\n", showStack);
-	buf.appendf("showFlags=%d\n", showFlags);
-	buf.appendf("showXYFlags=%d\n", showXYFlags);
-	buf.appendf("flagsLayout=%d\n", flagsLayout);
+	savePersistent(buf, *this, persistentElements);
 	for (const auto& [name, editor] : debuggables) {
 		buf.appendf("showDebuggable.%s=%d\n", name.c_str(), editor->Open);
 	}
@@ -122,26 +114,8 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 {
 	static constexpr std::string_view prefix = "showDebuggable.";
 
-	if (name == "showDisassembly") {
-		showDisassembly = StringOp::stringToBool(value);
-	} else if (name == "followPC") {
-		followPC = StringOp::stringToBool(value);
-	} else if (name == "showControl") {
-		showControl = StringOp::stringToBool(value);
-	} else if (name == "showRegisters") {
-		showRegisters = StringOp::stringToBool(value);
-	} else if (name == "showSlots") {
-		showSlots = StringOp::stringToBool(value);
-	} else if (name == "showStack") {
-		showStack = StringOp::stringToBool(value);
-	} else if (name == "showFlags") {
-		showFlags = StringOp::stringToBool(value);
-	} else if (name == "showXYFlags") {
-		showXYFlags = StringOp::stringToBool(value);
-	} else if (name == "flagsLayout") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 1) flagsLayout = *r;
-		}
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
 	} else if (name.starts_with(prefix)) {
 		auto debuggableName = name.substr(prefix.size());
 		auto [it, inserted] = debuggables.try_emplace(std::string(debuggableName));

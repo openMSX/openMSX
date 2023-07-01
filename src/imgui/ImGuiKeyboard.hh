@@ -23,6 +23,10 @@ public:
 
 private:
 	ImGuiManager& manager;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show", &ImGuiKeyboard::show}
+	};
 };
 
 } // namespace openmsx

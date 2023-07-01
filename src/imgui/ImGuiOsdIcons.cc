@@ -24,13 +24,7 @@ namespace openmsx {
 
 void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", showIcons);
-	buf.appendf("hideTitle=%d\n", iconsHideTitle);
-	buf.appendf("allowMove=%d\n", iconsAllowMove);
-	buf.appendf("layout=%d\n", iconsHorizontal);
-	buf.appendf("fadeDuration=%f\n", iconsFadeDuration);
-	buf.appendf("fadeDelay=%f\n", iconsFadeDelay);
-	buf.appendf("showConfig=%d\n", showConfigureIcons);
+	savePersistent(buf, *this, persistentElements);
 	for (const auto& [i, icon] : enumerate(iconInfo)) {
 		auto n = narrow<int>(i + 1);
 		buf.appendf("icon.%d.enabled=%d\n",   n, icon.enable);
@@ -48,22 +42,8 @@ void ImGuiOsdIcons::loadStart()
 
 void ImGuiOsdIcons::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		showIcons = StringOp::stringToBool(value);
-	} else if (name == "hideTitle") {
-		iconsHideTitle = StringOp::stringToBool(value);
-	} else if (name == "allowMove") {
-		iconsAllowMove = StringOp::stringToBool(value);
-	} else if (name == "layout") {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r <= 1) iconsHorizontal = *r;
-		}
-	} else if (name == "fadeDuration") {
-		iconsFadeDuration = strtof(value.c_str(), nullptr); // TODO error handling
-	} else if (name == "fadeDelay") {
-		iconsFadeDelay = strtof(value.c_str(), nullptr); // TODO error handling
-	} else if (name == "showConfig") {
-		showConfigureIcons = StringOp::stringToBool(value);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
 	} else if (name.starts_with("icon.")) {
 		auto [numStr, suffix] = StringOp::splitOnFirst(name.substr(5), '.');
 		auto n = StringOp::stringTo<size_t>(numStr);

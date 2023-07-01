@@ -66,17 +66,12 @@ ImGuiConsole::~ImGuiConsole()
 
 void ImGuiConsole::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
-	buf.appendf("wrap=%d\n", wrap);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiConsole::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	} else if (name == "wrap") {
-		wrap = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 void ImGuiConsole::print(std::string_view text, unsigned rgb)

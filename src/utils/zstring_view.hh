@@ -26,8 +26,8 @@ public:
 
 	static constexpr auto npos = std::string_view::npos;
 
-	/*constexpr*/ zstring_view(const char* s)
-		: dat(s), siz(size_type(strlen(s))) {}
+	constexpr zstring_view(const char* s)
+		: dat(s), siz(std::char_traits<char>::length(s)) {}
 	constexpr zstring_view(const char* s, size_t n)
 		: dat(s), siz(n) { assert(s[n] == '\0'); }
 	/*constexpr*/ zstring_view(const std::string& s)

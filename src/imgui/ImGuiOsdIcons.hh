@@ -67,6 +67,17 @@ private:
 	gl::ivec2 iconsMaxSize;
 	int iconsNumEnabled = 0;
 	bool iconInfoDirty = true;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show",         &ImGuiOsdIcons::showIcons},
+		PersistentElement{"hideTitle",    &ImGuiOsdIcons::iconsHideTitle},
+		PersistentElement{"allowMove",    &ImGuiOsdIcons::iconsAllowMove},
+		PersistentElementMax{"layout",    &ImGuiOsdIcons::iconsHorizontal, 2},
+		PersistentElement{"fadeDuration", &ImGuiOsdIcons::iconsFadeDuration},
+		PersistentElement{"fadeDelay",    &ImGuiOsdIcons::iconsFadeDelay},
+		PersistentElement{"showConfig",   &ImGuiOsdIcons::showConfigureIcons}
+		// manually handle "icon.xxx"
+	};
 };
 
 } // namespace openmsx

@@ -40,6 +40,13 @@ private:
 		std::string name;
 		gl::Texture texture{gl::Null{}};
 	} previewImage;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show",      &ImGuiReverseBar::showReverseBar},
+		PersistentElement{"hideTitle", &ImGuiReverseBar::reverseHideTitle},
+		PersistentElement{"fadeOut",   &ImGuiReverseBar::reverseFadeOut},
+		PersistentElement{"allowMove", &ImGuiReverseBar::reverseAllowMove}
+	};
 };
 
 } // namespace openmsx

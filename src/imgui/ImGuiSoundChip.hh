@@ -31,6 +31,11 @@ private:
 	std::map<std::string, bool> channels;
 public:
 	bool showSoundChipSettings = false;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show", &ImGuiSoundChip::showSoundChipSettings}
+		// manually handle "showChannels.xxx"
+	};
 };
 
 } // namespace openmsx

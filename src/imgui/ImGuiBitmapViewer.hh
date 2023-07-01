@@ -47,6 +47,18 @@ private:
 
 	std::optional<gl::Texture> bitmapTex; // TODO also deallocate when needed
 	std::optional<gl::Texture> bitmapGridTex;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement   {"show",     &ImGuiBitmapViewer::showBitmapViewer},
+		PersistentElementMax{"override", &ImGuiBitmapViewer::bitmapManual, 2},
+		PersistentElementMax{"scrnMode", &ImGuiBitmapViewer::bitmapScrnMode, OTHER}, // SCR5..SCR12
+		PersistentElementMax{"page",     &ImGuiBitmapViewer::bitmapPage, 4},
+		PersistentElementMax{"lines",    &ImGuiBitmapViewer::bitmapLines, 3},
+		PersistentElementMax{"color0",   &ImGuiBitmapViewer::bitmapColor0, 16 + 1},
+		PersistentElementMax{"zoom",     &ImGuiBitmapViewer::bitmapZoom, 8},
+		PersistentElement   {"showGrid", &ImGuiBitmapViewer::bitmapGrid},
+		PersistentElement   {"gridColor",&ImGuiBitmapViewer::bitmapGridColor}
+	};
 };
 
 } // namespace openmsx

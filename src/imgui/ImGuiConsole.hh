@@ -71,6 +71,11 @@ private:
 	bool scrollToBottom = false;
 	bool wasShown = false;
 	bool wrap = true;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"show", &ImGuiConsole::show},
+		PersistentElement{"wrap", &ImGuiConsole::wrap}
+	};
 };
 
 } // namespace openmsx

@@ -18,7 +18,7 @@ namespace openmsx {
 
 void ImGuiSoundChip::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", showSoundChipSettings);
+	savePersistent(buf, *this, persistentElements);
 	for (const auto& [name, enabled] : channels) {
 		buf.appendf("showChannels.%s=%d\n", name.c_str(), enabled);
 	}
@@ -26,8 +26,8 @@ void ImGuiSoundChip::save(ImGuiTextBuffer& buf)
 
 void ImGuiSoundChip::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "show") {
-		showSoundChipSettings = StringOp::stringToBool(value);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
 	} else if (name.starts_with("showChannels.")) {
 		channels[std::string(name.substr(13))] = StringOp::stringToBool(value);
 	}

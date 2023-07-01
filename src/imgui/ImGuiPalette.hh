@@ -35,6 +35,12 @@ private:
 	int selectedColor = 0;
 
 	std::array<uint16_t, 16> customPalette; // palette in MSX format: 0GRB nibbles
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement   {"show",    &ImGuiPalette::show},
+		PersistentElementMax{"palette", &ImGuiPalette::whichPalette, 3}
+		// manually handle "customPalette"
+	};
 };
 
 } // namespace openmsx

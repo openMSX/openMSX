@@ -30,91 +30,12 @@ ImGuiSpriteViewer::ImGuiSpriteViewer(ImGuiManager& manager_)
 
 void ImGuiSpriteViewer::save(ImGuiTextBuffer& buf)
 {
-	buf.appendf("show=%d\n", show);
-	buf.appendf("override=%d\n", manual);
-	buf.appendf("mode=%d\n", manualMode);
-	buf.appendf("size=%d\n", manualSize);
-	buf.appendf("mag=%d\n", manualMag);
-	buf.appendf("transparent=%d\n", manualTransparent);
-	buf.appendf("patBase=%d\n", manualPatBase);
-	buf.appendf("attBase=%d\n", manualAttBase);
-	buf.appendf("verticalScroll=%d\n", manualVerticalScroll);
-	buf.appendf("lines=%d\n", manualLines);
-	buf.appendf("zoom=%d\n", zoom);
-	buf.appendf("showGrid=%d\n", grid);
-	buf.appendf("checkerBoardSize=%d\n", checkerBoardSize);
-	buf.appendf("gridColor=[ %f %f %f %f ]\n", gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-	buf.appendf("checkerBoardColor1=[ %f %f %f %f ]\n", checkerBoardColor1[0], checkerBoardColor1[1], checkerBoardColor1[2], checkerBoardColor1[3]);
-	buf.appendf("checkerBoardColor2=[ %f %f %f %f ]\n", checkerBoardColor2[0], checkerBoardColor2[1], checkerBoardColor2[2], checkerBoardColor2[3]);
-	buf.appendf("boundingBox=%d\n", drawBoundingBox);
-	buf.appendf("boundingBoxColor=[ %f %f %f %f ]\n", boundingBoxColor[0], boundingBoxColor[1], boundingBoxColor[2], boundingBoxColor[3]);
-	buf.appendf("spritesPerLineLimit=%d\n", enableLimitPerLine);
-	buf.appendf("stopY=%d\n", enableStopY);
+	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiSpriteViewer::loadLine(std::string_view name, zstring_view value)
 {
-	auto checkIntRange = [&](int& result, unsigned max) {
-		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			if (*r < max) result = *r;
-		}
-	};
-
-	if (name == "show") {
-		show = StringOp::stringToBool(value);
-	} else if (name == "override") {
-		checkIntRange(manual, 2);
-	} else if (name == "mode") {
-		checkIntRange(manualMode, 3);
-		if (manualMode == 0) manualMode = 1;
-	} else if (name == "size") {
-		checkIntRange(manualSize, 17);
-		if (manualSize != one_of(8, 16)) manualSize = 8;
-	} else if (name == "mag") {
-		checkIntRange(manualMag, 2);
-	} else if (name == "transparent") {
-		checkIntRange(manualTransparent, 2);
-	} else if (name == "patBase") {
-		checkIntRange(manualPatBase, 0x20000);
-	} else if (name == "attBase") {
-		checkIntRange(manualAttBase, 0x20000);
-	} else if (name == "verticalScroll") {
-		checkIntRange(manualVerticalScroll, 256);
-	} else if (name == "lines") {
-		checkIntRange(manualLines, 3);
-	} else if (name == "zoom") {
-		checkIntRange(zoom, 8);
-	} else if (name == "showGrid") {
-		grid = StringOp::stringToBool(value);
-	} else if (name == "checkerBoardSize") {
-		checkIntRange(checkerBoardSize, 256);
-	} else if (name == "gridColor") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			gridColor = t;
-		}
-	} else if (name == "checkerBoardColor1") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			checkerBoardColor1 = t;
-		}
-	} else if (name == "checkerBoardColor2") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			checkerBoardColor2 = t;
-		}
-	} else if (name == "boundingBox") {
-		drawBoundingBox = StringOp::stringToBool(value);
-	} else if (name == "boundingBoxColor") {
-		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
-			boundingBoxColor = t;
-		}
-	} else if (name == "spritesPerLineLimit") {
-		enableLimitPerLine = StringOp::stringToBool(value);
-	} else if (name == "stopY") {
-		enableStopY = StringOp::stringToBool(value);
-	}
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 static uint8_t vpeek(std::span<const uint8_t> vram, bool planar, size_t addr)
