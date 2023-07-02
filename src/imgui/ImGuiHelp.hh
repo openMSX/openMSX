@@ -16,8 +16,13 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
+	void paintHelp();
+	void paintAbout();
+
+private:
 	ImGuiMarkdown markdown;
 	bool showHelpWindow = false;
+	bool showAboutWindow = false;
 };
 
 } // namespace openmsx

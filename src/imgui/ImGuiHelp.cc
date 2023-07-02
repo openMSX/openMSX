@@ -1,8 +1,9 @@
 #include "ImGuiHelp.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiUtils.hh"
 
-#include <imgui.h>
+#include "Version.hh"
 
 namespace openmsx {
 
@@ -10,13 +11,18 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	im::Menu("Help", [&]{
 		ImGui::MenuItem("User manual", nullptr, &showHelpWindow);
-		ImGui::MenuItem("About TODO");
+		ImGui::MenuItem("About", nullptr, &showAboutWindow);
 	});
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (!showHelpWindow) return;
+	if (showHelpWindow) paintHelp();
+	if (showAboutWindow) paintAbout();
+}
+
+void ImGuiHelp::paintHelp()
+{
 	im::Window("Help", &showHelpWindow, [&]{
 		static const char* const TEST = R"(
 # User manual
@@ -63,6 +69,15 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
       * Item with bold [**link2**](#link1)
 )";
 		markdown.print(TEST);
+	});
+}
+
+void ImGuiHelp::paintAbout()
+{
+	im::Window("About", &showAboutWindow, [&]{
+		ImGui::TextUnformatted(Version::full());
+		ImGui::Spacing();
+		ImGui::TextUnformatted("TODO some useful info here?");
 	});
 }
 
