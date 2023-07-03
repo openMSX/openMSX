@@ -7,15 +7,18 @@ the diskmanipulator.
 Special thanks to all the contributors of this release who are not in the core
 team! Keep these pull requests coming!
 
+This release will be the last one that supports systems without OpenGL 2 or
+higher.
+
 Here's the list with all highlights and details:
 
 MSX device support:
 - SCC+: clear RAM when powering off/on
-- WD2793: fixed bug when writing CRC bytes
+- WD2793: fixed very rare corner case when writing CRC bytes
 - V9990:
-  - fixed interlaced screen rendering
+  - fixed corner case in interlaced screen rendering
   - fixed Bx mode cursor drawing
-- R800: fixed behavoiur with double prefix, as it acts like double NOP unlike
+- R800: fixed behaviour with double prefix, as it acts like double NOP unlike
   Z80
 - Carnivore 2: updated initial (out-of-the-box) flash content, with bootmenu
   2.52
