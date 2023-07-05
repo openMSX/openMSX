@@ -62,6 +62,7 @@ public:
 
 private:
 	using Table = MemBuffer<float, SSE_ALIGNMENT>;
+	using PermuteTable = MemBuffer<int16_t>; // array<int16_t, HALF_TAB_LEN>
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
@@ -70,7 +71,7 @@ private:
 
 	struct Element {
 		double ratio;
-		std::array<int16_t, HALF_TAB_LEN> permute;
+		PermuteTable permute; // need stable address (can't directly use std::array)
 		Table table;
 		unsigned filterLen;
 		unsigned count;
@@ -94,7 +95,7 @@ void ResampleCoeffs::getCoeffs(
 {
 	if (auto it = ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
-		permute   = it->permute;
+		permute   = std::span<int16_t, HALF_TAB_LEN>{it->permute.data(), HALF_TAB_LEN};
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
@@ -103,8 +104,10 @@ void ResampleCoeffs::getCoeffs(
 	Element elem;
 	elem.ratio = ratio;
 	elem.count = 1;
-	elem.table = calcTable(ratio, elem.permute, elem.filterLen);
-	permute   = elem.permute;
+	elem.permute = PermuteTable(HALF_TAB_LEN);
+	auto perm = std::span<int16_t, HALF_TAB_LEN>{elem.permute.data(), HALF_TAB_LEN};
+	elem.table = calcTable(ratio, perm, elem.filterLen);
+	permute   = perm;
 	table     = elem.table.data();
 	filterLen = elem.filterLen;
 	cache.push_back(std::move(elem));
