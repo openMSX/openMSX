@@ -2669,6 +2669,8 @@ proc create_slot_actions_to_put_stuff_in_slot {slot path listtype} {
 	return [list actions [list A [list osd_menu::menu_select_$listtype $slot $path]]]
 }
 
+# This handler is disabled.
+# TODO fully remove this code once the ImGui replacement works well.
 proc drop_handler { event } {
 	variable mediaslot_info
 	lassign $event type filename

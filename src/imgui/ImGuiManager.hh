@@ -1,5 +1,5 @@
-#ifndef IMGUI_PERSISTENT_HH
-#define IMGUI_PERSISTENT_HH
+#ifndef IMGUI_MANAGER_HH
+#define IMGUI_MANAGER_HH
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
@@ -109,6 +109,12 @@ private:
 	std::vector<DelayedCommand> commandQueue;
 	std::vector<ImGuiPart*> parts;
 	float menuAlpha = 1.0f;
+
+	std::string droppedFile;
+	std::string newDropMessage, dropMessage;
+	std::string selectText;
+	std::vector<std::string> selectList;
+	bool handleDropped = false;
 };
 
 } // namespace openmsx

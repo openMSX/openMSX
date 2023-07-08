@@ -3,11 +3,14 @@
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
 
+#include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "File.hh"
 #include "FileContext.hh"
+#include "FileOperations.hh"
 #include "Reactor.hh"
+#include "RealDrive.hh"
 
 #include "stl.hh"
 #include "strCat.hh"
@@ -132,6 +135,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	eventDistributor.registerEventListener(EventType::KEY_DOWN,          *this, EventDistributor::IMGUI);
 	eventDistributor.registerEventListener(EventType::TEXT,              *this, EventDistributor::IMGUI);
 	eventDistributor.registerEventListener(EventType::WINDOW,            *this, EventDistributor::IMGUI);
+	eventDistributor.registerEventListener(EventType::FILE_DROP, *this);
 	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
 
@@ -148,6 +152,7 @@ ImGuiManager::~ImGuiManager()
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
 	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
+	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
 	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::TEXT, *this);
 	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
@@ -211,6 +216,12 @@ int ImGuiManager::signalEvent(const Event& event)
 			commandQueue.clear();
 			break;
 		}
+		case EventType::FILE_DROP: {
+			const auto& fde = get_event<FileDropEvent>(event);
+			droppedFile = fde.getFileName();
+			handleDropped = true;
+			break;
+		}
 		case EventType::BREAK:
 			debugger.signalBreak();
 			break;
@@ -219,6 +230,37 @@ int ImGuiManager::signalEvent(const Event& event)
 		}
 	}
 	return 0;
+}
+
+// TODO share code with ImGuiMedia
+static std::vector<std::string> getDrives(MSXMotherBoard* motherBoard)
+{
+	std::vector<std::string> result;
+	if (!motherBoard) return result;
+
+	std::string driveName = "diskX";
+	auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+	for (auto i : xrange(RealDrive::MAX_DRIVES)) {
+		if (!(*drivesInUse)[i]) continue;
+		driveName[4] = char('a' + i);
+		result.push_back(driveName);
+	}
+	return result;
+}
+
+static std::vector<std::string> getSlots(MSXMotherBoard* motherBoard)
+{
+	std::vector<std::string> result;
+	if (!motherBoard) return result;
+
+	auto& slotManager = motherBoard->getSlotManager();
+	std::string cartName = "cartX";
+	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+		if (!slotManager.slotExists(slot)) continue;
+		cartName[4] = char('a' + slot);
+		result.push_back(cartName);
+	}
+	return result;
 }
 
 void ImGuiManager::paint()
@@ -239,6 +281,90 @@ void ImGuiManager::paint()
 		im::MainMenuBar([&]{
 			for (auto* part : parts) {
 				part->showMenu(motherBoard);
+			}
+		});
+	});
+
+	// drag and drop  (move this to ImGuiMedia ?)
+	auto executeDropCommand = [&](TclObject cmd) {
+		executeDelayed(cmd,
+		               [](const TclObject&) {}, // success
+		               [&](const std::string& msg) { newDropMessage = msg; }); // can't call OpenPopup() in this callback
+	};
+	if (handleDropped) {
+		handleDropped = false;
+		auto category = execute(makeTclList("openmsx_info", "file_type_category", droppedFile))->getString();
+		if (category == "unknown" && FileOperations::isDirectory(droppedFile)) {
+			category = "disk";
+		}
+
+		TclObject command;
+		auto error = [&](auto&& ...message) {
+			command = makeTclList("error", strCat(message...));
+		};
+		auto cantHandle = [&](auto&& ...message) {
+			error("Can't handle dropped file ", droppedFile, ": ", message...);
+		};
+		auto notPresent = [&](const auto& mediaType) {
+			cantHandle("no ", mediaType, " present.");
+		};
+
+		auto selectMedia = [&](std::string_view type, std::vector<std::string> list) {
+			if (list.empty()) {
+				notPresent(type);
+			} else if (list.size() == 1) {
+				command = makeTclList(list.front(), "insert", droppedFile);
+			} else {
+				selectText = strCat("Select ", type, " for ", droppedFile);
+				selectList = std::move(list);
+				ImGui::OpenPopup("select-media");
+			}
+		};
+		auto testMedia = [&](std::string_view type, std::string_view cmd) {
+			if (auto cmdResult = execute(TclObject(cmd))) {
+				command = makeTclList(cmd, "insert", droppedFile);
+			} else {
+				notPresent(type);
+			}
+		};
+
+		if (category == "disk") {
+			selectMedia("disk drive", getDrives(motherBoard));
+		} else if (category == "rom") {
+			selectMedia("cartridge slot", getSlots(motherBoard));
+		} else if (category == "cassette") {
+			testMedia("casette port", "cassetteplayer");
+		} else if (category == "laserdisc") {
+			testMedia("laser disc player", "laserdiscplayer");
+		} else if (category == "savestate") {
+			command = makeTclList("loadstate", droppedFile);
+		} else if (category == "replay") {
+			command = makeTclList("reverse", "loadreplay", droppedFile);
+		} else if (category == "script") {
+			command = makeTclList("source", droppedFile);
+		} else if (FileOperations::getExtension(droppedFile) == ".txt") {
+			command = makeTclList("type_from_file", droppedFile);
+		} else {
+			cantHandle("unknown file type");
+		}
+		executeDropCommand(command);
+	}
+	if (!newDropMessage.empty()) {
+		dropMessage = std::move(newDropMessage);
+		newDropMessage.clear();
+		ImGui::OpenPopup("drop-message");
+	}
+	im::Popup("drop-message", [&]{
+		ImGui::TextUnformatted(dropMessage);
+	});
+	im::Popup("select-media", [&]{
+		ImGui::TextUnformatted(selectText);
+		im::ListBox("##select-media", [&]{
+			for (const auto& item : selectList) {
+				if (ImGui::Selectable(item.c_str())) {
+					executeDropCommand(makeTclList(item, "insert", droppedFile));
+					ImGui::CloseCurrentPopup();
+				}
 			}
 		});
 	});

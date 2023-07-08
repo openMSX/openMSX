@@ -25,7 +25,7 @@ register_lazy "_osd.tcl" {show_osd display_message is_cursor_in}
 register_lazy "_osd_keyboard.tcl" toggle_osd_keyboard
 register_lazy "_osd_menu.tcl" {
 	main_menu_open main_menu_close main_menu_toggle
-	do_menu_open prepare_menu_list menu_close_all select_menu_item drop_handler}
+	do_menu_open prepare_menu_list menu_close_all select_menu_item}
 register_lazy "_osd_nemesis.tcl" toggle_nemesis_1_shield
 register_lazy "_osd_widgets.tcl" {
 	toggle_fps msx_init msx_update box text_box create_power_bar
