@@ -75,7 +75,12 @@ namespace StringOp
 
 	//[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 
-	[[nodiscard]] inline auto split_view(std::string_view str, char c) {
+	enum KeepOrRemoveEmptyParts {
+		KEEP_EMPTY_PARTS,  // "a,b,,c" -> "a", "b", "", "c"
+		REMOVE_EMPTY_PARTS // "a,b,,c" -> "a", "b", "c"       BUT  ",,a,b" -> "", "a", "b"  (keeps one empty part in front)
+	};
+	template<KeepOrRemoveEmptyParts keepOrRemove = KEEP_EMPTY_PARTS, typename Separators>
+	[[nodiscard]] inline auto split_view(std::string_view str, Separators separators) {
 		struct Sentinel {};
 
 		struct Iterator {
@@ -86,18 +91,20 @@ namespace StringOp
 			Iterator(const Iterator&) = default;
 			Iterator& operator=(const Iterator&) = default;
 
-			Iterator(std::string_view str_, char c_)
-				: str(str_), c(c_) {
+			Iterator(std::string_view str_, Separators separators_)
+				: str(str_), separators(separators_) {
+				str.remove_prefix(skipSeparators(0));
 				next_p();
 			}
 
-			[[nodiscard]] std::string_view operator*() const {
+			[[nodiscard]] value_type operator*() const {
+				difference_type dummy; (void)dummy; // avoid warning about unused typedef
 				return {str.data(), p};
 			}
 
 			Iterator& operator++() {
 				if (p < str.size()) {
-					str.remove_prefix(p + 1);
+					str.remove_prefix(skipSeparators(p + 1));
 					next_p();
 				} else {
 					str = "";
@@ -109,28 +116,43 @@ namespace StringOp
 			[[nodiscard]] bool operator==(const Iterator&) const = default;
 			[[nodiscard]] bool operator==(Sentinel) const { return str.empty(); }
 
+		private:
+			static bool isSeparator(char c, char separators) {
+				return c == separators;
+			}
+			static bool isSeparator(char c, std::string_view separators) {
+				return separators.find(c) != std::string_view::npos;
+			}
+
 			void next_p() {
 				p = 0;
-				while ((p < str.size()) && (str[p] != c)) ++p;
+				while ((p < str.size()) && !isSeparator(str[p], separators)) ++p;
+			}
+
+			std::string_view::size_type skipSeparators(std::string_view::size_type pos) const {
+				if (keepOrRemove == REMOVE_EMPTY_PARTS) {
+					while ((pos < str.size()) && isSeparator(str[pos], separators)) ++pos;
+				}
+				return pos;
 			}
 
 		private:
 			std::string_view str;
 			std::string_view::size_type p;
-			char c;
+			Separators separators;
 		};
 		static_assert(std::forward_iterator<Iterator>);
 		static_assert(std::sentinel_for<Sentinel, Iterator>);
 
 		struct Splitter {
 			std::string_view str;
-			char c;
+			Separators separators;
 
-			[[nodiscard]] auto begin() const { return Iterator{str, c}; }
+			[[nodiscard]] auto begin() const { return Iterator{str, separators}; }
 			[[nodiscard]] auto end()   const { return Sentinel{}; }
 		};
 
-		return Splitter{str, c};
+		return Splitter{str, separators};
 	}
 
 	// case insensitive less-than operator
