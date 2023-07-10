@@ -19,6 +19,11 @@ struct Symbol {
 	uint16_t value;
 };
 
+// Parse the data in 'buffer' and return the resulting Symbol objects.
+// The Symbol's refer to 'filename', but this parse function itself doesn't
+// perform any filesystem access (useful for unittest).
+std::vector<Symbol> parseSymbolBuffer(const std::string& filename, std::string_view buffer);
+
 class ImGuiSymbols final : public ImGuiPart
 {
 public:

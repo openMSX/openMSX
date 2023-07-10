@@ -269,35 +269,51 @@ std::optional<uint16_t> ImGuiSymbols::parseSymbolOrValue(std::string_view str) c
 	return parseValue(str);
 }
 
-std::vector<Symbol> ImGuiSymbols::load(const std::string& filename)
+std::vector<Symbol> parseSymbolBuffer(const std::string& filename, std::string_view buffer)
 {
-	// TODO support and auto-detect many more file formats.
-	File file(filename);
-	auto buf = file.mmap();
-	std::string_view strBuf(reinterpret_cast<const char*>(buf.data()), buf.size());
-
 	std::vector<Symbol> result;
 	static constexpr std::string_view whitespace = " \t\r";
-	for (std::string_view fullLine : StringOp::split_view(strBuf, '\n')) {
-		StringOp::trimLeft(fullLine, whitespace);
+	for (std::string_view fullLine : StringOp::split_view(buffer, '\n')) {
 		auto [line, _] = StringOp::splitOnFirst(fullLine, ';');
 
-		auto [pos, size] = std::tuple(line.find("%equ"), 4);
-		if (pos == std::string_view::npos) std::tie(pos, size) = std::tuple(line.find("equ"), 3);
-		if (pos == std::string_view::npos) continue;
+		auto tokens = static_vector<std::string_view, 3 + 1>{from_range,
+			view::take(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(line, whitespace), 3 + 1)};
+		if (tokens.size() != 3) continue;
 
-		auto label = line.substr(0, pos);
-		StringOp::trimRight(label, whitespace);
+		std::string_view label, value;
+		// This heuristic parses the line
+		//     def equ 0x1234
+		// as label=def, value=0x1234. This can be the wrong
+		// interpretation for '.noi' files with a label called 'equ'. I
+		// guess this rarely (if ever) happens in practice. So IMHO this
+		// is an acceptable limitation.
+		if (tokens[1] == one_of("equ", "%equ")) {
+			label = tokens[0];
+			value = tokens[2];
+		} else if (tokens[0] == "def") {
+			label = tokens[1];
+			value = tokens[2];
+		} else {
+			continue;
+		}
+
 		if (label.ends_with(':')) label.remove_suffix(1);
 
-		auto value = line.substr(pos + size);
-		StringOp::trim(value, whitespace);
 		if (auto num = parseValue(value)) {
 			//result.emplace_back(std::string(label), filename, *num);
 			result.push_back(Symbol{std::string(label), filename, *num});
 		}
 	}
 	return result;
+}
+
+std::vector<Symbol> ImGuiSymbols::load(const std::string& filename)
+{
+	// TODO support and auto-detect many more file formats.
+	File file(filename);
+	auto buf = file.mmap();
+	std::string_view buffer(reinterpret_cast<const char*>(buf.data()), buf.size());
+	return parseSymbolBuffer(filename, buffer);
 }
 
 } // namespace openmsx

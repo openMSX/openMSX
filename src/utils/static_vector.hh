@@ -23,6 +23,9 @@
 // heap memory in constexpr functions (there are proposals to loosen this
 // restriction in future C++ standards).
 
+struct from_range_t {};
+inline constexpr from_range_t from_range;
+
 template<typename T, size_t N>
 class static_vector
 {
@@ -39,6 +42,13 @@ public:
 		assert(list.size() <= N);
 		std::copy(list.begin(), list.end(), data.data());
 		sz = SizeType(list.size());
+	}
+
+	template<typename Range>
+	constexpr static_vector(from_range_t, Range&& range) {
+		for (auto&& elem : range) {
+			push_back(elem);
+		}
 	}
 
 	[[nodiscard]] constexpr auto begin() const noexcept { return data.begin(); }
