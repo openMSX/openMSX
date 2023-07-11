@@ -9,9 +9,9 @@
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           std::string name_, static_string_view description_)
+                           std::string name_, std::string description_)
 	: Connector(pluggingController_, std::move(name_), std::make_unique<DummyJoystick>())
-	, description(description_)
+	, description(std::move(description_))
 {
 }
 

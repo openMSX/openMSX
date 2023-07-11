@@ -14,13 +14,13 @@ JoyTap::JoyTap(PluggingController& pluggingController_, std::string name_)
 {
 }
 
-void JoyTap::createPorts(static_string_view description, EmuTime::param time)
+void JoyTap::createPorts(std::string_view description, EmuTime::param time)
 {
 	for (auto [i, slave] : enumerate(slaves)) {
 		slave.emplace(
 			pluggingController,
 			strCat(name, "_port_", char('1' + i)),
-			description);
+			strCat(description, ' ', char('1' + i)));
 		slave->write(0, time);
 	}
 }

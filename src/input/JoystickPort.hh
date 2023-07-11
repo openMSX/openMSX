@@ -2,8 +2,8 @@
 #define JOYSTICKPORT_HH
 
 #include "Connector.hh"
-#include "static_string_view.hh"
 #include <cstdint>
+#include <string>
 
 namespace openmsx {
 
@@ -24,7 +24,7 @@ class JoystickPort final : public JoystickPortIf, public Connector
 {
 public:
 	JoystickPort(PluggingController& pluggingController,
-	             std::string name, static_string_view description);
+	             std::string name, std::string description);
 
 	[[nodiscard]] JoystickDevice& getPluggedJoyDev() const;
 
@@ -44,7 +44,7 @@ private:
 
 private:
 	uint8_t lastValue = 255; // != 0
-	const static_string_view description;
+	std::string description;
 };
 
 class DummyJoystickPort final : public JoystickPortIf

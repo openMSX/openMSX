@@ -4,9 +4,9 @@
 #include "JoystickDevice.hh"
 #include "JoystickPort.hh"
 #include "serialize_meta.hh"
-#include "static_string_view.hh"
 #include <array>
 #include <optional>
+#include <string_view>
 
 namespace openmsx {
 
@@ -38,7 +38,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	void createPorts(static_string_view description, EmuTime::param time);
+	void createPorts(std::string_view description, EmuTime::param time);
 
 protected:
 	std::array<std::optional<JoystickPort>, 4> slaves;
