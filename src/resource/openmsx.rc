@@ -71,7 +71,7 @@ BEGIN
             VALUE "FileDescription", "openMSX\0"
             VALUE "FileVersion", OPENMSX_VERSION_STR
             VALUE "InternalName", "openmsx\0"
-            VALUE "LegalCopyright", "Copyright 2001-2022\0"
+            VALUE "LegalCopyright", "Copyright 2001-2023\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "openmsx.exe\0"
             VALUE "PrivateBuild", "\0"
