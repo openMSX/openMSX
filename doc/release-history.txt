@@ -3,6 +3,118 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 19.0RC1 (2023-07-12)
+----------------------------
+
+More bug fixes and smaller improvements. Large improvements on the OSD menu and
+the diskmanipulator.
+
+Special thanks to all the contributors of this release who are not in the core
+team! Keep these pull requests coming!
+
+This release will be the last one that supports systems without OpenGL 2 or
+higher.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- SCC+: clear RAM when powering off/on
+- WD2793: fixed very rare corner case when writing CRC bytes
+- V9990:
+  - fixed corner case in interlaced screen rendering
+  - fixed Bx mode cursor drawing
+- R800: fixed behaviour with double prefix, as it acts like double NOP unlike
+  Z80
+- Carnivore 2: updated initial (out-of-the-box) flash content, with bootmenu
+  2.52
+- fixed NinjaTap emulation (at the cost of the PSG pin 6/7 behaviour)
+- fixed formatting on Philips VY-0010 disk drives
+- implemented (more) I/O port mirroring for S-1985 and S-3527 based machines
+  for PSG, VDP, PPI, RTC, printer)
+- implemented some weird behaviour of the printer port (implemented unused bits
+  specification and status showing on all ports for some machines)
+- added mapper for RetroHard MultiCart 31 in 1 cartridges
+- added new machines/extensions, thanks to:
+  - Peter Hanraets: Sony HB-11 and Sony HB-F701xx
+  - alwro07: Polish Spectravideo SVI-738
+  - Daniel Padilla: Victor HC-90A (WIP)
+  - Takamichi Suzukawa: Nikko PC-70100 (hidden MSX) and Sanyo MPC-10mkII
+  - Others: Sunrise IDE with Nextor ROM, Swedish Spectravideo SVI-738, Yamaha
+    SKW-01 Word Processor
+
+New or improved emulator features:
+- VDP: fixed assertion failure when cmdtiming=broken
+- many improvements on machine and extension descriptions
+- OSD menu:
+  - show machine type and region info in list of machines
+  - show current machine in main menu title (as most actions operate on it)
+  - show machine and extension information/details whilst selecting them,
+    including whether it will work when selected
+  - allow user to add/remove IPS patches for ROMs
+  - fixed location of selection bar (was too high)
+  - scroll menu items that do not fit horizontally to be able to read them
+  - for long paths, only show the last part (instead of clipping after the
+    first part)
+  - minor aesthetic tweaks
+  - don't show add/remove dialog for extensions if none are present and show
+    the amount inserted in the menu
+  - always show menu on top
+- disk manipulator (many thanks to Laurens Holst!)
+  - fixed import command
+  - fixed newline issue in dir command
+  - fixed possibly illegal date/time stamps when importing
+  - fixed crash when exporting/listing by proper detection of end-of-directory
+  - many other/smaller robustness fixes
+  - added FAT16 support for dir, chdir, mkdir, import, export, create and
+    format
+  - both DOS1 and DOS2 bootsectors can be generated
+  - added support for Nextor partitions
+  - added support for Nextor FAT12 formatting
+  - skip hidden directories when exporting
+  - improved filtering on unsupported file name characters
+  - convert MSX file names to UTF-8 both when reading from and writing to the
+    host file system
+  - added partition command to partition an existing disk
+  - added support for Beer IDE 1.9 partitions
+- cassetteplayer 'getpos' command now also works in recording mode
+- fixed desyncs in replays when using mouse input
+- make it possible for some devices to find out which ROM file they use
+- make it possible to query the VDP type in Tcl
+- fixed calculation of hash for e.g. hard disk images (unfortunately making it
+  slower again)
+- fixed SaI3xScaler
+- fixed parsing of XML entities in e.g. replays, config files, etc. For example
+  fixes replays that include a load command like BLOAD"CAS:",R
+- fixed crash when video system cannot be initialized, show an error instead
+- fixed crash when using the Dooly mapper with a too small ROM image
+- added MIDI input support to ALSA (thanks to Cacodemon345!)
+- callback procs can now be persistenty changed to a custom implementation
+  (ivalid PSG direcitons, invalid PPI mode, di-halt, generic messages)
+- added a way to cancel the type command (with -cancel option)
+- added warnings on reads/writes to writeonly/readly registers (thanks to Pedro
+  de Medeiros)
+- fixed crash when toggling the 'VR' bit in the VDP
+- fixed crash when making screenshot with SDL renderer
+- added debuggables for VDP register and palette latch status (thanks to Pedro
+  de Medeiros)
+- expose VRAM write access status to Tcl (thanks to Pedro de Medeiros)
+- added YM2151 recording to VGM recorder (thanks to sneep)
+- fixed crash when required OpenGL version was not found
+- added small delay to fix automatic typing of loading instruction for games
+  like Elite
+- fixed ar_fr keyboard mapping (ignoring right-to-left characters)
+
+Build system, packaging, documentation:
+- fixed compilation on some platforms (missing ctime include)
+- required GNU compiler is now at least g++-10. Android build is totally
+  broken, as its libc++ is missing a lot of things. Will probably be better
+  with NDK 26.
+- update build process for macOS, automatically sign code when Apple Developers
+  ID is available
+- 3rd party updates of SDL (2.26.4), Tcl (8.6.13) and libpng (1.6.39)
+- added patch to add aarch64 support to libtheora 3rdparty build
+
+
 openMSX 18.0 (2022-06-12)
 -------------------------
 

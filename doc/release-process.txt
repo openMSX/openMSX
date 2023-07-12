@@ -11,7 +11,8 @@ Preparing for a release
 - Tell all developers to commit only fixes.
 - Sync with most recent C-BIOS release.
 - Check that the "staticbindist" build still works, in particular on win32 and
-  Mac OS X.
+  Mac OS X. This should be clear from the GitHub Actions at
+  https://github.com/openMSX/openMSX/actions
 - Verify the documentation is up-to-date.
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
