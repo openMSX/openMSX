@@ -68,6 +68,8 @@ private:
 private:
 	ImGuiManager& manager;
 	struct EditorInfo {
+		explicit EditorInfo(const std::string& name_)
+			: name(name_) {}
 		std::string name;
 		DebuggableEditor editor;
 	};
