@@ -26,6 +26,7 @@ TEST_CASE("parseSymbolBuffer")
 			// hex
 			test1("bla equ 0x1234", "bla", 0x1234);
 			test1("bla equ 0XABCD", "bla", 0xabcd);
+			test1("bla equ 0x00002345", "bla", 0x2345);
 			test1("bla equ $fedc",  "bla", 0xfedc);
 			test1("bla equ #11aA",  "bla", 0x11aa);
 			test1("bla equ bbffh",  "bla", 0xbbff);
@@ -59,9 +60,13 @@ TEST_CASE("parseSymbolBuffer")
 	}
 	SECTION("various formats") {
 		SECTION("ok") {
-			test1("frmt equ 1",  "frmt", 1);
-			test1("frmt %equ 2", "frmt", 2);
-			test1("def frmt 3",  "frmt", 3);
+			test1("frmt equ 1",   "frmt",  1);
+			test1("frmt EQU 11",  "frmt", 11);
+			test1("frmt %equ 2",  "frmt",  2);
+			test1("frmt %EQU 22", "frmt", 22);
+			test1("def frmt 3",   "frmt",  3);
+			test1("DEF frmt 33",  "frmt", 33);
+			test1("frmt EqU 4",   "frmt",  4);
 		}
 		SECTION("error") {
 			error1("frmt equals 1"); // must be exactly 'equ', not just start with it

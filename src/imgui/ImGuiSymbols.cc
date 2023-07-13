@@ -287,10 +287,11 @@ std::vector<Symbol> parseSymbolBuffer(const std::string& filename, std::string_v
 		// interpretation for '.noi' files with a label called 'equ'. I
 		// guess this rarely (if ever) happens in practice. So IMHO this
 		// is an acceptable limitation.
-		if (tokens[1] == one_of("equ", "%equ")) {
+		StringOp::casecmp cmp;
+		if (cmp(tokens[1], "equ") || cmp(tokens[1], "%equ")) {
 			label = tokens[0];
 			value = tokens[2];
-		} else if (tokens[0] == "def") {
+		} else if (cmp(tokens[0], "def")) {
 			label = tokens[1];
 			value = tokens[2];
 		} else {
