@@ -111,7 +111,6 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
 			break;
 		}
 	}
-	dest.resize(19, ' ');
 	return i;
 }
 

@@ -522,6 +522,7 @@ template<typename T> void CPUCore<T>::disasmCommand(
 	std::string dasmOutput;
 	unsigned len = dasm(*interface, address, outBuf, dasmOutput,
 	               T::getTimeFast());
+	dasmOutput.resize(19, ' ');
 	result.addListElement(dasmOutput);
 	std::array<char, 3> tmp; tmp[2] = 0;
 	for (auto i : xrange(len)) {
@@ -2470,6 +2471,7 @@ template<typename T> void CPUCore<T>::cpuTracePost_slow()
 	std::array<byte, 4> opBuf;
 	std::string dasmOutput;
 	dasm(*interface, start_pc, opBuf, dasmOutput, T::getTimeFast());
+	dasmOutput.resize(19, ' '); // alternative: print fixed-size field
 	std::cout << strCat(hex_string<4>(start_pc),
 	                    " : ", dasmOutput,
 	                    " AF=", hex_string<4>(getAF()),
