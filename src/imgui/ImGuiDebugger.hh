@@ -3,7 +3,10 @@
 
 #include "ImGuiPart.hh"
 
+#include "Debuggable.hh"
 #include "EmuTime.hh"
+
+#include <imgui_memory_editor.h>
 
 #include <map>
 #include <memory>
@@ -13,10 +16,29 @@
 namespace openmsx {
 
 class CPURegs;
-class DebuggableEditor;
 class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
+
+class DebuggableEditor : public MemoryEditor
+{
+public:
+	DebuggableEditor() {
+		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
+			auto* debuggable = reinterpret_cast<Debuggable*>(const_cast<ImU8*>(userdata));
+			return debuggable->read(narrow<unsigned>(offset));
+		};
+		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
+			auto* debuggable = reinterpret_cast<Debuggable*>(userdata);
+			debuggable->write(narrow<unsigned>(offset), data);
+		};
+	}
+
+	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
+		MemoryEditor::DrawWindow(title, &debuggable, debuggable.getSize(), base_display_addr);
+	}
+};
+
 
 class ImGuiDebugger final : public ImGuiPart
 {
@@ -30,6 +52,7 @@ public:
 
 	[[nodiscard]] zstring_view iniName() const override { return "debugger"; }
 	void save(ImGuiTextBuffer& buf) override;
+	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -44,7 +67,11 @@ private:
 
 private:
 	ImGuiManager& manager;
-	std::map<std::string, std::unique_ptr<DebuggableEditor>> debuggables;
+	struct EditorInfo {
+		std::string name;
+		DebuggableEditor editor;
+	};
+	std::vector<EditorInfo> hexEditors;
 
 	std::string gotoAddr;
 	std::optional<unsigned> gotoTarget;

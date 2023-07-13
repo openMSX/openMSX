@@ -23,7 +23,6 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
-#include <imgui_memory_editor.h>
 
 #include <cstdint>
 #include <vector>
@@ -32,27 +31,6 @@ using namespace std::literals;
 
 
 namespace openmsx {
-
-class DebuggableEditor : public MemoryEditor
-{
-public:
-	DebuggableEditor() {
-		Open = false;
-		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
-			auto* debuggable = reinterpret_cast<Debuggable*>(const_cast<ImU8*>(userdata));
-			return debuggable->read(narrow<unsigned>(offset));
-		};
-		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
-			auto* debuggable = reinterpret_cast<Debuggable*>(userdata);
-			debuggable->write(narrow<unsigned>(offset), data);
-		};
-	}
-
-	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
-		MemoryEditor::DrawWindow(title, &debuggable, debuggable.getSize(), base_display_addr);
-	}
-};
-
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: manager(manager_)
@@ -105,30 +83,51 @@ void ImGuiDebugger::signalBreak()
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
-	for (const auto& [name, editor] : debuggables) {
-		buf.appendf("showDebuggable.%s=%d\n", name.c_str(), editor->Open);
+	for (const auto& [name, editor] : hexEditors) {
+		if (editor.Open) {
+			buf.appendf("hexEditor.%s=1\n", name.c_str());
+		}
 	}
+}
+
+void ImGuiDebugger::loadStart()
+{
+	hexEditors.clear();
 }
 
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 {
-	static constexpr std::string_view prefix = "showDebuggable.";
+	static constexpr std::string_view prefix = "hexEditor.";
 
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
 	} else if (name.starts_with(prefix)) {
 		auto debuggableName = name.substr(prefix.size());
-		auto [it, inserted] = debuggables.try_emplace(std::string(debuggableName));
-		auto& editor = it->second;
-		if (inserted) {
-			editor = std::make_unique<DebuggableEditor>();
-		}
-		editor->Open = StringOp::stringToBool(value);
+		auto it = ranges::upper_bound(hexEditors, debuggableName, {}, &EditorInfo::name);
+		hexEditors.emplace(it, std::string(debuggableName));
 	}
 }
 
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
+	auto createHexEditor = [&](const std::string& name) {
+		// prefer to reuse a previously closed editor
+		bool found = false;
+		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &EditorInfo::name);
+		for (auto it = b; it != e; ++it) {
+			if (!it->editor.Open) {
+				it->editor.Open = true;
+				found = true;
+				break;
+			}
+		}
+		// or create a new one
+		if (!found) {
+			auto it = ranges::upper_bound(hexEditors, name, {}, &EditorInfo::name);
+			hexEditors.emplace(it, name);
+		}
+	};
+
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
 		ImGui::MenuItem("Tool bar", nullptr, &showControl);
 		ImGui::MenuItem("Disassembly", nullptr, &showDisassembly);
@@ -136,8 +135,15 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 		ImGui::MenuItem("Slots", nullptr, &showSlots);
 		ImGui::MenuItem("Stack", nullptr, &showStack);
-		if (auto* editor = lookup(debuggables, "memory")) {
-			ImGui::MenuItem("Memory", nullptr, &(*editor)->Open);
+		auto it = ranges::lower_bound(hexEditors, "memory", {}, &EditorInfo::name);
+		bool memoryOpen = (it != hexEditors.end()) && it->editor.Open;
+		if (ImGui::MenuItem("Memory", nullptr, &memoryOpen)) {
+			if (memoryOpen) {
+				createHexEditor("memory");
+			} else {
+				assert(it != hexEditors.end());
+				it->editor.Open = false;
+			}
 		}
 		ImGui::Separator();
 		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints.show);
@@ -149,11 +155,13 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs.show);
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.show);
 		ImGui::Separator();
-		im::Menu("All debuggables", [&]{
+		im::Menu("Add hex editor", [&]{
 			auto& debugger = motherBoard->getDebugger();
-			for (auto& [name, editor] : debuggables) {
-				if (debugger.findDebuggable(name)) {
-					ImGui::MenuItem(name.c_str(), nullptr, &editor->Open);
+			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
+			ranges::sort(debuggables, {}, [](const auto& p) { return p.first; }); // sort on name
+			for (const auto& [name, debuggable] : debuggables) {
+				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
+					createHexEditor(name);
 				}
 			}
 		});
@@ -175,16 +183,23 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	drawRegisters(regs);
 	drawFlags(regs);
 
-	// Show the enabled 'debuggables'
-	for (auto& [name, debuggable] : debugger.getDebuggables()) {
-		auto [it, inserted] = debuggables.try_emplace(name);
-		auto& editor = it->second;
-		if (inserted) {
-			editor = std::make_unique<DebuggableEditor>();
-			editor->Open = false;
+	// Show the enabled 'hexEditors'
+	std::string previousName = "";
+	int duplicateNameCount = 0;
+	for (auto& [name, editor] : hexEditors) {
+		if (name == previousName) {
+			++duplicateNameCount;
+		} else {
+			previousName = name;
+			duplicateNameCount = 1;
 		}
-		if (editor->Open) {
-			editor->DrawWindow(name.c_str(), *debuggable);
+		if (editor.Open) {
+			if (auto* debuggable = debugger.findDebuggable(name)) {
+				std::string title = (duplicateNameCount == 1)
+					? name
+					: strCat(name, "(", duplicateNameCount, ')');
+				editor.DrawWindow(title.c_str(), *debuggable);
+			}
 		}
 	}
 }
