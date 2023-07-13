@@ -32,7 +32,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool show = true;
+	bool show = false;
 
 private:
 	void print(std::string_view text, uint32_t rgba = 0xffffffff);

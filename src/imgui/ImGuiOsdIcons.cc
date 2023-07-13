@@ -22,6 +22,14 @@ using namespace std::literals;
 
 namespace openmsx {
 
+ImGuiOsdIcons::ImGuiOsdIcons(ImGuiManager& manager_)
+	: manager(manager_)
+{
+	// Usually immediately overridden by loading imgui.ini
+	// But nevertheless required for the initial state.
+	setDefaultIcons();
+}
+
 void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -140,6 +148,12 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 		: gl::vec2(minSize[0], FLT_MAX);
 	ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
 
+	// default placement: bottom left
+	const auto* viewPort = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(gl::vec2(viewPort->Pos) + gl::vec2{10.0f, viewPort->WorkSize.y - 10.0f},
+	                        ImGuiCond_FirstUseEver,
+	                        {0.0f, 1.0f}); // pivot = bottom-left
+
 	int flags = iconsHideTitle ? ImGuiWindowFlags_NoTitleBar |
 	                             ImGuiWindowFlags_NoResize |
 	                             ImGuiWindowFlags_NoScrollbar |
@@ -195,17 +209,21 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 
 		ImGui::SetCursorPos(cursor0); // cover full window for context menu
 		ImGui::Dummy(availableSize);
-		im::PopupContextItem("icons context menu", [&]{
-			if (ImGui::MenuItem("Configure ...")) {
-				showConfigureIcons = true;
-			}
-		});
+		if (iconsAllowMove) {
+			im::PopupContextItem("icons context menu", [&]{
+				if (ImGui::MenuItem("Configure icons ...")) {
+					showConfigureIcons = true;
+				}
+			});
+		}
 	});
 }
 
 void ImGuiOsdIcons::paintConfigureIcons()
 {
+	ImGui::SetNextWindowSize({510, 210.0f}, ImGuiCond_FirstUseEver);
 	im::Window("Configure Icons", &showConfigureIcons, [&]{
+		ImGui::Checkbox("Show OSD icons", &showIcons);
 		ImGui::TextUnformatted("Layout:"sv);
 		ImGui::SameLine();
 		ImGui::RadioButton("Horizontal", &iconsHorizontal, 1);
@@ -213,154 +231,172 @@ void ImGuiOsdIcons::paintConfigureIcons()
 		ImGui::RadioButton("Vertical", &iconsHorizontal, 0);
 		ImGui::Separator();
 
-		ImGui::Checkbox("Hide Title", &iconsHideTitle);
+		if (ImGui::Checkbox("Hide Title", &iconsHideTitle)) {
+			// reset fade-out-delay (on hiding the title)
+			for (auto& icon : iconInfo) {
+				icon.time = 0.0f;
+			}
+		}
+		HelpMarker("When you want the icons inside the MSX window, you might want to hide the window title.\n"
+		           "To further hide the icons, it's possible to make them fade-out after some time.");
 		im::Indent([&]{
 			im::Disabled(!iconsHideTitle, [&]{
 				ImGui::Checkbox("Allow move", &iconsAllowMove);
-				HelpMarker("Click and drag the icon box.");
-				ImGui::SliderFloat("Fade-out duration", &iconsFadeDuration, 0.0f, 30.0f);
-				ImGui::SliderFloat("Fade-out delay",    &iconsFadeDelay,    0.0f, 30.0f);
+				HelpMarker("When the icons are in the MSX window (without title bar), you might want "
+				           "to lock them in place, to prevent them from being moved by accident.\n"
+				           "Move by click and drag the icon box.\n");
+				auto width = ImGui::GetFontSize() * 10.0f;
+				ImGui::SetNextItemWidth(width);
+				ImGui::SliderFloat("Fade-out delay",    &iconsFadeDelay,    0.0f, 30.0f, "%.1f");
+				HelpMarker("After some delay, fade-out icons that haven't changed status for a while.\n"
+				           "Note: by default some icons are configured to never fade-out.");
+				ImGui::SetNextItemWidth(width);
+				ImGui::SliderFloat("Fade-out duration", &iconsFadeDuration, 0.0f, 30.0f, "%.1f");
+				HelpMarker("Configure the fade-out speed.");
 			});
 		});
 		ImGui::Separator();
 
-		ImGui::TextUnformatted("Advanced:"sv);
-		HelpMarker("Right-click to reorder, insert, delete.");
-		int flags = ImGuiTableFlags_RowBg |
-				ImGuiTableFlags_BordersOuterH |
-				ImGuiTableFlags_BordersInnerH |
-				ImGuiTableFlags_BordersV |
-				ImGuiTableFlags_BordersOuter |
-				ImGuiTableFlags_Resizable;
-		im::Table("table", 5, flags, [&]{
-			ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed);
-			ImGui::TableSetupColumn("Fade-out", ImGuiTableColumnFlags_WidthFixed);
-			ImGui::TableSetupColumn("True-image", ImGuiTableColumnFlags_WidthFixed);
-			ImGui::TableSetupColumn("False-image", ImGuiTableColumnFlags_WidthFixed);
-			ImGui::TableSetupColumn("Expression");
-			ImGui::TableHeadersRow();
+		im::TreeNode("Configure individual icons", [&]{
+			HelpMarker("Change the order and properties of the icons (for advanced users).\n"
+			           "Right-click in a row to reorder, insert, delete that row.\n"
+			           "Right-click on an icon to remove it.");
+			int flags = ImGuiTableFlags_RowBg |
+					ImGuiTableFlags_BordersOuterH |
+					ImGuiTableFlags_BordersInnerH |
+					ImGuiTableFlags_BordersV |
+					ImGuiTableFlags_BordersOuter |
+					ImGuiTableFlags_Resizable;
+			im::Table("table", 5, flags, [&]{
+				ImGui::TableSetupColumn("Enabled", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("Fade-out", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("True-image", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("False-image", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("Expression");
+				ImGui::TableHeadersRow();
 
-			enum Cmd { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
-			std::pair<int, Cmd> cmd(-1, MOVE_FRONT);
-			auto lastRow = iconInfo.size() - 1;
-			for (auto [row_, icon_] : enumerate(iconInfo)) {
-				auto& row = row_;
-				auto& icon = icon_;
-				im::ID(narrow<int>(row), [&]{
-					if (ImGui::TableNextColumn()) { // enabled
-						auto pos = ImGui::GetCursorPos();
-						const auto& style = ImGui::GetStyle();
-						auto textHeight = ImGui::GetTextLineHeight();
-						float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
-									std::max(float(icon.on.size[1]), float(icon.off.size[1])));
-						ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, rowHeight));
-						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-							ImGui::OpenPopup("config-icon-context");
-						}
-						im::Popup("config-icon-context", [&]{
-							if (lastRow >= 1) { // at least 2 rows
-								if (row != 0) {
-									if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
-									if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
-								}
-								if (row != lastRow) {
-									if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
-									if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
-								}
-								ImGui::Separator();
+				enum Cmd { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
+				std::pair<int, Cmd> cmd(-1, MOVE_FRONT);
+				auto lastRow = iconInfo.size() - 1;
+				for (auto [row_, icon_] : enumerate(iconInfo)) {
+					auto& row = row_;
+					auto& icon = icon_;
+					im::ID(narrow<int>(row), [&]{
+						if (ImGui::TableNextColumn()) { // enabled
+							auto pos = ImGui::GetCursorPos();
+							const auto& style = ImGui::GetStyle();
+							auto textHeight = ImGui::GetTextLineHeight();
+							float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
+										std::max(float(icon.on.size[1]), float(icon.off.size[1])));
+							ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, rowHeight));
+							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+								ImGui::OpenPopup("config-icon-context");
 							}
-							if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
-							if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
-						});
+							im::Popup("config-icon-context", [&]{
+								if (lastRow >= 1) { // at least 2 rows
+									if (row != 0) {
+										if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
+										if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
+									}
+									if (row != lastRow) {
+										if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
+										if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
+									}
+									ImGui::Separator();
+								}
+								if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
+								if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
+							});
 
-						ImGui::SetCursorPos(pos);
-						if (ImGui::Checkbox("##enabled", &icon.enable)) {
-							iconInfoDirty = true;
-						}
-					}
-					if (ImGui::TableNextColumn()) { // fade-out
-						im::Disabled(!iconsHideTitle, [&]{
-							if (ImGui::Checkbox("##fade-out", &icon.fade)) {
+							ImGui::SetCursorPos(pos);
+							if (ImGui::Checkbox("##enabled", &icon.enable)) {
 								iconInfoDirty = true;
 							}
-						});
-					}
-
-					auto image = [&](IconInfo::Icon& ic, const char* id) {
-						if (ic.tex.get()) {
-							ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
-									gl::vec2(ic.size));
-							im::PopupContextItem(id, [&]{
-								if (ImGui::MenuItem("Remove image")) {
-									ic.filename.clear();
+						}
+						if (ImGui::TableNextColumn()) { // fade-out
+							im::Disabled(!iconsHideTitle, [&]{
+								if (ImGui::Checkbox("##fade-out", &icon.fade)) {
 									iconInfoDirty = true;
-									ImGui::CloseCurrentPopup();
 								}
 							});
-						} else {
-							ImGui::Button("Select ...");
 						}
-						if (ImGui::IsItemClicked()) {
-							manager.openFile.selectFile(
-								"Select image for icon", "PNG (*.png){.png}",
-								[this, &ic](const std::string& filename) {
-									ic.filename = filename;
-									iconInfoDirty = true;
+
+						auto image = [&](IconInfo::Icon& ic, const char* id) {
+							if (ic.tex.get()) {
+								ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
+										gl::vec2(ic.size));
+								im::PopupContextItem(id, [&]{
+									if (ImGui::MenuItem("Remove image")) {
+										ic.filename.clear();
+										iconInfoDirty = true;
+										ImGui::CloseCurrentPopup();
+									}
 								});
-						}
-					};
-					if (ImGui::TableNextColumn()) { // true-image
-						image(icon.on, "##on");
-					}
-					if (ImGui::TableNextColumn()) { // false-image
-						image(icon.off, "##off");
-					}
-					if (ImGui::TableNextColumn()) { // expression
-						ImGui::SetNextItemWidth(-FLT_MIN);
-						bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
-						im::StyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-										: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
-							auto expr = std::string(icon.expr.getString());
-							if (ImGui::InputText("##expr", &expr)) {
-								icon.expr = expr;
-								iconInfoDirty = true;
+							} else {
+								ImGui::Button("Select ...");
 							}
-						});
-					}
-				});
-			}
-			if (int row = cmd.first; row != -1) {
-				switch (cmd.second) {
-				case MOVE_FRONT:
-					assert(row >= 1);
-					std::rotate(&iconInfo[0], &iconInfo[row], &iconInfo[row + 1]);
-					break;
-				case MOVE_FWD:
-					assert(row >= 1);
-					std::swap(iconInfo[row], iconInfo[row - 1]);
-					break;
-				case MOVE_BWD:
-					assert(row < narrow<int>(iconInfo.size() - 1));
-					std::swap(iconInfo[row], iconInfo[row + 1]);
-					break;
-				case MOVE_BACK:
-					assert(row < narrow<int>(iconInfo.size() - 1));
-					std::rotate(&iconInfo[row], &iconInfo[row + 1], &iconInfo[lastRow + 1]);
-					break;
-				case INSERT:
-					iconInfo.emplace(iconInfo.begin() + row, TclObject("true"), "", "", true);
-					break;
-				case DELETE:
-					iconInfo.erase(iconInfo.begin() + row);
-					break;
+							if (ImGui::IsItemClicked()) {
+								manager.openFile.selectFile(
+									"Select image for icon", "PNG (*.png){.png}",
+									[this, &ic](const std::string& filename) {
+										ic.filename = filename;
+										iconInfoDirty = true;
+									});
+							}
+						};
+						if (ImGui::TableNextColumn()) { // true-image
+							image(icon.on, "##on");
+						}
+						if (ImGui::TableNextColumn()) { // false-image
+							image(icon.off, "##off");
+						}
+						if (ImGui::TableNextColumn()) { // expression
+							ImGui::SetNextItemWidth(-FLT_MIN);
+							bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
+							im::StyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+											: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+								auto expr = std::string(icon.expr.getString());
+								if (ImGui::InputText("##expr", &expr)) {
+									icon.expr = expr;
+									iconInfoDirty = true;
+								}
+							});
+						}
+					});
 				}
-				iconInfoDirty = true;
+				if (int row = cmd.first; row != -1) {
+					switch (cmd.second) {
+					case MOVE_FRONT:
+						assert(row >= 1);
+						std::rotate(&iconInfo[0], &iconInfo[row], &iconInfo[row + 1]);
+						break;
+					case MOVE_FWD:
+						assert(row >= 1);
+						std::swap(iconInfo[row], iconInfo[row - 1]);
+						break;
+					case MOVE_BWD:
+						assert(row < narrow<int>(iconInfo.size() - 1));
+						std::swap(iconInfo[row], iconInfo[row + 1]);
+						break;
+					case MOVE_BACK:
+						assert(row < narrow<int>(iconInfo.size() - 1));
+						std::rotate(&iconInfo[row], &iconInfo[row + 1], &iconInfo[lastRow + 1]);
+						break;
+					case INSERT:
+						iconInfo.emplace(iconInfo.begin() + row, TclObject("true"), "", "", true);
+						break;
+					case DELETE:
+						iconInfo.erase(iconInfo.begin() + row);
+						break;
+					}
+					iconInfoDirty = true;
+				}
+			});
+
+			if (ImGui::Button("Restore default")) {
+				setDefaultIcons();
 			}
 		});
-
-		if (ImGui::Button("Restore default")) {
-			setDefaultIcons();
-		}
 	});
 }
 

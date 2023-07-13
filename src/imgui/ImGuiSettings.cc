@@ -142,7 +142,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			Checkbox(globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
 
 			ImGui::Separator();
-			ImGui::MenuItem("Show OSD icons", nullptr, &manager.osdIcons.showIcons);
+			if (ImGui::MenuItem("Configure OSD icons...", nullptr, nullptr)) {
+				manager.osdIcons.showConfigureIcons = true;
+			}
 			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 			ImGui::MenuItem("Show console", "F10", &manager.console.show);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);

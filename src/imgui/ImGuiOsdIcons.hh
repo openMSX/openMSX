@@ -16,8 +16,7 @@ class ImGuiManager;
 class ImGuiOsdIcons final : public ImGuiPart
 {
 public:
-	ImGuiOsdIcons(ImGuiManager& manager_)
-		: manager(manager_) {}
+	ImGuiOsdIcons(ImGuiManager& manager_);
 
 	[[nodiscard]] zstring_view iniName() const override { return "OSD icons"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -36,13 +35,13 @@ private:
 
 public:
 	bool showIcons = true;
+	bool showConfigureIcons = false;
 private:
-	bool iconsHideTitle = false;
-	bool iconsAllowMove = true;
+	bool iconsHideTitle = true;
+	bool iconsAllowMove = false;
 	int iconsHorizontal = 1; // 0=vertical, 1=horizontal
 	float iconsFadeDuration = 5.0f;
 	float iconsFadeDelay = 5.0f;
-	bool showConfigureIcons = false;
 
 	struct IconInfo {
 		IconInfo() = default;
