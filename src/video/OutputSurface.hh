@@ -34,7 +34,6 @@ public:
 	[[nodiscard]] gl::ivec2 getViewOffset() const { return m_viewOffset; }
 	[[nodiscard]] gl::ivec2 getViewSize()   const { return m_viewSize; }
 	[[nodiscard]] gl::vec2  getViewScale()  const { return m_viewScale; }
-	[[nodiscard]] bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the

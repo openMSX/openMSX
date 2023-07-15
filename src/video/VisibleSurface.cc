@@ -408,9 +408,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
 	calculateViewPort(logicalSize, physicalSize);
-	auto [vx, vy] = getViewOffset();
-	auto [vw, vh] = getViewSize();
-	glViewport(vx, vy, vw, vh);
+	// actually setting the viewport is done in PostProcessor::paint()
 }
 
 void VisibleSurface::fullScreenUpdated(bool fullScreen)

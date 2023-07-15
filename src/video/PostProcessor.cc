@@ -239,10 +239,6 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	auto deform = renderSettings.getDisplayDeform();
 	float horStretch = renderSettings.getHorizontalStretch();
 	int glow = renderSettings.getGlow();
-	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
-	                       (horStretch != 320.0f) ||
-	                       (glow != 0) ||
-	                       screen.isViewScaled();
 
 	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
 	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {
@@ -272,11 +268,9 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	auto [scrnWidth, scrnHeight] = screen.getLogicalSize();
-	if (renderToTexture) {
-		glViewport(0, 0, scrnWidth, scrnHeight);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		fbo[frameCounter & 1].push();
-	}
+	glViewport(0, 0, scrnWidth, scrnHeight);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	fbo[frameCounter & 1].push();
 
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
@@ -294,49 +288,45 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	drawNoise();
 	drawGlow(glow);
 
-	if (renderToTexture) {
-		fbo[frameCounter & 1].pop();
-		colorTex[frameCounter & 1].bind();
-		auto [x, y] = screen.getViewOffset();
-		auto [w, h] = screen.getViewSize();
-		glViewport(x, y, w, h);
+	fbo[frameCounter & 1].pop();
+	colorTex[frameCounter & 1].bind();
+	auto [x, y] = screen.getViewOffset();
+	auto [w, h] = screen.getViewSize();
+	glViewport(x, y, w, h);
 
-		if (deform == RenderSettings::DEFORM_3D) {
-			drawMonitor3D();
-		} else {
-			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
-			float x2 = 1.0f - x1;
-			std::array tex = {
-				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
-			};
-
-			auto& glContext = *gl::context;
-			glContext.progTex.activate();
-			glUniform4f(glContext.unifTexColor,
-			            1.0f, 1.0f, 1.0f, 1.0f);
-			mat4 I;
-			glUniformMatrix4fv(glContext.unifTexMvp,
-			                   1, GL_FALSE, &I[0][0]);
-
-			glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(0);
-
-			glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
-			glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(1);
-
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-		}
-		storedFrame = true;
+	if (deform == RenderSettings::DEFORM_3D) {
+		drawMonitor3D();
 	} else {
-		storedFrame = false;
+		float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
+		float x2 = 1.0f - x1;
+		std::array tex = {
+			vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
+		};
+
+		auto& glContext = *gl::context;
+		glContext.progTex.activate();
+		glUniform4f(glContext.unifTexColor,
+				1.0f, 1.0f, 1.0f, 1.0f);
+		mat4 I;
+		glUniformMatrix4fv(glContext.unifTexMvp,
+					1, GL_FALSE, &I[0][0]);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
+		glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(1);
+
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+	storedFrame = true;
 	//gl::checkGLError("PostProcessor::paint");
 }
 
