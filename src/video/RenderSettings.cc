@@ -15,22 +15,23 @@ namespace openmsx {
 
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
-	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
-	if constexpr (MAX_SCALE_FACTOR > 1) {
-		append(scalerMap, {{"ScaleNx",    SCALER_SCALE},
-		                   {"hq",         SCALER_HQ},
-		                   {"hqlite",     SCALER_HQLITE},
-		                   {"RGBtriplet", SCALER_RGBTRIPLET},
-		                   {"TV",         SCALER_TV}});
-	}
+	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
+		{"simple",     SCALER_SIMPLE},
+		{"ScaleNx",    SCALER_SCALE},
+		{"hq",         SCALER_HQ},
+		{"hqlite",     SCALER_HQLITE},
+		{"RGBtriplet", SCALER_RGBTRIPLET},
+		{"TV",         SCALER_TV}
+	};
 	return scalerMap;
 }
 
 EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 {
 	EnumSetting<RendererID>::Map rendererMap = {
-		{ "none", DUMMY },// TODO: only register when in CliComm mode
-		{ "SDLGL-PP", SDLGL_PP } };
+		{"none",     DUMMY},// TODO: only register when in CliComm mode
+		{"SDLGL-PP", SDLGL_PP}
+	};
 	return rendererMap;
 }
 
@@ -98,7 +99,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",
-		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR)
+		std::clamp(2, MIN_SCALE_FACTOR, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR)
 
 	, scanlineAlphaSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

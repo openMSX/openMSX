@@ -275,7 +275,7 @@ void Display::doRendererSwitch()
 			// now try some things that might work against this:
 			auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
 			auto curVal = scaleFactorSetting.getInt();
-			if (curVal == 1) {
+			if (curVal == MIN_SCALE_FACTOR) {
 				throw FatalError(
 					e.getMessage(),
 					" (and I have no other ideas to try...)"); // give up and die... :(
