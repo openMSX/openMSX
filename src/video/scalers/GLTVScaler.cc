@@ -22,7 +22,6 @@ void GLTVScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	setup(superImpose != nullptr);
 	int i = superImpose ? 1 : 0;
 	// These are experimentally established functions that look good.
 	// By design, both are 0 for scanline 0.

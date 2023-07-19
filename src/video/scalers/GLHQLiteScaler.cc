@@ -76,7 +76,6 @@ void GLHQLiteScaler::scaleImage(
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
-		setup(superImpose != nullptr);
 		src.setInterpolation(true);
 		glActiveTexture(GL_TEXTURE3);
 		offsetTexture[factorX - 2].bind();

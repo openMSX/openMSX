@@ -13,7 +13,6 @@ void GLDefaultScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	setup(superImpose != nullptr);
 	execute(src, superImpose,
 	        srcStartY, srcEndY, srcWidth,
 	        dstStartY, dstEndY, dstWidth,

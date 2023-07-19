@@ -142,7 +142,7 @@ VisibleSurface::VisibleSurface(
 	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
 	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
 
-	gl::context.emplace(width, height);
+	gl::context.emplace();
 
 	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
 	// set initial value

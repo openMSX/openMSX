@@ -88,7 +88,6 @@ void GLHQScaler::scaleImage(
 
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		assert(src.getHeight() == 2 * 240);
-		setup(superImpose != nullptr);
 		glActiveTexture(GL_TEXTURE4);
 		weightTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE3);

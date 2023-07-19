@@ -34,7 +34,6 @@ void GLRGBScaler::scaleImage(
 		yScale = 1;
 	}
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
-		setup(superImpose != nullptr);
 		if (srcWidth != 1) {
 			// workaround for ATI cards
 			src.setInterpolation(true);

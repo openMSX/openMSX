@@ -1,5 +1,7 @@
 #include "Display.hh"
 #include "RendererFactory.hh"
+#include "GLContext.hh"
+#include "OutputSurface.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
@@ -341,6 +343,8 @@ void Display::repaintImpl()
 
 void Display::repaintImpl(OutputSurface& surface)
 {
+	auto [width, height] = surface.getLogicalSize();
+	gl::context->setupMvpMatrix(width, height);
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);

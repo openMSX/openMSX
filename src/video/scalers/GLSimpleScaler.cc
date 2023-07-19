@@ -37,7 +37,6 @@ void GLSimpleScaler::scaleImage(
 	}
 
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
-		setup(superImpose != nullptr);
 		if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 			src.setInterpolation(true);
 		}
