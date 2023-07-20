@@ -36,7 +36,7 @@ RS232Net::RS232Net(EventDistributor& eventDistributor_,
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, rs232NetAddressSetting(
 	        commandController, "rs232-net-address",
-	        "IP address:port for RS232 net pluggable",
+	        "IP/address:port for RS232 net pluggable",
 	        "127.0.0.1:25232")
     , rs232NetUseIP232(
 	        commandController, "rs232-net-ip232",

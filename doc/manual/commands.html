@@ -158,6 +158,8 @@
         <li><a class="internal" href="#resampler">resampler</a></li>
         <li><a class="internal" href="#rs232-inputfilename">rs232-inputfilename</a></li>
         <li><a class="internal" href="#rs232-outputfilename">rs232-outputfilename</a></li>
+        <li><a class="internal" href="#rs232-net-address">rs232-net-address</a></li>
+        <li><a class="internal" href="#rs232-net-ip232">rs232-net-ip232</a></li>
         <li><a class="internal" href="#rtcmode">rtcmode</a></li>
         <li><a class="internal" href="#samples">samples</a></li>
         <li><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></li>
@@ -4885,6 +4887,64 @@
     </tr>
   </table>
 
+  <h3><a id="rs232-net-address">rs232-net-address</a></h3>
+
+  <p>Sets the ip address (or hostname) and port for the RS232-Net pluggable. Note that 
+  <code>rs232-net</code> has to be plugged in the <code>msx-rs232</code>
+  connector for this to become useful. This setting
+  needs to point to a valid host at the moment of pluggin it.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set rs232-net-address</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set rs232-outputfilename mytelnetbbs.net:23</code></td>
+
+      <td>Connects to "mytelnetbbs.net" on port 23</td>
+    </tr>
+  </table>
+
+  <h3><a id="rs232-outputfilename">rs232-net-ip232</a></h3>
+
+  <p>Enable the use of the IP232 protocol when used in conjunction with the <code>TCPSer</code> software modem. Note that 
+  <code>rs232-net</code> has to be plugged in the <code>msx-rs232</code>
+  connector and <code>rs232-net-address</code> must point to the ip address and port of a running TCPSer instance.</p>
+  <p>The IP232 protocol permits the correct emulation of some of the RS-232 port control lines.</p>
+  <p>This setting must be disabled when using <code>rs232net</code> without <code>TCPSer</code>.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set rs232-net-ip232</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set rs232-net-ip232 on</code></td>
+
+      <td>Enable the IP232 protocol</td>
+    </tr>
+
+    <tr>
+      <td><code>set rs232-net-ip232 off</code></td>
+
+      <td>Disable the IP232 protocol</td>
+    </tr>
+
+  </table>
+  
   <h3><a id="rtcmode">rtcmode</a></h3>
 
   <p>Sets the Real Time Clock mode. Can be either <code>RealTime</code> or <code>EmuTime</code>.</p>
