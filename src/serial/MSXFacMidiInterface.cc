@@ -55,6 +55,11 @@ void MSXFacMidiInterface::Interface::setRTS(bool /*status*/, EmuTime::param /*ti
 {
 }
 
+bool MSXFacMidiInterface::Interface::getDCD(EmuTime::param /*time*/)
+{
+	return true;
+}
+
 bool MSXFacMidiInterface::Interface::getDSR(EmuTime::param /*time*/)
 {
 	return true;

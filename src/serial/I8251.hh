@@ -18,6 +18,8 @@ public:
 	virtual void setRxRDY(bool status, EmuTime::param time) = 0;
 	virtual void setDTR(bool status, EmuTime::param time) = 0;
 	virtual void setRTS(bool status, EmuTime::param time) = 0;
+
+	[[nodiscard]] virtual bool getDCD(EmuTime::param time) = 0; // This is not an i8251 signal but I dont know where else to declare it
 	[[nodiscard]] virtual bool getDSR(EmuTime::param time) = 0;
 	[[nodiscard]] virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
 	virtual void signal(EmuTime::param time) = 0;

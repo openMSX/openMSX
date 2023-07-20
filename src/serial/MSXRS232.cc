@@ -239,6 +239,10 @@ byte MSXRS232::readStatus(EmuTime::param time)
 
 	// TODO bit 0: carrier detect
 
+	if (!interface.getDCD(time)) {
+		result |= 0x01;
+	}
+
 	if (!rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
 		result |= 0x08;
 	}
@@ -300,6 +304,12 @@ void MSXRS232::Interface::setRTS(bool status, EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setRTS(status, time);
+}
+
+bool MSXRS232::Interface::getDCD(EmuTime::param time)
+{
+	auto& rs232 = OUTER(MSXRS232, interface);
+	return rs232.getPluggedRS232Dev().getDCD(time);
 }
 
 bool MSXRS232::Interface::getDSR(EmuTime::param time)

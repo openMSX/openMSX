@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
+#include "RS232Device.hh"
 #include "I8251.hh"
 #include "I8254.hh"
 #include <memory>
@@ -68,6 +69,7 @@ private:
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
+		[[nodiscard]] bool getDCD(EmuTime::param time) override;
 		[[nodiscard]] bool getDSR(EmuTime::param time) override;
 		[[nodiscard]] bool getCTS(EmuTime::param time) override;
 		void setDataBits(DataBits bits) override;

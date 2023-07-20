@@ -23,6 +23,7 @@ public:
 	// control
 	[[nodiscard]] virtual bool getCTS(EmuTime::param time) const;
 	[[nodiscard]] virtual bool getDSR(EmuTime::param time) const;
+	[[nodiscard]] virtual bool getDCD(EmuTime::param time) const;
 	virtual void setDTR(bool status, EmuTime::param time);
 	virtual void setRTS(bool status, EmuTime::param time);
 };
