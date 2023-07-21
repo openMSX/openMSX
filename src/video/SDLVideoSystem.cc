@@ -26,7 +26,12 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
-	resize();
+	auto [width, height] = getWindowSize();
+	screen = std::make_unique<VisibleSurface>(
+		width, height, display,
+		reactor.getRTScheduler(), reactor.getEventDistributor(),
+		reactor.getInputEventGenerator(), reactor.getCliComm(),
+		*this);
 
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
@@ -35,12 +40,14 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 	display.addLayer(*osdGuiLayer);
 	if (imGuiLayer) display.addLayer(*imGuiLayer);
 
+	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
 	renderSettings.getScaleFactorSetting().detach(*this);
+	renderSettings.getFullScreenSetting().detach(*this);
 
 	if (imGuiLayer) display.removeLayer(*imGuiLayer);
 	display.removeLayer(*osdGuiLayer);
@@ -113,12 +120,7 @@ gl::ivec2 SDLVideoSystem::getWindowSize()
 bool SDLVideoSystem::checkSettings()
 {
 	// Check resolution.
-	if (getWindowSize() != screen->getLogicalSize()) {
-		return false;
-	}
-
-	// Check fullscreen.
-	return screen->setFullScreen(renderSettings.getFullScreen());
+	return getWindowSize() == screen->getLogicalSize();
 }
 
 void SDLVideoSystem::flush()
@@ -193,31 +195,11 @@ void SDLVideoSystem::repaint()
 	display.repaintImpl();
 }
 
-void SDLVideoSystem::resize()
-{
-	auto& rtScheduler         = reactor.getRTScheduler();
-	auto& eventDistributor    = reactor.getEventDistributor();
-	auto& inputEventGenerator = reactor.getInputEventGenerator();
-
-	auto [width, height] = getWindowSize();
-	// Destruct existing output surface before creating a new one.
-	screen.reset();
-
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDLGL_PP:
-		screen = std::make_unique<VisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(), *this);
-		break;
-	default:
-		UNREACHABLE;
-	}
-}
-
 void SDLVideoSystem::update(const Setting& subject) noexcept
 {
-	if (&subject == &renderSettings.getScaleFactorSetting()) {
+	if (&subject == &renderSettings.getFullScreenSetting()) {
+		screen->setFullScreen(renderSettings.getFullScreen());
+	} else if (&subject == &renderSettings.getScaleFactorSetting()) {
 		// TODO: This is done via checkSettings instead,
 		//       but is that still needed?
 		//resize();

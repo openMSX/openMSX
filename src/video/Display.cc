@@ -60,14 +60,12 @@ Display::Display(Reactor& reactor_)
 	eventDistributor.registerEventListener(EventType::WINDOW,
 			*this);
 	renderSettings.getRendererSetting().attach(*this);
-	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
 }
 
 Display::~Display()
 {
 	renderSettings.getRendererSetting().detach(*this);
-	renderSettings.getFullScreenSetting().detach(*this);
 	renderSettings.getScaleFactorSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
@@ -229,8 +227,6 @@ string Display::getWindowTitle()
 void Display::update(const Setting& setting) noexcept
 {
 	if (&setting == &renderSettings.getRendererSetting()) {
-		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getFullScreenSetting()) {
 		checkRendererSwitch();
 	} else if (&setting == &renderSettings.getScaleFactorSetting()) {
 		checkRendererSwitch();

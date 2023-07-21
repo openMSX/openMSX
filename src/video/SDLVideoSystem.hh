@@ -57,7 +57,6 @@ private:
 	void update(const Setting& subject) noexcept override;
 
 	[[nodiscard]] gl::ivec2 getWindowSize();
-	void resize();
 
 private:
 	Reactor& reactor;
