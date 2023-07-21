@@ -69,22 +69,6 @@ PostProcessor::PostProcessor(
 	preCalcNoise(renderSettings.getNoise());
 	initBuffers();
 
-	for (auto i : xrange(2)) {
-		colorTex[i].bind();
-		colorTex[i].setInterpolation(true);
-		auto [w, h] = screen.getLogicalSize();
-		glTexImage2D(GL_TEXTURE_2D,     // target
-			     0,                 // level
-			     GL_RGB,            // internal format
-			     w,                 // width
-			     h,                 // height
-			     0,                 // border
-			     GL_RGB,            // format
-			     GL_UNSIGNED_BYTE,  // type
-			     nullptr);          // data
-		fbo[i] = FrameBufferObject(colorTex[i]);
-	}
-
 	VertexShader   vertexShader  ("monitor3D.vert");
 	FragmentShader fragmentShader("monitor3D.frag");
 	monitor3DProg.attach(vertexShader);
@@ -267,10 +251,25 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
-	auto [scrnWidth, scrnHeight] = screen.getLogicalSize();
-	glViewport(0, 0, scrnWidth, scrnHeight);
+	auto size = screen.getLogicalSize();
+	glViewport(0, 0, size[0], size[1]);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	fbo[frameCounter & 1].push();
+	auto& renderedFrame = renderedFrames[frameCounter & 1];
+	if (renderedFrame.size != size) {
+		renderedFrame.tex.bind();
+		renderedFrame.tex.setInterpolation(true);
+		glTexImage2D(GL_TEXTURE_2D,     // target
+			     0,                 // level
+			     GL_RGB,            // internal format
+			     size[0],           // width
+			     size[1],           // height
+			     0,                 // border
+			     GL_RGB,            // format
+			     GL_UNSIGNED_BYTE,  // type
+			     nullptr);          // data
+		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
+	}
+	renderedFrame.fbo.push();
 
 	auto* superImpose = superImposeVideoFrame ? &superImposeTex : nullptr;
 	currScaler->setup(superImpose != nullptr);
@@ -281,15 +280,15 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		currScaler->scaleImage(
 			it->tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
-			r.dstStartY, r.dstEndY, scrnWidth,   // dst
+			r.dstStartY, r.dstEndY, size[0],   // dst
 			paintFrame->getHeight()); // dst
 	}
 
 	drawNoise();
 	drawGlow(glow);
 
-	fbo[frameCounter & 1].pop();
-	colorTex[frameCounter & 1].bind();
+	renderedFrame.fbo.pop();
+	renderedFrame.tex.bind();
 	auto [x, y] = screen.getViewOffset();
 	auto [w, h] = screen.getViewSize();
 	glViewport(x, y, w, h);
@@ -564,7 +563,7 @@ void PostProcessor::drawGlow(int glow)
 	glContext.progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	colorTex[(frameCounter & 1) ^ 1].bind();
+	renderedFrames[(frameCounter & 1) ^ 1].tex.bind();
 	glUniform4f(glContext.unifTexColor,
 	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * 31.0f / 3200.0f);
 	mat4 I;

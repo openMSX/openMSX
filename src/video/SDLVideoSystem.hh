@@ -38,7 +38,6 @@ public:
 	std::unique_ptr<LDRasterizer> createLDRasterizer(
 		LaserdiscPlayer& ld) override;
 #endif
-	[[nodiscard]] bool checkSettings() override;
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
@@ -55,8 +54,6 @@ private:
 	int signalEvent(const Event& event) override;
 	// Observer
 	void update(const Setting& subject) noexcept override;
-
-	[[nodiscard]] gl::ivec2 getWindowSize();
 
 private:
 	Reactor& reactor;

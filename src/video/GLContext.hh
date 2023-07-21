@@ -50,7 +50,7 @@ struct Context
 	// Setup model-view-projection matrix. Should be called before drawing,
 	// at least once after the window resolution has changed. (E.g. call it
 	// once per frame).
-	void setupMvpMatrix(int width, int height);
+	void setupMvpMatrix(gl::vec2 logicalSize);
 
 private:
 	std::unique_ptr<openmsx::GLScaler> fallbackScaler;

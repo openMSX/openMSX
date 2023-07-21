@@ -60,13 +60,11 @@ Display::Display(Reactor& reactor_)
 	eventDistributor.registerEventListener(EventType::WINDOW,
 			*this);
 	renderSettings.getRendererSetting().attach(*this);
-	renderSettings.getScaleFactorSetting().attach(*this);
 }
 
 Display::~Display()
 {
 	renderSettings.getRendererSetting().detach(*this);
-	renderSettings.getScaleFactorSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::WINDOW,
@@ -228,8 +226,6 @@ void Display::update(const Setting& setting) noexcept
 {
 	if (&setting == &renderSettings.getRendererSetting()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getScaleFactorSetting()) {
-		checkRendererSwitch();
 	} else {
 		UNREACHABLE;
 	}
@@ -244,8 +240,7 @@ void Display::checkRendererSwitch()
 		return;
 	}
 	auto newRenderer = renderSettings.getRenderer();
-	if ((newRenderer != currentRenderer) ||
-	    !getVideoSystem().checkSettings()) {
+	if (newRenderer != currentRenderer) {
 		currentRenderer = newRenderer;
 		// don't do the actual switching in the Tcl callback
 		// it seems creating and destroying Settings (= Tcl vars)
@@ -339,8 +334,6 @@ void Display::repaintImpl()
 
 void Display::repaintImpl(OutputSurface& surface)
 {
-	auto [width, height] = surface.getLogicalSize();
-	gl::context->setupMvpMatrix(width, height);
 	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);

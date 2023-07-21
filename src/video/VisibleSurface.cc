@@ -41,7 +41,6 @@ int VisibleSurface::windowPosX = SDL_WINDOWPOS_UNDEFINED;
 int VisibleSurface::windowPosY = SDL_WINDOWPOS_UNDEFINED;
 
 VisibleSurface::VisibleSurface(
-		int width, int height,
 		Display& display_,
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
@@ -93,6 +92,7 @@ VisibleSurface::VisibleSurface(
 
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
+	auto [width, height] = getWindowSize();
 	createSurface(width, height, flags);
 	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
@@ -137,16 +137,14 @@ VisibleSurface::VisibleSurface(
 		throw InitException(
 			"Need at least OpenGL version " VERSION_STRING);
 	}
-
-
-	bool fullScreen = getDisplay().getRenderSettings().getFullScreen();
-	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
-
 	gl::context.emplace();
 
-	getDisplay().getRenderSettings().getVSyncSetting().attach(vSyncObserver);
+	bool fullScreen = renderSettings.getFullScreen();
+	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
+
+	renderSettings.getVSyncSetting().attach(vSyncObserver);
 	// set initial value
-	vSyncObserver.update(getDisplay().getRenderSettings().getVSyncSetting());
+	vSyncObserver.update(renderSettings.getVSyncSetting());
 
 #if OPENGL_VERSION == OPENGL_3_3
 	// We don't (yet/anymore) use VAO, but apparently it's required in openGL 3.3.
@@ -159,7 +157,8 @@ VisibleSurface::VisibleSurface(
 
 VisibleSurface::~VisibleSurface()
 {
-	getDisplay().getRenderSettings().getVSyncSetting().detach(vSyncObserver);
+	auto& renderSettings = display.getRenderSettings();
+	renderSettings.getVSyncSetting().detach(vSyncObserver);
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
@@ -181,7 +180,6 @@ VisibleSurface::~VisibleSurface()
 	eventDistributor.unregisterEventListener(
 		EventType::MOUSE_BUTTON_UP, *this);
 	inputEventGenerator.getGrabInput().detach(*this);
-	auto& renderSettings = display.getRenderSettings();
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 }
@@ -311,6 +309,22 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 	return true; // success
 }
 
+gl::ivec2 VisibleSurface::getWindowSize() const
+{
+	auto& renderSettings = display.getRenderSettings();
+	int factor = renderSettings.getScaleFactor();
+	return {320 * factor, 240 * factor};
+}
+
+void VisibleSurface::resize()
+{
+	auto size = getWindowSize();
+	SDL_SetWindowSize(window.get(), size[0], size[1]);
+
+	bool fullScreen = display.getRenderSettings().getFullScreen();
+	setViewPort(size, fullScreen);
+}
+
 void VisibleSurface::updateWindowTitle()
 {
 	assert(window);
@@ -409,6 +423,8 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 	// If that happens, center the area that we actually use.
 	calculateViewPort(logicalSize, physicalSize);
 	// actually setting the viewport is done in PostProcessor::paint()
+
+	gl::context->setupMvpMatrix(gl::vec2(logicalSize));
 }
 
 void VisibleSurface::fullScreenUpdated(bool fullScreen)

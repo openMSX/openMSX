@@ -26,9 +26,8 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
-	auto [width, height] = getWindowSize();
 	screen = std::make_unique<VisibleSurface>(
-		width, height, display,
+		display,
 		reactor.getRTScheduler(), reactor.getEventDistributor(),
 		reactor.getInputEventGenerator(), reactor.getCliComm(),
 		*this);
@@ -109,20 +108,6 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 }
 #endif
 
-gl::ivec2 SDLVideoSystem::getWindowSize()
-{
-	int factor = renderSettings.getScaleFactor();
-	return {320 * factor, 240 * factor};
-}
-
-// TODO: If we can switch video system at any time (not just frame end),
-//       is this polling approach necessary at all?
-bool SDLVideoSystem::checkSettings()
-{
-	// Check resolution.
-	return getWindowSize() == screen->getLogicalSize();
-}
-
 void SDLVideoSystem::flush()
 {
 	screen->finish();
@@ -200,9 +185,7 @@ void SDLVideoSystem::update(const Setting& subject) noexcept
 	if (&subject == &renderSettings.getFullScreenSetting()) {
 		screen->setFullScreen(renderSettings.getFullScreen());
 	} else if (&subject == &renderSettings.getScaleFactorSetting()) {
-		// TODO: This is done via checkSettings instead,
-		//       but is that still needed?
-		//resize();
+		screen->resize();
 	} else {
 		UNREACHABLE;
 	}

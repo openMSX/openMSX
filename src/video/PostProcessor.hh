@@ -173,8 +173,12 @@ private:
 	  */
 	std::unique_ptr<GLScaler> currScaler;
 
-	std::array<gl::Texture, 2> colorTex;
-	std::array<gl::FrameBufferObject, 2> fbo;
+	struct StoredFrame {
+		gl::ivec2 size; // (re)allocate when window size changes
+		gl::Texture tex;
+		gl::FrameBufferObject fbo;
+	};
+	std::array<StoredFrame, 2> renderedFrames;
 
 	// Noise effect:
 	gl::Texture noiseTextureA{true, true}; // interpolate + wrap

@@ -29,13 +29,12 @@ class VisibleSurface final : public OutputSurface, public EventListener
                                 , private Observer<Setting>, private RTSchedulable
 {
 public:
-	VisibleSurface(int width, int height,
-	                    Display& display,
-	                    RTScheduler& rtScheduler,
-	                    EventDistributor& eventDistributor,
-	                    InputEventGenerator& inputEventGenerator,
-	                    CliComm& cliComm,
-	                    VideoSystem& videoSystem);
+	VisibleSurface(Display& display,
+	               RTScheduler& rtScheduler,
+	               EventDistributor& eventDistributor,
+	               InputEventGenerator& inputEventGenerator,
+	               CliComm& cliComm,
+	               VideoSystem& videoSystem);
 	~VisibleSurface() override;
 
 	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
@@ -46,6 +45,7 @@ public:
 
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
+	void resize();
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
@@ -78,6 +78,7 @@ public:
 	void executeRT() override;
 
 private:
+	[[nodiscard]] gl::ivec2 getWindowSize() const;
 	void updateCursor();
 	void createSurface(int width, int height, unsigned flags);
 	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
