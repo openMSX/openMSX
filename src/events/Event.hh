@@ -42,6 +42,7 @@ protected:
 class KeyEvent : public SdlEvent
 {
 public:
+	[[nodiscard]] bool         getRepeat()    const { return evt.key.repeat; }
 	[[nodiscard]] SDL_Keycode  getKeyCode()   const { return evt.key.keysym.sym; }
 	[[nodiscard]] SDL_Scancode getScanCode()  const { return evt.key.keysym.scancode; }
 	[[nodiscard]] uint16_t     getModifiers() const { return evt.key.keysym.mod; }

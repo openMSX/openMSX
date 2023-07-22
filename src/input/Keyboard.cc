@@ -844,6 +844,8 @@ void Keyboard::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
 	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
+		const auto& keyEvent = get_event<KeyEvent>(event);
+		if (keyEvent.getRepeat()) return;
 		// Ignore possible console on/off events:
 		// we do not re-scan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
