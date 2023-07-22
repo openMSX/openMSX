@@ -247,8 +247,8 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 			ImGui::SameLine();
 
 			if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK)) {
-				syncDisassemblyWithPC = true;
-				manager.executeDelayed(TclObject("step_back"));
+				manager.executeDelayed(TclObject("step_back"),
+				                       [&](const TclObject&) { syncDisassemblyWithPC = true; });
 			}
 		});
 	});
