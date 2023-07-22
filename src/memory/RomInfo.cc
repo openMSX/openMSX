@@ -68,6 +68,7 @@ static constexpr auto romTypeInfoArray = [] {
 	r[ROM_MULTIROM]        = {0x0000, "MultiRom",        "MultiRom Collection"};
 	r[ROM_RAMFILE]         = {0x0000, "RAMFILE",         "Tecall MSX RAMFILE"};
 	r[ROM_RETROHARD31IN1]  = {0x2000, "RetroHardMultiCart31in1", "RetroHard MultiCart 31 in 1"};
+	r[ROM_ALALAMIAH30IN1]  = {0x8000, "AlAlamiah30-in-1", "Al Alamiah 30-in-1"};
 	r[ROM_COLECOMEGACART]  = {0x4000, "ColecoMegaCart",  "ColecoVision MegaCart"};
 	r[ROM_MEGAFLASHROMSCCPLUS]={0x0000,"MegaFlashRomSccPlus","Mega Flash ROM SCC Plus"};
 	r[ROM_REPRO_CARTRIDGE1]= {0x0000, "ReproCartridgeV1","Repro Cartridge V1"};

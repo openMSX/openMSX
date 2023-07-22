@@ -510,6 +510,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\PanasonicRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Ram.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Rom.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomArc.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16_2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.cc" />
@@ -1068,6 +1069,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\PanasonicRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Ram.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Rom.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomArc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii16_2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.hh" />

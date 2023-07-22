@@ -618,6 +618,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Rom.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomArc.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -1999,6 +2002,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\Rom.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomArc.hh">
