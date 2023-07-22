@@ -321,15 +321,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			gotoTarget = pc;
 		}
 
-		// TODO can this be optimized/avoided?
-		std::vector<uint16_t> startAddresses;
-		unsigned startAddr = 0;
-		while (startAddr < 0x10000) {
-			auto addr = narrow<uint16_t>(startAddr);
-			startAddresses.push_back(addr);
-			startAddr += instructionLength(cpuInterface, addr, time);
-		}
-
 		auto widthOpcode = ImGui::CalcTextSize("12 34 56 78").x;
 		int flags = ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_BordersV |
@@ -362,11 +353,10 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
 				auto bpIt = ranges::lower_bound(breakPoints, clipper.DisplayStart, {}, &BreakPoint::getAddress);
-				auto it = ranges::lower_bound(startAddresses, clipper.DisplayStart);
+				unsigned addr = instructionBoundary(cpuInterface, clipper.DisplayStart, time);
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 					ImGui::TableNextRow();
-					if (it == startAddresses.end()) continue;
-					auto addr = *it++;
+					if (addr >= 0x10000) continue;
 					im::ID(narrow<int>(addr), [&]{
 						if (gotoTarget && addr >= *gotoTarget) {
 							gotoTarget = {};
@@ -498,6 +488,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							}
 						}
+						addr += len;
 					});
 				}
 			}
@@ -507,11 +498,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 				auto itemHeight = ImGui::GetTextLineHeightWithSpacing();
 				auto winHeight = ImGui::GetWindowHeight();
-				auto lines = size_t(winHeight / itemHeight); // approx
+				auto lines = std::max(1, int(winHeight / itemHeight) - 1); // approx
 
-				auto n = std::distance(startAddresses.begin(), ranges::lower_bound(startAddresses, pc));
-				auto n2 = std::max(size_t(0), n - lines / 4);
-				auto topAddr = startAddresses[n2];
+				auto topAddr = nInstructionsBefore(cpuInterface, pc, time, narrow<int>(lines / 4) + 1);
 
 				ImGui::SetScrollY(topAddr * itemHeight);
 			}

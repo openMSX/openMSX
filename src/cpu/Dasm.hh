@@ -27,8 +27,47 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
               std::string& dest, EmuTime::param time,
               std::function<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
 
+/** Calculate the length of the instruction at the given address.
+  * This is exactly the same value as calculated by the dasm() function above,
+  * though this function executes much faster.
+  * Note that this function (and also dasm()) ignores illegal instructions with
+  * repeated prefixes (e.g. an instruction like 'DD DD DD DD DD 00'). Because of
+  * this, the instruction length is always between 1 and 4 (inclusive).
+  */
 unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
                            EmuTime::param time);
+
+/** This is only an _heuristic_ to display instructions in a debugger disassembly
+  * view. (In reality Z80 instruction can really start at _any_ address).
+  *
+  * Z80 instruction have a variable length between 1 and 4 bytes inclusive (we
+  * ignore illegal instructions). If you were to start disassembling the full
+  * address space from address 0, some addresses are at the start of an
+  * instructions, others are not. To be able to show a 'stable' disassembly view
+  * when scrolling up/down in the debugger, it's useful to know at which
+  * addresses instructions start.
+  *
+  * This function can calculate such start addresses (on average) in a more
+  * efficient way than just starting to disassemble from the top.
+  *
+  * More in detail: this function calculates the largest address smaller or
+  * equal to a given address where an instruction starts. In other words: it
+  * calculates the start address of the instruction that contains the given
+  * address.
+  */
+uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
+                             EmuTime::param time);
+
+/** Get the start address of the 'n'th instruction before the instruction
+  * containing the byte at the given address 'addr'.
+  * In other words, stepping 'n' instructions forwards from the resulting
+  * address lands at the address that would be returned from
+  * 'instuctionBoundary()'.
+  * Unless there aren't enough instructions in front. In that case address 0 is
+  * returned.
+  */
+uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
+                             EmuTime::param time, int n);
 
 } // namespace openmsx
 
