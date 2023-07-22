@@ -311,6 +311,7 @@ struct CurrentSlot {
 void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time)
 {
 	if (!showDisassembly) return;
+	ImGui::SetNextWindowSize({340, 540}, ImGuiCond_FirstUseEver);
 	im::Window("Disassembly", &showDisassembly, [&]{
 		std::optional<BreakPoint> addBp;
 		std::optional<unsigned> removeBpId;
@@ -329,6 +330,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			startAddr += instructionLength(cpuInterface, addr, time);
 		}
 
+		auto widthOpcode = ImGui::CalcTextSize("12 34 56 78").x;
 		int flags = ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_BordersV |
 			ImGuiTableFlags_BordersOuterV |
@@ -341,7 +343,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 			ImGui::TableSetupColumn("bp", ImGuiTableColumnFlags_WidthFixed);
 			ImGui::TableSetupColumn("address", ImGuiTableColumnFlags_NoHide);
-			ImGui::TableSetupColumn("opcode");
+			ImGui::TableSetupColumn("opcode", ImGuiTableColumnFlags_WidthFixed, widthOpcode);
 			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
