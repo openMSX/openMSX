@@ -77,7 +77,6 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
 	thread = std::thread([this]() { run(); });
-    fprintf(stderr,"Plugged");
 }
 
 void RS232Net::unplugHelper(EmuTime::param /*time*/)
@@ -91,9 +90,6 @@ void RS232Net::unplugHelper(EmuTime::param /*time*/)
         sock_close(sockfd);
         sockfd = INVALID_SOCKET;
     }
-
-    fprintf(stderr,"Unplugged");
-
 	// input
 	poller.abort();
 	thread.join();
@@ -122,7 +118,7 @@ void RS232Net::run()
 			break;
 		}
 
-        if(!RTS) continue;
+        // if(!RTS) continue;
 
         ret = net_getc(&b);
 
@@ -170,7 +166,8 @@ void RS232Net::signal(EmuTime::param time)
 		queue.clear();
 		return;
 	}
-	if (!conn->ready()) return;
+
+	if ((!conn->ready())||(!RTS)) return;
 
 	std::lock_guard<std::mutex> lock(mutex);
 	if (queue.empty()) return;
@@ -224,6 +221,12 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 {
 	if (RTS != status) {
 		RTS = status;
+    	std::lock_guard<std::mutex> lock(mutex);
+        if ((RTS)&&(!queue.empty())){
+            eventDistributor.distributeEvent(
+			Event::create<Rs232NetEvent>());
+
+        }
 	}
 }
 
@@ -239,12 +242,6 @@ int RS232Net::net_putc(uint8_t b)
         // fprintf(stderr,"Attempt to write to invalid socket fd:%d\n", sockfd);
         return -1;
     }
-
-    // /* silently drop if socket is shut because of a previous error */
-    // if (!sockfd)
-    // {
-    //     return 0;
-    // }
 
     n = sock_send(sockfd, reinterpret_cast<char *>(&b), 1);
     if (n < 0) {
@@ -273,11 +270,6 @@ ptrdiff_t RS232Net::net_getc(char * b)
         /* from now on, assume everything is ok,
             but we have not received any bytes */
         no_of_read_byte = 0;
-
-        /* silently drop if socket is shut because of a previous error  */
-        // if (!sockfd) {
-        //     break;
-        // }
 
         ret = selectPoll(sockfd);
 
