@@ -29,6 +29,8 @@ MSX device support:
 - implemented some weird behaviour of the printer port (implemented unused bits
   specification and status showing on all ports for some machines)
 - added mapper for RetroHard MultiCart 31 in 1 cartridges
+- added mapper for Al Alamiah 30-in-1 cartridges, thanks to a.o. hashem and
+  tsjakoe
 - added new machines/extensions, thanks to:
   - Peter Hanraets: Sony HB-11 and Sony HB-F701xx
   - alwro07: Polish Spectravideo SVI-738
