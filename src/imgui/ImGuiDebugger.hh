@@ -22,20 +22,35 @@ class MSXCPUInterface;
 
 class DebuggableEditor : public MemoryEditor
 {
+	struct CallbackInfo {
+		Debuggable* debuggable;
+		DebuggableEditor* editor;
+	};
+
 public:
 	DebuggableEditor() {
 		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
-			auto* debuggable = reinterpret_cast<Debuggable*>(const_cast<ImU8*>(userdata));
+			auto* debuggable = reinterpret_cast<CallbackInfo*>(const_cast<ImU8*>(userdata))->debuggable;
 			return debuggable->read(narrow<unsigned>(offset));
 		};
 		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
-			auto* debuggable = reinterpret_cast<Debuggable*>(userdata);
+			auto* debuggable = reinterpret_cast<CallbackInfo*>(userdata)->debuggable;
 			debuggable->write(narrow<unsigned>(offset), data);
 		};
+		HighlightFn = [](const ImU8* userdata, size_t offset) -> bool {
+			// Also highlight preview-region when preview is not active.
+			// Including when this editor has lost focus.
+			const auto* editor = reinterpret_cast<const CallbackInfo*>(userdata)->editor;
+			auto begin = editor->DataPreviewAddr;
+			auto end = begin + editor->DataTypeGetSize(editor->PreviewDataType);
+			return (begin <= offset) && (offset < end);
+		};
+		PreviewDataType = ImGuiDataType_U8;
 	}
 
 	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
-		MemoryEditor::DrawWindow(title, &debuggable, debuggable.getSize(), base_display_addr);
+		CallbackInfo info{&debuggable, this};
+		MemoryEditor::DrawWindow(title, &info, debuggable.getSize(), base_display_addr);
 	}
 };
 
