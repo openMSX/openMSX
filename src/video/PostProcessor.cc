@@ -271,12 +271,12 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	}
 	renderedFrame.fbo.push();
 
-	auto* superImpose = superImposeVideoFrame ? &superImposeTex : nullptr;
-	currScaler->setup(superImpose != nullptr);
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
+		auto* superImpose = superImposeVideoFrame
+		                  ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
 			it->tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
