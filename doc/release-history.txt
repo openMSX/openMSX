@@ -3,8 +3,8 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 19.0RC1 (2023-07-12)
-----------------------------
+openMSX 19.0 (2023-07-25)
+-------------------------
 
 More bug fixes and smaller improvements. Large improvements on the OSD menu and
 the diskmanipulator.
