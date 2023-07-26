@@ -517,7 +517,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
-	if (!showStack) return;
+	if (!showSlots) return;
 	im::Window("Slots", &showSlots, [&]{
 		int flags = ImGuiTableFlags_BordersInnerV |
 			ImGuiTableFlags_Resizable |
