@@ -54,7 +54,7 @@ private:
 	ImGuiManager& manager;
 	std::vector<Symbol> symbols;
 	std::vector<std::string> filesCache; // calculated from 'symbols'
-	hash_map<uint16_t, std::string_view> lookupValueCache; // calculated from 'symbols'
+	hash_map<uint16_t, std::string> lookupValueCache; // calculated from 'symbols'
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSymbols::show}
