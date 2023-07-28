@@ -195,7 +195,7 @@ private:
 	TclObject value; // TODO can we share the underlying Tcl var storage?
 	const TclObject defaultValue;
 	TclObject restoreValue;
-	TclObject dontSaveValue;
+	std::optional<TclObject> dontSaveValue;
 	const SaveSetting save;
 };
 
