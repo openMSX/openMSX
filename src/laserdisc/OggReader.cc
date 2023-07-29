@@ -104,7 +104,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 				throw MSXException("Header to small");
 			}
 
-			if (ranges::equal(std::span{packet.packet, 7}, std::string_view("\x01vorbis"))) {
+			if (ranges::equal(std::span{packet.packet, 7}, std::array<uint8_t, 7>{1, 'v', 'o', 'r', 'b', 'i', 's'})) {
 				if (audioSerial != -1) {
 					ogg_stream_clear(&stream);
 					throw MSXException("Duplicate audio stream");
@@ -115,7 +115,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 				vorbisHeaderPage(&page);
 
-			} else if (ranges::equal(std::span{packet.packet, 7}, std::string_view("\x80theora"))) {
+			} else if (ranges::equal(std::span{packet.packet, 7}, std::array<uint8_t, 7>{128, 't', 'h', 'e', 'o', 'r', 'a'})) {
 				if (videoSerial != -1) {
 					ogg_stream_clear(&stream);
 					throw MSXException("Duplicate video stream");
@@ -126,14 +126,14 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 				theoraHeaderPage(&page, ti, tc, tsi);
 
-			} else if (ranges::equal(std::span{packet.packet, 8}, std::string_view("fishead"))) {
+			} else if (ranges::equal(std::span{packet.packet, 8}, std::array<uint8_t, 8>{'f', 'i', 's', 'h', 'e', 'a', 'd', 0})) {
 				skeletonSerial = serial;
 
-			} else if (ranges::equal(std::span{packet.packet, 4}, std::string_view("BBCD"))) {
+			} else if (ranges::equal(std::span{packet.packet, 4}, std::array<uint8_t, 4>{'B', 'B', 'C', 'D'})) {
 				ogg_stream_clear(&stream);
 				throw MSXException("DIRAC not supported");
 
-			} else if (ranges::equal(std::span{packet.packet, 5}, std::string_view("\177FLAC"))) {
+			} else if (ranges::equal(std::span{packet.packet, 5}, std::array<uint8_t, 5>{127, 'F', 'L', 'A', 'C'})) {
 				ogg_stream_clear(&stream);
 				throw MSXException("FLAC not supported");
 

@@ -64,12 +64,12 @@ V9990::V9990(const DeviceConfig& config)
 	, irq(getMotherBoard(), getName() + ".IRQ")
 	, display(getReactor().getDisplay())
 	, invalidRegisterReadCallback(getCommandController(),
-		"v9990_invalid_register_read_callback",
+		tmpStrCat(getName(), "_invalid_register_read_callback"),
 		"Tcl proc to call when a write-only register was read from. "
 		"Input: register number (0-63)",
                 {}, Setting::SAVE)
 	, invalidRegisterWriteCallback(getCommandController(),
-		"v9990_invalid_register_write_callback",
+		tmpStrCat(getName(), "_invalid_register_write_callback"),
 		"Tcl proc to call when a read-only register was written to. "
 		"Input: register number (0-63), 8-bit data",
 		{}, Setting::SAVE)

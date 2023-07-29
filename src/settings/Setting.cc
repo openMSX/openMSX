@@ -107,7 +107,7 @@ void Setting::notify() const
 	} else {
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
-		if (val == dontSaveValue) val = getRestoreValue();
+		if (dontSaveValue && val == *dontSaveValue) val = getRestoreValue();
 		config.setValueForSetting(base, val.getString());
 	}
 }
