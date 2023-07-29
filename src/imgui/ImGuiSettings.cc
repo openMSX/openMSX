@@ -41,7 +41,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Video", [&]{
 			im::TreeNode("Look and feel", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 				auto& scaler = renderSettings.getScaleAlgorithmSetting();
-				ComboBox(scaler);
+				ComboBox("Scaler", scaler);
 				im::Indent([&]{
 					struct AlgoEnable {
 						RenderSettings::ScaleAlgorithm algo;
@@ -60,44 +60,44 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					auto it = ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
 					assert(it != algoEnables.end());
 					im::Disabled(!it->hasScanline, [&]{
-						SliderInt(renderSettings.getScanlineSetting());
+						SliderInt("Scanline (%)", renderSettings.getScanlineSetting());
 					});
 					im::Disabled(!it->hasBlur, [&]{
-						SliderInt(renderSettings.getBlurSetting());
+						SliderInt("Blur (%)", renderSettings.getBlurSetting());
 					});
 				});
 
-				SliderInt(renderSettings.getScaleFactorSetting());
-				Checkbox(renderSettings.getDeinterlaceSetting());
-				Checkbox(renderSettings.getDeflickerSetting());
+				SliderInt("Scale factor", renderSettings.getScaleFactorSetting());
+				Checkbox("Deinterlace", renderSettings.getDeinterlaceSetting());
+				Checkbox("Deflicker", renderSettings.getDeflickerSetting());
 			});
 			im::TreeNode("Colors", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-				SliderFloat(renderSettings.getNoiseSetting());
-				SliderFloat(renderSettings.getBrightnessSetting());
-				SliderFloat(renderSettings.getContrastSetting());
-				SliderFloat(renderSettings.getGammaSetting());
-				SliderInt(renderSettings.getGlowSetting());
+				SliderFloat("Noise (%)", renderSettings.getNoiseSetting());
+				SliderFloat("Brightness", renderSettings.getBrightnessSetting());
+				SliderFloat("Contrast", renderSettings.getContrastSetting());
+				SliderFloat("Gamma", renderSettings.getGammaSetting());
+				SliderInt("Glow (%)", renderSettings.getGlowSetting());
 				if (auto* monitor = dynamic_cast<Setting*>(settingsManager.findSetting("monitor_type"))) {
-					ComboBox(*monitor);
+					ComboBox("Monitor type", *monitor);
 				}
 			});
 			im::TreeNode("Shape", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-				SliderFloat(renderSettings.getHorizontalStretchSetting(), "%.0f");
-				ComboBox(renderSettings.getDisplayDeformSetting());
+				SliderFloat("Horizontal stretch", renderSettings.getHorizontalStretchSetting(), "%.0f");
+				ComboBox("Display deformation", renderSettings.getDisplayDeformSetting());
 			});
 			im::TreeNode("Misc", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 				if (motherBoard) {
-					ComboBox(motherBoard->getVideoSource());
+					ComboBox("Video source to display", motherBoard->getVideoSource());
 				}
-				Checkbox(renderSettings.getVSyncSetting());
-				SliderInt(renderSettings.getMinFrameSkipSetting());
-				SliderInt(renderSettings.getMaxFrameSkipSetting());
+				Checkbox("VSync", renderSettings.getVSyncSetting());
+				SliderInt("Amount of frames to always skip", renderSettings.getMinFrameSkipSetting()); // TODO: either leave out this setting, or add a tooltip like, "Leave on 0 unless you use a very slow device and want regular frame skipping");
+				SliderInt("Maximum amount of frames to skip", renderSettings.getMaxFrameSkipSetting()); // TODO: either leave out this setting or add a tooltip like  "On slow devices, skip no more than this amount of frames to keep emulation on time.");
 			});
 			im::TreeNode("Advanced (for debugging)", [&]{ // default collapsed
-				Checkbox(renderSettings.getLimitSpritesSetting());
-				Checkbox(renderSettings.getDisableSpritesSetting());
-				ComboBox(renderSettings.getTooFastAccessSetting());
-				ComboBox(renderSettings.getCmdTimingSetting());
+				Checkbox("Enforce VDP sprites-per-line limit", renderSettings.getLimitSpritesSetting());
+				Checkbox("Disable sprites", renderSettings.getDisableSpritesSetting());
+				ComboBox("Way to handle too fast VDP access", renderSettings.getTooFastAccessSetting());
+				ComboBox("Emulate VDP command timing", renderSettings.getCmdTimingSetting());
 			});
 		});
 		im::Menu("Sound", [&]{
