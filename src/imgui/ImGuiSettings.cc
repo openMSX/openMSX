@@ -104,16 +104,16 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			auto& mixer = reactor.getMixer();
 			auto& muteSetting = mixer.getMuteSetting();
 			im::Disabled(muteSetting.getBoolean(), [&]{
-				SliderInt("master volume", mixer.getMasterVolume());
+				SliderInt("Master volume", mixer.getMasterVolume());
 			});
-			Checkbox(muteSetting);
+			Checkbox("Mute", muteSetting);
 			ImGui::Separator();
 			static constexpr std::array resamplerToolTips = {
 				EnumToolTip{"hq",   "best quality, uses more CPU"},
 				EnumToolTip{"blip", "good speed/quality tradeoff"},
 				EnumToolTip{"fast", "fast but low quality"},
 			};
-			ComboBox(globalSettings.getResampleSetting(), resamplerToolTips);
+			ComboBox("Resampler", globalSettings.getResampleSetting(), resamplerToolTips);
 			ImGui::Separator();
 
 			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip.showSoundChipSettings);
@@ -127,19 +127,19 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
 			ImGui::SameLine();
 			fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
-			HelpMarker("Use 'F9' to quickly toggle between these two");
+			HelpMarker("Use 'F9' to quickly toggle between these two"); // TODO: this depends on bind configuration, check it...
 			if (fwdChanged) {
 				fwdSetting.setBoolean(fastForward != 0);
 			}
 			im::Indent([&]{
 				im::Disabled(fastForward != 0, [&]{
-					SliderInt(speedManager.getSpeedSetting());
+					SliderInt("Speed (%)", speedManager.getSpeedSetting());
 				});
 				im::Disabled(fastForward != 1, [&]{
-					SliderInt(speedManager.getFastForwardSpeedSetting());
+					SliderInt("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting());
 				});
 			});
-			Checkbox(globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
+			Checkbox("Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
 
 			ImGui::Separator();
 			if (ImGui::MenuItem("Configure OSD icons...", nullptr, nullptr)) {
