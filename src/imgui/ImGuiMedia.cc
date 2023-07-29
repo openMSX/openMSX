@@ -91,12 +91,12 @@ static std::string buildFilter(std::string_view description, std::span<const std
 
 static std::string diskFilter()
 {
-	return buildFilter("disk images", DiskImageCLI::getExtensions());
+	return buildFilter("Disk images", DiskImageCLI::getExtensions());
 }
 
 static std::string romFilter()
 {
-	return buildFilter("Rom images", MSXRomCLI::getExtensions());
+	return buildFilter("ROM images", MSXRomCLI::getExtensions());
 }
 
 static std::string display(const ImGuiMedia::RecentItem& item, int count)
@@ -159,10 +159,11 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 			if (!(*drivesInUse)[i]) continue;
 			driveName[4] = char('a' + i);
+			const std::string displayDriveName = std::string("Disk Drive ") + char(::toupper(driveName[4]));
 			if (auto cmdResult = manager.execute(TclObject(driveName))) {
 				elementInGroup();
 				auto& info = mediaStuff.try_emplace(driveName).first->second;
-				im::Menu(driveName.c_str(), [&]{
+				im::Menu(displayDriveName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "disk");
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
@@ -170,7 +171,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					}
 					if (ImGui::MenuItem("Insert disk image...")) {
 						manager.openFile.selectFile(
-							"Select disk image for " + driveName,
+							"Select disk image for " + displayDriveName,
 							diskFilter(),
 							[this, driveName, &info](const auto& fn) { this->insertMedia(driveName, info, fn); });
 					}
@@ -187,9 +188,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!slotManager.slotExists(slot)) continue;
 			cartName[4] = char('a' + slot);
+			const std::string displaySlotName = std::string("Cartridge Slot ") + char(::toupper(cartName[4]));
 			if (auto cmdResult = manager.execute(TclObject(cartName))) {
 				elementInGroup();
-				im::Menu(cartName.c_str(), [&]{
+				im::Menu(displaySlotName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "cart"); // TODO cart/ext
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
@@ -198,7 +200,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					auto& info = mediaStuff.try_emplace(cartName).first->second;
 					if (ImGui::MenuItem("Select ROM file...")) {
 						manager.openFile.selectFile(
-							"Select ROM image for " + cartName,
+							"Select ROM image for " + displaySlotName,
 							romFilter(),
 							[this, cartName, &info](const auto& fn) { this->insertMedia(cartName, info, fn); });
 					}
@@ -217,7 +219,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		// cassetteplayer
 		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
 			elementInGroup();
-			im::Menu("cassetteplayer", [&]{
+			im::Menu("Tape Deck", [&]{
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "cassette");
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
@@ -238,17 +240,17 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		// laserdisc
 		if (auto cmdResult = manager.execute(TclObject("laserdiscplayer"))) {
 			elementInGroup();
-			im::Menu("laserdisc", [&]{
+			im::Menu("LaserDisc Player", [&]{
 				auto currentImage = cmdResult->getListIndex(interp, 1);
 				showCurrent(currentImage, "laserdisc");
 				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
 					manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
 				}
 				auto& info = mediaStuff.try_emplace("laserdiscplayer").first->second;
-				if (ImGui::MenuItem("Insert laserdisc image...")) {
+				if (ImGui::MenuItem("Insert LaserDisc image...")) {
 					manager.openFile.selectFile(
-						"Select laserdisc image",
-						buildFilter("Laserdisk images", std::array<std::string_view, 1>{"ogv"}),
+						"Select LaserDisc image",
+						buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
 						[this, &info](const auto& fn) { this->insertMedia("laserdiscplayer", info, fn); });
 				}
 				showRecent("laserdiscplayer", info);
@@ -495,12 +497,13 @@ void ImGuiMedia::showRomInfo(const std::string& media, MediaInfo& info)
 
 void ImGuiMedia::advancedDiskMenu(const std::string& media, MediaInfo& info)
 {
-	im::Window(media.c_str(), &info.showAdvanced, [&]{
+	const std::string displayDriveName = std::string("Disk Drive ") + char(::toupper(media[4]));
+	im::Window(displayDriveName.c_str(), &info.showAdvanced, [&]{
 		showDiskInfo(media, info);
 		ImGui::TextUnformatted("Select new disk"sv);
 		HelpMarker("Type-in or browse-to the disk image. Or type the special name 'ramdisk'.");
 		im::Indent([&]{
-			selectImage(info, strCat("Select disk image for ", media), &diskFilter);
+			selectImage(info, strCat("Select disk image for ", displayDriveName), &diskFilter);
 			selectPatches(info);
 
 		});
@@ -510,11 +513,12 @@ void ImGuiMedia::advancedDiskMenu(const std::string& media, MediaInfo& info)
 
 void ImGuiMedia::advancedRomMenu(const std::string& media, MediaInfo& info)
 {
-	im::Window(media.c_str(), &info.showAdvanced, [&]{
+	const std::string displaySlotName = std::string("Cartridge Slot ") + char(::toupper(media[4]));
+	im::Window(displaySlotName.c_str(), &info.showAdvanced, [&]{
 		showRomInfo(media, info);
 		ImGui::TextUnformatted("Select new ROM:"sv);
 		im::Indent([&]{
-			selectImage(info, strCat("Select ROM image for ", media), &romFilter);
+			selectImage(info, strCat("Select ROM image for ", displaySlotName), &romFilter);
 			selectMapperType(info);
 			selectPatches(info);
 		});
