@@ -3,6 +3,7 @@
 
 #include "Poller.hh"
 #include "Socket.hh"
+#include "GlobalSettings.hh"
 #include <string>
 #include <thread>
 
@@ -11,13 +12,15 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 class GlobalCliComm;
+class GlobalSettings;
 
 class CliServer final
 {
 public:
 	CliServer(CommandController& commandController,
 	          EventDistributor& eventDistributor,
-	          GlobalCliComm& cliComm);
+	          GlobalCliComm& cliCom,
+	          GlobalSettings& globalSettings);
 	~CliServer();
 
 private:
@@ -29,6 +32,7 @@ private:
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	GlobalCliComm& cliComm;
+	GlobalSettings& globalSettings;
 
 	std::thread thread;
 	std::string socketName;

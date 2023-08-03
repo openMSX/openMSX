@@ -45,6 +45,9 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
 	, speedManager(commandController)
 	, throttleManager(commandController)
+#ifdef _WIN32
+	, socketSettingsManager(commandController)
+#endif
 {
 	deadZoneSettings = to_vector(
 		view::transform(xrange(SDL_NumJoysticks()), [&](auto i) {

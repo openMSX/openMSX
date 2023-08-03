@@ -16,6 +16,7 @@ namespace openmsx {
 
 class CommandController;
 class EventDistributor;
+class GlobalSettings;
 
 class CliConnection : public CliListener, private EventListener
 {
@@ -122,7 +123,8 @@ class SocketConnection final : public CliConnection
 public:
 	SocketConnection(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
-	                 SOCKET sd);
+	                 SOCKET sd,
+	                 GlobalSettings& globalSettings_);
 	~SocketConnection() override;
 
 	void output(std::string_view message) override;
@@ -131,10 +133,13 @@ private:
 	void close() override;
 	void run() override;
 	void closeSocket();
+	[[nodiscard]] GlobalSettings& getGlobalSettings() { return globalSettings; }
 
 	std::mutex sdMutex;
 	SOCKET sd;
 	bool established = false;
+
+	GlobalSettings& globalSettings;
 };
 
 } // namespace openmsx

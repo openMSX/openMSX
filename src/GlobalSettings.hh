@@ -9,6 +9,11 @@
 #include "SpeedManager.hh"
 #include "ThrottleManager.hh"
 #include "ResampledSoundDevice.hh"
+
+#ifdef _WIN32
+#include "SocketSettingsManager.hh"
+#endif
+
 #include <memory>
 #include <vector>
 
@@ -57,6 +62,11 @@ public:
 	[[nodiscard]] ThrottleManager& getThrottleManager() {
 		return throttleManager;
 	}
+#ifdef _WIN32
+	[[nodiscard]] SocketSettingsManager& getSocketSettingsManager() {
+		return socketSettingsManager;
+	}
+#endif
 
 private:
 	// Observer<Setting>
@@ -75,6 +85,9 @@ private:
 	std::vector<std::unique_ptr<IntegerSetting>> deadZoneSettings;
 	SpeedManager speedManager;
 	ThrottleManager throttleManager;
+#ifdef _WIN32
+	SocketSettingsManager socketSettingsManager;
+#endif
 };
 
 } // namespace openmsx

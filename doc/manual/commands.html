@@ -164,6 +164,7 @@
         <li><a class="internal" href="#scale_algorithm">scale_algorithm</a></li>
         <li><a class="internal" href="#scale_factor">scale_factor</a></li>
         <li><a class="internal" href="#scanline">scanline</a></li>
+        <li><a class="internal" href="#socket_auth_mode">socket_auth_mode</a></li>
         <li><a class="internal" href="#sound_driver">sound_driver</a></li>
         <li><a class="internal" href="#speed">speed</a></li>
         <li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
@@ -5052,6 +5053,41 @@
 
   <div class="note">
     Note: Some scalers will not render scanlines at all.
+  </div>
+
+  <h3><a id="socket_auth_mode">socket_auth_mode</a></h3>
+
+  <p>Changes the authentication mode for applications connecting to openMSX via TCP sockets. This setting is only available in Windows.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set socket_auth_mode</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set socket_auth_mode sspi</code></td>
+
+      <td>Applications connecting to openMSX via TCP sockets must authenticate via <a href="https://learn.microsoft.com/en-us/windows/win32/rpc/security-support-provider-interface-sspi-">
+        SSPI</a> (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set socket_auth_mode none</code></td>
+
+      <td>Applications connecting to openMSX via TCP sockets don't need to authenticate at all</td>
+    </tr>
+
+  </table>
+
+  <div class="note">
+    Note: Disabling authentication with the <code>none</code> value is potentially dangerous and is therefore <b>not</b> recommended. See
+    <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a> for more details.
   </div>
 
   <h3><a id="sound_driver">sound_driver</a></h3>

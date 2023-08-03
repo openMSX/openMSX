@@ -193,9 +193,11 @@ static void deleteSocket(const std::string& socket)
 
 
 CliServer::CliServer(CommandController& commandController_,
-                     EventDistributor& eventDistributor_,
-                     GlobalCliComm& cliComm_)
-	: commandController(commandController_)
+					EventDistributor& eventDistributor_,
+					GlobalCliComm& cliComm_,
+					GlobalSettings& globalSettings_)
+	: globalSettings(globalSettings_)
+	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
 	, listenSock(OPENMSX_INVALID_SOCKET)
@@ -256,7 +258,7 @@ void CliServer::mainLoop()
 		fcntl(sd, F_SETFL, 0);
 #endif
 		cliComm.addListener(std::make_unique<SocketConnection>(
-			commandController, eventDistributor, sd));
+			commandController, eventDistributor, sd, globalSettings));
 	}
 }
 
