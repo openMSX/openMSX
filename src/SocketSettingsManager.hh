@@ -20,10 +20,13 @@ class SocketSettingsManager final
 		explicit SocketSettingsManager(CommandController& commandController);
 
 		[[nodiscard]] SocketAuthenticationMode getSocketAuthenticationMode() const { return socketAuthenticationModeSetting.getEnum(); }
+		[[nodiscard]] int getCurrentSocketPortNumber() const { return currentSocketPortNumber; }
+		[[nodiscard]] void setCurrentSocketPortNumber(int port) { currentSocketPortNumber = port; }
 		void setSocketAuthenticationMode(const SocketAuthenticationMode mode);
 
 	private:
 		EnumSetting<SocketAuthenticationMode> socketAuthenticationModeSetting;
+		int currentSocketPortNumber;
 	};
 
 } // namespace openmsx

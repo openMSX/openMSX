@@ -95,10 +95,12 @@ namespace openmsx {
 }
 
 #ifdef _WIN32
-[[nodiscard]] static int openPort(SOCKET listenSock)
+[[nodiscard]] int CliServer::openPort(SOCKET listenSock)
 {
 	const int BASE = 9938;
 	const int RANGE = 64;
+
+	setCurrentSocketPortNumber(0);
 
 	int first = random_int(0, RANGE - 1); // [0, RANGE)
 
@@ -111,6 +113,7 @@ namespace openmsx {
 		server_address.sin_port = htons(port);
 		if (bind(listenSock, reinterpret_cast<sockaddr*>(&server_address),
 		         sizeof(server_address)) != -1) {
+			setCurrentSocketPortNumber(port);
 			return port;
 		}
 	}

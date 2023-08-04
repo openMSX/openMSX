@@ -13,6 +13,7 @@ SocketSettingsManager::SocketSettingsManager(CommandController& commandControlle
 	           { "sspi", SOCKAUTH_SSPI }
 })
 {
+	setCurrentSocketPortNumber(0);
 }
 
 void SocketSettingsManager::setSocketAuthenticationMode(const SocketAuthenticationMode mode)

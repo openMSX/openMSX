@@ -26,6 +26,8 @@ public:
 private:
 	void mainLoop();
 	[[nodiscard]] SOCKET createSocket();
+	[[nodiscard]] int openPort(SOCKET listenSock);
+	[[nodiscard]] void setCurrentSocketPortNumber(int port) { globalSettings.getSocketSettingsManager().setCurrentSocketPortNumber(port); }
 	void exitAcceptLoop();
 
 private:
