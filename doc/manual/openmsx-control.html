@@ -57,9 +57,13 @@
   </p>
 
   <p>On Windows (which does not support UNIX domain sockets), the socket is a
-  normal TCP socket. The port number is random between 9938 and 10001. This is done
-  to enforce applications to deal with multiple running openMSX processes. The
-  port number will be put in the following text file:</p>
+  normal TCP socket. By default the port number is random between 9938 and 10002, this is done
+  to enforce applications to deal with multiple running openMSX processes.
+  You can change the port numbers range and how the actual port number is chosen with the
+  <code>set <a class="external" href="commands.html#socket_port_number">socket_port_number</a></code> and
+  <code>set <a class="external" href="commands.html#socket_selection_mode">socket_selection_mode</a></code> commands.</p>
+  
+  <p>The sctual port number will be put in the following text file:</p>
 
   <div class="commandline">
   %USERPROFILE%\Documents and Settings\&lt;username&gt;\Local Settings\Temp\openmsx-default\socket.&lt;pid&gt;

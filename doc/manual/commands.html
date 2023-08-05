@@ -165,6 +165,8 @@
         <li><a class="internal" href="#scale_factor">scale_factor</a></li>
         <li><a class="internal" href="#scanline">scanline</a></li>
         <li><a class="internal" href="#socket_auth_mode">socket_auth_mode</a></li>
+        <li><a class="internal" href="#socket_port_number">socket_port_number</a></li>
+        <li><a class="internal" href="#socket_selection_mode">socket_selection_mode</a></li>
         <li><a class="internal" href="#sound_driver">sound_driver</a></li>
         <li><a class="internal" href="#speed">speed</a></li>
         <li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
@@ -5086,8 +5088,83 @@
   </table>
 
   <div class="note">
+    Note: Changing the authentication mode affects all new connections after the change, but already established connections won't be affected.
+  </div>
+  <div class="note">
     Note: Disabling authentication with the <code>none</code> value is potentially dangerous and is therefore <b>not</b> recommended. See
     <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a> for more details.
+  </div>
+
+  <h3><a id="socket_port_number">socket_port_number</a></h3>
+
+  <p>Changes the base port number for applications connecting to openMSX via TCP sockets. This setting is only available in Windows.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set socket_port_number</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set socket_port_number &lt;num&gt;</code></td>
+
+      <td>Set the new value for the base port number for applications connecting to openMSX via TCP sockets (default: 9938)</td>
+    </tr>
+
+  </table>
+
+  <p>How the actual port number is chosen by openMSX depends on the value of the <a href="#socket_selection_mode">socket_selection_mode</a> setting.
+  See also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>.</p>
+
+  <div class="note">
+    Note: Changing this setting causes openMSX to immediately start using a different port number for all new TCP connections.
+    Connections already established are not affected.
+  </div>
+
+  <h3><a id="socket_selection_mode">socket_selection_mode</a></h3>
+
+  <p>Changes the strategy used to select a port number for applications connecting to openMSX via TCP sockets. This setting is only available in Windows.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set socket_selection_mode</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set socket_selection_mode random</code></td>
+
+      <td>openMSX will select a random port number between the base value (see <a href="#socket_port_number">socket_port_number</a>)
+      and the base value plus 64 (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set socket_selection_mode fixed</code></td>
+
+      <td>openMSX will use the base port number value (see <a href="#socket_port_number">socket_port_number</a>)
+      as the actual port number</td>
+    </tr>
+
+  </table>
+
+  <p>In both cases, if openMSX is unable to use the chosen port because it's already in use, it will try by increasing the port number value
+    by one; it will repeat this procedure up to 64 times if necessary before giving up and showing an error (the actual port number will always be
+    in the "base+64" range).
+    See also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>.</p>
+
+  <div class="note">
+    Note: Changing this setting causes openMSX to immediately start using a different port number for all new TCP connections.
+    Connections already established are not affected.
   </div>
 
   <h3><a id="sound_driver">sound_driver</a></h3>

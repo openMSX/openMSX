@@ -4,6 +4,12 @@
 #include "Poller.hh"
 #include "Socket.hh"
 #include "GlobalSettings.hh"
+
+#ifdef _WIN32
+#include "Observer.hh"
+#include "SocketSettingsManager.hh"
+#endif
+
 #include <string>
 #include <thread>
 
@@ -14,7 +20,14 @@ class EventDistributor;
 class GlobalCliComm;
 class GlobalSettings;
 
-class CliServer final
+#ifdef _WIN32
+class SocketSettingsManager;
+#endif
+
+class CliServer final 
+#ifdef _WIN32
+	: private Observer<SocketSettingsManager>
+#endif
 {
 public:
 	CliServer(CommandController& commandController,
@@ -29,6 +42,12 @@ private:
 	[[nodiscard]] int openPort(SOCKET listenSock);
 	[[nodiscard]] void setCurrentSocketPortNumber(int port) { globalSettings.getSocketSettingsManager().setCurrentSocketPortNumber(port); }
 	void exitAcceptLoop();
+	void deleteSocketFile(const std::string& socket);
+
+#ifdef _WIN32
+	// Observer<SpeedManager>
+	void update(const SocketSettingsManager& socketSettingsManager) noexcept override;
+#endif
 
 private:
 	CommandController& commandController;
