@@ -296,7 +296,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	if (deform == RenderSettings::DEFORM_3D) {
 		drawMonitor3D();
 	} else {
-		float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
+		float x1 = (320.0f - float(horStretch)) * (1.0f / (2.0f * 320.0f));
 		float x2 = 1.0f - x1;
 		std::array tex = {
 			vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
@@ -565,7 +565,7 @@ void PostProcessor::drawGlow(int glow)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderedFrames[(frameCounter & 1) ^ 1].tex.bind();
 	glUniform4f(glContext.unifTexColor,
-	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * 31.0f / 3200.0f);
+	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * (31.0f / 3200.0f));
 	mat4 I;
 	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
@@ -700,9 +700,9 @@ void PostProcessor::preCalcMonitor3D(float width)
 	// precalculate vertex-positions, -normals and -texture-coordinates
 	std::array<std::array<Vertex, GRID_SIZE1>, GRID_SIZE1> vertices;
 
-	constexpr float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
-	float s = width / 320.0f;
-	float b = (320.0f - width) / (2.0f * 320.0f);
+	constexpr float GRID_SIZE2 = float(GRID_SIZE) * 0.5f;
+	float s = width * (1.0f / 320.0f);
+	float b = (320.0f - width) * (1.0f / (2.0f * 320.0f));
 
 	for (auto sx : xrange(GRID_SIZE1)) {
 		for (auto sy : xrange(GRID_SIZE1)) {
@@ -710,8 +710,8 @@ void PostProcessor::preCalcMonitor3D(float width)
 			float x = (narrow<float>(sx) - GRID_SIZE2) / GRID_SIZE2;
 			float y = (narrow<float>(sy) - GRID_SIZE2) / GRID_SIZE2;
 
-			v.position = vec3(x, y, (x * x + y * y) / -12.0f);
-			v.normal = normalize(vec3(x / 6.0f, y / 6.0f, 1.0f)) * 1.2f;
+			v.position = vec3(x, y, (x * x + y * y) * (1.0f / -12.0f));
+			v.normal = normalize(vec3(x * (1.0f / 6.0f), y * (1.0f / 6.0f), 1.0f)) * 1.2f;
 			v.tex = vec2((float(sx) / GRID_SIZE) * s + b,
 			              float(sy) / GRID_SIZE);
 		}

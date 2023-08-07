@@ -113,7 +113,7 @@ static void renderSpriteAttrib(std::span<const uint8_t> vram, bool planar, int a
 	int rr = pattern / patternsPerRow;
 	float u1 = float(cc + 0) / float(patternsPerRow);
 	float u2 = float(cc + 1) / float(patternsPerRow);
-	float v1 = float(size * rr) / 64.0f;
+	float v1 = float(size * rr) * (1.0f / 64.0f);
 
 	auto getColor = [&](int color) -> gl::vec4 {
 		if (color == 0 && transparent) return {};
@@ -123,7 +123,7 @@ static void renderSpriteAttrib(std::span<const uint8_t> vram, bool planar, int a
 	if (mode == 1) {
 		auto attrib = vpeek(vram, planar, addr + 3);
 		auto color = attrib & 0x0f;
-		float v2 = float(size * (rr + 1)) / 64.0f;
+		float v2 = float(size * (rr + 1)) * (1.0f / 64.0f);
 		ImGui::Image(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2}, getColor(color));
 	} else {
 		int colorBase = getSpriteColorAddr(attBase, sprite, mode);

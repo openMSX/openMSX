@@ -17,7 +17,7 @@ void OutputSurface::calculateViewPort(gl::ivec2 logSize_, gl::ivec2 physSize_)
 	gl::vec2 viewSize = logSize * scale;
 	m_viewSize = round(viewSize);
 
-	gl::vec2 viewOffset = (physSize - viewSize) / 2.0f;
+	gl::vec2 viewOffset = (physSize - viewSize) * 0.5f;
 	m_viewOffset = round(viewOffset);
 }
 

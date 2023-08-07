@@ -167,9 +167,9 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros)
 std::string formatTime(double time)
 {
 	assert(time >= 0.0);
-	int hours = int(time / 3600.0);
+	int hours = int(time * (1.0 / 3600.0));
 	time -= double(hours * 3600);
-	int minutes = int(time / 60.0);
+	int minutes = int(time * (1.0 / 60.0));
 	time -= double(minutes * 60);
 	int seconds = int(time);
 	time -= double(seconds);

@@ -228,7 +228,7 @@ void SDLRasterizer::precalcPalette()
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapRGB(
 					renderSettings.transformRGB(
-						vec3(rgb[0], rgb[1], rgb[2]) / 255.0f));
+						vec3(rgb[0], rgb[1], rgb[2]) * (1.0f / 255.0f)));
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -238,7 +238,7 @@ void SDLRasterizer::precalcPalette()
 				// special case speeds up palette precalculation a lot.
 				std::array<int, 32> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
-					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
+					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 				}
 				for (auto [rgb, col] : enumerate(V9958_COLORS)) {
 					col = screen.mapRGB255(ivec3(
@@ -255,7 +255,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(b)};
 							V9958_COLORS[(r << 10) + (g << 5) + b] =
 								screen.mapRGB(
-									renderSettings.transformRGB(rgb / 31.0f));
+									renderSettings.transformRGB(rgb * (1.0f / 31.0f)));
 						}
 					}
 				}
@@ -279,7 +279,7 @@ void SDLRasterizer::precalcPalette()
 			if (renderSettings.isColorMatrixIdentity()) {
 				std::array<int, 8> intensity;
 				for (auto [i, r] : enumerate(intensity)) {
-					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 7.0f));
+					r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 7.0f)));
 				}
 				for (auto r : xrange(8)) {
 					for (auto g : xrange(8)) {
@@ -301,7 +301,7 @@ void SDLRasterizer::precalcPalette()
 							         narrow<float>(b)};
 							V9938_COLORS[r][g][b] =
 								screen.mapRGB(
-									renderSettings.transformRGB(rgb / 7.0f));
+									renderSettings.transformRGB(rgb * (1.0f / 7.0f)));
 						}
 					}
 				}

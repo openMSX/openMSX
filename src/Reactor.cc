@@ -1117,7 +1117,7 @@ void RealTimeInfo::execute(std::span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
-	result = narrow_cast<double>(delta) / 1000000.0;
+	result = narrow_cast<double>(delta) * (1.0 / 1000000.0);
 }
 
 string RealTimeInfo::help(std::span<const TclObject> /*tokens*/) const

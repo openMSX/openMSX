@@ -2,7 +2,7 @@
 # It disables debugging and aims for a small binary.
 
 # Optimisation flags.
-CXXFLAGS+=-Os -DNDEBUG -ffast-math
+CXXFLAGS+=-Os -DNDEBUG
 
 # Strip executable?
 OPENMSX_STRIP:=true

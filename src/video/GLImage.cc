@@ -177,10 +177,10 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 
 		glContext.progTex.activate();
 		glUniform4f(glContext.unifTexColor,
-		            narrow<float>(r) / 255.0f,
-			    narrow<float>(g) / 255.0f,
-			    narrow<float>(b) / 255.0f,
-			    narrow<float>(alpha) / 255.0f);
+		            narrow<float>(r)     * (1.0f / 255.0f),
+			    narrow<float>(g)     * (1.0f / 255.0f),
+			    narrow<float>(b)     * (1.0f / 255.0f),
+			    narrow<float>(alpha) * (1.0f / 255.0f));
 		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE,
 		                   &glContext.pixelMvp[0][0]);
 		const ivec2* offset = nullptr;
@@ -204,10 +204,10 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 		glVertexAttrib4f(1,
-		                 narrow<float>(borderR) / 255.0f,
-		                 narrow<float>(borderG) / 255.0f,
-		                 narrow<float>(borderB) / 255.0f,
-		                 narrow<float>(borderA * alpha) / (255.0f * 255.0f));
+		                 narrow<float>(borderR) * (1.0f / 255.0f),
+		                 narrow<float>(borderG) * (1.0f / 255.0f),
+		                 narrow<float>(borderB) * (1.0f / 255.0f),
+		                 narrow<float>(borderA * alpha) * (1.0f / (255.0f * 255.0f)));
 
 		if ((2 * borderSize >= abs(size[0])) ||
 		    (2 * borderSize >= abs(size[1]))) {

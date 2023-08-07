@@ -283,7 +283,7 @@ void AfterCommand::afterTclTime(
 	command.addListElements(view::drop(tokens, 2));
 	auto [idx, ptr] = afterCmdPool.emplace(
 		std::in_place_type_t<AfterRealTimeCmd>{},
-		reactor.getRTScheduler(), *this, command, ms / 1000.0);
+		reactor.getRTScheduler(), *this, command, ms * (1.0 / 1000.0));
 	result = std::get<AfterRealTimeCmd>(*ptr).getIdStr();
 	afterCmds.push_back(idx);
 }

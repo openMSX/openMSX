@@ -1560,8 +1560,8 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
 		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
 		// apply the saturation
-		Pr *= (narrow<float>(saturationPr) / 100.0f);
-		Pb *= (narrow<float>(saturationPb) / 100.0f);
+		Pr *= (narrow<float>(saturationPr) * (1.0f / 100.0f));
+		Pb *= (narrow<float>(saturationPb) * (1.0f / 100.0f));
 		// convert to RGB as follows:
 		/*
 		  |R|   | 1  0      1.402 |   |Y |

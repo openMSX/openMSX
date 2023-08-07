@@ -275,7 +275,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 		im::TreeNode("Name Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			float rows = float(lines) / 8.0f; // 24, 26.5 or 32
+			float rows = float(lines) * (1.0f / 8.0f); // 24, 26.5 or 32
 			auto columns = [&] {
 				if (mode == TEXT40) return 40;
 				if (mode == TEXT80) return 80;

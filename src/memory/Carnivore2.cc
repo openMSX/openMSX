@@ -272,7 +272,7 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 static constexpr float volumeLevel(byte volume)
 {
 	constexpr std::array<byte, 8> tab = {5, 6, 7, 8, 10, 12, 14, 16};
-	return narrow<float>(tab[volume & 7]) / 16.0f;
+	return narrow<float>(tab[volume & 7]) * (1.0f / 16.0f);
 }
 
 void Carnivore2::writeSndLVL(byte value, EmuTime::param time)

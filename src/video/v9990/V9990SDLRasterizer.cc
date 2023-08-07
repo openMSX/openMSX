@@ -277,7 +277,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 		// special case speeds up palette precalculation a lot.
 		std::array<int, 32> intensity;
 		for (auto [i, r] : enumerate(intensity)) {
-			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
+			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 		}
 		for (auto [grb, col] : enumerate(palette32768)) {
 			col = screen.mapRGB255(gl::ivec3(
@@ -293,7 +293,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 					             narrow<float>(g),
 					             narrow<float>(b)};
 					palette32768[(g << 10) + (r << 5) + b] = Pixel(
-						screen.mapRGB(renderSettings.transformRGB(rgb / 31.0f)));
+						screen.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
 				}
 			}
 		}

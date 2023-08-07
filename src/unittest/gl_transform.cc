@@ -162,11 +162,13 @@ TEST_CASE("gl_transform: rotation")
 
 TEST_CASE("gl_transform: ortho")
 {
-	mat4 O = ortho(0, 640, 0, 480, -1, 1);
-	CHECK(approxEq(O, mat4(vec4(0.003125f, 0.0f, 0.0f, 0.0f),
-			       vec4(0.0f, 0.00416667f, 0.0f, 0.0f),
-			       vec4(0.0f, 0.0f, -1.0f, 0.0f),
-			       vec4(-1.0f, -1.0f, 0.0f, 1.0f))));
+	mat4 O1 = ortho(0, 640, 480, 0, -1, 1);
+	mat4 O2 = ortho(640, 480);
+	CHECK(approxEq(O1, O2));
+	CHECK(approxEq(O1, mat4(vec4(0.003125f, 0.0f, 0.0f, 0.0f),
+			        vec4(0.0f, -0.00416667f, 0.0f, 0.0f),
+			        vec4(0.0f, 0.0f, -1.0f, 0.0f),
+			        vec4(-1.0f, 1.0f, 0.0f, 1.0f))));
 }
 
 TEST_CASE("gl_transform: frustum")

@@ -359,7 +359,7 @@ void ReverseManager::goTo(
 		// rate of the active video chip (v99x8/v9990) at the target
 		// time. This is quite complex to get and the difference between
 		// 2 PAL and 2 NTSC frames isn't that big.
-		double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
+		static constexpr double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
 		EmuDuration preDelta(noVideo ? 0.0 : dur2frames);
 		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
 		                  ? targetTime - preDelta

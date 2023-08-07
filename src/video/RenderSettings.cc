@@ -229,9 +229,9 @@ void RenderSettings::update(const Setting& setting) noexcept
 void RenderSettings::updateBrightnessAndContrast()
 {
 	float contrastValue = getContrast();
-	contrast = (contrastValue >= 0.0f) ? (1.0f + contrastValue /  25.0f)
-	                                   : (1.0f + contrastValue / 125.0f);
-	brightness = (getBrightness() / 100.0f - 0.5f) * contrast + 0.5f;
+	contrast = (contrastValue >= 0.0f) ? (1.0f + contrastValue * (1.0f /  25.0f))
+	                                   : (1.0f + contrastValue * (1.0f / 125.0f));
+	brightness = (getBrightness() * (1.0f / 100.0f) - 0.5f) * contrast + 0.5f;
 }
 
 static float conv2(float x, float gamma)

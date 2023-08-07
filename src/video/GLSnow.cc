@@ -53,7 +53,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	static unsigned cnt = 0;
 	cnt = (cnt + 1) % 8;
 
-	vec2 offset(random_float(0.0f, 1.0f) ,random_float(0.0f, 1.0f));
+	vec2 offset(random_float(0.0f, 1.0f), random_float(0.0f, 1.0f));
 	const std::array tex = {
 		offset + vec2(0.0f, 2.0f),
 		offset + vec2(2.0f, 2.0f),

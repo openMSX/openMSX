@@ -2,7 +2,7 @@
 # does not target any specific CPU.
 
 # Optimisation flags.
-CXXFLAGS+=-O3 -DNDEBUG -ffast-math
+CXXFLAGS+=-O3 -DNDEBUG
 
 # openMSX crashes when the win32 version is built with -fomit-frame-pointer
 # TODO: investigate and recheck when new compiler is used.

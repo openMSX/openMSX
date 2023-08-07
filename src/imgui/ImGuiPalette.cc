@@ -73,7 +73,8 @@ static void insertRGB(std::span<uint16_t, 16> msxPalette, unsigned index, std::a
 uint32_t ImGuiPalette::toRGBA(uint16_t msxColor)
 {
 	auto [r, g, b] = extractRGB(msxColor);
-	return ImColor(float(r) / 7.0f, float(g) / 7.0f, float(b) / 7.0f);
+	static constexpr float scale = 1.0f / 7.0f;
+	return ImColor(float(r) * scale, float(g) * scale, float(b) * scale);
 }
 
 static bool coloredButton(const char* id, ImU32 color, ImVec2 size)
@@ -161,10 +162,11 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 							ImGui::AlignTextToFramePadding();
 							ImGui::TextUnformatted(names[i]);
 							ImGui::SameLine();
-							im::StyleColor(ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.5f, 0.5f)),
-								ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.6f, 0.5f)),
-								ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.7f, 0.5f)),
-								ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) / 3.0f, 0.9f, 0.9f)), [&]{
+							im::StyleColor(
+								ImGuiCol_FrameBg,        static_cast<ImVec4>(ImColor::HSV(float(i) * (1.0f / 3.0f), 0.5f, 0.5f)),
+								ImGuiCol_FrameBgHovered, static_cast<ImVec4>(ImColor::HSV(float(i) * (1.0f / 3.0f), 0.6f, 0.5f)),
+								ImGuiCol_FrameBgActive,  static_cast<ImVec4>(ImColor::HSV(float(i) * (1.0f / 3.0f), 0.7f, 0.5f)),
+								ImGuiCol_SliderGrab,     static_cast<ImVec4>(ImColor::HSV(float(i) * (1.0f / 3.0f), 0.9f, 0.9f)), [&]{
 								ImGui::SetNextItemWidth(-FLT_MIN);
 								if (ImGui::SliderInt("##v", &rgb[i], 0, 7, "%d", ImGuiSliderFlags_AlwaysClamp)) {
 									assert(!disabled);

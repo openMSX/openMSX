@@ -15,6 +15,7 @@ namespace openmsx {
 inline constexpr uint64_t MAIN_FREQ = 3579545ULL * 960;
 inline constexpr unsigned MAIN_FREQ32 = MAIN_FREQ;
 static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
+inline constexpr double RECIP_MAIN_FREQ = 1.0 / MAIN_FREQ;
 
 
 class EmuDuration
@@ -48,7 +49,7 @@ public:
 		{ return EmuDuration(MAIN_FREQ / x); }
 
 	// conversions
-	[[nodiscard]] constexpr double toDouble() const { return double(time) / MAIN_FREQ32; }
+	[[nodiscard]] constexpr double toDouble() const { return double(time) * RECIP_MAIN_FREQ; }
 	[[nodiscard]] constexpr uint64_t length() const { return time; }
 
 	// comparison operators
