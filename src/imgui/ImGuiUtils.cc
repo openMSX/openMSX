@@ -140,8 +140,13 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
 {
 	std::string name(setting.getBaseName());
+	ComboBox(name.c_str(), setting);
+}
+void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code with EnumSetting?
+{
+	std::string name(setting.getBaseName());
 	auto current = setting.getValue().getString();
-	im::Combo(name.c_str(), current.c_str(), [&]{
+	im::Combo(label, current.c_str(), [&]{
 		for (const auto& value : setting.getPossibleValues()) {
 			bool selected = value == current;
 			if (ImGui::Selectable(std::string(value).c_str(), selected)) {

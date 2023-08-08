@@ -40,6 +40,7 @@ bool InputText(const char* label, Setting& setting);
 void ComboBox(Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(VideoSourceSetting& setting);
+void ComboBox(const char* label, VideoSourceSetting& setting);
 
 const char* getComboString(int item, const char* itemsSeparatedByZeros);
 
