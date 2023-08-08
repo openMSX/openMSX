@@ -58,6 +58,7 @@ void ImGuiBreakPoints::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
 
+	ImGui::SetNextWindowSize(gl::vec2{25, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Breakpoints", &show, [&]{
 		im::TabBar("tabs", [&]{
 			auto& cpuInterface = motherBoard->getCPUInterface();

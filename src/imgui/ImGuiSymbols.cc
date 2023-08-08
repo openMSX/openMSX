@@ -111,6 +111,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!show) return;
 
+	ImGui::SetNextWindowSize(gl::vec2{24, 18} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Symbol Manager", &show, [&]{
 		if (ImGui::Button("Load symbol file...")) {
 			manager.openFile.selectFile(
