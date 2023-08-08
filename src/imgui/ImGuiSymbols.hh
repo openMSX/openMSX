@@ -31,7 +31,9 @@ public:
 
 	[[nodiscard]] zstring_view iniName() const override { return "symbols"; }
 	void save(ImGuiTextBuffer& buf) override;
+	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
+	void loadEnd() override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
 	[[nodiscard]] const std::vector<std::string>& getFiles();
@@ -45,6 +47,8 @@ private:
 	void dropCaches();
 
 	void reload(const std::string& file);
+	void reload1(const std::string& file);
+	void reloadAll();
 	void remove(const std::string& file);
 	void remove2(const std::string& file);
 	void removeAll();

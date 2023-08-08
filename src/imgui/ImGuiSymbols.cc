@@ -29,11 +29,30 @@ ImGuiSymbols::ImGuiSymbols(ImGuiManager& manager_)
 void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+	auto files = getFiles();
+	for (const auto& file : files) {
+		buf.appendf("symbolfile=%s\n", file.c_str());
+	}
+}
+
+void ImGuiSymbols::loadStart()
+{
+	removeAll();
+	assert(filesCache.empty());
 }
 
 void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 {
-	loadOnePersistent(name, value, *this, persistentElements);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (name == "symbolfile") {
+		filesCache.emplace_back(value);
+	}
+}
+
+void ImGuiSymbols::loadEnd()
+{
+	reloadAll();
 }
 
 static void checkSort(std::vector<Symbol>& symbols)
@@ -139,9 +158,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 		});
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
-				for (const auto& file : files) {
-					reload(file);
-				}
+				reloadAll();
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Remove all")) {
@@ -199,6 +216,21 @@ std::string_view ImGuiSymbols::lookupValue(uint16_t value)
 
 void ImGuiSymbols::reload(const std::string& file)
 {
+	reload1(file);
+	dropCaches();
+}
+
+void ImGuiSymbols::reloadAll()
+{
+	auto files = getFiles();
+	for (const auto& file : files) {
+		reload(file);
+	}
+	dropCaches();
+}
+
+void ImGuiSymbols::reload1(const std::string& file)
+{
 	auto& cliComm = manager.getReactor().getCliComm();
 	try {
 		auto newSymbols = load(file);
@@ -214,7 +246,6 @@ void ImGuiSymbols::reload(const std::string& file)
 		manager.getReactor().getCliComm().printWarning(
 			"Couldn't load symbol file \"", file, "\": ", e.getMessage());
 	}
-	dropCaches();
 }
 
 void ImGuiSymbols::removeAll()
