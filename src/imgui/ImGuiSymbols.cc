@@ -285,6 +285,10 @@ void ImGuiSymbols::remove2(const std::string& file)
 void ImGuiSymbols::remove(const std::string& file)
 {
 	remove2(file);
+	if (auto it = ranges::find(fileError, file, &FileError::file);
+	    it != fileError.end()) {
+		fileError.erase(it);
+	}
 	dropCaches();
 }
 
