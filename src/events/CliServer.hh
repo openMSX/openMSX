@@ -39,8 +39,10 @@ public:
 private:
 	void mainLoop();
 	[[nodiscard]] SOCKET createSocket();
+#ifdef _WIN32
 	[[nodiscard]] int openPort(SOCKET listenSock);
 	[[nodiscard]] void setCurrentSocketPortNumber(int port) { globalSettings.getSocketSettingsManager().setCurrentSocketPortNumber(port); }
+#endif
 	void exitAcceptLoop();
 	void deleteSocketFile(const std::string& socket);
 

@@ -1,3 +1,5 @@
+#ifdef _WIN32
+
 #include "SocketSettingsManager.hh"
 
 namespace openmsx {
@@ -47,3 +49,5 @@ void SocketSettingsManager::update(const Setting& /*setting*/) noexcept
 }
 
 } // namespace openmsx
+
+#endif //_WIN32
