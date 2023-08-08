@@ -29,8 +29,10 @@ ImGuiSymbols::ImGuiSymbols(ImGuiManager& manager_)
 void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
-	auto files = getFiles();
-	for (const auto& file : files) {
+	for (const auto& file : getFiles()) {
+		buf.appendf("symbolfile=%s\n", file.c_str());
+	}
+	for (const auto& [file, _] : fileError) {
 		buf.appendf("symbolfile=%s\n", file.c_str());
 	}
 }
@@ -140,21 +142,36 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 				});
 		}
 
-		auto files = getFiles(); // make copy because cache may get dropped
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			for (const auto& file : files) {
-				auto title = strCat("File: ", file);
-				im::TreeNode(title.c_str(), [&]{
-					if (ImGui::Button("Reload")) {
-						reload(file);
-					}
-					ImGui::SameLine();
-					if (ImGui::Button("Remove")) {
-						remove(file);
-					}
-					drawTable<true>(symbols, file);
+			auto drawFile = [&](const std::string& file, const std::string& error) {
+				im::StyleColor(ImGuiCol_Text, error.empty() ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+				                                            : ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+					auto title = strCat("File: ", file);
+					im::TreeNode(title.c_str(), [&]{
+						if (!error.empty()) {
+							ImGui::TextUnformatted(error);
+						}
+						im::StyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), [&]{
+							if (ImGui::Button("Reload")) {
+								reload(file);
+							}
+							ImGui::SameLine();
+							if (ImGui::Button("Remove")) {
+								remove(file);
+							}
+							drawTable<true>(symbols, file);
+						});
+					});
 				});
+			};
+			auto files = getFiles(); // make copy because cache may get dropped
+			for (const auto& file : files) {
+				drawFile(file, {});
 			}
+			for (const auto& [file, error] : fileError) {
+				drawFile(file, error);
+			}
+
 		});
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
@@ -232,6 +249,7 @@ void ImGuiSymbols::reloadAll()
 void ImGuiSymbols::reload1(const std::string& file)
 {
 	auto& cliComm = manager.getReactor().getCliComm();
+	auto it = ranges::find(fileError, file, &FileError::file);
 	try {
 		auto newSymbols = load(file);
 		if (newSymbols.empty()) {
@@ -242,9 +260,15 @@ void ImGuiSymbols::reload1(const std::string& file)
 		}
 		remove2(file); // do not yet refresh symbols
 		append(symbols, std::move(newSymbols));
+		if (it != fileError.end()) fileError.erase(it); // clear previous error
 	} catch (MSXException& e) {
 		manager.getReactor().getCliComm().printWarning(
 			"Couldn't load symbol file \"", file, "\": ", e.getMessage());
+		if (it != fileError.end()) {
+			it->error = e.getMessage(); // overwrite previous error
+		} else {
+			fileError.push_back({file, e.getMessage()}); // set error
+		}
 	}
 }
 

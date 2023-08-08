@@ -60,6 +60,12 @@ private:
 	std::vector<std::string> filesCache; // calculated from 'symbols'
 	hash_map<uint16_t, std::string> lookupValueCache; // calculated from 'symbols'
 
+	struct FileError {
+		std::string file;
+		std::string error;
+	};
+	std::vector<FileError> fileError;
+
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSymbols::show}
 	};
