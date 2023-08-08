@@ -518,7 +518,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 	if (ImGui::TableNextColumn()) { // enable
 		auto pos = ImGui::GetCursorPos();
 		if (ImGui::Selectable("##selection", selectedRow == row,
-				ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap,
+				ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap,
 				{0.0f, rowHeight})) {
 			selectedRow = row;
 		}

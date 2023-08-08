@@ -288,7 +288,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 							auto textHeight = ImGui::GetTextLineHeight();
 							float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
 										std::max(float(icon.on.size[1]), float(icon.off.size[1])));
-							ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2(0, rowHeight));
+							ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
 							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("config-icon-context");
 							}

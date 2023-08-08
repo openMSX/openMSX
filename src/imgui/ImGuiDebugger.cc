@@ -348,7 +348,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGuiListClipper clipper; // only draw the actually visible rows
 			clipper.Begin(0x10000);
 			if (gotoTarget) {
-				clipper.ForceDisplayRangeByIndices(*gotoTarget, *gotoTarget + 1);
+				clipper.IncludeRangeByIndices(*gotoTarget, *gotoTarget + 1);
 			}
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
@@ -422,7 +422,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							// do the full-row-selectable stuff in a column that cannot be hidden
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
-									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
+									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
 							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
 							}
