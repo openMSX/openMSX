@@ -11,11 +11,17 @@ void ImGuiOpenFile::save(ImGuiTextBuffer& buf)
 	for (const auto& [key, value] : lastPath) {
 		buf.appendf("%s=%s\n", key.c_str(), value.c_str());
 	}
+	auto bookmarks = ImGuiFileDialog::Instance()->SerializeBookmarks();
+	buf.appendf("bookmarks=%s\n", bookmarks.c_str());
 }
 
 void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 {
-	lastPath[std::string(name)] = value;
+	if (name == "bookmarks") {
+		ImGuiFileDialog::Instance()->DeserializeBookmarks(std::string(value));
+	} else {
+		lastPath[std::string(name)] = value;
+	}
 }
 
 void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
