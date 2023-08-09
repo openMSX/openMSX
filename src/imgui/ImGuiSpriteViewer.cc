@@ -143,6 +143,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
 
+	ImGui::SetNextWindowSize({766, 1010}, ImGuiCond_FirstUseEver);
 	im::Window("Sprite viewer", &show, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;

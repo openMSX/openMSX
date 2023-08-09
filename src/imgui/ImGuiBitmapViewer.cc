@@ -37,6 +37,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	if (!showBitmapViewer) return;
 	if (!motherBoard) return;
 
+	ImGui::SetNextWindowSize({532, 562}, ImGuiCond_FirstUseEver);
 	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
