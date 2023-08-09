@@ -7,6 +7,7 @@
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
+#include "HardwareConfig.hh"
 #include "MSXRomCLI.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
@@ -191,7 +192,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		}
 		endGroup();
 
-		// cartA / extX TODO
+		// cartA / extX
 		auto& slotManager = motherBoard->getSlotManager();
 		std::string cartName = "cartX";
 		std::string extName = "extX";
@@ -235,6 +236,36 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			}
 		}
+		endGroup();
+
+		// extensions (needed for I/O-only extensions, or when you don't care about the exact slot)
+		elementInGroup();
+		im::Menu("Extensions", [&]{
+			std::string name = "ext";
+			auto& extInfo = mediaStuff.try_emplace(name).first->second;
+
+			im::Menu("Insert", [&]{
+				for (const auto& ext : getAvailableExtensions()) {
+					if (ImGui::MenuItem(ext.c_str())) {
+						insertMedia(name, extInfo, ext);
+					}
+				}
+			});
+
+			showRecent(name, extInfo);
+			ImGui::Separator();
+
+			const auto& extensions = motherBoard->getExtensions();
+			im::Disabled(extensions.empty(), [&]{
+				im::Menu("Remove", [&]{
+					for (const auto& ext : extensions) {
+						if (ImGui::Selectable(ext->getName().c_str())) {
+							motherBoard->removeExtension(*ext);
+						}
+					}
+				});
+			});
+		});
 		endGroup();
 
 		// cassetteplayer
