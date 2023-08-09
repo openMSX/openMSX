@@ -24,16 +24,16 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool showReverseBar;
+	bool showReverseBar = true;
 private:
 	ImGuiManager& manager;
 
 	std::string saveStateName;
 	std::string saveReplayName;
 
-	bool reverseHideTitle;
-	bool reverseFadeOut;
-	bool reverseAllowMove;
+	bool reverseHideTitle = true;
+	bool reverseFadeOut = true;
+	bool reverseAllowMove = false;
 	float reverseAlpha = 1.0f;
 
 	struct PreviewImage {

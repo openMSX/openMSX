@@ -147,6 +147,12 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	}
 	ImGui::SetNextWindowSizeConstraints(ImVec2(250, windowHeight), ImVec2(FLT_MAX, windowHeight));
 
+	// default placement: bottom right
+	const auto* viewPort = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(gl::vec2(viewPort->Pos) + gl::vec2(viewPort->WorkSize) - gl::vec2(10.0f),
+	                        ImGuiCond_FirstUseEver,
+	                        {1.0f, 1.0f}); // pivot = bottom-right
+
 	int flags = reverseHideTitle ? ImGuiWindowFlags_NoTitleBar |
 	                               ImGuiWindowFlags_NoResize |
 	                               ImGuiWindowFlags_NoScrollbar |
