@@ -8,6 +8,7 @@
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "MSXRomCLI.hh"
+#include "Reactor.hh"
 #include "RealDrive.hh"
 #include "RomInfo.hh"
 
@@ -112,6 +113,14 @@ static std::string display(const ImGuiMedia::RecentItem& item, int count)
 	return result;
 }
 
+const std::vector<std::string>& ImGuiMedia::getAvailableExtensions()
+{
+	if (availableExtensionsCache.empty()) {
+		availableExtensionsCache = Reactor::getHwConfigs("extensions");
+	}
+	return availableExtensionsCache;
+}
+
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Media", motherBoard != nullptr, [&]{
@@ -140,7 +149,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		auto showRecent = [&](const std::string& media, MediaInfo& info) {
 			if (!info.recent.empty()) {
 				im::Indent([&] {
-					im::Menu("Recent", [&]{
+					im::Menu(strCat("Recent##", media).c_str(), [&]{
 						int count = 0;
 						for (const auto& item : info.recent) {
 							if (ImGui::MenuItem(display(item, count).c_str())) {
@@ -176,7 +185,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							[this, driveName, &info](const auto& fn) { this->insertMedia(driveName, info, fn); });
 					}
 					showRecent(driveName, info);
-					ImGui::MenuItem("Insert disk window (advanced)", nullptr, &info.showAdvanced);
+					ImGui::MenuItem("Insert disk window (advanced) ...", nullptr, &info.showAdvanced);
 				});
 			}
 		}
@@ -185,10 +194,12 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		// cartA / extX TODO
 		auto& slotManager = motherBoard->getSlotManager();
 		std::string cartName = "cartX";
+		std::string extName = "extX";
 		for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!slotManager.slotExists(slot)) continue;
 			cartName[4] = char('a' + slot);
-			const std::string displaySlotName = std::string("Cartridge Slot ") + char(::toupper(cartName[4]));
+			extName [3] = char('a' + slot);
+			const std::string displaySlotName = strCat("Cartridge Slot ", char('A' + slot));
 			if (auto cmdResult = manager.execute(TclObject(cartName))) {
 				elementInGroup();
 				im::Menu(displaySlotName.c_str(), [&]{
@@ -197,20 +208,30 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
 						manager.executeDelayed(makeTclList(cartName, "eject"));
 					}
-					auto& info = mediaStuff.try_emplace(cartName).first->second;
+					ImGui::Separator();
+
+					auto& cartInfo = mediaStuff.try_emplace(cartName).first->second;
 					if (ImGui::MenuItem("Select ROM file...")) {
 						manager.openFile.selectFile(
 							"Select ROM image for " + displaySlotName,
 							romFilter(),
-							[this, cartName, &info](const auto& fn) { this->insertMedia(cartName, info, fn); });
+							[this, cartName, &cartInfo](const auto& fn) { this->insertMedia(cartName, cartInfo, fn); });
 					}
-					showRecent(cartName, info);
-					ImGui::MenuItem("Insert ROM window (advanced)", nullptr, &info.showAdvanced);
+					showRecent(cartName, cartInfo);
 					ImGui::Separator();
 
-					if (ImGui::MenuItem("insert extension TODO")) {
-						ImGui::TextUnformatted("TODO"sv);
-					}
+					auto& extInfo = mediaStuff.try_emplace(extName).first->second;
+					im::Menu("Insert extension", [&]{
+						for (const auto& name : getAvailableExtensions()) {
+							if (ImGui::MenuItem(name.c_str())) {
+								insertMedia(extName, extInfo, name);
+							}
+						}
+					});
+					showRecent(extName, extInfo);
+					ImGui::Separator();
+
+					ImGui::MenuItem("Insert ROM window (advanced) ...", nullptr, &cartInfo.showAdvanced);
 				});
 			}
 		}
@@ -276,12 +297,15 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 
 	auto& slotManager = motherBoard->getSlotManager();
 	media = "cartX";
+	std::string ext = "extX";
 	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 		if (!slotManager.slotExists(slot)) continue;
 		media[4] = char('a' + slot);
-		auto& info = mediaStuff.try_emplace(media).first->second;
-		if (info.showAdvanced) {
-			advancedRomMenu(media, info);
+		ext[3] = char('a' + slot);
+		auto& cartInfo = mediaStuff.try_emplace(media).first->second;
+		auto& extInfo = mediaStuff.try_emplace(media).first->second;
+		if (cartInfo.showAdvanced) {
+			advancedRomMenu(media, cartInfo, ext, extInfo);
 		}
 	}
 }
@@ -511,28 +535,32 @@ void ImGuiMedia::advancedDiskMenu(const std::string& media, MediaInfo& info)
 	});
 }
 
-void ImGuiMedia::advancedRomMenu(const std::string& media, MediaInfo& info)
+void ImGuiMedia::advancedRomMenu(const std::string& cartName, MediaInfo& cartInfo,
+                                 const std::string& extName, MediaInfo& extInfo)
 {
-	const std::string displaySlotName = std::string("Cartridge Slot ") + char(::toupper(media[4]));
-	im::Window(displaySlotName.c_str(), &info.showAdvanced, [&]{
-		showRomInfo(media, info);
+	const std::string displaySlotName = strCat("Cartridge Slot ", char(::toupper(cartName[4])));
+	im::Window(displaySlotName.c_str(), &cartInfo.showAdvanced, [&]{
+		showRomInfo(cartName, cartInfo);
 		ImGui::TextUnformatted("Select new ROM:"sv);
 		im::Indent([&]{
-			selectImage(info, strCat("Select ROM image for ", displaySlotName), &romFilter);
-			selectMapperType(info);
-			selectPatches(info);
+			selectImage(cartInfo, strCat("Select ROM image for ", displaySlotName), &romFilter);
+			selectMapperType(cartInfo);
+			selectPatches(cartInfo);
 		});
-		insertMediaButton(info, media, "Insert selected ROM");
+		insertMediaButton(cartInfo, cartName, "Insert selected ROM");
 		ImGui::Separator();
 
 		ImGui::TextUnformatted("Select new extension:"sv);
 		im::Indent([&]{
-			im::Combo("##extension", "TODO", [&]{
+			im::Combo("##extension", extInfo.imageName.c_str(), [&]{
+				for (const auto& name : getAvailableExtensions()) {
+					if (ImGui::Selectable(name.c_str())) {
+						extInfo.imageName = name;
+					}
+				}
 			});
 		});
-		if (ImGui::Button("Insert selected extension TODO")) {
-			std::cerr << "TODO\n";
-		}
+		insertMediaButton(extInfo, extName, "Insert selected extension");
 	});
 }
 

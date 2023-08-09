@@ -1,5 +1,6 @@
 #include "CliExtension.hh"
 #include "CommandLineParser.hh"
+#include "HardwareConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <cassert>
@@ -28,7 +29,8 @@ void CliExtension::parseOption(const std::string& option, std::span<std::string>
 		} else {
 			slotName = "any";
 		}
-		motherboard->loadExtension(extensionName, slotName);
+		motherboard->insertExtension(extensionName,
+			motherboard->loadExtension(extensionName, slotName));
 	} catch (MSXException& e) {
 		throw FatalError(std::move(e).getMessage());
 	}

@@ -63,18 +63,21 @@ private:
 	void selectPatches(MediaInfo& info);
 	void insertMediaButton(MediaInfo& info, const std::string& media, zstring_view title);
 	void advancedDiskMenu(const std::string& media, MediaInfo& info);
-	void advancedRomMenu (const std::string& media, MediaInfo& info);
+	void advancedRomMenu (const std::string& cartName, MediaInfo& cartInfo,
+	                      const std::string& extName, MediaInfo& extInfo);
 	void insertMedia(const std::string& media, MediaInfo& info,
 	                 const std::string& filename,
 	                 std::span<const std::string> patches = {},
 	                 RomType romType = ROM_UNKNOWN);
-	void addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches,
-	               RomType romType);
+	void addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches = {},
+	               RomType romType = ROM_UNKNOWN);
+	const std::vector<std::string>& getAvailableExtensions();
 
 private:
 	ImGuiManager& manager;
 
 	std::map<std::string, MediaInfo> mediaStuff; // values need stable address
+	std::vector<std::string> availableExtensionsCache;
 	int patchIndex = -1;
 };
 

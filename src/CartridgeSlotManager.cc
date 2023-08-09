@@ -333,8 +333,7 @@ const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
 	if (cartName.size() != 5) {
 		throw SyntaxError();
 	}
-	int slot = cartName[4] - 'a';
-	return manager.slots[slot].config;
+	return manager.getConfigForSlot(cartName[4] - 'a');
 }
 
 void CartridgeSlotManager::CartCmd::execute(

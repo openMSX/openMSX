@@ -50,6 +50,9 @@ public:
 		assert(slot < MAX_SLOTS);
 		return slots[slot].exists();
 	}
+	const HardwareConfig* getConfigForSlot(unsigned slot) const {
+		return slots[slot].config;
+	}
 
 private:
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
