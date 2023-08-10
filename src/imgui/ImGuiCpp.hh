@@ -321,6 +321,14 @@ inline void Tooltip(std::invocable<> auto next)
 		ImGui::EndTooltip();
 	}
 }
+// im::Tooltip(): wrapper around ImGui::BeginItemTooltip() / ImGui::EndTooltip()
+inline void ItemTooltip(std::invocable<> auto next)
+{
+	if (ImGui::BeginItemTooltip()) {
+		next();
+		ImGui::EndTooltip();
+	}
+}
 
 // im::Popup(): wrapper around ImGui::BeginPopup() / ImGui::EndPopup()
 inline void Popup(const char* str_id, ImGuiWindowFlags flags, std::invocable<> auto next)

@@ -136,19 +136,17 @@ const TclObject& ImGuiMedia::getExtensionInfo(const std::string& extension)
 
 void ImGuiMedia::extensionTooltip(const std::string& extName)
 {
-	if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
-		im::Tooltip([&]{
-			const auto& info = getExtensionInfo(extName);
-			im::Table("##extension-info", 2, [&]{
-				for (const auto& i : info) {
-					ImGui::TableNextColumn();
-					im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-						ImGui::TextUnformatted(i);
-					});
-				}
-			});
+	im::ItemTooltip([&]{
+		const auto& info = getExtensionInfo(extName);
+		im::Table("##extension-info", 2, [&]{
+			for (const auto& i : info) {
+				ImGui::TableNextColumn();
+				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+					ImGui::TextUnformatted(i);
+				});
+			}
 		});
-	}
+	});
 }
 
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)

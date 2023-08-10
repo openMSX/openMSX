@@ -448,13 +448,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 										nextGotoTarget = *a;
 									}
 								}
-								if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+								im::ItemTooltip([&]{
 									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
-										im::Tooltip([&]{
-											ImGui::StrCat("0x", hex_string<4>(*a));
-										});
+										ImGui::StrCat("0x", hex_string<4>(*a));
 									}
-								}
+								});
 							});
 
 							auto addrLabel = manager.symbols.lookupValue(addr);

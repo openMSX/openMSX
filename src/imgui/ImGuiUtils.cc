@@ -17,13 +17,11 @@ namespace openmsx {
 
 void simpleToolTip(std::string_view desc)
 {
-	if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
-		im::Tooltip([&]{
-			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-				ImGui::TextUnformatted(desc);
-			});
+	im::ItemTooltip([&]{
+		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+			ImGui::TextUnformatted(desc);
 		});
-	}
+	});
 }
 
 void HelpMarker(std::string_view desc)
