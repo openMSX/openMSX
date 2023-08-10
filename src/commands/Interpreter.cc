@@ -427,7 +427,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// that goes via Tcl and the Tcl variable
 				// doesn't exist at this point
 				variable->setValueDirect(TclObject(
-					variable->getRestoreValue()));
+					variable->getDefaultValue()));
 			} catch (MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource

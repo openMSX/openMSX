@@ -41,7 +41,6 @@ Setting::Setting(CommandController& commandController_,
 	, description(description_)
 	, value(initialValue)
 	, defaultValue(initialValue)
-	, restoreValue(initialValue)
 	, save(save_)
 {
 	checkFunc = [](TclObject&) { /* nothing */ };
@@ -105,9 +104,6 @@ void Setting::notify() const
 	if (!needLoadSave() || (val == getDefaultValue())) {
 		config.removeValueForSetting(base);
 	} else {
-		// check for non-saveable value
-		// (mechanism can be generalize later when needed)
-		if (dontSaveValue && val == *dontSaveValue) val = getRestoreValue();
 		config.setValueForSetting(base, val.getString());
 	}
 }
@@ -127,11 +123,6 @@ bool Setting::needLoadSave() const
 bool Setting::needTransfer() const
 {
 	return save != DONT_TRANSFER;
-}
-
-void Setting::setDontSaveValue(const TclObject& dontSaveValue_)
-{
-	dontSaveValue = dontSaveValue_;
 }
 
 GlobalCommandController& Setting::getGlobalCommandController() const

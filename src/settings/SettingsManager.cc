@@ -101,7 +101,7 @@ void SettingsManager::loadSettings(const SettingsConfig& config)
 	for (auto* s : settings) {
 		if (!s->needLoadSave()) continue;
 
-		s->setValue(s->getRestoreValue());
+		s->setValue(s->getDefaultValue());
 
 		if (const auto* savedValue = config.getValueForSetting(s->getFullName())) {
 			try {

@@ -215,7 +215,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
-						reactor.getMachineSetting().getRestoreValue().getString();
+						reactor.getMachineSetting().getDefaultValue().getString();
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {

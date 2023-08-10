@@ -128,7 +128,7 @@ static int main(int argc, char **argv)
 		if (parseStatus != CommandLineParser::EXIT) {
 			if (!parser.isHiddenStartup()) {
 				auto& render = reactor.getDisplay().getRenderSettings().getRendererSetting();
-				render.setValue(render.getRestoreValue());
+				render.setValue(render.getDefaultValue());
 				// Switching renderer requires events, handle
 				// these events before continuing with the rest
 				// of initialization. This fixes a bug where

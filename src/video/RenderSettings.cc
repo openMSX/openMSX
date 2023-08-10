@@ -86,8 +86,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDLGL_PP,
-		getRendererMap())
+		SDLGL_PP, getRendererMap(), Setting::DONT_SAVE)
 
 	, horizontalBlurSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
@@ -186,25 +185,6 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		std::cerr << e.getMessage() << '\n';
 		cmIdentity = true;
 	}
-
-	// RendererSetting
-	// Make sure the value 'none' never gets saved in settings.xml.
-	// This happened in the following scenario:
-	// - During startup, the renderer is forced to the value 'none'.
-	// - If there's an error in the parsing of the command line (e.g.
-	//   because an invalid option is passed) then openmsx will never
-	//   get to the point where the actual renderer setting is restored
-	// - After the error, the classes are destructed, part of that is
-	//   saving the current settings. But without extra care, this would
-	//   save renderer=none
-	rendererSetting.setDontSaveValue(TclObject("none"));
-
-	// A saved value 'none' can be very confusing. If so change it to default.
-	if (rendererSetting.getEnum() == DUMMY) {
-		rendererSetting.setValue(rendererSetting.getDefaultValue());
-	}
-	// set saved value as default
-	rendererSetting.setRestoreValue(rendererSetting.getValue());
 
 	rendererSetting.setEnum(DUMMY); // always start hidden
 }

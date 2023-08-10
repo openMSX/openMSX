@@ -18,12 +18,10 @@ public:
 	[[nodiscard]] const TclObject& getValue() const override;
 	[[nodiscard]] std::optional<TclObject> getOptionalValue() const override;
 	[[nodiscard]] TclObject getDefaultValue() const override;
-	[[nodiscard]] TclObject getRestoreValue() const override;
 	void setValueDirect(const TclObject& value) override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	[[nodiscard]] bool needLoadSave() const override;
 	[[nodiscard]] bool needTransfer() const override;
-	void setDontSaveValue(const TclObject& dontSaveValue) override;
 	void additionalInfo(TclObject& result) const override;
 
 private:
