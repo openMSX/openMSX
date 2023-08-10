@@ -23,7 +23,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 
-	manager.paint();
+	manager.paintImGui();
 
 	// Allow docking in main window
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(),

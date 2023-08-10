@@ -14,6 +14,7 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiOsdIcons.hh"
+#include "ImGuiPart.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
@@ -33,10 +34,9 @@ struct ImGuiTextBuffer;
 
 namespace openmsx {
 
-class ImGuiPart;
 class Reactor;
 
-class ImGuiManager : public EventListener
+class ImGuiManager : public ImGuiPart, public EventListener
 {
 public:
 	ImGuiManager(const ImGuiManager&) = delete;
@@ -52,9 +52,14 @@ public:
 	                    std::function<void(const TclObject&)> ok = {},
 	                    std::function<void(const std::string&)> error = {});
 
-	void paint();
+	void paintImGui();
 
 private:
+	// ImGuiPart
+	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
+	void save(ImGuiTextBuffer& buf) override;
+	void loadLine(std::string_view name, zstring_view value) override;
+
 	// EventListener
 	int signalEvent(const Event& event) override;
 
@@ -114,7 +119,12 @@ private:
 	std::string newDropMessage, dropMessage;
 	std::string selectText;
 	std::vector<std::string> selectList;
+	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked}
+	};
 };
 
 } // namespace openmsx

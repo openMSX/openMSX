@@ -291,6 +291,15 @@ inline void ListBox(const char* label, std::invocable<> auto next)
 	ListBox(label, {}, next);
 }
 
+// im::MainMenuBar(): wrapper around ImGui::BeginMenuBar() / ImGui::EndMenuBar()
+inline void MenuBar(std::invocable<> auto next)
+{
+	if (ImGui::BeginMenuBar()) {
+		next();
+		ImGui::EndMenuBar();
+	}
+}
+
 // im::MainMenuBar(): wrapper around ImGui::BeginMainMenuBar() / ImGui::EndMainMenuBar()
 inline void MainMenuBar(std::invocable<> auto next)
 {

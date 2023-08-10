@@ -65,7 +65,8 @@ static void cleanupImGui()
 
 
 ImGuiManager::ImGuiManager(Reactor& reactor_)
-	: reactor(reactor_)
+	: ImGuiPart(*this)
+	, reactor(reactor_)
 	, machine(*this)
 	, debugger(*this)
 	, breakPoints(*this)
@@ -141,6 +142,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
+		this,
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
 		&soundChip, &keyboard, &breakPoints, &symbols,
 		&bitmap, &character, &sprite, &vdpRegs, &palette,
@@ -163,6 +165,16 @@ ImGuiManager::~ImGuiManager()
 	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
 
 	cleanupImGui();
+}
+
+void ImGuiManager::save(ImGuiTextBuffer& buf)
+{
+	savePersistent(buf, *this, persistentElements);
+}
+
+void ImGuiManager::loadLine(std::string_view name, zstring_view value)
+{
+	loadOnePersistent(name, value, *this, persistentElements);
 }
 
 Interpreter& ImGuiManager::getInterpreter()
@@ -263,27 +275,43 @@ static std::vector<std::string> getSlots(MSXMotherBoard* motherBoard)
 	return result;
 }
 
-void ImGuiManager::paint()
+void ImGuiManager::paintImGui()
 {
 	auto* motherBoard = reactor.getMotherBoard();
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}
-	menuAlpha = [&] {
-		if (!menuFade) return 1.0f;
-		bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
-		auto target = active ? 1.0f : 0.0001f;
-		auto period = active ? 0.5f : 5.0f;
-		return calculateFade(menuAlpha, target, period);
-	}();
-	im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
-		im::MainMenuBar([&]{
-			for (auto* part : parts) {
-				part->showMenu(motherBoard);
-			}
+
+	auto drawMenu = [&]{
+		for (auto* part : parts) {
+			part->showMenu(motherBoard);
+		}
+	};
+	if (mainMenuBarUndocked) {
+		im::Window("OpenMSX menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
+			im::MenuBar([&]{
+				drawMenu();
+			});
 		});
-	});
+	} else {
+		menuAlpha = [&] {
+			if (!menuFade) return 1.0f;
+			bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+				ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+			auto target = active ? 1.0f : 0.0001f;
+			auto period = active ? 0.5f : 5.0f;
+			return calculateFade(menuAlpha, target, period);
+		}();
+		im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
+			im::MainMenuBar([&]{
+				if (ImGui::Button(ICON_IGFD_CHEVRON_UP)) {
+					mainMenuBarUndocked = true;
+				}
+				simpleToolTip("Undock the menu bar from the main openMSX window.");
+				drawMenu();
+			});
+		});
+	}
 
 	// drag and drop  (move this to ImGuiMedia ?)
 	auto executeDropCommand = [&](TclObject cmd) {
