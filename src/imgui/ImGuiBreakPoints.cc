@@ -542,11 +542,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 	if (ImGui::TableNextColumn()) { // address
 		auto addrToolTip = [&]{
 			if (!item.addr) return;
-			auto tip = strCat("0x", hex_string<4>(*item.addr));
-			if (item.endAddr) {
-				strAppend(tip, "...0x", hex_string<4>(*item.endAddr));
-			}
-			simpleToolTip(tip);
+			simpleToolTip([&]{
+				auto tip = strCat("0x", hex_string<4>(*item.addr));
+				if (item.endAddr) {
+					strAppend(tip, "...0x", hex_string<4>(*item.endAddr));
+				}
+				return tip;
+			});
 		};
 		setRedBg(validAddr);
 		bool addrChanged = false;

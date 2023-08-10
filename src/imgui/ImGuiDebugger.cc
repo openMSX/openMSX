@@ -448,10 +448,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 										nextGotoTarget = *a;
 									}
 								}
-								im::ItemTooltip([&]{
+								simpleToolTip([&]{
 									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
-										ImGui::StrCat("0x", hex_string<4>(*a));
+										return strCat("0x", hex_string<4>(*a));
 									}
+									return std::string{};
 								});
 							});
 
@@ -481,8 +482,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									nextGotoTarget = *mnemonicAddr;
 								}
 								if (mnemonicLabel) {
-									auto str = tmpStrCat('#', hex_string<4>(*mnemonicAddr));
-									simpleToolTip(str);
+									simpleToolTip([&]{ return strCat('#', hex_string<4>(*mnemonicAddr)); });
 								}
 							}
 						}

@@ -15,15 +15,6 @@
 
 namespace openmsx {
 
-void simpleToolTip(std::string_view desc)
-{
-	im::ItemTooltip([&]{
-		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-			ImGui::TextUnformatted(desc);
-		});
-	});
-}
-
 void HelpMarker(std::string_view desc)
 {
 	ImGui::SameLine();

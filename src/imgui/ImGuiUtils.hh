@@ -7,10 +7,35 @@
 
 #include <imgui.h>
 
+#include <concepts>
 #include <span>
 #include <string>
 #include <string_view>
 #include <utility>
+
+namespace ImGui {
+
+inline void TextUnformatted(const std::string& str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
+}
+inline void TextUnformatted(std::string_view str)
+{
+	const char* begin = str.data();
+	const char* end = begin + str.size();
+	ImGui::TextUnformatted(begin, end);
+}
+
+template<typename... Ts>
+void StrCat(Ts&& ...ts)
+{
+	auto s = tmpStrCat(std::forward<Ts>(ts)...);
+	TextUnformatted(std::string_view(s));
+}
+
+} // namespace ImGui
 
 namespace openmsx {
 
@@ -26,7 +51,28 @@ struct EnumToolTip {
 };
 using EnumToolTips = std::span<const EnumToolTip>;
 
-void simpleToolTip(std::string_view desc);
+inline void simpleToolTip(std::string_view desc)
+{
+	if (desc.empty()) return;
+	im::ItemTooltip([&]{
+		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+			ImGui::TextUnformatted(desc);
+		});
+	});
+}
+
+void simpleToolTip(std::invocable<> auto descFunc)
+{
+	if (!ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) return;
+	auto desc = std::invoke(descFunc);
+	if (desc.empty()) return;
+	im::Tooltip([&]{
+		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+			ImGui::TextUnformatted(desc);
+		});
+	});
+}
+
 void HelpMarker(std::string_view desc);
 
 bool Checkbox(BooleanSetting& setting);
@@ -62,29 +108,5 @@ void comboHexSequence(const char* label, int* value, int mult) {
 };
 
 } // namespace openmsx
-
-namespace ImGui {
-
-inline void TextUnformatted(const std::string& str)
-{
-	const char* begin = str.data();
-	const char* end = begin + str.size();
-	ImGui::TextUnformatted(begin, end);
-}
-inline void TextUnformatted(std::string_view str)
-{
-	const char* begin = str.data();
-	const char* end = begin + str.size();
-	ImGui::TextUnformatted(begin, end);
-}
-
-template<typename... Ts>
-void StrCat(Ts&& ...ts)
-{
-	auto s = tmpStrCat(std::forward<Ts>(ts)...);
-	TextUnformatted(std::string_view(s));
-}
-
-} // namespace ImGui
 
 #endif
