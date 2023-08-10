@@ -22,7 +22,6 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		bool hasMachine = motherBoard != nullptr;
 
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
-		ImGui::MenuItem("Select extensions TODO", nullptr, nullptr, hasMachine);
 
 		auto& pauseSetting = manager.getReactor().getGlobalSettings().getPauseSetting();
 		bool pause = pauseSetting.getBoolean();
@@ -45,6 +44,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
+	ImGui::SetNextWindowSize(gl::vec2{36, 25} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Select MSX machine", &showSelectMachine, [&]{
 		auto& reactor = manager.getReactor();
 		auto instances = reactor.getMachineIDs();
@@ -109,6 +109,9 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 					if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
 						newMachineConfig = config;
 					}
+					im::ItemTooltip([&]{
+						printConfigInfo(config);
+					});
 				});
 			};
 			im::TreeNode("filter", [&]{
@@ -245,15 +248,19 @@ bool ImGuiMachine::printConfigInfo(const std::string& config)
 	bool ok = test.empty();
 	if (ok) {
 		const auto& info = getConfigInfo(config);
-		auto& interp = manager.getInterpreter();
-		for (unsigned i = 0, sz = info.size(); (i + 1) < sz; i += 2) {
-			std::string key  {info.getListIndex(interp, i + 0).getString()};
-			std::string value{info.getListIndex(interp, i + 1).getString()};
-			ImGui::TextWrapped("%s: %s", key.c_str(), value.c_str());
-		}
+		im::Table("##machine-info", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+			for (const auto& i : info) {
+				ImGui::TableNextColumn();
+				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
+					ImGui::TextUnformatted(i);
+				});
+			}
+		});
 	} else {
 		im::StyleColor(ImGuiCol_Text, 0xFF0000FF, [&]{
-			ImGui::TextWrapped("%s", test.c_str());
+			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
+				ImGui::TextUnformatted(test);
+			});
 		});
 	}
 	return ok;
