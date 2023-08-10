@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include "RomTypes.hh"
+#include "TclObject.hh"
 
 #include "circular_buffer.hh"
 #include "zstring_view.hh"
@@ -72,12 +73,15 @@ private:
 	void addRecent(MediaInfo& info, const std::string& filename, std::span<const std::string> patches = {},
 	               RomType romType = ROM_UNKNOWN);
 	const std::vector<std::string>& getAvailableExtensions();
+	const TclObject& getExtensionInfo(const std::string& extension);
+	void extensionTooltip(const std::string& extName);
 
 private:
 	ImGuiManager& manager;
 
 	std::map<std::string, MediaInfo> mediaStuff; // values need stable address
 	std::vector<std::string> availableExtensionsCache;
+	std::map<std::string, TclObject> extensionInfoCache;
 	int patchIndex = -1;
 };
 

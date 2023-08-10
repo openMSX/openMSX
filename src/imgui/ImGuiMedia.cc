@@ -122,6 +122,35 @@ const std::vector<std::string>& ImGuiMedia::getAvailableExtensions()
 	return availableExtensionsCache;
 }
 
+const TclObject& ImGuiMedia::getExtensionInfo(const std::string& extension)
+{
+	auto [it, inserted] = extensionInfoCache.try_emplace(extension);
+	auto& result = it->second;
+	if (inserted) {
+		if (auto r = manager.execute(makeTclList("openmsx_info", "extensions", extension))) {
+			result = *r;
+		}
+	}
+	return result;
+}
+
+void ImGuiMedia::extensionTooltip(const std::string& extName)
+{
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
+		im::Tooltip([&]{
+			const auto& info = getExtensionInfo(extName);
+			im::Table("##extension-info", 2, [&]{
+				for (const auto& i : info) {
+					ImGui::TableNextColumn();
+					im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+						ImGui::TextUnformatted(i);
+					});
+				}
+			});
+		});
+	}
+}
+
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Media", motherBoard != nullptr, [&]{
@@ -147,7 +176,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		};
 
-		auto showRecent = [&](const std::string& media, MediaInfo& info) {
+		auto showRecent = [&](const std::string& media, MediaInfo& info, std::function<void(const std::string&)> toolTip = {}) {
 			if (!info.recent.empty()) {
 				im::Indent([&] {
 					im::Menu(strCat("Recent##", media).c_str(), [&]{
@@ -156,6 +185,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							if (ImGui::MenuItem(display(item, count).c_str())) {
 								insertMedia(media, info, item.filename, item.ipsPatches, item.romType);
 							}
+							if (toolTip) toolTip(item.filename);
 							++count;
 						}
 					});
@@ -227,9 +257,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							if (ImGui::MenuItem(name.c_str())) {
 								insertMedia(extName, extInfo, name);
 							}
+							extensionTooltip(name);
 						}
 					});
-					showRecent(extName, extInfo);
+					showRecent(extName, extInfo, [this](const std::string& e) { extensionTooltip(e); });
 					ImGui::Separator();
 
 					ImGui::MenuItem("Insert ROM window (advanced) ...", nullptr, &cartInfo.showAdvanced);
@@ -249,10 +280,12 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::MenuItem(ext.c_str())) {
 						insertMedia(name, extInfo, ext);
 					}
+					extensionTooltip(ext);
 				}
 			});
 
-			showRecent(name, extInfo);
+			showRecent(name, extInfo, [this](const std::string& e) { extensionTooltip(e); });
+
 			ImGui::Separator();
 
 			const auto& extensions = motherBoard->getExtensions();
@@ -262,6 +295,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						if (ImGui::Selectable(ext->getName().c_str())) {
 							motherBoard->removeExtension(*ext);
 						}
+						extensionTooltip(ext->getName());
 					}
 				});
 			});
@@ -588,6 +622,7 @@ void ImGuiMedia::advancedRomMenu(const std::string& cartName, MediaInfo& cartInf
 					if (ImGui::Selectable(name.c_str())) {
 						extInfo.imageName = name;
 					}
+					extensionTooltip(name);
 				}
 			});
 		});
