@@ -58,11 +58,11 @@ private:
 
 		bool showAdvanced = false;
 
-		friend auto operator<=>(const MediaInfo& x, const MediaInfo& y) {
-			return x.name <=> y.name;
+		friend auto operator<(const MediaInfo& x, const MediaInfo& y) {
+			return x.name < y.name;
 		}
-		friend auto operator<=>(const MediaInfo& x, std::string_view y) {
-			return std::string_view(x.name) <=> y;
+		friend auto operator<(const MediaInfo& x, std::string_view y) {
+			return std::string_view(x.name) < y;
 		}
 	};
 	MediaInfo& getInfo(std::string_view media);
