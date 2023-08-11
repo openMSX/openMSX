@@ -300,7 +300,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						if (ImGui::Selectable(ext->getName().c_str())) {
 							manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
 						}
-						extensionTooltip(ext->getName());
+						extensionTooltip(ext->getConfigName());
 					}
 				});
 			});
