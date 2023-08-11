@@ -8,6 +8,8 @@
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "HardwareConfig.hh"
+#include "HD.hh"
+#include "IDECDROM.hh"
 #include "MSXRomCLI.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
@@ -109,6 +111,16 @@ static std::string romFilter()
 	return buildFilter("ROM images", MSXRomCLI::getExtensions());
 }
 
+static std::string hdFilter()
+{
+	return buildFilter("Hard disk images", std::array{"dsk"sv});
+}
+
+static std::string cdFilter()
+{
+	return buildFilter("CDROM images", std::array{"dsk"sv}); // TODO correct ??
+}
+
 static std::string display(const ImGuiMedia::RecentItem& item, int count)
 {
 	std::string result = item.filename;
@@ -205,11 +217,11 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 			if (!(*drivesInUse)[i]) continue;
 			driveName.back() = char('a' + i);
-			auto displayDriveName = strCat("Disk Drive ", char('A' + i));
+			auto displayName = strCat("Disk Drive ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(driveName))) {
 				elementInGroup();
 				auto& info = getInfo(driveName);
-				im::Menu(displayDriveName.c_str(), [&]{
+				im::Menu(displayName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "disk");
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
@@ -217,7 +229,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					}
 					if (ImGui::MenuItem("Insert disk image...")) {
 						manager.openFile.selectFile(
-							"Select disk image for " + displayDriveName,
+							"Select disk image for " + displayName,
 							diskFilter(),
 							[this, &info](const auto& fn) { this->insertMedia(info, fn); });
 					}
@@ -305,6 +317,67 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 		});
+		endGroup();
+
+		// hdX
+		auto hdInUse = HD::getDrivesInUse(*motherBoard);
+		std::string hdName = "hdX";
+		for (auto i : xrange(HD::MAX_HD)) {
+			if (!(*hdInUse)[i]) continue;
+			hdName.back() = char('a' + i);
+			auto displayName = strCat("Hard Disk ", char('A' + i));
+			if (auto cmdResult = manager.execute(TclObject(hdName))) {
+				elementInGroup();
+				auto& info = getInfo(hdName);
+				im::Menu(displayName.c_str(), [&]{
+					auto currentImage = cmdResult->getListIndex(interp, 1);
+					showCurrent(currentImage, "hard disk");
+					bool powered = motherBoard->isPowered();
+					im::Disabled(powered, [&]{
+						if (ImGui::MenuItem("Select hard disk image...")) {
+							manager.openFile.selectFile(
+								"Select image for " + displayName,
+								hdFilter(),
+								[this, &info](const auto& fn) { this->insertMedia(info, fn); });
+						}
+					});
+					if (powered) {
+						HelpMarker("Hard disk image cannot be switched while the MSX is powered on.");
+					}
+					im::Disabled(powered, [&]{
+						showRecent(info);
+					});
+				});
+			}
+		}
+		endGroup();
+
+		// cdX
+		auto cdInUse = IDECDROM::getDrivesInUse(*motherBoard);
+		std::string cdName = "cdX";
+		for (auto i : xrange(IDECDROM::MAX_CD)) {
+			if (!(*cdInUse)[i]) continue;
+			cdName.back() = char('a' + i);
+			auto displayName = strCat("CDROM Drive ", char('A' + i));
+			if (auto cmdResult = manager.execute(TclObject(cdName))) {
+				elementInGroup();
+				auto& info = getInfo(cdName);
+				im::Menu(displayName.c_str(), [&]{
+					auto currentImage = cmdResult->getListIndex(interp, 1);
+					showCurrent(currentImage, "CDROM");
+					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+						manager.executeDelayed(makeTclList(cdName, "eject"));
+					}
+					if (ImGui::MenuItem("Insert CDROM image...")) {
+						manager.openFile.selectFile(
+							"Select CDROM image for " + displayName,
+							cdFilter(),
+							[this, &info](const auto& fn) { this->insertMedia(info, fn); });
+					}
+					showRecent(info);
+				});
+			}
+		}
 		endGroup();
 
 		// cassetteplayer

@@ -21,6 +21,11 @@ class HD : public SectorAccessibleDisk, public DiskContainer
          , public TTData, public MediaInfoProvider
 {
 public:
+	static constexpr unsigned MAX_HD = 26;
+	using HDInUse = std::bitset<MAX_HD>;
+	static std::shared_ptr<HDInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
+
+public:
 	explicit HD(const DeviceConfig& config);
 	~HD() override;
 
@@ -69,8 +74,6 @@ private:
 	Filename filename;
 	size_t filesize;
 
-	static constexpr unsigned MAX_HD = 26;
-	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
 
 	uint64_t lastProgressTime;

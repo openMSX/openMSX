@@ -21,11 +21,16 @@ namespace openmsx {
 
 using std::string;
 
+std::shared_ptr<HD::HDInUse> HD::getDrivesInUse(MSXMotherBoard& motherBoard)
+{
+	return motherBoard.getSharedStuff<HDInUse>("hdInUse");
+}
+
 HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, name("hdX")
 {
-	hdInUse = motherBoard.getSharedStuff<HDInUse>("hdInUse");
+	hdInUse = getDrivesInUse(motherBoard);
 
 	int id = 0;
 	while ((*hdInUse)[id]) {

@@ -110,6 +110,7 @@ public:
 	void unpause();
 
 	void powerUp();
+	[[nodiscard]] bool isPowered() const { return powered; }
 
 	void doReset();
 	void activate(bool active);

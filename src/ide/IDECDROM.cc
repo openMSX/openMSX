@@ -20,11 +20,16 @@ using std::string;
 
 namespace openmsx {
 
+std::shared_ptr<IDECDROM::CDInUse> IDECDROM::getDrivesInUse(MSXMotherBoard& motherBoard)
+{
+	return motherBoard.getSharedStuff<CDInUse>("cdInUse");
+}
+
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
 {
-	cdInUse = getMotherBoard().getSharedStuff<CDInUse>("cdInUse");
+	cdInUse = getDrivesInUse(getMotherBoard());
 
 	unsigned id = 0;
 	while ((*cdInUse)[id]) {
