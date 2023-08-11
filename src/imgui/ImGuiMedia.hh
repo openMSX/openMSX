@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <map>
+#include <set>
 #include <span>
 #include <string>
 #include <vector>
@@ -45,8 +46,10 @@ public:
 private:
 	struct MediaInfo {
 		static constexpr size_t HISTORY_SIZE = 8;
-		MediaInfo() : recent(HISTORY_SIZE) {}
+		MediaInfo(std::string_view name_)
+			: name(name_), recent(HISTORY_SIZE) {}
 
+		const std::string name; // diska/carta/...
 		circular_buffer<RecentItem> recent;
 
 		std::string imageName; // for the advanced menu
@@ -54,19 +57,26 @@ private:
 		RomType romType = ROM_UNKNOWN; // only for cart, 'ROM_UNKNOWN' means 'auto'
 
 		bool showAdvanced = false;
+
+		friend auto operator<=>(const MediaInfo& x, const MediaInfo& y) {
+			return x.name <=> y.name;
+		}
+		friend auto operator<=>(const MediaInfo& x, std::string_view y) {
+			return std::string_view(x.name) <=> y;
+		}
 	};
+	MediaInfo& getInfo(std::string_view media);
 
 private:
-	void showDiskInfo(const std::string& media, MediaInfo& info);
-	void showRomInfo (const std::string& media, MediaInfo& info);
+	void showDiskInfo(MediaInfo& info);
+	void showRomInfo (MediaInfo& info);
 	void selectImage(MediaInfo& info, const std::string& title, std::function<std::string()> createFilter);
 	void selectMapperType(MediaInfo& info);
 	void selectPatches(MediaInfo& info);
-	void insertMediaButton(MediaInfo& info, const std::string& media, zstring_view title);
-	void advancedDiskMenu(const std::string& media, MediaInfo& info);
-	void advancedRomMenu (const std::string& cartName, MediaInfo& cartInfo,
-	                      const std::string& extName, MediaInfo& extInfo);
-	void insertMedia(const std::string& media, MediaInfo& info,
+	void insertMediaButton(MediaInfo& info, zstring_view title);
+	void advancedDiskMenu(MediaInfo& info);
+	void advancedRomMenu (MediaInfo& cartInfo, MediaInfo& extInfo);
+	void insertMedia(MediaInfo& info,
 	                 const std::string& filename,
 	                 std::span<const std::string> patches = {},
 	                 RomType romType = ROM_UNKNOWN);
@@ -79,7 +89,7 @@ private:
 private:
 	ImGuiManager& manager;
 
-	std::map<std::string, MediaInfo> mediaStuff; // values need stable address
+	std::set<MediaInfo, std::less<>> mediaStuff; // values need stable address
 	std::vector<std::string> availableExtensionsCache;
 	std::map<std::string, TclObject> extensionInfoCache;
 	int patchIndex = -1;
