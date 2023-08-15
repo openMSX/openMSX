@@ -304,7 +304,7 @@ void ImGuiManager::paintImGui()
 		}();
 		im::StyleVar(ImGuiStyleVar_Alpha, menuAlpha, [&]{
 			im::MainMenuBar([&]{
-				if (ImGui::Button(ICON_IGFD_CHEVRON_UP)) {
+				if (ImGui::ArrowButton("undock-button", ImGuiDir_Up)) {
 					mainMenuBarUndocked = true;
 				}
 				simpleToolTip("Undock the menu bar from the main openMSX window.");
