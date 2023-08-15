@@ -170,6 +170,14 @@ namespace StringOp
 		}
 	};
 
+	[[nodiscard]] inline bool containsCaseInsensitive(std::string_view haystack, std::string_view needle)
+	{
+		return std::search(haystack.begin(), haystack.end(),
+		                   needle.begin(), needle.end(),
+		                   [](char x, char y) { return toupper(x) == toupper(y); })
+			!= haystack.end();
+	}
+
 #if defined(__APPLE__)
 	[[nodiscard]] std::string fromCFString(CFStringRef str);
 #endif

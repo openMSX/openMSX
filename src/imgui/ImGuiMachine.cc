@@ -1,5 +1,6 @@
 #include "ImGuiMachine.hh"
 
+#include "CustomFont.h"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
@@ -9,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 
+#include <imgui_stdlib.h>
 #include <imgui.h>
 
 using namespace std::literals;
@@ -44,7 +46,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
-	ImGui::SetNextWindowSize(gl::vec2{36, 25} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{36, 31} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Select MSX machine", &showSelectMachine, [&]{
 		auto& reactor = manager.getReactor();
 		auto instances = reactor.getMachineIDs();
@@ -101,20 +103,14 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		}
 
-		ImGui::TextUnformatted("Select machine:"sv);
-		im::Indent([&]{
-			auto drawConfigSelectable = [&](const std::string& config) {
-				bool ok = getTestResult(config).empty();
-				im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
-					if (ImGui::Selectable(config.c_str(), config == newMachineConfig)) {
-						newMachineConfig = config;
-					}
-					im::ItemTooltip([&]{
-						printConfigInfo(config);
-					});
-				});
-			};
-			im::TreeNode("filter", [&]{
+		im::TreeNode("Available machines", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			std::string filterDisplay = "filter";
+			if (!filterType.empty() || !filterRegion.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
+			if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
+			if (!filterRegion.empty()) strAppend(filterDisplay, ' ', filterRegion);
+			if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
+			strAppend(filterDisplay, "###filter");
+			im::TreeNode(filterDisplay.c_str(), [&]{
 				auto combo = [&](std::string& selection, zstring_view key) {
 					im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
 						if (ImGui::Selectable("--all--")) {
@@ -129,7 +125,13 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				};
 				combo(filterType, "type");
 				combo(filterRegion, "region");
-
+				ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+				simpleToolTip("A list of substrings that must be part of the machine name.\n"
+				              "\n"
+				              "For example: enter 'pa' to search for 'Panasonic' machines. "
+				              "Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
+			});
+			im::ListBox("##list", [&]{
 				auto filteredConfigs = getAllConfigs();
 				auto filter = [&](std::string_view key, const std::string& value) {
 					if (value.empty()) return;
@@ -143,39 +145,48 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				};
 				filter("type", filterType);
 				filter("region", filterRegion);
+				if (!filterString.empty()) {
+					std::erase_if(filteredConfigs, [&](const std::string& config) {
+						return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
+							[&](auto part) { return StringOp::containsCaseInsensitive(config, part); });
+					});
+				}
 
-				im::ListBox("##list", [&]{
-					if (filteredConfigs.empty()) {
-						ImGui::TextDisabled("No machines for this type/region");
-					} else {
-						ImGuiListClipper clipper; // only draw the actually visible rows
-						clipper.Begin(narrow<int>(filteredConfigs.size()));
-						while (clipper.Step()) {
-							for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-								drawConfigSelectable(filteredConfigs[i]);
-							}
-						}
-					}
-				});
-			});
-			im::Combo("##combo", newMachineConfig.c_str(), [&]{
-				const auto& allConfigs = getAllConfigs();
 				ImGuiListClipper clipper; // only draw the actually visible rows
-				clipper.Begin(narrow<int>(allConfigs.size()));
+				clipper.Begin(narrow<int>(filteredConfigs.size()));
 				while (clipper.Step()) {
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-						drawConfigSelectable(allConfigs[i]);
+						const auto& config = filteredConfigs[i];
+						bool ok = getTestResult(config).empty();
+						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
+							if (ImGui::Selectable(config.c_str(), config == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+								newMachineConfig = config;
+								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+									manager.executeDelayed(makeTclList("machine", newMachineConfig));
+								}
+							}
+							im::ItemTooltip([&]{
+								printConfigInfo(config);
+							});
+						});
 					}
 				}
 			});
+		});
+		ImGui::Separator();
+		im::TreeNode("Selected machine", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			if (!newMachineConfig.empty()) {
 				bool ok = printConfigInfo(newMachineConfig);
+				ImGui::Spacing();
 				im::Disabled(!ok, [&]{
-					if (ImGui::Button("Replace current machine instance")) {
+					if (ImGui::Button("Replace")) {
 						// TODO error handling
 						manager.executeDelayed(makeTclList("machine", newMachineConfig));
 					}
-					if (ImGui::Button("Create new machine instance")) {
+					simpleToolTip("Replace the current machine with the selected machine. "
+					              "Alternatively you can also double click in the list above.");
+					ImGui::SameLine(0.0f, 10.0f);
+					if (ImGui::Button("New")) {
 						// TODO improve error handling
 						std::string script = strCat(
 							"set id [create_machine]\n"
@@ -188,6 +199,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 							"}\n");
 						manager.executeDelayed(TclObject(script));
 					}
+					simpleToolTip("Create a new machine instance (next to the current machine). "
+					              "Later you can switch between the different instances (like different tabs in a web browser).");
 				});
 			}
 		});

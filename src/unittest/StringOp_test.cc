@@ -347,4 +347,18 @@ TEST_CASE("StringOp")
 		CHECK(!op("abc", "ab"));
 		CHECK(!op("abc", "AB"));
 	}
+	SECTION("containsCaseInsensitive") {
+		CHECK( StringOp::containsCaseInsensitive("abc def", "abc"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "def"));
+		CHECK(!StringOp::containsCaseInsensitive("abc def", "xyz"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "abc"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "def"));
+		CHECK(!StringOp::containsCaseInsensitive("ABC DEF", "xyz"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "ABC"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "DEF"));
+		CHECK(!StringOp::containsCaseInsensitive("abc def", "XYZ"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "ABC"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "DEF"));
+		CHECK(!StringOp::containsCaseInsensitive("ABC DEF", "XYZ"));
+	}
 }

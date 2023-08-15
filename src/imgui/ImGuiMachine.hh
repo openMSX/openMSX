@@ -42,6 +42,7 @@ private:
 	std::string newMachineConfig;
 	std::string filterType;
 	std::string filterRegion;
+	std::string filterString;
 };
 
 } // namespace openmsx
