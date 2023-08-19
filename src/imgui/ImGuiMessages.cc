@@ -85,6 +85,7 @@ void ImGuiMessages::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	paintModal();
 	paintPopup();
+	paintProgress();
 	if (showLog)       paintLog();
 	if (showConfigure) paintConfigure();
 }
@@ -163,6 +164,30 @@ void ImGuiMessages::paintPopup()
 		printMessages(popupMessages);
 		bool close = paintButtons();
 		if (close) ImGui::CloseCurrentPopup();
+	});
+}
+
+void ImGuiMessages::paintProgress()
+{
+	if (doOpenProgress) {
+		doOpenProgress = false;
+		ImGui::OpenPopup("popup-progress");
+	}
+
+	im::Popup("popup-progress", [&]{
+		if (progressFraction >= 1.0f) {
+			ImGui::CloseCurrentPopup();
+		} else {
+			ImGui::TextUnformatted(progressMessage);
+			if (progressFraction >= 0.0f) {
+				ImGui::ProgressBar(progressFraction);
+			} else {
+				// unknown fraction, animate progress bar, no label
+				progressTime = fmodf(progressTime + ImGui::GetIO().DeltaTime, 2.0f);
+				float fraction = (progressTime < 1.0f) ? progressTime : (2.0f - progressTime);
+				ImGui::ProgressBar(fraction, {}, "");
+			}
+		}
 	});
 }
 
@@ -271,8 +296,15 @@ void ImGuiMessages::paintConfigure()
 	});
 }
 
-void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text)
+void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fraction)
 {
+	if (level == CliComm::PROGRESS) {
+		progressMessage = text;
+		progressFraction = fraction;
+		if (progressFraction < 1.0f) doOpenProgress = true;
+		return;
+	}
+
 	Message message{level, std::string(text)};
 
 	if (popupAction[level] == MODAL_POPUP) {

@@ -45,11 +45,15 @@ CliConnection::~CliConnection()
 	eventDistributor.unregisterEventListener(EventType::CLICOMMAND, *this);
 }
 
-void CliConnection::log(CliComm::LogLevel level, std::string_view message) noexcept
+void CliConnection::log(CliComm::LogLevel level, std::string_view message, float fraction) noexcept
 {
 	auto levelStr = CliComm::getLevelStrings();
+	std::string fullMessage{message};
+	if (level == CliComm::PROGRESS && fraction >= 0.0f) {
+		strAppend(fullMessage, "... ", int(100.0f * fraction), '%');
+	}
 	output(tmpStrCat("<log level=\"", levelStr[level], "\">",
-	                 XMLEscape(message), "</log>\n"));
+	                 XMLEscape(fullMessage), "</log>\n"));
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,

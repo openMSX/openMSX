@@ -11,11 +11,10 @@ MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
 {
 }
 
-void MSXCliComm::log(LogLevel level, std::string_view message)
+void MSXCliComm::log(LogLevel level, std::string_view message, float fraction)
 {
-	if (!suppressMessages)
-	{
-		cliComm.log(level, message);
+	if (!suppressMessages) {
+		cliComm.log(level, message, fraction);
 	}
 }
 

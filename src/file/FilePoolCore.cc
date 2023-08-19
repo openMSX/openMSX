@@ -23,7 +23,7 @@ struct GetSha1 {
 
 FilePoolCore::FilePoolCore(std::string fileCache_,
                            std::function<Directories()> getDirectories_,
-                           std::function<void(std::string_view)> reportProgress_)
+                           std::function<void(std::string_view, float)> reportProgress_)
 	: fileCache(std::move(fileCache_))
 	, getDirectories(std::move(getDirectories_))
 	, reportProgress(std::move(reportProgress_))
@@ -244,17 +244,25 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 
 	// not found in cache, need to scan directories
 	stop = false;
-	ScanProgress progress;
-	progress.lastTime = Timer::getTime();
-	progress.amountScanned = 0;
+	ScanProgress progress {
+		.lastTime = Timer::getTime(),
+	};
 
 	for (auto& [path, types] : getDirectories()) {
 		if ((types & fileType) != FileType::NONE) {
 			result = scanDirectory(sha1sum, FileOperations::expandTilde(std::string(path)), path, progress);
-			if (result.is_open()) return result;
+			if (result.is_open()) {
+				if (progress.printed) {
+					reportProgress(tmpStrCat("Found file with sha1sum ", sha1sum.toString()), 1.0f);
+				}
+				return result;
+			}
 		}
 	}
 
+	if (progress.printed) {
+		reportProgress(tmpStrCat("Did not find file with sha1sum ", sha1sum.toString()), 1.0f);
+	}
 	return result; // not found
 }
 
@@ -273,9 +281,9 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 	auto lastShowedProgress = Timer::getTime();
 	bool everShowedProgress = false;
 
-	auto report = [&](size_t percentage) {
-		reportProgress(tmpStrCat("Calculating SHA1 sum for ", file.getOriginalName(),
-		                         "... ", percentage, '%'));
+	auto report = [&](float fraction) {
+		reportProgress(tmpStrCat("Calculating SHA1 sum for ", file.getOriginalName()),
+		               fraction);
 	};
 	// Loop over all-but-the last blocks. For small files this loop is skipped.
 	while (remaining > STEP_SIZE) {
@@ -285,7 +293,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 
 		auto now = Timer::getTime();
 		if ((now - lastShowedProgress) > 250'000) { // 4Hz
-			report((100 * done) / size);
+			report(float(done) / float(size));
 			lastShowedProgress = now;
 			everShowedProgress = true;
 		}
@@ -295,7 +303,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file)
 		sha1.update({&data[done], remaining});
 	}
 	if (everShowedProgress) {
-		report(100);
+		report(1.0f);
 	}
 	return sha1.digest();
 }
@@ -381,11 +389,13 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const std::string& filename,
 	auto now = Timer::getTime();
 	if (now > (progress.lastTime + 250'000)) { // 4Hz
 		progress.lastTime = now;
+		progress.printed = true;
 		reportProgress(tmpStrCat(
 		        "Searching for file with sha1sum ", sha1sum.toString(),
 		        "...\nIndexing filepool ", poolPath, ": [",
 		        progress.amountScanned, "]: ",
-		        std::string_view(filename).substr(poolPath.size())));
+		        std::string_view(filename).substr(poolPath.size())),
+		        -1.0f); // unknown progress
 	}
 
 	auto time = FileOperations::getModificationDate(st);

@@ -34,7 +34,7 @@ public:
 
 private:
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
-	void reportProgress(std::string_view message);
+	void reportProgress(std::string_view message, float fraction);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

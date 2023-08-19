@@ -38,11 +38,12 @@ public:
 private:
 	void paintModal();
 	void paintPopup();
+	void paintProgress();
 	void paintLog();
 	void paintConfigure();
 	[[nodiscard]] bool paintButtons();
 
-	void log(CliComm::LogLevel level, std::string_view message);
+	void log(CliComm::LogLevel level, std::string_view message, float fraction);
 
 private:
 	ImGuiManager& manager;
@@ -59,12 +60,17 @@ private:
 	size_t doOpenPopup = 0;
 	bool focusLog = false;
 
+	std::string progressMessage;
+	float progressFraction = 0.0f;;
+	float progressTime = 0.0f;
+	bool doOpenProgress = false;
+
 	struct Listener : CliListener {
 		ImGuiMessages& messages;
 		Listener(ImGuiMessages& m) : messages(m) {}
 
-		void log(CliComm::LogLevel level, std::string_view message) noexcept override {
-			messages.log(level, message);
+		void log(CliComm::LogLevel level, std::string_view message, float fraction) noexcept override {
+			messages.log(level, message, fraction);
 		}
 		void update(CliComm::UpdateType /*type*/, std::string_view /*machine*/,
 		            std::string_view /*name*/, std::string_view /*value*/) noexcept override {

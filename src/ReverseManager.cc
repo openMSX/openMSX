@@ -317,16 +317,15 @@ void ReverseManager::goTo(EmuTime::param target, bool noVideo)
 }
 
 // this function is used below, but factored out, because it's already way too long
-static void reportProgress(Reactor& reactor, const EmuTime& targetTime, unsigned percentage)
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, float fraction)
 {
 	double targetTimeDisp = (targetTime - EmuTime::zero()).toDouble();
 	std::ostringstream sstr;
 	sstr << "Time warping to " <<
 		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
 		std::setw(5) << std::setprecision(2) << std::fixed <<
-		std::fmod(targetTimeDisp, 60.0) <<
-		"... " << percentage << '%';
-	reactor.getCliComm().printProgress(sstr.str());
+		std::fmod(targetTimeDisp, 60.0);
+	reactor.getCliComm().printProgress(sstr.str(), fraction);
 	reactor.getDisplay().repaint();
 }
 
@@ -461,8 +460,8 @@ void ReverseManager::goTo(
 			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
 				everShowedProgress = true;
 				lastProgress = now;
-				auto percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
-				reportProgress(newBoard->getReactor(), targetTime, percentage);
+				auto fraction = ((currentTimeNewBoard - startMSXTime)).toDouble() / (preTarget - startMSXTime).toDouble();
+				reportProgress(newBoard->getReactor(), targetTime, float(fraction));
 			}
 			// note: fastForward does not always stop at
 			//       _exactly_ the requested time

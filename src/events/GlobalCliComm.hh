@@ -30,7 +30,7 @@ public:
 	void setAllowExternalCommands();
 
 	// CliComm
-	void log(LogLevel level, std::string_view message) override;
+	void log(LogLevel level, std::string_view message, float fraction) override;
 	void update(UpdateType type, std::string_view name,
 	            std::string_view value) override;
 	void updateFiltered(UpdateType type, std::string_view name,
