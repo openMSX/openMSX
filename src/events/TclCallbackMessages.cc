@@ -9,7 +9,7 @@ TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
 	, messageCallback(
 		controller, "message_callback",
 		"Tcl proc called when a new message is available",
-		"default_message_callback",
+		"",
 		Setting::SaveSetting::SAVE, // the user must be able to override
 		true) // this is a message callback (so the TclCallback must prevent recursion)
 {
