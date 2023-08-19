@@ -47,7 +47,7 @@ TEST_CASE("FilePoolCore")
 		// create pool
 		FilePoolCore pool(tmp + "/cache",
 				  getDirectories,
-				  [](std::string_view) { /* report progress: nothing */});
+				  [](std::string_view, float) { /* report progress: nothing */});
 
 		// lookup, success
 		{

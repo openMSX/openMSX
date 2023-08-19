@@ -567,6 +567,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMarkdown.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2009,6 +2012,9 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMarkdown.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.hh">
