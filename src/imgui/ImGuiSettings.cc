@@ -27,7 +27,6 @@
 
 using namespace std::literals;
 
-
 namespace openmsx {
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
@@ -148,6 +147,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 			ImGui::MenuItem("Show console", "F10", &manager.console.show);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
+			ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
+			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

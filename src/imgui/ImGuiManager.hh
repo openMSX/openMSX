@@ -11,6 +11,7 @@
 #include "ImGuiKeyboard.hh"
 #include "ImGuiMachine.hh"
 #include "ImGuiMedia.hh"
+#include "ImGuiMessages.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiOsdIcons.hh"
@@ -102,6 +103,7 @@ public:
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;
 	ImGuiConsole console;
+	ImGuiMessages messages;
 
 	bool menuFade = true;
 

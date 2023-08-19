@@ -13,6 +13,15 @@
 #include <variant>
 #include <vector>
 
+// Predicate that can be called with any number of parameters (of any type) and
+// just always returns 'true'. This can be useful as a default parameter value.
+struct always_true {
+	template<typename ...Args>
+	bool operator()(Args&& ...) const {
+		return true;
+	}
+};
+
 /** Check if a range contains a given value, using linear search.
   * Equivalent to 'find(first, last, val) != last', though this algorithm
   * is more convenient to use.

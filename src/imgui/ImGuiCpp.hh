@@ -352,6 +352,23 @@ inline void Popup(const char* str_id, std::invocable<> auto next)
 	Popup(str_id, 0, next);
 }
 
+// im::PopupModal(): wrapper around ImGui::BeginPopupModal() / ImGui::EndPopup()
+inline void PopupModal(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
+{
+	if (ImGui::BeginPopupModal(name, p_open, flags)) {
+		next();
+		ImGui::EndPopup();
+	}
+}
+inline void PopupModal(const char* name, bool* p_open, std::invocable<> auto next)
+{
+	PopupModal(name, p_open, 0, next);
+}
+inline void PopupModal(const char* name, std::invocable<> auto next)
+{
+	PopupModal(name, nullptr, 0, next);
+}
+
 // im::PopupContextItem(): wrapper around ImGui::BeginPopupContextItem() / ImGui::EndPopup()
 inline void PopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags, std::invocable<> auto next)
 {

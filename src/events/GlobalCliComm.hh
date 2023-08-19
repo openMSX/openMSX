@@ -22,7 +22,7 @@ public:
 	GlobalCliComm() = default;
 	~GlobalCliComm();
 
-	void addListener(std::unique_ptr<CliListener> listener);
+	CliListener* addListener(std::unique_ptr<CliListener> listener);
 	std::unique_ptr<CliListener> removeListener(CliListener& listener);
 
 	// Before this method has been called commands send over external

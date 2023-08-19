@@ -16,7 +16,7 @@ GlobalCliComm::~GlobalCliComm()
 	assert(!delivering);
 }
 
-void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
+CliListener* GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 {
 	// can be called from any thread
 	std::lock_guard<std::mutex> lock(mutex);
@@ -27,6 +27,7 @@ void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 			conn->start();
 		}
 	}
+	return p;
 }
 
 std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener)

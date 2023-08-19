@@ -85,6 +85,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, soundChip(*this)
 	, keyboard(*this)
 	, console(*this)
+	, messages(*this)
 {
 	initializeImGui();
 	debugger.loadIcons();
@@ -146,7 +147,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
 		&soundChip, &keyboard, &breakPoints, &symbols,
 		&bitmap, &character, &sprite, &vdpRegs, &palette,
-		&osdIcons, &openFile, &console});
+		&osdIcons, &openFile, &console, &messages});
 }
 
 ImGuiManager::~ImGuiManager()
