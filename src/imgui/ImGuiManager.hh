@@ -50,8 +50,11 @@ public:
 	Interpreter& getInterpreter();
 	std::optional<TclObject> execute(TclObject command);
 	void executeDelayed(TclObject command,
-	                    std::function<void(const TclObject&)> ok = {},
-	                    std::function<void(const std::string&)> error = {});
+	                    std::function<void(const TclObject&)> ok,
+	                    std::function<void(const std::string&)> error);
+	void executeDelayed(TclObject command,
+	                    std::function<void(const TclObject&)> ok = {});
+	void printError(std::string_view message);
 
 	void paintImGui();
 
@@ -118,7 +121,6 @@ private:
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;
-	std::string newDropMessage, dropMessage;
 	std::string selectText;
 	std::vector<std::string> selectList;
 	bool mainMenuBarUndocked = false;

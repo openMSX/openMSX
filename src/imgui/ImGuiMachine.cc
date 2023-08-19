@@ -71,7 +71,6 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 								}
 							}();
 							if (ImGui::Selectable(display.c_str(), isCurrent)) {
-								// TODO error handling?
 								manager.executeDelayed(makeTclList("activate_machine", name));
 							}
 							im::PopupContextItem("instance context menu", [&]{
@@ -180,20 +179,18 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				ImGui::Spacing();
 				im::Disabled(!ok, [&]{
 					if (ImGui::Button("Replace")) {
-						// TODO error handling
 						manager.executeDelayed(makeTclList("machine", newMachineConfig));
 					}
 					simpleToolTip("Replace the current machine with the selected machine. "
 					              "Alternatively you can also double click in the list above.");
 					ImGui::SameLine(0.0f, 10.0f);
 					if (ImGui::Button("New")) {
-						// TODO improve error handling
 						std::string script = strCat(
 							"set id [create_machine]\n"
 							"set err [catch {${id}::load_machine ", newMachineConfig, "} error_result]\n"
 							"if {$err} {\n"
 							"    delete_machine $id\n"
-							"    message \"Error activating new machine: $error_result\" error\n"
+							"    error \"Error activating new machine: $error_result\"\n"
 							"} else {\n"
 							"    activate_machine $id\n"
 							"}\n");

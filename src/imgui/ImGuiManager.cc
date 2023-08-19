@@ -201,6 +201,19 @@ void ImGuiManager::executeDelayed(TclObject command,
 	reactor.getEventDistributor().distributeEvent(ImGuiDelayedCommandEvent());
 }
 
+void ImGuiManager::executeDelayed(TclObject command,
+                                  std::function<void(const TclObject&)> ok)
+{
+	executeDelayed(std::move(command), ok,
+		[this](const std::string& message) { this->printError(message); });
+}
+
+void ImGuiManager::printError(std::string_view message)
+{
+	auto& cliComm = getReactor().getCliComm();
+	cliComm.printError(message);
+}
+
 int ImGuiManager::signalEvent(const Event& event)
 {
 	if (auto* evt = get_event_if<SdlEvent>(event)) {
@@ -315,11 +328,6 @@ void ImGuiManager::paintImGui()
 	}
 
 	// drag and drop  (move this to ImGuiMedia ?)
-	auto executeDropCommand = [&](TclObject cmd) {
-		executeDelayed(cmd,
-		               [](const TclObject&) {}, // success
-		               [&](const std::string& msg) { newDropMessage = msg; }); // can't call OpenPopup() in this callback
-	};
 	if (handleDropped) {
 		handleDropped = false;
 		auto category = execute(makeTclList("openmsx_info", "file_type_category", droppedFile))->getString();
@@ -376,22 +384,14 @@ void ImGuiManager::paintImGui()
 		} else {
 			cantHandle("unknown file type");
 		}
-		executeDropCommand(command);
+		executeDelayed(command);
 	}
-	if (!newDropMessage.empty()) {
-		dropMessage = std::move(newDropMessage);
-		newDropMessage.clear();
-		ImGui::OpenPopup("drop-message");
-	}
-	im::Popup("drop-message", [&]{
-		ImGui::TextUnformatted(dropMessage);
-	});
 	im::Popup("select-media", [&]{
 		ImGui::TextUnformatted(selectText);
 		im::ListBox("##select-media", [&]{
 			for (const auto& item : selectList) {
 				if (ImGui::Selectable(item.c_str())) {
-					executeDropCommand(makeTclList(item, "insert", droppedFile));
+					executeDelayed(makeTclList(item, "insert", droppedFile));
 					ImGui::CloseCurrentPopup();
 				}
 			}
