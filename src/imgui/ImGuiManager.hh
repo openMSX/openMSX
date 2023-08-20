@@ -20,8 +20,9 @@
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
 #include "ImGuiSpriteViewer.hh"
-#include "ImGuiVdpRegs.hh"
 #include "ImGuiSymbols.hh"
+#include "ImGuiVdpRegs.hh"
+#include "ImGuiWatchExpr.hh"
 
 #include "EventListener.hh"
 #include "TclObject.hh"
@@ -91,6 +92,7 @@ public:
 	ImGuiDebugger debugger;
 	ImGuiBreakPoints breakPoints;
 	ImGuiSymbols symbols;
+	ImGuiWatchExpr watchExpr;
 	ImGuiBitmapViewer bitmap;
 	ImGuiCharacter character;
 	ImGuiSpriteViewer sprite;

@@ -148,6 +148,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints.show);
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols.show);
+		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr.show);
 		ImGui::Separator();
 		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
 		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);

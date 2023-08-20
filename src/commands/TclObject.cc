@@ -205,6 +205,16 @@ bool TclObject::evalBool(Interpreter& interp_) const
 	return result != 0;
 }
 
+TclObject TclObject::eval(Interpreter& interp_) const
+{
+	auto* interp = interp_.interp;
+	Tcl_Obj* result;
+	if (Tcl_ExprObj(interp, obj, &result) != TCL_OK) {
+		throwException(interp);
+	}
+	return TclObject(result);
+}
+
 TclObject TclObject::executeCommand(Interpreter& interp_, bool compile)
 {
 	auto* interp = interp_.interp;

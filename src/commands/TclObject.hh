@@ -155,6 +155,7 @@ public:
 	[[nodiscard]] std::span<const uint8_t> getBinary() const;
 	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
 	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
+	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 	template<typename Key>
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {
@@ -173,6 +174,7 @@ public:
 
 	// expressions
 	[[nodiscard]] bool evalBool(Interpreter& interp) const;
+	[[nodiscard]] TclObject eval(Interpreter& interp) const;
 
 	/** Interpret this TclObject as a command and execute it.
 	  * @param interp The Tcl interpreter
@@ -272,7 +274,6 @@ private:
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
 	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
 	[[nodiscard]] unsigned getListLengthUnchecked() const;
-	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
 
 private:
 	Tcl_Obj* obj;

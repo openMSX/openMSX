@@ -71,6 +71,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, debugger(*this)
 	, breakPoints(*this)
 	, symbols(*this)
+	, watchExpr(*this)
 	, bitmap(*this)
 	, character(*this)
 	, sprite(*this)
@@ -145,7 +146,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	append(parts, std::initializer_list<ImGuiPart*>{
 		this,
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
-		&soundChip, &keyboard, &breakPoints, &symbols,
+		&soundChip, &keyboard, &breakPoints, &symbols, &watchExpr,
 		&bitmap, &character, &sprite, &vdpRegs, &palette,
 		&osdIcons, &openFile, &console, &messages});
 }
