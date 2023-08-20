@@ -34,6 +34,10 @@ private:
 	ImGuiManager& manager;
 
 	struct WatchExpr {
+		// added constructors: workaround clang-14 bug(?)
+		WatchExpr() = default;
+		WatchExpr(std::string d, TclObject e, TclObject f)
+			: description(std::move(d)), expression(std::move(e)), format(std::move(f)) {}
 		std::string description;
 		TclObject expression;
 		TclObject format;
