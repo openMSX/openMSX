@@ -61,7 +61,8 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 		          | ImGuiTableFlags_RowBg
 		          | ImGuiTableFlags_BordersV
 		          | ImGuiTableFlags_BordersOuter
-		          | ImGuiTableFlags_SizingStretchProp;
+		          | ImGuiTableFlags_SizingStretchProp
+		          | ImGuiTableFlags_SortTristate;
 		im::Table("table", 4, flags, {-64, 0}, [&]{
 			ImGui::TableSetupColumn("description");
 			ImGui::TableSetupColumn("expression");
@@ -254,6 +255,7 @@ void ImGuiWatchExpr::checkSort()
 	if (!sortSpecs->SpecsDirty) return;
 
 	sortSpecs->SpecsDirty = false;
+	if (sortSpecs->SpecsCount == 0) return;
 	assert(sortSpecs->SpecsCount == 1);
 	assert(sortSpecs->Specs);
 	assert(sortSpecs->Specs->SortOrder == 0);
