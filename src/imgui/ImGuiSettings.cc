@@ -89,8 +89,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Video source to display", motherBoard->getVideoSource());
 				}
 				Checkbox("VSync", renderSettings.getVSyncSetting());
-				SliderInt("Amount of frames to always skip", renderSettings.getMinFrameSkipSetting()); // TODO: either leave out this setting, or add a tooltip like, "Leave on 0 unless you use a very slow device and want regular frame skipping");
-				SliderInt("Maximum amount of frames to skip", renderSettings.getMaxFrameSkipSetting()); // TODO: either leave out this setting or add a tooltip like  "On slow devices, skip no more than this amount of frames to keep emulation on time.");
+				SliderInt("Minimum frame-skip", renderSettings.getMinFrameSkipSetting()); // TODO: either leave out this setting, or add a tooltip like, "Leave on 0 unless you use a very slow device and want regular frame skipping");
+				SliderInt("Maximum frame-skip", renderSettings.getMaxFrameSkipSetting()); // TODO: either leave out this setting or add a tooltip like  "On slow devices, skip no more than this amount of frames to keep emulation on time.");
 			});
 			im::TreeNode("Advanced (for debugging)", [&]{ // default collapsed
 				Checkbox("Enforce VDP sprites-per-line limit", renderSettings.getLimitSpritesSetting());
