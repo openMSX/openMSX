@@ -1,6 +1,8 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiManager.hh"
 
+#include "FileOperations.hh"
+
 #include <imgui.h>
 #include <ImGuiFileDialog.h>
 
@@ -25,7 +27,8 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 }
 
 void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
-                            std::function<void(const std::string&)> callback)
+                               std::function<void(const std::string&)> callback,
+                               zstring_view lastLocationHint)
 {
 	filters += ",All files (*){.*}";
 	ImGuiFileDialogFlags flags =
@@ -35,9 +38,23 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
 		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
 	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
 	lastFileDialog = title;
-	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
+
+	auto startPath = [&]{
+		if (!lastLocationHint.empty()) {
+			if (auto stat = FileOperations::getStat(lastLocationHint)) {
+				if (FileOperations::isDirectory(*stat)) {
+					return std::string(lastLocationHint);
+				} else if (FileOperations::isRegularFile(*stat)) {
+					return std::string(FileOperations::getDirName(lastLocationHint));
+				}
+			}
+		}
+		auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
+		return it->second;
+	}();
+
 	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, filters.c_str(), it->second, "", 1, nullptr, flags);
+		"FileDialog", title, filters.c_str(), startPath, "", 1, nullptr, flags);
 	openFileCallback = callback;
 }
 

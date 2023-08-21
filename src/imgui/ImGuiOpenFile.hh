@@ -20,7 +20,8 @@ public:
 		: manager(manager_) {}
 
 	void selectFile(const std::string& title, std::string filters,
-	                std::function<void(const std::string&)> callback);
+	                std::function<void(const std::string&)> callback,
+	                zstring_view lastLocationHint = {});
 
 	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
 	void save(ImGuiTextBuffer& buf) override;

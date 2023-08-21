@@ -68,9 +68,10 @@ private:
 	MediaInfo& getInfo(std::string_view media);
 
 private:
-	void showDiskInfo(MediaInfo& info);
-	void showRomInfo (MediaInfo& info);
-	void selectImage(MediaInfo& info, const std::string& title, std::function<std::string()> createFilter);
+	TclObject showDiskInfo(MediaInfo& info);
+	TclObject showRomInfo (MediaInfo& info);
+	void selectImage(MediaInfo& info, const std::string& title,
+	                 std::function<std::string()> createFilter, zstring_view current);
 	void selectMapperType(MediaInfo& info);
 	void selectPatches(MediaInfo& info);
 	void insertMediaButton(MediaInfo& info, zstring_view title);
