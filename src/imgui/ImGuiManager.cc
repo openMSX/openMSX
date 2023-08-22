@@ -146,7 +146,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	append(parts, std::initializer_list<ImGuiPart*>{
 		this,
 		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
-		&soundChip, &keyboard, &breakPoints, &symbols, &watchExpr,
+		&soundChip, &keyboard, &symbols, &breakPoints, &watchExpr,
 		&bitmap, &character, &sprite, &vdpRegs, &palette,
 		&osdIcons, &openFile, &console, &messages});
 }
