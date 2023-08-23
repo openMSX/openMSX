@@ -54,39 +54,43 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 
 	ImGui::SetNextWindowSize(gl::vec2{35, 15} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Watch expression", &show, [&]{
-		int flags = ImGuiTableFlags_Resizable
-		          | ImGuiTableFlags_Reorderable
-		          | ImGuiTableFlags_Hideable
-		          | ImGuiTableFlags_Sortable
-		          | ImGuiTableFlags_RowBg
-		          | ImGuiTableFlags_BordersV
-		          | ImGuiTableFlags_BordersOuter
-		          | ImGuiTableFlags_SizingStretchProp
-		          | ImGuiTableFlags_SortTristate;
-		im::Table("table", 4, flags, {-64, 0}, [&]{
-			ImGui::TableSetupColumn("description");
-			ImGui::TableSetupColumn("expression");
-			ImGui::TableSetupColumn("format");
-			ImGui::TableSetupColumn("result", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoHide);
-			ImGui::TableHeadersRow();
-			checkSort();
+		im::Child("child", {-64, 0}, [&] {
+			int flags = ImGuiTableFlags_Resizable
+				| ImGuiTableFlags_Reorderable
+				| ImGuiTableFlags_Hideable
+				| ImGuiTableFlags_Sortable
+				| ImGuiTableFlags_RowBg
+				| ImGuiTableFlags_BordersV
+				| ImGuiTableFlags_BordersOuter
+				| ImGuiTableFlags_SizingStretchProp
+				| ImGuiTableFlags_SortTristate;
+			im::Table("table", 4, flags, [&]{
+				ImGui::TableSetupColumn("description");
+				ImGui::TableSetupColumn("expression");
+				ImGui::TableSetupColumn("format");
+				ImGui::TableSetupColumn("result", ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoHide);
+				ImGui::TableHeadersRow();
+				checkSort();
 
-			for (auto row : xrange(narrow<int>(watches.size()))) {
-				im::ID(row, [&]{
-					drawRow(row);
-				});
-			}
+				for (auto row : xrange(narrow<int>(watches.size()))) {
+					im::ID(row, [&]{
+						drawRow(row);
+					});
+				}
+			});
 		});
 		ImGui::SameLine();
 		im::Group([&] {
 			if (ImGui::Button("Add")) {
+				selectedRow = narrow<int>(watches.size()); // select created row
 				watches.emplace_back();
-				selectedRow = -1;
 			}
 			im::Disabled(selectedRow < 0 || selectedRow >= narrow<int>(watches.size()), [&]{
 				if (ImGui::Button("Remove")) {
 					watches.erase(watches.begin() + selectedRow);
-					selectedRow = -1;
+					if (selectedRow == narrow<int>(watches.size())) {
+						selectedRow = -1;
+					}
 				}
 			});
 			ImGui::Dummy({0, 20});
