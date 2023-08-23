@@ -191,6 +191,7 @@ void ImGuiSymbols::dropCaches()
 	filesCache.clear();
 	lookupValueCache.clear();
 	manager.breakPoints.refreshSymbols();
+	manager.watchExpr.refreshSymbols();
 
 	// Allow to access symbol-values in Tcl expression with syntax: $sym(JIFFY)
 	auto& interp = manager.getInterpreter();

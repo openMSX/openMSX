@@ -22,7 +22,7 @@ void ImGuiWatchExpr::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
 	for (const auto& watch : watches) {
-		auto out = makeTclList(watch.description, watch.expression, watch.format);
+		auto out = makeTclList(watch.description, watch.exprStr, watch.format);
 		buf.appendf("watch=%s\n", out.getString().c_str());
 	}
 }
@@ -41,7 +41,7 @@ void ImGuiWatchExpr::loadLine(std::string_view name, zstring_view value)
 		if (in.size() == 3) {
 			WatchExpr result;
 			result.description = in.getListIndexUnchecked(0).getString();
-			result.expression  = in.getListIndexUnchecked(1);
+			result.exprStr     = in.getListIndexUnchecked(1).getString();
 			result.format      = in.getListIndexUnchecked(2);
 			watches.push_back(std::move(result));
 		}
@@ -97,27 +97,27 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 			if (ImGui::SmallButton("Examples")) {
 				watches.emplace_back(
 					"peek at fixed address",
-					TclObject("[peek 0xfcaf]"),
+					"[peek 0xfcaf]",
 					TclObject("screen=%d"));
 				watches.emplace_back(
 					"VDP command executing",
-					TclObject("[debug read \"VDP status regs\" 2] & 1"),
+					"[debug read \"VDP status regs\" 2] & 1",
 					TclObject());
 				watches.emplace_back(
 					"PSG enable-channel status",
-					TclObject("[debug read \"PSG regs\" 7]"),
+					"[debug read \"PSG regs\" 7]",
 					TclObject("%08b"));
 				watches.emplace_back(
 					"The following 2 require an appropriate symbol file",
-					TclObject(""),
+					"",
 					TclObject(""));
 				watches.emplace_back(
 					"value of 'myLabel'",
-					TclObject("$sym(myLabel)"),
+					"$sym(myLabel)",
 					TclObject("0x%04x"));
 				watches.emplace_back(
 					"peek at symbolic address",
-					TclObject("[peek16 $sym(numItems)]"),
+					"[peek16 $sym(numItems)]",
 					TclObject("%d items"));
 			}
 			ImGui::Dummy({0, 0}); // want help marker on the next line
@@ -143,6 +143,9 @@ The expression can be any Tcl expression, some examples:
                      (below address 0xe000)
 If you have debug-symbols loaded (via the 'Symbol manager'), you can use them like:
 * [peek16 $sym(mySymbol)]: monitor 16-bit value at 'mySymbol'
+There's a shorthand notation to peek 8-bit values:
+* <integer> -> [peek <integer>]
+* <symbol>  -> [peek $sym(<symbol>)]
 
 In the format column you can optionally enter a format-specifier (for the  Tcl 'format' command). Some examples:
 * 0x%04x: 4-digit hex with leading zeros and '0x' prefix
@@ -163,21 +166,45 @@ static void tooWideToolTip(float available, zstring_view str)
 	}
 }
 
+void ImGuiWatchExpr::refreshSymbols()
+{
+	// symbols changed, expression might have used those symbols
+	for (auto& watch : watches) {
+		watch.expression.reset(); // drop cache
+	}
+}
+
+ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interpreter& interp)
+{
+	EvalResult r; // TODO c++23 std::expected might be a good fit here
+	if (watch.exprStr.empty()) return r;
+
+	if (!watch.expression) {
+		if (auto addr = manager.symbols.parseSymbolOrValue(watch.exprStr)) {
+			// expression is a symbol or an integer -> rewrite
+			watch.expression = TclObject(tmpStrCat("[peek ", *addr, ']'));
+		} else {
+			// keep original expression
+			watch.expression = watch.exprStr;
+		}
+	}
+	assert(watch.expression);
+
+	try {
+		r.result = watch.expression->eval(interp);
+	} catch (CommandException& e) {
+		r.error = e.getMessage();
+	}
+	return r;
+}
+
 void ImGuiWatchExpr::drawRow(int row)
 {
 	auto& interp = manager.getInterpreter();
 	auto& watch = watches[row];
 
 	// evaluate 'expression'
-	TclObject result;
-	std::string exprError;
-	try {
-		if (!watch.expression.getString().empty()) {
-			result = watch.expression.eval(interp);
-		}
-	} catch (CommandException& e) {
-		exprError = e.getMessage();
-	}
+	auto [result, exprError] = evalExpr(watch, interp);
 	bool validExpr = exprError.empty();
 
 	// format the result
@@ -215,11 +242,10 @@ void ImGuiWatchExpr::drawRow(int row)
 							: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			auto str = std::string(watch.expression.getString());
-			if (ImGui::InputText("##expr", &str)) {
-				watch.expression = str;
+			if (ImGui::InputText("##expr", &watch.exprStr)) {
+				watch.expression.reset();
 			}
-			tooWideToolTip(avail, str);
+			tooWideToolTip(avail, watch.exprStr);
 		});
 	}
 	if (ImGui::TableNextColumn()) { // format
@@ -276,7 +302,7 @@ void ImGuiWatchExpr::checkSort()
 		sortUpDown(&WatchExpr::description);
 		break;
 	case 1: // expression
-		sortUpDown([](const auto& item) { return item.expression.getString(); });
+		sortUpDown([](const auto& item) { return item.exprStr; });
 		break;
 	case 2: // format
 		sortUpDown([](const auto& item) { return item.format.getString(); });
