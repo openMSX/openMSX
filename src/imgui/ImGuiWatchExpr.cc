@@ -204,7 +204,8 @@ void ImGuiWatchExpr::drawRow(int row)
 	auto& watch = watches[row];
 
 	// evaluate 'expression'
-	auto [result, exprError] = evalExpr(watch, interp);
+	auto [result, exprError_] = evalExpr(watch, interp);
+	auto& exprError = exprError_; // clang workaround
 	bool validExpr = exprError.empty();
 
 	// format the result
