@@ -82,6 +82,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, openFile(*this)
 	, media(*this)
 	, connector(*this)
+	, tools(*this)
 	, settings(*this)
 	, soundChip(*this)
 	, keyboard(*this)
@@ -145,7 +146,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
 		this,
-		&machine, &media, &connector, &reverseBar, &settings, &debugger, &help,
+		&machine, &media, &connector, &reverseBar, &tools, &settings, &debugger, &help,
 		&soundChip, &keyboard, &symbols, &breakPoints, &watchExpr,
 		&bitmap, &character, &sprite, &vdpRegs, &palette,
 		&osdIcons, &openFile, &console, &messages});

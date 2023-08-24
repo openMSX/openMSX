@@ -21,6 +21,7 @@
 #include "ImGuiSoundChip.hh"
 #include "ImGuiSpriteViewer.hh"
 #include "ImGuiSymbols.hh"
+#include "ImGuiTools.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
 
@@ -104,6 +105,7 @@ public:
 	ImGuiOpenFile openFile;
 	ImGuiMedia media;
 	ImGuiConnector connector;
+	ImGuiTools tools;
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;

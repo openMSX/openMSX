@@ -144,10 +144,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::MenuItem("Configure OSD icons...", nullptr, nullptr)) {
 				manager.osdIcons.showConfigureIcons = true;
 			}
-			ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
-			ImGui::MenuItem("Show console", "F10", &manager.console.show);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
-			ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
 			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
 		});
 		ImGui::Separator();
