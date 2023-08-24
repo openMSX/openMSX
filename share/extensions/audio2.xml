@@ -11,7 +11,7 @@
     <manufacturer/>
     <code/>
     <release_year>1986</release_year>
-    <description>Generic Yamaha Y8950 MSX-AUDIO, on alternative I/O ports.</description>
+    <description>Generic Yamaha Y8950 MSX-AUDIO with 256kB RAM, on alternative I/O ports.</description>
     <type>sound expansion</type>
   </info>
   <devices>
