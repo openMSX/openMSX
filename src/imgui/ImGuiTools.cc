@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiUtils.hh"
 
 #include "ranges.hh"
 
@@ -45,8 +46,14 @@ void ImGuiTools::showMenu(MSXMotherBoard* /*motherBoard*/)
 		im::Menu("Toys", [&]{
 			const auto& toys = getAllToyScripts(manager);
 			for (const auto& toy : toys) {
-				if (ImGui::MenuItem(toy.c_str())) {
+				std::string displayText = toy.substr(7);
+				ranges::replace(displayText, '_', ' ');
+				if (ImGui::MenuItem(displayText.c_str())) {
 					manager.executeDelayed(TclObject(toy));
+				}
+				auto help = manager.execute(TclObject("help " + toy));
+				if (help) {
+					simpleToolTip(help->getString());
 				}
 			}
 		});
