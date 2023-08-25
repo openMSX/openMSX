@@ -85,6 +85,7 @@ private:
 	               RomType romType = ROM_UNKNOWN);
 	const std::vector<std::string>& getAvailableExtensions();
 	const TclObject& getExtensionInfo(const std::string& extension);
+	void printExtensionInfo(const std::string& extName);
 	void extensionTooltip(const std::string& extName);
 
 private:

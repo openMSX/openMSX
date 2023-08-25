@@ -154,18 +154,23 @@ const TclObject& ImGuiMedia::getExtensionInfo(const std::string& extension)
 	return result;
 }
 
+void ImGuiMedia::printExtensionInfo(const std::string& extName)
+{
+	const auto& info = getExtensionInfo(extName);
+	im::Table("##extension-info", 2, [&]{
+		for (const auto& i : info) {
+			ImGui::TableNextColumn();
+			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+				ImGui::TextUnformatted(i);
+			});
+		}
+	});
+}
+
 void ImGuiMedia::extensionTooltip(const std::string& extName)
 {
 	im::ItemTooltip([&]{
-		const auto& info = getExtensionInfo(extName);
-		im::Table("##extension-info", 2, [&]{
-			for (const auto& i : info) {
-				ImGui::TableNextColumn();
-				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-					ImGui::TextUnformatted(i);
-				});
-			}
-		});
+		printExtensionInfo(extName);
 	});
 }
 
@@ -635,10 +640,7 @@ TclObject ImGuiMedia::showRomInfo(MediaInfo& info)
 			if (s == "extension") {
 				ImGui::TextUnformatted("Extension:");
 				if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
-					ImGui::TextUnformatted(target->getString());
-					if (auto device = cmdResult->getOptionalDictValue(TclObject("devicename"))) {
-						ImGui::TextUnformatted(device->getString());
-					}
+					printExtensionInfo(std::string(target->getString()));
 				}
 			} else {
 				assert(s == "rom");
