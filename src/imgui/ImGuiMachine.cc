@@ -6,9 +6,15 @@
 #include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
+#include "CartridgeSlotManager.hh"
+#include "Debuggable.hh"
+#include "Debugger.hh"
 #include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "RealDrive.hh"
+#include "VDP.hh"
+#include "VDPVRAM.hh"
 
 #include <imgui_stdlib.h>
 #include <imgui.h>
@@ -217,15 +223,22 @@ const std::string& ImGuiMachine::getTestResult(const std::string& config)
 	auto [it, inserted] = testCache.try_emplace(config);
 	auto& result = it->second;
 	if (inserted) {
-		manager.executeDelayed(
-			makeTclList("test_machine", config),
-			[&](const TclObject& r) { result = r.getString(); },
-			[&](const std::string& e) { result = e; });
+		manager.executeDelayed([&, config]{
+			// don't create extra mb while drawing
+			try {
+				MSXMotherBoard mb(manager.getReactor());
+				mb.loadMachine(config);
+				assert(result.empty());
+				amendConfigInfo(mb, config);
+			} catch (MSXException& e) {
+				result = e.getMessage(); // error
+			}
+		});
 	}
 	return result;
 }
 
-const TclObject& ImGuiMachine::getConfigInfo(const std::string& config)
+TclObject& ImGuiMachine::getConfigInfo(const std::string& config)
 {
 	auto [it, inserted] = configInfoCache.try_emplace(config);
 	auto& result = it->second;
@@ -235,6 +248,32 @@ const TclObject& ImGuiMachine::getConfigInfo(const std::string& config)
 		}
 	}
 	return result;
+}
+
+void ImGuiMachine::amendConfigInfo(MSXMotherBoard& mb, const std::string& config)
+{
+	auto& info = getConfigInfo(config);
+
+	auto& debugger = mb.getDebugger();
+	unsigned ramSize = 0;
+	for (const auto& [name, debuggable] : debugger.getDebuggables()) {
+		if (debuggable->getDescription() == one_of("memory mapper", "ram")) {
+			ramSize += debuggable->getSize();
+		}
+	}
+	info.addDictKeyValue("RAM size", strCat(ramSize / 1024, "kB"));
+
+	if (auto* vdp = dynamic_cast<VDP*>(mb.findDevice("VDP"))) {
+		info.addDictKeyValue("VRAM size", strCat(vdp->getVRAM().getSize() / 1024, "kB"));
+		info.addDictKeyValue("VDP version", vdp->getVersionString());
+	}
+
+	if (auto drives = RealDrive::getDrivesInUse(mb)) {
+		info.addDictKeyValue("Disk drives", narrow<int>(drives->count()));
+	}
+
+	auto& carts = mb.getSlotManager();
+	info.addDictKeyValue("Cartridge slots", carts.getNumberOfSlots());
 }
 
 std::vector<std::string> ImGuiMachine::getAllValuesFor(const TclObject& key)

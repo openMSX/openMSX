@@ -51,6 +51,7 @@ public:
 	Reactor& getReactor() { return reactor; }
 	Interpreter& getInterpreter();
 	std::optional<TclObject> execute(TclObject command);
+	void executeDelayed(std::function<void()> action);
 	void executeDelayed(TclObject command,
 	                    std::function<void(const TclObject&)> ok,
 	                    std::function<void(const std::string&)> error);
@@ -115,12 +116,7 @@ public:
 	bool menuFade = true;
 
 private:
-	struct DelayedCommand {
-		TclObject command;
-		std::function<void(const TclObject&)> ok;
-		std::function<void(const std::string&)> error;
-	};
-	std::vector<DelayedCommand> commandQueue;
+	std::vector<std::function<void()>> delayedActionQueue;
 	std::vector<ImGuiPart*> parts;
 	float menuAlpha = 1.0f;
 

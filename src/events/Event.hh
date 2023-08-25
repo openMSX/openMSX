@@ -394,7 +394,7 @@ class MidiInCoreMidiEvent        final : public SimpleEvent {};
 class MidiInCoreMidiVirtualEvent final : public SimpleEvent {};
 class MidiInALSAEvent            final : public SimpleEvent {};
 class Rs232TesterEvent           final : public SimpleEvent {};
-class ImGuiDelayedCommandEvent   final : public SimpleEvent {};
+class ImGuiDelayedActionEvent    final : public SimpleEvent {};
 
 
 // --- Put all (non-abstract) Event classes into a std::variant ---
@@ -434,7 +434,7 @@ using Event = std::variant<
 	MidiInCoreMidiVirtualEvent,
 	MidiInALSAEvent,
 	Rs232TesterEvent,
-	ImGuiDelayedCommandEvent
+	ImGuiDelayedActionEvent
 >;
 
 template<typename T>
@@ -479,7 +479,7 @@ enum class EventType : uint8_t
 	MIDI_IN_COREMIDI_VIRTUAL = event_index<MidiInCoreMidiVirtualEvent>,
 	MIDI_IN_ALSA             = event_index<MidiInALSAEvent>,
 	RS232_TESTER             = event_index<Rs232TesterEvent>,
-	IMGUI_DELAYED_COMMAND    = event_index<ImGuiDelayedCommandEvent>,
+	IMGUI_DELAYED_ACTION     = event_index<ImGuiDelayedActionEvent>,
 
 	NUM_EVENT_TYPES // must be last
 };

@@ -4,7 +4,11 @@
 #include "RecordedCommand.hh"
 #include "MSXMotherBoard.hh"
 #include "InfoTopic.hh"
+
 #include "TclObject.hh"
+#include "narrow.hh"
+#include "ranges.hh"
+
 #include <array>
 #include <cassert>
 #include <optional>
@@ -46,11 +50,15 @@ public:
 	[[nodiscard]] bool isExternalSlot(int ps, int ss, bool convert) const;
 
 	// TODO allow to query more info like cart or ext inserted ...
-	bool slotExists(unsigned slot) const {
+	[[nodiscard]] bool slotExists(unsigned slot) const {
 		assert(slot < MAX_SLOTS);
 		return slots[slot].exists();
 	}
-	const HardwareConfig* getConfigForSlot(unsigned slot) const {
+	[[nodiscard]] int getNumberOfSlots() const {
+		return narrow<int>(ranges::count_if(slots, &Slot::exists));
+	}
+	[[nodiscard]] const HardwareConfig* getConfigForSlot(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
 		return slots[slot].config;
 	}
 

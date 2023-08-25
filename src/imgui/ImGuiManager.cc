@@ -140,7 +140,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	eventDistributor.registerEventListener(EventType::TEXT,              *this, EventDistributor::IMGUI);
 	eventDistributor.registerEventListener(EventType::WINDOW,            *this, EventDistributor::IMGUI);
 	eventDistributor.registerEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
+	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
 
 	// In order that they appear in the menubar
@@ -156,7 +156,7 @@ ImGuiManager::~ImGuiManager()
 {
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
-	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_COMMAND, *this);
+	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
 	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
 	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::TEXT, *this);
@@ -195,12 +195,24 @@ std::optional<TclObject> ImGuiManager::execute(TclObject command)
 	}
 }
 
+void ImGuiManager::executeDelayed(std::function<void()> action)
+{
+	delayedActionQueue.push_back(std::move(action));
+	reactor.getEventDistributor().distributeEvent(ImGuiDelayedActionEvent());
+}
+
 void ImGuiManager::executeDelayed(TclObject command,
                                   std::function<void(const TclObject&)> ok,
                                   std::function<void(const std::string&)> error)
 {
-	commandQueue.push_back(DelayedCommand{std::move(command), std::move(ok), std::move(error)});
-	reactor.getEventDistributor().distributeEvent(ImGuiDelayedCommandEvent());
+	executeDelayed([this, command, ok, error]() mutable {
+		try {
+			auto result = command.executeCommand(getInterpreter());
+			if (ok) ok(result);
+		} catch (CommandException& e) {
+			if (error) error(e.getMessage());
+		}
+	});
 }
 
 void ImGuiManager::executeDelayed(TclObject command,
@@ -231,17 +243,11 @@ int ImGuiManager::signalEvent(const Event& event)
 		}
 	} else {
 		switch (getType(event)) {
-		case EventType::IMGUI_DELAYED_COMMAND: {
-			auto& interp = getInterpreter();
-			for (auto& [cmd, ok, error] : commandQueue) {
-				try {
-					auto result = cmd.executeCommand(interp);
-					if (ok) ok(result);
-				} catch (CommandException& e) {
-					if (error) error(e.getMessage());
-				}
+		case EventType::IMGUI_DELAYED_ACTION: {
+			for (auto& action : delayedActionQueue) {
+				std::invoke(action);
 			}
-			commandQueue.clear();
+			delayedActionQueue.clear();
 			break;
 		}
 		case EventType::FILE_DROP: {

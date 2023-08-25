@@ -344,7 +344,14 @@ template<typename InputRange, typename T>
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] auto count_if(InputRange&& range, UnaryPredicate pred)
 {
-	return std::count_if(std::begin(range), std::end(range), pred);
+	auto first = std::begin(range);
+	auto last = std::begin(range);
+	typename std::iter_difference_t<decltype(first)> count = 0;
+	while (first != last) {
+		if (std::invoke(pred, *first)) ++count;
+	}
+	return count;
+	//return std::count_if(std::begin(range), std::end(range), pred);
 }
 
 template<typename InputRange1, typename InputRange2, typename OutputIter>

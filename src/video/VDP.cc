@@ -734,7 +734,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	}
 }
 
-void VDP::getExtraDeviceInfo(TclObject& result) const
+std::string_view VDP::getVersionString() const
 {
 	// Add VDP type from the config. An alternative is to convert the
 	// 'version' enum member into some kind of string, but we already
@@ -742,7 +742,12 @@ void VDP::getExtraDeviceInfo(TclObject& result) const
 	// in there, it makes sense. So we can just as well return that then.
 	const auto* vdpVersionString = getDeviceConfig().findChild("version");
 	assert(vdpVersionString);
-	result.addDictKeyValues("version", vdpVersionString->getData());
+	return vdpVersionString->getData();
+}
+
+void VDP::getExtraDeviceInfo(TclObject& result) const
+{
+	result.addDictKeyValues("version", getVersionString());
 }
 
 byte VDP::peekRegister(unsigned address) const

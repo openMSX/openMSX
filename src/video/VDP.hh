@@ -82,6 +82,7 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
+	[[nodiscard]] std::string_view getVersionString() const;
 
 	[[nodiscard]] byte peekRegister(unsigned address) const;
 	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;

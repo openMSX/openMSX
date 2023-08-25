@@ -27,9 +27,10 @@ private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);
 	[[nodiscard]] const std::vector<std::string>& getAllConfigs();
 	[[nodiscard]] const std::string& getTestResult(const std::string& config);
-	[[nodiscard]] const TclObject& getConfigInfo(const std::string& config);
+	[[nodiscard]] TclObject& getConfigInfo(const std::string& config);
 	[[nodiscard]] std::vector<std::string> getAllValuesFor(const TclObject& key);
 	bool printConfigInfo(const std::string& config);
+	void amendConfigInfo(MSXMotherBoard& mb, const std::string& config);
 
 public:
 	bool showSelectMachine = false;
