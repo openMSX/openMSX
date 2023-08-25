@@ -45,15 +45,27 @@ void RomKonamiSCC::powerUp(EmuTime::param time)
 	reset(time);
 }
 
+void RomKonamiSCC::bankSwitch(unsigned page, unsigned block)
+{
+	setRom(page, block);
+
+	// Note: the mirror behavior is different from RomKonami !
+	if (page == 2 || page == 3) {
+		// [0x4000-0x8000), mirrored in [0xC000-0x10000)
+		setRom(page + 4, block);
+	} else if (page == 4 || page == 5) {
+		// [0x8000-0xC000), mirrored in [0x0000-0x4000)
+		setRom(page - 4, block);
+	} else {
+		assert(false);
+	}
+}
+
 void RomKonamiSCC::reset(EmuTime::param time)
 {
-	setUnmapped(0);
-	setUnmapped(1);
 	for (auto i : xrange(2, 6)) {
-		setRom(i, i - 2);
+		bankSwitch(i, i - 2);
 	}
-	setUnmapped(6);
-	setUnmapped(7);
 
 	sccEnabled = false;
 	scc.reset(time);
@@ -108,7 +120,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
 		auto region = address >> 13;
-		setRom(region, value);
+		bankSwitch(region, value);
 		if ((region == 4) && sccEnabled) {
 			invalidateDeviceRCache(0x9800, 0x0800);
 		}

@@ -16,6 +16,9 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+private:
+	void bankSwitch(unsigned page, unsigned block);
 };
 
 REGISTER_BASE_CLASS(RomKonami, "RomKonami");

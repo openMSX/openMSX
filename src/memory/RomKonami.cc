@@ -35,22 +35,34 @@ RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 	// up anyway.
 }
 
+void RomKonami::bankSwitch(unsigned page, unsigned block)
+{
+	setRom(page, block);
+
+	// Note: the mirror behavior is different from RomKonamiSCC !
+	if (page == 2 || page == 3) {
+		// [0x4000-0x8000), mirrored in [0x0000-0x4000)
+		setRom(page - 2, block);
+	} else if (page == 4 || page == 5) {
+		// [0x8000-0xC000), mirrored in [0xC000-0x10000)
+		setRom(page + 2, block);
+	} else {
+		assert(false);
+	}
+}
+
 void RomKonami::reset(EmuTime::param /*time*/)
 {
-	setUnmapped(0);
-	setUnmapped(1);
 	for (auto i : xrange(2, 6)) {
-		setRom(i, i - 2);
+		bankSwitch(i, i - 2);
 	}
-	setUnmapped(6);
-	setUnmapped(7);
 }
 
 void RomKonami::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	// Note: [0x4000..0x6000) is fixed at segment 0.
 	if (0x6000 <= address && address < 0xC000) {
-		setRom(address >> 13, value);
+		bankSwitch(address >> 13, value);
 	}
 }
 
