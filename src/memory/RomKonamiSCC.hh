@@ -23,6 +23,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void bankSwitch(unsigned page, unsigned block);
+
+private:
 	SCC scc;
 	bool sccEnabled;
 };
