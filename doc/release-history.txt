@@ -14,7 +14,7 @@ This is a bug fix release which fixes the following serious issues:
 As a bonus two other noteworthy changes were made:
 - added Hitachi MPF-310H floppy disk drive + interface extension (thanks to
   Peter Hanraets and Arjen Zeilemaker)
-- added proper mirroring of Konami mapper types in areas 0-4000H and
+- added proper mirroring of Konami mapper types in areas 0-3FFFH and
   C000H-FFFFH
 
 

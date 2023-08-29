@@ -10,7 +10,7 @@ This is a bug fix release which fixes the following issues:
 As a bonus two other noteworthy changes were made:
 - added Hitachi MPF-310H floppy disk drive + interface extension (thanks to
   Peter Hanraets and Arjen Zeilemaker)
-- added proper mirroring of Konami mapper types in areas 0-4000H and
+- added proper mirroring of Konami mapper types in areas 0-3FFFH and
   C000H-FFFFH
 
 As this is only a bug fix release, let's just list the changes for 19.0 again
