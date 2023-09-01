@@ -128,7 +128,7 @@ static constexpr std::array modifierPosForMatrix = {
 
 struct MsxKeyScanMapping {
 	KeyMatrixPosition msx;
-	std::array<SDL_KeyCode, 3> hostKeyCodes;
+	std::array<SDL_Keycode, 3> hostKeyCodes;
 	std::array<SDL_Scancode, 3> hostScanCodes;
 };
 
@@ -204,7 +204,7 @@ static constexpr auto getMSXMapping()
 	//  11   |     |     |     |     | 'NO'|     |'YES'|     |
 	//       +-----+-----+-----+-----+-----+-----+-----+-----+
 	using M = MsxKeyScanMapping;
-	using K = std::array<SDL_KeyCode, 3>;
+	using K = std::array<SDL_Keycode, 3>;
 	using S = std::array<SDL_Scancode, 3>;
 	std::array mapping = {
 		M{0x00, K{SDLK_0},           S{SDL_SCANCODE_0}},
@@ -331,7 +331,7 @@ static constexpr auto getSVIMapping()
 	//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
 	//       +-----+-----+-----+-----+-----+-----+-----+-----+
 	using M = MsxKeyScanMapping;
-	using K = std::array<SDL_KeyCode, 3>;
+	using K = std::array<SDL_Keycode, 3>;
 	using S = std::array<SDL_Scancode, 3>;
 	std::array mapping = {
 		M{0x00, K{SDLK_0},           S{SDL_SCANCODE_0}},
@@ -454,7 +454,7 @@ static constexpr auto getCvJoyMapping()
 	//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
 	//       +-----+-----+-----+-----+-----+-----+-----+-----+
 	using M = MsxKeyScanMapping;
-	using K = std::array<SDL_KeyCode, 3>;
+	using K = std::array<SDL_Keycode, 3>;
 	using S = std::array<SDL_Scancode, 3>;
 	std::array mapping = {
 		M{0x00, K{SDLK_UP},      S{SDL_SCANCODE_UP}},
@@ -532,7 +532,7 @@ static constexpr auto getSegaMapping()
 	// - graph is a lock key and gets pressed when using alt-tab
 	// - alt-F7 is bound to quick-load
 	using M = MsxKeyScanMapping;
-	using K = std::array<SDL_KeyCode, 3>;
+	using K = std::array<SDL_Keycode, 3>;
 	using S = std::array<SDL_Scancode, 3>;
 	std::array mapping = {
 		M{0x00, K{SDLK_1,         SDLK_KP_1},
