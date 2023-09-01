@@ -462,6 +462,19 @@ inline void Disabled(bool b, std::invocable<> auto next)
 	ImGui::EndDisabled();
 }
 
+// im::VisuallyDisabled(): similar to Disabled(), but only visually disable, still allow to interact normally
+inline void VisuallyDisabled(bool b, std::invocable<> auto next)
+{
+	if (b) {
+		const auto& style = ImGui::GetStyle();
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, style.Alpha * style.DisabledAlpha);
+	}
+	next();
+	if (b) {
+		ImGui::PopStyleVar(1);
+	}
+}
+
 } // namespace im
 
 #endif

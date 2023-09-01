@@ -130,7 +130,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		auto suffix = name.substr(6);
 		if (suffix.starts_with("image.")) {
 			loadGroup(disk->groups[0], suffix.substr(6));
-		} else if (suffix.starts_with("disAsDsk.")) {
+		} else if (suffix.starts_with("dirAsDsk.")) {
 			loadGroup(disk->groups[1], suffix.substr(9));
 		} else if (suffix == "select") {
 			if (auto i = StringOp::stringTo<int>(value)) {
@@ -507,9 +507,9 @@ static void printPatches(const TclObject& patches)
 	}
 }
 
-void ImGuiMedia::selectRecent(ItemGroup& group)
+bool ImGuiMedia::selectRecent(ItemGroup& group)
 {
-	ImGui::InputText("##image", &group.edit.name);
+	bool interacted = ImGui::InputText("##image", &group.edit.name);
 	ImGui::SameLine(0.0f, 0.0f);
 	im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
 		int count = 0;
@@ -517,19 +517,24 @@ void ImGuiMedia::selectRecent(ItemGroup& group)
 			auto d = strCat(display(item), "##", count++);
 			if (ImGui::Selectable(d.c_str())) {
 				group.edit = item;
+				interacted = true;
 			}
 		}
 	});
+	interacted |= ImGui::IsItemActive();
+	return interacted;
 }
 
-void ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
+bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
                              std::function<std::string()> createFilter, zstring_view current)
 {
+	bool interacted = false;
 	im::ID("file", [&]{
-		selectRecent(group);
+		interacted |= selectRecent(group);
 	});
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##file")) {
+		interacted = true;
 		manager.openFile.selectFile(
 			title,
 			createFilter(),
@@ -537,47 +542,57 @@ void ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
 			current);
 	}
 	simpleToolTip("browse file");
+	return interacted;
 }
 
-void ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zstring_view current)
+bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zstring_view current)
 {
+	bool interacted = false;
 	im::ID("directory", [&]{
-		selectRecent(group);
+		interacted |= selectRecent(group);
 	});
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##dir")) {
+		interacted = true;
 		manager.openFile.selectDirectory(
 			title,
 			[&](const auto& fn) { group.edit.name = fn; },
 			current);
 	}
 	simpleToolTip("browse directory");
+	return interacted;
 }
 
-void ImGuiMedia::selectMapperType(MediaItem& item)
+bool ImGuiMedia::selectMapperType(MediaItem& item)
 {
+	bool interacted = false;
 	bool isAutoDetect = item.romType == ROM_UNKNOWN;
 	constexpr const char* autoStr = "auto detect";
 	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(item.romType));
 	ImGui::SetNextItemWidth(-80.0f);
 	im::Combo("mapper-type", current.c_str(), [&]{
 		if (ImGui::Selectable(autoStr, isAutoDetect)) {
+			interacted = true;
 			item.romType = ROM_UNKNOWN;
 		}
 		int count = 0;
 		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
 			bool selected = item.romType == static_cast<RomType>(count);
 			if (ImGui::Selectable(std::string(romInfo.name).c_str(), selected)) {
+				interacted = true;
 				item.romType = static_cast<RomType>(count);
 			}
 			simpleToolTip(romInfo.description);
 			++count;
 		}
 	});
+	interacted |= ImGui::IsItemActive();
+	return interacted;
 }
 
-void ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
+bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 {
+	bool interacted = false;
 	std::string patchesTitle = "IPS patches";
 	if (!item.ipsPatches.empty()) {
 		strAppend(patchesTitle, " (", item.ipsPatches.size(), ')');
@@ -590,6 +605,7 @@ void ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 				int count = 0;
 				for (const auto& patch : item.ipsPatches) {
 					if (ImGui::Selectable(patch.c_str(), count == patchIndex)) {
+						interacted = true;
 						patchIndex = count;
 					}
 					++count;
@@ -599,6 +615,7 @@ void ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 		ImGui::SameLine();
 		im::Group([&]{
 			if (ImGui::Button("Add")) {
+				interacted = true;
 				manager.openFile.selectFile(
 					"Select disk IPS patch",
 					buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
@@ -606,11 +623,13 @@ void ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 			}
 			im::Disabled(patchIndex < 0 ||  patchIndex >= narrow<int>(item.ipsPatches.size()), [&] {
 				if (ImGui::Button("Remove")) {
+					interacted = true;
 					item.ipsPatches.erase(item.ipsPatches.begin() + patchIndex);
 				}
 			});
 		});
 	});
+	return interacted;
 }
 
 void ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, zstring_view title)
@@ -772,17 +791,19 @@ void ImGuiMedia::diskMenu(int i)
 		ImGui::TextUnformatted("Select new disk"sv);
 
 		ImGui::RadioButton("disk image", &info.select, SELECT_DISK_IMAGE);
-		im::Disabled(info.select != SELECT_DISK_IMAGE, [&]{
+		im::VisuallyDisabled(info.select != SELECT_DISK_IMAGE, [&]{
 			im::Indent([&]{
 				auto& group = info.groups[SELECT_DISK_IMAGE];
-				selectImage(group, strCat("Select disk image for ", displayName), &diskFilter, current.getString());
-				selectPatches(group.edit, group.patchIndex);
+				bool interacted = selectImage(group, strCat("Select disk image for ", displayName), &diskFilter, current.getString());
+				interacted |= selectPatches(group.edit, group.patchIndex);
+				if (interacted) info.select = SELECT_DISK_IMAGE;
 			});
 		});
 		ImGui::RadioButton("dir as disk", &info.select, SELECT_DIR_AS_DISK);
-		im::Disabled(info.select != SELECT_DIR_AS_DISK, [&]{
+		im::VisuallyDisabled(info.select != SELECT_DIR_AS_DISK, [&]{
 			im::Indent([&]{
-				selectDirectory(info.groups[SELECT_DIR_AS_DISK], strCat("Select directory for ", displayName), current.getString());
+				bool interacted = selectDirectory(info.groups[SELECT_DIR_AS_DISK], strCat("Select directory for ", displayName), current.getString());
+				if (interacted) info.select = SELECT_DIR_AS_DISK;
 			});
 		});
 		ImGui::RadioButton("RAM disk", &info.select, SELECT_RAMDISK);
@@ -803,29 +824,33 @@ void ImGuiMedia::cartridgeMenu(int i)
 		ImGui::TextUnformatted("Select new cartridge:"sv);
 
 		ImGui::RadioButton("ROM image", &info.select, SELECT_ROM_IMAGE);
-		im::Disabled(info.select != SELECT_ROM_IMAGE, [&]{
+		im::VisuallyDisabled(info.select != SELECT_ROM_IMAGE, [&]{
 			im::Indent([&]{
 				auto& group = info.groups[SELECT_ROM_IMAGE];
 				auto& item = group.edit;
-				selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
-				selectMapperType(item);
-				selectPatches(item, group.patchIndex);
-
+				bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
+				interacted |= selectMapperType(item);
+				interacted |= selectPatches(item, group.patchIndex);
+				if (interacted) info.select = SELECT_ROM_IMAGE;
 			});
 		});
 		ImGui::RadioButton("extension", &info.select, SELECT_EXTENSION);
-		im::Disabled(info.select != SELECT_EXTENSION, [&]{
+		im::VisuallyDisabled(info.select != SELECT_EXTENSION, [&]{
 			im::Indent([&]{
 				auto& group = info.groups[SELECT_EXTENSION];
 				auto& item = group.edit;
+				bool interacted = false;
 				im::Combo("##extension", item.name.c_str(), [&]{
 					for (const auto& name : getAvailableExtensions()) {
 						if (ImGui::Selectable(name.c_str())) {
+							interacted = true;
 							item.name = name;
 						}
 						extensionTooltip(name);
 					}
 				});
+				interacted |= ImGui::IsItemActive();
+				if (interacted) info.select = SELECT_EXTENSION;
 			});
 		});
 		insertMediaButton(

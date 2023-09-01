@@ -82,12 +82,12 @@ public:
 	};
 
 private:
-	void selectRecent(ItemGroup& group);
-	void selectImage(ItemGroup& group, const std::string& title,
+	bool selectRecent(ItemGroup& group);
+	bool selectImage(ItemGroup& group, const std::string& title,
 	                 std::function<std::string()> createFilter, zstring_view current);
-	void selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
-	void selectMapperType(MediaItem& item);
-	void selectPatches(MediaItem& item, int& patchIndex);
+	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
+	bool selectMapperType(MediaItem& item);
+	bool selectPatches(MediaItem& item, int& patchIndex);
 	void insertMediaButton(std::string_view mediaName, ItemGroup& group, zstring_view title);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info);
