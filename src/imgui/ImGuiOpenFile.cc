@@ -26,6 +26,21 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+std::string ImGuiOpenFile::getStartPath(zstring_view lastLocationHint)
+{
+	if (!lastLocationHint.empty()) {
+		if (auto stat = FileOperations::getStat(lastLocationHint)) {
+			if (FileOperations::isDirectory(*stat)) {
+				return std::string(lastLocationHint);
+			} else if (FileOperations::isRegularFile(*stat)) {
+				return std::string(FileOperations::getDirName(lastLocationHint));
+			}
+		}
+	}
+	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
+	return it->second;
+}
+
 void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
                                std::function<void(const std::string&)> callback,
                                zstring_view lastLocationHint)
@@ -39,22 +54,25 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
 	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
 	lastFileDialog = title;
 
-	auto startPath = [&]{
-		if (!lastLocationHint.empty()) {
-			if (auto stat = FileOperations::getStat(lastLocationHint)) {
-				if (FileOperations::isDirectory(*stat)) {
-					return std::string(lastLocationHint);
-				} else if (FileOperations::isRegularFile(*stat)) {
-					return std::string(FileOperations::getDirName(lastLocationHint));
-				}
-			}
-		}
-		auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
-		return it->second;
-	}();
-
+	auto startPath = getStartPath(lastLocationHint);
 	ImGuiFileDialog::Instance()->OpenDialog(
 		"FileDialog", title, filters.c_str(), startPath, "", 1, nullptr, flags);
+	openFileCallback = callback;
+}
+
+void ImGuiOpenFile::selectDirectory(const std::string& title,
+                                    std::function<void(const std::string&)> callback,
+                                    zstring_view lastLocationHint)
+{
+	ImGuiFileDialogFlags flags =
+		ImGuiFileDialogFlags_DontShowHiddenFiles |
+		ImGuiFileDialogFlags_CaseInsensitiveExtention |
+		ImGuiFileDialogFlags_Modal;
+	lastFileDialog = title;
+
+	auto startPath = getStartPath(lastLocationHint);
+	ImGuiFileDialog::Instance()->OpenDialog(
+		"FileDialog", title, nullptr, startPath, "", 1, nullptr, flags);
 	openFileCallback = callback;
 }
 

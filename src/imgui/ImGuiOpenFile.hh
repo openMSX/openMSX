@@ -22,11 +22,17 @@ public:
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback,
 	                zstring_view lastLocationHint = {});
+	void selectDirectory(const std::string& title,
+	                     std::function<void(const std::string&)> callback,
+	                     zstring_view lastLocationHint = {});
 
 	[[nodiscard]] zstring_view iniName() const override { return "open file dialog"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
+
+private:
+	std::string getStartPath(zstring_view lastLocationHint);
 
 private:
 	ImGuiManager& manager;
