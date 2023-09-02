@@ -107,7 +107,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		if (suffix == "name") {
 			item.name = value;
 		} else if (suffix == "patch") {
-			item.ipsPatches.emplace_back(suffix);
+			item.ipsPatches.emplace_back(value);
 		} else if (suffix == "romType") {
 			if (auto type = RomInfo::nameToRomType(value); type != ROM_UNKNOWN) {
 				item.romType = type;
@@ -622,13 +622,29 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 				manager.openFile.selectFile(
 					"Select disk IPS patch",
 					buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
-					[&](const std::string& ips) { item.ipsPatches.push_back(ips); });
+					[&](const std::string& ips) {
+						patchIndex = narrow<int>(item.ipsPatches.size());
+						item.ipsPatches.push_back(ips);
+					});
 			}
-			im::Disabled(patchIndex < 0 ||  patchIndex >= narrow<int>(item.ipsPatches.size()), [&] {
+			auto size = narrow<int>(item.ipsPatches.size());
+			im::Disabled(patchIndex < 0 || patchIndex >= size, [&] {
 				if (ImGui::Button("Remove")) {
 					interacted = true;
 					item.ipsPatches.erase(item.ipsPatches.begin() + patchIndex);
 				}
+				im::Disabled(patchIndex == 0, [&]{
+					if (ImGui::ArrowButton("up", ImGuiDir_Up)) {
+						std::swap(item.ipsPatches[patchIndex], item.ipsPatches[patchIndex - 1]);
+						--patchIndex;
+					}
+				});
+				im::Disabled(patchIndex == (size - 1), [&]{
+					if (ImGui::ArrowButton("down", ImGuiDir_Down)) {
+						std::swap(item.ipsPatches[patchIndex], item.ipsPatches[patchIndex + 1]);
+						++patchIndex;
+					}
+				});
 			});
 		});
 	});
