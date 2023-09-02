@@ -509,6 +509,7 @@ static void printPatches(const TclObject& patches)
 
 bool ImGuiMedia::selectRecent(ItemGroup& group)
 {
+	ImGui::SetNextItemWidth(-52.0f);
 	bool interacted = ImGui::InputText("##image", &group.edit.name);
 	ImGui::SameLine(0.0f, 0.0f);
 	im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
@@ -802,6 +803,7 @@ void ImGuiMedia::diskMenu(int i)
 	auto& info = diskMediaInfo[i];
 	auto mediaName = strCat("disk", char('a' + i));
 	auto displayName = strCat("Disk Drive ", char('A' + i));
+	ImGui::SetNextWindowSize(gl::vec2{29, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(displayName.c_str(), &info.show, [&]{
 		auto current = showDiskInfo(mediaName, info);
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
@@ -833,6 +835,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 {
 	auto& info = cartridgeMediaInfo[i];
 	auto displayName = strCat("Cartridge Slot ", char('A' + i));
+	ImGui::SetNextWindowSize(gl::vec2{29, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(displayName.c_str(), &info.show, [&]{
 		auto cartName = strCat("cart", char('a' + i));
 		auto extName = strCat("ext", char('a' + i));
