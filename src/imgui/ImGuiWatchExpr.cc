@@ -63,8 +63,10 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 				| ImGuiTableFlags_BordersV
 				| ImGuiTableFlags_BordersOuter
 				| ImGuiTableFlags_SizingStretchProp
-				| ImGuiTableFlags_SortTristate;
+				| ImGuiTableFlags_SortTristate
+				| ImGuiTableFlags_ScrollY;
 			im::Table("table", 4, flags, [&]{
+				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("description");
 				ImGui::TableSetupColumn("expression");
 				ImGui::TableSetupColumn("format");
