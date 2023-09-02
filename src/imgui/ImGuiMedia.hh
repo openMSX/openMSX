@@ -95,7 +95,7 @@ private:
 	void cartridgeMenu (int i);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
 	const std::vector<std::string>& getAvailableExtensions();
-	const TclObject& getExtensionInfo(const std::string& extension);
+	const std::vector<std::pair<std::string, std::string>>& getExtensionInfo(const std::string& extension);
 	void printExtensionInfo(const std::string& extName);
 	void extensionTooltip(const std::string& extName);
 
@@ -111,7 +111,7 @@ private:
 	ItemGroup laserdiscMediaInfo;
 
 	std::vector<std::string> availableExtensionsCache;
-	std::map<std::string, TclObject> extensionInfoCache;
+	std::map<std::string, std::vector<std::pair<std::string, std::string>>> extensionInfoCache;
 };
 
 } // namespace openmsx

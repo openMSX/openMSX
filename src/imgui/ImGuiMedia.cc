@@ -20,6 +20,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "StringOp.hh"
+#include "StringReplacer.hh"
 #include "unreachable.hh"
 #include "view.hh"
 
@@ -226,13 +227,31 @@ const std::vector<std::string>& ImGuiMedia::getAvailableExtensions()
 	return availableExtensionsCache;
 }
 
-const TclObject& ImGuiMedia::getExtensionInfo(const std::string& extension)
+const std::vector<std::pair<std::string, std::string>>& ImGuiMedia::getExtensionInfo(const std::string& extension)
 {
+	static constexpr auto replacer = StringReplacer::create(
+		"name",         "Name",
+		"manufacturer", "Manufacturer",
+		"code",         "Product code",
+		"release_year", "Release year",
+		"description",  "Description",
+		"type",         "Type");
+
 	auto [it, inserted] = extensionInfoCache.try_emplace(extension);
 	auto& result = it->second;
 	if (inserted) {
 		if (auto r = manager.execute(makeTclList("openmsx_info", "extensions", extension))) {
-			result = *r;
+			auto first = r->begin();
+			auto last = r->end();
+			while (first != last) {
+				auto desc = *first++;
+				if (first == last) break; // shouldn't happen
+				auto value = *first++;
+				if (!value.empty()) {
+					result.emplace_back(std::string(replacer(desc)),
+					                    std::string(value));
+				}
+			}
 		}
 	}
 	return result;
@@ -244,15 +263,7 @@ void ImGuiMedia::printExtensionInfo(const std::string& extName)
 		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-		const auto& info = getExtensionInfo(extName);
-		auto it = info.begin();
-		auto et = info.end();
-		while (it != et) {
-			auto desc = *it++;
-			if (it == et) break; // shouldn't happen
-			auto value = *it++;
-			if (value.empty()) continue;
-
+		for (const auto& [desc, value] : getExtensionInfo(extName)) {
 			if (ImGui::TableNextColumn()) {
 				ImGui::TextUnformatted(desc);
 			}
@@ -923,7 +934,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 {
 	auto& info = cartridgeMediaInfo[i];
 	auto displayName = strCat("Cartridge Slot ", char('A' + i));
-	ImGui::SetNextWindowSize(gl::vec2{29, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{37, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(displayName.c_str(), &info.show, [&]{
 		auto cartName = strCat("cart", char('a' + i));
 		auto extName = strCat("ext", char('a' + i));
