@@ -327,16 +327,6 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			}
 		};
 
-		// diskX
-		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
-		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
-			if (!(*drivesInUse)[i]) continue;
-			elementInGroup();
-			auto displayName = strCat("Disk Drive ", char('A' + i));
-			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
-		}
-		endGroup();
-
 		// cartA / extX
 		auto& slotManager = motherBoard->getSlotManager();
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
@@ -378,6 +368,16 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 		});
+		endGroup();
+
+		// diskX
+		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
+			if (!(*drivesInUse)[i]) continue;
+			elementInGroup();
+			auto displayName = strCat("Disk Drive ", char('A' + i));
+			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
+		}
 		endGroup();
 
 		// cassetteplayer
