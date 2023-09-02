@@ -49,7 +49,7 @@ class TclObject
 		}
 		iterator operator++(int) {
 			iterator result = *this;
-			++result;
+			++i;
 			return result;
 		}
 		iterator& operator--() {
@@ -58,7 +58,7 @@ class TclObject
 		}
 		iterator operator--(int) {
 			iterator result = *this;
-			--result;
+			--i;
 			return result;
 		}
 	private:

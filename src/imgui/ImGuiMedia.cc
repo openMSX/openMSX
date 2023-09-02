@@ -13,6 +13,7 @@
 #include "MSXRomCLI.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
+#include "RomDatabase.hh"
 #include "RomInfo.hh"
 
 #include "join.hh"
@@ -239,13 +240,27 @@ const TclObject& ImGuiMedia::getExtensionInfo(const std::string& extension)
 
 void ImGuiMedia::printExtensionInfo(const std::string& extName)
 {
-	const auto& info = getExtensionInfo(extName);
 	im::Table("##extension-info", 2, [&]{
-		for (const auto& i : info) {
-			ImGui::TableNextColumn();
-			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-				ImGui::TextUnformatted(i);
-			});
+		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
+		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+
+		const auto& info = getExtensionInfo(extName);
+		auto it = info.begin();
+		auto et = info.end();
+		while (it != et) {
+			auto desc = *it++;
+			if (it == et) break; // shouldn't happen
+			auto value = *it++;
+			if (value.empty()) continue;
+
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted(desc);
+			}
+			if (ImGui::TableNextColumn()) {
+				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+					ImGui::TextUnformatted(value);
+				});
+			}
 		}
 	});
 }
@@ -740,7 +755,71 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 	return currentTarget;
 }
 
-TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot)
+static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType)
+{
+	im::Table("##extension-info", 2, [&]{
+		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
+		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+
+		auto printRow = [](std::string_view description, std::string_view value) {
+			if (value.empty()) return;
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted(description);
+			}
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted(value);
+			}
+		};
+
+		printRow("Filename", filename);
+
+		auto& database = manager.getReactor().getSoftwareDatabase();
+		const auto* romInfo = [&]() -> const RomInfo* {
+			if (auto actual = mediaTopic.getOptionalDictValue(TclObject("actualSHA1"))) {
+				if (const auto* info = database.fetchRomInfo(Sha1Sum(actual->getString()))) {
+					return info;
+				}
+			}
+			if (auto original = mediaTopic.getOptionalDictValue(TclObject("originalSHA1"))) {
+				if (const auto* info = database.fetchRomInfo(Sha1Sum(original->getString()))) {
+					return info;
+				}
+			}
+			return nullptr;
+		}();
+		if (!romInfo) return;
+		const char* buf = database.getBufferStart();
+
+		printRow("Title",   romInfo->getTitle(buf));
+		printRow("Year",    romInfo->getYear(buf));
+		printRow("Company", romInfo->getCompany(buf));
+		printRow("Country", romInfo->getCountry(buf));
+		auto status = [&]{
+			auto str = romInfo->getOrigType(buf);
+			if (romInfo->getOriginal()) {
+				std::string result = "Unmodified dump";
+				if (!str.empty()) {
+					strAppend(result, "(confirmed by ", str, ')');
+				}
+				return result;
+			} else {
+				return std::string(str);
+			}
+		}();
+		printRow("Status", status);
+		printRow("Remark",  romInfo->getRemark(buf));
+
+		std::string mapperStr{RomInfo::romTypeToName(romType)};
+		if (auto dbType = romInfo->getRomType();
+		    dbType != ROM_UNKNOWN && dbType != romType) {
+			strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
+		}
+		printRow("Mapper", mapperStr);
+	});
+
+}
+
+TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot)
 {
 	TclObject currentTarget;
 	auto cmdResult = manager.execute(makeTclList("machine_info", "media", mediaName));
@@ -757,14 +836,6 @@ TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo
 			}
 		} else {
 			return SELECT_EMPTY_SLOT;
-		}
-	}();
-	std::string_view typeStr = [&]{
-		switch (selectType) {
-			case SELECT_ROM_IMAGE:  return "ROM:";
-			case SELECT_EXTENSION:  return "Extension:";
-			case SELECT_EMPTY_SLOT: return "No cartridge inserted";
-			default: UNREACHABLE;
 		}
 	}();
 	bool disableEject = selectType == SELECT_EMPTY_SLOT;
@@ -784,18 +855,17 @@ TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo
 
 	RomType currentRomType = ROM_UNKNOWN;
 	im::Indent([&]{
-		ImGui::TextUnformatted(typeStr);
-		if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
+		if (selectType == SELECT_EMPTY_SLOT) {
+			ImGui::TextUnformatted("No cartridge inserted"sv);
+		} else if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
 			currentTarget = *target;
 			if (selectType == SELECT_EXTENSION) {
 				printExtensionInfo(std::string(target->getString()));
 			} else if (selectType == SELECT_ROM_IMAGE) {
-				ImGui::SameLine();
-				ImGui::TextUnformatted(target->getString());
 				if (auto mapper = cmdResult->getOptionalDictValue(TclObject("mappertype"))) {
-					ImGui::StrCat("Mapper-type: ", mapper->getString());
 					currentRomType = RomInfo::nameToRomType(mapper->getString());
 				}
+				printRomInfo(manager, *cmdResult, target->getString(), currentRomType);
 				printPatches(currentPatches);
 			}
 		}
@@ -858,7 +928,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 		auto cartName = strCat("cart", char('a' + i));
 		auto extName = strCat("ext", char('a' + i));
 
-		auto current = showRomInfo(cartName, info, i);
+		auto current = showCartridgeInfo(cartName, info, i);
 
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			ImGui::TextUnformatted("Select new cartridge:"sv);

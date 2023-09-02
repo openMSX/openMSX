@@ -90,7 +90,7 @@ private:
 	bool selectPatches(MediaItem& item, int& patchIndex);
 	void insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
-	TclObject showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
+	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);
 	void cartridgeMenu (int i);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
