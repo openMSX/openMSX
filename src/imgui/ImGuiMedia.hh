@@ -88,7 +88,7 @@ private:
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
 	bool selectMapperType(MediaItem& item);
 	bool selectPatches(MediaItem& item, int& patchIndex);
-	void insertMediaButton(std::string_view mediaName, ItemGroup& group, zstring_view title);
+	void insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info);
 	void diskMenu(int i);

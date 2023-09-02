@@ -632,11 +632,20 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 	return interacted;
 }
 
-void ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, zstring_view title)
+void ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow)
 {
 	im::Disabled(group.edit.name.empty(), [&]{
-		if (ImGui::Button(title.c_str())) {
+		const auto& style = ImGui::GetStyle();
+		auto width = 4.0f * style.FramePadding.x + style.ItemSpacing.x +
+			     ImGui::CalcTextSize("Apply").x + ImGui::CalcTextSize("Ok").x;
+		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - width + style.WindowPadding.x);
+		if (ImGui::Button("Apply")) {
 			insertMedia(mediaName, group);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Ok")) {
+			insertMedia(mediaName, group);
+			*showWindow = false;
 		}
 	});
 }
@@ -788,27 +797,28 @@ void ImGuiMedia::diskMenu(int i)
 	auto displayName = strCat("Disk Drive ", char('A' + i));
 	im::Window(displayName.c_str(), &info.show, [&]{
 		auto current = showDiskInfo(mediaName, info);
-		ImGui::TextUnformatted("Select new disk"sv);
+		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
+			ImGui::TextUnformatted("Select new disk"sv);
 
-		ImGui::RadioButton("disk image", &info.select, SELECT_DISK_IMAGE);
-		im::VisuallyDisabled(info.select != SELECT_DISK_IMAGE, [&]{
-			im::Indent([&]{
-				auto& group = info.groups[SELECT_DISK_IMAGE];
-				bool interacted = selectImage(group, strCat("Select disk image for ", displayName), &diskFilter, current.getString());
-				interacted |= selectPatches(group.edit, group.patchIndex);
-				if (interacted) info.select = SELECT_DISK_IMAGE;
+			ImGui::RadioButton("disk image", &info.select, SELECT_DISK_IMAGE);
+			im::VisuallyDisabled(info.select != SELECT_DISK_IMAGE, [&]{
+				im::Indent([&]{
+					auto& group = info.groups[SELECT_DISK_IMAGE];
+					bool interacted = selectImage(group, strCat("Select disk image for ", displayName), &diskFilter, current.getString());
+					interacted |= selectPatches(group.edit, group.patchIndex);
+					if (interacted) info.select = SELECT_DISK_IMAGE;
+				});
 			});
-		});
-		ImGui::RadioButton("dir as disk", &info.select, SELECT_DIR_AS_DISK);
-		im::VisuallyDisabled(info.select != SELECT_DIR_AS_DISK, [&]{
-			im::Indent([&]{
-				bool interacted = selectDirectory(info.groups[SELECT_DIR_AS_DISK], strCat("Select directory for ", displayName), current.getString());
-				if (interacted) info.select = SELECT_DIR_AS_DISK;
+			ImGui::RadioButton("dir as disk", &info.select, SELECT_DIR_AS_DISK);
+			im::VisuallyDisabled(info.select != SELECT_DIR_AS_DISK, [&]{
+				im::Indent([&]{
+					bool interacted = selectDirectory(info.groups[SELECT_DIR_AS_DISK], strCat("Select directory for ", displayName), current.getString());
+					if (interacted) info.select = SELECT_DIR_AS_DISK;
+				});
 			});
+			ImGui::RadioButton("RAM disk", &info.select, SELECT_RAMDISK);
 		});
-		ImGui::RadioButton("RAM disk", &info.select, SELECT_RAMDISK);
-
-		insertMediaButton(mediaName, info.groups[info.select], "Insert selected disk");
+		insertMediaButton(mediaName, info.groups[info.select], &info.show);
 	});
 }
 
@@ -821,42 +831,43 @@ void ImGuiMedia::cartridgeMenu(int i)
 		auto extName = strCat("ext", char('a' + i));
 
 		auto current = showRomInfo(cartName, info);
-		ImGui::TextUnformatted("Select new cartridge:"sv);
 
-		ImGui::RadioButton("ROM image", &info.select, SELECT_ROM_IMAGE);
-		im::VisuallyDisabled(info.select != SELECT_ROM_IMAGE, [&]{
-			im::Indent([&]{
-				auto& group = info.groups[SELECT_ROM_IMAGE];
-				auto& item = group.edit;
-				bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
-				interacted |= selectMapperType(item);
-				interacted |= selectPatches(item, group.patchIndex);
-				if (interacted) info.select = SELECT_ROM_IMAGE;
-			});
-		});
-		ImGui::RadioButton("extension", &info.select, SELECT_EXTENSION);
-		im::VisuallyDisabled(info.select != SELECT_EXTENSION, [&]{
-			im::Indent([&]{
-				auto& group = info.groups[SELECT_EXTENSION];
-				auto& item = group.edit;
-				bool interacted = false;
-				im::Combo("##extension", item.name.c_str(), [&]{
-					for (const auto& name : getAvailableExtensions()) {
-						if (ImGui::Selectable(name.c_str())) {
-							interacted = true;
-							item.name = name;
-						}
-						extensionTooltip(name);
-					}
+		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
+			ImGui::TextUnformatted("Select new cartridge:"sv);
+
+			ImGui::RadioButton("ROM image", &info.select, SELECT_ROM_IMAGE);
+			im::VisuallyDisabled(info.select != SELECT_ROM_IMAGE, [&]{
+				im::Indent([&]{
+					auto& group = info.groups[SELECT_ROM_IMAGE];
+					auto& item = group.edit;
+					bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
+					interacted |= selectMapperType(item);
+					interacted |= selectPatches(item, group.patchIndex);
+					if (interacted) info.select = SELECT_ROM_IMAGE;
 				});
-				interacted |= ImGui::IsItemActive();
-				if (interacted) info.select = SELECT_EXTENSION;
+			});
+			ImGui::RadioButton("extension", &info.select, SELECT_EXTENSION);
+			im::VisuallyDisabled(info.select != SELECT_EXTENSION, [&]{
+				im::Indent([&]{
+					auto& group = info.groups[SELECT_EXTENSION];
+					auto& item = group.edit;
+					bool interacted = false;
+					im::Combo("##extension", item.name.c_str(), [&]{
+						for (const auto& name : getAvailableExtensions()) {
+							if (ImGui::Selectable(name.c_str())) {
+								interacted = true;
+								item.name = name;
+							}
+							extensionTooltip(name);
+						}
+					});
+					interacted |= ImGui::IsItemActive();
+					if (interacted) info.select = SELECT_EXTENSION;
+				});
 			});
 		});
-		insertMediaButton(
-			info.select == SELECT_ROM_IMAGE ? cartName : extName,
-			info.groups[info.select],
-			"Insert selected cartridge");
+		insertMediaButton(info.select == SELECT_ROM_IMAGE ? cartName : extName,
+		                  info.groups[info.select], &info.show);
 	});
 }
 
