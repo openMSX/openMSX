@@ -20,7 +20,9 @@
 #include "SettingsManager.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
+
 #include "checked_cast.hh"
+#include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -157,7 +159,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				if (dynamic_cast<ReadOnlySetting*>(setting)) continue;
 				settings.push_back(checked_cast<Setting*>(setting));
 			}
-			ranges::sort(settings, {}, &Setting::getBaseName);
+			ranges::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
 			for (auto* setting : settings) {
 				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
 					Checkbox(*bSetting);

@@ -462,29 +462,22 @@ void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items)
 	assert(sortSpecs->Specs);
 	assert(sortSpecs->Specs->SortOrder == 0);
 
-	auto sortUpDown = [&](auto proj) {
-		if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-			ranges::stable_sort(items, std::greater<>{}, proj);
-		} else {
-			ranges::stable_sort(items, std::less<>{}, proj);
-		}
-	};
 	switch (sortSpecs->Specs->ColumnIndex) {
 	case 1: // addr
-		sortUpDown(&GuiItem::wpType);
+		sortUpDown_T(items, sortSpecs, &GuiItem::wpType);
 		break;
 	case 2: // addr
-		sortUpDown([](const auto& item) {
+		sortUpDown_T(items, sortSpecs, [](const auto& item) {
 			return std::tuple(item.addr, item.endAddr,
 			                  item.addrStr.getString(),
 			                  item.endAddrStr.getString());
 		});
 		break;
 	case 3: // cond
-		sortUpDown([](const auto& item) { return item.cond.getString(); });
+		sortUpDown_String(items, sortSpecs, [](const auto& item) { return item.cond.getString(); });
 		break;
 	case 4: // action
-		sortUpDown([](const auto& item) { return item.cmd.getString(); });
+		sortUpDown_String(items, sortSpecs, [](const auto& item) { return item.cmd.getString(); });
 		break;
 	default:
 		UNREACHABLE;

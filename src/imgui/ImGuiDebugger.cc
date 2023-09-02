@@ -20,6 +20,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
+#include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -159,7 +160,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Add hex editor", [&]{
 			auto& debugger = motherBoard->getDebugger();
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
-			ranges::sort(debuggables, {}, [](const auto& p) { return p.first; }); // sort on name
+			ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
 				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
 					createHexEditor(name);

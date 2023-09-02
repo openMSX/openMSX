@@ -18,6 +18,7 @@
 #include "join.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 
@@ -219,6 +220,7 @@ const std::vector<std::string>& ImGuiMedia::getAvailableExtensions()
 {
 	if (availableExtensionsCache.empty()) {
 		availableExtensionsCache = Reactor::getHwConfigs("extensions");
+		ranges::sort(availableExtensionsCache, StringOp::caseless{});
 	}
 	return availableExtensionsCache;
 }

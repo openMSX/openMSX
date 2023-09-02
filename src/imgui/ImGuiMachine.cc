@@ -16,6 +16,8 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
+#include "StringOp.hh"
+
 #include <imgui_stdlib.h>
 #include <imgui.h>
 
@@ -287,7 +289,7 @@ std::vector<std::string> ImGuiMachine::getAllValuesFor(const TclObject& key)
 			}
 		}
 	}
-	ranges::sort(result);
+	ranges::sort(result, StringOp::caseless{});
 	return result;
 }
 

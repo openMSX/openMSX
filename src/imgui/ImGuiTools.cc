@@ -5,6 +5,7 @@
 #include "ImGuiUtils.hh"
 
 #include "ranges.hh"
+#include "StringOp.hh"
 
 #include <imgui.h>
 
@@ -28,7 +29,7 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 					result.emplace_back(cmd.view());
 				}
 			}
-			ranges::sort(result);
+			ranges::sort(result, StringOp::caseless{});
 		}
 	}
 	refresh += ImGui::GetIO().DeltaTime;

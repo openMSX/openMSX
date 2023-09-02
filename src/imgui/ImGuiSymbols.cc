@@ -9,6 +9,7 @@
 #include "Interpreter.hh"
 #include "MSXException.hh"
 #include "Reactor.hh"
+
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -67,22 +68,15 @@ static void checkSort(std::vector<Symbol>& symbols)
 	assert(sortSpecs->Specs);
 	assert(sortSpecs->Specs->SortOrder == 0);
 
-	auto sortUpDown = [&](auto proj) {
-		if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-			ranges::stable_sort(symbols, std::greater<>{}, proj);
-		} else {
-			ranges::stable_sort(symbols, std::less<>{}, proj);
-		}
-	};
 	switch (sortSpecs->Specs->ColumnIndex) {
 	case 0: // name
-		sortUpDown(&Symbol::name);
+		sortUpDown_String(symbols, sortSpecs, &Symbol::name);
 		break;
 	case 1: // value
-		sortUpDown(&Symbol::value);
+		sortUpDown_T(symbols, sortSpecs, &Symbol::value);
 		break;
 	case 2: // file
-		sortUpDown(&Symbol::file);
+		sortUpDown_String(symbols, sortSpecs, &Symbol::file);
 		break;
 	default:
 		UNREACHABLE;
@@ -212,7 +206,7 @@ const std::vector<std::string>& ImGuiSymbols::getFiles()
 				filesCache.push_back(sym.file);
 			}
 		}
-		ranges::sort(filesCache);
+		ranges::sort(filesCache, StringOp::caseless{});
 	}
 	return filesCache;
 }

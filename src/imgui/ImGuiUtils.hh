@@ -4,9 +4,11 @@
 #include "ImGuiCpp.hh"
 
 #include "strCat.hh"
+#include "StringOp.hh"
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <concepts>
 #include <span>
 #include <string>
@@ -105,6 +107,23 @@ void comboHexSequence(const char* label, int* value, int mult) {
 			}
 		}
 	});
+};
+
+template<typename Range, typename Projection>
+void sortUpDown_T(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
+	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
+		ranges::stable_sort(range, std::greater<>{}, proj);
+	} else {
+		ranges::stable_sort(range, std::less<>{}, proj);
+	}
+};
+template<typename Range, typename Projection>
+void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
+	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
+		ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
+	} else {
+		ranges::stable_sort(range, StringOp::caseless{}, proj);
+	}
 };
 
 } // namespace openmsx

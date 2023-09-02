@@ -293,22 +293,15 @@ void ImGuiWatchExpr::checkSort()
 	assert(sortSpecs->Specs);
 	assert(sortSpecs->Specs->SortOrder == 0);
 
-	auto sortUpDown = [&](auto proj) {
-		if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-			ranges::stable_sort(watches, std::greater<>{}, proj);
-		} else {
-			ranges::stable_sort(watches, std::less<>{}, proj);
-		}
-	};
 	switch (sortSpecs->Specs->ColumnIndex) {
 	case 0: // description
-		sortUpDown(&WatchExpr::description);
+		sortUpDown_String(watches, sortSpecs, &WatchExpr::description);
 		break;
 	case 1: // expression
-		sortUpDown([](const auto& item) { return item.exprStr; });
+		sortUpDown_String(watches, sortSpecs, [](const auto& item) { return item.exprStr; });
 		break;
 	case 2: // format
-		sortUpDown([](const auto& item) { return item.format.getString(); });
+		sortUpDown_String(watches, sortSpecs, [](const auto& item) { return item.format.getString(); });
 		break;
 	default:
 		UNREACHABLE;
