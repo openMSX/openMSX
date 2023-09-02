@@ -263,7 +263,8 @@ void ImGuiMedia::printExtensionInfo(const std::string& extName)
 		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-		for (const auto& [desc, value] : getExtensionInfo(extName)) {
+		for (const auto& [desc, value_] : getExtensionInfo(extName)) {
+			const auto& value = value_; // clang workaround
 			if (ImGui::TableNextColumn()) {
 				ImGui::TextUnformatted(desc);
 			}

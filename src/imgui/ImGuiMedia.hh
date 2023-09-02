@@ -56,7 +56,7 @@ public:
 		std::vector<std::string> ipsPatches; // only used for disk and rom images
 		RomType romType = ROM_UNKNOWN; // only used for rom images
 
-		[[nodiscard]] auto operator<=>(const MediaItem&) const = default;
+		[[nodiscard]] bool operator==(const MediaItem&) const = default;
 	};
 
 	struct ItemGroup { // MediaItem + history

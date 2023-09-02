@@ -26,6 +26,8 @@
 
 #include "MinimalPerfectHash.hh"
 
+#include "narrow.hh"
+
 #include <array>
 #include <cassert>
 #include <string_view>
@@ -38,7 +40,7 @@ namespace detail {
 [[nodiscard]] inline constexpr unsigned fnvHash(std::string_view s)
 {
 	constexpr unsigned PRIME = 0x811C9DC5;
-	unsigned hash = s.size();
+	auto hash = narrow<unsigned>(s.size());
 	for (size_t i = 0; i < s.size(); ++i) {
 		hash *= PRIME;
 		hash ^= s[i];
