@@ -696,6 +696,18 @@ void ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group,
 	});
 }
 
+static std::string leftClip(std::string_view s, float maxWidth)
+{
+	// Assume a fixed-width font.
+	const auto* font = ImGui::GetFont();
+	auto maxChars = static_cast<size_t>(maxWidth / font->GetCharAdvance('A'));
+
+	auto len = s.size();
+	if (len < maxChars) return std::string{s};
+	if (maxChars <= 3) return "...";
+	return strCat("...", s.substr(len - (maxChars - 3)));
+}
+
 TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& info)
 {
 	TclObject currentTarget;
@@ -742,7 +754,8 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 			if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
 				currentTarget = *target;
 				ImGui::SameLine();
-				ImGui::TextUnformatted(currentTarget.getString());
+				ImGui::TextUnformatted(leftClip(currentTarget.getString(),
+				                       ImGui::GetContentRegionAvail().x));
 			}
 			if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
 				if (auto b = ro->getOptionalBool(); b && *b) {
@@ -773,17 +786,12 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-		auto printRow = [](std::string_view description, std::string_view value) {
-			if (value.empty()) return;
-			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(description);
-			}
-			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(value);
-			}
-		};
-
-		printRow("Filename", filename);
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted("Filename");
+		}
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted(leftClip(filename, ImGui::GetContentRegionAvail().x));
+		}
 
 		auto& database = manager.getReactor().getSoftwareDatabase();
 		const auto* romInfo = [&]() -> const RomInfo* {
@@ -802,6 +810,15 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 		if (!romInfo) return;
 		const char* buf = database.getBufferStart();
 
+		auto printRow = [](std::string_view description, std::string_view value) {
+			if (value.empty()) return;
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted(description);
+			}
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted(value);
+			}
+		};
 		printRow("Title",   romInfo->getTitle(buf));
 		printRow("Year",    romInfo->getYear(buf));
 		printRow("Company", romInfo->getCompany(buf));
