@@ -61,6 +61,10 @@ public:
 		assert(slot < MAX_SLOTS);
 		return slots[slot].config;
 	}
+	[[nodiscard]] std::pair<int, int> getPsSs(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
+		return {slots[slot].ps, slots[slot].ss};
+	}
 
 private:
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;

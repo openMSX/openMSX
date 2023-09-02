@@ -721,7 +721,7 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 	return currentTarget;
 }
 
-TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info)
+TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot)
 {
 	TclObject currentTarget;
 	auto cmdResult = manager.execute(makeTclList("machine_info", "media", mediaName));
@@ -755,6 +755,13 @@ TclObject ImGuiMedia::showRomInfo(std::string_view mediaName, CartridgeMediaInfo
 	im::Disabled(disableEject, [&]{
 		copyCurrent = ImGui::SmallButton("Current cartridge");
 	});
+	auto& slotManager = manager.getReactor().getMotherBoard()->getSlotManager();
+	auto [ps, ss] = slotManager.getPsSs(slot);
+	std::string slotStr = strCat("(slot ", ps);
+	if (ss != -1) strAppend(slotStr, '-', ss);
+	strAppend(slotStr, ')');
+	ImGui::SameLine();
+	ImGui::TextUnformatted(slotStr);
 
 	RomType currentRomType = ROM_UNKNOWN;
 	im::Indent([&]{
@@ -830,7 +837,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 		auto cartName = strCat("cart", char('a' + i));
 		auto extName = strCat("ext", char('a' + i));
 
-		auto current = showRomInfo(cartName, info);
+		auto current = showRomInfo(cartName, info, i);
 
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			ImGui::TextUnformatted("Select new cartridge:"sv);
