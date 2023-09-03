@@ -334,6 +334,12 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			elementInGroup();
 			auto displayName = strCat("Cartridge Slot ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
+			simpleToolTip([&]() -> std::string_view {
+				if (const auto* config = slotManager.getConfigForSlot(i)) {
+					return config->getName();
+				}
+				return "";
+			});
 		}
 		endGroup();
 
@@ -377,6 +383,13 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			elementInGroup();
 			auto displayName = strCat("Disk Drive ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
+			simpleToolTip([&]() -> std::string_view {
+				auto cmd = makeTclList(tmpStrCat("disk", char('a' + i)));
+				if (auto result = manager.execute(cmd)) {
+					return result->getListIndexUnchecked(1).getString();
+				}
+				return "";
+			});
 		}
 		endGroup();
 
