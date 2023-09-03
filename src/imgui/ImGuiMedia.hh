@@ -80,6 +80,10 @@ public:
 		int select = 0; // 0->diskImage, 1->dirAsDsk, 2->ramDisk
 		bool show = false;
 	};
+	struct CassetteMediaInfo {
+		ItemGroup group;
+		bool show = false;
+	};
 
 private:
 	bool selectRecent(ItemGroup& group);
@@ -92,7 +96,8 @@ private:
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);
-	void cartridgeMenu (int i);
+	void cartridgeMenu(int i);
+	void cassetteMenu(const TclObject& cmdResult);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
 	const std::vector<std::string>& getAvailableExtensions();
 	const std::vector<std::pair<std::string, std::string>>& getExtensionInfo(const std::string& extension);
@@ -105,7 +110,7 @@ private:
 	std::array<DiskMediaInfo, RealDrive::MAX_DRIVES> diskMediaInfo;
 	std::array<CartridgeMediaInfo, CartridgeSlotManager::MAX_SLOTS> cartridgeMediaInfo;
 	ItemGroup extensionMediaInfo;
-	ItemGroup cassetteMediaInfo;
+	CassetteMediaInfo cassetteMediaInfo;
 	std::array<ItemGroup, HD::MAX_HD> hdMediaInfo;
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;

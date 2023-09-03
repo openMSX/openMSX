@@ -45,6 +45,7 @@ public:
 	}
 
 	[[nodiscard]] Command* findCommand(std::string_view name) const;
+	[[nodiscard]] Setting* findSetting(std::string_view name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.

@@ -164,6 +164,8 @@ public:
 	[[nodiscard]] std::optional<TclObject> getOptionalDictValue(const TclObject& key) const;
 	[[nodiscard]] std::optional<int> getOptionalInt() const;
 	[[nodiscard]] std::optional<bool> getOptionalBool() const;
+	[[nodiscard]] std::optional<double> getOptionalDouble() const;
+	[[nodiscard]] std::optional<float> getOptionalFloat() const;
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.

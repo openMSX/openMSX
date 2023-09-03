@@ -118,6 +118,12 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
+Setting* MSXCommandController::findSetting(std::string_view name) const
+{
+	auto it = ranges::find(settings, name, &Setting::getBaseName);
+	return it != settings.end() ? *it : nullptr;
+}
+
 Command* MSXCommandController::findCommand(std::string_view name) const
 {
 	auto it = commandMap.find(name);

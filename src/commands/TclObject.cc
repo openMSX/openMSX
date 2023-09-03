@@ -115,6 +115,13 @@ float TclObject::getFloat(Interpreter& interp_) const
 	// narrowing conversion in only this single location.
 	return narrow_cast<float>(getDouble(interp_));
 }
+std::optional<float> TclObject::getOptionalFloat() const
+{
+	if (auto d = getOptionalDouble()) {
+		return narrow_cast<float>(*d);
+	}
+	return {};
+}
 
 double TclObject::getDouble(Interpreter& interp_) const
 {
@@ -122,6 +129,15 @@ double TclObject::getDouble(Interpreter& interp_) const
 	double result;
 	if (Tcl_GetDoubleFromObj(interp, obj, &result) != TCL_OK) {
 		throwException(interp);
+	}
+	return result;
+}
+
+std::optional<double> TclObject::getOptionalDouble() const
+{
+	double result;
+	if (Tcl_GetDoubleFromObj(nullptr, obj, &result) != TCL_OK) {
+		return {};
 	}
 	return result;
 }

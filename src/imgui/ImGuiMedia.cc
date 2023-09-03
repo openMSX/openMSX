@@ -10,6 +10,7 @@
 #include "HardwareConfig.hh"
 #include "HD.hh"
 #include "IDECDROM.hh"
+#include "MSXCommandController.hh"
 #include "MSXRomCLI.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
@@ -29,6 +30,8 @@
 #include <imgui_stdlib.h>
 
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 
 using namespace std::literals;
 
@@ -89,8 +92,10 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 		name.back()++;
 	}
 
+	if (cassetteMediaInfo.show) buf.append("cassette.show=1\n");
+	saveGroup(cassetteMediaInfo.group, "cassette");
+
 	saveGroup(extensionMediaInfo, "extension");
-	saveGroup(cassetteMediaInfo, "cassette");
 	saveGroup(laserdiscMediaInfo, "laserdisc");
 }
 
@@ -163,10 +168,15 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		loadGroup(*hd, name.substr(4));
 	} else if (auto* cd = get("cd", cdMediaInfo)) {
 		loadGroup(*cd, name.substr(4));
+	} else if (name.starts_with("cassette.")) {
+		auto suffix = name.substr(9);
+		if (suffix == "show") {
+			cassetteMediaInfo.show = StringOp::stringToBool(value);
+		} else {
+			loadGroup(cassetteMediaInfo.group, suffix);
+		}
 	} else if (name.starts_with("extension.")) {
 		loadGroup(extensionMediaInfo, name.substr(10));
-	} else if (name.starts_with("casette.")) {
-		loadGroup(cassetteMediaInfo, name.substr(8));
 	} else if (name.starts_with("laserdisc.")) {
 		loadGroup(laserdiscMediaInfo, name.substr(10));
 	}
@@ -194,6 +204,11 @@ static std::string diskFilter()
 static std::string romFilter()
 {
 	return buildFilter("ROM images", MSXRomCLI::getExtensions());
+}
+
+static std::string cassetteFilter()
+{
+	return buildFilter("Tape images", CassettePlayerCLI::getExtensions());
 }
 
 static std::string hdFilter()
@@ -396,23 +411,9 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		// cassetteplayer
 		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
 			elementInGroup();
-			im::Menu("Tape Deck", [&]{
-				auto currentImage = cmdResult->getListIndex(interp, 1);
-				showCurrent(currentImage, "cassette");
-				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-					manager.executeDelayed(makeTclList("cassetteplayer", "eject"));
-				}
-				if (ImGui::MenuItem("Insert cassette image...")) {
-					manager.openFile.selectFile(
-						"Select cassette image",
-						buildFilter("Cassette images", CassettePlayerCLI::getExtensions()),
-						[this](const auto& fn) {
-							cassetteMediaInfo.edit.name = fn;
-							this->insertMedia("cassetteplayer", cassetteMediaInfo);
-						},
-						currentImage.getString());
-				}
-				showRecent("cassetteplayer", cassetteMediaInfo);
+			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
+			simpleToolTip([&]() -> std::string_view {
+				return cmdResult->getListIndexUnchecked(1).getString();
 			});
 		}
 		endGroup();
@@ -528,6 +529,12 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 		if (!slotManager.slotExists(i)) continue;
 		if (cartridgeMediaInfo[i].show) {
 			cartridgeMenu(i);
+		}
+	}
+
+	if (cassetteMediaInfo.show) {
+		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
+			cassetteMenu(*cmdResult);
 		}
 	}
 }
@@ -1008,6 +1015,131 @@ void ImGuiMedia::cartridgeMenu(int i)
 		});
 		insertMediaButton(info.select == SELECT_ROM_IMAGE ? cartName : extName,
 		                  info.groups[info.select], &info.show);
+	});
+}
+
+static bool ButtonWithCustomRendering(
+	const char* label, gl::vec2 size,
+	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
+{
+	gl::vec2 topLeft = ImGui::GetCursorScreenPos();
+	gl::vec2 center = topLeft + size * 0.5f;
+	bool result = ImGui::Button(label, size);
+	render(center, ImGui::GetWindowDrawList());
+	return result;
+}
+
+static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
+{
+	float half = 0.4f * ImGui::GetTextLineHeight();
+	auto p1 = center + gl::vec2(half, 0.0f);
+	auto p2 = center + gl::vec2(-half, half);
+	auto p3 = center + gl::vec2(-half, -half);
+	drawList->AddTriangleFilled(p1, p2, p3, ImGui::GetColorU32(ImGuiCol_Text));
+}
+static void RenderRewind(gl::vec2 center, ImDrawList* drawList)
+{
+	float size = 0.8f * ImGui::GetTextLineHeight();
+	float half = size * 0.5f;
+	auto color = ImGui::GetColorU32(ImGuiCol_Text);
+	auto p1 = center + gl::vec2(-size, 0.0f);
+	auto p2 = center + gl::vec2(0.0f, -half);
+	auto p3 = center + gl::vec2(0.0f, half);
+	drawList->AddTriangleFilled(p1, p2, p3, color);
+	gl::vec2 offset{size, 0.0f};
+	p1 += offset;
+	p2 += offset;
+	p3 += offset;
+	drawList->AddTriangleFilled(p1, p2, p3, color);
+}
+static void RenderStop(gl::vec2 center, ImDrawList* drawList)
+{
+	gl::vec2 half{0.4f * ImGui::GetTextLineHeight()};
+	drawList->AddRectFilled(center - half, center + half, ImGui::GetColorU32(ImGuiCol_Text));
+}
+static void RenderRecord(gl::vec2 center, ImDrawList* drawList)
+{
+	float radius = 0.4f * ImGui::GetTextLineHeight();
+	drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_Text));
+}
+
+
+void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
+{
+	ImGui::SetNextWindowSize(gl::vec2{37, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver); // TODO
+	auto& info = cassetteMediaInfo;
+	im::Window("Tape Deck", &info.show, [&]{
+		ImGui::TextUnformatted("Current tape");
+		auto current = cmdResult.getListIndexUnchecked(1).getString();
+		im::Indent([&]{
+			if (current.empty()) {
+				ImGui::TextUnformatted("No tape inserted");
+			} else {
+				ImGui::TextUnformatted("Tape image:");
+				ImGui::SameLine();
+				ImGui::TextUnformatted(leftClip(current, ImGui::GetContentRegionAvail().x));
+			}
+		});
+		im::Disabled(current.empty(), [&]{
+			if (ImGui::Button("Eject")) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "eject"));
+			}
+		});
+		ImGui::Separator();
+
+		ImGui::TextUnformatted("Controls");
+		im::Indent([&]{
+			auto size = ImGui::GetFrameHeightWithSpacing();
+			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, RenderPlay)) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "play"));
+			}
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Rewind", {2.0f * size, size}, RenderRewind)) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "rewind"));
+			}
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, RenderStop)) {
+				std::cerr << "TODO cassetteplayer stop\n"; // TODO
+			}
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, RenderRecord)) {
+				std::cerr << "TODO cassetteplayer stop\n"; // TODO
+			}
+
+			ImGui::SameLine();
+			auto getFloat = [&](std::string_view subCmd) {
+				auto r = manager.execute(makeTclList("cassetteplayer", subCmd)).value_or(TclObject(0.0));
+				return r.getOptionalFloat().value_or(0.0f);
+			};
+			auto length = getFloat("getlength");
+			auto pos = getFloat("getpos");
+			auto format = [](float time) {
+				int t = narrow_cast<int>(time); // truncated to seconds
+				int s = t % 60; t /= 60;
+				int m = t % 60; t /= 60;
+				std::ostringstream os;
+				os << std::setfill('0');
+				if (t) os << std::setw(2) << t << ':';
+				os << std::setw(2) << m << ':';
+				os << std::setw(2) << s;
+				return os.str();
+			};
+			ImGui::Text("%s / %s", format(pos).c_str(), format(length).c_str());
+
+			auto& controller = manager.getReactor().getMotherBoard()->getMSXCommandController();
+			if (auto* autoRun = dynamic_cast<BooleanSetting*>(controller.findSetting("autoruncassettes"))) {
+				Checkbox("(try to) Auto Run", *autoRun);
+			}
+		});
+		ImGui::Separator();
+
+		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
+			ImGui::TextUnformatted("Select new tape:"sv);
+			im::Indent([&]{
+				selectImage(info.group, "Select tape image", &cassetteFilter, current);
+			});
+		});
+		insertMediaButton("cassetteplayer", info.group, &info.show);
 	});
 }
 
