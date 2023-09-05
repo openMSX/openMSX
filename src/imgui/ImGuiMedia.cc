@@ -353,7 +353,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				if (const auto* config = slotManager.getConfigForSlot(i)) {
 					return config->getName();
 				}
-				return "";
+				return "Empty";
 			});
 		}
 		endGroup();
@@ -398,12 +398,13 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			elementInGroup();
 			auto displayName = strCat("Disk Drive ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
-			simpleToolTip([&]() -> std::string_view {
+			simpleToolTip([&]() -> std::string {
 				auto cmd = makeTclList(tmpStrCat("disk", char('a' + i)));
+				std::string_view tip;
 				if (auto result = manager.execute(cmd)) {
-					return result->getListIndexUnchecked(1).getString();
+					tip = result->getListIndexUnchecked(1).getString();
 				}
-				return "";
+				return !tip.empty() ? std::string(tip) : "Empty";
 			});
 		}
 		endGroup();
@@ -412,8 +413,9 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
 			elementInGroup();
 			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
-			simpleToolTip([&]() -> std::string_view {
-				return cmdResult->getListIndexUnchecked(1).getString();
+			simpleToolTip([&]() -> std::string {
+				auto tip = cmdResult->getListIndexUnchecked(1).getString();
+				return !tip.empty() ? std::string(tip) : "Empty";
 			});
 		}
 		endGroup();
