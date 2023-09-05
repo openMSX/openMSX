@@ -148,8 +148,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"horizontal_stretch",
 		"Amount of horizontal stretch: this many MSX pixels will be "
 		"stretched over the complete width of the output screen.\n"
-		"  320 = no stretch\n"
-		"  256 = max stretch (no border visible anymore)\n"
+		"  320 = no stretch (large borders)\n"
+		"  288 = a bit more than all border pixels\n"
+		"  284 = all border pixels\n"
+		"  280 = a bit less than all border pixels\n"
+		"  272 = realistic\n"
+		"  256 = max stretch (no border visible at all)\n"
 		"  good values are 272 or 280\n",
 		PLATFORM_ANDROID ? 320.0 : 280.0, 256.0, 320.0)
 
