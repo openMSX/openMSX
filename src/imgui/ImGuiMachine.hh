@@ -31,6 +31,7 @@ private:
 	[[nodiscard]] std::vector<std::string> getAllValuesFor(const TclObject& key);
 	bool printConfigInfo(const std::string& config);
 	void amendConfigInfo(MSXMotherBoard& mb, const std::string& config);
+	const std::string& getDisplayName(const std::string& config);
 
 public:
 	bool showSelectMachine = false;
@@ -40,6 +41,7 @@ private:
 	std::vector<std::string> allConfigsCache;
 	std::map<std::string, std::string> testCache;
 	std::map<std::string, TclObject> configInfoCache;
+	std::map<std::string, std::string> displayCache;
 	std::string newMachineConfig;
 	std::string filterType;
 	std::string filterRegion;

@@ -154,8 +154,9 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				filter("region", filterRegion);
 				if (!filterString.empty()) {
 					std::erase_if(filteredConfigs, [&](const std::string& config) {
+						const auto& display = getDisplayName(config);
 						return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
-							[&](auto part) { return StringOp::containsCaseInsensitive(config, part); });
+							[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
 					});
 				}
 
@@ -166,7 +167,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 						const auto& config = filteredConfigs[i];
 						bool ok = getTestResult(config).empty();
 						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
-							if (ImGui::Selectable(config.c_str(), config == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+							auto display = getDisplayName(config);
+							if (ImGui::Selectable(display.c_str(), config == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
 								newMachineConfig = config;
 								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 									manager.executeDelayed(makeTclList("machine", newMachineConfig));
@@ -315,6 +317,26 @@ bool ImGuiMachine::printConfigInfo(const std::string& config)
 		});
 	}
 	return ok;
+}
+
+const std::string& ImGuiMachine::getDisplayName(const std::string& config)
+{
+	auto [it, inserted] = displayCache.try_emplace(config);
+	auto& result = it->second;
+	if (inserted) {
+		const auto& info = getConfigInfo(config);
+		if (auto manufacturer = info.getOptionalDictValue(TclObject("manufacturer"))) {
+			strAppend(result, manufacturer->getString()); // possibly an empty string;
+		}
+		if (auto code = info.getOptionalDictValue(TclObject("code"))) {
+			if (auto s = code->getString(); !s.empty()) {
+				if (!result.empty()) strAppend(result, ' ');
+				strAppend(result, s);
+			}
+		}
+		if (result.empty()) result = config;
+	}
+	return result;
 }
 
 } // namespace openmsx
