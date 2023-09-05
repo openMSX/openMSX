@@ -17,6 +17,7 @@
 #include "VDPVRAM.hh"
 
 #include "StringOp.hh"
+#include "StringReplacer.hh"
 
 #include <imgui_stdlib.h>
 #include <imgui.h>
@@ -51,6 +52,16 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 		paintSelectMachine(motherBoard);
 	}
 }
+
+[[nodiscard]] static const std::string* getOptionalDictValue(
+	const std::vector<std::pair<std::string, std::string>>& info,
+	std::string_view key)
+{
+	auto it = ranges::find_if(info, [&](const auto& p) { return p.first == key; });
+	if (it == info.end()) return {};
+	return &it->second;
+}
+
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
@@ -123,7 +134,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 						if (ImGui::Selectable("--all--")) {
 							selection.clear();
 						}
-						for (const auto& type : getAllValuesFor(TclObject(key))) {
+						for (const auto& type : getAllValuesFor(key)) {
 							if (ImGui::Selectable(type.c_str())) {
 								selection = type;
 							}
@@ -142,10 +153,9 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				auto filteredConfigs = getAllConfigs();
 				auto filter = [&](std::string_view key, const std::string& value) {
 					if (value.empty()) return;
-					TclObject keyObj(key);
 					std::erase_if(filteredConfigs, [&](const std::string& config) {
 						const auto& info = getConfigInfo(config);
-						auto val = info.getOptionalDictValue(keyObj);
+						const auto* val = getOptionalDictValue(info, key);
 						if (!val) return true; // remove items that don't have the key
 						return *val != value;
 					});
@@ -167,7 +177,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 						const auto& config = filteredConfigs[i];
 						bool ok = getTestResult(config).empty();
 						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
-							auto display = getDisplayName(config);
+							const auto& display = getDisplayName(config);
 							if (ImGui::Selectable(display.c_str(), config == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
 								newMachineConfig = config;
 								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
@@ -242,13 +252,31 @@ const std::string& ImGuiMachine::getTestResult(const std::string& config)
 	return result;
 }
 
-TclObject& ImGuiMachine::getConfigInfo(const std::string& config)
+std::vector<std::pair<std::string, std::string>>& ImGuiMachine::getConfigInfo(const std::string& config)
 {
+	static constexpr auto replacer = StringReplacer::create(
+		"manufacturer", "Manufacturer",
+		"code",         "Product code",
+		"release_year", "Release year",
+		"description",  "Description",
+		"type",         "Type");
+
 	auto [it, inserted] = configInfoCache.try_emplace(config);
 	auto& result = it->second;
 	if (inserted) {
 		if (auto r = manager.execute(makeTclList("openmsx_info", "machines", config))) {
-			result = *r;
+			//result = *r;
+			auto first = r->begin();
+			auto last = r->end();
+			while (first != last) {
+				auto desc = *first++;
+				if (first == last) break; // shouldn't happen
+				auto value = *first++;
+				if (!value.empty()) {
+					result.emplace_back(std::string(replacer(desc)),
+					                    std::string(value));
+				}
+			}
 		}
 	}
 	return result;
@@ -265,29 +293,29 @@ void ImGuiMachine::amendConfigInfo(MSXMotherBoard& mb, const std::string& config
 			ramSize += debuggable->getSize();
 		}
 	}
-	info.addDictKeyValue("RAM size", strCat(ramSize / 1024, "kB"));
+	info.emplace_back("RAM size", strCat(ramSize / 1024, "kB"));
 
 	if (auto* vdp = dynamic_cast<VDP*>(mb.findDevice("VDP"))) {
-		info.addDictKeyValue("VRAM size", strCat(vdp->getVRAM().getSize() / 1024, "kB"));
-		info.addDictKeyValue("VDP version", vdp->getVersionString());
+		info.emplace_back("VRAM size", strCat(vdp->getVRAM().getSize() / 1024, "kB"));
+		info.emplace_back("VDP version", vdp->getVersionString());
 	}
 
 	if (auto drives = RealDrive::getDrivesInUse(mb)) {
-		info.addDictKeyValue("Disk drives", narrow<int>(drives->count()));
+		info.emplace_back("Disk drives", strCat(narrow<int>(drives->count())));
 	}
 
 	auto& carts = mb.getSlotManager();
-	info.addDictKeyValue("Cartridge slots", carts.getNumberOfSlots());
+	info.emplace_back("Cartridge slots", strCat(carts.getNumberOfSlots()));
 }
 
-std::vector<std::string> ImGuiMachine::getAllValuesFor(const TclObject& key)
+std::vector<std::string> ImGuiMachine::getAllValuesFor(std::string_view key)
 {
 	std::vector<std::string> result;
 	for (const auto& config : getAllConfigs()) {
 		const auto& info = getConfigInfo(config);
-		if (auto type = info.getOptionalDictValue(key)) {
+		if (const auto* type = getOptionalDictValue(info, key)) {
 			if (!contains(result, *type)) { // O(N^2), but that's fine
-				result.emplace_back(type->getString());
+				result.emplace_back(*type);
 			}
 		}
 	}
@@ -302,11 +330,16 @@ bool ImGuiMachine::printConfigInfo(const std::string& config)
 	if (ok) {
 		const auto& info = getConfigInfo(config);
 		im::Table("##machine-info", 2, ImGuiTableFlags_SizingFixedFit, [&]{
-			for (const auto& i : info) {
-				ImGui::TableNextColumn();
-				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
-					ImGui::TextUnformatted(i);
-				});
+			for (const auto& [desc, value_] : info) {
+				const auto& value = value_; // clang workaround
+				if (ImGui::TableNextColumn()) {
+					ImGui::TextUnformatted(desc);
+				}
+				if (ImGui::TableNextColumn()) {
+					im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
+						ImGui::TextUnformatted(value);
+					});
+				}
 			}
 		});
 	} else {
@@ -325,13 +358,13 @@ const std::string& ImGuiMachine::getDisplayName(const std::string& config)
 	auto& result = it->second;
 	if (inserted) {
 		const auto& info = getConfigInfo(config);
-		if (auto manufacturer = info.getOptionalDictValue(TclObject("manufacturer"))) {
-			strAppend(result, manufacturer->getString()); // possibly an empty string;
+		if (const auto* manufacturer = getOptionalDictValue(info, "Manufacturer")) {
+			strAppend(result, *manufacturer); // possibly an empty string;
 		}
-		if (auto code = info.getOptionalDictValue(TclObject("code"))) {
-			if (auto s = code->getString(); !s.empty()) {
+		if (const auto* code = getOptionalDictValue(info, "Product code")) {
+			if (!code->empty()) {
 				if (!result.empty()) strAppend(result, ' ');
-				strAppend(result, s);
+				strAppend(result, *code);
 			}
 		}
 		if (result.empty()) result = config;

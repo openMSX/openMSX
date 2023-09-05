@@ -27,8 +27,8 @@ private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);
 	[[nodiscard]] const std::vector<std::string>& getAllConfigs();
 	[[nodiscard]] const std::string& getTestResult(const std::string& config);
-	[[nodiscard]] TclObject& getConfigInfo(const std::string& config);
-	[[nodiscard]] std::vector<std::string> getAllValuesFor(const TclObject& key);
+	[[nodiscard]] std::vector<std::pair<std::string, std::string>>& getConfigInfo(const std::string& config);
+	[[nodiscard]] std::vector<std::string> getAllValuesFor(std::string_view key);
 	bool printConfigInfo(const std::string& config);
 	void amendConfigInfo(MSXMotherBoard& mb, const std::string& config);
 	const std::string& getDisplayName(const std::string& config);
@@ -40,7 +40,7 @@ private:
 	ImGuiManager& manager;
 	std::vector<std::string> allConfigsCache;
 	std::map<std::string, std::string> testCache;
-	std::map<std::string, TclObject> configInfoCache;
+	std::map<std::string, std::vector<std::pair<std::string, std::string>>> configInfoCache;
 	std::map<std::string, std::string> displayCache;
 	std::string newMachineConfig;
 	std::string filterType;
