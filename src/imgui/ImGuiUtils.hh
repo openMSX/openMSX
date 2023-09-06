@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -87,6 +88,7 @@ bool InputText(Setting& setting);
 bool InputText(const char* label, Setting& setting);
 void ComboBox(Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
+void ComboBox(const char* label, Setting& setting, std::function<std::string(const std::string&)> displayValue, EnumToolTips toolTips = {});
 void ComboBox(VideoSourceSetting& setting);
 void ComboBox(const char* label, VideoSourceSetting& setting);
 

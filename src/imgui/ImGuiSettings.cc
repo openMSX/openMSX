@@ -79,7 +79,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				SliderFloat("Gamma", renderSettings.getGammaSetting());
 				SliderInt("Glow (%)", renderSettings.getGlowSetting());
 				if (auto* monitor = dynamic_cast<Setting*>(settingsManager.findSetting("monitor_type"))) {
-					ComboBox("Monitor type", *monitor);
+					ComboBox("Monitor type", *monitor, [](std::string s) {
+						ranges::replace(s, '_', ' ');
+						return s;
+					});
 				}
 			});
 			im::TreeNode("Shape", ImGuiTreeNodeFlags_DefaultOpen, [&]{

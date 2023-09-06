@@ -101,12 +101,7 @@ bool InputText(const char* label, Setting& setting)
 	return changed;
 }
 
-void ComboBox(Setting& setting, EnumToolTips toolTips)
-{
-	std::string name(setting.getBaseName());
-	ComboBox(name.c_str(), setting, toolTips);
-}
-void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
+void ComboBox(const char* label, Setting& setting, std::function<std::string(const std::string&)> displayValue, EnumToolTips toolTips)
 {
 	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
 	assert(enumSetting);
@@ -114,7 +109,8 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 	im::Combo(label, current.c_str(), [&]{
 		for (const auto& entry : enumSetting->getMap()) {
 			bool selected = entry.name == current;
-			if (ImGui::Selectable(entry.name.c_str(), selected)) {
+			const auto& display = displayValue(entry.name);
+			if (ImGui::Selectable(display.c_str(), selected)) {
 				setting.setValue(TclObject(entry.name));
 			}
 			if (auto it = ranges::find(toolTips, entry.name, &EnumToolTip::value);
@@ -124,6 +120,15 @@ void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
 		}
 	});
 	settingStuff(setting);
+}
+void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips)
+{
+	ComboBox(label, setting, std::identity{}, toolTips);
+}
+void ComboBox(Setting& setting, EnumToolTips toolTips)
+{
+	std::string name(setting.getBaseName());
+	ComboBox(name.c_str(), setting, toolTips);
 }
 
 void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
