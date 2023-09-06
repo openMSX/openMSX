@@ -3,9 +3,6 @@
 
 #include "ImGuiPart.hh"
 
-#include "TclObject.hh"
-
-#include <map>
 #include <string>
 #include <vector>
 
@@ -17,6 +14,14 @@ class MSXMotherBoard;
 class ImGuiMachine final : public ImGuiPart
 {
 public:
+	struct MachineInfo {
+		std::string configName;
+		std::string displayName;
+		std::vector<std::pair<std::string, std::string>> configInfo;
+		std::optional<std::string> testResult; // lazily initialized
+	};
+
+public:
 	ImGuiMachine(ImGuiManager& manager_)
 		: manager(manager_) {}
 
@@ -25,23 +30,19 @@ public:
 
 private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);
-	[[nodiscard]] const std::vector<std::string>& getAllConfigs();
-	[[nodiscard]] const std::string& getTestResult(const std::string& config);
-	[[nodiscard]] std::vector<std::pair<std::string, std::string>>& getConfigInfo(const std::string& config);
+	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
+	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
+	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	[[nodiscard]] std::vector<std::string> getAllValuesFor(std::string_view key);
+	bool printConfigInfo(MachineInfo& info);
 	bool printConfigInfo(const std::string& config);
-	void amendConfigInfo(MSXMotherBoard& mb, const std::string& config);
-	const std::string& getDisplayName(const std::string& config);
 
 public:
 	bool showSelectMachine = false;
 
 private:
 	ImGuiManager& manager;
-	std::vector<std::string> allConfigsCache;
-	std::map<std::string, std::string> testCache;
-	std::map<std::string, std::vector<std::pair<std::string, std::string>>> configInfoCache;
-	std::map<std::string, std::string> displayCache;
+	std::vector<MachineInfo> machineInfo; // sorted on displayName
 	std::string newMachineConfig;
 	std::string filterType;
 	std::string filterRegion;

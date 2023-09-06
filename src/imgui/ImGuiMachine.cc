@@ -83,8 +83,11 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 							auto board = reactor.getMachine(name);
 							std::string display = [&]{
 								if (board) {
+									auto configName = board->getMachineName();
+									auto* info = findMachineInfo(configName);
+									assert(info);
 									auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
-									return strCat(board->getMachineName(), " (", formatTime(time), ')');
+									return strCat(info->displayName, " (", formatTime(time), ')');
 								} else {
 									return std::string(name);
 								}
@@ -105,16 +108,18 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		}
 
 		if (motherBoard) {
-			std::string machineName(motherBoard->getMachineName());
-			std::string display = strCat("Current machine: ", machineName);
+			auto configName = motherBoard->getMachineName();
+			auto* info = findMachineInfo(configName);
+			assert(info);
+			std::string display = strCat("Current machine: ", info->displayName);
 			im::TreeNode(display.c_str(), [&]{
-				printConfigInfo(machineName);
+				printConfigInfo(*info);
 			});
-			if (newMachineConfig.empty()) newMachineConfig = machineName;
+			if (newMachineConfig.empty()) newMachineConfig = configName;
 			auto& defaultMachine = reactor.getMachineSetting();
-			if (defaultMachine.getString() != machineName) {
+			if (defaultMachine.getString() != configName) {
 				if (ImGui::Button("Make this the default machine")) {
-					defaultMachine.setValue(TclObject(machineName));
+					defaultMachine.setValue(TclObject(configName));
 				}
 				simpleToolTip("Use this as the default MSX machine when openMSX starts.");
 			}
@@ -150,11 +155,12 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				              "Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
 			});
 			im::ListBox("##list", [&]{
-				auto filteredConfigs = getAllConfigs();
+				auto& allMachines = getAllMachines();
+				auto filteredMachines = to_vector(xrange(allMachines.size()));
 				auto filter = [&](std::string_view key, const std::string& value) {
 					if (value.empty()) return;
-					std::erase_if(filteredConfigs, [&](const std::string& config) {
-						const auto& info = getConfigInfo(config);
+					std::erase_if(filteredMachines, [&](auto idx) {
+						const auto& info = allMachines[idx].configInfo;
 						const auto* val = getOptionalDictValue(info, key);
 						if (!val) return true; // remove items that don't have the key
 						return *val != value;
@@ -163,29 +169,29 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				filter("type", filterType);
 				filter("region", filterRegion);
 				if (!filterString.empty()) {
-					std::erase_if(filteredConfigs, [&](const std::string& config) {
-						const auto& display = getDisplayName(config);
+					std::erase_if(filteredMachines, [&](auto idx) {
+						const auto& display = allMachines[idx].displayName;
 						return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
 							[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
 					});
 				}
 
 				ImGuiListClipper clipper; // only draw the actually visible rows
-				clipper.Begin(narrow<int>(filteredConfigs.size()));
+				clipper.Begin(narrow<int>(filteredMachines.size()));
 				while (clipper.Step()) {
 					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-						const auto& config = filteredConfigs[i];
-						bool ok = getTestResult(config).empty();
+						auto idx = filteredMachines[i];
+						auto& info = allMachines[idx];
+						bool ok = getTestResult(info).empty();
 						im::StyleColor(ImGuiCol_Text, ok ? 0xFFFFFFFF : 0xFF0000FF, [&]{
-							const auto& display = getDisplayName(config);
-							if (ImGui::Selectable(display.c_str(), config == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
-								newMachineConfig = config;
+							if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+								newMachineConfig = info.configName;
 								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 									manager.executeDelayed(makeTclList("machine", newMachineConfig));
 								}
 							}
 							im::ItemTooltip([&]{
-								printConfigInfo(config);
+								printConfigInfo(info);
 							});
 						});
 					}
@@ -224,35 +230,23 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 	});
 }
 
-const std::vector<std::string>& ImGuiMachine::getAllConfigs()
+// Similar to c++23 chunk_by(). Main difference is internal vs external iteration.
+template<typename Range, typename BinaryPred, typename Action>
+static void chunk_by(Range&& range, BinaryPred pred, Action action)
 {
-	if (allConfigsCache.empty()) {
-		allConfigsCache = Reactor::getHwConfigs("machines");
+	auto it = std::begin(range);
+	auto last = std::end(range);
+	while (it != last) {
+		auto start = it;
+		auto prev = it++;
+		while (it != last && pred(*prev, *it)) {
+			prev = it++;
+		}
+		action(start, it);
 	}
-	return allConfigsCache;
 }
 
-const std::string& ImGuiMachine::getTestResult(const std::string& config)
-{
-	auto [it, inserted] = testCache.try_emplace(config);
-	auto& result = it->second;
-	if (inserted) {
-		manager.executeDelayed([&, config]{
-			// don't create extra mb while drawing
-			try {
-				MSXMotherBoard mb(manager.getReactor());
-				mb.loadMachine(config);
-				assert(result.empty());
-				amendConfigInfo(mb, config);
-			} catch (MSXException& e) {
-				result = e.getMessage(); // error
-			}
-		});
-	}
-	return result;
-}
-
-std::vector<std::pair<std::string, std::string>>& ImGuiMachine::getConfigInfo(const std::string& config)
+std::vector<ImGuiMachine::MachineInfo>& ImGuiMachine::getAllMachines()
 {
 	static constexpr auto replacer = StringReplacer::create(
 		"manufacturer", "Manufacturer",
@@ -261,30 +255,67 @@ std::vector<std::pair<std::string, std::string>>& ImGuiMachine::getConfigInfo(co
 		"description",  "Description",
 		"type",         "Type");
 
-	auto [it, inserted] = configInfoCache.try_emplace(config);
-	auto& result = it->second;
-	if (inserted) {
-		if (auto r = manager.execute(makeTclList("openmsx_info", "machines", config))) {
-			//result = *r;
-			auto first = r->begin();
-			auto last = r->end();
-			while (first != last) {
-				auto desc = *first++;
-				if (first == last) break; // shouldn't happen
-				auto value = *first++;
-				if (!value.empty()) {
-					result.emplace_back(std::string(replacer(desc)),
-					                    std::string(value));
+	if (machineInfo.empty()) {
+		const auto& configs = Reactor::getHwConfigs("machines");
+		machineInfo.reserve(configs.size());
+		for (const auto& config : configs) {
+			auto& info = machineInfo.emplace_back();
+			info.configName = config;
+
+			// get machine meta-data
+			auto& configInfo = info.configInfo;
+			if (auto r = manager.execute(makeTclList("openmsx_info", "machines", config))) {
+				auto first = r->begin();
+				auto last = r->end();
+				while (first != last) {
+					auto desc = *first++;
+					if (first == last) break; // shouldn't happen
+					auto value = *first++;
+					if (!value.empty()) {
+						configInfo.emplace_back(std::string(replacer(desc)),
+						                        std::string(value));
+					}
 				}
 			}
+
+			// Based on the above meta-data, try to construct a more
+			// readable name Unfortunately this new name is no
+			// longer guaranteed to be unique, we'll address this
+			// below.
+			auto& display = info.displayName;
+			if (const auto* manufacturer = getOptionalDictValue(configInfo, "Manufacturer")) {
+				strAppend(display, *manufacturer); // possibly an empty string;
+			}
+			if (const auto* code = getOptionalDictValue(configInfo, "Product code")) {
+				if (!code->empty()) {
+					if (!display.empty()) strAppend(display, ' ');
+					strAppend(display, *code);
+				}
+			}
+			if (display.empty()) display = config;
 		}
+
+		ranges::sort(machineInfo, StringOp::caseless{}, &MachineInfo::displayName);
+
+		// make 'displayName' unique again
+		auto sameDisplayName = [](MachineInfo& x, MachineInfo& y) {
+			StringOp::casecmp cmp;
+			return cmp(x.displayName, y.displayName);
+		};
+		chunk_by(machineInfo, sameDisplayName, [](auto first, auto last) {
+			if (std::distance(first, last) == 1) return; // no duplicate name
+			for (auto it = first; it != last; ++it) {
+				strAppend(it->displayName, " (", it->configName, ')');
+			}
+			ranges::sort(first, last, StringOp::caseless{}, &MachineInfo::displayName);
+		});
 	}
-	return result;
+	return machineInfo;
 }
 
-void ImGuiMachine::amendConfigInfo(MSXMotherBoard& mb, const std::string& config)
+static void amendConfigInfo(MSXMotherBoard& mb, ImGuiMachine::MachineInfo& info)
 {
-	auto& info = getConfigInfo(config);
+	auto& configInfo = info.configInfo;
 
 	auto& debugger = mb.getDebugger();
 	unsigned ramSize = 0;
@@ -293,27 +324,47 @@ void ImGuiMachine::amendConfigInfo(MSXMotherBoard& mb, const std::string& config
 			ramSize += debuggable->getSize();
 		}
 	}
-	info.emplace_back("RAM size", strCat(ramSize / 1024, "kB"));
+	configInfo.emplace_back("RAM size", strCat(ramSize / 1024, "kB"));
 
 	if (auto* vdp = dynamic_cast<VDP*>(mb.findDevice("VDP"))) {
-		info.emplace_back("VRAM size", strCat(vdp->getVRAM().getSize() / 1024, "kB"));
-		info.emplace_back("VDP version", vdp->getVersionString());
+		configInfo.emplace_back("VRAM size", strCat(vdp->getVRAM().getSize() / 1024, "kB"));
+		configInfo.emplace_back("VDP version", vdp->getVersionString());
 	}
 
 	if (auto drives = RealDrive::getDrivesInUse(mb)) {
-		info.emplace_back("Disk drives", strCat(narrow<int>(drives->count())));
+		configInfo.emplace_back("Disk drives", strCat(narrow<int>(drives->count())));
 	}
 
 	auto& carts = mb.getSlotManager();
-	info.emplace_back("Cartridge slots", strCat(carts.getNumberOfSlots()));
+	configInfo.emplace_back("Cartridge slots", strCat(carts.getNumberOfSlots()));
+}
+
+const std::string& ImGuiMachine::getTestResult(MachineInfo& info)
+{
+	if (!info.testResult) {
+		info.testResult.emplace(); // empty string (for now)
+
+		auto& reactor = manager.getReactor();
+		manager.executeDelayed([&reactor, &info]() mutable {
+			// don't create extra mb while drawing
+			try {
+				MSXMotherBoard mb(reactor);
+				mb.loadMachine(info.configName);
+				assert(info.testResult->empty());
+				amendConfigInfo(mb, info);
+			} catch (MSXException& e) {
+				info.testResult = e.getMessage(); // error
+			}
+		});
+	}
+	return info.testResult.value();
 }
 
 std::vector<std::string> ImGuiMachine::getAllValuesFor(std::string_view key)
 {
 	std::vector<std::string> result;
-	for (const auto& config : getAllConfigs()) {
-		const auto& info = getConfigInfo(config);
-		if (const auto* type = getOptionalDictValue(info, key)) {
+	for (const auto& machine : getAllMachines()) {
+		if (const auto* type = getOptionalDictValue(machine.configInfo, key)) {
 			if (!contains(result, *type)) { // O(N^2), but that's fine
 				result.emplace_back(*type);
 			}
@@ -323,14 +374,13 @@ std::vector<std::string> ImGuiMachine::getAllValuesFor(std::string_view key)
 	return result;
 }
 
-bool ImGuiMachine::printConfigInfo(const std::string& config)
+bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 {
-	const auto& test = getTestResult(config);
+	const auto& test = getTestResult(info);
 	bool ok = test.empty();
 	if (ok) {
-		const auto& info = getConfigInfo(config);
 		im::Table("##machine-info", 2, ImGuiTableFlags_SizingFixedFit, [&]{
-			for (const auto& [desc, value_] : info) {
+			for (const auto& [desc, value_] : info.configInfo) {
 				const auto& value = value_; // clang workaround
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted(desc);
@@ -352,24 +402,18 @@ bool ImGuiMachine::printConfigInfo(const std::string& config)
 	return ok;
 }
 
-const std::string& ImGuiMachine::getDisplayName(const std::string& config)
+bool ImGuiMachine::printConfigInfo(const std::string& config)
 {
-	auto [it, inserted] = displayCache.try_emplace(config);
-	auto& result = it->second;
-	if (inserted) {
-		const auto& info = getConfigInfo(config);
-		if (const auto* manufacturer = getOptionalDictValue(info, "Manufacturer")) {
-			strAppend(result, *manufacturer); // possibly an empty string;
-		}
-		if (const auto* code = getOptionalDictValue(info, "Product code")) {
-			if (!code->empty()) {
-				if (!result.empty()) strAppend(result, ' ');
-				strAppend(result, *code);
-			}
-		}
-		if (result.empty()) result = config;
-	}
-	return result;
+	auto* info = findMachineInfo(config);
+	if (!info) return false;
+	return printConfigInfo(*info);
+}
+
+ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config)
+{
+	auto& allMachines = getAllMachines();
+	auto it = ranges::find(allMachines, config, &MachineInfo::configName);
+	return (it != allMachines.end()) ? &*it : nullptr;
 }
 
 } // namespace openmsx
