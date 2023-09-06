@@ -92,7 +92,7 @@ private:
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
 	bool selectMapperType(MediaItem& item);
 	bool selectPatches(MediaItem& item, int& patchIndex);
-	void insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
+	bool insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);
@@ -117,6 +117,13 @@ private:
 
 	std::vector<std::string> availableExtensionsCache;
 	std::map<std::string, std::vector<std::pair<std::string, std::string>>> extensionInfoCache;
+
+	bool resetOnInsertRom = true;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"resetOnInsertRom", &ImGuiMedia::resetOnInsertRom},
+		// most media stuff is handled elsewhere
+	};
 };
 
 } // namespace openmsx

@@ -40,6 +40,8 @@ namespace openmsx {
 
 void ImGuiMedia::save(ImGuiTextBuffer& buf)
 {
+	savePersistent(buf, *this, persistentElements);
+
 	auto saveItem = [&](const MediaItem& item, zstring_view name) {
 		if (item.name.empty()) return;
 		buf.appendf("%s.name=%s\n", name.c_str(), item.name.c_str());
@@ -134,7 +136,9 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		}
 	};
 
-	if (auto* disk = get("disk", diskMediaInfo)) {
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (auto* disk = get("disk", diskMediaInfo)) {
 		auto suffix = name.substr(6);
 		if (suffix.starts_with("image.")) {
 			loadGroup(disk->groups[0], suffix.substr(6));
@@ -700,22 +704,25 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 	return interacted;
 }
 
-void ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow)
+bool ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow)
 {
+	bool clicked = false;
 	im::Disabled(group.edit.name.empty(), [&]{
 		const auto& style = ImGui::GetStyle();
 		auto width = 4.0f * style.FramePadding.x + style.ItemSpacing.x +
 			     ImGui::CalcTextSize("Apply").x + ImGui::CalcTextSize("Ok").x;
 		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - width + style.WindowPadding.x);
-		if (ImGui::Button("Apply")) {
-			insertMedia(mediaName, group);
-		}
+		clicked |= ImGui::Button("Apply");
 		ImGui::SameLine();
 		if (ImGui::Button("Ok")) {
-			insertMedia(mediaName, group);
 			*showWindow = false;
+			clicked = true;
+		}
+		if (clicked) {
+			insertMedia(mediaName, group);
 		}
 	});
+	return clicked;
 }
 
 static std::string leftClip(std::string_view s, float maxWidth)
@@ -974,7 +981,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 {
 	auto& info = cartridgeMediaInfo[i];
 	auto displayName = strCat("Cartridge Slot ", char('A' + i));
-	ImGui::SetNextWindowSize(gl::vec2{37, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{37, 30} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(displayName.c_str(), &info.show, [&]{
 		auto cartName = strCat("cart", char('a' + i));
 		auto extName = strCat("ext", char('a' + i));
@@ -992,6 +999,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 					bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
 					interacted |= selectMapperType(item);
 					interacted |= selectPatches(item, group.patchIndex);
+					interacted |= ImGui::Checkbox("Reset MSX on inserting ROM", &resetOnInsertRom);
 					if (interacted) info.select = SELECT_ROM_IMAGE;
 				});
 			});
@@ -1015,8 +1023,12 @@ void ImGuiMedia::cartridgeMenu(int i)
 				});
 			});
 		});
-		insertMediaButton(info.select == SELECT_ROM_IMAGE ? cartName : extName,
-		                  info.groups[info.select], &info.show);
+		if (insertMediaButton(info.select == SELECT_ROM_IMAGE ? cartName : extName,
+		                      info.groups[info.select], &info.show)) {
+			if (resetOnInsertRom && info.select == SELECT_ROM_IMAGE) {
+				manager.executeDelayed(TclObject("reset"));
+			}
+		}
 	});
 }
 
