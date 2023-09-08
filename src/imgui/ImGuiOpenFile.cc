@@ -83,7 +83,8 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 	if (fileDialog->Display("FileDialog", ImGuiWindowFlags_NoCollapse, ImVec2(480.0f, 360.0f))) {
 		if (fileDialog->IsOk() && openFileCallback) {
 			lastPath[lastFileDialog] = fileDialog->GetCurrentPath();
-			std::string filePathName = fileDialog->GetFilePathName();
+			std::string filePathName = FileOperations::getConventionalPath( // Windows: replace backslash with slash
+				fileDialog->GetFilePathName());
 			openFileCallback(filePathName);
 			openFileCallback = {};
 		}
