@@ -345,10 +345,10 @@ template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] auto count_if(InputRange&& range, UnaryPredicate pred)
 {
 	auto first = std::begin(range);
-	auto last = std::begin(range);
+	auto last = std::end(range);
 	typename std::iter_difference_t<decltype(first)> count = 0;
 	while (first != last) {
-		if (std::invoke(pred, *first)) ++count;
+		if (std::invoke(pred, *first++)) ++count;
 	}
 	return count;
 	//return std::count_if(std::begin(range), std::end(range), pred);
