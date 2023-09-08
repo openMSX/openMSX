@@ -31,6 +31,7 @@ public:
 	 * relatively expensive calculation.
 	 */
 	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
+	[[nodiscard]] Sha1Sum getSha1Sum(const std::string& filename);
 
 private:
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;

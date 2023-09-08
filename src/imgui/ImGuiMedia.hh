@@ -25,6 +25,7 @@ namespace openmsx {
 
 class ImGuiManager;
 class MSXMotherBoard;
+class RomInfo;
 
 class ImGuiMedia final : public ImGuiPart
 {
@@ -85,12 +86,17 @@ public:
 		bool show = false;
 	};
 
+public:
+	bool resetOnInsertRom = true;
+
+	static void printDatabase(const RomInfo& romInfo, const char* buf);
+	static bool selectMapperType(const char* label, RomType& item);
+
 private:
 	bool selectRecent(ItemGroup& group);
 	bool selectImage(ItemGroup& group, const std::string& title,
 	                 std::function<std::string()> createFilter, zstring_view current);
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
-	bool selectMapperType(MediaItem& item);
 	bool selectPatches(MediaItem& item, int& patchIndex);
 	bool insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
@@ -117,8 +123,6 @@ private:
 
 	std::vector<std::string> availableExtensionsCache;
 	std::map<std::string, std::vector<std::pair<std::string, std::string>>> extensionInfoCache;
-
-	bool resetOnInsertRom = true;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"resetOnInsertRom", &ImGuiMedia::resetOnInsertRom},

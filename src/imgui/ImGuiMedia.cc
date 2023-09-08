@@ -619,24 +619,23 @@ bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zst
 	return interacted;
 }
 
-bool ImGuiMedia::selectMapperType(MediaItem& item)
+bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 {
 	bool interacted = false;
-	bool isAutoDetect = item.romType == ROM_UNKNOWN;
+	bool isAutoDetect = romType == ROM_UNKNOWN;
 	constexpr const char* autoStr = "auto detect";
-	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(item.romType));
-	ImGui::SetNextItemWidth(-80.0f);
-	im::Combo("mapper-type", current.c_str(), [&]{
+	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(romType));
+	im::Combo(label, current.c_str(), [&]{
 		if (ImGui::Selectable(autoStr, isAutoDetect)) {
 			interacted = true;
-			item.romType = ROM_UNKNOWN;
+			romType = ROM_UNKNOWN;
 		}
 		int count = 0;
 		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
-			bool selected = item.romType == static_cast<RomType>(count);
+			bool selected = romType == static_cast<RomType>(count);
 			if (ImGui::Selectable(std::string(romInfo.name).c_str(), selected)) {
 				interacted = true;
-				item.romType = static_cast<RomType>(count);
+				romType = static_cast<RomType>(count);
 			}
 			simpleToolTip(romInfo.description);
 			++count;
@@ -809,6 +808,38 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 	return currentTarget;
 }
 
+void ImGuiMedia::printDatabase(const RomInfo& romInfo, const char* buf)
+{
+	auto printRow = [](std::string_view description, std::string_view value) {
+		if (value.empty()) return;
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted(description);
+		}
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted(value);
+		}
+	};
+
+	printRow("Title",   romInfo.getTitle(buf));
+	printRow("Year",    romInfo.getYear(buf));
+	printRow("Company", romInfo.getCompany(buf));
+	printRow("Country", romInfo.getCountry(buf));
+	auto status = [&]{
+		auto str = romInfo.getOrigType(buf);
+		if (romInfo.getOriginal()) {
+			std::string result = "Unmodified dump";
+			if (!str.empty()) {
+				strAppend(result, "(confirmed by ", str, ')');
+			}
+			return result;
+		} else {
+			return std::string(str);
+		}
+	}();
+	printRow("Status", status);
+	printRow("Remark", romInfo.getRemark(buf));
+}
+
 static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType)
 {
 	im::Table("##extension-info", 2, [&]{
@@ -837,44 +868,20 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 			return nullptr;
 		}();
 		if (!romInfo) return;
-		const char* buf = database.getBufferStart();
-
-		auto printRow = [](std::string_view description, std::string_view value) {
-			if (value.empty()) return;
-			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(description);
-			}
-			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(value);
-			}
-		};
-		printRow("Title",   romInfo->getTitle(buf));
-		printRow("Year",    romInfo->getYear(buf));
-		printRow("Company", romInfo->getCompany(buf));
-		printRow("Country", romInfo->getCountry(buf));
-		auto status = [&]{
-			auto str = romInfo->getOrigType(buf);
-			if (romInfo->getOriginal()) {
-				std::string result = "Unmodified dump";
-				if (!str.empty()) {
-					strAppend(result, "(confirmed by ", str, ')');
-				}
-				return result;
-			} else {
-				return std::string(str);
-			}
-		}();
-		printRow("Status", status);
-		printRow("Remark",  romInfo->getRemark(buf));
+		ImGuiMedia::printDatabase(*romInfo, database.getBufferStart());
 
 		std::string mapperStr{RomInfo::romTypeToName(romType)};
 		if (auto dbType = romInfo->getRomType();
 		    dbType != ROM_UNKNOWN && dbType != romType) {
 			strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
 		}
-		printRow("Mapper", mapperStr);
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted("Mapper");
+		}
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted(mapperStr);
+		}
 	});
-
 }
 
 TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot)
@@ -997,7 +1004,8 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& group = info.groups[SELECT_ROM_IMAGE];
 					auto& item = group.edit;
 					bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
-					interacted |= selectMapperType(item);
+					ImGui::SetNextItemWidth(-80.0f);
+					interacted |= selectMapperType("mapper-type", item.romType);
 					interacted |= selectPatches(item, group.patchIndex);
 					interacted |= ImGui::Checkbox("Reset MSX on inserting ROM", &resetOnInsertRom);
 					if (interacted) info.select = SELECT_ROM_IMAGE;

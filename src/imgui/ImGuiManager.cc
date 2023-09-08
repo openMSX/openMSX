@@ -9,8 +9,11 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "FilePool.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
+#include "RomDatabase.hh"
+#include "RomInfo.hh"
 
 #include "stl.hh"
 #include "strCat.hh"
@@ -372,11 +375,27 @@ void ImGuiManager::paintImGui()
 				notPresent(type);
 			}
 		};
+		auto selectCart = [&](std::string_view type, std::vector<std::string> list) {
+			if (list.empty()) {
+				notPresent(type);
+			}
+			selectedMedia = list.front();
+			selectList = std::move(list);
+			try {
+				auto sha1 = reactor.getFilePool().getSha1Sum(droppedFile);
+				romInfo = reactor.getSoftwareDatabase().fetchRomInfo(sha1);
+			} catch (MSXException&) {
+				romInfo = nullptr;
+			}
+			selectedRomType = romInfo ? romInfo->getRomType()
+			                          : ROM_UNKNOWN; // auto-detect
+			ImGui::OpenPopup("select-cart");
+		};
 
 		if (category == "disk") {
 			selectMedia("disk drive", getDrives(motherBoard));
 		} else if (category == "rom") {
-			selectMedia("cartridge slot", getSlots(motherBoard));
+			selectCart("cartridge slot", getSlots(motherBoard));
 		} else if (category == "cassette") {
 			testMedia("casette port", "cassetteplayer");
 		} else if (category == "laserdisc") {
@@ -404,6 +423,72 @@ void ImGuiManager::paintImGui()
 				}
 			}
 		});
+	});
+	im::Popup("select-cart", [&]{
+		ImGui::TextUnformatted(strCat("Filename: ", droppedFile));
+		ImGui::Separator();
+
+		if (!romInfo) {
+			ImGui::TextUnformatted("ROM not preset in software database");
+		}
+		im::Table("##extension-info", 2, [&]{
+			const char* buf = reactor.getSoftwareDatabase().getBufferStart();
+			ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+
+			if (romInfo) {
+				ImGuiMedia::printDatabase(*romInfo, buf);
+			}
+			if (ImGui::TableNextColumn()) {
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted("Mapper");
+			}
+			if (ImGui::TableNextColumn()) {
+				ImGuiMedia::selectMapperType("##mapper-type", selectedRomType);
+			}
+		});
+		ImGui::Separator();
+
+		if (selectList.size() > 1) {
+			ImGui::TextUnformatted("Select cartridge slot");
+			auto n = std::min(3.5f, narrow<float>(selectList.size()));
+			auto height = n * ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y;
+			im::ListBox("##select-media", {0, height}, [&]{
+				for (const auto& item : selectList) {
+					if (ImGui::Selectable(item.c_str(), item == selectedMedia)) {
+						selectedMedia = item;
+					}
+					simpleToolTip([&]{
+						std::string tip;
+						if (motherBoard) {
+							auto slot = item.back() - 'a';
+							auto [ps, ss] = motherBoard->getSlotManager().getPsSs(slot);
+							strAppend(tip, "slot ", ps);
+							if (ss != -1) strAppend(tip, '-', ss);
+						}
+						return tip;
+					});
+				}
+			});
+		}
+
+		ImGui::Checkbox("Reset MSX on inserting ROM", &media.resetOnInsertRom);
+
+		if (ImGui::Button("Insert ROM")) {
+			auto cmd = makeTclList(selectedMedia, "insert", droppedFile);
+			if (selectedRomType != ROM_UNKNOWN) {
+				cmd.addListElement("-romtype", RomInfo::romTypeToName(selectedRomType));
+			}
+			executeDelayed(cmd);
+			if (media.resetOnInsertRom) {
+				executeDelayed(TclObject("reset"));
+			}
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel")) {
+			ImGui::CloseCurrentPopup();
+		}
 	});
 }
 

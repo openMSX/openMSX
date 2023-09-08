@@ -26,6 +26,7 @@
 #include "ImGuiWatchExpr.hh"
 
 #include "EventListener.hh"
+#include "RomTypes.hh"
 #include "TclObject.hh"
 
 #include <functional>
@@ -123,6 +124,9 @@ private:
 	std::string droppedFile;
 	std::string selectText;
 	std::vector<std::string> selectList;
+	std::string selectedMedia;
+	const RomInfo* romInfo = nullptr;
+	RomType selectedRomType = ROM_UNKNOWN;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
 
