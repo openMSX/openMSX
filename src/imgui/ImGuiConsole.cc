@@ -248,6 +248,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/		drawPos[0] -= state->ScrollX;
 		/**/	}
 		/**/ }
+		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
 		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
 		/**/ auto* drawList = ImGui::GetWindowDrawList();
 		/**/ for (auto i : xrange(coloredInputBuf.numChunks())) {
@@ -256,8 +257,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ 	const char* begin = text.data();
 		/**/ 	const char* end = begin + text.size();
 		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
-		/**/ 	gl::vec2 chunkSize = ImGui::CalcTextSize(begin, end);
-		/**/ 	drawPos[0] += chunkSize[0];
+		/**/    // avoid ImGui::CalcTextSize(): it's off-by-one for sizes >= 256 pixels
+		/**/    drawPos[0] += charWidth * (end - begin);
 		/**/ }
 	});
 }
