@@ -315,6 +315,10 @@ void ImGuiManager::paintImGui()
 	if (mainMenuBarUndocked) {
 		im::Window("OpenMSX menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
 			im::MenuBar([&]{
+				if (ImGui::ArrowButton("re-dock-button", ImGuiDir_Down)) {
+					mainMenuBarUndocked = false;
+				}
+				simpleToolTip("Dock the menu bar in the main openMSX window.");
 				drawMenu();
 			});
 		});
