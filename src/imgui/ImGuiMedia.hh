@@ -86,6 +86,13 @@ public:
 		bool show = false;
 	};
 
+	struct ExtensionInfo {
+		std::string configName;
+		std::string displayName;
+		std::vector<std::pair<std::string, std::string>> configInfo;
+		// TODO std::optional<std::string> testResult; // lazily initialized
+	};
+
 public:
 	bool resetOnInsertRom = true;
 
@@ -105,10 +112,11 @@ private:
 	void cartridgeMenu(int i);
 	void cassetteMenu(const TclObject& cmdResult);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
-	const std::vector<std::string>& getAvailableExtensions();
-	const std::vector<std::pair<std::string, std::string>>& getExtensionInfo(const std::string& extension);
-	void printExtensionInfo(const std::string& extName);
-	void extensionTooltip(const std::string& extName);
+
+	const std::vector<ExtensionInfo>& getAllExtensions();
+	const ExtensionInfo* findExtensionInfo(std::string_view config);
+	void printExtensionInfo(const ExtensionInfo& info);
+	void extensionTooltip(const ExtensionInfo& info);
 
 private:
 	ImGuiManager& manager;
@@ -121,8 +129,7 @@ private:
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;
 
-	std::vector<std::string> availableExtensionsCache;
-	std::map<std::string, std::vector<std::pair<std::string, std::string>>> extensionInfoCache;
+	std::vector<ExtensionInfo> extensionInfo;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"resetOnInsertRom", &ImGuiMedia::resetOnInsertRom},

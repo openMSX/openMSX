@@ -237,52 +237,28 @@ static std::string display(const ImGuiMedia::MediaItem& item)
 	return result;
 }
 
-const std::vector<std::string>& ImGuiMedia::getAvailableExtensions()
+const std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
 {
-	if (availableExtensionsCache.empty()) {
-		availableExtensionsCache = Reactor::getHwConfigs("extensions");
-		ranges::sort(availableExtensionsCache, StringOp::caseless{});
+	if (extensionInfo.empty()) {
+		extensionInfo = parseAllConfigFiles<ExtensionInfo>(manager, "extensions", {"Manufacturer"sv, "Product code"sv, "Name"sv});
 	}
-	return availableExtensionsCache;
+	return extensionInfo;
 }
 
-const std::vector<std::pair<std::string, std::string>>& ImGuiMedia::getExtensionInfo(const std::string& extension)
+const ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
 {
-	static constexpr auto replacer = StringReplacer::create(
-		"name",         "Name",
-		"manufacturer", "Manufacturer",
-		"code",         "Product code",
-		"release_year", "Release year",
-		"description",  "Description",
-		"type",         "Type");
-
-	auto [it, inserted] = extensionInfoCache.try_emplace(extension);
-	auto& result = it->second;
-	if (inserted) {
-		if (auto r = manager.execute(makeTclList("openmsx_info", "extensions", extension))) {
-			auto first = r->begin();
-			auto last = r->end();
-			while (first != last) {
-				auto desc = *first++;
-				if (first == last) break; // shouldn't happen
-				auto value = *first++;
-				if (!value.empty()) {
-					result.emplace_back(std::string(replacer(desc)),
-					                    std::string(value));
-				}
-			}
-		}
-	}
-	return result;
+	auto& allExtensions = getAllExtensions();
+	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
+	return (it != allExtensions.end()) ? &*it : nullptr;
 }
 
-void ImGuiMedia::printExtensionInfo(const std::string& extName)
+void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
 {
 	im::Table("##extension-info", 2, [&]{
 		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-		for (const auto& [desc, value_] : getExtensionInfo(extName)) {
+		for (const auto& [desc, value_] : info.configInfo) {
 			const auto& value = value_; // clang workaround
 			if (ImGui::TableNextColumn()) {
 				ImGui::TextUnformatted(desc);
@@ -296,10 +272,10 @@ void ImGuiMedia::printExtensionInfo(const std::string& extName)
 	});
 }
 
-void ImGuiMedia::extensionTooltip(const std::string& extName)
+void ImGuiMedia::extensionTooltip(const ExtensionInfo& info)
 {
 	im::ItemTooltip([&]{
-		printExtensionInfo(extName);
+		printExtensionInfo(info);
 	});
 }
 
@@ -368,16 +344,20 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
 			im::Menu("Insert", [&]{
-				for (const auto& ext : getAvailableExtensions()) {
-					if (ImGui::MenuItem(ext.c_str())) {
-						group.edit.name = ext;
+				for (const auto& ext : getAllExtensions()) {
+					if (ImGui::MenuItem(ext.displayName.c_str())) {
+						group.edit.name = ext.configName;
 						insertMedia(mediaName, group);
 					}
 					extensionTooltip(ext);
 				}
 			});
 
-			showRecent(mediaName, group, [this](const std::string& e) { extensionTooltip(e); });
+			showRecent(mediaName, group, [this](const std::string& e) {
+				if (const auto* info = findExtensionInfo(e)) {
+					extensionTooltip(*info);
+				}
+			});
 
 			ImGui::Separator();
 
@@ -388,7 +368,9 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						if (ImGui::Selectable(ext->getName().c_str())) {
 							manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
 						}
-						extensionTooltip(ext->getConfigName());
+						if (const auto* info = findExtensionInfo(ext->getConfigName())) {
+							extensionTooltip(*info);
+						}
 					}
 				});
 			});
@@ -925,7 +907,9 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 		} else if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
 			currentTarget = *target;
 			if (selectType == SELECT_EXTENSION) {
-				printExtensionInfo(std::string(target->getString()));
+				if (const auto* i = findExtensionInfo(target->getString())) {
+					printExtensionInfo(*i);
+				}
 			} else if (selectType == SELECT_ROM_IMAGE) {
 				if (auto mapper = cmdResult->getOptionalDictValue(TclObject("mappertype"))) {
 					currentRomType = RomInfo::nameToRomType(mapper->getString());
@@ -1018,12 +1002,12 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& item = group.edit;
 					bool interacted = false;
 					im::Combo("##extension", item.name.c_str(), [&]{
-						for (const auto& name : getAvailableExtensions()) {
-							if (ImGui::Selectable(name.c_str())) {
+						for (const auto& ext : getAllExtensions()) {
+							if (ImGui::Selectable(ext.displayName.c_str())) {
 								interacted = true;
-								item.name = name;
+								item.name = ext.configName;
 							}
-							extensionTooltip(name);
+							extensionTooltip(ext);
 						}
 					});
 					interacted |= ImGui::IsItemActive();

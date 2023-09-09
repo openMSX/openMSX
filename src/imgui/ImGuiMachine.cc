@@ -53,15 +53,6 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	}
 }
 
-[[nodiscard]] static const std::string* getOptionalDictValue(
-	const std::vector<std::pair<std::string, std::string>>& info,
-	std::string_view key)
-{
-	auto it = ranges::find_if(info, [&](const auto& p) { return p.first == key; });
-	if (it == info.end()) return {};
-	return &it->second;
-}
-
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
@@ -230,85 +221,10 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 	});
 }
 
-// Similar to c++23 chunk_by(). Main difference is internal vs external iteration.
-template<typename Range, typename BinaryPred, typename Action>
-static void chunk_by(Range&& range, BinaryPred pred, Action action)
-{
-	auto it = std::begin(range);
-	auto last = std::end(range);
-	while (it != last) {
-		auto start = it;
-		auto prev = it++;
-		while (it != last && pred(*prev, *it)) {
-			prev = it++;
-		}
-		action(start, it);
-	}
-}
-
 std::vector<ImGuiMachine::MachineInfo>& ImGuiMachine::getAllMachines()
 {
-	static constexpr auto replacer = StringReplacer::create(
-		"manufacturer", "Manufacturer",
-		"code",         "Product code",
-		"release_year", "Release year",
-		"description",  "Description",
-		"type",         "Type");
-
 	if (machineInfo.empty()) {
-		const auto& configs = Reactor::getHwConfigs("machines");
-		machineInfo.reserve(configs.size());
-		for (const auto& config : configs) {
-			auto& info = machineInfo.emplace_back();
-			info.configName = config;
-
-			// get machine meta-data
-			auto& configInfo = info.configInfo;
-			if (auto r = manager.execute(makeTclList("openmsx_info", "machines", config))) {
-				auto first = r->begin();
-				auto last = r->end();
-				while (first != last) {
-					auto desc = *first++;
-					if (first == last) break; // shouldn't happen
-					auto value = *first++;
-					if (!value.empty()) {
-						configInfo.emplace_back(std::string(replacer(desc)),
-						                        std::string(value));
-					}
-				}
-			}
-
-			// Based on the above meta-data, try to construct a more
-			// readable name Unfortunately this new name is no
-			// longer guaranteed to be unique, we'll address this
-			// below.
-			auto& display = info.displayName;
-			if (const auto* manufacturer = getOptionalDictValue(configInfo, "Manufacturer")) {
-				strAppend(display, *manufacturer); // possibly an empty string;
-			}
-			if (const auto* code = getOptionalDictValue(configInfo, "Product code")) {
-				if (!code->empty()) {
-					if (!display.empty()) strAppend(display, ' ');
-					strAppend(display, *code);
-				}
-			}
-			if (display.empty()) display = config;
-		}
-
-		ranges::sort(machineInfo, StringOp::caseless{}, &MachineInfo::displayName);
-
-		// make 'displayName' unique again
-		auto sameDisplayName = [](MachineInfo& x, MachineInfo& y) {
-			StringOp::casecmp cmp;
-			return cmp(x.displayName, y.displayName);
-		};
-		chunk_by(machineInfo, sameDisplayName, [](auto first, auto last) {
-			if (std::distance(first, last) == 1) return; // no duplicate name
-			for (auto it = first; it != last; ++it) {
-				strAppend(it->displayName, " (", it->configName, ')');
-			}
-			ranges::sort(first, last, StringOp::caseless{}, &MachineInfo::displayName);
-		});
+		machineInfo = parseAllConfigFiles<MachineInfo>(manager, "machines", {"Manufacturer"sv, "Product code"sv});
 	}
 	return machineInfo;
 }
