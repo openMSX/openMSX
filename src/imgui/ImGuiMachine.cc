@@ -30,17 +30,22 @@ namespace openmsx {
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Machine", [&]{
+		auto& reactor = manager.getReactor();
+		const auto& hotKey = reactor.getHotKey();
+
 		bool hasMachine = motherBoard != nullptr;
 
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
 
-		auto& pauseSetting = manager.getReactor().getGlobalSettings().getPauseSetting();
+		auto& pauseSetting = reactor.getGlobalSettings().getPauseSetting();
 		bool pause = pauseSetting.getBoolean();
-		if (ImGui::MenuItem("Pause", "PAUSE", &pause)) {
+		auto pauseShortCut = getShortCutForCommand(hotKey, "toggle pause");
+		if (ImGui::MenuItem("Pause", pauseShortCut.c_str(), &pause)) {
 			pauseSetting.setBoolean(pause);
 		}
 
-		if (ImGui::MenuItem("Reset", nullptr, nullptr, hasMachine)) {
+		auto resetShortCut = getShortCutForCommand(hotKey, "reset");
+		if (ImGui::MenuItem("Reset", resetShortCut.c_str(), nullptr, hasMachine)) {
 			manager.executeDelayed(TclObject("reset"));
 		}
 	});

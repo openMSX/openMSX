@@ -49,6 +49,7 @@ namespace openmsx {
 
 class BooleanSetting;
 class FloatSetting;
+class HotKey;
 class IntegerSetting;
 class Setting;
 class VideoSourceSetting;
@@ -229,6 +230,8 @@ std::vector<InfoType> parseAllConfigFiles(ImGuiManager& manager, std::string_vie
 
 	return result;
 }
+
+std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command);
 
 } // namespace openmsx
 

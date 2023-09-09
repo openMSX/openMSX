@@ -38,11 +38,17 @@ void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Save state", motherBoard != nullptr, [&]{
-		if (ImGui::MenuItem("Quick load state", "ALT+F7")) { // TODO check binding dynamically
-			manager.executeDelayed(makeTclList("loadstate"));
+		const auto& hotKey = manager.getReactor().getHotKey();
+
+		std::string_view loadCmd = "loadstate";
+		auto loadShortCut = getShortCutForCommand(hotKey, loadCmd);
+		if (ImGui::MenuItem("Quick load state", loadShortCut.c_str())) {
+			manager.executeDelayed(makeTclList(loadCmd));
 		}
-		if (ImGui::MenuItem("Quick save state", "ALT+F8")) { // TODO
-			manager.executeDelayed(makeTclList("savestate"));
+		std::string_view saveCmd = "savestate";
+		auto saveShortCut = getShortCutForCommand(hotKey, saveCmd);
+		if (ImGui::MenuItem("Quick save state", saveShortCut.c_str())) {
+			manager.executeDelayed(makeTclList(saveCmd));
 		}
 		ImGui::Separator();
 

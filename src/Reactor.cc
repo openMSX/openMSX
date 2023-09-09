@@ -332,6 +332,11 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
+const HotKey& Reactor::getHotKey() const
+{
+	return globalCommandController->getHotKey();
+}
+
 vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;

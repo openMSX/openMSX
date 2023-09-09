@@ -1,22 +1,24 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
-#include "RTSchedulable.hh"
-#include "EventListener.hh"
 #include "Command.hh"
 #include "Event.hh"
+#include "EventListener.hh"
+#include "RTSchedulable.hh"
+
 #include "TclObject.hh"
+
 #include <map>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <vector>
-#include <string>
 
 namespace openmsx {
 
-class RTScheduler;
-class GlobalCommandController;
 class EventDistributor;
+class GlobalCommandController;
+class RTScheduler;
 
 class HotKey final : public RTSchedulable, public EventListener
 {
@@ -70,6 +72,8 @@ public:
 		}
 		xml.end("bindings");
 	}
+
+	const auto& getGlobalBindings() const { return cmdMap; }
 
 private:
 	struct LayerInfo {

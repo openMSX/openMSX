@@ -40,7 +40,9 @@ void ImGuiTools::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	im::Menu("Tools", [&]{
 		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
-		ImGui::MenuItem("Show console", "F10", &manager.console.show);
+		const auto& hotKey = manager.getReactor().getHotKey();
+		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
+		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
 		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
 		ImGui::Separator();
 

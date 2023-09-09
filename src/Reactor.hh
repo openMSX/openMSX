@@ -31,6 +31,7 @@ class DiskFactory;
 class DiskManipulator;
 class DiskChanger;
 class FilePool;
+class HotKey;
 class UserSettings;
 class RomDatabase;
 class TclCallbackMessages;
@@ -91,6 +92,7 @@ public:
 	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
+	[[nodiscard]] const HotKey& getHotKey() const;
 
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 

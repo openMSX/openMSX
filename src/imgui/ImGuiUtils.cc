@@ -4,6 +4,7 @@
 
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "HotKey.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -12,6 +13,8 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+
+#include <variant>
 
 namespace openmsx {
 
@@ -196,6 +199,24 @@ float calculateFade(float current, float target, float period)
 	} else {
 		return std::max(target, current - step);
 	}
+}
+
+std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command)
+{
+	for (const auto& info : hotkey.getGlobalBindings()) {
+		if (info.command != command) continue;
+		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
+			std::string result;
+			auto modifiers = keyDown->getModifiers();
+			if (modifiers & KMOD_CTRL)  strAppend(result, "CTRL+");
+			if (modifiers & KMOD_SHIFT) strAppend(result, "SHIFT+");
+			if (modifiers & KMOD_ALT)   strAppend(result, "ALT+");
+			if (modifiers & KMOD_GUI)   strAppend(result, "GUI+");
+			strAppend(result, SDL_GetKeyName(keyDown->getKeyCode()));
+			return result;
+		}
+	}
+	return "";
 }
 
 } // namespace openmsx
