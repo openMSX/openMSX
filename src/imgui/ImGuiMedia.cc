@@ -358,9 +358,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// cartA / extX
 		auto& slotManager = motherBoard->getSlotManager();
+		bool anySlot = false;
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!slotManager.slotExists(i)) continue;
-			elementInGroup();
+			anySlot = true;
 			auto displayName = strCat("Cartridge Slot ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
 			simpleToolTip([&]() -> std::string {
@@ -370,10 +371,12 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				return "Empty";
 			});
 		}
-		endGroup();
+		if (!anySlot) {
+			ImGui::TextDisabled("No cartridge slots present");
+		}
+		ImGui::Separator();
 
 		// extensions (needed for I/O-only extensions, or when you don't care about the exact slot)
-		elementInGroup();
 		im::Menu("Extensions", [&]{
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
@@ -415,13 +418,14 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 		});
-		endGroup();
+		ImGui::Separator();
 
 		// diskX
 		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
+		bool anyDrive = false;
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
 			if (!(*drivesInUse)[i]) continue;
-			elementInGroup();
+			anyDrive = true;
 			auto displayName = strCat("Disk Drive ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
 			simpleToolTip([&]() -> std::string {
@@ -433,18 +437,22 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				return !tip.empty() ? std::string(tip) : "Empty";
 			});
 		}
-		endGroup();
+		if (!anyDrive) {
+			ImGui::TextDisabled("No disk drives present");
+		}
+		ImGui::Separator();
 
 		// cassetteplayer
 		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
-			elementInGroup();
 			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
 			simpleToolTip([&]() -> std::string {
 				auto tip = cmdResult->getListIndexUnchecked(1).getString();
 				return !tip.empty() ? std::string(tip) : "Empty";
 			});
+		} else {
+			ImGui::TextDisabled("No cassette port present");
 		}
-		endGroup();
+		ImGui::Separator();
 
 		// hdX
 		auto hdInUse = HD::getDrivesInUse(*motherBoard);
