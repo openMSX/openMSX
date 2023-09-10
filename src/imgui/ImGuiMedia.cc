@@ -592,12 +592,25 @@ static void printPatches(const TclObject& patches)
 	}
 }
 
+static std::string leftClip(std::string_view s, float maxWidth)
+{
+	// Assume a fixed-width font.
+	const auto* font = ImGui::GetFont();
+	auto maxChars = static_cast<size_t>(maxWidth / font->GetCharAdvance('A'));
+
+	auto len = s.size();
+	if (len <= maxChars) return std::string{s};
+	if (maxChars <= 3) return "...";
+	return strCat("...", s.substr(len - (maxChars - 3)));
+}
+
 bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc)
 {
-	ImGui::SetNextItemWidth(-52.0f);
-	bool interacted = ImGui::InputText("##image", &group.edit.name);
-	ImGui::SameLine(0.0f, 0.0f);
-	im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
+	bool interacted = false;
+	ImGui::SetNextItemWidth(-32.0f);
+	auto preview = leftClip(displayFunc(group.edit.name),
+				ImGui::GetContentRegionAvail().x - (ImGui::GetFrameHeightWithSpacing() + 32.0f));
+	im::Combo("##recent", preview.c_str(), [&]{
 		int count = 0;
 		for (auto& item : group.recent) {
 			auto d = strCat(display(item, displayFunc), "##", count++);
@@ -690,7 +703,8 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 			im::ListBox("##", [&]{
 				int count = 0;
 				for (const auto& patch : item.ipsPatches) {
-					if (ImGui::Selectable(patch.c_str(), count == patchIndex)) {
+					auto preview = leftClip(patch, ImGui::GetContentRegionAvail().x);
+					if (ImGui::Selectable(strCat(preview, "##", count).c_str(), count == patchIndex)) {
 						interacted = true;
 						patchIndex = count;
 					}
@@ -753,18 +767,6 @@ bool ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group,
 		}
 	});
 	return clicked;
-}
-
-static std::string leftClip(std::string_view s, float maxWidth)
-{
-	// Assume a fixed-width font.
-	const auto* font = ImGui::GetFont();
-	auto maxChars = static_cast<size_t>(maxWidth / font->GetCharAdvance('A'));
-
-	auto len = s.size();
-	if (len < maxChars) return std::string{s};
-	if (maxChars <= 3) return "...";
-	return strCat("...", s.substr(len - (maxChars - 3)));
 }
 
 TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& info)
@@ -1037,8 +1039,8 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& group = info.groups[SELECT_ROM_IMAGE];
 					auto& item = group.edit;
 					bool interacted = selectImage(
-						group, strCat("Select ROM image for ", displayName), &romFilter, current.getString(),
-						[&](const std::string& filename) { return displayNameForRom(filename); });
+						group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
+						//[&](const std::string& filename) { return displayNameForRom(filename); }); // not needed?
 					ImGui::SetNextItemWidth(-80.0f);
 					interacted |= selectMapperType("mapper-type", item.romType);
 					interacted |= selectPatches(item, group.patchIndex);
