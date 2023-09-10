@@ -903,13 +903,16 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 			}
 			return nullptr;
 		}();
-		if (!romInfo) return;
-		ImGuiMedia::printDatabase(*romInfo, database.getBufferStart());
+		if (romInfo) {
+			ImGuiMedia::printDatabase(*romInfo, database.getBufferStart());
+		}
 
 		std::string mapperStr{RomInfo::romTypeToName(romType)};
-		if (auto dbType = romInfo->getRomType();
-		    dbType != ROM_UNKNOWN && dbType != romType) {
-			strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
+		if (romInfo) {
+			if (auto dbType = romInfo->getRomType();
+			dbType != ROM_UNKNOWN && dbType != romType) {
+				strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
+			}
 		}
 		if (ImGui::TableNextColumn()) {
 			ImGui::TextUnformatted("Mapper");
