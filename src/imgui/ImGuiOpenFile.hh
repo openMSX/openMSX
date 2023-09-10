@@ -32,7 +32,8 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	std::string getStartPath(zstring_view lastLocationHint);
+	void setBookmarks();
+	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:
 	ImGuiManager& manager;

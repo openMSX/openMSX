@@ -33,8 +33,9 @@ public:
 	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
 	[[nodiscard]] Sha1Sum getSha1Sum(const std::string& filename);
 
-private:
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
+
+private:
 	void reportProgress(std::string_view message, float fraction);
 
 	// Observer<Setting>

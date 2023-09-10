@@ -1,6 +1,9 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiManager.hh"
 
+#include "Reactor.hh"
+#include "FilePool.hh"
+
 #include "FileOperations.hh"
 
 #include <imgui.h>
@@ -26,6 +29,22 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+void ImGuiOpenFile::setBookmarks()
+{
+	auto& dialog = *ImGuiFileDialog::Instance();
+
+	auto& filePool = manager.getReactor().getFilePool();
+	int count = 0;
+	for (const auto& dir : filePool.getDirectories()) {
+		using enum FileType;
+		if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
+
+		auto name = strCat("file pool ", ++count);
+		dialog.RemoveBookmark(name);
+		dialog.AddBookmark(name, FileOperations::getNativePath(std::string(dir.path)));
+	}
+}
+
 std::string ImGuiOpenFile::getStartPath(zstring_view lastLocationHint)
 {
 	if (!lastLocationHint.empty()) {
@@ -45,6 +64,8 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
                                std::function<void(const std::string&)> callback,
                                zstring_view lastLocationHint)
 {
+	setBookmarks();
+
 	filters += ",All files (*){.*}";
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
@@ -64,6 +85,8 @@ void ImGuiOpenFile::selectDirectory(const std::string& title,
                                     std::function<void(const std::string&)> callback,
                                     zstring_view lastLocationHint)
 {
+	setBookmarks();
+
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
