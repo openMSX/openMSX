@@ -876,7 +876,7 @@ void ImGuiMedia::printDatabase(const RomInfo& romInfo, const char* buf)
 		if (romInfo.getOriginal()) {
 			std::string result = "Unmodified dump";
 			if (!str.empty()) {
-				strAppend(result, "(confirmed by ", str, ')');
+				strAppend(result, " (confirmed by ", str, ')');
 			}
 			return result;
 		} else {
