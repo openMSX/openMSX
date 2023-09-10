@@ -169,6 +169,7 @@ std::vector<InfoType> parseAllConfigFiles(ImGuiManager& manager, std::string_vie
 		"name",         "Name",
 		"manufacturer", "Manufacturer",
 		"code",         "Product code",
+		"region",       "Region",
 		"release_year", "Release year",
 		"description",  "Description",
 		"type",         "Type");

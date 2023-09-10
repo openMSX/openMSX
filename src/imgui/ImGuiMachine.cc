@@ -142,8 +142,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 						}
 					});
 				};
-				combo(filterType, "type");
-				combo(filterRegion, "region");
+				combo(filterType, "Type");
+				combo(filterRegion, "Region");
 				ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
 				simpleToolTip("A list of substrings that must be part of the machine name.\n"
 				              "\n"
@@ -162,8 +162,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 						return *val != value;
 					});
 				};
-				filter("type", filterType);
-				filter("region", filterRegion);
+				filter("Type", filterType);
+				filter("Region", filterRegion);
 				if (!filterString.empty()) {
 					std::erase_if(filteredMachines, [&](auto idx) {
 						const auto& display = allMachines[idx].displayName;
