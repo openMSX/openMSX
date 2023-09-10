@@ -1202,6 +1202,9 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			if (auto* autoRun = dynamic_cast<BooleanSetting*>(controller.findSetting("autoruncassettes"))) {
 				Checkbox("(try to) Auto Run", *autoRun);
 			}
+			if (auto* mute = dynamic_cast<BooleanSetting*>(controller.findSetting("cassetteplayer_ch1_mute"))) {
+				Checkbox("Mute tape audio", *mute);
+			}
 		});
 		ImGui::Separator();
 
