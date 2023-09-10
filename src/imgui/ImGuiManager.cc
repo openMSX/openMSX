@@ -382,6 +382,7 @@ void ImGuiManager::paintImGui()
 		auto selectCart = [&](std::string_view type, std::vector<std::string> list) {
 			if (list.empty()) {
 				notPresent(type);
+				return;
 			}
 			selectedMedia = list.front();
 			selectList = std::move(list);
