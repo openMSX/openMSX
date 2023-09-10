@@ -23,6 +23,7 @@
 
 namespace openmsx {
 
+class HardwareConfig;
 class ImGuiManager;
 class MSXMotherBoard;
 class RomInfo;
@@ -115,6 +116,8 @@ private:
 
 	const std::vector<ExtensionInfo>& getAllExtensions();
 	const ExtensionInfo* findExtensionInfo(std::string_view config);
+	[[nodiscard]] std::string displayNameForExtension(std::string_view config);
+	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
 

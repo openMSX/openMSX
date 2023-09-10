@@ -225,9 +225,10 @@ static std::string cdFilter()
 	return buildFilter("CDROM images", std::array{"dsk"sv}); // TODO correct ??
 }
 
-static std::string display(const ImGuiMedia::MediaItem& item)
+template<std::invocable<const std::string&> DisplayFunc = std::identity>
+static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displayFunc = {})
 {
-	std::string result = item.name;
+	std::string result = displayFunc(item.name);
 	if (item.romType != ROM_UNKNOWN) {
 		strAppend(result, " (", RomInfo::romTypeToName(item.romType), ')');
 	}
@@ -250,6 +251,22 @@ const ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view 
 	auto& allExtensions = getAllExtensions();
 	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
 	return (it != allExtensions.end()) ? &*it : nullptr;
+}
+
+std::string ImGuiMedia::displayNameForExtension(std::string_view config)
+{
+	const auto* info = findExtensionInfo(config);
+	return info ? info->displayName
+	            : std::string(config); // normally shouldn't happen
+}
+
+std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& config)
+{
+	if (config.getType() == HardwareConfig::Type::EXTENSION) {
+		return displayNameForExtension(config.getConfigName());
+	} else {
+		return config.getName(); // ROM filename
+	}
 }
 
 void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
@@ -304,13 +321,15 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		};
 
-		auto showRecent = [&](std::string_view mediaName, ItemGroup& group, std::function<void(const std::string&)> toolTip = {}) {
+		auto showRecent = [&](std::string_view mediaName, ItemGroup& group,
+		                      std::function<std::string(const std::string&)> displayFunc = std::identity{},
+		                      std::function<void(const std::string&)> toolTip = {}) {
 			if (!group.recent.empty()) {
 				im::Indent([&] {
 					im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
 						int count = 0;
 						for (const auto& item : group.recent) {
-							auto d = strCat(display(item), "##", count++);
+							auto d = strCat(display(item, displayFunc), "##", count++);
 							if (ImGui::MenuItem(d.c_str())) {
 								group.edit = item;
 								insertMedia(mediaName, group);
@@ -331,7 +350,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
 			simpleToolTip([&]() -> std::string_view {
 				if (const auto* config = slotManager.getConfigForSlot(i)) {
-					return config->getName();
+					return displayNameForHardwareConfig(*config);
 				}
 				return "Empty";
 			});
@@ -353,19 +372,25 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 
-			showRecent(mediaName, group, [this](const std::string& e) {
-				if (const auto* info = findExtensionInfo(e)) {
-					extensionTooltip(*info);
-				}
-			});
+			showRecent(mediaName, group,
+				[this](const std::string& config) { // displayFunc
+					return displayNameForExtension(config);
+				},
+				[this](const std::string& e) { // tooltip
+					if (const auto* info = findExtensionInfo(e)) {
+						extensionTooltip(*info);
+					}
+				});
 
 			ImGui::Separator();
 
 			const auto& extensions = motherBoard->getExtensions();
 			im::Disabled(extensions.empty(), [&]{
 				im::Menu("Remove", [&]{
+					int count = 0;
 					for (const auto& ext : extensions) {
-						if (ImGui::Selectable(ext->getName().c_str())) {
+						auto name = strCat(displayNameForHardwareConfig(*ext), "##", count++);
+						if (ImGui::Selectable(name.c_str())) {
 							manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
 						}
 						if (const auto* info = findExtensionInfo(ext->getConfigName())) {
@@ -1001,7 +1026,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& group = info.groups[SELECT_EXTENSION];
 					auto& item = group.edit;
 					bool interacted = false;
-					im::Combo("##extension", item.name.c_str(), [&]{
+					im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
 						for (const auto& ext : getAllExtensions()) {
 							if (ImGui::Selectable(ext.displayName.c_str())) {
 								interacted = true;
