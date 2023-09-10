@@ -44,6 +44,7 @@ public:
 	[[nodiscard]] std::string displayNameForRom(const std::string& filename);
 	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
 	[[nodiscard]] std::string displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr);
+	[[nodiscard]] std::string slotAndNameForHardwareConfig(const CartridgeSlotManager& slotManager, const HardwareConfig& config);
 
 public:
 	enum SelectDiskType {

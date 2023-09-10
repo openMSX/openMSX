@@ -8,6 +8,7 @@
 #include "TclObject.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "strCat.hh"
 
 #include <array>
 #include <cassert>
@@ -64,6 +65,18 @@ public:
 	[[nodiscard]] std::pair<int, int> getPsSs(unsigned slot) const {
 		assert(slot < MAX_SLOTS);
 		return {slots[slot].ps, slots[slot].ss};
+	}
+	[[nodiscard]] std::string getPsSsString(unsigned slot) const {
+		auto [ps, ss] = getPsSs(slot);
+		std::string result = strCat(ps);
+		if (ss != -1) strAppend(result, '-', ss);
+		return result;
+	}
+	[[nodiscard]] std::optional<unsigned> findSlotWith(const HardwareConfig& config) const {
+		for (auto slot : xrange(MAX_SLOTS)) {
+			if (slots[slot].config == &config) return slot;
+		}
+		return {};
 	}
 
 private:

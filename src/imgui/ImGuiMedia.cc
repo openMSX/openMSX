@@ -292,6 +292,17 @@ std::string ImGuiMedia::displayNameForSlotContent(const CartridgeSlotManager& sl
 	return "Empty";
 }
 
+std::string ImGuiMedia::slotAndNameForHardwareConfig(const CartridgeSlotManager& slotManager, const HardwareConfig& config)
+{
+	auto slot = slotManager.findSlotWith(config);
+	std::string result = slot
+		? strCat(char('A' + *slot), " (", slotManager.getPsSsString(*slot), "): ")
+		: "IO-only: ";
+	strAppend(result, displayNameForHardwareConfig(config));
+	return result;
+}
+
+
 void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
 {
 	im::Table("##extension-info", 2, [&]{
@@ -410,7 +421,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				im::Menu("Remove", [&]{
 					int count = 0;
 					for (const auto& ext : extensions) {
-						auto name = strCat(displayNameForHardwareConfig(*ext), "##", count++);
+						auto name = strCat(slotAndNameForHardwareConfig(slotManager, *ext), "##", count++);
 						if (ImGui::Selectable(name.c_str())) {
 							manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
 						}
@@ -950,12 +961,8 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 		copyCurrent = ImGui::SmallButton("Current cartridge");
 	});
 	auto& slotManager = manager.getReactor().getMotherBoard()->getSlotManager();
-	auto [ps, ss] = slotManager.getPsSs(slot);
-	std::string slotStr = strCat("(slot ", ps);
-	if (ss != -1) strAppend(slotStr, '-', ss);
-	strAppend(slotStr, ')');
 	ImGui::SameLine();
-	ImGui::TextUnformatted(slotStr);
+	ImGui::TextUnformatted(tmpStrCat("(slot ", slotManager.getPsSsString(slot), ')'));
 
 	RomType currentRomType = ROM_UNKNOWN;
 	im::Indent([&]{

@@ -462,11 +462,10 @@ void ImGuiManager::paintImGui()
 			im::ListBox("##select-media", {-FLT_MIN, height}, [&]{
 				for (const auto& item : selectList) {
 					auto slot = item.back() - 'a';
-					auto [ps, ss] = slotManager.getPsSs(slot);
-
-					auto display = strCat(char('A' + slot), " (", ps);
-					if (ss != -1) strAppend(display, '-', ss);
-					strAppend(display, "): ", media.displayNameForSlotContent(slotManager, slot));
+					auto display = strCat(
+						char('A' + slot),
+						" (", slotManager.getPsSsString(slot), "): ",
+						media.displayNameForSlotContent(slotManager, slot));
 
 					if (ImGui::Selectable(display.c_str(), item == selectedMedia)) {
 						selectedMedia = item;
