@@ -36,8 +36,9 @@ void ImGuiOpenFile::setBookmarks()
 	auto& filePool = manager.getReactor().getFilePool();
 	int count = 0;
 	for (const auto& dir : filePool.getDirectories()) {
-		using enum FileType;
-		if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
+		//using enum FileType; // c++20, but needs gcc-11
+		//if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
+		if ((dir.types & (FileType::ROM | FileType::DISK | FileType::TAPE)) == FileType::NONE) continue;
 
 		auto name = strCat("file pool ", ++count);
 		dialog.RemoveBookmark(name);
