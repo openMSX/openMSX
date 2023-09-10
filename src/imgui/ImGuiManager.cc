@@ -454,24 +454,22 @@ void ImGuiManager::paintImGui()
 		ImGui::Separator();
 
 		if (selectList.size() > 1) {
+			const auto& slotManager = motherBoard->getSlotManager();
 			ImGui::TextUnformatted("Select cartridge slot");
 			auto n = std::min(3.5f, narrow<float>(selectList.size()));
 			auto height = n * ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y;
-			im::ListBox("##select-media", {0, height}, [&]{
+			im::ListBox("##select-media", {-FLT_MIN, height}, [&]{
 				for (const auto& item : selectList) {
-					if (ImGui::Selectable(item.c_str(), item == selectedMedia)) {
+					auto slot = item.back() - 'a';
+					auto [ps, ss] = slotManager.getPsSs(slot);
+
+					auto display = strCat(char('A' + slot), " (", ps);
+					if (ss != -1) strAppend(display, '-', ss);
+					strAppend(display, "): ", media.displayNameForSlotContent(slotManager, slot));
+
+					if (ImGui::Selectable(display.c_str(), item == selectedMedia)) {
 						selectedMedia = item;
 					}
-					simpleToolTip([&]{
-						std::string tip;
-						if (motherBoard) {
-							auto slot = item.back() - 'a';
-							auto [ps, ss] = motherBoard->getSlotManager().getPsSs(slot);
-							strAppend(tip, "slot ", ps);
-							if (ss != -1) strAppend(tip, '-', ss);
-						}
-						return tip;
-					});
 				}
 			});
 		}

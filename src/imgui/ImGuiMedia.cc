@@ -284,6 +284,14 @@ std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& confi
 	}
 }
 
+std::string ImGuiMedia::displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr)
+{
+	if (const auto* config = slotManager.getConfigForSlot(slotNr)) {
+		return displayNameForHardwareConfig(*config);
+	}
+	return "Empty";
+}
+
 void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
 {
 	im::Table("##extension-info", 2, [&]{
@@ -364,12 +372,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			anySlot = true;
 			auto displayName = strCat("Cartridge Slot ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
-			simpleToolTip([&]() -> std::string {
-				if (const auto* config = slotManager.getConfigForSlot(i)) {
-					return displayNameForHardwareConfig(*config);
-				}
-				return "Empty";
-			});
+			simpleToolTip([&]{ return displayNameForSlotContent(slotManager, i); });
 		}
 		if (!anySlot) {
 			ImGui::TextDisabled("No cartridge slots present");

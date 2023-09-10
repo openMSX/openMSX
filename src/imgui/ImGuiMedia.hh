@@ -40,6 +40,11 @@ public:
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	[[nodiscard]] std::string displayNameForExtension(std::string_view config);
+	[[nodiscard]] std::string displayNameForRom(const std::string& filename);
+	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
+	[[nodiscard]] std::string displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr);
+
 public:
 	enum SelectDiskType {
 		SELECT_DISK_IMAGE,
@@ -117,9 +122,6 @@ private:
 
 	const std::vector<ExtensionInfo>& getAllExtensions();
 	const ExtensionInfo* findExtensionInfo(std::string_view config);
-	[[nodiscard]] std::string displayNameForExtension(std::string_view config);
-	[[nodiscard]] std::string displayNameForRom(const std::string& filename);
-	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
 
