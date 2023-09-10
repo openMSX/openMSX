@@ -7,6 +7,7 @@
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
+#include "FilePool.hh"
 #include "HardwareConfig.hh"
 #include "HD.hh"
 #include "IDECDROM.hh"
@@ -260,12 +261,26 @@ std::string ImGuiMedia::displayNameForExtension(std::string_view config)
 	            : std::string(config); // normally shouldn't happen
 }
 
+std::string ImGuiMedia::displayNameForRom(const std::string& filename)
+{
+	auto& reactor = manager.getReactor();
+	auto sha1 = reactor.getFilePool().getSha1Sum(filename);
+	auto& database = reactor.getSoftwareDatabase();
+	if (const auto* romInfo = database.fetchRomInfo(sha1)) {
+		if (auto title = romInfo->getTitle(database.getBufferStart());
+			!title.empty()) {
+			return std::string(title);
+		}
+	}
+	return filename;
+}
+
 std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& config)
 {
 	if (config.getType() == HardwareConfig::Type::EXTENSION) {
 		return displayNameForExtension(config.getConfigName());
 	} else {
-		return config.getName(); // ROM filename
+		return displayNameForRom(config.getName()); // ROM filename
 	}
 }
 
@@ -348,7 +363,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			elementInGroup();
 			auto displayName = strCat("Cartridge Slot ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
-			simpleToolTip([&]() -> std::string_view {
+			simpleToolTip([&]() -> std::string {
 				if (const auto* config = slotManager.getConfigForSlot(i)) {
 					return displayNameForHardwareConfig(*config);
 				}
@@ -569,7 +584,7 @@ static void printPatches(const TclObject& patches)
 	}
 }
 
-bool ImGuiMedia::selectRecent(ItemGroup& group)
+bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc)
 {
 	ImGui::SetNextItemWidth(-52.0f);
 	bool interacted = ImGui::InputText("##image", &group.edit.name);
@@ -577,7 +592,7 @@ bool ImGuiMedia::selectRecent(ItemGroup& group)
 	im::Combo("##recent", "", ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft, [&]{
 		int count = 0;
 		for (auto& item : group.recent) {
-			auto d = strCat(display(item), "##", count++);
+			auto d = strCat(display(item, displayFunc), "##", count++);
 			if (ImGui::Selectable(d.c_str())) {
 				group.edit = item;
 				interacted = true;
@@ -589,11 +604,12 @@ bool ImGuiMedia::selectRecent(ItemGroup& group)
 }
 
 bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
-                             std::function<std::string()> createFilter, zstring_view current)
+                             std::function<std::string()> createFilter, zstring_view current,
+                             std::function<std::string(const std::string&)> displayFunc)
 {
 	bool interacted = false;
 	im::ID("file", [&]{
-		interacted |= selectRecent(group);
+		interacted |= selectRecent(group, displayFunc);
 	});
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##file")) {
@@ -1012,7 +1028,9 @@ void ImGuiMedia::cartridgeMenu(int i)
 				im::Indent([&]{
 					auto& group = info.groups[SELECT_ROM_IMAGE];
 					auto& item = group.edit;
-					bool interacted = selectImage(group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
+					bool interacted = selectImage(
+						group, strCat("Select ROM image for ", displayName), &romFilter, current.getString(),
+						[&](const std::string& filename) { return displayNameForRom(filename); });
 					ImGui::SetNextItemWidth(-80.0f);
 					interacted |= selectMapperType("mapper-type", item.romType);
 					interacted |= selectPatches(item, group.patchIndex);

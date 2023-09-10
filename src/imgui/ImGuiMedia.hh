@@ -101,9 +101,10 @@ public:
 	static bool selectMapperType(const char* label, RomType& item);
 
 private:
-	bool selectRecent(ItemGroup& group);
+	bool selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc = std::identity{});
 	bool selectImage(ItemGroup& group, const std::string& title,
-	                 std::function<std::string()> createFilter, zstring_view current);
+	                 std::function<std::string()> createFilter, zstring_view current,
+	                 std::function<std::string(const std::string&)> displayFunc = std::identity{});
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current);
 	bool selectPatches(MediaItem& item, int& patchIndex);
 	bool insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
@@ -117,6 +118,7 @@ private:
 	const std::vector<ExtensionInfo>& getAllExtensions();
 	const ExtensionInfo* findExtensionInfo(std::string_view config);
 	[[nodiscard]] std::string displayNameForExtension(std::string_view config);
+	[[nodiscard]] std::string displayNameForRom(const std::string& filename);
 	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
