@@ -30,6 +30,8 @@ private:
 
 	std::string saveStateName;
 	std::string saveReplayName;
+	bool saveStateOpen = false;
+	bool saveReplayOpen = false;
 
 	bool reverseHideTitle = true;
 	bool reverseFadeOut = true;

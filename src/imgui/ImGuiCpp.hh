@@ -310,16 +310,18 @@ inline void MainMenuBar(std::invocable<> auto next)
 }
 
 // im::Menu(): wrapper around ImGui::BeginMenu() / ImGui::EndMenu()
-inline void Menu(const char* label, bool enabled, std::invocable<> auto next)
+inline bool Menu(const char* label, bool enabled, std::invocable<> auto next)
 {
-	if (ImGui::BeginMenu(label, enabled)) {
+	bool open = ImGui::BeginMenu(label, enabled);
+	if (open) {
 		next();
 		ImGui::EndMenu();
 	}
+	return open;
 }
-inline void Menu(const char* label, std::invocable<> auto next)
+inline bool Menu(const char* label, std::invocable<> auto next)
 {
-	Menu(label, true, next);
+	return Menu(label, true, next);
 }
 
 // im::Tooltip(): wrapper around ImGui::BeginTooltip() / ImGui::EndTooltip()

@@ -96,7 +96,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		im::Menu("Save state ...", [&]{
+		saveStateOpen = im::Menu("Save state ...", [&]{
+			if (!saveStateOpen) {
+				// on each re-open of this menu, create a suggestion for a name
+				if (auto result = manager.execute(makeTclList("guess_title", "savestate"))) {
+					saveStateName = result->getString();
+				}
+			}
 			ImGui::TextUnformatted("Enter name:"sv);
 			ImGui::InputText("##save-state-name", &saveStateName);
 			ImGui::SameLine();
@@ -105,6 +111,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::CloseCurrentPopup();
 			}
 		});
+
 		ImGui::Separator();
 
 		im::Menu("Load replay ...", [&]{
@@ -127,7 +134,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		im::Menu("Save replay ...", [&]{
+		saveReplayOpen = im::Menu("Save replay ...", [&]{
+			if (!saveStateOpen) {
+				// on each re-open of this menu, create a suggestion for a name
+				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
+					saveReplayName = result->getString();
+				}
+			}
 			ImGui::TextUnformatted("Enter name:"sv);
 			ImGui::InputText("##save-replay-name", &saveReplayName);
 			ImGui::SameLine();
