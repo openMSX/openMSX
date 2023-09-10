@@ -117,10 +117,20 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 
 	hotKey.loadInit();
 	for (const auto& [key, cmd, repeat, event] : parser.binds) {
-		hotKey.loadBind(key, cmd, repeat, event);
+		try {
+			hotKey.loadBind(key, cmd, repeat, event);
+		} catch (MSXException& e) {
+			commandController.getCliComm().printWarning(
+				"Couldn't restore key-binding: ", e.getMessage());
+		}
 	}
 	for (const auto& key : parser.unbinds) {
-		hotKey.loadUnbind(key);
+		try {
+			hotKey.loadUnbind(key);
+		} catch (MSXException& e) {
+			commandController.getCliComm().printWarning(
+				"Couldn't restore key-binding: ", e.getMessage());
+		}
 	}
 
 	getSettingsManager().loadSettings(*this);
