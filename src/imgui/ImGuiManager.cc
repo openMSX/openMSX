@@ -434,7 +434,7 @@ void ImGuiManager::paintImGui()
 		ImGui::Separator();
 
 		if (!romInfo) {
-			ImGui::TextUnformatted("ROM not preset in software database");
+			ImGui::TextUnformatted("ROM not present in software database");
 		}
 		im::Table("##extension-info", 2, [&]{
 			const char* buf = reactor.getSoftwareDatabase().getBufferStart();
