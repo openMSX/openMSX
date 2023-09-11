@@ -48,6 +48,13 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Reset", resetShortCut.c_str(), nullptr, hasMachine)) {
 			manager.executeDelayed(TclObject("reset"));
 		}
+
+		auto& powerSetting = reactor.getGlobalSettings().getPowerSetting();
+		bool power = powerSetting.getBoolean();
+		auto powerShortCut = getShortCutForCommand(hotKey, "toggle power");
+		if (ImGui::MenuItem("Power", powerShortCut.c_str(), &power)) {
+			powerSetting.setBoolean(power);
+		}
 	});
 }
 
