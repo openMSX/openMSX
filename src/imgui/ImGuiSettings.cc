@@ -131,7 +131,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
 			ImGui::SameLine();
 			fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
-			HelpMarker("Use 'F9' to quickly toggle between these two"); // TODO: this depends on bind configuration, check it...
+			auto fastForwardShortCut = getShortCutForCommand(reactor.getHotKey(), "toggle fastforward");
+			if (!fastForwardShortCut.empty()) {
+				HelpMarker(strCat("Use '", fastForwardShortCut ,"' to quickly toggle between these two"));
+			}
 			if (fwdChanged) {
 				fwdSetting.setBoolean(fastForward != 0);
 			}
