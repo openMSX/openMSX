@@ -40,9 +40,11 @@ void ImGuiOpenFile::setBookmarks()
 		//if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
 		if ((dir.types & (FileType::ROM | FileType::DISK | FileType::TAPE)) == FileType::NONE) continue;
 
+		auto path = FileOperations::getNativePath(std::string(dir.path));
+		if (!FileOperations::exists(path)) continue;
 		auto name = strCat("file pool ", ++count);
 		dialog.RemoveBookmark(name);
-		dialog.AddBookmark(name, FileOperations::getNativePath(std::string(dir.path)));
+		dialog.AddBookmark(name, path);
 	}
 }
 
