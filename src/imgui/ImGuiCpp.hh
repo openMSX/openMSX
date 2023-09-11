@@ -110,6 +110,12 @@ inline void StyleColor(ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
 	next();
 	ImGui::PopStyleColor(1);
 }
+inline void StyleColor(bool active, ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
+{
+	if (active) ImGui::PushStyleColor(idx, col);
+	next();
+	if (active) ImGui::PopStyleColor(1);
+}
 inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
                        ImGuiCol idx2, ImVec4 col2,
                        std::invocable<> auto next)

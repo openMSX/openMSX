@@ -353,8 +353,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						if (ImGui::TableNextColumn()) { // expression
 							ImGui::SetNextItemWidth(-FLT_MIN);
 							bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
-							im::StyleColor(ImGuiCol_Text, valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-											: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+							im::StyleColor(!valid, ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
 								auto expr = std::string(icon.expr.getString());
 								if (ImGui::InputText("##expr", &expr)) {
 									icon.expr = expr;

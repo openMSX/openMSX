@@ -138,14 +138,13 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto drawFile = [&](const std::string& file, const std::string& error) {
-				im::StyleColor(ImGuiCol_Text, error.empty() ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-				                                            : ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+				im::StyleColor(!error.empty(), ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
 					auto title = strCat("File: ", file);
 					im::TreeNode(title.c_str(), [&]{
 						if (!error.empty()) {
 							ImGui::TextUnformatted(error);
 						}
-						im::StyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f), [&]{
+						im::StyleColor(ImGuiCol_Text, {1.0f, 1.0f, 1.0f, 1.0f}, [&]{
 							if (ImGui::Button("Reload")) {
 								reload(file);
 							}

@@ -241,8 +241,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		tooWideToolTip(avail, watch.description);
 	}
 	if (ImGui::TableNextColumn()) { // expression
-		im::StyleColor(ImGuiCol_Text, validExpr ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-							: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+		im::StyleColor(!validExpr, ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			if (ImGui::InputText("##expr", &watch.exprStr)) {
@@ -252,8 +251,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		});
 	}
 	if (ImGui::TableNextColumn()) { // format
-		im::StyleColor(ImGuiCol_Text, validFrmt ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
-							: ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+		im::StyleColor(!validFrmt, ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			auto str = std::string(watch.format.getString());
@@ -274,7 +272,7 @@ void ImGuiWatchExpr::drawRow(int row)
 			ImGui::TextUnformatted(str);
 			tooWideToolTip(avail, str);
 		} else {
-			im::StyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f), [&]{
+			im::StyleColor(ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
 				ImGui::TextUnformatted(exprError);
 				tooWideToolTip(avail, exprError);
 			});

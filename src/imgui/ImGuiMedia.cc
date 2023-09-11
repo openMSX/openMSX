@@ -1091,13 +1091,16 @@ void ImGuiMedia::cartridgeMenu(int i)
 }
 
 static bool ButtonWithCustomRendering(
-	const char* label, gl::vec2 size,
+	const char* label, gl::vec2 size, bool pressed,
 	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
 {
-	gl::vec2 topLeft = ImGui::GetCursorScreenPos();
-	gl::vec2 center = topLeft + size * 0.5f;
-	bool result = ImGui::Button(label, size);
-	render(center, ImGui::GetWindowDrawList());
+	bool result = false;
+	im::StyleColor(pressed, ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive), [&]{
+		gl::vec2 topLeft = ImGui::GetCursorScreenPos();
+		gl::vec2 center = topLeft + size * 0.5f;
+		result = ImGui::Button(label, size);
+		render(center, ImGui::GetWindowDrawList());
+	});
 	return result;
 }
 
@@ -1161,20 +1164,21 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 
 		ImGui::TextUnformatted("Controls");
 		im::Indent([&]{
+			auto status = cmdResult.getListIndexUnchecked(2).getString();
 			auto size = ImGui::GetFrameHeightWithSpacing();
-			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, RenderPlay)) {
+			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, status == "play", RenderPlay)) {
 				manager.executeDelayed(makeTclList("cassetteplayer", "play"));
 			}
 			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Rewind", {2.0f * size, size}, RenderRewind)) {
+			if (ButtonWithCustomRendering("##Rewind", {2.0f * size, size}, false, RenderRewind)) {
 				manager.executeDelayed(makeTclList("cassetteplayer", "rewind"));
 			}
 			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, RenderStop)) {
-				std::cerr << "TODO cassetteplayer stop\n"; // TODO
+			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, status == "stop", RenderStop)) {
+				// nothing, this button only exists to indicate stop-state
 			}
 			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, RenderRecord)) {
+			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == "record", RenderRecord)) {
 				std::cerr << "TODO cassetteplayer stop\n"; // TODO
 			}
 
