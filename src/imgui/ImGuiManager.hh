@@ -122,7 +122,6 @@ private:
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;
-	std::string selectText;
 	std::vector<std::string> selectList;
 	std::string selectedMedia;
 	const RomInfo* romInfo = nullptr;

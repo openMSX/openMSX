@@ -361,17 +361,6 @@ void ImGuiManager::paintImGui()
 			cantHandle("no ", mediaType, " present.");
 		};
 
-		auto selectMedia = [&](std::string_view type, std::vector<std::string> list) {
-			if (list.empty()) {
-				notPresent(type);
-			} else if (list.size() == 1) {
-				command = makeTclList(list.front(), "insert", droppedFile);
-			} else {
-				selectText = strCat("Select ", type, " for ", droppedFile);
-				selectList = std::move(list);
-				ImGui::OpenPopup("select-media");
-			}
-		};
 		auto testMedia = [&](std::string_view type, std::string_view cmd) {
 			if (auto cmdResult = execute(TclObject(cmd))) {
 				command = makeTclList(cmd, "insert", droppedFile);
@@ -379,9 +368,21 @@ void ImGuiManager::paintImGui()
 				notPresent(type);
 			}
 		};
-		auto selectCart = [&](std::string_view type, std::vector<std::string> list) {
+
+		if (category == "disk") {
+			auto list = getDrives(motherBoard);
 			if (list.empty()) {
-				notPresent(type);
+				notPresent("disk drive");
+			} else if (list.size() == 1) {
+				command = makeTclList(list.front(), "insert", droppedFile);
+			} else {
+				selectList = std::move(list);
+				ImGui::OpenPopup("select-drive");
+			}
+		} else if (category == "rom") {
+			auto list = getSlots(motherBoard);
+			if (list.empty()) {
+				notPresent("cartridge slot");
 				return;
 			}
 			selectedMedia = list.front();
@@ -395,12 +396,6 @@ void ImGuiManager::paintImGui()
 			selectedRomType = romInfo ? romInfo->getRomType()
 			                          : ROM_UNKNOWN; // auto-detect
 			ImGui::OpenPopup("select-cart");
-		};
-
-		if (category == "disk") {
-			selectMedia("disk drive", getDrives(motherBoard));
-		} else if (category == "rom") {
-			selectCart("cartridge slot", getSlots(motherBoard));
 		} else if (category == "cassette") {
 			testMedia("casette port", "cassetteplayer");
 		} else if (category == "laserdisc") {
@@ -418,11 +413,15 @@ void ImGuiManager::paintImGui()
 		}
 		executeDelayed(command);
 	}
-	im::Popup("select-media", [&]{
-		ImGui::TextUnformatted(selectText);
-		im::ListBox("##select-media", [&]{
+	im::Popup("select-drive", [&]{
+		ImGui::TextUnformatted(tmpStrCat("Select disk drive for ", droppedFile));
+		auto n = std::min(3.5f, narrow<float>(selectList.size()));
+		auto height = n * ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y;
+		im::ListBox("##select-media", {-FLT_MIN, height}, [&]{
 			for (const auto& item : selectList) {
-				if (ImGui::Selectable(item.c_str())) {
+				auto drive = item.back() - 'a';
+				auto display = strCat(char('A' + drive), ": ", media.displayNameForDriveContent(drive, true));
+				if (ImGui::Selectable(display.c_str())) {
 					executeDelayed(makeTclList(item, "insert", droppedFile));
 					ImGui::CloseCurrentPopup();
 				}
@@ -465,7 +464,7 @@ void ImGuiManager::paintImGui()
 					auto display = strCat(
 						char('A' + slot),
 						" (", slotManager.getPsSsString(slot), "): ",
-						media.displayNameForSlotContent(slotManager, slot));
+						media.displayNameForSlotContent(slotManager, slot, true));
 
 					if (ImGui::Selectable(display.c_str(), item == selectedMedia)) {
 						selectedMedia = item;

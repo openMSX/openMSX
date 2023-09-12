@@ -261,7 +261,7 @@ std::string ImGuiMedia::displayNameForExtension(std::string_view config)
 	            : std::string(config); // normally shouldn't happen
 }
 
-std::string ImGuiMedia::displayNameForRom(const std::string& filename)
+std::string ImGuiMedia::displayNameForRom(const std::string& filename, bool compact)
 {
 	auto& reactor = manager.getReactor();
 	auto sha1 = reactor.getFilePool().getSha1Sum(filename);
@@ -272,22 +272,23 @@ std::string ImGuiMedia::displayNameForRom(const std::string& filename)
 			return std::string(title);
 		}
 	}
-	return filename;
+	return compact ? std::string(FileOperations::getFilename(filename))
+	               : filename;
 }
 
-std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& config)
+std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& config, bool compact)
 {
 	if (config.getType() == HardwareConfig::Type::EXTENSION) {
 		return displayNameForExtension(config.getConfigName());
 	} else {
-		return displayNameForRom(config.getName()); // ROM filename
+		return displayNameForRom(config.getName(), compact); // ROM filename
 	}
 }
 
-std::string ImGuiMedia::displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr)
+std::string ImGuiMedia::displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr, bool compact)
 {
 	if (const auto* config = slotManager.getConfigForSlot(slotNr)) {
-		return displayNameForHardwareConfig(*config);
+		return displayNameForHardwareConfig(*config, compact);
 	}
 	return "Empty";
 }
@@ -302,6 +303,17 @@ std::string ImGuiMedia::slotAndNameForHardwareConfig(const CartridgeSlotManager&
 	return result;
 }
 
+std::string ImGuiMedia::displayNameForDriveContent(unsigned drive, bool compact)
+{
+	auto cmd = makeTclList(tmpStrCat("disk", char('a' + drive)));
+	std::string_view display;
+	if (auto result = manager.execute(cmd)) {
+		display = result->getListIndexUnchecked(1).getString();
+	}
+	return display.empty() ? "Empty"
+	                       : std::string(compact ? FileOperations::getFilename(display)
+	                                             : display);
+}
 
 void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
 {
@@ -442,14 +454,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			anyDrive = true;
 			auto displayName = strCat("Disk Drive ", char('A' + i));
 			ImGui::MenuItem(displayName.c_str(), nullptr, &diskMediaInfo[i].show);
-			simpleToolTip([&]() -> std::string {
-				auto cmd = makeTclList(tmpStrCat("disk", char('a' + i)));
-				std::string_view tip;
-				if (auto result = manager.execute(cmd)) {
-					tip = result->getListIndexUnchecked(1).getString();
-				}
-				return !tip.empty() ? std::string(tip) : "Empty";
-			});
+			simpleToolTip([&] { return displayNameForDriveContent(i); });
 		}
 		if (!anyDrive) {
 			ImGui::TextDisabled("No disk drives present");

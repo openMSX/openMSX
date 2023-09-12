@@ -41,10 +41,11 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 	[[nodiscard]] std::string displayNameForExtension(std::string_view config);
-	[[nodiscard]] std::string displayNameForRom(const std::string& filename);
-	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config);
-	[[nodiscard]] std::string displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr);
+	[[nodiscard]] std::string displayNameForRom(const std::string& filename, bool compact = false);
+	[[nodiscard]] std::string displayNameForHardwareConfig(const HardwareConfig& config, bool compact = false);
+	[[nodiscard]] std::string displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr, bool compact = false);
 	[[nodiscard]] std::string slotAndNameForHardwareConfig(const CartridgeSlotManager& slotManager, const HardwareConfig& config);
+	[[nodiscard]] std::string displayNameForDriveContent(unsigned drive, bool compact = false);
 
 public:
 	enum SelectDiskType {
