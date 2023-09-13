@@ -10,6 +10,7 @@
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "GlobalSettings.hh"
+#include "MSXCommandController.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
@@ -33,9 +34,14 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
 
-		bool hasMachine = motherBoard != nullptr;
-
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+
+		if (motherBoard) {
+			auto& controller = motherBoard->getMSXCommandController();
+			if (auto* firmwareSwitch = dynamic_cast<BooleanSetting*>(controller.findSetting("firmwareswitch"))) {
+				Checkbox(*firmwareSwitch);
+			}
+		}
 
 		auto& pauseSetting = reactor.getGlobalSettings().getPauseSetting();
 		bool pause = pauseSetting.getBoolean();
@@ -45,7 +51,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		}
 
 		auto resetShortCut = getShortCutForCommand(hotKey, "reset");
-		if (ImGui::MenuItem("Reset", resetShortCut.c_str(), nullptr, hasMachine)) {
+		if (ImGui::MenuItem("Reset", resetShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject("reset"));
 		}
 
