@@ -39,7 +39,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			auto& controller = motherBoard->getMSXCommandController();
 			if (auto* firmwareSwitch = dynamic_cast<BooleanSetting*>(controller.findSetting("firmwareswitch"))) {
-				Checkbox(*firmwareSwitch);
+				Checkbox("Firmware switch", *firmwareSwitch);
 			}
 		}
 
