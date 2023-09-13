@@ -43,6 +43,11 @@ class IA64(CPU):
 	'''
 	name = 'ia64'
 
+class LoongArch64(CPU):
+   '''64-bit LOONGARCH64.
+   '''
+   name = 'loongarch64'
+
 class M68k(CPU):
 	'''Motorola 680x0.
 	'''
