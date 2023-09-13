@@ -25,10 +25,15 @@ void HelpMarker(std::string_view desc)
 	simpleToolTip(desc);
 }
 
-
-static void settingStuff(Setting& setting)
+std::string GetSettingDescription::operator()(const Setting& setting) const
 {
-	simpleToolTip(setting.getDescription());
+	return std::string(setting.getDescription());
+}
+
+template<std::invocable<const Setting&> GetTooltip = GetSettingDescription>
+static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
+{
+	simpleToolTip([&] { return getTooltip(setting); });
 	im::PopupContextItem([&]{
 		auto defaultValue = setting.getDefaultValue();
 		auto defaultString = defaultValue.getString();
@@ -49,12 +54,12 @@ bool Checkbox(BooleanSetting& setting)
 	std::string name(setting.getBaseName());
 	return Checkbox(name.c_str(), setting);
 }
-bool Checkbox(const char* label, BooleanSetting& setting)
+bool Checkbox(const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip)
 {
 	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
 	if (changed) setting.setBoolean(value);
-	settingStuff(setting);
+	settingStuff(setting, getTooltip);
 	return changed;
 }
 

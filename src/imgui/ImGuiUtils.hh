@@ -84,8 +84,12 @@ void simpleToolTip(std::invocable<> auto descFunc)
 
 void HelpMarker(std::string_view desc);
 
+struct GetSettingDescription {
+	std::string operator()(const Setting& setting) const;
+};
+
 bool Checkbox(BooleanSetting& setting);
-bool Checkbox(const char* label, BooleanSetting& setting);
+bool Checkbox(const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip = GetSettingDescription{});
 bool SliderInt(IntegerSetting& setting, ImGuiSliderFlags flags = 0);
 bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flags = 0);
 bool SliderFloat(FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0);

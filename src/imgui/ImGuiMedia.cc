@@ -1212,7 +1212,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 				Checkbox("(try to) Auto Run", *autoRun);
 			}
 			if (auto* mute = dynamic_cast<BooleanSetting*>(controller.findSetting("cassetteplayer_ch1_mute"))) {
-				Checkbox("Mute tape audio", *mute);
+				Checkbox("Mute tape audio", *mute, [](const Setting&) { return std::string{}; });
 			}
 		});
 		ImGui::Separator();
