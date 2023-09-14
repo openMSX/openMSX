@@ -123,6 +123,9 @@ public:
 	 */
 	void setFreq(unsigned freq);
 
+	[[nodiscard]] BooleanSetting& getFreqLockedSetting() { return freqLocked; }
+	[[nodiscard]] IntegerSetting& getFreqValueSetting()  { return freqValue; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

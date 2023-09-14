@@ -5,6 +5,7 @@
 #include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
+#include "CPUCore.hh"
 #include "Display.hh"
 #include "FilenameSetting.hh"
 #include "FloatSetting.hh"
@@ -13,13 +14,16 @@
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
 #include "Mixer.hh"
+#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "ProxySetting.hh"
+#include "R800.hh"
 #include "Reactor.hh"
 #include "ReadOnlySetting.hh"
 #include "SettingsManager.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "Z80.hh"
 
 #include "checked_cast.hh"
 #include "StringOp.hh"
@@ -122,36 +126,73 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip.showSoundChipSettings);
 		});
-		im::Menu("Misc", [&]{
-			auto& speedManager = globalSettings.getSpeedManager();
-			auto& fwdSetting = speedManager.getFastForwardSetting();
-			int fastForward = fwdSetting.getBoolean() ? 1 : 0;
-			ImGui::TextUnformatted("Speed:"sv);
-			ImGui::SameLine();
-			bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
-			ImGui::SameLine();
-			fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
-			auto fastForwardShortCut = getShortCutForCommand(reactor.getHotKey(), "toggle fastforward");
-			if (!fastForwardShortCut.empty()) {
-				HelpMarker(strCat("Use '", fastForwardShortCut ,"' to quickly toggle between these two"));
-			}
-			if (fwdChanged) {
-				fwdSetting.setBoolean(fastForward != 0);
-			}
-			im::Indent([&]{
-				im::Disabled(fastForward != 0, [&]{
-					SliderInt("Speed (%)", speedManager.getSpeedSetting());
-				});
-				im::Disabled(fastForward != 1, [&]{
-					SliderInt("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting());
-				});
-			});
-			Checkbox("Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
+		im::Menu("Speed", [&]{
+			im::TreeNode("Emulation", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				ImGui::SameLine();
+				HelpMarker("These control the speed of the whole MSX machine, "
+				           "the running MSX software can't tell the difference.");
 
-			ImGui::Separator();
-			if (ImGui::MenuItem("Configure OSD icons...", nullptr, nullptr)) {
-				manager.osdIcons.showConfigureIcons = true;
+				auto& speedManager = globalSettings.getSpeedManager();
+				auto& fwdSetting = speedManager.getFastForwardSetting();
+				int fastForward = fwdSetting.getBoolean() ? 1 : 0;
+				ImGui::TextUnformatted("Speed:"sv);
+				ImGui::SameLine();
+				bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
+				ImGui::SameLine();
+				fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
+				auto fastForwardShortCut = getShortCutForCommand(reactor.getHotKey(), "toggle fastforward");
+				if (!fastForwardShortCut.empty()) {
+					HelpMarker(strCat("Use '", fastForwardShortCut ,"' to quickly toggle between these two"));
+				}
+				if (fwdChanged) {
+					fwdSetting.setBoolean(fastForward != 0);
+				}
+				im::Indent([&]{
+					im::Disabled(fastForward != 0, [&]{
+						SliderInt("Speed (%)", speedManager.getSpeedSetting());
+					});
+					im::Disabled(fastForward != 1, [&]{
+						SliderInt("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting());
+					});
+				});
+				Checkbox("Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
+			});
+			if (motherBoard) {
+				im::TreeNode("MSX devices", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+					ImGui::SameLine();
+					HelpMarker("These control the speed of the specific components in the MSX machine. "
+						"So the relative speed between components can change. "
+						"And this may lead the emulation problems.");
+
+					MSXCPU& cpu = motherBoard->getCPU();
+					auto showFreqSettings = [&](std::string_view name, auto* core) {
+						if (!core) return;
+						auto& locked = core->getFreqLockedSetting();
+						auto& value = core->getFreqValueSetting();
+						// Note: GUI shows "UNlocked", while the actual settings is "locked"
+						bool unlocked = !locked.getBoolean();
+						if (ImGui::Checkbox(tmpStrCat("unlock custom ", name, " frequency").c_str(), &unlocked)) {
+							locked.setBoolean(!unlocked);
+						}
+						simpleToolTip([&]{ return locked.getDescription(); });
+						im::Indent([&]{
+							im::Disabled(!unlocked, [&]{
+								// TODO this isn't very controllable
+								// Ideas to try:
+								//   Show freq in MHz with only two decimal places (e.g. 3.57MHz)
+								//   Use a logarithmic scale for the slider
+								//   Don't use a slider, but an input field with +/- buttons
+								SliderInt("frequency (Hz)", value);
+							});
+						});
+					};
+					showFreqSettings("Z80",  cpu.getZ80());
+					showFreqSettings("R800", cpu.getR800()); // might be nullptr
+				});
 			}
+		});
+		im::Menu("Misc", [&]{
+			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
 		});
