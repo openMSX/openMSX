@@ -177,12 +177,27 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						simpleToolTip([&]{ return locked.getDescription(); });
 						im::Indent([&]{
 							im::Disabled(!unlocked, [&]{
-								// TODO this isn't very controllable
-								// Ideas to try:
-								//   Show freq in MHz with only two decimal places (e.g. 3.57MHz)
-								//   Use a logarithmic scale for the slider
-								//   Don't use a slider, but an input field with +/- buttons
-								SliderInt("frequency (Hz)", value);
+								float fval = float(value.getInt()) / 1.0e6f;
+								if (ImGui::InputFloat(tmpStrCat("frequency (MHz)##", name).c_str(), &fval, 0.01f, 1.0f, "%.2f")) {
+									value.setInt(int(fval * 1.0e6f));
+								}
+								im::PopupContextItem(tmpStrCat("freq-context##", name).c_str(), [&]{
+									const char* F358 = name == "Z80" ? "3.58 MHz (default)"
+									                                 : "3.58 MHz";
+									if (ImGui::Selectable(F358)) {
+										value.setInt(3'579'545);
+									}
+									if (ImGui::Selectable("5.37 MHz")) {
+										value.setInt(5'369'318);
+									}
+									const char* F716 = name == "R800" ? "7.16 MHz (default)"
+									                                  : "7.16 MHz";
+									if (ImGui::Selectable(F716)) {
+										value.setInt(7'159'090);
+									}
+
+								});
+								HelpMarker("Right-click to select commonly used values");
 							});
 						});
 					};
