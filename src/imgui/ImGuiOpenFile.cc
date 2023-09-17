@@ -100,7 +100,27 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
 		ImGuiFileDialogFlags_Modal |
 		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
-	//flags |= ImGuiFileDialogFlags_ConfirmOverwrite |
+	lastFileDialog = title;
+
+	auto startPath = getStartPath(lastLocationHint);
+	ImGuiFileDialog::Instance()->OpenDialog(
+		"FileDialog", title, filters.c_str(), startPath, "", 1, nullptr, flags);
+	openFileCallback = callback;
+}
+
+void ImGuiOpenFile::selectNewFile(const std::string& title, std::string filters,
+                                  std::function<void(const std::string&)> callback,
+                                  zstring_view lastLocationHint)
+{
+	setBookmarks();
+
+	filters += ",All files (*){.*}";
+	ImGuiFileDialogFlags flags =
+		ImGuiFileDialogFlags_DontShowHiddenFiles |
+		ImGuiFileDialogFlags_CaseInsensitiveExtention |
+		ImGuiFileDialogFlags_Modal |
+		ImGuiFileDialogFlags_DisableCreateDirectoryButton |
+		ImGuiFileDialogFlags_ConfirmOverwrite;
 	lastFileDialog = title;
 
 	auto startPath = getStartPath(lastLocationHint);

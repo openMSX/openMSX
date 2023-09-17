@@ -1095,6 +1095,19 @@ void ImGuiMedia::cartridgeMenu(int i)
 	});
 }
 
+static void addRecent(ImGuiMedia::ItemGroup& group)
+{
+	auto& recent = group.recent;
+	if (auto it2 = ranges::find(recent, group.edit); it2 != recent.end()) {
+		// was already present, move to front
+		std::rotate(recent.begin(), it2, it2 + 1);
+	} else {
+		// new entry, add it, but possibly remove oldest entry
+		if (recent.full()) recent.pop_back();
+		recent.push_front(group.edit);
+	}
+}
+
 static bool ButtonWithCustomRendering(
 	const char* label, gl::vec2 size, bool pressed,
 	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
@@ -1148,6 +1161,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 {
 	ImGui::SetNextWindowSize(gl::vec2{37, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver); // TODO
 	auto& info = cassetteMediaInfo;
+	auto& group = info.group;
 	im::Window("Tape Deck", &info.show, [&]{
 		ImGui::TextUnformatted("Current tape");
 		auto current = cmdResult.getListIndexUnchecked(1).getString();
@@ -1184,7 +1198,18 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			}
 			ImGui::SameLine();
 			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == "record", RenderRecord)) {
-				std::cerr << "TODO cassetteplayer stop\n"; // TODO
+				manager.openFile.selectNewFile(
+					"Select new wav file for record",
+					"Tape images (*.wav){.wav}",
+					[&](const auto& fn) {
+						group.edit.name = fn;
+						manager.executeDelayed(makeTclList("cassetteplayer", "new", fn),
+							[&group](const TclObject&) {
+								// only add to 'recent' when command succeeded
+								addRecent(group);
+							});
+					},
+					current);
 			}
 
 			ImGui::SameLine();
@@ -1220,24 +1245,11 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			ImGui::TextUnformatted("Select new tape:"sv);
 			im::Indent([&]{
-				selectImage(info.group, "Select tape image", &cassetteFilter, current);
+				selectImage(group, "Select tape image", &cassetteFilter, current);
 			});
 		});
-		insertMediaButton("cassetteplayer", info.group, &info.show);
+		insertMediaButton("cassetteplayer", group, &info.show);
 	});
-}
-
-static void addRecent(ImGuiMedia::ItemGroup& group)
-{
-	auto& recent = group.recent;
-	if (auto it2 = ranges::find(recent, group.edit); it2 != recent.end()) {
-		// was already present, move to front
-		std::rotate(recent.begin(), it2, it2 + 1);
-	} else {
-		// new entry, add it, but possibly remove oldest entry
-		if (recent.full()) recent.pop_back();
-		recent.push_front(group.edit);
-	}
 }
 
 void ImGuiMedia::insertMedia(std::string_view mediaName, ItemGroup& group)

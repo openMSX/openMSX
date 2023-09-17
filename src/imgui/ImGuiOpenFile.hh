@@ -22,6 +22,9 @@ public:
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback,
 	                zstring_view lastLocationHint = {});
+	void selectNewFile(const std::string& title, std::string filters,
+	                   std::function<void(const std::string&)> callback,
+	                   zstring_view lastLocationHint = {});
 	void selectDirectory(const std::string& title,
 	                     std::function<void(const std::string&)> callback,
 	                     zstring_view lastLocationHint = {});
