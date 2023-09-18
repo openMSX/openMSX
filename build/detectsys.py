@@ -55,6 +55,8 @@ def detectCPU():
 		return 'avr32'
 	elif cpu == 'riscv64':
 		return 'riscv64'
+	elif cpu == 'loongarch64':
+		return 'loongarch64'
 	elif cpu == '':
 		# Python couldn't figure it out.
 		os = system().lower()
