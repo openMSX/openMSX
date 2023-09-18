@@ -1037,6 +1037,20 @@ void ImGuiMedia::diskMenu(int i)
 	});
 }
 
+std::vector<std::string> ImGuiMedia::getAllValuesFor(std::string_view key)
+{
+	std::vector<std::string> result;
+	for (const auto& ext : getAllExtensions()) {
+		if (const auto* type = getOptionalDictValue(ext.configInfo, key)) {
+			if (!contains(result, *type)) { // O(N^2), but that's fine
+				result.emplace_back(*type);
+			}
+		}
+	}
+	ranges::sort(result, StringOp::caseless{});
+	return result;
+}
+
 void ImGuiMedia::cartridgeMenu(int i)
 {
 	auto& info = cartridgeMediaInfo[i];
@@ -1072,15 +1086,79 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& group = info.groups[SELECT_EXTENSION];
 					auto& item = group.edit;
 					bool interacted = false;
-					im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
-						for (const auto& ext : getAllExtensions()) {
-							if (ImGui::Selectable(ext.displayName.c_str())) {
+
+			// TODO de-duplicate code with ImGuiMachine filter stuff
+					std::string filterDisplay = "filter";
+					if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
+					if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
+					if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
+					strAppend(filterDisplay, "###filter");
+					bool newFilterOpen = filterOpen;
+					im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
+						auto combo = [&](std::string& selection, zstring_view key) {
+							im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
+								if (ImGui::Selectable("--all--")) {
+									selection.clear();
+								}
+								for (const auto& type : getAllValuesFor(key)) {
+									if (ImGui::Selectable(type.c_str())) {
+										selection = type;
+									}
+								}
+							});
+						};
+						combo(filterType, "Type");
+						ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+						simpleToolTip("A list of substrings that must be part of the extension.\n"
+						             "\n"
+						             "For example: enter 'ko' to search for 'Konami' extensions. "
+						             "Then refine the search by appending '<space>sc' to find the 'Konami SCC' extension.");
+					});
+					interacted |= filterOpen != newFilterOpen;
+					filterOpen = newFilterOpen;
+
+					auto drawExtensions = [&]{
+						auto& allExtensions = getAllExtensions();
+						auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+						auto filter = [&](std::string_view key, const std::string& value) {
+							if (value.empty()) return;
+							std::erase_if(filteredExtensions, [&](auto idx) {
+								const auto& config = allExtensions[idx].configInfo;
+								const auto* val = getOptionalDictValue(config, key);
+								if (!val) return true; // remove items that don't have the key
+								return *val != value;
+							});
+						};
+						filter("Type", filterType);
+						if (!filterString.empty()) {
+							std::erase_if(filteredExtensions, [&](auto idx) {
+								const auto& display = allExtensions[idx].displayName;
+								return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
+									[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
+							});
+						}
+						for (auto idx : filteredExtensions) {
+							auto& ext = allExtensions[idx];
+							if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
 								interacted = true;
 								item.name = ext.configName;
 							}
+							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+								insertMedia(extName, group); // Apply
+							}
 							extensionTooltip(ext);
 						}
-					});
+					};
+					if (filterOpen) {
+						im::ListBox("##list", [&]{
+							drawExtensions();
+						});
+					} else {
+						im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
+							drawExtensions();
+						});
+					}
+
 					interacted |= ImGui::IsItemActive();
 					if (interacted) info.select = SELECT_EXTENSION;
 				});

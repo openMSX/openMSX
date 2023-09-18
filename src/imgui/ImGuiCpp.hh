@@ -261,16 +261,18 @@ inline void Combo(const char* label, const char* preview_value, std::invocable<>
 }
 
 // im::TreeNode(): wrapper around ImGui::TreeNodeEx() / ImGui::TreePop()
-inline void TreeNode(const char* label, ImGuiTreeNodeFlags flags, std::invocable<> auto next)
+inline bool TreeNode(const char* label, ImGuiTreeNodeFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::TreeNodeEx(label, flags)) {
+	bool open = ImGui::TreeNodeEx(label, flags);
+	if (open) {
 		next();
 		ImGui::TreePop();
 	}
+	return open;
 }
-inline void TreeNode(const char* label, std::invocable<> auto next)
+inline bool TreeNode(const char* label, std::invocable<> auto next)
 {
-	TreeNode(label, 0, next);
+	return TreeNode(label, 0, next);
 }
 inline void TreeNode(const char* label, bool* p_open, std::invocable<> auto next)
 {

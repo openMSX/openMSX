@@ -126,6 +126,7 @@ private:
 	const ExtensionInfo* findExtensionInfo(std::string_view config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
+	std::vector<std::string> getAllValuesFor(std::string_view key);
 
 private:
 	ImGuiManager& manager;
@@ -137,6 +138,10 @@ private:
 	std::array<ItemGroup, HD::MAX_HD> hdMediaInfo;
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;
+
+	std::string filterType;
+	std::string filterString;
+	bool filterOpen = false;
 
 	std::vector<ExtensionInfo> extensionInfo;
 
