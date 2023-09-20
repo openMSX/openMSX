@@ -118,6 +118,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::TextUnformatted("Select replay"sv);
 			im::ListBox("##select-replay", [&]{
 				struct Names {
+					Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
+						: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
 					std::string fullName;
 					std::string displayName;
 				};
