@@ -148,6 +148,59 @@ void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Proje
 	return &it->second;
 }
 
+template<typename T> // 'MachineInfo' or 'ExtensionInfo', both have a 'configInfo' member
+[[nodiscard]] std::vector<std::string> getAllValuesFor(std::string_view key, const std::vector<T>& items)
+{
+	std::vector<std::string> result;
+	for (const auto& item : items) {
+		if (const auto* value = getOptionalDictValue(item.configInfo, key)) {
+			if (!contains(result, *value)) { // O(N^2), but that's fine
+				result.emplace_back(*value);
+			}
+		}
+	}
+	ranges::sort(result, StringOp::caseless{});
+	return result;
+}
+
+template<typename T>
+void displayFilterCombo(std::string& selection, zstring_view key, const std::vector<T>& items)
+{
+	im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
+		if (ImGui::Selectable("--all--")) {
+			selection.clear();
+		}
+		for (const auto& type : getAllValuesFor(key, items)) {
+			if (ImGui::Selectable(type.c_str())) {
+				selection = type;
+			}
+		}
+	});
+}
+
+template<typename T>
+void applyComboFilter(std::string_view key, const std::string& value, const std::vector<T>& items, std::vector<size_t>& indices)
+{
+	if (value.empty()) return;
+	std::erase_if(indices, [&](auto idx) {
+		const auto& info = items[idx].configInfo;
+		const auto* val = getOptionalDictValue(info, key);
+		if (!val) return true; // remove items that don't have the key
+		return *val != value;
+	});
+}
+
+template<typename T>
+void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>& items, std::vector<size_t>& indices)
+{
+	if (filterString.empty()) return;
+	std::erase_if(indices, [&](auto idx) {
+		const auto& display = items[idx].displayName;
+		return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
+			[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
+	});
+}
+
 // Similar to c++23 chunk_by(). Main difference is internal vs external iteration.
 template<typename Range, typename BinaryPred, typename Action>
 static void chunk_by(Range&& range, BinaryPred pred, Action action)

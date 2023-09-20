@@ -33,7 +33,6 @@ private:
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
-	[[nodiscard]] std::vector<std::string> getAllValuesFor(std::string_view key);
 	bool printConfigInfo(MachineInfo& info);
 	bool printConfigInfo(const std::string& config);
 

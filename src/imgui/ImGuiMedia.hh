@@ -126,7 +126,6 @@ private:
 	const ExtensionInfo* findExtensionInfo(std::string_view config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
-	std::vector<std::string> getAllValuesFor(std::string_view key);
 
 private:
 	ImGuiManager& manager;

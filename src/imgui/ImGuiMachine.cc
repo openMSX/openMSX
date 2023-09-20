@@ -136,6 +136,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		}
 
 		im::TreeNode("Available machines", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			auto& allMachines = getAllMachines();
 			std::string filterDisplay = "filter";
 			if (!filterType.empty() || !filterRegion.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
 			if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
@@ -143,20 +144,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
 			strAppend(filterDisplay, "###filter");
 			im::TreeNode(filterDisplay.c_str(), [&]{
-				auto combo = [&](std::string& selection, zstring_view key) {
-					im::Combo(key.c_str(), selection.empty() ? "--all--" : selection.c_str(), [&]{
-						if (ImGui::Selectable("--all--")) {
-							selection.clear();
-						}
-						for (const auto& type : getAllValuesFor(key)) {
-							if (ImGui::Selectable(type.c_str())) {
-								selection = type;
-							}
-						}
-					});
-				};
-				combo(filterType, "Type");
-				combo(filterRegion, "Region");
+				displayFilterCombo(filterType, "Type", allMachines);
+				displayFilterCombo(filterRegion, "Region", allMachines);
 				ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
 				simpleToolTip("A list of substrings that must be part of the machine name.\n"
 				              "\n"
@@ -164,26 +153,10 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				              "Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
 			});
 			im::ListBox("##list", [&]{
-				auto& allMachines = getAllMachines();
 				auto filteredMachines = to_vector(xrange(allMachines.size()));
-				auto filter = [&](std::string_view key, const std::string& value) {
-					if (value.empty()) return;
-					std::erase_if(filteredMachines, [&](auto idx) {
-						const auto& info = allMachines[idx].configInfo;
-						const auto* val = getOptionalDictValue(info, key);
-						if (!val) return true; // remove items that don't have the key
-						return *val != value;
-					});
-				};
-				filter("Type", filterType);
-				filter("Region", filterRegion);
-				if (!filterString.empty()) {
-					std::erase_if(filteredMachines, [&](auto idx) {
-						const auto& display = allMachines[idx].displayName;
-						return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
-							[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
-					});
-				}
+				applyComboFilter("Type",   filterType,   allMachines, filteredMachines);
+				applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
+				applyDisplayNameFilter(filterString, allMachines, filteredMachines);
 
 				ImGuiListClipper clipper; // only draw the actually visible rows
 				clipper.Begin(narrow<int>(filteredMachines.size()));
@@ -292,20 +265,6 @@ const std::string& ImGuiMachine::getTestResult(MachineInfo& info)
 		});
 	}
 	return info.testResult.value();
-}
-
-std::vector<std::string> ImGuiMachine::getAllValuesFor(std::string_view key)
-{
-	std::vector<std::string> result;
-	for (const auto& machine : getAllMachines()) {
-		if (const auto* type = getOptionalDictValue(machine.configInfo, key)) {
-			if (!contains(result, *type)) { // O(N^2), but that's fine
-				result.emplace_back(*type);
-			}
-		}
-	}
-	ranges::sort(result, StringOp::caseless{});
-	return result;
 }
 
 bool ImGuiMachine::printConfigInfo(MachineInfo& info)
