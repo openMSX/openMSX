@@ -42,7 +42,7 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 	return true;
 }
 
-[[nodiscad]] static std::string makeUniqueName(std::string_view proposedName, std::vector<std::string>& existingNames)
+[[nodiscard]] static std::string makeUniqueName(std::string_view proposedName, std::vector<std::string>& existingNames)
 {
 	std::string name{proposedName};
 	int count = 1;

@@ -342,6 +342,27 @@ void ImGuiMedia::extensionTooltip(const ExtensionInfo& info)
 	});
 }
 
+bool ImGuiMedia::drawExtensionFilter()
+{
+	std::string filterDisplay = "filter";
+	if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
+	if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
+	if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
+	strAppend(filterDisplay, "###filter");
+	bool newFilterOpen = filterOpen;
+	im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
+		displayFilterCombo(filterType, "Type", getAllExtensions());
+		ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+		simpleToolTip("A list of substrings that must be part of the extension.\n"
+				"\n"
+				"For example: enter 'ko' to search for 'Konami' extensions. "
+				"Then refine the search by appending '<space>sc' to find the 'Konami SCC' extension.");
+	});
+	bool changed = filterOpen != newFilterOpen;
+	filterOpen = newFilterOpen;
+	return changed;
+}
+
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Media", motherBoard != nullptr, [&]{
@@ -407,13 +428,26 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
 			im::Menu("Insert", [&]{
-				for (const auto& ext : getAllExtensions()) {
-					if (ImGui::MenuItem(ext.displayName.c_str())) {
-						group.edit.name = ext.configName;
-						insertMedia(mediaName, group);
+				drawExtensionFilter();
+
+				auto& allExtensions = getAllExtensions();
+				auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
+				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
+
+				float width = 40.0f * ImGui::GetFontSize();
+				float height = 10.25f * ImGui::GetTextLineHeightWithSpacing();
+				im::ListBox("##list", {width, height}, [&]{
+					for (auto idx : filteredExtensions) {
+						auto& ext = allExtensions[idx];
+						if (ImGui::Selectable(ext.displayName.c_str())) {
+							group.edit.name = ext.configName;
+							insertMedia(mediaName, group);
+							ImGui::CloseCurrentPopup();
+						}
+						extensionTooltip(ext);
 					}
-					extensionTooltip(ext);
-				}
+				});
 			});
 
 			showRecent(mediaName, group,
@@ -1072,24 +1106,8 @@ void ImGuiMedia::cartridgeMenu(int i)
 					auto& allExtensions = getAllExtensions();
 					auto& group = info.groups[SELECT_EXTENSION];
 					auto& item = group.edit;
-					bool interacted = false;
 
-					std::string filterDisplay = "filter";
-					if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
-					if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
-					if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
-					strAppend(filterDisplay, "###filter");
-					bool newFilterOpen = filterOpen;
-					im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
-						displayFilterCombo(filterType, "Type", allExtensions);
-						ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
-						simpleToolTip("A list of substrings that must be part of the extension.\n"
-						             "\n"
-						             "For example: enter 'ko' to search for 'Konami' extensions. "
-						             "Then refine the search by appending '<space>sc' to find the 'Konami SCC' extension.");
-					});
-					interacted |= filterOpen != newFilterOpen;
-					filterOpen = newFilterOpen;
+					bool interacted = drawExtensionFilter();
 
 					auto drawExtensions = [&]{
 						auto filteredExtensions = to_vector(xrange(allExtensions.size()));
