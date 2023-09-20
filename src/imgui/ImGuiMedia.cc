@@ -298,7 +298,7 @@ std::string ImGuiMedia::slotAndNameForHardwareConfig(const CartridgeSlotManager&
 	auto slot = slotManager.findSlotWith(config);
 	std::string result = slot
 		? strCat(char('A' + *slot), " (", slotManager.getPsSsString(*slot), "): ")
-		: "IO-only: ";
+		: "I/O-only: ";
 	strAppend(result, displayNameForHardwareConfig(config));
 	return result;
 }
@@ -428,6 +428,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
 			im::Menu("Insert", [&]{
+				ImGui::TextUnformatted("Select extension to insert in the first free slot");
+				simpleToolTip("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. These can only be removed via the Extensions Remove menu. To insert (non I/O-only) extensions in a specific slot, use the Media Cartridge Slot menu options.");
 				drawExtensionFilter();
 
 				auto& allExtensions = getAllExtensions();
