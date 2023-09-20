@@ -13,8 +13,10 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
+#include "KeyboardSettings.hh"
 #include "Mixer.hh"
 #include "MSXCPU.hh"
+#include "MSXCommandController.hh"
 #include "MSXMotherBoard.hh"
 #include "ProxySetting.hh"
 #include "R800.hh"
@@ -207,6 +209,18 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		im::Menu("Misc", [&]{
+			static constexpr std::array kbdModeToolTips = {
+				EnumToolTip{"CHARACTER",  "Tries to understand the character you are typing and then attempts to type that character using the current MSX keyboard. May not work very well when using a non-US host keyboard."},
+				EnumToolTip{"KEY",        "Tries to map a key you press to the corresponding MSX key"},
+				EnumToolTip{"POSITIONAL", "Tries to map the keyboard key positions to the MSX keyboard key positions"},
+			};
+			if (motherBoard) {
+				auto& controller = motherBoard->getMSXCommandController();
+				if (auto* mappingModeSetting = dynamic_cast<EnumSetting<KeyboardSettings::MappingMode>*>(controller.findSetting("kbd_mapping_mode"))) {
+					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
+				}
+			};
+
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
