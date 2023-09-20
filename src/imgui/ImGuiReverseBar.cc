@@ -117,20 +117,28 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Load replay ...", [&]{
 			ImGui::TextUnformatted("Select replay"sv);
 			im::ListBox("##select-replay", [&]{
+				struct Names {
+					std::string fullName;
+					std::string displayName;
+				};
+				std::vector<Names> names;
 				auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				for (const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(".omr")) {
 							name.remove_suffix(4);
+							names.emplace_back(fullName, std::string(name));
 						} else if (name.ends_with(".xml.gz")) {
 							name.remove_suffix(7);
-						} else {
-							return;
-						}
-						if (ImGui::Selectable(std::string(name).c_str())) {
-							manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+							names.emplace_back(fullName, std::string(name));
 						}
 					});
+				}
+				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
+				for (const auto& [fullName, displayName] : names) {
+					if (ImGui::Selectable(displayName.c_str())) {
+						manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+					}
 				}
 			});
 		});
