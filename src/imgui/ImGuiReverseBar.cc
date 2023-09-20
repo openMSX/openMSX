@@ -135,7 +135,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			});
 		});
 		saveReplayOpen = im::Menu("Save replay ...", [&]{
-			if (!saveStateOpen) {
+			if (!saveReplayOpen) {
 				// on each re-open of this menu, create a suggestion for a name
 				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
 					saveReplayName = result->getString();
