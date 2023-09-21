@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include "GLUtil.hh"
+#include "TclObject.hh"
 
 #include <string>
 
@@ -32,6 +33,10 @@ private:
 	std::string saveReplayName;
 	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
+	bool overWriteState = false;
+	bool overWriteReplay = false;
+	TclObject overWriteCmd;
+	std::string overWriteText;
 
 	bool reverseHideTitle = true;
 	bool reverseFadeOut = true;
