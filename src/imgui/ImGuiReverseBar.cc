@@ -347,11 +347,11 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 			drawList->AddRect(
 				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
 
+			auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
+			auto timeSize = ImGui::CalcTextSize(timeStr.data(), timeStr.data() + timeStr.size()).x;
 			gl::vec2 cursor = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(cursor + gl::vec2(outerSize[0] * 0.15f, textHeight * 0.5f));
-			auto time1 = formatTime(playLength);
-			auto time2 = formatTime(totalLength);
-			ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s / %s", time1.c_str(), time2.c_str());
+			ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize[0] - timeSize)), textHeight * 0.5f));
+			ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
 
 			if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
 				float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
