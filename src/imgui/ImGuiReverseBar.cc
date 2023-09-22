@@ -199,10 +199,11 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
 	});
 
+	const auto popupTitle = "Confirm file overwrite";
 	if (openOverWritePopup) {
-		ImGui::OpenPopup("confirm-overwrite");
+		ImGui::OpenPopup(popupTitle);
 	}
-	im::PopupModal("confirm-overwrite", nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		ImGui::TextUnformatted(overWriteText);
 
 		bool close = false;
