@@ -429,7 +429,9 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto& group = extensionMediaInfo;
 			im::Menu("Insert", [&]{
 				ImGui::TextUnformatted("Select extension to insert in the first free slot");
-				simpleToolTip("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. These can only be removed via the Extensions Remove menu. To insert (non I/O-only) extensions in a specific slot, use the Media Cartridge Slot menu options.");
+				HelpMarker("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. "
+				           "These can only be removed via the 'Media > Extensions > Remove' menu. "
+				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
 				drawExtensionFilter();
 
 				auto& allExtensions = getAllExtensions();
