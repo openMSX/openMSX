@@ -586,8 +586,14 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 }
 
 string getNextNumberedFileName(
-	string_view directory, string_view prefix, string_view extension)
+	string_view directory, string_view prefix, string_view extension, bool addSeparator)
 {
+	std::string newPrefix;
+	if (addSeparator) {
+		newPrefix = strCat(prefix, ((prefix.find(' ') != std::string_view::npos) ? ' ' : '_'));
+		prefix = newPrefix;
+	}
+
 	const unsigned nofDigits = 4;
 
 	unsigned max_num = 0;

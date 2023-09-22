@@ -103,46 +103,32 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			});
 		});
 		saveStateOpen = im::Menu("Save state ...", [&]{
-			auto getFullName = [&]{
-				return FileOperations::parseCommandFileArgument(
+			auto exists = [&]{
+				auto filename = FileOperations::parseCommandFileArgument(
 					saveStateName, "savestates", "", ".oms");
+				return FileOperations::exists(filename);
 			};
-			auto checkFilename = [&]{
-				auto filename = getFullName();
-				overWriteState = FileOperations::exists(filename);
-			};
-
 			if (!saveStateOpen) {
 				// on each re-open of this menu, create a suggestion for a name
 				if (auto result = manager.execute(makeTclList("guess_title", "savestate"))) {
 					saveStateName = result->getString();
-					checkFilename();
+					if (exists()) {
+						saveStateName = stem(FileOperations::getNextNumberedFileName(
+							"savestates", result->getString(), ".oms", true));
+					}
 				}
 			}
 			ImGui::TextUnformatted("Enter name:"sv);
-			if (ImGui::InputText("##save-state-name", &saveStateName)) {
-				checkFilename();
-			}
+			ImGui::InputText("##save-state-name", &saveStateName);
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
-
-				auto filename = getFullName();
 				overWriteCmd = makeTclList("savestate", saveStateName);
-				if (FileOperations::exists(filename)) {
+				if (exists()) {
 					openOverWritePopup = true;
 					overWriteText = strCat("Overwrite save state with name '", saveStateName, "'?");
 				} else {
 					manager.executeDelayed(overWriteCmd);
-				}
-			}
-
-			if (overWriteState) {
-				ImGui::TextUnformatted("A save state with this name already exists.");
-				if (ImGui::Button("Generate unique name")) {
-					saveStateName = stem(FileOperations::getNextNumberedFileName(
-						"savestates", stem(saveStateName), ".oms"));
-					checkFilename();
 				}
 			}
 		});
@@ -180,46 +166,33 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			});
 		});
 		saveReplayOpen = im::Menu("Save replay ...", [&]{
-			auto getFullName = [&]{
-				return FileOperations::parseCommandFileArgument(
+			auto exists = [&]{
+				auto filename = FileOperations::parseCommandFileArgument(
 					saveReplayName, ReverseManager::REPLAY_DIR, "", ".omr");
+				return FileOperations::exists(filename);
 			};
-			auto checkFilename = [&]{
-				auto filename = getFullName();
-				overWriteReplay = FileOperations::exists(filename);
-			};
-
 			if (!saveReplayOpen) {
 				// on each re-open of this menu, create a suggestion for a name
 				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
 					saveReplayName = result->getString();
-					checkFilename();
+					if (exists()) {
+						saveReplayName = stem(FileOperations::getNextNumberedFileName(
+							ReverseManager::REPLAY_DIR, result->getString(), ".omr", true));
+					}
 				}
 			}
 			ImGui::TextUnformatted("Enter name:"sv);
-			if (ImGui::InputText("##save-replay-name", &saveReplayName)) {
-				checkFilename();
-			}
+			ImGui::InputText("##save-replay-name", &saveReplayName);
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
 
-				auto filename = getFullName();
-				overWriteCmd = makeTclList("reverse", "savereplay", filename);
-				if (FileOperations::exists(filename)) {
+				overWriteCmd = makeTclList("reverse", "savereplay", saveReplayName);
+				if (exists()) {
 					openOverWritePopup = true;
 					overWriteText = strCat("Overwrite replay with name '", saveReplayName, "'?");
 				} else {
 					manager.executeDelayed(overWriteCmd);
-				}
-			}
-
-			if (overWriteReplay) {
-				ImGui::TextUnformatted("A replay with this name already exists.");
-				if (ImGui::Button("Generate unique name")) {
-					saveReplayName = stem(FileOperations::getNextNumberedFileName(
-						ReverseManager::REPLAY_DIR, stem(saveReplayName), ".omr"));
-					checkFilename();
 				}
 			}
 		});

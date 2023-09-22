@@ -33,8 +33,6 @@ private:
 	std::string saveReplayName;
 	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
-	bool overWriteState = false;
-	bool overWriteReplay = false;
 	TclObject overWriteCmd;
 	std::string overWriteText;
 
