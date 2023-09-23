@@ -3,6 +3,11 @@
 
 #include "ImGuiPart.hh"
 
+#include "Event.hh"
+
+#include <array>
+#include <vector>
+
 namespace openmsx {
 
 class ImGuiManager;
@@ -23,6 +28,9 @@ private:
 	ImGuiManager& manager;
 	bool showConfigureJoystick = false;
 	bool showDemoWindow = false;
+
+	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
+	std::array<std::vector<Event>, NUM_BUTTONS> bindings;
 };
 
 } // namespace openmsx
