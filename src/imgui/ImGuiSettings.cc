@@ -225,6 +225,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
+			// TODO placeholder, move to appropriate location
+			ImGui::MenuItem("Configure joystick ...", nullptr, &showConfigureJoystick);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{
@@ -270,6 +272,112 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	if (showDemoWindow) {
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
+}
+
+[[nodiscard]] static bool insideCircle(gl::vec2 mouse, gl::vec2 center, float radius)
+{
+	auto delta = center - mouse;
+	return gl::sum(delta * delta) <= (radius * radius);
+}
+[[nodiscard]] static bool between(float x, float min, float max)
+{
+	return (min <= x) && (x <= max);
+}
+[[nodiscard]] static bool insideRectangle(gl::vec2 mouse, gl::vec2 topLeft, gl::vec2 bottomRight)
+{
+	return between(mouse[0], topLeft[0], bottomRight[0]) &&
+	       between(mouse[1], topLeft[1], bottomRight[1]);
+}
+
+void ImGuiSettings::paintJoystick()
+{
+	//ImGui::SetNextWindowSize(gl::vec2{32, 13} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	im::Window("Configure joystick", &showConfigureJoystick, [&]{
+		auto* drawList = ImGui::GetWindowDrawList();
+		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
+		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
+
+		enum {UP, RIGHT, DOWN, LEFT, NUM_DIRECTIONS};
+		static constexpr auto thickness = 3.0f;
+		static constexpr uint32_t white = 0xffffffff;
+		static constexpr uint32_t hoverColor = 0xffff4040;
+		static constexpr auto radius = 20.0f;
+		static constexpr auto corner = 10.0f;
+		static constexpr auto centerA = gl::vec2{200.0f, 50.0f};
+		static constexpr auto centerB = gl::vec2{260.0f, 50.0f};
+		std::array<std::array<ImVec2, 5 + 1>, NUM_DIRECTIONS> dPadPoints = {
+			std::array<ImVec2, 5 + 1>{ // UP
+				scrnPos + gl::vec2{50.0f, 50.0f},
+				scrnPos + gl::vec2{40.0f, 40.0f},
+				scrnPos + gl::vec2{40.0f, 20.0f},
+				scrnPos + gl::vec2{60.0f, 20.0f},
+				scrnPos + gl::vec2{60.0f, 40.0f},
+				scrnPos + gl::vec2{50.0f, 50.0f},
+			},
+			std::array<ImVec2, 5 + 1>{ // RIGHT
+				scrnPos + gl::vec2{50.0f, 50.0f},
+				scrnPos + gl::vec2{60.0f, 40.0f},
+				scrnPos + gl::vec2{80.0f, 40.0f},
+				scrnPos + gl::vec2{80.0f, 60.0f},
+				scrnPos + gl::vec2{60.0f, 60.0f},
+				scrnPos + gl::vec2{50.0f, 50.0f},
+			},
+			std::array<ImVec2, 5 + 1>{ // DOWN
+				scrnPos + gl::vec2{50.0f, 50.0f},
+				scrnPos + gl::vec2{60.0f, 60.0f},
+				scrnPos + gl::vec2{60.0f, 80.0f},
+				scrnPos + gl::vec2{40.0f, 80.0f},
+				scrnPos + gl::vec2{40.0f, 60.0f},
+				scrnPos + gl::vec2{50.0f, 50.0f},
+			},
+			std::array<ImVec2, 5 + 1>{ // LEFT
+				scrnPos + gl::vec2{50.0f, 50.0f},
+				scrnPos + gl::vec2{40.0f, 60.0f},
+				scrnPos + gl::vec2{20.0f, 60.0f},
+				scrnPos + gl::vec2{20.0f, 40.0f},
+				scrnPos + gl::vec2{40.0f, 40.0f},
+				scrnPos + gl::vec2{50.0f, 50.0f},
+			}
+		};
+
+		// Test buttons are hovered
+		bool hoverA = insideCircle(mouse, centerA, radius);
+		bool hoverB = insideCircle(mouse, centerB, radius);
+		std::array<bool, NUM_DIRECTIONS> hoverDPad = {}; // false
+		if (insideRectangle(mouse, {20.0f, 20.0f}, {80.0f, 80.0f}) &&
+		    (between(mouse[0], 40.0f, 60.0f) || between(mouse[1], 40.0f, 60.0f))) { // mouse over d-pad
+			bool t1 = mouse[0] <           mouse[1];
+			bool t2 = mouse[0] < (100.0f - mouse[1]);
+			hoverDPad[UP]    = !t1 &&  t2;
+			hoverDPad[RIGHT] = !t1 && !t2;
+			hoverDPad[DOWN]  =  t1 && !t2;
+			hoverDPad[LEFT]  =  t1 &&  t2;
+		}
+
+		// Draw joystick
+		ImGui::Dummy({300.0f, 100.0f});
+		drawList->AddRect(
+			scrnPos, scrnPos + gl::vec2{300.0f, 100.0f}, white,
+			corner, 0, thickness);
+
+		auto scrnCenterA = scrnPos + centerA;
+		if (hoverA) drawList->AddCircleFilled(scrnCenterA, radius, hoverColor);
+		drawList->AddCircle(scrnCenterA, radius, white, 0, thickness);
+
+		auto scrnCenterB = scrnPos + centerB;
+		if (hoverB) drawList->AddCircleFilled(scrnCenterB, radius, hoverColor);
+		drawList->AddCircle(scrnCenterB, radius, white, 0, thickness);
+
+		for (auto i : xrange(size_t(NUM_DIRECTIONS))) {
+			if (hoverDPad[i]) drawList->AddConvexPolyFilled(dPadPoints[i].data(), 5, hoverColor);
+			drawList->AddPolyline(dPadPoints[i].data(), 5 + 1, white, 0, thickness);
+		}
+	});
+}
+
+void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
+{
+	if (showConfigureJoystick) paintJoystick();
 }
 
 } // namespace openmsx

@@ -14,9 +14,14 @@ public:
 		: manager(manager_) {}
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
+	void paint(MSXMotherBoard* motherBoard) override;
+
+private:
+	void paintJoystick();
 
 private:
 	ImGuiManager& manager;
+	bool showConfigureJoystick = false;
 	bool showDemoWindow = false;
 };
 
