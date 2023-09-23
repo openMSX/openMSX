@@ -50,6 +50,7 @@ public:
 		// HACK: repurposed 'unused' field as 'unicode' field
 		return evt.key.keysym.unused;
 	}
+	void clearUnicode() { evt.key.keysym.unused = 0; }
 	[[nodiscard]] SDLKey getKey() const { return SDLKey{evt.key.keysym, evt.type == SDL_KEYDOWN}; }
 
 protected:
@@ -567,6 +568,12 @@ const T* get_event_if(const Event& event)
 {
 	GetIfEventHelper<T> helper;
 	return helper(event);
+}
+template<typename T>
+T* get_event_if(Event& event)
+{
+	GetIfEventHelper<T> helper;
+	return const_cast<T*>(helper(event));
 }
 template<typename T>
 const T& get_event(const Event& event)

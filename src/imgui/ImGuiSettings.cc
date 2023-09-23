@@ -7,6 +7,7 @@
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
 #include "Display.hh"
+#include "EventDistributor.hh"
 #include "FilenameSetting.hh"
 #include "FloatSetting.hh"
 #include "GlobalCommandController.hh"
@@ -34,6 +35,7 @@
 #include "narrow.hh"
 #include "view.hh"
 #include "StringOp.hh"
+#include "zstring_view.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -43,6 +45,11 @@
 using namespace std::literals;
 
 namespace openmsx {
+
+ImGuiSettings::~ImGuiSettings()
+{
+	deinitListener();
+}
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
@@ -309,13 +316,17 @@ void ImGuiSettings::paintJoystick()
 	static constexpr auto sizeDPad = 30.0f;
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
+	static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
+		"Up", "Down", "Left", "Right", "A", "B"
+	};
+
 	ImGui::SetNextWindowSize(gl::vec2{316, 278}, ImGuiCond_FirstUseEver);
-	im::Window("Configure joystick", &showConfigureJoystick, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+	im::Window("Configure joystick", &showConfigureJoystick, [&]{
 		auto* drawList = ImGui::GetWindowDrawList();
 		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
-		// Test buttons are hovered
+		// Check if buttons are hovered
 		std::array<bool, NUM_BUTTONS> hovered = {}; // false
 		auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
 		if (insideRectangle(mouseDPad, {-1, -1}, {1, 1}) &&
@@ -357,12 +368,9 @@ void ImGuiSettings::paintJoystick()
 							hoveredRow = i;
 						}
 
-						static constexpr std::array<std::string_view, NUM_BUTTONS> names = {
-							"Up", "Down", "Left", "Right", "A", "B"
-						};
 						ImGui::SetCursorPos(pos);
 						ImGui::AlignTextToFramePadding();
-						ImGui::TextUnformatted(names[i]);
+						ImGui::TextUnformatted(buttonNames[i]);
 					}
 					if (ImGui::TableNextColumn()) {
 						auto& bind = bindings[i];
@@ -385,7 +393,7 @@ void ImGuiSettings::paintJoystick()
 						} else {
 							ImGui::TextUnformatted(
 								join(view::transform(bind, [](const auto& b) { return toString(b); }),
-								     "  "));
+								     " | "));
 						}
 					}
 				});
@@ -452,17 +460,35 @@ void ImGuiSettings::paintJoystick()
 		}
 		drawList->AddCircle(scrnCenterB, radius, white, 0, thickness);
 
-		//
+		// Popup for 'Add'
+		static constexpr auto addTitle = "Waiting for input";
 		if (addAction) {
-			auto event = InputEventFactory::createInputEvent(
-				makeTclList("keyb", std::string_view(&protoTypeCounter, 1)),
-			 	manager.getInterpreter());
-			++protoTypeCounter;
-			if (protoTypeCounter == char('Z' + 1)) protoTypeCounter = 'A';
-
-			bindings[*addAction].push_back(std::move(event));
+			popupForKey = *addAction;
+			popupTimeout = 5.0f;
+			initListener();
+			ImGui::OpenPopup(addTitle);
 		}
+		im::PopupModal(addTitle, [&]{
+			auto close = [&]{
+				ImGui::CloseCurrentPopup();
+				popupForKey = unsigned(-1);
+				deinitListener();
+			};
+			if (popupForKey >= NUM_BUTTONS) {
+				close();
+				return;
+			}
 
+			ImGui::Text("Enter event for joystick button '%s'", buttonNames[popupForKey].c_str());
+			ImGui::Text("Or press ESC to cancel.  Timeout in %d seconds.", int(popupTimeout));
+
+			popupTimeout -= ImGui::GetIO().DeltaTime;
+			if (popupTimeout <= 0.0f) {
+				close();
+			}
+		});
+
+		// Popup for 'Remove'
 		if (removeAction) {
 			popupForKey = *removeAction;
 			ImGui::OpenPopup("remove");
@@ -472,7 +498,6 @@ void ImGuiSettings::paintJoystick()
 				ImGui::CloseCurrentPopup();
 				popupForKey = unsigned(-1);
 			};
-
 			if (popupForKey >= NUM_BUTTONS) {
 				close();
 				return;
@@ -503,6 +528,57 @@ void ImGuiSettings::paintJoystick()
 void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (showConfigureJoystick) paintJoystick();
+}
+
+int ImGuiSettings::signalEvent(const Event& event_)
+{
+	if (popupForKey >= NUM_BUTTONS) {
+		deinitListener();
+		return 0;
+	}
+
+	auto event = event_; // copy
+	bool escape = false;
+	if (auto* keyDown = get_event_if<KeyDownEvent>(event)) {
+		keyDown->clearUnicode();
+		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
+	}
+	if (!escape) {
+		auto& bind = bindings[popupForKey];
+		if (!contains(bind, event)) {
+			bind.push_back(std::move(event));
+		}
+	}
+
+	popupForKey = unsigned(-1);
+	return EventDistributor::HOTKEY; // block event
+}
+
+void ImGuiSettings::initListener()
+{
+	if (listening) return;
+	listening = true;
+
+	auto& distributor = manager.getReactor().getEventDistributor();
+	// highest priority (higher than HOTKEY and IMGUI)
+	distributor.registerEventListener(EventType::KEY_DOWN, *this);
+	distributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	distributor.registerEventListener(EventType::MOUSE_WHEEL, *this);
+	distributor.registerEventListener(EventType::JOY_HAT, *this);
+	distributor.registerEventListener(EventType::JOY_BUTTON_DOWN, *this);
+}
+
+void ImGuiSettings::deinitListener()
+{
+	if (!listening) return;
+	listening = false;
+
+	auto& distributor = manager.getReactor().getEventDistributor();
+	distributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
+	distributor.unregisterEventListener(EventType::JOY_HAT, *this);
+	distributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
+	distributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	distributor.unregisterEventListener(EventType::KEY_DOWN, *this);
 }
 
 } // namespace openmsx
