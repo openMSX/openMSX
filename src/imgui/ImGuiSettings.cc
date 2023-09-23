@@ -566,6 +566,7 @@ void ImGuiSettings::initListener()
 	distributor.registerEventListener(EventType::MOUSE_WHEEL, *this);
 	distributor.registerEventListener(EventType::JOY_HAT, *this);
 	distributor.registerEventListener(EventType::JOY_BUTTON_DOWN, *this);
+	distributor.registerEventListener(EventType::JOY_AXIS_MOTION, *this);
 }
 
 void ImGuiSettings::deinitListener()
