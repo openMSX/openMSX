@@ -4,6 +4,8 @@
 #include "ImGuiUtils.hh"
 
 #include "Version.hh"
+#include "build-info.hh"
+#include "components.hh"
 
 namespace openmsx {
 
@@ -74,10 +76,18 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
 
 void ImGuiHelp::paintAbout()
 {
-	im::Window("About", &showAboutWindow, [&]{
+	im::Window("About openMSX", &showAboutWindow, [&]{
 		ImGui::TextUnformatted(Version::full());
+		ImGui::TextUnformatted(strCat("build date: ", BUILD_DATE));
 		ImGui::Spacing();
-		ImGui::TextUnformatted("TODO some useful info here?");
+		ImGui::TextUnformatted(strCat("platform: ", TARGET_PLATFORM));
+		ImGui::TextUnformatted(strCat("flavour: ", BUILD_FLAVOUR));
+		ImGui::TextUnformatted(strCat("components: ", BUILD_COMPONENTS));
+		ImGui::Spacing();
+		ImGui::TextUnformatted("license: GPL2");
+		ImGui::TextUnformatted(strCat(Version::COPYRIGHT, " The openMSX Team"));
+		markdown.print("Visit our website: [openMSX.org](https://openmsx.org)");
+
 	});
 }
 
