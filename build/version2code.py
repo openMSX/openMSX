@@ -1,7 +1,7 @@
 # Generates version include file.
 
 from outpututils import rewriteIfChanged
-from version import extractRevisionString, packageVersion, releaseFlag
+from version import extractRevisionString, packageVersion, releaseFlag, getCopyright
 
 import sys
 
@@ -12,6 +12,7 @@ def iterVersionInclude():
 	yield 'const bool Version::RELEASE = %s;' % str(releaseFlag).lower()
 	yield 'const char* const Version::VERSION = "%s";' % packageVersion
 	yield 'const char* const Version::REVISION = "%s";' % revision
+	yield 'const char* const Version::COPYRIGHT = "%s";' % getCopyright()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:

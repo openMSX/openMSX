@@ -27,6 +27,11 @@ packageVersion = packageVersionNumber + packageVersionSuffix
 # Is this a release version ("True") or development version ("False").
 releaseFlag = False
 
+# Release year for copyright message. Make sure to update it when releasing.
+# (Or just when a new year arrives?)
+# Automatically taking current year doesn't seem to be correct.
+releaseYear = '2023'
+
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)
 	if text is None:
@@ -107,6 +112,9 @@ def getAndroidVersionCode():
 		return '%s' % (androidReleaseVersionCode)
 	else:
 		return '%s' % ( countGitCommits() )
+
+def getCopyright():
+	return f"Copyright 2001-{releaseYear}"
 
 formatMap = dict(
 	main=lambda: packageVersionNumber,
