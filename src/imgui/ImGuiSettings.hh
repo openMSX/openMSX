@@ -31,6 +31,9 @@ private:
 
 	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
 	std::array<std::vector<Event>, NUM_BUTTONS> bindings;
+
+	unsigned popupForKey = unsigned(-1);
+	char protoTypeCounter = 'A';
 };
 
 } // namespace openmsx

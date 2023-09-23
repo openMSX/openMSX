@@ -11,6 +11,7 @@
 #include "FloatSetting.hh"
 #include "GlobalCommandController.hh"
 #include "GlobalSettings.hh"
+#include "InputEventFactory.hh"
 #include "IntegerSetting.hh"
 #include "KeyCodeSetting.hh"
 #include "KeyboardSettings.hh"
@@ -29,10 +30,15 @@
 #include "Z80.hh"
 
 #include "checked_cast.hh"
+#include "join.hh"
+#include "narrow.hh"
+#include "view.hh"
 #include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+
+#include <optional>
 
 using namespace std::literals;
 
@@ -291,8 +297,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 void ImGuiSettings::paintJoystick()
 {
+	// Customize joystick look
+	static constexpr auto white = uint32_t(0xffffffff);
 	static constexpr auto thickness = 3.0f;
-	static constexpr uint32_t white = 0xffffffff;
+	static constexpr auto joystickSize = gl::vec2{300.0f, 100.0f};
 	static constexpr auto radius = 20.0f;
 	static constexpr auto corner = 10.0f;
 	static constexpr auto centerA = gl::vec2{200.0f, 50.0f};
@@ -301,8 +309,8 @@ void ImGuiSettings::paintJoystick()
 	static constexpr auto sizeDPad = 30.0f;
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
-	//ImGui::SetNextWindowSize(gl::vec2{32, 13} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Configure joystick", &showConfigureJoystick, [&]{
+	ImGui::SetNextWindowSize(gl::vec2{316, 278}, ImGuiCond_FirstUseEver);
+	im::Window("Configure joystick", &showConfigureJoystick, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		auto* drawList = ImGui::GetWindowDrawList();
 		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
@@ -323,14 +331,23 @@ void ImGuiSettings::paintJoystick()
 		hovered[TRIG_A] = insideCircle(mouse, centerA, radius);
 		hovered[TRIG_B] = insideCircle(mouse, centerB, radius);
 
-		ImGui::Dummy({300.0f, 100.0f}); // reserve space for joystick drawing
+		// Any joystick button clicked?
+		std::optional<int> addAction;
+		std::optional<int> removeAction;
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+			for (auto i : xrange(size_t(NUM_BUTTONS))) {
+				if (hovered[i]) addAction = narrow<int>(i);
+			}
+		}
+
+		ImGui::Dummy(joystickSize); // reserve space for joystick drawing
 
 		// Draw table
 		auto hoveredRow = size_t(-1);
 		const auto& style = ImGui::GetStyle();
 		auto textHeight = ImGui::GetTextLineHeight();
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
-		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, [&]{
 			for (auto i : xrange(size_t(NUM_BUTTONS))) {
 				im::ID(i, [&]{
 					if (ImGui::TableNextColumn()) {
@@ -350,20 +367,25 @@ void ImGuiSettings::paintJoystick()
 					if (ImGui::TableNextColumn()) {
 						auto& bind = bindings[i];
 						if (ImGui::Button("Add")) {
+							addAction = i;
 						}
 						ImGui::SameLine();
 						im::Disabled(bind.empty(), [&]{
 							if (ImGui::Button("Remove")) {
+								if (bind.size() == 1) {
+									bind.clear();
+								} else {
+									removeAction = i;
+								}
 							}
 						});
+						ImGui::SameLine();
 						if (bind.empty()) {
-							ImGui::SameLine();
 							ImGui::TextDisabled("no bindings");
 						} else {
-							for (const auto& b : bind) {
-								ImGui::SameLine();
-								ImGui::TextUnformatted(toString(b));
-							}
+							ImGui::TextUnformatted(
+								join(view::transform(bind, [](const auto& b) { return toString(b); }),
+								     "  "));
 						}
 					}
 				});
@@ -409,9 +431,7 @@ void ImGuiSettings::paintJoystick()
 		};
 		auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
 
-		drawList->AddRect(
-			scrnPos, scrnPos + gl::vec2{300.0f, 100.0f}, white,
-			corner, 0, thickness);
+		drawList->AddRect(scrnPos, scrnPos + joystickSize, white, corner, 0, thickness);
 
 		for (auto i : xrange(size_t(NUM_DIRECTIONS))) {
 			if (hovered[i] || (hoveredRow == i)) {
@@ -431,6 +451,52 @@ void ImGuiSettings::paintJoystick()
 			drawList->AddCircleFilled(scrnCenterB, radius, hoverColor);
 		}
 		drawList->AddCircle(scrnCenterB, radius, white, 0, thickness);
+
+		//
+		if (addAction) {
+			auto event = InputEventFactory::createInputEvent(
+				makeTclList("keyb", std::string_view(&protoTypeCounter, 1)),
+			 	manager.getInterpreter());
+			++protoTypeCounter;
+			if (protoTypeCounter == char('Z' + 1)) protoTypeCounter = 'A';
+
+			bindings[*addAction].push_back(std::move(event));
+		}
+
+		if (removeAction) {
+			popupForKey = *removeAction;
+			ImGui::OpenPopup("remove");
+		}
+		im::Popup("remove", [&]{
+			auto close = [&]{
+				ImGui::CloseCurrentPopup();
+				popupForKey = unsigned(-1);
+			};
+
+			if (popupForKey >= NUM_BUTTONS) {
+				close();
+				return;
+			}
+			auto& bind = bindings[popupForKey];
+
+			size_t remove = size_t(-1);
+			size_t counter = 0;
+			for (const auto& b : bind) {
+				if (ImGui::Selectable(toString(b).c_str())) {
+					remove = counter;
+				}
+				++counter;
+			}
+			if (remove != size_t(-1)) {
+				bind.erase(bind.begin() + remove);
+				close();
+			}
+
+			if (ImGui::Selectable("--all--")) {
+				bind.clear();
+				close();
+			}
+		});
 	});
 }
 
