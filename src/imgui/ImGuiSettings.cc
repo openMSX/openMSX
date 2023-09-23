@@ -24,6 +24,7 @@
 #include "ReadOnlySetting.hh"
 #include "SettingsManager.hh"
 #include "StringSetting.hh"
+#include "Version.hh"
 #include "VideoSourceSetting.hh"
 #include "Z80.hh"
 
@@ -257,11 +258,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					assert(false);
 				}
 			}
-			ImGui::Separator();
-			ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
-			HelpMarker("Show the ImGui demo window.\n"
-			           "This is purely to demonstrate the ImGui capabilities.\n"
-			           "There is no connection with any openMSX functionality.");
+			if (!Version::RELEASE) {
+				ImGui::Separator();
+				ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
+				HelpMarker("Show the ImGui demo window.\n"
+					"This is purely to demonstrate the ImGui capabilities.\n"
+					"There is no connection with any openMSX functionality.");
+			}
 		});
 	});
 	if (showDemoWindow) {
