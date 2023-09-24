@@ -453,12 +453,26 @@ void ImGuiSettings::paintJoystick()
 			drawList->AddCircleFilled(scrnCenterA, radius, hoverColor);
 		}
 		drawList->AddCircle(scrnCenterA, radius, white, 0, thickness);
+		// draw letter 'A'    (do it manually, for only two letters this is easier than loading/shipping a new font).
+		auto trA = [&](gl::vec2 p) { return scrnCenterA + p; };
+		const std::array<ImVec2, 3> linesA = { trA({-6, 7}), trA({0, -7}), trA({6, 7}) };
+		drawList->AddPolyline(linesA.data(), 3, white, 0, thickness);
+		drawList->AddLine(trA({-3, 1}), trA({3, 1}), white, thickness);
 
 		auto scrnCenterB = scrnPos + centerB;
 		if (hovered[TRIG_B] || (hoveredRow == TRIG_B)) {
 			drawList->AddCircleFilled(scrnCenterB, radius, hoverColor);
 		}
 		drawList->AddCircle(scrnCenterB, radius, white, 0, thickness);
+		// draw letter 'B'
+		auto trB = [&](gl::vec2 p) { return scrnCenterB + p; };
+		const std::array<ImVec2, 4> linesB = { trB({1, -7}), trB({-4, -7}), trB({-4, 7}), trB({2, 7}) };
+		drawList->AddPolyline(linesB.data(), 4, white, 0, thickness);
+		drawList->AddLine(trB({-4, -1}), trB({2, -1}), white, thickness);
+		drawList->AddBezierQuadratic(trB({1, -7}), trB({4, -7}), trB({4, -4}), white, thickness);
+		drawList->AddBezierQuadratic(trB({4, -4}), trB({4, -1}), trB({1, -1}), white, thickness);
+		drawList->AddBezierQuadratic(trB({2, -1}), trB({6, -1}), trB({6,  3}), white, thickness);
+		drawList->AddBezierQuadratic(trB({6,  3}), trB({6,  7}), trB({2,  7}), white, thickness);
 
 		// Popup for 'Add'
 		static constexpr auto addTitle = "Waiting for input";
