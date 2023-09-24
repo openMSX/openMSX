@@ -391,9 +391,7 @@ void ImGuiSettings::paintJoystick()
 						if (bind.empty()) {
 							ImGui::TextDisabled("no bindings");
 						} else {
-							ImGui::TextUnformatted(
-								join(view::transform(bind, [](const auto& b) { return toString(b); }),
-								     " | "));
+							ImGui::TextUnformatted(join(bind, " | "));
 						}
 					}
 				});
@@ -521,7 +519,7 @@ void ImGuiSettings::paintJoystick()
 			size_t remove = size_t(-1);
 			size_t counter = 0;
 			for (const auto& b : bind) {
-				if (ImGui::Selectable(toString(b).c_str())) {
+				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
 				}
 				++counter;
@@ -544,6 +542,30 @@ void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showConfigureJoystick) paintJoystick();
 }
 
+[[nodiscard]] static std::string format(const Event& event)
+{
+	return std::visit(overloaded{
+		[](const KeyDownEvent& e) {
+			return strCat("keyb ", e.getKey().toString());
+		},
+		[](const MouseButtonDownEvent& e) {
+			return strCat("mouse button", e.getButton());
+		},
+		[](const JoystickButtonDownEvent& e) {
+			return strCat("joy", (e.getJoystick() + 1), " button", e.getButton());
+		},
+		[](const JoystickAxisMotionEvent& e) {
+			return strCat("joy", (e.getJoystick() + 1), ' ',
+			              (e.getValue() < 0 ? '-' : '+'),
+			              "axis", e.getAxis());
+		},
+		[](const auto& e) {
+			// JoystickHatEvent  // joy<n> hat<m> <up/down/...>
+			return toString(e);
+		}
+	}, event);
+}
+
 int ImGuiSettings::signalEvent(const Event& event_)
 {
 	if (popupForKey >= NUM_BUTTONS) {
@@ -559,8 +581,9 @@ int ImGuiSettings::signalEvent(const Event& event_)
 	}
 	if (!escape) {
 		auto& bind = bindings[popupForKey];
-		if (!contains(bind, event)) {
-			bind.push_back(std::move(event));
+		auto s = format(event);
+		if (!contains(bind, s)) {
+			bind.push_back(std::move(s));
 		}
 	}
 
@@ -577,9 +600,8 @@ void ImGuiSettings::initListener()
 	// highest priority (higher than HOTKEY and IMGUI)
 	distributor.registerEventListener(EventType::KEY_DOWN, *this);
 	distributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	distributor.registerEventListener(EventType::MOUSE_WHEEL, *this);
-	distributor.registerEventListener(EventType::JOY_HAT, *this);
 	distributor.registerEventListener(EventType::JOY_BUTTON_DOWN, *this);
+	distributor.registerEventListener(EventType::JOY_HAT, *this);
 	distributor.registerEventListener(EventType::JOY_AXIS_MOTION, *this);
 }
 
@@ -590,9 +612,8 @@ void ImGuiSettings::deinitListener()
 
 	auto& distributor = manager.getReactor().getEventDistributor();
 	distributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
-	distributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
 	distributor.unregisterEventListener(EventType::JOY_HAT, *this);
-	distributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
+	distributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
 	distributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
 	distributor.unregisterEventListener(EventType::KEY_DOWN, *this);
 }

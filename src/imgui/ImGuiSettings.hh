@@ -3,7 +3,6 @@
 
 #include "ImGuiPart.hh"
 
-#include "Event.hh"
 #include "EventListener.hh"
 
 #include <array>
@@ -36,7 +35,7 @@ private:
 	bool showDemoWindow = false;
 
 	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
-	std::array<std::vector<Event>, NUM_BUTTONS> bindings;
+	std::array<std::vector<std::string>, NUM_BUTTONS> bindings;
 
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
