@@ -2,6 +2,9 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
+#include "FileOperations.hh"
+#include "FileContext.hh"
+#include "GLImage.hh"
 
 #include "Version.hh"
 #include "build-info.hh"
@@ -77,6 +80,24 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
 void ImGuiHelp::paintAbout()
 {
 	im::Window("About openMSX", &showAboutWindow, [&]{
+		ImVec2 size(256.0f, 256.0f);
+		if (!logoImageTexture.get()) {
+			FileContext context = systemFileContext();
+			// if it's somehow missing, we're not going to crash on it...
+			try {
+				const std::string filename = "icons/openMSX-logo-256.png";
+				auto r = context.resolve(filename);
+				gl::ivec2 dummy; // we know the size
+				logoImageTexture = loadTexture(context.resolve(filename), dummy);
+			} catch (...) {
+				// ignore
+			}
+		}
+		if (logoImageTexture.get()) {
+			ImGui::Image(reinterpret_cast<void*>(logoImageTexture.get()), size);
+		} else {
+			ImGui::Dummy(size);
+		}
 		ImGui::TextUnformatted(Version::full());
 		ImGui::Spacing();
 		ImGui::TextUnformatted(strCat("platform: ", TARGET_PLATFORM));

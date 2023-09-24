@@ -3,6 +3,7 @@
 
 #include "ImGuiMarkdown.hh"
 #include "ImGuiPart.hh"
+#include "GLUtil.hh"
 
 namespace openmsx {
 
@@ -23,6 +24,8 @@ private:
 	ImGuiMarkdown markdown;
 	bool showHelpWindow = false;
 	bool showAboutWindow = false;
+	gl::Texture logoImageTexture{gl::Null{}};
+
 };
 
 } // namespace openmsx
