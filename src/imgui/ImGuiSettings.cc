@@ -575,6 +575,7 @@ void ImGuiSettings::deinitListener()
 	listening = false;
 
 	auto& distributor = manager.getReactor().getEventDistributor();
+	distributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
 	distributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
 	distributor.unregisterEventListener(EventType::JOY_HAT, *this);
 	distributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
