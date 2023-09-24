@@ -78,7 +78,6 @@ void ImGuiHelp::paintAbout()
 {
 	im::Window("About openMSX", &showAboutWindow, [&]{
 		ImGui::TextUnformatted(Version::full());
-		ImGui::TextUnformatted(strCat("build date: ", BUILD_DATE));
 		ImGui::Spacing();
 		ImGui::TextUnformatted(strCat("platform: ", TARGET_PLATFORM));
 		ImGui::TextUnformatted(strCat("flavour: ", BUILD_FLAVOUR));

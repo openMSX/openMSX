@@ -1,7 +1,6 @@
 from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
-from datetime import date
 
 from os.path import dirname, join as joinpath
 import sys
@@ -73,7 +72,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield 'static const char* const DATADIR = "%s";' % installShareDir
 	yield 'static const char* const BUILD_FLAVOUR = "%s";' % flavour
 	yield 'static const char* const TARGET_PLATFORM = "%s";' % targetPlatform
-	yield 'static const char* const BUILD_DATE = "%s";' % date.today()
 	yield ''
 	yield '} // namespace openmsx'
 	yield ''
