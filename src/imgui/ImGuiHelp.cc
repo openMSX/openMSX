@@ -107,7 +107,10 @@ void ImGuiHelp::paintAbout()
 			ImGui::Spacing();
 			ImGui::TextUnformatted("license: GPL2");
 			ImGui::Text("%s The openMSX Team", Version::COPYRIGHT);
-			markdown.print("Visit our website: [openMSX.org](https://openmsx.org)");
+
+			ImGui::TextUnformatted("Visit our website:");
+			ImGui::SameLine();
+			drawURL("openMSX.org", "https://openmsx.org");
 		});
 
 	});

@@ -13,6 +13,7 @@
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <SDL.h>
 
 #include <variant>
 
@@ -23,6 +24,29 @@ void HelpMarker(std::string_view desc)
 	ImGui::SameLine();
 	ImGui::TextDisabled("(?)");
 	simpleToolTip(desc);
+}
+
+void drawURL(std::string_view text, zstring_view url)
+{
+	auto pos = ImGui::GetCursorScreenPos();
+	auto color = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+	im::StyleColor(ImGuiCol_Text, color, [&]{
+		ImGui::TextUnformatted(text);
+	});
+
+	simpleToolTip(url);
+
+	if (ImGui::IsItemHovered()) { // underline
+		auto size = ImGui::CalcTextSize(text.data(), text.data() + text.size());
+		auto* drawList = ImGui::GetWindowDrawList();
+		ImVec2 p1{pos.x, pos.y + size.y};
+		ImVec2 p2{pos.x + size.x, pos.y + size.y};
+		drawList->AddLine(p1, p2, ImGui::ColorConvertFloat4ToU32(color));
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		SDL_OpenURL(url.c_str());
+	}
 }
 
 std::string GetSettingDescription::operator()(const Setting& setting) const

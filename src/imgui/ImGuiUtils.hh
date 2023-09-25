@@ -84,6 +84,8 @@ void simpleToolTip(std::invocable<> auto descFunc)
 
 void HelpMarker(std::string_view desc);
 
+void drawURL(std::string_view text, zstring_view url);
+
 struct GetSettingDescription {
 	std::string operator()(const Setting& setting) const;
 };
