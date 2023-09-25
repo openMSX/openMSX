@@ -74,11 +74,9 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableHeadersRow();
 				checkSort();
 
-				for (auto row : xrange(narrow<int>(watches.size()))) {
-					im::ID(row, [&]{
-						drawRow(row);
-					});
-				}
+				im::ID_for_range(watches.size(), [&](int row) {
+					drawRow(row);
+				});
 			});
 		});
 		ImGui::SameLine();

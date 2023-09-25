@@ -456,59 +456,56 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 			return ImGui::TableGetCellBgRect(table, table->CurrentColumn).Contains(mouse_pos);
 		};
 
-		for (auto reg : showRegisters) {
+		im::ID_for_range(showRegisters.size(), [&](int i) {
+			auto reg = showRegisters[i];
 			// note:  0..63  regular register
 			//       64..73  status register
-			im::ID(reg, [&]{
-				const auto& rd = registerDescriptions[reg];
-				if (ImGui::TableNextColumn()) {
-					auto name = tmpStrCat(reg < 64 ? "R#" : "S#", reg < 64 ? reg : reg - 64);
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(static_cast<std::string_view>(name));
-					simpleToolTip(rd.name);
+			const auto& rd = registerDescriptions[reg];
+			if (ImGui::TableNextColumn()) {
+				auto name = tmpStrCat(reg < 64 ? "R#" : "S#", reg < 64 ? reg : reg - 64);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(static_cast<std::string_view>(name));
+				simpleToolTip(rd.name);
+			}
+			uint8_t value = regValues[reg];
+			bool writeReg = false;
+			if (ImGui::TableNextColumn()) {
+				if (reg < 64) {
+					if (ImGui::InputScalar("##value", ImGuiDataType_U8, &value, nullptr, nullptr, "%02X", ImGuiInputTextFlags_CharsHexadecimal)) {
+						writeReg = true;
+					}
+				} else {
+					ImGui::Text("%02X", value);
 				}
-				uint8_t value = regValues[reg];
-				bool writeReg = false;
+			}
+			const auto& bits = rd.bits;
+			im::ID_for_range(8, [&](int bit_) {
 				if (ImGui::TableNextColumn()) {
-					if (reg < 64) {
-						if (ImGui::InputScalar("##value", ImGuiDataType_U8, &value, nullptr, nullptr, "%02X", ImGuiInputTextFlags_CharsHexadecimal)) {
+					int bit = 7 - bit_;
+					auto mask = narrow<uint8_t>(1 << bit);
+					int f = lookupFunction(reg, mask);
+					if (f != -1 && f == hoveredFunction) {
+						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg,
+							0xff00ffff);
+					}
+					im::StyleColor(ImGuiCol_Button, value & mask ? 0xFF1040FF : 0x80000000, [&]{
+						if (ImGui::Button(bits[bit_], {40.0f, 0.0f})) {
+							value ^=  mask;
 							writeReg = true;
 						}
-					} else {
-						ImGui::Text("%02X", value);
+					});
+					if ((f != -1) && isCellHovered()) {
+						newHoveredFunction = f;
+						if (auto tip = regFunctions[f].toolTip; !tip.empty()) {
+							simpleToolTip(tip);
+						}
 					}
-				}
-				const auto& bits = rd.bits;
-				for (int bit_ : xrange(8)) {
-					if (ImGui::TableNextColumn()) {
-						im::ID(bit_, [&]{
-							int bit = 7 - bit_;
-							auto mask = narrow<uint8_t>(1 << bit);
-							int f = lookupFunction(reg, mask);
-							if (f != -1 && f == hoveredFunction) {
-								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg,
-									0xff00ffff);
-							}
-							im::StyleColor(ImGuiCol_Button, value & mask ? 0xFF1040FF : 0x80000000, [&]{
-								if (ImGui::Button(bits[bit_], {40.0f, 0.0f})) {
-									value ^=  mask;
-									writeReg = true;
-								}
-							});
-							if ((f != -1) && isCellHovered()) {
-								newHoveredFunction = f;
-								if (auto tip = regFunctions[f].toolTip; !tip.empty()) {
-									simpleToolTip(tip);
-								}
-							}
-						});
-					}
-				}
-				if (writeReg && (reg < 64)) {
-					vdp.changeRegister(reg, value, time);
 				}
 			});
-		}
+			if (writeReg && (reg < 64)) {
+				vdp.changeRegister(reg, value, time);
+			}
+		});
 	});
 	if (explanation) {
 		auto* drawList = ImGui::GetWindowDrawList();

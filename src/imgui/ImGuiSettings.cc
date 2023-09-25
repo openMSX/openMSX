@@ -360,43 +360,41 @@ void ImGuiSettings::paintJoystick()
 		auto textHeight = ImGui::GetTextLineHeight();
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
 		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, [&]{
-			for (auto i : xrange(size_t(NUM_BUTTONS))) {
-				im::ID(i, [&]{
-					if (ImGui::TableNextColumn()) {
-						auto pos = ImGui::GetCursorPos();
-						ImGui::Selectable("##row", hovered[i], ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
-						if (ImGui::IsItemHovered()) {
-							hoveredRow = i;
-						}
+			im::ID_for_range(NUM_BUTTONS, [&](int i) {
+				if (ImGui::TableNextColumn()) {
+					auto pos = ImGui::GetCursorPos();
+					ImGui::Selectable("##row", hovered[i], ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
+					if (ImGui::IsItemHovered()) {
+						hoveredRow = i;
+					}
 
-						ImGui::SetCursorPos(pos);
-						ImGui::AlignTextToFramePadding();
-						ImGui::TextUnformatted(buttonNames[i]);
+					ImGui::SetCursorPos(pos);
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(buttonNames[i]);
+				}
+				if (ImGui::TableNextColumn()) {
+					auto& bind = bindings[i];
+					if (ImGui::Button("Add")) {
+						addAction = i;
 					}
-					if (ImGui::TableNextColumn()) {
-						auto& bind = bindings[i];
-						if (ImGui::Button("Add")) {
-							addAction = i;
-						}
-						ImGui::SameLine();
-						im::Disabled(bind.empty(), [&]{
-							if (ImGui::Button("Remove")) {
-								if (bind.size() == 1) {
-									bind.clear();
-								} else {
-									removeAction = i;
-								}
+					ImGui::SameLine();
+					im::Disabled(bind.empty(), [&]{
+						if (ImGui::Button("Remove")) {
+							if (bind.size() == 1) {
+								bind.clear();
+							} else {
+								removeAction = i;
 							}
-						});
-						ImGui::SameLine();
-						if (bind.empty()) {
-							ImGui::TextDisabled("no bindings");
-						} else {
-							ImGui::TextUnformatted(join(bind, " | "));
 						}
+					});
+					ImGui::SameLine();
+					if (bind.empty()) {
+						ImGui::TextDisabled("no bindings");
+					} else {
+						ImGui::TextUnformatted(join(bind, " | "));
 					}
-				});
-			}
+				}
+			});
 		});
 
 		// Draw joystick

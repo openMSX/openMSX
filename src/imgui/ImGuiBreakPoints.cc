@@ -307,13 +307,9 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 
 		checkSort(items);
 
-		int row = 0;
-		for (auto& item : items) { // TODO c++23 enumerate
-			im::ID(row, [&]{
-				drawRow<Item>(cpuInterface, debugger, row, item);
-			});
-			++row;
-		}
+		im::ID_for_range(items.size(), [&](int row) {
+			drawRow<Item>(cpuInterface, debugger, row, items[row]);
+		});
 	});
 	ImGui::SameLine();
 	im::Group([&] {

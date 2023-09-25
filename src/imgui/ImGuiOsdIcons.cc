@@ -277,92 +277,89 @@ void ImGuiOsdIcons::paintConfigureIcons()
 
 				enum Cmd { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
 				std::pair<int, Cmd> cmd(-1, MOVE_FRONT);
-				auto lastRow = iconInfo.size() - 1;
-				for (auto [row_, icon_] : enumerate(iconInfo)) {
-					auto& row = row_;
-					auto& icon = icon_;
-					im::ID(narrow<int>(row), [&]{
-						if (ImGui::TableNextColumn()) { // enabled
-							auto pos = ImGui::GetCursorPos();
-							const auto& style = ImGui::GetStyle();
-							auto textHeight = ImGui::GetTextLineHeight();
-							float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
-										std::max(float(icon.on.size[1]), float(icon.off.size[1])));
-							ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
-							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-								ImGui::OpenPopup("config-icon-context");
-							}
-							im::Popup("config-icon-context", [&]{
-								if (lastRow >= 1) { // at least 2 rows
-									if (row != 0) {
-										if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
-										if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
-									}
-									if (row != lastRow) {
-										if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
-										if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
-									}
-									ImGui::Separator();
+				auto lastRow = narrow<int>(iconInfo.size()) - 1;
+				im::ID_for_range(iconInfo.size(), [&](int row) {
+					auto& icon = iconInfo[row];
+					if (ImGui::TableNextColumn()) { // enabled
+						auto pos = ImGui::GetCursorPos();
+						const auto& style = ImGui::GetStyle();
+						auto textHeight = ImGui::GetTextLineHeight();
+						float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
+									std::max(float(icon.on.size[1]), float(icon.off.size[1])));
+						ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
+						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+							ImGui::OpenPopup("config-icon-context");
+						}
+						im::Popup("config-icon-context", [&]{
+							if (lastRow >= 1) { // at least 2 rows
+								if (row != 0) {
+									if (ImGui::MenuItem("Move to front")) cmd = {row, MOVE_FRONT};
+									if (ImGui::MenuItem("Move forwards")) cmd = {row, MOVE_FWD};
 								}
-								if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
-								if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
-							});
+								if (row != lastRow) {
+									if (ImGui::MenuItem("Move backwards"))cmd = {row, MOVE_BWD};
+									if (ImGui::MenuItem("Move to back"))  cmd = {row, MOVE_BACK};
+								}
+								ImGui::Separator();
+							}
+							if (ImGui::MenuItem("Insert new row"))     cmd = {row, INSERT};
+							if (ImGui::MenuItem("Delete current row")) cmd = {row, DELETE};
+						});
 
-							ImGui::SetCursorPos(pos);
-							if (ImGui::Checkbox("##enabled", &icon.enable)) {
+						ImGui::SetCursorPos(pos);
+						if (ImGui::Checkbox("##enabled", &icon.enable)) {
+							iconInfoDirty = true;
+						}
+					}
+					if (ImGui::TableNextColumn()) { // fade-out
+						im::Disabled(!iconsHideTitle, [&]{
+							if (ImGui::Checkbox("##fade-out", &icon.fade)) {
 								iconInfoDirty = true;
 							}
-						}
-						if (ImGui::TableNextColumn()) { // fade-out
-							im::Disabled(!iconsHideTitle, [&]{
-								if (ImGui::Checkbox("##fade-out", &icon.fade)) {
-									iconInfoDirty = true;
-								}
-							});
-						}
+						});
+					}
 
-						auto image = [&](IconInfo::Icon& ic, const char* id) {
-							if (ic.tex.get()) {
-								ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
-										gl::vec2(ic.size));
-								im::PopupContextItem(id, [&]{
-									if (ImGui::MenuItem("Remove image")) {
-										ic.filename.clear();
-										iconInfoDirty = true;
-										ImGui::CloseCurrentPopup();
-									}
-								});
-							} else {
-								ImGui::Button("Select ...");
-							}
-							if (ImGui::IsItemClicked()) {
-								manager.openFile.selectFile(
-									"Select image for icon", "PNG (*.png){.png}",
-									[this, &ic](const std::string& filename) {
-										ic.filename = filename;
-										iconInfoDirty = true;
-									});
-							}
-						};
-						if (ImGui::TableNextColumn()) { // true-image
-							image(icon.on, "##on");
-						}
-						if (ImGui::TableNextColumn()) { // false-image
-							image(icon.off, "##off");
-						}
-						if (ImGui::TableNextColumn()) { // expression
-							ImGui::SetNextItemWidth(-FLT_MIN);
-							bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
-							im::StyleColor(!valid, ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
-								auto expr = std::string(icon.expr.getString());
-								if (ImGui::InputText("##expr", &expr)) {
-									icon.expr = expr;
+					auto image = [&](IconInfo::Icon& ic, const char* id) {
+						if (ic.tex.get()) {
+							ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
+									gl::vec2(ic.size));
+							im::PopupContextItem(id, [&]{
+								if (ImGui::MenuItem("Remove image")) {
+									ic.filename.clear();
 									iconInfoDirty = true;
+									ImGui::CloseCurrentPopup();
 								}
 							});
+						} else {
+							ImGui::Button("Select ...");
 						}
-					});
-				}
+						if (ImGui::IsItemClicked()) {
+							manager.openFile.selectFile(
+								"Select image for icon", "PNG (*.png){.png}",
+								[this, &ic](const std::string& filename) {
+									ic.filename = filename;
+									iconInfoDirty = true;
+								});
+						}
+					};
+					if (ImGui::TableNextColumn()) { // true-image
+						image(icon.on, "##on");
+					}
+					if (ImGui::TableNextColumn()) { // false-image
+						image(icon.off, "##off");
+					}
+					if (ImGui::TableNextColumn()) { // expression
+						ImGui::SetNextItemWidth(-FLT_MIN);
+						bool valid = manager.getInterpreter().validExpression(icon.expr.getString());
+						im::StyleColor(!valid, ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
+							auto expr = std::string(icon.expr.getString());
+							if (ImGui::InputText("##expr", &expr)) {
+								icon.expr = expr;
+								iconInfoDirty = true;
+							}
+						});
+					}
+				});
 				if (int row = cmd.first; row != -1) {
 					switch (cmd.second) {
 					case MOVE_FRONT:

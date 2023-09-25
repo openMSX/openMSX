@@ -1,6 +1,9 @@
 #ifndef IMGUI_CPP_HH
 #define IMGUI_CPP_HH
 
+#include "narrow.hh"
+#include "xrange.hh"
+
 #include <imgui.h>
 
 #include <concepts>
@@ -245,6 +248,17 @@ inline void ID(std::string_view str, std::invocable<> auto next)
 	auto begin = str.data();
 	auto end = begin + str.size();
 	ID(begin, end, next);
+}
+
+inline void ID_for_range(int count, std::invocable<int> auto next)
+{
+	for (auto i : xrange(count)) {
+		ID(i, [&]{ next(i); });
+	}
+}
+inline void ID_for_range(size_t count, std::invocable<int> auto next)
+{
+	ID_for_range(narrow<int>(count), next);
 }
 
 // im::Combo(): wrapper around ImGui::BeginCombo() / ImGui::EndCombo()

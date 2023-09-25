@@ -155,9 +155,8 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 		float scale = min_component(available / maxXY);
 
 		gl::vec2 origin = ImGui::GetCursorPos();
-		for (const auto& [i_, key_] : enumerate(keys)) {
-			const auto& i = i_;
-			const auto& key = key_;
+		im::ID_for_range(keys.size(), [&](int i) {
+			const auto& key = keys[i];
 			auto row    = key.matrixPos.getRow();
 			auto column = key.matrixPos.getColumn();
 			auto mask = 1 << column;
@@ -165,9 +164,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 
 			ImGui::SetCursorPos(origin + scale * key.pos);
 			im::StyleColor(ImGuiCol_Button, active ? 0xFF1040FF : 0x80000000, [&]{
-				im::ID(narrow<int>(i), [&]{
-					ImGui::Button(key.label, scale * key.size);
-				});
+				ImGui::Button(key.label, scale * key.size);
 			});
 
 			if (ImGui::IsItemActivated()) {
@@ -180,7 +177,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 				manager.execute(makeTclList((active ? "keymatrixup" : "keymatrixdown"),
 							row, mask));
 			}
-		}
+		});
 	});
 }
 

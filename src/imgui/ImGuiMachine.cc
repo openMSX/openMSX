@@ -85,32 +85,30 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			im::Indent([&]{
 				float height = (std::min(4.0f, float(instances.size())) + 0.25f) * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##empty", {-FLT_MIN, height}, [&]{
-					int i = 0;
-					for (const auto& name : instances) {
-						im::ID(++i, [&]{
-							bool isCurrent = name == currentInstance;
-							auto board = reactor.getMachine(name);
-							std::string display = [&]{
-								if (board) {
-									auto configName = board->getMachineName();
-									auto* info = findMachineInfo(configName);
-									assert(info);
-									auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
-									return strCat(info->displayName, " (", formatTime(time), ')');
-								} else {
-									return std::string(name);
-								}
-							}();
-							if (ImGui::Selectable(display.c_str(), isCurrent)) {
-								manager.executeDelayed(makeTclList("activate_machine", name));
+					im::ID_for_range(instances.size(), [&](int i) {
+						const auto& name = instances[i];
+						bool isCurrent = name == currentInstance;
+						auto board = reactor.getMachine(name);
+						std::string display = [&]{
+							if (board) {
+								auto configName = board->getMachineName();
+								auto* info = findMachineInfo(configName);
+								assert(info);
+								auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
+								return strCat(info->displayName, " (", formatTime(time), ')');
+							} else {
+								return std::string(name);
 							}
-							im::PopupContextItem("instance context menu", [&]{
-								if (ImGui::Selectable("Delete instance")) {
-									manager.executeDelayed(makeTclList("delete_machine", name));
-								}
-							});
+						}();
+						if (ImGui::Selectable(display.c_str(), isCurrent)) {
+							manager.executeDelayed(makeTclList("activate_machine", name));
+						}
+						im::PopupContextItem("instance context menu", [&]{
+							if (ImGui::Selectable("Delete instance")) {
+								manager.executeDelayed(makeTclList("delete_machine", name));
+							}
 						});
-					}
+					});
 				});
 			});
 			ImGui::Separator();

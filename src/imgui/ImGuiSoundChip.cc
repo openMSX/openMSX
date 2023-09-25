@@ -139,20 +139,18 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 	std::string label = name + " channel setting";
 	im::Window(label.c_str(), enabled, [&]{
 		im::Table("table", 3, [&]{
-			int counter = 0;
-			for (auto& channel : info->channelSettings) {
-				im::ID(counter++, [&]{
-					if (ImGui::TableNextColumn()) {
-						ImGui::StrCat("channel ", counter);
-					}
-					if (ImGui::TableNextColumn()) {
-						Checkbox("mute", *channel.mute);
-					}
-					if (ImGui::TableNextColumn()) {
-						InputText("record", *channel.record);
-					}
-				});
-			}
+			im::ID_for_range(info->channelSettings.size(), [&](int i) {
+				auto& channel =  info->channelSettings[i];
+				if (ImGui::TableNextColumn()) {
+					ImGui::StrCat("channel ", i);
+				}
+				if (ImGui::TableNextColumn()) {
+					Checkbox("mute", *channel.mute);
+				}
+				if (ImGui::TableNextColumn()) {
+					InputText("record", *channel.record);
+				}
+			});
 		});
 	});
 }
