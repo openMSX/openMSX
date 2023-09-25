@@ -17,6 +17,9 @@
 
 namespace openmsx {
 
+// minimal attempt to avoid seeing this warning too often
+static Sha1Sum alreadyWarnedForSha1Sum;
+
 RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
@@ -24,10 +27,11 @@ RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 	setBlockMask(31);
 
 	// warn if a ROM is used that would not work on a real Konami mapper
-	if (rom.size() > 256 * 1024) {
+	if ((rom.size() > 256 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		getMotherBoard().getMSXCliComm().printWarning(
 			"The size of this ROM image is larger than 256kB, "
 			"which is not supported on real Konami mapper chips!");
+		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 
 	// Do not call reset() here, since it can be overridden and the subclass
