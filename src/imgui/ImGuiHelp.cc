@@ -102,6 +102,7 @@ void ImGuiHelp::paintAbout()
 			ImGui::TextUnformatted(Version::full());
 			ImGui::Spacing();
 			ImGui::Text("platform:   %s", TARGET_PLATFORM);
+			ImGui::Text("target CPU: %s", TARGET_CPU);
 			ImGui::Text("flavour:    %s", BUILD_FLAVOUR);
 			ImGui::Text("components: %s", BUILD_COMPONENTS);
 			ImGui::Spacing();
