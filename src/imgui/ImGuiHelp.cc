@@ -2,13 +2,14 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
-#include "FileOperations.hh"
 #include "FileContext.hh"
 #include "GLImage.hh"
 
 #include "Version.hh"
 #include "build-info.hh"
 #include "components.hh"
+
+#include <cassert>
 
 namespace openmsx {
 
@@ -80,33 +81,34 @@ Value-One | Long <br>explanation <br>with \<br\>\'s|1
 void ImGuiHelp::paintAbout()
 {
 	im::Window("About openMSX", &showAboutWindow, [&]{
-		ImVec2 size(256.0f, 256.0f);
-		if (!logoImageTexture.get()) {
-			FileContext context = systemFileContext();
-			// if it's somehow missing, we're not going to crash on it...
+		if (!logo) {
+			logo.emplace(); // initialize with null-image
 			try {
-				const std::string filename = "icons/openMSX-logo-256.png";
-				auto r = context.resolve(filename);
-				gl::ivec2 dummy; // we know the size
-				logoImageTexture = loadTexture(context.resolve(filename), dummy);
+				FileContext context = systemFileContext();
+				auto r = context.resolve("icons/openMSX-logo-256.png");
+				gl::ivec2 isize;
+				logo->texture = loadTexture(r, isize);
+				logo->size = gl::vec2(isize);
 			} catch (...) {
-				// ignore
+				// ignore, don't try again
 			}
 		}
-		if (logoImageTexture.get()) {
-			ImGui::Image(reinterpret_cast<void*>(logoImageTexture.get()), size);
-		} else {
-			ImGui::Dummy(size);
+		assert(logo);
+		if (logo->texture.get()) {
+			ImGui::Image(reinterpret_cast<void*>(logo->texture.get()), logo->size);
+			ImGui::SameLine();
 		}
-		ImGui::TextUnformatted(Version::full());
-		ImGui::Spacing();
-		ImGui::TextUnformatted(strCat("platform: ", TARGET_PLATFORM));
-		ImGui::TextUnformatted(strCat("flavour: ", BUILD_FLAVOUR));
-		ImGui::TextUnformatted(strCat("components: ", BUILD_COMPONENTS));
-		ImGui::Spacing();
-		ImGui::TextUnformatted("license: GPL2");
-		ImGui::TextUnformatted(strCat(Version::COPYRIGHT, " The openMSX Team"));
-		markdown.print("Visit our website: [openMSX.org](https://openmsx.org)");
+		im::Group([&]{
+			ImGui::TextUnformatted(Version::full());
+			ImGui::Spacing();
+			ImGui::Text("platform:   %s", TARGET_PLATFORM);
+			ImGui::Text("flavour:    %s", BUILD_FLAVOUR);
+			ImGui::Text("components: %s", BUILD_COMPONENTS);
+			ImGui::Spacing();
+			ImGui::TextUnformatted("license: GPL2");
+			ImGui::Text("%s The openMSX Team", Version::COPYRIGHT);
+			markdown.print("Visit our website: [openMSX.org](https://openmsx.org)");
+		});
 
 	});
 }
