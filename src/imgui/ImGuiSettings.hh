@@ -23,6 +23,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
+	[[nodiscard]] std::string format(const Event& event) const;
 	int signalEvent(const Event& event) override;
 	void initListener();
 	void deinitListener();

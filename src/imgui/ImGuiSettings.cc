@@ -35,6 +35,7 @@
 #include "narrow.hh"
 #include "view.hh"
 #include "StringOp.hh"
+#include "unreachable.hh"
 #include "zstring_view.hh"
 
 #include <imgui.h>
@@ -542,7 +543,7 @@ void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showConfigureJoystick) paintJoystick();
 }
 
-[[nodiscard]] static std::string format(const Event& event)
+std::string ImGuiSettings::format(const Event& event) const
 {
 	return std::visit(overloaded{
 		[](const KeyDownEvent& e) {
@@ -554,40 +555,52 @@ void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
 		[](const JoystickButtonDownEvent& e) {
 			return strCat("joy", (e.getJoystick() + 1), " button", e.getButton());
 		},
-		[](const JoystickAxisMotionEvent& e) {
+		[](const JoystickHatEvent& e) {
+			if (e.getValue() == one_of(SDL_HAT_UP, SDL_HAT_RIGHT, SDL_HAT_DOWN, SDL_HAT_LEFT)) {
+				return toString(e); // joy<n> hat<m> <up/down/...>
+			}
+			return std::string{};
+		},
+		[&](const JoystickAxisMotionEvent& e) {
+			auto& settings = manager.getReactor().getGlobalSettings();
+			const auto& deadZone = settings.getJoyDeadZoneSetting(e.getJoystick());
+			int threshold = (deadZone.getInt() * 32768) / 100;
+			if ((-threshold <= e.getValue()) && (e.getValue() <= threshold)) {
+				return std::string{};
+			}
 			return strCat("joy", (e.getJoystick() + 1), ' ',
 			              (e.getValue() < 0 ? '-' : '+'),
 			              "axis", e.getAxis());
 		},
-		[](const auto& e) {
-			// JoystickHatEvent  // joy<n> hat<m> <up/down/...>
-			return toString(e);
+		[](const EventBase&) {
+			UNREACHABLE;
+			return std::string{};
 		}
 	}, event);
 }
 
-int ImGuiSettings::signalEvent(const Event& event_)
+int ImGuiSettings::signalEvent(const Event& event)
 {
 	if (popupForKey >= NUM_BUTTONS) {
 		deinitListener();
 		return 0;
 	}
 
-	auto event = event_; // copy
 	bool escape = false;
-	if (auto* keyDown = get_event_if<KeyDownEvent>(event)) {
-		keyDown->clearUnicode();
+	if (const auto* keyDown = get_event_if<KeyDownEvent>(event)) {
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		auto& bind = bindings[popupForKey];
 		auto s = format(event);
+		if (s.empty()) return EventDistributor::HOTKEY; // keep popup active
+
+		auto& bind = bindings[popupForKey];
 		if (!contains(bind, s)) {
 			bind.push_back(std::move(s));
 		}
 	}
 
-	popupForKey = unsigned(-1);
+	popupForKey = unsigned(-1); // close popup
 	return EventDistributor::HOTKEY; // block event
 }
 
