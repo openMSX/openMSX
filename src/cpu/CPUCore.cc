@@ -162,7 +162,7 @@
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "TclCallback.hh"
 #include "Dasm.hh"
 #include "Z80.hh"

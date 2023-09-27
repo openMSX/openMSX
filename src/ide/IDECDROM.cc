@@ -4,7 +4,7 @@
 #include "FileException.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"

@@ -33,7 +33,7 @@
 #include "ReverseManager.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "GlobalSettings.hh"

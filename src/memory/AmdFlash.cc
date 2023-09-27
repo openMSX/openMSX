@@ -4,7 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "narrow.hh"

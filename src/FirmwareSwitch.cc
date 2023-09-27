@@ -1,5 +1,5 @@
 #include "FirmwareSwitch.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"

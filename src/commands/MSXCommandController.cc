@@ -135,7 +135,7 @@ TclObject MSXCommandController::executeCommand(zstring_view command,
 	return globalCommandController.executeCommand(command, connection);
 }
 
-CliComm& MSXCommandController::getCliComm()
+MSXCliComm& MSXCommandController::getCliComm()
 {
 	return motherboard.getMSXCliComm();
 }

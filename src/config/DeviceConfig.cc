@@ -15,7 +15,7 @@ MSXMotherBoard& DeviceConfig::getMotherBoard() const
 	return getHardwareConfig().getMotherBoard();
 }
 
-CliComm& DeviceConfig::getCliComm() const
+MSXCliComm& DeviceConfig::getCliComm() const
 {
 	return getMotherBoard().getMSXCliComm();
 }

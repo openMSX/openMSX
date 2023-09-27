@@ -7,7 +7,7 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "CassettePort.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Display.hh"
 #include "GlobalSettings.hh"
 #include "Reactor.hh"

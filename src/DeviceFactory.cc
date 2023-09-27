@@ -86,7 +86,7 @@
 #include "VDPIODelay.hh"
 #include "SensorKid.hh"
 #include "YamahaSKW01.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "components.hh"
 #include "one_of.hh"

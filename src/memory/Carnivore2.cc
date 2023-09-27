@@ -2,7 +2,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXCPU.hh"
 #include "narrow.hh"
 #include "one_of.hh"

@@ -13,7 +13,7 @@
 #include "Reactor.hh"
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
 #include "EmptyPatch.hh"

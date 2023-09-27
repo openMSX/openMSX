@@ -27,7 +27,7 @@
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
 #include "RecordedCommand.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"

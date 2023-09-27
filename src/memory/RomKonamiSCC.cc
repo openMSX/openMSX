@@ -14,7 +14,7 @@
 #include "RomKonamiSCC.hh"
 #include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "sha1.hh"
 #include "serialize.hh"
 #include "xrange.hh"

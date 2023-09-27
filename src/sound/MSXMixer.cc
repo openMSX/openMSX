@@ -13,7 +13,7 @@
 #include "AviRecorder.hh"
 #include "Filename.hh"
 #include "FileOperations.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "stl.hh"
 #include "aligned.hh"
 #include "enumerate.hh"

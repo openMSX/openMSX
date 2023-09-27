@@ -3,7 +3,7 @@
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
