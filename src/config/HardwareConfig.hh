@@ -54,6 +54,7 @@ public:
 	[[nodiscard]] const XMLElement& getConfig() const { return *config.getRoot(); }
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const std::string& getConfigName() const { return hwName; }
+	[[nodiscard]] std::string_view getRomFilename() const;
 	[[nodiscard]] const XMLElement& getDevicesElem() const;
 	[[nodiscard]] Type getType() const { return type; }
 

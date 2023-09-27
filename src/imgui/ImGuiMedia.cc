@@ -281,7 +281,7 @@ std::string ImGuiMedia::displayNameForHardwareConfig(const HardwareConfig& confi
 	if (config.getType() == HardwareConfig::Type::EXTENSION) {
 		return displayNameForExtension(config.getConfigName());
 	} else {
-		return displayNameForRom(config.getName(), compact); // ROM filename
+		return displayNameForRom(std::string(config.getRomFilename()), compact); // ROM filename
 	}
 }
 

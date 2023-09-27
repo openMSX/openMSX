@@ -56,12 +56,11 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 				.getChild("ROM").getChild("rom");
 			result.addDictKeyValue("target", romConfig.getChildData("filename"));
 			TclObject patches;
-			try {
-				const auto& patchesElem = romConfig.getChild("patches");
-				for (const auto* p : patchesElem.getChildren("ips")) {
+			if (const auto* patchesElem = romConfig.findChild("patches")) {
+				for (const auto* p : patchesElem->getChildren("ips")) {
 					patches.addListElement(p->getData());
 				}
-			} catch (MSXException&) {} // no patches found, no prob
+			}
 			result.addDictKeyValue("patches", patches);
 			if (auto* rom = dynamic_cast<MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
 				rom->getInfo(result);
