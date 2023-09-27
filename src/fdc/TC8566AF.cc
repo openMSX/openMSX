@@ -7,7 +7,7 @@
 #include "DiskDrive.hh"
 #include "RawTrack.hh"
 #include "Clock.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "one_of.hh"
 #include "serialize.hh"
@@ -62,7 +62,7 @@ static constexpr uint8_t ST3_WP  = 0x40; // Write Protect
 static constexpr uint8_t ST3_FLT = 0x80; // Fault
 
 
-TC8566AF::TC8566AF(Scheduler& scheduler_, std::span<std::unique_ptr<DiskDrive>, 4> drv, CliComm& cliComm_,
+TC8566AF::TC8566AF(Scheduler& scheduler_, std::span<std::unique_ptr<DiskDrive>, 4> drv, MSXCliComm& cliComm_,
                    EmuTime::param time)
 	: Schedulable(scheduler_)
 	, cliComm(cliComm_)

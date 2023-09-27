@@ -1,5 +1,5 @@
 #include "SensorKid.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "CommandController.hh"
 #include "MSXException.hh"
 #include "StringSetting.hh"

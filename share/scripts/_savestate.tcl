@@ -107,7 +107,7 @@ proc savestate_tab {args} {
 }
 
 proc savestate_list_tab {args} {
-	list "-l" "-t"
+	list "-t"
 }
 
 # savestate
@@ -142,9 +142,6 @@ Return the names of all previously created savestates.
 
 Options:
   -t      sort savestates by time
-  -l      long formatting, showing date of savestates
-
-Note: the -l option is not available on all systems.
 
 See also 'savestate', 'loadstate', 'delete_savestate'.
 }

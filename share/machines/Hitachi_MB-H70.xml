@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Hitachi</manufacturer>
+    <code>MB-H70</code>
+    <release_year>1985</release_year>
+    <description>Luxurious and expandable MSX2, with 2 disk drives. Based on Mitsubishi ML-G30 model 2.</description>
+    <type>MSX2</type>
+    <region>jp</region>
+  </info>
+
+  <!-- Info taken by Peter Hanraets of his machine with serial number XXXXXX (TODO)
+
+  Note that empty memory areas show up as 0xBF bytes, instead of 0xFF. This is
+  not emulated.
+
+  Photo on MSX.org shows:
+  - NEC D780C-1 CPU
+
+  The ROM (in the disk ROM area) contains this text:
+	  This bios program is coded by T.Osada
+	  This hardwear is developed by M.Ishikura
+	  This casing is designed by N.Miyazaki
+	  ML-G30EX is designed by S.TSUKAGOSI,H.TOKITA,H.TAKEI
+	  Consumer's electric product development section
+	  GUNMA Works , MITSHUBISHI ELECTLIC SOCIO TECH
+  -->
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>mb-h70_kanjifont.rom</filename>
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <keyboardlayout>JIS</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>mb-h70.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <status_readable_on_all_ports>true</status_readable_on_all_ports> <!-- S-3527 property -->
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mb-h70_basic-bios2.rom</filename>
+          <sha1>a8ccbe66c05d5a8f68e1163a88e07f2d82bf241b</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/> <!-- Front slot -->
+
+    <primary external="true" slot="2"/> <!-- Back slot 1, behind plate -->
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>mb-h70_msx2sub.rom</filename>
+            <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
+          <broken_fdc_read>false</broken_fdc_read>
+          <drives>2</drives>
+          <rom>
+            <sha1>6608250065bfb43b309147a81711b77cb3067a02</sha1>
+            <filename>mb-h70_disk.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </WD2793>
+      </secondary>
+
+      <secondary external="true" slot="1"/> <!-- Back slot 2, behind plate -->
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="hex">0000FFFFFFFF0000</initialContent>
+          <size>128</size>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary external="true" slot="3"/> <!-- Back slot 3, behind plate -->
+
+    </primary>
+
+  </devices>
+
+</msxconfig>

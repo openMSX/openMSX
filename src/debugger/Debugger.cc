@@ -1,6 +1,6 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"

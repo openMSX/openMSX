@@ -20,7 +20,6 @@ namespace openmsx {
 class AddRemoveUpdate;
 class CartridgeSlotManager;
 class CassettePortInterface;
-class CliComm;
 class CommandController;
 class Debugger;
 class DeviceInfo;
@@ -137,7 +136,7 @@ public:
 	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
-	[[nodiscard]] CliComm& getMSXCliComm();
+	[[nodiscard]] MSXCliComm& getMSXCliComm();
 	[[nodiscard]] MSXCommandController& getMSXCommandController() { return *msxCommandController; }
 	[[nodiscard]] Scheduler& getScheduler() { return *scheduler; }
 	[[nodiscard]] MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }

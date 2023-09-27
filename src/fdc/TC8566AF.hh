@@ -14,12 +14,12 @@ namespace openmsx {
 
 class Scheduler;
 class DiskDrive;
-class CliComm;
+class MSXCliComm;
 
 class TC8566AF final : public Schedulable
 {
 public:
-	TC8566AF(Scheduler& scheduler, std::span<std::unique_ptr<DiskDrive>, 4>, CliComm& cliComm,
+	TC8566AF(Scheduler& scheduler, std::span<std::unique_ptr<DiskDrive>, 4>, MSXCliComm& cliComm,
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
@@ -96,7 +96,7 @@ private:
 	void setDrqRate(unsigned trackLength);
 
 private:
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 	std::array<DiskDrive*, 4> drive;
 	DynamicClock delayTime{EmuTime::zero()};
 

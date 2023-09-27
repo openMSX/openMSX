@@ -8,7 +8,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "VDPIODelay.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
 #include "MSXWatchIODevice.hh"

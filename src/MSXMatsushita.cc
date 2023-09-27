@@ -3,7 +3,7 @@
 #include "SRAM.hh"
 #include "VDP.hh"
 #include "MSXCPUInterface.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "xrange.hh"

@@ -12,12 +12,12 @@ namespace openmsx {
 
 class Scheduler;
 class DiskDrive;
-class CliComm;
+class MSXCliComm;
 
 class WD2793 final : public Schedulable
 {
 public:
-	WD2793(Scheduler& scheduler, DiskDrive& drive, CliComm& cliComm,
+	WD2793(Scheduler& scheduler, DiskDrive& drive, MSXCliComm& cliComm,
 	       EmuTime::param time, bool isWD1770);
 
 	void reset(EmuTime::param time);
@@ -105,7 +105,7 @@ private:
 
 private:
 	DiskDrive& drive;
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 
 	// DRQ is high iff current time is past this time.
 	//  This clock ticks at the 'byte-rate' of the current track,

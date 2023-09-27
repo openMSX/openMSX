@@ -32,7 +32,7 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"

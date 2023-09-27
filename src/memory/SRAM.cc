@@ -5,7 +5,7 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "Reactor.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "vla.hh"

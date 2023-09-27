@@ -7,7 +7,7 @@
 #include "Reactor.hh"
 #include "LedStatus.hh"
 #include "MSXCommandController.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "narrow.hh"

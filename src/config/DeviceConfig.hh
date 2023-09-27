@@ -11,7 +11,7 @@ class XMLDocument;
 class HardwareConfig;
 class FileContext;
 class MSXMotherBoard;
-class CliComm;
+class MSXCliComm;
 class CommandController;
 class Scheduler;
 class Reactor;
@@ -62,7 +62,7 @@ public:
 	//  methods below simply delegate to HardwareConfig or XMLElement
 	[[nodiscard]] const FileContext& getFileContext() const;
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const;
-	[[nodiscard]] CliComm& getCliComm() const;
+	[[nodiscard]] MSXCliComm& getCliComm() const;
 	[[nodiscard]] CommandController& getCommandController() const;
 	[[nodiscard]] Scheduler& getScheduler() const;
 	[[nodiscard]] Reactor& getReactor() const;

@@ -1,4 +1,4 @@
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
 #include "narrow.hh"

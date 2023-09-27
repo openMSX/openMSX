@@ -415,7 +415,7 @@ void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 	extensions.erase(it);
 }
 
-CliComm& MSXMotherBoard::getMSXCliComm()
+MSXCliComm& MSXMotherBoard::getMSXCliComm()
 {
 	return *msxCliComm;
 }

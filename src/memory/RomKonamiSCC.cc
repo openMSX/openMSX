@@ -14,27 +14,23 @@
 #include "RomKonamiSCC.hh"
 #include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "sha1.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 
 namespace openmsx {
 
-// minimal attempt to avoid seeing this warning too often
-static Sha1Sum alreadyWarnedForSha1Sum;
-
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, scc("SCC", config, getCurrentTime())
 {
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
-	if ((rom.size() > 512 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+	if (rom.size() > 512 * 1024) {
 		getMotherBoard().getMSXCliComm().printWarning(
 			"The size of this ROM image is larger than 512kB, "
 			"which is not supported on real Konami SCC mapper "
 			"chips!");
-		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 	powerUp(getCurrentTime());
 }

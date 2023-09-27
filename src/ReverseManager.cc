@@ -15,7 +15,7 @@
 #include "FileContext.hh"
 #include "StateChange.hh"
 #include "Timer.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
@@ -397,11 +397,17 @@ void ReverseManager::goTo(
 		    ((snapshotTime <= currentTime) ||
 		     ((preTarget - currentTime) < EmuDuration(1.0)))) {
 			newBoard = &motherBoard; // use current board
+			// suppress messages just in case, as we're later going
+			// to fast forward to the right time
+			newBoard->getMSXCliComm().setSuppressMessages(true);
 		} else {
 			// Note: we don't (anymore) erase future snapshots
 			// -- restore old snapshot --
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
+			// suppress messages we'd get by deserializing (and
+			// thus instantiating the parts of) the new board
+			newBoard->getMSXCliComm().setSuppressMessages(true);
 			MemInputArchive in(chunk.savestate.data(),
 					   chunk.size,
 					   chunk.deltaBlocks);
@@ -477,6 +483,8 @@ void ReverseManager::goTo(
 				lastSnapshotTarget = nextSnapshotTarget;
 			}
 		}
+		// re-enable messages
+		newBoard->getMSXCliComm().setSuppressMessages(false);
 		// re-enable automatic snapshots
 		schedule(getCurrentTime());
 

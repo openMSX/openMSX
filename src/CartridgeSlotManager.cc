@@ -6,7 +6,7 @@
 #include "MSXException.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXRom.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"

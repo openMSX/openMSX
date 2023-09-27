@@ -2,7 +2,7 @@
 #include "FileContext.hh"
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "HDImageCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
