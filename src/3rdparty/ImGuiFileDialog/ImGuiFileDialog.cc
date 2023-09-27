@@ -1396,7 +1396,7 @@ IGFD_API bool IGFD::FileInfos::SearchForTag(const std::string& vTag) const {
 IGFD_API bool IGFD::FileInfos::SearchForExt(const std::string& vExt, const bool& vIsCaseInsensitive, const size_t& vMaxLevel) const {
     if (!vExt.empty()) {
         const auto& ext_levels = vIsCaseInsensitive ? fileExtLevels_optimized : fileExtLevels;
-        if (vMaxLevel > 1 && countExtDot >= vMaxLevel) {
+        if (vMaxLevel >= 1 && countExtDot >= vMaxLevel) {
             for (const auto& ext : ext_levels) {
                 if (!ext.empty() && ext == vExt) {
                     return true;
