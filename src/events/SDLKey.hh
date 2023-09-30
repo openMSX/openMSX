@@ -1,7 +1,10 @@
 #ifndef SDLKEY_HH
 #define SDLKEY_HH
 
+#include "zstring_view.hh"
+
 #include <SDL.h>
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -30,9 +33,11 @@ struct SDLKey {
 	}
 
 	[[nodiscard]] static std::optional<SDLKey> fromString(std::string_view name);
+	[[nodiscard]] static SDL_Keycode keycodeFromString(zstring_view name);
 
 	// only uses the 'sym.sym', 'sym.mod' and 'down' fields (ignores sym.scancode and 'sym.unicode')
 	[[nodiscard]] std::string toString() const;
+	[[nodiscard]] static std::string toString(SDL_Keycode code);
 };
 
 } // namespace openmsx

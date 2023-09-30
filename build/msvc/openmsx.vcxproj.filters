@@ -273,6 +273,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc">
+      <Filter>events</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliComm.cc">
       <Filter>events</Filter>
     </ClCompile>
@@ -1706,6 +1709,9 @@
       <Filter>debugger</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\CliComm.hh">

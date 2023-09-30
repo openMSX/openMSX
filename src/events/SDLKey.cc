@@ -106,6 +106,16 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	return SDLK_UNKNOWN;
 }
 
+SDL_Keycode SDLKey::keycodeFromString(zstring_view name)
+{
+	auto result = SDL_GetKeyFromName(name.c_str());
+	if (result == SDLK_UNKNOWN) {
+		// for backwards compatibility
+		result = getKeyFromOldOpenmsxName(name);
+	}
+	return result;
+}
+
 std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 {
 	// Some remarks:
@@ -198,12 +208,7 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 				// more than one non-modifier component is not allowed
 				return {};
 			}
-			result.sym.sym = SDL_GetKeyFromName(std::string(part).c_str());
-
-			if (result.sym.sym == SDLK_UNKNOWN) {
-				// for backwards compatibility
-				result.sym.sym = getKeyFromOldOpenmsxName(part);
-			}
+			result.sym.sym = keycodeFromString(std::string(part));
 			if (result.sym.sym == SDLK_UNKNOWN) {
 				return {};
 			}
@@ -215,12 +220,16 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 	return result;
 }
 
+std::string SDLKey::toString(SDL_Keycode code)
+{
+	std::string result = SDL_GetKeyName(code);
+	if (result.empty()) result = "unknown";
+	return result;
+}
+
 std::string SDLKey::toString() const
 {
-	std::string result = SDL_GetKeyName(sym.sym);
-	if (result.empty()) {
-		return "unknown";
-	}
+	std::string result = toString(sym.sym);
 	if (sym.mod & KMOD_CTRL) {
 		result += "+CTRL";
 	}

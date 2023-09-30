@@ -120,6 +120,7 @@ sources = files(
     'debugger/SimpleDebuggable.cc',
     'events/AdhocCliCommParser.cc',
     'events/AfterCommand.cc',
+    'events/BooleanInput.cc',
     'events/CliComm.cc',
     'events/CliConnection.cc',
     'events/CliServer.cc',
@@ -524,6 +525,7 @@ main_sources = files(
 test_sources = files(
     'unittest/AdhocCliCommParser_test.cc',
     'unittest/Base64_test.cc',
+    'unittest/BooleanInput_test.cc',
     'unittest/CRC16_test.cc',
     'unittest/CircularBuffer_test.cc',
     'unittest/Date_test.cc',

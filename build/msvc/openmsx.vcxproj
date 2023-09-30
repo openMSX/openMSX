@@ -378,6 +378,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliComm.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliConnection.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliServer.cc" />
@@ -937,6 +938,7 @@
     <None Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliConnection.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliServer.hh" />
