@@ -9,6 +9,7 @@
 #include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
 #include "MagicKey.hh"
+#include "MSXJoystick.hh"
 #include "KeyJoystick.hh"
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
@@ -67,6 +68,12 @@ void PluggableFactory::createAll(PluggingController& controller,
 		controller, "joytap"));
 	controller.registerPluggable(std::make_unique<NinjaTap>(
 		controller, "ninjatap"));
+	controller.registerPluggable(std::make_unique<MSXJoystick>(
+		/*commandController,*/ msxEventDistributor,
+		stateChangeDistributor, globalSettings, 1)); // msxjoystick1
+	controller.registerPluggable(std::make_unique<MSXJoystick>(
+		/*commandController,*/ msxEventDistributor,
+		stateChangeDistributor, globalSettings, 2)); // msxjoystick2
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, KeyJoystick::ID1));

@@ -508,6 +508,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Keyboard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\MSXJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MagicKey.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Mouse.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.cc" />
@@ -1076,6 +1077,7 @@
     <None Include="$(OpenMSXSrcDir)\input\Keyboard.hh" />
     <None Include="$(OpenMSXSrcDir)\input\KeyboardSettings.hh" />
     <None Include="$(OpenMSXSrcDir)\input\KeyJoystick.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\MSXJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MagicKey.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Mouse.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MsxChar2Unicode.hh" />
