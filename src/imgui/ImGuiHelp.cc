@@ -3,6 +3,7 @@
 #include "ImGuiCpp.hh"
 #include "ImGuiUtils.hh"
 #include "FileContext.hh"
+#include "FileOperations.hh"
 #include "GLImage.hh"
 
 #include "Version.hh"
@@ -15,8 +16,13 @@ namespace openmsx {
 
 void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
+	auto docDir = FileOperations::getSystemDocDir();
 	im::Menu("Help", [&]{
-		ImGui::MenuItem("User manual", nullptr, &showHelpWindow);
+		im::Menu("Manual", [&]{
+			drawURL("FAQ", FileOperations::join(docDir, "manual", "faq.html"));
+			drawURL("Setup Guide", FileOperations::join(docDir, "manual", "setup.html"));
+			drawURL("User Manual", FileOperations::join(docDir, "manual", "user.html"));
+		});
 		ImGui::MenuItem("About", nullptr, &showAboutWindow);
 	});
 }

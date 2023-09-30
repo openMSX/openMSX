@@ -402,7 +402,7 @@ $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) \
 		build/custom.mk build/platform-$(OPENMSX_TARGET_OS).mk
 	$(CMD)$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
-		$(INSTALL_SHARE_DIR)
+		$(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR)
 	$(CMD)touch $@
 
 # Generate version header.

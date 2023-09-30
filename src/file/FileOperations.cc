@@ -479,6 +479,37 @@ const string& getSystemDataDir()
 	return *result;
 }
 
+const string& getSystemDocDir()
+{
+	static std::optional<string> result;
+	if (!result) result = []() -> string {
+#ifdef _WIN32
+		wchar_t bufW[MAXPATHLEN + 1];
+		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
+		if (!res) {
+			throw FatalError(
+				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
+				GetLastError());
+		}
+
+		string filename = utf16to8(bufW);
+		auto pos = filename.find_last_of('\\');
+		if (pos == string::npos) {
+			throw FatalError("openMSX is not in directory!?");
+		}
+		return getConventionalPath(filename.substr(0, pos)) + "/doc";
+#elif defined(__APPLE__)
+		return findDocDir();
+#elif PLATFORM_ANDROID
+		return getAbsolutePath("openmsx_system"); // TODO: currently no docs are installed on Android
+#else
+		// defined in build-info.hh (default /opt/openMSX/doc)
+		return DOCDIR;
+#endif
+	}();
+	return *result;
+}
+
 #ifdef _WIN32
 static bool driveExists(char driveLetter)
 {

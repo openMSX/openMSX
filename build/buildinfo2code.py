@@ -5,7 +5,7 @@ from outpututils import rewriteIfChanged
 from os.path import dirname, join as joinpath
 import sys
 
-def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
+def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, installDocDir):
 	platformVars = extractMakeVariables(
         joinpath(dirname(__file__), 'platform-%s.mk' % targetPlatform),
 		dict.fromkeys(
@@ -70,6 +70,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir
+	yield 'static const char* const DOCDIR = "%s";' % installDocDir
 	yield 'static const char* const BUILD_FLAVOUR = "%s";' % flavour
 	yield 'static const char* const TARGET_PLATFORM = "%s";' % targetPlatform
 	yield 'static const char* const TARGET_CPU = "%s";' % targetCPU.name
@@ -79,12 +80,12 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield '#endif // BUILD_INFO_HH'
 
 if __name__ == '__main__':
-	if len(sys.argv) == 6:
+	if len(sys.argv) == 7:
 		rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
 	else:
 		print(
 			'Usage: python3 buildinfo2code.py CONFIG_HEADER '
-			'platform cpu flavour share-install-dir',
+			'platform cpu flavour share-install-dir doc-install-dir',
 			file=sys.stderr
 			)
 		sys.exit(2)

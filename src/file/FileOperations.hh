@@ -230,6 +230,12 @@ namespace openmsx::FileOperations {
 	 */
 	[[nodiscard]] const std::string& getSystemDataDir();
 
+	/**
+	 * Get system doc directory.
+	 * Win32: use "same directory as .exe" + "/doc".
+	 */
+	[[nodiscard]] const std::string& getSystemDocDir();
+
 #ifdef _WIN32
 	typedef struct _stat Stat;
 #else

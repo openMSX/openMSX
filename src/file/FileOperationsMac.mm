@@ -39,4 +39,40 @@ std::string findShareDir()
 	throw FatalError("Could not find \"share\" directory anywhere");
 }
 
+
+// TODO: remove duplication, but I don't know how to program this properly
+std::string findDocDir()
+{
+	@autoreleasepool
+	{
+		NSBundle* mainBundle = [NSBundle mainBundle];
+		if (mainBundle == nil) {
+			throw FatalError("Failed to get main bundle");
+		}
+
+		NSURL* docURL = [mainBundle URLForResource:@"doc" withExtension:nil];
+		if ([docURL hasDirectoryPath]) {
+			return std::string(docURL.fileSystemRepresentation);
+		}
+
+		// Fallback when there is no application bundle or it is hidden by a symlink
+		NSURL* url = [mainBundle executableURL].URLByResolvingSymlinksInPath;
+		while (url != nil) {
+			docURL = [url URLByAppendingPathComponent:@"Contents/Resources/doc"];
+			if ([docURL hasDirectoryPath]) {
+				return std::string(docURL.fileSystemRepresentation);
+			}
+			docURL = [url URLByAppendingPathComponent:@"doc"];
+			if ([docURL hasDirectoryPath]) {
+				return std::string(docURL.fileSystemRepresentation);
+			}
+			if (![url getResourceValue:&url forKey:NSURLParentDirectoryURLKey error:nil]) {
+				url = nil;
+			}
+		}
+	}
+
+	throw FatalError("Could not find \"doc\" directory anywhere");
+}
+
 }

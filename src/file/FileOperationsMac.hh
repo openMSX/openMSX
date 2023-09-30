@@ -6,6 +6,7 @@
 namespace openmsx::FileOperations {
 
 std::string findShareDir();
+std::string findDocDir();
 
 }
 
