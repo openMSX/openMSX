@@ -19,9 +19,9 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 	auto docDir = FileOperations::getSystemDocDir();
 	im::Menu("Help", [&]{
 		im::Menu("Manual", [&]{
-			drawURL("FAQ", FileOperations::join(docDir, "manual", "faq.html"));
-			drawURL("Setup Guide", FileOperations::join(docDir, "manual", "setup.html"));
-			drawURL("User Manual", FileOperations::join(docDir, "manual", "user.html"));
+			drawURL("FAQ", strCat("file://", docDir, "/manual/faq.html"));
+			drawURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html"));
+			drawURL("User Manual", strCat("file://", docDir, "/manual/user.html"));
 		});
 		ImGui::MenuItem("About", nullptr, &showAboutWindow);
 	});
