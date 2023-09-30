@@ -391,7 +391,9 @@ void ImGuiSettings::paintJoystick()
 					if (bind.empty()) {
 						ImGui::TextDisabled("no bindings");
 					} else {
-						ImGui::TextUnformatted(join(bind, " | "));
+						ImGui::TextUnformatted(join(
+							view::transform(bind, [](const auto& b) { return toString(b); }),
+							" | "));
 					}
 				}
 			});
@@ -518,7 +520,7 @@ void ImGuiSettings::paintJoystick()
 			size_t remove = size_t(-1);
 			size_t counter = 0;
 			for (const auto& b : bind) {
-				if (ImGui::Selectable(b.c_str())) {
+				if (ImGui::Selectable(toString(b).c_str())) {
 					remove = counter;
 				}
 				++counter;
@@ -541,42 +543,6 @@ void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showConfigureJoystick) paintJoystick();
 }
 
-std::string ImGuiSettings::format(const Event& event) const
-{
-	return std::visit(overloaded{
-		[](const KeyDownEvent& e) {
-			return strCat("keyb ", e.getKey().toString());
-		},
-		[](const MouseButtonDownEvent& e) {
-			return strCat("mouse button", e.getButton());
-		},
-		[](const JoystickButtonDownEvent& e) {
-			return strCat("joy", (e.getJoystick() + 1), " button", e.getButton());
-		},
-		[](const JoystickHatEvent& e) {
-			if (e.getValue() == one_of(SDL_HAT_UP, SDL_HAT_RIGHT, SDL_HAT_DOWN, SDL_HAT_LEFT)) {
-				return toString(e); // joy<n> hat<m> <up/down/...>
-			}
-			return std::string{};
-		},
-		[&](const JoystickAxisMotionEvent& e) {
-			auto& settings = manager.getReactor().getGlobalSettings();
-			const auto& deadZone = settings.getJoyDeadZoneSetting(e.getJoystick());
-			int threshold = (deadZone.getInt() * 32768) / 100;
-			if ((-threshold <= e.getValue()) && (e.getValue() <= threshold)) {
-				return std::string{};
-			}
-			return strCat("joy", (e.getJoystick() + 1), ' ',
-			              (e.getValue() < 0 ? '-' : '+'),
-			              "axis", e.getAxis());
-		},
-		[](const EventBase&) {
-			UNREACHABLE;
-			return std::string{};
-		}
-	}, event);
-}
-
 int ImGuiSettings::signalEvent(const Event& event)
 {
 	if (popupForKey >= NUM_BUTTONS) {
@@ -589,12 +555,16 @@ int ImGuiSettings::signalEvent(const Event& event)
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		auto s = format(event);
-		if (s.empty()) return EventDistributor::HOTKEY; // keep popup active
+		auto getJoyDeadZone = [&](int joystick) {
+			auto& settings = manager.getReactor().getGlobalSettings();
+			return settings.getJoyDeadZoneSetting(joystick).getInt();
+		};
+		auto b = captureBooleanInput(event, getJoyDeadZone);
+		if (!b) return EventDistributor::HOTKEY; // keep popup active
 
 		auto& bind = bindings[popupForKey];
-		if (!contains(bind, s)) {
-			bind.push_back(std::move(s));
+		if (!contains(bind, *b)) {
+			bind.push_back(std::move(*b));
 		}
 	}
 
