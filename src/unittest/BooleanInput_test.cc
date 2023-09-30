@@ -157,3 +157,170 @@ TEST_CASE("BooleanInput: capture")
 		check(BootEvent{}, "");
 	}
 }
+
+TEST_CASE("BooleanInput: match")
+{
+	// define various events
+	auto keyDownA = KeyDownEvent::create(SDLK_a);
+	auto keyDownB = KeyDownEvent::create(SDLK_b);
+	auto keyUpA   = KeyUpEvent::create(SDLK_a);
+	auto keyUpB   = KeyUpEvent::create(SDLK_b);
+
+	SDL_Event sdl = {};
+	sdl.type = SDL_MOUSEBUTTONDOWN;
+	sdl.button.button = 1;
+	auto mouseDown1 = MouseButtonDownEvent(sdl);
+	sdl.button.button = 2;
+	auto mouseDown2 = MouseButtonDownEvent(sdl);
+
+	sdl.type = SDL_MOUSEBUTTONUP;
+	sdl.button.button = 1;
+	auto mouseUp1 = MouseButtonUpEvent(sdl);
+	sdl.button.button = 2;
+	auto mouseUp2 = MouseButtonUpEvent(sdl);
+
+	sdl.type = SDL_MOUSEWHEEL;
+	sdl.wheel.x = 2;
+	sdl.wheel.y = 4;
+	auto mouseWheel = MouseWheelEvent(sdl);
+
+	sdl.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.which = 0;
+	sdl.jbutton.button = 2;
+	auto joy1button2Down = JoystickButtonDownEvent(sdl);
+	sdl.type = SDL_JOYBUTTONUP;
+	auto joy1button2Up = JoystickButtonUpEvent(sdl);
+
+	sdl.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.which = 0;
+	sdl.jbutton.button = 3;
+	auto joy1button3Down = JoystickButtonDownEvent(sdl);
+	sdl.type = SDL_JOYBUTTONUP;
+	auto joy1button3Up = JoystickButtonUpEvent(sdl);
+
+	sdl.type = SDL_JOYBUTTONDOWN;
+	sdl.jbutton.which = 1;
+	sdl.jbutton.button = 2;
+	auto joy2button2Down = JoystickButtonDownEvent(sdl);
+	sdl.type = SDL_JOYBUTTONUP;
+	auto joy2button2Up = JoystickButtonUpEvent(sdl);
+
+	sdl.type = SDL_JOYHATMOTION;
+	sdl.jhat.which = 0;
+	sdl.jhat.hat = 1;
+	sdl.jhat.value = SDL_HAT_LEFT;
+	auto joy1hat1left = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_LEFTDOWN;
+	auto joy1hat1leftDown = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_DOWN;
+	auto joy1hat1down = JoystickHatEvent(sdl);
+
+	sdl.type = SDL_JOYHATMOTION;
+	sdl.jhat.which = 0;
+	sdl.jhat.hat = 2;
+	sdl.jhat.value = SDL_HAT_LEFT;
+	auto joy1hat2left = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_LEFTDOWN;
+	auto joy1hat2leftDown = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_DOWN;
+	auto joy1hat2down = JoystickHatEvent(sdl);
+
+	sdl.type = SDL_JOYHATMOTION;
+	sdl.jhat.which = 1;
+	sdl.jhat.hat = 1;
+	sdl.jhat.value = SDL_HAT_LEFT;
+	auto joy2hat1left = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_LEFTDOWN;
+	auto joy2hat1leftDown = JoystickHatEvent(sdl);
+	sdl.jhat.value = SDL_HAT_DOWN;
+	auto joy2hat1down = JoystickHatEvent(sdl);
+
+	sdl.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.which = 0;
+	sdl.jaxis.axis = 1;
+	sdl.jaxis.value = 32000;
+	auto joy1axis1P32000 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = 123;
+	auto joy1axis1P123 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = -27000;
+	auto joy1axis1M27000 = JoystickAxisMotionEvent(sdl);
+
+	sdl.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.which = 0;
+	sdl.jaxis.axis = 2;
+	sdl.jaxis.value = 32000;
+	auto joy1axis2P32000 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = 123;
+	auto joy1axis2P123 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = -27000;
+	auto joy1axis2M27000 = JoystickAxisMotionEvent(sdl);
+
+	sdl.type = SDL_JOYAXISMOTION;
+	sdl.jaxis.which = 1;
+	sdl.jaxis.axis = 1;
+	sdl.jaxis.value = 32000;
+	auto joy2axis1P32000 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = 123;
+	auto joy2axis1P123 = JoystickAxisMotionEvent(sdl);
+	sdl.jaxis.value = -27000;
+	auto joy2axis1M27000 = JoystickAxisMotionEvent(sdl);
+
+	// check against various BooleanInputs
+	auto getJoyDeadZone = [](int /*joystick*/) { return 25; };
+	auto check = [&](const std::optional<BooleanInput>& binding, const Event& event, std::optional<bool> expected) {
+		REQUIRE(binding);
+		CHECK(match(*binding, event, getJoyDeadZone) == expected);
+	};
+
+	auto bKeyA = parseBooleanInput("keyb A");
+	check(bKeyA, keyDownA, true);
+	check(bKeyA, keyUpA, false);
+	check(bKeyA, keyDownB, {});
+	check(bKeyA, keyUpB, {});
+	check(bKeyA, joy1button2Down, {});
+	check(bKeyA, mouseWheel, {});
+
+	auto bMouseButton1 = parseBooleanInput("mouse button1");
+	check(bMouseButton1, mouseDown1, true);
+	check(bMouseButton1, mouseUp1, false);
+	check(bMouseButton1, mouseDown2, {});
+	check(bMouseButton1, mouseUp2, {});
+	check(bMouseButton1, keyDownA, {});
+	check(bMouseButton1, mouseWheel, {});
+
+	auto bJoy1Button2 = parseBooleanInput("joy1 button2");
+	check(bJoy1Button2, joy1button2Down, true);
+	check(bJoy1Button2, joy1button2Up, false);
+	check(bJoy1Button2, joy1button3Down, {});
+	check(bJoy1Button2, joy1button3Up, {});
+	check(bJoy1Button2, joy2button2Down, {});
+	check(bJoy1Button2, joy2button2Up, {});
+	check(bJoy1Button2, mouseUp2, {});
+	check(bJoy1Button2, mouseWheel, {});
+
+	auto bJoy1Hat1Left = parseBooleanInput("joy1 hat1 left");
+	check(bJoy1Hat1Left, joy1hat1left, true);
+	check(bJoy1Hat1Left, joy1hat1leftDown, true);
+	check(bJoy1Hat1Left, joy1hat1down, false);
+	check(bJoy1Hat1Left, joy1hat2left, {});
+	check(bJoy1Hat1Left, joy1hat2leftDown, {});
+	check(bJoy1Hat1Left, joy1hat2down, {});
+	check(bJoy1Hat1Left, joy2hat1left, {});
+	check(bJoy1Hat1Left, joy2hat1leftDown, {});
+	check(bJoy1Hat1Left, joy2hat1down, {});
+	check(bJoy1Hat1Left, joy1button2Down, {});
+	check(bJoy1Hat1Left, mouseWheel, {});
+
+	auto bJoy1Axis1P = parseBooleanInput("joy1 +axis1");
+	check(bJoy1Axis1P, joy1axis1P32000, true);
+	check(bJoy1Axis1P, joy1axis1P123, false);
+	check(bJoy1Axis1P, joy1axis1M27000, false);
+	check(bJoy1Axis1P, joy1axis2P32000, {});
+	check(bJoy1Axis1P, joy1axis2P123, {});
+	check(bJoy1Axis1P, joy1axis2M27000, {});
+	check(bJoy1Axis1P, joy2axis1P32000, {});
+	check(bJoy1Axis1P, joy2axis1P123, {});
+	check(bJoy1Axis1P, joy2axis1M27000, {});
+	check(bJoy1Axis1P, joy1hat1left, {});
+	check(bJoy1Axis1P, mouseWheel, {});
+}

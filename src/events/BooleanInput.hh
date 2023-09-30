@@ -66,7 +66,7 @@ public:
 	[[nodiscard]] auto getButton() const { return button; }
 
 private:
-	unsigned joystick;
+	int joystick;
 	uint8_t button;
 };
 
@@ -88,7 +88,7 @@ public:
 	[[nodiscard]] auto getValue() const { return value; }
 
 private:
-	unsigned joystick;
+	int joystick;
 	uint8_t hat;
 	Value value;
 };
@@ -106,7 +106,7 @@ public:
 	[[nodiscard]] auto getDirection() const { return direction; }
 
 private:
-	unsigned joystick;
+	int joystick;
 	uint8_t axis;
 	Direction direction;
 };
@@ -125,6 +125,9 @@ using BooleanInput = std::variant<
 [[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(int)> getJoyDeadZone);
 
 [[nodiscard]] bool operator==(const BooleanInput& x, const BooleanInput& y);
+
+[[nodiscard]] std::optional<bool> match(const BooleanInput& binding, const Event& event,
+                                        std::function<int(int)> getJoyDeadZone);
 
 } // namespace openmsx
 

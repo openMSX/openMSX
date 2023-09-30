@@ -175,4 +175,61 @@ bool operator==(const BooleanInput& x, const BooleanInput& y)
 	}, x, y);
 }
 
+std::optional<bool> match(const BooleanInput& binding, const Event& event,
+                          std::function<int(int)> getJoyDeadZone)
+{
+	return std::visit(overloaded{
+		[](const BooleanKeyboard& bind, const KeyDownEvent& down) -> std::optional<bool> {
+			if (bind.getKeyCode() == down.getKeyCode()) return true;
+			return std::nullopt;
+		},
+		[](const BooleanKeyboard& bind, const KeyUpEvent& up) -> std::optional<bool> {
+			if (bind.getKeyCode() == up.getKeyCode()) return false; // no longer pressed
+			return std::nullopt;
+		},
+
+		[](const BooleanMouseButton& bind, const MouseButtonDownEvent& down) -> std::optional<bool> {
+			if (bind.getButton() == down.getButton()) return true;
+			return std::nullopt;
+		},
+		[](const BooleanMouseButton& bind, const MouseButtonUpEvent& up) -> std::optional<bool> {
+			if (bind.getButton() == up.getButton()) return false; // no longer pressed
+			return std::nullopt;
+		},
+
+		[](const BooleanJoystickButton& bind, const JoystickButtonDownEvent& down) -> std::optional<bool> {
+			if (bind.getJoystick() != down.getJoystick()) return std::nullopt;
+			if (bind.getButton() == down.getButton()) return true;
+			return std::nullopt;
+		},
+		[](const BooleanJoystickButton& bind, const JoystickButtonUpEvent& up) -> std::optional<bool> {
+			if (bind.getJoystick() != up.getJoystick()) return std::nullopt;
+			if (bind.getButton() == up.getButton()) return false; // no longer pressed
+			return std::nullopt;
+		},
+
+		[](const BooleanJoystickHat& bind, const JoystickHatEvent& e) -> std::optional<bool> {
+			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
+			if (bind.getHat() != e.getHat()) return std::nullopt;
+			return bind.getValue() & e.getValue();
+		},
+
+		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<bool> {
+			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
+			if (bind.getAxis() != e.getAxis()) return std::nullopt;
+			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
+			int threshold = (deadZone * 32768) / 100;
+			if (bind.getDirection() == BooleanJoystickAxis::POS) {
+				return e.getValue() > threshold;
+			} else {
+				return e.getValue() < -threshold;
+			}
+		},
+
+		[](const auto& /*bind*/, const auto& /*event*/) -> std::optional<bool> {
+			return std::nullopt;
+		}
+	}, binding, event);
+}
+
 } // namespace openmsx
