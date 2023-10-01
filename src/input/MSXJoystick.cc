@@ -1,14 +1,18 @@
 #include "MSXJoystick.hh"
 
+#include "CommandController.hh"
 #include "Event.hh"
 #include "GlobalSettings.hh"
 #include "MSXEventDistributor.hh"
+#include "ranges.hh"
 #include "StateChangeDistributor.hh"
 #include "StateChange.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 
+#include "join.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -37,27 +41,36 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXJoyState, "MSXJoyState");
 
-MSXJoystick::MSXJoystick(//CommandController& commandController,
+[[nodiscard]] static TclObject getDefaultConfig(uint8_t /*id*/)
+{
+	TclObject result;
+	result.addDictKeyValues("UP",    makeTclList("keyb Up"),
+	                        "DOWN",  makeTclList("keyb Down"),
+	                        "LEFT",  makeTclList("keyb Left"),
+	                        "RIGHT", makeTclList("keyb Right"),
+	                        "A",     makeTclList("keyb Space"),
+	                        "B",     makeTclList("keyb M"));
+	return result;
+}
+MSXJoystick::MSXJoystick(CommandController& commandController_,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
                          GlobalSettings& globalSettings_,
                          uint8_t id_)
-	: eventDistributor(eventDistributor_)
+	: commandController(commandController_)
+	, eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, globalSettings(globalSettings_)
+	, configSetting(commandController, tmpStrCat("msxjoystick", id_, "_config"),
+		"msxjoystick mapping configuration", getDefaultConfig(id_).getString())
 	, id(id_)
 	, status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB)
 {
-	// TODO hardcoded for now
-	up   .emplace_back(BooleanKeyboard(SDLK_UP));
-	down .emplace_back(BooleanKeyboard(SDLK_DOWN));
-	left .emplace_back(BooleanKeyboard(SDLK_LEFT));
-	right.emplace_back(BooleanKeyboard(SDLK_RIGHT));
-	trigA.emplace_back(BooleanKeyboard(SDLK_SPACE));
-	trigA.emplace_back(BooleanMouseButton(1));
-	trigB.emplace_back(BooleanKeyboard(SDLK_m));
-	trigB.emplace_back(BooleanMouseButton(3));
+	configSetting.setChecker([this](TclObject& newValue) {
+		this->checkJoystickConfig(newValue); });
+	// fill in 'bindings'
+	checkJoystickConfig(const_cast<TclObject&>(configSetting.getValue()));
 }
 
 MSXJoystick::~MSXJoystick()
@@ -67,6 +80,42 @@ MSXJoystick::~MSXJoystick()
 	}
 }
 
+void MSXJoystick::checkJoystickConfig(TclObject& newValue)
+{
+	std::array<std::vector<BooleanInput>, 6> newBindings;
+
+	auto& interp = commandController.getInterpreter();
+	unsigned n = newValue.getListLength(interp);
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (unsigned i = 0; i < n; i += 2) {
+		static constexpr std::array<std::string_view, 6> keys = {
+			// order is important!
+			"UP", "DOWN", "LEFT", "RIGHT", "A", "B"
+		};
+		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
+		auto it = ranges::find(keys, key);
+		if (it == keys.end()) {
+			throw CommandException(
+				"Invalid key: must be one of ", join(keys, ", "));
+		}
+		auto idx = std::distance(keys.begin(), it);
+
+		TclObject value = newValue.getListIndex(interp, i + 1);
+		for (auto j : xrange(value.getListLength(interp))) {
+			std::string_view val = value.getListIndex(interp, j).getString();
+			auto bind = parseBooleanInput(val);
+			if (!bind) {
+				throw CommandException("Invalid binding: ", val);
+			}
+			newBindings[idx].push_back(*bind);
+		}
+	}
+
+	// only change current bindings when parsing was fully successful
+	ranges::copy(newBindings, bindings);
+}
 
 // Pluggable
 std::string_view MSXJoystick::getName() const
@@ -118,19 +167,13 @@ void MSXJoystick::signalMSXEvent(const Event& event,
 	auto getJoyDeadZone = [&](int joystick) {
 		return globalSettings.getJoyDeadZoneSetting(joystick).getInt();
 	};
-	auto process = [&](std::span<const BooleanInput> bindings, uint8_t bit) {
-		for (const auto& binding : bindings) {
+	for (int i : xrange(6)) {
+		for (const auto& binding : bindings[i]) {
 			if (auto onOff = match(binding, event, getJoyDeadZone)) {
-				(*onOff ? press : release) |= bit;
+				(*onOff ? press : release) |= 1 << i;
 			}
 		}
-	};
-	process(up,    JOY_UP);
-	process(down,  JOY_DOWN);
-	process(left,  JOY_LEFT);
-	process(right, JOY_RIGHT);
-	process(trigA, JOY_BUTTONA);
-	process(trigB, JOY_BUTTONB);
+	}
 
 	if (((status & ~press) | release) != status) {
 		stateChangeDistributor.distributeNew<MSXJoyState>(

@@ -69,10 +69,10 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<NinjaTap>(
 		controller, "ninjatap"));
 	controller.registerPluggable(std::make_unique<MSXJoystick>(
-		/*commandController,*/ msxEventDistributor,
+		commandController, msxEventDistributor,
 		stateChangeDistributor, globalSettings, 1)); // msxjoystick1
 	controller.registerPluggable(std::make_unique<MSXJoystick>(
-		/*commandController,*/ msxEventDistributor,
+		commandController, msxEventDistributor,
 		stateChangeDistributor, globalSettings, 2)); // msxjoystick2
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,

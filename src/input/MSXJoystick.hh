@@ -6,12 +6,14 @@
 #include "BooleanInput.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include "StringSetting.hh"
 
+#include <array>
 #include <vector>
 
 namespace openmsx {
 
-//class CommandController;
+class CommandController;
 class GlobalSettings;
 class MSXEventDistributor;
 class StateChangeDistributor;
@@ -20,7 +22,7 @@ class MSXJoystick final : public JoystickDevice, private MSXEventListener
                         , private StateChangeListener
 {
 public:
-	MSXJoystick(//CommandController& commandController,
+	MSXJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
 	            GlobalSettings& globalSettings,
@@ -31,6 +33,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void checkJoystickConfig(TclObject& newValue);
+
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
@@ -49,16 +53,14 @@ private:
 	void stopReplay(EmuTime::param time) noexcept override;
 
 private:
+	CommandController& commandController;
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	GlobalSettings& globalSettings;
+	StringSetting configSetting;
 
-	std::vector<BooleanInput> up;
-	std::vector<BooleanInput> down;
-	std::vector<BooleanInput> left;
-	std::vector<BooleanInput> right;
-	std::vector<BooleanInput> trigA;
-	std::vector<BooleanInput> trigB;
+	// up, down, left, right, a, b (in sync with order in JoystickDevice)
+	std::array<std::vector<BooleanInput>, 6> bindings; // calculated from 'configSetting'
 
 	const uint8_t id;
 	uint8_t status;
