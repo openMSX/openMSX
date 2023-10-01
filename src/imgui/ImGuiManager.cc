@@ -313,7 +313,7 @@ void ImGuiManager::paintImGui()
 		}
 	};
 	if (mainMenuBarUndocked) {
-		im::Window("OpenMSX menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
+		im::Window("openMSX main menu", &mainMenuBarUndocked, ImGuiWindowFlags_MenuBar, [&]{
 			im::MenuBar([&]{
 				if (ImGui::ArrowButton("re-dock-button", ImGuiDir_Down)) {
 					mainMenuBarUndocked = false;
