@@ -48,6 +48,16 @@ using namespace std::literals;
 
 namespace openmsx {
 
+static constexpr std::array<zstring_view, 2> joystickNames = {
+	"msxjoystick1", "msxjoystick2"
+};
+
+ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
+	: manager(manager_)
+{
+	joystick = joystickNames.front();
+}
+
 ImGuiSettings::~ImGuiSettings()
 {
 	deinitListener();
@@ -325,14 +335,23 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	static constexpr auto sizeDPad = 30.0f;
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
-	auto& controller = motherBoard.getMSXCommandController();
-	auto* setting = dynamic_cast<StringSetting*>(controller.findSetting("msxjoystick1_config")); // TODO
-	if (!setting) return;
-	auto& interp = setting->getInterpreter();
-	TclObject bindings = setting->getValue();
-
-	ImGui::SetNextWindowSize(gl::vec2{316, 278}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{316, 300}, ImGuiCond_FirstUseEver);
 	im::Window("Configure joystick", &showConfigureJoystick, [&]{
+		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
+		im::Combo("Select joystick", joystick.c_str(), [&]{
+			for (const auto& j : joystickNames) {
+				if (ImGui::Selectable(j.c_str())) {
+					joystick = j;
+				}
+			}
+		});
+
+		auto& controller = motherBoard.getMSXCommandController();
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystick, "_config")));
+		if (!setting) return;
+		auto& interp = setting->getInterpreter();
+		TclObject bindings = setting->getValue();
+
 		auto* drawList = ImGui::GetWindowDrawList();
 		gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
@@ -570,9 +589,9 @@ int ImGuiSettings::signalEvent(const Event& event)
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		auto getJoyDeadZone = [&](int joystick) {
+		auto getJoyDeadZone = [&](int joyNum) {
 			auto& settings = manager.getReactor().getGlobalSettings();
-			return settings.getJoyDeadZoneSetting(joystick).getInt();
+			return settings.getJoyDeadZoneSetting(joyNum).getInt();
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
 		if (!b) return EventDistributor::HOTKEY; // keep popup active
@@ -581,7 +600,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 		auto* motherBoard = manager.getReactor().getMotherBoard();
 		if (!motherBoard) return EventDistributor::HOTKEY;
 		auto& controller = motherBoard->getMSXCommandController();
-		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting("msxjoystick1_config")); // TODO
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystick, "_config")));
 		if (!setting) return EventDistributor::HOTKEY;
 		auto& interp = setting->getInterpreter();
 

@@ -15,8 +15,7 @@ public:
 	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
 
 public:
-	ImGuiSettings(ImGuiManager& manager_)
-		: manager(manager_) {}
+	ImGuiSettings(ImGuiManager& manager);
 	~ImGuiSettings();
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
@@ -34,6 +33,7 @@ private:
 	bool showConfigureJoystick = false;
 	bool showDemoWindow = false;
 
+	std::string joystick;
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
