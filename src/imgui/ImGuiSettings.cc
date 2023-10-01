@@ -4,6 +4,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
+#include "BooleanInput.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
 #include "Display.hh"
@@ -303,7 +304,14 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	       between(mouse[1], topLeft[1], bottomRight[1]);
 }
 
-void ImGuiSettings::paintJoystick()
+static constexpr std::array<zstring_view, ImGuiSettings::NUM_BUTTONS> buttonNames = {
+	"Up", "Down", "Left", "Right", "A", "B" // show in the GUI
+};
+static constexpr std::array<zstring_view, ImGuiSettings::NUM_BUTTONS> keyNames = {
+	"UP", "DOWN", "LEFT", "RIGHT", "A", "B" // keys in Tcl dict
+};
+
+void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 {
 	// Customize joystick look
 	static constexpr auto white = uint32_t(0xffffffff);
@@ -317,9 +325,11 @@ void ImGuiSettings::paintJoystick()
 	static constexpr auto sizeDPad = 30.0f;
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
-	static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
-		"Up", "Down", "Left", "Right", "A", "B"
-	};
+	auto& controller = motherBoard.getMSXCommandController();
+	auto* setting = dynamic_cast<StringSetting*>(controller.findSetting("msxjoystick1_config")); // TODO
+	if (!setting) return;
+	auto& interp = setting->getInterpreter();
+	TclObject bindings = setting->getValue();
 
 	ImGui::SetNextWindowSize(gl::vec2{316, 278}, ImGuiCond_FirstUseEver);
 	im::Window("Configure joystick", &showConfigureJoystick, [&]{
@@ -361,6 +371,8 @@ void ImGuiSettings::paintJoystick()
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
 		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, [&]{
 			im::ID_for_range(NUM_BUTTONS, [&](int i) {
+				TclObject key(keyNames[i]);
+				TclObject bindingList = bindings.getDictValue(interp, key);
 				if (ImGui::TableNextColumn()) {
 					auto pos = ImGui::GetCursorPos();
 					ImGui::Selectable("##row", hovered[i], ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
@@ -373,27 +385,26 @@ void ImGuiSettings::paintJoystick()
 					ImGui::TextUnformatted(buttonNames[i]);
 				}
 				if (ImGui::TableNextColumn()) {
-					auto& bind = bindings[i];
 					if (ImGui::Button("Add")) {
 						addAction = i;
 					}
 					ImGui::SameLine();
-					im::Disabled(bind.empty(), [&]{
+					auto numBindings = bindingList.size();
+					im::Disabled(numBindings == 0, [&]{
 						if (ImGui::Button("Remove")) {
-							if (bind.size() == 1) {
-								bind.clear();
+							if (numBindings == 1) {
+								bindings.setDictValue(interp, key, TclObject{});
+								setting->setValue(bindings);
 							} else {
 								removeAction = i;
 							}
 						}
 					});
 					ImGui::SameLine();
-					if (bind.empty()) {
+					if (numBindings == 0) {
 						ImGui::TextDisabled("no bindings");
 					} else {
-						ImGui::TextUnformatted(join(
-							view::transform(bind, [](const auto& b) { return toString(b); }),
-							" | "));
+						ImGui::TextUnformatted(join(bindingList, " | "));
 					}
 				}
 			});
@@ -515,32 +526,36 @@ void ImGuiSettings::paintJoystick()
 				close();
 				return;
 			}
-			auto& bind = bindings[popupForKey];
+			TclObject key(keyNames[popupForKey]);
+			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			size_t remove = size_t(-1);
-			size_t counter = 0;
-			for (const auto& b : bind) {
-				if (ImGui::Selectable(toString(b).c_str())) {
+			unsigned remove = unsigned(-1);
+			unsigned counter = 0;
+			for (const auto& b : bindingList) {
+				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
 				}
 				++counter;
 			}
-			if (remove != size_t(-1)) {
-				bind.erase(bind.begin() + remove);
+			if (remove != unsigned(-1)) {
+				bindingList.removeListIndex(interp, remove);
+				bindings.setDictValue(interp, key, bindingList);
+				setting->setValue(bindings);
 				close();
 			}
 
 			if (ImGui::Selectable("--all--")) {
-				bind.clear();
+				bindings.setDictValue(interp, key, TclObject{});
+				setting->setValue(bindings);
 				close();
 			}
 		});
 	});
 }
 
-void ImGuiSettings::paint(MSXMotherBoard* /*motherBoard*/)
+void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
-	if (showConfigureJoystick) paintJoystick();
+	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
 }
 
 int ImGuiSettings::signalEvent(const Event& event)
@@ -561,10 +576,23 @@ int ImGuiSettings::signalEvent(const Event& event)
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
 		if (!b) return EventDistributor::HOTKEY; // keep popup active
+		auto bs = toString(*b);
 
-		auto& bind = bindings[popupForKey];
-		if (!contains(bind, *b)) {
-			bind.push_back(std::move(*b));
+		auto* motherBoard = manager.getReactor().getMotherBoard();
+		if (!motherBoard) return EventDistributor::HOTKEY;
+		auto& controller = motherBoard->getMSXCommandController();
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting("msxjoystick1_config")); // TODO
+		if (!setting) return EventDistributor::HOTKEY;
+		auto& interp = setting->getInterpreter();
+
+		TclObject bindings = setting->getValue();
+		TclObject key(keyNames[popupForKey]);
+		TclObject bindingList = bindings.getDictValue(interp, key);
+
+		if (!contains(bindingList, bs)) {
+			bindingList.addListElement(bs);
+			bindings.setDictValue(interp, key, bindingList);
+			setting->setValue(bindings);
 		}
 	}
 

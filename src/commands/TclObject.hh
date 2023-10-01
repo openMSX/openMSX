@@ -67,7 +67,6 @@ class TclObject
 	};
 
 public:
-
 	TclObject()                                  { init(Tcl_NewObj()); }
 	explicit TclObject(Tcl_Obj* o)               { init(o); }
 	template<typename T> explicit TclObject(T t) { init(newObj(t)); }
@@ -156,6 +155,8 @@ public:
 	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
 	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
 	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
+	void removeListIndex(Interpreter& interp, unsigned index);
+	void setDictValue(Interpreter& interp, const TclObject& key, const TclObject& value);
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 	template<typename Key>
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {

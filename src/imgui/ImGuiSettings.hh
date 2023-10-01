@@ -3,11 +3,7 @@
 
 #include "ImGuiPart.hh"
 
-#include "BooleanInput.hh"
 #include "EventListener.hh"
-
-#include <array>
-#include <vector>
 
 namespace openmsx {
 
@@ -15,6 +11,9 @@ class ImGuiManager;
 
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
+public:
+	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
+
 public:
 	ImGuiSettings(ImGuiManager& manager_)
 		: manager(manager_) {}
@@ -28,20 +27,16 @@ private:
 	void initListener();
 	void deinitListener();
 
-	void paintJoystick();
+	void paintJoystick(MSXMotherBoard& motherBoard);
 
 private:
 	ImGuiManager& manager;
 	bool showConfigureJoystick = false;
 	bool showDemoWindow = false;
 
-	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
-	std::array<std::vector<BooleanInput>, NUM_BUTTONS> bindings;
-
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
-	char protoTypeCounter = 'A';
 };
 
 } // namespace openmsx
