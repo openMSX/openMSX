@@ -254,6 +254,15 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure joystick ...", nullptr, &showConfigureJoystick);
 		});
 		ImGui::Separator();
+		if (ImGui::MenuItem("Save settings now")) {
+			manager.executeDelayed(TclObject("save_settings"));
+		}
+		auto& autoSaveSetting = reactor.getGlobalSettings().getAutoSaveSetting();
+		bool autoSave = autoSaveSetting.getBoolean();
+		if (ImGui::MenuItem("Auto-save settings on exit", nullptr, &autoSave)) {
+			autoSaveSetting.setBoolean(autoSave);
+		}
+		ImGui::Separator();
 		im::Menu("Advanced", [&]{
 			ImGui::TextUnformatted("All settings"sv);
 			ImGui::Separator();
