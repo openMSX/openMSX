@@ -237,7 +237,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				});
 			}
 		});
-		im::Menu("Misc", [&]{
+		im::Menu("Input", [&]{
 			static constexpr std::array kbdModeToolTips = {
 				EnumToolTip{"CHARACTER",  "Tries to understand the character you are typing and then attempts to type that character using the current MSX keyboard. May not work very well when using a non-US host keyboard."},
 				EnumToolTip{"KEY",        "Tries to map a key you press to the corresponding MSX key"},
@@ -249,12 +249,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
 			};
-
+			ImGui::MenuItem("Configure joystick ...", nullptr, &showConfigureJoystick);
+		});
+		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
-			// TODO placeholder, move to appropriate location
-			ImGui::MenuItem("Configure joystick ...", nullptr, &showConfigureJoystick);
 		});
 		ImGui::Separator();
 		if (ImGui::MenuItem("Save settings now")) {
