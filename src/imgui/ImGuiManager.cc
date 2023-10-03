@@ -35,7 +35,7 @@ static void initializeImGui()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard |
-	                  ImGuiConfigFlags_NavEnableGamepad |
+	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
 	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
