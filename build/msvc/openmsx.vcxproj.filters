@@ -7,14 +7,8 @@
     <Filter Include="3rdparty\imgui">
       <UniqueIdentifier>{3b13637c-13a0-4e77-a5aa-d68d68fdf5a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3rdparty\imgui_md">
-      <UniqueIdentifier>{7e3e50dc-8373-4520-800d-f221315ba08f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="3rdparty\imgui_memory_editor">
       <UniqueIdentifier>{305ed602-57dc-4f3c-9fdd-e372d1403920}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3rdparty\md4c">
-      <UniqueIdentifier>{08c2390c-c6a8-4079-a6fb-6a62e69af37a}</UniqueIdentifier>
     </Filter>
     <Filter Include="cassette">
       <UniqueIdentifier>{27eaf1e2-f5da-477a-99a5-7be15006d6a0}</UniqueIdentifier>
@@ -119,12 +113,6 @@
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.cc">
       <Filter>3rdparty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui_md\imgui_md.cc">
-      <Filter>3rdparty\imgui_md</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\md4c\md4c.cc">
-      <Filter>3rdparty\md4c</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CasImage.cc">
       <Filter>cassette</Filter>
@@ -565,9 +553,6 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.cc">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMarkdown.cc">
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.cc">
@@ -1528,14 +1513,8 @@
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.h">
       <Filter>3rdparty\imgui</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui_md\imgui_md.h">
-      <Filter>3rdparty\imgui_md</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor\imgui_memory_editor.h">
       <Filter>3rdparty\imgui_memory_editor</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\3rdparty\md4c\md4c.h">
-      <Filter>3rdparty\md4c</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
       <Filter>cassette</Filter>
@@ -2024,9 +2003,6 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.hh">
-      <Filter>imgui</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMarkdown.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.hh">

@@ -82,15 +82,6 @@ private:
 	Reactor& reactor;
 
 public:
-	// TODO dynamic font loading in ImGui is technically possible, though not trivial
-	// So for now pre-load all the fonts we'll need.
-	//   see https://github.com/ocornut/imgui/issues/2311
-	ImFont* vera13 = nullptr;
-	ImFont* veraBold13 = nullptr;
-	ImFont* veraBold16 = nullptr;
-	ImFont* veraItalic13 = nullptr;
-	ImFont* veraBoldItalic13 = nullptr;
-
 	ImGuiMachine machine;
 	ImGuiDebugger debugger;
 	ImGuiBreakPoints breakPoints;

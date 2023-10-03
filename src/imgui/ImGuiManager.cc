@@ -48,19 +48,6 @@ static void initializeImGui()
 	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
 }
 
-static ImFont* addFont(const std::string& filename, int fontSize)
-{
-	File file(filename);
-	auto fileSize = file.getSize();
-	auto ttfData = std::span(static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
-	file.read(ttfData);
-
-	auto& io = ImGui::GetIO();
-	return io.Fonts->AddFontFromMemoryTTF(
-		ttfData.data(), // transfer ownership of 'ttfData' buffer
-		narrow<int>(ttfData.size()), narrow<float>(fontSize));
-}
-
 static void cleanupImGui()
 {
 	ImGui::DestroyContext();
@@ -80,7 +67,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, sprite(*this)
 	, vdpRegs(*this)
 	, reverseBar(*this)
-	, help(*this)
 	, osdIcons(*this)
 	, openFile(*this)
 	, media(*this)
@@ -94,14 +80,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 {
 	initializeImGui();
 	debugger.loadIcons();
-
-	// load extra fonts
-	const auto& context = systemFileContext();
-	vera13           = addFont(context.resolve("skins/Vera.ttf.gz"), 13);
-	veraBold13       = addFont(context.resolve("skins/Vera-Bold.ttf.gz"), 13);
-	veraBold16       = addFont(context.resolve("skins/Vera-Bold.ttf.gz"), 16);
-	veraItalic13     = addFont(context.resolve("skins/Vera-Italic.ttf.gz"), 13);
-	veraBoldItalic13 = addFont(context.resolve("skins/Vera-Bold-Italic.ttf.gz"), 13);
 
 	ImGuiSettingsHandler ini_handler;
 	ini_handler.TypeName = "openmsx";
