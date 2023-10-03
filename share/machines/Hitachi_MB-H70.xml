@@ -11,10 +11,7 @@
     <region>jp</region>
   </info>
 
-  <!-- Info taken by Peter Hanraets of his machine with serial number XXXXXX (TODO)
-
-  Note that empty memory areas show up as 0xBF bytes, instead of 0xFF. This is
-  not emulated.
+  <!-- Info taken by Peter Hanraets of his machine with serial number 151417.
 
   Photo on MSX.org shows:
   - NEC D780C-1 CPU
