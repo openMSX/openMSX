@@ -9,6 +9,7 @@
 #include "StateChange.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "build-info.hh"
 
 #include "join.hh"
 #include "unreachable.hh"
