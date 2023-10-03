@@ -40,21 +40,13 @@ proc do_autoplug {} {
 		}
 
 		# joystick ports
-		if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
-			if {"joyporta" in $connectors} {
-				set ::keyjoystick1.triga LCTRL
-				set ::keyjoystick1.trigb LALT
-				plug_if_empty joyporta keyjoystick1
-			}
-		} else {
-			if {("joyporta" in $connectors) &&
-			    ("joystick1" in $pluggables)} {
-				plug_if_empty joyporta joystick1
-			}
-			if {("joyportb" in $connectors) &&
-			    ("joystick2" in $pluggables)} {
-				plug_if_empty joyportb joystick2
-			}
+		if {("joyporta" in $connectors) &&
+		    ("joystick1" in $pluggables)} {
+			plug_if_empty joyporta msxjoystick1
+		}
+		if {("joyportb" in $connectors) &&
+		    ("joystick2" in $pluggables)} {
+			plug_if_empty joyportb msxjoystick2
 		}
 	}
 	after boot [namespace code do_autoplug]

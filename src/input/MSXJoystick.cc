@@ -49,6 +49,10 @@ TclObject MSXJoystick::getDefaultConfig(uint8_t id)
 		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
 			((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, "button", b));
 		}
+#if PLATFORM_DINGUX
+		listA.addListElement(tmpStrCat("keyb Left Ctrl"));
+		listB.addListElement(tmpStrCat("keyb Left Alt"));
+#endif
 		TclObject result(TclObject::MakeDictTag{},
 			"UP",    makeTclList(tmpStrCat(joy, "-axis1"), tmpStrCat(joy, "hat0 up")),
 			"DOWN",  makeTclList(tmpStrCat(joy, "+axis1"), tmpStrCat(joy, "hat0 down")),
