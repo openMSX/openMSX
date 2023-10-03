@@ -42,6 +42,8 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <SDL.h>
+
 #include <optional>
 
 using namespace std::literals;
@@ -344,7 +346,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	static constexpr auto sizeDPad = 30.0f;
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
-	ImGui::SetNextWindowSize(gl::vec2{316, 300}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
 	im::Window("Configure joystick", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		im::Combo("Select joystick", joystick.c_str(), [&]{
@@ -397,7 +399,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		const auto& style = ImGui::GetStyle();
 		auto textHeight = ImGui::GetTextLineHeight();
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
-		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, [&]{
+		float tableHeight = int(NUM_BUTTONS) * (rowHeight + 2.0f * style.CellPadding.y);
+		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {0.0f, tableHeight}, [&]{
 			im::ID_for_range(NUM_BUTTONS, [&](int i) {
 				TclObject key(keyNames[i]);
 				TclObject bindingList = bindings.getDictValue(interp, key);
@@ -511,6 +514,65 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		drawList->AddBezierQuadratic(trB({4, -4}), trB({4, -1}), trB({1, -1}), white, thickness);
 		drawList->AddBezierQuadratic(trB({2, -1}), trB({6, -1}), trB({6,  3}), white, thickness);
 		drawList->AddBezierQuadratic(trB({6,  3}), trB({6,  7}), trB({2,  7}), white, thickness);
+
+		if (ImGui::Button("Default bindings ...")) {
+			ImGui::OpenPopup("bindings");
+		}
+		im::Popup("bindings", [&]{
+			auto addOrSet = [&](auto getBindings) {
+				if (ImGui::MenuItem("Add to current bindings")) {
+					// merge 'newBindings' into 'bindings'
+					auto newBindings = getBindings();
+					for (auto k : xrange(int(NUM_BUTTONS))) {
+						TclObject key(keyNames[k]);
+						TclObject dstList = bindings.getDictValue(interp, key);
+						TclObject srcList = newBindings.getDictValue(interp, key);
+						// This is O(N^2), but that's fine (here).
+						for (auto b : srcList) {
+							if (!contains(dstList, b)) {
+								dstList.addListElement(b);
+							}
+						}
+						bindings.setDictValue(interp, key, dstList);
+					}
+					setting->setValue(bindings);
+				}
+				if (ImGui::MenuItem("Replace current bindings")) {
+					setting->setValue(getBindings());
+				}
+			};
+			im::Menu("Keyboard", [&]{
+				addOrSet([] {
+					return TclObject(TclObject::MakeDictTag{},
+						"UP",    makeTclList("keyb Up"),
+						"DOWN",  makeTclList("keyb Down"),
+						"LEFT",  makeTclList("keyb Left"),
+						"RIGHT", makeTclList("keyb Right"),
+						"A",     makeTclList("keyb Space"),
+						"B",     makeTclList("keyb M"));
+				});
+			});
+			for (auto i : xrange(SDL_NumJoysticks())) {
+				im::Menu(SDL_JoystickNameForIndex(i), [&]{
+					addOrSet([i]{
+						auto* sdl_joystick = SDL_JoystickOpen(i);
+						TclObject listA, listB;
+						for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
+							((b & 1) ? listB : listA).addListElement(tmpStrCat("button", b));
+						}
+						TclObject result(TclObject::MakeDictTag{},
+							"UP",    makeTclList("-axis1", "hat0 up"),
+							"DOWN",  makeTclList("+axis1", "hat0 down"),
+							"LEFT",  makeTclList("-axis0", "hat0 left"),
+							"RIGHT", makeTclList("+axis0", "hat0 right"),
+							"A",     listA,
+							"B",     listB);
+						SDL_JoystickClose(sdl_joystick);
+						return result;
+					});
+				});
+			}
+		});
 
 		// Popup for 'Add'
 		static constexpr auto addTitle = "Waiting for input";
