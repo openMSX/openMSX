@@ -41,16 +41,25 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXJoyState, "MSXJoyState");
 
-[[nodiscard]] static TclObject getDefaultConfig(uint8_t /*id*/)
+TclObject MSXJoystick::getDefaultConfig(uint8_t id)
 {
-	TclObject result;
-	result.addDictKeyValues("UP",    makeTclList("keyb Up"),
-	                        "DOWN",  makeTclList("keyb Down"),
-	                        "LEFT",  makeTclList("keyb Left"),
-	                        "RIGHT", makeTclList("keyb Right"),
-	                        "A",     makeTclList("keyb Space"),
-	                        "B",     makeTclList("keyb M"));
-	return result;
+	if (auto* sdl_joystick = SDL_JoystickOpen(id - 1)) {
+		TclObject listA, listB;
+		auto joy = strCat("joy", id, " ");
+		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
+			((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, "button", b));
+		}
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList(tmpStrCat(joy, "-axis1"), tmpStrCat(joy, "hat0 up")),
+			"DOWN",  makeTclList(tmpStrCat(joy, "+axis1"), tmpStrCat(joy, "hat0 down")),
+			"LEFT",  makeTclList(tmpStrCat(joy, "-axis0"), tmpStrCat(joy, "hat0 left")),
+			"RIGHT", makeTclList(tmpStrCat(joy, "+axis0"), tmpStrCat(joy, "hat0 right")),
+			"A",     listA,
+			"B",     listB);
+		SDL_JoystickClose(sdl_joystick);
+		return result;
+	}
+	return TclObject();
 }
 MSXJoystick::MSXJoystick(CommandController& commandController_,
                          MSXEventDistributor& eventDistributor_,

@@ -29,6 +29,8 @@ public:
 	            uint8_t id);
 	~MSXJoystick() override;
 
+	[[nodiscard]] static TclObject getDefaultConfig(uint8_t id);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

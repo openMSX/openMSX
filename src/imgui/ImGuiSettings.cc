@@ -20,6 +20,7 @@
 #include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "MSXCommandController.hh"
+#include "MSXJoystick.hh"
 #include "MSXMotherBoard.hh"
 #include "ProxySetting.hh"
 #include "R800.hh"
@@ -555,20 +556,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			for (auto i : xrange(SDL_NumJoysticks())) {
 				im::Menu(SDL_JoystickNameForIndex(i), [&]{
 					addOrSet([i]{
-						auto* sdl_joystick = SDL_JoystickOpen(i);
-						TclObject listA, listB;
-						for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
-							((b & 1) ? listB : listA).addListElement(tmpStrCat("button", b));
-						}
-						TclObject result(TclObject::MakeDictTag{},
-							"UP",    makeTclList("-axis1", "hat0 up"),
-							"DOWN",  makeTclList("+axis1", "hat0 down"),
-							"LEFT",  makeTclList("-axis0", "hat0 left"),
-							"RIGHT", makeTclList("+axis0", "hat0 right"),
-							"A",     listA,
-							"B",     listB);
-						SDL_JoystickClose(sdl_joystick);
-						return result;
+						return MSXJoystick::getDefaultConfig(i + 1);
 					});
 				});
 			}
