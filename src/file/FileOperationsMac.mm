@@ -5,7 +5,7 @@
 
 namespace openmsx::FileOperations {
 
-std::string findShareDir()
+std::string findResourceDir(const std::string& resourceDirName)
 {
 	@autoreleasepool
 	{
@@ -14,21 +14,23 @@ std::string findShareDir()
 			throw FatalError("Failed to get main bundle");
 		}
 
-		NSURL* shareURL = [mainBundle URLForResource:@"share" withExtension:nil];
-		if ([shareURL hasDirectoryPath]) {
-			return std::string(shareURL.fileSystemRepresentation);
+		NSString* resource = [NSString stringWithUTF8String:resourceDirName.c_str()];
+
+		NSURL* resourceURL = [mainBundle URLForResource:resource withExtension:nil];
+		if ([resourceURL hasDirectoryPath]) {
+			return std::string(resourceURL.fileSystemRepresentation);
 		}
 
 		// Fallback when there is no application bundle or it is hidden by a symlink
 		NSURL* url = [mainBundle executableURL].URLByResolvingSymlinksInPath;
 		while (url != nil) {
-			shareURL = [url URLByAppendingPathComponent:@"Contents/Resources/share"];
-			if ([shareURL hasDirectoryPath]) {
-				return std::string(shareURL.fileSystemRepresentation);
+			resourceURL = [url URLByAppendingPathComponent:[NSString stringWithFormat:@"Contents/Resources/%@", resource]];
+			if ([resourceURL hasDirectoryPath]) {
+				return std::string(resourceURL.fileSystemRepresentation);
 			}
-			shareURL = [url URLByAppendingPathComponent:@"share"];
-			if ([shareURL hasDirectoryPath]) {
-				return std::string(shareURL.fileSystemRepresentation);
+			resourceURL = [url URLByAppendingPathComponent:resource];
+			if ([resourceURL hasDirectoryPath]) {
+				return std::string(resourceURL.fileSystemRepresentation);
 			}
 			if (![url getResourceValue:&url forKey:NSURLParentDirectoryURLKey error:nil]) {
 				url = nil;
@@ -36,7 +38,7 @@ std::string findShareDir()
 		}
 	}
 
-	throw FatalError("Could not find \"share\" directory anywhere");
+	throw FatalError("Could not find \"" + resourceDirName + "\" directory anywhere");
 }
 
 }

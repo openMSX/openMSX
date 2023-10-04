@@ -468,7 +468,7 @@ const string& getSystemDataDir()
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
-		return findShareDir();
+		return findResourceDir("share");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system");
 #else
