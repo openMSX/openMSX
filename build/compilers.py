@@ -86,7 +86,7 @@ class _Command(object):
 			if inputText is not None:
 				log.write('input:\n')
 				log.write(str(inputText))
-				if not inputText.endswith('\n'):
+				if not inputText.endswith(b'\n'):
 					log.write('\n')
 				log.write('end input.\n')
 			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
