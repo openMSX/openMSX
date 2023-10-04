@@ -468,7 +468,7 @@ const string& getSystemDataDir()
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
-		return findShareDir();
+		return findResourceDir("share");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system");
 #else
@@ -499,7 +499,7 @@ const string& getSystemDocDir()
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/doc";
 #elif defined(__APPLE__)
-		return findDocDir();
+		return findResourceDir("doc");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system"); // TODO: currently no docs are installed on Android
 #else
