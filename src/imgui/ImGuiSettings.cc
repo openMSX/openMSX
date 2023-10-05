@@ -436,7 +436,41 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 					if (numBindings == 0) {
 						ImGui::TextDisabled("no bindings");
 					} else {
-						ImGui::TextUnformatted(join(bindingList, " | "));
+						size_t lastBindingIndex = numBindings - 1;
+						size_t bindingIndex = 0;
+						for (auto binding: bindingList) {
+							ImGui::TextUnformatted(binding);
+							// create tool tip with more human readable description of the binding
+							// TODO: also use for tooltips in the drop down menu of "Remove".
+							std::vector<std::string> toolTipParts;
+							for (const auto& part: StringOp::split_view(binding, ' ')) {
+								if (part.substr(0, 3) == "joy") {
+									auto joyNum = StringOp::stringTo<int>(part.substr(3, 1));
+									toolTipParts.push_back(joyNum ? SDL_JoystickNameForIndex(*joyNum - 1) : "?");
+								} else if (part.substr(1, 4) == "axis") {
+									auto axisNr = StringOp::stringTo<unsigned>(part.substr(5, 1));
+									auto sign = part.substr(0, 1);
+									toolTipParts.push_back(strCat("stick axis ", *axisNr, ", ", (sign == "-" ? "negative" : "positive"), " direction"));
+								} else if (part.substr(0, 3) == "hat") {
+									auto hatNr = StringOp::stringTo<unsigned>(part.substr(3, 1));
+									toolTipParts.push_back(strCat("D-pad ", *hatNr));
+								} else if (part.substr(0, 6) == "button") {
+									auto buttonNr = StringOp::stringTo<unsigned>(part.substr(6, 1));
+									toolTipParts.push_back(strCat("button ", *buttonNr));
+								} else if (part.substr(0, 4) == "keyb") {
+									toolTipParts.push_back("keyboard key");
+								} else {
+									toolTipParts.push_back(std::string(part));
+								}
+							}
+							simpleToolTip(std::string(join(toolTipParts, " ")));
+							if (bindingIndex < lastBindingIndex) {
+								ImGui::SameLine();
+								ImGui::TextUnformatted("|");
+								ImGui::SameLine();
+							}
+							++bindingIndex;
+						}
 					}
 				}
 			});
