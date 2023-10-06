@@ -33,7 +33,7 @@ private:
 	bool showConfigureJoystick = false;
 	bool showDemoWindow = false;
 
-	std::string joystick;
+	unsigned joystick;
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;

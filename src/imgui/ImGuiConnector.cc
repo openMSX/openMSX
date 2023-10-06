@@ -13,6 +13,20 @@
 
 namespace openmsx {
 
+static std::string pluggableToGuiString(const std::string& pluggable)
+{
+	if (pluggable == "msxjoystick1")       return "MSX joystick 1";
+	if (pluggable == "msxjoystick2")       return "MSX joystick 2";
+	if (pluggable == "arkanoidpad")        return "Arkanoid Vaus paddle";
+	if (pluggable == "ninjatap")           return "Ninja Tap";
+	if (pluggable == "cassetteplayer")     return "Tape deck";
+	if (pluggable == "simpl")              return "SIMPL";
+	if (pluggable == "msx-printer")        return "MSX printer";
+	if (pluggable == "epson-printer")      return "Epson printer";
+	if (pluggable == "tetris2-protection") return "Tetris II SE dongle";
+	return pluggable;
+}
+
 void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Connectors", motherBoard != nullptr, [&]{
@@ -28,7 +42,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 					auto connectorClass = connector->getClass();
 					const auto& currentPluggable = connector->getPlugged();
 					ImGui::SetNextItemWidth(150.0f);
-					im::Combo(tmpStrCat("##", connectorName).c_str(), std::string(currentPluggable.getName()).c_str(), [&]{
+					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(std::string(currentPluggable.getName())).c_str(), [&]{
 						if (!currentPluggable.getName().empty()) {
 							if (ImGui::Selectable("[unplug]")) {
 								manager.executeDelayed(makeTclList("unplug", connectorName));
@@ -39,7 +53,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 							auto plugName = std::string(plug->getName());
 							bool selected = plug.get() == &currentPluggable;
 							int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
-							if (ImGui::Selectable(plugName.c_str(), selected, flags)) {
+							if (ImGui::Selectable(pluggableToGuiString(plugName).c_str(), selected, flags)) {
 								manager.executeDelayed(makeTclList("plug", connectorName, plugName));
 							}
 							simpleToolTip(plug->getDescription());

@@ -51,14 +51,22 @@ using namespace std::literals;
 
 namespace openmsx {
 
-static constexpr std::array<zstring_view, 2> joystickNames = {
-	"msxjoystick1", "msxjoystick2"
-};
+// joystick is 0 or 1
+static std::string joystickToString(unsigned joystick)
+{
+	return strCat("msxjoystick", joystick + 1);
+}
+
+// joystick is 0 or 1
+static std::string joystickToGuiString(unsigned joystick)
+{
+	return strCat("MSX joystick ", joystick + 1);
+}
 
 ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 	: manager(manager_)
 {
-	joystick = joystickNames.front();
+	joystick = 0;
 }
 
 ImGuiSettings::~ImGuiSettings()
@@ -249,12 +257,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
 			};
-			ImGui::MenuItem("Configure joystick ...", nullptr, &showConfigureJoystick);
+			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
-			ImGui::MenuItem("Configure messages ...", nullptr, &manager.messages.showConfigure);
+			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages.showConfigure);
 		});
 		ImGui::Separator();
 		if (ImGui::MenuItem("Save settings now")) {
@@ -380,18 +388,18 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	static constexpr auto fractionDPad = 1.0f / 3.0f;
 
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
-	im::Window("Configure joystick", &showConfigureJoystick, [&]{
+	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
-		im::Combo("Select joystick", joystick.c_str(), [&]{
-			for (const auto& j : joystickNames) {
-				if (ImGui::Selectable(j.c_str())) {
+		im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
+			for (const auto& j : xrange(2)) {
+				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
 			}
 		});
 
 		auto& controller = motherBoard.getMSXCommandController();
-		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystick, "_config")));
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystickToString(joystick), "_config")));
 		if (!setting) return;
 		auto& interp = setting->getInterpreter();
 		TclObject bindings = setting->getValue();
@@ -559,7 +567,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		drawList->AddBezierQuadratic(trB({2, -1}), trB({6, -1}), trB({6,  3}), white, thickness);
 		drawList->AddBezierQuadratic(trB({6,  3}), trB({6,  7}), trB({2,  7}), white, thickness);
 
-		if (ImGui::Button("Default bindings ...")) {
+		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
 		}
 		im::Popup("bindings", [&]{
