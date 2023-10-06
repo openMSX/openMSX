@@ -80,6 +80,7 @@ MSXJoystick::MSXJoystick(CommandController& commandController_,
 	, id(id_)
 	, status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB)
+	, description(strCat("MSX joystick ", id_, ". Mapping is fully configurable."))
 {
 	configSetting.setChecker([this](TclObject& newValue) {
 		this->checkJoystickConfig(newValue); });
@@ -143,7 +144,7 @@ std::string_view MSXJoystick::getName() const
 
 std::string_view MSXJoystick::getDescription() const
 {
-	return "MSX-Joystick. See manual for information on how to configure this.";
+	return description;
 }
 
 void MSXJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

@@ -67,6 +67,8 @@ private:
 	const uint8_t id;
 	uint8_t status;
 	bool pin8;
+
+	const std::string description;
 };
 
 } // namespace openmsx
