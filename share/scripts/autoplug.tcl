@@ -1,7 +1,7 @@
 # if this machine has a cassetteport, then automatically plug
 # in the cassetteplayer
-# on a Dingoo, automatically plug in the keyjoystick and if there are real
-# joysticks, plug them as well for non-Dingoo platofrms
+# always plug in the msxjoysticks, so by default they can be used (with the
+# mapping that was set up)
 
 proc get_pluggable_for_connector {connector} {
 	set t [plug $connector]
@@ -40,12 +40,10 @@ proc do_autoplug {} {
 		}
 
 		# joystick ports
-		if {("joyporta" in $connectors) &&
-		    ("joystick1" in $pluggables)} {
+		if {"joyporta" in $connectors} {
 			plug_if_empty joyporta msxjoystick1
 		}
-		if {("joyportb" in $connectors) &&
-		    ("joystick2" in $pluggables)} {
+		if {"joyportb" in $connectors} {
 			plug_if_empty joyportb msxjoystick2
 		}
 	}
