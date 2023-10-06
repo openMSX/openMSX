@@ -333,6 +333,38 @@ static constexpr std::array<zstring_view, ImGuiSettings::NUM_BUTTONS> keyNames =
 	"UP", "DOWN", "LEFT", "RIGHT", "A", "B" // keys in Tcl dict
 };
 
+static std::string toGuiString(const BooleanInput& input)
+{
+	return std::visit(overloaded{
+		[](const BooleanKeyboard& k) {
+			return strCat("keyboard key ", SDLKey::toString(k.getKeyCode()));
+		},
+		[](const BooleanMouseButton& m) {
+			return strCat("mouse button ", m.getButton());
+		},
+		[](const BooleanJoystickButton& j) {
+			return strCat(SDL_JoystickNameForIndex(j.getJoystick()), " button ", j.getButton());
+		},
+		[](const BooleanJoystickHat& h) {
+			const char* str = [&] {
+				switch (h.getValue()) {
+					case BooleanJoystickHat::UP:    return "up";
+					case BooleanJoystickHat::RIGHT: return "right";
+					case BooleanJoystickHat::DOWN:  return "down";
+					case BooleanJoystickHat::LEFT:  return "left";
+					default: UNREACHABLE; return "";
+				}
+			}();
+			return strCat(SDL_JoystickNameForIndex(h.getJoystick()), " D-pad ", h.getHat(), ' ', str);
+		},
+		[&](const BooleanJoystickAxis& a) {
+			return strCat(SDL_JoystickNameForIndex(a.getJoystick()), " stick axis ",
+				      a.getAxis(), ", ", (a.getDirection() == BooleanJoystickAxis::POS ? "posi" : "nega"),
+			              "tive direction");
+		}
+	}, input);
+}
+
 void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 {
 	// Customize joystick look
@@ -440,30 +472,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 						size_t bindingIndex = 0;
 						for (auto binding: bindingList) {
 							ImGui::TextUnformatted(binding);
-							// create tool tip with more human readable description of the binding
-							// TODO: also use for tooltips in the drop down menu of "Remove".
-							std::vector<std::string> toolTipParts;
-							for (const auto& part: StringOp::split_view(binding, ' ')) {
-								if (part.substr(0, 3) == "joy") {
-									auto joyNum = StringOp::stringTo<int>(part.substr(3, 1));
-									toolTipParts.push_back(joyNum ? SDL_JoystickNameForIndex(*joyNum - 1) : "?");
-								} else if (part.substr(1, 4) == "axis") {
-									auto axisNr = StringOp::stringTo<unsigned>(part.substr(5, 1));
-									auto sign = part.substr(0, 1);
-									toolTipParts.push_back(strCat("stick axis ", *axisNr, ", ", (sign == "-" ? "negative" : "positive"), " direction"));
-								} else if (part.substr(0, 3) == "hat") {
-									auto hatNr = StringOp::stringTo<unsigned>(part.substr(3, 1));
-									toolTipParts.push_back(strCat("D-pad ", *hatNr));
-								} else if (part.substr(0, 6) == "button") {
-									auto buttonNr = StringOp::stringTo<unsigned>(part.substr(6, 1));
-									toolTipParts.push_back(strCat("button ", *buttonNr));
-								} else if (part.substr(0, 4) == "keyb") {
-									toolTipParts.push_back("keyboard key");
-								} else {
-									toolTipParts.push_back(std::string(part));
-								}
-							}
-							simpleToolTip(std::string(join(toolTipParts, " ")));
+							simpleToolTip(toGuiString(*parseBooleanInput(binding)));
 							if (bindingIndex < lastBindingIndex) {
 								ImGui::SameLine();
 								ImGui::TextUnformatted("|");
@@ -647,6 +656,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
 				}
+				simpleToolTip(toGuiString(*parseBooleanInput(b)));
 				++counter;
 			}
 			if (remove != unsigned(-1)) {
@@ -656,7 +666,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				close();
 			}
 
-			if (ImGui::Selectable("--all--")) {
+			if (ImGui::Selectable("all bindings")) {
 				bindings.setDictValue(interp, key, TclObject{});
 				setting->setValue(bindings);
 				close();
