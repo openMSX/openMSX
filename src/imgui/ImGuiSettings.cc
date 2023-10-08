@@ -52,13 +52,13 @@ using namespace std::literals;
 namespace openmsx {
 
 // joystick is 0 or 1
-static std::string joystickToString(unsigned joystick)
+[[nodiscard]] static std::string settingName(unsigned joystick)
 {
-	return strCat("msxjoystick", joystick + 1);
+	return strCat("msxjoystick", joystick + 1, "_config");
 }
 
 // joystick is 0 or 1
-static std::string joystickToGuiString(unsigned joystick)
+[[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
 {
 	return strCat("MSX joystick ", joystick + 1);
 }
@@ -66,7 +66,6 @@ static std::string joystickToGuiString(unsigned joystick)
 ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 	: manager(manager_)
 {
-	joystick = 0;
 }
 
 ImGuiSettings::~ImGuiSettings()
@@ -399,7 +398,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		});
 
 		auto& controller = motherBoard.getMSXCommandController();
-		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystickToString(joystick), "_config")));
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return;
 		auto& interp = setting->getInterpreter();
 		TclObject bindings = setting->getValue();
@@ -711,7 +710,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 		auto* motherBoard = manager.getReactor().getMotherBoard();
 		if (!motherBoard) return EventDistributor::HOTKEY;
 		auto& controller = motherBoard->getMSXCommandController();
-		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(tmpStrCat(joystick, "_config")));
+		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return EventDistributor::HOTKEY;
 		auto& interp = setting->getInterpreter();
 
