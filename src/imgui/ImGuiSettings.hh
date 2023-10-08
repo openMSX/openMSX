@@ -12,9 +12,6 @@ class ImGuiManager;
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
-	enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
-
-public:
 	ImGuiSettings(ImGuiManager& manager);
 	~ImGuiSettings();
 
