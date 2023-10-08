@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-static std::string pluggableToGuiString(const std::string& pluggable)
+[[nodiscard]] static std::string pluggableToGuiString(std::string_view pluggable)
 {
 	if (pluggable == "msxjoystick1")       return "MSX joystick 1";
 	if (pluggable == "msxjoystick2")       return "MSX joystick 2";
@@ -24,7 +24,7 @@ static std::string pluggableToGuiString(const std::string& pluggable)
 	if (pluggable == "msx-printer")        return "MSX printer";
 	if (pluggable == "epson-printer")      return "Epson printer";
 	if (pluggable == "tetris2-protection") return "Tetris II SE dongle";
-	return pluggable;
+	return std::string(pluggable);
 }
 
 void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
@@ -42,7 +42,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 					auto connectorClass = connector->getClass();
 					const auto& currentPluggable = connector->getPlugged();
 					ImGui::SetNextItemWidth(150.0f);
-					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(std::string(currentPluggable.getName())).c_str(), [&]{
+					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(currentPluggable.getName()).c_str(), [&]{
 						if (!currentPluggable.getName().empty()) {
 							if (ImGui::Selectable("[unplug]")) {
 								manager.executeDelayed(makeTclList("unplug", connectorName));
@@ -50,7 +50,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 						}
 						for (auto& plug : pluggables) {
 							if (plug->getClass() != connectorClass) continue;
-							auto plugName = std::string(plug->getName());
+							auto plugName = plug->getName();
 							bool selected = plug.get() == &currentPluggable;
 							int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
 							if (ImGui::Selectable(pluggableToGuiString(plugName).c_str(), selected, flags)) {
