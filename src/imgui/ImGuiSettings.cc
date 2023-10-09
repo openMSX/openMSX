@@ -15,6 +15,7 @@
 #include "GlobalSettings.hh"
 #include "InputEventFactory.hh"
 #include "IntegerSetting.hh"
+#include "JoyMega.hh"
 #include "KeyCodeSetting.hh"
 #include "KeyboardSettings.hh"
 #include "Mixer.hh"
@@ -51,18 +52,6 @@
 using namespace std::literals;
 
 namespace openmsx {
-
-// joystick is 0 or 1
-[[nodiscard]] static std::string settingName(unsigned joystick)
-{
-	return strCat("msxjoystick", joystick + 1, "_config");
-}
-
-// joystick is 0 or 1
-[[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
-{
-	return strCat("MSX joystick ", joystick + 1);
-}
 
 ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 	: manager(manager_)
@@ -317,6 +306,22 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	if (showDemoWindow) {
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
+}
+
+////// joystick stuff
+
+// joystick is 0..3
+[[nodiscard]] static std::string settingName(unsigned joystick)
+{
+	return (joystick < 2) ? strCat("msxjoystick", joystick + 1, "_config")
+	                      : strCat("joymega", joystick - 1, "_config");
+}
+
+// joystick is 0..3
+[[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
+{
+	return (joystick < 2) ? strCat("MSX joystick ", joystick + 1)
+	                      : strCat("Mega Drive joystick ", joystick - 1);
 }
 
 [[nodiscard]] static std::string toGuiString(const BooleanInput& input)
@@ -690,7 +695,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
-			for (const auto& j : xrange(2)) {
+			for (const auto& j : xrange(4)) {
 				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
@@ -707,7 +712,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
 		// Check if buttons are hovered
-		bool msxOrMega = true; // HACK
+		bool msxOrMega = joystick < 2;
 		auto hovered = msxOrMega ? msxjoystick::buttonsHovered(mouse)
 		                         : joymega    ::buttonsHovered(mouse);
 		const auto numButtons = hovered.size();
@@ -827,8 +832,10 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			});
 			for (auto i : xrange(SDL_NumJoysticks())) {
 				im::Menu(SDL_JoystickNameForIndex(i), [&]{
-					addOrSet([i]{
-						return MSXJoystick::getDefaultConfig(i + 1);
+					addOrSet([&]{
+						return msxOrMega
+							? MSXJoystick::getDefaultConfig(i + 1)
+							: JoyMega::getDefaultConfig(i + 1);
 					});
 				});
 			}
@@ -911,7 +918,10 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 
 int ImGuiSettings::signalEvent(const Event& event)
 {
-	std::span<const zstring_view> keyNames = msxjoystick::keyNames;
+	bool msxOrMega = joystick < 2;
+	using SP = std::span<const zstring_view>;
+	auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
+	                          : SP{joymega    ::keyNames};
 	const auto numButtons = keyNames.size();
 
 	if (popupForKey >= numButtons) {

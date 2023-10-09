@@ -1,100 +1,94 @@
 #include "JoyMega.hh"
-#include "PluggingController.hh"
-#include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
+
+#include "CommandController.hh"
 #include "Event.hh"
-#include "InputEventGenerator.hh"
+#include "GlobalSettings.hh"
+#include "MSXEventDistributor.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+
+#include "join.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
-#include "build-info.hh"
+
 #include <memory>
 
 namespace openmsx {
-
-#if PLATFORM_ANDROID
-static constexpr int THRESHOLD = 32768 / 4;
-#else
-static constexpr int THRESHOLD = 32768 / 10;
-#endif
-
-void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
-                          StateChangeDistributor& stateChangeDistributor,
-                          PluggingController& controller)
-{
-#ifdef SDL_JOYSTICK_DISABLED
-	(void)eventDistributor;
-	(void)stateChangeDistributor;
-	(void)controller;
-#else
-	for (auto i : xrange(SDL_NumJoysticks())) {
-		if (SDL_Joystick* joystick = SDL_JoystickOpen(i)) {
-			// Avoid devices that have axes but no buttons, like accelerometers.
-			// SDL 1.2.14 in Linux has an issue where it rejects a device from
-			// /dev/input/event* if it has no buttons but does not reject a
-			// device from /dev/input/js* if it has no buttons, while
-			// accelerometers do end up being symlinked as a joystick in
-			// practice.
-			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
-				controller.registerPluggable(
-					std::make_unique<JoyMega>(
-						eventDistributor,
-						stateChangeDistributor,
-						joystick));
-			}
-		}
-	}
-#endif
-}
 
 class JoyMegaState final : public StateChange
 {
 public:
 	JoyMegaState() = default; // for serialize
-	JoyMegaState(EmuTime::param time_, int joyNum_,
+	JoyMegaState(EmuTime::param time_, uint8_t id_,
 	             unsigned press_, unsigned release_)
 		: StateChange(time_)
-		, joyNum(joyNum_), press(press_), release(release_)
-	{
-		assert((press != 0) || (release != 0));
-		assert((press & release) == 0);
-	}
-	[[nodiscard]] int      getJoystick() const { return joyNum; }
-	[[nodiscard]] unsigned getPress()    const { return press; }
-	[[nodiscard]] unsigned getRelease()  const { return release; }
+		, press(press_), release(release_), id(id_) {}
+
+	[[nodiscard]] auto getId()      const { return id; }
+	[[nodiscard]] auto getPress()   const { return press; }
+	[[nodiscard]] auto getRelease() const { return release; }
 
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum",  joyNum,
+		ar.serialize("id",      id,
 		             "press",   press,
 		             "release", release);
 	}
 private:
-	int joyNum;
 	unsigned press, release;
+	uint8_t id;
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");
 
-#ifndef SDL_JOYSTICK_DISABLED
-// Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
-// once per MSX machine). The SDL documentation doesn't state this, but I
-// checked the implementation and a SDL_Joystick uses a 'reference count' on
-// the open/close calls.
-JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
-                 StateChangeDistributor& stateChangeDistributor_,
-                 SDL_Joystick* joystick_)
-	: eventDistributor(eventDistributor_)
-	, stateChangeDistributor(stateChangeDistributor_)
-	, joystick(joystick_)
-	, joyNum(SDL_JoystickInstanceID(joystick_))
-	, name("joymegaX") // 'X' is filled in below
-	, desc(SDL_JoystickName(joystick_))
-	, lastTime(EmuTime::zero())
+TclObject JoyMega::getDefaultConfig(uint8_t id)
 {
-	const_cast<std::string&>(name)[7] = char('1' + joyNum);
+	if (auto* sdl_joystick = SDL_JoystickOpen(id - 1)) {
+		std::array<TclObject, 8> lists;
+		auto joy = strCat("joy", id);
+		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
+			lists[b % 8].addListElement(tmpStrCat(joy, " button", b));
+		}
+		TclObject result(TclObject::MakeDictTag{},
+			"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
+			"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
+			"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
+			"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
+			"A",     lists[0],
+			"B",     lists[1],
+			"C",     lists[2],
+			"X",     lists[3],
+			"Y",     lists[4],
+			"Z",     lists[5],
+			"SELECT",lists[6],
+			"START", lists[7]);
+		SDL_JoystickClose(sdl_joystick);
+		return result;
+	}
+	return TclObject();
+}
+
+JoyMega::JoyMega(CommandController& commandController_,
+                 MSXEventDistributor& eventDistributor_,
+                 StateChangeDistributor& stateChangeDistributor_,
+                 GlobalSettings& globalSettings_,
+                 uint8_t id_)
+	: commandController(commandController_)
+	, eventDistributor(eventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
+	, globalSettings(globalSettings_)
+	, configSetting(commandController, tmpStrCat("joymega", id_, "_config"),
+		"joymega mapping configuration", getDefaultConfig(id_).getString())
+	, description(strCat("Mega drive joystick ", id_, ". Mapping is fully configurable."))
+	, id(id_)
+{
+	configSetting.setChecker([this](TclObject& newValue) {
+		this->checkJoystickConfig(newValue); });
+	// fill in 'bindings'
+	checkJoystickConfig(const_cast<TclObject&>(configSetting.getValue()));
 }
 
 JoyMega::~JoyMega()
@@ -102,24 +96,66 @@ JoyMega::~JoyMega()
 	if (isPluggedIn()) {
 		JoyMega::unplugHelper(EmuTime::dummy());
 	}
-	SDL_JoystickClose(joystick);
+}
+
+void JoyMega::checkJoystickConfig(TclObject& newValue)
+{
+	std::array<std::vector<BooleanInput>, 12> newBindings;
+
+	auto& interp = commandController.getInterpreter();
+	unsigned n = newValue.getListLength(interp);
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (unsigned i = 0; i < n; i += 2) {
+		static constexpr std::array<std::string_view, 12> keys = {
+			// order is important!
+			"UP", "DOWN", "LEFT", "RIGHT",
+			"A", "B", "C", "START",
+			"X", "Y", "Z", "SELECT",
+		};
+		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
+		auto it = ranges::find(keys, key);
+		if (it == keys.end()) {
+			throw CommandException(
+				"Invalid key: must be one of ", join(keys, ", "));
+		}
+		auto idx = std::distance(keys.begin(), it);
+
+		TclObject value = newValue.getListIndex(interp, i + 1);
+		for (auto j : xrange(value.getListLength(interp))) {
+			std::string_view val = value.getListIndex(interp, j).getString();
+			auto bind = parseBooleanInput(val);
+			if (!bind) {
+				throw CommandException("Invalid binding: ", val);
+			}
+			newBindings[idx].push_back(*bind);
+		}
+	}
+
+	// only change current bindings when parsing was fully successful
+	ranges::copy(newBindings, bindings);
 }
 
 // Pluggable
 std::string_view JoyMega::getName() const
 {
-	return name;
+	switch (id) {
+		case 1: return "joymega1";
+		case 2: return "joymega2";
+		default: UNREACHABLE; return "";
+	}
 }
 
 std::string_view JoyMega::getDescription() const
 {
-	return desc;
+	return description;
 }
 
 void JoyMega::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	plugHelper2();
-	status = calcInitialState();
+	status = 0xfff;
 	cycle = 0;
 	// when mode button is pressed when joystick is plugged in, then
 	// act as a 3-button joypad (otherwise 6-button)
@@ -194,102 +230,27 @@ static constexpr unsigned encodeButton(unsigned button, uint8_t cycleMask)
 	return 1 << (4 + (button & n));
 }
 
-unsigned JoyMega::calcInitialState()
-{
-	unsigned result = 0xfff;
-	int xAxis = SDL_JoystickGetAxis(joystick, 0);
-	if (xAxis < -THRESHOLD) {
-		result &= ~JOY_LEFT;
-	} else if (xAxis > THRESHOLD) {
-		result &= ~JOY_RIGHT;
-	}
-
-	int yAxis = SDL_JoystickGetAxis(joystick, 1);
-	if (yAxis < -THRESHOLD) {
-		result &= ~JOY_UP;
-	} else if (yAxis > THRESHOLD) {
-		result &= ~JOY_DOWN;
-	}
-
-	for (auto button : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
-		if (InputEventGenerator::joystickGetButton(joystick, button)) {
-			result &= ~encodeButton(button, 7);
-		}
-	}
-	return result;
-}
-
 // MSXEventListener
 void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	const auto* joyEvent = get_event_if<JoystickEvent>(event);
-	if (!joyEvent) return;
+	uint8_t press = 0;
+	uint8_t release = 0;
 
-	// TODO: It would be more efficient to make a dispatcher instead of
-	//       sending the event to all joysticks.
-	if (joyEvent->getJoystick() != joyNum) return;
-
-	std::visit(overloaded{
-		[&](const JoystickAxisMotionEvent& e) {
-			int value = e.getValue();
-			switch (e.getAxis() & 1) {
-			case JoystickAxisMotionEvent::X_AXIS: // Horizontal
-				if (value < -THRESHOLD) {
-					// left, not right
-					createEvent(time, JOY_LEFT, JOY_RIGHT);
-				} else if (value > THRESHOLD) {
-					// not left, right
-					createEvent(time, JOY_RIGHT, JOY_LEFT);
-				} else {
-					// not left, not right
-					createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
-				}
-				break;
-			case JoystickAxisMotionEvent::Y_AXIS: // Vertical
-				if (value < -THRESHOLD) {
-					// up, not down
-					createEvent(time, JOY_UP, JOY_DOWN);
-				} else if (value > THRESHOLD) {
-					// not up, down
-					createEvent(time, JOY_DOWN, JOY_UP);
-				} else {
-					// not up, not down
-					createEvent(time, 0, JOY_UP | JOY_DOWN);
-				}
-				break;
-			default:
-				// ignore other axis
-				break;
+	auto getJoyDeadZone = [&](int joystick) {
+		return globalSettings.getJoyDeadZoneSetting(joystick).getInt();
+	};
+	for (int i : xrange(12)) {
+		for (const auto& binding : bindings[i]) {
+			if (auto onOff = match(binding, event, getJoyDeadZone)) {
+				(*onOff ? press : release) |= 1 << i;
 			}
-		},
-		[&](const JoystickButtonDownEvent& e) {
-			createEvent(time, encodeButton(e.getButton(), cycleMask), 0);
-		},
-		[&](const JoystickButtonUpEvent& e) {
-			createEvent(time, 0, encodeButton(e.getButton(), cycleMask));
-		},
-		[&](const EventBase&) { UNREACHABLE; }
-	}, event);
-}
-
-void JoyMega::createEvent(EmuTime::param time, unsigned press, unsigned release)
-{
-	unsigned newStatus = (status & ~press) | release;
-	createEvent(time, newStatus);
-}
-
-void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
-{
-	unsigned diff = status ^ newStatus;
-	if (!diff) {
-		// event won't actually change the status, so ignore it
-		return;
+		}
 	}
-	// make sure we create an event with minimal changes
-	unsigned press   =    status & diff;
-	unsigned release = newStatus & diff;
-	stateChangeDistributor.distributeNew<JoyMegaState>(
-		time, joyNum, press, release);
+
+	if (((status & ~press) | release) != status) {
+		stateChangeDistributor.distributeNew<JoyMegaState>(
+			time, id, press, release);
+	}
 }
 
 // StateChangeListener
@@ -297,20 +258,19 @@ void JoyMega::signalStateChange(const StateChange& event)
 {
 	const auto* js = dynamic_cast<const JoyMegaState*>(&event);
 	if (!js) return;
-
-	// TODO: It would be more efficient to make a dispatcher instead of
-	//       sending the event to all joysticks.
-	// TODO an alternative is to log events based on the connector instead
-	//      of the joystick. That would make it possible to replay on a
-	//      different host without an actual SDL joystick connected.
-	if (js->getJoystick() != joyNum) return;
+	if (js->getId() != id) return;
 
 	status = (status & ~js->getPress()) | js->getRelease();
 }
 
 void JoyMega::stopReplay(EmuTime::param time) noexcept
 {
-	createEvent(time, calcInitialState());
+	unsigned newStatus = 0xfff;
+	if (newStatus != status) {
+		auto release = newStatus & ~status;
+		stateChangeDistributor.distributeNew<JoyMegaState>(
+			time, id, 0, release);
+	}
 }
 
 template<typename Archive>
@@ -328,7 +288,5 @@ void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyMega);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, JoyMega, "JoyMega");
-
-#endif // SDL_JOYSTICK_DISABLED
 
 } // namespace openmsx

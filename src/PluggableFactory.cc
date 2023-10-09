@@ -74,6 +74,12 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<MSXJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, globalSettings, 2)); // msxjoystick2
+	controller.registerPluggable(std::make_unique<JoyMega>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, globalSettings, 1)); // joymega1
+	controller.registerPluggable(std::make_unique<JoyMega>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, globalSettings, 2)); // joymega2
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, KeyJoystick::ID1));
@@ -82,8 +88,6 @@ void PluggableFactory::createAll(PluggingController& controller,
 		stateChangeDistributor, KeyJoystick::ID2));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      commandController, globalSettings, controller);
-	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
-	                      controller);
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());

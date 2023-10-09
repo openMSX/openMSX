@@ -4,14 +4,14 @@
 #include "Event.hh"
 #include "GlobalSettings.hh"
 #include "MSXEventDistributor.hh"
-#include "ranges.hh"
-#include "StateChangeDistributor.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "build-info.hh"
 
 #include "join.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -46,19 +46,19 @@ TclObject MSXJoystick::getDefaultConfig(uint8_t id)
 {
 	if (auto* sdl_joystick = SDL_JoystickOpen(id - 1)) {
 		TclObject listA, listB;
-		auto joy = strCat("joy", id, " ");
+		auto joy = strCat("joy", id);
 		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
-			((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, "button", b));
+			((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, " button", b));
 		}
 #if PLATFORM_DINGUX
 		listA.addListElement(tmpStrCat("keyb Left Ctrl"));
 		listB.addListElement(tmpStrCat("keyb Left Alt"));
 #endif
 		TclObject result(TclObject::MakeDictTag{},
-			"UP",    makeTclList(tmpStrCat(joy, "-axis1"), tmpStrCat(joy, "hat0 up")),
-			"DOWN",  makeTclList(tmpStrCat(joy, "+axis1"), tmpStrCat(joy, "hat0 down")),
-			"LEFT",  makeTclList(tmpStrCat(joy, "-axis0"), tmpStrCat(joy, "hat0 left")),
-			"RIGHT", makeTclList(tmpStrCat(joy, "+axis0"), tmpStrCat(joy, "hat0 right")),
+			"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
+			"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
+			"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
+			"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
 			"A",     listA,
 			"B",     listB);
 		SDL_JoystickClose(sdl_joystick);
@@ -77,10 +77,8 @@ MSXJoystick::MSXJoystick(CommandController& commandController_,
 	, globalSettings(globalSettings_)
 	, configSetting(commandController, tmpStrCat("msxjoystick", id_, "_config"),
 		"msxjoystick mapping configuration", getDefaultConfig(id_).getString())
-	, id(id_)
-	, status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
-	         JOY_BUTTONA | JOY_BUTTONB)
 	, description(strCat("MSX joystick ", id_, ". Mapping is fully configurable."))
+	, id(id_)
 {
 	configSetting.setChecker([this](TclObject& newValue) {
 		this->checkJoystickConfig(newValue); });

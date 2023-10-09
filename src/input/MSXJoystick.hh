@@ -64,11 +64,11 @@ private:
 	// up, down, left, right, a, b (in sync with order in JoystickDevice)
 	std::array<std::vector<BooleanInput>, 6> bindings; // calculated from 'configSetting'
 
-	const uint8_t id;
-	uint8_t status;
-	bool pin8;
-
 	const std::string description;
+	const uint8_t id;
+	uint8_t status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
+	                 JOY_BUTTONA | JOY_BUTTONB;
+	bool pin8;
 };
 
 } // namespace openmsx
