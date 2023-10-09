@@ -195,6 +195,9 @@ TclObject toTclList(const Event& event)
 		},
 		[&](const SimpleEvent& /*e*/) {
 			return makeTclList("simple", int(getType(event)));
+		},
+		[](const ImGuiActiveEvent& e) {
+			return makeTclList("imgui", e.getActive());
 		}
 	}, event);
 }

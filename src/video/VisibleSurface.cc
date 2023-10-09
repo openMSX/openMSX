@@ -59,12 +59,10 @@ VisibleSurface::VisibleSurface(
 	inputEventGenerator.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelaySetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_MOTION, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_UP, *this);
+	eventDistributor.registerEventListener(EventType::MOUSE_MOTION, *this);
+	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_UP, *this);
+	eventDistributor.registerEventListener(EventType::IMGUI_ACTIVE, *this);
 
 	updateCursor();
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -173,12 +171,10 @@ VisibleSurface::~VisibleSurface()
 		SDL_GetWindowPosition(window.get(), &windowPosX, &windowPosY);
 	}
 
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_MOTION, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::IMGUI_ACTIVE, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
+	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
 	inputEventGenerator.getGrabInput().detach(*this);
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
@@ -258,10 +254,9 @@ void VisibleSurface::executeRT()
 
 int VisibleSurface::signalEvent(const Event& event)
 {
-	assert(getType(event) == one_of(EventType::MOUSE_MOTION,
-	                                EventType::MOUSE_BUTTON_UP,
-	                                EventType::MOUSE_BUTTON_DOWN));
-	(void)event;
+	if (getType(event) == EventType::IMGUI_ACTIVE) {
+		guiActive = get_event<ImGuiActiveEvent>(event).getActive();
+	}
 	updateCursor();
 	return 0;
 }
@@ -270,8 +265,9 @@ void VisibleSurface::updateCursor()
 {
 	cancelRT();
 	auto& renderSettings = display.getRenderSettings();
-	grab = renderSettings.getFullScreen() ||
-	       inputEventGenerator.getGrabInput().getBoolean();
+	grab = !guiActive &&
+	       (renderSettings.getFullScreen() ||
+	        inputEventGenerator.getGrabInput().getBoolean());
 	if (grab) {
 		// always hide cursor in fullscreen or grab-input mode, but do it
 		// after the derived class is constructed to avoid an SDL bug.

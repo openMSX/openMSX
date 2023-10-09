@@ -358,6 +358,17 @@ private:
 	const CliConnection* id;
 };
 
+class ImGuiActiveEvent final : public EventBase
+{
+public:
+	explicit ImGuiActiveEvent(bool active_)
+		: active(active_) {}
+	[[nodiscard]] bool getActive() const { return active; }
+
+private:
+	bool active;
+};
+
 
 // Events that don't need additional data
 class SimpleEvent : public EventBase {};
@@ -434,7 +445,8 @@ using Event = std::variant<
 	MidiInCoreMidiVirtualEvent,
 	MidiInALSAEvent,
 	Rs232TesterEvent,
-	ImGuiDelayedActionEvent
+	ImGuiDelayedActionEvent,
+	ImGuiActiveEvent
 >;
 
 template<typename T>
@@ -480,6 +492,7 @@ enum class EventType : uint8_t
 	MIDI_IN_ALSA             = event_index<MidiInALSAEvent>,
 	RS232_TESTER             = event_index<Rs232TesterEvent>,
 	IMGUI_DELAYED_ACTION     = event_index<ImGuiDelayedActionEvent>,
+	IMGUI_ACTIVE             = event_index<ImGuiActiveEvent>,
 
 	NUM_EVENT_TYPES // must be last
 };

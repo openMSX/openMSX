@@ -119,6 +119,7 @@ private:
 	RomType selectedRomType = ROM_UNKNOWN;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
+	bool guiActive = false;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked}

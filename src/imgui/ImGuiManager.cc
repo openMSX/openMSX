@@ -5,6 +5,7 @@
 
 #include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
+#include "Event.hh"
 #include "EventDistributor.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -301,10 +302,15 @@ void ImGuiManager::paintImGui()
 			});
 		});
 	} else {
+		bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
+		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+		if (active != guiActive) {
+			guiActive = active;
+			auto& eventDistributor = reactor.getEventDistributor();
+			eventDistributor.distributeEvent(ImGuiActiveEvent(active));
+		}
 		menuAlpha = [&] {
 			if (!menuFade) return 1.0f;
-			bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-				ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
 			auto target = active ? 1.0f : 0.0001f;
 			auto period = active ? 0.5f : 5.0f;
 			return calculateFade(menuAlpha, target, period);

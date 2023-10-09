@@ -77,6 +77,8 @@ public:
 	// RTSchedulable
 	void executeRT() override;
 
+	bool guiActive = false;
+
 private:
 	[[nodiscard]] gl::ivec2 getWindowSize() const;
 	void updateCursor();
