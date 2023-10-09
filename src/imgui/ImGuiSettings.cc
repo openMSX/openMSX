@@ -122,6 +122,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				ComboBox("Display deformation", renderSettings.getDisplayDeformSetting());
 			});
 			im::TreeNode("Misc", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				Checkbox("Full screen", renderSettings.getFullScreenSetting());
 				if (motherBoard) {
 					ComboBox("Video source to display", motherBoard->getVideoSource());
 				}
