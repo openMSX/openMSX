@@ -82,7 +82,7 @@ JoyMega::JoyMega(CommandController& commandController_,
 	, globalSettings(globalSettings_)
 	, configSetting(commandController, tmpStrCat("joymega", id_, "_config"),
 		"joymega mapping configuration", getDefaultConfig(id_).getString())
-	, description(strCat("Mega drive joystick ", id_, ". Mapping is fully configurable."))
+	, description(strCat("JoyMega based Mega Drive controller ", id_, ". Mapping is fully configurable."))
 	, id(id_)
 {
 	configSetting.setChecker([this](TclObject& newValue) {

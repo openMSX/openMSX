@@ -17,6 +17,8 @@ namespace openmsx {
 {
 	if (pluggable == "msxjoystick1")       return "MSX joystick 1";
 	if (pluggable == "msxjoystick2")       return "MSX joystick 2";
+	if (pluggable == "joymega1")           return "JoyMega controller 1";
+	if (pluggable == "joymega2")           return "JoyMega controller 2";
 	if (pluggable == "arkanoidpad")        return "Arkanoid Vaus paddle";
 	if (pluggable == "ninjatap")           return "Ninja Tap";
 	if (pluggable == "cassetteplayer")     return "Tape deck";

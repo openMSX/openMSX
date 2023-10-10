@@ -322,7 +322,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 [[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
 {
 	return (joystick < 2) ? strCat("MSX joystick ", joystick + 1)
-	                      : strCat("Mega Drive joystick ", joystick - 1);
+	                      : strCat("JoyMega controller ", joystick - 1);
 }
 
 [[nodiscard]] static std::string toGuiString(const BooleanInput& input)
