@@ -224,17 +224,11 @@ void JoyMega::checkTime(EmuTime::param time)
 	}
 }
 
-static constexpr unsigned encodeButton(unsigned button, uint8_t cycleMask)
-{
-	unsigned n = (cycleMask == 7) ? 7 : 3; // 6- or 3-button mode
-	return 1 << (4 + (button & n));
-}
-
 // MSXEventListener
 void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 {
-	uint8_t press = 0;
-	uint8_t release = 0;
+	unsigned press = 0;
+	unsigned release = 0;
 
 	auto getJoyDeadZone = [&](int joystick) {
 		return globalSettings.getJoyDeadZoneSetting(joystick).getInt();
