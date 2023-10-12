@@ -250,7 +250,9 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	                               ImGuiWindowFlags_NoBackground |
 	                               (reverseAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                             : 0;
+	adjust.pre();
 	im::Window("Reverse bar", &showReverseBar, flags, [&]{
+		bool isOnMainViewPort = adjust.post();
 		auto& reverseManager = motherBoard->getReverseManager();
 		if (reverseManager.isCollecting()) {
 			auto b = reverseManager.getBegin();
@@ -281,7 +283,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 			bool hovered = ImGui::IsWindowHovered();
 			bool replaying = reverseManager.isReplaying();
 			if (!reverseHideTitle || !reverseFadeOut || replaying ||
-			ImGui::IsWindowDocked() || (ImGui::GetWindowViewport() != ImGui::GetMainViewport())) {
+			    ImGui::IsWindowDocked() || !isOnMainViewPort) {
 				reverseAlpha = 1.0f;
 			} else {
 				auto target = hovered ? 1.0f : 0.0f;

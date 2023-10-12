@@ -149,11 +149,10 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
 
 	// default placement: bottom left
-	const auto* viewPort = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(gl::vec2(viewPort->Pos) + gl::vec2{10.0f, viewPort->WorkSize.y - 10.0f},
+	const auto* mainViewPort = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(gl::vec2(mainViewPort->Pos) + gl::vec2{10.0f, mainViewPort->WorkSize.y - 10.0f},
 	                        ImGuiCond_FirstUseEver,
 	                        {0.0f, 1.0f}); // pivot = bottom-left
-
 	int flags = iconsHideTitle ? ImGuiWindowFlags_NoTitleBar |
 	                             ImGuiWindowFlags_NoResize |
 	                             ImGuiWindowFlags_NoScrollbar |
@@ -162,15 +161,16 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	                             ImGuiWindowFlags_NoBackground |
 	                             (iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                           : 0;
+	adjust.pre();
 	im::Window("Icons", &showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar, [&]{
+		bool isOnMainViewPort = adjust.post();
 		auto cursor0 = ImGui::GetCursorPos();
 		auto availableSize = ImGui::GetContentRegionAvail();
 		float slack = iconsHorizontal ? (availableSize.x - totalSize[0])
 		                              : (availableSize.y - totalSize[1]);
 		float spacing = (iconsNumEnabled >= 2) ? (std::max(0.0f, slack) / float(iconsNumEnabled)) : 0.0f;
 
-		bool fade = iconsHideTitle && !ImGui::IsWindowDocked() &&
-		            (ImGui::GetWindowViewport() == ImGui::GetMainViewport());
+		bool fade = iconsHideTitle && !ImGui::IsWindowDocked() && isOnMainViewPort;
 		for (auto& icon : iconInfo) {
 			if (!icon.enable) continue;
 

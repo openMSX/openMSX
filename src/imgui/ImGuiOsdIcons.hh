@@ -1,6 +1,7 @@
 #ifndef IMGUI_OSD_ICONS_HH
 #define IMGUI_OSD_ICONS_HH
 
+#include "ImGuiAdjust.hh"
 #include "ImGuiPart.hh"
 
 #include "GLUtil.hh"
@@ -66,6 +67,8 @@ private:
 	gl::ivec2 iconsMaxSize;
 	int iconsNumEnabled = 0;
 	bool iconInfoDirty = true;
+
+	AdjustWindowInMainViewPort adjust;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show",         &ImGuiOsdIcons::showIcons},

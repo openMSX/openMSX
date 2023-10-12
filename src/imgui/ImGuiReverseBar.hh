@@ -1,6 +1,7 @@
 #ifndef IMGUI_REVERSE_BAR_HH
 #define IMGUI_REVERSE_BAR_HH
 
+#include "ImGuiAdjust.hh"
 #include "ImGuiPart.hh"
 
 #include "GLUtil.hh"
@@ -45,6 +46,8 @@ private:
 		std::string name;
 		gl::Texture texture{gl::Null{}};
 	} previewImage;
+
+	AdjustWindowInMainViewPort adjust;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show",      &ImGuiReverseBar::showReverseBar},

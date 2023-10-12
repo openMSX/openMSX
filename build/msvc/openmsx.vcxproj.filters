@@ -522,6 +522,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc">
       <Filter>ide</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -1968,6 +1971,9 @@
     </None>
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh">
       <Filter>ide</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.hh">
+      <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.hh">
       <Filter>imgui</Filter>
