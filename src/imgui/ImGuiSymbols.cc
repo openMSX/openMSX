@@ -60,11 +60,13 @@ void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 		// already handled
 	} else if (name == "symbolfile") {
 		std::string filename{value};
+		auto type = SymbolFile::Type::AUTO_DETECT; // TODO
 		try {
-			auto type = SymbolFile::Type::AUTO_DETECT; // TODO
 			symbolManager.reloadFile(filename, true, type);
 		} catch (MSXException& e) {
-			fileError.emplace_back(filename, e.getMessage());
+			// clang workaround
+			//fileError.emplace_back(filename, e.getMessage(), type);
+			fileError.push_back(FileInfo{filename, e.getMessage(), type});
 		}
 	}
 }
@@ -208,8 +210,11 @@ void ImGuiSymbols::notifySymbolsChanged()
 	symbols.clear();
 	for (const auto& [fileIdx, file] : enumerate(symbolManager.getFiles())) {
 		for (auto symbolIdx : xrange(file.symbols.size())) {
-			symbols.emplace_back(narrow<unsigned>(fileIdx),
-			                     narrow<unsigned>(symbolIdx));
+			//symbols.emplace_back(narrow<unsigned>(fileIdx),
+			//                     narrow<unsigned>(symbolIdx));
+			// clang workaround
+			symbols.push_back(SymbolRef{narrow<unsigned>(fileIdx),
+			                            narrow<unsigned>(symbolIdx)});
 		}
 	}
 
