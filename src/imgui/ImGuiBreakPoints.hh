@@ -15,6 +15,7 @@ class DebugCondition;
 class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
+class SymbolManager;
 class WatchPoint;
 
 struct ParsedSlotCond {
@@ -49,7 +50,7 @@ public:
 	};
 
 public:
-	ImGuiBreakPoints(ImGuiManager& manager);
+	explicit ImGuiBreakPoints(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "breakpoints"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -83,6 +84,7 @@ public:
 
 private:
 	ImGuiManager& manager;
+	SymbolManager& symbolManager;
 
 	static inline int idCounter = 0;
 	std::vector<GuiItem> guiBps;

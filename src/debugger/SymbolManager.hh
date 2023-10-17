@@ -1,0 +1,113 @@
+#ifndef SYMBOL_MANAGER_HH
+#define SYMBOL_MANAGER_HH
+
+#include "hash_map.hh"
+
+#include <cassert>
+#include <cstdint>
+#include <functional>
+#include <optional>
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace openmsx {
+
+class CommandController;
+
+struct Symbol
+{
+	std::string name;
+	uint16_t value;
+
+	auto operator<=>(const Symbol&) const = default;
+};
+
+struct SymbolFile
+{
+	enum class Type {
+		AUTO_DETECT = 0,
+		ASMSX,
+		GENERIC, // includes PASMO, SJASM, TNIASM0, TNIASM1
+		HTC,
+		LINKMAP,
+		NOICE,
+		VASM,
+	};
+
+	std::string filename;
+	std::vector<Symbol> symbols;
+	Type type;
+};
+
+struct SymbolObserver
+{
+	virtual void notifySymbolsChanged() = 0;
+};
+
+class SymbolManager
+{
+public:
+	explicit SymbolManager(CommandController& commandController);
+
+	void setObserver(SymbolObserver* observer_) {
+		assert(!observer || !observer_);
+		observer = observer_;
+	}
+
+	// Load or reload a file.
+	// * Throws on failure to read from file. In that case the existing file is left unchanged.
+	// * Parse errors in the file are ignored.
+	// * When the file contains no symbols and when 'allowEmpty=false' the
+	//   existing file is not replaced and this method returns 'false'.
+	//   Otherwise it return 'true'.
+	bool reloadFile(const std::string& filename, bool allowEmpty, SymbolFile::Type type = SymbolFile::Type::AUTO_DETECT);
+
+	// Same effect as calling the above method in a loop, but more efficient.
+	void reloadAll(bool allowEmpty);
+
+	void removeFile(std::string_view filename);
+	void removeAllFiles();
+
+	[[nodiscard]] const auto& getFiles() const { return files; }
+	[[nodiscard]] std::span<Symbol const * const> lookupValue(uint16_t value);
+	[[nodiscard]] std::optional<uint16_t> parseSymbolOrValue(std::string_view s) const;
+
+	[[nodiscard]] static std::string getFileFilters();
+	[[nodiscard]] static SymbolFile::Type getTypeForFilter(std::string_view filter);
+
+//private:
+	// These should not be called directly, except by the unittest
+	[[nodiscard]] static std::optional<unsigned> isHexDigit(char c);
+	[[nodiscard]] static std::optional<uint16_t> is4DigitHex(std::string_view s);
+	[[nodiscard]] static std::optional<uint16_t> parseValue(std::string_view str);
+	[[nodiscard]] static std::optional<Symbol> checkLabel(std::string_view label, uint16_t value);
+	[[nodiscard]] static std::optional<Symbol> checkLabelAndValue(std::string_view label, std::string_view value);
+	[[nodiscard]] static SymbolFile::Type detectType(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadLines(
+		const std::string& filename, std::string_view buffer, SymbolFile::Type type,
+		std::function<std::optional<Symbol>(std::span<std::string_view>)> lineParser);
+	[[nodiscard]] static SymbolFile loadGeneric(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadNoICE(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadHTC(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadVASM(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadASMSX(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadLinkMap(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadSymbolFile(const std::string& filename, SymbolFile::Type type);
+
+private:
+	void refresh();
+	bool reloadFile1(const std::string& filename, bool allowEmpty, SymbolFile::Type type = SymbolFile::Type::AUTO_DETECT);
+
+private:
+	CommandController& commandController;
+	SymbolObserver* observer = nullptr; // only one for now, could become a vector later
+	std::vector<SymbolFile> files;
+	hash_map<uint16_t, std::vector<const Symbol*>> lookupValueCache; // calculated from 'files'
+};
+
+
+} // namespace openmsx
+
+#endif

@@ -10,12 +10,12 @@
 namespace openmsx {
 
 class ImGuiManager;
+class SymbolManager;
 
 class ImGuiWatchExpr final : public ImGuiPart
 {
 public:
-	ImGuiWatchExpr(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiWatchExpr(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "watch expr"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -33,6 +33,7 @@ public:
 
 private:
 	ImGuiManager& manager;
+	SymbolManager& symbolManager;
 
 	struct WatchExpr {
 		// added constructors: workaround clang-14 bug(?)

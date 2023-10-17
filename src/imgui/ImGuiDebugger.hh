@@ -19,6 +19,7 @@ class CPURegs;
 class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
+class SymbolManager;
 
 class DebuggableEditor : public MemoryEditor
 {
@@ -58,7 +59,7 @@ public:
 class ImGuiDebugger final : public ImGuiPart
 {
 public:
-	ImGuiDebugger(ImGuiManager& manager);
+	explicit ImGuiDebugger(ImGuiManager& manager);
 	~ImGuiDebugger();
 
 	void loadIcons();
@@ -82,6 +83,8 @@ private:
 
 private:
 	ImGuiManager& manager;
+	SymbolManager& symbolManager;
+
 	struct EditorInfo {
 		explicit EditorInfo(const std::string& name_)
 			: name(name_) {}

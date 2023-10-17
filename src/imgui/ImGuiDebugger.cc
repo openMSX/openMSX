@@ -35,6 +35,7 @@ namespace openmsx {
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: manager(manager_)
+	, symbolManager(manager.getReactor().getSymbolManager())
 {
 }
 
@@ -411,8 +412,8 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time,
 							[&](std::string& output, uint16_t a) {
 								mnemonicAddr = a;
-								if (auto label = manager.symbols.lookupValue(a); !label.empty()) {
-									output += label;
+								if (auto labels = symbolManager.lookupValue(a); !labels.empty()) {
+									strAppend(output, labels.front()->name); // TODO cycle
 									mnemonicLabel = true;
 								} else {
 									appendAddrAsHex(output, a);
@@ -446,23 +447,24 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::SameLine();
 								// TODO also allow labels
 								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
-									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
+									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
 										nextGotoTarget = *a;
 									}
 								}
 								simpleToolTip([&]{
-									if (auto a = manager.symbols.parseSymbolOrValue(gotoAddr)) {
+									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
 										return strCat("0x", hex_string<4>(*a));
 									}
 									return std::string{};
 								});
 							});
 
-							auto addrLabel = manager.symbols.lookupValue(addr);
-							std::string_view displayAddr = addrLabel.empty() ? addrStr : addrLabel;
+							auto addrLabels = symbolManager.lookupValue(addr);
+							std::string_view displayAddr = addrLabels.empty() ? std::string_view(addrStr)
+							                                                  : std::string_view(addrLabels.front()->name); // TODO cycle
 							ImGui::SetCursorPos(pos);
 							ImGui::TextUnformatted(displayAddr);
-							if (!addrLabel.empty()) {
+							if (!addrLabels.empty()) {
 								simpleToolTip(addrStr);
 							}
 						}

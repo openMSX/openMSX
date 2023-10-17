@@ -3,6 +3,8 @@
 
 #include "ImGuiPart.hh"
 
+#include "SymbolManager.hh"
+
 #include "hash_map.hh"
 
 #include <cstdint>
@@ -13,21 +15,20 @@ namespace openmsx {
 
 class ImGuiManager;
 
-struct Symbol {
-	std::string name;
-	std::string file;
-	uint16_t value;
+struct SymbolRef {
+	unsigned fileIdx;
+	unsigned symbolIdx;
+
+	[[nodiscard]] std::string_view file(const SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
+	[[nodiscard]] std::string_view name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
+	[[nodiscard]] uint16_t        value(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
 };
 
-// Parse the data in 'buffer' and return the resulting Symbol objects.
-// The Symbol's refer to 'filename', but this parse function itself doesn't
-// perform any filesystem access (useful for unittest).
-std::vector<Symbol> parseSymbolBuffer(const std::string& filename, std::string_view buffer);
-
-class ImGuiSymbols final : public ImGuiPart
+class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
 public:
 	ImGuiSymbols(ImGuiManager& manager);
+	~ImGuiSymbols();
 
 	[[nodiscard]] zstring_view iniName() const override { return "symbols"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -36,35 +37,24 @@ public:
 	void loadEnd() override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-	[[nodiscard]] const std::vector<std::string>& getFiles();
-	[[nodiscard]] std::string_view lookupValue(uint16_t value);
-	std::optional<uint16_t> parseSymbolOrValue(std::string_view str) const;
-
 public:
 	bool show = false;
 
 private:
-	void dropCaches();
-
-	void reload(const std::string& file);
-	void reload1(const std::string& file);
-	void reloadAll();
-	void remove(const std::string& file);
-	void remove2(const std::string& file);
-	void removeAll();
-	std::vector<Symbol> load(const std::string& filename);
+	// SymbolObserver
+	void notifySymbolsChanged() override;
 
 private:
 	ImGuiManager& manager;
-	std::vector<Symbol> symbols;
-	std::vector<std::string> filesCache; // calculated from 'symbols'
-	hash_map<uint16_t, std::string> lookupValueCache; // calculated from 'symbols'
+	SymbolManager& symbolManager;
+	std::vector<SymbolRef> symbols;
 
-	struct FileError {
-		std::string file;
+	struct FileInfo {
+		std::string filename;
 		std::string error;
+		SymbolFile::Type type;
 	};
-	std::vector<FileError> fileError;
+	std::vector<FileInfo> fileError;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiSymbols::show}

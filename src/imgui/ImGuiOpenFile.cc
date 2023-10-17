@@ -94,7 +94,9 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
 {
 	setBookmarks();
 
-	filters += ",All files (*){.*}";
+	if (filters.find("{.*}") == std::string::npos) {
+		filters += ",All files (*){.*}";
+	}
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
@@ -114,7 +116,9 @@ void ImGuiOpenFile::selectNewFile(const std::string& title, std::string filters,
 {
 	setBookmarks();
 
-	filters += ",All files (*){.*}";
+	if (filters.find("{.*}") == std::string::npos) {
+		filters += ",All files (*){.*}";
+	}
 	ImGuiFileDialogFlags flags =
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
@@ -161,6 +165,12 @@ void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
 		}
 		fileDialog->Close();
 	}
+}
+
+std::string ImGuiOpenFile::getLastFilter()
+{
+	auto* fileDialog = ImGuiFileDialog::Instance();
+	return fileDialog->GetCurrentFilter();
 }
 
 } // namespace openmsx

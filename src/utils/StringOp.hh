@@ -49,7 +49,7 @@ namespace StringOp
 
 	[[nodiscard]] bool stringToBool(std::string_view str);
 
-	//[[nodiscard]] std::string toLower(std::string_view str);
+	[[nodiscard]] std::string toLower(std::string_view str);
 
 	void trimRight(std::string& str, const char* chars);
 	void trimRight(std::string& str, char chars);

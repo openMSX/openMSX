@@ -41,6 +41,7 @@ namespace openmsx {
 
 ImGuiBreakPoints::ImGuiBreakPoints(ImGuiManager& manager_)
 	: manager(manager_)
+	, symbolManager(manager.getReactor().getSymbolManager())
 {
 }
 
@@ -390,8 +391,8 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 	});
 	for (const auto& item : openMsxItems) {
 		auto formatAddr = [&](uint16_t addr) {
-			if (auto sym = manager.symbols.lookupValue(addr); !sym.empty()) {
-				return TclObject(sym);
+			if (auto syms = symbolManager.lookupValue(addr); !syms.empty()) {
+				return TclObject(syms.front()->name);
 			}
 			return TclObject(tmpStrCat("0x", hex_string<4>(addr)));
 		};
@@ -482,7 +483,7 @@ void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items)
 
 std::optional<uint16_t> ImGuiBreakPoints::parseAddress(const TclObject& o)
 {
-	return manager.symbols.parseSymbolOrValue(o.getString());
+	return symbolManager.parseSymbolOrValue(o.getString());
 }
 
 template<typename Item>
@@ -766,8 +767,8 @@ void ImGuiBreakPoints::refresh(std::vector<GuiItem>& items)
 						// heuristic: try to replace strings of the form "0x...." with a symbol name
 						auto s = str.getString();
 						if ((s.size() == 6) && s.starts_with("0x")) {
-							if (auto newSym = manager.symbols.lookupValue(*addr); !newSym.empty()) {
-								str = newSym;
+							if (auto newSyms = symbolManager.lookupValue(*addr); !newSyms.empty()) {
+								str = newSyms.front()->name;
 								// no need to sync with openMSX
 							}
 						}

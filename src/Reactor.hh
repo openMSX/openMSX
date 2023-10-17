@@ -55,6 +55,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
+class SymbolManager;
 
 extern int exitCode;
 
@@ -93,6 +94,7 @@ public:
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 	[[nodiscard]] const HotKey& getHotKey() const;
+	[[nodiscard]] SymbolManager& getSymbolManager() const { return *symbolManager; }
 
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
@@ -154,6 +156,7 @@ private:
 	std::unique_ptr<GlobalCommandController> globalCommandController;
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
+	std::unique_ptr<SymbolManager> symbolManager; // before imGuiManager
 	std::unique_ptr<ImGuiManager> imGuiManager; // before display
 	std::unique_ptr<Display> display;
 	std::unique_ptr<Mixer> mixer; // lazy initialized

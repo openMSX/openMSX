@@ -18,6 +18,12 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiWatchExpr::ImGuiWatchExpr(ImGuiManager& manager_)
+	: manager(manager_)
+	, symbolManager(manager.getReactor().getSymbolManager())
+{
+}
+
 void ImGuiWatchExpr::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -180,7 +186,7 @@ ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interprete
 	if (watch.exprStr.empty()) return r;
 
 	if (!watch.expression) {
-		if (auto addr = manager.symbols.parseSymbolOrValue(watch.exprStr)) {
+		if (auto addr = symbolManager.parseSymbolOrValue(watch.exprStr)) {
 			// expression is a symbol or an integer -> rewrite
 			watch.expression = TclObject(tmpStrCat("[peek ", *addr, ']'));
 		} else {
