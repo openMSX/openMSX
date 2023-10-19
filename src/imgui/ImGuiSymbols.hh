@@ -26,6 +26,12 @@ struct SymbolRef {
 
 class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
+	struct FileInfo {
+		std::string filename;
+		std::string error;
+		SymbolFile::Type type;
+	};
+
 public:
 	ImGuiSymbols(ImGuiManager& manager);
 	~ImGuiSymbols();
@@ -41,6 +47,8 @@ public:
 	bool show = false;
 
 private:
+	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type);
+
 	// SymbolObserver
 	void notifySymbolsChanged() override;
 
@@ -49,11 +57,6 @@ private:
 	SymbolManager& symbolManager;
 	std::vector<SymbolRef> symbols;
 
-	struct FileInfo {
-		std::string filename;
-		std::string error;
-		SymbolFile::Type type;
-	};
 	std::vector<FileInfo> fileError;
 
 	static constexpr auto persistentElements = std::tuple{

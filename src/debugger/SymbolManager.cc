@@ -17,6 +17,33 @@
 
 namespace openmsx {
 
+zstring_view SymbolFile::toString(Type type)
+{
+	switch (type) {
+		case Type::AUTO_DETECT: return "auto-detect";
+		case Type::ASMSX:       return "asMSX";
+		case Type::GENERIC:     return "generic";
+		case Type::HTC:         return "htc";
+		case Type::LINKMAP:     return "linkmap";
+		case Type::NOICE:       return "NoICE";
+		case Type::VASM:        return "vasm";
+		default: UNREACHABLE; return "";
+	}
+}
+
+std::optional<SymbolFile::Type> SymbolFile::parseType(std::string_view str)
+{
+	if (str == "auto-detect") return Type::AUTO_DETECT;
+	if (str == "asMSX")       return Type::ASMSX;
+	if (str == "generic")     return Type::GENERIC;
+	if (str == "htc")         return Type::HTC;
+	if (str == "linkmap")     return Type::LINKMAP;
+	if (str == "NoICE")       return Type::NOICE;
+	if (str == "vasm")        return Type::VASM;
+	return {};
+}
+
+
 SymbolManager::SymbolManager(CommandController& commandController_)
 	: commandController(commandController_)
 {
@@ -354,10 +381,10 @@ void SymbolManager::refresh()
 	if (observer) observer->notifySymbolsChanged();
 }
 
-bool SymbolManager::reloadFile1(const std::string& filename, bool allowEmpty, SymbolFile::Type type)
+bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type)
 {
 	auto file = loadSymbolFile(filename, type); // might throw
-	if (file.symbols.empty() && !allowEmpty) return false;
+	if (file.symbols.empty() && loadEmpty == LoadEmpty::NOT_ALLOWED) return false;
 
 	auto it = ranges::find(files, filename, &SymbolFile::filename);
 	if (it == files.end()) {
@@ -365,23 +392,8 @@ bool SymbolManager::reloadFile1(const std::string& filename, bool allowEmpty, Sy
 	} else {
 		*it = std::move(file);
 	}
-	return true;
-}
-
-bool SymbolManager::reloadFile(const std::string& filename, bool allowEmpty, SymbolFile::Type type)
-{
-	bool result = reloadFile1(filename, allowEmpty, type);
 	refresh();
-	return result;
-}
-
-void SymbolManager::reloadAll(bool allowEmpty)
-{
-	// Note: in this specific case reloadFile1() is guaranteed to not invalidate 'files' iterators.
-	for (auto& file : files) {
-		reloadFile1(file.filename, allowEmpty, file.type);
-	}
-	refresh(); // only 1x for all files
+	return true;
 }
 
 void SymbolManager::removeFile(std::string_view filename)

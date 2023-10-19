@@ -41,17 +41,18 @@ void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 	savePersistent(buf, *this, persistentElements);
 	for (const auto& file : symbolManager.getFiles()) {
 		buf.appendf("symbolfile=%s\n", file.filename.c_str());
-		// TODO type
+		buf.appendf("symbolfiletype=%s\n", SymbolFile::toString(file.type).c_str());
 	}
 	for (const auto& [file, error, type] : fileError) {
 		buf.appendf("symbolfile=%s\n", file.c_str());
-		// TODO type
+		buf.appendf("symbolfiletype=%s\n", SymbolFile::toString(type).c_str());
 	}
 }
 
 void ImGuiSymbols::loadStart()
 {
 	symbolManager.removeAllFiles();
+	fileError.clear();
 }
 
 void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
@@ -59,21 +60,46 @@ void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
 	} else if (name == "symbolfile") {
-		std::string filename{value};
-		auto type = SymbolFile::Type::AUTO_DETECT; // TODO
-		try {
-			symbolManager.reloadFile(filename, true, type);
-		} catch (MSXException& e) {
-			// clang workaround
-			//fileError.emplace_back(filename, e.getMessage(), type);
-			fileError.push_back(FileInfo{filename, e.getMessage(), type});
+		fileError.push_back(FileInfo{std::string{value}, // filename
+		                             std::string{}, // error
+		                             SymbolFile::Type::AUTO_DETECT}); // type
+	} else if (name == "symbolfiletype") {
+		if (!fileError.empty()) {
+			fileError.back().type =
+				SymbolFile::parseType(value).value_or(SymbolFile::Type::AUTO_DETECT);
 		}
 	}
 }
 
 void ImGuiSymbols::loadEnd()
 {
-	// TODO only load here?
+	std::vector<FileInfo> tmp;
+	std::swap(tmp, fileError);
+	for (auto& info : tmp) {
+		loadFile(info.filename, SymbolManager::LoadEmpty::ALLOWED, info.type);
+	}
+}
+
+void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type)
+{
+	auto& cliComm = manager.getReactor().getCliComm();
+	auto it = ranges::find(fileError, filename, &FileInfo::filename);
+	try {
+		if (!symbolManager.reloadFile(filename, loadEmpty, type)) {
+			cliComm.printWarning("Symbol file \"", filename,
+			                     "\" doesn't contain any symbols");
+		}
+		if (it != fileError.end()) fileError.erase(it); // clear previous error
+	} catch (MSXException& e) {
+		manager.getReactor().getCliComm().printWarning(
+			"Couldn't load symbol file \"", filename, "\": ", e.getMessage());
+		if (it != fileError.end()) {
+			it->error = e.getMessage(); // overwrite previous error
+			it->type = type;
+		} else {
+			fileError.push_back({filename, e.getMessage(), type}); // set error
+		}
+	}
 }
 
 static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symbols)
@@ -152,9 +178,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 				SymbolManager::getFileFilters(),
 				[this](const std::string& filename) {
 					auto type = SymbolManager::getTypeForFilter(ImGuiOpenFile::getLastFilter());
-					if (!symbolManager.reloadFile(filename, false, type)) {
-						// TODO warning empty file
-					}
+					loadFile(filename, SymbolManager::LoadEmpty::NOT_ALLOWED, type);
 				});
 		}
 
@@ -168,11 +192,15 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 						}
 						im::StyleColor(ImGuiCol_Text, {1.0f, 1.0f, 1.0f, 1.0f}, [&]{
 							if (ImGui::Button("Reload")) {
-								symbolManager.reloadFile(info.filename, false, info.type);
+								loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type);
 							}
 							ImGui::SameLine();
 							if (ImGui::Button("Remove")) {
 								symbolManager.removeFile(info.filename);
+								if (auto it = ranges::find(fileError, info.filename, &FileInfo::filename);
+								    it != fileError.end()) {
+									fileError.erase(it);
+								}
 							}
 							drawTable<true>(symbolManager, symbols, info.filename);
 						});
@@ -184,21 +212,27 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 			auto infos = to_vector(view::transform(symbolManager.getFiles(), [](const auto& file) {
 				return FileInfo{file.filename, std::string{}, file.type};
 			}));
+			append(infos, fileError);
 			for (const auto& info : infos) {
-				drawFile(info);
-			}
-			for (const auto& info : fileError) {
 				drawFile(info);
 			}
 
 		});
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
-				symbolManager.reloadAll(false);
+				auto tmp = to_vector(view::transform(symbolManager.getFiles(), [](const auto& file) {
+					return FileInfo{file.filename, std::string{}, file.type};
+				}));
+				append(tmp, std::move(fileError));
+				fileError.clear();
+				for (auto& info : tmp) {
+					loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type);
+				}
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Remove all")) {
 				symbolManager.removeAllFiles();
+				fileError.clear();
 			}
 			drawTable<false>(symbolManager, symbols);
 		});

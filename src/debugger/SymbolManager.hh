@@ -2,6 +2,7 @@
 #define SYMBOL_MANAGER_HH
 
 #include "hash_map.hh"
+#include "zstring_view.hh"
 
 #include <cassert>
 #include <cstdint>
@@ -35,6 +36,8 @@ struct SymbolFile
 		NOICE,
 		VASM,
 	};
+	[[nodiscard]] static zstring_view toString(Type type);
+	[[nodiscard]] static std::optional<Type> parseType(std::string_view str);
 
 	std::string filename;
 	std::vector<Symbol> symbols;
@@ -62,10 +65,8 @@ public:
 	// * When the file contains no symbols and when 'allowEmpty=false' the
 	//   existing file is not replaced and this method returns 'false'.
 	//   Otherwise it return 'true'.
-	bool reloadFile(const std::string& filename, bool allowEmpty, SymbolFile::Type type = SymbolFile::Type::AUTO_DETECT);
-
-	// Same effect as calling the above method in a loop, but more efficient.
-	void reloadAll(bool allowEmpty);
+	enum class LoadEmpty { ALLOWED, NOT_ALLOWED };
+	bool reloadFile(const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type);
 
 	void removeFile(std::string_view filename);
 	void removeAllFiles();
@@ -98,7 +99,6 @@ public:
 
 private:
 	void refresh();
-	bool reloadFile1(const std::string& filename, bool allowEmpty, SymbolFile::Type type = SymbolFile::Type::AUTO_DETECT);
 
 private:
 	CommandController& commandController;
