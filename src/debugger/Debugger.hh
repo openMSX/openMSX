@@ -18,6 +18,7 @@ class Debuggable;
 class ProbeBase;
 class ProbeBreakPoint;
 class MSXCPU;
+class SymbolManager;
 
 class Debugger
 {
@@ -74,6 +75,7 @@ private:
 	private:
 		[[nodiscard]]       Debugger& debugger()       { return OUTER(Debugger, cmd); }
 		[[nodiscard]] const Debugger& debugger() const { return OUTER(Debugger, cmd); }
+		[[nodiscard]] SymbolManager& getSymbolManager();
 		void list(TclObject& result);
 		void desc(std::span<const TclObject> tokens, TclObject& result);
 		void size(std::span<const TclObject> tokens, TclObject& result);
@@ -100,6 +102,12 @@ private:
 		void probeSetBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void probeRemoveBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void probeListBreakPoints(std::span<const TclObject> tokens, TclObject& result);
+		void symbols(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsTypes(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsLoad(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsRemove(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsFiles(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsLookup(std::span<const TclObject> tokens, TclObject& result);
 	} cmd;
 
 	struct NameFromProbe {

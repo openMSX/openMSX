@@ -35,6 +35,9 @@ struct SymbolFile
 		LINKMAP,
 		NOICE,
 		VASM,
+
+		FIRST = AUTO_DETECT,
+		LAST = VASM + 1,
 	};
 	[[nodiscard]] static zstring_view toString(Type type);
 	[[nodiscard]] static std::optional<Type> parseType(std::string_view str);
