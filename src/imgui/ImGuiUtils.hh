@@ -192,15 +192,21 @@ void applyComboFilter(std::string_view key, const std::string& value, const std:
 	});
 }
 
-template<typename T>
-void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>& items, std::vector<size_t>& indices)
+template<std::invocable<size_t> GetName>
+void filterIndices(std::string_view filterString, GetName getName, std::vector<size_t>& indices)
 {
 	if (filterString.empty()) return;
 	std::erase_if(indices, [&](auto idx) {
-		const auto& display = items[idx].displayName;
+		const auto& name = getName(idx);
 		return !ranges::all_of(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(filterString, ' '),
-			[&](auto part) { return StringOp::containsCaseInsensitive(display, part); });
+			[&](auto part) { return StringOp::containsCaseInsensitive(name, part); });
 	});
+}
+
+template<typename T>
+void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>& items, std::vector<size_t>& indices)
+{
+	filterIndices(filterString, [&](size_t idx) { return items[idx].displayName; }, indices);
 }
 
 // Similar to c++23 chunk_by(). Main difference is internal vs external iteration.

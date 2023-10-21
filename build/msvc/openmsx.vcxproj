@@ -493,6 +493,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc" />
@@ -1062,6 +1063,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh" />

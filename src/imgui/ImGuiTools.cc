@@ -44,6 +44,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* /*motherBoard*/)
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
 		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
+		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer.show);
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{

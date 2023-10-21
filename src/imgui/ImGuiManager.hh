@@ -22,6 +22,7 @@
 #include "ImGuiSpriteViewer.hh"
 #include "ImGuiSymbols.hh"
 #include "ImGuiTools.hh"
+#include "ImGuiTrainer.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
 
@@ -99,6 +100,7 @@ public:
 	ImGuiMedia media;
 	ImGuiConnector connector;
 	ImGuiTools tools;
+	ImGuiTrainer trainer;
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;
