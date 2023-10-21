@@ -4,6 +4,7 @@
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
 #include "ImGuiCharacter.hh"
+#include "ImGuiCheatFinder.hh"
 #include "ImGuiConnector.hh"
 #include "ImGuiConsole.hh"
 #include "ImGuiDebugger.hh"
@@ -101,6 +102,7 @@ public:
 	ImGuiConnector connector;
 	ImGuiTools tools;
 	ImGuiTrainer trainer;
+	ImGuiCheatFinder cheatFinder;
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;

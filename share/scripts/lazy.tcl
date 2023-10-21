@@ -3,7 +3,7 @@
 #  (preferably keep this list sorted on script name)
 register_lazy "_about.tcl" about
 register_lazy "_backwards_compatibility.tcl" {quit decr restoredefault alias}
-register_lazy "_cheat.tcl" findcheat
+register_lazy "_cheat.tcl" {findcheat start search}
 register_lazy "_cashandler.tcl" {casload cassave caslist casrun caspos caseject tapedeck}
 register_lazy "_cpuregs.tcl" {reg cpuregs get_active_cpu}
 register_lazy "_cycle.tcl" {cycle cycle_back toggle}
