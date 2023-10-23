@@ -75,6 +75,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, tools(*this)
 	, trainer(*this)
 	, cheatFinder(*this)
+	, diskManipulator(*this)
 	, settings(*this)
 	, soundChip(*this)
 	, keyboard(*this)
@@ -132,8 +133,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 		this,
 		&machine, &media, &connector, &reverseBar, &tools, &settings, &debugger, &help,
 		&soundChip, &keyboard, &symbols, &breakPoints, &watchExpr,
-		&bitmap, &character, &sprite, &vdpRegs, &palette,
-		&osdIcons, &openFile, &console, &messages, &trainer, &cheatFinder});
+		&bitmap, &character, &sprite, &vdpRegs, &palette, &osdIcons,
+		&openFile, &console, &messages, &trainer, &cheatFinder, &diskManipulator});
 }
 
 ImGuiManager::~ImGuiManager()

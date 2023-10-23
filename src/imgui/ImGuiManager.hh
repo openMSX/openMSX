@@ -8,6 +8,7 @@
 #include "ImGuiConnector.hh"
 #include "ImGuiConsole.hh"
 #include "ImGuiDebugger.hh"
+#include "ImGuiDiskManipulator.hh"
 #include "ImGuiHelp.hh"
 #include "ImGuiKeyboard.hh"
 #include "ImGuiMachine.hh"
@@ -103,6 +104,7 @@ public:
 	ImGuiTools tools;
 	ImGuiTrainer trainer;
 	ImGuiCheatFinder cheatFinder;
+	ImGuiDiskManipulator diskManipulator;
 	ImGuiSettings settings;
 	ImGuiSoundChip soundChip;
 	ImGuiKeyboard keyboard;
