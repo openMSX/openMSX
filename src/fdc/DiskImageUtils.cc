@@ -7,6 +7,7 @@
 #include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
+#include "strCat.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -634,6 +635,42 @@ unsigned partition(SectorAccessibleDisk& disk, std::span<const unsigned> sizes, 
 	}
 
 	return narrow<unsigned>(clampedSizes.size());
+}
+
+FatTimeDate toTimeDate(time_t totalSeconds)
+{
+	if (tm* mtim = localtime(&totalSeconds)) {
+		auto time = narrow<uint16_t>(
+			(std::min(mtim->tm_sec, 59) >> 1) + (mtim->tm_min << 5) +
+			(mtim->tm_hour << 11));
+		auto date = narrow<uint16_t>(
+			mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+			(std::clamp(mtim->tm_year + 1900 - 1980, 0, 119) << 9));
+		return {time, date};
+	}
+	return {0, 0};
+}
+
+time_t fromTimeDate(FatTimeDate timeDate)
+{
+	struct tm tm{};
+	tm.tm_sec  = std::clamp(((timeDate.time >>  0) & 31) * 2, 0, 60);
+	tm.tm_min  = std::clamp(((timeDate.time >>  5) & 63), 0, 59);
+	tm.tm_hour = std::clamp(((timeDate.time >> 11) & 31), 0, 23);
+	tm.tm_mday = std::clamp((timeDate.date >> 0) & 31, 1, 31);
+	tm.tm_mon  = std::clamp((timeDate.date >> 5) & 15, 0, 11);
+	tm.tm_year = (timeDate.date >> 9) + 1980 - 1900;
+	tm.tm_isdst = -1;
+	return mktime(&tm);
+}
+
+std::string formatAttrib(uint8_t attrib)
+{
+	return strCat((attrib & MSXDirEntry::Attrib::DIRECTORY ? 'd' : '-'),
+	              (attrib & MSXDirEntry::Attrib::READONLY  ? 'r' : '-'),
+	              (attrib & MSXDirEntry::Attrib::HIDDEN    ? 'h' : '-'),
+	              (attrib & MSXDirEntry::Attrib::VOLUME    ? 'v' : '-'),  // TODO check if this is the output of files,l
+	              (attrib & MSXDirEntry::Attrib::ARCHIVE   ? 'a' : '-')); // TODO check if this is the output of files,l
 }
 
 } // namespace openmsx::DiskImageUtils

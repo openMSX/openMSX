@@ -55,23 +55,6 @@ string DiskManipulator::getMachinePrefix() const
 	return id.empty() ? string{} : strCat(id, "::");
 }
 
-const MsxChar2Unicode& DiskManipulator::getMsxChar2Unicode() const
-{
-	// TODO cleanup this code. It should be easier to get a hold of the
-	// 'MsxChar2Unicode' object. Probably the 'Keyboard' class is not the
-	// right location to store it.
-	try {
-		if (MSXMotherBoard* board = reactor.getMotherBoard()) {
-			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
-				return ppi->getKeyboard().getMsxChar2Unicode();
-			}
-		}
-	} catch (MSXException&) {
-	}
-	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
-	return defaultMsxChars;
-}
-
 void DiskManipulator::registerDrive(
 	DiskContainer& drive, std::string_view prefix)
 {
@@ -88,6 +71,77 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 	auto it = findDriveSettings(drive);
 	assert(it != end(drives));
 	move_pop_back(drives, it);
+}
+
+std::vector<std::string> DiskManipulator::getDriveNamesForCurrentMachine() const
+{
+	std::vector<std::string> result;
+	result.push_back("virtual_drive"); // always available
+
+	auto prefix = getMachinePrefix();
+	if (prefix.empty()) return result;
+
+	for (const auto& drive : drives) {
+		if (!drive.driveName.starts_with(prefix)) continue;
+
+		auto* disk = drive.drive->getSectorAccessibleDisk();
+		if (disk && DiskImageUtils::hasPartitionTable(*disk)) {
+			for (unsigned i = 1; true; ++i) {
+				try {
+					SectorBuffer buf;
+					DiskImageUtils::getPartition(*disk, i, buf);
+				} catch (MSXException&) {
+					break; // stop when the partition doesn't exist
+				}
+				try {
+					DiskImageUtils::checkSupportedPartition(*disk, i);
+					result.push_back(strCat(
+						drive.driveName.substr(prefix.size()), i));
+				} catch (MSXException&) {
+					// skip invalid partition
+				}
+			}
+		} else {
+			// empty drive or no partition table
+			result.emplace_back(drive.driveName.substr(prefix.size()));
+		}
+	}
+	return result;
+}
+
+std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDisk(std::string_view fullName) const
+{
+	// input does not have machine prefix, but it may have a partition suffix
+	auto pos = fullName.find_first_of("0123456789");
+	auto driveName = (pos != std::string_view::npos)
+		? fullName.substr(0, pos) // drop partition number
+		: fullName;
+	unsigned partitionNum = 0; // full disk
+	if (pos != std::string_view::npos) {
+		auto num = StringOp::stringToBase<10, unsigned>(fullName.substr(pos));
+		if (!num) return {}; // parse error
+		partitionNum = *num;
+	}
+
+	auto it = ranges::find(drives, driveName, &DriveSettings::driveName);
+	if (it == end(drives)) {
+		it = ranges::find(drives, tmpStrCat(getMachinePrefix(), driveName), &DriveSettings::driveName);
+		if (it == end(drives)) {
+			return {}; // drive doesn't exist
+		}
+	}
+	auto* drive = it->drive;
+	assert(drive);
+	auto* disk = drive->getSectorAccessibleDisk();
+	if (!disk) return {};
+
+	try {
+		return DriveAndPartition{
+			drive,
+			std::make_unique<DiskPartition>(*disk, partitionNum)};
+	} catch (MSXException&) {
+		return {}; // invalid partition?
+	}
 }
 
 std::string DiskManipulator::DriveSettings::getWorkingDir(unsigned p)
@@ -533,7 +587,7 @@ MSXtar DiskManipulator::getMSXtar(
 		throw CommandException("Please select partition number.");
 	}
 
-	MSXtar result(disk, getMsxChar2Unicode());
+	MSXtar result(disk, reactor.getMsxChar2Unicode());
 	string cwd = driveData.getWorkingDir(driveData.partition);
 	try {
 		result.chdir(cwd);

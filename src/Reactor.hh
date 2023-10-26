@@ -35,6 +35,7 @@ class HotKey;
 class UserSettings;
 class RomDatabase;
 class TclCallbackMessages;
+class MsxChar2Unicode;
 class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
@@ -102,6 +103,8 @@ public:
 	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
 	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);
+
+	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
 
 	void block();
 	void unblock();

@@ -7,9 +7,12 @@
 #ifndef MSXTAR_HH
 #define MSXTAR_HH
 
-#include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
+#include "TclObject.hh"
+
+#include "MemBuffer.hh"
 #include "zstring_view.hh"
+
 #include <string_view>
 #include <variant>
 
@@ -47,7 +50,8 @@ public:
 
 	void chdir(std::string_view newRootDir);
 	void mkdir(std::string_view newRootDir);
-	std::string dir();
+	std::string dir(); // formatted output
+	TclObject dirRaw(); // unformatted output
 	std::string addFile(const std::string& filename);
 	std::string addDir(std::string_view rootDirName);
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);

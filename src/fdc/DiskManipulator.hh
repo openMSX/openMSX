@@ -2,8 +2,11 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
+#include "DiskPartition.hh"
+
 #include <array>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -28,6 +31,14 @@ public:
 	void registerDrive(DiskContainer& drive, std::string_view prefix);
 	void unregisterDrive(DiskContainer& drive);
 
+	// for use in ImGuiDiskManipulator
+	std::vector<std::string> getDriveNamesForCurrentMachine() const;
+	struct DriveAndPartition {
+		DiskContainer* drive;
+		std::unique_ptr<DiskPartition> partition; // will often be the full disk
+	};
+	std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
+
 private:
 	struct DriveSettings
 	{
@@ -50,7 +61,6 @@ private:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	[[nodiscard]] std::string getMachinePrefix() const;
-	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
 	[[nodiscard]] Drives::iterator findDriveSettings(DiskContainer& drive);
 	[[nodiscard]] Drives::iterator findDriveSettings(std::string_view driveName);
 	[[nodiscard]] DriveSettings& getDriveSettings(std::string_view diskName);

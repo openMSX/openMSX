@@ -14,7 +14,9 @@
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 #include "TclCallbackMessages.hh"
+#include "MsxChar2Unicode.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXPPI.hh"
 #include "StateChangeDistributor.hh"
 #include "Command.hh"
 #include "AfterCommand.hh"
@@ -364,6 +366,24 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	result.erase(ranges::unique(result), end(result));
 	return result;
 }
+
+const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
+{
+	// TODO cleanup this code. It should be easier to get a hold of the
+	// 'MsxChar2Unicode' object. Probably the 'Keyboard' class is not the
+	// right location to store it.
+	try {
+		if (MSXMotherBoard* board = getMotherBoard()) {
+			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
+				return ppi->getKeyboard().getMsxChar2Unicode();
+			}
+		}
+	} catch (MSXException&) {
+	}
+	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
+	return defaultMsxChars;
+}
+
 
 void Reactor::createMachineSetting()
 {

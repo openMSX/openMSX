@@ -5,9 +5,17 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
-#include "Date.hh"
+#include "DiskChanger.hh"
+#include "DiskImageUtils.hh"
+#include "DiskManipulator.hh"
+#include "DiskName.hh"
 #include "FileOperations.hh"
+#include "HD.hh"
+#include "MSXtar.hh"
+
+#include "Date.hh"
 #include "foreach_file.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 
 #include <imgui_stdlib.h>
@@ -20,6 +28,62 @@ namespace openmsx {
 ImGuiDiskManipulator::ImGuiDiskManipulator(ImGuiManager& manager_)
 	: manager(manager_)
 {
+}
+
+std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::getMsxStuff()
+{
+	auto& diskManipulator = manager.getReactor().getDiskManipulator();
+	auto dd = diskManipulator.getDriveAndDisk(selectedDrive);
+	if (!dd) return {};
+	auto& [drive, disk] = *dd;
+	auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
+	return DrivePartitionTar{drive, std::move(disk), std::move(tar)};
+}
+
+bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir)
+{
+	assert(dir.starts_with('/'));
+	try {
+		stuff.tar->chdir(dir);
+		return true;
+	} catch (MSXException&) {
+		return false;
+	}
+}
+
+void ImGuiDiskManipulator::refreshMsx()
+{
+	msxFileCache.clear();
+	msxLastClick = -1;
+	msxNeedRefresh = false;
+	msxForceSort = true;
+
+	auto stuff = getMsxStuff();
+	if (!stuff) return;
+
+	try {
+		stuff->tar->chdir(msxDir);
+	} catch (MSXException&) {
+		msxDir = "/";
+		editMsxDir = "/";
+		stuff->tar->chdir(msxDir);
+	}
+
+	auto dir = stuff->tar->dirRaw();
+	auto num = dir.size();
+	for (unsigned i = 0; i < num; ++i) {
+		auto entry = dir.getListIndexUnchecked(i);
+		FileInfo info;
+		info.attrib = entry.getListIndexUnchecked(1).getOptionalInt().value_or(0);
+		if (info.attrib & MSXDirEntry::Attrib::VOLUME) continue; // skip
+		info.filename = std::string(entry.getListIndexUnchecked(0).getString());
+		if (info.filename == one_of(".", "..")) continue; // skip
+		info.modified = entry.getListIndexUnchecked(2).getOptionalInt().value_or(0);
+		info.size = entry.getListIndexUnchecked(3).getOptionalInt().value_or(0);
+		info.isDirectory = info.attrib & MSXDirEntry::Attrib::DIRECTORY;
+		if (info.isDirectory) info.size = size_t(-1);
+		msxFileCache.push_back(std::move(info));
+	}
 }
 
 void ImGuiDiskManipulator::refreshHost()
@@ -75,7 +139,7 @@ void ImGuiDiskManipulator::checkSort(std::vector<FileInfo>& files, bool& forceSo
 		sortUpDown_T(files, sortSpecs, &FileInfo::modified);
 		break;
 	case 3: // attrib
-		sortUpDown_String(files, sortSpecs, &FileInfo::attrib);
+		sortUpDown_T(files, sortSpecs, &FileInfo::attrib);
 		break;
 	default:
 		UNREACHABLE;
@@ -147,7 +211,7 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 					ImGui::TextUnformatted(Date::toString(file.modified));
 				}
 				if (drawAttrib && ImGui::TableNextColumn()) { // attrib
-					ImGui::TextUnformatted(file.attrib);
+					ImGui::TextUnformatted(DiskImageUtils::formatAttrib(file.attrib));
 				}
 			});
 		}
@@ -155,10 +219,48 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 	return result;
 }
 
+[[nodiscard]] static std::string driveDisplayName(std::string_view drive)
+{
+	if (drive == "virtual_drive") return "Virtual drive";
+	std::string result;
+	if (drive.size() >= 5 && drive.starts_with("disk")) {
+		result = strCat("Disk drive ", char('A' + drive[4] - 'a'));
+		drive.remove_prefix(5);
+	} else if (drive.size() >= 3 && drive.starts_with("hd")) {
+		result = strCat("Hard disk ", char('A' + drive[2] - 'a'));
+		drive.remove_prefix(3);
+	} else {
+		return ""; // not supported
+	}
+	if (drive.empty()) return result; // Ok, no partition specified
+	auto num = StringOp::stringToBase<10, unsigned>(drive);
+	if (!num) return ""; // invalid format
+	strAppend(result, ", partition ", *num);
+	return result;
+}
+
+std::string ImGuiDiskManipulator::getDiskImageName()
+{
+	auto& diskManipulator = manager.getReactor().getDiskManipulator();
+	auto dd = diskManipulator.getDriveAndDisk(selectedDrive);
+	if (!dd) return "";
+	auto& [drive, disk] = *dd;
+	if (auto* dr = dynamic_cast<DiskChanger*>(drive)) {
+		return dr->getDiskName().getResolved();
+	} else if (auto* hd = dynamic_cast<HD*>(drive)) {
+		return hd->getImageName().getResolved();
+	} else {
+		return "";
+	}
+}
+
 void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!show) return;
 
+	if (msxNeedRefresh) {
+		refreshMsx();
+	}
 	if (hostNeedRefresh) {
 		refreshHost();
 	}
@@ -187,22 +289,59 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			auto b2Width = 2.0f * style.ItemSpacing.x + 4.0f * style.FramePadding.x +
 			               ImGui::CalcTextSize(ICON_IGFD_ADD ICON_IGFD_FOLDER_OPEN).x;
 			ImGui::SetNextItemWidth(-b2Width);
-			im::Combo("##drive", "virtual drive", [&]{
+			bool driveOk = false;
+			im::Combo("##drive", driveDisplayName(selectedDrive).c_str(), [&]{
+				auto& diskManipulator = manager.getReactor().getDiskManipulator();
+				auto drives = diskManipulator.getDriveNamesForCurrentMachine();
+				for (const auto& drive : drives) {
+					if (selectedDrive == drive) driveOk = true;
+					auto display = driveDisplayName(drive);
+					if (display.empty()) continue;
+					if (ImGui::Selectable(display.c_str())) {
+						selectedDrive = drive;
+						msxNeedRefresh = true;
+						driveOk = true;
+					}
+				}
+				if (!driveOk) {
+					selectedDrive = "virtual_drive";
+					msxNeedRefresh = true;
+				}
 			});
+			simpleToolTip([&]{ return getDiskImageName(); });
 			ImGui::SameLine();
 			ImGui::Button(ICON_IGFD_ADD"##NewDiskImage");
 			ImGui::SameLine();
 			ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseDiskImage");
 
-			ImGui::Button(ICON_IGFD_CHEVRON_UP"##msxDirUp");
+			if (ImGui::Button(ICON_IGFD_CHEVRON_UP"##msxDirUp")) msxParentDirectory();
+			simpleToolTip("Go to parent directory");
 			ImGui::SameLine();
-			ImGui::Button(ICON_IGFD_REFRESH"##msxRefresh");
+			if (ImGui::Button(ICON_IGFD_REFRESH"##msxRefresh")) msxRefresh();
+			simpleToolTip("Refresh directory listing");
 			ImGui::SameLine();
 			ImGui::Button(ICON_IGFD_ADD"##msxNewDir");
 			ImGui::SameLine();
-			std::string msxPath = "/";
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::InputText("##msxPath", &msxPath);
+			auto stuff = getMsxStuff(); // TODO ok to create this every frame?
+			if (stuff) {
+				im::StyleColor(!isValidMsxDirectory(*stuff, editMsxDir), ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+					if (ImGui::InputText("##msxPath", &editMsxDir)) {
+						if (!editMsxDir.starts_with('/')) {
+							editMsxDir = '/' + editMsxDir;
+						}
+						if (isValidMsxDirectory(*stuff, editMsxDir)) {
+							msxDir = editMsxDir;
+							msxRefresh();
+						}
+					}
+				});
+			} else {
+				im::Disabled(true, []{
+					std::string noDisk = "No disk inserted";
+					ImGui::InputText("##msxPath", &noDisk);
+				});
+			}
 
 			im::Table("##msxFiles", 4, tableFlags, {-FLT_MIN, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
@@ -211,7 +350,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupColumn("Modified", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableSetupColumn("Attrib", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableHeadersRow();
-				drawTable(msxFileCache, msxLastClick, msxForceSort, true);
+				auto doubleClicked = drawTable(msxFileCache, msxLastClick, msxForceSort, true);
+				if (!doubleClicked.empty()) {
+					msxDir = FileOperations::join(msxDir, doubleClicked);
+					msxRefresh();
+				}
 			});
 
 			ImGui::Button("Export to new disk image");
@@ -231,7 +374,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 		im::Child("##host", {cWidth, 0.0f}, [&]{
 			if (ImGui::Button(ICON_IGFD_CHEVRON_UP"##hostDirUp")) hostParentDirectory();
-			simpleToolTip("Go up one level");
+			simpleToolTip("Go to parent directory");
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_IGFD_REFRESH"##hostRefresh")) hostRefresh();
 			simpleToolTip("Refresh directory listing");
@@ -286,12 +429,26 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 	});
 }
 
+void ImGuiDiskManipulator::msxParentDirectory()
+{
+	if (msxDir.ends_with('/')) msxDir.pop_back();
+	msxDir = FileOperations::getDirName(msxDir);
+	if (msxDir.empty()) msxDir.push_back('/');
+	msxRefresh();
+}
+
 void ImGuiDiskManipulator::hostParentDirectory()
 {
 	if (hostDir.ends_with('/')) hostDir.pop_back();
 	hostDir = FileOperations::getDirName(hostDir);
 	if (hostDir.empty()) hostDir.push_back('/');
 	hostRefresh();
+}
+
+void ImGuiDiskManipulator::msxRefresh()
+{
+	editMsxDir = msxDir;
+	msxNeedRefresh = true;
 }
 
 void ImGuiDiskManipulator::hostRefresh()

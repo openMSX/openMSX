@@ -57,13 +57,15 @@ struct MSXBootSector {
 static_assert(sizeof(MSXBootSector) == 512);
 
 struct MSXDirEntry {
-	static constexpr uint8_t ATT_REGULAR   = 0x00; // Normal file
-	static constexpr uint8_t ATT_READONLY  = 0x01; // Read-Only file
-	static constexpr uint8_t ATT_HIDDEN    = 0x02; // Hidden file
-	static constexpr uint8_t ATT_SYSTEM    = 0x04; // System file
-	static constexpr uint8_t ATT_VOLUME    = 0x08; // filename is Volume Label
-	static constexpr uint8_t ATT_DIRECTORY = 0x10; // entry is a subdir
-	static constexpr uint8_t ATT_ARCHIVE   = 0x20; // Archive bit
+	enum Attrib : uint8_t {
+		REGULAR   = 0x00, // Normal file
+		READONLY  = 0x01, // Read-Only file
+		HIDDEN    = 0x02, // Hidden file
+		SYSTEM    = 0x04, // System file
+		VOLUME    = 0x08, // filename is Volume Label
+		DIRECTORY = 0x10, // entry is a subdir
+		ARCHIVE   = 0x20, // Archive bit
+	};
 
 	std::array<char, 8 + 3> filename;     // + 0
 	uint8_t                 attrib;       // +11
@@ -167,6 +169,14 @@ namespace DiskImageUtils {
 	 */
 	unsigned partition(SectorAccessibleDisk& disk,
 	               std::span<const unsigned> sizes, MSXBootSectorType bootType);
+
+	struct FatTimeDate {
+		uint16_t time, date;
+	};
+	FatTimeDate toTimeDate(time_t totalSeconds);
+	time_t fromTimeDate(FatTimeDate timeDate);
+
+	[[nodiscard]] std::string formatAttrib(uint8_t attrib);
 };
 
 } // namespace openmsx

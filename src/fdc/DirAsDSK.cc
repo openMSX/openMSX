@@ -432,7 +432,7 @@ void DirAsDSK::checkDeletedHostFiles()
 		}
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
-		                       MSXDirEntry::ATT_DIRECTORY) != 0;
+		                       MSXDirEntry::Attrib::DIRECTORY) != 0;
 		auto fst = FileOperations::getStat(fullHostName);
 		if (!fst || (FileOperations::isDirectory(*fst) != isMSXDirectory)) {
 			// TODO also check access permission
@@ -457,7 +457,7 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 		return;
 	}
 
-	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
+	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
 		const auto& msxName = msxDir(dirIndex).filename;
@@ -519,7 +519,7 @@ void DirAsDSK::checkModifiedHostFiles()
 		}
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
 		bool isMSXDirectory = (msxDir(dirIdx).attrib &
-		                       MSXDirEntry::ATT_DIRECTORY) != 0;
+		                       MSXDirEntry::Attrib::DIRECTORY) != 0;
 		auto fst = FileOperations::getStat(fullHostName);
 		if (fst && (FileOperations::isDirectory(*fst) == isMSXDirectory)) {
 			// Detect changes in host file.
@@ -546,7 +546,7 @@ void DirAsDSK::checkModifiedHostFiles()
 
 void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
-	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
+	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY));
 	assert(mapDirs.contains(dirIndex));
 
 	// Set _msx_ modification time.
@@ -758,7 +758,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 			throw;
 		}
 		setMSXTimeStamp(dirIndex, fst);
-		msxDir(dirIndex).attrib = MSXDirEntry::ATT_DIRECTORY;
+		msxDir(dirIndex).attrib = MSXDirEntry::Attrib::DIRECTORY;
 		msxDir(dirIndex).startCluster = narrow<uint16_t>(cluster);
 
 		// Initialize the new directory.
@@ -774,8 +774,8 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		auto& f1 = e1.filename;
 		f0[0] = '.';              ranges::fill(subspan(f0, 1), ' ');
 		f1[0] = '.'; f1[1] = '.'; ranges::fill(subspan(f1, 2), ' ');
-		e0.attrib = MSXDirEntry::ATT_DIRECTORY;
-		e1.attrib = MSXDirEntry::ATT_DIRECTORY;
+		e0.attrib = MSXDirEntry::Attrib::DIRECTORY;
+		e1.attrib = MSXDirEntry::Attrib::DIRECTORY;
 		setMSXTimeStamp(idx0, fst);
 		setMSXTimeStamp(idx1, fst);
 		e0.startCluster = narrow<uint16_t>(cluster);
@@ -783,7 +783,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		                ? uint16_t(0)
 		                : narrow<uint16_t>(sectorToCluster(msxDirSector));
 	} else {
-		if (!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY)) {
+		if (!(msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY)) {
 			// Should rarely happen because checkDeletedHostFiles()
 			// recently checked this. (It could happen when a host
 			// directory is *just*recently* created with the same
@@ -1019,7 +1019,7 @@ template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
 				if (func.onDirEntry(dirIndex, entry)) return true;
 
 				if ((entry.filename[0] == one_of(char(0x00), char(0xE5))) ||
-				    !(entry.attrib & MSXDirEntry::ATT_DIRECTORY)) {
+				    !(entry.attrib & MSXDirEntry::Attrib::DIRECTORY)) {
 					// Not a directory.
 					continue;
 				}
@@ -1163,7 +1163,7 @@ void DirAsDSK::unmapHostFiles(unsigned msxDirSector)
 void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 {
 	// Handle both files and subdirectories.
-	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_VOLUME) {
+	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::VOLUME) {
 		// But ignore volume ID.
 		return;
 	}
@@ -1191,7 +1191,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		hostName = hostSubDir + msxToHostName(msxName);
 		mapDirs[dirIndex].hostName = hostName;
 	}
-	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
+	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
 		if (ranges::equal(msxName, std::string_view(".          ")) ||
 		    ranges::equal(msxName, std::string_view("..         "))) {
 			// Don't export "." or "..".
@@ -1300,8 +1300,8 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
                              const MSXDirEntry& newEntry)
 {
 	if ((msxDir(dirIndex).filename != newEntry.filename) ||
-	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
-	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
+	    ((msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) !=
+	     (        newEntry.attrib & MSXDirEntry::Attrib::DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
 		if (auto it = mapDirs.find(dirIndex); it != end(mapDirs)) {
 			// If there is an associated host file, then delete it
@@ -1311,7 +1311,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 			FileOperations::deleteRecursive(fullHostName); // ignore return value
 			// Remove mapping between msx and host file/dir.
 			mapDirs.erase(it);
-			if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
+			if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
 				// In case of a directory also unmap all
 				// sub-components.
 				unsigned cluster = msxDir(dirIndex).startCluster;
