@@ -6,6 +6,7 @@
 #include "ranges.hh"
 #include <array>
 #include <span>
+#include <string>
 
 namespace openmsx {
 
