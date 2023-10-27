@@ -37,6 +37,7 @@ public:
 		DiskContainer* drive;
 		std::unique_ptr<DiskPartition> partition; // will often be the full disk
 	};
+	DiskContainer* getDrive(std::string_view driveName) const;
 	std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
 
 private:

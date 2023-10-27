@@ -109,19 +109,13 @@ std::vector<std::string> DiskManipulator::getDriveNamesForCurrentMachine() const
 	return result;
 }
 
-std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDisk(std::string_view fullName) const
+DiskContainer* DiskManipulator::getDrive(std::string_view fullName) const
 {
 	// input does not have machine prefix, but it may have a partition suffix
 	auto pos = fullName.find_first_of("0123456789");
 	auto driveName = (pos != std::string_view::npos)
 		? fullName.substr(0, pos) // drop partition number
 		: fullName;
-	unsigned partitionNum = 0; // full disk
-	if (pos != std::string_view::npos) {
-		auto num = StringOp::stringToBase<10, unsigned>(fullName.substr(pos));
-		if (!num) return {}; // parse error
-		partitionNum = *num;
-	}
 
 	auto it = ranges::find(drives, driveName, &DriveSettings::driveName);
 	if (it == end(drives)) {
@@ -132,9 +126,24 @@ std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDi
 	}
 	auto* drive = it->drive;
 	assert(drive);
+	return drive;
+}
+
+std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDisk(std::string_view fullName) const
+{
+	auto* drive = getDrive(fullName);
+	if (!drive) return {};
 	auto* disk = drive->getSectorAccessibleDisk();
 	if (!disk) return {};
 
+	// input does not have machine prefix, but it may have a partition suffix
+	auto pos = fullName.find_first_of("0123456789");
+	unsigned partitionNum = 0; // full disk
+	if (pos != std::string_view::npos) {
+		auto num = StringOp::stringToBase<10, unsigned>(fullName.substr(pos));
+		if (!num) return {}; // parse error
+		partitionNum = *num;
+	}
 	try {
 		return DriveAndPartition{
 			drive,

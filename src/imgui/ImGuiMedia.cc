@@ -201,7 +201,7 @@ static std::string buildFilter(std::string_view description, std::span<const std
 		",.gz,.zip}");
 }
 
-static std::string diskFilter()
+std::string ImGuiMedia::diskFilter()
 {
 	return buildFilter("Disk images", DiskImageCLI::getExtensions());
 }

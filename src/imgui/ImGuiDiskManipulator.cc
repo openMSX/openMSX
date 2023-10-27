@@ -30,6 +30,12 @@ ImGuiDiskManipulator::ImGuiDiskManipulator(ImGuiManager& manager_)
 {
 }
 
+DiskContainer* ImGuiDiskManipulator::getDrive()
+{
+	auto& diskManipulator = manager.getReactor().getDiskManipulator();
+	return diskManipulator.getDrive(selectedDrive);
+}
+
 std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::getMsxStuff()
 {
 	auto& diskManipulator = manager.getReactor().getDiskManipulator();
@@ -312,7 +318,10 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			ImGui::SameLine();
 			ImGui::Button(ICON_IGFD_ADD"##NewDiskImage");
 			ImGui::SameLine();
-			ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseDiskImage");
+			im::Disabled(selectedDrive.starts_with("hd"), [&]{
+				if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseDiskImage")) insertMsxDisk();
+				simpleToolTip("Insert disk image");
+			});
 
 			if (ImGui::Button(ICON_IGFD_CHEVRON_UP"##msxDirUp")) msxParentDirectory();
 			simpleToolTip("Go to parent directory");
@@ -413,7 +422,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		ImGui::OpenPopup(newHostDirTitle);
 	}
 	im::PopupModal(newHostDirTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted("Create new directory inside:");
+		ImGui::TextUnformatted("Create new directory in:");
 		ImGui::TextUnformatted(hostDir);
 		bool close = false;
 		bool ok = ImGui::InputText("##hostPath", &editNewDir, ImGuiInputTextFlags_EnterReturnsTrue);
@@ -427,6 +436,24 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		close |= ImGui::Button("Cancel");
 		if (close) ImGui::CloseCurrentPopup();
 	});
+}
+
+void ImGuiDiskManipulator::insertMsxDisk()
+{
+	if (selectedDrive.starts_with("hd")) {
+		// disallow changing HD image
+		return;
+	}
+	manager.openFile.selectFile(
+		strCat("Select disk image for ", driveDisplayName(selectedDrive)),
+		ImGuiMedia::diskFilter(),
+		[&](const auto& fn) {
+			auto* drive = getDrive();
+			if (!drive) return;
+			drive->insertDisk(fn); // might fail (return code), but ignore
+			msxRefresh();
+		},
+		getDiskImageName());
 }
 
 void ImGuiDiskManipulator::msxParentDirectory()

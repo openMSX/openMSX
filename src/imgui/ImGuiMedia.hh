@@ -107,6 +107,8 @@ public:
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
 	static bool selectMapperType(const char* label, RomType& item);
 
+	static std::string diskFilter();
+
 private:
 	bool selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc = std::identity{});
 	bool selectImage(ItemGroup& group, const std::string& title,

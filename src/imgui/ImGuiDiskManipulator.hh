@@ -42,6 +42,7 @@ private:
 		std::unique_ptr<DiskPartition> partition; // will often be the full disk
 		std::unique_ptr<MSXtar> tar;
 	};
+	DiskContainer* getDrive();
 	std::optional<DrivePartitionTar> getMsxStuff();
 
 	bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
@@ -50,6 +51,7 @@ private:
 	void refreshHost();
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
 	std::string_view drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
+	void insertMsxDisk();
 	void msxParentDirectory();
 	void hostParentDirectory();
 	void msxRefresh();
