@@ -41,7 +41,7 @@ private:
 
 	struct DrivePartitionTar {
 		DiskContainer* drive;
-		std::unique_ptr<DiskPartition> partition; // will often be the full disk
+		std::unique_ptr<DiskPartition> disk; // will often be the full disk
 		std::unique_ptr<MSXtar> tar;
 	};
 	DiskContainer* getDrive();

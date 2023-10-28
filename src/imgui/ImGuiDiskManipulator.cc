@@ -276,7 +276,10 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		refreshHost();
 	}
 
+	bool createMsxDir = false;
 	bool createHostDir = false;
+
+	auto stuff = getMsxStuff(); // TODO ok to create this every frame?
 
 	// TODO inital window size
 	im::Window("Disk Manipulator (mockup)", &show, [&]{
@@ -285,6 +288,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		auto tSize = ImGui::CalcTextSize(">>");
 		auto bWidth = 2.0f * (style.ItemSpacing.x + style.FramePadding.x) + tSize.x;
 		auto cWidth = (availableSize.x - bWidth) * 0.5f;
+
+		bool writable = stuff && !stuff->disk->isWriteProtected();
 
 		int tableFlags = ImGuiTableFlags_RowBg |
 		                 ImGuiTableFlags_BordersV |
@@ -334,10 +339,12 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			if (ImGui::Button(ICON_IGFD_REFRESH"##msxRefresh")) msxRefresh();
 			simpleToolTip("Refresh directory listing");
 			ImGui::SameLine();
-			ImGui::Button(ICON_IGFD_ADD"##msxNewDir");
+			im::Disabled(!writable, [&]{
+				createMsxDir = ImGui::Button(ICON_IGFD_ADD"##msxNewDir");
+				simpleToolTip("New MSX directory");
+			});
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			auto stuff = getMsxStuff(); // TODO ok to create this every frame?
 			if (stuff) {
 				im::StyleColor(!isValidMsxDirectory(*stuff, editMsxDir), ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
 					if (ImGui::InputText("##msxPath", &editMsxDir)) {
@@ -383,8 +390,12 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		auto byPos = (availableSize.y - b2Height) * 0.5f;
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
-			ImGui::Button("<<");
-			ImGui::Button(">>");
+			im::Disabled(!writable, [&]{
+				ImGui::Button("<<");
+			});
+			im::Disabled(!stuff, [&]{
+				ImGui::Button(">>");
+			});
 		});
 		ImGui::SameLine();
 		ImGui::SetCursorPosY(pos1.y);
@@ -396,8 +407,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			if (ImGui::Button(ICON_IGFD_REFRESH"##hostRefresh")) hostRefresh();
 			simpleToolTip("Refresh directory listing");
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_IGFD_ADD"##hostNewDir")) createHostDir = true;
-			simpleToolTip("New directory");
+			createHostDir = ImGui::Button(ICON_IGFD_ADD"##hostNewDir");
+			simpleToolTip("New host directory");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			im::StyleColor(!FileOperations::isDirectory(editHostDir), ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
@@ -422,6 +433,37 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				}
 			});
 		});
+	});
+
+	const char* const newMsxDirTitle = "Create new MSX directory";
+	if (createMsxDir) {
+		editNewDir.clear();
+		ImGui::OpenPopup(newMsxDirTitle);
+	}
+	im::PopupModal(newMsxDirTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::TextUnformatted("Create new directory in:");
+		ImGui::TextUnformatted(driveDisplayName(selectedDrive));
+		ImGui::TextUnformatted(msxDir);
+		bool close = false;
+		bool ok = ImGui::InputText("##msxPath", &editNewDir, ImGuiInputTextFlags_EnterReturnsTrue);
+		ok |= ImGui::Button("Ok");
+		if (ok) {
+			if (stuff) {
+				try {
+					stuff->tar->chdir(msxDir);
+					stuff->tar->mkdir(editNewDir);
+				} catch (MSXException& e) {
+					manager.getReactor().getCliComm().printError(
+						"Couldn't create new MSX directory: ", e.getMessage());
+				}
+			}
+
+			msxRefresh();
+			close = true;
+		}
+		ImGui::SameLine();
+		close |= ImGui::Button("Cancel");
+		if (close) ImGui::CloseCurrentPopup();
 	});
 
 	const char* const newHostDirTitle = "Create new host directory";
