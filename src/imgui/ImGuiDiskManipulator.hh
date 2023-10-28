@@ -60,6 +60,7 @@ private:
 	void hostParentDirectory();
 	void msxRefresh();
 	void hostRefresh();
+	void transferMsxToHost();
 
 private:
 	std::vector<FileInfo> msxFileCache;

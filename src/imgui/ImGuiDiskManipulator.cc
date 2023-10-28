@@ -394,7 +394,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::Button("<<");
 			});
 			im::Disabled(!stuff, [&]{
-				ImGui::Button(">>");
+				if (ImGui::Button(">>")) transferMsxToHost();
+				simpleToolTip("Transfer files or directories from MSX to host");
 			});
 		});
 		ImGui::SameLine();
@@ -558,6 +559,30 @@ void ImGuiDiskManipulator::hostRefresh()
 {
 	editHostDir = hostDir;
 	hostNeedRefresh = true;
+}
+
+void ImGuiDiskManipulator::transferMsxToHost()
+{
+	auto stuff = getMsxStuff();
+	if (!stuff) return;
+
+	try {
+		stuff->tar->chdir(msxDir);
+	} catch (MSXException& e) {
+		msxRefresh();
+		return;
+	}
+	for (const auto& item : msxFileCache) {
+		if (!item.isSelected) continue;
+		try {
+			stuff->tar->getItemFromDir(hostDir, item.filename);
+		} catch (MSXException& e) {
+			manager.getReactor().getCliComm().printError(
+				"Couldn't extract ", item.filename,
+				": ", e.getMessage());
+		}
+	}
+	hostRefresh();
 }
 
 } // namespace openmsx
