@@ -3,6 +3,8 @@
 
 #include "ImGuiPart.hh"
 
+#include "DiskManipulator.hh"
+
 #include <ctime>
 #include <memory>
 #include <optional>
@@ -43,6 +45,7 @@ private:
 		std::unique_ptr<MSXtar> tar;
 	};
 	DiskContainer* getDrive();
+	std::optional<DiskManipulator::DriveAndPartition> getDriveAndDisk();
 	std::optional<DrivePartitionTar> getMsxStuff();
 
 	bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
@@ -52,6 +55,7 @@ private:
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
 	std::string_view drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
 	void insertMsxDisk();
+	void exportDiskImage();
 	void msxParentDirectory();
 	void hostParentDirectory();
 	void msxRefresh();

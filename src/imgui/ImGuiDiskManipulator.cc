@@ -5,6 +5,7 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
+#include "CliComm.hh"
 #include "DiskChanger.hh"
 #include "DiskImageUtils.hh"
 #include "DiskManipulator.hh"
@@ -36,10 +37,15 @@ DiskContainer* ImGuiDiskManipulator::getDrive()
 	return diskManipulator.getDrive(selectedDrive);
 }
 
-std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::getMsxStuff()
+std::optional<DiskManipulator::DriveAndPartition> ImGuiDiskManipulator::getDriveAndDisk()
 {
 	auto& diskManipulator = manager.getReactor().getDiskManipulator();
-	auto dd = diskManipulator.getDriveAndDisk(selectedDrive);
+	return diskManipulator.getDriveAndDisk(selectedDrive);
+}
+
+std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::getMsxStuff()
+{
+	auto dd = getDriveAndDisk();
 	if (!dd) return {};
 	auto& [drive, disk] = *dd;
 	auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
@@ -247,8 +253,7 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 
 std::string ImGuiDiskManipulator::getDiskImageName()
 {
-	auto& diskManipulator = manager.getReactor().getDiskManipulator();
-	auto dd = diskManipulator.getDriveAndDisk(selectedDrive);
+	auto dd = getDriveAndDisk();
 	if (!dd) return "";
 	auto& [drive, disk] = *dd;
 	if (auto* dr = dynamic_cast<DiskChanger*>(drive)) {
@@ -366,7 +371,10 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				}
 			});
 
-			ImGui::Button("Export to new disk image");
+			im::Disabled(!stuff, [&]{
+				if (ImGui::Button("Export to new disk image")) exportDiskImage();
+				simpleToolTip("Save the content of the drive to a new disk image");
+			});
 		});
 
 		ImGui::SameLine();
@@ -452,6 +460,32 @@ void ImGuiDiskManipulator::insertMsxDisk()
 			if (!drive) return;
 			drive->insertDisk(fn); // might fail (return code), but ignore
 			msxRefresh();
+		},
+		getDiskImageName());
+}
+
+void ImGuiDiskManipulator::exportDiskImage()
+{
+	manager.openFile.selectNewFile(
+		strCat("Export ", driveDisplayName(selectedDrive), " to new disk image"),
+		"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
+		[&](const auto& fn) {
+			auto dd = getDriveAndDisk();
+			if (!dd) return;
+			auto& [drive, disk] = *dd;
+			assert(disk);
+
+			try {
+				SectorBuffer buf;
+				File file(fn, File::CREATE);
+				for (auto i : xrange(disk->getNbSectors())) {
+					disk->readSector(i, buf);
+					file.write(buf.raw);
+				}
+			} catch (MSXException& e) {
+				manager.getReactor().getCliComm().printError(
+					"Couldn't export disk image: ", e.getMessage());
+			}
 		},
 		getDiskImageName());
 }
