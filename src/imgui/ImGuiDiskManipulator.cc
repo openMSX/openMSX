@@ -391,7 +391,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
 			im::Disabled(!writable, [&]{
-				ImGui::Button("<<");
+				if (ImGui::Button("<<")) transferHostToMsx();
+				simpleToolTip("Transfer files or directories from host to MSX");
 			});
 			im::Disabled(!stuff, [&]{
 				if (ImGui::Button(">>")) transferMsxToHost();
@@ -559,6 +560,30 @@ void ImGuiDiskManipulator::hostRefresh()
 {
 	editHostDir = hostDir;
 	hostNeedRefresh = true;
+}
+
+void ImGuiDiskManipulator::transferHostToMsx()
+{
+	auto stuff = getMsxStuff();
+	if (!stuff) return;
+
+	try {
+		stuff->tar->chdir(msxDir);
+	} catch (MSXException& e) {
+		msxRefresh();
+		return;
+	}
+	for (const auto& item : hostFileCache) {
+		if (!item.isSelected) continue;
+		try {
+			stuff->tar->addItem(FileOperations::join(hostDir, item.filename));
+		} catch (MSXException& e) {
+			manager.getReactor().getCliComm().printError(
+				"Couldn't import ", item.filename,
+				": ", e.getMessage());
+		}
+	}
+	msxRefresh();
 }
 
 void ImGuiDiskManipulator::transferMsxToHost()

@@ -52,8 +52,9 @@ public:
 	void mkdir(std::string_view newRootDir);
 	std::string dir(); // formatted output
 	TclObject dirRaw(); // unformatted output
+	std::string addItem(const std::string& hostItemName); // add file or directory
 	std::string addFile(const std::string& filename);
-	std::string addDir(std::string_view rootDirName);
+	std::string addDir(std::string_view rootDirName); // add files from host-dir, but does not create a top-level dir on the msx side
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
 	void getDir(std::string_view rootDirName);
 
@@ -84,6 +85,7 @@ private:
 	DirEntry findEntryInDir(const FAT::FileName& msxName, unsigned sector,
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
+	std::string addOrCreateSubdir(zstring_view hostDirName, unsigned sector);
 	std::string recurseDirFill(std::string_view dirName, unsigned sector);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void recurseDirExtract(std::string_view dirName, unsigned sector);

@@ -736,6 +736,33 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 	return {};
 }
 
+std::string MSXtar::addOrCreateSubdir(zstring_view hostDirName, unsigned sector)
+{
+	FileName msxFileName = hostToMSXFileName(hostDirName);
+	auto printableFilename = msxToHostFileName(msxFileName);
+	SectorBuffer buf;
+	DirEntry entry = findEntryInDir(msxFileName, sector, buf);
+	if (entry.sector != 0) {
+		// entry already exists ..
+		auto& msxDirEntry = buf.dirEntry[entry.index];
+		if (msxDirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY) {
+			// .. and is a directory
+			DirCluster nextCluster = getStartCluster(msxDirEntry);
+			return std::visit(overloaded{
+				[&](Free) { return strCat("Directory ", printableFilename, " goes to root.\n"); },
+				[&](Cluster cluster) { return recurseDirFill(hostDirName, clusterToSector(cluster)); }
+			}, nextCluster);
+		} else {
+			// .. but is NOT a directory
+			return strCat("MSX file ", printableFilename, " is not a directory.\n");
+		}
+	} else {
+		// add new directory
+		unsigned nextSector = addSubdirToDSK(hostDirName, msxFileName, sector);
+		return recurseDirFill(hostDirName, nextSector);
+	}
+}
+
 // Transfer directory and all its subdirectories to the MSX disk image
 // @throws when an error occurs
 string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
@@ -746,29 +773,9 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 		// add new file
 		messages += addFileToDSK(path, sector);
 	};
-	auto dirAction = [&](const string& path, std::string_view name) {
-		FileName msxFileName = hostToMSXFileName(name);
-		SectorBuffer buf;
-		DirEntry entry = findEntryInDir(msxFileName, sector, buf);
-		if (entry.sector != 0) {
-			// entry already exists ..
-			auto& msxDirEntry = buf.dirEntry[entry.index];
-			if (msxDirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY) {
-				// .. and is a directory
-				DirCluster nextCluster = getStartCluster(msxDirEntry);
-				messages += std::visit(overloaded{
-					[&](Free) { return strCat("Directory ", name, " goes to root.\n"); },
-					[&](Cluster cluster) { return recurseDirFill(path, clusterToSector(cluster)); }
-				}, nextCluster);
-			} else {
-				// .. but is NOT a directory
-				strAppend(messages, "MSX file ", name, " is not a directory.\n");
-			}
-		} else {
-			// add new directory
-			unsigned nextSector = addSubdirToDSK(path, msxFileName, sector);
-			messages += recurseDirFill(path, nextSector);
-		}
+	auto dirAction = [&](const string& path) {
+		// add new directory (+ recurse)
+		messages += addOrCreateSubdir(path, sector);
 	};
 	foreach_file_and_directory(std::string(dirName), fileAction, dirAction);
 
@@ -991,6 +998,18 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 			}
 		}
 	}
+}
+
+std::string MSXtar::addItem(const std::string& hostItemName)
+{
+	if (auto stat = FileOperations::getStat(hostItemName)) {
+		if (FileOperations::isRegularFile(*stat)) {
+			return addFileToDSK(hostItemName, chrootSector);
+		} else if (FileOperations::isDirectory(hostItemName)) {
+			return addOrCreateSubdir(hostItemName, chrootSector);
+		}
+	}
+	return "";
 }
 
 string MSXtar::addDir(string_view rootDirName)

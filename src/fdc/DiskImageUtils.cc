@@ -658,7 +658,7 @@ time_t fromTimeDate(FatTimeDate timeDate)
 	tm.tm_min  = std::clamp(((timeDate.time >>  5) & 63), 0, 59);
 	tm.tm_hour = std::clamp(((timeDate.time >> 11) & 31), 0, 23);
 	tm.tm_mday = std::clamp((timeDate.date >> 0) & 31, 1, 31);
-	tm.tm_mon  = std::clamp((timeDate.date >> 5) & 15, 0, 11);
+	tm.tm_mon  = std::clamp(((timeDate.date >> 5) & 15) - 1, 0, 11);
 	tm.tm_year = (timeDate.date >> 9) + 1980 - 1900;
 	tm.tm_isdst = -1;
 	return mktime(&tm);
