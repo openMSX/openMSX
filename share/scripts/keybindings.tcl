@@ -20,16 +20,6 @@ if {$is_dingux} {
 	#bind_default "keyb WORLD_95" toggle_osd_keyboard
 }
 
-# osd_menu
-if {$tcl_platform(os) eq "Darwin"} { ;# Mac
-	bind_default "keyb META+O" main_menu_toggle
-} elseif {$is_dingux} { ;# OpenDingux
-	bind_default "keyb RETURN" main_menu_toggle ;# START button
-	bind_default "keyb HOME" main_menu_toggle ;# power slider flick
-} else { ;# any other
-	bind_default "keyb MENU"   main_menu_toggle
-}
-
 # pause
 if {$is_dingux} {
 	# Power slider lock position.
