@@ -28,6 +28,8 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+private:
+	const std::string description;
 };
 
 } // namespace openmsx
