@@ -295,9 +295,9 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 				++historyPos;
 				match = history[historyPos].starts_with(historyBackupLine);
 			}
-		} else if (data->EventKey == ImGuiKey_DownArrow) {
-			while (!match && (historyPos != -1)) {
-				--historyPos;
+		} else if ((data->EventKey == ImGuiKey_DownArrow) && (historyPos != -1)) {
+			while (!match) {
+				if (--historyPos == -1) break;
 				match = history[historyPos].starts_with(historyBackupLine);
 			}
 		}
