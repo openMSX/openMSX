@@ -32,13 +32,14 @@ public:
 	void unregisterDrive(DiskContainer& drive);
 
 	// for use in ImGuiDiskManipulator
-	std::vector<std::string> getDriveNamesForCurrentMachine() const;
+	[[nodiscard]] std::vector<std::string> getDriveNamesForCurrentMachine() const;
 	struct DriveAndPartition {
 		DiskContainer* drive;
 		std::unique_ptr<DiskPartition> partition; // will often be the full disk
 	};
-	DiskContainer* getDrive(std::string_view driveName) const;
-	std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
+	[[nodiscard]] DiskContainer* getDrive(std::string_view driveName) const;
+	[[nodiscard]] std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
+	void create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes);
 
 private:
 	struct DriveSettings

@@ -12,10 +12,10 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
-enum class MSXBootSectorType {
-	DOS1,
-	DOS2,
-	NEXTOR
+enum class MSXBootSectorType : int {
+	DOS1 = 0,
+	DOS2 = 1,
+	NEXTOR = 2,
 };
 
 struct MSXBootSector {

@@ -629,7 +629,7 @@ string getNextNumberedFileName(
 
 	unsigned max_num = 0;
 
-	string dirName = strCat(getUserOpenMSXDir(), '/', directory);
+	string dirName = join(getUserOpenMSXDir(), directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {

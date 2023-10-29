@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include "DiskManipulator.hh"
+#include "SectorAccessibleDisk.hh"
 
 #include <ctime>
 #include <memory>
@@ -64,18 +65,34 @@ private:
 	void transferMsxToHost();
 
 private:
+	struct PartitionSize {
+		unsigned count;
+		enum Unit : int { KB, MB };
+		int unit = KB;
+
+		[[nodiscard]] unsigned asSectorCount() const {
+			return count * (((unit == KB) ? 1024 : (1024 * 1024)) / SectorAccessibleDisk::SECTOR_SIZE);
+		}
+	};
+
 	std::vector<FileInfo> msxFileCache;
 	std::vector<FileInfo> hostFileCache;
 	std::string selectedDrive = "virtual_drive";
 	std::string msxDir = "/", editMsxDir = "/";
 	std::string hostDir, editHostDir;
-	std::string editNewDir;
+	std::string editModal;
 	int msxLastClick = -1;
 	int hostLastClick = -1;
 	bool msxNeedRefresh = true;
 	bool hostNeedRefresh = true;
 	bool msxForceSort = false;
 	bool hostForceSort = false;
+
+	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };
+	int newDiskType = UNPARTITIONED;
+	int bootType = static_cast<int>(MSXBootSectorType::DOS2);
+	PartitionSize unpartitionedSize = {720, PartitionSize::KB};
+	std::vector<PartitionSize> partitionSizes;
 
 	ImGuiManager& manager;
 };

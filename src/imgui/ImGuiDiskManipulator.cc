@@ -17,7 +17,9 @@
 #include "Date.hh"
 #include "foreach_file.hh"
 #include "one_of.hh"
+#include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 
 #include <imgui_stdlib.h>
 
@@ -278,11 +280,12 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 	bool createMsxDir = false;
 	bool createHostDir = false;
+	bool createDiskImage = false;
 
 	auto stuff = getMsxStuff(); // TODO ok to create this every frame?
 
 	// TODO inital window size
-	im::Window("Disk Manipulator (mockup)", &show, [&]{
+	im::Window("Disk Manipulator", &show, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto availableSize = ImGui::GetContentRegionAvail();
 		auto tSize = ImGui::CalcTextSize(">>");
@@ -326,7 +329,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			});
 			simpleToolTip([&]{ return getDiskImageName(); });
 			ImGui::SameLine();
-			ImGui::Button(ICON_IGFD_ADD"##NewDiskImage");
+			createDiskImage = ImGui::Button(ICON_IGFD_ADD"##NewDiskImage");
+			simpleToolTip("Create new disk image");
 			ImGui::SameLine();
 			im::Disabled(selectedDrive.starts_with("hd"), [&]{
 				if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseDiskImage")) insertMsxDisk();
@@ -439,7 +443,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 	const char* const newMsxDirTitle = "Create new MSX directory";
 	if (createMsxDir) {
-		editNewDir.clear();
+		editModal.clear();
 		ImGui::OpenPopup(newMsxDirTitle);
 	}
 	im::PopupModal(newMsxDirTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
@@ -447,13 +451,13 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		ImGui::TextUnformatted(driveDisplayName(selectedDrive));
 		ImGui::TextUnformatted(msxDir);
 		bool close = false;
-		bool ok = ImGui::InputText("##msxPath", &editNewDir, ImGuiInputTextFlags_EnterReturnsTrue);
+		bool ok = ImGui::InputText("##msxPath", &editModal, ImGuiInputTextFlags_EnterReturnsTrue);
 		ok |= ImGui::Button("Ok");
 		if (ok) {
 			if (stuff) {
 				try {
 					stuff->tar->chdir(msxDir);
-					stuff->tar->mkdir(editNewDir);
+					stuff->tar->mkdir(editModal);
 				} catch (MSXException& e) {
 					manager.getReactor().getCliComm().printError(
 						"Couldn't create new MSX directory: ", e.getMessage());
@@ -470,20 +474,114 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 	const char* const newHostDirTitle = "Create new host directory";
 	if (createHostDir) {
-		editNewDir.clear();
+		editModal.clear();
 		ImGui::OpenPopup(newHostDirTitle);
 	}
 	im::PopupModal(newHostDirTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		ImGui::TextUnformatted("Create new directory in:");
 		ImGui::TextUnformatted(hostDir);
 		bool close = false;
-		bool ok = ImGui::InputText("##hostPath", &editNewDir, ImGuiInputTextFlags_EnterReturnsTrue);
+		bool ok = ImGui::InputText("##hostPath", &editModal, ImGuiInputTextFlags_EnterReturnsTrue);
 		ok |= ImGui::Button("Ok");
 		if (ok) {
-			FileOperations::mkdirp(FileOperations::join(hostDir, editNewDir));
+			FileOperations::mkdirp(FileOperations::join(hostDir, editModal));
 			hostRefresh();
 			close = true;
 		}
+		ImGui::SameLine();
+		close |= ImGui::Button("Cancel");
+		if (close) ImGui::CloseCurrentPopup();
+	});
+
+	const char* const newDiskImageTitle = "Create new disk image";
+	if (createDiskImage) {
+		auto current = getDiskImageName();
+		auto cwd = current.empty() ? FileOperations::getCurrentWorkingDirectory()
+		                           : std::string(FileOperations::getDirName(current));
+		auto newName = FileOperations::getNextNumberedFileName(cwd, "new-image", ".dsk");
+		editModal = FileOperations::join(cwd, newName);
+
+		newDiskType = UNPARTITIONED;
+		bootType = static_cast<int>(MSXBootSectorType::DOS2);
+		unpartitionedSize = {720, PartitionSize::KB};
+		partitionSizes.assign(3, {32, PartitionSize::MB});
+		ImGui::OpenPopup(newDiskImageTitle);
+	}
+	im::PopupModal(newDiskImageTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		bool close = false;
+
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 40.0f);
+		ImGui::InputText("##newDiskPath", &editModal);
+		simpleToolTip("Filename for new disk image");
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseNewImage")) {
+			manager.openFile.selectNewFile(
+				"Filename for new disk image",
+				"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
+				[&](const auto& fn) { editModal = fn; },
+				getDiskImageName());
+		}
+		simpleToolTip("TODO doesn't work yet!!!\nSelect new file");
+
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
+		ImGui::Combo("type", &bootType, "DOS 1\0DOS 2\0Nextor\0", 3); // in sync with MSXBootSectorType enum
+		ImGui::Separator();
+
+		ImGui::RadioButton("No partitions (floppy disk)", &newDiskType, UNPARTITIONED);
+		im::DisabledIndent(newDiskType != UNPARTITIONED, [&]{
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.0f);
+			ImGui::InputScalar("##count", ImGuiDataType_U32, &unpartitionedSize.count);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.5f);
+			ImGui::Combo("##unit", &unpartitionedSize.unit, "kB\0MB\0", 2);
+		});
+
+		ImGui::RadioButton("Partitioned HD image", &newDiskType, PARTITIONED);
+		im::DisabledIndent(newDiskType != PARTITIONED, [&]{
+			im::Group([&]{
+				im::ID_for_range(partitionSizes.size(), [&](int i) {
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.0f);
+					ImGui::InputScalar("##count", ImGuiDataType_U32, &partitionSizes[i].count);
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.5f);
+					ImGui::Combo("##unit", &partitionSizes[i].unit, "kB\0MB\0", 2);
+				});
+			});
+			ImGui::SameLine();
+			im::Group([&]{
+				im::Disabled(partitionSizes.size() >= 31, [&]{
+					if (ImGui::Button("Add")) {
+						partitionSizes.push_back({32, PartitionSize::MB});
+					}
+				});
+				im::Disabled(partitionSizes.size() <= 1, [&]{
+					if (ImGui::Button("Remove")) {
+						partitionSizes.pop_back();
+					}
+				});
+			});
+		});
+
+		ImGui::Separator();
+		im::Disabled(editModal.empty(), [&]{
+			if (ImGui::Button("Ok")) {
+				auto& diskManipulator = manager.getReactor().getDiskManipulator();
+				auto sizes = [&]{
+					if (newDiskType == UNPARTITIONED) {
+						return std::vector<unsigned>(1, unpartitionedSize.asSectorCount());
+					} else {
+						return to_vector(view::transform(partitionSizes, &PartitionSize::asSectorCount));
+					}
+				}();
+				try {
+					diskManipulator.create(editModal, static_cast<MSXBootSectorType>(bootType), sizes);
+				} catch (MSXException& e) {
+					manager.getReactor().getCliComm().printError(
+						"Couldn't create disk image: ", e.getMessage());
+				}
+				close = true;
+			}
+		});
 		ImGui::SameLine();
 		close |= ImGui::Button("Cancel");
 		if (close) ImGui::CloseCurrentPopup();

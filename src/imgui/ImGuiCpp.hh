@@ -486,6 +486,16 @@ inline void Disabled(bool b, std::invocable<> auto next)
 	ImGui::EndDisabled();
 }
 
+// im::DisabledIndent(): combination of Disabled() and Indent()
+inline void DisabledIndent(bool b, std::invocable<> auto next)
+{
+	ImGui::BeginDisabled(b);
+	ImGui::Indent(); // TODO for now not configurable
+	next();
+	ImGui::Unindent();
+	ImGui::EndDisabled();
+}
+
 // im::VisuallyDisabled(): similar to Disabled(), but only visually disable, still allow to interact normally
 inline void VisuallyDisabled(bool b, std::invocable<> auto next)
 {

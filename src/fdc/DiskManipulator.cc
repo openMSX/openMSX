@@ -511,14 +511,19 @@ static std::pair<MSXBootSectorType, std::vector<unsigned>> parsePartitionSizes(a
 void DiskManipulator::create(std::span<const TclObject> tokens)
 {
 	auto [bootType, sizes] = parsePartitionSizes(view::drop(tokens, 3));
+	auto filename = FileOperations::expandTilde(string(tokens[2].getString()));
+	create(filename, bootType, sizes);
+}
 
+void DiskManipulator::create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes)
+{
 	size_t totalSectors = sum(sizes, [](size_t s) { return s; });
 	if (totalSectors == 0) {
 		throw CommandException("No size(s) given.");
 	}
 
 	// create file with correct size
-	Filename filename(FileOperations::expandTilde(string(tokens[2].getString())));
+	Filename filename(filename_);
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
