@@ -5,7 +5,6 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
-#include "CliComm.hh"
 #include "DiskChanger.hh"
 #include "DiskImageUtils.hh"
 #include "DiskManipulator.hh"
@@ -459,7 +458,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					stuff->tar->chdir(msxDir);
 					stuff->tar->mkdir(editModal);
 				} catch (MSXException& e) {
-					manager.getReactor().getCliComm().printError(
+					manager.printError(
 						"Couldn't create new MSX directory: ", e.getMessage());
 				}
 			}
@@ -576,7 +575,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				try {
 					diskManipulator.create(editModal, static_cast<MSXBootSectorType>(bootType), sizes);
 				} catch (MSXException& e) {
-					manager.getReactor().getCliComm().printError(
+					manager.printError(
 						"Couldn't create disk image: ", e.getMessage());
 				}
 				close = true;
@@ -625,7 +624,7 @@ void ImGuiDiskManipulator::exportDiskImage()
 					file.write(buf.raw);
 				}
 			} catch (MSXException& e) {
-				manager.getReactor().getCliComm().printError(
+				manager.printError(
 					"Couldn't export disk image: ", e.getMessage());
 			}
 		},
@@ -676,9 +675,7 @@ void ImGuiDiskManipulator::transferHostToMsx()
 		try {
 			stuff->tar->addItem(FileOperations::join(hostDir, item.filename));
 		} catch (MSXException& e) {
-			manager.getReactor().getCliComm().printError(
-				"Couldn't import ", item.filename,
-				": ", e.getMessage());
+			manager.printError("Couldn't import ", item.filename, ": ", e.getMessage());
 		}
 	}
 	msxRefresh();
@@ -700,9 +697,7 @@ void ImGuiDiskManipulator::transferMsxToHost()
 		try {
 			stuff->tar->getItemFromDir(hostDir, item.filename);
 		} catch (MSXException& e) {
-			manager.getReactor().getCliComm().printError(
-				"Couldn't extract ", item.filename,
-				": ", e.getMessage());
+			manager.printError("Couldn't extract ", item.filename, ": ", e.getMessage());
 		}
 	}
 	hostRefresh();

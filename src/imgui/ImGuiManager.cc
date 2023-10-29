@@ -170,6 +170,11 @@ Interpreter& ImGuiManager::getInterpreter()
 	return reactor.getInterpreter();
 }
 
+CliComm& ImGuiManager::getCliComm()
+{
+	return reactor.getCliComm();
+}
+
 std::optional<TclObject> ImGuiManager::execute(TclObject command)
 {
 	try {
@@ -209,8 +214,7 @@ void ImGuiManager::executeDelayed(TclObject command,
 
 void ImGuiManager::printError(std::string_view message)
 {
-	auto& cliComm = getReactor().getCliComm();
-	cliComm.printError(message);
+	getCliComm().printError(message);
 }
 
 int ImGuiManager::signalEvent(const Event& event)

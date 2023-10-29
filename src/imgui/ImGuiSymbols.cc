@@ -82,7 +82,7 @@ void ImGuiSymbols::loadEnd()
 
 void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type)
 {
-	auto& cliComm = manager.getReactor().getCliComm();
+	auto& cliComm = manager.getCliComm();
 	auto it = ranges::find(fileError, filename, &FileInfo::filename);
 	try {
 		if (!symbolManager.reloadFile(filename, loadEmpty, type)) {
@@ -91,7 +91,7 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 		}
 		if (it != fileError.end()) fileError.erase(it); // clear previous error
 	} catch (MSXException& e) {
-		manager.getReactor().getCliComm().printWarning(
+		cliComm.printWarning(
 			"Couldn't load symbol file \"", filename, "\": ", e.getMessage());
 		if (it != fileError.end()) {
 			it->error = e.getMessage(); // overwrite previous error

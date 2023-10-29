@@ -372,7 +372,7 @@ void ImGuiConsole::saveHistory()
 			outputFile << s << '\n';
 		}
 	} catch (FileException& e) {
-		manager.getReactor().getCliComm().printWarning(e.getMessage());
+		manager.getCliComm().printWarning(e.getMessage());
 	}
 }
 

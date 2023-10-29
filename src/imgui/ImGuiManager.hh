@@ -32,6 +32,8 @@
 #include "RomTypes.hh"
 #include "TclObject.hh"
 
+#include "strCat.hh"
+
 #include <functional>
 #include <optional>
 #include <string_view>
@@ -52,8 +54,9 @@ public:
 	explicit ImGuiManager(Reactor& reactor_);
 	~ImGuiManager();
 
-	Reactor& getReactor() { return reactor; }
-	Interpreter& getInterpreter();
+	[[nodiscard]] Reactor& getReactor() { return reactor; }
+	[[nodiscard]] Interpreter& getInterpreter();
+	[[nodiscard]] CliComm& getCliComm();
 	std::optional<TclObject> execute(TclObject command);
 	void executeDelayed(std::function<void()> action);
 	void executeDelayed(TclObject command,
@@ -61,7 +64,11 @@ public:
 	                    std::function<void(const std::string&)> error);
 	void executeDelayed(TclObject command,
 	                    std::function<void(const TclObject&)> ok = {});
+
 	void printError(std::string_view message);
+	template<typename... Ts> void printError(Ts&&... ts) {
+		printError(static_cast<std::string_view>(tmpStrCat(std::forward<Ts>(ts)...)));
+	}
 
 	void paintImGui();
 
