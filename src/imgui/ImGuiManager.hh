@@ -126,12 +126,14 @@ private:
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;
+	std::string insertedInfo;
 	std::vector<std::string> selectList;
 	std::string selectedMedia;
 	const RomInfo* romInfo = nullptr;
 	RomType selectedRomType = ROM_UNKNOWN;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
+	bool openInsertedInfo = false;
 	bool guiActive = false;
 
 	static constexpr auto persistentElements = std::tuple{

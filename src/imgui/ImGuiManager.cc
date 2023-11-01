@@ -337,16 +337,27 @@ void ImGuiManager::paintImGui()
 	}
 
 	// drag and drop  (move this to ImGuiMedia ?)
+	auto insert2 = [&](std::string_view displayName, TclObject cmd) {
+		auto message = strCat("Inserted ", droppedFile, " in ", displayName);
+		executeDelayed(cmd, [this, message](const TclObject&){
+			insertedInfo = message;
+			openInsertedInfo = true;
+		});
+	};
+	auto insert = [&](std::string_view displayName, std::string_view cmd) {
+		insert2(displayName, makeTclList(cmd, "insert", droppedFile));
+	};
 	if (handleDropped) {
 		handleDropped = false;
+		insertedInfo.clear();
+
 		auto category = execute(makeTclList("openmsx_info", "file_type_category", droppedFile))->getString();
 		if (category == "unknown" && FileOperations::isDirectory(droppedFile)) {
 			category = "disk";
 		}
 
-		TclObject command;
 		auto error = [&](auto&& ...message) {
-			command = makeTclList("error", strCat(message...));
+			executeDelayed(makeTclList("error", strCat(message...)));
 		};
 		auto cantHandle = [&](auto&& ...message) {
 			error("Can't handle dropped file ", droppedFile, ": ", message...);
@@ -355,11 +366,11 @@ void ImGuiManager::paintImGui()
 			cantHandle("no ", mediaType, " present.");
 		};
 
-		auto testMedia = [&](std::string_view type, std::string_view cmd) {
+		auto testMedia = [&](std::string_view displayName, std::string_view cmd) {
 			if (auto cmdResult = execute(TclObject(cmd))) {
-				command = makeTclList(cmd, "insert", droppedFile);
+				insert(displayName, cmd);
 			} else {
-				notPresent(type);
+				notPresent(displayName);
 			}
 		};
 
@@ -368,7 +379,8 @@ void ImGuiManager::paintImGui()
 			if (list.empty()) {
 				notPresent("disk drive");
 			} else if (list.size() == 1) {
-				command = makeTclList(list.front(), "insert", droppedFile);
+				const auto& drive = list.front();
+				insert(strCat("disk drive ", char(drive.back() - 'a' + 'A')), drive);
 			} else {
 				selectList = std::move(list);
 				ImGui::OpenPopup("select-drive");
@@ -395,17 +407,16 @@ void ImGuiManager::paintImGui()
 		} else if (category == "laserdisc") {
 			testMedia("laser disc player", "laserdiscplayer");
 		} else if (category == "savestate") {
-			command = makeTclList("loadstate", droppedFile);
+			executeDelayed(makeTclList("loadstate", droppedFile));
 		} else if (category == "replay") {
-			command = makeTclList("reverse", "loadreplay", droppedFile);
+			executeDelayed(makeTclList("reverse", "loadreplay", droppedFile));
 		} else if (category == "script") {
-			command = makeTclList("source", droppedFile);
+			executeDelayed(makeTclList("source", droppedFile));
 		} else if (FileOperations::getExtension(droppedFile) == ".txt") {
-			command = makeTclList("type_from_file", droppedFile);
+			executeDelayed(makeTclList("type_from_file", droppedFile));
 		} else {
 			cantHandle("unknown file type");
 		}
-		executeDelayed(command);
 	}
 	im::Popup("select-drive", [&]{
 		ImGui::TextUnformatted(tmpStrCat("Select disk drive for ", droppedFile));
@@ -416,7 +427,7 @@ void ImGuiManager::paintImGui()
 				auto drive = item.back() - 'a';
 				auto display = strCat(char('A' + drive), ": ", media.displayNameForDriveContent(drive, true));
 				if (ImGui::Selectable(display.c_str())) {
-					executeDelayed(makeTclList(item, "insert", droppedFile));
+					insert(strCat("disk drive ", char(drive + 'A')), item);
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -474,7 +485,7 @@ void ImGuiManager::paintImGui()
 			if (selectedRomType != ROM_UNKNOWN) {
 				cmd.addListElement("-romtype", RomInfo::romTypeToName(selectedRomType));
 			}
-			executeDelayed(cmd);
+			insert2(strCat("cartridge slot ", char(selectedMedia.back() - 'a' + 'A')), cmd);
 			if (media.resetOnInsertRom) {
 				executeDelayed(TclObject("reset"));
 			}
@@ -484,6 +495,16 @@ void ImGuiManager::paintImGui()
 		if (ImGui::Button("Cancel")) {
 			ImGui::CloseCurrentPopup();
 		}
+	});
+	if (openInsertedInfo) {
+		openInsertedInfo = false;
+		ImGui::OpenPopup("inserted-info");
+	}
+	im::Popup("inserted-info", [&]{
+		if (insertedInfo.empty()) ImGui::CloseCurrentPopup();
+		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+			ImGui::TextUnformatted(insertedInfo);
+		});
 	});
 }
 
