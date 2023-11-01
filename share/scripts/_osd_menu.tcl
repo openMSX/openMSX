@@ -472,8 +472,6 @@ proc do_menu_open {top_menu} {
 	} else {
 		bind -layer osd_menu "OSDcontrol A PRESS" {osd_menu::menu_action A }
 		bind -layer osd_menu "OSDcontrol B PRESS" {osd_menu::menu_action B }
-		# on Android, use BACK button to go back in menus
-		bind -layer osd_menu "keyb BACK"      {osd_menu::menu_action B }
 	}
 	bind -layer osd_menu "CTRL+UP"      {osd_menu::select_menu_idx 0}
 	bind -layer osd_menu "CTRL+LEFT"    {osd_menu::select_menu_idx 0}
