@@ -7,7 +7,7 @@ variable default_auto_enable_reverse
 if {$is_dingux || $is_android} {
 	set default_auto_enable_reverse "off"
 } else {
-	set default_auto_enable_reverse "gui"
+	set default_auto_enable_reverse "on"
 }
 
 proc after_switch {} {
@@ -15,10 +15,8 @@ proc after_switch {} {
 	# machine (e.g. because the last machine is removed or because
 	# you explictly switch to an empty machine)
 	catch {
-		if {$::auto_enable_reverse eq "on"} {
-			auto_enable
-		} elseif {$::auto_enable_reverse eq "gui"} {
-			#reverse_widgets::enable_reversebar false
+		# Also handle 'gui' for backwards compatibility
+		if {$::auto_enable_reverse in "on gui"} {
 			auto_enable
 		}
 	}
@@ -36,12 +34,7 @@ don't want this cost, so we don't enable the reverse feature by default.
 Possible values for this setting:
   off   Reverse not enabled on startup
   on    Reverse enabled on startup
-  gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
 } $reverse::default_auto_enable_reverse
-
-user_setting create float "reversebar_fadeout_time" \
-{Time it takes for the reverse bar to fade out when it's not in focus. Set to 0 for no fade out at all.
-} 5.0 0.0 100.0
 
 user_setting create boolean "auto_save_replay" \
 {Enables automatically saving the current replay to filename specified \
