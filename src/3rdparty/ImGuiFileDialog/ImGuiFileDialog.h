@@ -1,7 +1,7 @@
 #pragma once
-#pragma warning(disable : 4251)
+//#pragma warning(disable : 4251)
 
-#pragma region IGFD LICENSE
+//#pragma region IGFD LICENSE
 
 /*
 MIT License
@@ -27,9 +27,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD DOCUMENTATION
+//#pragma region IGFD DOCUMENTATION
 
 /*
 // generated with "Text to ASCII Art Generator (TAAG)"
@@ -761,7 +761,7 @@ you have a separator between two directories in the path composer
 when you click on it you can explore a list of parrallels directories of this point
 
 this feature is disabled by default
-you can enable it with the compiler flag : flags 
+you can enable it with the compiler flag : flags
 
 you can also customize the spacing between path button's with and without this mode
 you can do that by define the compiler flag : #define CUSTOM_PATH_SPACING 2
@@ -861,7 +861,7 @@ SetFileStyle(IGFD_FileStyleByFullName, "(([.][0-9]{3}))", ImVec4(1.0f, 1.0f, 0.0
 ## Multi Layer / asterisk based filter
 ################################################################
 
-you can add filter in the form : .a.b.c .json.cpp .vcxproj.filters 
+you can add filter in the form : .a.b.c .json.cpp .vcxproj.filters
 
 you can also add filter in the form : .* .*.* .vcx.* .*.filters .vcx*.filt.* etc..
 all the * based filter are internally using regex's
@@ -880,13 +880,13 @@ GetFileName(IGFD_ResultMode = IGFD_ResultMode_AddIfNoFileExt)
 GetFileSelection(IGFD_ResultMode = IGFD_ResultMode_KeepInputFile)
 ```
 You can see these function who their default modes.
-but you can modify them. 
+but you can modify them.
 
 There is 3 Modes :
 ```cpp
-IGFD_ResultMode_AddIfNoFileExt [DEFAULT for 
+IGFD_ResultMode_AddIfNoFileExt [DEFAULT for
 This mode add the filter ext only if there is no file ext. (compatible multi layer)
-ex : 
+ex :
    filter {.cpp,.h} with file :
      toto.h => toto.h
      toto.a.h => toto.a.h
@@ -905,7 +905,7 @@ ex :
 IGFD_ResultMode_OverwriteFileExt
 This mode Overwrite the file extention by the current filter
 This mode is the old behavior for imGuiFileDialog pre v0.6.6
-ex : 
+ex :
    filter {.cpp,.h} with file :
      toto.h => toto.cpp
      toto.a.h => toto.a.cpp
@@ -1064,16 +1064,16 @@ ImGuiFontStudio is using also ImGuiFileDialog.
 ################################################################
 */
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD VERSION
+//#pragma region IGFD VERSION
 
 // compatible with 1.89.7 WIP
 #define IMGUIFILEDIALOG_VERSION "v0.6.6"
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region CONFIG FILE INCLUSION
+//#pragma region CONFIG FILE INCLUSION
 
 #ifndef CUSTOM_IMGUIFILEDIALOG_CONFIG
 #include "ImGuiFileDialogConfig.h"
@@ -1081,9 +1081,9 @@ ImGuiFontStudio is using also ImGuiFileDialog.
 #include CUSTOM_IMGUIFILEDIALOG_CONFIG
 #endif  // CUSTOM_IMGUIFILEDIALOG_CONFIG
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FLAGS : FileStyleFlags
+//#pragma region FLAGS : FileStyleFlags
 
 // file style enum for file display (color, icon, font)
 typedef int IGFD_FileStyleFlags;  // -> enum IGFD_FileStyleFlags_
@@ -1098,9 +1098,9 @@ enum IGFD_FileStyleFlags_         // by evaluation / priority order
     IGFD_FileStyleByContainedInFullName = (1 << 5),  // define style for file/dir/link when criteria is contained in full name
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FLAGS : ImGuiFileDialogFlags
+//#pragma region FLAGS : ImGuiFileDialogFlags
 
 typedef int ImGuiFileDialogFlags;  // -> enum ImGuiFileDialogFlags_
 enum ImGuiFileDialogFlags_ {
@@ -1169,7 +1169,7 @@ enum IGFD_ResultMode_ {
     IGFD_ResultMode_OverwriteFileExt = 1, // behavior pre IGFD v0.6.6
 
     // IGFD_ResultMode_KeepInputFile
-    // keep the input file => no modification : 
+    // keep the input file => no modification :
     //   filter {.cpp,.h} with file :
     //      toto.h => toto.h
     //      toto. => toto.
@@ -1185,9 +1185,9 @@ enum IGFD_ResultMode_ {
     IGFD_ResultMode_KeepInputFile    = 2
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Common Cpp& C Structures
+//#pragma region Common Cpp& C Structures
 
 #ifdef USE_THUMBNAILS
 struct IGFD_Thumbnail_Info {
@@ -1203,11 +1203,11 @@ struct IGFD_Thumbnail_Info {
 };
 #endif  // USE_THUMBNAILS
 
-#pragma endregion
+//#pragma endregion
 
 #ifdef __cplusplus
 
-#pragma region Includes
+//#pragma region Includes
 
 #include <imgui.h>
 
@@ -1227,9 +1227,9 @@ struct IGFD_Thumbnail_Info {
 #include <functional>
 #include <unordered_map>
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD API
+//#pragma region IGFD API
 
 // Define attributes of all API symbols declarations (e.g. for DLL under Windows)
 // Using ImGuiFileDialog via a shared library is not recommended, because we don't guarantee
@@ -1239,9 +1239,9 @@ struct IGFD_Thumbnail_Info {
 #define IGFD_API
 #endif  // IGFD_API
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Defines
+//#pragma region Defines
 
 #ifndef defaultSortField
 #define defaultSortField FIELD_FILENAME
@@ -1275,15 +1275,15 @@ struct IGFD_Thumbnail_Info {
 #define EXT_MAX_LEVEL 10U
 #endif  // EXT_MAX_LEVEL
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD NAMESPACE
+//#pragma region IGFD NAMESPACE
 
 namespace IGFD {
 
-#pragma region INTERNAL
+//#pragma region INTERNAL
 
-#pragma region SEARCHABLE VECTOR
+//#pragma region SEARCHABLE VECTOR
 
 template <typename T>
 class SearchableVector {
@@ -1356,9 +1356,9 @@ public:
     }
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Utils
+//#pragma region Utils
 
 class IGFD_API Utils {
 public:
@@ -1388,9 +1388,9 @@ public:
     static size_t GetLastCharPosWithMinCharCount(const std::string& vString, const char& vChar, const size_t& vMinCharCount);
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileStyle
+//#pragma region FileStyle
 
 class FileInfos;
 class IGFD_API FileStyle {
@@ -1409,9 +1409,9 @@ public:
     FileStyle(const ImVec4& vColor, const std::string& vIcon = "", ImFont* vFont = nullptr);
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region SearchManager
+//#pragma region SearchManager
 
 class IGFD_API FileDialogInternal;
 class IGFD_API SearchManager {
@@ -1425,9 +1425,9 @@ public:
     void DrawSearchBar(FileDialogInternal& vFileDialogInternal);  // draw the search bar
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FilterInfos
+//#pragma region FilterInfos
 
 class IGFD_API FilterInfos {
 private:
@@ -1455,9 +1455,9 @@ public:
     std::string transformAsteriskBasedFilterToRegex(const std::string& vFilter);  // will transform a filter who contain * to a regex
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FilterManager
+//#pragma region FilterManager
 
 class IGFD_API FileInfos;
 class IGFD_API FilterManager {
@@ -1492,9 +1492,9 @@ public:
     void SetDefaultFilterIfNotDefined();                                                                                                              // define the first filter if no filter is selected
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileType
+//#pragma region FileType
 
 class IGFD_API FileType {
 public:
@@ -1530,9 +1530,9 @@ public:
     bool operator>(const FileType& rhs) const;
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileInfos
+//#pragma region FileInfos
 
 class IGFD_API FileInfos {
 public:
@@ -1560,9 +1560,9 @@ public:
     bool FinalizeFileTypeParsing(const size_t& vMaxDotToExtract);                                                                        // finalize the parsing the file (only a file or link to file. no dir)
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileManager
+//#pragma region FileManager
 
 class IGFD_API FileManager {
 public:                            // types
@@ -1694,9 +1694,9 @@ public:
     void DrawPathComposer(const FileDialogInternal& vFileDialogInternal);       // draw path composer widget
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileDialogInternal
+//#pragma region FileDialogInternal
 
 typedef void* UserDatas;
 typedef std::function<void(const char*, UserDatas, bool*)> PaneFun;  // side pane function binding
@@ -1735,13 +1735,13 @@ public:
     void ResetForNewDialog();  // reset what is needed to reset for the openging of a new dialog
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Optional Features
+//#pragma region Optional Features
 
-#pragma region ThumbnailFeature
+//#pragma region ThumbnailFeature
 
 #ifdef USE_THUMBNAILS
 typedef std::function<void(IGFD_Thumbnail_Info*)> CreateThumbnailFun;   // texture 2d creation function binding
@@ -1801,9 +1801,9 @@ public:
 #endif
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region BookMarkFeature
+//#pragma region BookMarkFeature
 
 class IGFD_API BookMarkFeature {
 protected:
@@ -1847,9 +1847,9 @@ public:
 #endif  // USE_BOOKMARK
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region KeyExplorerFeature
+//#pragma region KeyExplorerFeature
 
 // file localization by input chat // widget flashing
 class IGFD_API KeyExplorerFeature {
@@ -1882,11 +1882,11 @@ public:
 #endif                                     // USE_EXPLORATION_BY_KEYS
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileDialog
+//#pragma region FileDialog
 
 class IGFD_API FileDialog : public BookMarkFeature, public KeyExplorerFeature, public ThumbnailFeature {
 protected:
@@ -2043,15 +2043,15 @@ protected:
     void prEndFileColorIconStyle(const bool& vShowColor, ImFont* vFont);                                                                  // end style apply of filter
 };
 
-#pragma endregion
+//#pragma endregion
 
 }  // namespace IGFD
 
-#pragma endregion
+//#pragma endregion
 
 #endif  // __cplusplus
 
-#pragma region IGFD_C_API
+//#pragma region IGFD_C_API
 
 #include <stdint.h>
 
@@ -2272,4 +2272,4 @@ IGFD_C_API void ManageGPUThumbnails(  // must be call in gpu zone, possibly a th
     ImGuiFileDialog* vContextPtr);       // ImGuiFileDialog context
 #endif                                // USE_THUMBNAILS
 
-#pragma endregion
+//#pragma endregion

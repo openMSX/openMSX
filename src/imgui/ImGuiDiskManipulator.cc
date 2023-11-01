@@ -518,9 +518,13 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				"Filename for new disk image",
 				"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
 				[&](const auto& fn) { editModal = fn; },
-				getDiskImageName());
+				getDiskImageName(),
+				ImGuiOpenFile::Painter::DISKMANIPULATOR);
 		}
-		simpleToolTip("TODO doesn't work yet!!!\nSelect new file");
+		simpleToolTip("Select new file");
+		if (manager.openFile.mustPaint(ImGuiOpenFile::Painter::DISKMANIPULATOR)) {
+			manager.openFile.doPaint();
+		}
 
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 		ImGui::Combo("type", &bootType, "DOS 1\0DOS 2\0Nextor\0", 3); // in sync with MSXBootSectorType enum

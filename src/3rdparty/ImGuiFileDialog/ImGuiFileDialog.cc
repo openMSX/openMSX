@@ -1,11 +1,11 @@
-#pragma region PVS STUDIO
+//#pragma region PVS STUDIO
 
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD LICENSE
+//#pragma region IGFD LICENSE
 
 /*
 MIT License
@@ -31,7 +31,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma endregion
+//#pragma endregion
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -41,7 +41,7 @@ SOFTWARE.
 
 #ifdef __cplusplus
 
-#pragma region Includes
+//#pragma region Includes
 
 #include <cfloat>
 #include <cstring>  // stricmp / strcasecmp
@@ -104,9 +104,9 @@ SOFTWARE.
 #include <algorithm>
 #include <iostream>
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Common defines
+//#pragma region Common defines
 
 #ifdef USE_THUMBNAILS
 #ifndef DONT_DEFINE_AGAIN__STB_IMAGE_IMPLEMENTATION
@@ -131,11 +131,11 @@ SOFTWARE.
 #define IS_FLOAT_EQUAL(a, b) (fabs((a) - (b)) < FLT_EPSILON)
 #endif  // IS_FLOAT_EQUAL
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region IGFD NAMESPACE
+//#pragma region IGFD NAMESPACE
 
-#pragma region CUSTOMIZATION DEFINES
+//#pragma region CUSTOMIZATION DEFINES
 
 ///////////////////////////////
 // COMBOBOX
@@ -369,11 +369,11 @@ inline bool inToggleButton(const char* vLabel, bool* vToggled) {
 #endif  // IMGUI_TOGGLE_BUTTON
 #endif  // USE_BOOKMARK
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region INTERNAL
+//#pragma region INTERNAL
 
-#pragma region EXCEPTION
+//#pragma region EXCEPTION
 
 class IGFDException : public std::exception {
 private:
@@ -387,9 +387,9 @@ public:
     }
 };
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Utils
+//#pragma region Utils
 
 #ifndef USE_STD_FILESYSTEM
 inline int inAlphaSort(const struct dirent** a, const struct dirent** b) {
@@ -748,9 +748,9 @@ IGFD_API size_t IGFD::Utils::GetLastCharPosWithMinCharCount(const std::string& v
     return std::string::npos;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileStyle
+//#pragma region FileStyle
 
 IGFD_API IGFD::FileStyle::FileStyle() : color(0, 0, 0, 0) {
 }
@@ -765,9 +765,9 @@ IGFD_API IGFD::FileStyle::FileStyle(const FileStyle& vStyle) {
 IGFD_API IGFD::FileStyle::FileStyle(const ImVec4& vColor, const std::string& vIcon, ImFont* vFont) : color(vColor), icon(vIcon), font(vFont) {
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region SearchManager
+//#pragma region SearchManager
 
 IGFD_API void IGFD::SearchManager::Clear() {
     puSearchTag.clear();
@@ -794,9 +794,9 @@ IGFD_API void IGFD::SearchManager::DrawSearchBar(FileDialogInternal& vFileDialog
     }
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FilterInfos
+//#pragma region FilterInfos
 
 void IGFD::FilterInfos::setCollectionTitle(const std::string& vTitle) {
     title = vTitle;
@@ -885,9 +885,9 @@ IGFD_API std::string IGFD::FilterInfos::transformAsteriskBasedFilterToRegex(cons
     return res;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FilterManager
+//#pragma region FilterManager
 
 IGFD_API const IGFD::FilterInfos& IGFD::FilterManager::GetSelectedFilter() const {
     return prSelectedFilter;
@@ -1324,9 +1324,9 @@ IGFD_API void IGFD::FilterManager::SetDefaultFilterIfNotDefined() {
     }
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileType
+//#pragma region FileType
 
 IGFD::FileType::FileType() = default;
 IGFD::FileType::FileType(const ContentType& vContentType, const bool& vIsSymlink) : m_Content(vContentType), m_Symlink(vIsSymlink) {
@@ -1377,9 +1377,9 @@ bool IGFD::FileType::operator>(const FileType& rhs) const {
     return m_Content > rhs.m_Content;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileInfos
+//#pragma region FileInfos
 
 IGFD_API bool IGFD::FileInfos::SearchForTag(const std::string& vTag) const {
     if (!vTag.empty()) {
@@ -1457,9 +1457,9 @@ bool IGFD::FileInfos::FinalizeFileTypeParsing(const size_t& vMaxDotToExtract) {
     return false;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileManager
+//#pragma region FileManager
 
 IGFD_API IGFD::FileManager::FileManager() {
     puFsRoot = std::string(1u, PATH_SEP);
@@ -2535,9 +2535,9 @@ IGFD_API std::map<std::string, std::string> IGFD::FileManager::GetResultingSelec
     return res;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileDialogInternal
+//#pragma region FileDialogInternal
 
 IGFD_API void IGFD::FileDialogInternal::NewFrame() {
     puCanWeContinue               = true;   // reset flag for possibily validate the dialog
@@ -2592,13 +2592,13 @@ IGFD_API void IGFD::FileDialogInternal::EndFrame() {
 IGFD_API void IGFD::FileDialogInternal::ResetForNewDialog() {
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region Optional Features
+//#pragma region Optional Features
 
-#pragma region ThumbnailFeature
+//#pragma region ThumbnailFeature
 
 IGFD_API IGFD::ThumbnailFeature::ThumbnailFeature() {
 #ifdef USE_THUMBNAILS
@@ -2856,9 +2856,9 @@ IGFD_API void IGFD::ThumbnailFeature::ManageGPUThumbnails() {
 
 #endif  // USE_THUMBNAILS
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region BookMarkFeature
+//#pragma region BookMarkFeature
 
 IGFD_API IGFD::BookMarkFeature::BookMarkFeature() {
 #ifdef USE_BOOKMARK
@@ -2997,9 +2997,9 @@ IGFD_API bool IGFD::BookMarkFeature::RemoveBookmark(const std::string& vBookMark
 }
 #endif  // USE_BOOKMARK
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region KeyExplorerFeature
+//#pragma region KeyExplorerFeature
 
 IGFD::KeyExplorerFeature::KeyExplorerFeature() = default;
 
@@ -3351,11 +3351,11 @@ IGFD_API void IGFD::KeyExplorerFeature::SetFlashingAttenuationInSeconds(float vA
 }
 #endif  // USE_EXPLORATION_BY_KEYS
 
-#pragma endregion
+//#pragma endregion
 
-#pragma endregion
+//#pragma endregion
 
-#pragma region FileDialog
+//#pragma region FileDialog
 
 IGFD_API IGFD::FileDialog::FileDialog() : BookMarkFeature(), KeyExplorerFeature(), ThumbnailFeature() {
 }
@@ -4504,13 +4504,13 @@ IGFD_API bool IGFD::FileDialog::prConfirm_Or_OpenOverWriteFileDialog_IfNeeded(bo
     return false;
 }
 
-#pragma endregion
+//#pragma endregion
 
-#pragma endregion
+//#pragma endregion
 
 #endif  // __cplusplus
 
-#pragma region IGFD_C_API
+//#pragma region IGFD_C_API
 
 // Return an initialized IGFD_Selection_Pair
 IGFD_C_API IGFD_Selection_Pair IGFD_Selection_Pair_Get(void) {
@@ -4900,4 +4900,4 @@ IGFD_C_API void ManageGPUThumbnails(ImGuiFileDialog* vContextPtr) {
 }
 #endif  // USE_THUMBNAILS
 
-#pragma endregion
+//#pragma endregion

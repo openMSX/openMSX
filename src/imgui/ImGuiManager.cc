@@ -292,6 +292,9 @@ void ImGuiManager::paintImGui()
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}
+	if (openFile.mustPaint(ImGuiOpenFile::Painter::MANAGER)) {
+		openFile.doPaint();
+	}
 
 	auto drawMenu = [&]{
 		for (auto* part : parts) {

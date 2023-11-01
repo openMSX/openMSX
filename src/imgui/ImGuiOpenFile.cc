@@ -84,80 +84,73 @@ std::string ImGuiOpenFile::getStartPath(zstring_view lastLocationHint)
 			}
 		}
 	}
-	auto [it, inserted] = lastPath.try_emplace(lastFileDialog, ".");
+	auto [it, inserted] = lastPath.try_emplace(lastTitle, ".");
 	return it->second;
 }
 
 void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
                                std::function<void(const std::string&)> callback,
-                               zstring_view lastLocationHint)
+                               zstring_view lastLocationHint,
+                               Painter painter_)
 {
-	setBookmarks();
-
 	if (filters.find("{.*}") == std::string::npos) {
 		filters += ",All files (*){.*}";
 	}
-	ImGuiFileDialogFlags flags =
-		ImGuiFileDialogFlags_DontShowHiddenFiles |
-		ImGuiFileDialogFlags_CaseInsensitiveExtention |
-		ImGuiFileDialogFlags_Modal |
-		ImGuiFileDialogFlags_DisableCreateDirectoryButton;
-	lastFileDialog = title;
-
-	auto startPath = getStartPath(lastLocationHint);
-	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, filters.c_str(), startPath, "", 1, nullptr, flags);
-	openFileCallback = callback;
+	int extraFlags = ImGuiFileDialogFlags_DisableCreateDirectoryButton;
+	common(title, filters.c_str(), callback, lastLocationHint, painter_, extraFlags);
 }
 
 void ImGuiOpenFile::selectNewFile(const std::string& title, std::string filters,
                                   std::function<void(const std::string&)> callback,
-                                  zstring_view lastLocationHint)
+                                  zstring_view lastLocationHint,
+                                  Painter painter_)
 {
-	setBookmarks();
-
 	if (filters.find("{.*}") == std::string::npos) {
 		filters += ",All files (*){.*}";
 	}
-	ImGuiFileDialogFlags flags =
-		ImGuiFileDialogFlags_DontShowHiddenFiles |
-		ImGuiFileDialogFlags_CaseInsensitiveExtention |
-		ImGuiFileDialogFlags_Modal |
+	int extraFlags =
 		ImGuiFileDialogFlags_DisableCreateDirectoryButton |
 		ImGuiFileDialogFlags_ConfirmOverwrite;
-	lastFileDialog = title;
-
-	auto startPath = getStartPath(lastLocationHint);
-	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, filters.c_str(), startPath, "", 1, nullptr, flags);
-	openFileCallback = callback;
+	common(title, filters.c_str(), callback, lastLocationHint, painter_, extraFlags);
 }
 
 void ImGuiOpenFile::selectDirectory(const std::string& title,
                                     std::function<void(const std::string&)> callback,
-                                    zstring_view lastLocationHint)
+                                    zstring_view lastLocationHint,
+                                    Painter painter_)
 {
+	int extraFlags = 0;
+	common(title, nullptr, callback, lastLocationHint, painter_, extraFlags);
+}
+
+void ImGuiOpenFile::common(const std::string& title, const char* filters,
+                           std::function<void(const std::string&)> callback,
+                           zstring_view lastLocationHint,
+                           Painter painter_,
+                           int extraFlags)
+{
+	activePainter = painter_;
 	setBookmarks();
 
-	ImGuiFileDialogFlags flags =
+	ImGuiFileDialogFlags flags = extraFlags |
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
 		ImGuiFileDialogFlags_Modal;
-	lastFileDialog = title;
+	lastTitle = title;
 
 	auto startPath = getStartPath(lastLocationHint);
 	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, nullptr, startPath, "", 1, nullptr, flags);
+		"FileDialog", title, filters, startPath, "", 1, nullptr, flags);
 	openFileCallback = callback;
 }
 
-void ImGuiOpenFile::paint(MSXMotherBoard* /*motherBoard*/)
+void ImGuiOpenFile::doPaint()
 {
 	// (Modal) file dialog
 	auto* fileDialog = ImGuiFileDialog::Instance();
-	if (fileDialog->Display("FileDialog", ImGuiWindowFlags_NoCollapse, ImVec2(480.0f, 360.0f))) {
+	if (fileDialog->Display("FileDialog", ImGuiWindowFlags_NoCollapse, ImVec2(560.0f, 360.0f))) {
 		if (fileDialog->IsOk() && openFileCallback) {
-			lastPath[lastFileDialog] = fileDialog->GetCurrentPath();
+			lastPath[lastTitle] = fileDialog->GetCurrentPath();
 			std::string filePathName = FileOperations::getConventionalPath( // Windows: replace backslash with slash
 				fileDialog->GetFilePathName());
 			openFileCallback(filePathName);
