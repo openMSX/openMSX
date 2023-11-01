@@ -131,6 +131,7 @@ private:
 	std::string selectedMedia;
 	const RomInfo* romInfo = nullptr;
 	RomType selectedRomType = ROM_UNKNOWN;
+	float insertedInfoTimeout = 0.0f;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
 	bool openInsertedInfo = false;

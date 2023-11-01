@@ -498,10 +498,14 @@ void ImGuiManager::paintImGui()
 	});
 	if (openInsertedInfo) {
 		openInsertedInfo = false;
+		insertedInfoTimeout = 3.0f;
 		ImGui::OpenPopup("inserted-info");
 	}
 	im::Popup("inserted-info", [&]{
-		if (insertedInfo.empty()) ImGui::CloseCurrentPopup();
+		insertedInfoTimeout -= ImGui::GetIO().DeltaTime;
+		if (insertedInfoTimeout <= 0.0f || insertedInfo.empty()) {
+			ImGui::CloseCurrentPopup();
+		}
 		im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
 			ImGui::TextUnformatted(insertedInfo);
 		});
