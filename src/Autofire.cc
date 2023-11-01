@@ -53,7 +53,7 @@ Autofire::Autofire(MSXMotherBoard& motherBoard,
 	, min_ints(std::max(newMinInts, 1u))
 	, max_ints(std::max(newMaxInts, min_ints + 1))
 	, speedSetting(motherBoard.getCommandController(), nameForId(id_),
-		"controls the speed of this autofire circuit", 0, 0, 100)
+		"controls autofire speed (0 = disabled)", 0, 0, 100)
 	, clock(scheduler.getCurrentTime())
 	, id(id_)
 {

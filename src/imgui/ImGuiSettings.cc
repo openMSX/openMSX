@@ -243,6 +243,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			};
 			if (motherBoard) {
 				auto& controller = motherBoard->getMSXCommandController();
+				if (auto* turbo = dynamic_cast<IntegerSetting*>(controller.findSetting("renshaturbo"))) {
+					SliderInt("Ren Sha Turbo (%)", *turbo);
+				}
 				if (auto* mappingModeSetting = dynamic_cast<EnumSetting<KeyboardSettings::MappingMode>*>(controller.findSetting("kbd_mapping_mode"))) {
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
