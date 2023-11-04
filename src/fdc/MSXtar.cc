@@ -7,18 +7,22 @@
 #endif
 
 #include "MSXtar.hh"
+
 #include "SectorAccessibleDisk.hh"
 #include "FileOperations.hh"
 #include "foreach_file.hh"
 #include "MSXException.hh"
 #include "MsxChar2Unicode.hh"
+
 #include "StringOp.hh"
 #include "strCat.hh"
 #include "File.hh"
 #include "narrow.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -325,6 +329,12 @@ Cluster MSXtar::findFirstFreeCluster()
 		}
 	}
 	throw MSXException("Disk full.");
+}
+
+unsigned MSXtar::countFreeClusters() const
+{
+	return narrow<unsigned>(ranges::count_if(xrange(findFirstFreeClusterStart.index, clusterCount),
+		[&](unsigned cluster) { return readFAT({cluster}) == FatCluster(Free{}); }));
 }
 
 // Get the next sector from a file or (root/sub)directory
@@ -1030,6 +1040,11 @@ string MSXtar::getItemFromDir(string_view rootDirName, string_view itemName)
 void MSXtar::getDir(string_view rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
+}
+
+MSXtar::FreeSpaceResult MSXtar::getFreeSpace() const
+{
+	return {countFreeClusters(), sectorsPerCluster * SECTOR_SIZE};
 }
 
 } // namespace openmsx

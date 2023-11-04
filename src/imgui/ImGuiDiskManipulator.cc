@@ -406,6 +406,16 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				if (ImGui::Button("Export to new disk image")) exportDiskImage();
 				simpleToolTip("Save the content of the drive to a new disk image");
 			});
+			ImGui::SameLine();
+			if (stuff) {
+				auto [num, size] = stuff->tar->getFreeSpace();
+				auto free = (size_t(num) * size) / 1024; // in kB
+				auto status = strCat(free, "kB free");
+				if (!writable) strAppend(status, ", read-only");
+				ImGui::TextUnformatted(status);
+			} else {
+				ImGui::TextUnformatted("No (valid) disk inserted");
+			}
 		});
 
 		ImGui::SameLine();

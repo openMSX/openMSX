@@ -58,6 +58,12 @@ public:
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
 	void getDir(std::string_view rootDirName);
 
+	struct FreeSpaceResult {
+		unsigned numFreeClusters;
+		unsigned clusterSize; // in bytes
+	};
+	FreeSpaceResult getFreeSpace() const;
+
 private:
 	struct DirEntry {
 		unsigned sector;
@@ -73,6 +79,7 @@ private:
 	[[nodiscard]] FAT::FatCluster readFAT(FAT::Cluster index) const;
 	void writeFAT(FAT::Cluster index, FAT::FatCluster value);
 	FAT::Cluster findFirstFreeCluster();
+	unsigned countFreeClusters() const;
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);
 	unsigned appendClusterToSubdir(unsigned sector);
