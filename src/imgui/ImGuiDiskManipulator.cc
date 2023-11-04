@@ -15,10 +15,12 @@
 
 #include "Date.hh"
 #include "foreach_file.hh"
+#include "hash_set.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+#include "xxhash.hh"
 
 #include <imgui_stdlib.h>
 
@@ -69,25 +71,21 @@ bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const s
 	}
 }
 
-void ImGuiDiskManipulator::refreshMsx()
+std::vector<ImGuiDiskManipulator::FileInfo> ImGuiDiskManipulator::dirMSX(DrivePartitionTar& stuff)
 {
-	msxFileCache.clear();
-	msxLastClick = -1;
-	msxNeedRefresh = false;
-	msxForceSort = true;
-
-	auto stuff = getMsxStuff();
-	if (!stuff) return;
+	std::vector<FileInfo> result;
+	// most likely nothing changed, and then we have the same number of entries
+	result.reserve(msxFileCache.size());
 
 	try {
-		stuff->tar->chdir(msxDir);
+		stuff.tar->chdir(msxDir);
 	} catch (MSXException&) {
 		msxDir = "/";
 		editMsxDir = "/";
-		stuff->tar->chdir(msxDir);
+		stuff.tar->chdir(msxDir);
 	}
 
-	auto dir = stuff->tar->dirRaw();
+	auto dir = stuff.tar->dirRaw();
 	auto num = dir.size();
 	for (unsigned i = 0; i < num; ++i) {
 		auto entry = dir.getListIndexUnchecked(i);
@@ -100,8 +98,29 @@ void ImGuiDiskManipulator::refreshMsx()
 		info.size = entry.getListIndexUnchecked(3).getOptionalInt().value_or(0);
 		info.isDirectory = info.attrib & MSXDirEntry::Attrib::DIRECTORY;
 		if (info.isDirectory) info.size = size_t(-1);
-		msxFileCache.push_back(std::move(info));
+		result.push_back(std::move(info));
 	}
+
+	return result;
+}
+
+void ImGuiDiskManipulator::refreshMsx(DrivePartitionTar& stuff)
+{
+	auto newFiles = dirMSX(stuff);
+	if (newFiles.size() != msxFileCache.size()) msxLastClick = -1;
+
+	// copy 'isSelected' from 'msxFileCache' to 'newFiles'
+	hash_set<std::string_view, std::identity, XXHasher> selected;
+	for (const auto& oldFile : msxFileCache) {
+		if (oldFile.isSelected) selected.insert(oldFile.filename);
+	}
+	if (!selected.empty()) {
+		for (auto& newFile : newFiles) {
+			if (selected.contains(newFile.filename)) newFile.isSelected = true;
+		}
+	}
+
+	std::swap(newFiles, msxFileCache);
 }
 
 void ImGuiDiskManipulator::refreshHost()
@@ -275,8 +294,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!show) return;
 
-	if (msxNeedRefresh) {
-		refreshMsx();
+	auto stuff = getMsxStuff();
+	if (stuff) {
+		refreshMsx(*stuff);
+	} else {
+		msxFileCache.clear();
 	}
 	if (hostNeedRefresh) {
 		refreshHost();
@@ -285,8 +307,6 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 	bool createMsxDir = false;
 	bool createHostDir = false;
 	bool createDiskImage = false;
-
-	auto stuff = getMsxStuff(); // TODO ok to create this every frame?
 
 	const auto& style = ImGui::GetStyle();
 	ImGui::SetNextWindowSize(gl::vec2{70, 45} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
@@ -322,13 +342,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					if (display.empty()) continue;
 					if (ImGui::Selectable(display.c_str())) {
 						selectedDrive = drive;
-						msxNeedRefresh = true;
 						driveOk = true;
 					}
 				}
 				if (!driveOk) {
 					selectedDrive = "virtual_drive";
-					msxNeedRefresh = true;
 				}
 			});
 			simpleToolTip([&]{ return getDiskImageName(); });
@@ -343,9 +361,6 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 			if (ImGui::Button(ICON_IGFD_CHEVRON_UP"##msxDirUp")) msxParentDirectory();
 			simpleToolTip("Go to parent directory");
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_IGFD_REFRESH"##msxRefresh")) msxRefresh();
-			simpleToolTip("Refresh directory listing");
 			ImGui::SameLine();
 			im::Disabled(!writable, [&]{
 				createMsxDir = ImGui::Button(ICON_IGFD_ADD"##msxNewDir");
@@ -379,6 +394,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupColumn("Modified");
 				ImGui::TableSetupColumn("Attrib", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableHeadersRow();
+				bool msxForceSort = true; // always sort
 				auto doubleClicked = drawTable(msxFileCache, msxLastClick, msxForceSort, true);
 				if (!doubleClicked.empty()) {
 					msxDir = FileOperations::join(msxDir, doubleClicked);
@@ -399,11 +415,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
 			im::Disabled(!writable, [&]{
-				if (ImGui::Button("<<")) transferHostToMsx();
+				if (ImGui::Button("<<")) transferHostToMsx(*stuff);
 				simpleToolTip("Transfer files or directories from host to MSX");
 			});
 			im::Disabled(!stuff, [&]{
-				if (ImGui::Button(">>")) transferMsxToHost();
+				if (ImGui::Button(">>")) transferMsxToHost(*stuff);
 				simpleToolTip("Transfer files or directories from MSX to host");
 			});
 		});
@@ -671,7 +687,7 @@ void ImGuiDiskManipulator::hostParentDirectory()
 void ImGuiDiskManipulator::msxRefresh()
 {
 	editMsxDir = msxDir;
-	msxNeedRefresh = true;
+	msxFileCache.clear();
 }
 
 void ImGuiDiskManipulator::hostRefresh()
@@ -680,13 +696,10 @@ void ImGuiDiskManipulator::hostRefresh()
 	hostNeedRefresh = true;
 }
 
-void ImGuiDiskManipulator::transferHostToMsx()
+void ImGuiDiskManipulator::transferHostToMsx(DrivePartitionTar& stuff)
 {
-	auto stuff = getMsxStuff();
-	if (!stuff) return;
-
 	try {
-		stuff->tar->chdir(msxDir);
+		stuff.tar->chdir(msxDir);
 	} catch (MSXException& e) {
 		msxRefresh();
 		return;
@@ -694,7 +707,7 @@ void ImGuiDiskManipulator::transferHostToMsx()
 	for (const auto& item : hostFileCache) {
 		if (!item.isSelected) continue;
 		try {
-			stuff->tar->addItem(FileOperations::join(hostDir, item.filename));
+			stuff.tar->addItem(FileOperations::join(hostDir, item.filename));
 		} catch (MSXException& e) {
 			manager.printError("Couldn't import ", item.filename, ": ", e.getMessage());
 		}
@@ -702,13 +715,10 @@ void ImGuiDiskManipulator::transferHostToMsx()
 	msxRefresh();
 }
 
-void ImGuiDiskManipulator::transferMsxToHost()
+void ImGuiDiskManipulator::transferMsxToHost(DrivePartitionTar& stuff)
 {
-	auto stuff = getMsxStuff();
-	if (!stuff) return;
-
 	try {
-		stuff->tar->chdir(msxDir);
+		stuff.tar->chdir(msxDir);
 	} catch (MSXException& e) {
 		msxRefresh();
 		return;
@@ -716,7 +726,7 @@ void ImGuiDiskManipulator::transferMsxToHost()
 	for (const auto& item : msxFileCache) {
 		if (!item.isSelected) continue;
 		try {
-			stuff->tar->getItemFromDir(hostDir, item.filename);
+			stuff.tar->getItemFromDir(hostDir, item.filename);
 		} catch (MSXException& e) {
 			manager.printError("Couldn't extract ", item.filename, ": ", e.getMessage());
 		}

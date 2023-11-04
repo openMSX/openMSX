@@ -51,7 +51,8 @@ private:
 
 	bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
 	std::string getDiskImageName();
-	void refreshMsx();
+	std::vector<FileInfo> dirMSX(DrivePartitionTar& stuff);
+	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
 	std::string_view drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
@@ -61,8 +62,8 @@ private:
 	void hostParentDirectory();
 	void msxRefresh();
 	void hostRefresh();
-	void transferHostToMsx();
-	void transferMsxToHost();
+	void transferHostToMsx(DrivePartitionTar& stuff);
+	void transferMsxToHost(DrivePartitionTar& stuff);
 
 private:
 	struct PartitionSize {
@@ -83,9 +84,7 @@ private:
 	std::string editModal;
 	int msxLastClick = -1;
 	int hostLastClick = -1;
-	bool msxNeedRefresh = true;
 	bool hostNeedRefresh = true;
-	bool msxForceSort = false;
 	bool hostForceSort = false;
 
 	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };

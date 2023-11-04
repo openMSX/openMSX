@@ -22,13 +22,6 @@
 
 namespace hash_set_impl {
 
-// Identity operation: accepts any type (by const or non-const reference) and
-// returns the exact same (reference) value.
-struct Identity {
-	template<typename T>
-	[[nodiscard]] inline T& operator()(T&& t) const { return t; }
-};
-
 struct PoolIndex {
 	unsigned idx;
 	[[nodiscard]] constexpr bool operator==(const PoolIndex&) const = default;
@@ -265,7 +258,7 @@ using ExtractedType = typename std::remove_cvref_t<
 //
 // If required it's also possible to specify custom hash and equality functors.
 template<typename Value,
-         typename Extractor = hash_set_impl::Identity,
+         typename Extractor = std::identity,
          typename Hasher = std::hash<hash_set_impl::ExtractedType<Value, Extractor>>,
          typename Equal = std::equal_to<>>
 class hash_set
