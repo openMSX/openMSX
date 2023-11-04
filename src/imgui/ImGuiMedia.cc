@@ -189,12 +189,17 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 
 static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
 {
+	auto formatExtensions = [&]() -> std::string {
+		if (extensions.size() <= 3) {
+			return join(view::transform(extensions,
+			                [](const auto& ext) { return strCat("*.", ext); }),
+			       ' ');
+		} else {
+			return join(extensions, ',');
+		}
+	};
 	return strCat(
-		description, " (",
-		join(view::transform(extensions,
-		                     [](const auto& ext) { return strCat("*.", ext); }),
-		     ' '),
-		"){",
+		description, " (", formatExtensions(), "){",
 		join(view::transform(extensions,
 		                     [](const auto& ext) { return strCat('.', ext); }),
 		     ','),

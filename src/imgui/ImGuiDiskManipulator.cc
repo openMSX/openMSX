@@ -49,8 +49,13 @@ std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::get
 	auto dd = getDriveAndDisk();
 	if (!dd) return {};
 	auto& [drive, disk] = *dd;
-	auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
-	return DrivePartitionTar{drive, std::move(disk), std::move(tar)};
+	try {
+		auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
+		return DrivePartitionTar{drive, std::move(disk), std::move(tar)};
+	} catch (MSXException&) {
+		// e.g. triggers when trying to parse a partition table as a FAT-disk
+		return {};
+	}
 }
 
 bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir)
@@ -283,9 +288,9 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 	auto stuff = getMsxStuff(); // TODO ok to create this every frame?
 
-	// TODO inital window size
+	const auto& style = ImGui::GetStyle();
+	ImGui::SetNextWindowSize(gl::vec2{70, 45} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Disk Manipulator", &show, [&]{
-		const auto& style = ImGui::GetStyle();
 		auto availableSize = ImGui::GetContentRegionAvail();
 		auto tSize = ImGui::CalcTextSize(">>");
 		auto bWidth = 2.0f * (style.ItemSpacing.x + style.FramePadding.x) + tSize.x;
@@ -362,7 +367,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				});
 			} else {
 				im::Disabled(true, []{
-					std::string noDisk = "No disk inserted";
+					std::string noDisk = "No (valid) disk inserted";
 					ImGui::InputText("##msxPath", &noDisk);
 				});
 			}
@@ -371,7 +376,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("Filename", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_NoReorder);
 				ImGui::TableSetupColumn("Size");
-				ImGui::TableSetupColumn("Modified", ImGuiTableColumnFlags_DefaultHide);
+				ImGui::TableSetupColumn("Modified");
 				ImGui::TableSetupColumn("Attrib", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableHeadersRow();
 				auto doubleClicked = drawTable(msxFileCache, msxLastClick, msxForceSort, true);
@@ -429,7 +434,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("Filename", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_NoReorder);
 				ImGui::TableSetupColumn("Size");
-				ImGui::TableSetupColumn("Modified", ImGuiTableColumnFlags_DefaultHide);
+				ImGui::TableSetupColumn("Modified");
 				ImGui::TableHeadersRow();
 				auto doubleClicked = drawTable(hostFileCache, hostLastClick, hostForceSort, false);
 				if (!doubleClicked.empty()) {
@@ -506,10 +511,14 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		partitionSizes.assign(3, {32, PartitionSize::MB});
 		ImGui::OpenPopup(newDiskImageTitle);
 	}
-	im::PopupModal(newDiskImageTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+	ImGui::SetNextWindowSize(gl::vec2{35, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	bool p_open = true; // initial value meaningless, but we need a ptr-to-bool to have a 'x' button
+	im::PopupModal(newDiskImageTitle, &p_open, [&]{
 		bool close = false;
 
-		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 40.0f);
+		auto tSize = ImGui::CalcTextSize(ICON_IGFD_FOLDER_OPEN);
+		auto bWidth = style.ItemSpacing.x + 2.0f * style.FramePadding.x + tSize.x;
+		ImGui::SetNextItemWidth(-bWidth);
 		ImGui::InputText("##newDiskPath", &editModal);
 		simpleToolTip("Filename for new disk image");
 		ImGui::SameLine();
@@ -541,8 +550,12 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 		ImGui::RadioButton("Partitioned HD image", &newDiskType, PARTITIONED);
 		im::DisabledIndent(newDiskType != PARTITIONED, [&]{
-			im::Group([&]{
+			float bottomHeight = 2.0f * style.ItemSpacing.y + 1.0f + 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
+			im::ListBox("##partitions", {14 * ImGui::GetFontSize(), -bottomHeight}, [&]{
 				im::ID_for_range(partitionSizes.size(), [&](int i) {
+					ImGui::AlignTextToFramePadding();
+					ImGui::Text("%2d:", i + 1);
+					ImGui::SameLine();
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.0f);
 					ImGui::InputScalar("##count", ImGuiDataType_U32, &partitionSizes[i].count);
 					ImGui::SameLine();
@@ -578,6 +591,10 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				}();
 				try {
 					diskManipulator.create(editModal, static_cast<MSXBootSectorType>(bootType), sizes);
+					if (auto* drive = getDrive()) {
+						drive->insertDisk(editModal); // might fail (return code), but ignore
+						msxRefresh();
+					}
 				} catch (MSXException& e) {
 					manager.printError(
 						"Couldn't create disk image: ", e.getMessage());

@@ -642,7 +642,7 @@ string getNextNumberedFileName(
 	}
 
 	std::ostringstream os;
-	os << dirName << '/' << prefix;
+	os << FileOperations::join(dirName, prefix);
 	os.width(nofDigits);
 	os.fill('0');
 	os << (max_num + 1) << extension;
