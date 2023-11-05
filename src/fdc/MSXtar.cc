@@ -668,18 +668,87 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	}, prevCl);
 
 	// free rest of FAT chain
-	while (std::holds_alternative<Cluster>(curCl)) {
-		Cluster cluster = std::get<Cluster>(curCl);
-		FatCluster nextCl = readFAT(cluster);
-		writeFAT(cluster, Free{});
-		curCl = nextCl;
-	}
+	freeFatChain(curCl);
 
 	// write (possibly truncated) file size
 	msxDirEntry.size = hostSize - remaining;
 
 	if (remaining) {
 		throw MSXException("Disk full, ", hostName, " truncated.");
+	}
+}
+
+void MSXtar::freeFatChain(FAT::FatCluster startCluster)
+{
+	FatCluster curCl = startCluster;
+	while (std::holds_alternative<Cluster>(curCl)) {
+		Cluster cluster = std::get<Cluster>(curCl);
+		FatCluster nextCl = readFAT(cluster);
+		writeFAT(cluster, Free{});
+		curCl = nextCl;
+	}
+}
+
+std::string MSXtar::deleteEntry(const FAT::FileName& msxName, unsigned rootSector)
+{
+	SectorBuffer buf;
+	DirEntry entry = findEntryInDir(msxName, rootSector, buf);
+	if (entry.sector == 0) {
+		// not found
+		return "entry not found";
+	}
+	deleteEntry(buf.dirEntry[entry.index]);
+	writeLogicalSector(entry.sector, buf);
+	return "";
+}
+
+void MSXtar::deleteEntry(MSXDirEntry& msxDirEntry)
+{
+	DirCluster startCluster = getStartCluster(msxDirEntry);
+
+	if (msxDirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY) {
+		// If we're deleting a directory then also (recursively)
+		// delete the files/directories in this directory.
+		const auto& msxName = msxDirEntry.filename;
+		if (ranges::equal(msxName, std::string_view(".          ")) ||
+		    ranges::equal(msxName, std::string_view("..         "))) {
+			// But skip the "." and ".." entries.
+			return;
+		}
+		std::visit(overloaded{
+			[](Free) { /* Points to root, ignore. */ },
+			[&](Cluster cluster) { deleteDirectory(clusterToSector(cluster)); }
+		}, startCluster);
+	}
+
+	// At this point we have a regular file or an empty subdirectory.
+	// Delete it by marking the first filename char as 0xE5.
+	msxDirEntry.filename[0] = char(0xE5);
+
+	// Free the FAT chain
+	std::visit(overloaded{
+		[](Free) { /* Points to root, ignore. */ },
+		[&](Cluster cluster) { freeFatChain(cluster); }
+	}, startCluster);
+
+	// Changed sector will be written by parent function
+}
+
+void MSXtar::deleteDirectory(unsigned sector)
+{
+	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
+		SectorBuffer buf;
+		readLogicalSector(sector, buf);
+		for (auto& dirEntry : buf.dirEntry) {
+			if (dirEntry.filename[0] == char(0x00)) {
+				return;
+			}
+			if (dirEntry.filename[0] == one_of(char(0xe5), '.') || dirEntry.attrib == T_MSX_LFN) {
+				continue;
+			}
+			deleteEntry(dirEntry);
+		}
+		writeLogicalSector(sector, buf);
 	}
 }
 
@@ -1040,6 +1109,12 @@ string MSXtar::getItemFromDir(string_view rootDirName, string_view itemName)
 void MSXtar::getDir(string_view rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
+}
+
+std::string MSXtar::deleteItem(std::string_view itemName)
+{
+	FileName msxName = hostToMSXFileName(itemName);
+	return deleteEntry(msxName, chrootSector);
 }
 
 MSXtar::FreeSpaceResult MSXtar::getFreeSpace() const

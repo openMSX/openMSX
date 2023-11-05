@@ -57,6 +57,7 @@ public:
 	std::string addDir(std::string_view rootDirName); // add files from host-dir, but does not create a top-level dir on the msx side
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
 	void getDir(std::string_view rootDirName);
+	std::string deleteItem(std::string_view itemName); // delete file or directory (recursive)
 
 	struct FreeSpaceResult {
 		unsigned numFreeClusters;
@@ -78,19 +79,24 @@ private:
 	void parseBootSector(const MSXBootSector& boot);
 	[[nodiscard]] FAT::FatCluster readFAT(FAT::Cluster index) const;
 	void writeFAT(FAT::Cluster index, FAT::FatCluster value);
-	FAT::Cluster findFirstFreeCluster();
-	unsigned countFreeClusters() const;
-	unsigned findUsableIndexInSector(unsigned sector);
-	unsigned getNextSector(unsigned sector);
-	unsigned appendClusterToSubdir(unsigned sector);
-	DirEntry addEntryToDir(unsigned sector);
-	unsigned addSubdir(const FAT::FileName& msxName,
-	                   uint16_t t, uint16_t d, unsigned sector);
+	[[nodiscard]] FAT::Cluster findFirstFreeCluster();
+	[[nodiscard]] unsigned countFreeClusters() const;
+	[[nodiscard]] unsigned findUsableIndexInSector(unsigned sector);
+	[[nodiscard]] unsigned getNextSector(unsigned sector);
+	[[nodiscard]] unsigned appendClusterToSubdir(unsigned sector);
+	[[nodiscard]] DirEntry addEntryToDir(unsigned sector);
+	[[nodiscard]] unsigned addSubdir(const FAT::FileName& msxName,
+	                                 uint16_t t, uint16_t d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
-	unsigned addSubdirToDSK(zstring_view hostName,
-	                        const FAT::FileName& msxName, unsigned sector);
-	DirEntry findEntryInDir(const FAT::FileName& msxName, unsigned sector,
-	                        SectorBuffer& sectorBuf);
+	void deleteItem(std::string_view itemName, unsigned sector);
+	std::string deleteEntry(const FAT::FileName& msxName, unsigned rootSector);
+	void deleteEntry(MSXDirEntry& msxDirEntry);
+	void deleteDirectory(unsigned sector);
+	void freeFatChain(FAT::FatCluster cluster);
+	[[nodiscard]] unsigned addSubdirToDSK(zstring_view hostName,
+	                                      const FAT::FileName& msxName, unsigned sector);
+	[[nodiscard]] DirEntry findEntryInDir(const FAT::FileName& msxName, unsigned sector,
+	                                      SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
 	std::string addOrCreateSubdir(zstring_view hostDirName, unsigned sector);
 	std::string recurseDirFill(std::string_view dirName, unsigned sector);

@@ -11,6 +11,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace openmsx {
@@ -39,6 +40,11 @@ private:
 		bool isDirectory = false;
 		bool isSelected = false;
 	};
+	struct Nop {};
+	struct ChangeDir { std::string_view name; };
+	struct Delete { std::string_view name; };
+	struct Rename { std::string_view name; };
+	using Action = std::variant<Nop, ChangeDir, Delete, Rename>;
 
 	struct DrivePartitionTar {
 		DiskContainer* drive;
@@ -55,7 +61,7 @@ private:
 	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
-	std::string_view drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
+	Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
 	void insertMsxDisk();
 	void exportDiskImage();
 	void msxParentDirectory();

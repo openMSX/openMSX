@@ -183,7 +183,7 @@ void ImGuiDiskManipulator::checkSort(std::vector<FileInfo>& files, bool& forceSo
 	}
 }
 
-std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib)
+ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool msxSide)
 {
 	auto clearSelection = [&]{
 		for (auto& file : files) file.isSelected = false;
@@ -202,7 +202,7 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 
 	checkSort(files, forceSort);
 
-	std::string_view result;
+	Action result = Nop{};
 	ImGuiListClipper clipper; // only draw the actually visible lines
 	clipper.Begin(narrow<int>(files.size()));
 	while (clipper.Step()) {
@@ -213,7 +213,7 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 					auto pos = ImGui::GetCursorPos();
 					if (ImGui::Selectable("##row", file.isSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | ImGuiSelectableFlags_AllowDoubleClick)) {
 						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-							result = file.filename;
+							result = ChangeDir{file.filename};
 						} else {
 							bool ctrl     = ImGui::IsKeyDown(ImGuiKey_LeftCtrl ) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
 							bool shiftKey = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
@@ -233,6 +233,23 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 							}
 						}
 					}
+					if (msxSide && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+						ImGui::OpenPopup("table-context");
+					}
+					im::Popup("table-context", [&]{
+						ImGui::TextUnformatted(file.isDirectory ? "Directory:" : "File:");
+						ImGui::SameLine();
+						ImGui::TextUnformatted(file.filename);
+						ImGui::Separator();
+
+						if (ImGui::Selectable("Delete")) {
+							result = Delete{file.filename};
+						}
+						if (ImGui::Selectable("Rename TODO ...")) {
+							result = Rename{file.filename};
+						}
+					});
+
 					ImGui::SetCursorPos(pos);
 
 					ImGui::Text("%s %s",
@@ -247,7 +264,7 @@ std::string_view ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, i
 				if (ImGui::TableNextColumn()) { // modified
 					ImGui::TextUnformatted(Date::toString(file.modified));
 				}
-				if (drawAttrib && ImGui::TableNextColumn()) { // attrib
+				if (msxSide && ImGui::TableNextColumn()) { // attrib
 					ImGui::TextUnformatted(DiskImageUtils::formatAttrib(file.attrib));
 				}
 			});
@@ -395,11 +412,19 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupColumn("Attrib", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableHeadersRow();
 				bool msxForceSort = true; // always sort
-				auto doubleClicked = drawTable(msxFileCache, msxLastClick, msxForceSort, true);
-				if (!doubleClicked.empty()) {
-					msxDir = FileOperations::join(msxDir, doubleClicked);
-					msxRefresh();
-				}
+				auto action = drawTable(msxFileCache, msxLastClick, msxForceSort, true);
+				std::visit(overloaded {
+					[](Nop) { /* nothing */},
+					[&](ChangeDir cd) {
+						msxDir = FileOperations::join(msxDir, cd.name);
+						msxRefresh();
+					},
+					[&](Delete d) {
+						stuff->tar->deleteItem(d.name);
+						msxRefresh();
+					},
+					[](Rename r) { /* TODO */}
+				}, action);
 			});
 
 			im::Disabled(!stuff, [&]{
@@ -462,11 +487,16 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				ImGui::TableSetupColumn("Size");
 				ImGui::TableSetupColumn("Modified");
 				ImGui::TableHeadersRow();
-				auto doubleClicked = drawTable(hostFileCache, hostLastClick, hostForceSort, false);
-				if (!doubleClicked.empty()) {
-					hostDir = FileOperations::join(hostDir, doubleClicked);
-					hostRefresh();
-				}
+				auto action = drawTable(hostFileCache, hostLastClick, hostForceSort, false);
+				std::visit(overloaded {
+					[](Nop) { /* nothing */},
+					[&](ChangeDir cd) {
+						hostDir = FileOperations::join(hostDir, cd.name);
+						hostRefresh();
+					},
+					[](Delete) { assert(false); },
+					[](Rename) { assert(false); }
+				}, action);
 			});
 		});
 	});
