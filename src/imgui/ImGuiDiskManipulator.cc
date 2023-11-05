@@ -424,11 +424,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		auto byPos = (availableSize.y - b2Height) * 0.5f;
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
-			im::Disabled(!writable, [&]{
+			im::Disabled(!writable || ranges::none_of(hostFileCache, &FileInfo::isSelected), [&]{
 				if (ImGui::Button("<<")) transferHostToMsx(*stuff);
 				simpleToolTip("Transfer files or directories from host to MSX");
 			});
-			im::Disabled(!stuff, [&]{
+			im::Disabled(!stuff || ranges::none_of(msxFileCache, &FileInfo::isSelected), [&]{
 				if (ImGui::Button(">>")) transferMsxToHost(*stuff);
 				simpleToolTip("Transfer files or directories from MSX to host");
 			});
