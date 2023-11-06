@@ -85,4 +85,3 @@ register_lazy "_vdp_busy.tcl" toggle_vdp_busy
 register_lazy "_vdrive.tcl" vdrive
 register_lazy "_vgmrecorder.tcl" {vgm_rec vgm_rec_next vgm_rec_end}
 register_lazy "_vu-meters.tcl" toggle_vu_meters
-register_lazy "_widgets.tcl" {toggle_show_palette toggle_vdp_reg_viewer}
