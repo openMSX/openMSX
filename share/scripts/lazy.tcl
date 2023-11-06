@@ -58,7 +58,6 @@ register_lazy "_slot.tcl" {
 register_lazy "_soundchip_utils.tcl" {
 	get_num_channels get_volume_expr get_frequency_expr}
 register_lazy "_soundlog.tcl" soundlog
-register_lazy "_sprites.tcl" {toggle_sprite_locator sprite_viewer draw_matrix}
 register_lazy "_stack.tcl" stack
 register_lazy "_tas_tools.tcl" {
 	toggle_frame_counter prev_frame next_frame start_of_frame
@@ -67,7 +66,6 @@ register_lazy "_tas_tools.tcl" {
 register_lazy "_test_machines_and_extensions.tcl" {
 	test_all_machines test_all_extensions}
 register_lazy "_text_echo.tcl" text_echo
-register_lazy "_tileviewer.tcl" {view_tile hide_tile_viewer view_all_tiles hide_all_tiles_viewer}
 register_lazy "_toggle_freq.tcl" toggle_freq
 register_lazy "_trainer.tcl" {trainer load_trainers}
 register_lazy "_type_from_file.tcl" {type_from_file type_password_from_file}
