@@ -752,6 +752,27 @@ void MSXtar::deleteDirectory(unsigned sector)
 	}
 }
 
+std::string MSXtar::renameItem(std::string_view currentName, std::string_view newName)
+{
+	SectorBuffer buf;
+
+	FileName newMsxName = hostToMSXFileName(newName);
+	auto newEntry = findEntryInDir(newMsxName, chrootSector, buf);
+	if (newEntry.sector != 0) {
+		return "another entry with new name already exists";
+	}
+
+	FileName oldMsxName = hostToMSXFileName(currentName);
+	auto oldEntry = findEntryInDir(oldMsxName, chrootSector, buf);
+	if (oldEntry.sector == 0) {
+		return "entry not found";
+	}
+
+	buf.dirEntry[oldEntry.index].filename = newMsxName;
+	writeLogicalSector(oldEntry.sector, buf);
+	return "";
+}
+
 // Find the dir entry for 'name' in subdir starting at the given 'sector'
 // with given 'index'
 // returns: a DirEntry with sector and index filled in

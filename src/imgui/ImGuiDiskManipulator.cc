@@ -245,7 +245,7 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(std::vector<FileInf
 						if (ImGui::Selectable("Delete")) {
 							result = Delete{file.filename};
 						}
-						if (ImGui::Selectable("Rename TODO ...")) {
+						if (ImGui::Selectable("Rename ...")) {
 							result = Rename{file.filename};
 						}
 					});
@@ -321,6 +321,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		refreshHost();
 	}
 
+	bool renameMsxEntry = false;
 	bool createMsxDir = false;
 	bool createHostDir = false;
 	bool createDiskImage = false;
@@ -423,7 +424,10 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 						stuff->tar->deleteItem(d.name);
 						msxRefresh();
 					},
-					[](Rename r) { /* TODO */}
+					[&](Rename r) {
+						renameFrom = r.name;
+						renameMsxEntry = true;
+					}
 				}, action);
 			});
 
@@ -498,6 +502,42 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					[](Rename) { assert(false); }
 				}, action);
 			});
+		});
+
+		const char* const renameTitle = "Rename";
+		if (renameMsxEntry) {
+			editModal.clear();
+			ImGui::OpenPopup(renameTitle);
+		}
+		im::PopupModal(renameTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			bool close = false;
+			ImGui::TextUnformatted("from:");
+			ImGui::SameLine();
+			ImGui::TextUnformatted(renameFrom);
+			ImGui::Text("to:");
+			ImGui::SameLine();
+			bool ok = ImGui::InputText("##newName", &editModal, ImGuiInputTextFlags_EnterReturnsTrue);
+			ok |= ImGui::Button("Ok");
+			if (ok) {
+				if (stuff) {
+					std::string error;
+					try {
+						stuff->tar->chdir(msxDir);
+						error = stuff->tar->renameItem(renameFrom, editModal);
+					} catch (MSXException& e) {
+						error = e.getMessage();
+					}
+					if (!error.empty()) {
+						manager.printError("Couldn't rename ", renameFrom,
+								" to ", editModal, ": ", error);
+					}
+				}
+				msxRefresh();
+				close = true;
+			}
+			ImGui::SameLine();
+			close |= ImGui::Button("Cancel");
+			if (close) ImGui::CloseCurrentPopup();
 		});
 	});
 

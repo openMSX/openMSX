@@ -58,6 +58,7 @@ public:
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
 	void getDir(std::string_view rootDirName);
 	std::string deleteItem(std::string_view itemName); // delete file or directory (recursive)
+	std::string renameItem(std::string_view currentName, std::string_view newName); // rename file or directory
 
 	struct FreeSpaceResult {
 		unsigned numFreeClusters;

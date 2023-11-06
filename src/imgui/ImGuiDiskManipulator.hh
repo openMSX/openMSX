@@ -88,6 +88,7 @@ private:
 	std::string msxDir = "/", editMsxDir = "/";
 	std::string hostDir, editHostDir;
 	std::string editModal;
+	std::string renameFrom;
 	int msxLastClick = -1;
 	int hostLastClick = -1;
 	bool hostNeedRefresh = true;
