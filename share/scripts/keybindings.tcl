@@ -2,23 +2,10 @@
 # solution to support key bindings for multiple devices.
 
 variable is_dingux [string match dingux "[openmsx_info platform]"]
-variable is_android [string match android "[openmsx_info platform]"]
 
 # cycle_machine
 bind_default CTRL+PAGEUP cycle_machine
 bind_default CTRL+PAGEDOWN cycle_back_machine
-
-# osd_keyboard
-if {$is_dingux} {
-	# Use the SELECT button.
-	bind_default "keyb ESCAPE" toggle_osd_keyboard
-} elseif {$is_android} {
-	# TODO: This key code no longer exists.
-	#       We probably should create our own virtual keyboard anyway.
-	# Android maps one of the virtual keys to WORLD_95
-	# listen to that one in order to show the keyboard
-	#bind_default "keyb WORLD_95" toggle_osd_keyboard
-}
 
 # pause
 if {$is_dingux} {
