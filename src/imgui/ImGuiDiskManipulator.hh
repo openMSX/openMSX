@@ -7,6 +7,7 @@
 #include "SectorAccessibleDisk.hh"
 
 #include <ctime>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -51,24 +52,25 @@ private:
 		std::unique_ptr<DiskPartition> disk; // will often be the full disk
 		std::unique_ptr<MSXtar> tar;
 	};
-	DiskContainer* getDrive();
-	std::optional<DiskManipulator::DriveAndPartition> getDriveAndDisk();
-	std::optional<DrivePartitionTar> getMsxStuff();
+	[[nodiscard]] DiskContainer* getDrive();
+	[[nodiscard]] std::optional<DiskManipulator::DriveAndPartition> getDriveAndDisk();
+	[[nodiscard]] std::optional<DrivePartitionTar> getMsxStuff();
 
-	bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
-	std::string getDiskImageName();
-	std::vector<FileInfo> dirMSX(DrivePartitionTar& stuff);
+	[[nodiscard]] bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
+	[[nodiscard]] std::string getDiskImageName();
+	[[nodiscard]] std::vector<FileInfo> dirMSX(DrivePartitionTar& stuff);
 	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
-	Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
+	[[nodiscard]] Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
 	void insertMsxDisk();
 	void exportDiskImage();
 	void msxParentDirectory();
 	void hostParentDirectory();
 	void msxRefresh();
 	void hostRefresh();
-	void transferHostToMsx(DrivePartitionTar& stuff);
+	[[nodiscard]] bool setupTransferHostToMsx(DrivePartitionTar& stuff);
+	void executeTransferHostToMsx(DrivePartitionTar& stuff);
 	void transferMsxToHost(DrivePartitionTar& stuff);
 
 private:
@@ -93,6 +95,16 @@ private:
 	int hostLastClick = -1;
 	bool hostNeedRefresh = true;
 	bool hostForceSort = false;
+
+	enum TransferHostToMsxPhase {
+		IDLE,
+		CHECK,
+		EXECUTE_PRESERVE,
+		EXECUTE_OVERWRITE,
+	} transferHostToMsxPhase = IDLE;
+	std::vector<FileInfo> existingFiles;
+	std::vector<FileInfo> existingDirs;
+	std::map<std::string, std::vector<FileInfo>> duplicateEntries;
 
 	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };
 	int newDiskType = UNPARTITIONED;

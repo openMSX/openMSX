@@ -44,6 +44,11 @@ namespace FAT {
 class MSXtar
 {
 public:
+	enum class Add {
+		PRESERVE,
+		OVERWRITE,
+	};
+public:
 	explicit MSXtar(SectorAccessibleDisk& disk, const MsxChar2Unicode& msxChars_);
 	MSXtar(MSXtar&& other) noexcept;
 	~MSXtar();
@@ -52,13 +57,14 @@ public:
 	void mkdir(std::string_view newRootDir);
 	std::string dir(); // formatted output
 	TclObject dirRaw(); // unformatted output
-	std::string addItem(const std::string& hostItemName); // add file or directory
-	std::string addFile(const std::string& filename);
-	std::string addDir(std::string_view rootDirName); // add files from host-dir, but does not create a top-level dir on the msx side
+	std::string addItem(const std::string& hostItemName, Add add); // add file or directory
+	std::string addFile(const std::string& filename, Add add);
+	std::string addDir(std::string_view rootDirName, Add add); // add files from host-dir, but does not create a top-level dir on the msx side
 	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
 	void getDir(std::string_view rootDirName);
 	std::string deleteItem(std::string_view itemName); // delete file or directory (recursive)
 	std::string renameItem(std::string_view currentName, std::string_view newName); // rename file or directory
+	std::string convertToMsxName(std::string_view name) const; // truncate to 8.3 filename
 
 	struct FreeSpaceResult {
 		unsigned numFreeClusters;
@@ -98,9 +104,9 @@ private:
 	                                      const FAT::FileName& msxName, unsigned sector);
 	[[nodiscard]] DirEntry findEntryInDir(const FAT::FileName& msxName, unsigned sector,
 	                                      SectorBuffer& sectorBuf);
-	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
-	std::string addOrCreateSubdir(zstring_view hostDirName, unsigned sector);
-	std::string recurseDirFill(std::string_view dirName, unsigned sector);
+	std::string addFileToDSK(const std::string& fullHostName, unsigned sector, Add add);
+	std::string addOrCreateSubdir(zstring_view hostDirName, unsigned sector, Add add);
+	std::string recurseDirFill(std::string_view dirName, unsigned sector, Add add);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void recurseDirExtract(std::string_view dirName, unsigned sector);
 	std::string singleItemExtract(std::string_view dirName, std::string_view itemName,

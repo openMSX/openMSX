@@ -325,6 +325,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 	bool createMsxDir = false;
 	bool createHostDir = false;
 	bool createDiskImage = false;
+	bool openCheckTransfer = false;
 
 	const auto& style = ImGui::GetStyle();
 	ImGui::SetNextWindowSize(gl::vec2{70, 45} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
@@ -454,7 +455,11 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
 			im::Disabled(!writable || ranges::none_of(hostFileCache, &FileInfo::isSelected), [&]{
-				if (ImGui::Button("<<")) transferHostToMsx(*stuff);
+				if (ImGui::Button("<<")) {
+					if (setupTransferHostToMsx(*stuff)) {
+						openCheckTransfer = true;
+					}
+				}
 				simpleToolTip("Transfer files or directories from host to MSX");
 			});
 			im::Disabled(!stuff || ranges::none_of(msxFileCache, &FileInfo::isSelected), [&]{
@@ -538,6 +543,71 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			ImGui::SameLine();
 			close |= ImGui::Button("Cancel");
 			if (close) ImGui::CloseCurrentPopup();
+		});
+
+		const char* const overwriteTitle = "Confirm overwrite?";
+		if (openCheckTransfer) {
+			ImGui::OpenPopup(overwriteTitle);
+		}
+		bool p_open = true; // initial value doesn't matter
+		im::PopupModal(overwriteTitle, &p_open, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			auto printList = [](const char* label, const std::vector<FileInfo>& list) {
+				float count = std::min(4.5f, narrow_cast<float>(list.size()));
+				float height = count * ImGui::GetTextLineHeightWithSpacing();
+				im::ListBox(label, {0.0f, height}, [&]{
+					for (const auto& f : list) {
+						ImGui::TextUnformatted(f.filename);
+					}
+				});
+			};
+			if (!existingFiles.empty()) {
+				ImGui::TextUnformatted("These files already exist and will be overwritten");
+				printList("##files", existingFiles);
+			}
+			if (!existingDirs.empty()) {
+				ImGui::TextUnformatted("These directories already exist and will be overwritten");
+				printList("##dirs", existingDirs);
+			}
+			if (!duplicateEntries.empty()) {
+				ImGui::TextUnformatted("These host entries will map to the same MSX entry");
+				im::ListBox("##duplicates", {0.0f, 4.5f * ImGui::GetTextLineHeightWithSpacing()}, [&]{
+					for (const auto& [msxName, hostEntries] : duplicateEntries) {
+						ImGui::Text("%s:", msxName.c_str());
+						for (const auto& host : hostEntries) {
+							ImGui::Text("    %s", host.filename.c_str());
+						}
+					}
+				});
+			}
+			ImGui::Separator();
+
+			if (!p_open) {
+				transferHostToMsxPhase = IDLE;
+			}
+			if (ImGui::Button("Preserve")) {
+				transferHostToMsxPhase = EXECUTE_PRESERVE;
+				p_open = false;
+			}
+			simpleToolTip("Do not overwrite MSX files");
+			ImGui::SameLine();
+			if (ImGui::Button("Overwrite")) {
+				transferHostToMsxPhase = EXECUTE_OVERWRITE;
+				p_open = false;
+			}
+			simpleToolTip("Overwrite MSX files");
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel")) {
+				transferHostToMsxPhase = IDLE;
+				p_open = false;
+			}
+			simpleToolTip("Abort transfer");
+
+			if (!p_open) {
+				ImGui::CloseCurrentPopup();
+				if (stuff && transferHostToMsxPhase != IDLE) {
+					executeTransferHostToMsx(*stuff);
+				}
+			}
 		});
 	});
 
@@ -776,18 +846,59 @@ void ImGuiDiskManipulator::hostRefresh()
 	hostNeedRefresh = true;
 }
 
-void ImGuiDiskManipulator::transferHostToMsx(DrivePartitionTar& stuff)
+bool ImGuiDiskManipulator::setupTransferHostToMsx(DrivePartitionTar& stuff)
 {
+	try {
+		stuff.tar->chdir(msxDir);
+	} catch (MSXException& e) {
+		msxRefresh();
+		return false;
+	}
+
+	existingDirs.clear();
+	existingFiles.clear();
+	duplicateEntries.clear();
+	for (const auto& item : hostFileCache) {
+		if (!item.isSelected) continue;
+		auto msxName = stuff.tar->convertToMsxName(item.filename);
+		duplicateEntries[msxName].push_back(item);
+		auto it = ranges::find(msxFileCache, msxName, &FileInfo::filename);
+		if (it == msxFileCache.end()) continue;
+		(it->isDirectory ? existingDirs : existingFiles).push_back(*it);
+	}
+	for (auto it = duplicateEntries.begin(); it != duplicateEntries.end(); /**/) {
+		if (it->second.size() < 2) {
+			it = duplicateEntries.erase(it);
+		} else {
+			++it;
+		}
+	}
+	if (existingDirs.empty() && existingFiles.empty() && duplicateEntries.empty()) {
+		transferHostToMsxPhase = EXECUTE_PRESERVE;
+		executeTransferHostToMsx(stuff);
+		return false;
+	} else {
+		transferHostToMsxPhase = CHECK;
+		return true; // open modal window
+	}
+}
+
+void ImGuiDiskManipulator::executeTransferHostToMsx(DrivePartitionTar& stuff)
+{
+	transferHostToMsxPhase = IDLE;
 	try {
 		stuff.tar->chdir(msxDir);
 	} catch (MSXException& e) {
 		msxRefresh();
 		return;
 	}
+
 	for (const auto& item : hostFileCache) {
 		if (!item.isSelected) continue;
 		try {
-			stuff.tar->addItem(FileOperations::join(hostDir, item.filename));
+			auto add = (transferHostToMsxPhase == EXECUTE_PRESERVE)
+			         ? MSXtar::Add::PRESERVE : MSXtar::Add::OVERWRITE;
+			stuff.tar->addItem(FileOperations::join(hostDir, item.filename), add);
 		} catch (MSXException& e) {
 			manager.printError("Couldn't import ", item.filename, ": ", e.getMessage());
 		}

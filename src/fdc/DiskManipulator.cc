@@ -671,9 +671,9 @@ string DiskManipulator::import(DriveSettings& driveData,
 					throw CommandException("Non-existing file ", s);
 				}
 				if (FileOperations::isDirectory(*st)) {
-					messages += workhorse.addDir(s);
+					messages += workhorse.addDir(s, MSXtar::Add::PRESERVE);
 				} else if (FileOperations::isRegularFile(*st)) {
-					messages += workhorse.addFile(s);
+					messages += workhorse.addFile(s, MSXtar::Add::PRESERVE);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');
