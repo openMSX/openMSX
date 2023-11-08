@@ -1,9 +1,9 @@
 diff -ru glew-2.2.0.orig/config/Makefile.linux-mingw64 glew-2.2.0/config/Makefile.linux-mingw64
 --- glew-2.2.0.orig/config/Makefile.linux-mingw64	2020-03-15 12:53:59.000000000 +0100
-+++ glew-2.2.0/config/Makefile.linux-mingw64	2023-11-08 23:26:41.173920610 +0100
++++ glew-2.2.0/config/Makefile.linux-mingw64	2023-11-08 23:50:35.621313215 +0100
 @@ -19,4 +19,4 @@
  LIB.DEVLNK    = lib$(NAME).dll.a    # for mingw this is the dll import lib
  LIB.SHARED    = $(NAME).dll
  LIB.STATIC    = lib$(NAME).a        # the static lib will be broken
 -LDFLAGS.SO    = -nostdlib -shared -soname $(LIB.SONAME) --out-implib lib/$(LIB.DEVLNK)
-+LDFLAGS.SO    = -nostdlib -shared -Wl,-soname $(LIB.SONAME) -Wl,--out-implib lib/$(LIB.DEVLNK)
++LDFLAGS.SO    = -nostdlib -shared -Wl,-soname,$(LIB.SONAME) -Wl,--out-implib,lib/$(LIB.DEVLNK)
