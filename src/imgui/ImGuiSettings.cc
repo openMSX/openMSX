@@ -844,7 +844,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			initListener();
 			ImGui::OpenPopup(addTitle);
 		}
-		im::PopupModal(addTitle, [&]{
+		im::PopupModal(addTitle, nullptr, ImGuiWindowFlags_NoSavedSettings, [&]{
 			auto close = [&]{
 				ImGui::CloseCurrentPopup();
 				popupForKey = unsigned(-1);
