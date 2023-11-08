@@ -204,6 +204,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-sdltest \
 		--disable-shared \
+		--disable-freetype-builtin \
+		--disable-harfbuzz \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
