@@ -7,6 +7,8 @@
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
+#include "DiskImageUtils.hh"
+#include "DSKDiskImage.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
 #include "HD.hh"
@@ -666,10 +668,10 @@ static std::string leftClip(std::string_view s, float maxWidth)
 	return strCat("...", s.substr(len - (maxChars - 3)));
 }
 
-bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc)
+bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc, float width)
 {
 	bool interacted = false;
-	ImGui::SetNextItemWidth(-32.0f);
+	ImGui::SetNextItemWidth(-width);
 	auto preview = leftClip(displayFunc(group.edit.name),
 				ImGui::GetContentRegionAvail().x - (ImGui::GetFrameHeightWithSpacing() + 32.0f));
 	im::Combo("##recent", preview.c_str(), [&]{
@@ -686,42 +688,72 @@ bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const 
 	return interacted;
 }
 
+static float calcButtonWidth(const char* text1, const char* text2)
+{
+	const auto& style = ImGui::GetStyle();
+	float width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize(text1).x;
+	if (text2) {
+		width += style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize(text2).x;
+	}
+	return width;
+}
+
 bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
                              std::function<std::string()> createFilter, zstring_view current,
-                             std::function<std::string(const std::string&)> displayFunc)
+                             std::function<std::string(const std::string&)> displayFunc,
+                             std::function<void()> createNewCallback)
 {
 	bool interacted = false;
 	im::ID("file", [&]{
-		interacted |= selectRecent(group, displayFunc);
+		auto width = calcButtonWidth(ICON_IGFD_FOLDER_OPEN, createNewCallback ? ICON_IGFD_ADD : nullptr);
+		interacted |= selectRecent(group, displayFunc, width);
+		if (createNewCallback) {
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_IGFD_ADD)) {
+				interacted = true;
+				createNewCallback();
+			}
+			simpleToolTip("Create new file");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
+			interacted = true;
+			manager.openFile.selectFile(
+				title,
+				createFilter(),
+				[&](const auto& fn) { group.edit.name = fn; },
+				current);
+		}
+		simpleToolTip("Browse file");
 	});
-	ImGui::SameLine();
-	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##file")) {
-		interacted = true;
-		manager.openFile.selectFile(
-			title,
-			createFilter(),
-			[&](const auto& fn) { group.edit.name = fn; },
-			current);
-	}
-	simpleToolTip("browse file");
 	return interacted;
 }
 
-bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zstring_view current)
+bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zstring_view current,
+                                 std::function<void()> createNewCallback)
 {
 	bool interacted = false;
 	im::ID("directory", [&]{
-		interacted |= selectRecent(group);
+		auto width = calcButtonWidth(ICON_IGFD_FOLDER_OPEN, createNewCallback ? ICON_IGFD_ADD : nullptr);
+		interacted |= selectRecent(group, std::identity{}, width);
+		if (createNewCallback) {
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_IGFD_ADD)) {
+				interacted = true;
+				createNewCallback();
+			}
+			simpleToolTip("Create new directory");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
+			interacted = true;
+			manager.openFile.selectDirectory(
+				title,
+				[&](const auto& fn) { group.edit.name = fn; },
+				current);
+		}
+		simpleToolTip("Browse directory");
 	});
-	ImGui::SameLine();
-	if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##dir")) {
-		interacted = true;
-		manager.openFile.selectDirectory(
-			title,
-			[&](const auto& fn) { group.edit.name = fn; },
-			current);
-	}
-	simpleToolTip("browse directory");
 	return interacted;
 }
 
@@ -1062,7 +1094,24 @@ void ImGuiMedia::diskMenu(int i)
 			im::VisuallyDisabled(info.select != SELECT_DISK_IMAGE, [&]{
 				im::Indent([&]{
 					auto& group = info.groups[SELECT_DISK_IMAGE];
-					bool interacted = selectImage(group, strCat("Select disk image for ", displayName), &diskFilter, current.getString());
+					auto createNew = [&]{
+						manager.openFile.selectNewFile(
+							"Select name for new blank disk image",
+							"Disk images (*.dsk){.dsk}",
+							[&](const auto& fn) {
+								group.edit.name = fn;
+								auto& diskManipulator = manager.getReactor().getDiskManipulator();
+								try {
+									diskManipulator.create(fn, MSXBootSectorType::DOS2, {1440});
+								} catch (MSXException& e) {
+									manager.printError("Couldn't create new disk image: ", e.getMessage());
+								}
+							},
+							current.getString());
+					};
+					bool interacted = selectImage(
+						group, strCat("Select disk image for ", displayName), &diskFilter,
+						current.getString(), std::identity{}, createNew);
 					interacted |= selectPatches(group.edit, group.patchIndex);
 					if (interacted) info.select = SELECT_DISK_IMAGE;
 				});
@@ -1070,7 +1119,24 @@ void ImGuiMedia::diskMenu(int i)
 			ImGui::RadioButton("dir as disk", &info.select, SELECT_DIR_AS_DISK);
 			im::VisuallyDisabled(info.select != SELECT_DIR_AS_DISK, [&]{
 				im::Indent([&]{
-					bool interacted = selectDirectory(info.groups[SELECT_DIR_AS_DISK], strCat("Select directory for ", displayName), current.getString());
+					auto& group = info.groups[SELECT_DIR_AS_DISK];
+					auto createNew = [&]{
+						manager.openFile.selectNewFile(
+							"Select name for new empty directory",
+							"",
+							[&](const auto& fn) {
+								group.edit.name = fn;
+								try {
+									FileOperations::mkdirp(fn);
+								} catch (MSXException& e) {
+									manager.printError("Couldn't create directory: ", e.getMessage());
+								}
+							},
+							current.getString());
+					};
+					bool interacted = selectDirectory(
+						group, strCat("Select directory for ", displayName),
+						current.getString(), createNew);
 					if (interacted) info.select = SELECT_DIR_AS_DISK;
 				});
 			});
