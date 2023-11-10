@@ -18,6 +18,8 @@ ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
 
 void ImGuiLayer::paint(OutputSurface& /*surface*/)
 {
+	manager.preNewFrame();
+
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();

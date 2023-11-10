@@ -35,6 +35,7 @@
 
 #include "checked_cast.hh"
 #include "enumerate.hh"
+#include "foreach_file.hh"
 #include "join.hh"
 #include "narrow.hh"
 #include "view.hh"
@@ -65,6 +66,8 @@ ImGuiSettings::~ImGuiSettings()
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
+	bool openOverwriteLayoutPopup = false;
+
 	im::Menu("Settings", [&]{
 		auto& reactor = manager.getReactor();
 		auto& globalSettings = reactor.getGlobalSettings();
@@ -252,6 +255,48 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			};
 			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
+		im::Menu("GUI", [&]{
+			im::Menu("Save layout ...", [&]{
+				ImGui::TextUnformatted("Enter name:"sv);
+				ImGui::InputText("##save-layout-name", &saveLayoutName);
+				ImGui::SameLine();
+				im::Disabled(saveLayoutName.empty(), [&]{
+					if (ImGui::Button("Create")) {
+						ImGui::CloseCurrentPopup();
+
+						auto filename = FileOperations::parseCommandFileArgument(
+							saveLayoutName, "layouts", "", ".ini");
+						if (FileOperations::exists(filename)) {
+							openOverwriteLayoutPopup = true;
+						} else {
+							ImGui::SaveIniSettingsToDisk(filename.c_str());
+						}
+					}
+				});
+			});
+			im::Menu("Restore layout ...", [&]{
+				ImGui::TextUnformatted("Select layout"sv);
+				im::ListBox("##select-layout", [&]{
+					std::vector<std::string> names;
+					auto context = userDataFileContext("layouts");
+					for (const auto& path : context.getPaths()) {
+						foreach_file(path, [&](const std::string& fullName, std::string_view name) {
+							if (name.ends_with(".ini")) {
+								names.emplace_back(fullName);
+							}
+						});
+					}
+					ranges::sort(names, StringOp::caseless{});
+					for (const auto& name : names) {
+						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
+						if (ImGui::Selectable(displayName.c_str())) {
+							manager.loadIniFile = name;
+							ImGui::CloseCurrentPopup();
+						}
+					}
+				});
+			});
+		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
@@ -301,6 +346,25 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	if (showDemoWindow) {
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
+
+	const auto overwriteLayoutTitle = "Confirm overwrite layout";
+	if (openOverwriteLayoutPopup) {
+		ImGui::OpenPopup(overwriteLayoutTitle);
+	}
+	im::PopupModal(overwriteLayoutTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::Text("Overwrite layout: %s", saveLayoutName.c_str());
+
+		if (ImGui::Button("Overwrite")) {
+			auto filename = FileOperations::parseCommandFileArgument(
+				saveLayoutName, "layouts", "", ".ini");
+			ImGui::SaveIniSettingsToDisk(filename.c_str());
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel")) {
+			ImGui::CloseCurrentPopup();
+		}
+	});
 }
 
 ////// joystick stuff

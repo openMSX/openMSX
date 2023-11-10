@@ -70,6 +70,7 @@ public:
 		printError(static_cast<std::string_view>(tmpStrCat(std::forward<Ts>(ts)...)));
 	}
 
+	void preNewFrame();
 	void paintImGui();
 
 private:
@@ -119,6 +120,7 @@ public:
 	ImGuiMessages messages;
 
 	bool menuFade = true;
+	std::string loadIniFile;
 
 private:
 	std::vector<std::function<void()>> delayedActionQueue;

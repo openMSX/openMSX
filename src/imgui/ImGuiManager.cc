@@ -286,6 +286,14 @@ static std::vector<std::string> getSlots(MSXMotherBoard* motherBoard)
 	return result;
 }
 
+void ImGuiManager::preNewFrame()
+{
+	if (!loadIniFile.empty()) {
+		ImGui::LoadIniSettingsFromDisk(loadIniFile.c_str());
+		loadIniFile.clear();
+	}
+}
+
 void ImGuiManager::paintImGui()
 {
 	auto* motherBoard = reactor.getMotherBoard();

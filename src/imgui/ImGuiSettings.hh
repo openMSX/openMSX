@@ -34,6 +34,8 @@ private:
 	unsigned popupForKey = unsigned(-1);
 	float popupTimeout = 0.0f;
 	bool listening = false;
+
+	std::string saveLayoutName;
 };
 
 } // namespace openmsx
