@@ -960,7 +960,7 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 			}
 			if (auto doubleSided = cmdResult->getOptionalDictValue(TclObject("doublesided"))) {
 				if (auto ds = doubleSided->getOptionalBool()) {
-					ImGui::TextUnformatted(strCat("Sides: ", *ds ? "2" : "1"));
+					ImGui::TextUnformatted(strCat(strCat(*ds ? "Double" : "Single", "-sided")));
 				}
 			}
 			if (auto size = cmdResult->getOptionalDictValue(TclObject("size"))) {
