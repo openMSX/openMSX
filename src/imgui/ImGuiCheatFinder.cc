@@ -10,6 +10,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (!show) return;
@@ -26,13 +28,13 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 		auto sWidth = 2.0f * (style.WindowBorderSize + style.WindowPadding.x)
 		              + style.IndentSpacing + 6 * tSize + 5 * bSpacing;
 		im::Child("search", {sWidth, height}, true, [&]{
-			ImGui::TextUnformatted("Search");
+			ImGui::TextUnformatted("Search"sv);
 			HelpMarker("OpenMSX cheat finder. See here for a quick tutorial:\n"
 			           "  openMSX tutorial: Working with the Cheat Finder\n"
 			           "  http://www.youtube.com/watch?v=F11ltfkCtKo\n"
 			           "The UI has changed, but the ideas remain the same.");
 			im::Disabled(searchResults.empty(), [&]{
-				ImGui::TextUnformatted("Compare");
+				ImGui::TextUnformatted("Compare"sv);
 				im::Indent([&]{
 					auto bSize = ImVec2{tSize, 0.0f};
 					if (ImGui::Button("<",  bSize)) searchExpr = "$new < $old";
@@ -53,7 +55,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 					if (ImGui::Button(">",  bSize)) searchExpr = "$new > $old";
 					simpleToolTip("Search for memory locations with strictly increased value");
 				});
-				ImGui::TextUnformatted("Specific value");
+				ImGui::TextUnformatted("Specific value"sv);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(3 * ImGui::GetFontSize());
 					ImGui::InputScalar("##value", ImGuiDataType_U8, &searchValue);
@@ -71,11 +73,11 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 		im::Child("result", {0.0f, height}, true, [&]{
 			auto num = searchResults.size();
 			if (num == 0) {
-				ImGui::TextUnformatted("Results: no remaining locations");
+				ImGui::TextUnformatted("Results: no remaining locations"sv);
 				start = ImGui::Button("Start a new search");
 			} else {
 				if (num == 1) {
-					ImGui::TextUnformatted("Results: 1 remaining location");
+					ImGui::TextUnformatted("Results: 1 remaining location"sv);
 				} else {
 					ImGui::Text("Results: %d remaining locations", narrow<int>(num));
 				}

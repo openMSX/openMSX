@@ -15,6 +15,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
 	auto docDir = FileOperations::getSystemDocDir();
@@ -61,10 +63,10 @@ void ImGuiHelp::paintAbout()
 			ImGui::Text("flavour:    %s", BUILD_FLAVOUR);
 			ImGui::Text("components: %s", BUILD_COMPONENTS);
 			ImGui::Spacing();
-			ImGui::TextUnformatted("license: GPL2");
+			ImGui::TextUnformatted("license: GPL2"sv);
 			ImGui::Text("%s The openMSX Team", Version::COPYRIGHT);
 
-			ImGui::TextUnformatted("Visit our website:");
+			ImGui::TextUnformatted("Visit our website:"sv);
 			ImGui::SameLine();
 			drawURL("openMSX.org", "https://openmsx.org");
 		});

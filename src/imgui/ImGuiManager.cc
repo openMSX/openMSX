@@ -29,6 +29,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 static void initializeImGui()
 {
 	// Setup Dear ImGui context
@@ -446,7 +448,7 @@ void ImGuiManager::paintImGui()
 		ImGui::Separator();
 
 		if (!romInfo) {
-			ImGui::TextUnformatted("ROM not present in software database");
+			ImGui::TextUnformatted("ROM not present in software database"sv);
 		}
 		im::Table("##extension-info", 2, [&]{
 			const char* buf = reactor.getSoftwareDatabase().getBufferStart();
@@ -458,7 +460,7 @@ void ImGuiManager::paintImGui()
 			}
 			if (ImGui::TableNextColumn()) {
 				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("Mapper");
+				ImGui::TextUnformatted("Mapper"sv);
 			}
 			if (ImGui::TableNextColumn()) {
 				ImGuiMedia::selectMapperType("##mapper-type", selectedRomType);
@@ -468,7 +470,7 @@ void ImGuiManager::paintImGui()
 
 		if (selectList.size() > 1) {
 			const auto& slotManager = motherBoard->getSlotManager();
-			ImGui::TextUnformatted("Select cartridge slot");
+			ImGui::TextUnformatted("Select cartridge slot"sv);
 			auto n = std::min(3.5f, narrow<float>(selectList.size()));
 			auto height = n * ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y;
 			im::ListBox("##select-media", {-FLT_MIN, height}, [&]{

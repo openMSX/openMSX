@@ -23,6 +23,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 ImGuiSpriteViewer::ImGuiSpriteViewer(ImGuiManager& manager_)
 	: manager(manager_)
 {
@@ -257,7 +259,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 				});
 
-				ImGui::TextUnformatted("Checkerboard:");
+				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
 				ImGui::SameLine();
 				ImGui::ColorEdit4("checkerboard color1", &checkerBoardColor1[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
@@ -392,7 +394,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			auto fullSize = zoomSize * gl::vec2(8, 4);
 			im::Child("##attrib", {0, fullSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
 				if (mode == 0) {
-					ImGui::TextUnformatted("No sprites in this screen mode");
+					ImGui::TextUnformatted("No sprites in this screen mode"sv);
 				} else {
 					gl::vec2 topLeft = ImGui::GetCursorPos();
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
@@ -445,7 +447,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							} else {
 								int colorBase = getSpriteColorAddr(attBase, sprite, mode);
 								im::StyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1), [&]{ // Tighten spacing
-									ImGui::TextUnformatted("Colors per line (hex):");
+									ImGui::TextUnformatted("Colors per line (hex):"sv);
 									for (auto y : xrange(4)) {
 										for (auto x : xrange(4)) {
 											auto line = 4 * y + x;

@@ -840,7 +840,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 							simpleToolTip(toGuiString(*parseBooleanInput(binding)));
 							if (bindingIndex < lastBindingIndex) {
 								ImGui::SameLine();
-								ImGui::TextUnformatted("|");
+								ImGui::TextUnformatted("|"sv);
 								ImGui::SameLine();
 							}
 							++bindingIndex;

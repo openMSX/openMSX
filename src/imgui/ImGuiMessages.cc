@@ -240,12 +240,12 @@ void ImGuiMessages::paintConfigure()
 
 				//ImGui::TableHeadersRow(); // don't want a colored header row
 				if (ImGui::TableNextColumn()) {}
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Error");
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Warning");
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Info");
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Error"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Warning"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Info"sv);
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Show modal popup");
+					ImGui::TextUnformatted("Show modal popup"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
@@ -257,7 +257,7 @@ void ImGuiMessages::paintConfigure()
 				}
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Show non-modal popup");
+					ImGui::TextUnformatted("Show non-modal popup"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
@@ -269,7 +269,7 @@ void ImGuiMessages::paintConfigure()
 				}
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Open log window and focus");
+					ImGui::TextUnformatted("Open log window and focus"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
@@ -281,7 +281,7 @@ void ImGuiMessages::paintConfigure()
 				}
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Open log window, without focus");
+					ImGui::TextUnformatted("Open log window, without focus"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {

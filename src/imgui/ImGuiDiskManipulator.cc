@@ -29,6 +29,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 ImGuiDiskManipulator::ImGuiDiskManipulator(ImGuiManager& manager_)
 	: manager(manager_)
 {
@@ -438,7 +440,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				if (!writable) strAppend(status, ", read-only");
 				ImGui::TextUnformatted(status);
 			} else {
-				ImGui::TextUnformatted("No (valid) disk inserted");
+				ImGui::TextUnformatted("No (valid) disk inserted"sv);
 			}
 		});
 
@@ -510,7 +512,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		}
 		im::PopupModal(renameTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 			bool close = false;
-			ImGui::TextUnformatted("from:");
+			ImGui::TextUnformatted("from:"sv);
 			ImGui::SameLine();
 			ImGui::TextUnformatted(renameFrom);
 			ImGui::Text("to:");
@@ -555,15 +557,15 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				});
 			};
 			if (!existingFiles.empty()) {
-				ImGui::TextUnformatted("These files already exist and will be overwritten");
+				ImGui::TextUnformatted("These files already exist and will be overwritten"sv);
 				printList("##files", existingFiles);
 			}
 			if (!existingDirs.empty()) {
-				ImGui::TextUnformatted("These directories already exist and will be overwritten");
+				ImGui::TextUnformatted("These directories already exist and will be overwritten"sv);
 				printList("##dirs", existingDirs);
 			}
 			if (!duplicateEntries.empty()) {
-				ImGui::TextUnformatted("These host entries will map to the same MSX entry");
+				ImGui::TextUnformatted("These host entries will map to the same MSX entry"sv);
 				im::ListBox("##duplicates", {0.0f, 4.5f * ImGui::GetTextLineHeightWithSpacing()}, [&]{
 					for (const auto& [msxName, hostEntries] : duplicateEntries) {
 						ImGui::Text("%s:", msxName.c_str());
@@ -611,7 +613,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		}
 		p_open = true;
 		im::PopupModal(newMsxDirTitle, &p_open, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-			ImGui::TextUnformatted("Create new directory in:");
+			ImGui::TextUnformatted("Create new directory in:"sv);
 			ImGui::TextUnformatted(driveDisplayName(selectedDrive));
 			ImGui::TextUnformatted(msxDir);
 			bool close = false;
@@ -643,7 +645,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		}
 		p_open = true;
 		im::PopupModal(newHostDirTitle, &p_open, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-			ImGui::TextUnformatted("Create new directory in:");
+			ImGui::TextUnformatted("Create new directory in:"sv);
 			ImGui::TextUnformatted(hostDir);
 			bool close = false;
 			bool ok = ImGui::InputText("##hostPath", &editModal, ImGuiInputTextFlags_EnterReturnsTrue);

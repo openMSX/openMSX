@@ -14,6 +14,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void ImGuiTrainer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -47,7 +49,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 
 	ImGui::SetNextWindowSize(gl::vec2{28, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Trainer Selector", &show, ImGuiWindowFlags_HorizontalScrollbar, [&]{
-		ImGui::TextUnformatted("Select Game:");
+		ImGui::TextUnformatted("Select Game:"sv);
 		zstring_view displayName = activeGame.getString();
 		if (displayName.empty()) displayName = "none";
 		bool useFilter = im::TreeNode("filter", [&]{
@@ -87,7 +89,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 
 		im::Disabled(activeGame.getString().empty(), [&]{
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted("Select Cheats:");
+			ImGui::TextUnformatted("Select Cheats:"sv);
 			ImGui::SameLine();
 			all = ImGui::Button("All");
 			ImGui::SameLine();

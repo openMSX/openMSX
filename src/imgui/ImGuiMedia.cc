@@ -492,7 +492,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
 			im::Menu("Insert", [&]{
-				ImGui::TextUnformatted("Select extension to insert in the first free slot");
+				ImGui::TextUnformatted("Select extension to insert in the first free slot"sv);
 				HelpMarker("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. "
 				           "These can only be removed via the 'Media > Extensions > Remove' menu. "
 				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
@@ -707,7 +707,7 @@ static TclObject getPatches(const TclObject& cmdResult)
 static void printPatches(const TclObject& patches)
 {
 	if (!patches.empty()) {
-		ImGui::TextUnformatted("IPS patches:");
+		ImGui::TextUnformatted("IPS patches:"sv);
 		im::Indent([&]{
 			for (const auto& patch : patches) {
 				ImGui::TextUnformatted(patch);
@@ -974,7 +974,7 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 			}
 			if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
 				if (auto b = ro->getOptionalBool(); b && *b) {
-					ImGui::TextUnformatted("Read-only");
+					ImGui::TextUnformatted("Read-only"sv);
 				}
 			}
 			if (auto doubleSided = cmdResult->getOptionalDictValue(TclObject("doublesided"))) {
@@ -1044,7 +1044,7 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
 		if (ImGui::TableNextColumn()) {
-			ImGui::TextUnformatted("Filename");
+			ImGui::TextUnformatted("Filename"sv);
 		}
 		if (ImGui::TableNextColumn()) {
 			ImGui::TextUnformatted(leftClip(filename, ImGui::GetContentRegionAvail().x));
@@ -1076,7 +1076,7 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 			}
 		}
 		if (ImGui::TableNextColumn()) {
-			ImGui::TextUnformatted("Mapper");
+			ImGui::TextUnformatted("Mapper"sv);
 		}
 		if (ImGui::TableNextColumn()) {
 			ImGui::TextUnformatted(mapperStr);
@@ -1366,13 +1366,13 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 	auto& info = cassetteMediaInfo;
 	auto& group = info.group;
 	im::Window("Tape Deck", &info.show, [&]{
-		ImGui::TextUnformatted("Current tape");
+		ImGui::TextUnformatted("Current tape"sv);
 		auto current = cmdResult.getListIndexUnchecked(1).getString();
 		im::Indent([&]{
 			if (current.empty()) {
-				ImGui::TextUnformatted("No tape inserted");
+				ImGui::TextUnformatted("No tape inserted"sv);
 			} else {
-				ImGui::TextUnformatted("Tape image:");
+				ImGui::TextUnformatted("Tape image:"sv);
 				ImGui::SameLine();
 				ImGui::TextUnformatted(leftClip(current, ImGui::GetContentRegionAvail().x));
 			}
@@ -1384,7 +1384,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 		});
 		ImGui::Separator();
 
-		ImGui::TextUnformatted("Controls");
+		ImGui::TextUnformatted("Controls"sv);
 		im::Indent([&]{
 			auto status = cmdResult.getListIndexUnchecked(2).getString();
 			auto size = ImGui::GetFrameHeightWithSpacing();
