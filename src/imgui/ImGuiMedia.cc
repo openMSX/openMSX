@@ -958,6 +958,16 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 					ImGui::TextUnformatted("Read-only");
 				}
 			}
+			if (auto doubleSided = cmdResult->getOptionalDictValue(TclObject("doublesided"))) {
+				if (auto ds = doubleSided->getOptionalBool()) {
+					ImGui::TextUnformatted(strCat("Sides: ", *ds ? "2" : "1"));
+				}
+			}
+			if (auto size = cmdResult->getOptionalDictValue(TclObject("size"))) {
+				if (auto sz = size->getOptionalInt()) {
+					ImGui::TextUnformatted(strCat("Size: ", int(*sz/1024), "kB"));
+				}
+			}
 			printPatches(currentPatches);
 		}
 	});

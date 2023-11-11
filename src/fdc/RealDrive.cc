@@ -90,7 +90,9 @@ void RealDrive::getMediaInfo(TclObject& result)
 	}();
 	result.addDictKeyValues("target", changer->getDiskName().getResolved(),
 	                        "type", typeStr,
-	                        "readonly", changer->getDisk().isWriteProtected());
+	                        "readonly", changer->getDisk().isWriteProtected(),
+	                        "doublesided", changer->getDisk().isDoubleSided(),
+	                        "size", int(changer->getDisk().getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE));
 	if (auto* disk = changer->getSectorAccessibleDisk()) {
 		TclObject patches;
 		patches.addListElements(view::transform(disk->getPatches(), [](auto& p) {
