@@ -975,20 +975,27 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 				ImGui::TextUnformatted(leftClip(currentTarget.getString(),
 				                       ImGui::GetContentRegionAvail().x));
 			}
+			std::string statusLine;
+			auto add = [&](std::string_view s) {
+				if (statusLine.empty()) {
+					statusLine = s;
+				} else {
+					strAppend(statusLine, ", ", s);
+				}
+			};
 			if (auto ro = cmdResult->getOptionalDictValue(TclObject("readonly"))) {
-				if (auto b = ro->getOptionalBool(); b && *b) {
-					ImGui::TextUnformatted("Read-only"sv);
+				if (ro->getOptionalBool().value_or(false)) {
+					add("read-only");
 				}
 			}
 			if (auto doubleSided = cmdResult->getOptionalDictValue(TclObject("doublesided"))) {
-				if (auto ds = doubleSided->getOptionalBool()) {
-					ImGui::TextUnformatted(strCat(strCat(*ds ? "Double" : "Single", "-sided")));
-				}
+				add(doubleSided->getOptionalBool().value_or(true) ? "double-sided" : "single-sided");
 			}
 			if (auto size = cmdResult->getOptionalDictValue(TclObject("size"))) {
-				if (auto sz = size->getOptionalInt()) {
-					ImGui::TextUnformatted(strCat("Size: ", int(*sz/1024), "kB"));
-				}
+				add(tmpStrCat(size->getOptionalInt().value_or(0) / 1024, "kB"));
+			}
+			if (!statusLine.empty()) {
+				ImGui::TextUnformatted(statusLine);
 			}
 			printPatches(currentPatches);
 		}
