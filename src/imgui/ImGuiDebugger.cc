@@ -601,26 +601,22 @@ void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuT
 			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
-			ImGuiListClipper clipper; // only draw the actually visible rows
-			clipper.Begin(std::min(128, (0x10000 - sp) / 2));
-			while (clipper.Step()) {
-				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
-					auto offset = 2 * row;
-					auto addr = sp + offset;
-					if (ImGui::TableNextColumn()) { // address
-						ImGui::StrCat(hex_string<4>(addr));
-					}
-					if (ImGui::TableNextColumn()) { // offset
-						ImGui::Text("SP+%X", offset);
-					}
-					if (ImGui::TableNextColumn()) { // value
-						auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
-						auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
-						auto value = narrow<uint16_t>(256 * h + l);
-						ImGui::StrCat(hex_string<4>(value));
-					}
+			im::ListClipper(std::min(128, (0x10000 - sp) / 2), [&](int row) {
+				auto offset = 2 * row;
+				auto addr = sp + offset;
+				if (ImGui::TableNextColumn()) { // address
+					ImGui::StrCat(hex_string<4>(addr));
 				}
-			}
+				if (ImGui::TableNextColumn()) { // offset
+					ImGui::Text("SP+%X", offset);
+				}
+				if (ImGui::TableNextColumn()) { // value
+					auto l = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 0), time);
+					auto h = cpuInterface.peekMem(narrow_cast<uint16_t>(addr + 1), time);
+					auto value = narrow<uint16_t>(256 * h + l);
+					ImGui::StrCat(hex_string<4>(value));
+				}
+			});
 		});
 	});
 }

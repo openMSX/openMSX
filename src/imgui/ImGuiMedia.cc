@@ -487,22 +487,18 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				float width = 40.0f * ImGui::GetFontSize();
 				float height = 10.25f * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##list", {width, height}, [&]{
-					ImGuiListClipper clipper;
-					clipper.Begin(narrow<int>(filteredExtensions.size()));
-					while (clipper.Step()) {
-						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-							auto& ext = allExtensions[filteredExtensions[i]];
-							bool ok = getTestResult(ext).empty();
-							im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
-								if (ImGui::Selectable(ext.displayName.c_str())) {
-									group.edit.name = ext.configName;
-									insertMedia(mediaName, group);
-									ImGui::CloseCurrentPopup();
-								}
-								extensionTooltip(ext);
-							});
-						}
-					}
+					im::ListClipper(filteredExtensions.size(), [&](int i) {
+						auto& ext = allExtensions[filteredExtensions[i]];
+						bool ok = getTestResult(ext).empty();
+						im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+							if (ImGui::Selectable(ext.displayName.c_str())) {
+								group.edit.name = ext.configName;
+								insertMedia(mediaName, group);
+								ImGui::CloseCurrentPopup();
+							}
+							extensionTooltip(ext);
+						});
+					});
 				});
 			});
 
@@ -1234,24 +1230,20 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 						applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
 						applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
 
-						ImGuiListClipper clipper;
-						clipper.Begin(narrow<int>(filteredExtensions.size()));
-						while (clipper.Step()) {
-							for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-								auto& ext = allExtensions[filteredExtensions[i]];
-								bool ok = getTestResult(ext).empty();
-								im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
-									if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
-										interacted = true;
-										item.name = ext.configName;
-									}
-									if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-										insertMedia(extName, group); // Apply
-									}
-									extensionTooltip(ext);
-								});
-							}
-						}
+						im::ListClipper(filteredExtensions.size(), [&](int i) {
+							auto& ext = allExtensions[filteredExtensions[i]];
+							bool ok = getTestResult(ext).empty();
+							im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+								if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
+									interacted = true;
+									item.name = ext.configName;
+								}
+								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+									insertMedia(extName, group); // Apply
+								}
+								extensionTooltip(ext);
+							});
+						});
 					};
 					if (filterOpen) {
 						im::ListBox("##list", [&]{

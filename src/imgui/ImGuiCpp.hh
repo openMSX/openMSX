@@ -509,6 +509,33 @@ inline void VisuallyDisabled(bool b, std::invocable<> auto next)
 	}
 }
 
+// im::ListClipper: wrapper around ImGuiListClipper
+// hides the typical nested loop
+inline void ListClipper(size_t count, std::invocable<int> auto next)
+{
+	ImGuiListClipper clipper; // only draw the actually visible lines
+	clipper.Begin(narrow<int>(count));
+	while (clipper.Step()) {
+		for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
+			next(i);
+		}
+	}
+}
+
+// im::ListClipperID: combination of im::ListClipper() and im::ID()
+inline void ListClipperID(size_t count, std::invocable<int> auto next)
+{
+	ImGuiListClipper clipper; // only draw the actually visible lines
+	clipper.Begin(narrow<int>(count));
+	while (clipper.Step()) {
+		for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
+			ImGui::PushID(i);
+			next(i);
+			ImGui::PopID();
+		}
+	}
+}
+
 } // namespace im
 
 #endif

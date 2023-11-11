@@ -138,13 +138,9 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 			});
 
 			im::StyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1), [&]{ // Tighten spacing
-				ImGuiListClipper clipper; // only draw the actually visible lines
-				clipper.Begin(narrow<int>(lines.size()));
-				while (clipper.Step()) {
-					for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
-						drawLine(lines[i]);
-					}
-				}
+				im::ListClipper(lines.size(), [&](int i) {
+					drawLine(lines[i]);
+				});
 			});
 
 			// Keep up at the bottom of the scroll region if we were already

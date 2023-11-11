@@ -165,26 +165,22 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
 				applyDisplayNameFilter(filterString, allMachines, filteredMachines);
 
-				ImGuiListClipper clipper; // only draw the actually visible rows
-				clipper.Begin(narrow<int>(filteredMachines.size()));
-				while (clipper.Step()) {
-					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-						auto idx = filteredMachines[i];
-						auto& info = allMachines[idx];
-						bool ok = getTestResult(info).empty();
-						im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
-							if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
-								newMachineConfig = info.configName;
-								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-									manager.executeDelayed(makeTclList("machine", newMachineConfig));
-								}
+				im::ListClipper(filteredMachines.size(), [&](int i) {
+					auto idx = filteredMachines[i];
+					auto& info = allMachines[idx];
+					bool ok = getTestResult(info).empty();
+					im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+						if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+							newMachineConfig = info.configName;
+							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+								manager.executeDelayed(makeTclList("machine", newMachineConfig));
 							}
-							im::ItemTooltip([&]{
-								printConfigInfo(info);
-							});
+						}
+						im::ItemTooltip([&]{
+							printConfigInfo(info);
 						});
-					}
-				}
+					});
+				});
 			});
 		});
 		ImGui::Separator();
@@ -237,16 +233,12 @@ void ImGuiMachine::paintTestHardware()
 
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			im::ListBox("##workingList", listSize, [&]{
-				ImGuiListClipper clipper;
-				clipper.Begin(n);
-				while (clipper.Step()) {
-					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-						auto& info = infos[indices[i]];
-						ImGui::TextUnformatted(info.displayName);
-						assert(info.testResult);
-						simpleToolTip(*info.testResult);
-					}
-				}
+				im::ListClipper(n, [&](int i) {
+					auto& info = infos[indices[i]];
+					ImGui::TextUnformatted(info.displayName);
+					assert(info.testResult);
+					simpleToolTip(*info.testResult);
+				});
 			});
 		};
 

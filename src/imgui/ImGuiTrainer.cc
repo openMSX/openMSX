@@ -57,22 +57,18 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 			           "For example: enter 'vamp' to search for 'Akumajyo Drakyula - Vampire Killer'.");
 		});
 		auto drawGameNames = [&](size_t num, auto getName) {
-			ImGuiListClipper clipper; // only draw the actually visible names
-			clipper.Begin(narrow<int>(1 + num));
-			while (clipper.Step()) {
-				for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-					if (i == 0) {
-						if (ImGui::Selectable("none", displayName == "none")) {
-							newGame = "deactivate";
-						}
-					} else {
-						auto name = getName(size_t(i - 1));
-						if (ImGui::Selectable(name.c_str(), name == displayName)) {
-							newGame = name;
-						}
+			im::ListClipper(1 + num, [&](int i) {
+				if (i == 0) {
+					if (ImGui::Selectable("none", displayName == "none")) {
+						newGame = "deactivate";
+					}
+				} else {
+					auto name = getName(size_t(i - 1));
+					if (ImGui::Selectable(name.c_str(), name == displayName)) {
+						newGame = name;
 					}
 				}
-			}
+			});
 		};
 		auto getGameName = [&](size_t i) { return gameNames[i]; };
 		if (useFilter) {

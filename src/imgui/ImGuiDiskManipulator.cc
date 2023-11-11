@@ -203,73 +203,67 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(std::vector<FileInf
 	checkSort(files, forceSort);
 
 	Action result = Nop{};
-	ImGuiListClipper clipper; // only draw the actually visible lines
-	clipper.Begin(narrow<int>(files.size()));
-	while (clipper.Step()) {
-		for (int i : xrange(clipper.DisplayStart, clipper.DisplayEnd)) {
-			im::ID(i, [&]{
-				auto& file = files[i];
-				if (ImGui::TableNextColumn()) { // filename
-					auto pos = ImGui::GetCursorPos();
-					if (ImGui::Selectable("##row", file.isSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | ImGuiSelectableFlags_AllowDoubleClick)) {
-						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-							result = ChangeDir{file.filename};
-						} else {
-							bool ctrl     = ImGui::IsKeyDown(ImGuiKey_LeftCtrl ) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
-							bool shiftKey = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
-							bool shift = shiftKey && (lastClickIdx != -1);
-							if (ctrl && shift) {
-								selectRange(i, lastClickIdx);
-							} else if (ctrl) {
-								file.isSelected = !file.isSelected;
-								lastClickIdx = i;
-							} else if (shift) {
-								clearSelection();
-								selectRange(i, lastClickIdx);
-							} else {
-								clearSelection();
-								file.isSelected = true;
-								lastClickIdx = i;
-							}
-						}
-					}
-					if (msxSide && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-						ImGui::OpenPopup("table-context");
-					}
-					im::Popup("table-context", [&]{
-						ImGui::TextUnformatted(file.isDirectory ? "Directory:" : "File:");
-						ImGui::SameLine();
-						ImGui::TextUnformatted(file.filename);
-						ImGui::Separator();
-
-						if (ImGui::Selectable("Delete")) {
-							result = Delete{file.filename};
-						}
-						if (ImGui::Selectable("Rename ...")) {
-							result = Rename{file.filename};
-						}
-					});
-
-					ImGui::SetCursorPos(pos);
-
-					ImGui::Text("%s %s",
-						file.isDirectory ? ICON_IGFD_FOLDER_OPEN : ICON_IGFD_FILE,
-						file.filename.c_str());
-				}
-				if (ImGui::TableNextColumn()) { // size
-					if (!file.isDirectory) {
-						ImGui::Text("%zu", file.size);
+	im::ListClipperID(files.size(), [&](int i) {
+		auto& file = files[i];
+		if (ImGui::TableNextColumn()) { // filename
+			auto pos = ImGui::GetCursorPos();
+			if (ImGui::Selectable("##row", file.isSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | ImGuiSelectableFlags_AllowDoubleClick)) {
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					result = ChangeDir{file.filename};
+				} else {
+					bool ctrl     = ImGui::IsKeyDown(ImGuiKey_LeftCtrl ) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
+					bool shiftKey = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
+					bool shift = shiftKey && (lastClickIdx != -1);
+					if (ctrl && shift) {
+						selectRange(i, lastClickIdx);
+					} else if (ctrl) {
+						file.isSelected = !file.isSelected;
+						lastClickIdx = i;
+					} else if (shift) {
+						clearSelection();
+						selectRange(i, lastClickIdx);
+					} else {
+						clearSelection();
+						file.isSelected = true;
+						lastClickIdx = i;
 					}
 				}
-				if (ImGui::TableNextColumn()) { // modified
-					ImGui::TextUnformatted(Date::toString(file.modified));
+			}
+			if (msxSide && ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+				ImGui::OpenPopup("table-context");
+			}
+			im::Popup("table-context", [&]{
+				ImGui::TextUnformatted(file.isDirectory ? "Directory:" : "File:");
+				ImGui::SameLine();
+				ImGui::TextUnformatted(file.filename);
+				ImGui::Separator();
+
+				if (ImGui::Selectable("Delete")) {
+					result = Delete{file.filename};
 				}
-				if (msxSide && ImGui::TableNextColumn()) { // attrib
-					ImGui::TextUnformatted(DiskImageUtils::formatAttrib(file.attrib));
+				if (ImGui::Selectable("Rename ...")) {
+					result = Rename{file.filename};
 				}
 			});
+
+			ImGui::SetCursorPos(pos);
+
+			ImGui::Text("%s %s",
+				file.isDirectory ? ICON_IGFD_FOLDER_OPEN : ICON_IGFD_FILE,
+				file.filename.c_str());
 		}
-	}
+		if (ImGui::TableNextColumn()) { // size
+			if (!file.isDirectory) {
+				ImGui::Text("%zu", file.size);
+			}
+		}
+		if (ImGui::TableNextColumn()) { // modified
+			ImGui::TextUnformatted(Date::toString(file.modified));
+		}
+		if (msxSide && ImGui::TableNextColumn()) { // attrib
+			ImGui::TextUnformatted(DiskImageUtils::formatAttrib(file.attrib));
+		}
+	});
 	return result;
 }
 
