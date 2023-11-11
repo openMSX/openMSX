@@ -13,6 +13,7 @@
 #include "HardwareConfig.hh"
 #include "HD.hh"
 #include "IDECDROM.hh"
+#include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
 #include "MSXRomCLI.hh"
 #include "Reactor.hh"
@@ -269,7 +270,25 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 			// don't create extra mb while drawing
 			try {
 				MSXMotherBoard mb(reactor);
-				mb.loadMachine("C-BIOS_MSX1");
+				// Non C-BIOS machine (see below) might e.g.
+				// generate warnings about conflicting IO ports.
+				mb.getMSXCliComm().setSuppressMessages(true);
+				try {
+					mb.loadMachine("C-BIOS_MSX1");
+				} catch (MSXException& e1) {
+					// Incomplete installation!! Missing C-BIOS machines!
+					// Do a minimal attempt to recover.
+					try {
+						if (auto* current = reactor.getMotherBoard()) {
+							mb.loadMachine(std::string(current->getMachineName()));
+						} else {
+							throw e1;
+						}
+					} catch (MSXException&) {
+						// if this also fails, then prefer the original error
+						throw e1;
+					}
+				}
 				auto ext = mb.loadExtension(info.configName, "any");
 				mb.insertExtension(info.configName, std::move(ext));
 				assert(info.testResult->empty());
