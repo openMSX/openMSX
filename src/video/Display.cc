@@ -463,21 +463,24 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 
 string Display::ScreenShotCmd::help(std::span<const TclObject> /*tokens*/) const
 {
-	// Note: -no-sprites option is implemented in Tcl
+	// Note: -no-sprites and -guess-name options are implemented in Tcl.
+	// TODO: find a way to extend the help and completion for a command
+	// when extending it in Tcl
 	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
 	       "screenshot <filename>        Write screenshot to indicated file\n"
 	       "screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
 	       "screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
 	       "screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
 	       "screenshot -with-osd         Include OSD elements in the screenshot\n"
-	       "screenshot -no-sprites       Don't include sprites in the screenshot\n";
+	       "screenshot -no-sprites       Don't include sprites in the screenshot\n"
+	       "screenshot -guess-name       Guess the name of the running software and use it as prefix\n";
 }
 
 void Display::ScreenShotCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {
-		"-prefix"sv, "-raw"sv, "-doublesize"sv, "-with-osd"sv, "-no-sprites"sv,
+		"-prefix"sv, "-raw"sv, "-doublesize"sv, "-with-osd"sv, "-no-sprites"sv, "-guess-name"sv,
 	};
 	completeFileName(tokens, userFileContext(), extra);
 }
