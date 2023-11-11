@@ -78,8 +78,10 @@ private:
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
 	void mkdir(DriveSettings& driveData, std::string_view filename);
 	[[nodiscard]] std::string dir(DriveSettings& driveData);
+	[[nodiscard]] std::string deleteEntry(DriveSettings& driveData, std::string_view entry);
+	[[nodiscard]] std::string rename(DriveSettings& driveData, std::string_view oldName, std::string_view newName);
 	std::string import(DriveSettings& driveData,
-	                   std::span<const TclObject> lists);
+	                   std::span<const TclObject> lists, bool overwrite);
 	void exprt(DriveSettings& driveData, std::string_view dirname,
 	           std::span<const TclObject> lists);
 

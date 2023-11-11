@@ -1,4 +1,5 @@
 #include "DiskManipulator.hh"
+
 #include "DiskContainer.hh"
 #include "MSXtar.hh"
 #include "DiskImageUtils.hh"
@@ -17,7 +18,9 @@
 #include "MSXMotherBoard.hh"
 #include "MSXPPI.hh"
 #include "Keyboard.hh"
+
 #include "StringOp.hh"
+#include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -27,6 +30,7 @@
 #include "strCat.hh"
 #include "view.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <cctype>
@@ -275,7 +279,8 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 	}
 
 	string_view subCmd = tokens[1].getString();
-	if (((tokens.size() != 4)                     && (subCmd == one_of("savedsk", "mkdir"))) ||
+	if (((tokens.size() != 4)                     && (subCmd == one_of("savedsk", "mkdir", "delete"))) ||
+	    ((tokens.size() != 5)                     && (subCmd ==        "rename"          ))  ||
 	    ((tokens.size() != 3)                     && (subCmd ==        "dir"             ))  ||
 	    ((tokens.size() < 3 || tokens.size() > 4) && (subCmd ==        "chdir"           ))  ||
 	    ((tokens.size() < 3 || tokens.size() > 5) && (subCmd ==        "format"          ))  ||
@@ -298,10 +303,13 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 
 	} else if (subCmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
-		// Workaround clang-13/libc++ bug
-		//std::span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
-		std::span<const TclObject> lists(&*(std::begin(tokens) + 3), std::end(tokens) - (std::begin(tokens) + 3));
-		result = import(settings, lists);
+
+		bool overwrite = false;
+		std::array info = {flagArg("-overwrite", overwrite)};
+		auto lists = parseTclArgs(getInterpreter(), tokens.subspan(3), info);
+		if (lists.empty()) throw SyntaxError();
+
+		result = import(settings, lists, overwrite);
 
 	} else if (subCmd == "savedsk") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -333,6 +341,14 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		auto& settings = getDriveSettings(tokens[2].getString());
 		result = dir(settings);
 
+	} else if (subCmd == "delete") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		result = deleteEntry(settings, tokens[3].getString());
+
+	} else if (subCmd == "rename") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		result = rename(settings, tokens[3].getString(), tokens[4].getString());
+
 	} else {
 		throw CommandException("Unknown subcommand: ", subCmd);
 	}
@@ -344,9 +360,10 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	if (tokens.size() >= 2) {
 	  if (tokens[1] == "import") {
 	  helpText =
-	    "diskmanipulator import <disk name> <host directory|host file>\n"
+	    "diskmanipulator import <disk name> [-overwrite] <host directory|host file>\n"
 	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
-	    "current MSX subdirectory as was specified with the last chdir command.\n";
+	    "current MSX subdirectory as was specified with the last chdir command.\n"
+	    "By default already existing entries are not overwritten, unless the -overwrite option is used.";
 	  } else if (tokens[1] == "export") {
 	  helpText =
 	    "diskmanipulator export <disk name> <host directory>\n"
@@ -398,6 +415,18 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	  helpText =
 	    "diskmanipulator dir <disk name>\n"
 	    "Shows the content of the current directory on <disk name>\n";
+	  } else if (tokens[1] == "delete") {
+	  helpText =
+	    "diskmanipulator delete <disk name> <MSX entry>\n"
+	    "Delete the given entry (a file or a directory) from disk, freeing up disk space.\n"
+	    "The entry is searched in the directory specified with the chdir command.\n"
+	    "In case of a directory (recursively) also all entries in that directory are deleted.\n";
+	  } else if (tokens[1] == "rename") {
+	  helpText =
+	    "diskmanipulator rename <disk name> <old> <new>\n"
+	    "Search the entry (file or directory) with name <old> and give it the name <new>.\n"
+	    "The entry is searched in the directory specified with the chdir command.\n"
+	    "The new name may not already exist.\n";
 	  } else {
 	  helpText = strCat("Unknown diskmanipulator subcommand: ", tokens[1].getString());
 	  }
@@ -414,6 +443,8 @@ string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "                                               directory on <disk name>\n"
 	    "diskmanipulator import <disk> <dir/file> ... : import files and subdirs from <dir/file>\n"
 	    "diskmanipulator export <disk> <host dir>     : export all files on <disk> to <host dir>\n"
+	    "diskmanipulator delete <disk> <MSX entry>    : delete the specified file or directory\n"
+	    "diskmanipulator rename <disk> <old> <new>    : rename file or directory from <old> to <new>\n"
 	    "For more info use 'help diskmanipulator <subcommand>'.\n";
 	}
 	return helpText;
@@ -425,7 +456,8 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		static constexpr std::array cmds = {
 			"import"sv, "export"sv, "savedsk"sv, "dir"sv, "create"sv,
-			"partition"sv, "format"sv, "chdir"sv, "mkdir"sv,
+			"partition"sv, "format"sv, "chdir"sv, "mkdir"sv, "delete"sv,
+			"rename"sv
 		};
 		completeString(tokens, cmds);
 
@@ -467,7 +499,9 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 
 	} else if (tokens.size() >= 4) {
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
-			completeFileName(tokens, userFileContext());
+			static constexpr std::array extra = {"-overwrite"sv};
+			completeFileName(tokens, userFileContext(),
+				(tokens[1] == "import") ? extra : std::span<const std::string_view>{});
 		} else if (tokens[1] == one_of("create", "partition", "format")) {
 			static constexpr std::array cmds = {
 				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv, "-nextor"sv,
@@ -622,6 +656,20 @@ string DiskManipulator::dir(DriveSettings& driveData)
 	return workhorse.dir();
 }
 
+std::string DiskManipulator::deleteEntry(DriveSettings& driveData, std::string_view entry)
+{
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(partition, driveData);
+	return workhorse.deleteItem(entry);
+}
+
+std::string DiskManipulator::rename(DriveSettings& driveData, std::string_view oldName, std::string_view newName)
+{
+	auto partition = getPartition(driveData);
+	auto workhorse = getMSXtar(partition, driveData);
+	return workhorse.renameItem(oldName, newName);
+}
+
 string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 {
 	auto partition = getPartition(driveData);
@@ -655,13 +703,15 @@ void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 }
 
 string DiskManipulator::import(DriveSettings& driveData,
-                               std::span<const TclObject> lists)
+                               std::span<const TclObject> lists, bool overwrite)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(partition, driveData);
 
 	string messages;
 	auto& interp = getInterpreter();
+	auto add = overwrite ? MSXtar::Add::OVERWRITE
+	                     : MSXtar::Add::PRESERVE;
 	for (const auto& l : lists) {
 		for (auto i : xrange(l.getListLength(interp))) {
 			auto s = FileOperations::expandTilde(string(l.getListIndex(interp, i).getString()));
@@ -671,9 +721,9 @@ string DiskManipulator::import(DriveSettings& driveData,
 					throw CommandException("Non-existing file ", s);
 				}
 				if (FileOperations::isDirectory(*st)) {
-					messages += workhorse.addDir(s, MSXtar::Add::PRESERVE);
+					messages += workhorse.addDir(s, add);
 				} else if (FileOperations::isRegularFile(*st)) {
-					messages += workhorse.addFile(s, MSXtar::Add::PRESERVE);
+					messages += workhorse.addFile(s, add);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');
