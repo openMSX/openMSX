@@ -73,6 +73,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		auto& globalSettings = reactor.getGlobalSettings();
 		auto& renderSettings = reactor.getDisplay().getRenderSettings();
 		auto& settingsManager = reactor.getGlobalCommandController().getSettingsManager();
+		const auto& hotKey = reactor.getHotKey();
 
 		im::Menu("Video", [&]{
 			im::TreeNode("Look and feel", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -104,8 +105,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				});
 
 				SliderInt("Scale factor", renderSettings.getScaleFactorSetting());
-				Checkbox("Deinterlace", renderSettings.getDeinterlaceSetting());
-				Checkbox("Deflicker", renderSettings.getDeflickerSetting());
+				Checkbox(hotKey, "Deinterlace", renderSettings.getDeinterlaceSetting());
+				Checkbox(hotKey, "Deflicker", renderSettings.getDeflickerSetting());
 			});
 			im::TreeNode("Colors", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 				SliderFloat("Noise (%)", renderSettings.getNoiseSetting());
@@ -125,17 +126,17 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				ComboBox("Display deformation", renderSettings.getDisplayDeformSetting());
 			});
 			im::TreeNode("Misc", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-				Checkbox("Full screen", renderSettings.getFullScreenSetting());
+				Checkbox(hotKey, "Full screen", renderSettings.getFullScreenSetting());
 				if (motherBoard) {
 					ComboBox("Video source to display", motherBoard->getVideoSource());
 				}
-				Checkbox("VSync", renderSettings.getVSyncSetting());
+				Checkbox(hotKey, "VSync", renderSettings.getVSyncSetting());
 				SliderInt("Minimum frame-skip", renderSettings.getMinFrameSkipSetting()); // TODO: either leave out this setting, or add a tooltip like, "Leave on 0 unless you use a very slow device and want regular frame skipping");
 				SliderInt("Maximum frame-skip", renderSettings.getMaxFrameSkipSetting()); // TODO: either leave out this setting or add a tooltip like  "On slow devices, skip no more than this amount of frames to keep emulation on time.");
 			});
 			im::TreeNode("Advanced (for debugging)", [&]{ // default collapsed
-				Checkbox("Enforce VDP sprites-per-line limit", renderSettings.getLimitSpritesSetting());
-				Checkbox("Disable sprites", renderSettings.getDisableSpritesSetting());
+				Checkbox(hotKey, "Enforce VDP sprites-per-line limit", renderSettings.getLimitSpritesSetting());
+				Checkbox(hotKey, "Disable sprites", renderSettings.getDisableSpritesSetting());
 				ComboBox("Way to handle too fast VDP access", renderSettings.getTooFastAccessSetting());
 				ComboBox("Emulate VDP command timing", renderSettings.getCmdTimingSetting());
 			});
@@ -146,7 +147,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			im::Disabled(muteSetting.getBoolean(), [&]{
 				SliderInt("Master volume", mixer.getMasterVolume());
 			});
-			Checkbox("Mute", muteSetting);
+			Checkbox(hotKey, "Mute", muteSetting);
 			ImGui::Separator();
 			static constexpr std::array resamplerToolTips = {
 				EnumToolTip{"hq",   "best quality, uses more CPU"},
@@ -187,7 +188,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						SliderInt("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting());
 					});
 				});
-				Checkbox("Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
+				Checkbox(hotKey, "Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
 			});
 			if (motherBoard) {
 				im::TreeNode("MSX devices", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -315,7 +316,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ranges::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
 			for (auto* setting : settings) {
 				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
-					Checkbox(*bSetting);
+					Checkbox(hotKey, *bSetting);
 				} else if (auto* iSetting = dynamic_cast<IntegerSetting*>(setting)) {
 					SliderInt(*iSetting);
 				} else if (auto* fSetting = dynamic_cast<FloatSetting*>(setting)) {

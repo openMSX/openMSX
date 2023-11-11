@@ -138,6 +138,7 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 
 	std::string label = name + " channel setting";
 	im::Window(label.c_str(), enabled, [&]{
+		const auto& hotKey = manager.getReactor().getHotKey();
 		im::Table("table", 3, [&]{
 			im::ID_for_range(info->channelSettings.size(), [&](int i) {
 				auto& channel =  info->channelSettings[i];
@@ -145,7 +146,7 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 					ImGui::StrCat("channel ", i);
 				}
 				if (ImGui::TableNextColumn()) {
-					Checkbox("mute", *channel.mute);
+					Checkbox(hotKey, "mute", *channel.mute);
 				}
 				if (ImGui::TableNextColumn()) {
 					InputText("record", *channel.record);

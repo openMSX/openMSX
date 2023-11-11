@@ -1445,12 +1445,14 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			};
 			ImGui::Text("%s / %s", format(pos).c_str(), format(length).c_str());
 
-			auto& controller = manager.getReactor().getMotherBoard()->getMSXCommandController();
+			auto& reactor = manager.getReactor();
+			auto& controller = reactor.getMotherBoard()->getMSXCommandController();
+			const auto& hotKey = reactor.getHotKey();
 			if (auto* autoRun = dynamic_cast<BooleanSetting*>(controller.findSetting("autoruncassettes"))) {
-				Checkbox("(try to) Auto Run", *autoRun);
+				Checkbox(hotKey, "(try to) Auto Run", *autoRun);
 			}
 			if (auto* mute = dynamic_cast<BooleanSetting*>(controller.findSetting("cassetteplayer_ch1_mute"))) {
-				Checkbox("Mute tape audio", *mute, [](const Setting&) { return std::string{}; });
+				Checkbox(hotKey, "Mute tape audio", *mute, [](const Setting&) { return std::string{}; });
 			}
 		});
 		ImGui::Separator();

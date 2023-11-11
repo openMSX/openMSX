@@ -73,17 +73,24 @@ static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
 	});
 }
 
-bool Checkbox(BooleanSetting& setting)
+bool Checkbox(const HotKey& hotKey, BooleanSetting& setting)
 {
 	std::string name(setting.getBaseName());
-	return Checkbox(name.c_str(), setting);
+	return Checkbox(hotKey, name.c_str(), setting);
 }
-bool Checkbox(const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip)
+bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip)
 {
 	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
 	if (changed) setting.setBoolean(value);
 	settingStuff(setting, getTooltip);
+
+	ImGui::SameLine();
+	auto shortCut = getShortCutForCommand(hotKey, strCat("toggle ", setting.getBaseName()));
+	auto spacing = std::max(0.0f, ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(shortCut.c_str()).x);
+	ImGui::SameLine(0.0f, spacing);
+	ImGui::TextDisabled("%s", shortCut.c_str());
+
 	return changed;
 }
 
