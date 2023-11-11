@@ -269,18 +269,21 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 		manager.executeDelayed([&reactor, &info]() mutable {
 			// don't create extra mb while drawing
 			try {
-				MSXMotherBoard mb(reactor);
+				std::optional<MSXMotherBoard> mb;
+				mb.emplace(reactor);
 				// Non C-BIOS machine (see below) might e.g.
 				// generate warnings about conflicting IO ports.
-				mb.getMSXCliComm().setSuppressMessages(true);
+				mb->getMSXCliComm().setSuppressMessages(true);
 				try {
-					mb.loadMachine("C-BIOS_MSX1");
+					mb->loadMachine("C-BIOS_MSX1");
 				} catch (MSXException& e1) {
 					// Incomplete installation!! Missing C-BIOS machines!
 					// Do a minimal attempt to recover.
 					try {
 						if (auto* current = reactor.getMotherBoard()) {
-							mb.loadMachine(std::string(current->getMachineName()));
+							mb.emplace(reactor); // need to recreate the motherboard
+							mb->getMSXCliComm().setSuppressMessages(true);
+							mb->loadMachine(std::string(current->getMachineName()));
 						} else {
 							throw e1;
 						}
@@ -289,8 +292,8 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 						throw e1;
 					}
 				}
-				auto ext = mb.loadExtension(info.configName, "any");
-				mb.insertExtension(info.configName, std::move(ext));
+				auto ext = mb->loadExtension(info.configName, "any");
+				mb->insertExtension(info.configName, std::move(ext));
 				assert(info.testResult->empty());
 			} catch (MSXException& e) {
 				info.testResult = e.getMessage(); // error
