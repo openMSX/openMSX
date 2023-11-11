@@ -246,7 +246,7 @@ static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displa
 	return result;
 }
 
-const std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
+std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
 {
 	if (extensionInfo.empty()) {
 		extensionInfo = parseAllConfigFiles<ExtensionInfo>(manager, "extensions", {"Manufacturer"sv, "Product code"sv, "Name"sv});
@@ -254,9 +254,37 @@ const std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
 	return extensionInfo;
 }
 
+const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
+{
+	if (!info.testResult) {
+		info.testResult.emplace(); // empty string (for now)
+		if (info.configName == one_of("advram", "Casio_KB-7", "Casio_KB-10")) {
+			// HACK: These only work in specific machines (e.g. with specific slot/memory layout)
+			// Report these as working because they don't depend on external ROM files.
+			return info.testResult.value();
+		}
+
+		auto& reactor = manager.getReactor();
+		manager.executeDelayed([&reactor, &info]() mutable {
+			// don't create extra mb while drawing
+			try {
+				MSXMotherBoard mb(reactor);
+				mb.loadMachine("C-BIOS_MSX1");
+				auto ext = mb.loadExtension(info.configName, "any");
+				mb.insertExtension(info.configName, std::move(ext));
+				assert(info.testResult->empty());
+			} catch (MSXException& e) {
+				info.testResult = e.getMessage(); // error
+			}
+		});
+	}
+	return info.testResult.value();
+}
+
+
 const ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
 {
-	auto& allExtensions = getAllExtensions();
+	const auto& allExtensions = getAllExtensions();
 	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
 	return (it != allExtensions.end()) ? &*it : nullptr;
 }
@@ -441,7 +469,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
 				drawExtensionFilter();
 
-				auto& allExtensions = getAllExtensions();
+				const auto& allExtensions = getAllExtensions();
 				auto filteredExtensions = to_vector(xrange(allExtensions.size()));
 				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
 				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
@@ -1178,7 +1206,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 			ImGui::RadioButton("extension", &info.select, SELECT_EXTENSION);
 			im::VisuallyDisabled(info.select != SELECT_EXTENSION, [&]{
 				im::Indent([&]{
-					auto& allExtensions = getAllExtensions();
+					const auto& allExtensions = getAllExtensions();
 					auto& group = info.groups[SELECT_EXTENSION];
 					auto& item = group.edit;
 

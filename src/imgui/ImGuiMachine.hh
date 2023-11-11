@@ -30,6 +30,7 @@ public:
 
 private:
 	void paintSelectMachine(MSXMotherBoard* motherBoard);
+	void paintTestHardware();
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
@@ -38,6 +39,7 @@ private:
 
 public:
 	bool showSelectMachine = false;
+	bool showTestHardware = false;
 
 private:
 	ImGuiManager& manager;

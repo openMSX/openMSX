@@ -31,6 +31,14 @@ class RomInfo;
 class ImGuiMedia final : public ImGuiPart
 {
 public:
+	struct ExtensionInfo {
+		std::string configName;
+		std::string displayName;
+		std::vector<std::pair<std::string, std::string>> configInfo;
+		std::optional<std::string> testResult; // lazily initialized
+	};
+
+public:
 	ImGuiMedia(ImGuiManager& manager_)
 		: manager(manager_) {}
 
@@ -46,6 +54,10 @@ public:
 	[[nodiscard]] std::string displayNameForSlotContent(const CartridgeSlotManager& slotManager, unsigned slotNr, bool compact = false);
 	[[nodiscard]] std::string slotAndNameForHardwareConfig(const CartridgeSlotManager& slotManager, const HardwareConfig& config);
 	[[nodiscard]] std::string displayNameForDriveContent(unsigned drive, bool compact = false);
+
+	std::vector<ExtensionInfo>& getAllExtensions();
+	const ExtensionInfo* findExtensionInfo(std::string_view config);
+	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 
 public:
 	enum SelectDiskType {
@@ -94,13 +106,6 @@ public:
 		bool show = false;
 	};
 
-	struct ExtensionInfo {
-		std::string configName;
-		std::string displayName;
-		std::vector<std::pair<std::string, std::string>> configInfo;
-		// TODO std::optional<std::string> testResult; // lazily initialized
-	};
-
 public:
 	bool resetOnInsertRom = true;
 
@@ -126,8 +131,6 @@ private:
 	void cassetteMenu(const TclObject& cmdResult);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
 
-	const std::vector<ExtensionInfo>& getAllExtensions();
-	const ExtensionInfo* findExtensionInfo(std::string_view config);
 	void printExtensionInfo(const ExtensionInfo& info);
 	void extensionTooltip(const ExtensionInfo& info);
 	bool drawExtensionFilter();

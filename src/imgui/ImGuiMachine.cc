@@ -3,6 +3,7 @@
 #include "CustomFont.h"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiMedia.hh"
 #include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
@@ -19,6 +20,8 @@
 
 #include "StringOp.hh"
 #include "StringReplacer.hh"
+#include "enumerate.hh"
+#include "narrow.hh"
 
 #include <imgui_stdlib.h>
 #include <imgui.h>
@@ -61,6 +64,9 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Power", powerShortCut.c_str(), &power)) {
 			powerSetting.setBoolean(power);
 		}
+
+		ImGui::Separator();
+		ImGui::MenuItem("Test MSX hardware ...", nullptr, &showTestHardware);
 	});
 }
 
@@ -68,6 +74,9 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 {
 	if (showSelectMachine) {
 		paintSelectMachine(motherBoard);
+	}
+	if (showTestHardware) {
+		paintTestHardware();
 	}
 }
 
@@ -207,6 +216,116 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 				});
 			}
 		});
+	});
+}
+
+void ImGuiMachine::paintTestHardware()
+{
+	ImGui::SetNextWindowSize(gl::vec2{46.0f, 32.5f} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	im::Window("Test MSX hardware", &showTestHardware, [&]{
+		auto formatNum = [](size_t num, std::string_view text) {
+			if (num == 0) {
+				return strCat("No ", text, "###", text);
+			} else {
+				return strCat(num, ' ', text, "###", text);
+			}
+		};
+		auto printList = [](const auto& indices, const auto& infos) {
+			auto n = narrow<int>(indices.size());
+			auto clamped = std::clamp(narrow_cast<float>(n), 2.5f, 7.5f);
+			gl::vec2 listSize{0.0f, clamped * ImGui::GetTextLineHeightWithSpacing()};
+
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			im::ListBox("##workingList", listSize, [&]{
+				ImGuiListClipper clipper;
+				clipper.Begin(n);
+				while (clipper.Step()) {
+					for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+						auto& info = infos[indices[i]];
+						ImGui::TextUnformatted(info.displayName);
+						assert(info.testResult);
+						simpleToolTip(*info.testResult);
+					}
+				}
+			});
+		};
+
+		bool doTest = true;
+
+		auto& allMachines = getAllMachines();
+		std::vector<size_t> workingMachines, nonWorkingMachines;
+		for (auto [idx, info] : enumerate(allMachines)) {
+			if (!info.testResult.has_value()) {
+				if (!doTest) continue; // only 1 test per iteration
+				doTest = false;
+			}
+			const auto& result = getTestResult(info);
+			(result.empty() ? workingMachines : nonWorkingMachines).push_back(idx);
+		}
+		bool allMachinesTested = allMachines.size() == (workingMachines.size() + nonWorkingMachines.size());
+
+		im::VisuallyDisabled(!allMachinesTested, [&]{
+			im::TreeNode("Machines", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				auto workingText = formatNum(workingMachines.size(), "working machines");
+				im::TreeNode(workingText.c_str(), [&]{
+					printList(workingMachines, allMachines);
+				});
+				auto nonWorkingText = formatNum(nonWorkingMachines.size(), "non-working machines");
+				int flags = nonWorkingMachines.empty() ? 0 : ImGuiTreeNodeFlags_DefaultOpen;
+				im::TreeNode(nonWorkingText.c_str(), flags, [&]{
+					printList(nonWorkingMachines, allMachines);
+				});
+			});
+		});
+
+		auto& allExtensions = manager.media.getAllExtensions();
+		std::vector<size_t> workingExtensions, nonWorkingExtensions;
+		for (auto [idx, info] : enumerate(allExtensions)) {
+			if (!info.testResult.has_value()) {
+				if (!doTest) continue; // only 1 test per iteration
+				doTest = false;
+			}
+			const auto& result = manager.media.getTestResult(info);
+			(result.empty() ? workingExtensions : nonWorkingExtensions).push_back(idx);
+		}
+		bool allExtensionsTested = allExtensions.size() == (workingExtensions.size() + nonWorkingExtensions.size());
+
+		im::VisuallyDisabled(!allExtensionsTested, [&]{
+			im::TreeNode("Extensions", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				auto workingText = formatNum(workingExtensions.size(), "working extensions");
+				im::TreeNode(workingText.c_str(), [&]{
+					printList(workingExtensions, allExtensions);
+				});
+				auto nonWorkingText = formatNum(nonWorkingExtensions.size(), "non-working extensions");
+				int flags = nonWorkingExtensions.empty() ? 0 : ImGuiTreeNodeFlags_DefaultOpen;
+				im::TreeNode(nonWorkingText.c_str(), flags, [&]{
+					printList(nonWorkingExtensions, allExtensions);
+				});
+
+			});
+		});
+
+		if (!nonWorkingMachines.empty() || !nonWorkingExtensions.empty()) {
+			im::Disabled(!allMachinesTested || !allExtensionsTested, [&]{
+				if (ImGui::Button("Copy non-working hardware to clipboard")) {
+					std::string result;
+					auto print = [&](std::string_view label, const auto& indices, const auto& infos) {
+						if (!indices.empty()) {
+							strAppend(result, "Non-working ", label, ":\n");
+							for (auto idx : indices) {
+								const auto& info = infos[idx];
+								strAppend(result, '\t', info.displayName, " (", info.configName, ")\n",
+										"\t\t", *info.testResult, '\n');
+							}
+							strAppend(result, '\n');
+						}
+					};
+					print("machines", nonWorkingMachines, allMachines);
+					print("extensions", nonWorkingExtensions, allExtensions);
+					ImGui::SetClipboardText(result.c_str());
+				}
+			});
+		}
 	});
 }
 
