@@ -22,7 +22,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 	ImGui::SetNextWindowSize(gl::vec2{35, 0} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Cheat Finder", &show, [&]{
 		const auto& style = ImGui::GetStyle();
-		auto tSize = ImGui::CalcTextSize("==").x + 2.0f * style.FramePadding.x;
+		auto tSize = ImGui::CalcTextSize("=="sv).x + 2.0f * style.FramePadding.x;
 		auto bSpacing = 2.0f;
 		auto height = 12.5f * ImGui::GetTextLineHeightWithSpacing();
 		auto sWidth = 2.0f * (style.WindowBorderSize + style.WindowPadding.x)

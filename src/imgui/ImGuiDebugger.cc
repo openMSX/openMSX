@@ -324,7 +324,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			gotoTarget = pc;
 		}
 
-		auto widthOpcode = ImGui::CalcTextSize("12 34 56 78").x;
+		auto widthOpcode = ImGui::CalcTextSize("12 34 56 78"sv).x;
 		int flags = ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_BordersV |
 			ImGuiTableFlags_BordersOuterV |
@@ -627,7 +627,7 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 	im::Window("CPU registers", &showRegisters, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto padding = 2 * style.FramePadding.x;
-		auto width16 = ImGui::CalcTextSize("FFFF").x + padding;
+		auto width16 = ImGui::CalcTextSize("FFFF"sv).x + padding;
 		auto edit16 = [&](std::string_view label, auto getter, auto setter) {
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(label);
@@ -703,9 +703,9 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 {
 	if (!showFlags) return;
 	im::Window("CPU flags", &showFlags, [&]{
-		auto sizeH1 = ImGui::CalcTextSize("NC");
-		auto sizeH2 = ImGui::CalcTextSize("X:0");
-		auto sizeV = ImGui::CalcTextSize("C 0 (NC)");
+		auto sizeH1 = ImGui::CalcTextSize("NC"sv);
+		auto sizeH2 = ImGui::CalcTextSize("X:0"sv);
+		auto sizeV = ImGui::CalcTextSize("C 0 (NC)"sv);
 
 		auto f = regs.getF();
 

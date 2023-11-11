@@ -29,6 +29,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 static constexpr std::string_view PROMPT_NEW  = "> ";
 static constexpr std::string_view PROMPT_CONT = "| ";
 static constexpr std::string_view PROMPT_BUSY = "*busy*";
@@ -152,7 +154,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 
 			// recalculate the number of columns
 			auto width = ImGui::GetContentRegionMax().x;
-			auto charWidth = ImGui::CalcTextSize("M").x;
+			auto charWidth = ImGui::CalcTextSize("M"sv).x;
 			columns = narrow_cast<unsigned>(width / charWidth);
 		});
 		ImGui::Separator();

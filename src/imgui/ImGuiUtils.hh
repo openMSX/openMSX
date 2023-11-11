@@ -36,6 +36,11 @@ inline void TextUnformatted(std::string_view str)
 	ImGui::TextUnformatted(begin, end);
 }
 
+inline auto CalcTextSize(std::string_view str)
+{
+	return ImGui::CalcTextSize(str.data(), str.data() + str.size());
+}
+
 template<typename... Ts>
 void StrCat(Ts&& ...ts)
 {

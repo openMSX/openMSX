@@ -16,6 +16,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_)
 	: manager(manager_)
 {
@@ -350,7 +352,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 								zoomCharSize, {}, charSize);
 						}
 					} else {
-						gl::vec2 textSize = ImGui::CalcTextSize("Column: 31 Row: 23");
+						gl::vec2 textSize = ImGui::CalcTextSize("Column: 31 Row: 23"sv);
 						ImGui::Dummy(max(zoomCharSize, textSize));
 					}
 				});

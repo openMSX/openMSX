@@ -165,7 +165,7 @@ In the format column you can optionally enter a format-specifier (for the  Tcl '
 static void tooWideToolTip(float available, zstring_view str)
 {
 	if (str.empty()) return;
-	auto width = ImGui::CalcTextSize(str.c_str()).x;
+	auto width = ImGui::CalcTextSize(str).x;
 	width += 2.0f * ImGui::GetStyle().FramePadding.x;
 	if (width >= available) {
 		simpleToolTip(str);
@@ -231,7 +231,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		auto pos = ImGui::GetCursorPos();
 		const auto& style = ImGui::GetStyle();
 		float rowHeight = 2.0f * style.FramePadding.y;
-		rowHeight += ImGui::CalcTextSize((validExpr ? frmtResult.getString() : exprError).c_str()).y;
+		rowHeight += ImGui::CalcTextSize(validExpr ? frmtResult.getString() : exprError).y;
 		if (ImGui::Selectable("##selection", selectedRow == row,
 				ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap,
 				{0.0f, rowHeight})) {

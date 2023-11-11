@@ -751,7 +751,7 @@ bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const 
 	return interacted;
 }
 
-static float calcButtonWidth(const char* text1, const char* text2)
+static float calcButtonWidth(std::string_view text1, const char* text2)
 {
 	const auto& style = ImGui::GetStyle();
 	float width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize(text1).x;
@@ -911,7 +911,7 @@ bool ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group,
 	im::Disabled(group.edit.name.empty(), [&]{
 		const auto& style = ImGui::GetStyle();
 		auto width = 4.0f * style.FramePadding.x + style.ItemSpacing.x +
-			     ImGui::CalcTextSize("Apply").x + ImGui::CalcTextSize("Ok").x;
+			     ImGui::CalcTextSize("Apply"sv).x + ImGui::CalcTextSize("Ok"sv).x;
 		ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - width + style.WindowPadding.x);
 		clicked |= ImGui::Button("Apply");
 		ImGui::SameLine();

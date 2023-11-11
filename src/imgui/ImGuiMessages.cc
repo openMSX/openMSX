@@ -216,7 +216,7 @@ void ImGuiMessages::paintLog()
 		ImGui::SameLine(0.0f, 30.0f);
 		ImGui::TextUnformatted(ICON_IGFD_SEARCH);
 		ImGui::SameLine();
-		auto size = ImGui::CalcTextSize("Configure...").x + 30.0f + style.WindowPadding.x;
+		auto size = ImGui::CalcTextSize("Configure..."sv).x + 30.0f + style.WindowPadding.x;
 		ImGui::SetNextItemWidth(-size);
 		ImGui::InputTextWithHint("##filter", "enter search terms", &filterLog);
 		ImGui::SameLine(0.0f, 30.0f);
@@ -232,7 +232,7 @@ void ImGuiMessages::paintConfigure()
 	im::Window("Configure messages", &showConfigure, [&]{
 		im::TreeNode("When a message is emitted", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
-				auto size = ImGui::CalcTextSize("Warning");
+				auto size = ImGui::CalcTextSize("Warning"sv);
 				ImGui::TableSetupColumn("");
 				ImGui::TableSetupColumn("Error",   ImGuiTableColumnFlags_WidthFixed, size.x);
 				ImGui::TableSetupColumn("Warning", ImGuiTableColumnFlags_WidthFixed, size.x);

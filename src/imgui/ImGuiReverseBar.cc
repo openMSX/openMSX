@@ -324,7 +324,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
 
 			auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
-			auto timeSize = ImGui::CalcTextSize(timeStr.data(), timeStr.data() + timeStr.size()).x;
+			auto timeSize = ImGui::CalcTextSize(timeStr).x;
 			gl::vec2 cursor = ImGui::GetCursorPos();
 			ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize[0] - timeSize)), textHeight * 0.5f));
 			ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
