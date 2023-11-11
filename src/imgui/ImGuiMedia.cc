@@ -282,9 +282,9 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 }
 
 
-const ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
+ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
 {
-	const auto& allExtensions = getAllExtensions();
+	auto& allExtensions = getAllExtensions();
 	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
 	return (it != allExtensions.end()) ? &*it : nullptr;
 }
@@ -350,27 +350,37 @@ std::string ImGuiMedia::displayNameForDriveContent(unsigned drive, bool compact)
 	                                             : display);
 }
 
-void ImGuiMedia::printExtensionInfo(const ExtensionInfo& info)
+void ImGuiMedia::printExtensionInfo(ExtensionInfo& info)
 {
-	im::Table("##extension-info", 2, [&]{
-		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+	const auto& test = getTestResult(info);
+	bool ok = test.empty();
+	if (ok) {
+		im::Table("##extension-info", 2, [&]{
+			ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-		for (const auto& [desc, value_] : info.configInfo) {
-			const auto& value = value_; // clang workaround
-			if (ImGui::TableNextColumn()) {
-				ImGui::TextUnformatted(desc);
+			for (const auto& [desc, value_] : info.configInfo) {
+				const auto& value = value_; // clang workaround
+				if (ImGui::TableNextColumn()) {
+					ImGui::TextUnformatted(desc);
+				}
+				if (ImGui::TableNextColumn()) {
+					im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
+						ImGui::TextUnformatted(value);
+					});
+				}
 			}
-			if (ImGui::TableNextColumn()) {
-				im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&]{
-					ImGui::TextUnformatted(value);
-				});
-			}
-		}
-	});
+		});
+	} else {
+		im::StyleColor(ImGuiCol_Text, 0xFF0000FF, [&]{
+			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
+				ImGui::TextUnformatted(test);
+			});
+		});
+	}
 }
 
-void ImGuiMedia::extensionTooltip(const ExtensionInfo& info)
+void ImGuiMedia::extensionTooltip(ExtensionInfo& info)
 {
 	im::ItemTooltip([&]{
 		printExtensionInfo(info);
@@ -469,7 +479,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
 				drawExtensionFilter();
 
-				const auto& allExtensions = getAllExtensions();
+				auto& allExtensions = getAllExtensions();
 				auto filteredExtensions = to_vector(xrange(allExtensions.size()));
 				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
 				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
@@ -477,14 +487,21 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				float width = 40.0f * ImGui::GetFontSize();
 				float height = 10.25f * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##list", {width, height}, [&]{
-					for (auto idx : filteredExtensions) {
-						auto& ext = allExtensions[idx];
-						if (ImGui::Selectable(ext.displayName.c_str())) {
-							group.edit.name = ext.configName;
-							insertMedia(mediaName, group);
-							ImGui::CloseCurrentPopup();
+					ImGuiListClipper clipper;
+					clipper.Begin(narrow<int>(filteredExtensions.size()));
+					while (clipper.Step()) {
+						for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+							auto& ext = allExtensions[filteredExtensions[i]];
+							bool ok = getTestResult(ext).empty();
+							im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+								if (ImGui::Selectable(ext.displayName.c_str())) {
+									group.edit.name = ext.configName;
+									insertMedia(mediaName, group);
+									ImGui::CloseCurrentPopup();
+								}
+								extensionTooltip(ext);
+							});
 						}
-						extensionTooltip(ext);
 					}
 				});
 			});
@@ -494,7 +511,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					return displayNameForExtension(config);
 				},
 				[this](const std::string& e) { // tooltip
-					if (const auto* info = findExtensionInfo(e)) {
+					if (auto* info = findExtensionInfo(e)) {
 						extensionTooltip(*info);
 					}
 				});
@@ -510,7 +527,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						if (ImGui::Selectable(name.c_str())) {
 							manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
 						}
-						if (const auto* info = findExtensionInfo(ext->getConfigName())) {
+						if (auto* info = findExtensionInfo(ext->getConfigName())) {
 							extensionTooltip(*info);
 						}
 					}
@@ -1079,7 +1096,7 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 		} else if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
 			currentTarget = *target;
 			if (selectType == SELECT_EXTENSION) {
-				if (const auto* i = findExtensionInfo(target->getString())) {
+				if (auto* i = findExtensionInfo(target->getString())) {
 					printExtensionInfo(*i);
 				}
 			} else if (selectType == SELECT_ROM_IMAGE) {
@@ -1174,16 +1191,16 @@ void ImGuiMedia::diskMenu(int i)
 	});
 }
 
-void ImGuiMedia::cartridgeMenu(int i)
+void ImGuiMedia::cartridgeMenu(int cartNum)
 {
-	auto& info = cartridgeMediaInfo[i];
-	auto displayName = strCat("Cartridge Slot ", char('A' + i));
+	auto& info = cartridgeMediaInfo[cartNum];
+	auto displayName = strCat("Cartridge Slot ", char('A' + cartNum));
 	ImGui::SetNextWindowSize(gl::vec2{37, 30} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(displayName.c_str(), &info.show, [&]{
-		auto cartName = strCat("cart", char('a' + i));
-		auto extName = strCat("ext", char('a' + i));
+		auto cartName = strCat("cart", char('a' + cartNum));
+		auto extName = strCat("ext", char('a' + cartNum));
 
-		auto current = showCartridgeInfo(cartName, info, i);
+		auto current = showCartridgeInfo(cartName, info, cartNum);
 
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			ImGui::TextUnformatted("Select new cartridge:"sv);
@@ -1206,7 +1223,7 @@ void ImGuiMedia::cartridgeMenu(int i)
 			ImGui::RadioButton("extension", &info.select, SELECT_EXTENSION);
 			im::VisuallyDisabled(info.select != SELECT_EXTENSION, [&]{
 				im::Indent([&]{
-					const auto& allExtensions = getAllExtensions();
+					auto& allExtensions = getAllExtensions();
 					auto& group = info.groups[SELECT_EXTENSION];
 					auto& item = group.edit;
 
@@ -1217,16 +1234,23 @@ void ImGuiMedia::cartridgeMenu(int i)
 						applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
 						applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
 
-						for (auto idx : filteredExtensions) {
-							auto& ext = allExtensions[idx];
-							if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
-								interacted = true;
-								item.name = ext.configName;
+						ImGuiListClipper clipper;
+						clipper.Begin(narrow<int>(filteredExtensions.size()));
+						while (clipper.Step()) {
+							for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+								auto& ext = allExtensions[filteredExtensions[i]];
+								bool ok = getTestResult(ext).empty();
+								im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+									if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
+										interacted = true;
+										item.name = ext.configName;
+									}
+									if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+										insertMedia(extName, group); // Apply
+									}
+									extensionTooltip(ext);
+								});
 							}
-							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-								insertMedia(extName, group); // Apply
-							}
-							extensionTooltip(ext);
 						}
 					};
 					if (filterOpen) {

@@ -56,7 +56,7 @@ public:
 	[[nodiscard]] std::string displayNameForDriveContent(unsigned drive, bool compact = false);
 
 	std::vector<ExtensionInfo>& getAllExtensions();
-	const ExtensionInfo* findExtensionInfo(std::string_view config);
+	ExtensionInfo* findExtensionInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 
 public:
@@ -131,8 +131,8 @@ private:
 	void cassetteMenu(const TclObject& cmdResult);
 	void insertMedia(std::string_view mediaName, ItemGroup& group);
 
-	void printExtensionInfo(const ExtensionInfo& info);
-	void extensionTooltip(const ExtensionInfo& info);
+	void printExtensionInfo(ExtensionInfo& info);
+	void extensionTooltip(ExtensionInfo& info);
 	bool drawExtensionFilter();
 
 private:
