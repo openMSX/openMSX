@@ -3,6 +3,7 @@
 #include "DummyDisk.hh"
 #include "DirAsDSK.hh"
 #include "RamDSKDiskImage.hh"
+#include "DMKDiskImage.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
@@ -91,8 +92,10 @@ void RealDrive::getMediaInfo(TclObject& result)
 	result.addDictKeyValues("target", changer->getDiskName().getResolved(),
 	                        "type", typeStr,
 	                        "readonly", changer->getDisk().isWriteProtected(),
-	                        "doublesided", changer->getDisk().isDoubleSided(),
-	                        "size", int(changer->getDisk().getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE));
+	                        "doublesided", changer->getDisk().isDoubleSided());
+	if (!dynamic_cast<DMKDiskImage*>(&(changer->getDisk()))) {
+		result.addDictKeyValues("size", int(changer->getDisk().getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE));
+	}
 	if (auto* disk = changer->getSectorAccessibleDisk()) {
 		TclObject patches;
 		patches.addListElements(view::transform(disk->getPatches(), [](auto& p) {
