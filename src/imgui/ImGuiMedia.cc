@@ -476,6 +476,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		};
 
 		// cartA / extX
+		elementInGroup();
 		auto& slotManager = motherBoard->getSlotManager();
 		bool anySlot = false;
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
@@ -488,9 +489,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		if (!anySlot) {
 			ImGui::TextDisabled("No cartridge slots present");
 		}
-		ImGui::Separator();
+		endGroup();
 
 		// extensions (needed for I/O-only extensions, or when you don't care about the exact slot)
+		elementInGroup();
 		im::Menu("Extensions", [&]{
 			auto mediaName = "ext"sv;
 			auto& group = extensionMediaInfo;
@@ -552,9 +554,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 		});
-		ImGui::Separator();
+		endGroup();
 
 		// diskX
+		elementInGroup();
 		auto drivesInUse = RealDrive::getDrivesInUse(*motherBoard);
 		bool anyDrive = false;
 		for (auto i : xrange(RealDrive::MAX_DRIVES)) {
@@ -567,9 +570,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		if (!anyDrive) {
 			ImGui::TextDisabled("No disk drives present");
 		}
-		ImGui::Separator();
+		endGroup();
 
 		// cassetteplayer
+		elementInGroup();
 		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
 			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
 			simpleToolTip([&]() -> std::string {
@@ -579,7 +583,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		} else {
 			ImGui::TextDisabled("No cassette port present");
 		}
-		ImGui::Separator();
+		endGroup();
 
 		// hdX
 		auto hdInUse = HD::getDrivesInUse(*motherBoard);
@@ -672,6 +676,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				showRecent("laserdiscplayer", laserdiscMediaInfo);
 			});
 		}
+		endGroup();
 	});
 }
 
