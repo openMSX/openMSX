@@ -528,7 +528,7 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 				auto textColor = 0xffffffff;
 				bool canHover = func.subs[0].mask != 0;
 				if (canHover && (f == hoveredFunction)) {
-					gl::vec2 textSize = ImGui::CalcTextSize(s.data(), s.data() + s.size());
+					gl::vec2 textSize = ImGui::CalcTextSize(s);
 					gl::vec2 pos = ImGui::GetCursorScreenPos();
 					textColor = 0xff000000;
 					drawList->AddRectFilled(pos - framePadding, pos + textSize + 2.0f * framePadding, 0xff00ffff);

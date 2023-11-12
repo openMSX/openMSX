@@ -87,7 +87,7 @@ bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, 
 
 	ImGui::SameLine();
 	auto shortCut = getShortCutForCommand(hotKey, strCat("toggle ", setting.getBaseName()));
-	auto spacing = std::max(0.0f, ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(shortCut.c_str()).x);
+	auto spacing = std::max(0.0f, ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(shortCut).x);
 	ImGui::SameLine(0.0f, spacing);
 	ImGui::TextDisabled("%s", shortCut.c_str());
 
