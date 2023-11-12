@@ -256,7 +256,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ 	const char* end = begin + text.size();
 		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
 		/**/    // avoid ImGui::CalcTextSize(): it's off-by-one for sizes >= 256 pixels
-		/**/    drawPos[0] += charWidth * (end - begin);
+		/**/    drawPos[0] += charWidth * utf8::unchecked::distance(begin, end);
 		/**/ }
 	});
 }
