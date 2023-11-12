@@ -135,7 +135,12 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 		ImGui::Separator();
 
-		im::Menu("Load replay ...", [&]{
+		auto& reverseManager = motherBoard->getReverseManager();
+		bool reverseEnabled = reverseManager.isCollecting();
+		if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
+			manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start" : "stop"));
+		}
+		im::Menu("Load replay ...", reverseEnabled, [&]{
 			ImGui::TextUnformatted("Select replay"sv);
 			im::ListBox("##select-replay", [&]{
 				struct Names {
@@ -165,7 +170,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 		});
-		saveReplayOpen = im::Menu("Save replay ...", [&]{
+		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
 					saveReplayName, ReverseManager::REPLAY_DIR, "", ".omr");
@@ -196,7 +201,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
-		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar);
+		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
 	});
 
 	const auto popupTitle = "Confirm file overwrite";
@@ -227,6 +232,8 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showReverseBar) return;
 	if (!motherBoard) return;
+	auto& reverseManager = motherBoard->getReverseManager();
+	if (!reverseManager.isCollecting()) return;
 
 	const auto& style = ImGui::GetStyle();
 	auto textHeight = ImGui::GetTextLineHeight();
@@ -253,110 +260,102 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	adjust.pre();
 	im::Window("Reverse bar", &showReverseBar, flags, [&]{
 		bool isOnMainViewPort = adjust.post();
-		auto& reverseManager = motherBoard->getReverseManager();
-		if (reverseManager.isCollecting()) {
-			auto b = reverseManager.getBegin();
-			auto e = reverseManager.getEnd();
-			auto c = reverseManager.getCurrent();
-			auto snapshots = reverseManager.getSnapshotTimes();
+		auto b = reverseManager.getBegin();
+		auto e = reverseManager.getEnd();
+		auto c = reverseManager.getCurrent();
+		auto snapshots = reverseManager.getSnapshotTimes();
 
-			auto totalLength = e - b;
-			auto playLength = c - b;
-			auto recipLength = (totalLength != 0.0) ? (1.0 / totalLength) : 0.0;
-			auto fraction = narrow_cast<float>(playLength * recipLength);
+		auto totalLength = e - b;
+		auto playLength = c - b;
+		auto recipLength = (totalLength != 0.0) ? (1.0 / totalLength) : 0.0;
+		auto fraction = narrow_cast<float>(playLength * recipLength);
 
-			gl::vec2 pos = ImGui::GetCursorScreenPos();
-			gl::vec2 availableSize = ImGui::GetContentRegionAvail();
-			gl::vec2 outerSize(availableSize[0], 2.0f * textHeight);
-			gl::vec2 outerTopLeft = pos;
-			gl::vec2 outerBottomRight = outerTopLeft + outerSize;
+		gl::vec2 pos = ImGui::GetCursorScreenPos();
+		gl::vec2 availableSize = ImGui::GetContentRegionAvail();
+		gl::vec2 outerSize(availableSize[0], 2.0f * textHeight);
+		gl::vec2 outerTopLeft = pos;
+		gl::vec2 outerBottomRight = outerTopLeft + outerSize;
 
-			gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
-			gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
-			gl::vec2 innerBottomRight = innerTopLeft + innerSize;
-			gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize[0] * fraction, innerSize[1]);
+		gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
+		gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
+		gl::vec2 innerBottomRight = innerTopLeft + innerSize;
+		gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize[0] * fraction, innerSize[1]);
 
-			gl::vec2 middleTopLeft    (barBottomRight[0] - 2.0f, innerTopLeft[1]);
-			gl::vec2 middleBottomRight(barBottomRight[0] + 2.0f, innerBottomRight[1]);
+		gl::vec2 middleTopLeft    (barBottomRight[0] - 2.0f, innerTopLeft[1]);
+		gl::vec2 middleBottomRight(barBottomRight[0] + 2.0f, innerBottomRight[1]);
 
-			const auto& io = ImGui::GetIO();
-			bool hovered = ImGui::IsWindowHovered();
-			bool replaying = reverseManager.isReplaying();
-			if (!reverseHideTitle || !reverseFadeOut || replaying ||
-			    ImGui::IsWindowDocked() || !isOnMainViewPort) {
-				reverseAlpha = 1.0f;
-			} else {
-				auto target = hovered ? 1.0f : 0.0f;
-				auto period = hovered ? 0.5f : 5.0f; // TODO configurable speed
-				reverseAlpha = calculateFade(reverseAlpha, target, period);
-			}
-			auto color = [&](gl::vec4 col) {
-				return ImGui::ColorConvertFloat4ToU32(col * reverseAlpha);
-			};
-
-			auto* drawList = ImGui::GetWindowDrawList();
-			drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
-
-			for (double s : snapshots) {
-				float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
-				drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
-						gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
-						color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
-			}
-
-			static constexpr std::array barColors = {
-				std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
-					gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
-				std::array{gl::vec4(0.00f, 0.27f, 1.00f, 0.63f), gl::vec4(0.00f, 0.13f, 0.73f, 0.63f),
-					gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.20f, 0.87f, 0.63f)}, // replaying
-				std::array{gl::vec4(1.00f, 0.27f, 0.00f, 0.63f), gl::vec4(0.87f, 0.20f, 0.00f, 0.63f),
-					gl::vec4(0.80f, 0.80f, 0.07f, 0.63f), gl::vec4(0.73f, 0.13f, 0.00f, 0.63f)}, // recording
-			};
-			int barColorsIndex = replaying ? (reverseManager.isViewOnlyMode() ? 0 : 1)
-						: 2;
-			const auto& barColor = barColors[barColorsIndex];
-			drawList->AddRectFilledMultiColor(
-				innerTopLeft, barBottomRight,
-				color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
-
-			drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
-			drawList->AddRect(
-				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
-
-			auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
-			auto timeSize = ImGui::CalcTextSize(timeStr).x;
-			gl::vec2 cursor = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize[0] - timeSize)), textHeight * 0.5f));
-			ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
-
-			if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
-				float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
-				auto timeOffset = totalLength * double(ratio);
-				im::Tooltip([&] {
-					ImGui::TextUnformatted(formatTime(timeOffset));
-				});
-				if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-					manager.executeDelayed(makeTclList("reverse", "goto", b + timeOffset));
-				}
-			}
-
-			ImGui::SetCursorPos(cursor); // cover full window for context menu
-			ImGui::Dummy(availableSize);
-			im::PopupContextItem("reverse context menu", [&]{
-				ImGui::Checkbox("Hide title", &reverseHideTitle);
-				im::Indent([&]{
-					im::Disabled(!reverseHideTitle, [&]{
-						ImGui::Checkbox("Fade out", &reverseFadeOut);
-						ImGui::Checkbox("Allow move", &reverseAllowMove);
-					});
-				});
-			});
+		const auto& io = ImGui::GetIO();
+		bool hovered = ImGui::IsWindowHovered();
+		bool replaying = reverseManager.isReplaying();
+		if (!reverseHideTitle || !reverseFadeOut || replaying ||
+			ImGui::IsWindowDocked() || !isOnMainViewPort) {
+			reverseAlpha = 1.0f;
 		} else {
-			ImGui::TextUnformatted("Reverse is disabled."sv);
-			if (ImGui::Button("Enable")) {
-				manager.executeDelayed(makeTclList("reverse", "start"));
+			auto target = hovered ? 1.0f : 0.0f;
+			auto period = hovered ? 0.5f : 5.0f; // TODO configurable speed
+			reverseAlpha = calculateFade(reverseAlpha, target, period);
+		}
+		auto color = [&](gl::vec4 col) {
+			return ImGui::ColorConvertFloat4ToU32(col * reverseAlpha);
+		};
+
+		auto* drawList = ImGui::GetWindowDrawList();
+		drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
+
+		for (double s : snapshots) {
+			float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
+			drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
+					gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
+					color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+		}
+
+		static constexpr std::array barColors = {
+			std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
+			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
+			std::array{gl::vec4(0.00f, 0.27f, 1.00f, 0.63f), gl::vec4(0.00f, 0.13f, 0.73f, 0.63f),
+			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.20f, 0.87f, 0.63f)}, // replaying
+			std::array{gl::vec4(1.00f, 0.27f, 0.00f, 0.63f), gl::vec4(0.87f, 0.20f, 0.00f, 0.63f),
+			           gl::vec4(0.80f, 0.80f, 0.07f, 0.63f), gl::vec4(0.73f, 0.13f, 0.00f, 0.63f)}, // recording
+		};
+		int barColorsIndex = replaying ? (reverseManager.isViewOnlyMode() ? 0 : 1)
+					: 2;
+		const auto& barColor = barColors[barColorsIndex];
+		drawList->AddRectFilledMultiColor(
+			innerTopLeft, barBottomRight,
+			color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
+
+		drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
+		drawList->AddRect(
+			outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
+
+		auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
+		auto timeSize = ImGui::CalcTextSize(timeStr).x;
+		gl::vec2 cursor = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize[0] - timeSize)), textHeight * 0.5f));
+		ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
+
+		if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
+			float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
+			auto timeOffset = totalLength * double(ratio);
+			im::Tooltip([&] {
+				ImGui::TextUnformatted(formatTime(timeOffset));
+			});
+			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+				manager.executeDelayed(makeTclList("reverse", "goto", b + timeOffset));
 			}
 		}
+
+		ImGui::SetCursorPos(cursor); // cover full window for context menu
+		ImGui::Dummy(availableSize);
+		im::PopupContextItem("reverse context menu", [&]{
+			ImGui::Checkbox("Hide title", &reverseHideTitle);
+			im::Indent([&]{
+				im::Disabled(!reverseHideTitle, [&]{
+					ImGui::Checkbox("Fade out", &reverseFadeOut);
+					ImGui::Checkbox("Allow move", &reverseAllowMove);
+				});
+			});
+		});
 	});
 }
 
