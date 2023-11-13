@@ -170,7 +170,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					});
 				}
 				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
-				for (const auto& [fullName, displayName] : names) {
+				for (const auto& [fullName_, displayName_] : names) {
+					const auto& fullName = fullName_; // clang workaround
+					const auto& displayName = displayName_; // clang workaround
 					if (ImGui::Selectable(displayName.c_str())) {
 						manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
 					}
