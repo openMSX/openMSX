@@ -37,7 +37,7 @@ void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openOverWritePopup = false;
+	bool openConfirmPopup = false;
 
 	auto stem = [&](std::string_view fullName) {
 		return FileOperations::stripExtension(FileOperations::getFilename(fullName));
@@ -88,6 +88,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 									}
 								}
 							}
+							im::PopupContextItem([&]{
+								if (ImGui::MenuItem("delete")) {
+									confirmCmd = makeTclList("delete_savestate", name);
+									confirmText = strCat("Delete savestate '", name, "'?");
+									openConfirmPopup = true;
+								}
+							});
 						}
 					});
 				}
@@ -123,12 +130,12 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
-				overWriteCmd = makeTclList("savestate", saveStateName);
+				confirmCmd = makeTclList("savestate", saveStateName);
 				if (exists()) {
-					openOverWritePopup = true;
-					overWriteText = strCat("Overwrite save state with name '", saveStateName, "'?");
+					openConfirmPopup = true;
+					confirmText = strCat("Overwrite save state with name '", saveStateName, "'?");
 				} else {
-					manager.executeDelayed(overWriteCmd);
+					manager.executeDelayed(confirmCmd);
 				}
 			}
 		});
@@ -167,6 +174,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::Selectable(displayName.c_str())) {
 						manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
 					}
+					im::PopupContextItem([&]{
+						if (ImGui::MenuItem("delete")) {
+							confirmCmd = makeTclList("file", "delete", fullName);
+							confirmText = strCat("Delete replay '", displayName, "'?");
+							openConfirmPopup = true;
+						}
+					});
 				}
 			});
 		});
@@ -192,38 +206,35 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
 
-				overWriteCmd = makeTclList("reverse", "savereplay", saveReplayName);
+				confirmCmd = makeTclList("reverse", "savereplay", saveReplayName);
 				if (exists()) {
-					openOverWritePopup = true;
-					overWriteText = strCat("Overwrite replay with name '", saveReplayName, "'?");
+					openConfirmPopup = true;
+					confirmText = strCat("Overwrite replay with name '", saveReplayName, "'?");
 				} else {
-					manager.executeDelayed(overWriteCmd);
+					manager.executeDelayed(confirmCmd);
 				}
 			}
 		});
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
 	});
 
-	const auto popupTitle = "Confirm file overwrite";
-	if (openOverWritePopup) {
+	const auto popupTitle = "Confirm##reverse";
+	if (openConfirmPopup) {
 		ImGui::OpenPopup(popupTitle);
 	}
 	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(overWriteText);
+		ImGui::TextUnformatted(confirmText);
 
 		bool close = false;
-		if (ImGui::Button("Overwrite")) {
-			manager.executeDelayed(overWriteCmd);
+		if (ImGui::Button("Ok")) {
+			manager.executeDelayed(confirmCmd);
 			close = true;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel")) {
-			close = true;
-		}
-
+		close |= ImGui::Button("Cancel");
 		if (close) {
 			ImGui::CloseCurrentPopup();
-			overWriteCmd = TclObject();
+			confirmCmd = TclObject();
 		}
 	});
 }

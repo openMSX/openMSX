@@ -5,6 +5,9 @@
 
 #include "EventListener.hh"
 
+#include <functional>
+#include <string>
+
 namespace openmsx {
 
 class ImGuiManager;
@@ -36,6 +39,9 @@ private:
 	bool listening = false;
 
 	std::string saveLayoutName;
+
+	std::string confirmText;
+	std::function<void()> confirmAction;
 };
 
 } // namespace openmsx

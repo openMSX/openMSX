@@ -66,7 +66,7 @@ ImGuiSettings::~ImGuiSettings()
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openOverwriteLayoutPopup = false;
+	bool openConfirmPopup = false;
 
 	im::Menu("Settings", [&]{
 		auto& reactor = manager.getReactor();
@@ -268,7 +268,11 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						auto filename = FileOperations::parseCommandFileArgument(
 							saveLayoutName, "layouts", "", ".ini");
 						if (FileOperations::exists(filename)) {
-							openOverwriteLayoutPopup = true;
+							confirmText = strCat("Overwrite layout: ", saveLayoutName);
+							confirmAction = [filename]{
+								ImGui::SaveIniSettingsToDisk(filename.c_str());
+							};
+							openConfirmPopup = true;
 						} else {
 							ImGui::SaveIniSettingsToDisk(filename.c_str());
 						}
@@ -294,6 +298,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 							manager.loadIniFile = name;
 							ImGui::CloseCurrentPopup();
 						}
+						im::PopupContextItem([&]{
+							if (ImGui::MenuItem("delete")) {
+								confirmText = strCat("Delete layout: ", displayName);
+								confirmAction = [name]{ FileOperations::unlink(name); };
+								openConfirmPopup = true;
+							}
+						});
 					}
 				});
 			});
@@ -348,22 +359,23 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 
-	const auto overwriteLayoutTitle = "Confirm overwrite layout";
-	if (openOverwriteLayoutPopup) {
-		ImGui::OpenPopup(overwriteLayoutTitle);
+	const auto confirmTitle = "Confirm##settings";
+	if (openConfirmPopup) {
+		ImGui::OpenPopup(confirmTitle);
 	}
-	im::PopupModal(overwriteLayoutTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::Text("Overwrite layout: %s", saveLayoutName.c_str());
+	im::PopupModal(confirmTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::TextUnformatted(confirmText);
 
-		if (ImGui::Button("Overwrite")) {
-			auto filename = FileOperations::parseCommandFileArgument(
-				saveLayoutName, "layouts", "", ".ini");
-			ImGui::SaveIniSettingsToDisk(filename.c_str());
-			ImGui::CloseCurrentPopup();
+		bool close = false;
+		if (ImGui::Button("Ok")) {
+			confirmAction();
+			close = true;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Cancel")) {
+		close |= ImGui::Button("Cancel");
+		if (close) {
 			ImGui::CloseCurrentPopup();
+			confirmAction = {};
 		}
 	});
 }

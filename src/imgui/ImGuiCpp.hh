@@ -403,11 +403,11 @@ inline void PopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags, st
 }
 inline void PopupContextItem(const char* str_id, std::invocable<> auto next)
 {
-	PopupContextItem(str_id, 1, next);
+	PopupContextItem(str_id, ImGuiPopupFlags_MouseButtonRight, next);
 }
 inline void PopupContextItem(std::invocable<> auto next)
 {
-	PopupContextItem(nullptr, 1, next);
+	PopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight, next);
 }
 
 // im::PopupContextWindow(): wrapper around ImGui::BeginPopupContextWindow() / ImGui::EndPopup()

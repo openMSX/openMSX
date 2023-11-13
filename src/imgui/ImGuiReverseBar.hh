@@ -34,8 +34,8 @@ private:
 	std::string saveReplayName;
 	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
-	TclObject overWriteCmd;
-	std::string overWriteText;
+	TclObject confirmCmd;
+	std::string confirmText;
 
 	bool reverseHideTitle = true;
 	bool reverseFadeOut = true;
