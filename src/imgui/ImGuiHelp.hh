@@ -19,7 +19,9 @@ private:
 	void paintAbout();
 
 private:
-	bool showAboutWindow = false;
+	bool showImGuiUserGuide = false;
+	bool showAboutOpenMSX = false;
+	bool showAboutImGui = false;
 
 	struct LogoImage {
 		LogoImage() = default;

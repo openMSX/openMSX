@@ -308,6 +308,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					}
 				});
 			});
+			ImGui::MenuItem("Show style editor...", nullptr, &showStyleEditor);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
@@ -983,9 +984,17 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	});
 }
 
+void ImGuiSettings::paintStyleEditor()
+{
+	im::Window("Dear ImGui Style Editor", &showStyleEditor, [&]{
+		ImGui::ShowStyleEditor();
+	});
+}
+
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
+	if (showStyleEditor) paintStyleEditor();
 }
 
 int ImGuiSettings::signalEvent(const Event& event)

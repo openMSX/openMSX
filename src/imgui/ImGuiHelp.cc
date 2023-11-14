@@ -26,18 +26,27 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 			drawURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html"));
 			drawURL("User Manual", strCat("file://", docDir, "/manual/user.html"));
 		});
-		ImGui::MenuItem("About", nullptr, &showAboutWindow);
+		if (ImGui::MenuItem("Dear ImGui user guide...")) showImGuiUserGuide = true;
+		ImGui::Separator();
+		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX);
+		ImGui::MenuItem("About Dear ImGui", nullptr, &showAboutImGui);
 	});
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 {
-	if (showAboutWindow) paintAbout();
+	if (showAboutOpenMSX) paintAbout();
+	if (showAboutImGui) ImGui::ShowAboutWindow(&showAboutImGui);
+	if (showImGuiUserGuide) {
+		im::Window("Dear ImGui User Guide", &showImGuiUserGuide, [&]{
+			ImGui::ShowUserGuide();
+		});
+	}
 }
 
 void ImGuiHelp::paintAbout()
 {
-	im::Window("About openMSX", &showAboutWindow, [&]{
+	im::Window("About openMSX", &showAboutOpenMSX, [&]{
 		if (!logo) {
 			logo.emplace(); // initialize with null-image
 			try {

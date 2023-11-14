@@ -27,10 +27,12 @@ private:
 	void deinitListener();
 
 	void paintJoystick(MSXMotherBoard& motherBoard);
+	void paintStyleEditor();
 
 private:
 	ImGuiManager& manager;
 	bool showConfigureJoystick = false;
+	bool showStyleEditor = false;
 	bool showDemoWindow = false;
 
 	unsigned joystick = 0;
