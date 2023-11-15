@@ -64,6 +64,29 @@ ImGuiSettings::~ImGuiSettings()
 	deinitListener();
 }
 
+void ImGuiSettings::save(ImGuiTextBuffer& buf)
+{
+	savePersistent(buf, *this, persistentElements);
+}
+
+void ImGuiSettings::loadLine(std::string_view name, zstring_view value)
+{
+	loadOnePersistent(name, value, *this, persistentElements);
+}
+
+void ImGuiSettings::loadEnd()
+{
+	setStyle();
+}
+
+void ImGuiSettings::setStyle()
+{
+	switch (selectedStyle) {
+	case 0: ImGui::StyleColorsDark();    break;
+	case 1: ImGui::StyleColorsLight();   break;
+	case 2: ImGui::StyleColorsClassic(); break;
+	}
+}
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool openConfirmPopup = false;
@@ -308,7 +331,19 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					}
 				});
 			});
-			ImGui::MenuItem("Show style editor...", nullptr, &showStyleEditor);
+			im::Menu("Select Style", [&]{
+				std::optional<int> newStyle;
+				std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
+				for (auto i : xrange(narrow<int>(names.size()))) {
+					if (ImGui::Selectable(names[i], selectedStyle == i)) {
+						newStyle = i;
+					}
+				}
+				if (newStyle) {
+					selectedStyle = *newStyle;
+					setStyle();
+				}
+			});
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
@@ -984,17 +1019,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	});
 }
 
-void ImGuiSettings::paintStyleEditor()
-{
-	im::Window("Dear ImGui Style Editor", &showStyleEditor, [&]{
-		ImGui::ShowStyleEditor();
-	});
-}
-
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
-	if (showStyleEditor) paintStyleEditor();
 }
 
 int ImGuiSettings::signalEvent(const Event& event)
