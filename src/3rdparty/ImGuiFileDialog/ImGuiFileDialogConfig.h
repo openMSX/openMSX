@@ -53,8 +53,12 @@
 // widget
 // begin combo widget
 // #define IMGUI_BEGIN_COMBO ImGui::BeginCombo
-// filter ComboBox width
-//#define FILTER_COMBO_WIDTH 120.0f
+// when auto resized, FILTER_COMBO_MIN_WIDTH will be considered has minimum width
+// FILTER_COMBO_AUTO_SIZE is enabled by default now to 1
+// uncomment if you want disable
+//#define FILTER_COMBO_AUTO_SIZE 0
+// filter combobox width
+//#define FILTER_COMBO_MIN_WIDTH 120.0f
 // button widget use for compose path
 //#define IMGUI_PATH_BUTTON ImGui::Button
 // standard button
