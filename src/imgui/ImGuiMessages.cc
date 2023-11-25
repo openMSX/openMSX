@@ -228,15 +228,17 @@ void ImGuiMessages::paintLog()
 
 void ImGuiMessages::paintConfigure()
 {
-	ImGui::SetNextWindowSize(gl::vec2{32, 13} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{32, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure messages", &showConfigure, [&]{
-		im::TreeNode("When a message is emitted", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		ImGui::TextUnformatted("When a message is emitted"sv);
+		im::Indent([&]{
+			auto size1 = ImGui::CalcTextSize("Open log window without focus"sv).x;
+			auto size2 = ImGui::CalcTextSize("Warning"sv).x;
 			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
-				auto size = ImGui::CalcTextSize("Warning"sv);
-				ImGui::TableSetupColumn("");
-				ImGui::TableSetupColumn("Error",   ImGuiTableColumnFlags_WidthFixed, size.x);
-				ImGui::TableSetupColumn("Warning", ImGuiTableColumnFlags_WidthFixed, size.x);
-				ImGui::TableSetupColumn("Info",    ImGuiTableColumnFlags_WidthFixed, size.x);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size1);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
 
 				//ImGui::TableHeadersRow(); // don't want a colored header row
 				if (ImGui::TableNextColumn()) {}
@@ -249,10 +251,7 @@ void ImGuiMessages::paintConfigure()
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
-						auto& action = popupAction[level];
-						if (ImGui::RadioButton(tmpStrCat("##modal" , level).c_str(), action == MODAL_POPUP)) {
-							action = (action == MODAL_POPUP) ? NO_POPUP : MODAL_POPUP;
-						}
+						ImGui::RadioButton(tmpStrCat("##modal" , level).c_str(), &popupAction[level], MODAL_POPUP);
 					}
 				}
 
@@ -261,34 +260,52 @@ void ImGuiMessages::paintConfigure()
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
-						auto& action = popupAction[level];
-						if (ImGui::RadioButton(tmpStrCat("##popup" , level).c_str(), action == POPUP)) {
-							action = (action == POPUP) ? NO_POPUP : POPUP;
-						}
+						ImGui::RadioButton(tmpStrCat("##popup" , level).c_str(), &popupAction[level], POPUP);
 					}
 				}
+
+				if (ImGui::TableNextColumn()) {
+					ImGui::TextUnformatted("Don't show any popup"sv);
+				}
+				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+					if (ImGui::TableNextColumn()) {
+						ImGui::RadioButton(tmpStrCat("##nopopup" , level).c_str(), &popupAction[level], NO_POPUP);
+					}
+				}
+			});
+
+			ImGui::Separator();
+
+			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size1);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
+				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
 
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted("Open log window and focus"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
-						auto& action = openLogAction[level];
-						if (ImGui::RadioButton(tmpStrCat("##focus" , level).c_str(), action == OPEN_LOG_FOCUS)) {
-							action = (action == OPEN_LOG_FOCUS) ? NO_OPEN_LOG : OPEN_LOG_FOCUS;
-						}
+						ImGui::RadioButton(tmpStrCat("##focus" , level).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
 					}
 				}
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Open log window, without focus"sv);
+					ImGui::TextUnformatted("Open log window without focus"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
-						auto& action = openLogAction[level];
-						if (ImGui::RadioButton(tmpStrCat("##log" , level).c_str(), action == OPEN_LOG)) {
-							action = (action == OPEN_LOG) ? NO_OPEN_LOG : OPEN_LOG;
-						}
+						ImGui::RadioButton(tmpStrCat("##log" , level).c_str(), &openLogAction[level], OPEN_LOG);
+					}
+				}
+
+				if (ImGui::TableNextColumn()) {
+					ImGui::TextUnformatted("Do not open log window"sv);
+				}
+				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+					if (ImGui::TableNextColumn()) {
+						ImGui::RadioButton(tmpStrCat("##nolog" , level).c_str(), &openLogAction[level], NO_OPEN_LOG);
 					}
 				}
 			});

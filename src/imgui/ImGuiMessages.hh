@@ -49,8 +49,8 @@ private:
 	ImGuiManager& manager;
 	enum PopupAction : int { NO_POPUP, POPUP, MODAL_POPUP };
 	enum OpenLogAction : int { NO_OPEN_LOG, OPEN_LOG, OPEN_LOG_FOCUS };
-	std::array<PopupAction, CliComm::NUM_LEVELS> popupAction;
-	std::array<OpenLogAction, CliComm::NUM_LEVELS> openLogAction;
+	std::array<int /*PopupAction*/,   CliComm::NUM_LEVELS> popupAction;
+	std::array<int /*OpenLogAction*/, CliComm::NUM_LEVELS> openLogAction;
 
 	circular_buffer<Message> modalMessages;
 	circular_buffer<Message> popupMessages;
