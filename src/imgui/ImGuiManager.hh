@@ -140,7 +140,8 @@ private:
 	bool guiActive = false;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked}
+		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked},
+		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade}
 	};
 };
 
