@@ -301,7 +301,7 @@ void ImGuiMessages::paintConfigure()
 				}
 
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Do not open log window"sv);
+					ImGui::TextUnformatted("Don't open log window"sv);
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
