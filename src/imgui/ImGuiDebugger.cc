@@ -351,7 +351,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGuiListClipper clipper; // only draw the actually visible rows
 			clipper.Begin(0x10000);
 			if (gotoTarget) {
-				clipper.IncludeItemByIndex(*gotoTarget);
+				clipper.IncludeItemsByIndex(*gotoTarget, *gotoTarget + 4);
 			}
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
@@ -445,7 +445,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::AlignTextToFramePadding();
 								ImGui::TextUnformatted("Scroll to address:"sv);
 								ImGui::SameLine();
-								// TODO also allow labels
 								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
 									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
 										nextGotoTarget = *a;
