@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Parallel Printer Interface</name>
+    <manufacturer>Philips</manufacturer>
+    <code>VU 0040</code>
+    <release_year>1984</release_year>
+    <description>Cartridge with a printer port, targeted for the Philips VG 8000/8010 series.</description>
+    <type>printer port</type>
+  </info>
+
+  <devices>
+
+    <PrinterPort id="VU 0040 Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+  </devices>
+
+</msxconfig>
