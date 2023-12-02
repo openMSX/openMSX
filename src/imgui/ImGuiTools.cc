@@ -36,14 +36,27 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 	return result;
 }
 
-void ImGuiTools::showMenu(MSXMotherBoard* /*motherBoard*/)
+void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Tools", [&]{
-		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 		const auto& hotKey = manager.getReactor().getHotKey();
+		
+		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
 		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
+		ImGui::Separator();
+		std::string copyCommand = "set_clipboard_text [get_screen]";
+		auto copyShortCut = getShortCutForCommand(hotKey, copyCommand);
+		if (ImGui::MenuItem("Copy screen text to clipboard", copyShortCut.c_str(), nullptr, motherBoard != nullptr)) {
+			manager.executeDelayed(TclObject(copyCommand));
+		}
+		// TODO: avoid duplication of this complex command from the keybindings.tcl code. Use single place of definition!
+		std::string pasteCommand = "type [regsub -all \"\\r?\\n\" [get_clipboard_text] \"\\r\"]";
+		auto pasteShortCut = getShortCutForCommand(hotKey, pasteCommand);
+		if (ImGui::MenuItem("Paste clipboard into MSX", pasteShortCut.c_str(), nullptr, motherBoard != nullptr)) {
+			manager.executeDelayed(TclObject(pasteCommand));
+		}
 		ImGui::Separator();
 		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator.show);
 		ImGui::Separator();
