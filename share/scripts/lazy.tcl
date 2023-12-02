@@ -13,7 +13,7 @@ register_lazy "_disasm.tcl" {
 	peek_u16_LE peek_u16_BE peek_s16 peek_s16_LE peek_s16_BE
 	poke poke8 poke16 poke16_LE poke16_BE dpoke disasm run_to step_over
 	step_back step_out step_in step skip_instruction}
-register_lazy "_example_tools.tcl" {get_screen listing get_color_count toggle_tron}
+register_lazy "_example_tools.tcl" {get_screen copy_screen_to_clipboard listing get_color_count toggle_tron}
 register_lazy "_filepool.tcl" {filepool get_paths_for_type}
 register_lazy "_guess_title.tcl" {guess_title guess_rom_title guess_rom_device}
 register_lazy "_info_panel.tcl" toggle_info_panel

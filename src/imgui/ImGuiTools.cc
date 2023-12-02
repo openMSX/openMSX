@@ -46,13 +46,12 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
 		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.logWindow.open);
 		ImGui::Separator();
-		std::string copyCommand = "set_clipboard_text [get_screen]";
+		std::string copyCommand = "copy_screen_to_clipboard";
 		auto copyShortCut = getShortCutForCommand(hotKey, copyCommand);
 		if (ImGui::MenuItem("Copy screen text to clipboard", copyShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject(copyCommand));
 		}
-		// TODO: avoid duplication of this complex command from the keybindings.tcl code. Use single place of definition!
-		std::string pasteCommand = "type [regsub -all \"\\r?\\n\" [get_clipboard_text] \"\\r\"]";
+		std::string pasteCommand = "type_clipboard";
 		auto pasteShortCut = getShortCutForCommand(hotKey, pasteCommand);
 		if (ImGui::MenuItem("Paste clipboard into MSX", pasteShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject(pasteCommand));
