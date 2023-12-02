@@ -299,7 +299,7 @@ void ImGuiMachine::paintTestHardware()
 
 		if (!nonWorkingMachines.empty() || !nonWorkingExtensions.empty()) {
 			im::Disabled(!allMachinesTested || !allExtensionsTested, [&]{
-				if (ImGui::Button("Copy non-working hardware to clipboard")) {
+				if (ImGui::Button("Copy list of non-working hardware to clipboard")) {
 					std::string result;
 					auto print = [&](std::string_view label, const auto& indices, const auto& infos) {
 						if (!indices.empty()) {

@@ -40,11 +40,11 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Tools", [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
-		
+
 		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
-		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.showLog);
+		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.logWindow.open);
 		ImGui::Separator();
 		std::string copyCommand = "set_clipboard_text [get_screen]";
 		auto copyShortCut = getShortCutForCommand(hotKey, copyCommand);

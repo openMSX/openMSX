@@ -1,6 +1,7 @@
 #ifndef IMGUI_PALETTE_HH
 #define IMGUI_PALETTE_HH
 
+#include "ImGuiCpp.hh"
 #include "ImGuiPart.hh"
 
 #include <array>
@@ -25,7 +26,7 @@ public:
 	static uint32_t toRGBA(uint16_t msxColor);
 
 public:
-	bool show = false;
+	im::WindowStatus window;
 	int whichPalette = PALETTE_VDP;
 
 private:
@@ -37,7 +38,7 @@ private:
 	std::array<uint16_t, 16> customPalette; // palette in MSX format: 0GRB nibbles
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement   {"show",    &ImGuiPalette::show},
+		PersistentElement   {"show",    &ImGuiPalette::window},
 		PersistentElementMax{"palette", &ImGuiPalette::whichPalette, 3}
 		// manually handle "customPalette"
 	};

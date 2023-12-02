@@ -122,7 +122,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
 			ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
 			if (ImGui::Button("Open palette editor")) {
-				manager.palette.show = true;
+				manager.palette.window.raise();
 			}
 			ImGui::Separator();
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);

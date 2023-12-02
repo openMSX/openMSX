@@ -141,7 +141,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
 				ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
 				if (ImGui::Button("Open palette editor")) {
-					manager.palette.show = true;
+					manager.palette.window.raise();
 				}
 				ImGui::Separator();
 				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
@@ -246,7 +246,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto size = gl::vec2(patternDisplaySize) * zm;
-			im::Child("##pattern", {0, size[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			im::Child("##pattern", {0, size[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), size);
@@ -288,7 +288,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			auto msxSize = charSize * charsSize; // (x * y) number of MSX pixels
 			auto hostSize = msxSize * zm; // (x * y) number of host pixels
 
-			im::Child("##name", {0.0f, hostSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			im::Child("##name", {0.0f, hostSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto* drawList = ImGui::GetWindowDrawList();
 

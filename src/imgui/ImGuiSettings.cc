@@ -348,7 +348,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
-			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages.showConfigure);
+			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages.configureWindow.open);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

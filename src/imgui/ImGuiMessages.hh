@@ -1,6 +1,7 @@
 #ifndef IMGUI_MESSAGES_HH
 #define IMGUI_MESSAGES_HH
 
+#include "ImGuiCpp.hh"
 #include "ImGuiPart.hh"
 
 #include "CliListener.hh"
@@ -32,8 +33,8 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 public:
-	bool showLog       = false;
-	bool showConfigure = false;
+	im::WindowStatus logWindow;
+	im::WindowStatus configureWindow;
 
 private:
 	void paintModal();
@@ -58,7 +59,6 @@ private:
 	std::string filterLog;
 	bool doOpenModal = false;
 	size_t doOpenPopup = 0;
-	bool focusLog = false;
 
 	std::string progressMessage;
 	float progressFraction = 0.0f;;
@@ -80,8 +80,8 @@ private:
 	CliListener* listenerHandle;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"showLog",       &ImGuiMessages::showLog},
-		PersistentElement{"showConfigure", &ImGuiMessages::showConfigure}
+		PersistentElement{"showLog",       &ImGuiMessages::logWindow},
+		PersistentElement{"showConfigure", &ImGuiMessages::configureWindow}
 		// 'popupAction', 'openLogAction' handled elsewhere
 	};
 };

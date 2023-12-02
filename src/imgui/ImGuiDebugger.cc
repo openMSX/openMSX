@@ -156,7 +156,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);
 		ImGui::MenuItem("VDP sprite viewer", nullptr, &manager.sprite.show);
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs.show);
-		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.show);
+		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.window.open);
 		ImGui::Separator();
 		im::Menu("Add hex editor", [&]{
 			auto& debugger = motherBoard->getDebugger();

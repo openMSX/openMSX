@@ -26,7 +26,7 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 			drawURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html"));
 			drawURL("User Manual", strCat("file://", docDir, "/manual/user.html"));
 		});
-		if (ImGui::MenuItem("Dear ImGui user guide...")) showImGuiUserGuide = true;
+		ImGui::MenuItem("Dear ImGui user guide", nullptr, &showImGuiUserGuide);
 		ImGui::Separator();
 		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX);
 		ImGui::MenuItem("About Dear ImGui", nullptr, &showAboutImGui);

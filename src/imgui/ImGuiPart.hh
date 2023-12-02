@@ -1,6 +1,8 @@
 #ifndef IMGUI_PART_HH
 #define IMGUI_PART_HH
 
+#include "ImGuiCpp.hh"
+
 #include "StringOp.hh"
 #include "stl.hh"
 #include "zstring_view.hh"
@@ -131,6 +133,17 @@ struct PersistentElement<C, gl::vec4> : PersistentElementBase<C, gl::vec4> {
 		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
 			this->get(c) = t;
 		}
+	}
+};
+
+template<typename C>
+struct PersistentElement<C, im::WindowStatus> : PersistentElementBase<C, im::WindowStatus> {
+	using PersistentElementBase<C, im::WindowStatus>::PersistentElementBase;
+	void save(ImGuiTextBuffer& buf, C& c) const {
+		buf.appendf("%s=%d\n", this->name.c_str(), this->get(c).open);
+	}
+	void load(C& c, zstring_view value) const {
+		this->get(c).open = StringOp::stringToBool(value);
 	}
 };
 

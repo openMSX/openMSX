@@ -76,25 +76,45 @@ inline void Window(const char* name, std::invocable<> auto next)
 	Window(name, nullptr, 0, next);
 }
 
-// im::Child(): wrapper around ImGui::BeginChild() / ImGui::EndChild()
-inline void Child(const char* str_id, const ImVec2& size, bool border, ImGuiWindowFlags flags, std::invocable<> auto next)
+struct WindowStatus {
+	bool open = false; // [level] true <=> window is open
+	bool do_raise = false; // [edge]  set to true when you want to raise this window
+	                       //         gets automatically reset when done
+	void raise() { do_raise = open = true; }
+};
+inline void Window(const char* name, WindowStatus& status, std::invocable<> auto next)
 {
-	if (ImGui::BeginChild(str_id, size, border, flags)) {
+	if (ImGui::Begin(name, &status.open)) {
+		if (status.do_raise) {
+			status.do_raise = false;
+			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
+				ImGui::GetPlatformIO().Platform_SetWindowFocus(ImGui::GetWindowViewport());
+			}
+		}
+		next();
+	}
+	ImGui::End();
+}
+
+// im::Child(): wrapper around ImGui::BeginChild() / ImGui::EndChild()
+inline void Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags, std::invocable<> auto next)
+{
+	if (ImGui::BeginChild(str_id, size, child_flags, window_flags)) {
 		next();
 	}
 	ImGui::EndChild();
 }
-inline void Child(const char* str_id, const ImVec2& size, bool border, std::invocable<> auto next)
+inline void Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, std::invocable<> auto next)
 {
-	Child(str_id, size, border, 0, next);
+	Child(str_id, size, child_flags, 0, next);
 }
 inline void Child(const char* str_id, const ImVec2& size, std::invocable<> auto next)
 {
-	Child(str_id, size, false, 0, next);
+	Child(str_id, size, 0, 0, next);
 }
 inline void Child(const char* str_id, std::invocable<> auto next)
 {
-	Child(str_id, {}, false, 0, next);
+	Child(str_id, {}, 0, 0, next);
 }
 
 // im::Font(): wrapper around ImGui::PushFont() / ImGui::PopFont()

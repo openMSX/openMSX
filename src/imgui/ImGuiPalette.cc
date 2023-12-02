@@ -102,8 +102,8 @@ std::span<const uint16_t, 16> ImGuiPalette::getPalette(VDP* vdp) const
 
 void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show) return;
-	im::Window("Palette editor", &show, [&]{
+	if (!window.open) return;
+	im::Window("Palette editor", window, [&]{
 		VDP* vdp = motherBoard ? dynamic_cast<VDP*>(motherBoard->findDevice("VDP")) : nullptr; // TODO name based OK?
 
 		im::Disabled(vdp == nullptr, [&]{

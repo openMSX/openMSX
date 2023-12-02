@@ -86,8 +86,8 @@ void ImGuiMessages::paint(MSXMotherBoard* /*motherBoard*/)
 	paintModal();
 	paintPopup();
 	paintProgress();
-	if (showLog)       paintLog();
-	if (showConfigure) paintConfigure();
+	if (logWindow.open) paintLog();
+	if (configureWindow.open) paintConfigure();
 }
 
 template<std::predicate<std::string_view, std::string_view> Filter = always_true>
@@ -122,7 +122,7 @@ bool ImGuiMessages::paintButtons()
 	ImGui::SameLine(0.0f, 30.0f);
 	if (ImGui::SmallButton("Configure...")) {
 		close = true;
-		showConfigure = true;
+		configureWindow.raise();
 	}
 	return close;
 }
@@ -193,12 +193,12 @@ void ImGuiMessages::paintProgress()
 
 void ImGuiMessages::paintLog()
 {
-	if (focusLog) {
-		focusLog = false;
+	if (logWindow.do_raise) {
+		assert(logWindow.open);
 		ImGui::SetNextWindowFocus();
 	}
 	ImGui::SetNextWindowSize(gl::vec2{53, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Message Log", &showLog, [&]{
+	im::Window("Message Log", logWindow, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto buttonHeight = ImGui::GetFontSize() + 2.0f * style.FramePadding.y + style.ItemSpacing.y;
 		im::Child("messages", {0.0f, -buttonHeight}, true, ImGuiWindowFlags_HorizontalScrollbar, [&]{
@@ -221,7 +221,7 @@ void ImGuiMessages::paintLog()
 		ImGui::InputTextWithHint("##filter", "enter search terms", &filterLog);
 		ImGui::SameLine(0.0f, 30.0f);
 		if (ImGui::SmallButton("Configure...")) {
-			showConfigure = true;
+			configureWindow.raise();
 		}
 	});
 }
@@ -229,7 +229,7 @@ void ImGuiMessages::paintLog()
 void ImGuiMessages::paintConfigure()
 {
 	ImGui::SetNextWindowSize(gl::vec2{32, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	im::Window("Configure messages", &showConfigure, [&]{
+	im::Window("Configure messages", configureWindow, [&]{
 		ImGui::TextUnformatted("When a message is emitted"sv);
 		im::Indent([&]{
 			auto size1 = ImGui::CalcTextSize("Open log window without focus"sv).x;
@@ -334,11 +334,10 @@ void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fr
 		doOpenPopup = popupMessages.size();
 	}
 
-	if (openLogAction[level] != NO_OPEN_LOG) {
-		showLog = true;
-		if (openLogAction[level] == OPEN_LOG_FOCUS) {
-			focusLog = true;
-		}
+	if (openLogAction[level] == OPEN_LOG) {
+		logWindow.open = true;
+	} else if (openLogAction[level] == OPEN_LOG_FOCUS) {
+		logWindow.raise();
 	}
 
 	if (allMessages.full()) allMessages.pop_back();
