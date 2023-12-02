@@ -66,15 +66,10 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
 			i += 1;
 			break;
 		case 'A':
-			buf[i + 0] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 0), time);
-			buf[i + 1] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 1), time);
-			appendAddr(dest, buf[i] + buf[i + 1] * 256);
-			i += 2;
-			break;
 		case 'W':
 			buf[i + 0] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 0), time);
 			buf[i + 1] = interface.peekMem(narrow_cast<uint16_t>(pc + i + 1), time);
-			strAppend(dest, '#', hex_string<4>(buf[i] + buf[i + 1] * 256));
+			appendAddr(dest, buf[i] + buf[i + 1] * 256);
 			i += 2;
 			break;
 		case 'X':
