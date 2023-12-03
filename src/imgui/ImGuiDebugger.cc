@@ -410,13 +410,13 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 						mnemonic.clear();
 						std::optional<uint16_t> mnemonicAddr;
-						bool mnemonicLabel = false;
+						std::span<const Symbol* const> mnemonicLabels;
 						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time,
 							[&](std::string& output, uint16_t a) {
 								mnemonicAddr = a;
-								if (auto labels = symbolManager.lookupValue(a); !labels.empty()) {
-									strAppend(output, labels.front()->name); // TODO cycle
-									mnemonicLabel = true;
+								mnemonicLabels = symbolManager.lookupValue(a);
+								if (!mnemonicLabels.empty()) {
+									strAppend(output, mnemonicLabels[cycleLabelsCounter % mnemonicLabels.size()]->name);
 								} else {
 									appendAddrAsHex(output, a);
 								}
@@ -426,7 +426,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							// pc is strictly inside current instruction,
 							// replace the just disassembled instruction with "db #..."
 							mnemonicAddr.reset();
-							mnemonicLabel = false;
+							mnemonicLabels = {};
 							len = pc - addr;
 							assert((1 <= len) && (len <= 3));
 							mnemonic = strCat("db     ", join(
@@ -473,12 +473,24 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							});
 
 							auto addrLabels = symbolManager.lookupValue(addr);
-							std::string_view displayAddr = addrLabels.empty() ? std::string_view(addrStr)
-							                                                  : std::string_view(addrLabels.front()->name); // TODO cycle
+							std::string_view displayAddr = addrLabels.empty()
+								? std::string_view(addrStr)
+								: std::string_view(addrLabels[cycleLabelsCounter % addrLabels.size()]->name);
 							ImGui::SetCursorPos(pos);
 							ImGui::TextUnformatted(displayAddr);
 							if (!addrLabels.empty()) {
-								simpleToolTip(addrStr);
+								simpleToolTip([&]{
+									std::string tip(addrStr);
+									if (addrLabels.size() > 1) {
+										strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
+											join(view::transform(addrLabels, &Symbol::name), ' '));
+									}
+									return tip;
+								});
+								ImGui::SetCursorPos(pos);
+								if (ImGui::InvisibleButton("##addrButton", {-FLT_MIN, textSize})) {
+									++cycleLabelsCounter;
+								}
 							}
 						}
 
@@ -496,10 +508,22 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							if (mnemonicAddr) {
 								ImGui::SetCursorPos(pos);
 								if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
+									if (!mnemonicLabels.empty()) {
+										++cycleLabelsCounter;
+									}
+								}
+								if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 									nextGotoTarget = *mnemonicAddr;
 								}
-								if (mnemonicLabel) {
-									simpleToolTip([&]{ return strCat('#', hex_string<4>(*mnemonicAddr)); });
+								if (!mnemonicLabels.empty()) {
+									simpleToolTip([&]{
+										auto tip = strCat('#', hex_string<4>(*mnemonicAddr));
+										if (mnemonicLabels.size() > 1) {
+											strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
+												join(view::transform(mnemonicLabels, &Symbol::name), ' '));
+										}
+										return tip;
+									});
 								}
 							}
 						}

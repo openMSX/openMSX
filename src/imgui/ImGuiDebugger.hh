@@ -84,6 +84,7 @@ private:
 private:
 	ImGuiManager& manager;
 	SymbolManager& symbolManager;
+	size_t cycleLabelsCounter = 0;
 
 	struct EditorInfo {
 		explicit EditorInfo(const std::string& name_)
