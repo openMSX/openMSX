@@ -165,7 +165,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
 		int zy = (1 + bitmapZoom) * 2;
 
-		im::Child("##bitmap", ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+		im::Child("##bitmap", ImGui::GetContentRegionAvail(), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			auto pos = ImGui::GetCursorPos();
 			ImVec2 size(float(width * zx), float(height * zy));
 			ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);

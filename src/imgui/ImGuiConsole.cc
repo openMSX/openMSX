@@ -129,8 +129,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		auto& style = ImGui::GetStyle();
 		const float footerHeightToReserve = style.ItemSpacing.y +
 						ImGui::GetFrameHeightWithSpacing();
-		im::Child("ScrollingRegion",
-		          ImVec2(0, -footerHeightToReserve), false,
+		im::Child("ScrollingRegion", ImVec2(0, -footerHeightToReserve), 0,
 		          ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			im::PopupContextWindow([&]{
 				if (ImGui::Selectable("Clear")) {

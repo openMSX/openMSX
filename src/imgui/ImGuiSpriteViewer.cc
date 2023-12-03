@@ -339,7 +339,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto fullSize = gl::vec2(256, 64) * float(zm);
-			im::Child("##pattern", {0, fullSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			im::Child("##pattern", {0, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), fullSize);
@@ -392,7 +392,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			float zoomSize = float(zm * size);
 			auto fullSize = zoomSize * gl::vec2(8, 4);
-			im::Child("##attrib", {0, fullSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			im::Child("##attrib", {0, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (mode == 0) {
 					ImGui::TextUnformatted("No sprites in this screen mode"sv);
 				} else {
@@ -652,7 +652,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			}
 
 			auto fullSize = float(zm) * gl::vec2(256, float(lines));
-			im::Child("##screen", {0.0f, fullSize[1]}, false, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			im::Child("##screen", {0.0f, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto boxColor = ImGui::ColorConvertFloat4ToU32(boundingBoxColor);

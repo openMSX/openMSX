@@ -201,7 +201,7 @@ void ImGuiMessages::paintLog()
 	im::Window("Message Log", logWindow, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto buttonHeight = ImGui::GetFontSize() + 2.0f * style.FramePadding.y + style.ItemSpacing.y;
-		im::Child("messages", {0.0f, -buttonHeight}, true, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+		im::Child("messages", {0.0f, -buttonHeight}, ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			printMessages(allMessages, [&](std::string_view prefix, std::string_view message) {
 				if (filterLog.empty()) return true;
 				auto full = tmpStrCat(prefix, message);
