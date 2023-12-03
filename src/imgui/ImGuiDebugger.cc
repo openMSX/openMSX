@@ -17,10 +17,12 @@
 #include "RomPlain.hh"
 
 #include "narrow.hh"
+#include "join.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
+#include "view.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -420,6 +422,18 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							});
 						assert(len >= 1);
+						if ((addr < pc) && (pc < (addr + len))) {
+							// pc is strictly inside current instruction,
+							// replace the just disassembled instruction with "db #..."
+							mnemonicAddr.reset();
+							mnemonicLabel = false;
+							len = pc - addr;
+							assert((1 <= len) && (len <= 3));
+							mnemonic = strCat("db     ", join(
+								view::transform(xrange(len),
+									[&](unsigned i) { return strCat('#', hex_string<2>(opcodes[i])); }),
+								','));
+						}
 
 						if (ImGui::TableNextColumn()) { // addr
 							// do the full-row-selectable stuff in a column that cannot be hidden
