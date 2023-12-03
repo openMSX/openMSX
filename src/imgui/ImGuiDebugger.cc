@@ -641,50 +641,66 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 		const auto& style = ImGui::GetStyle();
 		auto padding = 2 * style.FramePadding.x;
 		auto width16 = ImGui::CalcTextSize("FFFF"sv).x + padding;
-		auto edit16 = [&](std::string_view label, auto getter, auto setter) {
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(label);
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(width16);
+		auto edit16 = [&](std::string_view label, std::string_view high, std::string_view low, auto getter, auto setter) {
 			uint16_t value = getter();
-			if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
-				setter(value);
-			}
+			im::Group([&]{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(label);
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(width16);
+				if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
+					setter(value);
+				}
+			});
+			simpleToolTip([&]{
+				return strCat(
+					"Bin: ", bin_string<4>(value >> 12), ' ', bin_string<4>(value >>  8), ' ',
+					         bin_string<4>(value >>  4), ' ', bin_string<4>(value >>  0), "\n"
+					"Dec: ", dec_string<5>(value), '\n',
+					high, ": ", dec_string<3>(value >> 8), "  ", low, ": ", dec_string<3>(value & 0xff));
+			});
 		};
 		auto edit8 = [&](std::string_view label, auto getter, auto setter) {
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(label);
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(width16);
 			uint8_t value = getter();
-			if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
-				setter(value);
-			}
+			im::Group([&]{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(label);
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(width16);
+				if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
+					setter(value);
+				}
+			});
+			simpleToolTip([&]{
+				return strCat(
+					"Bin: ", bin_string<4>(value >> 4), ' ', bin_string<4>(value >> 0), "\n"
+					"Dec: ", dec_string<3>(value), '\n');
+			});
 		};
 
-		edit16("AF", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
+		edit16("AF", "A", "F", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("AF'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
+		edit16("AF'", "A'", "F'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
 
-		edit16("BC", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
+		edit16("BC", "B", "C", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("BC'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
+		edit16("BC'", "B'", "C'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
 
-		edit16("DE", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
+		edit16("DE", "D", "E", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("DE'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
+		edit16("DE'", "D'", "E'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
 
-		edit16("HL", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
+		edit16("HL", "H", "L", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("HL'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
+		edit16("HL'", "H'", "L'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
 
-		edit16("IX", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
+		edit16("IX", "IXh", "IXl", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("IY ", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
+		edit16("IY ", "IYh", "IYl", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
 
-		edit16("PC", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
+		edit16("PC", "PCh", "PCl", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("SP ", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
+		edit16("SP ", "SPh", "SPl", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
 
 		edit8("I ", [&]{ return regs.getI(); }, [&](uint8_t value) { regs.setI(value); });
 		ImGui::SameLine(0.0f, 20.0f);
