@@ -129,6 +129,7 @@ void ImGuiOpenFile::common(const std::string& title, const char* filters,
                            Painter painter_,
                            int extraFlags)
 {
+	chooseDirectory = filters == nullptr;
 	activePainter = painter_;
 	setBookmarks();
 
@@ -152,7 +153,7 @@ void ImGuiOpenFile::doPaint()
 		if (fileDialog->IsOk() && openFileCallback) {
 			lastPath[lastTitle] = fileDialog->GetCurrentPath();
 			std::string filePathName = FileOperations::getConventionalPath( // Windows: replace backslash with slash
-				fileDialog->GetFilePathName());
+				chooseDirectory ? fileDialog->GetCurrentPath() : fileDialog->GetFilePathName());
 			openFileCallback(filePathName);
 			openFileCallback = {};
 		}

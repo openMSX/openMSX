@@ -62,6 +62,7 @@ private:
 	std::string lastTitle;
 	std::function<void(const std::string&)> openFileCallback;
 	Painter activePainter;
+	bool chooseDirectory = false;
 };
 
 } // namespace openmsx
