@@ -7,7 +7,7 @@
     <manufacturer>National</manufacturer>
     <code>CF-SM003</code>
     <release_year>1984</release_year>
-    <description>Japanese Word Processor with Kanji ROM and printer port. Seems very similar to Yamaha SKW-01, but with slightly different ROMs.</description>
+    <description>Japanese Word Processor with Kanji ROM. Seems very similar to Yamaha SKW-01, but with slightly different ROMs and no printer port.</description>
     <type>kanji font expansion</type>
   </info>
   <devices>
@@ -28,6 +28,7 @@
             <filename>cf-sm003_data.rom</filename>
           </rom>
           <sramname>cf-sm003.sram</sramname>
+          <hasprinterport>false</hasprinterport>
         </YamahaSKW01>
       </secondary>
     </primary>
