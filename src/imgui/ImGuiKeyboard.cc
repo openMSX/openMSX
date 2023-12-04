@@ -163,7 +163,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 			bool active = !(matrix[row] & mask);
 
 			ImGui::SetCursorPos(origin + scale * key.pos);
-			im::StyleColor(ImGuiCol_Button, active ? 0xFF1040FF : 0x80000000, [&]{
+			im::StyleColor(ImGuiCol_Button, getColor(active ? imColor::KEY_ACTIVE : imColor::KEY_NOT_ACTIVE), [&]{
 				ImGui::Button(key.label, scale * key.size);
 			});
 

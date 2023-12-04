@@ -114,11 +114,13 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 			}
 			for (auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
-					if (anySpecialChannelSettings(info)) {
-						ImU32 color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 0.0f, 0.75f));
-						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+					bool special = anySpecialChannelSettings(info);
+					if (special) {
+						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, getColor(imColor::YELLOW));
 					}
-					ImGui::TextUnformatted("channels"sv);
+					im::StyleColor(special, ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f), []{
+						ImGui::TextUnformatted("channels"sv);
+					});
 					const auto& name = info.device->getName();
 					std::string id = "##channels-" + name;
 					auto [it, inserted] = channels.try_emplace(name, false);

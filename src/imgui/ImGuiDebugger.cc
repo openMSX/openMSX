@@ -370,7 +370,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 						bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
 						if (rowAtPc) {
-							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, 0x8000ffff);
+							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, getColor(imColor::YELLOW_BG));
 						}
 						if (ImGui::TableNextColumn()) { // bp
 							while ((bpIt != bpEt) && (bpIt->getAddress() < addr)) ++bpIt;

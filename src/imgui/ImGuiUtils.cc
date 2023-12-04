@@ -255,4 +255,31 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 	return "";
 }
 
+void setColors(int style)
+{
+	// style: 0->dark, 1->light, 2->classic
+	bool light = style == 1;
+
+	//                                            AABBGGRR
+	imColors[size_t(imColor::TRANSPARENT   )] = 0x00000000;
+	imColors[size_t(imColor::BLACK         )] = 0xff000000;
+	imColors[size_t(imColor::WHITE         )] = 0xffffffff;
+	imColors[size_t(imColor::GRAY          )] = 0xff808080;
+	imColors[size_t(imColor::YELLOW        )] = 0xff00ffff;
+	imColors[size_t(imColor::RED_BG        )] = 0x400000ff;
+	imColors[size_t(imColor::YELLOW_BG     )] = 0x8000ffff;
+
+	imColors[size_t(imColor::TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
+
+	imColors[size_t(imColor::ERROR         )] = 0xff0000ff;
+	imColors[size_t(imColor::COMMENT       )] = 0xff5cff5c;
+	imColors[size_t(imColor::VARIABLE      )] = 0xffffff00;
+	imColors[size_t(imColor::LITERAL       )] = light ? 0xff9c5d27 : 0xff00ffff;
+	imColors[size_t(imColor::PROC          )] = 0xffcd00cd;
+	imColors[size_t(imColor::OPERATOR      )] = 0xffcdcd00;
+
+	imColors[size_t(imColor::KEY_ACTIVE    )] = 0xff1040ff;
+	imColors[size_t(imColor::KEY_NOT_ACTIVE)] = 0x80000000;
+}
+
 } // namespace openmsx

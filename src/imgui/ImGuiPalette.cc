@@ -134,7 +134,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 					im::ID_for_range(16, [&](int i) {
 						if (ImGui::TableNextColumn()) {
 							if (i == selectedColor) {
-								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive)));
+								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGuiCol_HeaderActive));
 							}
 							auto color = toRGBA(palette[i]);
 							if (coloredButton("", color, {44.0f, 30.0f})) {

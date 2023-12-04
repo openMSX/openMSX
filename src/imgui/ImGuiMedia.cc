@@ -394,7 +394,7 @@ void ImGuiMedia::printExtensionInfo(ExtensionInfo& info)
 			}
 		});
 	} else {
-		im::StyleColor(ImGuiCol_Text, 0xFF0000FF, [&]{
+		im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
 				ImGui::TextUnformatted(test);
 			});
@@ -1346,13 +1346,13 @@ static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
 	auto p1 = center + gl::vec2(half, 0.0f);
 	auto p2 = center + gl::vec2(-half, half);
 	auto p3 = center + gl::vec2(-half, -half);
-	drawList->AddTriangleFilled(p1, p2, p3, ImGui::GetColorU32(ImGuiCol_Text));
+	drawList->AddTriangleFilled(p1, p2, p3, getColor(imColor::TEXT));
 }
 static void RenderRewind(gl::vec2 center, ImDrawList* drawList)
 {
 	float size = 0.8f * ImGui::GetTextLineHeight();
 	float half = size * 0.5f;
-	auto color = ImGui::GetColorU32(ImGuiCol_Text);
+	auto color = getColor(imColor::TEXT);
 	auto p1 = center + gl::vec2(-size, 0.0f);
 	auto p2 = center + gl::vec2(0.0f, -half);
 	auto p3 = center + gl::vec2(0.0f, half);
@@ -1366,12 +1366,12 @@ static void RenderRewind(gl::vec2 center, ImDrawList* drawList)
 static void RenderStop(gl::vec2 center, ImDrawList* drawList)
 {
 	gl::vec2 half{0.4f * ImGui::GetTextLineHeight()};
-	drawList->AddRectFilled(center - half, center + half, ImGui::GetColorU32(ImGuiCol_Text));
+	drawList->AddRectFilled(center - half, center + half, getColor(imColor::TEXT));
 }
 static void RenderRecord(gl::vec2 center, ImDrawList* drawList)
 {
 	float radius = 0.4f * ImGui::GetTextLineHeight();
-	drawList->AddCircleFilled(center, radius, ImGui::GetColorU32(ImGuiCol_Text));
+	drawList->AddCircleFilled(center, radius, getColor(imColor::TEXT));
 }
 
 

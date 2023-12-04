@@ -395,7 +395,7 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 			}
 		});
 	} else {
-		im::StyleColor(ImGuiCol_Text, 0xFF0000FF, [&]{
+		im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 			im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
 				ImGui::TextUnformatted(test);
 			});

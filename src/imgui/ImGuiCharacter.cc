@@ -313,7 +313,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				};
 
 				if (mode == OTHER) {
-					drawList->AddRectFilled(scrnPos, scrnPos + hostSize, 0xff808080);
+					drawList->AddRectFilled(scrnPos, scrnPos + hostSize, getColor(imColor::GRAY));
 				} else {
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
 					drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
@@ -469,7 +469,7 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		}
 		break;
 	default:
-		output[0] = 0xFF808080; // gray
+		output[0] = getColor(imColor::GRAY);
 		break;
 	}
 }

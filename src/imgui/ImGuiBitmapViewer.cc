@@ -336,7 +336,7 @@ void ImGuiBitmapViewer::renderBitmap(std::span<const uint8_t> vram, std::span<co
 		for (auto y : xrange(lines)) {
 			auto* line = &output[256 * y];
 			for (auto x : xrange(256)) {
-				line[x] = 0xFF808080; // gray
+				line[x] = getColor(imColor::GRAY);
 			}
 		}
 		break;

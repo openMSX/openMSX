@@ -1,6 +1,8 @@
 #ifndef CONSOLE_LINE_HH
 #define CONSOLE_LINE_HH
 
+#include "ImGuiUtils.hh"
+
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -23,10 +25,10 @@ public:
 	}
 
 	/** Construct line with a single color (by default white). */
-	explicit ConsoleLine(std::string line, uint32_t rgb = 0xffffffff);
+	explicit ConsoleLine(std::string line, imColor color = imColor::TEXT);
 
 	/** Append a chunk with a (different) color. */
-	void addChunk(std::string_view text, uint32_t rgb = 0xffffffff);
+	void addChunk(std::string_view text, imColor color = imColor::TEXT);
 
 	/** Append another line (possibly containing multiple chunks). */
 	void addLine(const ConsoleLine& ln);
@@ -46,7 +48,7 @@ public:
 	  * line that has the same color. */
 	[[nodiscard]] size_t numChunks() const { return chunks.size(); }
 	/** Get the color for the i-th chunk. */
-	[[nodiscard]] uint32_t chunkColor(size_t i) const;
+	[[nodiscard]] imColor chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
 	[[nodiscard]] std::string_view chunkText(size_t i) const;
 
@@ -54,7 +56,7 @@ public:
 
 public:
 	struct Chunk {
-		uint32_t rgb;
+		imColor color;
 		std::string_view::size_type pos;
 	};
 

@@ -9,15 +9,15 @@
 
 namespace openmsx {
 
-ConsoleLine::ConsoleLine(std::string line_, uint32_t rgb)
+ConsoleLine::ConsoleLine(std::string line_, imColor color)
 	: line(std::move(line_))
-	, chunks(1, {rgb, 0})
+	, chunks(1, {color, 0})
 {
 }
 
-void ConsoleLine::addChunk(std::string_view text, uint32_t rgb)
+void ConsoleLine::addChunk(std::string_view text, imColor color)
 {
-	chunks.emplace_back(Chunk{rgb, line.size()});
+	chunks.emplace_back(Chunk{color, line.size()});
 	line.append(text.data(), text.size());
 }
 
@@ -51,7 +51,7 @@ ConsoleLine ConsoleLine::splitAtColumn(unsigned column)
 
 	auto it2 = ranges::upper_bound(chunks, pos, {}, &Chunk::pos);
 	assert(it2 != chunks.begin());
-	auto splitColor = it2[-1].rgb;
+	auto splitColor = it2[-1].color;
 
 	if (it != et) {
 		//result.addChunk(std::string_view{it, et}, splitColor); // c++20
@@ -74,10 +74,10 @@ size_t ConsoleLine::numChars() const
 	return utf8::unchecked::size(line);
 }
 
-uint32_t ConsoleLine::chunkColor(size_t i) const
+imColor ConsoleLine::chunkColor(size_t i) const
 {
 	assert(i < chunks.size());
-	return chunks[i].rgb;
+	return chunks[i].color;
 }
 
 std::string_view ConsoleLine::chunkText(size_t i) const

@@ -76,11 +76,11 @@ void ImGuiConsole::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-void ImGuiConsole::print(std::string_view text, unsigned rgb)
+void ImGuiConsole::print(std::string_view text, imColor color)
 {
 	do {
 		auto pos = text.find('\n');
-		newLineConsole(ConsoleLine(std::string(text.substr(0, pos)), rgb));
+		newLineConsole(ConsoleLine(std::string(text.substr(0, pos)), color));
 		if (pos == std::string_view::npos) break;
 		text.remove_prefix(pos + 1); // skip newline
 	} while (!text.empty());
@@ -110,7 +110,7 @@ static void drawLine(const ConsoleLine& line)
 {
 	auto n = line.numChunks();
 	for (auto i : xrange(n)) {
-		im::StyleColor(ImGuiCol_Text, line.chunkColor(i), [&]{
+		im::StyleColor(ImGuiCol_Text, getColor(line.chunkColor(i)), [&]{
 			ImGui::TextUnformatted(line.chunkText(i));
 			if (i != (n - 1)) ImGui::SameLine(0.0f, 0.0f);
 		});
@@ -206,7 +206,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 						prompt = PROMPT_NEW;
 					},
 					[this](const std::string& error) {
-						this->print(error, 0xff0000ff);
+						this->print(error, imColor::ERROR);
 						prompt = PROMPT_NEW;
 					});
 				commandBuffer.clear();
@@ -250,7 +250,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ auto* drawList = ImGui::GetWindowDrawList();
 		/**/ for (auto i : xrange(coloredInputBuf.numChunks())) {
 		/**/ 	auto text = coloredInputBuf.chunkText(i);
-		/**/ 	auto rgba = coloredInputBuf.chunkColor(i);
+		/**/ 	auto rgba = getColor(coloredInputBuf.chunkColor(i));
 		/**/ 	const char* begin = text.data();
 		/**/ 	const char* end = begin + text.size();
 		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
@@ -330,19 +330,18 @@ void ImGuiConsole::colorize(std::string_view line)
 		while ((pos != colors.size()) && (colors[pos] == col)) {
 			++pos;
 		}
-		unsigned rgb = [&] {
+		imColor color = [&] {
 			switch (col) {
-			//                 AABBGGRR
-			case 'E': return 0xff0000ff; // error
-			case 'c': return 0xff5cff5c; // comment
-			case 'v': return 0xffffff00; // variable
-			case 'l': return 0xff00ffff; // literal
-			case 'p': return 0xffcd00cd; // proc
-			case 'o': return 0xffcdcd00; // operator
-			default:  return 0xffffffff; // other
+			case 'E': return imColor::ERROR;
+			case 'c': return imColor::COMMENT;
+			case 'v': return imColor::VARIABLE;
+			case 'l': return imColor::LITERAL;
+			case 'p': return imColor::PROC;
+			case 'o': return imColor::OPERATOR;
+			default:  return imColor::TEXT; // other
 			}
 		}();
-		coloredInputBuf.addChunk(line.substr(pos2, pos - pos2), rgb);
+		coloredInputBuf.addChunk(line.substr(pos2, pos - pos2), color);
 	}
 }
 

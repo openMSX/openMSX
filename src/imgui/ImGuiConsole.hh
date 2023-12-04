@@ -2,6 +2,7 @@
 #define IMGUI_CONSOLE_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
 #include "ConsoleLine.hh"
@@ -35,7 +36,7 @@ public:
 	bool show = false;
 
 private:
-	void print(std::string_view text, uint32_t rgba = 0xffffffff);
+	void print(std::string_view text, imColor color = imColor::TEXT);
 	void newLineConsole(ConsoleLine line);
 	static int textEditCallbackStub(ImGuiInputTextCallbackData* data);
 	int textEditCallback(ImGuiInputTextCallbackData* data);

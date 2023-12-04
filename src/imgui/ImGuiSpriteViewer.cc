@@ -62,6 +62,8 @@ static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uin
 
 static void renderPatterns8(std::span<const uint8_t> vram, bool planar, int patBase, std::span<uint32_t> output)
 {
+	auto zero = getColor(imColor::TRANSPARENT);
+	auto one  = getColor(imColor::TEXT);
 	for (auto row : xrange(8)) {
 		for (auto column : xrange(32)) {
 			auto patNum = 32 * row + column;
@@ -69,7 +71,7 @@ static void renderPatterns8(std::span<const uint8_t> vram, bool planar, int patB
 			for (auto y : xrange(8)) {
 				auto pattern = vpeek(vram, planar, addr + y);
 				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
-				draw8(pattern, 0xffffffff, 0x00000000, out);
+				draw8(pattern, one, zero, out);
 			}
 		}
 	}
@@ -77,6 +79,8 @@ static void renderPatterns8(std::span<const uint8_t> vram, bool planar, int patB
 
 static void renderPatterns16(std::span<const uint8_t> vram, bool planar, int patBase, std::span<uint32_t> output)
 {
+	auto zero = getColor(imColor::TRANSPARENT);
+	auto one  = getColor(imColor::TEXT);
 	for (auto row : xrange(4)) {
 		for (auto column : xrange(16)) {
 			auto patNum = 4 * (16 * row + column);
@@ -86,8 +90,8 @@ static void renderPatterns16(std::span<const uint8_t> vram, bool planar, int pat
 				auto patternB = vpeek(vram, planar, addr + y + 16);
 				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  0);
 				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  8);
-				draw8(patternA, 0xffffffff, 0x00000000, outA);
-				draw8(patternB, 0xffffffff, 0x00000000, outB);
+				draw8(patternA, one, zero, outA);
+				draw8(patternB, one, zero, outB);
 			}
 		}
 	}
@@ -301,7 +305,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 64, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		} else {
-			pixels[0] = 0xFF808080; // gray
+			pixels[0] = getColor(imColor::GRAY);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		}

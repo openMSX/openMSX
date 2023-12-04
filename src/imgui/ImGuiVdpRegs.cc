@@ -486,9 +486,9 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 					int f = lookupFunction(reg, mask);
 					if (f != -1 && f == hoveredFunction) {
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg,
-							0xff00ffff);
+							getColor(imColor::YELLOW));
 					}
-					im::StyleColor(ImGuiCol_Button, value & mask ? 0xFF1040FF : 0x80000000, [&]{
+					im::StyleColor(ImGuiCol_Button, getColor(value & mask ? imColor::KEY_ACTIVE : imColor::KEY_NOT_ACTIVE), [&]{
 						if (ImGui::Button(bits[bit_], {40.0f, 0.0f})) {
 							value ^=  mask;
 							writeReg = true;
@@ -525,13 +525,13 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 				shift += std::popcount(sub.mask);
 			}
 			if (auto s = func.displayFunc(value); !s.empty()) {
-				auto textColor = 0xffffffff;
+				auto textColor = getColor(imColor::TEXT);
 				bool canHover = func.subs[0].mask != 0;
 				if (canHover && (f == hoveredFunction)) {
 					gl::vec2 textSize = ImGui::CalcTextSize(s);
 					gl::vec2 pos = ImGui::GetCursorScreenPos();
-					textColor = 0xff000000;
-					drawList->AddRectFilled(pos - framePadding, pos + textSize + 2.0f * framePadding, 0xff00ffff);
+					textColor = getColor(imColor::BLACK);
+					drawList->AddRectFilled(pos - framePadding, pos + textSize + 2.0f * framePadding, getColor(imColor::YELLOW));
 				}
 				im::StyleColor(ImGuiCol_Text, textColor, [&]{
 					ImGui::TextUnformatted(s);

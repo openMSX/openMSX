@@ -571,7 +571,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 
 	auto setRedBg = [](bool valid) {
 		if (valid) return;
-		ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, 0x400000ff);
+		ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, getColor(imColor::RED_BG));
 	};
 
 	bool needSync = false;

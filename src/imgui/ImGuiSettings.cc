@@ -86,6 +86,7 @@ void ImGuiSettings::setStyle()
 	case 1: ImGui::StyleColorsLight();   break;
 	case 2: ImGui::StyleColorsClassic(); break;
 	}
+	setColors(selectedStyle);
 }
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
@@ -485,7 +486,6 @@ struct Rectangle {
 }
 
 
-static constexpr auto white = uint32_t(0xffffffff);
 static constexpr auto fractionDPad = 1.0f / 3.0f;
 static constexpr auto thickness = 3.0f;
 
@@ -530,11 +530,12 @@ static void drawDPad(gl::vec2 center, float size, std::span<const uint8_t, 4> ho
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
 
+	auto color = getColor(imColor::TEXT);
 	for (auto i : xrange(4)) {
 		if (hovered[i] || (hoveredRow == i)) {
 			drawList->AddConvexPolyFilled(points[i].data(), 5, hoverColor);
 		}
-		drawList->AddPolyline(points[i].data(), 5 + 1, white, 0, thickness);
+		drawList->AddPolyline(points[i].data(), 5 + 1, color, 0, thickness);
 	}
 }
 
@@ -545,7 +546,8 @@ static void drawFilledCircle(gl::vec2 center, float radius, bool fill)
 		auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
 		drawList->AddCircleFilled(center, radius, hoverColor);
 	}
-	drawList->AddCircle(center, radius, white, 0, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddCircle(center, radius, color, 0, thickness);
 }
 static void drawFilledRectangle(Rectangle r, float corner, bool fill)
 {
@@ -554,7 +556,8 @@ static void drawFilledRectangle(Rectangle r, float corner, bool fill)
 		auto hoverColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
 		drawList->AddRectFilled(r.topLeft, r.bottomRight, hoverColor, corner);
 	}
-	drawList->AddRect(r.topLeft, r.bottomRight, white, corner, 0, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddRect(r.topLeft, r.bottomRight, color, corner, 0, thickness);
 }
 
 static void drawLetterA(gl::vec2 center)
@@ -562,47 +565,53 @@ static void drawLetterA(gl::vec2 center)
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
 	const std::array<ImVec2, 3> lines = { tr({-6, 7}), tr({0, -7}), tr({6, 7}) };
-	drawList->AddPolyline(lines.data(), lines.size(), white, 0, thickness);
-	drawList->AddLine(tr({-3, 1}), tr({3, 1}), white, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddPolyline(lines.data(), lines.size(), color, 0, thickness);
+	drawList->AddLine(tr({-3, 1}), tr({3, 1}), color, thickness);
 }
 static void drawLetterB(gl::vec2 center)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
 	const std::array<ImVec2, 4> lines = { tr({1, -7}), tr({-4, -7}), tr({-4, 7}), tr({2, 7}) };
-	drawList->AddPolyline(lines.data(), lines.size(), white, 0, thickness);
-	drawList->AddLine(tr({-4, -1}), tr({2, -1}), white, thickness);
-	drawList->AddBezierQuadratic(tr({1, -7}), tr({4, -7}), tr({4, -4}), white, thickness);
-	drawList->AddBezierQuadratic(tr({4, -4}), tr({4, -1}), tr({1, -1}), white, thickness);
-	drawList->AddBezierQuadratic(tr({2, -1}), tr({6, -1}), tr({6,  3}), white, thickness);
-	drawList->AddBezierQuadratic(tr({6,  3}), tr({6,  7}), tr({2,  7}), white, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddPolyline(lines.data(), lines.size(), color, 0, thickness);
+	drawList->AddLine(tr({-4, -1}), tr({2, -1}), color, thickness);
+	drawList->AddBezierQuadratic(tr({1, -7}), tr({4, -7}), tr({4, -4}), color, thickness);
+	drawList->AddBezierQuadratic(tr({4, -4}), tr({4, -1}), tr({1, -1}), color, thickness);
+	drawList->AddBezierQuadratic(tr({2, -1}), tr({6, -1}), tr({6,  3}), color, thickness);
+	drawList->AddBezierQuadratic(tr({6,  3}), tr({6,  7}), tr({2,  7}), color, thickness);
 }
 static void drawLetterC(gl::vec2 center)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
-	drawList->AddBezierCubic(tr({5, -5}), tr({-8, -16}), tr({-8, 16}), tr({5, 5}), white, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddBezierCubic(tr({5, -5}), tr({-8, -16}), tr({-8, 16}), tr({5, 5}), color, thickness);
 }
 static void drawLetterX(gl::vec2 center)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
-	drawList->AddLine(tr({-4, -6}), tr({4,  6}), white, thickness);
-	drawList->AddLine(tr({-4,  6}), tr({4, -6}), white, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddLine(tr({-4, -6}), tr({4,  6}), color, thickness);
+	drawList->AddLine(tr({-4,  6}), tr({4, -6}), color, thickness);
 }
 static void drawLetterY(gl::vec2 center)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
-	drawList->AddLine(tr({-4, -6}), tr({0,  0}), white, thickness);
-	drawList->AddLine(tr({-4,  6}), tr({4, -6}), white, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddLine(tr({-4, -6}), tr({0,  0}), color, thickness);
+	drawList->AddLine(tr({-4,  6}), tr({4, -6}), color, thickness);
 }
 static void drawLetterZ(gl::vec2 center)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return center + p; };
 	const std::array<ImVec2, 4> linesZ2 = { tr({-4, -6}), tr({4, -6}), tr({-4, 6}), tr({4, 6}) };
-	drawList->AddPolyline(linesZ2.data(), 4, white, 0, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddPolyline(linesZ2.data(), 4, color, 0, thickness);
 }
 
 namespace msxjoystick {
@@ -648,7 +657,8 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 
-	drawList->AddRect(scrnPos, scrnPos + boundingBox, white, corner, 0, thickness);
+	auto color = getColor(imColor::TEXT);
+	drawList->AddRect(scrnPos, scrnPos + boundingBox, color, corner, 0, thickness);
 
 	drawDPad(scrnPos + centerDPad, sizeDPad, subspan<4>(hovered), hoveredRow);
 
@@ -730,6 +740,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	auto tr = [&](gl::vec2 p) { return scrnPos + p; };
+	auto color = getColor(imColor::TEXT);
 
 	auto drawBezierCurve = [&](std::span<const gl::vec2> points, float thick = 1.0f) {
 		assert((points.size() % 2) == 0);
@@ -738,7 +749,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 			auto ad = points[i + 1];
 			auto bp = points[i + 2];
 			auto bd = points[i + 3];
-			drawList->AddBezierCubic(tr(ap), tr(ap + ad), tr(bp - bd), tr(bp), white, thick);
+			drawList->AddBezierCubic(tr(ap), tr(ap + ad), tr(bp - bd), tr(bp), color, thick);
 		}
 	};
 
@@ -760,7 +771,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	drawBezierCurve(outLine, thickness);
 
 	drawDPad(tr(centerDPad), sizeDPad, subspan<4>(hovered), hoveredRow);
-	drawList->AddCircle(tr(centerDPad), 43.0f, white);
+	drawList->AddCircle(tr(centerDPad), 43.0f, color);
 	std::array dPadCurve = {
 		gl::vec2{77.0f,  33.0f}, gl::vec2{ 69.2f, 0.0f},
 		gl::vec2{54.8f, 135.2f}, gl::vec2{-66.9f, 0.0f},
@@ -790,9 +801,9 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	auto corner = (selectBox.bottomRight[1] - selectBox.topLeft[1]) * 0.5;
 	auto trR = [&](Rectangle r) { return Rectangle{tr(r.topLeft), tr(r.bottomRight)}; };
 	drawFilledRectangle(trR(selectBox), corner, hovered[TRIG_SELECT] || (hoveredRow == TRIG_SELECT));
-	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f, 46.0f}), white, "Select");
+	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f, 46.0f}), color, "Select");
 	drawFilledRectangle(trR(startBox), corner, hovered[TRIG_START] || (hoveredRow == TRIG_START));
-	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({128.0f, 97.0f}), white, "Start");
+	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({128.0f, 97.0f}), color, "Start");
 }
 
 } // namespace joymega
