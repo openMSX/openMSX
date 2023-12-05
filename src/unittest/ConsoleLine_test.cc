@@ -93,10 +93,13 @@ TEST_CASE("ConsoleLine")
 		}
 	}
 	SECTION("multiple chunks") {
+		auto col1 = static_cast<imColor>(101);
+		auto col2 = static_cast<imColor>(102);
+		auto col3 = static_cast<imColor>(103);
 		ConsoleLine line;
-		line.addChunk("abcdef",       101); // [0..6)
-		line.addChunk("ghijklmnopqr", 102); // [6..18)
-		line.addChunk("stuvwxyz",     103); // [16..26)
+		line.addChunk("abcdef",       col1); // [0..6)
+		line.addChunk("ghijklmnopqr", col2); // [6..18)
+		line.addChunk("stuvwxyz",     col3); // [16..26)
 		SECTION("front") {
 			auto rest = line.splitAtColumn(0);
 			invariants(line, rest);
@@ -104,11 +107,11 @@ TEST_CASE("ConsoleLine")
 			isEmpty(line);
 			CHECK(rest.str().size() == 26);
 			CHECK(rest.getChunks().size() == 3);
-			CHECK(rest.getChunks()[0].rgb == 101);
+			CHECK(rest.getChunks()[0].color == col1);
 			CHECK(rest.getChunks()[0].pos == 0);
-			CHECK(rest.getChunks()[1].rgb == 102);
+			CHECK(rest.getChunks()[1].color == col2);
 			CHECK(rest.getChunks()[1].pos == 6);
-			CHECK(rest.getChunks()[2].rgb == 103);
+			CHECK(rest.getChunks()[2].color == col3);
 			CHECK(rest.getChunks()[2].pos == 18);
 		}
 		SECTION("split 1st chunk") {
@@ -117,15 +120,15 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 3);
 			CHECK(line.getChunks().size() == 1);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
 			CHECK(rest.str().size() == 23);
 			CHECK(rest.getChunks().size() == 3);
-			CHECK(rest.getChunks()[0].rgb == 101);
+			CHECK(rest.getChunks()[0].color == col1);
 			CHECK(rest.getChunks()[0].pos == 0);
-			CHECK(rest.getChunks()[1].rgb == 102);
+			CHECK(rest.getChunks()[1].color == col2);
 			CHECK(rest.getChunks()[1].pos == 3);
-			CHECK(rest.getChunks()[2].rgb == 103);
+			CHECK(rest.getChunks()[2].color == col3);
 			CHECK(rest.getChunks()[2].pos == 15);
 		}
 		SECTION("at 1st chunk") {
@@ -134,13 +137,13 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 6);
 			CHECK(line.getChunks().size() == 1);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
 			CHECK(rest.str().size() == 20);
 			CHECK(rest.getChunks().size() == 2);
-			CHECK(rest.getChunks()[0].rgb == 102);
+			CHECK(rest.getChunks()[0].color == col2);
 			CHECK(rest.getChunks()[0].pos == 0);
-			CHECK(rest.getChunks()[1].rgb == 103);
+			CHECK(rest.getChunks()[1].color == col3);
 			CHECK(rest.getChunks()[1].pos == 12);
 		}
 		SECTION("split 2nd chunk") {
@@ -149,15 +152,15 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 13);
 			CHECK(line.getChunks().size() == 2);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
-			CHECK(line.getChunks()[1].rgb == 102);
+			CHECK(line.getChunks()[1].color == col2);
 			CHECK(line.getChunks()[1].pos == 6);
 			CHECK(rest.str().size() == 13);
 			CHECK(rest.getChunks().size() == 2);
-			CHECK(rest.getChunks()[0].rgb == 102);
+			CHECK(rest.getChunks()[0].color == col2);
 			CHECK(rest.getChunks()[0].pos == 0);
-			CHECK(rest.getChunks()[1].rgb == 103);
+			CHECK(rest.getChunks()[1].color == col3);
 			CHECK(rest.getChunks()[1].pos == 5);
 		}
 		SECTION("at 2nd chunk") {
@@ -166,13 +169,13 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 18);
 			CHECK(line.getChunks().size() == 2);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
-			CHECK(line.getChunks()[1].rgb == 102);
+			CHECK(line.getChunks()[1].color == col2);
 			CHECK(line.getChunks()[1].pos == 6);
 			CHECK(rest.str().size() == 8);
 			CHECK(rest.getChunks().size() == 1);
-			CHECK(rest.getChunks()[0].rgb == 103);
+			CHECK(rest.getChunks()[0].color == col3);
 			CHECK(rest.getChunks()[0].pos == 0);
 		}
 		SECTION("split 3rd chunk") {
@@ -181,15 +184,15 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 20);
 			CHECK(line.getChunks().size() == 3);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
-			CHECK(line.getChunks()[1].rgb == 102);
+			CHECK(line.getChunks()[1].color == col2);
 			CHECK(line.getChunks()[1].pos == 6);
-			CHECK(line.getChunks()[2].rgb == 103);
+			CHECK(line.getChunks()[2].color == col3);
 			CHECK(line.getChunks()[2].pos == 18);
 			CHECK(rest.str().size() == 6);
 			CHECK(rest.getChunks().size() == 1);
-			CHECK(rest.getChunks()[0].rgb == 103);
+			CHECK(rest.getChunks()[0].color == col3);
 			CHECK(rest.getChunks()[0].pos == 0);
 		}
 		SECTION("at 3rd chunk") {
@@ -198,11 +201,11 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 26);
 			CHECK(line.getChunks().size() == 3);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
-			CHECK(line.getChunks()[1].rgb == 102);
+			CHECK(line.getChunks()[1].color == col2);
 			CHECK(line.getChunks()[1].pos == 6);
-			CHECK(line.getChunks()[2].rgb == 103);
+			CHECK(line.getChunks()[2].color == col3);
 			CHECK(line.getChunks()[2].pos == 18);
 			isEmpty(rest);
 		}
@@ -212,11 +215,11 @@ TEST_CASE("ConsoleLine")
 			checkString(line, rest);
 			CHECK(line.str().size() == 26);
 			CHECK(line.getChunks().size() == 3);
-			CHECK(line.getChunks()[0].rgb == 101);
+			CHECK(line.getChunks()[0].color == col1);
 			CHECK(line.getChunks()[0].pos == 0);
-			CHECK(line.getChunks()[1].rgb == 102);
+			CHECK(line.getChunks()[1].color == col2);
 			CHECK(line.getChunks()[1].pos == 6);
-			CHECK(line.getChunks()[2].rgb == 103);
+			CHECK(line.getChunks()[2].color == col3);
 			CHECK(line.getChunks()[2].pos == 18);
 			isEmpty(rest);
 		}
