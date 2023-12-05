@@ -29,7 +29,7 @@ void HelpMarker(std::string_view desc)
 void drawURL(std::string_view text, zstring_view url)
 {
 	auto pos = ImGui::GetCursorScreenPos();
-	auto color = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+	auto color = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
 	im::StyleColor(ImGuiCol_Text, color, [&]{
 		ImGui::TextUnformatted(text);
 	});
@@ -41,7 +41,7 @@ void drawURL(std::string_view text, zstring_view url)
 		auto* drawList = ImGui::GetWindowDrawList();
 		ImVec2 p1{pos.x, pos.y + size.y};
 		ImVec2 p2{pos.x + size.x, pos.y + size.y};
-		drawList->AddLine(p1, p2, ImGui::ColorConvertFloat4ToU32(color));
+		drawList->AddLine(p1, p2, color);
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -272,6 +272,8 @@ void setColors(int style)
 	imColors[size_t(imColor::TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
 
 	imColors[size_t(imColor::ERROR         )] = 0xff0000ff;
+	imColors[size_t(imColor::WARNING       )] = 0xff33b3ff;
+
 	imColors[size_t(imColor::COMMENT       )] = 0xff5cff5c;
 	imColors[size_t(imColor::VARIABLE      )] = 0xffffff00;
 	imColors[size_t(imColor::LITERAL       )] = light ? 0xff9c5d27 : 0xff00ffff;

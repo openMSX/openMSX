@@ -118,7 +118,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 					if (special) {
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, getColor(imColor::YELLOW));
 					}
-					im::StyleColor(special, ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f), []{
+					im::StyleColor(special, ImGuiCol_Text, getColor(imColor::BLACK), []{
 						ImGui::TextUnformatted("channels"sv);
 					});
 					const auto& name = info.device->getName();

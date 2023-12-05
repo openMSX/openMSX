@@ -514,7 +514,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					im::ListClipper(filteredExtensions.size(), [&](int i) {
 						auto& ext = allExtensions[filteredExtensions[i]];
 						bool ok = getTestResult(ext).empty();
-						im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+						im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 							if (ImGui::Selectable(ext.displayName.c_str())) {
 								group.edit.name = ext.configName;
 								insertMedia(mediaName, group);
@@ -1277,7 +1277,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 						im::ListClipper(filteredExtensions.size(), [&](int i) {
 							auto& ext = allExtensions[filteredExtensions[i]];
 							bool ok = getTestResult(ext).empty();
-							im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+							im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 								if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
 									interacted = true;
 									item.name = ext.configName;
@@ -1331,7 +1331,7 @@ static bool ButtonWithCustomRendering(
 	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
 {
 	bool result = false;
-	im::StyleColor(pressed, ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive), [&]{
+	im::StyleColor(pressed, ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_ButtonActive), [&]{
 		gl::vec2 topLeft = ImGui::GetCursorScreenPos();
 		gl::vec2 center = topLeft + size * 0.5f;
 		result = ImGui::Button(label, size);

@@ -169,7 +169,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 					auto idx = filteredMachines[i];
 					auto& info = allMachines[idx];
 					bool ok = getTestResult(info).empty();
-					im::StyleColor(!ok, ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+					im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 						if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
 							newMachineConfig = info.configName;
 							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

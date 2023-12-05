@@ -384,7 +384,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			if (stuff) {
-				im::StyleColor(!isValidMsxDirectory(*stuff, editMsxDir), ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+				im::StyleColor(!isValidMsxDirectory(*stuff, editMsxDir), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 					if (ImGui::InputText("##msxPath", &editMsxDir)) {
 						if (!editMsxDir.starts_with('/')) {
 							editMsxDir = '/' + editMsxDir;
@@ -477,7 +477,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			simpleToolTip("New host directory");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			im::StyleColor(!FileOperations::isDirectory(editHostDir), ImGuiCol_Text, {1.0f, 0.0f, 0.0f, 1.0f}, [&]{
+			im::StyleColor(!FileOperations::isDirectory(editHostDir), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 				if (ImGui::InputText("##hostPath", &editHostDir)) {
 					if (FileOperations::isDirectory(editHostDir)) {
 						hostDir = editHostDir;

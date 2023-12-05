@@ -184,13 +184,13 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto drawFile = [&](const FileInfo& info) {
-				im::StyleColor(!info.error.empty(), ImGuiCol_Text, {1.0f, 0.5f, 0.5f, 1.0f}, [&]{
+				im::StyleColor(!info.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 					auto title = strCat("File: ", info.filename);
 					im::TreeNode(title.c_str(), [&]{
 						if (!info.error.empty()) {
 							ImGui::TextUnformatted(info.error);
 						}
-						im::StyleColor(ImGuiCol_Text, {1.0f, 1.0f, 1.0f, 1.0f}, [&]{
+						im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
 							if (ImGui::Button("Reload")) {
 								loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type);
 							}

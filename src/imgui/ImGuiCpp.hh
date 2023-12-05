@@ -127,18 +127,18 @@ inline void Font(ImFont* font, std::invocable<> auto next)
 
 // im::StyleColor(): wrapper around ImGui::PushStyleColor() / ImGui::PopStyleColor()
 // Add more overloads when needed
-inline void StyleColor(ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
+/*inline void StyleColor(ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
 {
 	ImGui::PushStyleColor(idx, col);
 	next();
 	ImGui::PopStyleColor(1);
-}
-inline void StyleColor(bool active, ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
+}*/
+/*inline void StyleColor(bool active, ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
 {
 	if (active) ImGui::PushStyleColor(idx, col);
 	next();
 	if (active) ImGui::PopStyleColor(1);
-}
+}*/
 inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
                        ImGuiCol idx2, ImVec4 col2,
                        std::invocable<> auto next)
@@ -174,7 +174,15 @@ inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
 }
 inline void StyleColor(ImGuiCol idx, ImU32 col, std::invocable<> auto next)
 {
-	StyleColor(idx, ImGui::ColorConvertU32ToFloat4(col), next);
+	ImGui::PushStyleColor(idx, ImGui::ColorConvertU32ToFloat4(col));
+	next();
+	ImGui::PopStyleColor(1);
+}
+inline void StyleColor(bool active, ImGuiCol idx, ImU32 col, std::invocable<> auto next)
+{
+	if (active) ImGui::PushStyleColor(idx, ImGui::ColorConvertU32ToFloat4(col));
+	next();
+	if (active) ImGui::PopStyleColor(1);
 }
 
 // im::StyleVar(): wrapper around ImGui::PushStyleVar() / ImGui::PopStyleVar()

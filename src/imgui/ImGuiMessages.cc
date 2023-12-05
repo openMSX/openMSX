@@ -95,12 +95,12 @@ static void printMessages(const circular_buffer<ImGuiMessages::Message>& message
 {
 	im::TextWrapPos(ImGui::GetFontSize() * 50.0f, [&]{
 		for (const auto& message : messages) {
-			auto [color, prefix_] = [&]() -> std::pair<ImVec4, std::string_view> {
+			auto [color, prefix_] = [&]() -> std::pair<ImU32, std::string_view> {
 				switch (message.level) {
-					case CliComm::LOGLEVEL_ERROR: return {ImVec4{1.0f, 0.2f, 0.2f, 1.0f}, "Error:"};
-					case CliComm::WARNING:        return {ImVec4{1.0f, 0.7f, 0.2f, 1.0f}, "Warning:"};
-					case CliComm::INFO:           return {ImVec4{1.0f, 1.0f, 1.0f, 1.0f}, "Info:"};
-					default: assert(false);       return {ImVec4{1.0f, 1.0f, 1.0f, 1.0f}, "Unknown:"};
+					case CliComm::LOGLEVEL_ERROR: return {getColor(imColor::ERROR),   "Error:"};
+					case CliComm::WARNING:        return {getColor(imColor::WARNING), "Warning:"};
+					case CliComm::INFO:           return {getColor(imColor::TEXT),    "Info:"};
+					default: assert(false);       return {getColor(imColor::TEXT),    "Unknown:"};
 				}
 			}();
 			auto prefix = prefix_; // clang workaround

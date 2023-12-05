@@ -242,8 +242,10 @@ enum class imColor : unsigned {
 
 	TEXT,
 
-	ERROR, // syntax highlighting in the console
-	COMMENT,
+	ERROR,
+	WARNING,
+
+	COMMENT, // syntax highlighting in the console
 	VARIABLE,
 	LITERAL,
 	PROC,
