@@ -28,6 +28,7 @@
             <filename>cf-sm003_data.rom</filename>
           </rom>
           <sramname>cf-sm003.sram</sramname>
+          <initialContent encoding="hex">00</initialContent>
           <hasprinterport>false</hasprinterport>
         </YamahaSKW01>
       </secondary>

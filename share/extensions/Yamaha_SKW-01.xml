@@ -28,6 +28,7 @@
             <filename>skw-01_data.rom</filename>
           </rom>
           <sramname>skw-01.sram</sramname>
+          <initialContent encoding="hex">00</initialContent> <!-- assumed based on the SRAM dump by Takamichi Suzukawa -->
         </YamahaSKW01>
       </secondary>
     </primary>
