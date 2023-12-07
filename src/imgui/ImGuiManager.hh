@@ -82,6 +82,7 @@ private:
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
+	void loadEnd() override;
 
 	// EventListener
 	int signalEvent(const Event& event) override;

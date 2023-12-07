@@ -168,6 +168,10 @@ void ImGuiManager::save(ImGuiTextBuffer& buf)
 void ImGuiManager::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
+}
+
+void ImGuiManager::loadEnd()
+{
 	reactor.getDisplay().setWindowPosition(windowPos);
 }
 
