@@ -65,6 +65,11 @@ public:
 
 	void fullScreenUpdated(bool fullScreen);
 
+	/** Returns x,y coordinates of top-left window corner,
+	    or returns a nullopt when in fullscreen mode. */
+	std::optional<gl::ivec2> getWindowPosition() const;
+	void setWindowPosition(gl::ivec2 pos);
+
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;
 

@@ -175,6 +175,16 @@ void SDLVideoSystem::setClipboardText(zstring_view text)
 	}
 }
 
+std::optional<gl::ivec2> SDLVideoSystem::getWindowPosition()
+{
+	return screen->getWindowPosition();
+}
+
+void SDLVideoSystem::setWindowPosition(gl::ivec2 pos)
+{
+	screen->setWindowPosition(pos);
+}
+
 void SDLVideoSystem::repaint()
 {
 	// With SDL we can simply repaint the display directly.

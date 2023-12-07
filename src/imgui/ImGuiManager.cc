@@ -5,9 +5,9 @@
 
 #include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
+#include "Display.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FilePool.hh"
@@ -18,14 +18,13 @@
 
 #include "stl.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_internal.h>
 #include <CustomFont.ii> // icons for ImGuiFileDialog
 
-#include <ranges>
+#include <SDL.h>
 
 namespace openmsx {
 
@@ -83,6 +82,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, keyboard(*this)
 	, console(*this)
 	, messages(*this)
+	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	initializeImGui();
 	debugger.loadIcons();
@@ -159,12 +159,16 @@ ImGuiManager::~ImGuiManager()
 
 void ImGuiManager::save(ImGuiTextBuffer& buf)
 {
+	// We cannot query "reactor.getDisplay().getWindowPosition()" here
+	// because display may already be destroyed. Instead Display pushes
+	// window position to here
 	savePersistent(buf, *this, persistentElements);
 }
 
 void ImGuiManager::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
+	reactor.getDisplay().setWindowPosition(windowPos);
 }
 
 Interpreter& ImGuiManager::getInterpreter()

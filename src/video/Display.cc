@@ -1,17 +1,21 @@
 #include "Display.hh"
+
 #include "RendererFactory.hh"
-#include "GLContext.hh"
-#include "OutputSurface.hh"
+#include "ImGuiManager.hh"
 #include "Layer.hh"
-#include "VideoSystem.hh"
+#include "OutputSurface.hh"
 #include "VideoLayer.hh"
+#include "VideoSystem.hh"
+#include "VideoSystemChangeListener.hh"
+
+#include "BooleanSetting.hh"
+#include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "Event.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
 #include "Timer.hh"
-#include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "EnumSetting.hh"
 #include "Reactor.hh"
@@ -19,15 +23,15 @@
 #include "HardwareConfig.hh"
 #include "TclArgParser.hh"
 #include "XMLElement.hh"
-#include "VideoSystemChangeListener.hh"
-#include "CommandException.hh"
 #include "Version.hh"
+
 #include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 
@@ -220,6 +224,30 @@ string Display::getWindowTitle()
 		}
 	}
 	return title;
+}
+
+gl::ivec2 Display::getWindowPosition()
+{
+	if (auto pos = videoSystem->getWindowPosition()) {
+		storeWindowPosition(*pos);
+	}
+	return retrieveWindowPosition();
+}
+
+void Display::setWindowPosition(gl::ivec2 pos)
+{
+	storeWindowPosition(pos);
+	videoSystem->setWindowPosition(pos);
+}
+
+void Display::storeWindowPosition(gl::ivec2 pos)
+{
+	reactor.getImGuiManager().storeWindowPosition(pos);
+}
+
+gl::ivec2 Display::retrieveWindowPosition()
+{
+	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
 void Display::update(const Setting& setting) noexcept

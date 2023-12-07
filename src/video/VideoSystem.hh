@@ -3,9 +3,12 @@
 
 #include "gl_vec.hh"
 #include "zstring_view.hh"
-#include <string>
-#include <memory>
+
 #include "components.hh"
+
+#include <memory>
+#include <optional>
+#include <string>
 
 namespace openmsx {
 
@@ -70,6 +73,9 @@ public:
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
 	[[nodiscard]] virtual std::string getClipboardText() = 0;
 	virtual void setClipboardText(zstring_view text) = 0;
+
+	[[nodiscard]] virtual std::optional<gl::ivec2> getWindowPosition() = 0;
+	virtual void setWindowPosition(gl::ivec2 pos) = 0;
 
 	/** Requests a repaint of the output surface. An implementation might
 	 *  start a repaint directly, or trigger a queued rendering. */

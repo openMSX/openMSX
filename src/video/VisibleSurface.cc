@@ -37,9 +37,6 @@
 
 namespace openmsx {
 
-int VisibleSurface::windowPosX = SDL_WINDOWPOS_UNDEFINED;
-int VisibleSurface::windowPosY = SDL_WINDOWPOS_UNDEFINED;
-
 VisibleSurface::VisibleSurface(
 		Display& display_,
 		RTScheduler& rtScheduler_,
@@ -167,8 +164,8 @@ VisibleSurface::~VisibleSurface()
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
 	// Do not store if we're full screen, the location is the top-left
-	if ((SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) == 0) {
-		SDL_GetWindowPosition(window.get(), &windowPosX, &windowPosY);
+	if (auto pos = getWindowPosition()) {
+		display.storeWindowPosition(*pos);
 	}
 
 	eventDistributor.unregisterEventListener(EventType::IMGUI_ACTIVE, *this);
@@ -178,6 +175,20 @@ VisibleSurface::~VisibleSurface()
 	inputEventGenerator.getGrabInput().detach(*this);
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
+}
+
+std::optional<gl::ivec2> VisibleSurface::getWindowPosition() const
+{
+	if (SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) return {};
+	int x, y;
+	SDL_GetWindowPosition(window.get(), &x, &y);
+	return gl::ivec2{x, y};
+}
+
+void VisibleSurface::setWindowPosition(gl::ivec2 pos)
+{
+	if (SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) return;
+	SDL_SetWindowPosition(window.get(), pos[0], pos[1]);
 }
 
 // TODO: The video subsystem is not de-initialized on errors.
@@ -194,9 +205,10 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 #endif
 
 	assert(!window);
+	auto pos = display.retrieveWindowPosition();
 	window.reset(SDL_CreateWindow(
 			getDisplay().getWindowTitle().c_str(),
-			windowPosX, windowPosY,
+			pos[0], pos[1],
 			width, height,
 			flags));
 	if (!window) {

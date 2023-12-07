@@ -74,6 +74,9 @@ public:
 	void preNewFrame();
 	void paintImGui();
 
+	void storeWindowPosition(gl::ivec2 pos) { windowPos = pos; }
+	[[nodiscard]] gl::ivec2 retrieveWindowPosition() const { return windowPos; }
+
 private:
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
@@ -135,6 +138,7 @@ private:
 	const RomInfo* romInfo = nullptr;
 	RomType selectedRomType = ROM_UNKNOWN;
 	float insertedInfoTimeout = 0.0f;
+	gl::ivec2 windowPos;
 	bool mainMenuBarUndocked = false;
 	bool handleDropped = false;
 	bool openInsertedInfo = false;
@@ -142,7 +146,8 @@ private:
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked},
-		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade}
+		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade},
+		PersistentElement{"windowPos",           &ImGuiManager::windowPos}
 	};
 };
 

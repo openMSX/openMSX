@@ -64,6 +64,14 @@ public:
 
 	[[nodiscard]] std::string getWindowTitle();
 
+	/** Get/set x,y coordinates of top-left window corner.
+	    Either the actual, or the last known coordinates. */
+	[[nodiscard]] gl::ivec2 getWindowPosition();
+	void setWindowPosition(gl::ivec2 pos);
+	// should only be called from VisibleSurface
+	void storeWindowPosition(gl::ivec2 pos);
+	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
+
 private:
 	void resetVideoSystem();
 

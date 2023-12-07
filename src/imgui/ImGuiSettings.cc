@@ -287,6 +287,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::SameLine();
 				im::Disabled(saveLayoutName.empty(), [&]{
 					if (ImGui::Button("Create")) {
+						(void)reactor.getDisplay().getWindowPosition(); // to save up-to-date window position
 						ImGui::CloseCurrentPopup();
 
 						auto filename = FileOperations::parseCommandFileArgument(

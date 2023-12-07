@@ -47,6 +47,8 @@ public:
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;
+	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() override;
+	void setWindowPosition(gl::ivec2 pos) override;
 	void repaint() override;
 
 private:

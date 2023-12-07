@@ -122,6 +122,21 @@ struct PersistentElement<C, float> : PersistentElementBase<C, float> {
 };
 
 template<typename C>
+struct PersistentElement<C, gl::ivec2> : PersistentElementBase<C, gl::ivec2> {
+	using PersistentElementBase<C, gl::ivec2>::PersistentElementBase;
+	void save(ImGuiTextBuffer& buf, C& c) const {
+		const auto& v = this->get(c);
+		buf.appendf("%s=[ %d %d ]\n", this->name.c_str(), v[0], v[1]);
+	}
+	void load(C& c, zstring_view value) const {
+		gl::ivec2 t;
+		if (sscanf(value.c_str(), "[ %d %d ]", &t[0], &t[1]) == 2) {
+			this->get(c) = t;
+		}
+	}
+};
+
+template<typename C>
 struct PersistentElement<C, gl::vec4> : PersistentElementBase<C, gl::vec4> {
 	using PersistentElementBase<C, gl::vec4>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
