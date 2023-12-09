@@ -14,8 +14,9 @@
 
 #include <imgui.h>
 
-
 namespace openmsx {
+
+using namespace std::literals;
 
 ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_)
 	: manager(manager_)
@@ -37,7 +38,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	if (!showBitmapViewer) return;
 	if (!motherBoard) return;
 
-	ImGui::SetNextWindowSize({532, 562}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({644, 602}, ImGuiCond_FirstUseEver);
 	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
@@ -167,8 +168,10 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 		im::Child("##bitmap", ImGui::GetContentRegionAvail(), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			auto pos = ImGui::GetCursorPos();
+			gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 			ImVec2 size(float(width * zx), float(height * zy));
 			ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);
+			bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
 				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
@@ -188,6 +191,53 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::Image(reinterpret_cast<void*>(bitmapGridTex->get()), size,
 						ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
 			}
+
+			ImGui::SameLine();
+			im::Group([&]{
+				if (hovered) {
+					gl::vec2 zoom{float(zx), float(zy)};
+					auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
+					ImGui::StrCat("x=", x, " y=", y);
+
+					unsigned physAddr = 0x8000 * page + 128 * y;
+					switch (mode) {
+					case SCR5: physAddr += x / 2; break;
+					case SCR6: physAddr += x / 4; break;
+					case SCR7: physAddr += x / 4 + 0x08000 * (x & 2); break;
+					case SCR8: case SCR11: case SCR12:
+					           physAddr += x / 2 + 0x10000 * (x & 1); break;
+					default: assert(false);
+					}
+
+					auto value = vram.getData()[physAddr];
+					auto color = [&]() -> uint8_t {
+						switch (mode) {
+						case SCR5: case SCR7:
+							return (value >> (4 * (1 - (x & 1)))) & 0x0f;
+						case SCR6:
+							return (value >> (2 * (3 - (x & 3)))) & 0x03;
+						default:
+							return value;
+						}
+					}();
+					if (mode != one_of(SCR11, SCR12)) {
+						ImGui::StrCat("color=", color);
+					}
+					ImGui::Separator();
+
+					if (mode == one_of(SCR5, SCR6)) {
+						ImGui::StrCat("vram addr=\n   0x", hex_string<5>(physAddr));
+					} else {
+						unsigned logAddr = (physAddr & 0x0ffff) << 1 | (physAddr >> 16);
+						ImGui::StrCat("log  vram addr=\n   0x", hex_string<5>(logAddr), "\n"
+						              "phys vram addr=\n   0x", hex_string<5>(physAddr));
+					}
+					ImGui::StrCat("vram value=\n   0x", hex_string<2>(value));
+				} else {
+					auto textSize = ImGui::CalcTextSize("phys vram addr="sv);
+					ImGui::Dummy(textSize);
+				}
+			});
 		});
 	});
 }
