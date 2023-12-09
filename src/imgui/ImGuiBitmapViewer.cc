@@ -196,7 +196,8 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			im::Group([&]{
 				if (hovered) {
 					gl::vec2 zoom{float(zx), float(zy)};
-					auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
+					auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
+					auto x = x_; auto y = y_; // clang workaround
 					ImGui::StrCat("x=", x, " y=", y);
 
 					unsigned physAddr = 0x8000 * page + 128 * y;
