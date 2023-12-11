@@ -1046,6 +1046,35 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 	reg[r] = v;
 
 	switch (r) {
+	case 0x001: // test register
+		break;
+
+	case 0x002: // Timer 1
+		timer1->setValue(v);
+		break;
+
+	case 0x003: // Timer 2
+		timer2->setValue(v);
+		break;
+
+	case 0x004: // IRQ clear / mask and Timer enable
+		if (v & 0x80) {
+			// IRQ flags clear
+			resetStatus(0x60);
+		} else {
+			changeStatusMask((~v) & 0x60);
+			timer1->setStart((v & R04_ST1) != 0, time);
+			timer2->setStart((v & R04_ST2) != 0, time);
+		}
+		break;
+
+	case 0x008: // x,NTS,x,x, x,x,x,x
+		nts = (v & 0x40) != 0;
+		break;
+
+	case 0x101: // test register
+		break;
+
 	case 0x104:
 		// 6 channels enable
 		channel[ 0].extended = (v & 0x01) != 0;
@@ -1080,43 +1109,16 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 		//  - does not switch 4 operator channels back to 2
 		//    operator channels
 		return;
+
+	default:
+		break;
 	}
 
 	unsigned ch_offset = (r & 0x100) ? 9 : 0;
 	switch (r & 0xE0) {
-	case 0x00: // 00-1F:control
-		switch (r & 0x1F) {
-		case 0x01: // test register
-			break;
-
-		case 0x02: // Timer 1
-			timer1->setValue(v);
-			break;
-
-		case 0x03: // Timer 2
-			timer2->setValue(v);
-			break;
-
-		case 0x04: // IRQ clear / mask and Timer enable
-			if (v & 0x80) {
-				// IRQ flags clear
-				resetStatus(0x60);
-			} else {
-				changeStatusMask((~v) & 0x60);
-				timer1->setStart((v & R04_ST1) != 0, time);
-				timer2->setStart((v & R04_ST2) != 0, time);
-			}
-			break;
-
-		case 0x08: // x,NTS,x,x, x,x,x,x
-			nts = (v & 0x40) != 0;
-			break;
-
-		default:
-			break;
-		}
+	case 0x00: { // 00-1F:control
 		break;
-
+	}
 	case 0x20: { // am ON, vib ON, ksr, eg_type, mul
 		int slot = slot_array[r & 0x1F];
 		if (slot < 0) return;
