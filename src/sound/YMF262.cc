@@ -1049,6 +1049,7 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 	switch (r & 0xE0) {
 	case 0x00: // 000-01F,100-11F: control
 		switch (r) {
+		case 0x000: // test register
 		case 0x001: // test register
 			break;
 
@@ -1075,6 +1076,7 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 			nts = (v & 0x40) != 0;
 			break;
 
+		case 0x100: // test register
 		case 0x101: // test register
 			break;
 
