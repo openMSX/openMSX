@@ -286,9 +286,14 @@ void AviRecorder::processToggle(Interpreter& interp, std::span<const TclObject> 
 	}
 }
 
+bool AviRecorder::isRecording() const
+{
+	return aviWriter || wavWriter;
+}
+
 void AviRecorder::status(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.addDictKeyValue("status", (aviWriter || wavWriter) ? "recording" : "idle");
+	result.addDictKeyValue("status", isRecording() ? "recording" : "idle");
 }
 
 // class AviRecorder::Cmd

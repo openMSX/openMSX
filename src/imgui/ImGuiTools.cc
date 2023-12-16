@@ -10,6 +10,8 @@
 #include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
 
+#include "AviRecorder.hh"
+
 #include "ranges.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -79,8 +81,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		im::Menu("Capture", [&]{
 			ImGui::MenuItem("Screenshot ...", nullptr, &showScreenshot);
-			ImGui::MenuItem("Video TODO ...", nullptr, &showRecordVideo);
-			ImGui::MenuItem("Sound TODO ...", nullptr, &showRecordSound);
+			ImGui::MenuItem("Audio/Video ...", nullptr, &showRecord);
 		});
 		ImGui::Separator();
 		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator->show);
@@ -109,8 +110,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (showScreenshot) paintScreenshot();
-	if (showRecordVideo) paintVideo();
-	if (showRecordSound) paintSound();
+	if (showRecord) paintRecord();
 
 	const auto popupTitle = "Confirm##Tools";
 	if (openConfirmPopup) {
@@ -240,14 +240,103 @@ void ImGuiTools::paintScreenshot()
 	});
 }
 
-void ImGuiTools::paintVideo()
+std::string ImGuiTools::getRecordFilename() const
 {
-	// TODO
+	bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
+	std::string_view directory = recordVideo ? "videos" : "soundlogs";
+	std::string_view extension = recordVideo ? ".avi"   : ".wav";
+	return FileOperations::parseCommandFileArgument(
+		recordName, directory, "openmsx", extension);
 }
 
-void ImGuiTools::paintSound()
+void ImGuiTools::paintRecord()
 {
-	// TODO
+	bool recording = manager.getReactor().getRecorder().isRecording();
+
+	auto title = recording ? strCat("Recording to ", FileOperations::getFilename(getRecordFilename()))
+	                       : std::string("Capture Audio/Video");
+	im::Window(tmpStrCat(title, "###A/V").c_str(), &showRecord, [&]{
+		im::Disabled(recording, [&]{
+			im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				ImGui::TextUnformatted("Source:"sv);
+				ImGui::SameLine();
+				ImGui::RadioButton("Audio", &recordSource, static_cast<int>(Source::AUDIO));
+				ImGui::SameLine(0.0f, 30.0f);
+				ImGui::RadioButton("Video", &recordSource, static_cast<int>(Source::VIDEO));
+				ImGui::SameLine(0.0f, 30.0f);
+				ImGui::RadioButton("Both", &recordSource, static_cast<int>(Source::BOTH));
+
+				im::Disabled(recordSource == static_cast<int>(Source::VIDEO), [&]{
+					ImGui::TextUnformatted("Audio:"sv);
+					ImGui::SameLine();
+					ImGui::RadioButton("Mono", &recordAudio, static_cast<int>(Audio::MONO));
+					ImGui::SameLine(0.0f, 30.0f);
+					ImGui::RadioButton("Stereo", &recordAudio, static_cast<int>(Audio::STEREO));
+					ImGui::SameLine(0.0f, 30.0f);
+					ImGui::RadioButton("Auto-detect", &recordAudio, static_cast<int>(Audio::AUTO));
+					HelpMarker("At the start of the recording check if any stereo or "
+						"any off-center-balanced mono sound devices are present.");
+				});
+
+				im::Disabled(recordSource == static_cast<int>(Source::AUDIO), [&]{
+					ImGui::TextUnformatted("Video:"sv);
+					ImGui::SameLine();
+					ImGui::RadioButton("320 x 240", &recordVideoSize, static_cast<int>(VideoSize::V_320));
+					ImGui::SameLine(0.0f, 30.0f);
+					ImGui::RadioButton("640 x 480", &recordVideoSize, static_cast<int>(VideoSize::V_640));
+					ImGui::SameLine(0.0f, 30.0f);
+					ImGui::RadioButton("960 x 720", &recordVideoSize, static_cast<int>(VideoSize::V_960));
+				});
+			});
+			ImGui::Separator();
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Name"sv);
+			ImGui::SameLine();
+			const auto& style = ImGui::GetStyle();
+			auto buttonWidth = style.ItemSpacing.x + 2.0f * style.FramePadding.x +
+			                   ImGui::CalcTextSize("Start").x;
+			ImGui::SetNextItemWidth(-buttonWidth);
+			ImGui::InputText("##name", &recordName);
+			ImGui::SameLine();
+			if (!recording && ImGui::Button("Start")) {
+				confirmCmd = makeTclList("record", "start");
+				if (!recordName.empty()) {
+					confirmCmd.addListElement(recordName);
+				}
+				if (recordSource == static_cast<int>(Source::AUDIO)) {
+					confirmCmd.addListElement("-audioonly");
+				} else if (recordSource == static_cast<int>(Source::VIDEO)) {
+					confirmCmd.addListElement("-videoonly");
+				}
+				if (recordSource != static_cast<int>(Source::VIDEO)) {
+					if (recordAudio == static_cast<int>(Audio::MONO)) {
+						confirmCmd.addListElement("-mono");
+					} else if (recordAudio == static_cast<int>(Audio::STEREO)) {
+						confirmCmd.addListElement("-stereo");
+					}
+				}
+				if (recordSource != static_cast<int>(Source::AUDIO)) {
+					if (recordVideoSize == static_cast<int>(VideoSize::V_640)) {
+						confirmCmd.addListElement("-doublesize");
+					} else if (recordVideoSize == static_cast<int>(VideoSize::V_960)) {
+						confirmCmd.addListElement("-triplesize");
+					}
+				}
+
+				if (FileOperations::exists(getRecordFilename())) {
+					openConfirmPopup = true;
+					confirmText = strCat("Overwrite recording with name '", recordName, "'?");
+					// note: don't auto generate next name
+				} else {
+					manager.executeDelayed(confirmCmd);
+				}
+			}
+		});
+		if (recording && ImGui::Button("Stop")) {
+			manager.executeDelayed(makeTclList("record", "stop"));
+		}
+	});
 }
 
 } // namespace openmsx

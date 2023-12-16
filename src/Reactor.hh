@@ -96,6 +96,7 @@ public:
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 	[[nodiscard]] const HotKey& getHotKey() const;
 	[[nodiscard]] SymbolManager& getSymbolManager() const { return *symbolManager; }
+	[[nodiscard]] AviRecorder& getRecorder() const { return *aviRecordCommand; }
 
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
