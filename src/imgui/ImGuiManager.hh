@@ -1,34 +1,11 @@
 #ifndef IMGUI_MANAGER_HH
 #define IMGUI_MANAGER_HH
 
-#include "ImGuiBitmapViewer.hh"
-#include "ImGuiBreakPoints.hh"
-#include "ImGuiCharacter.hh"
-#include "ImGuiCheatFinder.hh"
-#include "ImGuiConnector.hh"
-#include "ImGuiConsole.hh"
-#include "ImGuiDebugger.hh"
-#include "ImGuiDiskManipulator.hh"
-#include "ImGuiHelp.hh"
-#include "ImGuiKeyboard.hh"
-#include "ImGuiMachine.hh"
-#include "ImGuiMedia.hh"
-#include "ImGuiMessages.hh"
-#include "ImGuiOpenFile.hh"
-#include "ImGuiPalette.hh"
-#include "ImGuiOsdIcons.hh"
 #include "ImGuiPart.hh"
-#include "ImGuiReverseBar.hh"
-#include "ImGuiSettings.hh"
-#include "ImGuiSoundChip.hh"
-#include "ImGuiSpriteViewer.hh"
-#include "ImGuiSymbols.hh"
-#include "ImGuiTools.hh"
-#include "ImGuiTrainer.hh"
-#include "ImGuiVdpRegs.hh"
-#include "ImGuiWatchExpr.hh"
+#include "ImGuiUtils.hh"
 
 #include "EventListener.hh"
+#include "Reactor.hh"
 #include "RomTypes.hh"
 #include "TclObject.hh"
 
@@ -44,7 +21,34 @@ struct ImGuiTextBuffer;
 
 namespace openmsx {
 
-class Reactor;
+class CliComm;
+class ImGuiBitmapViewer;
+class ImGuiBreakPoints;
+class ImGuiCharacter;
+class ImGuiCheatFinder;
+class ImGuiConnector;
+class ImGuiConsole;
+class ImGuiDebugger;
+class ImGuiDiskManipulator;
+class ImGuiHelp;
+class ImGuiKeyboard;
+class ImGuiMachine;
+class ImGuiMedia;
+class ImGuiMessages;
+class ImGuiOpenFile;
+class ImGuiPalette;
+class ImGuiOsdIcons;
+class ImGuiPart;
+class ImGuiReverseBar;
+class ImGuiSettings;
+class ImGuiSoundChip;
+class ImGuiSpriteViewer;
+class ImGuiSymbols;
+class ImGuiTools;
+class ImGuiTrainer;
+class ImGuiVdpRegs;
+class ImGuiWatchExpr;
+class RomInfo;
 
 class ImGuiManager : public ImGuiPart, public EventListener
 {
@@ -98,31 +102,31 @@ private:
 	Reactor& reactor;
 
 public:
-	ImGuiMachine machine;
-	ImGuiDebugger debugger;
-	ImGuiBreakPoints breakPoints;
-	ImGuiSymbols symbols;
-	ImGuiWatchExpr watchExpr;
-	ImGuiBitmapViewer bitmap;
-	ImGuiCharacter character;
-	ImGuiSpriteViewer sprite;
-	ImGuiVdpRegs vdpRegs;
-	ImGuiPalette palette;
-	ImGuiReverseBar reverseBar;
-	ImGuiHelp help;
-	ImGuiOsdIcons osdIcons;
-	ImGuiOpenFile openFile;
-	ImGuiMedia media;
-	ImGuiConnector connector;
-	ImGuiTools tools;
-	ImGuiTrainer trainer;
-	ImGuiCheatFinder cheatFinder;
-	ImGuiDiskManipulator diskManipulator;
-	ImGuiSettings settings;
-	ImGuiSoundChip soundChip;
-	ImGuiKeyboard keyboard;
-	ImGuiConsole console;
-	ImGuiMessages messages;
+	std::unique_ptr<ImGuiMachine> machine;
+	std::unique_ptr<ImGuiDebugger> debugger;
+	std::unique_ptr<ImGuiBreakPoints> breakPoints;
+	std::unique_ptr<ImGuiSymbols> symbols;
+	std::unique_ptr<ImGuiWatchExpr> watchExpr;
+	std::unique_ptr<ImGuiBitmapViewer> bitmap;
+	std::unique_ptr<ImGuiCharacter> character;
+	std::unique_ptr<ImGuiSpriteViewer> sprite;
+	std::unique_ptr<ImGuiVdpRegs> vdpRegs;
+	std::unique_ptr<ImGuiPalette> palette;
+	std::unique_ptr<ImGuiReverseBar> reverseBar;
+	std::unique_ptr<ImGuiHelp> help;
+	std::unique_ptr<ImGuiOsdIcons> osdIcons;
+	std::unique_ptr<ImGuiOpenFile> openFile;
+	std::unique_ptr<ImGuiMedia> media;
+	std::unique_ptr<ImGuiConnector> connector;
+	std::unique_ptr<ImGuiTools> tools;
+	std::unique_ptr<ImGuiTrainer> trainer;
+	std::unique_ptr<ImGuiCheatFinder> cheatFinder;
+	std::unique_ptr<ImGuiDiskManipulator> diskManipulator;
+	std::unique_ptr<ImGuiSettings> settings;
+	std::unique_ptr<ImGuiSoundChip> soundChip;
+	std::unique_ptr<ImGuiKeyboard> keyboard;
+	std::unique_ptr<ImGuiConsole> console;
+	std::unique_ptr<ImGuiMessages> messages;
 
 	bool menuFade = true;
 	std::string loadIniFile;

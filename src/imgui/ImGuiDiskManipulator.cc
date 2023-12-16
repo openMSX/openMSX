@@ -3,6 +3,8 @@
 #include "CustomFont.h"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiMedia.hh"
+#include "ImGuiOpenFile.hh"
 #include "ImGuiUtils.hh"
 
 #include "DiskChanger.hh"
@@ -686,7 +688,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			simpleToolTip("Filename for new disk image");
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN"##BrowseNewImage")) {
-				manager.openFile.selectNewFile(
+				manager.openFile->selectNewFile(
 					"Filename for new disk image",
 					"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
 					[&](const auto& fn) { editModal = fn; },
@@ -694,8 +696,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 					ImGuiOpenFile::Painter::DISKMANIPULATOR);
 			}
 			simpleToolTip("Select new file");
-			if (manager.openFile.mustPaint(ImGuiOpenFile::Painter::DISKMANIPULATOR)) {
-				manager.openFile.doPaint();
+			if (manager.openFile->mustPaint(ImGuiOpenFile::Painter::DISKMANIPULATOR)) {
+				manager.openFile->doPaint();
 			}
 
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
@@ -778,7 +780,7 @@ void ImGuiDiskManipulator::insertMsxDisk()
 		// disallow changing HD image
 		return;
 	}
-	manager.openFile.selectFile(
+	manager.openFile->selectFile(
 		strCat("Select disk image for ", driveDisplayName(selectedDrive)),
 		ImGuiMedia::diskFilter(),
 		[&](const auto& fn) {
@@ -792,7 +794,7 @@ void ImGuiDiskManipulator::insertMsxDisk()
 
 void ImGuiDiskManipulator::exportDiskImage()
 {
-	manager.openFile.selectNewFile(
+	manager.openFile->selectNewFile(
 		strCat("Export ", driveDisplayName(selectedDrive), " to new disk image"),
 		"Disk image (*.dsk){.dsk}", // only .dsk (not all other disk extensions)
 		[&](const auto& fn) {

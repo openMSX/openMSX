@@ -1,4 +1,4 @@
-#include "ImGuiDebugger.hh"
+#include "ImGuiBreakPoints.hh"
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiCpp.hh"
@@ -6,17 +6,15 @@
 #include "ImGuiUtils.hh"
 
 #include "BreakPoint.hh"
-#include "CPURegs.hh"
 #include "Dasm.hh"
 #include "DebugCondition.hh"
 #include "Debugger.hh"
 #include "Interpreter.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "RomPlain.hh"
+#include "SymbolManager.hh"
 #include "WatchPoint.hh"
 
 #include "narrow.hh"

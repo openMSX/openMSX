@@ -18,8 +18,6 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
-#include "StringOp.hh"
-#include "StringReplacer.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
 
@@ -270,14 +268,14 @@ void ImGuiMachine::paintTestHardware()
 			});
 		});
 
-		auto& allExtensions = manager.media.getAllExtensions();
+		auto& allExtensions = manager.media->getAllExtensions();
 		std::vector<size_t> workingExtensions, nonWorkingExtensions;
 		for (auto [idx, info] : enumerate(allExtensions)) {
 			if (!info.testResult.has_value()) {
 				if (!doTest) continue; // only 1 test per iteration
 				doTest = false;
 			}
-			const auto& result = manager.media.getTestResult(info);
+			const auto& result = manager.media->getTestResult(info);
 			(result.empty() ? workingExtensions : nonWorkingExtensions).push_back(idx);
 		}
 		bool allExtensionsTested = allExtensions.size() == (workingExtensions.size() + nonWorkingExtensions.size());

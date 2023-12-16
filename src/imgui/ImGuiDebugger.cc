@@ -2,19 +2,25 @@
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
+#include "ImGuiCharacter.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiPalette.hh"
+#include "ImGuiSpriteViewer.hh"
+#include "ImGuiSymbols.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVdpRegs.hh"
+#include "ImGuiWatchExpr.hh"
 
 #include "CPURegs.hh"
 #include "Dasm.hh"
 #include "Debugger.hh"
-#include "Interpreter.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
 #include "RomPlain.hh"
+#include "SymbolManager.hh"
 
 #include "narrow.hh"
 #include "join.hh"
@@ -150,15 +156,15 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		}
 		ImGui::Separator();
-		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints.show);
-		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols.show);
-		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr.show);
+		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints->show);
+		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
+		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
 		ImGui::Separator();
-		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap.showBitmapViewer);
-		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character.show);
-		ImGui::MenuItem("VDP sprite viewer", nullptr, &manager.sprite.show);
-		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs.show);
-		ImGui::MenuItem("Palette editor", nullptr, &manager.palette.window.open);
+		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap->showBitmapViewer);
+		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character->show);
+		ImGui::MenuItem("VDP sprite viewer", nullptr, &manager.sprite->show);
+		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
+		ImGui::MenuItem("Palette editor", nullptr, &manager.palette->window.open);
 		ImGui::Separator();
 		im::Menu("Add hex editor", [&]{
 			auto& debugger = motherBoard->getDebugger();

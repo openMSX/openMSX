@@ -5,9 +5,9 @@
 #include "ImGuiUtils.hh"
 
 #include "CommandException.hh"
+#include "SymbolManager.hh"
 
 #include "narrow.hh"
-#include "xrange.hh"
 
 #include <imgui_stdlib.h>
 #include <imgui.h>

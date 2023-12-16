@@ -2,6 +2,9 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiMessages.hh"
+#include "ImGuiOsdIcons.hh"
+#include "ImGuiSoundChip.hh"
 #include "ImGuiUtils.hh"
 
 #include "BooleanInput.hh"
@@ -9,6 +12,7 @@
 #include "CPUCore.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
+#include "FileContext.hh"
 #include "FilenameSetting.hh"
 #include "FloatSetting.hh"
 #include "GlobalCommandController.hh"
@@ -34,11 +38,8 @@
 #include "Z80.hh"
 
 #include "checked_cast.hh"
-#include "enumerate.hh"
 #include "foreach_file.hh"
-#include "join.hh"
 #include "narrow.hh"
-#include "view.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
 #include "zstring_view.hh"
@@ -181,7 +182,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ComboBox("Resampler", globalSettings.getResampleSetting(), resamplerToolTips);
 			ImGui::Separator();
 
-			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip.showSoundChipSettings);
+			ImGui::MenuItem("Show sound chip settings", nullptr, &manager.soundChip->showSoundChipSettings);
 		});
 		im::Menu("Speed", [&]{
 			im::TreeNode("Emulation", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -348,9 +349,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 		});
 		im::Menu("Misc", [&]{
-			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons.showConfigureIcons);
+			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
-			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages.configureWindow.open);
+			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages->configureWindow.open);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

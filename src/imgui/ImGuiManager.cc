@@ -1,7 +1,34 @@
 #include "ImGuiManager.hh"
 
+#include "ImGuiBitmapViewer.hh"
+#include "ImGuiBreakPoints.hh"
+#include "ImGuiCharacter.hh"
+#include "ImGuiCheatFinder.hh"
 #include "ImGuiCpp.hh"
+#include "ImGuiConnector.hh"
+#include "ImGuiConsole.hh"
+#include "ImGuiDebugger.hh"
+#include "ImGuiDiskManipulator.hh"
+#include "ImGuiHelp.hh"
+#include "ImGuiKeyboard.hh"
+#include "ImGuiMachine.hh"
+#include "ImGuiMedia.hh"
+#include "ImGuiMessages.hh"
+#include "ImGuiOpenFile.hh"
+#include "ImGuiPalette.hh"
+#include "ImGuiOsdIcons.hh"
+#include "ImGuiPart.hh"
+#include "ImGuiReverseBar.hh"
+#include "ImGuiSettings.hh"
+#include "ImGuiSoundChip.hh"
+#include "ImGuiSpriteViewer.hh"
+#include "ImGuiSymbols.hh"
+#include "ImGuiTools.hh"
+#include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiVdpRegs.hh"
+#include "ImGuiWatchExpr.hh"
+
 
 #include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
@@ -59,33 +86,35 @@ static void cleanupImGui()
 ImGuiManager::ImGuiManager(Reactor& reactor_)
 	: ImGuiPart(*this)
 	, reactor(reactor_)
-	, machine(*this)
-	, debugger(*this)
-	, breakPoints(*this)
-	, symbols(*this)
-	, watchExpr(*this)
-	, bitmap(*this)
-	, character(*this)
-	, sprite(*this)
-	, vdpRegs(*this)
-	, reverseBar(*this)
-	, osdIcons(*this)
-	, openFile(*this)
-	, media(*this)
-	, connector(*this)
-	, tools(*this)
-	, trainer(*this)
-	, cheatFinder(*this)
-	, diskManipulator(*this)
-	, settings(*this)
-	, soundChip(*this)
-	, keyboard(*this)
-	, console(*this)
-	, messages(*this)
+	, machine(std::make_unique<ImGuiMachine>(*this))
+	, debugger(std::make_unique<ImGuiDebugger>(*this))
+	, breakPoints(std::make_unique<ImGuiBreakPoints>(*this))
+	, symbols(std::make_unique<ImGuiSymbols>(*this))
+	, watchExpr(std::make_unique<ImGuiWatchExpr>(*this))
+	, bitmap(std::make_unique<ImGuiBitmapViewer>(*this))
+	, character(std::make_unique<ImGuiCharacter>(*this))
+	, sprite(std::make_unique<ImGuiSpriteViewer>(*this))
+	, vdpRegs(std::make_unique<ImGuiVdpRegs>(*this))
+	, palette(std::make_unique<ImGuiPalette>())
+	, reverseBar(std::make_unique<ImGuiReverseBar>(*this))
+	, help(std::make_unique<ImGuiHelp>())
+	, osdIcons(std::make_unique<ImGuiOsdIcons>(*this))
+	, openFile(std::make_unique<ImGuiOpenFile>(*this))
+	, media(std::make_unique<ImGuiMedia>(*this))
+	, connector(std::make_unique<ImGuiConnector>(*this))
+	, tools(std::make_unique<ImGuiTools>(*this))
+	, trainer(std::make_unique<ImGuiTrainer>(*this))
+	, cheatFinder(std::make_unique<ImGuiCheatFinder>(*this))
+	, diskManipulator(std::make_unique<ImGuiDiskManipulator>(*this))
+	, settings(std::make_unique<ImGuiSettings>(*this))
+	, soundChip(std::make_unique<ImGuiSoundChip>(*this))
+	, keyboard(std::make_unique<ImGuiKeyboard>(*this))
+	, console(std::make_unique<ImGuiConsole>(*this))
+	, messages(std::make_unique<ImGuiMessages>(*this))
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	initializeImGui();
-	debugger.loadIcons();
+	debugger->loadIcons();
 
 	ImGuiSettingsHandler ini_handler;
 	ini_handler.TypeName = "openmsx";
@@ -133,10 +162,11 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
 		this,
-		&machine, &media, &connector, &reverseBar, &tools, &settings, &debugger, &help,
-		&soundChip, &keyboard, &symbols, &breakPoints, &watchExpr,
-		&bitmap, &character, &sprite, &vdpRegs, &palette, &osdIcons,
-		&openFile, &console, &messages, &trainer, &cheatFinder, &diskManipulator});
+		machine.get(), media.get(), connector.get(), reverseBar.get(), tools.get(), settings.get(),
+		debugger.get(), help.get(), soundChip.get(), keyboard.get(), symbols.get(), breakPoints.get(),
+		watchExpr.get(), bitmap.get(), character.get(), sprite.get(), vdpRegs.get(), palette.get(),
+		osdIcons.get(), openFile.get(), console.get(), messages.get(), trainer.get(), cheatFinder.get(),
+		diskManipulator.get()});
 }
 
 ImGuiManager::~ImGuiManager()
@@ -256,7 +286,7 @@ int ImGuiManager::signalEvent(const Event& event)
 			break;
 		}
 		case EventType::BREAK:
-			debugger.signalBreak();
+			debugger->signalBreak();
 			break;
 		default:
 			UNREACHABLE;
@@ -310,8 +340,8 @@ void ImGuiManager::paintImGui()
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}
-	if (openFile.mustPaint(ImGuiOpenFile::Painter::MANAGER)) {
-		openFile.doPaint();
+	if (openFile->mustPaint(ImGuiOpenFile::Painter::MANAGER)) {
+		openFile->doPaint();
 	}
 
 	auto drawMenu = [&]{
@@ -443,7 +473,7 @@ void ImGuiManager::paintImGui()
 		im::ListBox("##select-media", {-FLT_MIN, height}, [&]{
 			for (const auto& item : selectList) {
 				auto drive = item.back() - 'a';
-				auto display = strCat(char('A' + drive), ": ", media.displayNameForDriveContent(drive, true));
+				auto display = strCat(char('A' + drive), ": ", media->displayNameForDriveContent(drive, true));
 				if (ImGui::Selectable(display.c_str())) {
 					insert(strCat("disk drive ", char(drive + 'A')), item);
 					ImGui::CloseCurrentPopup();
@@ -487,7 +517,7 @@ void ImGuiManager::paintImGui()
 					auto display = strCat(
 						char('A' + slot),
 						" (", slotManager.getPsSsString(slot), "): ",
-						media.displayNameForSlotContent(slotManager, slot, true));
+						media->displayNameForSlotContent(slotManager, slot, true));
 
 					if (ImGui::Selectable(display.c_str(), item == selectedMedia)) {
 						selectedMedia = item;
@@ -496,7 +526,7 @@ void ImGuiManager::paintImGui()
 			});
 		}
 
-		ImGui::Checkbox("Reset MSX on inserting ROM", &media.resetOnInsertRom);
+		ImGui::Checkbox("Reset MSX on inserting ROM", &media->resetOnInsertRom);
 
 		if (ImGui::Button("Insert ROM")) {
 			auto cmd = makeTclList(selectedMedia, "insert", droppedFile);
@@ -504,7 +534,7 @@ void ImGuiManager::paintImGui()
 				cmd.addListElement("-romtype", RomInfo::romTypeToName(selectedRomType));
 			}
 			insert2(strCat("cartridge slot ", char(selectedMedia.back() - 'a' + 'A')), cmd);
-			if (media.resetOnInsertRom) {
+			if (media->resetOnInsertRom) {
 				executeDelayed(TclObject("reset"));
 			}
 			ImGui::CloseCurrentPopup();

@@ -6,7 +6,6 @@
 #include "ImGuiUtils.hh"
 
 #include "DisplayMode.hh"
-#include "StringOp.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
@@ -121,9 +120,9 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::SameLine();
 		im::Group([&]{
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
-			ImGui::Combo("Palette", &manager.palette.whichPalette, "VDP\000Custom\000Fixed\000");
+			ImGui::Combo("Palette", &manager.palette->whichPalette, "VDP\000Custom\000Fixed\000");
 			if (ImGui::Button("Open palette editor")) {
-				manager.palette.window.raise();
+				manager.palette->window.raise();
 			}
 			ImGui::Separator();
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
@@ -149,7 +148,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 						: 256;
 
 		std::array<uint32_t, 16> palette;
-		auto msxPalette = manager.palette.getPalette(vdp);
+		auto msxPalette = manager.palette->getPalette(vdp);
 		ranges::transform(msxPalette, palette.data(),
 			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
 		if (color0 < 16) palette[0] = palette[color0];

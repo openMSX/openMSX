@@ -1,7 +1,13 @@
-#include "ImGuiSettings.hh"
+#include "ImGuiTools.hh"
 
+#include "ImGuiCheatFinder.hh"
+#include "ImGuiConsole.hh"
 #include "ImGuiCpp.hh"
+#include "ImGuiDiskManipulator.hh"
+#include "ImGuiKeyboard.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiMessages.hh"
+#include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
 
 #include "ranges.hh"
@@ -41,10 +47,10 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 	im::Menu("Tools", [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 
-		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard.show);
+		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard->show);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
-		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console.show);
-		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages.logWindow.open);
+		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show);
+		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages->logWindow.open);
 		ImGui::Separator();
 		std::string_view copyCommand = "copy_screen_to_clipboard";
 		auto copyShortCut = getShortCutForCommand(hotKey, copyCommand);
@@ -57,10 +63,10 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
 		ImGui::Separator();
-		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator.show);
+		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator->show);
 		ImGui::Separator();
-		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer.show);
-		ImGui::MenuItem("Cheat Finder ...", nullptr, &manager.cheatFinder.show);
+		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer->show);
+		ImGui::MenuItem("Cheat Finder ...", nullptr, &manager.cheatFinder->show);
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{

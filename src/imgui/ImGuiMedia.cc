@@ -2,12 +2,14 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiOpenFile.hh"
 #include "ImGuiUtils.hh"
 
 #include "CartridgeSlotManager.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "DiskImageUtils.hh"
+#include "DiskManipulator.hh"
 #include "DSKDiskImage.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
@@ -601,7 +603,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					bool powered = motherBoard->isPowered();
 					im::Disabled(powered, [&]{
 						if (ImGui::MenuItem("Select hard disk image...")) {
-							manager.openFile.selectFile(
+							manager.openFile->selectFile(
 								"Select image for " + displayName,
 								hdFilter(),
 								[this, &group, hdName](const auto& fn) {
@@ -639,7 +641,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						manager.executeDelayed(makeTclList(cdName, "eject"));
 					}
 					if (ImGui::MenuItem("Insert CDROM image...")) {
-						manager.openFile.selectFile(
+						manager.openFile->selectFile(
 							"Select CDROM image for " + displayName,
 							cdFilter(),
 							[this, &group, cdName](const auto& fn) {
@@ -664,7 +666,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
 				}
 				if (ImGui::MenuItem("Insert LaserDisc image...")) {
-					manager.openFile.selectFile(
+					manager.openFile->selectFile(
 						"Select LaserDisc image",
 						buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
 						[this](const auto& fn) {
@@ -786,7 +788,7 @@ bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
 			interacted = true;
-			manager.openFile.selectFile(
+			manager.openFile->selectFile(
 				title,
 				createFilter(),
 				[&](const auto& fn) { group.edit.name = fn; },
@@ -815,7 +817,7 @@ bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zst
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
 			interacted = true;
-			manager.openFile.selectDirectory(
+			manager.openFile->selectDirectory(
 				title,
 				[&](const auto& fn) { group.edit.name = fn; },
 				current);
@@ -878,7 +880,7 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 		im::Group([&]{
 			if (ImGui::Button("Add")) {
 				interacted = true;
-				manager.openFile.selectFile(
+				manager.openFile->selectFile(
 					"Select disk IPS patch",
 					buildFilter("IPS patches", std::array<std::string_view, 1>{"ips"}),
 					[&](const std::string& ips) {
@@ -1180,7 +1182,7 @@ void ImGuiMedia::diskMenu(int i)
 				im::Indent([&]{
 					auto& group = info.groups[SELECT_DISK_IMAGE];
 					auto createNew = [&]{
-						manager.openFile.selectNewFile(
+						manager.openFile->selectNewFile(
 							"Select name for new blank disk image",
 							"Disk images (*.dsk){.dsk}",
 							[&](const auto& fn) {
@@ -1206,7 +1208,7 @@ void ImGuiMedia::diskMenu(int i)
 				im::Indent([&]{
 					auto& group = info.groups[SELECT_DIR_AS_DISK];
 					auto createNew = [&]{
-						manager.openFile.selectNewFile(
+						manager.openFile->selectNewFile(
 							"Select name for new empty directory",
 							"",
 							[&](const auto& fn) {
@@ -1416,7 +1418,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			}
 			ImGui::SameLine();
 			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == "record", RenderRecord)) {
-				manager.openFile.selectNewFile(
+				manager.openFile->selectNewFile(
 					"Select new wav file for record",
 					"Tape images (*.wav){.wav}",
 					[&](const auto& fn) {

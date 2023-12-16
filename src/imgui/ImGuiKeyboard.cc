@@ -5,14 +5,12 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiUtils.hh"
 
 #include "Keyboard.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXPPI.hh"
 #include "UnicodeKeymap.hh" // KeyMatrixPosition
-
-#include "enumerate.hh"
-#include "narrow.hh"
 
 #include <imgui.h>
 

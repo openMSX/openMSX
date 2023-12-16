@@ -1,8 +1,11 @@
 #include "ImGuiSymbols.hh"
 
+#include "ImGuiBreakPoints.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiOpenFile.hh"
 #include "ImGuiUtils.hh"
+#include "ImGuiWatchExpr.hh"
 
 #include "CliComm.hh"
 #include "File.hh"
@@ -173,7 +176,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 	ImGui::SetNextWindowSize(gl::vec2{24, 18} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Symbol Manager", &show, [&]{
 		if (ImGui::Button("Load symbol file...")) {
-			manager.openFile.selectFile(
+			manager.openFile->selectFile(
 				"Select symbol file",
 				SymbolManager::getFileFilters(),
 				[this](const std::string& filename) {
@@ -252,8 +255,8 @@ void ImGuiSymbols::notifySymbolsChanged()
 		}
 	}
 
-	manager.breakPoints.refreshSymbols();
-	manager.watchExpr.refreshSymbols();
+	manager.breakPoints->refreshSymbols();
+	manager.watchExpr->refreshSymbols();
 }
 
 } // namespace openmsx

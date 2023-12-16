@@ -334,7 +334,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 							ImGui::Button("Select ...");
 						}
 						if (ImGui::IsItemClicked()) {
-							manager.openFile.selectFile(
+							manager.openFile->selectFile(
 								"Select image for icon", "PNG (*.png){.png}",
 								[this, &ic](const std::string& filename) {
 									ic.filename = filename;
