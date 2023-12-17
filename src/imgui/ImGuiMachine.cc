@@ -81,7 +81,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
-	ImGui::SetNextWindowSize(gl::vec2{36, 31} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{36, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Select MSX machine", &showSelectMachine, [&]{
 		auto& reactor = manager.getReactor();
 		auto instances = reactor.getMachineIDs();
@@ -140,75 +140,82 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		}
 
-		im::TreeNode("Available machines", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			auto& allMachines = getAllMachines();
-			std::string filterDisplay = "filter";
-			if (!filterType.empty() || !filterRegion.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
-			if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
-			if (!filterRegion.empty()) strAppend(filterDisplay, ' ', filterRegion);
-			if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
-			strAppend(filterDisplay, "###filter");
-			im::TreeNode(filterDisplay.c_str(), [&]{
-				displayFilterCombo(filterType, "Type", allMachines);
-				displayFilterCombo(filterRegion, "Region", allMachines);
-				ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
-				simpleToolTip("A list of substrings that must be part of the machine name.\n"
-				              "\n"
-				              "For example: enter 'pa' to search for 'Panasonic' machines. "
-				              "Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
-			});
-			im::ListBox("##list", [&]{
-				auto filteredMachines = to_vector(xrange(allMachines.size()));
-				applyComboFilter("Type",   filterType,   allMachines, filteredMachines);
-				applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
-				applyDisplayNameFilter(filterString, allMachines, filteredMachines);
+		ImGui::TextUnformatted("Available machines:"sv);
+		auto& allMachines = getAllMachines();
+		std::string filterDisplay = "filter";
+		if (!filterType.empty() || !filterRegion.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
+		if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
+		if (!filterRegion.empty()) strAppend(filterDisplay, ' ', filterRegion);
+		if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
+		strAppend(filterDisplay, "###filter");
+		im::TreeNode(filterDisplay.c_str(), ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			displayFilterCombo(filterType, "Type", allMachines);
+			displayFilterCombo(filterRegion, "Region", allMachines);
+			ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+			if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere(-1);
+			simpleToolTip("A list of substrings that must be part of the machine name.\n"
+					"\n"
+					"For example: enter 'pa' to search for 'Panasonic' machines. "
+					"Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
+		});
 
-				im::ListClipper(filteredMachines.size(), [&](int i) {
-					auto idx = filteredMachines[i];
-					auto& info = allMachines[idx];
-					bool ok = getTestResult(info).empty();
-					im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-						if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
-							newMachineConfig = info.configName;
-							if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-								manager.executeDelayed(makeTclList("machine", newMachineConfig));
-							}
+		auto filteredMachines = to_vector(xrange(allMachines.size()));
+		applyComboFilter("Type",   filterType,   allMachines, filteredMachines);
+		applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
+		applyDisplayNameFilter(filterString, allMachines, filteredMachines);
+
+		bool inFilteredList = contains(filteredMachines, newMachineConfig,
+						[&](auto idx) { return allMachines[idx].configName; });
+
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		im::ListBox("##list", [&]{
+			im::ListClipper(filteredMachines.size(), [&](int i) {
+				auto idx = filteredMachines[i];
+				auto& info = allMachines[idx];
+				bool ok = getTestResult(info).empty();
+				im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+					if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+						newMachineConfig = info.configName;
+						if (ok && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+							showSelectMachine = false; // close window
+							manager.executeDelayed(makeTclList("machine", newMachineConfig));
 						}
-						im::ItemTooltip([&]{
-							printConfigInfo(info);
-						});
+					}
+					im::ItemTooltip([&]{
+						printConfigInfo(info);
 					});
 				});
 			});
 		});
-		ImGui::Separator();
-		im::TreeNode("Selected machine", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			if (!newMachineConfig.empty()) {
-				bool ok = printConfigInfo(newMachineConfig);
-				ImGui::Spacing();
-				im::Disabled(!ok, [&]{
-					if (ImGui::Button("Replace")) {
-						manager.executeDelayed(makeTclList("machine", newMachineConfig));
-					}
-					simpleToolTip("Replace the current machine with the selected machine. "
-					              "Alternatively you can also double click in the list above.");
-					ImGui::SameLine(0.0f, 10.0f);
-					if (ImGui::Button("New")) {
-						std::string script = strCat(
-							"set id [create_machine]\n"
-							"set err [catch {${id}::load_machine ", newMachineConfig, "} error_result]\n"
-							"if {$err} {\n"
-							"    delete_machine $id\n"
-							"    error \"Error activating new machine: $error_result\"\n"
-							"} else {\n"
-							"    activate_machine $id\n"
-							"}\n");
-						manager.executeDelayed(TclObject(script));
-					}
-					simpleToolTip("Create a new machine instance (next to the current machine). "
-					              "Later you can switch between the different instances (like different tabs in a web browser).");
-				});
+
+		bool ok = [&]{
+			if (!inFilteredList) return false;
+			auto* info = findMachineInfo(newMachineConfig);
+			if (!info) return false;
+			const auto& test = getTestResult(*info);
+			return test.empty();
+		}();
+		im::Disabled(!ok, [&]{
+			if (ImGui::Button("Replace current machine")) {
+				manager.executeDelayed(makeTclList("machine", newMachineConfig));
 			}
+			simpleToolTip("Replace the current machine with the selected machine. "
+					"Alternatively you can also double click in the list above (in addition that also closes this window).");
+			ImGui::SameLine(0.0f, 10.0f);
+			if (ImGui::Button("New machine instance")) {
+				std::string script = strCat(
+					"set id [create_machine]\n"
+					"set err [catch {${id}::load_machine ", newMachineConfig, "} error_result]\n"
+					"if {$err} {\n"
+					"    delete_machine $id\n"
+					"    error \"Error activating new machine: $error_result\"\n"
+					"} else {\n"
+					"    activate_machine $id\n"
+					"}\n");
+				manager.executeDelayed(TclObject(script));
+			}
+			simpleToolTip("Create a new machine instance (next to the current machine). "
+					"Later you can switch between the different instances (like different tabs in a web browser).");
 		});
 	});
 }
@@ -400,13 +407,6 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 		});
 	}
 	return ok;
-}
-
-bool ImGuiMachine::printConfigInfo(const std::string& config)
-{
-	auto* info = findMachineInfo(config);
-	if (!info) return false;
-	return printConfigInfo(*info);
 }
 
 ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config)

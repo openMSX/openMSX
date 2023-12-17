@@ -35,7 +35,6 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
-	bool printConfigInfo(const std::string& config);
 
 public:
 	bool showSelectMachine = false;
