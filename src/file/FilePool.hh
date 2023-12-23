@@ -4,8 +4,10 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "FilePoolCore.hh"
-#include "StringSetting.hh"
 #include "Observer.hh"
+#include "StringSetting.hh"
+
+#include <optional>
 #include <string_view>
 
 namespace openmsx {
@@ -31,7 +33,7 @@ public:
 	 * relatively expensive calculation.
 	 */
 	[[nodiscard]] Sha1Sum getSha1Sum(File& file);
-	[[nodiscard]] Sha1Sum getSha1Sum(const std::string& filename);
+	[[nodiscard]] std::optional<Sha1Sum> getSha1Sum(const std::string& filename);
 
 	[[nodiscard]] FilePoolCore::Directories getDirectories() const;
 

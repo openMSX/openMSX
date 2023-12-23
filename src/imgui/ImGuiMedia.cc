@@ -323,12 +323,13 @@ std::string ImGuiMedia::displayNameForExtension(std::string_view config)
 std::string ImGuiMedia::displayNameForRom(const std::string& filename, bool compact)
 {
 	auto& reactor = manager.getReactor();
-	auto sha1 = reactor.getFilePool().getSha1Sum(filename);
-	auto& database = reactor.getSoftwareDatabase();
-	if (const auto* romInfo = database.fetchRomInfo(sha1)) {
-		if (auto title = romInfo->getTitle(database.getBufferStart());
-			!title.empty()) {
-			return std::string(title);
+	if (auto sha1 = reactor.getFilePool().getSha1Sum(filename)) {
+		auto& database = reactor.getSoftwareDatabase();
+		if (const auto* romInfo = database.fetchRomInfo(*sha1)) {
+			if (auto title = romInfo->getTitle(database.getBufferStart());
+				!title.empty()) {
+				return std::string(title);
+			}
 		}
 	}
 	return compact ? std::string(FileOperations::getFilename(filename))

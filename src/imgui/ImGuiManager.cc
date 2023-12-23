@@ -441,10 +441,9 @@ void ImGuiManager::paintImGui()
 			}
 			selectedMedia = list.front();
 			selectList = std::move(list);
-			try {
-				auto sha1 = reactor.getFilePool().getSha1Sum(droppedFile);
-				romInfo = reactor.getSoftwareDatabase().fetchRomInfo(sha1);
-			} catch (MSXException&) {
+			if (auto sha1 = reactor.getFilePool().getSha1Sum(droppedFile)) {
+				romInfo = reactor.getSoftwareDatabase().fetchRomInfo(*sha1);
+			} else {
 				romInfo = nullptr;
 			}
 			selectedRomType = romInfo ? romInfo->getRomType()

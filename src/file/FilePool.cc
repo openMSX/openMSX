@@ -60,10 +60,14 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	return core.getSha1Sum(file);
 }
 
-Sha1Sum FilePool::getSha1Sum(const std::string& filename)
+std::optional<Sha1Sum> FilePool::getSha1Sum(const std::string& filename)
 {
-	File file(filename);
-	return getSha1Sum(file);
+	try {
+		File file(filename);
+		return getSha1Sum(file);
+	} catch (MSXException&) {
+		return {};
+	}
 }
 
 [[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
