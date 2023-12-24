@@ -33,7 +33,7 @@ private:
 	MSXMixer& mixer;
 	AudioInputConnector connector;
 	DACSound8U dac;
-	Clock<15750> reference;
+	Clock<3579545, 228> reference; // 15700Hz
 	byte DValue;
 	byte status;
 	byte hold;

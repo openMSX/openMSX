@@ -41,7 +41,7 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 {
 	switch (port & 0x01) {
 	case 0:
-		// bit 0-1  15.75kHz counter
+		// bit 0-1  15.700kHz counter
 		// bit 2-7  not used
 		return reference.getTicksTill(time) & 0x03;
 	case 1:
