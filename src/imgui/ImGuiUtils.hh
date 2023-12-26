@@ -113,12 +113,14 @@ std::string formatTime(double time);
 float calculateFade(float current, float target, float period);
 
 template<int HexDigits>
-void comboHexSequence(const char* label, int* value, int mult) {
+void comboHexSequence(const char* label, int* value, int mult, int offset = 0) {
+	assert(offset < mult);
 	*value &= ~(mult - 1);
-	auto preview = tmpStrCat("0x", hex_string<HexDigits>(*value));
+	// only apply offset in display, not in the actual value
+	auto preview = tmpStrCat("0x", hex_string<HexDigits>(*value | offset));
 	im::Combo(label, preview.c_str(), [&]{
 		for (int addr = 0; addr < 0x1ffff; addr += mult) {
-			auto str = tmpStrCat("0x", hex_string<HexDigits>(addr));
+			auto str = tmpStrCat("0x", hex_string<HexDigits>(addr | offset));
 			if (ImGui::Selectable(str.c_str())) {
 				*value = addr;
 			}

@@ -208,7 +208,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Attribute table: 0x", hex_string<5>(vdpAttBase));
+					ImGui::StrCat("Attribute table: 0x", hex_string<5>(vdpAttBase | (vdpMode == 2 ? 512 : 0)));
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Vertical scroll: ", vdpVerticalScroll);
 					ImGui::AlignTextToFramePadding();
@@ -237,7 +237,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							if (ImGui::Selectable("yes")) manualTransparent = 1;
 						});
 						comboHexSequence<5>("##pat", &manualPatBase, 8 * 256);
-						comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode));
+						comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode), manualMode == 2 ? 512 : 0);
 						ImGui::InputInt("##verticalScroll", &manualVerticalScroll);
 						manualVerticalScroll &= 0xff;
 						ImGui::Combo("##lines", &manualLines, "192\000212\000256\000");

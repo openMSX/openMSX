@@ -273,7 +273,9 @@ static constexpr auto regFunctions = std::array{
 		return strCat("pattern table: 0x", hex_string<5>(v << 11), '\n');
 	  }},
 	R{{S{5, 0xFF}, S{11, 0x03}}, "sprite attribute table address", [](uint32_t v) {
-		if (isSprite2Mode()) v &= ~0x07;
+		if (isSprite2Mode()) {
+			v &= ~0x03; // note: '3' instead of '7' because we want to display 'addr + 512'
+		}
 		return strCat("sprite attribute table: 0x", hex_string<5>(v << 7), '\n');
 	  }},
 	R{{S{6, 0x3F}}, "sprite pattern table address", [](uint32_t v) {
