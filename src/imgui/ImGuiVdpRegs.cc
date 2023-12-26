@@ -195,6 +195,8 @@ static uint8_t getMode() { return ((registerValues[1] & 0x18) >> 3) | ((register
 static bool isText2Mode() { return getMode() == 0b01010; } // Note: M1 and M2 swapped!
 static bool isGraph23Mode() { return getMode() == one_of(0b00100, 0b01000); }
 static bool isSprite2Mode() { return getMode() == one_of(0b01000, 0b01100, 0b10000, 0b10100, 0b11100); }
+static bool isBitmapMode() { return getMode() >= 0x0C; }
+static bool isPlanarMode() { return (getMode() & 0x14) == 0x14; }
 
 static constexpr auto regFunctions = std::array{
 	// mode registers
@@ -251,7 +253,14 @@ static constexpr auto regFunctions = std::array{
 
 	// Table base registers
 	R{{S{2, 0x7F}}, "name table address", [](uint32_t v) {
-		if (isText2Mode()) v &= ~0x03;
+		if (isText2Mode()) {
+			v &= ~0x03;
+		} else if (isBitmapMode()) {
+			v &= ~0x1F;
+			if (isPlanarMode()) {
+				v *= 2;
+			}
+		}
 		return strCat("name table:    0x", hex_string<5>(v << 10), '\n');
 	  }},
 	R{{S{3, 0xFF}, S{10, 0x07}}, "color table address", [](uint32_t v) {
