@@ -67,7 +67,11 @@ static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
 			ImGui::TextDisabled("<empty>");
 		}
 		if (ImGui::Button("Restore default")) {
-			setting.setValue(defaultValue);
+			try {
+				setting.setValue(defaultValue);
+			} catch (MSXException&) {
+				// ignore
+			}
 			ImGui::CloseCurrentPopup();
 		}
 	});
@@ -82,7 +86,11 @@ bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, 
 {
 	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
-	if (changed) setting.setBoolean(value);
+	try {
+		if (changed) setting.setBoolean(value);
+	} catch (MSXException&) {
+		// ignore
+	}
 	settingStuff(setting, getTooltip);
 
 	ImGui::SameLine();
@@ -105,7 +113,11 @@ bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flag
 	int min = setting.getMinValue();
 	int max = setting.getMaxValue();
 	bool changed = ImGui::SliderInt(label, &value, min, max, "%d", flags);
-	if (changed) setting.setInt(value);
+	try {
+		if (changed) setting.setInt(value);
+	} catch (MSXException&) {
+		// ignore
+	}
 	settingStuff(setting);
 	return changed;
 }
@@ -121,7 +133,11 @@ bool SliderFloat(const char* label, FloatSetting& setting, const char* format, I
 	float min = narrow_cast<float>(setting.getMinValue());
 	float max = narrow_cast<float>(setting.getMaxValue());
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
-	if (changed) setting.setDouble(value); // TODO setFloat()
+	try {
+		if (changed) setting.setDouble(value); // TODO setFloat()
+	} catch (MSXException&) {
+		// ignore
+	}
 	settingStuff(setting);
 	return changed;
 }
@@ -134,8 +150,12 @@ bool InputText(Setting& setting)
 bool InputText(const char* label, Setting& setting)
 {
 	auto value = std::string(setting.getValue().getString());
-	bool changed = ImGui::InputText(label, &value);
-	if (changed) setting.setValue(TclObject(value));
+	bool changed = ImGui::InputText(label, &value, ImGuiInputTextFlags_EnterReturnsTrue);
+	try {
+		if (changed) setting.setValue(TclObject(value));
+	} catch (MSXException&) {
+		// ignore
+	}
 	settingStuff(setting);
 	return changed;
 }
@@ -150,7 +170,11 @@ void ComboBox(const char* label, Setting& setting, std::function<std::string(con
 			bool selected = entry.name == current;
 			const auto& display = displayValue(entry.name);
 			if (ImGui::Selectable(display.c_str(), selected)) {
-				setting.setValue(TclObject(entry.name));
+				try {
+					setting.setValue(TclObject(entry.name));
+				} catch (MSXException&) {
+					// ignore
+				}
 			}
 			if (auto it = ranges::find(toolTips, entry.name, &EnumToolTip::value);
 			    it != toolTips.end()) {
@@ -183,7 +207,11 @@ void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code
 		for (const auto& value : setting.getPossibleValues()) {
 			bool selected = value == current;
 			if (ImGui::Selectable(std::string(value).c_str(), selected)) {
-				setting.setValue(TclObject(value));
+				try {
+					setting.setValue(TclObject(value));
+				} catch (MSXException&) {
+					// ignore
+				}
 			}
 		}
 	});
