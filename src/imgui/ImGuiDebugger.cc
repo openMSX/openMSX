@@ -14,6 +14,7 @@
 
 #include "CPURegs.hh"
 #include "Dasm.hh"
+#include "Debuggable.hh"
 #include "Debugger.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
@@ -40,6 +41,36 @@ using namespace std::literals;
 
 
 namespace openmsx {
+
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
+	: manager(&manager_)
+{
+	ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
+		auto* debuggable = reinterpret_cast<CallbackInfo*>(const_cast<ImU8*>(userdata))->debuggable;
+		return debuggable->read(narrow<unsigned>(offset));
+	};
+	WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
+		auto* debuggable = reinterpret_cast<CallbackInfo*>(userdata)->debuggable;
+		debuggable->write(narrow<unsigned>(offset), data);
+	};
+	HighlightFn = [](const ImU8* userdata, size_t offset) -> bool {
+		// Also highlight preview-region when preview is not active.
+		// Including when this editor has lost focus.
+		const auto* editor = reinterpret_cast<const CallbackInfo*>(userdata)->editor;
+		auto begin = editor->DataPreviewAddr;
+		auto end = begin + editor->DataTypeGetSize(editor->PreviewDataType);
+		return (begin <= offset) && (offset < end);
+	};
+	PreviewDataType = ImGuiDataType_U8;
+}
+
+void DebuggableEditor::DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr)
+{
+	im::ScopedFont sf(manager->fontMono);
+	CallbackInfo info{&debuggable, this};
+	MemoryEditor::DrawWindow(title, &info, debuggable.getSize(), base_display_addr);
+}
+
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: manager(manager_)
@@ -114,7 +145,7 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	} else if (name.starts_with(prefix)) {
 		auto debuggableName = name.substr(prefix.size());
 		auto it = ranges::upper_bound(hexEditors, debuggableName, {}, &EditorInfo::name);
-		hexEditors.emplace(it, std::string(debuggableName));
+		hexEditors.emplace(it, std::string(debuggableName), manager);
 	}
 }
 
@@ -134,7 +165,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		// or create a new one
 		if (!found) {
 			auto it = ranges::upper_bound(hexEditors, name, {}, &EditorInfo::name);
-			hexEditors.emplace(it, name);
+			hexEditors.emplace(it, name, manager);
 		}
 	};
 
@@ -483,7 +514,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								? std::string_view(addrStr)
 								: std::string_view(addrLabels[cycleLabelsCounter % addrLabels.size()]->name);
 							ImGui::SetCursorPos(pos);
-							ImGui::TextUnformatted(displayAddr);
+							im::Font(manager.fontMono, [&]{
+								ImGui::TextUnformatted(displayAddr);
+							});
 							if (!addrLabels.empty()) {
 								simpleToolTip([&]{
 									std::string tip(addrStr);
@@ -505,12 +538,16 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							for (auto i : xrange(len)) {
 								strAppend(opcodesStr, hex_string<2>(opcodes[i]), ' ');
 							}
-							ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
+							im::Font(manager.fontMono, [&]{
+								ImGui::TextUnformatted(opcodesStr.data(), opcodesStr.data() + 3 * len - 1);
+							});
 						}
 
 						if (ImGui::TableNextColumn()) { // mnemonic
 							auto pos = ImGui::GetCursorPos();
-							ImGui::TextUnformatted(mnemonic);
+							im::Font(manager.fontMono, [&]{
+								ImGui::TextUnformatted(mnemonic);
+							});
 							if (mnemonicAddr) {
 								ImGui::SetCursorPos(pos);
 								if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
@@ -644,6 +681,7 @@ void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuT
 			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
+			im::ScopedFont sf(manager.fontMono);
 			im::ListClipper(std::min(128, (0x10000 - sp) / 2), [&](int row) {
 				auto offset = 2 * row;
 				auto addr = sp + offset;
@@ -668,6 +706,8 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 {
 	if (!showRegisters) return;
 	im::Window("CPU registers", &showRegisters, [&]{
+		im::ScopedFont sf(manager.fontMono);
+
 		const auto& style = ImGui::GetStyle();
 		auto padding = 2 * style.FramePadding.x;
 		auto width16 = ImGui::CalcTextSize("FFFF"sv).x + padding;
@@ -762,9 +802,16 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 {
 	if (!showFlags) return;
 	im::Window("CPU flags", &showFlags, [&]{
-		auto sizeH1 = ImGui::CalcTextSize("NC"sv);
-		auto sizeH2 = ImGui::CalcTextSize("X:0"sv);
-		auto sizeV = ImGui::CalcTextSize("C 0 (NC)"sv);
+		auto [sizeH1_, sizeH2_, sizeV_] = [&]{
+			im::ScopedFont sf(manager.fontMono);
+			return std::tuple{
+				ImGui::CalcTextSize("NC"sv),
+				ImGui::CalcTextSize("X:0"sv),
+				ImGui::CalcTextSize("C 0 (NC)"sv)
+			};
+		}();
+		// clang workaround
+		auto sizeH1 = sizeH1_; auto sizeH2 = sizeH2_; auto sizeV = sizeV_;
 
 		auto f = regs.getF();
 
@@ -788,12 +835,14 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 				}
 				sz = sizeV;
 			}
-			if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
-				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-					regs.setF(f ^ bit);
+			im::Font(manager.fontMono, [&]{
+				if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						regs.setF(f ^ bit);
+					}
 				}
-			}
-			simpleToolTip("double-click to toggle");
+			});
+			simpleToolTip("double-click to toggle, right-click to configure");
 			if (flagsLayout == 0) {
 				// horizontal
 				ImGui::SameLine(0.0f, sizeH1.x);

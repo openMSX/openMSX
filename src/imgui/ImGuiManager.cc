@@ -57,7 +57,21 @@ namespace openmsx {
 
 using namespace std::literals;
 
-static void initializeImGui()
+static ImFont* addFont(const std::string& filename, int fontSize)
+{
+	File file(filename);
+	auto fileSize = file.getSize();
+	auto ttfData = std::span(
+		static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
+	file.read(ttfData);
+
+	auto& io = ImGui::GetIO();
+	return io.Fonts->AddFontFromMemoryTTF(
+		ttfData.data(), // transfer ownership of 'ttfData' buffer
+		narrow<int>(ttfData.size()), narrow<float>(fontSize));
+}
+
+void ImGuiManager::initializeImGui()
 {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -67,14 +81,21 @@ static void initializeImGui()
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
-	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
+	const auto& context = systemFileContext();
+	static auto iniFilename = context.resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
 
-	// load icon font file (CustomFont.cpp)
-	io.Fonts->AddFontDefault();
+	//io.Fonts->AddFontDefault();
+	fontProp = addFont(context.resolve("skins/Vera.ttf.gz"), 13);
+
+	//// load icon font file (CustomFont.cpp), only in the default font
 	static const ImWchar icons_ranges[] = { ICON_MIN_IGFD, ICON_MAX_IGFD, 0 };
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
 	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
+	// load debugger icons, also only in default font
+	debugger->loadIcons();
+
+	fontMono = addFont(context.resolve("skins/VeraMono.ttf.gz"), 13);
 }
 
 static void cleanupImGui()
@@ -114,7 +135,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	initializeImGui();
-	debugger->loadIcons();
 
 	ImGuiSettingsHandler ini_handler;
 	ini_handler.TypeName = "openmsx";

@@ -125,6 +125,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 
 	ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
 	im::Window("Console", &show, [&]{
+		im::ScopedFont sf(manager.fontMono);
+
 		// Reserve enough left-over height for 1 separator + 1 input text
 		auto& style = ImGui::GetStyle();
 		const float footerHeightToReserve = style.ItemSpacing.y +

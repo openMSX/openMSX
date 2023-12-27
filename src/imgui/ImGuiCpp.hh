@@ -124,6 +124,16 @@ inline void Font(ImFont* font, std::invocable<> auto next)
 	next();
 	ImGui::PopFont();
 }
+// Same functionality as im::Font(), but different usage (sometimes one sometimes the other is easier).
+struct ScopedFont {
+	ScopedFont(ImFont* font) { ImGui::PushFont(font); }
+	~ScopedFont() { ImGui::PopFont(); }
+
+	ScopedFont(const ScopedFont&) = delete;
+	ScopedFont(ScopedFont&&) = delete;
+	ScopedFont& operator=(const ScopedFont&) = delete;
+	ScopedFont& operator=(ScopedFont&&) = delete;
+};
 
 // im::StyleColor(): wrapper around ImGui::PushStyleColor() / ImGui::PopStyleColor()
 // Add more overloads when needed
@@ -448,11 +458,11 @@ inline void PopupContextWindow(const char* str_id, ImGuiPopupFlags popup_flags, 
 }
 inline void PopupContextWindow(const char* str_id, std::invocable<> auto next)
 {
-	PopupContextItem(str_id, 1, next);
+	PopupContextWindow(str_id, 1, next);
 }
 inline void PopupContextWindow(std::invocable<> auto next)
 {
-	PopupContextItem(nullptr, 1, next);
+	PopupContextWindow(nullptr, 1, next);
 }
 
 // im::Table(): wrapper around ImGui::BeginTable() / ImGui::EndTable()

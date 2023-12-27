@@ -624,7 +624,9 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			if (!endAddr.empty()) {
 				strAppend(displayAddr, "...", endAddr);
 			}
-			ImGui::TextUnformatted(displayAddr);
+			im::Font(manager.fontMono, [&]{
+				ImGui::TextUnformatted(displayAddr);
+			});
 			addrToolTip();
 			ImGui::SetCursorPos(pos);
 			if (ImGui::InvisibleButton("##range-button", {-FLT_MIN, rowHeight})) {
@@ -636,7 +638,9 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			});
 		} else {
 			assert(endAddr.empty());
-			addrChanged |= ImGui::InputText("##addr", &addr);
+			im::Font(manager.fontMono, [&]{
+				addrChanged |= ImGui::InputText("##addr", &addr);
+			});
 			addrToolTip();
 			if (ImGui::IsItemActive()) selectedRow = row;
 		}
@@ -654,7 +658,9 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		auto checkCmd = getCheckCmd(tag);
 		ParsedSlotCond slot(checkCmd, cond);
 		auto pos = ImGui::GetCursorPos();
-		ImGui::TextUnformatted(slot.toDisplayString());
+		im::Font(manager.fontMono, [&]{
+			ImGui::TextUnformatted(slot.toDisplayString());
+		});
 		ImGui::SetCursorPos(pos);
 		if (ImGui::InvisibleButton("##cond-button", {-FLT_MIN, rowHeight})) {
 			ImGui::OpenPopup("cond-popup");
@@ -670,12 +676,14 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 	}
 	if (ImGui::TableNextColumn()) { // action
 		setRedBg(validCmd);
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::InputText("##cmd", &cmd)) {
-			item.cmd = cmd;
-			needSync = true;
-		}
-		if (ImGui::IsItemActive()) selectedRow = row;
+		im::Font(manager.fontMono, [&]{
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::InputText("##cmd", &cmd)) {
+				item.cmd = cmd;
+				needSync = true;
+			}
+			if (ImGui::IsItemActive()) selectedRow = row;
+		});
 	}
 	if (needSync) {
 		syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
@@ -687,17 +695,24 @@ bool ImGuiBreakPoints::editRange(std::string& begin, std::string& end)
 	bool changed = false;
 	ImGui::TextUnformatted("address range"sv);
 	im::Indent([&]{
+		const auto& style = ImGui::GetStyle();
+		auto pos = ImGui::GetCursorPos().x + ImGui::CalcTextSize("end: (?)").x + 2.0f * style.ItemSpacing.x;
+
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("begin:  "sv);
-		ImGui::SameLine();
-		changed |= ImGui::InputText("##begin", &begin);
+		ImGui::SameLine(pos);
+		im::Font(manager.fontMono, [&]{
+			changed |= ImGui::InputText("##begin", &begin);
+		});
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("end:"sv);
 		HelpMarker("End address is included in the range.\n"
 		           "Leave empty for a single address.");
-		ImGui::SameLine();
-		changed |= ImGui::InputText("##end", &end);
+		ImGui::SameLine(pos);
+		im::Font(manager.fontMono, [&]{
+			changed |= ImGui::InputText("##end", &end);
+		});
 	});
 	return changed;
 }
@@ -707,29 +722,35 @@ bool ImGuiBreakPoints::editCondition(ParsedSlotCond& slot)
 	bool changed = false;
 	ImGui::TextUnformatted("slot"sv);
 	im::Indent([&]{
-		uint8_t one = 1;
-		changed |= ImGui::Checkbox("primary  ", &slot.hasPs);
-		ImGui::SameLine();
+		const auto& style = ImGui::GetStyle();
+		auto pos = ImGui::GetCursorPos().x + ImGui::GetFrameHeight() +
+		           ImGui::CalcTextSize("secondary").x + 2.0f * style.ItemSpacing.x;
+
+		changed |= ImGui::Checkbox("primary", &slot.hasPs);
+		ImGui::SameLine(pos);
 		im::Disabled(!slot.hasPs, [&]{
 			changed |= ImGui::Combo("##ps", &slot.ps, "0\0001\0002\0003\000");
 
 			changed |= ImGui::Checkbox("secondary", &slot.hasSs);
-			ImGui::SameLine();
+			ImGui::SameLine(pos);
 			im::Disabled(!slot.hasSs, [&]{
 				changed |= ImGui::Combo("##ss", &slot.ss, "0\0001\0002\0003\000");
 			});
 
-			changed |= ImGui::Checkbox("segment  ", &slot.hasSeg);
-			ImGui::SameLine();
+			changed |= ImGui::Checkbox("segment", &slot.hasSeg);
+			ImGui::SameLine(pos);
 			im::Disabled(!slot.hasSeg, [&]{
+				uint8_t one = 1;
 				changed |= ImGui::InputScalar("##seg", ImGuiDataType_U8, &slot.seg, &one);
 			});
 		});
 	});
 	ImGui::TextUnformatted("Tcl expression"sv);
 	im::Indent([&]{
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		changed |= ImGui::InputText("##cond", &slot.rest);
+		im::Font(manager.fontMono, [&]{
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			changed |= ImGui::InputText("##cond", &slot.rest);
+		});
 	});
 	return changed;
 }

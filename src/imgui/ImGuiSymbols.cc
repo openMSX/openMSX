@@ -130,7 +130,7 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 	}
 }
 template<bool FILTER_FILE>
-static void drawTable(SymbolManager& manager, std::vector<SymbolRef>& symbols, const std::string& file = {})
+static void drawTable(ImGuiManager& manager, SymbolManager& symbolManager, std::vector<SymbolRef>& symbols, const std::string& file = {})
 {
 	assert(FILTER_FILE == !file.empty());
 
@@ -151,19 +151,21 @@ static void drawTable(SymbolManager& manager, std::vector<SymbolRef>& symbols, c
 			ImGui::TableSetupColumn("file");
 		}
 		ImGui::TableHeadersRow();
-		checkSort(manager, symbols);
+		checkSort(symbolManager, symbols);
 
 		for (const auto& sym : symbols) {
-			if (FILTER_FILE && (sym.file(manager) != file)) continue;
+			if (FILTER_FILE && (sym.file(symbolManager) != file)) continue;
 
 			if (ImGui::TableNextColumn()) { // name
-				ImGui::TextUnformatted(sym.name(manager));
+				im::ScopedFont sf(manager.fontMono);
+				ImGui::TextUnformatted(sym.name(symbolManager));
 			}
 			if (ImGui::TableNextColumn()) { // value
-				ImGui::StrCat(hex_string<4>(sym.value(manager)));
+				im::ScopedFont sf(manager.fontMono);
+				ImGui::StrCat(hex_string<4>(sym.value(symbolManager)));
 			}
 			if (!FILTER_FILE && ImGui::TableNextColumn()) { // file
-				ImGui::TextUnformatted(sym.file(manager));
+				ImGui::TextUnformatted(sym.file(symbolManager));
 			}
 		}
 	});
@@ -205,7 +207,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 									fileError.erase(it);
 								}
 							}
-							drawTable<true>(symbolManager, symbols, info.filename);
+							drawTable<true>(manager, symbolManager, symbols, info.filename);
 						});
 					});
 				});
@@ -237,7 +239,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 				symbolManager.removeAllFiles();
 				fileError.clear();
 			}
-			drawTable<false>(symbolManager, symbols);
+			drawTable<false>(manager, symbolManager, symbols);
 		});
 	});
 }

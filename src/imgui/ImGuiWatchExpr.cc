@@ -246,6 +246,7 @@ void ImGuiWatchExpr::drawRow(int row)
 	}
 	if (ImGui::TableNextColumn()) { // expression
 		im::StyleColor(!validExpr, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+			im::ScopedFont sf(manager.fontMono);
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			if (ImGui::InputText("##expr", &watch.exprStr)) {
@@ -256,6 +257,7 @@ void ImGuiWatchExpr::drawRow(int row)
 	}
 	if (ImGui::TableNextColumn()) { // format
 		im::StyleColor(!validFrmt, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+			im::ScopedFont sf(manager.fontMono);
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			auto str = std::string(watch.format.getString());
@@ -270,6 +272,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		});
 	}
 	if (ImGui::TableNextColumn()) { // result
+		im::ScopedFont sf(manager.fontMono);
 		auto avail = ImGui::GetContentRegionAvail().x;
 		if (validExpr) {
 			const auto& str = frmtResult.getString();

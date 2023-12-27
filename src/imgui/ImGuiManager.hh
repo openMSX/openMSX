@@ -17,6 +17,7 @@
 #include <string_view>
 #include <vector>
 
+struct ImFont;
 struct ImGuiTextBuffer;
 
 namespace openmsx {
@@ -82,6 +83,8 @@ public:
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition() const { return windowPos; }
 
 private:
+	void initializeImGui();
+
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -102,6 +105,9 @@ private:
 	Reactor& reactor;
 
 public:
+	ImFont* fontProp;
+	ImFont* fontMono;
+
 	std::unique_ptr<ImGuiMachine> machine;
 	std::unique_ptr<ImGuiDebugger> debugger;
 	std::unique_ptr<ImGuiBreakPoints> breakPoints;

@@ -3,19 +3,17 @@
 
 #include "ImGuiPart.hh"
 
-#include "Debuggable.hh"
 #include "EmuTime.hh"
 
 #include <imgui_memory_editor.h>
 
-#include <map>
-#include <memory>
 #include <optional>
 #include <string>
 
 namespace openmsx {
 
 class CPURegs;
+class Debuggable;
 class Debugger;
 class ImGuiManager;
 class MSXCPUInterface;
@@ -27,32 +25,11 @@ class DebuggableEditor : public MemoryEditor
 		Debuggable* debuggable;
 		DebuggableEditor* editor;
 	};
+	ImGuiManager* manager;
 
 public:
-	DebuggableEditor() {
-		ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
-			auto* debuggable = reinterpret_cast<CallbackInfo*>(const_cast<ImU8*>(userdata))->debuggable;
-			return debuggable->read(narrow<unsigned>(offset));
-		};
-		WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
-			auto* debuggable = reinterpret_cast<CallbackInfo*>(userdata)->debuggable;
-			debuggable->write(narrow<unsigned>(offset), data);
-		};
-		HighlightFn = [](const ImU8* userdata, size_t offset) -> bool {
-			// Also highlight preview-region when preview is not active.
-			// Including when this editor has lost focus.
-			const auto* editor = reinterpret_cast<const CallbackInfo*>(userdata)->editor;
-			auto begin = editor->DataPreviewAddr;
-			auto end = begin + editor->DataTypeGetSize(editor->PreviewDataType);
-			return (begin <= offset) && (offset < end);
-		};
-		PreviewDataType = ImGuiDataType_U8;
-	}
-
-	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000) {
-		CallbackInfo info{&debuggable, this};
-		MemoryEditor::DrawWindow(title, &info, debuggable.getSize(), base_display_addr);
-	}
+	DebuggableEditor(ImGuiManager& manager);
+	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000);
 };
 
 
@@ -62,7 +39,7 @@ public:
 	explicit ImGuiDebugger(ImGuiManager& manager);
 	~ImGuiDebugger();
 
-	void loadIcons();
+	static void loadIcons();
 
 	void signalBreak();
 
@@ -87,8 +64,8 @@ private:
 	size_t cycleLabelsCounter = 0;
 
 	struct EditorInfo {
-		explicit EditorInfo(const std::string& name_)
-			: name(name_) {}
+		EditorInfo(const std::string& name_, ImGuiManager& manager)
+			: name(name_), editor(manager) {}
 		std::string name;
 		DebuggableEditor editor;
 	};
