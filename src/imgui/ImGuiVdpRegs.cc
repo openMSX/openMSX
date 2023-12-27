@@ -190,6 +190,7 @@ using namespace std::literals;
 static std::string noExplanation(uint32_t) { return {}; }
 static std::string spacing(uint32_t) { return "\n"s; }
 
+static const VDP* g_vdp; // HACK: global!!
 static std::array<uint8_t, 64 + 10> registerValues; // HACK: global!!
 static uint8_t getMode() { return ((registerValues[1] & 0x18) >> 3) | ((registerValues[0] & 0x0E) << 1); }
 static bool isText2Mode() { return getMode() == 0b01010; } // Note: M1 and M2 swapped!
@@ -316,7 +317,11 @@ static constexpr auto regFunctions = std::array{
 
 	// Access registers
 	R{{S{14, 0x07}}, "VRAM access base address",
-	  [](uint32_t v) { return strCat("VRAM access base address: ", hex_string<5>(v << 14), '\n'); }},
+	  [](uint32_t v) { return strCat("VRAM access base address: ", hex_string<5>(v << 14)); }},
+	R{{S{14, 0}}, "", [](uint32_t) {
+		auto addr = (registerValues[14] << 14) | g_vdp->getVramPointer();
+		return strCat(", full address: ", hex_string<5>(addr), '\n');
+	}},
 	R{{S{15, 0x0F}}, "select status register",
 	  [](uint32_t v) { return strCat("selected status register: ", v, '\n'); }},
 	R{{S{16, 0x0F}}, "select palette entry",
@@ -578,6 +583,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 		const bool tms99x8 = vdp->isMSX1VDP();
 		const bool v9958 = vdp->hasYJK();
 
+		g_vdp = vdp;
 		for (auto reg : xrange(64)) {
 			registerValues[reg] = vdp->peekRegister(reg);
 		}

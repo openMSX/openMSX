@@ -263,6 +263,10 @@ public:
 	[[nodiscard]] int getSpriteAttributeTableBase() const {
 		return (controlRegs[11] << 15) | (controlRegs[5] << 7);
 	}
+	/** Get vram pointer (14-bit) (only for debugger) */
+	[[nodiscard]] int getVramPointer() const {
+		return vramPointer;
+	}
 
 	/** Gets a palette entry.
 	  * @param index The index [0..15] in the palette.
