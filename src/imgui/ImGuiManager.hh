@@ -5,10 +5,13 @@
 #include "ImGuiUtils.hh"
 
 #include "EventListener.hh"
+#include "FilenameSetting.hh"
+#include "IntegerSetting.hh"
 #include "Reactor.hh"
 #include "RomTypes.hh"
 #include "TclObject.hh"
 
+#include "Observer.hh"
 #include "strCat.hh"
 #include "StringReplacer.hh"
 
@@ -51,7 +54,7 @@ class ImGuiVdpRegs;
 class ImGuiWatchExpr;
 class RomInfo;
 
-class ImGuiManager : public ImGuiPart, public EventListener
+class ImGuiManager : public ImGuiPart, private EventListener, private Observer<Setting>
 {
 public:
 	ImGuiManager(const ImGuiManager&) = delete;
@@ -84,6 +87,9 @@ public:
 
 private:
 	void initializeImGui();
+	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize);
+	void loadFont();
+	void reloadFont();
 
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
@@ -93,6 +99,9 @@ private:
 
 	// EventListener
 	int signalEvent(const Event& event) override;
+
+	// Observer<Setting>
+	void update(const Setting& setting) noexcept override;
 
 	// ini handler callbacks
 	void iniReadInit();
@@ -105,8 +114,8 @@ private:
 	Reactor& reactor;
 
 public:
-	ImFont* fontProp;
-	ImFont* fontMono;
+	ImFont* fontProp = nullptr;
+	ImFont* fontMono = nullptr;
 
 	std::unique_ptr<ImGuiMachine> machine;
 	std::unique_ptr<ImGuiDebugger> debugger;
@@ -135,9 +144,15 @@ public:
 	std::unique_ptr<ImGuiMessages> messages;
 
 	bool menuFade = true;
+	bool needReloadFont = false;
 	std::string loadIniFile;
 
 private:
+	FilenameSetting fontPropFilename;
+	FilenameSetting fontMonoFilename;
+	IntegerSetting fontPropSize;
+	IntegerSetting fontMonoSize;
+
 	std::vector<std::function<void()>> delayedActionQueue;
 	std::vector<ImGuiPart*> parts;
 	float menuAlpha = 1.0f;

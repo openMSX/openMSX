@@ -47,6 +47,7 @@
 #include "strCat.hh"
 
 #include <imgui.h>
+#include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_internal.h>
 #include <CustomFont.ii> // icons for ImGuiFileDialog
@@ -57,18 +58,60 @@ namespace openmsx {
 
 using namespace std::literals;
 
-static ImFont* addFont(const std::string& filename, int fontSize)
+ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 {
-	File file(filename);
-	auto fileSize = file.getSize();
-	auto ttfData = std::span(
-		static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
-	file.read(ttfData);
-
 	auto& io = ImGui::GetIO();
-	return io.Fonts->AddFontFromMemoryTTF(
-		ttfData.data(), // transfer ownership of 'ttfData' buffer
-		narrow<int>(ttfData.size()), narrow<float>(fontSize));
+	if (!filename.empty()) {
+		try {
+			const auto& context = systemFileContext();
+
+			File file(context.resolve(filename));
+			auto fileSize = file.getSize();
+			auto ttfData = std::span(
+				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
+			file.read(ttfData);
+
+			return io.Fonts->AddFontFromMemoryTTF(
+				ttfData.data(), // transfer ownership of 'ttfData' buffer
+				narrow<int>(ttfData.size()), narrow<float>(fontSize));
+		} catch (MSXException& e) {
+			getCliComm().printWarning("Couldn't load font: ", filename, ": ", e.getMessage(),
+						". Reverted to builtin font");
+		}
+	}
+	return io.Fonts->AddFontDefault(); // embedded "ProggyClean.ttf", size 13
+}
+
+void ImGuiManager::loadFont()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	assert(fontProp == nullptr);
+	fontProp = addFont(fontPropFilename.getString(), fontPropSize.getInt());
+
+	//// load icon font file (CustomFont.cpp), only in the default font
+	static const ImWchar icons_ranges[] = { ICON_MIN_IGFD, ICON_MAX_IGFD, 0 };
+	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
+	// load debugger icons, also only in default font
+	debugger->loadIcons();
+
+	assert(fontMono == nullptr);
+	fontMono = addFont(fontMonoFilename.getString(), fontMonoSize.getInt());
+}
+
+void ImGuiManager::reloadFont()
+{
+	fontProp = fontMono = nullptr;
+
+	ImGui_ImplOpenGL3_DestroyFontsTexture();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->Clear();
+	loadFont();
+	io.Fonts->Build();
+
+	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
 
 void ImGuiManager::initializeImGui()
@@ -81,21 +124,10 @@ void ImGuiManager::initializeImGui()
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
 	                  ImGuiConfigFlags_DockingEnable |
 	                  ImGuiConfigFlags_ViewportsEnable;
-	const auto& context = systemFileContext();
-	static auto iniFilename = context.resolveCreate("imgui.ini");
+	static auto iniFilename = systemFileContext().resolveCreate("imgui.ini");
 	io.IniFilename = iniFilename.c_str();
 
-	//io.Fonts->AddFontDefault();
-	fontProp = addFont(context.resolve("skins/Vera.ttf.gz"), 13);
-
-	//// load icon font file (CustomFont.cpp), only in the default font
-	static const ImWchar icons_ranges[] = { ICON_MIN_IGFD, ICON_MAX_IGFD, 0 };
-	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
-	// load debugger icons, also only in default font
-	debugger->loadIcons();
-
-	fontMono = addFont(context.resolve("skins/VeraMono.ttf.gz"), 13);
+	loadFont();
 }
 
 static void cleanupImGui()
@@ -132,6 +164,10 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, keyboard(std::make_unique<ImGuiKeyboard>(*this))
 	, console(std::make_unique<ImGuiConsole>(*this))
 	, messages(std::make_unique<ImGuiMessages>(*this))
+	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "skins/Vera.ttf.gz")
+	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "skins/VeraMono.ttf.gz")
+	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
+	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	initializeImGui();
@@ -179,6 +215,11 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
 	eventDistributor.registerEventListener(EventType::BREAK, *this);
 
+	fontPropFilename.attach(*this);
+	fontMonoFilename.attach(*this);
+	fontPropSize.attach(*this);
+	fontMonoSize.attach(*this);
+
 	// In order that they appear in the menubar
 	append(parts, std::initializer_list<ImGuiPart*>{
 		this,
@@ -191,6 +232,11 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 
 ImGuiManager::~ImGuiManager()
 {
+	fontMonoSize.detach(*this);
+	fontPropSize.detach(*this);
+	fontMonoFilename.detach(*this);
+	fontPropFilename.detach(*this);
+
 	auto& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
 	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
@@ -315,6 +361,11 @@ int ImGuiManager::signalEvent(const Event& event)
 	return 0;
 }
 
+void ImGuiManager::update(const Setting& /*setting*/) noexcept
+{
+	needReloadFont = true;
+}
+
 // TODO share code with ImGuiMedia
 static std::vector<std::string> getDrives(MSXMotherBoard* motherBoard)
 {
@@ -351,6 +402,10 @@ void ImGuiManager::preNewFrame()
 	if (!loadIniFile.empty()) {
 		ImGui::LoadIniSettingsFromDisk(loadIniFile.c_str());
 		loadIniFile.clear();
+	}
+	if (needReloadFont) {
+		needReloadFont = false;
+		reloadFont();
 	}
 }
 
