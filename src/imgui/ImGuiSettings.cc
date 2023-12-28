@@ -282,7 +282,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
-			im::Menu("Save layout ...", [&]{
+			im::Menu("Save layout", [&]{
 				ImGui::TextUnformatted("Enter name:"sv);
 				ImGui::InputText("##save-layout-name", &saveLayoutName);
 				ImGui::SameLine();
@@ -305,7 +305,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					}
 				});
 			});
-			im::Menu("Restore layout ...", [&]{
+			im::Menu("Restore layout", [&]{
 				ImGui::TextUnformatted("Select layout"sv);
 				im::ListBox("##select-layout", [&]{
 					std::vector<std::string> names;
@@ -334,7 +334,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					}
 				});
 			});
-			im::Menu("Select Style", [&]{
+			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
 				std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
 				for (auto i : xrange(narrow<int>(names.size()))) {
@@ -347,6 +347,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					setStyle();
 				}
 			});
+			ImGui::MenuItem("Select font...", nullptr, &showFont);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
@@ -1032,9 +1033,83 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 	});
 }
 
+void ImGuiSettings::paintFont()
+{
+	im::Window("Select font", &showFont, [&]{
+		auto selectFilename = [&](FilenameSetting& setting, float width) {
+			auto display = [](std::string_view name) {
+				if (name.ends_with(".gz" )) name.remove_suffix(3);
+				if (name.ends_with(".ttf")) name.remove_suffix(4);
+				return std::string(name);
+			};
+			auto current = setting.getString();
+			ImGui::SetNextItemWidth(width);
+			im::Combo(tmpStrCat("##", setting.getBaseName()).c_str(), display(current).c_str(), [&]{
+				for (const auto& font : getAvailableFonts()) {
+					if (ImGui::Selectable(display(font).c_str(), current == font)) {
+						setting.setString(font);
+					}
+				}
+			});
+		};
+		auto selectSize = [](IntegerSetting& setting) {
+			auto display = [](int s) { return strCat(s); };
+			auto current = setting.getInt();
+			ImGui::SetNextItemWidth(4.0f * ImGui::GetFontSize());
+			im::Combo(tmpStrCat("##", setting.getBaseName()).c_str(), display(current).c_str(), [&]{
+				for (int size : {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24, 26, 28, 30, 32}) {
+					if (ImGui::Selectable(display(size).c_str(), current == size)) {
+						setting.setInt(size);
+					}
+				}
+			});
+		};
+
+		auto pos = ImGui::CalcTextSize("Monospace").x + 2.0f * ImGui::GetStyle().ItemSpacing.x;
+		auto width = 12.0f * ImGui::GetFontSize(); // filename ComboBox (boxes are drawn with different font, but we want same width)
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Normal");
+		ImGui::SameLine(pos);
+		selectFilename(manager.fontPropFilename, width);
+		ImGui::SameLine();
+		selectSize(manager.fontPropSize);
+		HelpMarker("You can install more fonts by copying .ttf file(s) to your \"<openmsx>/share/skins\" directory.");
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Monospace");
+		ImGui::SameLine(pos);
+		im::Font(manager.fontMono, [&]{
+			selectFilename(manager.fontMonoFilename, width);
+		});
+		ImGui::SameLine();
+		selectSize(manager.fontMonoSize);
+		HelpMarker("Some GUI elements (e.g. the console) require a monospaced font.");
+	});
+}
+
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
+	if (showFont) paintFont();
+}
+
+std::span<const std::string> ImGuiSettings::getAvailableFonts()
+{
+	if (availableFonts.empty()) {
+		auto context = systemFileContext();
+		for (const auto& path : context.getPaths()) {
+			foreach_file(FileOperations::join(path, "skins"), [&](const std::string& /*fullName*/, std::string_view name) {
+				if (name.ends_with(".ttf.gz") || name.ends_with(".ttf")) {
+					availableFonts.emplace_back(name);
+				}
+			});
+		}
+		// sort and remove duplicates
+		ranges::sort(availableFonts);
+		availableFonts.erase(ranges::unique(availableFonts), end(availableFonts));
+	}
+	return availableFonts;
 }
 
 int ImGuiSettings::signalEvent(const Event& event)

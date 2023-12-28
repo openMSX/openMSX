@@ -114,6 +114,10 @@ private:
 	Reactor& reactor;
 
 public:
+	FilenameSetting fontPropFilename;
+	FilenameSetting fontMonoFilename;
+	IntegerSetting fontPropSize;
+	IntegerSetting fontMonoSize;
 	ImFont* fontProp = nullptr;
 	ImFont* fontMono = nullptr;
 
@@ -148,11 +152,6 @@ public:
 	std::string loadIniFile;
 
 private:
-	FilenameSetting fontPropFilename;
-	FilenameSetting fontMonoFilename;
-	IntegerSetting fontPropSize;
-	IntegerSetting fontMonoSize;
-
 	std::vector<std::function<void()>> delayedActionQueue;
 	std::vector<ImGuiPart*> parts;
 	float menuAlpha = 1.0f;

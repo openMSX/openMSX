@@ -65,7 +65,7 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 		try {
 			const auto& context = systemFileContext();
 
-			File file(context.resolve(filename));
+			File file(context.resolve(FileOperations::join("skins", filename)));
 			auto fileSize = file.getSize();
 			auto ttfData = std::span(
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
@@ -139,6 +139,10 @@ static void cleanupImGui()
 ImGuiManager::ImGuiManager(Reactor& reactor_)
 	: ImGuiPart(*this)
 	, reactor(reactor_)
+	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "Vera.ttf.gz")
+	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "VeraMono.ttf.gz")
+	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
+	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
 	, machine(std::make_unique<ImGuiMachine>(*this))
 	, debugger(std::make_unique<ImGuiDebugger>(*this))
 	, breakPoints(std::make_unique<ImGuiBreakPoints>(*this))
@@ -164,10 +168,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, keyboard(std::make_unique<ImGuiKeyboard>(*this))
 	, console(std::make_unique<ImGuiConsole>(*this))
 	, messages(std::make_unique<ImGuiMessages>(*this))
-	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "skins/Vera.ttf.gz")
-	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "skins/VeraMono.ttf.gz")
-	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
-	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	initializeImGui();

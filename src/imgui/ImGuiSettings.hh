@@ -6,7 +6,9 @@
 #include "EventListener.hh"
 
 #include <functional>
+#include <span>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -33,10 +35,14 @@ private:
 
 	void setStyle();
 	void paintJoystick(MSXMotherBoard& motherBoard);
+	void paintFont();
+
+	std::span<const std::string> getAvailableFonts();
 
 private:
 	ImGuiManager& manager;
 	bool showConfigureJoystick = false;
+	bool showFont = false;
 	bool showDemoWindow = false;
 
 	unsigned joystick = 0;
@@ -49,6 +55,8 @@ private:
 
 	std::string confirmText;
 	std::function<void()> confirmAction;
+
+	std::vector<std::string> availableFonts;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"style", &ImGuiSettings::selectedStyle},
