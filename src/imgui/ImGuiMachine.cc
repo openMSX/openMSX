@@ -81,7 +81,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 {
-	ImGui::SetNextWindowSize(gl::vec2{36, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{29, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Select MSX machine", &showSelectMachine, [&]{
 		auto& reactor = manager.getReactor();
 		auto instances = reactor.getMachineIDs();
@@ -222,7 +222,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 
 void ImGuiMachine::paintTestHardware()
 {
-	ImGui::SetNextWindowSize(gl::vec2{46.0f, 32.5f} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{41.0f, 32.5f} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Test MSX hardware", &showTestHardware, [&]{
 		auto formatNum = [](size_t num, std::string_view text) {
 			if (num == 0) {
@@ -393,7 +393,7 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 					ImGui::TextUnformatted(desc);
 				}
 				if (ImGui::TableNextColumn()) {
-					im::TextWrapPos(ImGui::GetFontSize() * 35.0f, [&] {
+					im::TextWrapPos(ImGui::GetFontSize() * 28.0f, [&] {
 						ImGui::TextUnformatted(value);
 					});
 				}

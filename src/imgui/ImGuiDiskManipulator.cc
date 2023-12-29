@@ -676,7 +676,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			partitionSizes.assign(3, {32, PartitionSize::MB});
 			ImGui::OpenPopup(newDiskImageTitle);
 		}
-		ImGui::SetNextWindowSize(gl::vec2{35, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(gl::vec2{30, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 		p_open = true;
 		im::PopupModal(newDiskImageTitle, &p_open, [&]{
 			bool close = false;

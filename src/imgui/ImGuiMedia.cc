@@ -729,22 +729,25 @@ static void printPatches(const TclObject& patches)
 
 static std::string leftClip(std::string_view s, float maxWidth)
 {
-	// Assume a fixed-width font.
-	const auto* font = ImGui::GetFont();
-	auto maxChars = static_cast<size_t>(maxWidth / font->GetCharAdvance('A'));
+	auto fullWidth = ImGui::CalcTextSize(s).x;
+	if (fullWidth <= maxWidth) return std::string(s);
+
+	maxWidth -= ImGui::CalcTextSize("..."sv).x;
+	if (maxWidth <= 0.0f) return "...";
 
 	auto len = s.size();
-	if (len <= maxChars) return std::string{s};
-	if (maxChars <= 3) return "...";
-	return strCat("...", s.substr(len - (maxChars - 3)));
+	auto num = *ranges::lower_bound(xrange(len), maxWidth, {},
+		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
+	return strCat("...", s.substr(len - num));
 }
 
 bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc, float width)
 {
 	bool interacted = false;
 	ImGui::SetNextItemWidth(-width);
-	auto preview = leftClip(displayFunc(group.edit.name),
-				ImGui::GetContentRegionAvail().x - (ImGui::GetFrameHeightWithSpacing() + 32.0f));
+	const auto& style = ImGui::GetStyle();
+	auto textWidth = ImGui::GetContentRegionAvail().x - (3.0f * style.FramePadding.x + ImGui::GetFrameHeight() + width);
+	auto preview = leftClip(displayFunc(group.edit.name), textWidth);
 	im::Combo("##recent", preview.c_str(), [&]{
 		int count = 0;
 		for (auto& item : group.recent) {
@@ -1380,7 +1383,7 @@ static void RenderRecord(gl::vec2 center, ImDrawList* drawList)
 
 void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 {
-	ImGui::SetNextWindowSize(gl::vec2{37, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver); // TODO
+	ImGui::SetNextWindowSize(gl::vec2{29, 20} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	auto& info = cassetteMediaInfo;
 	auto& group = info.group;
 	im::Window("Tape Deck", &info.show, [&]{

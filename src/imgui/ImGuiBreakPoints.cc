@@ -290,7 +290,9 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 		ImGuiTableFlags_ScrollY |
 		ImGuiTableFlags_ScrollX |
 		ImGuiTableFlags_SizingStretchProp;
-	im::Table("items", 5, flags, {-60, 0}, [&]{
+	const auto& style = ImGui::GetStyle();
+	auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Remove").x;
+	im::Table("items", 5, flags, {-width, 0}, [&]{
 		syncFromOpenMsx<Item>(items, cpuInterface);
 
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible

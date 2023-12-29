@@ -60,7 +60,9 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 
 	ImGui::SetNextWindowSize(gl::vec2{35, 15} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Watch expression", &show, [&]{
-		im::Child("child", {-64, 0}, [&] {
+		const auto& style = ImGui::GetStyle();
+		auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Examples").x;
+		im::Child("child", {-width, 0}, [&] {
 			int flags = ImGuiTableFlags_Resizable
 				| ImGuiTableFlags_Reorderable
 				| ImGuiTableFlags_Hideable

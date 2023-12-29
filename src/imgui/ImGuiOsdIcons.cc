@@ -221,7 +221,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 
 void ImGuiOsdIcons::paintConfigureIcons()
 {
-	ImGui::SetNextWindowSize({510, 210.0f}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{37, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure Icons", &showConfigureIcons, [&]{
 		ImGui::Checkbox("Show OSD icons", &showIcons);
 		ImGui::TextUnformatted("Layout:"sv);

@@ -197,7 +197,7 @@ void ImGuiMessages::paintLog()
 		assert(logWindow.open);
 		ImGui::SetNextWindowFocus();
 	}
-	ImGui::SetNextWindowSize(gl::vec2{53, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{40, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Message Log", logWindow, [&]{
 		const auto& style = ImGui::GetStyle();
 		auto buttonHeight = ImGui::GetFontSize() + 2.0f * style.FramePadding.y + style.ItemSpacing.y;
@@ -228,7 +228,7 @@ void ImGuiMessages::paintLog()
 
 void ImGuiMessages::paintConfigure()
 {
-	ImGui::SetNextWindowSize(gl::vec2{32, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{28, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure messages", configureWindow, [&]{
 		ImGui::TextUnformatted("When a message is emitted"sv);
 		im::Indent([&]{

@@ -178,7 +178,7 @@ void ImGuiTools::nextScreenshotName()
 
 void ImGuiTools::paintScreenshot()
 {
-	ImGui::SetNextWindowSize(gl::vec2{25, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{24, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Capture screenshot", &showScreenshot, [&]{
 		if (ImGui::IsWindowAppearing()) {
 			// on each re-open of this window, create a suggestion for a name

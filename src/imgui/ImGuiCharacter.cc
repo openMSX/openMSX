@@ -37,7 +37,7 @@ void ImGuiCharacter::loadLine(std::string_view name, zstring_view value)
 void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
-	ImGui::SetNextWindowSize({696, 886}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({686, 886}, ImGuiCond_FirstUseEver);
 	im::Window("Tile viewer", &show, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;

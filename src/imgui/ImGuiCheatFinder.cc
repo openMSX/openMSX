@@ -66,7 +66,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 					simpleToolTip("Search for memory locations with a specific value");
 				});
 			});
-			start = ImGui::Button("Restart search");
+			start |= ImGui::Button("Restart search");
 		});
 
 		ImGui::SameLine();
@@ -74,7 +74,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 			auto num = searchResults.size();
 			if (num == 0) {
 				ImGui::TextUnformatted("Results: no remaining locations"sv);
-				start = ImGui::Button("Start a new search");
+				start |= ImGui::Button("Start a new search");
 			} else {
 				if (num == 1) {
 					ImGui::TextUnformatted("Results: 1 remaining location"sv);
