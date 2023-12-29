@@ -65,7 +65,7 @@ Jan Lukens           <j.lukens@xs4all.nl>
 Daniel Vik           <daniel@vik.cc>
 SukkoPera
 Maarten van Strien
-Laurens Holst        <laurens.hg@grauw.nl>
+Laurens Holst        <laurens@grauw.nl>
 Filip H.F. Slagter
 
 And a special "thank you" goes to
