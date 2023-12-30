@@ -31,7 +31,8 @@ void ImGuiKeyboard::loadLine(std::string_view name, zstring_view value)
 void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
-
+	
+	if (!motherBoard) return;
 	auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"));
 	if (!ppi) return;
 	const auto& keyboard = ppi->getKeyboard();
