@@ -43,7 +43,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 					const auto& connectorName = connector->getName();
 					auto connectorClass = connector->getClass();
 					const auto& currentPluggable = connector->getPlugged();
-					ImGui::SetNextItemWidth(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
 					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(currentPluggable.getName()).c_str(), [&]{
 						if (!currentPluggable.getName().empty()) {
 							if (ImGui::Selectable("[unplug]")) {

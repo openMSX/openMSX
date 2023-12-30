@@ -866,7 +866,9 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 	}
 	strAppend(patchesTitle, "###patches");
 	im::TreeNode(patchesTitle.c_str(), [&]{
-		ImGui::SetNextItemWidth(-60.0f);
+		const auto& style = ImGui::GetStyle();
+		auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Remove"sv).x;
+		ImGui::SetNextItemWidth(-width);
 		im::Group([&]{
 			im::ListBox("##", [&]{
 				int count = 0;
@@ -1259,7 +1261,8 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 					bool interacted = selectImage(
 						group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
 						//[&](const std::string& filename) { return displayNameForRom(filename); }); // not needed?
-					ImGui::SetNextItemWidth(-80.0f);
+					const auto& style = ImGui::GetStyle();
+					ImGui::SetNextItemWidth(-(ImGui::CalcTextSize("mapper-type").x + style.ItemInnerSpacing.x));
 					interacted |= selectMapperType("mapper-type", item.romType);
 					interacted |= selectPatches(item, group.patchIndex);
 					interacted |= ImGui::Checkbox("Reset MSX on inserting ROM", &resetOnInsertRom);
