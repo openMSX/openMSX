@@ -1,25 +1,29 @@
 #include "MSXCPUInterface.hh"
-#include "DummyDevice.hh"
+
+#include "BooleanSetting.hh"
+#include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
-#include "TclObject.hh"
+#include "DeviceFactory.hh"
+#include "DummyDevice.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
+#include "GlobalSettings.hh"
+#include "HardwareConfig.hh"
 #include "Interpreter.hh"
-#include "Reactor.hh"
-#include "RealTime.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include "VDPIODelay.hh"
 #include "MSXCliComm.hh"
+#include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
 #include "MSXWatchIODevice.hh"
-#include "MSXException.hh"
-#include "CartridgeSlotManager.hh"
-#include "EventDistributor.hh"
-#include "Event.hh"
-#include "HardwareConfig.hh"
-#include "DeviceFactory.hh"
+#include "Reactor.hh"
 #include "ReadOnlySetting.hh"
+#include "RealTime.hh"
+#include "TclObject.hh"
+#include "VDPIODelay.hh"
 #include "serialize.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "outer.hh"
@@ -27,8 +31,8 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -85,6 +89,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
+	, pauseSetting(motherBoard.getReactor().getGlobalSettings().getPauseSetting())
 {
 	ranges::fill(primarySlotState, 0);
 	ranges::fill(secondarySlotState, 0);
@@ -179,7 +184,6 @@ void MSXCPUInterface::removeAllWatchPoints()
 	while (!watchPoints.empty()) {
 		removeWatchPoint(watchPoints.back());
 	}
-
 }
 
 byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
@@ -1035,6 +1039,7 @@ void MSXCPUInterface::doStep()
 void MSXCPUInterface::doContinue()
 {
 	assert(!isFastForward());
+	pauseSetting.setBoolean(false); // unpause
 	if (breaked) {
 		breaked = false;
 

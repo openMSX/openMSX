@@ -1,31 +1,35 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
+#include "BreakPoint.hh"
+#include "CacheLine.hh"
 #include "DebugCondition.hh"
+#include "WatchPoint.hh"
+
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
-#include "CacheLine.hh"
 #include "MSXDevice.hh"
-#include "BreakPoint.hh"
-#include "WatchPoint.hh"
 #include "ProfileCounters.hh"
-#include "narrow.hh"
 #include "openmsx.hh"
+
+#include "narrow.hh"
 #include "ranges.hh"
+
 #include <array>
 #include <bitset>
 #include <concepts>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
-class VDPIODelay;
-class DummyDevice;
-class MSXMotherBoard;
-class MSXCPU;
-class CliComm;
+class BooleanSetting;
 class BreakPoint;
+class CliComm;
+class DummyDevice;
+class MSXCPU;
+class MSXMotherBoard;
+class VDPIODelay;
 
 inline constexpr bool PROFILE_CACHELINES = false;
 enum CacheLineCounters {
@@ -397,6 +401,7 @@ private:
 	MSXCPU& msxcpu;
 	CliComm& cliComm;
 	MSXMotherBoard& motherBoard;
+	BooleanSetting& pauseSetting;
 
 	std::unique_ptr<VDPIODelay> delayDevice; // can be nullptr
 
