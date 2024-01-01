@@ -159,6 +159,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	                             ImGuiWindowFlags_NoScrollWithMouse |
 	                             ImGuiWindowFlags_NoCollapse |
 	                             ImGuiWindowFlags_NoBackground |
+	                             ImGuiWindowFlags_NoFocusOnAppearing |
 	                             (iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                           : 0;
 	adjust.pre();

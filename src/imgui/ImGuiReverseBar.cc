@@ -268,6 +268,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	                               ImGuiWindowFlags_NoScrollWithMouse |
 	                               ImGuiWindowFlags_NoCollapse |
 	                               ImGuiWindowFlags_NoBackground |
+	                               ImGuiWindowFlags_NoFocusOnAppearing |
 	                               (reverseAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                             : 0;
 	adjust.pre();
