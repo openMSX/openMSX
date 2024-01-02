@@ -71,9 +71,26 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
 			file.read(ttfData);
 
+			static const std::array<ImWchar, 2*6 + 1> ranges = {
+				0x0020, 0x00FF, // Basic Latin + Latin Supplement
+				0x0370, 0x03FF, // Greek and Coptic
+				0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+				//0x0E00, 0x0E7F, // Thai
+				//0x2000, 0x206F, // General Punctuation
+				//0x2DE0, 0x2DFF, // Cyrillic Extended-A
+				0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
+				0x3131, 0x3163, // Korean alphabets
+				0x31F0, 0x31FF, // Katakana Phonetic Extensions
+				//0x4e00, 0x9FAF, // CJK Ideograms
+				//0xA640, 0xA69F, // Cyrillic Extended-B
+				//0xAC00, 0xD7A3, // Korean characters
+				//0xFF00, 0xFFEF, // Half-width characters
+				0
+			};
 			return io.Fonts->AddFontFromMemoryTTF(
 				ttfData.data(), // transfer ownership of 'ttfData' buffer
-				narrow<int>(ttfData.size()), narrow<float>(fontSize));
+				narrow<int>(ttfData.size()), narrow<float>(fontSize),
+				nullptr, ranges.data());
 		} catch (MSXException& e) {
 			getCliComm().printWarning("Couldn't load font: ", filename, ": ", e.getMessage(),
 						". Reverted to builtin font");
