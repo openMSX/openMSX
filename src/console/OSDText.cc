@@ -24,7 +24,7 @@ namespace openmsx {
 
 OSDText::OSDText(Display& display_, const TclObject& name_)
 	: OSDImageBasedWidget(display_, name_)
-	, fontFile("skins/Vera.ttf.gz")
+	, fontFile("skins/DejaVuSans.ttf.gz")
 {
 }
 

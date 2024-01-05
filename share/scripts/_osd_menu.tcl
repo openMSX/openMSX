@@ -74,7 +74,7 @@ proc menu_create {menudef} {
 	set deftextcolor [get_optional menudef "text-color" $default_text_color]
 	set selectcolor  [get_optional menudef "select-color" $default_select_color]
 	set deffontsize  [get_optional menudef "font-size" 12]
-	set deffont      [get_optional menudef "font" "skins/Vera.ttf.gz"]
+	set deffont      [get_optional menudef "font" "skins/DejaVuSans.ttf.gz"]
 	# set default border to 0.5 to avoid content ending up in the outer
 	# (black) edge
 	set bordersize   [get_optional menudef "border-size" 0.5]
