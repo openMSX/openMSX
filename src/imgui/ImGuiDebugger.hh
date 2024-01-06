@@ -72,6 +72,7 @@ private:
 	std::vector<EditorInfo> hexEditors;
 
 	std::string gotoAddr;
+	std::string runToAddr;
 	std::optional<unsigned> gotoTarget;
 	bool followPC = false;
 

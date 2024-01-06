@@ -482,17 +482,23 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							}
 							auto addrStr = tmpStrCat(hex_string<4>(addr));
 							im::Popup("disassembly-context", [&]{
-								auto setPc = strCat("Set PC to 0x", addrStr);
-								if (ImGui::MenuItem(setPc.c_str())) {
-									regs.setPC(addr);
-								}
-								ImGui::Separator();
+								auto addrToolTip = [&](const std::string& str) {
+									simpleToolTip([&]{
+										if (auto a = symbolManager.parseSymbolOrValue(str)) {
+											return strCat("0x", hex_string<4>(*a));
+										}
+										return std::string{};
+									});
+								};
+
 								if (ImGui::MenuItem("Scroll to PC")) {
 									nextGotoTarget = pc;
 								}
+
 								im::Indent([&]{
 									ImGui::Checkbox("Follow PC while running", &followPC);
 								});
+
 								ImGui::AlignTextToFramePadding();
 								ImGui::TextUnformatted("Scroll to address:"sv);
 								ImGui::SameLine();
@@ -501,12 +507,31 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 										nextGotoTarget = *a;
 									}
 								}
-								simpleToolTip([&]{
-									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
-										return strCat("0x", hex_string<4>(*a));
+								addrToolTip(gotoAddr);
+
+								ImGui::Separator();
+
+								auto runTo = strCat("Run to address 0x", addrStr);
+								if (ImGui::MenuItem(runTo.c_str())) {
+									manager.executeDelayed(makeTclList("run_to", addr));
+								}
+
+								ImGui::AlignTextToFramePadding();
+								ImGui::TextUnformatted("Run to address:"sv);
+								ImGui::SameLine();
+								if (ImGui::InputText("##run", &runToAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
+									if (auto a = symbolManager.parseSymbolOrValue(runToAddr)) {
+										manager.executeDelayed(makeTclList("run_to", *a));
 									}
-									return std::string{};
-								});
+								}
+								addrToolTip(runToAddr);
+
+								ImGui::Separator();
+
+								auto setPc = strCat("Set PC to 0x", addrStr);
+								if (ImGui::MenuItem(setPc.c_str())) {
+									regs.setPC(addr);
+								}
 							});
 
 							auto addrLabels = symbolManager.lookupValue(addr);
