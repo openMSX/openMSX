@@ -67,10 +67,19 @@ void ImGuiHelp::paintAbout()
 		im::Group([&]{
 			ImGui::TextUnformatted(Version::full());
 			ImGui::Spacing();
-			ImGui::Text("platform:   %s", TARGET_PLATFORM);
-			ImGui::Text("target CPU: %s", TARGET_CPU);
-			ImGui::Text("flavour:    %s", BUILD_FLAVOUR);
-			ImGui::Text("components: %s", BUILD_COMPONENTS);
+			im::Table("##table", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("platform:"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted(TARGET_PLATFORM);
+
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("target CPU:"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted(TARGET_CPU);
+
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("flavour:"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted(BUILD_FLAVOUR);
+
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("components:"sv);
+				if (ImGui::TableNextColumn()) ImGui::TextUnformatted(BUILD_COMPONENTS);
+			});
 			ImGui::Spacing();
 			ImGui::TextUnformatted("license: GPL2"sv);
 			ImGui::Text("%s The openMSX Team", Version::COPYRIGHT);
