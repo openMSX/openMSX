@@ -20,6 +20,7 @@
 #include "Reactor.hh"
 #include "ReadOnlySetting.hh"
 #include "RealTime.hh"
+#include "Scheduler.hh"
 #include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "VDPIODelay.hh"
@@ -234,7 +235,13 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 				g.device->globalWrite(address, value, time);
 			}
 		}
-		// execute write watches after actual write
+		// Execute write watches after actual write.
+		//
+		// But first advance time for the tiniest amount, this makes
+		// sure that later on a possible replay we also replay recorded
+		// commands after the actual memory write (e.g. this matters
+		// when that command is also a memory write)
+		motherBoard.getScheduler().schedule(time + EmuDuration::epsilon());
 		if (writeWatchSet[address >> CacheLine::BITS]
 		                 [address &  CacheLine::LOW]) {
 			executeMemWatch(WatchPoint::WRITE_MEM, address, value);

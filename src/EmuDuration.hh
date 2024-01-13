@@ -92,6 +92,11 @@ public:
 	constexpr EmuDuration& operator/=(double fact)
 		{ time = narrow_cast<uint64_t>(narrow_cast<double>(time) / fact); return *this; }
 
+	// The smallest duration larger than zero
+	[[nodiscard]] static constexpr EmuDuration epsilon() {
+		return EmuDuration(uint64_t(1));
+	}
+
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?
 	[[nodiscard]] constexpr unsigned getTicksAt(unsigned freq) const
