@@ -20,6 +20,7 @@
 #include "Reactor.hh"
 #include "ReadOnlySetting.hh"
 #include "RealTime.hh"
+#include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "VDPIODelay.hh"
 #include "serialize.hh"
@@ -821,6 +822,7 @@ void MSXCPUInterface::checkBreakPoints(
 	BreakPoints bpCopy(range.first, range.second);
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	for (auto& p : bpCopy) {
 		bool remove = p.checkAndExecute(globalCliComm, interp);
 		if (remove) {
@@ -997,6 +999,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		                   TclObject(int(value)));
 	}
 
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	auto wpCopy = watchPoints;
 	for (auto& w : wpCopy) {
 		if ((w->getBeginAddress() <= address) &&

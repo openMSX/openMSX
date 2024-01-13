@@ -1,8 +1,11 @@
 #include "ProbeBreakPoint.hh"
-#include "Probe.hh"
+
 #include "Debugger.hh"
+#include "Probe.hh"
+
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 
 namespace openmsx {
@@ -29,7 +32,9 @@ ProbeBreakPoint::~ProbeBreakPoint()
 
 void ProbeBreakPoint::update(const ProbeBase& /*subject*/) noexcept
 {
-	auto& reactor = debugger.getMotherBoard().getReactor();
+	auto& motherBoard = debugger.getMotherBoard();
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
+	auto& reactor = motherBoard.getReactor();
 	auto& cliComm = reactor.getGlobalCliComm();
 	auto& interp  = reactor.getInterpreter();
 	bool remove = checkAndExecute(cliComm, interp);
