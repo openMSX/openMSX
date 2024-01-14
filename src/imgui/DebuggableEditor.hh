@@ -38,6 +38,9 @@
 
 struct MemoryEditor
 {
+	static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
+	static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
+
 	enum DataFormat {
 		DataFormat_Bin = 0,
 		DataFormat_Dec = 1,
@@ -47,17 +50,11 @@ struct MemoryEditor
 
 	// Settings
 	bool     Open = true;                   // set to false when DrawWindow() was closed. ignore if not using DrawWindow().
-	bool     ReadOnly = false;              // disable any editing.
 	int      Cols = 16;                     // number of columns to display.
-	bool     OptShowOptions = true;         // display options button/context menu. when disabled, options will be locked unless you provide your own UI for them.
 	bool     OptShowDataPreview = false;    // display a footer previewing the decimal/binary/hex/float representation of the currently selected bytes.
 	bool     OptShowAscii = true;           // display ASCII representation on the right side.
 	bool     OptGreyOutZeroes = true;       // display null/zero bytes using the TextDisabled color.
-	bool     OptUpperCaseHex = true;        // display hexadecimal values as "FF" instead of "ff".
-	int      OptMidColsCount = 8;           // set to 0 to disable extra spacing between every mid-cols.
 	int      OptAddrDigitsCount = 0;        // number of addr digits to display (default calculated based on maximum displayed addr).
-	float    OptFooterExtraHeight = 0.0f;   // space to reserve at the bottom of the widget to add custom widgets
-	uint32_t HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
 	uint8_t  (*ReadFn)(const uint8_t* data, size_t off) = nullptr;       // optional handler to read bytes.
 	void     (*WriteFn)(uint8_t* data, size_t off, uint8_t d) = nullptr; // optional handler to write bytes.
 	bool     (*HighlightFn)(const uint8_t* data, size_t off) = nullptr;  // optional handler to return Highlight property (to support non-contiguous highlighting).
@@ -107,9 +104,7 @@ struct MemoryEditor
 		s.PosAsciiStart = s.PosAsciiEnd = s.PosHexEnd;
 		if (OptShowAscii) {
 			s.PosAsciiStart = s.PosHexEnd + s.GlyphWidth * 1;
-			if (OptMidColsCount > 0) {
-				s.PosAsciiStart += float((Cols + OptMidColsCount - 1) / OptMidColsCount) * s.SpacingBetweenMidCols;
-			}
+			s.PosAsciiStart += float((Cols + MidColsCount - 1) / MidColsCount) * s.SpacingBetweenMidCols;
 			s.PosAsciiEnd = s.PosAsciiStart + float(Cols) * s.GlyphWidth;
 		}
 		s.WindowWidth = s.PosAsciiEnd + style.ScrollbarSize + style.WindowPadding.x * 2 + s.GlyphWidth;
@@ -147,11 +142,8 @@ struct MemoryEditor
 
 		// We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
 		// This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
-		const float height_separator = style.ItemSpacing.y;
-		float footer_height = OptFooterExtraHeight;
-		if (OptShowOptions) {
-			footer_height += height_separator + ImGui::GetFrameHeightWithSpacing();
-		}
+		const auto height_separator = style.ItemSpacing.y;
+		float footer_height = height_separator + ImGui::GetFrameHeightWithSpacing();
 		if (OptShowDataPreview) {
 			footer_height += height_separator + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
 		}
@@ -168,7 +160,7 @@ struct MemoryEditor
 
 		bool data_next = false;
 
-		if (ReadOnly || DataEditingAddr >= mem_size) {
+		if (DataEditingAddr >= mem_size) {
 			DataEditingAddr = (size_t)-1;
 		}
 		if (DataPreviewAddr >= mem_size) {
@@ -206,10 +198,10 @@ struct MemoryEditor
 		const auto color_text = ImGui::GetColorU32(ImGuiCol_Text);
 		const auto color_disabled = OptGreyOutZeroes ? ImGui::GetColorU32(ImGuiCol_TextDisabled) : color_text;
 
-		const char* format_address = OptUpperCaseHex ? "%0*" _PRISizeT "X: " : "%0*" _PRISizeT "x: ";
-		const char* format_data = OptUpperCaseHex ? "%0*" _PRISizeT "X" : "%0*" _PRISizeT "x";
-		const char* format_byte = OptUpperCaseHex ? "%02X" : "%02x";
-		const char* format_byte_space = OptUpperCaseHex ? "%02X " : "%02x ";
+		const char* format_address = "%0*" _PRISizeT "X: ";
+		const char* format_data = "%0*" _PRISizeT "X";
+		const char* format_byte = "%02X";
+		const char* format_byte_space = "%02X ";
 
 		while (clipper.Step()) {
 			for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; ++line_i) {
@@ -219,9 +211,7 @@ struct MemoryEditor
 				// Draw Hexadecimal
 				for (int n = 0; n < Cols && addr < mem_size; ++n, ++addr) {
 					float byte_pos_x = s.PosHexStart + s.HexCellWidth * float(n);
-					if (OptMidColsCount > 0) {
-						byte_pos_x += float(n / OptMidColsCount) * s.SpacingBetweenMidCols;
-					}
+					byte_pos_x += float(n / MidColsCount) * s.SpacingBetweenMidCols;
 					ImGui::SameLine(byte_pos_x);
 
 					// Draw highlight
@@ -234,7 +224,7 @@ struct MemoryEditor
 						bool is_next_byte_highlighted = (addr + 1 < mem_size) && ((HighlightMax != (size_t)-1 && addr + 1 < HighlightMax) || (HighlightFn && HighlightFn(mem_data, addr + 1)));
 						if (is_next_byte_highlighted || (n + 1 == Cols)) {
 							highlight_width = s.HexCellWidth;
-							if (OptMidColsCount > 0 && n > 0 && (n + 1) < Cols && ((n + 1) % OptMidColsCount) == 0) {
+							if (n > 0 && (n + 1) < Cols && ((n + 1) % MidColsCount) == 0) {
 								highlight_width += s.SpacingBetweenMidCols;
 							}
 						}
@@ -310,7 +300,7 @@ struct MemoryEditor
 						} else {
 							ImGui::Text(format_byte_space, b);
 						}
-						if (!ReadOnly && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+						if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 							DataEditingTakeFocus = true;
 							data_editing_addr_next = addr;
 						}
@@ -356,10 +346,8 @@ struct MemoryEditor
 		}
 
 		const bool lock_show_data_preview = OptShowDataPreview;
-		if (OptShowOptions) {
-			ImGui::Separator();
-			DrawOptionsLine(s, mem_size);
-		}
+		ImGui::Separator();
+		DrawOptionsLine(s, mem_size);
 
 		if (lock_show_data_preview) {
 			ImGui::Separator();
@@ -370,7 +358,7 @@ struct MemoryEditor
 	void DrawOptionsLine(const Sizes& s, size_t mem_size)
 	{
 		const auto& style = ImGui::GetStyle();
-		const char* format_range = OptUpperCaseHex ? "Range %0*" _PRISizeT "X..%0*" _PRISizeT "X" : "Range %0*" _PRISizeT "x..%0*" _PRISizeT "x";
+		const char* format_range = "Range %0*" _PRISizeT "X..%0*" _PRISizeT "X";
 
 		// Options menu
 		if (ImGui::Button("Options")) {
@@ -387,7 +375,6 @@ struct MemoryEditor
 				ContentsWidthChanged = true;
 			}
 			ImGui::Checkbox("Grey out zeroes", &OptGreyOutZeroes);
-			ImGui::Checkbox("Uppercase Hex", &OptUpperCaseHex);
 
 			ImGui::EndPopup();
 		}
