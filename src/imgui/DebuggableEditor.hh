@@ -46,10 +46,13 @@
 // - Arrows are being sent to the InputText() about to disappear which for LeftArrow makes the text cursor appear at position 1 for one frame.
 // - Using InputText() is awkward and maybe overkill here, consider implementing something custom.
 
-#pragma once
+#ifndef DEBUGGABLE_EDITOR_HH
+#define DEBUGGABLE_EDITOR_HH
 
-#include <stdio.h>      // sprintf, scanf
-#include <stdint.h>     // uint8_t, etc.
+#include <imgui.h>
+
+#include <cstdint>     // uint8_t, etc.
+#include <cstdio>      // sprintf, scanf
 
 #ifdef _MSC_VER
 #define _PRISizeT   "I"
@@ -739,4 +742,6 @@ struct MemoryEditor
 
 #ifdef _MSC_VER
 #pragma warning (pop)
+#endif
+
 #endif

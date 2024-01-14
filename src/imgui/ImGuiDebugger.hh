@@ -1,11 +1,10 @@
 #ifndef IMGUI_DEBUGGER_HH
 #define IMGUI_DEBUGGER_HH
 
+#include "DebuggableEditor.hh"
 #include "ImGuiPart.hh"
 
 #include "EmuTime.hh"
-
-#include <imgui_memory_editor.h>
 
 #include <optional>
 #include <string>
