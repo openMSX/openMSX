@@ -15,6 +15,8 @@
 #ifndef DEBUGGABLE_EDITOR_HH
 #define DEBUGGABLE_EDITOR_HH
 
+#include "unreachable.hh"
+
 #include <imgui.h>
 
 #include <algorithm>
@@ -67,8 +69,6 @@ struct MemoryEditor
 	std::array<char, 32> DataInputBuf = {};
 	std::array<char, 32> AddrInputBuf = {};
 	size_t        GotoAddr = size_t(-1);
-	size_t        HighlightMin = size_t(-1);
-	size_t        HighlightMax = size_t(-1);
 	int           PreviewEndianess = 0;
 	ImGuiDataType PreviewDataType = ImGuiDataType_S32;
 
@@ -215,13 +215,12 @@ struct MemoryEditor
 					ImGui::SameLine(byte_pos_x);
 
 					// Draw highlight
-					bool is_highlight_from_user_range = (addr >= HighlightMin && addr < HighlightMax);
 					bool is_highlight_from_user_func = (HighlightFn && HighlightFn(mem_data, addr));
 					bool is_highlight_from_preview = (addr >= DataPreviewAddr && addr < DataPreviewAddr + preview_data_type_size);
-					if (is_highlight_from_user_range || is_highlight_from_user_func || is_highlight_from_preview) {
+					if (is_highlight_from_user_func || is_highlight_from_preview) {
 						ImVec2 pos = ImGui::GetCursorScreenPos();
 						float highlight_width = s.GlyphWidth * 2;
-						bool is_next_byte_highlighted = (addr + 1 < mem_size) && ((HighlightMax != (size_t)-1 && addr + 1 < HighlightMax) || (HighlightFn && HighlightFn(mem_data, addr + 1)));
+						bool is_next_byte_highlighted = (addr + 1 < mem_size) && (HighlightFn && HighlightFn(mem_data, addr + 1));
 						if (is_next_byte_highlighted || (n + 1 == Cols)) {
 							highlight_width = s.HexCellWidth;
 							if (n > 0 && (n + 1) < Cols && ((n + 1) % MidColsCount) == 0) {
@@ -387,7 +386,6 @@ struct MemoryEditor
 			size_t goto_addr;
 			if (sscanf(AddrInputBuf.data(), "%" _PRISizeT "X", &goto_addr) == 1) {
 				GotoAddr = goto_addr;
-				HighlightMin = HighlightMax = size_t(-1);
 			}
 		}
 
@@ -412,7 +410,7 @@ struct MemoryEditor
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth((s.GlyphWidth * 10.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
 		if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(PreviewDataType), ImGuiComboFlags_HeightLargest)) {
-			for (int n = 0; n < ImGuiDataType_COUNT; ++n) {
+			for (int n = 0; n < (ImGuiDataType_COUNT - 2); ++n) {
 				if (ImGui::Selectable(DataTypeGetDesc((ImGuiDataType)n), PreviewDataType == n)) {
 					PreviewDataType = ImGuiDataType(n);
 				}
@@ -453,15 +451,15 @@ struct MemoryEditor
 	// Utilities for Data Preview
 	[[nodiscard]] const char* DataTypeGetDesc(ImGuiDataType data_type) const
 	{
-		std::array<const char*, ImGuiDataType_COUNT> desc = { "Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64", "Float", "Double" };
-		assert(data_type >= 0 && data_type < ImGuiDataType_COUNT);
+		std::array<const char*, ImGuiDataType_COUNT - 2> desc = { "Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64" };
+		assert(data_type >= 0 && data_type < (ImGuiDataType_COUNT - 2));
 		return desc[data_type];
 	}
 
 	[[nodiscard]] size_t DataTypeGetSize(ImGuiDataType data_type) const
 	{
-		std::array<size_t, ImGuiDataType_COUNT> sizes = { 1, 1, 2, 2, 4, 4, 8, 8, sizeof(float), sizeof(double) };
-		assert(data_type >= 0 && data_type < ImGuiDataType_COUNT);
+		std::array<size_t, ImGuiDataType_COUNT - 2> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
+		assert(data_type >= 0 && data_type < (ImGuiDataType_COUNT - 2));
 		return sizes[data_type];
 	}
 
@@ -613,23 +611,8 @@ struct MemoryEditor
 			if (data_format == DataFormat_Hex) { ImSnprintf(out_buf, out_buf_size, "0x%016llx", (long long)uint64); return; }
 			break;
 		}
-		case ImGuiDataType_Float: {
-			float float32 = 0.0f;
-			EndianessCopy(&float32, buf.data(), size);
-			if (data_format == DataFormat_Dec) { ImSnprintf(out_buf, out_buf_size, "%f", float32); return; }
-			if (data_format == DataFormat_Hex) { ImSnprintf(out_buf, out_buf_size, "%a", float32); return; }
-			break;
-		}
-		case ImGuiDataType_Double: {
-			double float64 = 0.0;
-			EndianessCopy(&float64, buf.data(), size);
-			if (data_format == DataFormat_Dec) { ImSnprintf(out_buf, out_buf_size, "%f", float64); return; }
-			if (data_format == DataFormat_Hex) { ImSnprintf(out_buf, out_buf_size, "%a", float64); return; }
-			break;
-		}
-		case ImGuiDataType_COUNT:
-			assert(0); // Shouldn't reach
-			break;
+		default:
+			UNREACHABLE;
 		}
 	}
 };
