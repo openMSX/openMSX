@@ -53,15 +53,6 @@ DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
 		auto* debuggable = reinterpret_cast<CallbackInfo*>(userdata)->debuggable;
 		debuggable->write(narrow<unsigned>(offset), data);
 	};
-	HighlightFn = [](const ImU8* userdata, size_t offset) -> bool {
-		// Also highlight preview-region when preview is not active.
-		// Including when this editor has lost focus.
-		const auto* editor = reinterpret_cast<const CallbackInfo*>(userdata)->editor;
-		auto begin = editor->DataPreviewAddr;
-		auto end = begin + editor->DataTypeGetSize(editor->PreviewDataType);
-		return (begin <= offset) && (offset < end);
-	};
-	PreviewDataType = ImGuiDataType_U8;
 }
 
 void DebuggableEditor::DrawWindow(const char* title, Debuggable& debuggable)
