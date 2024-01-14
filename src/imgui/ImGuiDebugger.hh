@@ -28,7 +28,7 @@ class DebuggableEditor : public MemoryEditor
 
 public:
 	DebuggableEditor(ImGuiManager& manager);
-	void DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr = 0x0000);
+	void DrawWindow(const char* title, Debuggable& debuggable);
 };
 
 

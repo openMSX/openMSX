@@ -64,11 +64,11 @@ DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
 	PreviewDataType = ImGuiDataType_U8;
 }
 
-void DebuggableEditor::DrawWindow(const char* title, Debuggable& debuggable, size_t base_display_addr)
+void DebuggableEditor::DrawWindow(const char* title, Debuggable& debuggable)
 {
 	im::ScopedFont sf(manager->fontMono);
 	CallbackInfo info{&debuggable, this};
-	MemoryEditor::DrawWindow(title, &info, debuggable.getSize(), base_display_addr);
+	MemoryEditor::DrawWindow(title, &info, debuggable.getSize());
 }
 
 
