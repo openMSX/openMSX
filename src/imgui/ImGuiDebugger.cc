@@ -45,13 +45,13 @@ namespace openmsx {
 DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
 	: manager(&manager_)
 {
-	ReadFn = [](const ImU8* userdata, size_t offset) -> ImU8 {
+	ReadFn = [](const ImU8* userdata, unsigned offset) -> ImU8 {
 		auto* debuggable = reinterpret_cast<CallbackInfo*>(const_cast<ImU8*>(userdata))->debuggable;
-		return debuggable->read(narrow<unsigned>(offset));
+		return debuggable->read(offset);
 	};
-	WriteFn = [](ImU8* userdata, size_t offset, ImU8 data) -> void {
+	WriteFn = [](ImU8* userdata, unsigned offset, ImU8 data) -> void {
 		auto* debuggable = reinterpret_cast<CallbackInfo*>(userdata)->debuggable;
-		debuggable->write(narrow<unsigned>(offset), data);
+		debuggable->write(offset, data);
 	};
 }
 

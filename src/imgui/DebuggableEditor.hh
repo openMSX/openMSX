@@ -29,12 +29,6 @@
 #include <cstdio>
 #include <span>
 
-#ifdef _MSC_VER
-#define _PRISizeT   "I"
-#else
-#define _PRISizeT   "z"
-#endif
-
 using namespace std::literals; // TODO not in .hh
 
 struct MemoryEditor
@@ -49,12 +43,12 @@ struct MemoryEditor
 	bool     OptShowAscii = true;           // display ASCII representation on the right side.
 	bool     OptGreyOutZeroes = true;       // display null/zero bytes using the TextDisabled color.
 	int      OptAddrDigitsCount = 0;        // number of addr digits to display (default calculated based on maximum displayed addr).
-	uint8_t  (*ReadFn)(const uint8_t* data, size_t off) = nullptr;       // optional handler to read bytes.
-	void     (*WriteFn)(uint8_t* data, size_t off, uint8_t d) = nullptr; // optional handler to write bytes.
+	uint8_t  (*ReadFn)(const uint8_t* data, unsigned off) = nullptr;       // optional handler to read bytes.
+	void     (*WriteFn)(uint8_t* data, unsigned off, uint8_t d) = nullptr; // optional handler to write bytes.
 
 	// [Internal State]
 	bool          ContentsWidthChanged = false;
-	size_t        currentAddr = 0;
+	unsigned        currentAddr = 0;
 	bool          DataEditingTakeFocus = true;
 	std::array<char, 32> DataInputBuf = {};
 	std::array<char, 32> AddrInputBuf = {};
@@ -74,13 +68,13 @@ struct MemoryEditor
 		float WindowWidth = 0.0f;
 	};
 
-	Sizes CalcSizes(size_t mem_size)
+	Sizes CalcSizes(unsigned mem_size)
 	{
 		Sizes s;
 		const auto& style = ImGui::GetStyle();
 		s.AddrDigitsCount = OptAddrDigitsCount;
 		if (s.AddrDigitsCount == 0) {
-			for (size_t n = mem_size - 1; n > 0; n >>= 4) {
+			for (unsigned n = mem_size - 1; n > 0; n >>= 4) {
 				s.AddrDigitsCount++;
 			}
 		}
@@ -102,7 +96,7 @@ struct MemoryEditor
 	}
 
 	// Standalone Memory Editor window
-	void DrawWindow(const char* title, void* mem_data, size_t mem_size)
+	void DrawWindow(const char* title, void* mem_data, unsigned mem_size)
 	{
 		auto s = CalcSizes(mem_size);
 		ImGui::SetNextWindowSize(ImVec2(s.WindowWidth, s.WindowWidth * 0.60f), ImGuiCond_FirstUseEver);
@@ -122,7 +116,7 @@ struct MemoryEditor
 		ImGui::End();
 	}
 
-	void DrawContents(void* mem_data_void, size_t mem_size)
+	void DrawContents(void* mem_data_void, unsigned mem_size)
 	{
 		Cols = std::max(Cols, 1);
 
@@ -154,7 +148,7 @@ struct MemoryEditor
 			currentAddr = 0;
 		}
 
-		std::optional<size_t> nextAddr;
+		std::optional<unsigned> nextAddr;
 		// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
 		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) &&
 			ptrdiff_t(currentAddr) >= ptrdiff_t(Cols)) {
@@ -181,13 +175,10 @@ struct MemoryEditor
 		const auto color_text = ImGui::GetColorU32(ImGuiCol_Text);
 		const auto color_disabled = OptGreyOutZeroes ? ImGui::GetColorU32(ImGuiCol_TextDisabled) : color_text;
 
-		const char* format_address = "%0*" _PRISizeT "X: ";
-		const char* format_data = "%0*" _PRISizeT "X";
-
 		while (clipper.Step()) {
 			for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; ++line_i) {
-				auto addr = size_t(line_i) * Cols;
-				ImGui::Text(format_address, s.AddrDigitsCount, addr);
+				auto addr = unsigned(line_i) * Cols;
+				ImGui::Text("%0*X: ", s.AddrDigitsCount, addr);
 
 				// Draw Hexadecimal
 				for (int n = 0; n < Cols && addr < mem_size; ++n, ++addr) {
@@ -197,8 +188,8 @@ struct MemoryEditor
 					ImGui::SameLine(byte_pos_x);
 
 					// Draw highlight
-					size_t preview_data_type_size = DataTypeGetSize(PreviewDataType);
-					auto highLight = [&](size_t a) {
+					auto preview_data_type_size = DataTypeGetSize(PreviewDataType);
+					auto highLight = [&](unsigned a) {
 						return (currentAddr <= a) && (a < (currentAddr + preview_data_type_size));
 					};
 					if (highLight(addr)) {
@@ -219,7 +210,7 @@ struct MemoryEditor
 						ImGui::PushID(reinterpret_cast<void*>(addr));
 						if (DataEditingTakeFocus) {
 							ImGui::SetKeyboardFocusHere(0);
-							sprintf(AddrInputBuf.data(), format_data, s.AddrDigitsCount, addr);
+							sprintf(AddrInputBuf.data(), "%0*X", s.AddrDigitsCount, addr);
 							sprintf(DataInputBuf.data(), "%02X", ReadFn ? ReadFn(mem_data, addr) : mem_data[addr]);
 						}
 						struct UserData {
@@ -293,10 +284,10 @@ struct MemoryEditor
 					// Draw ASCII values
 					ImGui::SameLine(s.PosAsciiStart);
 					ImVec2 pos = ImGui::GetCursorScreenPos();
-					addr = size_t(line_i) * Cols;
+					addr = unsigned(line_i) * Cols;
 					ImGui::PushID(line_i);
 					if (ImGui::InvisibleButton("ascii", ImVec2(s.PosAsciiEnd - s.PosAsciiStart, s.LineHeight))) {
-						currentAddr = addr + size_t((ImGui::GetIO().MousePos.x - pos.x) / s.GlyphWidth);
+						currentAddr = addr + unsigned((ImGui::GetIO().MousePos.x - pos.x) / s.GlyphWidth);
 						currentAddr = std::min(currentAddr, mem_size - 1);
 						DataEditingTakeFocus = true;
 					}
@@ -338,10 +329,10 @@ struct MemoryEditor
 		}
 	}
 
-	void DrawOptionsLine(const Sizes& s, size_t mem_size)
+	void DrawOptionsLine(const Sizes& s, unsigned mem_size)
 	{
 		const auto& style = ImGui::GetStyle();
-		const char* format_range = "Range %0*" _PRISizeT "X..%0*" _PRISizeT "X";
+		const char* format_range = "Range %0*X..%0*X";
 
 		// Options menu
 		if (ImGui::Button("Options")) {
@@ -367,8 +358,8 @@ struct MemoryEditor
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(float(s.AddrDigitsCount + 1) * s.GlyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputText("##addr", AddrInputBuf.data(), AddrInputBuf.size(), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-			size_t gotoAddr;
-			if (sscanf(AddrInputBuf.data(), "%" _PRISizeT "X", &gotoAddr) == 1) {
+			unsigned gotoAddr;
+			if (sscanf(AddrInputBuf.data(), "%X", &gotoAddr) == 1) {
 				gotoAddr = std::min(gotoAddr, mem_size - 1);
 
 				ImGui::BeginChild("##scrolling");
@@ -381,7 +372,7 @@ struct MemoryEditor
 		}
 	}
 
-	void DrawPreviewLine(const Sizes& s, void* mem_data_void, size_t mem_size)
+	void DrawPreviewLine(const Sizes& s, void* mem_data_void, unsigned mem_size)
 	{
 		auto* mem_data = static_cast<uint8_t*>(mem_data_void);
 		const auto& style = ImGui::GetStyle();
@@ -402,8 +393,8 @@ struct MemoryEditor
 		ImGui::Combo("##combo_endianess", &PreviewEndianess, "LE\0BE\0\0");
 
 		std::array<uint8_t, 8> dataBuf = {};
-		size_t elem_size = DataTypeGetSize(PreviewDataType);
-		size_t size = currentAddr + elem_size > mem_size ? mem_size - currentAddr : elem_size;
+		auto elem_size = DataTypeGetSize(PreviewDataType);
+		auto size = currentAddr + elem_size > mem_size ? mem_size - currentAddr : elem_size;
 		if (ReadFn) {
 			for (int i = 0, n = (int)size; i < n; ++i) {
 				dataBuf[i] = ReadFn(mem_data, currentAddr + i);
@@ -438,9 +429,9 @@ struct MemoryEditor
 		return desc[data_type];
 	}
 
-	[[nodiscard]] static size_t DataTypeGetSize(ImGuiDataType data_type)
+	[[nodiscard]] static unsigned DataTypeGetSize(ImGuiDataType data_type)
 	{
-		std::array<size_t, ImGuiDataType_COUNT - 2> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
+		std::array<unsigned, ImGuiDataType_COUNT - 2> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
 		assert(data_type >= 0 && data_type < (ImGuiDataType_COUNT - 2));
 		return sizes[data_type];
 	}
@@ -518,7 +509,5 @@ struct MemoryEditor
 		}
 	}
 };
-
-#undef _PRISizeT
 
 #endif
