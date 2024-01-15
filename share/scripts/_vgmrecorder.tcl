@@ -7,6 +7,8 @@ variable y8950_register
 variable opl4_register_wave
 variable opl4_register
 variable active_fm_register -1
+variable opl3_register
+variable opl3_port
 
 variable start_time 0
 variable tick_time 0
@@ -22,6 +24,7 @@ variable y2151_logged     false
 variable y8950_logged     false
 variable moonsound_logged false
 variable scc_logged       false
+variable opl3_logged      false
 
 variable scc_plus_used
 
@@ -36,14 +39,14 @@ variable mbwave_title_hack       false
 variable mbwave_loop_hack	 false
 variable mbwave_basic_title_hack false
 
-variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC SFG]
+variable supported_chips [list MSX-Music PSG MoonSound MSX-Audio SCC SFG OPL3]
 
 set_help_proc vgm_rec [namespace code vgm_rec_help]
 proc vgm_rec_help {args} {
         switch -- [lindex $args 1] {
                 "start"    {return {VGM recording will be initialised, specify one or more soundchips to record.
 
-Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC|SFG>
+Syntax: vgm_rec start <MSX-Audio|MSX-Music|Moonsound|PSG|SCC|SFG|OPL3>
 
 Actual recording will start when audio is detected to avoid silence at the beginning of the recording. This mechanism will only work if the MSX and/or playback routine does not send data to the soundchip when not playing, recording will start immediately in those cases.
 }}
@@ -144,6 +147,7 @@ proc vgm_rec {args} {
 	variable y8950_logged
 	variable moonsound_logged
 	variable scc_logged
+	variable opl3_logged
 
 	set prefix_index [lsearch -exact $args "prefix"]
 	if {$prefix_index >= 0} {
@@ -217,6 +221,7 @@ proc vgm_rec {args} {
 		set y8950_logged     false
 		set moonsound_logged false
 		set scc_logged       false
+		set opl3_logged      false
 
 		foreach a [lrange $args $index+1 end] {
 			if     {[string compare -nocase $a "PSG"      ] == 0} {set psg_logged       true} \
@@ -225,6 +230,7 @@ proc vgm_rec {args} {
 			elseif {[string compare -nocase $a "MSX-Audio"] == 0} {set y8950_logged     true} \
 			elseif {[string compare -nocase $a "MoonSound"] == 0} {set moonsound_logged true} \
 			elseif {[string compare -nocase $a "SCC"      ] == 0} {set scc_logged       true} \
+			elseif {[string compare -nocase $a "OPL3"     ] == 0} {set opl3_logged      true} \
 			else {
 				error "Invalid chip to record for specified, use tab completion"
 				return
@@ -265,6 +271,7 @@ proc vgm_rec_start {} {
 	variable y8950_register     -1
 	variable opl4_register_wave -1
 	variable opl4_register      -1
+	variable opl3_register      -1
 
 	variable ticks 0
 	variable music_data ""
@@ -353,6 +360,18 @@ proc vgm_rec_start {} {
 			}
 		}
 		append recording_text " MoonSound"
+	}
+	variable opl3_logged
+	if {$opl3_logged} {
+		lappend watchpoints [debug set_watchpoint write_io 0xC0 {} {vgm::write_opl3_address_1}] \
+		                    [debug set_watchpoint write_io 0xC1 {} {vgm::write_opl3_data}] \
+		                    [debug set_watchpoint write_io 0xC2 {} {vgm::write_opl3_address_2}] \
+		                    [debug set_watchpoint write_io 0xC3 {} {vgm::write_opl3_data}] \
+		                    [debug set_watchpoint write_io 0xC4 {} {vgm::write_opl3_address_1}] \
+		                    [debug set_watchpoint write_io 0xC5 {} {vgm::write_opl3_data}] \
+		                    [debug set_watchpoint write_io 0xC6 {} {vgm::write_opl3_address_2}] \
+		                    [debug set_watchpoint write_io 0xC7 {} {vgm::write_opl3_data}]
+		append recording_text " OPL3"
 	}
 
 	variable scc_logged
@@ -500,6 +519,29 @@ proc write_opl4_data {} {
 		update_time
 		variable music_data
 		append music_data [binary format cccc 0xD0 $active_fm_register $opl4_register $::wp_last_value]
+	}
+}
+
+proc write_opl3_address_1 {} {
+	variable opl3_register $::wp_last_value
+	variable opl3_port 0xC0
+}
+
+proc write_opl3_address_2 {} {
+	variable opl3_register $::wp_last_value
+	variable opl3_port 0xC2
+}
+
+proc write_opl3_data {} {
+	variable opl3_register
+	if {$opl3_register >= 0} {
+		update_time
+		variable opl3_port
+		variable music_data
+		switch $opl3_port {
+			0xC0 { append music_data [binary format ccc 0x5E $opl3_register $::wp_last_value] }
+			0xC2 { append music_data [binary format ccc 0x5F $opl3_register $::wp_last_value] }
+		}
 	}
 }
 
@@ -677,7 +719,13 @@ proc vgm_rec_end {abort} {
 			append header [zeros 4]
 		}
 
-		append header [zeros 4]
+		# YMF262 clock
+		variable opl3_logged
+		if {$opl3_logged} {
+			append header [little_endian_32 14318182]
+		} else {
+			append header [zeros 4]
+		}
 
 		# YMF278B clock
 		variable moonsound_logged
