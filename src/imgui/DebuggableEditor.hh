@@ -178,7 +178,7 @@ struct MemoryEditor
 		while (clipper.Step()) {
 			for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; ++line_i) {
 				auto addr = unsigned(line_i) * Cols;
-				ImGui::Text("%0*X: ", s.AddrDigitsCount, addr);
+				ImGui::StrCat(hex_string<HexCase::upper>(Digits{size_t(s.AddrDigitsCount)}, addr), ": ");
 
 				// Draw Hexadecimal
 				for (int n = 0; n < Cols && addr < mem_size; ++n, ++addr) {
@@ -271,7 +271,7 @@ struct MemoryEditor
 						if (b == 0 && OptGreyOutZeroes) {
 							ImGui::TextDisabled("00 ");
 						} else {
-							ImGui::Text("%02X ", b);
+							ImGui::StrCat(hex_string<2, HexCase::upper>(b), ' ');
 						}
 						if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 							DataEditingTakeFocus = true;
@@ -332,17 +332,16 @@ struct MemoryEditor
 	void DrawOptionsLine(const Sizes& s, unsigned mem_size)
 	{
 		const auto& style = ImGui::GetStyle();
-		const char* format_range = "Range %0*X..%0*X";
 
 		// Options menu
 		if (ImGui::Button("Options")) {
 			ImGui::OpenPopup("context");
 		}
 		if (ImGui::BeginPopup("context")) {
-			ImGui::SetNextItemWidth(7.0f * s.GlyphWidth + 2.0f * style.FramePadding.x);
-			if (ImGui::DragInt("##cols", &Cols, 0.2f, 4, 32, "%d cols")) {
+			ImGui::SetNextItemWidth(7.5f * s.GlyphWidth + 2.0f * style.FramePadding.x);
+			if (ImGui::InputInt("Columns", &Cols, 1, 0)) {
 				ContentsWidthChanged = true;
-				Cols = std::max(Cols, 1);
+				Cols = std::clamp(Cols, 1, 64);
 			}
 			ImGui::Checkbox("Show Data Preview", &OptShowDataPreview);
 			if (ImGui::Checkbox("Show Ascii", &OptShowAscii)) {
@@ -354,7 +353,7 @@ struct MemoryEditor
 		}
 
 		ImGui::SameLine();
-		ImGui::Text(format_range, s.AddrDigitsCount, 0, s.AddrDigitsCount, mem_size - 1);
+		ImGui::TextUnformatted("Address: ");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(float(s.AddrDigitsCount + 1) * s.GlyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputText("##addr", AddrInputBuf.data(), AddrInputBuf.size(), ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
@@ -377,7 +376,7 @@ struct MemoryEditor
 		auto* mem_data = static_cast<uint8_t*>(mem_data_void);
 		const auto& style = ImGui::GetStyle();
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("Preview as:");
+		ImGui::TextUnformatted("Preview as:"sv);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth((s.GlyphWidth * 10.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
 		if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(PreviewDataType), ImGuiComboFlags_HeightLargest)) {
