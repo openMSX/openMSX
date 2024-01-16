@@ -18,20 +18,6 @@ class ImGuiManager;
 class MSXCPUInterface;
 class SymbolManager;
 
-class DebuggableEditor : public MemoryEditor
-{
-	struct CallbackInfo {
-		Debuggable* debuggable;
-		DebuggableEditor* editor;
-	};
-	ImGuiManager* manager;
-
-public:
-	DebuggableEditor(ImGuiManager& manager);
-	void DrawWindow(const char* title, Debuggable& debuggable);
-};
-
-
 class ImGuiDebugger final : public ImGuiPart
 {
 public:
