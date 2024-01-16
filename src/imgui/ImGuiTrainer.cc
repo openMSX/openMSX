@@ -31,6 +31,10 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 	if (!show) return;
 
 	if (!trainers) {
+		if (!manager.getReactor().isFullyStarted()) {
+			// trainer.tcl script (actually lazy.tcl) has not yet been executed
+			return;
+		}
 		// Only query/sort this list once instead of on every frame.
 		// If loading fails, use an empty dict (don't keep on retying).
 		trainers = manager.execute(TclObject("trainer::load_trainers")).value_or(TclObject{});
