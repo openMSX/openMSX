@@ -12,6 +12,7 @@
 #include <imgui.h>
 
 #include <array>
+#include <string>
 
 namespace openmsx {
 
@@ -60,8 +61,8 @@ private:
 	bool     contentsWidthChanged = false;
 	unsigned currentAddr = 0;
 	bool     dataEditingTakeFocus = true;
-	std::array<char, 32> dataInputBuf = {};
-	std::array<char, 32> addrInputBuf = {};
+	std::string dataInput;
+	std::string addrInput;
 	int           previewEndianess = 0; // LE
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
 };
