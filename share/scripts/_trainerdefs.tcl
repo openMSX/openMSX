@@ -131,7 +131,7 @@ create_trainer "A Life M36 Planet" {time 1} {
 	"Life" {dpoke 0xc527 99;poke 0xd3c2 99}
 }
 
-create_trainer "A-Na-Za - Kaleidoscope Special" {time 1} {
+create_trainer "Anaza - Kaleidoscope Special" {time 1} {
 	"Credit" {dpoke 0xc01d 153;poke 0xc01e 153}
 	"Fire Super Shot" {dpoke 0xc03b 6}
 	"Monolis" {dpoke 0xc020 8}
@@ -139,7 +139,7 @@ create_trainer "A-Na-Za - Kaleidoscope Special" {time 1} {
 	"Power: Power" {dpoke 0xc016 16}
 }
 
-create_trainer "A.E" {time 1} {
+create_trainer "A.E." {time 1} {
 	"Lives: Lives " {dpoke 0xe209 6}
 }
 
@@ -250,7 +250,7 @@ create_trainer "Afterburner" {time 10} {
 	"Lives: Lives" {dpoke 0x5e4e 100}
 }
 
-create_trainer "Agigongnyong Dooly" {time 1} {
+create_trainer "Agigongnyong Dooly (Baby Dinosaur Dooly)" {time 1} {
 	"Power: Full Powerbar" {dpoke 0xe101 255}
 }
 
@@ -564,7 +564,7 @@ create_trainer "Aramo" {time 1} {
 	"Weapon: Sword" {dpoke 0xc054 255}
 }
 
-create_trainer "Arc" {time 1} {
+create_trainer "ARC" {time 1} {
 	"Laser Doors: Open Laser Doors Hi-tech Stage" {dpoke 0xc020 255}
 	"Location: All Areas Are Accesible" {dpoke 0xc030 255}
 	"Power: Power" {dpoke 0xc019 255}
@@ -909,7 +909,7 @@ create_trainer "Batman - Rescue The Rovin" {time 1} {
 	"Shield: Shield" {dpoke 0x19db 153}
 }
 
-create_trainer "Batman the Movie" {time 1} {
+create_trainer "Batman - The Movie" {time 1} {
 	"Life" {dpoke 0x613d 255}
 	"Time: Time" {dpoke 0x5daa 58;poke 0x5dac 58}
 }
@@ -1156,7 +1156,7 @@ create_trainer "Borfesu and Five Evil Spirits" {time 0.25} {
 	"Weapon: Sword" {dpoke 0xe0a4 1}
 }
 
-create_trainer "Bosconian (Star Destroyer)" {time 1} {
+create_trainer "Bosconian" {time 1} {
 	"'attack' Alarm Doesn't Sound (makes It Harder)" {dpoke 0xe810 0}
 	"Life Bar" {dpoke 0xe00d 99}
 }
@@ -2530,6 +2530,42 @@ create_trainer "Fire Rescue CAS" {time 1} {
 	"Lives: Lives" {dpoke 0xeab1 9}
 }
 
+create_trainer "Firebird - Hi no Tori Hououhen" {time 2} {
+	"1st Middle Stone" {dpoke 0xc8bc 1}
+	"200 Money" {dpoke 0xc845 200}
+	"2nd Middle Stone" {dpoke 0xc8c0 1}
+	"3rd Middle Stone" {dpoke 0xc8c4 1}
+	"4rd Middle Stone" {dpoke 0xc8c8 1}
+	"5th Middle Stone" {dpoke 0xc8cc 1}
+	"Autoshot" {dpoke 0xc4e1 2;poke 0xc85c 2}
+	"Bug (red Beetle?)" {dpoke 0xc85c 9}
+	"Combo With Game Master" {dpoke 0xc110 1}
+	"Compass" {dpoke 0xc884 1}
+	"Fifth Main Stone" {dpoke 0xc8ec 1}
+	"First Main Stone" {dpoke 0xc8dc 1}
+	"Fourth Main Stone" {dpoke 0xc8e8 1}
+	"Ilovehinotori" {dpoke 0xc4e2 1}
+	"Leaflets (?)" {dpoke 0xc878 9}
+	"Lower Fifth Stone" {dpoke 0xc8b4 1}
+	"Lower First Stone" {dpoke 0xc8a4 1}
+	"Lower Fourth Stone" {dpoke 0xc8b0 1}
+	"Lower Second Stone" {dpoke 0xc8a8 1}
+	"Lower Sixth Stone" {dpoke 0xc8b8 1}
+	"Lower Third Stone" {dpoke 0xc8ac 1}
+	"Packages" {dpoke 0xc870 9}
+	"Scrolls" {dpoke 0xc874 9}
+	"Second Main Stone" {dpoke 0xc8e0 1}
+	"Third Main Stone" {dpoke 0xc8e4 1}
+	"Top 1st Last Stone" {dpoke 0xc88c 1}
+	"Top 2nd Last Stone" {dpoke 0xc890 1}
+	"Top 3th Last Stone" {dpoke 0xc894 1}
+	"Top 4th Last Stone" {dpoke 0xc898 1}
+	"Top 5th Last Stone" {dpoke 0xc89c 1}
+	"Top Last Stone" {dpoke 0xc8a0 1}
+	"Turbo" {dpoke 0xc850 3}
+	"Lives: 99 Lives" {dpoke 0xc160 153}
+}
+
 create_trainer "Flash Splash" {time 1} {
 	"Invincible" {dpoke 0xe001 0;poke 0xe009 255}
 	"Lives: Lives (might Not Work 100%)" {dpoke 0xe000 255}
@@ -2880,7 +2916,7 @@ create_trainer "Goody" {time 10} {
 	"Invincible" {dpoke 0xaeaf 8}
 }
 
-create_trainer "Goonies r good enough" {time 1} {
+create_trainer "Goonies r Good Enough, The" {time 1} {
 	"Life: Power Andy" {dpoke 0xeef9 48}
 	"Life: Power Brand" {dpoke 0xeef5 48}
 	"Life: Power Chunk" {dpoke 0xeefa 48}
@@ -3185,7 +3221,7 @@ create_trainer "Hammer Boy 2" {time 1} {
 	"Lives: Lives" {dpoke 0x4d34 10}
 }
 
-create_trainer "Hang On" {time 1} {
+create_trainer "Hang-On" {time 1} {
 	"Course (0-8)" {dpoke 0xe029 0}
 	"Level (0-2)" {dpoke 0xe00e 0}
 	"Time: Time" {dpoke 0xe04c 100}
@@ -3412,42 +3448,6 @@ create_trainer "Highway Encounter" {time 1} {
 	"Time: Time" {dpoke 0x8f1a 0}
 }
 
-create_trainer "Hinotori - Firebird" {time 2} {
-	"1st Middle Stone" {dpoke 0xc8bc 1}
-	"200 Money" {dpoke 0xc845 200}
-	"2nd Middle Stone" {dpoke 0xc8c0 1}
-	"3rd Middle Stone" {dpoke 0xc8c4 1}
-	"4rd Middle Stone" {dpoke 0xc8c8 1}
-	"5th Middle Stone" {dpoke 0xc8cc 1}
-	"Autoshot" {dpoke 0xc4e1 2;poke 0xc85c 2}
-	"Bug (red Beetle?)" {dpoke 0xc85c 9}
-	"Combo With Game Master" {dpoke 0xc110 1}
-	"Compass" {dpoke 0xc884 1}
-	"Fifth Main Stone" {dpoke 0xc8ec 1}
-	"First Main Stone" {dpoke 0xc8dc 1}
-	"Fourth Main Stone" {dpoke 0xc8e8 1}
-	"Ilovehinotori" {dpoke 0xc4e2 1}
-	"Leaflets (?)" {dpoke 0xc878 9}
-	"Lower Fifth Stone" {dpoke 0xc8b4 1}
-	"Lower First Stone" {dpoke 0xc8a4 1}
-	"Lower Fourth Stone" {dpoke 0xc8b0 1}
-	"Lower Second Stone" {dpoke 0xc8a8 1}
-	"Lower Sixth Stone" {dpoke 0xc8b8 1}
-	"Lower Third Stone" {dpoke 0xc8ac 1}
-	"Packages" {dpoke 0xc870 9}
-	"Scrolls" {dpoke 0xc874 9}
-	"Second Main Stone" {dpoke 0xc8e0 1}
-	"Third Main Stone" {dpoke 0xc8e4 1}
-	"Top 1st Last Stone" {dpoke 0xc88c 1}
-	"Top 2nd Last Stone" {dpoke 0xc890 1}
-	"Top 3th Last Stone" {dpoke 0xc894 1}
-	"Top 4th Last Stone" {dpoke 0xc898 1}
-	"Top 5th Last Stone" {dpoke 0xc89c 1}
-	"Top Last Stone" {dpoke 0xc8a0 1}
-	"Turbo" {dpoke 0xc850 3}
-	"Lives: 99 Lives" {dpoke 0xc160 153}
-}
-
 create_trainer "Hole In One Special" {time 2} {
 	"Always Have Hole In One (very Lame)" {dpoke 0xc0da 1}
 }
@@ -3656,6 +3656,15 @@ create_trainer "Ikari" {time 2} {
 	"Weapon: Player 2 Secondary Weapon High Explosive Hand Grenades" {dpoke 0xc43e 8}
 	"Weapon: Player 2 Secondary Weapon Nothing" {dpoke 0xc43e 0}
 	"Weapon: Player 2 Secondary Weapon Regular" {dpoke 0xc43e 1}
+}
+
+create_trainer "Iligks Episode 1 - Theseus" {time 1} {
+	"Enemies Are Frozen" {dpoke 0xedf2 255}
+	"Level (0-12)" {dpoke 0xede7 0}
+	"Ring" {dpoke 0xedf5 255}
+	"Time (de-select To Get Bonus)" {dpoke 0xeddc 255;poke 0xeddd 10}
+	"Key: Key" {dpoke 0xedf4 255}
+	"Power: Power" {dpoke 0xede2 153;poke 0xede3 9}
 }
 
 create_trainer "Illusion City" {time 1} {
@@ -4486,6 +4495,81 @@ create_trainer "Masters of the Universe" {time 1} {
 create_trainer "Maze Master" {time 1} {
 	"Lives: Lives" {dpoke 0x49ad 9}
 	"Weapon: Laser" {dpoke 0x49ae 99}
+}
+
+create_trainer "Maze of Galious - Knightmare II, The" {time 1} {
+	"Item: Armor" {dpoke 0xe086 1}
+	"Item: Bell" {dpoke 0xe083 1}
+	"Item: Bible" {dpoke 0xe08f 1}
+	"Item: Boots" {dpoke 0xe080 1}
+	"Item: Bracelet" {dpoke 0xe08d 1}
+	"Item: Bread And Water" {dpoke 0xe098 1}
+	"Item: Candle" {dpoke 0xe085 1}
+	"Item: Carpet" {dpoke 0xe087 1}
+	"Item: Cross" {dpoke 0xe07a 1}
+	"Item: Crown" {dpoke 0xe07d 1}
+	"Item: Dagger" {dpoke 0xe095 1}
+	"Item: Decorative Doll" {dpoke 0xe081 1}
+	"Item: Earrings" {dpoke 0xe08c 1}
+	"Item: Feather" {dpoke 0xe096 1}
+	"Item: Halo" {dpoke 0xe084 1}
+	"Item: Harp" {dpoke 0xe090 1}
+	"Item: Helm" {dpoke 0xe07e 1}
+	"Item: Helmet" {dpoke 0xe088 1}
+	"Item: Invulnerable" {dpoke 0xe518 1}
+	"Item: Lamp" {dpoke 0xe089 1}
+	"Item: Magnifying Glass" {dpoke 0xe075 1}
+	"Item: Necklace" {dpoke 0xe07c 1}
+	"Item: Oar" {dpoke 0xe07f 1}
+	"Item: Pendant" {dpoke 0xe08b 1}
+	"Item: Pitcher" {dpoke 0xe093 1}
+	"Item: Ring" {dpoke 0xe08e 1}
+	"Item: Robe" {dpoke 0xe082 1}
+	"Item: Sabre" {dpoke 0xe094 1}
+	"Item: Salt" {dpoke 0xe099 1}
+	"Item: Shield" {dpoke 0xe097 3}
+	"Item: Triangle" {dpoke 0xe091 1}
+	"Item: Trumpet Shell" {dpoke 0xe092 1}
+	"Item: Vase" {dpoke 0xe08a 1}
+	"Item: World 01 Items" {dpoke 0xe063 240}
+	"Item: World 02 Items" {dpoke 0xe064 240}
+	"Item: World 03 Items" {dpoke 0xe065 240}
+	"Item: World 04 Items" {dpoke 0xe066 240}
+	"Item: World 05 Items" {dpoke 0xe067 240}
+	"Item: World 06 Items" {dpoke 0xe068 240}
+	"Item: World 07 Items" {dpoke 0xe069 240}
+	"Item: World 08 Items" {dpoke 0xe06a 240}
+	"Item: World 09 Items" {dpoke 0xe06b 240}
+	"Item: World 10 Items" {dpoke 0xe06c 224}
+	"Misc: All Combos With Konami Carts" {dpoke 0xf0f8 255}
+	"Misc: Bible (ctrl) Uses Left" {dpoke 0xe531 255}
+	"Misc: Fall Down When Hit" {dpoke 0xe50b 1}
+	"Misc: Screen Stays Frozen" {dpoke 0xe0d6 64}
+	"Misc: Unlimited Bible Uses" {dpoke 0xe531 1}
+	"Misc: Zeus Cheat" {dpoke 0xe027 1}
+	"Status: Arrows" {dpoke 0xe046 153;poke 0xe047 9}
+	"Status: Coins" {dpoke 0xe048 153;poke 0xe049 9}
+	"Status: Keys" {dpoke 0xe04a 153;poke 0xe04b 9}
+	"Status: Max Exp" {dpoke 0xe051 1;poke 0xe055 1}
+	"Status: Vitality Aphrodite" {dpoke 0xe052 255;poke 0xe053 255}
+	"Status: Vitality Popolon" {dpoke 0xe056 255;poke 0xe057 255}
+	"Weapon: Arrows" {dpoke 0xe070 1}
+	"Weapon: Ceramic Arrows" {dpoke 0xe071 1}
+	"Weapon: Fire" {dpoke 0xe073 1}
+	"Weapon: Mine" {dpoke 0xe074 255}
+	"Weapon: Rolling Fire" {dpoke 0xe072 1}
+	"Weapon Active: Arrow" {dpoke 0xe510 1}
+	"Weapon Active: Ceramic Arrow" {dpoke 0xe510 2}
+	"Weapon Active: Fire" {dpoke 0xe510 3}
+	"Weapon Active: Magnifying Glass" {dpoke 0xe510 6}
+	"Weapon Active: Mine" {dpoke 0xe510 5}
+	"Weapon Active: Nothing" {dpoke 0xe510 0}
+	"Weapon Active: Rolling Fire" {dpoke 0xe510 4}
+	"World 10 location: Location At Start" {dpoke 0xe06e 3}
+	"World 10 location: Location Left Tower" {dpoke 0xe06e 2}
+	"World 10 location: Location Middle Tower" {dpoke 0xe06e 0}
+	"World 10 location: Location Right Tower" {dpoke 0xe06e 1}
+	"World 10 location: World 10 Activator" {dpoke 0xe06d 1}
 }
 
 create_trainer "Mazes Unlimited" {time 1} {
@@ -5568,7 +5652,7 @@ create_trainer "Saimazoom" {time 1} {
 	"Lives: Lives" {dpoke 0xd9cf 9}
 }
 
-create_trainer "Salamander - Operation X" {time 1} {
+create_trainer "Salamander" {time 1} {
 	"Combinations: Simulate Nemesis 2 In Slot 2" {dpoke 0xf0f5 1}
 	"Help Items: Scroll Stop (only For Part Of Stage 1)" {dpoke 0xe309 1}
 	"Help Items: Spark Light For Planet Lavinia" {dpoke 0xe630 3}
@@ -6221,90 +6305,6 @@ create_trainer "Testament" {time 1} {
 
 create_trainer "Tetris" {time 1} {
 	"Next Block Always Bar" {dpoke 0xd28a 1}
-}
-
-create_trainer "The Maze of Galious - Knightmare II" {time 1} {
-	"Item: Armor" {dpoke 0xe086 1}
-	"Item: Bell" {dpoke 0xe083 1}
-	"Item: Bible" {dpoke 0xe08f 1}
-	"Item: Boots" {dpoke 0xe080 1}
-	"Item: Bracelet" {dpoke 0xe08d 1}
-	"Item: Bread And Water" {dpoke 0xe098 1}
-	"Item: Candle" {dpoke 0xe085 1}
-	"Item: Carpet" {dpoke 0xe087 1}
-	"Item: Cross" {dpoke 0xe07a 1}
-	"Item: Crown" {dpoke 0xe07d 1}
-	"Item: Dagger" {dpoke 0xe095 1}
-	"Item: Decorative Doll" {dpoke 0xe081 1}
-	"Item: Earrings" {dpoke 0xe08c 1}
-	"Item: Feather" {dpoke 0xe096 1}
-	"Item: Halo" {dpoke 0xe084 1}
-	"Item: Harp" {dpoke 0xe090 1}
-	"Item: Helm" {dpoke 0xe07e 1}
-	"Item: Helmet" {dpoke 0xe088 1}
-	"Item: Invulnerable" {dpoke 0xe518 1}
-	"Item: Lamp" {dpoke 0xe089 1}
-	"Item: Magnifying Glass" {dpoke 0xe075 1}
-	"Item: Necklace" {dpoke 0xe07c 1}
-	"Item: Oar" {dpoke 0xe07f 1}
-	"Item: Pendant" {dpoke 0xe08b 1}
-	"Item: Pitcher" {dpoke 0xe093 1}
-	"Item: Ring" {dpoke 0xe08e 1}
-	"Item: Robe" {dpoke 0xe082 1}
-	"Item: Sabre" {dpoke 0xe094 1}
-	"Item: Salt" {dpoke 0xe099 1}
-	"Item: Shield" {dpoke 0xe097 3}
-	"Item: Triangle" {dpoke 0xe091 1}
-	"Item: Trumpet Shell" {dpoke 0xe092 1}
-	"Item: Vase" {dpoke 0xe08a 1}
-	"Item: World 01 Items" {dpoke 0xe063 240}
-	"Item: World 02 Items" {dpoke 0xe064 240}
-	"Item: World 03 Items" {dpoke 0xe065 240}
-	"Item: World 04 Items" {dpoke 0xe066 240}
-	"Item: World 05 Items" {dpoke 0xe067 240}
-	"Item: World 06 Items" {dpoke 0xe068 240}
-	"Item: World 07 Items" {dpoke 0xe069 240}
-	"Item: World 08 Items" {dpoke 0xe06a 240}
-	"Item: World 09 Items" {dpoke 0xe06b 240}
-	"Item: World 10 Items" {dpoke 0xe06c 224}
-	"Misc: All Combos With Konami Carts" {dpoke 0xf0f8 255}
-	"Misc: Bible (ctrl) Uses Left" {dpoke 0xe531 255}
-	"Misc: Fall Down When Hit" {dpoke 0xe50b 1}
-	"Misc: Screen Stays Frozen" {dpoke 0xe0d6 64}
-	"Misc: Unlimited Bible Uses" {dpoke 0xe531 1}
-	"Misc: Zeus Cheat" {dpoke 0xe027 1}
-	"Status: Arrows" {dpoke 0xe046 153;poke 0xe047 9}
-	"Status: Coins" {dpoke 0xe048 153;poke 0xe049 9}
-	"Status: Keys" {dpoke 0xe04a 153;poke 0xe04b 9}
-	"Status: Max Exp" {dpoke 0xe051 1;poke 0xe055 1}
-	"Status: Vitality Aphrodite" {dpoke 0xe052 255;poke 0xe053 255}
-	"Status: Vitality Popolon" {dpoke 0xe056 255;poke 0xe057 255}
-	"Weapon: Arrows" {dpoke 0xe070 1}
-	"Weapon: Ceramic Arrows" {dpoke 0xe071 1}
-	"Weapon: Fire" {dpoke 0xe073 1}
-	"Weapon: Mine" {dpoke 0xe074 255}
-	"Weapon: Rolling Fire" {dpoke 0xe072 1}
-	"Weapon Active: Arrow" {dpoke 0xe510 1}
-	"Weapon Active: Ceramic Arrow" {dpoke 0xe510 2}
-	"Weapon Active: Fire" {dpoke 0xe510 3}
-	"Weapon Active: Magnifying Glass" {dpoke 0xe510 6}
-	"Weapon Active: Mine" {dpoke 0xe510 5}
-	"Weapon Active: Nothing" {dpoke 0xe510 0}
-	"Weapon Active: Rolling Fire" {dpoke 0xe510 4}
-	"World 10 location: Location At Start" {dpoke 0xe06e 3}
-	"World 10 location: Location Left Tower" {dpoke 0xe06e 2}
-	"World 10 location: Location Middle Tower" {dpoke 0xe06e 0}
-	"World 10 location: Location Right Tower" {dpoke 0xe06e 1}
-	"World 10 location: World 10 Activator" {dpoke 0xe06d 1}
-}
-
-create_trainer "Theseus" {time 1} {
-	"Enemies Are Frozen" {dpoke 0xedf2 255}
-	"Level (0-12)" {dpoke 0xede7 0}
-	"Ring" {dpoke 0xedf5 255}
-	"Time (de-select To Get Bonus)" {dpoke 0xeddc 255;poke 0xeddd 10}
-	"Key: Key" {dpoke 0xedf4 255}
-	"Power: Power" {dpoke 0xede2 153;poke 0xede3 9}
 }
 
 create_trainer "Thexder" {time 2} {
