@@ -243,6 +243,7 @@ enum class imColor : unsigned {
 	YELLOW_BG, // yellow background (transparent)
 
 	TEXT,
+	TEXT_DISABLED,
 
 	ERROR,
 	WARNING,

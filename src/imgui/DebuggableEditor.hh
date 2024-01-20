@@ -18,6 +18,7 @@ namespace openmsx {
 
 class Debuggable;
 class ImGuiManager;
+class SymbolManager;
 
 class DebuggableEditor
 {
@@ -35,9 +36,7 @@ class DebuggableEditor
 	};
 
 public:
-	explicit DebuggableEditor(ImGuiManager& manager_)
-		: manager(&manager_) {}
-
+	explicit DebuggableEditor(ImGuiManager& manager_);
 	void paint(const char* title, Debuggable& debuggable);
 
 	bool open = true;
@@ -45,11 +44,11 @@ public:
 private:
 	[[nodiscard]] Sizes calcSizes(unsigned memSize);
 	void drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize);
-	void drawOptionsLine(const Sizes& s, unsigned memSize);
 	void drawPreviewLine(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 
 private:
 	ImGuiManager* manager;
+	SymbolManager* symbolManager;
 
 	// Settings
 	int  columns = 16;            // number of columns to display.
@@ -58,13 +57,17 @@ private:
 	bool greyOutZeroes = true;    // display null/zero bytes using the TextDisabled color.
 
 	// [Internal State]
-	bool     contentsWidthChanged = false;
-	unsigned currentAddr = 0;
-	bool     dataEditingTakeFocus = true;
+	enum AddressMode : int {CURSOR, EXPRESSION};
+
 	std::string dataInput;
-	std::string addrInput;
-	int           previewEndianess = 0; // LE
+	std::string addrStr;
+	std::string addrExpr;
+	unsigned currentAddr = 0;
+	int addrMode = CURSOR;
+	int previewEndianess = 0; // LE
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
+	bool contentsWidthChanged = false;
+	bool dataEditingTakeFocus = true;
 };
 
 } // namespace openmsx

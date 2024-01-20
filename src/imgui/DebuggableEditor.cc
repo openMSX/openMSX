@@ -4,7 +4,11 @@
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
+#include "CommandException.hh"
 #include "Debuggable.hh"
+#include "Interpreter.hh"
+#include "SymbolManager.hh"
+#include "TclObject.hh"
 
 #include "unreachable.hh"
 
@@ -23,6 +27,12 @@ using namespace std::literals;
 
 static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
+
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
+	: manager(&manager_)
+	, symbolManager(&manager->getReactor().getSymbolManager())
+{
+}
 
 DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
 {
@@ -101,51 +111,106 @@ void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 	return std::nullopt;
 }
 
+struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
+	std::string error;
+	unsigned addr = unsigned(-1);
+};
+[[nodiscard]] static ParseAddrResult parseAddressExpr(
+	std::string_view str, SymbolManager& symbolManager, Interpreter& interp)
+{
+	ParseAddrResult r;
+	if (str.empty()) return r;
+
+	// TODO linear search, probably OK for now, but can be improved if it turns out to be a problem
+	// Note: limited to 16-bit, but larger values trigger an errors and are then handled below, so that's fine
+	if (auto addr = symbolManager.parseSymbolOrValue(str)) {
+		r.addr = *addr;
+		return r;
+	}
+
+	try {
+		r.addr = TclObject(str).eval(interp).getInt(interp);
+	} catch (CommandException& e) {
+		r.error = e.getMessage();
+	}
+	return r;
+}
+
+[[nodiscard]] static std::string formatData(uint8_t val)
+{
+	return strCat(hex_string<2, HexCase::upper>(val));
+}
+
 void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize)
 {
+	auto formatAddr = [&](unsigned addr) {
+		return strCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr));
+	};
+	auto setStrings = [&]{
+		addrStr = strCat("0x", formatAddr(currentAddr));
+		dataInput = formatData(debuggable.read(currentAddr));
+	};
+	auto setAddr = [&](unsigned addr) {
+		addr = std::min(addr, memSize - 1);
+		if (currentAddr == addr) return false;
+		currentAddr = addr;
+		setStrings();
+		return true;
+	};
+	auto scrollAddr = [&](unsigned addr) {
+		if (setAddr(addr)) {
+			im::Child("##scrolling", [&]{
+				int row = addr / columns;
+				ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
+			});
+		}
+	};
+
 	const auto& style = ImGui::GetStyle();
+	setAddr(currentAddr); // for the unlikely case that 'memSize' got smaller
 
 	// We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
 	// This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
-	const auto height_separator = style.ItemSpacing.y;
-	float footer_height = height_separator + ImGui::GetFrameHeightWithSpacing();
+	float footer_height = style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
 	if (showDataPreview) {
-		footer_height += height_separator + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
+		footer_height += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
 	}
-	ImGui::BeginChild("##scrolling", ImVec2(0, -footer_height), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav);
-	auto* drawList = ImGui::GetWindowDrawList();
-
+	ImGui::BeginChild("##scrolling", ImVec2(0, -footer_height), false, ImGuiWindowFlags_NoMove /*| ImGuiWindowFlags_NoNav*/);
+	// note: with ImGuiWindowFlags_NoNav it happens occasionally that (rapid) cursor-input is passed to the underlying MSX window
+	//    without ImGuiWindowFlags_NoNav PgUp/PgDown work, but they are ALSO interpreted as openMSX hotkeys,
+	//                                   though other windows have the same problem.
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-	currentAddr = std::min(currentAddr, memSize - 1);
-
 	std::optional<unsigned> nextAddr;
 	// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
-	if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) &&
-		int(currentAddr) >= columns) {
-		nextAddr = currentAddr - columns;
-	} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) &&
-			int(currentAddr) < int(memSize - columns)) {
-		nextAddr = currentAddr + columns;
-	} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)) &&
-			int(currentAddr) > 0) {
-		nextAddr = currentAddr - 1;
-	} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)) &&
-			int(currentAddr) < int(memSize - 1)) {
-		nextAddr = currentAddr + 1;
+	if (addrMode == CURSOR && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) &&
+			int(currentAddr) >= columns) {
+			nextAddr = currentAddr - columns;
+		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) &&
+				int(currentAddr) < int(memSize - columns)) {
+			nextAddr = currentAddr + columns;
+		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)) &&
+				int(currentAddr) > 0) {
+			nextAddr = currentAddr - 1;
+		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)) &&
+				int(currentAddr) < int(memSize - 1)) {
+			nextAddr = currentAddr + 1;
+		}
 	}
 
 	// Draw vertical separator
+	auto* drawList = ImGui::GetWindowDrawList();
 	ImVec2 window_pos = ImGui::GetWindowPos();
 	if (showAscii) {
 		drawList->AddLine(ImVec2(window_pos.x + s.posAsciiStart - s.glyphWidth, window_pos.y),
-		                   ImVec2(window_pos.x + s.posAsciiStart - s.glyphWidth, window_pos.y + 9999),
-		                   ImGui::GetColorU32(ImGuiCol_Border));
+		                  ImVec2(window_pos.x + s.posAsciiStart - s.glyphWidth, window_pos.y + 9999),
+		                  ImGui::GetColorU32(ImGuiCol_Border));
 	}
 
-	const auto color_text = ImGui::GetColorU32(ImGuiCol_Text);
-	const auto color_disabled = greyOutZeroes ? ImGui::GetColorU32(ImGuiCol_TextDisabled) : color_text;
+	const auto colorText = getColor(imColor::TEXT);
+	const auto colorDisabled = greyOutZeroes ? getColor(imColor::TEXT_DISABLED) : colorText;
 
 	// We are not really using the clipper API correctly here, because we rely on visible_start_addr/visible_end_addr for our scrolling function.
 	const int line_total_count = int((memSize + columns - 1) / columns);
@@ -154,7 +219,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	while (clipper.Step()) {
 		for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; ++line_i) {
 			auto addr = unsigned(line_i) * columns;
-			ImGui::StrCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr), ": ");
+			ImGui::StrCat(formatAddr(addr), ':');
 
 			// Draw Hexadecimal
 			for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
@@ -182,12 +247,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 				if (currentAddr == addr) {
 					// Display text input on current byte
-					bool dataWrite = false;
-					ImGui::PushID(int(addr));
 					if (dataEditingTakeFocus) {
+						dataEditingTakeFocus = false;
 						ImGui::SetKeyboardFocusHere(0);
-						addrInput = strCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr));
-						dataInput = strCat(hex_string<2, HexCase::upper>(debuggable.read(addr)));
+						setStrings();
 					}
 					struct UserData {
 						// FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
@@ -200,7 +263,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 								// When not editing a byte, always refresh its InputText content pulled from underlying memory data
 								// (this is a bit tricky, since InputText technically "owns" the master copy of the buffer we edit it in there)
 								uint8_t val = userData->debuggable->read(userData->addr);
-								auto valStr = strCat(hex_string<2, HexCase::upper>(val));
+								auto valStr = formatData(val);
 								data->DeleteChars(0, data->BufTextLen);
 								data->InsertChars(0, valStr.c_str());
 								data->SelectionStart = 0;
@@ -223,36 +286,26 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					                          | ImGuiInputTextFlags_CallbackAlways
 					                          | ImGuiInputTextFlags_AlwaysOverwrite;
 					ImGui::SetNextItemWidth(s.glyphWidth * 2);
-					if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
-						dataWrite = true;
-					} else if (!dataEditingTakeFocus && !ImGui::IsItemActive()) {
-						nextAddr.reset();
-					}
-					dataEditingTakeFocus = false;
-					if (userData.cursorPos >= 2) {
-						dataWrite = true;
-					}
-					if (nextAddr) {
-						dataWrite = false;
-					}
+					bool dataWrite = false;
+					im::ID(int(addr), [&]{
+						dataWrite |= ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData);
+					});
+					dataWrite |= userData.cursorPos >= 2;
+					if (nextAddr) dataWrite = false;
 					if (dataWrite) {
 						if (auto value = parseDataValue(dataInput)) {
 							debuggable.write(addr, *value);
 							assert(!nextAddr);
-							if (currentAddr + 1 < memSize) {
-								nextAddr = currentAddr + 1;
-							}
+							nextAddr = currentAddr + 1;
 						}
 					}
-					ImGui::PopID();
 				} else {
 					// NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
 					uint8_t b = debuggable.read(addr);
-
 					if (b == 0 && greyOutZeroes) {
 						ImGui::TextDisabled("00 ");
 					} else {
-						ImGui::StrCat(hex_string<2, HexCase::upper>(b), ' ');
+						ImGui::StrCat(formatData(b), ' ');
 					}
 					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 						dataEditingTakeFocus = true;
@@ -266,13 +319,11 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				ImGui::SameLine(s.posAsciiStart);
 				ImVec2 pos = ImGui::GetCursorScreenPos();
 				addr = unsigned(line_i) * columns;
-				ImGui::PushID(line_i);
-				if (ImGui::InvisibleButton("ascii", ImVec2(s.posAsciiEnd - s.posAsciiStart, s.lineHeight))) {
-					currentAddr = addr + unsigned((ImGui::GetIO().MousePos.x - pos.x) / s.glyphWidth);
-					currentAddr = std::min(currentAddr, memSize - 1);
-					dataEditingTakeFocus = true;
-				}
-				ImGui::PopID();
+				im::ID(line_i, [&]{
+					if (ImGui::InvisibleButton("ascii", ImVec2(s.posAsciiEnd - s.posAsciiStart, s.lineHeight))) {
+						nextAddr = addr + unsigned((ImGui::GetIO().MousePos.x - pos.x) / s.glyphWidth);
+					}
+				});
 				for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
 					if (addr == currentAddr) {
 						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(ImGuiCol_FrameBg));
@@ -280,7 +331,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					}
 					uint8_t c = debuggable.read(addr);
 					char display_c = (c < 32 || c >= 128) ? '.' : char(c);
-					drawList->AddText(pos, (display_c == char(c)) ? color_text : color_disabled, &display_c, &display_c + 1);
+					drawList->AddText(pos, (display_c == char(c)) ? colorText : colorDisabled, &display_c, &display_c + 1);
 					pos.x += s.glyphWidth;
 				}
 			}
@@ -293,29 +344,60 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	ImGui::SetCursorPosX(s.windowWidth);
 
 	if (nextAddr) {
-		currentAddr = *nextAddr;
+		setAddr(*nextAddr);
 		dataEditingTakeFocus = true;
+		addrMode = CURSOR; // cursor
 	}
 
-	const bool lock_show_data_preview = showDataPreview;
+	// -- draw address line
 	ImGui::Separator();
-	drawOptionsLine(s, memSize);
+	ImGui::AlignTextToFramePadding();
+	ImGui::TextUnformatted("Address");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
+	if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0")) {
+		dataEditingTakeFocus = true;
+	}
+	ImGui::SameLine();
 
-	if (lock_show_data_preview) {
+	std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
+	auto r = parseAddressExpr(*as, *symbolManager, manager->getInterpreter());
+	im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
+		if (addrMode == EXPRESSION && r.error.empty()) {
+			scrollAddr(r.addr);
+		}
+		ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
+		if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			auto r2 = parseAddressExpr(addrStr, *symbolManager, manager->getInterpreter());
+			if (r2.error.empty()) {
+				scrollAddr(r2.addr);
+				dataEditingTakeFocus = true;
+			}
+		}
+		simpleToolTip([&]{
+			return r.error.empty() ? strCat("0x", formatAddr(r.addr))
+			                       : r.error;
+		});
+	});
+	im::Font(manager->fontProp, [&]{
+		HelpMarker("Address-mode:\n"
+		           "  Cursor: view the cursor position\n"
+		           "  Expression: continuously re-evaluate an expression and view that address\n"
+		           "\n"
+		           "Addresses can be entered as:\n"
+		           "  Decimal or hexadecimal values (e.g. 0x1234)\n"
+		           "  The name of a label (e.g. CHPUT)\n"
+		           "  A Tcl expression (e.g. [reg hl] to follow the content of register HL)\n"
+		           "\n"
+		           "Right-click to configure this view.");
+	});
+
+	if (showDataPreview) {
 		ImGui::Separator();
 		drawPreviewLine(s, debuggable, memSize);
 	}
-}
 
-void DebuggableEditor::drawOptionsLine(const Sizes& s, unsigned memSize)
-{
-	const auto& style = ImGui::GetStyle();
-
-	// Options menu
-	if (ImGui::Button("Options")) {
-		ImGui::OpenPopup("context");
-	}
-	if (ImGui::BeginPopup("context")) {
+	im::Popup("context", [&]{
 		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputInt("Columns", &columns, 1, 0)) {
 			contentsWidthChanged = true;
@@ -326,27 +408,7 @@ void DebuggableEditor::drawOptionsLine(const Sizes& s, unsigned memSize)
 			contentsWidthChanged = true;
 		}
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
-
-		ImGui::EndPopup();
-	}
-
-	ImGui::SameLine();
-	ImGui::TextUnformatted("Address: ");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(float(s.addrDigitsCount + 1) * s.glyphWidth + 2.0f * style.FramePadding.x);
-	if (ImGui::InputText("##addr", &addrInput, ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-		unsigned gotoAddr;
-		if (sscanf(addrInput.c_str(), "%X", &gotoAddr) == 1) {
-			gotoAddr = std::min(gotoAddr, memSize - 1);
-
-			ImGui::BeginChild("##scrolling");
-			int row = gotoAddr / columns;
-			ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
-			ImGui::EndChild();
-			currentAddr = gotoAddr;
-			dataEditingTakeFocus = true;
-		}
-	}
+	});
 }
 
 [[nodiscard]] static const char* DataTypeGetDesc(ImGuiDataType data_type)

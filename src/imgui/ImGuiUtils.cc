@@ -298,6 +298,7 @@ void setColors(int style)
 	imColors[size_t(imColor::YELLOW_BG     )] = 0x8000ffff;
 
 	imColors[size_t(imColor::TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
+	imColors[size_t(imColor::TEXT_DISABLED )] = ImGui::GetColorU32(ImGuiCol_TextDisabled);
 
 	imColors[size_t(imColor::ERROR         )] = 0xff0000ff;
 	imColors[size_t(imColor::WARNING       )] = 0xff33b3ff;
