@@ -93,6 +93,12 @@ void strAppend(std::string& result, Ts&& ...ts);
 //    s = strCat("The result is ", std::string(30 - item.size(), ' '), item);
 ////strCatImpl::ConcatSpaces spaces(size_t t);
 
+struct Digits {
+	size_t n;
+};
+enum class HexCase {
+	lower, upper
+};
 
 // --- Implementation details ---
 
@@ -328,7 +334,43 @@ private:
 // Format an integral as a hexadecimal value with a fixed number of characters.
 // This fixed width means it either adds leading zeros or truncates the result
 // (it keeps the rightmost digits).
-template<size_t N, std::integral T> struct ConcatFixedWidthHexIntegral
+template<HexCase Case, std::integral T> struct ConcatVariableWidthHexIntegral
+{
+	ConcatVariableWidthHexIntegral(Digits n_, T t_)
+		: n(n_.n), t(t_)
+	{
+	}
+
+	[[nodiscard]] size_t size() const
+	{
+		return n;
+	}
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		char* p = dst + n;
+		auto u = static_cast<FastUnsigned<T>>(t);
+
+		static constexpr char A = (Case == HexCase::lower) ? 'a' : 'A';
+		repeat(n, [&] {
+			auto d = u & 15;
+			*--p = (d < 10) ? static_cast<char>(d + '0')
+			                : static_cast<char>(d - 10 + A);
+			u >>= 4;
+		});
+
+		return dst + n;
+	}
+
+private:
+	size_t n;
+	T t;
+};
+
+// Format an integral as a hexadecimal value with a fixed number of characters.
+// This fixed width means it either adds leading zeros or truncates the result
+// (it keeps the rightmost digits).
+template<size_t N, HexCase Case, std::integral T> struct ConcatFixedWidthHexIntegral
 {
 	ConcatFixedWidthHexIntegral(T t_)
 		: t(t_)
@@ -345,10 +387,11 @@ template<size_t N, std::integral T> struct ConcatFixedWidthHexIntegral
 		char* p = dst + N;
 		auto u = static_cast<FastUnsigned<T>>(t);
 
+		static constexpr char A = (Case == HexCase::lower) ? 'a' : 'A';
 		repeat(N, [&] {
 			auto d = u & 15;
 			*--p = (d < 10) ? static_cast<char>(d + '0')
-			                : static_cast<char>(d - 10 + 'a');
+			                : static_cast<char>(d - 10 + A);
 			u >>= 4;
 		});
 
@@ -557,8 +600,14 @@ template<typename T>
 }
 #endif
 
-template<size_t N, std::integral T>
-[[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, T>& t)
+template<HexCase Case, std::integral T>
+[[nodiscard]] inline auto makeConcatUnit(const ConcatVariableWidthHexIntegral<Case, T>& t)
+{
+	return t;
+}
+
+template<size_t N, HexCase Case, std::integral T>
+[[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthHexIntegral<N, Case, T>& t)
 {
 	return t;
 }
@@ -725,8 +774,14 @@ inline void strAppend(std::string& x, const char*        y) { x += y; }
 inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
 
 
-template<size_t N, std::integral T>
-[[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, T> hex_string(T t)
+template<HexCase Case = HexCase::lower, std::integral T>
+[[nodiscard]] inline strCatImpl::ConcatVariableWidthHexIntegral<Case, T> hex_string(Digits n, T t)
+{
+	return {n, t};
+}
+
+template<size_t N, HexCase Case = HexCase::lower, std::integral T>
+[[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, Case, T> hex_string(T t)
 {
 	return {t};
 }
