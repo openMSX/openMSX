@@ -10,11 +10,13 @@
 #include "SymbolManager.hh"
 #include "TclObject.hh"
 
+#include "narrow.hh"
 #include "unreachable.hh"
 
 #include "imgui_stdlib.h"
 
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <cassert>
 #include <cstdint>
@@ -47,14 +49,13 @@ DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
 	s.lineHeight = ImGui::GetTextLineHeight();
 	s.glyphWidth = ImGui::CalcTextSize("F").x + 1;            // We assume the font is mono-space
 	s.hexCellWidth = truncf(s.glyphWidth * 2.5f);             // "FF " we include trailing space in the width to easily catch clicks everywhere
-	s.spacingBetweenMidCols = truncf(s.hexCellWidth * 0.25f); // Every OptMidColsCount columns we add a bit of extra spacing
+	s.spacingBetweenMidCols = truncf(s.hexCellWidth * 0.25f); // Every 'MidColsCount' columns we add a bit of extra spacing
 	s.posHexStart = float(s.addrDigitsCount + 2) * s.glyphWidth;
-	s.posHexEnd = s.posHexStart + (s.hexCellWidth * float(columns));
-	s.posAsciiStart = s.posAsciiEnd = s.posHexEnd;
+	auto posHexEnd = s.posHexStart + (s.hexCellWidth * float(columns));
+	s.posAsciiStart = s.posAsciiEnd = posHexEnd;
 	if (showAscii) {
-		s.posAsciiStart = s.posHexEnd + s.glyphWidth * 1;
 		int numMacroColumns = (columns + MidColsCount - 1) / MidColsCount;
-		s.posAsciiStart += float(numMacroColumns) * s.spacingBetweenMidCols;
+		s.posAsciiStart = posHexEnd + s.glyphWidth + float(numMacroColumns) * s.spacingBetweenMidCols;
 		s.posAsciiEnd = s.posAsciiStart + float(columns) * s.glyphWidth;
 	}
 	s.windowWidth = s.posAsciiEnd + style.ScrollbarSize + style.WindowPadding.x * 2 + s.glyphWidth;
@@ -66,7 +67,7 @@ void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 	im::ScopedFont sf(manager->fontMono);
 
 	unsigned memSize = debuggable.getSize();
-	columns = std::min<unsigned>(columns, memSize);
+	columns = std::min(columns, narrow<int>(memSize));
 	auto s = calcSizes(memSize);
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
 
@@ -80,11 +81,11 @@ void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 	});
 }
 
-[[nodiscard]] static unsigned DataTypeGetSize(ImGuiDataType data_type)
+[[nodiscard]] static unsigned DataTypeGetSize(ImGuiDataType dataType)
 {
 	std::array<unsigned, ImGuiDataType_COUNT - 2> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
-	assert(data_type >= 0 && data_type < (ImGuiDataType_COUNT - 2));
-	return sizes[data_type];
+	assert(dataType >= 0 && dataType < (ImGuiDataType_COUNT - 2));
+	return sizes[dataType];
 }
 
 [[nodiscard]] static std::optional<uint8_t> parseDataValue(std::string_view str)
@@ -156,7 +157,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	auto scrollAddr = [&](unsigned addr) {
 		if (setAddr(addr)) {
 			im::Child("##scrolling", [&]{
-				int row = addr / columns;
+				int row = narrow<int>(addr) / columns;
 				ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
 			});
 		}
@@ -204,10 +205,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 	// Draw vertical separator
 	auto* drawList = ImGui::GetWindowDrawList();
-	ImVec2 window_pos = ImGui::GetWindowPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
 	if (showAscii) {
-		drawList->AddLine(ImVec2(window_pos.x + s.posAsciiStart - s.glyphWidth, window_pos.y),
-		                  ImVec2(window_pos.x + s.posAsciiStart - s.glyphWidth, window_pos.y + 9999),
+		drawList->AddLine(ImVec2(windowPos.x + s.posAsciiStart - s.glyphWidth, windowPos.y),
+		                  ImVec2(windowPos.x + s.posAsciiStart - s.glyphWidth, windowPos.y + 9999),
 		                  ImGui::GetColorU32(ImGuiCol_Border));
 	}
 
@@ -215,36 +216,36 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	const auto colorDisabled = greyOutZeroes ? getColor(imColor::TEXT_DISABLED) : colorText;
 
 	// We are not really using the clipper API correctly here, because we rely on visible_start_addr/visible_end_addr for our scrolling function.
-	const int line_total_count = int((memSize + columns - 1) / columns);
+	const int totalLineCount = int((memSize + columns - 1) / columns);
 	ImGuiListClipper clipper;
-	clipper.Begin(line_total_count, s.lineHeight);
+	clipper.Begin(totalLineCount, s.lineHeight);
 	while (clipper.Step()) {
-		for (int line_i = clipper.DisplayStart; line_i < clipper.DisplayEnd; ++line_i) {
-			auto addr = unsigned(line_i) * columns;
+		for (int line = clipper.DisplayStart; line < clipper.DisplayEnd; ++line) {
+			auto addr = unsigned(line) * columns;
 			ImGui::StrCat(formatAddr(addr), ':');
 
 			// Draw Hexadecimal
 			for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
-				float byte_pos_x = s.posHexStart + s.hexCellWidth * float(n);
 				int macroColumn = n / MidColsCount;
-				byte_pos_x += float(macroColumn) * s.spacingBetweenMidCols;
-				ImGui::SameLine(byte_pos_x);
+				float bytePosX = s.posHexStart + float(n) * s.hexCellWidth
+				               + float(macroColumn) * s.spacingBetweenMidCols;
+				ImGui::SameLine(bytePosX);
 
 				// Draw highlight
-				auto preview_data_type_size = DataTypeGetSize(previewDataType);
+				auto previewDataTypeSize = DataTypeGetSize(previewDataType);
 				auto highLight = [&](unsigned a) {
-					return (currentAddr <= a) && (a < (currentAddr + preview_data_type_size));
+					return (currentAddr <= a) && (a < (currentAddr + previewDataTypeSize));
 				};
 				if (highLight(addr)) {
 					ImVec2 pos = ImGui::GetCursorScreenPos();
-					float highlight_width = s.glyphWidth * 2;
+					float highlightWidth = s.glyphWidth * 2;
 					if (highLight(addr + 1)) {
-						highlight_width = s.hexCellWidth;
+						highlightWidth = s.hexCellWidth;
 						if (n > 0 && (n + 1) < columns && ((n + 1) % MidColsCount) == 0) {
-							highlight_width += s.spacingBetweenMidCols;
+							highlightWidth += s.spacingBetweenMidCols;
 						}
 					}
-					drawList->AddRectFilled(pos, ImVec2(pos.x + highlight_width, pos.y + s.lineHeight), HighlightColor);
+					drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightColor);
 				}
 
 				if (currentAddr == addr) {
@@ -274,8 +275,8 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 							}
 							return 0;
 						}
-						Debuggable* debuggable;
-						unsigned addr;
+						Debuggable* debuggable = nullptr;
+						unsigned addr = 0;
 						int cursorPos = -1; // Output
 					};
 					UserData userData;
@@ -304,11 +305,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				} else {
 					// NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
 					uint8_t b = debuggable.read(addr);
-					if (b == 0 && greyOutZeroes) {
-						ImGui::TextDisabled("00 ");
-					} else {
+					im::StyleColor(b == 0 && greyOutZeroes, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 						ImGui::StrCat(formatData(b), ' ');
-					}
+					});
 					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
 						dataEditingTakeFocus = true;
 						nextAddr = addr;
@@ -320,8 +319,8 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				// Draw ASCII values
 				ImGui::SameLine(s.posAsciiStart);
 				ImVec2 pos = ImGui::GetCursorScreenPos();
-				addr = unsigned(line_i) * columns;
-				im::ID(line_i, [&]{
+				addr = unsigned(line) * columns;
+				im::ID(line, [&]{
 					if (ImGui::InvisibleButton("ascii", ImVec2(s.posAsciiEnd - s.posAsciiStart, s.lineHeight))) {
 						nextAddr = addr + unsigned((ImGui::GetIO().MousePos.x - pos.x) / s.glyphWidth);
 					}
@@ -332,8 +331,8 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(ImGuiCol_TextSelectedBg));
 					}
 					uint8_t c = debuggable.read(addr);
-					char display_c = (c < 32 || c >= 128) ? '.' : char(c);
-					drawList->AddText(pos, (display_c == char(c)) ? colorText : colorDisabled, &display_c, &display_c + 1);
+					char display = (c < 32 || c >= 128) ? '.' : char(c);
+					drawList->AddText(pos, (display == char(c)) ? colorText : colorDisabled, &display, &display + 1);
 					pos.x += s.glyphWidth;
 				}
 			}
@@ -408,11 +407,13 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	});
 }
 
-[[nodiscard]] static const char* DataTypeGetDesc(ImGuiDataType data_type)
+[[nodiscard]] static const char* DataTypeGetDesc(ImGuiDataType dataType)
 {
-	std::array<const char*, ImGuiDataType_COUNT - 2> desc = { "Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64" };
-	assert(data_type >= 0 && data_type < (ImGuiDataType_COUNT - 2));
-	return desc[data_type];
+	std::array<const char*, ImGuiDataType_COUNT - 2> desc = {
+		"Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64"
+	};
+	assert(dataType >= 0 && dataType < (ImGuiDataType_COUNT - 2));
+	return desc[dataType];
 }
 
 template<typename T>
@@ -424,9 +425,9 @@ template<typename T>
 	return t;
 }
 
-static void formatDec(std::span<const uint8_t> buf, ImGuiDataType data_type)
+static void formatDec(std::span<const uint8_t> buf, ImGuiDataType dataType)
 {
-	switch (data_type) {
+	switch (dataType) {
 	case ImGuiDataType_S8:
 		ImGui::StrCat(read<int8_t>(buf));
 		break;
@@ -508,16 +509,16 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 	ImGui::Combo("##combo_endianess", &previewEndianess, "LE\0BE\0\0");
 
 	std::array<uint8_t, 8> dataBuf = {};
-	auto elem_size = DataTypeGetSize(previewDataType);
-	for (auto i : xrange(elem_size)) {
+	auto elemSize = DataTypeGetSize(previewDataType);
+	for (auto i : xrange(elemSize)) {
 		auto addr = currentAddr + i;
 		dataBuf[i] = (addr < memSize) ? debuggable.read(addr) : 0;
 	}
 
-	static constexpr bool native_is_little = std::endian::native == std::endian::little;
-	bool preview_is_little = previewEndianess == 0;
-	if (native_is_little != preview_is_little) {
-		std::reverse(dataBuf.begin(), dataBuf.begin() + elem_size);
+	static constexpr bool nativeIsLittle = std::endian::native == std::endian::little;
+	bool previewIsLittle = previewEndianess == LE;
+	if (nativeIsLittle != previewIsLittle) {
+		std::reverse(dataBuf.begin(), dataBuf.begin() + elemSize);
 	}
 
 	ImGui::TextUnformatted("Dec "sv);
@@ -530,7 +531,7 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 
 	ImGui::TextUnformatted("Bin "sv);
 	ImGui::SameLine();
-	formatBin(subspan(dataBuf, 0, elem_size));
+	formatBin(subspan(dataBuf, 0, elemSize));
 }
 
 } // namespace openmsx

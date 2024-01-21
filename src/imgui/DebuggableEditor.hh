@@ -11,7 +11,6 @@
 
 #include <imgui.h>
 
-#include <array>
 #include <string>
 
 namespace openmsx {
@@ -29,7 +28,6 @@ class DebuggableEditor
 		float hexCellWidth = 0.0f;
 		float spacingBetweenMidCols = 0.0f;
 		float posHexStart = 0.0f;
-		float posHexEnd = 0.0f;
 		float posAsciiStart = 0.0f;
 		float posAsciiEnd = 0.0f;
 		float windowWidth = 0.0f;
@@ -59,13 +57,14 @@ private:
 
 	// [Internal State]
 	enum AddressMode : int {CURSOR, EXPRESSION};
+	enum PreviewEndianess : int {LE, BE};
 
 	std::string dataInput;
 	std::string addrStr;
 	std::string addrExpr;
 	unsigned currentAddr = 0;
 	int addrMode = CURSOR;
-	int previewEndianess = 0; // LE
+	int previewEndianess = LE;
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
 	bool dataEditingTakeFocus = true;
 };
