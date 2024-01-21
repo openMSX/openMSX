@@ -66,9 +66,9 @@ void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 	im::ScopedFont sf(manager->fontMono);
 
 	unsigned memSize = debuggable.getSize();
+	columns = std::min<unsigned>(columns, memSize);
 	auto s = calcSizes(memSize);
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSizeConstraints(ImVec2(0.0f, 0.0f), ImVec2(s.windowWidth, FLT_MAX));
 
 	open = true;
 	im::Window(title, &open, ImGuiWindowFlags_NoScrollbar, [&]{
@@ -77,10 +77,6 @@ void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 			ImGui::OpenPopup("context");
 		}
 		drawContents(s, debuggable, memSize);
-		if (contentsWidthChanged) {
-			s = calcSizes(memSize);
-			ImGui::SetWindowSize(ImVec2(s.windowWidth, ImGui::GetWindowSize().y));
-		}
 	});
 }
 
@@ -169,16 +165,22 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	const auto& style = ImGui::GetStyle();
 	setAddr(currentAddr); // for the unlikely case that 'memSize' got smaller
 
+	float footerHeight = 0.0f;
+	if (showAddress) {
+		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+	}
+	if (showDataPreview) {
+		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
+	}
 	// We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
 	// This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
-	float footer_height = style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
-	if (showDataPreview) {
-		footer_height += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
-	}
-	ImGui::BeginChild("##scrolling", ImVec2(0, -footer_height), false, ImGuiWindowFlags_NoMove /*| ImGuiWindowFlags_NoNav*/);
+	int cFlags = ImGuiWindowFlags_NoMove;
 	// note: with ImGuiWindowFlags_NoNav it happens occasionally that (rapid) cursor-input is passed to the underlying MSX window
 	//    without ImGuiWindowFlags_NoNav PgUp/PgDown work, but they are ALSO interpreted as openMSX hotkeys,
 	//                                   though other windows have the same problem.
+	//flags |= ImGuiWindowFlags_NoNav;
+	cFlags |= ImGuiWindowFlags_HorizontalScrollbar;
+	ImGui::BeginChild("##scrolling", ImVec2(0, -footerHeight), ImGuiChildFlags_None, cFlags);
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
@@ -340,58 +342,55 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	ImGui::PopStyleVar(2);
 	ImGui::EndChild();
 
-	// Notify the main window of our ideal child content size (FIXME: we are missing an API to get the contents size from the child)
-	ImGui::SetCursorPosX(s.windowWidth);
-
 	if (nextAddr) {
 		setAddr(*nextAddr);
 		dataEditingTakeFocus = true;
-		addrMode = CURSOR; // cursor
+		addrMode = CURSOR;
 	}
 
-	// -- draw address line
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::TextUnformatted("Address");
-	ImGui::SameLine();
-	ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
-	if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0")) {
-		dataEditingTakeFocus = true;
-	}
-	ImGui::SameLine();
-
-	std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
-	auto r = parseAddressExpr(*as, *symbolManager, manager->getInterpreter());
-	im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
-		if (addrMode == EXPRESSION && r.error.empty()) {
-			scrollAddr(r.addr);
+	if (showAddress) {
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Address");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
+		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0")) {
+			dataEditingTakeFocus = true;
 		}
-		ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
-		if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
-			auto r2 = parseAddressExpr(addrStr, *symbolManager, manager->getInterpreter());
-			if (r2.error.empty()) {
-				scrollAddr(r2.addr);
-				dataEditingTakeFocus = true;
+		ImGui::SameLine();
+
+		std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
+		auto r = parseAddressExpr(*as, *symbolManager, manager->getInterpreter());
+		im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
+			if (addrMode == EXPRESSION && r.error.empty()) {
+				scrollAddr(r.addr);
 			}
-		}
-		simpleToolTip([&]{
-			return r.error.empty() ? strCat("0x", formatAddr(r.addr))
-			                       : r.error;
+			ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
+			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				auto r2 = parseAddressExpr(addrStr, *symbolManager, manager->getInterpreter());
+				if (r2.error.empty()) {
+					scrollAddr(r2.addr);
+					dataEditingTakeFocus = true;
+				}
+			}
+			simpleToolTip([&]{
+				return r.error.empty() ? strCat("0x", formatAddr(r.addr))
+						: r.error;
+			});
 		});
-	});
-	im::Font(manager->fontProp, [&]{
-		HelpMarker("Address-mode:\n"
-		           "  Cursor: view the cursor position\n"
-		           "  Expression: continuously re-evaluate an expression and view that address\n"
-		           "\n"
-		           "Addresses can be entered as:\n"
-		           "  Decimal or hexadecimal values (e.g. 0x1234)\n"
-		           "  The name of a label (e.g. CHPUT)\n"
-		           "  A Tcl expression (e.g. [reg hl] to follow the content of register HL)\n"
-		           "\n"
-		           "Right-click to configure this view.");
-	});
-
+		im::Font(manager->fontProp, [&]{
+			HelpMarker("Address-mode:\n"
+				"  Cursor: view the cursor position\n"
+				"  Expression: continuously re-evaluate an expression and view that address\n"
+				"\n"
+				"Addresses can be entered as:\n"
+				"  Decimal or hexadecimal values (e.g. 0x1234)\n"
+				"  The name of a label (e.g. CHPUT)\n"
+				"  A Tcl expression (e.g. [reg hl] to follow the content of register HL)\n"
+				"\n"
+				"Right-click to configure this view.");
+		});
+	}
 	if (showDataPreview) {
 		ImGui::Separator();
 		drawPreviewLine(s, debuggable, memSize);
@@ -400,13 +399,11 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	im::Popup("context", [&]{
 		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputInt("Columns", &columns, 1, 0)) {
-			contentsWidthChanged = true;
 			columns = std::clamp(columns, 1, 64);
 		}
+		ImGui::Checkbox("Show Address bar", &showAddress);
 		ImGui::Checkbox("Show Data Preview", &showDataPreview);
-		if (ImGui::Checkbox("Show Ascii", &showAscii)) {
-			contentsWidthChanged = true;
-		}
+		ImGui::Checkbox("Show Ascii", &showAscii);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
 	});
 }

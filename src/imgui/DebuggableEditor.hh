@@ -52,8 +52,9 @@ private:
 
 	// Settings
 	int  columns = 16;            // number of columns to display.
-	bool showDataPreview = false; // display a footer previewing the decimal/binary/hex/float representation of the currently selected bytes.
 	bool showAscii = true;        // display ASCII representation on the right side.
+	bool showAddress = true;      // display the address bar (e.g. on small views it can make sense to hide this)
+	bool showDataPreview = false; // display a footer previewing the decimal/binary/hex/float representation of the currently selected bytes.
 	bool greyOutZeroes = true;    // display null/zero bytes using the TextDisabled color.
 
 	// [Internal State]
@@ -66,7 +67,6 @@ private:
 	int addrMode = CURSOR;
 	int previewEndianess = 0; // LE
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
-	bool contentsWidthChanged = false;
 	bool dataEditingTakeFocus = true;
 };
 
