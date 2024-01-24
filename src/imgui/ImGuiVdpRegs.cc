@@ -16,11 +16,6 @@
 
 namespace openmsx {
 
-ImGuiVdpRegs::ImGuiVdpRegs(ImGuiManager&)
-	//: manager(manager_)
-{
-}
-
 void ImGuiVdpRegs::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);

@@ -14,7 +14,6 @@ namespace openmsx {
 class CPURegs;
 class Debuggable;
 class Debugger;
-class ImGuiManager;
 class MSXCPUInterface;
 class SymbolManager;
 
@@ -44,7 +43,6 @@ private:
 	void drawFlags(CPURegs& regs);
 
 private:
-	ImGuiManager& manager;
 	SymbolManager& symbolManager;
 	size_t cycleLabelsCounter = 0;
 

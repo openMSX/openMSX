@@ -21,7 +21,7 @@ namespace openmsx {
 using namespace std::literals;
 
 ImGuiMessages::ImGuiMessages(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, modalMessages(10)
 	, popupMessages(10)
 	, allMessages(10)

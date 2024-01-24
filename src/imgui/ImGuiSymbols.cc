@@ -28,7 +28,7 @@
 namespace openmsx {
 
 ImGuiSymbols::ImGuiSymbols(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
 {
 	symbolManager.setObserver(this);

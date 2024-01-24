@@ -1,7 +1,7 @@
 #ifndef IMGUI_MANAGER_HH
 #define IMGUI_MANAGER_HH
 
-#include "ImGuiPart.hh"
+#include "ImGuiPartInterface.hh"
 #include "ImGuiUtils.hh"
 
 #include "EventListener.hh"
@@ -42,7 +42,6 @@ class ImGuiMessages;
 class ImGuiOpenFile;
 class ImGuiPalette;
 class ImGuiOsdIcons;
-class ImGuiPart;
 class ImGuiReverseBar;
 class ImGuiSettings;
 class ImGuiSoundChip;
@@ -54,7 +53,7 @@ class ImGuiVdpRegs;
 class ImGuiWatchExpr;
 class RomInfo;
 
-class ImGuiManager : public ImGuiPart, private EventListener, private Observer<Setting>
+class ImGuiManager : public ImGuiPartInterface, private EventListener, private Observer<Setting>
 {
 public:
 	ImGuiManager(const ImGuiManager&) = delete;
@@ -91,7 +90,7 @@ private:
 	void loadFont();
 	void reloadFont();
 
-	// ImGuiPart
+	// ImGuiPartInterface
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
@@ -153,7 +152,7 @@ public:
 
 private:
 	std::vector<std::function<void()>> delayedActionQueue;
-	std::vector<ImGuiPart*> parts;
+	std::vector<ImGuiPartInterface*> parts;
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;

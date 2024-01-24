@@ -12,12 +12,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
-	ImGuiSettings(ImGuiManager& manager);
+	explicit ImGuiSettings(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 	~ImGuiSettings();
 
 	[[nodiscard]] virtual zstring_view iniName() const { return "settings"; }
@@ -40,7 +39,6 @@ private:
 	std::span<const std::string> getAvailableFonts();
 
 private:
-	ImGuiManager& manager;
 	bool showConfigureJoystick = false;
 	bool showFont = false;
 	bool showDemoWindow = false;

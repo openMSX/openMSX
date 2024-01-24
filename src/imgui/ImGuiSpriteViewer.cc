@@ -25,11 +25,6 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImGuiSpriteViewer::ImGuiSpriteViewer(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
-
 void ImGuiSpriteViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);

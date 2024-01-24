@@ -6,16 +6,13 @@
 #include "GLUtil.hh"
 #include "gl_vec.hh"
 
-#include <optional>
-
 namespace openmsx {
-
-class ImGuiManager;
 
 class ImGuiCharacter final : public ImGuiPart
 {
 public:
-	ImGuiCharacter(ImGuiManager& manager);
+	explicit ImGuiCharacter(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "Tile viewer"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -31,8 +28,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
-
 	int manual = 0;
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
 	bool grid = true;

@@ -39,12 +39,10 @@
 
 using namespace std::literals;
 
-
 namespace openmsx {
 
-
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
 {
 }

@@ -23,7 +23,7 @@ using namespace std::literals;
 namespace openmsx {
 
 ImGuiOsdIcons::ImGuiOsdIcons(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 {
 	// Usually immediately overridden by loading imgui.ini
 	// But nevertheless required for the initial state.

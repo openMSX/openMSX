@@ -13,8 +13,6 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 struct SymbolRef {
 	unsigned fileIdx;
 	unsigned symbolIdx;
@@ -33,7 +31,7 @@ class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 	};
 
 public:
-	ImGuiSymbols(ImGuiManager& manager);
+	explicit ImGuiSymbols(ImGuiManager& manager);
 	~ImGuiSymbols();
 
 	[[nodiscard]] zstring_view iniName() const override { return "symbols"; }
@@ -53,7 +51,6 @@ private:
 	void notifySymbolsChanged() override;
 
 private:
-	ImGuiManager& manager;
 	SymbolManager& symbolManager;
 	std::vector<SymbolRef> symbols;
 

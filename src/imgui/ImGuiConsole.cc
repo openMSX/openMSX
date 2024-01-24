@@ -36,7 +36,7 @@ static constexpr std::string_view PROMPT_CONT = "| ";
 static constexpr std::string_view PROMPT_BUSY = "*busy*";
 
 ImGuiConsole::ImGuiConsole(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, consoleSetting(
 		manager.getReactor().getCommandController(), "console",
 		"turns console display on/off", false, Setting::DONT_SAVE)

@@ -19,11 +19,6 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
-
 void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);

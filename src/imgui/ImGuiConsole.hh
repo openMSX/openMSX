@@ -17,14 +17,12 @@ struct ImGuiInputTextCallbackData;
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiConsole final : public ImGuiPart
                          , private InterpreterOutput
                          , private Observer<Setting>
 {
 public:
-	ImGuiConsole(ImGuiManager& manager);
+	explicit ImGuiConsole(ImGuiManager& manager);
 	~ImGuiConsole();
 
 	[[nodiscard]] zstring_view iniName() const override { return "console"; }
@@ -53,7 +51,6 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 private:
-	ImGuiManager& manager;
 	BooleanSetting consoleSetting;
 
 	circular_buffer<std::string> history;

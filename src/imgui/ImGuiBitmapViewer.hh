@@ -12,13 +12,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-class MSXMotherBoard;
-
 class ImGuiBitmapViewer final : public ImGuiPart
 {
 public:
-	ImGuiBitmapViewer(ImGuiManager& manager);
+	explicit ImGuiBitmapViewer(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "bitmap viewer"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -33,8 +31,6 @@ public:
 	bool showBitmapViewer = false;
 
 private:
-	ImGuiManager& manager;
-
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings
 	enum BitmapScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
 	int bitmapScrnMode = 0;

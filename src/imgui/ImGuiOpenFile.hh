@@ -3,15 +3,11 @@
 
 #include "ImGuiPart.hh"
 
-#include "TclObject.hh"
-
 #include <functional>
 #include <map>
 #include <string>
 
 namespace openmsx {
-
-class ImGuiManager;
 
 class ImGuiOpenFile final : public ImGuiPart
 {
@@ -21,8 +17,8 @@ public:
 		DISKMANIPULATOR,
 	};
 
-	ImGuiOpenFile(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiOpenFile(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback,
@@ -57,11 +53,10 @@ private:
 	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:
-	ImGuiManager& manager;
 	std::map<std::string, std::string> lastPath;
 	std::string lastTitle;
 	std::function<void(const std::string&)> openFileCallback;
-	Painter activePainter;
+	Painter activePainter = Painter::MANAGER;
 	bool chooseDirectory = false;
 };
 

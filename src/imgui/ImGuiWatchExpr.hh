@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class ImGuiManager;
 class SymbolManager;
 
 class ImGuiWatchExpr final : public ImGuiPart
@@ -32,7 +31,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
 	SymbolManager& symbolManager;
 
 	struct WatchExpr {

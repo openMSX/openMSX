@@ -15,7 +15,7 @@ class VDP;
 class ImGuiPalette final : public ImGuiPart
 {
 public:
-	ImGuiPalette();
+	explicit ImGuiPalette(ImGuiManager& manager_);
 
 	[[nodiscard]] zstring_view iniName() const override { return "Palette editor"; }
 	void save(ImGuiTextBuffer& buf) override;

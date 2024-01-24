@@ -55,11 +55,6 @@ using namespace std::literals;
 
 namespace openmsx {
 
-ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
-
 ImGuiSettings::~ImGuiSettings()
 {
 	deinitListener();

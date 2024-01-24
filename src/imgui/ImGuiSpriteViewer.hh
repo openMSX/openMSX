@@ -8,12 +8,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiSpriteViewer final : public ImGuiPart
 {
 public:
-	ImGuiSpriteViewer(ImGuiManager& manager);
+	explicit ImGuiSpriteViewer(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "sprite viewer"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -24,8 +23,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
-
 	int manual = 0; // 0 -> use VDP settings, 1 -> use manual settings
 	int manualMode = 1;
 	int manualSize = 8;

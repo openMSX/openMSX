@@ -19,13 +19,13 @@ namespace openmsx {
 
 class DiskContainer;
 class DiskPartition;
-class ImGuiManager;
 class MSXtar;
 
 class ImGuiDiskManipulator final : public ImGuiPart
 {
 public:
-	explicit ImGuiDiskManipulator(ImGuiManager& manager);
+	explicit ImGuiDiskManipulator(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	void paint(MSXMotherBoard* motherBoard) override;
 
@@ -111,8 +111,6 @@ private:
 	int bootType = static_cast<int>(MSXBootSectorType::DOS2);
 	PartitionSize unpartitionedSize = {720, PartitionSize::KB};
 	std::vector<PartitionSize> partitionSizes;
-
-	ImGuiManager& manager;
 };
 
 } // namespace openmsx

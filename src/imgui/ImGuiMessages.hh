@@ -10,7 +10,6 @@
 
 #include <array>
 #include <string>
-#include <vector>
 
 namespace openmsx {
 
@@ -24,7 +23,7 @@ public:
 		std::string text;
 	};
 public:
-	ImGuiMessages(ImGuiManager& manager_);
+	explicit ImGuiMessages(ImGuiManager& manager_);
 	~ImGuiMessages();
 
 	[[nodiscard]] zstring_view iniName() const override { return "messages"; }
@@ -47,7 +46,6 @@ private:
 	void log(CliComm::LogLevel level, std::string_view message, float fraction);
 
 private:
-	ImGuiManager& manager;
 	enum PopupAction : int { NO_POPUP, POPUP, MODAL_POPUP };
 	enum OpenLogAction : int { NO_OPEN_LOG, OPEN_LOG, OPEN_LOG_FOCUS };
 	std::array<int /*PopupAction*/,   CliComm::NUM_LEVELS> popupAction;

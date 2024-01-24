@@ -5,19 +5,13 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-class MSXMotherBoard;
-
 class ImGuiConnector final : public ImGuiPart
 {
 public:
-	ImGuiConnector(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiConnector(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
-
-private:
-	ImGuiManager& manager;
 };
 
 } // namespace openmsx

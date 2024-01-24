@@ -17,13 +17,7 @@
 
 using namespace std::literals;
 
-
 namespace openmsx {
-
-ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {

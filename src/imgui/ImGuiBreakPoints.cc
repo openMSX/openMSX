@@ -37,7 +37,7 @@ using namespace std::literals;
 namespace openmsx {
 
 ImGuiBreakPoints::ImGuiBreakPoints(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
 {
 }

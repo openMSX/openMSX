@@ -7,13 +7,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiTools final : public ImGuiPart
 {
 public:
-	ImGuiTools(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiTools(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "tools"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -32,7 +30,6 @@ private:
 	[[nodiscard]] std::string getRecordFilename() const;
 
 private:
-	ImGuiManager& manager;
 	bool showScreenshot = false;
 	bool showRecord = false;
 

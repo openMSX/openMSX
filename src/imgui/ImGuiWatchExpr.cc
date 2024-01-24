@@ -19,7 +19,7 @@ namespace openmsx {
 using namespace std::literals;
 
 ImGuiWatchExpr::ImGuiWatchExpr(ImGuiManager& manager_)
-	: manager(manager_)
+	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
 {
 }

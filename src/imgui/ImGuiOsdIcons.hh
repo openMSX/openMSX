@@ -12,12 +12,10 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiOsdIcons final : public ImGuiPart
 {
 public:
-	ImGuiOsdIcons(ImGuiManager& manager_);
+	explicit ImGuiOsdIcons(ImGuiManager& manager_);
 
 	[[nodiscard]] zstring_view iniName() const override { return "OSD icons"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -31,12 +29,10 @@ private:
 	void loadIcons();
 	void paintConfigureIcons();
 
-private:
-	ImGuiManager& manager;
-
 public:
 	bool showIcons = true;
 	bool showConfigureIcons = false;
+
 private:
 	bool iconsHideTitle = true;
 	bool iconsAllowMove = false;

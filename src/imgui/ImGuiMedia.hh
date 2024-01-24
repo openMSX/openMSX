@@ -15,17 +15,12 @@
 
 #include <array>
 #include <functional>
-#include <map>
-#include <span>
 #include <string>
-#include <variant>
 #include <vector>
 
 namespace openmsx {
 
 class HardwareConfig;
-class ImGuiManager;
-class MSXMotherBoard;
 class RomInfo;
 
 class ImGuiMedia final : public ImGuiPart
@@ -39,8 +34,8 @@ public:
 	};
 
 public:
-	ImGuiMedia(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiMedia(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "media"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -136,8 +131,6 @@ private:
 	bool drawExtensionFilter();
 
 private:
-	ImGuiManager& manager;
-
 	std::array<DiskMediaInfo, RealDrive::MAX_DRIVES> diskMediaInfo;
 	std::array<CartridgeMediaInfo, CartridgeSlotManager::MAX_SLOTS> cartridgeMediaInfo;
 	ItemGroup extensionMediaInfo;

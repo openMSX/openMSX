@@ -17,7 +17,6 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiPalette.hh"
 #include "ImGuiOsdIcons.hh"
-#include "ImGuiPart.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
@@ -154,8 +153,7 @@ static void cleanupImGui()
 
 
 ImGuiManager::ImGuiManager(Reactor& reactor_)
-	: ImGuiPart(*this)
-	, reactor(reactor_)
+	: reactor(reactor_)
 	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "DejaVuSans.ttf.gz")
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
@@ -169,9 +167,9 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, character(std::make_unique<ImGuiCharacter>(*this))
 	, sprite(std::make_unique<ImGuiSpriteViewer>(*this))
 	, vdpRegs(std::make_unique<ImGuiVdpRegs>(*this))
-	, palette(std::make_unique<ImGuiPalette>())
+	, palette(std::make_unique<ImGuiPalette>(*this))
 	, reverseBar(std::make_unique<ImGuiReverseBar>(*this))
-	, help(std::make_unique<ImGuiHelp>())
+	, help(std::make_unique<ImGuiHelp>(*this))
 	, osdIcons(std::make_unique<ImGuiOsdIcons>(*this))
 	, openFile(std::make_unique<ImGuiOpenFile>(*this))
 	, media(std::make_unique<ImGuiMedia>(*this))
@@ -238,7 +236,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoSize.attach(*this);
 
 	// In order that they appear in the menubar
-	append(parts, std::initializer_list<ImGuiPart*>{
+	append(parts, std::initializer_list<ImGuiPartInterface*>{
 		this,
 		machine.get(), media.get(), connector.get(), reverseBar.get(), tools.get(), settings.get(),
 		debugger.get(), help.get(), soundChip.get(), keyboard.get(), symbols.get(), breakPoints.get(),
@@ -675,7 +673,7 @@ void ImGuiManager::loadLine(void* entry, const char* line_)
 	zstring_view value = line.substr(pos + 1);
 
 	assert(entry);
-	static_cast<ImGuiPart*>(entry)->loadLine(name, value);
+	static_cast<ImGuiPartInterface*>(entry)->loadLine(name, value);
 }
 
 void ImGuiManager::iniApplyAll()

@@ -24,7 +24,8 @@ static constexpr std::array<uint16_t, 16> fixedPalette = { // GRB
 	0x411, 0x265, 0x555, 0x777,
 };
 
-ImGuiPalette::ImGuiPalette()
+ImGuiPalette::ImGuiPalette(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
 {
 	customPalette = fixedPalette;
 }

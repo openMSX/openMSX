@@ -12,6 +12,8 @@ namespace openmsx {
 class ImGuiHelp final : public ImGuiPart
 {
 public:
+	explicit ImGuiHelp(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 

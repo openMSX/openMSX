@@ -16,7 +16,8 @@ class VDP;
 class ImGuiVdpRegs final : public ImGuiPart
 {
 public:
-	ImGuiVdpRegs(ImGuiManager& manager);
+	explicit ImGuiVdpRegs(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "vdp registers"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -31,7 +32,6 @@ public:
 	bool show = false;
 
 private:
-	//ImGuiManager& manager;
 	int hoveredFunction = -1;
 	int newHoveredFunction = -1;
 	bool explanation = true;

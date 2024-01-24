@@ -8,13 +8,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiCheatFinder final : public ImGuiPart
 {
 public:
 	explicit ImGuiCheatFinder(ImGuiManager& manager_)
-		: manager(manager_) {}
+		: ImGuiPart(manager_) {}
 
 	void paint(MSXMotherBoard* motherBoard) override;
 
@@ -22,8 +20,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
-
 	struct SearchResult {
 		uint16_t address;
 		uint8_t oldValue;

@@ -33,11 +33,6 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImGuiDiskManipulator::ImGuiDiskManipulator(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
-
 DiskContainer* ImGuiDiskManipulator::getDrive()
 {
 	auto& diskManipulator = manager.getReactor().getDiskManipulator();

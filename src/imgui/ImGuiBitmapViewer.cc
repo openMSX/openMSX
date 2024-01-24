@@ -17,11 +17,6 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_)
-	: manager(manager_)
-{
-}
-
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);

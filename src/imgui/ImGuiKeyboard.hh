@@ -5,13 +5,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiKeyboard final : public ImGuiPart
 {
 public:
-	ImGuiKeyboard(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiKeyboard(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "virtual keyboard"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -22,8 +20,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
-
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiKeyboard::show}
 	};

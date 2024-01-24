@@ -9,13 +9,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-
 class ImGuiTrainer final : public ImGuiPart
 {
 public:
 	explicit ImGuiTrainer(ImGuiManager& manager_)
-		: manager(manager_) {}
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "trainer"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -26,7 +24,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
 	std::optional<TclObject> trainers;
 	std::vector<std::string> gameNames; // calculated from 'trainers'
 	std::string filterString;

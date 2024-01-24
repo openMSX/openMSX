@@ -11,13 +11,11 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-class MSXMotherBoard;
-
 class ImGuiReverseBar final : public ImGuiPart
 {
 public:
-	ImGuiReverseBar(ImGuiManager& manager);
+	explicit ImGuiReverseBar(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	[[nodiscard]] zstring_view iniName() const override { return "reverse bar"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -27,9 +25,8 @@ public:
 
 public:
 	bool showReverseBar = true;
-private:
-	ImGuiManager& manager;
 
+private:
 	std::string saveStateName;
 	std::string saveReplayName;
 	bool saveStateOpen = false;

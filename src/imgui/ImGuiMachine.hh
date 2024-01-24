@@ -8,9 +8,6 @@
 
 namespace openmsx {
 
-class ImGuiManager;
-class MSXMotherBoard;
-
 class ImGuiMachine final : public ImGuiPart
 {
 public:
@@ -22,8 +19,8 @@ public:
 	};
 
 public:
-	ImGuiMachine(ImGuiManager& manager_)
-		: manager(manager_) {}
+	explicit ImGuiMachine(ImGuiManager& manager_)
+		: ImGuiPart(manager_) {}
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -41,7 +38,6 @@ public:
 	bool showTestHardware = false;
 
 private:
-	ImGuiManager& manager;
 	std::vector<MachineInfo> machineInfo; // sorted on displayName
 	std::string newMachineConfig;
 	std::string filterType;

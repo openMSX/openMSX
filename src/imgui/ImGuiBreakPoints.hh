@@ -13,7 +13,6 @@ namespace openmsx {
 class BreakPoint;
 class DebugCondition;
 class Debugger;
-class ImGuiManager;
 class MSXCPUInterface;
 class SymbolManager;
 class WatchPoint;
@@ -83,7 +82,6 @@ public:
 	bool show = false;
 
 private:
-	ImGuiManager& manager;
 	SymbolManager& symbolManager;
 
 	static inline int idCounter = 0;
