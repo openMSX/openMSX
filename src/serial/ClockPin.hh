@@ -34,8 +34,8 @@ public:
 	[[nodiscard]] bool isPeriodic() const { return periodic; }
 	[[nodiscard]] EmuDuration::param getTotalDuration() const;
 	[[nodiscard]] EmuDuration::param getHighDuration() const;
-	[[nodiscard]] int getTicksBetween(EmuTime::param begin,
-	                                  EmuTime::param end) const;
+	[[nodiscard]] unsigned getTicksBetween(EmuTime::param begin,
+	                                       EmuTime::param end) const;
 
 	// control
 	void generateEdgeSignals(bool wanted, EmuTime::param time);
