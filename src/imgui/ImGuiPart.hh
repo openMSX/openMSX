@@ -10,7 +10,15 @@ class ImGuiPart : public ImGuiPartInterface
 {
 public:
 	explicit ImGuiPart(ImGuiManager& manager_)
-		: manager(manager_) {}
+		: manager(manager_)
+	{
+		manager.registerPart(this);
+	}
+
+	~ImGuiPart()
+	{
+		manager.unregisterPart(this);
+	}
 
 	// disallow copy/move, the address of this object should remain stable
 	ImGuiPart(const ImGuiPart&) = delete;

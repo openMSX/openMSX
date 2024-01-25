@@ -62,6 +62,9 @@ public:
 	explicit ImGuiManager(Reactor& reactor_);
 	~ImGuiManager();
 
+	void   registerPart(ImGuiPartInterface* part);
+	void unregisterPart(ImGuiPartInterface* part);
+
 	[[nodiscard]] Reactor& getReactor() { return reactor; }
 	[[nodiscard]] Interpreter& getInterpreter();
 	[[nodiscard]] CliComm& getCliComm();
@@ -111,6 +114,7 @@ private:
 
 private:
 	Reactor& reactor;
+	std::vector<ImGuiPartInterface*> parts;
 
 public:
 	FilenameSetting fontPropFilename;
@@ -152,7 +156,6 @@ public:
 
 private:
 	std::vector<std::function<void()>> delayedActionQueue;
-	std::vector<ImGuiPartInterface*> parts;
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;

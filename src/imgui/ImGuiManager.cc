@@ -158,33 +158,37 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
 	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
-	, machine(std::make_unique<ImGuiMachine>(*this))
-	, debugger(std::make_unique<ImGuiDebugger>(*this))
-	, breakPoints(std::make_unique<ImGuiBreakPoints>(*this))
-	, symbols(std::make_unique<ImGuiSymbols>(*this))
-	, watchExpr(std::make_unique<ImGuiWatchExpr>(*this))
-	, bitmap(std::make_unique<ImGuiBitmapViewer>(*this))
-	, character(std::make_unique<ImGuiCharacter>(*this))
-	, sprite(std::make_unique<ImGuiSpriteViewer>(*this))
-	, vdpRegs(std::make_unique<ImGuiVdpRegs>(*this))
-	, palette(std::make_unique<ImGuiPalette>(*this))
-	, reverseBar(std::make_unique<ImGuiReverseBar>(*this))
-	, help(std::make_unique<ImGuiHelp>(*this))
-	, osdIcons(std::make_unique<ImGuiOsdIcons>(*this))
-	, openFile(std::make_unique<ImGuiOpenFile>(*this))
-	, media(std::make_unique<ImGuiMedia>(*this))
-	, connector(std::make_unique<ImGuiConnector>(*this))
-	, tools(std::make_unique<ImGuiTools>(*this))
-	, trainer(std::make_unique<ImGuiTrainer>(*this))
-	, cheatFinder(std::make_unique<ImGuiCheatFinder>(*this))
-	, diskManipulator(std::make_unique<ImGuiDiskManipulator>(*this))
-	, settings(std::make_unique<ImGuiSettings>(*this))
-	, soundChip(std::make_unique<ImGuiSoundChip>(*this))
-	, keyboard(std::make_unique<ImGuiKeyboard>(*this))
-	, console(std::make_unique<ImGuiConsole>(*this))
-	, messages(std::make_unique<ImGuiMessages>(*this))
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
+	parts.push_back(this);
+
+	// In order that they appear in the menubar
+	machine = std::make_unique<ImGuiMachine>(*this);
+	media = std::make_unique<ImGuiMedia>(*this);
+	connector = std::make_unique<ImGuiConnector>(*this);
+	reverseBar = std::make_unique<ImGuiReverseBar>(*this);
+	tools = std::make_unique<ImGuiTools>(*this);
+	settings = std::make_unique<ImGuiSettings>(*this);
+	debugger = std::make_unique<ImGuiDebugger>(*this);
+	help = std::make_unique<ImGuiHelp>(*this);
+
+	breakPoints = std::make_unique<ImGuiBreakPoints>(*this);
+	symbols = std::make_unique<ImGuiSymbols>(*this);
+	watchExpr = std::make_unique<ImGuiWatchExpr>(*this);
+	bitmap = std::make_unique<ImGuiBitmapViewer>(*this);
+	character = std::make_unique<ImGuiCharacter>(*this);
+	sprite = std::make_unique<ImGuiSpriteViewer>(*this);
+	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
+	palette = std::make_unique<ImGuiPalette>(*this);
+	osdIcons = std::make_unique<ImGuiOsdIcons>(*this);
+	openFile = std::make_unique<ImGuiOpenFile>(*this);
+	trainer = std::make_unique<ImGuiTrainer>(*this);
+	cheatFinder = std::make_unique<ImGuiCheatFinder>(*this);
+	diskManipulator = std::make_unique<ImGuiDiskManipulator>(*this);
+	soundChip = std::make_unique<ImGuiSoundChip>(*this);
+	keyboard = std::make_unique<ImGuiKeyboard>(*this);
+	console = std::make_unique<ImGuiConsole>(*this);
+	messages = std::make_unique<ImGuiMessages>(*this);
 	initializeImGui();
 
 	ImGuiSettingsHandler ini_handler;
@@ -234,15 +238,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoFilename.attach(*this);
 	fontPropSize.attach(*this);
 	fontMonoSize.attach(*this);
-
-	// In order that they appear in the menubar
-	append(parts, std::initializer_list<ImGuiPartInterface*>{
-		this,
-		machine.get(), media.get(), connector.get(), reverseBar.get(), tools.get(), settings.get(),
-		debugger.get(), help.get(), soundChip.get(), keyboard.get(), symbols.get(), breakPoints.get(),
-		watchExpr.get(), bitmap.get(), character.get(), sprite.get(), vdpRegs.get(), palette.get(),
-		osdIcons.get(), openFile.get(), console.get(), messages.get(), trainer.get(), cheatFinder.get(),
-		diskManipulator.get()});
 }
 
 ImGuiManager::~ImGuiManager()
@@ -266,6 +261,19 @@ ImGuiManager::~ImGuiManager()
 	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
 
 	cleanupImGui();
+}
+
+void ImGuiManager::registerPart(ImGuiPartInterface* part)
+{
+	assert(!contains(parts, part));
+	parts.push_back(part);
+}
+
+void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
+{
+	auto it = ranges::find(parts, part);
+	assert(it != parts.end());
+	parts.erase(it); // the order matters (can't use move_pop_back())
 }
 
 void ImGuiManager::save(ImGuiTextBuffer& buf)
