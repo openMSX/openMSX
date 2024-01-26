@@ -47,7 +47,7 @@ private:
 	SymbolManager& symbolManager;
 	size_t cycleLabelsCounter = 0;
 
-	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors;
+	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 
 	std::string gotoAddr;
 	std::string runToAddr;

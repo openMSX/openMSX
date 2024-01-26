@@ -9,6 +9,8 @@
 //
 //     Licence: MIT
 
+#include "ImGuiPart.hh"
+
 #include <imgui.h>
 
 #include <string>
@@ -34,9 +36,9 @@ class DebuggableEditor
 	};
 
 public:
-	explicit DebuggableEditor(ImGuiManager& manager_, std::string debuggableName);
+	explicit DebuggableEditor(ImGuiManager& manager_, std::string debuggableName, size_t index);
 	[[nodiscard]] const std::string& getDebuggableName() const { return debuggableName; }
-	void paint(const char* title, Debuggable& debuggable);
+	void paint(MSXMotherBoard* motherBoard);
 
 	bool open = true;
 
@@ -49,6 +51,7 @@ private:
 	ImGuiManager& manager;
 	SymbolManager& symbolManager;
 	std::string debuggableName;
+	size_t index;
 
 	// Settings
 	int  columns = 16;            // number of columns to display.

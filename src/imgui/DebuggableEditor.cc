@@ -6,7 +6,9 @@
 
 #include "CommandException.hh"
 #include "Debuggable.hh"
+#include "Debugger.hh"
 #include "Interpreter.hh"
+#include "MSXMotherBoard.hh"
 #include "SymbolManager.hh"
 #include "TclObject.hh"
 
@@ -30,10 +32,11 @@ using namespace std::literals;
 static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
 
-DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_)
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_, size_t index_)
 	: manager(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
 	, debuggableName(debuggableName_)
+	, index(index_)
 {
 }
 
@@ -63,22 +66,30 @@ DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
 	return s;
 }
 
-void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
+void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 {
+	if (!open || !motherBoard) return;
+	auto& debugger = motherBoard->getDebugger();
+	auto* debuggable = debugger.findDebuggable(getDebuggableName());
+	if (!debuggable) return;
+
 	im::ScopedFont sf(manager.fontMono);
 
-	unsigned memSize = debuggable.getSize();
+	unsigned memSize = debuggable->getSize();
 	columns = std::min(columns, narrow<int>(memSize));
 	auto s = calcSizes(memSize);
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
 
-	open = true;
-	im::Window(title, &open, ImGuiWindowFlags_NoScrollbar, [&]{
+	std::string title = getDebuggableName();
+	if (index) {
+		strAppend(title, " (", index, ')');
+	}
+	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
 		    ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 			ImGui::OpenPopup("context");
 		}
-		drawContents(s, debuggable, memSize);
+		drawContents(s, *debuggable, memSize);
 	});
 }
 

@@ -113,8 +113,9 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 		// already handled
 	} else if (name.starts_with(prefix)) {
 		auto debuggableName = name.substr(prefix.size());
-		auto it = ranges::upper_bound(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
-		hexEditors.insert(it, std::make_unique<DebuggableEditor>(manager, std::string(debuggableName)));
+		auto [b, e] = ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
+		auto index = std::distance(b, e);
+		hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, std::string(debuggableName), index));
 	}
 }
 
@@ -122,20 +123,17 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
 	auto createHexEditor = [&](const std::string& name) {
 		// prefer to reuse a previously closed editor
-		bool found = false;
 		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
 		for (auto it = b; it != e; ++it) {
 			if (!(*it)->open) {
 				(*it)->open = true;
-				found = true;
-				break;
+				return;
 			}
 		}
 		// or create a new one
-		if (!found) {
-			auto it = ranges::upper_bound(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
-			hexEditors.insert(it, std::make_unique<DebuggableEditor>(manager, name));
-		}
+		auto index = std::distance(b, e);
+		auto it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, name, index));
+		(*it)->open = true;
 	};
 
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
@@ -194,25 +192,8 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	drawRegisters(regs);
 	drawFlags(regs);
 
-	// Show the enabled 'hexEditors'
-	std::string previousName;
-	int duplicateNameCount = 0;
 	for (auto& editor : hexEditors) {
-		const auto& name = editor->getDebuggableName();
-		if (name == previousName) {
-			++duplicateNameCount;
-		} else {
-			previousName = name;
-			duplicateNameCount = 1;
-		}
-		if (editor->open) {
-			if (auto* debuggable = debugger.findDebuggable(name)) {
-				std::string title = (duplicateNameCount == 1)
-					? name
-					: strCat(name, "(", duplicateNameCount, ')');
-				editor->paint(title.c_str(), *debuggable);
-			}
-		}
+		editor->paint(motherBoard);
 	}
 }
 
