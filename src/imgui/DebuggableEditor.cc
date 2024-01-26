@@ -30,9 +30,10 @@ using namespace std::literals;
 static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
 
-DebuggableEditor::DebuggableEditor(ImGuiManager& manager_)
-	: manager(&manager_)
-	, symbolManager(&manager->getReactor().getSymbolManager())
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_)
+	: manager(manager_)
+	, symbolManager(manager.getReactor().getSymbolManager())
+	, debuggableName(debuggableName_)
 {
 }
 
@@ -64,7 +65,7 @@ DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
 
 void DebuggableEditor::paint(const char* title, Debuggable& debuggable)
 {
-	im::ScopedFont sf(manager->fontMono);
+	im::ScopedFont sf(manager.fontMono);
 
 	unsigned memSize = debuggable.getSize();
 	columns = std::min(columns, narrow<int>(memSize));
@@ -359,14 +360,14 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::SameLine();
 
 		std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
-		auto r = parseAddressExpr(*as, *symbolManager, manager->getInterpreter());
+		auto r = parseAddressExpr(*as, symbolManager, manager.getInterpreter());
 		im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
 			if (addrMode == EXPRESSION && r.error.empty()) {
 				scrollAddr(r.addr);
 			}
 			ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
 			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
-				auto r2 = parseAddressExpr(addrStr, *symbolManager, manager->getInterpreter());
+				auto r2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter());
 				if (r2.error.empty()) {
 					scrollAddr(r2.addr);
 					dataEditingTakeFocus = true;
@@ -377,7 +378,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 						: r.error;
 			});
 		});
-		im::Font(manager->fontProp, [&]{
+		im::Font(manager.fontProp, [&]{
 			HelpMarker("Address-mode:\n"
 				"  Cursor: view the cursor position\n"
 				"  Expression: continuously re-evaluate an expression and view that address\n"

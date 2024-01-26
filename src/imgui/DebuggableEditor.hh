@@ -34,7 +34,8 @@ class DebuggableEditor
 	};
 
 public:
-	explicit DebuggableEditor(ImGuiManager& manager_);
+	explicit DebuggableEditor(ImGuiManager& manager_, std::string debuggableName);
+	[[nodiscard]] const std::string& getDebuggableName() const { return debuggableName; }
 	void paint(const char* title, Debuggable& debuggable);
 
 	bool open = true;
@@ -45,8 +46,9 @@ private:
 	void drawPreviewLine(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 
 private:
-	ImGuiManager* manager;
-	SymbolManager* symbolManager;
+	ImGuiManager& manager;
+	SymbolManager& symbolManager;
+	std::string debuggableName;
 
 	// Settings
 	int  columns = 16;            // number of columns to display.

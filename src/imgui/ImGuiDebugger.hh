@@ -6,6 +6,7 @@
 
 #include "EmuTime.hh"
 
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -46,13 +47,7 @@ private:
 	SymbolManager& symbolManager;
 	size_t cycleLabelsCounter = 0;
 
-	struct EditorInfo {
-		EditorInfo(const std::string& name_, ImGuiManager& manager)
-			: name(name_), editor(manager) {}
-		std::string name;
-		DebuggableEditor editor;
-	};
-	std::vector<EditorInfo> hexEditors;
+	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors;
 
 	std::string gotoAddr;
 	std::string runToAddr;

@@ -93,9 +93,9 @@ void ImGuiDebugger::signalBreak()
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
-	for (const auto& [name, editor] : hexEditors) {
-		if (editor.open) {
-			buf.appendf("hexEditor.%s=1\n", name.c_str());
+	for (const auto& editor : hexEditors) {
+		if (editor->open) {
+			buf.appendf("hexEditor.%s=1\n", editor->getDebuggableName().c_str());
 		}
 	}
 }
@@ -113,8 +113,8 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 		// already handled
 	} else if (name.starts_with(prefix)) {
 		auto debuggableName = name.substr(prefix.size());
-		auto it = ranges::upper_bound(hexEditors, debuggableName, {}, &EditorInfo::name);
-		hexEditors.emplace(it, std::string(debuggableName), manager);
+		auto it = ranges::upper_bound(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
+		hexEditors.insert(it, std::make_unique<DebuggableEditor>(manager, std::string(debuggableName)));
 	}
 }
 
@@ -123,18 +123,18 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	auto createHexEditor = [&](const std::string& name) {
 		// prefer to reuse a previously closed editor
 		bool found = false;
-		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &EditorInfo::name);
+		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
 		for (auto it = b; it != e; ++it) {
-			if (!it->editor.open) {
-				it->editor.open = true;
+			if (!(*it)->open) {
+				(*it)->open = true;
 				found = true;
 				break;
 			}
 		}
 		// or create a new one
 		if (!found) {
-			auto it = ranges::upper_bound(hexEditors, name, {}, &EditorInfo::name);
-			hexEditors.emplace(it, name, manager);
+			auto it = ranges::upper_bound(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
+			hexEditors.insert(it, std::make_unique<DebuggableEditor>(manager, name));
 		}
 	};
 
@@ -145,14 +145,14 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 		ImGui::MenuItem("Slots", nullptr, &showSlots);
 		ImGui::MenuItem("Stack", nullptr, &showStack);
-		auto it = ranges::lower_bound(hexEditors, "memory", {}, &EditorInfo::name);
-		bool memoryOpen = (it != hexEditors.end()) && it->editor.open;
+		auto it = ranges::lower_bound(hexEditors, "memory", {}, &DebuggableEditor::getDebuggableName);
+		bool memoryOpen = (it != hexEditors.end()) && (*it)->open;
 		if (ImGui::MenuItem("Memory", nullptr, &memoryOpen)) {
 			if (memoryOpen) {
 				createHexEditor("memory");
 			} else {
 				assert(it != hexEditors.end());
-				it->editor.open = false;
+				(*it)->open = false;
 			}
 		}
 		ImGui::Separator();
@@ -197,19 +197,20 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	// Show the enabled 'hexEditors'
 	std::string previousName;
 	int duplicateNameCount = 0;
-	for (auto& [name, editor] : hexEditors) {
+	for (auto& editor : hexEditors) {
+		const auto& name = editor->getDebuggableName();
 		if (name == previousName) {
 			++duplicateNameCount;
 		} else {
 			previousName = name;
 			duplicateNameCount = 1;
 		}
-		if (editor.open) {
+		if (editor->open) {
 			if (auto* debuggable = debugger.findDebuggable(name)) {
 				std::string title = (duplicateNameCount == 1)
 					? name
 					: strCat(name, "(", duplicateNameCount, ')');
-				editor.paint(title.c_str(), *debuggable);
+				editor->paint(title.c_str(), *debuggable);
 			}
 		}
 	}
