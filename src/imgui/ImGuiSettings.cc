@@ -1085,6 +1085,11 @@ void ImGuiSettings::paintFont()
 
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
+	if (selectedStyle < 0) {
+		// triggers when loading "imgui.ini" did not select a style
+		selectedStyle = 0; // dark (also the default (recommended) Dear ImGui style)
+		setStyle();
+	}
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
 	if (showFont) paintFont();
 }

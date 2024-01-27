@@ -48,7 +48,7 @@ private:
 	float popupTimeout = 0.0f;
 	bool listening = false;
 
-	int selectedStyle = 0; // dark (also the default (recommended) Dear ImGui style)
+	int selectedStyle = -1; // no style loaded yet
 	std::string saveLayoutName;
 
 	std::string confirmText;
