@@ -93,11 +93,20 @@ void ImGuiDebugger::signalBreak()
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
-	for (const auto& editor : hexEditors) {
-		if (editor->open) {
-			buf.appendf("hexEditor.%s=1\n", editor->getDebuggableName().c_str());
-		}
+
+	// TODO in the future use c++23 std::chunk_by
+	auto it = hexEditors.begin();
+	auto et = hexEditors.end();
+	while (it != et) {
+		int count = 0;
+		auto name = std::string((*it)->getDebuggableName());
+		do {
+			++it;
+			++count;
+		} while (it != et && (*it)->getDebuggableName() == name);
+		buf.appendf("hexEditor.%s=%d\n", name.c_str(), count);
 	}
+
 }
 
 void ImGuiDebugger::loadStart()
@@ -112,10 +121,15 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
 	} else if (name.starts_with(prefix)) {
-		auto debuggableName = name.substr(prefix.size());
-		auto [b, e] = ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
-		auto index = std::distance(b, e);
-		hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, std::string(debuggableName), index));
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			auto debuggableName = std::string(name.substr(prefix.size()));
+			auto [b, e] = ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
+			auto index = std::distance(b, e); // expected to be 0, but be robust against imgui.ini changes
+			for (auto i : xrange(*r)) {
+				e = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, debuggableName, index + i));
+				++e;
+			}
+		}
 	}
 }
 
@@ -191,10 +205,6 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
 	drawFlags(regs);
-
-	for (auto& editor : hexEditors) {
-		editor->paint(motherBoard);
-	}
 }
 
 void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)

@@ -8,6 +8,7 @@
 #include "zstring_view.hh"
 
 #include <initializer_list>
+#include <string>
 #include <string_view>
 
 #include <imgui.h>
@@ -100,6 +101,19 @@ struct PersistentElementEnum : PersistentElement<C, int> {
 };
 
 template<typename C>
+struct PersistentElement<C, unsigned> : PersistentElementBase<C, unsigned> {
+	using PersistentElementBase<C, unsigned>::PersistentElementBase;
+	void save(ImGuiTextBuffer& buf, C& c) const {
+		buf.appendf("%s=%u\n", this->name.c_str(), this->get(c));
+	}
+	void load(C& c, zstring_view value) const {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			this->get(c) = *r;
+		}
+	}
+};
+
+template<typename C>
 struct PersistentElement<C, bool> : PersistentElementBase<C, bool> {
 	using PersistentElementBase<C, bool>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
@@ -118,6 +132,17 @@ struct PersistentElement<C, float> : PersistentElementBase<C, float> {
 	}
 	void load(C& c, zstring_view value) const {
 		this->get(c) = strtof(value.c_str(), nullptr); // TODO error handling
+	}
+};
+
+template<typename C>
+struct PersistentElement<C, std::string> : PersistentElementBase<C, std::string> {
+	using PersistentElementBase<C, std::string>::PersistentElementBase;
+	void save(ImGuiTextBuffer& buf, C& c) const {
+		buf.appendf("%s=%s\n", this->name.c_str(), this->get(c).c_str());
+	}
+	void load(C& c, zstring_view value) const {
+		this->get(c) = std::string(value);
 	}
 };
 

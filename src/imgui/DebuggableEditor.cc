@@ -32,12 +32,30 @@ using namespace std::literals;
 static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
 
-DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_, size_t index_)
-	: manager(manager_)
+DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_, size_t index)
+	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
-	, debuggableName(debuggableName_)
-	, index(index_)
+	, title(std::move(debuggableName_))
 {
+	debuggableNameSize = title.size();
+	if (index) {
+		strAppend(title, " (", index + 1, ')');
+	}
+}
+
+void DebuggableEditor::save(ImGuiTextBuffer& buf)
+{
+	savePersistent(buf, *this, persistentElements);
+}
+
+void DebuggableEditor::loadLine(std::string_view name, zstring_view value)
+{
+	loadOnePersistent(name, value, *this, persistentElements);
+}
+
+void DebuggableEditor::loadEnd()
+{
+	updateAddr = true;
 }
 
 DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
@@ -80,10 +98,6 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	auto s = calcSizes(memSize);
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
 
-	std::string title = getDebuggableName();
-	if (index) {
-		strAppend(title, " (", index, ')');
-	}
 	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
 		    ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
@@ -122,7 +136,7 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 
 struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
 	std::string error;
-	unsigned addr = unsigned(-1);
+	unsigned addr = 0;
 };
 [[nodiscard]] static ParseAddrResult parseAddressExpr(
 	std::string_view str, SymbolManager& symbolManager, Interpreter& interp)
@@ -169,14 +183,22 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	auto scrollAddr = [&](unsigned addr) {
 		if (setAddr(addr)) {
 			im::Child("##scrolling", [&]{
-				int row = narrow<int>(addr) / columns;
+				int row = narrow<int>(currentAddr) / columns;
 				ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
 			});
 		}
 	};
 
 	const auto& style = ImGui::GetStyle();
-	setAddr(currentAddr); // for the unlikely case that 'memSize' got smaller
+	if (updateAddr) {
+		updateAddr = false;
+		auto addr = currentAddr;
+		++currentAddr; // any change
+		scrollAddr(addr);
+	} else {
+		// still clip addr (for the unlikely case that 'memSize' got smaller)
+		setAddr(currentAddr);
+	}
 
 	float footerHeight = 0.0f;
 	if (showAddress) {
