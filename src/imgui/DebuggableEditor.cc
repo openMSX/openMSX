@@ -282,10 +282,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightColor);
 				}
 
-				if (currentAddr == addr) {
+				if (currentAddr == addr && (dataEditingTakeFocus || dataEditingActive)) {
 					// Display text input on current byte
 					if (dataEditingTakeFocus) {
-						dataEditingTakeFocus = false;
+						dataEditingActive = true;
 						ImGui::SetKeyboardFocusHere(0);
 						setStrings();
 					}
@@ -325,8 +325,13 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					ImGui::SetNextItemWidth(s.glyphWidth * 2);
 					bool dataWrite = false;
 					im::ID(int(addr), [&]{
-						dataWrite |= ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData);
+						if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
+							dataWrite = true;
+						} else if (!dataEditingTakeFocus && !ImGui::IsItemActive()) {
+							dataEditingActive = false;
+						}
 					});
+					dataEditingTakeFocus = false;
 					dataWrite |= userData.cursorPos >= 2;
 					if (nextAddr) dataWrite = false;
 					if (dataWrite) {
@@ -361,8 +366,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				});
 				for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
 					if (addr == currentAddr) {
-						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(ImGuiCol_FrameBg));
-						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(ImGuiCol_TextSelectedBg));
+						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(HighlightColor));
 					}
 					uint8_t c = debuggable.read(addr);
 					char display = (c < 32 || c >= 128) ? '.' : char(c);

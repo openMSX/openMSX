@@ -92,6 +92,7 @@ private:
 	std::string dataInput;
 	std::string addrStr;
 	bool dataEditingTakeFocus = true;
+	bool dataEditingActive = false;
 	bool updateAddr = false;
 };
 
