@@ -391,8 +391,15 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::TextUnformatted("Address");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
-		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0")) {
+		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0")) {
 			dataEditingTakeFocus = true;
+			if (addrMode >=2) {
+				static constexpr std::array linkExpr = {
+					"[reg bc]", "[reg de]", "[reg hl]"
+				};
+				addrExpr = linkExpr[addrMode - 2];
+				addrMode = EXPRESSION;
+			}
 		}
 		ImGui::SameLine();
 
@@ -422,6 +429,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				"\n"
 				"Addresses can be entered as:\n"
 				"  Decimal or hexadecimal values (e.g. 0x1234)\n"
+				"  A calculation like 0x1234 + 7*22\n"
 				"  The name of a label (e.g. CHPUT)\n"
 				"  A Tcl expression (e.g. [reg hl] to follow the content of register HL)\n"
 				"\n"
