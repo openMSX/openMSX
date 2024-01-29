@@ -659,8 +659,15 @@ void ImGuiManager::paintImGui()
 
 void ImGuiManager::iniReadInit()
 {
-	for (auto* part : parts) {
-		part->loadStart();
+	// Calling loadStart() may change 'parts' (e.g. remove elements).
+	// Therefor iterator over a copy and check if 'part' is still present in
+	// each iteration.
+	// TODO can this be done better? Because current solution is O(n^2).
+	auto copy = parts;
+	for (auto* part : copy) {
+		if (contains(parts, part)) {
+			part->loadStart();
+		}
 	}
 }
 
