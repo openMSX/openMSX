@@ -277,7 +277,47 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
+			auto getExistingLayouts = [] {
+				std::vector<std::string> names;
+				auto context = userDataFileContext("layouts");
+				for (const auto& path : context.getPaths()) {
+					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
+						if (name.ends_with(".ini")) {
+							names.emplace_back(fullName);
+						}
+					});
+				}
+				ranges::sort(names, StringOp::caseless{});
+				return names;
+			};
+			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
+				std::optional<std::pair<std::string, std::string>> selectedLayout;
+				im::ListBox("##select-layout", [&]{
+					for (const auto& name : names) {
+						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
+						if (ImGui::Selectable(displayName.c_str())) {
+							selectedLayout = std::pair{name, displayName};
+						}
+						im::PopupContextItem([&]{
+							if (ImGui::MenuItem("delete")) {
+								confirmText = strCat("Delete layout: ", displayName);
+								confirmAction = [name]{ FileOperations::unlink(name); };
+								openConfirmPopup = true;
+							}
+						});
+					}
+				});
+				return selectedLayout;
+			};
 			im::Menu("Save layout", [&]{
+				auto names = getExistingLayouts();
+				if (!names.empty()) {
+					ImGui::TextUnformatted("Existing layouts"sv);
+					if (auto selectedLayout = listExistingLayouts(names)) {
+						const auto& [name, displayName] = *selectedLayout;
+						saveLayoutName = displayName;
+					}
+				}
 				ImGui::TextUnformatted("Enter name:"sv);
 				ImGui::InputText("##save-layout-name", &saveLayoutName);
 				ImGui::SameLine();
@@ -302,32 +342,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 			im::Menu("Restore layout", [&]{
 				ImGui::TextUnformatted("Select layout"sv);
-				im::ListBox("##select-layout", [&]{
-					std::vector<std::string> names;
-					auto context = userDataFileContext("layouts");
-					for (const auto& path : context.getPaths()) {
-						foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-							if (name.ends_with(".ini")) {
-								names.emplace_back(fullName);
-							}
-						});
-					}
-					ranges::sort(names, StringOp::caseless{});
-					for (const auto& name : names) {
-						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
-						if (ImGui::Selectable(displayName.c_str())) {
-							manager.loadIniFile = name;
-							ImGui::CloseCurrentPopup();
-						}
-						im::PopupContextItem([&]{
-							if (ImGui::MenuItem("delete")) {
-								confirmText = strCat("Delete layout: ", displayName);
-								confirmAction = [name]{ FileOperations::unlink(name); };
-								openConfirmPopup = true;
-							}
-						});
-					}
-				});
+				auto names = getExistingLayouts();
+				if (auto selectedLayout = listExistingLayouts(names)) {
+					const auto& [name, displayName] = *selectedLayout;
+					manager.loadIniFile = name;
+					ImGui::CloseCurrentPopup();
+				}
 			});
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
