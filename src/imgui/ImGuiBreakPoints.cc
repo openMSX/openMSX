@@ -109,6 +109,16 @@ void ImGuiBreakPoints::loadItem(zstring_view value)
 	}
 }
 
+void ImGuiBreakPoints::loadStart()
+{
+	if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
+		auto& cpuInterface = motherBoard->getCPUInterface();
+		clear(static_cast<BreakPoint    *>(nullptr), cpuInterface);
+		clear(static_cast<WatchPoint    *>(nullptr), cpuInterface);
+		clear(static_cast<DebugCondition*>(nullptr), cpuInterface);
+	}
+}
+
 void ImGuiBreakPoints::loadLine(std::string_view name, zstring_view value)
 {
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
@@ -269,6 +279,38 @@ static void remove(DebugCondition*, MSXCPUInterface& cpuInterface, unsigned id)
 	cpuInterface.removeCondition(id);
 }
 
+void ImGuiBreakPoints::clear(BreakPoint* tag, MSXCPUInterface& cpuInterface)
+{
+	while (!guiBps.empty()) {
+		auto& bp = guiBps.back();
+		if (bp.id > 0) {
+			remove(tag, cpuInterface, bp.id);
+		}
+		guiBps.pop_back();
+	}
+}
+void ImGuiBreakPoints::clear(WatchPoint* tag, MSXCPUInterface& cpuInterface)
+{
+	while (!guiWps.empty()) {
+		auto& wp = guiWps.back();
+		if (wp.id > 0) {
+			remove(tag, cpuInterface, wp.id);
+		}
+		guiWps.pop_back();
+	}
+}
+
+void ImGuiBreakPoints::clear(DebugCondition* tag, MSXCPUInterface& cpuInterface)
+{
+	while (!guiConditions.empty()) {
+		auto& cond = guiConditions.back();
+		if (cond.id > 0) {
+			remove(tag, cpuInterface, cond.id);
+		}
+		guiConditions.pop_back();
+	}
+}
+
 template<typename Item>
 void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
@@ -332,6 +374,12 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 				}
 				items.erase(it);
 				selectedRow = -1;
+			}
+		});
+		ImGui::Spacing();
+		im::Disabled(items.empty() ,[&]{
+			if (ImGui::Button("Clear")) {
+				clear(tag, cpuInterface);
 			}
 		});
 	});

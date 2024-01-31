@@ -53,6 +53,7 @@ public:
 
 	[[nodiscard]] zstring_view iniName() const override { return "breakpoints"; }
 	void save(ImGuiTextBuffer& buf) override;
+	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void loadEnd() override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -75,6 +76,10 @@ private:
 	[[nodiscard]] auto& getItems(BreakPoint*) { return guiBps; }
 	[[nodiscard]] auto& getItems(WatchPoint*) { return guiWps; }
 	[[nodiscard]] auto& getItems(DebugCondition*) { return guiConditions; }
+
+	void clear(BreakPoint*,     MSXCPUInterface& cpuInterface);
+	void clear(WatchPoint*,     MSXCPUInterface& cpuInterface);
+	void clear(DebugCondition*, MSXCPUInterface& cpuInterface);
 
 	template<typename Item> void refresh(std::vector<GuiItem>& items);
 
