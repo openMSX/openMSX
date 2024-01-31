@@ -136,7 +136,7 @@ TclObject toTclList(const Event& event)
 			return makeTclList("mouse", "wheel", e.getX(), e.getY());
 		},
 		[](const JoystickAxisMotionEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("axis", e.getAxis()), e.getValue());
+			return makeTclList(e.getJoystick().str(), tmpStrCat("axis", e.getAxis()), e.getValue());
 		},
 		[](const JoystickHatEvent& e) {
 			const char* str = [&] {
@@ -152,13 +152,13 @@ TclObject toTclList(const Event& event)
 					default:                return "center";
 				}
 			}();
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("hat", e.getHat()), str);
+			return makeTclList(e.getJoystick().str(), tmpStrCat("hat", e.getHat()), str);
 		},
 		[](const JoystickButtonUpEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("button", e.getButton()), "up");
+			return makeTclList(e.getJoystick().str(), tmpStrCat("button", e.getButton()), "up");
 		},
 		[](const JoystickButtonDownEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("button", e.getButton()), "down");
+			return makeTclList(e.getJoystick().str(), tmpStrCat("button", e.getButton()), "down");
 		},
 		[](const OsdControlReleaseEvent& e) {
 			return makeTclList("OSDcontrol", osdControlNames[e.getButton()], "RELEASE");

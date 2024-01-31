@@ -2,8 +2,10 @@
 #define INPUTEVENTGENERATOR_HH
 
 #include "BooleanSetting.hh"
-#include "EventListener.hh"
 #include "Command.hh"
+#include "EventListener.hh"
+#include "JoystickManager.hh"
+
 #include "SDLKey.hh"
 #include <SDL.h>
 
@@ -30,11 +32,13 @@ public:
 	void wait();
 
 	/** Input Grab on or off */
-	BooleanSetting& getGrabInput() { return grabInput; }
+	[[nodiscard]] BooleanSetting& getGrabInput() { return grabInput; }
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
 	void updateGrab(bool grab);
 
 	void poll();
+
+	[[nodiscard]] JoystickManager& getJoystickManager() { return joystickManager; }
 
 private:
 	void handle(const SDL_Event& evt);
@@ -47,6 +51,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;
+	JoystickManager joystickManager;
 	BooleanSetting grabInput;
 
 	struct EscapeGrabCmd final : Command {
@@ -69,7 +74,7 @@ private:
 	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool down);
 	void triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat);
 
-
+private:
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
 	// only for Android

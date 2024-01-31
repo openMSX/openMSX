@@ -14,7 +14,7 @@
 namespace openmsx {
 
 class CommandController;
-class GlobalSettings;
+class JoystickManager;
 class MSXEventDistributor;
 class StateChangeDistributor;
 
@@ -25,11 +25,11 @@ public:
 	MSXJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            GlobalSettings& globalSettings,
+	            JoystickManager& joystickManager,
 	            uint8_t id);
 	~MSXJoystick() override;
 
-	[[nodiscard]] static TclObject getDefaultConfig(uint8_t id);
+	[[nodiscard]] static TclObject getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -58,7 +58,7 @@ private:
 	CommandController& commandController;
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	GlobalSettings& globalSettings;
+	JoystickManager& joystickManager;
 	StringSetting configSetting;
 
 	// up, down, left, right, a, b (in sync with order in JoystickDevice)

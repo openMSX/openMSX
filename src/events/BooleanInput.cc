@@ -23,7 +23,7 @@ std::string toString(const BooleanInput& input)
 			return strCat("mouse button", m.getButton());
 		},
 		[](const BooleanJoystickButton& j) {
-			return strCat("joy", (j.getJoystick() + 1), " button", j.getButton());
+			return strCat(j.getJoystick().str(), " button", j.getButton());
 		},
 		[](const BooleanJoystickHat& h) {
 			const char* str = [&] {
@@ -35,10 +35,10 @@ std::string toString(const BooleanInput& input)
 					default: UNREACHABLE; return "";
 				}
 			}();
-			return strCat("joy", (h.getJoystick() + 1), " hat", h.getHat(), str);
+			return strCat(h.getJoystick().str(), " hat", h.getHat(), str);
 		},
 		[&](const BooleanJoystickAxis& a) {
-			return strCat("joy", (a.getJoystick() + 1), ' ',
+			return strCat(a.getJoystick().str(), ' ',
 			              (a.getDirection() == BooleanJoystickAxis::POS ? '+' : '-'),
 			              "axis", a.getAxis());
 		}
@@ -75,14 +75,14 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 		if (!n) return std::nullopt;
 		return BooleanMouseButton(*n);
 
-	} else if (auto joystick_ = parseValueWithPrefix(type, "joy")) {
-		if (*joystick_ == 0) return std::nullopt;
-		unsigned joystick = *joystick_ - 1;
+	} else if (auto joystick = parseValueWithPrefix(type, "joy")) {
+		if (*joystick == 0) return std::nullopt;
+		auto joyId = JoystickId(*joystick - 1);
 
 		auto subType = *it++;
 		if (auto button = parseValueWithPrefix(subType, "button")) {
 			if (it != et) return std::nullopt;
-			return BooleanJoystickButton(joystick, *button);
+			return BooleanJoystickButton(joyId, *button);
 
 		} else if (auto hat = parseValueWithPrefix(subType, "hat")) {
 			if (it == et) return std::nullopt;
@@ -96,20 +96,20 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 			else if (valueStr == "left" ) value = BooleanJoystickHat::LEFT;
 			else return std::nullopt;
 
-			return BooleanJoystickHat(joystick, *hat, value);
+			return BooleanJoystickHat(joyId, *hat, value);
 
 		} else if (auto pAxis = parseValueWithPrefix(subType, "+axis")) {
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joystick, *pAxis, BooleanJoystickAxis::POS);
+			return BooleanJoystickAxis(joyId, *pAxis, BooleanJoystickAxis::POS);
 		} else if (auto nAxis = parseValueWithPrefix(subType, "-axis")) {
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joystick, *nAxis, BooleanJoystickAxis::NEG);
+			return BooleanJoystickAxis(joyId, *nAxis, BooleanJoystickAxis::NEG);
 		}
 	}
 	return std::nullopt;
 }
 
-std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(int)> getJoyDeadZone)
+std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(JoystickId)> getJoyDeadZone)
 {
 	return std::visit(overloaded{
 		[](const KeyDownEvent& e) -> std::optional<BooleanInput> {
@@ -130,15 +130,15 @@ std::optional<BooleanInput> captureBooleanInput(const Event& event, std::functio
 			                          BooleanJoystickHat::Value(value));
 		},
 		[&](const JoystickAxisMotionEvent& e) -> std::optional<BooleanInput> {
-			auto joystick = e.getJoystick();
-			int deadZone = getJoyDeadZone(joystick); // percentage 0..100
+			auto joyId = e.getJoystick();
+			int deadZone = getJoyDeadZone(joyId); // percentage 0..100
 			int threshold = (deadZone * 32768) / 100;
 
 			auto value = e.getValue();
 			if ((-threshold <= value) && (value <= threshold)) {
 				return std::nullopt;
 			}
-			return BooleanJoystickAxis(joystick, e.getAxis(),
+			return BooleanJoystickAxis(joyId, e.getAxis(),
 			                     (value > 0 ? BooleanJoystickAxis::POS
 			                                : BooleanJoystickAxis::NEG));
 		},
@@ -176,7 +176,7 @@ bool operator==(const BooleanInput& x, const BooleanInput& y)
 }
 
 std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                          std::function<int(int)> getJoyDeadZone)
+                          std::function<int(JoystickId)> getJoyDeadZone)
 {
 	return std::visit(overloaded{
 		[](const BooleanKeyboard& bind, const KeyDownEvent& down) -> std::optional<bool> {

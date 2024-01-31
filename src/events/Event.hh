@@ -1,17 +1,16 @@
 #ifndef EVENT_HH
 #define EVENT_HH
 
-#include "ObjectPool.hh"
+#include "JoystickId.hh"
 #include "SDLKey.hh"
-#include "static_vector.hh"
 #include "StringStorage.hh"
-#include "stl.hh"
 #include "TclObject.hh"
-#include "Thread.hh"
+
+#include "static_vector.hh"
+#include "stl.hh"
+
 #include <cassert>
 #include <cstdint>
-#include <limits>
-#include <mutex>
 #include <string>
 #include <utility>
 #include <variant>
@@ -157,7 +156,10 @@ public:
 class JoystickEvent : public SdlEvent
 {
 public:
-	[[nodiscard]] int getJoystick() const { return evt.jbutton.which; }
+	[[nodiscard]] JoystickId getJoystick() const {
+		// SDL joystick instance ID has already been translated to an openMSX JoystickID
+		return JoystickId(evt.jbutton.which);
+	}
 
 protected:
 	explicit JoystickEvent(const SDL_Event& e)

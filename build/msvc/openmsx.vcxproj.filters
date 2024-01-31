@@ -630,6 +630,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -2099,6 +2102,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh">

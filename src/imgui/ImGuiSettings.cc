@@ -18,6 +18,7 @@
 #include "GlobalCommandController.hh"
 #include "GlobalSettings.hh"
 #include "InputEventFactory.hh"
+#include "InputEventGenerator.hh"
 #include "IntegerSetting.hh"
 #include "JoyMega.hh"
 #include "KeyCodeSetting.hh"
@@ -451,7 +452,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	                      : strCat("JoyMega controller ", joystick - 1);
 }
 
-[[nodiscard]] static std::string toGuiString(const BooleanInput& input)
+[[nodiscard]] static std::string toGuiString(const BooleanInput& input, const JoystickManager& joystickManager)
 {
 	return std::visit(overloaded{
 		[](const BooleanKeyboard& k) {
@@ -460,10 +461,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		[](const BooleanMouseButton& m) {
 			return strCat("mouse button ", m.getButton());
 		},
-		[](const BooleanJoystickButton& j) {
-			return strCat(SDL_JoystickNameForIndex(j.getJoystick()), " button ", j.getButton());
+		[&](const BooleanJoystickButton& j) {
+			return strCat(joystickManager.getDisplayName(j.getJoystick()), " button ", j.getButton());
 		},
-		[](const BooleanJoystickHat& h) {
+		[&](const BooleanJoystickHat& h) {
 			const char* str = [&] {
 				switch (h.getValue()) {
 					case BooleanJoystickHat::UP:    return "up";
@@ -473,10 +474,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					default: UNREACHABLE; return "";
 				}
 			}();
-			return strCat(SDL_JoystickNameForIndex(h.getJoystick()), " D-pad ", h.getHat(), ' ', str);
+			return strCat(joystickManager.getDisplayName(h.getJoystick()), " D-pad ", h.getHat(), ' ', str);
 		},
-		[](const BooleanJoystickAxis& a) {
-			return strCat(SDL_JoystickNameForIndex(a.getJoystick()),
+		[&](const BooleanJoystickAxis& a) {
+			return strCat(joystickManager.getDisplayName(a.getJoystick()),
 			              " stick axis ", a.getAxis(), ", ",
 			              (a.getDirection() == BooleanJoystickAxis::POS ? "positive" : "negative"), " direction");
 		}
@@ -839,6 +840,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			}
 		});
 
+		auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
 		auto& controller = motherBoard.getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return;
@@ -915,7 +917,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 						size_t bindingIndex = 0;
 						for (auto binding: bindingList) {
 							ImGui::TextUnformatted(binding);
-							simpleToolTip(toGuiString(*parseBooleanInput(binding)));
+							simpleToolTip(toGuiString(*parseBooleanInput(binding), joystickManager));
 							if (bindingIndex < lastBindingIndex) {
 								ImGui::SameLine();
 								ImGui::TextUnformatted("|"sv);
@@ -967,12 +969,12 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 						"B",     makeTclList("keyb M"));
 				});
 			});
-			for (auto i : xrange(SDL_NumJoysticks())) {
-				im::Menu(SDL_JoystickNameForIndex(i), [&]{
+			for (auto joyId : joystickManager.getConnectedJoysticks()) {
+				im::Menu(joystickManager.getDisplayName(joyId).c_str(), [&]{
 					addOrSet([&]{
 						return msxOrMega
-							? MSXJoystick::getDefaultConfig(i + 1)
-							: JoyMega::getDefaultConfig(i + 1);
+							? MSXJoystick::getDefaultConfig(joyId, joystickManager)
+							: JoyMega::getDefaultConfig(joyId, joystickManager);
 					});
 				});
 			}
@@ -1029,7 +1031,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
 				}
-				simpleToolTip(toGuiString(*parseBooleanInput(b)));
+				simpleToolTip(toGuiString(*parseBooleanInput(b), joystickManager));
 				++counter;
 			}
 			if (remove != unsigned(-1)) {
@@ -1150,9 +1152,10 @@ int ImGuiSettings::signalEvent(const Event& event)
 		escape = keyDown->getKeyCode() == SDLK_ESCAPE;
 	}
 	if (!escape) {
-		auto getJoyDeadZone = [&](int joyNum) {
-			auto& settings = manager.getReactor().getGlobalSettings();
-			return settings.getJoyDeadZoneSetting(joyNum).getInt();
+		auto getJoyDeadZone = [&](JoystickId joyId) {
+			auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
+			auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
+			return setting ? setting->getInt() : 0;
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
 		if (!b) return EventDistributor::HOTKEY; // keep popup active

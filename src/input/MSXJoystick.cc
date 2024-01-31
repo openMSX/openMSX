@@ -2,7 +2,8 @@
 
 #include "CommandController.hh"
 #include "Event.hh"
-#include "GlobalSettings.hh"
+#include "IntegerSetting.hh"
+#include "JoystickManager.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChange.hh"
 #include "StateChangeDistributor.hh"
@@ -42,41 +43,36 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXJoyState, "MSXJoyState");
 
-TclObject MSXJoystick::getDefaultConfig(uint8_t id)
+TclObject MSXJoystick::getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager)
 {
-	if (auto* sdl_joystick = SDL_JoystickOpen(id - 1)) {
-		TclObject listA, listB;
-		auto joy = strCat("joy", id);
-		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
-			((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, " button", b));
-		}
-#if PLATFORM_DINGUX
-		listA.addListElement(tmpStrCat("keyb Left Ctrl"));
-		listB.addListElement(tmpStrCat("keyb Left Alt"));
-#endif
-		TclObject result(TclObject::MakeDictTag{},
-			"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
-			"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
-			"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
-			"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
-			"A",     listA,
-			"B",     listB);
-		SDL_JoystickClose(sdl_joystick);
-		return result;
+	auto buttons = joystickManager.getNumButtons(joyId);
+	if (!buttons) return {};
+
+	TclObject listA, listB;
+	auto joy = joyId.str();
+	for (auto b : xrange(*buttons)) {
+		((b & 1) ? listB : listA).addListElement(tmpStrCat(joy, " button", b));
 	}
-	return TclObject();
+	return TclObject(TclObject::MakeDictTag{},
+		"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
+		"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
+		"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
+		"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
+		"A",     listA,
+		"B",     listB);
 }
+
 MSXJoystick::MSXJoystick(CommandController& commandController_,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         GlobalSettings& globalSettings_,
+                         JoystickManager& joystickManager_,
                          uint8_t id_)
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, globalSettings(globalSettings_)
+	, joystickManager(joystickManager_)
 	, configSetting(commandController, tmpStrCat("msxjoystick", id_, "_config"),
-		"msxjoystick mapping configuration", getDefaultConfig(id_).getString())
+		"msxjoystick mapping configuration", getDefaultConfig(JoystickId(id_ - 1), joystickManager).getString())
 	, description(strCat("MSX joystick ", id_, ". Mapping is fully configurable."))
 	, id(id_)
 {
@@ -177,8 +173,9 @@ void MSXJoystick::signalMSXEvent(const Event& event,
 	uint8_t press = 0;
 	uint8_t release = 0;
 
-	auto getJoyDeadZone = [&](int joystick) {
-		return globalSettings.getJoyDeadZoneSetting(joystick).getInt();
+	auto getJoyDeadZone = [&](JoystickId joyId) {
+		auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
+		return setting ? setting->getInt() : 0;
 	};
 	for (int i : xrange(6)) {
 		for (const auto& binding : bindings[i]) {

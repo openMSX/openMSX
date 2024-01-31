@@ -2,7 +2,8 @@
 
 #include "CommandController.hh"
 #include "Event.hh"
-#include "GlobalSettings.hh"
+#include "IntegerSetting.hh"
+#include "JoystickManager.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChange.hh"
 #include "StateChangeDistributor.hh"
@@ -44,44 +45,42 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");
 
-TclObject JoyMega::getDefaultConfig(uint8_t id)
+TclObject JoyMega::getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager)
 {
-	if (auto* sdl_joystick = SDL_JoystickOpen(id - 1)) {
-		std::array<TclObject, 8> lists;
-		auto joy = strCat("joy", id);
-		for (auto b : xrange(SDL_JoystickNumButtons(sdl_joystick))) {
-			lists[b % 8].addListElement(tmpStrCat(joy, " button", b));
-		}
-		TclObject result(TclObject::MakeDictTag{},
-			"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
-			"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
-			"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
-			"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
-			"A",     lists[0],
-			"B",     lists[1],
-			"C",     lists[2],
-			"X",     lists[3],
-			"Y",     lists[4],
-			"Z",     lists[5],
-			"SELECT",lists[6],
-			"START", lists[7]);
-		SDL_JoystickClose(sdl_joystick);
-		return result;
+	auto buttons = joystickManager.getNumButtons(joyId);
+	if (!buttons) return {};
+
+	std::array<TclObject, 8> lists;
+	auto joy = joyId.str();
+	for (auto b : xrange(*buttons)) {
+		lists[b % 8].addListElement(tmpStrCat(joy, " button", b));
 	}
-	return TclObject();
+	return TclObject(TclObject::MakeDictTag{},
+		"UP",    makeTclList(tmpStrCat(joy, " -axis1"), tmpStrCat(joy, " hat0 up")),
+		"DOWN",  makeTclList(tmpStrCat(joy, " +axis1"), tmpStrCat(joy, " hat0 down")),
+		"LEFT",  makeTclList(tmpStrCat(joy, " -axis0"), tmpStrCat(joy, " hat0 left")),
+		"RIGHT", makeTclList(tmpStrCat(joy, " +axis0"), tmpStrCat(joy, " hat0 right")),
+		"A",     lists[0],
+		"B",     lists[1],
+		"C",     lists[2],
+		"X",     lists[3],
+		"Y",     lists[4],
+		"Z",     lists[5],
+		"SELECT",lists[6],
+		"START", lists[7]);
 }
 
 JoyMega::JoyMega(CommandController& commandController_,
                  MSXEventDistributor& eventDistributor_,
                  StateChangeDistributor& stateChangeDistributor_,
-                 GlobalSettings& globalSettings_,
+                 JoystickManager& joystickManager_,
                  uint8_t id_)
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, globalSettings(globalSettings_)
+	, joystickManager(joystickManager_)
 	, configSetting(commandController, tmpStrCat("joymega", id_, "_config"),
-		"joymega mapping configuration", getDefaultConfig(id_).getString())
+		"joymega mapping configuration", getDefaultConfig(JoystickId(id_ - 1), joystickManager).getString())
 	, description(strCat("JoyMega based Mega Drive controller ", id_, ". Mapping is fully configurable."))
 	, id(id_)
 {
@@ -230,8 +229,9 @@ void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 	unsigned press = 0;
 	unsigned release = 0;
 
-	auto getJoyDeadZone = [&](int joystick) {
-		return globalSettings.getJoyDeadZoneSetting(joystick).getInt();
+	auto getJoyDeadZone = [&](JoystickId joyId) {
+		auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
+		return setting ? setting->getInt() : 0;
 	};
 	for (int i : xrange(12)) {
 		for (const auto& binding : bindings[i]) {

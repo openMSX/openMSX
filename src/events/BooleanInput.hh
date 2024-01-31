@@ -20,6 +20,7 @@
 // * Mouse motion.
 
 #include "Event.hh"
+#include "JoystickId.hh"
 
 #include <SDL.h>
 
@@ -59,14 +60,14 @@ private:
 class BooleanJoystickButton
 {
 public:
-	explicit BooleanJoystickButton(unsigned joystick_, uint8_t button_)
+	explicit BooleanJoystickButton(JoystickId joystick_, uint8_t button_)
 		: joystick(joystick_), button(button_) {}
 
 	[[nodiscard]] auto getJoystick() const { return joystick; }
 	[[nodiscard]] auto getButton() const { return button; }
 
 private:
-	int joystick;
+	JoystickId joystick;
 	uint8_t button;
 };
 
@@ -80,7 +81,7 @@ public:
 		LEFT  = SDL_HAT_LEFT,
 	};
 
-	explicit BooleanJoystickHat(unsigned joystick_, uint8_t hat_, Value value_)
+	explicit BooleanJoystickHat(JoystickId joystick_, uint8_t hat_, Value value_)
 		: joystick(joystick_), hat(hat_), value(value_) {}
 
 	[[nodiscard]] auto getJoystick() const { return joystick; }
@@ -88,7 +89,7 @@ public:
 	[[nodiscard]] auto getValue() const { return value; }
 
 private:
-	int joystick;
+	JoystickId joystick;
 	uint8_t hat;
 	Value value;
 };
@@ -98,7 +99,7 @@ class BooleanJoystickAxis
 public:
 	enum Direction : uint8_t { POS = 0, NEG = 1 };
 
-	explicit BooleanJoystickAxis(unsigned joystick_, uint8_t axis_, Direction direction_)
+	explicit BooleanJoystickAxis(JoystickId joystick_, uint8_t axis_, Direction direction_)
 		: joystick(joystick_), axis(axis_), direction(direction_) {}
 
 	[[nodiscard]] auto getJoystick() const { return joystick; }
@@ -106,7 +107,7 @@ public:
 	[[nodiscard]] auto getDirection() const { return direction; }
 
 private:
-	int joystick;
+	JoystickId joystick;
 	uint8_t axis;
 	Direction direction;
 };
@@ -122,12 +123,12 @@ using BooleanInput = std::variant<
 
 [[nodiscard]] std::string toString(const BooleanInput& input);
 [[nodiscard]] std::optional<BooleanInput> parseBooleanInput(std::string_view text);
-[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(int)> getJoyDeadZone);
+[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(JoystickId)> getJoyDeadZone);
 
 [[nodiscard]] bool operator==(const BooleanInput& x, const BooleanInput& y);
 
 [[nodiscard]] std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                                        std::function<int(int)> getJoyDeadZone);
+                                        std::function<int(JoystickId)> getJoyDeadZone);
 
 } // namespace openmsx
 

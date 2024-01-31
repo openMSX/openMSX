@@ -505,6 +505,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Joystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyTap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
@@ -1078,6 +1079,7 @@
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Joystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoyTap.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Keyboard.hh" />

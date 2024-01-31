@@ -19,6 +19,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          GlobalSettings& globalSettings_)
 	: eventDistributor(eventDistributor_)
 	, globalSettings(globalSettings_)
+	, joystickManager(commandController)
 	, grabInput(
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
@@ -27,8 +28,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 {
 	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
-
-	SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
 }
 
 InputEventGenerator::~InputEventGenerator()
@@ -306,29 +305,47 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_JOYBUTTONUP:
-		event = JoystickButtonUpEvent(evt);
-		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.button, false);
+		if (joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+			event = JoystickButtonUpEvent(evt);
+			triggerOsdControlEventsFromJoystickButtonEvent(
+				evt.jbutton.button, false);
+		}
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event = JoystickButtonDownEvent(evt);
-		triggerOsdControlEventsFromJoystickButtonEvent(
-			evt.jbutton.button, true);
+		if (joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+			event = JoystickButtonDownEvent(evt);
+			triggerOsdControlEventsFromJoystickButtonEvent(
+				evt.jbutton.button, true);
+		}
 		break;
 	case SDL_JOYAXISMOTION: {
-		auto& setting = globalSettings.getJoyDeadZoneSetting(evt.jaxis.which);
-		int threshold = (setting.getInt() * 32768) / 100;
-		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
-		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
-		                                            : 0;
-		event = JoystickAxisMotionEvent(evt);
-		triggerOsdControlEventsFromJoystickAxisMotion(
-			evt.jaxis.axis, value);
+		if (auto joyId = joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+			auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
+			assert(setting);
+			int deadZone = setting->getInt();
+			int threshold = (deadZone * 32768) / 100;
+			auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
+				: (evt.jaxis.value >  threshold) ? evt.jaxis.value
+								: 0;
+			event = JoystickAxisMotionEvent(evt);
+			triggerOsdControlEventsFromJoystickAxisMotion(
+				evt.jaxis.axis, value);
+		}
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		event = JoystickHatEvent(evt);
-		triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
+		if (auto joyId = joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+			event = JoystickHatEvent(evt);
+			triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
+		}
+		break;
+
+	case SDL_JOYDEVICEADDED:
+		joystickManager.add(evt.jdevice.which);
+		break;
+
+	case SDL_JOYDEVICEREMOVED:
+		joystickManager.remove(evt.jdevice.which);
 		break;
 
 	case SDL_TEXTINPUT:

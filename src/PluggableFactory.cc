@@ -1,9 +1,11 @@
 #include "PluggableFactory.hh"
+
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "JoyMega.hh"
 #include "ArkanoidPad.hh"
+#include "InputEventGenerator.hh"
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
@@ -46,7 +48,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	auto& msxEventDistributor    = motherBoard.getMSXEventDistributor();
 	auto& stateChangeDistributor = motherBoard.getStateChangeDistributor();
 	auto& eventDistributor       = reactor.getEventDistributor();
-	auto& globalSettings         = reactor.getGlobalSettings();
+	auto& joystickManager         = reactor.getInputEventGenerator().getJoystickManager();
 	auto& display                = reactor.getDisplay();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
@@ -69,16 +71,16 @@ void PluggableFactory::createAll(PluggingController& controller,
 		controller, "ninjatap"));
 	controller.registerPluggable(std::make_unique<MSXJoystick>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, globalSettings, 1)); // msxjoystick1
+		stateChangeDistributor, joystickManager, 1)); // msxjoystick1
 	controller.registerPluggable(std::make_unique<MSXJoystick>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, globalSettings, 2)); // msxjoystick2
+		stateChangeDistributor, joystickManager, 2)); // msxjoystick2
 	controller.registerPluggable(std::make_unique<JoyMega>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, globalSettings, 1)); // joymega1
+		stateChangeDistributor, joystickManager, 1)); // joymega1
 	controller.registerPluggable(std::make_unique<JoyMega>(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, globalSettings, 2)); // joymega2
+		stateChangeDistributor, joystickManager, 2)); // joymega2
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, KeyJoystick::ID1));
