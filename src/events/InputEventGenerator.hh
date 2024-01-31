@@ -34,13 +34,6 @@ public:
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
 	void updateGrab(bool grab);
 
-	/** Normally the following two functions simply delegate to
-	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on
-	 * Android, see comments in .cc for more details.
-	 */
-	[[nodiscard]] static int joystickNumButtons(SDL_Joystick* joystick);
-	[[nodiscard]] static bool joystickGetButton(SDL_Joystick* joystick, int button);
-
 	void poll();
 
 private:

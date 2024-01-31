@@ -28,9 +28,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 
-#ifndef SDL_JOYSTICK_DISABLED
 	SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
-#endif
 }
 
 InputEventGenerator::~InputEventGenerator()
@@ -424,32 +422,6 @@ void InputEventGenerator::setGrabInput(bool grab)
 	// TODO get the SDL_window
 	//SDL_Window* window = ...;
 	//SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
-}
-
-
-// Wrap SDL joystick button functions to handle the 'fake' android joystick
-// buttons. The method InputEventGenerator::handle() already takes care of fake
-// events for the android joystick buttons, these two wrappers handle the direct
-// joystick button state queries.
-int InputEventGenerator::joystickNumButtons(SDL_Joystick* joystick)
-{
-	if constexpr (PLATFORM_ANDROID) {
-		return 2;
-	} else {
-		return SDL_JoystickNumButtons(joystick);
-	}
-}
-bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
-{
-	if constexpr (PLATFORM_ANDROID) {
-		switch (button) {
-		case 0: return androidButtonA;
-		case 1: return androidButtonB;
-		default: UNREACHABLE; return false;
-		}
-	} else {
-		return SDL_JoystickGetButton(joystick, button) != 0;
-	}
 }
 
 
