@@ -94,6 +94,11 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
+            <filename>fs-a1wsx_IC18.rom</filename> <!-- EPROM dump by Tristan Zondag -->
+            <sha1>28cc0fbab62d9b4ff5d16971795ebb8a4e02f1f6</sha1>
+            <window base="0x70000" size="0x8000"/>
+          </rom>
+          <rom>
             <filename>fs-a1wsx_basic-bios2p.rom</filename>
             <sha1>f4433752d3bf876bfefb363c749d4d2e08a218b6</sha1> <!-- confirmed on Luc's machine -->
           </rom>
@@ -105,6 +110,11 @@
 
       <secondary slot="2">
         <MSX-MUSIC-WX id="MSX Music">
+          <rom>
+            <filename>fs-a1wsx_IC18.rom</filename> <!-- EPROM dump by Tristan Zondag -->
+            <sha1>28cc0fbab62d9b4ff5d16971795ebb8a4e02f1f6</sha1>
+            <window base="0x60000" size="0x4000"/>
+          </rom>
           <rom>
             <filename>fs-a1wsx_fmbasic.rom</filename>
             <sha1>aad42ba4289b33d8eed225d42cea930b7fc5c228</sha1>
@@ -140,6 +150,11 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
+            <filename>fs-a1wsx_IC18.rom</filename> <!-- EPROM dump by Tristan Zondag -->
+            <sha1>28cc0fbab62d9b4ff5d16971795ebb8a4e02f1f6</sha1>
+            <window base="0x78000" size="0x4000"/>
+          </rom>
+          <rom>
             <filename>fs-a1wsx_msx2psub.rom</filename>
             <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1> <!-- confirmed on Luc's machine -->
           </rom>
@@ -159,6 +174,11 @@
           <io_regs>7FF8</io_regs>
           <drives>1</drives>
           <rom>
+            <filename>fs-a1wsx_IC18.rom</filename> <!-- EPROM dump by Tristan Zondag -->
+            <sha1>28cc0fbab62d9b4ff5d16971795ebb8a4e02f1f6</sha1>
+            <window base="0x7C000" size="0x4000"/>
+          </rom>
+          <rom>
             <filename>fs-a1wsx_disk.rom</filename>
             <sha1>7ed7c55e0359737ac5e68d38cb6903f9e5d7c2b6</sha1>
           </rom>
@@ -172,6 +192,21 @@
           <sramsize>16</sramsize>
           <sram-mirrored>true</sram-mirrored>
           <sramname>fs-a1wsx.sram</sramname>
+<!--
+          The EPROM dump by Tristan also has this mapper, but it is split over different physical
+          ROM chips, which isn't supported by the openMSX hardware configuration XML format.
+          The layout below isn't entirely accurate either. The setup is very complex. 
+          <rom>
+            <filename>fs-a1wsx_IC18.rom</filename>
+            <sha1>28cc0fbab62d9b4ff5d16971795ebb8a4e02f1f6</sha1>
+            <window base="0x00000" size="0x60000"/> mapper content from 0-0x60000
+          </rom>
+          <rom>
+            <filename>fs-a1wsx_IC17.rom</filename>
+            <sha1>9da0306506640ea89acaa9516cb836233a9221ec</sha1>
+            <window base="0x00000" size="0x80000"/>  mapper content from 0x80000-0x100000
+          </rom>
+ -->
           <rom>
             <filename>fs-a1wsx_firmware.rom</filename>
             <sha1>3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</sha1>
