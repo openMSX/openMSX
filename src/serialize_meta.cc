@@ -77,8 +77,10 @@ void* PolymorphicLoaderRegistry<Archive>::load(
 	std::string type;
 	ar.attribute("type", type);
 	auto& reg = PolymorphicLoaderRegistry<Archive>::instance();
-	auto v = lookup(reg.loaderMap, type);
-	assert(v);
+	auto* v = lookup(reg.loaderMap, type);
+	if (!v) {
+		throw MSXException("Deserialize unknown polymorphic type: '", type, "'.");
+	}
 	return (*v)(ar, id, args);
 }
 
