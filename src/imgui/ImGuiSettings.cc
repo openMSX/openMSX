@@ -877,8 +877,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		const auto& style = ImGui::GetStyle();
 		auto textHeight = ImGui::GetTextLineHeight();
 		float rowHeight = 2.0f * style.FramePadding.y + textHeight;
-		float tableHeight = int(numButtons) * (rowHeight + 2.0f * style.CellPadding.y);
-		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {0.0f, tableHeight}, [&]{
+		float bottomHeight = style.ItemSpacing.y + 2.0f * style.FramePadding.y + textHeight;
+		im::Table("##joystick-table", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX, {0.0f, -bottomHeight}, [&]{
 			im::ID_for_range(numButtons, [&](int i) {
 				TclObject key(keyNames[i]);
 				TclObject bindingList = bindings.getDictValue(interp, key);
