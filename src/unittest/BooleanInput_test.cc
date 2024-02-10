@@ -85,7 +85,7 @@ TEST_CASE("BooleanInput: toString, parse")
 
 TEST_CASE("BooleanInput: capture")
 {
-	auto getJoyDeadZone = [](int /*joystick*/) { return 25; };
+	auto getJoyDeadZone = [](JoystickId /*joystick*/) { return 25; };
 	auto check = [&](const Event& event, const std::string& expected) {
 		auto input = captureBooleanInput(event, getJoyDeadZone);
 		if (expected.empty()) {
@@ -266,7 +266,7 @@ TEST_CASE("BooleanInput: match")
 	auto joy2axis1M27000 = JoystickAxisMotionEvent(sdl);
 
 	// check against various BooleanInputs
-	auto getJoyDeadZone = [](int /*joystick*/) { return 25; };
+	auto getJoyDeadZone = [](JoystickId /*joystick*/) { return 25; };
 	auto check = [&](const std::optional<BooleanInput>& binding, const Event& event, std::optional<bool> expected) {
 		REQUIRE(binding);
 		CHECK(match(*binding, event, getJoyDeadZone) == expected);
