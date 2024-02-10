@@ -503,7 +503,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\ArkanoidPad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\DummyJoystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\input\Joystick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
@@ -1077,7 +1076,6 @@
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh" />
     <None Include="$(OpenMSXSrcDir)\input\DummyJoystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh" />
-    <None Include="$(OpenMSXSrcDir)\input\Joystick.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh" />
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh" />
