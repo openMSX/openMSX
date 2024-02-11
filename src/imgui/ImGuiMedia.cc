@@ -257,6 +257,11 @@ std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
 	return extensionInfo;
 }
 
+void ImGuiMedia::resetExtensionInfo()
+{
+	extensionInfo.clear();
+}
+
 const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 {
 	if (!info.testResult) {

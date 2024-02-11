@@ -51,6 +51,7 @@ public:
 	[[nodiscard]] std::string displayNameForDriveContent(unsigned drive, bool compact = false);
 
 	std::vector<ExtensionInfo>& getAllExtensions();
+	void resetExtensionInfo();
 	ExtensionInfo* findExtensionInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 

@@ -323,6 +323,13 @@ void ImGuiMachine::paintTestHardware()
 				}
 			});
 		}
+
+		im::Disabled(!allMachinesTested || !allExtensionsTested, [&]{
+			if (ImGui::Button("Rerun test")) {
+				manager.media->resetExtensionInfo();
+				machineInfo.clear();
+			}
+		});
 	});
 }
 
