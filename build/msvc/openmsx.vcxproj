@@ -587,6 +587,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo8.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo16.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNettouYakyuu.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomPadial16kB.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomPadial8kB.cc" />
@@ -1162,6 +1164,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomNeo8.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomNeo16.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNettouYakyuu.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomPadial16kB.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomPadial8kB.hh" />
