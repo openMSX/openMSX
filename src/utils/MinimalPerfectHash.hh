@@ -60,10 +60,10 @@ template<size_t M, typename Hash>
 struct Result
 {
 	static_assert(std::has_single_bit(M));
-	static constexpr auto M2 = M / 2;
+	static constexpr auto M2 = M;
 
 	std::array<uint8_t, M > tab1;
-	std::array<uint8_t, M2> tab2; // half size (space optimization)
+	std::array<uint8_t, M2> tab2; // Note: half this size is not enough, tried that before
 	[[no_unique_address]] Hash hash;
 
 	[[nodiscard]] constexpr uint8_t lookupIndex(const auto& key) const {

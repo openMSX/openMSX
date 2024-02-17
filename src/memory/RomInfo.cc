@@ -74,6 +74,8 @@ static constexpr auto romTypeInfoArray = [] {
 	r[ROM_REPRO_CARTRIDGE1]= {0x0000, "ReproCartridgeV1","Repro Cartridge V1"};
 	r[ROM_REPRO_CARTRIDGE2]= {0x0000, "ReproCartridgeV2","Repro Cartridge V2"};
 	r[ROM_KONAMI_ULTIMATE_COLLECTION]={0x0000,"KonamiUltimateCollection","Konami Ultimate Collection"};
+	r[ROM_NEO8]            = {0x2000, "NEO-8",           "NEO-8 mapper"};
+	r[ROM_NEO16]           = {0x4000, "NEO-16",          "NEO-16 mapper"};
 
 	// ROM mapper types used for system ROMs in machines
 	r[ROM_PANASONIC]       = {0x2000, "Panasonic",       "Panasonic internal mapper"};
