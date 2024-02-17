@@ -133,15 +133,17 @@ void ImGuiOpenFile::common(const std::string& title, const char* filters,
 	activePainter = painter_;
 	setBookmarks();
 
-	ImGuiFileDialogFlags flags = extraFlags |
-		ImGuiFileDialogFlags_DontShowHiddenFiles |
-		ImGuiFileDialogFlags_CaseInsensitiveExtention |
-		ImGuiFileDialogFlags_Modal;
 	lastTitle = title;
 
 	auto startPath = getStartPath(lastLocationHint);
+	IGFD::FileDialogConfig config;
+	config.path = startPath;
+	config.flags = extraFlags |
+		ImGuiFileDialogFlags_DontShowHiddenFiles |
+		ImGuiFileDialogFlags_CaseInsensitiveExtention |
+		ImGuiFileDialogFlags_Modal;
 	ImGuiFileDialog::Instance()->OpenDialog(
-		"FileDialog", title, filters, startPath, "", 1, nullptr, flags);
+		"FileDialog", title, filters, config);
 	openFileCallback = callback;
 }
 

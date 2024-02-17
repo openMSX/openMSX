@@ -4,7 +4,11 @@
 
 // uncomment and modify defines under for customize ImGuiFileDialog
 
-//this options need c++17
+// uncomment if you need to use your FileSystem Interface
+// if commented, you have two defualt interface, std::filesystem or dirent
+// #define USE_CUSTOM_FILESYSTEM
+
+// this options need c++17
 #define USE_STD_FILESYSTEM
 
 //#define MAX_FILE_DIALOG_NAME_BUFFER 1024
