@@ -19,7 +19,7 @@ public:
 		: ImGuiPart(manager_) {}
 	~ImGuiSettings();
 
-	[[nodiscard]] virtual zstring_view iniName() const { return "settings"; }
+	[[nodiscard]] zstring_view iniName() const override { return "settings"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void loadEnd() override;

@@ -817,7 +817,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	};
 	drawBezierCurve(buttonCurve);
 
-	auto corner = (selectBox.bottomRight[1] - selectBox.topLeft[1]) * 0.5;
+	auto corner = (selectBox.bottomRight[1] - selectBox.topLeft[1]) * 0.5f;
 	auto trR = [&](Rectangle r) { return Rectangle{tr(r.topLeft), tr(r.bottomRight)}; };
 	drawFilledRectangle(trR(selectBox), corner, hovered[TRIG_SELECT] || (hoveredRow == TRIG_SELECT));
 	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f, 46.0f}), color, "Select");

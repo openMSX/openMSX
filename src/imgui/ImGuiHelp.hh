@@ -9,6 +9,15 @@
 
 namespace openmsx {
 
+// This used to be an inner class of ImGuiHelp, but for some reason that didn't compile with (some version of) clang???
+// Moving it outside is a workaround.
+struct LogoImage {
+	LogoImage() = default;
+
+	gl::Texture texture{gl::Null{}};
+	gl::vec2 size;
+};
+
 class ImGuiHelp final : public ImGuiPart
 {
 public:
@@ -25,12 +34,6 @@ private:
 	bool showAboutOpenMSX = false;
 	bool showAboutImGui = false;
 
-	struct LogoImage {
-		LogoImage() = default;
-
-		gl::Texture texture{gl::Null{}};
-		gl::vec2 size;
-	};
 	std::optional<LogoImage> logo; // initialized on first use
 };
 
