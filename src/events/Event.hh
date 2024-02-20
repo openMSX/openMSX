@@ -448,7 +448,7 @@ using Event = std::variant<
 	MidiInCoreMidiVirtualEvent,
 	MidiInALSAEvent,
 	Rs232TesterEvent,
-	Rs232NetEvent
+	Rs232NetEvent,
 	ImGuiDelayedActionEvent,
 	ImGuiActiveEvent
 >;

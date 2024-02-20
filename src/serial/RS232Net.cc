@@ -149,8 +149,7 @@ void RS232Net::run()
 		assert(isPluggedIn());
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.push_back(b);
-		eventDistributor.distributeEvent(
-			Event::create<Rs232NetEvent>());
+		eventDistributor.distributeEvent(Rs232NetEvent());
 	}
 }
 
@@ -223,8 +222,7 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 		RTS = status;
     	std::lock_guard<std::mutex> lock(mutex);
         if ((RTS)&&(!queue.empty())){
-            eventDistributor.distributeEvent(
-			Event::create<Rs232NetEvent>());
+            eventDistributor.distributeEvent(Rs232NetEvent());
 
         }
 	}
