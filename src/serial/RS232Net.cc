@@ -239,7 +239,6 @@ int RS232Net::net_putc(uint8_t b)
 
     if (sockfd < 0)
     {
-        // fprintf(stderr,"Attempt to write to invalid socket fd:%d\n", sockfd);
         return -1;
     }
 
@@ -247,7 +246,6 @@ int RS232Net::net_putc(uint8_t b)
     if (n < 0) {
         sock_close(sockfd);
         sockfd = INVALID_SOCKET;
-        // fprintf(stderr,"Error writing to socket\n");
         return -1;
     }
 
@@ -260,7 +258,6 @@ ptrdiff_t RS232Net::net_getc(char * b)
     ptrdiff_t no_of_read_byte = -1;
 
     if (sockfd < 0) {
-        // fprintf(stderr,"Attempt to read from invalid socket fd:%d\n", sockfd);
         return no_of_read_byte;
     }
 

@@ -251,8 +251,8 @@ void Counter::writeLoad(uint16_t value, EmuTime::param time)
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
 			EmuDuration::param high = clock.getTotalDuration();
-			EmuDuration total = high * counter;
-			output.setPeriodicState(total, high, time);
+			EmuDuration::param total = high * counter;
+			output.setPeriodicState(total, total / 2, time);
 		} else {
 			// TODO ??
 		}
