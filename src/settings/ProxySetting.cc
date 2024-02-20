@@ -79,15 +79,6 @@ TclObject ProxySetting::getDefaultValue() const
 	}
 }
 
-TclObject ProxySetting::getRestoreValue() const
-{
-	if (const auto* setting = getSetting()) {
-		return setting->getRestoreValue();
-	} else {
-		return TclObject("proxy");
-	}
-}
-
 void ProxySetting::setValueDirect(const TclObject& value)
 {
 	if (auto* setting = getSetting()) {
@@ -120,13 +111,6 @@ bool ProxySetting::needTransfer() const
 		return setting->needTransfer();
 	} else {
 		return false;
-	}
-}
-
-void ProxySetting::setDontSaveValue(const TclObject& dontSaveValue)
-{
-	if (auto* setting = getSetting()) {
-		setting->setDontSaveValue(dontSaveValue);
 	}
 }
 

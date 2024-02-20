@@ -5,6 +5,7 @@
 #include "Command.hh"
 #include "InfoCommand.hh"
 #include "MSXEventListener.hh"
+#include "MSXCliComm.hh"
 #include "TemporaryString.hh"
 #include "hash_set.hh"
 #include "xxhash.hh"
@@ -45,6 +46,7 @@ public:
 	}
 
 	[[nodiscard]] Command* findCommand(std::string_view name) const;
+	[[nodiscard]] Setting* findSetting(std::string_view name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.
@@ -70,7 +72,7 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	[[nodiscard]] CliComm& getCliComm() override;
+	[[nodiscard]] MSXCliComm& getCliComm() override;
 	[[nodiscard]] Interpreter& getInterpreter() override;
 
 private:

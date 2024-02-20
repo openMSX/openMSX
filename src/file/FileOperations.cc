@@ -468,12 +468,43 @@ const string& getSystemDataDir()
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
-		return findShareDir();
+		return findResourceDir("share");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system");
 #else
 		// defined in build-info.hh (default /opt/openMSX/share)
 		return DATADIR;
+#endif
+	}();
+	return *result;
+}
+
+const string& getSystemDocDir()
+{
+	static std::optional<string> result;
+	if (!result) result = []() -> string {
+#ifdef _WIN32
+		wchar_t bufW[MAXPATHLEN + 1];
+		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
+		if (!res) {
+			throw FatalError(
+				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
+				GetLastError());
+		}
+
+		string filename = utf16to8(bufW);
+		auto pos = filename.find_last_of('\\');
+		if (pos == string::npos) {
+			throw FatalError("openMSX is not in directory!?");
+		}
+		return getConventionalPath(filename.substr(0, pos)) + "/doc";
+#elif defined(__APPLE__)
+		return findResourceDir("doc");
+#elif PLATFORM_ANDROID
+		return getAbsolutePath("openmsx_system"); // TODO: currently no docs are installed on Android
+#else
+		// defined in build-info.hh (default /opt/openMSX/doc)
+		return DOCDIR;
 #endif
 	}();
 	return *result;
@@ -586,13 +617,19 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 }
 
 string getNextNumberedFileName(
-	string_view directory, string_view prefix, string_view extension)
+	string_view directory, string_view prefix, string_view extension, bool addSeparator)
 {
+	std::string newPrefix;
+	if (addSeparator) {
+		newPrefix = strCat(prefix, ((prefix.find(' ') != std::string_view::npos) ? ' ' : '_'));
+		prefix = newPrefix;
+	}
+
 	const unsigned nofDigits = 4;
 
 	unsigned max_num = 0;
 
-	string dirName = strCat(getUserOpenMSXDir(), '/', directory);
+	string dirName = join(getUserOpenMSXDir(), directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
@@ -605,7 +642,7 @@ string getNextNumberedFileName(
 	}
 
 	std::ostringstream os;
-	os << dirName << '/' << prefix;
+	os << FileOperations::join(dirName, prefix);
 	os.width(nofDigits);
 	os.fill('0');
 	os << (max_num + 1) << extension;

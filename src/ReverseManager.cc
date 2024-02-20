@@ -15,7 +15,7 @@
 #include "FileContext.hh"
 #include "StateChange.hh"
 #include "Timer.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
@@ -44,8 +44,6 @@ static constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
 
 // Max distance of one before last snapshot before the end time in replay file (in seconds)
 static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
-
-static constexpr const char* const REPLAY_DIR = "replays";
 
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an
@@ -201,21 +199,41 @@ EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 	return getCurrentTime();
 }
 
+bool ReverseManager::isViewOnlyMode() const
+{
+	return motherBoard.getStateChangeDistributor().isViewOnlyMode();
+}
+double ReverseManager::getBegin() const
+{
+	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
+	                         : EmuTime::zero());
+	return (b - EmuTime::zero()).toDouble();
+}
+double ReverseManager::getEnd() const
+{
+	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero());
+	return (end - EmuTime::zero()).toDouble();
+}
+double ReverseManager::getCurrent() const
+{
+	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
+	return (current - EmuTime::zero()).toDouble();
+}
+std::vector<double> ReverseManager::getSnapshotTimes() const
+{
+	return to_vector(view::transform(history.chunks, [](auto& p) {
+		return (p.second.time - EmuTime::zero()).toDouble();
+	}));
+}
+
 void ReverseManager::status(TclObject& result) const
 {
 	result.addDictKeyValue("status", !isCollecting() ? "disabled"
 	                               : isReplaying()   ? "replaying"
 	                                                 : "enabled");
-
-	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
-	                         : EmuTime::zero());
-	result.addDictKeyValue("begin", (b - EmuTime::zero()).toDouble());
-
-	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero());
-	result.addDictKeyValue("end", (end - EmuTime::zero()).toDouble());
-
-	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
-	result.addDictKeyValue("current", (current - EmuTime::zero()).toDouble());
+	result.addDictKeyValue("begin", getBegin());
+	result.addDictKeyValue("end", getEnd());
+	result.addDictKeyValue("current", getCurrent());
 
 	TclObject snapshots;
 	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
@@ -299,16 +317,15 @@ void ReverseManager::goTo(EmuTime::param target, bool noVideo)
 }
 
 // this function is used below, but factored out, because it's already way too long
-static void reportProgress(Reactor& reactor, const EmuTime& targetTime, unsigned percentage)
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, float fraction)
 {
 	double targetTimeDisp = (targetTime - EmuTime::zero()).toDouble();
 	std::ostringstream sstr;
 	sstr << "Time warping to " <<
 		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
 		std::setw(5) << std::setprecision(2) << std::fixed <<
-		std::fmod(targetTimeDisp, 60.0) <<
-		"... " << percentage << '%';
-	reactor.getCliComm().printProgress(sstr.str());
+		std::fmod(targetTimeDisp, 60.0);
+	reactor.getCliComm().printProgress(sstr.str(), fraction);
 	reactor.getDisplay().repaint();
 }
 
@@ -341,7 +358,7 @@ void ReverseManager::goTo(
 		// rate of the active video chip (v99x8/v9990) at the target
 		// time. This is quite complex to get and the difference between
 		// 2 PAL and 2 NTSC frames isn't that big.
-		double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
+		static constexpr double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
 		EmuDuration preDelta(noVideo ? 0.0 : dur2frames);
 		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
 		                  ? targetTime - preDelta
@@ -380,11 +397,17 @@ void ReverseManager::goTo(
 		    ((snapshotTime <= currentTime) ||
 		     ((preTarget - currentTime) < EmuDuration(1.0)))) {
 			newBoard = &motherBoard; // use current board
+			// suppress messages just in case, as we're later going
+			// to fast forward to the right time
+			newBoard->getMSXCliComm().setSuppressMessages(true);
 		} else {
 			// Note: we don't (anymore) erase future snapshots
 			// -- restore old snapshot --
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
+			// suppress messages we'd get by deserializing (and
+			// thus instantiating the parts of) the new board
+			newBoard->getMSXCliComm().setSuppressMessages(true);
 			MemInputArchive in(chunk.savestate.data(),
 					   chunk.size,
 					   chunk.deltaBlocks);
@@ -443,8 +466,8 @@ void ReverseManager::goTo(
 			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
 				everShowedProgress = true;
 				lastProgress = now;
-				auto percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
-				reportProgress(newBoard->getReactor(), targetTime, percentage);
+				auto fraction = ((currentTimeNewBoard - startMSXTime)).toDouble() / (preTarget - startMSXTime).toDouble();
+				reportProgress(newBoard->getReactor(), targetTime, float(fraction));
 			}
 			// note: fastForward does not always stop at
 			//       _exactly_ the requested time
@@ -460,6 +483,8 @@ void ReverseManager::goTo(
 				lastSnapshotTarget = nextSnapshotTarget;
 			}
 		}
+		// re-enable messages
+		newBoard->getMSXCliComm().setSuppressMessages(false);
 		// re-enable automatic snapshots
 		schedule(getCurrentTime());
 
@@ -789,8 +814,7 @@ void ReverseManager::execNewSnapshot()
 	//     that's OK, we only require regular snapshots here, they
 	//     should not be *exactly* equally far apart in time.
 	pendingTakeSnapshot = true;
-	eventDistributor.distributeEvent(
-		Event::create<TakeReverseSnapshotEvent>());
+	eventDistributor.distributeEvent(TakeReverseSnapshotEvent());
 }
 
 void ReverseManager::execInputEvent()

@@ -13,7 +13,7 @@
 #include "AviRecorder.hh"
 #include "Filename.hh"
 #include "FileOperations.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "stl.hh"
 #include "aligned.hh"
 #include "enumerate.hh"
@@ -735,12 +735,12 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 {
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();
-	float volume = info.defaultVolume * narrow<float>(mVolume) * narrow<float>(dVolume) / (100.0f * 100.0f);
+	float volume = info.defaultVolume * narrow<float>(mVolume) * narrow<float>(dVolume) * (1.0f / (100.0f * 100.0f));
 	int balance = info.balanceSetting->getInt();
 	auto [l1, r1, l2, r2] = [&] {
 		if (info.device->isStereo()) {
 			if (balance < 0) {
-				float b = (narrow<float>(balance) + 100.0f) / 100.0f;
+				float b = (narrow<float>(balance) + 100.0f) * (1.0f / 100.0f);
 				return std::tuple{
 					/*l1 =*/ volume,
 					/*r1 =*/ 0.0f,
@@ -748,7 +748,7 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 					/*r2 =*/ volume * sqrtf(std::max(0.0f,        b))
 				};
 			} else {
-				float b = narrow<float>(balance) / 100.0f;
+				float b = narrow<float>(balance) * (1.0f / 100.0f);
 				return std::tuple{
 					/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
 					/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
@@ -759,7 +759,7 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 		} else {
 			// make sure that in case of rounding errors
 			// we don't take sqrt() of negative numbers
-			float b = (narrow<float>(balance) + 100.0f) / 200.0f;
+			float b = (narrow<float>(balance) + 100.0f) * (1.0f / 200.0f);
 			return std::tuple{
 				/*l1 =*/ volume * sqrtf(std::max(0.0f, 1.0f - b)),
 				/*r1 =*/ volume * sqrtf(std::max(0.0f,        b)),
@@ -806,11 +806,17 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 // Sound device info
 
-SoundDevice* MSXMixer::findDevice(std::string_view name) const
+const MSXMixer::SoundDeviceInfo* MSXMixer::findDeviceInfo(std::string_view name) const
 {
 	auto it = ranges::find(infos, name,
 		[](auto& i) { return i.device->getName(); });
-	return (it != end(infos)) ? it->device : nullptr;
+	return (it != end(infos)) ? &*it : nullptr;
+}
+
+SoundDevice* MSXMixer::findDevice(std::string_view name) const
+{
+	auto* info = findDeviceInfo(name);
+	return info ? info->device : nullptr;
 }
 
 MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(

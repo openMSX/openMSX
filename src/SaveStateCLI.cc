@@ -1,6 +1,7 @@
 #include "SaveStateCLI.hh"
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -8,7 +9,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-savestate", *this);
-	parser.registerFileType({"oms"}, *this);
+	parser.registerFileType(std::array<std::string_view, 1>{"oms"}, *this);
 }
 
 void SaveStateCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)

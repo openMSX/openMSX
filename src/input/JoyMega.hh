@@ -2,36 +2,41 @@
 #define JOYMEGA_HH
 
 #include "JoystickDevice.hh"
+
+#include "BooleanInput.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include <SDL.h>
+#include "StringSetting.hh"
+
+#include <array>
+#include <vector>
 
 namespace openmsx {
 
+class CommandController;
+class JoystickManager;
 class MSXEventDistributor;
 class StateChangeDistributor;
-class PluggingController;
 
-class JoyMega final
-#ifndef SDL_JOYSTICK_DISABLED
-	: public JoystickDevice, private MSXEventListener, private StateChangeListener
-#endif
+class JoyMega final : public JoystickDevice, private MSXEventListener
+                    , private StateChangeListener
 {
 public:
-	static void registerAll(MSXEventDistributor& eventDistributor,
-	                        StateChangeDistributor& stateChangeDistributor,
-	                        PluggingController& controller);
+	JoyMega(CommandController& commandController,
+	        MSXEventDistributor& eventDistributor,
+	        StateChangeDistributor& stateChangeDistributor,
+	        JoystickManager& joystickManager,
+	        uint8_t id);
+	~JoyMega() override ;
 
-	JoyMega(MSXEventDistributor& eventDistributor,
-	         StateChangeDistributor& stateChangeDistributor,
-	         SDL_Joystick* joystick);
-	~JoyMega()
-#ifndef SDL_JOYSTICK_DISABLED
-		override
-#endif
-		;
+	[[nodiscard]] static TclObject getDefaultConfig(JoystickId joyId, const JoystickManager& joystickManager);
 
-#ifndef SDL_JOYSTICK_DISABLED
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
+	void checkJoystickConfig(TclObject& newValue);
+
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
@@ -42,16 +47,6 @@ public:
 	[[nodiscard]] uint8_t read(EmuTime::param time) override;
 	void write(uint8_t value, EmuTime::param time) override;
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	void plugHelper2();
-	[[nodiscard]] unsigned calcInitialState();
-	void checkTime(EmuTime::param time);
-	void createEvent(EmuTime::param time, unsigned press, unsigned release);
-	void createEvent(EmuTime::param time, unsigned newStatus);
-
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
 	                    EmuTime::param time) noexcept override;
@@ -59,20 +54,27 @@ private:
 	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
+	void plugHelper2();
+	void checkTime(EmuTime::param time);
+
 private:
+	CommandController& commandController;
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	JoystickManager& joystickManager;
+	StringSetting configSetting;
 
-	SDL_Joystick* const joystick;
-	const int joyNum;
-	const std::string name;
-	const std::string desc;
+	// 0...3 :  up, down, left, right
+	// 4...7 :  a, b, c, start
+	// 8..11 :  x, y, z, select
+	std::array<std::vector<BooleanInput>, 12> bindings; // calculated from 'configSetting'
 
-	EmuTime lastTime;
-	unsigned status;
+	const std::string description;
+	EmuTime lastTime = EmuTime::zero();
+	unsigned status = 0xfff;
 	uint8_t cycle; // 0-7
 	uint8_t cycleMask; // 1 or 7
-#endif // SDL_JOYSTICK_DISABLED
+	const uint8_t id;
 };
 
 } // namespace openmsx

@@ -2,7 +2,7 @@
 #include "FileContext.hh"
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "HDImageCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -21,11 +21,16 @@ namespace openmsx {
 
 using std::string;
 
+std::shared_ptr<HD::HDInUse> HD::getDrivesInUse(MSXMotherBoard& motherBoard)
+{
+	return motherBoard.getSharedStuff<HDInUse>("hdInUse");
+}
+
 HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, name("hdX")
 {
-	hdInUse = motherBoard.getSharedStuff<HDInUse>("hdInUse");
+	hdInUse = getDrivesInUse(motherBoard);
 
 	int id = 0;
 	while ((*hdInUse)[id]) {
@@ -141,10 +146,10 @@ void HD::showProgress(size_t position, size_t maxPosition)
 	if (((now - lastProgressTime) > 1000000) ||
 	    ((position == maxPosition) && everDidProgress)) {
 		lastProgressTime = now;
-		int percentage = int((100 * position) / maxPosition);
+		auto fraction = float(position) / float(maxPosition);
 		motherBoard.getMSXCliComm().printProgress(
-			"Calculating hash for ", filename.getResolved(),
-			"... ", percentage, '%');
+			tmpStrCat("Calculating hash for ", filename.getResolved()),
+			fraction);
 		motherBoard.getReactor().getDisplay().repaint();
 		everDidProgress = true;
 	}

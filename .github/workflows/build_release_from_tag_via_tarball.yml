@@ -26,11 +26,11 @@ jobs:
             cpu: x86_64
             os: linux
             flavour: opt
-          - image: ubuntu-latest
-            name: Linux
-            cpu: aarch64
-            os: linux
-            flavour: opt
+#          - image: ubuntu-latest
+#            name: Linux
+#            cpu: aarch64
+#            os: linux
+#            flavour: opt
           - image: ubuntu-22.04
             name: Windows
             cpu: x86_64
@@ -85,7 +85,7 @@ jobs:
         shopt -s extglob
         rm -rf -v !("${{ steps.get_dist_name.outputs.tarball_name }}")
     - name: Extract tarball
-      uses: a7ul/tar-action@v1.1.0
+      uses: a7ul/tar-action@v1.1.3
       id: extract
       with:
         command: x

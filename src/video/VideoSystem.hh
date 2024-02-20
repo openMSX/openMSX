@@ -3,9 +3,12 @@
 
 #include "gl_vec.hh"
 #include "zstring_view.hh"
-#include <string>
-#include <memory>
+
 #include "components.hh"
+
+#include <memory>
+#include <optional>
+#include <string>
 
 namespace openmsx {
 
@@ -44,20 +47,6 @@ public:
 		LaserdiscPlayer &ld) = 0;
 #endif
 
-	/** Requests that this renderer checks its settings against the
-	  * current RenderSettings. If possible, update the settings of this
-	  * renderer.
-	  * The implementation in the Renderer base class checks whether the
-	  * right renderer is selected. Subclasses are encouraged to check
-	  * more settings.
-	  * @return True if the settings were still in sync
-	  *     or were successfully synced;
-	  *     false if the renderer is unable to bring the settings in sync.
-	  * TODO: Text copied from Renderer interface,
-	  *       if this stays here then rewrite text accordingly.
-	  */
-	[[nodiscard]] virtual bool checkSettings();
-
 	/** Finish pending drawing operations and make them visible to the user.
 	  */
 	virtual void flush() = 0;
@@ -84,6 +73,9 @@ public:
 	[[nodiscard]] virtual bool getCursorEnabled() = 0;
 	[[nodiscard]] virtual std::string getClipboardText() = 0;
 	virtual void setClipboardText(zstring_view text) = 0;
+
+	[[nodiscard]] virtual std::optional<gl::ivec2> getWindowPosition() = 0;
+	virtual void setWindowPosition(gl::ivec2 pos) = 0;
 
 	/** Requests a repaint of the output surface. An implementation might
 	 *  start a repaint directly, or trigger a queued rendering. */

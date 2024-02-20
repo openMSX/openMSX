@@ -46,7 +46,7 @@ public:
 public:
 	FilePoolCore(std::string fileCache,
 	             std::function<Directories()> getDirectories,
-	             std::function<void(std::string_view)> reportProgress);
+	             std::function<void(std::string_view, float)> reportProgress);
 	~FilePoolCore();
 
 	/** Search file with the given sha1sum.
@@ -70,7 +70,8 @@ public:
 private:
 	struct ScanProgress {
 		uint64_t lastTime;
-		unsigned amountScanned;
+		unsigned amountScanned = 0;
+		bool printed = false;
 	};
 
 	struct Entry {
@@ -155,7 +156,7 @@ private:
 private:
 	std::string fileCache; // path of the '.filecache' file.
 	std::function<Directories()> getDirectories;
-	std::function<void(std::string_view)> reportProgress;
+	std::function<void(std::string_view, float)> reportProgress;
 
 	MemBuffer<char> fileMem; // content of initial .filecache
 	std::vector<std::string> stringBuffer; // owns strings that are not in 'fileMem'

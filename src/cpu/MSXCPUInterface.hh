@@ -1,31 +1,35 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
+#include "BreakPoint.hh"
+#include "CacheLine.hh"
 #include "DebugCondition.hh"
+#include "WatchPoint.hh"
+
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
-#include "CacheLine.hh"
 #include "MSXDevice.hh"
-#include "BreakPoint.hh"
-#include "WatchPoint.hh"
 #include "ProfileCounters.hh"
-#include "narrow.hh"
 #include "openmsx.hh"
+
+#include "narrow.hh"
 #include "ranges.hh"
+
 #include <array>
 #include <bitset>
 #include <concepts>
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
-class VDPIODelay;
-class DummyDevice;
-class MSXMotherBoard;
-class MSXCPU;
-class CliComm;
+class BooleanSetting;
 class BreakPoint;
+class CliComm;
+class DummyDevice;
+class MSXCPU;
+class MSXMotherBoard;
+class VDPIODelay;
 
 inline constexpr bool PROFILE_CACHELINES = false;
 enum CacheLineCounters {
@@ -123,7 +127,7 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	inline byte readMem(word address, EmuTime::param time) {
+	byte readMem(word address, EmuTime::param time) {
 		tick(CacheLineCounters::SlowRead);
 		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
@@ -134,7 +138,7 @@ public:
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	inline void writeMem(word address, byte value, EmuTime::param time) {
+	void writeMem(word address, byte value, EmuTime::param time) {
 		tick(CacheLineCounters::SlowWrite);
 		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
@@ -147,7 +151,7 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	inline byte readIO(word port, EmuTime::param time) {
+	byte readIO(word port, EmuTime::param time) {
 		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
@@ -155,7 +159,7 @@ public:
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	inline void writeIO(word port, byte value, EmuTime::param time) {
+	void writeIO(word port, byte value, EmuTime::param time) {
 		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
@@ -171,7 +175,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] inline const byte* getReadCacheLine(word start) const {
+	[[nodiscard]] const byte* getReadCacheLine(word start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
 		if (disallowReadCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -191,7 +195,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] inline byte* getWriteCacheLine(word start) const {
+	[[nodiscard]] byte* getWriteCacheLine(word start) const {
 		tick(CacheLineCounters::GetWriteCacheLine);
 		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -235,24 +239,30 @@ public:
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps,
 		               std::span<const std::unique_ptr<MSXDevice>> allowed) const;
-	[[nodiscard]] inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
+	[[nodiscard]] bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool newExpanded);
+
+	[[nodiscard]] auto getPrimarySlot  (int page) const { return primarySlotState[page]; }
+	[[nodiscard]] auto getSecondarySlot(int page) const { return secondarySlotState[page]; }
 
 	[[nodiscard]] DummyDevice& getDummyDevice() { return *dummyDevice; }
 
 	void insertBreakPoint(BreakPoint bp);
 	void removeBreakPoint(const BreakPoint& bp);
+	void removeBreakPoint(unsigned id);
 	using BreakPoints = std::vector<BreakPoint>;
 	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
+	void removeWatchPoint(unsigned id);
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
 
 	void setCondition(DebugCondition cond);
 	void removeCondition(const DebugCondition& cond);
+	void removeCondition(unsigned id);
 	using Conditions = std::vector<DebugCondition>;
 	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
 
@@ -287,6 +297,7 @@ public:
 	[[nodiscard]] bool isFastForward() const { return fastForward; }
 
 	[[nodiscard]] MSXDevice* getMSXDevice(int ps, int ss, int page);
+	[[nodiscard]] MSXDevice* getVisibleMSXDevice(int page) { return visibleDevices[page]; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -310,8 +321,6 @@ private:
 
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	                                BreakPoints::const_iterator> range);
-	void removeBreakPoint(unsigned id);
-	void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
 	void updateMemWatch(WatchPoint::Type type);
@@ -392,6 +401,7 @@ private:
 	MSXCPU& msxcpu;
 	CliComm& cliComm;
 	MSXMotherBoard& motherBoard;
+	BooleanSetting& pauseSetting;
 
 	std::unique_ptr<VDPIODelay> delayDevice; // can be nullptr
 

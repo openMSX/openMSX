@@ -1,14 +1,16 @@
 #include "PluggableFactory.hh"
+
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "Joystick.hh"
 #include "JoyMega.hh"
 #include "ArkanoidPad.hh"
+#include "InputEventGenerator.hh"
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
 #include "MagicKey.hh"
+#include "MSXJoystick.hh"
 #include "KeyJoystick.hh"
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
@@ -47,7 +49,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	auto& msxEventDistributor    = motherBoard.getMSXEventDistributor();
 	auto& stateChangeDistributor = motherBoard.getStateChangeDistributor();
 	auto& eventDistributor       = reactor.getEventDistributor();
-	auto& globalSettings         = reactor.getGlobalSettings();
+	auto& joystickManager         = reactor.getInputEventGenerator().getJoystickManager();
 	auto& display                = reactor.getDisplay();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
@@ -68,16 +70,24 @@ void PluggableFactory::createAll(PluggingController& controller,
 		controller, "joytap"));
 	controller.registerPluggable(std::make_unique<NinjaTap>(
 		controller, "ninjatap"));
+	controller.registerPluggable(std::make_unique<MSXJoystick>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 1)); // msxjoystick1
+	controller.registerPluggable(std::make_unique<MSXJoystick>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 2)); // msxjoystick2
+	controller.registerPluggable(std::make_unique<JoyMega>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 1)); // joymega1
+	controller.registerPluggable(std::make_unique<JoyMega>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 2)); // joymega2
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, KeyJoystick::ID1));
 	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, KeyJoystick::ID2));
-	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
-	                      commandController, globalSettings, controller);
-	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
-	                      controller);
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());

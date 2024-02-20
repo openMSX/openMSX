@@ -1,5 +1,5 @@
 #include "Keyboard.hh"
-#include "Keys.hh"
+#include "SDLKey.hh"
 #include "DeviceConfig.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
@@ -21,6 +21,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_checked.hh"
@@ -31,6 +32,8 @@
 #include <cstdio>
 #include <cassert>
 #include <cstdarg>
+#include <functional>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -123,177 +126,555 @@ static constexpr std::array modifierPosForMatrix = {
 
 /** Keyboard bindings ****************************************/
 
-// Mapping from SDL keys to emulated keys, ordered by MatrixType
-static constexpr KeyMatrixPosition x = KeyMatrixPosition();
-static constexpr std::array keyTabs = {
-  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
-// MSX Key-Matrix table
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
-//   1   |  ;  |  ]  |  [  |  \  |  =  |  -  |  9  |  8  |
-//   2   |  B  |  A  | Acc |  /  |  .  |  ,  |  `  |  '  |
-//   3   |  J  |  I  |  H  |  G  |  F  |  E  |  D  |  C  |
-//   4   |  R  |  Q  |  P  |  O  |  N  |  M  |  L  |  K  |
-//   5   |  Z  |  Y  |  X  |  W  |  V  |  U  |  T  |  S  |
-//   6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
-//   7   | ret |selec|  bs | stop| tab | esc |  F5 |  F4 |
-//   8   |right| down|  up | left| del | ins | hom |space|
-//   9   |  4  |  3  |  2  |  1  |  0  |  /  |  +  |  *  |
-//  10   |  .  |  ,  |  -  |  9  |  8  |  7  |  6  |  5  |
-//  11   |     |     |     |     | 'NO'|     |'YES'|     |
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
-  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x22,0x12,0x23,0x24, //020
-  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11, x  ,0x17, x  ,0x13, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  ,0x84,0x85,0x87,0x86, x  , x  , x  , x  , x  , x  ,0x15,0x14,0x16, x  , x  , //050
-  0x21,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x40,0x41,0x42,0x43,0x44, //060
-  0x45,0x46,0x47,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57, x  , x  , x  , x  ,0x83, //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x81, x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA2,0xA3,0xA4,0xA7,0x92,0x90,0xA5,0x91,0xA6, //100
-   x  ,0x85,0x86,0x87,0x84,0x82,0x81, x  , x  , x  ,0x65,0x66,0x67,0x70,0x71, x  , //110
-  0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
-  0x60,0x25,0x61, x  , x  ,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  },
-  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
-// SVI Keyboard Matrix
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
-//   1   |  /  |  .  |  =  |  ,  |  '  |  :  |  9  |  8  |
-//   2   |  G  |  F  |  E  |  D  |  C  |  B  |  A  |  -  |
-//   3   |  O  |  N  |  M  |  L  |  K  |  J  |  I  |  H  |
-//   4   |  W  |  V  |  U  |  T  |  S  |  R  |  Q  |  P  |
-//   5   | UP  | BS  |  ]  |  \  |  [  |  Z  |  Y  |  X  |
-//   6   |LEFT |ENTER|STOP | ESC |RGRAP|LGRAP|CTRL |SHIFT|
-//   7   |DOWN | INS | CLS | F5  | F4  | F3  | F2  | F1  |
-//   8   |RIGHT|     |PRINT| SEL |CAPS | DEL | TAB |SPACE|
-//   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
-//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010
-  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x14,0x20,0x16,0x17, //020
-  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11,0x12, x  , x  ,0x15, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  ,0x67,0x57,0x87,0x77, x  , x  , x  , x  , x  , x  ,0x53,0x54,0x55, x  , x  , //050
-   x  ,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37, //060
-  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x50,0x51,0x52, x  , x  , x  , x  ,0x82, //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA6,0xA5,0xA4,0xA3,0xA2,0xA7, //100
-   x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
-  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
-  0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  },
-  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
-// ColecoVision Joystick "Matrix"
-//
-// The hardware consists of 2 controllers that each have 2 triggers
-// and a 12-key keypad. They're not actually connected in a matrix,
-// but a ghosting-free matrix is the easiest way to model it in openMSX.
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   0   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 1
-//   1   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 2
-//   2   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 1
-//   3   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 1
-//   4   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 2
-//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //010
-  0x06, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x32, x  , x  , //020
-  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  , x  , x  ,0x33, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //050
-   x  ,0x13,0x42, x  ,0x11, x  ,0x44,0x45,0x46, x  ,0x52, x  , x  ,0x53,0x43, x  , //060
-   x  , x  ,0x47,0x12,0x50,0x40,0x41,0x10, x  ,0x51, x  , x  , x  , x  , x  , x  , //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  ,0x33,0x32,0x32,0x33, x  , //100
-   x  ,0x00,0x02,0x01,0x03, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x07, //120
-  0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  },
-  std::array<KeyMatrixPosition, Keyboard::MAX_KEYSYM>{
-// Sega SC-3000 / SK-1100 Keyboard Matrix
-//
-// row/bit  7     6     5     4     3     2     1     0
-//       +-----+-----+-----+-----+-----+-----+-----+-----+  PPI
-//   0   |  I  |  K  |  ,  | eng |  Z  |  A  |  Q  |  1  |  A0
-//   1   |  O  |  L  |  .  |space|  X  |  S  |  W  |  2  |  A1
-//   2   |  P  |  ;  |  /  |home |  C  |  D  |  E  |  3  |  A2
-//   3   |  @  |  :  | pi  |ins  |  V  |  F  |  R  |  4  |  A3
-//   4   |  [  |  ]  |down |     |  B  |  G  |  T  |  5  |  A4
-//   5   |     | cr  |left |     |  N  |  H  |  Y  |  6  |  A5
-//   6   |     | up  |right|     |  M  |  J  |  U  |  7  |  A6
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//   7   |     |     |     |     |     |     |     |  8  |  B0
-//   8   |     |     |     |     |     |     |     |  9  |  B1
-//   9   |     |     |     |     |     |     |     |  0  |  B2
-//   A   |     |     |     |     |     |     |     |  -  |  B3
-//   B   |     |     |     |     |     |     |     |  ^  |  B4
-//   C   |     |     |     |     |func |     |     | cur |  B5
-//   D   |     |     |     |     |shift|ctrl |graph|break|  B6
-//       +-----+-----+-----+-----+-----+-----+-----+-----+
-//
-// Issues:
-// - graph is a lock key and gets pressed when using alt-tab
-// - alt-F7 is bound to quick-load
-// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-   x  , x  , x  , x  , x  , x  , x  , x  ,0x34,0xC3, x  , x  , x  ,0x56, x  , x  , //000
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD0, x  , x  , x  , x  , //010
-  0x14, x  , x  , x  , x  , x  , x  ,0x36, x  , x  , x  , x  ,0x05,0xA0,0x15,0x25, //020
-  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x36,0x26, x  ,0xB0, x  , x  , //030
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
-   x  ,0x55,0x66,0x65,0x45, x  , x  , x  , x  , x  , x  ,0x47,0xC0,0x46, x  , x  , //050
-  0x37,0x02,0x43,0x23,0x22,0x21,0x32,0x42,0x52,0x07,0x62,0x06,0x16,0x63,0x53,0x17, //060
-  0x27,0x01,0x31,0x12,0x41,0x61,0x33,0x11,0x13,0x51,0x03, x  , x  , x  , x  ,0x34, //070
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
-  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x15,0x25,0x36,0xA0,0x26,0x56, //100
-   x  ,0x66,0x45,0x65,0x55,0x34,0x24, x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
-  0x35,0xD0, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD3, //120
-  0xD3, x  ,0xD2,0x04,0xD1, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
-   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-  }
+struct MsxKeyScanMapping {
+	KeyMatrixPosition msx;
+	std::array<SDL_Keycode, 3> hostKeyCodes;
+	std::array<SDL_Scancode, 3> hostScanCodes;
+};
+
+template<typename Proj>
+static constexpr size_t count(std::span<const MsxKeyScanMapping> mapping, Proj proj)
+{
+	using Array = std::remove_cvref_t<decltype(std::invoke(proj, mapping[0]))>;
+	using Code = typename Array::value_type;
+
+	size_t result = 0;
+	for (const auto& m : mapping) {
+		for (const auto& c : std::invoke(proj, m)) {
+			if (c != Code{}) ++result;
+		}
+	}
+	return result;
+}
+
+template<typename GetMapping>
+static constexpr auto extractKeyCodeMapping(GetMapping getMapping)
+{
+	constexpr auto mapping = getMapping();
+	constexpr size_t N = count(mapping, &MsxKeyScanMapping::hostKeyCodes);
+	std::array<KeyCodeMsxMapping, N> result;
+	size_t i = 0;
+	for (const auto& m : mapping) {
+		for (const auto& k : m.hostKeyCodes) {
+			if (k != SDLK_UNKNOWN) {
+				result[i++] = {k, m.msx};
+			}
+		}
+	}
+	assert(i == N);
+	ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
+	return result;
+}
+template<typename GetMapping>
+static constexpr auto extractScanCodeMapping(GetMapping getMapping)
+{
+	constexpr auto mapping = getMapping();
+	constexpr size_t N = count(mapping, &MsxKeyScanMapping::hostScanCodes);
+	std::array<ScanCodeMsxMapping, N> result;
+	size_t i = 0;
+	for (const auto& m : mapping) {
+		for (const auto& k : m.hostScanCodes) {
+			if (k != SDL_SCANCODE_UNKNOWN) {
+				result[i++] = {k, m.msx};
+			}
+		}
+	}
+	assert(i == N);
+	ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
+	return result;
+}
+
+static constexpr auto getMSXMapping()
+{
+	// MSX Key-Matrix table
+	//
+	// row/bit  7     6     5     4     3     2     1     0
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
+	//   1   |  ;  |  ]  |  [  |  \  |  =  |  -  |  9  |  8  |
+	//   2   |  B  |  A  | Acc |  /  |  .  |  ,  |  `  |  '  |
+	//   3   |  J  |  I  |  H  |  G  |  F  |  E  |  D  |  C  |
+	//   4   |  R  |  Q  |  P  |  O  |  N  |  M  |  L  |  K  |
+	//   5   |  Z  |  Y  |  X  |  W  |  V  |  U  |  T  |  S  |
+	//   6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
+	//   7   | ret |selec|  bs | stop| tab | esc |  F5 |  F4 |
+	//   8   |right| down|  up | left| del | ins | hom |space|
+	//   9   |  4  |  3  |  2  |  1  |  0  |  /  |  +  |  *  |
+	//  10   |  .  |  ,  |  -  |  9  |  8  |  7  |  6  |  5  |
+	//  11   |     |     |     |     | 'NO'|     |'YES'|     |
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	using M = MsxKeyScanMapping;
+	using K = std::array<SDL_Keycode, 3>;
+	using S = std::array<SDL_Scancode, 3>;
+	std::array mapping = {
+		M{0x00, K{SDLK_0},           S{SDL_SCANCODE_0}},
+		M{0x01, K{SDLK_1},           S{SDL_SCANCODE_1}},
+		M{0x02, K{SDLK_2},           S{SDL_SCANCODE_2}},
+		M{0x03, K{SDLK_3},           S{SDL_SCANCODE_3}},
+		M{0x04, K{SDLK_4},           S{SDL_SCANCODE_4}},
+		M{0x05, K{SDLK_5},           S{SDL_SCANCODE_5}},
+		M{0x06, K{SDLK_6},           S{SDL_SCANCODE_6}},
+		M{0x07, K{SDLK_7},           S{SDL_SCANCODE_7}},
+
+		M{0x10, K{SDLK_8},           S{SDL_SCANCODE_8}},
+		M{0x11, K{SDLK_9},           S{SDL_SCANCODE_9}},
+		M{0x12, K{SDLK_MINUS},       S{SDL_SCANCODE_MINUS}},
+		M{0x13, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}},
+		M{0x14, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
+		M{0x15, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
+		M{0x16, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
+		M{0x17, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
+
+		M{0x20, K{SDLK_QUOTE},       S{SDL_SCANCODE_APOSTROPHE}},
+		M{0x21, K{SDLK_BACKQUOTE},   S{SDL_SCANCODE_GRAVE}},
+		M{0x22, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
+		M{0x23, K{SDLK_PERIOD},      S{SDL_SCANCODE_PERIOD}},
+		M{0x24, K{SDLK_SLASH},       S{SDL_SCANCODE_SLASH}},
+		M{0x25, K{SDLK_RCTRL},       S{SDL_SCANCODE_RCTRL}}, // Acc
+		M{0x26, K{SDLK_a},           S{SDL_SCANCODE_A}},
+		M{0x27, K{SDLK_b},           S{SDL_SCANCODE_B}},
+
+		M{0x30, K{SDLK_c},           S{SDL_SCANCODE_C}},
+		M{0x31, K{SDLK_d},           S{SDL_SCANCODE_D}},
+		M{0x32, K{SDLK_e},           S{SDL_SCANCODE_E}},
+		M{0x33, K{SDLK_f},           S{SDL_SCANCODE_F}},
+		M{0x34, K{SDLK_g},           S{SDL_SCANCODE_G}},
+		M{0x35, K{SDLK_h},           S{SDL_SCANCODE_H}},
+		M{0x36, K{SDLK_i},           S{SDL_SCANCODE_I}},
+		M{0x37, K{SDLK_j},           S{SDL_SCANCODE_J}},
+
+		M{0x40, K{SDLK_k},           S{SDL_SCANCODE_K}},
+		M{0x41, K{SDLK_l},           S{SDL_SCANCODE_L}},
+		M{0x42, K{SDLK_m},           S{SDL_SCANCODE_M}},
+		M{0x43, K{SDLK_n},           S{SDL_SCANCODE_N}},
+		M{0x44, K{SDLK_o},           S{SDL_SCANCODE_O}},
+		M{0x45, K{SDLK_p},           S{SDL_SCANCODE_P}},
+		M{0x46, K{SDLK_q},           S{SDL_SCANCODE_Q}},
+		M{0x47, K{SDLK_r},           S{SDL_SCANCODE_R}},
+
+		M{0x50, K{SDLK_s},           S{SDL_SCANCODE_S}},
+		M{0x51, K{SDLK_t},           S{SDL_SCANCODE_T}},
+		M{0x52, K{SDLK_u},           S{SDL_SCANCODE_U}},
+		M{0x53, K{SDLK_v},           S{SDL_SCANCODE_V}},
+		M{0x54, K{SDLK_w},           S{SDL_SCANCODE_W}},
+		M{0x55, K{SDLK_x},           S{SDL_SCANCODE_X}},
+		M{0x56, K{SDLK_y},           S{SDL_SCANCODE_Y}},
+		M{0x57, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+
+		M{0x60, K{SDLK_LSHIFT, SDLK_RSHIFT}, S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
+		M{0x61, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
+		M{0x62, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}}, // GRAPH
+		M{0x63, K{SDLK_CAPSLOCK},    S{SDL_SCANCODE_CAPSLOCK}},
+		M{0x64, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}}, // CODE
+		M{0x65, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
+		M{0x66, K{SDLK_F2},          S{SDL_SCANCODE_F2}},
+		M{0x67, K{SDLK_F3},          S{SDL_SCANCODE_F3}},
+
+		M{0x70, K{SDLK_F4},          S{SDL_SCANCODE_F4}},
+		M{0x71, K{SDLK_F5},          S{SDL_SCANCODE_F5}},
+		M{0x72, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
+		M{0x73, K{SDLK_TAB},         S{SDL_SCANCODE_TAB}},
+		M{0x74, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
+		M{0x75, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
+		M{0x76, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // SELECT
+		M{0x77, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+
+		M{0x80, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
+		M{0x81, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
+		M{0x82, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
+		M{0x83, K{SDLK_DELETE},      S{SDL_SCANCODE_DELETE}},
+		M{0x84, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
+		M{0x85, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
+		M{0x86, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
+		M{0x87, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
+
+		M{0x90, K{SDLK_KP_MULTIPLY}, S{SDL_SCANCODE_KP_MULTIPLY}},
+		M{0x91, K{SDLK_KP_PLUS},     S{SDL_SCANCODE_KP_PLUS}},
+		M{0x92, K{SDLK_KP_DIVIDE},   S{SDL_SCANCODE_KP_DIVIDE}},
+		M{0x93, K{SDLK_KP_0},        S{SDL_SCANCODE_KP_0}},
+		M{0x94, K{SDLK_KP_1},        S{SDL_SCANCODE_KP_1}},
+		M{0x95, K{SDLK_KP_2},        S{SDL_SCANCODE_KP_2}},
+		M{0x96, K{SDLK_KP_3},        S{SDL_SCANCODE_KP_3}},
+		M{0x97, K{SDLK_KP_4},        S{SDL_SCANCODE_KP_4}},
+
+		M{0xA0, K{SDLK_KP_5},        S{SDL_SCANCODE_KP_5}},
+		M{0xA1, K{SDLK_KP_6},        S{SDL_SCANCODE_KP_6}},
+		M{0xA2, K{SDLK_KP_7},        S{SDL_SCANCODE_KP_7}},
+		M{0xA3, K{SDLK_KP_8},        S{SDL_SCANCODE_KP_8}},
+		M{0xA4, K{SDLK_KP_9},        S{SDL_SCANCODE_KP_9}},
+		M{0xA5, K{SDLK_KP_MINUS},    S{SDL_SCANCODE_KP_MINUS}},
+		M{0xA6, K{SDLK_KP_COMMA},    S{SDL_SCANCODE_KP_COMMA}},
+		M{0xA7, K{SDLK_KP_PERIOD},   S{SDL_SCANCODE_KP_PERIOD}},
+
+		M{0xB1, K{SDLK_RGUI},        S{SDL_SCANCODE_RGUI}},
+		M{0xB3, K{SDLK_LGUI},        S{SDL_SCANCODE_LGUI}},
+	};
+	return mapping;
+}
+
+static constexpr auto getSVIMapping()
+{
+	// SVI Keyboard Matrix
+	//
+	// row/bit  7     6     5     4     3     2     1     0
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
+	//   1   |  /  |  .  |  =  |  ,  |  '  |  :  |  9  |  8  |
+	//   2   |  G  |  F  |  E  |  D  |  C  |  B  |  A  |  -  |
+	//   3   |  O  |  N  |  M  |  L  |  K  |  J  |  I  |  H  |
+	//   4   |  W  |  V  |  U  |  T  |  S  |  R  |  Q  |  P  |
+	//   5   | UP  | BS  |  ]  |  \  |  [  |  Z  |  Y  |  X  |
+	//   6   |LEFT |ENTER|STOP | ESC |RGRAP|LGRAP|CTRL |SHIFT|
+	//   7   |DOWN | INS | CLS | F5  | F4  | F3  | F2  | F1  |
+	//   8   |RIGHT|     |PRINT| SEL |CAPS | DEL | TAB |SPACE|
+	//   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
+	//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	using M = MsxKeyScanMapping;
+	using K = std::array<SDL_Keycode, 3>;
+	using S = std::array<SDL_Scancode, 3>;
+	std::array mapping = {
+		M{0x00, K{SDLK_0},           S{SDL_SCANCODE_0}},
+		M{0x01, K{SDLK_1},           S{SDL_SCANCODE_1}},
+		M{0x02, K{SDLK_2},           S{SDL_SCANCODE_2}},
+		M{0x03, K{SDLK_3},           S{SDL_SCANCODE_3}},
+		M{0x04, K{SDLK_4},           S{SDL_SCANCODE_4}},
+		M{0x05, K{SDLK_5},           S{SDL_SCANCODE_5}},
+		M{0x06, K{SDLK_6},           S{SDL_SCANCODE_6}},
+		M{0x07, K{SDLK_7},           S{SDL_SCANCODE_7}},
+
+		M{0x10, K{SDLK_8},           S{SDL_SCANCODE_8}},
+		M{0x11, K{SDLK_9},           S{SDL_SCANCODE_9}},
+		M{0x12, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
+		M{0x13, K{SDLK_QUOTE},       S{SDL_SCANCODE_APOSTROPHE}},
+		M{0x14, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
+		M{0x15, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}},
+		M{0x16, K{SDLK_PERIOD},      S{SDL_SCANCODE_PERIOD}},
+		M{0x17, K{SDLK_SLASH},       S{SDL_SCANCODE_SLASH}},
+
+		M{0x20, K{SDLK_MINUS},       S{SDL_SCANCODE_MINUS}},
+		M{0x21, K{SDLK_a},           S{SDL_SCANCODE_A}},
+		M{0x22, K{SDLK_b},           S{SDL_SCANCODE_B}},
+		M{0x23, K{SDLK_c},           S{SDL_SCANCODE_C}},
+		M{0x24, K{SDLK_d},           S{SDL_SCANCODE_D}},
+		M{0x25, K{SDLK_e},           S{SDL_SCANCODE_E}},
+		M{0x26, K{SDLK_f},           S{SDL_SCANCODE_F}},
+		M{0x27, K{SDLK_g},           S{SDL_SCANCODE_G}},
+
+		M{0x30, K{SDLK_h},           S{SDL_SCANCODE_H}},
+		M{0x31, K{SDLK_i},           S{SDL_SCANCODE_I}},
+		M{0x32, K{SDLK_j},           S{SDL_SCANCODE_J}},
+		M{0x33, K{SDLK_k},           S{SDL_SCANCODE_K}},
+		M{0x34, K{SDLK_l},           S{SDL_SCANCODE_L}},
+		M{0x35, K{SDLK_m},           S{SDL_SCANCODE_M}},
+		M{0x36, K{SDLK_n},           S{SDL_SCANCODE_N}},
+		M{0x37, K{SDLK_o},           S{SDL_SCANCODE_O}},
+
+		M{0x40, K{SDLK_p},           S{SDL_SCANCODE_P}},
+		M{0x41, K{SDLK_q},           S{SDL_SCANCODE_Q}},
+		M{0x42, K{SDLK_r},           S{SDL_SCANCODE_R}},
+		M{0x43, K{SDLK_s},           S{SDL_SCANCODE_S}},
+		M{0x44, K{SDLK_t},           S{SDL_SCANCODE_T}},
+		M{0x45, K{SDLK_u},           S{SDL_SCANCODE_U}},
+		M{0x46, K{SDLK_v},           S{SDL_SCANCODE_V}},
+		M{0x47, K{SDLK_w},           S{SDL_SCANCODE_W}},
+
+		M{0x50, K{SDLK_x},           S{SDL_SCANCODE_X}},
+		M{0x51, K{SDLK_y},           S{SDL_SCANCODE_Y}},
+		M{0x52, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+		M{0x53, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
+		M{0x54, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
+		M{0x55, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
+		M{0x56, K{SDLK_BACKSPACE},   S{SDL_SCANCODE_BACKSPACE}},
+		M{0x57, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
+
+		M{0x60, K{SDLK_LSHIFT, SDLK_RSHIFT}, S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
+		M{0x61, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
+		M{0x62, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}},
+		M{0x63, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},
+		M{0x64, K{SDLK_ESCAPE},      S{SDL_SCANCODE_ESCAPE}},
+		M{0x65, K{SDLK_F8},          S{SDL_SCANCODE_F8}}, // STOP
+		M{0x66, K{SDLK_RETURN},      S{SDL_SCANCODE_RETURN}},
+		M{0x67, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
+
+		M{0x70, K{SDLK_F1},          S{SDL_SCANCODE_F1}},
+		M{0x71, K{SDLK_F2},          S{SDL_SCANCODE_F2}},
+		M{0x72, K{SDLK_F3},          S{SDL_SCANCODE_F3}},
+		M{0x73, K{SDLK_F4},          S{SDL_SCANCODE_F4}},
+		M{0x74, K{SDLK_F5},          S{SDL_SCANCODE_F5}},
+		M{0x75, K{SDLK_F7},          S{SDL_SCANCODE_F7}}, // CLS
+		M{0x76, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
+		M{0x77, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
+
+		M{0x80, K{SDLK_SPACE},       S{SDL_SCANCODE_F1}},
+		M{0x81, K{SDLK_TAB},         S{SDL_SCANCODE_F2}},
+		M{0x82, K{SDLK_DELETE},      S{SDL_SCANCODE_F3}},
+		M{0x83, K{SDLK_CAPSLOCK},    S{SDL_SCANCODE_F4}},
+		M{0x84, K{SDLK_F6},          S{SDL_SCANCODE_F6}}, // SELECT
+		M{0x85, K{SDLK_PRINTSCREEN}, S{SDL_SCANCODE_PRINTSCREEN}}, // CLS
+		// no key on 0x86 ?
+		M{0x87, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
+
+		M{0x90, K{SDLK_KP_0},        S{SDL_SCANCODE_KP_0}},
+		M{0x91, K{SDLK_KP_1},        S{SDL_SCANCODE_KP_1}},
+		M{0x92, K{SDLK_KP_2},        S{SDL_SCANCODE_KP_2}},
+		M{0x93, K{SDLK_KP_3},        S{SDL_SCANCODE_KP_3}},
+		M{0x94, K{SDLK_KP_4},        S{SDL_SCANCODE_KP_4}},
+		M{0x95, K{SDLK_KP_5},        S{SDL_SCANCODE_KP_5}},
+		M{0x96, K{SDLK_KP_6},        S{SDL_SCANCODE_KP_6}},
+		M{0x97, K{SDLK_KP_7},        S{SDL_SCANCODE_KP_7}},
+
+		M{0xA0, K{SDLK_KP_8},        S{SDL_SCANCODE_KP_8}},
+		M{0xA1, K{SDLK_KP_9},        S{SDL_SCANCODE_KP_9}},
+		M{0xA2, K{SDLK_KP_PLUS},     S{SDL_SCANCODE_KP_PLUS}},
+		M{0xA3, K{SDLK_KP_MINUS},    S{SDL_SCANCODE_KP_MINUS}},
+		M{0xA4, K{SDLK_KP_MULTIPLY}, S{SDL_SCANCODE_KP_MULTIPLY}},
+		M{0xA5, K{SDLK_KP_DIVIDE},   S{SDL_SCANCODE_KP_DIVIDE}},
+		M{0xA6, K{SDLK_KP_PERIOD},   S{SDL_SCANCODE_KP_PERIOD}},
+		M{0xA7, K{SDLK_KP_COMMA},    S{SDL_SCANCODE_KP_COMMA}},
+	};
+	return mapping;
+}
+
+static constexpr auto getCvJoyMapping()
+{
+	// ColecoVision Joystick "Matrix"
+	//
+	// The hardware consists of 2 controllers that each have 2 triggers
+	// and a 12-key keypad. They're not actually connected in a matrix,
+	// but a ghosting-free matrix is the easiest way to model it in openMSX.
+	//
+	// row/bit  7     6     5     4     3     2     1     0
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	//   0   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 1
+	//   1   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 2
+	//   2   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 1
+	//   3   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 1
+	//   4   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 2
+	//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	using M = MsxKeyScanMapping;
+	using K = std::array<SDL_Keycode, 3>;
+	using S = std::array<SDL_Scancode, 3>;
+	std::array mapping = {
+		M{0x00, K{SDLK_UP},      S{SDL_SCANCODE_UP}},
+		M{0x01, K{SDLK_RIGHT},   S{SDL_SCANCODE_RIGHT}},
+		M{0x02, K{SDLK_DOWN},    S{SDL_SCANCODE_DOWN}},
+		M{0x03, K{SDLK_LEFT},    S{SDL_SCANCODE_LEFT}},
+		M{0x06, K{SDLK_SPACE,        SDLK_RCTRL},
+		        S{SDL_SCANCODE_SPACE, SDL_SCANCODE_RCTRL}},
+		M{0x07, K{SDLK_RSHIFT,         SDLK_RALT,         SDLK_LALT},
+		        S{SDL_SCANCODE_RSHIFT, SDL_SCANCODE_RALT, SDL_SCANCODE_LALT}},
+
+		M{0x10, K{SDLK_w},       S{SDL_SCANCODE_W}},
+		M{0x11, K{SDLK_d},       S{SDL_SCANCODE_D}},
+		M{0x12, K{SDLK_s},       S{SDL_SCANCODE_S}},
+		M{0x13, K{SDLK_a},       S{SDL_SCANCODE_A}},
+		M{0x16, K{SDLK_LCTRL},   S{SDL_SCANCODE_LCTRL}},
+		M{0x17, K{SDLK_LSHIFT},  S{SDL_SCANCODE_LSHIFT}},
+
+		M{0x20, K{SDLK_0, SDLK_KP_0},       S{SDL_SCANCODE_0}},
+		M{0x21, K{SDLK_1, SDLK_KP_1},       S{SDL_SCANCODE_1}},
+		M{0x22, K{SDLK_2, SDLK_KP_2},       S{SDL_SCANCODE_2}},
+		M{0x23, K{SDLK_3, SDLK_KP_3},       S{SDL_SCANCODE_3}},
+		M{0x24, K{SDLK_4, SDLK_KP_4},       S{SDL_SCANCODE_4}},
+		M{0x25, K{SDLK_5, SDLK_KP_5},       S{SDL_SCANCODE_5}},
+		M{0x26, K{SDLK_6, SDLK_KP_6}, S{SDL_SCANCODE_6}},
+		M{0x27, K{SDLK_7, SDLK_KP_7}, S{SDL_SCANCODE_7}},
+
+		M{0x30, K{SDLK_8, SDLK_KP_8}, S{SDL_SCANCODE_8}},
+		M{0x31, K{SDLK_9, SDLK_KP_9}, S{SDL_SCANCODE_9}},
+		M{0x32, K{SDLK_MINUS,         SDLK_KP_MULTIPLY,         SDLK_KP_MINUS},
+		        S{SDL_SCANCODE_MINUS, SDL_SCANCODE_KP_MULTIPLY, SDL_SCANCODE_KP_MINUS}}, // *
+		M{0x33, K{SDLK_EQUALS,         SDLK_KP_DIVIDE,         SDLK_KP_PLUS},
+		        S{SDL_SCANCODE_EQUALS, SDL_SCANCODE_KP_DIVIDE, SDL_SCANCODE_KP_PLUS}},// #
+
+		M{0x40, K{SDLK_u},       S{SDL_SCANCODE_U}}, // 0
+		M{0x41, K{SDLK_v},       S{SDL_SCANCODE_V}}, // 1
+		M{0x42, K{SDLK_b},       S{SDL_SCANCODE_B}}, // 2
+		M{0x43, K{SDLK_n},       S{SDL_SCANCODE_N}}, // 3
+		M{0x44, K{SDLK_f},       S{SDL_SCANCODE_F}}, // 4
+		M{0x45, K{SDLK_g},       S{SDL_SCANCODE_G}}, // 5
+		M{0x46, K{SDLK_h},       S{SDL_SCANCODE_H}}, // 6
+		M{0x47, K{SDLK_r},       S{SDL_SCANCODE_R}}, // 7
+
+		M{0x50, K{SDLK_t},       S{SDL_SCANCODE_T}}, // 8
+		M{0x51, K{SDLK_y},       S{SDL_SCANCODE_Y}}, // 9
+		M{0x52, K{SDLK_j},       S{SDL_SCANCODE_J}}, // *
+		M{0x53, K{SDLK_m},       S{SDL_SCANCODE_M}}, // #
+	};
+	return mapping;
+}
+
+static constexpr auto getSegaMapping()
+{
+	// Sega SC-3000 / SK-1100 Keyboard Matrix
+	//
+	// row/bit  7     6     5     4     3     2     1     0
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+  PPI
+	//   0   |  I  |  K  |  ,  | eng |  Z  |  A  |  Q  |  1  |  A0
+	//   1   |  O  |  L  |  .  |space|  X  |  S  |  W  |  2  |  A1
+	//   2   |  P  |  ;  |  /  |home |  C  |  D  |  E  |  3  |  A2
+	//   3   |  @  |  :  | pi  |ins  |  V  |  F  |  R  |  4  |  A3
+	//   4   |  [  |  ]  |down |     |  B  |  G  |  T  |  5  |  A4
+	//   5   |     | cr  |left |     |  N  |  H  |  Y  |  6  |  A5
+	//   6   |     | up  |right|     |  M  |  J  |  U  |  7  |  A6
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	//   7   |     |     |     |     |     |     |     |  8  |  B0
+	//   8   |     |     |     |     |     |     |     |  9  |  B1
+	//   9   |     |     |     |     |     |     |     |  0  |  B2
+	//   A   |     |     |     |     |     |     |     |  -  |  B3
+	//   B   |     |     |     |     |     |     |     |  ^  |  B4
+	//   C   |     |     |     |     |func |     |     | cur |  B5
+	//   D   |     |     |     |     |shift|ctrl |graph|break|  B6
+	//       +-----+-----+-----+-----+-----+-----+-----+-----+
+	// Issues:
+	// - graph is a lock key and gets pressed when using alt-tab
+	// - alt-F7 is bound to quick-load
+	using M = MsxKeyScanMapping;
+	using K = std::array<SDL_Keycode, 3>;
+	using S = std::array<SDL_Scancode, 3>;
+	std::array mapping = {
+		M{0x00, K{SDLK_1,         SDLK_KP_1},
+		        S{SDL_SCANCODE_1, SDL_SCANCODE_KP_1}},
+		M{0x01, K{SDLK_q},           S{SDL_SCANCODE_Q}},
+		M{0x02, K{SDLK_a},           S{SDL_SCANCODE_A}},
+		M{0x03, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+		M{0x04, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},  // eng
+		M{0x05, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
+		M{0x06, K{SDLK_k},           S{SDL_SCANCODE_K}},
+		M{0x07, K{SDLK_i},           S{SDL_SCANCODE_I}},
+
+		M{0x10, K{SDLK_2,         SDLK_KP_2},
+		        S{SDL_SCANCODE_2, SDL_SCANCODE_KP_2}},
+		M{0x11, K{SDLK_w},           S{SDL_SCANCODE_W}},
+		M{0x12, K{SDLK_s},           S{SDL_SCANCODE_S}},
+		M{0x13, K{SDLK_x},           S{SDL_SCANCODE_X}},
+		M{0x14, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
+		M{0x15, K{SDLK_PERIOD,         SDLK_KP_PERIOD},
+		        S{SDL_SCANCODE_PERIOD, SDL_SCANCODE_KP_PERIOD}},
+		M{0x16, K{SDLK_l},           S{SDL_SCANCODE_L}},
+		M{0x17, K{SDLK_o},           S{SDL_SCANCODE_O}},
+
+		M{0x20, K{SDLK_3,         SDLK_KP_3},
+		        S{SDL_SCANCODE_3, SDL_SCANCODE_KP_3}},
+		M{0x21, K{SDLK_e},           S{SDL_SCANCODE_E}},
+		M{0x22, K{SDLK_d},           S{SDL_SCANCODE_D}},
+		M{0x23, K{SDLK_c},           S{SDL_SCANCODE_C}},
+		M{0x24, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
+		M{0x25, K{SDLK_SLASH,         SDLK_KP_DIVIDE},
+		        S{SDL_SCANCODE_SLASH, SDL_SCANCODE_KP_DIVIDE}},
+		M{0x26, K{SDLK_SEMICOLON,         SDLK_KP_PLUS},
+		        S{SDL_SCANCODE_SEMICOLON, SDL_SCANCODE_KP_PLUS}},
+		M{0x27, K{SDLK_p},           S{SDL_SCANCODE_P}},
+
+		M{0x30, K{SDLK_4,         SDLK_KP_4},
+		        S{SDL_SCANCODE_4, SDL_SCANCODE_KP_4}},
+		M{0x31, K{SDLK_r},           S{SDL_SCANCODE_R}},
+		M{0x32, K{SDLK_f},           S{SDL_SCANCODE_F}},
+		M{0x33, K{SDLK_v},           S{SDL_SCANCODE_V}},
+		M{0x34, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
+		M{0x35, K{SDLK_F7},          S{SDL_SCANCODE_F7}},         // pi
+		M{0x36, K{SDLK_QUOTE,              SDLK_KP_MULTIPLY},
+		        S{SDL_SCANCODE_APOSTROPHE, SDL_SCANCODE_KP_MULTIPLY}}, // :
+		M{0x37, K{SDLK_BACKQUOTE},   S{SDL_SCANCODE_GRAVE}},      // @
+
+		M{0x40, K{SDLK_5,         SDLK_KP_5},
+		        S{SDL_SCANCODE_5, SDL_SCANCODE_KP_5}},
+		M{0x41, K{SDLK_t},           S{SDL_SCANCODE_T}},
+		M{0x42, K{SDLK_g},           S{SDL_SCANCODE_G}},
+		M{0x43, K{SDLK_b},           S{SDL_SCANCODE_B}},
+		// nothing on 0x44
+		M{0x45, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
+		M{0x46, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
+		M{0x47, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
+
+		M{0x50, K{SDLK_6,         SDLK_KP_6},
+		        S{SDL_SCANCODE_6, SDL_SCANCODE_KP_6}},
+		M{0x51, K{SDLK_y},           S{SDL_SCANCODE_Y}},
+		M{0x52, K{SDLK_h},           S{SDL_SCANCODE_H}},
+		M{0x53, K{SDLK_n},           S{SDL_SCANCODE_N}},
+		// nothing on 0x54
+		M{0x55, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
+		M{0x56, K{SDLK_RETURN,         SDLK_KP_ENTER},
+		        S{SDL_SCANCODE_RETURN, SDL_SCANCODE_KP_ENTER}},
+		// nothing on 0x57
+
+		M{0x60, K{SDLK_7,         SDLK_KP_7},
+		        S{SDL_SCANCODE_7, SDL_SCANCODE_KP_7}},
+		M{0x61, K{SDLK_u},           S{SDL_SCANCODE_U}},
+		M{0x62, K{SDLK_j},           S{SDL_SCANCODE_J}},
+		M{0x63, K{SDLK_m},           S{SDL_SCANCODE_M}},
+		// nothing on 0x64
+		M{0x65, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
+		M{0x66, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
+		// nothing on 0x67
+
+		M{0x70, K{SDLK_8,         SDLK_KP_8},
+		        S{SDL_SCANCODE_8, SDL_SCANCODE_KP_8}},
+		M{0x80, K{SDLK_9,         SDLK_KP_9},
+		        S{SDL_SCANCODE_9, SDL_SCANCODE_KP_9}},
+		M{0x90, K{SDLK_0,         SDLK_KP_0},
+		        S{SDL_SCANCODE_0, SDL_SCANCODE_KP_0}},
+		M{0xA0, K{SDLK_MINUS,         SDLK_KP_MINUS},
+		        S{SDL_SCANCODE_MINUS, SDL_SCANCODE_KP_MINUS}},
+		M{0xB0, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}}, // ^
+
+		M{0xC0, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}}, // cur
+		M{0xC3, K{SDLK_TAB},         S{SDL_SCANCODE_TAB}},       // func
+
+		M{0xD0, K{SDLK_ESCAPE,         SDLK_F8},
+		        S{SDL_SCANCODE_ESCAPE, SDL_SCANCODE_F8}},   // break
+		M{0xD1, K{SDLK_LALT},        S{SDL_SCANCODE_LALT}}, // graph
+		M{0xD2, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
+		M{0xD3, K{SDLK_LSHIFT,         SDLK_RSHIFT},
+		        S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
+	};
+	return mapping;
+//// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+//   x  , x  , x  , x  , x  , x  , x  , x  ,0x34,0xC3, x  , x  , x  ,0x56, x  , x  , //000
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD0, x  , x  , x  , x  , //010
+//  0x14, x  , x  , x  , x  , x  , x  ,0x36, x  , x  , x  , x  ,0x05,0xA0,0x15,0x25, //020
+//  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x36,0x26, x  ,0xB0, x  , x  , //030
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+//   x  ,0x55,0x66,0x65,0x45, x  , x  , x  , x  , x  , x  ,0x47,0xC0,0x46, x  , x  , //050
+//  0x37,0x02,0x43,0x23,0x22,0x21,0x32,0x42,0x52,0x07,0x62,0x06,0x16,0x63,0x53,0x17, //060
+//  0x27,0x01,0x31,0x12,0x41,0x61,0x33,0x11,0x13,0x51,0x03, x  , x  , x  , x  ,0x34, //070
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+//  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x15,0x25,0x36,0xA0,0x26,0x56, //100
+//   x  ,0x66,0x45,0x65,0x55,0x34,0x24, x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
+//  0x35,0xD0, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD3, //120
+//  0xD3, x  ,0xD2,0x04,0xD1, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
+//   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+}
+
+static constexpr auto msxKeyCodeMapping    = extractKeyCodeMapping ([] { return getMSXMapping(); });
+static constexpr auto msxScanCodeMapping   = extractScanCodeMapping([] { return getMSXMapping(); });
+static constexpr auto sviKeyCodeMapping    = extractKeyCodeMapping ([] { return getSVIMapping(); });
+static constexpr auto sviScanCodeMapping   = extractScanCodeMapping([] { return getSVIMapping(); });
+static constexpr auto cvJoyKeyCodeMapping  = extractKeyCodeMapping ([] { return getCvJoyMapping(); });
+static constexpr auto cvJoyScanCodeMapping = extractScanCodeMapping([] { return getCvJoyMapping(); });
+static constexpr auto segaKeyCodeMapping   = extractKeyCodeMapping ([] { return getSegaMapping(); });
+static constexpr auto segaScanCodeMapping  = extractScanCodeMapping([] { return getSegaMapping(); });
+
+static constexpr std::array<std::span<const KeyCodeMsxMapping>, 4> defaultKeyCodeMappings = {
+	msxKeyCodeMapping,
+	sviKeyCodeMapping,
+	cvJoyKeyCodeMapping,
+	segaKeyCodeMapping,
+};
+static constexpr std::array<std::span<const ScanCodeMsxMapping>, 4> defaultScanCodeMappings = {
+	msxScanCodeMapping,
+	sviScanCodeMapping,
+	cvJoyScanCodeMapping,
+	segaScanCodeMapping,
 };
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
@@ -308,7 +689,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyTab(keyTabs[matrix])
+	, keyCodeTab (to_vector(defaultKeyCodeMappings [matrix]))
+	, scanCodeTab(to_vector(defaultScanCodeMappings[matrix]))
 	, modifierPos(modifierPosForMatrix[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
@@ -336,7 +718,6 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	ranges::fill(typeKeyMatrix, 255);
 	ranges::fill(userKeyMatrix, 255);
 	ranges::fill(hostKeyMatrix, 255);
-	ranges::fill(dynKeymap,       0);
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
@@ -463,6 +844,8 @@ void Keyboard::signalMSXEvent(const Event& event,
                               EmuTime::param time) noexcept
 {
 	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
+		const auto& keyEvent = get_event<KeyEvent>(event);
+		if (keyEvent.getRepeat()) return;
 		// Ignore possible console on/off events:
 		// we do not re-scan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
@@ -488,7 +871,7 @@ void Keyboard::stopReplay(EmuTime::param time) noexcept
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
-	ranges::fill(dynKeymap, 0);
+	lastUnicodeForKeycode.clear();
 }
 
 uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
@@ -554,11 +937,9 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	const auto& keyEvent = get<KeyEvent>(event);
+	const auto& keyEvent = get_event<KeyEvent>(event);
 	bool down = getType(event) == EventType::KEY_DOWN;
-	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
-	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();
-	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
+	auto key = keyEvent.getKey();
 
 	if (down) {
 		// TODO: refactor debug(...) method to expect a std::string and then adapt
@@ -570,24 +951,24 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		ad_printf("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
-		      Keys::getName(keyEvent.getKeyCode()).c_str());
+		      key.toString().c_str());
 		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
-		      Keys::getName(keyEvent.getKeyCode()).c_str());
+		      key.toString().c_str());
 	} else {
 		ad_printf("Key released, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
-		      Keys::getName(keyEvent.getKeyCode()).c_str());
+		      key.toString().c_str());
 		debug("Key released, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
-		      Keys::getName(keyEvent.getKeyCode()).c_str());
+		      key.toString().c_str());
 	}
 
 	// Process dead keys.
 	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
 		for (auto n : xrange(3)) {
-			if (key == keyboardSettings.getDeadKeyHostKey(n)) {
+			if (key.sym.sym == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
 				if (deadKey.isValid()) {
 					updateKeyMatrix(time, down, deadKey.pos);
@@ -597,16 +978,16 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		}
 	}
 
-	if (key == Keys::K_CAPSLOCK) {
+	if (key.sym.sym == SDLK_CAPSLOCK) {
 		processCapslockEvent(time, down);
 		return false;
-	} else if (key == keyboardSettings.getCodeKanaHostKey()) {
+	} else if (key.sym.sym == keyboardSettings.getCodeKanaHostKey()) {
 		processCodeKanaChange(time, down);
 		return false;
-	} else if (key == Keys::K_LALT) {
+	} else if (key.sym.sym == SDLK_LALT) {
 		processGraphChange(time, down);
 		return false;
-	} else if (key == Keys::K_KP_ENTER) {
+	} else if (key.sym.sym == SDLK_KP_ENTER) {
 		processKeypadEnterKey(time, down);
 		return false;
 	} else {
@@ -674,9 +1055,10 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 		// Ignore the keypress/release
 		return;
 	}
-	processSdlKey(time, down,
-		keyboardSettings.getKpEnterMode() == KeyboardSettings::MSX_KP_COMMA
-		? Keys::K_KP_ENTER : Keys::K_RETURN);
+	processSdlKey(time,
+	              SDLKey::create(keyboardSettings.getKpEnterMode() == KeyboardSettings::MSX_KP_COMMA
+	                                 ? SDLK_KP_ENTER : SDLK_RETURN,
+	                             down));
 }
 
 /*
@@ -685,16 +1067,24 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
  * be unambiguously derived from a unicode character;
  *  Map the SDL key to an equivalent MSX key press/release event
  */
-void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
+void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 {
-	if (key < MAX_KEYSYM) {
-		auto pos = keyTab[key];
-		if (pos.isValid()) {
-			if (pos.getRow() == 11 && blockRow11) {
-				// do not process row 11 if we have no Yes/No keys
-				return;
-			}
-			updateKeyMatrix(time, down, pos);
+	auto process = [&](KeyMatrixPosition pos) {
+		assert(pos.isValid());
+		if (pos.getRow() == 11 && blockRow11) {
+			// do not process row 11 if we have no Yes/No keys
+			return;
+		}
+		updateKeyMatrix(time, key.down, pos);
+	};
+
+	if (keyboardSettings.getMappingMode() == KeyboardSettings::POSITIONAL_MAPPING) {
+		if (auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
+			process(mapping->msx);
+		}
+	} else {
+		if (auto* mapping = binary_find(keyCodeTab, key.sym.sym, {}, &KeyCodeMsxMapping::hostKeyCode)) {
+			process(mapping->msx);
 		}
 	}
 }
@@ -743,14 +1133,12 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	auto mode = keyboardSettings.getMappingMode();
 
 	auto keyCode  = keyEvent.getKeyCode();
-	auto scanCode = keyEvent.getScanCode();
-	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING) ? scanCode : keyCode;
-	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
+	auto key = keyEvent.getKey();
 
 	bool isOnKeypad =
-		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
-		(key == one_of(Keys::K_KP_PERIOD, Keys::K_KP_DIVIDE, Keys::K_KP_MULTIPLY,
-		               Keys::K_KP_MINUS,  Keys::K_KP_PLUS));
+		(keyCode >= SDLK_KP_0 && keyCode <= SDLK_KP_9) ||
+		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
+		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
 
 	if (isOnKeypad && !hasKeypad &&
 	    !keyboardSettings.getAlwaysEnableKeypad()) {
@@ -758,6 +1146,19 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		// Ignore the keypress/release
 		return false;
 	}
+#if defined(__APPLE__)
+	bool positional = mode == KeyboardSettings::POSITIONAL_MAPPING;
+	if ((key.sym.mod & KMOD_GUI) &&
+	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||
+	     (!positional && (keyCode == SDLK_i)))) {
+		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
+		keyCode = SDLK_INSERT;
+		key.sym.sym = SDLK_INSERT;
+		key.sym.scancode = SDL_SCANCODE_INSERT;
+		key.sym.mod &= ~KMOD_GUI;
+		key.sym.unused = 0; // unicode
+	}
+#endif
 
 	if (down) {
 		UnicodeKeymap::KeyInfo keyInfo;
@@ -772,13 +1173,6 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			// Use unicode to handle the more common combination and use direct
 			// matrix to matrix mapping for the exceptional cases (keypad).
 			unicode = 0;
-#if defined(__APPLE__)
-		} else if ((keyCode & (Keys::K_MASK | Keys::KM_META))
-				== (Keys::K_I | Keys::KM_META)) {
-			// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
-			keyCode = key = Keys::K_INSERT;
-			unicode = 0;
-#endif
 		} else {
 			unicode = keyEvent.getUnicode();
 			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
@@ -799,20 +1193,23 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 				}
 			}
 		}
-		if (key < MAX_KEYSYM) {
-			// Remember which unicode character is currently derived
-			// from this SDL key. It must be stored here (during key-press)
-			// because during key-release SDL never returns the unicode
-			// value (it always returns the value 0). But we must know
-			// the unicode value in order to be able to perform the correct
-			// key-combination-release in the MSX
-			dynKeymap[key] = unicode;
+
+		// Remember which unicode character is currently derived
+		// from this SDL key. It must be stored here (during key-press)
+		// because during key-release SDL never returns the unicode
+		// value (it always returns the value 0). But we must know
+		// the unicode value in order to be able to perform the correct
+		// key-combination-release in the MSX
+		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		if ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode)) {
+			// after a while we can overwrite existing elements, and
+			// then we stop growing/reallocating this vector
+			it->second = unicode;
 		} else {
-			// Unexpectedly high key-code. Can't store the unicode
-			// character for this key. Instead directly treat the key
-			// via matrix to matrix mapping
-			unicode = 0;
+			// insert new element (in the right location)
+			lastUnicodeForKeycode.emplace(it, keyCode, unicode);
 		}
+
 		if (unicode == 0) {
 			// It was an ambiguous key (numeric key-pad, CTRL+character)
 			// or a special key according to SDL (like HOME, INSERT, etc)
@@ -822,8 +1219,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			// Perform direct SDL matrix to MSX matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(time, down, key);
+			if (!(key.sym.mod & KMOD_MODE)) {
+				processSdlKey(time, key);
 			}
 			return false;
 		} else {
@@ -832,21 +1229,16 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 	} else {
 		// key was released
-#if defined(__APPLE__)
-		if ((keyCode & (Keys::K_MASK | Keys::KM_META))
-				== (Keys::K_I | Keys::KM_META)) {
-			keyCode = key = Keys::K_INSERT;
-		}
-#endif
-		unsigned unicode = (key < MAX_KEYSYM)
-			? dynKeymap[key] // Get the unicode that was derived from this key
-			: 0;
+		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		unsigned unicode = ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode))
+		                 ? it->second // get the unicode that was derived from this key
+		                 : 0;
 		if (unicode == 0) {
 			// It was a special key, perform matrix to matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(time, down, key);
+			if (!(key.sym.mod & KMOD_MODE)) {
+				processSdlKey(time, key);
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
@@ -1197,7 +1589,7 @@ void Keyboard::MsxKeyEventQueue::clear()
 void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
-	Event event = eventQueue.front();
+	const Event& event = eventQueue.front();
 	auto& keyboard = OUTER(Keyboard, msxKeyEventQueue);
 	bool insertCodeKanaRelease = keyboard.processQueuedEvent(event, time);
 
@@ -1205,8 +1597,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(Event::create<KeyUpEvent>(
-			keyboard.keyboardSettings.getCodeKanaHostKey()));
+		eventQueue.push_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
@@ -1473,12 +1864,12 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 	, eventDistributor(eventDistributor_)
 {
 	eventDistributor.registerEventListener(EventType::BOOT,  *this);
-	eventDistributor.registerEventListener(EventType::FOCUS, *this);
+	eventDistributor.registerEventListener(EventType::WINDOW, *this);
 }
 
 Keyboard::CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
 }
 
@@ -1491,9 +1882,14 @@ int Keyboard::CapsLockAligner::signalEvent(const Event& event)
 
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
-		visit(overloaded{
-			[&](const FocusEvent&) {
-				alignCapsLock(time);
+		std::visit(overloaded{
+			[&](const WindowEvent& e) {
+				if (e.isMainWindow()) {
+					const auto& evt = e.getSdlWindowEvent();
+					if (evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+						alignCapsLock(time);
+					}
+				}
 			},
 			[&](const BootEvent&) {
 				state = MUST_ALIGN_CAPSLOCK;
@@ -1513,7 +1909,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			auto event = Event::create<KeyUpEvent>(Keys::K_CAPSLOCK);
+			auto event = KeyUpEvent::create(SDLK_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1541,7 +1937,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		auto event = Event::create<KeyDownEvent>(Keys::K_CAPSLOCK);
+		auto event = KeyDownEvent::create(SDLK_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
 		keyboard.debug("Sending fake CAPS release\n");
 		state = MUST_DISTRIBUTE_KEY_RELEASE;
@@ -1605,6 +2001,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 // version 2: For reverse-replay it is important that snapshots contain the
 //            full state of the MSX keyboard, so now we do serialize it.
 // version 3: split cmdKeyMatrix into cmdKeyMatrix + typeKeyMatrix
+// version 4: changed 'dynKeymap' to 'lastUnicodeForKeycode'
 // TODO Is the assumption in version 1 correct (clear keyb state on load)?
 //      If it is still useful for 'regular' loadstate, then we could implement
 //      it by explicitly clearing the keyb state from the actual loadstate
@@ -1638,9 +2035,20 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("userKeyMatrix",    userKeyMatrix,
-		             "dynKeymap",        dynKeymap,
 		             "msxmodifiers",     msxModifiers,
 		             "msxKeyEventQueue", msxKeyEventQueue);
+	}
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("lastUnicodeForKeycode", lastUnicodeForKeycode);
+	} else {
+		// We can't (easily) reconstruct 'lastUnicodeForKeycode' from
+		// 'dynKeymap'. Usually this won't cause problems. E.g.
+		// typically you aren't typing at the same time that you create
+		// a savestate. For replays it might matter, though usually
+		// replays are about games, and typing in games is rare (for
+		// cursors and space this isn't needed).
+		//
+		// So, at least for now, it's fine to not reconstruct this data.
 	}
 	// don't serialize hostKeyMatrix
 

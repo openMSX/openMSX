@@ -46,14 +46,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, speedManager(commandController)
 	, throttleManager(commandController)
 {
-	deadZoneSettings = to_vector(
-		view::transform(xrange(SDL_NumJoysticks()), [&](auto i) {
-			return std::make_unique<IntegerSetting>(
-				commandController,
-				tmpStrCat("joystick", i + 1, "_deadzone"),
-				"size (as a percentage) of the dead center zone",
-				25, 0, 100);
-		}));
 	getPowerSetting().attach(*this);
 }
 

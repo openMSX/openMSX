@@ -69,9 +69,7 @@ public:
 	[[nodiscard]] static auto getAllRomTypes() {
 		return view::transform(getRomTypeInfo(), &RomTypeInfo::name);
 	}
-
-private:
-	static const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& getRomTypeInfo();
+	[[nodiscard]] static const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& getRomTypeInfo();
 
 private:
 	String32 title;

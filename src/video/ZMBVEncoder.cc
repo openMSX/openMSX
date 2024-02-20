@@ -102,31 +102,21 @@ struct KeyframeHeader {
 
 
 static inline void writePixel(
-	const PixelOperations<uint16_t>& pixelOps,
-	uint16_t pixel, Endian::L16& dest)
-{
-	unsigned r = pixelOps.red256(pixel);
-	unsigned g = pixelOps.green256(pixel);
-	unsigned b = pixelOps.blue256(pixel);
-	dest = narrow<uint16_t>(((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3));
-}
-
-static inline void writePixel(
-	const PixelOperations<unsigned>& pixelOps,
 	unsigned pixel, Endian::L32& dest)
 {
-	unsigned r = pixelOps.red256(pixel);
-	unsigned g = pixelOps.green256(pixel);
-	unsigned b = pixelOps.blue256(pixel);
+	PixelOperations pixelOps;
+	unsigned r = pixelOps.red(pixel);
+	unsigned g = pixelOps.green(pixel);
+	unsigned b = pixelOps.blue(pixel);
 	dest = (r << 16) | (g <<  8) |  b;
 }
 
 
-ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
+ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_)
 	: width(width_)
 	, height(height_)
 {
-	setupBuffers(bpp);
+	setupBuffers();
 	memset(&zstream, 0, sizeof(zstream));
 	deflateInit(&zstream, 6); // compression level
 
@@ -149,25 +139,9 @@ ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	// Level 6 seems a good compromise between size/speed for THIS test.
 }
 
-void ZMBVEncoder::setupBuffers(unsigned bpp)
+void ZMBVEncoder::setupBuffers()
 {
-	switch (bpp) {
-#if HAVE_16BPP
-	case 15:
-	case 16:
-		format = ZMBV_FORMAT_16BPP;
-		pixelSize = 2;
-		break;
-#endif
-#if HAVE_32BPP
-	case 32:
-		format = ZMBV_FORMAT_32BPP;
-		pixelSize = 4;
-		break;
-#endif
-	default:
-		UNREACHABLE;
-	}
+	static constexpr size_t pixelSize = sizeof(Pixel);
 
 	pitch = width + 2 * MAX_VECTOR;
 	auto bufSize = (height + 2 * MAX_VECTOR) * pitch * pixelSize + 2048;
@@ -196,17 +170,16 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 
 unsigned ZMBVEncoder::neededSize() const
 {
-	unsigned f = pixelSize;
-	f = f * width * height + 2 * (1 + (width / 8)) * (1 + (height / 8)) + 1024;
+	static constexpr unsigned pixelSize = sizeof(Pixel);
+	unsigned f = pixelSize * width * height + 2 * (1 + (width / 8)) * (1 + (height / 8)) + 1024;
 	return f + f / 1000;
 }
 
-template<std::unsigned_integral P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(reinterpret_cast<P*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<P*>(newFrame.data()))[offset];
+	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -217,12 +190,11 @@ unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 	return ret;
 }
 
-template<std::unsigned_integral P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(reinterpret_cast<P*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<P*>(newFrame.data()))[offset];
+	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -233,29 +205,25 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 	return ret;
 }
 
-template<std::unsigned_integral P>
-void ZMBVEncoder::addXorBlock(
-	const PixelOperations<P>& pixelOps, int vx, int vy, size_t offset, unsigned& workUsed)
+void ZMBVEncoder::addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed)
 {
-	using LE_P = typename Endian::Little<P>::type;
+	using LE_P = typename Endian::Little<Pixel>::type;
 
-	auto* pOld = &(reinterpret_cast<P*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<P*>(newFrame.data()))[offset];
+	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
-			P pXor = pNew[x] ^ pOld[x];
-			writePixel(pixelOps, pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
-			workUsed += sizeof(P);
+			auto pXor = pNew[x] ^ pOld[x];
+			writePixel(pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
+			workUsed += sizeof(Pixel);
 		}
 		pOld += pitch;
 		pNew += pitch;
 	});
 }
 
-template<std::unsigned_integral P>
-void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addXorFrame(unsigned& workUsed)
 {
-	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
 	unsigned xBlocks = width / BLOCK_WIDTH;
@@ -270,12 +238,12 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 	for (auto b : xrange(blockCount)) {
 		auto offset = blockOffsets[b];
 		// first try best vector of previous block
-		unsigned bestChange = compareBlock<P>(bestVx, bestVy, offset);
+		unsigned bestChange = compareBlock(bestVx, bestVy, offset);
 		if (bestChange >= 4) {
 			int possibles = 64;
 			for (const auto& v : vectorTable) {
-				if (possibleBlock<P>(v.x, v.y, offset) < 4) {
-					unsigned testChange = compareBlock<P>(v.x, v.y, offset);
+				if (possibleBlock(v.x, v.y, offset) < 4) {
+					unsigned testChange = compareBlock(v.x, v.y, offset);
 					if (testChange < bestChange) {
 						bestChange = testChange;
 						bestVx = narrow<int>(v.x);
@@ -291,64 +259,42 @@ void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed
 		vectors[b * 2 + 1] = narrow<int8_t>(bestVy << 1);
 		if (bestChange) {
 			vectors[b * 2 + 0] |= 1;
-			addXorBlock<P>(pixelOps, bestVx, bestVy, offset, workUsed);
+			addXorBlock(bestVx, bestVy, offset, workUsed);
 		}
 	}
 }
 
-template<std::unsigned_integral P>
-void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addFullFrame(unsigned& workUsed)
 {
-	using LE_P = typename Endian::Little<P>::type;
+	using LE_P = typename Endian::Little<Pixel>::type;
+	static constexpr size_t pixelSize = sizeof(Pixel);
 
-	PixelOperations<P> pixelOps(pixelFormat);
 	auto* readFrame =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	repeat(height, [&] {
-		auto* pixelsIn  = reinterpret_cast<P*>   (readFrame);
+		auto* pixelsIn  = reinterpret_cast<Pixel*>(readFrame);
 		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
 		for (auto x : xrange(width)) {
-			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
+			writePixel(pixelsIn[x], pixelsOut[x]);
 		}
-		readFrame += pitch * sizeof(P);
-		workUsed += narrow<unsigned>(width * sizeof(P));
+		readFrame += pitch * sizeof(Pixel);
+		workUsed += narrow<unsigned>(width * sizeof(Pixel));
 	});
 }
 
-const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
+const void* ZMBVEncoder::getScaledLine(const FrameSource* frame, unsigned y, void* workBuf_) const
 {
-#if HAVE_32BPP
-	if (pixelSize == 4) { // 32bpp
-		auto* workBuf = static_cast<uint32_t*>(workBuf_);
-		switch (height) {
-		case 240:
-			return frame->getLinePtr320_240(y, std::span<uint32_t, 320>(workBuf, 320)).data();
-		case 480:
-			return frame->getLinePtr640_480(y, std::span<uint32_t, 640>(workBuf, 640)).data();
-		case 720:
-			return frame->getLinePtr960_720(y, std::span<uint32_t, 960>(workBuf, 960)).data();
-		default:
-			UNREACHABLE;
-		}
+	auto* workBuf = static_cast<uint32_t*>(workBuf_);
+	switch (height) {
+	case 240:
+		return frame->getLinePtr320_240(y, std::span<uint32_t, 320>(workBuf, 320)).data();
+	case 480:
+		return frame->getLinePtr640_480(y, std::span<uint32_t, 640>(workBuf, 640)).data();
+	case 720:
+		return frame->getLinePtr960_720(y, std::span<uint32_t, 960>(workBuf, 960)).data();
+	default:
+		UNREACHABLE;
 	}
-#endif
-#if HAVE_16BPP
-	if (pixelSize == 2) { // 15bpp or 16bpp
-		auto* workBuf = static_cast<uint16_t*>(workBuf_);
-		switch (height) {
-		case 240:
-			return frame->getLinePtr320_240(y, std::span<uint16_t, 320>(workBuf, 320)).data();
-		case 480:
-			return frame->getLinePtr640_480(y, std::span<uint16_t, 640>(workBuf, 640)).data();
-		case 720:
-			return frame->getLinePtr960_720(y, std::span<uint16_t, 960>(workBuf, 960)).data();
-		default:
-			UNREACHABLE;
-		}
-	}
-#endif
-	UNREACHABLE;
-	return nullptr; // avoid warning
 }
 
 std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame)
@@ -362,13 +308,15 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
+		static const uint8_t ZMBV_FORMAT_32BPP = 8;
+
 		output[0] |= FLAG_KEYFRAME;
 		auto* header = reinterpret_cast<KeyframeHeader*>(
 			writeBuf + writeDone);
 		header->high_version = DBZV_VERSION_HIGH;
 		header->low_version = DBZV_VERSION_LOW;
 		header->compression = COMPRESSION_ZLIB;
-		header->format = format;
+		header->format = ZMBV_FORMAT_32BPP;
 		header->blockWidth = BLOCK_WIDTH;
 		header->blockHeight = BLOCK_HEIGHT;
 		writeDone += sizeof(KeyframeHeader);
@@ -376,6 +324,7 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	}
 
 	// copy lines (to add black border)
+	static constexpr size_t pixelSize = sizeof(Pixel);
 	auto linePitch = pitch * pixelSize;
 	auto lineWidth = size_t(width) * pixelSize;
 	uint8_t* dest =
@@ -389,36 +338,10 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	// Add the frame data.
 	if (keyFrame) {
 		// Key frame: full frame data.
-		switch (pixelSize) {
-#if HAVE_16BPP
-		case 2:
-			addFullFrame<uint16_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-#if HAVE_32BPP
-		case 4:
-			addFullFrame<uint32_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-		default:
-			UNREACHABLE;
-		}
+		addFullFrame(workUsed);
 	} else {
 		// Non-key frame: delta frame data.
-		switch (pixelSize) {
-#if HAVE_16BPP
-		case 2:
-			addXorFrame<uint16_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-#if HAVE_32BPP
-		case 4:
-			addXorFrame<uint32_t>(frame->getPixelFormat(), workUsed);
-			break;
-#endif
-		default:
-			UNREACHABLE;
-		}
+		addXorFrame(workUsed);
 	}
 	// Compress the frame data with zlib.
 	zstream.next_in = work.data();

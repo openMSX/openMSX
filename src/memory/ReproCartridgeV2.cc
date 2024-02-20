@@ -325,9 +325,9 @@ void ReproCartridgeV2::setVolume(EmuTime::param time, byte value)
 	// EE (7-6) = PSG#10. So values 0-3
 	// III(5-3) = PSG#A0. So values 0-7
 	// SSS(2-0) = SCC.    So values 0-7
-	scc    .setSoftwareVolume(narrow<float>((volumeReg >> 0) & 7) / 2.0f, time);
-	psg0xA0.setSoftwareVolume(narrow<float>((volumeReg >> 3) & 7) / 2.0f, time);
-	psg0x10.setSoftwareVolume(narrow<float>((volumeReg >> 6) & 3) / 2.0f, time);
+	scc    .setSoftwareVolume(narrow<float>((volumeReg >> 0) & 7) * 0.5f, time);
+	psg0xA0.setSoftwareVolume(narrow<float>((volumeReg >> 3) & 7) * 0.5f, time);
+	psg0x10.setSoftwareVolume(narrow<float>((volumeReg >> 6) & 3) * 0.5f, time);
 }
 
 template<typename Archive>

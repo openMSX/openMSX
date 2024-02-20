@@ -16,6 +16,8 @@ public:
 
 	// Computed using constants above:
 	static std::string full();
+
+	static const char* const COPYRIGHT;
 };
 
 } // namespace openmsx

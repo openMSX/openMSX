@@ -21,6 +21,9 @@ public:
 	[[nodiscard]] float  getFloat()  const noexcept { return getValue().getFloat (getInterpreter()); }
 	void setDouble (double d);
 
+	double getMinValue() const { return minValue; }
+	double getMaxValue() const { return maxValue; }
+
 private:
 	const double minValue;
 	const double maxValue;

@@ -13,6 +13,7 @@
 #include <span>
 #include <map>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -27,6 +28,9 @@ class TclObject;
 
 class ReverseManager final : private EventListener
 {
+public:
+	static constexpr std::string_view REPLAY_DIR = "replays";
+
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
@@ -62,6 +66,13 @@ public:
 		return *history.events.back();
 	}
 
+	[[nodiscard]] bool isCollecting() const { return collecting; }
+	[[nodiscard]] bool isViewOnlyMode() const;
+	[[nodiscard]] double getBegin() const;
+	[[nodiscard]] double getEnd() const;
+	[[nodiscard]] double getCurrent() const;
+	[[nodiscard]] std::vector<double> getSnapshotTimes() const;
+
 private:
 	struct ReverseChunk {
 		ReverseChunk() : time(EmuTime::zero()) {}
@@ -88,8 +99,6 @@ private:
 		Events events;
 		LastDeltaBlocks lastDeltaBlocks;
 	};
-
-	[[nodiscard]] bool isCollecting() const { return collecting; }
 
 	void start();
 	void stop();

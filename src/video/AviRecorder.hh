@@ -32,6 +32,7 @@ public:
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	[[nodiscard]] unsigned getFrameHeight() const;
+	[[nodiscard]] bool isRecording() const;
 
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,

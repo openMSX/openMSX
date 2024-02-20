@@ -1,10 +1,10 @@
 #include "OSDText.hh"
 #include "TTFFont.hh"
-#include "SDLImage.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
+#include "GLImage.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "join.hh"
@@ -12,13 +12,9 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_core.hh"
-#include "components.hh"
 #include <cassert>
 #include <cmath>
 #include <memory>
-#if COMPONENT_GL
-#include "GLImage.hh"
-#endif
 
 using std::string;
 using std::string_view;
@@ -28,7 +24,7 @@ namespace openmsx {
 
 OSDText::OSDText(Display& display_, const TclObject& name_)
 	: OSDImageBasedWidget(display_, name_)
-	, fontFile("skins/Vera.ttf.gz")
+	, fontFile("skins/DejaVuSans.ttf.gz")
 {
 }
 
@@ -149,11 +145,10 @@ uint8_t OSDText::getFadedAlpha() const
 	return narrow_cast<uint8_t>(narrow_cast<float>(getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
-	OutputSurface& output)
+std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 {
 	if (text.empty()) {
-		return std::make_unique<IMAGE>(output, ivec2(), 0);
+		return std::make_unique<GLImage>(ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -191,9 +186,9 @@ template<typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		                                  narrow_cast<uint8_t>(textRgba >> 16),
 		                                  narrow_cast<uint8_t>(textRgba >>  8)));
 		if (surface) {
-			return std::make_unique<IMAGE>(output, std::move(surface));
+			return std::make_unique<GLImage>(std::move(surface));
 		} else {
-			return std::make_unique<IMAGE>(output, ivec2(), 0);
+			return std::make_unique<GLImage>(ivec2(), 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: ", e.getMessage());
@@ -376,21 +371,6 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 		} while (!line.empty());
 	}
 	return join(wrappedLines, '\n');
-}
-
-std::unique_ptr<BaseImage> OSDText::createSDL(OutputSurface& output)
-{
-	return create<SDLImage>(output);
-}
-
-std::unique_ptr<BaseImage> OSDText::createGL(OutputSurface& output)
-{
-#if COMPONENT_GL
-	return create<GLImage>(output);
-#else
-	(void)&output;
-	return nullptr;
-#endif
 }
 
 } // namespace openmsx

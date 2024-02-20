@@ -71,7 +71,7 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		EventType::JOY_HAT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
-		EventType::FOCUS, *this, EventDistributor::HOTKEY);
+		EventType::WINDOW, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		EventType::FILE_DROP, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
@@ -85,7 +85,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_PRESS, *this);
 	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_RELEASE, *this);
 	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_UP, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
 	eventDistributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
@@ -104,53 +104,40 @@ void HotKey::initDefaultBindings()
 
 	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_D, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_d, KMOD_GUI),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_P, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_p, KMOD_GUI),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_T, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_t, KMOD_GUI),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_L, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_l, KMOD_GUI),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_U, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_u, KMOD_GUI),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_F, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_f, KMOD_GUI),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_Q, Keys::KM_META)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_q, KMOD_GUI),
 		                       "exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PRINT),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PRINTSCREEN),
 		                       "screenshot -guess-name"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_PAUSE),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE),
 		                       "toggle pause"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F9),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F9),
 		                       "toggle fastforward"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F10),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F10),
 		                       "toggle console"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F11),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F11),
 		                       "toggle fullscreen"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_F12),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F12),
 		                       "toggle mute"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_F4, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_F4, KMOD_ALT),
 		                       "exit"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_PAUSE, KMOD_CTRL),
 		                       "exit"));
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(
-		                            Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
+		bindDefault(HotKeyInfo(KeyDownEvent::create(SDLK_RETURN, KMOD_ALT),
 		                       "toggle fullscreen"));
-		// and for Android
-		bindDefault(HotKeyInfo(Event::create<KeyDownEvent>(Keys::K_BACK),
-		                       "quitmenu::quit_menu"));
 	}
 }
 
@@ -163,7 +150,7 @@ static Event createEvent(const TclObject& obj, Interpreter& interp)
 				     EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN,
 				     EventType::JOY_AXIS_MOTION, EventType::JOY_HAT,
 				     EventType::OSD_CONTROL_PRESS, EventType::OSD_CONTROL_RELEASE,
-				     EventType::FOCUS)) {
+				     EventType::WINDOW)) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;
@@ -323,12 +310,12 @@ static HotKey::BindMap::const_iterator findMatch(
 
 void HotKey::executeRT()
 {
-	if (lastEvent) executeEvent(lastEvent);
+	if (lastEvent) executeEvent(*lastEvent);
 }
 
 int HotKey::signalEvent(const Event& event)
 {
-	if (lastEvent.getPtr() != event.getPtr()) {
+	if (lastEvent && *lastEvent != event) {
 		// If the newly received event is different from the repeating
 		// event, we stop the repeat process.
 		// Except when we're repeating a OsdControlEvent and the
@@ -337,9 +324,7 @@ int HotKey::signalEvent(const Event& event)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		if (lastEvent && isRepeatStopper(lastEvent, event)) {
-			stopRepeat();
-		}
+		stopRepeat();
 	}
 	return executeEvent(event);
 }
@@ -424,7 +409,7 @@ void HotKey::startRepeat(const Event& event)
 
 void HotKey::stopRepeat()
 {
-	lastEvent = Event{};
+	lastEvent.reset();
 	cancelRT();
 }
 
@@ -566,20 +551,20 @@ void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*
 		throw SyntaxError();
 	}
 
-	Event event;
+	std::optional<Event> event;
 	if (arguments.size() == 1) {
 		event = createEvent(arguments[0], getInterpreter());
 	}
 
 	if (defaultCmd) {
 		assert(event);
-		hotKey.unbindDefault(event);
+		hotKey.unbindDefault(*event);
 	} else if (layer.empty()) {
 		assert(event);
-		hotKey.unbind(event);
+		hotKey.unbind(*event);
 	} else {
 		if (event) {
-			hotKey.unbindLayer(event, layer);
+			hotKey.unbindLayer(*event, layer);
 		} else {
 			hotKey.unbindFullLayer(layer);
 		}

@@ -1,6 +1,6 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
@@ -8,6 +8,8 @@
 #include "BreakPoint.hh"
 #include "DebugCondition.hh"
 #include "MSXWatchIODevice.hh"
+#include "Reactor.hh"
+#include "SymbolManager.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -247,7 +249,8 @@ void Debugger::Cmd::execute(
 		"set_condition",     [&]{ setCondition(tokens, result); },
 		"remove_condition",  [&]{ removeCondition(tokens, result); },
 		"list_conditions",   [&]{ listConditions(tokens, result); },
-		"probe",             [&]{ probe(tokens, result); });
+		"probe",             [&]{ probe(tokens, result); },
+		"symbols",           [&]{ symbols(tokens, result); });
 }
 
 void Debugger::Cmd::list(TclObject& result)
@@ -688,6 +691,88 @@ void Debugger::Cmd::probeListBreakPoints(
 	result = res;
 }
 
+SymbolManager& Debugger::Cmd::getSymbolManager()
+{
+	return debugger().getMotherBoard().getReactor().getSymbolManager();
+}
+void Debugger::Cmd::symbols(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[2].getString(),
+		"types",  [&]{ symbolsTypes(tokens, result); },
+		"load",   [&]{ symbolsLoad(tokens, result); },
+		"remove", [&]{ symbolsRemove(tokens, result); },
+		"files",  [&]{ symbolsFiles(tokens, result); },
+		"lookup", [&]{ symbolsLookup(tokens, result); });
+}
+void Debugger::Cmd::symbolsTypes(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 3, "");
+	for (auto type = SymbolFile::Type::FIRST;
+	     type < SymbolFile::Type::LAST;
+	     type = static_cast<SymbolFile::Type>(static_cast<int>(type) + 1)) {
+		result.addListElement(SymbolFile::toString(type));
+	}
+}
+void Debugger::Cmd::symbolsLoad(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, Between{4, 5}, "filename ?type?");
+	auto filename = std::string(tokens[3].getString());
+	auto type = [&]{
+		if (tokens.size() < 5) return SymbolFile::Type::AUTO_DETECT;
+		auto str = tokens[4].getString();
+		auto t = SymbolFile::parseType(str);
+		if (!t) throw CommandException("Invalid symbol file type: ", str);
+		return *t;
+	}();
+	try {
+		getSymbolManager().reloadFile(filename, SymbolManager::LoadEmpty::ALLOWED, type);
+	} catch (MSXException& e) {
+		throw CommandException("Couldn't load symbol file '", filename, "': ", e.getMessage());
+	}
+}
+void Debugger::Cmd::symbolsRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 4, "filename");
+	auto filename = tokens[3].getString();
+	getSymbolManager().removeFile(filename);
+}
+void Debugger::Cmd::symbolsFiles(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 3, "");
+	for (const auto& file : getSymbolManager().getFiles()) {
+		result.addListElement(TclObject(TclObject::MakeDictTag{},
+			"filename", file.filename,
+			"type", SymbolFile::toString(file.type)));
+	}
+}
+void Debugger::Cmd::symbolsLookup(std::span<const TclObject> tokens, TclObject& result)
+{
+	std::string_view filename;
+	std::string_view name;
+	std::optional<int> value;
+	std::array info = {valueArg("-filename", filename),
+	                   valueArg("-name", name),
+	                   valueArg("-value", value)};
+	auto args = parseTclArgs(getInterpreter(), tokens.subspan(3), info);
+	if (!args.empty()) throw SyntaxError();
+	if (!filename.empty() && !name.empty() && value) throw SyntaxError();
+
+	for (const auto& file : getSymbolManager().getFiles()) {
+		if (!filename.empty() && (file.filename != filename)) continue;
+		for (const auto& sym : file.symbols) {
+			if (!name.empty() && (name != sym.name)) continue;
+			if (value && (sym.value != *value)) continue;
+
+			TclObject elem;
+			if (filename.empty()) elem.addDictKeyValue("filename", file.filename);
+			if (name.empty()) elem.addDictKeyValue("name", sym.name);
+			if (!value) elem.addDictKeyValue("value", sym.value);
+			result.addListElement(std::move(elem));
+		}
+	}
+}
+
 string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
 	auto generalHelp =
@@ -715,6 +800,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    break             break CPU at current position\n"
 		"    breaked           query CPU breaked status\n"
 		"    disasm            disassemble instructions\n"
+		"    symbols           manage debug symbols\n"
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
 
@@ -875,6 +961,19 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convenient to use than this subcommand.";
+	auto symbolsHelp =
+		"debug symbols <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    types                     returns a list of symbol file types\n"
+		"    load <filename> [<type>]  load a symbol file, auto-detect type if none is given\n"
+		"    remove <filename>         remove a previously loaded symbol file\n"
+		"    files                     returns a list of all loaded symbol files\n"
+		"    lookup [-filename <filename>] [-name <name>] [-value <value>]\n"
+		"           returns a list of symbols in an optionally given file\n"
+		"           and/or with an optionally given name\n"
+		"           and/or with an optionally given value\n"
+		"  Note: an easier syntax to lookup a symbol value based on the name is:\n"
+		"        $sym(<name>)\n";
 	auto unknownHelp =
 		"Unknown subcommand, use 'help debug' to see a list of valid "
 		"subcommands.\n";
@@ -925,6 +1024,8 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		return breakedHelp;
 	} else if (tokens[1] == "disasm") {
 		return disasmHelp;
+	} else if (tokens[1] == "symbols") {
+		return symbolsHelp;
 	} else {
 		return unknownHelp;
 	}
@@ -963,7 +1064,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	static constexpr std::array otherCmds = {
 		"disasm"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
-		"probe"sv,
+		"probe"sv, "symbols"sv,
 	};
 	switch (tokens.size()) {
 	case 2: {
@@ -995,6 +1096,12 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 				static constexpr std::array subCmds = {
 					"list"sv, "desc"sv, "read"sv, "set_bp"sv,
 					"remove_bp"sv, "list_bp"sv,
+				};
+				completeString(tokens, subCmds);
+			} else if (tokens[1] == "symbols") {
+				static constexpr std::array subCmds = {
+					"types"sv, "load"sv, "remove"sv,
+					"files"sv, "lookup"sv,
 				};
 				completeString(tokens, subCmds);
 			}

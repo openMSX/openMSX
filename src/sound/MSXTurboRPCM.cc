@@ -41,7 +41,7 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 {
 	switch (port & 0x01) {
 	case 0:
-		// bit 0-1  15.75kHz counter
+		// bit 0-1  15.700kHz counter
 		// bit 2-7  not used
 		return reference.getTicksTill(time) & 0x03;
 	case 1:
@@ -72,8 +72,13 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 		// Resets counter
 		reference.advance(time);
 		DValue = value;
-		if (status & 0x02) {
-			dac.writeDAC(DValue, time);
+		if (status & 0x02) { // not muted
+			assert(reference.getTime() <= time);
+			auto time2 = (status & 0x01) // BUFF
+			           ? reference.getFastAdd(1) // value only updates on the next clock
+			           : time;
+			assert(time <= time2);
+			dac.writeDAC(DValue, time2);
 		}
 		break;
 

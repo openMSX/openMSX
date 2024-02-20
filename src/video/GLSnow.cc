@@ -26,7 +26,7 @@ GLSnow::GLSnow(Display& display_)
 #else
 	// GL_LUMINANCE no longer supported in newer versions
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 128, 128, 0,
-	             GL_RED, GL_UNSIGNED_BYTE, buf);
+	             GL_RED, GL_UNSIGNED_BYTE, buf.data());
 	GLint swizzleMask[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
 #endif
@@ -53,7 +53,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	static unsigned cnt = 0;
 	cnt = (cnt + 1) % 8;
 
-	vec2 offset(random_float(0.0f, 1.0f) ,random_float(0.0f, 1.0f));
+	vec2 offset(random_float(0.0f, 1.0f), random_float(0.0f, 1.0f));
 	const std::array tex = {
 		offset + vec2(0.0f, 2.0f),
 		offset + vec2(2.0f, 2.0f),

@@ -31,6 +31,11 @@ private:
 class IDECDROM final : public AbstractIDEDevice, public MediaInfoProvider
 {
 public:
+	static constexpr unsigned MAX_CD = 26;
+	using CDInUse = std::bitset<MAX_CD>;
+	static std::shared_ptr<CDInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
+
+public:
 	IDECDROM(const IDECDROM&) = delete;
 	IDECDROM& operator=(const IDECDROM&) = delete;
 
@@ -86,8 +91,6 @@ private:
 	bool remMedStatNotifEnabled;
 	bool mediaChanged;
 
-	static constexpr unsigned MAX_CD = 26;
-	using CDInUse = std::bitset<MAX_CD>;
 	std::shared_ptr<CDInUse> cdInUse;
 
 	friend class CDXCommand;

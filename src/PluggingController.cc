@@ -6,7 +6,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "view.hh"

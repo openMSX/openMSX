@@ -36,12 +36,7 @@ void OSDTopWidget::invalidateLocal()
 	// nothing
 }
 
-void OSDTopWidget::paintSDL(OutputSurface& /*output*/)
-{
-	// nothing
-}
-
-void OSDTopWidget::paintGL (OutputSurface& /*output*/)
+void OSDTopWidget::paint(OutputSurface& /*output*/)
 {
 	// nothing
 }

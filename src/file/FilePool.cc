@@ -31,7 +31,7 @@ namespace openmsx {
 FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	: core(FileOperations::getUserDataDir() + "/.filecache",
 	       [&] { return getDirectories(); },
-	       [&](std::string_view message) { reportProgress(message); })
+	       [&](std::string_view message, float fraction) { reportProgress(message, fraction); })
 	, filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
@@ -58,6 +58,16 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 Sha1Sum FilePool::getSha1Sum(File& file)
 {
 	return core.getSha1Sum(file);
+}
+
+std::optional<Sha1Sum> FilePool::getSha1Sum(const std::string& filename)
+{
+	try {
+		File file(filename);
+		return getSha1Sum(file);
+	} catch (MSXException&) {
+		return {};
+	}
 }
 
 [[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
@@ -132,10 +142,10 @@ void FilePool::update(const Setting& setting) noexcept
 	(void)getDirectories(); // check for syntax errors
 }
 
-void FilePool::reportProgress(std::string_view message)
+void FilePool::reportProgress(std::string_view message, float fraction)
 {
 	if (quit) core.abort();
-	reactor.getCliComm().printProgress(message);
+	reactor.getCliComm().printProgress(message, fraction);
 	reactor.getDisplay().repaint();
 }
 

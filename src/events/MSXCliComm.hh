@@ -16,13 +16,13 @@ class MSXCliComm final : public CliComm
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);
 
-	void log(LogLevel level, std::string_view message) override;
+	void log(LogLevel level, std::string_view message, float fraction) override;
 	void update(UpdateType type, std::string_view name,
 	            std::string_view value) override;
 	void updateFiltered(UpdateType type, std::string_view name,
 	            std::string_view value) override;
-	
-	// enable/disable message suppression 
+
+	// enable/disable message suppression
 	void setSuppressMessages(bool enable);
 
 private:

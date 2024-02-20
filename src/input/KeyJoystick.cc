@@ -56,17 +56,17 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, up   (commandController, tmpStrCat(nameForId(id_), ".up"),
-		"key for direction up",    Keys::K_UP)
+		"key for direction up",    SDLKey::createDown(SDLK_UP))
 	, down (commandController, tmpStrCat(nameForId(id_), ".down"),
-		"key for direction down",  Keys::K_DOWN)
+		"key for direction down",  SDLKey::createDown(SDLK_DOWN))
 	, left (commandController, tmpStrCat(nameForId(id_), ".left"),
-		"key for direction left",  Keys::K_LEFT)
+		"key for direction left",  SDLKey::createDown(SDLK_LEFT))
 	, right(commandController, tmpStrCat(nameForId(id_), ".right"),
-		"key for direction right", Keys::K_RIGHT)
+		"key for direction right", SDLKey::createDown(SDLK_RIGHT))
 	, trigA(commandController, tmpStrCat(nameForId(id_), ".triga"),
-		"key for trigger A",       Keys::K_SPACE)
+		"key for trigger A",       SDLKey::createDown(SDLK_SPACE))
 	, trigB(commandController, tmpStrCat(nameForId(id_), ".trigb"),
-		"key for trigger B",       Keys::K_M)
+		"key for trigger B",       SDLKey::createDown(SDLK_m))
 	, id(id_)
 	, status(JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB)
@@ -125,14 +125,13 @@ void KeyJoystick::signalMSXEvent(const Event& event,
 	uint8_t press = 0;
 	uint8_t release = 0;
 	auto getKey = [&](const KeyEvent& e) {
-		auto key = static_cast<Keys::KeyCode>(
-			int(e.getKeyCode()) & int(Keys::K_MASK));
-		if      (key == up   .getKey()) return JOY_UP;
-		else if (key == down .getKey()) return JOY_DOWN;
-		else if (key == left .getKey()) return JOY_LEFT;
-		else if (key == right.getKey()) return JOY_RIGHT;
-		else if (key == trigA.getKey()) return JOY_BUTTONA;
-		else if (key == trigB.getKey()) return JOY_BUTTONB;
+		auto key = e.getKeyCode();
+		if      (key == up   .getKey().sym.sym) return JOY_UP;
+		else if (key == down .getKey().sym.sym) return JOY_DOWN;
+		else if (key == left .getKey().sym.sym) return JOY_LEFT;
+		else if (key == right.getKey().sym.sym) return JOY_RIGHT;
+		else if (key == trigA.getKey().sym.sym) return JOY_BUTTONA;
+		else if (key == trigB.getKey().sym.sym) return JOY_BUTTONB;
 		else                            return uint8_t(0);
 	};
 	visit(overloaded{

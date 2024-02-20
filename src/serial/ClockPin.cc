@@ -73,7 +73,7 @@ EmuDuration::param ClockPin::getHighDuration() const
 	return hiDur;
 }
 
-int ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
+unsigned ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
 {
 	assert(begin <= end);
 	if (!periodic) {
@@ -84,7 +84,7 @@ int ClockPin::getTicksBetween(EmuTime::param begin, EmuTime::param end) const
 		       ? 0
 		       : (begin - referenceTime) / totalDur;
 		auto b = (end   - referenceTime) / totalDur;
-		return narrow<int>(b - a);
+		return b - a;
 	} else {
 		return 0;
 	}

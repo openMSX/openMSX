@@ -365,7 +365,7 @@ void Counter::advance(EmuTime::param time)
 {
 	// TODO !!!! Set SP !!!!
 	// TODO BCD counting
-	int ticks = clock.getTicksBetween(currentTime, time);
+	unsigned ticks = clock.getTicksBetween(currentTime, time);
 	currentTime = time;
 	switch (control & CNTR_MODE) {
 	case CNTR_M0:

@@ -1,43 +1,50 @@
 #include "Reactor.hh"
+
+#include "AfterCommand.hh"
+#include "AviRecorder.hh"
+#include "BooleanSetting.hh"
+#include "Command.hh"
+#include "CommandException.hh"
 #include "CommandLineParser.hh"
-#include "RTScheduler.hh"
-#include "EventDistributor.hh"
-#include "GlobalCommandController.hh"
-#include "InputEventGenerator.hh"
-#include "Event.hh"
+#include "DiskChanger.hh"
 #include "DiskFactory.hh"
 #include "DiskManipulator.hh"
-#include "DiskChanger.hh"
-#include "FilePool.hh"
-#include "UserSettings.hh"
-#include "RomDatabase.hh"
-#include "RomInfo.hh"
-#include "TclCallbackMessages.hh"
-#include "MSXMotherBoard.hh"
-#include "StateChangeDistributor.hh"
-#include "Command.hh"
-#include "AfterCommand.hh"
-#include "MessageCommand.hh"
-#include "CommandException.hh"
-#include "GlobalCliComm.hh"
-#include "InfoTopic.hh"
 #include "Display.hh"
-#include "VideoSystem.hh"
-#include "Mixer.hh"
-#include "AviRecorder.hh"
-#include "GlobalSettings.hh"
-#include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "TclObject.hh"
-#include "HardwareConfig.hh"
-#include "XMLElement.hh"
-#include "XMLException.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FilePool.hh"
+#include "GlobalCliComm.hh"
+#include "GlobalCommandController.hh"
+#include "GlobalSettings.hh"
+#include "HardwareConfig.hh"
+#include "ImGuiManager.hh"
+#include "InfoTopic.hh"
+#include "InputEventGenerator.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXPPI.hh"
+#include "MessageCommand.hh"
+#include "Mixer.hh"
+#include "MsxChar2Unicode.hh"
+#include "RTScheduler.hh"
+#include "RomDatabase.hh"
+#include "RomInfo.hh"
+#include "StateChangeDistributor.hh"
+#include "SymbolManager.hh"
+#include "TclCallbackMessages.hh"
+#include "TclObject.hh"
+#include "UserSettings.hh"
+#include "VideoSystem.hh"
+#include "XMLElement.hh"
+#include "XMLException.hh"
+
 #include "FileOperations.hh"
 #include "foreach_file.hh"
 #include "Thread.hh"
 #include "Timer.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -45,6 +52,7 @@
 #include "StringOp.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -223,6 +231,9 @@ void Reactor::init()
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
 		*globalCommandController, *eventDistributor, *globalSettings);
+	symbolManager = make_unique<SymbolManager>(
+		*globalCommandController);
+	imGuiManager = make_unique<ImGuiManager>(*this);
 	diskFactory = make_unique<DiskFactory>(
 		*this);
 	diskManipulator = make_unique<DiskManipulator>(
@@ -276,7 +287,7 @@ void Reactor::init()
 
 	eventDistributor->registerEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->registerEventListener(EventType::FOCUS, *this);
+	eventDistributor->registerEventListener(EventType::WINDOW, *this);
 #endif
 	isInit = true;
 }
@@ -288,7 +299,7 @@ Reactor::~Reactor()
 
 	eventDistributor->unregisterEventListener(EventType::QUIT, *this);
 #if PLATFORM_ANDROID
-	eventDistributor->unregisterEventListener(EventType::FOCUS, *this);
+	eventDistributor->unregisterEventListener(EventType::WINDOW, *this);
 #endif
 
 	getGlobalSettings().getPauseSetting().detach(*this);
@@ -330,6 +341,11 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
+const HotKey& Reactor::getHotKey() const
+{
+	return globalCommandController->getHotKey();
+}
+
 vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;
@@ -355,6 +371,24 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	result.erase(ranges::unique(result), end(result));
 	return result;
 }
+
+const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
+{
+	// TODO cleanup this code. It should be easier to get a hold of the
+	// 'MsxChar2Unicode' object. Probably the 'Keyboard' class is not the
+	// right location to store it.
+	try {
+		if (MSXMotherBoard* board = getMotherBoard()) {
+			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
+				return ppi->getKeyboard().getMsxChar2Unicode();
+			}
+		}
+	} catch (MSXException&) {
+	}
+	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
+	return defaultMsxChars;
+}
+
 
 void Reactor::createMachineSetting()
 {
@@ -458,8 +492,7 @@ void Reactor::switchBoard(Board newBoard)
 		std::lock_guard<std::mutex> lock(mbMutex);
 		activeBoard = newBoard;
 	}
-	eventDistributor->distributeEvent(
-		Event::create<MachineLoadedEvent>());
+	eventDistributor->distributeEvent(MachineLoadedEvent());
 	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard) {
 		activeBoard->activate(true);
@@ -629,27 +662,29 @@ void Reactor::update(const Setting& setting) noexcept
 // EventListener
 int Reactor::signalEvent(const Event& event)
 {
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const QuitEvent& /*e*/) {
 			enterMainLoop();
 			running = false;
 		},
-		[&](const FocusEvent& e) {
+		[&](const WindowEvent& e) {
 			(void)e;
 #if PLATFORM_ANDROID
-			// Android SDL port sends a (un)focus event when an app is put in background
-			// by the OS for whatever reason (like an incoming phone call) and all screen
-			// resources are taken away from the app.
-			// In such case the app is supposed to behave as a good citizen
-			// and minimize its resource usage and related battery drain.
-			// The SDL Android port already takes care of halting the Java
-			// part of the sound processing. The Display class makes sure that it wont try
-			// to render anything to the (temporary missing) graphics resources but the
-			// main emulation should also be temporary stopped, in order to minimize CPU usage
-			if (e.getGain()) {
-				unblock();
-			} else {
-				block();
+			if (e.isMainWindow()) {
+				// Android SDL port sends a (un)focus event when an app is put in background
+				// by the OS for whatever reason (like an incoming phone call) and all screen
+				// resources are taken away from the app.
+				// In such case the app is supposed to behave as a good citizen
+				// and minimize its resource usage and related battery drain.
+				// The SDL Android port already takes care of halting the Java
+				// part of the sound processing. The Display class makes sure that it wont try
+				// to render anything to the (temporary missing) graphics resources but the
+				// main emulation should also be temporary stopped, in order to minimize CPU usage
+				if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					unblock();
+				} else if (e.getSdlWindowEvent().type == SDL_WINDOWEVENT_FOCUS_LOST) {
+					block();
+				}
 			}
 #endif
 		},
@@ -681,7 +716,7 @@ void ExitCommand::execute(std::span<const TclObject> tokens, TclObject& /*result
 		exitCode = tokens[1].getInt(getInterpreter());
 		break;
 	}
-	distributor.distributeEvent(Event::create<QuitEvent>());
+	distributor.distributeEvent(QuitEvent());
 }
 
 string ExitCommand::help(std::span<const TclObject> /*tokens*/) const
@@ -1114,7 +1149,7 @@ void RealTimeInfo::execute(std::span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
-	result = narrow_cast<double>(delta) / 1000000.0;
+	result = narrow_cast<double>(delta) * (1.0 / 1000000.0);
 }
 
 string RealTimeInfo::help(std::span<const TclObject> /*tokens*/) const

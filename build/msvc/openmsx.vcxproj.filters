@@ -1,6 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="3rdparty\ImGuiFileDialog">
+      <UniqueIdentifier>{04a6bee4-b7ea-42af-ac09-cbdafe897ae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\imgui">
+      <UniqueIdentifier>{3b13637c-13a0-4e77-a5aa-d68d68fdf5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty\imgui_memory_editor">
+      <UniqueIdentifier>{305ed602-57dc-4f3c-9fdd-e372d1403920}</UniqueIdentifier>
+    </Filter>
     <Filter Include="cassette">
       <UniqueIdentifier>{27eaf1e2-f5da-477a-99a5-7be15006d6a0}</UniqueIdentifier>
     </Filter>
@@ -30,6 +39,9 @@
     </Filter>
     <Filter Include="ide">
       <UniqueIdentifier>{db111771-419a-4e9f-a046-87a88f567ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{3bbe266f-68de-4a3d-a497-eb5db3a09a29}</UniqueIdentifier>
     </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{39b914e9-534c-42eb-8b1c-7078665cd464}</UniqueIdentifier>
@@ -72,6 +84,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.cc">
+      <Filter>3rdparty\ImGuiFileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_demo.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_draw.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_tables.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_widgets.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.cc">
+      <Filter>3rdparty\imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CasImage.cc">
       <Filter>cassette</Filter>
     </ClCompile>
@@ -135,10 +177,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc">
-      <Filter>console</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\console\ConsoleLine.cc">
       <Filter>console</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUI.cc">
@@ -219,7 +258,13 @@
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.cc">
       <Filter>debugger</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\debugger\SymbolManager.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\CliComm.cc">
@@ -249,7 +294,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\InputEventGenerator.cc">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\events\Keys.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\events\SDLKey.cc">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\MSXCliComm.cc">
@@ -480,6 +525,96 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc">
       <Filter>ide</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiBreakPoints.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiCharacter.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiCheatFinder.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiConnector.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiConsole.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\ArkanoidPad.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -489,10 +624,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\EventDelay.cc">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\input\Joystick.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickManager.cc">
       <Filter>input</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc">
@@ -508,6 +643,9 @@
       <Filter>input</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\MSXJoystick.cc">
       <Filter>input</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\MagicKey.cc">
@@ -618,6 +756,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Rom.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomArc.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -706,6 +847,12 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo8.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNeo16.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNettouYakyuu.cc">
@@ -990,9 +1137,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviWriter.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\BaseImage.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\BitmapConverter.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -1017,16 +1161,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\FBPostProcessor.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\FrameSource.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLImage.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\GLPostProcessor.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLSnow.cc">
@@ -1042,9 +1180,6 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc">
@@ -1065,31 +1200,13 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\RenderSettings.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLImage.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\video\OffScreenSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLRasterizer.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLSnow.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc">
@@ -1338,33 +1455,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSaIScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scale3xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler1.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler2.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scaler3.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scanline.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclCallback.cc" />
@@ -1382,7 +1477,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.cc" />
@@ -1401,6 +1495,51 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SG1000Pause.cc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\CustomFont.h">
+      <Filter>3rdparty\ImGuiFileDialog</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>3rdparty\ImGuiFileDialog</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>3rdparty\ImGuiFileDialog</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imconfig.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_impl_sdl2.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_internal.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imgui_stdlib.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_rectpack.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_textedit.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\imstb_truetype.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui\misc\freetype\imgui_freetype.h">
+      <Filter>3rdparty\imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor\imgui_memory_editor.h">
+      <Filter>3rdparty\imgui_memory_editor</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
       <Filter>cassette</Filter>
     </None>
@@ -1476,10 +1615,7 @@
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh">
       <Filter>config</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh">
-      <Filter>console</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.hh">
+    <None Include="$(OpenMSXSrcDir)\console\ConsoleLine.hh">
       <Filter>console</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\console\OSDGUI.hh">
@@ -1578,7 +1714,13 @@
     <None Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.hh">
       <Filter>debugger</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\debugger\SymbolManager.hh">
+      <Filter>debugger</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh">
+      <Filter>events</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\CliComm.hh">
@@ -1611,7 +1753,7 @@
     <None Include="$(OpenMSXSrcDir)\events\InputEventGenerator.hh">
       <Filter>events</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\events\Keys.hh">
+    <None Include="$(OpenMSXSrcDir)\events\SDLKey.hh">
       <Filter>events</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh">
@@ -1854,6 +1996,102 @@
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh">
       <Filter>ide</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiBreakPoints.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiCharacter.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiCheatFinder.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiConnector.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiConsole.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiCpp.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiLayer.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMachine.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiPart.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiReverseBar.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSettings.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSoundChip.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSpriteViewer.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiSymbols.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiVdpRegs.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiUtils.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh">
+      <Filter>imgui</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh">
       <Filter>input</Filter>
     </None>
@@ -1863,10 +2101,10 @@
     <None Include="$(OpenMSXSrcDir)\input\EventDelay.hh">
       <Filter>input</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\input\Joystick.hh">
+    <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">
       <Filter>input</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\input\JoystickDevice.hh">
+    <None Include="$(OpenMSXSrcDir)\input\JoystickManager.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\JoystickPort.hh">
@@ -1882,6 +2120,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\KeyJoystick.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\MSXJoystick.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\MagicKey.hh">
@@ -2001,6 +2242,9 @@
     <None Include="$(OpenMSXSrcDir)\memory\Rom.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomAlAlamiah30in1.hh">
+      <Filter>memory</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomArc.hh">
       <Filter>memory</Filter>
     </None>
@@ -2086,6 +2330,12 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomNeo8.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomNeo16.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomNettouYakyuu.hh">
@@ -2496,9 +2746,6 @@
     <None Include="$(OpenMSXSrcDir)\video\AviWriter.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\BaseImage.hh">
-      <Filter>video</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\video\BitmapConverter.hh">
       <Filter>video</Filter>
     </None>
@@ -2529,16 +2776,10 @@
     <None Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\FBPostProcessor.hh">
-      <Filter>video</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\video\FrameSource.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\GLImage.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\GLPostProcessor.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\GLSnow.hh">
@@ -2557,9 +2798,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh">
@@ -2589,37 +2827,16 @@
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh">
       <Filter>video</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\Scanline.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLImage.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.hh">
+    <None Include="$(OpenMSXSrcDir)\video\OffScreenSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLRasterizer.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLSnow.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh">
@@ -2887,41 +3104,13 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\GLSaIScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler-1x1to1x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler-1x1to2x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler-1x1to1x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler-1x1to2x2.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler-1x1to3x3.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler-1x1to3x3.nn" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQCommon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scale3xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler1.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler2.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Scaler3.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />
     <None Include="$(OpenMSXSrcDir)\SaveState.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXCielTurbo.hh" />
@@ -2939,7 +3128,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\lz4.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.hh" />

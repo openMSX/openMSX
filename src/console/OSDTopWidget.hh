@@ -34,8 +34,7 @@ public:
 
 protected:
 	void invalidateLocal() override;
-	void paintSDL(OutputSurface& output) override;
-	void paintGL (OutputSurface& output) override;
+	void paint(OutputSurface& output) override;
 
 private:
 	std::vector<std::string> errors;

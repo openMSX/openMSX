@@ -22,6 +22,7 @@ class GlobalCliComm;
 class GlobalCommandController;
 class GlobalSettings;
 class CliComm;
+class ImGuiManager;
 class Interpreter;
 class Display;
 class Mixer;
@@ -30,9 +31,11 @@ class DiskFactory;
 class DiskManipulator;
 class DiskChanger;
 class FilePool;
+class HotKey;
 class UserSettings;
 class RomDatabase;
 class TclCallbackMessages;
+class MsxChar2Unicode;
 class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
@@ -53,6 +56,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
+class SymbolManager;
 
 extern int exitCode;
 
@@ -89,6 +93,10 @@ public:
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
+	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
+	[[nodiscard]] const HotKey& getHotKey() const;
+	[[nodiscard]] SymbolManager& getSymbolManager() const { return *symbolManager; }
+	[[nodiscard]] AviRecorder& getRecorder() const { return *aviRecordCommand; }
 
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
@@ -96,6 +104,8 @@ public:
 	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
 	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);
+
+	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
 
 	void block();
 	void unblock();
@@ -111,18 +121,18 @@ public:
 	using Board = std::shared_ptr<MSXMotherBoard>;
 	[[nodiscard]] Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
+	[[nodiscard]] Board getMachine(std::string_view machineID) const;
 
 	[[nodiscard]] bool isFullyStarted() const { return fullyStarted; }
 
-private:
-	void createMachineSetting();
-	void switchBoard(Board newBoard);
-	void deleteBoard(Board board);
-	[[nodiscard]] Board getMachine(std::string_view machineID) const;
 	[[nodiscard]] auto getMachineIDs() const {
 		return view::transform(boards,
 			[](auto& b) -> std::string_view { return b->getMachineID(); });
 	}
+private:
+	void createMachineSetting();
+	void switchBoard(Board newBoard);
+	void deleteBoard(Board board);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;
@@ -150,6 +160,8 @@ private:
 	std::unique_ptr<GlobalCommandController> globalCommandController;
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
+	std::unique_ptr<SymbolManager> symbolManager; // before imGuiManager
+	std::unique_ptr<ImGuiManager> imGuiManager; // before display
 	std::unique_ptr<Display> display;
 	std::unique_ptr<Mixer> mixer; // lazy initialized
 	std::unique_ptr<DiskFactory> diskFactory;

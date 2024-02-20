@@ -88,7 +88,7 @@ float SoundDevice::getAmplificationFactorImpl() const
 void SoundDevice::registerSound(const DeviceConfig& config)
 {
 	const auto& soundConfig = config.getChild("sound");
-	float volume = narrow<float>(soundConfig.getChildDataAsInt("volume", 0)) / 32767.0f;
+	float volume = narrow<float>(soundConfig.getChildDataAsInt("volume", 0)) * (1.0f / 32767.0f);
 	int devBalance = 0;
 	std::string_view mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {

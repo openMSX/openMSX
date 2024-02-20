@@ -20,7 +20,6 @@ namespace openmsx {
 class AddRemoveUpdate;
 class CartridgeSlotManager;
 class CassettePortInterface;
-class CliComm;
 class CommandController;
 class Debugger;
 class DeviceInfo;
@@ -110,6 +109,7 @@ public:
 	void unpause();
 
 	void powerUp();
+	[[nodiscard]] bool isPowered() const { return powered; }
 
 	void doReset();
 	void activate(bool active);
@@ -130,13 +130,13 @@ public:
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	[[nodiscard]] const Extensions& getExtensions() const { return extensions; }
 	[[nodiscard]] HardwareConfig* findExtension(std::string_view extensionName);
-	std::string loadExtension(std::string_view extensionName, std::string_view slotName);
+	std::unique_ptr<HardwareConfig> loadExtension(std::string_view extensionName, std::string_view slotName);
 	std::string insertExtension(std::string_view name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
-	[[nodiscard]] CliComm& getMSXCliComm();
+	[[nodiscard]] MSXCliComm& getMSXCliComm();
 	[[nodiscard]] MSXCommandController& getMSXCommandController() { return *msxCommandController; }
 	[[nodiscard]] Scheduler& getScheduler() { return *scheduler; }
 	[[nodiscard]] MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }

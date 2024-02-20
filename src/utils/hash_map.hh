@@ -61,8 +61,8 @@ public:
 		return it->second;
 	}
 
-	template<typename K, typename V>
-	std::pair<iterator, bool> try_emplace(K&& key, V&& value)
+	template<typename K, typename... Args>
+	std::pair<iterator, bool> try_emplace(K&& key, Args&& ...args)
 	{
 		auto hash = unsigned(this->hasher(key));
 		auto tableIdx = hash & this->allocMask;
@@ -87,7 +87,7 @@ public:
 		}
 
 		++this->elemCount;
-		auto poolIdx = this->pool.emplace(std::forward<K>(key), std::forward<V>(value));
+		auto poolIdx = this->pool.emplace(std::forward<K>(key), std::forward<Args>(args)...);
 		auto& poolElem = this->pool.get(poolIdx);
 		poolElem.hash = hash;
 		poolElem.nextIdx = primary;

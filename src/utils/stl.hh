@@ -13,6 +13,15 @@
 #include <variant>
 #include <vector>
 
+// Predicate that can be called with any number of parameters (of any type) and
+// just always returns 'true'. This can be useful as a default parameter value.
+struct always_true {
+	template<typename ...Args>
+	bool operator()(Args&& ...) const {
+		return true;
+	}
+};
+
 /** Check if a range contains a given value, using linear search.
   * Equivalent to 'find(first, last, val) != last', though this algorithm
   * is more convenient to use.
@@ -402,15 +411,15 @@ constexpr auto concatArray(const std::array<T, X>& x,
 
 
 // lookup in std::map
-template<typename Key, typename Value>
-[[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key& k)
+template<typename Key, typename Value, typename Key2>
+[[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key2& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;
 }
 
-template<typename Key, typename Value>
-[[nodiscard]] Value* lookup(std::map<Key, Value>& m, const Key& k)
+template<typename Key, typename Value, typename Key2>
+[[nodiscard]] Value* lookup(std::map<Key, Value>& m, const Key2& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;

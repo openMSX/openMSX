@@ -10,8 +10,8 @@ Preparing for a release
 
 - Tell all developers to commit only fixes.
 - Sync with most recent C-BIOS release.
-- Check that the "staticbindist" build still works, in particular on win32 and
-  Mac OS X. This should be clear from the GitHub Actions at
+- Check that the "staticbindist" build still works, in particular on
+  win32 and Mac OS X. This should be clear from the GitHub Actions at
   https://github.com/openMSX/openMSX/actions
 - Verify the documentation is up-to-date.
   Currently most documentation is in "doc/manual".
@@ -26,9 +26,10 @@ Note: An alternative approach would be to create a branch dedicated to the
 Creating a release candidate
 ----------------------------
 
-- If you're creating the very first release candidate for this release, use a
-  version number that ends with -rc1, so 1.2.3-rc1. Only the final release will
-  be without the -rc suffix (in both tag and version numbers.)
+- If you're creating the very first release candidate for this release,
+  use a version number that ends with -rc1, so 1.2.3-rc1. Only the final
+  release will be without the -rc suffix (in both tag and version
+  numbers.)
 - Update the copyright year in src/resource/openmsx.rc
 - Edit the version number in build/version.py:
     packageVersionNumber = '1.2.3'
@@ -45,6 +46,12 @@ Creating a release candidate
 - Save the created file somewhere you can find it again:
     mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/
   This is the release candidate.
+- On GitHub Actions do a build based on the tagged code for platforms
+  that can be built there: (note that the Windows build will NOT include
+  Catapult!):
+  https://github.com/openMSX/openMSX/actions/workflows/build_release_from_tag_via_tarball.yml
+  click open "Run workflow" at the top right and for "Release tag to
+  build" fill in "RELEASE_1_2_3" and click "Run workflow".
 - NOTE: for a Windows build, you also need a RC of Catapult!
 
 Sanity check on release candidate
@@ -71,8 +78,8 @@ Full test of release candidate
 - Check behaviour with empty ~/.openMSX dir.
 - Check that the default config (C-BIOS_MSX2+) works.
 - Check random other configs.
-- Do extensive testing with things that are known to work and likely to give
-  problems (like Unknown Reality, Metal Limit).
+- Do extensive testing with things that are known to work and likely to
+  give problems (like Unknown Reality, Metal Limit).
 - Do some valgrind runs to make sure there are no hidden problems.
 TODO: More standard tests?
 
@@ -82,8 +89,8 @@ Repeat until release worthy
 Create and test release candidates until a satisfactory release candidate
 is made, which will become the release.
 
-If there are any last-minute patches, don't forget to set a new release tag,
-such that the released code is based on exactly the tagged code.
+If there are any last-minute patches, don't forget to set a new release
+tag, such that the released code is based on exactly the tagged code.
 
 Make the release public
 -----------------------
@@ -91,30 +98,34 @@ Make the release public
 Put the release on GitHub (refer to
 https://help.github.com/articles/creating-releases/):
 - Make sure you're logged in
-- Go to https://github.com/openMSX/openMSX/releases. Click "Draft a new release"
+- Go to https://github.com/openMSX/openMSX/releases. Click "Draft a new
+  release"
 - Select the tag version you made above: RELEASE_1_2_3
-- Type 'openMSX' and the release number of the new release at "Release title":
+- Type 'openMSX' and the release number of the new release at "Release
+  title":
   openMSX 1.2.3
-- At the "Describe this release" box, describe the release, e.g. take the first
-  few paragraphs of the release notes (before the list of changes starts).
-- At "Attach binaries" select the files to upload, including our own tarballs.
+- At the "Describe this release" box, describe the release, e.g. take the
+  first few paragraphs of the release notes (before the list of changes
+  starts).
+- At "Attach binaries" select the files to upload, including our own
+  tarballs.
   In short: all the files we used to upload for an SF.net release.
 - Note: GitHub also generates a tarball and a zip file. Just ignore it for
-  now. Do not use these in any links on our website or somewhere else. They
-  contain a lot of unnecessary stuff.
+  now. Do not use these in any links on our website or somewhere else.
+  They contain a lot of unnecessary stuff.
 
 Announce:
 - Post change list to msx.org.
 - Post news item on web site.
 - Post news item on our Facebook page.
-- Post news and/or change list to openmsx-devel and openmsx-user mailinglists
-  (at least one packager uses it to get a trigger)
+- Post news and/or change list to openmsx-devel and openmsx-user
+  mailinglists (at least one packager uses it to get a trigger)
 
 Finally:
 - Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
 - Set releaseFlag to False in build/version.py
-- Update libraries in the 3rd party build system to latest versions, so that
-  next release will profit from this and you won't forget it. Just before the
-  release is too late (unless it's some minor security fix)!
+- Update libraries in the 3rd party build system to latest versions, so
+  that next release will profit from this and you won't forget it. Just
+  before the release is too late (unless it's some minor security fix)!

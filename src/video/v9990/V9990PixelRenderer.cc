@@ -127,11 +127,10 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	}
 	if (vdp.getMotherBoard().isActive() &&
 	    !vdp.getMotherBoard().isFastForwarding()) {
-		eventDistributor.distributeEvent(
-			Event::create<FinishFrameEvent>(
-				rasterizer->getPostProcessor()->getVideoSource(),
-				videoSourceSetting.getSource(),
-				skipEvent));
+		eventDistributor.distributeEvent(FinishFrameEvent(
+			rasterizer->getPostProcessor()->getVideoSource(),
+			videoSourceSetting.getSource(),
+			skipEvent));
 	}
 }
 

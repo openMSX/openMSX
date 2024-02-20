@@ -6,7 +6,7 @@
     <manufacturer>openMSX Team</manufacturer>
     <code/>
     <release_year>1986</release_year>
-    <description>Generic Yamaha Y8950 MSX-AUDIO, including MIDI ports to enable proper detection.</description>
+    <description>Generic Yamaha Y8950 MSX-AUDIO with 256kB sampleRAM, including MIDI ports to enable proper detection.</description>
     <type>sound expansion</type>
   </info>
   <devices>

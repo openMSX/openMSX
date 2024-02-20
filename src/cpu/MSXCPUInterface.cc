@@ -1,25 +1,31 @@
 #include "MSXCPUInterface.hh"
-#include "DummyDevice.hh"
+
+#include "BooleanSetting.hh"
+#include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
-#include "TclObject.hh"
+#include "DeviceFactory.hh"
+#include "DummyDevice.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
+#include "GlobalSettings.hh"
+#include "HardwareConfig.hh"
 #include "Interpreter.hh"
-#include "Reactor.hh"
-#include "RealTime.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include "VDPIODelay.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
+#include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
 #include "MSXWatchIODevice.hh"
-#include "MSXException.hh"
-#include "CartridgeSlotManager.hh"
-#include "EventDistributor.hh"
-#include "Event.hh"
-#include "HardwareConfig.hh"
-#include "DeviceFactory.hh"
+#include "Reactor.hh"
 #include "ReadOnlySetting.hh"
+#include "RealTime.hh"
+#include "Scheduler.hh"
+#include "StateChangeDistributor.hh"
+#include "TclObject.hh"
+#include "VDPIODelay.hh"
 #include "serialize.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "outer.hh"
@@ -27,8 +33,8 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -85,6 +91,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
+	, pauseSetting(motherBoard.getReactor().getGlobalSettings().getPauseSetting())
 {
 	ranges::fill(primarySlotState, 0);
 	ranges::fill(secondarySlotState, 0);
@@ -179,7 +186,6 @@ void MSXCPUInterface::removeAllWatchPoints()
 	while (!watchPoints.empty()) {
 		removeWatchPoint(watchPoints.back());
 	}
-
 }
 
 byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
@@ -229,7 +235,13 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 				g.device->globalWrite(address, value, time);
 			}
 		}
-		// execute write watches after actual write
+		// Execute write watches after actual write.
+		//
+		// But first advance time for the tiniest amount, this makes
+		// sure that later on a possible replay we also replay recorded
+		// commands after the actual memory write (e.g. this matters
+		// when that command is also a memory write)
+		motherBoard.getScheduler().schedule(time + EmuDuration::epsilon());
 		if (writeWatchSet[address >> CacheLine::BITS]
 		                 [address &  CacheLine::LOW]) {
 			executeMemWatch(WatchPoint::WRITE_MEM, address, value);
@@ -817,6 +829,7 @@ void MSXCPUInterface::checkBreakPoints(
 	BreakPoints bpCopy(range.first, range.second);
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	for (auto& p : bpCopy) {
 		bool remove = p.checkAndExecute(globalCliComm, interp);
 		if (remove) {
@@ -913,6 +926,14 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
+void MSXCPUInterface::removeWatchPoint(unsigned id)
+{
+	if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+	    it != watchPoints.end()) {
+		removeWatchPoint(*it); // not efficient, does a 2nd search, but good enough
+	}
+}
+
 void MSXCPUInterface::setCondition(DebugCondition cond)
 {
 	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");
@@ -985,6 +1006,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		                   TclObject(int(value)));
 	}
 
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	auto wpCopy = watchPoints;
 	for (auto& w : wpCopy) {
 		if ((w->getBeginAddress() <= address) &&
@@ -1013,8 +1035,7 @@ void MSXCPUInterface::doBreak()
 	reactor.block();
 	breakedSetting->setReadOnlyValue(TclObject("true"));
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
-	reactor.getEventDistributor().distributeEvent(
-		Event::create<BreakEvent>());
+	reactor.getEventDistributor().distributeEvent(BreakEvent());
 }
 
 void MSXCPUInterface::doStep()
@@ -1028,6 +1049,7 @@ void MSXCPUInterface::doStep()
 void MSXCPUInterface::doContinue()
 {
 	assert(!isFastForward());
+	pauseSetting.setBoolean(false); // unpause
 	if (breaked) {
 		breaked = false;
 

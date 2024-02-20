@@ -16,7 +16,7 @@ GlobalCliComm::~GlobalCliComm()
 	assert(!delivering);
 }
 
-void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
+CliListener* GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 {
 	// can be called from any thread
 	std::lock_guard<std::mutex> lock(mutex);
@@ -27,6 +27,7 @@ void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 			conn->start();
 		}
 	}
+	return p;
 }
 
 std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener)
@@ -51,7 +52,7 @@ void GlobalCliComm::setAllowExternalCommands()
 	}
 }
 
-void GlobalCliComm::log(LogLevel level, std::string_view message)
+void GlobalCliComm::log(LogLevel level, std::string_view message, float fraction)
 {
 	assert(Thread::isMainThread());
 
@@ -71,11 +72,15 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 	std::lock_guard<std::mutex> lock(mutex);
 	if (!listeners.empty()) {
 		for (auto& l : listeners) {
-			l->log(level, message);
+			l->log(level, message, fraction);
 		}
 	} else {
 		// don't let the message get lost
-		std::cerr << message << '\n';
+		std::cerr << message;
+		if (level == PROGRESS && fraction >= 0.0f) {
+			std::cerr << "... " << int(100.0f * fraction) << '%';
+		}
+		std::cerr << '\n';
 	}
 }
 

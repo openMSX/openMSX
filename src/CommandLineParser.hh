@@ -49,7 +49,7 @@ public:
 	explicit CommandLineParser(Reactor& reactor);
 	void registerOption(const char* str, CLIOption& cliOption,
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
-	void registerFileType(std::initializer_list<std::string_view> extensions,
+	void registerFileType(std::span<const std::string_view> extensions,
 	                      CLIFileType& cliFileType);
 	void parse(std::span<char*> argv);
 	[[nodiscard]] ParseStatus getParseStatus() const;

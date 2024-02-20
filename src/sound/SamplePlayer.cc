@@ -1,6 +1,6 @@
 #include "SamplePlayer.hh"
 #include "DeviceConfig.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "FileContext.hh"
 #include "MSXException.hh"
 #include "narrow.hh"

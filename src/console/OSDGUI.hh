@@ -20,9 +20,6 @@ public:
 	[[nodiscard]]       OSDTopWidget& getTopWidget()       { return topWidget; }
 	void refresh() const;
 
-	void setOpenGL(bool openGL_) { openGL = openGL_; }
-	[[nodiscard]] bool isOpenGL() const { return openGL; }
-
 private:
 	Display& display;
 
@@ -47,7 +44,6 @@ private:
 	} osdCommand;
 
 	OSDTopWidget topWidget;
-	bool openGL;
 };
 
 } // namespace openmsx

@@ -19,9 +19,9 @@ public:
 	void unregisterVideoSource(int source);
 	[[nodiscard]] int getSource() noexcept;
 	void setSource(int id);
+	[[nodiscard]] std::vector<std::string_view> getPossibleValues() const;
 
 private:
-	[[nodiscard]] std::vector<std::string_view> getPossibleValues() const;
 	void checkSetValue(std::string_view value) const;
 	[[nodiscard]] bool has(int value) const;
 	[[nodiscard]] int has(std::string_view value) const;

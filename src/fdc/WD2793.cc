@@ -1,6 +1,6 @@
 #include "WD2793.hh"
 #include "DiskDrive.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
 #include "narrow.hh"
@@ -46,7 +46,7 @@ static constexpr auto IDLE = EmuDuration::sec(3);
  * has no ready input signal. (E.g. we don't emulate the WD1770 motor out
  * signal yet).
  */
-WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
+WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, MSXCliComm& cliComm_,
                EmuTime::param time, bool isWD1770_)
 	: Schedulable(scheduler_)
 	, drive(drive_)

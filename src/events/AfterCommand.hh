@@ -32,7 +32,7 @@ private:
 	void executeMatches(std::predicate<Index> auto pred);
 	void executeSimpleEvents(EventType type);
 	void afterSimpleEvent(std::span<const TclObject> tokens, TclObject& result, EventType type);
-	void afterInputEvent(const Event& event,
+	void afterInputEvent(Event event,
 	                   std::span<const TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,
 	                   std::span<const TclObject> tokens, TclObject& result);

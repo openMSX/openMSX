@@ -77,12 +77,13 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 	CHECK(l2 == last);
 }
 
-static void checkSplit(const string& s, const std::vector<string_view> expected)
+template<StringOp::KeepOrRemoveEmptyParts keepOrRemove, typename Separators>
+static void checkSplit(Separators separators, const string& s, const std::vector<string_view> expected)
 {
 	//CHECK(split(s, '-') == expected);
 
 	std::vector<string_view> result;
-	for (const auto& ss : StringOp::split_view(s, '-')) {
+	for (const auto& ss : StringOp::split_view<keepOrRemove>(s, separators)) {
 		result.push_back(ss);
 	}
 	CHECK(result == expected);
@@ -279,14 +280,29 @@ TEST_CASE("StringOp")
 		checkSplitOnLast("foo-bar-", "foo-bar", "");
 	}
 	SECTION("split") {
-		checkSplit("", {});
-		checkSplit("-", {""});
-		checkSplit("foo-", {"foo"});
-		checkSplit("-foo", {"", "foo"});
-		checkSplit("foo-bar", {"foo", "bar"});
-		checkSplit("foo-bar-qux", {"foo", "bar", "qux"});
-		checkSplit("-bar-qux", {"", "bar", "qux"});
-		checkSplit("foo-bar-", {"foo", "bar"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "", {});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-", {""});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-", {"foo"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-foo", {"", "foo"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-bar-qux", {"", "bar", "qux"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo--bar", {"foo", "", "bar"});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "--foo--bar--", {"", "", "foo", "", "bar", ""});
+		checkSplit<StringOp::KEEP_EMPTY_PARTS>(" \t", "foo\t\t  bar", {"foo", "", "", "", "bar"});
+
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "", {});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-", {});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-", {"foo"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-foo", {"foo"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-bar-qux", {"bar", "qux"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo--bar", {"foo", "bar"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "--foo--bar--", {"foo", "bar"});
+		checkSplit<StringOp::REMOVE_EMPTY_PARTS>(" \t", "foo\t\t  bar", {"foo", "bar"});
 	}
 	SECTION("parseRange") {
 		checkParseRange("", {});
@@ -330,5 +346,19 @@ TEST_CASE("StringOp")
 		CHECK(!op("ab", "ABC"));
 		CHECK(!op("abc", "ab"));
 		CHECK(!op("abc", "AB"));
+	}
+	SECTION("containsCaseInsensitive") {
+		CHECK( StringOp::containsCaseInsensitive("abc def", "abc"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "def"));
+		CHECK(!StringOp::containsCaseInsensitive("abc def", "xyz"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "abc"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "def"));
+		CHECK(!StringOp::containsCaseInsensitive("ABC DEF", "xyz"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "ABC"));
+		CHECK( StringOp::containsCaseInsensitive("abc def", "DEF"));
+		CHECK(!StringOp::containsCaseInsensitive("abc def", "XYZ"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "ABC"));
+		CHECK( StringOp::containsCaseInsensitive("ABC DEF", "DEF"));
+		CHECK(!StringOp::containsCaseInsensitive("ABC DEF", "XYZ"));
 	}
 }

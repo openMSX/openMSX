@@ -71,11 +71,13 @@ static constexpr std::array<uint8_t, 8> CAS_HEADER = { 0x1F,0xA6,0xDE,0xBA,0xCC,
 
 static void write0(std::vector<int8_t>& wave)
 {
-	::append(wave, {127, 127, -127, -127});
+	static constexpr std::array<int8_t, 4> chunk{127, 127, -127, -127};
+	::append(wave, chunk);
 }
 static void write1(std::vector<int8_t>& wave)
 {
-	::append(wave, {127, -127, 127, -127});
+	static constexpr std::array<int8_t, 4> chunk{127, -127, 127, -127};
+	::append(wave, chunk);
 }
 
 static void writeHeader(std::vector<int8_t>& wave, unsigned s)

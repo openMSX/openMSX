@@ -10,8 +10,6 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "xrange.hh"
-#include "build-info.hh"
-#include "components.hh"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -19,13 +17,12 @@
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
+V9990SDLRasterizer::V9990SDLRasterizer(
 		V9990& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 1280, 240))
+	, workFrame(std::make_unique<RawFrame>(1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(std::move(postProcessor_))
 	, bitmapConverter(vdp, palette64, palette64_32768, palette256, palette256_32768, palette32768)
@@ -41,8 +38,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
-template<std::unsigned_integral Pixel>
-V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
+V9990SDLRasterizer::~V9990SDLRasterizer()
 {
 	renderSettings.getColorMatrixSetting().detach(*this);
 	renderSettings.getGammaSetting()      .detach(*this);
@@ -50,30 +46,26 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 	renderSettings.getContrastSetting()   .detach(*this);
 }
 
-template<std::unsigned_integral Pixel>
-PostProcessor* V9990SDLRasterizer<Pixel>::getPostProcessor() const
+PostProcessor* V9990SDLRasterizer::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template<std::unsigned_integral Pixel>
-bool V9990SDLRasterizer<Pixel>::isActive()
+bool V9990SDLRasterizer::isActive()
 {
 	return postProcessor->needRender() &&
 	       vdp.getMotherBoard().isActive() &&
 	       !vdp.getMotherBoard().isFastForwarding();
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::reset()
+void V9990SDLRasterizer::reset()
 {
 	setDisplayMode(vdp.getDisplayMode());
 	setColorMode(vdp.getColorMode());
 	resetPalette();
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::frameStart()
+void V9990SDLRasterizer::frameStart()
 {
 	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
 	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
@@ -92,8 +84,7 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 	                (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
+void V9990SDLRasterizer::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(
@@ -102,22 +93,19 @@ void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 	                       : RawFrame::FIELD_NONINTERLACED);
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
+void V9990SDLRasterizer::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
+void V9990SDLRasterizer::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
 	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::drawBorder(
+void V9990SDLRasterizer::drawBorder(
 	int fromX, int fromY, int limitX, int limitY)
 {
 	Pixel bgColor = vdp.isOverScan()
@@ -146,14 +134,13 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	unsigned lineWidth = vdp.getLineWidth();
 	MemoryOps::MemSet<Pixel> memset;
 	for (auto y : xrange(startY, endY)) {
-		memset(workFrame->getLineDirect<Pixel>(y).subspan(startX, size_t(endX - startX)),
+		memset(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
 		       bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::drawDisplay(
+void V9990SDLRasterizer::drawDisplay(
 	int fromX, int fromY, int toX, int toY,
 	int displayX, int displayY, int displayYA, int displayYB)
 {
@@ -213,14 +200,13 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::drawP1Mode(
+void V9990SDLRasterizer::drawP1Mode(
 	int fromX, int fromY, int displayX,
 	int displayY, int displayYA, int displayYB,
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		p1Converter.convertLine(dst, displayX, displayY,
 		                        displayYA, displayYB, drawSprites);
 		workFrame->setLineWidth(fromY, 320);
@@ -231,13 +217,12 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::drawP2Mode(
+void V9990SDLRasterizer::drawP2Mode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
 {
 	while (displayHeight--) {
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		p2Converter.convertLine(dst, displayX, displayY, displayYA, drawSprites);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
@@ -246,8 +231,7 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	}
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::drawBxMode(
+void V9990SDLRasterizer::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight, bool drawSprites)
 {
@@ -275,7 +259,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		// position of the borders into account, the display area
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
-		auto dst = workFrame->getLineDirect<Pixel>(fromY).subspan(fromX, displayWidth);
+		auto dst = workFrame->getLineDirect(fromY).subspan(fromX, displayWidth);
 		bitmapConverter.convertLine(dst, x, y, cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
@@ -285,8 +269,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 }
 
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::preCalcPalettes()
+void V9990SDLRasterizer::preCalcPalettes()
 {
 	// the 32768 color palette
 	if (renderSettings.isColorMatrixIdentity()) {
@@ -294,10 +277,10 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 		// special case speeds up palette precalculation a lot.
 		std::array<int, 32> intensity;
 		for (auto [i, r] : enumerate(intensity)) {
-			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) / 31.0f));
+			r = narrow_cast<int>(255.0f * renderSettings.transformComponent(narrow<float>(i) * (1.0f / 31.0f)));
 		}
 		for (auto [grb, col] : enumerate(palette32768)) {
-			col = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
+			col = screen.mapRGB255(gl::ivec3(
 				intensity[(grb >>  5) & 31],
 				intensity[(grb >> 10) & 31],
 				intensity[(grb >>  0) & 31]));
@@ -310,7 +293,7 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 					             narrow<float>(g),
 					             narrow<float>(b)};
 					palette32768[(g << 10) + (r << 5) + b] = Pixel(
-						screen.mapRGB(renderSettings.transformRGB(rgb / 31.0f)));
+						screen.mapRGB(renderSettings.transformRGB(rgb * (1.0f / 31.0f))));
 				}
 			}
 		}
@@ -333,43 +316,38 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	resetPalette();
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::setPalette(int index,
+void V9990SDLRasterizer::setPalette(int index,
                                            byte r, byte g, byte b, bool ys)
 {
 	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
 	palette64_32768[index & 63] = narrow<int16_t>(idx32768); // TODO what with ys?
-	palette64[index & 63] = ys ? screen.getKeyColor<Pixel>()
+	palette64[index & 63] = ys ? screen.getKeyColor()
 	                           : palette32768[idx32768];
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::resetPalette()
+void V9990SDLRasterizer::resetPalette()
 {
 	// get 64 color palette from VDP
 	for (auto i : xrange(64)) {
 		auto [r, g, b, ys] = vdp.getPalette(i);
 		setPalette(i, r, g, b, ys);
 	}
-	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor<Pixel>()
+	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor()
 	                                      : palette32768[0];
 	// TODO what with palette256_32768[0]?
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::setSuperimpose(bool /*enabled*/)
+void V9990SDLRasterizer::setSuperimpose(bool /*enabled*/)
 {
 	resetPalette();
 }
 
-template<std::unsigned_integral Pixel>
-bool V9990SDLRasterizer<Pixel>::isRecording() const
+bool V9990SDLRasterizer::isRecording() const
 {
 	return postProcessor->isRecording();
 }
 
-template<std::unsigned_integral Pixel>
-void V9990SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
+void V9990SDLRasterizer::update(const Setting& setting) noexcept
 {
 	if (&setting == one_of(&renderSettings.getGammaSetting(),
 	                       &renderSettings.getBrightnessSetting(),
@@ -378,13 +356,5 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting) noexcept
 		preCalcPalettes();
 	}
 }
-
-// Force template instantiation.
-#if HAVE_16BPP
-template class V9990SDLRasterizer<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
-template class V9990SDLRasterizer<uint32_t>;
-#endif
 
 } // namespace openmsx

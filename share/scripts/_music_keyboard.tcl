@@ -66,8 +66,10 @@ proc keyboard_init {} {
 	osd create rectangle music_keyboard -scaled true
 	set channel_count 0
 	dict for {soundchip chip_dict} $keyb_dict {
+		set chipname [string map {. _} $soundchip]
+		# create surrounding widget for this chip
 		dict for {channel chan_dict} $chip_dict {
-			osd create rectangle music_keyboard.chip${soundchip}ch${channel} \
+			osd create rectangle music_keyboard.chip${chipname}ch${channel} \
 				-y [expr {$channel_count * $keyboard_height}] \
 				-w [expr {($num_octaves * 7) * $step_white + $border}] \
 				-h $keyboard_height \
@@ -88,7 +90,7 @@ proc keyboard_init {} {
 					dict set note_key_color $note 0xFFFFFF
 					set z -2
 				}
-				osd create rectangle music_keyboard.chip${soundchip}ch${channel}.key${note} \
+				osd create rectangle music_keyboard.chip${chipname}ch${channel}.key${note} \
 					-x [expr {($note - $nof_blacks) * $step_white + $border + $xcor}] \
 					-y 0 -z $z \
 					-w $key_width -h $h \
@@ -97,13 +99,13 @@ proc keyboard_init {} {
 
 			set next_to_kbd_x [expr {($num_notes - $nof_blacks) * $step_white + $border}]
 
-			osd create rectangle music_keyboard.ch${channel}chip${soundchip}infofield \
+			osd create rectangle music_keyboard.ch${channel}chip${chipname}infofield \
 				-x $next_to_kbd_x -y [expr {$channel_count * $keyboard_height}] \
 				-w [expr {320 - $next_to_kbd_x}] -h $keyboard_height \
 				-rgba 0x000000A0
-			osd create text music_keyboard.ch${channel}chip${soundchip}infofield.notetext \
+			osd create text music_keyboard.ch${channel}chip${chipname}infofield.notetext \
 				-rgb 0xFFFFFF -size [expr {round($keyboard_height * 0.75)}]
-			osd create text music_keyboard.ch${channel}chip${soundchip}infofield.chlabel \
+			osd create text music_keyboard.ch${channel}chip${chipname}infofield.chlabel \
 				-rgb 0x1F1FFF -size [expr {round($keyboard_height * 0.75)}] \
 				-x 10 -text "[expr {$channel + 1}] ($soundchip)"
 			incr channel_count
@@ -126,9 +128,12 @@ proc update_keyboard {} {
 			set vol_expr  [dict get $chan_dict vol_expr]
 			set prev_note [dict get $chan_dict prev_note]
 
+			# make sure OSD widget name doesn't contain dots...
+			set chipname [string map {. _} $soundchip]
+
 			set note [expr {round([freq_to_note [eval $freq_expr]])}]
 			if {$note != $prev_note} {
-				osd configure music_keyboard.chip${soundchip}ch${channel}.key${prev_note} \
+				osd configure music_keyboard.chip${chipname}ch${channel}.key${prev_note} \
 					-rgb [dict get $note_key_color $prev_note]
 			}
 			if {($note < $num_notes) && ($note > 0)} {
@@ -138,7 +143,7 @@ proc update_keyboard {} {
 				set color [expr {($color > 0x808080)
 				                 ? ($color - (($deviation << 8) + $deviation))
 				                 : ($color + ($deviation << 16))}]
-				osd configure music_keyboard.chip${soundchip}ch${channel}.key${note} \
+				osd configure music_keyboard.chip${chipname}ch${channel}.key${note} \
 					-rgb $color
 
 				if {$deviation > 0} {
@@ -150,7 +155,7 @@ proc update_keyboard {} {
 			} else {
 				set note_text ""
 			}
-			osd configure music_keyboard.ch${channel}chip${soundchip}infofield.notetext \
+			osd configure music_keyboard.ch${channel}chip${chipname}infofield.notetext \
 				-text $note_text
 		}
 	}

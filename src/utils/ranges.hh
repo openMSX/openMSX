@@ -58,7 +58,7 @@ constexpr void sort(RandomAccessRange&& range, Compare comp)
 }
 
 template<typename RAIter, typename Compare = std::less<>, typename Proj>
-void sort(RAIter first, RAIter last, Compare comp, Proj proj)
+constexpr void sort(RAIter first, RAIter last, Compare comp, Proj proj)
 {
 	std::sort(first, last,
 		[&](const auto& x, const auto& y) {
@@ -67,7 +67,7 @@ void sort(RAIter first, RAIter last, Compare comp, Proj proj)
 }
 
 template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
-void sort(RandomAccessRange&& range, Compare comp, Proj proj)
+constexpr void sort(RandomAccessRange&& range, Compare comp, Proj proj)
 {
 	sort(std::begin(range), std::end(range), comp, proj);
 }
@@ -185,19 +185,37 @@ template<typename InputRange, typename UnaryPredicate>
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] bool all_of(InputRange&& range, UnaryPredicate pred)
 {
-	return std::all_of(std::begin(range), std::end(range), pred);
+	//return std::all_of(std::begin(range), std::end(range), pred);
+	auto it = std::begin(range);
+	auto et = std::end(range); // allow 'it' and 'et' to have different types
+	for (/**/; it != et; ++it) {
+		if (!std::invoke(pred, *it)) return false;
+	}
+	return true;
 }
 
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] bool any_of(InputRange&& range, UnaryPredicate pred)
 {
-	return std::any_of(std::begin(range), std::end(range), pred);
+	//return std::any_of(std::begin(range), std::end(range), pred);
+	auto it = std::begin(range);
+	auto et = std::end(range); // allow 'it' and 'et' to have different types
+	for (/**/; it != et; ++it) {
+		if (std::invoke(pred, *it)) return true;
+	}
+	return false;
 }
 
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] bool none_of(InputRange&& range, UnaryPredicate pred)
 {
-	return std::none_of(std::begin(range), std::end(range), pred);
+	//return std::none_of(std::begin(range), std::end(range), pred);
+	auto it = std::begin(range);
+	auto et = std::end(range); // allow 'it' and 'et' to have different types
+	for (/**/; it != et; ++it) {
+		if (std::invoke(pred, *it)) return false;
+	}
+	return true;
 }
 
 template<typename ForwardRange>
@@ -326,7 +344,14 @@ template<typename InputRange, typename T>
 template<typename InputRange, typename UnaryPredicate>
 [[nodiscard]] auto count_if(InputRange&& range, UnaryPredicate pred)
 {
-	return std::count_if(std::begin(range), std::end(range), pred);
+	auto first = std::begin(range);
+	auto last = std::end(range);
+	typename std::iter_difference_t<decltype(first)> count = 0;
+	while (first != last) {
+		if (std::invoke(pred, *first++)) ++count;
+	}
+	return count;
+	//return std::count_if(std::begin(range), std::end(range), pred);
 }
 
 template<typename InputRange1, typename InputRange2, typename OutputIter>

@@ -49,6 +49,15 @@ TEST_CASE("strCat")
 		CHECK(strCat(t) == "--|a|--");
 		CHECK(strCat(hex_string<8>(i)) == "0001e240");
 		CHECK(strCat(hex_string<4>(i)) == "e240");
+		CHECK(strCat(hex_string<4, HexCase::upper>(i)) == "E240");
+		CHECK(strCat(hex_string(Digits{5}, i)) == "1e240");
+		CHECK(strCat(hex_string<HexCase::upper>(Digits{5}, i)) == "1E240");
+		CHECK(strCat(hex_string(Digits{3}, i)) == "240");
+		CHECK(strCat(bin_string<16>(i)) == "1110001001000000");
+		CHECK(strCat(bin_string<8>(i)) == "01000000");
+		CHECK(strCat(dec_string<8>(i)) == "  123456");
+		CHECK(strCat(dec_string<6>(i)) == "123456");
+		CHECK(strCat(dec_string<4>(i)) == "3456");
 		CHECK(strCat(spaces(5)) == "     ");
 	}
 	SECTION("two") {

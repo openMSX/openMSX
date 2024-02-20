@@ -3,7 +3,6 @@
 
 #include "RenderSettings.hh"
 #include "Command.hh"
-#include "CommandConsole.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "EventListener.hh"
@@ -43,7 +42,6 @@ public:
 	[[nodiscard]] CliComm& getCliComm() const;
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
-	[[nodiscard]] CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
 	  * The repaintImpl() methods are for internal and VideoSystem/VisibleSurface use only.
@@ -65,6 +63,14 @@ public:
 	[[nodiscard]] OutputSurface* getOutputSurface();
 
 	[[nodiscard]] std::string getWindowTitle();
+
+	/** Get/set x,y coordinates of top-left window corner.
+	    Either the actual, or the last known coordinates. */
+	[[nodiscard]] gl::ivec2 getWindowPosition();
+	void setWindowPosition(gl::ivec2 pos);
+	// should only be called from VisibleSurface
+	void storeWindowPosition(gl::ivec2 pos);
+	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
 private:
 	void resetVideoSystem();
@@ -119,7 +125,6 @@ private:
 
 	Reactor& reactor;
 	RenderSettings renderSettings;
-	CommandConsole commandConsole;
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer = RenderSettings::UNINITIALIZED;

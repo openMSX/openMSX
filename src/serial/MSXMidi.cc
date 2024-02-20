@@ -17,12 +17,12 @@ static constexpr byte DISABLED_VALUE      = 0x80; // b7 = EN
 
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
-	, MidiInConnector(MSXDevice::getPluggingController(), "msx-midi-in")
+	, MidiInConnector(MSXDevice::getPluggingController(), "MSX-MIDI-in")
 	, timerIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQtimer")
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, isExternalMSXMIDI(config.findChild("external") != nullptr)
 	, isEnabled(!isExternalMSXMIDI)
-	, outConnector(MSXDevice::getPluggingController(), "msx-midi-out")
+	, outConnector(MSXDevice::getPluggingController(), "MSX-MIDI-out")
 	, i8251(getScheduler(), interface, getCurrentTime())
 	, i8254(getScheduler(), &cntr0, nullptr, &cntr2, getCurrentTime())
 {

@@ -138,6 +138,19 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	return result;
 }
 
+std::string_view HardwareConfig::getRomFilename() const
+{
+	// often this will give the same result as 'getName()', except when the same ROM file is used twice.
+	assert(type == Type::ROM && "should only be used on ROM extensions");
+	const auto* d = getConfig().findChild("devices"); assert(d);
+	const auto* p = d->findChild("primary"); assert(p);
+	const auto* s = p->findChild("secondary"); assert(s);
+	const auto* R = s->findChild("ROM"); assert(R);
+	const auto* r = R->findChild("rom"); assert(r);
+	const auto* f = r->findChild("filename"); assert(f);
+	return f->getData();
+}
+
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, string hwName_)
 	: motherBoard(motherBoard_)
 	, hwName(std::move(hwName_))

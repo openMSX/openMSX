@@ -215,6 +215,8 @@ ver 0.29  2018-02-18(CET)
           * Removed NLMSX configs. We don't think anyone is interested anymore
           * Made generic international ROM config 60Hz and added an EU variant
             at 50Hz default interrupt frequency
+ver 0.29a 2018-09-23(CEST)
+          * Fixed metadata in openMSX configs for EU machines
 
 Special Thanks
 --------------

@@ -3,11 +3,6 @@
 
 namespace openmsx {
 
-bool VideoSystem::checkSettings()
-{
-	return true;
-}
-
 void VideoSystem::takeScreenShot(
 	const std::string& /*filename*/, bool /*withOsd*/)
 {

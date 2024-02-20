@@ -49,7 +49,7 @@ class TclObject
 		}
 		iterator operator++(int) {
 			iterator result = *this;
-			++result;
+			++i;
 			return result;
 		}
 		iterator& operator--() {
@@ -58,7 +58,7 @@ class TclObject
 		}
 		iterator operator--(int) {
 			iterator result = *this;
-			--result;
+			--i;
 			return result;
 		}
 	private:
@@ -67,7 +67,6 @@ class TclObject
 	};
 
 public:
-
 	TclObject()                                  { init(Tcl_NewObj()); }
 	explicit TclObject(Tcl_Obj* o)               { init(o); }
 	template<typename T> explicit TclObject(T t) { init(newObj(t)); }
@@ -155,12 +154,19 @@ public:
 	[[nodiscard]] std::span<const uint8_t> getBinary() const;
 	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
 	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
+	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
+	void removeListIndex(Interpreter& interp, unsigned index);
+	void setDictValue(Interpreter& interp, const TclObject& key, const TclObject& value);
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 	template<typename Key>
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const Key& key) const {
 		return getDictValue(interp, TclObject(key));
 	}
+	[[nodiscard]] std::optional<TclObject> getOptionalDictValue(const TclObject& key) const;
 	[[nodiscard]] std::optional<int> getOptionalInt() const;
+	[[nodiscard]] std::optional<bool> getOptionalBool() const;
+	[[nodiscard]] std::optional<double> getOptionalDouble() const;
+	[[nodiscard]] std::optional<float> getOptionalFloat() const;
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
@@ -171,6 +177,7 @@ public:
 
 	// expressions
 	[[nodiscard]] bool evalBool(Interpreter& interp) const;
+	[[nodiscard]] TclObject eval(Interpreter& interp) const;
 
 	/** Interpret this TclObject as a command and execute it.
 	  * @param interp The Tcl interpreter
@@ -270,7 +277,6 @@ private:
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
 	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
 	[[nodiscard]] unsigned getListLengthUnchecked() const;
-	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
 
 private:
 	Tcl_Obj* obj;

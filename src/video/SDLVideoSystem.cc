@@ -1,8 +1,8 @@
 #include "SDLVideoSystem.hh"
-#include "SDLVisibleSurface.hh"
 #include "SDLRasterizer.hh"
+#include "VisibleSurface.hh"
+#include "PostProcessor.hh"
 #include "V9990SDLRasterizer.hh"
-#include "FBPostProcessor.hh"
 #include "Reactor.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
@@ -10,15 +10,10 @@
 #include "EventDistributor.hh"
 #include "VDP.hh"
 #include "V9990.hh"
-#include "build-info.hh"
 #include "unreachable.hh"
 #include <memory>
 
 #include "components.hh"
-#if COMPONENT_GL
-#include "SDLGLVisibleSurface.hh"
-#include "GLPostProcessor.hh"
-#endif
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #include "LDSDLRasterizer.hh"
@@ -26,36 +21,36 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
+SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 	: reactor(reactor_)
 	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
-	resize();
+	screen = std::make_unique<VisibleSurface>(
+		display,
+		reactor.getRTScheduler(), reactor.getEventDistributor(),
+		reactor.getInputEventGenerator(), reactor.getCliComm(),
+		*this);
 
-	consoleLayer = screen->createConsoleLayer(reactor, console);
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
-	display.addLayer(*consoleLayer);
+	imGuiLayer = screen->createImGUILayer(reactor.getImGuiManager());
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);
+	display.addLayer(*imGuiLayer);
 
+	renderSettings.getFullScreenSetting().attach(*this);
 	renderSettings.getScaleFactorSetting().attach(*this);
-
-	reactor.getEventDistributor().registerEventListener(
-		EventType::RESIZE, *this);
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-	reactor.getEventDistributor().unregisterEventListener(
-		EventType::RESIZE, *this);
-
 	renderSettings.getScaleFactorSetting().detach(*this);
+	renderSettings.getFullScreenSetting().detach(*this);
 
+	display.removeLayer(*imGuiLayer);
 	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*snowLayer);
-	display.removeLayer(*consoleLayer);
 }
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
@@ -65,35 +60,12 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<SDLRasterizer<uint16_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 240, true));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<SDLRasterizer<uint32_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 240, true));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<SDLRasterizer<uint32_t>>(
+		return std::make_unique<SDLRasterizer>(
 			vdp, display, *screen,
-			std::make_unique<GLPostProcessor>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 240, true));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
@@ -107,35 +79,12 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<V9990SDLRasterizer<uint16_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 1280, 240, true));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<V9990SDLRasterizer<uint32_t>>(
-				vdp, display, *screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 1280, 240, true));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<V9990SDLRasterizer<uint32_t>>(
+		return std::make_unique<V9990SDLRasterizer>(
 			vdp, display, *screen,
-			std::make_unique<GLPostProcessor>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 1280, 240, true));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
@@ -148,70 +97,16 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		switch (screen->getPixelFormat().getBytesPerPixel()) {
-#if HAVE_16BPP
-		case 2:
-			return std::make_unique<LDSDLRasterizer<uint16_t>>(
-				*screen,
-				std::make_unique<FBPostProcessor<uint16_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 480, false));
-#endif
-#if HAVE_32BPP
-		case 4:
-			return std::make_unique<LDSDLRasterizer<uint32_t>>(
-				*screen,
-				std::make_unique<FBPostProcessor<uint32_t>>(
-					motherBoard, display, *screen,
-					videoSource, 640, 480, false));
-#endif
-		default:
-			UNREACHABLE; return nullptr;
-		}
-#if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
-		return std::make_unique<LDSDLRasterizer<uint32_t>>(
-			*screen,
-			std::make_unique<GLPostProcessor>(
+		return std::make_unique<LDSDLRasterizer>(
+			std::make_unique<PostProcessor>(
 				motherBoard, display, *screen,
 				videoSource, 640, 480, false));
-#endif
 	default:
 		UNREACHABLE; return nullptr;
 	}
 }
 #endif
-
-gl::ivec2 SDLVideoSystem::getWindowSize()
-{
-	int factor = renderSettings.getScaleFactor();
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		// We don't have 4x software scalers yet.
-		if (factor > 3) factor = 3;
-		break;
-	case RenderSettings::SDLGL_PP:
-		// All scale factors are supported.
-		break;
-	default:
-		UNREACHABLE;
-	}
-	return {320 * factor, 240 * factor};
-}
-
-// TODO: If we can switch video system at any time (not just frame end),
-//       is this polling approach necessary at all?
-bool SDLVideoSystem::checkSettings()
-{
-	// Check resolution.
-	if (getWindowSize() != screen->getLogicalSize()) {
-		return false;
-	}
-
-	// Check fullscreen.
-	return screen->setFullScreen(renderSettings.getFullScreen());
-}
 
 void SDLVideoSystem::flush()
 {
@@ -226,8 +121,8 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 	} else {
 		// we first need to re-render to an off-screen surface
 		// with OSD layers disabled
-		ScopedLayerHider hideConsole(*consoleLayer);
 		ScopedLayerHider hideOsd(*osdGuiLayer);
+		ScopedLayerHider hideImgui(*imGuiLayer);
 		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
 		display.repaintImpl(*surf);
 		surf->saveScreenshot(filename);
@@ -280,48 +175,28 @@ void SDLVideoSystem::setClipboardText(zstring_view text)
 	}
 }
 
+std::optional<gl::ivec2> SDLVideoSystem::getWindowPosition()
+{
+	return screen->getWindowPosition();
+}
+
+void SDLVideoSystem::setWindowPosition(gl::ivec2 pos)
+{
+	screen->setWindowPosition(pos);
+}
+
 void SDLVideoSystem::repaint()
 {
 	// With SDL we can simply repaint the display directly.
 	display.repaintImpl();
 }
 
-void SDLVideoSystem::resize()
-{
-	auto& rtScheduler         = reactor.getRTScheduler();
-	auto& eventDistributor    = reactor.getEventDistributor();
-	auto& inputEventGenerator = reactor.getInputEventGenerator();
-
-	auto [width, height] = getWindowSize();
-	// Destruct existing output surface before creating a new one.
-	screen.reset();
-
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDL:
-		screen = std::make_unique<SDLVisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(), *this);
-		break;
-#if COMPONENT_GL
-	case RenderSettings::SDLGL_PP:
-		screen = std::make_unique<SDLGLVisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(), *this);
-		break;
-#endif
-	default:
-		UNREACHABLE;
-	}
-}
-
 void SDLVideoSystem::update(const Setting& subject) noexcept
 {
-	if (&subject == &renderSettings.getScaleFactorSetting()) {
-		// TODO: This is done via checkSettings instead,
-		//       but is that still needed?
-		//resize();
+	if (&subject == &renderSettings.getFullScreenSetting()) {
+		screen->setFullScreen(renderSettings.getFullScreen());
+	} else if (&subject == &renderSettings.getScaleFactorSetting()) {
+		screen->resize();
 	} else {
 		UNREACHABLE;
 	}
@@ -331,7 +206,7 @@ int SDLVideoSystem::signalEvent(const Event& /*event*/)
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.
-	//const auto& resizeEvent = get<ResizeEvent>(event);
+	//const auto& resizeEvent = get_event<ResizeEvent>(event);
 	//resize(resizeEvent.getX(), resizeEvent.getY());
 	//resize();
 	return 0;

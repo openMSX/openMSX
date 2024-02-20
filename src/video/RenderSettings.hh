@@ -25,7 +25,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDL, SDLGL_PP };
+	enum RendererID { UNINITIALIZED, DUMMY, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
@@ -35,8 +35,8 @@ public:
 	/** Scaler algorithm
 	  */
 	enum ScaleAlgorithm {
-		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
-		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV, SCALER_MLAA,
+		SCALER_SIMPLE, SCALER_SCALE,
+		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV,
 		NO_SCALER
 	};
 
@@ -51,9 +51,11 @@ public:
 	[[nodiscard]] Accuracy getAccuracy() const { return accuracySetting.getEnum(); }
 
 	/** Deinterlacing [on, off]. */
+	[[nodiscard]] BooleanSetting& getDeinterlaceSetting() { return deinterlaceSetting; }
 	[[nodiscard]] bool getDeinterlace() const { return deinterlaceSetting.getBoolean(); }
 
 	/** Deflicker [on, off]. */
+	[[nodiscard]] BooleanSetting& getDeflickerSetting() { return deflickerSetting; }
 	[[nodiscard]] bool getDeflicker() const { return deflickerSetting.getBoolean(); }
 
 	/** The current max frameskip. */
@@ -86,6 +88,7 @@ public:
 	[[nodiscard]] bool isColorMatrixIdentity() const { return cmIdentity; }
 
 	/** The amount of glow [0..100]. */
+	[[nodiscard]] IntegerSetting& getGlowSetting() { return glowSetting; }
 	[[nodiscard]] int getGlow() const { return glowSetting.getInt(); }
 
 	/** The amount of noise to add to the frame. */
@@ -93,15 +96,16 @@ public:
 	[[nodiscard]] float getNoise() const { return noiseSetting.getFloat(); }
 
 	/** The amount of horizontal blur [0..256]. */
+	[[nodiscard]] IntegerSetting& getBlurSetting() { return horizontalBlurSetting; }
 	[[nodiscard]] int getBlurFactor() const {
 		return (horizontalBlurSetting.getInt()) * 256 / 100;
 	}
 
 	/** The alpha value [0..255] of the gap between scanlines. */
+	[[nodiscard]] IntegerSetting& getScanlineSetting() { return scanlineAlphaSetting; }
 	[[nodiscard]] int getScanlineFactor() const {
 		return 255 - ((scanlineAlphaSetting.getInt() * 255) / 100);
 	}
-
 	/** The amount of space [0..1] between scanlines. */
 	[[nodiscard]] float getScanlineGap() const {
 		return narrow<float>(scanlineAlphaSetting.getInt()) * 0.01f;
@@ -112,6 +116,7 @@ public:
 	[[nodiscard]] RendererID getRenderer() const { return rendererSetting.getEnum(); }
 
 	/** The current scaling algorithm. */
+	[[nodiscard]] auto& getScaleAlgorithmSetting() { return scaleAlgorithmSetting; }
 	[[nodiscard]] ScaleAlgorithm getScaleAlgorithm() const {
 		return scaleAlgorithmSetting.getEnum();
 	}
@@ -129,6 +134,7 @@ public:
 	[[nodiscard]] BooleanSetting& getLimitSpritesSetting() { return limitSpritesSetting; }
 
 	/** Disable sprite rendering? */
+	[[nodiscard]] BooleanSetting& getDisableSpritesSetting() { return disableSpritesSetting; }
 	[[nodiscard]] bool getDisableSprites() const { return disableSpritesSetting.getBoolean(); }
 
 	/** CmdTiming [real, broken].
@@ -141,12 +147,11 @@ public:
 	  * are correctly executed). */
 	[[nodiscard]] EnumSetting<bool>& getTooFastAccessSetting() { return tooFastAccessSetting; }
 
-	/** Display deformation (normal, 3d)
-	  * ATM this only works when using the SDLGL-PP renderer. */
-	[[nodiscard]] DisplayDeform getDisplayDeform() { return displayDeformSetting.getEnum(); }
+	/** Display deformation (normal, 3d). */
+	[[nodiscard]] auto& getDisplayDeformSetting() { return displayDeformSetting; }
+	[[nodiscard]] DisplayDeform getDisplayDeform() const { return displayDeformSetting.getEnum(); }
 
-	/** VSync [on, off]
-	 * ATM this only works when using the SDLGL-PP renderer. */
+	/** VSync [on, off]. */
 	[[nodiscard]] BooleanSetting& getVSyncSetting() { return vSyncSetting; }
 
 	/** Amount of horizontal stretch.

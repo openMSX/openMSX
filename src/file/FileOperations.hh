@@ -230,6 +230,12 @@ namespace openmsx::FileOperations {
 	 */
 	[[nodiscard]] const std::string& getSystemDataDir();
 
+	/**
+	 * Get system doc directory.
+	 * Win32: use "same directory as .exe" + "/doc".
+	 */
+	[[nodiscard]] const std::string& getSystemDocDir();
+
 #ifdef _WIN32
 	typedef struct _stat Stat;
 #else
@@ -273,9 +279,11 @@ namespace openmsx::FileOperations {
 	 * which should be searched for the next filename
 	 * @param prefix Prefix of the filename with numbers
 	 * @param extension Extension of the filename with numbers
+	 * @param addSeparator Add separator character between 'prefix' and 'number'.
 	 */
 	[[nodiscard]] std::string getNextNumberedFileName(
-		std::string_view directory, std::string_view prefix, std::string_view extension);
+		std::string_view directory, std::string_view prefix, std::string_view extension,
+		bool addSeparator = false);
 
 	/** Helper function for parsing filename arguments in Tcl commands.
 	 * - If argument is empty then getNextNumberedFileName() is used

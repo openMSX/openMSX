@@ -1,11 +1,11 @@
 #ifndef INPUTEVENTFACTORY_HH
 #define INPUTEVENTFACTORY_HH
 
+#include "Event.hh"
 #include <string_view>
 
 namespace openmsx {
 
-class Event;
 class TclObject;
 class Interpreter;
 

@@ -45,7 +45,6 @@ void EventDistributor::distributeEvent(Event&& event)
 	//       delivering events to remove the nullptr values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
-	assert(event);
 	std::unique_lock<std::mutex> lock(mutex);
 	if (!listeners[size_t(getType(event))].empty()) {
 		scheduledEvents.push_back(std::move(event));

@@ -20,15 +20,82 @@
 
 namespace openmsx {
 
+// Printer port part of the SKW-01, as it needs to be optional in that class for the National CF-SM003
+
+YamahaSKW01PrinterPort::YamahaSKW01PrinterPort(PluggingController& pluggingController_, const std::string& name_)
+	: Connector(pluggingController_, name_, std::make_unique<DummyPrinterPortDevice>())
+{
+	reset(EmuTime::dummy());
+}
+
+void YamahaSKW01PrinterPort::reset(EmuTime::param time)
+{
+	writeData(0, time);    // TODO check this, see MSXPrinterPort
+	setStrobe(true, time); // TODO check this, see MSXPrinterPort
+}
+
+bool YamahaSKW01PrinterPort::getStatus(EmuTime::param time) const
+{
+	return getPluggedPrintDev().getStatus(time);
+}
+
+void YamahaSKW01PrinterPort::setStrobe(bool newStrobe, EmuTime::param time)
+{
+	if (newStrobe != strobe) {
+		strobe = newStrobe;
+		getPluggedPrintDev().setStrobe(strobe, time);
+	}
+}
+
+void YamahaSKW01PrinterPort::writeData(uint8_t newData, EmuTime::param time)
+{
+	if (newData != data) {
+		data = newData;
+		getPluggedPrintDev().writeData(data, time);
+	}
+}
+
+std::string_view YamahaSKW01PrinterPort::getDescription() const
+{
+	return "Yamaha SKW-01 printer port";
+}
+
+std::string_view YamahaSKW01PrinterPort::getClass() const
+{
+	return "Printer Port";
+}
+
+void YamahaSKW01PrinterPort::plug(Pluggable& dev, EmuTime::param time)
+{
+	Connector::plug(dev, time);
+	getPluggedPrintDev().writeData(data, time);
+	getPluggedPrintDev().setStrobe(strobe, time);
+}
+
+PrinterPortDevice& YamahaSKW01PrinterPort::getPluggedPrintDev() const
+{
+	return *checked_cast<PrinterPortDevice*>(&getPlugged());
+}
+
+template<typename Archive>
+void YamahaSKW01PrinterPort::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+	ar.serialize("strobe"     , strobe,
+	             "data"       , data);
+	// TODO force writing data to port?? (See MSXPrinterPort)
+}
+
 YamahaSKW01::YamahaSKW01(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Connector(MSXDevice::getPluggingController(), MSXDevice::getName() + " printerport",
-	            std::make_unique<DummyPrinterPortDevice>())
 	, mainRom(MSXDevice::getName() + " main"     , "rom", config, "main")
 	, fontRom(MSXDevice::getName() + " kanjifont", "rom", config, "kanjifont")
 	, dataRom(MSXDevice::getName() + " data"     , "rom", config, "data")
 	, sram(MSXDevice::getName() + " SRAM", 0x800, config)
 {
+	if (config.getChildDataAsBool("hasprinterport", true)) {
+		printerPort.emplace(getPluggingController(), getName() + " printerport");
+	}
 	if (mainRom.size() != 32 * 1024) {
 		throw MSXException("Main ROM must be exactly 32kB in size.");
 	}
@@ -47,8 +114,7 @@ void YamahaSKW01::reset(EmuTime::param time)
 	fontAddress = {0, 0, 0, 0};
 	dataAddress = 0;
 
-	writeData(0, time);    // TODO check this, see MSXPrinterPort
-	setStrobe(true, time); // TODO check this, see MSXPrinterPort
+	if (printerPort) printerPort->reset(time);
 }
 
 byte YamahaSKW01::readMem(word address, EmuTime::param time)
@@ -73,9 +139,9 @@ byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
 		} else {
 			return sram[dataAddress & 0x7FF];
 		}
-	} else if (address == 0x7FCC) {
+	} else if (address == 0x7FCC && printerPort) {
 		// bit 1 = status / other bits always 1
-		return getPluggedPrintDev().getStatus(time)
+		return printerPort->getStatus(time)
 		       ? 0xFF : 0xFD;
 	} else if (address < 0x8000) {
 		return mainRom[address];
@@ -103,10 +169,10 @@ void YamahaSKW01::writeMem(word address, byte value, EmuTime::param time)
 		if ((dataAddress & (1 << 15)) != 0) {
 			sram.write(dataAddress & 0x7FF, value);
 		}
-	} else if (address == 0x7FCC) {
-		setStrobe(value & 1, time);
-	} else if (address == 0x7FCE) {
-		writeData(value, time);
+	} else if (address == 0x7FCC && printerPort) {
+		printerPort->setStrobe(value & 1, time);
+	} else if (address == 0x7FCE && printerPort) {
+		printerPort->writeData(value, time);
 	}
 }
 
@@ -132,54 +198,16 @@ byte* YamahaSKW01::getWriteCacheLine(word start) const
 	}
 }
 
-void YamahaSKW01::setStrobe(bool newStrobe, EmuTime::param time)
-{
-	if (newStrobe != strobe) {
-		strobe = newStrobe;
-		getPluggedPrintDev().setStrobe(strobe, time);
-	}
-}
-
-void YamahaSKW01::writeData(uint8_t newData, EmuTime::param time)
-{
-	if (newData != data) {
-		data = newData;
-		getPluggedPrintDev().writeData(data, time);
-	}
-}
-
-std::string_view YamahaSKW01::getDescription() const
-{
-	return "Yamaha SKW-01 printer port";
-}
-
-std::string_view YamahaSKW01::getClass() const
-{
-	return "Printer Port";
-}
-
-void YamahaSKW01::plug(Pluggable& dev, EmuTime::param time)
-{
-	Connector::plug(dev, time);
-	getPluggedPrintDev().writeData(data, time);
-	getPluggedPrintDev().setStrobe(strobe, time);
-}
-
-PrinterPortDevice& YamahaSKW01::getPluggedPrintDev() const
-{
-	return *checked_cast<PrinterPortDevice*>(&getPlugged());
-}
-
 template<typename Archive>
-void YamahaSKW01::serialize(Archive& ar, unsigned /*version*/)
+void YamahaSKW01::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("fontAddress", fontAddress,
 	             "dataAddress", dataAddress,
-	             "SRAM"       , sram,
-	             "strobe"     , strobe,
-	             "data"       , data);
-	// TODO force writing data to port?? (See MSXPrinterPort)
+	             "SRAM"       , sram);
+	if (printerPort) {
+	             printerPort->serialize(ar, version);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YamahaSKW01);
 REGISTER_MSXDEVICE(YamahaSKW01, "YamahaSKW01");

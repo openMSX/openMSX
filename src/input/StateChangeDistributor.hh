@@ -1,10 +1,12 @@
 #ifndef STATECHANGEDISTRIBUTOR_HH
 #define STATECHANGEDISTRIBUTOR_HH
 
+#include "EmuTime.hh"
 #include "ReverseManager.hh"
 #include "StateChangeListener.hh"
-#include "EmuTime.hh"
-#include <memory>
+
+#include "ScopedAssign.hh"
+
 #include <vector>
 
 namespace openmsx {
@@ -48,7 +50,7 @@ public:
 	void distributeNew(EmuTime::param time, Args&& ...args) {
 		if (recorder) {
 			if (isReplaying()) {
-				if (viewOnlyMode) return;
+				if (viewOnlyMode || blockNewEventsDuringReplay) return;
 				stopReplay(time);
 			}
 			assert(!isReplaying());
@@ -81,6 +83,10 @@ public:
 	void setViewOnlyMode(bool value) { viewOnlyMode = value; }
 	[[nodiscard]] bool isViewOnlyMode() const { return viewOnlyMode; }
 
+	[[nodiscard]] auto tempBlockNewEventsDuringReplay() {
+		return ScopedAssign{blockNewEventsDuringReplay, true};
+	}
+
 	[[nodiscard]] bool isReplaying() const;
 
 private:
@@ -91,6 +97,7 @@ private:
 	std::vector<StateChangeListener*> listeners; // unordered
 	ReverseManager* recorder = nullptr;
 	bool viewOnlyMode = false;
+	bool blockNewEventsDuringReplay = false; // used when executing callbacks during replay
 };
 
 } // namespace openmsx

@@ -32,7 +32,7 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -734,7 +734,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	}
 }
 
-void VDP::getExtraDeviceInfo(TclObject& result) const
+std::string_view VDP::getVersionString() const
 {
 	// Add VDP type from the config. An alternative is to convert the
 	// 'version' enum member into some kind of string, but we already
@@ -742,7 +742,23 @@ void VDP::getExtraDeviceInfo(TclObject& result) const
 	// in there, it makes sense. So we can just as well return that then.
 	const auto* vdpVersionString = getDeviceConfig().findChild("version");
 	assert(vdpVersionString);
-	result.addDictKeyValues("version", vdpVersionString->getData());
+	return vdpVersionString->getData();
+}
+
+void VDP::getExtraDeviceInfo(TclObject& result) const
+{
+	result.addDictKeyValues("version", getVersionString());
+}
+
+byte VDP::peekRegister(unsigned address) const
+{
+	if (address < 0x20) {
+		return controlRegs[address];
+	} else if (address < 0x2F) {
+		return cmdEngine->peekCmdReg(narrow<byte>(address - 0x20));
+	} else {
+		return 0xFF;
+	}
 }
 
 void VDP::setPalette(unsigned index, word grb, EmuTime::param time)
@@ -1549,8 +1565,8 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
 		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
 		// apply the saturation
-		Pr *= (narrow<float>(saturationPr) / 100.0f);
-		Pb *= (narrow<float>(saturationPb) / 100.0f);
+		Pr *= (narrow<float>(saturationPr) * (1.0f / 100.0f));
+		Pb *= (narrow<float>(saturationPb) * (1.0f / 100.0f));
 		// convert to RGB as follows:
 		/*
 		  |R|   | 1  0      1.402 |   |Y |
@@ -1589,13 +1605,7 @@ VDP::RegDebug::RegDebug(VDP& vdp_)
 byte VDP::RegDebug::read(unsigned address)
 {
 	auto& vdp = OUTER(VDP, vdpRegDebug);
-	if (address < 0x20) {
-		return vdp.controlRegs[address];
-	} else if (address < 0x2F) {
-		return vdp.cmdEngine->peekCmdReg(narrow<byte>(address - 0x20));
-	} else {
-		return 0xFF;
-	}
+	return vdp.peekRegister(address);
 }
 
 void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)

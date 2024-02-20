@@ -3,8 +3,23 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 19.0RC1 (2023-07-12)
-----------------------------
+openMSX 19.1 (2023-08-30)
+-------------------------
+
+This is a bug fix release which fixes the following serious issues:
+- broken LaserDisc support (OGV file format wasn't recognized)
+- (potential) crash when using two V9990 devices in one machine
+- saving of callback settings like invalid_psg_directions_callback
+
+As a bonus two other noteworthy changes were made:
+- added Hitachi MPF-310H floppy disk drive + interface extension (thanks to
+  Peter Hanraets and Arjen Zeilemaker)
+- added proper mirroring of Konami mapper types in areas 0-3FFFH and
+  C000H-FFFFH
+
+
+openMSX 19.0 (2023-07-25)
+-------------------------
 
 More bug fixes and smaller improvements. Large improvements on the OSD menu and
 the diskmanipulator.
@@ -34,6 +49,8 @@ MSX device support:
 - implemented some weird behaviour of the printer port (implemented unused bits
   specification and status showing on all ports for some machines)
 - added mapper for RetroHard MultiCart 31 in 1 cartridges
+- added mapper for Al Alamiah 30-in-1 cartridges, thanks to a.o. hashem and
+  tsjakoe
 - added new machines/extensions, thanks to:
   - Peter Hanraets: Sony HB-11 and Sony HB-F701xx
   - alwro07: Polish Spectravideo SVI-738

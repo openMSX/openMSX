@@ -17,6 +17,12 @@ class GLScaler
 public:
 	virtual ~GLScaler() = default;
 
+	/** Setup scaler.
+	  * Must be called once per frame before calling scaleImage() (possibly
+	  * multiple times).
+	  */
+	void setup(bool superImpose);
+
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
 	  * Scaling factor depends on the concrete scaler.
@@ -45,7 +51,6 @@ public:
 
 protected:
 	explicit GLScaler(const std::string& progName);
-	void setup(bool superImpose);
 
 	/** Helper method to draw a rectangle with multiple texture coordinates.
 	  * This method is similar to Texture::drawRect() but it calculates a
@@ -79,6 +84,7 @@ protected:
 	std::array<gl::BufferObject, 2> vbo;
 	std::array<gl::ShaderProgram, 2> program;
 	std::array<GLint, 2> unifTexSize;
+	std::array<GLint, 2> unifMvpMatrix;
 };
 
 } // namespace openmsx

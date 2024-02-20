@@ -555,6 +555,12 @@ public:
 	  */
 	void change4k8kMapping(bool mapping8k);
 
+	/** Only used by debugger
+	 */
+	[[nodiscard]] std::span<const uint8_t> getData() const {
+		return {data.data(), data.size()};
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

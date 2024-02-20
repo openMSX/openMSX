@@ -1,64 +1,45 @@
 #include "LDSDLRasterizer.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
-#include "OutputSurface.hh"
-#include "PixelFormat.hh"
-#include "build-info.hh"
-#include "components.hh"
+#include "PixelOperations.hh"
 #include <cstdint>
-#include <memory>
 
 namespace openmsx {
 
-template<std::unsigned_integral Pixel>
-LDSDLRasterizer<Pixel>::LDSDLRasterizer(
-		OutputSurface& screen,
+LDSDLRasterizer::LDSDLRasterizer(
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: postProcessor(std::move(postProcessor_))
-	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 640, 480))
+	, workFrame(std::make_unique<RawFrame>(640, 480))
 {
 }
 
-template<std::unsigned_integral Pixel>
-LDSDLRasterizer<Pixel>::~LDSDLRasterizer() = default;
+LDSDLRasterizer::~LDSDLRasterizer() = default;
 
-template<std::unsigned_integral Pixel>
-PostProcessor* LDSDLRasterizer<Pixel>::getPostProcessor() const
+PostProcessor* LDSDLRasterizer::getPostProcessor() const
 {
 	return postProcessor.get();
 }
 
-template<std::unsigned_integral Pixel>
-void LDSDLRasterizer<Pixel>::frameStart(EmuTime::param time)
+void LDSDLRasterizer::frameStart(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 }
 
-template<std::unsigned_integral Pixel>
-void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
+void LDSDLRasterizer::drawBlank(int r, int g, int b)
 {
 	// We should really be presenting the "LASERVISION" text
 	// here, like the real laserdisc player does. Note that this
 	// changes when seeking or starting to play.
-	auto background = static_cast<Pixel>(workFrame->getPixelFormat().map(r, g, b));
+	PixelOperations pixelOps;
+	auto background = pixelOps.combine(r, g, b);
 	for (auto y : xrange(480)) {
 		workFrame->setBlank(y, background);
 	}
 }
 
-template<std::unsigned_integral Pixel>
-RawFrame* LDSDLRasterizer<Pixel>::getRawFrame()
+RawFrame* LDSDLRasterizer::getRawFrame()
 {
 	return workFrame.get();
 }
-
-
-// Force template instantiation.
-#if HAVE_16BPP
-template class LDSDLRasterizer<uint16_t>;
-#endif
-#if HAVE_32BPP || COMPONENT_GL
-template class LDSDLRasterizer<uint32_t>;
-#endif
 
 } // namespace openmsx

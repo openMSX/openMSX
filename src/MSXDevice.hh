@@ -20,7 +20,7 @@ class MSXMotherBoard;
 class MSXCPU;
 class MSXCPUInterface;
 class Scheduler;
-class CliComm;
+class MSXCliComm;
 class Reactor;
 class CommandController;
 class LedStatus;
@@ -247,7 +247,7 @@ public:
 	[[nodiscard]] MSXCPU& getCPU() const;
 	[[nodiscard]] MSXCPUInterface& getCPUInterface() const;
 	[[nodiscard]] Scheduler& getScheduler() const;
-	[[nodiscard]] CliComm& getCliComm() const;
+	[[nodiscard]] MSXCliComm& getCliComm() const;
 	[[nodiscard]] Reactor& getReactor() const;
 	[[nodiscard]] CommandController& getCommandController() const;
 	[[nodiscard]] PluggingController& getPluggingController() const;

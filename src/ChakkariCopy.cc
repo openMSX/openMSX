@@ -1,5 +1,5 @@
 #include "ChakkariCopy.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "serialize.hh"
 
 // The cartridge has 2 buttons with 2 LEDs, marked PAUSE and COPY. It also has

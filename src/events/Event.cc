@@ -8,16 +8,30 @@ using namespace std::literals;
 
 namespace openmsx {
 
+[[nodiscard]] static constexpr uint16_t normalizeKeyMod(uint16_t m)
+{
+	// when either left or right modifier is pressed, add the other one as well
+	if (m & KMOD_SHIFT) m |= KMOD_SHIFT;
+	if (m & KMOD_CTRL)  m |= KMOD_CTRL;
+	if (m & KMOD_ALT)   m |= KMOD_ALT;
+	if (m & KMOD_GUI)   m |= KMOD_GUI;
+	// ignore stuff like: KMOD_NUM, KMOD_CAPS, KMOD_SCROLL
+	m &= (KMOD_SHIFT | KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE);
+	return m;
+}
+
 bool operator==(const Event& x, const Event& y)
 {
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[](const KeyUpEvent& a, const KeyUpEvent& b) {
 			// note: don't compare scancode, unicode
-			return a.getKeyCode() == b.getKeyCode();
+			return std::tuple(a.getKeyCode(), normalizeKeyMod(a.getModifiers())) ==
+			       std::tuple(b.getKeyCode(), normalizeKeyMod(b.getModifiers()));
 		},
 		[](const KeyDownEvent& a, const KeyDownEvent& b) {
 			// note: don't compare scancode, unicode
-			return a.getKeyCode() == b.getKeyCode();
+			return std::tuple(a.getKeyCode(), normalizeKeyMod(a.getModifiers())) ==
+			       std::tuple(b.getKeyCode(), normalizeKeyMod(b.getModifiers()));
 		},
 		[](const MouseMotionEvent& a, const MouseMotionEvent& b) {
 			return std::tuple(a.getX(), a.getY(), a.getAbsX(), a.getAbsY()) ==
@@ -55,12 +69,14 @@ bool operator==(const Event& x, const Event& y)
 		[](const OsdControlPressEvent& a, const OsdControlPressEvent& b) {
 			return a.getButton() == b.getButton();
 		},
-		[](const FocusEvent& a, const FocusEvent& b) {
-			return a.getGain() == b.getGain();
-		},
-		[](const ResizeEvent& a, const ResizeEvent& b) {
-			return std::tuple(a.getX(), a.getY()) ==
-			       std::tuple(b.getX(), b.getY());
+		[](const WindowEvent& a_, const WindowEvent& b_) {
+			const auto& a = a_.getSdlWindowEvent();
+			const auto& b = b_.getSdlWindowEvent();
+			// don't compare timestamp
+			if (a.event != b.event) return false;
+			if (a.windowID != b.windowID) return false;
+			// TODO for specific events, compare data1 and data2
+			return true;
 		},
 		[](const FileDropEvent& a, const FileDropEvent& b) {
 			return a.getFileName() == b.getFileName();
@@ -88,7 +104,7 @@ TclObject toTclList(const Event& event)
 		"LEFT"sv, "RIGHT"sv, "UP"sv, "DOWN"sv, "A"sv, "B"sv
 	};
 
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[](const KeyEvent& e) {
 			// Note: 'scanCode' is not included (also not in operator==()).
 			//
@@ -101,7 +117,7 @@ TclObject toTclList(const Event& event)
 			//
 			// Within these constraints it's fine to ignore 'scanCode' in this
 			// method.
-			auto result = makeTclList("keyb", Keys::getName(e.getKeyCode()));
+			auto result = makeTclList("keyb", e.getKey().toString());
 			if (e.getUnicode() != 0) {
 				result.addListElement(tmpStrCat("unicode", e.getUnicode()));
 			}
@@ -120,7 +136,7 @@ TclObject toTclList(const Event& event)
 			return makeTclList("mouse", "wheel", e.getX(), e.getY());
 		},
 		[](const JoystickAxisMotionEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("axis", e.getAxis()), e.getValue());
+			return makeTclList(e.getJoystick().str(), tmpStrCat("axis", e.getAxis()), e.getValue());
 		},
 		[](const JoystickHatEvent& e) {
 			const char* str = [&] {
@@ -136,13 +152,13 @@ TclObject toTclList(const Event& event)
 					default:                return "center";
 				}
 			}();
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("hat", e.getHat()), str);
+			return makeTclList(e.getJoystick().str(), tmpStrCat("hat", e.getHat()), str);
 		},
 		[](const JoystickButtonUpEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("button", e.getButton()), "up");
+			return makeTclList(e.getJoystick().str(), tmpStrCat("button", e.getButton()), "up");
 		},
 		[](const JoystickButtonDownEvent& e) {
-			return makeTclList(tmpStrCat("joy", e.getJoystick() + 1), tmpStrCat("button", e.getButton()), "down");
+			return makeTclList(e.getJoystick().str(), tmpStrCat("button", e.getButton()), "down");
 		},
 		[](const OsdControlReleaseEvent& e) {
 			return makeTclList("OSDcontrol", osdControlNames[e.getButton()], "RELEASE");
@@ -150,11 +166,17 @@ TclObject toTclList(const Event& event)
 		[](const OsdControlPressEvent& e) {
 			return makeTclList("OSDcontrol", osdControlNames[e.getButton()], "PRESS");
 		},
-		[](const FocusEvent& e) {
-			return makeTclList("focus", e.getGain());
+		[](const WindowEvent& e_) {
+			const auto& e = e_.getSdlWindowEvent();
+			if (e.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+				return makeTclList("focus", true);
+			} else if (e.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+				return makeTclList("focus", false);
+			}
+			return makeTclList(); // other events don't need a textual representation (yet)
 		},
-		[](const ResizeEvent& e) {
-			return makeTclList("resize", int(e.getX()), int(e.getY()));
+		[](const TextEvent&) {
+			return makeTclList(); // doesn't need a textual representation (yet)
 		},
 		[](const FileDropEvent& e) {
 			return makeTclList("filedrop", e.getFileName());
@@ -173,6 +195,9 @@ TclObject toTclList(const Event& event)
 		},
 		[&](const SimpleEvent& /*e*/) {
 			return makeTclList("simple", int(getType(event)));
+		},
+		[](const ImGuiActiveEvent& e) {
+			return makeTclList("imgui", e.getActive());
 		}
 	}, event);
 }
@@ -182,41 +207,9 @@ std::string toString(const Event& event)
 	return std::string(toTclList(event).getString());
 }
 
-bool isRepeatStopper(const Event& self, const Event& other)
-{
-	assert(self && other);
-	return visit(overloaded{
-		// Normally all events should stop the repeat process in 'bind -repeat',
-		// but in case of OsdControlEvent there are two exceptions:
-		//  - we should not stop because of the original host event that
-		//    actually generated this 'artificial' OsdControlEvent.
-		//  - if the original host event is a joystick motion event, we
-		//    should not stop repeat for 'small' relative new joystick events.
-		[&](const OsdControlEvent& e) {
-			// If this OsdControlEvent was generated by the other event, then
-			// repeat should not be stopped.
-			if (!e.getOrigEvent()) return true;
-			if (e.getOrigEvent() == other) return false;
-
-			// If this OsdControlEvent event was generated by a joystick motion
-			// event and the new event is also a joystick motion event then don't
-			// stop repeat. We don't need to check the actual values of the events
-			// (it also isn't trivial), because when the values differ by enough,
-			// a new OsdControlEvent will be generated and that one will stop
-			// repeat.
-			return (getType(e.getOrigEvent()) != EventType::JOY_AXIS_MOTION) ||
-			       (getType(other)            != EventType::JOY_AXIS_MOTION);
-		},
-		[](const EventBase& /*e*/) {
-			return true;
-		}
-	}, self);
-}
-
 bool matches(const Event& self, const Event& other)
 {
-	assert(self && other);
-	return visit(overloaded{
+	return std::visit(overloaded{
 		[&](const GroupEvent& e) {
 			return contains(e.getTypesToMatch(), getType(other));
 		},

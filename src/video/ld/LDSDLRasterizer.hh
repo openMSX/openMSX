@@ -2,25 +2,20 @@
 #define LDSDLRASTERIZER_HH
 
 #include "LDRasterizer.hh"
-#include <concepts>
 #include <memory>
 
 namespace openmsx {
 
-class OutputSurface;
 class RawFrame;
 class PostProcessor;
 
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
   */
-template<std::unsigned_integral Pixel>
 class LDSDLRasterizer final : public LDRasterizer
 {
 public:
-	LDSDLRasterizer(
-		OutputSurface& screen,
-		std::unique_ptr<PostProcessor> postProcessor);
+	explicit LDSDLRasterizer(std::unique_ptr<PostProcessor> postProcessor);
 	~LDSDLRasterizer() override;
 
 	// Rasterizer interface:

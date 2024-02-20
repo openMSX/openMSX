@@ -2,7 +2,7 @@
 
 from outpututils import rewriteIfChanged
 from version import (
-	extractRevisionNumber, getDetailedVersion, packageVersionNumber
+	extractRevisionNumber, getDetailedVersion, packageVersionNumber, getCopyright
 )
 
 import sys
@@ -15,6 +15,7 @@ def iterResourceHeader():
 
 	yield '#define OPENMSX_VERSION_INT %s' % ', '.join(versionComponents)
 	yield '#define OPENMSX_VERSION_STR "%s\\0"' % getDetailedVersion()
+	yield '#define OPENMSX_COPYRIGHT_STR "%s\\0"' % getCopyright()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:

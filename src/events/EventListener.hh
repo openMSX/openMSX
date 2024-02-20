@@ -1,9 +1,9 @@
 #ifndef EVENTLISTENER_HH
 #define EVENTLISTENER_HH
 
-namespace openmsx {
+#include "Event.hh"
 
-class Event;
+namespace openmsx {
 
 class EventListener
 {

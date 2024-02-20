@@ -45,6 +45,19 @@ public:
 		byte colorAttrib;
 	};
 
+	static constexpr SpritePattern doublePattern(SpritePattern a)
+	{
+		// bit-pattern "abcd...." gets expanded to "aabbccdd"
+		// upper 16 bits (of a 32 bit number) contain the pattern
+		// lower 16 bits must be zero
+		//                               // abcdefghijklmnop0000000000000000
+		a = (a | (a >> 8)) & 0xFF00FF00; // abcdefgh00000000ijklmnop00000000
+		a = (a | (a >> 4)) & 0xF0F0F0F0; // abcd0000efgh0000ijkl0000mnop0000
+		a = (a | (a >> 2)) & 0xCCCCCCCC; // ab00cd00ef00gh00ij00kl00mn00op00
+		a = (a | (a >> 1)) & 0xAAAAAAAA; // a0b0c0d0e0f0g0h0i0j0k0l0m0n0o0p0
+		return a | (a >> 1);             // aabbccddeeffgghhiijjkkllmmnnoopp
+	}
+
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
 	  * @param renderSettings TODO

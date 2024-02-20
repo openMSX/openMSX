@@ -65,7 +65,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
 
-	registerFileType({"tcl"}, scriptOption);
+	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
 	ranges::sort(options, {}, &OptionData::name);
@@ -79,7 +79,7 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	std::initializer_list<string_view> extensions, CLIFileType& cliFileType)
+	std::span<const string_view> extensions, CLIFileType& cliFileType)
 {
 	append(fileTypes, view::transform(extensions,
 		[&](auto& ext) { return FileTypeData{ext, &cliFileType}; }));
@@ -215,7 +215,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
-						reactor.getMachineSetting().getRestoreValue().getString();
+						reactor.getMachineSetting().getDefaultValue().getString();
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {

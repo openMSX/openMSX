@@ -1,5 +1,5 @@
---- freetype-2.11.1.orig/include/freetype/config/ftoption.h	2022-02-01 10:14:35.696604200 +0100
-+++ freetype-2.11.1/include/freetype/config/ftoption.h	2022-02-01 10:22:06.980251000 +0100
+--- freetype-2.11.1.orig/include/freetype/config/ftoption.h	2021-07-15 12:09:04.000000000 +0200
++++ freetype-2.11.1/include/freetype/config/ftoption.h	2023-05-23 22:33:49.399266286 +0200
 @@ -180,8 +180,7 @@
     *
     *   Define this macro if you want to enable this 'feature'.
@@ -93,8 +93,8 @@
  
  
    /**************************************************************************
---- freetype-2.11.1.orig/modules.cfg	2022-02-01 10:14:35.790354500 +0100
-+++ freetype-2.11.1/modules.cfg	2022-02-01 10:29:00.547572700 +0100
+--- freetype-2.11.1.orig/modules.cfg	2021-05-19 07:43:30.000000000 +0200
++++ freetype-2.11.1/modules.cfg	2023-05-23 22:56:47.617254300 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -270,14 +270,7 @@
  
  # Path stroker.  Needs `ftglyph.c'.
  #
-@@ -221,19 +221,19 @@
- # `ftbitmap.c'.
- #
- # See include/freetype/ftsynth.h for the API.
--BASE_EXTENSIONS += ftsynth.c
-+#BASE_EXTENSIONS += ftsynth.c
- 
- # Interface to access data specific to PostScript Type 1 and Type 2 (CFF)
+@@ -227,13 +227,13 @@
  # fonts.
  #
  # See include/freetype/t1tables.h for the API.

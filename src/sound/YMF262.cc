@@ -1045,59 +1045,23 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 {
 	reg[r] = v;
 
-	switch (r) {
-	case 0x104:
-		// 6 channels enable
-		channel[ 0].extended = (v & 0x01) != 0;
-		channel[ 1].extended = (v & 0x02) != 0;
-		channel[ 2].extended = (v & 0x04) != 0;
-		channel[ 9].extended = (v & 0x08) != 0;
-		channel[10].extended = (v & 0x10) != 0;
-		channel[11].extended = (v & 0x20) != 0;
-		return;
-
-	case 0x105:
-		// OPL3 mode when bit0=1 otherwise it is OPL2 mode
-		OPL3_mode = v & 0x01;
-
-		// Verified on real YMF278: When NEW2 bit is first set, a read
-		// from the status register (once) returns bit 1 set (0x02).
-		// This only happens once after reset, so clearing NEW2 and
-		// setting it again doesn't cause another change in the status
-		// register. Also, only bit 1 changes.
-		if ((v & 0x02) && !alreadySignaledNEW2 && isYMF278) {
-			status2 = 0x02;
-			alreadySignaledNEW2 = true;
-		}
-
-		// following behaviour was tested on real YMF262,
-		// switching OPL3/OPL2 modes on the fly:
-		//  - does not change the waveform previously selected
-		//    (unless when ....)
-		//  - does not update CH.A, CH.B, CH.C and CH.D output
-		//    selectors (registers c0-c8) (unless when ....)
-		//  - does not disable channels 9-17 on OPL3->OPL2 switch
-		//  - does not switch 4 operator channels back to 2
-		//    operator channels
-		return;
-	}
-
 	unsigned ch_offset = (r & 0x100) ? 9 : 0;
 	switch (r & 0xE0) {
-	case 0x00: // 00-1F:control
-		switch (r & 0x1F) {
-		case 0x01: // test register
+	case 0x00: // 000-01F,100-11F: control
+		switch (r) {
+		case 0x000: // test register
+		case 0x001: // test register
 			break;
 
-		case 0x02: // Timer 1
+		case 0x002: // Timer 1
 			timer1->setValue(v);
 			break;
 
-		case 0x03: // Timer 2
+		case 0x003: // Timer 2
 			timer2->setValue(v);
 			break;
 
-		case 0x04: // IRQ clear / mask and Timer enable
+		case 0x004: // IRQ clear / mask and Timer enable
 			if (v & 0x80) {
 				// IRQ flags clear
 				resetStatus(0x60);
@@ -1108,9 +1072,48 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 			}
 			break;
 
-		case 0x08: // x,NTS,x,x, x,x,x,x
+		case 0x008: // x,NTS,x,x, x,x,x,x
 			nts = (v & 0x40) != 0;
 			break;
+
+		case 0x100: // test register
+		case 0x101: // test register
+			break;
+
+		case 0x104:
+			// 6 channels enable
+			channel[ 0].extended = (v & 0x01) != 0;
+			channel[ 1].extended = (v & 0x02) != 0;
+			channel[ 2].extended = (v & 0x04) != 0;
+			channel[ 9].extended = (v & 0x08) != 0;
+			channel[10].extended = (v & 0x10) != 0;
+			channel[11].extended = (v & 0x20) != 0;
+			return;
+
+		case 0x105:
+			// OPL3 mode when bit0=1 otherwise it is OPL2 mode
+			OPL3_mode = v & 0x01;
+
+			// Verified on real YMF278: When NEW2 bit is first set, a read
+			// from the status register (once) returns bit 1 set (0x02).
+			// This only happens once after reset, so clearing NEW2 and
+			// setting it again doesn't cause another change in the status
+			// register. Also, only bit 1 changes.
+			if ((v & 0x02) && !alreadySignaledNEW2 && isYMF278) {
+				status2 = 0x02;
+				alreadySignaledNEW2 = true;
+			}
+
+			// following behaviour was tested on real YMF262,
+			// switching OPL3/OPL2 modes on the fly:
+			//  - does not change the waveform previously selected
+			//    (unless when ....)
+			//  - does not update CH.A, CH.B, CH.C and CH.D output
+			//    selectors (registers c0-c8) (unless when ....)
+			//  - does not disable channels 9-17 on OPL3->OPL2 switch
+			//  - does not switch 4 operator channels back to 2
+			//    operator channels
+			return;
 
 		default:
 			break;

@@ -19,12 +19,12 @@ bool stringToBool(string_view str)
 	return false;
 }
 
-//string toLower(string_view str)
-//{
-//	string result(str);
-//	transform_in_place(result, ::tolower);
-//	return result;
-//}
+std::string toLower(std::string_view str)
+{
+	std::string result(str);
+	transform_in_place(result, ::tolower);
+	return result;
+}
 
 void trimRight(string& str, const char* chars)
 {

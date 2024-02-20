@@ -28,6 +28,8 @@ public:
 	 */
 	[[nodiscard]] bool isThrottled() const { return throttle; }
 
+	[[nodiscard]] auto& getFullSpeedLoadingSetting() { return fullSpeedLoadingSetting; }
+
 private:
 	friend class LoadingIndicator;
 

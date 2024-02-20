@@ -132,7 +132,7 @@ int Video9000::signalEvent(const Event& event)
 	int video9000id = getVideoSource();
 
 	assert(getType(event) == EventType::FINISH_FRAME);
-	const auto& ffe = get<FinishFrameEvent>(event);
+	const auto& ffe = get_event<FinishFrameEvent>(event);
 	if (ffe.isSkipped()) return 0;
 	if (videoSourceSetting.getSource() != video9000id) return 0;
 
@@ -147,7 +147,7 @@ int Video9000::signalEvent(const Event& event)
 	if (( showV9990 && v9990Layer && (ffe.getSource() == v9990Layer->getVideoSource())) ||
 	    (!showV9990 && v99x8Layer && (ffe.getSource() == v99x8Layer->getVideoSource()))) {
 		getReactor().getEventDistributor().distributeEvent(
-			Event::create<FinishFrameEvent>(video9000id, video9000id, false));
+			FinishFrameEvent(video9000id, video9000id, false));
 	}
 	return 0;
 }

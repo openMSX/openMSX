@@ -180,6 +180,18 @@ namespace gl {
 	             1.0f)};
 }
 
+// Equivalent to calling the above ortho() function with:
+//    ortho(0.0f, width, height, 0.0f, -1.0f, 1.0f)
+// In other words setup an orthographic projection with "natural screen
+// coordinates", (0,0) the top-right corner.
+[[nodiscard]] constexpr mat4 ortho(float width, float height)
+{
+	return {vec4(2.0f / width, 0.0f, 0.0f, 0.0f),
+	        vec4(0.0f, -2.0f / height, 0.0f, 0.0f),
+	        vec4(0.0f, 0.0f, -1.0f, 0.0f),
+	        vec4(-1.0f, 1.0f, 0.0f, 1.0f)};
+}
+
 // Returns a 4x4 frustum projection matrix. Comparable to
 // the glFrustum() function.
 [[nodiscard]] constexpr mat4 frustum(

@@ -6,6 +6,7 @@ namespace openmsx {
 enum RomType {
 	// Order doesn't matter (I sorted them alphabetically)
 	ROM_ARC,
+	ROM_ALALAMIAH30IN1,
 	ROM_ASCII8,
 	ROM_ASCII8_2,
 	ROM_ASCII8_32,
@@ -54,6 +55,8 @@ enum RomType {
 	ROM_MSXWRITE,
 	ROM_MULTIROM,
 	ROM_NATIONAL,
+	ROM_NEO8,
+	ROM_NEO16,
 	ROM_NETTOU_YAKYUU,
 	ROM_NORMAL,
 	ROM_NORMAL0000,

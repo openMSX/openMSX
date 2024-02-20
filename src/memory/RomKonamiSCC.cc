@@ -14,27 +14,23 @@
 #include "RomKonamiSCC.hh"
 #include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "sha1.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 
 namespace openmsx {
 
-// minimal attempt to avoid seeing this warning too often
-static Sha1Sum alreadyWarnedForSha1Sum;
-
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, scc("SCC", config, getCurrentTime())
 {
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
-	if ((rom.size() > 512 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+	if (rom.size() > 512 * 1024) {
 		getMotherBoard().getMSXCliComm().printWarning(
 			"The size of this ROM image is larger than 512kB, "
 			"which is not supported on real Konami SCC mapper "
 			"chips!");
-		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 	powerUp(getCurrentTime());
 }
@@ -45,15 +41,27 @@ void RomKonamiSCC::powerUp(EmuTime::param time)
 	reset(time);
 }
 
+void RomKonamiSCC::bankSwitch(unsigned page, unsigned block)
+{
+	setRom(page, block);
+
+	// Note: the mirror behavior is different from RomKonami !
+	if (page == 2 || page == 3) {
+		// [0x4000-0x8000), mirrored in [0xC000-0x10000)
+		setRom(page + 4, block);
+	} else if (page == 4 || page == 5) {
+		// [0x8000-0xC000), mirrored in [0x0000-0x4000)
+		setRom(page - 4, block);
+	} else {
+		assert(false);
+	}
+}
+
 void RomKonamiSCC::reset(EmuTime::param time)
 {
-	setUnmapped(0);
-	setUnmapped(1);
 	for (auto i : xrange(2, 6)) {
-		setRom(i, i - 2);
+		bankSwitch(i, i - 2);
 	}
-	setUnmapped(6);
-	setUnmapped(7);
 
 	sccEnabled = false;
 	scc.reset(time);
@@ -108,7 +116,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
 		auto region = address >> 13;
-		setRom(region, value);
+		bankSwitch(region, value);
 		if ((region == 4) && sccEnabled) {
 			invalidateDeviceRCache(0x9800, 0x0800);
 		}

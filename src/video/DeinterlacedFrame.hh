@@ -13,7 +13,6 @@ namespace openmsx {
 class DeinterlacedFrame final : public FrameSource
 {
 public:
-	explicit DeinterlacedFrame(const PixelFormat& format);
 	void init(FrameSource* evenField, FrameSource* oddField);
 
 private:

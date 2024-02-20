@@ -151,6 +151,9 @@ public:
 
 	[[nodiscard]] CPURegs& getRegisters();
 
+	[[nodiscard]] auto* getZ80() { return z80.get(); }
+	[[nodiscard]] auto* getR800() { return r800.get(); }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

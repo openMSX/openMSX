@@ -370,11 +370,10 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	return machineName;
 }
 
-string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotName)
+std::unique_ptr<HardwareConfig> MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotName)
 {
-	std::unique_ptr<HardwareConfig> extension;
 	try {
-		extension = HardwareConfig::createExtensionConfig(
+		return HardwareConfig::createExtensionConfig(
 			*this, string(name), slotName);
 	} catch (FileException& e) {
 		throw MSXException(
@@ -383,7 +382,6 @@ string MSXMotherBoard::loadExtension(std::string_view name, std::string_view slo
 		throw MSXException(
 			"Error in \"", name, "\" extension: ", e.getMessage());
 	}
-	return insertExtension(name, std::move(extension));
 }
 
 string MSXMotherBoard::insertExtension(
@@ -417,7 +415,7 @@ void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 	extensions.erase(it);
 }
 
-CliComm& MSXMotherBoard::getMSXCliComm()
+MSXCliComm& MSXMotherBoard::getMSXCliComm()
 {
 	return *msxCliComm;
 }
@@ -611,8 +609,7 @@ void MSXMotherBoard::doReset()
 	getCPU().doReset(time);
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	reactor.getEventDistributor().distributeEvent(
-		Event::create<BootEvent>());
+	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
 byte MSXMotherBoard::readIRQVector()
@@ -649,8 +646,7 @@ void MSXMotherBoard::powerUp()
 	msxMixer->unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	reactor.getEventDistributor().distributeEvent(
-		Event::create<BootEvent>());
+	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
 void MSXMotherBoard::powerDown()
@@ -676,8 +672,8 @@ void MSXMotherBoard::powerDown()
 void MSXMotherBoard::activate(bool active_)
 {
 	active = active_;
-	auto event = active ? Event::create<MachineActivatedEvent>()
-	                    : Event::create<MachineDeactivatedEvent>();
+	auto event = active ? Event(MachineActivatedEvent())
+	                    : Event(MachineDeactivatedEvent());
 	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		realTime->resync();
@@ -894,13 +890,24 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, std::string commandName_)
 void ExtCmd::execute(std::span<const TclObject> tokens, TclObject& result,
                      EmuTime::param /*time*/)
 {
-	checkNumArgs(tokens, 2, "extension");
+	checkNumArgs(tokens, Between{2, 3}, "extension");
+	if (tokens.size() == 3 && tokens[1].getString() != "insert") {
+		throw SyntaxError();
+	}
 	try {
+		auto name = tokens[tokens.size() - 1].getString();
 		auto slotName = (commandName.size() == 4)
 			? std::string_view(&commandName[3], 1)
 			: "any";
-		result = motherBoard.loadExtension(
-			tokens[1].getString(), slotName);
+		auto extension = motherBoard.loadExtension(name, slotName);
+		if (slotName != "any") {
+			auto& manager = motherBoard.getSlotManager();
+			if (const auto* extConf = manager.getConfigForSlot(commandName[3] - 'a')) {
+				// still a cartridge inserted, (try to) remove it now
+				motherBoard.removeExtension(*extConf);
+			}
+		}
+		result = motherBoard.insertExtension(name, std::move(extension));
 	} catch (MSXException& e) {
 		throw CommandException(std::move(e).getMessage());
 	}

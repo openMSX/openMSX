@@ -11,7 +11,7 @@ APP_ICON:=$(APP_RES)/openmsx-logo.icns
 DESTDIR:=$(BINDIST_DIR)
 INSTALL_BINARY_DIR:=$(APP_EXE_DIR)
 INSTALL_SHARE_DIR:=$(APP_RES)/share
-INSTALL_DOC_DIR:=Documentation
+INSTALL_DOC_DIR:=$(APP_RES)/doc
 
 PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
   "import version; print(version.getVersionedPackageName())" \

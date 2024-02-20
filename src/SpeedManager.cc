@@ -33,7 +33,7 @@ SpeedManager::~SpeedManager()
 void SpeedManager::updateSpeed()
 {
 	speed = (fastforwardSetting.getBoolean() ? fastforwardSpeedSetting : speedSetting)
-	        .getInt() / 100.0;
+	        .getInt() * (1.0 / 100.0);
 	notify();
 }
 

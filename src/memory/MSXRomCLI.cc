@@ -10,6 +10,14 @@ using std::string;
 
 namespace openmsx {
 
+std::span<const std::string_view> MSXRomCLI::getExtensions()
+{
+	static constexpr std::array<std::string_view, 5> extensions = {
+		"ri", "rom", "mx1", "mx2", "sg"
+	};
+	return extensions;
+}
+
 MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
@@ -20,7 +28,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-cartb", *this);
 	cmdLineParser.registerOption("-cartc", *this);
 	cmdLineParser.registerOption("-cartd", *this);
-	cmdLineParser.registerFileType({"ri", "rom", "mx1", "mx2"}, *this);
+	cmdLineParser.registerFileType(getExtensions(), *this);
 }
 
 void MSXRomCLI::parseOption(const string& option, std::span<string>& cmdLine)

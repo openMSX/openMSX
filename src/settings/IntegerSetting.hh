@@ -21,6 +21,9 @@ public:
 	[[nodiscard]] int getInt() const noexcept { return getValue().getInt(getInterpreter()); }
 	void setInt(int i);
 
+	[[nodiscard]] int getMinValue() const { return minValue; }
+	[[nodiscard]] int getMaxValue() const { return maxValue; }
+
 private:
 	const int minValue;
 	const int maxValue;

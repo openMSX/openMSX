@@ -9,7 +9,7 @@ namespace gl {
 // Global variables
 std::optional<Context> context;
 
-Context::Context(int width, int height)
+Context::Context()
 {
 	VertexShader   texVertexShader  ("texture.vert");
 	FragmentShader texFragmentShader("texture.frag");
@@ -34,10 +34,6 @@ Context::Context(int width, int height)
 	progFill.link();
 	progFill.activate();
 	unifFillMvp = progFill.getUniformLocation("u_mvpMatrix");
-
-	pixelMvp = ortho(0.0f, narrow_cast<float>(width),
-	                 narrow_cast<float>(height), 0.0f,
-	                 -1.0f, 1.0f);
 }
 
 Context::~Context() = default;
@@ -48,6 +44,11 @@ openmsx::GLScaler& Context::getFallbackScaler()
 		fallbackScaler = std::make_unique<openmsx::GLDefaultScaler>();
 	}
 	return *fallbackScaler;
+}
+
+void Context::setupMvpMatrix(gl::vec2 logicalSize)
+{
+	pixelMvp = ortho(logicalSize[0], logicalSize[1]);
 }
 
 } // namespace gl

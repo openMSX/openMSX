@@ -115,6 +115,3 @@ proc default_V9990_invalid_register_write_callback {reg value} {
 }
 #set v9990_invalid_register_read_callback  default_V9990_invalid_register_read_callback
 #set v9990_invalid_register_write_callback default_V9990_invalid_register_write_callback
-
-# show message (also) as OSD message
-interp alias {} default_message_callback {} osd::display_message

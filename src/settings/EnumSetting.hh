@@ -25,6 +25,8 @@ public:
 		int value;
 	};
 	using Map = std::vector<MapEntry>;
+	[[nodiscard]] const auto& getMap() const { return baseMap; }
+
 protected:
 
 	explicit EnumSettingBase(Map&& m);
@@ -50,7 +52,7 @@ concept EnumSettingValue = requires(T t, int i) {
 	static_cast<int>(t);
 };
 
-template<EnumSettingValue T> class EnumSetting final : private EnumSettingBase, public Setting
+template<EnumSettingValue T> class EnumSetting final : public EnumSettingBase, public Setting
 {
 public:
 	using Map = EnumSettingBase::Map;

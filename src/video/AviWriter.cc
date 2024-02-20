@@ -21,10 +21,9 @@ namespace openmsx {
 static constexpr unsigned AVI_HEADER_SIZE = 500;
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
-                     unsigned height_, unsigned bpp, unsigned channels_,
-                     unsigned freq_)
+                     unsigned height_, unsigned channels_, unsigned freq_)
 	: file(filename, "wb")
-	, codec(width_, height_, bpp)
+	, codec(width_, height_)
 	, width(width_)
 	, height(height_)
 	, channels(channels_)

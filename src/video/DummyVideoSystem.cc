@@ -61,6 +61,15 @@ void DummyVideoSystem::setClipboardText(zstring_view /*text*/)
 {
 }
 
+std::optional<gl::ivec2> DummyVideoSystem::getWindowPosition()
+{
+	return {};
+}
+
+void DummyVideoSystem::setWindowPosition(gl::ivec2 /*pos*/)
+{
+}
+
 void DummyVideoSystem::repaint()
 {
 }

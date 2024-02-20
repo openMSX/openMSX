@@ -3,20 +3,19 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
-#include "gl_vec.hh"
 #include "Observer.hh"
+#include "gl_vec.hh"
 #include "components.hh"
 #include <memory>
 
 namespace openmsx {
 
-class Reactor;
-class CommandConsole;
 class Display;
-class RenderSettings;
-class SDLVisibleSurfaceBase;
 class Layer;
+class Reactor;
+class RenderSettings;
 class Setting;
+class VisibleSurface;
 
 class SDLVideoSystem final : public VideoSystem, private EventListener
                            , private Observer<Setting>
@@ -25,7 +24,7 @@ public:
 	/** Activates this video system.
 	  * @throw InitException If initialisation fails.
 	  */
-	explicit SDLVideoSystem(Reactor& reactor, CommandConsole& console);
+	explicit SDLVideoSystem(Reactor& reactor);
 
 	/** Deactivates this video system.
 	  */
@@ -39,7 +38,6 @@ public:
 	std::unique_ptr<LDRasterizer> createLDRasterizer(
 		LaserdiscPlayer& ld) override;
 #endif
-	[[nodiscard]] bool checkSettings() override;
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
@@ -49,6 +47,8 @@ public:
 	[[nodiscard]] bool getCursorEnabled() override;
 	[[nodiscard]] std::string getClipboardText() override;
 	void setClipboardText(zstring_view text) override;
+	[[nodiscard]] std::optional<gl::ivec2> getWindowPosition() override;
+	void setWindowPosition(gl::ivec2 pos) override;
 	void repaint() override;
 
 private:
@@ -57,18 +57,15 @@ private:
 	// Observer
 	void update(const Setting& subject) noexcept override;
 
-	[[nodiscard]] gl::ivec2 getWindowSize();
-	void resize();
-
 private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
-	std::unique_ptr<SDLVisibleSurfaceBase> screen;
-	std::unique_ptr<Layer> consoleLayer;
+	std::unique_ptr<VisibleSurface> screen;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;
 	std::unique_ptr<Layer> osdGuiLayer;
+	std::unique_ptr<Layer> imGuiLayer;
 };
 
 } // namespace openmsx

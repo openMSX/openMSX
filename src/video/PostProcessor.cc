@@ -1,56 +1,63 @@
 #include "PostProcessor.hh"
-#include "Display.hh"
-#include "OutputSurface.hh"
-#include "DeinterlacedFrame.hh"
-#include "DoubledFrame.hh"
-#include "Deflicker.hh"
-#include "SuperImposedFrame.hh"
-#include "PNG.hh"
-#include "RenderSettings.hh"
-#include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
-#include "EventDistributor.hh"
-#include "Event.hh"
 #include "CommandException.hh"
+#include "DeinterlacedFrame.hh"
+#include "Deflicker.hh"
+#include "DoubledFrame.hh"
+#include "Display.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
+#include "FloatSetting.hh"
+#include "GLContext.hh"
+#include "GLScaler.hh"
+#include "GLScalerFactory.hh"
 #include "MemBuffer.hh"
+#include "MSXMotherBoard.hh"
+#include "OutputSurface.hh"
+#include "PNG.hh"
+#include "RawFrame.hh"
+#include "Reactor.hh"
+#include "RenderSettings.hh"
+#include "SuperImposedFrame.hh"
 #include "aligned.hh"
+#include "gl_transform.hh"
 #include "narrow.hh"
+#include "random.hh"
+#include "ranges.hh"
+#include "stl.hh"
 #include "vla.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <memory>
+#include <numeric>
+
+using namespace gl;
 
 namespace openmsx {
 
-PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
-	Display& display_, OutputSurface& screen_, const std::string& videoSource,
+PostProcessor::PostProcessor(
+	MSXMotherBoard& motherBoard_, Display& display_,
+	OutputSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: VideoLayer(motherBoard_, videoSource)
 	, Schedulable(motherBoard_.getScheduler())
+	, display(display_)
 	, renderSettings(display_.getRenderSettings())
+	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 	, screen(screen_)
 	, maxWidth(maxWidth_)
 	, height(height_)
-	, display(display_)
 	, canDoInterlace(canDoInterlace_)
 	, lastRotate(motherBoard_.getCurrentTime())
-	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
-		deinterlacedFrame = std::make_unique<DeinterlacedFrame>(
-			screen.getPixelFormat());
-		interlacedFrame   = std::make_unique<DoubledFrame>(
-			screen.getPixelFormat());
-		deflicker = Deflicker::create(
-			screen.getPixelFormat(), lastFrames);
-		superImposedFrame = SuperImposedFrame::create(
-			screen.getPixelFormat());
+		deinterlacedFrame = std::make_unique<DeinterlacedFrame>();
+		interlacedFrame   = std::make_unique<DoubledFrame>();
+		deflicker = std::make_unique<Deflicker>(lastFrames);
+		superImposedFrame = std::make_unique<SuperImposedFrame>();
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need lastFrames[1..3], deinterlacedFrame and
@@ -58,10 +65,29 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 		// time, so we don't need lastFrames[0] (and have a separate
 		// work buffer, for partially rendered frames).
 	}
+
+	preCalcNoise(renderSettings.getNoise());
+	initBuffers();
+
+	VertexShader   vertexShader  ("monitor3D.vert");
+	FragmentShader fragmentShader("monitor3D.frag");
+	monitor3DProg.attach(vertexShader);
+	monitor3DProg.attach(fragmentShader);
+	monitor3DProg.bindAttribLocation(0, "a_position");
+	monitor3DProg.bindAttribLocation(1, "a_normal");
+	monitor3DProg.bindAttribLocation(2, "a_texCoord");
+	monitor3DProg.link();
+	preCalcMonitor3D(renderSettings.getHorizontalStretch());
+
+	renderSettings.getNoiseSetting().attach(*this);
+	renderSettings.getHorizontalStretchSetting().attach(*this);
 }
 
 PostProcessor::~PostProcessor()
 {
+	renderSettings.getHorizontalStretchSetting().detach(*this);
+	renderSettings.getNoiseSetting().detach(*this);
+
 	if (recorder) {
 		getCliComm().printWarning(
 			"Video recording stopped, because you "
@@ -69,6 +95,18 @@ PostProcessor::~PostProcessor()
 			"during recording.");
 		recorder->stop();
 	}
+}
+
+void PostProcessor::initBuffers()
+{
+	// combined positions and texture coordinates
+	static constexpr std::array pos_tex = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1), // pos
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1), // tex
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos_tex), pos_tex.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 CliComm& PostProcessor::getCliComm()
@@ -80,6 +118,215 @@ unsigned PostProcessor::getLineWidth(
 	FrameSource* frame, unsigned y, unsigned step)
 {
 	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
+}
+
+void PostProcessor::executeUntil(EmuTime::param /*time*/)
+{
+	// insert fake end of frame event
+	eventDistributor.distributeEvent(FinishFrameEvent(
+		getVideoSource(), getVideoSourceSetting(), false));
+}
+
+using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
+static void getScaledFrame(FrameSource& paintFrame,
+                           std::span<const void*> lines,
+                           WorkBuffer& workBuffer)
+{
+	auto height = narrow<unsigned>(lines.size());
+	unsigned width = (height == 240) ? 320 : 640;
+	unsigned pitch = width * 4;
+	const void* linePtr = nullptr;
+	void* work = nullptr;
+	for (auto i : xrange(height)) {
+		if (linePtr == work) {
+			// If work buffer was used in previous iteration,
+			// then allocate a new one.
+			work = workBuffer.emplace_back(pitch).data();
+		}
+		auto* work2 = static_cast<uint32_t*>(work);
+		if (height == 240) {
+			auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
+			linePtr = line.data();
+		} else {
+			assert (height == 480);
+			auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
+			linePtr = line.data();
+		}
+		lines[i] = linePtr;
+	}
+}
+
+void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filename)
+{
+	if (!paintFrame) {
+		throw CommandException("TODO");
+	}
+
+	VLA(const void*, lines, height2);
+	WorkBuffer workBuffer;
+	getScaledFrame(*paintFrame, lines, workBuffer);
+	unsigned width = (height2 == 240) ? 320 : 640;
+	PNG::saveRGBA(width, lines, filename);
+}
+
+void PostProcessor::createRegions()
+{
+	regions.clear();
+
+	const unsigned srcHeight = paintFrame->getHeight();
+	const unsigned dstHeight = screen.getLogicalHeight();
+
+	unsigned g = std::gcd(srcHeight, dstHeight);
+	unsigned srcStep = srcHeight / g;
+	unsigned dstStep = dstHeight / g;
+
+	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
+	//       on the PC screen, as a preparation for resizable output window.
+	unsigned srcStartY = 0;
+	unsigned dstStartY = 0;
+	while (dstStartY < dstHeight) {
+		// Currently this is true because the source frame height
+		// is always >= dstHeight/(dstStep/srcStep).
+		assert(srcStartY < srcHeight);
+
+		// get region with equal lineWidth
+		unsigned lineWidth = getLineWidth(paintFrame, srcStartY, srcStep);
+		unsigned srcEndY = srcStartY + srcStep;
+		unsigned dstEndY = dstStartY + dstStep;
+		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
+		       (getLineWidth(paintFrame, srcEndY, srcStep) == lineWidth)) {
+			srcEndY += srcStep;
+			dstEndY += dstStep;
+		}
+
+		regions.emplace_back(srcStartY, srcEndY,
+		                     dstStartY, dstEndY,
+		                     lineWidth);
+
+		// next region
+		srcStartY = srcEndY;
+		dstStartY = dstEndY;
+	}
+}
+
+void PostProcessor::paint(OutputSurface& /*output*/)
+{
+	if (renderSettings.getInterleaveBlackFrame()) {
+		interleaveCount ^= 1;
+		if (interleaveCount) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			return;
+		}
+	}
+
+	auto deform = renderSettings.getDisplayDeform();
+	float horStretch = renderSettings.getHorizontalStretch();
+	int glow = renderSettings.getGlow();
+
+	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
+	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		if (!paintFrame) {
+			return;
+		}
+	}
+
+	// New scaler algorithm selected?
+	auto algo = renderSettings.getScaleAlgorithm();
+	if (scaleAlgorithm != algo) {
+		scaleAlgorithm = algo;
+		currScaler = GLScalerFactory::createScaler(renderSettings);
+
+		// Re-upload frame data, this is both
+		//  - Chunks of RawFrame with a specific line width, possibly
+		//    with some extra lines above and below each chunk that are
+		//    also converted to this line width.
+		//  - Extra data that is specific for the scaler (ATM only the
+		//    hq and hqlite scalers require this).
+		// Re-uploading the first is not strictly needed. But switching
+		// scalers doesn't happen that often, so it also doesn't hurt
+		// and it keeps the code simpler.
+		uploadFrame();
+	}
+
+	auto size = screen.getLogicalSize();
+	glViewport(0, 0, size[0], size[1]);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	auto& renderedFrame = renderedFrames[frameCounter & 1];
+	if (renderedFrame.size != size) {
+		renderedFrame.tex.bind();
+		renderedFrame.tex.setInterpolation(true);
+		glTexImage2D(GL_TEXTURE_2D,     // target
+			     0,                 // level
+			     GL_RGB,            // internal format
+			     size[0],           // width
+			     size[1],           // height
+			     0,                 // border
+			     GL_RGB,            // format
+			     GL_UNSIGNED_BYTE,  // type
+			     nullptr);          // data
+		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
+	}
+	renderedFrame.fbo.push();
+
+	for (auto& r : regions) {
+		//fprintf(stderr, "post processing lines %d-%d: %d\n",
+		//	r.srcStartY, r.srcEndY, r.lineWidth);
+		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
+		auto* superImpose = superImposeVideoFrame
+		                  ? &superImposeTex : nullptr;
+		currScaler->scaleImage(
+			it->tex, superImpose,
+			r.srcStartY, r.srcEndY, r.lineWidth, // src
+			r.dstStartY, r.dstEndY, size[0],   // dst
+			paintFrame->getHeight()); // dst
+	}
+
+	drawNoise();
+	drawGlow(glow);
+
+	renderedFrame.fbo.pop();
+	renderedFrame.tex.bind();
+	auto [x, y] = screen.getViewOffset();
+	auto [w, h] = screen.getViewSize();
+	glViewport(x, y, w, h);
+
+	if (deform == RenderSettings::DEFORM_3D) {
+		drawMonitor3D();
+	} else {
+		float x1 = (320.0f - float(horStretch)) * (1.0f / (2.0f * 320.0f));
+		float x2 = 1.0f - x1;
+		std::array tex = {
+			vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
+		};
+
+		auto& glContext = *gl::context;
+		glContext.progTex.activate();
+		glUniform4f(glContext.unifTexColor,
+				1.0f, 1.0f, 1.0f, 1.0f);
+		mat4 I;
+		glUniformMatrix4fv(glContext.unifTexMvp,
+					1, GL_FALSE, &I[0][0]);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
+		glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(1);
+
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	storedFrame = true;
+	//gl::checkGLError("PostProcessor::paint");
 }
 
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
@@ -184,89 +431,366 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	}
 
 	// Return recycled frame to the caller
-	if (canDoInterlace) {
-		if (!recycleFrame) [[unlikely]] {
-			recycleFrame = std::make_unique<RawFrame>(
-				screen.getPixelFormat(), maxWidth, height);
-		}
-		return recycleFrame;
-	} else {
-		return std::move(lastFrames[0]);
-	}
-}
-
-void PostProcessor::executeUntil(EmuTime::param /*time*/)
-{
-	// insert fake end of frame event
-	eventDistributor.distributeEvent(
-		Event::create<FinishFrameEvent>(
-			getVideoSource(), getVideoSourceSetting(), false));
-}
-
-using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
-static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
-                           std::span<const void*> lines,
-                           WorkBuffer& workBuffer)
-{
-	auto height = narrow<unsigned>(lines.size());
-	unsigned width = (height == 240) ? 320 : 640;
-	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
-	const void* linePtr = nullptr;
-	void* work = nullptr;
-	for (auto i : xrange(height)) {
-		if (linePtr == work) {
-			// If work buffer was used in previous iteration,
-			// then allocate a new one.
-			work = workBuffer.emplace_back(pitch).data();
-		}
-#if HAVE_32BPP
-		if (bpp == 32) {
-			// 32bpp
-			auto* work2 = static_cast<uint32_t*>(work);
-			if (height == 240) {
-				auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
-				linePtr = line.data();
-			} else {
-				assert (height == 480);
-				auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
-				linePtr = line.data();
+	std::unique_ptr<RawFrame> reuseFrame = [&] {
+		if (canDoInterlace) {
+			if (!recycleFrame) [[unlikely]] {
+				recycleFrame = std::make_unique<RawFrame>(maxWidth, height);
 			}
-		} else
-#endif
-		{
-#if HAVE_16BPP
-			// 15bpp or 16bpp
-			auto* work2 = static_cast<uint16_t*>(work);
-			if (height == 240) {
-				auto line = paintFrame.getLinePtr320_240(i, std::span<uint16_t, 320>{work2, 320});
-				linePtr = line.data();
-			} else {
-				assert (height == 480);
-				auto line = paintFrame.getLinePtr640_480(i, std::span<uint16_t, 640>{work2, 640});
-				linePtr = line.data();
-			}
-#endif
+			return std::move(recycleFrame);
+		} else {
+			return std::move(lastFrames[0]);
 		}
-		lines[i] = linePtr;
+	}();
+
+	uploadFrame();
+	++frameCounter;
+	noiseX = random_float(0.0f, 1.0f);
+	noiseY = random_float(0.0f, 1.0f);
+	return reuseFrame;
+}
+
+void PostProcessor::update(const Setting& setting) noexcept
+{
+	VideoLayer::update(setting);
+	auto& noiseSetting = renderSettings.getNoiseSetting();
+	auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
+	if (&setting == &noiseSetting) {
+		preCalcNoise(noiseSetting.getFloat());
+	} else if (&setting == &horizontalStretch) {
+		preCalcMonitor3D(horizontalStretch.getFloat());
 	}
 }
 
-void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filename)
+void PostProcessor::uploadFrame()
 {
-	if (!paintFrame) {
-		throw CommandException("TODO");
+	createRegions();
+
+	const unsigned srcHeight = paintFrame->getHeight();
+	for (auto& r : regions) {
+		// upload data
+		// TODO get before/after data from scaler
+		int before = 1;
+		unsigned after  = 1;
+		uploadBlock(narrow<unsigned>(std::max(0, narrow<int>(r.srcStartY) - before)),
+		            std::min(srcHeight, r.srcEndY + after),
+		            r.lineWidth);
 	}
 
-	VLA(const void*, lines, height2);
-	WorkBuffer workBuffer;
-	getScaledFrame(*paintFrame, getBpp(), lines, workBuffer);
-	unsigned width = (height2 == 240) ? 320 : 640;
-	PNG::save(width, lines, paintFrame->getPixelFormat(), filename);
+	if (superImposeVideoFrame) {
+		int w = narrow<GLsizei>(superImposeVideoFrame->getWidth());
+		int h = narrow<GLsizei>(superImposeVideoFrame->getHeight());
+		if (superImposeTex.getWidth()  != w ||
+		    superImposeTex.getHeight() != h) {
+			superImposeTex.resize(w, h);
+			superImposeTex.setInterpolation(true);
+		}
+		superImposeTex.bind();
+		glTexSubImage2D(
+			GL_TEXTURE_2D,     // target
+			0,                 // level
+			0,                 // offset x
+			0,                 // offset y
+			w,                 // width
+			h,                 // height
+			GL_RGBA,           // format
+			GL_UNSIGNED_BYTE,  // type
+			const_cast<RawFrame*>(superImposeVideoFrame)->getLineDirect(0).data()); // data
+	}
 }
 
-unsigned PostProcessor::getBpp() const
+void PostProcessor::uploadBlock(
+	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
-	return screen.getPixelFormat().getBpp();
+	// create texture/pbo if needed
+	auto it = ranges::find(textures, lineWidth, &TextureData::width);
+	if (it == end(textures)) {
+		TextureData textureData;
+
+		textureData.tex.resize(narrow<GLsizei>(lineWidth),
+		                       narrow<GLsizei>(height * 2)); // *2 for interlace
+		textureData.pbo.setImage(lineWidth, height * 2);
+		textures.push_back(std::move(textureData));
+		it = end(textures) - 1;
+	}
+	auto& tex = it->tex;
+	auto& pbo = it->pbo;
+
+	// bind texture
+	tex.bind();
+
+	// upload data
+	pbo.bind();
+	uint32_t* mapped = pbo.mapWrite();
+	for (auto y : xrange(srcStartY, srcEndY)) {
+		auto* dest = mapped + y * size_t(lineWidth);
+		auto line = paintFrame->getLine(narrow<int>(y), std::span{dest, lineWidth});
+		if (line.data() != dest) {
+			ranges::copy(line, dest);
+		}
+	}
+	pbo.unmap();
+#if defined(__APPLE__)
+	// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
+	// on texture data replacements that are 1 pixel wide and start on a
+	// line number that is a non-zero multiple of 16.
+	if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
+		srcStartY--;
+	}
+#endif
+	glTexSubImage2D(
+		GL_TEXTURE_2D,                      // target
+		0,                                  // level
+		0,                                  // offset x
+		narrow<GLint>(srcStartY),           // offset y
+		narrow<GLint>(lineWidth),           // width
+		narrow<GLint>(srcEndY - srcStartY), // height
+		GL_RGBA,                            // format
+		GL_UNSIGNED_BYTE,                   // type
+		pbo.getOffset(0, srcStartY));       // data
+	pbo.unbind();
+
+	// possibly upload scaler specific data
+	if (currScaler) {
+		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
+	}
+}
+
+void PostProcessor::drawGlow(int glow)
+{
+	if ((glow == 0) || !storedFrame) return;
+
+	auto& glContext = *gl::context;
+	glContext.progTex.activate();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	renderedFrames[(frameCounter & 1) ^ 1].tex.bind();
+	glUniform4f(glContext.unifTexColor,
+	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * (31.0f / 3200.0f));
+	mat4 I;
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+	const vec2* offset = nullptr;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, offset); // pos
+	offset += 4; // see initBuffers()
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, offset); // tex
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDisable(GL_BLEND);
+}
+
+void PostProcessor::preCalcNoise(float factor)
+{
+	std::array<uint8_t, 256 * 256> buf1;
+	std::array<uint8_t, 256 * 256> buf2;
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
+	std::normal_distribution<float> distribution(0.0f, 1.0f);
+	for (auto i : xrange(256 * 256)) {
+		float r = distribution(generator);
+		int s = std::clamp(int(roundf(r * factor)), -255, 255);
+		buf1[i] = narrow<uint8_t>((s > 0) ?  s : 0);
+		buf2[i] = narrow<uint8_t>((s < 0) ? -s : 0);
+	}
+
+	// GL_LUMINANCE is no longer supported in newer openGL versions
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RED : GL_LUMINANCE;
+	noiseTextureA.bind();
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		format,           // internal format
+		256,              // width
+		256,              // height
+		0,                // border
+		format,           // format
+		GL_UNSIGNED_BYTE, // type
+		buf1.data());     // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
+#endif
+
+	noiseTextureB.bind();
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		format,           // internal format
+		256,              // width
+		256,              // height
+		0,                // border
+		format,           // format
+		GL_UNSIGNED_BYTE, // type
+		buf2.data());     // data
+#if OPENGL_VERSION >= OPENGL_3_3
+	GLint swizzleMask2[] = {GL_RED, GL_RED, GL_RED, GL_ONE};
+	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask2);
+#endif
+}
+
+void PostProcessor::drawNoise()
+{
+	if (renderSettings.getNoise() == 0.0f) return;
+
+	// Rotate and mirror noise texture in consecutive frames to avoid
+	// seeing 'patterns' in the noise.
+	static constexpr std::array pos = {
+		std::array{vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}},
+		std::array{vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}},
+		std::array{vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}, vec2{ 1,  1}},
+		std::array{vec2{ 1,  1}, vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}},
+		std::array{vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}, vec2{ 1, -1}},
+		std::array{vec2{ 1, -1}, vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}},
+		std::array{vec2{ 1, -1}, vec2{ 1,  1}, vec2{-1,  1}, vec2{-1, -1}},
+		std::array{vec2{-1, -1}, vec2{-1,  1}, vec2{ 1,  1}, vec2{ 1, -1}},
+	};
+	vec2 noise(noiseX, noiseY);
+	const std::array tex = {
+		noise + vec2(0.0f, 1.875f),
+		noise + vec2(2.0f, 1.875f),
+		noise + vec2(2.0f, 0.0f  ),
+		noise + vec2(0.0f, 0.0f  ),
+	};
+
+	auto& glContext = *gl::context;
+	glContext.progTex.activate();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	mat4 I;
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
+
+	unsigned seq = frameCounter & 7;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq].data());
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex.data());
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	noiseTextureA.bind();
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	noiseTextureB.bind();
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+	glBlendEquation(GL_FUNC_ADD); // restore default
+	glDisable(GL_BLEND);
+}
+
+static constexpr int GRID_SIZE = 16;
+static constexpr int GRID_SIZE1 = GRID_SIZE + 1;
+static constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+struct Vertex {
+	vec3 position;
+	vec3 normal;
+	vec2 tex;
+};
+
+void PostProcessor::preCalcMonitor3D(float width)
+{
+	// precalculate vertex-positions, -normals and -texture-coordinates
+	std::array<std::array<Vertex, GRID_SIZE1>, GRID_SIZE1> vertices;
+
+	constexpr float GRID_SIZE2 = float(GRID_SIZE) * 0.5f;
+	float s = width * (1.0f / 320.0f);
+	float b = (320.0f - width) * (1.0f / (2.0f * 320.0f));
+
+	for (auto sx : xrange(GRID_SIZE1)) {
+		for (auto sy : xrange(GRID_SIZE1)) {
+			Vertex& v = vertices[sx][sy];
+			float x = (narrow<float>(sx) - GRID_SIZE2) / GRID_SIZE2;
+			float y = (narrow<float>(sy) - GRID_SIZE2) / GRID_SIZE2;
+
+			v.position = vec3(x, y, (x * x + y * y) * (1.0f / -12.0f));
+			v.normal = normalize(vec3(x * (1.0f / 6.0f), y * (1.0f / 6.0f), 1.0f)) * 1.2f;
+			v.tex = vec2((float(sx) / GRID_SIZE) * s + b,
+			              float(sy) / GRID_SIZE);
+		}
+	}
+
+	// calculate indices
+	std::array<uint16_t, NUM_INDICES> indices;
+
+	uint16_t* ind = indices.data();
+	for (auto y : xrange(GRID_SIZE)) {
+		for (auto x : xrange(GRID_SIZE1)) {
+			*ind++ = narrow<uint16_t>((y + 0) * GRID_SIZE1 + x);
+			*ind++ = narrow<uint16_t>((y + 1) * GRID_SIZE1 + x);
+		}
+		// skip 2, filled in later
+		ind += 2;
+	}
+	assert((ind - indices.data()) == NUM_INDICES + 2);
+	ind = indices.data();
+	repeat(GRID_SIZE - 1, [&] {
+		ind += 2 * GRID_SIZE1;
+		// repeat prev and next index to restart strip
+		ind[0] = ind[-1];
+		ind[1] = ind[ 2];
+		ind += 2;
+	});
+
+	// upload calculated values to buffers
+	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(),
+	             GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.get());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(),
+	             GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// calculate transformation matrices
+	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
+	mat4 tran = translate(vec3(0.0f, 0.4f, -2.0f));
+	mat4 rotX = rotateX(radians(-10.0f));
+	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
+
+	mat3 normal = mat3(rotX);
+	mat4 mvp = proj * tran * rotX * scal;
+
+	// set uniforms
+	monitor3DProg.activate();
+	glUniform1i(monitor3DProg.getUniformLocation("u_tex"), 0);
+	glUniformMatrix4fv(monitor3DProg.getUniformLocation("u_mvpMatrix"),
+		1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix3fv(monitor3DProg.getUniformLocation("u_normalMatrix"),
+		1, GL_FALSE, &normal[0][0]);
+}
+
+void PostProcessor::drawMonitor3D()
+{
+	monitor3DProg.activate();
+
+	char* base = nullptr;
+	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.get());
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3) + sizeof(vec3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 } // namespace openmsx

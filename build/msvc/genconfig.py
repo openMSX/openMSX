@@ -33,7 +33,8 @@ def genConfig(platform, configuration, outputPath):
 		raise ValueError('Invalid platform: ' + platform)
 	flavour = configuration
 	installShareDir = '/opt/openMSX/share' #not used on Windows, so whatever
-	generator = buildinfo2code.iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir)
+	installDocDir = 'doc' #not used on Windows, so whatever
+	generator = buildinfo2code.iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir, installDocDir)
 	outpututils.rewriteIfChanged(buildInfoHeader, generator)
 
 	#

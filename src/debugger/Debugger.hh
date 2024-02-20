@@ -18,6 +18,7 @@ class Debuggable;
 class ProbeBase;
 class ProbeBreakPoint;
 class MSXCPU;
+class SymbolManager;
 
 class Debugger
 {
@@ -31,10 +32,16 @@ public:
 	void registerDebuggable   (std::string name, Debuggable& debuggable);
 	void unregisterDebuggable (std::string_view name, Debuggable& debuggable);
 	[[nodiscard]] Debuggable* findDebuggable(std::string_view name);
+	[[nodiscard]] const auto& getDebuggables() const { return debuggables; }
 
 	void registerProbe  (ProbeBase& probe);
 	void unregisterProbe(ProbeBase& probe);
 	[[nodiscard]] ProbeBase* findProbe(std::string_view name);
+
+	unsigned setWatchPoint(TclObject command, TclObject condition,
+	                       WatchPoint::Type type,
+	                       unsigned beginAddr, unsigned endAddr,
+	                       bool once, unsigned newId = -1);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
@@ -52,11 +59,6 @@ private:
 		ProbeBase& probe, bool once, unsigned newId = -1);
 	void removeProbeBreakPoint(std::string_view name);
 
-	unsigned setWatchPoint(TclObject command, TclObject condition,
-	                       WatchPoint::Type type,
-	                       unsigned beginAddr, unsigned endAddr,
-	                       bool once, unsigned newId = -1);
-
 	MSXMotherBoard& motherBoard;
 
 	class Cmd final : public RecordedCommand {
@@ -73,6 +75,7 @@ private:
 	private:
 		[[nodiscard]]       Debugger& debugger()       { return OUTER(Debugger, cmd); }
 		[[nodiscard]] const Debugger& debugger() const { return OUTER(Debugger, cmd); }
+		[[nodiscard]] SymbolManager& getSymbolManager();
 		void list(TclObject& result);
 		void desc(std::span<const TclObject> tokens, TclObject& result);
 		void size(std::span<const TclObject> tokens, TclObject& result);
@@ -99,6 +102,12 @@ private:
 		void probeSetBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void probeRemoveBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void probeListBreakPoints(std::span<const TclObject> tokens, TclObject& result);
+		void symbols(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsTypes(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsLoad(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsRemove(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsFiles(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsLookup(std::span<const TclObject> tokens, TclObject& result);
 	} cmd;
 
 	struct NameFromProbe {

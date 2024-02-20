@@ -256,6 +256,15 @@ void Interpreter::setVariable(const TclObject& name, const TclObject& value)
 	}
 }
 
+void Interpreter::setVariable(const TclObject& arrayName, const TclObject& arrayIndex, const TclObject& value)
+{
+	if (!Tcl_ObjSetVar2(interp, arrayName.getTclObjectNonConst(), arrayIndex.getTclObjectNonConst(),
+		            value.getTclObjectNonConst(),
+		            TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+}
+
 void Interpreter::unsetVariable(const char* name)
 {
 	Tcl_UnsetVar(interp, name, TCL_GLOBAL_ONLY);
@@ -418,7 +427,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// that goes via Tcl and the Tcl variable
 				// doesn't exist at this point
 				variable->setValueDirect(TclObject(
-					variable->getRestoreValue()));
+					variable->getDefaultValue()));
 			} catch (MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
@@ -456,6 +465,22 @@ void Interpreter::poll()
 TclParser Interpreter::parse(std::string_view command)
 {
 	return {interp, command};
+}
+
+bool Interpreter::validCommand(std::string_view command)
+{
+	Tcl_Parse parseInfo;
+	int result = Tcl_ParseCommand(interp, command.data(), narrow<int>(command.size()), 0, &parseInfo);
+	Tcl_FreeParse(&parseInfo);
+	return result == TCL_OK;
+}
+
+bool Interpreter::validExpression(std::string_view expression)
+{
+	Tcl_Parse parseInfo;
+	int result = Tcl_ParseExpr(interp, expression.data(), narrow<int>(expression.size()), &parseInfo);
+	Tcl_FreeParse(&parseInfo);
+	return result == TCL_OK;
 }
 
 void Interpreter::wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message)

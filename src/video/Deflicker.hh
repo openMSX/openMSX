@@ -9,23 +9,19 @@ namespace openmsx {
 
 class RawFrame;
 
-class Deflicker : public FrameSource
+class Deflicker final : public FrameSource
 {
 public:
-	// Factory method, actually returns a Deflicker subclass.
-	[[nodiscard]] static std::unique_ptr<Deflicker> create(
-		const PixelFormat& format,
-		std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
-	void init();
+	Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
 	virtual ~Deflicker() = default;
-
-protected:
-	Deflicker(const PixelFormat& format,
-	          std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+	void init();
 
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
+	[[nodiscard]] const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const override;
 
-protected:
+private:
 	std::span<std::unique_ptr<RawFrame>, 4> lastFrames;
 };
 

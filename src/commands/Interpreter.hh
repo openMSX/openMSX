@@ -36,6 +36,7 @@ public:
 	TclObject executeFile(zstring_view filename);
 
 	void setVariable(const TclObject& name, const TclObject& value);
+	void setVariable(const TclObject& arrayName, const TclObject& arrayIndex, const TclObject& value);
 	void unsetVariable(const char* name);
 	void registerSetting(BaseSetting& variable);
 	void unregisterSetting(BaseSetting& variable);
@@ -51,6 +52,8 @@ public:
 	void deleteNamespace(const std::string& name);
 
 	[[nodiscard]] TclParser parse(std::string_view command);
+	[[nodiscard]] bool validCommand(std::string_view command);
+	[[nodiscard]] bool validExpression(std::string_view expression);
 
 	void poll();
 

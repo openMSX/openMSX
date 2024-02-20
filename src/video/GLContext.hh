@@ -14,7 +14,7 @@ struct Context
 {
 	/** Initialize global openGL state
 	 */
-	Context(int width, int height);
+	Context();
 	~Context();
 
 	// Simple texture program. It expects
@@ -47,9 +47,13 @@ struct Context
 	// Fallback scaler
 	openmsx::GLScaler& getFallbackScaler();
 
+	// Setup model-view-projection matrix. Should be called before drawing,
+	// at least once after the window resolution has changed. (E.g. call it
+	// once per frame).
+	void setupMvpMatrix(gl::vec2 logicalSize);
+
 private:
 	std::unique_ptr<openmsx::GLScaler> fallbackScaler;
-
 };
 
 extern std::optional<Context> context;

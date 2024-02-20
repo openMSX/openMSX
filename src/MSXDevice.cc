@@ -138,7 +138,7 @@ Scheduler& MSXDevice::getScheduler() const
 {
 	return getMotherBoard().getScheduler();
 }
-CliComm& MSXDevice::getCliComm() const
+MSXCliComm& MSXDevice::getCliComm() const
 {
 	return getMotherBoard().getMSXCliComm();
 }

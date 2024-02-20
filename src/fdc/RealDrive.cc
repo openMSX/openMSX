@@ -3,11 +3,12 @@
 #include "DummyDisk.hh"
 #include "DirAsDSK.hh"
 #include "RamDSKDiskImage.hh"
+#include "DMKDiskImage.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "LedStatus.hh"
 #include "MSXCommandController.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "narrow.hh"
@@ -16,6 +17,11 @@
 #include <memory>
 
 namespace openmsx {
+
+std::shared_ptr<RealDrive::DrivesInUse> RealDrive::getDrivesInUse(MSXMotherBoard& motherBoard)
+{
+	return motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
+}
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided,
@@ -31,7 +37,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 	, trackMode(trackMode_)
 {
-	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
+	drivesInUse = getDrivesInUse(motherBoard);
 
 	unsigned i = 0;
 	while ((*drivesInUse)[i]) {
@@ -85,7 +91,11 @@ void RealDrive::getMediaInfo(TclObject& result)
 	}();
 	result.addDictKeyValues("target", changer->getDiskName().getResolved(),
 	                        "type", typeStr,
-	                        "readonly", changer->getDisk().isWriteProtected());
+	                        "readonly", changer->getDisk().isWriteProtected(),
+	                        "doublesided", changer->getDisk().isDoubleSided());
+	if (!dynamic_cast<DMKDiskImage*>(&(changer->getDisk()))) {
+		result.addDictKeyValues("size", int(changer->getDisk().getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE));
+	}
 	if (auto* disk = changer->getSectorAccessibleDisk()) {
 		TclObject patches;
 		patches.addListElements(view::transform(disk->getPatches(), [](auto& p) {

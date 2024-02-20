@@ -356,6 +356,68 @@ private:
 	[[no_unique_address]] Predicate pred;
 };
 
+
+template<typename Iterator, typename Sentinel> class TakeIterator
+{
+public:
+	using value_type        = typename std::iterator_traits<Iterator>::value_type;
+	using difference_type   = typename std::iterator_traits<Iterator>::difference_type;
+
+public:
+	constexpr TakeIterator(Iterator it_, size_t n_)
+		: it(it_), n(difference_type(n_)) {}
+
+	[[nodiscard]] constexpr auto operator*() const { return *it; }
+
+	constexpr TakeIterator& operator++() {
+		++it;
+		--n;
+		return *this;
+	}
+
+	constexpr TakeIterator operator++(int) {
+		auto copy = *this;
+		++it;
+		--n;
+		return copy;
+	}
+
+	[[nodiscard]] constexpr friend bool operator==(const TakeIterator& x, const TakeIterator& y) {
+		return (x.it == y.it) || (x.n == 0 && y.n == 0);
+	}
+	[[nodiscard]] constexpr friend bool operator==(const TakeIterator& x, const Sentinel& y) {
+		return (x.it == y) || (x.n == 0);
+	}
+
+private:
+	Iterator it;
+	difference_type n;
+};
+
+template<typename Range>
+class Take
+{
+public:
+	using Iterator = decltype(std::begin(std::declval<Range>()));
+	using Sentinel = decltype(std::end  (std::declval<Range>()));
+	using Take_Iterator = TakeIterator<Iterator, Sentinel>;
+
+	constexpr Take(Range&& range_, size_t n_)
+	        : range(std::forward<Range>(range_)), n(n_) {}
+
+	[[nodiscard]] constexpr Take_Iterator begin() const {
+		return {std::begin(range), n};
+	}
+	[[nodiscard]] constexpr Sentinel end() const {
+		return std::end(range);
+	}
+
+private:
+	Range range;
+	size_t n;
+};
+
+
 template<typename... Ts>
 std::tuple<decltype(std::begin(std::declval<Ts>()))...>
 iterators_tuple_helper(const std::tuple<Ts...>&);
@@ -476,6 +538,12 @@ template<typename ForwardRange, typename Predicate>
 [[nodiscard]] auto filter(ForwardRange&& range, Predicate pred)
 {
     return detail::Filter<ForwardRange, Predicate>{std::forward<ForwardRange>(range), pred};
+}
+
+template<typename ForwardRange>
+[[nodiscard]] constexpr auto take(ForwardRange&& range, size_t n)
+{
+    return detail::Take<ForwardRange>{std::forward<ForwardRange>(range), n};
 }
 
 // Similar to c++23 std::ranges::views::zip()

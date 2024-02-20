@@ -4,8 +4,14 @@
 #include "RecordedCommand.hh"
 #include "MSXMotherBoard.hh"
 #include "InfoTopic.hh"
+
 #include "TclObject.hh"
+#include "narrow.hh"
+#include "ranges.hh"
+#include "strCat.hh"
+
 #include <array>
+#include <cassert>
 #include <optional>
 #include <string_view>
 
@@ -15,6 +21,9 @@ class HardwareConfig;
 
 class CartridgeSlotManager
 {
+public:
+	static constexpr unsigned MAX_SLOTS = 16 + 4;
+
 public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
@@ -40,6 +49,35 @@ public:
 	void freePrimarySlot(int ps, const HardwareConfig& hwConfig);
 
 	[[nodiscard]] bool isExternalSlot(int ps, int ss, bool convert) const;
+
+	// TODO allow to query more info like cart or ext inserted ...
+	[[nodiscard]] bool slotExists(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
+		return slots[slot].exists();
+	}
+	[[nodiscard]] int getNumberOfSlots() const {
+		return narrow<int>(ranges::count_if(slots, &Slot::exists));
+	}
+	[[nodiscard]] const HardwareConfig* getConfigForSlot(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
+		return slots[slot].config;
+	}
+	[[nodiscard]] std::pair<int, int> getPsSs(unsigned slot) const {
+		assert(slot < MAX_SLOTS);
+		return {slots[slot].ps, slots[slot].ss};
+	}
+	[[nodiscard]] std::string getPsSsString(unsigned slot) const {
+		auto [ps, ss] = getPsSs(slot);
+		std::string result = strCat(ps);
+		if (ss != -1) strAppend(result, '-', ss);
+		return result;
+	}
+	[[nodiscard]] std::optional<unsigned> findSlotWith(const HardwareConfig& config) const {
+		for (auto slot : xrange(MAX_SLOTS)) {
+			if (slots[slot].config == &config) return slot;
+		}
+		return {};
+	}
 
 private:
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
@@ -86,7 +124,6 @@ private:
 		int ss = 0;
 		MSXCPUInterface* cpuInterface;
 	};
-	static constexpr unsigned MAX_SLOTS = 16 + 4;
 	std::array<Slot, MAX_SLOTS> slots;
 };
 

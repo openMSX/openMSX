@@ -33,7 +33,7 @@
 #include "ReverseManager.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
@@ -64,6 +64,7 @@ static constexpr static_string_view DESCRIPTION = "Cassetteplayer, use to read .
 
 static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
 static constexpr unsigned RECORD_FREQ = 44100;
+static constexpr double RECIP_RECORD_FREQ = 1.0 / RECORD_FREQ;
 static constexpr double OUTPUT_AMP = 60.0;
 
 static std::string_view getCassettePlayerName()
@@ -227,7 +228,7 @@ double CassettePlayer::getTapePos(EmuTime::param time)
 	sync(time);
 	if (getState() == RECORD) {
 		// we record 8-bit mono, so bytes == samples
-		return (double(recordImage->getBytes()) + partialInterval) / RECORD_FREQ;
+		return (double(recordImage->getBytes()) + partialInterval) * RECIP_RECORD_FREQ;
 	} else {
 		return (tapePos - EmuTime::zero()).toDouble();
 	}
@@ -525,7 +526,7 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 void CassettePlayer::fillBuf(size_t length, double x)
 {
 	assert(recordImage);
-	constexpr double A = 252.0 / 256.0;
+	static constexpr double A = 252.0 / 256.0;
 
 	double y = lastY + (x - lastX);
 

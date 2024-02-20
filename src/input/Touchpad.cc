@@ -202,16 +202,16 @@ void Touchpad::signalMSXEvent(const Event& event,
 	ivec2 pos = hostPos;
 	auto b = hostButtons;
 
-	visit(overloaded{
+	std::visit(overloaded{
 		[&](const MouseMotionEvent& e) {
 			pos = transformCoords(ivec2(e.getAbsX(), e.getAbsY()));
 		},
 		[&](const MouseButtonDownEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				b |= 1;
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				b |= 2;
 				break;
 			default:
@@ -221,10 +221,10 @@ void Touchpad::signalMSXEvent(const Event& event,
 		},
 		[&](const MouseButtonUpEvent& e) {
 			switch (e.getButton()) {
-			case MouseButtonEvent::LEFT:
+			case SDL_BUTTON_LEFT:
 				b &= ~1;
 				break;
-			case MouseButtonEvent::RIGHT:
+			case SDL_BUTTON_RIGHT:
 				b &= ~2;
 				break;
 			default:

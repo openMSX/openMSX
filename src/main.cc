@@ -12,6 +12,7 @@
 #include "EventDistributor.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
+#include "FileContext.hh"
 #include "MSXException.hh"
 #include "Thread.hh"
 #include "build-info.hh"
@@ -64,9 +65,7 @@ static void EnableConsoleOutput()
 static void initializeSDL()
 {
 	int flags = 0;
-#ifndef SDL_JOYSTICK_DISABLED
 	flags |= SDL_INIT_JOYSTICK;
-#endif
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif
@@ -125,9 +124,10 @@ static int main(int argc, char **argv)
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
 		if (parseStatus != CommandLineParser::EXIT) {
+			auto& display = reactor.getDisplay();
 			if (!parser.isHiddenStartup()) {
-				auto& render = reactor.getDisplay().getRenderSettings().getRendererSetting();
-				render.setValue(render.getRestoreValue());
+				auto& render = display.getRenderSettings().getRendererSetting();
+				render.setValue(render.getDefaultValue());
 				// Switching renderer requires events, handle
 				// these events before continuing with the rest
 				// of initialization. This fixes a bug where
@@ -137,6 +137,8 @@ static int main(int argc, char **argv)
 				reactor.getEventDistributor().deliverEvents();
 			}
 			if (parseStatus != CommandLineParser::TEST) {
+				display.repaint();
+
 				CliServer cliServer(reactor.getCommandController(),
 				                    reactor.getEventDistributor(),
 				                    reactor.getGlobalCliComm());

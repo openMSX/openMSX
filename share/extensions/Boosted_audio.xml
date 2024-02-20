@@ -6,7 +6,7 @@
     <manufacturer>Philips/MSXPro</manufacturer>
     <code/>
     <release_year>2009</release_year>
-    <description>Philips NMS-1205 Music Module, upgraded with the MSXPro expansion that includes 256KB of SampleRAM and the MSX-Audio BIOS that makes it a fully compatible MSX-Audio device.</description>
+    <description>Philips NMS-1205 Music Module, upgraded with the MSXPro expansion that includes 256kB of SampleRAM and the MSX-Audio BIOS that makes it a fully compatible MSX-Audio device.</description>
     <type>sound expansion</type>
   </info>
   <devices>

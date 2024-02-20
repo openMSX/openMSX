@@ -1,6 +1,7 @@
 #include "ReplayCLI.hh"
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
+#include <array>
 
 namespace openmsx {
 
@@ -8,7 +9,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-replay", *this);
-	parser.registerFileType({"omr"}, *this);
+	parser.registerFileType(std::array<std::string_view, 1>{"omr"}, *this);
 }
 
 void ReplayCLI::parseOption(const std::string& option, std::span<std::string>& cmdLine)

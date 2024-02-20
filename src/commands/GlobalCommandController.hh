@@ -91,6 +91,7 @@ public:
 	[[nodiscard]] SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
 	[[nodiscard]] CliConnection* getConnection() const { return connection; }
 	[[nodiscard]] Reactor& getReactor() const { return reactor; }
+	[[nodiscard]] const HotKey& getHotKey() const { return hotKey; }
 
 private:
 	void tabCompletion(std::vector<std::string>& tokens);

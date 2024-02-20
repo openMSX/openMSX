@@ -91,7 +91,11 @@ COMPILE_FLAGS:=-pthread
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 LINK_FLAGS:=-pthread
+else
+LINK_FLAGS:=-pthread -ldl
+endif
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
@@ -261,29 +265,6 @@ SOURCES_FULL+=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.mm)))
 endif
 SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
 
-# TODO: This doesn't work since MAX_SCALE_FACTOR is not a Make variable,
-#       only a #define in build-info.hh.
-ifeq ($(MAX_SCALE_FACTOR),1)
-define SOURCES_UPSCALE
-	Scanline
-	Scaler2 Scaler3
-	Simple2xScaler Simple3xScaler
-	SaI2xScaler SaI3xScaler
-	Scale2xScaler Scale3xScaler
-	HQ2xScaler HQ2xLiteScaler
-	HQ3xScaler HQ3xLiteScaler
-	RGBTriplet3xScaler MLAAScaler
-	Multiply32
-endef
-SOURCES_FULL:=$(filter-out $(foreach src,$(strip $(SOURCES_UPSCALE)),src/video/scalers/$(src).cc),$(SOURCES_FULL))
-endif
-
-ifneq ($(COMPONENT_GL),true)
-SOURCES_FULL:=$(filter-out src/video/GL%.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out src/video/SDLGL%.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out src/video/scalers/GL%.cc,$(SOURCES_FULL))
-endif
-
 ifneq ($(COMPONENT_LASERDISC),true)
 SOURCES_FULL:=$(filter-out src/laserdisc/%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/ld/%.cc,$(SOURCES_FULL))
@@ -352,7 +333,10 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   COMPILE_FLAGS+=-std=c++20
   # Stricter warning and error reporting.
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wconversion -Wno-sign-conversion
+
+  # Remove some flags until we resolve the 'Dear ImGui' warnings (ideally this should be treated as a 3rdpaty library with only standard warnings enabled)
+  #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wconversion -Wno-sign-conversion
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wmissing-declarations -Wshadow -Wno-sign-conversion
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
@@ -418,7 +402,7 @@ $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) \
 		build/custom.mk build/platform-$(OPENMSX_TARGET_OS).mk
 	$(CMD)$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
-		$(INSTALL_SHARE_DIR)
+		$(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR)
 	$(CMD)touch $@
 
 # Generate version header.

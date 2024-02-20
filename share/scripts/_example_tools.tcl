@@ -31,6 +31,10 @@ proc get_screen {} {
 	return $screen
 }
 
+proc copy_screen_to_clipboard {} {
+	set_clipboard_text [get_screen]
+}
+
 #***********************************************
 #* Basic Reader
 #*

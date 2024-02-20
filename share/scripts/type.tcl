@@ -17,7 +17,12 @@ command:\n[help $::default_type_proc]"
 
 set_help_proc type [namespace code type_help]
 
+proc type_clipboard {} {
+	type [regsub -all "\r?\n" [get_clipboard_text] "\r"]
+}
+
 namespace export type
+namespace export type_clipboard
 }
 
 namespace import type::*

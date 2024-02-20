@@ -3,7 +3,7 @@
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
@@ -291,7 +291,7 @@ void ImagePrinter::printVisibleCharacter(uint8_t data)
 
 	double destY = vpos * pixelSizeY + iYPos;
 	double destHeight = pixelSizeY * 9.0;
-	double dblStrikeOffset = doubleStrike ? (pixelSizeY / 2.5) : 0.0;
+	double dblStrikeOffset = doubleStrike ? (pixelSizeY * (1.0 / 2.5)) : 0.0;
 	printAreaTop    = std::min(printAreaTop, destY);
 	printAreaBottom = std::max(printAreaBottom, destY + destHeight + dblStrikeOffset);
 
@@ -308,7 +308,7 @@ void ImagePrinter::printVisibleCharacter(uint8_t data)
 		for (auto d : xrange(doubleWidth ? 2 : 1)) {
 			for (auto b : xrange(bold ? 2 : 1)) {
 				for (auto y : xrange(doubleStrike ? 2: 1)) {
-					double destX = (hPos + (d + b / 2.0) / fontDensity) * pixelSizeX;
+					double destX = (hPos + (d + b * 0.5) / fontDensity) * pixelSizeX;
 					plot9Dots(destX, destY + y * dblStrikeOffset, charBits);
 				}
 			}
@@ -773,10 +773,10 @@ void ImagePrinterMSX::processEscSequence()
 			lineFeed = 8.0;
 			break;
 		case 'T': // ???: Line-feed nn/144"
-			lineFeed = parseNumber(1, 2) / 2.0;
+			lineFeed = parseNumber(1, 2) * (1.0 / 2.0);
 			break;
 		case 'Z': // ???: Line-feed nn/216"
-			lineFeed = parseNumber(1, 2) / 3.0;
+			lineFeed = parseNumber(1, 2) * (1.0 / 3.0);
 			break;
 		case '[': // ???: Uni-directional printing
 			break;
@@ -797,7 +797,7 @@ void ImagePrinterMSX::processEscSequence()
 			rightBorder = parseNumber(1, 3);
 			break;
 		case 'G':
-			graphDensity = parseNumber(1, 3) / 100.0;
+			graphDensity = parseNumber(1, 3) * (1.0 / 100.0);
 			if (graphDensity < 0.1) {
 				graphDensity = 0.1;
 			}
@@ -1301,7 +1301,7 @@ void ImagePrinterEpson::processEscSequence()
 			lineFeed = 12.0;
 			break;
 		case '3': // Sets Line Spacing to n/216 inch
-			lineFeed = (parseNumber(1, 1) & 127) / 3.0;
+			lineFeed = (parseNumber(1, 1) & 127) * (1.0 / 3.0);
 			break;
 		case '4': // Turn Italic Mode ON
 			italic = true;
@@ -1384,7 +1384,7 @@ void ImagePrinterEpson::processEscSequence()
 			alternateChar = parseNumber(1, 1) & 1;
 			break;
 		case 'J': // Forces Line Feed with n/216 inch
-			vpos += (parseNumber(1, 1) & 127) / 3.0;
+			vpos += (parseNumber(1, 1) & 127) * (1.0 / 3.0);
 			if (vpos >= pageHeight) {
 				flushEmulatedPrinter();
 			}
@@ -1457,7 +1457,7 @@ void ImagePrinterEpson::processEscSequence()
 		case 'i': // Turn Immediate Mode ON/OFF
 			break;
 		case 'j': // Immediate Reverse Line Feed
-			vpos -= (parseNumber(1, 1) & 127) / 3.0;
+			vpos -= (parseNumber(1, 1) & 127) * (1.0 / 3.0);
 			if (vpos < pageTop) {
 				vpos = pageTop;
 			}
@@ -1626,8 +1626,8 @@ std::string Paper::save() const
 
 void Paper::setDotSize(double dotSizeX, double dotSizeY)
 {
-	radiusX = dotSizeX / 2.0;
-	radiusY = dotSizeY / 2.0;
+	radiusX = dotSizeX * 0.5;
+	radiusY = dotSizeY * 0.5;
 
 	int rx = int(16 * radiusX);
 	int ry = int(16 * radiusY);

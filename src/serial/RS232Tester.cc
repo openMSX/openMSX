@@ -105,8 +105,7 @@ void RS232Tester::run()
 		assert(isPluggedIn());
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.push_back(buf[0]);
-		eventDistributor.distributeEvent(
-			Event::create<Rs232TesterEvent>());
+		eventDistributor.distributeEvent(Rs232TesterEvent());
 	}
 }
 

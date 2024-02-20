@@ -82,6 +82,15 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
+	[[nodiscard]] std::string_view getVersionString() const;
+
+	[[nodiscard]] byte peekRegister(unsigned address) const;
+	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
+
+	/** VDP control register has changed, work out the consequences.
+	  */
+	void changeRegister(byte reg, byte val, EmuTime::param time);
+
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -234,14 +243,50 @@ public:
 		return blinkState;
 	}
 
+	/** Get address of pattern table (only for debugger) */
+	[[nodiscard]] int getPatternTableBase() const {
+		return controlRegs[4] << 11;
+	}
+	/** Get address of color table (only for debugger) */
+	[[nodiscard]] int getColorTableBase() const {
+		return (controlRegs[10] << 14) | (controlRegs[3] << 6);
+	}
+	/** Get address of name table (only for debugger) */
+	[[nodiscard]] int getNameTableBase() const {
+		return controlRegs[2] << 10;
+	}
+	/** Get address of pattern table (only for debugger) */
+	[[nodiscard]] int getSpritePatternTableBase() const {
+		return controlRegs[6] << 11;
+	}
+	/** Get address of color table (only for debugger) */
+	[[nodiscard]] int getSpriteAttributeTableBase() const {
+		return (controlRegs[11] << 15) | (controlRegs[5] << 7);
+	}
+	/** Get vram pointer (14-bit) (only for debugger) */
+	[[nodiscard]] int getVramPointer() const {
+		return vramPointer;
+	}
+
 	/** Gets a palette entry.
 	  * @param index The index [0..15] in the palette.
 	  * @return Color value in the format of the palette registers:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	[[nodiscard]] inline word getPalette(unsigned index) const {
+	[[nodiscard]] inline uint16_t getPalette(unsigned index) const {
 		return palette[index];
 	}
+	[[nodiscard]] inline std::span<const uint16_t, 16> getPalette() const {
+		return palette;
+	}
+
+	/** Sets a palette entry.
+	  * @param index The index [0..15] in the palette.
+	  * @param grb value in the format of the palette registers:
+	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
+	  * @param time Moment in time palette change occurs.
+	  */
+	void setPalette(unsigned index, word grb, EmuTime::param time);
 
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
@@ -319,6 +364,13 @@ public:
 	  */
 	[[nodiscard]] inline bool isMultiPageScrolling() const {
 		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
+	}
+
+	/** Only used by debugger
+	  * @return page 0-3
+	  */
+	[[nodiscard]] int getDisplayPage() const {
+		return (controlRegs[2] >> 5) & 3;
 	}
 
 	/** Get the absolute line number of display line zero.
@@ -497,6 +549,13 @@ public:
 	  */
 	[[nodiscard]] inline int getLinesPerFrame() const {
 		return palTiming ? 313 : 262;
+	}
+
+	/** Gets the number of display lines per screen.
+	  * @return 192 or 212.
+	  */
+	[[nodiscard]] inline int getNumberOfLines() const {
+		return controlRegs[9] & 0x80 ? 212 : 192;
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) per frame.
@@ -808,13 +867,6 @@ private:
 	void execCpuVramAccess(EmuTime::param time);
 	void execSyncCmdDone(EmuTime::param time);
 
-	/** Gets the number of display lines per screen.
-	  * @return 192 or 212.
-	  */
-	[[nodiscard]] inline int getNumberOfLines() const {
-		return controlRegs[9] & 0x80 ? 212 : 192;
-	}
-
 	/** Returns the amount of vertical set-adjust 0..15.
 	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
 	  */
@@ -904,12 +956,7 @@ private:
 
 	/** Read the contents of a status register
 	  */
-	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
 	[[nodiscard]] byte readStatusReg(byte reg, EmuTime::param time);
-
-	/** VDP control register has changed, work out the consequences.
-	  */
-	void changeRegister(byte reg, byte val, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */
@@ -948,14 +995,6 @@ private:
 	  * Update displayMode's value and inform the Renderer.
 	  */
 	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time);
-
-	/** Sets a palette entry.
-	  * @param index The index [0..15] in the palette.
-	  * @param grb value in the format of the palette registers:
-	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
-	  * @param time Moment in time palette change occurs.
-	  */
-	void setPalette(unsigned index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

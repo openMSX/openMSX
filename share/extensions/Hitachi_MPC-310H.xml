@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>2DD Micro Floppydisk Drive + Controller</name>
+    <manufacturer>Hitachi</manufacturer>
+    <code>MPC-310H</code>
+    <release_year>1986</release_year>
+    <description>External Double Sided Double Density 3.5" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <!-- based on the unit of sdsnatcher73 with serial number 00107116 -->
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Hitachi MPC-310H diskROM/FDC">
+          <connectionstyle>Philips</connectionstyle>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <sha1>4880977a441ee6ee8bf089fdc1a54f028f00a15e</sha1> <!-- dump contains text: Copyrite 24,Mar,1986 bySoftware Technical Center inTochigi works HITACHI Ltd.-->
+            <filename>mpc-310h.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
