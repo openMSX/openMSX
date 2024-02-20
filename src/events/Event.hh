@@ -448,12 +448,9 @@ using Event = std::variant<
 	MidiInCoreMidiVirtualEvent,
 	MidiInALSAEvent,
 	Rs232TesterEvent,
-<<<<<<< HEAD
 	Rs232NetEvent
-=======
 	ImGuiDelayedActionEvent,
 	ImGuiActiveEvent
->>>>>>> upstream/master
 >;
 
 template<typename T>
@@ -498,12 +495,9 @@ enum class EventType : uint8_t
 	MIDI_IN_COREMIDI_VIRTUAL = event_index<MidiInCoreMidiVirtualEvent>,
 	MIDI_IN_ALSA             = event_index<MidiInALSAEvent>,
 	RS232_TESTER             = event_index<Rs232TesterEvent>,
-<<<<<<< HEAD
 	RS232_NET	             = event_index<Rs232NetEvent>,
-=======
 	IMGUI_DELAYED_ACTION     = event_index<ImGuiDelayedActionEvent>,
 	IMGUI_ACTIVE             = event_index<ImGuiActiveEvent>,
->>>>>>> upstream/master
 
 	NUM_EVENT_TYPES // must be last
 };
