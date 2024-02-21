@@ -12,7 +12,23 @@
   </info>
 
 <!-- 
- Based on information by Pakoto and theNestruo; see https://www.msx.org/forum/msx-talk/emulation/dumpingreverse-engineering-msx-models-thread?page=31
+ Based on information by Pakoto see https://www.msx.org/forum/msx-talk/emulation/dumpingreverse-engineering-msx-models-thread?page=31 - machine with serial 55403072
+
+ Pakoto's machine shows:
+ - TMS9929ANL VDP (IC132)
+ - NEC D780C -1 CPU (IC116)
+ - NEC D8255AC-2 PPI (IC117)
+ - GI AY-3-8910A PSG (IC104)
+ - VRAM: 8x NEC D416C-2 (IC140-IC143, IC133-IC136)
+ - ROM Sanyo HN6 13256P (IC111)
+ - one empty ROM socket marked ROM2 (IC112)
+ - one big IC marked Sanyo VLC9007 (gate array?), IC128, mobo marking is MB64H120
+ - RAM: 8x Sanyo HM4864P-2 (IC144-IC150)
+ - LVA510 PAL encoder
+ - Mobo type: EB1201 A UFO544 HT5VB
+
+ Notes:
+ - page 2 and 3 in slot 0 show 0xB0 bytes. This is not emulated.
 -->
 
   <CassettePort/>
@@ -26,7 +42,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>de</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- TODO: check -->
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
@@ -65,6 +81,7 @@
 
     <primary slot="3">
       <RAM id="Main RAM">
+        <initialContent encoding="gz-base64">eJz7/5+B4f8IxgPvgoHFAJBx/wE=</initialContent><!-- FFFF0000 (64x) + 00FFFF (64x); also has some bit noise, but that is not emulated. -->
         <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>

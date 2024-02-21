@@ -83,8 +83,8 @@ namespace openmsx::RomFactory {
 
 	if (const size_t signatureOffset = 16, signatureSize = 8; size >= (signatureOffset + signatureSize)) {
 		auto signature = std::string_view(reinterpret_cast<const char*>(data.data()) + signatureOffset, signatureSize);
-		if (signature == std::string_view("NEOMAP08")) return ROM_NEO8;
-		if (signature == std::string_view("NEOMAP16")) return ROM_NEO16;
+		if (signature == std::string_view("ROM_NEO8")) return ROM_NEO8;
+		if (signature == std::string_view("ROM_NE16")) return ROM_NEO16;
 	}
 	if (size < 0x10000) {
 		if ((size <= 0x4000) &&
