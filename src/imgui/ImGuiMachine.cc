@@ -377,6 +377,7 @@ const std::string& ImGuiMachine::getTestResult(MachineInfo& info)
 			// don't create extra mb while drawing
 			try {
 				MSXMotherBoard mb(reactor);
+				mb.getMSXCliComm().setSuppressMessages(true);
 				mb.loadMachine(info.configName);
 				assert(info.testResult->empty());
 				amendConfigInfo(mb, info);
