@@ -103,8 +103,9 @@ private:
 		struct sockaddr generic;     /*!< the generic type needed for calling the socket API */
 
 	// #ifdef HAVE_UNIX_DOMAIN_SOCKETS
+	#ifndef _WIN32
 		struct sockaddr_un local;    /*!< an Unix Domain Socket (file system) socket address */
-	// #endif
+	#endif
 
 		struct sockaddr_in ipv4;     /*!< an IPv4 socket address */
 
@@ -122,10 +123,11 @@ private:
 		int domain;             /*!< the address family (AF_INET, ...) of this address */
 		int protocol;           /*!< the protocol of this address. This can be used to distinguish between different types of an address family. */
 	// #ifdef HAVE_SOCKLEN_T
+	#ifndef _WIN32
 		socklen_t len;          /*!< the length of the socket address */
-	// #else
-	//    int len;
-	// #endif
+	#else
+	   int len;
+	#endif
 		union socket_addresses_u address; /* the socket address */
 	};
 

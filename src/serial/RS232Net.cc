@@ -570,7 +570,7 @@ int RS232Net::network_address_generate_ipv6(const char * address_string)
 
     return error;
 // #else /* #ifdef HAVE_IPV6 */
-//     log_message(LOG_DEFAULT, "IPv6 is not supported in this installation of VICE!\n");
+//     log_message(LOG_DEFAULT, "IPv6 is not supported in this installation of OpenMSX!\n");
 //     return -1;
 // #endif /* #ifdef HAVE_IPV6 */
 }
