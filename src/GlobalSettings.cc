@@ -45,6 +45,9 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
 	, speedManager(commandController)
 	, throttleManager(commandController)
+#ifdef _WIN32
+	, socketSettingsManager(commandController)
+#endif
 {
 	getPowerSetting().attach(*this);
 }

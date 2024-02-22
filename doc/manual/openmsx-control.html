@@ -57,9 +57,13 @@
   </p>
 
   <p>On Windows (which does not support UNIX domain sockets), the socket is a
-  normal TCP socket. The port number is random between 9938 and 9958. This is done
-  to enforce applications to deal with multiple running openMSX processes. The
-  port number will be put in the following text file:</p>
+  normal TCP socket. By default the port number is random between 9938 and 10002, this is done
+  to enforce applications to deal with multiple running openMSX processes.
+  You can change the port numbers range and how the actual port number is chosen with the
+  <code>set <a class="external" href="commands.html#socket_port_number">socket_port_number</a></code> and
+  <code>set <a class="external" href="commands.html#socket_selection_mode">socket_selection_mode</a></code> commands.</p>
+  
+  <p>The sctual port number will be put in the following text file:</p>
 
   <div class="commandline">
   %USERPROFILE%\Documents and Settings\&lt;username&gt;\Local Settings\Temp\openmsx-default\socket.&lt;pid&gt;
@@ -74,7 +78,38 @@
   <code>C:\WINDOWS\TEMP</code>
   </p>
 
-  <p>After connecting, openMSX expects XML input on the channel and it will
+  <p>Alternatively, you can use the <code>openmsx_info socket_port</code> command from within the openMSX console (press F10 to open 10)
+  to display the TCP port number used for socket connections in the current openMSX instance. This command is only available in Windows.</p>
+
+  <p>
+    Right after a TCP connection is established openMSX expects the connecting application
+    to authenticate itself using <a href="https://learn.microsoft.com/en-us/windows/win32/rpc/security-support-provider-interface-sspi-">
+    SSPI</a>. You can disable the need for authentication by running a <code>set <a class="external"
+      href="commands.html#socket_auth_mode">socket_auth_mode</a> none</code> command (and go back
+    to requiring authentication by running <code>set socket_auth_mode sspi</code>); changing the authentication mode
+    affects all new connections after the change, but already established connections won't be affected.
+  </p>
+
+  <fieldset>
+    <legend>⚠ WARNING!</legend>
+    <p>
+      TCP connections are inherently insecure as anyone can connect to an open TCP port. openMSX commands allow to perform dangerous operations 
+      like deleting arbitrary files or copying files containing sensitive information, and these commands run with the same privilege level 
+      as the user who started the openMSX process. That's why authentication is required by default.
+    </p>
+
+    <p>
+      Disabling authentication for TCP connections is therefore <b>not</b> recommended and should be done only when absolutely necessary,
+      e.g. when you want to use a connecting application that doesn't support SSPI authentication.
+    </p>
+
+    <p>
+      Also note that when TCP authentication is disabled, applications expecting it to be enabled (e.g. the openMSX debugger)
+      won't be able to connect to openMSX.
+    </p>
+  </fieldset>
+
+  <p>After connecting and once authentication (or lack thereof) is sorted out, openMSX expects XML input on the channel and it will
   also give you output. This is explained in the next section.</p>
 
   <h2>Communication</h2>

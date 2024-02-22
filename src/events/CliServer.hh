@@ -3,6 +3,13 @@
 
 #include "Poller.hh"
 #include "Socket.hh"
+#include "GlobalSettings.hh"
+
+#ifdef _WIN32
+#include "Observer.hh"
+#include "SocketSettingsManager.hh"
+#endif
+
 #include <string>
 #include <thread>
 
@@ -11,24 +18,44 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 class GlobalCliComm;
+class GlobalSettings;
 
-class CliServer final
+#ifdef _WIN32
+class SocketSettingsManager;
+#endif
+
+class CliServer final 
+#ifdef _WIN32
+	: private Observer<SocketSettingsManager>
+#endif
 {
 public:
 	CliServer(CommandController& commandController,
 	          EventDistributor& eventDistributor,
-	          GlobalCliComm& cliComm);
+	          GlobalCliComm& cliCom,
+	          GlobalSettings& globalSettings);
 	~CliServer();
 
 private:
 	void mainLoop();
 	[[nodiscard]] SOCKET createSocket();
+#ifdef _WIN32
+	[[nodiscard]] int openPort(SOCKET listenSock);
+	[[nodiscard]] void setCurrentSocketPortNumber(int port) { globalSettings.getSocketSettingsManager().setCurrentSocketPortNumber(port); }
+#endif
 	void exitAcceptLoop();
+	void deleteSocketFile(const std::string& socket);
+
+#ifdef _WIN32
+	// Observer<SpeedManager>
+	void update(const SocketSettingsManager& socketSettingsManager) noexcept override;
+#endif
 
 private:
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	GlobalCliComm& cliComm;
+	GlobalSettings& globalSettings;
 
 	std::thread thread;
 	std::string socketName;

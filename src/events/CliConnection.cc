@@ -13,6 +13,7 @@
 #include "TclObject.hh"
 #include "TemporaryString.hh"
 #include "XMLEscape.hh"
+#include "GlobalSettings.hh"
 #include "cstdiop.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
@@ -276,9 +277,11 @@ void PipeConnection::close()
 
 SocketConnection::SocketConnection(CommandController& commandController_,
                                    EventDistributor& eventDistributor_,
-                                   SOCKET sd_)
+                                   SOCKET sd_,
+                                   GlobalSettings& globalSettings_)
 	: CliConnection(commandController_, eventDistributor_)
 	, sd(sd_)
+	, globalSettings(globalSettings_)
 {
 }
 
@@ -291,17 +294,19 @@ void SocketConnection::run()
 {
 	// runs in helper thread
 #ifdef _WIN32
-	bool ok;
-	{
-		std::lock_guard<std::mutex> lock(sdMutex);
-		// Authenticate and authorize the caller
-		SocketStreamWrapper stream(sd);
-		SspiNegotiateServer server(stream);
-		ok = server.Authenticate() && server.Authorize();
-	}
-	if (!ok) {
-		closeSocket();
-		return;
+	if (globalSettings.getSocketSettingsManager().getSocketAuthenticationMode() != SOCKAUTH_NONE) {
+		bool ok;
+		{
+			std::lock_guard<std::mutex> lock(sdMutex);
+			// Authenticate and authorize the caller
+			SocketStreamWrapper stream(sd);
+			SspiNegotiateServer server(stream);
+			ok = server.Authenticate() && server.Authorize();
+		}
+		if (!ok) {
+			closeSocket();
+			return;
+		}
 	}
 #endif
 	// Start output element

@@ -6,12 +6,14 @@
 *.suo
 *.sdf
 *.opensdf
+*.vcxproj.user
 core.*
 core
 .cproject
 .project
 *.VC.db
 *.VC.VC.opendb
+.vs/
 .vscode/
 __pycache__/
 .DS_Store

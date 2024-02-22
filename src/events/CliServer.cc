@@ -95,15 +95,19 @@ namespace openmsx {
 }
 
 #ifdef _WIN32
-[[nodiscard]] static int openPort(SOCKET listenSock)
+[[nodiscard]] int CliServer::openPort(SOCKET listenSock)
 {
-	const int BASE = 9938;
 	const int RANGE = 64;
 
-	int first = random_int(0, RANGE - 1); // [0, RANGE)
+	setCurrentSocketPortNumber(0);
+
+	const int configuredPort = globalSettings.getSocketSettingsManager().getConfiguredSocketPortNumber();
+	const bool isFixedPort   = globalSettings.getSocketSettingsManager().getSocketSelectionMode() == SOCKSEL_FIXED;
+
+	const int portOffset     = isFixedPort ? 0 : random_int(0, RANGE - 1); // [0, RANGE)
 
 	for (auto n : xrange(RANGE)) {
-		int port = BASE + ((first + n) % RANGE);
+		int port = configuredPort + ((portOffset + n) % RANGE);
 		sockaddr_in server_address;
 		memset(&server_address, 0, sizeof(server_address));
 		server_address.sin_family = AF_INET;
@@ -111,10 +115,30 @@ namespace openmsx {
 		server_address.sin_port = htons(port);
 		if (bind(listenSock, reinterpret_cast<sockaddr*>(&server_address),
 		         sizeof(server_address)) != -1) {
+			setCurrentSocketPortNumber(port);
 			return port;
 		}
 	}
 	throw MSXException("Couldn't open socket.");
+}
+
+void CliServer::update(const SocketSettingsManager& socketSettingsManager) noexcept
+{
+	if (listenSock != OPENMSX_INVALID_SOCKET) {
+		sock_close(listenSock);
+		listenSock = OPENMSX_INVALID_SOCKET;
+		thread.join();
+	}
+
+	deleteSocketFile(socketName);
+
+	try {
+		listenSock = createSocket();
+		thread = std::thread([this]() { mainLoop(); });
+	}
+	catch (MSXException& e) {
+		cliComm.printWarning(e.getMessage());
+	}
 }
 #endif
 
@@ -184,22 +208,28 @@ void CliServer::exitAcceptLoop()
 	poller.abort();
 }
 
-static void deleteSocket(const std::string& socket)
+void CliServer::deleteSocketFile(const std::string& socketFileName)
 {
-	FileOperations::unlink(socket); // ignore errors
-	auto dir = socket.substr(0, socket.find_last_of('/'));
+	FileOperations::unlink(socketFileName); // ignore errors
+	auto dir = socketFileName.substr(0, socketFileName.find_last_of('/'));
 	FileOperations::rmdir(dir); // ignore errors
 }
 
 
 CliServer::CliServer(CommandController& commandController_,
-                     EventDistributor& eventDistributor_,
-                     GlobalCliComm& cliComm_)
-	: commandController(commandController_)
+					EventDistributor& eventDistributor_,
+					GlobalCliComm& cliComm_,
+					GlobalSettings& globalSettings_)
+	: globalSettings(globalSettings_)
+	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
 	, listenSock(OPENMSX_INVALID_SOCKET)
 {
+#ifdef _WIN32
+	globalSettings.getSocketSettingsManager().attach(*this);
+#endif
+
 	sock_startup();
 	try {
 		listenSock = createSocket();
@@ -211,12 +241,16 @@ CliServer::CliServer(CommandController& commandController_,
 
 CliServer::~CliServer()
 {
+#ifdef _WIN32
+	globalSettings.getSocketSettingsManager().detach(*this);
+#endif
+
 	if (listenSock != OPENMSX_INVALID_SOCKET) {
 		exitAcceptLoop();
 		thread.join();
 	}
 
-	deleteSocket(socketName);
+	deleteSocketFile(socketName);
 	sock_cleanup();
 }
 
@@ -256,7 +290,7 @@ void CliServer::mainLoop()
 		fcntl(sd, F_SETFL, 0);
 #endif
 		cliComm.addListener(std::make_unique<SocketConnection>(
-			commandController, eventDistributor, sd));
+			commandController, eventDistributor, sd, globalSettings));
 	}
 }
 

@@ -217,6 +217,19 @@ private:
 	Reactor& reactor;
 };
 
+#ifdef _WIN32
+class SocketPortInfo final : InfoTopic
+{
+public:
+	SocketPortInfo(InfoCommand& openMSXInfoCommand, Reactor& reactor);
+	void execute(std::span<const TclObject> tokens,
+		TclObject& result) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+private:
+	Reactor& reactor;
+};
+#endif
+
 
 Reactor::Reactor() = default;
 
@@ -278,6 +291,10 @@ void Reactor::init()
 		getOpenMSXInfoCommand());
 	softwareInfoTopic = make_unique<SoftwareInfoTopic>(
 		getOpenMSXInfoCommand(), *this);
+#ifdef _WIN32
+	socketPortInfo = make_unique<SocketPortInfo>(
+		getOpenMSXInfoCommand(), *this);
+#endif
 	tclCallbackMessages = make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
@@ -1199,5 +1216,29 @@ string SoftwareInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 	return "Returns information about the software "
 	       "given its sha1sum, in a paired list.";
 }
+
+
+#ifdef _WIN32
+
+// SocketPortInfo
+
+SocketPortInfo::SocketPortInfo(InfoCommand& openMSXInfoCommand, Reactor& reactor_)
+	: InfoTopic(openMSXInfoCommand, "socket_port")
+	, reactor(reactor_)
+{
+}
+
+void SocketPortInfo::execute(
+	std::span<const TclObject> tokens, TclObject& result) const
+{
+	result = reactor.getGlobalSettings().getSocketSettingsManager().getCurrentSocketPortNumber();
+}
+
+string SocketPortInfo::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "Returns the TCP port number currently in use for socket connections.";
+}
+
+#endif
 
 } // namespace openmsx

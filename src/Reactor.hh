@@ -58,6 +58,10 @@ class RealTimeInfo;
 class SoftwareInfoTopic;
 class SymbolManager;
 
+#ifdef _WIN32
+class SocketPortInfo;
+#endif
+
 extern int exitCode;
 
 /**
@@ -191,6 +195,9 @@ private:
 	std::unique_ptr<ConfigInfo> machineInfo;
 	std::unique_ptr<RealTimeInfo> realTimeInfo;
 	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
+#ifdef _WIN32
+	std::unique_ptr<SocketPortInfo> socketPortInfo;
+#endif
 	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:

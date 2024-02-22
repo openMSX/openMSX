@@ -141,7 +141,8 @@ static int main(int argc, char **argv)
 
 				CliServer cliServer(reactor.getCommandController(),
 				                    reactor.getEventDistributor(),
-				                    reactor.getGlobalCliComm());
+				                    reactor.getGlobalCliComm(),
+				                    reactor.getGlobalSettings());
 				reactor.run(parser);
 			}
 		}

@@ -861,6 +861,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SocketSettingsManager.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog/CustomFont.h" />
@@ -1626,6 +1627,7 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\SVIPrinterPort.hh" />
     <None Include="$(OpenMSXSrcDir)\SVIPPI.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXCielTurbo.hh" />
+    <None Include="$(OpenMSXSrcDir)\SocketSettingsManager.hh" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc" />
