@@ -134,7 +134,7 @@ bool SliderFloat(const char* label, FloatSetting& setting, const char* format, I
 	float max = narrow_cast<float>(setting.getMaxValue());
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
 	try {
-		if (changed) setting.setDouble(value); // TODO setFloat()
+		if (changed) setting.setFloat(value);
 	} catch (MSXException&) {
 		// ignore
 	}

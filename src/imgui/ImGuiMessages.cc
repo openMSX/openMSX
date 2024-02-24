@@ -68,9 +68,9 @@ void ImGuiMessages::save(ImGuiTextBuffer& buf)
 		osdAction[CliComm::WARNING],
 		osdAction[CliComm::INFO]);
 	buf.appendf("fadeOutDuration=[%f %f %f]\n",
-		colorSequence[CliComm::LOGLEVEL_ERROR][2].start,
-		colorSequence[CliComm::WARNING][2].start,
-		colorSequence[CliComm::INFO][2].start);
+		double(colorSequence[CliComm::LOGLEVEL_ERROR][2].start), // note: cast to double only to silence warnings
+		double(colorSequence[CliComm::WARNING][2].start),
+		double(colorSequence[CliComm::INFO][2].start));
 }
 
 void ImGuiMessages::loadLine(std::string_view name, zstring_view value)

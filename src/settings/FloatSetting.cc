@@ -34,4 +34,9 @@ void FloatSetting::setDouble(double d)
 	setValue(TclObject(d));
 }
 
+void FloatSetting::setFloat(float f)
+{
+	setDouble(double(f));
+}
+
 } // namespace openmsx
