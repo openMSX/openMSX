@@ -187,7 +187,7 @@ static std::string spacing(uint32_t) { return "\n"s; }
 
 static const VDP* g_vdp; // HACK: global!!
 static std::array<uint8_t, 64 + 10> registerValues; // HACK: global!!
-static uint8_t getMode() { return ((registerValues[1] & 0x18) >> 3) | ((registerValues[0] & 0x0E) << 1); }
+static uint8_t getMode() { return uint8_t(((registerValues[1] & 0x18) >> 3) | ((registerValues[0] & 0x0E) << 1)); }
 static bool isText2Mode() { return getMode() == 0b01010; } // Note: M1 and M2 swapped!
 static bool isGraph23Mode() { return getMode() == one_of(0b00100, 0b01000); }
 static bool isSprite2Mode() { return getMode() == one_of(0b01000, 0b01100, 0b10000, 0b10100, 0b11100); }

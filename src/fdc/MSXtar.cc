@@ -959,7 +959,7 @@ std::string MSXtar::dir()
 	for (unsigned i = 0; i < num; ++i) {
 		auto entry = list.getListIndexUnchecked(i);
 		auto filename = std::string(entry.getListIndexUnchecked(0).getString());
-		auto attrib = DiskImageUtils::formatAttrib(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0));
+		auto attrib = DiskImageUtils::formatAttrib(narrow<uint8_t>(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0)));
 		//time_t time = entry.getListIndexUnchecked(2).getOptionalInt().value_or(0); // ignored
 		auto size = entry.getListIndexUnchecked(3).getOptionalInt().value_or(0);
 

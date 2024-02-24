@@ -25,9 +25,9 @@ void RomNeo16::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if ((bbb < 2) || (bbb & 1)) return;
 	unsigned region = (bbb >> 1) - 1;
 	if ((address & 1) == 0) {
-		blockReg[region] = (blockReg[region] & 0xFF00) | value;
+		blockReg[region] = uint16_t((blockReg[region] & 0xFF00) | value);
 	} else {
-		blockReg[region] = (blockReg[region] & 0x00FF) | ((value & 0b1111) << 8);
+		blockReg[region] = uint16_t((blockReg[region] & 0x00FF) | ((value & 0b1111) << 8));
 	}
 	setRom(region, blockReg[region]);
 }

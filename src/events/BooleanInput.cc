@@ -3,6 +3,7 @@
 #include "Event.hh"
 #include "SDLKey.hh"
 
+#include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "strCat.hh"
@@ -73,7 +74,8 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 		if (it != et) return std::nullopt;
 		auto n = parseValueWithPrefix(button, "button");
 		if (!n) return std::nullopt;
-		return BooleanMouseButton(*n);
+		if (*n > 255) return std::nullopt;
+		return BooleanMouseButton(narrow<uint8_t>(*n));
 
 	} else if (auto joystick = parseValueWithPrefix(type, "joy")) {
 		if (*joystick == 0) return std::nullopt;
@@ -81,10 +83,12 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 
 		auto subType = *it++;
 		if (auto button = parseValueWithPrefix(subType, "button")) {
+			if (*button > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickButton(joyId, *button);
+			return BooleanJoystickButton(joyId, narrow<uint8_t>(*button));
 
 		} else if (auto hat = parseValueWithPrefix(subType, "hat")) {
+			if (*hat > 255) return std::nullopt;
 			if (it == et) return std::nullopt;
 			auto valueStr = *it++;
 			if (it != et) return std::nullopt;
@@ -96,14 +100,16 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 			else if (valueStr == "left" ) value = BooleanJoystickHat::LEFT;
 			else return std::nullopt;
 
-			return BooleanJoystickHat(joyId, *hat, value);
+			return BooleanJoystickHat(joyId, narrow<uint8_t>(*hat), value);
 
 		} else if (auto pAxis = parseValueWithPrefix(subType, "+axis")) {
+			if (*pAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, *pAxis, BooleanJoystickAxis::POS);
+			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*pAxis), BooleanJoystickAxis::POS);
 		} else if (auto nAxis = parseValueWithPrefix(subType, "-axis")) {
+			if (*nAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, *nAxis, BooleanJoystickAxis::NEG);
+			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*nAxis), BooleanJoystickAxis::NEG);
 		}
 	}
 	return std::nullopt;
@@ -119,7 +125,7 @@ std::optional<BooleanInput> captureBooleanInput(const Event& event, std::functio
 			return BooleanMouseButton(e.getButton());
 		},
 		[](const JoystickButtonDownEvent& e) -> std::optional<BooleanInput> {
-			return BooleanJoystickButton(e.getJoystick(), e.getButton());
+			return BooleanJoystickButton(e.getJoystick(), narrow<uint8_t>(e.getButton()));
 		},
 		[](const JoystickHatEvent& e) -> std::optional<BooleanInput> {
 			auto value = e.getValue();

@@ -89,7 +89,7 @@ std::vector<ImGuiDiskManipulator::FileInfo> ImGuiDiskManipulator::dirMSX(DrivePa
 	for (unsigned i = 0; i < num; ++i) {
 		auto entry = dir.getListIndexUnchecked(i);
 		FileInfo info;
-		info.attrib = entry.getListIndexUnchecked(1).getOptionalInt().value_or(0);
+		info.attrib = narrow<uint8_t>(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0));
 		if (info.attrib & MSXDirEntry::Attrib::VOLUME) continue; // skip
 		info.filename = std::string(entry.getListIndexUnchecked(0).getString());
 		if (info.filename == one_of(".", "..")) continue; // skip

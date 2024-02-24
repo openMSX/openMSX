@@ -62,7 +62,7 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
 			break;
 		case 'R':
 			buf[i] = interface.peekMem(narrow_cast<uint16_t>(pc + i), time);
-			appendAddr(dest, pc + 2 + static_cast<int8_t>(buf[i]));
+			appendAddr(dest, uint16_t(pc + 2 + static_cast<int8_t>(buf[i])));
 			i += 1;
 			break;
 		case 'A':
@@ -132,7 +132,7 @@ static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterfac
 	}
 	std::array<unsigned, 4> length;
 	for (auto i : xrange(4)) {
-		length[i] = instructionLength(interface, addr - i, time);
+		length[i] = instructionLength(interface, uint16_t(addr - i), time);
 	}
 
 	while (true) {
@@ -180,7 +180,7 @@ uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
 uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
                              EmuTime::param time, int n)
 {
-	unsigned start = std::max(0, int(addr - 4 * n)); // for sure small enough
+	auto start = uint16_t(std::max(0, int(addr - 4 * n))); // for sure small enough
 	auto [tmp, len] = instructionBoundaryAndLength(interface, start, time);
 
 	std::vector<uint16_t> addresses;

@@ -277,7 +277,7 @@ struct CurrentSlot {
 		const auto* device = cpuInterface.getVisibleMSXDevice(page);
 		Debuggable* romBlocks = nullptr;
 		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
-			result.seg = mapper->getSelectedSegment(page);
+			result.seg = mapper->getSelectedSegment(narrow<uint8_t>(page));
 		} else if (!dynamic_cast<const RomPlain*>(device) &&
 		           (romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
 			result.seg = romBlocks->read(addr);
@@ -356,7 +356,8 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
 				auto bpIt = ranges::lower_bound(breakPoints, clipper.DisplayStart, {}, &BreakPoint::getAddress);
-				unsigned addr = instructionBoundary(cpuInterface, clipper.DisplayStart, time);
+				auto addr16 = instructionBoundary(cpuInterface, narrow<uint16_t>(clipper.DisplayStart), time);
+				unsigned addr = addr16;
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 					ImGui::TableNextRow();
 					if (addr >= 0x10000) continue;
@@ -377,7 +378,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							bool simpleBp = !multiBp;
 							if (hasBp) {
 								ParsedSlotCond bpSlot("pc_in_slot", bpIt->getCondition());
-								bool inSlot = addrInSlot(bpSlot, cpuInterface, debugger, addr);
+								bool inSlot = addrInSlot(bpSlot, cpuInterface, debugger, addr16);
 								bool defaultBp = bpSlot.rest.empty() && (bpIt->getCommand() == "debug break");
 								simpleBp &= defaultBp;
 
@@ -400,7 +401,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									}
 								} else {
 									// schedule creation of new bp
-									auto slot = getCurrentSlot(cpuInterface, debugger, addr);
+									auto slot = getCurrentSlot(cpuInterface, debugger, addr16);
 									addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
 								}
 							}
@@ -409,7 +410,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						mnemonic.clear();
 						std::optional<uint16_t> mnemonicAddr;
 						std::span<const Symbol* const> mnemonicLabels;
-						auto len = dasm(cpuInterface, addr, opcodes, mnemonic, time,
+						auto len = dasm(cpuInterface, addr16, opcodes, mnemonic, time,
 							[&](std::string& output, uint16_t a) {
 								mnemonicAddr = a;
 								mnemonicLabels = symbolManager.lookupValue(a);
@@ -491,11 +492,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 								auto setPc = strCat("Set PC to 0x", addrStr);
 								if (ImGui::MenuItem(setPc.c_str())) {
-									regs.setPC(addr);
+									regs.setPC(addr16);
 								}
 							});
 
-							auto addrLabels = symbolManager.lookupValue(addr);
+							auto addrLabels = symbolManager.lookupValue(addr16);
 							std::string_view displayAddr = addrLabels.empty()
 								? std::string_view(addrStr)
 								: std::string_view(addrLabels[cycleLabelsCounter % addrLabels.size()]->name);
@@ -599,7 +600,7 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 			ImGui::TableSetupColumn("Segment");
 			ImGui::TableHeadersRow();
 
-			for (auto page : xrange(4)) {
+			for (auto page : xrange(uint8_t(4))) {
 				auto addr = 0x4000 * page;
 				if (ImGui::TableNextColumn()) { // page
 					ImGui::StrCat(page);
