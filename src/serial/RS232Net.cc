@@ -9,9 +9,11 @@
 #include "Socket.hh"
 #include "serialize.hh"
 #include <array>
+#ifndef _WIN32
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
+#endif
 // #include <sys/select.h>
 
 namespace openmsx {
@@ -97,7 +99,7 @@ void RS232Net::unplugHelper(EmuTime::param /*time*/)
 
 std::string_view RS232Net::getName() const
 {
-	return "rs232-socket";
+	return "rs232-net";
 }
 
 std::string_view RS232Net::getDescription() const
@@ -317,9 +319,9 @@ void RS232Net::network_client()
             break;
         }
 
-// #if defined(TCP_NODELAY)
+#ifndef _WIN32
         setsockopt(sockfd, SOL_TCP, TCP_NODELAY, static_cast<const void*>(&error), sizeof(error)); /* just an integer with 1, not really an error */
-// #endif
+#endif
 
         if (connect(sockfd, &socket_address.address.generic, socket_address.len) < 0) {
             break;
@@ -352,153 +354,18 @@ int RS232Net::network_address_generate()
     int error = 1;
 
     do {
-        if (address_string.data() && strncmp("ip6://", address_string.data(), sizeof("ip6://" - 1)) == 0) {
-            if (network_address_generate_ipv6(&address_string.data()[sizeof("ip6://" - 1)])) {
-                break;
-            }
-        } else if (address_string.data() && strncmp("ip4://", address_string.data(), sizeof("ip4://" - 1)) == 0) {
-            if (network_address_generate_ipv4(&address_string.data()[sizeof("ip4://" - 1)])) {
-                break;
-            }
-        } else {
-            /* the user did not specify the type of the address, try to guess it by trying IPv6, then IPv4 */
-// #ifdef HAVE_IPV6
-            if (network_address_generate_ipv6(address_string.data()))
-// #endif /* #ifdef HAVE_IPV6 */
-            {
-                if (network_address_generate_ipv4(address_string.data())) {
-                    break;
-                }
-            }
+        if (network_address_generate_sockaddr(address_string.data()))
+        {
+            break;
         }
         error = 0;
     } while (0);
     return error;
 }
 
-// Generate an IPv4 socket address
-//   Initialises a socket address with an IPv4 address.
-//
-//   \param address_string
-//      A string describing the address to set.
-//
-//   returns:
-//      0 on success,
-//      else an error occurred.
-//
-//   \remark
-//      address_string must be specified in the form
-//      <host>
-//      or
-//      <host>:<port>
-//      with <host> being the name or the IPv4 address of the host,
-//      and <port< being the port number. If the first form is used,
-//      the default port will be used.
-int RS232Net::network_address_generate_ipv4(const char *address_string)
-{
-    char * address_part = strdup(address_string);
-    int error = 1;
-
-    do {
-        /* preset the socket address with port and INADDR_ANY */
-
-        memset(&socket_address.address, 0, sizeof(socket_address.address));
-        socket_address.domain = PF_INET;
-        socket_address.protocol = IPPROTO_TCP;
-        socket_address.len = sizeof(socket_address.address.ipv4);
-        socket_address.address.ipv4.sin_family = AF_INET;
-        socket_address.address.ipv4.sin_port = htons(0);
-        socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
-
-        if (address_string) {
-            /* an address string was specified, try to use it */
-            struct hostent * host_entry;
-
-            const char * port_part = NULL;
-
-            /* try to find out if a port has been specified */
-            port_part = strchr(address_string, ':');
-
-            if (port_part) {
-                char * p;
-                unsigned long new_port;
-
-                /* yes, there is a port: Copy the part before, so we can modify it */
-                p = strdup(address_string);
-
-                p[port_part - address_string] = 0;
-                free(address_part);
-                address_part = p;
-
-                ++port_part;
-
-                new_port = strtoul(port_part, &p, 10);
-
-                if (*p == 0) {
-                    socket_address.address.ipv4.sin_port = htons(static_cast<unsigned short>(new_port));
-                }
-            }
-
-            if (address_part[0] == 0) {
-                /* there was no address give, do not try to process it. */
-                error = 0;
-                break;
-            }
-
-            host_entry = gethostbyname(address_part);
-
-            if (host_entry != NULL && host_entry->h_addrtype == AF_INET) {
-                if (host_entry->h_length != sizeof socket_address.address.ipv4.sin_addr.s_addr) {
-                    /* something weird happened... SHOULD NOT HAPPEN! */
-					throw PlugException("gethostbyname() returned an IPv4 address, but the length is wrong: ", host_entry->h_length );
-                    break;
-                }
-
-                memcpy(&socket_address.address.ipv4.sin_addr.s_addr,
-                        host_entry->h_addr_list[0],
-                        host_entry->h_length);
-            } else {
-                /* Assume it is an IP address */
-
-                if (address_part[0] != 0) {
-// #ifdef HAVE_INET_ATON
-//                     /*
-//                      * this implementation is preferable, as inet_addr() cannot
-//                      * return the broadcast address, as it has the same encoding
-//                      * as INADDR_NONE.
-//                      *
-//                      * Unfortunately, not all ports have inet_aton(), so, we must
-//                      * provide both implementations.
-//                      */
-//                     if (inet_aton(address_part,
-//                                 &socket_address->address.ipv4.sin_addr.s_addr) == 0) {
-//                         /* no valid IP address */
-//                         break;
-//                     }
-// #else
-                    in_addr_t ip = inet_addr(address_part);
-
-                    if (ip == INADDR_NONE) {
-                        /* no valid IP address */
-                        break;
-                    }
-                    socket_address.address.ipv4.sin_addr.s_addr = ip;
-// #endif
-                }
-
-            }
-
-            error = 0;
-        }
-    } while (0);
-
-    free(address_part);
-    return error;
-}
-
-// Generate an IPv6 socket address
+// Generate a socket address
 // 
-//   Initialises a socket address with an IPv6 address.
+//   Initialises a socket address with an IPv6 or IPv4 address.
 // 
 //   \param address_string
 //      A string describing the address to set.
@@ -508,7 +375,8 @@ int RS232Net::network_address_generate_ipv4(const char *address_string)
 //      else an error occurred.
 // 
 //      address_string must be specified in one of the forms
-//      <host>
+//      <host>,
+//      <host>:port
 //      or
 //      [<host>]:<port>
 //      with <hostname> being the name of the host,
@@ -522,57 +390,103 @@ int RS232Net::network_address_generate_ipv4(const char *address_string)
 //      an IPv6 address, and an IPv6 address where a port has been
 //      specified. This format is a common one.
 //
-//      On platforms which do not support IPv6, this function
-//      returns -1 as error.
 //
-int RS232Net::network_address_generate_ipv6(const char * address_string)
+int RS232Net::network_address_generate_sockaddr(const char * address_string)
 {
-// #ifdef HAVE_IPV6
+    char * address_part = strdup(address_string);
     int error = 1;
 
     do {
-        struct hostent * host_entry = NULL;
-// #ifndef HAVE_GETHOSTBYNAME2
-//         int err6;
-// #endif
+        struct addrinfo hints,*res;
+        int err6;
+
+        memset(&hints,0,sizeof(hints));
 
         /* preset the socket address */
-
         memset(&socket_address.address, 0, sizeof socket_address.address);
-        socket_address.domain = PF_INET6;
         socket_address.protocol = IPPROTO_TCP;
-        socket_address.len = sizeof socket_address.address.ipv6;
-        socket_address.address.ipv6.sin6_family = AF_INET6;
-        socket_address.address.ipv6.sin6_port = 0;
-        socket_address.address.ipv6.sin6_addr = in6addr_any;
 
         if (!address_string || address_string[0] == 0) {
-            /* there was no address give, do not try to process it. */
+            /* there was no address given, do not try to process it. */
             error = 0;
             break;
         }
-// #ifdef HAVE_GETHOSTBYNAME2
-        host_entry = gethostbyname2(address_string, AF_INET6);
-// #else
-//         host_entry = getipnodebyname(address_string, AF_INET6, AI_DEFAULT, &err6);
-// #endif
-        if (host_entry == NULL) {
-            break;
+        const char * port_part = NULL;
+
+        /* try to find out if a port has been specified */
+        port_part = strchr(address_string, ']');
+            
+        if (port_part) {
+            if ((address_string[0] == '[') && (port_part[1] == ':')) {
+                /* [IPv6]:port format*/
+                char * p;
+
+                ++port_part;
+                p = strdup(address_string+1);
+                p[port_part - (address_string+2)] = 0;
+                free(address_part);
+                address_part = p;
+                ++port_part;
+                hints.ai_family = AF_INET6;
+                socket_address.domain = PF_INET6;
+                socket_address.len = sizeof socket_address.address.ipv6;
+                socket_address.address.ipv6.sin6_family = AF_INET6;
+                socket_address.address.ipv6.sin6_port = 0;
+                socket_address.address.ipv6.sin6_addr = in6addr_any;
+            } else {
+                /* malformed address, do not try to process it. */
+                break;
+            }
+        } else {
+            /* count number of colons */
+            int i = 0;
+            const char *pch=strchr(address_string,':');
+            while (pch!=NULL) {
+                i++;
+                pch=strchr(pch+1,':');
+            }
+            if (i == 1) {
+                /* either domainname:port or ipv4:port */
+                port_part = strchr(address_string,':');
+                char * p;
+
+                p = strdup(address_string);
+                p[port_part - address_string] = 0;
+                free(address_part);
+                address_part = p;
+                ++port_part;
+                hints.ai_family = AF_INET;
+                socket_address.domain = PF_INET;
+                socket_address.len = sizeof socket_address.address.ipv4;
+                socket_address.address.ipv4.sin_family = AF_INET;
+                socket_address.address.ipv4.sin_port = 0;
+                socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
+            } else if (i > 1) {
+                /* ipv6 address */
+ 
+                hints.ai_family = AF_INET6;
+                socket_address.domain = PF_INET6;
+                socket_address.len = sizeof socket_address.address.ipv6;
+                socket_address.address.ipv6.sin6_family = AF_INET6;
+                socket_address.address.ipv6.sin6_port = 0;
+                socket_address.address.ipv6.sin6_addr = in6addr_any;
+            }
         }
 
-        memcpy(&socket_address.address.ipv6.sin6_addr, host_entry->h_addr, host_entry->h_length);
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
 
-// #ifndef HAVE_GETHOSTBYNAME2
-//         freehostent(host_entry);
-// #endif
+        err6 = getaddrinfo(address_part,port_part,&hints,&res);
+        if ( err6 != 0) {
+            break;
+        }
+        memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
+        freeaddrinfo(res);
         error = 0;
     } while (0);
 
+    free(address_part);
     return error;
-// #else /* #ifdef HAVE_IPV6 */
-//     log_message(LOG_DEFAULT, "IPv6 is not supported in this installation of OpenMSX!\n");
-//     return -1;
-// #endif /* #ifdef HAVE_IPV6 */
 }
 
 template<typename Archive>

@@ -78,9 +78,7 @@ private:
 
 	int network_address_generate();
 
-	int network_address_generate_ipv4(const char *address_string);
-
-	int network_address_generate_ipv6(const char *address_string);
+	int network_address_generate_sockaddr(const char *address_string);
 
 private:
 

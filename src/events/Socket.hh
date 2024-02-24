@@ -26,6 +26,7 @@ using SOCKET = int;
 // INVALID_SOCKET is #defined as  (SOCKET)(~0)
 // but that gives a old-style-cast warning
 static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
+typedef UINT32 in_addr_t;
 #endif
 
 [[nodiscard]] std::string sock_error();
