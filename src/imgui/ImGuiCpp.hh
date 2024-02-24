@@ -82,9 +82,9 @@ struct WindowStatus {
 	                       //         gets automatically reset when done
 	void raise() { do_raise = open = true; }
 };
-inline void Window(const char* name, WindowStatus& status, std::invocable<> auto next)
+inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::Begin(name, &status.open)) {
+	if (ImGui::Begin(name, &status.open, flags)) {
 		if (status.do_raise) {
 			status.do_raise = false;
 			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
@@ -94,6 +94,10 @@ inline void Window(const char* name, WindowStatus& status, std::invocable<> auto
 		next();
 	}
 	ImGui::End();
+}
+inline void Window(const char* name, WindowStatus& status, std::invocable<> auto next)
+{
+	Window(name, status, 0, next);
 }
 
 // im::Child(): wrapper around ImGui::BeginChild() / ImGui::EndChild()
