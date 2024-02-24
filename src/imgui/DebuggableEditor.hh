@@ -21,7 +21,7 @@ class Debuggable;
 class ImGuiManager;
 class SymbolManager;
 
-class DebuggableEditor : public ImGuiPart
+class DebuggableEditor final : public ImGuiPart
 {
 	struct Sizes {
 		int addrDigitsCount = 0;

@@ -402,13 +402,13 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCP
 [[nodiscard]] static unsigned getId(const std::shared_ptr<WatchPoint>& wp) { return wp->getId(); }
 [[nodiscard]] static unsigned getId(const DebugCondition& cond) { return cond.getId(); }
 
-[[nodiscard]] static unsigned getAddress(const BreakPoint& bp) { return bp.getAddress(); }
-[[nodiscard]] static unsigned getAddress(const std::shared_ptr<WatchPoint>& wp) { return wp->getBeginAddress(); }
-[[nodiscard]] static unsigned getAddress(const DebugCondition& cond) = delete;
+[[nodiscard]] static uint16_t getAddress(const BreakPoint& bp) { return bp.getAddress(); }
+[[nodiscard]] static uint16_t getAddress(const std::shared_ptr<WatchPoint>& wp) { return narrow<uint16_t>(wp->getBeginAddress()); }
+[[nodiscard]] static uint16_t getAddress(const DebugCondition& cond) = delete;
 
-[[nodiscard]] static unsigned getEndAddress(const BreakPoint& bp) { return bp.getAddress(); } // same as begin
-[[nodiscard]] static unsigned getEndAddress(const std::shared_ptr<WatchPoint>& wp) { return wp->getEndAddress(); }
-[[nodiscard]] static unsigned getEndAddress(const DebugCondition& cond) = delete;
+[[nodiscard]] static uint16_t getEndAddress(const BreakPoint& bp) { return bp.getAddress(); } // same as begin
+[[nodiscard]] static uint16_t getEndAddress(const std::shared_ptr<WatchPoint>& wp) { return narrow<uint16_t>(wp->getEndAddress()); }
+[[nodiscard]] static uint16_t getEndAddress(const DebugCondition& cond) = delete;
 
 [[nodiscard]] static TclObject getConditionObj(const BreakPointBase& bp) { return bp.getConditionObj(); }
 [[nodiscard]] static TclObject getConditionObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getConditionObj(); }

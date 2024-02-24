@@ -150,37 +150,10 @@ static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 #endif
 }
 
-static inline void memset_16_2(
-	uint16_t* out, size_t num16, uint16_t val0, uint16_t val1)
-{
-	if (num16 == 0) [[unlikely]] return;
-
-	// Align at 4-byte boundary.
-	if (size_t(out) & 2) [[unlikely]] {
-		out[0] = val1; // start at odd pixel
-		++out; --num16;
-	}
-
-	uint32_t val32 = Endian::BIG ? (uint32_t(val0) << 16) | val1
-	                             : val0 | (uint32_t(val1) << 16);
-	memset_32(reinterpret_cast<uint32_t*>(out), num16 / 2, val32);
-
-	if (num16 & 1) [[unlikely]] {
-		out[num16 - 1] = val0;
-	}
-}
-
-static inline void memset_16(uint16_t* out, size_t num16, uint16_t val16)
-{
-	memset_16_2(out, num16, val16, val16);
-}
-
 template<typename Pixel> void MemSet<Pixel>::operator()(
 	std::span<Pixel> out, Pixel val) const
 {
-	if constexpr (sizeof(Pixel) == 2) {
-		memset_16(reinterpret_cast<uint16_t*>(out.data()), out.size(), val);
-	} else if constexpr (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		memset_32(reinterpret_cast<uint32_t*>(out.data()), out.size(), val);
 	} else {
 		UNREACHABLE;
@@ -190,9 +163,7 @@ template<typename Pixel> void MemSet<Pixel>::operator()(
 template<typename Pixel> void MemSet2<Pixel>::operator()(
 	std::span<Pixel> out, Pixel val0, Pixel val1) const
 {
-	if constexpr (sizeof(Pixel) == 2) {
-		memset_16_2(reinterpret_cast<uint16_t*>(out.data()), out.size(), val0, val1);
-	} else if constexpr (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		memset_32_2(reinterpret_cast<uint32_t*>(out.data()), out.size(), val0, val1);
 	} else {
 		UNREACHABLE;

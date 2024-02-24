@@ -19,7 +19,8 @@ public:
 
 	[[nodiscard]] double getDouble() const noexcept { return getValue().getDouble(getInterpreter()); }
 	[[nodiscard]] float  getFloat()  const noexcept { return getValue().getFloat (getInterpreter()); }
-	void setDouble (double d);
+	void setDouble(double d);
+	void setFloat (float f);
 
 	double getMinValue() const { return minValue; }
 	double getMaxValue() const { return maxValue; }

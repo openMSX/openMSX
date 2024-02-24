@@ -53,7 +53,7 @@ class ImGuiVdpRegs;
 class ImGuiWatchExpr;
 class RomInfo;
 
-class ImGuiManager : public ImGuiPartInterface, private EventListener, private Observer<Setting>
+class ImGuiManager final : public ImGuiPartInterface, private EventListener, private Observer<Setting>
 {
 public:
 	ImGuiManager(const ImGuiManager&) = delete;

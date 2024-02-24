@@ -128,7 +128,7 @@ template<typename C>
 struct PersistentElement<C, float> : PersistentElementBase<C, float> {
 	using PersistentElementBase<C, float>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
-		buf.appendf("%s=%f\n", this->name.c_str(), this->get(c));
+		buf.appendf("%s=%f\n", this->name.c_str(), double(this->get(c))); // cast to silence warning
 	}
 	void load(C& c, zstring_view value) const {
 		this->get(c) = strtof(value.c_str(), nullptr); // TODO error handling
@@ -166,7 +166,8 @@ struct PersistentElement<C, gl::vec4> : PersistentElementBase<C, gl::vec4> {
 	using PersistentElementBase<C, gl::vec4>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
 		const auto& v = this->get(c);
-		buf.appendf("%s=[ %f %f %f %f ]\n", this->name.c_str(), v[0], v[1], v[2], v[3]);
+		buf.appendf("%s=[ %f %f %f %f ]\n", this->name.c_str(),
+			double(v[0]), double(v[1]), double(v[2]), double(v[3])); // note: cast only needed to silence warnings
 	}
 	void load(C& c, zstring_view value) const {
 		gl::vec4 t;
