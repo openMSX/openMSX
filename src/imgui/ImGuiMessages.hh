@@ -96,6 +96,10 @@ private:
 		}
 	};
 	struct OsdMessage {
+		// clang workaround:
+		OsdMessage(const std::string& te, float ti, CliComm::LogLevel l)
+			: text(te), time(ti), level(l) {}
+
 		std::string text;
 		float time;
 		CliComm::LogLevel level;
