@@ -2,6 +2,7 @@
 
 #include "IntegerSetting.hh"
 
+#include "narrow.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 
@@ -95,7 +96,7 @@ std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt
 	int instanceId = evt.jbutton.which; // any SDL joystick event
 	auto it = ranges::find(infos, instanceId, &Info::instanceId);
 	if (it == infos.end()) return {}; // should not happen
-	evt.jbutton.which = std::distance(infos.begin(), it);
+	evt.jbutton.which = narrow<int>(std::distance(infos.begin(), it));
 	return JoystickId(evt.jbutton.which);
 }
 
