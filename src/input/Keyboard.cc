@@ -1136,7 +1136,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	auto key = keyEvent.getKey();
 
 	bool isOnKeypad =
-		(keyCode >= SDLK_KP_0 && keyCode <= SDLK_KP_9) ||
+		(SDLK_KP_1 <= keyCode && keyCode <= SDLK_KP_0) || // note order is 1-9,0
 		(keyCode == one_of(SDLK_KP_PERIOD, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY,
 		                   SDLK_KP_MINUS,  SDLK_KP_PLUS));
 
