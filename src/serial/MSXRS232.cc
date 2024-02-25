@@ -237,8 +237,6 @@ byte MSXRS232::readStatus(EmuTime::param time)
 
 	byte result = 0; // TODO check unused bits
 
-	// TODO bit 0: carrier detect
-
 	if (!interface.getDCD(time)) {
 		result |= 0x01;
 	}

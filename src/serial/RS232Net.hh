@@ -1,5 +1,5 @@
-#ifndef RS232SOCKET_HH
-#define RS232SOCKET_HH
+#ifndef RS232NET_HH
+#define RS232NET_HH
 
 #include "RS232Device.hh"
 #include "EventListener.hh"
@@ -17,10 +17,6 @@
 #include <cstdio>
 
 namespace openmsx {
-
-#ifndef INVALID_SOCKET
-# define INVALID_SOCKET -1
-#endif
 
 class EventDistributor;
 class Scheduler;
@@ -57,18 +53,18 @@ private:
 
 	typedef struct timeval TIMEVAL;
 
-	bool DTR;	//Data Terminal Ready output status
-	bool RTS;	//Request To Send output status
-	bool DCD;	//Data Carrier Detect input status
-	bool RI;	//Ring Indicator input status
+	bool DTR;	// Data Terminal Ready output status
+	bool RTS;	// Request To Send output status
+	bool DCD;	// Data Carrier Detect input status
+	bool RI;	// Ring Indicator input status
 	bool IP232;
 
 	// EventListener
 	int signalEvent(const Event& event) override;
 
-	int net_putc(uint8_t b);
+	bool net_putc(char b);
 
-	ptrdiff_t net_getc(char * b);
+	std::optional<char> net_getc();
 
 	int selectPoll(SOCKET readsock);
 
@@ -76,9 +72,9 @@ private:
 	
 	void initialize_socket_address();
 
-	int network_address_generate();
+	bool network_address_generate();
 
-	int network_address_generate_sockaddr(const char *address_string);
+	bool network_address_generate_sockaddr(const char *address_string);
 
 private:
 
@@ -98,38 +94,35 @@ private:
 	// However, in practice, this approach works.
 	//
 	union socket_addresses_u {
-		struct sockaddr generic;     /*!< the generic type needed for calling the socket API */
+		struct sockaddr generic;     // the generic type needed for calling the socket API
 
 	// #ifdef HAVE_UNIX_DOMAIN_SOCKETS
 	#ifndef _WIN32
-		struct sockaddr_un local;    /*!< an Unix Domain Socket (file system) socket address */
+		struct sockaddr_un local;    // an Unix Domain Socket (file system) socket address
 	#endif
 
-		struct sockaddr_in ipv4;     /*!< an IPv4 socket address */
+		struct sockaddr_in ipv4;     // an IPv4 socket address
 
-	// #ifdef HAVE_IPV6
-		struct sockaddr_in6 ipv6;    /*!< an IPv6 socket address */
-	// #endif
+		struct sockaddr_in6 ipv6;    // an IPv6 socket address
 	};
 
 	// opaque structure describing an address for use with socket functions
-	struct rs232_network_socket_address_s {
-		unsigned int used;      /*!< 1 if this entry is being used, 0 else.
-								* This is used for debugging the buffer
-								* allocation strategy.
-								*/
-		int domain;             /*!< the address family (AF_INET, ...) of this address */
-		int protocol;           /*!< the protocol of this address. This can be used to distinguish between different types of an address family. */
-	// #ifdef HAVE_SOCKLEN_T
+	struct rs232_network_socket_address {
+		unsigned int used;      /* 1 if this entry is being used, 0 else.
+					* This is used for debugging the buffer
+					* allocation strategy.
+					*/
+		int domain;             // the address family (AF_INET, ...) of this address
+		int protocol;           // the protocol of this address. This can be used to distinguish between different types of an address family.
 	#ifndef _WIN32
-		socklen_t len;          /*!< the length of the socket address */
+		socklen_t len;          // the length of the socket address
 	#else
-	   int len;
+		int len;
 	#endif
 		union socket_addresses_u address; /* the socket address */
 	};
 
-	typedef struct rs232_network_socket_address_s rs232_network_socket_address_t;
+	// typedef struct rs232_network_socket_address_s rs232_network_socket_address_t;
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
@@ -147,7 +140,7 @@ private:
 
 	SOCKET sockfd;
 
-	rs232_network_socket_address_t socket_address;
+	rs232_network_socket_address socket_address;
 
 };
 

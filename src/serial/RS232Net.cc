@@ -40,7 +40,7 @@ RS232Net::RS232Net(EventDistributor& eventDistributor_,
 	        commandController, "rs232-net-address",
 	        "IP/address:port for RS232 net pluggable",
 	        "127.0.0.1:25232")
-    , rs232NetUseIP232(
+	, rs232NetUseIP232(
 	        commandController, "rs232-net-ip232",
 	        "Enable IP232 protocol",
 	        true)
@@ -56,19 +56,19 @@ RS232Net::~RS232Net()
 // Pluggable
 void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-    if (network_address_generate()){
-        throw PlugException("Bad device name.  Should be ipaddr:port, but is ", rs232NetAddressSetting.getString());
-    }
-    // Open socket client
-    network_client();
-    if (sockfd < 0) {
-        throw PlugException("Can't open connection");
-    }
+	if (!network_address_generate()){
+		throw PlugException("Incorrect address / could not resolve: ", rs232NetAddressSetting.getString());
+	}
+	// Open socket client
+	network_client();
+	if (sockfd == OPENMSX_INVALID_SOCKET) {
+		throw PlugException("Can't open connection");
+	}
 
 	DTR = false;
 	RTS = true;
 	DCD = false;
-    RI  = false;
+	RI  = false;
 	IP232 = rs232NetUseIP232.getBoolean();
 
 	auto& rs232Connector = checked_cast<RS232Connector&>(connector_);
@@ -83,15 +83,15 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 void RS232Net::unplugHelper(EmuTime::param /*time*/)
 {
-    // close socket
-    if (sockfd >= 0){
-        if (IP232){
-            net_putc(IP232MAGIC);
-            net_putc(IP232DTRLO);
-        }
-        sock_close(sockfd);
-        sockfd = INVALID_SOCKET;
-    }
+	// close socket
+	if (sockfd != OPENMSX_INVALID_SOCKET){
+		if (IP232){
+			net_putc(IP232MAGIC);
+			net_putc(IP232DTRLO);
+		}
+		sock_close(sockfd);
+		sockfd = OPENMSX_INVALID_SOCKET;
+    	}
 	// input
 	poller.abort();
 	thread.join();
@@ -110,47 +110,42 @@ std::string_view RS232Net::getDescription() const
 
 void RS232Net::run()
 {
-    ptrdiff_t ret = -1;
-    char b;
-    bool ipmagic = false;
+	bool ipmagic = false;
 
-    while (1){
+	while (1){
 
-		if ((poller.aborted()) || (sockfd < 0)) {
+		if ((poller.aborted()) || (sockfd == OPENMSX_INVALID_SOCKET)) {
 			break;
 		}
 
-        // if(!RTS) continue;
+		// char b;
+		auto b = net_getc();
 
-        ret = net_getc(&b);
+		if (!b.has_value()) continue;
+		if (IP232) {
+        		if (!ipmagic) {
+				if (b.value() == IP232MAGIC) {
+					ipmagic = true;
+                    			/* literal 0xff */
+                    			continue;
+                		}
+            		} else {
+                		ipmagic = false;
+				if (b.value() != IP232MAGIC) {
+        				DCD = (b.value() & IP232DCDMASK) == IP232DCDHI ? true : false;
+               				// RI implemented in TCPSer 1.1.5 (not yet released) 
+               				// RI present at least on Sony HBI-232 and HB-G900AP (bit 1 of &H82/&HBFFA status register)
+               				//    missing on SVI-738
+               				RI = (b.value() & IP232RIMASK) == IP232RIHI ? true : false;
+                   			continue;
+               			}
+        		}
+		}
 
-        if ((IP232) && (ret > 0)) {
-            if (!ipmagic) {
-                if (b == IP232MAGIC) {
-                    ipmagic = true;
-                    /* literal 0xff */
-                    continue;
-                }
-            } else {
-                ipmagic = false;
-                if (b != IP232MAGIC) {
-                    DCD = (b & IP232DCDMASK) == IP232DCDHI ? true : false;
-                    // RI implemented in TCPSer 1.1.5 (not yet released) 
-                    // RI present at least on Sony HBI-232 and HB-G900AP (bit 1 of &H82/&HBFFA status register)
-                    //    missing on SVI-738
-                    RI = (b & IP232RIMASK) == IP232RIHI ? true : false;
-                    continue;
-                }
-            }
-        }
-
-        if (ret != 1) continue;
-
-        // conn->recvByte(t, time);
 
 		assert(isPluggedIn());
 		std::lock_guard<std::mutex> lock(mutex);
-		queue.push_back(b);
+		queue.push_back(b.value());
 		eventDistributor.distributeEvent(Rs232NetEvent());
 	}
 }
@@ -159,8 +154,6 @@ void RS232Net::run()
 void RS232Net::signal(EmuTime::param time)
 {
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
-
-    char b;
 
 	if (!conn->acceptsData()) {
 		std::lock_guard<std::mutex> lock(mutex);
@@ -172,7 +165,7 @@ void RS232Net::signal(EmuTime::param time)
 
 	std::lock_guard<std::mutex> lock(mutex);
 	if (queue.empty()) return;
-    b = queue.pop_front();
+	char b = queue.pop_front();
 	conn->recvByte(b, time);
 }
 
@@ -192,10 +185,10 @@ int RS232Net::signalEvent(const Event& /*event*/)
 // output
 void RS232Net::recvByte(uint8_t value, EmuTime::param /*time*/)
 {
-    if ((value == 0xff) && (IP232)) {	// value matches IP232 magic
-        net_putc(IP232MAGIC);
-    }
-    net_putc(value);
+	if ((value == 0xff) && (IP232)) {	// value matches IP232 magic
+		net_putc(IP232MAGIC);
+	}
+	net_putc(value);
 }
 
 // Control lines
@@ -210,7 +203,7 @@ void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 	if (DTR != status) {
 		DTR = status;
 		if (IP232) {
-			if (sockfd >= 0) {
+			if (sockfd != OPENMSX_INVALID_SOCKET) {
 				net_putc(IP232MAGIC);
 				net_putc((DTR?IP232DTRHI:IP232DTRLO));
 			}
@@ -222,68 +215,51 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 {
 	if (RTS != status) {
 		RTS = status;
-    	std::lock_guard<std::mutex> lock(mutex);
-        if ((RTS)&&(!queue.empty())){
-            eventDistributor.distributeEvent(Rs232NetEvent());
-
-        }
+		std::lock_guard<std::mutex> lock(mutex);
+		if ((RTS)&&(!queue.empty())){
+			eventDistributor.distributeEvent(Rs232NetEvent());
+		}
 	}
 }
 
 // Socket routines below based on VICE emulator socket.c
 
 
-int RS232Net::net_putc(uint8_t b)
+bool RS232Net::net_putc(char b)
 {
-    ptrdiff_t n;
 
-    if (sockfd < 0)
-    {
-        return -1;
-    }
+	if (sockfd == OPENMSX_INVALID_SOCKET)
+	{
+		return false;
+	}
 
-    n = sock_send(sockfd, reinterpret_cast<char *>(&b), 1);
-    if (n < 0) {
-        sock_close(sockfd);
-        sockfd = INVALID_SOCKET;
-        return -1;
-    }
+	auto n = sock_send(sockfd, &b, 1);
+	if (n < 0) {
+		sock_close(sockfd);
+		sockfd = OPENMSX_INVALID_SOCKET;
+		return false;
+	}
 
-    return 0;
+	return true;
 }
 
-ptrdiff_t RS232Net::net_getc(char * b)
+std::optional<char> RS232Net::net_getc()
 {
-    int ret;
-    ptrdiff_t no_of_read_byte = -1;
+	// int ret;
+	// ptrdiff_t no_of_read_byte = -1;
 
-    if (sockfd < 0) {
-        return no_of_read_byte;
-    }
+	if (sockfd == OPENMSX_INVALID_SOCKET)  return {};
 
+	char b;
 
-    do {
-
-        /* from now on, assume everything is ok,
-            but we have not received any bytes */
-        no_of_read_byte = 0;
-
-        ret = selectPoll(sockfd);
-
-        if (ret > 0) {
-            no_of_read_byte = sock_recv(sockfd, b, 1);
-            if ( no_of_read_byte != 1 ) {
-                sock_close(sockfd);
-                sockfd = INVALID_SOCKET;
-                // if ( no_of_read_byte < 0 ) {
-                    // fprintf(stderr,"Error reading socket\n");
-                // } else {
-                    // fprintf(stderr,"EOF\n");
-                // }
-            }
-        }
-    } while (0);
-    return no_of_read_byte;
+	if (selectPoll(sockfd) > 0) {
+		if (sock_recv(sockfd, &b, 1) !=1){
+			sock_close(sockfd);
+			sockfd = OPENMSX_INVALID_SOCKET;
+			return {};
+		} else return b;
+	}
+	return {};
 }
 
 // Check if the socket has incoming data to receive
@@ -298,7 +274,7 @@ int RS232Net::selectPoll(SOCKET readsock)
 	FD_ZERO(&sdsocket);
 	FD_SET(readsock, &sdsocket);
 
-	return select( readsock + 1, &sdsocket, NULL, NULL, &timeout);
+	return select( readsock + 1, &sdsocket, nullptr, nullptr, &timeout);
 }
 
 // Open a socket and initialise it for client operation
@@ -308,59 +284,34 @@ int RS232Net::selectPoll(SOCKET readsock)
 
 void RS232Net::network_client()
 {
-    sockfd = INVALID_SOCKET;
-    int error = 1;
 
-    do {
+	sockfd = socket(socket_address.domain, SOCK_STREAM, socket_address.protocol);
 
-        sockfd = socket(socket_address.domain, SOCK_STREAM, socket_address.protocol);
+	if (sockfd != OPENMSX_INVALID_SOCKET) {
+		int one = 1;
+		setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, (char*)(&one), sizeof(one));
 
-        if (sockfd == INVALID_SOCKET) {
-            break;
-        }
-
-#ifndef _WIN32
-        setsockopt(sockfd, SOL_TCP, TCP_NODELAY, static_cast<const void*>(&error), sizeof(error)); /* just an integer with 1, not really an error */
-#endif
-
-        if (connect(sockfd, &socket_address.address.generic, socket_address.len) < 0) {
-            break;
-        }
-        error = 0;
-    } while (0);
-
-    if (error) {
-        if (sockfd != INVALID_SOCKET) {
-            sock_close(sockfd);
-        }
-        sockfd = INVALID_SOCKET;
-    }
+		if (connect(sockfd, &socket_address.address.generic, socket_address.len) < 0) {
+			sock_close(sockfd);
+			sockfd = OPENMSX_INVALID_SOCKET;
+	        }
+	}
 }
 
 // Initialise a socket address structure
 void RS232Net::initialize_socket_address()
 {
-    memset(&socket_address, 0, sizeof(socket_address));
-    socket_address.used = 1;
-    socket_address.len = sizeof(socket_address.address);
+	memset(&socket_address, 0, sizeof(socket_address));
+	socket_address.used = 1;
+	socket_address.len = sizeof(socket_address.address);
 }
 
 // Generate a socket address
-int RS232Net::network_address_generate()
+bool RS232Net::network_address_generate()
 {
-
 	auto address_string = rs232NetAddressSetting.getString();
 
-    int error = 1;
-
-    do {
-        if (network_address_generate_sockaddr(address_string.data()))
-        {
-            break;
-        }
-        error = 0;
-    } while (0);
-    return error;
+	return network_address_generate_sockaddr(address_string.data());
 }
 
 // Generate a socket address
@@ -371,7 +322,7 @@ int RS232Net::network_address_generate()
 //      A string describing the address to set.
 // 
 //   return
-//      0 on success,
+//      true on success,
 //      else an error occurred.
 // 
 //      address_string must be specified in one of the forms
@@ -391,102 +342,97 @@ int RS232Net::network_address_generate()
 //      specified. This format is a common one.
 //
 //
-int RS232Net::network_address_generate_sockaddr(const char * address_string)
+bool RS232Net::network_address_generate_sockaddr(const char * address_string)
 {
-    char * address_part = strdup(address_string);
-    int error = 1;
+	struct addrinfo hints,*res;
 
-    do {
-        struct addrinfo hints,*res;
-        int err6;
+	memset(&hints,0,sizeof(hints));
 
-        memset(&hints,0,sizeof(hints));
+	/* preset the socket address */
+	memset(&socket_address.address, 0, sizeof socket_address.address);
+	socket_address.protocol = IPPROTO_TCP;
 
-        /* preset the socket address */
-        memset(&socket_address.address, 0, sizeof socket_address.address);
-        socket_address.protocol = IPPROTO_TCP;
+	if (!address_string || address_string[0] == 0) {
+		/* there was no address given, do not try to process it. */
+		return false;
+	}
 
-        if (!address_string || address_string[0] == 0) {
-            /* there was no address given, do not try to process it. */
-            error = 0;
-            break;
-        }
-        const char * port_part = NULL;
+	const char * port_part = NULL;
+	char * address_part = strdup(address_string);
+	/* try to find out if a port has been specified */
+	port_part = strchr(address_string, ']');
+		
+	if (port_part) {
+		if ((address_string[0] == '[') && (port_part[1] == ':')) {
+			/* [IPv6]:port format*/
+			char * p;
 
-        /* try to find out if a port has been specified */
-        port_part = strchr(address_string, ']');
-            
-        if (port_part) {
-            if ((address_string[0] == '[') && (port_part[1] == ':')) {
-                /* [IPv6]:port format*/
-                char * p;
+			++port_part;
+			p = strdup(address_string+1);
+			p[port_part - (address_string+2)] = 0;
+			free(address_part);
+			address_part = p;
+			++port_part;
+			hints.ai_family = AF_INET6;
+			socket_address.domain = PF_INET6;
+			socket_address.len = sizeof socket_address.address.ipv6;
+			socket_address.address.ipv6.sin6_family = AF_INET6;
+			socket_address.address.ipv6.sin6_port = 0;
+			socket_address.address.ipv6.sin6_addr = in6addr_any;
+		} else {
+			/* malformed address, do not try to process it. */
+			free(address_part);
+			return false;
+		}
+	} else {
+		/* count number of colons */
+		int i = 0;
+		const char *pch=strchr(address_string,':');
+		while (pch!=NULL) {
+			i++;
+			pch=strchr(pch+1,':');
+		}
+		if (i == 1) {
+			/* either domainname:port or ipv4:port */
+			port_part = strchr(address_string,':');
+			char * p;
 
-                ++port_part;
-                p = strdup(address_string+1);
-                p[port_part - (address_string+2)] = 0;
-                free(address_part);
-                address_part = p;
-                ++port_part;
-                hints.ai_family = AF_INET6;
-                socket_address.domain = PF_INET6;
-                socket_address.len = sizeof socket_address.address.ipv6;
-                socket_address.address.ipv6.sin6_family = AF_INET6;
-                socket_address.address.ipv6.sin6_port = 0;
-                socket_address.address.ipv6.sin6_addr = in6addr_any;
-            } else {
-                /* malformed address, do not try to process it. */
-                break;
-            }
-        } else {
-            /* count number of colons */
-            int i = 0;
-            const char *pch=strchr(address_string,':');
-            while (pch!=NULL) {
-                i++;
-                pch=strchr(pch+1,':');
-            }
-            if (i == 1) {
-                /* either domainname:port or ipv4:port */
-                port_part = strchr(address_string,':');
-                char * p;
+			p = strdup(address_string);
+			p[port_part - address_string] = 0;
+			free(address_part);
+			address_part = p;
+			++port_part;
+			hints.ai_family = AF_INET;
+			socket_address.domain = PF_INET;
+			socket_address.len = sizeof socket_address.address.ipv4;
+			socket_address.address.ipv4.sin_family = AF_INET;
+			socket_address.address.ipv4.sin_port = 0;
+			socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
+		} else if (i > 1) {
+			/* ipv6 address */
 
-                p = strdup(address_string);
-                p[port_part - address_string] = 0;
-                free(address_part);
-                address_part = p;
-                ++port_part;
-                hints.ai_family = AF_INET;
-                socket_address.domain = PF_INET;
-                socket_address.len = sizeof socket_address.address.ipv4;
-                socket_address.address.ipv4.sin_family = AF_INET;
-                socket_address.address.ipv4.sin_port = 0;
-                socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
-            } else if (i > 1) {
-                /* ipv6 address */
- 
-                hints.ai_family = AF_INET6;
-                socket_address.domain = PF_INET6;
-                socket_address.len = sizeof socket_address.address.ipv6;
-                socket_address.address.ipv6.sin6_family = AF_INET6;
-                socket_address.address.ipv6.sin6_port = 0;
-                socket_address.address.ipv6.sin6_addr = in6addr_any;
-            }
-        }
+			hints.ai_family = AF_INET6;
+			socket_address.domain = PF_INET6;
+			socket_address.len = sizeof socket_address.address.ipv6;
+			socket_address.address.ipv6.sin6_family = AF_INET6;
+			socket_address.address.ipv6.sin6_port = 0;
+			socket_address.address.ipv6.sin6_addr = in6addr_any;
+		}
+	}
 
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
 
-        err6 = getaddrinfo(address_part,port_part,&hints,&res);
-        if ( err6 != 0) {
-            break;
-        }
-        memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
-        freeaddrinfo(res);
-        error = 0;
-    } while (0);
+	int result = false;
 
-    free(address_part);
-    return error;
+	if ( getaddrinfo(address_part,port_part,&hints,&res) == 0) {
+		memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
+		result = true;
+	}
+	freeaddrinfo(res);
+
+	free(address_part);
+	return result;
 }
 
 template<typename Archive>

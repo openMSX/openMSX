@@ -1341,6 +1341,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Device.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Net.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Tester.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -2984,6 +2987,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\RS232Device.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Net.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\RS232Tester.hh">

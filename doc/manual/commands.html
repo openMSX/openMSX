@@ -4893,6 +4893,15 @@
   <code>rs232-net</code> has to be plugged in the <code>msx-rs232</code>
   connector for this to become useful. This setting
   needs to point to a valid host at the moment of pluggin it.</p>
+  <p>The address must follow one of the following syntaxes:</p>
+  <ul>
+    <li><strong>hostname</strong> ie: abc.com</li>
+    <li><strong>hostname:port</strong> ie: abc.com:23</li>
+    <li><strong>ipv4</strong> ie: 127.0.0.1</li>
+    <li><strong>ipv4:port</strong> ie: 127.0.0.1:2323</li>
+    <li><strong>ipv6</strong> ie: ::1</li>
+    <li><strong>[ipv6]:port</strong> ie: [::1]:8080</li>
+  </ul>
 
   <div class="subsectiontitle">
     usage:
