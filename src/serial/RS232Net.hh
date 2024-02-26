@@ -3,7 +3,6 @@
 
 #include "RS232Device.hh"
 #include "EventListener.hh"
-// #include "FilenameSetting.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
 #include "FileOperations.hh"
@@ -51,8 +50,6 @@ public:
 private:
 	void run();
 
-	typedef struct timeval TIMEVAL;
-
 	bool DTR;	// Data Terminal Ready output status
 	bool RTS;	// Request To Send output status
 	bool DCD;	// Data Carrier Detect input status
@@ -74,8 +71,6 @@ private:
 
 	bool network_address_generate();
 
-	bool network_address_generate_sockaddr(const char *address_string);
-
 private:
 
 	// Access to socket addresses
@@ -96,11 +91,6 @@ private:
 	union socket_addresses_u {
 		struct sockaddr generic;     // the generic type needed for calling the socket API
 
-	// #ifdef HAVE_UNIX_DOMAIN_SOCKETS
-	#ifndef _WIN32
-		struct sockaddr_un local;    // an Unix Domain Socket (file system) socket address
-	#endif
-
 		struct sockaddr_in ipv4;     // an IPv4 socket address
 
 		struct sockaddr_in6 ipv6;    // an IPv6 socket address
@@ -114,11 +104,7 @@ private:
 					*/
 		int domain;             // the address family (AF_INET, ...) of this address
 		int protocol;           // the protocol of this address. This can be used to distinguish between different types of an address family.
-	#ifndef _WIN32
 		socklen_t len;          // the length of the socket address
-	#else
-		int len;
-	#endif
 		union socket_addresses_u address; /* the socket address */
 	};
 

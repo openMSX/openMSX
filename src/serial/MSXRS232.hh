@@ -4,7 +4,6 @@
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
-#include "RS232Device.hh"
 #include "I8251.hh"
 #include "I8254.hh"
 #include <memory>

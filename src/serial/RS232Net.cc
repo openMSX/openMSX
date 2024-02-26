@@ -8,6 +8,8 @@
 #include "narrow.hh"
 #include "Socket.hh"
 #include "serialize.hh"
+#include "ranges.hh"
+#include "StringOp.hh"
 #include <array>
 #ifndef _WIN32
 #include <netdb.h>
@@ -121,22 +123,22 @@ void RS232Net::run()
 		// char b;
 		auto b = net_getc();
 
-		if (!b.has_value()) continue;
+		if (!b) continue;
 		if (IP232) {
         		if (!ipmagic) {
-				if (b.value() == IP232MAGIC) {
+				if (*b == IP232MAGIC) {
 					ipmagic = true;
                     			/* literal 0xff */
                     			continue;
                 		}
             		} else {
                 		ipmagic = false;
-				if (b.value() != IP232MAGIC) {
-        				DCD = (b.value() & IP232DCDMASK) == IP232DCDHI ? true : false;
+				if (*b != IP232MAGIC) {
+        				DCD = (*b & IP232DCDMASK) == IP232DCDHI;
                				// RI implemented in TCPSer 1.1.5 (not yet released) 
                				// RI present at least on Sony HBI-232 and HB-G900AP (bit 1 of &H82/&HBFFA status register)
                				//    missing on SVI-738
-               				RI = (b.value() & IP232RIMASK) == IP232RIHI ? true : false;
+               				RI = (*b & IP232RIMASK) == IP232RIHI;
                    			continue;
                			}
         		}
@@ -250,9 +252,9 @@ std::optional<char> RS232Net::net_getc()
 
 	if (sockfd == OPENMSX_INVALID_SOCKET)  return {};
 
-	char b;
 
 	if (selectPoll(sockfd) > 0) {
+		char b;
 		if (sock_recv(sockfd, &b, 1) !=1){
 			sock_close(sockfd);
 			sockfd = OPENMSX_INVALID_SOCKET;
@@ -267,7 +269,7 @@ std::optional<char> RS232Net::net_getc()
 // any data, and -1 in case of an error.
 int RS232Net::selectPoll(SOCKET readsock)
 {
-	TIMEVAL timeout = { 0, 0 };
+	struct timeval timeout = { 0, 0 };
 
 	fd_set sdsocket;
 
@@ -294,7 +296,7 @@ void RS232Net::network_client()
 		if (connect(sockfd, &socket_address.address.generic, socket_address.len) < 0) {
 			sock_close(sockfd);
 			sockfd = OPENMSX_INVALID_SOCKET;
-	        }
+		}
 	}
 }
 
@@ -304,14 +306,6 @@ void RS232Net::initialize_socket_address()
 	memset(&socket_address, 0, sizeof(socket_address));
 	socket_address.used = 1;
 	socket_address.len = sizeof(socket_address.address);
-}
-
-// Generate a socket address
-bool RS232Net::network_address_generate()
-{
-	auto address_string = rs232NetAddressSetting.getString();
-
-	return network_address_generate_sockaddr(address_string.data());
 }
 
 // Generate a socket address
@@ -342,98 +336,82 @@ bool RS232Net::network_address_generate()
 //      specified. This format is a common one.
 //
 //
-bool RS232Net::network_address_generate_sockaddr(const char * address_string)
+bool RS232Net::network_address_generate()
 {
-	struct addrinfo hints,*res;
+        std::string_view address = rs232NetAddressSetting.getString();
+        if (address.empty()) {
+                // there was no address given, do not try to process it.
+                return false;
+        }
 
-	memset(&hints,0,sizeof(hints));
+        // preset the socket address
+        memset(&socket_address.address, 0, sizeof(socket_address.address));
+        socket_address.protocol = IPPROTO_TCP;
 
-	/* preset the socket address */
-	memset(&socket_address.address, 0, sizeof socket_address.address);
-	socket_address.protocol = IPPROTO_TCP;
+        struct addrinfo hints;
+        memset(&hints, 0, sizeof(hints));
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
 
-	if (!address_string || address_string[0] == 0) {
-		/* there was no address given, do not try to process it. */
-		return false;
-	}
+        auto setIPv4 = [&] {
+                hints.ai_family = AF_INET;
+                socket_address.domain = PF_INET;
+                socket_address.len = sizeof(socket_address.address.ipv4);
+                socket_address.address.ipv4.sin_family = AF_INET;
+                socket_address.address.ipv4.sin_port = 0;
+                socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
+        };
+        auto setIPv6 = [&] {
+                hints.ai_family = AF_INET6;
+                socket_address.domain = PF_INET6;
+                socket_address.len = sizeof(socket_address.address.ipv6);
+                socket_address.address.ipv6.sin6_family = AF_INET6;
+                socket_address.address.ipv6.sin6_port = 0;
+                socket_address.address.ipv6.sin6_addr = in6addr_any;
+        };
 
-	const char * port_part = NULL;
-	char * address_part = strdup(address_string);
-	/* try to find out if a port has been specified */
-	port_part = strchr(address_string, ']');
-		
-	if (port_part) {
-		if ((address_string[0] == '[') && (port_part[1] == ':')) {
-			/* [IPv6]:port format*/
-			char * p;
+        // Parse 'address', fills in 'addressPart' and 'portPart'
+        std::string addressPart;
+        std::string portPart;
+        auto [ipv6_address_part, ipv6_port_part] = StringOp::splitOnFirst(address, ']');
+        if (!ipv6_port_part.empty()) { // there was a ']' character (and it's already dropped)
+                // Try to parse as: "[IPv6]:port"
+                if (!ipv6_address_part.starts_with('[') || !ipv6_port_part.starts_with(':')) {
+                        // malformed address, do not try to process it.
+                        return false;
+                }
+                addressPart = std::string(ipv6_address_part.substr(1)); // drop '['
+                portPart    = std::string(ipv6_port_part   .substr(1)); // drop ':'
+                setIPv6();
+        } else {
+                auto numColons = ranges::count(address, ':');
+                if (numColons == 0) {
+                        // either IPv4 or IPv6
+                        addressPart = std::string(address);
+                } else if (numColons == 1) {
+                        // ipv4:port
+                        auto [ipv4_address_part, ipv4_port_part] = StringOp::splitOnFirst(address, ':');
+                        addressPart = std::string(ipv4_address_part);
+                        portPart    = std::string(ipv4_port_part);
+                        setIPv4();
+                } else {
+                        // ipv6 address
+                        addressPart = std::string(address);
+                        setIPv6();
+                }
+        }
 
-			++port_part;
-			p = strdup(address_string+1);
-			p[port_part - (address_string+2)] = 0;
-			free(address_part);
-			address_part = p;
-			++port_part;
-			hints.ai_family = AF_INET6;
-			socket_address.domain = PF_INET6;
-			socket_address.len = sizeof socket_address.address.ipv6;
-			socket_address.address.ipv6.sin6_family = AF_INET6;
-			socket_address.address.ipv6.sin6_port = 0;
-			socket_address.address.ipv6.sin6_addr = in6addr_any;
-		} else {
-			/* malformed address, do not try to process it. */
-			free(address_part);
-			return false;
-		}
-	} else {
-		/* count number of colons */
-		int i = 0;
-		const char *pch=strchr(address_string,':');
-		while (pch!=NULL) {
-			i++;
-			pch=strchr(pch+1,':');
-		}
-		if (i == 1) {
-			/* either domainname:port or ipv4:port */
-			port_part = strchr(address_string,':');
-			char * p;
+        // Interpret 'addressPart' and 'portPart' (possibly the latter is empty)
+        struct addrinfo* res;
+        if (getaddrinfo(addressPart.c_str(), portPart.c_str(), &hints, &res) != 0) {
+                return false;
+        }
 
-			p = strdup(address_string);
-			p[port_part - address_string] = 0;
-			free(address_part);
-			address_part = p;
-			++port_part;
-			hints.ai_family = AF_INET;
-			socket_address.domain = PF_INET;
-			socket_address.len = sizeof socket_address.address.ipv4;
-			socket_address.address.ipv4.sin_family = AF_INET;
-			socket_address.address.ipv4.sin_port = 0;
-			socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
-		} else if (i > 1) {
-			/* ipv6 address */
-
-			hints.ai_family = AF_INET6;
-			socket_address.domain = PF_INET6;
-			socket_address.len = sizeof socket_address.address.ipv6;
-			socket_address.address.ipv6.sin6_family = AF_INET6;
-			socket_address.address.ipv6.sin6_port = 0;
-			socket_address.address.ipv6.sin6_addr = in6addr_any;
-		}
-	}
-
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	int result = false;
-
-	if ( getaddrinfo(address_part,port_part,&hints,&res) == 0) {
-		memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
-		result = true;
-	}
-	freeaddrinfo(res);
-
-	free(address_part);
-	return result;
+        memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
+        freeaddrinfo(res);
+        return true;
 }
+
 
 template<typename Archive>
 void RS232Net::serialize(Archive& /*ar*/, unsigned /*version*/)
