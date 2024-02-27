@@ -250,7 +250,7 @@ void Counter::writeLoad(uint16_t value, EmuTime::param time)
 	if (!active && (mode == one_of(CNTR_M3, CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
-			int half = (counter +1) / 2; // round up
+			int half = (counter + 1) / 2; // round up
 			EmuDuration tick = clock.getTotalDuration();
 			EmuDuration total = tick * counter;
 			EmuDuration high = tick * half;
