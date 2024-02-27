@@ -13,6 +13,7 @@
 #include <unistd.h>
 #else
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 namespace openmsx {
@@ -21,10 +22,12 @@ namespace openmsx {
 inline constexpr int OPENMSX_INVALID_SOCKET = -1;
 inline constexpr int SOCKET_ERROR = -1;
 using SOCKET = int;
+using socklen_t = int;
 #else
 // INVALID_SOCKET is #defined as  (SOCKET)(~0)
 // but that gives a old-style-cast warning
 static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
+using in_addr_t =  UINT32;
 #endif
 
 [[nodiscard]] std::string sock_error();

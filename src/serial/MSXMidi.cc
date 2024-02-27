@@ -279,6 +279,11 @@ void MSXMidi::Interface::setRTS(bool status, EmuTime::param /*time*/)
 	midi.enableRxRDYIRQ(status);
 }
 
+bool MSXMidi::Interface::getDCD(EmuTime::param /*time*/)
+{
+	return true;
+}
+
 bool MSXMidi::Interface::getDSR(EmuTime::param /*time*/)
 {
 	auto& midi = OUTER(MSXMidi, interface);

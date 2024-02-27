@@ -22,6 +22,7 @@
 #include "PrinterPortSimpl.hh"
 #include "Printer.hh"
 #include "RS232Tester.hh"
+#include "RS232Net.hh"
 #include "WavAudioInput.hh"
 #include "components.hh"
 #if	defined(_WIN32)
@@ -100,6 +101,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 
 	// Serial communication:
 	controller.registerPluggable(std::make_unique<RS232Tester>(
+		eventDistributor, scheduler, commandController));
+	controller.registerPluggable(std::make_unique<RS232Net>(
 		eventDistributor, scheduler, commandController));
 
 	// Sampled audio:

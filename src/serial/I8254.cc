@@ -247,16 +247,29 @@ void Counter::writeLoad(uint16_t value, EmuTime::param time)
 	if (mode == one_of(CNTR_M0, CNTR_M4)) {
 		counter = counterLoad;
 	}
-	if (!active && (mode == one_of(CNTR_M2, CNTR_M2_, CNTR_M3, CNTR_M3_))) {
+	if (!active && (mode == one_of(CNTR_M3, CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
-			EmuDuration::param high = clock.getTotalDuration();
+			int half = (counter +1) / 2; // round up
+			EmuDuration tick = clock.getTotalDuration();
+			EmuDuration total = tick * counter;
+			EmuDuration high = tick * half;
+			output.setPeriodicState(total, high, time);
+		} else {
+			// TODO ??
+		}
+	}
+	if (!active && (mode == one_of(CNTR_M2, CNTR_M2_))) {
+		if (clock.isPeriodic()) {
+			counter = counterLoad;
+			EmuDuration high = clock.getTotalDuration();
 			EmuDuration total = high * counter;
 			output.setPeriodicState(total, high, time);
 		} else {
 			// TODO ??
 		}
 	}
+
 	if (mode == CNTR_M0) {
 		output.setState(false, time);
 	}

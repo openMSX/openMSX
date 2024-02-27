@@ -349,6 +349,7 @@ sources = files(
     'serial/RS232Connector.cc',
     'serial/RS232Device.cc',
     'serial/RS232Tester.cc',
+    'serial/RS232Net.cc',
     'serial/YM2148.cc',
     'serialize.cc',
     'serialize_core.cc',

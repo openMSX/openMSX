@@ -778,6 +778,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Connector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Device.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Net.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Tester.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\YM2148.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\security\SocketStreamWrapper.cc" />
@@ -1432,6 +1433,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Connector.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Device.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\RS232Net.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Tester.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\SerialDataInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\YM2148.hh" />
