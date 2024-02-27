@@ -357,8 +357,8 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			while (clipper.Step()) {
 				auto bpIt = ranges::lower_bound(breakPoints, clipper.DisplayStart, {}, &BreakPoint::getAddress);
 				auto addr16 = instructionBoundary(cpuInterface, narrow<uint16_t>(clipper.DisplayStart), time);
-				unsigned addr = addr16;
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+					unsigned addr = addr16;
 					ImGui::TableNextRow();
 					if (addr >= 0x10000) continue;
 					im::ID(narrow<int>(addr), [&]{
@@ -557,7 +557,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							}
 						}
-						addr += len;
+						addr16 += len;
 					});
 				}
 			}
