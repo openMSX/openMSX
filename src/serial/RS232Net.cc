@@ -1,16 +1,16 @@
 #include "RS232Net.hh"
+
 #include "RS232Connector.hh"
+
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
-#include "FileOperations.hh"
-#include "checked_cast.hh"
-#include "narrow.hh"
-#include "Socket.hh"
 #include "serialize.hh"
+
+#include "checked_cast.hh"
 #include "ranges.hh"
 #include "StringOp.hh"
-#include <array>
+
 #ifndef _WIN32
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -59,7 +59,7 @@ RS232Net::~RS232Net()
 // Pluggable
 void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	if (!network_address_generate()){
+	if (!network_address_generate()) {
 		throw PlugException("Incorrect address / could not resolve: ", rs232NetAddressSetting.getString());
 	}
 	open_socket();
@@ -265,7 +265,7 @@ int RS232Net::selectPoll(SOCKET readSock)
 //      socket to be used (IPv4, IPv6, Unix Domain Socket, ...)
 void RS232Net::open_socket()
 {
-	sockfd = socket(socket_address.domain, SOCK_STREAM, socket_address.protocol);
+	sockfd = socket(socket_address.domain, SOCK_STREAM, IPPROTO_TCP);
 	if (sockfd == OPENMSX_INVALID_SOCKET) return;
 
 	int one = 1;
@@ -275,14 +275,6 @@ void RS232Net::open_socket()
 		sock_close(sockfd);
 		sockfd = OPENMSX_INVALID_SOCKET;
 	}
-}
-
-// Initialise a socket address structure
-void RS232Net::initialize_socket_address()
-{
-	memset(&socket_address, 0, sizeof(socket_address));
-	socket_address.used = 1;
-	socket_address.len = sizeof(socket_address.address);
 }
 
 // Initialises a socket address with an IPv6 or IPv4 address.
@@ -313,7 +305,6 @@ bool RS232Net::network_address_generate()
 
 	// Preset the socket address
 	memset(&socket_address.address, 0, sizeof(socket_address.address));
-	socket_address.protocol = IPPROTO_TCP;
 
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(hints));

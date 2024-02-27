@@ -2,18 +2,18 @@
 #define RS232NET_HH
 
 #include "RS232Device.hh"
+
 #include "EventListener.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
-#include "FileOperations.hh"
-#include "circular_buffer.hh"
-#include "Poller.hh"
 #include "Socket.hh"
-#include <fstream>
+
+#include "Poller.hh"
+#include "circular_buffer.hh"
+
 #include <mutex>
 #include <thread>
 #include <cstdint>
-#include <cstdio>
 
 namespace openmsx {
 
@@ -63,7 +63,6 @@ private:
 	[[nodiscard]] std::optional<char> net_getc();
 	[[nodiscard]] int selectPoll(SOCKET readSock);
 	void open_socket();
-	void initialize_socket_address();
 	[[nodiscard]] bool network_address_generate();
 
 private:
@@ -81,7 +80,7 @@ private:
 	// address. There are arguments for and against this.
 	//
 	// However, in practice, this approach works.
-	union socket_addresses_u {
+	union SocketAddress {
 		struct sockaddr generic;  // the generic type needed for calling the socket API
 		struct sockaddr_in ipv4;  // an IPv4 socket address
 		struct sockaddr_in6 ipv6; // an IPv6 socket address
@@ -89,24 +88,17 @@ private:
 
 	// opaque structure describing an address for use with socket functions
 	struct rs232_network_socket_address {
-		unsigned int used; // 1 if this entry is being used, 0 else.
-		                   // This is used for debugging the buffer
-		                   // allocation strategy.
 		int domain; // the address family (AF_INET, ...) of this address
-		int protocol; // the protocol of this address. This can be used to distinguish between different types of an address family.
 		socklen_t len; // the length of the socket address
-		union socket_addresses_u address; // the socket address
+		SocketAddress address;
 	};
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	std::thread thread;
-	FileOperations::FILE_t inFile;
 	cb_queue<char> queue;
 	std::mutex mutex; // to protect queue
 	Poller poller;
-
-	std::ofstream outFile;
 
 	StringSetting rs232NetAddressSetting;
 	BooleanSetting rs232NetUseIP232;
