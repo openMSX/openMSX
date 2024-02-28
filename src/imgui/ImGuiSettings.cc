@@ -323,7 +323,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::InputText("##save-layout-name", &saveLayoutName);
 				ImGui::SameLine();
 				im::Disabled(saveLayoutName.empty(), [&]{
-					if (ImGui::Button("Create")) {
+					if (ImGui::Button("Save as")) {
 						(void)reactor.getDisplay().getWindowPosition(); // to save up-to-date window position
 						ImGui::CloseCurrentPopup();
 
