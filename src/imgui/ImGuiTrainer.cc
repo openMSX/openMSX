@@ -63,15 +63,24 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 			           "For example: enter 'vamp' to search for 'Akumajyo Drakyula - Vampire Killer'.");
 		});
 		auto drawGameNames = [&](size_t num, auto getName) {
-			im::ListClipper(1 + num, [&](int i) {
+			int selectedIdx = -1;
+			for (auto i : xrange(num)) {
+				if (getName(i) == displayName) {
+					selectedIdx = narrow<int>(i) + 1;
+				}
+			}
+			im::ListClipper(1 + num, selectedIdx, [&](int i) {
 				if (i == 0) {
 					if (ImGui::Selectable("none", displayName == "none")) {
 						newGame = "deactivate";
 					}
 				} else {
 					auto name = getName(size_t(i - 1));
-					if (ImGui::Selectable(name.c_str(), name == displayName)) {
+					if (ImGui::Selectable(name.c_str(), i == selectedIdx)) {
 						newGame = name;
+					}
+					if (i == selectedIdx) {
+						ImGui::SetItemDefaultFocus();
 					}
 				}
 			});
