@@ -11,6 +11,7 @@
 #include "ranges.hh"
 #include "StringOp.hh"
 
+#include <cassert>
 #ifndef _WIN32
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -235,8 +236,10 @@ void RS232Net::run()
 		}
 
 		assert(isPluggedIn());
-		std::lock_guard<std::mutex> lock(mutex);
-		queue.push_back(*b);
+		{
+			std::lock_guard lock(mutex);
+			queue.push_back(*b);
+		}
 		eventDistributor.distributeEvent(Rs232NetEvent());
 	}
 }
@@ -247,14 +250,14 @@ void RS232Net::signal(EmuTime::param time)
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
 
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard lock(mutex);
 		queue.clear();
 		return;
 	}
 
 	if (!conn->ready() || !RTS) return;
 
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard lock(mutex);
 	if (queue.empty()) return;
 	char b = queue.pop_front();
 	conn->recvByte(b, time);
@@ -266,7 +269,7 @@ int RS232Net::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard lock(mutex);
 		queue.clear();
 	}
 	return 0;
@@ -275,6 +278,8 @@ int RS232Net::signalEvent(const Event& /*event*/)
 // output
 void RS232Net::recvByte(uint8_t value_, EmuTime::param /*time*/)
 {
+	if (sockfd == OPENMSX_INVALID_SOCKET) return;
+
 	auto value = static_cast<char>(value_);
 	if ((value == IP232_MAGIC) && IP232) {
 		net_putc(IP232_MAGIC);
@@ -292,11 +297,11 @@ void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 {
 	if (DTR == status) return;
 	DTR = status;
+
+	if (sockfd == OPENMSX_INVALID_SOCKET) return;
 	if (IP232) {
-		if (sockfd != OPENMSX_INVALID_SOCKET) {
-			net_putc(IP232_MAGIC);
-			net_putc(DTR ? IP232_DTR_HI : IP232_DTR_LO);
-		}
+		net_putc(IP232_MAGIC);
+		net_putc(DTR ? IP232_DTR_HI : IP232_DTR_LO);
 	}
 }
 
@@ -305,7 +310,7 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 	if (RTS == status) return;
 	RTS = status;
 	if (RTS) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard lock(mutex);
 		if (!queue.empty()) {
 			eventDistributor.distributeEvent(Rs232NetEvent());
 		}
@@ -315,7 +320,7 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 // Socket routines below based on VICE emulator socket.c
 bool RS232Net::net_putc(char b)
 {
-	if (sockfd == OPENMSX_INVALID_SOCKET) return false;
+	assert(sockfd != OPENMSX_INVALID_SOCKET);
 
 	if (auto n = sock_send(sockfd, &b, 1); n < 0) {
 		sock_close(sockfd);
@@ -327,7 +332,7 @@ bool RS232Net::net_putc(char b)
 
 std::optional<char> RS232Net::net_getc()
 {
-	if (sockfd == OPENMSX_INVALID_SOCKET)  return {};
+	assert(sockfd != OPENMSX_INVALID_SOCKET);
 	if (selectPoll(sockfd) <= 0) return {};
 	char b;
 	if (sock_recv(sockfd, &b, 1) != 1) {

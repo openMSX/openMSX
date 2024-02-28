@@ -11,6 +11,7 @@
 #include "Poller.hh"
 #include "circular_buffer.hh"
 
+#include <atomic>
 #include <mutex>
 #include <thread>
 #include <cstdint>
@@ -60,13 +61,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void run();
-
-	bool DTR; // Data Terminal Ready output status
-	bool RTS; // Request To Send output status
-	bool DCD; // Data Carrier Detect input status
-	bool RI;  // Ring Indicator input status
-	bool IP232;
+	void run(); // loop of helper thread that reads from 'sockfd'
 
 	// EventListener
 	int signalEvent(const Event& event) override;
@@ -79,15 +74,28 @@ private:
 private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::thread thread;
-	cb_queue<char> queue;
-	std::mutex mutex; // to protect queue
-	Poller poller;
 
+	// The value of these settings only matters at the time this device gets plugged in.
+	// In other words: changing these settings only takes effect the next time the device gets plugged in.
 	StringSetting rs232NetAddressSetting;
 	BooleanSetting rs232NetUseIP232;
 
-	SOCKET sockfd;
+	std::thread thread; // receiving thread (reads from 'sockfd')
+	std::mutex mutex; // to protect shared data between emulation and receiving thread
+	Poller poller; // safe to use from main and receiver thread without extra locking
+	cb_queue<char> queue; // read/written by both the main and the receiver thread. Must hold 'mutex' while doing so.
+	std::atomic<SOCKET> sockfd; // read/written by both threads (use std::atomic as an alternative for locking)
+
+	// These are written by the receiver thread and read by the main thread (use std::atomic as an alternative for locking)
+	std::atomic<bool> DCD; // Data Carrier Detect input status
+	std::atomic<bool> RI;  // Ring Indicator input status    TODO not yet used (write-only)
+
+	// These are only accessed by the main thread (no need for locking)
+	bool DTR; // Data Terminal Ready output status
+	bool RTS; // Request To Send output status
+
+	// This does not change while the receiving thread is running (no need for locking)
+	bool IP232; // snapshot of 'rs232NetUseIP232' at the moment of plugging
 };
 
 } // namespace openmsx
