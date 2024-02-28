@@ -200,7 +200,6 @@ CliServer::CliServer(CommandController& commandController_,
 	, cliComm(cliComm_)
 	, listenSock(OPENMSX_INVALID_SOCKET)
 {
-	sock_startup();
 	try {
 		listenSock = createSocket();
 		thread = std::thread([this]() { mainLoop(); });
@@ -217,7 +216,6 @@ CliServer::~CliServer()
 	}
 
 	deleteSocket(socketName);
-	sock_cleanup();
 }
 
 void CliServer::mainLoop()

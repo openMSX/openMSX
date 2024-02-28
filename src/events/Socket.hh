@@ -1,6 +1,7 @@
 #ifndef SOCKET_HH
 #define SOCKET_HH
 
+#include <cassert>
 #include <cstddef>
 #include <string>
 
@@ -31,11 +32,41 @@ using in_addr_t =  UINT32;
 #endif
 
 [[nodiscard]] std::string sock_error();
-void sock_startup();
-void sock_cleanup();
 void sock_close(SOCKET sd);
 [[nodiscard]] ptrdiff_t sock_recv(SOCKET sd, char* buf, size_t count);
 [[nodiscard]] ptrdiff_t sock_send(SOCKET sd, const char* buf, size_t count);
+
+////
+
+// Activate the socket subsystem (required on Windows)
+void sock_startup(); // should only be called via SockActivator
+void sock_cleanup();
+
+struct SocketActivator
+{
+	SocketActivator(const SocketActivator&) = delete;
+	SocketActivator& operator=(const SocketActivator&) = delete;
+
+	SocketActivator()
+	{
+		if (counter == 0) {
+			sock_startup();
+		}
+		++counter;
+	}
+
+	~SocketActivator()
+	{
+		assert(counter > 0);
+		--counter;
+		if (counter == 0) {
+			sock_cleanup();
+		}
+	}
+
+private:
+	static inline int counter = 0;
+};
 
 } // namespace openmsx
 

@@ -72,6 +72,7 @@ private:
 	void open_socket(const NetworkSocketAddress& socket_address);
 
 private:
+	SocketActivator socketActivator;
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 
