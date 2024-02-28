@@ -150,7 +150,7 @@ bool InputText(Setting& setting)
 bool InputText(const char* label, Setting& setting)
 {
 	auto value = std::string(setting.getValue().getString());
-	bool changed = ImGui::InputText(label, &value, ImGuiInputTextFlags_EnterReturnsTrue);
+	bool changed = ImGui::InputText(label, &value, ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::IsItemDeactivatedAfterEdit();
 	try {
 		if (changed) setting.setValue(TclObject(value));
 	} catch (MSXException&) {
