@@ -277,7 +277,8 @@ void ImGuiMessages::paintOSD()
 	          | ImGuiWindowFlags_NoDocking
 	          | ImGuiWindowFlags_NoNav
 	          | ImGuiWindowFlags_NoDecoration
-	          | ImGuiWindowFlags_NoInputs;
+	          | ImGuiWindowFlags_NoInputs
+	          | ImGuiWindowFlags_NoFocusOnAppearing;
 	ImGui::SetNextWindowViewport(mainViewPort->ID);
 	ImGui::SetNextWindowPos(gl::vec2(mainViewPort->WorkPos) + gl::vec2(style.ItemSpacing));
 	ImGui::SetNextWindowSize({width, y});
@@ -370,7 +371,7 @@ void ImGuiMessages::paintConfigure()
 				}
 				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##nopopup" , level).c_str(), &popupAction[level], NO_POPUP);
+						ImGui::RadioButton(tmpStrCat("##noPopup" , level).c_str(), &popupAction[level], NO_POPUP);
 					}
 				}
 			});
