@@ -56,13 +56,106 @@ RS232Net::~RS232Net()
 	eventDistributor.unregisterEventListener(EventType::RS232_NET, *this);
 }
 
+// Parse a IPv6 or IPv4 address string.
+//
+// The address must be specified in one of the forms:
+//   <host>
+//   <host>:port
+//   [<hostipv6>]:<port>
+// with:
+//   <hostname> being the name of the host,
+//   <hostipv6> being the IP of the host, and
+//   <host>     being the name of the host or its IPv6,
+//   <port>     being the port number.
+//
+// The extra braces [...] in case the port is specified are needed as IPv6
+// addresses themselves already contain colons, and it would be impossible to
+// clearly distinguish between an IPv6 address, and an IPv6 address where a port
+// has been specified. This format is a common one.
+static std::optional<RS232Net::NetworkSocketAddress> parseNetworkAddress(std::string_view address)
+{
+	if (address.empty()) {
+		// There was no address given, do not try to process it.
+		return {};
+	}
+
+	// Preset the socket address
+	RS232Net::NetworkSocketAddress result;
+	memset(&result.address, 0, sizeof(result.address));
+
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	auto setIPv4 = [&] {
+		hints.ai_family = AF_INET;
+		result.domain = PF_INET;
+		result.len = sizeof(result.address.ipv4);
+		result.address.ipv4.sin_family = AF_INET;
+		result.address.ipv4.sin_port = 0;
+		result.address.ipv4.sin_addr.s_addr = INADDR_ANY;
+	};
+	auto setIPv6 = [&] {
+		hints.ai_family = AF_INET6;
+		result.domain = PF_INET6;
+		result.len = sizeof(result.address.ipv6);
+		result.address.ipv6.sin6_family = AF_INET6;
+		result.address.ipv6.sin6_port = 0;
+		result.address.ipv6.sin6_addr = in6addr_any;
+	};
+
+	// Parse 'address', fills in 'addressPart' and 'portPart'
+	std::string addressPart;
+	std::string portPart;
+	auto [ipv6_address_part, ipv6_port_part] = StringOp::splitOnFirst(address, ']');
+	if (!ipv6_port_part.empty()) { // there was a ']' character (and it's already dropped)
+		// Try to parse as: "[IPv6]:port"
+		if (!ipv6_address_part.starts_with('[') || !ipv6_port_part.starts_with(':')) {
+			// Malformed address, do not try to process it.
+			return {};
+		}
+		addressPart = std::string(ipv6_address_part.substr(1)); // drop '['
+		portPart    = std::string(ipv6_port_part   .substr(1)); // drop ':'
+		setIPv6();
+	} else {
+		auto numColons = ranges::count(address, ':');
+		if (numColons == 0) {
+			// either IPv4 or IPv6
+			addressPart = std::string(address);
+		} else if (numColons == 1) {
+			// ipv4:port
+			auto [ipv4_address_part, ipv4_port_part] = StringOp::splitOnFirst(address, ':');
+			addressPart = std::string(ipv4_address_part);
+			portPart    = std::string(ipv4_port_part);
+			setIPv4();
+		} else {
+			// ipv6 address
+			addressPart = std::string(address);
+			setIPv6();
+		}
+	}
+
+	// Interpret 'addressPart' and 'portPart' (possibly the latter is empty)
+	struct addrinfo* res;
+	if (getaddrinfo(addressPart.c_str(), portPart.c_str(), &hints, &res) != 0) {
+		return {};
+	}
+
+	memcpy(&result.address, res->ai_addr, res->ai_addrlen);
+	freeaddrinfo(res);
+	return result;
+}
+
 // Pluggable
 void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	if (!network_address_generate()) {
-		throw PlugException("Incorrect address / could not resolve: ", rs232NetAddressSetting.getString());
+	auto address = rs232NetAddressSetting.getString();
+	auto socketAddress = parseNetworkAddress(address);
+	if (!socketAddress) {
+		throw PlugException("Incorrect address / could not resolve: ", address);
 	}
-	open_socket();
+	open_socket(*socketAddress);
 	if (sockfd == OPENMSX_INVALID_SOCKET) {
 		throw PlugException("Can't open connection");
 	}
@@ -260,10 +353,7 @@ int RS232Net::selectPoll(SOCKET readSock)
 }
 
 // Open a socket and initialise it for client operation
-//
-//      The socket_address variable determines the type of
-//      socket to be used (IPv4, IPv6, Unix Domain Socket, ...)
-void RS232Net::open_socket()
+void RS232Net::open_socket(const NetworkSocketAddress& socket_address)
 {
 	sockfd = socket(socket_address.domain, SOCK_STREAM, IPPROTO_TCP);
 	if (sockfd == OPENMSX_INVALID_SOCKET) return;
@@ -275,99 +365,6 @@ void RS232Net::open_socket()
 		sock_close(sockfd);
 		sockfd = OPENMSX_INVALID_SOCKET;
 	}
-}
-
-// Initialises a socket address with an IPv6 or IPv4 address.
-//
-// Returns 'true' on success, 'false' when an error occurred.
-//
-// The address_string must be specified in one of the forms:
-//   <host>
-//   <host>:port
-//   [<hostipv6>]:<port>
-// with:
-//   <hostname> being the name of the host,
-//   <hostipv6> being the IP of the host, and
-//   <host>     being the name of the host or its IPv6,
-//   <port>     being the port number.
-//
-// The extra braces [...] in case the port is specified are needed as IPv6
-// addresses themselves already contain colons, and it would be impossible to
-// clearly distinguish between an IPv6 address, and an IPv6 address where a port
-// has been specified. This format is a common one.
-bool RS232Net::network_address_generate()
-{
-	std::string_view address = rs232NetAddressSetting.getString();
-	if (address.empty()) {
-		// There was no address given, do not try to process it.
-		return false;
-	}
-
-	// Preset the socket address
-	memset(&socket_address.address, 0, sizeof(socket_address.address));
-
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	auto setIPv4 = [&] {
-		hints.ai_family = AF_INET;
-		socket_address.domain = PF_INET;
-		socket_address.len = sizeof(socket_address.address.ipv4);
-		socket_address.address.ipv4.sin_family = AF_INET;
-		socket_address.address.ipv4.sin_port = 0;
-		socket_address.address.ipv4.sin_addr.s_addr = INADDR_ANY;
-	};
-	auto setIPv6 = [&] {
-		hints.ai_family = AF_INET6;
-		socket_address.domain = PF_INET6;
-		socket_address.len = sizeof(socket_address.address.ipv6);
-		socket_address.address.ipv6.sin6_family = AF_INET6;
-		socket_address.address.ipv6.sin6_port = 0;
-		socket_address.address.ipv6.sin6_addr = in6addr_any;
-	};
-
-	// Parse 'address', fills in 'addressPart' and 'portPart'
-	std::string addressPart;
-	std::string portPart;
-	auto [ipv6_address_part, ipv6_port_part] = StringOp::splitOnFirst(address, ']');
-	if (!ipv6_port_part.empty()) { // there was a ']' character (and it's already dropped)
-		// Try to parse as: "[IPv6]:port"
-		if (!ipv6_address_part.starts_with('[') || !ipv6_port_part.starts_with(':')) {
-			// Malformed address, do not try to process it.
-			return false;
-		}
-		addressPart = std::string(ipv6_address_part.substr(1)); // drop '['
-		portPart    = std::string(ipv6_port_part   .substr(1)); // drop ':'
-		setIPv6();
-	} else {
-		auto numColons = ranges::count(address, ':');
-		if (numColons == 0) {
-			// either IPv4 or IPv6
-			addressPart = std::string(address);
-		} else if (numColons == 1) {
-			// ipv4:port
-			auto [ipv4_address_part, ipv4_port_part] = StringOp::splitOnFirst(address, ':');
-			addressPart = std::string(ipv4_address_part);
-			portPart    = std::string(ipv4_port_part);
-			setIPv4();
-		} else {
-			// ipv6 address
-			addressPart = std::string(address);
-			setIPv6();
-		}
-	}
-
-	// Interpret 'addressPart' and 'portPart' (possibly the latter is empty)
-	struct addrinfo* res;
-	if (getaddrinfo(addressPart.c_str(), portPart.c_str(), &hints, &res) != 0) {
-		return false;
-	}
-
-	memcpy(&socket_address.address, res->ai_addr, res->ai_addrlen);
-	freeaddrinfo(res);
-	return true;
 }
 
 template<typename Archive>

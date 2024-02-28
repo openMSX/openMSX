@@ -24,6 +24,18 @@ class CommandController;
 class RS232Net final : public RS232Device, private EventListener
 {
 public:
+	// opaque structure describing an address for use with socket functions
+	struct NetworkSocketAddress {
+		int domain; // the address family (AF_INET, ...)
+		socklen_t len; // the length of the socket address
+		union {
+			struct sockaddr generic;  // the generic type needed for calling the socket API
+			struct sockaddr_in ipv4;  // an IPv4 socket address
+			struct sockaddr_in6 ipv6; // an IPv6 socket address
+		} address;
+	};
+
+public:
 	RS232Net(EventDistributor& eventDistributor, Scheduler& scheduler,
 	         CommandController& commandController);
 	~RS232Net() override;
@@ -62,37 +74,9 @@ private:
 	bool net_putc(char b);
 	[[nodiscard]] std::optional<char> net_getc();
 	[[nodiscard]] int selectPoll(SOCKET readSock);
-	void open_socket();
-	[[nodiscard]] bool network_address_generate();
+	void open_socket(const NetworkSocketAddress& socket_address);
 
 private:
-	// Access to socket addresses
-	//
-	// This union is used to access socket addresses.
-	// It replaces the casts needed otherwise.
-	//
-	// Furthermore, it ensures we have always enough
-	// memory for any type needed. (sizeof struct sockaddr_in6
-	// is bigger than struct sockaddr).
-	//
-	// Note, however, that there is no consensus if the C standard
-	// guarantees that all union members start at the same
-	// address. There are arguments for and against this.
-	//
-	// However, in practice, this approach works.
-	union SocketAddress {
-		struct sockaddr generic;  // the generic type needed for calling the socket API
-		struct sockaddr_in ipv4;  // an IPv4 socket address
-		struct sockaddr_in6 ipv6; // an IPv6 socket address
-	};
-
-	// opaque structure describing an address for use with socket functions
-	struct rs232_network_socket_address {
-		int domain; // the address family (AF_INET, ...) of this address
-		socklen_t len; // the length of the socket address
-		SocketAddress address;
-	};
-
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	std::thread thread;
@@ -104,7 +88,6 @@ private:
 	BooleanSetting rs232NetUseIP232;
 
 	SOCKET sockfd;
-	rs232_network_socket_address socket_address;
 };
 
 } // namespace openmsx
