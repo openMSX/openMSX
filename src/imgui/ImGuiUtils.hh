@@ -121,8 +121,11 @@ void comboHexSequence(const char* label, int* value, int mult, int offset = 0) {
 	im::Combo(label, preview.c_str(), [&]{
 		for (int addr = 0; addr < 0x1ffff; addr += mult) {
 			auto str = tmpStrCat("0x", hex_string<HexDigits>(addr | offset));
-			if (ImGui::Selectable(str.c_str())) {
+			if (ImGui::Selectable(str.c_str(), *value == addr)) {
 				*value = addr;
+			}
+			if (*value == addr) {
+				ImGui::SetItemDefaultFocus();
 			}
 		}
 	});
