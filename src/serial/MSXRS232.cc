@@ -33,6 +33,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		: nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
+	, hasRIPin(config.getChildDataAsBool("ripinpresent",true))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
 		false) ? std::make_unique<BooleanSetting>(getCommandController(),
@@ -241,6 +242,10 @@ byte MSXRS232::readStatus(EmuTime::param time)
 		result |= 0x01;
 	}
 
+	if (!interface.getRI(time) && hasRIPin) {
+		result |=0x02;
+	}
+
 	if (!rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
 		result |= 0x08;
 	}
@@ -308,6 +313,12 @@ bool MSXRS232::Interface::getDCD(EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
 	return rs232.getPluggedRS232Dev().getDCD(time);
+}
+
+bool MSXRS232::Interface::getRI(EmuTime::param time)
+{
+	auto& rs232 = OUTER(MSXRS232, interface);
+	return rs232.getPluggedRS232Dev().getRI(time);
 }
 
 bool MSXRS232::Interface::getDSR(EmuTime::param time)

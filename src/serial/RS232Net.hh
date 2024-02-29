@@ -55,6 +55,7 @@ public:
 	void recvByte(uint8_t value, EmuTime::param time) override;
 
 	[[nodiscard]] bool getDCD(EmuTime::param time) const override;
+	[[nodiscard]] bool getRI(EmuTime::param time) const override;
 	void setDTR(bool status, EmuTime::param time) override;
 	void setRTS(bool status, EmuTime::param time) override;
 

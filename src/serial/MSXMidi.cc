@@ -284,6 +284,11 @@ bool MSXMidi::Interface::getDCD(EmuTime::param /*time*/)
 	return true;
 }
 
+bool MSXMidi::Interface::getRI(EmuTime::param /*time*/)
+{
+	return true;
+}
+
 bool MSXMidi::Interface::getDSR(EmuTime::param /*time*/)
 {
 	auto& midi = OUTER(MSXMidi, interface);

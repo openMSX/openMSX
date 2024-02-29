@@ -65,6 +65,11 @@ bool MSXFacMidiInterface::Interface::getDSR(EmuTime::param /*time*/)
 	return true;
 }
 
+bool MSXFacMidiInterface::Interface::getRI(EmuTime::param /*time*/)
+{
+	return true;
+}
+
 bool MSXFacMidiInterface::Interface::getCTS(EmuTime::param /*time*/)
 {
 	return true;

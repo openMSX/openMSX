@@ -36,6 +36,7 @@ private:
 		void setRTS(bool status, EmuTime::param time) override;
 		[[nodiscard]] bool getDCD(EmuTime::param time) override;
 		[[nodiscard]] bool getDSR(EmuTime::param time) override;
+		[[nodiscard]] bool getRI(EmuTime::param time) override;
 		[[nodiscard]] bool getCTS(EmuTime::param time) override;
 		void setDataBits(DataBits bits) override;
 		void setStopBits(StopBits bits) override;

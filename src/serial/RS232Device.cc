@@ -37,6 +37,11 @@ bool RS232Device::getDCD(EmuTime::param /*time*/) const
 	return true; // TODO check
 }
 
+bool RS232Device::getRI(EmuTime::param /*time*/) const
+{
+	return true; // TODO check
+}
+
 void RS232Device::setDTR(bool /*status*/, EmuTime::param /*time*/)
 {
 	// ignore

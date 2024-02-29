@@ -20,6 +20,7 @@ public:
 	virtual void setRTS(bool status, EmuTime::param time) = 0;
 
 	[[nodiscard]] virtual bool getDCD(EmuTime::param time) = 0; // This is not an I8251 signal
+	[[nodiscard]] virtual bool getRI(EmuTime::param time) = 0; // This is not an I8251 signal
 	[[nodiscard]] virtual bool getDSR(EmuTime::param time) = 0;
 	[[nodiscard]] virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
 	virtual void signal(EmuTime::param time) = 0;

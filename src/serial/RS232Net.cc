@@ -308,6 +308,11 @@ bool RS232Net::getDCD(EmuTime::param /*time*/) const
 	return DCD;
 }
 
+bool RS232Net::getRI(EmuTime::param /*time*/) const
+{
+	return RI;
+} 
+
 void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 {
 	if (DTR == status) return;
