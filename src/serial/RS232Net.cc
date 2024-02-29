@@ -11,6 +11,7 @@
 #include "ranges.hh"
 #include "StringOp.hh"
 
+#include <array>
 #include <cassert>
 #ifndef _WIN32
 #include <netdb.h>
@@ -182,15 +183,15 @@ void RS232Net::unplugHelper(EmuTime::param /*time*/)
 	// close socket
 	if (sockfd != OPENMSX_INVALID_SOCKET) {
 		if (IP232) {
-			net_putc(IP232_MAGIC);
-			net_putc(IP232_DTR_LO);
+			static constexpr std::array<char, 2> dtr_lo = {IP232_MAGIC, IP232_DTR_LO};
+			net_put(dtr_lo);
 		}
 		sock_close(sockfd);
 		sockfd = OPENMSX_INVALID_SOCKET;
 	}
 	// stop helper thread
 	poller.abort();
-	thread.join();
+	if (thread.joinable()) thread.join();
 }
 
 std::string_view RS232Net::getName() const
@@ -282,9 +283,11 @@ void RS232Net::recvByte(uint8_t value_, EmuTime::param /*time*/)
 
 	auto value = static_cast<char>(value_);
 	if ((value == IP232_MAGIC) && IP232) {
-		net_putc(IP232_MAGIC);
+		static constexpr std::array<char, 2> ff = {IP232_MAGIC, IP232_MAGIC};
+		net_put(ff);
+	} else {
+		net_put(std::span{&value, 1});
 	}
-	net_putc(value);
 }
 
 // Control lines
@@ -300,8 +303,8 @@ void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 
 	if (sockfd == OPENMSX_INVALID_SOCKET) return;
 	if (IP232) {
-		net_putc(IP232_MAGIC);
-		net_putc(DTR ? IP232_DTR_HI : IP232_DTR_LO);
+		std::array<char, 2> dtr = {IP232_MAGIC, DTR ? IP232_DTR_HI : IP232_DTR_LO};
+		net_put(dtr);
 	}
 }
 
@@ -318,11 +321,11 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 }
 
 // Socket routines below based on VICE emulator socket.c
-bool RS232Net::net_putc(char b)
+bool RS232Net::net_put(std::span<const char> buf)
 {
 	assert(sockfd != OPENMSX_INVALID_SOCKET);
 
-	if (auto n = sock_send(sockfd, &b, 1); n < 0) {
+	if (auto n = sock_send(sockfd, buf.data(), buf.size()); n < 0) {
 		sock_close(sockfd);
 		sockfd = OPENMSX_INVALID_SOCKET;
 		return false;

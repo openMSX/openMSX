@@ -13,6 +13,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <span>
 #include <thread>
 #include <cstdint>
 
@@ -66,7 +67,7 @@ private:
 	// EventListener
 	int signalEvent(const Event& event) override;
 
-	bool net_putc(char b);
+	bool net_put(std::span<const char> buf);
 	[[nodiscard]] std::optional<char> net_getc();
 	[[nodiscard]] int selectPoll(SOCKET readSock);
 	void open_socket(const NetworkSocketAddress& socket_address);
