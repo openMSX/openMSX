@@ -175,6 +175,7 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
+	poller.reset();
 	thread = std::thread([this]() { run(); });
 }
 
@@ -209,37 +210,48 @@ void RS232Net::run()
 {
 	bool ipMagic = false;
 	while (true) {
-		if (poller.aborted() || (sockfd == OPENMSX_INVALID_SOCKET)) {
+		if (sockfd == OPENMSX_INVALID_SOCKET) break;
+#ifndef _WIN32
+		if (poller.poll(sockfd)) {
+			break; // error or abort
+		}
+#endif
+		char b;
+		auto n = sock_recv(sockfd, &b, sizeof(b));
+		if (n < 0) { // error
+			sock_close(sockfd);
+			sockfd = OPENMSX_INVALID_SOCKET;
 			break;
+		} else if (n == 0) { // no data, try again
+			continue;
 		}
 
-		auto b = net_getc();
-		if (!b) continue;
-
+		// Process received byte
 		if (IP232) {
 			if (ipMagic) {
 				ipMagic = false;
-				if (*b != IP232_MAGIC) {
-					DCD = (*b & IP232_DCD_MASK) == IP232_DCD_HI;
+				if (b != IP232_MAGIC) {
+					DCD = (b & IP232_DCD_MASK) == IP232_DCD_HI;
 					// RI implemented in TCPSer 1.1.5 (not yet released)
 					// RI present at least on Sony HBI-232 and HB-G900AP (bit 1 of &H82/&HBFFA status register)
 					//    missing on SVI-738
-					RI = (*b & IP232_RI_MASK) == IP232_RI_HI;
+					RI = (b & IP232_RI_MASK) == IP232_RI_HI;
 					continue;
 				}
 				// was a literal 0xff
 			} else {
-				if (*b == IP232_MAGIC) {
+				if (b == IP232_MAGIC) {
 					ipMagic = true;
 					continue;
 				}
 			}
 		}
 
+		// Put received byte in queue and notify main emulation thread
 		assert(isPluggedIn());
 		{
 			std::lock_guard lock(mutex);
-			queue.push_back(*b);
+			queue.push_back(b);
 		}
 		eventDistributor.distributeEvent(Rs232NetEvent());
 	}
@@ -331,33 +343,6 @@ bool RS232Net::net_put(std::span<const char> buf)
 		return false;
 	}
 	return true;
-}
-
-std::optional<char> RS232Net::net_getc()
-{
-	assert(sockfd != OPENMSX_INVALID_SOCKET);
-	if (selectPoll(sockfd) <= 0) return {};
-	char b;
-	if (sock_recv(sockfd, &b, 1) != 1) {
-		sock_close(sockfd);
-		sockfd = OPENMSX_INVALID_SOCKET;
-		return {};
-	}
-	return b;
-}
-
-// Check if the socket has incoming data to receive
-// Returns: 1 if the specified socket has data; 0 if it does not contain
-// any data, and -1 in case of an error.
-int RS232Net::selectPoll(SOCKET readSock)
-{
-	struct timeval timeout = {0, 0};
-
-	fd_set sdSocket;
-	FD_ZERO(&sdSocket);
-	FD_SET(readSock, &sdSocket);
-
-	return select(readSock + 1, &sdSocket, nullptr, nullptr, &timeout);
 }
 
 // Open a socket and initialise it for client operation

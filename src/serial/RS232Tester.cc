@@ -58,6 +58,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
+	poller.reset();
 	thread = std::thread([this]() { run(); });
 }
 

@@ -14,6 +14,9 @@ namespace openmsx {
 class Poller
 {
 public:
+	Poller(const Poller&) = delete;
+	Poller& operator=(const Poller&) = delete;
+
 	Poller();
 	~Poller();
 
@@ -33,6 +36,12 @@ public:
 	/** Aborts a poll in progress and any future poll attempts.
 	  */
 	void abort();
+
+	/** Reset aborted() to false. (Functionally the same, but more efficient
+	  * than destroying and recreating this object). */
+	void reset() {
+		abortFlag = false;
+	}
 
 private:
 #ifndef _WIN32

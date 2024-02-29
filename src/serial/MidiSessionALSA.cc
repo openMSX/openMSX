@@ -6,7 +6,6 @@
 #include "EventListener.hh"
 #include "EventDistributor.hh"
 #include "PlugException.hh"
-#include "Poller.hh"
 #include "PluggingController.hh"
 #include "Scheduler.hh"
 #include "narrow.hh"
