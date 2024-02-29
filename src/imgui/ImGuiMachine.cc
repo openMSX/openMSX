@@ -167,8 +167,7 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		bool inFilteredList = contains(filteredMachines, newMachineConfig,
 						[&](auto idx) { return allMachines[idx].configName; });
 
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		im::ListBox("##list", [&]{
+		im::ListBox("##list", {-FLT_MIN, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			im::ListClipper(filteredMachines.size(), [&](int i) {
 				auto idx = filteredMachines[i];
 				auto& info = allMachines[idx];
