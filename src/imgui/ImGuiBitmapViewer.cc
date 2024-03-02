@@ -32,7 +32,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	if (!showBitmapViewer) return;
 	if (!motherBoard) return;
 
-	ImGui::SetNextWindowSize({637, 602}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({528, 618}, ImGuiCond_FirstUseEver);
 	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
 		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
@@ -160,12 +160,14 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
 		int zy = (1 + bitmapZoom) * 2;
 
-		im::Child("##bitmap", ImGui::GetContentRegionAvail(), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+		gl::vec2 scrnPos;
+		gl::vec2 size = gl::vec2(float(width * zx), float(height * zy));
+		gl::vec2 availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
+		gl::vec2 reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
+		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			scrnPos = ImGui::GetCursorScreenPos();
 			auto pos = ImGui::GetCursorPos();
-			gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-			ImVec2 size(float(width * zx), float(height * zy));
 			ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);
-			bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
 				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
@@ -185,55 +187,74 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::Image(reinterpret_cast<void*>(bitmapGridTex->get()), size,
 						ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
 			}
-
-			ImGui::SameLine();
-			im::Group([&]{
-				if (hovered) {
-					gl::vec2 zoom{float(zx), float(zy)};
-					auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
-					auto x = x_; auto y = y_; // clang workaround
-					ImGui::StrCat("x=", x, " y=", y);
-
-					unsigned physAddr = 0x8000 * page + 128 * y;
-					switch (mode) {
-					case SCR5: physAddr += x / 2; break;
-					case SCR6: physAddr += x / 4; break;
-					case SCR7: physAddr += x / 4 + 0x08000 * (x & 2); break;
-					case SCR8: case SCR11: case SCR12:
-					           physAddr += x / 2 + 0x10000 * (x & 1); break;
-					default: assert(false);
-					}
-
-					auto value = vram.getData()[physAddr];
-					auto color = [&]() -> uint8_t {
-						switch (mode) {
-						case SCR5: case SCR7:
-							return (value >> (4 * (1 - (x & 1)))) & 0x0f;
-						case SCR6:
-							return (value >> (2 * (3 - (x & 3)))) & 0x03;
-						default:
-							return value;
-						}
-					}();
-					if (mode != one_of(SCR11, SCR12)) {
-						ImGui::StrCat("color=", color);
-					}
-					ImGui::Separator();
-
-					if (mode == one_of(SCR5, SCR6)) {
-						ImGui::StrCat("vram addr=\n   0x", hex_string<5>(physAddr));
-					} else {
-						unsigned logAddr = (physAddr & 0x0ffff) << 1 | (physAddr >> 16);
-						ImGui::StrCat("log  vram addr=\n   0x", hex_string<5>(logAddr), "\n"
-						              "phys vram addr=\n   0x", hex_string<5>(physAddr));
-					}
-					ImGui::StrCat("vram value=\n   0x", hex_string<2>(value));
-				} else {
-					auto textSize = ImGui::CalcTextSize("phys vram addr="sv);
-					ImGui::Dummy(textSize);
-				}
-			});
 		});
+		if (ImGui::IsItemHovered() && (mode != OTHER)) {
+			gl::vec2 zoom{float(zx), float(zy)};
+			auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
+			auto x = x_; auto y = y_; // clang workaround
+			if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
+				auto dec3 = [&](int d) {
+					im::ScopedFont sf(manager.fontMono);
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::Text("%3d", d);
+				};
+				auto hex2 = [&](unsigned h) {
+					im::ScopedFont sf(manager.fontMono);
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::StrCat(hex_string<2>(h));
+				};
+				auto hex5 = [&](unsigned h) {
+					im::ScopedFont sf(manager.fontMono);
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::StrCat(hex_string<5>(h));
+				};
+
+				ImGui::TextUnformatted("x="sv); dec3(x);
+				ImGui::SameLine();
+				ImGui::TextUnformatted("y="sv); dec3(y);
+
+				unsigned physAddr = 0x8000 * page + 128 * y;
+				switch (mode) {
+				case SCR5: physAddr += x / 2; break;
+				case SCR6: physAddr += x / 4; break;
+				case SCR7: physAddr += x / 4 + 0x08000 * (x & 2); break;
+				case SCR8: case SCR11: case SCR12:
+						physAddr += x / 2 + 0x10000 * (x & 1); break;
+				default: assert(false);
+				}
+
+				auto value = vram.getData()[physAddr];
+				auto color = [&]() -> uint8_t {
+					switch (mode) {
+					case SCR5: case SCR7:
+						return (value >> (4 * (1 - (x & 1)))) & 0x0f;
+					case SCR6:
+						return (value >> (2 * (3 - (x & 3)))) & 0x03;
+					default:
+						return value;
+					}
+				}();
+				if (mode != one_of(SCR11, SCR12)) {
+					ImGui::SameLine();
+					ImGui::TextUnformatted("  color="sv); dec3(color);
+				}
+
+				ImGui::SameLine();
+				ImGui::TextUnformatted("  vram: addr=0x");
+				if (mode == one_of(SCR5, SCR6)) {
+					hex5(physAddr);
+				} else {
+					unsigned logAddr = (physAddr & 0x0ffff) << 1 | (physAddr >> 16);
+					hex5(logAddr),
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::TextUnformatted("(log)/0x"sv); hex5(physAddr);
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::TextUnformatted("(phys)"sv);
+				}
+				ImGui::SameLine();
+				ImGui::TextUnformatted(" value=0x"sv); hex2(value);
+			}
+		}
 	});
 }
 
