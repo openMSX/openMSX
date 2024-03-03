@@ -330,126 +330,111 @@ void ImGuiMessages::paintLog()
 
 void ImGuiMessages::paintConfigure()
 {
-	ImGui::SetNextWindowSize(gl::vec2{29, 23} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{24, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure messages", configureWindow, [&]{
 		ImGui::TextUnformatted("When a message is emitted"sv);
-		im::Indent([&]{
-			auto size1 = ImGui::CalcTextSize("Open log window without focus"sv).x;
-			auto size2 = ImGui::CalcTextSize("Warning"sv).x;
-			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size1);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
 
-				//ImGui::TableHeadersRow(); // don't want a colored header row
-				if (ImGui::TableNextColumn()) {}
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Error"sv);
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Warning"sv);
-				if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Info"sv);
+		auto size = ImGui::CalcTextSize("Warning"sv).x;
+		im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
 
+			if (ImGui::TableNextColumn()) {}
+			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Error"sv);
+			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Warning"sv);
+			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Info"sv);
+
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted("Show popup"sv);
+			}
+			ImGui::TableNextRow();
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("modal"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Show modal popup"sv);
+					ImGui::RadioButton(tmpStrCat("##modal" , level).c_str(), &popupAction[level], MODAL_POPUP);
 				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##modal" , level).c_str(), &popupAction[level], MODAL_POPUP);
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("non-modal"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##popup" , level).c_str(), &popupAction[level], POPUP);
+				}
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("don't show"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##noPopup" , level).c_str(), &popupAction[level], NO_POPUP);
+				}
+			}
+
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted("Log window"sv);
+			}
+			ImGui::TableNextRow();
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("open and focus"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##focus" , level).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
+				}
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("open without focus"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##log" , level).c_str(), &openLogAction[level], OPEN_LOG);
+				}
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("don't open"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##nolog" , level).c_str(), &openLogAction[level], NO_OPEN_LOG);
+				}
+			}
+
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted("On-screen message"sv);
+			}
+			ImGui::TableNextRow();
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("show"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##osd" , level).c_str(), &osdAction[level], SHOW_OSD);
+				}
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("don't show"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					ImGui::RadioButton(tmpStrCat("##no-osd" , level).c_str(), &osdAction[level], NO_OSD);
+				}
+			}
+			if (ImGui::TableNextColumn()) {
+				im::Indent([]{ ImGui::TextUnformatted("fade-out (seconds)"sv); });
+			}
+			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+				if (ImGui::TableNextColumn()) {
+					float& d = colorSequence[level][2].start;
+					if (ImGui::InputFloat(tmpStrCat("##dur", level).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
+						d = std::clamp(d, 1.0f, 99.0f);
 					}
 				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Show non-modal popup"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##popup" , level).c_str(), &popupAction[level], POPUP);
-					}
-				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Don't show any popup"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##noPopup" , level).c_str(), &popupAction[level], NO_POPUP);
-					}
-				}
-			});
-
-			ImGui::Separator();
-
-			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size1);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Open log window and focus"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##focus" , level).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
-					}
-				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Open log window without focus"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##log" , level).c_str(), &openLogAction[level], OPEN_LOG);
-					}
-				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Don't open log window"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##nolog" , level).c_str(), &openLogAction[level], NO_OPEN_LOG);
-					}
-				}
-			});
-
-			ImGui::Separator();
-
-			im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size1);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-				ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size2);
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Show on-screen message"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##osd" , level).c_str(), &osdAction[level], SHOW_OSD);
-					}
-				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Don't show on-screen message"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						ImGui::RadioButton(tmpStrCat("##no-osd" , level).c_str(), &osdAction[level], NO_OSD);
-					}
-				}
-
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Fade-out duration (seconds)"sv);
-				}
-				for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
-					if (ImGui::TableNextColumn()) {
-						float& d = colorSequence[level][2].start;
-						if (ImGui::InputFloat(tmpStrCat("##dur", level).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
-							d = std::clamp(d, 1.0f, 99.0f);
-						}
-					}
-				}
-			});
+			}
 		});
 	});
 }
