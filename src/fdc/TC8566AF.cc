@@ -274,6 +274,9 @@ uint8_t TC8566AF::resultsPhaseRead(EmuTime::param time)
 	case CMD_WRITE_DATA:
 	case CMD_FORMAT:
 		switch (phaseStep++) {
+		case 0:
+			status0 = 0; // TODO correct?  Reset _all_ bits?
+			break;
 		case 6:
 			endCommand(time);
 			break;
