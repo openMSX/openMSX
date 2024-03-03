@@ -303,10 +303,27 @@ void RS232Net::recvByte(uint8_t value_, EmuTime::param /*time*/)
 }
 
 // Control lines
+
+bool RS232Net::getDSR(EmuTime::param /*time*/) const
+{
+	return true;	// Needed to set this line in the correct state for a plugged device
+}
+
+bool RS232Net::getCTS(EmuTime::param /*time*/) const
+{
+	return true;	// TODO: Implement when IP232 adds support for CTS
+}
+
+
 bool RS232Net::getDCD(EmuTime::param /*time*/) const
 {
 	return DCD;
 }
+
+bool RS232Net::getRI(EmuTime::param /*time*/) const
+{
+	return RI;
+} 
 
 void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 {

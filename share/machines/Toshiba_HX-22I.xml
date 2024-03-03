@@ -52,6 +52,7 @@
     <MSX-RS232 id="RS-232">
       <io base="0x80" num="8"/>
       <toshiba_rs232c_switch>true</toshiba_rs232c_switch>
+      <has_ri_pin>false</has_ri_pin>
     </MSX-RS232>
 
     <primary slot="0">

@@ -68,7 +68,6 @@ private:
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
-		[[nodiscard]] bool getDCD(EmuTime::param time) override;
 		[[nodiscard]] bool getDSR(EmuTime::param time) override;
 		[[nodiscard]] bool getCTS(EmuTime::param time) override;
 		void setDataBits(DataBits bits) override;
@@ -87,6 +86,7 @@ private:
 	bool rxrdyIRQenabled = false;
 
 	const bool hasMemoryBasedIo;
+	const bool hasRIPin;
 	bool ioAccessEnabled;
 
 	const std::unique_ptr<BooleanSetting> switchSetting; // can be nullptr
