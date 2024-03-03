@@ -33,7 +33,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		: nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
-	, hasRIPin(config.getChildDataAsBool("has_ri_pin",true))
+	, hasRIPin(config.getChildDataAsBool("has_ri_pin", true))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
 		false) ? std::make_unique<BooleanSetting>(getCommandController(),
@@ -237,30 +237,25 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	//   on this I/O port, if CN1 is open. If CN1 is closed, it always
 	//   reads back as "0". ...
 
-	byte result = 0xFF;	// Start with 0xFF, open lines on the data bus pull to 1
+	byte result = 0xFF; // Start with 0xFF, open lines on the data bus pull to 1
 	auto& dev = getPluggedRS232Dev();
 
 	// Mask out (active low) bits
 	if (dev.getDCD(time)) {
-		result &= 0xFE;
+		result &= ~0x01;
 	}
-
 	if (hasRIPin && dev.getRI(time)) {
-		result &= 0xFD;
+		result &= ~0x02;
 	}
-
 	if (rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
-		result &= 0xF7;
+		result &= ~0x08;
 	}
-
-	if (interface.getCTS(time)) {
-		result &= 0x7F;
-	}
-
 	if (i8254.getOutputPin(2).getState(time)) {
-		result &= 0xBF;
+		result &= ~0x40;
 	}
-
+	if (interface.getCTS(time)) {
+		result &= ~0x80;
+	}
 	return result;
 }
 

@@ -27,7 +27,7 @@ void RS232Device::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 // of the following devices:
 //
 // Spectravideo SVI-738 : Inputs are pull-up (Read as 0 in the IO ports)
-// Spectravideo SVI-737 and SVI-757: Inputs are pull-down, behave 
+// Spectravideo SVI-737 and SVI-757: Inputs are pull-down, behave
 //                                   the same as left floating.
 //
 // This has been tested to be true for the SVI-738 and Toshiba HX-22,

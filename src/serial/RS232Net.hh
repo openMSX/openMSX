@@ -37,6 +37,7 @@ public:
 		} address;
 	};
 
+public:
 	RS232Net(EventDistributor& eventDistributor, Scheduler& scheduler,
 	         CommandController& commandController);
 	~RS232Net() override;
