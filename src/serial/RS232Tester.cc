@@ -110,6 +110,19 @@ void RS232Tester::run()
 	}
 }
 
+// Control lines
+// Needed to set these lines in the correct state for a plugged device
+
+bool RS232Tester::getDSR(EmuTime::param /*time*/) const
+{
+	return true;
+}
+
+bool RS232Tester::getCTS(EmuTime::param /*time*/) const
+{
+	return true;
+}
+
 // input
 void RS232Tester::signal(EmuTime::param time)
 {

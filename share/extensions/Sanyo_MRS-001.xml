@@ -15,6 +15,7 @@
         <MSX-RS232 id="Generic MSX RS-232">
           <io base="0x80" num="8"/>
           <mem base="0x4000" size="0x4000"/>
+          <has_ri_pin>false</has_ri_pin>
           <rom>
             <sha1>41c4810ec56ed0f61e0fc8b355d2aae91de12d99</sha1>
             <filename>mrs-001.rom</filename>

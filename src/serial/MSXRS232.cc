@@ -33,7 +33,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		: nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
-	, hasRIPin(config.getChildDataAsBool("ripinpresent",true))
+	, hasRIPin(config.getChildDataAsBool("has_ri_pin",true))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
 		false) ? std::make_unique<BooleanSetting>(getCommandController(),
@@ -225,7 +225,8 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	//
 	//  Bit Name  Expl.
 	//  0   CD    Carrier Detect   (0=Active, 1=Not active)
-	//  1   RI    Ring Indicator   (0=Active, 1=Not active) (N/C in MSX)
+	//  1   RI    Ring Indicator   (0=Active, 1=Not active)
+	//            (Not connected on many RS232 BIOS v1 implementations)
 	//  6         Timer Output from i8253 Counter 2
 	//  7   CTS   Clear to Send    (0=Active, 1=Not active)
 	//
@@ -236,26 +237,30 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	//   on this I/O port, if CN1 is open. If CN1 is closed, it always
 	//   reads back as "0". ...
 
-	byte result = 0; // TODO check unused bits
+	byte result = 0xFF;	// Start with 0xFF, open lines on the data bus pull to 1
+	auto& dev = getPluggedRS232Dev();
 
-	if (!interface.getDCD(time)) {
-		result |= 0x01;
+	// Mask out (active low) bits
+	if (dev.getDCD(time)) {
+		result &= 0xFE;
 	}
 
-	if (!interface.getRI(time) && hasRIPin) {
-		result |=0x02;
+	if (hasRIPin && dev.getRI(time)) {
+		result &= 0xFD;
 	}
 
-	if (!rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
-		result |= 0x08;
+	if (rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
+		result &= 0xF7;
 	}
 
-	if (!interface.getCTS(time)) {
-		result |= 0x80;
+	if (interface.getCTS(time)) {
+		result &= 0x7F;
 	}
+
 	if (i8254.getOutputPin(2).getState(time)) {
-		result |= 0x40;
+		result &= 0xBF;
 	}
+
 	return result;
 }
 
@@ -307,18 +312,6 @@ void MSXRS232::Interface::setRTS(bool status, EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setRTS(status, time);
-}
-
-bool MSXRS232::Interface::getDCD(EmuTime::param time)
-{
-	auto& rs232 = OUTER(MSXRS232, interface);
-	return rs232.getPluggedRS232Dev().getDCD(time);
-}
-
-bool MSXRS232::Interface::getRI(EmuTime::param time)
-{
-	auto& rs232 = OUTER(MSXRS232, interface);
-	return rs232.getPluggedRS232Dev().getRI(time);
 }
 
 bool MSXRS232::Interface::getDSR(EmuTime::param time)

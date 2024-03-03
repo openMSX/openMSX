@@ -70,7 +70,8 @@
 
       <secondary slot="0">
         <MSX-RS232 id="MSX RS-232">
-          <ripinpresent>false</ripinpresent>
+          <has_ri_pin>false</has_ri_pin>
+          <rs232_pullup>true</rs232_pullup>
           <rom>
             <filename>svi-738_rs232.rom</filename>
             <sha1>4e9384c9d137f0ab65ffc5a78f04cd8c9df6c8b7</sha1> <!-- confirmed by NYYRIKKI -->
