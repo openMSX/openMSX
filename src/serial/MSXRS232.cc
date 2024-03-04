@@ -34,6 +34,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, hasRIPin(config.getChildDataAsBool("has_ri_pin", true))
+	, inputsPullup(config.getChildDataAsBool("rs232_pullup",false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
 		false) ? std::make_unique<BooleanSetting>(getCommandController(),
@@ -241,10 +242,13 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	auto& dev = getPluggedRS232Dev();
 
 	// Mask out (active low) bits
-	if (dev.getDCD(time)) {
+	auto dcd = dev.getDCD(time);
+	auto ri = dev.getRI(time);
+
+	if (!dcd ? inputsPullup : *dcd) {
 		result &= ~0x01;
 	}
-	if (hasRIPin && dev.getRI(time)) {
+	if (hasRIPin && (!ri ? inputsPullup : *ri)) {
 		result &= ~0x02;
 	}
 	if (rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
@@ -312,13 +316,15 @@ void MSXRS232::Interface::setRTS(bool status, EmuTime::param time)
 bool MSXRS232::Interface::getDSR(EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
-	return rs232.getPluggedRS232Dev().getDSR(time);
+	auto dsr = rs232.getPluggedRS232Dev().getDSR(time);
+	return !dsr ? rs232.inputsPullup : *dsr;
 }
 
 bool MSXRS232::Interface::getCTS(EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
-	return rs232.getPluggedRS232Dev().getCTS(time);
+	auto cts = rs232.getPluggedRS232Dev().getCTS(time);
+	return !cts ? rs232.inputsPullup : *cts;
 }
 
 void MSXRS232::Interface::setDataBits(DataBits bits)

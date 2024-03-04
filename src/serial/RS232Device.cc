@@ -33,25 +33,30 @@ void RS232Device::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 // This has been tested to be true for the SVI-738 and Toshiba HX-22,
 // for the other devices the info comes from manuals, schematics, or
 // circuit board pictures.
+// 
+// Return an empty optional to indicate an unplugged input, in which case
+// the configuration tag 'rs232_pullup' will be used as the
+// effective value.
 
-bool RS232Device::getCTS(EmuTime::param /*time*/) const
+
+std::optional<bool> RS232Device::getCTS(EmuTime::param /*time*/) const
 {
-	return false; // TODO return the inverse of config tag 'rs232_pullup'
+	return {};
 }
 
-bool RS232Device::getDSR(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getDSR(EmuTime::param /*time*/) const
 {
-	return false; // TODO return the inverse of config tag 'rs232_pullup'
+	return {};
 }
 
-bool RS232Device::getDCD(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getDCD(EmuTime::param /*time*/) const
 {
-	return false; // TODO return the inverse of config tag 'rs232_pullup'
+	return {};
 }
 
-bool RS232Device::getRI(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getRI(EmuTime::param /*time*/) const
 {
-	return false; // TODO return the inverse of config tag 'rs232_pullup'
+	return {};
 }
 
 void RS232Device::setDTR(bool /*status*/, EmuTime::param /*time*/)

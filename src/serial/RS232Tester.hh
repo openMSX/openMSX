@@ -31,8 +31,8 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	[[nodiscard]] bool getDSR(EmuTime::param time) const override;
-	[[nodiscard]] bool getCTS(EmuTime::param time) const override;
+	[[nodiscard]] std::optional<bool> getDSR(EmuTime::param time) const override;
+	[[nodiscard]] std::optional<bool> getCTS(EmuTime::param time) const override;
 
 	// input
 	void signal(EmuTime::param time) override;
