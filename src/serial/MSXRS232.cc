@@ -242,24 +242,17 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	auto& dev = getPluggedRS232Dev();
 
 	// Mask out (active low) bits
-	auto dcd = dev.getDCD(time);
-	auto ri = dev.getRI(time);
 
-	if (!dcd ? inputsPullup : *dcd) {
-		result &= ~0x01;
-	}
-	if (hasRIPin && (!ri ? inputsPullup : *ri)) {
-		result &= ~0x02;
-	}
-	if (rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
-		result &= ~0x08;
-	}
-	if (i8254.getOutputPin(2).getState(time)) {
-		result &= ~0x40;
-	}
-	if (interface.getCTS(time)) {
-		result &= ~0x80;
-	}
+	if (dev.getDCD(time).value_or(inputsPullup)) result &= ~0x01;
+
+	if (hasRIPin && (dev.getRI(time).value_or(inputsPullup))) result &= ~0x02;
+
+	if (rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) result &= ~0x08;
+
+	if (i8254.getOutputPin(2).getState(time)) result &= ~0x40;
+
+	if (interface.getCTS(time)) result &= ~0x80;
+
 	return result;
 }
 
@@ -316,15 +309,13 @@ void MSXRS232::Interface::setRTS(bool status, EmuTime::param time)
 bool MSXRS232::Interface::getDSR(EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
-	auto dsr = rs232.getPluggedRS232Dev().getDSR(time);
-	return !dsr ? rs232.inputsPullup : *dsr;
+	return rs232.getPluggedRS232Dev().getDSR(time).value_or(rs232.inputsPullup);
 }
 
 bool MSXRS232::Interface::getCTS(EmuTime::param time)
 {
 	auto& rs232 = OUTER(MSXRS232, interface);
-	auto cts = rs232.getPluggedRS232Dev().getCTS(time);
-	return !cts ? rs232.inputsPullup : *cts;
+	return rs232.getPluggedRS232Dev().getCTS(time).value_or(rs232.inputsPullup);
 }
 
 void MSXRS232::Interface::setDataBits(DataBits bits)
