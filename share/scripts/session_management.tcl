@@ -169,7 +169,7 @@ proc setting_changed {name1 name2 op} {
 	if {$::enable_session_management} {;# setting changed from disabled to enabled
 		set after_quit_id [after quit {save_session "default_session"}]
 	} else { ;# setting changed from enabled to disabled
-		after cancel $after_quit_id
+		catch { after cancel $after_quit_id }
 	}
 }
 
