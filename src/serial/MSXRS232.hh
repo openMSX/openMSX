@@ -87,6 +87,7 @@ private:
 
 	const bool hasMemoryBasedIo;
 	const bool hasRIPin;
+	const bool inputsPullup;
 	bool ioAccessEnabled;
 
 	const std::unique_ptr<BooleanSetting> switchSetting; // can be nullptr
