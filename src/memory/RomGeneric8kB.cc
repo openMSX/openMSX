@@ -1,4 +1,6 @@
 #include "RomGeneric8kB.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXCPUInterface.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 
@@ -23,7 +25,9 @@ void RomGeneric8kB::reset(EmuTime::param /*time*/)
 
 void RomGeneric8kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	setRom(address >> 13, value);
+	if (!getMotherBoard().getCPUInterface().isBreaked()) {
+		setRom(address >> 13, value);
+	}
 }
 
 byte* RomGeneric8kB::getWriteCacheLine(word address) const
