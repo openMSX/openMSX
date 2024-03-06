@@ -101,7 +101,7 @@ void SettingsManager::loadSettings(const SettingsConfig& config)
 	for (auto* s : settings) {
 		if (!s->needLoadSave()) continue;
 
-		if (const auto* savedValue = config.getValueForSetting(s->getFullName())) {
+		if (const auto* savedValue = config.getValueForSetting(s->getBaseName())) {
 			try {
 				s->setValue(TclObject(*savedValue));
 			} catch (MSXException&) {
