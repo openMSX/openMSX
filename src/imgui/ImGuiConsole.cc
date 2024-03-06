@@ -244,7 +244,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ if (ImGui::IsItemActive()) {
 		/**/	auto id = ImGui::GetID("##Input");
 		/**/	if (auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
-		/**/		drawPos[0] -= state->ScrollX;
+		/**/		drawPos.x -= state->ScrollX;
 		/**/	}
 		/**/ }
 		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
@@ -257,7 +257,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ 	const char* end = begin + text.size();
 		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
 		/**/    // avoid ImGui::CalcTextSize(): it's off-by-one for sizes >= 256 pixels
-		/**/    drawPos[0] += charWidth * float(utf8::unchecked::distance(begin, end));
+		/**/    drawPos.x += charWidth * float(utf8::unchecked::distance(begin, end));
 		/**/ }
 	});
 }

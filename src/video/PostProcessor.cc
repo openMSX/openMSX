@@ -252,7 +252,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	auto size = screen.getLogicalSize();
-	glViewport(0, 0, size[0], size[1]);
+	glViewport(0, 0, size.x, size.y);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	auto& renderedFrame = renderedFrames[frameCounter & 1];
 	if (renderedFrame.size != size) {
@@ -261,8 +261,8 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB,            // internal format
-			     size[0],           // width
-			     size[1],           // height
+			     size.x,            // width
+			     size.y,            // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -280,7 +280,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		currScaler->scaleImage(
 			it->tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth, // src
-			r.dstStartY, r.dstEndY, size[0],   // dst
+			r.dstStartY, r.dstEndY, size.x,   // dst
 			paintFrame->getHeight()); // dst
 	}
 

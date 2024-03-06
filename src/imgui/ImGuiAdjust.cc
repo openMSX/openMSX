@@ -73,9 +73,9 @@ bool AdjustWindowInMainViewPort::post()
 			relWindowPos = oldRelWindowPos;
 		}
 		auto newPosX = adjustWindowPositionForResizedViewPort(
-			oldViewPortSize[0], newViewPortSize[0], relWindowPos[0], windowSize[0]);
+			oldViewPortSize.x, newViewPortSize.x, relWindowPos.x, windowSize.x);
 		auto newPosY = adjustWindowPositionForResizedViewPort(
-			oldViewPortSize[1], newViewPortSize[1], relWindowPos[1], windowSize[1]);
+			oldViewPortSize.y, newViewPortSize.y, relWindowPos.y, windowSize.y);
 		if (newPosX && newPosY) {
 			relWindowPos = gl::vec2{*newPosX, *newPosY};
 			ImGui::SetWindowPos(mainViewPortPos + relWindowPos);

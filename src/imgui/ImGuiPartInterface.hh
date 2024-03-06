@@ -151,11 +151,11 @@ struct PersistentElement<C, gl::ivec2> : PersistentElementBase<C, gl::ivec2> {
 	using PersistentElementBase<C, gl::ivec2>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
 		const auto& v = this->get(c);
-		buf.appendf("%s=[ %d %d ]\n", this->name.c_str(), v[0], v[1]);
+		buf.appendf("%s=[ %d %d ]\n", this->name.c_str(), v.x, v.y);
 	}
 	void load(C& c, zstring_view value) const {
 		gl::ivec2 t;
-		if (sscanf(value.c_str(), "[ %d %d ]", &t[0], &t[1]) == 2) {
+		if (sscanf(value.c_str(), "[ %d %d ]", &t.x, &t.y) == 2) {
 			this->get(c) = t;
 		}
 	}
@@ -167,11 +167,11 @@ struct PersistentElement<C, gl::vec4> : PersistentElementBase<C, gl::vec4> {
 	void save(ImGuiTextBuffer& buf, C& c) const {
 		const auto& v = this->get(c);
 		buf.appendf("%s=[ %f %f %f %f ]\n", this->name.c_str(),
-			double(v[0]), double(v[1]), double(v[2]), double(v[3])); // note: cast only needed to silence warnings
+			double(v.x), double(v.y), double(v.z), double(v.w)); // note: cast only needed to silence warnings
 	}
 	void load(C& c, zstring_view value) const {
 		gl::vec4 t;
-		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t[0], &t[1], &t[2], &t[3]) == 4) {
+		if (sscanf(value.c_str(), "[ %f %f %f %f ]", &t.x, &t.y, &t.z, &t.w) == 4) {
 			this->get(c) = t;
 		}
 	}

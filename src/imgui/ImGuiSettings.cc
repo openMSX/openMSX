@@ -500,8 +500,8 @@ struct Rectangle {
 };
 [[nodiscard]] static bool insideRectangle(gl::vec2 mouse, Rectangle r)
 {
-	return between(mouse[0], r.topLeft[0], r.bottomRight[0]) &&
-	       between(mouse[1], r.topLeft[1], r.bottomRight[1]);
+	return between(mouse.x, r.topLeft.x, r.bottomRight.x) &&
+	       between(mouse.y, r.topLeft.y, r.bottomRight.y);
 }
 
 
@@ -658,10 +658,10 @@ static constexpr auto sizeDPad = 30.0f;
 	std::vector<uint8_t> result(NUM_BUTTONS); // false
 	auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
-		(between(mouseDPad[0], -fractionDPad, fractionDPad) ||
-		between(mouseDPad[1], -fractionDPad, fractionDPad))) { // mouse over d-pad
-		bool t1 = mouseDPad[0] <  mouseDPad[1];
-		bool t2 = mouseDPad[0] < -mouseDPad[1];
+		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
+		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
+		bool t1 = mouseDPad.x <  mouseDPad.y;
+		bool t2 = mouseDPad.x < -mouseDPad.y;
 		result[UP]    = !t1 &&  t2;
 		result[DOWN]  =  t1 && !t2;
 		result[LEFT]  =  t1 &&  t2;
@@ -735,10 +735,10 @@ static constexpr auto fractionDPad = 1.0f / 3.0f;
 	std::vector<uint8_t> result(NUM_BUTTONS); // false
 	auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
 	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
-		(between(mouseDPad[0], -fractionDPad, fractionDPad) ||
-		between(mouseDPad[1], -fractionDPad, fractionDPad))) { // mouse over d-pad
-		bool t1 = mouseDPad[0] <  mouseDPad[1];
-		bool t2 = mouseDPad[0] < -mouseDPad[1];
+		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
+		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
+		bool t1 = mouseDPad.x <  mouseDPad.y;
+		bool t2 = mouseDPad.x < -mouseDPad.y;
 		result[UP]    = !t1 &&  t2;
 		result[DOWN]  =  t1 && !t2;
 		result[LEFT]  =  t1 &&  t2;
@@ -817,7 +817,7 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 	};
 	drawBezierCurve(buttonCurve);
 
-	auto corner = (selectBox.bottomRight[1] - selectBox.topLeft[1]) * 0.5f;
+	auto corner = (selectBox.bottomRight.y - selectBox.topLeft.y) * 0.5f;
 	auto trR = [&](Rectangle r) { return Rectangle{tr(r.topLeft), tr(r.bottomRight)}; };
 	drawFilledRectangle(trR(selectBox), corner, hovered[TRIG_SELECT] || (hoveredRow == TRIG_SELECT));
 	drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize(), tr({123.0f, 46.0f}), color, "Select");

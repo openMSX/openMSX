@@ -188,7 +188,7 @@ std::optional<gl::ivec2> VisibleSurface::getWindowPosition() const
 void VisibleSurface::setWindowPosition(gl::ivec2 pos)
 {
 	if (SDL_GetWindowFlags(window.get()) & SDL_WINDOW_FULLSCREEN) return;
-	SDL_SetWindowPosition(window.get(), pos[0], pos[1]);
+	SDL_SetWindowPosition(window.get(), pos.x, pos.y);
 }
 
 // TODO: The video subsystem is not de-initialized on errors.
@@ -208,7 +208,7 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	auto pos = display.retrieveWindowPosition();
 	window.reset(SDL_CreateWindow(
 			getDisplay().getWindowTitle().c_str(),
-			pos[0], pos[1],
+			pos.x, pos.y,
 			width, height,
 			flags));
 	if (!window) {
@@ -327,7 +327,7 @@ gl::ivec2 VisibleSurface::getWindowSize() const
 void VisibleSurface::resize()
 {
 	auto size = getWindowSize();
-	SDL_SetWindowSize(window.get(), size[0], size[1]);
+	SDL_SetWindowSize(window.get(), size.x, size.y);
 
 	bool fullScreen = display.getRenderSettings().getFullScreen();
 	setViewPort(size, fullScreen);

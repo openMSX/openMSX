@@ -25,9 +25,9 @@ namespace gl {
 // efficient than) 'A * scale(xyz)'.
 [[nodiscard]] constexpr mat4 scale(const mat4& A, const vec3& xyz)
 {
-	return {A[0] * xyz[0],
-	        A[1] * xyz[1],
-	        A[2] * xyz[2],
+	return {A[0] * xyz.x,
+	        A[1] * xyz.y,
+	        A[2] * xyz.z,
 	        A[3]};
 }
 
@@ -47,7 +47,7 @@ namespace gl {
 	return {A[0],
 	        A[1],
 	        A[2],
-	        A[0] * xyz[0] + A[1] * xyz[1] + A[2] * xyz[2] + A[3]};
+	        A[0] * xyz.x + A[1] * xyz.y + A[2] * xyz.z + A[3]};
 }
 
 // Returns a 4x4 rotation matrix for rotation of the given 'angle' around the
@@ -61,17 +61,17 @@ namespace gl {
 	float c = cosf(angle);
 	vec3 temp = (1.0f - c) * axis;
 
-	return {vec4(axis[0] * temp[0] + c,
-	             axis[1] * temp[0] + s * axis[2],
-	             axis[2] * temp[0] - s * axis[1],
+	return {vec4(axis.x * temp.x + c,
+	             axis.y * temp.x + s * axis.z,
+	             axis.z * temp.x - s * axis.y,
 	             0.0f),
-	        vec4(axis[0] * temp[1] - s * axis[2],
-	             axis[1] * temp[1] + c,
-	             axis[2] * temp[1] + s * axis[0],
+	        vec4(axis.x * temp.y - s * axis.z,
+	             axis.y * temp.y + c,
+	             axis.z * temp.y + s * axis.x,
 	             0.0f),
-	        vec4(axis[0] * temp[2] + s * axis[1],
-	             axis[1] * temp[2] - s * axis[0],
-	             axis[2] * temp[2] + c,
+	        vec4(axis.x * temp.z + s * axis.y,
+	             axis.y * temp.z - s * axis.x,
+	             axis.z * temp.z + c,
 	             0.0f),
 	        vec4(0.0f,
 	             0.0f,

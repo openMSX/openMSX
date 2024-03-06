@@ -48,7 +48,7 @@ openmsx::GLScaler& Context::getFallbackScaler()
 
 void Context::setupMvpMatrix(gl::vec2 logicalSize)
 {
-	pixelMvp = ortho(logicalSize[0], logicalSize[1]);
+	pixelMvp = ortho(logicalSize.x, logicalSize.y);
 }
 
 } // namespace gl

@@ -37,75 +37,75 @@ public:
 	// Construct vector containing all zeros.
 	constexpr vecN()
 	{
-		for (auto i : xrange(N)) e[i] = T(0);
+		for (auto i : xrange(N)) storage[i] = T(0);
 	}
 
 	// Construct vector containing the same value repeated N times.
-	constexpr explicit vecN(T x)
+	constexpr explicit vecN(T t)
 	{
-		for (auto i : xrange(N)) e[i] = x;
+		for (auto i : xrange(N)) storage[i] = t;
 	}
 
 	// Conversion constructor from vector of same size but different type
 	template<typename T2>
-	constexpr explicit vecN(const vecN<N, T2>& x)
+	constexpr explicit vecN(const vecN<N, T2>& v)
 	{
-		for (auto i : xrange(N)) e[i] = T(x[i]);
+		for (auto i : xrange(N)) storage[i] = T(v[i]);
 	}
 
 	// Construct from larger vector (higher order elements are dropped).
-	template<int N2> constexpr explicit vecN(const vecN<N2, T>& x)
+	template<int N2> constexpr explicit vecN(const vecN<N2, T>& v)
 	{
 		static_assert(N2 > N, "wrong vector length in constructor");
-		for (auto i : xrange(N)) e[i] = x[i];
+		for (auto i : xrange(N)) storage[i] = v[i];
 	}
 
 	// Construct vector from 2 given values (only valid when N == 2).
-	constexpr vecN(T x, T y)
-		: e{x, y}
+	constexpr vecN(T a, T b)
+		: storage{a, b}
 	{
 		static_assert(N == 2, "wrong #constructor arguments");
 	}
 
 	// Construct vector from 3 given values (only valid when N == 3).
-	constexpr vecN(T x, T y, T z)
-		: e{x, y, z}
+	constexpr vecN(T a, T b, T c)
+		: storage{a, b, c}
 	{
 		static_assert(N == 3, "wrong #constructor arguments");
 	}
 
 	// Construct vector from 4 given values (only valid when N == 4).
-	constexpr vecN(T x, T y, T z, T w)
-		: e{x, y, z, w}
+	constexpr vecN(T a, T b, T c, T d)
+		: storage{a, b, c, d}
 	{
 		static_assert(N == 4, "wrong #constructor arguments");
 	}
 
 	// Construct vector from concatenating a scalar and a (smaller) vector.
 	template<int N2>
-	constexpr vecN(T x, const vecN<N2, T>& y)
+	constexpr vecN(T a, const vecN<N2, T>& b)
 	{
 		static_assert((1 + N2) == N, "wrong vector length in constructor");
-		e[0] = x;
-		for (auto i : xrange(N2)) e[i + 1] = y[i];
+		storage[0] = a;
+		for (auto i : xrange(N2)) storage[i + 1] = b[i];
 	}
 
 	// Construct vector from concatenating a (smaller) vector and a scalar.
 	template<int N1>
-	constexpr vecN(const vecN<N1, T>& x, T y)
+	constexpr vecN(const vecN<N1, T>& a, T b)
 	{
 		static_assert((N1 + 1) == N, "wrong vector length in constructor");
-		for (auto i : xrange(N1)) e[i] = x[i];
-		e[N1] = y;
+		for (auto i : xrange(N1)) storage[i] = a[i];
+		storage[N1] = b;
 	}
 
 	// Construct vector from concatenating two (smaller) vectors.
 	template<int N1, int N2>
-	constexpr vecN(const vecN<N1, T>& x, const vecN<N2, T>& y)
+	constexpr vecN(const vecN<N1, T>& a, const vecN<N2, T>& b)
 	{
 		static_assert((N1 + N2) == N, "wrong vector length in constructor");
-		for (auto i : xrange(N1)) e[i     ] = x[i];
-		for (auto i : xrange(N2)) e[i + N1] = y[i];
+		for (auto i : xrange(N1)) storage[i     ] = a[i];
+		for (auto i : xrange(N2)) storage[i + N1] = b[i];
 	}
 
 	// Access the i-th element of this vector.
@@ -113,13 +113,13 @@ public:
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
-		return e[i];
+		return storage[i];
 	}
 	[[nodiscard]] constexpr T& operator[](unsigned i) {
 		#ifdef DEBUG
 		assert(i < N);
 		#endif
-		return e[i];
+		return storage[i];
 	}
 
 	// For structured bindings
@@ -127,22 +127,36 @@ public:
 	template<size_t I> [[nodiscard]] constexpr T& get()       noexcept { return (*this)[I]; }
 
 	// Assignment version of the +,-,* operations defined below.
-	constexpr vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
-	constexpr vecN& operator-=(const vecN& x) { *this = *this - x; return *this; }
-	constexpr vecN& operator*=(const vecN& x) { *this = *this * x; return *this; }
-	constexpr vecN& operator*=(T           x) { *this = *this * x; return *this; }
+	constexpr vecN& operator+=(const vecN& v) { *this = *this + v; return *this; }
+	constexpr vecN& operator-=(const vecN& v) { *this = *this - v; return *this; }
+	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
+	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
 	// gcc-10 mis-compiles this (fixed in gcc-11):
 	//    [[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 	// For now still manually implement it.
-	[[nodiscard]] friend constexpr bool operator==(const vecN& x, const vecN& y)
+	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
 	{
-		for (auto i : xrange(N)) if (x[i] != y[i]) return false;
+		for (auto i : xrange(N)) if (a[i] != b[i]) return false;
 		return true;
 	}
 
 private:
-	std::array<T, N> e;
+	template<int> struct MissingMember {};
+
+	template<int I>
+	using OptionalMember = std::conditional_t<I < N, T, MissingMember<I>>;
+
+public:
+	union {
+		std::array<T, N> storage;
+		struct {
+			[[no_unique_address]] OptionalMember<0> x;
+			[[no_unique_address]] OptionalMember<1> y;
+			[[no_unique_address]] OptionalMember<2> z;
+			[[no_unique_address]] OptionalMember<3> w;
+		};
+	};
 };
 
 
@@ -352,11 +366,11 @@ template<int N, typename T>
 
 // cross product (only defined for vectors of length 3)
 template<typename T>
-[[nodiscard]] constexpr vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
+[[nodiscard]] constexpr vecN<3, T> cross(const vecN<3, T>& a, const vecN<3, T>& b)
 {
-	return vecN<3, T>(x[1] * y[2] - x[2] * y[1],
-	                  x[2] * y[0] - x[0] * y[2],
-	                  x[0] * y[1] - x[1] * y[0]);
+	return vecN<3, T>(a.y * b.z - a.z * b.y,
+	                  a.z * b.x - a.x * b.z,
+	                  a.x * b.y - a.y * b.x);
 }
 
 // round each component to the nearest integer (returns a vector of integers)

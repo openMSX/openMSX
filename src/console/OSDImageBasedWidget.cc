@@ -146,9 +146,9 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
 
         vec2 parentPos, parentSize;
         parentImage->getBoundingBox(*output, parentPos, parentSize);
-        auto parentWidth = parentSize[0] / narrow<float>(getScaleFactor(*output));
+        auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(*output));
 
-        auto thisWidth = getRenderedSize()[0];
+        auto thisWidth = getRenderedSize().x;
         auto scrollWidth = thisWidth - parentWidth;
         if (scrollWidth <= 0.0f) return {};
 
@@ -198,7 +198,7 @@ gl::vec2 OSDImageBasedWidget::getPos() const
 			return smootherStep(1.0f - ((t - scrollPauseLeft - scrollTime - scrollPauseRight) / scrollTime));
 		}
 	}();
-	result[0] -= *width * relOffsetX;
+	result.x -= *width * relOffsetX;
 	return result;
 }
 

@@ -26,8 +26,8 @@ public:
 
 	virtual ~OutputSurface() = default;
 
-	[[nodiscard]] int getLogicalWidth()  const { return m_logicalSize[0]; }
-	[[nodiscard]] int getLogicalHeight() const { return m_logicalSize[1]; }
+	[[nodiscard]] int getLogicalWidth()  const { return m_logicalSize.x; }
+	[[nodiscard]] int getLogicalHeight() const { return m_logicalSize.y; }
 	[[nodiscard]] gl::ivec2 getLogicalSize()  const { return m_logicalSize; }
 	[[nodiscard]] gl::ivec2 getPhysicalSize() const { return m_physSize; }
 

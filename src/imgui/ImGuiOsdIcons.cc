@@ -138,14 +138,14 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	auto windowPadding = 2.0f * gl::vec2(style.WindowPadding);
 	auto totalSize = windowPadding + gl::vec2(iconsTotalSize) + float(iconsNumEnabled) * gl::vec2(style.ItemSpacing);
 	auto minSize = iconsHorizontal
-		? gl::vec2(totalSize[0], float(iconsMaxSize[1]) + windowPadding[1])
-		: gl::vec2(float(iconsMaxSize[0]) + windowPadding[0], totalSize[1]);
+		? gl::vec2(totalSize.x, float(iconsMaxSize.y) + windowPadding.y)
+		: gl::vec2(float(iconsMaxSize.x) + windowPadding.x, totalSize.y);
 	if (!iconsHideTitle) {
-		minSize[1] += 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
+		minSize.y += 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
 	}
 	auto maxSize = iconsHorizontal
-		? gl::vec2(FLT_MAX, minSize[1])
-		: gl::vec2(minSize[0], FLT_MAX);
+		? gl::vec2(FLT_MAX, minSize.y)
+		: gl::vec2(minSize.x, FLT_MAX);
 	ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
 
 	// default placement: bottom left
@@ -167,8 +167,8 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 		bool isOnMainViewPort = adjust.post();
 		auto cursor0 = ImGui::GetCursorPos();
 		auto availableSize = ImGui::GetContentRegionAvail();
-		float slack = iconsHorizontal ? (availableSize.x - totalSize[0])
-		                              : (availableSize.y - totalSize[1]);
+		float slack = iconsHorizontal ? (availableSize.x - totalSize.x)
+		                              : (availableSize.y - totalSize.y);
 		float spacing = (iconsNumEnabled >= 2) ? (std::max(0.0f, slack) / float(iconsNumEnabled)) : 0.0f;
 
 		bool fade = iconsHideTitle && !ImGui::IsWindowDocked() && isOnMainViewPort;
@@ -203,7 +203,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 
 			ImGui::SetCursorPos(cursor);
 			auto size = gl::vec2(max(icon.on.size, icon.off.size));
-			(iconsHorizontal ? size[0] : size[1]) += spacing;
+			(iconsHorizontal ? size.x : size.y) += spacing;
 			ImGui::Dummy(size);
 			if (iconsHorizontal) ImGui::SameLine();
 		}
@@ -286,7 +286,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						const auto& style = ImGui::GetStyle();
 						auto textHeight = ImGui::GetTextLineHeight();
 						float rowHeight = std::max(2.0f * style.FramePadding.y + textHeight,
-									std::max(float(icon.on.size[1]), float(icon.off.size[1])));
+									std::max(float(icon.on.size.y), float(icon.off.size.y)));
 						ImGui::Selectable("##row", false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, ImVec2(0, rowHeight));
 						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 							ImGui::OpenPopup("config-icon-context");

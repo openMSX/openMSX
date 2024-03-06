@@ -92,11 +92,11 @@
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
 
 #define IM_VEC2_CLASS_EXTRA                                                     \
-        constexpr ImVec2(const gl::vec2& v) : x(v[0]), y(v[1]) {}               \
+        constexpr ImVec2(const gl::vec2& v) : x(v.x), y(v.y) {}               \
         operator gl::vec2() const { return {x, y}; }
 
 #define IM_VEC4_CLASS_EXTRA                                                         \
-        constexpr ImVec4(const gl::vec4& v) : x(v[0]), y(v[1]), z(v[2]), w(v[3]) {} \
+        constexpr ImVec4(const gl::vec4& v) : x(v.x), y(v.y), z(v.z), w(v.w) {} \
         operator gl::vec4() const { return {x, y, z, w}; }
 //---- ...Or use Dear ImGui's own very basic math operators.
 //#define IMGUI_DEFINE_MATH_OPERATORS

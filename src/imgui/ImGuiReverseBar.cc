@@ -280,17 +280,17 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 
 		gl::vec2 pos = ImGui::GetCursorScreenPos();
 		gl::vec2 availableSize = ImGui::GetContentRegionAvail();
-		gl::vec2 outerSize(availableSize[0], 2.0f * textHeight);
+		gl::vec2 outerSize(availableSize.x, 2.0f * textHeight);
 		gl::vec2 outerTopLeft = pos;
 		gl::vec2 outerBottomRight = outerTopLeft + outerSize;
 
 		gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
 		gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
 		gl::vec2 innerBottomRight = innerTopLeft + innerSize;
-		gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize[0] * fraction, innerSize[1]);
+		gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize.x * fraction, innerSize.y);
 
-		gl::vec2 middleTopLeft    (barBottomRight[0] - 2.0f, innerTopLeft[1]);
-		gl::vec2 middleBottomRight(barBottomRight[0] + 2.0f, innerBottomRight[1]);
+		gl::vec2 middleTopLeft    (barBottomRight.x - 2.0f, innerTopLeft.y);
+		gl::vec2 middleBottomRight(barBottomRight.x + 2.0f, innerBottomRight.y);
 
 		const auto& io = ImGui::GetIO();
 		bool hovered = ImGui::IsWindowHovered();
@@ -311,9 +311,9 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 		drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
 
 		for (double s : snapshots) {
-			float x = narrow_cast<float>((s - b) * recipLength) * innerSize[0];
-			drawList->AddLine(gl::vec2(innerTopLeft[0] + x, innerTopLeft[1]),
-					gl::vec2(innerTopLeft[0] + x, innerBottomRight[1]),
+			float x = narrow_cast<float>((s - b) * recipLength) * innerSize.x;
+			drawList->AddLine(gl::vec2(innerTopLeft.x + x, innerTopLeft.y),
+					gl::vec2(innerTopLeft.x + x, innerBottomRight.y),
 					color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
 		}
 
@@ -339,11 +339,11 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 		auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
 		auto timeSize = ImGui::CalcTextSize(timeStr).x;
 		gl::vec2 cursor = ImGui::GetCursorPos();
-		ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize[0] - timeSize)), textHeight * 0.5f));
+		ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize.x - timeSize)), textHeight * 0.5f));
 		ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
 
 		if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
-			float ratio = (io.MousePos.x - pos[0]) / outerSize[0];
+			float ratio = (io.MousePos.x - pos.x) / outerSize.x;
 			auto timeOffset = totalLength * double(ratio);
 			im::Tooltip([&] {
 				ImGui::TextUnformatted(formatTime(timeOffset));

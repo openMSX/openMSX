@@ -240,8 +240,8 @@ void Touchpad::signalMSXEvent(const Event& event,
 		hostButtons = b;
 		createTouchpadStateChange(
 			time,
-			narrow_cast<uint8_t>(pos[0]),
-			narrow_cast<uint8_t>(pos[1]),
+			narrow_cast<uint8_t>(pos.x),
+			narrow_cast<uint8_t>(pos.y),
 			(hostButtons & 1) != 0,
 			(hostButtons & 2) != 0);
 	}

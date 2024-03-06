@@ -161,7 +161,7 @@ std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 	}
 	try {
 		vec2 pSize = getParent()->getSize(output);
-		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize[0]));
+		int maxWidth = narrow_cast<int>(lrintf(wrapw * narrow<float>(scale) + wraprelw * pSize.x));
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);
@@ -276,7 +276,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		return 0;
 	}
 
-	unsigned width = font.getSize(line)[0];
+	unsigned width = font.getSize(line).x;
 	if (width <= maxWidth) {
 		// whole line fits
 		return line.size();
@@ -301,7 +301,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		if (removeTrailingSpaces) {
 			StringOp::trimRight(curStr, ' ');
 		}
-		unsigned width2 = font.getSize(curStr)[0];
+		unsigned width2 = font.getSize(curStr).x;
 		if (width2 <= maxWidth) {
 			// still fits, try to enlarge
 			size_t next = findSplitPoint(line, cur, max);

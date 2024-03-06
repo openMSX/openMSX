@@ -171,9 +171,9 @@ void OSDWidget::setProperty(
 	} else if (propName == "-mousecoord") {
 		throw CommandException("-mousecoord property is readonly");
 	} else if (propName == "-x") {
-		pos[0] = value.getFloat(interp);
+		pos.x = value.getFloat(interp);
 	} else if (propName == "-y") {
-		pos[1] = value.getFloat(interp);
+		pos.y = value.getFloat(interp);
 	} else if (propName == "-z") {
 		float z2 = value.getFloat(interp);
 		if (z != z2) {
@@ -189,9 +189,9 @@ void OSDWidget::setProperty(
 			}
 		}
 	} else if (propName == "-relx") {
-		relPos[0] = value.getFloat(interp);
+		relPos.x = value.getFloat(interp);
 	} else if (propName == "-rely") {
-		relPos[1] = value.getFloat(interp);
+		relPos.y = value.getFloat(interp);
 	} else if (propName == "-scaled") {
 		bool scaled2 = value.getBoolean(interp);
 		if (scaled != scaled2) {
@@ -212,15 +212,15 @@ void OSDWidget::getProperty(std::string_view propName, TclObject& result) const
 	if (propName == "-type") {
 		result = getType();
 	} else if (propName == "-x") {
-		result = pos[0];
+		result = pos.x;
 	} else if (propName == "-y") {
-		result = pos[1];
+		result = pos.y;
 	} else if (propName == "-z") {
 		result = z;
 	} else if (propName == "-relx") {
-		result = relPos[0];
+		result = relPos.x;
 	} else if (propName == "-rely") {
-		result = relPos[1];
+		result = relPos.y;
 	} else if (propName == "-scaled") {
 		result = scaled;
 	} else if (propName == "-clip") {
@@ -343,7 +343,7 @@ vec2 OSDWidget::getMouseCoord() const
 
 	vec2 out = transformReverse(*output, vec2(videoSystem.getMouseCoord()));
 	vec2 size = getSize(*output);
-	if ((size[0] == 0.0f) || (size[1] == 0.0f)) {
+	if ((size.x == 0.0f) || (size.y == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "
 			"widget has zero width or height");

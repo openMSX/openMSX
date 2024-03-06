@@ -35,7 +35,7 @@ static gl::Texture loadTexture(
 	size = ivec2(surface->w, surface->h);
 	// Make a copy to convert to the correct pixel format.
 	// TODO instead directly load the image in the correct format.
-	SDLSurfacePtr image2(size[0], size[1], 32,
+	SDLSurfacePtr image2(size.x, size.y, 32,
 		Endian::BIG ? 0xFF000000 : 0x000000FF,
 		Endian::BIG ? 0x00FF0000 : 0x0000FF00,
 		Endian::BIG ? 0x0000FF00 : 0x00FF0000,
@@ -44,13 +44,13 @@ static gl::Texture loadTexture(
 	SDL_Rect area;
 	area.x = 0;
 	area.y = 0;
-	area.w = size[0];
-	area.h = size[1];
+	area.w = size.x;
+	area.h = size.y;
 	SDL_SetSurfaceBlendMode(surface.get(), SDL_BLENDMODE_NONE);
 	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
 	gl::Texture texture(true); // enable interpolation
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
 	return texture;
 }
@@ -147,17 +147,17 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 	// |   1-------- 2   |
 	// |                 |
 	// 5-----------------6
-	int bx = (size[0] > 0) ? borderSize : -borderSize;
-	int by = (size[1] > 0) ? borderSize : -borderSize;
+	int bx = (size.x > 0) ? borderSize : -borderSize;
+	int by = (size.y > 0) ? borderSize : -borderSize;
 	std::array<ivec2, 8> positions = {
-		pos + ivec2(        + bx,         + by), // 0
-		pos + ivec2(        + bx, size[1] - by), // 1
-		pos + ivec2(size[0] - bx, size[1] - by), // 2
-		pos + ivec2(size[0] - bx,         + by), // 3
-		pos + ivec2(0           , 0           ), // 4
-		pos + ivec2(0           , size[1]     ), // 5
-		pos + ivec2(size[0]     , size[1]     ), // 6
-		pos + ivec2(size[0]     , 0           ), // 7
+		pos + ivec2(       + bx,        + by), // 0
+		pos + ivec2(       + bx, size.y - by), // 1
+		pos + ivec2(size.x - bx, size.y - by), // 2
+		pos + ivec2(size.x - bx,        + by), // 3
+		pos + ivec2(0          , 0          ), // 4
+		pos + ivec2(0          , size.y     ), // 5
+		pos + ivec2(size.x     , size.y     ), // 6
+		pos + ivec2(size.x     , 0          ), // 7
 	};
 
 	glEnable(GL_BLEND);
@@ -209,8 +209,8 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 		                 narrow<float>(borderB) * (1.0f / 255.0f),
 		                 narrow<float>(borderA * alpha) * (1.0f / (255.0f * 255.0f)));
 
-		if ((2 * borderSize >= abs(size[0])) ||
-		    (2 * borderSize >= abs(size[1]))) {
+		if ((2 * borderSize >= abs(size.x)) ||
+		    (2 * borderSize >= abs(size.y))) {
 			// only border
 			glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
 		} else {

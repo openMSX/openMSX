@@ -132,7 +132,7 @@ static void renderSpriteAttrib(std::span<const uint8_t> vram, bool planar, int a
 		for (auto y : xrange(size)) {
 			auto attrib = vpeek(vram, planar, colorBase + y);
 			auto color = attrib & 0x0f;
-			ImGui::SetCursorPos({pos[0], pos[1] + zoom * float(y)});
+			ImGui::SetCursorPos({pos.x, pos.y + zoom * float(y)});
 			float v2 = v1 + (1.0f / 64.0f);
 			ImGui::Image(patternTex, zoom * gl::vec2{float(size), 1.0f}, {u1, v1}, {u2, v2}, getColor(color));
 			v1 = v2;
@@ -338,7 +338,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto fullSize = gl::vec2(256, 64) * float(zm);
-			im::Child("##pattern", {0, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), fullSize);
@@ -348,8 +348,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					gl::vec2 zoomPatSize{float(size * zm)};
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
-						auto pattern = (size == 16) ? ((16 * gridPos[1]) + gridPos[0]) * 4
-						                            : ((32 * gridPos[1]) + gridPos[0]) * 1;
+						auto pattern = (size == 16) ? ((16 * gridPos.y) + gridPos.x) * 4
+						                            : ((32 * gridPos.y) + gridPos.x) * 1;
 						ImGui::StrCat("pattern: ", pattern);
 						auto recipPatTex = recip((size == 16) ? gl::vec2{16, 4} : gl::vec2{32, 8});
 						auto uv1 = gl::vec2(gridPos) * recipPatTex;
@@ -391,7 +391,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			float zoomSize = float(zm * size);
 			auto fullSize = zoomSize * gl::vec2(8, 4);
-			im::Child("##attrib", {0, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##attrib", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (mode == 0) {
 					ImGui::TextUnformatted("No sprites in this screen mode"sv);
 				} else {
@@ -420,7 +420,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					if (hovered) {
 						gl::vec2 zoomPatSize{float(size * zm)};
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
-						auto sprite = 8 * gridPos[1] + gridPos[0];
+						auto sprite = 8 * gridPos.y + gridPos.x;
 
 						ImGui::SameLine();
 						im::Group([&]{
@@ -651,7 +651,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			}
 
 			auto fullSize = float(zm) * gl::vec2(256, float(lines));
-			im::Child("##screen", {0.0f, fullSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##screen", {0.0f, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto* drawList = ImGui::GetWindowDrawList();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto boxColor = ImGui::ColorConvertFloat4ToU32(boundingBoxColor);

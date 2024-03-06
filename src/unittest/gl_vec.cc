@@ -499,6 +499,72 @@ TEST_CASE("gl_vec: trunc")
 	CHECK(trunc(ivec4(1, -2, 3, -4)) == ivec4(1, -2, 3, -4));
 }
 
+TEST_CASE("gl_vec: named elements")
+{
+	SECTION("ivec2") {
+		ivec2 v2(10, 20);
+		CHECK(sizeof(v2) == 2 * sizeof(int));
+
+		CHECK(v2[0] == 10);
+		CHECK(v2[1] == 20);
+		CHECK(v2.x == 10);
+		CHECK(v2.y == 20);
+
+		v2.x = 100;
+		v2.y = 200;
+		CHECK(v2[0] == 100);
+		CHECK(v2[1] == 200);
+		CHECK(v2.x == 100);
+		CHECK(v2.y == 200);
+
+		v2[0] = 3;
+		v2[1] = 4;
+		CHECK(v2[0] == 3);
+		CHECK(v2[1] == 4);
+		CHECK(v2.x == 3);
+		CHECK(v2.y == 4);
+
+		//v2.z = 10;     // Ok, compile error
+		//int i = v2.z;
+	}
+	SECTION("ivec3") {
+		ivec3 v3(10, 20, 30);
+		CHECK(sizeof(v3) == 3 * sizeof(int));
+
+		CHECK(v3.x == 10);
+		CHECK(v3.y == 20);
+		CHECK(v3.z == 30);
+
+		v3.x = 100;
+		v3.y = 200;
+		v3.z = 300;
+		CHECK(v3.x == 100);
+		CHECK(v3.y == 200);
+		CHECK(v3.z == 300);
+
+		//v3.w = 10;     // Ok, compile error
+		//int i = v3.w;
+	}
+	SECTION("ivec4") {
+		ivec4 v4(10, 20, 30, 40);
+		CHECK(sizeof(v4) == 4 * sizeof(int));
+
+		CHECK(v4.x == 10);
+		CHECK(v4.y == 20);
+		CHECK(v4.z == 30);
+		CHECK(v4.w == 40);
+
+		v4.x = 100;
+		v4.y = 200;
+		v4.z = 300;
+		v4.w = 400;
+		CHECK(v4.x == 100);
+		CHECK(v4.y == 200);
+		CHECK(v4.z == 300);
+		CHECK(v4.w == 400);
+	}
+}
+
 
 #if 0
 

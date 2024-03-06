@@ -213,7 +213,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}
 		patternTex.bind();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize[0], patternTexSize[1], 0,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, patternTexSize.x, patternTexSize.y, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
 		// create grid texture
@@ -242,7 +242,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto size = gl::vec2(patternDisplaySize) * zm;
-			im::Child("##pattern", {0, size[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##pattern", {0, size.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), size);
@@ -251,7 +251,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						ImGui::StrCat("Pattern: ", gridPos[0] + 32 * gridPos[1]);
+						ImGui::StrCat("Pattern: ", gridPos.x + 32 * gridPos.y);
 						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
 						auto uv2 = uv1 + recipPatTexChars;
 						auto pos2 = ImGui::GetCursorPos();
@@ -284,7 +284,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			auto msxSize = charSize * charsSize; // (x * y) number of MSX pixels
 			auto hostSize = msxSize * zm; // (x * y) number of host pixels
 
-			im::Child("##name", {0.0f, hostSize[1]}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			im::Child("##name", {0.0f, hostSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				auto* drawList = ImGui::GetWindowDrawList();
 
@@ -336,8 +336,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						ImGui::StrCat("Column: ", gridPos[0], " Row: ", gridPos[1]);
-						auto pattern = getPattern(gridPos[0], gridPos[1]);
+						ImGui::StrCat("Column: ", gridPos.x, " Row: ", gridPos.y);
+						auto pattern = getPattern(gridPos.x, gridPos.y);
 						ImGui::StrCat("Pattern: ", pattern);
 						auto [uv1, uv2] = getPatternUV(pattern);
 						auto pos2 = ImGui::GetCursorPos();

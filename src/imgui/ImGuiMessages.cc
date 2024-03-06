@@ -265,8 +265,8 @@ void ImGuiMessages::paintOSD()
 		gl::vec2 textSize = ImGui::CalcTextSize(text.data(), text.data() + text.size());
 		gl::vec2 boxSize = textSize + 2.0f * offset;
 		drawInfo.emplace_back(text, boxSize, y, colors->text, colors->background);
-		y += boxSize[1] + style.ItemSpacing.y;
-		width = std::max(width, boxSize[0]);
+		y += boxSize.y + style.ItemSpacing.y;
+		width = std::max(width, boxSize.x);
 		return false; // keep message
 	});
 	if (drawInfo.empty()) return;
