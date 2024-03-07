@@ -21,6 +21,7 @@
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
 #include "RomPlain.hh"
+#include "RomInfo.hh"
 #include "SymbolManager.hh"
 
 #include "narrow.hh"
@@ -620,21 +621,21 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 				if (ImGui::TableNextColumn()) { // segment
 					auto* device = cpuInterface.getVisibleMSXDevice(page);
 					Debuggable* romBlocks = nullptr;
+					MSXRom *rom = nullptr;
 					if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
 						ImGui::StrCat(mapper->getSelectedSegment(page));
-					} else if (!dynamic_cast<RomPlain*>(device) &&
+					} else if ((rom = dynamic_cast<MSXRom*>(device)) &&
 						(romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
-						// TODO we should query the actual bankSize instead this heuristic
-						std::array<uint8_t, 4> segments;
-						for (auto sub : xrange(4)) {
-							segments[sub] = romBlocks->read(addr + 0x1000 * sub);
-						}
-						if ((segments[0] != segments[1]) || (segments[2] != segments[3])) { // 4kB
-							ImGui::StrCat('R', segments[0], '/', segments[1], '/', segments[2], '/', segments[3]);
-						} else if (segments[0] != segments[2]) { // 8kB
-							ImGui::StrCat('R', segments[0], '/', segments[2]);
-						} else { // 16kB
-							ImGui::StrCat('R', segments[0]);
+						if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
+							std::string text;
+							char separator = 'R';
+							for (int offset = 0; offset < 0x4000; offset += blockSize) {
+								strAppend(text, separator, romBlocks->read(addr + offset));
+								separator = '/';
+							}
+							ImGui::TextUnformatted(text);
+						} else {
+							ImGui::TextUnformatted("-"sv);
 						}
 					} else {
 						ImGui::TextUnformatted("-"sv);
