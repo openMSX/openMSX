@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "Rom.hh"
+#include "RomTypes.hh"
 
 namespace openmsx {
 
@@ -19,8 +20,13 @@ public:
 	 */
 	void getInfo(TclObject& result) const;
 
+	RomType getRomType() const;
+
 protected:
 	MSXRom(const DeviceConfig& config, Rom&& rom);
+
+private:
+	std::string_view getMapperTypeString() const;
 
 protected:
 	Rom rom;
