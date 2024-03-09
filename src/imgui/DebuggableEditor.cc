@@ -164,6 +164,11 @@ struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
 	return strCat(hex_string<2, HexCase::upper>(val));
 }
 
+[[nodiscard]] static char formatAsciiData(uint8_t val)
+{
+	return (val < 32 || val >= 128) ? '.' : char(val);
+}
+
 void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize)
 {
 	auto formatAddr = [&](unsigned addr) {
@@ -171,7 +176,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	};
 	auto setStrings = [&]{
 		addrStr = strCat("0x", formatAddr(currentAddr));
-		dataInput = formatData(debuggable.read(currentAddr));
+		auto b = debuggable.read(currentAddr);
+		if (dataEditingActive == HEX  ) dataInput = formatData(b);
+		if (dataEditingActive == ASCII) dataInput = std::string(1, formatAsciiData(b));
 	};
 	auto setAddr = [&](unsigned addr) {
 		addr = std::min(addr, memSize - 1);
@@ -246,136 +253,164 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		                  ImGui::GetColorU32(ImGuiCol_Border));
 	}
 
-	const auto colorText = getColor(imColor::TEXT);
-	const auto colorDisabled = greyOutZeroes ? getColor(imColor::TEXT_DISABLED) : colorText;
+	auto handleInput = [&](unsigned addr, int width, auto formatData, auto parseData, int extraFlags = 0) {
+		// Display text input on current byte
+		if (dataEditingTakeFocus) {
+			ImGui::SetKeyboardFocusHere(0);
+			setStrings();
+		}
+		struct UserData {
+			// FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
+			static int Callback(ImGuiInputTextCallbackData* data) {
+				auto* userData = static_cast<UserData*>(data->UserData);
+				if (!data->HasSelection()) {
+					userData->cursorPos = data->CursorPos;
+				}
+				if (data->SelectionStart == 0 && data->SelectionEnd == data->BufTextLen) {
+					// When not editing a byte, always refresh its InputText content pulled from underlying memory data
+					// (this is a bit tricky, since InputText technically "owns" the master copy of the buffer we edit it in there)
+					data->DeleteChars(0, data->BufTextLen);
+					userData->format(data);
+					//data->InsertChars(0, ...);
+					//data->SelectionEnd = width;
+					data->SelectionStart = 0;
+					data->CursorPos = 0;
+				}
+				return 0;
+			}
+			std::function<void(ImGuiInputTextCallbackData* data)> format;
+			int cursorPos = -1; // Output
+		};
+		UserData userData;
+		userData.format = formatData;
+		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
+					  | ImGuiInputTextFlags_AutoSelectAll
+					  | ImGuiInputTextFlags_NoHorizontalScroll
+					  | ImGuiInputTextFlags_CallbackAlways
+					  | ImGuiInputTextFlags_AlwaysOverwrite
+					  | extraFlags;
+		ImGui::SetNextItemWidth(s.glyphWidth * width);
+		bool dataWrite = false;
+		im::ID(int(addr), [&]{
+			if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
+				dataWrite = true;
+			} else if (!dataEditingTakeFocus && ImGui::IsItemDeactivatedAfterEdit()) {
+				dataEditingActive = NONE;
+			}
+		});
+		dataEditingTakeFocus = false;
+		dataWrite |= userData.cursorPos >= width;
+		if (nextAddr) dataWrite = false;
+		if (dataWrite) {
+			if (auto value = parseData(dataInput)) {
+				debuggable.write(addr, *value);
+				assert(!nextAddr);
+				nextAddr = currentAddr + 1;
+			}
+		}
+	};
 
-	// We are not really using the clipper API correctly here, because we rely on visible_start_addr/visible_end_addr for our scrolling function.
 	const int totalLineCount = int((memSize + columns - 1) / columns);
-	ImGuiListClipper clipper;
-	clipper.Begin(totalLineCount, s.lineHeight);
-	while (clipper.Step()) {
-		for (int line = clipper.DisplayStart; line < clipper.DisplayEnd; ++line) {
-			auto addr = unsigned(line) * columns;
-			ImGui::StrCat(formatAddr(addr), ':');
+	im::ListClipper(totalLineCount, -1, s.lineHeight, [&](int line) {
+		auto addr = unsigned(line) * columns;
+		ImGui::StrCat(formatAddr(addr), ':');
 
-			// Draw Hexadecimal
-			for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
-				int macroColumn = n / MidColsCount;
-				float bytePosX = s.posHexStart + float(n) * s.hexCellWidth
-				               + float(macroColumn) * s.spacingBetweenMidCols;
-				ImGui::SameLine(bytePosX);
+		// Draw Hexadecimal
+		for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
+			int macroColumn = n / MidColsCount;
+			float bytePosX = s.posHexStart + float(n) * s.hexCellWidth
+					+ float(macroColumn) * s.spacingBetweenMidCols;
+			ImGui::SameLine(bytePosX);
 
-				// Draw highlight
-				auto previewDataTypeSize = DataTypeGetSize(previewDataType);
-				auto highLight = [&](unsigned a) {
-					return (currentAddr <= a) && (a < (currentAddr + previewDataTypeSize));
-				};
-				if (highLight(addr)) {
-					ImVec2 pos = ImGui::GetCursorScreenPos();
-					float highlightWidth = s.glyphWidth * 2;
-					if (highLight(addr + 1)) {
-						highlightWidth = s.hexCellWidth;
-						if (n > 0 && (n + 1) < columns && ((n + 1) % MidColsCount) == 0) {
-							highlightWidth += s.spacingBetweenMidCols;
-						}
-					}
-					drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightColor);
-				}
-
-				if (currentAddr == addr && (dataEditingTakeFocus || dataEditingActive)) {
-					// Display text input on current byte
-					if (dataEditingTakeFocus) {
-						dataEditingActive = true;
-						ImGui::SetKeyboardFocusHere(0);
-						setStrings();
-					}
-					struct UserData {
-						// FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
-						static int Callback(ImGuiInputTextCallbackData* data) {
-							auto* userData = static_cast<UserData*>(data->UserData);
-							if (!data->HasSelection()) {
-								userData->cursorPos = data->CursorPos;
-							}
-							if (data->SelectionStart == 0 && data->SelectionEnd == data->BufTextLen) {
-								// When not editing a byte, always refresh its InputText content pulled from underlying memory data
-								// (this is a bit tricky, since InputText technically "owns" the master copy of the buffer we edit it in there)
-								uint8_t val = userData->debuggable->read(userData->addr);
-								auto valStr = formatData(val);
-								data->DeleteChars(0, data->BufTextLen);
-								data->InsertChars(0, valStr.c_str());
-								data->SelectionStart = 0;
-								data->SelectionEnd = 2;
-								data->CursorPos = 0;
-							}
-							return 0;
-						}
-						Debuggable* debuggable = nullptr;
-						unsigned addr = 0;
-						int cursorPos = -1; // Output
-					};
-					UserData userData;
-					userData.debuggable = &debuggable;
-					userData.addr = addr;
-					ImGuiInputTextFlags flags = ImGuiInputTextFlags_CharsHexadecimal
-					                          | ImGuiInputTextFlags_EnterReturnsTrue
-					                          | ImGuiInputTextFlags_AutoSelectAll
-					                          | ImGuiInputTextFlags_NoHorizontalScroll
-					                          | ImGuiInputTextFlags_CallbackAlways
-					                          | ImGuiInputTextFlags_AlwaysOverwrite;
-					ImGui::SetNextItemWidth(s.glyphWidth * 2);
-					bool dataWrite = false;
-					im::ID(int(addr), [&]{
-						if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
-							dataWrite = true;
-						} else if (!dataEditingTakeFocus && !ImGui::IsItemActive()) {
-							dataEditingActive = false;
-						}
-					});
-					dataEditingTakeFocus = false;
-					dataWrite |= userData.cursorPos >= 2;
-					if (nextAddr) dataWrite = false;
-					if (dataWrite) {
-						if (auto value = parseDataValue(dataInput)) {
-							debuggable.write(addr, *value);
-							assert(!nextAddr);
-							nextAddr = currentAddr + 1;
-						}
-					}
-				} else {
-					// NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
-					uint8_t b = debuggable.read(addr);
-					im::StyleColor(b == 0 && greyOutZeroes, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-						ImGui::StrCat(formatData(b), ' ');
-					});
-					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
-						dataEditingTakeFocus = true;
-						nextAddr = addr;
+			// Draw highlight
+			auto previewDataTypeSize = DataTypeGetSize(previewDataType);
+			auto highLight = [&](unsigned a) {
+				return (currentAddr <= a) && (a < (currentAddr + previewDataTypeSize));
+			};
+			if (highLight(addr)) {
+				ImVec2 pos = ImGui::GetCursorScreenPos();
+				float highlightWidth = s.glyphWidth * 2;
+				if (highLight(addr + 1)) {
+					highlightWidth = s.hexCellWidth;
+					if (n > 0 && (n + 1) < columns && ((n + 1) % MidColsCount) == 0) {
+						highlightWidth += s.spacingBetweenMidCols;
 					}
 				}
+				drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightColor);
 			}
 
-			if (showAscii) {
-				// Draw ASCII values
-				ImGui::SameLine(s.posAsciiStart);
-				ImVec2 pos = ImGui::GetCursorScreenPos();
-				addr = unsigned(line) * columns;
-				im::ID(line, [&]{
-					if (ImGui::InvisibleButton("ascii", ImVec2(s.posAsciiEnd - s.posAsciiStart, s.lineHeight))) {
-						nextAddr = addr + unsigned((ImGui::GetIO().MousePos.x - pos.x) / s.glyphWidth);
-					}
+			if (currentAddr == addr && (dataEditingActive == HEX)) {
+				handleInput(addr, 2,
+					[&](ImGuiInputTextCallbackData* data) { // format
+						auto valStr = formatData(debuggable.read(addr));
+						data->InsertChars(0, valStr.data(), valStr.data() + valStr.size());
+						data->SelectionEnd = 2;
+					},
+					[&](std::string_view data) { // parse
+						return parseDataValue(data);
+					},
+					ImGuiInputTextFlags_CharsHexadecimal);
+			} else {
+				uint8_t b = debuggable.read(addr);
+				im::StyleColor(b == 0 && greyOutZeroes, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+					ImGui::StrCat(formatData(b), ' ');
 				});
-				for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
-					if (addr == currentAddr) {
-						drawList->AddRectFilled(pos, ImVec2(pos.x + s.glyphWidth, pos.y + s.lineHeight), ImGui::GetColorU32(HighlightColor));
-					}
-					uint8_t c = debuggable.read(addr);
-					char display = (c < 32 || c >= 128) ? '.' : char(c);
-					drawList->AddText(pos, (display == char(c)) ? colorText : colorDisabled, &display, &display + 1);
-					pos.x += s.glyphWidth;
+				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+					dataEditingActive = HEX;
+					dataEditingTakeFocus = true;
+					nextAddr = addr;
 				}
 			}
 		}
-	}
+
+		if (showAscii) {
+			// Draw ASCII values
+			ImGui::SameLine(s.posAsciiStart);
+			gl::vec2 pos = ImGui::GetCursorPos();
+			gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
+			addr = unsigned(line) * columns;
+
+			im::ID(line, [&]{
+				// handle via a single full-width button, this ensures we don't miss
+				// clicks because they fall in between two chars
+				if (ImGui::InvisibleButton("ascii", ImVec2(s.posAsciiEnd - s.posAsciiStart, s.lineHeight))) {
+					dataEditingActive = ASCII;
+					dataEditingTakeFocus = true;
+					nextAddr = addr + unsigned((ImGui::GetIO().MousePos.x - scrnPos.x) / s.glyphWidth);
+				}
+			});
+
+			for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
+				if (addr == currentAddr) {
+					auto start = scrnPos + gl::vec2(float(n) * s.glyphWidth, 0.0f);
+					drawList->AddRectFilled(start, start + gl::vec2(s.glyphWidth, s.lineHeight), ImGui::GetColorU32(HighlightColor));
+				}
+
+				ImGui::SetCursorPos(pos);
+				if (currentAddr == addr && (dataEditingActive == ASCII)) {
+					handleInput(addr, 1,
+						[&](ImGuiInputTextCallbackData* data) { // format
+							char valChar = formatAsciiData(debuggable.read(addr));
+							data->InsertChars(0, &valChar, &valChar + 1);
+							data->SelectionEnd = 1;
+						},
+						[&](std::string_view data) -> std::optional<uint8_t> { // parse
+							if (data.empty()) return {};
+							uint8_t b = data[0];
+							if (b < 32 || b >= 128) return {};
+							return b;
+						});
+				} else {
+					uint8_t c = debuggable.read(addr);
+					char display = formatAsciiData(c);
+					im::StyleColor(display != char(c), ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+						ImGui::TextUnformatted(&display, &display + 1);
+					});
+				}
+				pos.x += s.glyphWidth;
+			}
+		}
+	});
 	ImGui::PopStyleVar(2);
 	ImGui::EndChild();
 
