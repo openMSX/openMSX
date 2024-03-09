@@ -397,8 +397,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				} else {
 					gl::vec2 topLeft = ImGui::GetCursorPos();
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-					ImGui::Dummy(fullSize);
-					bool hovered = ImGui::IsItemHovered();
 					if (checkerBoardSize) {
 						ImGui::SetCursorPos(topLeft);
 						ImGui::Image(reinterpret_cast<void*>(checkerTex.get()), fullSize,
@@ -412,11 +410,14 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							                   float(zm), palette, reinterpret_cast<void*>(patternTex.get()));
 						}
 					}
+					ImGui::SetCursorPos(topLeft);
 					if (grid) {
-						ImGui::SetCursorPos(topLeft);
 						ImGui::Image(reinterpret_cast<void*>(gridTex.get()), fullSize,
 							{}, gl::vec2{8, 4});
+					} else {
+						ImGui::Dummy(fullSize);
 					}
+					bool hovered = ImGui::IsItemHovered();
 					if (hovered) {
 						gl::vec2 zoomPatSize{float(size * zm)};
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
