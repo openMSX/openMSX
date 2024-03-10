@@ -175,8 +175,11 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					ImGuiInputTextFlags_CallbackEdit |
 					ImGuiInputTextFlags_CallbackCompletion |
 					ImGuiInputTextFlags_CallbackHistory;
-		if (ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this) &&
-		(prompt != PROMPT_BUSY)) {
+		bool enter = false;
+		im::StyleColor(ImGuiCol_Text, 0x00000000, [&]{ // transparent, see HACK below
+			enter = ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this);
+		});
+		if (enter && (prompt != PROMPT_BUSY)) {
 			// print command in output buffer, with prompt prepended
 			ConsoleLine cmdLine(prompt);
 			cmdLine.addLine(coloredInputBuf);
@@ -241,15 +244,27 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ gl::vec2 topLeft = cursorScrnPos;
 		/**/ gl::vec2 bottomRight = topLeft + frameSize;
 		/**/ gl::vec2 drawPos = topLeft + gl::vec2(style.FramePadding);
+		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
+		/**/ auto* drawList = ImGui::GetWindowDrawList();
+		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
 		/**/ if (ImGui::IsItemActive()) {
 		/**/	auto id = ImGui::GetID("##Input");
 		/**/	if (auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
+		/**/		// adjust for scroll
 		/**/		drawPos.x -= state->ScrollX;
+		/**/		// redraw cursor (it was drawn transparent before)
+		/**/		bool cursorIsVisible = (state->CursorAnim <= 0.0f) || ImFmod(state->CursorAnim, 1.20f) <= 0.80f;
+		/**/		if (cursorIsVisible) {
+		/**/			// This assumes a single line and fixed-width font
+		/**/			gl::vec2 cursorOffset(state->GetCursorPos() * charWidth, 0.0f);
+		/**/			gl::vec2 cursorScreenPos = ImTrunc(drawPos + cursorOffset);
+		/**/			ImRect cursorScreenRect(cursorScreenPos.x, cursorScreenPos.y - 0.5f, cursorScreenPos.x + 1.0f, cursorScreenPos.y + fontSize - 1.5f);
+		/**/			if (cursorScreenRect.Overlaps(clipRect)) {
+		/**/				drawList->AddLine(cursorScreenRect.Min, cursorScreenRect.GetBL(), getColor(imColor::TEXT));
+		/**/			}
+		/**/		}
 		/**/	}
 		/**/ }
-		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
-		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
-		/**/ auto* drawList = ImGui::GetWindowDrawList();
 		/**/ for (auto i : xrange(coloredInputBuf.numChunks())) {
 		/**/ 	auto text = coloredInputBuf.chunkText(i);
 		/**/ 	auto rgba = getColor(coloredInputBuf.chunkColor(i));
