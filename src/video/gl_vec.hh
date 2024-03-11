@@ -18,10 +18,10 @@
 
 #include "Math.hh"
 #include "narrow.hh"
+#include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <utility>
@@ -29,98 +29,44 @@
 namespace gl {
 
 // Vector with N components of type T.
-template<int N, typename T> class vecN
+template<int N, typename T> class vecN;
+
+// Specialization for N=2.
+template<typename T> class vecN<2, T>
 {
 public:
 	// Default copy-constructor and assignment operator.
 
 	// Construct vector containing all zeros.
-	constexpr vecN()
-	{
-		for (auto i : xrange(N)) storage[i] = T(0);
-	}
+	constexpr vecN() : x(T(0)), y(T(0)) {}
 
 	// Construct vector containing the same value repeated N times.
-	constexpr explicit vecN(T t)
-	{
-		for (auto i : xrange(N)) storage[i] = t;
-	}
+	constexpr explicit vecN(T t) : x(t), y(t) {}
 
-	// Conversion constructor from vector of same size but different type
+	// Conversion constructor from vector of same size but different type.
 	template<typename T2>
-	constexpr explicit vecN(const vecN<N, T2>& v)
-	{
-		for (auto i : xrange(N)) storage[i] = T(v[i]);
-	}
+	constexpr explicit vecN(const vecN<2, T2>& v) : x(T(v.x)), y(T(v.y)) {}
 
 	// Construct from larger vector (higher order elements are dropped).
-	template<int N2> constexpr explicit vecN(const vecN<N2, T>& v)
-	{
-		static_assert(N2 > N, "wrong vector length in constructor");
-		for (auto i : xrange(N)) storage[i] = v[i];
-	}
+	template<int N2> constexpr explicit vecN(const vecN<N2, T>& v) : x(v.x), y(v.y) {}
 
-	// Construct vector from 2 given values (only valid when N == 2).
-	constexpr vecN(T a, T b)
-		: storage{a, b}
-	{
-		static_assert(N == 2, "wrong #constructor arguments");
-	}
-
-	// Construct vector from 3 given values (only valid when N == 3).
-	constexpr vecN(T a, T b, T c)
-		: storage{a, b, c}
-	{
-		static_assert(N == 3, "wrong #constructor arguments");
-	}
-
-	// Construct vector from 4 given values (only valid when N == 4).
-	constexpr vecN(T a, T b, T c, T d)
-		: storage{a, b, c, d}
-	{
-		static_assert(N == 4, "wrong #constructor arguments");
-	}
-
-	// Construct vector from concatenating a scalar and a (smaller) vector.
-	template<int N2>
-	constexpr vecN(T a, const vecN<N2, T>& b)
-	{
-		static_assert((1 + N2) == N, "wrong vector length in constructor");
-		storage[0] = a;
-		for (auto i : xrange(N2)) storage[i + 1] = b[i];
-	}
-
-	// Construct vector from concatenating a (smaller) vector and a scalar.
-	template<int N1>
-	constexpr vecN(const vecN<N1, T>& a, T b)
-	{
-		static_assert((N1 + 1) == N, "wrong vector length in constructor");
-		for (auto i : xrange(N1)) storage[i] = a[i];
-		storage[N1] = b;
-	}
-
-	// Construct vector from concatenating two (smaller) vectors.
-	template<int N1, int N2>
-	constexpr vecN(const vecN<N1, T>& a, const vecN<N2, T>& b)
-	{
-		static_assert((N1 + N2) == N, "wrong vector length in constructor");
-		for (auto i : xrange(N1)) storage[i     ] = a[i];
-		for (auto i : xrange(N2)) storage[i + N1] = b[i];
-	}
+	// Construct vector from 2 given values.
+	constexpr vecN(T a, T b) : x(a), y(b) {}
 
 	// Access the i-th element of this vector.
 	[[nodiscard]] constexpr T  operator[](unsigned i) const {
-		#ifdef DEBUG
-		assert(i < N);
-		#endif
-		return storage[i];
+		if (i == 0) return x;
+		if (i == 1) return y;
+		UNREACHABLE;
 	}
 	[[nodiscard]] constexpr T& operator[](unsigned i) {
-		#ifdef DEBUG
-		assert(i < N);
-		#endif
-		return storage[i];
+		if (i == 0) return x;
+		if (i == 1) return y;
+		UNREACHABLE;
 	}
+
+	[[nodiscard]] constexpr const T* data() const { return &x; }
+	[[nodiscard]] constexpr       T* data()       { return &x; }
 
 	// For structured bindings
 	template<size_t I> [[nodiscard]] constexpr T  get() const noexcept { return (*this)[I]; }
@@ -137,26 +83,106 @@ public:
 	// For now still manually implement it.
 	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
 	{
-		for (auto i : xrange(N)) if (a[i] != b[i]) return false;
-		return true;
+		return (a.x == b.x) && (a.y == b.y);
 	}
 
-private:
-	template<int> struct MissingMember {};
+public:
+	T x, y;
+};
 
-	template<int I>
-	using OptionalMember = std::conditional_t<I < N, T, MissingMember<I>>;
+// Specialization for N=3.
+template<typename T> class vecN<3, T>
+{
+public:
+	constexpr vecN() : x(T(0)), y(T(0)), z(T(0)) {}
+	constexpr explicit vecN(T t) : x(t), y(t), z(t) {}
+	template<typename T2>
+	constexpr explicit vecN(const vecN<3, T2>& v) : x(T(v.x)), y(T(v.y)), z(T(v.z)) {}
+	constexpr explicit vecN(const vecN<4, T>& v) : x(v.x), y(v.y), z(v.z) {}
+	constexpr vecN(T a, T b, T c) : x(a), y(b), z(c) {}
+	constexpr vecN(T a, const vecN<2, T>& b) : x(a), y(b.x), z(b.y) {}
+	constexpr vecN(const vecN<2, T>& a, T b) : x(a.x), y(a.y), z(b) {}
+
+	[[nodiscard]] constexpr T  operator[](unsigned i) const {
+		if (i == 0) return x;
+		if (i == 1) return y;
+		if (i == 2) return z;
+		UNREACHABLE;
+	}
+	[[nodiscard]] constexpr T& operator[](unsigned i) {
+		if (i == 0) return x;
+		if (i == 1) return y;
+		if (i == 2) return z;
+		UNREACHABLE;
+	}
+
+	[[nodiscard]] constexpr const T* data() const { return &x; }
+	[[nodiscard]] constexpr       T* data()       { return &x; }
+
+	template<size_t I> [[nodiscard]] constexpr T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] constexpr T& get()       noexcept { return (*this)[I]; }
+
+	constexpr vecN& operator+=(const vecN& v) { *this = *this + v; return *this; }
+	constexpr vecN& operator-=(const vecN& v) { *this = *this - v; return *this; }
+	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
+	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
+
+	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
+	{
+		return (a.x == b.x) && (a.y == b.y) && (a.z == b.z);
+	}
 
 public:
-	union {
-		std::array<T, N> storage;
-		struct {
-			[[no_unique_address]] OptionalMember<0> x;
-			[[no_unique_address]] OptionalMember<1> y;
-			[[no_unique_address]] OptionalMember<2> z;
-			[[no_unique_address]] OptionalMember<3> w;
-		};
-	};
+	T x, y, z;
+};
+
+// Specialization for N=4.
+template<typename T> class vecN<4, T>
+{
+public:
+	constexpr vecN() : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
+	constexpr explicit vecN(T t) : x(t), y(t), z(t), w(t) {}
+	template<typename T2>
+	constexpr explicit vecN(const vecN<4, T2>& v) : x(T(v.x)), y(T(v.y)), z(T(v.z)), w(T(v.w)) {}
+	constexpr vecN(T a, T b, T c, T d) : x(a), y(b), z(c), w(d) {}
+	constexpr vecN(T a, const vecN<3, T>& b) : x(a), y(b.x), z(b.y), w(b.z) {}
+	constexpr vecN(const vecN<3, T>& a, T b) : x(a.x), y(a.y), z(a.z), w(b) {}
+	constexpr vecN(const vecN<2, T>& a, const vecN<2, T>& b) : x(a.x), y(a.y), z(b.x), w(b.y) {}
+
+	[[nodiscard]] constexpr T  operator[](unsigned i) const {
+		if (i == 0) return x;
+		if (i == 1) return y;
+		if (i == 2) return z;
+		if (i == 3) return w;
+		UNREACHABLE;
+	}
+	[[nodiscard]] constexpr T& operator[](unsigned i) {
+		if (i == 0) return x;
+		if (i == 1) return y;
+		if (i == 2) return z;
+		if (i == 3) return w;
+		UNREACHABLE;
+	}
+
+	[[nodiscard]] constexpr const T* data() const { return &x; }
+	[[nodiscard]] constexpr       T* data()       { return &x; }
+
+	template<size_t I> [[nodiscard]] constexpr T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> [[nodiscard]] constexpr T& get()       noexcept { return (*this)[I]; }
+
+	// Assignment version of the +,-,* operations defined below.
+	constexpr vecN& operator+=(const vecN& v) { *this = *this + v; return *this; }
+	constexpr vecN& operator-=(const vecN& v) { *this = *this - v; return *this; }
+	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
+	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
+
+	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
+	{
+		return (a.x == b.x) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w);
+	}
+
+public:
+	T x, y, z, w;
 };
 
 
@@ -167,6 +193,13 @@ using  vec4 = vecN<4, float>;
 using ivec2 = vecN<2, int>;
 using ivec3 = vecN<3, int>;
 using ivec4 = vecN<4, int>;
+
+static_assert(sizeof( vec2) == 2 * sizeof(float));
+static_assert(sizeof( vec3) == 3 * sizeof(float));
+static_assert(sizeof( vec4) == 4 * sizeof(float));
+static_assert(sizeof(ivec2) == 2 * sizeof(int));
+static_assert(sizeof(ivec3) == 3 * sizeof(int));
+static_assert(sizeof(ivec4) == 4 * sizeof(int));
 
 
 // -- Scalar functions --

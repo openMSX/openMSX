@@ -125,7 +125,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			ImGui::Checkbox("grid", &bitmapGrid);
 			ImGui::SameLine();
 			im::Disabled(!bitmapGrid, [&]{
-				ImGui::ColorEdit4("Grid color", &bitmapGridColor[0],
+				ImGui::ColorEdit4("Grid color", bitmapGridColor.data(),
 					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 			});
 		});

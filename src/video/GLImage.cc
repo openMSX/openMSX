@@ -182,7 +182,7 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 			    narrow<float>(b)     * (1.0f / 255.0f),
 			    narrow<float>(alpha) * (1.0f / 255.0f));
 		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE,
-		                   &glContext.pixelMvp[0][0]);
+		                   glContext.pixelMvp.data());
 		const ivec2* offset = nullptr;
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, offset + 4);
 		glEnableVertexAttribArray(0);
@@ -200,7 +200,7 @@ void GLImage::draw(ivec2 pos, uint8_t r, uint8_t g, uint8_t b, uint8_t alpha)
 		assert(b == 255);
 		glContext.progFill.activate();
 		glUniformMatrix4fv(glContext.unifFillMvp, 1, GL_FALSE,
-		                   &glContext.pixelMvp[0][0]);
+		                   glContext.pixelMvp.data());
 		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 		glVertexAttrib4f(1,

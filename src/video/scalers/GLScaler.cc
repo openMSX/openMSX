@@ -42,7 +42,7 @@ void GLScaler::setup(bool superImpose)
 	int i = superImpose ? 1 : 0;
 	program[i].activate();
 
-	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, &gl::context->pixelMvp[0][0]);
+	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, gl::context->pixelMvp.data());
 }
 
 void GLScaler::execute(

@@ -65,7 +65,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glContext.progTex.activate();
 	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
-	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, I.data());
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
 	const vec2* base = nullptr;

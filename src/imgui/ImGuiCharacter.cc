@@ -145,7 +145,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("grid", &grid);
 				ImGui::SameLine();
 				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", &gridColor[0],
+					ImGui::ColorEdit4("Grid color", gridColor.data(),
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 				});
 			});

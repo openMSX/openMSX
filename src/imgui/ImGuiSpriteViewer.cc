@@ -254,16 +254,16 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("grid", &grid);
 				ImGui::SameLine();
 				im::Disabled(!grid, [&]{
-					ImGui::ColorEdit4("Grid color", &gridColor[0],
+					ImGui::ColorEdit4("Grid color", gridColor.data(),
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 				});
 
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color1", &checkerBoardColor1[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color2", &checkerBoardColor2[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 					ImGui::InputInt("size", &checkerBoardSize);
@@ -677,7 +677,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					ImGui::Checkbox("Bounding box", &drawBoundingBox);
 					im::Indent([&]{
 						im::Disabled(!drawBoundingBox, [&]{
-							ImGui::ColorEdit4("color", &boundingBoxColor[0],
+							ImGui::ColorEdit4("color", boundingBoxColor.data(),
 								ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaBar);
 							ImGui::RadioButton("On hovered sprites", &boundingBoxOnAll, 0);
 							ImGui::RadioButton("On all sprites", &boundingBoxOnAll, 1);

@@ -307,8 +307,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		glUniform4f(glContext.unifTexColor,
 				1.0f, 1.0f, 1.0f, 1.0f);
 		mat4 I;
-		glUniformMatrix4fv(glContext.unifTexMvp,
-					1, GL_FALSE, &I[0][0]);
+		glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, I.data());
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -567,7 +566,7 @@ void PostProcessor::drawGlow(int glow)
 	glUniform4f(glContext.unifTexColor,
 	            1.0f, 1.0f, 1.0f, narrow<float>(glow) * (31.0f / 3200.0f));
 	mat4 I;
-	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, I.data());
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo.get());
 
@@ -666,7 +665,7 @@ void PostProcessor::drawNoise()
 	glBlendFunc(GL_ONE, GL_ONE);
 	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
-	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(glContext.unifTexMvp, 1, GL_FALSE, I.data());
 
 	unsigned seq = frameCounter & 7;
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq].data());
@@ -762,9 +761,9 @@ void PostProcessor::preCalcMonitor3D(float width)
 	monitor3DProg.activate();
 	glUniform1i(monitor3DProg.getUniformLocation("u_tex"), 0);
 	glUniformMatrix4fv(monitor3DProg.getUniformLocation("u_mvpMatrix"),
-		1, GL_FALSE, &mvp[0][0]);
+		1, GL_FALSE, mvp.data());
 	glUniformMatrix3fv(monitor3DProg.getUniformLocation("u_normalMatrix"),
-		1, GL_FALSE, &normal[0][0]);
+		1, GL_FALSE, normal.data());
 }
 
 void PostProcessor::drawMonitor3D()

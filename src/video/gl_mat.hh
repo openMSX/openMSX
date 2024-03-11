@@ -97,6 +97,10 @@ public:
 		return c[i];
 	}
 
+	[[nodiscard]] constexpr const T* data() const { return c[0].data(); }
+	[[nodiscard]] constexpr       T* data()       { return c[0].data(); }
+
+
 	// Assignment version of the +,-,* operations defined below.
 	constexpr matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
 	constexpr matMxN& operator-=(const matMxN& x) { *this = *this - x; return *this; }
