@@ -1747,13 +1747,15 @@ public:
 
 class IGFD_API FileManager {
 public:                            // types
-    enum class SortingFieldEnum {  // sorting for filetering of the file lsit
-        FIELD_NONE = 0,            // no sorting reference, result indetermined haha..
+    enum SortingFieldEnum {        // sorting for filetering of the file lsit
         FIELD_FILENAME,            // sorted by filename
         FIELD_TYPE,                // sorted by filetype
         FIELD_SIZE,                // sorted by filesize (formated file size)
         FIELD_DATE,                // sorted by filedate
+#ifdef USE_THUMBNAILS
         FIELD_THUMBNAILS,          // sorted by thumbnails (comparaison by width then by height)
+#endif
+        NUM_FIELDS,
     };
 
 #ifdef NEED_TO_BE_PUBLIC_FOR_TESTS
@@ -1782,18 +1784,13 @@ public:
     char variadicBuffer[MAX_FILE_DIALOG_NAME_BUFFER] = "";       // called by m_SelectableItem
     char fileNameBuffer[MAX_FILE_DIALOG_NAME_BUFFER] = "";       // file name buffer in footer for imgui widget input text
     char directoryNameBuffer[MAX_FILE_DIALOG_NAME_BUFFER] = "";  // directory name buffer (when in directory mode)
-    std::string headerFileName;                                  // detail view name of column file
-    std::string headerFileType;                                  // detail view name of column type
-    std::string headerFileSize;                                  // detail view name of column size
-    std::string headerFileDate;  // detail view name of column date + time
+    std::string header[SortingFieldEnum::NUM_FIELDS];            // detail view name of column
+    bool sortingDirection[SortingFieldEnum::NUM_FIELDS] = {      // true => Ascending, false => Descending
+        defaultSortOrderFilename, defaultSortOrderType, defaultSortOrderSize, defaultSortOrderDate,
 #ifdef USE_THUMBNAILS
-    std::string headerFileThumbnails;  // detail view name of column thumbnails
-    bool sortingDirection[5] = {       // true => Ascending, false => Descending
-        defaultSortOrderFilename, defaultSortOrderType, defaultSortOrderSize, defaultSortOrderDate, defaultSortOrderThumbnails};
-#else
-    bool sortingDirection[4] = {  // true => Ascending, false => Descending
-        defaultSortOrderFilename, defaultSortOrderType, defaultSortOrderSize, defaultSortOrderDate};
+        defaultSortOrderThumbnails,
 #endif
+    };
     SortingFieldEnum sortingField = SortingFieldEnum::FIELD_FILENAME;  // detail view sorting column
     bool showDrives = false;                                           // drives are shown (only on os windows)
 

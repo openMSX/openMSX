@@ -1673,159 +1673,63 @@ void IGFD::FileManager::SortFields(const FileDialogInternal& vFileDialogInternal
 }
 
 void IGFD::FileManager::m_SortFields(const FileDialogInternal& vFileDialogInternal, std::vector<std::shared_ptr<FileInfos> >& vFileInfosList, std::vector<std::shared_ptr<FileInfos> >& vFileInfosFilteredList) {
-    if (sortingField != SortingFieldEnum::FIELD_NONE) {
-        headerFileName = tableHeaderFileNameString;
-        headerFileType = tableHeaderFileTypeString;
-        headerFileSize = tableHeaderFileSizeString;
-        headerFileDate = tableHeaderFileDateString;
+    static constexpr const char* defaultHeaderString[] = {
+        tableHeaderFileNameString,
+        tableHeaderFileTypeString,
+        tableHeaderFileSizeString,
+        tableHeaderFileDateString,
 #ifdef USE_THUMBNAILS
-        headerFileThumbnails = tableHeaderFileThumbnailsString;
+        tableHeaderFileThumbnailsString,
 #endif  // #ifdef USE_THUMBNAILS
+    };
+    for (int i = 0; i < SortingFieldEnum::NUM_FIELDS; ++i) {
+	header[i] = defaultHeaderString[i];
     }
-    if (sortingField == SortingFieldEnum::FIELD_FILENAME) {
-        if (sortingDirection[0]) {
+    bool ascending = sortingDirection[sortingField];
 #ifdef USE_CUSTOM_SORTING_ICON
-            headerFileName = tableHeaderAscendingIcon + headerFileName;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                // tofix : this code fail in c:\\Users with the link "All users". got a invalid comparator
-                /*
-                // use code from
-                https://github.com/jackm97/ImGuiFileDialog/commit/bf40515f5a1de3043e60562dc1a494ee7ecd3571
-                // strict ordering for file/directory types beginning in '.'
-                // common on _IGFD_WIN_ platforms
-                if (a->fileNameExt[0] == '.' && b->fileNameExt[0] != '.')
-                    return false;
-                if (a->fileNameExt[0] != '.' && b->fileNameExt[0] == '.')
-                    return true;
-                if (a->fileNameExt[0] == '.' && b->fileNameExt[0] == '.')
-                {
-                    return (stricmp(a->fileNameExt.c_str(), b->fileNameExt.c_str()) < 0); // sort in insensitive
-                case
-                }
-                */
-                if (a->fileType != b->fileType) return (a->fileType < b->fileType);    // directories first
-                return (stricmp(a->fileNameExt.c_str(), b->fileNameExt.c_str()) < 0);  // sort in insensitive case
-            });
-        } else {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileName = tableHeaderDescendingIcon + headerFileName;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                // tofix : this code fail in c:\\Users with the link "All users". got a invalid comparator
-                /*
-                // use code from
-                https://github.com/jackm97/ImGuiFileDialog/commit/bf40515f5a1de3043e60562dc1a494ee7ecd3571
-                // strict ordering for file/directory types beginning in '.'
-                // common on _IGFD_WIN_ platforms
-                if (a->fileNameExt[0] == '.' && b->fileNameExt[0] != '.')
-                    return false;
-                if (a->fileNameExt[0] != '.' && b->fileNameExt[0] == '.')
-                    return true;
-                if (a->fileNameExt[0] == '.' && b->fileNameExt[0] == '.')
-                {
-                    return (stricmp(a->fileNameExt.c_str(), b->fileNameExt.c_str()) > 0); // sort in insensitive
-                case
-                }
-                */
-                if (a->fileType != b->fileType) return (a->fileType > b->fileType);    // directories last
-                return (stricmp(a->fileNameExt.c_str(), b->fileNameExt.c_str()) > 0);  // sort in insensitive case
-            });
-        }
-    } else if (sortingField == SortingFieldEnum::FIELD_TYPE) {
-        if (sortingDirection[1]) {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileType = tableHeaderAscendingIcon + headerFileType;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType < b->fileType);  // directory in first
-                return (a->fileExtLevels[0] < b->fileExtLevels[0]);                  // else
-            });
-        } else {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileType = tableHeaderDescendingIcon + headerFileType;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType > b->fileType);  // directory in last
-                return (a->fileExtLevels[0] > b->fileExtLevels[0]);                  // else
-            });
-        }
-    } else if (sortingField == SortingFieldEnum::FIELD_SIZE) {
-        if (sortingDirection[2]) {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileSize = tableHeaderAscendingIcon + headerFileSize;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType < b->fileType);  // directory in first
-                return (a->fileSize < b->fileSize);                                  // else
-            });
-        } else {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileSize = tableHeaderDescendingIcon + headerFileSize;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType > b->fileType);  // directory in last
-                return (a->fileSize > b->fileSize);                                  // else
-            });
-        }
-    } else if (sortingField == SortingFieldEnum::FIELD_DATE) {
-        if (sortingDirection[3]) {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileDate = tableHeaderAscendingIcon + headerFileDate;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType < b->fileType);  // directory in first
-                return (a->fileModifDate < b->fileModifDate);                        // else
-            });
-        } else {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileDate = tableHeaderDescendingIcon + headerFileDate;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType > b->fileType);  // directory in last
-                return (a->fileModifDate > b->fileModifDate);                        // else
-            });
-        }
-    }
+    header[sortingField] = (ascending ? tableHeaderAscendingIcon : tableHeaderDescendingIcon)
+                         + header[sortingField];
+#endif
+
+    std::stable_sort(vFileInfosList.begin(), vFileInfosList.end(), [&](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
+        bool a_used = a.use_count() != 0;
+        bool b_used = b.use_count() != 0;
+        if (a_used != b_used) return a_used < b_used;
+        if (!a_used) return true; // neither is used
+
+        // We want ".." ALWAYS at the top
+        bool a_not_dotdot = a->fileNameExt != "..";
+        bool b_not_dotdot = b->fileNameExt != "..";
+        if (a_not_dotdot != b_not_dotdot) return a_not_dotdot < b_not_dotdot;
+
+        auto compare = [&](auto extractor) {
+            // directories before (or after) files
+            auto a_type = a->fileType;
+            auto b_type = a->fileType;
+            if (a_type != b_type) return ascending ? a_type < b_type : b_type < a_type;
+
+            // then sort on column-specific properties
+            auto a_properties = extractor(a);
+            auto b_properties = extractor(b);
+            return ascending ? a_properties < b_properties : b_properties < a_properties;
+        };
+        switch (sortingField) {
+        case SortingFieldEnum::FIELD_FILENAME:
+            return compare([](const auto& x) { return x->fileNameExt_optimized; });
+        case SortingFieldEnum::FIELD_TYPE:
+            return compare([](const auto& x) { return x->fileExtLevels_optimized[0]; });
+        case SortingFieldEnum::FIELD_SIZE:
+            return compare([](const auto& x) { return x->fileSize; });
+        case SortingFieldEnum::FIELD_DATE:
+            return compare([](const auto& x) { return x->fileModifDate; });
 #ifdef USE_THUMBNAILS
-    else if (sortingField == SortingFieldEnum::FIELD_THUMBNAILS) {
-        // we will compare thumbnails by :
-        // 1) width
-        // 2) height
-
-        if (sortingDirection[4]) {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileThumbnails = tableHeaderAscendingIcon + headerFileThumbnails;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (a->fileType.isDir());  // directory in first
-                if (a->thumbnailInfo.textureWidth == b->thumbnailInfo.textureWidth) return (a->thumbnailInfo.textureHeight < b->thumbnailInfo.textureHeight);
-                return (a->thumbnailInfo.textureWidth < b->thumbnailInfo.textureWidth);
-            });
+        case SortingFieldEnum::FIELD_THUMBNAILS:
+            return compare([](const auto& x) { return std::make_tuple(x->thumbnailInfo.textureWidth, x->thumbnailInfo.textureHeight); });
+#endif
+        default:
+            return false; // we shouldn't get here
         }
-
-        else {
-#ifdef USE_CUSTOM_SORTING_ICON
-            headerFileThumbnails = tableHeaderDescendingIcon + headerFileThumbnails;
-#endif  // USE_CUSTOM_SORTING_ICON
-            std::sort(vFileInfosList.begin(), vFileInfosList.end(), [](const std::shared_ptr<FileInfos>& a, const std::shared_ptr<FileInfos>& b) -> bool {
-                if (!a.use_count() || !b.use_count()) return false;
-                if (a->fileType != b->fileType) return (!a->fileType.isDir());  // directory in last
-                if (a->thumbnailInfo.textureWidth == b->thumbnailInfo.textureWidth) return (a->thumbnailInfo.textureHeight > b->thumbnailInfo.textureHeight);
-                return (a->thumbnailInfo.textureWidth > b->thumbnailInfo.textureWidth);
-            });
-        }
-    }
-#endif  // USE_THUMBNAILS
+    });
 
     m_ApplyFilteringOnFileList(vFileDialogInternal, vFileInfosList, vFileInfosFilteredList);
 }
@@ -3972,16 +3876,16 @@ void IGFD::FileDialog::m_DrawFileListView(ImVec2 vSize) {
     if (ImGui::BeginTableEx("##FileDialog_fileTable", listViewID, 4, flags, vSize, 0.0f))  //-V112
     {
         ImGui::TableSetupScrollFreeze(0, 1);  // Make header always visible
-        ImGui::TableSetupColumn(fdi.headerFileName.c_str(), ImGuiTableColumnFlags_WidthStretch | (defaultSortOrderFilename ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), -1, 0);
-        ImGui::TableSetupColumn(fdi.headerFileType.c_str(),
+        ImGui::TableSetupColumn(fdi.header[FileManager::SortingFieldEnum::FIELD_FILENAME].c_str(), ImGuiTableColumnFlags_WidthStretch | (defaultSortOrderFilename ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), -1, 0);
+        ImGui::TableSetupColumn(fdi.header[FileManager::SortingFieldEnum::FIELD_TYPE].c_str(),
                                 ImGuiTableColumnFlags_WidthFixed | (defaultSortOrderType ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending) |
                                     ((m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_HideColumnType) ? ImGuiTableColumnFlags_DefaultHide : 0),
                                 -1, 1);
-        ImGui::TableSetupColumn(fdi.headerFileSize.c_str(),
+        ImGui::TableSetupColumn(fdi.header[FileManager::SortingFieldEnum::FIELD_SIZE].c_str(),
                                 ImGuiTableColumnFlags_WidthFixed | (defaultSortOrderSize ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending) |
                                     ((m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_HideColumnSize) ? ImGuiTableColumnFlags_DefaultHide : 0),
                                 -1, 2);
-        ImGui::TableSetupColumn(fdi.headerFileDate.c_str(),
+        ImGui::TableSetupColumn(fdi.header[FileManager::SortingFieldEnum::FIELD_DATE].c_str(),
                                 ImGuiTableColumnFlags_WidthFixed | (defaultSortOrderDate ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending) |
                                     ((m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_HideColumnDate) ? ImGuiTableColumnFlags_DefaultHide : 0),
                                 -1, 3);
@@ -4158,7 +4062,7 @@ void IGFD::FileDialog::m_DrawThumbnailsListView(ImVec2 vSize) {
                                     ((m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_HideColumnDate) ? ImGuiTableColumnFlags_DefaultHide : 0),
                                 -1, 3);
         // not needed to have an option for hide the thumbnails since this is why this view is used
-        ImGui::TableSetupColumn(fdi.headerFileThumbnails.c_str(), ImGuiTableColumnFlags_WidthFixed | (defaultSortOrderThumbnails ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), -1, 4);  //-V112
+        ImGui::TableSetupColumn(fdi.header[FileManager::SortingFieldEnum::FIELD_THUMBNAILS].c_str(), ImGuiTableColumnFlags_WidthFixed | (defaultSortOrderThumbnails ? ImGuiTableColumnFlags_PreferSortAscending : ImGuiTableColumnFlags_PreferSortDescending), -1, 4);  //-V112
 
 #ifndef USE_CUSTOM_SORTING_ICON
         // Sort our data if sort specs have been changed!
