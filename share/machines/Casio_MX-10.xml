@@ -4,12 +4,14 @@
 
   <info>
     <manufacturer>Casio</manufacturer>
-    <code>MX-10</code>
+    <code>MX-10/MX-101</code>
     <release_year>1986</release_year>
     <description>Cheap gaming MSX, with joystick buttons and bad keyboard and no printer port.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>
+
+  <!-- Note: the MX-101 is identical to the MX-10, but it has a wireless video link system, which is obviously not emulated -->
 
   <CassettePort/> <!-- actually not a standard DIN-5 cassette interface (CMT), need FA-32 CMT I/F package as adapter -->
 
