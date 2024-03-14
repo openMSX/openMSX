@@ -91,9 +91,9 @@ private:
 	// [Internal State]
 	std::string dataInput;
 	std::string addrStr;
-	enum EditType { NONE, HEX, ASCII };
-	EditType dataEditingActive = NONE;
-	bool dataEditingTakeFocus = false;
+	enum EditType { HEX, ASCII };
+	EditType dataEditingActive = HEX;
+	bool dataEditingTakeFocus = true;
 	bool updateAddr = false;
 };
 

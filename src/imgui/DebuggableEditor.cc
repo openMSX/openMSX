@@ -294,8 +294,6 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		im::ID(int(addr), [&]{
 			if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
 				dataWrite = true;
-			} else if (!dataEditingTakeFocus && ImGui::IsItemDeactivatedAfterEdit()) {
-				dataEditingActive = NONE;
 			}
 		});
 		dataEditingTakeFocus = false;
