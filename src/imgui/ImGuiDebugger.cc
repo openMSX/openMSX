@@ -312,6 +312,34 @@ struct CurrentSlot {
 	return true;
 }
 
+struct BpLine {
+	int count = 0;
+	int idx = -1; // only valid when count=1
+	bool anyEnabled = false;
+	bool anyDisabled = false;
+	bool anyInSlot = false;
+	bool anyComplex = false;
+};
+static BpLine examineBpLine(uint16_t addr, std::span<const ImGuiBreakPoints::GuiItem> bps, MSXCPUInterface& cpuInterface, Debugger& debugger)
+{
+	BpLine result;
+	for (auto [i, bp] : enumerate(bps)) {
+		if (!bp.addr || *bp.addr != addr) continue;
+		++result.count;
+		result.idx = int(i);
+
+		bool enabled = (bp.id > 0) && bp.wantEnable;
+		result.anyEnabled |= enabled;
+		result.anyDisabled |= !enabled;
+
+		ParsedSlotCond bpSlot("pc_in_slot", bp.cond.getString());
+		result.anyInSlot |= addrInSlot(bpSlot, cpuInterface, debugger, addr);
+
+		result.anyComplex |= !bpSlot.rest.empty() || (bp.cmd.getString() != "debug break");
+	}
+	return result;
+}
+
 void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time)
 {
 	if (!showDisassembly) return;
@@ -342,8 +370,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
-			const auto& breakPoints = cpuInterface.getBreakPoints();
-			auto bpEt = breakPoints.end();
+			auto& guiBps = manager.breakPoints->getBps();
 			auto textSize = ImGui::GetTextLineHeight();
 
 			std::string mnemonic;
@@ -356,7 +383,6 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			}
 			std::optional<unsigned> nextGotoTarget;
 			while (clipper.Step()) {
-				auto bpIt = ranges::lower_bound(breakPoints, clipper.DisplayStart, {}, &BreakPoint::getAddress);
 				auto addr16 = instructionBoundary(cpuInterface, narrow<uint16_t>(clipper.DisplayStart), time);
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 					unsigned addr = addr16;
@@ -372,39 +398,66 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						if (rowAtPc) {
 							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, getColor(imColor::YELLOW_BG));
 						}
+						bool bpRightClick = false;
 						if (ImGui::TableNextColumn()) { // bp
-							while ((bpIt != bpEt) && (bpIt->getAddress() < addr)) ++bpIt;
-							bool hasBp = (bpIt != bpEt) && (bpIt->getAddress() == addr);
-							bool multiBp = hasBp && ((bpIt + 1) != bpEt) && ((bpIt + 1)->getAddress() == addr);
-							bool simpleBp = !multiBp;
+							auto bpLine = examineBpLine(addr16, guiBps, cpuInterface, debugger);
+							bool hasBp = bpLine.count != 0;
+							bool multi = bpLine.count > 1;
 							if (hasBp) {
-								ParsedSlotCond bpSlot("pc_in_slot", bpIt->getCondition());
-								bool inSlot = addrInSlot(bpSlot, cpuInterface, debugger, addr16);
-								bool defaultBp = bpSlot.rest.empty() && (bpIt->getCommand() == "debug break");
-								simpleBp &= defaultBp;
-
-								auto [r,g,b] = simpleBp ? std::tuple(0xE0, 0x00, 0x00)
-											: std::tuple(0xE0, 0xE0, 0x00);
-								auto a = inSlot ? 0xFF : 0x80;
-								auto col = IM_COL32(r, g, b, a);
+								auto calcColor = [](bool enabled, bool inSlot) {
+									auto [r,g,b] = enabled ? std::tuple{0xE0, 0x00, 0x00}
+									                       : std::tuple{0x70, 0x70, 0x70};
+									auto a = inSlot ? 0xFF : 0x60;
+									return IM_COL32(r, g, b, a);
+								};
+								auto colIn = calcColor(bpLine.anyEnabled, bpLine.anyInSlot);
+								auto colOut = ImGui::GetColorU32(ImGuiCol_WindowBg);
 
 								auto* drawList = ImGui::GetWindowDrawList();
 								gl::vec2 scrn = ImGui::GetCursorScreenPos();
-								auto center = scrn + gl::vec2(textSize * 0.5f);
-								drawList->AddCircleFilled(center, textSize * 0.4f, col);
+								auto center = scrn + textSize * gl::vec2(multi ? 0.3f : 0.5f, 0.5f);
+								auto radiusIn = 0.4f * textSize;
+								auto radiusOut = 0.5f * textSize;
+
+								if (multi) {
+									auto center2 = center + textSize * gl::vec2(0.4f, 0.0f);
+									drawList->AddCircleFilled(center2, radiusOut, colOut);
+									auto colIn2 = calcColor(!bpLine.anyDisabled, bpLine.anyInSlot);
+									drawList->AddCircleFilled(center2, radiusIn, colIn2);
+								}
+								drawList->AddCircleFilled(center, radiusOut, colOut);
+								drawList->AddCircleFilled(center, radiusIn, colIn);
+								if (bpLine.anyComplex) {
+									auto d = 0.3f * textSize;
+									auto c = IM_COL32(0, 0, 0, 192);
+									auto t = 0.2f * textSize;
+									drawList->AddLine(center - gl::vec2(d, 0.0f), center + gl::vec2(d, 0.0f), c, t);
+									drawList->AddLine(center - gl::vec2(0.0f, d), center + gl::vec2(0.0f, d), c, t);
+								}
 							}
 							if (ImGui::InvisibleButton("##bp-button", {-FLT_MIN, textSize})) {
 								if (hasBp) {
-									// only allow to remove 'simple' breakpoints,
+									// only allow to remove single breakpoints,
 									// others can be edited via the breakpoint viewer
-									if (simpleBp) {
-										removeBpId = bpIt->getId(); // schedule removal
+									if (!multi) {
+										auto& bp = guiBps[bpLine.idx];
+										if (bp.id > 0) {
+											removeBpId = bp.id; // schedule removal
+										} else {
+											guiBps.erase(guiBps.begin() + bpLine.idx);
+										}
 									}
 								} else {
 									// schedule creation of new bp
 									auto slot = getCurrentSlot(cpuInterface, debugger, addr16);
 									addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
 								}
+							} else {
+								bpRightClick = hasBp && ImGui::IsItemClicked(ImGuiMouseButton_Right);
+								if (bpRightClick) ImGui::OpenPopup("bp-context");
+								im::Popup("bp-context", [&]{
+									manager.breakPoints->paintBpTab(cpuInterface, debugger, addr16);
+								});
 							}
 						}
 
@@ -440,7 +493,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
-							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
+							if (!bpRightClick && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
 							}
 							auto addrStr = tmpStrCat(hex_string<4>(addr));
@@ -474,7 +527,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 								ImGui::Separator();
 
-								auto runTo = strCat("Run to address 0x", addrStr);
+								auto runTo = strCat("Run to here (address 0x", addrStr, ')');
 								if (ImGui::MenuItem(runTo.c_str())) {
 									manager.executeDelayed(makeTclList("run_to", addr));
 								}

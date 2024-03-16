@@ -311,11 +311,16 @@ void ImGuiBreakPoints::clear(DebugCondition* tag, MSXCPUInterface& cpuInterface)
 	}
 }
 
-template<typename Item>
-void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger)
+void ImGuiBreakPoints::paintBpTab(MSXCPUInterface& cpuInterface, Debugger& debugger, uint16_t addr)
 {
-	constexpr bool hasAddress = HasAddress<Item>{};
+	paintTab<BreakPoint>(cpuInterface, debugger, addr);
+}
+
+template<typename Item>
+void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr)
+{
 	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
+	bool hasAddress = HasAddress<Item>{} && !addr; // don't draw address-column if filtering a specific address
 	Item* tag = nullptr;
 	auto& items = getItems(tag);
 
@@ -327,12 +332,16 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 		ImGuiTableFlags_Hideable |
 		ImGuiTableFlags_Reorderable |
 		ImGuiTableFlags_ContextMenuInBody |
-		ImGuiTableFlags_RowBg |
-		ImGuiTableFlags_ScrollY |
-		ImGuiTableFlags_ScrollX |
 		ImGuiTableFlags_SizingStretchProp;
+	if (!addr) {
+		flags |= ImGuiTableFlags_ScrollY
+		      |  ImGuiTableFlags_ScrollX;
+	}
 	const auto& style = ImGui::GetStyle();
 	auto width = style.ItemSpacing.x + 2.0f * style.FramePadding.x + ImGui::CalcTextSize("Remove").x;
+	bool disableRemove = true;
+	int count = 0;
+	int lastDrawnRow = -1; // should only be used when count=1
 	im::Table("items", 5, flags, {-width, 0}, [&]{
 		syncFromOpenMsx<Item>(items, cpuInterface);
 
@@ -344,31 +353,43 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 		                              : ImGuiTableColumnFlags_Disabled;
 		ImGui::TableSetupColumn("Address", addressFlags);
 		ImGui::TableSetupColumn("Condition");
-		ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_DefaultHide);
+		ImGui::TableSetupColumn("Action", addr ? 0 : ImGuiTableColumnFlags_DefaultHide);
 		ImGui::TableHeadersRow();
 
 		checkSort(items);
 
 		im::ID_for_range(items.size(), [&](int row) {
-			drawRow<Item>(cpuInterface, debugger, row, items[row]);
+			if (!addr || (items[row].addr == addr)) {
+				++count; lastDrawnRow = row;
+				if (row == selectedRow) disableRemove = false;
+				drawRow<Item>(cpuInterface, debugger, row, items[row]);
+			}
 		});
 	});
+	if (count == 1) disableRemove = false;
 	ImGui::SameLine();
 	im::Group([&] {
 		if (ImGui::Button("Add")) {
 			--idCounter;
-			items.push_back(GuiItem{
+			GuiItem item{
 				idCounter,
 				true, // enabled, but still invalid
 				WatchPoint::WRITE_MEM,
 				{}, {}, {}, {}, // address
 				{}, // cond
-				makeTclList("debug", "break")}); // cmd
+				makeTclList("debug", "break")};
+			if (addr) {
+				item.wantEnable = false;
+				item.addr = addr;
+				item.addrStr = TclObject(tmpStrCat("0x", hex_string<4>(*addr)));
+			}
+			items.push_back(std::move(item));
 			selectedRow = -1;
 		}
-		im::Disabled(selectedRow < 0 || selectedRow >= narrow<int>(items.size()), [&]{
+		im::Disabled(disableRemove, [&]{
 			if (ImGui::Button("Remove")) {
-				auto it = items.begin() + selectedRow;
+				int removeRow = (count == 1) ? lastDrawnRow : selectedRow;
+				auto it = items.begin() + removeRow;
 				if (it->id > 0) {
 					remove(tag, cpuInterface, it->id);
 				}
@@ -376,12 +397,14 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 				selectedRow = -1;
 			}
 		});
-		ImGui::Spacing();
-		im::Disabled(items.empty() ,[&]{
-			if (ImGui::Button("Clear")) {
-				clear(tag, cpuInterface);
-			}
-		});
+		if (!addr) {
+			ImGui::Spacing();
+			im::Disabled(items.empty() ,[&]{
+				if (ImGui::Button("Clear")) {
+					clear(tag, cpuInterface);
+				}
+			});
+		}
 	});
 }
 
