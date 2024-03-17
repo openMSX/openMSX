@@ -12,6 +12,7 @@
   </info>
 
   <!-- Note: the MX-101 is identical to the MX-10, but it has a wireless video link system, which is obviously not emulated -->
+  <!--       The motherboard is quite different though, so it's not 100% sure that it's the same. -->
 
   <CassettePort/> <!-- actually not a standard DIN-5 cassette interface (CMT), need FA-32 CMT I/F package as adapter -->
 
@@ -26,7 +27,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
-      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- seems it is protected on the MX-101 which Peter Hanraets tested. TODO: check the MX-10 -->
       <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
