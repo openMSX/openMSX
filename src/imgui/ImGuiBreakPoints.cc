@@ -440,6 +440,11 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCP
 [[nodiscard]] static TclObject getCommandObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getCommandObj(); }
 
 
+[[nodiscard]] std::vector<ImGuiBreakPoints::GuiItem>& ImGuiBreakPoints::getBps(MSXCPUInterface& cpuInterface)
+{
+	syncFromOpenMsx<BreakPoint>(guiBps, cpuInterface);
+	return guiBps;
+}
 
 template<typename Item>
 void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)
