@@ -573,13 +573,13 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 					// see SpriteConverter
 					int first = 0;
-					do {
+					while (true /*sentinel*/) {
 						if ((visibleSprites[first].colorAttrib & 0x40) == 0) [[likely]] {
 							break;
 						}
 						++first;
-					} while (first < int(visibleSprites.size()));
-					for (int i = narrow<int>(visibleSprites.size() - 1); i >= first; --i) {
+					}
+					for (int i = narrow<int>(count - 1); i >= first; --i) {
 						const auto& spr = visibleSprites[i];
 						uint8_t c = spr.colorAttrib & 0x0F;
 						if (c == 0 && transparent) continue;
