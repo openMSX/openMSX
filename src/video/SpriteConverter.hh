@@ -82,7 +82,7 @@ public:
 				// past maxX -> not visible
 				return false;
 			}
-			auto mask = narrow_cast<int>(0x80000000);
+			auto mask = narrow_cast<int>(0x8000'0000);
 			pattern &= (mask >> (after - 1));
 		}
 		return true; // visible
@@ -120,7 +120,7 @@ public:
 			Pixel* p = &pixelPtr[x];
 			while (pattern) {
 				// Draw pixel if sprite has a dot.
-				if (pattern & 0x80000000) {
+				if (pattern & 0x8000'0000) {
 					*p = color;
 				}
 				// Advancing behaviour.
@@ -169,7 +169,7 @@ public:
 			uint8_t c = info.colorAttrib & 0x0F;
 			if (c == 0 && transparency) continue;
 			while (pattern) {
-				if (pattern & 0x80000000) {
+				if (pattern & 0x8000'0000) {
 					uint8_t color = c;
 					// Merge in any following CC=1 sprites.
 					for (int j = i + 1; /*sentinel*/; ++j) {
@@ -178,7 +178,7 @@ public:
 						if (!(info2.colorAttrib & 0x40)) break;
 						unsigned shift2 = x - info2.x;
 						if ((shift2 < 32) &&
-						   ((info2.pattern << shift2) & 0x80000000)) {
+						   ((info2.pattern << shift2) & 0x8000'0000)) {
 							color |= info2.colorAttrib & 0x0F;
 						}
 					}

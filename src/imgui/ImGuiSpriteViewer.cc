@@ -38,7 +38,7 @@ void ImGuiSpriteViewer::loadLine(std::string_view name, zstring_view value)
 static uint8_t vpeek(std::span<const uint8_t> vram, bool planar, size_t addr)
 {
 	if (planar) {
-		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+		addr = ((addr << 16) | (addr >> 1)) & 0x1'FFFF;
 	}
 	return (addr < vram.size()) ? vram[addr] : 0xFF;
 }
@@ -589,7 +589,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						if (!SpriteConverter::clipPattern(x, pattern, 0, 256)) continue;
 
 						while (pattern) {
-							if (pattern & 0x80000000) {
+							if (pattern & 0x8000'0000) {
 								uint8_t color = c;
 								// Merge in any following CC=1 sprites.
 								for (int j = i + 1; /*sentinel*/; ++j) {
@@ -597,7 +597,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 									if (!(info2.colorAttrib & 0x40)) break;
 									unsigned shift2 = x - info2.x;
 									if ((shift2 < 32) &&
-									((info2.pattern << shift2) & 0x80000000)) {
+									((info2.pattern << shift2) & 0x8000'0000)) {
 										color |= info2.colorAttrib & 0x0F;
 									}
 								}

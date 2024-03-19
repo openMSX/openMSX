@@ -76,23 +76,23 @@ private:
 	};
 	using ColorSequence = std::array<Step, 4>;
 	std::array<ColorSequence, 3> colorSequence = {
-		ColorSequence{ // Info                  AABBGGRR
-			Step{0.0f, Colors{0xff00ffff, 0x80ffffff}}, // start of flash
-			Step{0.5f, Colors{0xffffffff, 0x80808080}}, // start of stable colors
-			Step{5.0f, Colors{0xffffffff, 0x80808080}}, // end of stable colors
-			Step{1.5f, Colors{0x00ffffff, 0x00808080}}, // end of fade-out
+		ColorSequence{ // Info                     AA'BB'GG'RR
+			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
+			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'80'80'80}}, // start of stable colors
+			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'80'80'80}}, // end of stable colors
+			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'80'80'80}}, // end of fade-out
 		},
 		ColorSequence{ // warning
-			Step{0.0f, Colors{0xff00ffff, 0x80ffffff}}, // start of flash
-			Step{0.5f, Colors{0xffffffff, 0x800060A0}}, // start of stable colors
-			Step{5.0f, Colors{0xffffffff, 0x800060A0}}, // end of stable colors
-			Step{1.5f, Colors{0x00ffffff, 0x000060A0}}, // end of fade-out
+			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
+			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'00'60'A0}}, // start of stable colors
+			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'00'60'A0}}, // end of stable colors
+			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'00'60'A0}}, // end of fade-out
 		},
 		ColorSequence{ // error
-			Step{0.0f, Colors{0xff00ffff, 0x80ffffff}}, // start of flash
-			Step{0.5f, Colors{0xffffffff, 0x800000C0}}, // start of stable colors
-			Step{5.0f, Colors{0xffffffff, 0x800000C0}}, // end of stable colors
-			Step{1.5f, Colors{0x00ffffff, 0x000000C0}}, // end of fade-out
+			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
+			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // start of stable colors
+			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // end of stable colors
+			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'00'00'C0}}, // end of fade-out
 		}
 	};
 	struct OsdMessage {

@@ -378,7 +378,7 @@ static SetBootSectorResult setBootSector(
 		params.vol_id = vol_id;
 	} else if (bootType == MSXBootSectorType::NEXTOR && fat16) {
 		auto& params = boot.params.extended;
-		if (nbSectors <= 0x800000) {
+		if (nbSectors <= 0x80'0000) {
 			params.nrSectors = narrow<unsigned>(nbSectors);
 		} else {
 			throw CommandException("Too many sectors for FAT16 ", nbSectors);
@@ -523,7 +523,7 @@ static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::sp
 		// Add partition entry
 		auto& p = pt.part[0];
 		p.boot_ind = (i == 0) ? 0x80 : 0x00; // boot flag
-		p.sys_ind = size > 0x10000 ? 0x0E : 0x01; // FAT16B (LBA), or FAT12
+		p.sys_ind = size > 0x1'0000 ? 0x0E : 0x01; // FAT16B (LBA), or FAT12
 		p.start = 1;
 		p.size = size;
 
