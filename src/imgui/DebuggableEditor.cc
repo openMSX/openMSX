@@ -12,6 +12,7 @@
 #include "SymbolManager.hh"
 #include "TclObject.hh"
 
+#include "enumerate.hh"
 #include "narrow.hh"
 #include "unreachable.hh"
 
@@ -51,6 +52,7 @@ void DebuggableEditor::save(ImGuiTextBuffer& buf)
 void DebuggableEditor::loadLine(std::string_view name, zstring_view value)
 {
 	loadOnePersistent(name, value, *this, persistentElements);
+	parseSearchString(searchString);
 }
 
 void DebuggableEditor::loadEnd()
@@ -114,19 +116,21 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	return sizes[dataType];
 }
 
+[[nodiscard]] static std::optional<int> parseHexDigit(char c)
+{
+	if ('0' <= c && c <= '9') return c - '0';
+	if ('a' <= c && c <= 'f') return c - 'a' + 10;
+	if ('A' <= c && c <= 'F') return c - 'A' + 10;
+	return std::nullopt;
+}
+
 [[nodiscard]] static std::optional<uint8_t> parseDataValue(std::string_view str)
 {
-	auto parseDigit = [](char c) -> std::optional<int> {
-		if ('0' <= c && c <= '9') return c - '0';
-		if ('a' <= c && c <= 'f') return c - 'a' + 10;
-		if ('A' <= c && c <= 'F') return c - 'A' + 10;
-		return std::nullopt;
-	};
 	if (str.size() == 1) {
-		return parseDigit(str[0]);
+		return parseHexDigit(str[0]);
 	} else if (str.size() == 2) {
-		if (auto digit0 = parseDigit(str[0])) {
-			if (auto digit1 = parseDigit(str[1])) {
+		if (auto digit0 = parseHexDigit(str[0])) {
+			if (auto digit1 = parseHexDigit(str[1])) {
 				return 16 * *digit0 + *digit1;
 			}
 		}
@@ -169,47 +173,54 @@ struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
 	return (val < 32 || val >= 128) ? '.' : char(val);
 }
 
+[[nodiscard]] std::string DebuggableEditor::formatAddr(const Sizes& s, unsigned addr)
+{
+	return strCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr));
+}
+void DebuggableEditor::setStrings(const Sizes& s, Debuggable& debuggable)
+{
+	addrStr = strCat("0x", formatAddr(s, currentAddr));
+	auto b = debuggable.read(currentAddr);
+	if (dataEditingActive == HEX  ) dataInput = formatData(b);
+	if (dataEditingActive == ASCII) dataInput = std::string(1, formatAsciiData(b));
+}
+bool DebuggableEditor::setAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr)
+{
+	addr = std::min(addr, memSize - 1);
+	if (currentAddr == addr) return false;
+	currentAddr = addr;
+	setStrings(s, debuggable);
+	return true;
+}
+void DebuggableEditor::scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr)
+{
+	if (setAddr(s, debuggable, memSize, addr)) {
+		im::Child("##scrolling", [&]{
+			int row = narrow<int>(currentAddr) / columns;
+			ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
+		});
+	}
+}
+
 void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize)
 {
-	auto formatAddr = [&](unsigned addr) {
-		return strCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr));
-	};
-	auto setStrings = [&]{
-		addrStr = strCat("0x", formatAddr(currentAddr));
-		auto b = debuggable.read(currentAddr);
-		if (dataEditingActive == HEX  ) dataInput = formatData(b);
-		if (dataEditingActive == ASCII) dataInput = std::string(1, formatAsciiData(b));
-	};
-	auto setAddr = [&](unsigned addr) {
-		addr = std::min(addr, memSize - 1);
-		if (currentAddr == addr) return false;
-		currentAddr = addr;
-		setStrings();
-		return true;
-	};
-	auto scrollAddr = [&](unsigned addr) {
-		if (setAddr(addr)) {
-			im::Child("##scrolling", [&]{
-				int row = narrow<int>(currentAddr) / columns;
-				ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
-			});
-		}
-	};
-
 	const auto& style = ImGui::GetStyle();
 	if (updateAddr) {
 		updateAddr = false;
 		auto addr = currentAddr;
 		++currentAddr; // any change
-		scrollAddr(addr);
+		scrollAddr(s, debuggable, memSize, addr);
 	} else {
 		// still clip addr (for the unlikely case that 'memSize' got smaller)
-		setAddr(currentAddr);
+		setAddr(s, debuggable, memSize, currentAddr);
 	}
 
 	float footerHeight = 0.0f;
 	if (showAddress) {
 		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+	}
+	if (showSearch) {
+		footerHeight += style.ItemSpacing.y + 2 * ImGui::GetFrameHeightWithSpacing();
 	}
 	if (showDataPreview) {
 		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
@@ -257,7 +268,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		// Display text input on current byte
 		if (dataEditingTakeFocus) {
 			ImGui::SetKeyboardFocusHere(0);
-			setStrings();
+			setStrings(s, debuggable);
 		}
 		struct UserData {
 			// FIXME: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
@@ -295,7 +306,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
 				dataWrite = true;
 			} else if (!ImGui::IsItemActive()) {
-				setStrings();
+				setStrings(s, debuggable);
 			}
 		});
 		dataEditingTakeFocus = false;
@@ -313,7 +324,33 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	const int totalLineCount = int((memSize + columns - 1) / columns);
 	im::ListClipper(totalLineCount, -1, s.lineHeight, [&](int line) {
 		auto addr = unsigned(line) * columns;
-		ImGui::StrCat(formatAddr(addr), ':');
+		ImGui::StrCat(formatAddr(s, addr), ':');
+
+		auto previewDataTypeSize = DataTypeGetSize(previewDataType);
+		auto inside = [](unsigned a, unsigned start, unsigned size) {
+			return (start <= a) && (a < (start + size));
+		};
+		auto highLightDataPreview = [&](unsigned a) {
+			return inside(a, currentAddr, previewDataTypeSize);
+		};
+		auto highLightSearch = [&](unsigned a) {
+			if (!searchPattern) return false;
+			auto len = searchPattern->size();
+			if (searchHighlight == static_cast<int>(SearchHighlight::SINGLE)) {
+				if (searchResult) {
+					return inside(a, *searchResult, len);
+				}
+			} else if (searchHighlight == static_cast<int>(SearchHighlight::ALL)) {
+				int start = std::max(0, int(a - len + 1));
+				for (unsigned i = start; i <= a; ++i) {
+					if (match(debuggable, memSize, i)) return true;
+				}
+			}
+			return false;
+		};
+		auto highLight = [&](unsigned a) {
+			return highLightDataPreview(a) || highLightSearch(a);
+		};
 
 		// Draw Hexadecimal
 		for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
@@ -323,10 +360,6 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			ImGui::SameLine(bytePosX);
 
 			// Draw highlight
-			auto previewDataTypeSize = DataTypeGetSize(previewDataType);
-			auto highLight = [&](unsigned a) {
-				return (currentAddr <= a) && (a < (currentAddr + previewDataTypeSize));
-			};
 			if (highLight(addr)) {
 				ImVec2 pos = ImGui::GetCursorScreenPos();
 				float highlightWidth = s.glyphWidth * 2;
@@ -381,7 +414,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			});
 
 			for (int n = 0; n < columns && addr < memSize; ++n, ++addr) {
-				if (addr == currentAddr) {
+				if (highLight(addr)) {
 					auto start = scrnPos + gl::vec2(float(n) * s.glyphWidth, 0.0f);
 					drawList->AddRectFilled(start, start + gl::vec2(s.glyphWidth, s.lineHeight), ImGui::GetColorU32(HighlightColor));
 				}
@@ -415,7 +448,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	ImGui::EndChild();
 
 	if (nextAddr) {
-		setAddr(*nextAddr);
+		setAddr(s, debuggable, memSize, *nextAddr);
 		dataEditingTakeFocus = true;
 		addrMode = CURSOR;
 	}
@@ -442,18 +475,18 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		auto r = parseAddressExpr(*as, symbolManager, manager.getInterpreter());
 		im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
 			if (addrMode == EXPRESSION && r.error.empty()) {
-				scrollAddr(r.addr);
+				scrollAddr(s, debuggable, memSize, r.addr);
 			}
 			ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
 			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto r2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter());
 				if (r2.error.empty()) {
-					scrollAddr(r2.addr);
+					scrollAddr(s, debuggable, memSize, r2.addr);
 					dataEditingTakeFocus = true;
 				}
 			}
 			simpleToolTip([&]{
-				return r.error.empty() ? strCat("0x", formatAddr(r.addr))
+				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))
 						: r.error;
 			});
 		});
@@ -471,6 +504,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				"Right-click to configure this view.");
 		});
 	}
+	if (showSearch) {
+		ImGui::Separator();
+		drawSearch(s, debuggable, memSize);
+	}
 	if (showDataPreview) {
 		ImGui::Separator();
 		drawPreviewLine(s, debuggable, memSize);
@@ -482,9 +519,13 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			columns = std::clamp(columns, 1, 64);
 		}
 		ImGui::Checkbox("Show Address bar", &showAddress);
+		ImGui::Checkbox("Show Search pane", &showSearch);
 		ImGui::Checkbox("Show Data Preview", &showDataPreview);
 		ImGui::Checkbox("Show Ascii", &showAscii);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
+	});
+	im::Popup("NotFound", [&]{
+		ImGui::TextUnformatted("Not found");
 	});
 }
 
@@ -567,6 +608,141 @@ static void formatBin(std::span<const uint8_t> buf)
 	for (int i = int(buf.size()) - 1; i >= 0; --i) {
 		ImGui::StrCat(bin_string<8>(buf[i]));
 		if (i != 0) ImGui::SameLine();
+	}
+}
+
+void DebuggableEditor::parseSearchString(std::string_view str)
+{
+	searchPattern.reset();
+	searchResult.reset();
+	std::vector<uint8_t> result;
+
+	if (searchType == static_cast<int>(SearchType::ASCII)) {
+		const auto* begin = reinterpret_cast<const uint8_t*>(str.data());
+		const auto* end = begin + str.size();
+		result.assign(begin, end);
+	} else {
+		assert(searchType == static_cast<int>(SearchType::HEX));
+		std::optional<int> partial;
+		for (char c : str) {
+			if (c == ' ') continue; // ignore space characters
+			auto digit = parseHexDigit(c);
+			if (!digit) return; // error: invalid hex digit
+			if (partial) {
+				result.push_back(narrow<uint8_t>(16 * *partial + *digit));
+				partial.reset();
+			} else {
+				partial = *digit;
+			}
+		}
+		if (partial) return; // error: odd number of hex digits
+	}
+
+	searchPattern = std::move(result);
+}
+
+void DebuggableEditor::drawSearch(const Sizes& s, Debuggable& debuggable, unsigned memSize)
+{
+	const auto& style = ImGui::GetStyle();
+
+	bool doSearch = false;
+	auto buttonSize = ImGui::CalcTextSize("Search").x + 2.0f * style.FramePadding.x;
+	ImGui::SetNextItemWidth(-(buttonSize + style.WindowPadding.x));
+	im::StyleColor(!searchPattern, ImGuiCol_Text, getColor(imColor::ERROR), [&] {
+		auto callback = [](ImGuiInputTextCallbackData* data) {
+			if (data->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
+				auto& self = *static_cast<DebuggableEditor*>(data->UserData);
+				self.parseSearchString(std::string_view(data->Buf, data->BufTextLen));
+			}
+			return 0;
+		};
+		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
+		                          | ImGuiInputTextFlags_CallbackEdit;
+		if (ImGui::InputText("##search_string", &searchString, flags, callback, this)) {
+			doSearch = true; // pressed enter
+		}
+	});
+	ImGui::SameLine();
+	im::Disabled(!searchPattern, [&]{
+		doSearch |= ImGui::Button("Search");
+	});
+	if (!searchPattern) {
+		simpleToolTip("Must be an even number of hex digits, optionally separated by spaces");
+	}
+	if (searchPattern && doSearch) {
+		search(s, debuggable, memSize);
+	}
+
+	auto arrowSize = ImGui::GetFrameHeight();
+	auto extra = arrowSize + 2.0f * style.FramePadding.x;
+	ImGui::AlignTextToFramePadding();
+	ImGui::TextUnformatted("Type");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::CalcTextSize("Ascii").x + extra);
+	if (ImGui::Combo("##search_type", &searchType, "Hex\0Ascii\0\0")) {
+		parseSearchString(searchString);
+	}
+
+	ImGui::SameLine(0.0f, 2 * ImGui::GetFontSize());
+	ImGui::TextUnformatted("Direction");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::CalcTextSize("Backwards").x + extra);
+	ImGui::Combo("##search_direction", &searchDirection, "Forwards\0Backwards\0\0");
+
+	ImGui::SameLine(0.0f, 2 * ImGui::GetFontSize());
+	ImGui::TextUnformatted("Highlight");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(ImGui::CalcTextSize("Single").x + extra);
+	ImGui::Combo("##search_highlight", &searchHighlight, "None\0Single\0All\0\0");
+}
+
+bool DebuggableEditor::match(Debuggable& debuggable, unsigned memSize, unsigned addr)
+{
+	assert(searchPattern);
+	if ((addr + searchPattern->size()) > memSize) return false;
+	for (auto [i, c] : enumerate(*searchPattern)) {
+		if (debuggable.read(addr + i) != c) return false;
+	}
+	return true;
+}
+
+void DebuggableEditor::search(const Sizes& s, Debuggable& debuggable, unsigned memSize)
+{
+	std::optional<unsigned> found;
+	auto test = [&](unsigned addr) {
+		if (match(debuggable, memSize, addr)) {
+			found = addr;
+			return true;
+		}
+		return false;
+	};
+	if (searchDirection == static_cast<int>(SearchDirection::FWD)) {
+		for (unsigned addr = currentAddr + 1; addr < memSize; ++addr) {
+			if (test(addr)) break;
+		}
+		if (!found) {
+			for (unsigned addr = 0; addr <= currentAddr; ++addr) {
+				if (test(addr)) break;
+			}
+		}
+	} else {
+		for (int addr = currentAddr - 1; addr > 0; --addr) {
+			if (test(unsigned(addr))) break;
+		}
+		if (!found) {
+			for (int addr = memSize - 1; addr >= int(currentAddr); --addr) {
+				if (test(unsigned(addr))) break;
+			}
+		}
+	}
+	if (found) {
+		searchResult = *found;
+		scrollAddr(s, debuggable, memSize, *found);
+		dataEditingTakeFocus = true;
+		addrMode = CURSOR;
+	} else {
+		searchResult.reset();
+		ImGui::OpenPopup("NotFound");
 	}
 }
 
