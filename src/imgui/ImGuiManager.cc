@@ -266,14 +266,28 @@ ImGuiManager::~ImGuiManager()
 void ImGuiManager::registerPart(ImGuiPartInterface* part)
 {
 	assert(!contains(parts, part));
-	parts.push_back(part);
+	assert(!contains(toBeAddedParts, part));
+	toBeAddedParts.push_back(part);
 }
 
 void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
 {
-	auto it = ranges::find(parts, part);
-	assert(it != parts.end());
-	parts.erase(it); // the order matters (can't use move_pop_back())
+	assert(contains(parts, part));
+	assert(!contains(toBeRemovedParts, part));
+	toBeRemovedParts.push_back(part);
+}
+
+void ImGuiManager::updateParts()
+{
+	for (auto* part : toBeRemovedParts) {
+		auto it = ranges::find(parts, part);
+		assert(it != parts.end());
+		parts.erase(it); // the order matters (can't use move_pop_back())
+	}
+	toBeRemovedParts.clear();
+
+	append(parts, toBeAddedParts);
+	toBeAddedParts.clear();
 }
 
 void ImGuiManager::save(ImGuiTextBuffer& buf)
@@ -434,6 +448,9 @@ void ImGuiManager::preNewFrame()
 
 void ImGuiManager::paintImGui()
 {
+	// Apply added/removed parts. Avoids iterating over a changing vector.
+	updateParts();
+
 	auto* motherBoard = reactor.getMotherBoard();
 	for (auto* part : parts) {
 		part->paint(motherBoard);
@@ -659,20 +676,15 @@ void ImGuiManager::paintImGui()
 
 void ImGuiManager::iniReadInit()
 {
-	// Calling loadStart() may change 'parts' (e.g. remove elements).
-	// Therefor iterator over a copy and check if 'part' is still present in
-	// each iteration.
-	// TODO can this be done better? Because current solution is O(n^2).
-	auto copy = parts;
-	for (auto* part : copy) {
-		if (contains(parts, part)) {
-			part->loadStart();
-		}
+	updateParts();
+	for (auto* part : parts) {
+		part->loadStart();
 	}
 }
 
 void* ImGuiManager::iniReadOpen(std::string_view name)
 {
+	updateParts();
 	for (auto* part : parts) {
 		if (part->iniName() == name) return part;
 	}
@@ -693,6 +705,7 @@ void ImGuiManager::loadLine(void* entry, const char* line_)
 
 void ImGuiManager::iniApplyAll()
 {
+	updateParts();
 	for (auto* part : parts) {
 		part->loadEnd();
 	}
@@ -700,6 +713,7 @@ void ImGuiManager::iniApplyAll()
 
 void ImGuiManager::iniWriteAll(ImGuiTextBuffer& buf)
 {
+	updateParts();
 	for (auto* part : parts) {
 		if (auto name = part->iniName(); !name.empty()) {
 			buf.appendf("[openmsx][%s]\n", name.c_str());

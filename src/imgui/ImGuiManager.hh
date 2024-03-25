@@ -112,9 +112,13 @@ private:
 	void iniApplyAll();
 	void iniWriteAll(ImGuiTextBuffer& buf);
 
+	void updateParts();
+
 private:
 	Reactor& reactor;
 	std::vector<ImGuiPartInterface*> parts;
+	std::vector<ImGuiPartInterface*> toBeAddedParts;
+	std::vector<ImGuiPartInterface*> toBeRemovedParts;
 
 public:
 	FilenameSetting fontPropFilename;
