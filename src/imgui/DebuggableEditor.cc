@@ -100,13 +100,19 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	auto s = calcSizes(memSize);
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
 
-	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
+	id = im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
 		if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) &&
 		    ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
 			ImGui::OpenPopup("context");
 		}
 		drawContents(s, *debuggable, memSize);
 	});
+	assert(id != 0);
+}
+
+ImGuiID DebuggableEditor::getID()
+{
+	return id;
 }
 
 [[nodiscard]] static unsigned DataTypeGetSize(ImGuiDataType dataType)

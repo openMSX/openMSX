@@ -62,9 +62,9 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 	auto& io = ImGui::GetIO();
 	if (!filename.empty()) {
 		try {
-			const auto& context = systemFileContext();
+			const auto& fileContext = systemFileContext();
 
-			File file(context.resolve(FileOperations::join("skins", filename)));
+			File file(fileContext.resolve(FileOperations::join("skins", filename)));
 			auto fileSize = file.getSize();
 			auto ttfData = std::span(
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
@@ -134,7 +134,7 @@ void ImGuiManager::initializeImGui()
 {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
+	context = ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard |
 	                  //ImGuiConfigFlags_NavEnableGamepad | // TODO revisit this later
@@ -371,7 +371,7 @@ int ImGuiManager::signalEvent(const Event& event)
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
 		    (io.WantCaptureKeyboard &&
 		     sdlEvent.type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
-			return EventDistributor::MSX; // block event for the MSX
+			return executeEvent(event);
 		}
 	} else {
 		switch (getType(event)) {
@@ -396,6 +396,22 @@ int ImGuiManager::signalEvent(const Event& event)
 		}
 	}
 	return 0;
+}
+
+int ImGuiManager::executeEvent(const Event& event)
+{
+	for (auto* part : parts) {
+		ImGuiID id = part->getID();
+		if (id == 0) continue;
+		ImGuiWindow* window = ImGui::FindWindowByID(id);
+		assert(window != nullptr);
+		const auto* kev = get_event_if<KeyDownEvent>(event);
+		if (kev && ImGui::IsWindowChildOf(context->NavWindow, window, false, false) &&
+		    kev->getKeyCode() == one_of(SDLK_PAGEUP, SDLK_PAGEDOWN)) {
+			return EventDistributor::HOTKEY; // block event for normal hotkeys
+		}
+	}
+	return EventDistributor::MSX;
 }
 
 void ImGuiManager::update(const Setting& /*setting*/) noexcept

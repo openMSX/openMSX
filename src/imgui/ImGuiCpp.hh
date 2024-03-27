@@ -5,6 +5,7 @@
 #include "xrange.hh"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <concepts>
 
@@ -60,20 +61,24 @@
 namespace im {
 
 // im::Window(): wrapper around ImGui::Begin() / ImGui::End()
-inline void Window(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline ImGuiID Window(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
+	ImGuiID id = 0;
 	if (ImGui::Begin(name, p_open, flags)) {
+		id = ImGui::GetCurrentFocusScope();
+		assert(id != 0);
 		next();
 	}
 	ImGui::End();
+	return id;
 }
-inline void Window(const char* name, bool* p_open, std::invocable<> auto next)
+inline ImGuiID Window(const char* name, bool* p_open, std::invocable<> auto next)
 {
-	Window(name, p_open, 0, next);
+	return Window(name, p_open, 0, next);
 }
-inline void Window(const char* name, std::invocable<> auto next)
+inline ImGuiID Window(const char* name, std::invocable<> auto next)
 {
-	Window(name, nullptr, 0, next);
+	return Window(name, nullptr, 0, next);
 }
 
 struct WindowStatus {
@@ -82,9 +87,12 @@ struct WindowStatus {
 	                       //         gets automatically reset when done
 	void raise() { do_raise = open = true; }
 };
-inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline ImGuiID Window(const char* name, WindowStatus& status, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
+	ImGuiID id = 0;
 	if (ImGui::Begin(name, &status.open, flags)) {
+		id = ImGui::GetCurrentFocusScope();
+		assert(id != 0);
 		if (status.do_raise) {
 			status.do_raise = false;
 			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
@@ -94,10 +102,11 @@ inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flag
 		next();
 	}
 	ImGui::End();
+	return id;
 }
-inline void Window(const char* name, WindowStatus& status, std::invocable<> auto next)
+inline ImGuiID Window(const char* name, WindowStatus& status, std::invocable<> auto next)
 {
-	Window(name, status, 0, next);
+	return Window(name, status, 0, next);
 }
 
 // im::Child(): wrapper around ImGui::BeginChild() / ImGui::EndChild()

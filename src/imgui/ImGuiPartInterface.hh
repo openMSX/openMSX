@@ -28,6 +28,8 @@ public:
 
 	virtual void showMenu(MSXMotherBoard* /*motherBoard*/) {}
 	virtual void paint(MSXMotherBoard* /*motherBoard*/) {}
+
+	virtual ImGuiID getID() { return 0; }
 };
 
 ////
