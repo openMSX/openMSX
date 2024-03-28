@@ -1,13 +1,14 @@
-#include <string>
-#include <stdexcept>
-#include <vector>
+#include <array>
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
+#include <stdexcept>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <vector>
 
 
 struct DiskInfo
@@ -27,16 +28,21 @@ struct DmkHeader
 {
 	uint8_t writeProtected;
 	uint8_t numTracks;
-	uint8_t trackLen[2];
+	std::array<uint8_t, 2> trackLen;
 	uint8_t flags;
-	uint8_t reserved[7];
-	uint8_t format[4];
+	std::array<uint8_t, 7> reserved;
+	std::array<uint8_t, 4> format;
 };
 
 
 class File
 {
 public:
+	File(const File&) = delete;
+	File(File&&) = delete;
+	File& operator=(const File&) = delete;
+	File& operator=(File&&) = delete;
+
 	File(const std::string& filename, const char* mode)
 		: f(fopen(filename.c_str(), mode))
 	{
@@ -101,9 +107,9 @@ void convert(const DiskInfo& info, const std::string& dsk,
 	File outf(dmk, "wb");
 
 	static const char* const DER_HEADER = "DiskImage errors\r\n\032";
-	char derHeader[20];
-	derf.read(derHeader, 20);
-	if (memcmp(derHeader, DER_HEADER, 20) != 0) {
+	std::array<char, 20> derHeader;
+	derf.read(derHeader.data(), 20);
+	if (memcmp(derHeader.data(), DER_HEADER, 20) != 0) {
 		throw std::runtime_error("Invalid .der file.");
 	}
 	int derSize = (totalSectors + 7)  / 8;
@@ -131,8 +137,8 @@ void convert(const DiskInfo& info, const std::string& dsk,
 	std::vector<uint8_t*> addrPos(info.sectorsPerTrack);
 	std::vector<uint8_t*> dataPos(info.sectorsPerTrack);
 	std::vector<uint8_t> buf(dmkTrackLen); // zero-initialized
-	uint8_t* ip = &buf[  0]; // pointer in IDAM table
-	uint8_t* tp = &buf[128]; // pointer in actual track data
+	uint8_t* ip = buf.data() +   0; // pointer in IDAM table
+	uint8_t* tp = buf.data() + 128; // pointer in actual track data
 
 	fill(tp, info.gap4a, 0x4e); // gap4a
 	fill(tp,         12, 0x00); // sync
@@ -142,7 +148,7 @@ void convert(const DiskInfo& info, const std::string& dsk,
 	for (int sec = 0; sec < info.sectorsPerTrack; ++sec) {
 		fill(tp,         12, 0x00); // sync
 		fill(tp,          3, 0xa1); // ID addr mark
-		int pos = tp - &buf[0];
+		int pos = tp - buf.data();
 		assert(pos < 0x4000);
 		*ip++ = pos & 0xff;
 		*ip++ = (pos >> 8) | 0x80; // double density (MFM) sector
@@ -159,7 +165,7 @@ void convert(const DiskInfo& info, const std::string& dsk,
 		fill(tp, info.gap3,  0x4e); // gap3
 	}
 	fill(tp, info.gap4b, 0x4e); // gap4b
-	assert((tp - &buf[0]) == dmkTrackLen);
+	assert((tp - buf.data()) == dmkTrackLen);
 
 	int derCount = 0;
 	for (int cyl = 0; cyl < info.numberCylinders; ++cyl) {
@@ -172,6 +178,7 @@ void convert(const DiskInfo& info, const std::string& dsk,
 				*ap++ = info.sectorSizeCode;
 
 				uint16_t addrCrc = 0xffff;
+				assert(ap >= &buf[8]);
 				const uint8_t* t1 = ap - 8;
 				for (int i = 0; i < 8; ++i) {
 					updateCrc(addrCrc, t1[i]);
@@ -196,7 +203,7 @@ void convert(const DiskInfo& info, const std::string& dsk,
 				*dp++ = dataCrc >> 8;
 				*dp++ = dataCrc & 0xff;
 			}
-			outf.write(&buf[0], dmkTrackLen);
+			outf.write(buf.data(), dmkTrackLen);
 		}
 	}
 }
