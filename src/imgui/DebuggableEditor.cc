@@ -516,7 +516,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	im::Popup("context", [&]{
 		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputInt("Columns", &columns, 1, 0)) {
-			columns = std::clamp(columns, 1, 64);
+			columns = std::clamp(columns, 1, MAX_COLUMNS);
 		}
 		ImGui::Checkbox("Show Address bar", &showAddress);
 		ImGui::Checkbox("Show Search pane", &showSearch);

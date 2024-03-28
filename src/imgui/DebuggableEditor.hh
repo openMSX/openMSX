@@ -77,6 +77,7 @@ private:
 	size_t debuggableNameSize;
 
 	// Settings
+	static constexpr int MAX_COLUMNS = 64;
 	int  columns = 16;            // number of columns to display.
 	bool showAscii = true;        // display ASCII representation on the right side.
 	bool showAddress = true;      // display the address bar (e.g. on small views it can make sense to hide this)
@@ -95,7 +96,7 @@ private:
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"open",             &DebuggableEditor::open},
-		PersistentElementMax{"columns",          &DebuggableEditor::columns, 16+1},
+		PersistentElementMax{"columns",          &DebuggableEditor::columns, MAX_COLUMNS + 1},
 		PersistentElement   {"showAscii",        &DebuggableEditor::showAscii},
 		PersistentElement   {"showAddress",      &DebuggableEditor::showAddress},
 		PersistentElement   {"showSearch",       &DebuggableEditor::showSearch},
