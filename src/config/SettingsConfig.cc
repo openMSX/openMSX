@@ -39,6 +39,7 @@ struct SettingsParser : rapidsax::NullHandler
 		std::string_view cmd;
 		bool repeat = false;
 		bool event = false;
+		bool global = false;
 	};
 	std::vector<Bind> binds;
 	std::vector<std::string_view> unbinds;
@@ -116,9 +117,9 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	}
 
 	hotKey.loadInit();
-	for (const auto& [key, cmd, repeat, event] : parser.binds) {
+	for (const auto& [key, cmd, repeat, event, global] : parser.binds) {
 		try {
-			hotKey.loadBind(key, cmd, repeat, event);
+			hotKey.loadBind(key, cmd, repeat, event, global);
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
 				"Couldn't restore key-binding: ", e.getMessage());

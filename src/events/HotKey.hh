@@ -24,15 +24,17 @@ class HotKey final : public RTSchedulable, public EventListener
 {
 public:
 	struct HotKeyInfo {
-		HotKeyInfo(Event event_, std::string command_,
-		           bool repeat_ = false, bool passEvent_ = false)
+		HotKeyInfo(Event event_, std::string command_, bool repeat_ = false,
+			   bool passEvent_ = false, bool global_ = false)
 			: event(std::move(event_)), command(std::move(command_))
 			, repeat(repeat_)
-			, passEvent(passEvent_) {}
+			, passEvent(passEvent_)
+			, global(global_) {}
 		Event event;
 		std::string command;
 		bool repeat;
 		bool passEvent; // whether to pass event with args back to command
+		bool global; // whether event has highest priority
 	};
 	using BindMap = std::vector<HotKeyInfo>; // unsorted
 	using KeySet  = std::vector<Event>;   // unsorted
@@ -43,7 +45,7 @@ public:
 	~HotKey();
 
 	void loadInit();
-	void loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event);
+	void loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event, bool global);
 	void loadUnbind(std::string_view key);
 
 	template<typename XmlStream>
@@ -60,6 +62,9 @@ public:
 			}
 			if (info.passEvent) {
 				xml.attribute("event", "true");
+			}
+			if (info.global) {
+				xml.attribute("global", "true");
 			}
 			xml.data(info.command);
 			xml.end("bind");
