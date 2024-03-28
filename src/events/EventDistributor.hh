@@ -20,8 +20,9 @@ public:
 	  */
 	enum Priority {
 		OTHER,
-		HOTKEY,
+		HOTKEY, // global hot keys are resolved here
 		IMGUI,
+		POSTPONED, // normal hot keys are resolved after ImGui
 		MSX,
 		LOWEST, // should only be used internally in EventDistributor
 	};

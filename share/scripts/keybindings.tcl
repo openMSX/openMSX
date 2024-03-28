@@ -23,8 +23,8 @@ if {$is_dingux} {
 # reverse
 #  note: you can't use bindings with modifiers like SHIFT, because they
 #        will already stop the replay, as they are MSX keys as well
-bind_default PAGEUP   -repeat "go_back_one_step"
-bind_default PAGEDOWN -repeat "go_forward_one_step"
+bind_default PAGEUP   -global "go_back_one_step"
+bind_default PAGEDOWN -global "go_forward_one_step"
 
 # savestate
 if {$tcl_platform(os) eq "Darwin"} {

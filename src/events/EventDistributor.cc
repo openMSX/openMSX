@@ -22,8 +22,6 @@ void EventDistributor::registerEventListener(
 {
 	std::lock_guard<std::mutex> lock(mutex);
 	auto& priorityMap = listeners[size_t(type)];
-	// a listener may only be registered once for each type
-	assert(!contains(priorityMap, &listener, &Entry::listener));
 	// insert at highest position that keeps listeners sorted on priority
 	auto it = ranges::upper_bound(priorityMap, priority, {}, &Entry::priority);
 	priorityMap.emplace(it, Entry{priority, &listener});
@@ -100,7 +98,6 @@ void EventDistributor::deliverEvents()
 
 				// This might throw, e.g. when failing to initialize video system
 				if (int block = e.listener->signalEvent(event)) {
-					assert(block > e.priority);
 					blockPriority = block;
 				}
 			}
