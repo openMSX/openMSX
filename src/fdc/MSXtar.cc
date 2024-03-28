@@ -628,7 +628,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 		// allocate new cluster if needed
 		try {
 			cluster = std::visit(overloaded{
-				[](Free) -> Cluster { throw new MSXException("Invalid entry in FAT chain."); },
+				[](Free) -> Cluster { throw MSXException("Invalid entry in FAT chain."); },
 				[&](EndOfChain) {
 					Cluster newCl = findFirstFreeCluster();
 					std::visit(overloaded{
