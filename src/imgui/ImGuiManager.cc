@@ -222,17 +222,20 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	ImGui::AddSettingsHandler(&ini_handler);
 
 	auto& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_UP,   *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::MOUSE_MOTION,      *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::MOUSE_WHEEL,       *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::KEY_UP,            *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::KEY_DOWN,          *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::TEXT,              *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::WINDOW,            *this, EventDistributor::IMGUI);
-	eventDistributor.registerEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.registerEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
-	eventDistributor.registerEventListener(EventType::BREAK, *this);
+	for (auto type : {
+			EventType::MOUSE_BUTTON_UP,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_MOTION,
+			EventType::MOUSE_WHEEL,
+			EventType::KEY_UP,
+			EventType::KEY_DOWN,
+			EventType::TEXT,
+			EventType::WINDOW,
+			EventType::FILE_DROP,
+			EventType::IMGUI_DELAYED_ACTION,
+			EventType::BREAK}) {
+		eventDistributor.registerEventListener(type, *this, EventDistributor::IMGUI);
+	}
 
 	fontPropFilename.attach(*this);
 	fontMonoFilename.attach(*this);
@@ -248,17 +251,20 @@ ImGuiManager::~ImGuiManager()
 	fontPropFilename.detach(*this);
 
 	auto& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.unregisterEventListener(EventType::BREAK, *this);
-	eventDistributor.unregisterEventListener(EventType::IMGUI_DELAYED_ACTION, *this);
-	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
-	eventDistributor.unregisterEventListener(EventType::TEXT, *this);
-	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
-	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
+	for (auto type : {
+			EventType::BREAK,
+			EventType::IMGUI_DELAYED_ACTION,
+			EventType::FILE_DROP,
+			EventType::WINDOW,
+			EventType::TEXT,
+			EventType::KEY_DOWN,
+			EventType::KEY_UP,
+			EventType::MOUSE_WHEEL,
+			EventType::MOUSE_MOTION,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_BUTTON_UP}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 
 	cleanupImGui();
 }
@@ -371,7 +377,8 @@ int ImGuiManager::signalEvent(const Event& event)
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
 		    (io.WantCaptureKeyboard &&
 		     sdlEvent.type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
-			return EventDistributor::MSX; // block event for the MSX
+			static constexpr auto block = EventDistributor::Priority(EventDistributor::IMGUI + 1);
+			return block; // block event for lower priority listeners
 		}
 	} else {
 		switch (getType(event)) {

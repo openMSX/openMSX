@@ -29,52 +29,36 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 		commandController, "inputdelay",
 		"delay input to avoid key-skips", 0.0, 0.0, 10.0)
 {
-	eventDistributor.registerEventListener(
-		EventType::KEY_DOWN, *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::KEY_UP,   *this, EventDistributor::MSX);
-
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_MOTION,      *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_UP,   *this, EventDistributor::MSX);
-
-	eventDistributor.registerEventListener(
-		EventType::JOY_AXIS_MOTION, *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::JOY_HAT,         *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_DOWN, *this, EventDistributor::MSX);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_UP,   *this, EventDistributor::MSX);
+	for (auto type : {
+			EventType::KEY_DOWN,
+			EventType::KEY_UP,
+			EventType::MOUSE_MOTION,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_BUTTON_UP,
+			EventType::JOY_AXIS_MOTION,
+			EventType::JOY_HAT,
+			EventType::JOY_BUTTON_DOWN,
+			EventType::JOY_BUTTON_UP}) {
+		eventDistributor.registerEventListener(type, *this, EventDistributor::MSX);
+	}
 
 	reverseManager.registerEventDelay(*this);
 }
 
 EventDelay::~EventDelay()
 {
-	eventDistributor.unregisterEventListener(
-		EventType::KEY_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::KEY_UP,   *this);
-
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_MOTION,      *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_UP,   *this);
-
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_AXIS_MOTION, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_HAT,         *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_BUTTON_UP,   *this);
+	for (auto type : {
+			EventType::JOY_BUTTON_UP,
+			EventType::JOY_BUTTON_DOWN,
+			EventType::JOY_HAT,
+			EventType::JOY_AXIS_MOTION,
+			EventType::MOUSE_BUTTON_UP,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_MOTION,
+			EventType::KEY_UP,
+			EventType::KEY_DOWN}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 }
 
 int EventDelay::signalEvent(const Event& event)

@@ -47,55 +47,55 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	, deactivateCmd   (commandController_)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
+	, listenerHigh(*this, EventDistributor::HOTKEY_HIGH)
+	, listenerLow (*this, EventDistributor::HOTKEY_LOW)
 {
 	initDefaultBindings();
-
-	eventDistributor.registerEventListener(
-		EventType::KEY_DOWN, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::KEY_UP, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_MOTION, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_UP, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_WHEEL, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_DOWN, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_UP, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::JOY_AXIS_MOTION, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::JOY_HAT, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::WINDOW, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::FILE_DROP, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::OSD_CONTROL_RELEASE, *this, EventDistributor::HOTKEY);
-	eventDistributor.registerEventListener(
-		EventType::OSD_CONTROL_PRESS, *this, EventDistributor::HOTKEY);
 }
 
-HotKey::~HotKey()
+HotKey::Listener::Listener(HotKey& hotKey_, EventDistributor::Priority priority_)
+	: hotKey(hotKey_), priority(priority_)
 {
-	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_PRESS, *this);
-	eventDistributor.unregisterEventListener(EventType::OSD_CONTROL_RELEASE, *this);
-	eventDistributor.unregisterEventListener(EventType::FILE_DROP, *this);
-	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
-	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_UP, *this);
-	eventDistributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
-	eventDistributor.unregisterEventListener(EventType::JOY_HAT, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_WHEEL, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
-	eventDistributor.unregisterEventListener(EventType::KEY_UP, *this);
-	eventDistributor.unregisterEventListener(EventType::KEY_DOWN, *this);
+	auto& eventDistributor = hotKey.eventDistributor;
+	for (auto type : {
+			EventType::KEY_DOWN,
+			EventType::KEY_UP,
+			EventType::MOUSE_MOTION,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_BUTTON_UP,
+			EventType::MOUSE_WHEEL,
+			EventType::JOY_BUTTON_DOWN,
+			EventType::JOY_BUTTON_UP,
+			EventType::JOY_AXIS_MOTION,
+			EventType::JOY_HAT,
+			EventType::WINDOW,
+			EventType::FILE_DROP,
+			EventType::OSD_CONTROL_RELEASE,
+			EventType::OSD_CONTROL_PRESS}) {
+		eventDistributor.registerEventListener(type, *this, priority);
+	}
+}
+
+HotKey::Listener::~Listener()
+{
+	auto& eventDistributor = hotKey.eventDistributor;
+	for (auto type : {
+			EventType::OSD_CONTROL_PRESS,
+			EventType::OSD_CONTROL_RELEASE,
+			EventType::FILE_DROP,
+			EventType::WINDOW,
+			EventType::JOY_BUTTON_UP,
+			EventType::JOY_BUTTON_DOWN,
+			EventType::JOY_AXIS_MOTION,
+			EventType::JOY_HAT,
+			EventType::MOUSE_WHEEL,
+			EventType::MOUSE_BUTTON_UP,
+			EventType::MOUSE_BUTTON_DOWN,
+			EventType::MOUSE_MOTION,
+			EventType::KEY_UP,
+			EventType::KEY_DOWN}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 }
 
 void HotKey::initDefaultBindings()
@@ -168,10 +168,10 @@ void HotKey::loadInit()
 	cmdMap = defaultMap;
 }
 
-void HotKey::loadBind(std::string_view key, std::string_view cmd, bool repeat, bool event)
+void HotKey::loadBind(const Data& data)
 {
-	bind(HotKeyInfo(createEvent(key, commandController.getInterpreter()),
-			std::string(cmd), repeat, event));
+	bind(HotKeyInfo(createEvent(data.key, commandController.getInterpreter()),
+			std::string(data.cmd), data.repeat, data.event, data.msx));
 }
 
 void HotKey::loadUnbind(std::string_view key)
@@ -301,19 +301,27 @@ void HotKey::deactivateLayer(std::string_view layer)
 }
 
 static HotKey::BindMap::const_iterator findMatch(
-	const HotKey::BindMap& map, const Event& event)
+	const HotKey::BindMap& map, const Event& event, bool msx)
 {
 	return ranges::find_if(map, [&](auto& p) {
-		return matches(p.event, event);
+		return (p.msx == msx) && matches(p.event, event);
 	});
 }
 
 void HotKey::executeRT()
 {
-	if (lastEvent) executeEvent(*lastEvent);
+	if (lastEvent) {
+		executeEvent(*lastEvent, EventDistributor::HOTKEY_HIGH);
+		executeEvent(*lastEvent, EventDistributor::HOTKEY_LOW);
+	}
 }
 
-int HotKey::signalEvent(const Event& event)
+int HotKey::Listener::signalEvent(const Event& event)
+{
+	return hotKey.signalEvent(event, priority);
+}
+
+int HotKey::signalEvent(const Event& event, EventDistributor::Priority priority)
 {
 	if (lastEvent && *lastEvent != event) {
 		// If the newly received event is different from the repeating
@@ -326,34 +334,37 @@ int HotKey::signalEvent(const Event& event)
 		// for osd key bindings.
 		stopRepeat();
 	}
-	return executeEvent(event);
+	return executeEvent(event, priority);
 }
 
-int HotKey::executeEvent(const Event& event)
+int HotKey::executeEvent(const Event& event, EventDistributor::Priority priority)
 {
+	bool msx = priority == EventDistributor::HOTKEY_LOW;
+	auto block = EventDistributor::Priority(priority + 1); // lower priority than this listener
+
 	// First search in active layers (from back to front)
 	bool blocking = false;
 	for (auto& info : view::reverse(activeLayers)) {
 		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
-		if (auto it = findMatch(cmap, event); it != end(cmap)) {
+		if (auto it = findMatch(cmap, event, msx); it != end(cmap)) {
 			executeBinding(event, *it);
-			// Deny event to MSX listeners, also don't pass event
+			// Deny event to lower priority listeners, also don't pass event
 			// to other layers (including the default layer).
-			return EventDistributor::MSX;
+			return block;
 		}
 		blocking = info.blocking;
 		if (blocking) break; // don't try lower layers
 	}
 
 	// If the event was not yet handled, try the default layer.
-	if (auto it = findMatch(cmdMap, event); it != end(cmdMap)) {
+	if (auto it = findMatch(cmdMap, event, msx); it != end(cmdMap)) {
 		executeBinding(event, *it);
-		return EventDistributor::MSX; // deny event to MSX listeners
+		return block; // deny event to lower priority listeners
 	}
 
 	// Event is not handled, only let it pass to the MSX if there was no
 	// blocking layer active.
-	return blocking ? EventDistributor::MSX : 0;
+	return blocking ? block : 0;
 }
 
 void HotKey::executeBinding(const Event& event, const HotKeyInfo& info)
@@ -431,8 +442,11 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 
 static string formatBinding(const HotKey::HotKeyInfo& info)
 {
-	return strCat(toString(info.event), (info.repeat ? " [repeat]" : ""),
-	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');
+	return strCat(toString(info.event),
+	              (info.msx ? " [msx]" : ""),
+	              (info.repeat ? " [repeat]" : ""),
+	              (info.passEvent ? " [event]" : ""),
+	              ":  ", info.command, '\n');
 }
 
 void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& result)
@@ -441,11 +455,13 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	bool layers = false;
 	bool repeat = false;
 	bool passEvent = false;
+	bool msx = false;
 	std::array parserInfo = {
 		valueArg("-layer", layer),
 		flagArg("-layers", layers),
 		flagArg("-repeat", repeat),
 		flagArg("-event", passEvent),
+		flagArg("-msx", msx),
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan<1>(), parserInfo);
 	if (defaultCmd && !layer.empty()) {
@@ -496,7 +512,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 		}
 		HotKey::HotKeyInfo info(
 			createEvent(arguments[0], getInterpreter()),
-			command, repeat, passEvent);
+			command, repeat, passEvent, msx);
 		if (defaultCmd) {
 			hotKey.bindDefault(std::move(info));
 		} else if (layer.empty()) {
@@ -514,9 +530,11 @@ string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
 	return strCat(
 		cmd, "                       : show all bounded keys\n",
 		cmd, " <key>                 : show binding for this key\n",
-		cmd, " <key> [-repeat] [-event] <cmd> : bind key to command, optionally "
+		cmd, " <key> [-msx] [-repeat] [-event] <cmd> : bind key to command, optionally "
 		"repeat command while key remains pressed and also optionally "
 		"give back the event as argument (a list) to <cmd>\n"
+		"When the '-msx' flag is give the binding only has effect "
+		"when the msx window has focus (not when the GUI has focus).\n"
 		"These 3 take an optional '-layer <layername>' option, "
 		"see activate_input_layer.\n",
 		cmd, " -layers               : show a list of layers with bound keys\n");

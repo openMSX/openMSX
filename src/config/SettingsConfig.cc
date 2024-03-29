@@ -34,13 +34,7 @@ struct SettingsParser : rapidsax::NullHandler
 		std::string_view value;
 	};
 	std::vector<Setting> settings;
-	struct Bind {
-		std::string_view key;
-		std::string_view cmd;
-		bool repeat = false;
-		bool event = false;
-	};
-	std::vector<Bind> binds;
+	std::vector<HotKey::Data> binds;
 	std::vector<std::string_view> unbinds;
 	std::string_view systemID;
 
@@ -57,7 +51,7 @@ struct SettingsParser : rapidsax::NullHandler
 		END
 	} state = START;
 	Setting currentSetting;
-	Bind currentBind;
+	HotKey::Data currentBind;
 	std::string_view currentUnbind;
 };
 
@@ -116,9 +110,9 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	}
 
 	hotKey.loadInit();
-	for (const auto& [key, cmd, repeat, event] : parser.binds) {
+	for (const auto& bind : parser.binds) {
 		try {
-			hotKey.loadBind(key, cmd, repeat, event);
+			hotKey.loadBind(bind);
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
 				"Couldn't restore key-binding: ", e.getMessage());
@@ -309,7 +303,7 @@ void SettingsParser::start(std::string_view tag)
 	case BINDINGS:
 		if (tag == "bind") {
 			state = BIND;
-			currentBind = Bind{};
+			currentBind = HotKey::Data{};
 			return;
 		} else if (tag == "unbind") {
 			state = UNBIND;
@@ -347,6 +341,8 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 			currentBind.repeat = StringOp::stringToBool(value);
 		} else if (name == "event") {
 			currentBind.event = StringOp::stringToBool(value);
+		} else if (name == "msx") {
+			currentBind.msx = StringOp::stringToBool(value);
 		}
 		break;
 	case UNBIND:

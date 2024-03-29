@@ -1144,8 +1144,10 @@ int ImGuiSettings::signalEvent(const Event& event)
 
 	if (popupForKey >= numButtons) {
 		deinitListener();
-		return 0;
+		return 0; // don't block
 	}
+
+	static constexpr auto block = EventDistributor::Priority(EventDistributor::IMGUI + 1); // lower priority than this listener
 
 	bool escape = false;
 	if (const auto* keyDown = get_event_if<KeyDownEvent>(event)) {
@@ -1158,14 +1160,14 @@ int ImGuiSettings::signalEvent(const Event& event)
 			return setting ? setting->getInt() : 0;
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
-		if (!b) return EventDistributor::HOTKEY; // keep popup active
+		if (!b) return block; // keep popup active
 		auto bs = toString(*b);
 
 		auto* motherBoard = manager.getReactor().getMotherBoard();
-		if (!motherBoard) return EventDistributor::HOTKEY;
+		if (!motherBoard) return block;
 		auto& controller = motherBoard->getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
-		if (!setting) return EventDistributor::HOTKEY;
+		if (!setting) return block;
 		auto& interp = setting->getInterpreter();
 
 		TclObject bindings = setting->getValue();
@@ -1180,7 +1182,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 	}
 
 	popupForKey = unsigned(-1); // close popup
-	return EventDistributor::HOTKEY; // block event
+	return block; // block event
 }
 
 void ImGuiSettings::initListener()
