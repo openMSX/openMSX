@@ -31,7 +31,6 @@ std::unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 	default:
 		UNREACHABLE;
 	}
-	return nullptr; // avoid warning
 }
 
 } // namespace openmsx::GLScalerFactory

@@ -132,7 +132,7 @@ std::string_view MSXJoystick::getName() const
 	switch (id) {
 		case 1: return "msxjoystick1";
 		case 2: return "msxjoystick2";
-		default: UNREACHABLE; return "";
+		default: UNREACHABLE;
 	}
 }
 

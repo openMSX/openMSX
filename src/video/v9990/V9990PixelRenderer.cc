@@ -167,7 +167,6 @@ void V9990PixelRenderer::renderUntil(EmuTime::param time)
 			};
 		default:
 			UNREACHABLE;
-			return std::pair{0, 0}; // avoid warning
 		}
 	}();
 

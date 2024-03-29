@@ -38,7 +38,7 @@ byte SimpleDebuggable::read(unsigned address)
 
 byte SimpleDebuggable::read(unsigned /*address*/, EmuTime::param /*time*/)
 {
-	UNREACHABLE; return 0;
+	UNREACHABLE;
 }
 
 void SimpleDebuggable::write(unsigned address, byte value)

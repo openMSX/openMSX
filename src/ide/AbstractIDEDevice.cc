@@ -96,7 +96,7 @@ byte AbstractIDEDevice::readReg(nibble reg, EmuTime::param /*time*/)
 	case 14:// alternate status reg, converted to read from normal
 		// status register by IDE interface
 	default:
-		UNREACHABLE; return 0x7F; // avoid warning
+		UNREACHABLE;
 	}
 }
 
@@ -150,7 +150,7 @@ void AbstractIDEDevice::writeReg(
 
 	case 0: // data register, converted to readData by IDE interface
 	default:
-		UNREACHABLE; break;
+		UNREACHABLE;
 	}
 }
 

@@ -242,7 +242,7 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime::param time) const
 			return 0xFF;
 		}
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 

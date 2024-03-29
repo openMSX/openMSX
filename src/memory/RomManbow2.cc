@@ -58,7 +58,6 @@ static constexpr auto config4 = [] {
 		return config4;
 	default:
 		UNREACHABLE;
-		return config1; // dummy
 	}
 }
 

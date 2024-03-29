@@ -47,7 +47,7 @@ uint8_t I8254::readIO(uint16_t port, EmuTime::param time)
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 	}
 }
 
@@ -60,7 +60,7 @@ uint8_t I8254::peekIO(uint16_t port, EmuTime::param time) const
 		case 3: // read from control word, illegal
 			return 255; // TODO check value
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 	}
 }
 
@@ -180,7 +180,7 @@ uint8_t Counter::readIO(EmuTime::param time)
 			return narrow_cast<uint8_t>(readData >> 8);
 		}
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 
@@ -207,7 +207,7 @@ uint8_t Counter::peekIO(EmuTime::param time) const
 			return narrow_cast<uint8_t>(readData >> 8);
 		}
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 

@@ -52,7 +52,6 @@ byte I8255::read(byte port, EmuTime::param time)
 		return readControlPort(time);
 	default:
 		UNREACHABLE;
-		return 0; // avoid warning
 	}
 }
 
@@ -69,7 +68,6 @@ byte I8255::peek(byte port, EmuTime::param time) const
 		return readControlPort(time);
 	default:
 		UNREACHABLE;
-		return 0; // avoid warning
 	}
 }
 

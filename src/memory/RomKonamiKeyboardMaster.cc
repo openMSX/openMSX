@@ -64,7 +64,7 @@ byte RomKonamiKeyboardMaster::peekIO(word port, EmuTime::param time) const
 	case 0x20:
 		return 0xFF;
 	default:
-		UNREACHABLE; return 0xFF;
+		UNREACHABLE;
 	}
 }
 

@@ -155,7 +155,6 @@ unsigned CartridgeSlotManager::getSlot(int ps, int ss) const
 		}
 	}
 	UNREACHABLE; // was not an external slot
-	return 0; // avoid warning
 }
 
 void CartridgeSlotManager::testRemoveExternalSlot(

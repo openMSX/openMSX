@@ -142,7 +142,7 @@ std::string_view JoyMega::getName() const
 	switch (id) {
 		case 1: return "joymega1";
 		case 2: return "joymega2";
-		default: UNREACHABLE; return "";
+		default: UNREACHABLE;
 	}
 }
 
@@ -201,7 +201,7 @@ uint8_t JoyMega::read(EmuTime::param time)
 		// 1/1/1/1/a/start
 		return (status & 0x010) | ((status & 0x080) >> 2) | 0x0f;
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 

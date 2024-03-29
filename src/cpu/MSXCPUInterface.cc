@@ -162,12 +162,12 @@ MSXCPUInterface::~MSXCPUInterface()
 		if (IO_In[port] != dummyDevice.get()) {
 			std::cout << "In-port " << port << " still registered "
 			          << IO_In[port]->getName() << '\n';
-			UNREACHABLE;
+			assert(false);
 		}
 		if (IO_Out[port] != dummyDevice.get()) {
 			std::cout << "Out-port " << port << " still registered "
 			          << IO_Out[port]->getName() << '\n';
-			UNREACHABLE;
+			assert(false);
 		}
 	}
 	for (auto primSlot : xrange(4)) {
@@ -875,7 +875,7 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 		updateMemWatch(type);
 		break;
 	default:
-		UNREACHABLE; break;
+		UNREACHABLE;
 	}
 }
 
@@ -921,7 +921,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 			updateMemWatch(type);
 			break;
 		default:
-			UNREACHABLE; break;
+			UNREACHABLE;
 		}
 	}
 }

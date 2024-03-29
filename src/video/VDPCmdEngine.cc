@@ -1890,7 +1890,7 @@ byte VDPCmdEngine::peekCmdReg(byte index) const
 	case 0x0C: return COL;
 	case 0x0D: return ARG;
 	case 0x0E: return CMD;
-	default: UNREACHABLE; return 0;
+	default: UNREACHABLE;
 	}
 }
 

@@ -94,7 +94,7 @@ byte MSXMidi::readIO(word port, EmuTime::param time)
 		case 7: // timer command register
 			return i8254.readIO(port & 3, time);
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 	}
 }
 
@@ -118,7 +118,7 @@ byte MSXMidi::peekIO(word port, EmuTime::param time) const
 		case 7: // timer command register
 			return i8254.peekIO(port & 3, time);
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 	}
 }
 

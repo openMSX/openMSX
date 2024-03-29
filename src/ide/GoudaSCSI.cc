@@ -27,7 +27,7 @@ byte GoudaSCSI::readIO(word port, EmuTime::param /*time*/)
 	case 2:
 		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 
@@ -41,7 +41,7 @@ byte GoudaSCSI::peekIO(word port, EmuTime::param /*time*/) const
 	case 2:
 		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
 	default:
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 }
 

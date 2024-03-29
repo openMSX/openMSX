@@ -264,7 +264,7 @@ public:
 	 */
 	[[nodiscard]] bool hasAttribute(const char* /*name*/)
 	{
-		UNREACHABLE; return false;
+		UNREACHABLE;
 	}
 
 	/** Optimization: combination of hasAttribute() and getAttribute().
@@ -273,7 +273,7 @@ public:
 	template<typename T>
 	[[nodiscard]] std::optional<T> findAttributeAs(const char* /*name*/)
 	{
-		UNREACHABLE; return false;
+		UNREACHABLE;
 	}
 
 	/** Some archives (like XML archives) can count the number of subtags
@@ -292,7 +292,7 @@ public:
 	 */
 	[[nodiscard]] int countChildren() const
 	{
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 
 	/** Indicate begin of a tag.

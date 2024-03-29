@@ -1000,7 +1000,7 @@ byte VDP::readIO(word port, EmuTime::param time)
 	case 3:
 		return 0xFF;
 	default:
-		UNREACHABLE; return 0xFF;
+		UNREACHABLE;
 	}
 }
 

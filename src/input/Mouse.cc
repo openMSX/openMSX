@@ -137,7 +137,7 @@ uint8_t Mouse::read(EmuTime::param /*time*/)
 		case PHASE_YLOW:
 			return  (yRel       & 0x0F) | status;
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 		}
 	} else {
 		emulateJoystick();

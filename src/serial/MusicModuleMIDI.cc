@@ -46,7 +46,6 @@ byte MusicModuleMIDI::readIO(word port, EmuTime::param /*time*/)
 		return mc6850.readDataReg();
 	}
 	UNREACHABLE;
-	return 0xFF;
 }
 
 byte MusicModuleMIDI::peekIO(word port, EmuTime::param /*time*/) const
@@ -58,7 +57,6 @@ byte MusicModuleMIDI::peekIO(word port, EmuTime::param /*time*/) const
 		return mc6850.peekDataReg();
 	}
 	UNREACHABLE;
-	return 0xFF;
 }
 
 void MusicModuleMIDI::writeIO(word port, byte value, EmuTime::param time)

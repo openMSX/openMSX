@@ -100,8 +100,8 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 				ymf278BusyTime = time + MEM_READ_DELAY;
 			}
 			return ymf278.readReg(opl4latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 		}
 	} else {
 		// FM part  0xC4-0xC7
@@ -112,8 +112,8 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 		case 1:
 		case 3: // read fm register
 			return ymf262.readReg(opl3latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 		}
 	}
 }
@@ -127,8 +127,8 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			return 255;
 		case 1: // read wave register
 			return ymf278.peekReg(opl4latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 		}
 	} else {
 		// FM part  0xC4-0xC7
@@ -139,8 +139,8 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 		case 1:
 		case 3: // read fm register
 			return ymf262.peekReg(opl3latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 		}
 	}
 }

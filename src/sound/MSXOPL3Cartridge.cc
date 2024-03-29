@@ -29,8 +29,8 @@ byte MSXOPL3Cartridge::readIO(word port, EmuTime::param /*time*/)
 		case 1:
 		case 3: // read fm register
 			return ymf262.readReg(opl3latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 	}
 }
 
@@ -43,8 +43,8 @@ byte MSXOPL3Cartridge::peekIO(word port, EmuTime::param /*time*/) const
 		case 1:
 		case 3: // read fm register
 			return ymf262.peekReg(opl3latch);
-		default: // unreachable, avoid warning
-			UNREACHABLE; return 255;
+		default:
+			UNREACHABLE;
 	}
 }
 

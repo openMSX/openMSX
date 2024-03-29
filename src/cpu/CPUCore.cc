@@ -1492,7 +1492,7 @@ CASE(CB) {
 		case 0xee: { II ii = set_N_xhl<5>(); NEXT; }
 		case 0xf6: { II ii = set_N_xhl<6>(); NEXT; }
 		case 0xfe: { II ii = set_N_xhl<7>(); NEXT; }
-		default: UNREACHABLE; return;
+		default: UNREACHABLE;
 	}
 }
 CASE(ED) {
@@ -1632,7 +1632,7 @@ CASE(ED) {
 		case 0xd9: { II ii = T::IS_R800 ? mulub_a_R<E>() : nop(); NEXT; }
 		case 0xc3: { II ii = T::IS_R800 ? muluw_hl_SS<BC>() : nop(); NEXT; }
 		case 0xf3: { II ii = T::IS_R800 ? muluw_hl_SS<SP>() : nop(); NEXT; }
-		default: UNREACHABLE; return;
+		default: UNREACHABLE;
 	}
 }
 MAYBE_UNUSED_LABEL opDD_2:
@@ -1925,7 +1925,7 @@ CASE(DD) {
 			} else {
 				T::add(T::CC_DD); goto opFD_2;
 			}
-		default: UNREACHABLE; return;
+		default: UNREACHABLE;
 	}
 }
 MAYBE_UNUSED_LABEL opFD_2:
@@ -2218,11 +2218,11 @@ CASE(FD) {
 			} else {
 				T::add(T::CC_DD); goto opFD_2;
 			}
-		default: UNREACHABLE; return;
+		default: UNREACHABLE;
 	}
 }
 #ifndef USE_COMPUTED_GOTO
-	default: UNREACHABLE; return;
+	default: UNREACHABLE;
 }
 #endif
 
@@ -2681,7 +2681,7 @@ template<typename T> template<Reg8 R8> ALWAYS_INLINE byte CPUCore<T>::get8() con
 	else if constexpr (R8 == REG_I) { return getI(); }
 	else if constexpr (R8 == REG_R) { return getR(); }
 	else if constexpr (R8 == DUMMY) { return 0; }
-	else { UNREACHABLE; return 0; }
+	else { UNREACHABLE; }
 }
 template<typename T> template<Reg16 R16> ALWAYS_INLINE word CPUCore<T>::get16() const {
 	if      constexpr (R16 == AF) { return getAF(); }
@@ -2691,7 +2691,7 @@ template<typename T> template<Reg16 R16> ALWAYS_INLINE word CPUCore<T>::get16() 
 	else if constexpr (R16 == IX) { return getIX(); }
 	else if constexpr (R16 == IY) { return getIY(); }
 	else if constexpr (R16 == SP) { return getSP(); }
-	else { UNREACHABLE; return 0; }
+	else { UNREACHABLE; }
 }
 template<typename T> template<Reg8 R8> ALWAYS_INLINE void CPUCore<T>::set8(byte x) {
 	if      constexpr (R8 == A)     { setA(x); }

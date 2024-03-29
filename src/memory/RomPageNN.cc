@@ -20,7 +20,7 @@ RomPageNN::RomPageNN(const DeviceConfig& config, Rom&& rom_, RomType type)
 			case ROM_PAGE23:   return 0b1100;
 			case ROM_PAGE123:  return 0b1110;
 			case ROM_PAGE0123: return 0b1111;
-			default: UNREACHABLE; return 0;
+			default: UNREACHABLE;
 		}
 	}();
 	int bank = 0;

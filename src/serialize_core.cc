@@ -29,7 +29,7 @@ static void versionError(const char* className, unsigned latestVersion, unsigned
 unsigned loadVersionHelper(MemInputArchive& /*ar*/, const char* /*className*/,
                            unsigned /*latestVersion*/)
 {
-	UNREACHABLE; return 0;
+	UNREACHABLE;
 }
 
 unsigned loadVersionHelper(XmlInputArchive& ar, const char* className,

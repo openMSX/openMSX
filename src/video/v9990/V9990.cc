@@ -796,7 +796,6 @@ V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 		}
 	}
 	UNREACHABLE;
-	return INVALID_COLOR_MODE;
 }
 
 V9990ColorMode V9990::getColorMode() const

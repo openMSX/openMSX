@@ -33,7 +33,7 @@ std::string toString(const BooleanInput& input)
 					case BooleanJoystickHat::RIGHT: return " right";
 					case BooleanJoystickHat::DOWN:  return " down";
 					case BooleanJoystickHat::LEFT:  return " left";
-					default: UNREACHABLE; return "";
+					default: UNREACHABLE;
 				}
 			}();
 			return strCat(h.getJoystick().str(), " hat", h.getHat(), str);

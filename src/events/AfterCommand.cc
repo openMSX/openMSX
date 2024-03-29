@@ -602,7 +602,7 @@ std::string_view AfterSimpleEventCmd::getType() const
 		case EventType::BOOT:           return "boot";
 		case EventType::QUIT:           return "quit";
 		case EventType::MACHINE_LOADED: return "machine_switch";
-		default: UNREACHABLE;           return "";
+		default: UNREACHABLE;
 	}
 }
 

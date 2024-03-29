@@ -196,7 +196,6 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		return res;
 	} catch (...) {
 		UNREACHABLE; // we cannot let exceptions pass through Tcl
-		return TCL_ERROR;
 	}
 }
 

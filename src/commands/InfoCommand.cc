@@ -24,7 +24,7 @@ void InfoCommand::registerTopic(InfoTopic& topic)
 	if (infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: already have an info topic with "
 		             "name " << topic.getName() << '\n';
-		UNREACHABLE;
+		assert(false);
 	}
 #endif
 	infoTopics.insert_noDuplicateCheck(&topic);
@@ -35,7 +35,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic)
 	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
 		          << topic.getName() << ", not found!\n";
-		UNREACHABLE;
+		assert(false);
 	}
 	infoTopics.erase(topic.getName());
 }

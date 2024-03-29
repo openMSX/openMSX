@@ -569,7 +569,6 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 				(limitTicks + VDP::TICKS_PER_LINE - 400) / VDP::TICKS_PER_LINE};
 		default:
 			UNREACHABLE;
-			return {0, 0}; // avoid warning
 		}
 	}();
 

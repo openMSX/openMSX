@@ -504,10 +504,7 @@ public:
 	void erase(iterator it)
 	{
 		auto elemIdx = it.getElementIdx();
-		if (elemIdx == invalidIndex) {
-			UNREACHABLE; // not allowed to call erase(end())
-			return;
-		}
+		assert(elemIdx != invalidIndex); // not allowed to call erase(end())
 		auto& elem = pool.get(elemIdx);
 		auto tableIdx = pool.get(elemIdx).hash & allocMask;
 		auto* prev = &table[tableIdx];
@@ -568,7 +565,6 @@ public:
 			}
 		}
 		UNREACHABLE;
-		return end(); // avoid warning
 	}
 
 	[[nodiscard]] const_iterator begin() const
@@ -581,7 +577,6 @@ public:
 			}
 		}
 		UNREACHABLE;
-		return end(); // avoid warning
 	}
 
 	[[nodiscard]] iterator end()

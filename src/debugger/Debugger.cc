@@ -480,7 +480,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 		break;
 	}
 	default:
-		UNREACHABLE; break;
+		UNREACHABLE;
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr, once);
@@ -529,7 +529,7 @@ void Debugger::Cmd::listWatchPoints(
 			type = "write_mem";
 			break;
 		default:
-			UNREACHABLE; break;
+			UNREACHABLE;
 		}
 		line.addListElement(type);
 		unsigned beginAddr = wp->getBeginAddress();
@@ -665,7 +665,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		break;
 	}
 	default:
-		UNREACHABLE; break;
+		UNREACHABLE;
 	}
 
 	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p, once);

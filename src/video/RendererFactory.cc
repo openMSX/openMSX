@@ -32,7 +32,7 @@ std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 		case RenderSettings::SDLGL_PP:
 			return std::make_unique<SDLVideoSystem>(reactor);
 		default:
-			UNREACHABLE; return nullptr;
+			UNREACHABLE;
 	}
 }
 
@@ -44,7 +44,7 @@ std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 		case RenderSettings::SDLGL_PP:
 			return std::make_unique<PixelRenderer>(vdp, display);
 		default:
-			UNREACHABLE; return nullptr;
+			UNREACHABLE;
 	}
 }
 
@@ -56,7 +56,7 @@ std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 		case RenderSettings::SDLGL_PP:
 			return std::make_unique<V9990PixelRenderer>(vdp);
 		default:
-			UNREACHABLE; return nullptr;
+			UNREACHABLE;
 	}
 }
 
@@ -69,7 +69,7 @@ std::unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& displ
 		case RenderSettings::SDLGL_PP:
 			return std::make_unique<LDPixelRenderer>(ld, display);
 		default:
-			UNREACHABLE; return nullptr;
+			UNREACHABLE;
 	}
 }
 #endif

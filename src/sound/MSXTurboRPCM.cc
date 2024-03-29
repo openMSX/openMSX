@@ -58,8 +58,8 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 		// bit 7   COMP  comparator result 0->greater
 		//                                 1->smaller
 		return (getComp(time) ? 0x80 : 0x00) | (status & 0x1F);
-	default: // unreachable, avoid warning
-		UNREACHABLE; return 0;
+	default:
+		UNREACHABLE;
 	}
 }
 

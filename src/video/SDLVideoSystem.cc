@@ -67,7 +67,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 				motherBoard, display, *screen,
 				videoSource, 640, 240, true));
 	default:
-		UNREACHABLE; return nullptr;
+		UNREACHABLE;
 	}
 }
 
@@ -86,7 +86,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 				motherBoard, display, *screen,
 				videoSource, 1280, 240, true));
 	default:
-		UNREACHABLE; return nullptr;
+		UNREACHABLE;
 	}
 }
 
@@ -103,7 +103,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 				motherBoard, display, *screen,
 				videoSource, 640, 480, false));
 	default:
-		UNREACHABLE; return nullptr;
+		UNREACHABLE;
 	}
 }
 #endif

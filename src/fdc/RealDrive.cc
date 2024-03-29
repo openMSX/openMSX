@@ -160,7 +160,6 @@ unsigned RealDrive::getMaxTrack() const
 		return MAX_TRACK * 4 + 3;
 	default:
 		UNREACHABLE;
-		return 0;
 	}
 }
 
@@ -184,7 +183,6 @@ std::optional<unsigned> RealDrive::getDiskReadTrack() const
 		}
 	default:
 		UNREACHABLE;
-		return {};
 	}
 }
 
@@ -202,7 +200,6 @@ std::optional<unsigned> RealDrive::getDiskWriteTrack() const
 		}
 	default:
 		UNREACHABLE;
-		return {};
 	}
 }
 

@@ -262,7 +262,7 @@ template<> struct HashImpl<false, false> {
 		putPositionOnHash(p, hashPosition(p), srcBase);
 	}
 	[[nodiscard]] uint32_t getIndexOnHash(uint32_t /*h*/) const {
-		UNREACHABLE; return 0;
+		UNREACHABLE;
 	}
 	[[nodiscard]] const uint8_t* getPositionOnHash(uint32_t h, const uint8_t* /*srcBase*/) const {
 		return tab[h];

@@ -210,7 +210,7 @@ string CassettePlayer::getStateString() const
 		case RECORD: return "record";
 		case STOP:   return "stop";
 	}
-	UNREACHABLE; return {};
+	UNREACHABLE;
 }
 
 bool CassettePlayer::isRolling() const

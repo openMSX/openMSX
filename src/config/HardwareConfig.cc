@@ -173,7 +173,7 @@ HardwareConfig::~HardwareConfig()
 		testRemove();
 	} catch (MSXException& e) {
 		std::cerr << e.getMessage() << '\n';
-		UNREACHABLE;
+		assert(false);
 	}
 #endif
 	while (!devices.empty()) {

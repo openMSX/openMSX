@@ -79,7 +79,7 @@ byte I8251::readIO(word port, EmuTime::param time)
 	switch (port & 1) {
 		case 0:  return readTrans(time);
 		case 1:  return readStatus(time);
-		default: UNREACHABLE; return 0;
+		default: UNREACHABLE;
 	}
 }
 
@@ -88,7 +88,7 @@ byte I8251::peekIO(word port, EmuTime::param /*time*/) const
 	switch (port & 1) {
 		case 0:  return recvBuf;
 		case 1:  return status; // TODO peekStatus()
-		default: UNREACHABLE; return 0;
+		default: UNREACHABLE;
 	}
 }
 
@@ -147,7 +147,7 @@ void I8251::setMode(byte newMode)
 		case MODE_6BIT: return SerialDataInterface::DATA_6;
 		case MODE_7BIT: return SerialDataInterface::DATA_7;
 		case MODE_8BIT: return SerialDataInterface::DATA_8;
-		default: UNREACHABLE; return SerialDataInterface::DATA_8;
+		default: UNREACHABLE;
 		}
 	}();
 	interface.setDataBits(dataBits);
@@ -158,7 +158,7 @@ void I8251::setMode(byte newMode)
 		case MODE_STOP_1:   return SerialDataInterface::STOP_1;
 		case MODE_STOP_15:  return SerialDataInterface::STOP_15;
 		case MODE_STOP_2:   return SerialDataInterface::STOP_2;
-		default: UNREACHABLE; return SerialDataInterface::STOP_2;
+		default: UNREACHABLE;
 		}
 	}();
 	interface.setStopBits(stopBits);
@@ -174,7 +174,7 @@ void I8251::setMode(byte newMode)
 		case MODE_RATE1:       return 1;
 		case MODE_RATE16:      return 16;
 		case MODE_RATE64:      return 64;
-		default: UNREACHABLE;  return 1;
+		default: UNREACHABLE;
 		}
 	}();
 

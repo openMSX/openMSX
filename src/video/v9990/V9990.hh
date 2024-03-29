@@ -280,7 +280,7 @@ public:
 		case B5: case B6: return    1; // not supported
 		case B7:          return 1280;
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 		}
 	}
 

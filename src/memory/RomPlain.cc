@@ -52,7 +52,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 			case ROM_NORMAL4000: return 0x4000;
 			case ROM_NORMAL8000: return 0x8000;
 			case ROM_NORMALC000: return 0xC000;
-			default: UNREACHABLE; return -1;
+			default: UNREACHABLE;
 		}
 	}();
 	const bool mirrored = type == one_of(ROM_MIRRORED,

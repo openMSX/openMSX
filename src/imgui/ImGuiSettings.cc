@@ -471,7 +471,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					case BooleanJoystickHat::RIGHT: return "right";
 					case BooleanJoystickHat::DOWN:  return "down";
 					case BooleanJoystickHat::LEFT:  return "left";
-					default: UNREACHABLE; return "";
+					default: UNREACHABLE;
 				}
 			}();
 			return strCat(joystickManager.getDisplayName(h.getJoystick()), " D-pad ", h.getHat(), ' ', str);

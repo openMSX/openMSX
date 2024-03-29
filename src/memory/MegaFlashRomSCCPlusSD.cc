@@ -368,7 +368,7 @@ byte MegaFlashRomSCCPlusSD::peekMem(word addr, EmuTime::param time) const
 		case 2: return isMemoryMapperEnabled() ?
 				peekMemSubSlot2(addr) : 0xFF;
 		case 3: return peekMemSubSlot3(addr, time);
-		default: UNREACHABLE; return 0;
+		default: UNREACHABLE;
 	}
 }
 
@@ -385,7 +385,7 @@ byte MegaFlashRomSCCPlusSD::readMem(word addr, EmuTime::param time)
 		case 2: return isMemoryMapperEnabled() ?
 				readMemSubSlot2(addr) : 0xFF;
 		case 3: return readMemSubSlot3(addr, time);
-		default: UNREACHABLE; return 0;
+		default: UNREACHABLE;
 	}
 }
 
@@ -403,7 +403,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLine(word addr) const
 		case 2: return isMemoryMapperEnabled() ?
 				getReadCacheLineSubSlot2(addr) : unmappedRead.data();
 		case 3: return getReadCacheLineSubSlot3(addr);
-		default: UNREACHABLE; return nullptr;
+		default: UNREACHABLE;
 	}
 }
 
@@ -446,7 +446,7 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
 		case 2: return isMemoryMapperEnabled() ?
 				getWriteCacheLineSubSlot2(addr) : unmappedWrite.data();
 		case 3: return getWriteCacheLineSubSlot3(addr);
-		default: UNREACHABLE; return nullptr;
+		default: UNREACHABLE;
 	}
 }
 

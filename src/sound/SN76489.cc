@@ -172,7 +172,7 @@ void SN76489::write(byte value, EmuTime::param time)
 			// Attenuation.
 			return value & 0x0F;
 		default:
-			UNREACHABLE; return 0;
+			UNREACHABLE;
 		}
 	}();
 

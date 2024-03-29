@@ -290,7 +290,7 @@ void MSXMotherBoard::deleteMachine()
 			std::cerr << "Internal error: failed to remove "
 			             "extension while deleting a machine: "
 			          << e.getMessage() << '\n';
-			UNREACHABLE;
+			assert(false);
 		}
 	}
 

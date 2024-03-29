@@ -160,7 +160,7 @@ string LaserdiscPlayer::getStateString() const
 		case PLAYER_PAUSED:      return "paused";
 		case PLAYER_STILL:       return "still";
 	}
-	UNREACHABLE; return {};
+	UNREACHABLE;
 }
 
 void LaserdiscPlayer::getMediaInfo(TclObject& result)

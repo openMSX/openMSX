@@ -35,9 +35,8 @@ byte MSXS1990::peekIO(word port, EmuTime::param /*time*/) const
 		return registerSelect;
 	case 1:
 		return readRegister(registerSelect);
-	default: // unreachable, avoid warning
+	default:
 		UNREACHABLE;
-		return 0;
 	}
 }
 

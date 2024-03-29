@@ -27,7 +27,7 @@ zstring_view SymbolFile::toString(Type type)
 		case Type::LINKMAP:     return "linkmap";
 		case Type::NOICE:       return "NoICE";
 		case Type::VASM:        return "vasm";
-		default: UNREACHABLE; return "";
+		default: UNREACHABLE;
 	}
 }
 
@@ -359,7 +359,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 			return loadNoICE(filename, buffer);
 		case SymbolFile::Type::VASM:
 			return loadVASM(filename, buffer);
-		default: UNREACHABLE; return SymbolFile{};
+		default: UNREACHABLE;
 	}
 }
 
