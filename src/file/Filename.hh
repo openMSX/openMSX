@@ -3,6 +3,8 @@
 
 #include "FileContext.hh"
 #include "FileOperations.hh"
+
+#include <concepts>
 #include <string>
 
 namespace openmsx {
@@ -29,10 +31,8 @@ public:
 		: originalFilename(f.originalFilename)
 		, resolvedFilename(f.resolvedFilename) {}
 
-	// needed because the template below hides this version
-	Filename(Filename& f) : Filename(const_cast<const Filename&>(f)) {}
-
 	template<typename String>
+		requires(!std::same_as<Filename, std::remove_cvref_t<String>>) // don't block copy-constructor
 	explicit Filename(String&& filename)
 		: originalFilename(std::forward<String>(filename))
 		, resolvedFilename(originalFilename) {}

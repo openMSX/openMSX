@@ -4,7 +4,9 @@
 #include "MemBuffer.hh"
 #include "monotonic_allocator.hh"
 #include "serialize_meta.hh"
+
 #include <cassert>
+#include <concepts>
 #include <cstddef>
 #include <iterator>
 //#include <memory_resource>
@@ -257,11 +259,20 @@ public:
 		return doc;
 	}
 
+	XMLDocument(const XMLDocument&) = delete;
+	XMLDocument(XMLDocument&&) = delete;
+	XMLDocument& operator=(const XMLDocument&) = delete;
+	XMLDocument& operator=(XMLDocument&&) = delete;
+
+	// Create an empty XMLDocument (root == nullptr).
+	XMLDocument() = default;
+
 	// Create an empty XMLDocument (root == nullptr).  All constructor
 	// arguments are delegated to the monotonic allocator constructor.
-	template<typename ...Args>
-	XMLDocument(Args&& ...args)
-		: allocator(std::forward<Args>(args)...) {}
+	template<typename T, typename ...Args>
+		requires(!std::same_as<XMLDocument, std::remove_cvref_t<T>>) // don't block copy-constructor
+	XMLDocument(T&& t, Args&& ...args)
+		: allocator(std::forward<T>(t), std::forward<Args>(args)...) {}
 
 	// Load/parse an xml file. Requires that the document is still empty.
 	void load(const std::string& filename, std::string_view systemID);

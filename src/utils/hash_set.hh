@@ -10,7 +10,9 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
@@ -41,6 +43,8 @@ struct Element {
 	unsigned hash;
 	PoolIndex nextIdx;
 
+	constexpr Element() = default;
+
 	template<typename V>
 	constexpr Element(V&& value_, unsigned hash_, PoolIndex nextIdx_)
 		: value(std::forward<V>(value_))
@@ -49,9 +53,10 @@ struct Element {
 	{
 	}
 
-	template<typename... Args>
-	explicit constexpr Element(Args&&... args)
-		: value(std::forward<Args>(args)...)
+	template<typename T, typename... Args>
+		requires(!std::same_as<Element, std::remove_cvref_t<T>>) // don't block copy-constructor
+	explicit constexpr Element(T&& t, Args&&... args)
+		: value(std::forward<T>(t), std::forward<Args>(args)...)
 		// hash    left uninitialized
 		// nextIdx left uninitialized
 	{
