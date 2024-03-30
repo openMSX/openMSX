@@ -47,11 +47,11 @@ jobs:
             cpu: aarch64
             os: darwin
             flavour: opt
-#          - image: ubuntu-latest
-#            name: Android
-#            cpu: arm
-#            os: android
-#            flavour: opt
+          - image: ubuntu-latest
+            name: Android
+            cpu: arm
+            os: android
+            flavour: opt
           - image: windows-latest
             name: Windows-VC
             cpu: x64
