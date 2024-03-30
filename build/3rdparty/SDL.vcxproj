@@ -430,6 +430,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_rumble.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_gamecontrollerdb.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_joystick_c.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_steam_virtual_gamepad.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_sysjoystick.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\usb_ids.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\virtual\SDL_virtualjoystick_c.h" />
@@ -511,7 +512,13 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\windows\SDL_windowswindow.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\windows\wmmsg.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_common.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_internal.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_lsx.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_lsx_func.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_sse.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_sse_func.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_std.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_std_func.h" />
   </ItemGroup>
   <ItemGroup>
@@ -566,6 +573,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_shield.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_stadia.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_steam.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_steamdeck.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_switch.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_wii.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_xbox360.c" />
@@ -573,6 +581,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\hidapi\SDL_hidapi_xboxone.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_gamecontroller.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_joystick.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\SDL_steam_virtual_gamepad.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\virtual\SDL_virtualjoystick.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_dinputjoystick.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\joystick\windows\SDL_rawinputjoystick.c" />
@@ -694,7 +703,9 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\windows\SDL_windowsvideo.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\windows\SDL_windowsvulkan.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\windows\SDL_windowswindow.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_lsx.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_sse.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\video\yuv2rgb\yuv_rgb_std.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
