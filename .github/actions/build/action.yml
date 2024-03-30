@@ -44,7 +44,7 @@ runs:
       uses: microsoft/setup-msbuild@v1.1.3
     - name: Cache 3rdparty libs
       id: cache-3rdparty
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           derived/3rdparty
