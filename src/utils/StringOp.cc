@@ -216,7 +216,7 @@ std::string fromCFString(CFStringRef str)
 	UInt8 buffer[usedBufLen];
 	CFStringGetBytes(
 		str, range, kCFStringEncodingUTF8, '?', false, buffer, len, &usedBufLen);
-	return std::string(std::bit_cast<const char*>(buffer), usedBufLen);
+	return std::string(std::reinterpret_cast<const char*>(buffer), usedBufLen);
 }
 
 #endif
