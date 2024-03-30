@@ -260,6 +260,8 @@ constexpr uint128& uint128::operator*=(const uint128& b)
 
 constexpr std::pair<uint128, uint128> uint128::div(const uint128& ds) const
 {
+	assert(ds != uint128(0));
+
 	uint128 dd = *this;
 	uint128 r = 0;
 	uint128 q = 0;
