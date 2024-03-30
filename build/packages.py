@@ -117,11 +117,11 @@ class SDL2(DownloadablePackage):
 	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.28.5'
-	fileLength = 7345355
+	version = '2.30.1'
+	fileLength = 7428023
 	checksums = {
 		'sha256':
-			'332cb37d0be20cb9541739c61f79bae5a477427d79ae85e352089afdaf6666e4',
+			'01215ffbc8cfc4ad165ba7573750f15ddda1f971d5a66e9dcaffd37c587f473a',
 		}
 
 class SDL2_ttf(DownloadablePackage):
