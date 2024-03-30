@@ -42,6 +42,7 @@ private:
 	void decompress();
 
 private:
+	// invariant: exactly one of 'file' and 'decompressed' is '!= nullptr'
 	std::unique_ptr<FileBase> file;
 	const Decompressed* decompressed = nullptr;
 	size_t pos = 0;
