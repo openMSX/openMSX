@@ -98,24 +98,25 @@ private:
 		//uint8_t       data[];      // [Array]
 	};
 
-	void processBlock10(const Block10* b);
-	void processBlock11(const Block11* b);
-	void processBlock12(const Block12* b);
-	void processBlock13(const Block13* b);
-	void processBlock15(const Block15* b);
-	void processBlock20(const Block20* b);
-	void processBlock21(const Block21* b);
-	void processBlock30(const Block30* b);
-	void processBlock32(const Block32* b);
-	void processBlock35(const Block35* b);
-	void processBlock4B(const Block4B* b);
+	void processBlock10(const Block10& b);
+	void processBlock11(const Block11& b);
+	void processBlock12(const Block12& b);
+	void processBlock13(const Block13& b);
+	void processBlock15(const Block15& b);
+	void processBlock20(const Block20& b);
+	void processBlock21(const Block21& b);
+	void processBlock30(const Block30& b);
+	void processBlock32(const Block32& b);
+	void processBlock35(const Block35& b);
+	void processBlock4B(const Block4B& b);
 
 	void writeSample(uint32_t tStates, int8_t value);
 	void writePulse(uint32_t tStates);
 	void writePulses(uint32_t count, uint32_t tStates);
 	void writeSilence(int s);
 
-	template<typename T> const T* get(size_t count = 1);
+	template<typename T> std::span<const T> get(size_t count);
+	template<typename T> const T& get();
 
 	void error(std::string msg);
 
@@ -126,8 +127,7 @@ private:
 	std::optional<FileType> firstFileType;
 
 	// The (remaining) part of the input file
-	const uint8_t* buf;
-	size_t remaining;
+	std::span<const uint8_t> buf;
 
 	// Intermediate state while writing the waveform
 	float  accumBytes = 0.f;
