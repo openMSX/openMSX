@@ -857,7 +857,6 @@ std::string MSXtar::addOrCreateSubdir(zstring_view hostDirName, unsigned sector,
 				[&](Free) { return strCat("Directory ", printableFilename, " goes to root.\n"); },
 				[&](Cluster cluster) { return recurseDirFill(hostDirName, clusterToSector(cluster), add); }
 			}, nextCluster);
-			return "";
 		}
 		// .. but is NOT a directory
 		if (add == Add::PRESERVE) {

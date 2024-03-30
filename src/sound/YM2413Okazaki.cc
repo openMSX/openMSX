@@ -925,7 +925,6 @@ void Slot::calc_envelope_outline(unsigned& out)
 	case FINISH:
 	default:
 		UNREACHABLE;
-		break;
 	}
 }
 template<bool HAS_AM, bool FIXED_ENV>
