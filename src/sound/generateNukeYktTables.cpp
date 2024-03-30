@@ -34,7 +34,7 @@ static constexpr struct EnvTables {
 					return false;
 				}();
 				r.attack[timer_shift][timer][rate] = [&]() {
-					if ((rate_hi != 0xf)) {
+					if (rate_hi != 0xf) {
 						int32_t shift = (rate_hi < 12) ? inc_lo
 						                               : (rate_hi - 11 + inc_hi);
 						if (shift > 0) {

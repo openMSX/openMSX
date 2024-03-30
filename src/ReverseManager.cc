@@ -466,7 +466,7 @@ void ReverseManager::goTo(
 			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
 				everShowedProgress = true;
 				lastProgress = now;
-				auto fraction = ((currentTimeNewBoard - startMSXTime)).toDouble() / (preTarget - startMSXTime).toDouble();
+				auto fraction = (currentTimeNewBoard - startMSXTime).toDouble() / (preTarget - startMSXTime).toDouble();
 				reportProgress(newBoard->getReactor(), targetTime, float(fraction));
 			}
 			// note: fastForward does not always stop at

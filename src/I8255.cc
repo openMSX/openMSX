@@ -315,7 +315,7 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 	if (value & SET_MODE) {
 		// set new control mode
 		control = value;
-		if ((control & (MODE_A | MODE_B))) {
+		if (control & (MODE_A | MODE_B)) {
 			ppiModeCallback.execute();
 		}
 		// Some PPI datasheets state that port A and C (and sometimes

@@ -66,7 +66,7 @@ static uint16_t calculateCrc(const uint8_t* p, int n)
 	uint16_t crc = 0xffff;
 	for (int i = 0; i < n; ++i) {
 		for (int j = 8; j < 16; ++j) {
-			crc = (crc << 1) ^ ((((crc ^ (p[i] << j)) & 0x8000) ? 0x1021 : 0));
+			crc = (crc << 1) ^ (((crc ^ (p[i] << j)) & 0x8000) ? 0x1021 : 0);
 		}
 	}
 	return crc;

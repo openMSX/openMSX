@@ -55,7 +55,7 @@ TsxParser::TsxParser(std::span<const uint8_t> file)
 {
 	// Check for a TZX header
 	static constexpr std::array<uint8_t, 8> TSX_HEADER = { 'Z','X','T','a','p','e','!', 0x1A };
-	if ((memcmp(get<uint8_t>(TSX_HEADER.size()).data(), TSX_HEADER.data(), TSX_HEADER.size()) != 0)) {
+	if (memcmp(get<uint8_t>(TSX_HEADER.size()).data(), TSX_HEADER.data(), TSX_HEADER.size()) != 0) {
 		error("Invalid TSX header");
 	}
 

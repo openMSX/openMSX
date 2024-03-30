@@ -234,7 +234,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 
 	// Bank change
-	if (((address & 0x1800) == 0x1000)) {
+	if ((address & 0x1800) == 0x1000) {
 		setMapperLow(page, value);
 		return;
 	}

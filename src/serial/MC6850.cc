@@ -213,7 +213,7 @@ void MC6850::execTrans(EmuTime::param time)
 		// There already is a next character, start sending that now
 		// and accept a next one.
 		statusReg |= STAT_TDRE;
-		if (((controlReg & CR_TC) == 0x20)) txIRQ.set();
+		if ((controlReg & CR_TC) == 0x20) txIRQ.set();
 
 		txShiftReg = txDataReg;
 		txShiftRegValid = true;

@@ -73,7 +73,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 			toString(romBase, romSize), " must fit in ",
 			toString(windowBase, windowSize), '.');
 	}
-	if ((romBase & 0x1FFF)) {
+	if (romBase & 0x1FFF) {
 		throw MSXException(rom.getName(),
 			": invalid rom position: must start at a 8kB boundary.");
 	}

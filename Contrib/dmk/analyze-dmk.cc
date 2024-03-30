@@ -70,7 +70,7 @@ static uint8_t readCircular(int idx)
 static void updateCrc(uint16_t& crc, uint8_t val)
 {
 	for (int i = 8; i < 16; ++i) {
-		crc = (crc << 1) ^ ((((crc ^ (val << i)) & 0x8000) ? 0x1021 : 0));
+		crc = (crc << 1) ^ (((crc ^ (val << i)) & 0x8000) ? 0x1021 : 0);
 	}
 }
 

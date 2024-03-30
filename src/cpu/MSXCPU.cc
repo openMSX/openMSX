@@ -236,7 +236,7 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 
 static constexpr void extendForAlignment(unsigned& start, unsigned& size)
 {
-	constexpr unsigned MASK = ~(CacheLine::LOW); // not CacheLine::HIGH because 0x0000ff00 != 0xffffff00
+	constexpr unsigned MASK = ~CacheLine::LOW; // not CacheLine::HIGH because 0x0000ff00 != 0xffffff00
 
 	auto end = start + size;
 	start &= MASK;                            // round down to cacheline

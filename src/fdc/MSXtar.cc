@@ -919,7 +919,7 @@ static void changeTime(zstring_view resultFile, const MSXDirEntry& dirEntry)
 	mTim.tm_sec   = narrow<int>((t & 0x001f) << 1);
 	mTim.tm_min   = narrow<int>((t & 0x07e0) >> 5);
 	mTim.tm_hour  = narrow<int>((t & 0xf800) >> 11);
-	mTim.tm_mday  = narrow<int>( (d & 0x001f));
+	mTim.tm_mday  = narrow<int>( (d & 0x001f) >> 0);
 	mTim.tm_mon   = narrow<int>(((d & 0x01e0) >> 5) - 1);
 	mTim.tm_year  = narrow<int>(((d & 0xfe00) >> 9) + 80);
 	mTim.tm_isdst = -1;

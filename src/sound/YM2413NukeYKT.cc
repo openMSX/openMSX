@@ -442,7 +442,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 			}
 
 			lfo_counter++;
-			if (((lfo_counter & 0x3ff) == 0)) {
+			if ((lfo_counter & 0x3ff) == 0) {
 				lfo_vib_counter = (lfo_vib_counter + 1) & 7;
 				lfo_vib = VIB_TAB[lfo_vib_counter];
 			}

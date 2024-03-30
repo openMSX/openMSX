@@ -623,7 +623,7 @@ int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapa
 		// copy literals
 		cpy = op + length;
 safe_literal_copy:
-		if ((((cpy > oend - MFLIMIT) || (ip + length > iend - (2 + 1 + LASTLITERALS))))) {
+		if ((cpy > oend - MFLIMIT) || (ip + length > iend - (2 + 1 + LASTLITERALS))) {
 			// We've either hit the input parsing restriction or the output parsing restriction.
 			// If we've hit the input parsing condition then this must be the last sequence.
 			// If we've hit the output parsing condition then we are either using partialDecoding

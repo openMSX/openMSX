@@ -234,7 +234,7 @@ MidiInALSA::MidiInALSA(
 	, desc(snd_seq_port_info_get_name(&pinfo))
 {
 	eventDistributor.registerEventListener(EventType::MIDI_IN_ALSA, *this);
-	if ((snd_seq_port_info_get_capability(&pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE))) {
+	if (snd_seq_port_info_get_capability(&pinfo) & (SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE)) {
 		name.append(" (input)");
 	}
 }

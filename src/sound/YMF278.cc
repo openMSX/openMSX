@@ -496,7 +496,7 @@ void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
 		(1.00f / 4), // -12dB
 		(0.75f / 4), // -15dB (approx)
 		(1.00f / 8), // -18dB
-		(0.00f    ), // -inf dB
+		 0.00f       // -inf dB
 	};
 	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
 }

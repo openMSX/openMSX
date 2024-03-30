@@ -985,11 +985,11 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 			V9990Bpp16::pset(vram, DX, DY, pitch, value, WM, lut, LOG);
 			word dx = (ARG & DIX) ? word(-1) : 1;
 			DX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				word dy = (ARG & DIY) ? word(-1) : 1;
 				DX -= word(NX * dx);
 				DY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					cmdReady(limit);
 				} else {
 					ANX = getWrappedNX();
@@ -1012,11 +1012,11 @@ void V9990CmdEngine::executeLMMC(EmuTime::param limit)
 
 			word dx = (ARG & DIX) ? word(-1) : 1;
 			DX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				word dy = (ARG & DIY) ? word(-1) : 1;
 				DX -= word(NX * dx);
 				DY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					cmdReady(limit);
 				} else {
 					ANX = NX;
@@ -1049,10 +1049,10 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
 
 		DX += dx;
-		if (!--(ANX)) {
+		if (!--ANX) {
 			DX -= word(NX * dx);
 			DY += dy;
-			if (!--(ANY)) {
+			if (!--ANY) {
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1095,11 +1095,11 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 
 			word dx = (ARG & DIX) ? word(-1) : 1;
 			SX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				word dy = (ARG & DIY) ? word(-1) : 1;
 				SX -= word(NX * dx);
 				SY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					endAfterRead = true;
 				} else {
 					ANX = getWrappedNX();
@@ -1145,12 +1145,12 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 
 		DX += dx;
 		SX += dx;
-		if (!--(ANX)) {
+		if (!--ANX) {
 			DX -= word(NX * dx);
 			SX -= word(NX * dx);
 			DY += dy;
 			SY += dy;
-			if (!--(ANY)) {
+			if (!--ANY) {
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1187,10 +1187,10 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 			Mode::psetColor(vram, DX, DY, pitch, src, WM, lut, LOG);
 
 			DX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				DX -= word(NX * dx);
 				DY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					cmdReady(limit);
 					return;
 				} else {
@@ -1247,10 +1247,10 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 		Mode::psetColor(vram, DX, DY, pitch, color, WM, lut, LOG);
 
 		DX += dx;
-		if (!--(ANX)) {
+		if (!--ANX) {
 			DX -= word(NX * dx);
 			DY += dy;
-			if (!--(ANY)) {
+			if (!--ANY) {
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1286,10 +1286,10 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 		srcAddress += 2;
 		V9990Bpp16::pset(vram, DX, DY, pitch, src, WM, lut, LOG);
 		DX += dx;
-		if (!--(ANX)) {
+		if (!--ANX) {
 			DX -= word(NX * dx);
 			DY += dy;
-			if (!--(ANY)) {
+			if (!--ANY) {
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1315,10 +1315,10 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 			auto d2 = Mode::shift(d, i, DX);
 			Mode::pset(vram, DX, DY, pitch, d2, WM, lut, LOG);
 			DX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				DX -= word(NX * dx);
 				DY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					cmdReady(engineTime);
 					return;
 				} else {
@@ -1353,10 +1353,10 @@ void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 		vram.writeVRAMBx(dstAddress++, narrow_cast<byte>(src & 0xFF));
 		vram.writeVRAMBx(dstAddress++, narrow_cast<byte>(src >> 8));
 		SX += dx;
-		if (!--(ANX)) {
+		if (!--ANX) {
 			SX -= word(NX * dx);
 			SY += dy;
-			if (!--(ANY)) {
+			if (!--ANY) {
 				cmdReady(engineTime);
 				return;
 			} else {
@@ -1381,10 +1381,10 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 			auto src = Mode::point(vram, SX, SY, pitch);
 			d |= byte(Mode::shift(src, SX, i) & Mode::shiftMask(i));
 			SX += dx;
-			if (!--(ANX)) {
+			if (!--ANX) {
 				SX -= word(NX * dx);
 				SY += dy;
-				if (!--(ANY)) {
+				if (!--ANY) {
 					vram.writeVRAMBx(dstAddress++, d);
 					cmdReady(engineTime);
 					return;

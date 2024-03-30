@@ -45,19 +45,19 @@ octet_iterator append(uint32_t cp, octet_iterator result)
 		*result++ = narrow_cast<uint8_t>(cp);
 	} else if (cp < 0x800) {
 		// two octets
-		*result++ = narrow_cast<uint8_t>(((cp >>  6)       ) | 0xc0);
-		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x1f) | 0xc0); // 0b110,'....  (5)
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80); // 0b10..'....  (6)
 	} else if (cp < 0x10000) {
 		// three octets
-		*result++ = narrow_cast<uint8_t>(((cp >> 12)       ) | 0xe0);
-		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80);
-		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >> 12) & 0x0f) | 0xe0); // 0b1110'....  (4)
+		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80); // 0b10..'....  (6)
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80); // 0b10..'....  (6)
 	} else {
 		// four octets
-		*result++ = narrow_cast<uint8_t>(((cp >> 18)       ) | 0xf0);
-		*result++ = narrow_cast<uint8_t>(((cp >> 12) & 0x3f) | 0x80);
-		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80);
-		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80);
+		*result++ = narrow_cast<uint8_t>(((cp >> 18) & 0x07) | 0xf0); // 0b1111'0...  (3)
+		*result++ = narrow_cast<uint8_t>(((cp >> 12) & 0x3f) | 0x80); // 0b10..'....  (6)
+		*result++ = narrow_cast<uint8_t>(((cp >>  6) & 0x3f) | 0x80); // 0b10..'....  (6)
+		*result++ = narrow_cast<uint8_t>(((cp >>  0) & 0x3f) | 0x80); // 0b10..'....  (6)
 	}
 	return result;
 }
