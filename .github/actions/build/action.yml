@@ -66,6 +66,9 @@ runs:
         if [ "${{ inputs.flavour }}" = "unittest" ]; then
           BUILD_TARGET=""
         fi
+        if [ "${{ inputs.os }}" = "darwin" ]; then
+          CXX_PART=" CXX=$(brew --prefix llvm@15)/bin/clang++"
+        fi
         make \
           -j ${{ steps.cpu-cores.outputs.count }} \
           OPENMSX_TARGET_CPU=${{ inputs.cpu }} \
