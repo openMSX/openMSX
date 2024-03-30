@@ -835,8 +835,6 @@ template<bool TEST_MODE>
 NEVER_INLINE void YM2413::step18(std::span<float*, 9 + 5> out)
 {
 	Locals l(out);
-	l.use_rm_patches = false; // avoid warning
-	l.lfo_am_car = false; // between cycle 17 and 0 'lfo_am_car' is always =0
 
 	step< 0, TEST_MODE>(l);
 	step< 1, TEST_MODE>(l);

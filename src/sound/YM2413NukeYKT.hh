@@ -148,10 +148,10 @@ private:
 		Locals(std::span<float*, 9 + 5> out_) : out(out_) {}
 
 		std::span<float*, 9 + 5> out;
-		uint8_t rm_hh_bits;
-		bool use_rm_patches;
-		bool lfo_am_car;
-		bool eg_timer_carry;
+		uint8_t rm_hh_bits = 0;
+		bool use_rm_patches = false;
+		bool lfo_am_car = false; // between cycle 17 and 0 'lfo_am_car' is always =0
+		bool eg_timer_carry = false;
 	};
 	struct Write {
 		uint8_t port;
