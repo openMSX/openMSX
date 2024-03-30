@@ -75,7 +75,7 @@ jobs:
       shell: bash
       run: mv derived/dist/${{ steps.get_dist_name.outputs.tarball_name }} .
     - name: Upload tarball as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get_dist_name.outputs.tarball_name }}
         path: ${{ steps.get_dist_name.outputs.tarball_name }}

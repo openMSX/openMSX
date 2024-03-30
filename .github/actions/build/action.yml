@@ -116,31 +116,31 @@ runs:
         mv install ../${{ steps.openmsx.outputs.target_file }}
     - name: Upload redistributable zip
       if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
       if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' && inputs.flavour != 'unittest' }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
       if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' }}
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/config
     - name: Upload Windows VC redistributable
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: derived\x64-VC-Release\package-windows\*-bin.zip
     - name: Upload Windows VC debug symbols
       if: ${{ inputs.os == 'windows-vc' && inputs.flavour != 'unittest' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file_pdb }}.zip
         path: derived\x64-VC-Release\package-windows\*-pdb.zip
