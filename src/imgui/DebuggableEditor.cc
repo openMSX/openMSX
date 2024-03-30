@@ -321,7 +321,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		}
 	};
 
-	const int totalLineCount = int((memSize + columns - 1) / columns);
+	const auto totalLineCount = int((memSize + columns - 1) / columns);
 	im::ListClipper(totalLineCount, -1, s.lineHeight, [&](int line) {
 		auto addr = unsigned(line) * columns;
 		ImGui::StrCat(formatAddr(s, addr), ':');

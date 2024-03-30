@@ -217,7 +217,7 @@ static constexpr auto tlTab = [] {
 
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
-		int n = int(m); // 16 bits here
+		auto n = int(m); // 16 bits here
 		n >>= 4;        // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
@@ -237,7 +237,7 @@ static constexpr auto sinTab = [] {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = cstd::sin<2>(narrow_cast<double>((i * 2) + 1) * Math::pi / SIN_LEN);
-		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
+		auto n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
 		result[0][i] = 2 * n;
 	}
 	for (auto i : xrange(SIN_LEN / 4)) {

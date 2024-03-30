@@ -353,7 +353,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 		auto litLength = unsigned(ip - anchor);
 		uint8_t* token = op++;
 		if (litLength >= RUN_MASK) {
-			int len = int(litLength - RUN_MASK);
+			auto len = int(litLength - RUN_MASK);
 			*token = RUN_MASK << ML_BITS;
 			while (len >= 255) {
 				*op++ = 255;

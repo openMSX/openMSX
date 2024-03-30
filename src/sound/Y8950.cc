@@ -160,7 +160,7 @@ static constexpr std::array<int8_t, LFO_AM_TAB_ELEMENTS> lfo_am_table =
 
 static constexpr unsigned DB_POS(int x)
 {
-	int result = int(x / DB_STEP);
+	auto result = int(x / DB_STEP);
 	assert(result < DB_MUTE);
 	assert(result >= 0);
 	return result;

@@ -67,7 +67,7 @@ private:
 			throw std::bad_alloc();
 		}
 
-		void** p = static_cast<void**>(newBuf);
+		auto** p = static_cast<void**>(newBuf);
 		p[0] = head;
 
 		current = static_cast<void*>(&p[1]);

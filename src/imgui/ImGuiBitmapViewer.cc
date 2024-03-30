@@ -34,7 +34,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 	ImGui::SetNextWindowSize({528, 618}, ImGuiCond_FirstUseEver);
 	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
-		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 
 		auto parseMode = [](DisplayMode mode) {
@@ -161,7 +161,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		int zy = (1 + bitmapZoom) * 2;
 
 		gl::vec2 scrnPos;
-		gl::vec2 size = gl::vec2(float(width * zx), float(height * zy));
+		gl::vec2 size(float(width * zx), float(height * zy));
 		gl::vec2 availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
 		gl::vec2 reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
 		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{

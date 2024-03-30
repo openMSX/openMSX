@@ -368,7 +368,7 @@ static constexpr auto tlTab = [] {
 
 		// we never reach (1<<16) here due to the (x+1)
 		// result fits within 16 bits at maximum
-		int n = int(m);         // 16 bits here
+		auto n = int(m);        // 16 bits here
 		n >>= 4;                // 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
@@ -407,7 +407,7 @@ static constexpr SinTab getSinTab()
 		double o = -8.0 * cstd::log2<11, 3>(m); // convert to 'decibels'
 		o = o / (double(ENV_STEP) / 4);
 
-		int n = int(2 * o);
+		auto n = int(2 * o);
 		n = (n >> 1) + (n & 1); // round to nearest
 		sin.tab[0][i] = 2 * n;
 	}

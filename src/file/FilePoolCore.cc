@@ -179,7 +179,7 @@ void FilePoolCore::readSha1sums()
 	char* data_end = data + size + 1;
 	while (data != data_end) {
 		// memchr() seems better optimized than std::find_if()
-		char* it = static_cast<char*>(memchr(data, '\n', data_end - data));
+		auto* it = static_cast<char*>(memchr(data, '\n', data_end - data));
 		if (it == nullptr) it = data_end;
 		if ((it != data) && (it[-1] == '\r')) --it;
 

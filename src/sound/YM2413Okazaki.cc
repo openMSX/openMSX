@@ -287,7 +287,7 @@ static constexpr unsigned TL2EG(unsigned d)
 
 static constexpr unsigned DB_POS(double x)
 {
-	int result = int(x / DB_STEP);
+	auto result = int(x / DB_STEP);
 	assert(0 <= result);
 	assert(result < DB_MUTE);
 	return result;

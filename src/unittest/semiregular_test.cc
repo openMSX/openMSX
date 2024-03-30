@@ -33,7 +33,7 @@ TEST_CASE("semiregular")
 	SECTION("semiregular_t<unique_ptr<int>>") {
 		// unique_ptr
 		using T = std::unique_ptr<int>;
-		T t1 = std::make_unique<int>(43);
+		auto t1 = std::make_unique<int>(43);
 		// T t2 = t1; // ok, doesn't compile: move-only
 
 		// wrapped in semiregular_t<T>

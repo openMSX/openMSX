@@ -1017,7 +1017,7 @@ static void OPLL_DoLFO(opll_t *chip) {
 
     /* Update counter */
     if (chip->cycles == 17) {
-        uint8_t vib_step = uint8_t(((chip->lfo_counter & 0x3ff) + 1) >> 10);
+        auto vib_step = uint8_t(((chip->lfo_counter & 0x3ff) + 1) >> 10);
         chip->lfo_am_step = uint8_t(((chip->lfo_counter & 0x3f) + 1) >> 6);
         vib_step |= (chip->testmode >> 3) & 0x01;
         chip->lfo_vib_counter += vib_step;

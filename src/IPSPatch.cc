@@ -96,9 +96,9 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 	auto e = ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
 	for (auto it : xrange(b, e)) {
 		auto chunkStart = it->startAddress;
-		int chunkSize = int(it->size());
+		auto chunkSize = int(it->size());
 		// calc chunkOffset, chunkStart
-		int chunkOffset = int(src - chunkStart);
+		auto chunkOffset = int(src - chunkStart);
 		if (chunkOffset < 0) {
 			// start after src
 			assert(-chunkOffset < int(dst.size())); // dont start past end
@@ -113,7 +113,7 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 		}
 		// calc chunkSize
 		assert(src <= chunkStart);
-		int overflow = int(chunkStart - src + chunkSize - dst.size());
+		auto overflow = int(chunkStart - src + chunkSize - dst.size());
 		if (overflow > 0) {
 			assert(chunkSize > overflow);
 			chunkSize -= overflow;

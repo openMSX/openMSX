@@ -379,7 +379,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 	// right location to store it.
 	try {
 		if (MSXMotherBoard* board = getMotherBoard()) {
-			if (MSXPPI* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
+			if (auto* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
 				return ppi->getKeyboard().getMsxChar2Unicode();
 			}
 		}

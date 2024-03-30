@@ -402,7 +402,7 @@ void OpenMSXComm::start()
 		FD_ZERO(&rdfs);
 		FD_SET(pipe_from_child[0], &rdfs);
 		FD_SET(STDIN_FILENO, &rdfs);
-		select(pipe_from_child[0] + 1, &rdfs, NULL, NULL, NULL);
+		select(pipe_from_child[0] + 1, &rdfs, nullptr, nullptr, nullptr);
 		if (FD_ISSET(pipe_from_child[0], &rdfs)) {
 			// data available from openMSX
 			ssize_t size = read(pipe_from_child[0], buf, 4096);
@@ -415,18 +415,17 @@ void OpenMSXComm::start()
 		if (FD_ISSET(STDIN_FILENO, &rdfs)) {
 			// data available from STDIN
 			ssize_t size = read(STDIN_FILENO, buf, 4096);
-			char* oldpos = buf;
+			char* oldPos = buf;
 			while (true) {
-				char* pos = (char*)memchr(oldpos, '\n', size);
-				if (pos) {
-					unsigned num = pos - oldpos;
-					command.append(oldpos, num);
+				if (auto* pos = static_cast<char*>(memchr(oldPos, '\n', size))) {
+					auto num = pos - oldPos;
+					command.append(oldPos, num);
 					sendCommand(command);
 					command.clear();
-					oldpos = pos + 1;
+					oldPos = pos + 1;
 					size -= num + 1;
 				} else {
-					command.append(pos, size);
+					command.append(oldPos, size);
 					break;
 				}
 			}

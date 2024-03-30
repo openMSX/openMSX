@@ -149,7 +149,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 
 	if (type == COMMAND) {
 		// next command
-		int nextSize = int((parseStr.data() + parseStr.size()) - nextStart);
+		auto nextSize = int((parseStr.data() + parseStr.size()) - nextStart);
 		if (nextSize > 0) {
 			parse(nextStart, nextSize, type);
 		}

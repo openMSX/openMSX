@@ -98,8 +98,8 @@ static float noiseValue(float x)
 {
 	// cubic hermite spline interpolation
 	assert(0.0f <= x);
-	int xi = int(x);
-	float xf = x - narrow_cast<float>(xi);
+	auto xi = int(x);
+	auto xf = x - narrow_cast<float>(xi);
 	xi &= 255;
 	return Math::cubicHermite(subspan<4>(noiseTab, xi), xf);
 }
@@ -156,7 +156,7 @@ int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 	int result = 0;
 	float vibPerc = ay8910.vibratoPercent.getFloat();
 	if (vibPerc != 0.0f) {
-		int vibratoPeriod = int(
+		auto vibratoPeriod = int(
 			NATIVE_FREQ_FLOAT /
 			ay8910.vibratoFrequency.getFloat());
 		vibratoCount += period;

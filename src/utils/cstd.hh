@@ -62,8 +62,8 @@ template<int ITERATIONS>
 	//   exp(x) = exp(i + f) = exp(i) * exp(f)
 	//   with: i an int     (undefined if out of range)
 	//         -1 < f < 1
-	int i = int(x);
-	double f = x - i;
+	auto i = int(x);
+	auto f = x - i;
 
 	// Approximate exp(f) with Taylor series.
 	double y = 1.0;

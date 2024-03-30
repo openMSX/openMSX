@@ -75,7 +75,7 @@ int main(int argc, const char** argv)
 	int channels = 1;
 	int bits = 8;
 	int frequency = TsxParser::OUTPUT_FREQUENCY;
-	int samples = int(wave.size());
+	auto samples = int(wave.size());
 
 	// write header
 	struct WavHeader {

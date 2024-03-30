@@ -572,7 +572,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 
 	ImGui::SetNextWindowSize(gl::vec2{41, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("VDP registers", &show, [&]{
-		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		auto time = motherBoard->getCurrentTime();
 		const bool tms99x8 = vdp->isMSX1VDP();

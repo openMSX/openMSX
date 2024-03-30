@@ -124,7 +124,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if (data == one_of(byte(0), byte(':')) ||
 		    (++recvCount == 40)) {
-			char* eData = std::bit_cast<char*>(extraData.data());
+			auto* eData = std::bit_cast<char*>(extraData.data());
 			callImage(string(eData, recvCount));
 			state = STATE_SYNC1;
 		}

@@ -24,7 +24,7 @@ std::string encode(std::span<const uint8_t> input, bool newlines)
 	auto len = input.size();
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
-		int t = int(std::min<size_t>(16, len));
+		auto t = int(std::min<size_t>(16, len));
 		for (auto i : xrange(t)) {
 			ret += encode(input[in++]);
 			if (i != (t - 1)) ret += ' ';

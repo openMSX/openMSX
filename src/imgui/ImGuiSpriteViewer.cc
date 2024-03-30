@@ -146,7 +146,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 	ImGui::SetNextWindowSize({748, 1010}, ImGuiCond_FirstUseEver);
 	im::Window("Sprite viewer", &show, [&]{
-		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		const auto& vram = vdp->getVRAM().getData();
 
@@ -389,7 +389,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			float zoomSize = float(zm * size);
+			auto zoomSize = float(zm * size);
 			auto fullSize = zoomSize * gl::vec2(8, 4);
 			im::Child("##attrib", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (mode == 0) {

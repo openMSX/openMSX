@@ -467,8 +467,8 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	assert((uintptr_t(tab_) % 16) == 0);
 
 	auto x = narrow<ptrdiff_t>(2 * (len & ~7) * sizeof(float));
-	const char* buf = std::bit_cast<const char*>(buf_) + x;
-	const char* tab = std::bit_cast<const char*>(tab_);
+	const auto* buf = std::bit_cast<const char*>(buf_) + x;
+	const auto* tab = std::bit_cast<const char*>(tab_);
 	x = -x;
 
 	__m128 a0 = _mm_setzero_ps();

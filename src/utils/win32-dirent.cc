@@ -52,7 +52,7 @@ DIR* opendir(const char* name)
 		return nullptr;
 	}
 
-	DIR* dir = new DIR;
+	auto* dir = new DIR;
 	dir->mask = nameW;
 	dir->fd = reinterpret_cast<INT_PTR>(hnd);
 	dir->data = new WIN32_FIND_DATAW;

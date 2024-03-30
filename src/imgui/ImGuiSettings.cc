@@ -1025,7 +1025,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			TclObject key(keyNames[popupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			unsigned remove = unsigned(-1);
+			unsigned remove = -1u;
 			unsigned counter = 0;
 			for (const auto& b : bindingList) {
 				if (ImGui::Selectable(b.c_str())) {

@@ -9,7 +9,7 @@
 
 [[nodiscard]] static char* alloc(monotonic_allocator& a, size_t size, size_t alignment)
 {
-	char* result = static_cast<char*>(a.allocate(size, alignment));
+	auto* result = static_cast<char*>(a.allocate(size, alignment));
 	CHECK(result != nullptr);
 	CHECK((std::bit_cast<uintptr_t>(result) & (alignment - 1)) == 0);
 	ranges::fill(std::span{result, size}, 0xab); // this shouldn't crash

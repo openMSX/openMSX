@@ -463,13 +463,13 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 	VLA_SSE_ALIGNED(float,       monoBufExtra,   samples + 3);
 	VLA_SSE_ALIGNED(StereoFloat, stereoBufExtra, samples + 3);
 	VLA_SSE_ALIGNED(StereoFloat, tmpBufExtra,    samples + 3);
-	float* monoBufPtr   = monoBufExtra.data();
-	float* stereoBufPtr = &stereoBufExtra.data()->left;
-	float* tmpBufPtr    = &tmpBufExtra.data()->left; // can be used either for mono or stereo data
-	std::span monoBuf      = monoBufExtra  .subspan(0, samples);
-	std::span stereoBuf    = stereoBufExtra.subspan(0, samples);
-	std::span tmpBufStereo = tmpBufExtra   .subspan(0, samples); // StereoFloat
-	std::span tmpBufMono   = std::span{tmpBufPtr, samples};      // float
+	auto* monoBufPtr   = monoBufExtra.data();
+	auto* stereoBufPtr = &stereoBufExtra.data()->left;
+	auto* tmpBufPtr    = &tmpBufExtra.data()->left; // can be used either for mono or stereo data
+	auto monoBuf      = monoBufExtra  .subspan(0, samples);
+	auto stereoBuf    = stereoBufExtra.subspan(0, samples);
+	auto tmpBufStereo = tmpBufExtra   .subspan(0, samples); // StereoFloat
+	auto tmpBufMono   = std::span{tmpBufPtr, samples};      // float
 
 	constexpr unsigned HAS_MONO_FLAG = 1;
 	constexpr unsigned HAS_STEREO_FLAG = 2;

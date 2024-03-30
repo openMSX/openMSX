@@ -505,7 +505,7 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 		samples -= rest;
 
 		// fill complete intervals
-		int count = int(samples);
+		auto count = int(samples);
 		if (count > 0) {
 			fillBuf(count, out);
 		}

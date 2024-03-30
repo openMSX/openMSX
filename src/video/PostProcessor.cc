@@ -754,7 +754,7 @@ void PostProcessor::preCalcMonitor3D(float width)
 	mat4 rotX = rotateX(radians(-10.0f));
 	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
 
-	mat3 normal = mat3(rotX);
+	mat3 normal(rotX);
 	mat4 mvp = proj * tran * rotX * scal;
 
 	// set uniforms

@@ -47,7 +47,7 @@ void HDImageCLI::parseDone()
 	// After parsing all remembered values should be cleared. If not there
 	// was no hard disk as specified.
 	if (!images.empty()) {
-		char hd = char(::toupper('a' + images.front().id));
+		auto hd = char(::toupper('a' + images.front().id));
 		throw MSXException("No hard disk ", hd, " present.");
 	}
 }

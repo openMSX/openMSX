@@ -34,7 +34,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 	if (!show || !motherBoard) return;
 	ImGui::SetNextWindowSize({686, 886}, ImGuiCond_FirstUseEver);
 	im::Window("Tile viewer", &show, [&]{
-		VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
+		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		const auto& vram = vdp->getVRAM().getData();
 
@@ -313,7 +313,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				} else {
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
 					drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
-					int rowsCeil = int(ceilf(rows));
+					auto rowsCeil = int(ceilf(rows));
 					auto numChars = rowsCeil * columns;
 					drawList->PrimReserve(6 * numChars, 4 * numChars);
 					for (auto row : xrange(rowsCeil)) {

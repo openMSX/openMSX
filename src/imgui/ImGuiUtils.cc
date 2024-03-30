@@ -233,13 +233,13 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros)
 std::string formatTime(double time)
 {
 	assert(time >= 0.0);
-	int hours = int(time * (1.0 / 3600.0));
+	auto hours = int(time * (1.0 / 3600.0));
 	time -= double(hours * 3600);
-	int minutes = int(time * (1.0 / 60.0));
+	auto minutes = int(time * (1.0 / 60.0));
 	time -= double(minutes * 60);
-	int seconds = int(time);
+	auto seconds = int(time);
 	time -= double(seconds);
-	int hundreds = int(100.0 * time);
+	auto hundreds = int(100.0 * time);
 
 	std::string result = "00:00:00.00";
 	auto insert = [&](size_t pos, unsigned value) {

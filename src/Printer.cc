@@ -1629,8 +1629,8 @@ void Paper::setDotSize(double dotSizeX, double dotSizeY)
 	radiusX = dotSizeX * 0.5;
 	radiusY = dotSizeY * 0.5;
 
-	int rx = int(16 * radiusX);
-	int ry = int(16 * radiusY);
+	auto rx = int(16 * radiusX);
+	auto ry = int(16 * radiusY);
 	radius16 = ry;
 
 	table.clear();
