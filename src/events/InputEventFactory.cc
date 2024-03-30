@@ -16,8 +16,10 @@ namespace openmsx::InputEventFactory {
 		throw CommandException("Invalid keycode: ", str);
 	}
 
-	SDL_Event evt = {};
-	SDL_KeyboardEvent& e = evt.key;
+	SDL_Event evt;
+	evt.key = SDL_KeyboardEvent{};
+	auto& e = evt.key;
+
 	e.timestamp = SDL_GetTicks();
 	e.keysym = key->sym;
 	e.keysym.unused = unicode;
@@ -83,8 +85,11 @@ namespace openmsx::InputEventFactory {
 				} else {
 					// for bw-compat also allow events without absX,absY
 				}
-				SDL_Event evt = {};
-				SDL_MouseMotionEvent& e = evt.motion;
+
+				SDL_Event evt;
+				evt.motion = SDL_MouseMotionEvent{};
+				auto& e = evt.motion;
+
 				e.type = SDL_MOUSEMOTION;
 				e.timestamp = SDL_GetTicks();
 				e.x = absX;
@@ -100,8 +105,10 @@ namespace openmsx::InputEventFactory {
 					makeTclList("mouse", "button"));
 			} else if (len == 3) {
 				if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
-					SDL_Event evt = {};
-					SDL_MouseButtonEvent& e = evt.button;
+					SDL_Event evt;
+					evt.button = SDL_MouseButtonEvent{};
+					auto& e = evt.button;
+
 					e.timestamp = SDL_GetTicks();
 					e.button = narrow<uint8_t>(*button);
 					if (upDown(str.getListIndex(interp, 2).getString())) {
@@ -121,8 +128,10 @@ namespace openmsx::InputEventFactory {
 					std::initializer_list<EventType>{EventType::MOUSE_WHEEL},
 					makeTclList("mouse", comp1));
 			} else if (len == 4) {
-				SDL_Event evt = {};
-				SDL_MouseWheelEvent& e = evt.wheel;
+				SDL_Event evt;
+				evt.wheel = SDL_MouseWheelEvent{};
+				auto& e = evt.wheel;
+
 				e.type = SDL_MOUSEWHEEL;
 				e.timestamp = SDL_GetTicks();
 				e.direction = SDL_MOUSEWHEEL_NORMAL;
@@ -199,8 +208,10 @@ namespace openmsx::InputEventFactory {
 				unsigned joystick = *j - 1;
 				if (comp1.starts_with("button")) {
 					if (auto button = StringOp::stringToBase<10, unsigned>(comp1.substr(6))) {
-						SDL_Event evt = {};
-						SDL_JoyButtonEvent& e = evt.jbutton;
+						SDL_Event evt;
+						evt.jbutton = SDL_JoyButtonEvent{};
+						auto& e = evt.jbutton;
+
 						e.timestamp = SDL_GetTicks();
 						e.which = joystick;
 						e.button = narrow_cast<uint8_t>(*button);
@@ -216,8 +227,10 @@ namespace openmsx::InputEventFactory {
 					}
 				} else if (comp1.starts_with("axis")) {
 					if (auto axis = StringOp::stringToBase<10, unsigned>(comp1.substr(4))) {
-						SDL_Event evt = {};
-						SDL_JoyAxisEvent& e = evt.jaxis;
+						SDL_Event evt;
+						evt.jaxis = SDL_JoyAxisEvent{};
+						auto& e = evt.jaxis;
+
 						e.type = SDL_JOYAXISMOTION;
 						e.timestamp = SDL_GetTicks();
 						e.which = joystick;
@@ -242,8 +255,10 @@ namespace openmsx::InputEventFactory {
 								throw CommandException("Invalid hat value: ", valueStr);
 							}
 						}();
-						SDL_Event evt = {};
-						SDL_JoyHatEvent& e = evt.jhat;
+						SDL_Event evt;
+						evt.jhat = SDL_JoyHatEvent{};
+						auto& e = evt.jhat;
+
 						e.type = SDL_JOYHATMOTION;
 						e.timestamp = SDL_GetTicks();
 						e.which = joystick;
@@ -265,8 +280,10 @@ namespace openmsx::InputEventFactory {
 	}
 	bool gained = str.getListIndex(interp, 1).getBoolean(interp);
 
-	SDL_Event evt = {};
-	SDL_WindowEvent& e = evt.window;
+	SDL_Event evt;
+	evt.window = SDL_WindowEvent{};
+	auto& e = evt.window;
+
 	e.type = SDL_WINDOWEVENT;
 	e.timestamp = SDL_GetTicks();
 	e.windowID = WindowEvent::getMainWindowId();
@@ -311,7 +328,8 @@ Event createInputEvent(const TclObject& str, Interpreter& interp)
 	} else if (type == "quit") {
 		return parseQuitEvent(str, interp);
 	} else if (type == "command") {
-		SDL_Event evt = {};
+		SDL_Event evt;
+		evt.key = SDL_KeyboardEvent{};
 		evt.key.type = SDL_KEYUP;
 		evt.key.state = SDL_RELEASED;
 		return KeyUpEvent(evt); // dummy event, for bw compat

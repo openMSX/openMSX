@@ -61,8 +61,10 @@ public:
 	explicit KeyUpEvent(const SDL_Event& e) : KeyEvent(e) {}
 
 	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
-		SDL_Event evt = {};
-		SDL_KeyboardEvent& e = evt.key;
+		SDL_Event evt;
+		evt.key = SDL_KeyboardEvent{};
+		auto& e = evt.key;
+
 		e.type = SDL_KEYUP;
 		e.timestamp = SDL_GetTicks();
 		e.state = SDL_RELEASED;
@@ -78,8 +80,10 @@ public:
 	explicit KeyDownEvent(const SDL_Event& e) : KeyEvent(e) {}
 
 	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
-		SDL_Event evt = {};
-		SDL_KeyboardEvent& e = evt.key;
+		SDL_Event evt;
+		evt.key = SDL_KeyboardEvent{};
+		auto& e = evt.key;
+
 		e.type = SDL_KEYDOWN;
 		e.timestamp = SDL_GetTicks();
 		e.state = SDL_PRESSED;
@@ -88,8 +92,10 @@ public:
 		return KeyDownEvent(evt);
 	}
 	[[nodiscard]] static KeyDownEvent create(uint32_t timestamp, unsigned unicode) {
-		SDL_Event evt = {};
-		SDL_KeyboardEvent& e = evt.key;
+		SDL_Event evt;
+		evt.key = SDL_KeyboardEvent{};
+		auto& e = evt.key;
+
 		e.type = SDL_KEYDOWN;
 		e.timestamp = timestamp;
 		e.state = SDL_PRESSED;

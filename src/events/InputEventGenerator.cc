@@ -237,8 +237,9 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 			1, false);
 		androidButtonB = true;
 	} else*/ {
-		SDL_Event evt = {};
-		memcpy(&evt, &key, sizeof(key));
+		SDL_Event evt;
+		evt.key = SDL_KeyboardEvent{};
+		memcpy(&evt.key, &key, sizeof(key));
 		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		evt.key.keysym.unused = unicode;
 		Event event = KeyDownEvent(evt);
@@ -278,8 +279,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(1, true);
 			androidButtonB = false;
 		} else*/ {
-			SDL_Event e = {};
-			memcpy(&e, &evt, sizeof(evt));
+			SDL_Event e;
+			e.key = SDL_KeyboardEvent{};
+			memcpy(&e.key, &evt.key, sizeof(evt.key));
 			e.key.keysym.mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
 			event = KeyUpEvent(e);
 			bool down = false;
