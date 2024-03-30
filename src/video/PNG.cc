@@ -1,14 +1,21 @@
 #include "PNG.hh"
+
 #include "File.hh"
 #include "MSXException.hh"
 #include "PixelOperations.hh"
 #include "Version.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "vla.hh"
 #include "cstdiop.hh"
+
+#include <png.h>
+#include <SDL.h>
+
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
@@ -16,21 +23,19 @@
 #include <iostream>
 #include <limits>
 #include <tuple>
-#include <png.h>
-#include <SDL.h>
 
 namespace openmsx::PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
-	const auto* operation = reinterpret_cast<const char*>(
+	const auto* operation = std::bit_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	throw MSXException("Error while ", operation, " PNG: ", error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
 {
-	const auto* operation = reinterpret_cast<const char*>(
+	const auto* operation = std::bit_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	std::cerr << "Warning while " << operation << " PNG: "
 		<< warning_msg << '\n';
@@ -92,7 +97,7 @@ struct PNGReadHandle {
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = std::bit_cast<File*>(png_get_io_ptr(ctx));
 	file->read(std::span{area, size});
 }
 
@@ -175,7 +180,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// Create the array of pointers to image data.
 		VLA(png_bytep, rowPointers, height);
 		for (auto row : xrange(height)) {
-			rowPointers[row] = reinterpret_cast<png_bytep>(
+			rowPointers[row] = std::bit_cast<png_bytep>(
 				surface.getLinePtr(row));
 		}
 
@@ -215,13 +220,13 @@ struct PNGWriteHandle {
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = std::bit_cast<File*>(png_get_io_ptr(ctx));
 	file->write(std::span{area, size});
 }
 
 static void flushData(png_structp ctx)
 {
-	auto* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto* file = std::bit_cast<File*>(png_get_io_ptr(ctx));
 	file->flush();
 }
 
@@ -291,7 +296,7 @@ static void IMG_SavePNG_RW(size_t width, std::span<const void*> rowPointers,
 		// Write out the entire image data in one call.
 		png_write_image(
 			png.ptr,
-			reinterpret_cast<png_bytep*>(const_cast<void**>(rowPointers.data())));
+			std::bit_cast<png_bytep*>(const_cast<void**>(rowPointers.data())));
 		png_write_end(png.ptr, png.info);
 	} catch (MSXException& e) {
 		throw MSXException(

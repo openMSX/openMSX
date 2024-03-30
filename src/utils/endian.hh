@@ -3,6 +3,7 @@
 
 #include "inline.hh"
 #include "narrow.hh"
+
 #include <array>
 #include <bit>
 #include <cassert>
@@ -138,36 +139,36 @@ static_assert(alignof(L64) <= 8, "may have alignment 8");
 // Helper functions to read/write aligned 16/32 bit values.
 inline void writeB16(void* p, uint16_t x)
 {
-	*reinterpret_cast<B16*>(p) = x;
+	*std::bit_cast<B16*>(p) = x;
 }
 inline void writeL16(void* p, uint16_t x)
 {
-	*reinterpret_cast<L16*>(p) = x;
+	*std::bit_cast<L16*>(p) = x;
 }
 inline void writeB32(void* p, uint32_t x)
 {
-	*reinterpret_cast<B32*>(p) = x;
+	*std::bit_cast<B32*>(p) = x;
 }
 inline void writeL32(void* p, uint32_t x)
 {
-	*reinterpret_cast<L32*>(p) = x;
+	*std::bit_cast<L32*>(p) = x;
 }
 
 [[nodiscard]] inline uint16_t readB16(const void* p)
 {
-	return *reinterpret_cast<const B16*>(p);
+	return *std::bit_cast<const B16*>(p);
 }
 [[nodiscard]] inline uint16_t readL16(const void* p)
 {
-	return *reinterpret_cast<const L16*>(p);
+	return *std::bit_cast<const L16*>(p);
 }
 [[nodiscard]] inline uint32_t readB32(const void* p)
 {
-	return *reinterpret_cast<const B32*>(p);
+	return *std::bit_cast<const B32*>(p);
 }
 [[nodiscard]] inline uint32_t readL32(const void* p)
 {
-	return *reinterpret_cast<const L32*>(p);
+	return *std::bit_cast<const L32*>(p);
 }
 
 // Read/write big/little 16/24/32/64-bit values to/from a (possibly) unaligned

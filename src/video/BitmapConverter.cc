@@ -1,10 +1,13 @@
 #include "BitmapConverter.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <tuple>
 
@@ -121,8 +124,8 @@ void BitmapConverter::renderGraphic4(
 	}
 
 	Pixel* __restrict pixelPtr = buf.data();
-	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0.data());
+	      auto* out = std::bit_cast<DPixel*>(pixelPtr);
+	const auto* in  = std::bit_cast<const unsigned*>(vramPtr0.data());
 	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
@@ -171,9 +174,9 @@ void BitmapConverter::renderGraphic6(
 	if (!dPaletteValid) [[unlikely]] {
 		calcDPalette();
 	}
-	      auto* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const auto* in0 = reinterpret_cast<const unsigned*>(vramPtr0.data());
-	const auto* in1 = reinterpret_cast<const unsigned*>(vramPtr1.data());
+	      auto* out = std::bit_cast<DPixel*>(pixelPtr);
+	const auto* in0 = std::bit_cast<const unsigned*>(vramPtr0.data());
+	const auto* in1 = std::bit_cast<const unsigned*>(vramPtr1.data());
 	for (auto i : xrange(512 / 16)) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];

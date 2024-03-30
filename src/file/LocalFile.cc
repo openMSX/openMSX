@@ -14,6 +14,8 @@
 #include "FileNotFoundException.hh"
 #include "narrow.hh"
 #include "one_of.hh"
+
+#include <bit>
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
@@ -188,7 +190,7 @@ std::span<const uint8_t> LocalFile::mmap()
 		                 MAP_PRIVATE, fileno(file.get()), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
-		auto* MY_MAP_FAILED = reinterpret_cast<void*>(-1);
+		auto* MY_MAP_FAILED = std::bit_cast<void*>(intptr_t(-1));
 		if (mmem == MY_MAP_FAILED) {
 			throw FileException("Error mmapping file");
 		}

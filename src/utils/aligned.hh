@@ -2,6 +2,8 @@
 #define ALIGNED_HH
 
 #include "inline.hh"
+
+#include <bit>
 #include <cstdint>
 #include <cassert>
 #include <cstring>
@@ -83,7 +85,7 @@ template<size_t A, typename T>
 static ALWAYS_INLINE void assume_aligned(T* __restrict & ptr)
 {
 #ifdef DEBUG // only check in debug build
-	assert((reinterpret_cast<uintptr_t>(ptr) % A) == 0);
+	assert((std::bit_cast<uintptr_t>(ptr) % A) == 0);
 #endif
 
 #if __has_builtin(__builtin_assume_aligned) || GNUC_PREREQ(4, 7)

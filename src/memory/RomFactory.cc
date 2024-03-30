@@ -1,4 +1,5 @@
 #include "RomFactory.hh"
+
 #include "RomTypes.hh"
 #include "RomInfo.hh"
 #include "RomPageNN.hh"
@@ -63,9 +64,12 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+
+#include <bit>
 #include <memory>
 
 using std::make_unique;
@@ -82,7 +86,7 @@ namespace openmsx::RomFactory {
 	std::span data{&*rom.begin(), size};
 
 	if (const size_t signatureOffset = 16, signatureSize = 8; size >= (signatureOffset + signatureSize)) {
-		auto signature = std::string_view(reinterpret_cast<const char*>(data.data()) + signatureOffset, signatureSize);
+		auto signature = std::string_view(std::bit_cast<const char*>(data.data()) + signatureOffset, signatureSize);
 		if (signature == std::string_view("ROM_NEO8")) return ROM_NEO8;
 		if (signature == std::string_view("ROM_NE16")) return ROM_NEO16;
 	}

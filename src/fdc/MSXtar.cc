@@ -482,7 +482,7 @@ static char toFileNameChar(char a)
 FileName MSXtar::hostToMSXFileName(string_view hostName) const
 {
 	std::vector<uint8_t> hostMSXName = msxChars.utf8ToMsx(hostName, '_');
-	std::string_view hostMSXNameView(reinterpret_cast<char*>(hostMSXName.data()), hostMSXName.size());
+	std::string_view hostMSXNameView(std::bit_cast<char*>(hostMSXName.data()), hostMSXName.size());
 	auto [hostDir, hostFile] = StringOp::splitOnLast(hostMSXNameView, '/');
 
 	// handle special case '.' and '..' first
@@ -904,7 +904,7 @@ string MSXtar::msxToHostFileName(const FileName& msxName) const
 			result += char(tolower(msxName[i]));
 		}
 	}
-	std::span<const uint8_t> resultSpan(reinterpret_cast<const uint8_t*>(result.data()), result.size());
+	std::span<const uint8_t> resultSpan(std::bit_cast<const uint8_t*>(result.data()), result.size());
 	return msxChars.msxToUtf8(resultSpan, '_');
 }
 

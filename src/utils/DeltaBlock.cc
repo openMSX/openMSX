@@ -1,6 +1,9 @@
 #include "DeltaBlock.hh"
+
 #include "ranges.hh"
 #include "lz4.hh"
+
+#include <bit>
 #include <cassert>
 #include <tuple>
 #include <utility>
@@ -48,14 +51,14 @@ template<int N> bool comp(const uint8_t* p, const uint8_t* q);
 
 template<> bool comp<4>(const uint8_t* p, const uint8_t* q)
 {
-	return *reinterpret_cast<const uint32_t*>(p) ==
-	       *reinterpret_cast<const uint32_t*>(q);
+	return *std::bit_cast<const uint32_t*>(p) ==
+	       *std::bit_cast<const uint32_t*>(q);
 }
 
 template<> bool comp<8>(const uint8_t* p, const uint8_t* q)
 {
-	return *reinterpret_cast<const uint64_t*>(p) ==
-	       *reinterpret_cast<const uint64_t*>(q);
+	return *std::bit_cast<const uint64_t*>(p) ==
+	       *std::bit_cast<const uint64_t*>(q);
 }
 
 #ifdef __SSE2__
@@ -64,8 +67,8 @@ template<> bool comp<16>(const uint8_t* p, const uint8_t* q)
 	// Tests show that (on my machine) using 1 128-bit load is faster than
 	// 2 64-bit loads. Even though the actual comparison is slightly more
 	// complicated with SSE instructions.
-	__m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(p));
-	__m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(q));
+	__m128i a = _mm_load_si128(std::bit_cast<const __m128i*>(p));
+	__m128i b = _mm_load_si128(std::bit_cast<const __m128i*>(q));
 	__m128i d = _mm_cmpeq_epi8(a, b);
 	return _mm_movemask_epi8(d) == 0xffff;
 }
@@ -101,17 +104,17 @@ static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 	// Region too small or
 	// both buffers are differently aligned.
 	if (((p_end - p) < (2 * WORD_SIZE)) ||
-	    ((reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) !=
-	     (reinterpret_cast<uintptr_t>(q) & (WORD_SIZE - 1)))) [[unlikely]] {
+	    ((std::bit_cast<uintptr_t>(p) & (WORD_SIZE - 1)) !=
+	     (std::bit_cast<uintptr_t>(q) & (WORD_SIZE - 1)))) [[unlikely]] {
 		goto end;
 	}
 
 	// Align to WORD_SIZE boundary. No need for end-of-buffer checks.
-	if (reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) [[unlikely]] {
+	if (std::bit_cast<uintptr_t>(p) & (WORD_SIZE - 1)) [[unlikely]] {
 		do {
 			if (*p != *q) return {p, q};
 			p += 1; q += 1;
-		} while (reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1));
+		} while (std::bit_cast<uintptr_t>(p) & (WORD_SIZE - 1));
 	}
 
 	// Fast path. Compare words-at-a-time.

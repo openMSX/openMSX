@@ -12,6 +12,7 @@
 #include "StringOp.hh"
 
 #include <array>
+#include <bit>
 #include <cassert>
 #ifndef _WIN32
 #include <netdb.h>
@@ -368,7 +369,7 @@ void RS232Net::open_socket(const NetworkSocketAddress& socket_address)
 	if (sockfd == OPENMSX_INVALID_SOCKET) return;
 
 	int one = 1;
-	setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&one), sizeof(one));
+	setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, std::bit_cast<char*>(&one), sizeof(one));
 
 	if (connect(sockfd, &socket_address.address.generic, socket_address.len) < 0) {
 		sock_close(sockfd);

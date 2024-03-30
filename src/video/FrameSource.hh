@@ -4,8 +4,10 @@
 #include "aligned.hh"
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <span>
@@ -78,7 +80,7 @@ public:
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
 		unsigned width; // not used
-		return reinterpret_cast<const Pixel*>(
+		return std::bit_cast<const Pixel*>(
 			getLineInfo(line, width, buf.data(), 1280))[0];
 	}
 
@@ -95,7 +97,7 @@ public:
 	{
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
 		unsigned internalWidth;
-		auto* internalData = reinterpret_cast<const Pixel*>(
+		const auto* internalData = std::bit_cast<const Pixel*>(
 			getLineInfo(line, internalWidth, buf.data(), narrow<unsigned>(buf.size())));
 		if (internalWidth == narrow<unsigned>(buf.size())) {
 			return std::span{internalData, buf.size()};

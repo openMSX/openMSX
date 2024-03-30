@@ -1,4 +1,5 @@
 #include "Interpreter.hh"
+
 #include "Command.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -8,15 +9,18 @@
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+
+#include <bit>
+#include <cstdint>
 #include <iostream>
 #include <span>
 #include <utility>
 #include <vector>
-#include <cstdint>
 //#include <tk.h>
 
 namespace openmsx {
@@ -172,7 +176,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 	try {
 		auto& command = *static_cast<Command*>(clientData);
 		std::span<const TclObject> tokens(
-			reinterpret_cast<TclObject*>(const_cast<Tcl_Obj**>(objv)),
+			std::bit_cast<TclObject*>(const_cast<Tcl_Obj**>(objv)),
 			objc);
 		int res = TCL_OK;
 		TclObject result;
@@ -325,7 +329,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 	traces.emplace_back(Trace{traceID, &variable}); // still in sorted order
 	Tcl_TraceVar(interp, name.getString().data(), // 0-terminated
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	             traceProc, reinterpret_cast<ClientData>(traceID));
+	             traceProc, std::bit_cast<ClientData>(traceID));
 }
 
 void Interpreter::unregisterSetting(BaseSetting& variable)
@@ -337,7 +341,7 @@ void Interpreter::unregisterSetting(BaseSetting& variable)
 	const char* name = variable.getFullName().data(); // 0-terminated
 	Tcl_UntraceVar(interp, name,
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	               traceProc, reinterpret_cast<ClientData>(traceID));
+	               traceProc, std::bit_cast<ClientData>(traceID));
 	unsetVariable(name);
 }
 
@@ -389,7 +393,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		// a map. If the Setting was deleted, we won't find it anymore
 		// in the map and return.
 
-		auto traceID = reinterpret_cast<uintptr_t>(clientData);
+		auto traceID = std::bit_cast<uintptr_t>(clientData);
 		auto* variable = getTraceSetting(traceID);
 		if (!variable) return nullptr;
 
@@ -437,7 +441,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,
-			             reinterpret_cast<ClientData>(traceID));
+			             std::bit_cast<ClientData>(traceID));
 		}
 	} catch (...) {
 		UNREACHABLE; // we cannot let exceptions pass through Tcl
@@ -485,7 +489,7 @@ bool Interpreter::validExpression(std::string_view expression)
 void Interpreter::wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message)
 {
 	assert(argc <= tokens.size());
-	Tcl_WrongNumArgs(interp, narrow<int>(argc), reinterpret_cast<Tcl_Obj* const*>(tokens.data()), message);
+	Tcl_WrongNumArgs(interp, narrow<int>(argc), std::bit_cast<Tcl_Obj* const*>(tokens.data()), message);
 	// not efficient, but anyway on an error path
 	throw CommandException(Tcl_GetStringResult(interp));
 }

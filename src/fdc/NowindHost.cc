@@ -1,8 +1,10 @@
 #include "NowindHost.hh"
+
 #include "DiskContainer.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "SectorAccessibleDisk.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -11,8 +13,10 @@
 #include "unreachable.hh"
 #include "view.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
@@ -120,7 +124,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if (data == one_of(byte(0), byte(':')) ||
 		    (++recvCount == 40)) {
-			char* eData = reinterpret_cast<char*>(extraData.data());
+			char* eData = std::bit_cast<char*>(extraData.data());
 			callImage(string(eData, recvCount));
 			state = STATE_SYNC1;
 		}
@@ -130,7 +134,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if ((data == 0) || (++recvCount == (240 - 1))) {
 			extraData[recvCount] = 0;
-			DBERR("%s\n", reinterpret_cast<char*>(extraData.data()));
+			DBERR("%s\n", std::bit_cast<char*>(extraData.data()));
 			state = STATE_SYNC1;
 		}
 		break;

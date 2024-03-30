@@ -1,14 +1,19 @@
 #include "Ram.hh"
+
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
+#include "MSXException.hh"
+
 #include "Base64.hh"
 #include "HexDump.hh"
-#include "MSXException.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "serialize.hh"
+
 #include <zlib.h>
+
 #include <algorithm>
+#include <bit>
 #include <memory>
 
 namespace openmsx {
@@ -41,8 +46,8 @@ void Ram::clear(byte c)
 		if (encoding == "gz-base64") {
 			auto [buf, bufSize] = Base64::decode(init->getData());
 			auto dstLen = narrow<uLongf>(size());
-			if (uncompress(reinterpret_cast<Bytef*>(ram.data()), &dstLen,
-			               reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
+			if (uncompress(std::bit_cast<Bytef*>(ram.data()), &dstLen,
+			               std::bit_cast<const Bytef*>(buf.data()), uLong(bufSize))
 			     != Z_OK) {
 				throw MSXException("Error while decompressing initialContent.");
 			}

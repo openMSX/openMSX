@@ -2,9 +2,12 @@
 #define LINESCALERS_HH
 
 #include "PixelOperations.hh"
+
 #include "ranges.hh"
 #include "view.hh"
 #include "xrange.hh"
+
+#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -123,15 +126,15 @@ inline void scale_1on2_SSE(const Pixel* __restrict in_, Pixel* __restrict out_, 
 	assert((bytes % (4 * sizeof(__m128i))) == 0);
 	assert(bytes != 0);
 
-	const auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
-	      auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
+	const auto* in  = std::bit_cast<const char*>(in_)  +     bytes;
+	      auto* out = std::bit_cast<      char*>(out_) + 2 * bytes;
 
 	auto x = -ptrdiff_t(bytes);
 	do {
-		__m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x +  0));
-		__m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 16));
-		__m128i a2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 32));
-		__m128i a3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 48));
+		__m128i a0 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + x +  0));
+		__m128i a1 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + x + 16));
+		__m128i a2 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + x + 32));
+		__m128i a3 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + x + 48));
 		__m128i l0 = unpacklo(a0, a0);
 		__m128i h0 = unpackhi(a0, a0);
 		__m128i l1 = unpacklo(a1, a1);
@@ -140,14 +143,14 @@ inline void scale_1on2_SSE(const Pixel* __restrict in_, Pixel* __restrict out_, 
 		__m128i h2 = unpackhi(a2, a2);
 		__m128i l3 = unpacklo(a3, a3);
 		__m128i h3 = unpackhi(a3, a3);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +   0), l0);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  16), h0);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  32), l1);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  48), h1);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  64), l2);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  80), h2);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  96), l3);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x + 112), h3);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +   0), l0);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  16), h0);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  32), l1);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  48), h1);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  64), l2);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  80), h2);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x +  96), l3);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2*x + 112), h3);
 		x += 4 * sizeof(__m128i);
 	} while (x < 0);
 }
@@ -207,27 +210,27 @@ inline void scale_2on1_SSE(
 	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
 	assert(dstBytes != 0);
 
-	const auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
-	      auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
+	const auto* in  = std::bit_cast<const char*>(in_)  + 2 * dstBytes;
+	      auto* out = std::bit_cast<      char*>(out_) +     dstBytes;
 
 	auto x = -ptrdiff_t(dstBytes);
 	do {
-		__m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +   0));
-		__m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  16));
-		__m128i a2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  32));
-		__m128i a3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  48));
-		__m128i a4 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  64));
-		__m128i a5 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  80));
-		__m128i a6 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  96));
-		__m128i a7 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x + 112));
+		__m128i a0 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +   0));
+		__m128i a1 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  16));
+		__m128i a2 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  32));
+		__m128i a3 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  48));
+		__m128i a4 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  64));
+		__m128i a5 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  80));
+		__m128i a6 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x +  96));
+		__m128i a7 = _mm_loadu_si128(std::bit_cast<const __m128i*>(in + 2*x + 112));
 		__m128i b0 = blend(a0, a1);
 		__m128i b1 = blend(a2, a3);
 		__m128i b2 = blend(a4, a5);
 		__m128i b3 = blend(a6, a7);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x +  0), b0);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 16), b1);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 32), b2);
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 48), b3);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + x +  0), b0);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + x + 16), b1);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + x + 32), b2);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + x + 48), b3);
 		x += 4 * sizeof(__m128i);
 	} while (x < 0);
 }

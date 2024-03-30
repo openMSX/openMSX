@@ -1,6 +1,7 @@
 #ifndef FILE_HH
 #define FILE_HH
 
+#include <bit>
 #include <cstdint>
 #include <ctime>
 #include <memory>
@@ -75,7 +76,7 @@ public:
 
 	template<typename T>
 	void read(std::span<T> buffer) {
-		read(std::span<uint8_t>{reinterpret_cast<uint8_t*>(buffer.data()), buffer.size_bytes()});
+		read(std::span<uint8_t>{std::bit_cast<uint8_t*>(buffer.data()), buffer.size_bytes()});
 	}
 
 	/** Write to file.
@@ -86,7 +87,7 @@ public:
 
 	template<typename T>
 	void write(std::span<T> buffer) {
-		write(std::span<const uint8_t>{reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size_bytes()});
+		write(std::span<const uint8_t>{std::bit_cast<const uint8_t*>(buffer.data()), buffer.size_bytes()});
 	}
 
 	/** Map file in memory.

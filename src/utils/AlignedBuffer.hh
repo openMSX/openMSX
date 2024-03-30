@@ -2,6 +2,7 @@
 #define ALIGNEDBUFFER_HH
 
 #include <array>
+#include <bit>
 #include <cassert>
 #include <concepts>
 #include <cstdint>
@@ -29,8 +30,8 @@ namespace openmsx {
 class alignas(std::max_align_t) AlignedBuffer
 {
 private:
-	[[nodiscard]] auto* p()       { return reinterpret_cast<      uint8_t*>(this); }
-	[[nodiscard]] auto* p() const { return reinterpret_cast<const uint8_t*>(this); }
+	[[nodiscard]] auto* p()       { return std::bit_cast<      uint8_t*>(this); }
+	[[nodiscard]] auto* p() const { return std::bit_cast<const uint8_t*>(this); }
 
 public:
 	static constexpr auto ALIGNMENT = alignof(std::max_align_t);
@@ -84,9 +85,9 @@ template<typename T> [[nodiscard]] static inline T aligned_cast(void* p)
 {
 	static_assert(std::is_pointer_v<T>,
 	              "can only perform aligned_cast on pointers");
-	assert((reinterpret_cast<uintptr_t>(p) %
+	assert((std::bit_cast<uintptr_t>(p) %
 	        alignof(std::remove_pointer_t<T>)) == 0);
-	return reinterpret_cast<T>(p);
+	return std::bit_cast<T>(p);
 }
 
 } //namespace openmsx

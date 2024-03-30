@@ -1,4 +1,5 @@
 #include "serialize.hh"
+
 #include "Base64.hh"
 #include "HexDump.hh"
 #include "XMLElement.hh"
@@ -14,6 +15,8 @@
 #include "one_of.hh"
 #include "stl.hh"
 #include "build-info.hh"
+
+#include <bit>
 #include "cstdiop.hh" // for dup()
 #include <cstdint>
 #include <cstring>
@@ -94,7 +97,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
 		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
-		              reinterpret_cast<const Bytef*>(data.data()),
+		              std::bit_cast<const Bytef*>(data.data()),
 		              uLong(len), 9)
 		    != Z_OK) {
 			throw MSXException("Error while compressing blob.");
@@ -147,8 +150,8 @@ void InputArchiveBase<Derived>::serialize_blob(
 	if (encoding == "gz-base64") {
 		auto [buf, bufSize] = Base64::decode(tmp);
 		auto dstLen = uLongf(data.size()); // TODO check for overflow?
-		if ((uncompress(reinterpret_cast<Bytef*>(data.data()), &dstLen,
-		                reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
+		if ((uncompress(std::bit_cast<Bytef*>(data.data()), &dstLen,
+		                std::bit_cast<const Bytef*>(buf.data()), uLong(bufSize))
 		     != Z_OK) ||
 		    (dstLen != data.size())) {
 			throw MSXException("Error while decompressing blob.");
@@ -203,7 +206,7 @@ string_view MemInputArchive::loadStr()
 	load(length);
 	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
-	return {reinterpret_cast<const char*>(p), length};
+	return {std::bit_cast<const char*>(p), length};
 }
 
 ////

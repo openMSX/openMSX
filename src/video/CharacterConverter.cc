@@ -8,10 +8,14 @@ TODO:
 */
 
 #include "CharacterConverter.hh"
+
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+
 #include "ranges.hh"
 #include "xrange.hh"
+
+#include <bit>
 #include <cstdint>
 
 #ifdef __SSE2__
@@ -115,7 +119,7 @@ static inline void draw8(
 	__m128i b74 = _mm_cmpeq_epi32(_mm_and_si128(pat, m74), zero);
 	__m128i b30 = _mm_cmpeq_epi32(_mm_and_si128(pat, m30), zero);
 
-	auto* out = reinterpret_cast<__m128i*>(pixelPtr);
+	auto* out = std::bit_cast<__m128i*>(pixelPtr);
 	_mm_storeu_si128(out + 0, select(fg4, bg4, b74));
 	_mm_storeu_si128(out + 1, select(fg4, bg4, b30));
 	pixelPtr += 8;

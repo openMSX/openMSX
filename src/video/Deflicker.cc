@@ -1,8 +1,12 @@
 #include "Deflicker.hh"
+
 #include "PixelOperations.hh"
 #include "RawFrame.hh"
+
 #include "vla.hh"
 #include "xrange.hh"
+
+#include <bit>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -36,15 +40,15 @@ static __m128i blend(__m128i x, __m128i y)
 
 static __m128i uload(const Pixel* ptr, ptrdiff_t byteOffst)
 {
-	const auto* p8   = reinterpret_cast<const   char *>(ptr);
-	const auto* p128 = reinterpret_cast<const __m128i*>(p8 + byteOffst);
+	const auto* p8   = std::bit_cast<const   char *>(ptr);
+	const auto* p128 = std::bit_cast<const __m128i*>(p8 + byteOffst);
 	return _mm_loadu_si128(p128);
 }
 
 static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 {
-	auto* p8   = reinterpret_cast<  char *>(ptr);
-	auto* p128 = reinterpret_cast<__m128i*>(p8 + byteOffst);
+	auto* p8   = std::bit_cast<  char *>(ptr);
+	auto* p128 = std::bit_cast<__m128i*>(p8 + byteOffst);
 	return _mm_storeu_si128(p128, val);
 }
 

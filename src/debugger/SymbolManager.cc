@@ -3,15 +3,17 @@
 #include "CommandController.hh"
 #include "File.hh"
 #include "Interpreter.hh"
+#include "TclObject.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "StringOp.hh"
-#include "TclObject.hh"
 #include "unreachable.hh"
 #include "view.hh"
 
+#include <bit>
 #include <cassert>
 #include <fstream>
 
@@ -339,7 +341,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 {
 	File file(filename);
 	auto buf = file.mmap();
-	std::string_view buffer(reinterpret_cast<const char*>(buf.data()), buf.size());
+	std::string_view buffer(std::bit_cast<const char*>(buf.data()), buf.size());
 
 	if (type == SymbolFile::Type::AUTO_DETECT) {
 		type = detectType(filename, buffer);

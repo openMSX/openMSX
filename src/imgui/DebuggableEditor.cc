@@ -618,7 +618,7 @@ void DebuggableEditor::parseSearchString(std::string_view str)
 	std::vector<uint8_t> result;
 
 	if (searchType == static_cast<int>(SearchType::ASCII)) {
-		const auto* begin = reinterpret_cast<const uint8_t*>(str.data());
+		const auto* begin = std::bit_cast<const uint8_t*>(str.data());
 		const auto* end = begin + str.size();
 		result.assign(begin, end);
 	} else {

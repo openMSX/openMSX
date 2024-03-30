@@ -1,6 +1,9 @@
 #include "Socket.hh"
+
 #include "MSXException.hh" // FatalError
 #include "utf8_checked.hh"
+
+#include <bit>
 #include <cerrno>
 #include <cstring>
 
@@ -72,7 +75,7 @@ ptrdiff_t sock_recv(SOCKET sd, char* buf, size_t count)
 	// WinNT/2000 or on Unix.
 	int err;
 	int errLen = sizeof(err);
-	getsockopt(sd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&err), &errLen);
+	getsockopt(sd, SOL_SOCKET, SO_ERROR, std::bit_cast<char*>(&err), &errLen);
 	if (err == WSAEWOULDBLOCK) return 0;
 	return -1;
 #else
@@ -89,7 +92,7 @@ ptrdiff_t sock_send(SOCKET sd, const char* buf, size_t count)
 #ifdef _WIN32
 	int err;
 	int errLen = sizeof(err);
-	getsockopt(sd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&err), &errLen);
+	getsockopt(sd, SOL_SOCKET, SO_ERROR, std::bit_cast<char*>(&err), &errLen);
 	if (err == WSAEWOULDBLOCK) return 0;
 	return -1;
 #else

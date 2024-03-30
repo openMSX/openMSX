@@ -1,9 +1,14 @@
 #ifdef _WIN32
 
 #include "SspiUtils.hh"
+
 #include "MSXException.hh"
+
 #include "xrange.hh"
+
 #include <sddl.h>
+
+#include <bit>
 #include <cassert>
 #include <iostream>
 
@@ -189,7 +194,7 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 			    AddAccessAllowedAce(pacl, ACL_REVISION, ACCESS_ALL, pUserSid) &&
 			    SetSecurityDescriptorDacl(psd, TRUE, pacl, FALSE) &&
 			    // Need to set the Group and Owner on the SD in order to use it with AccessCheck()
-			    GetAce(pacl, 0, reinterpret_cast<void**>(&pUserAce)) &&
+			    GetAce(pacl, 0, std::bit_cast<void**>(&pUserAce)) &&
 			    SetSecurityDescriptorGroup(psd, &pUserAce->SidStart, FALSE) &&
 			    SetSecurityDescriptorOwner(psd, &pUserAce->SidStart, FALSE)) {
 				buffer = nullptr;

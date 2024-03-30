@@ -1,4 +1,5 @@
 #include "SoundDevice.hh"
+
 #include "MSXMixer.hh"
 #include "DeviceConfig.hh"
 #include "Mixer.hh"
@@ -7,13 +8,16 @@
 #include "StringOp.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
+
 #include "aligned.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "one_of.hh"
 #include "vla.hh"
 #include "xrange.hh"
+
 #include <array>
+#include <bit>
 #include <cassert>
 #include <memory>
 
@@ -256,7 +260,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 						amp.left);
 				} else {
 					writer[i]->write(
-						std::span{reinterpret_cast<const StereoFloat*>(bufs[i]), samples},
+						std::span{std::bit_cast<const StereoFloat*>(bufs[i]), samples},
 						amp.left, amp.right);
 				}
 			} else {

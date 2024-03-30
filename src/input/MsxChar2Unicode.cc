@@ -1,14 +1,18 @@
 #include "MsxChar2Unicode.hh"
+
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXException.hh"
+
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 #include "utf8_unchecked.hh"
 #include "xrange.hh"
+
+#include <bit>
 
 namespace openmsx {
 
@@ -26,7 +30,7 @@ MsxChar2Unicode::MsxChar2Unicode(std::string_view mappingName)
 	try {
 		File file(filename);
 		auto buf = file.mmap();
-		parseVid(std::string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
+		parseVid(std::string_view(std::bit_cast<const char*>(buf.data()), buf.size()));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load MSX character mapping file that was specified in unicodemap: ", filename);
 	} catch (MSXException& e) {

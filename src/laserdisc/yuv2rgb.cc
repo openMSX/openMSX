@@ -1,8 +1,12 @@
 #include "yuv2rgb.hh"
+
 #include "RawFrame.hh"
+
 #include "Math.hh"
 #include "xrange.hh"
+
 #include <array>
+#include <bit>
 #include <cassert>
 #include <concepts>
 #include <cstdint>
@@ -49,12 +53,12 @@ static inline void yuv2rgb_sse2(
 	// This routine calculates 32x2 RGBA pixels. Each output pixel uses a
 	// unique corresponding input Y value, but a group of 2x2 ouput pixels
 	// shares the same U and V input value.
-	const auto* u    = reinterpret_cast<const __m128i*>(u_);
-	const auto* v    = reinterpret_cast<const __m128i*>(v_);
-	const auto* y0   = reinterpret_cast<const __m128i*>(y0_);
-	const auto* y1   = reinterpret_cast<const __m128i*>(y1_);
-	      auto* out0 = reinterpret_cast<      __m128i*>(out0_);
-	      auto* out1 = reinterpret_cast<      __m128i*>(out1_);
+	const auto* u    = std::bit_cast<const __m128i*>(u_);
+	const auto* v    = std::bit_cast<const __m128i*>(v_);
+	const auto* y0   = std::bit_cast<const __m128i*>(y0_);
+	const auto* y1   = std::bit_cast<const __m128i*>(y1_);
+	      auto* out0 = std::bit_cast<      __m128i*>(out0_);
+	      auto* out1 = std::bit_cast<      __m128i*>(out1_);
 
 	// constants
 	const __m128i ZERO    = _mm_setzero_si128();

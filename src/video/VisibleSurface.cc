@@ -32,6 +32,7 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 
+#include <bit>
 #include <cassert>
 #include <memory>
 
@@ -125,8 +126,7 @@ VisibleSurface::VisibleSurface(
 	if (glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
 		throw InitException(
 			"Failed to init GLEW: ",
-			reinterpret_cast<const char*>(
-				glewGetErrorString(glew_error)));
+			std::bit_cast<const char*>(glewGetErrorString(glew_error)));
 	}
 	if (!GLEW_VERSION_2_1) {
 		throw InitException(

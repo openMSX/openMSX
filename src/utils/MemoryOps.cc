@@ -1,10 +1,13 @@
 #include "MemoryOps.hh"
+
 #include "build-info.hh"
 #include "systemfuncs.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+
 #include <bit>
 #include <cassert>
 #include <cstdlib>
@@ -47,11 +50,11 @@ static inline void memset_64_SSE(
 	__m128i val128 = _mm_set1_epi64x(narrow_cast<int64_t>(val64));
 	uint64_t* e = out + num64 - 3;
 	for (/**/; out < e; out += 4) {
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 0), val128);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2), val128);
+		_mm_store_si128(std::bit_cast<__m128i*>(out + 0), val128);
+		_mm_store_si128(std::bit_cast<__m128i*>(out + 2), val128);
 	}
 	if (num64 & 2) [[unlikely]] {
-		_mm_store_si128(reinterpret_cast<__m128i*>(out), val128);
+		_mm_store_si128(std::bit_cast<__m128i*>(out), val128);
 		out += 2;
 	}
 	if (num64 & 1) [[unlikely]] {
@@ -100,7 +103,7 @@ static inline void memset_32_2(
 
 	uint64_t val64 = Endian::BIG ? (uint64_t(val0) << 32) | val1
 	                             : val0 | (uint64_t(val1) << 32);
-	memset_64(reinterpret_cast<uint64_t*>(out), num32 / 2, val64);
+	memset_64(std::bit_cast<uint64_t*>(out), num32 / 2, val64);
 
 	if (num32 & 1) [[unlikely]] {
 		out[num32 - 1] = val0;
@@ -116,7 +119,7 @@ static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 	// VC++'s __stosd intrinsic results in emulator benchmarks
 	// running about 7% faster than with memset_32_2, streaming or not,
 	// and about 3% faster than the C code below.
-	__stosd(reinterpret_cast<unsigned long*>(out), val32, num32);
+	__stosd(std::bit_cast<unsigned long*>(out), val32, num32);
 #else
 	memset_32_2(out, num32, val32, val32);
 #endif
@@ -154,7 +157,7 @@ template<typename Pixel> void MemSet<Pixel>::operator()(
 	std::span<Pixel> out, Pixel val) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
-		memset_32(reinterpret_cast<uint32_t*>(out.data()), out.size(), val);
+		memset_32(std::bit_cast<uint32_t*>(out.data()), out.size(), val);
 	} else {
 		UNREACHABLE;
 	}
@@ -164,7 +167,7 @@ template<typename Pixel> void MemSet2<Pixel>::operator()(
 	std::span<Pixel> out, Pixel val0, Pixel val1) const
 {
 	if constexpr (sizeof(Pixel) == 4) {
-		memset_32_2(reinterpret_cast<uint32_t*>(out.data()), out.size(), val0, val1);
+		memset_32_2(std::bit_cast<uint32_t*>(out.data()), out.size(), val0, val1);
 	} else {
 		UNREACHABLE;
 	}
@@ -244,8 +247,8 @@ void* mallocAligned(size_t alignment, size_t size)
 	if (!unaligned) {
 		throw std::bad_alloc();
 	}
-	auto aligned = reinterpret_cast<void*>(
-		(reinterpret_cast<size_t>(unaligned) + t) & ~t);
+	auto aligned = std::bit_cast<void*>(
+		(std::bit_cast<uintptr_t>(unaligned) + t) & ~t);
 	AllocMap::instance().insert(aligned, unaligned);
 	return aligned;
 #endif

@@ -1,12 +1,16 @@
 #include "UnicodeKeymap.hh"
-#include "MSXException.hh"
+
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "MSXException.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
+
+#include <bit>
 #include <optional>
 
 using std::string_view;
@@ -87,7 +91,7 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 		File file(filename);
 		auto buf = file.mmap();
 		parseUnicodeKeyMapFile(
-			string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
+			string_view(std::bit_cast<const char*>(buf.data()), buf.size()));
 		// TODO in the future we'll require the presence of
 		//      "MSX-Video-Characterset" in the keyboard information
 		//      file, then we don't need this fallback.

@@ -227,7 +227,7 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = size / CacheLine::SIZE;
 
-	static auto* const NON_CACHEABLE = reinterpret_cast<byte*>(1);
+	static auto* const NON_CACHEABLE = std::bit_cast<byte*>(uintptr_t(1));
 	for (auto i : xrange(num)) {
 		if constexpr (READ)  readLines [first + i] = disallowRead [first + i] ? NON_CACHEABLE : rData;
 		if constexpr (WRITE) writeLines[first + i] = disallowWrite[first + i] ? NON_CACHEABLE : wData;

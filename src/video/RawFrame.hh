@@ -3,6 +3,8 @@
 
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
+
+#include <bit>
 #include <cassert>
 #include <cstdint>
 
@@ -20,7 +22,7 @@ public:
 
 	[[nodiscard]] std::span<Pixel> getLineDirect(unsigned y) {
 		assert(y < getHeight());
-		return {reinterpret_cast<Pixel*>(data.data() + y * pitch), maxWidth};
+		return {std::bit_cast<Pixel*>(data.data() + y * pitch), maxWidth};
 	}
 
 	[[nodiscard]] unsigned getLineWidthDirect(unsigned y) const {

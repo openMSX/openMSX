@@ -285,7 +285,7 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	assert(y < height);
 	auto offset = x + size_t(width) * y;
 	//if (bufferId != 0) {
-	//	return reinterpret_cast<T*>(offset * sizeof(T));
+	//	return std::bit_cast<T*>(offset * sizeof(T));
 	//} else {
 		return &allocated[offset];
 	//}
@@ -295,7 +295,7 @@ template<typename T>
 T* PixelBuffer<T>::mapWrite()
 {
 	//if (bufferId != 0) {
-	//	return reinterpret_cast<T*>(glMapBuffer(
+	//	return std::bit_cast<T*>(glMapBuffer(
 	//		GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
 	//} else {
 		return allocated.data();

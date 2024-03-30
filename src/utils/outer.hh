@@ -1,6 +1,7 @@
 #ifndef OUTER_HH
 #define OUTER_HH
 
+#include <bit>
 #include <cstddef>
 
 // Example usage:
@@ -39,6 +40,6 @@
 template<typename T> int checkInvalidOuterUsage(T) { return 0; }
 
 #define OUTER(type, member) (checkInvalidOuterUsage<const decltype(std::declval<type&>().member)*>(this), \
-                             *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(this) - offsetof(type, member)))
+                             *std::bit_cast<type*>(std::bit_cast<uintptr_t>(this) - offsetof(type, member)))
 
 #endif

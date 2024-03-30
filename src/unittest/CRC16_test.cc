@@ -1,8 +1,11 @@
 #include "catch.hpp"
 #include "CRC16.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <array>
+#include <bit>
 
 using namespace openmsx;
 
@@ -35,7 +38,7 @@ TEST_CASE("CRC16")
 	}
 	SECTION("'123456789' in one chunk") {
 		static constexpr const char* const digits = "123456789";
-		crc.update(std::span{reinterpret_cast<const uint8_t*>(digits), 9});
+		crc.update(std::span{std::bit_cast<const uint8_t*>(digits), 9});
 		CHECK(crc.getValue() == 0x29B1);
 	}
 	// same as disk sector size

@@ -1,14 +1,18 @@
 // Code based on DOSBox-0.65
 
 #include "ZMBVEncoder.hh"
+
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
+
 #include "cstd.hh"
 #include "endian.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -178,8 +182,8 @@ unsigned ZMBVEncoder::neededSize() const
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
+	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -193,8 +197,8 @@ unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
+	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -209,12 +213,12 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<Pixel>::type;
 
-	auto* pOld = &(reinterpret_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(reinterpret_cast<Pixel*>(newFrame.data()))[offset];
+	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			auto pXor = pNew[x] ^ pOld[x];
-			writePixel(pXor, *reinterpret_cast<LE_P*>(&work[workUsed]));
+			writePixel(pXor, *std::bit_cast<LE_P*>(&work[workUsed]));
 			workUsed += sizeof(Pixel);
 		}
 		pOld += pitch;
@@ -224,7 +228,7 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed)
 
 void ZMBVEncoder::addXorFrame(unsigned& workUsed)
 {
-	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
+	auto* vectors = std::bit_cast<int8_t*>(&work[workUsed]);
 
 	unsigned xBlocks = width / BLOCK_WIDTH;
 	unsigned yBlocks = height / BLOCK_HEIGHT;
@@ -272,8 +276,8 @@ void ZMBVEncoder::addFullFrame(unsigned& workUsed)
 	auto* readFrame =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	repeat(height, [&] {
-		auto* pixelsIn  = reinterpret_cast<Pixel*>(readFrame);
-		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
+		auto* pixelsIn  = std::bit_cast<Pixel*>(readFrame);
+		auto* pixelsOut = std::bit_cast<LE_P*>(&work[workUsed]);
 		for (auto x : xrange(width)) {
 			writePixel(pixelsIn[x], pixelsOut[x]);
 		}
@@ -311,7 +315,7 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 		static const uint8_t ZMBV_FORMAT_32BPP = 8;
 
 		output[0] |= FLAG_KEYFRAME;
-		auto* header = reinterpret_cast<KeyframeHeader*>(
+		auto* header = std::bit_cast<KeyframeHeader*>(
 			writeBuf + writeDone);
 		header->high_version = DBZV_VERSION_HIGH;
 		header->low_version = DBZV_VERSION_LOW;

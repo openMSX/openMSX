@@ -1,8 +1,12 @@
 #include "ResampleLQ.hh"
+
 #include "ResampledSoundDevice.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+
+#include <bit>
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -62,8 +66,8 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		// grow buffer (3 extra to be able to align)
 		bufferStorage.resize(required + 3);
 		// align at 16-byte boundary
-		auto p = reinterpret_cast<uintptr_t>(bufferStorage.data());
-		aBuffer = reinterpret_cast<float*>((p + 15) & ~15);
+		auto p = std::bit_cast<uintptr_t>(bufferStorage.data());
+		aBuffer = std::bit_cast<float*>((p + 15) & ~15);
 		// calculate actual usable size (the aligned portion)
 		bufferSize = (bufferStorage.data() + bufferStorage.size()) - aBuffer;
 		assert(bufferSize >= required);

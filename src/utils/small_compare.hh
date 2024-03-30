@@ -38,8 +38,10 @@
 
 #include "aligned.hh"
 #include "endian.hh"
+
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <cstring>
@@ -66,7 +68,7 @@ namespace detail {
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
 	using type = uint8_t;
-	[[nodiscard]] type operator()(const void* p) { return *reinterpret_cast<const uint8_t*>(p); }
+	[[nodiscard]] type operator()(const void* p) { return *std::bit_cast<const uint8_t*>(p); }
 };
 struct Load16 {
 	using type = uint16_t;

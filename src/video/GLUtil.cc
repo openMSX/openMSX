@@ -1,12 +1,16 @@
 #include "GLUtil.hh"
+
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "InitException.hh"
+
 #include "vla.hh"
 #include "Version.hh"
-#include <iostream>
+
+#include <bit>
 #include <cstdio>
+#include <iostream>
 
 using namespace openmsx;
 
@@ -156,7 +160,7 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 	try {
 		File file(systemFileContext().resolve(tmpStrCat("shaders/", filename)));
 		auto mmap = file.mmap();
-		source.append(reinterpret_cast<const char*>(mmap.data()),
+		source.append(std::bit_cast<const char*>(mmap.data()),
 		              mmap.size());
 	} catch (FileException& e) {
 		std::cerr << "Cannot find shader: " << e.getMessage() << '\n';

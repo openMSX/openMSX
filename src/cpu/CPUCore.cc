@@ -159,6 +159,7 @@
 // instructions too late.
 
 #include "CPUCore.hh"
+
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -168,12 +169,15 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "Thread.hh"
+
 #include "endian.hh"
 #include "inline.hh"
 #include "narrow.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
+#include <bit>
 #include <cassert>
 #include <iostream>
 #include <type_traits>
@@ -595,7 +599,7 @@ NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 		}
 	}
 	// uncacheable
-	readCacheLine[high] = reinterpret_cast<const byte*>(1);
+	readCacheLine[high] = std::bit_cast<const byte*>(uintptr_t(1));
 	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
@@ -700,7 +704,7 @@ NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned c
 		}
 	}
 	// uncacheable
-	writeCacheLine[high] = reinterpret_cast<byte*>(1);
+	writeCacheLine[high] = std::bit_cast<byte*>(uintptr_t(1));
 	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);

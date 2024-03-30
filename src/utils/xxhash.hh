@@ -60,9 +60,9 @@ template<bool ALIGNED>
 {
 	if constexpr (ALIGNED) {
 #ifdef DEBUG
-		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0);
+		assert((std::bit_cast<intptr_t>(ptr) & 3) == 0);
 #endif
-		return *reinterpret_cast<const uint32_t*>(ptr);
+		return *std::bit_cast<const uint32_t*>(ptr);
 	} else {
 		uint32_t result;
 		memcpy(&result, ptr, sizeof(result));
@@ -126,9 +126,9 @@ template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 
 template<uint8_t MASK8> [[nodiscard]] inline uint32_t xxhash_impl(std::string_view key)
 {
-	const auto* data = reinterpret_cast<const uint8_t*>(key.data());
+	const auto* data = std::bit_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
-	if (reinterpret_cast<intptr_t>(data) & 3) {
+	if (std::bit_cast<intptr_t>(data) & 3) {
 		return xxhash_impl<false, MASK8>(data, size);
 	} else {
 		// Input is aligned, let's leverage the speed advantage

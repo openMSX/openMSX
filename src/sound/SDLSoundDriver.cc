@@ -1,4 +1,5 @@
 #include "SDLSoundDriver.hh"
+
 #include "Mixer.hh"
 #include "Reactor.hh"
 #include "MSXMixer.hh"
@@ -8,7 +9,9 @@
 #include "ThrottleManager.hh"
 #include "MSXException.hh"
 #include "Timer.hh"
+
 #include "narrow.hh"
+
 #include <algorithm>
 #include <bit>
 #include <cassert>
@@ -86,7 +89,7 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
 {
 	assert((len & 7) == 0); // stereo, 32 bit float
 	static_cast<SDLSoundDriver*>(userdata)->
-		audioCallback(std::span{reinterpret_cast<StereoFloat*>(strm),
+		audioCallback(std::span{std::bit_cast<StereoFloat*>(strm),
 		                        len / (2 * sizeof(float))});
 }
 

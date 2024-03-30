@@ -27,12 +27,15 @@
 #ifdef _WIN32
 
 #include "Midi_w32.hh"
+
 #include "MSXException.hh"
+
 #include "MemBuffer.hh"
 #include "cstdiop.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 
+#include <bit>
 #include <cstring>
 #include <cstdlib>
 #include <sstream>
@@ -171,7 +174,7 @@ unsigned w32_midiOutOpen(const char *vfn)
 	if (w32_midiOutFindDev(&idx, &devid,vfn)) {
 		return unsigned(-1);
 	}
-	if (midiOutOpen(reinterpret_cast<HMIDIOUT*>(&vfnt_midiout[idx].handle), devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
+	if (midiOutOpen(std::bit_cast<HMIDIOUT*>(&vfnt_midiout[idx].handle), devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	return idx;
@@ -302,7 +305,7 @@ unsigned w32_midiInOpen(const char *vfn, DWORD thrdid)
 	if (w32_midiInFindDev(&idx, &devid, vfn)) {
 		return unsigned(-1);
 	}
-	if (midiInOpen(reinterpret_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
+	if (midiInOpen(std::bit_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	memset(&inhdr, 0, sizeof(inhdr));

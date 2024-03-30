@@ -1,6 +1,10 @@
 #include "catch.hpp"
+
 #include "Base64.hh"
+
 #include "ranges.hh"
+
+#include <bit>
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {
@@ -11,7 +15,7 @@ static void test_decode(const std::string& encoded, const std::string& decoded)
 
 static void test(const std::string& decoded, const std::string& encoded)
 {
-	CHECK(Base64::encode(std::span{reinterpret_cast<const uint8_t*>(decoded.data()),
+	CHECK(Base64::encode(std::span{std::bit_cast<const uint8_t*>(decoded.data()),
 	                               decoded.size()})
 	      == encoded);
 	test_decode(encoded, decoded);
