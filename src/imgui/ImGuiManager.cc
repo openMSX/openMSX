@@ -278,19 +278,17 @@ void ImGuiManager::registerPart(ImGuiPartInterface* part)
 
 void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
 {
-	assert(contains(parts, part));
-	assert(!contains(toBeRemovedParts, part));
-	toBeRemovedParts.push_back(part);
+	auto it = find_unguarded(parts, part);
+	*it = nullptr;
+	removeParts = true;
 }
 
 void ImGuiManager::updateParts()
 {
-	for (auto* part : toBeRemovedParts) {
-		auto it = ranges::find(parts, part);
-		assert(it != parts.end());
-		parts.erase(it); // the order matters (can't use move_pop_back())
+	if (removeParts) {
+		removeParts = false;
+		parts.erase(ranges::remove(parts, nullptr), parts.end());
 	}
-	toBeRemovedParts.clear();
 
 	append(parts, toBeAddedParts);
 	toBeAddedParts.clear();
@@ -685,7 +683,9 @@ void ImGuiManager::iniReadInit()
 {
 	updateParts();
 	for (auto* part : parts) {
-		part->loadStart();
+		if (part) { // loadStart() could call unregisterPart()
+			part->loadStart();
+		}
 	}
 }
 

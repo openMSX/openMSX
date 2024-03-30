@@ -118,7 +118,7 @@ private:
 	Reactor& reactor;
 	std::vector<ImGuiPartInterface*> parts;
 	std::vector<ImGuiPartInterface*> toBeAddedParts;
-	std::vector<ImGuiPartInterface*> toBeRemovedParts;
+	bool removeParts = false;
 
 public:
 	FilenameSetting fontPropFilename;
