@@ -300,7 +300,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					  | ImGuiInputTextFlags_CallbackAlways
 					  | ImGuiInputTextFlags_AlwaysOverwrite
 					  | extraFlags;
-		ImGui::SetNextItemWidth(s.glyphWidth * width);
+		ImGui::SetNextItemWidth(s.glyphWidth * float(width));
 		bool dataWrite = false;
 		im::ID(int(addr), [&]{
 			if (ImGui::InputText("##data", &dataInput, flags, UserData::Callback, &userData)) {
@@ -335,7 +335,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		};
 		auto highLightSearch = [&](unsigned a) {
 			if (!searchPattern) return false;
-			auto len = searchPattern->size();
+			auto len = narrow<unsigned>(searchPattern->size());
 			if (searchHighlight == static_cast<int>(SearchHighlight::SINGLE)) {
 				if (searchResult) {
 					return inside(a, *searchResult, len);
@@ -701,7 +701,7 @@ bool DebuggableEditor::match(Debuggable& debuggable, unsigned memSize, unsigned 
 	assert(searchPattern);
 	if ((addr + searchPattern->size()) > memSize) return false;
 	for (auto [i, c] : enumerate(*searchPattern)) {
-		if (debuggable.read(addr + i) != c) return false;
+		if (debuggable.read(narrow<unsigned>(addr + i)) != c) return false;
 	}
 	return true;
 }

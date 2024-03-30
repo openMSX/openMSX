@@ -256,7 +256,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/		bool cursorIsVisible = (state->CursorAnim <= 0.0f) || ImFmod(state->CursorAnim, 1.20f) <= 0.80f;
 		/**/		if (cursorIsVisible) {
 		/**/			// This assumes a single line and fixed-width font
-		/**/			gl::vec2 cursorOffset(state->GetCursorPos() * charWidth, 0.0f);
+		/**/			gl::vec2 cursorOffset(float(state->GetCursorPos()) * charWidth, 0.0f);
 		/**/			gl::vec2 cursorScreenPos = ImTrunc(drawPos + cursorOffset);
 		/**/			ImRect cursorScreenRect(cursorScreenPos.x, cursorScreenPos.y - 0.5f, cursorScreenPos.x + 1.0f, cursorScreenPos.y + fontSize - 1.5f);
 		/**/			if (cursorScreenRect.Overlaps(clipRect)) {

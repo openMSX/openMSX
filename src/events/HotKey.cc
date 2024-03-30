@@ -56,7 +56,7 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 HotKey::Listener::Listener(HotKey& hotKey_, EventDistributor::Priority priority_)
 	: hotKey(hotKey_), priority(priority_)
 {
-	auto& eventDistributor = hotKey.eventDistributor;
+	auto& distributor = hotKey.eventDistributor;
 	for (auto type : {
 			EventType::KEY_DOWN,
 			EventType::KEY_UP,
@@ -72,13 +72,13 @@ HotKey::Listener::Listener(HotKey& hotKey_, EventDistributor::Priority priority_
 			EventType::FILE_DROP,
 			EventType::OSD_CONTROL_RELEASE,
 			EventType::OSD_CONTROL_PRESS}) {
-		eventDistributor.registerEventListener(type, *this, priority);
+		distributor.registerEventListener(type, *this, priority);
 	}
 }
 
 HotKey::Listener::~Listener()
 {
-	auto& eventDistributor = hotKey.eventDistributor;
+	auto& distributor = hotKey.eventDistributor;
 	for (auto type : {
 			EventType::OSD_CONTROL_PRESS,
 			EventType::OSD_CONTROL_RELEASE,
@@ -94,7 +94,7 @@ HotKey::Listener::~Listener()
 			EventType::MOUSE_MOTION,
 			EventType::KEY_UP,
 			EventType::KEY_DOWN}) {
-		eventDistributor.unregisterEventListener(type, *this);
+		distributor.unregisterEventListener(type, *this);
 	}
 }
 
