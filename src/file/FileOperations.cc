@@ -535,7 +535,7 @@ string expandCurrentDirFromDrive(string path)
 					result += '/';
 				}
 				if (path.size() > 2) {
-					string_view tmp = path.substr(2);
+					auto tmp = std::string_view(path).substr(2);
 					result.append(tmp.data(), tmp.size());
 				}
 			}
