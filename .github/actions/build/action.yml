@@ -55,7 +55,7 @@ runs:
       shell: pwsh
       run: python build/thirdparty_download.py windows
     - name: Get number of CPU cores
-      uses: SimenB/github-actions-cpu-cores@v1.0.2
+      uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
