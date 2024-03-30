@@ -60,9 +60,10 @@ int main(int argc, const char** argv)
 	size_t size = st.st_size;
 	std::vector<char> inBuf(size);
 	if (fread(inBuf.data(), size, 1, inf) != 1) {
-		std::cerr << "Error whle reading " << arg[1] << '\n';
+		std::cerr << "Error while reading " << arg[1] << '\n';
 		exit(1);
 	}
+	fclose(inf);
 
 	std::string result;
 	if        (strstr(arg[0], "encode-gz-base64")) {
@@ -82,7 +83,8 @@ int main(int argc, const char** argv)
 	}
 
 	if (fwrite(result.data(), result.size(), 1, outf) != 1) {
-		std::cerr << "Error whle writing " << arg[2] << '\n';
+		std::cerr << "Error while writing " << arg[2] << '\n';
 		exit(1);
 	}
+	fclose(outf);
 }
