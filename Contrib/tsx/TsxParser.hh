@@ -6,6 +6,8 @@
 #define TSXPARSER_HH
 
 #include "endian.hh"
+
+#include <array>
 #include <cstdint>
 #include <optional>
 #include <span>
@@ -80,7 +82,7 @@ private:
 		//uint8_t       list[];      // [Array] List of text strings
 	};
 	struct Block35 {
-		char            label[0x10]; // Identification string (in ASCII)
+		std::array<char, 0x10> label;// Identification string (in ASCII)
 		Endian::UA_L32  len;         // Length of the custom info
 		//uint8_t       data[];      // [Array] Custom info
 	};
