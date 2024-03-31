@@ -1,22 +1,23 @@
-#include <vector>
-#include <map>
 #include <algorithm>
-#include <string>
+#include <array>
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
-#include <cassert>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
+#include <map>
+#include <string>
 #include <sys/stat.h>
+#include <vector>
 
 struct DmkHeader
 {
 	uint8_t writeProtected;
 	uint8_t numTracks;
-	uint8_t trackLen[2];
+	std::array<uint8_t, 2> trackLen;
 	uint8_t flags;
-	uint8_t reserved[7];
-	uint8_t format[4];
+	std::array<uint8_t, 7> reserved;
+	std::array<uint8_t, 4> format;
 };
 
 ///////
@@ -24,13 +25,13 @@ struct DmkHeader
 class Gaps
 {
 public:
-	Gaps(int totalSize);
+	explicit Gaps(int totalSize);
 	void addInterval(int start, int stop);
 	int getLargestGap();
 private:
 	void addUse2(int start, int stop);
 
-	const int totalSize;
+	int totalSize;
 	std::vector<int> v;
 };
 
@@ -112,7 +113,7 @@ int Gaps::getLargestGap()
 
 static uint8_t readCircular(const std::vector<uint8_t>& buffer, int idx)
 {
-	int dmkTrackLen = buffer.size();
+	auto dmkTrackLen = int(buffer.size());
 	return buffer[128 + idx % (dmkTrackLen - 128)];
 }
 
@@ -133,7 +134,7 @@ static void verifyDMK(bool b, const char* message)
 
 static int analyzeTrack(std::vector<uint8_t>& buffer)
 {
-	int dmkTrackLen = buffer.size();
+	auto dmkTrackLen = int(buffer.size());
 	int trackLen = dmkTrackLen - 128;
 
 	Gaps gaps(trackLen);
@@ -184,8 +185,8 @@ static int analyzeTrack(std::vector<uint8_t>& buffer)
 
 		// locate data mark, should be within 43 bytes from end
 		// of address mark (according to WD2793 datasheet)
-		for (int i = 10; i < 53; ++i) {
-			int dataIdx = addrIdx + i;
+		for (int j = 10; j < 53; ++j) {
+			int dataIdx = addrIdx + j;
 			uint8_t a0 = readCircular(buffer, dataIdx + 0);
 			uint8_t a1 = readCircular(buffer, dataIdx + 1);
 			uint8_t a2 = readCircular(buffer, dataIdx + 2);
@@ -215,9 +216,9 @@ int main()
 	std::string name = "DMK-tt-s.DAT";
 	for (int t = 0; t <= 99; ++t) {
 		for (int h = 0; h < 2; ++h) {
-			name[4] = (t / 10) + '0';
-			name[5] = (t % 10) + '0';
-			name[7] = h + '0';
+			name[4] = char((t / 10) + '0');
+			name[5] = char((t % 10) + '0');
+			name[7] = char(h + '0');
 
 			FILE* file = fopen(name.c_str(), "rb");
 			if (!file) {
@@ -250,21 +251,21 @@ int main()
 	}
 done_read:
 	assert((data.size() & 1) == 0);
-	int numTracks = data.size() / 2;
+	auto numTracks = int(data.size() / 2);
 
 	// Check that no .dat files with higher track number are found.
 	for (int t = numTracks; t <= 99; ++t) {
 		for (int h = 0; h < 2; ++h) {
-			name[4] = (t / 10) + '0';
-			name[5] = (t % 10) + '0';
-			name[7] = h + '0';
+			name[4] = char((t / 10) + '0');
+			name[5] = char((t % 10) + '0');
+			name[7] = char(h + '0');
 
 			FILE* file = fopen(name.c_str(), "rb");
 			if (!file) continue; // ok, we should have this file
 
 			std::string name2 = "DMK-tt-0.DAT";
-			name2[4] = (numTracks / 10) + '0';
-			name2[5] = (numTracks % 10) + '0';
+			name2[4] = char((numTracks / 10) + '0');
+			name2[5] = char((numTracks % 10) + '0');
 			fprintf(stderr,
 				"Found file %s, but file %s is missing.\n",
 				name.c_str(), name2.c_str());
@@ -274,13 +275,13 @@ done_read:
 
 	printf("Found .dat files for %d tracks (double sided).\n", numTracks);
 
-	// Create histogram of tracklengths.
+	// Create histogram of track lengths.
 	std::map<unsigned, unsigned> sizes; // length, count
 	for (const auto& d : data) {
 		++sizes[d.size()];
 	}
 
-	// Search the peak in this histogram (= the tracklength that occurs
+	// Search the peak in this histogram (= the track length that occurs
 	// most often).
 	unsigned maxCount = 0;
 	unsigned trackSize = 0;
@@ -323,7 +324,7 @@ done_read:
 
 			// We insert or delete one byte at a time. This may not
 			// be the most efficient approach (but still more than
-			// fast enough, we typically only nned to adjust a few
+			// fast enough, we typically only need to adjust a few
 			// bytes anyway). This has the advantage of being very
 			// simple: it can easily handle gaps that wrap around
 			// from the end to the beginning of the track and it
