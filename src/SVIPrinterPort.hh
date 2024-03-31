@@ -12,7 +12,7 @@ class PrinterPortDevice;
 class SVIPrinterPort final : public MSXDevice, public Connector
 {
 public:
-	SVIPrinterPort(const DeviceConfig& config);
+	explicit SVIPrinterPort(const DeviceConfig& config);
 
 	[[nodiscard]] PrinterPortDevice& getPluggedPrintDev() const;
 

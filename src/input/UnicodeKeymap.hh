@@ -34,7 +34,7 @@ public:
 	/** Creates a key matrix position from a uint8_t: the row is stored in
 	  * the high nibble, the column is stored in the low nibble.
 	  */
-	constexpr KeyMatrixPosition(uint8_t rowCol_)
+	explicit constexpr KeyMatrixPosition(uint8_t rowCol_)
 		: KeyMatrixPosition(rowCol_ >> 4, rowCol_ & 0x0F)
 	{
 	}

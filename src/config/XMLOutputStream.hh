@@ -72,7 +72,7 @@ template<typename Operations>
 class XMLOutputStream
 {
 public:
-	XMLOutputStream(Operations& ops_)
+	explicit XMLOutputStream(Operations& ops_)
 		: ops(ops_) {}
 
 	void begin(std::string_view tag);

@@ -13,7 +13,7 @@ namespace openmsx {
 class MusicalMemoryMapper final : public MSXMemoryMapperBase
 {
 public:
-	MusicalMemoryMapper(const DeviceConfig& config);
+	explicit MusicalMemoryMapper(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;

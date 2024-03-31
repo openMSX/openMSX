@@ -8,7 +8,7 @@ namespace openmsx {
 class EmptyPatch final : public PatchInterface
 {
 public:
-	EmptyPatch(std::span<const uint8_t> block_)
+	explicit EmptyPatch(std::span<const uint8_t> block_)
 		: block(block_) {}
 
 	void copyBlock(size_t src, std::span<uint8_t> dst) const override;

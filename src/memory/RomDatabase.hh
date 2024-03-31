@@ -19,7 +19,7 @@ public:
 	};
 	using RomDB = std::vector<Entry>; // sorted on sha1
 
-	RomDatabase(CliComm& cliComm);
+	explicit RomDatabase(CliComm& cliComm);
 
 	/** Lookup an entry in the database by sha1sum.
 	 * Returns nullptr when no corresponding entry was found.

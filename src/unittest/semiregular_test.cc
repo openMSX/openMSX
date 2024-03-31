@@ -7,7 +7,7 @@
 // a lambda).
 template<typename Op> struct Iter {
 	Iter() = default;
-	Iter(Op op_) : op(std::move(op_)) {}
+	explicit Iter(Op op_) : op(std::move(op_)) {}
 	semiregular_t<Op> op; // wrap 'Op' in semiregular_t<T>
 };
 

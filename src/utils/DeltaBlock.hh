@@ -43,7 +43,7 @@ protected:
 class DeltaBlockCopy final : public DeltaBlock
 {
 public:
-	DeltaBlockCopy(std::span<const uint8_t> data);
+	explicit DeltaBlockCopy(std::span<const uint8_t> data);
 	void apply(std::span<uint8_t> dst) const override;
 	void compress(size_t size);
 	[[nodiscard]] const uint8_t* getData();

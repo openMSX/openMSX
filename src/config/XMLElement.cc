@@ -228,7 +228,7 @@ void XMLDocument::setAttribute(XMLElement& elem, const char* attrName, const cha
 class XMLDocumentHandler : public rapidsax::NullHandler
 {
 public:
-	XMLDocumentHandler(XMLDocument& doc_)
+	explicit XMLDocumentHandler(XMLDocument& doc_)
 		: doc(doc_)
 		, nextElement(&doc.root) {}
 

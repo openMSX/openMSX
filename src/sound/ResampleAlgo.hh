@@ -23,7 +23,7 @@ public:
 	}
 
 protected:
-	ResampleAlgo(ResampledSoundDevice& input_) : input(input_) {}
+	explicit ResampleAlgo(ResampledSoundDevice& input_) : input(input_) {}
 	[[nodiscard]] DynamicClock& getEmuClock() const { return input.getEmuClock(); }
 	virtual bool generateOutputImpl(float* dataOut, size_t num,
 	                                EmuTime::param time) = 0;

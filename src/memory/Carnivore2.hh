@@ -25,7 +25,7 @@ class Carnivore2 final
 	, public GlobalReadClient<Carnivore2, CT_Interval<0x0000>, CT_Interval<0x4000, 0x4010>>
 {
 public:
-	Carnivore2(const DeviceConfig& config);
+	explicit Carnivore2(const DeviceConfig& config);
 	~Carnivore2() override;
 
 	void powerUp(EmuTime::param time) override;

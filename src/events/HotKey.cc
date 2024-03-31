@@ -180,7 +180,7 @@ void HotKey::loadUnbind(std::string_view key)
 }
 
 struct EqualEvent {
-	EqualEvent(const Event& event_) : event(event_) {}
+	explicit EqualEvent(const Event& event_) : event(event_) {}
 	bool operator()(const Event& e) const {
 		return event == e;
 	}

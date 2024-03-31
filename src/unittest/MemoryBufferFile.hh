@@ -10,7 +10,7 @@ class File;
 class MemoryBufferFile final : public FileBase
 {
 public:
-	MemoryBufferFile(std::span<const uint8_t> buffer_)
+	explicit MemoryBufferFile(std::span<const uint8_t> buffer_)
 		: buffer(buffer_) {}
 
 	void read(std::span<uint8_t> dst) override;

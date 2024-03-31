@@ -17,7 +17,7 @@ class JoystickPortIf;
 class SC3000PPI final : public MSXDevice, public I8255Interface
 {
 public:
-	SC3000PPI(const DeviceConfig& config);
+	explicit SC3000PPI(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;

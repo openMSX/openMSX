@@ -42,7 +42,7 @@ static constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 }
 
 DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
-	: Disk(std::move(filename))
+	: Disk(DiskName(std::move(filename)))
 	, file(std::move(file_))
 {
 	DmkHeader header;

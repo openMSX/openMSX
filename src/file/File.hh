@@ -54,7 +54,7 @@ public:
 	File(File&& other) noexcept;
 
 	/* Used by MemoryBufferFile. */
-	File(std::unique_ptr<FileBase> file_);
+	explicit File(std::unique_ptr<FileBase> file_);
 
 	~File();
 

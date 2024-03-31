@@ -260,7 +260,7 @@ static string msxToHostName(std::span<const char, 11> msxName)
 DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
                    const Filename& hostDir_, SyncMode syncMode_,
                    BootSectorType bootSectorType)
-	: SectorBasedDisk(hostDir_)
+	: SectorBasedDisk(DiskName(hostDir_))
 	, diskChanger(diskChanger_)
 	, cliComm(cliComm_)
 	, hostDir(FileOperations::expandTilde(hostDir_.getResolved() + '/'))

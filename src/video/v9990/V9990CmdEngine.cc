@@ -1,4 +1,5 @@
 #include "V9990CmdEngine.hh"
+
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
@@ -8,11 +9,13 @@
 #include "EnumSetting.hh"
 #include "MemBuffer.hh"
 #include "Clock.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -27,7 +30,7 @@ static constexpr EmuDuration d_(unsigned x)
 	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
 }
 using EDStorage = EmuDurationStorageFor<d_(maxLength).length()>;
-static constexpr EDStorage d(unsigned x) { return d_(x); }
+static constexpr EDStorage d(unsigned x) { return EDStorage{d_(x)}; }
 using A  = std::array<const EDStorage, 4>;
 using A2 = std::array<const A, 3>;
 using TimingTable = std::span<const A2, 4>;
@@ -97,7 +100,7 @@ static constexpr std::array SRCH_TIMING = {
 	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
 	                                       : 2;
 	unsigned idx3 = vdp.getColorDepth();
-	return table[idx1][idx2][idx3];
+	return EmuDuration(table[idx1][idx2][idx3]);
 }
 
 

@@ -108,7 +108,7 @@ private:
 
 	struct Listener : CliListener {
 		ImGuiMessages& messages;
-		Listener(ImGuiMessages& m) : messages(m) {}
+		explicit Listener(ImGuiMessages& m) : messages(m) {}
 
 		void log(CliComm::LogLevel level, std::string_view message, float fraction) noexcept override {
 			messages.log(level, message, fraction);

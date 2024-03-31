@@ -145,7 +145,7 @@ private:
 		uint8_t_2 rr4 = {0, 0}; // multiplied by 4
 	};
 	struct Locals {
-		Locals(std::span<float*, 9 + 5> out_) : out(out_) {}
+		explicit Locals(std::span<float*, 9 + 5> out_) : out(out_) {}
 
 		std::span<float*, 9 + 5> out;
 		uint8_t rm_hh_bits = 0;

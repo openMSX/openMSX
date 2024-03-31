@@ -20,7 +20,7 @@ public:
 	static constexpr uint8_t DATA_BITS = 8; // only 8-bit mode implemented
 
 public:
-	EEPROM_93C46(const XMLElement& xml); // unittest
+	explicit EEPROM_93C46(const XMLElement& xml); // unittest
 	EEPROM_93C46(const std::string& name, const DeviceConfig& config);
 
 	void reset();

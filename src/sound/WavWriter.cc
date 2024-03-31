@@ -69,8 +69,8 @@ WavWriter::~WavWriter()
 
 void WavWriter::flush()
 {
-	Endian::L32 totalSize = (bytes + 44 - 8 + 1) & ~1; // round up to even number
-	Endian::L32 wavSize   = bytes;
+	Endian::L32 totalSize((bytes + 44 - 8 + 1) & ~1); // round up to even number
+	Endian::L32 wavSize(bytes);
 
 	file.seek(4);
 	file.write(std::span{&totalSize, 1});

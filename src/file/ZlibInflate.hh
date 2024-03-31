@@ -12,7 +12,7 @@ namespace openmsx {
 class ZlibInflate
 {
 public:
-	ZlibInflate(std::span<const uint8_t> input);
+	explicit ZlibInflate(std::span<const uint8_t> input);
 	~ZlibInflate();
 
 	void skip(size_t num);

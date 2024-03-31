@@ -166,7 +166,7 @@ class XMLElement
 	};
 
 public:
-	XMLElement(const char* name_) : name(name_) {}
+	explicit XMLElement(const char* name_) : name(name_) {}
 	XMLElement(const char* name_, const char* data_) : name(name_), data(data_) {}
 
 	[[nodiscard]] std::string_view getName() const { return name; }

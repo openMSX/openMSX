@@ -2,6 +2,7 @@
 #define SHA1_HH
 
 #include "xrange.hh"
+
 #include <array>
 #include <cstdint>
 #include <ostream>
@@ -23,7 +24,7 @@ class Sha1Sum
 {
 public:
 	struct UninitializedTag {};
-	Sha1Sum(UninitializedTag) {}
+	explicit Sha1Sum(UninitializedTag) {}
 
 	// note: default copy and assign are ok
 	Sha1Sum();

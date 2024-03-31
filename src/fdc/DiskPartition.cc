@@ -14,7 +14,7 @@ using namespace DiskImageUtils;
 		return {dsk->getName().getFilename(),
 		        strCat(':', partition)};
 	} else {
-		return {Filename("dummy")};
+		return DiskName(Filename("dummy"));
 	}
 }
 

@@ -12,7 +12,7 @@ namespace openmsx {
 class SNPSG final : public MSXDevice
 {
 public:
-	SNPSG(const DeviceConfig& config);
+	explicit SNPSG(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

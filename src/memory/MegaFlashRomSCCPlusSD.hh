@@ -102,7 +102,7 @@ private:
 
 	class MapperIO final : public MSXMapperIOClient {
 	public:
-		MapperIO(MegaFlashRomSCCPlusSD& mega_)
+		explicit MapperIO(MegaFlashRomSCCPlusSD& mega_)
 			: MSXMapperIOClient(mega_.getMotherBoard())
 			, mega(mega_)
 		{

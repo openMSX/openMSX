@@ -14,7 +14,7 @@ namespace openmsx {
 class MsxChar2Unicode
 {
 public:
-	MsxChar2Unicode(std::string_view mappingName);
+	explicit MsxChar2Unicode(std::string_view mappingName);
 
 	/** TODO */
 	[[nodiscard]] std::string msxToUtf8(

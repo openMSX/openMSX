@@ -60,7 +60,7 @@ SERIALIZE_CLASS_VERSION(MSXMapperIO, 3);
 class MSXMapperIOClient : public MSXMemoryMapperInterface
 {
 protected:
-	MSXMapperIOClient(MSXMotherBoard& motherBoard_)
+	explicit MSXMapperIOClient(MSXMotherBoard& motherBoard_)
 		: motherBoard(motherBoard_)
 	{
 		auto& mapperIO = motherBoard.createMapperIO();

@@ -18,7 +18,7 @@ class JoystickPortIf;
 class SVIPPI final : public MSXDevice, public I8255Interface
 {
 public:
-	SVIPPI(const DeviceConfig& config);
+	explicit SVIPPI(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;

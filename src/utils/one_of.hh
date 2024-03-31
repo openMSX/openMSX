@@ -6,7 +6,7 @@
 template<typename... Ts>
 class one_of {
 public:
-	constexpr one_of(Ts... ts) : tup(ts...) {}
+	explicit constexpr one_of(Ts... ts) : tup(ts...) {}
 
 	template<typename T> // abbreviated syntax triggered ICE in msvc?
 	[[nodiscard]] friend constexpr bool operator==(const T& t, const one_of& o) {

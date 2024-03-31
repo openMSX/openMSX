@@ -130,7 +130,7 @@ inline void Font(ImFont* font, std::invocable<> auto next)
 }
 // Same functionality as im::Font(), but different usage (sometimes one sometimes the other is easier).
 struct ScopedFont {
-	ScopedFont(ImFont* font) { ImGui::PushFont(font); }
+	explicit ScopedFont(ImFont* font) { ImGui::PushFont(font); }
 	~ScopedFont() { ImGui::PopFont(); }
 
 	ScopedFont(const ScopedFont&) = delete;

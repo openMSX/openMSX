@@ -16,7 +16,7 @@ class monotonic_allocator
 public:
 	monotonic_allocator() = default;
 
-	monotonic_allocator(size_t initialSize)
+	explicit monotonic_allocator(size_t initialSize)
 		: nextSize(initialSize)
 	{
 		assert(initialSize != 0);

@@ -7,7 +7,7 @@
 class TestWriter
 {
 public:
-	TestWriter(std::stringstream& ss_)
+	explicit TestWriter(std::stringstream& ss_)
 		: ss(ss_) {}
 	void write(std::span<const char> buf) {
 		ss.write(buf.data(), buf.size());

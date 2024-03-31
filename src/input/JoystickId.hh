@@ -10,7 +10,7 @@ namespace openmsx {
 //  different from SDL joystick instance ID.
 class JoystickId {
 public:
-	JoystickId(unsigned id_) : id(id_) {}
+	explicit JoystickId(unsigned id_) : id(id_) {}
 	[[nodiscard]] unsigned raw() const { return id; }
 	[[nodiscard]] bool operator==(const JoystickId&) const = default;
 	[[nodiscard]] std::string str() const { return strCat("joy", id + 1); }

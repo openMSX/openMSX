@@ -37,7 +37,7 @@ public:
 	static constexpr int AMP_BITS = 9;
 
 	struct SoundDeviceInfo {
-		SoundDeviceInfo(unsigned numChannels);
+		explicit SoundDeviceInfo(unsigned numChannels);
 
 		SoundDevice* device = nullptr;
 		std::unique_ptr<IntegerSetting> volumeSetting;

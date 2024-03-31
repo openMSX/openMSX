@@ -135,13 +135,13 @@ template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 template<std::unsigned_integral T> class EmuDurationCompactStorage
 {
 public:
-	constexpr EmuDurationCompactStorage(EmuDuration e)
+	explicit constexpr EmuDurationCompactStorage(EmuDuration e)
 		: time(T(e.length()))
 	{
 		assert(e.length() <= std::numeric_limits<T>::max());
 	}
 
-	[[nodiscard]] constexpr operator EmuDuration() const
+	[[nodiscard]] explicit constexpr operator EmuDuration() const
 	{
 		return EmuDuration(uint64_t(time));
 	}

@@ -11,7 +11,7 @@ namespace openmsx {
 class ColecoSuperGameModule final : public MSXDevice
 {
 public:
-	ColecoSuperGameModule(const DeviceConfig& config);
+	explicit ColecoSuperGameModule(const DeviceConfig& config);
 	~ColecoSuperGameModule() override;
 
 	void reset(EmuTime::param time) override;

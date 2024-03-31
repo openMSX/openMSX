@@ -159,7 +159,7 @@ void SettingsConfig::saveSetting(std::string filename)
 	if (filename.empty()) return;
 
 	struct SettingsWriter {
-		SettingsWriter(std::string filename)
+		explicit SettingsWriter(std::string filename)
 			: file(std::move(filename), File::TRUNCATE)
 		{
 			std::string_view header =

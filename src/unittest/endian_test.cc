@@ -27,11 +27,11 @@ TEST_CASE("endian: 16-bit")
 	REQUIRE(sizeof(B16) == 2);
 	REQUIRE(sizeof(L16) == 2);
 
-	L16 l = 0x1234;
+	L16 l(0x1234);
 	CHECK(read_UA_L16(&l) == 0x1234);
 	CHECK(read_UA_B16(&l) == 0x3412);
 
-	B16 b = 0x1234;
+	B16 b(0x1234);
 	CHECK(read_UA_L16(&b) == 0x3412);
 	CHECK(read_UA_B16(&b) == 0x1234);
 
@@ -50,11 +50,11 @@ TEST_CASE("endian: 32-bit")
 	REQUIRE(sizeof(B32) == 4);
 	REQUIRE(sizeof(L32) == 4);
 
-	L32 l = 0x12345678;
+	L32 l(0x12345678);
 	CHECK(read_UA_L32(&l) == 0x12345678);
 	CHECK(read_UA_B32(&l) == 0x78563412);
 
-	B32 b = 0x12345678;
+	B32 b(0x12345678);
 	CHECK(read_UA_L32(&b) == 0x78563412);
 	CHECK(read_UA_B32(&b) == 0x12345678);
 

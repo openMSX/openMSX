@@ -10,7 +10,7 @@ class ImGuiManager;
 class ImGuiLayer final : public Layer
 {
 public:
-	ImGuiLayer(ImGuiManager& manager);
+	explicit ImGuiLayer(ImGuiManager& manager);
 
 private:
 	// Layer

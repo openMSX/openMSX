@@ -8,7 +8,7 @@ namespace openmsx {
 class DiskName
 {
 public:
-	/*implicit*/ DiskName(Filename name);
+	explicit DiskName(Filename name);
 	DiskName(Filename name, std::string extra);
 
 	[[nodiscard]] std::string getOriginal() const;

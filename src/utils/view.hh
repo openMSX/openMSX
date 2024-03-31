@@ -442,7 +442,7 @@ class Zip
 		using pointer = value_type*;
 		using reference = value_type&;
 
-		Iterator(IteratorsTuple&& iterators_) : iterators(std::move(iterators_)) {}
+		explicit Iterator(IteratorsTuple&& iterators_) : iterators(std::move(iterators_)) {}
 
 		Iterator& operator++() {
 			(++std::get<Is>(iterators), ...);
@@ -475,11 +475,11 @@ public:
 	Zip(Zip&&) noexcept = default;
 	Zip(RangesTuple&& ranges_) : ranges(std::move(ranges_)) {}
 
-	[[nodiscard]] Iterator begin() const {
-		return {IteratorsTuple(std::begin(std::get<Is>(ranges))...)};
+	[[nodiscard]] auto begin() const {
+		return Iterator{IteratorsTuple(std::begin(std::get<Is>(ranges))...)};
 	}
-	[[nodiscard]] Iterator end() const {
-		return {IteratorsTuple(std::end(std::get<Is>(ranges))...)};
+	[[nodiscard]] auto end() const {
+		return Iterator{IteratorsTuple(std::end(std::get<Is>(ranges))...)};
 	}
 };
 

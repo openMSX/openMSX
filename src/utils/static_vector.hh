@@ -38,7 +38,7 @@ class static_vector
 public:
 	constexpr static_vector() = default;
 
-	constexpr static_vector(std::initializer_list<T> list) {
+	explicit constexpr static_vector(std::initializer_list<T> list) {
 		assert(list.size() <= N);
 		std::copy(list.begin(), list.end(), data.data());
 		sz = SizeType(list.size());

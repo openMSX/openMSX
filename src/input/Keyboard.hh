@@ -178,13 +178,13 @@ private:
 	} keyTypeCmd;
 
 	struct Msxcode2UnicodeCmd final : public Command {
-		Msxcode2UnicodeCmd(CommandController& commandController);
+		explicit Msxcode2UnicodeCmd(CommandController& commandController);
 		void execute(std::span<const TclObject> tokens, TclObject& result) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} msxcode2UnicodeCmd;
 
 	struct Unicode2MsxcodeCmd final : public Command {
-		Unicode2MsxcodeCmd(CommandController& commandController);
+		explicit Unicode2MsxcodeCmd(CommandController& commandController);
 		void execute(std::span<const TclObject> tokens, TclObject& result) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} unicode2MsxcodeCmd;

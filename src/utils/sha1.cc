@@ -349,7 +349,7 @@ void SHA1::finalize()
 		j = 0;
 	}
 	ranges::fill(subspan(m_buffer, j, 56 - j), 0);
-	Endian::B64 finalCount = 8 * m_count; // convert number of bytes to bits
+	Endian::B64 finalCount(8 * m_count); // convert number of bytes to bits
 	memcpy(&m_buffer[56], &finalCount, 8);
 	transform(m_buffer);
 

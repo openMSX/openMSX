@@ -13,7 +13,7 @@ class JoystickPortIf;
 class SVIPSG final : public MSXDevice, public AY8910Periphery
 {
 public:
-	SVIPSG(const DeviceConfig& config);
+	explicit SVIPSG(const DeviceConfig& config);
 	~SVIPSG() override;
 
 	void reset(EmuTime::param time) override;

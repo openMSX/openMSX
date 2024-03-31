@@ -8,7 +8,7 @@ namespace openmsx {
 class SVIFDC final : public WD2793BasedFDC
 {
 public:
-	SVIFDC(const DeviceConfig& config);
+	explicit SVIFDC(const DeviceConfig& config);
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;

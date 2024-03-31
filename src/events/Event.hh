@@ -29,7 +29,7 @@ class EventBase {};
 class SdlEvent : public EventBase
 {
 public:
-	SdlEvent(const SDL_Event& e) : evt(e) {}
+	explicit SdlEvent(const SDL_Event& e) : evt(e) {}
 	[[nodiscard]] const SDL_Event& getSdlEvent() const { return evt; }
 	[[nodiscard]] const SDL_CommonEvent& getCommonSdlEvent() const { return evt.common; }
 
@@ -52,7 +52,7 @@ public:
 	[[nodiscard]] SDLKey getKey() const { return SDLKey{evt.key.keysym, evt.type == SDL_KEYDOWN}; }
 
 protected:
-	KeyEvent(const SDL_Event& e) : SdlEvent(e) {}
+	explicit KeyEvent(const SDL_Event& e) : SdlEvent(e) {}
 };
 
 class KeyUpEvent final : public KeyEvent
@@ -134,7 +134,7 @@ public:
 class MouseWheelEvent final : public SdlEvent
 {
 public:
-	MouseWheelEvent(const SDL_Event& e)
+	explicit MouseWheelEvent(const SDL_Event& e)
 		: SdlEvent(e) {}
 
 	[[nodiscard]] int getX() const { return normalize(evt.wheel.x); }
@@ -149,7 +149,7 @@ private:
 class MouseMotionEvent final : public SdlEvent
 {
 public:
-	MouseMotionEvent(const SDL_Event& e)
+	explicit MouseMotionEvent(const SDL_Event& e)
 		: SdlEvent(e) {}
 
 	[[nodiscard]] int getX() const    { return evt.motion.xrel; }
@@ -178,21 +178,21 @@ public:
 	[[nodiscard]] unsigned getButton() const { return evt.jbutton.button; }
 
 protected:
-	JoystickButtonEvent(const SDL_Event& e)
+	explicit JoystickButtonEvent(const SDL_Event& e)
 		: JoystickEvent(e) {}
 };
 
 class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonUpEvent(const SDL_Event& e)
+	explicit JoystickButtonUpEvent(const SDL_Event& e)
 		: JoystickButtonEvent(e) {}
 };
 
 class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
-	JoystickButtonDownEvent(const SDL_Event& e)
+	explicit JoystickButtonDownEvent(const SDL_Event& e)
 		: JoystickButtonEvent(e) {}
 };
 
@@ -202,7 +202,7 @@ public:
 	static constexpr uint8_t X_AXIS = 0;
 	static constexpr uint8_t Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(const SDL_Event& e)
+	explicit JoystickAxisMotionEvent(const SDL_Event& e)
 		: JoystickEvent(e) {}
 
 	[[nodiscard]] uint8_t getAxis() const { return evt.jaxis.axis; }
@@ -212,7 +212,7 @@ public:
 class JoystickHatEvent final : public JoystickEvent
 {
 public:
-	JoystickHatEvent(const SDL_Event& e)
+	explicit JoystickHatEvent(const SDL_Event& e)
 		: JoystickEvent(e) {}
 
 	[[nodiscard]] uint8_t getHat()   const { return evt.jhat.hat; }
@@ -278,7 +278,7 @@ public:
 	[[nodiscard]] unsigned getButton() const { return button; }
 
 protected:
-	OsdControlEvent(unsigned button_)
+	explicit OsdControlEvent(unsigned button_)
 		: button(button_) {}
 
 private:

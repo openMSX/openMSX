@@ -103,21 +103,21 @@ private:
 
 	class FilenameIndexHelper {
 	public:
-		FilenameIndexHelper(const Pool& p) : pool(p) {}
+		explicit FilenameIndexHelper(const Pool& p) : pool(p) {}
 		[[nodiscard]] std::string_view get(std::string_view s) const { return s; }
 		[[nodiscard]] std::string_view get(Index idx) const { return pool[idx].filename; }
 	private:
 		const Pool& pool;
 	};
 	struct FilenameIndexHash : FilenameIndexHelper {
-		FilenameIndexHash(const Pool& p) : FilenameIndexHelper(p) {}
+		explicit FilenameIndexHash(const Pool& p) : FilenameIndexHelper(p) {}
 		template<typename T> [[nodiscard]] auto operator()(T t) const {
 			XXHasher hasher;
 			return hasher(get(t));
 		}
 	};
 	struct FilenameIndexEqual : FilenameIndexHelper {
-		FilenameIndexEqual(const Pool& p) : FilenameIndexHelper(p) {}
+		explicit FilenameIndexEqual(const Pool& p) : FilenameIndexHelper(p) {}
 		template<typename T1, typename T2>
 		[[nodiscard]] bool operator()(T1 x, T2 y) const {
 			return get(x) == get(y);

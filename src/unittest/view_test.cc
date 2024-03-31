@@ -220,9 +220,10 @@ TEST_CASE("view::keys, view::values") {
 		check(values(v), vector<int>{2, 4, 6, 8});
 	}
 	SECTION("hash_map") {
-		hash_map<std::string, int> m =
-		{{"foo", 1}, {"bar", 2}, {"qux", 3},
-			{"baz", 4}, {"a",   5}, {"z",   6}};
+		hash_map<std::string, int> m = {
+			{"foo", 1}, {"bar", 2}, {"qux", 3},
+			{"baz", 4}, {"a",   5}, {"z",   6}
+		};
 		check_unordered(keys(m), vector<std::string>{
 				"foo", "bar", "qux", "baz", "a", "z"});
 		check_unordered(values(m), vector<int>{1, 2, 3, 4, 5, 6});
@@ -240,8 +241,8 @@ TEST_CASE("view::keys, view::values") {
 
 struct F {
 	int i;
-	F(int i_) : i(i_) {}
-	operator int() const { return i; }
+	/*implicit*/ F(int i_) : i(i_) {}
+	/*implicit*/ operator int() const { return i; }
 	bool isOdd() const { return i & 1; }
 };
 

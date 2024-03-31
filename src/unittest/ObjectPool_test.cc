@@ -10,7 +10,7 @@ struct Tracked
 	static inline std::vector<int> constructed;
 	static inline std::vector<int> destructed;
 
-	Tracked(int i_) : i(i_) {
+	explicit Tracked(int i_) : i(i_) {
 		constructed.push_back(i);
 	}
 	~Tracked() {

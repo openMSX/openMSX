@@ -80,7 +80,7 @@ struct ByteSwap {
 template<std::integral T, std::invocable<T> Op> class EndianT {
 public:
 	EndianT() = default; // leave uninitialized
-	EndianT(T t_)                  { Op op; t = op(t_); }
+	explicit EndianT(T t_)                  { Op op; t = op(t_); }
 	[[nodiscard]] inline operator T() const { Op op; return op(t); }
 	inline EndianT& operator=(T a) { Op op; t = op(a); return *this; }
 private:

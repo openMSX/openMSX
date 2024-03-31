@@ -46,7 +46,7 @@ private:
 			: expr(expr_), on(std::move(on_)), off(std::move(off_)), fade(fade_) {}
 		struct Icon {
 			Icon() = default;
-			Icon(std::string filename_) : filename(std::move(filename_)) {}
+			explicit Icon(std::string filename_) : filename(std::move(filename_)) {}
 			std::string filename;
 			gl::Texture tex{gl::Null{}};
 			gl::ivec2 size;

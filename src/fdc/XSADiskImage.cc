@@ -58,7 +58,7 @@ private:
 // XSADiskImage
 
 XSADiskImage::XSADiskImage(Filename& filename, File& file)
-	: SectorBasedDisk(filename)
+	: SectorBasedDisk(DiskName(filename))
 {
 	XSAExtractor extractor(file);
 	auto [d, sectors] = extractor.extractData();

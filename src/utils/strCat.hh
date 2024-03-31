@@ -119,7 +119,7 @@ template<typename T> struct ConcatUnit;
 // Helper for types which are formatted via a temporary string object
 struct ConcatViaString
 {
-	ConcatViaString(std::string s_)
+	explicit ConcatViaString(std::string s_)
 		: s(std::move(s_))
 	{
 	}
@@ -158,7 +158,7 @@ struct ConcatToString : ConcatViaString
 template<typename T>
 struct ConcatUnit : ConcatViaString
 {
-	ConcatUnit(const T& t)
+	explicit ConcatUnit(const T& t)
 		: ConcatViaString([&](){
 			std::ostringstream os;
 			os << t;
@@ -173,7 +173,7 @@ struct ConcatUnit : ConcatViaString
 //   store the string view (copies the view, not the string)
 template<> struct ConcatUnit<std::string_view>
 {
-	ConcatUnit(const std::string_view v_)
+	explicit ConcatUnit(const std::string_view v_)
 		: v(v_)
 	{
 	}
@@ -198,7 +198,7 @@ private:
 //   store single char (length is constant 1)
 template<> struct ConcatUnit<char>
 {
-	ConcatUnit(char c_)
+	explicit ConcatUnit(char c_)
 		: c(c_)
 	{
 	}
@@ -223,7 +223,7 @@ private:
 //   store bool (length is constant 1)
 template<> struct ConcatUnit<bool>
 {
-	ConcatUnit(bool b_)
+	explicit ConcatUnit(bool b_)
 		: b(b_)
 	{
 	}
@@ -282,7 +282,7 @@ template<std::integral T> struct ConcatIntegral
 	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
 
-	ConcatIntegral(T t)
+	explicit ConcatIntegral(T t)
 	{
 		auto p = this->end();
 		std::unsigned_integral auto a = absHelper(t);
@@ -372,7 +372,7 @@ private:
 // (it keeps the rightmost digits).
 template<size_t N, HexCase Case, std::integral T> struct ConcatFixedWidthHexIntegral
 {
-	ConcatFixedWidthHexIntegral(T t_)
+	explicit ConcatFixedWidthHexIntegral(T t_)
 		: t(t_)
 	{
 	}
@@ -407,7 +407,7 @@ private:
 // (it keeps the rightmost digits).
 template<size_t N, std::integral T> struct ConcatFixedWidthBinIntegral
 {
-	ConcatFixedWidthBinIntegral(T t_)
+	explicit ConcatFixedWidthBinIntegral(T t_)
 		: t(t_)
 	{
 	}
@@ -438,7 +438,7 @@ private:
 // Prints a number of spaces (without constructing a temporary string).
 struct ConcatSpaces
 {
-	ConcatSpaces(size_t n_)
+	explicit ConcatSpaces(size_t n_)
 		: n(n_)
 	{
 	}
@@ -464,7 +464,7 @@ private:
 // (it keeps the rightmost digits).
 template<size_t N, std::integral T> struct ConcatFixedWidthDecIntegral
 {
-	ConcatFixedWidthDecIntegral(T t)
+	explicit ConcatFixedWidthDecIntegral(T t)
 		: helper(t)
 	{
 	}
@@ -781,26 +781,26 @@ template<HexCase Case = HexCase::lower, std::integral T>
 }
 
 template<size_t N, HexCase Case = HexCase::lower, std::integral T>
-[[nodiscard]] inline strCatImpl::ConcatFixedWidthHexIntegral<N, Case, T> hex_string(T t)
+[[nodiscard]] inline auto hex_string(T t)
 {
-	return {t};
+	return strCatImpl::ConcatFixedWidthHexIntegral<N, Case, T>{t};
 }
 
 template<size_t N, std::integral T>
-[[nodiscard]] inline strCatImpl::ConcatFixedWidthBinIntegral<N, T> bin_string(T t)
+[[nodiscard]] inline auto bin_string(T t)
 {
-	return {t};
+	return strCatImpl::ConcatFixedWidthBinIntegral<N, T>{t};
 }
 
 template<size_t N, std::integral T>
-[[nodiscard]] inline strCatImpl::ConcatFixedWidthDecIntegral<N, T> dec_string(T t)
+[[nodiscard]] inline auto dec_string(T t)
 {
-	return {t};
+	return strCatImpl::ConcatFixedWidthDecIntegral<N, T>{t};
 }
 
-[[nodiscard]] inline strCatImpl::ConcatSpaces spaces(size_t n)
+[[nodiscard]] inline auto spaces(size_t n)
 {
-	return {n};
+	return strCatImpl::ConcatSpaces{n};
 }
 
 #endif
