@@ -679,7 +679,9 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 						ImGui::StrCat(mapper->getSelectedSegment(page));
 					} else if ((rom = dynamic_cast<MSXRom*>(device)) &&
 						(romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
-						if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
+						unsigned blockSize = RomInfo::getBlockSize(rom->getRomType());
+						// Mirrored ROMs are not mappers, so displaying segments doesn't make sense.
+						if (rom->getRomType() != openmsx::ROM_MIRRORED && blockSize > 0) {
 							std::string text;
 							char separator = 'R';
 							for (int offset = 0; offset < 0x4000; offset += blockSize) {
