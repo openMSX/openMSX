@@ -532,8 +532,8 @@ string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
 		cmd, " <key>                 : show binding for this key\n",
 		cmd, " <key> [-msx] [-repeat] [-event] <cmd> : bind key to command, optionally "
 		"repeat command while key remains pressed and also optionally "
-		"give back the event as argument (a list) to <cmd>\n"
-		"When the '-msx' flag is give the binding only has effect "
+		"give back the event as argument (a list) to <cmd>.\n"
+		"When the '-msx' flag is given the binding only has effect "
 		"when the msx window has focus (not when the GUI has focus).\n"
 		"These 3 take an optional '-layer <layername>' option, "
 		"see activate_input_layer.\n",
