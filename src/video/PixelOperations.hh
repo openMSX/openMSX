@@ -19,39 +19,39 @@ public:
 
 	/** Extract RGBA components, each in range [0..255]
 	  */
-	[[nodiscard]] inline unsigned red(Pixel p) const;
-	[[nodiscard]] inline unsigned green(Pixel p) const;
-	[[nodiscard]] inline unsigned blue(Pixel p) const;
-	[[nodiscard]] inline unsigned alpha(Pixel p) const;
+	[[nodiscard]] unsigned red(Pixel p) const;
+	[[nodiscard]] unsigned green(Pixel p) const;
+	[[nodiscard]] unsigned blue(Pixel p) const;
+	[[nodiscard]] unsigned alpha(Pixel p) const;
 
 	/** Combine RGB components to a pixel
 	  */
-	[[nodiscard]] inline Pixel combine(unsigned r, unsigned g, unsigned b) const;
+	[[nodiscard]] Pixel combine(unsigned r, unsigned g, unsigned b) const;
 
 	/** Blend the given colors into a single color.
 	  * The special case for blending between two colors with
 	  * an equal blend weight has an optimized implementation.
 	  */
 	template<unsigned w1, unsigned w2>
-	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2) const;
+	[[nodiscard]] Pixel blend(Pixel p1, Pixel p2) const;
 	template<unsigned w1, unsigned w2, unsigned w3>
-	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2, Pixel p3) const;
+	[[nodiscard]] Pixel blend(Pixel p1, Pixel p2, Pixel p3) const;
 	template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2, Pixel p3, Pixel p4) const;
+	[[nodiscard]] Pixel blend(Pixel p1, Pixel p2, Pixel p3, Pixel p4) const;
 	template<unsigned w1, unsigned w2, unsigned w3,
 	         unsigned w4, unsigned w5, unsigned w6>
-	[[nodiscard]] inline Pixel blend(Pixel p1, Pixel p2, Pixel p3,
-	                                 Pixel p4, Pixel p5, Pixel p6) const;
+	[[nodiscard]] Pixel blend(Pixel p1, Pixel p2, Pixel p3,
+	                          Pixel p4, Pixel p5, Pixel p6) const;
 
 	template<unsigned w1, unsigned w2>
-	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 2> p) const;
+	[[nodiscard]] Pixel blend(std::span<const Pixel, 2> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3>
-	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 3> p) const;
+	[[nodiscard]] Pixel blend(std::span<const Pixel, 3> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3, unsigned w4>
-	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 4> p) const;
+	[[nodiscard]] Pixel blend(std::span<const Pixel, 4> p) const;
 	template<unsigned w1, unsigned w2, unsigned w3,
-	          unsigned w4, unsigned w5, unsigned w6>
-	[[nodiscard]] inline Pixel blend(std::span<const Pixel, 6> p) const;
+	         unsigned w4, unsigned w5, unsigned w6>
+	[[nodiscard]] Pixel blend(std::span<const Pixel, 6> p) const;
 
 	/** Perform a component wise multiplication of a pixel with an 8-bit
 	  * fractional value:
@@ -61,7 +61,7 @@ public:
 	  * For x=255 the result in the original value.
 	  * Note: ATM only implemented for 32bpp.
 	  */
-	[[nodiscard]] static inline Pixel multiply(Pixel p, unsigned x);
+	[[nodiscard]] static Pixel multiply(Pixel p, unsigned x);
 
 	/** Perform linear interpolation between two pixels.
 	 * This calculates component-wise:
@@ -71,17 +71,17 @@ public:
 	 * For x=0   the result is p1.
 	 * For x=256 the result is p2.
 	 */
-	[[nodiscard]] inline Pixel lerp(Pixel p1, Pixel p2, unsigned x) const;
+	[[nodiscard]] Pixel lerp(Pixel p1, Pixel p2, unsigned x) const;
 
 	/** Perform alpha blending of two pixels.
 	 * Pixel p1 contains the alpha value. For maximal alpha p1 is
 	 * returned, for minimal alpha p2.
 	 */
-	[[nodiscard]] inline Pixel alphaBlend(Pixel p1, Pixel p2) const;
+	[[nodiscard]] Pixel alphaBlend(Pixel p1, Pixel p2) const;
 
 private:
-	[[nodiscard]] inline Pixel avgDown(Pixel p1, Pixel p2) const;
-	[[nodiscard]] inline Pixel avgUp  (Pixel p1, Pixel p2) const;
+	[[nodiscard]] Pixel avgDown(Pixel p1, Pixel p2) const;
+	[[nodiscard]] Pixel avgUp  (Pixel p1, Pixel p2) const;
 };
 
 

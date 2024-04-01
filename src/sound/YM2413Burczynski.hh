@@ -2,8 +2,10 @@
 #define YM2413BURCZYNSKI_HH
 
 #include "YM2413Core.hh"
+
 #include "FixedPoint.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <span>
 
@@ -33,12 +35,12 @@ public:
 	 */
 	void updateGenerators(Channel& channel);
 
-	[[nodiscard]] inline int calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
-	                      unsigned lfo_am, int phase);
-	[[nodiscard]] inline int calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
-	                         unsigned lfo_pm, unsigned lfo_am);
-	[[nodiscard]] inline int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
-	[[nodiscard]] inline int calc_phase(Channel& channel, unsigned lfo_pm);
+	[[nodiscard]] int calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
+	                             unsigned lfo_am, int phase);
+	[[nodiscard]] int calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
+	                                unsigned lfo_pm, unsigned lfo_am);
+	[[nodiscard]] int calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier);
+	[[nodiscard]] int calc_phase(Channel& channel, unsigned lfo_pm);
 
 	enum KeyPart : uint8_t { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
@@ -122,10 +124,10 @@ private:
 	 */
 	void setEnvelopeState(EnvelopeState state);
 
-	inline void updateTotalLevel(Channel& channel);
-	inline void updateAttackRate(int kcodeScaled);
-	inline void updateDecayRate(int kcodeScaled);
-	inline void updateReleaseRate(int kcodeScaled);
+	void updateTotalLevel(Channel& channel);
+	void updateAttackRate(int kcodeScaled);
+	void updateDecayRate(int kcodeScaled);
+	void updateReleaseRate(int kcodeScaled);
 
 	std::span<const unsigned, SIN_LEN> waveTable;	// waveform select
 
@@ -179,7 +181,7 @@ class Channel
 public:
 	/** Calculate the value of the current sample produced by this channel.
 	 */
-	[[nodiscard]] inline int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
+	[[nodiscard]] int calcOutput(unsigned eg_cnt, unsigned lfo_pm, unsigned lfo_am, int fm);
 
 	/** Sets the frequency for this channel.
 	 */
@@ -248,7 +250,7 @@ private:
 	 */
 	void resetOperators();
 
-	[[nodiscard]] inline bool isRhythm() const;
+	[[nodiscard]] bool isRhythm() const;
 
 	[[nodiscard]] Channel& getChannelForReg(uint8_t reg);
 

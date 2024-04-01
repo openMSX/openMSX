@@ -3,6 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 #include "SimpleDebuggable.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -43,20 +44,20 @@ private:
 		/** Sets the feedback pattern and resets the shift register to the
 		  * initial state that matches that pattern.
 		  */
-		inline void initState(unsigned pattern, unsigned period);
+		void initState(unsigned pattern, unsigned period);
 
 		/** Gets the current output of this shifter: 0 or 1.
 		  */
-		[[nodiscard]] inline unsigned getOutput() const;
+		[[nodiscard]] unsigned getOutput() const;
 
 		/** Advances the shift register one step, to the next output.
 		  */
-		inline void advance();
+		void advance();
 
 		/** Records that the shift register should be advanced multiple steps
 		  * before the next output is used.
 		  */
-		inline void queueAdvance(unsigned steps);
+		void queueAdvance(unsigned steps);
 
 		/** Advances the shift register by the number of steps that were queued.
 		  */

@@ -58,11 +58,11 @@ private:
 	class Slot {
 	public:
 		Slot();
-		[[nodiscard]] inline int op_calc(unsigned phase, unsigned lfo_am) const;
-		inline void FM_KEYON(uint8_t key_set);
-		inline void FM_KEYOFF(uint8_t key_clr);
-		inline void advanceEnvelopeGenerator(unsigned egCnt);
-		inline void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
+		[[nodiscard]] int op_calc(unsigned phase, unsigned lfo_am) const;
+		void FM_KEYON(uint8_t key_set);
+		void FM_KEYOFF(uint8_t key_clr);
+		void advanceEnvelopeGenerator(unsigned egCnt);
+		void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
 		void update_ar_dr();
 		void update_rr();
 		void calc_fc(const Channel& ch);
@@ -161,9 +161,9 @@ private:
 	void changeStatusMask(uint8_t flag);
 	void advance();
 
-	[[nodiscard]] inline unsigned genPhaseHighHat();
-	[[nodiscard]] inline unsigned genPhaseSnare();
-	[[nodiscard]] inline unsigned genPhaseCymbal();
+	[[nodiscard]] unsigned genPhaseHighHat();
+	[[nodiscard]] unsigned genPhaseSnare();
+	[[nodiscard]] unsigned genPhaseCymbal();
 
 	void chan_calc_rhythm(unsigned lfo_am);
 	void set_mul(unsigned sl, uint8_t v);
@@ -172,9 +172,9 @@ private:
 	void set_sl_rr(unsigned sl, uint8_t v);
 	bool checkMuteHelper();
 
-	[[nodiscard]] inline bool isExtended(unsigned ch) const;
-	[[nodiscard]] inline Channel& getFirstOfPair(unsigned ch);
-	[[nodiscard]] inline Channel& getSecondOfPair(unsigned ch);
+	[[nodiscard]] bool isExtended(unsigned ch) const;
+	[[nodiscard]] Channel& getFirstOfPair(unsigned ch);
+	[[nodiscard]] Channel& getSecondOfPair(unsigned ch);
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);

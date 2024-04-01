@@ -5,11 +5,13 @@
 #include "Y8950KeyboardConnector.hh"
 #include "ResampledSoundDevice.hh"
 #include "DACSound16S.hh"
+
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "EmuTimer.hh"
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -79,17 +81,17 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	inline void keyOn_BD();
-	inline void keyOn_SD();
-	inline void keyOn_TOM();
-	inline void keyOn_HH();
-	inline void keyOn_CYM();
-	inline void keyOff_BD();
-	inline void keyOff_SD();
-	inline void keyOff_TOM();
-	inline void keyOff_HH();
-	inline void keyOff_CYM();
-	inline void setRythmMode(int data);
+	void keyOn_BD();
+	void keyOn_SD();
+	void keyOn_TOM();
+	void keyOn_HH();
+	void keyOn_CYM();
+	void keyOff_BD();
+	void keyOff_SD();
+	void keyOff_TOM();
+	void keyOff_HH();
+	void keyOff_CYM();
+	void setRythmMode(int data);
 	void update_key_status();
 
 	[[nodiscard]] bool checkMuteHelper();
@@ -143,24 +145,24 @@ private:
 		Slot();
 		void reset();
 
-		[[nodiscard]] inline bool isActive() const;
-		inline void slotOn (KeyPart part);
-		inline void slotOff(KeyPart part);
+		[[nodiscard]] bool isActive() const;
+		void slotOn (KeyPart part);
+		void slotOff(KeyPart part);
 
-		[[nodiscard]] inline unsigned calc_phase(int lfo_pm);
-		[[nodiscard]] inline unsigned calc_envelope(int lfo_am);
-		[[nodiscard]] inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
-		[[nodiscard]] inline int calc_slot_mod(int lfo_pm, int lfo_am);
-		[[nodiscard]] inline int calc_slot_tom(int lfo_pm, int lfo_am);
-		[[nodiscard]] inline int calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise);
-		[[nodiscard]] inline int calc_slot_cym(int lfo_am, int a, int b);
-		[[nodiscard]] inline int calc_slot_hat(int lfo_am, int a, int b, int whiteNoise);
+		[[nodiscard]] unsigned calc_phase(int lfo_pm);
+		[[nodiscard]] unsigned calc_envelope(int lfo_am);
+		[[nodiscard]] int calc_slot_car(int lfo_pm, int lfo_am, int fm);
+		[[nodiscard]] int calc_slot_mod(int lfo_pm, int lfo_am);
+		[[nodiscard]] int calc_slot_tom(int lfo_pm, int lfo_am);
+		[[nodiscard]] int calc_slot_snare(int lfo_pm, int lfo_am, int whiteNoise);
+		[[nodiscard]] int calc_slot_cym(int lfo_am, int a, int b);
+		[[nodiscard]] int calc_slot_hat(int lfo_am, int a, int b, int whiteNoise);
 
-		inline void updateAll(unsigned freq);
-		inline void updatePG(unsigned freq);
-		inline void updateTLL(unsigned freq);
-		inline void updateRKS(unsigned freq);
-		inline void updateEG();
+		void updateAll(unsigned freq);
+		void updatePG(unsigned freq);
+		void updateTLL(unsigned freq);
+		void updateRKS(unsigned freq);
+		void updateEG();
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -189,9 +191,9 @@ private:
 	public:
 		Channel();
 		void reset();
-		inline void setFreq(unsigned freq);
-		inline void keyOn (KeyPart part);
-		inline void keyOff(KeyPart part);
+		void setFreq(unsigned freq);
+		void keyOn (KeyPart part);
+		void keyOff(KeyPart part);
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);

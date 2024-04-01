@@ -56,7 +56,6 @@ static constexpr byte DIX = 0x04;
 static constexpr byte EQ  = 0x02;
 static constexpr byte MAJ = 0x01;
 
-// Inline methods first, to make sure they are actually inlined:
 
 template<typename Mode>
 static constexpr unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
@@ -170,12 +169,12 @@ struct Graphic4Mode
 	static constexpr byte PIXELS_PER_BYTE = 2;
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
-	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static inline void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
-	static inline byte duplicate(byte color);
+	static byte duplicate(byte color);
 };
 
 inline unsigned Graphic4Mode::addressOf(
@@ -222,12 +221,12 @@ struct Graphic5Mode
 	static constexpr byte PIXELS_PER_BYTE = 4;
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 2;
 	static constexpr unsigned PIXELS_PER_LINE = 512;
-	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static inline void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
-	static inline byte duplicate(byte color);
+	static byte duplicate(byte color);
 };
 
 inline unsigned Graphic5Mode::addressOf(
@@ -276,12 +275,12 @@ struct Graphic6Mode
 	static constexpr byte PIXELS_PER_BYTE = 2;
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
 	static constexpr unsigned PIXELS_PER_LINE = 512;
-	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static inline void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
-	static inline byte duplicate(byte color);
+	static byte duplicate(byte color);
 };
 
 inline unsigned Graphic6Mode::addressOf(
@@ -328,12 +327,12 @@ struct Graphic7Mode
 	static constexpr byte PIXELS_PER_BYTE = 1;
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
-	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static inline void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
-	static inline byte duplicate(byte color);
+	static byte duplicate(byte color);
 };
 
 inline unsigned Graphic7Mode::addressOf(
@@ -378,12 +377,12 @@ struct NonBitmapMode
 	static constexpr byte PIXELS_PER_BYTE = 1;
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
-	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static inline void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
-	static inline byte duplicate(byte color);
+	static byte duplicate(byte color);
 };
 
 inline unsigned NonBitmapMode::addressOf(
