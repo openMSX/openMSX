@@ -153,7 +153,7 @@ private:
 
 	BindMap cmdMap;
 	BindMap defaultMap;
-	std::map<std::string, BindMap> layerMap;
+	std::map<std::string, BindMap, std::less<>> layerMap;
 	std::vector<LayerInfo> activeLayers;
 	KeySet boundKeys;
 	KeySet unboundKeys;

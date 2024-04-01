@@ -57,7 +57,7 @@ private:
 		unsigned refCount = 0;
 		WavInfo info;
 	};
-	std::map<std::string, Entry> cache;
+	std::map<std::string, Entry, std::less<>> cache;
 };
 
 WavImageCache::~WavImageCache()

@@ -104,7 +104,7 @@ private:
 	} transferHostToMsxPhase = IDLE;
 	std::vector<FileInfo> existingFiles;
 	std::vector<FileInfo> existingDirs;
-	std::map<std::string, std::vector<FileInfo>> duplicateEntries;
+	std::map<std::string, std::vector<FileInfo>, std::less<>> duplicateEntries;
 
 	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };
 	int newDiskType = UNPARTITIONED;

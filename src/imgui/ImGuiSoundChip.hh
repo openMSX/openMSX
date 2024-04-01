@@ -24,7 +24,7 @@ private:
 	void showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled);
 
 private:
-	std::map<std::string, bool> channels;
+	std::map<std::string, bool, std::less<>> channels;
 public:
 	bool showSoundChipSettings = false;
 

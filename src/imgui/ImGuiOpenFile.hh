@@ -53,7 +53,7 @@ private:
 	[[nodiscard]] std::string getStartPath(zstring_view lastLocationHint);
 
 private:
-	std::map<std::string, std::string> lastPath;
+	std::map<std::string, std::string, std::less<>> lastPath;
 	std::string lastTitle;
 	std::function<void(const std::string&)> openFileCallback;
 	Painter activePainter = Painter::MANAGER;
