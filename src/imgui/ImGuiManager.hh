@@ -158,6 +158,10 @@ public:
 	bool needReloadFont = false;
 	std::string loadIniFile;
 
+	// Shortcuts
+	enum ShortcutIndex { GOTO_ADDRESS, NUM };
+	ImGuiKeyChord getShortcut(ShortcutIndex index);
+
 private:
 	std::vector<std::function<void()>> delayedActionQueue;
 	float menuAlpha = 1.0f;
@@ -180,6 +184,10 @@ private:
 		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade},
 		PersistentElement{"windowPos",           &ImGuiManager::windowPos}
 	};
+
+	// Shortcuts
+	void initDefaultShortcuts();
+	std::array<ImGuiKeyChord, ShortcutIndex::NUM> shortcuts;
 };
 
 // Parse machine or extension config files:

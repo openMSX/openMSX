@@ -17,6 +17,7 @@
 #include "unreachable.hh"
 
 #include "imgui_stdlib.h"
+#include "imgui_internal.h"
 
 #include <algorithm>
 #include <array>
@@ -484,6 +485,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					scrollAddr(s, debuggable, memSize, r2.addr);
 					dataEditingTakeFocus = true;
 				}
+			}
+			if (ImGui::Shortcut(manager.getShortcut(ImGuiManager::GOTO_ADDRESS), 0, ImGuiInputFlags_RouteGlobalLow | ImGuiInputFlags_RouteUnlessBgFocused)) {
+				ImGui::SetKeyboardFocusHere(-1);
 			}
 			simpleToolTip([&]{
 				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))
