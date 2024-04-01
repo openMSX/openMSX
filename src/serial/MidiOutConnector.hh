@@ -17,8 +17,8 @@ public:
 	[[nodiscard]] MidiOutDevice& getPluggedMidiOutDev() const;
 
 	// Connector
-	[[nodiscard]] std::string_view getDescription() const final;
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] std::string_view getClass() const override;
 
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override;
