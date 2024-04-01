@@ -854,7 +854,7 @@ void CPUCore<T>::executeInstructions()
 #ifdef USE_COMPUTED_GOTO
 	// Addresses of all main-opcode routines,
 	// Note that 40/49/53/5B/64/6D/7F is replaced by 00 (ld r,r == nop)
-	static void* opcodeTable[256] = {
+	static std::array<void*, 256> opcodeTable = {
 		&&op00, &&op01, &&op02, &&op03, &&op04, &&op05, &&op06, &&op07,
 		&&op08, &&op09, &&op0A, &&op0B, &&op0C, &&op0D, &&op0E, &&op0F,
 		&&op10, &&op11, &&op12, &&op13, &&op14, &&op15, &&op16, &&op17,

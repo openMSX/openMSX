@@ -345,8 +345,8 @@ string getConventionalPath(string path)
 string getCurrentWorkingDirectory()
 {
 #ifdef _WIN32
-	wchar_t bufW[MAXPATHLEN];
-	wchar_t* result = _wgetcwd(bufW, MAXPATHLEN);
+	std::array<wchar_t, MAXPATHLEN> bufW;
+	wchar_t* result = _wgetcwd(bufW.data(), bufW.size());
 	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}
@@ -390,13 +390,13 @@ string getUserHomeDir(string_view username)
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
 
-	wchar_t bufW[MAXPATHLEN + 1];
-	if (!SHGetSpecialFolderPathW(nullptr, bufW, CSIDL_PERSONAL, TRUE)) {
+	std::array<wchar_t, MAXPATHLEN + 1> bufW;
+	if (!SHGetSpecialFolderPathW(nullptr, bufW.data(), CSIDL_PERSONAL, TRUE)) {
 		throw FatalError(
 			"SHGetSpecialFolderPathW failed: ", GetLastError());
 	}
 
-	return getConventionalPath(utf16to8(bufW));
+	return getConventionalPath(utf16to8(bufW.data()));
 #else
 	const char* dir = nullptr;
 	struct passwd* pw = nullptr;
@@ -453,15 +453,15 @@ const string& getSystemDataDir()
 			return value;
 		}
 #ifdef _WIN32
-		wchar_t bufW[MAXPATHLEN + 1];
-		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
+		std::array<wchar_t, MAXPATHLEN + 1> bufW;
+		int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
 		if (!res) {
 			throw FatalError(
 				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
 				GetLastError());
 		}
 
-		string filename = utf16to8(bufW);
+		string filename = utf16to8(bufW.data());
 		auto pos = filename.find_last_of('\\');
 		if (pos == string::npos) {
 			throw FatalError("openMSX is not in directory!?");
@@ -484,15 +484,15 @@ const string& getSystemDocDir()
 	static std::optional<string> result;
 	if (!result) result = []() -> string {
 #ifdef _WIN32
-		wchar_t bufW[MAXPATHLEN + 1];
-		int res = GetModuleFileNameW(nullptr, bufW, DWORD(std::size(bufW)));
+		std::array<wchar_t, MAXPATHLEN + 1> bufW;
+		int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
 		if (!res) {
 			throw FatalError(
 				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
 				GetLastError());
 		}
 
-		string filename = utf16to8(bufW);
+		string filename = utf16to8(bufW.data());
 		auto pos = filename.find_last_of('\\');
 		if (pos == string::npos) {
 			throw FatalError("openMSX is not in directory!?");
@@ -513,8 +513,8 @@ const string& getSystemDocDir()
 #ifdef _WIN32
 static bool driveExists(char driveLetter)
 {
-	char buf[] = { driveLetter, ':', 0 };
-	return GetFileAttributesA(buf) != INVALID_FILE_ATTRIBUTES;
+	std::array<char, 3> buf = {driveLetter, ':', 0};
+	return GetFileAttributesA(buf.data()) != INVALID_FILE_ATTRIBUTES;
 }
 #endif
 
@@ -527,10 +527,10 @@ string expandCurrentDirFromDrive(string path)
 		// get current directory for this drive
 		unsigned char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
-			wchar_t bufW[MAXPATHLEN + 1];
+			std::array<wchar_t, MAXPATHLEN + 1> bufW;
 			if (driveExists(drive) &&
-				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN)) {
-				result = getConventionalPath(utf16to8(bufW));
+				_wgetdcwd(drive - 'a' + 1, bufW.data(), MAXPATHLEN)) {
+				result = getConventionalPath(utf16to8(bufW.data()));
 				if (result.back() != '/') {
 					result += '/';
 				}
@@ -713,12 +713,12 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 {
 #ifdef _WIN32
 	std::wstring directoryW = utf8to16(directory);
-	wchar_t filenameW[MAX_PATH];
-	if (!GetTempFileNameW(directoryW.c_str(), L"msx", 0, filenameW)) {
+	std::array<wchar_t, MAX_PATH> filenameW;
+	if (!GetTempFileNameW(directoryW.c_str(), L"msx", 0, filenameW.data())) {
 		throw FileException("GetTempFileNameW failed: ", GetLastError());
 	}
-	filename = utf16to8(filenameW);
-	return FILE_t(_wfopen(filenameW, L"wb"));
+	filename = utf16to8(filenameW.data());
+	return FILE_t(_wfopen(filenameW.data(), L"wb"));
 #else
 	filename = directory + "/XXXXXX";
 	auto oldMask = umask(S_IRWXO | S_IRWXG);

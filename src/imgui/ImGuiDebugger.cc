@@ -82,8 +82,8 @@ void ImGuiDebugger::loadIcons()
 {
 	auto& io = ImGui::GetIO();
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	static const ImWchar ranges[] = { DEBUGGER_ICON_MIN, DEBUGGER_ICON_MAX, 0 };
-	io.Fonts->AddFontFromMemoryCompressedBase85TTF(icons_compressed_base85, 20.0f, &icons_config, ranges);
+	static constexpr std::array<ImWchar, 3> ranges = {DEBUGGER_ICON_MIN, DEBUGGER_ICON_MAX, 0};
+	io.Fonts->AddFontFromMemoryCompressedBase85TTF(icons_compressed_base85, 20.0f, &icons_config, ranges.data());
 }
 
 void ImGuiDebugger::signalBreak()

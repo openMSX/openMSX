@@ -106,9 +106,9 @@ void ImGuiManager::loadFont()
 	fontProp = addFont(fontPropFilename.getString(), fontPropSize.getInt());
 
 	//// load icon font file (CustomFont.cpp), only in the default font
-	static const ImWchar icons_ranges[] = { ICON_MIN_IGFD, ICON_MAX_IGFD, 0 };
+	static constexpr std::array<ImWchar, 3> icons_ranges = {ICON_MIN_IGFD, ICON_MAX_IGFD, 0};
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges);
+	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges.data());
 	// load debugger icons, also only in default font
 	debugger->loadIcons();
 
