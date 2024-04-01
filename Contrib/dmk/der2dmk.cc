@@ -1,10 +1,11 @@
+#include "dmk-common.hh"
+
 #include <array>
 #include <cassert>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <stdexcept>
+#include <span>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -23,63 +24,6 @@ struct DiskInfo
 	int sectorSizeCode;
 	bool doubleSided;
 };
-
-struct DmkHeader
-{
-	uint8_t writeProtected;
-	uint8_t numTracks;
-	std::array<uint8_t, 2> trackLen;
-	uint8_t flags;
-	std::array<uint8_t, 7> reserved;
-	std::array<uint8_t, 4> format;
-};
-
-
-class File
-{
-public:
-	File(const File&) = delete;
-	File(File&&) = delete;
-	File& operator=(const File&) = delete;
-	File& operator=(File&&) = delete;
-
-	File(const std::string& filename, const char* mode)
-		: f(fopen(filename.c_str(), mode))
-	{
-		if (!f) {
-			throw std::runtime_error("Couldn't open: " + filename);
-		}
-	}
-
-	~File()
-	{
-		fclose(f);
-	}
-
-	void read(void* data, int size)
-	{
-		if (fread(data, size, 1, f) != 1) {
-			throw std::runtime_error("Couldn't read file");
-		}
-	}
-	void write(const void* data, int size)
-	{
-		if (fwrite(data, size, 1, f) != 1) {
-			throw std::runtime_error("Couldn't write file");
-		}
-	}
-
-private:
-	FILE* f;
-};
-
-
-static void updateCrc(uint16_t& crc, uint8_t val)
-{
-	for (int i = 8; i < 16; ++i) {
-		crc = (crc << 1) ^ (((crc ^ (val << i)) & 0x8000) ? 0x1021 : 0);
-	}
-}
 
 static void fill(uint8_t*& p, int len, uint8_t value)
 {
@@ -208,16 +152,17 @@ void convert(const DiskInfo& info, const std::string& dsk,
 	}
 }
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
-	if (argc != 4) {
+	std::span arg(argv, argc);
+	if (arg.size() != 4) {
 		printf("der2dmk\n"
 		       "\n"
 		       "Utility to convert a dsk disk image with associated disk\n"
 		       "error file into a dmk disk image. At the moment this utility\n"
 		       "is limited to 720kB double sided, double density dsk images.\n"
 		       "\n"
-		       "Usage: %s <input.dsk> <input.der> <output.dmk>\n", argv[0]);
+		       "Usage: %s <input.dsk> <input.der> <output.dmk>\n", arg[0]);
 		exit(1);
 	}
 
@@ -234,7 +179,7 @@ int main(int argc, char** argv)
 	info.doubleSided = true;
 
 	try {
-		convert(info, argv[1], argv[2], argv[3]);
+		convert(info, arg[1], arg[2], arg[3]);
 	} catch (std::exception& e) {
 		fprintf(stderr, "Error: %s\n", e.what());
 	}

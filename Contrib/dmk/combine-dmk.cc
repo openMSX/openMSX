@@ -1,8 +1,9 @@
+#include "dmk-common.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <map>
@@ -10,17 +11,6 @@
 #include <sys/stat.h>
 #include <vector>
 
-struct DmkHeader
-{
-	uint8_t writeProtected;
-	uint8_t numTracks;
-	std::array<uint8_t, 2> trackLen;
-	uint8_t flags;
-	std::array<uint8_t, 7> reserved;
-	std::array<uint8_t, 4> format;
-};
-
-///////
 
 class Gaps
 {
@@ -115,13 +105,6 @@ static uint8_t readCircular(const std::vector<uint8_t>& buffer, int idx)
 {
 	auto dmkTrackLen = int(buffer.size());
 	return buffer[128 + idx % (dmkTrackLen - 128)];
-}
-
-static void updateCrc(uint16_t& crc, uint8_t val)
-{
-	for (int i = 8; i < 16; ++i) {
-		crc = (crc << 1) ^ (((crc ^ (val << i)) & 0x8000) ? 0x1021 : 0);
-	}
 }
 
 static void verifyDMK(bool b, const char* message)
@@ -363,5 +346,4 @@ done_read:
 	}
 
 	printf("Successfully wrote out.dmk.\n");
-	exit(0);
 }
