@@ -130,8 +130,9 @@ int w32_midiOutInit()
 	}
 	vfnt_midiout[0].devid = OPENMSX_MIDI_MAPPER;
 	w32_midiDevNameConv(vfnt_midiout[0].devname.data(), cap.szPname);
-	strncpy(vfnt_midiout[0].vfname.data(), "midi-out", MAXPATHLEN + 1);
-	vfnt_midiout_num ++;
+	strncpy(vfnt_midiout[0].vfname.data(), "midi-out", MAXPATHLEN);
+	vfnt_midiout[0].vfname[MAXPATHLEN] = '\0';
+	vfnt_midiout_num++;
 
 	for (auto i : xrange(num)) {
 		if (midiOutGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
