@@ -85,26 +85,26 @@ static constexpr auto romTypeInfoArray = [] {
 	r[ROM_DRAM]            = {0x2000, "DRAM",            "MSXturboR DRAM"};
 
 	// Non-mapper ROM types
-	r[ROM_MIRRORED]        = {0x2000, "Mirrored",        "Plain rom, mirrored (any size)"};
-	r[ROM_MIRRORED0000]    = {0x2000, "Mirrored0000",    "Plain rom, mirrored start at 0x0000"};
-	r[ROM_MIRRORED4000]    = {0x2000, "Mirrored4000",    "Plain rom, mirrored start at 0x4000"};
-	r[ROM_MIRRORED8000]    = {0x2000, "Mirrored8000",    "Plain rom, mirrored start at 0x8000"};
-	r[ROM_MIRROREDC000]    = {0x2000, "MirroredC000",    "Plain rom, mirrored start at 0xC000"};
-	r[ROM_NORMAL]          = {0x2000, "Normal",          "Plain rom (any size)"};
-	r[ROM_NORMAL0000]      = {0x2000, "Normal0000",      "Plain rom start at 0x0000"};
-	r[ROM_NORMAL4000]      = {0x2000, "Normal4000",      "Plain rom start at 0x4000"};
-	r[ROM_NORMAL8000]      = {0x2000, "Normal8000",      "Plain rom start at 0x8000"};
-	r[ROM_NORMALC000]      = {0x2000, "NormalC000",      "Plain rom start at 0xC000"};
-	r[ROM_PAGE0]           = {0x2000, "Page0",           "Plain 16kB page 0"};
-	r[ROM_PAGE1]           = {0x2000, "Page1",           "Plain 16kB page 1"};
-	r[ROM_PAGE2]           = {0x2000, "Page2",           "Plain 16kB page 2 (BASIC)"};
-	r[ROM_PAGE3]           = {0x2000, "Page3",           "Plain 16kB page 3"};
-	r[ROM_PAGE01]          = {0x2000, "Page01",          "Plain 32kB page 0-1"};
-	r[ROM_PAGE12]          = {0x2000, "Page12",          "Plain 32kB page 1-2"};
-	r[ROM_PAGE23]          = {0x2000, "Page23",          "Plain 32kB page 2-3"};
-	r[ROM_PAGE012]         = {0x2000, "Page012",         "Plain 48kB page 0-2"};
-	r[ROM_PAGE123]         = {0x2000, "Page123",         "Plain 48kB page 1-3"};
-	r[ROM_PAGE0123]        = {0x2000, "Page0123",        "Plain 64kB"};
+	r[ROM_MIRRORED]        = {0,      "Mirrored",        "Plain rom, mirrored (any size)"};
+	r[ROM_MIRRORED0000]    = {0,      "Mirrored0000",    "Plain rom, mirrored start at 0x0000"};
+	r[ROM_MIRRORED4000]    = {0,      "Mirrored4000",    "Plain rom, mirrored start at 0x4000"};
+	r[ROM_MIRRORED8000]    = {0,      "Mirrored8000",    "Plain rom, mirrored start at 0x8000"};
+	r[ROM_MIRROREDC000]    = {0,      "MirroredC000",    "Plain rom, mirrored start at 0xC000"};
+	r[ROM_NORMAL]          = {0,      "Normal",          "Plain rom (any size)"};
+	r[ROM_NORMAL0000]      = {0,      "Normal0000",      "Plain rom start at 0x0000"};
+	r[ROM_NORMAL4000]      = {0,      "Normal4000",      "Plain rom start at 0x4000"};
+	r[ROM_NORMAL8000]      = {0,      "Normal8000",      "Plain rom start at 0x8000"};
+	r[ROM_NORMALC000]      = {0,      "NormalC000",      "Plain rom start at 0xC000"};
+	r[ROM_PAGE0]           = {0,      "Page0",           "Plain 16kB page 0"};
+	r[ROM_PAGE1]           = {0,      "Page1",           "Plain 16kB page 1"};
+	r[ROM_PAGE2]           = {0,      "Page2",           "Plain 16kB page 2 (BASIC)"};
+	r[ROM_PAGE3]           = {0,      "Page3",           "Plain 16kB page 3"};
+	r[ROM_PAGE01]          = {0,      "Page01",          "Plain 32kB page 0-1"};
+	r[ROM_PAGE12]          = {0,      "Page12",          "Plain 32kB page 1-2"};
+	r[ROM_PAGE23]          = {0,      "Page23",          "Plain 32kB page 2-3"};
+	r[ROM_PAGE012]         = {0,      "Page012",         "Plain 48kB page 0-2"};
+	r[ROM_PAGE123]         = {0,      "Page123",         "Plain 48kB page 1-3"};
+	r[ROM_PAGE0123]        = {0,      "Page0123",        "Plain 64kB"};
 	return r;
 }();
 const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& RomInfo::getRomTypeInfo()
