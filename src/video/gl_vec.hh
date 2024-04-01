@@ -78,13 +78,7 @@ public:
 	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
 	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
-	// gcc-10 mis-compiles this (fixed in gcc-11):
-	//    [[nodiscard]] constexpr bool operator==(const vecN&) const = default;
-	// For now still manually implement it.
-	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
-	{
-		return (a.x == b.x) && (a.y == b.y);
-	}
+	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 public:
 	T x, y;
@@ -127,10 +121,7 @@ public:
 	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
 	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
-	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
-	{
-		return (a.x == b.x) && (a.y == b.y) && (a.z == b.z);
-	}
+	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 public:
 	T x, y, z;
@@ -176,10 +167,7 @@ public:
 	constexpr vecN& operator*=(const vecN& v) { *this = *this * v; return *this; }
 	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
-	[[nodiscard]] friend constexpr bool operator==(const vecN& a, const vecN& b)
-	{
-		return (a.x == b.x) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w);
-	}
+	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 public:
 	T x, y, z, w;
