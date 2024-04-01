@@ -845,7 +845,7 @@ bool ImGuiDiskManipulator::setupTransferHostToMsx(DrivePartitionTar& stuff)
 {
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		msxRefresh();
 		return false;
 	}
@@ -883,7 +883,7 @@ void ImGuiDiskManipulator::executeTransferHostToMsx(DrivePartitionTar& stuff)
 	transferHostToMsxPhase = IDLE;
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		msxRefresh();
 		return;
 	}
@@ -905,7 +905,7 @@ void ImGuiDiskManipulator::transferMsxToHost(DrivePartitionTar& stuff)
 {
 	try {
 		stuff.tar->chdir(msxDir);
-	} catch (MSXException& e) {
+	} catch (MSXException&) {
 		msxRefresh();
 		return;
 	}

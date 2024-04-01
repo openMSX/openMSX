@@ -25,7 +25,6 @@ namespace LZ4 {
 
 static constexpr int MEMORY_USAGE = 14;
 static constexpr int HASHLOG = MEMORY_USAGE - 2;
-static constexpr int HASH_SIZE_U32 = 1 << HASHLOG;
 static constexpr int ACCELERATION = 1;
 static constexpr int MINMATCH = 4;
 static constexpr int WILDCOPYLENGTH = 8;

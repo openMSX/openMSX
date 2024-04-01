@@ -105,12 +105,12 @@ void rewinddir(DIR* dir)
 void seekdir(DIR* dir, off_t offset)
 {
 	rewinddir(dir);
-	for (auto n : xrange(offset)) {
+	repeat(offset, [&]{
 		if (FindNextFileW(reinterpret_cast<HANDLE>(dir->fd),
 		                  static_cast<WIN32_FIND_DATAW*>(dir->data))) {
 			dir->filepos++;
 		}
-	}
+	});
 }
 
 off_t telldir(DIR* dir)
