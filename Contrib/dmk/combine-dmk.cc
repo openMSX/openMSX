@@ -229,6 +229,7 @@ int main()
 				        name.c_str());
 				exit(1);
 			}
+			fclose(file);
 			data.push_back(dat);
 		}
 	}
