@@ -150,18 +150,18 @@ private:
 	[[nodiscard]] constexpr bool bit(unsigned n) const
 	{
 		if (n < 64) {
-			return (lo & (1ull << n)) != 0;
+			return (lo & (1ULL << n)) != 0;
 		} else {
-			return (hi & (1ull << (n - 64))) != 0;
+			return (hi & (1ULL << (n - 64))) != 0;
 		}
 	}
 
 	constexpr void setBit(unsigned n)
 	{
 		if (n < 64) {
-			lo |= (1ull << n);
+			lo |= (1ULL << n);
 		} else {
-			hi |= (1ull << (n - 64));
+			hi |= (1ULL << (n - 64));
 		}
 	}
 

@@ -809,8 +809,8 @@ void LaserdiscPlayer::play(EmuTime::param time)
 			setAck(time, 46);
 		} else if (playerState == PLAYER_MULTI_SPEED) {
 			// Should be hearing stuff again
-			playingFromSample = (currentFrame - 1ll) * 1001ll *
-					video->getSampleRate() / 30000ll;
+			playingFromSample = (currentFrame - 1LL) * 1001LL *
+					video->getSampleRate() / 30000LL;
 			sampleClock.advance(time);
 			setAck(time, 46);
 		} else {
@@ -841,8 +841,8 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 		if (playerState == PLAYER_PLAYING) {
 			playingFromSample = getCurrentSample(time);
 		} else if (playerState == PLAYER_MULTI_SPEED) {
-			playingFromSample = (currentFrame - 1ll) * 1001ll *
-					video->getSampleRate() / 30000ll;
+			playingFromSample = (currentFrame - 1LL) * 1001LL *
+					video->getSampleRate() / 30000LL;
 			sampleClock.advance(time);
 		}
 
@@ -888,8 +888,8 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	}
 
 	playerState = PLAYER_STILL;
-	auto samplePos = (currentFrame - 1ll) * 1001ll *
-	                    video->getSampleRate() / 30000ll;
+	auto samplePos = (currentFrame - 1LL) * 1001LL *
+	                    video->getSampleRate() / 30000LL;
 	playingFromSample = samplePos;
 
 	if (needSeek) {
@@ -920,8 +920,8 @@ void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
 		             ? narrow<int>(dist + 300)
 		             : narrow<int>(1800 + dist / 12);
 
-		auto samplePos = (toFrame - 1ll) * 1001ll *
-				    video->getSampleRate() / 30000ll;
+		auto samplePos = (toFrame - 1LL) * 1001LL *
+				    video->getSampleRate() / 30000LL;
 
 		if (video->getFrameRate() == 60) {
 			video->seek(toFrame * 2, samplePos);

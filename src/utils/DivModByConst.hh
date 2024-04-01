@@ -89,9 +89,9 @@ template<uint32_t DIVISOR>
 		};
 	} else {
 		constexpr uint32_t L = std::bit_width(r0.divisor);
-		constexpr uint64_t J = 0xffffffffffffffffull % r0.divisor;
+		constexpr uint64_t J = 0xffffffffffffffffULL % r0.divisor;
 		constexpr uint128 L64 = uint128(1) << (L + 64);
-		constexpr uint128 k = L64 / (0xffffffffffffffffull - J);
+		constexpr uint128 k = L64 / (0xffffffffffffffffULL - J);
 		constexpr uint128 m_low = L64 / r0.divisor;
 		constexpr uint128 m_high = (L64 + k) / r0.divisor;
 		constexpr auto r2 = reduce2(m_low, m_high, L);

@@ -35,7 +35,7 @@ void PreCacheFile::run()
 
 	fseek(file.get(), 0, SEEK_END);
 	auto size = ftell(file.get());
-	if (size < 1024l * 1024l) {
+	if (size < 1024L * 1024L) {
 		// only pre-cache small files
 
 		const size_t BLOCK_SIZE = 4096;

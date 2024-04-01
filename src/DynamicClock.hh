@@ -116,7 +116,7 @@ public:
 	  * introduce less rounding errors.
 	  */
 	void setFreq(unsigned freq_num, unsigned freq_denom) {
-		static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
+		static_assert(MAIN_FREQ < (1ULL << 32), "must fit in 32 bit");
 		uint64_t p = MAIN_FREQ * freq_denom + (freq_num / 2);
 		uint64_t newStep = p / freq_num;
 		setPeriod(EmuDuration(newStep));
@@ -138,7 +138,7 @@ public:
 
 	/** Set the duration of a clock tick. See also setFreq(). */
 	void setPeriod(EmuDuration period) {
-		assert(period.length() < (1ull << 32));
+		assert(period.length() < (1ULL << 32));
 		divMod.setDivisor(uint32_t(period.length()));
 	}
 
@@ -179,7 +179,7 @@ public:
 	void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
-		assert((uint64_t(n) * getStep()) < (1ull << 32));
+		assert((uint64_t(n) * getStep()) < (1ULL << 32));
 		#endif
 		lastTick.time += n * getStep();
 	}
@@ -188,7 +188,7 @@ public:
 	}
 	[[nodiscard]] EmuTime add(EmuTime::param time, unsigned n) const {
 		#ifdef DEBUG
-		assert((uint64_t(n) * getStep()) < (1ull << 32));
+		assert((uint64_t(n) * getStep()) < (1ULL << 32));
 		#endif
 		return EmuTime(time.time + n * getStep());
 	}

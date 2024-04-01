@@ -14,7 +14,7 @@ namespace openmsx {
 // constants
 inline constexpr uint64_t MAIN_FREQ = 3579545ULL * 960;
 inline constexpr unsigned MAIN_FREQ32 = MAIN_FREQ;
-static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
+static_assert(MAIN_FREQ < (1ULL << 32), "must fit in 32 bit");
 inline constexpr double RECIP_MAIN_FREQ = 1.0 / MAIN_FREQ;
 
 

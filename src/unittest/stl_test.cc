@@ -152,8 +152,8 @@ TEST_CASE("to_vector: from view")
 	SECTION("convert type") {
 		auto v = to_vector<long long>(view::drop(v1, 1));
 		CHECK(v.size() == 2);
-		CHECK(v[0] == 2ll);
-		CHECK(v[1] == 3ll);
+		CHECK(v[0] == 2LL);
+		CHECK(v[1] == 3LL);
 		CHECK(std::is_same_v<decltype(v)::value_type, long long>);
 	}
 }

@@ -20,10 +20,10 @@ class Clock
 private:
 	// stuff below calculates:
 	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NUM / FREQ_DENOM) + 0.5
-	static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
+	static_assert(MAIN_FREQ < (1ULL << 32), "must fit in 32 bit");
 	static constexpr uint64_t P = MAIN_FREQ * FREQ_DENOM + (FREQ_NUM / 2);
 	static constexpr uint64_t MASTER_TICKS = P / FREQ_NUM;
-	static_assert(MASTER_TICKS < (1ull << 32), "must fit in 32 bit");
+	static_assert(MASTER_TICKS < (1ULL << 32), "must fit in 32 bit");
 	static constexpr unsigned MASTER_TICKS32 = MASTER_TICKS;
 
 public:
@@ -92,7 +92,7 @@ public:
 	  * a little over 1 second). */
 	[[nodiscard]] constexpr EmuTime getFastAdd(unsigned n) const {
 		#ifdef DEBUG
-		assert((uint64_t(n) * MASTER_TICKS) < (1ull << 32));
+		assert((uint64_t(n) * MASTER_TICKS) < (1ULL << 32));
 		#endif
 		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
@@ -135,7 +135,7 @@ public:
 	constexpr void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
-		assert((n * MASTER_TICKS) < (1ull << 32));
+		assert((n * MASTER_TICKS) < (1ULL << 32));
 		#endif
 		lastTick.time += n * MASTER_TICKS32;
 	}

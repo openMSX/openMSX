@@ -23,10 +23,10 @@ static void test()
 	DivModByConst<DIVISOR> c;
 	DivModBySame s; s.setDivisor(DIVISOR);
 
-	for (uint64_t dividend : {0ull, 1ull, 2ull, 3ull, 4ull, 5ull, 7ull,
-			          100ull, 10015ull, 12410015ull, 0x1234567890ull,
-				  0x7FFFFFFFFFFFFFFFull, 0x8000000000000000ull,
-				  0xFFFFFFFF00000000ull, 0xFFFFFFFFFFFFFFFFull}) {
+	for (uint64_t dividend : {0ULL, 1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 7ULL,
+			          100ULL, 10015ULL, 12410015ULL, 0x1234567890ULL,
+				  0x7FFFFFFFFFFFFFFFull, 0x8000000000000000ULL,
+				  0xFFFFFFFF00000000ULL, 0xFFFFFFFFFFFFFFFFULL}) {
 		test(c, s, dividend);
 	}
 }

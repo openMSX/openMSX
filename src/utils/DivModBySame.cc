@@ -6,7 +6,7 @@ namespace openmsx {
 
 void DivModBySame::setDivisor(uint32_t divisor_)
 {
-	//assert(divisor_ < 0x8000000000000000ull); // when divisor is uint64_t
+	//assert(divisor_ < 0x8000000000000000ULL); // when divisor is uint64_t
 	divisor = divisor_;
 	if (divisor == 0) {
 		m = a = s = 0;
@@ -21,7 +21,7 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 		++n;
 	}
 	if (t == 1) {
-		m = 0xffffffffffffffffull;
+		m = 0xffffffffffffffffULL;
 		a = m;
 		s = 0;
 	} else {
@@ -29,8 +29,8 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 		// P.L.: "Division by Invariant Integers using Multiplication".
 		// SIGPLAN Notices, Vol. 29, June 1994, page 61.
 		uint32_t l = narrow<uint32_t>(std::bit_width(t));
-		uint64_t j = 0xffffffffffffffffull % t;
-		uint128 k = (uint128(1) << (64 + l)) / (0xffffffffffffffffull - j);
+		uint64_t j = 0xffffffffffffffffULL % t;
+		uint128 k = (uint128(1) << (64 + l)) / (0xffffffffffffffffULL - j);
 		uint128 m_low  =  (uint128(1) << (64 + l))      / t;
 		uint128 m_high = ((uint128(1) << (64 + l)) + k) / t;
 		while (((m_low >> 1) < (m_high >> 1)) && (l > 0)) {

@@ -785,7 +785,7 @@ size_t OggReader::bisection(
 {
 	// Defined to be a power-of-two such that the calculations can be done faster.
 	// Note that the sample-number is in the range of: 1..(44100*60*60)
-	constexpr uint64_t SHIFT = 0x20000000ull;
+	constexpr uint64_t SHIFT = 0x20000000ULL;
 
 	uint64_t offsetA = 0, offsetB = maxOffset;
 	uint64_t sampleA = 0, sampleB = maxSamples;
