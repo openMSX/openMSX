@@ -159,6 +159,20 @@ proc run_to {address} {
 
 
 #
+# toggle_breaked
+#
+set_help_text toggle_breaked \
+{Toggles breaked status.}
+proc toggle_breaked {} {
+	if ([debug breaked]) {
+		debug cont
+	} else {
+		debug break
+	}
+}
+
+
+#
 # step_in
 #
 set_help_text step_in \
@@ -380,6 +394,7 @@ namespace export poke16_BE
 namespace export dpoke
 namespace export disasm
 namespace export run_to
+namespace export toggle_breaked
 namespace export step_over
 namespace export step_back
 namespace export step_out
