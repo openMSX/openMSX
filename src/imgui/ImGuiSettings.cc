@@ -61,6 +61,22 @@ ImGuiSettings::~ImGuiSettings()
 	deinitListener();
 }
 
+void ImGuiSettings::initDefaultShortcuts()
+{
+	shortcuts[GOTO_ADDRESS] = ImGuiMod_Ctrl | ImGuiKey_G; // Ctrl+G
+	shortcuts[SOMETHING_ELSE] = ImGuiKey_None;
+}
+
+ImGuiKeyChord ImGuiSettings::getShortcut(ShortcutIndex index)
+{
+	return shortcuts[index];
+}
+
+void ImGuiSettings::setShortcut(ShortcutIndex index, ImGuiKeyChord keychord)
+{
+	shortcuts[index] = keychord;
+}
+
 void ImGuiSettings::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -85,6 +101,63 @@ void ImGuiSettings::setStyle()
 	}
 	setColors(selectedStyle);
 }
+
+bool ImGuiSettings::shortcutAction(ShortcutIndex index)
+{
+	static constexpr auto mods = std::array{
+		ImGuiKey_LeftCtrl, ImGuiKey_LeftShift, ImGuiKey_LeftAlt, ImGuiKey_LeftSuper,
+		ImGuiKey_RightCtrl, ImGuiKey_RightShift, ImGuiKey_RightAlt, ImGuiKey_RightSuper,
+		ImGuiKey_ReservedForModCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_ReservedForModAlt,
+		ImGuiKey_ReservedForModSuper, ImGuiKey_MouseLeft, ImGuiKey_MouseRight, ImGuiKey_MouseMiddle,
+		ImGuiKey_MouseX1, ImGuiKey_MouseX2, ImGuiKey_MouseWheelX, ImGuiKey_MouseWheelY,
+	};
+	ImGuiIO& io = ImGui::GetIO();	
+	ImGuiKeyChord shortcut = ImGuiKey_None;
+	for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; ++key ) {
+		if (contains(mods, key)) continue; // skip: mods can't be primary keys in a KeyChord
+		if (ImGui::IsKeyPressed((ImGuiKey) key)) {
+			shortcut = key | (io.KeyCtrl ? ImGuiMod_Ctrl : 0) | (io.KeyShift ? ImGuiMod_Shift : 0)
+				| (io.KeyAlt ? ImGuiMod_Alt : 0) | (io.KeySuper ? ImGuiMod_Super : 0);
+			break;
+		}
+	}
+	if (shortcut != ImGuiKey_None) {
+		setShortcut(index, shortcut);
+		return true;
+	}
+	return false;
+}
+
+void ImGuiSettings::openShortcutPopup(ShortcutIndex index, std::string label)
+{
+	auto shortcutName = getShortcutName(index);
+	auto popupName = strCat("shortcutModal##", shortcutName);
+	auto buttonName = strCat(label, "##", shortcutName);
+
+	if (ImGui::Button(buttonName.c_str(), ImVec2(-1.0f, 0.0f)))
+		ImGui::OpenPopup(popupName.c_str());
+
+	// Always center this window when appearing
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	im::PopupModal(popupName.c_str(), nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		bool done = false;
+
+		// ImGui::TextWrapped("Press shortcut keys or the cancel button");
+		ImGui::TextUnformatted("Press shortcut keys or the cancel button"sv);
+		ImGui::Separator();
+		if (ImGui::Button("Clear")) {
+			setShortcut(index, ImGuiKey_None);
+			done = true;
+		}
+		ImGui::SameLine();
+		done |= ImGui::Button("Cancel");
+		if (done || shortcutAction(index)) {
+			ImGui::CloseCurrentPopup();
+		}
+	});
+}
+
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool openConfirmPopup = false;
@@ -362,6 +435,23 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					selectedStyle = *newStyle;
 					setStyle();
 				}
+			});
+			im::Menu("Select shortcut", [&]{
+				im::Table("table", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+					auto size = ImGui::CalcTextSize("some long stuff here to test formatting"sv).x;
+					ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, 150);
+					ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
+					if (ImGui::TableNextColumn()) {
+						openShortcutPopup(GOTO_ADDRESS, getKeyChordName(getShortcut(GOTO_ADDRESS)));
+					}
+					if (ImGui::TableNextColumn()) ImGui::TextUnformatted("goto address"sv);
+					ImGui::TableNextRow();
+					if (ImGui::TableNextColumn()) {
+						openShortcutPopup(SOMETHING_ELSE, getKeyChordName(getShortcut(SOMETHING_ELSE)));
+					}
+					if (ImGui::TableNextColumn()) ImGui::TextUnformatted("some long stuff here to test formatting"sv);
+				});
+
 			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
 		});
@@ -1214,6 +1304,14 @@ void ImGuiSettings::deinitListener()
 	                  EventType::KEY_DOWN}) {
 		distributor.unregisterEventListener(type, *this);
 	}
+}
+
+std::string ImGuiSettings::getShortcutName(ShortcutIndex index) const
+{
+	static constexpr auto shortcutNames = std::array{
+		"GotoAddress", "SomethingElse"
+	};
+	return shortcutNames[index];
 }
 
 } // namespace openmsx

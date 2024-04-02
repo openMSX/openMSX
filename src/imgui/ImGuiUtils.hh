@@ -235,6 +235,7 @@ static void chunk_by(Range&& range, BinaryPred pred, Action action)
 
 std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command);
 
+std::string getKeyChordName(ImGuiKeyChord keychord);
 
 enum class imColor : unsigned {
 	TRANSPARENT,

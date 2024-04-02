@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiSettings.hh"
 #include "ImGuiUtils.hh"
 
 #include "CommandException.hh"
@@ -486,8 +487,11 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					dataEditingTakeFocus = true;
 				}
 			}
-			if (ImGui::Shortcut(manager.getShortcut(ImGuiManager::GOTO_ADDRESS), 0, ImGuiInputFlags_RouteGlobalLow | ImGuiInputFlags_RouteUnlessBgFocused)) {
-				ImGui::SetKeyboardFocusHere(-1);
+			// invalid shortcut causes SIGTRAP
+			if (auto shortcut = manager.settings.get()->getShortcut(ImGuiSettings::GOTO_ADDRESS)) {
+				if (ImGui::Shortcut(shortcut, 0, ImGuiInputFlags_RouteGlobalLow | ImGuiInputFlags_RouteUnlessBgFocused)) {
+					ImGui::SetKeyboardFocusHere(-1);
+				}
 			}
 			simpleToolTip([&]{
 				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))

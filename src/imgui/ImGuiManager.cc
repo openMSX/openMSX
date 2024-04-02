@@ -241,19 +241,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoFilename.attach(*this);
 	fontPropSize.attach(*this);
 	fontMonoSize.attach(*this);
-
-	// shortcuts
-	initDefaultShortcuts();
-}
-
-void ImGuiManager::initDefaultShortcuts()
-{
-	shortcuts[GOTO_ADDRESS] = ImGuiMod_Ctrl | ImGuiKey_G; // Ctrl+G
-}
-
-ImGuiKeyChord ImGuiManager::getShortcut(ShortcutIndex index)
-{
-	return shortcuts[index];
 }
 
 ImGuiManager::~ImGuiManager()

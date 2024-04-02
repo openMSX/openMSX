@@ -283,6 +283,17 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 	return "";
 }
 
+// adapted from imgui_internal.h
+std::string getKeyChordName(ImGuiKeyChord keychord)
+{
+	return strCat((keychord & ImGuiMod_Ctrl ? "Ctrl+" : ""),
+		(keychord & ImGuiMod_Shift ? "Shift+" : ""),
+		(keychord & ImGuiMod_Alt ? "Alt+" : ""),
+		(keychord & ImGuiMod_Super ? (ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") : ""),
+		ImGui::GetKeyName(ImGuiKey(keychord & ~ImGuiMod_Mask_)));
+}
+
+
 void setColors(int style)
 {
 	// style: 0->dark, 1->light, 2->classic
