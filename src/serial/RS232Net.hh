@@ -74,7 +74,7 @@ private:
 	void open_socket(const NetworkSocketAddress& socket_address);
 
 private:
-	SocketActivator socketActivator;
+	[[no_unique_address]] SocketActivator socketActivator;
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 

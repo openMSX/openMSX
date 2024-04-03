@@ -43,7 +43,7 @@ private:
 	unsigned fragmentSize;
 	unsigned readIdx, writeIdx;
 	bool muted = true;
-	SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
+	[[no_unique_address]] SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
 };
 
 } // namespace openmsx

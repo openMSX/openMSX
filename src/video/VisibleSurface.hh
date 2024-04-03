@@ -101,7 +101,7 @@ private:
 		void update(const Setting& setting) noexcept override;
 	} vSyncObserver;
 
-	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
+	[[no_unique_address]] SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
 	SDLWindowPtr window;
 	SDL_GLContext glContext;
 

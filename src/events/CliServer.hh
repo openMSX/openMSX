@@ -34,7 +34,7 @@ private:
 	std::string socketName;
 	SOCKET listenSock;
 	Poller poller;
-	SocketActivator socketActivator;
+	[[no_unique_address]] SocketActivator socketActivator;
 };
 
 } // namespace openmsx

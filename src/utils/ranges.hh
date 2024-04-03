@@ -140,8 +140,8 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 	using Iter = decltype(std::begin(range));
 	using R = typename std::iterator_traits<Iter>::value_type;
 	struct Comp2 {
-		Compare comp;
-		Proj proj;
+		[[no_unique_address]] Compare comp;
+		[[no_unique_address]] Proj proj;
 
 		bool operator()(const R& x, const R& y) const {
 			return comp(std::invoke(proj, x), std::invoke(proj, y));
