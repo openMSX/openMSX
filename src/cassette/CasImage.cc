@@ -1,13 +1,17 @@
 #include "CasImage.hh"
+
 #include "File.hh"
 #include "FilePool.hh"
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
+#include <memory>
 #include <span>
 
 static constexpr std::array<uint8_t, 10> ASCII_HEADER  = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
@@ -259,7 +263,7 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 		                              header.begin(), header.end());
 		// Workaround clang-13/libc++ bug
 		//processBlock(std::span(prevHeader, nextHeader), data.wave);
-		processBlock(std::span(&*prevHeader, nextHeader - prevHeader), data.wave);
+		processBlock(std::span(std::to_address(prevHeader), nextHeader - prevHeader), data.wave);
 		if (nextHeader == cas.end()) break;
 		prevHeader = nextHeader + header.size();
 	}

@@ -24,6 +24,8 @@
 #include <imgui_stdlib.h>
 #include <imgui.h>
 
+#include <memory>
+
 using namespace std::literals;
 
 
@@ -420,7 +422,7 @@ ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config
 {
 	auto& allMachines = getAllMachines();
 	auto it = ranges::find(allMachines, config, &MachineInfo::configName);
-	return (it != allMachines.end()) ? &*it : nullptr;
+	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
 }
 
 } // namespace openmsx

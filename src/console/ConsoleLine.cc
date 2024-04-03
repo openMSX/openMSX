@@ -55,7 +55,7 @@ ConsoleLine ConsoleLine::splitAtColumn(unsigned column)
 
 	if (it != et) {
 		//result.addChunk(std::string_view{it, et}, splitColor); // c++20
-		result.addChunk(std::string_view{&*it, size_t(et - it)}, splitColor);
+		result.addChunk(std::string_view{std::to_address(it), size_t(et - it)}, splitColor);
 		result.chunks.insert(result.chunks.end(), it2, chunks.end());
 		for (auto& c : view::drop(result.chunks, 1)) {
 			c.pos -= pos;

@@ -208,7 +208,7 @@ void HardwareConfig::testRemove() const
 		// Workaround clang-13/libc++ bug
 		// Don't generally use this workaround, because '*rit.base()'
 		// triggers an error in a debug-STL build.
-		std::span alreadyRemoved(&*rit.base(), et - rit.base());
+		std::span alreadyRemoved(std::to_address(rit.base()), et - rit.base());
 #else
 		std::span alreadyRemoved{rit.base(), et};
 #endif

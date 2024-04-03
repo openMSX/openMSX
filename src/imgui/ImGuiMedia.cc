@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 
 using namespace std::literals;
@@ -315,7 +316,7 @@ ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config
 {
 	auto& allExtensions = getAllExtensions();
 	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
-	return (it != allExtensions.end()) ? &*it : nullptr;
+	return (it != allExtensions.end()) ? std::to_address(it) : nullptr;
 }
 
 std::string ImGuiMedia::displayNameForExtension(std::string_view config)

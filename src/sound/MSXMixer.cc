@@ -1,4 +1,5 @@
 #include "MSXMixer.hh"
+
 #include "Mixer.hh"
 #include "SoundDevice.hh"
 #include "MSXMotherBoard.hh"
@@ -14,6 +15,7 @@
 #include "Filename.hh"
 #include "FileOperations.hh"
 #include "MSXCliComm.hh"
+
 #include "stl.hh"
 #include "aligned.hh"
 #include "enumerate.hh"
@@ -24,7 +26,7 @@
 #include "unreachable.hh"
 #include "view.hh"
 #include "vla.hh"
-#include "xrange.hh"
+
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -810,7 +812,7 @@ const MSXMixer::SoundDeviceInfo* MSXMixer::findDeviceInfo(std::string_view name)
 {
 	auto it = ranges::find(infos, name,
 		[](auto& i) { return i.device->getName(); });
-	return (it != end(infos)) ? &*it : nullptr;
+	return (it != end(infos)) ? std::to_address(it) : nullptr;
 }
 
 SoundDevice* MSXMixer::findDevice(std::string_view name) const

@@ -242,7 +242,7 @@ public:
 	} else {
 		e = end(utf8);
 	}
-	return {&*b, narrow<std::string_view::size_type>(e - b)};
+	return {std::to_address(b), narrow<std::string_view::size_type>(e - b)};
 }
 
 } // namespace utf8::unchecked
