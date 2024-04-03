@@ -3,7 +3,7 @@
 #include "utf8_checked.hh"
 #include "vla.hh"
 #include "MSXException.hh"
-#include <windows.h>
+#include <Windows.h>
 
 namespace utf8 {
 

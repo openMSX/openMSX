@@ -4,8 +4,8 @@
 #endif
 #include "utf8_checked.hh"
 #include "vla.hh"
-#include <windows.h>
-#include <shlobj.h>
+#include <Windows.h>
+#include <ShlObj.h>
 #include <shellapi.h>
 #include <io.h>
 #include <direct.h>

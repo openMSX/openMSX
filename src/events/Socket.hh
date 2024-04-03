@@ -13,8 +13,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #else
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #endif
 
 namespace openmsx {
