@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class CanonWordProcessor : public MSXDevice
+class CanonWordProcessor final : public MSXDevice
 {
 public:
 	explicit CanonWordProcessor(const DeviceConfig& config);

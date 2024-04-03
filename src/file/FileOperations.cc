@@ -610,10 +610,7 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 	    (name.substr(prefixLen + nofDigits, extensionLen) != extension)) {
 		return 0;
 	}
-	if (auto n = StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofDigits))) {
-		return *n;
-	}
-	return 0;
+	return StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofDigits)).value_or(0);
 }
 
 string getNextNumberedFileName(

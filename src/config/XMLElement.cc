@@ -82,8 +82,7 @@ int XMLElement::getChildDataAsInt(std::string_view childName, int defaultValue) 
 {
 	const auto* child = findChild(childName);
 	if (!child) return defaultValue;
-	auto r = StringOp::stringTo<int>(child->getData());
-	return r ? *r : defaultValue;
+	return StringOp::stringTo<int>(child->getData()).value_or(defaultValue);
 }
 
 size_t XMLElement::numChildren() const
@@ -136,8 +135,7 @@ int XMLElement::getAttributeValueAsInt(std::string_view attrName,
 {
 	const auto* attr = findAttribute(attrName);
 	if (!attr) return defaultValue;
-	auto r = StringOp::stringTo<int>(attr->getValue());
-	return r ? *r : defaultValue;
+	return StringOp::stringTo<int>(attr->getValue()).value_or(defaultValue);
 }
 
 // Like findAttribute(), but returns a pointer-to-the-XMLAttribute-pointer.
