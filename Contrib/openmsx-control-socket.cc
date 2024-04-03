@@ -331,7 +331,7 @@ void OpenMSXComm::start(int sd_)
 	sax_handler.startElement = (startElementSAXFunc)cb_start_element;
 	sax_handler.endElement   = (endElementSAXFunc)  cb_end_element;
 	sax_handler.characters   = (charactersSAXFunc)  cb_text;
-	parser_context = xmlCreatePushParserCtxt(&sax_handler, this, 0, 0, 0);
+	parser_context = xmlCreatePushParserCtxt(&sax_handler, this, nullptr, 0, nullptr);
 
 	write(sd, "<openmsx-control>", 17);
 
