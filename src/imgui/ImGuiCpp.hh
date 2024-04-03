@@ -88,7 +88,12 @@ inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flag
 		if (status.do_raise) {
 			status.do_raise = false;
 			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
-				ImGui::GetPlatformIO().Platform_SetWindowFocus(ImGui::GetWindowViewport());
+				// depending on the backend (e.g. Wayland) this could be nullptr
+				if (auto* swf = ImGui::GetPlatformIO().Platform_SetWindowFocus) {
+					swf(ImGui::GetWindowViewport());
+				} else {
+					ImGui::SetWindowFocus();
+				}
 			}
 		}
 		next();
