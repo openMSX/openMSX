@@ -92,7 +92,7 @@ public:
 	}
 
 private:
-	static inline constexpr auto tab = [] {
+	static constexpr auto tab = [] {
 		std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
 		for (auto i : xrange(0x100)) {
 			auto x = uint16_t(i << 8);

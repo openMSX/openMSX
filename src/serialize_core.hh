@@ -185,7 +185,7 @@ Variant defaultConstructVariant(size_t index)
 template<typename V> struct VariantSerializer : std::true_type
 {
 	template<typename A>
-	static inline constexpr size_t index = get_index<A, V>::value;
+	static constexpr size_t index = get_index<A, V>::value;
 
 	struct Saver {
 		template<typename Archive>

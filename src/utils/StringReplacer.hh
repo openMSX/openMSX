@@ -37,7 +37,7 @@
 namespace StringReplacer {
 namespace detail {
 
-[[nodiscard]] inline constexpr unsigned fnvHash(std::string_view s)
+[[nodiscard]] constexpr unsigned fnvHash(std::string_view s)
 {
 	constexpr unsigned PRIME = 0x811C9DC5;
 	auto hash = narrow<unsigned>(s.size());
@@ -49,12 +49,12 @@ namespace detail {
 }
 
 
-[[nodiscard]] inline constexpr auto create_simple_replacer()
+[[nodiscard]] constexpr auto create_simple_replacer()
 {
     return [](std::string_view s) { return s; };
 }
 
-[[nodiscard]] inline constexpr auto create_simple_replacer(
+[[nodiscard]] constexpr auto create_simple_replacer(
     std::string_view from1, std::string_view to1)
 {
     return [=](std::string_view s) {
@@ -63,7 +63,7 @@ namespace detail {
     };
 }
 
-[[nodiscard]] inline constexpr auto create_simple_replacer(
+[[nodiscard]] constexpr auto create_simple_replacer(
     std::string_view from1, std::string_view to1,
     std::string_view from2, std::string_view to2)
 {
@@ -74,7 +74,7 @@ namespace detail {
     };
 }
 
-[[nodiscard]] inline constexpr auto create_simple_replacer(
+[[nodiscard]] constexpr auto create_simple_replacer(
     std::string_view from1, std::string_view to1,
     std::string_view from2, std::string_view to2,
     std::string_view from3, std::string_view to3)
@@ -87,7 +87,7 @@ namespace detail {
     };
 }
 
-[[nodiscard]] inline constexpr auto create_simple_replacer(
+[[nodiscard]] constexpr auto create_simple_replacer(
     std::string_view from1, std::string_view to1,
     std::string_view from2, std::string_view to2,
     std::string_view from3, std::string_view to3,
@@ -125,7 +125,7 @@ struct PmhReplacer {
 };
 
 template<typename Tuple, size_t... Is>
-[[nodiscard]] inline constexpr auto create_pmh_replacer(Tuple&& tuple, std::index_sequence<Is...>)
+[[nodiscard]] constexpr auto create_pmh_replacer(Tuple&& tuple, std::index_sequence<Is...>)
 {
     constexpr size_t N = sizeof...(Is);
     std::array<FromTo, N> arr{FromTo{std::get<2 * Is>(tuple), std::get<2 * Is + 1>(tuple)}...};
@@ -140,7 +140,7 @@ template<typename Tuple, size_t... Is>
 } // namespace detail
 
 template<typename ...Args>
-[[nodiscard]] inline constexpr auto create(Args ...args)
+[[nodiscard]] constexpr auto create(Args ...args)
 {
     constexpr size_t N2 = sizeof...(args);
     static_assert((N2 & 1) == 0, "Must pass an even number of strings");
