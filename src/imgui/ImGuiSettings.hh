@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include "EventListener.hh"
+#include "Shortcuts.hh"
 
 #include <functional>
 #include <span>
@@ -16,7 +17,7 @@ class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
 	explicit ImGuiSettings(ImGuiManager& manager_)
-		: ImGuiPart(manager_) { initDefaultShortcuts(); }
+		: ImGuiPart(manager_) { }
 	~ImGuiSettings();
 
 	[[nodiscard]] zstring_view iniName() const override { return "settings"; }
@@ -27,13 +28,7 @@ public:
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-	// Shortcuts
-	enum ShortcutIndex { GOTO_ADDRESS, SOMETHING_ELSE, NUM };
-	ImGuiKeyChord getShortcut(ShortcutIndex index);
-	void setShortcut(ShortcutIndex index, ImGuiKeyChord keychord);
-
 private:
-	void initDefaultShortcuts();
 	int signalEvent(const Event& event) override;
 	void initListener();
 	void deinitListener();
@@ -41,11 +36,11 @@ private:
 	void setStyle();
 	void paintJoystick(MSXMotherBoard& motherBoard);
 	void paintFont();
+	void paintShortcut();
 
 	std::span<const std::string> getAvailableFonts();
-	void openShortcutPopup(ShortcutIndex index, std::string keychord);
+	void paintShortcutTableItem(ShortcutIndex index);
 	bool shortcutAction(ShortcutIndex index);
-	std::string getShortcutName(ShortcutIndex index) const;
 
 private:
 	bool showConfigureJoystick = false;
@@ -66,9 +61,6 @@ private:
 	std::function<void()> confirmAction;
 
 	std::vector<std::string> availableFonts;
-
-	// Shortcuts
-	std::array<ImGuiKeyChord, ShortcutIndex::NUM> shortcuts;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"style", &ImGuiSettings::selectedStyle},

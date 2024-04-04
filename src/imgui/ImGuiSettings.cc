@@ -61,22 +61,6 @@ ImGuiSettings::~ImGuiSettings()
 	deinitListener();
 }
 
-void ImGuiSettings::initDefaultShortcuts()
-{
-	shortcuts[GOTO_ADDRESS] = ImGuiMod_Ctrl | ImGuiKey_G; // Ctrl+G
-	shortcuts[SOMETHING_ELSE] = ImGuiKey_None;
-}
-
-ImGuiKeyChord ImGuiSettings::getShortcut(ShortcutIndex index)
-{
-	return shortcuts[index];
-}
-
-void ImGuiSettings::setShortcut(ShortcutIndex index, ImGuiKeyChord keychord)
-{
-	shortcuts[index] = keychord;
-}
-
 void ImGuiSettings::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -112,30 +96,43 @@ bool ImGuiSettings::shortcutAction(ShortcutIndex index)
 		ImGuiKey_MouseX1, ImGuiKey_MouseX2, ImGuiKey_MouseWheelX, ImGuiKey_MouseWheelY,
 	};
 	ImGuiIO& io = ImGui::GetIO();	
-	ImGuiKeyChord shortcut = ImGuiKey_None;
+	ImGuiKeyChord keychord = ImGuiKey_None;
 	for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; ++key ) {
 		if (contains(mods, key)) continue; // skip: mods can't be primary keys in a KeyChord
 		if (ImGui::IsKeyPressed((ImGuiKey) key)) {
-			shortcut = key | (io.KeyCtrl ? ImGuiMod_Ctrl : 0) | (io.KeyShift ? ImGuiMod_Shift : 0)
+			keychord = key | (io.KeyCtrl ? ImGuiMod_Ctrl : 0) | (io.KeyShift ? ImGuiMod_Shift : 0)
 				| (io.KeyAlt ? ImGuiMod_Alt : 0) | (io.KeySuper ? ImGuiMod_Super : 0);
 			break;
 		}
 	}
-	if (shortcut != ImGuiKey_None) {
-		setShortcut(index, shortcut);
+	if (keychord != ImGuiKey_None) {
+		manager.getShortcuts().setShortcut(index, keychord);
 		return true;
 	}
 	return false;
 }
 
-void ImGuiSettings::openShortcutPopup(ShortcutIndex index, std::string label)
+void ImGuiSettings::paintShortcutTableItem(ShortcutIndex index)
 {
-	auto shortcutName = getShortcutName(index);
+	auto shortcutName = Shortcuts::getShortcutName(index);
+	auto &shortcut = manager.getShortcuts().getShortcut(index);
 	auto popupName = strCat("shortcutModal##", shortcutName);
-	auto buttonName = strCat(label, "##", shortcutName);
 
-	if (ImGui::Button(buttonName.c_str(), ImVec2(-1.0f, 0.0f)))
-		ImGui::OpenPopup(popupName.c_str());
+	if (ImGui::TableNextColumn()) {
+		ImGui::Checkbox(strCat("local##", shortcutName).c_str(), &shortcut.local);
+	}
+	if (ImGui::TableNextColumn()) {
+		ImGui::Checkbox(strCat("repeat##", shortcutName).c_str(), &shortcut.repeat);
+	}
+	if (ImGui::TableNextColumn()) {
+		std::string label = getKeyChordName(manager.getShortcuts().getShortcut(index).keychord);
+		if (ImGui::Button(strCat(label, "##", shortcutName).c_str(), ImVec2(-1.0f, 0.0f))) {
+			ImGui::OpenPopup(popupName.c_str());
+		}
+	}
+	if (ImGui::TableNextColumn()) {
+		ImGui::TextUnformatted(Shortcuts::getShortcutDescription(index));
+	}
 
 	// Always center this window when appearing
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -143,11 +140,15 @@ void ImGuiSettings::openShortcutPopup(ShortcutIndex index, std::string label)
 	im::PopupModal(popupName.c_str(), nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		bool done = false;
 
-		// ImGui::TextWrapped("Press shortcut keys or the cancel button");
-		ImGui::TextUnformatted("Press shortcut keys or the cancel button"sv);
+		ImGui::TextUnformatted("Press key combination to capture it as a short cut.\nThe \"Default\" button restores short cut to default setting.\nThe \"Clear\" button dissociates short cut from action.\nThe \"Cancel\" button returns without changes."sv);
 		ImGui::Separator();
+		if (ImGui::Button("Default")) {
+			manager.getShortcuts().setDefaultShortcut(index);
+			done = true;
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Clear")) {
-			setShortcut(index, ImGuiKey_None);
+			manager.getShortcuts().setShortcut(index, ImGuiKey_None, ShortcutType::LOCAL, false);
 			done = true;
 		}
 		ImGui::SameLine();
@@ -436,24 +437,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					setStyle();
 				}
 			});
-			im::Menu("Select shortcut", [&]{
-				im::Table("table", 2, ImGuiTableFlags_SizingFixedFit, [&]{
-					auto size = ImGui::CalcTextSize("some long stuff here to test formatting"sv).x;
-					ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, 150);
-					ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
-					if (ImGui::TableNextColumn()) {
-						openShortcutPopup(GOTO_ADDRESS, getKeyChordName(getShortcut(GOTO_ADDRESS)));
-					}
-					if (ImGui::TableNextColumn()) ImGui::TextUnformatted("goto address"sv);
-					ImGui::TableNextRow();
-					if (ImGui::TableNextColumn()) {
-						openShortcutPopup(SOMETHING_ELSE, getKeyChordName(getShortcut(SOMETHING_ELSE)));
-					}
-					if (ImGui::TableNextColumn()) ImGui::TextUnformatted("some long stuff here to test formatting"sv);
-				});
-
-			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
+			ImGui::MenuItem("Select shortcuts...", nullptr, &showShortcut);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
@@ -1195,6 +1180,23 @@ void ImGuiSettings::paintFont()
 	});
 }
 
+void ImGuiSettings::paintShortcut()
+{
+	im::Window("Select shortcuts", &showShortcut, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
+			ImGui::TableSetupColumn("1", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("2", ImGuiTableColumnFlags_None, 0);
+			auto size = ImGui::CalcTextSize("some long stuff here to test formatting"sv).x;
+			ImGui::TableSetupColumn("3", ImGuiTableColumnFlags_WidthFixed, 150);
+			ImGui::TableSetupColumn("4", ImGuiTableColumnFlags_WidthFixed, size);
+
+			for (auto i = 0; i < ShortcutIndex::NUM_SHORTCUTS; ++i) {
+				paintShortcutTableItem(static_cast<ShortcutIndex>(i));
+			}
+		});
+	});
+}
+
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (selectedStyle < 0) {
@@ -1204,6 +1206,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	}
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
 	if (showFont) paintFont();
+	if (showShortcut) paintShortcut();
 }
 
 std::span<const std::string> ImGuiSettings::getAvailableFonts()
@@ -1304,14 +1307,6 @@ void ImGuiSettings::deinitListener()
 	                  EventType::KEY_DOWN}) {
 		distributor.unregisterEventListener(type, *this);
 	}
-}
-
-std::string ImGuiSettings::getShortcutName(ShortcutIndex index) const
-{
-	static constexpr auto shortcutNames = std::array{
-		"GotoAddress", "SomethingElse"
-	};
-	return shortcutNames[index];
 }
 
 } // namespace openmsx

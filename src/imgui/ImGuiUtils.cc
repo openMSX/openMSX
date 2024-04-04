@@ -293,7 +293,6 @@ std::string getKeyChordName(ImGuiKeyChord keychord)
 		ImGui::GetKeyName(ImGuiKey(keychord & ~ImGuiMod_Mask_)));
 }
 
-
 void setColors(int style)
 {
 	// style: 0->dark, 1->light, 2->classic
