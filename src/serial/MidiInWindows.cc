@@ -65,7 +65,7 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	{
 		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
-		thread = std::thread([this]() { run(); });
+		thread = std::jthread([this]() { run(); });
 		threadIdCond.wait(threadIdLock);
 	}
 	{

@@ -30,7 +30,7 @@ private:
 	EventDistributor& eventDistributor;
 	GlobalCliComm& cliComm;
 
-	std::thread thread;
+	std::jthread thread;
 	std::string socketName;
 	SOCKET listenSock;
 	Poller poller;

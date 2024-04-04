@@ -1,4 +1,5 @@
 #include "MidiSessionALSA.hh"
+
 #include "CliComm.hh"
 #include "MidiOutDevice.hh"
 #include "MidiInDevice.hh"
@@ -8,10 +9,12 @@
 #include "PlugException.hh"
 #include "PluggingController.hh"
 #include "Scheduler.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "circular_buffer.hh"
 #include "checked_cast.hh"
+
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -206,7 +209,7 @@ private:
 private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::thread thread;
+	std::jthread thread;
 	snd_seq_t& seq;
 	snd_midi_event_t* event_parser;
 	int destinationPort = -1;
@@ -291,7 +294,7 @@ void MidiInALSA::connect()
 	connected = true;
 	stop = false;
 
-	thread = std::thread([this]() { run(); });
+	thread = std::jthread([this]() { run(); });
 }
 
 void MidiInALSA::disconnect()

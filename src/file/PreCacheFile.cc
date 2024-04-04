@@ -14,13 +14,12 @@ namespace openmsx {
 PreCacheFile::PreCacheFile(std::string name_)
 	: name(std::move(name_)), exitLoop(false)
 {
-	thread = std::thread([this]() { run(); });
+	thread = std::jthread([this]() { run(); });
 }
 
 PreCacheFile::~PreCacheFile()
 {
 	exitLoop = true;
-	thread.join();
 }
 
 void PreCacheFile::run()

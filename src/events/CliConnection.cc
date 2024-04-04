@@ -81,7 +81,7 @@ void CliConnection::startOutput()
 
 void CliConnection::start()
 {
-	thread = std::thread([this]() { run(); });
+	thread = std::jthread([this]() { run(); });
 }
 
 void CliConnection::end()
@@ -90,10 +90,6 @@ void CliConnection::end()
 	close();
 
 	poller.abort();
-	// Thread might not be running if start() was never called.
-	if (thread.joinable()) {
-		thread.join();
-	}
 }
 
 void CliConnection::execute(const std::string& command)
