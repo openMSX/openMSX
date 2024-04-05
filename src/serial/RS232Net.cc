@@ -251,7 +251,7 @@ void RS232Net::run()
 		// Put received byte in queue and notify main emulation thread
 		assert(isPluggedIn());
 		{
-			std::lock_guard lock(mutex);
+			std::scoped_lock lock(mutex);
 			queue.push_back(b);
 		}
 		eventDistributor.distributeEvent(Rs232NetEvent());
@@ -264,14 +264,14 @@ void RS232Net::signal(EmuTime::param time)
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
 
 	if (!conn->acceptsData()) {
-		std::lock_guard lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
 
 	if (!conn->ready() || !RTS) return;
 
-	std::lock_guard lock(mutex);
+	std::scoped_lock lock(mutex);
 	if (queue.empty()) return;
 	char b = queue.pop_front();
 	conn->recvByte(b, time);
@@ -283,7 +283,7 @@ int RS232Net::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;
@@ -342,7 +342,7 @@ void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
 	if (RTS == status) return;
 	RTS = status;
 	if (RTS) {
-		std::lock_guard lock(mutex);
+		std::scoped_lock lock(mutex);
 		if (!queue.empty()) {
 			eventDistributor.distributeEvent(Rs232NetEvent());
 		}

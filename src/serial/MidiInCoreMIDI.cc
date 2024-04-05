@@ -108,7 +108,7 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
 void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
                                     void * /*srcConnRefCon*/) {
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		const MIDIPacket* packet = &packetList->packet[0];
 		repeat(packetList->numPackets, [&] {
 			for (auto j : xrange(packet->length)) {
@@ -125,7 +125,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -135,7 +135,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 
 	byte data;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -148,7 +148,7 @@ int MidiInCoreMIDI::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;
@@ -232,7 +232,7 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
                                            void * /*srcConnRefCon*/)
 {
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		const MIDIPacket* packet = &packetList->packet[0];
 		repeat(packetList->numPackets, [&] {
 			for (auto j : xrange(packet->length)) {
@@ -249,7 +249,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -259,7 +259,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 
 	byte data;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -272,7 +272,7 @@ int MidiInCoreMIDIVirtual::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;

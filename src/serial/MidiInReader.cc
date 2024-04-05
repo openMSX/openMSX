@@ -89,7 +89,7 @@ void MidiInReader::run()
 		assert(isPluggedIn());
 
 		{
-			std::lock_guard<std::mutex> lock(mutex);
+			std::scoped_lock lock(mutex);
 			queue.push_back(buf[0]);
 		}
 		eventDistributor.distributeEvent(MidiInReaderEvent());
@@ -101,7 +101,7 @@ void MidiInReader::signal(EmuTime::param time)
 {
 	auto* conn = checked_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -111,7 +111,7 @@ void MidiInReader::signal(EmuTime::param time)
 
 	uint8_t data;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -124,7 +124,7 @@ int MidiInReader::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;

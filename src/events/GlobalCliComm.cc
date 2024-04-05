@@ -19,7 +19,7 @@ GlobalCliComm::~GlobalCliComm()
 CliListener* GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 {
 	// can be called from any thread
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	auto* p = listener.get();
 	listeners.push_back(std::move(listener));
 	if (allowExternalCommands) {
@@ -33,7 +33,7 @@ CliListener* GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener)
 {
 	// can be called from any thread
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	auto it = rfind_unguarded(listeners, &listener,
 		[](const auto& ptr) { return ptr.get(); });
 	auto result = std::move(*it);
@@ -69,7 +69,7 @@ void GlobalCliComm::log(LogLevel level, std::string_view message, float fraction
 	}
 	ScopedAssign sa(delivering, true);
 
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	if (!listeners.empty()) {
 		for (auto& l : listeners) {
 			l->log(level, message, fraction);
@@ -108,7 +108,7 @@ void GlobalCliComm::updateHelper(UpdateType type, std::string_view machine,
                                  std::string_view name, std::string_view value)
 {
 	assert(Thread::isMainThread());
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	for (auto& l : listeners) {
 		l->update(type, machine, name, value);
 	}

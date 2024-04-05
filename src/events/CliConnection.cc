@@ -289,7 +289,7 @@ void SocketConnection::run()
 #ifdef _WIN32
 	bool ok;
 	{
-		std::lock_guard<std::mutex> lock(sdMutex);
+		std::scoped_lock lock(sdMutex);
 		// Authenticate and authorize the caller
 		SocketStreamWrapper stream(sd);
 		SspiNegotiateServer server(stream);
@@ -337,7 +337,7 @@ void SocketConnection::output(std::string_view message_)
 	while (!message.empty()) {
 		ptrdiff_t bytesSend;
 		{
-			std::lock_guard<std::mutex> lock(sdMutex);
+			std::scoped_lock lock(sdMutex);
 			if (sd == OPENMSX_INVALID_SOCKET) return;
 			bytesSend = sock_send(sd, message.data(), message.size());
 		}
@@ -356,7 +356,7 @@ void SocketConnection::output(std::string_view message_)
 
 void SocketConnection::closeSocket()
 {
-	std::lock_guard<std::mutex> lock(sdMutex);
+	std::scoped_lock lock(sdMutex);
 	if (sd != OPENMSX_INVALID_SOCKET) {
 		SOCKET _sd = sd;
 		sd = OPENMSX_INVALID_SOCKET;

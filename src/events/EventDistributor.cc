@@ -20,7 +20,7 @@ EventDistributor::EventDistributor(Reactor& reactor_)
 void EventDistributor::registerEventListener(
 		EventType type, EventListener& listener, Priority priority)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	auto& priorityMap = listeners[size_t(type)];
 	// a listener may only be registered once for each type
 	assert(!contains(priorityMap, &listener, &Entry::listener));
@@ -32,7 +32,7 @@ void EventDistributor::registerEventListener(
 void EventDistributor::unregisterEventListener(
 		EventType type, EventListener& listener)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	auto& priorityMap = listeners[size_t(type)];
 	priorityMap.erase(rfind_unguarded(priorityMap, &listener, &Entry::listener));
 }
@@ -45,7 +45,7 @@ void EventDistributor::distributeEvent(Event&& event)
 	//       delivering events to remove the nullptr values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock lock(mutex);
 	if (!listeners[size_t(getType(event))].empty()) {
 		scheduledEvents.push_back(std::move(event));
 		// must release lock, otherwise there's a deadlock:
@@ -75,7 +75,7 @@ void EventDistributor::deliverEvents()
 	reactor.getInterpreter().poll();
 	reactor.getRTScheduler().execute();
 
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock lock(mutex);
 	// It's possible that executing an event triggers scheduling of another
 	// event. We also want to execute those secondary events. That's why
 	// we have this while loop here.
@@ -113,7 +113,7 @@ void EventDistributor::deliverEvents()
 bool EventDistributor::sleep(unsigned us)
 {
 	std::chrono::microseconds duration(us);
-	std::unique_lock<std::mutex> lock(cvMutex);
+	std::unique_lock lock(cvMutex);
 	return condition.wait_for(lock, duration) == std::cv_status::timeout;
 }
 

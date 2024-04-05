@@ -328,7 +328,7 @@ void MidiInALSA::run()
 			if (!ev) continue;
 
 			if (ev->type == SND_SEQ_EVENT_SYSEX) {
-				std::lock_guard<std::mutex> lock(mutex);
+				std::scoped_lock lock(mutex);
 				for (auto i : xrange(ev->data.ext.len)) {
 					queue.push_back(static_cast<uint8_t*>(ev->data.ext.ptr)[i]);
 				}
@@ -343,7 +343,7 @@ void MidiInALSA::run()
 					continue;
 				}
 
-				std::lock_guard<std::mutex> lock(mutex);
+				std::scoped_lock lock(mutex);
 				for (auto i : xrange(size)) {
 					queue.push_back(bytes[i]);
 				}
@@ -358,7 +358,7 @@ void MidiInALSA::signal(EmuTime::param time)
 {
 	auto* conn = checked_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -366,7 +366,7 @@ void MidiInALSA::signal(EmuTime::param time)
 
 	uint8_t data;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -379,7 +379,7 @@ int MidiInALSA::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;

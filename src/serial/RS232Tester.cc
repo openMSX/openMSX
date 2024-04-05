@@ -104,7 +104,7 @@ void RS232Tester::run()
 			continue;
 		}
 		assert(isPluggedIn());
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.push_back(buf[0]);
 		eventDistributor.distributeEvent(Rs232TesterEvent());
 	}
@@ -128,13 +128,13 @@ void RS232Tester::signal(EmuTime::param time)
 {
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 		return;
 	}
 	if (!conn->ready()) return;
 
-	std::lock_guard<std::mutex> lock(mutex);
+	std::scoped_lock lock(mutex);
 	if (queue.empty()) return;
 	conn->recvByte(queue.pop_front(), time);
 }
@@ -145,7 +145,7 @@ int RS232Tester::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
 	return 0;

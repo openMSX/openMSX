@@ -489,7 +489,7 @@ void Reactor::switchBoard(Board newBoard)
 		// Don't hold the lock for longer than the actual switch.
 		// In the past we had a potential for deadlocks here, because
 		// (indirectly) the code below still acquires other locks.
-		std::lock_guard<std::mutex> lock(mbMutex);
+		std::scoped_lock lock(mbMutex);
 		activeBoard = newBoard;
 	}
 	eventDistributor->distributeEvent(MachineLoadedEvent());
@@ -526,7 +526,7 @@ void Reactor::enterMainLoop()
 			activeBoard->exitCPULoopSync();
 		}
 	} else {
-		std::lock_guard<std::mutex> lock(mbMutex);
+		std::scoped_lock lock(mbMutex);
 		if (activeBoard) {
 			activeBoard->exitCPULoopAsync();
 		}

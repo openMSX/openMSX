@@ -64,12 +64,12 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	                           // but thread already needs it
 
 	{
-		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
+		std::unique_lock threadIdLock(threadIdMutex);
 		thread = std::jthread([this]() { run(); });
 		threadIdCond.wait(threadIdLock);
 	}
 	{
-		std::lock_guard<std::mutex> devIdxLock(devIdxMutex);
+		std::scoped_lock devIdxLock(devIdxMutex);
 		devIdx = w32_midiInOpen(name.c_str(), threadId);
 	}
 	devIdxCond.notify_all();
@@ -100,7 +100,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
 		{
-			std::lock_guard<std::mutex> lock(queueMutex);
+			std::scoped_lock lock(queueMutex);
 			for (auto i : xrange(p->dwBytesRecorded)) {
 				queue.push_back(p->lpData[i]);
 			}
@@ -120,7 +120,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		default:
 			num = 1; break;
 	}
-	std::lock_guard<std::mutex> lock(queueMutex);
+	std::scoped_lock lock(queueMutex);
 	while (num--) {
 		queue.push_back(param & 0xFF);
 		param >>= 8;
@@ -133,12 +133,12 @@ void MidiInWindows::run()
 	assert(isPluggedIn());
 
 	{
-		std::lock_guard<std::mutex> threadIdLock(threadIdMutex);
+		std::scoped_lock threadIdLock(threadIdMutex);
 		threadId = GetCurrentThreadId();
 	}
 
 	{
-		std::unique_lock<std::mutex> devIdxLock(devIdxMutex);
+		std::unique_lock devIdxLock(devIdxMutex);
 		threadIdCond.notify_all();
 		devIdxCond.wait(devIdxLock);
 	}
@@ -176,7 +176,7 @@ void MidiInWindows::signal(EmuTime::param time)
 {
 	auto* conn = static_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(queueMutex);
+		std::scoped_lock lock(queueMutex);
 		queue.clear();
 		return;
 	}
@@ -184,7 +184,7 @@ void MidiInWindows::signal(EmuTime::param time)
 
 	byte data;
 	{
-		std::lock_guard<std::mutex> lock(queueMutex);
+		std::scoped_lock lock(queueMutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -197,7 +197,7 @@ int MidiInWindows::signalEvent(const Event& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(queueMutex);
+		std::scoped_lock lock(queueMutex);
 		queue.clear();
 	}
 	return 0;
