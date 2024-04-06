@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-static void throwException(Tcl_Interp* interp)
+[[noreturn]] static void throwException(Tcl_Interp* interp)
 {
 	std::string_view message = interp ? Tcl_GetStringResult(interp)
 	                            : "TclObject error";

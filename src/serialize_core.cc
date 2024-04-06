@@ -15,7 +15,7 @@ void pointerError(unsigned id)
 }
 
 
-static void versionError(const char* className, unsigned latestVersion, unsigned version)
+[[noreturn]] static void versionError(const char* className, unsigned latestVersion, unsigned version)
 {
 	// note: the result of type_info::name() is implementation defined
 	//       but should be ok to show in an error message

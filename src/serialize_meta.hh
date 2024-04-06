@@ -109,7 +109,7 @@ template<typename Base, typename Derived> struct MapConstructorArguments
  */
 template<typename Base> struct BaseClassName;
 
-void polyInitError(const char* expected, const char* actual);
+[[noreturn]] void polyInitError(const char* expected, const char* actual);
 
 template<typename Archive>
 class PolymorphicSaverRegistry

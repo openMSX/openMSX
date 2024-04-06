@@ -92,7 +92,7 @@ private:
 			executeSubCommandImpl(subCmd, std::forward<Args>(args)...);
 		}
 	}
-	void executeSubCommandImpl(std::string_view /*subCmd*/) {
+	[[noreturn]] void executeSubCommandImpl(std::string_view /*subCmd*/) {
 		throw UnknownSubCommand{}; // exhausted all possible candidates
 	}
 

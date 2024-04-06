@@ -57,7 +57,7 @@ public:
 
 	void poll();
 
-	void wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message);
+	[[noreturn]] void wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message);
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,

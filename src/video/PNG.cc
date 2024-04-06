@@ -26,7 +26,7 @@
 
 namespace openmsx::PNG {
 
-static void handleError(png_structp png_ptr, png_const_charp error_msg)
+[[noreturn]] static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
 	const auto* operation = std::bit_cast<const char*>(
 		png_get_error_ptr(png_ptr));

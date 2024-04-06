@@ -921,7 +921,7 @@ public:
 	void write(std::span<const char> buf);
 	void write1(char c);
 	void check(bool condition) const;
-	void error();
+	[[noreturn]] void error();
 
 private:
 	zstring_view filename;

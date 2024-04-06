@@ -110,7 +110,7 @@ template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
-void enumError(std::string_view str);
+[[noreturn]] void enumError(std::string_view str);
 
 template<typename T>
 inline std::string toString(std::initializer_list<enum_string<T>> list, T t_)
@@ -690,7 +690,7 @@ template<typename TP> struct PointerLoader
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
 	}
 };
-void pointerError(unsigned id);
+[[noreturn]] void pointerError(unsigned id);
 template<typename TP> struct IDLoader
 {
 	template<typename Archive>
