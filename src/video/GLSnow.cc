@@ -17,7 +17,7 @@ GLSnow::GLSnow(Display& display_)
 {
 	// Create noise texture.
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
-	std::uniform_int_distribution<int> distribution(0, 255);
+	std::uniform_int_distribution distribution(0, 255);
 	std::array<uint8_t, 128 * 128> buf;
 	ranges::generate(buf, [&] { return distribution(generator); });
 #if OPENGL_VERSION < OPENGL_3_3
