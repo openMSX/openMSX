@@ -28,7 +28,7 @@ TEST_CASE("join: various types")
 {
 	std::vector<std::string> vs = {"foo", "bar", "qux"};
 	std::vector<int> vi = {1, -89, 673, 0};
-	const char* ac[] = {"blabla", "xyz", "4567"};
+	std::array ac = {"blabla", "xyz", "4567"};
 
 	char sep1 = '-';
 	const char* sep2 = ", ";

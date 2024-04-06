@@ -1,12 +1,15 @@
 #include "catch.hpp"
 #include "enumerate.hh"
+
 #include "narrow.hh"
+
+#include <array>
 #include <type_traits>
 #include <vector>
 
 TEST_CASE("enumerate: basic")
 {
-	char in[3] = {'a', 'd', 'z'};
+	std::array in = {'a', 'd', 'z'};
 	std::vector<size_t> out1;
 	std::vector<char> out2;
 

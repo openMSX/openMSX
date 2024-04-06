@@ -39,8 +39,8 @@ TEST_CASE("TclObject, constructors")
 		CHECK(t.getString() == "6.28");
 	}
 	SECTION("binary") {
-		uint8_t buf[] = {'a', 'b', 'c'};
-		TclObject t(std::span<uint8_t>{buf, sizeof(buf)});
+		auto buf = std::to_array<uint8_t>({'a', 'b', 'c'});
+		TclObject t(std::span<uint8_t>{buf.data(), buf.size()});
 		CHECK(t.getString() == "abc");
 	}
 	SECTION("copy") {
@@ -196,8 +196,8 @@ TEST_CASE("TclObject, addListElement")
 		CHECK(t.getListLength(interp) == 5);
 		t.addListElement(std::string("qux"));
 		CHECK(t.getListLength(interp) == 6);
-		uint8_t buf[] = {'x', 'y', 'z'};
-		t.addListElement(std::span<uint8_t>{buf, sizeof(buf)});
+		auto buf = std::to_array<uint8_t>({'x', 'y', 'z'});
+		t.addListElement(std::span<uint8_t>{buf.data(), buf.size()});
 		CHECK(t.getListLength(interp) == 7);
 
 		TclObject l0 = t.getListIndex(interp, 0);
@@ -227,8 +227,8 @@ TEST_CASE("TclObject, addListElement")
 TEST_CASE("TclObject, addListElements")
 {
 	Interpreter interp;
-	int ints[] = {7, 6, 5};
-	double doubles[] = {1.2, 5.6};
+	std::array ints = {7, 6, 5};
+	std::array doubles = {1.2, 5.6};
 
 	SECTION("no error") {
 		TclObject t;

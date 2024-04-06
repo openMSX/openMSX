@@ -33,7 +33,7 @@ TEST_CASE("ranges::copy")
 	// Unfortunately our extension is not 100% backwards compatible.
 	// This example breaks:
 	SECTION("bw-compat") {
-		int buffer[10] = {};
+		std::array<int, 10> buffer = {};
 
 		// This now triggers a compilation error: ambiguous overload
 		// It compiled fine before our extension.

@@ -299,8 +299,8 @@ TEST_CASE("EEPROM_93C46")
 	}
 
 	// read-block, with wrap-around
-	uint8_t buf[6];
-	read_block(eeprom, time, EEPROM_93C46::NUM_ADDRESSES - 3, 6, buf);
+	std::array<uint8_t, 6> buf;
+	read_block(eeprom, time, EEPROM_93C46::NUM_ADDRESSES - 3, 6, buf.data());
 	CHECK(!waitIdle(eeprom, time));
 	CHECK(buf[0] == 77);
 	CHECK(buf[1] ==  5);

@@ -48,17 +48,17 @@ TEST_CASE("monotonic_allocator")
 		CHECK(p1 + 96 != p4); // not adjacent
 	}
 	SECTION("initial buffer") {
-		char buf[100];
-		monotonic_allocator a(buf, 100);
+		std::array<char, 100> buf;
+		monotonic_allocator a(buf.data(), buf.size());
 
 		char* p1 = alloc(a, 40, 1);
-		CHECK(p1 == buf);
+		CHECK(p1 == buf.data());
 
 		char* p2 = alloc(a, 40, 1);
-		CHECK(p2 == buf + 40);
+		CHECK(p2 == &buf[40]);
 
 		char* p3 = alloc(a, 40, 1);
-		CHECK(p3 != buf + 80);
+		CHECK(p3 != &buf[80]);
 
 		char* p4 = alloc(a, 40, 1);
 		CHECK(p4 == p3 + 40);
