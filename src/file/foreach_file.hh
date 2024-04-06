@@ -86,8 +86,8 @@ namespace openmsx {
 		[[nodiscard]] auto adaptReturn(Action action) {
 			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, Stat&>;
 			if constexpr (std::is_same_v<ResultType, void>) {
-				return [=](auto&&... params) {
-					action(std::forward<decltype(params)>(params)...);
+				return [=]<typename... Params>(Params&&... params) {
+					action(std::forward<Params>(params)...);
 					return true; // continue directory-traversal
 				};
 			} else {

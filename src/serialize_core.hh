@@ -192,8 +192,8 @@ template<typename V> struct VariantSerializer : std::true_type
 		void operator()(Archive& ar, const V& v, bool saveId) {
 			saveEnum<Archive>(Serializer<V>::list, v.index(),
 				[&](const auto& t) { ar.attribute("type", t); });
-			std::visit([&](auto& e) {
-				using TNC = std::remove_cvref_t<decltype(e)>;
+			std::visit([&]<typename T>(T& e) {
+				using TNC = std::remove_cvref_t<T>;
 				auto& e2 = const_cast<TNC&>(e);
 				ClassSaver<TNC> saver;
 				saver(ar, e2, saveId);
@@ -207,8 +207,8 @@ template<typename V> struct VariantSerializer : std::true_type
 			loadEnum<Archive>(Serializer<V>::list, idx,
 				[&](auto& l) { ar.attribute("type", l); });
 			v = defaultConstructVariant<V>(idx);
-			std::visit([&](auto& e) {
-				ClassLoader<decltype(e)> loader;
+			std::visit([&]<typename T>(T& e) {
+				ClassLoader<T> loader;
 				loader(ar, e, args, id);
 			}, v);
 		}

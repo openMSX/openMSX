@@ -30,8 +30,8 @@ template<typename T> struct Creator
 {
 	template<typename TUPLE>
 	std::unique_ptr<T> operator()(TUPLE tuple) {
-		auto makeT = [](auto&& ...args) {
-			return std::make_unique<T>(std::forward<decltype(args)>(args)...);
+		auto makeT = []<typename... Args>(Args&& ...args) {
+			return std::make_unique<T>(std::forward<Args>(args)...);
 		};
 		return std::apply(makeT, tuple);
 	}
