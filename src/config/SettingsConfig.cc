@@ -183,21 +183,17 @@ void SettingsConfig::saveSetting(std::string filename)
 
 	SettingsWriter writer(std::move(filename));
 	XMLOutputStream xml(writer);
-	xml.begin("settings");
-	{
-		xml.begin("settings");
-		for (const auto& [name, value] : settingValues) {
-			xml.begin("setting");
-			xml.attribute("id", name);
-			xml.data(value);
-			xml.end("setting");
-		}
-		xml.end("settings");
-	}
-	{
+	xml.with_tag("settings", [&]{
+		xml.with_tag("settings", [&]{
+			for (const auto& [name, value] : settingValues) {
+				xml.with_tag("setting", [&]{
+					xml.attribute("id", name);
+					xml.data(value);
+				});
+			}
+		});
 		hotKey.saveBindings(xml);
-	}
-	xml.end("settings");
+	});
 }
 
 

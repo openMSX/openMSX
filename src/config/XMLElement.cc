@@ -457,18 +457,18 @@ void XMLDocument::serialize(XmlInputArchive& ar, unsigned /*version*/)
 
 static void saveElement(XMLOutputStream<XmlOutputArchive>& stream, const XMLElement& elem)
 {
-	stream.begin(elem.getName());
-	for (const auto& attr : elem.getAttributes()) {
-		stream.attribute(attr.getName(), attr.getValue());
-	}
-	if (elem.hasChildren()) {
-		for (const auto& child : elem.getChildren()) {
-			saveElement(stream, child);
+	stream.with_tag(elem.getName(), [&]{
+		for (const auto& attr : elem.getAttributes()) {
+			stream.attribute(attr.getName(), attr.getValue());
 		}
-	} else {
-		stream.data(elem.getData());
-	}
-	stream.end(elem.getName());
+		if (elem.hasChildren()) {
+			for (const auto& child : elem.getChildren()) {
+				saveElement(stream, child);
+			}
+		} else {
+			stream.data(elem.getData());
+		}
+	});
 }
 
 void XMLDocument::serialize(XmlOutputArchive& ar, unsigned /*version*/)

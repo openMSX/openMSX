@@ -2,9 +2,12 @@
 #define XMLOUTPUTSTREAM_HH
 
 #include "XMLEscape.hh"
+
 #include "ranges.hh"
+
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -79,6 +82,8 @@ public:
 	void attribute(std::string_view name, std::string_view value);
 	void data(std::string_view value);
 	void end(std::string_view tag);
+
+	void with_tag(std::string_view tag, std::invocable auto next);
 
 private:
 	void writeSpaces(unsigned n);
@@ -165,6 +170,14 @@ void XMLOutputStream<Writer>::end(std::string_view tag)
 		writeString(">\n");
 	}
 	state = INDENT;
+}
+
+template<typename Writer>
+void XMLOutputStream<Writer>::with_tag(std::string_view tag, std::invocable auto next)
+{
+	begin(tag);
+	next();
+	end(tag);
 }
 
 template<typename Writer>
