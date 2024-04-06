@@ -96,8 +96,8 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
  * cases, the user must define a specialization of this class.
  */
 template<typename Base, typename Derived> struct MapConstructorArguments
-	: std::conditional_t<std::is_same<std::tuple<>,
-	                     typename PolymorphicConstructorArgs<Derived>::type>::value,
+	: std::conditional_t<std::is_same_v<std::tuple<>,
+	                                    typename PolymorphicConstructorArgs<Derived>::type>,
 	      MapConstrArgsEmpty<Base>,
 	      MapConstrArgsCopy<Base, Derived>> {};
 

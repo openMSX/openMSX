@@ -136,9 +136,9 @@ template<typename T>
 struct semiregular<T&> : private std::reference_wrapper<T&> {
 	semiregular() = default;
 
-	template<typename Arg, std::enable_if_t<(std::is_constructible<
+	template<typename Arg, std::enable_if_t<(std::is_constructible_v<
 	                                          std::reference_wrapper<T&>,
-	                                          Arg&>::value)>* = nullptr>
+	                                          Arg&>)>* = nullptr>
 	constexpr semiregular(std::in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
 	{
 	}
@@ -153,9 +153,9 @@ template<typename T>
 struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 	semiregular() = default;
 
-	template<typename Arg, std::enable_if_t<(std::is_constructible<
+	template<typename Arg, std::enable_if_t<(std::is_constructible_v<
 	                                          std::reference_wrapper<T&&>,
-	                                          Arg>::value)>* = nullptr>
+	                                          Arg>)>* = nullptr>
 	constexpr semiregular(std::in_place_t, Arg&& arg)
 	        : std::reference_wrapper<T&>(static_cast<Arg&&>(arg))
 	{
