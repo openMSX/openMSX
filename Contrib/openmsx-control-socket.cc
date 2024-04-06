@@ -408,7 +408,7 @@ static bool checkSocket(const std::string& socket)
 	std::string dir  = socket.substr(0, socket.find_last_of('/'));
 	std::string name = socket.substr(socket.find_last_of('/') + 1);
 
-	if (name.substr(0, 7) != "socket.") {
+	if (!name.starts_with("socket.")) {
 		// wrong name
 		return false;
 	}

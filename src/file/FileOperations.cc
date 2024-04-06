@@ -606,7 +606,7 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 	string_view name(d->d_name);
 
 	if ((name.size() != (prefixLen + nofDigits + extensionLen)) ||
-	    (name.substr(0, prefixLen) != prefix) ||
+	    (!name.starts_with(prefix)) ||
 	    (name.substr(prefixLen + nofDigits, extensionLen) != extension)) {
 		return 0;
 	}
