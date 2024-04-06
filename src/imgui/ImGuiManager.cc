@@ -278,9 +278,12 @@ void ImGuiManager::registerPart(ImGuiPartInterface* part)
 
 void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
 {
-	auto it = find_unguarded(parts, part);
-	*it = nullptr;
-	removeParts = true;
+	if (auto it1 = ranges::find(parts, part); it1 != parts.end()) {
+		*it1 = nullptr;
+		removeParts = true; // filter nullptr later
+	} else if (auto it2 = ranges::find(toBeAddedParts, part); it2 != toBeAddedParts.end()) {
+		toBeAddedParts.erase(it2); // fine to remove now
+	}
 }
 
 void ImGuiManager::updateParts()
