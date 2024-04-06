@@ -78,7 +78,7 @@ private:
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 
-	std::jthread thread;
+	std::thread thread;
 
 	std::array<bool, CliComm::NUM_UPDATES> updateEnabled;
 };

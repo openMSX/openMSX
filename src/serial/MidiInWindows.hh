@@ -61,7 +61,7 @@ private:
 private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::jthread thread;
+	std::thread thread;
 	std::mutex devIdxMutex;
 	std::condition_variable devIdxCond;
 	unsigned devIdx;

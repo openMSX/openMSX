@@ -46,7 +46,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
 	poller.reset();
-	thread = std::jthread([this]() { run(); });
+	thread = std::thread([this]() { run(); });
 }
 
 void MidiInReader::unplugHelper(EmuTime::param /*time*/)

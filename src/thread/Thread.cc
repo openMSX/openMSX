@@ -4,17 +4,17 @@
 
 namespace openmsx::Thread {
 
-static std::jthread::id mainThreadId;
+static std::thread::id mainThreadId;
 
 void setMainThread()
 {
-	assert(mainThreadId == std::jthread::id());
+	assert(mainThreadId == std::thread::id());
 	mainThreadId = std::this_thread::get_id();
 }
 
 bool isMainThread()
 {
-	assert(mainThreadId != std::jthread::id());
+	assert(mainThreadId != std::thread::id());
 	return mainThreadId == std::this_thread::get_id();
 }
 

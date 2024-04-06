@@ -83,7 +83,7 @@ private:
 	StringSetting rs232NetAddressSetting;
 	BooleanSetting rs232NetUseIP232;
 
-	std::jthread thread; // receiving thread (reads from 'sockfd')
+	std::thread thread; // receiving thread (reads from 'sockfd')
 	std::mutex mutex; // to protect shared data between emulation and receiving thread
 	Poller poller; // safe to use from main and receiver thread without extra locking
 	cb_queue<char> queue; // read/written by both the main and the receiver thread. Must hold 'mutex' while doing so.

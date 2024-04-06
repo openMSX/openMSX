@@ -206,7 +206,7 @@ CliServer::CliServer(CommandController& commandController_,
 {
 	try {
 		listenSock = createSocket();
-		thread = std::jthread([this]() { mainLoop(); });
+		thread = std::thread([this]() { mainLoop(); });
 	} catch (MSXException& e) {
 		cliComm.printWarning(e.getMessage());
 	}
@@ -216,6 +216,7 @@ CliServer::~CliServer()
 {
 	if (listenSock != OPENMSX_INVALID_SOCKET) {
 		exitAcceptLoop();
+		thread.join();
 	}
 
 	deleteSocket(socketName);

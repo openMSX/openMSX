@@ -23,7 +23,7 @@ private:
 
 private:
 	const std::string name;
-	std::jthread thread;
+	std::thread thread;
 	std::atomic<bool> exitLoop;
 };
 

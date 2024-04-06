@@ -45,7 +45,7 @@ private:
 private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::jthread thread;
+	std::thread thread;
 	FileOperations::FILE_t file;
 	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
