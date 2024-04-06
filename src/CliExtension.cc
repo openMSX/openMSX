@@ -10,11 +10,9 @@ namespace openmsx {
 CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
-	cmdLineParser.registerOption("-ext", *this);
-	cmdLineParser.registerOption("-exta", *this);
-	cmdLineParser.registerOption("-extb", *this);
-	cmdLineParser.registerOption("-extc", *this);
-	cmdLineParser.registerOption("-extd", *this);
+	for (const auto* ext : {"-ext", "-exta", "-extb", "-extc", "-extd"}) {
+		cmdLineParser.registerOption(ext, *this);
+	}
 }
 
 void CliExtension::parseOption(const std::string& option, std::span<std::string>& cmdLine)

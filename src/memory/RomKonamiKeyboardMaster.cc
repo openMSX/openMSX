@@ -18,18 +18,20 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 
 	reset(EmuTime::dummy());
 
-	getCPUInterface().register_IO_Out(0x00, this);
-	getCPUInterface().register_IO_Out(0x20, this);
-	getCPUInterface().register_IO_In(0x00, this);
-	getCPUInterface().register_IO_In(0x20, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x00, 0x20}) {
+		cpuInterface.register_IO_Out(port, this);
+		cpuInterface.register_IO_In (port, this);
+	}
 }
 
 RomKonamiKeyboardMaster::~RomKonamiKeyboardMaster()
 {
-	getCPUInterface().unregister_IO_Out(0x00, this);
-	getCPUInterface().unregister_IO_Out(0x20, this);
-	getCPUInterface().unregister_IO_In(0x00, this);
-	getCPUInterface().unregister_IO_In(0x20, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x00, 0x20}) {
+		cpuInterface.unregister_IO_Out(port, this);
+		cpuInterface.unregister_IO_In (port, this);
+	}
 }
 
 void RomKonamiKeyboardMaster::reset(EmuTime::param /*time*/)

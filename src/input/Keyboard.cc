@@ -1867,14 +1867,16 @@ Keyboard::CapsLockAligner::CapsLockAligner(
 	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 {
-	eventDistributor.registerEventListener(EventType::BOOT,  *this);
-	eventDistributor.registerEventListener(EventType::WINDOW, *this);
+	for (auto type : {EventType::BOOT, EventType::WINDOW}) {
+		eventDistributor.registerEventListener(type,  *this);
+	}
 }
 
 Keyboard::CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(EventType::WINDOW, *this);
-	eventDistributor.unregisterEventListener(EventType::BOOT,  *this);
+	for (auto type : {EventType::WINDOW, EventType::BOOT}) {
+		eventDistributor.unregisterEventListener(type,  *this);
+	}
 }
 
 int Keyboard::CapsLockAligner::signalEvent(const Event& event)

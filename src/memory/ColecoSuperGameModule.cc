@@ -25,21 +25,21 @@ ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	if (biosRom.size() != BIOS_ROM_SIZE) {
 		throw MSXException("ColecoVision BIOS ROM must be exactly 8kB in size.");
 	}
-	getCPUInterface().register_IO_Out(0x50, this);
-	getCPUInterface().register_IO_Out(0x51, this);
-	getCPUInterface().register_IO_In (0x52, this);
-	getCPUInterface().register_IO_Out(0x53, this);
-	getCPUInterface().register_IO_Out(0x7F, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x50, 0x51, 0x53, 0x7F}) {
+		cpuInterface.register_IO_Out(port, this);
+	}
+	cpuInterface.register_IO_In(0x52, this);
 	reset(getCurrentTime());
 }
 
 ColecoSuperGameModule::~ColecoSuperGameModule()
 {
-	getCPUInterface().unregister_IO_Out(0x50, this);
-	getCPUInterface().unregister_IO_Out(0x51, this);
-	getCPUInterface().unregister_IO_In (0x52, this);
-	getCPUInterface().unregister_IO_Out(0x53, this);
-	getCPUInterface().unregister_IO_Out(0x7F, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x50, 0x51, 0x53, 0x7F}) {
+		cpuInterface.unregister_IO_Out(port, this);
+	}
+	cpuInterface.unregister_IO_In(0x52, this);
 }
 
 static constexpr unsigned translateMainRamAddress(unsigned address)

@@ -23,11 +23,9 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 {
 	cmdLineParser.registerOption("-ips", ipsOption);
 	cmdLineParser.registerOption("-romtype", romTypeOption);
-	cmdLineParser.registerOption("-cart", *this);
-	cmdLineParser.registerOption("-carta", *this);
-	cmdLineParser.registerOption("-cartb", *this);
-	cmdLineParser.registerOption("-cartc", *this);
-	cmdLineParser.registerOption("-cartd", *this);
+	for (const auto* cart : {"-cart", "-carta", "-cartb", "-cartc", "-cartd"}) {
+		cmdLineParser.registerOption(cart, *this);
+	}
 	cmdLineParser.registerFileType(getExtensions(), *this);
 }
 

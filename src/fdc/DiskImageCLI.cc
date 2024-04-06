@@ -17,8 +17,9 @@ std::span<const std::string_view> DiskImageCLI::getExtensions()
 DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
-	parser.registerOption("-diska", *this);
-	parser.registerOption("-diskb", *this);
+	for (const auto* disk : {"-diska", "-diskb"}) {
+		parser.registerOption(disk, *this);
+	}
 	parser.registerFileType(getExtensions(), *this);
 }
 

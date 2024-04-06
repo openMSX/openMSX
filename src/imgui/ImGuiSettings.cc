@@ -1192,11 +1192,13 @@ void ImGuiSettings::initListener()
 
 	auto& distributor = manager.getReactor().getEventDistributor();
 	// highest priority (higher than HOTKEY and IMGUI)
-	distributor.registerEventListener(EventType::KEY_DOWN, *this);
-	distributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	distributor.registerEventListener(EventType::JOY_BUTTON_DOWN, *this);
-	distributor.registerEventListener(EventType::JOY_HAT, *this);
-	distributor.registerEventListener(EventType::JOY_AXIS_MOTION, *this);
+	for (auto type : {EventType::KEY_DOWN,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::JOY_BUTTON_DOWN,
+	                  EventType::JOY_HAT,
+	                  EventType::JOY_AXIS_MOTION}) {
+		distributor.registerEventListener(type, *this);
+	}
 }
 
 void ImGuiSettings::deinitListener()
@@ -1205,11 +1207,13 @@ void ImGuiSettings::deinitListener()
 	listening = false;
 
 	auto& distributor = manager.getReactor().getEventDistributor();
-	distributor.unregisterEventListener(EventType::JOY_AXIS_MOTION, *this);
-	distributor.unregisterEventListener(EventType::JOY_HAT, *this);
-	distributor.unregisterEventListener(EventType::JOY_BUTTON_DOWN, *this);
-	distributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	distributor.unregisterEventListener(EventType::KEY_DOWN, *this);
+	for (auto type : {EventType::JOY_AXIS_MOTION,
+	                  EventType::JOY_HAT,
+	                  EventType::JOY_BUTTON_DOWN,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::KEY_DOWN}) {
+		distributor.unregisterEventListener(type, *this);
+	}
 }
 
 } // namespace openmsx

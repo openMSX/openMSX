@@ -81,18 +81,22 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 	powerUp(getCurrentTime());
 
 	if (psg) {
-		getCPUInterface().register_IO_Out(0x10, this);
-		getCPUInterface().register_IO_Out(0x11, this);
-		getCPUInterface().register_IO_In (0x12, this);
+		auto& cpuInterface = getCPUInterface();
+		for (auto port : {0x10, 0x11}) {
+			cpuInterface.register_IO_Out(port, this);
+		}
+		cpuInterface.register_IO_In(0x12, this);
 	}
 }
 
 RomManbow2::~RomManbow2()
 {
 	if (psg) {
-		getCPUInterface().unregister_IO_Out(0x10, this);
-		getCPUInterface().unregister_IO_Out(0x11, this);
-		getCPUInterface().unregister_IO_In (0x12, this);
+		auto& cpuInterface = getCPUInterface();
+		for (auto port : {0x10, 0x11}) {
+			cpuInterface.unregister_IO_Out(port, this);
+		}
+		cpuInterface.unregister_IO_In(0x12, this);
 	}
 }
 

@@ -73,23 +73,18 @@ ReproCartridgeV2::ReproCartridgeV2(
 	      getCurrentTime())
 {
 	powerUp(getCurrentTime());
-
-	getCPUInterface().register_IO_Out(0x10, this);
-	getCPUInterface().register_IO_Out(0x11, this);
-	getCPUInterface().register_IO_Out(0x31, this);
-	getCPUInterface().register_IO_Out(0x33, this);
-	getCPUInterface().register_IO_Out(0xA0, this);
-	getCPUInterface().register_IO_Out(0xA1, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x10, 0x11, 0x31, 0x33, 0xA0, 0xA1}) {
+		cpuInterface.register_IO_Out(port, this);
+	}
 }
 
 ReproCartridgeV2::~ReproCartridgeV2()
 {
-	getCPUInterface().unregister_IO_Out(0x10, this);
-	getCPUInterface().unregister_IO_Out(0x11, this);
-	getCPUInterface().unregister_IO_Out(0x31, this);
-	getCPUInterface().unregister_IO_Out(0x33, this);
-	getCPUInterface().unregister_IO_Out(0xA0, this);
-	getCPUInterface().unregister_IO_Out(0xA1, this);
+	auto& cpuInterface = getCPUInterface();
+	for (auto port : {0x10, 0x11, 0x31, 0x33, 0xA0, 0xA1}) {
+		cpuInterface.unregister_IO_Out(port, this);
+	}
 }
 
 void ReproCartridgeV2::powerUp(EmuTime::param time)

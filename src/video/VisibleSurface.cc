@@ -57,10 +57,13 @@ VisibleSurface::VisibleSurface(
 	inputEventGenerator.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelaySetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
-	eventDistributor.registerEventListener(EventType::MOUSE_MOTION, *this);
-	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.registerEventListener(EventType::MOUSE_BUTTON_UP, *this);
-	eventDistributor.registerEventListener(EventType::IMGUI_ACTIVE, *this);
+
+	for (auto type : {EventType::MOUSE_MOTION,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::MOUSE_BUTTON_UP,
+	                  EventType::IMGUI_ACTIVE}) {
+		eventDistributor.registerEventListener(type, *this);
+	}
 
 	updateCursor();
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -168,10 +171,13 @@ VisibleSurface::~VisibleSurface()
 		display.storeWindowPosition(*pos);
 	}
 
-	eventDistributor.unregisterEventListener(EventType::IMGUI_ACTIVE, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_UP, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(EventType::MOUSE_MOTION, *this);
+	for (auto type : {EventType::IMGUI_ACTIVE,
+	                  EventType::MOUSE_BUTTON_UP,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::MOUSE_MOTION}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
+
 	inputEventGenerator.getGrabInput().detach(*this);
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);

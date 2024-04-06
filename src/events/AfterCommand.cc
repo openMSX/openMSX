@@ -125,38 +125,24 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
-	eventDistributor.registerEventListener(
-		EventType::KEY_UP, *this);
-	eventDistributor.registerEventListener(
-		EventType::KEY_DOWN, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_MOTION, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_UP, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.registerEventListener(
-		EventType::MOUSE_WHEEL, *this);
-	eventDistributor.registerEventListener(
-		EventType::JOY_AXIS_MOTION, *this);
-	eventDistributor.registerEventListener(
-		EventType::JOY_HAT, *this);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_UP, *this);
-	eventDistributor.registerEventListener(
-		EventType::JOY_BUTTON_DOWN, *this);
-	eventDistributor.registerEventListener(
-		EventType::FINISH_FRAME, *this);
-	eventDistributor.registerEventListener(
-		EventType::BREAK, *this);
-	eventDistributor.registerEventListener(
-		EventType::QUIT, *this);
-	eventDistributor.registerEventListener(
-		EventType::BOOT, *this);
-	eventDistributor.registerEventListener(
-		EventType::MACHINE_LOADED, *this);
-	eventDistributor.registerEventListener(
-		EventType::AFTER_TIMED, *this);
+	for (auto type : {EventType::KEY_UP,
+	                  EventType::KEY_DOWN,
+	                  EventType::MOUSE_MOTION,
+	                  EventType::MOUSE_BUTTON_UP,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::MOUSE_WHEEL,
+	                  EventType::JOY_AXIS_MOTION,
+	                  EventType::JOY_HAT,
+	                  EventType::JOY_BUTTON_UP,
+	                  EventType::JOY_BUTTON_DOWN,
+	                  EventType::FINISH_FRAME,
+	                  EventType::BREAK,
+	                  EventType::QUIT,
+	                  EventType::BOOT,
+	                  EventType::MACHINE_LOADED,
+	                  EventType::AFTER_TIMED}) {
+		eventDistributor.registerEventListener(type, *this);
+	}
 }
 
 AfterCommand::~AfterCommand()
@@ -165,38 +151,24 @@ AfterCommand::~AfterCommand()
 		afterCmdPool.remove(idx);
 	}
 
-	eventDistributor.unregisterEventListener(
-		EventType::AFTER_TIMED, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MACHINE_LOADED, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::BOOT, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::QUIT, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::BREAK, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::FINISH_FRAME, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_BUTTON_UP, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_HAT, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::JOY_AXIS_MOTION, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_WHEEL, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_BUTTON_UP, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::MOUSE_MOTION, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::KEY_DOWN, *this);
-	eventDistributor.unregisterEventListener(
-		EventType::KEY_UP, *this);
+	for (auto type : {EventType::AFTER_TIMED,
+	                  EventType::MACHINE_LOADED,
+	                  EventType::BOOT,
+	                  EventType::QUIT,
+	                  EventType::BREAK,
+	                  EventType::FINISH_FRAME,
+	                  EventType::JOY_BUTTON_DOWN,
+	                  EventType::JOY_BUTTON_UP,
+	                  EventType::JOY_HAT,
+	                  EventType::JOY_AXIS_MOTION,
+	                  EventType::MOUSE_WHEEL,
+	                  EventType::MOUSE_BUTTON_DOWN,
+	                  EventType::MOUSE_BUTTON_UP,
+	                  EventType::MOUSE_MOTION,
+	                  EventType::KEY_DOWN,
+	                  EventType::KEY_UP}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 }
 
 void AfterCommand::execute(std::span<const TclObject> tokens, TclObject& result)

@@ -36,15 +36,16 @@ RealTime::RealTime(
 
 	resync();
 
-	eventDistributor.registerEventListener(EventType::FINISH_FRAME, *this);
-	eventDistributor.registerEventListener(EventType::FRAME_DRAWN,  *this);
+	for (auto type : {EventType::FINISH_FRAME, EventType::FRAME_DRAWN}) {
+		eventDistributor.registerEventListener(type, *this);
+	}
 }
 
 RealTime::~RealTime()
 {
-	eventDistributor.unregisterEventListener(EventType::FRAME_DRAWN,  *this);
-	eventDistributor.unregisterEventListener(EventType::FINISH_FRAME, *this);
-
+	for (auto type : {EventType::FRAME_DRAWN, EventType::FINISH_FRAME}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
 	throttleManager.detach(*this);

@@ -187,15 +187,16 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	        AmdFlash::Addressing::BITS_11, config)
 {
 	powerUp(getCurrentTime());
-
-	getCPUInterface().register_IO_Out(0x10, this);
-	getCPUInterface().register_IO_Out(0x11, this);
+	for (auto port : {0x10, 0x11}) {
+		getCPUInterface().register_IO_Out(port, this);
+	}
 }
 
 MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 {
-	getCPUInterface().unregister_IO_Out(0x10, this);
-	getCPUInterface().unregister_IO_Out(0x11, this);
+	for (auto port : {0x10, 0x11}) {
+		getCPUInterface().unregister_IO_Out(port, this);
+	}
 }
 
 void MegaFlashRomSCCPlus::powerUp(EmuTime::param time)

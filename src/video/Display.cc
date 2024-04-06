@@ -55,14 +55,13 @@ Display::Display(Reactor& reactor_)
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.registerEventListener(EventType::FINISH_FRAME,
-			*this);
-	eventDistributor.registerEventListener(EventType::SWITCH_RENDERER,
-			*this);
-	eventDistributor.registerEventListener(EventType::MACHINE_LOADED,
-			*this);
-	eventDistributor.registerEventListener(EventType::WINDOW,
-			*this);
+	for (auto type : {EventType::FINISH_FRAME,
+	                  EventType::SWITCH_RENDERER,
+	                  EventType::MACHINE_LOADED,
+	                  EventType::WINDOW}) {
+		eventDistributor.registerEventListener(type, *this);
+	}
+
 	renderSettings.getRendererSetting().attach(*this);
 }
 
@@ -71,14 +70,12 @@ Display::~Display()
 	renderSettings.getRendererSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	eventDistributor.unregisterEventListener(EventType::WINDOW,
-			*this);
-	eventDistributor.unregisterEventListener(EventType::MACHINE_LOADED,
-			*this);
-	eventDistributor.unregisterEventListener(EventType::SWITCH_RENDERER,
-			*this);
-	eventDistributor.unregisterEventListener(EventType::FINISH_FRAME,
-			*this);
+	for (auto type : {EventType::WINDOW,
+	                  EventType::MACHINE_LOADED,
+	                  EventType::SWITCH_RENDERER,
+	                  EventType::FINISH_FRAME}) {
+		eventDistributor.unregisterEventListener(type, *this);
+	}
 
 	resetVideoSystem();
 
