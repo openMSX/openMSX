@@ -91,9 +91,10 @@ inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flag
 				// depending on the backend (e.g. Wayland) this could be nullptr
 				if (auto* swf = ImGui::GetPlatformIO().Platform_SetWindowFocus) {
 					swf(ImGui::GetWindowViewport());
-				} else {
-					ImGui::SetWindowFocus();
 				}
+				// When window is inside the main viewport, this function is
+				// needed to raise focus even if Platform_SetWindowFocus exists
+				ImGui::SetWindowFocus();
 			}
 		}
 		next();
