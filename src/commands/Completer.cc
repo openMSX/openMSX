@@ -14,14 +14,16 @@
 #include "utf8_unchecked.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <memory>
+
+namespace openmsx {
 
 using std::vector;
 using std::string;
 using std::string_view;
-
-namespace openmsx {
+namespace rg = std::ranges;
 
 static bool formatHelper(std::span<const string_view> input, size_t columnLimit,
                          vector<string>& result)
@@ -93,7 +95,7 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	ranges::sort(matches);
+	rg::sort(matches);
 	matches.erase(ranges::unique(matches), end(matches));
 
 	bool expanded = false;

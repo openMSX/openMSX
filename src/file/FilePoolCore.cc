@@ -1,16 +1,22 @@
 #include "FilePoolCore.hh"
+
 #include "File.hh"
 #include "FileException.hh"
 #include "foreach_file.hh"
-#include "Date.hh"
 #include "Timer.hh"
+
+#include "Date.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+
+#include <algorithm>
 #include <fstream>
 #include <optional>
 #include <tuple>
 
 namespace openmsx {
+
+namespace rg = std::ranges;
 
 struct GetSha1 {
 	const FilePoolCore::Pool& pool;
@@ -194,12 +200,12 @@ void FilePoolCore::readSha1sums()
 		});
 	}
 
-	if (!ranges::is_sorted(sha1Index, {}, GetSha1{pool})) {
+	if (!rg::is_sorted(sha1Index, {}, GetSha1{pool})) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		ranges::sort(sha1Index, {}, GetSha1{pool});
+		rg::sort(sha1Index, {}, GetSha1{pool});
 	}
 
 	// 'pool' is populated, 'sha1Index' is sorted, now build 'filenameIndex'

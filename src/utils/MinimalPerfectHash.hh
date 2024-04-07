@@ -7,6 +7,8 @@
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -56,6 +58,8 @@
 
 namespace PerfectMinimalHash {
 
+namespace rg = std::ranges;
+
 template<size_t M, typename Hash>
 struct Result
 {
@@ -94,7 +98,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
-	ranges::sort(buckets, [](const auto& x, const auto& y) {
+	rg::sort(buckets, [](const auto& x, const auto& y) {
 		// sort largest first
 		if (x.size() != y.size()) {
 			return x.size() > y.size();

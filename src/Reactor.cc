@@ -53,16 +53,18 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
+
+namespace openmsx {
 
 using std::make_unique;
 using std::string;
 using std::string_view;
 using std::vector;
-
-namespace openmsx {
+namespace rg = std::ranges;
 
 // global variable to communicate the exit-code from the 'exit' command to main()
 int exitCode = 0;
@@ -367,7 +369,7 @@ vector<string> Reactor::getHwConfigs(string_view type)
 		foreach_file_and_directory(FileOperations::join(p, type), fileAction, dirAction);
 	}
 	// remove duplicates
-	ranges::sort(result);
+	rg::sort(result);
 	result.erase(ranges::unique(result), end(result));
 	return result;
 }

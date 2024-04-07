@@ -1,26 +1,28 @@
 #include "Keyboard.hh"
-#include "SDLKey.hh"
+
+#include "CommandController.hh"
+#include "CommandException.hh"
 #include "DeviceConfig.hh"
+#include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
-#include "CommandController.hh"
-#include "CommandException.hh"
-#include "Event.hh"
+#include "SDLKey.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "UnicodeKeymap.hh"
-#include "enumerate.hh"
 #include "openmsx.hh"
+#include "serialize.hh"
+#include "serialize_meta.hh"
+#include "serialize_stl.hh"
+
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "outer.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
-#include "serialize_meta.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -28,6 +30,8 @@
 #include "view.hh"
 #include "xrange.hh"
 #include <SDL.h>
+
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cassert>
@@ -36,6 +40,8 @@
 #include <type_traits>
 
 namespace openmsx {
+
+namespace rg = std::ranges;
 
 // How does the CAPSLOCK key behave?
 #ifdef __APPLE__
@@ -162,7 +168,7 @@ static constexpr auto extractKeyCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
+	rg::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
 	return result;
 }
 template<typename GetMapping>
@@ -180,7 +186,7 @@ static constexpr auto extractScanCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
+	rg::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
 	return result;
 }
 

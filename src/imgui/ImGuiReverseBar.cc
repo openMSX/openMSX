@@ -15,9 +15,12 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-using namespace std::literals;
+#include <algorithm>
 
 namespace openmsx {
+
+using namespace std::literals;
+namespace rg = std::ranges;
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
@@ -163,7 +166,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
+				rg::sort(names, StringOp::caseless{}, &Names::displayName);
 				for (const auto& [fullName_, displayName_] : names) {
 					const auto& fullName = fullName_; // clang workaround
 					const auto& displayName = displayName_; // clang workaround

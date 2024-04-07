@@ -11,6 +11,7 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -21,6 +22,8 @@
 #include <tuple>
 
 namespace openmsx {
+
+namespace rg = std::ranges;
 
 static constexpr uint8_t DBZV_VERSION_HIGH = 0;
 static constexpr uint8_t DBZV_VERSION_LOW = 1;
@@ -90,7 +93,7 @@ static constexpr auto vectorTable = [] {
 		return std::tuple(cost(l), l.x, l.y) <
 		       std::tuple(cost(r), r.x, r.y);
 	};
-	ranges::sort(result, compare);
+	rg::sort(result, compare);
 
 	return result;
 }();

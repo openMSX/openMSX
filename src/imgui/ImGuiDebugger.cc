@@ -35,12 +35,14 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 
-using namespace std::literals;
-
 namespace openmsx {
+
+using namespace std::literals;
+namespace rg = std::ranges;
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
@@ -182,7 +184,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Add hex editor", [&]{
 			auto& debugger = motherBoard->getDebugger();
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
-			ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
+			rg::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
 				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
 					createHexEditor(name);

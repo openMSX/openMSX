@@ -36,69 +36,6 @@ template<typename T>
 concept sized_range = range<T> && requires(T& t) { std::size(t); };
 
 
-template<typename ForwardRange, typename Compare = std::less<>, typename Proj = std::identity>
-[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp = {}, Proj proj = {})
-{
-	return std::is_sorted(std::begin(range), std::end(range),
-		[&](const auto& x, const auto& y) {
-			return comp(std::invoke(proj, x), std::invoke(proj, y));
-		});
-}
-
-template<typename RandomAccessRange>
-constexpr void sort(RandomAccessRange&& range)
-{
-	std::sort(std::begin(range), std::end(range));
-}
-
-template<typename RandomAccessRange, typename Compare>
-constexpr void sort(RandomAccessRange&& range, Compare comp)
-{
-	std::sort(std::begin(range), std::end(range), comp);
-}
-
-template<typename RAIter, typename Compare = std::less<>, typename Proj>
-constexpr void sort(RAIter first, RAIter last, Compare comp, Proj proj)
-{
-	std::sort(first, last,
-		[&](const auto& x, const auto& y) {
-			return comp(std::invoke(proj, x), std::invoke(proj, y));
-		});
-}
-
-template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
-constexpr void sort(RandomAccessRange&& range, Compare comp, Proj proj)
-{
-	sort(std::begin(range), std::end(range), comp, proj);
-}
-
-template<typename RandomAccessRange>
-void stable_sort(RandomAccessRange&& range)
-{
-	std::stable_sort(std::begin(range), std::end(range));
-}
-
-template<typename RandomAccessRange, typename Compare>
-void stable_sort(RandomAccessRange&& range, Compare comp)
-{
-	std::stable_sort(std::begin(range), std::end(range), comp);
-}
-
-template<typename RAIter, typename Compare = std::less<>, typename Proj>
-void stable_sort(RAIter first, RAIter last, Compare comp, Proj proj)
-{
-	std::stable_sort(first, last,
-		[&](const auto& x, const auto& y) {
-			return comp(std::invoke(proj, x), std::invoke(proj, y));
-		});
-}
-
-template<typename RandomAccessRange, typename Compare = std::less<>, typename Proj>
-void stable_sort(RandomAccessRange&& range, Compare comp, Proj proj)
-{
-	stable_sort(std::begin(range), std::end(range), comp, proj);
-}
-
 template<typename ForwardRange, typename T>
 [[nodiscard]] bool binary_search(ForwardRange&& range, const T& value)
 {
