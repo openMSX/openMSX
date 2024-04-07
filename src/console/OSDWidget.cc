@@ -1,26 +1,22 @@
 #include "OSDWidget.hh"
-
-#include "CommandException.hh"
-#include "Display.hh"
-#include "GLUtil.hh"
 #include "OutputSurface.hh"
-#include "TclObject.hh"
+#include "Display.hh"
 #include "VideoSystem.hh"
-
+#include "CommandException.hh"
+#include "TclObject.hh"
+#include "GLUtil.hh"
+#include "checked_cast.hh"
 #include "narrow.hh"
+#include "ranges.hh"
 #include "stl.hh"
-
 #include <SDL.h>
-
-#include <algorithm>
 #include <array>
 #include <limits>
 #include <optional>
 
-namespace openmsx {
-
 using namespace gl;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 // intersect two rectangles
 struct IntersectResult { int x, y, w, h; };
@@ -144,7 +140,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(rg::is_sorted(subWidgets, {}, &OSDWidget::getZ));
+	assert(ranges::is_sorted(subWidgets, {}, &OSDWidget::getZ));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -163,7 +159,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(rg::is_sorted(subWidgets, {}, &OSDWidget::getZ));
+	assert(ranges::is_sorted(subWidgets, {}, &OSDWidget::getZ));
 #endif
 }
 

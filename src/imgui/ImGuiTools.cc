@@ -19,14 +19,12 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <algorithm>
 #include <string>
 #include <vector>
 
 namespace openmsx {
 
 using namespace std::literals;
-namespace rg = std::ranges;
 
 void ImGuiTools::save(ImGuiTextBuffer& buf)
 {
@@ -53,7 +51,7 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 					result.emplace_back(cmd.view());
 				}
 			}
-			rg::sort(result, StringOp::caseless{});
+			ranges::sort(result, StringOp::caseless{});
 		}
 	}
 	refresh += ImGui::GetIO().DeltaTime;

@@ -1,17 +1,15 @@
 #include "catch.hpp"
 #include "ConsoleLine.hh"
-
-#include <algorithm>
+#include "ranges.hh"
 
 using namespace openmsx;
-namespace rg = std::ranges;
 
 static void invariants(const ConsoleLine& line)
 {
 	const auto& str = line.str();
 	const auto& chunks = line.getChunks();
 
-	CHECK(rg::is_sorted(chunks, {}, &ConsoleLine::Chunk::pos));
+	CHECK(ranges::is_sorted(chunks, {}, &ConsoleLine::Chunk::pos));
 	if (!str.empty()) {
 		REQUIRE(!chunks.empty());
 		CHECK(chunks.front().pos == 0);

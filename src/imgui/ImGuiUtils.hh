@@ -50,8 +50,6 @@ void StrCat(Ts&& ...ts)
 
 namespace openmsx {
 
-namespace rg = std::ranges;
-
 class BooleanSetting;
 class FloatSetting;
 class HotKey;
@@ -136,17 +134,17 @@ void comboHexSequence(const char* label, int* value, int mult, int offset = 0) {
 template<typename Range, typename Projection>
 void sortUpDown_T(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		rg::stable_sort(range, std::greater<>{}, proj);
+		ranges::stable_sort(range, std::greater<>{}, proj);
 	} else {
-		rg::stable_sort(range, std::less<>{}, proj);
+		ranges::stable_sort(range, std::less<>{}, proj);
 	}
 };
 template<typename Range, typename Projection>
 void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		rg::stable_sort(range, StringOp::inv_caseless{}, proj);
+		ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
 	} else {
-		rg::stable_sort(range, StringOp::caseless{}, proj);
+		ranges::stable_sort(range, StringOp::caseless{}, proj);
 	}
 };
 
@@ -171,7 +169,7 @@ template<typename T> // 'MachineInfo' or 'ExtensionInfo', both have a 'configInf
 			}
 		}
 	}
-	rg::sort(result, StringOp::caseless{});
+	ranges::sort(result, StringOp::caseless{});
 	return result;
 }
 

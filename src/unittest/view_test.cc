@@ -16,7 +16,6 @@
 
 using std::vector;
 using namespace view;
-namespace rg = std::ranges;
 
 static vector<int> getVector(int n)
 {
@@ -204,8 +203,8 @@ static void check_unordered(const RANGE& range, const vector<T>& expected_)
 {
 	auto result = to_vector<T>(range);
 	auto expected = expected_;
-	rg::sort(result);
-	rg::sort(expected);
+	ranges::sort(result);
+	ranges::sort(expected);
 	CHECK(result == expected);
 }
 

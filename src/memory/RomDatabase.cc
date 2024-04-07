@@ -1,30 +1,25 @@
 #include "RomDatabase.hh"
-
-#include "CliComm.hh"
-#include "File.hh"
 #include "FileContext.hh"
+#include "File.hh"
+#include "CliComm.hh"
 #include "MSXException.hh"
-#include "String32.hh"
 #include "StringOp.hh"
-#include "rapidsax.hh"
-
+#include "String32.hh"
 #include "hash_map.hh"
 #include "narrow.hh"
 #include "ranges.hh"
-#include "stl.hh"
+#include "rapidsax.hh"
 #include "unreachable.hh"
+#include "stl.hh"
 #include "view.hh"
 #include "xxhash.hh"
-
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <string_view>
 
-namespace openmsx {
-
 using std::string_view;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 using UnknownTypes = hash_map<std::string, unsigned, XXHasher>;
 
@@ -404,7 +399,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	rg::sort(mid, last, {}, &RomDatabase::Entry::sha1);
+	ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.

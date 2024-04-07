@@ -1,17 +1,15 @@
 #include "GlobalCommandController.hh"
-
-#include "CliConnection.hh"
-#include "CommandException.hh"
-#include "GlobalCliComm.hh"
-#include "LocalFileReference.hh"
-#include "ProxyCommand.hh"
-#include "ProxySetting.hh"
 #include "Reactor.hh"
 #include "Setting.hh"
+#include "ProxyCommand.hh"
+#include "ProxySetting.hh"
+#include "LocalFileReference.hh"
+#include "GlobalCliComm.hh"
+#include "CliConnection.hh"
+#include "CommandException.hh"
 #include "SettingsManager.hh"
 #include "TclObject.hh"
 #include "Version.hh"
-
 #include "ScopedAssign.hh"
 #include "join.hh"
 #include "outer.hh"
@@ -19,19 +17,15 @@
 #include "stl.hh"
 #include "view.hh"
 #include "xrange.hh"
-
 #include "build-info.hh"
-
-#include <algorithm>
 #include <cassert>
 #include <memory>
-
-namespace openmsx {
 
 using std::string;
 using std::string_view;
 using std::vector;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 GlobalCommandController::GlobalCommandController(
 	EventDistributor& eventDistributor,
@@ -457,7 +451,7 @@ void GlobalCommandController::HelpCmd::execute(
 		cmds.erase(ranges::remove_if(cmds, [](const auto& c) {
 		                   return c.find("::") != std::string_view::npos; }),
 		           cmds.end());
-		rg::sort(cmds);
+		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
 		}

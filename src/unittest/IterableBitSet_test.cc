@@ -1,11 +1,8 @@
 #include "catch.hpp"
 #include "IterableBitSet.hh"
-
-#include <algorithm>
+#include "ranges.hh"
 #include <iostream>
 #include <vector>
-
-namespace rg = std::ranges;
 
 template<size_t N>
 void expect(const IterableBitSet<N>& s, const std::vector<size_t>& expected)
@@ -30,7 +27,7 @@ void test(const IterableBitSet<N>& s, std::initializer_list<size_t> list)
 		auto e = *f++;
 		for (auto i = b; i != e; ++i) v.push_back(i);
 	}
-	rg::sort(v);
+	ranges::sort(v);
 	v.erase(std::unique(v.begin(), v.end()), v.end());
 
 	expect(s, v);

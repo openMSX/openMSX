@@ -1,18 +1,14 @@
 #include "OggReader.hh"
-
-#include "CliComm.hh"
 #include "MSXException.hh"
-#include "MemoryOps.hh"
 #include "yuv2rgb.hh"
-
+#include "CliComm.hh"
+#include "MemoryOps.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stringsp.hh" // for strncasecmp
 #include "view.hh"
 #include "xrange.hh"
-
-#include <algorithm>
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
 #include <memory>
@@ -22,8 +18,6 @@
 // - When an non-ogg file is passed, the entire file is scanned
 // - Clean up this mess!
 namespace openmsx {
-
-namespace rg = std::ranges;
 
 Frame::Frame(const th_ycbcr_buffer& yuv)
 {
@@ -458,8 +452,8 @@ void OggReader::readMetadata(th_comment& tc)
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
-	rg::sort(stopFrames);
-	rg::sort(chapters, {}, &ChapterFrame::chapter);
+	ranges::sort(stopFrames);
+	ranges::sort(chapters, {}, &ChapterFrame::chapter);
 }
 
 void OggReader::readTheora(ogg_packet* packet)

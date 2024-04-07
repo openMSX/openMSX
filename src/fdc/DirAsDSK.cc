@@ -1,30 +1,25 @@
 #include "DirAsDSK.hh"
-
-#include "BootBlocks.hh"
-#include "CliComm.hh"
 #include "DiskChanger.hh"
+#include "Scheduler.hh"
+#include "CliComm.hh"
+#include "BootBlocks.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "ReadDir.hh"
-#include "Scheduler.hh"
-
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
-
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
 
-namespace openmsx {
-
 using std::string;
 using std::vector;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned SECTORS_PER_DIR = 7;
@@ -716,7 +711,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	rg::sort(hostNames, {}, [](const string& n) { return weight(n); });
+	ranges::sort(hostNames, {}, [](const string& n) { return weight(n); });
 
 	for (auto& hostName : hostNames) {
 		try {

@@ -50,13 +50,11 @@
 
 #include <SDL.h>
 
-#include <algorithm>
 #include <optional>
 
-namespace openmsx {
-
 using namespace std::literals;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 ImGuiSettings::~ImGuiSettings()
 {
@@ -290,7 +288,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				rg::sort(names, StringOp::caseless{});
+				ranges::sort(names, StringOp::caseless{});
 				return names;
 			};
 			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
@@ -382,7 +380,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				if (dynamic_cast<ReadOnlySetting*>(setting)) continue;
 				settings.push_back(checked_cast<Setting*>(setting));
 			}
-			rg::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
+			ranges::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
 			for (auto* setting : settings) {
 				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
 					Checkbox(hotKey, *bSetting);
@@ -1130,7 +1128,7 @@ std::span<const std::string> ImGuiSettings::getAvailableFonts()
 			});
 		}
 		// sort and remove duplicates
-		rg::sort(availableFonts);
+		ranges::sort(availableFonts);
 		availableFonts.erase(ranges::unique(availableFonts), end(availableFonts));
 	}
 	return availableFonts;

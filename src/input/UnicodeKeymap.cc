@@ -10,14 +10,12 @@
 #include "ranges.hh"
 #include "stl.hh"
 
-#include <algorithm>
 #include <bit>
 #include <optional>
 
-namespace openmsx {
-
 using std::string_view;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 /** Parses the given string as a hexadecimal integer.
   */
@@ -225,7 +223,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 		}
 	}
 
-	rg::sort(mapData, {}, &Entry::unicode);
+	ranges::sort(mapData, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

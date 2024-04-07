@@ -1,25 +1,19 @@
 #include "EnumSetting.hh"
-
-#include "CommandException.hh"
-#include "Completer.hh"
 #include "TclObject.hh"
-
+#include "Completer.hh"
+#include "CommandException.hh"
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh"
 #include "view.hh"
 
-#include <algorithm>
-
 namespace openmsx {
-
-namespace rg = std::ranges;
 
 EnumSettingBase::EnumSettingBase(Map&& map)
 	: baseMap(std::move(map))
 {
-	rg::sort(baseMap, StringOp::caseless{}, &MapEntry::name);
+	ranges::sort(baseMap, StringOp::caseless{}, &MapEntry::name);
 }
 
 int EnumSettingBase::fromStringBase(std::string_view str) const

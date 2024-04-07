@@ -1,43 +1,39 @@
 #include "CommandLineParser.hh"
-
-#include "CliConnection.hh"
-#include "ConfigException.hh"
-#include "EnumSetting.hh"
-#include "File.hh"
-#include "FileContext.hh"
-#include "FileException.hh"
-#include "FileOperations.hh"
-#include "GlobalCliComm.hh"
 #include "GlobalCommandController.hh"
 #include "Interpreter.hh"
-#include "Reactor.hh"
-#include "RomInfo.hh"
 #include "SettingsConfig.hh"
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
+#include "GlobalCliComm.hh"
 #include "StdioMessages.hh"
 #include "Version.hh"
+#include "CliConnection.hh"
+#include "ConfigException.hh"
+#include "FileException.hh"
+#include "EnumSetting.hh"
 #include "XMLException.hh"
-
 #include "StringOp.hh"
+#include "xrange.hh"
+#include "Reactor.hh"
+#include "RomInfo.hh"
 #include "hash_map.hh"
 #include "one_of.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
 #include "xxhash.hh"
-
 #include "build-info.hh"
-
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <memory>
 
-namespace openmsx {
-
 using std::cout;
 using std::string;
 using std::string_view;
-namespace rg = std::ranges;
+
+namespace openmsx {
 
 // class CommandLineParser
 
@@ -72,8 +68,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
-	rg::sort(options, {}, &OptionData::name);
-	rg::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
+	ranges::sort(options, {}, &OptionData::name);
+	ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
 }
 
 void CommandLineParser::registerOption(
@@ -433,7 +429,7 @@ static void printItemMap(const GroupedItems& itemMap)
 		return strCat(formatSet(p.second, 15), ' ',
 		              formatHelpText(p.first, 50, 20));
 	}));
-	rg::sort(printSet);
+	ranges::sort(printSet);
 	for (auto& s : printSet) {
 		cout << s << '\n';
 	}

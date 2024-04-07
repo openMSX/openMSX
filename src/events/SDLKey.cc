@@ -1,14 +1,10 @@
 #include "SDLKey.hh"
-
 #include "StringOp.hh"
 #include "one_of.hh"
-
-#include <algorithm>
+#include "ranges.hh"
 #include <array>
 
 namespace openmsx {
-
-namespace rg = std::ranges;
 
 // We prefer to use 'SDL_GetKeyFromName()' to translate a name into a Keycode.
 // That way when new keys are added to SDL2, these immediately work in openMSX.
@@ -100,7 +96,7 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	};
 	static constexpr auto map = []{
 		auto result = unsortedMap;
-		rg::sort(result, {}, &M::name);
+		ranges::sort(result, {}, &M::name);
 		return result;
 	}();
 
