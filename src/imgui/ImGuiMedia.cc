@@ -234,7 +234,7 @@ static std::string hdFilter()
 
 static std::string cdFilter()
 {
-	return buildFilter("CDROM images", std::array{"dsk"sv}); // TODO correct ??
+	return buildFilter("CDROM images", std::array{"iso"sv});
 }
 
 template<std::invocable<const std::string&> DisplayFunc = std::identity>
