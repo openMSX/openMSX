@@ -5,7 +5,9 @@
 #include "vla.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
+
 #include <tcl.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -31,6 +33,7 @@ class TclObject
 		using difference_type   = ptrdiff_t;
 		using iterator_category = std::bidirectional_iterator_tag;
 
+		iterator() : obj(nullptr), i(0) {}
 		iterator(const TclObject& obj_, unsigned i_)
 			: obj(&obj_), i(i_) {}
 
@@ -65,6 +68,7 @@ class TclObject
 		const TclObject* obj;
 		unsigned i;
 	};
+	static_assert(std::bidirectional_iterator<iterator>);
 
 public:
 	TclObject()                                  { init(Tcl_NewObj()); }
