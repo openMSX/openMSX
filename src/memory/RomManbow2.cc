@@ -83,7 +83,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 	if (psg) {
 		auto& cpuInterface = getCPUInterface();
 		for (auto port : {0x10, 0x11}) {
-			cpuInterface.register_IO_Out(port, this);
+			cpuInterface.register_IO_Out(narrow_cast<byte>(port), this);
 		}
 		cpuInterface.register_IO_In(0x12, this);
 	}
@@ -94,7 +94,7 @@ RomManbow2::~RomManbow2()
 	if (psg) {
 		auto& cpuInterface = getCPUInterface();
 		for (auto port : {0x10, 0x11}) {
-			cpuInterface.unregister_IO_Out(port, this);
+			cpuInterface.unregister_IO_Out(narrow_cast<byte>(port), this);
 		}
 		cpuInterface.unregister_IO_In(0x12, this);
 	}

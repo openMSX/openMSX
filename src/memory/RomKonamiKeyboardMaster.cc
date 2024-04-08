@@ -20,8 +20,8 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x00, 0x20}) {
-		cpuInterface.register_IO_Out(port, this);
-		cpuInterface.register_IO_In (port, this);
+		cpuInterface.register_IO_Out(narrow_cast<byte>(port), this);
+		cpuInterface.register_IO_In (narrow_cast<byte>(port), this);
 	}
 }
 
@@ -29,8 +29,8 @@ RomKonamiKeyboardMaster::~RomKonamiKeyboardMaster()
 {
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x00, 0x20}) {
-		cpuInterface.unregister_IO_Out(port, this);
-		cpuInterface.unregister_IO_In (port, this);
+		cpuInterface.unregister_IO_Out(narrow_cast<byte>(port), this);
+		cpuInterface.unregister_IO_In (narrow_cast<byte>(port), this);
 	}
 }
 

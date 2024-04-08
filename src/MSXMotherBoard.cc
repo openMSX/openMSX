@@ -705,8 +705,8 @@ MSXMapperIO& MSXMotherBoard::createMapperIO()
 
 		MSXCPUInterface& cpuInterface = getCPUInterface();
 		for (auto port : {0xfc, 0xfd, 0xfe, 0xff}) {
-			cpuInterface.register_IO_Out(port, mapperIO.get());
-			cpuInterface.register_IO_In (port, mapperIO.get());
+			cpuInterface.register_IO_Out(narrow_cast<byte>(port), mapperIO.get());
+			cpuInterface.register_IO_In (narrow_cast<byte>(port), mapperIO.get());
 		}
 	}
 	++mapperIOCounter;
@@ -721,8 +721,8 @@ void MSXMotherBoard::destroyMapperIO()
 	if (mapperIOCounter == 0) {
 		MSXCPUInterface& cpuInterface = getCPUInterface();
 		for (auto port : {0xfc, 0xfd, 0xfe, 0xff}) {
-			cpuInterface.unregister_IO_Out(port, mapperIO.get());
-			cpuInterface.unregister_IO_In (port, mapperIO.get());
+			cpuInterface.unregister_IO_Out(narrow_cast<byte>(port), mapperIO.get());
+			cpuInterface.unregister_IO_In (narrow_cast<byte>(port), mapperIO.get());
 		}
 
 		mapperIO.reset();

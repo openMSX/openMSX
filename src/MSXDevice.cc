@@ -334,20 +334,20 @@ void MSXDevice::registerPorts()
 	}
 	// .. and only then register the ports. This filters possible overlaps.
 	inPorts.foreachSetBit([&](auto port) {
-		getCPUInterface().register_IO_In(byte(port), this);
+		getCPUInterface().register_IO_In(narrow_cast<byte>(port), this);
 	});
 	outPorts.foreachSetBit([&](auto port) {
-		getCPUInterface().register_IO_Out(byte(port), this);
+		getCPUInterface().register_IO_Out(narrow_cast<byte>(port), this);
 	});
 }
 
 void MSXDevice::unregisterPorts()
 {
 	inPorts.foreachSetBit([&](auto port) {
-		getCPUInterface().unregister_IO_In(byte(port), this);
+		getCPUInterface().unregister_IO_In(narrow_cast<byte>(port), this);
 	});
 	outPorts.foreachSetBit([&](auto port) {
-		getCPUInterface().unregister_IO_Out(byte(port), this);
+		getCPUInterface().unregister_IO_Out(narrow_cast<byte>(port), this);
 	});
 }
 
