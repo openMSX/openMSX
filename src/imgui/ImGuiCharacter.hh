@@ -23,6 +23,7 @@ private:
 	static void renderPatterns(int mode, std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette,
 	                           int fgCol, int bgCol, int fgBlink, int bgBlink,
 	                           int patBase, int colBase, int lines, std::span<uint32_t> pixels);
+	void initHexDigits();
 
 public:
 	bool show = false;
@@ -31,6 +32,7 @@ private:
 	int manual = 0;
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
 	bool grid = true;
+	bool nameTableOverlay = false;
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
 
 	enum CharScrnMode : int { TEXT40, TEXT80, SCR1, SCR2, SCR3, SCR4, OTHER };
@@ -48,12 +50,14 @@ private:
 
 	gl::Texture patternTex{gl::Null{}}; // TODO also deallocate when needed
 	gl::Texture gridTex   {gl::Null{}};
+	gl::Texture smallHexDigits{gl::Null{}};
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"show",      &ImGuiCharacter::show},
 		PersistentElementMax{"override",  &ImGuiCharacter::manual, 2},
 		PersistentElementMax{"zoom",      &ImGuiCharacter::zoom, 8},
 		PersistentElement   {"showGrid",  &ImGuiCharacter::grid},
+		PersistentElement   {"overlay",   &ImGuiCharacter::nameTableOverlay},
 		PersistentElement   {"gridColor", &ImGuiCharacter::gridColor},
 		PersistentElementMax{"mode",      &ImGuiCharacter::manualMode, OTHER}, // TEXT40..SCR4
 		PersistentElementMax{"fgCol",     &ImGuiCharacter::manualFgCol, 16},
