@@ -8,6 +8,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "KeyMappings.hh"
 
 #include "ranges.hh"
 
@@ -283,14 +284,31 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 	return "";
 }
 
-// adapted from imgui_internal.h
-std::string getKeyChordName(ImGuiKeyChord keychord)
+std::string getKeyChordName(ImGuiKeyChord keyChord)
 {
-	return strCat((keychord & ImGuiMod_Ctrl ? "Ctrl+" : ""),
-		(keychord & ImGuiMod_Shift ? "Shift+" : ""),
-		(keychord & ImGuiMod_Alt ? "Alt+" : ""),
-		(keychord & ImGuiMod_Super ? (ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") : ""),
-		ImGui::GetKeyName(ImGuiKey(keychord & ~ImGuiMod_Mask_)));
+	int keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
+	auto name = SDL_GetKeyName(keyCode);
+	return strCat((keyChord & ImGuiMod_Ctrl ? "Ctrl+"  : ""),
+		(keyChord & ImGuiMod_Shift      ? "Shift+" : ""),
+		(keyChord & ImGuiMod_Alt        ? "Alt+"   : ""),
+		(keyChord & ImGuiMod_Super      ? (ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") : ""),
+		name && std::strlen(name)       ? name     : "None");
+}
+
+std::optional<ImGuiKeyChord> getKeyChordValue(std::string_view name)
+{
+	ImGuiKeyChord keyMods = {};
+	keyMods |= name.find("Ctrl+")  != std::string_view::npos ? ImGuiMod_Ctrl  : 0;
+	keyMods |= name.find("Shift+") != std::string_view::npos ? ImGuiMod_Shift : 0;
+	keyMods |= name.find("Alt+")   != std::string_view::npos ? ImGuiMod_Alt   : 0;
+	keyMods |= name.find(ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") != std::string::npos ? ImGuiMod_Super : 0;
+	// get the substring after the '+' separator in the expected (mod '+')*key format
+	auto pos = name.find_last_of('+');
+	std::string suffix = std::string(pos == std::string_view::npos ? name : name.substr(pos + 1));
+	SDL_Keycode keyCode = SDL_GetKeyFromName(suffix.c_str());
+	// extra step to distinguish undefined from a parse error
+	if (keyCode == SDLK_UNKNOWN && suffix != "None") return {};
+	return (keyCode != SDLK_UNKNOWN ? keyMods : 0) | SDLKey2ImGui(keyCode);
 }
 
 void setColors(int style)

@@ -47,7 +47,6 @@ private:
 	bool showFont = false;
 	bool showShortcut = false;
 	bool showDemoWindow = false;
-	bool showShortcutModal = false;
 
 	unsigned joystick = 0;
 	unsigned popupForKey = unsigned(-1);

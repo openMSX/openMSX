@@ -18,17 +18,25 @@ class GlobalSettings;
 class SettingsConfig;
 
 enum ShortcutIndex {
-	GOTO_MEMORY_ADDRESS = 0,
-	GOTO_DISASM_ADDRESS,
+	HEX_GOTO_ADDR = 0,
+	STEP,
+	BREAK,
+	DISASM_GOTO_ADDR,
+	HEX_MOVE_UP,
+	HEX_MOVE_DOWN,
+	HEX_MOVE_LEFT,
+	HEX_MOVE_RIGHT,
 	NUM_SHORTCUTS,
+
+	INVALID,
 };
 
 enum ShortcutType {
-	LOCAL,    // if ImGui widget has focus
-	GLOBAL,   // inside ImGui layer only
+	LOCAL,
+	GLOBAL,
 };
 
-class Shortcuts final
+class Shortcuts
 {
 public:
 	Shortcuts(const Shortcuts&) = delete;
@@ -37,14 +45,19 @@ public:
 
 	// Shortcuts
 	struct Data {
-		ImGuiKeyChord keychord;
-		bool local = false;
+		ImGuiKeyChord keyChord;
+		ShortcutType type;
 		bool repeat = false;
+		[[nodiscard]] bool operator==(const Data& other) const = default;
 	};
-	static std::string getShortcutName(ShortcutIndex index);
-	static std::string getShortcutDescription(ShortcutIndex index);
-	Shortcuts::Data& getShortcut(ShortcutIndex index);
-	void setShortcut(ShortcutIndex index, std::optional<ImGuiKeyChord> keychord = {}, std::optional<bool> local = {}, std::optional<bool> repeat = {});
+	static std::string_view getShortcutName(ShortcutIndex index);
+	static std::string_view getLargerDescription();
+	static std::string_view getShortcutDescription(ShortcutIndex index);
+	static std::optional<ShortcutIndex> getShortcutIndex(std::string_view name);
+	static std::optional<ShortcutType> getShortcutTypeValue(std::string_view name);
+	const Shortcuts::Data& getShortcut(ShortcutIndex index);
+	static const Shortcuts::Data& getDefaultShortcut(ShortcutIndex index);
+	void setShortcut(ShortcutIndex index, std::optional<ImGuiKeyChord> keyChord = {}, std::optional<ShortcutType> type = {}, std::optional<bool> repeat = {});
 	void setDefaultShortcut(ShortcutIndex index);
 	bool checkShortcut(ShortcutIndex index);
 
@@ -52,18 +65,20 @@ public:
 	void saveShortcuts(XmlStream& xml) const
 	{
 		int index = 0;
-		xml.begin("shortcuts");
-		for (const auto& data : shortcuts) {
-			xml.begin("shortcut");
-			if (data.keychord != ImGuiKey_None) {
-				xml.attribute("keychord", std::to_string(static_cast<int>(data.keychord)));
+		xml.with_tag("shortcuts", [&]{
+			for (auto it = shortcuts.begin(); it != shortcuts.end(); ++it, ++index) {
+				const auto& data = *it;
+				if (data == getDefaultShortcut(static_cast<ShortcutIndex>(index))) {
+					continue;
+				}
+				xml.with_tag("shortcut", [&]{
+					xml.attribute("key", getKeyChordName(data.keyChord));
+					if (data.type == GLOBAL) xml.attribute("type", "global");
+					if (data.repeat) xml.attribute("repeat", "true");
+					xml.data(getShortcutName(static_cast<ShortcutIndex>(index)));
+				});
 			}
-			if (data.repeat) xml.attribute("repeat", "true");
-			if (data.local) xml.attribute("local", "true");
-			xml.data(std::to_string(static_cast<int>(index++)));
-			xml.end("shortcut");
-		}
-		xml.end("shortcuts");
+		});
 	}
 
 	void setDefaultShortcuts();

@@ -37,7 +37,13 @@ struct SettingsParser : rapidsax::NullHandler
 	std::vector<Setting> settings;
 	std::vector<HotKey::Data> binds;
 	std::vector<std::string_view> unbinds;
-	std::vector<std::pair<int, Shortcuts::Data>> shortcutTuples;
+
+	struct ShortcutItem {
+		ShortcutIndex index = ShortcutIndex::INVALID;
+		Shortcuts::Data data = {};
+	};
+	std::vector<ShortcutItem> shortcutItems;
+
 	std::string_view systemID;
 
 	// parse state
@@ -56,9 +62,8 @@ struct SettingsParser : rapidsax::NullHandler
 	} state = START;
 	Setting currentSetting;
 	HotKey::Data currentBind;
-	ShortcutIndex currentShortcutIndex;
-	Shortcuts::Data currentShortcut;
 	std::string_view currentUnbind;
+	ShortcutItem currentShortcut;
 };
 
 SettingsConfig::SettingsConfig(
@@ -134,8 +139,8 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	}
 
 	shortcuts->setDefaultShortcuts();
-	for (const auto& [index, shortcut]: parser.shortcutTuples) {
-		shortcuts->setShortcut(static_cast<ShortcutIndex>(index), shortcut.keychord, shortcut.local, shortcut.repeat);
+	for (const auto& item: parser.shortcutItems) {
+		shortcuts->setShortcut(static_cast<ShortcutIndex>(item.index), item.data.keyChord, item.data.type, item.data.repeat);
 	}
 
 	getSettingsManager().loadSettings(*this);
@@ -327,7 +332,7 @@ void SettingsParser::start(std::string_view tag)
 	case SHORTCUTS:
 		if (tag == "shortcut") {
 			state = SHORTCUT;
-			currentShortcut = Shortcuts::Data{};
+			currentShortcut = ShortcutItem{};
 			return;
 		}
 		break;
@@ -356,13 +361,22 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 		}
 		break;
 	case SHORTCUT:
-		if (name == "keychord") {
-			if (auto keychord = StringOp::stringTo<int>(value))
-				currentShortcut.keychord = static_cast<ImGuiKeyChord>(*keychord);
-		} else if (name == "local") {
-			currentShortcut.local = StringOp::stringToBool(value);
+		if (name == "key") {
+			if (auto keyChord = getKeyChordValue(value)) {
+				currentShortcut.data.keyChord = *keyChord;
+			} else {
+				std::cerr << "Parse error: invalid shortcut key \"" << value << "\"\n";
+				currentShortcut.index = ShortcutIndex::INVALID;
+			}
+		} else if (name == "type") {
+			if (auto type = Shortcuts::getShortcutTypeValue(value)) {
+				currentShortcut.data.type = *type;
+			} else {
+				std::cerr << "Parse error: invalid shortcut type \"" << value << "\"\n";
+				currentShortcut.index = ShortcutIndex::INVALID;
+			}
 		} else if (name == "repeat") {
-			currentShortcut.repeat = StringOp::stringToBool(value);
+			currentShortcut.data.repeat = StringOp::stringToBool(value);
 		}
 		break;
 	case BIND:
@@ -398,8 +412,12 @@ void SettingsParser::text(std::string_view txt)
 		currentBind.cmd = txt;
 		break;
 	case SHORTCUT:
-		if (auto value = StringOp::stringTo<int>(txt))
-			currentShortcutIndex = static_cast<ShortcutIndex>(*value);
+		if (auto value = Shortcuts::getShortcutIndex(txt)) {
+			currentShortcut.index = *value;
+		} else {
+			std::cerr << "Parse error: invalid shortcut \"" << txt << "\"\n";
+			currentShortcut.index = ShortcutIndex::INVALID;
+		}
 		break;
 	default:
 		break; //nothing
@@ -445,9 +463,8 @@ void SettingsParser::stop()
 		state = BINDINGS;
 		break;
 	case SHORTCUT:
-		if (currentShortcut.keychord != ImGuiKey_None) {
-			shortcutTuples.push_back(std::pair(currentShortcutIndex, currentShortcut));
-		}
+		if (currentShortcut.index != ShortcutIndex::INVALID)
+			shortcutItems.push_back(currentShortcut);
 		state = SHORTCUTS;
 		break;
 	case START:
