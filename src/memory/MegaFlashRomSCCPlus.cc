@@ -188,14 +188,14 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 {
 	powerUp(getCurrentTime());
 	for (auto port : {0x10, 0x11}) {
-		getCPUInterface().register_IO_Out(port, this);
+		getCPUInterface().register_IO_Out(narrow_cast<byte>(port), this);
 	}
 }
 
 MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 {
 	for (auto port : {0x10, 0x11}) {
-		getCPUInterface().unregister_IO_Out(port, this);
+		getCPUInterface().unregister_IO_Out(narrow_cast<byte>(port), this);
 	}
 }
 

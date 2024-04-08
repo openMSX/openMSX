@@ -27,7 +27,7 @@ ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	}
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x50, 0x51, 0x53, 0x7F}) {
-		cpuInterface.register_IO_Out(port, this);
+		cpuInterface.register_IO_Out(narrow_cast<byte>(port), this);
 	}
 	cpuInterface.register_IO_In(0x52, this);
 	reset(getCurrentTime());
@@ -37,7 +37,7 @@ ColecoSuperGameModule::~ColecoSuperGameModule()
 {
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x50, 0x51, 0x53, 0x7F}) {
-		cpuInterface.unregister_IO_Out(port, this);
+		cpuInterface.unregister_IO_Out(narrow_cast<byte>(port), this);
 	}
 	cpuInterface.unregister_IO_In(0x52, this);
 }

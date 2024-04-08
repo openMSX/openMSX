@@ -75,7 +75,7 @@ ReproCartridgeV2::ReproCartridgeV2(
 	powerUp(getCurrentTime());
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x10, 0x11, 0x31, 0x33, 0xA0, 0xA1}) {
-		cpuInterface.register_IO_Out(port, this);
+		cpuInterface.register_IO_Out(narrow_cast<byte>(port), this);
 	}
 }
 
@@ -83,7 +83,7 @@ ReproCartridgeV2::~ReproCartridgeV2()
 {
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x10, 0x11, 0x31, 0x33, 0xA0, 0xA1}) {
-		cpuInterface.unregister_IO_Out(port, this);
+		cpuInterface.unregister_IO_Out(narrow_cast<byte>(port), this);
 	}
 }
 
