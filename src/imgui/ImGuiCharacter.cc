@@ -377,7 +377,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 								gl::vec2 p1 = scrnPos + charZoom * gl::vec2{float(column), float(row)};
 								gl::vec2 p2 = p1 + digitOffset;
 								auto pattern = getPattern(column, row);
-								gl::vec2 uv1{(pattern >> 4) * texDigitWidth, 0.0f};
+								gl::vec2 uv1{narrow_cast<float>(pattern >> 4) * texDigitWidth, 0.0f};
 								gl::vec2 uv2{(pattern & 15) * texDigitWidth, 0.0f};
 								drawList->PrimRectUV(p1, p1 + digitSize, uv1, uv1 + texDigitSize, 0xffffffff);
 								drawList->PrimRectUV(p2, p2 + digitSize, uv2, uv2 + texDigitSize, 0xffffffff);
