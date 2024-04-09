@@ -1,12 +1,12 @@
 #ifndef SYMBOL_MANAGER_HH
 #define SYMBOL_MANAGER_HH
 
+#include "function_ref.hh"
 #include "hash_map.hh"
 #include "zstring_view.hh"
 
 #include <cassert>
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <span>
 #include <string>
@@ -91,7 +91,7 @@ public:
 	[[nodiscard]] static SymbolFile::Type detectType(const std::string& filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadLines(
 		const std::string& filename, std::string_view buffer, SymbolFile::Type type,
-		std::function<std::optional<Symbol>(std::span<std::string_view>)> lineParser);
+		function_ref<std::optional<Symbol>(std::span<std::string_view>)> lineParser);
 	[[nodiscard]] static SymbolFile loadGeneric(const std::string& filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadNoICE(const std::string& filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadHTC(const std::string& filename, std::string_view buffer);

@@ -22,10 +22,11 @@
 #include "Event.hh"
 #include "JoystickId.hh"
 
+#include "function_ref.hh"
+
 #include <SDL.h>
 
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -123,12 +124,12 @@ using BooleanInput = std::variant<
 
 [[nodiscard]] std::string toString(const BooleanInput& input);
 [[nodiscard]] std::optional<BooleanInput> parseBooleanInput(std::string_view text);
-[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(JoystickId)> getJoyDeadZone);
+[[nodiscard]] std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone);
 
 [[nodiscard]] bool operator==(const BooleanInput& x, const BooleanInput& y);
 
 [[nodiscard]] std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                                        std::function<int(JoystickId)> getJoyDeadZone);
+                                        function_ref<int(JoystickId)> getJoyDeadZone);
 
 } // namespace openmsx
 

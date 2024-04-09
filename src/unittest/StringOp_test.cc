@@ -78,7 +78,7 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 }
 
 template<StringOp::KeepOrRemoveEmptyParts keepOrRemove, typename Separators>
-static void checkSplit(Separators separators, const string& s, const std::vector<string_view> expected)
+static void checkSplit(Separators separators, const string& s, const std::vector<string_view>& expected)
 {
 	//CHECK(split(s, '-') == expected);
 

@@ -1,6 +1,8 @@
 #include "Dasm.hh"
+
 #include "DasmTables.hh"
 #include "MSXCPUInterface.hh"
+
 #include "narrow.hh"
 #include "strCat.hh"
 
@@ -23,7 +25,7 @@ void appendAddrAsHex(std::string& output, uint16_t addr)
 
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
               std::string& dest, EmuTime::param time,
-              std::function<void(std::string&, uint16_t)> appendAddr)
+              function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	const char* r = nullptr;
 

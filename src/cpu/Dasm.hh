@@ -3,6 +3,8 @@
 
 #include "EmuTime.hh"
 
+#include "function_ref.hh"
+
 #include <cstdint>
 #include <functional>
 #include <span>
@@ -25,7 +27,7 @@ void appendAddrAsHex(std::string& output, uint16_t addr);
   */
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
               std::string& dest, EmuTime::param time,
-              std::function<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
+              function_ref<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
 
 /** Calculate the length of the instruction at the given address.
   * This is exactly the same value as calculated by the dasm() function above,

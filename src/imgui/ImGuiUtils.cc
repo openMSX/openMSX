@@ -82,7 +82,7 @@ bool Checkbox(const HotKey& hotKey, BooleanSetting& setting)
 	std::string name(setting.getBaseName());
 	return Checkbox(hotKey, name.c_str(), setting);
 }
-bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip)
+bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, function_ref<std::string(const Setting&)> getTooltip)
 {
 	bool value = setting.getBoolean();
 	bool changed = ImGui::Checkbox(label, &value);
@@ -160,7 +160,7 @@ bool InputText(const char* label, Setting& setting)
 	return changed;
 }
 
-void ComboBox(const char* label, Setting& setting, std::function<std::string(const std::string&)> displayValue, EnumToolTips toolTips)
+void ComboBox(const char* label, Setting& setting, function_ref<std::string(const std::string&)> displayValue, EnumToolTips toolTips)
 {
 	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
 	assert(enumSetting);

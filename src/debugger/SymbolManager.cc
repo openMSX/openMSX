@@ -91,7 +91,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 
 [[nodiscard]] SymbolFile SymbolManager::loadLines(
 	const std::string& filename, std::string_view buffer, SymbolFile::Type type,
-	std::function<std::optional<Symbol>(std::span<std::string_view>)> lineParser)
+	function_ref<std::optional<Symbol>(std::span<std::string_view>)> lineParser)
 {
 	SymbolFile result;
 	result.filename = filename;

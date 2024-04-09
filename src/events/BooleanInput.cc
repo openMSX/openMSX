@@ -115,7 +115,7 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 	return std::nullopt;
 }
 
-std::optional<BooleanInput> captureBooleanInput(const Event& event, std::function<int(JoystickId)> getJoyDeadZone)
+std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref<int(JoystickId)> getJoyDeadZone)
 {
 	return std::visit(overloaded{
 		[](const KeyDownEvent& e) -> std::optional<BooleanInput> {
@@ -182,7 +182,7 @@ bool operator==(const BooleanInput& x, const BooleanInput& y)
 }
 
 std::optional<bool> match(const BooleanInput& binding, const Event& event,
-                          std::function<int(JoystickId)> getJoyDeadZone)
+                          function_ref<int(JoystickId)> getJoyDeadZone)
 {
 	return std::visit(overloaded{
 		[](const BooleanKeyboard& bind, const KeyDownEvent& down) -> std::optional<bool> {

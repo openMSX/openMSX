@@ -11,6 +11,7 @@
 #include "TclObject.hh"
 
 #include "circular_buffer.hh"
+#include "function_ref.hh"
 #include "zstring_view.hh"
 
 #include <array>
@@ -111,13 +112,13 @@ public:
 	static std::string diskFilter();
 
 private:
-	bool selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc, float width);
+	bool selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width);
 	bool selectImage(ItemGroup& group, const std::string& title,
-	                 std::function<std::string()> createFilter, zstring_view current,
-	                 std::function<std::string(const std::string&)> displayFunc = std::identity{},
-	                 std::function<void()> createNewCallback = {});
+	                 function_ref<std::string()> createFilter, zstring_view current,
+	                 function_ref<std::string(const std::string&)> displayFunc = std::identity{},
+	                 const std::function<void()>& createNewCallback = {});
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current,
-	                     std::function<void()> createNewCallback);
+	                     const std::function<void()>& createNewCallback);
 	bool selectPatches(MediaItem& item, int& patchIndex);
 	bool insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);

@@ -5,6 +5,7 @@
 
 #include "Reactor.hh"
 
+#include "function_ref.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
@@ -13,7 +14,6 @@
 
 #include <algorithm>
 #include <concepts>
-#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -94,7 +94,7 @@ struct GetSettingDescription {
 };
 
 bool Checkbox(const HotKey& hotkey, BooleanSetting& setting);
-bool Checkbox(const HotKey& hotkey, const char* label, BooleanSetting& setting, std::function<std::string(const Setting&)> getTooltip = GetSettingDescription{});
+bool Checkbox(const HotKey& hotkey, const char* label, BooleanSetting& setting, function_ref<std::string(const Setting&)> getTooltip = GetSettingDescription{});
 bool SliderInt(IntegerSetting& setting, ImGuiSliderFlags flags = 0);
 bool SliderInt(const char* label, IntegerSetting& setting, ImGuiSliderFlags flags = 0);
 bool SliderFloat(FloatSetting& setting, const char* format = "%.3f", ImGuiSliderFlags flags = 0);
@@ -103,7 +103,7 @@ bool InputText(Setting& setting);
 bool InputText(const char* label, Setting& setting);
 void ComboBox(Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
 void ComboBox(const char* label, Setting& setting, EnumToolTips toolTips = {}); // must be an EnumSetting
-void ComboBox(const char* label, Setting& setting, std::function<std::string(const std::string&)> displayValue, EnumToolTips toolTips = {});
+void ComboBox(const char* label, Setting& setting, function_ref<std::string(const std::string&)> displayValue, EnumToolTips toolTips = {});
 void ComboBox(VideoSourceSetting& setting);
 void ComboBox(const char* label, VideoSourceSetting& setting);
 

@@ -465,8 +465,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		};
 
 		auto showRecent = [&](std::string_view mediaName, ItemGroup& group,
-		                      std::function<std::string(const std::string&)> displayFunc = std::identity{},
-		                      std::function<void(const std::string&)> toolTip = {}) {
+		                      function_ref<std::string(const std::string&)> displayFunc = std::identity{},
+		                      const std::function<void(const std::string&)>& toolTip = {}) {
 			if (!group.recent.empty()) {
 				im::Indent([&] {
 					im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
@@ -747,7 +747,7 @@ static std::string leftClip(std::string_view s, float maxWidth)
 	return strCat("...", s.substr(len - num));
 }
 
-bool ImGuiMedia::selectRecent(ItemGroup& group, std::function<std::string(const std::string&)> displayFunc, float width)
+bool ImGuiMedia::selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width)
 {
 	bool interacted = false;
 	ImGui::SetNextItemWidth(-width);
@@ -779,9 +779,9 @@ static float calcButtonWidth(std::string_view text1, const char* text2)
 }
 
 bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
-                             std::function<std::string()> createFilter, zstring_view current,
-                             std::function<std::string(const std::string&)> displayFunc,
-                             std::function<void()> createNewCallback)
+                             function_ref<std::string()> createFilter, zstring_view current,
+                             function_ref<std::string(const std::string&)> displayFunc,
+                             const std::function<void()>& createNewCallback)
 {
 	bool interacted = false;
 	im::ID("file", [&]{
@@ -810,7 +810,7 @@ bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
 }
 
 bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zstring_view current,
-                                 std::function<void()> createNewCallback)
+                                 const std::function<void()>& createNewCallback)
 {
 	bool interacted = false;
 	im::ID("directory", [&]{

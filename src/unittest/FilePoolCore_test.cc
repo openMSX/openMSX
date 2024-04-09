@@ -11,7 +11,7 @@
 
 using namespace openmsx;
 
-static void createFile(const std::string filename, const std::string content)
+static void createFile(const std::string& filename, const std::string& content)
 {
 	std::ofstream of(filename);
 	of << content;
