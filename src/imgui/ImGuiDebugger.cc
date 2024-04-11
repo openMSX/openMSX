@@ -223,15 +223,16 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 
 		auto& shortcuts = manager.getShortcuts();
 		bool breaked = cpuInterface.isBreaked();
+		using enum Shortcuts::ID;
 		if (breaked) {
-			if (shortcuts.checkShortcut(ShortcutIndex::BREAK)) {
+			if (shortcuts.checkShortcut(BREAK)) {
 				cpuInterface.doContinue();
 			}
 			if (ButtonGlyph("run", DEBUGGER_ICON_RUN)) {
 				cpuInterface.doContinue();
 			}
 		} else {
-			if (shortcuts.checkShortcut(ShortcutIndex::BREAK)) {
+			if (shortcuts.checkShortcut(BREAK)) {
 				cpuInterface.doBreak();
 			}
 			if (ButtonGlyph("break", DEBUGGER_ICON_BREAK)) {
@@ -242,7 +243,7 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 		ImGui::SetCursorPosX(50.0f);
 
 		im::Disabled(!breaked, [&]{
-			if (shortcuts.checkShortcut(ShortcutIndex::STEP)) {
+			if (shortcuts.checkShortcut(STEP)) {
 				cpuInterface.doStep();
 			}
 			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN)) {
@@ -503,7 +504,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
-							if (manager.getShortcuts().checkShortcut(ShortcutIndex::DISASM_GOTO_ADDR)) {
+							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_GOTO_ADDR)) {
+								// TODO this is insufficent:
+								// it opens the popup, but doesn't focus the correct input field
 								ImGui::OpenPopup("disassembly-context");
 							}
 							if (!bpRightClick && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {

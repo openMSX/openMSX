@@ -243,13 +243,14 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
 	if (addrMode == CURSOR) {
 		auto& shortcuts = manager.getShortcuts();
-		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_UP) && int(currentAddr) >= columns)
+		using enum Shortcuts::ID;
+		if (shortcuts.checkShortcut(HEX_MOVE_UP) && int(currentAddr) >= columns)
 			nextAddr = currentAddr - columns;
-		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_DOWN) && int(currentAddr) < int(memSize - columns))
+		if (shortcuts.checkShortcut(HEX_MOVE_DOWN) && int(currentAddr) < int(memSize - columns))
 			nextAddr = currentAddr + columns;
-		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_LEFT) && int(currentAddr) > 0)
+		if (shortcuts.checkShortcut(HEX_MOVE_LEFT) && int(currentAddr) > 0)
 			nextAddr = currentAddr - 1;
-		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_RIGHT) && int(currentAddr) < int(memSize - 1))
+		if (shortcuts.checkShortcut(HEX_MOVE_RIGHT) && int(currentAddr) < int(memSize - 1))
 			nextAddr = currentAddr + 1;
 	}
 
@@ -483,7 +484,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					dataEditingTakeFocus = true;
 				}
 			}
-			if (manager.getShortcuts().checkShortcut(ShortcutIndex::HEX_GOTO_ADDR)) {
+			if (manager.getShortcuts().checkShortcut(Shortcuts::ID::HEX_GOTO_ADDR)) {
 				ImGui::SetKeyboardFocusHere(-1);
 			}
 			simpleToolTip([&]{

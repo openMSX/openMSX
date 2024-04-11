@@ -53,6 +53,7 @@ class ImGuiTrainer;
 class ImGuiVdpRegs;
 class ImGuiWatchExpr;
 class RomInfo;
+class SettingsConfig;
 
 class ImGuiManager final : public ImGuiPartInterface, private EventListener, private Observer<Setting>
 {

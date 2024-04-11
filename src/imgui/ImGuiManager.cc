@@ -41,6 +41,7 @@
 #include "RealDrive.hh"
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
+#include "SettingsConfig.hh"
 
 #include "stl.hh"
 #include "strCat.hh"
@@ -152,15 +153,15 @@ static void cleanupImGui()
 }
 
 
-ImGuiManager::ImGuiManager(Reactor& reactor_, SettingsConfig& config_)
+ImGuiManager::ImGuiManager(Reactor& reactor_, SettingsConfig& settingsConfig)
 	: reactor(reactor_)
-	, shortcuts(config_)
 	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "DejaVuSans.ttf.gz")
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
 	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
+	settingsConfig.setShortcuts(shortcuts);
 	parts.push_back(this);
 
 	// In order that they appear in the menubar

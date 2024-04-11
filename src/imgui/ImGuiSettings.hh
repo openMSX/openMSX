@@ -4,7 +4,6 @@
 #include "ImGuiPart.hh"
 
 #include "EventListener.hh"
-#include "Shortcuts.hh"
 
 #include <functional>
 #include <span>
@@ -17,7 +16,7 @@ class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
 	explicit ImGuiSettings(ImGuiManager& manager_)
-		: ImGuiPart(manager_) { }
+		: ImGuiPart(manager_) {}
 	~ImGuiSettings();
 
 	[[nodiscard]] zstring_view iniName() const override { return "settings"; }
@@ -39,8 +38,6 @@ private:
 	void paintShortcut();
 
 	std::span<const std::string> getAvailableFonts();
-	void paintShortcutTableItem(ShortcutIndex index);
-	bool shortcutAction(ShortcutIndex index);
 
 private:
 	bool showConfigureJoystick = false;

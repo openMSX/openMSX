@@ -284,31 +284,51 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 	return "";
 }
 
+[[nodiscard]] static std::string_view superName()
+{
+	return ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+";
+}
+
 std::string getKeyChordName(ImGuiKeyChord keyChord)
 {
 	int keyCode = ImGuiKey2SDL(ImGuiKey(keyChord & ~ImGuiMod_Mask_));
-	auto name = SDL_GetKeyName(keyCode);
-	return strCat((keyChord & ImGuiMod_Ctrl ? "Ctrl+"  : ""),
-		(keyChord & ImGuiMod_Shift      ? "Shift+" : ""),
-		(keyChord & ImGuiMod_Alt        ? "Alt+"   : ""),
-		(keyChord & ImGuiMod_Super      ? (ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") : ""),
-		name && std::strlen(name)       ? name     : "None");
+	const auto* name = SDL_GetKeyName(keyCode);
+	if (!name || (*name == '\0')) return "None";
+	return strCat(
+		(keyChord & ImGuiMod_Ctrl  ? "Ctrl+"  : ""),
+		(keyChord & ImGuiMod_Shift ? "Shift+" : ""),
+		(keyChord & ImGuiMod_Alt   ? "Alt+"   : ""),
+		(keyChord & ImGuiMod_Super ? superName() : ""),
+		name);
 }
 
-std::optional<ImGuiKeyChord> getKeyChordValue(std::string_view name)
+std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 {
-	ImGuiKeyChord keyMods = {};
-	keyMods |= name.find("Ctrl+")  != std::string_view::npos ? ImGuiMod_Ctrl  : 0;
-	keyMods |= name.find("Shift+") != std::string_view::npos ? ImGuiMod_Shift : 0;
-	keyMods |= name.find("Alt+")   != std::string_view::npos ? ImGuiMod_Alt   : 0;
-	keyMods |= name.find(ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+") != std::string::npos ? ImGuiMod_Super : 0;
-	// get the substring after the '+' separator in the expected (mod '+')*key format
-	auto pos = name.find_last_of('+');
-	std::string suffix = std::string(pos == std::string_view::npos ? name : name.substr(pos + 1));
-	SDL_Keycode keyCode = SDL_GetKeyFromName(suffix.c_str());
-	// extra step to distinguish undefined from a parse error
-	if (keyCode == SDLK_UNKNOWN && suffix != "None") return {};
-	return (keyCode != SDLK_UNKNOWN ? keyMods : 0) | SDLKey2ImGui(keyCode);
+	if (name == "None") return ImGuiKey_None;
+
+	// Similar to "StringOp::splitOnLast(name, '+')", but includes the last '+'
+	auto [modifiers, key] = [&]() -> std::pair<std::string_view, std::string_view> {
+		if (auto pos = name.find_last_of('+'); pos == std::string_view::npos) {
+			return {std::string_view{}, name};
+		} else {
+			return {name.substr(0, pos + 1), name.substr(pos + 1)};
+		}
+	}();
+
+	SDL_Keycode keyCode = SDL_GetKeyFromName(std::string(key).c_str());
+	if (keyCode == SDLK_UNKNOWN) return {};
+
+	auto contains = [](std::string_view haystack, std::string_view needle) {
+		// TODO in the future use c++23 std::string_view::contains()
+		return haystack.find(needle) != std::string_view::npos;
+	};
+	ImGuiKeyChord keyMods =
+		(contains(modifiers, "Ctrl+" ) ? ImGuiMod_Ctrl  : 0) |
+		(contains(modifiers, "Shift+") ? ImGuiMod_Shift : 0) |
+		(contains(modifiers, "Alt+"  ) ? ImGuiMod_Alt   : 0) |
+		(contains(modifiers, superName()) ? ImGuiMod_Super : 0);
+
+	return SDLKey2ImGui(keyCode) | keyMods;
 }
 
 void setColors(int style)

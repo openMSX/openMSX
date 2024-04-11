@@ -1,18 +1,20 @@
 #include "SettingsConfig.hh"
-#include "MSXException.hh"
-#include "StringOp.hh"
+
+#include "CliComm.hh"
+#include "CommandException.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "MemBuffer.hh"
-#include "CliComm.hh"
-#include "HotKey.hh"
-#include "Shortcuts.hh"
-#include "CommandException.hh"
 #include "GlobalCommandController.hh"
+#include "HotKey.hh"
+#include "MSXException.hh"
+#include "Shortcuts.hh"
 #include "TclObject.hh"
 #include "XMLOutputStream.hh"
+
+#include "MemBuffer.hh"
+#include "StringOp.hh"
 #include "outer.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
@@ -39,7 +41,7 @@ struct SettingsParser : rapidsax::NullHandler
 	std::vector<std::string_view> unbinds;
 
 	struct ShortcutItem {
-		ShortcutIndex index = ShortcutIndex::INVALID;
+		Shortcuts::ID id = Shortcuts::ID::INVALID;
 		Shortcuts::Data data = {};
 	};
 	std::vector<ShortcutItem> shortcutItems;
@@ -140,7 +142,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 
 	shortcuts->setDefaultShortcuts();
 	for (const auto& item: parser.shortcutItems) {
-		shortcuts->setShortcut(static_cast<ShortcutIndex>(item.index), item.data.keyChord, item.data.type, item.data.repeat);
+		shortcuts->setShortcut(item.id, item.data.keyChord, item.data.type, item.data.repeat);
 	}
 
 	getSettingsManager().loadSettings(*this);
@@ -362,18 +364,16 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 		break;
 	case SHORTCUT:
 		if (name == "key") {
-			if (auto keyChord = getKeyChordValue(value)) {
+			if (auto keyChord = parseKeyChord(value)) {
 				currentShortcut.data.keyChord = *keyChord;
 			} else {
 				std::cerr << "Parse error: invalid shortcut key \"" << value << "\"\n";
-				currentShortcut.index = ShortcutIndex::INVALID;
 			}
 		} else if (name == "type") {
-			if (auto type = Shortcuts::getShortcutTypeValue(value)) {
+			if (auto type = Shortcuts::parseType(value)) {
 				currentShortcut.data.type = *type;
 			} else {
 				std::cerr << "Parse error: invalid shortcut type \"" << value << "\"\n";
-				currentShortcut.index = ShortcutIndex::INVALID;
 			}
 		} else if (name == "repeat") {
 			currentShortcut.data.repeat = StringOp::stringToBool(value);
@@ -412,11 +412,10 @@ void SettingsParser::text(std::string_view txt)
 		currentBind.cmd = txt;
 		break;
 	case SHORTCUT:
-		if (auto value = Shortcuts::getShortcutIndex(txt)) {
-			currentShortcut.index = *value;
+		if (auto value = Shortcuts::parseShortcutName(txt)) {
+			currentShortcut.id = *value;
 		} else {
 			std::cerr << "Parse error: invalid shortcut \"" << txt << "\"\n";
-			currentShortcut.index = ShortcutIndex::INVALID;
 		}
 		break;
 	default:
@@ -463,8 +462,9 @@ void SettingsParser::stop()
 		state = BINDINGS;
 		break;
 	case SHORTCUT:
-		if (currentShortcut.index != ShortcutIndex::INVALID)
+		if (currentShortcut.id != Shortcuts::ID::INVALID) {
 			shortcutItems.push_back(currentShortcut);
+		}
 		state = SHORTCUTS;
 		break;
 	case START:

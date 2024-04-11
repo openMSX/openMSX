@@ -4,19 +4,18 @@
 #include "ranges.hh"
 
 #include <imgui.h>
-#include <array>
-
 #include <SDL.h>
+
+#include <array>
 
 namespace openmsx {
 
-// Here we define th mapping between ImGui and SDL (just once).
+// Here we define the mapping between ImGui and SDL (just once).
 // This will be used to generate two mapping functions (for both directions).
 struct ImGui_SDL_Key {
 	ImGuiKey imgui;
 	SDL_Keycode sdl;
 };
-
 static constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 	{ImGuiKey_Tab,            SDLK_TAB},
 	{ImGuiKey_LeftArrow,      SDLK_LEFT},
@@ -137,15 +136,15 @@ static constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 	{ImGuiKey_F24,            SDLK_F24},
 	{ImGuiKey_AppBack,        SDLK_AC_BACK},
 	{ImGuiKey_AppForward,     SDLK_AC_FORWARD},
-	// ... order doesn't matter  (this table does not end up in the final executable)
+	// ... order doesn't matter
 });
 
 [[nodiscard]] inline SDL_Keycode ImGuiKey2SDL(ImGuiKey imgui)
 {
 	static constexpr auto lookup = []{
-	    auto result = unsortedKeys;
-	    ranges::sort(result, {}, &ImGui_SDL_Key::imgui);
-	    return result;
+		auto result = unsortedKeys;
+		ranges::sort(result, {}, &ImGui_SDL_Key::imgui);
+		return result;
 	}();
 	auto it = ranges::lower_bound(lookup, imgui, {}, &ImGui_SDL_Key::imgui);
 	return ((it != lookup.end()) && (it->imgui == imgui)) ? it->sdl : SDLK_UNKNOWN;
@@ -154,9 +153,9 @@ static constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 [[nodiscard]] inline ImGuiKey SDLKey2ImGui(SDL_Keycode sdl)
 {
 	static constexpr auto lookup = []{
-	    auto result = unsortedKeys;
-	    ranges::sort(result, {}, &ImGui_SDL_Key::sdl);
-	    return result;
+		auto result = unsortedKeys;
+		ranges::sort(result, {}, &ImGui_SDL_Key::sdl);
+		return result;
 	}();
 	auto it = ranges::lower_bound(lookup, sdl, {}, &ImGui_SDL_Key::sdl);
 	return ((it != lookup.end()) && (it->sdl == sdl)) ? it->imgui : ImGuiKey_None;

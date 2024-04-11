@@ -3,9 +3,10 @@
 
 #include "SettingsManager.hh"
 #include "Command.hh"
-#include "Shortcuts.hh"
+
 #include "hash_map.hh"
 #include "xxhash.hh"
+
 #include <string>
 #include <string_view>
 
@@ -15,6 +16,7 @@ class FileContext;
 class HotKey;
 class GlobalCommandController;
 class CommandController;
+class Shortcuts;
 
 class SettingsConfig
 {

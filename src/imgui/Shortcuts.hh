@@ -3,89 +3,79 @@
 
 #include "ImGuiUtils.hh"
 
-#include "strCat.hh"
-#include "imgui_stdlib.h"
-
-#include <functional>
+#include <array>
 #include <optional>
 #include <string_view>
-#include <vector>
 
 namespace openmsx {
-
-class ImGuiManager;
-class GlobalSettings;
-class SettingsConfig;
-
-enum ShortcutIndex {
-	HEX_GOTO_ADDR = 0,
-	STEP,
-	BREAK,
-	DISASM_GOTO_ADDR,
-	HEX_MOVE_UP,
-	HEX_MOVE_DOWN,
-	HEX_MOVE_LEFT,
-	HEX_MOVE_RIGHT,
-	NUM_SHORTCUTS,
-
-	INVALID,
-};
-
-enum ShortcutType {
-	LOCAL,
-	GLOBAL,
-};
 
 class Shortcuts
 {
 public:
-	Shortcuts(const Shortcuts&) = delete;
-	Shortcuts& operator=(const Shortcuts&) = delete;
-	explicit Shortcuts(SettingsConfig& config_);
+	enum ID {
+		HEX_GOTO_ADDR,
+		HEX_MOVE_UP,
+		HEX_MOVE_DOWN,
+		HEX_MOVE_LEFT,
+		HEX_MOVE_RIGHT,
+		STEP,
+		BREAK,
+		DISASM_GOTO_ADDR,
 
-	// Shortcuts
+		NUM_SHORTCUTS,
+		INVALID = NUM_SHORTCUTS,
+	};
+	enum Type {
+		LOCAL,
+		GLOBAL,
+	};
 	struct Data {
-		ImGuiKeyChord keyChord;
-		ShortcutType type;
+		ImGuiKeyChord keyChord = ImGuiKey_None;
+		Type type = LOCAL;
 		bool repeat = false;
 		[[nodiscard]] bool operator==(const Data& other) const = default;
 	};
-	static std::string_view getShortcutName(ShortcutIndex index);
-	static std::string_view getLargerDescription();
-	static std::string_view getShortcutDescription(ShortcutIndex index);
-	static std::optional<ShortcutIndex> getShortcutIndex(std::string_view name);
-	static std::optional<ShortcutType> getShortcutTypeValue(std::string_view name);
-	const Shortcuts::Data& getShortcut(ShortcutIndex index);
-	static const Shortcuts::Data& getDefaultShortcut(ShortcutIndex index);
-	void setShortcut(ShortcutIndex index, std::optional<ImGuiKeyChord> keyChord = {}, std::optional<ShortcutType> type = {}, std::optional<bool> repeat = {});
-	void setDefaultShortcut(ShortcutIndex index);
-	bool checkShortcut(ShortcutIndex index);
+
+public:
+	Shortcuts(const Shortcuts&) = delete;
+	Shortcuts& operator=(const Shortcuts&) = delete;
+	Shortcuts();
+
+	[[nodiscard]] static std::string_view getShortcutName(ID id);
+	[[nodiscard]] static std::string_view getLargerDescription();
+	[[nodiscard]] static std::string_view getShortcutDescription(ID id);
+	[[nodiscard]] static std::optional<ID> parseShortcutName(std::string_view name);
+	[[nodiscard]] static std::optional<Type> parseType(std::string_view name);
+	[[nodiscard]] static const Shortcuts::Data& getDefaultShortcut(ID id);
+
+	[[nodiscard]] const Shortcuts::Data& getShortcut(ID id);
+	void setShortcut(ID id, std::optional<ImGuiKeyChord> keyChord = {}, std::optional<Type> type = {}, std::optional<bool> repeat = {});
+	void setDefaultShortcut(ID id);
+	void setDefaultShortcuts();
+	[[nodiscard]] bool checkShortcut(ID id);
 
 	template<typename XmlStream>
 	void saveShortcuts(XmlStream& xml) const
 	{
-		int index = 0;
+		int id = 0;
 		xml.with_tag("shortcuts", [&]{
-			for (auto it = shortcuts.begin(); it != shortcuts.end(); ++it, ++index) {
+			for (auto it = shortcuts.begin(); it != shortcuts.end(); ++it, ++id) {
 				const auto& data = *it;
-				if (data == getDefaultShortcut(static_cast<ShortcutIndex>(index))) {
+				if (data == getDefaultShortcut(static_cast<ID>(id))) {
 					continue;
 				}
 				xml.with_tag("shortcut", [&]{
 					xml.attribute("key", getKeyChordName(data.keyChord));
 					if (data.type == GLOBAL) xml.attribute("type", "global");
 					if (data.repeat) xml.attribute("repeat", "true");
-					xml.data(getShortcutName(static_cast<ShortcutIndex>(index)));
+					xml.data(getShortcutName(static_cast<ID>(id)));
 				});
 			}
 		});
 	}
 
-	void setDefaultShortcuts();
-
 private:
-	// Shortcuts
-	std::array<Shortcuts::Data, ShortcutIndex::NUM_SHORTCUTS> shortcuts;
+	std::array<Shortcuts::Data, ID::NUM_SHORTCUTS> shortcuts;
 };
 
 } // namespace openmsx
