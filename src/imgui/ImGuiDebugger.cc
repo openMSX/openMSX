@@ -221,12 +221,19 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 			return result;
 		};
 
+		auto& shortcuts = manager.getShortcuts();
 		bool breaked = cpuInterface.isBreaked();
 		if (breaked) {
+			if (shortcuts.checkShortcut(ShortcutIndex::BREAK)) {
+				cpuInterface.doContinue();
+			}
 			if (ButtonGlyph("run", DEBUGGER_ICON_RUN)) {
 				cpuInterface.doContinue();
 			}
 		} else {
+			if (shortcuts.checkShortcut(ShortcutIndex::BREAK)) {
+				cpuInterface.doBreak();
+			}
 			if (ButtonGlyph("break", DEBUGGER_ICON_BREAK)) {
 				cpuInterface.doBreak();
 			}
@@ -235,6 +242,9 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 		ImGui::SetCursorPosX(50.0f);
 
 		im::Disabled(!breaked, [&]{
+			if (shortcuts.checkShortcut(ShortcutIndex::STEP)) {
+				cpuInterface.doStep();
+			}
 			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN)) {
 				cpuInterface.doStep();
 			}
@@ -493,9 +503,13 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
+							if (manager.getShortcuts().checkShortcut(ShortcutIndex::DISASM_GOTO_ADDR)) {
+								ImGui::OpenPopup("disassembly-context");
+							}
 							if (!bpRightClick && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
 							}
+
 							auto addrStr = tmpStrCat(hex_string<4>(addr));
 							im::Popup("disassembly-context", [&]{
 								auto addrToolTip = [&](const std::string& str) {

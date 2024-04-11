@@ -152,8 +152,9 @@ static void cleanupImGui()
 }
 
 
-ImGuiManager::ImGuiManager(Reactor& reactor_)
+ImGuiManager::ImGuiManager(Reactor& reactor_, SettingsConfig& config_)
 	: reactor(reactor_)
+	, shortcuts(config_)
 	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "DejaVuSans.ttf.gz")
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)

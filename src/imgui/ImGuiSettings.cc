@@ -85,6 +85,91 @@ void ImGuiSettings::setStyle()
 	}
 	setColors(selectedStyle);
 }
+
+bool ImGuiSettings::shortcutAction(ShortcutIndex index)
+{
+	static constexpr auto mods = std::array{
+		ImGuiKey_LeftCtrl, ImGuiKey_LeftShift, ImGuiKey_LeftAlt, ImGuiKey_LeftSuper,
+		ImGuiKey_RightCtrl, ImGuiKey_RightShift, ImGuiKey_RightAlt, ImGuiKey_RightSuper,
+		ImGuiKey_ReservedForModCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_ReservedForModAlt,
+		ImGuiKey_ReservedForModSuper, ImGuiKey_MouseLeft, ImGuiKey_MouseRight, ImGuiKey_MouseMiddle,
+		ImGuiKey_MouseX1, ImGuiKey_MouseX2, ImGuiKey_MouseWheelX, ImGuiKey_MouseWheelY,
+	};
+	ImGuiIO& io = ImGui::GetIO();	
+	ImGuiKeyChord keyChord = ImGuiKey_None;
+	for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; ++key ) {
+		if (contains(mods, key)) continue; // skip: mods can't be primary keys in a KeyChord
+		if (ImGui::IsKeyPressed((ImGuiKey) key)) {
+			keyChord = key | (io.KeyCtrl ? ImGuiMod_Ctrl : 0) | (io.KeyShift ? ImGuiMod_Shift : 0)
+				| (io.KeyAlt ? ImGuiMod_Alt : 0) | (io.KeySuper ? ImGuiMod_Super : 0);
+			break;
+		}
+	}
+	if (keyChord != ImGuiKey_None) {
+		manager.getShortcuts().setShortcut(index, keyChord);
+		return true;
+	}
+	return false;
+}
+
+void ImGuiSettings::paintShortcutTableItem(ShortcutIndex index)
+{
+	auto& shortcuts = manager.getShortcuts();
+	auto shortcutName = Shortcuts::getShortcutName(index);
+	const auto& shortcut = shortcuts.getShortcut(index);
+	bool global = shortcut.type == GLOBAL;
+	bool repeat = shortcut.repeat;
+
+	im::ID(shortcutName, [&]{
+		if (ImGui::TableNextColumn()) {
+			if (ImGui::Checkbox("global", &global)) {
+				shortcuts.setShortcut(index, {}, global ? GLOBAL : LOCAL);
+			}
+		}
+		if (ImGui::TableNextColumn()) {
+			if (ImGui::Checkbox("repeat", &repeat)) {
+				shortcuts.setShortcut(index, {}, {}, repeat);
+			}
+		}
+		if (ImGui::TableNextColumn()) {
+			if (ImGui::Button(std::string(getKeyChordName(shortcut.keyChord)).c_str(), ImVec2(-1.0f, 0.0f))) {
+				ImGui::OpenPopup("modal");
+			}
+		}
+		if (ImGui::TableNextColumn()) {
+			ImGui::TextUnformatted(Shortcuts::getShortcutDescription(index));
+		}
+
+		// Always center this window when appearing
+		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		im::PopupModal("modal", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+			bool done = false;
+
+			ImGui::TextUnformatted(
+					"Press key combination to capture it as a short cut.\n"
+					"The \"Default\" button restores short cut to default setting.\n"
+					"The \"Clear\" button dissociates short cut from action.\n"
+					"The \"Cancel\" button returns without changes."sv);
+			ImGui::Separator();
+			if (ImGui::Button("Default")) {
+				shortcuts.setDefaultShortcut(index);
+				done = true;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear")) {
+				shortcuts.setShortcut(index, ImGuiKey_None, ShortcutType::LOCAL, false);
+				done = true;
+			}
+			ImGui::SameLine();
+			done |= ImGui::Button("Cancel");
+			if (done || shortcutAction(index)) {
+				ImGui::CloseCurrentPopup();
+			}
+		});
+	});
+}
+
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool openConfirmPopup = false;
@@ -364,6 +449,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
+			ImGui::MenuItem("Select shortcuts...", nullptr, &showShortcut);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
@@ -1105,6 +1191,23 @@ void ImGuiSettings::paintFont()
 	});
 }
 
+void ImGuiSettings::paintShortcut()
+{
+	im::Window("Select shortcuts", &showShortcut, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
+			ImGui::TableSetupColumn("1", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("2", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("3", ImGuiTableColumnFlags_WidthFixed, 150);
+			auto size = ImGui::CalcTextSize(Shortcuts::getLargerDescription()).x;
+			ImGui::TableSetupColumn("4", ImGuiTableColumnFlags_WidthFixed, size);
+
+			for (auto i = 0; i < ShortcutIndex::NUM_SHORTCUTS; ++i) {
+				paintShortcutTableItem(static_cast<ShortcutIndex>(i));
+			}
+		});
+	});
+}
+
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (selectedStyle < 0) {
@@ -1114,6 +1217,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	}
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
 	if (showFont) paintFont();
+	if (showShortcut) paintShortcut();
 }
 
 std::span<const std::string> ImGuiSettings::getAvailableFonts()

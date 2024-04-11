@@ -2,7 +2,9 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiSettings.hh"
 #include "ImGuiUtils.hh"
+#include "Shortcuts.hh"
 
 #include "CommandException.hh"
 #include "Debuggable.hh"
@@ -239,20 +241,16 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 	std::optional<unsigned> nextAddr;
 	// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
-	if (addrMode == CURSOR && ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-		if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)) &&
-			int(currentAddr) >= columns) {
+	if (addrMode == CURSOR) {
+		auto& shortcuts = manager.getShortcuts();
+		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_UP) && int(currentAddr) >= columns)
 			nextAddr = currentAddr - columns;
-		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)) &&
-				int(currentAddr) < int(memSize - columns)) {
+		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_DOWN) && int(currentAddr) < int(memSize - columns))
 			nextAddr = currentAddr + columns;
-		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)) &&
-				int(currentAddr) > 0) {
+		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_LEFT) && int(currentAddr) > 0)
 			nextAddr = currentAddr - 1;
-		} else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)) &&
-				int(currentAddr) < int(memSize - 1)) {
+		if (shortcuts.checkShortcut(ShortcutIndex::HEX_MOVE_RIGHT) && int(currentAddr) < int(memSize - 1))
 			nextAddr = currentAddr + 1;
-		}
 	}
 
 	// Draw vertical separator
@@ -484,6 +482,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					scrollAddr(s, debuggable, memSize, r2.addr);
 					dataEditingTakeFocus = true;
 				}
+			}
+			if (manager.getShortcuts().checkShortcut(ShortcutIndex::HEX_GOTO_ADDR)) {
+				ImGui::SetKeyboardFocusHere(-1);
 			}
 			simpleToolTip([&]{
 				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))
