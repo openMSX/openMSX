@@ -1,17 +1,20 @@
 #include "SettingsConfig.hh"
-#include "MSXException.hh"
-#include "StringOp.hh"
+
+#include "CliComm.hh"
+#include "CommandException.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "MemBuffer.hh"
-#include "CliComm.hh"
-#include "HotKey.hh"
-#include "CommandException.hh"
 #include "GlobalCommandController.hh"
+#include "HotKey.hh"
+#include "MSXException.hh"
+#include "Shortcuts.hh"
 #include "TclObject.hh"
 #include "XMLOutputStream.hh"
+
+#include "MemBuffer.hh"
+#include "StringOp.hh"
 #include "outer.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
@@ -36,6 +39,13 @@ struct SettingsParser : rapidsax::NullHandler
 	std::vector<Setting> settings;
 	std::vector<HotKey::Data> binds;
 	std::vector<std::string_view> unbinds;
+
+	struct ShortcutItem {
+		Shortcuts::ID id = Shortcuts::ID::INVALID;
+		Shortcuts::Data data = {};
+	};
+	std::vector<ShortcutItem> shortcutItems;
+
 	std::string_view systemID;
 
 	// parse state
@@ -48,11 +58,14 @@ struct SettingsParser : rapidsax::NullHandler
 		BINDINGS,
 		BIND,
 		UNBIND,
+		SHORTCUTS,
+		SHORTCUT,
 		END
 	} state = START;
 	Setting currentSetting;
 	HotKey::Data currentBind;
 	std::string_view currentUnbind;
+	ShortcutItem currentShortcut;
 };
 
 SettingsConfig::SettingsConfig(
@@ -127,6 +140,11 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 		}
 	}
 
+	shortcuts->setDefaultShortcuts();
+	for (const auto& item: parser.shortcutItems) {
+		shortcuts->setShortcut(item.id, item.data.keyChord, item.data.type, item.data.repeat);
+	}
+
 	getSettingsManager().loadSettings(*this);
 
 	// only set saveName after file was successfully parsed
@@ -195,6 +213,7 @@ void SettingsConfig::saveSetting(std::string filename)
 			}
 		});
 		hotKey.saveBindings(xml);
+		shortcuts->saveShortcuts(xml);
 	});
 }
 
@@ -289,6 +308,9 @@ void SettingsParser::start(std::string_view tag)
 		} else if (tag == "bindings") {
 			state = BINDINGS;
 			return;
+		} else if (tag == "shortcuts") {
+			state = SHORTCUTS;
+			return;
 		}
 		break;
 	case SETTINGS:
@@ -309,9 +331,17 @@ void SettingsParser::start(std::string_view tag)
 			return;
 		}
 		break;
+	case SHORTCUTS:
+		if (tag == "shortcut") {
+			state = SHORTCUT;
+			currentShortcut = ShortcutItem{};
+			return;
+		}
+		break;
 	case SETTING:
 	case BIND:
 	case UNBIND:
+	case SHORTCUT:
 		break;
 	case END:
 		throw MSXException("Unexpected opening tag: ", tag);
@@ -330,6 +360,23 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 	case SETTING:
 		if (name == "id") {
 			currentSetting.name = value;
+		}
+		break;
+	case SHORTCUT:
+		if (name == "key") {
+			if (auto keyChord = parseKeyChord(value)) {
+				currentShortcut.data.keyChord = *keyChord;
+			} else {
+				std::cerr << "Parse error: invalid shortcut key \"" << value << "\"\n";
+			}
+		} else if (name == "type") {
+			if (auto type = Shortcuts::parseType(value)) {
+				currentShortcut.data.type = *type;
+			} else {
+				std::cerr << "Parse error: invalid shortcut type \"" << value << "\"\n";
+			}
+		} else if (name == "repeat") {
+			currentShortcut.data.repeat = StringOp::stringToBool(value);
 		}
 		break;
 	case BIND:
@@ -364,6 +411,13 @@ void SettingsParser::text(std::string_view txt)
 	case BIND:
 		currentBind.cmd = txt;
 		break;
+	case SHORTCUT:
+		if (auto value = Shortcuts::parseShortcutName(txt)) {
+			currentShortcut.id = *value;
+		} else {
+			std::cerr << "Parse error: invalid shortcut \"" << txt << "\"\n";
+		}
+		break;
 	default:
 		break; //nothing
 	}
@@ -386,6 +440,9 @@ void SettingsParser::stop()
 	case BINDINGS:
 		state = TOP;
 		break;
+	case SHORTCUTS:
+		state = TOP;
+		break;
 	case SETTING:
 		if (!currentSetting.name.empty()) {
 			settings.push_back(currentSetting);
@@ -403,6 +460,12 @@ void SettingsParser::stop()
 			unbinds.push_back(currentUnbind);
 		}
 		state = BINDINGS;
+		break;
+	case SHORTCUT:
+		if (currentShortcut.id != Shortcuts::ID::INVALID) {
+			shortcutItems.push_back(currentShortcut);
+		}
+		state = SHORTCUTS;
 		break;
 	case START:
 	case END:

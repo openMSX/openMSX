@@ -6,6 +6,7 @@
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiSoundChip.hh"
 #include "ImGuiUtils.hh"
+#include "Shortcuts.hh"
 
 #include "BooleanInput.hh"
 #include "BooleanSetting.hh"
@@ -85,6 +86,35 @@ void ImGuiSettings::setStyle()
 	}
 	setColors(selectedStyle);
 }
+
+// Returns the currently pressed key-chord, or 'ImGuiKey_None' if no
+// (non-modifier) key is pressed.
+// If more than (non-modifier) one key is pressed, this returns an arbitrary key
+// (in the current implementation the one with lowest index).
+[[nodiscard]] static ImGuiKeyChord getCurrentlyPressedKeyChord()
+{
+	static constexpr auto mods = std::array{
+		ImGuiKey_LeftCtrl, ImGuiKey_LeftShift, ImGuiKey_LeftAlt, ImGuiKey_LeftSuper,
+		ImGuiKey_RightCtrl, ImGuiKey_RightShift, ImGuiKey_RightAlt, ImGuiKey_RightSuper,
+		ImGuiKey_ReservedForModCtrl, ImGuiKey_ReservedForModShift, ImGuiKey_ReservedForModAlt,
+		ImGuiKey_ReservedForModSuper, ImGuiKey_MouseLeft, ImGuiKey_MouseRight, ImGuiKey_MouseMiddle,
+		ImGuiKey_MouseX1, ImGuiKey_MouseX2, ImGuiKey_MouseWheelX, ImGuiKey_MouseWheelY,
+	};
+	for (int key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; ++key) {
+		// This is O(M*N), if needed could be optimized to be O(M+N).
+		if (contains(mods, key)) continue; // skip: mods can't be primary keys in a KeyChord
+		if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(key))) {
+			ImGuiIO& io = ImGui::GetIO();
+			return key
+			     | (io.KeyCtrl  ? ImGuiMod_Ctrl  : 0)
+			     | (io.KeyShift ? ImGuiMod_Shift : 0)
+			     | (io.KeyAlt   ? ImGuiMod_Alt   : 0)
+			     | (io.KeySuper ? ImGuiMod_Super : 0);
+		}
+	}
+	return ImGuiKey_None;
+}
+
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool openConfirmPopup = false;
@@ -364,6 +394,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
+			ImGui::MenuItem("Select shortcuts...", nullptr, &showShortcut);
 		});
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
@@ -1105,6 +1136,84 @@ void ImGuiSettings::paintFont()
 	});
 }
 
+static void paintShortcutTableRow(Shortcuts& shortcuts, Shortcuts::ID id)
+{
+	using enum Shortcuts::Type;
+
+	const auto& shortcut = shortcuts.getShortcut(id);
+
+	if (ImGui::TableNextColumn()) {
+		bool global = shortcut.type == GLOBAL;
+		if (ImGui::Checkbox("global", &global)) {
+			shortcuts.setShortcut(id, {}, global ? GLOBAL : LOCAL);
+		}
+	}
+	if (ImGui::TableNextColumn()) {
+		bool repeat = shortcut.repeat;
+		if (ImGui::Checkbox("repeat", &repeat)) {
+			shortcuts.setShortcut(id, {}, {}, repeat);
+		}
+	}
+	if (ImGui::TableNextColumn()) {
+		if (ImGui::Button(getKeyChordName(shortcut.keyChord).c_str(), ImVec2(-1.0f, 0.0f))) {
+			ImGui::OpenPopup("modal");
+		}
+	}
+	if (ImGui::TableNextColumn()) {
+		ImGui::TextUnformatted(Shortcuts::getShortcutDescription(id));
+	}
+
+	// Always center this window when appearing
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	im::PopupModal("modal", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		bool done = false;
+
+		ImGui::TextUnformatted(
+			"Press key combination to capture it as a short cut.\n"
+			"The \"Default\" button restores short cut to default setting.\n"
+			"The \"Clear\" button dissociates short cut from action.\n"
+			"The \"Cancel\" button returns without changes."sv);
+		ImGui::Separator();
+		if (ImGui::Button("Default")) {
+			shortcuts.setDefaultShortcut(id);
+			done = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Clear")) {
+			shortcuts.setShortcut(id, ImGuiKey_None, LOCAL, false);
+			done = true;
+		}
+		ImGui::SameLine();
+		done |= ImGui::Button("Cancel");
+		if (auto keyChord = getCurrentlyPressedKeyChord(); keyChord != ImGuiKey_None) {
+			shortcuts.setShortcut(id, keyChord);
+			done = true;
+		}
+		if (done) {
+			ImGui::CloseCurrentPopup();
+		}
+	});
+}
+
+void ImGuiSettings::paintShortcut()
+{
+	im::Window("Select shortcuts", &showShortcut, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		im::Table("table", 4, ImGuiTableFlags_SizingFixedFit, [&]{
+			ImGui::TableSetupColumn("1", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("2", ImGuiTableColumnFlags_None, 0);
+			ImGui::TableSetupColumn("3", ImGuiTableColumnFlags_WidthFixed, 150);
+			auto size = ImGui::CalcTextSize(Shortcuts::getLargerDescription()).x;
+			ImGui::TableSetupColumn("4", ImGuiTableColumnFlags_WidthFixed, size);
+
+			auto& shortcuts = manager.getShortcuts();
+			im::ID_for_range(Shortcuts::ID::NUM_SHORTCUTS, [&](int i) {
+				paintShortcutTableRow(shortcuts, static_cast<Shortcuts::ID>(i));
+			});
+		});
+	});
+}
+
 void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 {
 	if (selectedStyle < 0) {
@@ -1114,6 +1223,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	}
 	if (motherBoard && showConfigureJoystick) paintJoystick(*motherBoard);
 	if (showFont) paintFont();
+	if (showShortcut) paintShortcut();
 }
 
 std::span<const std::string> ImGuiSettings::getAvailableFonts()

@@ -57,7 +57,7 @@ public:
 	void saveBindings(XmlStream& xml) const
 	{
 		xml.begin("bindings");
-		// add explicit bind's
+		// add explicit binds
 		for (const auto& k : boundKeys) {
 			xml.begin("bind");
 			xml.attribute("key", toString(k));

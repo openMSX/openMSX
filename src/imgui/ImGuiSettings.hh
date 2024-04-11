@@ -35,12 +35,14 @@ private:
 	void setStyle();
 	void paintJoystick(MSXMotherBoard& motherBoard);
 	void paintFont();
+	void paintShortcut();
 
 	std::span<const std::string> getAvailableFonts();
 
 private:
 	bool showConfigureJoystick = false;
 	bool showFont = false;
+	bool showShortcut = false;
 	bool showDemoWindow = false;
 
 	unsigned joystick = 0;

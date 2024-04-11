@@ -3,8 +3,10 @@
 
 #include "SettingsManager.hh"
 #include "Command.hh"
+
 #include "hash_map.hh"
 #include "xxhash.hh"
+
 #include <string>
 #include <string_view>
 
@@ -14,6 +16,7 @@ class FileContext;
 class HotKey;
 class GlobalCommandController;
 class CommandController;
+class Shortcuts;
 
 class SettingsConfig
 {
@@ -34,8 +37,11 @@ public:
 	void setValueForSetting(std::string_view setting, std::string_view value);
 	void removeValueForSetting(std::string_view setting);
 
+	void setShortcuts(Shortcuts& shortcuts_) { shortcuts = &shortcuts_; };
+
 private:
 	CommandController& commandController;
+	Shortcuts* shortcuts;
 
 	struct SaveSettingsCommand final : Command {
 		explicit SaveSettingsCommand(CommandController& commandController);

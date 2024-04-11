@@ -233,7 +233,7 @@ void Reactor::init()
 		*globalCommandController, *eventDistributor, *globalSettings);
 	symbolManager = make_unique<SymbolManager>(
 		*globalCommandController);
-	imGuiManager = make_unique<ImGuiManager>(*this);
+	imGuiManager = make_unique<ImGuiManager>(*this, globalCommandController->getSettingsConfig());
 	diskFactory = make_unique<DiskFactory>(
 		*this);
 	diskManipulator = make_unique<DiskManipulator>(
