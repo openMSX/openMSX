@@ -272,6 +272,8 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	}
 
 	auto handleInput = [&](unsigned addr, int width, auto formatData, auto parseData, int extraFlags = 0) {
+		// Setting End key to do nothing in TextInput##data
+		if (ImGui::IsKeyPressed(ImGuiKey_End)) return;
 		// Display text input on current byte
 		if (dataEditingTakeFocus) {
 			ImGui::SetKeyboardFocusHere();
