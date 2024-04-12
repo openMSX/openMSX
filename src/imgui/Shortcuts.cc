@@ -27,7 +27,7 @@ static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
 	{HEX_MOVE_RIGHT,   ImGuiKey_RightArrow,        LOCAL,  true,  "hex_editor_move_right",   "Move right hex viewer"},
 	{STEP,             ImGuiKey_F6,                GLOBAL, true,  "step",                    "Single step in debugger"},
 	{BREAK,            ImGuiKey_F7,                GLOBAL, false, "break",                   "Break CPU emulation in debugger"},
-	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "disasm_goto_address",     "Go to address in disassembler"},
+	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
 });
 static_assert(allShortcutInfo.size() == Shortcuts::ID::NUM_SHORTCUTS);
 
