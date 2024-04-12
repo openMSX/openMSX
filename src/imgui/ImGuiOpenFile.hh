@@ -17,8 +17,7 @@ public:
 		DISKMANIPULATOR,
 	};
 
-	explicit ImGuiOpenFile(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	void selectFile(const std::string& title, std::string filters,
 	                std::function<void(const std::string&)> callback,

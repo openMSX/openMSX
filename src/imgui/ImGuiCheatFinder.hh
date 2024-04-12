@@ -11,8 +11,7 @@ namespace openmsx {
 class ImGuiCheatFinder final : public ImGuiPart
 {
 public:
-	explicit ImGuiCheatFinder(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	void paint(MSXMotherBoard* motherBoard) override;
 

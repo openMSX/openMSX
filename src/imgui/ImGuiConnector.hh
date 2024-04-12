@@ -8,8 +8,7 @@ namespace openmsx {
 class ImGuiConnector final : public ImGuiPart
 {
 public:
-	explicit ImGuiConnector(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
 };

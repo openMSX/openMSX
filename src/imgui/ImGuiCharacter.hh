@@ -11,8 +11,7 @@ namespace openmsx {
 class ImGuiCharacter final : public ImGuiPart
 {
 public:
-	explicit ImGuiCharacter(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "Tile viewer"; }
 	void save(ImGuiTextBuffer& buf) override;

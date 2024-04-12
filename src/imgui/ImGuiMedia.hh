@@ -35,8 +35,7 @@ public:
 	};
 
 public:
-	explicit ImGuiMedia(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "media"; }
 	void save(ImGuiTextBuffer& buf) override;

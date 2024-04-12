@@ -777,7 +777,7 @@ private:
 	};
 
 	struct SyncVSync final : public SyncBase {
-		explicit SyncVSync(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVSync);
 			vdp.execVSync(time);
@@ -785,7 +785,7 @@ private:
 	} syncVSync;
 
 	struct SyncDisplayStart final : public SyncBase {
-		explicit SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncDisplayStart);
 			vdp.execDisplayStart(time);
@@ -793,7 +793,7 @@ private:
 	} syncDisplayStart;
 
 	struct SyncVScan final : public SyncBase {
-		explicit SyncVScan(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVScan);
 			vdp.execVScan(time);
@@ -801,7 +801,7 @@ private:
 	} syncVScan;
 
 	struct SyncHScan final : public SyncBase {
-		explicit SyncHScan(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& vdp = OUTER(VDP, syncHScan);
 			vdp.execHScan();
@@ -809,7 +809,7 @@ private:
 	} syncHScan;
 
 	struct SyncHorAdjust final : public SyncBase {
-		explicit SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncHorAdjust);
 			vdp.execHorAdjust(time);
@@ -817,7 +817,7 @@ private:
 	} syncHorAdjust;
 
 	struct SyncSetMode final : public SyncBase {
-		explicit SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetMode);
 			vdp.execSetMode(time);
@@ -825,7 +825,7 @@ private:
 	} syncSetMode;
 
 	struct SyncSetBlank final : public SyncBase {
-		explicit SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetBlank);
 			vdp.execSetBlank(time);
@@ -833,7 +833,7 @@ private:
 	} syncSetBlank;
 
 	struct SyncSetSprites final : public SyncBase {
-		explicit SyncSetSprites(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetSprites);
 			vdp.execSetSprites(time);
@@ -841,7 +841,7 @@ private:
 	} syncSetSprites;
 
 	struct SyncCpuVramAccess final : public SyncBase {
-		explicit SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncCpuVramAccess);
 			vdp.execCpuVramAccess(time);
@@ -849,7 +849,7 @@ private:
 	} syncCpuVramAccess;
 
 	struct SyncCmdDone final : public SyncBase {
-		explicit SyncCmdDone(VDP& vdp) : SyncBase(vdp) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncCmdDone);
 			vdp.execSyncCmdDone(time);

@@ -24,8 +24,7 @@ class MSXtar;
 class ImGuiDiskManipulator final : public ImGuiPart
 {
 public:
-	explicit ImGuiDiskManipulator(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	void paint(MSXMotherBoard* motherBoard) override;
 

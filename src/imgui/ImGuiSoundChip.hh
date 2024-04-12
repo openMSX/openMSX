@@ -11,8 +11,7 @@ namespace openmsx {
 class ImGuiSoundChip final : public ImGuiPart
 {
 public:
-	explicit ImGuiSoundChip(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "sound chip settings"; }
 	void save(ImGuiTextBuffer& buf) override;

@@ -21,8 +21,8 @@ struct LogoImage {
 class ImGuiHelp final : public ImGuiPart
 {
 public:
-	explicit ImGuiHelp(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
+
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 

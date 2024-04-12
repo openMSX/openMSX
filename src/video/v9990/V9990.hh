@@ -370,7 +370,7 @@ private:
 	};
 
 	struct SyncVSync final : SyncBase {
-		explicit SyncVSync(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVSync);
 			v9990.execVSync(time);
@@ -378,7 +378,7 @@ private:
 	} syncVSync;
 
 	struct SyncDisplayStart final : SyncBase {
-		explicit SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncDisplayStart);
 			v9990.execDisplayStart(time);
@@ -386,7 +386,7 @@ private:
 	} syncDisplayStart;
 
 	struct SyncVScan final : SyncBase {
-		explicit SyncVScan(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVScan);
 			v9990.execVScan(time);
@@ -394,7 +394,7 @@ private:
 	} syncVScan;
 
 	struct SyncHScan final : SyncBase {
-		explicit SyncHScan(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& v9990 = OUTER(V9990, syncHScan);
 			v9990.execHScan();
@@ -402,7 +402,7 @@ private:
 	} syncHScan;
 
 	struct SyncSetMode final : SyncBase {
-		explicit SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncSetMode);
 			v9990.execSetMode(time);
@@ -410,7 +410,7 @@ private:
 	} syncSetMode;
 
 	struct SyncCmdEnd final : SyncBase {
-		explicit SyncCmdEnd(V9990& v9990) : SyncBase(v9990) {}
+		using SyncBase::SyncBase;
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncCmdEnd);
 			v9990.execCheckCmdEnd(time);

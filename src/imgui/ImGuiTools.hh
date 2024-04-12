@@ -10,8 +10,7 @@ namespace openmsx {
 class ImGuiTools final : public ImGuiPart
 {
 public:
-	explicit ImGuiTools(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "tools"; }
 	void save(ImGuiTextBuffer& buf) override;

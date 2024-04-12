@@ -8,8 +8,7 @@ namespace openmsx {
 class ImGuiKeyboard final : public ImGuiPart
 {
 public:
-	explicit ImGuiKeyboard(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "virtual keyboard"; }
 	void save(ImGuiTextBuffer& buf) override;

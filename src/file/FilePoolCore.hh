@@ -110,14 +110,14 @@ private:
 		const Pool& pool;
 	};
 	struct FilenameIndexHash : FilenameIndexHelper {
-		explicit FilenameIndexHash(const Pool& p) : FilenameIndexHelper(p) {}
+		using FilenameIndexHelper::FilenameIndexHelper;
 		template<typename T> [[nodiscard]] auto operator()(T t) const {
 			XXHasher hasher;
 			return hasher(get(t));
 		}
 	};
 	struct FilenameIndexEqual : FilenameIndexHelper {
-		explicit FilenameIndexEqual(const Pool& p) : FilenameIndexHelper(p) {}
+		using FilenameIndexHelper::FilenameIndexHelper;
 		template<typename T1, typename T2>
 		[[nodiscard]] bool operator()(T1 x, T2 y) const {
 			return get(x) == get(y);

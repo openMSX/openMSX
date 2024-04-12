@@ -15,8 +15,7 @@ namespace openmsx {
 class ImGuiBitmapViewer final : public ImGuiPart
 {
 public:
-	explicit ImGuiBitmapViewer(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "bitmap viewer"; }
 	void save(ImGuiTextBuffer& buf) override;

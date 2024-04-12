@@ -19,8 +19,7 @@ public:
 	};
 
 public:
-	explicit ImGuiMachine(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;

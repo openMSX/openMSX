@@ -12,8 +12,7 @@ namespace openmsx {
 class ImGuiTrainer final : public ImGuiPart
 {
 public:
-	explicit ImGuiTrainer(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "trainer"; }
 	void save(ImGuiTextBuffer& buf) override;

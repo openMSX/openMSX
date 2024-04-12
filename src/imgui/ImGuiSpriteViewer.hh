@@ -11,8 +11,7 @@ namespace openmsx {
 class ImGuiSpriteViewer final : public ImGuiPart
 {
 public:
-	explicit ImGuiSpriteViewer(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "sprite viewer"; }
 	void save(ImGuiTextBuffer& buf) override;

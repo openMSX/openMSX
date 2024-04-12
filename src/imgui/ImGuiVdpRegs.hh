@@ -16,8 +16,7 @@ class VDP;
 class ImGuiVdpRegs final : public ImGuiPart
 {
 public:
-	explicit ImGuiVdpRegs(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 
 	[[nodiscard]] zstring_view iniName() const override { return "vdp registers"; }
 	void save(ImGuiTextBuffer& buf) override;
