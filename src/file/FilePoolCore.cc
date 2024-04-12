@@ -1,11 +1,14 @@
 #include "FilePoolCore.hh"
+
 #include "File.hh"
 #include "FileException.hh"
 #include "foreach_file.hh"
+
 #include "Date.hh"
 #include "Timer.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+
 #include <fstream>
 #include <optional>
 #include <tuple>
@@ -266,7 +269,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	return result; // not found
 }
 
-Sha1Sum FilePoolCore::calcSha1sum(File& file)
+Sha1Sum FilePoolCore::calcSha1sum(File& file) const
 {
 	// Calculate sha1 in several steps so that we can show progress
 	// information. We take a fixed step size for an efficient calculation.

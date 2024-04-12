@@ -12,7 +12,7 @@
  */
 struct FreeStringStorage
 {
-	void operator()(char* p) { free(p); }
+	void operator()(char* p) const { free(p); }
 };
 using StringStorage = std::unique_ptr<char, FreeStringStorage>;
 

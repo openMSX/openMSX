@@ -3,8 +3,8 @@
  *
  *  requires: libxml2
  *  compile:
- *    *nix:  g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
- *    win32: g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc -lwsock32
+ *    *nix:  g++ -std=c++20 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
+ *    win32: g++ -std=c++20 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc -lwsock32
  */
 
 #include <libxml/parser.h>
@@ -108,8 +108,8 @@ private:
 	void parseUpdate(const char** attrs);
 
 	void doReply();
-	void doLog();
-	void doUpdate();
+	void doLog() const;
+	void doUpdate() const;
 
 	// commands being executed
 	std::deque<std::string> commandStack;
@@ -277,7 +277,7 @@ void OpenMSXComm::doReply()
 	std::cout << std::flush;
 }
 
-void OpenMSXComm::doLog()
+void OpenMSXComm::doLog() const
 {
 	switch (logLevel) {
 		case LOG_INFO:
@@ -293,7 +293,7 @@ void OpenMSXComm::doLog()
 	std::cout << content << '\n' << std::flush;
 }
 
-void OpenMSXComm::doUpdate()
+void OpenMSXComm::doUpdate() const
 {
 	std::cout << "UPDATE: " << updateType << " " << updateName << " " << content << '\n' << std::flush;
 }

@@ -4,6 +4,7 @@
 #include "static_string_view.hh"
 #include "Subject.hh"
 #include "strCat.hh"
+
 #include <string>
 
 namespace openmsx {
@@ -75,7 +76,7 @@ template<> class Probe<void> final : public ProbeBase
 {
 public:
 	Probe(Debugger& debugger, std::string name, static_string_view description);
-	void signal();
+	void signal() const;
 
 private:
 	[[nodiscard]] std::string getValue() const override;

@@ -1,5 +1,7 @@
 #include "V9990.hh"
+
 #include "V9990VRAM.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {
@@ -23,7 +25,7 @@ void V9990VRAM::clear()
 	}
 }
 
-unsigned V9990VRAM::mapAddress(unsigned address)
+unsigned V9990VRAM::mapAddress(unsigned address) const
 {
 	address &= 0x7FFFF; // change to assert?
 	switch (vdp.getDisplayMode()) {

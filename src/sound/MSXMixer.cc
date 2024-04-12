@@ -733,7 +733,7 @@ void MSXMixer::update(const ThrottleManager& /*throttleManager*/) noexcept
 	// TODO Should this be removed?
 }
 
-void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
+void MSXMixer::updateVolumeParams(SoundDeviceInfo& info) const
 {
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();

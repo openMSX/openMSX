@@ -10,7 +10,6 @@
 #include "DiskImageCLI.hh"
 #include "DiskImageUtils.hh"
 #include "DiskManipulator.hh"
-#include "DSKDiskImage.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
 #include "HD.hh"
@@ -27,7 +26,6 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "StringOp.hh"
-#include "StringReplacer.hh"
 #include "unreachable.hh"
 #include "view.hh"
 
@@ -41,7 +39,6 @@
 #include <sstream>
 
 using namespace std::literals;
-
 
 namespace openmsx {
 
@@ -747,7 +744,7 @@ static std::string leftClip(std::string_view s, float maxWidth)
 	return strCat("...", s.substr(len - num));
 }
 
-bool ImGuiMedia::selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width)
+bool ImGuiMedia::selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width) const
 {
 	bool interacted = false;
 	ImGui::SetNextItemWidth(-width);

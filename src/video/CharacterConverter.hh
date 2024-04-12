@@ -2,6 +2,7 @@
 #define CHARACTERCONVERTER_HH
 
 #include "openmsx.hh"
+
 #include <cstdint>
 #include <span>
 
@@ -48,19 +49,19 @@ public:
 	void setDisplayMode(DisplayMode mode);
 
 private:
-	inline void renderText1   (std::span<Pixel, 256> buf, int line);
-	inline void renderText1Q  (std::span<Pixel, 256> buf, int line);
-	inline void renderText2   (std::span<Pixel, 512> buf, int line);
-	inline void renderGraphic1(std::span<Pixel, 256> buf, int line);
-	inline void renderGraphic2(std::span<Pixel, 256> buf, int line);
-	inline void renderMulti   (std::span<Pixel, 256> buf, int line);
-	inline void renderMultiQ  (std::span<Pixel, 256> buf, int line);
-	inline void renderBogus   (std::span<Pixel, 256> buf);
-	inline void renderBlank   (std::span<Pixel, 256> buf);
+	inline void renderText1   (std::span<Pixel, 256> buf, int line) const;
+	inline void renderText1Q  (std::span<Pixel, 256> buf, int line) const;
+	inline void renderText2   (std::span<Pixel, 512> buf, int line) const;
+	inline void renderGraphic1(std::span<Pixel, 256> buf, int line) const;
+	inline void renderGraphic2(std::span<Pixel, 256> buf, int line) const;
+	inline void renderMulti   (std::span<Pixel, 256> buf, int line) const;
+	inline void renderMultiQ  (std::span<Pixel, 256> buf, int line) const;
+	inline void renderBogus   (std::span<Pixel, 256> buf) const;
+	inline void renderBlank   (std::span<Pixel, 256> buf) const;
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
-	                       unsigned mask, unsigned patternQuarter);
+	                       unsigned mask, unsigned patternQuarter) const;
 
-	[[nodiscard]] std::span<const byte, 32> getNamePtr(int line, int scroll);
+	[[nodiscard]] std::span<const byte, 32> getNamePtr(int line, int scroll) const;
 
 private:
 	VDP& vdp;

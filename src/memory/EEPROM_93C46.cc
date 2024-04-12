@@ -1,4 +1,5 @@
 #include "EEPROM_93C46.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {
@@ -23,7 +24,7 @@ void EEPROM_93C46::reset()
 	shiftRegister = 0;
 }
 
-uint8_t EEPROM_93C46::read(unsigned addr)
+uint8_t EEPROM_93C46::read(unsigned addr) const
 {
 	return sram[addr];
 }

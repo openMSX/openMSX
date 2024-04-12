@@ -1,7 +1,10 @@
 #include "StateChangeDistributor.hh"
+
 #include "StateChangeListener.hh"
 #include "StateChange.hh"
+
 #include "stl.hh"
+
 #include <cassert>
 
 namespace openmsx {
@@ -40,7 +43,7 @@ void StateChangeDistributor::unregisterRecorder(ReverseManager& recorder_)
 	recorder = nullptr;
 }
 
-void StateChangeDistributor::distribute(const StateChange& event)
+void StateChangeDistributor::distribute(const StateChange& event) const
 {
 	// Iterate over a copy because signalStateChange() may indirect call
 	// back into registerListener().

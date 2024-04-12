@@ -1,33 +1,37 @@
 #include "Keyboard.hh"
-#include "SDLKey.hh"
+
+#include "CommandController.hh"
+#include "CommandException.hh"
 #include "DeviceConfig.hh"
+#include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
-#include "CommandController.hh"
-#include "CommandException.hh"
-#include "Event.hh"
+#include "SDLKey.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "UnicodeKeymap.hh"
-#include "enumerate.hh"
 #include "openmsx.hh"
+#include "serialize.hh"
+#include "serialize_meta.hh"
+#include "serialize_stl.hh"
+
+#include "enumerate.hh"
 #include "one_of.hh"
 #include "outer.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
-#include "serialize_meta.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_checked.hh"
 #include "view.hh"
 #include "xrange.hh"
+
 #include <SDL.h>
+
 #include <array>
 #include <cstdio>
 #include <cassert>
@@ -1496,7 +1500,7 @@ void Keyboard::pressLockKeys(uint8_t lockKeysMask, bool down)
  * a short while after releasing a key (to enter a certain character) before
  * pressing the next key (to enter the next character)
  */
-bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
+bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2) const
 {
 	// get row / mask of key (note: ignore modifier mask)
 	auto keyPos1 = unicodeKeymap.get(unicode1).pos;
@@ -1505,7 +1509,7 @@ bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 	return keyPos1 == keyPos2 && keyPos1.isValid();
 }
 
-void Keyboard::debug(const char* format, ...)
+void Keyboard::debug(const char* format, ...) const
 {
 	if (keyboardSettings.getTraceKeyPresses()) {
 		va_list args;

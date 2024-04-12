@@ -1,13 +1,16 @@
 #include "OSDGUI.hh"
-#include "OSDWidget.hh"
+
+#include "CommandException.hh"
+#include "Display.hh"
 #include "OSDRectangle.hh"
 #include "OSDText.hh"
-#include "Display.hh"
-#include "CommandException.hh"
+#include "OSDWidget.hh"
 #include "TclObject.hh"
+
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "outer.hh"
+
 #include <array>
 #include <memory>
 #include <utility>
@@ -167,7 +170,7 @@ void OSDGUI::OSDCommand::configure(std::span<const TclObject> tokens, TclObject&
 	}
 }
 
-void OSDGUI::OSDCommand::configure(OSDWidget& widget, std::span<const TclObject> tokens)
+void OSDGUI::OSDCommand::configure(OSDWidget& widget, std::span<const TclObject> tokens) const
 {
 	if (tokens.size() & 1) {
 		// odd number of extra arguments

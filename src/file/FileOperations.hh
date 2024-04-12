@@ -5,16 +5,17 @@
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
 #include "zstring_view.hh"
-#include <sys/types.h>
+
 #include <fstream>
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <sys/types.h>
 
 namespace openmsx::FileOperations {
 
 	struct FClose {
-		void operator()(FILE* f) { fclose(f); }
+		void operator()(FILE* f) const { fclose(f); }
 	};
 	using FILE_t = std::unique_ptr<FILE, FClose>;
 

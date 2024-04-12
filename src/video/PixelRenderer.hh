@@ -85,7 +85,7 @@ private:
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType);
 
-	[[nodiscard]] inline bool checkSync(unsigned offset, EmuTime::param time);
+	[[nodiscard]] bool checkSync(unsigned offset, EmuTime::param time) const;
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.

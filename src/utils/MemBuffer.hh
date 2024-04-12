@@ -152,7 +152,7 @@ private:
 	// to realloc memory with bigger than default alignment).
 	static constexpr bool SIMPLE_MALLOC = ALIGNMENT <= alignof(std::max_align_t);
 
-	[[nodiscard]] void* my_malloc(size_t bytes)
+	[[nodiscard]] static void* my_malloc(size_t bytes)
 	{
 		void* result;
 		if constexpr (SIMPLE_MALLOC) {
@@ -165,7 +165,7 @@ private:
 		return result;
 	}
 
-	void my_free(void* p)
+	static void my_free(void* p)
 	{
 		if constexpr (SIMPLE_MALLOC) {
 			free(p);

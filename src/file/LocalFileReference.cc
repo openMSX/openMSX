@@ -1,9 +1,12 @@
 #include "LocalFileReference.hh"
+
 #include "File.hh"
 #include "Filename.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
+
 #include "build-info.hh"
+
 #include <cstdio>
 #include <cassert>
 
@@ -85,7 +88,7 @@ void LocalFileReference::init(File& file)
 	}
 }
 
-void LocalFileReference::cleanup()
+void LocalFileReference::cleanup() const
 {
 	if (!tmpDir.empty()) {
 		FileOperations::unlink(tmpFile);

@@ -67,11 +67,11 @@ private:
 	template<typename Item> void loadItem(zstring_view value);
 	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr = {});
 	template<typename Item> void syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
-	void checkSort(std::vector<GuiItem>& items);
+	void checkSort(std::vector<GuiItem>& items) const;
 	std::optional<uint16_t> parseAddress(const TclObject& o);
 	template<typename Item> void syncToOpenMsx(
 		MSXCPUInterface& cpuInterface, Debugger& debugger,
-		Interpreter& interp, GuiItem& item);
+		Interpreter& interp, GuiItem& item) const;
 	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item);
 	bool editRange(std::string& begin, std::string& end);
 	bool editCondition(ParsedSlotCond& slot);

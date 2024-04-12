@@ -1,11 +1,13 @@
 #ifndef DIRASDSK_HH
 #define DIRASDSK_HH
 
-#include "SectorBasedDisk.hh"
 #include "DiskImageUtils.hh"
-#include "FileOperations.hh"
 #include "EmuTime.hh"
+#include "FileOperations.hh"
+#include "SectorBasedDisk.hh"
+
 #include "hash_map.hh"
+
 #include <utility>
 
 namespace openmsx {
@@ -82,7 +84,7 @@ private:
 		const std::string& hostSubDir, const std::string& hostName,
 		unsigned msxDirSector);
 	[[nodiscard]] DirIndex getFreeDirEntry(unsigned msxDirSector);
-	[[nodiscard]] DirIndex findHostFileInDSK(std::string_view hostName);
+	[[nodiscard]] DirIndex findHostFileInDSK(std::string_view hostName) const;
 	[[nodiscard]] bool checkFileUsedInDSK(std::string_view hostName);
 	[[nodiscard]] unsigned nextMsxDirSector(unsigned sector);
 	[[nodiscard]] bool checkMSXFileExists(std::span<const char, 11> msxfilename,

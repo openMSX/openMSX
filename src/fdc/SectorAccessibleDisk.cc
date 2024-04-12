@@ -1,11 +1,13 @@
 #include "SectorAccessibleDisk.hh"
+
 #include "DiskImageUtils.hh"
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"
 #include "DiskExceptions.hh"
+
 #include "enumerate.hh"
 #include "sha1.hh"
-#include "xrange.hh"
+
 #include <array>
 #include <memory>
 
@@ -18,13 +20,13 @@ SectorAccessibleDisk::SectorAccessibleDisk()
 
 SectorAccessibleDisk::~SectorAccessibleDisk() = default;
 
-void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
+void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf) const
 {
 	readSectors(std::span{&buf, 1}, sector);
 }
 
 void SectorAccessibleDisk::readSectors(
-	std::span<SectorBuffer> buffers, size_t startSector)
+	std::span<SectorBuffer> buffers, size_t startSector) const
 {
 	auto last = startSector + buffers.size() - 1;
 	if (!isDummyDisk() && // in that case we want DriveEmptyException

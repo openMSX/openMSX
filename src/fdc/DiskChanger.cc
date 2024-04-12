@@ -1,39 +1,41 @@
 #include "DiskChanger.hh"
+
+#include "DirAsDSK.hh"
 #include "DiskFactory.hh"
+#include "DiskManipulator.hh"
 #include "DummyDisk.hh"
 #include "RamDSKDiskImage.hh"
-#include "DirAsDSK.hh"
+
+#include "CliComm.hh"
 #include "CommandController.hh"
-#include "StateChangeDistributor.hh"
-#include "Scheduler.hh"
-#include "FilePool.hh"
+#include "CommandException.hh"
+#include "EmuTime.hh"
 #include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include "FileOperations.hh"
+#include "FilePool.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "DiskManipulator.hh"
-#include "FileContext.hh"
-#include "FileOperations.hh"
-#include "FileException.hh"
-#include "CommandException.hh"
-#include "CliComm.hh"
+#include "Scheduler.hh"
+#include "StateChangeDistributor.hh"
 #include "TclObject.hh"
-#include "EmuTime.hh"
 #include "serialize.hh"
-#include "serialize_stl.hh"
 #include "serialize_constr.hh"
+#include "serialize_stl.hh"
+
 #include "strCat.hh"
 #include "view.hh"
+
 #include <array>
 #include <functional>
 #include <memory>
 #include <utility>
 
-using std::string;
-
 namespace openmsx {
 
 DiskChanger::DiskChanger(MSXMotherBoard& board,
-                         string driveName_,
+                         std::string driveName_,
                          bool createCmd,
                          bool doubleSidedDrive_,
                          std::function<void()> preChangeCallback_)
@@ -48,7 +50,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	init(tmpStrCat(board.getMachineID(), "::"), createCmd);
 }
 
-DiskChanger::DiskChanger(Reactor& reactor_, string driveName_)
+DiskChanger::DiskChanger(Reactor& reactor_, std::string driveName_)
 	: reactor(reactor_)
 	, controller(reactor.getCommandController())
 	, stateChangeDistributor(nullptr)
@@ -158,7 +160,7 @@ int DiskChanger::insertDisk(const std::string& filename)
 
 void DiskChanger::insertDisk(std::span<const TclObject> args)
 {
-	string diskImage = FileOperations::getConventionalPath(string(args[1].getString()));
+	std::string diskImage = FileOperations::getConventionalPath(std::string(args[1].getString()));
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (const auto& arg : view::drop(args, 2)) {
@@ -260,9 +262,9 @@ void DiskCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-string DiskCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string DiskCommand::help(std::span<const TclObject> /*tokens*/) const
 {
-	const string& driveName = diskChanger.getDriveName();
+	const std::string& driveName = diskChanger.getDriveName();
 	return strCat(
 		driveName, " eject             : remove disk from virtual drive\n",
 		driveName, " ramdsk            : create a virtual disk in RAM\n",
@@ -273,7 +275,7 @@ string DiskCommand::help(std::span<const TclObject> /*tokens*/) const
 		"-ips <filename> : apply the given IPS patch to the disk image");
 }
 
-void DiskCommand::tabCompletion(std::vector<string>& tokens) const
+void DiskCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		using namespace std::literals;
@@ -289,9 +291,9 @@ bool DiskCommand::needRecord(std::span<const TclObject> tokens) const
 	return tokens.size() > 1;
 }
 
-static string calcSha1(SectorAccessibleDisk* disk, FilePool& filePool)
+static std::string calcSha1(SectorAccessibleDisk* disk, FilePool& filePool)
 {
-	return disk ? disk->getSha1Sum(filePool).toString() : string{};
+	return disk ? disk->getSha1Sum(filePool).toString() : std::string{};
 }
 
 // version 1:  initial version
@@ -320,7 +322,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	ar.serialize("patches", patches);
 
 	auto& filePool = reactor.getFilePool();
-	string oldChecksum;
+	std::string oldChecksum;
 	if constexpr (!Archive::IS_LOADER) {
 		oldChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 	}
@@ -328,7 +330,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 
 	if constexpr (Archive::IS_LOADER) {
 		diskName.updateAfterLoadState();
-		string name = diskName.getResolved(); // TODO use Filename
+		std::string name = diskName.getResolved(); // TODO use Filename
 		if (!name.empty()) {
 			// Only when the original file doesn't exist on this
 			// system, try to search by sha1sum. This means we
@@ -362,7 +364,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			}
 		}
 
-		string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
+		std::string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(
 				"The content of the disk image ",
@@ -386,14 +388,14 @@ template<> struct SerializeConstructorArgs<DiskChanger>
 	using type = std::tuple<std::string>;
 
 	template<typename Archive>
-	void save(Archive& ar, const DiskChanger& changer)
+	void save(Archive& ar, const DiskChanger& changer) const
 	{
 		ar.serialize("driveName", changer.getDriveName());
 	}
 
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/) const
 	{
-		string driveName;
+		std::string driveName;
 		ar.serialize("driveName", driveName);
 		return {driveName};
 	}

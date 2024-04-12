@@ -34,10 +34,14 @@ TODO:
 */
 
 #include "VDPCmdEngine.hh"
-#include "EmuTime.hh"
+
 #include "VDPVRAM.hh"
+
+#include "EmuTime.hh"
 #include "serialize.hh"
+
 #include "unreachable.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -613,7 +617,7 @@ struct IncrMask7
 	{
 		return 0;
 	}
-	void step() {}
+	void step() const {}
 };
 
 

@@ -1,15 +1,19 @@
 #include "InputEventGenerator.hh"
-#include "EventDistributor.hh"
+
 #include "Event.hh"
-#include "IntegerSetting.hh"
-#include "GlobalSettings.hh"
-#include "SDLKey.hh"
+#include "EventDistributor.hh"
 #include "FileOperations.hh"
+#include "GlobalSettings.hh"
+#include "IntegerSetting.hh"
+#include "SDLKey.hh"
+
 #include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
+
 #include "build-info.hh"
+
 #include <memory>
 
 namespace openmsx {
@@ -433,7 +437,7 @@ int InputEventGenerator::signalEvent(const Event& event)
 	return 0;
 }
 
-void InputEventGenerator::setGrabInput(bool grab)
+void InputEventGenerator::setGrabInput(bool grab) const
 {
 	SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
 

@@ -150,7 +150,7 @@ private:
 	        const FileOperations::Stat& st,
 	        std::string_view poolPath,
 	        ScanProgress& progress);
-	[[nodiscard]] Sha1Sum calcSha1sum(File& file);
+	[[nodiscard]] Sha1Sum calcSha1sum(File& file) const;
 	[[nodiscard]] std::pair<Index, Entry*> findInDatabase(std::string_view filename);
 
 private:

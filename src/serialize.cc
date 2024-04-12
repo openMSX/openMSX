@@ -401,7 +401,7 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 	elems.emplace_back(root, root->getFirstChild());
 }
 
-string_view XmlInputArchive::loadStr()
+string_view XmlInputArchive::loadStr() const
 {
 	if (currentElement()->hasChildren()) {
 		throw XMLException("No child tags expected for primitive type");
@@ -540,7 +540,7 @@ void XmlInputArchive::endTag(const char* tag)
 	elems.pop_back();
 }
 
-void XmlInputArchive::attribute(const char* name, string& t)
+void XmlInputArchive::attribute(const char* name, string& t) const
 {
 	const auto* attr = currentElement()->findAttribute(name);
 	if (!attr) {
@@ -548,11 +548,11 @@ void XmlInputArchive::attribute(const char* name, string& t)
 	}
 	t = attr->getValue();
 }
-void XmlInputArchive::attribute(const char* name, int& i)
+void XmlInputArchive::attribute(const char* name, int& i) const
 {
 	attributeImpl(name, i);
 }
-void XmlInputArchive::attribute(const char* name, unsigned& u)
+void XmlInputArchive::attribute(const char* name, unsigned& u) const
 {
 	attributeImpl(name, u);
 }

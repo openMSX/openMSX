@@ -1,15 +1,16 @@
 #include "SettingsManager.hh"
-#include "SettingsConfig.hh"
+
+#include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "MSXException.hh"
+#include "SettingsConfig.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
+
 #include "outer.hh"
 #include "view.hh"
 #include "vla.hh"
-#include <cassert>
 
-using std::string;
+#include <cassert>
 
 namespace openmsx {
 
@@ -79,9 +80,9 @@ BaseSetting& SettingsManager::getByName(std::string_view cmd, std::string_view n
 	throw CommandException(cmd, ": ", name, ": no such setting");
 }
 
-std::vector<string> SettingsManager::getTabSettingNames() const
+std::vector<std::string> SettingsManager::getTabSettingNames() const
 {
-	std::vector<string> result;
+	std::vector<std::string> result;
 	result.reserve(settings.size() * 2);
 	for (auto* s : settings) {
 		std::string_view name = s->getFullName();
@@ -95,7 +96,7 @@ std::vector<string> SettingsManager::getTabSettingNames() const
 	return result;
 }
 
-void SettingsManager::loadSettings(const SettingsConfig& config)
+void SettingsManager::loadSettings(const SettingsConfig& config) const
 {
 	// restore default values or load new values
 	for (auto* s : settings) {
@@ -151,7 +152,7 @@ void SettingsManager::SettingInfo::execute(
 	}
 }
 
-string SettingsManager::SettingInfo::help(std::span<const TclObject> /*tokens*/) const
+std::string SettingsManager::SettingInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "openmsx_info setting        : "
 	             "returns list of all settings\n"
@@ -159,7 +160,7 @@ string SettingsManager::SettingInfo::help(std::span<const TclObject> /*tokens*/)
 	             "returns info on a specific setting\n";
 }
 
-void SettingsManager::SettingInfo::tabCompletion(std::vector<string>& tokens) const
+void SettingsManager::SettingInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		// complete setting name
@@ -177,11 +178,11 @@ SettingsManager::SetCompleter::SetCompleter(
 {
 }
 
-string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) const
+std::string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
-		return string(manager.getByName("set", tokens[1].getString()).getDescription());
+		return std::string(manager.getByName("set", tokens[1].getString()).getDescription());
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"
@@ -190,7 +191,7 @@ string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) co
 	       "openMSX setting.\n";
 }
 
-void SettingsManager::SetCompleter::tabCompletion(std::vector<string>& tokens) const
+void SettingsManager::SetCompleter::tabCompletion(std::vector<std::string>& tokens) const
 {
 	auto& manager = OUTER(SettingsManager, setCompleter);
 	switch (tokens.size()) {
@@ -213,18 +214,18 @@ void SettingsManager::SetCompleter::tabCompletion(std::vector<string>& tokens) c
 
 SettingsManager::SettingCompleter::SettingCompleter(
 		CommandController& commandController_, SettingsManager& manager_,
-		const string& name_)
+		const std::string& name_)
 	: CommandCompleter(commandController_, name_)
 	, manager(manager_)
 {
 }
 
-string SettingsManager::SettingCompleter::help(std::span<const TclObject> /*tokens*/) const
+std::string SettingsManager::SettingCompleter::help(std::span<const TclObject> /*tokens*/) const
 {
 	return {}; // TODO
 }
 
-void SettingsManager::SettingCompleter::tabCompletion(std::vector<string>& tokens) const
+void SettingsManager::SettingCompleter::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete setting name

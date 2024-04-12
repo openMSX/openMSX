@@ -311,8 +311,8 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	[[nodiscard]] inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y);
-	[[nodiscard]] inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y);
+	[[nodiscard]] inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y) const;
+	[[nodiscard]] inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y) const;
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).

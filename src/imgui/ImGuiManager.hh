@@ -111,7 +111,7 @@ private:
 	// ini handler callbacks
 	void iniReadInit();
 	void* iniReadOpen(std::string_view name);
-	void loadLine(void* entry, const char* line);
+	void loadLine(void* entry, const char* line) const;
 	void iniApplyAll();
 	void iniWriteAll(ImGuiTextBuffer& buf);
 

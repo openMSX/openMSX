@@ -2,8 +2,9 @@
 #define V9990VRAM_HH
 
 #include "V9990CmdEngine.hh"
-#include "TrackedRam.hh"
+
 #include "EmuTime.hh"
+#include "TrackedRam.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -51,13 +52,13 @@ public:
 		}
 	}
 
-	[[nodiscard]] inline byte readVRAMBx(unsigned address) {
+	[[nodiscard]] inline byte readVRAMBx(unsigned address) const {
 		return data[transformBx(address)];
 	}
-	[[nodiscard]] inline byte readVRAMP1(unsigned address) {
+	[[nodiscard]] inline byte readVRAMP1(unsigned address) const {
 		return data[transformP1(address)];
 	}
-	[[nodiscard]] inline byte readVRAMP2(unsigned address) {
+	[[nodiscard]] inline byte readVRAMP2(unsigned address) const {
 		return data[transformP2(address)];
 	}
 
@@ -71,7 +72,7 @@ public:
 		data.write(transformP2(address), value);
 	}
 
-	[[nodiscard]] inline byte readVRAMDirect(unsigned address) {
+	[[nodiscard]] inline byte readVRAMDirect(unsigned address) const {
 		return data[address];
 	}
 	inline void writeVRAMDirect(unsigned address, byte value) {
@@ -87,7 +88,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	unsigned mapAddress(unsigned address);
+	unsigned mapAddress(unsigned address) const;
 
 private:
 	/** V9990 VDP this VRAM belongs to.

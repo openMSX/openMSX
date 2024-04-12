@@ -1,6 +1,9 @@
 #include "PreCacheFile.hh"
+
 #include "FileOperations.hh"
+
 #include "narrow.hh"
+
 #include <array>
 #include <cstdio>
 #include <sys/types.h>
@@ -23,7 +26,7 @@ PreCacheFile::~PreCacheFile()
 	thread.join();
 }
 
-void PreCacheFile::run()
+void PreCacheFile::run() const
 {
 	if (!FileOperations::isRegularFile(name)) {
 		// don't pre-cache non regular files (e.g. /dev/fd0)

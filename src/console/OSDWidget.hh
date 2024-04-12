@@ -2,12 +2,14 @@
 #define OSDWIDGET_HH
 
 #include "TclObject.hh"
+
 #include "gl_vec.hh"
+
 #include <array>
+#include <memory>
 #include <span>
 #include <string_view>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
@@ -69,7 +71,7 @@ public:
 
 protected:
 	OSDWidget(Display& display, TclObject name);
-	void invalidateChildren();
+	void invalidateChildren() const;
 	[[nodiscard]] bool needSuppressErrors() const;
 
 	virtual void invalidateLocal() = 0;

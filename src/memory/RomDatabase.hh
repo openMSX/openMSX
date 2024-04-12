@@ -1,9 +1,11 @@
 #ifndef ROMDATABASE_HH
 #define ROMDATABASE_HH
 
-#include "MemBuffer.hh"
 #include "RomInfo.hh"
+
+#include "MemBuffer.hh"
 #include "sha1.hh"
+
 #include <vector>
 
 namespace openmsx {

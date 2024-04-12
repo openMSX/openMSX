@@ -3,7 +3,9 @@
 
 #include "OSDImageBasedWidget.hh"
 #include "TTFFont.hh"
+
 #include "stl.hh"
+
 #include <array>
 #include <memory>
 

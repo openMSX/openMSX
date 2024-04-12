@@ -14,7 +14,7 @@ public:
 	explicit Y8950KeyboardConnector(PluggingController& pluggingController);
 
 	void write(byte data, EmuTime::param time);
-	[[nodiscard]] byte read(EmuTime::param time);
+	[[nodiscard]] byte read(EmuTime::param time) const;
 	[[nodiscard]] byte peek(EmuTime::param time) const;
 	[[nodiscard]] Y8950KeyboardDevice& getPluggedKeyb() const;
 

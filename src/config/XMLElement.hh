@@ -314,9 +314,9 @@ public:
 	void load(OldXMLElement& elem); // bw compat
 
 	void serialize(MemInputArchive&  ar, unsigned version);
-	void serialize(MemOutputArchive& ar, unsigned version);
+	void serialize(MemOutputArchive& ar, unsigned version) const;
 	void serialize(XmlInputArchive&  ar, unsigned version);
-	void serialize(XmlOutputArchive& ar, unsigned version);
+	void serialize(XmlOutputArchive& ar, unsigned version) const;
 
 private:
 	XMLElement* loadElement(MemInputArchive& ar);

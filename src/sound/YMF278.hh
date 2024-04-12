@@ -2,11 +2,13 @@
 #define YMF278_HH
 
 #include "ResampledSoundDevice.hh"
-#include "SimpleDebuggable.hh"
-#include "Rom.hh"
-#include "TrackedRam.hh"
+
 #include "EmuTime.hh"
+#include "Rom.hh"
+#include "SimpleDebuggable.hh"
+#include "TrackedRam.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cstdint>
 #include <string>
@@ -96,7 +98,7 @@ private:
 	[[nodiscard]] static uint16_t nextPos(Slot& slot, uint16_t pos, uint16_t increment);
 	void advance();
 	[[nodiscard]] bool anyActive();
-	void keyOnHelper(Slot& slot);
+	void keyOnHelper(Slot& slot) const;
 
 	MSXMotherBoard& motherBoard;
 

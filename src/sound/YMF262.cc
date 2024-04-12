@@ -38,14 +38,17 @@
  */
 
 #include "YMF262.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -1017,7 +1020,7 @@ void YMF262::set_sl_rr(unsigned sl, uint8_t v)
 	slot.update_rr();
 }
 
-uint8_t YMF262::readReg(unsigned r)
+uint8_t YMF262::readReg(unsigned r) const
 {
 	// no need to call updateStream(time)
 	return peekReg(r);
@@ -1479,7 +1482,7 @@ uint8_t YMF262::peekStatus() const
 	return status | status2;
 }
 
-bool YMF262::checkMuteHelper()
+bool YMF262::checkMuteHelper() const
 {
 	// TODO this doesn't always mute when possible
 	for (auto& ch : channel) {

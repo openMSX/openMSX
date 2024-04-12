@@ -1,10 +1,13 @@
 #include "RomPlain.hh"
-#include "XMLElement.hh"
+
 #include "MSXException.hh"
-#include "one_of.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -109,7 +112,7 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 	invalidateDeviceRCache();
 }
 
-void RomPlain::guessHelper(unsigned offset, std::span<int, 3> pages)
+void RomPlain::guessHelper(unsigned offset, std::span<int, 3> pages) const
 {
 	if ((rom[offset++] == 'A') && (rom[offset++] =='B')) {
 		for (auto i : xrange(4)) {

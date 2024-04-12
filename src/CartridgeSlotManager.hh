@@ -95,7 +95,7 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
 	private:
-		const HardwareConfig* getExtensionConfig(std::string_view cartName);
+		[[nodiscard]] const HardwareConfig* getExtensionConfig(std::string_view cartName) const;
 		CartridgeSlotManager& manager;
 		CliComm& cliComm;
 	} cartCmd;

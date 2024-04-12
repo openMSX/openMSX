@@ -1,13 +1,16 @@
 #include "Carnivore2.hh"
+
 #include "DummyAY8910Periphery.hh"
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "MSXCliComm.hh"
 #include "MSXCPU.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+
 #include <array>
 
 // TODO (besides what's in the code below):
@@ -259,7 +262,7 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 	}
 }
 
-byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
+byte Carnivore2::readConfigRegister(word address, EmuTime::param time) const
 {
 	address &= 0x3f;
 	if (address == 0x04) {
@@ -681,7 +684,7 @@ byte Carnivore2::peekMemoryMapperSlot(word address) const
 	return ram[getMemoryMapperAddress(address)];
 }
 
-byte Carnivore2::readMemoryMapperSlot(word address)
+byte Carnivore2::readMemoryMapperSlot(word address) const
 {
 	return peekMemoryMapperSlot(address);
 }

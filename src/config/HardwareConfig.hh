@@ -1,11 +1,12 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
-#include "XMLElement.hh"
 #include "FileContext.hh"
+#include "XMLElement.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 #include "serialize_constr.hh"
+#include "serialize_meta.hh"
+
 #include <array>
 #include <memory>
 #include <span>
@@ -118,13 +119,13 @@ template<> struct SerializeConstructorArgs<HardwareConfig>
 	using type = std::tuple<std::string>;
 
 	template<typename Archive>
-	void save(Archive& ar, const HardwareConfig& config)
+	void save(Archive& ar, const HardwareConfig& config) const
 	{
 		ar.serialize("hwname", config.hwName);
 	}
 
 	template<typename Archive>
-	[[nodiscard]] type load(Archive& ar, unsigned /*version*/)
+	[[nodiscard]] type load(Archive& ar, unsigned /*version*/) const
 	{
 		std::string name;
 		ar.serialize("hwname", name);

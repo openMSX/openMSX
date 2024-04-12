@@ -52,8 +52,8 @@ public:
 	bool open = true;
 
 private:
-	[[nodiscard]] Sizes calcSizes(unsigned memSize);
-	[[nodiscard]] std::string formatAddr(const Sizes& s, unsigned addr);
+	[[nodiscard]] Sizes calcSizes(unsigned memSize) const;
+	[[nodiscard]] std::string formatAddr(const Sizes& s, unsigned addr) const;
 	void setStrings(const Sizes& s, Debuggable& debuggable);
 	bool setAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr);
 	void scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr);

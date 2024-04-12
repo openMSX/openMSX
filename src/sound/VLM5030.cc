@@ -75,16 +75,19 @@ chirp 12-..: volume   0   : silent
 */
 
 #include "VLM5030.hh"
+
 #include "DeviceConfig.hh"
-#include "XMLElement.hh"
 #include "FileOperations.hh"
+#include "XMLElement.hh"
+#include "serialize.hh"
+
 #include "cstd.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -179,7 +182,7 @@ static constexpr std::array<int16_t, 8> K5_table = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-unsigned VLM5030::getBits(unsigned sBit, unsigned bits)
+unsigned VLM5030::getBits(unsigned sBit, unsigned bits) const
 {
 	unsigned offset = address + (sBit / 8);
 	unsigned data = rom[(offset + 0) & address_mask] +

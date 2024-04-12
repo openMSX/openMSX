@@ -4,7 +4,6 @@
 #include "Command.hh"
 #include "DiskPartition.hh"
 
-#include <array>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -18,7 +17,6 @@ class SectorAccessibleDisk;
 class DiskPartition;
 class MSXtar;
 class Reactor;
-class MsxChar2Unicode;
 enum class MSXBootSectorType;
 
 class DiskManipulator final : public Command
@@ -39,7 +37,7 @@ public:
 	};
 	[[nodiscard]] DiskContainer* getDrive(std::string_view driveName) const;
 	[[nodiscard]] std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
-	void create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes);
+	void create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes) const;
 
 private:
 	struct DriveSettings
@@ -69,11 +67,11 @@ private:
 	[[nodiscard]] static DiskPartition getPartition(
 		const DriveSettings& driveData);
 	[[nodiscard]] MSXtar getMSXtar(SectorAccessibleDisk& disk,
-	                                      DriveSettings& driveData);
+	                               DriveSettings& driveData) const;
 
 	void create(std::span<const TclObject> tokens);
 	void partition(std::span<const TclObject> tokens);
-	void savedsk(const DriveSettings& driveData, std::string filename);
+	void savedsk(const DriveSettings& driveData, std::string filename) const;
 	void format(std::span<const TclObject> tokens);
 	std::string chdir(DriveSettings& driveData, std::string_view filename);
 	void mkdir(DriveSettings& driveData, std::string_view filename);

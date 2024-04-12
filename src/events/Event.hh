@@ -527,7 +527,7 @@ struct GetIfEventHelper { // standard std::get_if() behavior
 };
 template<>
 struct GetIfEventHelper<SdlEvent> { // extension for base-classes
-	const SdlEvent* operator()(const Event& event) {
+	[[nodiscard]] const SdlEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
@@ -548,7 +548,7 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 };
 template<>
 struct GetIfEventHelper<KeyEvent> {
-	const KeyEvent* operator()(const Event& event) {
+	[[nodiscard]] const KeyEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::KEY_UP:   return &std::get<KeyUpEvent>(var);
@@ -559,7 +559,7 @@ struct GetIfEventHelper<KeyEvent> {
 };
 template<>
 struct GetIfEventHelper<JoystickEvent> {
-	const JoystickEvent* operator()(const Event& event) {
+	[[nodiscard]] const JoystickEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
 		case EventType::JOY_BUTTON_UP:   return &std::get<JoystickButtonUpEvent>(var);

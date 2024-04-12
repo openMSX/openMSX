@@ -1,18 +1,18 @@
 #include "PostProcessor.hh"
+
 #include "AviRecorder.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
-#include "DeinterlacedFrame.hh"
 #include "Deflicker.hh"
-#include "DoubledFrame.hh"
+#include "DeinterlacedFrame.hh"
 #include "Display.hh"
+#include "DoubledFrame.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "FloatSetting.hh"
 #include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
-#include "MemBuffer.hh"
 #include "MSXMotherBoard.hh"
 #include "OutputSurface.hh"
 #include "PNG.hh"
@@ -20,14 +20,17 @@
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "SuperImposedFrame.hh"
-#include "aligned.hh"
 #include "gl_transform.hh"
+
+#include "MemBuffer.hh"
+#include "aligned.hh"
 #include "narrow.hh"
 #include "random.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -766,7 +769,7 @@ void PostProcessor::preCalcMonitor3D(float width)
 		1, GL_FALSE, normal.data());
 }
 
-void PostProcessor::drawMonitor3D()
+void PostProcessor::drawMonitor3D() const
 {
 	monitor3DProg.activate();
 

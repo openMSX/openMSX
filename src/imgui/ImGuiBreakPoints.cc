@@ -1,6 +1,5 @@
 #include "ImGuiBreakPoints.hh"
 
-#include "ImGuiBitmapViewer.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
@@ -524,7 +523,7 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 	}
 }
 
-void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items)
+void ImGuiBreakPoints::checkSort(std::vector<GuiItem>& items) const
 {
 	auto* sortSpecs = ImGui::TableGetSortSpecs();
 	if (!sortSpecs->SpecsDirty) return;
@@ -615,7 +614,7 @@ static void create(DebugCondition*, MSXCPUInterface& cpuInterface, Debugger&, Im
 template<typename Item>
 void ImGuiBreakPoints::syncToOpenMsx(
 	MSXCPUInterface& cpuInterface, Debugger& debugger,
-	Interpreter& interp, GuiItem& item)
+	Interpreter& interp, GuiItem& item) const
 {
 	Item* tag = nullptr;
 

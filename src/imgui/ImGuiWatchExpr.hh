@@ -49,7 +49,7 @@ private:
 		TclObject result;
 		std::string error;
 	};
-	[[nodiscard]] EvalResult evalExpr(WatchExpr& watch, Interpreter& interp);
+	[[nodiscard]] EvalResult evalExpr(WatchExpr& watch, Interpreter& interp) const;
 
 	int selectedRow = -1;
 

@@ -4,8 +4,10 @@
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "Setting.hh"
-#include "hash_set.hh"
 #include "TclObject.hh"
+
+#include "hash_set.hh"
+
 #include <string_view>
 
 namespace openmsx {
@@ -30,7 +32,7 @@ public:
 	[[nodiscard]] BaseSetting* findSetting(std::string_view name) const;
 	[[nodiscard]] BaseSetting* findSetting(std::string_view prefix, std::string_view baseName) const;
 
-	void loadSettings(const SettingsConfig& config);
+	void loadSettings(const SettingsConfig& config) const;
 
 	void registerSetting  (BaseSetting& setting);
 	void unregisterSetting(BaseSetting& setting);

@@ -118,7 +118,7 @@ private:
 	template<typename T> std::span<const T> get(size_t count);
 	template<typename T> const T& get();
 
-	[[noreturn]] void error(std::string msg);
+	[[noreturn]] void error(std::string msg) const;
 
 private:
 	// The parsed result is stored here

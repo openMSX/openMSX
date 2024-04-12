@@ -1,15 +1,20 @@
 #include "GLImage.hh"
+
 #include "GLContext.hh"
 #include "SDLSurfacePtr.hh"
-#include "MSXException.hh"
-#include "Math.hh"
 #include "PNG.hh"
+
+#include "MSXException.hh"
+
+#include "Math.hh"
+#include "endian.hh"
 #include "narrow.hh"
 #include "xrange.hh"
-#include "endian.hh"
+
+#include <SDL.h>
+
 #include <cstdint>
 #include <cstdlib>
-#include <SDL.h>
 
 using namespace gl;
 
@@ -128,7 +133,7 @@ GLImage::GLImage(SDLSurfacePtr image)
 {
 }
 
-void GLImage::initBuffers()
+void GLImage::initBuffers() const
 {
 	// border
 	std::array<uint8_t, 10> indices = {4, 0, 5, 1, 6, 2, 7, 3, 4, 0};

@@ -20,7 +20,7 @@ namespace openmsx {
 class WavData
 {
 	struct NoFilter {
-		void setFreq(unsigned /*freq*/) {}
+		void setFreq(unsigned /*freq*/) const {}
 		uint16_t operator()(uint16_t x) const { return x; }
 	};
 

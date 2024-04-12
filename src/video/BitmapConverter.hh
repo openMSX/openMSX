@@ -3,6 +3,7 @@
 
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -86,20 +87,20 @@ private:
 	inline void renderGraphic4(std::span<Pixel, 256> buf,
 	                           std::span<const byte, 128> vramPtr0);
 	inline void renderGraphic5(std::span<Pixel, 512> buf,
-	                           std::span<const byte, 128> vramPtr0);
+	                           std::span<const byte, 128> vramPtr0) const;
 	inline void renderGraphic6(std::span<Pixel, 512> buf,
 	                           std::span<const byte, 128> vramPtr0,
 				   std::span<const byte, 128> vramPtr1);
 	inline void renderGraphic7(std::span<Pixel, 256> buf,
 	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1);
+				   std::span<const byte, 128> vramPtr1) const;
 	inline void renderYJK(     std::span<Pixel, 256> buf,
 	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1);
+				   std::span<const byte, 128> vramPtr1) const;
 	inline void renderYAE(     std::span<Pixel, 256> buf,
 	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1);
-	inline void renderBogus(   std::span<Pixel, 256> buf);
+				   std::span<const byte, 128> vramPtr1) const;
+	inline void renderBogus(   std::span<Pixel, 256> buf) const;
 
 private:
 	std::span<const Pixel, 16 * 2> palette16;

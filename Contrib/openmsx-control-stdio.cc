@@ -29,9 +29,9 @@ private:
 	// these methods get called when openMSX has send the corresponding tag
 	void openmsx_cmd_ok(const std::string& msg);
 	void openmsx_cmd_nok(const std::string& msg);
-	void openmsx_cmd_info(const std::string& msg);
-	void openmsx_cmd_warning(const std::string& msg);
-	void openmsx_cmd_update(const std::string& name, const std::string& value);
+	void openmsx_cmd_info(const std::string& msg) const;
+	void openmsx_cmd_warning(const std::string& msg) const;
+	void openmsx_cmd_update(const std::string& name, const std::string& value) const;
 
 	// XML parsing call-back functions
 	static void cb_start_element(OpenMSXComm* comm, const xmlChar* name,
@@ -47,7 +47,7 @@ private:
 	void doLog();
 	void doUpdate();
 
-	void deprecated();
+	void deprecated() const;
 
 	// commands being executed
 	std::list<std::string> commandStack;
@@ -114,22 +114,22 @@ void OpenMSXComm::openmsx_cmd_nok(const std::string& msg)
 	commandStack.pop_front();
 }
 
-void OpenMSXComm::openmsx_cmd_info(const std::string& msg)
+void OpenMSXComm::openmsx_cmd_info(const std::string& msg) const
 {
 	std::cout << "INFO: " << msg << '\n' << std::flush;
 }
 
-void OpenMSXComm::openmsx_cmd_warning(const std::string& msg)
+void OpenMSXComm::openmsx_cmd_warning(const std::string& msg) const
 {
 	std::cout << "WARNING: " << msg << '\n' << std::flush;
 }
 
-void OpenMSXComm::openmsx_cmd_update(const std::string& name, const std::string& value)
+void OpenMSXComm::openmsx_cmd_update(const std::string& name, const std::string& value) const
 {
 	std::cout << "UPDATE: " << name << ' ' << value << '\n' << std::flush;
 }
 
-void OpenMSXComm::deprecated()
+void OpenMSXComm::deprecated() const
 {
 	static bool alreadyPrinted = false;
 	if (!alreadyPrinted) {

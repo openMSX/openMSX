@@ -4,9 +4,11 @@
 #include "Probe.hh"
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
+
 #include "hash_map.hh"
 #include "outer.hh"
 #include "xxhash.hh"
+
 #include <string_view>
 #include <vector>
 #include <memory>
@@ -103,7 +105,7 @@ private:
 		void probeRemoveBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void probeListBreakPoints(std::span<const TclObject> tokens, TclObject& result);
 		void symbols(std::span<const TclObject> tokens, TclObject& result);
-		void symbolsTypes(std::span<const TclObject> tokens, TclObject& result);
+		void symbolsTypes(std::span<const TclObject> tokens, TclObject& result) const;
 		void symbolsLoad(std::span<const TclObject> tokens, TclObject& result);
 		void symbolsRemove(std::span<const TclObject> tokens, TclObject& result);
 		void symbolsFiles(std::span<const TclObject> tokens, TclObject& result);

@@ -1,10 +1,11 @@
 #ifndef MSXREALTIME_HH
 #define MSXREALTIME_HH
 
-#include "Schedulable.hh"
+#include "EmuTime.hh"
 #include "EventListener.hh"
 #include "Observer.hh"
-#include "EmuTime.hh"
+#include "Schedulable.hh"
+
 #include <cstdint>
 
 namespace openmsx {
@@ -31,18 +32,18 @@ public:
 
 	/** Convert EmuTime to RealTime.
 	  */
-	double getRealDuration(EmuTime::param time1, EmuTime::param time2);
+	[[nodiscard]] double getRealDuration(EmuTime::param time1, EmuTime::param time2) const;
 
 	/** Convert RealTime to EmuTime.
 	  */
-	EmuDuration getEmuDuration(double realDur);
+	[[nodiscard]] EmuDuration getEmuDuration(double realDur) const;
 
 	/** Check that there is enough real time left before we reach as certain
 	  * point in emulated time.
 	  * @param us Real time duration is micro seconds.
 	  * @param time Point in emulated time.
 	  */
-	bool timeLeft(uint64_t us, EmuTime::param time);
+	[[nodiscard]] bool timeLeft(uint64_t us, EmuTime::param time) const;
 
 	void resync();
 

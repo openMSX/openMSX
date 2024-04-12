@@ -3,6 +3,7 @@
 
 #include "EmuTime.hh"
 #include "SRAM.hh"
+
 #include <climits>
 #include <string>
 
@@ -39,7 +40,7 @@ public:
 	}
 
 private:
-	[[nodiscard]] uint8_t read(unsigned addr);
+	[[nodiscard]] uint8_t read(unsigned addr) const;
 	void write(unsigned addr, uint8_t value, EmuTime::param time);
 	void writeAll(uint8_t value, EmuTime::param time);
 	void erase(unsigned addr, EmuTime::param time);

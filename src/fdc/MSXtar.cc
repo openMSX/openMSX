@@ -339,7 +339,7 @@ unsigned MSXtar::countFreeClusters() const
 
 // Get the next sector from a file or (root/sub)directory
 // If no next sector then 0 is returned
-unsigned MSXtar::getNextSector(unsigned sector)
+unsigned MSXtar::getNextSector(unsigned sector) const
 {
 	assert(sector >= rootDirStart);
 	if (sector < dataStart) {

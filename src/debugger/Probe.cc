@@ -1,4 +1,5 @@
 #include "Probe.hh"
+
 #include "Debugger.hh"
 
 namespace openmsx {
@@ -24,7 +25,7 @@ Probe<void>::Probe(Debugger& debugger_, std::string name_,
 {
 }
 
-void Probe<void>::signal()
+void Probe<void>::signal() const
 {
 	notify();
 }

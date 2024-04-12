@@ -1,27 +1,30 @@
 #include "Debugger.hh"
+
+#include "BreakPoint.hh"
+#include "CommandException.hh"
+#include "DebugCondition.hh"
 #include "Debuggable.hh"
-#include "MSXCliComm.hh"
-#include "ProbeBreakPoint.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "BreakPoint.hh"
-#include "DebugCondition.hh"
+#include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXWatchIODevice.hh"
+#include "ProbeBreakPoint.hh"
 #include "Reactor.hh"
 #include "SymbolManager.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
+
 #include "MemBuffer.hh"
+#include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -705,7 +708,7 @@ void Debugger::Cmd::symbols(std::span<const TclObject> tokens, TclObject& result
 		"files",  [&]{ symbolsFiles(tokens, result); },
 		"lookup", [&]{ symbolsLookup(tokens, result); });
 }
-void Debugger::Cmd::symbolsTypes(std::span<const TclObject> tokens, TclObject& result)
+void Debugger::Cmd::symbolsTypes(std::span<const TclObject> tokens, TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "");
 	for (auto type = SymbolFile::Type::FIRST;

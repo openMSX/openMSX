@@ -2,8 +2,10 @@
 #define SRAM_HH
 
 #include "TrackedRam.hh"
+
 #include "DeviceConfig.hh"
 #include "RTSchedulable.hh"
+
 #include <optional>
 
 namespace openmsx {
@@ -51,7 +53,7 @@ private:
 	std::optional<SRAMSchedulable> schedulable;
 
 	void load(bool* loaded);
-	void save();
+	void save() const;
 
 	const DeviceConfig config;
 	TrackedRam ram;

@@ -29,7 +29,7 @@ public:
 
 	/** Returns true iff abort() was called.
 	  */
-	[[nodiscard]] bool aborted() {
+	[[nodiscard]] bool aborted() const {
 		return abortFlag;
 	}
 

@@ -5,9 +5,11 @@
 #include "EmuTime.hh"
 #include "InfoTopic.hh"
 #include "Mixer.hh"
-#include "Observer.hh"
 #include "Schedulable.hh"
+
+#include "Observer.hh"
 #include "dynarray.hh"
+
 #include <memory>
 #include <span>
 #include <vector>
@@ -140,7 +142,7 @@ public:
 	void reInit();
 
 private:
-	void updateVolumeParams(SoundDeviceInfo& info);
+	void updateVolumeParams(SoundDeviceInfo& info) const;
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();

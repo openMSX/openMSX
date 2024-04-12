@@ -1,9 +1,12 @@
 #include "MSXRomCLI.hh"
+
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+
 #include "one_of.hh"
+
 #include <cassert>
 
 using std::string;
@@ -62,7 +65,7 @@ std::string_view MSXRomCLI::fileTypeCategoryName() const
 }
 
 void MSXRomCLI::parse(const string& arg, const string& slotName,
-                      std::span<string>& cmdLine)
+                      std::span<string>& cmdLine) const
 {
 	// parse extra options  -ips  and  -romtype
 	std::vector<TclObject> options;

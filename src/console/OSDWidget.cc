@@ -1,15 +1,19 @@
 #include "OSDWidget.hh"
-#include "OutputSurface.hh"
-#include "Display.hh"
-#include "VideoSystem.hh"
+
 #include "CommandException.hh"
-#include "TclObject.hh"
+#include "Display.hh"
 #include "GLUtil.hh"
+#include "OutputSurface.hh"
+#include "TclObject.hh"
+#include "VideoSystem.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
+
 #include <SDL.h>
+
 #include <array>
 #include <limits>
 #include <optional>
@@ -246,7 +250,7 @@ void OSDWidget::invalidateRecursive()
 	invalidateChildren();
 }
 
-void OSDWidget::invalidateChildren()
+void OSDWidget::invalidateChildren() const
 {
 	for (auto& s : subWidgets) {
 		s->invalidateRecursive();

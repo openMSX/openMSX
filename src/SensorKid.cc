@@ -1,10 +1,12 @@
 #include "SensorKid.hh"
-#include "MSXCliComm.hh"
+
 #include "CommandController.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "StringSetting.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

@@ -77,7 +77,7 @@ void ImGuiSettings::loadEnd()
 	setStyle();
 }
 
-void ImGuiSettings::setStyle()
+void ImGuiSettings::setStyle() const
 {
 	switch (selectedStyle) {
 	case 0: ImGui::StyleColorsDark();    break;

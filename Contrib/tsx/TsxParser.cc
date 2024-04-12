@@ -390,7 +390,7 @@ const T& TsxParser::get()
 	return *t;
 }
 
-void TsxParser::error(std::string msg)
+void TsxParser::error(std::string msg) const
 {
 	throw msg;
 }

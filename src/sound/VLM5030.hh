@@ -2,8 +2,10 @@
 #define VLM5030_HH
 
 #include "ResampledSoundDevice.hh"
-#include "Rom.hh"
+
 #include "EmuTime.hh"
+#include "Rom.hh"
+
 #include <array>
 #include <cstdint>
 #include <string>
@@ -42,7 +44,7 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	void setupParameter(uint8_t param);
-	[[nodiscard]] unsigned getBits(unsigned sBit, unsigned bits);
+	[[nodiscard]] unsigned getBits(unsigned sBit, unsigned bits) const;
 	[[nodiscard]] int parseFrame();
 
 private:

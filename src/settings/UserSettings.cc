@@ -1,15 +1,19 @@
 #include "UserSettings.hh"
-#include "GlobalCommandController.hh"
-#include "SettingsManager.hh"
-#include "CommandException.hh"
-#include "TclObject.hh"
-#include "StringSetting.hh"
+
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "IntegerSetting.hh"
+#include "SettingsManager.hh"
+#include "StringSetting.hh"
+
+#include "GlobalCommandController.hh"
+#include "CommandException.hh"
+#include "TclObject.hh"
+
 #include "checked_cast.hh"
 #include "ranges.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -93,7 +97,7 @@ void UserSettings::Cmd::create(std::span<const TclObject> tokens, TclObject& res
 	result = tokens[3]; // name
 }
 
-UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> tokens) const
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initial-value");
 	const auto& sName   = tokens[3].getString();
@@ -106,7 +110,7 @@ UserSettings::Info UserSettings::Cmd::createString(std::span<const TclObject> to
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> tokens) const
 {
 	checkNumArgs(tokens, 6, Prefix{3}, "name description initial-value");
 	const auto& sName   = tokens[3].getString();
@@ -119,7 +123,7 @@ UserSettings::Info UserSettings::Cmd::createBoolean(std::span<const TclObject> t
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> tokens) const
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initial-value min-value max-value");
 	auto& interp = getInterpreter();
@@ -135,7 +139,7 @@ UserSettings::Info UserSettings::Cmd::createInteger(std::span<const TclObject> t
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tokens) const
 {
 	checkNumArgs(tokens, 8, Prefix{3}, "name description initial-value min-value max-value");
 	auto& interp = getInterpreter();
@@ -151,7 +155,7 @@ UserSettings::Info UserSettings::Cmd::createFloat(std::span<const TclObject> tok
 	        std::move(storage)};
 }
 
-UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> tokens)
+UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> tokens) const
 {
 	checkNumArgs(tokens, 7, Prefix{3}, "name description initial-value allowed-values-list");
 	const auto& sName   = tokens[3].getString();
@@ -192,7 +196,7 @@ void UserSettings::Cmd::destroy(std::span<const TclObject> tokens, TclObject& /*
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettings::Cmd::info(std::span<const TclObject> /*tokens*/, TclObject& result)
+void UserSettings::Cmd::info(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result.addListElements(getSettingNames());
 }

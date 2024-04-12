@@ -1,51 +1,54 @@
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
-#include "MSXDevice.hh"
-#include "ReverseManager.hh"
-#include "HardwareConfig.hh"
-#include "ConfigException.hh"
-#include "XMLElement.hh"
-#include "MSXCliComm.hh"
-#include "GlobalCliComm.hh"
-#include "MSXCommandController.hh"
-#include "Scheduler.hh"
-#include "Schedulable.hh"
-#include "CartridgeSlotManager.hh"
-#include "EventDistributor.hh"
-#include "Debugger.hh"
-#include "SimpleDebuggable.hh"
-#include "MSXMixer.hh"
-#include "PluggingController.hh"
-#include "MSXCPUInterface.hh"
-#include "MSXCPU.hh"
-#include "PanasonicMemory.hh"
-#include "MSXDeviceSwitch.hh"
-#include "MSXMapperIO.hh"
-#include "CassettePort.hh"
-#include "JoystickPort.hh"
-#include "RenShaTurbo.hh"
-#include "LedStatus.hh"
-#include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
-#include "EventDelay.hh"
-#include "RealTime.hh"
-#include "DeviceFactory.hh"
+
 #include "BooleanSetting.hh"
-#include "GlobalSettings.hh"
+#include "CartridgeSlotManager.hh"
+#include "CassettePort.hh"
 #include "Command.hh"
 #include "CommandException.hh"
-#include "InfoTopic.hh"
+#include "ConfigException.hh"
+#include "Debugger.hh"
+#include "DeviceFactory.hh"
+#include "EventDelay.hh"
+#include "EventDistributor.hh"
 #include "FileException.hh"
-#include "TclObject.hh"
+#include "GlobalCliComm.hh"
+#include "GlobalSettings.hh"
+#include "HardwareConfig.hh"
+#include "InfoTopic.hh"
+#include "JoystickPort.hh"
+#include "LedStatus.hh"
+#include "MSXCPU.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXCliComm.hh"
+#include "MSXCommandController.hh"
+#include "MSXDevice.hh"
+#include "MSXDeviceSwitch.hh"
+#include "MSXEventDistributor.hh"
+#include "MSXMapperIO.hh"
+#include "MSXMixer.hh"
 #include "Observer.hh"
+#include "PanasonicMemory.hh"
+#include "PluggingController.hh"
+#include "Reactor.hh"
+#include "RealTime.hh"
+#include "RenShaTurbo.hh"
+#include "ReverseManager.hh"
+#include "Schedulable.hh"
+#include "Scheduler.hh"
+#include "SimpleDebuggable.hh"
+#include "StateChangeDistributor.hh"
+#include "TclObject.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+
 #include "ScopedAssign.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+
 #include <cassert>
 #include <functional>
 #include <iostream>
@@ -535,7 +538,7 @@ InfoCommand& MSXMotherBoard::getMachineInfoCommand()
 	return msxCommandController->getMachineInfoCommand();
 }
 
-EmuTime::param MSXMotherBoard::getCurrentTime()
+EmuTime::param MSXMotherBoard::getCurrentTime() const
 {
 	return scheduler->getCurrentTime();
 }
@@ -612,7 +615,7 @@ void MSXMotherBoard::doReset()
 	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
-byte MSXMotherBoard::readIRQVector()
+byte MSXMotherBoard::readIRQVector() const
 {
 	byte result = 0xff;
 	for (auto& d : availableDevices) {

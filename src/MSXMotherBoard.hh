@@ -1,14 +1,15 @@
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 
-#include "EmuTime.hh"
-#include "VideoSourceSetting.hh"
 #include "BooleanSetting.hh"
+#include "EmuTime.hh"
+#include "RecordedCommand.hh"
+#include "VideoSourceSetting.hh"
 #include "hash_map.hh"
+#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "xxhash.hh"
-#include "openmsx.hh"
-#include "RecordedCommand.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -116,7 +117,7 @@ public:
 	[[nodiscard]] bool isActive() const { return active; }
 	[[nodiscard]] bool isFastForwarding() const { return fastForwarding; }
 
-	[[nodiscard]] byte readIRQVector();
+	[[nodiscard]] byte readIRQVector() const;
 
 	[[nodiscard]] const HardwareConfig* getMachineConfig() const { return machineConfig; }
 	[[nodiscard]] HardwareConfig* getMachineConfig() { return machineConfig; }
@@ -165,7 +166,7 @@ public:
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	[[nodiscard]] EmuTime::param getCurrentTime();
+	[[nodiscard]] EmuTime::param getCurrentTime() const;
 
 	/** All MSXDevices should be registered by the MotherBoard.
 	 */

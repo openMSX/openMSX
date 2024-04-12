@@ -9,13 +9,17 @@
 // 100% realtime speed (which is most of the time better for sound quality).
 
 #include "Y8950Adpcm.hh"
+
 #include "Y8950.hh"
+
 #include "Clock.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+
 #include <algorithm>
 #include <array>
 
@@ -92,7 +96,7 @@ bool Y8950Adpcm::isMuted() const
 	return !isPlaying() || (reg7 & R07_SP_OFF);
 }
 
-void Y8950Adpcm::restart(PlayData& pd)
+void Y8950Adpcm::restart(PlayData& pd) const
 {
 	pd.memPtr = startAddr;
 	pd.nowStep = (1 << STEP_BITS) - delta;

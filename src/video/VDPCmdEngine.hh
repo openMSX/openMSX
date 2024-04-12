@@ -3,11 +3,12 @@
 
 #include "VDP.hh"
 #include "VDPAccessSlots.hh"
+
 #include "BooleanSetting.hh"
 #include "Probe.hh"
 #include "TclCallback.hh"
-#include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -154,7 +155,7 @@ private:
 	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
 	// Advance to the next access slot at or past the given time.
-	inline EmuTime getNextAccessSlot(EmuTime::param time) {
+	inline EmuTime getNextAccessSlot(EmuTime::param time) const {
 		return vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
 	}
 	inline void nextAccessSlot(EmuTime::param time) {
@@ -162,7 +163,7 @@ private:
 	}
 	// Advance to the next access slot that is at least 'delta' cycles past
 	// the current one.
-	inline EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) {
+	inline EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const {
 		return vdp.getAccessSlot(time, delta);
 	}
 	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {

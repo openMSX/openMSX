@@ -2,19 +2,20 @@
 #define KEYBOARD_HH
 
 #include "KeyboardSettings.hh"
-#include "UnicodeKeymap.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include "Schedulable.hh"
-#include "RecordedCommand.hh"
-#include "SimpleDebuggable.hh"
+#include "UnicodeKeymap.hh"
+
 #include "Event.hh"
 #include "EventListener.hh"
+#include "RecordedCommand.hh"
+#include "Schedulable.hh"
+#include "SimpleDebuggable.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cstdint>
 #include <deque>
-#include <memory>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -107,8 +108,8 @@ private:
 			bool down);
 	uint8_t pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(uint8_t lockKeysMask, bool down);
-	bool commonKeys(unsigned unicode1, unsigned unicode2);
-	void debug(const char* format, ...);
+	[[nodiscard]] bool commonKeys(unsigned unicode1, unsigned unicode2) const;
+	void debug(const char* format, ...) const;
 
 	/** Returns a bit vector in which the bit for a modifier is set iff that
 	  * modifier is a lock key and must be toggled before the given key input

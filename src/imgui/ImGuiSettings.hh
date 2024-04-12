@@ -32,7 +32,7 @@ private:
 	void initListener();
 	void deinitListener();
 
-	void setStyle();
+	void setStyle() const;
 	void paintJoystick(MSXMotherBoard& motherBoard);
 	void paintFont();
 	void paintShortcut();

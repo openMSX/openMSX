@@ -26,7 +26,7 @@ public:
 
 private:
 	void parse(const std::string& arg, const std::string& slotName,
-	           std::span<std::string>& cmdLine);
+	           std::span<std::string>& cmdLine) const;
 
 private:
 	CommandLineParser& cmdLineParser;

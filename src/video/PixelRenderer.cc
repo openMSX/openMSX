@@ -418,7 +418,7 @@ static constexpr bool overlap(
 	return false;
 }
 
-inline bool PixelRenderer::checkSync(unsigned offset, EmuTime::param time)
+bool PixelRenderer::checkSync(unsigned offset, EmuTime::param time) const
 {
 	// TODO: Because range is entire VRAM, offset == address.
 

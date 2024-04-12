@@ -5,15 +5,18 @@
 ******************************************************************************/
 
 #include "YM2151.hh"
+
 #include "DeviceConfig.hh"
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -440,7 +443,8 @@ static constexpr std::array<uint8_t, 256> lfo_noise_waveform = {
 0xE2,0x4D,0x8A,0xA6,0x46,0x95,0x0F,0x8F,0xF5,0x15,0x97,0x32,0xD4,0x28,0x1E,0x55
 };
 
-void YM2151::keyOn(YM2151Operator& op, unsigned keySet) {
+void YM2151::keyOn(YM2151Operator& op, unsigned keySet) const
+{
 	if (!op.key) {
 		op.phase = 0; /* clear phase */
 		op.state = EG_ATT; /* KEY ON = attack */
@@ -455,7 +459,8 @@ void YM2151::keyOn(YM2151Operator& op, unsigned keySet) {
 	op.key |= keySet;
 }
 
-void YM2151::keyOff(YM2151Operator& op, unsigned keyClear) {
+void YM2151::keyOff(YM2151Operator& op, unsigned keyClear) const
+{
 	if (op.key) {
 		op.key &= keyClear;
 		if (!op.key) {
@@ -965,7 +970,7 @@ void YM2151::reset(EmuTime::param time)
 	irq.reset();
 }
 
-int YM2151::opCalc(YM2151Operator& op, unsigned env, int pm)
+int YM2151::opCalc(YM2151Operator& op, unsigned env, int pm) const
 {
 	unsigned p = (env << 3) + sin_tab[(int((op.phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
@@ -974,7 +979,7 @@ int YM2151::opCalc(YM2151Operator& op, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-int YM2151::opCalc1(YM2151Operator& op, unsigned env, int pm)
+int YM2151::opCalc1(YM2151Operator& op, unsigned env, int pm) const
 {
 	int i = (narrow_cast<int>(op.phase) & ~FREQ_MASK) + pm;
 	unsigned p = (env << 3) + sin_tab[(i >> FREQ_SH) & SIN_MASK];
@@ -984,7 +989,7 @@ int YM2151::opCalc1(YM2151Operator& op, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-unsigned YM2151::volumeCalc(YM2151Operator& op, unsigned AM)
+unsigned YM2151::volumeCalc(YM2151Operator& op, unsigned AM) const
 {
 	return op.tl + unsigned(op.volume) + (AM & op.AMmask);
 }

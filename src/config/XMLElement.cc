@@ -1,4 +1,5 @@
 #include "XMLElement.hh"
+
 #include "ConfigException.hh"
 #include "File.hh"
 #include "FileContext.hh" // for bw compat
@@ -10,6 +11,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
+
 #include <cassert>
 #include <vector>
 
@@ -409,7 +411,7 @@ static void saveElement(MemOutputArchive& ar, const XMLElement& elem)
 	}
 }
 
-void XMLDocument::serialize(MemOutputArchive& ar, unsigned /*version*/)
+void XMLDocument::serialize(MemOutputArchive& ar, unsigned /*version*/) const
 {
 	if (root) {
 		saveElement(ar, *root);
@@ -471,7 +473,7 @@ static void saveElement(XMLOutputStream<XmlOutputArchive>& stream, const XMLElem
 	});
 }
 
-void XMLDocument::serialize(XmlOutputArchive& ar, unsigned /*version*/)
+void XMLDocument::serialize(XmlOutputArchive& ar, unsigned /*version*/) const
 {
 	auto& stream = ar.getXMLOutputStream();
 	if (root) {

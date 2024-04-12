@@ -2,12 +2,15 @@
 #define YMF262_HH
 
 #include "ResampledSoundDevice.hh"
-#include "SimpleDebuggable.hh"
+
 #include "EmuTimer.hh"
+
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
 #include "IRQHelper.hh"
+#include "SimpleDebuggable.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -34,7 +37,7 @@ public:
 	void reset(EmuTime::param time);
 	void writeReg   (unsigned r, uint8_t v, EmuTime::param time);
 	void writeReg512(unsigned r, uint8_t v, EmuTime::param time);
-	[[nodiscard]] uint8_t readReg(unsigned reg);
+	[[nodiscard]] uint8_t readReg(unsigned reg) const;
 	[[nodiscard]] uint8_t peekReg(unsigned reg) const;
 	[[nodiscard]] uint8_t readStatus();
 	[[nodiscard]] uint8_t peekStatus() const;
@@ -170,7 +173,7 @@ private:
 	void set_ksl_tl(unsigned sl, uint8_t v);
 	void set_ar_dr(unsigned sl, uint8_t v);
 	void set_sl_rr(unsigned sl, uint8_t v);
-	bool checkMuteHelper();
+	[[nodiscard]] bool checkMuteHelper() const;
 
 	[[nodiscard]] bool isExtended(unsigned ch) const;
 	[[nodiscard]] Channel& getFirstOfPair(unsigned ch);

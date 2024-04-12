@@ -1,12 +1,11 @@
 #ifndef AUTOFIRE_HH
 #define AUTOFIRE_HH
 
-#include "Observer.hh"
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
+#include "Observer.hh"
 #include "StateChangeListener.hh"
-#include "static_string_view.hh"
 
 namespace openmsx {
 
@@ -17,7 +16,7 @@ class StateChangeDistributor;
 /**
  * Autofire is a device that is between two other devices and outside
  * the bus. For example, between the keyboard and the PPI
- * or between a joyport connecter and the PSG.
+ * or between a joyPort connecter and the PSG.
  *
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
@@ -37,7 +36,7 @@ public:
 	  * @result When auto-fire is on, result will alternate between true
 	  *         and false. When auto-fire if off result is false.
 	  */
-	[[nodiscard]] bool getSignal(EmuTime::param time);
+	[[nodiscard]] bool getSignal(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

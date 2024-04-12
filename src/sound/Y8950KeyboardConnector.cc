@@ -1,8 +1,12 @@
 #include "Y8950KeyboardConnector.hh"
-#include "Y8950KeyboardDevice.hh"
+
 #include "DummyY8950KeyboardDevice.hh"
-#include "checked_cast.hh"
+#include "Y8950KeyboardDevice.hh"
+
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <memory>
 
 namespace openmsx {
@@ -22,7 +26,7 @@ void Y8950KeyboardConnector::write(byte newData, EmuTime::param time)
 	}
 }
 
-byte Y8950KeyboardConnector::read(EmuTime::param time)
+byte Y8950KeyboardConnector::read(EmuTime::param time) const
 {
 	return getPluggedKeyb().read(time);
 }
@@ -30,7 +34,7 @@ byte Y8950KeyboardConnector::read(EmuTime::param time)
 byte Y8950KeyboardConnector::peek(EmuTime::param time) const
 {
 	// TODO implement proper peek
-	return const_cast<Y8950KeyboardConnector*>(this)->read(time);
+	return read(time);
 }
 
 std::string_view Y8950KeyboardConnector::getDescription() const

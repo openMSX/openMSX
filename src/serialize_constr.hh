@@ -32,9 +32,9 @@ template<typename T> struct SerializeConstructorArgs
 {
 	using type = std::tuple<>;
 	template<typename Archive>
-	void save(Archive& /*ar*/, const T& /*t*/) { }
+	void save(Archive& /*ar*/, const T& /*t*/) const {}
 	template<typename Archive>
-	type load(Archive& /*ar*/, unsigned /*version*/) { return {}; }
+	type load(Archive& /*ar*/, unsigned /*version*/) const { return {}; }
 };
 
 } // namespace openmsx

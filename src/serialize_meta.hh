@@ -66,7 +66,7 @@ template<typename T> struct PolymorphicBaseClass;
 template<typename Base> struct MapConstrArgsEmpty
 {
 	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
-	std::tuple<> operator()(const TUPLEIn& /*t*/)
+	std::tuple<> operator()(const TUPLEIn& /*t*/) const
 	{
 		return {};
 	}

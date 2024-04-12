@@ -30,16 +30,19 @@
 // in the MSXMoonSound class.
 
 #include "YMF278.hh"
+
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 
 namespace openmsx {
@@ -559,7 +562,7 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 	}
 }
 
-void YMF278::keyOnHelper(YMF278::Slot& slot)
+void YMF278::keyOnHelper(YMF278::Slot& slot) const
 {
 	// Unlike FM, the envelope level is reset. (And it makes sense, because you restart the sample.)
 	slot.env_vol = MAX_ATT_INDEX;

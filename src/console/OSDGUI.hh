@@ -3,6 +3,7 @@
 
 #include "OSDTopWidget.hh"
 #include "Command.hh"
+
 #include <memory>
 
 namespace openmsx {
@@ -38,7 +39,7 @@ private:
 		void configure(std::span<const TclObject> tokens, TclObject& result);
 		[[nodiscard]] std::unique_ptr<OSDWidget> create(
 			std::string_view type, const TclObject& name) const;
-		void configure(OSDWidget& widget, std::span<const TclObject> tokens);
+		void configure(OSDWidget& widget, std::span<const TclObject> tokens) const;
 
 		[[nodiscard]] OSDWidget& getWidget(std::string_view name) const;
 	} osdCommand;

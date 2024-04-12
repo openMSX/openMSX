@@ -8,7 +8,6 @@
 
 #include <algorithm>
 #include <bit>
-#include <cstdint>
 #include <tuple>
 
 namespace openmsx {
@@ -145,7 +144,7 @@ void BitmapConverter::renderGraphic4(
 
 void BitmapConverter::renderGraphic5(
 	std::span<Pixel, 512> buf,
-	std::span<const byte, 128> vramPtr0)
+	std::span<const byte, 128> vramPtr0) const
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(128)) {
@@ -206,7 +205,7 @@ void BitmapConverter::renderGraphic6(
 void BitmapConverter::renderGraphic7(
 	std::span<Pixel, 256> buf,
 	std::span<const byte, 128> vramPtr0,
-	std::span<const byte, 128> vramPtr1)
+	std::span<const byte, 128> vramPtr1) const
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(128)) {
@@ -231,7 +230,7 @@ static constexpr std::tuple<int, int, int> yjk2rgb(int y, int j, int k)
 void BitmapConverter::renderYJK(
 	std::span<Pixel, 256> buf,
 	std::span<const byte, 128> vramPtr0,
-	std::span<const byte, 128> vramPtr1)
+	std::span<const byte, 128> vramPtr1) const
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {
@@ -256,7 +255,7 @@ void BitmapConverter::renderYJK(
 void BitmapConverter::renderYAE(
 	std::span<Pixel, 256> buf,
 	std::span<const byte, 128> vramPtr0,
-	std::span<const byte, 128> vramPtr1)
+	std::span<const byte, 128> vramPtr1) const
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	for (auto i : xrange(64)) {
@@ -285,7 +284,7 @@ void BitmapConverter::renderYAE(
 	}
 }
 
-void BitmapConverter::renderBogus(std::span<Pixel, 256> buf)
+void BitmapConverter::renderBogus(std::span<Pixel, 256> buf) const
 {
 	// Verified on real V9958: all bogus modes behave like this, always
 	// show palette color 15.

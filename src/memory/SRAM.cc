@@ -1,13 +1,15 @@
 #include "SRAM.hh"
+
 #include "DeviceConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
-#include "Reactor.hh"
 #include "MSXCliComm.hh"
-#include "serialize.hh"
+#include "Reactor.hh"
 #include "openmsx.hh"
+#include "serialize.hh"
+
 #include "vla.hh"
 
 namespace openmsx {
@@ -112,7 +114,7 @@ void SRAM::load(bool* loaded)
 	}
 }
 
-void SRAM::save()
+void SRAM::save() const
 {
 	assert(config.getXML());
 	const auto& filename = config.getChildData("sramname");

@@ -3,6 +3,7 @@
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -42,7 +43,7 @@ public:
 	static void checkSize(gl::ivec2 size);
 
 private:
-	void initBuffers();
+	void initBuffers() const;
 
 private:
 	gl::ivec2 size;

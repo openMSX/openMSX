@@ -1,8 +1,9 @@
 #include "DiskImageCLI.hh"
+
 #include "CommandLineParser.hh"
 #include "Interpreter.hh"
-#include "TclObject.hh"
 #include "MSXException.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 
@@ -50,7 +51,7 @@ std::string_view DiskImageCLI::fileTypeCategoryName() const
 }
 
 void DiskImageCLI::parse(zstring_view drive, std::string_view image,
-                         std::span<std::string>& cmdLine)
+                         std::span<std::string>& cmdLine) const
 {
 	if (!parser.getInterpreter().hasCommand(drive)) {
 		throw MSXException("No disk drive ", char(::toupper(drive.back())), " present to put image '", image, "' in.");

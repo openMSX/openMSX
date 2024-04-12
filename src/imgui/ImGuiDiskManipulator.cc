@@ -59,7 +59,7 @@ std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::get
 	}
 }
 
-bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir)
+bool ImGuiDiskManipulator::isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir) const
 {
 	assert(dir.starts_with('/'));
 	try {
@@ -153,7 +153,7 @@ void ImGuiDiskManipulator::refreshHost()
 	hostForceSort = true;
 }
 
-void ImGuiDiskManipulator::checkSort(std::vector<FileInfo>& files, bool& forceSort)
+void ImGuiDiskManipulator::checkSort(std::vector<FileInfo>& files, bool& forceSort) const
 {
 	auto* sortSpecs = ImGui::TableGetSortSpecs();
 	if (!forceSort && !sortSpecs->SpecsDirty) return;

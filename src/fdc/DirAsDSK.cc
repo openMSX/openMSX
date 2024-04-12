@@ -1,17 +1,20 @@
 #include "DirAsDSK.hh"
-#include "DiskChanger.hh"
-#include "Scheduler.hh"
-#include "CliComm.hh"
+
 #include "BootBlocks.hh"
+#include "CliComm.hh"
+#include "DiskChanger.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "ReadDir.hh"
+#include "Scheduler.hh"
+
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -207,7 +210,7 @@ bool DirAsDSK::checkMSXFileExists(
 
 // Returns msx directory entry for the given host file. Or -1 if the host file
 // is not mapped in the virtual disk.
-DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(std::string_view hostName)
+DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(std::string_view hostName) const
 {
 	for (const auto& [dirIdx, mapDir] : mapDirs) {
 		if (mapDir.hostName == hostName) {
@@ -1063,16 +1066,16 @@ template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
 // This implements all required methods with empty implementations.
 struct NullScanner {
 	// Called right before we enter a new subdirectory.
-	void onVisitSubDir(DirAsDSK::DirIndex /*subdir*/) {}
+	void onVisitSubDir(DirAsDSK::DirIndex /*subdir*/) const {}
 
 	// Called when a new sector of a (sub)directory is being scanned.
-	inline bool onDirSector(unsigned /*dirSector*/) {
+	inline bool onDirSector(unsigned /*dirSector*/) const {
 		return false;
 	}
 
 	// Called for each directory entry (in a sector).
 	inline bool onDirEntry(DirAsDSK::DirIndex /*dirIndex*/,
-	                       const MSXDirEntry& /*entry*/) {
+	                       const MSXDirEntry& /*entry*/) const {
 		return false;
 	}
 };

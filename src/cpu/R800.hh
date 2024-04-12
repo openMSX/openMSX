@@ -4,10 +4,12 @@
 #include "CPUClock.hh"
 #include "CPURegs.hh"
 #include "Clock.hh"
+
 #include "inline.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -160,7 +162,7 @@ protected:
 		lastRefreshTime.reset(time);
 	}
 
-	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
+	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) const { /* nothing*/ }
 	[[nodiscard]] ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
 	static constexpr int I  = 6; // cycles for an I/O operation

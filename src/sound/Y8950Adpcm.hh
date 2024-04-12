@@ -1,11 +1,11 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
-#include "TrackedRam.hh"
-#include "Schedulable.hh"
 #include "Clock.hh"
-#include "serialize_meta.hh"
+#include "Schedulable.hh"
+#include "TrackedRam.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -48,7 +48,7 @@ private:
 	void executeUntil(EmuTime::param time) override;
 
 	void schedule();
-	void restart(PlayData& pd);
+	void restart(PlayData& pd) const;
 
 	[[nodiscard]] bool isPlaying() const;
 	void writeData(byte data);

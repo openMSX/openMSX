@@ -62,7 +62,7 @@ void DebuggableEditor::loadEnd()
 	updateAddr = true;
 }
 
-DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize)
+DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize) const
 {
 	Sizes s;
 	const auto& style = ImGui::GetStyle();
@@ -175,7 +175,7 @@ struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
 	return (val < 32 || val >= 128) ? '.' : char(val);
 }
 
-[[nodiscard]] std::string DebuggableEditor::formatAddr(const Sizes& s, unsigned addr)
+[[nodiscard]] std::string DebuggableEditor::formatAddr(const Sizes& s, unsigned addr) const
 {
 	return strCat(hex_string<HexCase::upper>(Digits{size_t(s.addrDigitsCount)}, addr));
 }

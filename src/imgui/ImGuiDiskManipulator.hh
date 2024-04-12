@@ -55,12 +55,12 @@ private:
 	[[nodiscard]] std::optional<DiskManipulator::DriveAndPartition> getDriveAndDisk();
 	[[nodiscard]] std::optional<DrivePartitionTar> getMsxStuff();
 
-	[[nodiscard]] bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir);
+	[[nodiscard]] bool isValidMsxDirectory(DrivePartitionTar& stuff, const std::string& dir) const;
 	[[nodiscard]] std::string getDiskImageName();
 	[[nodiscard]] std::vector<FileInfo> dirMSX(DrivePartitionTar& stuff);
 	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();
-	void checkSort(std::vector<FileInfo>& files, bool& forceSort);
+	void checkSort(std::vector<FileInfo>& files, bool& forceSort) const;
 	[[nodiscard]] Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
 	void insertMsxDisk();
 	void exportDiskImage();

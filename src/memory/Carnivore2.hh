@@ -48,7 +48,7 @@ private:
 	// config regs
 	[[nodiscard]] unsigned getDirectFlashAddr() const;
 	[[nodiscard]] byte peekConfigRegister(word address, EmuTime::param time) const;
-	[[nodiscard]] byte readConfigRegister(word address, EmuTime::param time);
+	[[nodiscard]] byte readConfigRegister(word address, EmuTime::param time) const;
 	void writeSndLVL(byte value, EmuTime::param time);
 	void writeCfgEEPR(byte value, EmuTime::param time);
 	void writePSGCtrl(byte value, EmuTime::param time);
@@ -102,7 +102,7 @@ private:
 	[[nodiscard]] unsigned getMemoryMapperAddress(word address) const;
 	[[nodiscard]] bool isMemoryMapperWriteProtected(word address) const;
 	[[nodiscard]] byte peekMemoryMapperSlot(word address) const;
-	[[nodiscard]] byte readMemoryMapperSlot(word address);
+	[[nodiscard]] byte readMemoryMapperSlot(word address) const;
 	void writeMemoryMapperSlot(word address, byte value);
 
 	// fm-pac

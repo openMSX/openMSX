@@ -2,8 +2,10 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
+
 #include "outer.hh"
 #include "view.hh"
+
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -39,13 +41,13 @@ private:
 	private:
 		void create (std::span<const TclObject> tokens, TclObject& result);
 		void destroy(std::span<const TclObject> tokens, TclObject& result);
-		void info   (std::span<const TclObject> tokens, TclObject& result);
+		void info   (std::span<const TclObject> tokens, TclObject& result) const;
 
-		[[nodiscard]] Info createString (std::span<const TclObject> tokens);
-		[[nodiscard]] Info createBoolean(std::span<const TclObject> tokens);
-		[[nodiscard]] Info createInteger(std::span<const TclObject> tokens);
-		[[nodiscard]] Info createFloat  (std::span<const TclObject> tokens);
-		[[nodiscard]] Info createEnum   (std::span<const TclObject> tokens);
+		[[nodiscard]] Info createString (std::span<const TclObject> tokens) const;
+		[[nodiscard]] Info createBoolean(std::span<const TclObject> tokens) const;
+		[[nodiscard]] Info createInteger(std::span<const TclObject> tokens) const;
+		[[nodiscard]] Info createFloat  (std::span<const TclObject> tokens) const;
+		[[nodiscard]] Info createEnum   (std::span<const TclObject> tokens) const;
 
 		[[nodiscard]] auto getSettingNames() const {
 			return view::transform(

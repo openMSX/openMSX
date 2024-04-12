@@ -1,23 +1,21 @@
 #include "DiskManipulator.hh"
 
-#include "DiskContainer.hh"
-#include "MSXtar.hh"
-#include "DiskImageUtils.hh"
-#include "DSKDiskImage.hh"
-#include "DiskPartition.hh"
 #include "CommandException.hh"
-#include "Reactor.hh"
+#include "DSKDiskImage.hh"
+#include "DiskContainer.hh"
+#include "DiskImageUtils.hh"
+#include "DiskPartition.hh"
 #include "File.hh"
-#include "Filename.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
-#include "SectorBasedDisk.hh"
-#include "MsxChar2Unicode.hh"
+#include "Filename.hh"
+#include "Keyboard.hh"
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXPPI.hh"
-#include "Keyboard.hh"
+#include "MSXtar.hh"
+#include "Reactor.hh"
+#include "SectorBasedDisk.hh"
 
 #include "StringOp.hh"
 #include "TclArgParser.hh"
@@ -25,7 +23,6 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "static_vector.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "view.hh"
@@ -512,7 +509,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 }
 
 void DiskManipulator::savedsk(const DriveSettings& driveData,
-                              string filename)
+                              string filename) const
 {
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
@@ -549,7 +546,7 @@ void DiskManipulator::create(std::span<const TclObject> tokens)
 	create(filename, bootType, sizes);
 }
 
-void DiskManipulator::create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes)
+void DiskManipulator::create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes) const
 {
 	size_t totalSectors = sum(sizes, [](size_t s) { return s; });
 	if (totalSectors == 0) {
@@ -629,7 +626,7 @@ void DiskManipulator::format(std::span<const TclObject> tokens)
 }
 
 MSXtar DiskManipulator::getMSXtar(
-	SectorAccessibleDisk& disk, DriveSettings& driveData)
+	SectorAccessibleDisk& disk, DriveSettings& driveData) const
 {
 	if (DiskImageUtils::hasPartitionTable(disk)) {
 		throw CommandException("Please select partition number.");

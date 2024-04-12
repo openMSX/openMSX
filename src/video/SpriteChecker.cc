@@ -40,7 +40,7 @@ void SpriteChecker::reset(EmuTime::param time)
 }
 
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
-	unsigned patternNr, unsigned y)
+	unsigned patternNr, unsigned y) const
 {
 	auto patternPtr = vram.spritePatternTable.getReadArea<256 * 8>(0);
 	unsigned index = patternNr * 8 + y;
@@ -51,7 +51,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
-	unsigned patternNr, unsigned y)
+	unsigned patternNr, unsigned y) const
 {
 	auto [ptr0, ptr1] = vram.spritePatternTable.getReadAreaPlanar<256 * 8>(0);
 	unsigned index = patternNr * 8 + y;

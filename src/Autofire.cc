@@ -1,8 +1,10 @@
 #include "Autofire.hh"
+
 #include "MSXMotherBoard.hh"
 #include "Scheduler.hh"
 #include "StateChange.hh"
 #include "StateChangeDistributor.hh"
+
 #include <algorithm>
 #include <cassert>
 
@@ -106,7 +108,7 @@ void Autofire::stopReplay(EmuTime::param time) noexcept
 	setSpeed(time); // re-sync with current value of the setting
 }
 
-bool Autofire::getSignal(EmuTime::param time)
+bool Autofire::getSignal(EmuTime::param time) const
 {
 	return (clock.getPeriod() == EmuDuration::zero())
 		? false // special value: disabled

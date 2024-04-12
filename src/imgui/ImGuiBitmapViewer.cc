@@ -260,7 +260,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 // TODO avoid code duplication with src/video/BitmapConverter
 void ImGuiBitmapViewer::renderBitmap(std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette16,
-                                     int mode, int lines, int page, uint32_t* output)
+                                     int mode, int lines, int page, uint32_t* output) const
 {
 	auto yjk2rgb = [](int y, int j, int k) -> std::tuple<int, int, int> {
 		// Note the formula for 'blue' differs from the 'traditional' formula

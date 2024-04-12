@@ -49,7 +49,7 @@ public:
 
 private:
 	void init(File& file);
-	void cleanup();
+	void cleanup() const;
 
 private:
 	std::string tmpFile;

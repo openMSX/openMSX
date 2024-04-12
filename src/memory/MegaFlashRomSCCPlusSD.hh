@@ -48,7 +48,7 @@ private:
 	byte subslotReg;
 
 	// subslot 0
-	[[nodiscard]] byte readMemSubSlot0(word address);
+	[[nodiscard]] byte readMemSubSlot0(word address) const;
 	[[nodiscard]] byte peekMemSubSlot0(word address) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot0(word address) const;
 	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address) const;

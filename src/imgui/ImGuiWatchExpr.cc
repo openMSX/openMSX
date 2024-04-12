@@ -182,7 +182,7 @@ void ImGuiWatchExpr::refreshSymbols()
 	}
 }
 
-ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interpreter& interp)
+ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interpreter& interp) const
 {
 	EvalResult r; // TODO c++23 std::expected might be a good fit here
 	if (watch.exprStr.empty()) return r;

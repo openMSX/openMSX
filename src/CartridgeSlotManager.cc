@@ -326,7 +326,7 @@ CartridgeSlotManager::CartCmd::CartCmd(
 }
 
 const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
-	std::string_view cartName)
+	std::string_view cartName) const
 {
 	if (cartName.size() != 5) {
 		throw SyntaxError();

@@ -139,31 +139,31 @@ private:
 
 
 struct SDLDestroyTexture {
-	void operator()(SDL_Texture* t) { SDL_DestroyTexture(t); }
+	void operator()(SDL_Texture* t) const { SDL_DestroyTexture(t); }
 };
 using SDLTexturePtr = std::unique_ptr<SDL_Texture, SDLDestroyTexture>;
 
 
 struct SDLDestroyRenderer {
-	void operator()(SDL_Renderer* r) { SDL_DestroyRenderer(r); }
+	void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
 };
 using SDLRendererPtr = std::unique_ptr<SDL_Renderer, SDLDestroyRenderer>;
 
 
 struct SDLDestroyWindow {
-	void operator()(SDL_Window* w) { SDL_DestroyWindow(w); }
+	void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
 };
 using SDLWindowPtr = std::unique_ptr<SDL_Window, SDLDestroyWindow>;
 
 
 struct SDLFreeFormat {
-	void operator()(SDL_PixelFormat* p) { SDL_FreeFormat(p); }
+	void operator()(SDL_PixelFormat* p) const { SDL_FreeFormat(p); }
 };
 using SDLAllocFormatPtr = std::unique_ptr<SDL_PixelFormat, SDLFreeFormat>;
 
 
 struct SDLFreeWav {
-	void operator()(Uint8* w) { SDL_FreeWAV(w); }
+	void operator()(Uint8* w) const { SDL_FreeWAV(w); }
 };
 using SDLWavPtr = std::unique_ptr<Uint8, SDLFreeWav>;
 

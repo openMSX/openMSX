@@ -138,7 +138,7 @@ static inline void draw8(
 	pixelPtr += 8;
 }
 
-void CharacterConverter::renderText1(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderText1(std::span<Pixel, 256> buf, int line) const
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -160,7 +160,7 @@ void CharacterConverter::renderText1(std::span<Pixel, 256> buf, int line)
 	}
 }
 
-void CharacterConverter::renderText1Q(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderText1Q(std::span<Pixel, 256> buf, int line) const
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -183,7 +183,7 @@ void CharacterConverter::renderText1Q(std::span<Pixel, 256> buf, int line)
 	}
 }
 
-void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line)
+void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line) const
 {
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
 	Pixel plainBg = palFg[vdp.getBackgroundColor()];
@@ -244,14 +244,14 @@ void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line)
 	}
 }
 
-std::span<const byte, 32> CharacterConverter::getNamePtr(int line, int scroll)
+std::span<const byte, 32> CharacterConverter::getNamePtr(int line, int scroll) const
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it
 	return vram.nameTable.getReadArea<32>(
 		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0));
 }
-void CharacterConverter::renderGraphic1(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderGraphic1(std::span<Pixel, 256> buf, int line) const
 {
 	auto patternArea = vram.patternTable.getReadArea<256 * 8>(0);
 	auto l = line & 7;
@@ -271,7 +271,7 @@ void CharacterConverter::renderGraphic1(std::span<Pixel, 256> buf, int line)
 	});
 }
 
-void CharacterConverter::renderGraphic2(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderGraphic2(std::span<Pixel, 256> buf, int line) const
 {
 	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
 	int line7 = line & 7;
@@ -316,7 +316,7 @@ void CharacterConverter::renderGraphic2(std::span<Pixel, 256> buf, int line)
 
 void CharacterConverter::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
-	unsigned mask, unsigned patternQuarter)
+	unsigned mask, unsigned patternQuarter) const
 {
 	unsigned baseLine = mask | ((line / 4) & 7);
 	unsigned scroll = vdp.getHorizontalScrollHigh();
@@ -334,21 +334,21 @@ void CharacterConverter::renderMultiHelper(
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	});
 }
-void CharacterConverter::renderMulti(std::span<Pixel, 256> buf, int line)
+void CharacterConverter::renderMulti(std::span<Pixel, 256> buf, int line) const
 {
 	unsigned mask = (~0u << 11);
 	renderMultiHelper(buf.data(), line, mask, 0);
 }
 
 void CharacterConverter::renderMultiQ(
-	std::span<Pixel, 256> buf, int line)
+	std::span<Pixel, 256> buf, int line) const
 {
 	unsigned mask = (~0u << 13);
 	unsigned patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
 	renderMultiHelper(buf.data(), line, mask, patternQuarter);
 }
 
-void CharacterConverter::renderBogus(std::span<Pixel, 256> buf)
+void CharacterConverter::renderBogus(std::span<Pixel, 256> buf) const
 {
 	Pixel* __restrict pixelPtr = buf.data();
 	Pixel fg = palFg[vdp.getForegroundColor()];
@@ -364,7 +364,7 @@ void CharacterConverter::renderBogus(std::span<Pixel, 256> buf)
 	draw(8, bg);
 }
 
-void CharacterConverter::renderBlank(std::span<Pixel, 256> buf)
+void CharacterConverter::renderBlank(std::span<Pixel, 256> buf) const
 {
 	// when this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated

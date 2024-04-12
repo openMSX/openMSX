@@ -3,7 +3,9 @@
 
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
+
 #include "sha1.hh"
+
 #include <memory>
 #include <span>
 #include <vector>
@@ -19,9 +21,9 @@ public:
 	static constexpr size_t SECTOR_SIZE = sizeof(SectorBuffer);
 
 	// sector stuff
-	void readSector (size_t sector,       SectorBuffer& buf);
+	void readSector (size_t sector,       SectorBuffer& buf) const;
 	void writeSector(size_t sector, const SectorBuffer& buf);
-	void readSectors (std::span<      SectorBuffer> buffers, size_t startSector);
+	void readSectors (std::span<      SectorBuffer> buffers, size_t startSector) const;
 	void writeSectors(std::span<const SectorBuffer> buffers, size_t startSector);
 	[[nodiscard]] size_t getNbSectors() const;
 

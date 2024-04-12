@@ -89,7 +89,7 @@ private:
 	[[nodiscard]] FAT::Cluster findFirstFreeCluster();
 	[[nodiscard]] unsigned countFreeClusters() const;
 	[[nodiscard]] unsigned findUsableIndexInSector(unsigned sector);
-	[[nodiscard]] unsigned getNextSector(unsigned sector);
+	[[nodiscard]] unsigned getNextSector(unsigned sector) const;
 	[[nodiscard]] unsigned appendClusterToSubdir(unsigned sector);
 	[[nodiscard]] DirEntry addEntryToDir(unsigned sector);
 	[[nodiscard]] unsigned addSubdir(const FAT::FileName& msxName,

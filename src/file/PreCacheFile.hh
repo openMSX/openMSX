@@ -19,7 +19,7 @@ public:
 	~PreCacheFile();
 
 private:
-	void run();
+	void run() const;
 
 private:
 	const std::string name;

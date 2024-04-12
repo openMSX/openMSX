@@ -18,26 +18,30 @@ TODO:
 */
 
 #include "VDP.hh"
-#include "VDPVRAM.hh"
-#include "VDPCmdEngine.hh"
-#include "SpriteChecker.hh"
+
 #include "Display.hh"
-#include "HardwareConfig.hh"
-#include "RendererFactory.hh"
-#include "Renderer.hh"
 #include "RenderSettings.hh"
+#include "Renderer.hh"
+#include "RendererFactory.hh"
+#include "SpriteChecker.hh"
+#include "VDPCmdEngine.hh"
+#include "VDPVRAM.hh"
+
 #include "EnumSetting.hh"
-#include "TclObject.hh"
+#include "HardwareConfig.hh"
 #include "MSXCPU.hh"
+#include "MSXCliComm.hh"
+#include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "MSXException.hh"
-#include "MSXCliComm.hh"
+#include "TclObject.hh"
+#include "serialize_core.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "serialize_core.hh"
 #include "unreachable.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -1253,7 +1257,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	}
 }
 
-void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time)
+void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time) const
 {
 	// The processing of a new line starts in the middle of the left erase,
 	// ~144 cycles after the sync signal. Adjust affects it. See issue #1310.

@@ -1,22 +1,25 @@
 #include "AfterCommand.hh"
-#include "CommandController.hh"
+
 #include "CliComm.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
+#include "EmuTime.hh"
 #include "Event.hh"
-#include "Schedulable.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
-#include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "ObjectPool.hh"
 #include "RTSchedulable.hh"
-#include "EmuTime.hh"
-#include "CommandException.hh"
-#include "StringOp.hh"
+#include "Reactor.hh"
+#include "Schedulable.hh"
 #include "TclObject.hh"
+
+#include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -294,7 +297,7 @@ void AfterCommand::afterIdle(std::span<const TclObject> tokens, TclObject& resul
 	afterCmds.push_back(idx);
 }
 
-void AfterCommand::afterInfo(std::span<const TclObject> /*tokens*/, TclObject& result)
+void AfterCommand::afterInfo(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	auto printTime = [](std::ostream& os, const AfterTimedCmd& cmd) {
 		os.precision(3);

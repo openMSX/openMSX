@@ -703,7 +703,7 @@ void* ImGuiManager::iniReadOpen(std::string_view name)
 	return nullptr;
 }
 
-void ImGuiManager::loadLine(void* entry, const char* line_)
+void ImGuiManager::loadLine(void* entry, const char* line_) const
 {
 	zstring_view line = line_;
 	auto pos = line.find('=');

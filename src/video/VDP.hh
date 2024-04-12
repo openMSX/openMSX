@@ -11,10 +11,12 @@
 #include "Clock.hh"
 #include "DisplayMode.hh"
 #include "EnumSetting.hh"
+#include "openmsx.hh"
+
 #include "Observer.hh"
 #include "narrow.hh"
-#include "openmsx.hh"
 #include "outer.hh"
+
 #include <memory>
 #include <array>
 
@@ -960,7 +962,7 @@ private:
 
 	/** Schedule a sync point at the start of the next line.
 	  */
-	void syncAtNextLine(SyncBase& type, EmuTime::param time);
+	void syncAtNextLine(SyncBase& type, EmuTime::param time) const;
 
 	/** Create a new renderer.
 	  */

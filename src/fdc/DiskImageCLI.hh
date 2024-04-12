@@ -2,7 +2,9 @@
 #define DISKIMAGEMANAGER_HH
 
 #include "CLIOption.hh"
+
 #include "zstring_view.hh"
+
 #include <span>
 
 namespace openmsx {
@@ -26,7 +28,7 @@ public:
 
 private:
 	void parse(zstring_view drive, std::string_view image,
-	           std::span<std::string>& cmdLine);
+	           std::span<std::string>& cmdLine) const;
 
 private:
 	CommandLineParser& parser;

@@ -91,7 +91,7 @@ public:
 
 private:
 	[[nodiscard]] bool isRegistered(StateChangeListener* listener) const;
-	void distribute(const StateChange& event);
+	void distribute(const StateChange& event) const;
 
 private:
 	std::vector<StateChangeListener*> listeners; // unordered
