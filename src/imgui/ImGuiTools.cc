@@ -237,6 +237,11 @@ void ImGuiTools::paintScreenshot()
 				                       [&](const TclObject&) { nextScreenshotName(); });
 			}
 		}
+		ImGui::Separator();
+		if (ImGui::Button("Open screenshots folder...")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/screenshots").c_str());
+		}
+
 	});
 }
 
@@ -335,6 +340,12 @@ void ImGuiTools::paintRecord()
 		});
 		if (recording && ImGui::Button("Stop")) {
 			manager.executeDelayed(makeTclList("record", "stop"));
+		}
+		ImGui::Separator();
+		if (ImGui::Button("Open recordings folder...")) {
+			bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
+			std::string_view directory = recordVideo ? "videos" : "soundlogs";
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/", directory).c_str());
 		}
 	});
 }
