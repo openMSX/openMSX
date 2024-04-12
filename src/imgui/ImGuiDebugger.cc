@@ -500,14 +500,15 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						}
 
 						if (ImGui::TableNextColumn()) { // addr
+							bool focusScrollToAddress = false;
+
 							// do the full-row-selectable stuff in a column that cannot be hidden
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
 							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_GOTO_ADDR)) {
-								// TODO this is insufficent:
-								// it opens the popup, but doesn't focus the correct input field
 								ImGui::OpenPopup("disassembly-context");
+								focusScrollToAddress = true;
 							}
 							if (!bpRightClick && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
@@ -539,6 +540,9 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
 										nextGotoTarget = *a;
 									}
+								}
+								if (focusScrollToAddress) {
+									ImGui::SetKeyboardFocusHere(-1);
 								}
 								addrToolTip(gotoAddr);
 
