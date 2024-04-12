@@ -133,6 +133,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
+		if (ImGui::MenuItem("Open savestates folder...")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/savestates").c_str());
+		}
 
 		ImGui::Separator();
 
@@ -211,6 +214,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
+		if (ImGui::MenuItem("Open replays folder...")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/replays").c_str());
+		}
 		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
 	});
 
