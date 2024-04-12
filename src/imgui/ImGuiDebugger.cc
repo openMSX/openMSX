@@ -536,13 +536,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::AlignTextToFramePadding();
 								ImGui::TextUnformatted("Scroll to address:"sv);
 								ImGui::SameLine();
+								if (focusScrollToAddress) ImGui::SetKeyboardFocusHere();
 								if (ImGui::InputText("##goto", &gotoAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
 									if (auto a = symbolManager.parseSymbolOrValue(gotoAddr)) {
 										nextGotoTarget = *a;
 									}
-								}
-								if (focusScrollToAddress) {
-									ImGui::SetKeyboardFocusHere(-1);
 								}
 								addrToolTip(gotoAddr);
 

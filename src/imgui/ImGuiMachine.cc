@@ -153,8 +153,8 @@ void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
 		im::TreeNode(filterDisplay.c_str(), ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			displayFilterCombo(filterType, "Type", allMachines);
 			displayFilterCombo(filterRegion, "Region", allMachines);
+			if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere();
 			ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
-			if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere(-1);
 			simpleToolTip("A list of substrings that must be part of the machine name.\n"
 					"\n"
 					"For example: enter 'pa' to search for 'Panasonic' machines. "

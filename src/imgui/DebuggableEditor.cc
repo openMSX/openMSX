@@ -266,7 +266,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	auto handleInput = [&](unsigned addr, int width, auto formatData, auto parseData, int extraFlags = 0) {
 		// Display text input on current byte
 		if (dataEditingTakeFocus) {
-			ImGui::SetKeyboardFocusHere(0);
+			ImGui::SetKeyboardFocusHere();
 			setStrings(s, debuggable);
 		}
 		struct UserData {
@@ -476,6 +476,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			if (addrMode == EXPRESSION && r.error.empty()) {
 				scrollAddr(s, debuggable, memSize, r.addr);
 			}
+			if (manager.getShortcuts().checkShortcut(Shortcuts::ID::HEX_GOTO_ADDR)) {
+				ImGui::SetKeyboardFocusHere();
+			}
 			ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
 			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto r2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter());
@@ -483,9 +486,6 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					scrollAddr(s, debuggable, memSize, r2.addr);
 					dataEditingTakeFocus = true;
 				}
-			}
-			if (manager.getShortcuts().checkShortcut(Shortcuts::ID::HEX_GOTO_ADDR)) {
-				ImGui::SetKeyboardFocusHere(-1);
 			}
 			simpleToolTip([&]{
 				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))
