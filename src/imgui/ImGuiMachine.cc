@@ -331,6 +331,17 @@ void ImGuiMachine::paintTestHardware()
 				machineInfo.clear();
 			}
 		});
+		ImGui::Separator();
+		// TODO: what to do if the folder doesn't exist? Should we go
+		// one higher? (But then the button doesn't browse to where it
+		// promises to browse to and that may be confusing, e.g. if
+		// people put their system roms there...
+		if (ImGui::Button("Open user system ROMs folder...")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserDataDir(), "/systemroms").c_str());
+		}
+		if (ImGui::Button("Open system wide system ROMs folder...")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getSystemDataDir(), "/systemroms").c_str());
+		}
 	});
 }
 
