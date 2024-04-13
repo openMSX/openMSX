@@ -42,7 +42,7 @@ struct SettingsParser : rapidsax::NullHandler
 
 	struct ShortcutItem {
 		Shortcuts::ID id = Shortcuts::ID::INVALID;
-		Shortcuts::Data data = {};
+		Shortcuts::Shortcut shortcut = {};
 	};
 	std::vector<ShortcutItem> shortcutItems;
 
@@ -141,8 +141,8 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 	}
 
 	shortcuts->setDefaultShortcuts();
-	for (const auto& item: parser.shortcutItems) {
-		shortcuts->setShortcut(item.id, item.data.keyChord, item.data.type, item.data.repeat);
+	for (const auto& item : parser.shortcutItems) {
+		shortcuts->setShortcut(item.id, item.shortcut);
 	}
 
 	getSettingsManager().loadSettings(*this);
@@ -365,18 +365,18 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 	case SHORTCUT:
 		if (name == "key") {
 			if (auto keyChord = parseKeyChord(value)) {
-				currentShortcut.data.keyChord = *keyChord;
+				currentShortcut.shortcut.keyChord = *keyChord;
 			} else {
 				std::cerr << "Parse error: invalid shortcut key \"" << value << "\"\n";
 			}
 		} else if (name == "type") {
 			if (auto type = Shortcuts::parseType(value)) {
-				currentShortcut.data.type = *type;
+				currentShortcut.shortcut.type = *type;
 			} else {
 				std::cerr << "Parse error: invalid shortcut type \"" << value << "\"\n";
 			}
 		} else if (name == "repeat") {
-			currentShortcut.data.repeat = StringOp::stringToBool(value);
+			currentShortcut.shortcut.repeat = StringOp::stringToBool(value);
 		}
 		break;
 	case BIND:

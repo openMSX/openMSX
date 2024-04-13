@@ -1140,18 +1140,18 @@ static void paintShortcutTableRow(Shortcuts& shortcuts, Shortcuts::ID id)
 {
 	using enum Shortcuts::Type;
 
-	const auto& shortcut = shortcuts.getShortcut(id);
+	auto shortcut = shortcuts.getShortcut(id);
 
 	if (ImGui::TableNextColumn()) {
 		bool global = shortcut.type == GLOBAL;
 		if (ImGui::Checkbox("global", &global)) {
-			shortcuts.setShortcut(id, {}, global ? GLOBAL : LOCAL);
+			shortcut.type = global ? GLOBAL : LOCAL;
+			shortcuts.setShortcut(id, shortcut);
 		}
 	}
 	if (ImGui::TableNextColumn()) {
-		bool repeat = shortcut.repeat;
-		if (ImGui::Checkbox("repeat", &repeat)) {
-			shortcuts.setShortcut(id, {}, {}, repeat);
+		if (ImGui::Checkbox("repeat", &shortcut.repeat)) {
+			shortcuts.setShortcut(id, shortcut);
 		}
 	}
 	if (ImGui::TableNextColumn()) {
@@ -1176,18 +1176,19 @@ static void paintShortcutTableRow(Shortcuts& shortcuts, Shortcuts::ID id)
 			"The \"Cancel\" button returns without changes."sv);
 		ImGui::Separator();
 		if (ImGui::Button("Default")) {
-			shortcuts.setDefaultShortcut(id);
+			shortcuts.setShortcut(id, shortcuts.getDefaultShortcut(id));
 			done = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Clear")) {
-			shortcuts.setShortcut(id, ImGuiKey_None, LOCAL, false);
+			shortcuts.setShortcut(id, Shortcuts::Shortcut{});
 			done = true;
 		}
 		ImGui::SameLine();
 		done |= ImGui::Button("Cancel");
 		if (auto keyChord = getCurrentlyPressedKeyChord(); keyChord != ImGuiKey_None) {
-			shortcuts.setShortcut(id, keyChord);
+			shortcut.keyChord = keyChord;
+			shortcuts.setShortcut(id, shortcut);
 			done = true;
 		}
 		if (done) {

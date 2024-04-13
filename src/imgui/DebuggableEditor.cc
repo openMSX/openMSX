@@ -244,14 +244,22 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	if (addrMode == CURSOR) {
 		auto& shortcuts = manager.getShortcuts();
 		using enum Shortcuts::Type;
-		if (shortcuts.checkShortcut(ImGuiKey_UpArrow, LOCAL, true) && int(currentAddr) >= columns)
+		if ((int(currentAddr) >= columns) &&
+		    shortcuts.checkShortcut({.keyChord = ImGuiKey_UpArrow, .repeat = true})) {
 			nextAddr = currentAddr - columns;
-		if (shortcuts.checkShortcut(ImGuiKey_DownArrow, LOCAL, true) && int(currentAddr) < int(memSize - columns))
+		}
+		if ((int(currentAddr) < int(memSize - columns)) &&
+		    shortcuts.checkShortcut({.keyChord = ImGuiKey_DownArrow, .repeat = true})) {
 			nextAddr = currentAddr + columns;
-		if (shortcuts.checkShortcut(ImGuiKey_LeftArrow, LOCAL, true) && int(currentAddr) > 0)
+		}
+		if ((int(currentAddr) > 0) &&
+		    shortcuts.checkShortcut({.keyChord = ImGuiKey_LeftArrow, .repeat = true})) {
 			nextAddr = currentAddr - 1;
-		if (shortcuts.checkShortcut(ImGuiKey_RightArrow, LOCAL, true) && int(currentAddr) < int(memSize - 1))
+		}
+		if ((int(currentAddr) < int(memSize - 1)) &&
+		    shortcuts.checkShortcut({.keyChord = ImGuiKey_RightArrow, .repeat = true})) {
 			nextAddr = currentAddr + 1;
+		}
 	}
 
 	// Draw vertical separator

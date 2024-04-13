@@ -28,7 +28,7 @@ static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
 static_assert(allShortcutInfo.size() == Shortcuts::ID::NUM_SHORTCUTS);
 
 static constexpr auto defaultShortcuts = []{
-	std::array<Shortcuts::Data, Shortcuts::ID::NUM_SHORTCUTS> result = {};
+	std::array<Shortcuts::Shortcut, Shortcuts::ID::NUM_SHORTCUTS> result = {};
 	for (int i = 0; i < Shortcuts::ID::NUM_SHORTCUTS; ++i) {
 		const auto& all = allShortcutInfo[i];
 		assert(all.id == i); // verify that rows are in-order
@@ -83,35 +83,27 @@ void Shortcuts::setDefaultShortcuts()
 	shortcuts = defaultShortcuts;
 }
 
-const Shortcuts::Data& Shortcuts::getDefaultShortcut(Shortcuts::ID id)
+const Shortcuts::Shortcut& Shortcuts::getDefaultShortcut(Shortcuts::ID id)
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
+	assert(id < ID::NUM_SHORTCUTS);
 	return defaultShortcuts[id];
 }
 
-const Shortcuts::Data& Shortcuts::getShortcut(Shortcuts::ID id)
+const Shortcuts::Shortcut& Shortcuts::getShortcut(Shortcuts::ID id) const
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
+	assert(id < ID::NUM_SHORTCUTS);
 	return shortcuts[id];
 }
 
-void Shortcuts::setShortcut(Shortcuts::ID id, std::optional<ImGuiKeyChord> keyChord, std::optional<Type> type, std::optional<bool> repeat)
+void Shortcuts::setShortcut(ID id, const Shortcut& shortcut)
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
-	if (keyChord) shortcuts[id].keyChord = *keyChord;
-	if (type)     shortcuts[id].type     = *type;
-	if (repeat)   shortcuts[id].repeat   = *repeat;
-}
-
-void Shortcuts::setDefaultShortcut(Shortcuts::ID id)
-{
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
-	shortcuts[id] = defaultShortcuts[id];
+	assert(id < ID::NUM_SHORTCUTS);
+	shortcuts[id] = shortcut;
 }
 
 std::string_view Shortcuts::getShortcutName(Shortcuts::ID id)
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
+	assert(id < ID::NUM_SHORTCUTS);
 	return shortcutNames[id];
 }
 
@@ -129,26 +121,27 @@ std::optional<Shortcuts::Type> Shortcuts::parseType(std::string_view name)
 	return {};
 }
 
-std::string_view Shortcuts::getShortcutDescription(Shortcuts::ID id)
+std::string_view Shortcuts::getShortcutDescription(ID id)
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
+	assert(id < ID::NUM_SHORTCUTS);
 	return shortcutDescriptions[id];
 }
 
-bool Shortcuts::checkShortcut(ImGuiKeyChord keyChord, Shortcuts::Type type, bool repeat)
+bool Shortcuts::checkShortcut(const Shortcut& shortcut) const
 {
-	auto flags = (type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
+	assert(shortcut.keyChord != ImGuiKey_None);
+	auto flags = (shortcut.type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
 	           | ImGuiInputFlags_RouteUnlessBgFocused
-	           | (repeat ? ImGuiInputFlags_Repeat : 0);
-	return ImGui::Shortcut(keyChord, 0, flags);
+	           | (shortcut.repeat ? ImGuiInputFlags_Repeat : 0);
+	return ImGui::Shortcut(shortcut.keyChord, 0, flags);
 }
 
-bool Shortcuts::checkShortcut(Shortcuts::ID id)
+bool Shortcuts::checkShortcut(ID id) const
 {
-	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
-	auto& shortcut = shortcuts[id];
+	assert(id < ID::NUM_SHORTCUTS);
+	const auto& shortcut = shortcuts[id];
 	if (shortcut.keyChord == ImGuiKey_None) return false;
-	return checkShortcut(shortcut.keyChord, shortcut.type, shortcut.repeat);
+	return checkShortcut(shortcut);
 }
 
 } // namespace openmsx

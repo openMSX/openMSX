@@ -3,6 +3,8 @@
 
 #include "ImGuiUtils.hh"
 
+#include "enumerate.hh"
+
 #include <array>
 #include <optional>
 #include <string_view>
@@ -25,11 +27,12 @@ public:
 		LOCAL,
 		GLOBAL,
 	};
-	struct Data {
+	struct Shortcut {
 		ImGuiKeyChord keyChord = ImGuiKey_None;
 		Type type = LOCAL;
 		bool repeat = false;
-		[[nodiscard]] bool operator==(const Data& other) const = default;
+
+		[[nodiscard]] bool operator==(const Shortcut& other) const = default;
 	};
 
 public:
@@ -42,37 +45,36 @@ public:
 	[[nodiscard]] static std::string_view getShortcutDescription(ID id);
 	[[nodiscard]] static std::optional<ID> parseShortcutName(std::string_view name);
 	[[nodiscard]] static std::optional<Type> parseType(std::string_view name);
-	[[nodiscard]] static const Shortcuts::Data& getDefaultShortcut(ID id);
+	[[nodiscard]] static const Shortcut& getDefaultShortcut(ID id);
 
-	[[nodiscard]] const Shortcuts::Data& getShortcut(ID id);
-	void setShortcut(ID id, std::optional<ImGuiKeyChord> keyChord = {}, std::optional<Type> type = {}, std::optional<bool> repeat = {});
-	void setDefaultShortcut(ID id);
+	[[nodiscard]] const Shortcut& getShortcut(ID id) const;
+	void setShortcut(ID id, const Shortcut& shortcut);
+
 	void setDefaultShortcuts();
-	[[nodiscard]] bool checkShortcut(ImGuiKeyChord keyChord, Shortcuts::Type type, bool repeat);
-	[[nodiscard]] bool checkShortcut(ID id);
+
+	[[nodiscard]] bool checkShortcut(const Shortcut& shortcut) const;
+	[[nodiscard]] bool checkShortcut(ID id) const;
 
 	template<typename XmlStream>
 	void saveShortcuts(XmlStream& xml) const
 	{
-		int id = 0;
 		xml.with_tag("shortcuts", [&]{
-			for (auto it = shortcuts.begin(); it != shortcuts.end(); ++it, ++id) {
-				const auto& data = *it;
-				if (data == getDefaultShortcut(static_cast<ID>(id))) {
-					continue;
-				}
+			for (auto [id_, shortcut_] : enumerate(shortcuts)) {
+				auto id = static_cast<ID>(id_);
+				const auto& shortcut = shortcut_; // clang-15 workaround
+				if (shortcut == getDefaultShortcut(id)) continue;
 				xml.with_tag("shortcut", [&]{
-					xml.attribute("key", getKeyChordName(data.keyChord));
-					if (data.type == GLOBAL) xml.attribute("type", "global");
-					if (data.repeat) xml.attribute("repeat", "true");
-					xml.data(getShortcutName(static_cast<ID>(id)));
+					xml.attribute("key", getKeyChordName(shortcut.keyChord));
+					if (shortcut.type == GLOBAL) xml.attribute("type", "global");
+					if (shortcut.repeat) xml.attribute("repeat", "true");
+					xml.data(getShortcutName(id));
 				});
 			}
 		});
 	}
 
 private:
-	std::array<Shortcuts::Data, ID::NUM_SHORTCUTS> shortcuts;
+	std::array<Shortcut, ID::NUM_SHORTCUTS> shortcuts;
 };
 
 } // namespace openmsx
