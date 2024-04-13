@@ -21,10 +21,6 @@ using enum Shortcuts::ID;
 using enum Shortcuts::Type;
 static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
 	{HEX_GOTO_ADDR,    ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "hex_editor_goto_address", "Go to address in hex viewer"},
-	{HEX_MOVE_UP,      ImGuiKey_UpArrow,           LOCAL,  true,  "hex_editor_move_up",      "Move up in hex viewer"},
-	{HEX_MOVE_DOWN,    ImGuiKey_DownArrow,         LOCAL,  true,  "hex_editor_move_down",    "Move down in hex viewer"},
-	{HEX_MOVE_LEFT,    ImGuiKey_LeftArrow,         LOCAL,  true,  "hex_editor_move_left",    "Move left in hex viewer"},
-	{HEX_MOVE_RIGHT,   ImGuiKey_RightArrow,        LOCAL,  true,  "hex_editor_move_right",   "Move right hex viewer"},
 	{STEP,             ImGuiKey_F6,                GLOBAL, true,  "step",                    "Single step in debugger"},
 	{BREAK,            ImGuiKey_F7,                GLOBAL, false, "break",                   "Break CPU emulation in debugger"},
 	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
@@ -139,15 +135,20 @@ std::string_view Shortcuts::getShortcutDescription(Shortcuts::ID id)
 	return shortcutDescriptions[id];
 }
 
+bool Shortcuts::checkShortcut(ImGuiKeyChord keyChord, Shortcuts::Type type, bool repeat)
+{
+	auto flags = (type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
+	           | ImGuiInputFlags_RouteUnlessBgFocused
+	           | (repeat ? ImGuiInputFlags_Repeat : 0);
+	return ImGui::Shortcut(keyChord, 0, flags);
+}
+
 bool Shortcuts::checkShortcut(Shortcuts::ID id)
 {
 	assert(id < Shortcuts::ID::NUM_SHORTCUTS);
 	auto& shortcut = shortcuts[id];
 	if (shortcut.keyChord == ImGuiKey_None) return false;
-	auto flags = (shortcut.type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
-	           | ImGuiInputFlags_RouteUnlessBgFocused
-	           | (shortcut.repeat ? ImGuiInputFlags_Repeat : 0);
-	return ImGui::Shortcut(shortcut.keyChord, 0, flags);
+	return checkShortcut(shortcut.keyChord, shortcut.type, shortcut.repeat);
 }
 
 } // namespace openmsx

@@ -14,10 +14,6 @@ class Shortcuts
 public:
 	enum ID {
 		HEX_GOTO_ADDR,
-		HEX_MOVE_UP,
-		HEX_MOVE_DOWN,
-		HEX_MOVE_LEFT,
-		HEX_MOVE_RIGHT,
 		STEP,
 		BREAK,
 		DISASM_GOTO_ADDR,
@@ -52,6 +48,7 @@ public:
 	void setShortcut(ID id, std::optional<ImGuiKeyChord> keyChord = {}, std::optional<Type> type = {}, std::optional<bool> repeat = {});
 	void setDefaultShortcut(ID id);
 	void setDefaultShortcuts();
+	[[nodiscard]] bool checkShortcut(ImGuiKeyChord keyChord, Shortcuts::Type type, bool repeat);
 	[[nodiscard]] bool checkShortcut(ID id);
 
 	template<typename XmlStream>
