@@ -819,21 +819,6 @@
     offer convenience wrappers around these commands. For example: <a class="internal" href="#other"><code>showmem</code></a>, <a class="internal" href="#other"><code>disasm</code></a>, <a class="internal" href="#other"><code>cpuregs</code></a>, <a class="internal" href="#other"><code>save_debuggable</code></a>, etc.
   </div>
 
-  <h3><a id="disable_reversebar">disable_reversebar</a></h3>
-
-  <p>Disables the bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>disable_reversebar</code></td>
-      <td>Disables reverse status emulator bar.</td>
-    </tr>
-  </table>
-
   <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
 
   <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image.
@@ -909,21 +894,6 @@
     <tr>
       <td><code>exit</code></td>
       <td>Exits the emulator</td>
-    </tr>
-  </table>
-
-  <h3><a id="enable_reversebar">enable_reversebar</a></h3>
-
-  <p>Enables a bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>enable_reversebar</code></td>
-      <td>Enable reverse status emulator bar.</td>
     </tr>
   </table>
 
@@ -2546,10 +2516,6 @@
       <td>Enable (or disable) playing PSG sound on SCC</td>
     </tr>
     <tr>
-      <td><code>toggle_reversebar</code></td>
-      <td>Show (or hide) the reverse bar, which helps to control and view the data of the <a class="internal" href="#reverse">reverse</a> feature, which is automatically enabled when the bar is enabled</td>
-    </tr>
-    <tr>
       <td><code>toggle_scc_editor</code></td>
       <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel and also enables you to edit the waveforms per channel</td>
     </tr>
@@ -2783,11 +2749,7 @@
     </tr>
     <tr>
       <td><code>set auto_enable_reverse on</code></td>
-      <td>Enable the reverse feature when openMSX starts</td>
-    </tr>
-    <tr>
-      <td><code>set auto_enable_reverse gui</code></td>
-      <td>Enable the reverse feature and the reverse bar when openMSX starts. Default setting for Desktop/PC</td>
+      <td>Enable the reverse feature when openMSX starts. Default setting for Desktop/PC</td>
     </tr>
   </table>
 
@@ -4460,7 +4422,6 @@
     <li>frame counter (can also be toggled with <code>toggle_frame_counter</code>), which shows the VDP (not V9990) frame number on screen</li>
     <li>cursors (can also be toggled with <code>toggle_cursors</code>), shows which keys (important for games) are pressed</li>
   </ul>
-  <p>It also (re)enables the reverse bar widget.</p>
   <p>The mode configures the following key bindings, overriding any existing key bindings (note: Mac key bindings are not proper yet...):</p>
   <table>
     <tr> <th>keys (PC)</th>  <th>keys (Mac)</th>         <th>function</th> </tr>
