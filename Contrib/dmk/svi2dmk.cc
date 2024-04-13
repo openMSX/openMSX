@@ -21,11 +21,11 @@ static const int GAP3  = 34;
 static const int GAP4a = 80;
 
 
-static uint16_t calculateCrc(const uint8_t* p, int n)
+static uint16_t calculateCrc(std::span<const uint8_t> buf)
 {
 	uint16_t crc = 0xffff;
-	for (int i = 0; i < n; ++i) {
-		updateCrc(crc, p[i]);
+	for (auto e : buf) {
+		updateCrc(crc, e);
 	}
 	return crc;
 }
@@ -66,7 +66,7 @@ static void convertTrack(int cyl, int head,
 		*tp++ = head;               // H
 		*tp++ = sec + 1;            // R
 		*tp++ = sectorSizeCode;     // N
-		auto addrCrc = calculateCrc(tp - 8, 8);
+		auto addrCrc = calculateCrc(std::span{tp - 8, 8});
 		*tp++ = addrCrc >> 8;       // CRC-1
 		*tp++ = addrCrc & 0xff;     // CRC-2
 		fill(tp, GAP2, 0x4e);       // gap2
@@ -74,7 +74,7 @@ static void convertTrack(int cyl, int head,
 		fill(tp,    3, 0xa1);       // data mark
 		fill(tp,    1, 0xfb);       //
 		inf.read(tp, sectorSize);
-		auto dataCrc = calculateCrc(tp - 4, sectorSize + 4);
+		auto dataCrc = calculateCrc(std::span{tp - 4, unsigned(sectorSize + 4)});
 		tp += sectorSize;
 		*tp++ = dataCrc >> 8;
 		*tp++ = dataCrc & 0xff;
