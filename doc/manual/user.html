@@ -157,16 +157,12 @@ You can also download the emulator itself from there.
 <p>
 openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
-Many emulation features are implemented, but in terms of user interface
-it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://openmsx.org/catapult-manual/">manuals</a> for now.
-However, because the emulation is already pretty good,
-it would be nice if non-insiders would be able to play with it, too.
-For those people, we have written this guide.
+Many emulation features are implemented, but not all of them are represented yet in built-in Graphical User Interface. To get the most out of openMSX, we have written this guide.
 </p>
 
 <p>
 This manual tells you how you can use openMSX, once it has been installed and properly set up. You should be able to use most of the features of openMSX if you have read it.
-If you are using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
+If you are only using the GUI menus of openMSX, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
 </p>
 
 <p>
@@ -846,21 +842,21 @@ This section is about how keyboard layouts from host computers are mapped to key
 
 <h3><a id="joystick">5.2 Joystick</a></h3>
 
-<p>If you have a joystick connected to your PC, use the following command to connect it to the emulated MSX:
+<p>If you have a controller or joystick connected to your PC, you can map its input to one of the emulated MSX joystick (like) devices, called msxjoystick1, msxjoystick2, joymega1 and joymega2.
 </p>
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta joystick1
-</div>
 
-<p>
-To connect a fake joystick (emulated with the keyboard arrow keys), you can use this <code>plug</code> command:
+<p>You can connect any of these emulated joystick devices to the emulated MSX as follows:
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta keyjoystick1
+    <a class="external" href="commands.html#plugunplug">plug</a> joyporta msxjoystick1
 </div>
 <p>
-will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. There are two keyjoysticks, 1 and 2. If you like, you can change the bindings in the console and save the settings as usual. Examples: <code>set <a class="external" href="commands.html#keyjoystick_n_button">keyjoystick2.triga</a> LCTRL</code> or <code>set <a class="external" href="commands.html#keyjoystick_n_button">keyjoystick1.up</a> KP8</code>.
+This connects the emulated MSX joystick 1 (which is named msxjoystick1) to port A of the emulated MSX.
 </p>
+
+<p>How your host devices (host controllers, joysticks or keyboard) are mapped to these 4 emulated MSX joysticks is fully configurable. The easiest way is to use the GUI menu for that under Settings &rarrow; Input &rarrow; Configure MSX joysticks. You can also do it in the console with the  <a class="external" href="commands.html#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a> settings.
+</p>
+
 <p>
 Most modern joysticks have more buttons than the 2 buttons that are allowed by the MSX standard. Therefore a lot of games use extra keys on the keyboard for extra functionality. For instance, all most all Konami games use F1 to pause the game. You can assign this extra functionality to your joystick by using the <code><a class="external" href="commands.html#bind">bind</a></code> command. As an example here is how to map button 4 of the first joystick to the F1-key, button 5 to F2,...
 </p>
@@ -944,16 +940,16 @@ Sony made a small dongle for game testers to cheat within the games. The games t
 
 <p>
 Known games that can use this Magic Key are:
-<ul>
-<li>Family Boxing (Sony)</li>
-<p>Press the Graph key on the title screen to enter the secret menu</p>
-<li>Jansei (Sony)</li>
-<p>You can set the characteristics of the enemy by moving the cursor to "Actual Battle" on the menu screen and pressing ESC and SELECT.</p>
-<li>Gall Force - Defense of Chaos (Sony)</li>
-<p>A new menu item will appear on the home screen</p>
-</ul>
-
 </p>
+<dl>
+<dt>Family Boxing (Sony)</dt>
+<dd>Press the Graph key on the title screen to enter the secret menu</dd>
+<dt>Jansei (Sony)</dt>
+<dd>You can set the characteristics of the enemy by moving the cursor to "Actual Battle" on the menu screen and pressing ESC and SELECT.</dd>
+<dt>Gall Force - Defense of Chaos (Sony)</dt>
+<dd>A new menu item will appear on the home screen</dd>
+</dl>
+
 <h3><a id="ninjatap">5.8 Ninja Tap</a></h3>
 
 <p>The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber then sold in Japan by PCCM. This adapter allows to use up to 4 joysticks by port. Plug it as follows:</p>
@@ -986,26 +982,21 @@ Tetris 2 Special Edition from R.A.M., an Italian MSX group needs the dongle in p
 <h3><a id="renderers">6.1 Renderers</a></h3>
 
 <p>
-A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers:
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there is only one useful renderer:
 </p>
 
 <dl>
-
-<dt>SDL</dt>
-<dd>
-This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
-</dd>
 
 <dt>SDLGL-PP</dt>
 <dd>
 This renderer uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
 Because part of the rendering is done by the graphics hardware,
-the CPU load can vary a lot, but it is usually a lot less than with the SDL renderer.
-The SDLGL-PP renderer is only useful if you have a hardware accelerated
-OpenGL library; a software GL implementation will be very slow.
+the CPU load can vary a lot, but it is usually a lot less than with pure software based renderers.
+The SDLGL-PP renderer (and thus openMSX) requires a hardware accelerated
+OpenGL library; a software GL implementation will be too slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP. Because almost all modern systems have OpenGL 2.0 capable hardware and drivers, this is now the default renderer.
+So, again, note that this renderer (and thus openMSX) requires both your video card and video driver to support at least OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will not start up and report an error.
 </dd>
 
 
@@ -1013,10 +1004,6 @@ If your card supports it, we recommend to use this renderer. Note that this rend
 
 <p>
 You can set the renderer with the <code><a class="external" href="commands.html#renderer">renderer</a></code> setting. You can set full screen mode with the <code><a class="external" href="commands.html#fullscreen">fullscreen</a></code> setting. Again, to make these settings permanent, use the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command to save them.
-</p>
-
-<p>
-Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer and the default renderer will be SDL.
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -1056,17 +1043,14 @@ just like they occur on a real MSX.
 <h3><a id="scalers">6.3 Scalers</a></h3>
 
 <p>
-Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. Normally, there are three possible scaling factors: 1, 2 and 3. If you select 1, all MSX pixels are mapped to a 320&times;240 pixels PC window, for 2 to a 640&times;480 pixels window and for 3 to a (surprise!) 960&times;720 window. The setting which determines this is called <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code>. In general, the higher the factor, the better the output image is; the downside: it takes a lot more CPU processing power.
+Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. There are currently three possible scaling factors: 2, 3 and 4. If you select 2, all MSX pixels are mapped to a 640&times;480 pixels PC window, for 3 to a 960&times;720 pixel window and for 4 to the obvious 1280&times;960 window. The setting which determines this is called <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code>. In general, the higher the factor, the better the output image is.
 </p>
 
-<p>Use <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of MSX screen modes with more pixels than 256&times;212, you even lose pixels! in that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
-</p>
-
-<p>There is also a number of scaling algorithms (setting <code><a class="external" href="commands.html#scale_algorithm">scale_algorithm</a></code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possibilities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
+<p>There is also a number of scaling algorithms (setting <code><a class="external" href="commands.html#scale_algorithm">scale_algorithm</a></code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possibilities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect.
 </p>
 
 <p>
-With the SDLGL-PP renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
+As we use the SDLGL-PP renderer, scaling is done on the graphics card hardware and will not take extra CPU power.
 </p>
 
 <p>
@@ -1078,9 +1062,8 @@ openMSX contains the following scaling algorithms:
 <dt>simple</dt>
 <dd>
 This algorithm simply expands each MSX pixel to a square of (scale_factor)&times;(scale_factor) PC pixels.
-This is the default scaler and it is fast.
-The image looks blocky, especially diagonal edges, but it does support scanlines and blur for scale factors of 2 and higher. In combination with a scale factor of 1, you get what was
-once known as the SDLLo renderer, which is the fastest scaling method available.
+This is the default scaler and can be tuned to look like most CRT screens.
+The image looks blocky, especially diagonal edges, but it does support scanlines and blur.
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
@@ -1089,38 +1072,26 @@ This scaler algorithm smoothes edges by using only original colors, so it will n
 </dd>
 
 
-<dt><a class="external" href="http://en.wikipedia.org/wiki/Pixel_art_scaling_algorithms#2.C3.97SaI">SaI</a></dt>
-<dd>
-This scaler algorithm smoothes edges by interpolating neighbouring pixels.
-It is heaver on the CPU than the simple and ScaleNx algorithms.
-It does a good job on most graphics, except for high-contrast edges;
-for example white fonts on a black background get some nasty gray lines around them.
-Also corners are rounded, similar to ScaleNx. This scaler is not available in the SDLGL-PP renderer.
-</dd>
-
 <dt><a class="external" href="http://en.wikipedia.org/wiki/Hqx">hq</a></dt>
 <dd>
-This scaler algorithm looks somewhat similar to SaI, but its output is sharper.
-This complex algorithm is very heavy on the CPU; use this algorithm only on fast PCs.
-It does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
+This algorithm does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
 On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
 Especially with high scaling factors, it can give a very smooth looking image.
 </dd>
 
 <dt>hqlite</dt>
 <dd>
-This is a variant of hq: the resulting image is close to hq, but it is
-calculated a lot faster. It has a good quality per CPU usage ratio.
+This is a variant of hq: the resulting image is close to hq, but it is calculated a lot faster.
 </dd>
 
 <dt>RGBTriplet</dt>
 <dd>
-This algorithm only works when a scaling factor of 3 is used. Also, it only works well for MSX screen modes of 256&times;212, which includes most games. The idea of the algorithm is that each input pixel is mapped on a triplet of pixels which represent the R(ed), G(reen) and B(lue) components of the input pixel. This arrangement of RGB components is also used in the <a class="external" href="http://en.wikipedia.org/wiki/Aperture_grille">Aperture Grille</a> CRT's, also known as Trinitron and the modern TFT screens. You can control the effect with the <code><a class="external" href="commands.html#blur">blur</a></code> setting. This algorithm also includes scan lines.
+This algorithm only works as intended when a scaling factor of 3 is used. Also, it only works well for MSX screen modes of 256&times;212, which includes most games. The idea of the algorithm is that each input pixel is mapped on a triplet of pixels which represent the R(ed), G(reen) and B(lue) components of the input pixel. This arrangement of RGB components is also used in the <a class="external" href="http://en.wikipedia.org/wiki/Aperture_grille">Aperture Grille</a> CRT's, also known as Trinitron and the modern TFT screens. You can control the effect with the <code><a class="external" href="commands.html#blur">blur</a></code> setting. This algorithm also includes scan lines.
 </dd>
 
 <dt>TV</dt>
 <dd>
-This algorithm is trying to emulate the fact that on a CRT brighter pixels look bigger than darker pixels. This scaler is only available in the SDLGL-PP renderer.
+This algorithm is trying to emulate the fact that on a CRT brighter pixels look bigger than darker pixels. It has some minor flaws, but is already developed far enough to make it available for you to try out.
 </dd>
 
 </dl>
@@ -1199,7 +1170,6 @@ The after glow feature blends each frame with the frame before it.
 This results in moving objects leaving a trail (motion blur).
 The <code><a class="external" href="commands.html#glow">glow</a></code> setting controls the amount of after glow:
 0 means no after glow, 100 means maximum after glow.
-This feature works only in the <code>SDLGL-PP</code> renderer.
 </dd>
 
 <dt><code><a class="external" href="commands.html#noise">noise</a></code></dt>
@@ -1216,7 +1186,6 @@ This feature makes it possible to change the shape of the MSX screen. Here are t
   <li><code>normal</code>: no deformation (default)</li>
   <li><code>3d</code>: emulates a 3D view on an arcade cabinet's screen</li>
  </ul>
-This feature works only in the <code>SDLGL-PP</code> renderer. In openMSX versions prior to 0.7.0, there was also a <code>horizontal_stretch</code> option here, but that has been replaced by a <a class="external" href="commands.html#horizontal_stretch"><code>horizontal_stretch</code></a> setting.
 </dd>
 
 
@@ -1320,12 +1289,6 @@ Example: <code>set <a class="external" href="commands.html#soundchip_balance">PS
 If you'd like to apply some special effects to the sound, you should take a look at the <a class="external" href="commands.html#soundchip_vibrato_frequency">vibrato</a> and <a class="external" href="commands.html#soundchip_detune_frequency">detune</a> (both percent and frequency) settings, which can be only applied to the PSG, for now.
 </p>
 
-<p>
-For Windows users there is the choice to use DirectSound or SDL as an audio
-driver. By default, DirectSound is used, because it gives a better quality in
-most cases. Change it with the <code><a class="external" href="commands.html#sound_driver">sound_driver</a></code> setting, if you like.
-</p>
-
 <h3><a id="midi">7.2 MIDI</a></h3>
 
 <p>
@@ -1407,7 +1370,7 @@ A feature of emulators which is particularly useful is saving the state of the e
 The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code><a class="external" href="commands.html#savestate">list_savestates</a></code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code><a class="external" href="commands.html#savestate">delete_savestate</a></code> command.
 </p>
 
-<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the On-Screen-Display and in a prototype version of a new Catapult.)
+<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing.
 </p>
 
 <h3><a id="reverse">8.2 Reverse</a></h3>

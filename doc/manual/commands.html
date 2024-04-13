@@ -37,7 +37,6 @@
         <li><a class="internal" href="#keymatrix">keymatrixdown / keymatrixup</a></li>
         <li><a class="internal" href="#laserdiscplayer">laserdiscplayer</a></li>
         <li><a class="internal" href="#list_extensions">list_extensions</a></li>
-        <li><a class="internal" href="#load_icons">load_icons</a></li>
         <li><a class="internal" href="#load_settings">load_settings</a></li>
         <li><a class="internal" href="#machine">machine</a></li>
         <li><a class="internal" href="#machines">create_machine / load_machine / activate_machine / list_machines / delete_machine</a></li>
@@ -124,7 +123,7 @@
         <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
         <li><a class="internal" href="#invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
-        <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
+        <li><a class="internal" href="#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
         <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
@@ -135,7 +134,6 @@
         <li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
         <li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
         <li><a class="internal" href="#kbd_trace_key_presses">kbd_trace_key_presses</a></li>
-        <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
         <li><a class="internal" href="#led">led_&lt;name&gt;</a></li>
         <li><a class="internal" href="#limitsprites">limitsprites</a></li>
         <li><a class="internal" href="#master_volume">master_volume</a></li>
@@ -1211,29 +1209,6 @@
       <td><code>list_extensions</code></td>
 
       <td>Lists all currently inserted cartridges and extensions</td>
-    </tr>
-  </table>
-
-  <h3><a id="load_icons">load_icons</a></h3>
-
-  <p>Load a different icon set (used for the On Screen Display (OSD) LEDs).</p>
-  <p>Icon sets are stored in the share/skins directory.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>load_icons &lt;name&gt;</code></td>
-
-      <td>Load the given icon set, but don't change the position on the screen.</td>
-    </tr>
-
-    <tr>
-      <td><code>load_icons &lt;name&gt; &lt;position&gt;</code></td>
-
-      <td>Load the given icon set and place them at the requested position. Position can be <code>bottom</code>, <code>top</code>, <code>left</code> or <code>right</code>.</td>
     </tr>
   </table>
 
@@ -3391,10 +3366,6 @@
     </tr>
   </table>
 
-  <div class="note">
-    Note: Deinterlacing is only supported for <code><a class="internal" href="#scale_factor">scale_factors</a></code> bigger or equal to 2.
-  </div>
-
 
   <h3><a id="disablesprites">disablesprites</a></h3>
 
@@ -3426,7 +3397,7 @@
 
   <h3><a id="display_deform">display_deform</a></h3>
 
-  <p>Select display deformation effect. This effect is only supported in the SDLGL-PP renderer.</p>
+  <p>Select display deformation effect.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3731,7 +3702,7 @@
 
   <h3><a id="horizontal_stretch">horizontal_stretch</a></h3>
 
-  <p>Sets the amount of horizontal stretch, thus also the aspect ratio of the screen. More specifically, a setting of <code>n</code> means stretch the center <code>n</code> MSX pixels to the full width of the host output window (at <code><a class="internal" href="#scale_factor">scale_factor</a></code> 1).</p>
+  <p>Sets the amount of horizontal stretch, thus also the aspect ratio of the screen. More specifically, a setting of <code>n</code> means stretch the center <code>n</code> MSX pixels to the full width of the host output window (at the virtual <code><a class="internal" href="#scale_factor">scale_factor</a></code> 1).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3760,10 +3731,6 @@
     <code>set horizontal_stretch 272</code> (approach real aspect ratio of MSX screen)<br />
     <code>set horizontal_stretch 280</code> (default: show all generated border pixels, so that all border demo effects are still visible)<br />
     <code>set horizontal_stretch 256</code> (borders are not visible at all; doesn't work well in combination with set-adjust)
-  </div>
-
-  <div class="note">
-    Note: when using the SDL renderer, this setting may cause a lot more CPU usage (e.g. on a Dingoo) when not using the value 320.
   </div>
 
   <h3><a id="inputdelay">inputdelay</a></h3>
@@ -3862,41 +3829,48 @@
   </table>
 
 
-  <h3><a id="joystickN_config">joystick&lt;n&gt;_config</a></h3>
+  <h3><a id="msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a></h3>
 
-  <p>This setting configures how the buttons/axis of the host joystick(s) are
-  mapped to the corresponding inputs of the emulated MSX joystick(s). For many
-  joysticks the initial value of this setting provides an acceptable default
-  mapping. But depending on your joystick type and taste you may want to tweak
+  <p>This setting configures how the buttons/axis/keys of the host are
+  mapped to the inputs of the emulated MSX joysticks or JoyMega devices. For many
+  host controllers the initial value of this setting provides an acceptable default
+  mapping. But depending on your controller type and taste you may want to tweak
   it.</p>
+
+  <p>The easiest way to tweak it, is by using the GUI menu under Settings
+  &rarrow; Input &rarrow; Configure MSX joysticks.</p>
 
   <p>The value of this setting is a Tcl dictionary. This means it's a list of
   key/value pairs where each even element is a key and each odd element is the
   corresponding value. The keys in this dictionary represent the 6 possible MSX
   joystick inputs. Possible key values are <code>LEFT</code>,
   <code>RIGHT</code>, <code>UP</code>, <code>DOWN</code>, <code>A</code> and
-  <code>B</code>. The corresponding dictionary-values are lists of host
-  joystick inputs. Possible elements for these lists are
-  <code>button&lt;n&gt;</code>, <code>+axis&lt;n&gt;</code>,
-  <code>-axis&lt;n&gt;</code> and <code>{L,R,U,D}_hat&lt;n&gt;</code>.</p>
+  <code>B</code>. For the JoyMega devices, add <code>C</code>, <code>X</code>,
+  <code>Y</code>, <code>Z</code>, <code>SELECT</code> and <code>START</code>.
+  The corresponding dictionary-values are lists of boolean host
+  inputs. Possible elements for these lists regarding host controller input are
+  <code>joy&lt;n&gt; button&lt;m&gt;</code>, <code>joy&lt;n&gt; +axis&lt;m&gt;</code>,
+  <code>joy&lt;n&gt; -axis&lt;m&gt;</code> and <code>joy&lt;n&gt; hat&lt;m&gt;
+  left/right/down/up</code>. But also host keyboard input can be configured
+  with <code>keyb &lt;KEYNAME&gt;</code>, where KEYNAME is the name of a
+  key.</p>
 
   <p>Let's explain this with an example. The following is the default value for
   this setting:<br/>
-  &nbsp;<code>LEFT -axis0  RIGHT +axis0  UP -axis1  DOWN +axis1  A {button0 button2}  B {button1 button3}</code><br/>
-  Axis 0 is usually the primary X-axis of the host joystick. When that axis is
-  moved towards negative values the LEFT input switch on the emulated joystick
-  is activated. When it is moved towards positive values the RIGHT MSX input
-  switch is activated. Similarly host axis1 is mapped to the UP and DOWN MSX
-  inputs. The (default) configuration for the buttons is slightly more
-  complicated. Here both host button 0 and 2 will activate MSX button A, and
-  both button 1 and 3 will activate MSX button B. (This example shows a host
-  joystick with 4 buttons, but in general (by default) all even host buttons
-  will active MSX button A and all odd host buttons will active MSX button
-  B).</p>
+  &nbsp;<code>UP {{joy1 -axis1} {joy1 hat0 up}} DOWN {{joy1 +axis1} {joy1 hat0 down}} LEFT {{joy1 -axis0} {joy1 hat0 left}} RIGHT {{joy1 +axis0} {joy1 hat0 right}} A {{joy1 button0} {joy1 button2} {joy1 button4} {joy1 button6} {joy1 button8} {joy1 button10}} B {{joy1 button1} {joy1 button3} {joy1 button5} {joy1 button7} {joy1 button9} {joy1 button11}}</code><br/>
+  Axis 0 is usually the primary X-axis of the host controller's analog stick.
+  When that axis is moved towards negative values the LEFT input switch on the
+  emulated joystick is activated. When it is moved towards positive values the
+  RIGHT MSX input switch is activated. The D-pad of the detected host
+  controller is also mapped via the <code>hat0</code> events.
+  Similarly host axis1 is mapped to the UP and DOWN MSX inputs. The (default)
+  configuration for the buttons is slightly more complicated. Here all even
+  numbered host buttons (0, 2, etc.) will activate MSX button A, and odd host
+  button numbers will activate MSX button B.</p>
 
   <p>There are no restrictions on the possible mappings. For example it is
   allowed to map host axis/buttons to MSX buttons/axis or vice-versa. This
-  allows to for example map a host joypad (which acts like 4 buttons) to the
+  allows to for example map a host joypad (which acts like 4 buttons, instead of hats) to the
   MSX directional inputs. (Technically speaking the MSX axis inputs LEFT,
   RIGHT, UP and DOWN are just 4 input switches, just like the buttons A and B
   are just 2 input switches). It's also allowed to map the same host action to
@@ -3913,33 +3887,40 @@
   </div>
   <table>
     <tr>
-      <td><code>set joystick1_config</code></td>
-      <td>Shows the current configuration of the first joystick</td>
+      <td><code>set msxjoystick1_config</code></td>
+      <td>Shows the current configuration of the first MSX joystick (there are 2 MSX joysticks defined)</td>
     </tr>
     <tr>
-      <td><code>dict set joystick1_config A button5</code></td>
-      <td>(Re)map MSX button A to (only) host button 5. Leave the mapping of the
+      <td><code>dict set msxjoystick1_config A {joy1 button5}</code></td>
+      <td>(Re)map MSX button A to (only) host button 5 of host joystick/controller 1. Leave the mapping of the
       other MSX inputs unchanged.</td>
     </tr>
     <tr>
-      <td><code>dict set joystick1_config A {button0 button2}<br/>
-                dict set joystick1_config B {button1 button2}</code></td>
-      <td>Map button 0 to A, 1 to B and 2 to A+B. So pressing host button 2
+      <td><code>dict set msxjoystick1_config A {{joy1 button0} {joy1 button2}}<br/>
+                dict set msxjoystick1_config B {{joy1 button1} {joy1 button2}}</code></td>
+      <td>Map joystick/controller 1's button 0 to A, 1 to B and 2 to A+B. So pressing host button 2
       will press both MSX buttons.</td>
     </tr>
     <tr>
-      <td><code>dict set joystick1_config LEFT  {-axis0 -axis2 button10}<br/>
-                dict set joystick1_config RIGHT {+axis0 +axis2 button11}<br/>
-                dict set joystick1_config UP    {-axis1 -axis3 button12}<br/>
-                dict set joystick1_config DOWN  {+axis1 +axis3 button13}</code></td>
-      <td>Map 2 pairs of axis and 1 keypad (4 buttons) to the MSX direction inputs.</td>
+      <td><code>dict set msxjoystick1_config LEFT  {{joy2 -axis0} {joy2 -axis2} {joy1 button10}}<br/>
+                dict set msxjoystick1_config RIGHT {{joy2 +axis0} {joy2 +axis2} {joy1 button11}}<br/>
+                dict set msxjoystick1_config UP    {{joy2 -axis1} {joy2 -axis3} {joy1 button12}}<br/>
+                dict set msxjoystick1_config DOWN  {{joy2 +axis1} {joy2 +axis3} {joy1 button13}}</code></td>
+      <td>Map 2 pairs of axis and 1 keypad (4 buttons) from host controller/joystick 2 to the MSX direction inputs for MSX joystick 1.</td>
     </tr>
     <tr>
-      <td><code>dict lappend joystick1_config LEFT  L_hat0<br/>
-                dict lappend joystick1_config RIGHT R_hat0<br/>
-                dict lappend joystick1_config UP    U_hat0<br/>
-                dict lappend joystick1_config DOWN  D_hat0</code></td>
-      <td>Additionally map hat0 to the 4 MSX directions.</td>
+      <td><code>dict lappend msxjoystick2_config LEFT  {joy1 hat0 left}<br/>
+                dict lappend msxjoystick2_config RIGHT {joy1 hat0 right}<br/>
+                dict lappend msxjoystick2_config UP    {joy1 hat0 up}<br/>
+                dict lappend msxjoystick2_config DOWN  {joy1 hat0 down}</code></td>
+      <td>Additionally map hat0 of host controller/joystick 1 to the 4 MSX directions of msxjoystick2.</td>
+    </tr>
+    <tr>
+      <td><code>dict lappend msxjoystick2_config LEFT  {keyb A}<br/>
+                dict lappend msxjoystick2_config RIGHT {keyb D}<br/>
+                dict lappend msxjoystick2_config UP    {keyb W}<br/>
+                dict lappend msxjoystick2_config DOWN  {keyb S}</code></td>
+      <td>Additionally map the W, A, S, D keyboard key presses to the 4 MSX directions of msxjoystick2.</td>
     </tr>
   </table>
 
@@ -3948,7 +3929,8 @@
 
   <p>This setting configures how big the dead center zone of an (analogue)
   joystick is. This is expressed as a percentage: 0 means no dead zone, 100
-  means everything falls inside the dead zone.</p>
+  means everything falls inside the dead zone. The setting is only available
+  when connected host analog sticks are detected.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -4286,41 +4268,6 @@
     </tr>
 
   </table>
-
-  <h3><a id="keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></h3>
-
-  <p>Configure the keys of the keyjoysticks. It's likely this will change in the future.</p>
-
-  <p>Valid values for <code>&lt;n&gt;</code>: <code>1</code>, <code>2</code>.</p>
-
-  <p>Valid values for <code>&lt;button&gt;</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>, <code>triga</code>, <code>trigb</code>.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set keyjoystick1.up W</code></td>
-    </tr>
-
-    <tr>
-      <td><code>set keyjoystick1.down S</code></td>
-    </tr>
-
-    <tr>
-      <td><code>set keyjoystick1.left A</code></td>
-    </tr>
-
-    <tr>
-      <td><code>set keyjoystick1.right D</code></td>
-    </tr>
-
-    <tr>
-      <td><code>set keyjoystick1.triga SPACE</code></td>
-    </tr>
-  </table>
-
 
   <h3><a id="led">led_&lt;name&gt;</a></h3>
 
@@ -4921,7 +4868,7 @@
     </tr>
   </table>
 
-  <h3><a id="rs232-outputfilename">rs232-net-ip232</a></h3>
+  <h3><a id="rs232-net-ip232">rs232-net-ip232</a></h3>
 
   <p>Enable the use of the IP232 protocol when used in conjunction with the <code>TCPSer</code> software modem. Note that
   <code>rs232-net</code> has to be plugged in the <code>msx-rs232</code>
@@ -5067,13 +5014,9 @@
     </tr>
   </table>
 
-  <div class="note">
-    Note: Not all renderers support all scale algorithms.
-  </div>
-
   <h3><a id="scale_factor">scale_factor</a></h3>
 
-  <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256&times;212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 1 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
+  <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256&times;212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 2 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5092,10 +5035,6 @@
       <td>Sets a new scale factor</td>
     </tr>
   </table>
-
-  <div class="note">
-    Note: Not all renderers support all scale factors.
-  </div>
 
   <h3><a id="scanline">scanline</a></h3>
 
@@ -5787,10 +5726,6 @@
     </tr>
 
   </table>
-
-  <div class="note">
-   Note: This setting only has effect when the SDLGL-PP renderer is used.
-  </div>
 
   <h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>
 

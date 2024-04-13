@@ -30,7 +30,7 @@
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
-		<li><a class="internal" href="#leds">Great, those OSD LEDs! How do I get rid of them?</a></li>
+		<li><a class="internal" href="#leds">Great, those on-screen LEDs! How do I get rid of them?</a></li>
 		<li><a class="internal" href="#commands">Where is the full list of commands and settings?</a></li>
 		<li><a class="internal" href="#slow">How can I speed up openMSX? How hard is it to emulate an old MSX on a modern PC?</a></li>
 		<li><a class="internal" href="#perfect_videos">How do I create perfect play videos, like Vampier's YouTube videos?</a></li>
@@ -68,7 +68,7 @@ file. After this, you should have a working openMSX and openMSX Catapult.<br />
 You can also download the Zip distribution which contains only the emulator
 files (no installer) and unpack it to the directory of your choice.</dd>
 <dt>macOS</dt>
-<dd>The easiest way is to get the <code>.dmg</code> file from <a class="external" href="http://openmsx.org/">our website</a> (check the Download box). There is no Catapult for macOS yet, but <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a> is a very good alternative. If this site gives you problems, check <a class="external" href="http://nekocanmac.seesaa.net/">the mirror download site</a>. And of course you can also use the built-in OSD menu, open it with Cmd+O or by clicking the tiny menu button in the top left corner.
+<dd>The easiest way is to get the <code>.dmg</code> file from <a class="external" href="http://openmsx.org/">our website</a> (check the Download box). There is no Catapult for macOS, but Catapult isn't adding much value anyway nowadays, as there is a built-in GUI now.
 </dd>
 <dt>Linux</dt>
 <dd><dl>
@@ -137,15 +137,11 @@ The MSX system ROMs are copyrighted. In other words: it's illegal to include the
 <h3><a id="easyuse">Is openMSX easy to use?</a></h3>
 
 <p>
-Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is quite easy to use! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.org/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
+We hope it is, as there is a built-in GUI nowadays. If you find problems using openMSX, we'd love to hear about it.
 </p>
 
 <p>
-An alternative to Catapult, is the built in OSD menu. You can call it by pressing the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a> (or Cmd+O on Mac) or by clicking the tiny menu button in the top left corner. This menu is also used on handhelds, like the Dingoo.
-</p>
-
-<p>
-Catapult and the OSD menu don't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did our best to make this console as easy to use as possible.
+Although the GUI is quite comprehensive, it doesn't give you access to all features of openMSX. You can do even more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did our best to make this console as easy to use as possible.
 </p>
 
 <p>
@@ -153,7 +149,7 @@ If you think openMSX is not easy to use, please tell us why! Contact info is in 
 </p>
 
 <p>
-Oh, you might wonder: why don't you make a normal GUI like other emulators? One in which the emulation is inside the GUI? The reason is that we are currently not able to make that: the GUI toolkit we use does not support it and we want to keep the GUI optional, so we cannot make it part of the main application.
+Oh, you might wonder: why isn't the GUI looking more like other applications of my operating system, like in (most) other emulators? We choose this GUI toolkit, because it's independent of the operating system and it is easily integrated into our code. This way we can support more operating systems with the same amount of work (and developers) and make it easy for us to add new features.
 </p>
 
 <h3><a id="c-bios">All I get is "No cartridge found." What's wrong?</a></h3>
@@ -180,7 +176,7 @@ So, the message is not from openMSX, but from C-BIOS, an MSX program which tries
 
 <p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
 
-<p>The tricky thing is that the old (current) version of Catapult always shows the disk, tape and cartridge controls, independent whether the machine you're emulating actually supports them. This will be greatly improved in the new (upcoming, but not finished) Catapult.</p>
+<p>The tricky thing is that Catapult always shows the disk, tape and cartridge controls, independent whether the machine you're emulating actually supports them. There is an abandoned improved Catapult project that doesn't have this behavior, but the best thing is to simply use the built-in GUI, which integrates perfectly with the capabilities of the selected machine.</p>
 
 <p>If you want to use disks or tapes with your emulated MSX, you will have to install the system ROMs of a real MSX (one with a disk drive!) to emulate that one, until C-BIOS supports this as well. More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
 
@@ -331,22 +327,20 @@ video chips.</p>
 <p>See also the corresponding section in the <a class="external" href="user.html#gfx9000">User's Manual</a>.
 </p>
 
-<h3><a id="leds">Great, those OSD LEDs! How do I get rid of them?</a></h3>
+<h3><a id="leds">Great, those on-screen LEDs! How do I get rid of them?</a></h3>
 
 <p>
-Open the console with F10 (Cmd+L on Mac) and type:
+Use the GUI menu: Settings &rarrow; Misc &rarrow; Configure OSD icons... and uncheck "Show OSD icons". You can use this window also to configure them to your liking.
 </p>
-<div class="commandline">load_icons none</div>
-
-<p>If you have <code><a class="external" href="commands.html#save_settings_on_exit">save_settings_on_exit</a></code> set to <code>on</code>, this change will be permanent, until you load another icon set. This gives you the default:</p>
-
-<div class="commandline">load_icons set1 bottom</div>
 
 <h3><a id="commands">Where is the full list of commands and settings?</a></h3>
 
 <p>
 The full list of commands and settings that are available in the console can be found in the
 <a class="external" href="commands.html">Console Command Reference</a>. Check it out, it's really useful!
+</p>
+<p>
+There is also a full alphabetical list of settings in the GUI under Settings &rarrow; Advanced. This is a very long list though, and we might remove it later as it is not very easy to use.
 </p>
 
 <h3><a id="slow">How can I speed up openMSX? How hard is it to emulate an old MSX on a modern PC?</a></h3>
@@ -457,7 +451,7 @@ You can look in the following places for answers:
 <dd>We have a nice set of manuals describing most of the functionality in openMSX.
 </dd>
 <dt><a class="external" href="http://openmsx.org/catapult-manual/">Catapult manuals</a></dt>
-<dd>The manuals of Catapult, the graphical interface to openMSX.</dd>
+<dd>The manuals of Catapult, a somewhat obsolete graphical interface to openMSX.</dd>
 <dt><a class="external" href="http://faq.msxnet.org/">The Ultimate MSX FAQ</a></dt>
 <dd>Look here if you have a question that is not specific to openMSX, but about the MSX system itself.</dd>
 <dt><a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">openMSX Forum on MRC</a></dt>

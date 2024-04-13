@@ -502,17 +502,14 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0. Practically all modern PC hardware has this and that's why we made it the default, but if your hardware doesn't, use the SDL renderer instead.
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> (and thus openMSX) needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0.
 </p>
 <p>
 Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.
-However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
+However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg/Wayland or Windows environment.
 </p>
 <p>
 You can verify hardware acceleration on your Linux system by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
-</p>
-<p>
-In any case: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
 </p>
 
 <h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
@@ -529,9 +526,6 @@ If openMSX runs slow, you can try the following measures:
 </p>
 <ul>
 <li>
-Disable horizontal stretching (mostly useful when using the SDL renderer), which is enabled by default: <code>set <a class="external" href="commands.html#horizontal_stretch">horizontal_stretch</a> 320</code>.
-</li>
-<li>
 Disable the <a class="external" href="user.html#reverse">reverse</a> feature (especially if the platform you're running on has a low amount of RAM), which is enabled by default on most platforms: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code>
 </li>
 <li>
@@ -543,10 +537,6 @@ emulation to stutter.
 </li>
 <li>
 Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
-</li>
-<li>
-Use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
-games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines. Turning off special effects can also mean a speed up, of course.
 </li>
 <li>
 Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
