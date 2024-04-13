@@ -11,7 +11,6 @@
 #include "SETetrisDongle.hh"
 #include "MagicKey.hh"
 #include "MSXJoystick.hh"
-#include "KeyJoystick.hh"
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
@@ -82,12 +81,6 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<JoyMega>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, joystickManager, 2)); // joymega2
-	controller.registerPluggable(std::make_unique<KeyJoystick>(
-		commandController, msxEventDistributor,
-		stateChangeDistributor, KeyJoystick::ID1));
-	controller.registerPluggable(std::make_unique<KeyJoystick>(
-		commandController, msxEventDistributor,
-		stateChangeDistributor, KeyJoystick::ID2));
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());

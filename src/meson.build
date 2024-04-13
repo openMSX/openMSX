@@ -221,7 +221,6 @@ sources = files(
     'input/JoyTap.cc',
     'input/JoystickDevice.cc',
     'input/JoystickPort.cc',
-    'input/KeyJoystick.cc',
     'input/MSXJoystick.cc',
     'input/Keyboard.cc',
     'input/KeyboardSettings.cc',

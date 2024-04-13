@@ -645,9 +645,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardSettings.cc">
       <Filter>input</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc">
-      <Filter>input</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXJoystick.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -2126,9 +2123,6 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\KeyboardSettings.hh">
-      <Filter>input</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\input\KeyJoystick.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\MSXJoystick.hh">
