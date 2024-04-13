@@ -1294,8 +1294,8 @@ If you'd like to apply some special effects to the sound, you should take a look
 <p>
 openMSX supports the MSX-MIDI interface of the MSXturboR GT and the mu-Pack, the MIDI interface
 of the Philips Music Module (NMS 1205), the MIDI interface of the Yamaha SFG-01
-and SFG-05 module (also present in the Yamaha CX5M series of machines) and the
-FAC MIDI Interface.
+and SFG-05 module (also present in the Yamaha CX5M series of machines), the
+FAC MIDI Interface and the JVC (UK) MSX MIDI interface.
 </p>
 <p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. Then plug a MIDI out and/or MIDI in device into that MSX MIDI interface using the openMSX <a class="internal" href="#console">console</a>.
 </p>
@@ -1325,7 +1325,7 @@ The <code>midi-out-logger</code> MIDI device is available on all platforms and l
 <p>
 You can specify the file to log to using <code>set
 <a class="external" href="commands.html#midi-out-logfilename">midi-out-logfilename</a></code>.
-The log is a raw binary log of the bytes written by the MIDI interface, with no timing information. Therefore its usefulness mostly limited to debugging.
+The log is a raw binary log of the bytes written by the MIDI interface, with no timing information. Therefore its usefulness is mostly limited to debugging.
 </p>
 <p>
 On UNIX-like systems, it is possible to log to a MIDI device node, for example <code>/dev/midi</code> and configure the sound system to send those notes to a soft synthesizer. This is harder to configure than using for example the ALSA MIDI out device, so it's only recommended when no platform-specific MIDI devices are available in openMSX. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to connect openMSX to Timidity via <code>/dev/midi</code>.
