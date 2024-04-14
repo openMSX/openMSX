@@ -42,7 +42,7 @@ public:
 		lineWidths[line] = 1;
 	}
 
-protected:
+private:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 	[[nodiscard]] const void* getLineInfo(
 		unsigned line, unsigned& width,

@@ -13,7 +13,7 @@ class GLImage;
 
 class OSDRectangle final : public OSDImageBasedWidget
 {
-protected:
+private:
 	static constexpr auto rectangleProperties = [] {
 		using namespace std::literals;
 		return concatArray(
