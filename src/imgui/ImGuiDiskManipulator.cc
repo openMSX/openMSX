@@ -861,13 +861,7 @@ bool ImGuiDiskManipulator::setupTransferHostToMsx(DrivePartitionTar& stuff)
 		if (it == msxFileCache.end()) continue;
 		(it->isDirectory ? existingDirs : existingFiles).push_back(*it);
 	}
-	for (auto it = duplicateEntries.begin(); it != duplicateEntries.end(); /**/) {
-		if (it->second.size() < 2) {
-			it = duplicateEntries.erase(it);
-		} else {
-			++it;
-		}
-	}
+	std::erase_if(duplicateEntries, [](const auto& entry) { return entry.second.size() < 2; });
 	if (existingDirs.empty() && existingFiles.empty() && duplicateEntries.empty()) {
 		transferHostToMsxPhase = EXECUTE_PRESERVE;
 		executeTransferHostToMsx(stuff);
