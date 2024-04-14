@@ -1296,7 +1296,7 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 std::span<const std::string> ImGuiSettings::getAvailableFonts()
 {
 	if (availableFonts.empty()) {
-		auto context = systemFileContext();
+		const auto& context = systemFileContext();
 		for (const auto& path : context.getPaths()) {
 			foreach_file(FileOperations::join(path, "skins"), [&](const std::string& /*fullName*/, std::string_view name) {
 				if (name.ends_with(".ttf.gz") || name.ends_with(".ttf")) {
