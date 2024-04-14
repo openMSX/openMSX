@@ -13,7 +13,7 @@ class Deflicker final : public FrameSource
 {
 public:
 	Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
-	virtual ~Deflicker() = default;
+	~Deflicker();
 	void init();
 
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;

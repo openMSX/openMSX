@@ -20,6 +20,8 @@ Deflicker::Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames_)
 {
 }
 
+Deflicker::~Deflicker() = default;
+
 void Deflicker::init()
 {
 	FrameSource::init(FIELD_NONINTERLACED);
