@@ -344,8 +344,8 @@ void ImGuiManager::executeDelayed(std::function<void()> action)
 }
 
 void ImGuiManager::executeDelayed(TclObject command,
-                                  std::function<void(const TclObject&)> ok,
-                                  std::function<void(const std::string&)> error)
+                                  const std::function<void(const TclObject&)>& ok,
+                                  const std::function<void(const std::string&)>& error)
 {
 	executeDelayed([this, command, ok, error]() mutable {
 		try {
@@ -358,7 +358,7 @@ void ImGuiManager::executeDelayed(TclObject command,
 }
 
 void ImGuiManager::executeDelayed(TclObject command,
-                                  std::function<void(const TclObject&)> ok)
+                                  const std::function<void(const TclObject&)>& ok)
 {
 	executeDelayed(std::move(command), ok,
 		[this](const std::string& message) { this->printError(message); });

@@ -74,10 +74,10 @@ public:
 	std::optional<TclObject> execute(TclObject command);
 	void executeDelayed(std::function<void()> action);
 	void executeDelayed(TclObject command,
-	                    std::function<void(const TclObject&)> ok,
-	                    std::function<void(const std::string&)> error);
+	                    const std::function<void(const TclObject&)>& ok,
+	                    const std::function<void(const std::string&)>& error);
 	void executeDelayed(TclObject command,
-	                    std::function<void(const TclObject&)> ok = {});
+	                    const std::function<void(const TclObject&)>& ok = {});
 
 	void printError(std::string_view message);
 	template<typename... Ts> void printError(Ts&&... ts) {

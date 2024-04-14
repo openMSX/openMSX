@@ -20,15 +20,15 @@ public:
 	using ImGuiPart::ImGuiPart;
 
 	void selectFile(const std::string& title, std::string filters,
-	                std::function<void(const std::string&)> callback,
+	                const std::function<void(const std::string&)>& callback,
 	                zstring_view lastLocationHint = {},
 			Painter painter = Painter::MANAGER);
 	void selectNewFile(const std::string& title, std::string filters,
-	                   std::function<void(const std::string&)> callback,
+	                   const std::function<void(const std::string&)>& callback,
 	                   zstring_view lastLocationHint = {},
 	                   Painter painter = Painter::MANAGER);
 	void selectDirectory(const std::string& title,
-	                     std::function<void(const std::string&)> callback,
+	                     const std::function<void(const std::string&)>& callback,
 	                     zstring_view lastLocationHint = {},
 	                     Painter painter = Painter::MANAGER);
 
@@ -44,7 +44,7 @@ public:
 
 private:
 	void common(const std::string& title, const char* filters,
-                    std::function<void(const std::string&)> callback,
+                    const std::function<void(const std::string&)>& callback,
                     zstring_view lastLocationHint,
                     Painter painter,
                     int extraFlags);
