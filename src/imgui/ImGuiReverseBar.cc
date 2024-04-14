@@ -142,18 +142,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 		auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
-		if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
-			manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start" : "stop"));
-		}
-		simpleToolTip("Enable/disable reverse/replay right now, for the currently running machine");
-		if (auto* autoEnableReverseSetting = dynamic_cast<BooleanSetting*>(manager.getReactor().getGlobalCommandController().getSettingsManager().findSetting("auto_enable_reverse"))) {
-
-			bool autoEnableReverse = autoEnableReverseSetting->getBoolean();
-			if (ImGui::MenuItem("Auto enable reverse", nullptr, &autoEnableReverse)) {
-				autoEnableReverseSetting->setBoolean(autoEnableReverse);
-			}
-			simpleToolTip(autoEnableReverseSetting->getDescription());
-		}
 
 		im::Menu("Load replay ...", reverseEnabled, [&]{
 			ImGui::TextUnformatted("Select replay"sv);
@@ -228,7 +216,22 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Open replays folder...")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/replays").c_str());
 		}
-		ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
+		im::Menu("Reverse/replay settings", [&]{
+			if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
+				manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start" : "stop"));
+			}
+			simpleToolTip("Enable/disable reverse/replay right now, for the currently running machine");
+			if (auto* autoEnableReverseSetting = dynamic_cast<BooleanSetting*>(manager.getReactor().getGlobalCommandController().getSettingsManager().findSetting("auto_enable_reverse"))) {
+
+				bool autoEnableReverse = autoEnableReverseSetting->getBoolean();
+				if (ImGui::MenuItem("Auto enable reverse", nullptr, &autoEnableReverse)) {
+					autoEnableReverseSetting->setBoolean(autoEnableReverse);
+				}
+				simpleToolTip(autoEnableReverseSetting->getDescription());
+			}
+
+			ImGui::MenuItem("Show reverse bar", nullptr, &showReverseBar, reverseEnabled);
+		});
 	});
 
 	const auto popupTitle = "Confirm##reverse";
