@@ -76,7 +76,6 @@ public:
 	// Connector
 	[[nodiscard]] std::string_view getDescription() const override;
 	[[nodiscard]] std::string_view getClass() const override;
-	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -101,11 +101,6 @@ void CassettePort::setLaserdiscPlayer(LaserdiscPlayer *laserdiscPlayer_)
 }
 #endif
 
-void CassettePort::unplug(EmuTime::param time)
-{
-	Connector::unplug(time);
-}
-
 std::string_view CassettePort::getDescription() const
 {
 	return "MSX Cassette port";
