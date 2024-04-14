@@ -3,12 +3,10 @@
 #include "Base64.hh"
 #include "HexDump.hh"
 #include "XMLElement.hh"
-#include "ConfigException.hh"
 #include "XMLException.hh"
 #include "DeltaBlock.hh"
 #include "MemBuffer.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
 #include "Version.hh"
 #include "Date.hh"
 #include "narrow.hh"
@@ -520,8 +518,8 @@ void XmlInputArchive::beginTag(const char* tag)
 	const auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
 		string path;
-		for (auto& e : elems) {
-			strAppend(path, e.first->getName(), '/');
+		for (auto& [e, _] : elems) {
+			strAppend(path, e->getName(), '/');
 		}
 		throw XMLException("No child tag \"", tag,
 		                   "\" found at location \"", path, '\"');

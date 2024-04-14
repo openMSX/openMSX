@@ -269,10 +269,10 @@ done_read:
 	// most often).
 	unsigned maxCount = 0;
 	unsigned trackSize = 0;
-	for (const auto& p : sizes) {
-		if (p.second >= maxCount) {
-			maxCount = p.second;
-			trackSize = p.first;
+	for (const auto& [length, count] : sizes) {
+		if (count >= maxCount) {
+			maxCount = count;
+			trackSize = length;
 		}
 	}
 
