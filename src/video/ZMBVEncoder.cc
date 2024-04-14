@@ -352,7 +352,7 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* 
 	zstream.avail_in = workUsed;
 	zstream.total_in = 0;
 
-	zstream.next_out = static_cast<Bytef*>(writeBuf + writeDone);
+	zstream.next_out = std::bit_cast<Bytef*>(writeBuf + writeDone);
 	zstream.avail_out = outputSize - writeDone;
 	zstream.total_out = 0;
 	auto r = deflate(&zstream, Z_SYNC_FLUSH);

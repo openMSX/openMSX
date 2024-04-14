@@ -125,7 +125,7 @@ public:
 
 	// get underlying Tcl_Obj
 	[[nodiscard]] Tcl_Obj* getTclObject() { return obj; }
-	[[nodiscard]] Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
+	[[nodiscard]] Tcl_Obj* getTclObjectNonConst() const { return obj; }
 
 	// add elements to a Tcl list
 	template<typename T> void addListElement(const T& t) { addListElement(newObj(t)); }

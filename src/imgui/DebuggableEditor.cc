@@ -764,9 +764,9 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth((s.glyphWidth * 10.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
 	if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(previewDataType), ImGuiComboFlags_HeightLargest)) {
-		for (int n = 0; n < (ImGuiDataType_COUNT - 2); ++n) {
-			if (ImGui::Selectable(DataTypeGetDesc((ImGuiDataType)n), previewDataType == n)) {
-				previewDataType = ImGuiDataType(n);
+		for (ImGuiDataType n = 0; n < (ImGuiDataType_COUNT - 2); ++n) {
+			if (ImGui::Selectable(DataTypeGetDesc(n), previewDataType == n)) {
+				previewDataType = n;
 			}
 		}
 		ImGui::EndCombo();
