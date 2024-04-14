@@ -327,13 +327,13 @@ bool Rom::checkSHA1(const XMLElement& config) const
 }
 
 Rom::Rom(Rom&& r) noexcept
-	: rom          (std::move(r.rom))
+	: rom          (r.rom)
 	, extendedRom  (std::move(r.extendedRom))
 	, file         (std::move(r.file))
-	, originalSha1 (std::move(r.originalSha1))
-	, actualSha1   (std::move(r.actualSha1))
+	, originalSha1 (r.originalSha1)
+	, actualSha1   (r.actualSha1)
 	, name         (std::move(r.name))
-	, description  (std::move(r.description))
+	, description  (r.description)
 	, romDebuggable(std::move(r.romDebuggable))
 {
 	if (romDebuggable) romDebuggable->moved(*this);

@@ -23,7 +23,7 @@ AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
                    uint16_t ID_, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
-	, sectorInfo(std::move(sectorInfo_))
+	, sectorInfo(sectorInfo_)
 	, sz(sum(sectorInfo, &SectorInfo::size))
 	, ID(ID_)
 	, addressing(addressing_)
@@ -35,7 +35,7 @@ AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorIn
                    uint16_t ID_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
-	, sectorInfo(std::move(sectorInfo_))
+	, sectorInfo(sectorInfo_)
 	, sz(sum(sectorInfo, &SectorInfo::size))
 	, ID(ID_)
 	, addressing(addressing_)

@@ -33,8 +33,8 @@ public:
 		, company (company_)
 		, country (country_)
 		, origType(origType_)
-		, remark  (std::move(remark_))
-		, romType(romType_)
+		, remark  (remark_)
+		, romType (romType_)
 		, genMSXid(genMSXid_)
 		, original(original_)
 	{
