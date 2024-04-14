@@ -35,9 +35,10 @@
 // performance (e.g. create a conforming STL interface). Though I intentionally
 // kept this first implementation simple.
 
-template<typename Value, Value InvalidValue, typename Hasher, typename Equality>
+template<auto InvalidValue, typename Hasher, typename Equality>
 class SimpleHashSet
 {
+	using Value = decltype(InvalidValue);
 public:
 	SimpleHashSet(Hasher hasher_ = {}, Equality equality_ = {})
 		: hasher(hasher_), equality(equality_)

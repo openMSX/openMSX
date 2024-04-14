@@ -128,7 +128,7 @@ private:
 		}
 	};
 	// Hash indexed by filename, points to a full object in 'pool'
-	using FilenameIndex = SimpleHashSet<Index, Index(-1), FilenameIndexHash, FilenameIndexEqual>;
+	using FilenameIndex = SimpleHashSet<Index(-1), FilenameIndexHash, FilenameIndexEqual>;
 
 private:
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
