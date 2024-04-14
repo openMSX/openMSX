@@ -51,7 +51,7 @@ namespace openmsx {
  */
 // MIDI SYSTEM MESSAGES max length is not defined...
 // TODO: support variable length.
-#define OPENMSX_W32_MIDI_SYSMES_MAXLEN 4096
+static constexpr size_t OPENMSX_W32_MIDI_SYSMES_MAXLEN = 4096;
 
 
 struct vfn_midi {

@@ -32,8 +32,8 @@
 // Also, specify the appropriate file names, depending on the platform conventions
 #if PLATFORM_ANDROID
 #define LOG_TO_FILE 1
-#define STDOUT_LOG_FILE_NAME "openmsx_system/openmsx.stdout"
-#define STDERR_LOG_FILE_NAME "openmsx_system/openmsx.stderr"
+static constexpr const char* STDOUT_LOG_FILE_NAME = "openmsx_system/openmsx.stdout";
+static constexpr const char* STDERR_LOG_FILE_NAME = "openmsx_system/openmsx.stderr";
 #else
 #define LOG_TO_FILE 0
 #endif
