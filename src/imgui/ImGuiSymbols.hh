@@ -25,6 +25,9 @@ struct SymbolRef {
 class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
 	struct FileInfo {
+		FileInfo(std::string f, std::string e, SymbolFile::Type t)
+			: filename(std::move(f)), error(std::move(e)), type(t) {} // clang-15 workaround
+
 		std::string filename;
 		std::string error;
 		SymbolFile::Type type;

@@ -286,7 +286,7 @@ void HotKey::activateLayer(std::string layer, bool blocking)
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
-	activeLayers.push_back({std::move(layer), blocking});
+	activeLayers.emplace_back(std::move(layer), blocking);
 }
 
 void HotKey::deactivateLayer(std::string_view layer)

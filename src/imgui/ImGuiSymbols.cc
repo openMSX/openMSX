@@ -63,9 +63,9 @@ void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
 	} else if (name == "symbolfile") {
-		fileError.push_back(FileInfo{std::string{value}, // filename
-		                             std::string{}, // error
-		                             SymbolFile::Type::AUTO_DETECT}); // type
+		fileError.emplace_back(std::string{value}, // filename
+		                       std::string{}, // error
+		                       SymbolFile::Type::AUTO_DETECT); // type
 	} else if (name == "symbolfiletype") {
 		if (!fileError.empty()) {
 			fileError.back().type =
@@ -100,7 +100,7 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 			it->error = e.getMessage(); // overwrite previous error
 			it->type = type;
 		} else {
-			fileError.push_back({filename, e.getMessage(), type}); // set error
+			fileError.emplace_back(filename, e.getMessage(), type); // set error
 		}
 	}
 }

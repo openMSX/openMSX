@@ -77,7 +77,7 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 std::vector<std::string> DiskManipulator::getDriveNamesForCurrentMachine() const
 {
 	std::vector<std::string> result;
-	result.push_back("virtual_drive"); // always available
+	result.emplace_back("virtual_drive"); // always available
 
 	auto prefix = getMachinePrefix();
 	if (prefix.empty()) return result;

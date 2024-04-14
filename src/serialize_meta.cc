@@ -21,7 +21,7 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 {
 	assert(!initialized);
 	assert(!contains(saverMap, type, &Entry::index)); // not yet sorted
-	saverMap.emplace_back(Entry{type, std::move(saver)});
+	saverMap.emplace_back(type, std::move(saver));
 }
 
 template<typename Archive>

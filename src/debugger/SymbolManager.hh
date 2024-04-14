@@ -19,6 +19,9 @@ class CommandController;
 
 struct Symbol
 {
+	Symbol(std::string n, uint16_t v)
+		: name(std::move(n)), value(v) {} // clang-15 workaround
+
 	std::string name;
 	uint16_t value;
 

@@ -39,7 +39,7 @@ TEST_CASE("FilePoolCore")
 
 	auto getDirectories = [&] {
 		FilePoolCore::Directories result;
-		result.push_back(FilePoolCore::Dir{tmp, FileType::ROM});
+		result.emplace_back(tmp, FileType::ROM);
 		return result;
 	};
 

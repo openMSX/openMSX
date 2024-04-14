@@ -163,6 +163,8 @@ public:
 	void unregisterProvider(MediaInfoProvider& provider);
 private:
 	struct ProviderInfo {
+		ProviderInfo(std::string_view n, MediaInfoProvider* p)
+			: name(n), provider(p) {} // clang-15 workaround
 		std::string_view name;
 		MediaInfoProvider* provider;
 	};
@@ -1098,7 +1100,7 @@ void MachineMediaInfo::registerProvider(std::string_view name, MediaInfoProvider
 {
 	assert(!contains(providers, name, &ProviderInfo::name));
 	assert(!contains(providers, &provider, &ProviderInfo::provider));
-	providers.push_back(ProviderInfo{name, &provider});
+	providers.emplace_back(name, &provider);
 }
 
 void MachineMediaInfo::unregisterProvider(MediaInfoProvider& provider)

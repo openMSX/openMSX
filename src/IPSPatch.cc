@@ -62,7 +62,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			result.erase(b + 1, e);
 		} else {
 			// add new region
-			result.emplace(b, Chunk{offset, std::move(v)});
+			result.emplace(b, offset, std::move(v));
 		}
 
 		ipsFile.read(offsetBuf);

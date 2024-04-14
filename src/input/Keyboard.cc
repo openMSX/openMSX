@@ -1605,7 +1605,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
+		eventQueue.emplace_front(KeyUpEvent::create(keyboard.keyboardSettings.getCodeKanaHostKey()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {

@@ -322,7 +322,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 			if (it == et) break;
 			auto value = *it++; // this could either be the psect or the value column
 			if (auto val = is4DigitHex(value)) {
-				result.symbols.push_back(Symbol{std::string(label), *val});
+				result.symbols.emplace_back(std::string(label), *val);
 				continue;
 			}
 
@@ -330,7 +330,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 			value = *it++; // try again with 3rd column
 			auto val = is4DigitHex(value);
 			if (!val) break; // if this also doesn't work there's something wrong, skip this line
-			result.symbols.push_back(Symbol{std::string(label), *val});
+			result.symbols.emplace_back(std::string(label), *val);
 		}
 	}
 

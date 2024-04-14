@@ -71,6 +71,9 @@ public:
 
 private:
 	struct OptionData {
+		OptionData(std::string_view n, CLIOption* o, ParsePhase p, unsigned l)
+			: name(n), option(o), phase(p), length(l) {} // clang-15 workaround
+
 		std::string_view name;
 		CLIOption* option;
 		ParsePhase phase;

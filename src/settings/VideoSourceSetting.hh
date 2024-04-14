@@ -28,6 +28,9 @@ private:
 
 private:
 	struct Source {
+		Source(std::string n, int i)
+			: name(std::move(n)), id(i) {} // clang-15 workaround
+
 		std::string name;
 		int id;
 	};

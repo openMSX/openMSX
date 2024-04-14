@@ -9,6 +9,9 @@ namespace openmsx {
 
 namespace {
 	struct IdImage {
+		IdImage(int i, std::string m)
+			: id(i), image(std::move(m)) {} // clang-15 workaround
+
 		int id;
 		std::string image;
 	};
@@ -26,7 +29,7 @@ void HDImageCLI::parseOption(const std::string& option, std::span<std::string>& 
 {
 	// Machine has not been loaded yet. Only remember the image.
 	int id = option[3] - 'a';
-	images.emplace_back(IdImage{id, getArgument(option, cmdLine)});
+	images.emplace_back(id, getArgument(option, cmdLine));
 }
 
 std::string HDImageCLI::getImageForId(int id)

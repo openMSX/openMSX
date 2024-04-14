@@ -87,6 +87,9 @@ public:
 
 private:
 	struct LayerInfo {
+		LayerInfo(std::string l, bool b)
+			: layer(std::move(l)), blocking(b) {} // clang-15 workaround
+
 		std::string layer;
 		bool blocking;
 	};
