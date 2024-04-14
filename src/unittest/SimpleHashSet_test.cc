@@ -6,7 +6,7 @@
 TEST_CASE("SimpleHashSet")
 {
 	// construct
-	SimpleHashSet<int, -1, std::hash<int>, std::equal_to<>> s;
+	SimpleHashSet<-1, std::hash<int>, std::equal_to<>> s;
 	CHECK(s.capacity() == 0);
 	CHECK(s.size() == 0);
 	CHECK(s.empty());
