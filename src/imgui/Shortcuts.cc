@@ -14,8 +14,8 @@ struct AllShortcutInfo {
     ImGuiKeyChord keyChord;
     Shortcuts::Type type;
     bool repeat;
-    std::string_view name; // used in settings.xml
-    std::string_view description; // shown in GUI
+    zstring_view name; // used in settings.xml
+    zstring_view description; // shown in GUI
 };
 using enum Shortcuts::ID;
 using enum Shortcuts::Type;
@@ -40,7 +40,7 @@ static constexpr auto defaultShortcuts = []{
 }();
 
 static constexpr auto shortcutNames = []{
-	std::array<std::string_view, Shortcuts::ID::NUM_SHORTCUTS> result = {};
+	std::array<zstring_view, Shortcuts::ID::NUM_SHORTCUTS> result = {};
 	for (int i = 0; i < Shortcuts::ID::NUM_SHORTCUTS; ++i) {
 		result[i] = allShortcutInfo[i].name;
 	}
@@ -48,30 +48,12 @@ static constexpr auto shortcutNames = []{
 }();
 
 static constexpr auto shortcutDescriptions = []{
-	std::array<std::string_view, Shortcuts::ID::NUM_SHORTCUTS> result = {};
+	std::array<zstring_view, Shortcuts::ID::NUM_SHORTCUTS> result = {};
 	for (int i = 0; i < Shortcuts::ID::NUM_SHORTCUTS; ++i) {
 		result[i] = allShortcutInfo[i].description;
 	}
 	return result;
 }();
-
-// TODO this needs to be reworked (doesn't work because of proportional font)
-std::string_view Shortcuts::getLargerDescription()
-{
-	static constexpr auto MAX_DESCRIPTION = []{
-		size_t maxSize = 0;
-		size_t maxIdx = 0;
-		for (size_t i = 0; i < shortcutDescriptions.size(); ++i) {
-			const auto& description = shortcutDescriptions[i];
-			if (description.size() > maxSize) {
-				maxSize = description.size();
-				maxIdx = i;
-			}
-		}
-		return shortcutDescriptions[maxIdx];
-	}();
-	return MAX_DESCRIPTION;
-}
 
 Shortcuts::Shortcuts()
 {
@@ -101,7 +83,7 @@ void Shortcuts::setShortcut(ID id, const Shortcut& shortcut)
 	shortcuts[id] = shortcut;
 }
 
-std::string_view Shortcuts::getShortcutName(Shortcuts::ID id)
+zstring_view Shortcuts::getShortcutName(Shortcuts::ID id)
 {
 	assert(id < ID::NUM_SHORTCUTS);
 	return shortcutNames[id];
@@ -121,7 +103,7 @@ std::optional<Shortcuts::Type> Shortcuts::parseType(std::string_view name)
 	return {};
 }
 
-std::string_view Shortcuts::getShortcutDescription(ID id)
+zstring_view Shortcuts::getShortcutDescription(ID id)
 {
 	assert(id < ID::NUM_SHORTCUTS);
 	return shortcutDescriptions[id];

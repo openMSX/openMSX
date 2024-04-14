@@ -4,6 +4,7 @@
 #include "ImGuiUtils.hh"
 
 #include "enumerate.hh"
+#include "zstring_view.hh"
 
 #include <array>
 #include <optional>
@@ -40,9 +41,8 @@ public:
 	Shortcuts& operator=(const Shortcuts&) = delete;
 	Shortcuts();
 
-	[[nodiscard]] static std::string_view getShortcutName(ID id);
-	[[nodiscard]] static std::string_view getLargerDescription();
-	[[nodiscard]] static std::string_view getShortcutDescription(ID id);
+	[[nodiscard]] static zstring_view getShortcutName(ID id);
+	[[nodiscard]] static zstring_view getShortcutDescription(ID id);
 	[[nodiscard]] static std::optional<ID> parseShortcutName(std::string_view name);
 	[[nodiscard]] static std::optional<Type> parseType(std::string_view name);
 	[[nodiscard]] static const Shortcut& getDefaultShortcut(ID id);

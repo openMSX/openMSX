@@ -87,6 +87,15 @@ void simpleToolTip(std::invocable<> auto descFunc)
 
 void HelpMarker(std::string_view desc);
 
+inline void centerNextWindowOverCurrent()
+{
+	static constexpr gl::vec2 center{0.5f, 0.5f};
+	gl::vec2 windowPos = ImGui::GetWindowPos();
+	gl::vec2 windowSize = ImGui::GetWindowSize();
+	auto windowCenter = windowPos + center * windowSize;
+	ImGui::SetNextWindowPos(windowCenter, ImGuiCond_Appearing, center);
+}
+
 void drawURL(std::string_view text, zstring_view url);
 
 struct GetSettingDescription {

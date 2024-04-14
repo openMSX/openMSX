@@ -3,6 +3,8 @@
 
 #include "ImGuiPart.hh"
 
+#include "Shortcuts.hh"
+
 #include "EventListener.hh"
 
 #include <functional>
@@ -15,8 +17,7 @@ namespace openmsx {
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
-	explicit ImGuiSettings(ImGuiManager& manager_)
-		: ImGuiPart(manager_) {}
+	using ImGuiPart::ImGuiPart;
 	~ImGuiSettings();
 
 	[[nodiscard]] zstring_view iniName() const override { return "settings"; }
@@ -36,6 +37,7 @@ private:
 	void paintJoystick(MSXMotherBoard& motherBoard);
 	void paintFont();
 	void paintShortcut();
+	void paintEditShortcut();
 
 	std::span<const std::string> getAvailableFonts();
 
@@ -43,6 +45,7 @@ private:
 	bool showConfigureJoystick = false;
 	bool showFont = false;
 	bool showShortcut = false;
+	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
 	bool showDemoWindow = false;
 
 	unsigned joystick = 0;
