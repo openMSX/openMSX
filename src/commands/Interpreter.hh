@@ -26,7 +26,7 @@ public:
 
 	void setOutput(InterpreterOutput* output_) { output = output_; }
 
-	void init(const char* programName);
+	void init(const char* programName) const;
 	[[nodiscard]] bool hasCommand(zstring_view name) const;
 	void registerCommand(zstring_view name, Command& command);
 	void unregisterCommand(Command& command);
@@ -55,7 +55,7 @@ public:
 	[[nodiscard]] bool validCommand(std::string_view command);
 	[[nodiscard]] bool validExpression(std::string_view expression);
 
-	void poll();
+	void poll() const;
 
 	[[noreturn]] void wrongNumArgs(unsigned argc, std::span<const TclObject> tokens, const char* message);
 

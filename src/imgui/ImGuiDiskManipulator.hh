@@ -61,7 +61,7 @@ private:
 	void refreshMsx(DrivePartitionTar& stuff);
 	void refreshHost();
 	void checkSort(std::vector<FileInfo>& files, bool& forceSort) const;
-	[[nodiscard]] Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib);
+	[[nodiscard]] Action drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool drawAttrib) const;
 	void insertMsxDisk();
 	void exportDiskImage();
 	void msxParentDirectory();

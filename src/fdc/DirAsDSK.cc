@@ -221,7 +221,7 @@ DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(std::string_view hostName) const
 }
 
 // Check if a host file is already mapped in the virtual disk.
-bool DirAsDSK::checkFileUsedInDSK(std::string_view hostName)
+bool DirAsDSK::checkFileUsedInDSK(std::string_view hostName) const
 {
 	DirIndex dirIndex = findHostFileInDSK(hostName);
 	return dirIndex.sector != unsigned(-1);

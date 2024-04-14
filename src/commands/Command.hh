@@ -85,30 +85,30 @@ protected:
 
 private:
 	template<typename Func, typename... Args>
-	void executeSubCommandImpl(std::string_view subCmd, std::string_view candidate, Func func, Args&&... args) {
+	void executeSubCommandImpl(std::string_view subCmd, std::string_view candidate, Func func, Args&&... args) const {
 		if (subCmd == candidate) {
 			func();
 		} else {
 			executeSubCommandImpl(subCmd, std::forward<Args>(args)...);
 		}
 	}
-	[[noreturn]] void executeSubCommandImpl(std::string_view /*subCmd*/) {
+	[[noreturn]] void executeSubCommandImpl(std::string_view /*subCmd*/) const {
 		throw UnknownSubCommand{}; // exhausted all possible candidates
 	}
 
 	template<typename Func, typename... Args>
-	void unknownSubCommand(std::string_view subCmd, std::string_view firstCandidate, Func /*func*/, Args&&... args) {
+	void unknownSubCommand(std::string_view subCmd, std::string_view firstCandidate, Func /*func*/, Args&&... args) const {
 		unknownSubCommandImpl(strCat("Unknown subcommand '", subCmd, "'. Must be one of '", firstCandidate, '\''),
 		                      std::forward<Args>(args)...);
 	}
 	template<typename Func, typename... Args>
-	void unknownSubCommandImpl(std::string message, std::string_view candidate, Func /*func*/, Args&&... args) {
+	void unknownSubCommandImpl(std::string message, std::string_view candidate, Func /*func*/, Args&&... args) const {
 		strAppend(message, ", '", candidate, '\'');
 		unknownSubCommandImpl(message, std::forward<Args>(args)...);
 		throw SyntaxError();
 	}
 	template<typename Func>
-	void unknownSubCommandImpl(std::string message, std::string_view lastCandidate, Func /*func*/) {
+	void unknownSubCommandImpl(std::string message, std::string_view lastCandidate, Func /*func*/) const {
 		strAppend(message, " or '", lastCandidate, "'.");
 		throw CommandException(message);
 	}

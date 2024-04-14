@@ -162,7 +162,7 @@ private:
 	/** Perform diagnostic and return result.
 	  * Actually, just return success, because we don't emulate faulty hardware.
 	  */
-	[[nodiscard]] byte diagnostic();
+	[[nodiscard]] byte diagnostic() const;
 
 	/** Puts special values in the sector address, sector count and device
 	  * registers to identify the type of device.

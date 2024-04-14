@@ -16,7 +16,7 @@ public:
 
 private:
 	void guessHelper(unsigned offset, std::span<int, 3> pages) const;
-	[[nodiscard]] unsigned guessLocation(unsigned windowBase, unsigned windowSize);
+	[[nodiscard]] unsigned guessLocation(unsigned windowBase, unsigned windowSize) const;
 };
 
 } // namespace openmsx

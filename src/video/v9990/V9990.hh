@@ -671,7 +671,7 @@ private:
 
 	/** Schedule a sync point at the start of the next line
 	 */
-	void syncAtNextLine(SyncBase& type, EmuTime::param time);
+	void syncAtNextLine(SyncBase& type, EmuTime::param time) const;
 
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer

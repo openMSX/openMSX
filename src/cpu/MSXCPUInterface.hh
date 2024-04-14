@@ -207,7 +207,7 @@ public:
 	 * CPU uses this method to read 'extra' data from the data bus
 	 * used in interrupt routines. In MSX this returns always 255.
 	 */
-	[[nodiscard]] byte readIRQVector();
+	[[nodiscard]] byte readIRQVector() const;
 
 	/*
 	 * Should only be used by PPI

@@ -558,7 +558,7 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 	}
 }
 
-void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time)
+void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time) const
 {
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;

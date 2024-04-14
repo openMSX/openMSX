@@ -74,7 +74,7 @@ public:
 	  * bind the texture, so you only need this method to explicitly bind
 	  * this texture for use in GL function calls outside of this class.
 	  */
-	void bind() {
+	void bind() const {
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 

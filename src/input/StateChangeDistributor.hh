@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	void distributeReplay(const StateChange& event) {
+	void distributeReplay(const StateChange& event) const {
 		assert(isReplaying());
 		distribute(event);
 	}

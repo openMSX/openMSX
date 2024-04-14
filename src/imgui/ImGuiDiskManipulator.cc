@@ -182,7 +182,8 @@ void ImGuiDiskManipulator::checkSort(std::vector<FileInfo>& files, bool& forceSo
 	}
 }
 
-ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool msxSide)
+ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
+	std::vector<FileInfo>& files, int& lastClickIdx, bool& forceSort, bool msxSide) const
 {
 	auto clearSelection = [&]{
 		for (auto& file : files) file.isSelected = false;

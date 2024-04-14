@@ -135,7 +135,7 @@ private:
 	void resetStatus(uint8_t flags);
 
 	// operator methods
-	void envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v);
+	void envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v) const;
 	static void refreshEG(std::span<YM2151Operator, 4> op);
 	[[nodiscard]] int opCalc(YM2151Operator& op, unsigned env, int pm) const;
 	[[nodiscard]] int opCalc1(YM2151Operator& op, unsigned env, int pm) const;

@@ -41,7 +41,7 @@ public:
 	  *            pixels aren't touched).
 	  * @param line Display line number [0..255].
 	  */
-	void convertLine(std::span<Pixel> buf, int line);
+	void convertLine(std::span<Pixel> buf, int line) const;
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.

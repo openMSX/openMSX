@@ -44,8 +44,8 @@ private:
 	void parseUpdate(const char** attrs);
 
 	void doReply();
-	void doLog();
-	void doUpdate();
+	void doLog() const;
+	void doUpdate() const;
 
 	void deprecated() const;
 
@@ -300,7 +300,7 @@ void OpenMSXComm::doReply()
 	}
 }
 
-void OpenMSXComm::doLog()
+void OpenMSXComm::doLog() const
 {
 	switch (logLevel) {
 		case LOG_INFO:
@@ -315,7 +315,7 @@ void OpenMSXComm::doLog()
 	}
 }
 
-void OpenMSXComm::doUpdate()
+void OpenMSXComm::doUpdate() const
 {
 	switch (updateType) {
 		case UPDATE_LED:

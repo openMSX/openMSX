@@ -38,7 +38,7 @@ void CharacterConverter::setDisplayMode(DisplayMode mode)
 	assert(modeBase < 0x0C);
 }
 
-void CharacterConverter::convertLine(std::span<Pixel> buf, int line)
+void CharacterConverter::convertLine(std::span<Pixel> buf, int line) const
 {
 	// TODO: Support YJK on modes other than Graphic 6/7.
 	switch (modeBase) {

@@ -406,18 +406,18 @@ string_view XmlInputArchive::loadStr() const
 	}
 	return currentElement()->getData();
 }
-void XmlInputArchive::load(string& t)
+void XmlInputArchive::load(string& t) const
 {
 	t = loadStr();
 }
-void XmlInputArchive::loadChar(char& c)
+void XmlInputArchive::loadChar(char& c) const
 {
 	std::string str;
 	load(str);
 	std::istringstream is(str);
 	is >> c;
 }
-void XmlInputArchive::load(bool& b)
+void XmlInputArchive::load(bool& b) const
 {
 	string_view s = loadStr();
 	if (s == one_of("true", "1")) {
@@ -469,12 +469,12 @@ template<std::integral T> static inline void fastAtoi(string_view str, T& t)
 		assert(!neg); (void)neg;
 	}
 }
-void XmlInputArchive::load(int& i)
+void XmlInputArchive::load(int& i) const
 {
 	string_view str = loadStr();
 	fastAtoi(str, i);
 }
-void XmlInputArchive::load(unsigned& u)
+void XmlInputArchive::load(unsigned& u) const
 {
 	string_view str = loadStr();
 	try {
@@ -489,24 +489,24 @@ void XmlInputArchive::load(unsigned& u)
 		u = narrow_cast<unsigned>(i);
 	}
 }
-void XmlInputArchive::load(unsigned long long& ull)
+void XmlInputArchive::load(unsigned long long& ull) const
 {
 	string_view str = loadStr();
 	fastAtoi(str, ull);
 }
-void XmlInputArchive::load(unsigned char& b)
+void XmlInputArchive::load(unsigned char& b) const
 {
 	unsigned u;
 	load(u);
 	b = narrow_cast<unsigned char>(u);
 }
-void XmlInputArchive::load(signed char& c)
+void XmlInputArchive::load(signed char& c) const
 {
 	int i;
 	load(i);
 	c = narrow_cast<signed char>(i);
 }
-void XmlInputArchive::load(char& c)
+void XmlInputArchive::load(char& c) const
 {
 	int i;
 	load(i);

@@ -668,7 +668,7 @@ void MSXCPUInterface::reset()
 	setPrimarySlots(initialPrimarySlots);
 }
 
-byte MSXCPUInterface::readIRQVector()
+byte MSXCPUInterface::readIRQVector() const
 {
 	return motherBoard.readIRQVector();
 }

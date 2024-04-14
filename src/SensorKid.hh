@@ -19,8 +19,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void putPort(byte data, byte diff);
-	[[nodiscard]] byte getAnalog(byte chi);
+	void putPort(byte data, byte diff) const;
+	[[nodiscard]] byte getAnalog(byte chi) const;
 
 private:
 	TclCallback portStatusCallback;

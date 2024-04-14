@@ -17,7 +17,7 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	ranges::fill(buffer, 0);
 }
 
-byte AbstractIDEDevice::diagnostic()
+byte AbstractIDEDevice::diagnostic() const
 {
 	// The Execute Device Diagnostic command is executed by both devices in
 	// parallel. Fortunately, returning 0x01 is valid in all cases:

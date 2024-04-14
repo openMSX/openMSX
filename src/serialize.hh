@@ -943,22 +943,22 @@ public:
 		return actual < required;
 	}
 
-	template<typename T> void load(T& t)
+	void loadChar(char& c) const;
+	void load(bool& b) const;
+	void load(unsigned char& b) const;
+	void load(signed char& c) const;
+	void load(char& c) const;
+	void load(int& i) const;                  // these 3 are not strictly needed
+	void load(unsigned& u) const;             // but having them non-inline
+	void load(unsigned long long& ull) const; // saves quite a bit of code
+	void load(std::string& t) const;
+	template<typename T> void load(T& t) const
 	{
 		std::string str;
 		load(str);
 		std::istringstream is(str);
 		is >> t;
 	}
-	void loadChar(char& c);
-	void load(bool& b);
-	void load(unsigned char& b);
-	void load(signed char& c);
-	void load(char& c);
-	void load(int& i);                  // these 3 are not strictly needed
-	void load(unsigned& u);             // but having them non-inline
-	void load(unsigned long long& ull); // saves quite a bit of code
-	void load(std::string& t);
 	[[nodiscard]] std::string_view loadStr() const;
 
 	void skipSection(bool /*skip*/) const { /*nothing*/ }

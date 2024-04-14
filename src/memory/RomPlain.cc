@@ -127,7 +127,7 @@ void RomPlain::guessHelper(unsigned offset, std::span<int, 3> pages) const
 	}
 }
 
-unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
+unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize) const
 {
 	std::array<int, 3> pages = {0, 0, 0};
 

@@ -73,7 +73,7 @@ Tcl_ChannelType Interpreter::channelType = {
 	nullptr,		 // Tcl_DriverTruncateProc
 };
 
-void Interpreter::init(const char* programName)
+void Interpreter::init(const char* programName) const
 {
 	Tcl_FindExecutable(programName);
 }
@@ -460,7 +460,7 @@ void Interpreter::deleteNamespace(const std::string& name)
 	execute(tmpStrCat("namespace delete ", name));
 }
 
-void Interpreter::poll()
+void Interpreter::poll() const
 {
 	//Tcl_ServiceAll();
 	Tcl_DoOneEvent(TCL_DONT_WAIT);

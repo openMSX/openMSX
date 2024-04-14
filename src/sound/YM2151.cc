@@ -471,7 +471,7 @@ void YM2151::keyOff(YM2151Operator& op, unsigned keyClear) const
 	}
 }
 
-void YM2151::envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v)
+void YM2151::envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v) const
 {
 	if (v & 0x08) { // M1
 		keyOn (op[0], 1);
