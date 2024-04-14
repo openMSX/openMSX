@@ -26,13 +26,11 @@ proc after_switch {} {
 
 
 user_setting create boolean "auto_enable_reverse" \
-{Controls whether the reverse feature is automatically enabled on startup.
-Internally the reverse feature takes regular snapshots of the MSX state,
-this has a (small) cost in memory and in performance. On small systems you
-don't want this cost, so we don't enable the reverse feature by default.
-Possible values for this setting:
-  false  Reverse not enabled on startup
-  true   Reverse enabled on startup
+{Controls whether the reverse feature is automatically enabled on startup (or
+whenever a new machine is created). Internally the reverse feature takes
+regular snapshots of the MSX state, this has a (small) cost in memory and in
+performance. On small systems you may not want this cost, so for these the
+reverse feature can be disabled by default using this setting.
 } $reverse::default_auto_enable_reverse
 
 user_setting create boolean "auto_save_replay" \

@@ -9,6 +9,7 @@
 #include "GLImage.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
+#include "GlobalCommandController.hh"
 
 #include "foreach_file.hh"
 
@@ -144,6 +145,16 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
 			manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start" : "stop"));
 		}
+		simpleToolTip("Enable/disable reverse/replay right now, for the currently running machine");
+		if (auto* autoEnableReverseSetting = dynamic_cast<BooleanSetting*>(manager.getReactor().getGlobalCommandController().getSettingsManager().findSetting("auto_enable_reverse"))) {
+
+			bool autoEnableReverse = autoEnableReverseSetting->getBoolean();
+			if (ImGui::MenuItem("Auto enable reverse", nullptr, &autoEnableReverse)) {
+				autoEnableReverseSetting->setBoolean(autoEnableReverse);
+			}
+			simpleToolTip(autoEnableReverseSetting->getDescription());
+		}
+
 		im::Menu("Load replay ...", reverseEnabled, [&]{
 			ImGui::TextUnformatted("Select replay"sv);
 			im::ListBox("##select-replay", [&]{
