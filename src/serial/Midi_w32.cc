@@ -123,7 +123,7 @@ int w32_midiOutInit()
 	vfnt_midiout.resize(num + 1);
 
 	// MIDI_MAPPER is #define's as ((UINT)-1)
-	UINT OPENMSX_MIDI_MAPPER = static_cast<UINT>(-1);
+	auto OPENMSX_MIDI_MAPPER = static_cast<UINT>(-1);
 	MIDIOUTCAPSA cap;
 	if (midiOutGetDevCapsA(OPENMSX_MIDI_MAPPER, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 		return 2;
@@ -221,7 +221,7 @@ int w32_midiOutMsg(size_t size, const uint8_t* data, unsigned idx)
 {
 	if (size == 0) return 0;
 
-	HMIDIOUT hMidiOut = reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle);
+	auto hMidiOut = reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle);
 	if (data[0] == one_of(0xF0, 0xF7)) { // SysEx
 		if (size > OPENMSX_W32_MIDI_SYSMES_MAXLEN) {
 			return -1;
