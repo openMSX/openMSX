@@ -388,7 +388,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		try {
 			std::string_view romName = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
-				manager.motherBoard, string(romName), string(slotName), options);
+				manager.motherBoard, romName, slotName, options);
 			if (slotName != "any") {
 				if (const auto* extConf = getExtensionConfig(cartName)) {
 					// still a cartridge inserted, (try to) remove it now
