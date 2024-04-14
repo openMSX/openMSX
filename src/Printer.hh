@@ -46,24 +46,6 @@ private:
 	bool prevStrobe = true;
 };
 
-/*
-// sends data to host printer
-class RawPrinter : public PrinterCore
-{
-public:
-	RawPrinter();
-	~RawPrinter();
-
-	void write(uint8_t data);
-	void forceFormFeed();
-	// Pluggable
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
-
-private:
-	HANDLE hFile;
-};
-*/
 
 // Abstract image printer
 class ImagePrinter : public PrinterCore

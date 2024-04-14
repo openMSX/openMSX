@@ -73,36 +73,6 @@ void PrinterCore::unplugHelper(EmuTime::param /*time*/)
 }
 
 
-/*
-// class RawPrinter
-
-RawPrinter::RawPrinter()
-{
-	Properties* properties = propGetGlobalProperties();
-	hFile = CreateFile(properties->ports.Lpt.portName, GENERIC_WRITE,
-	                   0, nullptr, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH, nullptr);
-	if (hFile == INVALID_HANDLE_VALUE) {
-		throw MSXException();
-	}
-}
-
-void RawPrinter::~RawPrinter()
-{
-	CloseHandle(hFile);
-}
-
-void RawPrinter::write(uint8_t value)
-{
-	unsigned dwWritten;
-	WriteFile(hFile, &value, 1, &dwWritten, nullptr);
-}
-
-void RawPrinter::forceFormFeed()
-{
-}
-*/
-
-
 // class ImagePrinter
 
 ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
