@@ -35,7 +35,7 @@ public:
 
 	MidiInWindows(EventDistributor& eventDistributor, Scheduler& scheduler,
 	             unsigned num);
-	~MidiInWindows();
+	~MidiInWindows() override;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
