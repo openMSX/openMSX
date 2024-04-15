@@ -1235,6 +1235,7 @@ void ImGuiSettings::paintEditShortcut()
 				if (ImGui::Checkbox("##repeat", &shortcut.repeat)) {
 					shortcuts.setShortcut(editShortcutId, shortcut);
 				}
+				simpleToolTip("Repeat the associated event until the shortcut key is released.\n"sv);
 			}
 		});
 		ImGui::Separator();
