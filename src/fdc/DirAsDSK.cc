@@ -454,8 +454,7 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 	// Remove mapping between host and msx file (if any).
 	mapDirs.erase(dirIndex);
 
-	char c = msxDir(dirIndex).filename[0];
-	if (c == one_of(0, char(0xE5))) {
+	if (msxDir(dirIndex).filename[0] == one_of(0, char(0xE5))) {
 		// Directory entry not in use, don't need to do anything.
 		return;
 	}
@@ -463,8 +462,8 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
-		const auto& msxName = msxDir(dirIndex).filename;
-		if (ranges::equal(msxName, std::string_view(".          ")) ||
+		if (const auto& msxName = msxDir(dirIndex).filename;
+		    ranges::equal(msxName, std::string_view(".          ")) ||
 		    ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
@@ -814,8 +813,8 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 		return;
 	}
 	// TODO check for available free space on disk instead of max free space
-	auto diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
-	if (narrow<size_t>(fst.st_size) > diskSpace) {
+	if (auto diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
+	    narrow<size_t>(fst.st_size) > diskSpace) {
 		cliComm.printWarning("File too large: ",
 		                     hostDir, hostSubDir, hostName);
 		return;

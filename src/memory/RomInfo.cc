@@ -179,8 +179,7 @@ RomType RomInfo::nameToRomType(std::string_view name)
 {
 	auto idx = pmh.lookupIndex(name);
 	assert(idx < std::size(combinedRomTable));
-	StringOp::casecmp cmp;
-	if (cmp(combinedRomTable[idx].name, name)) {
+	if (StringOp::casecmp cmp; cmp(combinedRomTable[idx].name, name)) {
 		return combinedRomTable[idx].romType;
 	}
 	return ROM_UNKNOWN;

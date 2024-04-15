@@ -170,8 +170,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		auto def   = tokens[0];
 		auto label = tokens[1];
 		auto value = tokens[2];
-		StringOp::casecmp cmp;
-		if (!cmp(def, "def")) return {};
+		if (StringOp::casecmp cmp; !cmp(def, "def")) return {};
 		return checkLabelAndValue(label, value);
 	};
 	return loadLines(filename, buffer, SymbolFile::Type::NOICE, parseLine);
@@ -388,8 +387,8 @@ bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty,
 	auto file = loadSymbolFile(filename, type); // might throw
 	if (file.symbols.empty() && loadEmpty == LoadEmpty::NOT_ALLOWED) return false;
 
-	auto it = ranges::find(files, filename, &SymbolFile::filename);
-	if (it == files.end()) {
+	if (auto it = ranges::find(files, filename, &SymbolFile::filename);
+	    it == files.end()) {
 		files.push_back(std::move(file));
 	} else {
 		*it = std::move(file);

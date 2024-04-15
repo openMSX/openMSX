@@ -342,8 +342,7 @@ string GlobalCommandController::tabCompletion(string_view command)
 
 	// replace last token
 	string& original = originalTokens.back();
-	string& completed = tokens[oldNum - 1];
-	if (!completed.empty()) {
+	if (const string& completed = tokens[oldNum - 1]; !completed.empty()) {
 		bool quote = !original.empty() && (original[0] == '"');
 		original = addEscaping(completed, quote, tokenFinished);
 	}
@@ -521,8 +520,8 @@ GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandControll
 
 static GlobalCliComm::UpdateType getType(const TclObject& name)
 {
-	auto updateStr = CliComm::getUpdateStrings();
-	for (auto i : xrange(updateStr.size())) {
+	for (auto updateStr = CliComm::getUpdateStrings();
+	     auto i : xrange(updateStr.size())) {
 		if (updateStr[i] == name) {
 			return static_cast<CliComm::UpdateType>(i);
 		}

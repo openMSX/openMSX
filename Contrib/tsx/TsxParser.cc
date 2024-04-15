@@ -60,8 +60,8 @@ TsxParser::TsxParser(std::span<const uint8_t> file)
 	}
 
 	// Check version >= 1.21
-	auto version = Endian::read_UA_B16(get<uint8_t>(2).data());
-	if (version < 0x0115) {
+	if (auto version = Endian::read_UA_B16(get<uint8_t>(2).data());
+	    version < 0x0115) {
 		error("TSX version below 1.21");
 	}
 

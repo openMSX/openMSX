@@ -161,8 +161,7 @@ void RomPanasonic::changeBank(unsigned region, unsigned bank)
 	if (sram && (SRAM_BASE <= bank) && (bank < maxSRAMBank)) {
 		// SRAM
 		auto offset = (bank - SRAM_BASE) * size_t(0x2000);
-		auto sramSize = sram->size();
-		if (offset >= sramSize) {
+		if (auto sramSize = sram->size(); offset >= sramSize) {
 			offset &= (sramSize - 1);
 		}
 		// TODO RomBlock debuggable is only 8 bits, here bank is 9 bits

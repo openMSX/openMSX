@@ -219,8 +219,7 @@ bool Interpreter::isComplete(zstring_view command) const
 
 TclObject Interpreter::execute(zstring_view command)
 {
-	int success = Tcl_Eval(interp, command.c_str());
-	if (success != TCL_OK) {
+	if (Tcl_Eval(interp, command.c_str()) != TCL_OK) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
 	return TclObject(Tcl_GetObjResult(interp));
@@ -228,8 +227,7 @@ TclObject Interpreter::execute(zstring_view command)
 
 TclObject Interpreter::executeFile(zstring_view filename)
 {
-	int success = Tcl_EvalFile(interp, filename.c_str());
-	if (success != TCL_OK) {
+	if (Tcl_EvalFile(interp, filename.c_str()) != TCL_OK) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
 	return TclObject(Tcl_GetObjResult(interp));

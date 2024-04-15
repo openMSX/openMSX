@@ -367,8 +367,8 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			status = byte((status & 0xFB) | ((val & 1) << 2));
 			syncAtNextLine(syncSetMode, time);
 
-			bool newSystemReset = (val & 2) != 0;
-			if (newSystemReset != systemReset) {
+			if (bool newSystemReset = (val & 2) != 0;
+			    newSystemReset != systemReset) {
 				systemReset = newSystemReset;
 				if (systemReset) {
 					// Enter systemReset mode
@@ -709,8 +709,8 @@ void V9990::frameStart(EmuTime::param time)
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
-	bool newSuperimposing = (regs[CONTROL] & 0x20) && externalVideoSource;
-	if (superimposing != newSuperimposing) {
+	if (bool newSuperimposing = (regs[CONTROL] & 0x20) && externalVideoSource;
+	    superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);
 	}

@@ -405,8 +405,8 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							ImGui::SetScrollHereY(0.25f);
 						}
 
-						bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
-						if (rowAtPc) {
+						if (bool rowAtPc = !syncDisassemblyWithPC && (addr == pc);
+						    rowAtPc) {
 							ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, getColor(imColor::YELLOW_BG));
 						}
 						bool bpRightClick = false;
@@ -839,15 +839,15 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 		ImGui::TextUnformatted("IM"sv);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(width16);
-		uint8_t im = regs.getIM();
-		if (ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
+		if (uint8_t im = regs.getIM();
+		    ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
 			if (im <= 2) regs.setIM(im);
 		}
 
 		ImGui::SameLine(0.0f, 20.0f);
 		ImGui::AlignTextToFramePadding();
-		bool ei = regs.getIFF1();
-		if (ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
+		if (bool ei = regs.getIFF1();
+		    ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
 			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 				regs.setIFF1(!ei);
 				regs.setIFF2(!ei);

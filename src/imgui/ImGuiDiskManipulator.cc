@@ -348,8 +348,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 			bool driveOk = false;
 			im::Combo("##drive", driveDisplayName(selectedDrive).c_str(), [&]{
 				auto& diskManipulator = manager.getReactor().getDiskManipulator();
-				auto drives = diskManipulator.getDriveNamesForCurrentMachine();
-				for (const auto& drive : drives) {
+				for (auto drives = diskManipulator.getDriveNamesForCurrentMachine();
+				     const auto& drive : drives) {
 					if (selectedDrive == drive) driveOk = true;
 					auto display = driveDisplayName(drive);
 					if (display.empty()) continue;

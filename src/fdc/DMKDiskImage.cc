@@ -140,8 +140,8 @@ void DMKDiskImage::doWriteTrack(uint8_t track, uint8_t side, const RawTrack& inp
 
 	// Write idam table.
 	std::array<uint8_t, 2 * 64> idamOut = {}; // zero-initialize
-	const auto& idamIn = input.getIdamBuffer();
-	for (auto i : xrange(std::min(64, int(idamIn.size())))) {
+	for (const auto& idamIn = input.getIdamBuffer();
+	     auto i : xrange(std::min(64, int(idamIn.size())))) {
 		auto t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = narrow<uint8_t>(t & 0xff);
 		idamOut[2 * i + 1] = narrow<uint8_t>(t >> 8);

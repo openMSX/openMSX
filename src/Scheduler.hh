@@ -60,8 +60,7 @@ public:
 	 */
 	inline void schedule(EmuTime::param limit)
 	{
-		EmuTime next = getNext();
-		if (limit >= next) [[unlikely]] {
+		if (EmuTime next = getNext(); limit >= next) [[unlikely]] {
 			scheduleHelper(limit, next); // slow path not inlined
 		}
 		scheduleTime = limit;

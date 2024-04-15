@@ -279,8 +279,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		return 0;
 	}
 
-	unsigned width = font.getSize(line).x;
-	if (width <= maxWidth) {
+	if (unsigned width = font.getSize(line).x; width <= maxWidth) {
 		// whole line fits
 		return line.size();
 	}

@@ -169,8 +169,8 @@ void ComboBox(const char* label, Setting& setting, function_ref<std::string(cons
 	im::Combo(label, current.c_str(), [&]{
 		for (const auto& entry : enumSetting->getMap()) {
 			bool selected = entry.name == current;
-			const auto& display = displayValue(entry.name);
-			if (ImGui::Selectable(display.c_str(), selected)) {
+			if (const auto& display = displayValue(entry.name);
+			    ImGui::Selectable(display.c_str(), selected)) {
 				try {
 					setting.setValue(TclObject(entry.name));
 				} catch (MSXException&) {

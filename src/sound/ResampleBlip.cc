@@ -30,8 +30,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, size_t hostNum,
                                                 EmuTime::param time)
 {
 	auto& emuClk = getEmuClock();
-	unsigned emuNum = emuClk.getTicksTill(time);
-	if (emuNum > 0) {
+	if (unsigned emuNum = emuClk.getTicksTill(time); emuNum > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
@@ -54,8 +53,8 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, size_t hostNum,
 				FP pos = pos1;
 				auto last = lastInput[ch]; // local var is slightly faster
 				for (unsigned i = 0; /**/; ++i) {
-					auto delta = buf[CHANNELS * i + ch] - last;
-					if (delta != 0) [[unlikely]] {
+					if (auto delta = buf[CHANNELS * i + ch] - last;
+					    delta != 0) [[unlikely]] {
 						if (i == emuNum) {
 							break;
 						}

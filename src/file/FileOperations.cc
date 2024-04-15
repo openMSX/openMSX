@@ -454,8 +454,8 @@ const string& getSystemDataDir()
 		}
 #ifdef _WIN32
 		std::array<wchar_t, MAXPATHLEN + 1> bufW;
-		int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
-		if (!res) {
+		if (int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
+		    !res) {
 			throw FatalError(
 				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
 				GetLastError());
@@ -485,8 +485,8 @@ const string& getSystemDocDir()
 	if (!result) result = []() -> string {
 #ifdef _WIN32
 		std::array<wchar_t, MAXPATHLEN + 1> bufW;
-		int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
-		if (!res) {
+		if (int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
+		    !res) {
 			throw FatalError(
 				"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
 				GetLastError());
@@ -678,8 +678,7 @@ string parseCommandFileArgument(
 string getTempDir()
 {
 #ifdef _WIN32
-	DWORD len = GetTempPathW(0, nullptr);
-	if (len) {
+	if (DWORD len = GetTempPathW(0, nullptr)) {
 		VLA(wchar_t, bufW, (len + 1));
 		len = GetTempPathW(len, bufW.data());
 		if (len) {

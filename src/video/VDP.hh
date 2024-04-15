@@ -697,8 +697,7 @@ public:
 	 * use that probe).
 	 */
 	void scheduleCmdSync(EmuTime t) {
-		auto now = getCurrentTime();
-		if (t <= now) {
+		if (auto now = getCurrentTime(); t <= now) {
 			// The largest amount of VDP cycles between 'progress'
 			// in command emulation:
 			// - worst case the LMMM takes 120+64 cycles to fully process one pixel

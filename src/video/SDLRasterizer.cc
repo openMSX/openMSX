@@ -468,8 +468,8 @@ void SDLRasterizer::drawDisplay(
 	}();
 	// Because SDL blits do not wrap, unlike GL textures, the pageBorder is
 	// also used if multi page is disabled.
-	int pageSplit = narrow<int>(lineWidth - hScroll);
-	if (pageSplit < pageBorder) {
+	if (int pageSplit = narrow<int>(lineWidth - hScroll);
+	    pageSplit < pageBorder) {
 		pageBorder = pageSplit;
 	}
 

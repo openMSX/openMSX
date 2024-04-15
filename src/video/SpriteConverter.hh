@@ -66,8 +66,7 @@ public:
 	static bool clipPattern(int& x, SpriteChecker::SpritePattern& pattern,
 	                        int minX, int maxX)
 	{
-		int before = minX - x;
-		if (before > 0) {
+		if (int before = minX - x; before > 0) {
 			if (before >= 32) {
 				// 32 pixels before minX -> not visible
 				return false;
@@ -75,8 +74,7 @@ public:
 			pattern <<= before;
 			x = minX;
 		}
-		int after = maxX - x;
-		if (after < 32) {
+		if (int after = maxX - x; after < 32) {
 			// close to maxX (or past)
 			if (after <= 0) {
 				// past maxX -> not visible

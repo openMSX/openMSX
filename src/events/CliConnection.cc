@@ -110,8 +110,8 @@ static TemporaryString reply(std::string_view message, bool status)
 int CliConnection::signalEvent(const Event& event)
 {
 	assert(getType(event) == EventType::CLICOMMAND);
-	const auto& commandEvent = get_event<CliCommandEvent>(event);
-	if (commandEvent.getId() == this) {
+	if (const auto& commandEvent = get_event<CliCommandEvent>(event);
+	    commandEvent.getId() == this) {
 		try {
 			auto result = commandController.executeCommand(
 				commandEvent.getCommand(), this).getString();

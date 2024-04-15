@@ -783,8 +783,8 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 	}
 
 	static constexpr bool nativeIsLittle = std::endian::native == std::endian::little;
-	bool previewIsLittle = previewEndianess == LE;
-	if (nativeIsLittle != previewIsLittle) {
+	if (bool previewIsLittle = previewEndianess == LE;
+	    nativeIsLittle != previewIsLittle) {
 		std::reverse(dataBuf.begin(), dataBuf.begin() + elemSize);
 	}
 

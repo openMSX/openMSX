@@ -249,8 +249,7 @@ TclObject TclObject::executeCommand(Interpreter& interp_, bool compile)
 {
 	auto* interp = interp_.interp;
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
-	int success = Tcl_EvalObjEx(interp, obj, flags);
-	if (success != TCL_OK) {
+	if (Tcl_EvalObjEx(interp, obj, flags) != TCL_OK) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
 	return TclObject(Tcl_GetObjResult(interp));

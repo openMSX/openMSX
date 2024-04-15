@@ -687,29 +687,25 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 	// difference.  Changing the slots several hundreds of times per
 	// (EmuTime) is not unusual. So this routine ended up quite high
 	// (top-10) in some profile results.
-	byte ps0 = (value >> 0) & 3;
-	if (primarySlotState[0] != ps0) [[unlikely]] {
+	if (byte ps0 = (value >> 0) & 3; primarySlotState[0] != ps0) [[unlikely]] {
 		primarySlotState[0] = ps0;
 		byte ss0 = (subSlotRegister[ps0] >> 0) & 3;
 		secondarySlotState[0] = ss0;
 		updateVisible(0, ps0, ss0);
 	}
-	byte ps1 = (value >> 2) & 3;
-	if (primarySlotState[1] != ps1) [[unlikely]] {
+	if (byte ps1 = (value >> 2) & 3; primarySlotState[1] != ps1) [[unlikely]] {
 		primarySlotState[1] = ps1;
 		byte ss1 = (subSlotRegister[ps1] >> 2) & 3;
 		secondarySlotState[1] = ss1;
 		updateVisible(1, ps1, ss1);
 	}
-	byte ps2 = (value >> 4) & 3;
-	if (primarySlotState[2] != ps2) [[unlikely]] {
+	if (byte ps2 = (value >> 4) & 3; primarySlotState[2] != ps2) [[unlikely]] {
 		primarySlotState[2] = ps2;
 		byte ss2 = (subSlotRegister[ps2] >> 4) & 3;
 		secondarySlotState[2] = ss2;
 		updateVisible(2, ps2, ss2);
 	}
-	byte ps3 = (value >> 6) & 3;
-	if (primarySlotState[3] != ps3) [[unlikely]] {
+	if (byte ps3 = (value >> 6) & 3; primarySlotState[3] != ps3) [[unlikely]] {
 		bool oldExpanded = isExpanded(primarySlotState[3]);
 		bool newExpanded = isExpanded(ps3);
 		primarySlotState[3] = ps3;

@@ -222,8 +222,8 @@ static void renderSprites(
 		byte spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
 		auto posY = narrow_cast<byte>(displayY - spriteY);
 		if (posY < 16) {
-			byte attr = Policy::readSpriteAttr(vram, spriteInfo + 3);
-			if (attr & 0x10) {
+			if (byte attr = Policy::readSpriteAttr(vram, spriteInfo + 3);
+			    attr & 0x10) {
 				// Invisible sprites do contribute towards the
 				// 16-sprites-per-line limit.
 				index_max--;

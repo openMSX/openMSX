@@ -61,8 +61,8 @@ namespace openmsx {
 
 [[nodiscard]] static bool checkSocket(zstring_view socket)
 {
-	std::string_view name = FileOperations::getFilename(socket);
-	if (!name.starts_with("socket.")) {
+	if (auto name = FileOperations::getFilename(socket);
+	    !name.starts_with("socket.")) {
 		return false; // wrong name
 	}
 

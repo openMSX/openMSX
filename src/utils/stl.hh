@@ -339,8 +339,8 @@ void append(std::vector<T>& v, Tail&&... tail)
 {
 	auto extra = detail::sum_of_sizes(std::forward<Tail>(tail)...);
 	auto current = v.size();
-	auto required = current + extra;
-	if (v.capacity() < required) {
+	if (auto required = current + extra;
+	    v.capacity() < required) {
 		v.reserve(current + std::max(current, extra));
 	}
 	detail::append(v, std::forward<Tail>(tail)...);

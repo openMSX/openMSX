@@ -45,8 +45,8 @@ byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
 void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 {
 	status = value;
-	bool newTurboLed = (status & 0x80) != 0;
-	if (newTurboLed != turboLed) {
+	if (bool newTurboLed = (status & 0x80) != 0;
+	    newTurboLed != turboLed) {
 		turboLed = newTurboLed;
 		getLedStatus().setLed(LedStatus::TURBO, turboLed);
 	}
@@ -60,8 +60,8 @@ void MSXTurboRPause::update(const Setting& /*setting*/) noexcept
 
 void MSXTurboRPause::updatePause()
 {
-	bool newHwPause = (status & 0x02) && pauseSetting.getBoolean();
-	if (newHwPause != hwPause) {
+	if (bool newHwPause = (status & 0x02) && pauseSetting.getBoolean();
+	    newHwPause != hwPause) {
 		hwPause = newHwPause;
 		if (hwPause) {
 			getMotherBoard().pause();

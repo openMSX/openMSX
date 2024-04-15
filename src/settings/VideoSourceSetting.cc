@@ -34,8 +34,8 @@ void VideoSourceSetting::checkSetValue(std::string_view newValue) const
 int VideoSourceSetting::getSource() noexcept
 {
 	// Always try to find a better value than "none".
-	std::string_view str = getValue().getString();
-	if (str != "none") {
+	if (std::string_view str = getValue().getString();
+	    str != "none") {
 		// If current value is allowed, then keep it.
 		if (int id = has(str)) {
 			return id;

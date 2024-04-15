@@ -33,9 +33,8 @@ void SaveStateCLI::parseFileType(const std::string& filename,
 	auto newId = command1.executeCommand(interp);
 
 	TclObject command2 = makeTclList("machine");
-	auto currentId = command2.executeCommand(interp);
-
-	if (!currentId.empty()) {
+	if (auto currentId = command2.executeCommand(interp);
+	    !currentId.empty()) {
 		TclObject command3 = makeTclList("delete_machine", currentId);
 		command3.executeCommand(interp);
 	}

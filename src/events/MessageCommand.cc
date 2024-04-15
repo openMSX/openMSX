@@ -13,8 +13,8 @@ MessageCommand::MessageCommand(CommandController& controller)
 
 [[nodiscard]] static CliComm::LogLevel getLevel(std::string_view level)
 {
-	auto levels = CliComm::getLevelStrings();
-	for (auto i : xrange(levels.size())) {
+	for (auto levels = CliComm::getLevelStrings();
+	     auto i : xrange(levels.size())) {
 		if (level == levels[i]) {
 			return static_cast<CliComm::LogLevel>(i);
 		}

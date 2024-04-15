@@ -462,8 +462,8 @@ void ReverseManager::goTo(
 					));
 			auto nextTarget = std::min(nextSnapshotTarget, currentTimeNewBoard + EmuDuration::sec(1));
 			newBoard->fastForward(nextTarget, true);
-			auto now = Timer::getTime();
-			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
+			if (auto now = Timer::getTime();
+			    ((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
 				everShowedProgress = true;
 				lastProgress = now;
 				auto fraction = (currentTimeNewBoard - startMSXTime).toDouble() / (preTarget - startMSXTime).toDouble();

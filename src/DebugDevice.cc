@@ -27,8 +27,8 @@ void DebugDevice::reset(EmuTime::param /*time*/)
 
 void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	const auto& newName = fileNameSetting.getString();
-	if (newName != fileNameString) {
+	if (const auto& newName = fileNameSetting.getString();
+	    newName != fileNameString) {
 		openOutput(newName);
 	}
 

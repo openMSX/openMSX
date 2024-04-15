@@ -339,8 +339,8 @@ void OSDImageBasedWidget::paint(OutputSurface& output)
 	//    child widgets.
 	createImage(output);
 
-	auto fadedAlpha = getFadedAlpha();
-	if ((fadedAlpha != 0) && image) {
+	if (auto fadedAlpha = getFadedAlpha();
+	    (fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(drawPos, fadedAlpha);
 	}

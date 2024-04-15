@@ -99,8 +99,7 @@ void InfoCommand::tabCompletion(std::vector<std::string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 3);
-		auto it = infoTopics.find(tokens[1]);
-		if (it != end(infoTopics)) {
+		if (auto it = infoTopics.find(tokens[1]); it != end(infoTopics)) {
 			(*it)->tabCompletion(tokens);
 		}
 		break;

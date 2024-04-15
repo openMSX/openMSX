@@ -48,20 +48,20 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 		auto& pauseSetting = reactor.getGlobalSettings().getPauseSetting();
 		bool pause = pauseSetting.getBoolean();
-		auto pauseShortCut = getShortCutForCommand(hotKey, "toggle pause");
-		if (ImGui::MenuItem("Pause", pauseShortCut.c_str(), &pause)) {
+		if (auto shortCut = getShortCutForCommand(hotKey, "toggle pause");
+		    ImGui::MenuItem("Pause", shortCut.c_str(), &pause)) {
 			pauseSetting.setBoolean(pause);
 		}
 
-		auto resetShortCut = getShortCutForCommand(hotKey, "reset");
-		if (ImGui::MenuItem("Reset", resetShortCut.c_str(), nullptr, motherBoard != nullptr)) {
+		if (auto shortCut = getShortCutForCommand(hotKey, "reset");
+		    ImGui::MenuItem("Reset", shortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject("reset"));
 		}
 
 		auto& powerSetting = reactor.getGlobalSettings().getPowerSetting();
 		bool power = powerSetting.getBoolean();
-		auto powerShortCut = getShortCutForCommand(hotKey, "toggle power");
-		if (ImGui::MenuItem("Power", powerShortCut.c_str(), &power)) {
+		if (auto shortCut = getShortCutForCommand(hotKey, "toggle power");
+		    ImGui::MenuItem("Power", shortCut.c_str(), &power)) {
 			powerSetting.setBoolean(power);
 		}
 

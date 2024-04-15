@@ -370,8 +370,8 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime::param time)
 	}
 
 	// possibly recreate resampler
-	unsigned inputRate = playImage ? playImage->getFrequency() : 44100;
-	if (inputRate != getInputRate()) {
+	if (unsigned inputRate = playImage ? playImage->getFrequency() : 44100;
+	    inputRate != getInputRate()) {
 		setInputRate(inputRate);
 		createResampler();
 	}
@@ -497,8 +497,7 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 
 	double out = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 	double samples = duration.toDouble() * RECORD_FREQ;
-	double rest = 1.0 - partialInterval;
-	if (rest <= samples) {
+	if (auto rest = 1.0 - partialInterval; rest <= samples) {
 		// enough to fill next interval
 		partialOut += out * rest;
 		fillBuf(1, partialOut);

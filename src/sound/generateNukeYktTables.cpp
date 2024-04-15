@@ -119,8 +119,8 @@ int main()
 				std::cout << "  {";
 			}
 			for (auto rate : xrange(64)) {
-				int r = envTabs.attack[timer_shift][timer][rate];
-				if (r != 31) {
+				if (int r = envTabs.attack[timer_shift][timer][rate];
+				    r != 31) {
 					std::cout << r;
 				} else {
 					std::cout << '_';
@@ -162,8 +162,8 @@ int main()
 	for (auto idx : xrange(64)) {
 		std::cout << " {";
 		for (auto rate : xrange(64)) {
-			int r = ctab.releaseData[idx][rate];
-			if (r != 0) {
+			if (int r = ctab.releaseData[idx][rate];
+			    r != 0) {
 				std::cout << r;
 			} else {
 				std::cout << '_';

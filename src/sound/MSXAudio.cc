@@ -16,8 +16,7 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 	        getCurrentTime(), *this)
 {
 	auto type = config.getChildData("type", "philips");
-	StringOp::casecmp cmp;
-	if (cmp(type, "philips")) {
+	if (StringOp::casecmp cmp; cmp(type, "philips")) {
 		dac = std::make_unique<DACSound8U>(
 			getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 			config);

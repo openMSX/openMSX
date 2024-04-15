@@ -709,8 +709,8 @@ void MSXtar::deleteEntry(MSXDirEntry& msxDirEntry)
 	if (msxDirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY) {
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
-		const auto& msxName = msxDirEntry.filename;
-		if (ranges::equal(msxName, std::string_view(".          ")) ||
+		if (const auto& msxName = msxDirEntry.filename;
+		    ranges::equal(msxName, std::string_view(".          ")) ||
 		    ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
@@ -757,8 +757,8 @@ std::string MSXtar::renameItem(std::string_view currentName, std::string_view ne
 	SectorBuffer buf;
 
 	FileName newMsxName = hostToMSXFileName(newName);
-	auto newEntry = findEntryInDir(newMsxName, chrootSector, buf);
-	if (newEntry.sector != 0) {
+	if (auto newEntry = findEntryInDir(newMsxName, chrootSector, buf);
+	    newEntry.sector != 0) {
 		return "another entry with new name already exists";
 	}
 
@@ -806,8 +806,8 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector, Add
 
 	// first find out if the filename already exists in current dir
 	SectorBuffer dummy;
-	DirEntry fullMsxDirEntry = findEntryInDir(msxName, rootSector, dummy);
-	if (fullMsxDirEntry.sector != 0) {
+	if (DirEntry fullMsxDirEntry = findEntryInDir(msxName, rootSector, dummy);
+	    fullMsxDirEntry.sector != 0) {
 		if (add == Add::PRESERVE) {
 			return strCat("Warning: preserving entry ", hostName, '\n');
 		} else {
@@ -846,8 +846,8 @@ std::string MSXtar::addOrCreateSubdir(zstring_view hostDirName, unsigned sector,
 	FileName msxFileName = hostToMSXFileName(hostDirName);
 	auto printableFilename = msxToHostFileName(msxFileName);
 	SectorBuffer buf;
-	DirEntry entry = findEntryInDir(msxFileName, sector, buf);
-	if (entry.sector != 0) {
+	if (DirEntry entry = findEntryInDir(msxFileName, sector, buf);
+	    entry.sector != 0) {
 		// entry already exists ..
 		auto& msxDirEntry = buf.dirEntry[entry.index];
 		if (msxDirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY) {

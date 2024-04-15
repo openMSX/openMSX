@@ -49,8 +49,8 @@ void PreCacheFile::run() const
 
 			std::array<char, BLOCK_SIZE> buf;
 			if (fseek(file.get(), narrow_cast<long>(block * BLOCK_SIZE), SEEK_SET)) break;
-			size_t read = fread(buf.data(), 1, BLOCK_SIZE, file.get());
-			if (read != BLOCK_SIZE) {
+			if (size_t read = fread(buf.data(), 1, BLOCK_SIZE, file.get());
+			    read != BLOCK_SIZE) {
 				// error or end-of-file reached,
 				// in both cases stop pre-caching
 				break;

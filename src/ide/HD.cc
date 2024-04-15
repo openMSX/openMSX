@@ -46,8 +46,8 @@ HD::HD(const DeviceConfig& config)
 	// (resolved) filename. For user-specified hd images (command line or
 	// via hda command) savestate will try to re-resolve the filename.
 	auto mode = File::NORMAL;
-	string cliImage = HDImageCLI::getImageForId(id);
-	if (cliImage.empty()) {
+	if (string cliImage = HDImageCLI::getImageForId(id);
+	    cliImage.empty()) {
 		const auto& original = config.getChildData("filename");
 		filename = Filename(config.getFileContext().resolveCreate(original));
 		mode = File::CREATE;

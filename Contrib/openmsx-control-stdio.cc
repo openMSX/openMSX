@@ -373,8 +373,7 @@ void OpenMSXComm::start()
 	fd_out = pipe_to_child[1];
 
 	// start openmsx sub-process
-	pid_t pid = fork();
-	if (pid == 0) {
+	if (pid_t pid = fork(); pid == 0) {
 		dup2(pipe_to_child[0], STDIN_FILENO);
 		dup2(pipe_from_child[1], STDOUT_FILENO);
 		close(pipe_to_child[0]);

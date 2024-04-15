@@ -154,8 +154,8 @@ inline void AY8910::ToneGenerator::reset()
 int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 {
 	int result = 0;
-	float vibPerc = ay8910.vibratoPercent.getFloat();
-	if (vibPerc != 0.0f) {
+	if (float vibPerc = ay8910.vibratoPercent.getFloat();
+	    vibPerc != 0.0f) {
 		auto vibratoPeriod = int(
 			NATIVE_FREQ_FLOAT /
 			ay8910.vibratoFrequency.getFloat());
@@ -165,8 +165,8 @@ int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 			sinf((float(2 * Math::pi) * narrow_cast<float>(vibratoCount)) / narrow_cast<float>(vibratoPeriod))
 			* vibPerc * 0.01f * narrow_cast<float>(period));
 	}
-	float detunePerc = ay8910.detunePercent.getFloat();
-	if (detunePerc != 0.0f) {
+	if (float detunePerc = ay8910.detunePercent.getFloat();
+	    detunePerc != 0.0f) {
 		float detunePeriod = NATIVE_FREQ_FLOAT /
 			ay8910.detuneFrequency.getFloat();
 		detuneCount += period;

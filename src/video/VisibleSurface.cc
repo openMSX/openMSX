@@ -119,14 +119,13 @@ VisibleSurface::VisibleSurface(
 	glewExperimental = GL_TRUE;
 
 	// Initialise GLEW library.
-	GLenum glew_error = glewInit();
-
 	// GLEW fails to initialise on Wayland because it has no GLX, since the
 	// one provided by the distros was built to use GLX instead of EGL. We
 	// ignore the GLEW_ERROR_NO_GLX_DISPLAY error with this temporary fix
 	// until it is fixed by GLEW upstream and released by major distros.
 	// See https://github.com/nigels-com/glew/issues/172
-	if (glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
+	if (GLenum glew_error = glewInit();
+	    glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
 		throw InitException(
 			"Failed to init GLEW: ",
 			std::bit_cast<const char*>(glewGetErrorString(glew_error)));
@@ -309,8 +308,8 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 	auto flags = SDL_GetWindowFlags(window.get());
 	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
 	//       bit set.
-	bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
-	if (currentState == fullscreen) {
+	if (bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
+	    currentState == fullscreen) {
 		// already wanted stated
 		return true;
 	}

@@ -237,8 +237,8 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	// New scaler algorithm selected?
-	auto algo = renderSettings.getScaleAlgorithm();
-	if (scaleAlgorithm != algo) {
+	if (auto algo = renderSettings.getScaleAlgorithm();
+	    scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings);
 

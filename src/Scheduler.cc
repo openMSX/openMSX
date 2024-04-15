@@ -23,11 +23,9 @@ struct EqualSchedulable {
 Scheduler::~Scheduler()
 {
 	assert(!cpu);
-	auto copy = to_vector(queue);
-	for (auto& s : copy) {
+	for (auto copy = to_vector(queue); auto& s : copy) {
 		s.getDevice()->schedulerDeleted();
 	}
-
 	assert(queue.empty());
 }
 

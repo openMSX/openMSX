@@ -68,8 +68,7 @@ public:
 		auto accum = [&](auto* p) { len += sizeof(*p); };
 		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
 
-		uint8_t* newEnd = end + len;
-		if (newEnd > finish) [[unlikely]] {
+		if (uint8_t* newEnd = end + len; newEnd > finish) [[unlikely]] {
 			grow(len); // reallocates, thus newEnd is no longer valid.
 		}
 

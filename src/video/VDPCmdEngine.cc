@@ -778,8 +778,7 @@ void VDPCmdEngine::executePoint(EmuTime::param limit)
 	if (engineTime >= limit) [[unlikely]] return;
 
 	bool srcExt  = (ARG & MXS) != 0;
-	bool doPoint = !srcExt || hasExtendedVRAM;
-	if (doPoint) [[likely]] {
+	if (bool doPoint = !srcExt || hasExtendedVRAM; doPoint) [[likely]] {
 		COL = Mode::point(vram, SX, SY, srcExt);
 	} else {
 		COL = 0xFF;
@@ -1265,12 +1264,11 @@ void VDPCmdEngine::executeLmcm(EmuTime::param limit)
 	int TY = (ARG & DIY) ? -1 : 1;
 	ANX = clipNX_1_pixel<Mode>(ASX, ANX, ARG);
 	bool srcExt  = (ARG & MXS) != 0;
-	bool doPoint = !srcExt || hasExtendedVRAM;
 
 	// TODO we should (most likely) perform the actual read earlier and
 	//  buffer it, and on a CPU-IO-read start the next read (just like how
 	//  regular reading from VRAM works).
-	if (doPoint) [[likely]] {
+	if (bool doPoint = !srcExt || hasExtendedVRAM; doPoint) [[likely]] {
 		COL = Mode::point(vram, ASX, SY, srcExt);
 	} else {
 		COL = 0xFF;

@@ -537,8 +537,8 @@ void VDP::scheduleHScan(EmuTime::param time)
 	// By switching from NTSC to PAL it may even be possible to get two
 	// HSCANs in a single frame without modifying any other setting.
 	// Fortunately, no known program relies on this.
-	int ticksPerFrame = getTicksPerFrame();
-	if (horizontalScanOffset >= ticksPerFrame) {
+	if (int ticksPerFrame = getTicksPerFrame();
+	    horizontalScanOffset >= ticksPerFrame) {
 		horizontalScanOffset -= ticksPerFrame;
 
 		// Time at which the internal VDP display line counter is reset,
@@ -619,8 +619,8 @@ void VDP::frameStart(EmuTime::param time)
 	// signal is provided then the VDP stops producing a signal
 	// (at least on an MSX1, VDP(0)=1 produces "signal lost" on my
 	// monitor)
-	const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : nullptr;
-	if (superimposing != newSuperimposing) {
+	if (const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : nullptr;
+	    superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);
 	}

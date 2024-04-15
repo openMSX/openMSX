@@ -330,8 +330,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 
 	if constexpr (Archive::IS_LOADER) {
 		diskName.updateAfterLoadState();
-		std::string name = diskName.getResolved(); // TODO use Filename
-		if (!name.empty()) {
+		if (std::string name = diskName.getResolved(); // TODO use Filename
+		    !name.empty()) {
 			// Only when the original file doesn't exist on this
 			// system, try to search by sha1sum. This means we
 			// prefer the original file over a file with a matching

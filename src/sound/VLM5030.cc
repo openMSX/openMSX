@@ -200,8 +200,8 @@ int VLM5030::parseFrame()
 	old_pitch = new_pitch;
 	old_k = new_k;
 	// command byte check
-	uint8_t cmd = rom[address & address_mask];
-	if (cmd & 0x01) {
+	if (uint8_t cmd = rom[address & address_mask];
+	    cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
 		ranges::fill(new_k, 0);

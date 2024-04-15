@@ -281,8 +281,7 @@ static void remove(DebugCondition*, MSXCPUInterface& cpuInterface, unsigned id)
 void ImGuiBreakPoints::clear(BreakPoint* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiBps.empty()) {
-		auto& bp = guiBps.back();
-		if (bp.id > 0) {
+		if (auto& bp = guiBps.back(); bp.id > 0) {
 			remove(tag, cpuInterface, bp.id);
 		}
 		guiBps.pop_back();
@@ -291,8 +290,7 @@ void ImGuiBreakPoints::clear(BreakPoint* tag, MSXCPUInterface& cpuInterface)
 void ImGuiBreakPoints::clear(WatchPoint* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiWps.empty()) {
-		auto& wp = guiWps.back();
-		if (wp.id > 0) {
+		if (auto& wp = guiWps.back(); wp.id > 0) {
 			remove(tag, cpuInterface, wp.id);
 		}
 		guiWps.pop_back();
@@ -302,8 +300,7 @@ void ImGuiBreakPoints::clear(WatchPoint* tag, MSXCPUInterface& cpuInterface)
 void ImGuiBreakPoints::clear(DebugCondition* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiConditions.empty()) {
-		auto& cond = guiConditions.back();
-		if (cond.id > 0) {
+		if (auto& cond = guiConditions.back(); cond.id > 0) {
 			remove(tag, cpuInterface, cond.id);
 		}
 		guiConditions.pop_back();

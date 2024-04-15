@@ -96,8 +96,7 @@ void MidiOutALSA::connect()
 			"Failed to create ALSA port: ", snd_strerror(sourcePort));
 	}
 
-	int err = snd_seq_connect_to(&seq, sourcePort, destClient, destPort);
-	if (err) {
+	if (int err = snd_seq_connect_to(&seq, sourcePort, destClient, destPort)) {
 		snd_seq_delete_simple_port(&seq, sourcePort);
 		throw PlugException(
 			"Failed to connect to ALSA port "
@@ -140,9 +139,9 @@ void MidiOutALSA::recvMessage(
 	snd_seq_ev_set_subs(&ev);
 
 	// Set message.
-	long encodeLen = snd_midi_event_encode(
+	if (auto encodeLen = snd_midi_event_encode(
 			event_parser, message.data(), narrow<long>(message.size()), &ev);
-	if (encodeLen < 0) {
+	    encodeLen < 0) {
 		std::cerr << "Error encoding MIDI message of type "
 		          << std::hex << int(message[0]) << std::dec
 		          << ": " << snd_strerror(narrow<int>(encodeLen)) << '\n';
@@ -156,8 +155,7 @@ void MidiOutALSA::recvMessage(
 
 	// Send event.
 	snd_seq_ev_set_direct(&ev);
-	int err = snd_seq_event_output(&seq, &ev);
-	if (err < 0) {
+	if (int err = snd_seq_event_output(&seq, &ev); err < 0) {
 		std::cerr << "Error sending MIDI event: "
 		          << snd_strerror(err) << '\n';
 	}
@@ -276,8 +274,7 @@ void MidiInALSA::connect()
 			"Failed to create ALSA port: ", snd_strerror(destinationPort));
 	}
 
-	int err = snd_seq_connect_from(&seq, destinationPort, srcClient, srcPort);
-	if (err) {
+	if (int err = snd_seq_connect_from(&seq, destinationPort, srcClient, srcPort)) {
 		snd_seq_delete_simple_port(&seq, destinationPort);
 		throw PlugException(
 			"Failed to connect to ALSA port "
@@ -414,8 +411,8 @@ void MidiSessionALSA::registerAll(
 	if (!instance) {
 		// Open the sequencer.
 		snd_seq_t* seq;
-		int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
-		if (err < 0) {
+		if (int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
+		    err < 0) {
 			cliComm.printError(
 				"Could not open sequencer: ", snd_strerror(err));
 			return;
@@ -460,13 +457,13 @@ void MidiSessionALSA::scanClients(
 		snd_seq_port_info_set_client(pInfo, client);
 		snd_seq_port_info_set_port(pInfo, -1);
 		while (snd_seq_query_next_port(&seq, pInfo) >= 0) {
-			unsigned int type = snd_seq_port_info_get_type(pInfo);
-			if (!(type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) {
+			if (unsigned type = snd_seq_port_info_get_type(pInfo);
+			    !(type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) {
 				continue;
 			}
-			constexpr unsigned int wrCaps =
+			constexpr unsigned wrCaps =
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
-			constexpr unsigned int rdCaps =
+			constexpr unsigned rdCaps =
 					SND_SEQ_PORT_CAP_READ | SND_SEQ_PORT_CAP_SUBS_READ;
 			if ((snd_seq_port_info_get_capability(pInfo) & wrCaps) == wrCaps) {
 				controller.registerPluggable(std::make_unique<MidiOutALSA>(

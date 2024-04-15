@@ -37,11 +37,11 @@ public:
 		int dy = dr + dg + db;
 		if (dy < -0xC0 || dy > 0xC0) return true;
 
-		int du = dr - db;
-		if (du < -0x1C || du > 0x1C) return true;
+		if (int du = dr - db;
+		    du < -0x1C || du > 0x1C) return true;
 
-		int dv = 3 * dg - dy;
-		if (dv < -0x30 || dv > 0x30) return true;
+		if (int dv = 3 * dg - dy;
+		    dv < -0x30 || dv > 0x30) return true;
 
 		return false;
 	}

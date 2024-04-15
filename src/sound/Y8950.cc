@@ -1028,8 +1028,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 		break;
 	}
 	case 0x20: {
-		int s = sTbl[rg & 0x1f];
-		if (s >= 0) {
+		if (int s = sTbl[rg & 0x1f]; s >= 0) {
 			auto& chan = ch[s / 2];
 			auto& slot = chan.slot[s & 1];
 			slot.patch.AM = (data >> 7) &  1;
@@ -1043,8 +1042,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 		break;
 	}
 	case 0x40: {
-		int s = sTbl[rg & 0x1f];
-		if (s >= 0) {
+		if (int s = sTbl[rg & 0x1f]; s >= 0) {
 			auto& chan = ch[s / 2];
 			auto& slot = chan.slot[s & 1];
 			slot.patch.KL = (data >> 6) &  3;
@@ -1055,8 +1053,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 		break;
 	}
 	case 0x60: {
-		int s = sTbl[rg & 0x1f];
-		if (s >= 0) {
+		if (int s = sTbl[rg & 0x1f]; s >= 0) {
 			auto& slot = ch[s / 2].slot[s & 1];
 			slot.patch.AR = (data >> 4) & 15;
 			slot.patch.DR = (data >> 0) & 15;
@@ -1066,8 +1063,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 		break;
 	}
 	case 0x80: {
-		int s = sTbl[rg & 0x1f];
-		if (s >= 0) {
+		if (int s = sTbl[rg & 0x1f]; s >= 0) {
 			auto& slot = ch[s / 2].slot[s & 1];
 			slot.patch.SL = (data >> 4) & 15;
 			slot.patch.RR = (data >> 0) & 15;

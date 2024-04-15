@@ -80,10 +80,10 @@ std::string ZlibInflate::getCString()
 
 size_t ZlibInflate::inflate(MemBuffer<uint8_t>& output, size_t sizeHint)
 {
-	int initErr = inflateInit2(&s, -MAX_WBITS);
-	if (initErr != Z_OK) {
+	if (int err = inflateInit2(&s, -MAX_WBITS);
+	    err != Z_OK) {
 		throw FileException(
-			"Error initializing inflate struct: ", zError(initErr));
+			"Error initializing inflate struct: ", zError(err));
 	}
 	wasInit = true;
 

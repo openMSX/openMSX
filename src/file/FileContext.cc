@@ -53,9 +53,9 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 [[nodiscard]] static string resolveHelper(std::span<const string> pathList,
                             string_view filename)
 {
-	string filepath = FileOperations::expandTilde(
-	                      FileOperations::expandCurrentDirFromDrive(string(filename)));
-	if (FileOperations::isAbsolutePath(filepath)) {
+	if (string filepath = FileOperations::expandTilde(
+	                          FileOperations::expandCurrentDirFromDrive(string(filename)));
+	    FileOperations::isAbsolutePath(filepath)) {
 		// absolute path, don't resolve
 		return filepath;
 	}

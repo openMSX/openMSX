@@ -389,8 +389,8 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const std::string& filename,
 {
 	++progress.amountScanned;
 	// Periodically send a progress message with the current filename
-	auto now = Timer::getTime();
-	if (now > (progress.lastTime + 250'000)) { // 4Hz
+	if (auto now = Timer::getTime();
+	    now > (progress.lastTime + 250'000)) { // 4Hz
 		progress.lastTime = now;
 		progress.printed = true;
 		reportProgress(tmpStrCat(

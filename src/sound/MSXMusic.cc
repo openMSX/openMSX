@@ -13,8 +13,7 @@ MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	, rom(getName() + " ROM", "rom", config)
 	, ym2413(getName(), config)
 {
-	auto sz = rom.size();
-	if (!std::has_single_bit(sz)) {
+	if (!std::has_single_bit(rom.size())) {
 		throw MSXException("MSX-Music ROM-size must be a non-zero power of two");
 	}
 	MSXMusicBase::reset(getCurrentTime());

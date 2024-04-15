@@ -40,8 +40,7 @@ private:
 template<typename T> Subject<T>::~Subject()
 {
 	assert(notifyState == IDLE);
-	auto copy = observers;
-	for (auto& o : copy) {
+	for (auto copy = observers; auto& o : copy) {
 		o->subjectDeleted(*static_cast<const T*>(this));
 	}
 	assert(observers.empty());

@@ -1245,8 +1245,8 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 
 	if (mapperIO) ar.serialize("mapperIO", *mapperIO);
 
-	MSXDeviceSwitch& devSwitch = getDeviceSwitch();
-	if (devSwitch.hasRegisteredDevices()) {
+	if (auto& devSwitch = getDeviceSwitch();
+	    devSwitch.hasRegisteredDevices()) {
 		ar.serialize("deviceSwitch", devSwitch);
 	}
 

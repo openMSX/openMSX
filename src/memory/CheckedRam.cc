@@ -27,8 +27,8 @@ CheckedRam::~CheckedRam()
 
 byte CheckedRam::read(size_t addr)
 {
-	size_t line = addr >> CacheLine::BITS;
-	if (!completely_initialized_cacheline[line]) [[unlikely]] {
+	if (size_t line = addr >> CacheLine::BITS;
+	    !completely_initialized_cacheline[line]) [[unlikely]] {
 		if (uninitialized[line][addr &  CacheLine::LOW]) [[unlikely]] {
 			umrCallback.execute(narrow<int>(addr), ram.getName());
 		}
@@ -63,8 +63,8 @@ byte* CheckedRam::getRWCacheLines(size_t addr, size_t size) const
 
 void CheckedRam::write(size_t addr, const byte value)
 {
-	size_t line = addr >> CacheLine::BITS;
-	if (!completely_initialized_cacheline[line]) [[unlikely]] {
+	if (size_t line = addr >> CacheLine::BITS;
+	    !completely_initialized_cacheline[line]) [[unlikely]] {
 		uninitialized[line][addr & CacheLine::LOW] = false;
 		if (uninitialized[line].none()) [[unlikely]] {
 			completely_initialized_cacheline[line] = true;

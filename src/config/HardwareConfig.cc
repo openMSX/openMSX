@@ -60,8 +60,8 @@ std::unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		valueArg("-romtype", mapper),
 	};
 	auto& interp = motherBoard.getCommandController().getInterpreter();
-	auto args = parseTclArgs(interp, options, info);
-	if (!args.empty()) {
+	if (auto args = parseTclArgs(interp, options, info);
+	    !args.empty()) {
 		throw MSXException("Invalid option \"", args.front().getString(), '\"');
 	}
 

@@ -608,8 +608,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 		break;
 
 	case REG_SCTL: {
-		bool flag = !(value & 0xE0);
-		if (flag != isEnabled) {
+		if (bool flag = !(value & 0xE0); flag != isEnabled) {
 			isEnabled = flag;
 			if (!flag) {
 				softReset();

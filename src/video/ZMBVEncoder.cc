@@ -247,8 +247,8 @@ void ZMBVEncoder::addXorFrame(unsigned& workUsed)
 			int possibles = 64;
 			for (const auto& v : vectorTable) {
 				if (possibleBlock(v.x, v.y, offset) < 4) {
-					unsigned testChange = compareBlock(v.x, v.y, offset);
-					if (testChange < bestChange) {
+					if (auto testChange = compareBlock(v.x, v.y, offset);
+					    testChange < bestChange) {
 						bestChange = testChange;
 						bestVx = narrow<int>(v.x);
 						bestVy = narrow<int>(v.y);

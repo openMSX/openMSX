@@ -213,8 +213,8 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 		if (start == (0xBFFF & CacheLine::HIGH)) {
 			return nullptr;
 		}
-		int region = (start >> 13) - 2;
-		if (isRamSegment[region] && isMapped[region]) {
+		if (int region = (start >> 13) - 2;
+		    isRamSegment[region] && isMapped[region]) {
 			return &internalMemoryBank[region][start & 0x1FFF];
 		}
 		return nullptr;
