@@ -131,16 +131,6 @@ public:
 #endif
 	}
 
-	/** Swap the managed memory block of two MemBuffers.
-	 */
-	void swap(MemBuffer& other) noexcept
-	{
-		std::swap(dat, other.dat);
-#ifdef DEBUG
-		std::swap(sz , other.sz );
-#endif
-	}
-
 private:
 	// If the requested alignment is less or equally strict than the
 	// guaranteed alignment by the standard malloc()-like functions
@@ -196,13 +186,5 @@ private:
 };
 
 } // namespace openmsx
-
-namespace std {
-	template<typename T>
-	void swap(openmsx::MemBuffer<T>& l, openmsx::MemBuffer<T>& r) noexcept
-	{
-		l.swap(r);
-	}
-}
 
 #endif

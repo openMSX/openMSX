@@ -294,7 +294,7 @@ void DeltaBlockCopy::compress(size_t size)
 		return;
 	}
 	compressedSize = dstLen;
-	block.swap(buf2);
+	std::swap(block, buf2);
 	block.resize(compressedSize); // shrink to fit
 	assert(compressed());
 #ifdef DEBUG
