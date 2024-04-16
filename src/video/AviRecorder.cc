@@ -257,8 +257,8 @@ void AviRecorder::processStart(Interpreter& interp, std::span<const TclObject> t
 	}
 	bool recordAudio = !videoOnly;
 	bool recordVideo = !audioOnly;
-	std::string_view directory = recordVideo ? "videos" : "soundlogs";
-	std::string_view extension = recordVideo ? ".avi"   : ".wav";
+	std::string_view directory = recordVideo ? VIDEO_DIR : AUDIO_DIR;
+	std::string_view extension = recordVideo ? VIDEO_EXTENSION : AUDIO_EXTENSION;
 	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, directory, prefix, extension);
 

@@ -11,6 +11,7 @@
 #include "ImGuiUtils.hh"
 
 #include "AviRecorder.hh"
+#include "Display.hh"
 
 #include "ranges.hh"
 #include "FileOperations.hh"
@@ -142,7 +143,7 @@ static std::string_view stem(std::string_view fullName)
 bool ImGuiTools::screenshotNameExists() const
 {
 	auto filename = FileOperations::parseCommandFileArgument(
-		screenshotName, "screenshots", "", ".png");
+		screenshotName, Display::SCREENSHOT_DIR, "", Display::SCREENSHOT_EXTENSION);
 	return FileOperations::exists(filename);
 }
 
@@ -162,7 +163,7 @@ void ImGuiTools::generateScreenshotName()
 void ImGuiTools::nextScreenshotName()
 {
 	std::string_view prefix = screenshotName;
-	if (prefix.ends_with(".png")) prefix.remove_suffix(4);
+	if (prefix.ends_with(Display::SCREENSHOT_EXTENSION)) prefix.remove_suffix(Display::SCREENSHOT_EXTENSION.size());
 	if (prefix.size() > 4) {
 		auto counter = prefix.substr(prefix.size() - 4);
 		if (ranges::all_of(counter, [](char c) { return ('0' <= c) && (c <= '9'); })) {
@@ -173,7 +174,7 @@ void ImGuiTools::nextScreenshotName()
 		}
 	}
 	screenshotName = stem(FileOperations::getNextNumberedFileName(
-		"screenshots", prefix, ".png", true));
+		Display::SCREENSHOT_DIR, prefix, Display::SCREENSHOT_EXTENSION, true));
 }
 
 void ImGuiTools::paintScreenshot()
@@ -239,7 +240,7 @@ void ImGuiTools::paintScreenshot()
 		}
 		ImGui::Separator();
 		if (ImGui::Button("Open screenshots folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/screenshots").c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', Display::SCREENSHOT_DIR).c_str());
 		}
 
 	});
@@ -248,8 +249,8 @@ void ImGuiTools::paintScreenshot()
 std::string ImGuiTools::getRecordFilename() const
 {
 	bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
-	std::string_view directory = recordVideo ? "videos" : "soundlogs";
-	std::string_view extension = recordVideo ? ".avi"   : ".wav";
+	std::string_view directory = recordVideo ? AviRecorder::VIDEO_DIR : AviRecorder::AUDIO_DIR;
+	std::string_view extension = recordVideo ? AviRecorder::VIDEO_EXTENSION : AviRecorder::AUDIO_EXTENSION;
 	return FileOperations::parseCommandFileArgument(
 		recordName, directory, "openmsx", extension);
 }
@@ -344,8 +345,8 @@ void ImGuiTools::paintRecord()
 		ImGui::Separator();
 		if (ImGui::Button("Open recordings folder...")) {
 			bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
-			std::string_view directory = recordVideo ? "videos" : "soundlogs";
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/", directory).c_str());
+			std::string_view directory = recordVideo ? AviRecorder::VIDEO_DIR : AviRecorder::AUDIO_DIR;
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', directory).c_str());
 		}
 	});
 }

@@ -456,7 +456,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 		throw SyntaxError();
 	}
 	string filename = FileOperations::parseCommandFileArgument(
-		fname, "screenshots", prefix, ".png");
+		fname, SCREENSHOT_DIR, prefix, SCREENSHOT_EXTENSION);
 
 	if (!rawShot) {
 		// include all layers (OSD stuff, console)

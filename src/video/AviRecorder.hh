@@ -25,6 +25,12 @@ class Wav16Writer;
 class AviRecorder
 {
 public:
+	static constexpr std::string_view VIDEO_DIR = "videos";
+	static constexpr std::string_view AUDIO_DIR = "soundlogs";
+	static constexpr std::string_view VIDEO_EXTENSION = ".avi";
+	static constexpr std::string_view AUDIO_EXTENSION = ".wav";
+
+public:
 	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 

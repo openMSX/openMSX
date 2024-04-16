@@ -30,6 +30,7 @@ class ReverseManager final : private EventListener
 {
 public:
 	static constexpr std::string_view REPLAY_DIR = "replays";
+	static constexpr std::string_view REPLAY_EXTENSION = ".omr";
 
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);

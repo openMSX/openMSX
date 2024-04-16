@@ -665,12 +665,10 @@ void CassettePlayer::TapeCommand::execute(
 		                      options);
 
 	} else if (tokens[1] == "new") {
-		std::string_view directory = "taperecordings";
 		std::string_view prefix = "openmsx";
-		std::string_view extension = ".wav";
 		string filename = FileOperations::parseCommandFileArgument(
 			(tokens.size() == 3) ? tokens[2].getString() : string{},
-			directory, prefix, extension);
+			TAPE_RECORDING_DIR, prefix, TAPE_RECORDING_EXTENSION);
 		cassettePlayer.recordTape(Filename(filename), time);
 		result = tmpStrCat(
 			"Created new cassette image file: ", filename,

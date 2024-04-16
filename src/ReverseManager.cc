@@ -562,7 +562,7 @@ void ReverseManager::saveReplay(
 	}
 
 	auto filename = FileOperations::parseCommandFileArgument(
-		filenameArg, REPLAY_DIR, "openmsx", ".omr");
+		filenameArg, REPLAY_DIR, "openmsx", REPLAY_EXTENSION);
 
 	auto& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
@@ -670,8 +670,8 @@ void ReverseManager::loadReplay(
 		// Try filename as typed by user.
 		filename = context.resolve(fileNameArg);
 	} catch (MSXException& /*e1*/) { try {
-		// Not found, try adding '.omr'.
-		filename = context.resolve(tmpStrCat(fileNameArg, ".omr"));
+		// Not found, try adding the normal extension
+		filename = context.resolve(tmpStrCat(fileNameArg, REPLAY_EXTENSION));
 	} catch (MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).

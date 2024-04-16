@@ -156,8 +156,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				for (const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-						if (name.ends_with(".omr")) {
-							name.remove_suffix(4);
+						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
+							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
 							names.emplace_back(fullName, std::string(name));
 						} else if (name.ends_with(".xml.gz")) {
 							name.remove_suffix(7);
@@ -185,7 +185,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
-					saveReplayName, ReverseManager::REPLAY_DIR, "", ".omr");
+					saveReplayName, ReverseManager::REPLAY_DIR, "", ReverseManager::REPLAY_EXTENSION);
 				return FileOperations::exists(filename);
 			};
 			if (!saveReplayOpen) {
@@ -194,7 +194,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					saveReplayName = result->getString();
 					if (exists()) {
 						saveReplayName = stem(FileOperations::getNextNumberedFileName(
-							ReverseManager::REPLAY_DIR, result->getString(), ".omr", true));
+							ReverseManager::REPLAY_DIR, result->getString(), ReverseManager::REPLAY_EXTENSION, true));
 					}
 				}
 			}
@@ -214,7 +214,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::MenuItem("Open replays folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/replays").c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', ReverseManager::REPLAY_DIR).c_str());
 		}
 		im::Menu("Reverse/replay settings", [&]{
 			if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {

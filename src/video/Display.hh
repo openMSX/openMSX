@@ -31,6 +31,10 @@ class Display final : public EventListener, private Observer<Setting>
                     , private LayerListener, private RTSchedulable
 {
 public:
+	static constexpr std::string_view SCREENSHOT_DIR = "screenshots";
+	static constexpr std::string_view SCREENSHOT_EXTENSION = ".png";
+
+public:
 	using Layers = std::vector<Layer*>;
 
 	explicit Display(Reactor& reactor);

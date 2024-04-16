@@ -21,6 +21,10 @@ namespace openmsx {
 class Paper
 {
 public:
+	static constexpr std::string_view PRINT_DIR = "prints";
+	static constexpr std::string_view PRINT_EXTENSION = ".png";
+
+public:
 	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
 
 	[[nodiscard]] std::string save() const;
@@ -1585,7 +1589,7 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 std::string Paper::save() const
 {
 	auto filename = FileOperations::getNextNumberedFileName(
-		"prints", "page", ".png");
+		PRINT_DIR, "page", PRINT_EXTENSION);
 	VLA(const void*, rowPointers, sizeY);
 	for (size_t y : xrange(sizeY)) {
 		rowPointers[y] = &buf[sizeX * y];
