@@ -167,6 +167,7 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		CFLAGS="-Wno-error=int-conversion" \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL2.
