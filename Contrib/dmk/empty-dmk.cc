@@ -24,6 +24,10 @@ int main(int argc, const char** argv)
 	}
 
 	FILE* f = fopen(arg[1], "wb");
+	if (!f) {
+		printf("Error opening file '%s' for writing.\n", arg[1]);
+		exit(1);
+	}
 
 	DmkHeader header;
 	memset(&header, 0, sizeof(header));
