@@ -6,15 +6,7 @@ proc savestate_common {} {
 	uplevel {
 		if {$name eq ""} {set name "quicksave"}
 		set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
-		set fullname_oms [file join $directory ${name}.oms]
-		set fullname_gz  [file join $directory ${name}.xml.gz]
-		if {![file exists $fullname_oms] &&
-		     [file exists $fullname_gz]} {
-			# only when old name exists but new doesn't
-			set fullname_bwcompat $fullname_gz
-		} else {
-			set fullname_bwcompat $fullname_oms
-		}
+		set fullname [file join $directory ${name}.oms]
 		set png [file join $directory ${name}.png]
 	}
 }
@@ -31,17 +23,13 @@ proc savestate {{name ""}} {
 		}
 	}
 	set currentID [machine]
-	# always save using the new (.oms) name
-	store_machine $currentID $fullname_oms
-	# if successful, delete the old (.gz) filename (deleting a non-exiting
-	# file is not an error)
-	file delete -- $fullname_gz
+	store_machine $currentID $fullname
 	return $name
 }
 
 proc loadstate {{name ""}} {
 	savestate_common
-	set newID [restore_machine $fullname_bwcompat]
+	set newID [restore_machine $fullname]
 	set currentID [machine]
 	if {$currentID ne ""} {delete_machine $currentID}
 	activate_machine $newID
@@ -52,11 +40,9 @@ proc loadstate {{name ""}} {
 proc list_savestates_raw {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
 	set results [list]
-	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz *.oms] {
+	foreach f [glob -tails -directory $directory -nocomplain *.oms] {
 		if       {[string range $f end-3 end] eq ".oms"} {
 			set name [string range $f 0 end-4]
-		} elseif {[string range $f end-6 end] eq ".xml.gz"} {
-			set name [string range $f 0 end-7]
 		} else {
 			set name $f
 		}

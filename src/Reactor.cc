@@ -926,23 +926,9 @@ StoreMachineCommand::StoreMachineCommand(
 
 void StoreMachineCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
-	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?id? ?filename?");
-	string filename;
-	string_view machineID;
-	switch (tokens.size()) {
-	case 1:
-		machineID = reactor.getMachineID();
-		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
-		break;
-	case 2:
-		machineID = tokens[1].getString();
-		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
-		break;
-	case 3:
-		machineID = tokens[1].getString();
-		filename = tokens[2].getString();
-		break;
-	}
+	checkNumArgs(tokens, 3, Prefix{1}, "id filename");
+	const auto& machineID = tokens[1].getString();
+	const auto& filename = tokens[2].getString();
 
 	auto& board = *reactor.getMachine(machineID);
 
@@ -955,8 +941,6 @@ void StoreMachineCommand::execute(std::span<const TclObject> tokens, TclObject& 
 string StoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return
-		"store_machine                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
-		"store_machine machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
 		"store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
 		"\n"
 		"This is a low-level command, the 'savestate' script is easier to use.";
@@ -980,33 +964,10 @@ RestoreMachineCommand::RestoreMachineCommand(
 void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
                                     TclObject& result)
 {
-	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
+	checkNumArgs(tokens, 2, Prefix{1}, "filename");
 	auto newBoard = reactor.createEmptyMotherBoard();
 
-	string filename;
-	switch (tokens.size()) {
-	case 1: {
-		// load last saved entry
-		string lastEntry;
-		time_t lastTime = 0;
-		foreach_file(
-			FileOperations::getUserOpenMSXDir() + "/savestates",
-			[&](const string& path, const FileOperations::Stat& st) {
-				time_t modTime = st.st_mtime;
-				if (modTime > lastTime) {
-					filename = path;
-					lastTime = modTime;
-				}
-			});
-		if (filename.empty()) {
-			throw CommandException("Can't find last saved state.");
-		}
-		break;
-	}
-	case 2:
-		filename = FileOperations::expandTilde(string(tokens[1].getString()));
-		break;
-	}
+	const auto filename = FileOperations::expandTilde(string(tokens[1].getString()));
 
 	//std::cerr << "Loading " << filename << '\n';
 	try {
@@ -1038,7 +999,6 @@ string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	// TODO: add the default files (state files in user's savestates dir)
 	completeFileName(tokens, userFileContext());
 }
 

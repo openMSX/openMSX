@@ -98,7 +98,7 @@ proc load_session {name} {
 
 	# get all savestate files
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions/${name}]
-	set states_to_restore [glob -tails -directory $directory -nocomplain *.oms *.xml.gz]
+	set states_to_restore [glob -tails -directory $directory -nocomplain *.oms]
 
 	# abort if we have nothing to restore
 	if {[llength $states_to_restore] == 0} {

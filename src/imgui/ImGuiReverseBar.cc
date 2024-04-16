@@ -159,9 +159,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
 							names.emplace_back(fullName, std::string(name));
-						} else if (name.ends_with(".xml.gz")) {
-							name.remove_suffix(7);
-							names.emplace_back(fullName, std::string(name));
 						}
 					});
 				}
