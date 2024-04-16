@@ -78,7 +78,7 @@ public:
 	/**
 	 * Main loop.
 	 */
-	void run(CommandLineParser& parser);
+	void run(const CommandLineParser& parser);
 
 	void enterMainLoop();
 

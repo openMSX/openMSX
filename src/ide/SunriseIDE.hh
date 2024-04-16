@@ -42,7 +42,7 @@ private:
 
 private:
 	struct Blocks final : RomBlockDebuggableBase {
-		explicit Blocks(SunriseIDE& device);
+		explicit Blocks(const SunriseIDE& device);
 		[[nodiscard]] byte read(unsigned address) override;
 	} romBlockDebug;
 

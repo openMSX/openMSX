@@ -82,8 +82,8 @@ private:
 	[[nodiscard]] gl::vec2 transformReverse(const OutputSurface& output,
 	                                        gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
-	void resortUp  (OSDWidget* elem);
-	void resortDown(OSDWidget* elem);
+	void resortUp  (const OSDWidget* elem);
+	void resortDown(const OSDWidget* elem);
 
 private:
 	/** Direct child widgets of this widget, sorted by z-coordinate.

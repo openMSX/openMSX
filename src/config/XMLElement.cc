@@ -509,7 +509,7 @@ XMLElement* XMLDocument::clone(const OldXMLElement& inElem)
 	return outElem;
 }
 
-void XMLDocument::load(OldXMLElement& elem)
+void XMLDocument::load(const OldXMLElement& elem)
 {
 	root = clone(elem);
 }

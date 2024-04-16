@@ -50,7 +50,7 @@ static constexpr void normalize(T& x, T& w)
 class GLScopedClip
 {
 public:
-	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
+	GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 	GLScopedClip(const GLScopedClip&) = delete;
 	GLScopedClip& operator=(const GLScopedClip&) = delete;
@@ -59,7 +59,7 @@ private:
 };
 
 
-GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
+GLScopedClip::GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh)
 {
 	auto& [x, y] = xy;
 	auto& [w, h] = wh;
@@ -131,7 +131,7 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 	subWidgets.erase(it);
 }
 
-void OSDWidget::resortUp(OSDWidget* elem)
+void OSDWidget::resortUp(const OSDWidget* elem)
 {
 	// z-coordinate was increased, first search for elements current position
 	auto it1 = begin(subWidgets);
@@ -147,7 +147,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	assert(ranges::is_sorted(subWidgets, {}, &OSDWidget::getZ));
 #endif
 }
-void OSDWidget::resortDown(OSDWidget* elem)
+void OSDWidget::resortDown(const OSDWidget* elem)
 {
 	// z-coordinate was decreased, first search for new position
 	auto it1 = begin(subWidgets);

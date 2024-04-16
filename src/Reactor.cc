@@ -533,7 +533,7 @@ void Reactor::enterMainLoop()
 	}
 }
 
-void Reactor::run(CommandLineParser& parser)
+void Reactor::run(const CommandLineParser& parser)
 {
 	auto& commandController = *globalCommandController;
 

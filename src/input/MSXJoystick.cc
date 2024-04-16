@@ -89,7 +89,7 @@ MSXJoystick::~MSXJoystick()
 	}
 }
 
-void MSXJoystick::checkJoystickConfig(TclObject& newValue)
+void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 {
 	std::array<std::vector<BooleanInput>, 6> newBindings;
 

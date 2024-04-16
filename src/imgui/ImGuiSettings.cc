@@ -1143,7 +1143,7 @@ void ImGuiSettings::paintFont()
 	return result;
 }
 
-[[nodiscard]] static bool paintShortcutTableRow(Shortcuts& shortcuts, Shortcuts::ID id)
+[[nodiscard]] static bool paintShortcutTableRow(const Shortcuts& shortcuts, Shortcuts::ID id)
 {
 	using enum Shortcuts::Type;
 	auto shortcut = shortcuts.getShortcut(id);

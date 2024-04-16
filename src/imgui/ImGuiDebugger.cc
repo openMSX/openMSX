@@ -718,7 +718,7 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 	});
 }
 
-void ImGuiDebugger::drawStack(CPURegs& regs, MSXCPUInterface& cpuInterface, EmuTime::param time)
+void ImGuiDebugger::drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime::param time)
 {
 	if (!showStack) return;
 

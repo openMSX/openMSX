@@ -130,7 +130,7 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 	}
 }
 template<bool FILTER_FILE>
-static void drawTable(ImGuiManager& manager, SymbolManager& symbolManager, std::vector<SymbolRef>& symbols, const std::string& file = {})
+static void drawTable(ImGuiManager& manager, const SymbolManager& symbolManager, std::vector<SymbolRef>& symbols, const std::string& file = {})
 {
 	assert(FILTER_FILE == !file.empty());
 

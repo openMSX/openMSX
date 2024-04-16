@@ -92,11 +92,11 @@ private: // -> intended for Schedulable
 	 * removed.
 	 * Returns false <=> if there was no match (so nothing removed)
 	 */
-	bool removeSyncPoint(Schedulable& device);
+	bool removeSyncPoint(const Schedulable& device);
 
 	/** Remove all sync-points for the given device.
 	  */
-	void removeSyncPoints(Schedulable& device);
+	void removeSyncPoints(const Schedulable& device);
 
 	/**
 	 * Is there a pending syncPoint for this device?

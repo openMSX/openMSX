@@ -57,7 +57,7 @@ private:
 
 // XSADiskImage
 
-XSADiskImage::XSADiskImage(Filename& filename, File& file)
+XSADiskImage::XSADiskImage(const Filename& filename, File& file)
 	: SectorBasedDisk(DiskName(filename))
 {
 	XSAExtractor extractor(file);

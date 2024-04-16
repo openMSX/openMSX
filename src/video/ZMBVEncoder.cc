@@ -301,7 +301,7 @@ const void* ZMBVEncoder::getScaledLine(const FrameSource* frame, unsigned y, voi
 	}
 }
 
-std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame)
+std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, const FrameSource* frame)
 {
 	std::swap(newFrame, oldFrame); // replace oldFrame with newFrame
 

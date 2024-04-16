@@ -132,7 +132,7 @@ private:
 
 private:
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
-	[[nodiscard]] Sha1Index::iterator getSha1Iterator(Index idx, Entry& entry);
+	[[nodiscard]] Sha1Index::iterator getSha1Iterator(Index idx, const Entry& entry);
 	void remove(Sha1Index::iterator it);
 	void remove(Index idx);
 	void remove(Index idx, Entry& entry);

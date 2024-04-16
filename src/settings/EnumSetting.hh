@@ -86,7 +86,7 @@ EnumSetting<T>::EnumSetting(
 	, Setting(commandController_, name, description_,
 	          TclObject(EnumSettingBase::toStringBase(static_cast<int>(initialValue))), save_)
 {
-	setChecker([this](TclObject& newValue) {
+	setChecker([this](const TclObject& newValue) {
 		(void)fromStringBase(newValue.getString()); // may throw
 	});
 	init();

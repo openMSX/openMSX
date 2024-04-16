@@ -18,7 +18,7 @@ class File;
 class XSADiskImage final : public SectorBasedDisk
 {
 public:
-	XSADiskImage(Filename& filename, File& file);
+	XSADiskImage(const Filename& filename, File& file);
 
 private:
 	// SectorBasedDisk

@@ -23,7 +23,7 @@ public:
 
 	ZMBVEncoder(unsigned width, unsigned height);
 
-	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, FrameSource* frame);
+	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, const FrameSource* frame);
 
 private:
 	void setupBuffers();

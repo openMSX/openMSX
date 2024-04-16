@@ -46,7 +46,7 @@ void GLScaler::setup(bool superImpose)
 }
 
 void GLScaler::execute(
-	ColorTexture& src, ColorTexture* superImpose,
+	const ColorTexture& src, const ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight, bool textureFromZero)

@@ -125,7 +125,7 @@ INSTANTIATE_SERIALIZE_METHODS(RomHolyQuran2);
 REGISTER_MSXDEVICE(RomHolyQuran2, "RomHolyQuran2");
 
 
-RomHolyQuran2::Blocks::Blocks(RomHolyQuran2& device_)
+RomHolyQuran2::Blocks::Blocks(const RomHolyQuran2& device_)
 	: RomBlockDebuggableBase(device_)
 {
 }

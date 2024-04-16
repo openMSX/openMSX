@@ -101,7 +101,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 2;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static byte point(V9990VRAM& vram,
+		static byte point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static byte shift(byte value, unsigned fromX, unsigned toX);
 		static byte shiftMask(unsigned x);
@@ -122,7 +122,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 2;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static byte point(V9990VRAM& vram,
+		static byte point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static byte shift(byte value, unsigned fromX, unsigned toX);
 		static byte shiftMask(unsigned x);
@@ -143,7 +143,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 4;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static byte point(V9990VRAM& vram,
+		static byte point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static byte shift(byte value, unsigned fromX, unsigned toX);
 		static byte shiftMask(unsigned x);
@@ -164,7 +164,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 2;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static byte point(V9990VRAM& vram,
+		static byte point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static byte shift(byte value, unsigned fromX, unsigned toX);
 		static byte shiftMask(unsigned x);
@@ -185,7 +185,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 1;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static byte point(V9990VRAM& vram,
+		static byte point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static byte shift(byte value, unsigned fromX, unsigned toX);
 		static byte shiftMask(unsigned x);
@@ -206,7 +206,7 @@ private:
 		static constexpr word PIXELS_PER_BYTE = 0;
 		static unsigned getPitch(unsigned width);
 		static unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
-		static word point(V9990VRAM& vram,
+		static word point(const V9990VRAM& vram,
 		                  unsigned x, unsigned y, unsigned pitch);
 		static word shift(word value, unsigned fromX, unsigned toX);
 		static word shiftMask(unsigned x);

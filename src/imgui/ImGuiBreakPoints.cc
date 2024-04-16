@@ -404,15 +404,15 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 	});
 }
 
-static const std::vector<BreakPoint>& getOpenMSXItems(BreakPoint*, MSXCPUInterface& cpuInterface)
+static const std::vector<BreakPoint>& getOpenMSXItems(BreakPoint*, const MSXCPUInterface& cpuInterface)
 {
 	return cpuInterface.getBreakPoints();
 }
-static const std::vector<std::shared_ptr<WatchPoint>>& getOpenMSXItems(WatchPoint*, MSXCPUInterface& cpuInterface)
+static const std::vector<std::shared_ptr<WatchPoint>>& getOpenMSXItems(WatchPoint*, const MSXCPUInterface& cpuInterface)
 {
 	return cpuInterface.getWatchPoints();
 }
-static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, MSXCPUInterface& cpuInterface)
+static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, const MSXCPUInterface& cpuInterface)
 {
 	return cpuInterface.getConditions();
 }

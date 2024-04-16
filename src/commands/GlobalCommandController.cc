@@ -84,7 +84,7 @@ GlobalCommandController::findProxySetting(string_view name)
 		[](auto& v) { return v.first->getFullName(); });
 }
 
-void GlobalCommandController::registerProxySetting(Setting& setting)
+void GlobalCommandController::registerProxySetting(const Setting& setting)
 {
 	const auto& name = setting.getBaseNameObj();
 	auto it = findProxySetting(name.getString());
@@ -100,7 +100,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 	}
 }
 
-void GlobalCommandController::unregisterProxySetting(Setting& setting)
+void GlobalCommandController::unregisterProxySetting(const Setting& setting)
 {
 	auto it = findProxySetting(setting.getBaseName());
 	assert(it != end(proxySettings));

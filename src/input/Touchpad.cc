@@ -66,7 +66,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		"{ 256 0 0 } { 0 256 0 }")
 {
 	auto& interp = commandController.getInterpreter();
-	transformSetting.setChecker([this, &interp](TclObject& newValue) {
+	transformSetting.setChecker([this, &interp](const TclObject& newValue) {
 		try {
 			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {

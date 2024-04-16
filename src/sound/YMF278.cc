@@ -425,7 +425,7 @@ void YMF278::advance()
 	}
 }
 
-int16_t YMF278::getSample(Slot& slot, uint16_t pos) const
+int16_t YMF278::getSample(const Slot& slot, uint16_t pos) const
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
@@ -461,7 +461,7 @@ int16_t YMF278::getSample(Slot& slot, uint16_t pos) const
 	}
 }
 
-uint16_t YMF278::nextPos(Slot& slot, uint16_t pos, uint16_t increment)
+uint16_t YMF278::nextPos(const Slot& slot, uint16_t pos, uint16_t increment)
 {
 	// If there is a 4-sample loop and you advance 12 samples per step,
 	// it may exceed the end offset.

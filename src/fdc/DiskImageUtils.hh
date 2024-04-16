@@ -153,7 +153,7 @@ namespace DiskImageUtils {
 
 	/** Check whether the given disk is partitioned.
 	 */
-	[[nodiscard]] bool hasPartitionTable(SectorAccessibleDisk& disk);
+	[[nodiscard]] bool hasPartitionTable(const SectorAccessibleDisk& disk);
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.

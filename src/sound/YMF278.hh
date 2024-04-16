@@ -94,8 +94,8 @@ private:
 
 	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
-	[[nodiscard]] int16_t getSample(Slot& slot, uint16_t pos) const;
-	[[nodiscard]] static uint16_t nextPos(Slot& slot, uint16_t pos, uint16_t increment);
+	[[nodiscard]] int16_t getSample(const Slot& slot, uint16_t pos) const;
+	[[nodiscard]] static uint16_t nextPos(const Slot& slot, uint16_t pos, uint16_t increment);
 	void advance();
 	[[nodiscard]] bool anyActive();
 	void keyOnHelper(Slot& slot) const;

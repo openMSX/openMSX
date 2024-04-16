@@ -362,7 +362,7 @@ private:
 
 	// Scheduler stuff
 	struct SyncBase : Schedulable {
-		explicit SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
+		explicit SyncBase(const V9990& v9990) : Schedulable(v9990.getScheduler()) {}
 		using Schedulable::setSyncPoint;
 		using Schedulable::removeSyncPoint;
 	protected:
@@ -515,13 +515,13 @@ private:
 	// --- members ----------------------------------------------------
 
 	struct RegDebug final : SimpleDebuggable {
-		explicit RegDebug(V9990& v9990);
+		explicit RegDebug(const V9990& v9990);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} v9990RegDebug;
 
 	struct PalDebug final : SimpleDebuggable {
-		explicit PalDebug(V9990& v9990);
+		explicit PalDebug(const V9990& v9990);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} v9990PalDebug;

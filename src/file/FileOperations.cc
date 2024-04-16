@@ -598,7 +598,7 @@ bool exists(zstring_view filename)
 	return static_cast<bool>(getStat(filename));
 }
 
-static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
+static unsigned getNextNum(const dirent* d, string_view prefix, string_view extension,
                            unsigned nofDigits)
 {
 	auto extensionLen = extension.size();

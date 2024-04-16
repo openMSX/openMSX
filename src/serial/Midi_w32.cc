@@ -77,7 +77,7 @@ static MIDIHDR inhdr;
 static std::array<char, OPENMSX_W32_MIDI_SYSMES_MAXLEN> inlongmes;
 
 
-static void w32_midiDevNameConv(char *dst, char *src)
+static void w32_midiDevNameConv(char *dst, const char *src)
 {
 	size_t len = strlen(src);
 	size_t i = 0;

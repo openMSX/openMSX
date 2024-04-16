@@ -57,8 +57,8 @@ public:
 	void registerProxyCommand(std::string_view name);
 	void unregisterProxyCommand(std::string_view name);
 
-	void registerProxySetting(Setting& setting);
-	void unregisterProxySetting(Setting& setting);
+	void registerProxySetting(const Setting& setting);
+	void unregisterProxySetting(const Setting& setting);
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,

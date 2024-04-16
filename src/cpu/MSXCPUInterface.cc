@@ -442,7 +442,7 @@ bool MSXCPUInterface::replace_IO_Out(
 	return true;
 }
 
-[[noreturn]] static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
+[[noreturn]] static void reportMemOverlap(int ps, int ss, const MSXDevice& dev1, const MSXDevice& dev2)
 {
 	throw MSXException(
 		"Overlapping memory devices in slot ", ps, '.', ss,

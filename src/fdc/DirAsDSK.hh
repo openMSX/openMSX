@@ -77,9 +77,9 @@ private:
 	void freeFATChain(unsigned cluster);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
-	                     unsigned msxDirSector, FileOperations::Stat& fst);
+	                     unsigned msxDirSector, const FileOperations::Stat& fst);
 	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
-	                    unsigned msxDirSector, FileOperations::Stat& fst);
+	                    unsigned msxDirSector, const FileOperations::Stat& fst);
 	[[nodiscard]] DirIndex fillMSXDirEntry(
 		const std::string& hostSubDir, const std::string& hostName,
 		unsigned msxDirSector);
@@ -90,8 +90,8 @@ private:
 	[[nodiscard]] bool checkMSXFileExists(std::span<const char, 11> msxfilename,
 	                                      unsigned msxDirSector);
 	void checkModifiedHostFiles();
-	void setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst);
-	void importHostFile(DirIndex dirIndex, FileOperations::Stat& fst);
+	void setMSXTimeStamp(DirIndex dirIndex, const FileOperations::Stat& fst);
+	void importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst);
 	void exportToHost(DirIndex dirIndex, DirIndex dirDirIndex);
 	void exportToHostDir (DirIndex dirIndex, const std::string& hostName);
 	void exportToHostFile(DirIndex dirIndex, const std::string& hostName);

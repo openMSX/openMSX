@@ -11,7 +11,7 @@ ReadOnlySetting::ReadOnlySetting(
 	          Setting::DONT_TRANSFER)
 	, roValue(initialValue)
 {
-	setChecker([this](TclObject& newValue) {
+	setChecker([this](const TclObject& newValue) {
 		if (newValue != roValue) {
 			throw MSXException("Read-only setting");
 		}

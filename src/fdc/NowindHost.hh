@@ -81,13 +81,13 @@ private:
 	[[nodiscard]] unsigned getStartAddress() const;
 	[[nodiscard]] unsigned getCurrentAddress() const;
 
-	void diskReadInit(SectorAccessibleDisk& disk);
+	void diskReadInit(const SectorAccessibleDisk& disk);
 	void doDiskRead1();
 	void doDiskRead2();
 	void transferSectors(unsigned transferAddress, unsigned amount);
 	void transferSectorsBackwards(unsigned transferAddress, unsigned amount);
 
-	void diskWriteInit(SectorAccessibleDisk& disk);
+	void diskWriteInit(const SectorAccessibleDisk& disk);
 	void doDiskWrite1();
 	void doDiskWrite2();
 

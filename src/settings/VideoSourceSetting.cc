@@ -14,7 +14,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
 {
 	sources = { { "none", 0 } };
 
-	setChecker([this](TclObject& newValue) {
+	setChecker([this](const TclObject& newValue) {
 		checkSetValue(newValue.getString()); // may throw
 	});
 	init();

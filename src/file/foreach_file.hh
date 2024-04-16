@@ -54,24 +54,24 @@ namespace openmsx {
 		// Take an action that accepts the following parameters:
 		// - a 'std::string&' or 'const std::string&' parameter
 		// - optionally a std::string_view parameter
-		// - optionally a 'FileOperations::Stat&' parameter
+		// - optionally a 'const FileOperations::Stat&' parameter
 		// And returns a wrapper that makes the 2nd and 3rd parameter
 		// non-optional, but (possibly) ignores those parameters when
 		// delegating to the wrapped action.
 		template<typename Action>
 		[[nodiscard]] auto adaptParams(Action action) {
-			if constexpr (std::is_invocable_v<Action, std::string&, std::string_view, Stat&>) {
+			if constexpr (std::is_invocable_v<Action, std::string&, std::string_view, const Stat&>) {
 				return std::tuple(action, true);
 			} else if constexpr (std::is_invocable_v<Action, std::string&, std::string_view>) {
-				return std::tuple([action](std::string& p, std::string_view f, Stat& /*st*/) {
+				return std::tuple([action](std::string& p, std::string_view f, const Stat& /*st*/) {
 				                          return action(p, f);
 				                  }, false);
-			} else if constexpr (std::is_invocable_v<Action, std::string&, Stat&>) {
-				return std::tuple([action](std::string& p, std::string_view /*f*/, Stat& st) {
+			} else if constexpr (std::is_invocable_v<Action, std::string&, const Stat&>) {
+				return std::tuple([action](std::string& p, std::string_view /*f*/, const Stat& st) {
 				                          return action(p, st);
 				                  }, true);
 			} else if constexpr (std::is_invocable_v<Action, std::string&>) {
-				return std::tuple([action](std::string& p, std::string_view /*f*/, Stat& /*st*/) {
+				return std::tuple([action](std::string& p, std::string_view /*f*/, const Stat& /*st*/) {
 				                          return action(p);
 				                  }, false);
 			} else {
@@ -84,7 +84,7 @@ namespace openmsx {
 		// - otherwise return a wrapper that invokes the given action and then returns 'true'.
 		template<typename Action>
 		[[nodiscard]] auto adaptReturn(Action action) {
-			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, Stat&>;
+			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, const Stat&>;
 			if constexpr (std::is_same_v<ResultType, void>) {
 				return [=]<typename... Params>(Params&&... params) {
 					action(std::forward<Params>(params)...);

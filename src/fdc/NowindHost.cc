@@ -351,7 +351,7 @@ unsigned NowindHost::getCurrentAddress() const
 }
 
 
-void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
+void NowindHost::diskReadInit(const SectorAccessibleDisk& disk)
 {
 	unsigned sectorAmount = getSectorAmount();
 	buffer.resize(sectorAmount);
@@ -477,7 +477,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 }
 
 
-void NowindHost::diskWriteInit(SectorAccessibleDisk& disk)
+void NowindHost::diskWriteInit(const SectorAccessibleDisk& disk)
 {
 	if (disk.isWriteProtected()) {
 		sendHeader();

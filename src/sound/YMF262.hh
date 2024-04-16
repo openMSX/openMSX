@@ -65,7 +65,7 @@ private:
 		void FM_KEYON(uint8_t key_set);
 		void FM_KEYOFF(uint8_t key_clr);
 		void advanceEnvelopeGenerator(unsigned egCnt);
-		void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
+		void advancePhaseGenerator(const Channel& ch, unsigned lfo_pm);
 		void update_ar_dr();
 		void update_rr();
 		void calc_fc(const Channel& ch);

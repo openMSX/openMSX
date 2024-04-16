@@ -137,9 +137,9 @@ private:
 	// operator methods
 	void envelopeKONKOFF(std::span<YM2151Operator, 4> op, int v) const;
 	static void refreshEG(std::span<YM2151Operator, 4> op);
-	[[nodiscard]] int opCalc(YM2151Operator& op, unsigned env, int pm) const;
-	[[nodiscard]] int opCalc1(YM2151Operator& op, unsigned env, int pm) const;
-	[[nodiscard]] inline unsigned volumeCalc(YM2151Operator& op, unsigned AM) const;
+	[[nodiscard]] int opCalc(const YM2151Operator& op, unsigned env, int pm) const;
+	[[nodiscard]] int opCalc1(const YM2151Operator& op, unsigned env, int pm) const;
+	[[nodiscard]] inline unsigned volumeCalc(const YM2151Operator& op, unsigned AM) const;
 	inline void keyOn(YM2151Operator& op, unsigned keySet) const;
 	inline void keyOff(YM2151Operator& op, unsigned keyClear) const;
 

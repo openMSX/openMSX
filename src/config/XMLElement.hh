@@ -311,7 +311,7 @@ public:
 		}
 	}
 
-	void load(OldXMLElement& elem); // bw compat
+	void load(const OldXMLElement& elem); // bw compat
 
 	void serialize(MemInputArchive&  ar, unsigned version);
 	void serialize(MemOutputArchive& ar, unsigned version) const;

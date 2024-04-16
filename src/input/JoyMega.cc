@@ -97,7 +97,7 @@ JoyMega::~JoyMega()
 	}
 }
 
-void JoyMega::checkJoystickConfig(TclObject& newValue)
+void JoyMega::checkJoystickConfig(const TclObject& newValue)
 {
 	std::array<std::vector<BooleanInput>, 12> newBindings;
 

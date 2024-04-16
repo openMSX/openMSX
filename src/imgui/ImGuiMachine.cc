@@ -81,7 +81,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 }
 
 
-void ImGuiMachine::paintSelectMachine(MSXMotherBoard* motherBoard)
+void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 {
 	ImGui::SetNextWindowSize(gl::vec2{29, 26} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Select MSX machine", &showSelectMachine, [&]{

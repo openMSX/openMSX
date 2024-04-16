@@ -35,7 +35,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void checkJoystickConfig(TclObject& newValue);
+	void checkJoystickConfig(const TclObject& newValue);
 
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;

@@ -14,7 +14,7 @@ namespace openmsx {
 HDCommand::HDCommand(CommandController& commandController_,
                      StateChangeDistributor& stateChangeDistributor_,
                      Scheduler& scheduler_, HD& hd_,
-                     BooleanSetting& powerSetting_)
+                     const BooleanSetting& powerSetting_)
 	: RecordedCommand(commandController_, stateChangeDistributor_,
 	                  scheduler_, hd_.getName())
 	, hd(hd_)

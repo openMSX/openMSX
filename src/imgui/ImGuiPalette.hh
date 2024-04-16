@@ -22,7 +22,7 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
-	std::span<const uint16_t, 16> getPalette(VDP* vdp) const;
+	std::span<const uint16_t, 16> getPalette(const VDP* vdp) const;
 	static uint32_t toRGBA(uint16_t msxColor);
 
 public:

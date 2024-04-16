@@ -90,7 +90,7 @@ static bool coloredButton(const char* id, ImU32 color, ImVec2 size)
 	return result;
 }
 
-std::span<const uint16_t, 16> ImGuiPalette::getPalette(VDP* vdp) const
+std::span<const uint16_t, 16> ImGuiPalette::getPalette(const VDP* vdp) const
 {
 	if (whichPalette == PALETTE_CUSTOM) {
 		return customPalette;

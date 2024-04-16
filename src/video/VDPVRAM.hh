@@ -631,7 +631,7 @@ private:
 	  */
 	class LogicalVRAMDebuggable final : public SimpleDebuggable {
 	public:
-		explicit LogicalVRAMDebuggable(VDP& vdp);
+		explicit LogicalVRAMDebuggable(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	private:
@@ -643,7 +643,7 @@ private:
 	  *   debuggable is the same as the actual VRAM size.
 	  */
 	struct PhysicalVRAMDebuggable final : SimpleDebuggable {
-		PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize);
+		PhysicalVRAMDebuggable(const VDP& vdp, unsigned actualSize);
 		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} physicalVRAMDebug;

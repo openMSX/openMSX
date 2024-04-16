@@ -306,16 +306,16 @@ void AfterCommand::afterInfo(std::span<const TclObject> /*tokens*/, TclObject& r
 
 	std::ostringstream str;
 	for (auto idx : afterCmds) {
-		auto& var = afterCmdPool[idx];
-		std::visit([&](AfterCmd& cmd) { str << cmd.getIdStr() << ": "; }, var);
+		const auto& var = afterCmdPool[idx];
+		std::visit([&](const AfterCmd& cmd) { str << cmd.getIdStr() << ": "; }, var);
 		std::visit(overloaded {
-			[&](AfterTimeCmd&        cmd ) { str << "time "; printTime(str, cmd); },
-			[&](AfterIdleCmd&        cmd ) { str << "idle "; printTime(str, cmd); },
-			[&](AfterSimpleEventCmd& cmd ) { str << cmd.getType() << ' '; },
-			[&](AfterInputEventCmd&  cmd ) { str << toString(cmd.getEvent()) << ' '; },
-			[&](AfterRealTimeCmd& /*cmd*/) { str << "realtime "; }
+			[&](const AfterTimeCmd&        cmd ) { str << "time "; printTime(str, cmd); },
+			[&](const AfterIdleCmd&        cmd ) { str << "idle "; printTime(str, cmd); },
+			[&](const AfterSimpleEventCmd& cmd ) { str << cmd.getType() << ' '; },
+			[&](const AfterInputEventCmd&  cmd ) { str << toString(cmd.getEvent()) << ' '; },
+			[&](const AfterRealTimeCmd& /*cmd*/) { str << "realtime "; }
 		}, var);
-		std::visit([&](AfterCmd& cmd) { str << cmd.getCommand().getString() << '\n'; }, var);
+		std::visit([&](const AfterCmd& cmd) { str << cmd.getCommand().getString() << '\n'; }, var);
 	}
 	result = str.str();
 }
@@ -327,7 +327,7 @@ void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*r
 		if (auto idStr = tokens[2].getString(); idStr.starts_with("after#")) {
 			if (auto id = StringOp::stringTo<unsigned>(idStr.substr(6))) {
 				auto equalId = [id = *id](Index idx) {
-					return std::visit([&](AfterCmd& cmd) {
+					return std::visit([&](const AfterCmd& cmd) {
 						 return cmd.getId() == id;
 					}, afterCmdPool[idx]);
 				};
@@ -345,7 +345,7 @@ void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*r
 	command.addListElements(view::drop(tokens, 2));
 	std::string_view cmdStr = command.getString();
 	auto equalCmd = [&](Index idx) {
-		return std::visit([&](AfterCmd& cmd) {
+		return std::visit([&](const AfterCmd& cmd) {
 			return cmd.getCommand() == cmdStr;
 		}, afterCmdPool[idx]);
 	};
@@ -410,8 +410,8 @@ void AfterCommand::executeMatches(std::predicate<Index> auto pred)
 struct AfterSimpleEventPred {
 	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
-			[&](AfterSimpleEventCmd& cmd) { return cmd.getTypeEnum() == type; },
-			[&](AfterCmd& /*cmd*/) { return false; }
+			[&](const AfterSimpleEventCmd& cmd) { return cmd.getTypeEnum() == type; },
+			[&](const AfterCmd& /*cmd*/) { return false; }
 		}, afterCmdPool[idx]);
 	}
 	const EventType type;
@@ -424,8 +424,8 @@ void AfterCommand::executeSimpleEvents(EventType type)
 struct AfterEmuTimePred {
 	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
-			[&](AfterTimedCmd& cmd) { return cmd.getTime() == 0.0; },
-			[&](AfterCmd& /*cmd*/) { return false; }
+			[&](const AfterTimedCmd& cmd) { return cmd.getTime() == 0.0; },
+			[&](const AfterCmd& /*cmd*/) { return false; }
 		}, afterCmdPool[idx]);
 	}
 };
@@ -435,8 +435,8 @@ struct AfterInputEventPred {
 		: event(event_) {}
 	bool operator()(AfterCommand::Index idx) const {
 		return std::visit(overloaded {
-			[&](AfterInputEventCmd& cmd) { return matches(cmd.getEvent(), event); },
-			[&](AfterCmd& /*cmd*/) { return false; }
+			[&](const AfterInputEventCmd& cmd) { return matches(cmd.getEvent(), event); },
+			[&](const AfterCmd& /*cmd*/) { return false; }
 		}, afterCmdPool[idx]);
 	}
 	const Event& event;
@@ -462,7 +462,7 @@ int AfterCommand::signalEvent(const Event& event)
 			for (auto idx : afterCmds) {
 				std::visit(overloaded {
 					[](AfterIdleCmd& cmd) { cmd.reschedule(); },
-					[](AfterCmd& /*cmd*/) { /*nothing*/ }
+					[](const AfterCmd& /*cmd*/) { /*nothing*/ }
 				}, afterCmdPool[idx]);
 			}
 		}
@@ -491,7 +491,7 @@ void AfterCmd::execute()
 AfterCommand::Index AfterCmd::removeSelf()
 {
 	auto equalThis = [&](AfterCommand::Index idx) {
-		return std::visit([&](AfterCmd& cmd) { return &cmd == this; },
+		return std::visit([&](const AfterCmd& cmd) { return &cmd == this; },
 			          afterCmdPool[idx]);
 	};
 	auto it = rfind_if_unguarded(afterCommand.afterCmds, equalThis);

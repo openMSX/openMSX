@@ -546,7 +546,7 @@ void DirAsDSK::checkModifiedHostFiles()
 	}
 }
 
-void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
+void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY));
 	assert(mapDirs.contains(dirIndex));
@@ -664,7 +664,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	// DirAsDSK from importing the other (small) files in my directory.
 }
 
-void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
+void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, const FileOperations::Stat& fst)
 {
 	// Use intermediate param to prevent compilation error for Android
 	time_t mtime = fst.st_mtime;
@@ -741,7 +741,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 }
 
 void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
-                               unsigned msxDirSector, FileOperations::Stat& fst)
+                               unsigned msxDirSector, const FileOperations::Stat& fst)
 {
 	DirIndex dirIndex = findHostFileInDSK(tmpStrCat(hostSubDir, hostName));
 	unsigned newMsxDirSector;
@@ -806,7 +806,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 }
 
 void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
-                              unsigned msxDirSector, FileOperations::Stat& fst)
+                              unsigned msxDirSector, const FileOperations::Stat& fst)
 {
 	if (checkFileUsedInDSK(tmpStrCat(hostSubDir, hostName))) {
 		// File is already present in the virtual disk, do nothing.

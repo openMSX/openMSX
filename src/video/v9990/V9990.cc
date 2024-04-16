@@ -477,7 +477,7 @@ void V9990::postVideoSystemChange() noexcept
 // RegDebug
 // -------------------------------------------------------------------------
 
-V9990::RegDebug::RegDebug(V9990& v9990_)
+V9990::RegDebug::RegDebug(const V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " regs", "V9990 registers", 0x40)
 {
@@ -499,7 +499,7 @@ void V9990::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 // PalDebug
 // -------------------------------------------------------------------------
 
-V9990::PalDebug::PalDebug(V9990& v9990_)
+V9990::PalDebug::PalDebug(const V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " palette",
 	                   "V9990 palette (format is R, G, B, 0).", 0x100)

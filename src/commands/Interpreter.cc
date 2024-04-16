@@ -271,7 +271,7 @@ void Interpreter::unsetVariable(const char* name)
 	Tcl_UnsetVar(interp, name, TCL_GLOBAL_ONLY);
 }
 
-static TclObject getSafeValue(BaseSetting& setting)
+static TclObject getSafeValue(const BaseSetting& setting)
 {
 	// TODO use c++23 std::optional<T>::or_else()
 	if (auto val = setting.getOptionalValue()) {

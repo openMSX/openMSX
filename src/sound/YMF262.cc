@@ -594,7 +594,7 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned egCnt)
 	}
 }
 
-void YMF262::Slot::advancePhaseGenerator(Channel& ch, unsigned lfo_pm)
+void YMF262::Slot::advancePhaseGenerator(const Channel& ch, unsigned lfo_pm)
 {
 	if (vib) {
 		// LFO phase modulation active

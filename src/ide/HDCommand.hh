@@ -19,7 +19,7 @@ class HDCommand final : public RecordedCommand
 public:
 	HDCommand(CommandController& commandController,
 	          StateChangeDistributor& stateChangeDistributor,
-	          Scheduler& scheduler, HD& hd, BooleanSetting& powerSetting);
+	          Scheduler& scheduler, HD& hd, const BooleanSetting& powerSetting);
 	void execute(std::span<const TclObject> tokens,
 	             TclObject& result, EmuTime::param time) override;
 	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;

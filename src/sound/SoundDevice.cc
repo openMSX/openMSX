@@ -34,7 +34,7 @@ static void allocateMixBuffer(size_t size)
 	}
 }
 
-[[nodiscard]] static std::string makeUnique(MSXMixer& mixer, std::string_view name)
+[[nodiscard]] static std::string makeUnique(const MSXMixer& mixer, std::string_view name)
 {
 	std::string result(name);
 	if (mixer.findDevice(result)) {

@@ -300,7 +300,7 @@ inline unsigned V9990CmdEngine::V9990P1::addressOf(
 }
 
 inline byte V9990CmdEngine::V9990P1::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	return vram.readVRAMDirect(addressOf(x, y, pitch));
 }
@@ -368,7 +368,7 @@ inline unsigned V9990CmdEngine::V9990P2::addressOf(
 }
 
 inline byte V9990CmdEngine::V9990P2::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	return vram.readVRAMDirect(addressOf(x, y, pitch));
 }
@@ -436,7 +436,7 @@ inline unsigned V9990CmdEngine::V9990Bpp2::addressOf(
 }
 
 inline byte V9990CmdEngine::V9990Bpp2::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	return vram.readVRAMDirect(addressOf(x, y, pitch));
 }
@@ -504,7 +504,7 @@ inline unsigned V9990CmdEngine::V9990Bpp4::addressOf(
 }
 
 inline byte V9990CmdEngine::V9990Bpp4::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	return vram.readVRAMDirect(addressOf(x, y, pitch));
 }
@@ -572,7 +572,7 @@ inline unsigned V9990CmdEngine::V9990Bpp8::addressOf(
 }
 
 inline byte V9990CmdEngine::V9990Bpp8::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	return vram.readVRAMDirect(addressOf(x, y, pitch));
 }
@@ -639,7 +639,7 @@ inline unsigned V9990CmdEngine::V9990Bpp16::addressOf(
 }
 
 inline word V9990CmdEngine::V9990Bpp16::point(
-	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
+	const V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch)
 {
 	unsigned addr = addressOf(x, y, pitch);
 	return word(vram.readVRAMDirect(addr + 0x00000) +

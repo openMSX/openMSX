@@ -46,7 +46,7 @@ static constexpr std::array<char, 11> NEXTOR_PARTITION_TABLE_HEADER = {
 	return {};
 }
 
-bool hasPartitionTable(SectorAccessibleDisk& disk)
+bool hasPartitionTable(const SectorAccessibleDisk& disk)
 {
 	SectorBuffer buf;
 	disk.readSector(0, buf);
@@ -55,7 +55,7 @@ bool hasPartitionTable(SectorAccessibleDisk& disk)
 
 // Get partition from Nextor extended boot record (standard EBR) chain.
 static Partition& getPartitionNextorExtended(
-	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf,
+	const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf,
 	unsigned remaining, unsigned ebrOuterSector)
 {
 	unsigned ebrSector = ebrOuterSector;

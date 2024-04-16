@@ -43,7 +43,7 @@ Setting::Setting(CommandController& commandController_,
 	, defaultValue(initialValue)
 	, save(save_)
 {
-	checkFunc = [](TclObject&) { /* nothing */ };
+	checkFunc = [](const TclObject&) { /* nothing */ };
 }
 
 void Setting::init()

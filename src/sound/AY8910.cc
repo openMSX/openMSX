@@ -151,7 +151,7 @@ inline void AY8910::ToneGenerator::reset()
 	output = false;
 }
 
-int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
+int AY8910::ToneGenerator::getDetune(const AY8910& ay8910)
 {
 	int result = 0;
 	if (float vibPerc = ay8910.vibratoPercent.getFloat();

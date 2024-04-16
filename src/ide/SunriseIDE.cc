@@ -230,7 +230,7 @@ INSTANTIATE_SERIALIZE_METHODS(SunriseIDE);
 REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
 
 
-SunriseIDE::Blocks::Blocks(SunriseIDE& device)
+SunriseIDE::Blocks::Blocks(const SunriseIDE& device)
 	: RomBlockDebuggableBase(device)
 {
 }

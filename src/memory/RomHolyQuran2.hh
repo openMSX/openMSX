@@ -24,7 +24,7 @@ public:
 
 private:
 	struct Blocks final : RomBlockDebuggableBase {
-		explicit Blocks(RomHolyQuran2& device);
+		explicit Blocks(const RomHolyQuran2& device);
 		[[nodiscard]] byte read(unsigned address) override;
 	} romBlocks;
 

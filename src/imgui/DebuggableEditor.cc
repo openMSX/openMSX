@@ -145,7 +145,7 @@ struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
 	unsigned addr = 0;
 };
 [[nodiscard]] static ParseAddrResult parseAddressExpr(
-	std::string_view str, SymbolManager& symbolManager, Interpreter& interp)
+	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
 {
 	ParseAddrResult r;
 	if (str.empty()) return r;

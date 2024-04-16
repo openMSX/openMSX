@@ -174,7 +174,7 @@ struct Graphic4Mode
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static byte point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
 	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
@@ -192,7 +192,7 @@ inline unsigned Graphic4Mode::addressOf(
 }
 
 inline byte Graphic4Mode::point(
-	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
+	const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2)) & 15;
@@ -226,7 +226,7 @@ struct Graphic5Mode
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 2;
 	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static byte point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
 	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
@@ -244,7 +244,7 @@ inline unsigned Graphic5Mode::addressOf(
 }
 
 inline byte Graphic5Mode::point(
-	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
+	const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 3) << 1)) & 3;
@@ -280,7 +280,7 @@ struct Graphic6Mode
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
 	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static byte point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
 	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
@@ -298,7 +298,7 @@ inline unsigned Graphic6Mode::addressOf(
 }
 
 inline byte Graphic6Mode::point(
-	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
+	const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return (vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2)) & 15;
@@ -332,7 +332,7 @@ struct Graphic7Mode
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static byte point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
 	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
@@ -350,7 +350,7 @@ inline unsigned Graphic7Mode::addressOf(
 }
 
 inline byte Graphic7Mode::point(
-	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
+	const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM));
 }
@@ -382,7 +382,7 @@ struct NonBitmapMode
 	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
 	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
-	static byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
+	static byte point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
 	static void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned addr, byte src, byte color, LogOp op);
@@ -400,7 +400,7 @@ inline unsigned NonBitmapMode::addressOf(
 }
 
 inline byte NonBitmapMode::point(
-	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
+	const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM));
 }

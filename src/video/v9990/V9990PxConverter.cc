@@ -26,13 +26,13 @@ V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span<const Pixel, 64> palet
 }
 
 struct P1Policy {
-	static byte readNameTable(V9990VRAM& vram, unsigned addr) {
+	static byte readNameTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
-	static byte readPatternTable(V9990VRAM& vram, unsigned addr) {
+	static byte readPatternTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
-	static byte readSpriteAttr(V9990VRAM& vram, unsigned addr) {
+	static byte readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
 	static unsigned spritePatOfst(byte spriteNo, byte spriteY) {
@@ -64,13 +64,13 @@ struct P1ForegroundPolicy : P1Policy {
 	static constexpr bool DRAW_BACKDROP = false;
 };
 struct P2Policy {
-	static byte readNameTable(V9990VRAM& vram, unsigned addr) {
+	static byte readNameTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMDirect(addr);
 	}
-	static byte readPatternTable(V9990VRAM& vram, unsigned addr) {
+	static byte readPatternTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMBx(addr);
 	}
-	static byte readSpriteAttr(V9990VRAM& vram, unsigned addr) {
+	static byte readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMDirect(addr);
 	}
 	static unsigned spritePatOfst(byte spriteNo, byte spriteY) {

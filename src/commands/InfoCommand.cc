@@ -18,7 +18,7 @@ InfoCommand::~InfoCommand()
 	assert(infoTopics.empty());
 }
 
-void InfoCommand::registerTopic(InfoTopic& topic)
+void InfoCommand::registerTopic(const InfoTopic& topic)
 {
 #ifndef NDEBUG
 	if (infoTopics.contains(topic.getName())) {
@@ -30,7 +30,7 @@ void InfoCommand::registerTopic(InfoTopic& topic)
 	infoTopics.insert_noDuplicateCheck(&topic);
 }
 
-void InfoCommand::unregisterTopic(InfoTopic& topic)
+void InfoCommand::unregisterTopic(const InfoTopic& topic)
 {
 	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "

@@ -25,7 +25,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	void paintSelectMachine(MSXMotherBoard* motherBoard);
+	void paintSelectMachine(const MSXMotherBoard* motherBoard);
 	void paintTestHardware();
 	[[nodiscard]] std::vector<MachineInfo>& getAllMachines();
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);

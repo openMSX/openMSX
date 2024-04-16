@@ -395,7 +395,7 @@ static constexpr FreqIndex fnumToIncrement(int block_fnum)
 	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
 
-inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
+inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool carrier)
 {
 	switch (state) {
 	case EG_DUMP:
@@ -479,7 +479,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 	return egOut;
 }
 
-inline int Slot::calc_phase(Channel& channel, unsigned lfo_pm)
+inline int Slot::calc_phase(const Channel& channel, unsigned lfo_pm)
 {
 	if (vib) {
 		auto lfo_fn_table_index_offset = narrow<int>(lfo_pm_table
@@ -494,7 +494,7 @@ inline int Slot::calc_phase(Channel& channel, unsigned lfo_pm)
 	return phase.toInt();
 }
 
-inline void Slot::updateTotalLevel(Channel& channel)
+inline void Slot::updateTotalLevel(const Channel& channel)
 {
 	TLL = TL + (channel.getKeyScaleLevelBase() >> ksl);
 }
@@ -525,7 +525,7 @@ inline void Slot::updateReleaseRate(int kcodeScaled)
 	eg_mask_rr = (1 << eg_sh_rr) - 1;
 }
 
-inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
+inline int Slot::calcOutput(const Channel& channel, unsigned eg_cnt, bool carrier,
                             unsigned lfo_am, int phase2)
 {
 	int egOut2 = calc_envelope(channel, eg_cnt, carrier);
@@ -534,7 +534,7 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 	return p < TL_TAB_LEN ? tlTab[p] : 0;
 }
 
-inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
+inline int Slot::calc_slot_mod(const Channel& channel, unsigned eg_cnt, bool carrier,
                                unsigned lfo_pm, unsigned lfo_am)
 {
 	// Compute phase.
@@ -714,13 +714,13 @@ void Slot::setAmplitudeModulation(bool value)
 	AMmask = value ? ~0 : 0;
 }
 
-void Slot::setTotalLevel(Channel& channel, uint8_t value)
+void Slot::setTotalLevel(const Channel& channel, uint8_t value)
 {
 	TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 	updateTotalLevel(channel);
 }
 
-void Slot::setKeyScaleLevel(Channel& channel, uint8_t value)
+void Slot::setKeyScaleLevel(const Channel& channel, uint8_t value)
 {
 	ksl = value ? (3 - value) : 31;
 	updateTotalLevel(channel);
@@ -762,7 +762,7 @@ void Slot::setSustainLevel(uint8_t value)
 	sl = sl_tab[value];
 }
 
-void Slot::updateFrequency(Channel& channel)
+void Slot::updateFrequency(const Channel& channel)
 {
 	updateTotalLevel(channel);
 	updateGenerators(channel);
@@ -775,7 +775,7 @@ void Slot::resetOperators()
 	egOut = MAX_ATT_INDEX;
 }
 
-void Slot::updateGenerators(Channel& channel)
+void Slot::updateGenerators(const Channel& channel)
 {
 	// (frequency) phase increment counter
 	freq = channel.getFrequencyIncrement() * mul;

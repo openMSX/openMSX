@@ -55,13 +55,13 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 	return result;
 }
 
-bool Scheduler::removeSyncPoint(Schedulable& device)
+bool Scheduler::removeSyncPoint(const Schedulable& device)
 {
 	assert(Thread::isMainThread());
 	return queue.remove(EqualSchedulable(device));
 }
 
-void Scheduler::removeSyncPoints(Schedulable& device)
+void Scheduler::removeSyncPoints(const Schedulable& device)
 {
 	assert(Thread::isMainThread());
 	queue.remove_all(EqualSchedulable(device));
