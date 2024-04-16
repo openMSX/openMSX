@@ -459,7 +459,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 		fname, SCREENSHOT_DIR, prefix, SCREENSHOT_EXTENSION);
 
 	if (!rawShot) {
-		// include all layers (OSD stuff, console)
+		// take screenshot as displayed, possibly with other layers (OSD stuff, ImGUI)
 		try {
 			display.getVideoSystem().takeScreenShot(filename, withOsd);
 		} catch (MSXException& e) {
