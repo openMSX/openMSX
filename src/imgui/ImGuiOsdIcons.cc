@@ -198,7 +198,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 
 			auto& ic = state ? icon.on : icon.off;
 			gl::vec2 cursor = ImGui::GetCursorPos();
-			ImGui::Image(reinterpret_cast<void*>(ic.tex.get()), gl::vec2(ic.size),
+			ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
 			             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});
 
 			ImGui::SetCursorPos(cursor);
@@ -322,8 +322,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 
 					auto image = [&](IconInfo::Icon& ic, const char* id) {
 						if (ic.tex.get()) {
-							ImGui::Image(reinterpret_cast<void*>(ic.tex.get()),
-									gl::vec2(ic.size));
+							ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size));
 							im::PopupContextItem(id, [&]{
 								if (ImGui::MenuItem("Remove image")) {
 									ic.filename.clear();

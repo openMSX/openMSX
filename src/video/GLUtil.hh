@@ -11,8 +11,11 @@
 #endif
 
 #include "MemBuffer.hh"
-#include <string_view>
+
+#include <bit>
 #include <cassert>
+#include <cstdint>
+#include <string_view>
 
 // arbitrary but distinct values, (roughly) ordered according to version number
 #define OPENGL_ES_2_0 1
@@ -68,6 +71,10 @@ public:
 	  * 0 iff no openGL texture is allocated.
 	  */
 	[[nodiscard]] GLuint get() const { return textureId; }
+
+	/** Return as a 'void*' (needed for 'Dear ImGui').
+	  */
+	[[nodiscard]] void* getImGui() const { return std::bit_cast<void*>(uintptr_t(textureId)); }
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly

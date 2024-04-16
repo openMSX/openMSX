@@ -167,7 +167,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			scrnPos = ImGui::GetCursorScreenPos();
 			auto pos = ImGui::GetCursorPos();
-			ImGui::Image(reinterpret_cast<void*>(bitmapTex->get()), size);
+			ImGui::Image(bitmapTex->getImGui(), size);
 
 			if (bitmapGrid && (zx > 1) && (zy > 1)) {
 				auto color = ImGui::ColorConvertFloat4ToU32(bitmapGridColor);
@@ -184,7 +184,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
 						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 				ImGui::SetCursorPos(pos);
-				ImGui::Image(reinterpret_cast<void*>(bitmapGridTex->get()), size,
+				ImGui::Image(bitmapGridTex->getImGui(), size,
 						ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
 			}
 		});

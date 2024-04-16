@@ -341,7 +341,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			im::Child("##pattern", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), fullSize);
+				ImGui::Image(patternTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered() && (mode != 0);
 				ImGui::SameLine();
 				im::Group([&]{
@@ -356,7 +356,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						auto uv2 = uv1 + recipPatTex;
 						auto pos2 = ImGui::GetCursorPos();
 						int z = (size == 16) ? 3 : 6;
-						ImGui::Image(reinterpret_cast<void*>(patternTex.get()), float(z) * zoomPatSize, uv1, uv2);
+						ImGui::Image(patternTex.getImGui(), float(z) * zoomPatSize, uv1, uv2);
 						if (grid) {
 							if (!zoomGridTex.get()) {
 								zoomGridTex = gl::Texture(false, true); // no interpolation, with wrapping
@@ -372,7 +372,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s, s, 0,
 								GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 							ImGui::SetCursorPos(pos2);
-							ImGui::Image(reinterpret_cast<void*>(zoomGridTex.get()),
+							ImGui::Image(zoomGridTex.getImGui(),
 							             float(z) * zoomPatSize, {}, gl::vec2{float(size)});
 						}
 					} else {
@@ -381,7 +381,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				});
 				if (grid) {
 					ImGui::SetCursorPos(pos1);
-					ImGui::Image(reinterpret_cast<void*>(gridTex.get()), fullSize,
+					ImGui::Image(gridTex.getImGui(), fullSize,
 						{}, (size == 8) ? gl::vec2{32.0f, 8.0f} : gl::vec2{16.0f, 4.0f});
 				}
 			});
@@ -399,7 +399,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 					if (checkerBoardSize) {
 						ImGui::SetCursorPos(topLeft);
-						ImGui::Image(reinterpret_cast<void*>(checkerTex.get()), fullSize,
+						ImGui::Image(checkerTex.getImGui(), fullSize,
 							{}, fullSize / (4.0f * float(checkerBoardSize)));
 					}
 					for (auto row : xrange(4)) {
@@ -407,12 +407,12 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							int sprite = 8 * row + column;
 							ImGui::SetCursorPos(topLeft + zoomSize * gl::vec2(float(column), float(row)));
 							renderSpriteAttrib(vram, planar, attBase, sprite, mode, size, transparent,
-							                   float(zm), palette, reinterpret_cast<void*>(patternTex.get()));
+							                   float(zm), palette, patternTex.getImGui());
 						}
 					}
 					ImGui::SetCursorPos(topLeft);
 					if (grid) {
-						ImGui::Image(reinterpret_cast<void*>(gridTex.get()), fullSize,
+						ImGui::Image(gridTex.getImGui(), fullSize,
 							{}, gl::vec2{8, 4});
 					} else {
 						ImGui::Dummy(fullSize);
@@ -428,12 +428,12 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							ImGui::StrCat("sprite: ", sprite);
 							auto pos = ImGui::GetCursorPos();
 							if (checkerBoardSize) {
-								ImGui::Image(reinterpret_cast<void*>(checkerTex.get()), 3.0f * zoomPatSize,
+								ImGui::Image(checkerTex.getImGui(), 3.0f * zoomPatSize,
 									{}, zoomPatSize / (4.0f * float(checkerBoardSize)));
 							}
 							ImGui::SetCursorPos(pos);
 							renderSpriteAttrib(vram, planar, attBase, sprite, mode, size, transparent,
-							                   float(3 * zm), palette, reinterpret_cast<void*>(patternTex.get()));
+							                   float(3 * zm), palette, patternTex.getImGui());
 						});
 						ImGui::SameLine();
 						im::Group([&]{
@@ -664,11 +664,11 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 				gl::vec2 topLeft = ImGui::GetCursorPos();
 				if (checkerBoardSize) {
-					ImGui::Image(reinterpret_cast<void*>(checkerTex.get()), fullSize,
+					ImGui::Image(checkerTex.getImGui(), fullSize,
 						{}, fullSize / (4.0f * float(checkerBoardSize)));
 				}
 				ImGui::SetCursorPos(topLeft);
-				ImGui::Image(reinterpret_cast<void*>(renderTex.get()), fullSize);
+				ImGui::Image(renderTex.getImGui(), fullSize);
 				bool hovered = ImGui::IsItemHovered();
 				auto hoverPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / gl::vec2(float(zm)));
 				ImGui::SameLine();

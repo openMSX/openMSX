@@ -284,7 +284,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			im::Child("##pattern", {0, size.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
-				ImGui::Image(reinterpret_cast<void*>(patternTex.get()), size);
+				ImGui::Image(patternTex.getImGui(), size);
 				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 				ImGui::SameLine();
 				im::Group([&]{
@@ -294,10 +294,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
 						auto uv2 = uv1 + recipPatTexChars;
 						auto pos2 = ImGui::GetCursorPos();
-						ImGui::Image(reinterpret_cast<void*>(patternTex.get()), zoomCharSize, uv1, uv2);
+						ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
 						if (grid) {
 							ImGui::SetCursorPos(pos2);
-							ImGui::Image(reinterpret_cast<void*>(gridTex.get()),
+							ImGui::Image(gridTex.getImGui(),
 								zoomCharSize, {}, charSize);
 						}
 					} else {
@@ -306,7 +306,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				if (grid) {
 					ImGui::SetCursorPos(pos1);
-					ImGui::Image(reinterpret_cast<void*>(gridTex.get()), size,
+					ImGui::Image(gridTex.getImGui(), size,
 						{}, patternTexChars);
 				}
 			});
@@ -353,7 +353,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					auto rowsCeil = int(ceilf(rows));
 					auto numChars = rowsCeil * columns;
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
-					drawList->PushTextureID(reinterpret_cast<void*>(patternTex.get()));
+					drawList->PushTextureID(patternTex.getImGui());
 					drawList->PrimReserve(6 * numChars, 4 * numChars);
 					for (auto row : xrange(rowsCeil)) {
 						for (auto column : xrange(columns)) {
@@ -366,7 +366,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					}
 					drawList->PopTextureID();
 					if (nameTableOverlay) {
-						drawList->PushTextureID(reinterpret_cast<void*>(smallHexDigits.get()));
+						drawList->PushTextureID(smallHexDigits.getImGui());
 						drawList->PrimReserve(12 * numChars, 8 * numChars);
 						static constexpr gl::vec2 digitSize{5.0f, 8.0f};
 						static constexpr float texDigitWidth = 1.0f / 16.0f;
@@ -400,10 +400,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						ImGui::StrCat("Pattern: ", pattern);
 						auto [uv1, uv2] = getPatternUV(pattern);
 						auto pos2 = ImGui::GetCursorPos();
-						ImGui::Image(reinterpret_cast<void*>(patternTex.get()), zoomCharSize, uv1, uv2);
+						ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
 						if (grid) {
 							ImGui::SetCursorPos(pos2);
-							ImGui::Image(reinterpret_cast<void*>(gridTex.get()),
+							ImGui::Image(gridTex.getImGui(),
 								zoomCharSize, {}, charSize);
 						}
 					} else {
@@ -413,8 +413,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				if (grid) {
 					ImGui::SetCursorPos(pos1);
-					ImGui::Image(reinterpret_cast<void*>(gridTex.get()), hostSize,
-						{}, charsSize);
+					ImGui::Image(gridTex.getImGui(), hostSize, {}, charsSize);
 				}
 			});
 		});

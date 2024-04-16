@@ -61,7 +61,7 @@ void ImGuiHelp::paintAbout()
 		}
 		assert(logo);
 		if (logo->texture.get()) {
-			ImGui::Image(reinterpret_cast<void*>(logo->texture.get()), logo->size);
+			ImGui::Image(logo->texture.getImGui(), logo->size);
 			ImGui::SameLine();
 		}
 		im::Group([&]{

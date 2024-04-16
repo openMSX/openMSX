@@ -97,7 +97,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					ImGui::TextUnformatted("Preview"sv);
 					ImVec2 size(320, 240);
 					if (previewImage.texture.get()) {
-						ImGui::Image(reinterpret_cast<void*>(previewImage.texture.get()), size);
+						ImGui::Image(previewImage.texture.getImGui(), size);
 					} else {
 						ImGui::Dummy(size);
 					}
