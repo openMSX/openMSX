@@ -206,7 +206,7 @@ private:
 	const uint64_t reference;
 };
 
-class SoftwareInfoTopic final : InfoTopic
+class SoftwareInfoTopic final : public InfoTopic
 {
 public:
 	SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor);
@@ -384,6 +384,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 			}
 		}
 	} catch (MSXException&) {
+		// ignore
 	}
 	static const MsxChar2Unicode defaultMsxChars("MSXVID.TXT");
 	return defaultMsxChars;

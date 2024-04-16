@@ -341,7 +341,7 @@ void ImGuiMessages::paintConfigure()
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
 			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, size);
 
-			if (ImGui::TableNextColumn()) {}
+			if (ImGui::TableNextColumn()) { /* nothing */ }
 			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Error"sv);
 			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Warning"sv);
 			if (ImGui::TableNextColumn()) ImGui::TextUnformatted("Info"sv);

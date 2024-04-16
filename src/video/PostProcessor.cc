@@ -637,7 +637,7 @@ void PostProcessor::preCalcNoise(float factor)
 #endif
 }
 
-void PostProcessor::drawNoise()
+void PostProcessor::drawNoise() const
 {
 	if (renderSettings.getNoise() == 0.0f) return;
 

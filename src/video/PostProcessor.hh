@@ -116,7 +116,7 @@ private:
 	                 unsigned lineWidth);
 
 	void preCalcNoise(float factor);
-	void drawNoise();
+	void drawNoise() const;
 	void drawGlow(int glow);
 
 	void preCalcMonitor3D(float width);

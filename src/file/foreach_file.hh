@@ -49,8 +49,6 @@
 
 namespace openmsx {
 	namespace detail {
-		using namespace FileOperations;
-
 		// Take an action that accepts the following parameters:
 		// - a 'std::string&' or 'const std::string&' parameter
 		// - optionally a std::string_view parameter
@@ -60,18 +58,18 @@ namespace openmsx {
 		// delegating to the wrapped action.
 		template<typename Action>
 		[[nodiscard]] auto adaptParams(Action action) {
-			if constexpr (std::is_invocable_v<Action, std::string&, std::string_view, const Stat&>) {
+			if constexpr (std::is_invocable_v<Action, std::string&, std::string_view, const FileOperations::Stat&>) {
 				return std::tuple(action, true);
 			} else if constexpr (std::is_invocable_v<Action, std::string&, std::string_view>) {
-				return std::tuple([action](std::string& p, std::string_view f, const Stat& /*st*/) {
+				return std::tuple([action](std::string& p, std::string_view f, const FileOperations::Stat& /*st*/) {
 				                          return action(p, f);
 				                  }, false);
-			} else if constexpr (std::is_invocable_v<Action, std::string&, const Stat&>) {
-				return std::tuple([action](std::string& p, std::string_view /*f*/, const Stat& st) {
+			} else if constexpr (std::is_invocable_v<Action, std::string&, const FileOperations::Stat&>) {
+				return std::tuple([action](std::string& p, std::string_view /*f*/, const FileOperations::Stat& st) {
 				                          return action(p, st);
 				                  }, true);
 			} else if constexpr (std::is_invocable_v<Action, std::string&>) {
-				return std::tuple([action](std::string& p, std::string_view /*f*/, const Stat& /*st*/) {
+				return std::tuple([action](std::string& p, std::string_view /*f*/, const FileOperations::Stat& /*st*/) {
 				                          return action(p);
 				                  }, false);
 			} else {
@@ -84,7 +82,7 @@ namespace openmsx {
 		// - otherwise return a wrapper that invokes the given action and then returns 'true'.
 		template<typename Action>
 		[[nodiscard]] auto adaptReturn(Action action) {
-			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, const Stat&>;
+			using ResultType = std::invoke_result_t<Action, std::string&, std::string_view, const FileOperations::Stat&>;
 			if constexpr (std::is_same_v<ResultType, void>) {
 				return [=]<typename... Params>(Params&&... params) {
 					action(std::forward<Params>(params)...);
@@ -117,22 +115,22 @@ namespace openmsx {
 				// that support it: avoid doing an extra 'stat()' system call.
 				auto type = needStat ? static_cast<unsigned char>(DT_UNKNOWN) : d->d_type;
 				if (type == DT_REG) {
-					Stat dummy;
+					FileOperations::Stat dummy;
 					if (!invokeFileAction(path, file, dummy)) {
 						return false; // aborted
 					}
 				} else if (type == DT_DIR) {
-					Stat dummy;
+					FileOperations::Stat dummy;
 					if (!invokeDirAction(path, file, dummy)) {
 						return false;
 					}
 				} else {
-					if (auto st = getStat(path)) {
-						if (isRegularFile(*st)) {
+					if (auto st = FileOperations::getStat(path)) {
+						if (FileOperations::isRegularFile(*st)) {
 							if (!invokeFileAction(path, file, *st)) {
 								return false;
 							}
-						} else if (isDirectory(*st)) {
+						} else if (FileOperations::isDirectory(*st)) {
 							if (!invokeDirAction(path, file, *st)) {
 								return false;
 							}

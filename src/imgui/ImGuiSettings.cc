@@ -303,7 +303,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				if (auto* mappingModeSetting = dynamic_cast<EnumSetting<KeyboardSettings::MappingMode>*>(controller.findSetting("kbd_mapping_mode"))) {
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
-			};
+			}
 			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
