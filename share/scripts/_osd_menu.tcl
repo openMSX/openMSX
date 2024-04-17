@@ -438,8 +438,6 @@ if {![file exists $::osd_ld_path] || ![file readable $::osd_ld_path]} {
 	unset ::osd_ld_path
 }
 
-variable taperecordings_directory [file normalize $::env(OPENMSX_USER_DATA)/../taperecordings]
-
 proc do_menu_open {top_menu} {
 	variable is_dingux
 
