@@ -24,19 +24,10 @@
 
 namespace openmsx {
 
-static constexpr auto sectorInfo = [] {
-	// 8 * 8kB, followed by 127 * 64kB
-	using Info = AmdFlash::SectorInfo;
-	std::array<Info, 8 + 127> result = {};
-	std::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
-	std::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
-	return result;
-}();
-
 Carnivore2::Carnivore2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
-	, flash(getName() + " flash", AmdFlashChip::M29W640GB, sectorInfo,
+	, flash(getName() + " flash", AmdFlashChip::M29W640GB, {},
 	        AmdFlash::Addressing::BITS_12, config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",

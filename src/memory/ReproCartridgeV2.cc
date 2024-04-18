@@ -54,20 +54,10 @@ differences:
 
 namespace openmsx {
 
-static constexpr auto sectorInfo = [] {
-	// 8 * 8kB, followed by 127 * 64kB
-	using Info = AmdFlash::SectorInfo;
-	std::array<Info, 8 + 127> result = {};
-	std::fill(result.begin(), result.begin() + 8, Info{ 8 * 1024, false});
-	std::fill(result.begin() + 8, result.end(),   Info{64 * 1024, false});
-	return result;
-}();
-
-
 ReproCartridgeV2::ReproCartridgeV2(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, AmdFlashChip::M29W640GB, sectorInfo,
+	, flash(rom, AmdFlashChip::M29W640GB, {},
 	        AmdFlash::Addressing::BITS_12, config)
 	, scc("ReproCartV2 SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg0x10("ReproCartV2 PSG@0x10", DummyAY8910Periphery::instance(), config,

@@ -43,11 +43,32 @@ public:
 		}
 	};
 
+	struct Region {
+		size_t count = 0;
+		power_of_two<size_t> size = 1;
+	};
+
+	struct Geometry {
+		constexpr Geometry(std::initializer_list<Region> regions_)
+			: regions(regions_)
+			, size(sum(regions, [](Region r) { return r.count * r.size; }))
+			, sectorCount(sum(regions, &Region::count)) {}
+		static_vector<Region, 4> regions;
+		power_of_two<size_t> size;
+		size_t sectorCount;
+
+		constexpr void validate() const {
+			for (const Region& region : regions) assert(region.count > 0);
+		}
+	};
+
 	struct Chip {
 		AutoSelect autoSelect;
+		Geometry geometry;
 
 		constexpr void validate() const {
 			autoSelect.validate();
+			geometry.validate();
 		}
 	};
 
@@ -58,10 +79,6 @@ public:
 		const Chip chip;
 	};
 
-	struct SectorInfo {
-		size_t size;
-		bool writeProtected;
-	};
 	enum class Addressing {
 		BITS_11,
 		BITS_12,
@@ -87,10 +104,10 @@ public:
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
-	         std::span<const SectorInfo> sectorInfo, Addressing addressing,
+	         std::span<const bool> writeProtectSectors, Addressing addressing,
 	         const DeviceConfig& config, Load load = Load::NORMAL);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
-	         std::span<const SectorInfo> sectorInfo, Addressing addressing,
+	         std::span<const bool> writeProtectSectors, Addressing addressing,
 	         const DeviceConfig& config);
 	~AmdFlash();
 
@@ -103,7 +120,7 @@ public:
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
-	[[nodiscard]] size_t size() const { return sz; }
+	[[nodiscard]] size_t size() const { return chip.geometry.size; }
 	[[nodiscard]] uint8_t read(size_t address) const;
 	[[nodiscard]] uint8_t peek(size_t address) const;
 	void write(size_t address, uint8_t value);
@@ -124,7 +141,8 @@ public:
 	enum class State { IDLE, IDENT };
 
 private:
-	void init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom);
+	void init(const std::string& name, const DeviceConfig& config, Load load,
+	          const Rom* rom, std::span<const bool> writeProtectSectors);
 	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
@@ -149,8 +167,6 @@ private:
 	MemBuffer<ptrdiff_t> writeAddress;
 	MemBuffer<const uint8_t*> readAddress;
 	const Chip& chip;
-	const std::span<const SectorInfo> sectorInfo;
-	const power_of_two<size_t> sz;
 	const Addressing addressing;
 
 	static constexpr unsigned MAX_CMD_SIZE = 8;
@@ -168,21 +184,25 @@ namespace AmdFlashChip
 	// AMD AM29F040
 	static constexpr ValidatedChip AM29F040 = {{
 		.autoSelect{.manufacturer = AMD, .device{0xA4}, .extraCode = 0x01},
+		.geometry{{{8, 0x10000}}},
 	}};
 
 	// AMD AM29F016
 	static constexpr ValidatedChip AM29F016 = {{
 		.autoSelect{.manufacturer = AMD, .device{0xAD}},
+		.geometry{{{32, 0x10000}}},
 	}};
 
 	// Numonyx M29W800DB
 	static constexpr ValidatedChip M29W800DB = {{
 		.autoSelect{.manufacturer = STM, .device{0x5B}},
+		.geometry{{{1, 0x4000}, {2, 0x2000}, {1, 0x8000}, {15, 0x10000}}},
 	}};
 
 	// Micron M29W640GB
 	static constexpr ValidatedChip M29W640GB = {{
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
+		.geometry{{{8, 0x2000}, {127, 0x10000}}},
 	}};
 }
 

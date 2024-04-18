@@ -5,17 +5,9 @@
 
 namespace openmsx {
 
-static constexpr auto sectorInfo = [] {
-	// 2 * 64kB, fully writeable
-	using Info = AmdFlash::SectorInfo;
-	std::array<Info, 2> result = {};
-	ranges::fill(result, Info{64 * 1024, false});
-	return result;
-}();
-
 RomMatraInk::RomMatraInk(const DeviceConfig& config, Rom&& rom_)
         : MSXRom(config, std::move(rom_))
-        , flash(rom, AmdFlashChip::AM29F040, sectorInfo,
+        , flash(rom, AmdFlashChip::AM29F040, {},
 	        AmdFlash::Addressing::BITS_11, config,
                 AmdFlash::Load::DONT)
 {
