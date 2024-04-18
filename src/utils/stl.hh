@@ -242,7 +242,7 @@ template<typename InputRange, typename Proj = std::identity>
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
 template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto sum(InputRange&& range, Proj proj = {})
+[[nodiscard]] constexpr auto sum(InputRange&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));
 	using VT = typename std::iterator_traits<Iter>::value_type;

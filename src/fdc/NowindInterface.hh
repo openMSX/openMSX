@@ -31,7 +31,6 @@ public:
 
 private:
 	Rom rom;
-	const std::vector<AmdFlash::SectorInfo> flashConfig;
 	AmdFlash flash;
 	NowindHost::Drives drives;
 	NowindHost host;

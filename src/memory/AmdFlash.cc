@@ -22,27 +22,23 @@
 namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
-                   std::span<const SectorInfo> sectorInfo_, Addressing addressing_,
+                   std::span<const bool> writeProtectSectors, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
-	, sectorInfo(sectorInfo_)
-	, sz(sum(sectorInfo, &SectorInfo::size))
 	, addressing(addressing_)
 {
-	init(rom.getName() + "_flash", config, load, &rom);
+	init(rom.getName() + "_flash", config, load, &rom, writeProtectSectors);
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
-                   std::span<const SectorInfo> sectorInfo_, Addressing addressing_,
+                   std::span<const bool> writeProtectSectors, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
-	, sectorInfo(sectorInfo_)
-	, sz(sum(sectorInfo, &SectorInfo::size))
 	, addressing(addressing_)
 {
-	init(name, config, Load::NORMAL, nullptr);
+	init(name, config, Load::NORMAL, nullptr, writeProtectSectors);
 }
 
 [[nodiscard]] static bool sramEmpty(const SRAM& ram)
@@ -51,20 +47,24 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
-void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom)
+void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load,
+                    const Rom* rom, std::span<const bool> writeProtectSectors)
 {
-	auto numSectors = sectorInfo.size();
+	auto numSectors = chip.geometry.sectorCount;
+	assert(writeProtectSectors.size() <= numSectors);
 
 	size_t writableSize = 0;
 	size_t readOnlySize = 0;
 	writeAddress.resize(numSectors);
-	for (auto i : xrange(numSectors)) {
-		if (sectorInfo[i].writeProtected) {
-			writeAddress[i] = -1;
-			readOnlySize += sectorInfo[i].size;
-		} else {
-			writeAddress[i] = narrow<ptrdiff_t>(writableSize);
-			writableSize += sectorInfo[i].size;
+	for (size_t sector = 0; const AmdFlash::Region& region : chip.geometry.regions) {
+		for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++) {
+			if (sector < writeProtectSectors.size() && writeProtectSectors[sector]) {
+				writeAddress[sector] = -1;
+				readOnlySize += region.size;
+			} else {
+				writeAddress[sector] = narrow<ptrdiff_t>(writableSize);
+				writableSize += region.size;
+			}
 		}
 	}
 	assert((writableSize + readOnlySize) == size());
@@ -140,38 +140,40 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load lo
 	readAddress.resize(numSectors);
 	auto romSize = rom ? rom->size() : 0;
 	size_t offset = 0;
-	for (auto i : xrange(numSectors)) {
-		auto sectorSize = sectorInfo[i].size;
-		if (isSectorWritable(i)) {
-			readAddress[i] = &(*ram)[writeAddress[i]];
-			if (!loaded) {
-				auto* ramPtr = const_cast<uint8_t*>(
-					&(*ram)[writeAddress[i]]);
-				if (offset >= romSize) {
-					// completely past end of rom
-					ranges::fill(std::span{ramPtr, sectorSize}, 0xFF);
-				} else if (offset + sectorSize >= romSize) {
-					// partial overlap
-					auto last = romSize - offset;
-					auto missing = sectorSize - last;
-					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, last}, ramPtr);
-					ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
+	for (size_t sector = 0; const AmdFlash::Region& region : chip.geometry.regions) {
+		for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++) {
+			auto sectorSize = region.size;
+			if (isSectorWritable(sector)) {
+				readAddress[sector] = &(*ram)[writeAddress[sector]];
+				if (!loaded) {
+					auto* ramPtr = const_cast<uint8_t*>(
+						&(*ram)[writeAddress[sector]]);
+					if (offset >= romSize) {
+						// completely past end of rom
+						ranges::fill(std::span{ramPtr, sectorSize}, 0xFF);
+					} else if (offset + sectorSize >= romSize) {
+						// partial overlap
+						auto last = romSize - offset;
+						auto missing = sectorSize - last;
+						const uint8_t* romPtr = &(*rom)[offset];
+						ranges::copy(std::span{romPtr, last}, ramPtr);
+						ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
+					} else {
+						// completely before end of rom
+						const uint8_t* romPtr = &(*rom)[offset];
+						ranges::copy(std::span{romPtr, sectorSize}, ramPtr);
+					}
+				}
+			} else {
+				assert(rom); // must have rom constructor parameter
+				if ((offset + sectorSize) <= romSize) {
+					readAddress[sector] = &(*rom)[offset];
 				} else {
-					// completely before end of rom
-					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, sectorSize}, ramPtr);
+					readAddress[sector] = nullptr;
 				}
 			}
-		} else {
-			assert(rom); // must have rom constructor parameter
-			if ((offset + sectorSize) <= romSize) {
-				readAddress[i] = &(*rom)[offset];
-			} else {
-				readAddress[i] = nullptr;
-			}
+			offset += sectorSize;
 		}
-		offset += sectorSize;
 	}
 	assert(offset == size());
 
@@ -183,17 +185,15 @@ AmdFlash::~AmdFlash() = default;
 AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(size_t address) const
 {
 	address &= size() - 1;
-	auto it = sectorInfo.begin();
+	auto it = chip.geometry.regions.begin();
 	size_t sector = 0;
-	while (address >= it->size) {
-		address -= it->size;
-		++sector;
+	while (address >= it->count * it->size) {
+		address -= it->count * it->size;
+		sector += it->count;
 		++it;
-		assert(it != sectorInfo.end());
+		assert(it != chip.geometry.regions.end());
 	}
-	auto sectorSize = it->size;
-	auto offset = address;
-	return {sector, sectorSize, offset};
+	return {sector + address / it->size, it->size, address % it->size};
 }
 
 void AmdFlash::reset()

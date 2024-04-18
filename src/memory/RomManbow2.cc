@@ -31,45 +31,29 @@ namespace openmsx {
 	}
 }
 
-using Info = AmdFlash::SectorInfo;
-
-// 512kB, only last 64kB writable
-static constexpr auto config1 = [] {
-	std::array<Info, 512 / 64> result = {};
-	ranges::fill(result, Info{64 * 1024, true}); // read-only
-	result[7].writeProtected = false;
-	return result;
-}();
-// 512kB, only 128kB writable
-static constexpr auto config2 = [] {
-	std::array<Info, 512 / 64> result = {};
-	ranges::fill(result, Info{64 * 1024, true}); // read-only
-	result[4].writeProtected = false;
-	result[5].writeProtected = false;
-	return result;
-}();
-// fully writeable, 512kB
-static constexpr auto config3 = [] {
-	std::array<Info, 512 / 64> result = {};
-	ranges::fill(result, Info{64 * 1024, false});
-	return result;
-}();
-// fully writeable, 2MB
-static constexpr auto config4 = [] {
-	std::array<Info, 2048 / 64> result = {};
-	ranges::fill(result, Info{64 * 1024, false});
-	return result;
-}();
-[[nodiscard]] static constexpr std::span<const Info> getSectorInfo(RomType type)
+[[nodiscard]] static std::span<const bool> getWriteProtectSectors(RomType type)
 {
 	switch (type) {
 	using enum RomType;
 	case MANBOW2:
-	case MANBOW2_2:             return config1;
-	case HAMARAJANIGHT:         return config2;
-	case MEGAFLASHROMSCC:       return config3;
-	case RBSC_FLASH_KONAMI_SCC: return config4;
-	default: UNREACHABLE;
+	case MANBOW2_2:
+		{
+			static constexpr std::array<const bool, 8> writeProtectSectors =
+				{true, true, true, true, true, true, true, false};
+			return writeProtectSectors;  // only last 64kB writable
+		}
+	case HAMARAJANIGHT:
+		{
+			static constexpr std::array<const bool, 8> writeProtectSectors =
+				{true, true, true, true, false, false, true, true};
+			return writeProtectSectors;  // only 128kB writable
+		}
+	case MEGAFLASHROMSCC:
+		return {};  // fully writeable
+	case RBSC_FLASH_KONAMI_SCC:
+		return {};  // fully writeable
+	default:
+		UNREACHABLE;
 	}
 }
 
@@ -85,7 +69,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getFlashChip(type), getSectorInfo(type),
+	, flash(rom, getFlashChip(type), getWriteProtectSectors(type),
 		AmdFlash::Addressing::BITS_11, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {

@@ -166,24 +166,13 @@ Main features:
 
 namespace openmsx {
 
-static constexpr auto sectorInfo = [] {
-	// 1 * 16kB, followed by 2 * 8kB, 1 * 32kB, 15 * 64kB
-	using Info = AmdFlash::SectorInfo;
-	std::array<Info, 1 + 2 + 1 + 15> result = {};
-	std::fill(result.begin() + 0, result.begin() + 1, Info{16 * 1024, false});
-	std::fill(result.begin() + 1, result.begin() + 3, Info{ 8 * 1024, false});
-	std::fill(result.begin() + 3, result.begin() + 4, Info{32 * 1024, false});
-	std::fill(result.begin() + 4, result.end(),       Info{64 * 1024, false});
-	return result;
-}();
-
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(rom, AmdFlashChip::M29W800DB, sectorInfo,
+	, flash(rom, AmdFlashChip::M29W800DB, {},
 	        AmdFlash::Addressing::BITS_11, config)
 {
 	powerUp(getCurrentTime());

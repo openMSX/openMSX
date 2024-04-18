@@ -52,7 +52,7 @@ public:
 
 	constexpr static_vector() = default;
 
-	explicit constexpr static_vector(std::initializer_list<T> list) {
+	constexpr static_vector(std::initializer_list<T> list) {
 		assert(list.size() <= N);
 		ranges::copy(list, array);
 		sz = SizeType(list.size());
