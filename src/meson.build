@@ -267,6 +267,7 @@ sources = files(
     'memory/RomArc.cc',
     'memory/RomAscii16_2.cc',
     'memory/RomAscii16kB.cc',
+    'memory/RomAscii16X.cc',
     'memory/RomAscii8_8.cc',
     'memory/RomAscii8kB.cc',
     'memory/RomBlocks.cc',

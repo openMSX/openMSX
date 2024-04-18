@@ -765,6 +765,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16X.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -2255,6 +2258,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomAscii16X.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.hh">

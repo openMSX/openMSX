@@ -555,6 +555,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomArc.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16_2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii16X.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii8kB.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomBlocks.cc" />
@@ -1134,6 +1135,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomArc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii16_2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii16kB.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomAscii16X.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii8kB.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomBlocks.hh" />
