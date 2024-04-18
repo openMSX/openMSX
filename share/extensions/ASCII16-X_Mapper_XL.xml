@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>ASCII16-X Mapper XL</name>
+    <manufacturer>Grauw</manufacturer>
+    <code>ASCII16-X</code>
+    <release_year>2024</release_year>
+    <description>ASCII16-X Mapper Extra Large (XL) 8 MB</description>
+    <type>Flash cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ASCII16-X id="ASCII16-X Mapper XL">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <size>8192</size>
+          </rom>
+          <sramname>ASCII16-X_Mapper_XL.sram</sramname>
+        </YamahaSFG>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

@@ -13,6 +13,7 @@
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
 #include "RomAscii16kB.hh"
+#include "RomAscii16X.hh"
 #include "RomMSXWrite.hh"
 #include "RomPadial8kB.hh"
 #include "RomPadial16kB.hh"
@@ -88,6 +89,7 @@ using enum RomType;
 
 	if (const size_t signatureOffset = 16, signatureSize = 8; size >= (signatureOffset + signatureSize)) {
 		auto signature = std::string_view(std::bit_cast<const char*>(data.data()) + signatureOffset, signatureSize);
+		if (signature == std::string_view("ASCII16X")) return ASCII16X;
 		if (signature == std::string_view("ROM_NEO8")) return NEO8;
 		if (signature == std::string_view("ROM_NE16")) return NEO16;
 	}
@@ -266,6 +268,9 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ASCII16:
 		result = make_unique<RomAscii16kB>(config, std::move(rom));
+		break;
+	case ASCII16X:
+		result = make_unique<RomAscii16X>(config, std::move(rom));
 		break;
 	case MSXWRITE:
 		result = make_unique<RomMSXWrite>(config, std::move(rom));

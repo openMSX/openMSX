@@ -258,7 +258,7 @@ private:
 	[[nodiscard]] bool isSectorWritable(size_t sector) const;
 
 public:
-	static constexpr unsigned MAX_CMD_SIZE = 5 + 32; // longest command is BufferProgram
+	static constexpr unsigned MAX_CMD_SIZE = 5 + 256; // longest command is BufferProgram
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -313,6 +313,19 @@ namespace AmdFlashChip
 			.systemInterface{{0x27, 0x36, 0xB5, 0xC5}, {16, 1, 1024, 1}, {16, 1, 8, 1}},
 			.primaryAlgorithm{{1, 3}, 0, 0, 2, 4, 1, 4, 0, 0, 1, {0xB5, 0xC5}, 0x02, 1},
 		},
+	}};
+
+	// Infineon / Cypress / Spansion S29GL064S70TFI040
+	static constexpr ValidatedChip S29GL064S70TFI040 = {{
+		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
+		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
+		.program{.bufferCommand = true, .pageSize = 256},
+		.cfi{
+			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
+			.systemInterface{{0x27, 0x36, 0x00, 0x00}, {256, 256, 512, 65536}, {8, 8, 2, 1}},
+			.primaryAlgorithm{{1, 3}, 0, 8, 2, 1, 0, 8, 0, 0, 2, {0xB5, 0xC5}, 0x02, 1},
+		},
+		.misc {.statusCommand = true, .continuityCommand = true},
 	}};
 }
 

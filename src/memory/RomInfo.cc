@@ -26,6 +26,7 @@ static constexpr auto romTypeInfoArray = [] {
 	r[KBDMASTER]       = {0x4000, "KeyboardMaster",  "Konami Keyboard Master with VLM5030"}; // officially plain 16K
 	r[ASCII8]          = {0x2000, "ASCII8",          "ASCII 8kB"};
 	r[ASCII16]         = {0x4000, "ASCII16",         "ASCII 16kB"};
+	r[ASCII16X]        = {0x4000, "ASCII16-X",       "ASCII-X 16kB"};
 	r[R_TYPE]          = {0x4000, "R-Type",          "R-Type"};
 	r[CROSS_BLAIM]     = {0x4000, "CrossBlaim",      "Cross Blaim"};
 	r[HARRY_FOX]       = {0x4000, "HarryFox",        "Harry Fox"};
