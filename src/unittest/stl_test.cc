@@ -5,12 +5,12 @@
 #include <list>
 
 struct S {
-	S()                    { ++default_constructed; }
-	S(const S&)            { ++copy_constructed; }
-	S(S&&)                 { ++move_constructed; }
-	S& operator=(const S&) { ++copy_assignment; return *this; }
-	S& operator=(S&&)      { ++move_assignment; return *this; }
-	~S()                   { ++destructed; }
+	S()                        { ++default_constructed; }
+	S(const S&)                { ++copy_constructed; }
+	S(S&&) noexcept            { ++move_constructed; }
+	S& operator=(const S&)     { ++copy_assignment; return *this; }
+	S& operator=(S&&) noexcept { ++move_assignment; return *this; }
+	~S()                       { ++destructed; }
 
 	static void reset() {
 		default_constructed = 0;
