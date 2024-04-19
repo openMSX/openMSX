@@ -80,7 +80,7 @@ private:
 	void commandPhaseWrite(uint8_t value, EmuTime::param time);
 	void doSeek(int n);
 	void executionPhaseWrite(uint8_t value, EmuTime::param time);
-	void resultPhase();
+	void resultPhase(bool readId = false);
 	void endCommand(EmuTime::param time);
 
 	[[nodiscard]] bool isHeadLoaded(EmuTime::param time) const;
@@ -88,7 +88,7 @@ private:
 	[[nodiscard]] EmuDuration getHeadUnloadDelay() const;
 	[[nodiscard]] EmuDuration getSeekDelay() const;
 
-	[[nodiscard]] EmuTime locateSector(EmuTime::param time);
+	[[nodiscard]] EmuTime locateSector(EmuTime::param time, bool readId);
 	void startReadWriteSector(EmuTime::param time);
 	void writeSector();
 	void initTrackHeader(EmuTime::param time);

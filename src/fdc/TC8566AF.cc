@@ -226,6 +226,7 @@ uint8_t TC8566AF::resultsPhasePeek() const
 	case CMD_READ_DATA:
 	case CMD_WRITE_DATA:
 	case CMD_FORMAT:
+	case CMD_READ_ID:
 		switch (phaseStep) {
 		case 0:
 			return status0;
@@ -273,6 +274,7 @@ uint8_t TC8566AF::resultsPhaseRead(EmuTime::param time)
 	case CMD_READ_DATA:
 	case CMD_WRITE_DATA:
 	case CMD_FORMAT:
+	case CMD_READ_ID:
 		switch (phaseStep++) {
 		case 0:
 			status0 = 0; // TODO correct?  Reset _all_ bits?
@@ -376,6 +378,7 @@ void TC8566AF::idlePhaseWrite(uint8_t value, EmuTime::param time)
 	case CMD_READ_DATA:
 	case CMD_WRITE_DATA:
 	case CMD_FORMAT:
+	case CMD_READ_ID:
 		status0 &= ~(ST0_IC0 | ST0_IC1);
 		status1 = 0;
 		status2 = 0;
@@ -417,7 +420,7 @@ void TC8566AF::commandPhase1(uint8_t value)
 	           (drive[driveSelect]->isDiskInserted()   ? ST3_RDY : 0);
 }
 
-EmuTime TC8566AF::locateSector(EmuTime::param time)
+EmuTime TC8566AF::locateSector(EmuTime::param time, bool readId)
 {
 	RawTrack::Sector sectorInfo;
 	int lastIdx = -1;
@@ -436,16 +439,33 @@ EmuTime TC8566AF::locateSector(EmuTime::param time)
 			return EmuTime::infinity();
 		}
 		if (lastIdx == -1) lastIdx = sectorInfo.addrIdx;
-		if (sectorInfo.addrCrcErr)               continue;
+		if (readId) {
+			cylinderNumber = sectorInfo.track;
+			headNumber     = sectorInfo.head;
+			sectorNumber   = sectorInfo.sector;
+			number         = sectorInfo.sizeCode;
+			// skip checks, any sector header is fine
+			// also skip setting 'ST2_CM' and updating 'crc'
+			break;
+		}
+		if (sectorInfo.addrCrcErr)               continue; // Is this checked for CMD_READ_ID?
 		if (sectorInfo.track  != cylinderNumber) continue;
 		if (sectorInfo.head   != headNumber)     continue;
 		if (sectorInfo.sector != sectorNumber)   continue;
 		if (sectorInfo.dataIdx == -1)            continue;
+
+		if (bool expectDeleted = command == CMD_READ_DELETED_DATA;
+		    sectorInfo.deleted != expectDeleted) {
+			status2 |= ST2_CM;
+		}
+		crc.update(sectorInfo.deleted ? 0xF8 : 0xFB);
 		break;
 	}
-	// TODO does TC8566AF look at lower 3 bits?
-	dataAvailable = 128 << (sectorInfo.sizeCode & 7);
-	dataCurrent = sectorInfo.dataIdx;
+	if (!readId) {
+		// TODO does TC8566AF look at lower 3 bits? (instead of only 2)
+		dataAvailable = 128 << (sectorInfo.sizeCode & 7);
+		dataCurrent = sectorInfo.dataIdx;
+	}
 	return next;
 }
 
@@ -509,6 +529,12 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		}
 		break;
 
+	case CMD_READ_ID:
+		assert(phaseStep == 0);
+		commandPhase1(value);
+		startReadWriteSector(time);
+		break;
+
 	case CMD_SEEK:
 		switch (phaseStep++) {
 		case 0:
@@ -566,6 +592,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 	}
 }
 
+// read/write-sector, but also read-ID
 void TC8566AF::startReadWriteSector(EmuTime::param time)
 {
 	phase = PHASE_DATA_TRANSFER;
@@ -580,12 +607,16 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 		headUnloadTime = EmuTime::infinity();
 	}
 
-	// actually read sector: fills in
+	// Initialize crc
+	crc.init({0xA1, 0xA1, 0xA1}); // 0xFB or 0xF8 is added later
+
+	// actually read sector header: fills in
 	//   dataAvailable and dataCurrent
-	ready = locateSector(ready);
+	bool readId = command == CMD_READ_ID;
+	ready = locateSector(ready, readId);
 	if (ready == EmuTime::infinity()) {
 		status0 |= ST0_IC0;
-		status1 |= ST1_ND;
+		status1 |= readId ? ST1_MA : ST1_ND;
 		resultPhase();
 		return;
 	}
@@ -594,14 +625,15 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 	} else {
 		mainStatus &= ~STM_DIO;
 	}
-	// Initialize crc
-	// TODO 0xFB vs 0xF8 depends on deleted vs normal data
-	crc.init({0xA1, 0xA1, 0xA1, 0xFB});
 
 	// first byte is available when it's rotated below the
 	// drive-head
 	delayTime.reset(ready);
 	mainStatus &= ~STM_RQM;
+
+	if (readId) {
+		resultPhase(true);
+	}
 }
 
 void TC8566AF::initTrackHeader(EmuTime::param time)
@@ -817,9 +849,10 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime::param time)
 	}
 }
 
-void TC8566AF::resultPhase()
+void TC8566AF::resultPhase(bool readId)
 {
-	mainStatus |= STM_DIO | STM_RQM;
+	mainStatus |= STM_DIO;
+	if (!readId) mainStatus |= STM_RQM; // for CMD_READ_ID we wait for 'delayTime'
 	phase       = PHASE_RESULT;
 	phaseStep   = 0;
 	//interrupt = true;
