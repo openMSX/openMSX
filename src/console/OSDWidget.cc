@@ -272,8 +272,7 @@ void OSDWidget::paintRecursive(OutputSurface& output)
 
 	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
-		vec2 clipPos, size;
-		getBoundingBox(output, clipPos, size);
+		auto [clipPos, size] = getBoundingBox(output);
 		scopedClip.emplace(output, clipPos, size);
 	}
 
@@ -355,13 +354,11 @@ vec2 OSDWidget::getMouseCoord() const
 	return out / size;
 }
 
-void OSDWidget::getBoundingBox(const OutputSurface& output,
-                               vec2& bbPos, vec2& bbSize) const
+OSDWidget::BoundingBox OSDWidget::getBoundingBox(const OutputSurface& output) const
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
-	bbPos  = topLeft;
-	bbSize = bottomRight - topLeft;
+	return {topLeft, bottomRight - topLeft};
 }
 
 } // namespace openmsx

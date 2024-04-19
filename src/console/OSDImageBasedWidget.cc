@@ -144,8 +144,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
         auto* output = getDisplay().getOutputSurface();
         if (!output) return {};
 
-        vec2 parentPos, parentSize;
-        parentImage->getBoundingBox(*output, parentPos, parentSize);
+        auto [parentPos, parentSize] = parentImage->getBoundingBox(*output);
         auto parentWidth = parentSize.x / narrow<float>(getScaleFactor(*output));
 
         auto thisWidth = getRenderedSize().x;
@@ -324,9 +323,7 @@ vec2 OSDImageBasedWidget::getRenderedSize() const
 		} else {
 			// Couldn't be rendered, maybe an (intentionally)
 			// invisible rectangle
-			vec2 dummyPos, size;
-			getBoundingBox(*output, dummyPos, size);
-			return size;
+			return getBoundingBox(*output).size;
 		}
 	}();
 	return imageSize / float(getScaleFactor(*output));

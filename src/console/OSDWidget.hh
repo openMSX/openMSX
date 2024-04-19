@@ -60,8 +60,8 @@ public:
 	[[nodiscard]] int getScaleFactor(const OutputSurface& output) const;
 	[[nodiscard]] gl::vec2 transformPos(const OutputSurface& output,
 	                                    gl::vec2 pos, gl::vec2 relPos) const;
-	void getBoundingBox(const OutputSurface& output,
-	                    gl::vec2& pos, gl::vec2& size) const;
+	struct BoundingBox { gl::vec2 pos; gl::vec2 size; };
+	[[nodiscard]] BoundingBox getBoundingBox(const OutputSurface& output) const;
 	[[nodiscard]] virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
 
 	// Is visible? Or may become visible (fading-in).
