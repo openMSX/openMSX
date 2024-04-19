@@ -91,16 +91,16 @@ public:
 	[[nodiscard]] static std::optional<uint16_t> parseValue(std::string_view str);
 	[[nodiscard]] static std::optional<Symbol> checkLabel(std::string_view label, uint16_t value);
 	[[nodiscard]] static std::optional<Symbol> checkLabelAndValue(std::string_view label, std::string_view value);
-	[[nodiscard]] static SymbolFile::Type detectType(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile::Type detectType(std::string_view filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadLines(
-		const std::string& filename, std::string_view buffer, SymbolFile::Type type,
+		std::string_view filename, std::string_view buffer, SymbolFile::Type type,
 		function_ref<std::optional<Symbol>(std::span<std::string_view>)> lineParser);
-	[[nodiscard]] static SymbolFile loadGeneric(const std::string& filename, std::string_view buffer);
-	[[nodiscard]] static SymbolFile loadNoICE(const std::string& filename, std::string_view buffer);
-	[[nodiscard]] static SymbolFile loadHTC(const std::string& filename, std::string_view buffer);
-	[[nodiscard]] static SymbolFile loadVASM(const std::string& filename, std::string_view buffer);
-	[[nodiscard]] static SymbolFile loadASMSX(const std::string& filename, std::string_view buffer);
-	[[nodiscard]] static SymbolFile loadLinkMap(const std::string& filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadGeneric(std::string_view filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadNoICE(std::string_view filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadHTC(std::string_view filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadVASM(std::string_view filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadASMSX(std::string_view filename, std::string_view buffer);
+	[[nodiscard]] static SymbolFile loadLinkMap(std::string_view filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadSymbolFile(const std::string& filename, SymbolFile::Type type);
 
 private:

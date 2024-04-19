@@ -52,7 +52,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 }
 
 // detection logic taken from old openmsx-debugger, could probably be improved.
-[[nodiscard]] SymbolFile::Type SymbolManager::detectType(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile::Type SymbolManager::detectType(std::string_view filename, std::string_view buffer)
 {
 	auto fname = StringOp::toLower(filename);
 
@@ -90,7 +90,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 }
 
 [[nodiscard]] SymbolFile SymbolManager::loadLines(
-	const std::string& filename, std::string_view buffer, SymbolFile::Type type,
+	std::string_view filename, std::string_view buffer, SymbolFile::Type type,
 	function_ref<std::optional<Symbol>(std::span<std::string_view>)> lineParser)
 {
 	SymbolFile result;
@@ -148,7 +148,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return {};
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadGeneric(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadGeneric(std::string_view filename, std::string_view buffer)
 {
 	auto parseLine = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
 		if (tokens.size() != 3) return {};
@@ -163,7 +163,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return loadLines(filename, buffer, SymbolFile::Type::GENERIC, parseLine);
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadNoICE(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadNoICE(std::string_view filename, std::string_view buffer)
 {
 	auto parseLine = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
 		if (tokens.size() != 3) return {};
@@ -176,7 +176,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return loadLines(filename, buffer, SymbolFile::Type::NOICE, parseLine);
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadHTC(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadHTC(std::string_view filename, std::string_view buffer)
 {
 	// TODO check with real HTC file
 	auto parseLine = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
@@ -192,7 +192,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return loadLines(filename, buffer, SymbolFile::Type::HTC, parseLine);
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadVASM(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadVASM(std::string_view filename, std::string_view buffer)
 {
 	SymbolFile result;
 	result.filename = filename;
@@ -224,7 +224,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return result;
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadASMSX(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadASMSX(std::string_view filename, std::string_view buffer)
 {
 	SymbolFile result;
 	result.filename = filename;
@@ -283,7 +283,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	return narrow<uint16_t>(value);
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadLinkMap(const std::string& filename, std::string_view buffer)
+[[nodiscard]] SymbolFile SymbolManager::loadLinkMap(std::string_view filename, std::string_view buffer)
 {
 	// Hi-Tech C link map file. Here's an example of such a file:
 	//    https://github.com/artrag/C-experiments-for-msx/blob/master/START.MAP

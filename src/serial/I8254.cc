@@ -395,11 +395,9 @@ void Counter::advance(EmuTime::param time)
 		break;
 	case CNTR_M1:
 		counter -= ticks;
-		if (triggered) {
-			if (counter < 0) {
-				output.setState(true, time);
-				triggered = false; // not periodic
-			}
+		if (triggered && (counter < 0)) {
+			output.setState(true, time);
+			triggered = false; // not periodic
 		}
 		counter &= 0xFFFF;
 		break;

@@ -273,10 +273,8 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 {
 	Debuggable* debuggable = nullptr;
 	const auto* rom = dynamic_cast<const MSXRom*>(device);
-	if (rom) {
-		if (!dynamic_cast<const RomPlain*>(rom)) {
-			debuggable = debugger.findDebuggable(rom->getName() + " romblocks");
-		}
+	if (rom && !dynamic_cast<const RomPlain*>(rom)) {
+		debuggable = debugger.findDebuggable(rom->getName() + " romblocks");
 	}
 	return {rom, debuggable};
 }

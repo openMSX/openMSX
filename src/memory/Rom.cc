@@ -270,15 +270,13 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Make name unique wrt all registered debuggables.
 	auto& debugger = motherBoard.getDebugger();
-	if (!rom.empty()) {
-		if (debugger.findDebuggable(name)) {
-			unsigned n = 0;
-			string tmp;
-			do {
-				tmp = strCat(name, " (", ++n, ')');
-			} while (debugger.findDebuggable(tmp));
-			name = std::move(tmp);
-		}
+	if (!rom.empty() && debugger.findDebuggable(name)) {
+		unsigned n = 0;
+		string tmp;
+		do {
+			tmp = strCat(name, " (", ++n, ')');
+		} while (debugger.findDebuggable(tmp));
+		name = std::move(tmp);
 	}
 
 	if (checkResolvedSha1) {

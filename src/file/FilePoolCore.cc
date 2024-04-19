@@ -463,12 +463,10 @@ Sha1Sum FilePoolCore::getSha1Sum(File& file)
 	const std::string& filename = file.getURL();
 
 	auto [idx, entry] = findInDatabase(filename);
-	if (idx != Index(-1)) {
-		if (entry->getTime() == time) {
-			// in database and modification time matches,
-			// assume sha1sum also matches
-			return entry->sum;
-		}
+	if ((idx != Index(-1)) && (entry->getTime() == time)) {
+		// in database and modification time matches,
+		// assume sha1sum also matches
+		return entry->sum;
 	}
 
 	// not in database or timestamp mismatch

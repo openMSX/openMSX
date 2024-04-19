@@ -662,10 +662,8 @@ void Slot::setKeyOff(KeyPart part)
 {
 	if (key) {
 		key &= ~part;
-		if (!key) {
-			if (isActive()) {
-				setEnvelopeState(EG_RELEASE);
-			}
+		if (!key && isActive()) {
+			setEnvelopeState(EG_RELEASE);
 		}
 	}
 }

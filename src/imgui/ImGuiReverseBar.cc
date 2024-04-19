@@ -63,23 +63,22 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 							if (ImGui::Selectable(name.c_str())) {
 								manager.executeDelayed(makeTclList("loadstate", name));
 							}
-							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
-								if (previewImage.name != name) {
-									// record name, but (so far) without image
-									// this prevents that on a missing image, we don't continue retrying
-									previewImage.name = std::string(name);
-									previewImage.texture = gl::Texture(gl::Null{});
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
+							    (previewImage.name != name)) {
+								// record name, but (so far) without image
+								// this prevents that on a missing image, we don't continue retrying
+								previewImage.name = std::string(name);
+								previewImage.texture = gl::Texture(gl::Null{});
 
-									std::string filename = FileOperations::join(
-										FileOperations::getUserOpenMSXDir(),
-										"savestates", tmpStrCat(name, ".png"));
-									if (FileOperations::exists(filename)) {
-										try {
-											gl::ivec2 dummy;
-											previewImage.texture = loadTexture(filename, dummy);
-										} catch (...) {
-											// ignore
-										}
+								std::string filename = FileOperations::join(
+									FileOperations::getUserOpenMSXDir(),
+									"savestates", tmpStrCat(name, ".png"));
+								if (FileOperations::exists(filename)) {
+									try {
+										gl::ivec2 dummy;
+										previewImage.texture = loadTexture(filename, dummy);
+									} catch (...) {
+										// ignore
 									}
 								}
 							}

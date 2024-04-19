@@ -154,9 +154,9 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	for (const auto& p : paths) {
 		auto pLen = p.size();
 		if (!p.empty() && (p.back() != '/')) ++pLen;
-		auto fileAction = [&](const string& path) {
+		auto fileAction = [&](std::string_view path) {
 			const auto& nm = FileOperations::getConventionalPath(
-				path.substr(pLen));
+				std::string(path.substr(pLen)));
 			if (equalHead(filename, nm, true)) {
 				filenames.push_back(nm);
 			}

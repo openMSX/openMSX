@@ -87,7 +87,7 @@ TEST_CASE("BooleanInput: toString, parse")
 TEST_CASE("BooleanInput: capture")
 {
 	auto getJoyDeadZone = [](JoystickId /*joystick*/) { return 25; };
-	auto check = [&](const Event& event, const std::string& expected) {
+	auto check = [&](const Event& event, std::string_view expected) {
 		auto input = captureBooleanInput(event, getJoyDeadZone);
 		if (expected.empty()) {
 			CHECK(!input);

@@ -198,7 +198,7 @@ void displayFilterCombo(std::string& selection, zstring_view key, const std::vec
 }
 
 template<typename T>
-void applyComboFilter(std::string_view key, const std::string& value, const std::vector<T>& items, std::vector<size_t>& indices)
+void applyComboFilter(std::string_view key, std::string_view value, const std::vector<T>& items, std::vector<size_t>& indices)
 {
 	if (value.empty()) return;
 	std::erase_if(indices, [&](auto idx) {

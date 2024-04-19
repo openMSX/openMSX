@@ -624,14 +624,12 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 uint8_t MB89352::getSSTS() const
 {
 	uint8_t result = 1; // set fifo empty
-	if (isTransfer) {
-		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC transfer
-			if (tc >= 8) {
-				result = 2; // set fifo full
-			} else {
-				if (tc != 0) {
-					result = 0; // set fifo 1..7 bytes
-				}
+	if (isTransfer && (regs[REG_PSNS] & PSNS_IO)) { // SCSI -> SPC transfer
+		if (tc >= 8) {
+			result = 2; // set fifo full
+		} else {
+			if (tc != 0) {
+				result = 0; // set fifo 1..7 bytes
 			}
 		}
 	}

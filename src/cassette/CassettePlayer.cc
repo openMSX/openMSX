@@ -601,15 +601,13 @@ float CassettePlayer::getAmplificationFactorImpl() const
 
 int CassettePlayer::signalEvent(const Event& event)
 {
-	if (getType(event) == EventType::BOOT) {
-		if (!getImageName().empty()) {
-			// Reinsert tape to make sure everything is reset.
-			try {
-				playTape(getImageName(), getCurrentTime());
-			} catch (MSXException& e) {
-				motherBoard.getMSXCliComm().printWarning(
-					"Failed to insert tape: ", e.getMessage());
-			}
+	if (getType(event) == EventType::BOOT && !getImageName().empty()) {
+		// Reinsert tape to make sure everything is reset.
+		try {
+			playTape(getImageName(), getCurrentTime());
+		} catch (MSXException& e) {
+			motherBoard.getMSXCliComm().printWarning(
+				"Failed to insert tape: ", e.getMessage());
 		}
 	}
 	return 0;

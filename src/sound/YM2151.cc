@@ -463,10 +463,8 @@ void YM2151::keyOff(YM2151Operator& op, unsigned keyClear) const
 {
 	if (op.key) {
 		op.key &= keyClear;
-		if (!op.key) {
-			if (op.state > EG_REL) {
-				op.state = EG_REL; /* KEY OFF = release */
-			}
+		if (!op.key && (op.state > EG_REL)) {
+			op.state = EG_REL; // KEY OFF = release
 		}
 	}
 }

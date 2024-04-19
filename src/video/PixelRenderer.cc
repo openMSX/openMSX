@@ -408,8 +408,8 @@ static constexpr bool overlap(
 	//       VRAM region cannot wrap around.
 ) {
 	if (displayY0 <= displayY1) {
-		if (vramLine1 > displayY0) {
-			if (vramLine0 <= displayY1) return true;
+		if ((vramLine1 > displayY0) && (vramLine0 <= displayY1)) {
+			return true;
 		}
 	} else {
 		if (vramLine1 > displayY0) return true;
