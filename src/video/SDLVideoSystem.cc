@@ -55,56 +55,44 @@ SDLVideoSystem::~SDLVideoSystem()
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 {
+	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
 	std::string videoSource = (vdp.getName() == "VDP")
 	                        ? "MSX" // for backwards compatibility
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDLGL_PP:
-		return std::make_unique<SDLRasterizer>(
-			vdp, display, *screen,
-			std::make_unique<PostProcessor>(
-				motherBoard, display, *screen,
-				videoSource, 640, 240, true));
-	default:
-		UNREACHABLE;
-	}
+	return std::make_unique<SDLRasterizer>(
+		vdp, display, *screen,
+		std::make_unique<PostProcessor>(
+			motherBoard, display, *screen,
+			videoSource, 640, 240, true));
 }
 
 std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	V9990& vdp)
 {
+	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
 	std::string videoSource = (vdp.getName() == "Sunrise GFX9000")
 	                        ? "GFX9000" // for backwards compatibility
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDLGL_PP:
-		return std::make_unique<V9990SDLRasterizer>(
-			vdp, display, *screen,
-			std::make_unique<PostProcessor>(
-				motherBoard, display, *screen,
-				videoSource, 1280, 240, true));
-	default:
-		UNREACHABLE;
-	}
+	return std::make_unique<V9990SDLRasterizer>(
+		vdp, display, *screen,
+		std::make_unique<PostProcessor>(
+			motherBoard, display, *screen,
+			videoSource, 1280, 240, true));
 }
 
 #if COMPONENT_LASERDISC
 std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	LaserdiscPlayer& ld)
 {
+	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
-	switch (renderSettings.getRenderer()) {
-	case RenderSettings::SDLGL_PP:
-		return std::make_unique<LDSDLRasterizer>(
-			std::make_unique<PostProcessor>(
-				motherBoard, display, *screen,
-				videoSource, 640, 480, false));
-	default:
-		UNREACHABLE;
-	}
+	return std::make_unique<LDSDLRasterizer>(
+		std::make_unique<PostProcessor>(
+			motherBoard, display, *screen,
+			videoSource, 640, 480, false));
 }
 #endif
 
