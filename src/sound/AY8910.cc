@@ -670,7 +670,7 @@ void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime::param time)
 }
 [[nodiscard]] static inline float calc(bool b1, bool b2, float f)
 {
-	return narrow<float>(b1 * b2) * f;
+	return narrow<float>(b1 && b2) * f;
 }
 
 void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
