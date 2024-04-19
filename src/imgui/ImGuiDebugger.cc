@@ -222,7 +222,7 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 		};
 
 		auto& shortcuts = manager.getShortcuts();
-		bool breaked = cpuInterface.isBreaked();
+		bool breaked = MSXCPUInterface::isBreaked();
 		using enum Shortcuts::ID;
 		if (breaked) {
 			if (shortcuts.checkShortcut(BREAK)) {
@@ -368,7 +368,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 		std::optional<unsigned> removeBpId;
 
 		auto pc = regs.getPC();
-		if (followPC && !cpuInterface.isBreaked()) {
+		if (followPC && !MSXCPUInterface::isBreaked()) {
 			gotoTarget = pc;
 		}
 

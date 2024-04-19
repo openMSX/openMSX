@@ -1198,7 +1198,7 @@ void ImGuiSettings::paintEditShortcut()
 			bool isOpen = true;
 			im::PopupModal(waitKeyTitle, &isOpen, ImGuiWindowFlags_NoSavedSettings, [&]{
 				ImGui::Text("Enter key combination for shortcut '%s'",
-					shortcuts.getShortcutDescription(editShortcutId).c_str());
+					Shortcuts::getShortcutDescription(editShortcutId).c_str());
 				ImGui::Text("Timeout in %d seconds.", int(popupTimeout));
 
 				popupTimeout -= ImGui::GetIO().DeltaTime;
@@ -1239,7 +1239,7 @@ void ImGuiSettings::paintEditShortcut()
 			}
 		});
 		ImGui::Separator();
-		const auto& defaultShortcut = shortcuts.getDefaultShortcut(editShortcutId);
+		const auto& defaultShortcut = Shortcuts::getDefaultShortcut(editShortcutId);
 		im::Disabled(shortcut == defaultShortcut, [&]{
 			if (ImGui::Button("Restore default")) {
 				shortcuts.setShortcut(editShortcutId, defaultShortcut);

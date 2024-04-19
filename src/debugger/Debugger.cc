@@ -242,7 +242,7 @@ void Debugger::Cmd::execute(
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
 		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
 		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
-		"breaked",           [&]{ result = debugger().motherBoard.getCPUInterface().isBreaked(); },
+		"breaked",           [&]{ result = MSXCPUInterface::isBreaked(); },
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
 		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
 		"list_bp",           [&]{ listBreakPoints(tokens, result); },
@@ -379,7 +379,7 @@ void Debugger::Cmd::removeBreakPoint(
 {
 	checkNumArgs(tokens, 3, "id|address");
 	auto& interface = debugger().motherBoard.getCPUInterface();
-	auto& breakPoints = interface.getBreakPoints();
+	auto& breakPoints = MSXCPUInterface::getBreakPoints();
 
 	string_view tmp = tokens[2].getString();
 	if (tmp.starts_with("bp#")) {
@@ -411,8 +411,7 @@ void Debugger::Cmd::listBreakPoints(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (const auto& bp : interface.getBreakPoints()) {
+	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject line = makeTclList(
 			tmpStrCat("bp#", bp.getId()),
 			tmpStrCat("0x", hex_string<4>(bp.getAddress())),
@@ -588,9 +587,9 @@ void Debugger::Cmd::removeCondition(
 	if (tmp.starts_with("cond#")) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(5))) {
-			auto& interface = debugger().motherBoard.getCPUInterface();
-			for (auto& c : interface.getConditions()) {
+			for (auto& c : MSXCPUInterface::getConditions()) {
 				if (c.getId() == *id) {
+					auto& interface = debugger().motherBoard.getCPUInterface();
 					interface.removeCondition(c);
 					return;
 				}
@@ -604,8 +603,7 @@ void Debugger::Cmd::listConditions(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (const auto& c : interface.getConditions()) {
+	for (const auto& c : MSXCPUInterface::getConditions()) {
 		TclObject line = makeTclList(tmpStrCat("cond#", c.getId()),
 		                             c.getCondition(),
 		                             c.getCommand());
@@ -1037,7 +1035,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 std::vector<string> Debugger::Cmd::getBreakPointIds() const
 {
 	return to_vector(view::transform(
-		debugger().motherBoard.getCPUInterface().getBreakPoints(),
+		MSXCPUInterface::getBreakPoints(),
 		[](auto& bp) { return strCat("bp#", bp.getId()); }));
 }
 std::vector<string> Debugger::Cmd::getWatchPointIds() const
@@ -1049,7 +1047,7 @@ std::vector<string> Debugger::Cmd::getWatchPointIds() const
 std::vector<string> Debugger::Cmd::getConditionIds() const
 {
 	return to_vector(view::transform(
-		debugger().motherBoard.getCPUInterface().getConditions(),
+		MSXCPUInterface::getConditions(),
 		[](auto& c) { return strCat("cond#", c.getId()); }));
 }
 

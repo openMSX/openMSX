@@ -111,7 +111,7 @@ void ImGuiManager::loadFont()
 	ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
 	io.Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_IGFD, 15.0f, &icons_config, icons_ranges.data());
 	// load debugger icons, also only in default font
-	debugger->loadIcons();
+	ImGuiDebugger::loadIcons();
 
 	assert(fontMono == nullptr);
 	fontMono = addFont(fontMonoFilename.getString(), fontMonoSize.getInt());
