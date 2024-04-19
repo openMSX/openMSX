@@ -436,7 +436,7 @@ void SDLRasterizer::drawDisplay(
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
 		displayY -= screenY;
-		fromY = lineRenderTop;
+		//fromY = lineRenderTop;
 		screenY = 0;
 	}
 	displayHeight = screenLimitY - screenY;

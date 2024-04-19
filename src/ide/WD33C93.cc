@@ -181,7 +181,7 @@ void WD33C93::execCmd(uint8_t value)
 		break;
 
 	case 0x06: // Select with ATN (Lv2)
-		atn = true;
+		//atn = true; // never read
 		[[fallthrough]];
 	case 0x07: // Select Without ATN (Lv2)
 		targetId = regs[REG_DST_ID] & 7;
