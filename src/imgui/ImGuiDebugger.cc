@@ -269,6 +269,18 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 	});
 }
 
+[[nodiscard]] static std::pair<const MSXRom*, Debuggable*> getRomBlocks(Debugger& debugger, const MSXDevice* device)
+{
+	Debuggable* debuggable = nullptr;
+	const auto* rom = dynamic_cast<const MSXRom*>(device);
+	if (rom) {
+		if (!dynamic_cast<const RomPlain*>(rom)) {
+			debuggable = debugger.findDebuggable(rom->getName() + " romblocks");
+		}
+	}
+	return {rom, debuggable};
+}
+
 struct CurrentSlot {
 	int ps;
 	std::optional<int> ss;
@@ -287,11 +299,9 @@ struct CurrentSlot {
 	}
 	if (wantSeg) {
 		const auto* device = cpuInterface.getVisibleMSXDevice(page);
-		Debuggable* romBlocks = nullptr;
 		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
 			result.seg = mapper->getSelectedSegment(narrow<uint8_t>(page));
-		} else if (!dynamic_cast<const RomPlain*>(device) &&
-		           (romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
+		} else if (auto [_, romBlocks] = getRomBlocks(debugger, device); romBlocks) {
 			result.seg = romBlocks->read(addr);
 		}
 	}
@@ -691,13 +701,10 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 					}
 				}
 				if (ImGui::TableNextColumn()) { // segment
-					auto* device = cpuInterface.getVisibleMSXDevice(page);
-					Debuggable* romBlocks = nullptr;
-					MSXRom *rom = nullptr;
-					if (auto* mapper = dynamic_cast<MSXMemoryMapperBase*>(device)) {
+					const auto* device = cpuInterface.getVisibleMSXDevice(page);
+					if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
 						ImGui::StrCat(mapper->getSelectedSegment(page));
-					} else if ((rom = dynamic_cast<MSXRom*>(device)) &&
-						(romBlocks = debugger.findDebuggable(device->getName() + " romblocks"))) {
+					} else if (auto [rom, romBlocks] = getRomBlocks(debugger, device); romBlocks) {
 						if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
 							std::string text;
 							char separator = 'R';
