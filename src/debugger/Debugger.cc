@@ -407,8 +407,7 @@ void Debugger::Cmd::removeBreakPoint(
 	}
 }
 
-void Debugger::Cmd::listBreakPoints(
-	std::span<const TclObject> /*tokens*/, TclObject& result)
+void Debugger::Cmd::listBreakPoints(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	string res;
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
@@ -599,8 +598,7 @@ void Debugger::Cmd::removeCondition(
 	throw CommandException("No such condition: ", tmp);
 }
 
-void Debugger::Cmd::listConditions(
-	std::span<const TclObject> /*tokens*/, TclObject& result)
+void Debugger::Cmd::listConditions(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	string res;
 	for (const auto& c : MSXCPUInterface::getConditions()) {
