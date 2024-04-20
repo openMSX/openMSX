@@ -18,12 +18,13 @@ class GlobalSettings;
 class InputEventGenerator final : private EventListener
 {
 public:
-	InputEventGenerator(const InputEventGenerator&) = delete;
-	InputEventGenerator& operator=(const InputEventGenerator&) = delete;
-
 	InputEventGenerator(CommandController& commandController,
 	                    EventDistributor& eventDistributor,
 	                    GlobalSettings& globalSettings);
+	InputEventGenerator(const InputEventGenerator&) = delete;
+	InputEventGenerator(InputEventGenerator&&) = delete;
+	InputEventGenerator& operator=(const InputEventGenerator&) = delete;
+	InputEventGenerator& operator=(InputEventGenerator&&) = delete;
 	~InputEventGenerator();
 
 	/** Wait for event(s) and handle it.

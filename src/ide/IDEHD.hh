@@ -12,10 +12,11 @@ class DiskManipulator;
 class IDEHD final : public HD, public AbstractIDEDevice
 {
 public:
-	IDEHD(const IDEHD&) = delete;
-	IDEHD& operator=(const IDEHD&) = delete;
-
 	explicit IDEHD(const DeviceConfig& config);
+	IDEHD(const IDEHD&) = delete;
+	IDEHD(IDEHD&&) = delete;
+	IDEHD& operator=(const IDEHD&) = delete;
+	IDEHD& operator=(IDEHD&&) = delete;
 	~IDEHD() override;
 
 	template<typename Archive>

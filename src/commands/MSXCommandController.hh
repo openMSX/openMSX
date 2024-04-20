@@ -23,13 +23,14 @@ class MSXCommandController final
 	: public CommandController, private MSXEventListener
 {
 public:
-	MSXCommandController(const MSXCommandController&) = delete;
-	MSXCommandController& operator=(const MSXCommandController&) = delete;
-
 	MSXCommandController(GlobalCommandController& globalCommandController,
 	                     Reactor& reactor, MSXMotherBoard& motherboard,
 	                     MSXEventDistributor& msxEventDistributor,
 	                     const std::string& machineID);
+	MSXCommandController(const MSXCommandController&) = delete;
+	MSXCommandController(MSXCommandController&&) = delete;
+	MSXCommandController& operator=(const MSXCommandController&) = delete;
+	MSXCommandController& operator=(MSXCommandController&&) = delete;
 	~MSXCommandController();
 
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() {

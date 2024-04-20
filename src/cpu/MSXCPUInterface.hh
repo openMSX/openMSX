@@ -56,10 +56,11 @@ std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn)
 class MSXCPUInterface : public ProfileCounters<PROFILE_CACHELINES, CacheLineCounters>
 {
 public:
-	MSXCPUInterface(const MSXCPUInterface&) = delete;
-	MSXCPUInterface& operator=(const MSXCPUInterface&) = delete;
-
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
+	MSXCPUInterface(const MSXCPUInterface&) = delete;
+	MSXCPUInterface(MSXCPUInterface&&) = delete;
+	MSXCPUInterface& operator=(const MSXCPUInterface&) = delete;
+	MSXCPUInterface& operator=(MSXCPUInterface&&) = delete;
 	~MSXCPUInterface();
 
 	/**
@@ -478,6 +479,11 @@ struct GlobalRWHelper
 template<typename MSXDEVICE, typename... CT_INTERVALS>
 struct GlobalWriteClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
 {
+	GlobalWriteClient(const GlobalWriteClient&) = delete;
+	GlobalWriteClient(GlobalWriteClient&&) = delete;
+	GlobalWriteClient& operator=(const GlobalWriteClient&) = delete;
+	GlobalWriteClient& operator=(GlobalWriteClient&&) = delete;
+
 	GlobalWriteClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
@@ -496,6 +502,11 @@ struct GlobalWriteClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
 template<typename MSXDEVICE, typename... CT_INTERVALS>
 struct GlobalReadClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
 {
+	GlobalReadClient(const GlobalReadClient&) = delete;
+	GlobalReadClient(GlobalReadClient&&) = delete;
+	GlobalReadClient& operator=(const GlobalReadClient&) = delete;
+	GlobalReadClient& operator=(GlobalReadClient&&) = delete;
+
 	GlobalReadClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {

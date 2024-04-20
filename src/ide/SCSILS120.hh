@@ -43,11 +43,12 @@ class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
                       , public DiskContainer, public MediaInfoProvider
 {
 public:
-	SCSILS120(const SCSILS120&) = delete;
-	SCSILS120 operator=(const SCSILS120&) = delete;
-
 	SCSILS120(const DeviceConfig& targetConfig,
 	          AlignedBuffer& buf, unsigned mode);
+	SCSILS120(const SCSILS120&) = delete;
+	SCSILS120(SCSILS120&&) = delete;
+	SCSILS120 operator=(const SCSILS120&) = delete;
+	SCSILS120 operator=(SCSILS120&&) = delete;
 	~SCSILS120() override;
 
 	// MediaInfoProvider

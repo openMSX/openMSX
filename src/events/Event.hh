@@ -238,6 +238,7 @@ public:
 	FileDropEvent& operator=(const FileDropEvent&) { assert(false); return *this; }
 	FileDropEvent(FileDropEvent&&) = default;
 	FileDropEvent& operator=(FileDropEvent&&) = default;
+	~FileDropEvent() = default;
 
 	[[nodiscard]] zstring_view getFileName() const { return fileName.get(); }
 
@@ -341,6 +342,7 @@ public:
 	CliCommandEvent& operator=(const CliCommandEvent&) { assert(false); return *this; }
 	CliCommandEvent(CliCommandEvent&&) = default;
 	CliCommandEvent& operator=(CliCommandEvent&&) = default;
+	~CliCommandEvent() = default;
 
 	[[nodiscard]] zstring_view getCommand() const { return command.get(); }
 	[[nodiscard]] const CliConnection* getId() const { return id; }

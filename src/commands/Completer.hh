@@ -20,7 +20,9 @@ class Completer
 {
 public:
 	Completer(const Completer&) = delete;
+	Completer(Completer&&) = delete;
 	Completer& operator=(const Completer&) = delete;
+	Completer& operator=(Completer&&) = delete;
 
 	[[nodiscard]] const std::string& getName() const { return theName; }
 

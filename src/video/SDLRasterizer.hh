@@ -31,12 +31,13 @@ class SDLRasterizer final : public Rasterizer
 public:
 	using Pixel = uint32_t;
 
-	SDLRasterizer(const SDLRasterizer&) = delete;
-	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
-
 	SDLRasterizer(
 		VDP& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
+	SDLRasterizer(const SDLRasterizer&) = delete;
+	SDLRasterizer(SDLRasterizer&&) = delete;
+	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
+	SDLRasterizer& operator=(SDLRasterizer&&) = delete;
 	~SDLRasterizer() override;
 
 	// Rasterizer interface:

@@ -4,7 +4,9 @@
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
 #include "V9990PxConverter.hh"
+
 #include "Observer.hh"
+
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -31,9 +33,11 @@ public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~V9990SDLRasterizer() override;
 	V9990SDLRasterizer(const V9990SDLRasterizer&) = delete;
+	V9990SDLRasterizer(V9990SDLRasterizer&&) = delete;
 	V9990SDLRasterizer& operator=(const V9990SDLRasterizer&) = delete;
+	V9990SDLRasterizer& operator=(V9990SDLRasterizer&&) = delete;
+	~V9990SDLRasterizer() override;
 
 	// Rasterizer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;

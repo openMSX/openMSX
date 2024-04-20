@@ -34,9 +34,6 @@
 class SDLSurfacePtr
 {
 public:
-	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
-	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
-
 	/** Create a (software) surface with uninitialized pixel content.
 	  * throws: bad_alloc (no need to check for nullptr). */
 	SDLSurfacePtr(unsigned width, unsigned height, unsigned depth,
@@ -65,6 +62,9 @@ public:
 	{
 		other.surface = nullptr;
 	}
+
+	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
+	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
 
 	~SDLSurfacePtr()
 	{
@@ -173,7 +173,9 @@ class SDLSubSystemInitializer
 {
 public:
 	SDLSubSystemInitializer(const SDLSubSystemInitializer&) = delete;
+	SDLSubSystemInitializer(SDLSubSystemInitializer&&) = delete;
 	SDLSubSystemInitializer& operator=(const SDLSubSystemInitializer&) = delete;
+	SDLSubSystemInitializer& operator=(SDLSubSystemInitializer&&) = delete;
 
 	SDLSubSystemInitializer() {
 		// SDL internally ref-counts sub-system initialization, so we

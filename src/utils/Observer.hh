@@ -10,7 +10,9 @@ template<typename T> class Observer
 {
 public:
 	Observer(const Observer&) = delete;
+	Observer(Observer&&) = delete;
 	Observer& operator=(const Observer&) = delete;
+	Observer& operator=(Observer&&) = delete;
 
 	virtual void update(const T& subject) noexcept = 0;
 	virtual void subjectDeleted(const T& /*subject*/) { /*nothing*/ }

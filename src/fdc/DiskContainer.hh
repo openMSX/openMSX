@@ -2,6 +2,7 @@
 #define DISKCONTAINER_HH
 
 #include "serialize_meta.hh"
+
 #include <functional>
 #include <string>
 #include <string_view>
@@ -14,10 +15,11 @@ class MSXMotherBoard;
 class DiskContainer
 {
 public:
-	DiskContainer(const DiskContainer&) = delete;
-	DiskContainer& operator=(const DiskContainer&) = delete;
-
 	DiskContainer() = default;
+	DiskContainer(const DiskContainer&) = delete;
+	DiskContainer(DiskContainer&&) = delete;
+	DiskContainer& operator=(const DiskContainer&) = delete;
+	DiskContainer& operator=(DiskContainer&&) = delete;
 	virtual ~DiskContainer() = default;
 
 	[[nodiscard]] virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;

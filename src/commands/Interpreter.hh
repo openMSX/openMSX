@@ -18,10 +18,11 @@ class InterpreterOutput;
 class Interpreter
 {
 public:
-	Interpreter(const Interpreter&) = delete;
-	Interpreter& operator=(const Interpreter&) = delete;
-
 	Interpreter();
+	Interpreter(const Interpreter&) = delete;
+	Interpreter(Interpreter&&) = delete;
+	Interpreter& operator=(const Interpreter&) = delete;
+	Interpreter& operator=(Interpreter&&) = delete;
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output_) { output = output_; }

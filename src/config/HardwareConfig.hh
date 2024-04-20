@@ -29,9 +29,6 @@ public:
 		ROM
 	};
 
-	HardwareConfig(const HardwareConfig&) = delete;
-	HardwareConfig& operator=(const HardwareConfig&) = delete;
-
 	static void loadConfig(XMLDocument& doc, std::string_view type, std::string_view name);
 
 	[[nodiscard]] static std::unique_ptr<HardwareConfig> createMachineConfig(
@@ -44,6 +41,10 @@ public:
 		std::string_view slotName, std::span<const TclObject> options);
 
 	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
+	HardwareConfig(const HardwareConfig&) = delete;
+	HardwareConfig(HardwareConfig&&) = delete;
+	HardwareConfig& operator=(const HardwareConfig&) = delete;
+	HardwareConfig& operator=(HardwareConfig&&) = delete;
 	~HardwareConfig();
 
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }

@@ -116,7 +116,9 @@ class PolymorphicSaverRegistry
 {
 public:
 	PolymorphicSaverRegistry(const PolymorphicSaverRegistry&) = delete;
+	PolymorphicSaverRegistry(PolymorphicSaverRegistry&&) = delete;
 	PolymorphicSaverRegistry& operator=(const PolymorphicSaverRegistry&) = delete;
+	PolymorphicSaverRegistry& operator=(PolymorphicSaverRegistry&&) = delete;
 
 	static PolymorphicSaverRegistry& instance();
 
@@ -172,7 +174,9 @@ class PolymorphicLoaderRegistry
 {
 public:
 	PolymorphicLoaderRegistry(const PolymorphicLoaderRegistry&) = delete;
+	PolymorphicLoaderRegistry(PolymorphicLoaderRegistry&&) = delete;
 	PolymorphicLoaderRegistry& operator=(const PolymorphicLoaderRegistry&) = delete;
+	PolymorphicLoaderRegistry& operator=(PolymorphicLoaderRegistry&&) = delete;
 
 	static PolymorphicLoaderRegistry& instance();
 
@@ -211,7 +215,9 @@ class PolymorphicInitializerRegistry
 {
 public:
 	PolymorphicInitializerRegistry(const PolymorphicInitializerRegistry&) = delete;
+	PolymorphicInitializerRegistry(PolymorphicInitializerRegistry&&) = delete;
 	PolymorphicInitializerRegistry& operator=(const PolymorphicInitializerRegistry&) = delete;
+	PolymorphicInitializerRegistry& operator=(PolymorphicInitializerRegistry&&) = delete;
 
 	static PolymorphicInitializerRegistry& instance();
 

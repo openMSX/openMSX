@@ -21,6 +21,10 @@ public:
 	static void registerAll(PluggingController& controller, CliComm& cliComm,
 	                        EventDistributor& eventDistributor, Scheduler& scheduler);
 
+	MidiSessionALSA(const MidiSessionALSA&) = delete;
+	MidiSessionALSA(MidiSessionALSA&&) = delete;
+	MidiSessionALSA& operator=(const MidiSessionALSA&) = delete;
+	MidiSessionALSA& operator=(MidiSessionALSA&&) = delete;
 	~MidiSessionALSA();
 
 private:

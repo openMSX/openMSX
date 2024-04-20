@@ -15,9 +15,11 @@ class WavImage final : public CassetteImage
 {
 public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);
-	~WavImage() override;
 	WavImage(const WavImage&) = delete;
+	WavImage(WavImage&&) = delete;
 	WavImage& operator=(const WavImage&) = delete;
+	WavImage& operator=(WavImage&&) = delete;
+	~WavImage() override;
 
 	[[nodiscard]] int16_t getSampleAt(EmuTime::param time) const override;
 	[[nodiscard]] EmuTime getEndTime() const override;

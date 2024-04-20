@@ -48,7 +48,9 @@ template<typename SOURCE> class IntHelper : public SOURCE
 {
 public:
 	IntHelper(const IntHelper&) = delete;
+	IntHelper(IntHelper&&) = delete;
 	IntHelper& operator=(const IntHelper&) = delete;
+	IntHelper& operator=(IntHelper&&) = delete;
 
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.

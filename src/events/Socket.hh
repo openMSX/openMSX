@@ -45,7 +45,9 @@ void sock_cleanup();
 struct SocketActivator
 {
 	SocketActivator(const SocketActivator&) = delete;
+	SocketActivator(SocketActivator&&) = delete;
 	SocketActivator& operator=(const SocketActivator&) = delete;
+	SocketActivator& operator=(SocketActivator&&) = delete;
 
 	SocketActivator()
 	{

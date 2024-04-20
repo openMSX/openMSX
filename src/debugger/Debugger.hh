@@ -25,10 +25,11 @@ class SymbolManager;
 class Debugger
 {
 public:
-	Debugger(const Debugger&) = delete;
-	Debugger& operator=(const Debugger&) = delete;
-
 	explicit Debugger(MSXMotherBoard& motherBoard);
+	Debugger(const Debugger&) = delete;
+	Debugger(Debugger&&) = delete;
+	Debugger& operator=(const Debugger&) = delete;
+	Debugger& operator=(Debugger&&) = delete;
 	~Debugger();
 
 	void registerDebuggable   (std::string name, Debuggable& debuggable);

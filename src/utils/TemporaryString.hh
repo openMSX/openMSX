@@ -43,6 +43,7 @@ public:
 	TemporaryString(TemporaryString&&) = delete;
 	TemporaryString& operator=(const TemporaryString&) = delete;
 	TemporaryString& operator=(TemporaryString&&) = delete;
+	~TemporaryString() = default;
 
 	[[nodiscard]]       char* data()        { return ptr; }
 	[[nodiscard]] const char* c_str() const { return ptr; }

@@ -20,9 +20,11 @@ public:
 
 public:
 	ResampleHQ(ResampledSoundDevice& input, const DynamicClock& hostClock);
-	~ResampleHQ() override;
 	ResampleHQ(const ResampleHQ&) = delete;
+	ResampleHQ(ResampleHQ&&) = delete;
 	ResampleHQ& operator=(const ResampleHQ&) = delete;
+	ResampleHQ& operator=(ResampleHQ&&) = delete;
+	~ResampleHQ() override;
 
 	bool generateOutputImpl(float* dataOut, size_t num,
 	                        EmuTime::param time) override;

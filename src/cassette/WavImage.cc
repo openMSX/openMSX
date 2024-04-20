@@ -28,7 +28,7 @@ public:
 		return y;
 	}
 private:
-	float R;
+	float R = 0.0f;
 	float t0 = 0.0f;
 };
 
@@ -42,7 +42,9 @@ public:
 	};
 
 	WavImageCache(const WavImageCache&) = delete;
+	WavImageCache(WavImageCache&&) = delete;
 	WavImageCache& operator=(const WavImageCache&) = delete;
+	WavImageCache& operator=(WavImageCache&&) = delete;
 
 	static WavImageCache& instance();
 	const WavInfo& get(const Filename& filename, FilePool& filePool);

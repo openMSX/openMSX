@@ -13,6 +13,10 @@ struct Tracked
 	explicit Tracked(int i_) : i(i_) {
 		constructed.push_back(i);
 	}
+	Tracked(const Tracked&) = delete;
+	Tracked(Tracked&&) = delete;
+	Tracked& operator=(const Tracked&) = delete;
+	Tracked& operator=(Tracked&&) = delete;
 	~Tracked() {
 		destructed.push_back(i);
 	}

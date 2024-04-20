@@ -20,10 +20,11 @@ class GlobalCommandController;
 class SettingsManager
 {
 public:
-	SettingsManager(const SettingsManager&) = delete;
-	SettingsManager& operator=(const SettingsManager&) = delete;
-
 	explicit SettingsManager(GlobalCommandController& commandController);
+	SettingsManager(const SettingsManager&) = delete;
+	SettingsManager(SettingsManager&&) = delete;
+	SettingsManager& operator=(const SettingsManager&) = delete;
+	SettingsManager& operator=(SettingsManager&&) = delete;
 	~SettingsManager();
 
 	/** Find the setting with given name.

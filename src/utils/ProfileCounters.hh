@@ -87,6 +87,11 @@ template<bool ENABLED, typename ENUM>
 class ProfileCounters
 {
 public:
+	ProfileCounters(const ProfileCounters&) = delete;
+	ProfileCounters(ProfileCounters&&) = delete;
+	ProfileCounters& operator=(const ProfileCounters&) = delete;
+	ProfileCounters& operator=(ProfileCounters&&) = delete;
+
 	// Print counters on destruction.
 	~ProfileCounters() {
 		std::cout << "-- Profile counters: " << EnumTypeName<ENUM>() << " -- " << static_cast<void*>(this) << '\n';

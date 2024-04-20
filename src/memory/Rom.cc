@@ -1,28 +1,30 @@
 #include "Rom.hh"
-#include "DeviceConfig.hh"
-#include "HardwareConfig.hh"
-#include "MemBuffer.hh"
-#include "XMLElement.hh"
-#include "RomInfo.hh"
-#include "RomDatabase.hh"
-#include "FileContext.hh"
-#include "Filename.hh"
-#include "FileException.hh"
-#include "PanasonicMemory.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
-#include "Debugger.hh"
-#include "Debuggable.hh"
-#include "MSXCliComm.hh"
-#include "FilePool.hh"
+
 #include "ConfigException.hh"
+#include "Debuggable.hh"
+#include "Debugger.hh"
+#include "DeviceConfig.hh"
 #include "EmptyPatch.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include "FilePool.hh"
+#include "Filename.hh"
+#include "HardwareConfig.hh"
 #include "IPSPatch.hh"
+#include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "MemBuffer.hh"
+#include "PanasonicMemory.hh"
+#include "Reactor.hh"
+#include "RomDatabase.hh"
+#include "RomInfo.hh"
+#include "XMLElement.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "sha1.hh"
 #include "stl.hh"
-#include <limits>
+
 #include <memory>
 
 using std::string;
@@ -33,9 +35,11 @@ class RomDebuggable final : public Debuggable
 {
 public:
 	RomDebuggable(Debugger& debugger, Rom& rom);
-	~RomDebuggable();
 	RomDebuggable(const RomDebuggable&) = delete;
+	RomDebuggable(RomDebuggable&&) = delete;
 	RomDebuggable& operator=(const RomDebuggable&) = delete;
+	RomDebuggable& operator=(RomDebuggable&&) = delete;
+	~RomDebuggable();
 
 	[[nodiscard]] unsigned getSize() const override;
 	[[nodiscard]] std::string_view getDescription() const override;

@@ -58,10 +58,11 @@ class SettingsConfig;
 class ImGuiManager final : public ImGuiPartInterface, private EventListener, private Observer<Setting>
 {
 public:
+	ImGuiManager(Reactor& reactor_, SettingsConfig& config_);
 	ImGuiManager(const ImGuiManager&) = delete;
+	ImGuiManager(ImGuiManager&&) = delete;
 	ImGuiManager& operator=(const ImGuiManager&) = delete;
-
-	explicit ImGuiManager(Reactor& reactor_, SettingsConfig& config_);
+	ImGuiManager& operator=(ImGuiManager&&) = delete;
 	~ImGuiManager();
 
 	void   registerPart(ImGuiPartInterface* part);

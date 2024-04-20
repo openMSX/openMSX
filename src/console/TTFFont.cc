@@ -16,7 +16,9 @@ class SDLTTF
 {
 public:
 	SDLTTF(const SDLTTF&) = delete;
+	SDLTTF(SDLTTF&&) = delete;
 	SDLTTF& operator=(const SDLTTF&) = delete;
+	SDLTTF& operator=(SDLTTF&&) = delete;
 
 	static SDLTTF& instance();
 
@@ -29,7 +31,9 @@ class TTFFontPool
 {
 public:
 	TTFFontPool(const TTFFontPool&) = delete;
+	TTFFontPool(TTFFontPool&&) = delete;
 	TTFFontPool& operator=(const TTFFontPool&) = delete;
+	TTFFontPool& operator=(TTFFontPool&&) = delete;
 
 	static TTFFontPool& instance();
 	TTF_Font* get(const std::string& filename, int ptSize);

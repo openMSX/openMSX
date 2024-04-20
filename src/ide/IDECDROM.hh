@@ -36,10 +36,11 @@ public:
 	static std::shared_ptr<CDInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
 
 public:
-	IDECDROM(const IDECDROM&) = delete;
-	IDECDROM& operator=(const IDECDROM&) = delete;
-
 	explicit IDECDROM(const DeviceConfig& config);
+	IDECDROM(const IDECDROM&) = delete;
+	IDECDROM(IDECDROM&&) = delete;
+	IDECDROM& operator=(const IDECDROM&) = delete;
+	IDECDROM& operator=(IDECDROM&&) = delete;
 	~IDECDROM() override;
 
 	void eject();

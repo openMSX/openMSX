@@ -21,11 +21,13 @@ class DeviceConfig;
 class SCSIHD final : public HD, public SCSIDevice
 {
 public:
-	SCSIHD(const SCSIHD&) = delete;
-	SCSIHD& operator=(const SCSIHD&) = delete;
-
 	SCSIHD(const DeviceConfig& targetConfig,
 	       AlignedBuffer& buf, unsigned mode);
+	SCSIHD(const SCSIHD&) = delete;
+	SCSIHD(SCSIHD&&) = delete;
+	SCSIHD& operator=(const SCSIHD&) = delete;
+	SCSIHD& operator=(SCSIHD&&) = delete;
+	~SCSIHD() = default;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

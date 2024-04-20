@@ -117,15 +117,16 @@ private:
 class Setting : public BaseSetting, public Subject<Setting>
 {
 public:
-	Setting(const Setting&) = delete;
-	Setting& operator=(const Setting&) = delete;
-
 	enum SaveSetting {
 		SAVE,          //    save,    transfer
 		DONT_SAVE,     // no-save,    transfer
 		DONT_TRANSFER, // no-save, no-transfer
 	};
 
+	Setting(const Setting&) = delete;
+	Setting(Setting&&) = delete;
+	Setting& operator=(const Setting&) = delete;
+	Setting& operator=(Setting&&) = delete;
 	virtual ~Setting();
 
 	/** Gets the current value of this setting as a TclObject.

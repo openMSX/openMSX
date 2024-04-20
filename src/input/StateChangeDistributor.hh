@@ -15,6 +15,10 @@ class StateChangeDistributor
 {
 public:
 	StateChangeDistributor() = default;
+	StateChangeDistributor(const StateChangeDistributor&) = delete;
+	StateChangeDistributor(StateChangeDistributor&&) = delete;
+	StateChangeDistributor& operator=(const StateChangeDistributor&) = delete;
+	StateChangeDistributor& operator=(StateChangeDistributor&&) = delete;
 	~StateChangeDistributor();
 
 	/** (Un)registers the given object to receive state change events.

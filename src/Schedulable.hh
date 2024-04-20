@@ -34,7 +34,9 @@ class Schedulable
 {
 public:
 	Schedulable(const Schedulable&) = delete;
+	Schedulable(Schedulable&&) = delete;
 	Schedulable& operator=(const Schedulable&) = delete;
+	Schedulable& operator=(Schedulable&&) = delete;
 
 	/**
 	 * When the previously registered syncPoint is reached, this

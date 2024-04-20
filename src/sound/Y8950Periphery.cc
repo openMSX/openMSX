@@ -42,9 +42,11 @@ public:
 	PanasonicAudioPeriphery(
 		MSXAudio& audio, const DeviceConfig& config,
 		const std::string& soundDeviceName);
-	~PanasonicAudioPeriphery() override;
 	PanasonicAudioPeriphery(const PanasonicAudioPeriphery&) = delete;
+	PanasonicAudioPeriphery(PanasonicAudioPeriphery&&) = delete;
 	PanasonicAudioPeriphery& operator=(const PanasonicAudioPeriphery&) = delete;
+	PanasonicAudioPeriphery& operator=(PanasonicAudioPeriphery&&) = delete;
+	~PanasonicAudioPeriphery() override;
 
 	void reset() override;
 

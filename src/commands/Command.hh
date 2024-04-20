@@ -21,7 +21,9 @@ class CommandCompleter : public Completer
 {
 public:
 	CommandCompleter(const CommandCompleter&) = delete;
+	CommandCompleter(CommandCompleter&&) = delete;
 	CommandCompleter& operator=(const CommandCompleter&) = delete;
+	CommandCompleter& operator=(CommandCompleter&&) = delete;
 
 	[[nodiscard]] CommandController& getCommandController() const { return commandController; }
 	[[nodiscard]] Interpreter& getInterpreter() const final;

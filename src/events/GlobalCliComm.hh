@@ -16,10 +16,11 @@ class CliListener;
 class GlobalCliComm final : public CliComm
 {
 public:
-	GlobalCliComm(const GlobalCliComm&) = delete;
-	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
-
 	GlobalCliComm() = default;
+	GlobalCliComm(const GlobalCliComm&) = delete;
+	GlobalCliComm(GlobalCliComm&&) = delete;
+	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
+	GlobalCliComm& operator=(GlobalCliComm&&) = delete;
 	~GlobalCliComm();
 
 	CliListener* addListener(std::unique_ptr<CliListener> listener);

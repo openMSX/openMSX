@@ -7,9 +7,7 @@
 #include "TclObject.hh"
 #include "VideoSystem.hh"
 
-#include "checked_cast.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <SDL.h>
@@ -51,9 +49,11 @@ class GLScopedClip
 {
 public:
 	GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh);
-	~GLScopedClip();
 	GLScopedClip(const GLScopedClip&) = delete;
+	GLScopedClip(GLScopedClip&&) = delete;
 	GLScopedClip& operator=(const GLScopedClip&) = delete;
+	GLScopedClip& operator=(GLScopedClip&&) = delete;
+	~GLScopedClip();
 private:
 	std::optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };

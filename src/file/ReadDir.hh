@@ -3,6 +3,7 @@
 
 #include "direntp.hh"
 #include "zstring_view.hh"
+
 #include <sys/types.h>
 
 namespace openmsx {
@@ -15,10 +16,11 @@ namespace openmsx {
 class ReadDir
 {
 public:
-	ReadDir(const ReadDir&) = delete;
-	ReadDir& operator=(const ReadDir&) = delete;
-
 	explicit ReadDir(zstring_view directory);
+	ReadDir(const ReadDir&) = delete;
+	ReadDir(ReadDir&&) = delete;
+	ReadDir& operator=(const ReadDir&) = delete;
+	ReadDir& operator=(ReadDir&&) = delete;
 	~ReadDir();
 
 	/** Get directory entry for next file. Returns nullptr when there

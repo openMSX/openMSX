@@ -36,7 +36,9 @@ class MSXDevice
 {
 public:
 	MSXDevice(const MSXDevice&) = delete;
+	MSXDevice(MSXDevice&&) = delete;
 	MSXDevice& operator=(const MSXDevice&) = delete;
+	MSXDevice& operator=(MSXDevice&&) = delete;
 
 	using Devices = std::vector<MSXDevice*>;
 

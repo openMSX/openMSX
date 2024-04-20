@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include "gl_vec.hh"
+
 #include <string>
 #include <cassert>
 #include <cstdint>
@@ -22,8 +23,9 @@ public:
 	using Pixel = uint32_t;
 
 	OutputSurface(const OutputSurface&) = delete;
+	OutputSurface(OutputSurface&&) = delete;
 	OutputSurface& operator=(const OutputSurface&) = delete;
-
+	OutputSurface& operator=(OutputSurface&&) = delete;
 	virtual ~OutputSurface() = default;
 
 	[[nodiscard]] int getLogicalWidth()  const { return m_logicalSize.x; }

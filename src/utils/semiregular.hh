@@ -46,6 +46,7 @@ template<typename T> struct semiregular_move_assign : std::optional<T> {
 	using std::optional<T>::optional;
 
 	constexpr semiregular_move_assign() = default;
+	constexpr ~semiregular_move_assign() = default;
 	constexpr semiregular_move_assign(const semiregular_move_assign&) = default;
 	constexpr semiregular_move_assign(semiregular_move_assign&&) noexcept = default;
 	constexpr semiregular_move_assign& operator=(const semiregular_move_assign&) = default;
@@ -69,6 +70,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 	using semiregular_move_layer<T>::semiregular_move_layer;
 
 	constexpr semiregular_copy_assign() = default;
+	constexpr ~semiregular_copy_assign() = default;
 	constexpr semiregular_copy_assign(const semiregular_copy_assign&) = default;
 	constexpr semiregular_copy_assign(semiregular_copy_assign&&) noexcept = default;
 	constexpr semiregular_copy_assign& operator=(const semiregular_copy_assign& that) noexcept(

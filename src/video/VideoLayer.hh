@@ -19,7 +19,9 @@ class VideoLayer : public Layer, protected Observer<Setting>
 {
 public:
 	VideoLayer(const VideoLayer&) = delete;
+	VideoLayer(VideoLayer&&) = delete;
 	VideoLayer& operator=(const VideoLayer&) = delete;
+	VideoLayer& operator=(VideoLayer&&) = delete;
 
 	/** Returns the ID for this VideoLayer.
 	  * These IDs are globally unique. The 'videosource' setting uses

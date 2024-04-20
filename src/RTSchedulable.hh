@@ -11,7 +11,9 @@ class RTSchedulable
 {
 public:
 	RTSchedulable(const RTSchedulable&) = delete;
+	RTSchedulable(RTSchedulable&&) = delete;
 	RTSchedulable& operator=(const RTSchedulable&) = delete;
+	RTSchedulable& operator=(RTSchedulable&&) = delete;
 
 	virtual void executeRT() = 0;
 

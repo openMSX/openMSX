@@ -12,10 +12,11 @@ class MSXEventListener;
 class MSXEventDistributor
 {
 public:
-	MSXEventDistributor(const MSXEventDistributor&) = delete;
-	MSXEventDistributor& operator=(const MSXEventDistributor&) = delete;
-
 	MSXEventDistributor() = default;
+	MSXEventDistributor(const MSXEventDistributor&) = delete;
+	MSXEventDistributor(MSXEventDistributor&&) = delete;
+	MSXEventDistributor& operator=(const MSXEventDistributor&) = delete;
+	MSXEventDistributor& operator=(MSXEventDistributor&&) = delete;
 	~MSXEventDistributor();
 
 	/**

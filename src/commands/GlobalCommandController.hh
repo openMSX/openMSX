@@ -39,12 +39,13 @@ class GlobalCommandController final : private GlobalCommandControllerBase
                                     , public CommandController
 {
 public:
-	GlobalCommandController(const GlobalCommandController&) = delete;
-	GlobalCommandController& operator=(const GlobalCommandController&) = delete;
-
 	GlobalCommandController(EventDistributor& eventDistributor,
 	                        GlobalCliComm& cliComm,
 	                        Reactor& reactor);
+	GlobalCommandController(const GlobalCommandController&) = delete;
+	GlobalCommandController(GlobalCommandController&&) = delete;
+	GlobalCommandController& operator=(const GlobalCommandController&) = delete;
+	GlobalCommandController& operator=(GlobalCommandController&&) = delete;
 	~GlobalCommandController();
 
 	[[nodiscard]] InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }

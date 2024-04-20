@@ -15,7 +15,9 @@ class ProbeBase : public Subject<ProbeBase>
 {
 public:
 	ProbeBase(const ProbeBase&) = delete;
+	ProbeBase(ProbeBase&&) = delete;
 	ProbeBase& operator=(const ProbeBase&) = delete;
+	ProbeBase& operator=(ProbeBase&&) = delete;
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] std::string_view getDescription() const { return description; }

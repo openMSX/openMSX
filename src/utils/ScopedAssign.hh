@@ -7,6 +7,11 @@
 template<typename T> class ScopedAssign
 {
 public:
+	ScopedAssign(const ScopedAssign&) = delete;
+	ScopedAssign(ScopedAssign&&) = delete;
+	ScopedAssign& operator=(const ScopedAssign&) = delete;
+	ScopedAssign& operator=(ScopedAssign&&) = delete;
+
 	[[nodiscard]] ScopedAssign(T& var_, T newValue)
 		: var(var_)
 	{

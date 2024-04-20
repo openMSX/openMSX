@@ -2,8 +2,11 @@
 #define SDLSOUNDDRIVER_HH
 
 #include "SoundDriver.hh"
+
 #include "SDLSurfacePtr.hh"
+
 #include "MemBuffer.hh"
+
 #include <SDL.h>
 
 namespace openmsx {
@@ -13,10 +16,11 @@ class Reactor;
 class SDLSoundDriver final : public SoundDriver
 {
 public:
-	SDLSoundDriver(const SDLSoundDriver&) = delete;
-	SDLSoundDriver& operator=(const SDLSoundDriver&) = delete;
-
 	SDLSoundDriver(Reactor& reactor, unsigned wantedFreq, unsigned samples);
+	SDLSoundDriver(const SDLSoundDriver&) = delete;
+	SDLSoundDriver(SDLSoundDriver&&) = delete;
+	SDLSoundDriver& operator=(const SDLSoundDriver&) = delete;
+	SDLSoundDriver& operator=(SDLSoundDriver&&) = delete;
 	~SDLSoundDriver() override;
 
 	void mute() override;

@@ -135,7 +135,9 @@ class VRAMWindow
 {
 public:
 	VRAMWindow(const VRAMWindow&) = delete;
+	VRAMWindow(VRAMWindow&&) = delete;
 	VRAMWindow& operator=(const VRAMWindow&) = delete;
+	VRAMWindow& operator=(VRAMWindow&&) = delete;
 
 	/** Gets the mask for this window.
 	  * Should only be called if the window is enabled.
@@ -397,7 +399,9 @@ class VDPVRAM
 {
 public:
 	VDPVRAM(const VDPVRAM&) = delete;
+	VDPVRAM(VDPVRAM&&) = delete;
 	VDPVRAM& operator=(const VDPVRAM&) = delete;
+	VDPVRAM& operator=(VDPVRAM&&) = delete;
 
 	VDPVRAM(VDP& vdp, unsigned size, EmuTime::param time);
 

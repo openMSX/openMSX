@@ -2,6 +2,7 @@
 #define DEFLICKER_HH
 
 #include "FrameSource.hh"
+
 #include <memory>
 #include <span>
 
@@ -12,8 +13,13 @@ class RawFrame;
 class Deflicker final : public FrameSource
 {
 public:
-	Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+	explicit Deflicker(std::span<std::unique_ptr<RawFrame>, 4> lastFrames);
+	Deflicker(const Deflicker&) = default;
+	Deflicker(Deflicker&&) = default;
+	Deflicker& operator=(const Deflicker&) = default;
+	Deflicker& operator=(Deflicker&&) = default;
 	~Deflicker();
+
 	void init();
 
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;

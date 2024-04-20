@@ -30,6 +30,10 @@ struct AudioFragment
 struct Frame
 {
 	explicit Frame(const th_ycbcr_buffer& yuv);
+	Frame(const Frame&) = delete;
+	Frame(Frame&&) = delete;
+	Frame& operator=(const Frame&) = delete;
+	Frame& operator=(Frame&&) = delete;
 	~Frame();
 
 	th_ycbcr_buffer buffer;
@@ -40,10 +44,11 @@ struct Frame
 class OggReader
 {
 public:
-	OggReader(const OggReader&) = delete;
-	OggReader& operator=(const OggReader&) = delete;
-
 	OggReader(const Filename& filename, CliComm& cli);
+	OggReader(const OggReader&) = delete;
+	OggReader(OggReader&&) = delete;
+	OggReader& operator=(const OggReader&) = delete;
+	OggReader& operator=(OggReader&&) = delete;
 	~OggReader();
 
 	bool seek(size_t frame, size_t sample);

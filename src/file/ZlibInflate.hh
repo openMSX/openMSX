@@ -13,6 +13,10 @@ class ZlibInflate
 {
 public:
 	explicit ZlibInflate(std::span<const uint8_t> input);
+	ZlibInflate(const ZlibInflate&) = delete;
+	ZlibInflate(ZlibInflate&&) = delete;
+	ZlibInflate& operator=(const ZlibInflate&) = delete;
+	ZlibInflate& operator=(ZlibInflate&&) = delete;
 	~ZlibInflate();
 
 	void skip(size_t num);

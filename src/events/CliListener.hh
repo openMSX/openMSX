@@ -9,7 +9,9 @@ class CliListener
 {
 public:
 	CliListener(const CliListener&) = delete;
+	CliListener(CliListener&&) = delete;
 	CliListener& operator=(const CliListener&) = delete;
+	CliListener& operator=(CliListener&&) = delete;
 
 	virtual ~CliListener() = default;
 

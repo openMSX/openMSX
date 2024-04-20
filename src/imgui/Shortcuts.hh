@@ -37,9 +37,12 @@ public:
 	};
 
 public:
-	Shortcuts(const Shortcuts&) = delete;
-	Shortcuts& operator=(const Shortcuts&) = delete;
 	Shortcuts();
+	Shortcuts(const Shortcuts&) = delete;
+	Shortcuts(Shortcuts&&) = delete;
+	Shortcuts& operator=(const Shortcuts&) = delete;
+	Shortcuts& operator=(Shortcuts&&) = delete;
+	~Shortcuts() = default;
 
 	[[nodiscard]] static zstring_view getShortcutName(ID id);
 	[[nodiscard]] static zstring_view getShortcutDescription(ID id);

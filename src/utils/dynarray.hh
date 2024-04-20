@@ -42,6 +42,9 @@ class dynarray
 {
 public:
 	dynarray() = default;
+	dynarray(const dynarray&) = delete;
+	dynarray& operator=(const dynarray&) = delete;
+	~dynarray() = default;
 
 	explicit dynarray(size_t n)
 	        : m_size(n), m_data(std::make_unique<T[]>(n)) {}
@@ -73,9 +76,6 @@ public:
 		assert(!other.m_data);
 		return *this;
 	}
-
-	dynarray(const dynarray&) = delete;
-	dynarray& operator=(const dynarray&) = delete;
 
 	[[nodiscard]] T& operator[](size_t i) {
 		assert(i < m_size);

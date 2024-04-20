@@ -82,14 +82,16 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 
 struct PNGReadHandle {
 	PNGReadHandle() = default;
+	PNGReadHandle(const PNGReadHandle&) = delete;
+	PNGReadHandle(PNGReadHandle&&) = delete;
+	PNGReadHandle& operator=(const PNGReadHandle&) = delete;
+	PNGReadHandle& operator=(PNGReadHandle&&) = delete;
 	~PNGReadHandle()
 	{
 		if (ptr) {
 			png_destroy_read_struct(&ptr, info ? &info : nullptr, nullptr);
 		}
 	}
-	PNGReadHandle(const PNGReadHandle&) = delete;
-	PNGReadHandle& operator=(const PNGReadHandle&) = delete;
 
 	png_structp ptr = nullptr;
 	png_infop info = nullptr;
@@ -205,14 +207,16 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 
 struct PNGWriteHandle {
 	PNGWriteHandle() = default;
+	PNGWriteHandle(const PNGWriteHandle&) = delete;
+	PNGWriteHandle(PNGWriteHandle&&) = delete;
+	PNGWriteHandle& operator=(const PNGWriteHandle&) = delete;
+	PNGWriteHandle& operator=(PNGWriteHandle&&) = delete;
 	~PNGWriteHandle()
 	{
 		if (ptr) {
 			png_destroy_write_struct(&ptr, info ? &info : nullptr);
 		}
 	}
-	PNGWriteHandle(const PNGWriteHandle&) = delete;
-	PNGWriteHandle& operator=(const PNGWriteHandle&) = delete;
 
 	png_structp ptr = nullptr;
 	png_infop info = nullptr;

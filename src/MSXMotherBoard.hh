@@ -63,7 +63,9 @@ class MediaInfoProvider
 {
 public:
 	MediaInfoProvider(const MediaInfoProvider&) = delete;
+	MediaInfoProvider(MediaInfoProvider&&) = delete;
 	MediaInfoProvider& operator=(const MediaInfoProvider&) = delete;
+	MediaInfoProvider& operator=(MediaInfoProvider&&) = delete;
 
 	/** This method gets called when information is required on the
 	 * media inserted in the media slot of the provider. The provider
@@ -81,7 +83,9 @@ class MSXMotherBoard final
 {
 public:
 	MSXMotherBoard(const MSXMotherBoard&) = delete;
+	MSXMotherBoard(MSXMotherBoard&&) = delete;
 	MSXMotherBoard& operator=(const MSXMotherBoard&) = delete;
+	MSXMotherBoard& operator=(MSXMotherBoard&&) = delete;
 
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();

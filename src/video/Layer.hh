@@ -94,6 +94,10 @@ class ScopedLayerHider
 {
 public:
 	explicit ScopedLayerHider(Layer& layer);
+	ScopedLayerHider(const ScopedLayerHider&) = delete;
+	ScopedLayerHider(ScopedLayerHider&&) = delete;
+	ScopedLayerHider& operator=(const ScopedLayerHider&) = delete;
+	ScopedLayerHider& operator=(ScopedLayerHider&&) = delete;
 	~ScopedLayerHider();
 private:
 	Layer& layer;

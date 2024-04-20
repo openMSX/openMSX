@@ -31,7 +31,9 @@ public:
 	}
 
 	monotonic_allocator(const monotonic_allocator&) = delete;
+	monotonic_allocator(monotonic_allocator&&) = delete;
 	monotonic_allocator& operator=(const monotonic_allocator&) = delete;
+	monotonic_allocator& operator=(monotonic_allocator&&) = delete;
 
 	~monotonic_allocator()
 	{

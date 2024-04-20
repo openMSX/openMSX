@@ -21,7 +21,9 @@ class Connector
 {
 public:
 	Connector(const Connector&) = delete;
+	Connector(Connector&&) = delete;
 	Connector& operator=(const Connector&) = delete;
+	Connector& operator=(Connector&&) = delete;
 
 	/**
 	 * Name that identifies this connector.

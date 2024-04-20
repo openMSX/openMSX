@@ -10,7 +10,9 @@ class CLIOption
 {
 public:
 	CLIOption(const CLIOption&) = delete;
+	CLIOption(CLIOption&&) = delete;
 	CLIOption& operator=(const CLIOption&) = delete;
+	CLIOption& operator=(CLIOption&&) = delete;
 
 	virtual void parseOption(const std::string& option,
 	                         std::span<std::string>& cmdLine) = 0;
@@ -29,7 +31,9 @@ class CLIFileType
 {
 public:
 	CLIFileType(const CLIFileType&) = delete;
+	CLIFileType(CLIFileType&&) = delete;
 	CLIFileType& operator=(const CLIFileType&) = delete;
+	CLIFileType& operator=(CLIFileType&&) = delete;
 
 	virtual void parseFileType(const std::string& filename,
 	                           std::span<std::string>& cmdLine) = 0;

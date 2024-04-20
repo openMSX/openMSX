@@ -14,10 +14,11 @@ namespace openmsx {
 class Poller
 {
 public:
-	Poller(const Poller&) = delete;
-	Poller& operator=(const Poller&) = delete;
-
 	Poller();
+	Poller(const Poller&) = delete;
+	Poller(Poller&&) = delete;
+	Poller& operator=(const Poller&) = delete;
+	Poller& operator=(Poller&&) = delete;
 	~Poller();
 
 #ifndef _WIN32

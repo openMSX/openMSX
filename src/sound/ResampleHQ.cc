@@ -58,7 +58,9 @@ class ResampleCoeffs
 {
 public:
 	ResampleCoeffs(const ResampleCoeffs&) = delete;
+	ResampleCoeffs(ResampleCoeffs&&) = delete;
 	ResampleCoeffs& operator=(const ResampleCoeffs&) = delete;
+	ResampleCoeffs& operator=(ResampleCoeffs&&) = delete;
 
 	static ResampleCoeffs& instance();
 	void getCoeffs(double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen);

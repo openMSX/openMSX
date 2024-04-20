@@ -9,7 +9,9 @@ class EventListener
 {
 public:
 	EventListener(const EventListener&) = delete;
+	EventListener(EventListener&&) = delete;
 	EventListener& operator=(const EventListener&) = delete;
+	EventListener& operator=(EventListener&&) = delete;
 
 	/**
 	 * This method gets called when an event you are subscribed to occurs.

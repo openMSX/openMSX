@@ -187,7 +187,9 @@ class AllocMap
 {
 public:
 	AllocMap(const AllocMap&) = delete;
+	AllocMap(AllocMap&&) = delete;
 	AllocMap& operator=(const AllocMap&) = delete;
+	AllocMap& operator=(AllocMap&&) = delete;
 
 	static AllocMap& instance() {
 		static AllocMap oneInstance;

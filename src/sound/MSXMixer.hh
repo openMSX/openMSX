@@ -54,11 +54,12 @@ public:
 	};
 
 public:
-	MSXMixer(const MSXMixer&) = delete;
-	MSXMixer& operator=(const MSXMixer&) = delete;
-
 	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
+	MSXMixer(const MSXMixer&) = delete;
+	MSXMixer(MSXMixer&&) = delete;
+	MSXMixer& operator=(const MSXMixer&) = delete;
+	MSXMixer& operator=(MSXMixer&&) = delete;
 	~MSXMixer();
 
 	/**

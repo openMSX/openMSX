@@ -23,12 +23,13 @@ namespace openmsx {
 
 class MidiOutALSA final : public MidiOutDevice {
 public:
-	MidiOutALSA(
-			snd_seq_t& seq,
-			snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo);
-	~MidiOutALSA() override;
+	MidiOutALSA(snd_seq_t& seq,
+	            snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo);
 	MidiOutALSA(const MidiOutALSA&) = delete;
+	MidiOutALSA(MidiOutALSA&&) = delete;
 	MidiOutALSA& operator=(const MidiOutALSA&) = delete;
+	MidiOutALSA& operator=(MidiOutALSA&&) = delete;
+	~MidiOutALSA() override;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
