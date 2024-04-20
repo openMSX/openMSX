@@ -146,63 +146,43 @@ struct ScopedFont {
 };
 
 // im::StyleColor(): wrapper around ImGui::PushStyleColor() / ImGui::PopStyleColor()
-// Add more overloads when needed
-/*inline void StyleColor(ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
+// Can be called like:
+//   im::StyleColor(
+//      bool active,                  // _optional_ boolean parameter
+//      ImGuiCol idx1, ImVec4 col1,   // followed by an arbitrary number of [idx, col] pairs
+//      ImGuiCol idx2, ImU32 col2,    //   where col can either be 'ImVec4' or 'ImU32'
+//      ...
+//      std::invocable<> auto next);  // and finally a lambda that will be executed with these color changes
+template<int N>
+inline void StyleColor_impl(bool active, std::invocable<> auto next)
 {
-	ImGui::PushStyleColor(idx, col);
 	next();
-	ImGui::PopStyleColor(1);
-}*/
-/*inline void StyleColor(bool active, ImGuiCol idx, ImVec4 col, std::invocable<> auto next)
+	if (active) ImGui::PopStyleColor(N);
+}
+template<int N, typename... Args>
+inline void StyleColor_impl(bool active, ImGuiCol idx, ImVec4 col, Args&& ...args)
 {
 	if (active) ImGui::PushStyleColor(idx, col);
-	next();
-	if (active) ImGui::PopStyleColor(1);
-}*/
-inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
-                       ImGuiCol idx2, ImVec4 col2,
-                       std::invocable<> auto next)
-{
-	ImGui::PushStyleColor(idx1, col1);
-	ImGui::PushStyleColor(idx2, col2);
-	next();
-	ImGui::PopStyleColor(2);
+	StyleColor_impl<N>(active, std::forward<Args>(args)...);
 }
-inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
-                       ImGuiCol idx2, ImVec4 col2,
-                       ImGuiCol idx3, ImVec4 col3,
-                       std::invocable<> auto next)
-{
-	ImGui::PushStyleColor(idx1, col1);
-	ImGui::PushStyleColor(idx2, col2);
-	ImGui::PushStyleColor(idx3, col3);
-	next();
-	ImGui::PopStyleColor(3);
-}
-inline void StyleColor(ImGuiCol idx1, ImVec4 col1,
-                       ImGuiCol idx2, ImVec4 col2,
-                       ImGuiCol idx3, ImVec4 col3,
-                       ImGuiCol idx4, ImVec4 col4,
-                       std::invocable<> auto next)
-{
-	ImGui::PushStyleColor(idx1, col1);
-	ImGui::PushStyleColor(idx2, col2);
-	ImGui::PushStyleColor(idx3, col3);
-	ImGui::PushStyleColor(idx4, col4);
-	next();
-	ImGui::PopStyleColor(4);
-}
-inline void StyleColor(ImGuiCol idx, ImU32 col, std::invocable<> auto next)
-{
-	ImGui::PushStyleColor(idx, ImGui::ColorConvertU32ToFloat4(col));
-	next();
-	ImGui::PopStyleColor(1);
-}
-inline void StyleColor(bool active, ImGuiCol idx, ImU32 col, std::invocable<> auto next)
+template<int N, typename... Args>
+inline void StyleColor_impl(bool active, ImGuiCol idx, ImU32 col, Args&& ...args)
 {
 	if (active) ImGui::PushStyleColor(idx, ImGui::ColorConvertU32ToFloat4(col));
-	next();
-	if (active) ImGui::PopStyleColor(1);
+	StyleColor_impl<N>(active, std::forward<Args>(args)...);
+}
+template<typename... Args>
+inline void StyleColor(bool active, Args&& ...args)
+{
+	static constexpr auto N = sizeof...(args);
+	static_assert(N >= 3);
+	static_assert((N & 1) == 1);
+	StyleColor_impl<(N - 1) / 2>(active, std::forward<Args>(args)...);
+}
+template<typename... Args>
+inline void StyleColor(Args&& ...args)
+{
+	StyleColor(true, std::forward<Args>(args)...);
 }
 
 // im::StyleVar(): wrapper around ImGui::PushStyleVar() / ImGui::PopStyleVar()

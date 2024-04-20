@@ -21,14 +21,13 @@ using namespace gl;
 namespace openmsx {
 
 // intersect two rectangles
-struct IntersectResult { int x, y, w, h; };
-static constexpr IntersectResult intersect(int xa, int ya, int wa, int ha,
-                                           int xb, int yb, int wb, int hb)
+struct Rectangle { int x, y, w, h; };
+static constexpr Rectangle intersect(const Rectangle& a, const Rectangle& b)
 {
-	int x1 = std::max<int>(xa, xb);
-	int y1 = std::max<int>(ya, yb);
-	int x2 = std::min<int>(xa + wa, xb + wb);
-	int y2 = std::min<int>(ya + ha, yb + hb);
+	int x1 = std::max<int>(a.x, b.x);
+	int y1 = std::max<int>(a.y, b.y);
+	int x2 = std::min<int>(a.x + a.w, b.x + b.w);
+	int y2 = std::min<int>(a.y + a.h, b.y + b.h);
 	int w = std::max(0, x2 - x1);
 	int h = std::max(0, y2 - y1);
 	return {x1, y1, w, h};
@@ -75,8 +74,8 @@ GLScopedClip::GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh)
 		origClip.emplace();
 		glGetIntegerv(GL_SCISSOR_BOX, origClip->data());
 		auto [xn, yn, wn, hn] = intersect(
-			(*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3],
-			ix, iy, iw, ih);
+			Rectangle{(*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3]},
+			Rectangle{ix, iy, iw, ih});
 		glScissor(xn, yn, wn, hn);
 	} else {
 		glScissor(ix, iy, iw, ih);
