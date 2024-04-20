@@ -71,7 +71,7 @@ private:
 		  */
 		void advance(unsigned duration);
 
-		void doNextEvent(AY8910& ay8910);
+		void doNextEvent(const AY8910& ay8910);
 
 		/** Gets the current output of this generator.
 		  */

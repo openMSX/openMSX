@@ -450,7 +450,7 @@ bool MSXCPUInterface::replace_IO_Out(
 }
 
 void MSXCPUInterface::testRegisterSlot(
-	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
+	const MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
 	auto page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];

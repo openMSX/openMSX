@@ -131,7 +131,7 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 }
 
 using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
-static void getScaledFrame(FrameSource& paintFrame,
+static void getScaledFrame(const FrameSource& paintFrame,
                            std::span<const void*> lines,
                            WorkBuffer& workBuffer)
 {

@@ -76,10 +76,10 @@ MSXJoystick::MSXJoystick(CommandController& commandController_,
 	, description(strCat("MSX joystick ", id_, ". Mapping is fully configurable."))
 	, id(id_)
 {
-	configSetting.setChecker([this](TclObject& newValue) {
+	configSetting.setChecker([this](const TclObject& newValue) {
 		this->checkJoystickConfig(newValue); });
 	// fill in 'bindings'
-	checkJoystickConfig(const_cast<TclObject&>(configSetting.getValue()));
+	checkJoystickConfig(configSetting.getValue());
 }
 
 MSXJoystick::~MSXJoystick()

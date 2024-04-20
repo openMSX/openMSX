@@ -135,7 +135,7 @@ private:
 	[[nodiscard]] Sha1Index::iterator getSha1Iterator(Index idx, const Entry& entry);
 	void remove(Sha1Index::iterator it);
 	void remove(Index idx);
-	void remove(Index idx, Entry& entry);
+	void remove(Index idx, const Entry& entry);
 	bool adjustSha1(Sha1Index::iterator it, Entry& entry, const Sha1Sum& newSum);
 	bool adjustSha1(Index idx,              Entry& entry, const Sha1Sum& newSum);
 

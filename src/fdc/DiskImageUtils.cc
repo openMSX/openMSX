@@ -88,7 +88,7 @@ static Partition& getPartitionNextorExtended(
 
 // Get partition from Nextor master boot record (standard MBR).
 static Partition& getPartitionNextor(
-	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+	const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	unsigned remaining = partition - 1;
 	for (auto& p : buf.ptNextor.part) {

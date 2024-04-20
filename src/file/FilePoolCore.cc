@@ -75,7 +75,7 @@ void FilePoolCore::remove(Sha1Index::iterator it)
 	needWrite = true;
 }
 
-void FilePoolCore::remove(Index idx, Entry& entry)
+void FilePoolCore::remove(Index idx, const Entry& entry)
 {
 	remove(getSha1Iterator(idx, entry));
 }

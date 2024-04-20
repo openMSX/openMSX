@@ -1,15 +1,18 @@
 // Code based on DOSBox-0.65
 
 #include "AviWriter.hh"
+
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "Version.hh"
+
 #include "cstdiop.hh" // for snprintf
 #include "endian.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "zstring_view.hh"
+
 #include <array>
 #include <cassert>
 #include <cstring>
@@ -271,7 +274,7 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const vo
 	index[idxSize + 3] = size;
 }
 
-void AviWriter::addFrame(FrameSource* video, std::span<const int16_t> audio)
+void AviWriter::addFrame(const FrameSource* video, std::span<const int16_t> audio)
 {
 	bool keyFrame = (frames++ % 300 == 0);
 	auto buffer = codec.compressFrame(keyFrame, video);

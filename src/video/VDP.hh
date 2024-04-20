@@ -769,7 +769,7 @@ private:
 	};
 
 	struct SyncBase : public Schedulable {
-		explicit SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
+		explicit SyncBase(const VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
 		using Schedulable::removeSyncPoint;
 		using Schedulable::setSyncPoint;
 		using Schedulable::pendingSyncPoint;
@@ -1006,45 +1006,45 @@ private:
 	EnumSetting<bool>& tooFastAccess;
 
 	struct RegDebug final : SimpleDebuggable {
-		explicit RegDebug(VDP& vdp);
+		explicit RegDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vdpRegDebug;
 
 	struct StatusRegDebug final : SimpleDebuggable {
-		explicit StatusRegDebug(VDP& vdp);
+		explicit StatusRegDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
 	} vdpStatusRegDebug;
 
 	struct PaletteDebug final : SimpleDebuggable {
-		explicit PaletteDebug(VDP& vdp);
+		explicit PaletteDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vdpPaletteDebug;
 
 	struct VRAMPointerDebug final : SimpleDebuggable {
-		explicit VRAMPointerDebug(VDP& vdp);
+		explicit VRAMPointerDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} vramPointerDebug;
 
 	struct RegisterLatchStatusDebug final : SimpleDebuggable {
-		explicit RegisterLatchStatusDebug(VDP& vdp);
+		explicit RegisterLatchStatusDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 	} registerLatchStatusDebug;
 
 	struct VramAccessStatusDebug final : SimpleDebuggable {
-		explicit VramAccessStatusDebug(VDP& vdp);
+		explicit VramAccessStatusDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 	} vramAccessStatusDebug;
 
 	struct PaletteLatchStatusDebug final : SimpleDebuggable {
-		explicit PaletteLatchStatusDebug(VDP& vdp);
+		explicit PaletteLatchStatusDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 	} paletteLatchStatusDebug;
 
 	struct DataLatchDebug final : SimpleDebuggable {
-		explicit DataLatchDebug(VDP& vdp);
+		explicit DataLatchDebug(const VDP& vdp);
 		[[nodiscard]] byte read(unsigned address) override;
 	} dataLatchDebug;
 

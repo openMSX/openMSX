@@ -1600,7 +1600,7 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 
 // RegDebug
 
-VDP::RegDebug::RegDebug(VDP& vdp_)
+VDP::RegDebug::RegDebug(const VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " regs", "VDP registers.", 0x40)
 {
@@ -1626,7 +1626,7 @@ void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 
 // StatusRegDebug
 
-VDP::StatusRegDebug::StatusRegDebug(VDP& vdp_)
+VDP::StatusRegDebug::StatusRegDebug(const VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " status regs", "VDP status registers.", 0x10)
 {
@@ -1641,7 +1641,7 @@ byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 
 // PaletteDebug
 
-VDP::PaletteDebug::PaletteDebug(VDP& vdp_)
+VDP::PaletteDebug::PaletteDebug(const VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " palette", "V99x8 palette (RBG format)", 0x20)
 {
@@ -1674,7 +1674,7 @@ void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 
 // class VRAMPointerDebug
 
-VDP::VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
+VDP::VRAMPointerDebug::VRAMPointerDebug(const VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
 			"VRAM pointer" : vdp_.getName() + " VRAM pointer",
 			"VDP VRAM pointer (14 lower bits)", 2)
@@ -1704,7 +1704,7 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 // class RegisterLatchStatusDebug
 
-VDP::RegisterLatchStatusDebug::RegisterLatchStatusDebug(VDP &vdp_)
+VDP::RegisterLatchStatusDebug::RegisterLatchStatusDebug(const VDP &vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 			vdp_.getName() + " register latch status", "V99x8 register latch status (0 = expecting a value, 1 = expecting a register)", 1)
 {
@@ -1718,7 +1718,7 @@ byte VDP::RegisterLatchStatusDebug::read(unsigned /*address*/)
 
 // class VramAccessStatusDebug
 
-VDP::VramAccessStatusDebug::VramAccessStatusDebug(VDP &vdp_)
+VDP::VramAccessStatusDebug::VramAccessStatusDebug(const VDP &vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
 			"VRAM access status" : vdp_.getName() + " VRAM access status",
 			"VDP VRAM access status (0 = ready to read, 1 = ready to write)", 1)
@@ -1733,7 +1733,7 @@ byte VDP::VramAccessStatusDebug::read(unsigned /*address*/)
 
 // class PaletteLatchStatusDebug
 
-VDP::PaletteLatchStatusDebug::PaletteLatchStatusDebug(VDP &vdp_)
+VDP::PaletteLatchStatusDebug::PaletteLatchStatusDebug(const VDP &vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 			vdp_.getName() + " palette latch status", "V99x8 palette latch status (0 = expecting red & blue, 1 = expecting green)", 1)
 {
@@ -1747,7 +1747,7 @@ byte VDP::PaletteLatchStatusDebug::read(unsigned /*address*/)
 
 // class DataLatchDebug
 
-VDP::DataLatchDebug::DataLatchDebug(VDP &vdp_)
+VDP::DataLatchDebug::DataLatchDebug(const VDP &vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 			vdp_.getName() + " data latch value", "V99x8 data latch value (byte)", 1)
 {

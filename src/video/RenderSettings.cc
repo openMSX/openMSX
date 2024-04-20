@@ -175,7 +175,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	updateBrightnessAndContrast();
 
 	auto& interp = commandController.getInterpreter();
-	colorMatrixSetting.setChecker([this, &interp](TclObject& newValue) {
+	colorMatrixSetting.setChecker([this, &interp](const TclObject& newValue) {
 		try {
 			parseColorMatrix(interp, newValue);
 		} catch (CommandException& e) {

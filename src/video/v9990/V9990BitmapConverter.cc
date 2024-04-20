@@ -54,7 +54,7 @@ static inline void draw_YJK_YUV_PAL(
 
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUV(
-	ColorLookup color, V9990& vdp, const V9990VRAM& vram,
+	ColorLookup color, const V9990& vdp, const V9990VRAM& vram,
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	Pixel* __restrict out = buf.data();
@@ -74,7 +74,7 @@ static void rasterBYUV(
 
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void rasterBYUVP(
-	ColorLookup color, V9990& vdp, const V9990VRAM& vram,
+	ColorLookup color, const V9990& vdp, const V9990VRAM& vram,
 	std::span<Pixel> buf, unsigned x, unsigned y)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
@@ -347,7 +347,7 @@ private:
 
 template<std::unsigned_integral Pixel, typename ColorLookup>
 static void raster(V9990ColorMode colorMode, bool highRes,
-                   ColorLookup color, V9990& vdp, V9990VRAM& vram,
+                   ColorLookup color, const V9990& vdp, const V9990VRAM& vram,
                    std::span<Pixel> out, unsigned x, unsigned y)
 {
 	switch (colorMode) {

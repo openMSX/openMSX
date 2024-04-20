@@ -27,7 +27,7 @@ public:
 	SCSIHD(SCSIHD&&) = delete;
 	SCSIHD& operator=(const SCSIHD&) = delete;
 	SCSIHD& operator=(SCSIHD&&) = delete;
-	~SCSIHD() = default;
+	~SCSIHD() override = default;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

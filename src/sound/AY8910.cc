@@ -190,7 +190,7 @@ inline void AY8910::ToneGenerator::advance(unsigned duration)
 	}
 }
 
-inline void AY8910::ToneGenerator::doNextEvent(AY8910& ay8910)
+inline void AY8910::ToneGenerator::doNextEvent(const AY8910& ay8910)
 {
 	if (ay8910.doDetune) [[unlikely]] {
 		count = getDetune(ay8910);
