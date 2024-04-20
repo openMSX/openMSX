@@ -286,9 +286,8 @@ void ZMBVEncoder::addFullFrame(unsigned& workUsed)
 	});
 }
 
-const void* ZMBVEncoder::getScaledLine(const FrameSource* frame, unsigned y, void* workBuf_) const
+const ZMBVEncoder::Pixel* ZMBVEncoder::getScaledLine(const FrameSource* frame, unsigned y, Pixel* workBuf) const
 {
-	auto* workBuf = static_cast<uint32_t*>(workBuf_);
 	switch (height) {
 	case 240:
 		return frame->getLinePtr320_240(y, std::span<uint32_t, 320>(workBuf, 320)).data();
@@ -334,7 +333,8 @@ std::span<const uint8_t> ZMBVEncoder::compressFrame(bool keyFrame, const FrameSo
 	uint8_t* dest =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (auto i : xrange(height)) {
-		const auto* scaled = getScaledLine(frame, i, dest);
+		const auto* scaled = std::bit_cast<const uint8_t*>(
+			getScaledLine(frame, i, std::bit_cast<Pixel*>(dest)));
 		if (scaled != dest) memcpy(dest, scaled, lineWidth);
 		dest += linePitch;
 	}

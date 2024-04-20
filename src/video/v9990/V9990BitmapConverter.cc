@@ -458,7 +458,7 @@ public:
 
 void V9990BitmapConverter::convertLine(
 	std::span<Pixel> dst, unsigned x, unsigned y,
-	int cursorY, bool drawCursors)
+	int cursorY, bool drawCursors) const
 {
 	assert(dst.size() <= 1024);
 

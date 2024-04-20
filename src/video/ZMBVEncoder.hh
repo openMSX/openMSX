@@ -5,10 +5,11 @@
 
 #include "MemBuffer.hh"
 #include "aligned.hh"
-#include <concepts>
+
 #include <cstdint>
 #include <span>
 #include <string_view>
+
 #include <zlib.h>
 
 namespace openmsx {
@@ -22,6 +23,11 @@ public:
 	using Pixel = uint32_t;
 
 	ZMBVEncoder(unsigned width, unsigned height);
+	ZMBVEncoder(const ZMBVEncoder&) = delete;
+	ZMBVEncoder(ZMBVEncoder&&) = delete;
+	ZMBVEncoder& operator=(const ZMBVEncoder&) = delete;
+	ZMBVEncoder& operator=(ZMBVEncoder&&) = delete;
+	~ZMBVEncoder() = default;
 
 	[[nodiscard]] std::span<const uint8_t> compressFrame(bool keyFrame, const FrameSource* frame);
 
@@ -33,7 +39,7 @@ private:
 	[[nodiscard]] unsigned possibleBlock(int vx, int vy, size_t offset);
 	[[nodiscard]] unsigned compareBlock(int vx, int vy, size_t offset);
 	void addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed);
-	[[nodiscard]] const void* getScaledLine(const FrameSource* frame, unsigned y, void* workBuf) const;
+	[[nodiscard]] const Pixel* getScaledLine(const FrameSource* frame, unsigned y, Pixel* workBuf) const;
 
 private:
 	MemBuffer<uint8_t, SSE_ALIGNMENT> oldFrame;
@@ -45,8 +51,8 @@ private:
 
 	z_stream zstream;
 
-	const unsigned width;
-	const unsigned height;
+	unsigned width;
+	unsigned height;
 	size_t pitch;
 };
 

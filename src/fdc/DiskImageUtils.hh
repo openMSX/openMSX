@@ -145,7 +145,7 @@ namespace DiskImageUtils {
 	 * @param buf Sector buffer for partition table.
 	 * @return Reference to partition information struct in sector buffer.
 	 */
-	Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
+	Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
 
 	/** Check whether partition is of type FAT12 or FAT16.
 	 */

@@ -121,7 +121,7 @@ static Partition& getPartitionSunrise(unsigned partition, SectorBuffer& buf)
 	return p;
 }
 
-Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	// check drive has a partition table
 	// check valid partition number and return the entry
