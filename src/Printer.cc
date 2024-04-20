@@ -1590,7 +1590,7 @@ std::string Paper::save() const
 {
 	auto filename = FileOperations::getNextNumberedFileName(
 		PRINT_DIR, "page", PRINT_EXTENSION);
-	VLA(const void*, rowPointers, sizeY);
+	VLA(const uint8_t*, rowPointers, sizeY);
 	for (size_t y : xrange(sizeY)) {
 		rowPointers[y] = &buf[sizeX * y];
 	}

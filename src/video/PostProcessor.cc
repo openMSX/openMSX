@@ -130,21 +130,20 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 		getVideoSource(), getVideoSourceSetting(), false));
 }
 
-using WorkBuffer = std::vector<MemBuffer<char, SSE_ALIGNMENT>>;
+using WorkBuffer = std::vector<MemBuffer<FrameSource::Pixel, SSE_ALIGNMENT>>;
 static void getScaledFrame(const FrameSource& paintFrame,
-                           std::span<const void*> lines,
+                           std::span<const FrameSource::Pixel*> lines,
                            WorkBuffer& workBuffer)
 {
 	auto height = narrow<unsigned>(lines.size());
 	unsigned width = (height == 240) ? 320 : 640;
-	unsigned pitch = width * 4;
-	const void* linePtr = nullptr;
-	void* work = nullptr;
+	const FrameSource::Pixel* linePtr = nullptr;
+	FrameSource::Pixel* work = nullptr;
 	for (auto i : xrange(height)) {
 		if (linePtr == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.
-			work = workBuffer.emplace_back(pitch).data();
+			work = workBuffer.emplace_back(width).data();
 		}
 		auto* work2 = static_cast<uint32_t*>(work);
 		if (height == 240) {
@@ -165,7 +164,7 @@ void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filen
 		throw CommandException("TODO");
 	}
 
-	VLA(const void*, lines, height2);
+	VLA(const FrameSource::Pixel*, lines, height2);
 	WorkBuffer workBuffer;
 	getScaledFrame(*paintFrame, lines, workBuffer);
 	unsigned width = (height2 == 240) ? 320 : 640;

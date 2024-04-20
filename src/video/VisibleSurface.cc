@@ -356,10 +356,10 @@ void VisibleSurface::saveScreenshotGL(
 	auto [w, h] = output.getViewSize();
 
 	// OpenGL ES only supports reading RGBA (not RGB)
-	MemBuffer<uint8_t> buffer(4 * size_t(w) * size_t(h));
+	MemBuffer<uint32_t> buffer(size_t(w) * size_t(h));
 	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 
-	VLA(const void*, rowPointers, h);
+	VLA(const uint32_t*, rowPointers, h);
 	for (auto i : xrange(size_t(h))) {
 		rowPointers[h - 1 - i] = &buffer[4 * size_t(w) * i];
 	}

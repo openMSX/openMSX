@@ -324,7 +324,7 @@ static void save(SDL_Surface* image, const std::string& filename)
 	IMG_SavePNG_RW(image->w, row_pointers, filename, true);
 }
 
-void saveRGBA(size_t width, std::span<const void*> rowPointers,
+void saveRGBA(size_t width, std::span<const uint32_t*> rowPointers,
               const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
@@ -342,9 +342,11 @@ void saveRGBA(size_t width, std::span<const void*> rowPointers,
 	save(surface.get(), filename);
 }
 
-void saveGrayscale(size_t width, std::span<const void*> rowPointers,
+void saveGrayscale(size_t width, std::span<const uint8_t*> rowPointers_,
                    const std::string& filename)
 {
+	std::span rowPointers{std::bit_cast<const void**>(rowPointers_.data()),
+	                      rowPointers_.size()};
 	IMG_SavePNG_RW(width, rowPointers, filename, false);
 }
 
