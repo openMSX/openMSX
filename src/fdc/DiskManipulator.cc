@@ -85,7 +85,7 @@ std::vector<std::string> DiskManipulator::getDriveNamesForCurrentMachine() const
 	for (const auto& drive : drives) {
 		if (!drive.driveName.starts_with(prefix)) continue;
 
-		auto* disk = drive.drive->getSectorAccessibleDisk();
+		const auto* disk = drive.drive->getSectorAccessibleDisk();
 		if (disk && DiskImageUtils::hasPartitionTable(*disk)) {
 			for (unsigned i = 1; true; ++i) {
 				try {
@@ -198,7 +198,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		}
 	}
 
-	auto* disk = it->drive->getSectorAccessibleDisk();
+	const auto* disk = it->drive->getSectorAccessibleDisk();
 	if (!disk) {
 		// not a SectorBasedDisk
 		throw CommandException("Unsupported disk type.");
@@ -474,7 +474,7 @@ void DiskManipulator::tabCompletion(std::vector<string>& tokens) const
 			append(names, {name1, std::string(name2)});
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
+			if (const auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; true; ++i) {
 					try {
 						SectorBuffer buf;

@@ -136,7 +136,7 @@ Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, Se
 	}
 }
 
-void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition)
+void checkSupportedPartition(const SectorAccessibleDisk& disk, unsigned partition)
 {
 	SectorBuffer buf;
 	Partition& p = getPartition(disk, partition, buf);

@@ -145,13 +145,12 @@ static void getScaledFrame(const FrameSource& paintFrame,
 			// then allocate a new one.
 			work = workBuffer.emplace_back(width).data();
 		}
-		auto* work2 = static_cast<uint32_t*>(work);
 		if (height == 240) {
-			auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work2, 320});
+			auto line = paintFrame.getLinePtr320_240(i, std::span<uint32_t, 320>{work, 320});
 			linePtr = line.data();
 		} else {
 			assert (height == 480);
-			auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work2, 640});
+			auto line = paintFrame.getLinePtr640_480(i, std::span<uint32_t, 640>{work, 640});
 			linePtr = line.data();
 		}
 		lines[i] = linePtr;

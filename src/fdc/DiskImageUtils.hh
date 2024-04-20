@@ -149,7 +149,7 @@ namespace DiskImageUtils {
 
 	/** Check whether partition is of type FAT12 or FAT16.
 	 */
-	void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition);
+	void checkSupportedPartition(const SectorAccessibleDisk& disk, unsigned partition);
 
 	/** Check whether the given disk is partitioned.
 	 */
