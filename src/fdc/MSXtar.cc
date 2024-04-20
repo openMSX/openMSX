@@ -57,7 +57,7 @@ namespace FAT12 {
 		unsigned operator()(Free) const { return FAT::FREE; }
 		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
 		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
-	} toClusterNumber;
+	};
 }
 
 namespace FAT16 {
@@ -71,7 +71,7 @@ namespace FAT16 {
 		unsigned operator()(Free) const { return FAT::FREE; }
 		unsigned operator()(EndOfChain) const { return END_OF_CHAIN; }
 		unsigned operator()(Cluster cluster) const { return FAT::FIRST_CLUSTER + cluster.index; }
-	} toClusterNumber;
+	};
 }
 
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
@@ -300,12 +300,12 @@ void MSXtar::writeFAT(Cluster cluster, FatCluster value)
 	}
 
 	if (fat16) {
-		unsigned fatValue = std::visit(FAT16::toClusterNumber, value);
+		unsigned fatValue = std::visit(FAT16::ToClusterNumber{}, value);
 		auto p = subspan<2>(data, index * 2);
 		p[0] = narrow_cast<uint8_t>(fatValue);
 		p[1] = narrow_cast<uint8_t>(fatValue >> 8);
 	} else {
-		unsigned fatValue = std::visit(FAT12::toClusterNumber, value);
+		unsigned fatValue = std::visit(FAT12::ToClusterNumber{}, value);
 		auto p = subspan<2>(data, (index * 3) / 2);
 		if (index & 1) {
 			p[0] = narrow_cast<uint8_t>((p[0] & 0x0F) + (fatValue << 4));
@@ -381,9 +381,9 @@ void MSXtar::setStartCluster(MSXDirEntry& entry, DirCluster cluster) const
 	// * Anything but FREE or a valid cluster number is rejected.
 	assert(!std::holds_alternative<Cluster>(cluster) || std::get<Cluster>(cluster).index < clusterCount);
 	if (fat16) {
-		entry.startCluster = narrow<uint16_t>(std::visit(FAT16::toClusterNumber, cluster));
+		entry.startCluster = narrow<uint16_t>(std::visit(FAT16::ToClusterNumber{}, cluster));
 	} else {
-		entry.startCluster = narrow<uint16_t>(std::visit(FAT12::toClusterNumber, cluster));
+		entry.startCluster = narrow<uint16_t>(std::visit(FAT12::ToClusterNumber{}, cluster));
 	}
 }
 
