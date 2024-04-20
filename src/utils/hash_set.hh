@@ -28,7 +28,7 @@ struct PoolIndex {
 	unsigned idx;
 	[[nodiscard]] constexpr bool operator==(const PoolIndex&) const = default;
 };
-static constexpr PoolIndex invalidIndex{unsigned(-1)};
+inline constexpr PoolIndex invalidIndex{unsigned(-1)};
 
 // Holds the data that will be stored in the hash_set plus some extra
 // administrative data.

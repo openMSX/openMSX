@@ -16,7 +16,7 @@ struct ImGui_SDL_Key {
 	ImGuiKey imgui;
 	SDL_Keycode sdl;
 };
-static constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
+inline constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 	{ImGuiKey_Tab,            SDLK_TAB},
 	{ImGuiKey_LeftArrow,      SDLK_LEFT},
 	{ImGuiKey_RightArrow,     SDLK_RIGHT},

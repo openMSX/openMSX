@@ -13,9 +13,9 @@ namespace openmsx {
 namespace YM2413Burczynski {
 
 // sin wave entries
-static constexpr int SIN_BITS = 10;
-static constexpr size_t SIN_LEN  = 1 << SIN_BITS;
-static constexpr size_t SIN_MASK = SIN_LEN - 1;
+inline constexpr int SIN_BITS = 10;
+inline constexpr size_t SIN_LEN  = 1 << SIN_BITS;
+inline constexpr size_t SIN_MASK = SIN_LEN - 1;
 
 class Channel;
 
