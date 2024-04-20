@@ -24,19 +24,21 @@ public:
 		NUM_SHORTCUTS,
 		INVALID = NUM_SHORTCUTS,
 	};
-	enum Type {
+	enum class Type {
 		LOCAL,
 		GLOBAL,
+		ALWAYS_LOCAL,
+		ALWAYS_GLOBAL,
 	};
 	struct Shortcut {
 		ImGuiKeyChord keyChord = ImGuiKey_None;
-		Type type = LOCAL;
+		Type type = Type::LOCAL;
 
 		[[nodiscard]] bool operator==(const Shortcut& other) const = default;
 	};
 	struct ShortcutWithRepeat {
 		ImGuiKeyChord keyChord = ImGuiKey_None;
-		Type type = LOCAL;
+		Type type = Type::LOCAL;
 		bool repeat = false;
 	};
 
@@ -73,7 +75,8 @@ public:
 				if (shortcut == getDefaultShortcut(id)) continue;
 				xml.with_tag("shortcut", [&]{
 					xml.attribute("key", getKeyChordName(shortcut.keyChord));
-					if (shortcut.type == GLOBAL) xml.attribute("type", "global");
+					// don't save the 'ALWAYS_xxx' values
+					if (shortcut.type == Type::GLOBAL) xml.attribute("type", "global");
 					xml.data(getShortcutName(id));
 				});
 			}

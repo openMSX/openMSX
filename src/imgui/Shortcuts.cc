@@ -1,5 +1,7 @@
 #include "Shortcuts.hh"
 
+#include "one_of.hh"
+
 #include "imgui_internal.h"
 
 #include <array>
@@ -10,20 +12,20 @@ namespace openmsx {
 // * Add a new value in 'enum Shortcuts::ID'
 // * Add a single line in this table
 struct AllShortcutInfo {
-    Shortcuts::ID id;
-    ImGuiKeyChord keyChord;
-    Shortcuts::Type type;
-    bool repeat;
-    zstring_view name; // used in settings.xml
-    zstring_view description; // shown in GUI
+	Shortcuts::ID id;
+	ImGuiKeyChord keyChord;
+	Shortcuts::Type type;
+	bool repeat;
+	zstring_view name;        // used in settings.xml
+	zstring_view description; // shown in GUI
 };
 using enum Shortcuts::ID;
 using enum Shortcuts::Type;
 static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
-	{HEX_GOTO_ADDR,    ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "hex_editor_goto_address", "Go to address in hex viewer"},
-	{STEP,             ImGuiKey_F6,                GLOBAL, true,  "step",                    "Single step in debugger"},
-	{BREAK,            ImGuiKey_F7,                GLOBAL, false, "break",                   "Break CPU emulation in debugger"},
-	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
+	{HEX_GOTO_ADDR,    ImGuiMod_Ctrl | ImGuiKey_G, ALWAYS_LOCAL,  false, "hex_editor_goto_address", "Go to address in hex viewer"},
+	{STEP,             ImGuiKey_F6,                GLOBAL,        true,  "step",                    "Single step in debugger"},
+	{BREAK,            ImGuiKey_F7,                GLOBAL,        false, "break",                   "Break CPU emulation in debugger"},
+	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, ALWAYS_LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
 });
 static_assert(allShortcutInfo.size() == Shortcuts::ID::NUM_SHORTCUTS);
 
@@ -69,7 +71,7 @@ Shortcuts::Shortcuts()
 
 void Shortcuts::setDefaultShortcuts()
 {
-	shortcuts = defaultShortcuts;
+	shortcuts = defaultShortcuts; // this can overwrite the 'type' field
 }
 
 const Shortcuts::Shortcut& Shortcuts::getDefaultShortcut(Shortcuts::ID id)
@@ -87,7 +89,12 @@ const Shortcuts::Shortcut& Shortcuts::getShortcut(Shortcuts::ID id) const
 void Shortcuts::setShortcut(ID id, const Shortcut& shortcut)
 {
 	assert(id < ID::NUM_SHORTCUTS);
+	auto oldType = shortcuts[id].type;
 	shortcuts[id] = shortcut;
+	if (oldType == one_of(Type::ALWAYS_LOCAL, Type::ALWAYS_GLOBAL)) {
+		// cannot change this
+		shortcuts[id].type = oldType;
+	}
 }
 
 bool Shortcuts::getShortcutRepeat(ID id)
@@ -125,7 +132,7 @@ zstring_view Shortcuts::getShortcutDescription(ID id)
 bool Shortcuts::checkShortcut(const ShortcutWithRepeat& shortcut) const
 {
 	assert(shortcut.keyChord != ImGuiKey_None);
-	auto flags = (shortcut.type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
+	auto flags = (shortcut.type == one_of(GLOBAL, ALWAYS_GLOBAL) ? ImGuiInputFlags_RouteGlobalLow : 0)
 	           | ImGuiInputFlags_RouteUnlessBgFocused
 	           | (shortcut.repeat ? ImGuiInputFlags_Repeat : 0);
 	return ImGui::Shortcut(shortcut.keyChord, 0, flags);

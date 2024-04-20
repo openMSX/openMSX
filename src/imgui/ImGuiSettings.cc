@@ -1138,13 +1138,13 @@ void ImGuiSettings::paintFont()
 [[nodiscard]] static std::string formatShortcutWithAnnotations(const Shortcuts::Shortcut& shortcut)
 {
 	auto result = getKeyChordName(shortcut.keyChord);
+	// don't show the 'ALWAYS_xxx' values
 	if (shortcut.type == Shortcuts::Type::GLOBAL) result += ", global";
 	return result;
 }
 
 [[nodiscard]] static bool paintShortcutTableRow(const Shortcuts& shortcuts, Shortcuts::ID id)
 {
-	using enum Shortcuts::Type;
 	auto shortcut = shortcuts.getShortcut(id);
 
 	bool edit = false;
@@ -1170,7 +1170,7 @@ void ImGuiSettings::paintEditShortcut()
 	bool editShortcutWindow = editShortcutId != Shortcuts::ID::INVALID;
 	if (!editShortcutWindow) return;
 
-	im::Window("Edit shortcut", &editShortcutWindow, [&]{
+	im::Window("Edit shortcut", &editShortcutWindow, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		auto& shortcuts = manager.getShortcuts();
 		auto shortcut = shortcuts.getShortcut(editShortcutId);
 
@@ -1195,7 +1195,7 @@ void ImGuiSettings::paintEditShortcut()
 				}
 			}
 			bool isOpen = true;
-			im::PopupModal(waitKeyTitle, &isOpen, ImGuiWindowFlags_NoSavedSettings, [&]{
+			im::PopupModal(waitKeyTitle, &isOpen, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize, [&]{
 				ImGui::Text("Enter key combination for shortcut '%s'",
 					Shortcuts::getShortcutDescription(editShortcutId).c_str());
 				ImGui::Text("Timeout in %d seconds.", int(popupTimeout));
@@ -1211,19 +1211,21 @@ void ImGuiSettings::paintEditShortcut()
 				}
 			});
 
-			if (ImGui::TableNextColumn()) {
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("global");
-			}
-			if (ImGui::TableNextColumn()) {
-				bool global = shortcut.type == GLOBAL;
-				if (ImGui::Checkbox("##global", &global)) {
-					shortcut.type = global ? GLOBAL : LOCAL;
-					shortcuts.setShortcut(editShortcutId, shortcut);
+			if (shortcut.type == one_of(LOCAL, GLOBAL)) { // don't edit the 'ALWAYS_xxx' values
+				if (ImGui::TableNextColumn()) {
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("global");
 				}
-				simpleToolTip(
-					"Global shortcuts react when any GUI window has focus.\n"
-					"Local shortcuts only react when the specific GUI window has focus.\n"sv);
+				if (ImGui::TableNextColumn()) {
+					bool global = shortcut.type == GLOBAL;
+					if (ImGui::Checkbox("##global", &global)) {
+						shortcut.type = global ? GLOBAL : LOCAL;
+						shortcuts.setShortcut(editShortcutId, shortcut);
+					}
+					simpleToolTip(
+						"Global shortcuts react when any GUI window has focus.\n"
+						"Local shortcuts only react when the specific GUI window has focus.\n"sv);
+				}
 			}
 		});
 		ImGui::Separator();
