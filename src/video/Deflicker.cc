@@ -62,7 +62,7 @@ static __m128i compare(__m128i x, __m128i y)
 #endif
 
 std::span<const Pixel> Deflicker::getUnscaledLine(
-	unsigned line, void* buf_, unsigned bufWidth) const
+	unsigned line, std::span<Pixel> helpBuf) const
 {
 	unsigned width0 = lastFrames[0]->getLineWidthDirect(line);
 	unsigned width1 = lastFrames[1]->getLineWidthDirect(line);
@@ -80,8 +80,8 @@ std::span<const Pixel> Deflicker::getUnscaledLine(
 	// Prefer to write directly to the output buffer, if that's not
 	// possible store the intermediate result in a temp buffer.
 	VLA_SSE_ALIGNED(Pixel, buf2, width0);
-	auto* buf = static_cast<Pixel*>(buf_);
-	Pixel* out = (width0 <= bufWidth) ? buf : buf2.data();
+	auto* buf = helpBuf.data();
+	Pixel* out = (width0 <= helpBuf.size()) ? buf : buf2.data();
 
 	// Detect pixels that alternate between two different color values and
 	// replace those with the average color. We search for an alternating
@@ -127,13 +127,13 @@ std::span<const Pixel> Deflicker::getUnscaledLine(
 	               : line0[x];
 	}
 
-	if (width0 <= bufWidth) {
+	if (width0 <= helpBuf.size()) {
 		// If it already fits, we're done
 		return std::span{buf, width0};
 	} else {
 		// Otherwise scale so that it does fit.
-		scaleLine(std::span{out, width0}, std::span{buf, bufWidth});
-		return {buf, bufWidth};
+		scaleLine(std::span{out, width0}, helpBuf);
+		return helpBuf;
 	}
 }
 

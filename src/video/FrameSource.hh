@@ -79,7 +79,7 @@ public:
 	  */
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
-		return getUnscaledLine(line, buf.data(), 1280)[0];
+		return getUnscaledLine(line, buf)[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
@@ -94,8 +94,7 @@ public:
 	[[nodiscard]] inline std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
 	{
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
-		auto unscaledLine =
-			getUnscaledLine(line, buf.data(), narrow<unsigned>(buf.size()));
+		auto unscaledLine = getUnscaledLine(line, buf);
 		if (unscaledLine.size() == buf.size()) {
 			// Already the correct width.
 			return unscaledLine;
@@ -109,14 +108,13 @@ public:
 
 	/** Get a specific line, with the 'native' line-width.
 	  * @param line The line number for the requested line.
-	  * @param buf Buffer space that can _optionally_ be used by the
-	  *            implementation.
-	  * @param bufWidth The size of the above buffer, in pixel units.
+	  * @param helpBuf Buffer space that can _optionally_ be used by the
+	  *                implementation.
 	  * @return Returns a span of the requested line. This span may or may
 	            not use the helper input buffer.
 	  */
 	[[nodiscard]] virtual std::span<const Pixel> getUnscaledLine(
-		unsigned line, void* buf, unsigned bufWidth) const = 0;
+		unsigned line, std::span<Pixel> helpBuf) const = 0;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 320x240 pixels. The difference between this method and

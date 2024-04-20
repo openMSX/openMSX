@@ -1,6 +1,9 @@
 #include "SuperImposedFrame.hh"
+
 #include "LineScalers.hh"
+
 #include "vla.hh"
+
 #include <algorithm>
 #include <cstdint>
 
@@ -26,19 +29,19 @@ unsigned SuperImposedFrame::getLineWidth(unsigned line) const
 }
 
 std::span<const FrameSource::Pixel> SuperImposedFrame::getUnscaledLine(
-	unsigned line, void* buf, unsigned bufWidth) const
+	unsigned line, std::span<Pixel> helpBuf) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
 	unsigned bNum = (getHeight() == bottom->getHeight()) ? line : line / 2;
 	unsigned tWidth = top   ->getLineWidth(tNum);
 	unsigned bWidth = bottom->getLineWidth(bNum);
-	unsigned width = std::min(std::max(tWidth, bWidth), // as wide as the widest source
-	                          bufWidth); // but no wider than the output buffer
+	auto width = std::min(std::max<size_t>(tWidth, bWidth), // as wide as the widest source
+	                      helpBuf.size()); // but no wider than the output buffer
 
-	auto tBuf = std::span{static_cast<Pixel*>(buf), width};
+	auto tBuf = std::span{helpBuf.data(), width};
 	VLA_SSE_ALIGNED(Pixel, bBuf, width);
-	auto tLine = top   ->getLine(tNum, tBuf);
-	auto bLine = bottom->getLine(bNum, bBuf);
+	auto tLine = top   ->getLine(narrow<int>(tNum), tBuf);
+	auto bLine = bottom->getLine(narrow<int>(bNum), bBuf);
 
 	alphaBlendLines(tLine, bLine, tBuf); // possibly tLine == tBuf
 	return tBuf;

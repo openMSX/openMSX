@@ -19,9 +19,9 @@ unsigned DoubledFrame::getLineWidth(unsigned line) const
 }
 
 std::span<const FrameSource::Pixel> DoubledFrame::getUnscaledLine(
-	unsigned line, void* buf, unsigned bufWidth) const
+	unsigned line, std::span<Pixel> helpBuf) const
 {
-	return field->getUnscaledLine(std::max(narrow<int>(line) - skip, 0) / 2, buf, bufWidth);
+	return field->getUnscaledLine(std::max(narrow<int>(line) - skip, 0) / 2, helpBuf);
 }
 
 } // namespace openmsx

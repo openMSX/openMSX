@@ -45,7 +45,7 @@ public:
 private:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
 	[[nodiscard]] std::span<const Pixel> getUnscaledLine(
-		unsigned line, void* buf, unsigned bufWidth) const override;
+		unsigned line, std::span<Pixel> helpBuf) const override;
 	[[nodiscard]] bool hasContiguousStorage() const override;
 
 private:

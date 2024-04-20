@@ -32,7 +32,7 @@ unsigned RawFrame::getLineWidth(unsigned line) const
 }
 
 std::span<const RawFrame::Pixel> RawFrame::getUnscaledLine(
-	unsigned line, void* /*buf*/, unsigned /*bufWidth*/) const
+	unsigned line, std::span<Pixel> /*helpBuf*/) const
 {
 	assert(line < getHeight());
 	return std::span{std::bit_cast<const Pixel*>(data.data() + line * size_t(pitch)),
