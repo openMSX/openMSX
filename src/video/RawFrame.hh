@@ -2,11 +2,10 @@
 #define RAWFRAME_HH
 
 #include "FrameSource.hh"
+
 #include "MemBuffer.hh"
 
-#include <bit>
 #include <cassert>
-#include <cstdint>
 
 namespace openmsx {
 
@@ -16,13 +15,14 @@ namespace openmsx {
 class RawFrame final : public FrameSource
 {
 public:
-	using Pixel = uint32_t;
-
 	RawFrame(unsigned maxWidth, unsigned height);
 
 	[[nodiscard]] std::span<Pixel> getLineDirect(unsigned y) {
 		assert(y < getHeight());
-		return {std::bit_cast<Pixel*>(data.data() + y * pitch), maxWidth};
+		return {data.data() + y * size_t(maxWidth), maxWidth};
+	}
+	[[nodiscard]] std::span<const Pixel> getLineDirect(unsigned y) const {
+		return const_cast<RawFrame*>(this)->getLineDirect(y);
 	}
 
 	[[nodiscard]] unsigned getLineWidthDirect(unsigned y) const {
@@ -30,13 +30,13 @@ public:
 		return lineWidths[y];
 	}
 
-	inline void setLineWidth(unsigned line, unsigned width) {
+	void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());
 		assert(width <= maxWidth);
 		lineWidths[line] = width;
 	}
 
-	inline void setBlank(unsigned line, Pixel color) {
+	void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
 		getLineDirect(line)[0] = color;
 		lineWidths[line] = 1;
@@ -49,10 +49,9 @@ private:
 	[[nodiscard]] bool hasContiguousStorage() const override;
 
 private:
-	MemBuffer<char, 64> data;
+	MemBuffer<Pixel, 64> data; // aligned on cache-lines
 	MemBuffer<unsigned> lineWidths;
-	unsigned maxWidth;
-	unsigned pitch;
+	unsigned maxWidth; // may be larger (rounded up) than requested in the constructor
 };
 
 } // namespace openmsx

@@ -1,27 +1,29 @@
 #include "RawFrame.hh"
-#include "narrow.hh"
-#include <cstdint>
 
 namespace openmsx {
 
+[[nodiscard]] static unsigned calcMaxWidth(unsigned maxWidth)
+{
+	unsigned bytes = maxWidth * sizeof(RawFrame::Pixel);
+	bytes = (bytes + 63) & ~63; // round up to cache-line size
+	return bytes / sizeof(RawFrame::Pixel);
+}
+
 RawFrame::RawFrame(unsigned maxWidth_, unsigned height_)
 	: lineWidths(height_)
-	, maxWidth(maxWidth_)
-	, pitch(narrow<unsigned>(((sizeof(Pixel) * maxWidth) + 63) & ~63))
+	, maxWidth(calcMaxWidth(maxWidth_))
 {
 	setHeight(height_);
 
 	// Allocate memory, make sure each line starts at a 64 byte boundary:
 	// - SSE instructions need 16 byte aligned data
 	// - cache line size on many CPUs is 64 bytes
-	data.resize(size_t(pitch) * height_);
-
-	maxWidth = pitch / sizeof(Pixel); // adjust maxWidth
+	data.resize(size_t(maxWidth) * height_);
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
 	for (auto line : xrange(height_)) {
-		setBlank(line, static_cast<uint32_t>(0));
+		setBlank(line, Pixel(0));
 	}
 }
 
@@ -34,9 +36,7 @@ unsigned RawFrame::getLineWidth(unsigned line) const
 std::span<const RawFrame::Pixel> RawFrame::getUnscaledLine(
 	unsigned line, std::span<Pixel> /*helpBuf*/) const
 {
-	assert(line < getHeight());
-	return std::span{std::bit_cast<const Pixel*>(data.data() + line * size_t(pitch)),
-		         lineWidths[line]};
+	return getLineDirect(line).subspan(0, lineWidths[line]);
 }
 
 bool RawFrame::hasContiguousStorage() const
