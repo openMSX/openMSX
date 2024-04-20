@@ -31,9 +31,13 @@ public:
 	struct Shortcut {
 		ImGuiKeyChord keyChord = ImGuiKey_None;
 		Type type = LOCAL;
-		bool repeat = false;
 
 		[[nodiscard]] bool operator==(const Shortcut& other) const = default;
+	};
+	struct ShortcutWithRepeat {
+		ImGuiKeyChord keyChord = ImGuiKey_None;
+		Type type = LOCAL;
+		bool repeat = false;
 	};
 
 public:
@@ -44,6 +48,7 @@ public:
 	Shortcuts& operator=(Shortcuts&&) = delete;
 	~Shortcuts() = default;
 
+	[[nodiscard]] static bool getShortcutRepeat(ID id);
 	[[nodiscard]] static zstring_view getShortcutName(ID id);
 	[[nodiscard]] static zstring_view getShortcutDescription(ID id);
 	[[nodiscard]] static std::optional<ID> parseShortcutName(std::string_view name);
@@ -55,7 +60,7 @@ public:
 
 	void setDefaultShortcuts();
 
-	[[nodiscard]] bool checkShortcut(const Shortcut& shortcut) const;
+	[[nodiscard]] bool checkShortcut(const ShortcutWithRepeat& shortcut) const;
 	[[nodiscard]] bool checkShortcut(ID id) const;
 
 	template<typename XmlStream>
@@ -69,7 +74,6 @@ public:
 				xml.with_tag("shortcut", [&]{
 					xml.attribute("key", getKeyChordName(shortcut.keyChord));
 					if (shortcut.type == GLOBAL) xml.attribute("type", "global");
-					if (shortcut.repeat) xml.attribute("repeat", "true");
 					xml.data(getShortcutName(id));
 				});
 			}

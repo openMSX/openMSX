@@ -1139,7 +1139,6 @@ void ImGuiSettings::paintFont()
 {
 	auto result = getKeyChordName(shortcut.keyChord);
 	if (shortcut.type == Shortcuts::Type::GLOBAL) result += ", global";
-	if (shortcut.repeat) result += ", repeat";
 	return result;
 }
 
@@ -1225,17 +1224,6 @@ void ImGuiSettings::paintEditShortcut()
 				simpleToolTip(
 					"Global shortcuts react when any GUI window has focus.\n"
 					"Local shortcuts only react when the specific GUI window has focus.\n"sv);
-			}
-
-			if (ImGui::TableNextColumn()) {
-				ImGui::AlignTextToFramePadding();
-				ImGui::TextUnformatted("repeat");
-			}
-			if (ImGui::TableNextColumn()) {
-				if (ImGui::Checkbox("##repeat", &shortcut.repeat)) {
-					shortcuts.setShortcut(editShortcutId, shortcut);
-				}
-				simpleToolTip("Repeat the associated event until the shortcut key is released.\n"sv);
 			}
 		});
 		ImGui::Separator();

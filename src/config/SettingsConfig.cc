@@ -375,8 +375,6 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 			} else {
 				std::cerr << "Parse error: invalid shortcut type \"" << value << "\"\n";
 			}
-		} else if (name == "repeat") {
-			currentShortcut.shortcut.repeat = StringOp::stringToBool(value);
 		}
 		break;
 	case BIND:

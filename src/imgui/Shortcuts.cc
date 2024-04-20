@@ -34,7 +34,14 @@ static constexpr auto defaultShortcuts = []{
 		assert(all.id == i); // verify that rows are in-order
 		result[i].keyChord = all.keyChord;
 		result[i].type = all.type;
-		result[i].repeat = all.repeat;
+	}
+	return result;
+}();
+
+static constexpr auto shortcutRepeats = []{
+	std::array<bool, Shortcuts::ID::NUM_SHORTCUTS> result = {};
+	for (int i = 0; i < Shortcuts::ID::NUM_SHORTCUTS; ++i) {
+		result[i] = allShortcutInfo[i].repeat;
 	}
 	return result;
 }();
@@ -83,6 +90,12 @@ void Shortcuts::setShortcut(ID id, const Shortcut& shortcut)
 	shortcuts[id] = shortcut;
 }
 
+bool Shortcuts::getShortcutRepeat(ID id)
+{
+	assert(id < ID::NUM_SHORTCUTS);
+	return shortcutRepeats[id];
+}
+
 zstring_view Shortcuts::getShortcutName(Shortcuts::ID id)
 {
 	assert(id < ID::NUM_SHORTCUTS);
@@ -109,7 +122,7 @@ zstring_view Shortcuts::getShortcutDescription(ID id)
 	return shortcutDescriptions[id];
 }
 
-bool Shortcuts::checkShortcut(const Shortcut& shortcut) const
+bool Shortcuts::checkShortcut(const ShortcutWithRepeat& shortcut) const
 {
 	assert(shortcut.keyChord != ImGuiKey_None);
 	auto flags = (shortcut.type == GLOBAL ? ImGuiInputFlags_RouteGlobalLow : 0)
@@ -123,7 +136,7 @@ bool Shortcuts::checkShortcut(ID id) const
 	assert(id < ID::NUM_SHORTCUTS);
 	const auto& shortcut = shortcuts[id];
 	if (shortcut.keyChord == ImGuiKey_None) return false;
-	return checkShortcut(shortcut);
+	return checkShortcut({shortcut.keyChord, shortcut.type, getShortcutRepeat(id)});
 }
 
 } // namespace openmsx
