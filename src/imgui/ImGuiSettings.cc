@@ -1143,24 +1143,12 @@ void ImGuiSettings::paintFont()
 	return result;
 }
 
-[[nodiscard]] static bool paintShortcutTableRow(const Shortcuts& shortcuts, Shortcuts::ID id)
+[[nodiscard]] static gl::vec2 buttonSize(std::string_view text, float defaultSize_)
 {
-	auto shortcut = shortcuts.getShortcut(id);
-
-	bool edit = false;
-	if (ImGui::TableNextColumn()) {
-		ImGui::TextUnformatted(Shortcuts::getShortcutDescription(id));
-	}
-	if (ImGui::TableNextColumn()) {
-		ImGui::TextUnformatted(formatShortcutWithAnnotations(shortcut));
-	}
-	if (ImGui::TableNextColumn()) {
-		if (ImGui::Button("edit")) {
-			edit = true;
-			centerNextWindowOverCurrent();
-		}
-	}
-	return edit;
+	const auto& style = ImGui::GetStyle();
+	auto textSize = ImGui::CalcTextSize(text).x + 2.0f * style.FramePadding.x;
+	auto defaultSize = ImGui::GetFontSize() * defaultSize_;
+	return {std::max(textSize, defaultSize), 0.0f};
 }
 
 void ImGuiSettings::paintEditShortcut()
@@ -1184,11 +1172,8 @@ void ImGuiSettings::paintEditShortcut()
 			}
 			static constexpr auto waitKeyTitle = "Waiting for key";
 			if (ImGui::TableNextColumn()) {
-				const auto& style = ImGui::GetStyle();
 				auto text = getKeyChordName(shortcut.keyChord);
-				auto textSize = ImGui::CalcTextSize(text).x + 2.0f * style.FramePadding.x;
-				auto defaultSize = ImGui::GetFontSize() * 4.0f;
-				if (ImGui::Button(text.c_str(), {std::max(textSize, defaultSize), 0.0f})) {
+				if (ImGui::Button(text.c_str(), buttonSize(text, 4.0f))) {
 					popupTimeout = 10.0f;
 					centerNextWindowOverCurrent();
 					ImGui::OpenPopup(waitKeyTitle);
@@ -1207,6 +1192,7 @@ void ImGuiSettings::paintEditShortcut()
 				if (auto keyChord = getCurrentlyPressedKeyChord(); keyChord != ImGuiKey_None) {
 					shortcut.keyChord = keyChord;
 					shortcuts.setShortcut(editShortcutId, shortcut);
+					editShortcutWindow = false;
 					ImGui::CloseCurrentPopup();
 				}
 			});
@@ -1233,6 +1219,7 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == defaultShortcut, [&]{
 			if (ImGui::Button("Restore default")) {
 				shortcuts.setShortcut(editShortcutId, defaultShortcut);
+				editShortcutWindow = false;
 			}
 			simpleToolTip([&]{ return formatShortcutWithAnnotations(defaultShortcut); });
 		});
@@ -1241,6 +1228,7 @@ void ImGuiSettings::paintEditShortcut()
 		im::Disabled(shortcut == Shortcuts::Shortcut{}, [&]{
 			if (ImGui::Button("Set None")) {
 				shortcuts.setShortcut(editShortcutId, Shortcuts::Shortcut{});
+				editShortcutWindow = false;
 			}
 			simpleToolTip("Set no binding for this shortcut"sv);
 		});
@@ -1255,16 +1243,25 @@ void ImGuiSettings::paintShortcut()
 		          | ImGuiTableFlags_RowBg
 		          | ImGuiTableFlags_NoBordersInBodyUntilResize
 		          | ImGuiTableFlags_SizingStretchProp;
-		im::Table("table", 3, flags, {-FLT_MIN, 0.0f}, [&]{
+		im::Table("table", 2, flags, {-FLT_MIN, 0.0f}, [&]{
 			ImGui::TableSetupColumn("description");
 			ImGui::TableSetupColumn("key");
-			ImGui::TableSetupColumn("edit", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
 
 			auto& shortcuts = manager.getShortcuts();
 			im::ID_for_range(Shortcuts::ID::NUM_SHORTCUTS, [&](int i) {
 				auto id = static_cast<Shortcuts::ID>(i);
-				if (paintShortcutTableRow(shortcuts, id)) {
-					editShortcutId = id;
+				auto shortcut = shortcuts.getShortcut(id);
+
+				if (ImGui::TableNextColumn()) {
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted(Shortcuts::getShortcutDescription(id));
+				}
+				if (ImGui::TableNextColumn()) {
+					auto text = formatShortcutWithAnnotations(shortcut);
+					if (ImGui::Button(text.c_str(), buttonSize(text, 9.0f))) {
+						editShortcutId = id;
+						centerNextWindowOverCurrent();
+					}
 				}
 			});
 		});
