@@ -31,13 +31,12 @@ unsigned RawFrame::getLineWidth(unsigned line) const
 	return lineWidths[line];
 }
 
-const RawFrame::Pixel* RawFrame::getLineInfo(
-	unsigned line, unsigned& width,
-	void* /*buf*/, unsigned /*bufWidth*/) const
+std::span<const RawFrame::Pixel> RawFrame::getUnscaledLine(
+	unsigned line, void* /*buf*/, unsigned /*bufWidth*/) const
 {
 	assert(line < getHeight());
-	width = lineWidths[line];
-	return std::bit_cast<const Pixel*>(data.data() + line * size_t(pitch));
+	return std::span{std::bit_cast<const Pixel*>(data.data() + line * size_t(pitch)),
+		         lineWidths[line]};
 }
 
 bool RawFrame::hasContiguousStorage() const

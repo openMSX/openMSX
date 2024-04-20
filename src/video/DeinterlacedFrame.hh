@@ -2,6 +2,7 @@
 #define DEINTERLACEDFRAME_HH
 
 #include "FrameSource.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -17,9 +18,8 @@ public:
 
 private:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
-	[[nodiscard]] const FrameSource::Pixel* getLineInfo(
-		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const override;
+	[[nodiscard]] std::span<const FrameSource::Pixel> getUnscaledLine(
+		unsigned line, void* buf, unsigned bufWidth) const override;
 
 private:
 	/** The original frames whose data will be deinterlaced.

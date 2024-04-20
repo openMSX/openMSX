@@ -79,8 +79,7 @@ public:
 	  */
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
-		unsigned width; // not used
-		return getLineInfo(line, width, buf.data(), 1280)[0];
+		return getUnscaledLine(line, buf.data(), 1280)[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
@@ -95,35 +94,29 @@ public:
 	[[nodiscard]] inline std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
 	{
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
-		unsigned internalWidth;
-		const auto* internalData =
-			getLineInfo(line, internalWidth, buf.data(), narrow<unsigned>(buf.size()));
-		if (internalWidth == narrow<unsigned>(buf.size())) {
-			return std::span{internalData, buf.size()};
+		auto unscaledLine =
+			getUnscaledLine(line, buf.data(), narrow<unsigned>(buf.size()));
+		if (unscaledLine.size() == buf.size()) {
+			// Already the correct width.
+			return unscaledLine;
 		} else {
 			// slow path, non-inlined
 			// internalData might be equal to buf
-			scaleLine(std::span{internalData, internalWidth}, buf);
+			scaleLine(unscaledLine, buf);
 			return buf;
 		}
 	}
 
-	/** Abstract implementation of getLinePtr().
-	  * Pixel type is unspecified (implementations that care about the
-	  * exact type should get it via some other mechanism).
+	/** Get a specific line, with the 'native' line-width.
 	  * @param line The line number for the requested line.
-	  * @param lineWidth Output parameter, the width of the returned line
-	  *                  in pixel units.
 	  * @param buf Buffer space that can _optionally_ be used by the
 	  *            implementation.
 	  * @param bufWidth The size of the above buffer, in pixel units.
-	  * @return Pointer to the first pixel of the requested line. This might
-	  *         be the same as the given 'buf' parameter or it might be some
-	  *         internal buffer.
+	  * @return Returns a span of the requested line. This span may or may
+	            not use the helper input buffer.
 	  */
-	[[nodiscard]] virtual const Pixel* getLineInfo(
-		unsigned line, unsigned& lineWidth,
-		void* buf, unsigned bufWidth) const = 0;
+	[[nodiscard]] virtual std::span<const Pixel> getUnscaledLine(
+		unsigned line, void* buf, unsigned bufWidth) const = 0;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 320x240 pixels. The difference between this method and

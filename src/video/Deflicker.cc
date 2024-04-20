@@ -61,8 +61,8 @@ static __m128i compare(__m128i x, __m128i y)
 }
 #endif
 
-const Pixel* Deflicker::getLineInfo(
-	unsigned line, unsigned& width, void* buf_, unsigned bufWidth) const
+std::span<const Pixel> Deflicker::getUnscaledLine(
+	unsigned line, void* buf_, unsigned bufWidth) const
 {
 	unsigned width0 = lastFrames[0]->getLineWidthDirect(line);
 	unsigned width1 = lastFrames[1]->getLineWidthDirect(line);
@@ -74,8 +74,7 @@ const Pixel* Deflicker::getLineInfo(
 	const Pixel* line3 = lastFrames[3]->getLineDirect(line).data();
 	if ((width0 != width3) || (width0 != width2) || (width0 != width1)) {
 		// Not all the same width.
-		width = width0;
-		return line0;
+		return std::span{line0, width0};
 	}
 
 	// Prefer to write directly to the output buffer, if that's not
@@ -129,14 +128,13 @@ const Pixel* Deflicker::getLineInfo(
 	}
 
 	if (width0 <= bufWidth) {
-		// It it already fits, we're done
-		width = width0;
+		// If it already fits, we're done
+		return std::span{buf, width0};
 	} else {
 		// Otherwise scale so that it does fit.
-		width = bufWidth;
-		scaleLine(std::span<const Pixel>{out, width0}, std::span{buf, bufWidth});
+		scaleLine(std::span{out, width0}, std::span{buf, bufWidth});
+		return {buf, bufWidth};
 	}
-	return buf;
 }
 
 } // namespace openmsx
