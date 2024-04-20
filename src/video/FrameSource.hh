@@ -80,8 +80,7 @@ public:
 	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
 		unsigned width; // not used
-		return std::bit_cast<const Pixel*>(
-			getLineInfo(line, width, buf.data(), 1280))[0];
+		return getLineInfo(line, width, buf.data(), 1280)[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
@@ -97,8 +96,8 @@ public:
 	{
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
 		unsigned internalWidth;
-		const auto* internalData = std::bit_cast<const Pixel*>(
-			getLineInfo(line, internalWidth, buf.data(), narrow<unsigned>(buf.size())));
+		const auto* internalData =
+			getLineInfo(line, internalWidth, buf.data(), narrow<unsigned>(buf.size()));
 		if (internalWidth == narrow<unsigned>(buf.size())) {
 			return std::span{internalData, buf.size()};
 		} else {
@@ -122,7 +121,7 @@ public:
 	  *         be the same as the given 'buf' parameter or it might be some
 	  *         internal buffer.
 	  */
-	[[nodiscard]] virtual const void* getLineInfo(
+	[[nodiscard]] virtual const Pixel* getLineInfo(
 		unsigned line, unsigned& lineWidth,
 		void* buf, unsigned bufWidth) const = 0;
 

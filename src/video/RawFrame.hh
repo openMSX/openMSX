@@ -44,7 +44,7 @@ public:
 
 private:
 	[[nodiscard]] unsigned getLineWidth(unsigned line) const override;
-	[[nodiscard]] const void* getLineInfo(
+	[[nodiscard]] const Pixel* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const override;
 	[[nodiscard]] bool hasContiguousStorage() const override;

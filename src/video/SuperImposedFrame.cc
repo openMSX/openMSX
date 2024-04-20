@@ -25,7 +25,7 @@ unsigned SuperImposedFrame::getLineWidth(unsigned line) const
 	return std::max(tWidth, bWidth);
 }
 
-const void* SuperImposedFrame::getLineInfo(
+const FrameSource::Pixel* SuperImposedFrame::getLineInfo(
 	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;

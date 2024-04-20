@@ -61,7 +61,7 @@ static __m128i compare(__m128i x, __m128i y)
 }
 #endif
 
-const void* Deflicker::getLineInfo(
+const Pixel* Deflicker::getLineInfo(
 	unsigned line, unsigned& width, void* buf_, unsigned bufWidth) const
 {
 	unsigned width0 = lastFrames[0]->getLineWidthDirect(line);
