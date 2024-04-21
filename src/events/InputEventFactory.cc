@@ -189,17 +189,18 @@ namespace openmsx::InputEventFactory {
 		auto comp1 = str.getListIndex(interp, 1).getString();
 
 		if (len == 2) {
+			using enum EventType;
 			if (comp1.starts_with("button")) {
 				return GroupEvent(
-					std::initializer_list<EventType>{EventType::JOY_BUTTON_UP, EventType::JOY_BUTTON_DOWN},
+					std::initializer_list<EventType>{JOY_BUTTON_UP, JOY_BUTTON_DOWN},
 					makeTclList("joy", "button"));
 			} else if (comp1.starts_with("axis")) {
 				return GroupEvent(
-					std::initializer_list<EventType>{EventType::JOY_AXIS_MOTION},
+					std::initializer_list<EventType>{JOY_AXIS_MOTION},
 					makeTclList("joy", "axis"));
 			} else if (comp1.starts_with("hat")) {
 				return GroupEvent(
-					std::initializer_list<EventType>{EventType::JOY_HAT},
+					std::initializer_list<EventType>{JOY_HAT},
 					makeTclList("joy", "hat"));
 			}
 		} else if (len == 3) {

@@ -29,16 +29,10 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 		commandController, "inputdelay",
 		"delay input to avoid key-skips", 0.0, 0.0, 10.0)
 {
-	for (auto type : {
-			EventType::KEY_DOWN,
-			EventType::KEY_UP,
-			EventType::MOUSE_MOTION,
-			EventType::MOUSE_BUTTON_DOWN,
-			EventType::MOUSE_BUTTON_UP,
-			EventType::JOY_AXIS_MOTION,
-			EventType::JOY_HAT,
-			EventType::JOY_BUTTON_DOWN,
-			EventType::JOY_BUTTON_UP}) {
+	using enum EventType;
+	for (auto type : {KEY_DOWN, KEY_UP,
+	                  MOUSE_MOTION, MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP,
+	                  JOY_AXIS_MOTION, JOY_HAT, JOY_BUTTON_DOWN, JOY_BUTTON_UP}) {
 		eventDistributor.registerEventListener(type, *this, EventDistributor::MSX);
 	}
 
@@ -47,16 +41,10 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 
 EventDelay::~EventDelay()
 {
-	for (auto type : {
-			EventType::JOY_BUTTON_UP,
-			EventType::JOY_BUTTON_DOWN,
-			EventType::JOY_HAT,
-			EventType::JOY_AXIS_MOTION,
-			EventType::MOUSE_BUTTON_UP,
-			EventType::MOUSE_BUTTON_DOWN,
-			EventType::MOUSE_MOTION,
-			EventType::KEY_UP,
-			EventType::KEY_DOWN}) {
+	using enum EventType;
+	for (auto type : {JOY_BUTTON_UP, JOY_BUTTON_DOWN, JOY_HAT, JOY_AXIS_MOTION,
+	                  MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_MOTION,
+	                  KEY_UP, KEY_DOWN}) {
 		eventDistributor.unregisterEventListener(type, *this);
 	}
 }

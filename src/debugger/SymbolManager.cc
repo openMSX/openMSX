@@ -22,26 +22,28 @@ namespace openmsx {
 zstring_view SymbolFile::toString(Type type)
 {
 	switch (type) {
-		case Type::AUTO_DETECT: return "auto-detect";
-		case Type::ASMSX:       return "asMSX";
-		case Type::GENERIC:     return "generic";
-		case Type::HTC:         return "htc";
-		case Type::LINKMAP:     return "linkmap";
-		case Type::NOICE:       return "NoICE";
-		case Type::VASM:        return "vasm";
+		using enum Type;
+		case AUTO_DETECT: return "auto-detect";
+		case ASMSX:       return "asMSX";
+		case GENERIC:     return "generic";
+		case HTC:         return "htc";
+		case LINKMAP:     return "linkmap";
+		case NOICE:       return "NoICE";
+		case VASM:        return "vasm";
 		default: UNREACHABLE;
 	}
 }
 
 std::optional<SymbolFile::Type> SymbolFile::parseType(std::string_view str)
 {
-	if (str == "auto-detect") return Type::AUTO_DETECT;
-	if (str == "asMSX")       return Type::ASMSX;
-	if (str == "generic")     return Type::GENERIC;
-	if (str == "htc")         return Type::HTC;
-	if (str == "linkmap")     return Type::LINKMAP;
-	if (str == "NoICE")       return Type::NOICE;
-	if (str == "vasm")        return Type::VASM;
+	using enum Type;
+	if (str == "auto-detect") return AUTO_DETECT;
+	if (str == "asMSX")       return ASMSX;
+	if (str == "generic")     return GENERIC;
+	if (str == "htc")         return HTC;
+	if (str == "linkmap")     return LINKMAP;
+	if (str == "NoICE")       return NOICE;
+	if (str == "vasm")        return VASM;
 	return {};
 }
 
@@ -56,27 +58,28 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 {
 	auto fname = StringOp::toLower(filename);
 
+	using enum SymbolFile::Type;
 	if (fname.ends_with(".noi")) {
 		// NoICE command file
-		return SymbolFile::Type::NOICE;
+		return NOICE;
 	} else if (fname.ends_with(".map")) {
 		// HiTech link map file
-		return SymbolFile::Type::LINKMAP;
+		return LINKMAP;
 	} else if (fname.ends_with(".sym")) {
 		// auto detect which sym file
 		auto [line, _] = StringOp::splitOnFirst(buffer, "\n\r");
 		if (line.starts_with("; Symbol table")) {
-			return SymbolFile::Type::ASMSX;
+			return ASMSX;
 		} else if (StringOp::containsCaseInsensitive(line, " %equ ")) { // TNIASM1
-			return SymbolFile::Type::GENERIC;
+			return GENERIC;
 		} else if (StringOp::containsCaseInsensitive(line, " equ ")) {
-			return SymbolFile::Type::GENERIC;
+			return GENERIC;
 		} else if (StringOp::containsCaseInsensitive(line, "Sections:")) {
-			return SymbolFile::Type::VASM;
+			return VASM;
 		} else {
 			// this is a blunt conclusion but I don't know a way
 			// to detect this file type
-			return SymbolFile::Type::HTC;
+			return HTC;
 		}
 	} else if (fname.ends_with(".symbol") || fname.ends_with(".publics") || fname.ends_with(".sys")) {
 		/* They are the same type of file. For some reason the Debian
@@ -84,9 +87,9 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 			* pasmo doc -> pasmo [options] file.asm file.bin [file.symbol [file.publics] ]
 			* pasmo manpage in Debian -> pasmo [options]  file.asm file.bin [file.sys]
 		*/
-		return SymbolFile::Type::GENERIC; // pasmo
+		return GENERIC; // pasmo
 	}
-	return SymbolFile::Type::GENERIC;
+	return GENERIC;
 }
 
 [[nodiscard]] SymbolFile SymbolManager::loadLines(
@@ -342,23 +345,24 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 	auto buf = file.mmap();
 	std::string_view buffer(std::bit_cast<const char*>(buf.data()), buf.size());
 
-	if (type == SymbolFile::Type::AUTO_DETECT) {
+	using enum SymbolFile::Type;
+	if (type == AUTO_DETECT) {
 		type = detectType(filename, buffer);
 	}
-	assert(type != SymbolFile::Type::AUTO_DETECT);
+	assert(type != AUTO_DETECT);
 
 	switch (type) {
-		case SymbolFile::Type::ASMSX:
+		case ASMSX:
 			return loadASMSX(filename, buffer);
-		case SymbolFile::Type::GENERIC:
+		case GENERIC:
 			return loadGeneric(filename, buffer);
-		case SymbolFile::Type::HTC:
+		case HTC:
 			return loadHTC(filename, buffer);
-		case SymbolFile::Type::LINKMAP:
+		case LINKMAP:
 			return loadLinkMap(filename, buffer);
-		case SymbolFile::Type::NOICE:
+		case NOICE:
 			return loadNoICE(filename, buffer);
-		case SymbolFile::Type::VASM:
+		case VASM:
 			return loadVASM(filename, buffer);
 		default: UNREACHABLE;
 	}
@@ -464,20 +468,21 @@ std::string SymbolManager::getFileFilters()
 
 SymbolFile::Type SymbolManager::getTypeForFilter(std::string_view filter)
 {
+	using enum SymbolFile::Type;
 	if (filter.starts_with("Auto")) {
-		return SymbolFile::Type::AUTO_DETECT;
+		return AUTO_DETECT;
 	} else if (filter.starts_with("asMSX")) {
-		return SymbolFile::Type::ASMSX;
+		return ASMSX;
 	} else if (filter.starts_with("HiTechC link")) {
-		return SymbolFile::Type::LINKMAP;
+		return LINKMAP;
 	} else if (filter.starts_with("HiTechC symbol")) {
-		return SymbolFile::Type::HTC;
+		return HTC;
 	} else if (filter.starts_with("NoICE")) {
-		return SymbolFile::Type::NOICE;
+		return NOICE;
 	} else if (filter.starts_with("vasm")) {
-		return SymbolFile::Type::VASM;
+		return VASM;
 	} else {
-		return SymbolFile::Type::GENERIC;
+		return GENERIC;
 	}
 }
 

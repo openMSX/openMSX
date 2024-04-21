@@ -1357,11 +1357,9 @@ void ImGuiSettings::initListener()
 
 	auto& distributor = manager.getReactor().getEventDistributor();
 	// highest priority (higher than HOTKEY and IMGUI)
-	for (auto type : {EventType::KEY_DOWN,
-	                  EventType::MOUSE_BUTTON_DOWN,
-	                  EventType::JOY_BUTTON_DOWN,
-	                  EventType::JOY_HAT,
-	                  EventType::JOY_AXIS_MOTION}) {
+	using enum EventType;
+	for (auto type : {KEY_DOWN, MOUSE_BUTTON_DOWN,
+	                  JOY_BUTTON_DOWN, JOY_HAT, JOY_AXIS_MOTION}) {
 		distributor.registerEventListener(type, *this);
 	}
 }
@@ -1372,11 +1370,9 @@ void ImGuiSettings::deinitListener()
 	listening = false;
 
 	auto& distributor = manager.getReactor().getEventDistributor();
-	for (auto type : {EventType::JOY_AXIS_MOTION,
-	                  EventType::JOY_HAT,
-	                  EventType::JOY_BUTTON_DOWN,
-	                  EventType::MOUSE_BUTTON_DOWN,
-	                  EventType::KEY_DOWN}) {
+	using enum EventType;
+	for (auto type : {JOY_AXIS_MOTION, JOY_HAT, JOY_BUTTON_DOWN,
+	                  MOUSE_BUTTON_DOWN, KEY_DOWN}) {
 		distributor.unregisterEventListener(type, *this);
 	}
 }

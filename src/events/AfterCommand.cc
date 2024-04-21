@@ -128,22 +128,11 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
-	for (auto type : {EventType::KEY_UP,
-	                  EventType::KEY_DOWN,
-	                  EventType::MOUSE_MOTION,
-	                  EventType::MOUSE_BUTTON_UP,
-	                  EventType::MOUSE_BUTTON_DOWN,
-	                  EventType::MOUSE_WHEEL,
-	                  EventType::JOY_AXIS_MOTION,
-	                  EventType::JOY_HAT,
-	                  EventType::JOY_BUTTON_UP,
-	                  EventType::JOY_BUTTON_DOWN,
-	                  EventType::FINISH_FRAME,
-	                  EventType::BREAK,
-	                  EventType::QUIT,
-	                  EventType::BOOT,
-	                  EventType::MACHINE_LOADED,
-	                  EventType::AFTER_TIMED}) {
+	using enum EventType;
+	for (auto type : {KEY_UP, KEY_DOWN,
+	                  MOUSE_MOTION, MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_WHEEL,
+	                  JOY_AXIS_MOTION, JOY_HAT, JOY_BUTTON_UP, JOY_BUTTON_DOWN,
+	                  FINISH_FRAME, BREAK, QUIT, BOOT, MACHINE_LOADED, AFTER_TIMED}) {
 		eventDistributor.registerEventListener(type, *this);
 	}
 }
@@ -154,22 +143,11 @@ AfterCommand::~AfterCommand()
 		afterCmdPool.remove(idx);
 	}
 
-	for (auto type : {EventType::AFTER_TIMED,
-	                  EventType::MACHINE_LOADED,
-	                  EventType::BOOT,
-	                  EventType::QUIT,
-	                  EventType::BREAK,
-	                  EventType::FINISH_FRAME,
-	                  EventType::JOY_BUTTON_DOWN,
-	                  EventType::JOY_BUTTON_UP,
-	                  EventType::JOY_HAT,
-	                  EventType::JOY_AXIS_MOTION,
-	                  EventType::MOUSE_WHEEL,
-	                  EventType::MOUSE_BUTTON_DOWN,
-	                  EventType::MOUSE_BUTTON_UP,
-	                  EventType::MOUSE_MOTION,
-	                  EventType::KEY_DOWN,
-	                  EventType::KEY_UP}) {
+	using enum EventType;
+	for (auto type : {AFTER_TIMED, MACHINE_LOADED, BOOT, QUIT, BREAK, FINISH_FRAME,
+	                  JOY_BUTTON_DOWN, JOY_BUTTON_UP, JOY_HAT, JOY_AXIS_MOTION, MOUSE_WHEEL,
+	                  MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP, MOUSE_MOTION,
+	                  KEY_DOWN, KEY_UP}) {
 		eventDistributor.unregisterEventListener(type, *this);
 	}
 }
@@ -572,11 +550,12 @@ AfterSimpleEventCmd::AfterSimpleEventCmd(
 std::string_view AfterSimpleEventCmd::getType() const
 {
 	switch (type) {
-		case EventType::FINISH_FRAME:   return "frame";
-		case EventType::BREAK:          return "break";
-		case EventType::BOOT:           return "boot";
-		case EventType::QUIT:           return "quit";
-		case EventType::MACHINE_LOADED: return "machine_switch";
+		using enum EventType;
+		case FINISH_FRAME:   return "frame";
+		case BREAK:          return "break";
+		case BOOT:           return "boot";
+		case QUIT:           return "quit";
+		case MACHINE_LOADED: return "machine_switch";
 		default: UNREACHABLE;
 	}
 }

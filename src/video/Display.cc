@@ -55,10 +55,8 @@ Display::Display(Reactor& reactor_)
 	prevTimeStamp = Timer::getTime();
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	for (auto type : {EventType::FINISH_FRAME,
-	                  EventType::SWITCH_RENDERER,
-	                  EventType::MACHINE_LOADED,
-	                  EventType::WINDOW}) {
+	using enum EventType;
+	for (auto type : {FINISH_FRAME, SWITCH_RENDERER, MACHINE_LOADED, WINDOW}) {
 		eventDistributor.registerEventListener(type, *this);
 	}
 
@@ -70,10 +68,8 @@ Display::~Display()
 	renderSettings.getRendererSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	for (auto type : {EventType::WINDOW,
-	                  EventType::MACHINE_LOADED,
-	                  EventType::SWITCH_RENDERER,
-	                  EventType::FINISH_FRAME}) {
+	using enum EventType;
+	for (auto type : {WINDOW, MACHINE_LOADED, SWITCH_RENDERER, FINISH_FRAME}) {
 		eventDistributor.unregisterEventListener(type, *this);
 	}
 

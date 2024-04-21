@@ -167,16 +167,17 @@ Carnivore2::SubDevice Carnivore2::getSubDevice(word address) const
 		}
 	}
 
+	using enum SubDevice;
 	if        (subSlot == (configRegs[0x28] & 0b00'00'00'11) >> 0) {
-		return SubDevice::MultiMapper;
+		return MultiMapper;
 	} else if (subSlot == (configRegs[0x28] & 0b00'00'11'00) >> 2) {
-		return SubDevice::IDE;
+		return IDE;
 	} else if (subSlot == (configRegs[0x28] & 0b00'11'00'00) >> 4) {
-		return SubDevice::MemoryMapper;
+		return MemoryMapper;
 	} else if (subSlot == (configRegs[0x28] & 0b11'00'00'00) >> 6) {
-		return SubDevice::FmPac;
+		return FmPac;
 	} else {
-		return SubDevice::Nothing;
+		return Nothing;
 	}
 }
 
@@ -186,11 +187,12 @@ byte Carnivore2::readMem(word address, EmuTime::param time)
 		return subSlotReg ^ 0xff;
 	}
 	switch (getSubDevice(address)) {
-		case SubDevice::MultiMapper:  return readMultiMapperSlot(address, time);
-		case SubDevice::IDE:          return readIDESlot(address, time);
-		case SubDevice::MemoryMapper: return readMemoryMapperSlot(address);
-		case SubDevice::FmPac:        return readFmPacSlot(address);
-		default:                      return 0xff;
+		using enum SubDevice;
+		case MultiMapper:  return readMultiMapperSlot(address, time);
+		case IDE:          return readIDESlot(address, time);
+		case MemoryMapper: return readMemoryMapperSlot(address);
+		case FmPac:        return readFmPacSlot(address);
+		default:           return 0xff;
 	}
 }
 
@@ -200,11 +202,12 @@ byte Carnivore2::peekMem(word address, EmuTime::param time) const
 		return subSlotReg ^ 0xff;
 	}
 	switch (getSubDevice(address)) {
-		case SubDevice::MultiMapper:  return peekMultiMapperSlot(address, time);
-		case SubDevice::IDE:          return peekIDESlot(address, time);
-		case SubDevice::MemoryMapper: return peekMemoryMapperSlot(address);
-		case SubDevice::FmPac:        return peekFmPacSlot(address);
-		default:                      return 0xff;
+		using enum SubDevice;
+		case MultiMapper:  return peekMultiMapperSlot(address, time);
+		case IDE:          return peekIDESlot(address, time);
+		case MemoryMapper: return peekMemoryMapperSlot(address);
+		case FmPac:        return peekFmPacSlot(address);
+		default:           return 0xff;
 	}
 }
 
@@ -216,16 +219,17 @@ void Carnivore2::writeMem(word address, byte value, EmuTime::param time)
 	}
 
 	switch (getSubDevice(address)) {
-		case SubDevice::MultiMapper:
+		using enum SubDevice;
+		case MultiMapper:
 			writeMultiMapperSlot(address, value, time);
 			break;
-		case SubDevice::IDE:
+		case IDE:
 			writeIDESlot(address, value, time);
 			break;
-		case SubDevice::MemoryMapper:
+		case MemoryMapper:
 			writeMemoryMapperSlot(address, value);
 			break;
-		case SubDevice::FmPac:
+		case FmPac:
 			writeFmPacSlot(address, value, time);
 			break;
 		default:

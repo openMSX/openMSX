@@ -532,18 +532,19 @@ struct GetIfEventHelper<SdlEvent> { // extension for base-classes
 	[[nodiscard]] const SdlEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
-		case EventType::KEY_UP:              return &std::get<KeyUpEvent>(var);
-		case EventType::KEY_DOWN:            return &std::get<KeyDownEvent>(var);
-		case EventType::MOUSE_BUTTON_UP:     return &std::get<MouseButtonUpEvent>(var);
-		case EventType::MOUSE_BUTTON_DOWN:   return &std::get<MouseButtonDownEvent>(var);
-		case EventType::MOUSE_WHEEL:         return &std::get<MouseWheelEvent>(var);
-		case EventType::MOUSE_MOTION:        return &std::get<MouseMotionEvent>(var);
-		case EventType::JOY_BUTTON_UP:       return &std::get<JoystickButtonUpEvent>(var);
-		case EventType::JOY_BUTTON_DOWN:     return &std::get<JoystickButtonDownEvent>(var);
-		case EventType::JOY_AXIS_MOTION:     return &std::get<JoystickAxisMotionEvent>(var);
-		case EventType::JOY_HAT:             return &std::get<JoystickHatEvent>(var);
-		case EventType::WINDOW:              return &std::get<WindowEvent>(var);
-		case EventType::TEXT:                return &std::get<TextEvent>(var);
+		using enum EventType;
+		case KEY_UP:            return &std::get<KeyUpEvent>(var);
+		case KEY_DOWN:          return &std::get<KeyDownEvent>(var);
+		case MOUSE_BUTTON_UP:   return &std::get<MouseButtonUpEvent>(var);
+		case MOUSE_BUTTON_DOWN: return &std::get<MouseButtonDownEvent>(var);
+		case MOUSE_WHEEL:       return &std::get<MouseWheelEvent>(var);
+		case MOUSE_MOTION:      return &std::get<MouseMotionEvent>(var);
+		case JOY_BUTTON_UP:     return &std::get<JoystickButtonUpEvent>(var);
+		case JOY_BUTTON_DOWN:   return &std::get<JoystickButtonDownEvent>(var);
+		case JOY_AXIS_MOTION:   return &std::get<JoystickAxisMotionEvent>(var);
+		case JOY_HAT:           return &std::get<JoystickHatEvent>(var);
+		case WINDOW:            return &std::get<WindowEvent>(var);
+		case TEXT:              return &std::get<TextEvent>(var);
 		default: return nullptr;
 		}
 	}
@@ -553,8 +554,9 @@ struct GetIfEventHelper<KeyEvent> {
 	[[nodiscard]] const KeyEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
-		case EventType::KEY_UP:   return &std::get<KeyUpEvent>(var);
-		case EventType::KEY_DOWN: return &std::get<KeyDownEvent>(var);
+		using enum EventType;
+		case KEY_UP:   return &std::get<KeyUpEvent>(var);
+		case KEY_DOWN: return &std::get<KeyDownEvent>(var);
 		default: return nullptr;
 		}
 	}
@@ -564,10 +566,11 @@ struct GetIfEventHelper<JoystickEvent> {
 	[[nodiscard]] const JoystickEvent* operator()(const Event& event) const {
 		const auto& var = event;
 		switch (EventType(var.index())) {
-		case EventType::JOY_BUTTON_UP:   return &std::get<JoystickButtonUpEvent>(var);
-		case EventType::JOY_BUTTON_DOWN: return &std::get<JoystickButtonDownEvent>(var);
-		case EventType::JOY_AXIS_MOTION: return &std::get<JoystickAxisMotionEvent>(var);
-		case EventType::JOY_HAT:         return &std::get<JoystickHatEvent>(var);
+		using enum EventType;
+		case JOY_BUTTON_UP:   return &std::get<JoystickButtonUpEvent>(var);
+		case JOY_BUTTON_DOWN: return &std::get<JoystickButtonDownEvent>(var);
+		case JOY_AXIS_MOTION: return &std::get<JoystickAxisMotionEvent>(var);
+		case JOY_HAT:         return &std::get<JoystickHatEvent>(var);
 		default: return nullptr;
 		}
 	}

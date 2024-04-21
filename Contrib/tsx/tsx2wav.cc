@@ -45,9 +45,10 @@ int main(int argc, const char** argv)
 			std::cout << "  first file type = " <<
 				[&] {
 					switch (*type) {
-					case TsxParser::FileType::ASCII:  return "ASCII";
-					case TsxParser::FileType::BINARY: return "BINARY";
-					case TsxParser::FileType::BASIC:  return "BASIC";
+					using enum TsxParser::FileType;
+					case ASCII:  return "ASCII";
+					case BINARY: return "BINARY";
+					case BASIC:  return "BASIC";
 					default: return "UNKNOWN";
 					}
 				}() << '\n';

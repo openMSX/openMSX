@@ -72,17 +72,18 @@ std::optional<Sha1Sum> FilePool::getSha1Sum(const std::string& filename)
 
 [[nodiscard]] static FileType parseTypes(Interpreter& interp, const TclObject& list)
 {
-	auto result = FileType::NONE;
+	using enum FileType;
+	auto result = NONE;
 	for (auto i : xrange(list.getListLength(interp))) {
 		std::string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
-			result |= FileType::SYSTEM_ROM;
+			result |= SYSTEM_ROM;
 		} else if (elem == "rom") {
-			result |= FileType::ROM;
+			result |= ROM;
 		} else if (elem == "disk") {
-			result |= FileType::DISK;
+			result |= DISK;
 		} else if (elem == "tape") {
-			result |= FileType::TAPE;
+			result |= TAPE;
 		} else {
 			throw CommandException("Unknown type: ", elem);
 		}

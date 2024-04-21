@@ -274,34 +274,35 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::envelopeGenerate1()
 	bool prev2_eg_kon   = eg_kon[(CYCLES + 16) & 1];
 	bool prev2_eg_dokon = eg_dokon[(CYCLES + 16) % 18];
 
+	using enum EgState;
 	auto state = eg_state[(CYCLES + 16) % 18];
 	if (prev2_eg_dokon) [[unlikely]] {
-		eg_state[(CYCLES + 16) % 18] = EgState::attack;
+		eg_state[(CYCLES + 16) % 18] = attack;
 	} else if (!prev2_eg_kon) {
-		eg_state[(CYCLES + 16) % 18] = EgState::release;
-	} else if ((state == EgState::attack) && (level == 0)) [[unlikely]] {
-		eg_state[(CYCLES + 16) % 18] = EgState::decay;
-	} else if ((state == EgState::decay) && ((level >> 3) == eg_sl[CYCLES & 1])) [[unlikely]] {
-		eg_state[(CYCLES + 16) % 18] = EgState::sustain;
+		eg_state[(CYCLES + 16) % 18] = release;
+	} else if ((state == attack) && (level == 0)) [[unlikely]] {
+		eg_state[(CYCLES + 16) % 18] = decay;
+	} else if ((state == decay) && ((level >> 3) == eg_sl[CYCLES & 1])) [[unlikely]] {
+		eg_state[(CYCLES + 16) % 18] = sustain;
 	}
 
 	auto prev2_rate = eg_rate[(CYCLES + 16) & 1];
 	int32_t next_level
-	    = (state != EgState::attack && prev2_eg_off && !prev2_eg_dokon) ? 0x7f
+	    = (state != attack && prev2_eg_off && !prev2_eg_dokon) ? 0x7f
 	    : ((prev2_rate >= 60) && prev2_eg_dokon)                        ? 0x00
 	                                                                    : level;
 	auto step = [&]() -> int {
 		switch (state) {
-		case EgState::attack:
+		case attack:
 			if (prev2_eg_kon && (level != 0)) [[likely]] {
 				return (level ^ 0xfff) >> attackPtr[prev2_rate];
 			}
 			break;
-		case EgState::decay:
+		case decay:
 			if ((level >> 3) == eg_sl[CYCLES & 1]) return 0;
 			[[fallthrough]];
-		case EgState::sustain:
-		case EgState::release:
+		case sustain:
+		case release:
 			if (!prev2_eg_off && !prev2_eg_dokon) {
 				return releasePtr[prev2_rate];
 			}
@@ -354,9 +355,10 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 	eg_kon[CYCLES & 1] = new_eg_kon;
 
 	// Calculate rate
+	using enum EgState;
 	auto state_rate = eg_state[CYCLES];
-	if (state_rate == EgState::release && new_eg_kon && new_eg_off) [[unlikely]] {
-		state_rate = EgState::attack;
+	if (state_rate == release && new_eg_kon && new_eg_off) [[unlikely]] {
+		state_rate = attack;
 		eg_dokon[CYCLES] = true;
 	} else {
 		eg_dokon[CYCLES] = false;
@@ -366,17 +368,17 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		if (!new_eg_kon && !(sk & 2) && mcsel == 1 && !patch1.et[mcsel]) {
 			return 7 * 4;
 		}
-		if (new_eg_kon && eg_state[CYCLES] == EgState::release && !new_eg_off) {
+		if (new_eg_kon && eg_state[CYCLES] == release && !new_eg_off) {
 			return 12 * 4;
 		}
 		bool tom_or_hh = (rm_for_cycle(CYCLES) == one_of(rm_num_tom, rm_num_hh)) && use_rm_patches;
 		if (!new_eg_kon && !mcsel && !tom_or_hh) {
 			return 0 * 4;
 		}
-		return (state_rate == EgState::attack ) ?   patch1.ar4[mcsel]
-		   :   (state_rate == EgState::decay  ) ?   patch1.dr4[mcsel]
-		   :   (state_rate == EgState::sustain) ?   (patch1.et[mcsel] ? (0 * 4) : patch1.rr4[mcsel])
-		   : /*(state_rate == EgState::release) ?*/ ((sk & 2) ? (5 * 4) : patch1.rr4[mcsel]);
+		return (state_rate == attack ) ?   patch1.ar4[mcsel]
+		   :   (state_rate == decay  ) ?   patch1.dr4[mcsel]
+		   :   (state_rate == sustain) ?   (patch1.et[mcsel] ? (0 * 4) : patch1.rr4[mcsel])
+		   : /*(state_rate == release) ?*/ ((sk & 2) ? (5 * 4) : patch1.rr4[mcsel]);
 	}();
 
 	eg_rate[CYCLES & 1] = narrow_cast<uint8_t>([&]() {

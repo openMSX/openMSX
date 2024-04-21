@@ -60,9 +60,8 @@ void ImGuiOpenFile::setBookmarks()
 	auto& filePool = manager.getReactor().getFilePool();
 	std::vector<std::string> existingNames;
 	for (const auto& dir : filePool.getDirectories()) {
-		//using enum FileType; // c++20, but needs gcc-11
-		//if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
-		if ((dir.types & (FileType::ROM | FileType::DISK | FileType::TAPE)) == FileType::NONE) continue;
+		using enum FileType;
+		if ((dir.types & (ROM | DISK | TAPE)) == NONE) continue;
 
 		auto path = FileOperations::getNativePath(std::string(dir.path));
 		if (!FileOperations::isDirectory(path)) continue;

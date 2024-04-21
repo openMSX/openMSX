@@ -312,14 +312,15 @@ void TsxParser::processBlock4B(const Block4B& b)
 
 	// determine file type
 	if (!firstFileType && (len == 16)) {
+		using enum FileType;
 		if (memcmp(data.data(), ASCII_HEADER.data(), ASCII_HEADER.size()) == 0) {
-			firstFileType = FileType::ASCII;
+			firstFileType = ASCII;
 		} else if (memcmp(data.data(), BINARY_HEADER.data(), BINARY_HEADER.size()) == 0) {
-			firstFileType = FileType::BINARY;
+			firstFileType = BINARY;
 		} else if (memcmp(data.data(), BASIC_HEADER.data(), BASIC_HEADER.size()) == 0) {
-			firstFileType = FileType::BASIC;
+			firstFileType = BASIC;
 		} else {
-			firstFileType = FileType::UNKNOWN;
+			firstFileType = UNKNOWN;
 		}
 	}
 

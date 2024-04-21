@@ -349,13 +349,14 @@ void ImGuiConsole::colorize(std::string_view line)
 		}
 		imColor color = [&] {
 			switch (col) {
-			case 'E': return imColor::ERROR;
-			case 'c': return imColor::COMMENT;
-			case 'v': return imColor::VARIABLE;
-			case 'l': return imColor::LITERAL;
-			case 'p': return imColor::PROC;
-			case 'o': return imColor::OPERATOR;
-			default:  return imColor::TEXT; // other
+			using enum imColor;
+			case 'E': return ERROR;
+			case 'c': return COMMENT;
+			case 'v': return VARIABLE;
+			case 'l': return LITERAL;
+			case 'p': return PROC;
+			case 'o': return OPERATOR;
+			default:  return TEXT; // other
 			}
 		}();
 		coloredInputBuf.addChunk(line.substr(pos2, pos - pos2), color);

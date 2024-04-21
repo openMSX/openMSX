@@ -335,30 +335,31 @@ void setColors(int style)
 {
 	// style: 0->dark, 1->light, 2->classic
 	bool light = style == 1;
+	using enum imColor;
 
-	//                                            AA'BB'GG'RR
-	imColors[size_t(imColor::TRANSPARENT   )] = 0x00'00'00'00;
-	imColors[size_t(imColor::BLACK         )] = 0xff'00'00'00;
-	imColors[size_t(imColor::WHITE         )] = 0xff'ff'ff'ff;
-	imColors[size_t(imColor::GRAY          )] = 0xff'80'80'80;
-	imColors[size_t(imColor::YELLOW        )] = 0xff'00'ff'ff;
-	imColors[size_t(imColor::RED_BG        )] = 0x40'00'00'ff;
-	imColors[size_t(imColor::YELLOW_BG     )] = 0x80'00'ff'ff;
+	//                                   AA'BB'GG'RR
+	imColors[size_t(TRANSPARENT   )] = 0x00'00'00'00;
+	imColors[size_t(BLACK         )] = 0xff'00'00'00;
+	imColors[size_t(WHITE         )] = 0xff'ff'ff'ff;
+	imColors[size_t(GRAY          )] = 0xff'80'80'80;
+	imColors[size_t(YELLOW        )] = 0xff'00'ff'ff;
+	imColors[size_t(RED_BG        )] = 0x40'00'00'ff;
+	imColors[size_t(YELLOW_BG     )] = 0x80'00'ff'ff;
 
-	imColors[size_t(imColor::TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
-	imColors[size_t(imColor::TEXT_DISABLED )] = ImGui::GetColorU32(ImGuiCol_TextDisabled);
+	imColors[size_t(TEXT          )] = ImGui::GetColorU32(ImGuiCol_Text);
+	imColors[size_t(TEXT_DISABLED )] = ImGui::GetColorU32(ImGuiCol_TextDisabled);
 
-	imColors[size_t(imColor::ERROR         )] = 0xff'00'00'ff;
-	imColors[size_t(imColor::WARNING       )] = 0xff'33'b3'ff;
+	imColors[size_t(ERROR         )] = 0xff'00'00'ff;
+	imColors[size_t(WARNING       )] = 0xff'33'b3'ff;
 
-	imColors[size_t(imColor::COMMENT       )] = 0xff'5c'ff'5c;
-	imColors[size_t(imColor::VARIABLE      )] = 0xff'ff'ff'00;
-	imColors[size_t(imColor::LITERAL       )] = light ? 0xff'9c'5d'27 : 0xff'00'ff'ff;
-	imColors[size_t(imColor::PROC          )] = 0xff'cd'00'cd;
-	imColors[size_t(imColor::OPERATOR      )] = 0xff'cd'cd'00;
+	imColors[size_t(COMMENT       )] = 0xff'5c'ff'5c;
+	imColors[size_t(VARIABLE      )] = 0xff'ff'ff'00;
+	imColors[size_t(LITERAL       )] = light ? 0xff'9c'5d'27 : 0xff'00'ff'ff;
+	imColors[size_t(PROC          )] = 0xff'cd'00'cd;
+	imColors[size_t(OPERATOR      )] = 0xff'cd'cd'00;
 
-	imColors[size_t(imColor::KEY_ACTIVE    )] = 0xff'10'40'ff;
-	imColors[size_t(imColor::KEY_NOT_ACTIVE)] = 0x80'00'00'00;
+	imColors[size_t(KEY_ACTIVE    )] = 0xff'10'40'ff;
+	imColors[size_t(KEY_NOT_ACTIVE)] = 0x80'00'00'00;
 }
 
 } // namespace openmsx
