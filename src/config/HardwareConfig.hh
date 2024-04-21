@@ -99,7 +99,7 @@ private:
 	std::string hwName;
 	Type type;
 	std::string userName;
-	XMLDocument config;
+	XMLDocument config{8192}; // tweak: initial allocator buffer size
 	FileContext context;
 
 	std::array<std::array<bool, 4>, 4> externalSlots;

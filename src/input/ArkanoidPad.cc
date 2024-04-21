@@ -1,10 +1,12 @@
 #include "ArkanoidPad.hh"
-#include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
+
 #include "Event.hh"
+#include "MSXEventDistributor.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+
 #include <algorithm>
 
 // Implemented mostly according to the info here: http://www.msx.org/forumtopic7661.html

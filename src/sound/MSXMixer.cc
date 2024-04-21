@@ -50,9 +50,6 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(commandController.getMachineInfoCommand())
 {
-	hostSampleRate = 44100;
-	fragmentSize = 0;
-
 	muteCount = 1;
 	unmute(); // calls Mixer::registerMixer()
 

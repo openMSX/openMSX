@@ -37,7 +37,6 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
                              Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, devIdx(unsigned(-1))
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);

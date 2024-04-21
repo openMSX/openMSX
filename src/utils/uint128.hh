@@ -25,7 +25,7 @@ using uint128 = __uint128_t;
 class uint128
 {
 public:
-	constexpr uint128(uint64_t a) : lo(a), hi(0) {}
+	constexpr uint128(uint64_t a) : lo(a) {}
 
 	[[nodiscard]] constexpr bool operator==(const uint128&) const = default;
 
@@ -142,7 +142,7 @@ public:
 	constexpr uint128& operator*=(const uint128& b);
 
 private:
-	constexpr uint128() : lo(0), hi(0) {}
+	constexpr uint128() = default;
 	constexpr uint128(uint64_t low, uint64_t high) : lo(low), hi(high) {}
 
 	[[nodiscard]] constexpr std::pair<uint128, uint128> div(const uint128& ds) const;
@@ -176,8 +176,8 @@ private:
 	}
 
 private:
-	uint64_t lo;
-	uint64_t hi;
+	uint64_t lo = 0;
+	uint64_t hi = 0;
 };
 
 [[nodiscard]] constexpr uint128 operator+(const uint128& a, const uint128& b)

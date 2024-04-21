@@ -45,8 +45,8 @@ protected:
 private:
 	EnumSetting<ResampleType>& resampleSetting;
 	std::unique_ptr<ResampleAlgo> algo;
-	DynamicClock emuClock; // time of the last produced emu-sample,
-	                       //    ticks once per emu-sample
+	DynamicClock emuClock{EmuTime::zero()}; // time of the last produced emu-sample,
+	                                        //    ticks once per emu-sample
 };
 
 } // namespace openmsx

@@ -25,13 +25,6 @@ namespace openmsx {
 
 LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 	: filename(std::move(filename_))
-#if HAVE_MMAP || defined _WIN32
-	, mmem(nullptr)
-#endif
-#if defined _WIN32
-	, hMmap(nullptr)
-#endif
-	, readOnly(false)
 {
 	if (mode == File::SAVE_PERSISTENT) {
 		if (auto pos = filename.find_last_of('/'); pos != std::string::npos) {
@@ -75,13 +68,6 @@ LocalFile::LocalFile(std::string filename_, File::OpenMode mode)
 
 LocalFile::LocalFile(std::string filename_, const char* mode)
 	: filename(std::move(filename_))
-#if HAVE_MMAP || defined _WIN32
-	, mmem(nullptr)
-#endif
-#if defined _WIN32
-	, hMmap(nullptr)
-#endif
-	, readOnly(false)
 {
 	assert(strchr(mode, 'b'));
 	const std::string name = FileOperations::getNativePath(filename);

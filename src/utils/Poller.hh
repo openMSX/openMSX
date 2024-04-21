@@ -48,7 +48,7 @@ private:
 #ifndef _WIN32
 	std::array<int, 2> wakeupPipe;
 #endif
-	std::atomic_bool abortFlag;
+	std::atomic_bool abortFlag = false;
 };
 
 } // namespace openmsx

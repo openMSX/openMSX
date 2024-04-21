@@ -155,7 +155,6 @@ std::string_view HardwareConfig::getRomFilename() const
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, std::string hwName_)
 	: motherBoard(motherBoard_)
 	, hwName(std::move(hwName_))
-	, config(8192) // tweak: initial allocator buffer size
 {
 	for (auto& sub : externalSlots) {
 		ranges::fill(sub, false);

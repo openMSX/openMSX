@@ -10,7 +10,6 @@
 namespace openmsx {
 
 Poller::Poller()
-	: abortFlag(false)
 {
 #ifndef _WIN32
 	if (pipe(wakeupPipe.data())) {

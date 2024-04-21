@@ -34,7 +34,7 @@ private:
 	std::array<MSXDevice*, 4> inDevices;
 	std::array<MSXDevice*, 4> outDevices;
 	/** Remembers the time at which last VDP I/O action took place. */
-	Clock<7159090> lastTime;
+	Clock<7159090> lastTime{EmuTime::zero()};
 };
 
 } // namespace openmsx

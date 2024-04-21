@@ -105,9 +105,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, data(*vdp_.getDeviceConfig2().getXML(), bufferSize(size))
 	, logicalVRAMDebug (vdp)
 	, physicalVRAMDebug(vdp, size)
-	#ifdef DEBUG
-	, vramTime(EmuTime::zero())
-	#endif
 	, actualSize(size)
 	, vrMode(vdp.getVRMode())
 	, cmdReadWindow(data)

@@ -1,10 +1,12 @@
 #ifndef REACTOR_HH
 #define REACTOR_HH
 
-#include "Observer.hh"
 #include "EnumSetting.hh"
 #include "EventListener.hh"
+#include "Observer.hh"
+
 #include "view.hh"
+
 #include <cassert>
 #include <memory>
 #include <mutex>

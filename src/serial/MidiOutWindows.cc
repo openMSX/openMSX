@@ -20,7 +20,6 @@ void MidiOutWindows::registerAll(PluggingController& controller)
 
 
 MidiOutWindows::MidiOutWindows(unsigned num)
-	: devIdx(unsigned(-1))
 {
 	name = w32_midiOutGetVFN(num);
 	desc = w32_midiOutGetRDN(num);

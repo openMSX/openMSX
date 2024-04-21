@@ -57,7 +57,7 @@ private:
 
 	const DeviceConfig config;
 	TrackedRam ram;
-	const char* const header;
+	const char* const header = nullptr;
 
 	std::string loadedFilename;
 };

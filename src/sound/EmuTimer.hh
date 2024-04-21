@@ -53,7 +53,7 @@ private:
 
 private:
 	EmuTimerCallback& cb;
-	DynamicClock clock;
+	DynamicClock clock{EmuTime::zero()};
 	const int maxVal;
 	int count;
 	const byte flag;

@@ -2,10 +2,10 @@
 #define WAVAUDIOINPUT_HH
 
 #include "AudioInputDevice.hh"
-#include "FilenameSetting.hh"
-#include "WavData.hh"
-#include "Observer.hh"
 #include "EmuTime.hh"
+#include "FilenameSetting.hh"
+#include "Observer.hh"
+#include "WavData.hh"
 
 namespace openmsx {
 
@@ -34,7 +34,7 @@ private:
 private:
 	FilenameSetting audioInputFilenameSetting;
 	WavData wav;
-	EmuTime reference;
+	EmuTime reference = EmuTime::zero();
 };
 
 } // namespace openmsx

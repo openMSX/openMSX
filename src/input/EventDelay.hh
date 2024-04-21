@@ -53,7 +53,7 @@ private:
 	std::vector<std::pair<int, Event>> nonMatchedKeyPresses;
 #endif
 
-	EmuTime prevEmu;
+	EmuTime prevEmu = EmuTime::zero();
 	uint64_t prevReal;
 	FloatSetting delaySetting;
 };

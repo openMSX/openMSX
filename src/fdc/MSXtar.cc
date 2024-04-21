@@ -194,7 +194,6 @@ void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 MSXtar::MSXtar(SectorAccessibleDisk& sectorDisk, const MsxChar2Unicode& msxChars_)
 	: disk(sectorDisk)
 	, msxChars(msxChars_)
-	, findFirstFreeClusterStart{0}
 {
 	if (disk.getNbSectors() == 0) {
 		throw MSXException("No disk inserted.");

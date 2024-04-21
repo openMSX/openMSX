@@ -24,7 +24,7 @@ private:
 private:
 	const std::string name;
 	std::thread thread;
-	std::atomic<bool> exitLoop;
+	std::atomic<bool> exitLoop = false;
 };
 
 } // namespace openmsx

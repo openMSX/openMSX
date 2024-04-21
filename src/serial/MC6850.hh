@@ -62,7 +62,7 @@ private:
 
 	// External clock, divided by 1, 16 or 64.
 	// Transmitted bits are synced to this clock
-	DynamicClock txClock;
+	DynamicClock txClock{EmuTime::zero()};
 	const unsigned clockFreq;
 
 	IRQHelper rxIRQ;

@@ -20,7 +20,6 @@ namespace openmsx {
 // For use in unit-tests.
 SRAM::SRAM(size_t size, const XMLElement& xml, DontLoadTag)
 	: ram(xml, size)
-	, header(nullptr) // not used
 {
 }
 
@@ -31,7 +30,6 @@ SRAM::SRAM(size_t size, const XMLElement& xml, DontLoadTag)
 SRAM::SRAM(const std::string& name, static_string_view description,
            size_t size, const DeviceConfig& config_, DontLoadTag)
 	: ram(config_, name, description, size)
-	, header(nullptr) // not used
 {
 }
 

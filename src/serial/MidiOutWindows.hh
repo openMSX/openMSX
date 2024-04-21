@@ -30,7 +30,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	unsigned devIdx;
+	unsigned devIdx = unsigned(-1);
 	std::string name;
 	std::string desc;
 };

@@ -665,7 +665,7 @@ private:
 	  * in the correct order.
 	  */
 	#ifdef DEBUG
-	EmuTime vramTime;
+	EmuTime vramTime = EmuTime::zero();
 	#endif
 
 	/** Mask to handle vram mirroring

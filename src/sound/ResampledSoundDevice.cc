@@ -1,13 +1,17 @@
 #include "ResampledSoundDevice.hh"
+
 #include "ResampleTrivial.hh"
 #include "ResampleHQ.hh"
 #include "ResampleLQ.hh"
 #include "ResampleBlip.hh"
+
+#include "EnumSetting.hh"
+#include "GlobalSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "GlobalSettings.hh"
-#include "EnumSetting.hh"
+
 #include "unreachable.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -20,7 +24,6 @@ ResampledSoundDevice::ResampledSoundDevice(
 	: SoundDevice(motherBoard.getMSXMixer(), name_, description_,
 	              channels, inputSampleRate_, stereo_)
 	, resampleSetting(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
-	, emuClock(EmuTime::zero())
 {
 	resampleSetting.attach(*this);
 }
@@ -29,7 +32,6 @@ ResampledSoundDevice::~ResampledSoundDevice()
 {
 	resampleSetting.detach(*this);
 }
-
 
 void ResampledSoundDevice::setOutputRate(unsigned /*hostSampleRate*/, double /*speed*/)
 {
@@ -46,7 +48,6 @@ bool ResampledSoundDevice::generateInput(float* buffer, size_t num)
 {
 	return mixChannels(buffer, num);
 }
-
 
 void ResampledSoundDevice::update(const Setting& setting) noexcept
 {

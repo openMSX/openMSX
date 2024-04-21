@@ -202,7 +202,6 @@ CliServer::CliServer(CommandController& commandController_,
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
-	, listenSock(OPENMSX_INVALID_SOCKET)
 {
 	try {
 		listenSock = createSocket();

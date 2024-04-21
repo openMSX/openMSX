@@ -128,7 +128,7 @@ private:
 	const std::string hostDir;
 	const SyncMode syncMode;
 
-	EmuTime lastAccess; // last time there was a sector read/write
+	EmuTime lastAccess = EmuTime::zero(); // last time there was a sector read/write
 
 	// For each directory entry that has a mapped host file/directory we
 	// store the name, last modification time and size of the corresponding

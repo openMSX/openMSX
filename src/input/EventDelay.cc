@@ -1,14 +1,17 @@
 #include "EventDelay.hh"
+
+#include "Event.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
-#include "ReverseManager.hh"
-#include "Event.hh"
-#include "Timer.hh"
 #include "MSXException.hh"
+#include "ReverseManager.hh"
+#include "Timer.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
+
 #include <cassert>
 
 #include <SDL.h>
@@ -23,7 +26,6 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
-	, prevEmu(EmuTime::zero())
 	, prevReal(Timer::getTime())
 	, delaySetting(
 		commandController, "inputdelay",

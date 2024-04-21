@@ -49,7 +49,6 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 

@@ -1,8 +1,9 @@
 #include "WavAudioInput.hh"
+
+#include "CliComm.hh"
 #include "CommandController.hh"
 #include "FileOperations.hh"
 #include "PlugException.hh"
-#include "CliComm.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -12,7 +13,6 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav")
-	, reference(EmuTime::zero())
 {
 	audioInputFilenameSetting.attach(*this);
 }

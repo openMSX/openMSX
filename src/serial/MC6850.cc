@@ -60,7 +60,6 @@ MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned c
 	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-in")
 	, syncRecv (motherBoard.getScheduler())
 	, syncTrans(motherBoard.getScheduler())
-	, txClock(EmuTime::zero())
 	, clockFreq(clockFreq_)
 	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
 	, txIRQ(motherBoard, name_ + "-tx-IRQ")

@@ -123,7 +123,7 @@ private:
 	SectorAccessibleDisk& disk;
 	MemBuffer<SectorBuffer> fatBuffer;
 	const MsxChar2Unicode& msxChars;
-	FAT::Cluster findFirstFreeClusterStart; // all clusters before this one are in use
+	FAT::Cluster findFirstFreeClusterStart{0}; // all clusters before this one are in use
 
 	unsigned clusterCount;
 	unsigned fatCount;

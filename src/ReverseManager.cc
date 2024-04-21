@@ -55,13 +55,13 @@ static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
 struct Replay
 {
 	explicit Replay(Reactor& reactor_)
-		: reactor(reactor_), currentTime(EmuTime::dummy()) {}
+		: reactor(reactor_) {}
 
 	Reactor& reactor;
 
 	ReverseManager::Events* events;
 	std::vector<Reactor::Board> motherBoards;
-	EmuTime currentTime;
+	EmuTime currentTime = EmuTime::dummy();
 	// this is the amount of times the reverse goto command was used, which
 	// is interesting for the TAS community (see tasvideos.org). It's an
 	// indication of the effort it took to create the replay. Note that

@@ -106,7 +106,6 @@ void WavImageCache::release(const WavData* wav)
 
 // Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
-	: clock(EmuTime::zero())
 {
 	const auto& entry = WavImageCache::instance().get(filename, filePool);
 	wav = &entry.wav;

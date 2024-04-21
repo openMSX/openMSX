@@ -3,6 +3,7 @@
 
 #include "ReadOnlySetting.hh"
 #include "RTSchedulable.hh"
+
 #include <array>
 #include <cstdint>
 

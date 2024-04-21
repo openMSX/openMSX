@@ -906,7 +906,6 @@ void Channel::updateInstrument(std::span<const uint8_t, 8> inst)
 }
 
 YM2413::YM2413()
-	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	if (false) {
 		for (const auto& e : tlTab) std::cout << e << '\n';

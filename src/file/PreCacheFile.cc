@@ -15,7 +15,7 @@ namespace openmsx {
 //       with advise = POSIX_FADV_WILLNEED
 
 PreCacheFile::PreCacheFile(std::string name_)
-	: name(std::move(name_)), exitLoop(false)
+	: name(std::move(name_))
 {
 	thread = std::thread([this]() { run(); });
 }

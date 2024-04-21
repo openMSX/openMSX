@@ -163,9 +163,9 @@ private:
 	void changeMuteSetting(const Setting& setting);
 
 private:
-	unsigned fragmentSize;
-	unsigned hostSampleRate; // requested freq by sound driver,
-	                         // not compensated for speed
+	unsigned fragmentSize = 0;
+	unsigned hostSampleRate = 44100; // requested freq by sound driver,
+	                                 // not compensated for speed
 
 	std::vector<SoundDeviceInfo> infos;
 

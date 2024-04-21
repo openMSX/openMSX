@@ -44,14 +44,14 @@ private:
 	std::string filename;
 	FileOperations::FILE_t file;
 #if HAVE_MMAP
-	uint8_t* mmem;
+	uint8_t* mmem = nullptr;
 #endif
 #if defined _WIN32
-	uint8_t* mmem;
-	HANDLE hMmap;
+	uint8_t* mmem = nullptr;
+	HANDLE hMmap = nullptr;
 #endif
 	std::optional<PreCacheFile> cache;
-	bool readOnly;
+	bool readOnly = false;
 };
 
 } // namespace openmsx

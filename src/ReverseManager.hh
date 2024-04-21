@@ -76,9 +76,7 @@ public:
 
 private:
 	struct ReverseChunk {
-		ReverseChunk() : time(EmuTime::zero()) {}
-
-		EmuTime time;
+		EmuTime time = EmuTime::zero();
 		std::vector<std::shared_ptr<DeltaBlock>> deltaBlocks;
 		MemBuffer<uint8_t> savestate;
 		size_t size;

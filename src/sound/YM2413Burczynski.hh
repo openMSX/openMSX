@@ -277,8 +277,8 @@ private:
 
 	using LFOAMIndex = FixedPoint< 6>;
 	using LFOPMIndex = FixedPoint<10>;
-	LFOAMIndex lfo_am_cnt;
-	LFOPMIndex lfo_pm_cnt;
+	LFOAMIndex lfo_am_cnt{0};
+	LFOPMIndex lfo_pm_cnt{0};
 
 	/** Instrument settings:
 	 *  0     - user instrument

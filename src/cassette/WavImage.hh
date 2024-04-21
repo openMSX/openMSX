@@ -29,7 +29,7 @@ public:
 
 private:
 	const WavData* wav;
-	DynamicClock clock;
+	DynamicClock clock{EmuTime::zero()};
 };
 
 } // namespace openmsx
