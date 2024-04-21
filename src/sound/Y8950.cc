@@ -1179,9 +1179,7 @@ uint8_t Y8950::peekReg(uint8_t rg, EmuTime::param time) const
 
 uint8_t Y8950::readStatus(EmuTime::param time) const
 {
-	uint8_t result = peekStatus(time);
-	//std::cout << "status: " << (int)result << '\n';
-	return result;
+	return peekStatus(time);
 }
 
 uint8_t Y8950::peekStatus(EmuTime::param time) const

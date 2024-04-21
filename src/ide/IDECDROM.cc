@@ -362,7 +362,6 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			string filename = userFileContext().resolve(
 				tokens[fileToken].getString());
 			cd.insert(filename);
-			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
 			throw CommandException("Can't change cd image: ",
 			                       e.getMessage());

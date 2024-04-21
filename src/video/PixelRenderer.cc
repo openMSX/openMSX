@@ -512,8 +512,6 @@ void PixelRenderer::updateVRAM(unsigned offset, EmuTime::param time)
 	// Note: No need to sync if display is disabled, because then the
 	//       output does not depend on VRAM (only on background color).
 	if (renderFrame && displayEnabled && checkSync(offset, time)) {
-		//fprintf(stderr, "vram sync @ line %d\n",
-		//	vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE);
 		renderUntil(time);
 	}
 }

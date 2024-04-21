@@ -157,7 +157,6 @@ namespace openmsx::RomFactory {
 		if (typeGuess[ROM_ASCII8]) typeGuess[ROM_ASCII8]--; // -1 -> max_int
 		RomType type = ROM_GENERIC_8KB;
 		for (auto [i, tg] : enumerate(typeGuess)) {
-			// debug: fprintf(stderr, "%d: %d\n", i, tg);
 			if (tg && (tg >= typeGuess[type])) {
 				type = static_cast<RomType>(i);
 			}

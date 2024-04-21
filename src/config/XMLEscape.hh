@@ -21,18 +21,13 @@
 template<typename Output>
 inline void XMLEscape(std::string_view s, Output output)
 {
-	auto normal = [&](auto f, auto l) {
-		// c++20 std::string_view(f, l);
-		return std::string_view(&*f, l - f);
-	};
-
 	auto chunk = s.begin();
 	auto last = s.end();
 	auto it = chunk;
 	while (it != last) {
 		char c = *it;
 		if (auto uc = static_cast<unsigned char>(c); uc < 32) {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			std::array<char, 6> buf = {'&', '#', 'x', '0', '0', ';'};
 			auto hex = [](unsigned x) { return (x < 10) ? char(x + '0') : char(x - 10 + 'a'); };
 			buf[3] = hex(uc / 16);
@@ -40,23 +35,23 @@ inline void XMLEscape(std::string_view s, Output output)
 			output(std::string_view(buf.data(), sizeof(buf)));
 			chunk = ++it;
 		} else if (c == '<') {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			output("&lt;");
 			chunk = ++it;
 		} else if (c == '>') {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			output("&gt;");
 			chunk = ++it;
 		} else if (c == '&') {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			output("&amp;");
 			chunk = ++it;
 		} else if (c == '"') {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			output("&quot;");
 			chunk = ++it;
 		} else if (c == '\'') {
-			output(normal(chunk, it));
+			output(std::string_view(chunk, it));
 			output("&apos;");
 			chunk = ++it;
 		} else {
@@ -64,7 +59,7 @@ inline void XMLEscape(std::string_view s, Output output)
 			++it;
 		}
 	}
-	output(normal(chunk, last));
+	output(std::string_view(chunk, last));
 }
 
 // Like above, but produces the output as a (single) std::string.

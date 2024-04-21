@@ -492,15 +492,6 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 
 void VDP::scheduleVScan(EmuTime::param time)
 {
-	/*
-	cerr << "scheduleVScan @ " << (getTicksThisFrame(time) / TICKS_PER_LINE) << "\n";
-	if (vScanSyncTime < frameStartTime) {
-		cerr << "old VSCAN was previous frame\n";
-	} else {
-		cerr << "old VSCAN was " << (frameStartTime.getTicksTill(vScanSyncTime) / TICKS_PER_LINE) << "\n";
-	}
-	*/
-
 	// Remove pending VSCAN sync point, if any.
 	if (vScanSyncTime > time) {
 		syncVScan.removeSyncPoint();
@@ -510,7 +501,6 @@ void VDP::scheduleVScan(EmuTime::param time)
 	// Calculate moment in time display end occurs.
 	vScanSyncTime = frameStartTime +
 	                (displayStart + getNumberOfLines() * TICKS_PER_LINE);
-	//cerr << "new VSCAN is " << (frameStartTime.getTicksTill(vScanSyncTime) / TICKS_PER_LINE) << "\n";
 
 	// Register new VSCAN sync point.
 	if (vScanSyncTime > time) {
@@ -588,8 +578,6 @@ void VDP::scheduleHScan(EmuTime::param time)
 void VDP::frameStart(EmuTime::param time)
 {
 	++frameCount;
-
-	//cerr << "VDP::frameStart @ " << time << "\n";
 
 	// Toggle E/O.
 	// Actually this should occur half a line earlier,

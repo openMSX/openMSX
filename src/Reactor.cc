@@ -969,7 +969,6 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 
 	const auto filename = FileOperations::expandTilde(string(tokens[1].getString()));
 
-	//std::cerr << "Loading " << filename << '\n';
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);

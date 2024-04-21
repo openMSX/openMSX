@@ -273,8 +273,6 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	renderedFrame.fbo.push();
 
 	for (auto& r : regions) {
-		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	r.srcStartY, r.srcEndY, r.lineWidth);
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
 		auto* superImpose = superImposeVideoFrame
 		                  ? &superImposeTex : nullptr;

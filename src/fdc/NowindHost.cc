@@ -537,7 +537,6 @@ void NowindHost::doDiskWrite1()
 void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
-	//auto* buf = &buffer[0].raw[transferred];
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	auto dst = fullBuf.subspan(transferred, transferSize);
 	auto src = subspan(extraData, 1, transferSize);

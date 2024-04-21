@@ -130,7 +130,6 @@ vec2 OSDRectangle::getSize(const OutputSurface& output) const
 		return (size * float(getScaleFactor(output)) * scale) +
 		       (getParent()->getSize(output) * relSize);
 	}
-	//std::cout << "rectangle getWH " << getName() << "  " << width << " x " << height << '\n';
 }
 
 uint8_t OSDRectangle::getFadedAlpha() const
