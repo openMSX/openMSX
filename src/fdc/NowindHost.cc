@@ -71,71 +71,72 @@ bool NowindHost::isDataAvailable() const
 // send:  msx -> pc
 void NowindHost::write(byte data, unsigned time)
 {
+	using enum State;
 	unsigned duration = time - lastTime;
 	lastTime = time;
 	if (duration >= 500) {
 		// timeout (500ms), start looking for AF05
 		purge();
-		state = STATE_SYNC1;
+		state = SYNC1;
 	}
 
 	switch (state) {
-	case STATE_SYNC1:
-		if (data == 0xAF) state = STATE_SYNC2;
+	case SYNC1:
+		if (data == 0xAF) state = SYNC2;
 		break;
-	case STATE_SYNC2:
+	case SYNC2:
 		switch (data) {
-		case 0x05: state = STATE_COMMAND; recvCount = 0; break;
-		case 0xAF: state = STATE_SYNC2; break;
-		case 0xFF: state = STATE_SYNC1; msxReset(); break;
-		default:   state = STATE_SYNC1; break;
+		case 0x05: state = COMMAND; recvCount = 0; break;
+		case 0xAF: state = SYNC2; break;
+		case 0xFF: state = SYNC1; msxReset(); break;
+		default:   state = SYNC1; break;
 		}
 		break;
-	case STATE_COMMAND:
+	case COMMAND:
 		assert(recvCount < 9);
 		cmdData[recvCount] = data;
 		if (++recvCount == 9) {
 			executeCommand();
 		}
 		break;
-	case STATE_DISKREAD:
+	case DISKREAD:
 		assert(recvCount < 2);
 		extraData[recvCount] = data;
 		if (++recvCount == 2) {
 			doDiskRead2();
 		}
 		break;
-	case STATE_DISKWRITE:
+	case DISKWRITE:
 		assert(recvCount < (transferSize + 2));
 		extraData[recvCount] = data;
 		if (++recvCount == (transferSize + 2)) {
 			doDiskWrite2();
 		}
 		break;
-	case STATE_DEVOPEN:
+	case DEVOPEN:
 		assert(recvCount < 11);
 		extraData[recvCount] = data;
 		if (++recvCount == 11) {
 			deviceOpen();
 		}
 		break;
-	case STATE_IMAGE:
+	case IMAGE:
 		assert(recvCount < 40);
 		extraData[recvCount] = data;
 		if (data == one_of(byte(0), byte(':')) ||
 		    (++recvCount == 40)) {
 			auto* eData = std::bit_cast<char*>(extraData.data());
 			callImage(string(eData, recvCount));
-			state = STATE_SYNC1;
+			state = SYNC1;
 		}
 		break;
-	case STATE_MESSAGE:
+	case MESSAGE:
 		assert(recvCount < (240 - 1));
 		extraData[recvCount] = data;
 		if ((data == 0) || (++recvCount == (240 - 1))) {
 			extraData[recvCount] = 0;
 			DBERR("%s\n", std::bit_cast<char*>(extraData.data()));
-			state = STATE_SYNC1;
+			state = SYNC1;
 		}
 		break;
 	default:
@@ -162,6 +163,7 @@ SectorAccessibleDisk* NowindHost::getDisk() const
 
 void NowindHost::executeCommand()
 {
+	using enum State;
 	assert(recvCount == 9);
 	byte cmd = cmdData[8];
 	switch (cmd) {
@@ -195,7 +197,7 @@ void NowindHost::executeCommand()
 		if (!disk) {
 			// no such drive or no disk inserted
 			// (causes a timeout on the MSX side)
-			state = STATE_SYNC1;
+			state = SYNC1;
 			return;
 		}
 		if (byte reg_f = cmdData[6]; reg_f & 1) { // carry flag
@@ -206,27 +208,27 @@ void NowindHost::executeCommand()
 		break;
 	}
 
-	case 0x81: DSKCHG();      state = STATE_SYNC1; break;
+	case 0x81: DSKCHG();      state = SYNC1; break;
 	//case 0x82: GETDPB();
 	//case 0x83: CHOICE();
 	//case 0x84: DSKFMT();
-	case 0x85: DRIVES();      state = STATE_SYNC1; break;
-	case 0x86: INIENV();      state = STATE_SYNC1; break;
-	case 0x87: setDateMSX();  state = STATE_SYNC1; break;
-	case 0x88: state = STATE_DEVOPEN; recvCount = 0; break;
-	case 0x89: deviceClose(); state = STATE_SYNC1; break;
+	case 0x85: DRIVES();      state = SYNC1; break;
+	case 0x86: INIENV();      state = SYNC1; break;
+	case 0x87: setDateMSX();  state = SYNC1; break;
+	case 0x88: state = DEVOPEN; recvCount = 0; break;
+	case 0x89: deviceClose(); state = SYNC1; break;
 	//case 0x8A: deviceRandomIO(fcb);
-	case 0x8B: deviceWrite(); state = STATE_SYNC1; break;
-	case 0x8C: deviceRead();  state = STATE_SYNC1; break;
+	case 0x8B: deviceWrite(); state = SYNC1; break;
+	case 0x8C: deviceRead();  state = SYNC1; break;
 	//case 0x8D: deviceEof(fcb);
 	//case 0x8E: auxIn();
 	//case 0x8F: auxOut();
-	case 0x90: state = STATE_MESSAGE; recvCount = 0; break;
-	case 0xA0: state = STATE_IMAGE;   recvCount = 0; break;
+	case 0x90: state = MESSAGE; recvCount = 0; break;
+	case 0xA0: state = IMAGE;   recvCount = 0; break;
 	//case 0xFF: vramDump();
 	default:
 		// Unknown USB command!
-		state = STATE_SYNC1;
+		state = SYNC1;
 		break;
 	}
 }
@@ -360,7 +362,7 @@ void NowindHost::diskReadInit(const SectorAccessibleDisk& disk)
 		disk.readSectors(std::span{buffer.data(), sectorAmount}, startSector);
 	} catch (MSXException&) {
 		// read error
-		state = STATE_SYNC1;
+		state = State::SYNC1;
 		return;
 	}
 
@@ -376,7 +378,7 @@ void NowindHost::doDiskRead1()
 		sendHeader();
 		send(0x01); // end of receive-loop
 		send(0x00); // no more data
-		state = STATE_SYNC1;
+		state = State::SYNC1;
 		return;
 	}
 
@@ -403,7 +405,7 @@ void NowindHost::doDiskRead1()
 	}
 
 	// wait for 2 bytes
-	state = STATE_DISKREAD;
+	state = State::DISKREAD;
 	recvCount = 0;
 }
 
@@ -432,12 +434,12 @@ void NowindHost::doDiskRead2()
 		if (++retryCount == 10) {
 			// do nothing, timeout on MSX
 			// too many retries, aborting readDisk()
-			state = STATE_SYNC1;
+			state = State::SYNC1;
 			return;
 		}
 
 		// try again, wait for two bytes
-		state = STATE_DISKREAD;
+		state = State::DISKREAD;
 		recvCount = 0;
 	}
 }
@@ -483,7 +485,7 @@ void NowindHost::diskWriteInit(const SectorAccessibleDisk& disk)
 		sendHeader();
 		send(1);
 		send(0); // WRITE PROTECTED
-		state = STATE_SYNC1;
+		state = State::SYNC1;
 		return;
 	}
 
@@ -509,7 +511,7 @@ void NowindHost::doDiskWrite1()
 		}
 		sendHeader();
 		send(255);
-		state = STATE_SYNC1;
+		state = State::SYNC1;
 		return;
 	}
 
@@ -530,7 +532,7 @@ void NowindHost::doDiskWrite1()
 	send(0xaa);
 
 	// wait for data
-	state = STATE_DISKWRITE;
+	state = State::DISKWRITE;
 	recvCount = 0;
 }
 
@@ -615,7 +617,7 @@ int NowindHost::getFreeDeviceNum()
 
 void NowindHost::deviceOpen()
 {
-	state = STATE_SYNC1;
+	state = State::SYNC1;
 
 	assert(recvCount == 11);
 	string filename = extractName(0, 8);
@@ -773,13 +775,13 @@ void NowindHost::callImage(const string& filename)
 
 
 static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
-	{ "SYNC1",     NowindHost::STATE_SYNC1     },
-	{ "SYNC2",     NowindHost::STATE_SYNC2     },
-	{ "COMMAND",   NowindHost::STATE_COMMAND   },
-	{ "DISKREAD",  NowindHost::STATE_DISKREAD  },
-	{ "DISKWRITE", NowindHost::STATE_DISKWRITE },
-	{ "DEVOPEN",   NowindHost::STATE_DEVOPEN   },
-	{ "IMAGE",     NowindHost::STATE_IMAGE     },
+	{ "SYNC1",     NowindHost::State::SYNC1     },
+	{ "SYNC2",     NowindHost::State::SYNC2     },
+	{ "COMMAND",   NowindHost::State::COMMAND   },
+	{ "DISKREAD",  NowindHost::State::DISKREAD  },
+	{ "DISKWRITE", NowindHost::State::DISKWRITE },
+	{ "DEVOPEN",   NowindHost::State::DEVOPEN   },
+	{ "IMAGE",     NowindHost::State::IMAGE     },
 };
 SERIALIZE_ENUM(NowindHost::State, stateInfo);
 

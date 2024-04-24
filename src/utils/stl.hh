@@ -459,4 +459,11 @@ template<size_t N, typename F>
     return generate_array<T>(f, std::make_index_sequence<N>{});
 }
 
+
+// c++23 std::to_underlying
+template<typename E>
+[[nodiscard]] constexpr auto to_underlying(E e) noexcept {
+	return static_cast<std::underlying_type_t<E>>(e);
+}
+
 #endif

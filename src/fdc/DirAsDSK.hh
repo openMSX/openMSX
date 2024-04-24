@@ -18,8 +18,8 @@ class CliComm;
 class DirAsDSK final : public SectorBasedDisk
 {
 public:
-	enum SyncMode { SYNC_READONLY, SYNC_FULL };
-	enum BootSectorType { BOOT_SECTOR_DOS1, BOOT_SECTOR_DOS2 };
+	enum class SyncMode { READONLY, FULL };
+	enum class BootSectorType { DOS1, DOS2 };
 
 public:
 	DirAsDSK(DiskChanger& diskChanger, CliComm& cliComm,

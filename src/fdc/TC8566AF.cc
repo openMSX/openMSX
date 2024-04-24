@@ -88,8 +88,8 @@ void TC8566AF::reset(EmuTime::param time)
 	status2 = 0;
 	status3 = 0;
 	commandCode = 0;
-	command = CMD_UNKNOWN;
-	phase = PHASE_IDLE;
+	command = Command::UNKNOWN;
+	phase = Phase::IDLE;
 	phaseStep = 0;
 	cylinderNumber = 0;
 	headNumber = 0;
@@ -105,7 +105,7 @@ void TC8566AF::reset(EmuTime::param time)
 		si.time = EmuTime::zero();
 		si.currentTrack = 0;
 		si.seekValue = 0;
-		si.state = SEEK_IDLE;
+		si.state = Seek::IDLE;
 	}
 	headUnloadTime = EmuTime::zero(); // head not loaded
 
@@ -116,7 +116,7 @@ void TC8566AF::reset(EmuTime::param time)
 uint8_t TC8566AF::peekStatus() const
 {
 	bool nonDMAMode = specifyData[1] & 1;
-	bool dma = nonDMAMode && (phase == PHASE_DATA_TRANSFER);
+	bool dma = nonDMAMode && (phase == Phase::DATA_TRANSFER);
 	return mainStatus | (dma ? STM_NDM : 0);
 }
 
@@ -136,9 +136,9 @@ void TC8566AF::setDrqRate(unsigned trackLength)
 uint8_t TC8566AF::peekDataPort(EmuTime::param time) const
 {
 	switch (phase) {
-	case PHASE_DATA_TRANSFER:
+	case Phase::DATA_TRANSFER:
 		return executionPhasePeek(time);
-	case PHASE_RESULT:
+	case Phase::RESULT:
 		return resultsPhasePeek();
 	default:
 		return 0xff;
@@ -149,13 +149,13 @@ uint8_t TC8566AF::readDataPort(EmuTime::param time)
 {
 	//interrupt = false;
 	switch (phase) {
-	case PHASE_DATA_TRANSFER:
+	case Phase::DATA_TRANSFER:
 		if (delayTime.before(time)) {
 			return executionPhaseRead(time);
 		} else {
 			return 0xff; // TODO check this
 		}
-	case PHASE_RESULT:
+	case Phase::RESULT:
 		return resultsPhaseRead(time);
 	default:
 		return 0xff;
@@ -165,7 +165,7 @@ uint8_t TC8566AF::readDataPort(EmuTime::param time)
 uint8_t TC8566AF::executionPhasePeek(EmuTime::param time) const
 {
 	switch (command) {
-	case CMD_READ_DATA:
+	case Command::READ_DATA:
 		if (delayTime.before(time)) {
 			assert(dataAvailable);
 			return drive[driveSelect]->readTrackByte(dataCurrent);
@@ -180,7 +180,7 @@ uint8_t TC8566AF::executionPhasePeek(EmuTime::param time) const
 uint8_t TC8566AF::executionPhaseRead(EmuTime::param time)
 {
 	switch (command) {
-	case CMD_READ_DATA: {
+	case Command::READ_DATA: {
 		assert(dataAvailable);
 		auto* drv = drive[driveSelect];
 		uint8_t result = drv->readTrackByte(dataCurrent++);
@@ -223,10 +223,11 @@ uint8_t TC8566AF::executionPhaseRead(EmuTime::param time)
 uint8_t TC8566AF::resultsPhasePeek() const
 {
 	switch (command) {
-	case CMD_READ_DATA:
-	case CMD_WRITE_DATA:
-	case CMD_FORMAT:
-	case CMD_READ_ID:
+	using enum Command;
+	case READ_DATA:
+	case WRITE_DATA:
+	case FORMAT:
+	case READ_ID:
 		switch (phaseStep) {
 		case 0:
 			return status0;
@@ -245,7 +246,7 @@ uint8_t TC8566AF::resultsPhasePeek() const
 		}
 		break;
 
-	case CMD_SENSE_INTERRUPT_STATUS:
+	case SENSE_INTERRUPT_STATUS:
 		switch (phaseStep) {
 		case 0:
 			return status0;
@@ -254,7 +255,7 @@ uint8_t TC8566AF::resultsPhasePeek() const
 		}
 		break;
 
-	case CMD_SENSE_DEVICE_STATUS:
+	case SENSE_DEVICE_STATUS:
 		switch (phaseStep) {
 		case 0:
 			return status3;
@@ -271,10 +272,11 @@ uint8_t TC8566AF::resultsPhaseRead(EmuTime::param time)
 {
 	uint8_t result = resultsPhasePeek();
 	switch (command) {
-	case CMD_READ_DATA:
-	case CMD_WRITE_DATA:
-	case CMD_FORMAT:
-	case CMD_READ_ID:
+	using enum Command;
+	case READ_DATA:
+	case WRITE_DATA:
+	case FORMAT:
+	case READ_ID:
 		switch (phaseStep++) {
 		case 0:
 			status0 = 0; // TODO correct?  Reset _all_ bits?
@@ -285,7 +287,7 @@ uint8_t TC8566AF::resultsPhaseRead(EmuTime::param time)
 		}
 		break;
 
-	case CMD_SENSE_INTERRUPT_STATUS:
+	case SENSE_INTERRUPT_STATUS:
 		switch (phaseStep++) {
 		case 0:
 			status0 = 0; // TODO correct?  Reset _all_ bits?
@@ -296,7 +298,7 @@ uint8_t TC8566AF::resultsPhaseRead(EmuTime::param time)
 		}
 		break;
 
-	case CMD_SENSE_DEVICE_STATUS:
+	case SENSE_DEVICE_STATUS:
 		switch (phaseStep++) {
 		case 0:
 			endCommand(time);
@@ -324,7 +326,7 @@ void TC8566AF::writeControlReg0(uint8_t value, EmuTime::param time)
 void TC8566AF::writeControlReg1(uint8_t value, EmuTime::param /*time*/)
 {
 	if (value & 1) { // TC, terminate multi-sector read/write command
-		if (phase == PHASE_DATA_TRANSFER) {
+		if (phase == Phase::DATA_TRANSFER) {
 			resultPhase();
 		}
 	}
@@ -333,15 +335,15 @@ void TC8566AF::writeControlReg1(uint8_t value, EmuTime::param /*time*/)
 void TC8566AF::writeDataPort(uint8_t value, EmuTime::param time)
 {
 	switch (phase) {
-	case PHASE_IDLE:
+	case Phase::IDLE:
 		idlePhaseWrite(value, time);
 		break;
 
-	case PHASE_COMMAND:
+	case Phase::COMMAND:
 		commandPhaseWrite(value, time);
 		break;
 
-	case PHASE_DATA_TRANSFER:
+	case Phase::DATA_TRANSFER:
 		executionPhaseWrite(value, time);
 		break;
 	default:
@@ -352,33 +354,34 @@ void TC8566AF::writeDataPort(uint8_t value, EmuTime::param time)
 
 void TC8566AF::idlePhaseWrite(uint8_t value, EmuTime::param time)
 {
-	command = CMD_UNKNOWN;
+	using enum Command;
+	command = UNKNOWN;
 	commandCode = value;
-	if ((commandCode & 0x1f) == 0x06) command = CMD_READ_DATA;
-	if ((commandCode & 0x3f) == 0x05) command = CMD_WRITE_DATA;
-	if ((commandCode & 0x3f) == 0x09) command = CMD_WRITE_DELETED_DATA;
-	if ((commandCode & 0x1f) == 0x0c) command = CMD_READ_DELETED_DATA;
-	if ((commandCode & 0xbf) == 0x02) command = CMD_READ_DIAGNOSTIC;
-	if ((commandCode & 0xbf) == 0x0a) command = CMD_READ_ID;
-	if ((commandCode & 0xbf) == 0x0d) command = CMD_FORMAT;
-	if ((commandCode & 0x1f) == 0x11) command = CMD_SCAN_EQUAL;
-	if ((commandCode & 0x1f) == 0x19) command = CMD_SCAN_LOW_OR_EQUAL;
-	if ((commandCode & 0x1f) == 0x1d) command = CMD_SCAN_HIGH_OR_EQUAL;
-	if ((commandCode & 0xff) == 0x0f) command = CMD_SEEK;
-	if ((commandCode & 0xff) == 0x07) command = CMD_RECALIBRATE;
-	if ((commandCode & 0xff) == 0x08) command = CMD_SENSE_INTERRUPT_STATUS;
-	if ((commandCode & 0xff) == 0x03) command = CMD_SPECIFY;
-	if ((commandCode & 0xff) == 0x04) command = CMD_SENSE_DEVICE_STATUS;
+	if ((commandCode & 0x1f) == 0x06) command = READ_DATA;
+	if ((commandCode & 0x3f) == 0x05) command = WRITE_DATA;
+	if ((commandCode & 0x3f) == 0x09) command = WRITE_DELETED_DATA;
+	if ((commandCode & 0x1f) == 0x0c) command = READ_DELETED_DATA;
+	if ((commandCode & 0xbf) == 0x02) command = READ_DIAGNOSTIC;
+	if ((commandCode & 0xbf) == 0x0a) command = READ_ID;
+	if ((commandCode & 0xbf) == 0x0d) command = FORMAT;
+	if ((commandCode & 0x1f) == 0x11) command = SCAN_EQUAL;
+	if ((commandCode & 0x1f) == 0x19) command = SCAN_LOW_OR_EQUAL;
+	if ((commandCode & 0x1f) == 0x1d) command = SCAN_HIGH_OR_EQUAL;
+	if ((commandCode & 0xff) == 0x0f) command = SEEK;
+	if ((commandCode & 0xff) == 0x07) command = RECALIBRATE;
+	if ((commandCode & 0xff) == 0x08) command = SENSE_INTERRUPT_STATUS;
+	if ((commandCode & 0xff) == 0x03) command = SPECIFY;
+	if ((commandCode & 0xff) == 0x04) command = SENSE_DEVICE_STATUS;
 
-	phase       = PHASE_COMMAND;
+	phase       = Phase::COMMAND;
 	phaseStep   = 0;
 	mainStatus |= STM_CB;
 
 	switch (command) {
-	case CMD_READ_DATA:
-	case CMD_WRITE_DATA:
-	case CMD_FORMAT:
-	case CMD_READ_ID:
+	case READ_DATA:
+	case WRITE_DATA:
+	case FORMAT:
+	case READ_ID:
 		status0 &= ~(ST0_IC0 | ST0_IC1);
 		status1 = 0;
 		status2 = 0;
@@ -387,17 +390,17 @@ void TC8566AF::idlePhaseWrite(uint8_t value, EmuTime::param time)
 		//SK  = value & 0x20;
 		break;
 
-	case CMD_RECALIBRATE:
+	case RECALIBRATE:
 		status0 &= ~ST0_SE;
 		break;
 
-	case CMD_SENSE_INTERRUPT_STATUS:
+	case SENSE_INTERRUPT_STATUS:
 		resultPhase();
 		break;
 
-	case CMD_SEEK:
-	case CMD_SPECIFY:
-	case CMD_SENSE_DEVICE_STATUS:
+	case SEEK:
+	case SPECIFY:
+	case SENSE_DEVICE_STATUS:
 		break;
 
 	default:
@@ -448,13 +451,13 @@ EmuTime TC8566AF::locateSector(EmuTime::param time, bool readId)
 			// also skip setting 'ST2_CM' and updating 'crc'
 			break;
 		}
-		if (sectorInfo.addrCrcErr)               continue; // Is this checked for CMD_READ_ID?
+		if (sectorInfo.addrCrcErr)               continue; // Is this checked for Command::READ_ID?
 		if (sectorInfo.track  != cylinderNumber) continue;
 		if (sectorInfo.head   != headNumber)     continue;
 		if (sectorInfo.sector != sectorNumber)   continue;
 		if (sectorInfo.dataIdx == -1)            continue;
 
-		if (bool expectDeleted = command == CMD_READ_DELETED_DATA;
+		if (bool expectDeleted = command == Command::READ_DELETED_DATA;
 		    sectorInfo.deleted != expectDeleted) {
 			status2 |= ST2_CM;
 		}
@@ -472,8 +475,9 @@ EmuTime TC8566AF::locateSector(EmuTime::param time, bool readId)
 void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 {
 	switch (command) {
-	case CMD_READ_DATA:
-	case CMD_WRITE_DATA:
+	using enum Command;
+	case READ_DATA:
+	case WRITE_DATA:
 		switch (phaseStep++) {
 		case 0:
 			commandPhase1(value);
@@ -503,7 +507,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		}
 		break;
 
-	case CMD_FORMAT:
+	case FORMAT:
 		switch (phaseStep++) {
 		case 0:
 			commandPhase1(value);
@@ -521,7 +525,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		case 4:
 			fillerByte   = value;
 			mainStatus  &= ~STM_DIO;
-			phase        = PHASE_DATA_TRANSFER;
+			phase        = Phase::DATA_TRANSFER;
 			phaseStep    = 0;
 			//interrupt    = true;
 			initTrackHeader(time);
@@ -529,13 +533,13 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		}
 		break;
 
-	case CMD_READ_ID:
+	case READ_ID:
 		assert(phaseStep == 0);
 		commandPhase1(value);
 		startReadWriteSector(time);
 		break;
 
-	case CMD_SEEK:
+	case SEEK:
 		switch (phaseStep++) {
 		case 0:
 			commandPhase1(value);
@@ -546,14 +550,14 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 			auto& si = seekInfo[n];
 			si.time = time;
 			si.seekValue = value; // target track
-			si.state = SEEK_SEEK;
+			si.state = Seek::SEEK;
 			doSeek(n);
 			break;
 		}
 		}
 		break;
 
-	case CMD_RECALIBRATE:
+	case RECALIBRATE:
 		switch (phaseStep++) {
 		case 0: {
 			commandPhase1(value);
@@ -562,14 +566,14 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 			auto& si = seekInfo[n];
 			si.time = time;
 			si.seekValue = 255; // max try 255 steps
-			si.state = SEEK_RECALIBRATE;
+			si.state = Seek::RECALIBRATE;
 			doSeek(n);
 			break;
 		}
 		}
 		break;
 
-	case CMD_SPECIFY:
+	case SPECIFY:
 		specifyData[phaseStep] = value;
 		switch (phaseStep++) {
 		case 1:
@@ -578,7 +582,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 		}
 		break;
 
-	case CMD_SENSE_DEVICE_STATUS:
+	case SENSE_DEVICE_STATUS:
 		switch (phaseStep++) {
 		case 0:
 			commandPhase1(value);
@@ -595,7 +599,7 @@ void TC8566AF::commandPhaseWrite(uint8_t value, EmuTime::param time)
 // read/write-sector, but also read-ID
 void TC8566AF::startReadWriteSector(EmuTime::param time)
 {
-	phase = PHASE_DATA_TRANSFER;
+	phase = Phase::DATA_TRANSFER;
 	phaseStep = 0;
 	//interrupt = true;
 
@@ -612,7 +616,7 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 
 	// actually read sector header: fills in
 	//   dataAvailable and dataCurrent
-	bool readId = command == CMD_READ_ID;
+	bool readId = command == Command::READ_ID;
 	ready = locateSector(ready, readId);
 	if (ready == EmuTime::infinity()) {
 		status0 |= ST0_IC0;
@@ -620,7 +624,7 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 		resultPhase();
 		return;
 	}
-	if (command == CMD_READ_DATA) {
+	if (command == Command::READ_DATA) {
 		mainStatus |= STM_DIO;
 	} else {
 		mainStatus &= ~STM_DIO;
@@ -710,7 +714,7 @@ void TC8566AF::doSeek(int n)
 
 	auto endSeek = [&] {
 		status0 |= ST0_SE;
-		si.state = SEEK_IDLE;
+		si.state = Seek::IDLE;
 		mainStatus &= ~stm_dbn;
 	};
 
@@ -722,7 +726,7 @@ void TC8566AF::doSeek(int n)
 
 	bool direction = false; // initialize to avoid warning
 	switch (si.state) {
-	case SEEK_SEEK:
+	case Seek::SEEK:
 		if (si.seekValue > si.currentTrack) {
 			++si.currentTrack;
 			direction = true;
@@ -735,7 +739,7 @@ void TC8566AF::doSeek(int n)
 			return;
 		}
 		break;
-	case SEEK_RECALIBRATE:
+	case Seek::RECALIBRATE:
 		if (currentDrive.isTrack00() || (si.seekValue == 0)) {
 			if (si.seekValue == 0) {
 				status0 |= ST0_EC;
@@ -760,7 +764,7 @@ void TC8566AF::doSeek(int n)
 void TC8566AF::executeUntil(EmuTime::param time)
 {
 	for (auto n : xrange(4)) {
-		if ((seekInfo[n].state != SEEK_IDLE) &&
+		if ((seekInfo[n].state != Seek::IDLE) &&
 		    (seekInfo[n].time == time)) {
 			doSeek(n);
 		}
@@ -780,7 +784,7 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime::param time)
 {
 	auto* drv = drive[driveSelect];
 	switch (command) {
-	case CMD_WRITE_DATA:
+	case Command::WRITE_DATA:
 		assert(dataAvailable);
 		drv->writeTrackByte(dataCurrent++, value);
 		crc.update(value);
@@ -812,7 +816,7 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime::param time)
 		}
 		break;
 
-	case CMD_FORMAT:
+	case Command::FORMAT:
 		delayTime += 1; // correct?
 		mainStatus &= ~STM_RQM;
 		switch (phaseStep & 3) {
@@ -852,15 +856,15 @@ void TC8566AF::executionPhaseWrite(uint8_t value, EmuTime::param time)
 void TC8566AF::resultPhase(bool readId)
 {
 	mainStatus |= STM_DIO;
-	if (!readId) mainStatus |= STM_RQM; // for CMD_READ_ID we wait for 'delayTime'
-	phase       = PHASE_RESULT;
+	if (!readId) mainStatus |= STM_RQM; // for Command::READ_ID we wait for 'delayTime'
+	phase       = Phase::RESULT;
 	phaseStep   = 0;
 	//interrupt = true;
 }
 
 void TC8566AF::endCommand(EmuTime::param time)
 {
-	phase       = PHASE_IDLE;
+	phase       = Phase::IDLE;
 	mainStatus &= ~(STM_CB | STM_DIO);
 	delayTime.reset(time); // set STM_RQM
 	if (headUnloadTime == EmuTime::infinity()) {
@@ -901,39 +905,39 @@ EmuDuration TC8566AF::getSeekDelay() const
 
 
 static constexpr std::initializer_list<enum_string<TC8566AF::Command>> commandInfo = {
-	{ "UNKNOWN",                TC8566AF::CMD_UNKNOWN                },
-	{ "READ_DATA",              TC8566AF::CMD_READ_DATA              },
-	{ "WRITE_DATA",             TC8566AF::CMD_WRITE_DATA             },
-	{ "WRITE_DELETED_DATA",     TC8566AF::CMD_WRITE_DELETED_DATA     },
-	{ "READ_DELETED_DATA",      TC8566AF::CMD_READ_DELETED_DATA      },
-	{ "READ_DIAGNOSTIC",        TC8566AF::CMD_READ_DIAGNOSTIC        },
-	{ "READ_ID",                TC8566AF::CMD_READ_ID                },
-	{ "FORMAT",                 TC8566AF::CMD_FORMAT                 },
-	{ "SCAN_EQUAL",             TC8566AF::CMD_SCAN_EQUAL             },
-	{ "SCAN_LOW_OR_EQUAL",      TC8566AF::CMD_SCAN_LOW_OR_EQUAL      },
-	{ "SCAN_HIGH_OR_EQUAL",     TC8566AF::CMD_SCAN_HIGH_OR_EQUAL     },
-	{ "SEEK",                   TC8566AF::CMD_SEEK                   },
-	{ "RECALIBRATE",            TC8566AF::CMD_RECALIBRATE            },
-	{ "SENSE_INTERRUPT_STATUS", TC8566AF::CMD_SENSE_INTERRUPT_STATUS },
-	{ "SPECIFY",                TC8566AF::CMD_SPECIFY                },
-	{ "SENSE_DEVICE_STATUS",    TC8566AF::CMD_SENSE_DEVICE_STATUS    }
+	{ "UNKNOWN",                TC8566AF::Command::UNKNOWN                },
+	{ "READ_DATA",              TC8566AF::Command::READ_DATA              },
+	{ "WRITE_DATA",             TC8566AF::Command::WRITE_DATA             },
+	{ "WRITE_DELETED_DATA",     TC8566AF::Command::WRITE_DELETED_DATA     },
+	{ "READ_DELETED_DATA",      TC8566AF::Command::READ_DELETED_DATA      },
+	{ "READ_DIAGNOSTIC",        TC8566AF::Command::READ_DIAGNOSTIC        },
+	{ "READ_ID",                TC8566AF::Command::READ_ID                },
+	{ "FORMAT",                 TC8566AF::Command::FORMAT                 },
+	{ "SCAN_EQUAL",             TC8566AF::Command::SCAN_EQUAL             },
+	{ "SCAN_LOW_OR_EQUAL",      TC8566AF::Command::SCAN_LOW_OR_EQUAL      },
+	{ "SCAN_HIGH_OR_EQUAL",     TC8566AF::Command::SCAN_HIGH_OR_EQUAL     },
+	{ "SEEK",                   TC8566AF::Command::SEEK                   },
+	{ "RECALIBRATE",            TC8566AF::Command::RECALIBRATE            },
+	{ "SENSE_INTERRUPT_STATUS", TC8566AF::Command::SENSE_INTERRUPT_STATUS },
+	{ "SPECIFY",                TC8566AF::Command::SPECIFY                },
+	{ "SENSE_DEVICE_STATUS",    TC8566AF::Command::SENSE_DEVICE_STATUS    }
 };
 SERIALIZE_ENUM(TC8566AF::Command, commandInfo);
 
 static constexpr std::initializer_list<enum_string<TC8566AF::Phase>> phaseInfo = {
-	{ "IDLE",         TC8566AF::PHASE_IDLE         },
-	{ "COMMAND",      TC8566AF::PHASE_COMMAND      },
-	{ "DATATRANSFER", TC8566AF::PHASE_DATA_TRANSFER },
-	{ "RESULT",       TC8566AF::PHASE_RESULT       }
+	{ "IDLE",         TC8566AF::Phase::IDLE         },
+	{ "COMMAND",      TC8566AF::Phase::COMMAND      },
+	{ "DATATRANSFER", TC8566AF::Phase::DATA_TRANSFER },
+	{ "RESULT",       TC8566AF::Phase::RESULT       }
 };
 SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 
-static constexpr std::initializer_list<enum_string<TC8566AF::SeekState>> seekInfo = {
-	{ "IDLE",        TC8566AF::SEEK_IDLE },
-	{ "SEEK",        TC8566AF::SEEK_SEEK },
-	{ "RECALIBRATE", TC8566AF::SEEK_RECALIBRATE }
+static constexpr std::initializer_list<enum_string<TC8566AF::Seek>> seekInfo = {
+	{ "IDLE",        TC8566AF::Seek::IDLE },
+	{ "SEEK",        TC8566AF::Seek::SEEK },
+	{ "RECALIBRATE", TC8566AF::Seek::RECALIBRATE }
 };
-SERIALIZE_ENUM(TC8566AF::SeekState, seekInfo);
+SERIALIZE_ENUM(TC8566AF::Seek, seekInfo);
 
 template<typename Archive>
 void TC8566AF::SeekInfo::serialize(Archive& ar, unsigned /*version*/)
@@ -1003,7 +1007,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 	}
 	if (ar.versionBelow(version, 5)) {
 		// Version 4->5: 'trackData' moved from FDC to RealDrive.
-		if (phase != PHASE_IDLE) {
+		if (phase != Phase::IDLE) {
 			cliComm.printWarning(
 				"Loading an old savestate that has an "
 				"in-progress TC8566AF command. This is not "
@@ -1014,7 +1018,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 6)) {
 		ar.serialize("seekInfo", seekInfo);
 	} else {
-		if (command == one_of(CMD_SEEK, CMD_RECALIBRATE)) {
+		if (command == one_of(Command::SEEK, Command::RECALIBRATE)) {
 			cliComm.printWarning(
 				"Loading an old savestate that has an "
 				"in-progress TC8566AF seek-command. This is "
@@ -1025,7 +1029,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 		ar.serialize("currentTrack", currentTrack);
 		for (auto& si : seekInfo) {
 			si.currentTrack = currentTrack;
-			assert(si.state == SEEK_IDLE);
+			assert(si.state == Seek::IDLE);
 		}
 	}
 	if (ar.versionAtLeast(version, 7)) {

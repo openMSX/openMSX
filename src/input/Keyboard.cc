@@ -96,30 +96,30 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
 static constexpr std::array<std::string_view, 4> defaultKeymapForMatrix = {
-	"int", // MATRIX_MSX
-	"svi", // MATRIX_SVI
-	"cvjoy", // MATRIX_CVJOY
-	"sega_int", // MATRIX_SEGA
+	"int", // Matrix::MSX
+	"svi", // Matrix::SVI
+	"cvjoy", // Matrix::CVJOY
+	"sega_int", // Matrix::SEGA
 };
 
 static constexpr std::array modifierPosForMatrix = {
-	std::array{ // MATRIX_MSX
+	std::array{ // Matrix::MSX
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // GRAPH
 		KeyMatrixPosition(6, 3), // CAPS
 		KeyMatrixPosition(6, 4), // CODE
 	},
-	std::array{ // MATRIX_SVI
+	std::array{ // Matrix::SVI
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // LGRAPH
 		KeyMatrixPosition(8, 3), // CAPS
 		KeyMatrixPosition(6, 3), // RGRAPH
 	},
-	std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>{ // MATRIX_CVJOY
+	std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>{ // Matrix::CVJOY
 	},
-	std::array{ // MATRIX_SEGA
+	std::array{ // Matrix::SEGA
 		KeyMatrixPosition(13, 3), // SHIFT
 		KeyMatrixPosition(13, 2), // CTRL
 		KeyMatrixPosition(13, 1), // GRAPH
@@ -691,15 +691,15 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   MatrixType matrix,
+                   Matrix matrix,
                    const DeviceConfig& config)
 	: Schedulable(scheduler_)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyCodeTab (to_vector(defaultKeyCodeMappings [matrix]))
-	, scanCodeTab(to_vector(defaultScanCodeMappings[matrix]))
-	, modifierPos(modifierPosForMatrix[matrix])
+	, keyCodeTab (to_vector(defaultKeyCodeMappings [to_underlying(matrix)]))
+	, scanCodeTab(to_vector(defaultScanCodeMappings[to_underlying(matrix)]))
+	, modifierPos(modifierPosForMatrix[to_underlying(matrix)])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -710,9 +710,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
-		"keyboard_type", defaultKeymapForMatrix[matrix]))
+		"keyboard_type", defaultKeymapForMatrix[to_underlying(matrix)]))
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
-	, blockRow11(matrix == MATRIX_MSX
+	, blockRow11(matrix == Matrix::MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
 	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
 	, keyGhostingSGCprotected(config.getChildDataAsBool(
@@ -974,7 +974,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 	}
 
 	// Process dead keys.
-	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
+	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
 		for (auto n : xrange(3)) {
 			if (key.sym.sym == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
@@ -1064,7 +1064,7 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 		return;
 	}
 	processSdlKey(time,
-	              SDLKey::create(keyboardSettings.getKpEnterMode() == KeyboardSettings::MSX_KP_COMMA
+	              SDLKey::create(keyboardSettings.getKpEnterMode() == KeyboardSettings::KpEnterMode::MSX_KP_COMMA
 	                                 ? SDLK_KP_ENTER : SDLK_RETURN,
 	                             down));
 }
@@ -1086,7 +1086,7 @@ void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 		updateKeyMatrix(time, key.down, pos);
 	};
 
-	if (keyboardSettings.getMappingMode() == KeyboardSettings::POSITIONAL_MAPPING) {
+	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
 		if (auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
 			process(mapping->msx);
 		}
@@ -1172,8 +1172,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		UnicodeKeymap::KeyInfo keyInfo;
 		unsigned unicode;
 		if (isOnKeypad ||
-		    mode == one_of(KeyboardSettings::KEY_MAPPING,
-		                   KeyboardSettings::POSITIONAL_MAPPING)) {
+		    mode == one_of(KeyboardSettings::MappingMode::KEY,
+		                   KeyboardSettings::MappingMode::POSITIONAL)) {
 			// User entered a key on numeric keypad or the driver is in
 			// KEY/POSITIONAL mapping mode.
 			// First option (keypad) maps to same unicode as some other key

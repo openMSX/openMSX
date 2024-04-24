@@ -441,7 +441,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 	im::Menu("Media", motherBoard != nullptr, [&]{
 		auto& interp = manager.getInterpreter();
 
-		enum { NONE, ITEM, SEPARATOR } status = NONE;
+		enum class Status { NONE, ITEM, SEPARATOR };
+		using enum Status;
+		Status status = NONE;
+
 		auto endGroup = [&] {
 			if (status == ITEM) status = SEPARATOR;
 		};

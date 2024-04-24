@@ -23,7 +23,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		Keyboard::MATRIX_MSX, config)
+		Keyboard::Matrix::MSX, config)
 {
 	reset(getCurrentTime());
 }

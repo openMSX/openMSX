@@ -27,20 +27,11 @@ std::string toString(const BooleanInput& input)
 			return strCat(j.getJoystick().str(), " button", j.getButton());
 		},
 		[](const BooleanJoystickHat& h) {
-			const char* str = [&] {
-				switch (h.getValue()) {
-					case BooleanJoystickHat::UP:    return " up";
-					case BooleanJoystickHat::RIGHT: return " right";
-					case BooleanJoystickHat::DOWN:  return " down";
-					case BooleanJoystickHat::LEFT:  return " left";
-					default: UNREACHABLE;
-				}
-			}();
-			return strCat(h.getJoystick().str(), " hat", h.getHat(), str);
+			return strCat(h.getJoystick().str(), " hat", h.getHat(), ' ', toString(h.getValue()));
 		},
 		[&](const BooleanJoystickAxis& a) {
 			return strCat(a.getJoystick().str(), ' ',
-			              (a.getDirection() == BooleanJoystickAxis::POS ? '+' : '-'),
+			              (a.getDirection() == BooleanJoystickAxis::Direction::POS ? '+' : '-'),
 			              "axis", a.getAxis());
 		}
 	}, input);
@@ -93,11 +84,12 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 			auto valueStr = *it++;
 			if (it != et) return std::nullopt;
 
-			BooleanJoystickHat::Value value;
-			if      (valueStr == "up"   ) value = BooleanJoystickHat::UP;
-			else if (valueStr == "right") value = BooleanJoystickHat::RIGHT;
-			else if (valueStr == "down" ) value = BooleanJoystickHat::DOWN;
-			else if (valueStr == "left" ) value = BooleanJoystickHat::LEFT;
+			BooleanJoystickHat::Direction value;
+			using enum BooleanJoystickHat::Direction;
+			if      (valueStr == "up"   ) value = UP;
+			else if (valueStr == "right") value = RIGHT;
+			else if (valueStr == "down" ) value = DOWN;
+			else if (valueStr == "left" ) value = LEFT;
 			else return std::nullopt;
 
 			return BooleanJoystickHat(joyId, narrow<uint8_t>(*hat), value);
@@ -105,11 +97,11 @@ std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 		} else if (auto pAxis = parseValueWithPrefix(subType, "+axis")) {
 			if (*pAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*pAxis), BooleanJoystickAxis::POS);
+			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*pAxis), BooleanJoystickAxis::Direction::POS);
 		} else if (auto nAxis = parseValueWithPrefix(subType, "-axis")) {
 			if (*nAxis > 255) return std::nullopt;
 			if (it != et) return std::nullopt;
-			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*nAxis), BooleanJoystickAxis::NEG);
+			return BooleanJoystickAxis(joyId, narrow<uint8_t>(*nAxis), BooleanJoystickAxis::Direction::NEG);
 		}
 	}
 	return std::nullopt;
@@ -133,7 +125,7 @@ std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref
 				return std::nullopt;
 			}
 			return BooleanJoystickHat(e.getJoystick(), e.getHat(),
-			                          BooleanJoystickHat::Value(value));
+			                          BooleanJoystickHat::Direction(value));
 		},
 		[&](const JoystickAxisMotionEvent& e) -> std::optional<BooleanInput> {
 			auto joyId = e.getJoystick();
@@ -145,8 +137,8 @@ std::optional<BooleanInput> captureBooleanInput(const Event& event, function_ref
 				return std::nullopt;
 			}
 			return BooleanJoystickAxis(joyId, e.getAxis(),
-			                     (value > 0 ? BooleanJoystickAxis::POS
-			                                : BooleanJoystickAxis::NEG));
+			                     (value > 0 ? BooleanJoystickAxis::Direction::POS
+			                                : BooleanJoystickAxis::Direction::NEG));
 		},
 		[](const EventBase&) -> std::optional<BooleanInput> {
 			return std::nullopt;
@@ -217,7 +209,7 @@ std::optional<bool> match(const BooleanInput& binding, const Event& event,
 		[](const BooleanJoystickHat& bind, const JoystickHatEvent& e) -> std::optional<bool> {
 			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
 			if (bind.getHat() != e.getHat()) return std::nullopt;
-			return bind.getValue() & e.getValue();
+			return to_underlying(bind.getValue()) & e.getValue();
 		},
 
 		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<bool> {
@@ -225,7 +217,7 @@ std::optional<bool> match(const BooleanInput& binding, const Event& event,
 			if (bind.getAxis() != e.getAxis()) return std::nullopt;
 			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
 			int threshold = (deadZone * 32768) / 100;
-			if (bind.getDirection() == BooleanJoystickAxis::POS) {
+			if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
 				return e.getValue() > threshold;
 			} else {
 				return e.getValue() < -threshold;

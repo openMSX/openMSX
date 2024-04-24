@@ -39,14 +39,14 @@ TEST_CASE("BooleanInput: toString, parse")
 		compare(BooleanJoystickButton(ID(1), 4), "joy2 button4");
 	}
 	SECTION("joystick hat") {
-		compare(BooleanJoystickHat(ID(0), 1, BooleanJoystickHat::UP),    "joy1 hat1 up");
-		compare(BooleanJoystickHat(ID(3), 5, BooleanJoystickHat::DOWN),  "joy4 hat5 down");
-		compare(BooleanJoystickHat(ID(2), 4, BooleanJoystickHat::LEFT),  "joy3 hat4 left");
-		compare(BooleanJoystickHat(ID(1), 2, BooleanJoystickHat::RIGHT), "joy2 hat2 right");
+		compare(BooleanJoystickHat(ID(0), 1, BooleanJoystickHat::Direction::UP),    "joy1 hat1 up");
+		compare(BooleanJoystickHat(ID(3), 5, BooleanJoystickHat::Direction::DOWN),  "joy4 hat5 down");
+		compare(BooleanJoystickHat(ID(2), 4, BooleanJoystickHat::Direction::LEFT),  "joy3 hat4 left");
+		compare(BooleanJoystickHat(ID(1), 2, BooleanJoystickHat::Direction::RIGHT), "joy2 hat2 right");
 	}
 	SECTION("joystick axis") {
-		compare(BooleanJoystickAxis(ID(0), 1, BooleanJoystickAxis::POS), "joy1 +axis1");
-		compare(BooleanJoystickAxis(ID(3), 2, BooleanJoystickAxis::NEG), "joy4 -axis2");
+		compare(BooleanJoystickAxis(ID(0), 1, BooleanJoystickAxis::Direction::POS), "joy1 +axis1");
+		compare(BooleanJoystickAxis(ID(3), 2, BooleanJoystickAxis::Direction::NEG), "joy4 -axis2");
 	}
 	SECTION("parse error") {
 		CHECK(!parseBooleanInput("")); // no type

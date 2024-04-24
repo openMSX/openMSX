@@ -48,16 +48,16 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	, kpEnterMode(commandController,
 		"kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",
-		MSX_KP_COMMA, EnumSetting<KpEnterMode>::Map{
-			{"KEYPAD_COMMA", MSX_KP_COMMA},
-			{"ENTER",        MSX_ENTER}})
+		KpEnterMode::MSX_KP_COMMA, EnumSetting<KpEnterMode>::Map{
+			{"KEYPAD_COMMA", KpEnterMode::MSX_KP_COMMA},
+			{"ENTER",        KpEnterMode::MSX_ENTER}})
 	, mappingMode(commandController,
 		"kbd_mapping_mode",
 		"Keyboard mapping mode",
-		CHARACTER_MAPPING, EnumSetting<MappingMode>::Map{
-			{"KEY",        KEY_MAPPING},
-			{"CHARACTER",  CHARACTER_MAPPING},
-			{"POSITIONAL", POSITIONAL_MAPPING}})
+		MappingMode::CHARACTER, EnumSetting<MappingMode>::Map{
+			{"KEY",        MappingMode::KEY},
+			{"CHARACTER",  MappingMode::CHARACTER},
+			{"POSITIONAL", MappingMode::POSITIONAL}})
 	, alwaysEnableKeypad(commandController,
 		"kbd_numkeypad_always_enabled",
 		"Numeric keypad is always enabled, even on an MSX that does not have one",

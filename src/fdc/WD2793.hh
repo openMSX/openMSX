@@ -47,21 +47,21 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
-	enum FSMState {
-		FSM_NONE,
-		FSM_SEEK,
-		FSM_TYPE2_LOADED,
-		FSM_TYPE2_NOT_FOUND,
-		FSM_TYPE2_ROTATED,
-		FSM_CHECK_WRITE,
-		FSM_PRE_WRITE_SECTOR,
-		FSM_WRITE_SECTOR,
-		FSM_POST_WRITE_SECTOR,
-		FSM_TYPE3_LOADED,
-		FSM_TYPE3_ROTATED,
-		FSM_WRITE_TRACK,
-		FSM_READ_TRACK,
-		FSM_IDX_IRQ
+	enum class FSM {
+		NONE,
+		SEEK,
+		TYPE2_LOADED,
+		TYPE2_NOT_FOUND,
+		TYPE2_ROTATED,
+		CHECK_WRITE,
+		PRE_WRITE_SECTOR,
+		WRITE_SECTOR,
+		POST_WRITE_SECTOR,
+		TYPE3_LOADED,
+		TYPE3_ROTATED,
+		WRITE_TRACK,
+		READ_TRACK,
+		IDX_IRQ
 	};
 
 private:
@@ -101,7 +101,7 @@ private:
 	void setDrqRate(unsigned trackLength);
 	[[nodiscard]] bool isReady() const;
 
-	void schedule(FSMState state, EmuTime::param time);
+	void schedule(FSM state, EmuTime::param time);
 
 private:
 	DiskDrive& drive;
@@ -141,7 +141,7 @@ private:
 
 	CRC16 crc;
 
-	FSMState fsmState;
+	FSM fsmState;
 	uint8_t statusReg;
 	uint8_t commandReg = 0;
 	uint8_t sectorReg;

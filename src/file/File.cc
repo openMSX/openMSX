@@ -28,7 +28,7 @@ File::File() = default;
 			file = std::make_unique<ZipFileAdapter>(std::move(file));
 		} else {
 			// only pre-cache non-compressed files
-			if (mode == File::PRE_CACHE) {
+			if (mode == File::OpenMode::PRE_CACHE) {
 				checked_cast<LocalFile*>(file.get())->preCacheFile();
 			}
 		}

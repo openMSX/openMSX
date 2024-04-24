@@ -511,7 +511,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 {
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
-	File file(std::move(filename), File::CREATE);
+	File file(std::move(filename), File::OpenMode::CREATE);
 	for (auto i : xrange(partition.getNbSectors())) {
 		partition.readSector(i, buf);
 		file.write(buf.raw);
@@ -554,7 +554,7 @@ void DiskManipulator::create(const std::string& filename_, MSXBootSectorType boo
 	// create file with correct size
 	Filename filename(filename_);
 	try {
-		File file(filename, File::CREATE);
+		File file(filename, File::OpenMode::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
 	} catch (FileException& e) {
 		throw CommandException("Couldn't create image: ", e.getMessage());

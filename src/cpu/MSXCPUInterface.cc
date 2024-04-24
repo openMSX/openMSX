@@ -204,7 +204,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 		// execute read watches before actual read
 		if (readWatchSet[address >> CacheLine::BITS]
 		                [address &  CacheLine::LOW]) {
-			executeMemWatch(WatchPoint::READ_MEM, address);
+			executeMemWatch(WatchPoint::Type::READ_MEM, address);
 		}
 	}
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
@@ -244,7 +244,7 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 		motherBoard.getScheduler().schedule(time + EmuDuration::epsilon());
 		if (writeWatchSet[address >> CacheLine::BITS]
 		                 [address &  CacheLine::LOW]) {
-			executeMemWatch(WatchPoint::WRITE_MEM, address, value);
+			executeMemWatch(WatchPoint::Type::WRITE_MEM, address, value);
 		}
 	}
 }
@@ -860,14 +860,15 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
 	switch (type) {
-	case WatchPoint::READ_IO:
+	using enum WatchPoint::Type;
+	case READ_IO:
 		registerIOWatch(*watchPoint, IO_In);
 		break;
-	case WatchPoint::WRITE_IO:
+	case WRITE_IO:
 		registerIOWatch(*watchPoint, IO_Out);
 		break;
-	case WatchPoint::READ_MEM:
-	case WatchPoint::WRITE_MEM:
+	case READ_MEM:
+	case WRITE_MEM:
 		updateMemWatch(type);
 		break;
 	default:
@@ -906,14 +907,15 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 		watchPoints.erase(it);
 		WatchPoint::Type type = watchPoint->getType();
 		switch (type) {
-		case WatchPoint::READ_IO:
+		using enum WatchPoint::Type;
+		case READ_IO:
 			unregisterIOWatch(*watchPoint, IO_In);
 			break;
-		case WatchPoint::WRITE_IO:
+		case WRITE_IO:
 			unregisterIOWatch(*watchPoint, IO_Out);
 			break;
-		case WatchPoint::READ_MEM:
-		case WatchPoint::WRITE_MEM:
+		case READ_MEM:
+		case WRITE_MEM:
 			updateMemWatch(type);
 			break;
 		default:
@@ -956,7 +958,7 @@ void MSXCPUInterface::removeCondition(unsigned id)
 void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 {
 	std::span<std::bitset<CacheLine::SIZE>, CacheLine::NUM> watchSet =
-		(type == WatchPoint::READ_MEM) ? readWatchSet : writeWatchSet;
+		(type == WatchPoint::Type::READ_MEM) ? readWatchSet : writeWatchSet;
 	for (auto i : xrange(CacheLine::NUM)) {
 		watchSet[i].reset();
 	}

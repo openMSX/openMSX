@@ -801,7 +801,7 @@ void ImGuiDiskManipulator::exportDiskImage()
 
 			try {
 				SectorBuffer buf;
-				File file(fn, File::CREATE);
+				File file(fn, File::OpenMode::CREATE);
 				for (auto i : xrange(disk->getNbSectors())) {
 					disk->readSector(i, buf);
 					file.write(buf.raw);

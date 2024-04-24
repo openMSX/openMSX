@@ -87,11 +87,11 @@ void MSXCPU::doReset(EmuTime::param time)
 	reference = time;
 }
 
-void MSXCPU::setActiveCPU(CPUType cpu)
+void MSXCPU::setActiveCPU(Type cpu)
 {
-	if (cpu == CPU_R800) assert(r800);
+	if (cpu == Type::R800) assert(r800);
 
-	bool tmp = cpu == CPU_Z80;
+	bool tmp = cpu == Type::Z80;
 	if (tmp != z80Active) {
 		exitCPULoopSync();
 		newZ80Active = tmp;

@@ -158,7 +158,7 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
                                  bool once, unsigned newId /*= -1*/)
 {
 	std::shared_ptr<WatchPoint> wp;
-	if (type == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) {
+	if (type == one_of(WatchPoint::Type::READ_IO, WatchPoint::Type::WRITE_IO)) {
 		wp = std::make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,
 			std::move(command), std::move(condition), once, newId);
@@ -447,17 +447,18 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	case 2: { // address + type
 		string_view typeStr = arguments[0].getString();
 		unsigned max = [&] {
+			using enum WatchPoint::Type;
 			if (typeStr == "read_io") {
-				type = WatchPoint::READ_IO;
+				type = READ_IO;
 				return 0x100;
 			} else if (typeStr == "write_io") {
-				type = WatchPoint::WRITE_IO;
+				type = WRITE_IO;
 				return 0x100;
 			} else if (typeStr == "read_mem") {
-				type = WatchPoint::READ_MEM;
+				type = READ_MEM;
 				return 0x10000;
 			} else if (typeStr == "write_mem") {
-				type = WatchPoint::WRITE_MEM;
+				type = WRITE_MEM;
 				return 0x10000;
 			} else {
 				throw CommandException("Invalid type: ", typeStr);
@@ -517,16 +518,17 @@ void Debugger::Cmd::listWatchPoints(
 		TclObject line = makeTclList(tmpStrCat("wp#", wp->getId()));
 		string type;
 		switch (wp->getType()) {
-		case WatchPoint::READ_IO:
+		using enum WatchPoint::Type;
+		case READ_IO:
 			type = "read_io";
 			break;
-		case WatchPoint::WRITE_IO:
+		case WRITE_IO:
 			type = "write_io";
 			break;
-		case WatchPoint::READ_MEM:
+		case READ_MEM:
 			type = "read_mem";
 			break;
-		case WatchPoint::WRITE_MEM:
+		case WRITE_MEM:
 			type = "write_mem";
 			break;
 		default:

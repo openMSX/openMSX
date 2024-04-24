@@ -25,12 +25,12 @@ namespace openmsx {
 {
 	auto ioRegs = config.getChildData("io_regs", {});
 	if (ioRegs == "7FF2") {
-		return TurboRFDC::R7FF2;
+		return TurboRFDC::Type::R7FF2;
 	} else if (ioRegs == "7FF8") {
-		return TurboRFDC::R7FF8;
+		return TurboRFDC::Type::R7FF8;
 	} else if (ioRegs.empty()) {
 		// for backwards compatibility
-		return TurboRFDC::BOTH;
+		return TurboRFDC::Type::BOTH;
 	} else {
 		throw MSXException(
 			"Invalid 'io_regs' specification: expected one of "
@@ -74,7 +74,7 @@ byte TurboRFDC::readMem(word address, EmuTime::param time_)
 		// machine, it happens for all 16 positions in this region
 		// and both for reading and writing.
 		time = getCPU().waitCyclesR800(time, 1);
-		if (type != R7FF8) { // turboR or BOTH
+		if (type != Type::R7FF8) { // turboR or BOTH
 			switch (address & 0xF) {
 			case 0x1: {
 				byte result = 0x33;
@@ -86,7 +86,7 @@ byte TurboRFDC::readMem(word address, EmuTime::param time_)
 			case 0x5: return controller.readDataPort(time);
 			}
 		}
-		if (type != R7FF2) { // non-turboR or BOTH
+		if (type != Type::R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
 			case 0xA: return controller.readStatus(time);
 			case 0xB: return controller.readDataPort(time);
@@ -104,7 +104,7 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// note: this implementation requires that the handled
 		//    addresses for the MSX2 and TURBOR variants don't overlap
-		if (type != R7FF8) { // turboR or BOTH
+		if (type != Type::R7FF8) { // turboR or BOTH
 			switch (address & 0xF) {
 			case 0x0: return bank;
 			case 0x1: {
@@ -122,7 +122,7 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 			case 0x5: return controller.peekDataPort(time);
 			}
 		}
-		if (type != R7FF2) { // non-turboR or BOTH
+		if (type != Type::R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
 			case 0xA: return controller.peekStatus();
 			case 0xB: return controller.peekDataPort(time);
@@ -172,7 +172,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 	if (address == 0x7FF0) {
 		setBank(value);
 	} else {
-		if (type != R7FF8) { // turboR or BOTH
+		if (type != Type::R7FF8) { // turboR or BOTH
 			switch (address & 0x3FFF) {
 			case 0x3FF2:
 				controller.writeControlReg0(value, time);
@@ -185,7 +185,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 				break;
 			}
 		}
-		if (type != R7FF2) { // non-turboR or BOTH
+		if (type != Type::R7FF2) { // non-turboR or BOTH
 			switch (address & 0x3FFF) {
 			case 0x3FF8:
 				controller.writeControlReg0(value, time);

@@ -495,21 +495,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			return strCat(joystickManager.getDisplayName(j.getJoystick()), " button ", j.getButton());
 		},
 		[&](const BooleanJoystickHat& h) {
-			const char* str = [&] {
-				switch (h.getValue()) {
-					case BooleanJoystickHat::UP:    return "up";
-					case BooleanJoystickHat::RIGHT: return "right";
-					case BooleanJoystickHat::DOWN:  return "down";
-					case BooleanJoystickHat::LEFT:  return "left";
-					default: UNREACHABLE;
-				}
-			}();
-			return strCat(joystickManager.getDisplayName(h.getJoystick()), " D-pad ", h.getHat(), ' ', str);
+			return strCat(joystickManager.getDisplayName(h.getJoystick()), " D-pad ", h.getHat(), ' ', toString(h.getValue()));
 		},
 		[&](const BooleanJoystickAxis& a) {
 			return strCat(joystickManager.getDisplayName(a.getJoystick()),
 			              " stick axis ", a.getAxis(), ", ",
-			              (a.getDirection() == BooleanJoystickAxis::POS ? "positive" : "negative"), " direction");
+			              (a.getDirection() == BooleanJoystickAxis::Direction::POS ? "positive" : "negative"), " direction");
 		}
 	}, input);
 }

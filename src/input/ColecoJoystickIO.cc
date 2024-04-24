@@ -18,7 +18,7 @@ ColecoJoystickIO::ColecoJoystickIO(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		Keyboard::MATRIX_CVJOY,
+		Keyboard::Matrix::CVJOY,
 		config)
 {
 	MSXMotherBoard& motherBoard = getMotherBoard();

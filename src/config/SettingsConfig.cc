@@ -178,7 +178,7 @@ void SettingsConfig::saveSetting(std::string filename)
 
 	struct SettingsWriter {
 		explicit SettingsWriter(std::string filename)
-			: file(std::move(filename), File::TRUNCATE)
+			: file(std::move(filename), File::OpenMode::TRUNCATE)
 		{
 			std::string_view header =
 				"<!DOCTYPE settings SYSTEM 'settings.dtd'>\n";

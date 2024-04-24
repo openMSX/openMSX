@@ -11,7 +11,7 @@ namespace openmsx {
 class TurboRFDC final : public MSXFDC
 {
 public:
-	enum Type { BOTH, R7FF2, R7FF8 };
+	enum class Type { BOTH, R7FF2, R7FF8 };
 
 	explicit TurboRFDC(const DeviceConfig& config);
 

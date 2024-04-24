@@ -45,19 +45,19 @@ HD::HD(const DeviceConfig& config)
 	// For the initial hd image, savestate should only try exactly this
 	// (resolved) filename. For user-specified hd images (command line or
 	// via hda command) savestate will try to re-resolve the filename.
-	auto mode = File::NORMAL;
+	auto mode = File::OpenMode::NORMAL;
 	if (string cliImage = HDImageCLI::getImageForId(id);
 	    cliImage.empty()) {
 		const auto& original = config.getChildData("filename");
 		filename = Filename(config.getFileContext().resolveCreate(original));
-		mode = File::CREATE;
+		mode = File::OpenMode::CREATE;
 	} else {
 		filename = Filename(std::move(cliImage), userFileContext());
 	}
 
 	file = File(filename, mode);
 	filesize = file.getSize();
-	if (mode == File::CREATE && filesize == 0) {
+	if (mode == File::OpenMode::CREATE && filesize == 0) {
 		// OK, the file was just newly created. Now make sure the file
 		// is of the right (default) size
 		file.truncate(size_t(config.getChildDataAsInt("size", 0)) * 1024 * 1024);

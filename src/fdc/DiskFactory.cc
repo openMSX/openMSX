@@ -19,15 +19,15 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 	, syncDirAsDSKSetting(
 		reactor.getCommandController(), "DirAsDSKmode",
 		"type of synchronisation between host directory and dir-as-dsk disk image",
-		DirAsDSK::SYNC_FULL, EnumSetting<DirAsDSK::SyncMode>::Map{
-			{"read_only", DirAsDSK::SYNC_READONLY},
-			{"full",      DirAsDSK::SYNC_FULL}})
+		DirAsDSK::SyncMode::FULL, EnumSetting<DirAsDSK::SyncMode>::Map{
+			{"read_only", DirAsDSK::SyncMode::READONLY},
+			{"full",      DirAsDSK::SyncMode::FULL}})
 	, bootSectorSetting(
 		reactor.getCommandController(), "bootsector",
 		"boot sector type for dir-as-dsk",
-		DirAsDSK::BOOT_SECTOR_DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
-			{"DOS1", DirAsDSK::BOOT_SECTOR_DOS1},
-			{"DOS2", DirAsDSK::BOOT_SECTOR_DOS2}})
+		DirAsDSK::BootSectorType::DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
+			{"DOS1", DirAsDSK::BootSectorType::DOS1},
+			{"DOS2", DirAsDSK::BootSectorType::DOS2}})
 {
 }
 
@@ -51,7 +51,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		// DirAsDSK didn't work, no problem
 	}
 	try {
-		auto file = std::make_shared<File>(filename, File::PRE_CACHE);
+		auto file = std::make_shared<File>(filename, File::OpenMode::PRE_CACHE);
 		try {
 			// first try XSA
 			return std::make_unique<XSADiskImage>(filename, *file);

@@ -86,7 +86,7 @@ void SRAM::load(bool* loaded)
 	try {
 		bool headerOk = true;
 		File file(config.getFileContext().resolveCreate(filename),
-			  File::LOAD_PERSISTENT);
+			  File::OpenMode::LOAD_PERSISTENT);
 		if (header) {
 			size_t length = strlen(header);
 			VLA(char, buf, length);
@@ -118,7 +118,7 @@ void SRAM::save() const
 	const auto& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
-			  File::SAVE_PERSISTENT);
+			  File::OpenMode::SAVE_PERSISTENT);
 		if (header) {
 			auto length = strlen(header);
 			file.write(std::span{header, length});

@@ -241,7 +241,7 @@ static void IMG_SavePNG_RW(size_t width, std::span<const void*> rowPointers,
 	assert(width  <= std::numeric_limits<png_uint_32>::max());
 	assert(height <= std::numeric_limits<png_uint_32>::max());
 	try {
-		File file(filename, File::TRUNCATE);
+		File file(filename, File::OpenMode::TRUNCATE);
 
 		PNGWriteHandle png;
 		png.ptr = png_create_write_struct(

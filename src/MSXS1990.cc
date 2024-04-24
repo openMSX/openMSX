@@ -84,8 +84,8 @@ void MSXS1990::writeRegister(byte reg, byte value)
 void MSXS1990::setCPUStatus(byte value)
 {
 	cpuStatus = value & 0x60;
-	getCPU().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
-	                                           MSXCPU::CPU_R800);
+	getCPU().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::Type::Z80 :
+	                                           MSXCPU::Type::R800);
 	bool dram = (cpuStatus & 0x40) == 0;
 	getCPU().setDRAMmode(dram);
 	getMotherBoard().getPanasonicMemory().setDRAM(dram);

@@ -49,15 +49,15 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
-	enum State {
-		STATE_SYNC1,     // waiting for AF
-		STATE_SYNC2,     // waiting for 05
-		STATE_COMMAND,   // waiting for command (9 bytes)
-		STATE_DISKREAD,  // waiting for AF07
-		STATE_DISKWRITE, // waiting for AA<data>AA
-		STATE_DEVOPEN,   // waiting for filename (11 bytes)
-		STATE_IMAGE,     // waiting for filename
-		STATE_MESSAGE,   // waiting for null-terminated message
+	enum class State {
+		SYNC1,     // waiting for AF
+		SYNC2,     // waiting for 05
+		COMMAND,   // waiting for command (9 bytes)
+		DISKREAD,  // waiting for AF07
+		DISKWRITE, // waiting for AA<data>AA
+		DEVOPEN,   // waiting for filename (11 bytes)
+		IMAGE,     // waiting for filename
+		MESSAGE,   // waiting for null-terminated message
 	};
 
 private:
@@ -120,7 +120,7 @@ private:
 	// state-machine
 	std::vector<SectorBuffer> buffer;// work buffer for disk read/write
 	unsigned lastTime = 0;   // last time a byte was received from MSX
-	State state = STATE_SYNC1;
+	State state = State::SYNC1;
 	unsigned recvCount;      // how many bytes recv in this state
 	unsigned transferred;    // progress within disk read/write
 	unsigned retryCount;     // only used for disk read

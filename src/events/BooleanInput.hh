@@ -23,6 +23,7 @@
 #include "JoystickId.hh"
 
 #include "function_ref.hh"
+#include "unreachable.hh"
 
 #include <SDL.h>
 
@@ -75,14 +76,14 @@ private:
 class BooleanJoystickHat
 {
 public:
-	enum Value : uint8_t {
+	enum class Direction : uint8_t {
 		UP    = SDL_HAT_UP,
 		RIGHT = SDL_HAT_RIGHT,
 		DOWN  = SDL_HAT_DOWN,
 		LEFT  = SDL_HAT_LEFT,
 	};
 
-	explicit BooleanJoystickHat(JoystickId joystick_, uint8_t hat_, Value value_)
+	explicit BooleanJoystickHat(JoystickId joystick_, uint8_t hat_, Direction value_)
 		: joystick(joystick_), hat(hat_), value(value_) {}
 
 	[[nodiscard]] auto getJoystick() const { return joystick; }
@@ -92,13 +93,25 @@ public:
 private:
 	JoystickId joystick;
 	uint8_t hat;
-	Value value;
+	Direction value;
 };
+[[nodiscard]] constexpr std::string_view toString(BooleanJoystickHat::Direction dir)
+{
+	using namespace std::literals;
+	using enum BooleanJoystickHat::Direction;
+	switch (dir) {
+		case UP:    return "up"sv;
+		case RIGHT: return "right"sv;
+		case DOWN:  return "down"sv;
+		case LEFT:  return "left"sv;
+	}
+	UNREACHABLE;
+}
 
 class BooleanJoystickAxis
 {
 public:
-	enum Direction : uint8_t { POS = 0, NEG = 1 };
+	enum class Direction : uint8_t { POS, NEG };
 
 	explicit BooleanJoystickAxis(JoystickId joystick_, uint8_t axis_, Direction direction_)
 		: joystick(joystick_), axis(axis_), direction(direction_) {}

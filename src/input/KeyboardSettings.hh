@@ -4,6 +4,7 @@
 #include "SDLKey.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
+
 #include <array>
 #include <cassert>
 
@@ -14,8 +15,8 @@ class CommandController;
 class KeyboardSettings
 {
 public:
-	enum KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
-	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING, POSITIONAL_MAPPING };
+	enum class KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
+	enum class MappingMode { KEY, CHARACTER, POSITIONAL };
 
 	explicit KeyboardSettings(CommandController& commandController);
 

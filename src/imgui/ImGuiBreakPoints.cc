@@ -370,7 +370,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 			GuiItem item{
 				idCounter,
 				true, // enabled, but still invalid
-				WatchPoint::WRITE_MEM,
+				to_underlying(WatchPoint::Type::WRITE_MEM),
 				{}, {}, {}, {}, // address
 				{}, // cond
 				makeTclList("debug", "break")};
@@ -471,7 +471,7 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 			it != items.end()) {
 			// item exists on the openMSX side, make sure it's in sync
 			if constexpr (isWatchPoint) {
-				it->wpType = item->getType();
+				it->wpType = to_underlying(item->getType());
 			}
 			if constexpr (hasAddress) {
 				assert(it->addr);
@@ -494,7 +494,7 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 			it->cmd  = getCommandObj(item);
 		} else {
 			// item was added on the openMSX side, copy to the GUI side
-			WatchPoint::Type wpType = WatchPoint::WRITE_MEM;
+			WatchPoint::Type wpType = WatchPoint::Type::WRITE_MEM;
 			std::optional<uint16_t> addr;
 			std::optional<uint16_t> endAddr;
 			TclObject addrStr;
@@ -512,7 +512,7 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 			items.push_back(GuiItem{
 				narrow<int>(getId(item)),
 				true,
-				wpType,
+				to_underlying(wpType),
 				addr, endAddr, std::move(addrStr), std::move(endAddrStr),
 				getConditionObj(item), getCommandObj(item)});
 			selectedRow = -1;
@@ -567,7 +567,7 @@ static bool isValidAddr(const ImGuiBreakPoints::GuiItem& i)
 	if (!i.addr) return false;
 	if (isWatchPoint) {
 		if (i.endAddr && (*i.endAddr < *i.addr)) return false;
-		if ((i.wpType == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) &&
+		if ((WatchPoint::Type(i.wpType) == one_of(WatchPoint::Type::READ_IO, WatchPoint::Type::WRITE_IO)) &&
 			((*i.addr >= 0x100) || (i.endAddr && (*i.endAddr >= 0x100)))) {
 			return false;
 		}

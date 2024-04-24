@@ -32,7 +32,7 @@ class MSXMotherBoard;
 class VDPIODelay;
 
 inline constexpr bool PROFILE_CACHELINES = false;
-enum CacheLineCounters {
+enum class CacheLineCounters {
 	NonCachedRead,
 	NonCachedWrite,
 	GetReadCacheLine,

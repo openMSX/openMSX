@@ -47,7 +47,7 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
 {
 public:
 	static constexpr int MAX_KEYSYM = 0x150;
-	enum MatrixType { MATRIX_MSX, MATRIX_SVI, MATRIX_CVJOY, MATRIX_SEGA };
+	enum class Matrix { MSX, SVI, CVJOY, SEGA };
 
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
@@ -64,7 +64,7 @@ public:
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
-	         MatrixType matrix, const DeviceConfig& config);
+	         Matrix matrix, const DeviceConfig& config);
 
 	~Keyboard();
 

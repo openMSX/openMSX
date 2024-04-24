@@ -60,7 +60,7 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, MSXCliComm& cliComm_,
 void WD2793::reset(EmuTime::param time)
 {
 	removeSyncPoint();
-	fsmState = FSM_NONE;
+	fsmState = FSM::NONE;
 
 	statusReg = 0;
 	trackReg = 0;
@@ -324,7 +324,7 @@ uint8_t WD2793::peekDataReg(EmuTime::param time) const
 }
 
 
-void WD2793::schedule(FSMState state, EmuTime::param time)
+void WD2793::schedule(FSM state, EmuTime::param time)
 {
 	assert(!pendingSyncPoint());
 	fsmState = state;
@@ -333,78 +333,79 @@ void WD2793::schedule(FSMState state, EmuTime::param time)
 
 void WD2793::executeUntil(EmuTime::param time)
 {
-	FSMState state = fsmState;
-	fsmState = FSM_NONE;
+	using enum FSM;
+	FSM state = fsmState;
+	fsmState = NONE;
 	switch (state) {
-		case FSM_SEEK:
+		case SEEK:
 			if ((commandReg & 0x80) == 0x00) {
 				// Type I command
 				seekNext(time);
 			}
 			break;
-		case FSM_TYPE2_LOADED:
+		case TYPE2_LOADED:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
 				type2Loaded(time);
 			}
 			break;
-		case FSM_TYPE2_NOT_FOUND:
+		case TYPE2_NOT_FOUND:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
 				type2NotFound(time);
 			}
 			break;
-		case FSM_TYPE2_ROTATED:
+		case TYPE2_ROTATED:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
 				type2Rotated(time);
 			}
 			break;
-		case FSM_CHECK_WRITE:
+		case CHECK_WRITE:
 			if ((commandReg & 0xE0) == 0xA0) {
 				// write sector command
 				checkStartWrite(time);
 			}
 			break;
-		case FSM_PRE_WRITE_SECTOR:
+		case PRE_WRITE_SECTOR:
 			if ((commandReg & 0xE0) == 0xA0) {
 				// write sector command
 				preWriteSector(time);
 			}
 			break;
-		case FSM_WRITE_SECTOR:
+		case WRITE_SECTOR:
 			if ((commandReg & 0xE0) == 0xA0) {
 				// write sector command
 				writeSectorData(time);
 			}
 			break;
-		case FSM_POST_WRITE_SECTOR:
+		case POST_WRITE_SECTOR:
 			if ((commandReg & 0xE0) == 0xA0) {
 				// write sector command
 				postWriteSector(time);
 			}
 			break;
-		case FSM_TYPE3_LOADED:
+		case TYPE3_LOADED:
 			if (((commandReg & 0xC0) == 0xC0) &&
 			    ((commandReg & 0xF0) != 0xD0)) {
 				// Type III command
 				type3Loaded(time);
 			}
 			break;
-		case FSM_TYPE3_ROTATED:
+		case TYPE3_ROTATED:
 			if (((commandReg & 0xC0) == 0xC0) &&
 			    ((commandReg & 0xF0) != 0xD0)) {
 				// Type III command
 				type3Rotated(time);
 			}
 			break;
-		case FSM_WRITE_TRACK:
+		case WRITE_TRACK:
 			if ((commandReg & 0xF0) == 0xF0) {
 				// write track command
 				writeTrackData(time);
 			}
 			break;
-		case FSM_READ_TRACK:
+		case READ_TRACK:
 			if ((commandReg & 0xF0) == 0xE0) {
 				// read track command
 				drive.invalidateWd2793ReadTrackQuirk();
@@ -494,7 +495,7 @@ void WD2793::step(EmuTime::param time)
 		endType1Cmd(time);
 	} else {
 		drive.step(directionIn, time);
-		schedule(FSM_SEEK, time + timePerStep[commandReg & STEP_SPEED]);
+		schedule(FSM::SEEK, time + timePerStep[commandReg & STEP_SPEED]);
 	}
 }
 
@@ -532,7 +533,7 @@ void WD2793::startType2Cmd(EmuTime::param time)
 		hldTime = time; // see comment in startType1Cmd
 
 		if (commandReg & E_FLAG) {
-			schedule(FSM_TYPE2_LOADED,
+			schedule(FSM::TYPE2_LOADED,
 			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
 			type2Loaded(time);
@@ -562,7 +563,7 @@ void WD2793::type2Search(EmuTime::param time)
 		EmuTime next = drive.getNextSector(time, sectorInfo);
 		if (next < pulse5) {
 			// Wait till sector is actually rotated under head
-			schedule(FSM_TYPE2_ROTATED, next);
+			schedule(FSM::TYPE2_ROTATED, next);
 			return;
 		}
 	} catch (MSXException& /*e*/) {
@@ -571,7 +572,7 @@ void WD2793::type2Search(EmuTime::param time)
 	// Sector not found in 5 revolutions (or read error),
 	// schedule to give a RECORD_NOT_FOUND error
 	if (pulse5 < EmuTime::infinity()) {
-		schedule(FSM_TYPE2_NOT_FOUND, pulse5);
+		schedule(FSM::TYPE2_NOT_FOUND, pulse5);
 	} else {
 		// Drive not rotating. How does a real WD293 handle this?
 		type2NotFound(time);
@@ -667,7 +668,7 @@ void WD2793::startWriteSector(EmuTime::param time)
 
 	// 8 bytes later, the WD2793 will check whether the CPU wrote the
 	// first byte.
-	schedule(FSM_CHECK_WRITE, drqTime + 8);
+	schedule(FSM::CHECK_WRITE, drqTime + 8);
 }
 
 void WD2793::checkStartWrite(EmuTime::param time)
@@ -694,7 +695,7 @@ void WD2793::checkStartWrite(EmuTime::param time)
 
 	// pause 12 bytes
 	drqTime.reset(time);
-	schedule(FSM_PRE_WRITE_SECTOR, drqTime + 12);
+	schedule(FSM::PRE_WRITE_SECTOR, drqTime + 12);
 	drqTime.reset(EmuTime::infinity()); // DRQ = false
 	dataAvailable = 16; // 12+4 bytes pre-data
 }
@@ -712,7 +713,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 				drive.writeTrackByte(dataCurrent++, 0xA1);
 			}
 			drqTime.reset(time);
-			schedule(FSM_PRE_WRITE_SECTOR, drqTime + 1);
+			schedule(FSM::PRE_WRITE_SECTOR, drqTime + 1);
 			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		} else {
 			// and finally a single F8/FB byte
@@ -730,7 +731,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 			drqTime.reset(time);
 
 			// Moment in time when first data byte gets written
-			schedule(FSM_WRITE_SECTOR, drqTime + 1);
+			schedule(FSM::WRITE_SECTOR, drqTime + 1);
 		}
 	} catch (MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
@@ -758,12 +759,12 @@ void WD2793::writeSectorData(EmuTime::param time)
 			drqTime.reset(time);
 
 			// Moment in time when next data byte gets written
-			schedule(FSM_WRITE_SECTOR, drqTime + 1);
+			schedule(FSM::WRITE_SECTOR, drqTime + 1);
 		} else {
 			// Next write post-part
 			dataAvailable = 3;
 			drqTime.reset(time);
-			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
+			schedule(FSM::POST_WRITE_SECTOR, drqTime + 1);
 			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		}
 	} catch (MSXException&) {
@@ -782,7 +783,7 @@ void WD2793::postWriteSector(EmuTime::param time)
 			                                   : narrow_cast<uint8_t>((crc.getValue() & 0xFF));
 			drive.writeTrackByte(dataCurrent++, val);
 			drqTime.reset(time);
-			schedule(FSM_POST_WRITE_SECTOR, drqTime + 1);
+			schedule(FSM::POST_WRITE_SECTOR, drqTime + 1);
 			drqTime.reset(EmuTime::infinity()); // DRQ = false
 		} else {
 			// write one byte of 0xFE
@@ -825,7 +826,7 @@ void WD2793::startType3Cmd(EmuTime::param time)
 		// WD2795/WD2797 would now set SSO output
 
 		if (commandReg & E_FLAG) {
-			schedule(FSM_TYPE3_LOADED,
+			schedule(FSM::TYPE3_LOADED,
 			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
 			type3Loaded(time);
@@ -876,7 +877,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			return;
 		}
 	}
-	schedule(FSM_TYPE3_ROTATED, next);
+	schedule(FSM::TYPE3_ROTATED, next);
 }
 
 void WD2793::type3Rotated(EmuTime::param time)
@@ -911,7 +912,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 		drqTime.reset(time);
 
 		// Stop command at next index pulse
-		schedule(FSM_READ_TRACK, drqTime + dataAvailable);
+		schedule(FSM::READ_TRACK, drqTime + dataAvailable);
 
 		drqTime += 1; // (first) byte can be read in a moment
 	} catch (MSXException&) {
@@ -942,7 +943,7 @@ void WD2793::startWriteTrack(EmuTime::param time)
 		drqTime.reset(time); // DRQ = true
 
 		// Moment in time when first track byte gets written
-		schedule(FSM_WRITE_TRACK, drqTime + 1);
+		schedule(FSM::WRITE_TRACK, drqTime + 1);
 	} catch (MSXException& /*e*/) {
 		endCmd(time);
 	}
@@ -996,7 +997,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 			drqTime.reset(time); // DRQ = true
 
 			// Moment in time when next track byte gets written
-			schedule(FSM_WRITE_TRACK, drqTime + 1);
+			schedule(FSM::WRITE_TRACK, drqTime + 1);
 
 			// prepare next byte
 			if (!lastWasCRC) {
@@ -1064,26 +1065,26 @@ void WD2793::endCmd(EmuTime::param time)
 }
 
 
-static constexpr std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
-	{ "NONE",              WD2793::FSM_NONE },
-	{ "SEEK",              WD2793::FSM_SEEK },
-	{ "TYPE2_LOADED",      WD2793::FSM_TYPE2_LOADED },
-	{ "TYPE2_NOT_FOUND",   WD2793::FSM_TYPE2_NOT_FOUND },
-	{ "TYPE2_ROTATED",     WD2793::FSM_TYPE2_ROTATED },
-	{ "CHECK_WRITE",       WD2793::FSM_CHECK_WRITE },
-	{ "PRE_WRITE_SECTOR",  WD2793::FSM_PRE_WRITE_SECTOR },
-	{ "WRITE_SECTOR",      WD2793::FSM_WRITE_SECTOR },
-	{ "POST_WRITE_SECTOR", WD2793::FSM_POST_WRITE_SECTOR },
-	{ "TYPE3_LOADED",      WD2793::FSM_TYPE3_LOADED },
-	{ "TYPE3_ROTATED",     WD2793::FSM_TYPE3_ROTATED },
-	{ "WRITE_TRACK",       WD2793::FSM_WRITE_TRACK },
-	{ "READ_TRACK",        WD2793::FSM_READ_TRACK },
-	{ "IDX_IRQ",           WD2793::FSM_IDX_IRQ },
+static constexpr std::initializer_list<enum_string<WD2793::FSM>> fsmStateInfo = {
+	{ "NONE",              WD2793::FSM::NONE },
+	{ "SEEK",              WD2793::FSM::SEEK },
+	{ "TYPE2_LOADED",      WD2793::FSM::TYPE2_LOADED },
+	{ "TYPE2_NOT_FOUND",   WD2793::FSM::TYPE2_NOT_FOUND },
+	{ "TYPE2_ROTATED",     WD2793::FSM::TYPE2_ROTATED },
+	{ "CHECK_WRITE",       WD2793::FSM::CHECK_WRITE },
+	{ "PRE_WRITE_SECTOR",  WD2793::FSM::PRE_WRITE_SECTOR },
+	{ "WRITE_SECTOR",      WD2793::FSM::WRITE_SECTOR },
+	{ "POST_WRITE_SECTOR", WD2793::FSM::POST_WRITE_SECTOR },
+	{ "TYPE3_LOADED",      WD2793::FSM::TYPE3_LOADED },
+	{ "TYPE3_ROTATED",     WD2793::FSM::TYPE3_ROTATED },
+	{ "WRITE_TRACK",       WD2793::FSM::WRITE_TRACK },
+	{ "READ_TRACK",        WD2793::FSM::READ_TRACK },
+	{ "IDX_IRQ",           WD2793::FSM::IDX_IRQ },
 	// for bw-compat savestate
-	{ "TYPE2_WAIT_LOAD",   WD2793::FSM_TYPE2_LOADED }, // was FSM_TYPE2_WAIT_LOAD
-	{ "TYPE3_WAIT_LOAD",   WD2793::FSM_TYPE3_LOADED }, // was FSM_TYPE3_WAIT_LOAD
+	{ "TYPE2_WAIT_LOAD",   WD2793::FSM::TYPE2_LOADED }, // was FSM::TYPE2_WAIT_LOAD
+	{ "TYPE3_WAIT_LOAD",   WD2793::FSM::TYPE3_LOADED }, // was FSM::TYPE3_WAIT_LOAD
 };
-SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
+SERIALIZE_ENUM(WD2793::FSM, fsmStateInfo);
 
 // version 1: initial version
 // version 2: removed members: commandStart, DRQTimer, DRQ, transferring, formatting
@@ -1100,7 +1101,7 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 //            correctly anymore. We do give a warning on this.
 // version 4: changed type of drqTime from Clock to DynamicClock
 // version 5: added 'pulse5' and 'sectorInfo'
-// version 6: no layout changes, only added new enum value 'FSM_CHECK_WRITE'
+// version 6: no layout changes, only added new enum value 'FSM::CHECK_WRITE'
 // version 7: replaced 'bool INTRQ' with 'EmuTime irqTime'
 // version 8: removed 'userData' from Schedulable
 // version 9: added 'trackDataValid'

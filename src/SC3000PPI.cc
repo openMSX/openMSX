@@ -23,7 +23,7 @@ SC3000PPI::SC3000PPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		Keyboard::MATRIX_SEGA, config)
+		Keyboard::Matrix::SEGA, config)
 {
 	MSXMotherBoard& motherBoard = getMotherBoard();
 	auto time = getCurrentTime();

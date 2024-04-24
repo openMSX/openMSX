@@ -16,7 +16,7 @@ class FileBase;
 class File
 {
 public:
-	enum OpenMode {
+	enum class OpenMode {
 		NORMAL,
 		TRUNCATE,
 		CREATE,
@@ -37,9 +37,9 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(std::string filename, OpenMode mode = NORMAL);
-	explicit File(const Filename& filename, OpenMode mode = NORMAL);
-	explicit File(Filename&& filename, OpenMode mode = NORMAL);
+	explicit File(std::string filename, OpenMode mode = OpenMode::NORMAL);
+	explicit File(const Filename& filename, OpenMode mode = OpenMode::NORMAL);
+	explicit File(Filename&& filename, OpenMode mode = OpenMode::NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparently

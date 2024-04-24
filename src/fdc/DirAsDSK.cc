@@ -292,7 +292,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 	// Use selected boot sector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
-	const auto& protoBootSector = bootSectorType == BOOT_SECTOR_DOS1
+	const auto& protoBootSector = bootSectorType == BootSectorType::DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
 	sectors[0] = protoBootSector;
@@ -333,7 +333,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 bool DirAsDSK::isWriteProtectedImpl() const
 {
-	return syncMode == SYNC_READONLY;
+	return syncMode == SyncMode::READONLY;
 }
 
 bool DirAsDSK::hasChanged() const
@@ -899,7 +899,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 {
 	assert(sector_ < nofSectors);
-	assert(syncMode != SYNC_READONLY);
+	assert(syncMode != SyncMode::READONLY);
 	auto sector = unsigned(sector_);
 
 	// Update last access time.
@@ -1253,7 +1253,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 		unsigned curCl = msxDir(dirIndex).startCluster;
 		unsigned msxSize = msxDir(dirIndex).size;
 
-		File file(hostDir + hostName, File::TRUNCATE);
+		File file(hostDir + hostName, File::OpenMode::TRUNCATE);
 		unsigned offset = 0;
 		vector<bool> visited(maxCluster, false);
 
