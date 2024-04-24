@@ -43,6 +43,13 @@ private:
 	void drawRegisters(CPURegs& regs);
 	void drawFlags(CPURegs& regs);
 
+	void checkShortcuts(MSXCPUInterface& cpuInterface);
+	void actionBreakContinue(MSXCPUInterface& cpuInterface);
+	void actionStepIn(MSXCPUInterface& cpuInterface);
+	void actionStepOver();
+	void actionStepOut();
+	void actionStepBack();
+
 private:
 	SymbolManager& symbolManager;
 	size_t cycleLabelsCounter = 0;

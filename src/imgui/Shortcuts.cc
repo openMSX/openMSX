@@ -22,10 +22,13 @@ struct AllShortcutInfo {
 using enum Shortcuts::ID;
 using enum Shortcuts::Type;
 static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
-	{HEX_GOTO_ADDR,    ImGuiMod_Ctrl | ImGuiKey_G, ALWAYS_LOCAL,  false, "hex_editor_goto_address", "Go to address in hex viewer"},
-	{STEP,             ImGuiKey_F6,                GLOBAL,        true,  "step",                    "Single step in debugger"},
-	{BREAK,            ImGuiKey_F7,                GLOBAL,        false, "break",                   "Break CPU emulation in debugger"},
-	{DISASM_GOTO_ADDR, ImGuiMod_Ctrl | ImGuiKey_G, ALWAYS_LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
+	{HEX_GOTO_ADDR,           ImGuiKey_G | ImGuiMod_Ctrl,   ALWAYS_LOCAL,  false, "hex_editor_goto_address", "Go to address in hex viewer"},
+	{DEBUGGER_STEP_IN,        ImGuiKey_F7,                  LOCAL,         true,  "step-in",                 "Debugger: step-in"},
+	{DEBUGGER_STEP_OVER,      ImGuiKey_F8,                  LOCAL,         true,  "step-over",               "Debugger: step-over"},
+	{DEBUGGER_STEP_OUT,       ImGuiKey_F7 | ImGuiMod_Shift, LOCAL,         true,  "step-out",                "Debugger: step-out"},
+	{DEBUGGER_STEP_BACK,      ImGuiKey_F8 | ImGuiMod_Shift, LOCAL,         true,  "step-back",               "Debugger: step-back"},
+	{DEBUGGER_BREAK_CONTINUE, ImGuiKey_F5,                  LOCAL,         false, "break-continue",          "Debugger: toggle break / continue"},
+	{DISASM_GOTO_ADDR,        ImGuiMod_Ctrl | ImGuiKey_G,   ALWAYS_LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
 });
 static_assert(allShortcutInfo.size() == Shortcuts::ID::NUM_SHORTCUTS);
 
