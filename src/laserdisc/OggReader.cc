@@ -169,7 +169,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 			throw MSXException("Video frame rate must be 59.94Hz or 29.97Hz");
 		}
 
-		// FIXME: Support YUV444 before release
+		// TODO: Support YUV444 before release
 		// It would be much better to use YUV444, however the existing
 		// captures are in YUV420 format. yuv2rgb will have to be
 		// updated too.

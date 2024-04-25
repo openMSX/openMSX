@@ -373,7 +373,7 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 		// During playing, playing will be acked if not repeated
 		// within less than 115ms
 	} else {
-		// FIXME: while seeking, only a small subset of buttons work
+		// TODO: while seeking, only a small subset of buttons work
 		bool nonSeekAck = true;
 
 		switch (code) {
@@ -481,13 +481,13 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 		case 0x46: // C- (play slower)
 			if (playingSpeed >= SPEED_STEP1) {
 				playingSpeed--;
-				frameStep = 1;	// FIXME: is this correct?
+				frameStep = 1;	// TODO: is this correct?
 			}
 			break;
 		case 0x47: // C+ (play faster)
 			if (playingSpeed <= SPEED_X2) {
 				playingSpeed++;
-				frameStep = 1;	// FIXME: is this correct?
+				frameStep = 1;	// TODO: is this correct?
 			}
 			break;
 		default:

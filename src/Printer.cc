@@ -1387,7 +1387,7 @@ void ImagePrinterEpson::processEscSequence()
 			break;
 		case 'Q': { // Set Right Margin
 			auto width = parseNumber(1, 2);
-			if (width > 78) width = 78; // FIXME Font dependent !!
+			if (width > 78) width = 78; // TODO Font dependent !!
 			rightBorder = 6 * width;
 			break;
 		}

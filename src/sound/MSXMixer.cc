@@ -474,7 +474,7 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 	constexpr unsigned HAS_STEREO_FLAG = 2;
 	unsigned usedBuffers = 0;
 
-	// FIXME: The Infos should be ordered such that all the mono
+	// TODO: The Infos should be ordered such that all the mono
 	// devices are handled first
 	for (auto& info : infos) {
 		SoundDevice& device = *info.device;
