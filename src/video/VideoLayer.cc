@@ -64,8 +64,8 @@ void VideoLayer::calcZ()
 void VideoLayer::calcCoverage()
 {
 	auto cov = (!powerSetting.getBoolean() || !motherBoard.isActive())
-	         ? COVER_NONE
-	         : COVER_FULL;
+	         ? Coverage::NONE
+	         : Coverage::FULL;
 	setCoverage(cov);
 }
 

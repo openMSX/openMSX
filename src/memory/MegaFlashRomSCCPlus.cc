@@ -180,7 +180,7 @@ static constexpr auto sectorInfo = [] {
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
+	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 	, flash(rom, sectorInfo, 0x205B,
@@ -378,8 +378,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
 			sccMode = value;
-			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
-			                               : SCC::SCC_Compatible);
+			scc.setMode((value & 0x20) ? SCC::Mode::Plus
+			                           : SCC::Mode::Compatible);
 			invalidateDeviceRCache(0x9800, 0x800);
 			invalidateDeviceRCache(0xB800, 0x800);
 		}

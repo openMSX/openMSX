@@ -82,7 +82,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum State { ST_IDLE, ST_IDENT };
+	enum class State { IDLE, IDENT };
 
 private:
 	void init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom);
@@ -115,7 +115,7 @@ private:
 	static constexpr unsigned MAX_CMD_SIZE = 8;
 	std::array<AmdCmd, MAX_CMD_SIZE> cmd;
 	unsigned cmdIdx;
-	State state = ST_IDLE;
+	State state = State::IDLE;
 	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 2);

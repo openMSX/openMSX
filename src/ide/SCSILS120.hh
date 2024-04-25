@@ -10,12 +10,14 @@
 #ifndef SCSILS120_HH
 #define SCSILS120_HH
 
-#include "RecordedCommand.hh"
 #include "SCSIDevice.hh"
-#include "SectorAccessibleDisk.hh"
+
 #include "DiskContainer.hh"
-#include "MSXMotherBoard.hh"
 #include "File.hh"
+#include "MSXMotherBoard.hh"
+#include "RecordedCommand.hh"
+#include "SectorAccessibleDisk.hh"
+
 #include <array>
 #include <bitset>
 #include <optional>

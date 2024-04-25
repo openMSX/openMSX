@@ -77,7 +77,7 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 	CHECK(l2 == last);
 }
 
-template<StringOp::KeepOrRemoveEmptyParts keepOrRemove, typename Separators>
+template<StringOp::EmptyParts keepOrRemove, typename Separators>
 static void checkSplit(Separators separators, const string& s, const std::vector<string_view>& expected)
 {
 	//CHECK(split(s, '-') == expected);
@@ -280,29 +280,29 @@ TEST_CASE("StringOp")
 		checkSplitOnLast("foo-bar-", "foo-bar", "");
 	}
 	SECTION("split") {
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "", {});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-", {""});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-", {"foo"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-foo", {"", "foo"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar", {"foo", "bar"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar-qux", {"foo", "bar", "qux"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "-bar-qux", {"", "bar", "qux"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo-bar-", {"foo", "bar"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "foo--bar", {"foo", "", "bar"});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>('-', "--foo--bar--", {"", "", "foo", "", "bar", ""});
-		checkSplit<StringOp::KEEP_EMPTY_PARTS>(" \t", "foo\t\t  bar", {"foo", "", "", "", "bar"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "", {});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "-", {""});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-", {"foo"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "-foo", {"", "foo"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "-bar-qux", {"", "bar", "qux"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo--bar", {"foo", "", "bar"});
+		checkSplit<StringOp::EmptyParts::KEEP>('-', "--foo--bar--", {"", "", "foo", "", "bar", ""});
+		checkSplit<StringOp::EmptyParts::KEEP>(" \t", "foo\t\t  bar", {"foo", "", "", "", "bar"});
 
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "", {});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-", {});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-", {"foo"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-foo", {"foo"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar", {"foo", "bar"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar-qux", {"foo", "bar", "qux"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "-bar-qux", {"bar", "qux"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo-bar-", {"foo", "bar"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "foo--bar", {"foo", "bar"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>('-', "--foo--bar--", {"foo", "bar"});
-		checkSplit<StringOp::REMOVE_EMPTY_PARTS>(" \t", "foo\t\t  bar", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "", {});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-", {});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-", {"foo"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-foo", {"foo"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-bar-qux", {"bar", "qux"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo--bar", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::REMOVE>('-', "--foo--bar--", {"foo", "bar"});
+		checkSplit<StringOp::EmptyParts::REMOVE>(" \t", "foo\t\t  bar", {"foo", "bar"});
 	}
 	SECTION("parseRange") {
 		checkParseRange("", {});

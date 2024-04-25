@@ -52,38 +52,38 @@ public:
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
 
-	enum RemoteState {
-		REMOTE_IDLE,
-		REMOTE_HEADER_PULSE,
+	enum class RemoteState {
+		IDLE,
+		HEADER_PULSE,
 		NEC_HEADER_SPACE,
 		NEC_BITS_PULSE,
 		NEC_BITS_SPACE,
 	};
 
-	enum PlayerState {
-		PLAYER_STOPPED,
-		PLAYER_PLAYING,
-		PLAYER_MULTI_SPEED,
-		PLAYER_PAUSED,
-		PLAYER_STILL
+	enum class PlayerState {
+		STOPPED,
+		PLAYING,
+		MULTI_SPEED,
+		PAUSED,
+		STILL
 	};
 
-	enum SeekState {
-		SEEK_NONE,
-		SEEK_CHAPTER,
-		SEEK_FRAME,
-		SEEK_WAIT,
+	enum class SeekState {
+		NONE,
+		CHAPTER,
+		FRAME,
+		WAIT,
 	};
 
-	enum StereoMode {
+	enum class StereoMode {
 		LEFT,
 		RIGHT,
 		STEREO
 	};
 
-	enum RemoteProtocol {
-		IR_NONE,
-		IR_NEC,
+	enum class RemoteProtocol {
+		NONE,
+		NEC,
 	};
 private:
 	std::string getStateString() const;
@@ -187,12 +187,12 @@ private:
 	StereoMode stereoMode;
 
 	// Ext Control
-	RemoteState remoteState = REMOTE_IDLE;
+	RemoteState remoteState = RemoteState::IDLE;
 	EmuTime remoteLastEdge = EmuTime::zero();
 	unsigned remoteBitNr;
 	unsigned remoteBits;
 	bool remoteLastBit = false;
-	RemoteProtocol remoteProtocol = IR_NONE;
+	RemoteProtocol remoteProtocol = RemoteProtocol::NONE;
 	uint8_t remoteCode;
 	bool remoteExecuteDelayed;
 	// Number of v-blank since code was sent
@@ -216,7 +216,7 @@ private:
 	// State of the video itself
 	bool seeking = false;
 
-	PlayerState playerState = PLAYER_STOPPED;
+	PlayerState playerState = PlayerState::STOPPED;
 
 	enum PlayingSpeed {
 		SPEED_STEP3 = -5,	// Each frame is repeated 90 times

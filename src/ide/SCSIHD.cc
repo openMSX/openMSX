@@ -362,9 +362,11 @@ uint8_t SCSIHD::getStatusCode()
 
 unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
+	using enum SCSI::Phase;
+
 	ranges::copy(cdb_, cdb);
 	message = 0;
-	phase = SCSI::STATUS;
+	phase = STATUS;
 	blocks = 0;
 
 	// check unit attention
@@ -402,14 +404,14 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 		case SCSI::OP_INQUIRY: {
 			unsigned counter = inquiry();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
 		case SCSI::OP_REQUEST_SENSE: {
 			unsigned counter = requestSense();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -421,7 +423,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 				unsigned counter = readSectors(blocks);
 				if (counter) {
 					cdb[0] = SCSI::OP_READ10;
-					phase = SCSI::DATA_IN;
+					phase = DATA_IN;
 					return counter;
 				}
 			}
@@ -437,7 +439,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
 				cdb[0] = SCSI::OP_WRITE10;
-				phase = SCSI::DATA_OUT;
+				phase = DATA_OUT;
 				return counter;
 			}
 			return 0;
@@ -451,7 +453,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 		case SCSI::OP_MODE_SENSE: {
 			unsigned counter = modeSense();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -480,7 +482,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 			if (checkAddress()) {
 				unsigned counter = readSectors(blocks);
 				if (counter) {
-					phase = SCSI::DATA_IN;
+					phase = DATA_IN;
 					return counter;
 				}
 			}
@@ -491,7 +493,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
-				phase = SCSI::DATA_OUT;
+				phase = DATA_OUT;
 				return counter;
 			}
 			return 0;
@@ -499,7 +501,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 		case SCSI::OP_READ_CAPACITY: {
 			unsigned counter = readCapacity();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -518,7 +520,7 @@ unsigned SCSIHD::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phas
 
 unsigned SCSIHD::executingCmd(SCSI::Phase& phase, unsigned& blocks)
 {
-	phase = SCSI::EXECUTE;
+	phase = SCSI::Phase::EXECUTE;
 	blocks = 0;
 	return 0; // Always for non-CD-ROM it seems
 }

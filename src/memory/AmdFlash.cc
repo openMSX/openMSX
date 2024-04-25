@@ -199,7 +199,7 @@ AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(size_t address) const
 void AmdFlash::reset()
 {
 	cmdIdx = 0;
-	setState(ST_IDLE);
+	setState(State::IDLE);
 }
 
 void AmdFlash::setState(State newState)
@@ -212,7 +212,7 @@ void AmdFlash::setState(State newState)
 uint8_t AmdFlash::peek(size_t address) const
 {
 	auto [sector, sectorSize, offset] = getSectorInfo(address);
-	if (state == ST_IDLE) {
+	if (state == State::IDLE) {
 		if (const uint8_t* addr = readAddress[sector]) {
 			return addr[offset];
 		} else {
@@ -253,7 +253,7 @@ uint8_t AmdFlash::read(size_t address) const
 
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
-	if (state == ST_IDLE) {
+	if (state == State::IDLE) {
 		auto [sector, sectorSize, offset] = getSectorInfo(address);
 		const uint8_t* addr = readAddress[sector];
 		return addr ? &addr[offset] : MSXDevice::unmappedRead.data();
@@ -362,7 +362,7 @@ bool AmdFlash::checkCommandManufacturer()
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
 	if (partialMatch(cmdSeq)) {
 		if (cmdIdx == 3) {
-			setState(ST_IDENT);
+			setState(State::IDENT);
 		}
 		if (cmdIdx < 4) return true;
 	}
@@ -388,8 +388,8 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
-	{ "IDLE",  AmdFlash::ST_IDLE  },
-	{ "IDENT", AmdFlash::ST_IDENT }
+	{ "IDLE",  AmdFlash::State::IDLE  },
+	{ "IDENT", AmdFlash::State::IDENT }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 

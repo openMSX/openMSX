@@ -6,7 +6,7 @@ namespace openmsx {
 
 void DoubledFrame::init(FrameSource* field_, int skip_)
 {
-	FrameSource::init(FIELD_NONINTERLACED);
+	FrameSource::init(FieldType::NONINTERLACED);
 	field = field_;
 	skip = skip_;
 	setHeight(2 * field->getHeight());

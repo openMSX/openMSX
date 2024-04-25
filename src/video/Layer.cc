@@ -16,7 +16,7 @@ ScopedLayerHider::ScopedLayerHider(Layer& layer_)
 	: layer(layer_)
 	, originalCoverage(layer.getCoverage())
 {
-	layer.setCoverage(Layer::COVER_NONE);
+	layer.setCoverage(Layer::Coverage::NONE);
 }
 
 ScopedLayerHider::~ScopedLayerHider()

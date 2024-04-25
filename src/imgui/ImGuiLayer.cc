@@ -11,7 +11,7 @@
 namespace openmsx {
 
 ImGuiLayer::ImGuiLayer(ImGuiManager& manager_)
-	: Layer(Layer::COVER_PARTIAL, Layer::Z_IMGUI)
+	: Layer(Layer::Coverage::PARTIAL, Layer::Z_IMGUI)
 	, manager(manager_)
 {
 }

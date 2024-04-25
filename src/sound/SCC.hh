@@ -2,9 +2,11 @@
 #define SCC_HH
 
 #include "ResampledSoundDevice.hh"
+
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
+
 #include <array>
 #include <cstdint>
 
@@ -13,10 +15,10 @@ namespace openmsx {
 class SCC final : public ResampledSoundDevice
 {
 public:
-	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
+	enum class Mode {Real, Compatible, Plus};
 
 	SCC(const std::string& name, const DeviceConfig& config,
-	    EmuTime::param time, ChipMode mode = SCC_Real);
+	    EmuTime::param time, Mode mode = Mode::Real);
 	~SCC();
 
 	// interaction with realCartridge
@@ -25,7 +27,7 @@ public:
 	[[nodiscard]] uint8_t readMem(uint8_t address,EmuTime::param time);
 	[[nodiscard]] uint8_t peekMem(uint8_t address,EmuTime::param time) const;
 	void writeMem(uint8_t address, uint8_t value, EmuTime::param time);
-	void setChipMode(ChipMode newMode);
+	void setMode(Mode newMode);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -52,7 +54,7 @@ private:
 	} debuggable;
 
 	Clock<CLOCK_FREQ> deformTimer;
-	ChipMode currentChipMode;
+	Mode currentMode;
 
 	std::array<std::array<int8_t, 32>, 5> wave;
 	std::array<std::array<float, 32>, 5> volAdjustedWave; // ints stored as floats, see comment in adjust()

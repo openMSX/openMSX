@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 // private:
-	enum Mode {
+	enum class Mode {
 		COMMAND,
 		READ,
 		MULTI_READ,
@@ -46,7 +46,7 @@ private:
 	cb_queue<byte> responseQueue;
 
 	byte transferDelayCounter = 0;
-	Mode mode = COMMAND;
+	Mode mode = Mode::COMMAND;
 	unsigned currentSector = 0;
 	int currentByteInSector = 0;
 };

@@ -71,8 +71,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
-	enum CmdFaze {
-		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
+	enum class CmdPhase {
+		MODE, SYNC1, SYNC2, CMD
 	};
 
 private:
@@ -88,7 +88,7 @@ private:
 	ClockPin clock;
 	unsigned charLength;
 
-	CmdFaze cmdFaze;
+	CmdPhase cmdPhase;
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
 	SerialDataInterface::ParityBit recvParityBit;

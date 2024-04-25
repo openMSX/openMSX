@@ -16,12 +16,12 @@ namespace openmsx {
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
-		{"simple",     SCALER_SIMPLE},
-		{"ScaleNx",    SCALER_SCALE},
-		{"hq",         SCALER_HQ},
-		{"hqlite",     SCALER_HQLITE},
-		{"RGBtriplet", SCALER_RGBTRIPLET},
-		{"TV",         SCALER_TV}
+		{"simple",     ScaleAlgorithm::SIMPLE},
+		{"ScaleNx",    ScaleAlgorithm::SCALE},
+		{"hq",         ScaleAlgorithm::HQ},
+		{"hqlite",     ScaleAlgorithm::HQLITE},
+		{"RGBtriplet", ScaleAlgorithm::RGBTRIPLET},
+		{"TV",         ScaleAlgorithm::TV}
 	};
 	return scalerMap;
 }
@@ -29,19 +29,19 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 {
 	EnumSetting<RendererID>::Map rendererMap = {
-		{"none",     DUMMY},// TODO: only register when in CliComm mode
-		{"SDLGL-PP", SDLGL_PP}
+		{"none",     RendererID::DUMMY},// TODO: only register when in CliComm mode
+		{"SDLGL-PP", RendererID::SDLGL_PP}
 	};
 	return rendererMap;
 }
 
 RenderSettings::RenderSettings(CommandController& commandController)
 	: accuracySetting(commandController,
-		"accuracy", "rendering accuracy", ACC_PIXEL,
+		"accuracy", "rendering accuracy", Accuracy::PIXEL,
 		EnumSetting<Accuracy>::Map{
-			{"screen", ACC_SCREEN},
-			{"line",   ACC_LINE},
-			{"pixel",  ACC_PIXEL}})
+			{"screen", Accuracy::SCREEN},
+			{"line",   Accuracy::LINE},
+			{"pixel",  Accuracy::PIXEL}})
 
 	, deinterlaceSetting(commandController,
 		"deinterlace", "deinterlacing on/off", true)
@@ -86,7 +86,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDLGL_PP, getRendererMap(), Setting::DONT_SAVE)
+		RendererID::SDLGL_PP, getRendererMap(), Setting::DONT_SAVE)
 
 	, horizontalBlurSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
@@ -94,7 +94,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, scaleAlgorithmSetting(
 		commandController, "scale_algorithm", "scale algorithm",
-		SCALER_SIMPLE, getScalerMap())
+		ScaleAlgorithm::SIMPLE, getScalerMap())
 
 	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",
@@ -129,10 +129,10 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, displayDeformSetting(
 		commandController,
-		"display_deform", "Display deform", DEFORM_NORMAL,
+		"display_deform", "Display deform", DisplayDeform::NORMAL,
 		EnumSetting<DisplayDeform>::Map{
-			{"normal", DEFORM_NORMAL},
-			{"3d",     DEFORM_3D}})
+			{"normal", DisplayDeform::NORMAL},
+			{"3d",     DisplayDeform::_3D}})
 
 	, vSyncSetting(commandController,
 		"vsync", "Synchronize page flip with the host screen vertical sync:\n"
@@ -190,7 +190,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		cmIdentity = true;
 	}
 
-	rendererSetting.setEnum(DUMMY); // always start hidden
+	rendererSetting.setEnum(RendererID::DUMMY); // always start hidden
 }
 
 RenderSettings::~RenderSettings()

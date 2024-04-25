@@ -226,7 +226,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	int glow = renderSettings.getGlow();
 
 	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
-	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {
+	    (deform == RenderSettings::DisplayDeform::_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!paintFrame) {
@@ -292,7 +292,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	auto [w, h] = screen.getViewSize();
 	glViewport(x, y, w, h);
 
-	if (deform == RenderSettings::DEFORM_3D) {
+	if (deform == RenderSettings::DisplayDeform::_3D) {
 		drawMonitor3D();
 	} else {
 		float x1 = (320.0f - float(horStretch)) * (1.0f / (2.0f * 320.0f));
@@ -345,7 +345,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	bool doDeflicker   = false;
 	auto currType = finishedFrame->getField();
 	if (canDoInterlace) {
-		if (currType != FrameSource::FIELD_NONINTERLACED) {
+		if (currType != FrameSource::FieldType::NONINTERLACED) {
 			if (renderSettings.getDeinterlace()) {
 				doDeinterlace = true;
 				numRequired = 2;
@@ -393,7 +393,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 	// Setup the to-be-painted frame
 	if (doDeinterlace) {
-		if (currType == FrameSource::FIELD_ODD) {
+		if (currType == FrameSource::FieldType::ODD) {
 			deinterlacedFrame->init(lastFrames[1].get(), lastFrames[0].get());
 		} else {
 			deinterlacedFrame->init(lastFrames[0].get(), lastFrames[1].get());
@@ -402,7 +402,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	} else if (doInterlace) {
 		interlacedFrame->init(
 			lastFrames[0].get(),
-			(currType == FrameSource::FIELD_ODD) ? 1 : 0);
+			(currType == FrameSource::FieldType::ODD) ? 1 : 0);
 		paintFrame = interlacedFrame.get();
 	} else if (doDeflicker) {
 		deflicker->init();

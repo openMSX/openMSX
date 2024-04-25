@@ -26,12 +26,12 @@ namespace openmsx {
 RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
                          Rom&& rom_, SubType subType)
 	: Rom8kBBlocks(config, std::move(rom_))
-	, sramEnableBit((subType == WIZARDRY) ? 0x80
+	, sramEnableBit((subType == SubType::WIZARDRY) ? 0x80
 	                                      : narrow_cast<byte>(rom.size() / BANK_SIZE))
-	, sramPages((subType == one_of(KOEI_8, KOEI_32)) ? 0x34 : 0x30)
+	, sramPages((subType == one_of(SubType::KOEI_8, SubType::KOEI_32)) ? 0x34 : 0x30)
 {
-	unsigned size = (subType == one_of(KOEI_32, ASCII8_32)) ? 0x8000  // 32kB
-	              : (subType == ASCII8_2) ? 0x0800  //  2kB
+	unsigned size = (subType == one_of(SubType::KOEI_32, SubType::ASCII8_32)) ? 0x8000  // 32kB
+	              : (subType == SubType::ASCII8_2) ? 0x0800  //  2kB
 	                                      : 0x2000; //  8kB
 	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());

@@ -51,7 +51,7 @@ private:
 	void execute_command(EmuTime::param time);
 
 public: // for serialize
-	enum State {
+	enum class State {
 		IN_RESET,
 		WAIT_FOR_START_BIT,
 		WAIT_FOR_COMMAND,
@@ -64,7 +64,7 @@ private:
 	SRAM sram;
 	EmuTime completionTime = EmuTime::zero();
 	EmuTime csTime = EmuTime::zero();
-	State state = IN_RESET;
+	State state = State::IN_RESET;
 	uint16_t shiftRegister = 0;
 	uint8_t bits = 0;
 	uint8_t address = 0;

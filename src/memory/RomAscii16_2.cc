@@ -24,8 +24,8 @@ namespace openmsx {
 RomAscii16_2::RomAscii16_2(const DeviceConfig& config, Rom&& rom_, SubType subType)
 	: RomAscii16kB(config, std::move(rom_))
 {
-	unsigned size = (subType == ASCII16_8) ? 0x2000 // 8kB
-					       : 0x0800; // 2kB
+	unsigned size = (subType == SubType::ASCII16_8) ? 0x2000 // 8kB
+	                                                : 0x0800; // 2kB
 	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }

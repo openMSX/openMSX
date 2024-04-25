@@ -23,16 +23,16 @@ public:
 
 	/** What role does this frame play in interlacing?
 	  */
-	enum FieldType {
+	enum class FieldType {
 		/** Interlacing is off for this frame.
 		  */
-		FIELD_NONINTERLACED,
+		NONINTERLACED,
 		/** Interlacing is on and this is an even frame.
 		  */
-		FIELD_EVEN,
+		EVEN,
 		/** Interlacing is on and this is an odd frame.
 		  */
-		FIELD_ODD
+		ODD,
 	};
 
 	/** (Re)initialize an existing FrameSource. This method sets the

@@ -33,7 +33,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 //private:
-	enum ByteOrder {LOW, HIGH};
+	enum class ByteOrder {LOW, HIGH};
 
 private:
 	static constexpr uint8_t WRT_FRMT = 0x30;

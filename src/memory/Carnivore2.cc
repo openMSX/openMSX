@@ -41,7 +41,7 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",
 	         DeviceConfig(config, config.getChild("eeprom")))
-	, scc(getName() + " scc", config, getCurrentTime(), SCC::SCC_Compatible)
+	, scc(getName() + " scc", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config,
               getCurrentTime())
 	, ym2413(getName() + " ym2413", config)
@@ -506,7 +506,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 	if (sccEnabled() && ((address | 1) == 0xbfff)) {
 		// write scc mode register (write-only)
 		sccMode = value;
-		scc.setChipMode((sccMode & 0x20) ? SCC::SCC_plusmode : SCC::SCC_Compatible);
+		scc.setMode((sccMode & 0x20) ? SCC::Mode::Plus : SCC::Mode::Compatible);
 	}
 	if (((sccMode & 0x10) == 0x00) && // note: no check for sccEnabled()
 	    ((address & 0x1800) == 0x1000)) {

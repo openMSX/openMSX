@@ -27,9 +27,9 @@ std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
 	Display& display = reactor.getDisplay();
 	switch (display.getRenderSettings().getRenderer()) {
-		case RenderSettings::DUMMY:
+		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<DummyVideoSystem>();
-		case RenderSettings::SDLGL_PP:
+		case RenderSettings::RendererID::SDLGL_PP:
 			return std::make_unique<SDLVideoSystem>(reactor);
 		default:
 			UNREACHABLE;
@@ -39,9 +39,9 @@ std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
-		case RenderSettings::DUMMY:
+		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<DummyRenderer>();
-		case RenderSettings::SDLGL_PP:
+		case RenderSettings::RendererID::SDLGL_PP:
 			return std::make_unique<PixelRenderer>(vdp, display);
 		default:
 			UNREACHABLE;
@@ -51,9 +51,9 @@ std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
-		case RenderSettings::DUMMY:
+		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<V9990DummyRenderer>();
-		case RenderSettings::SDLGL_PP:
+		case RenderSettings::RendererID::SDLGL_PP:
 			return std::make_unique<V9990PixelRenderer>(vdp);
 		default:
 			UNREACHABLE;
@@ -64,9 +64,9 @@ std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 std::unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
-		case RenderSettings::DUMMY:
+		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<LDDummyRenderer>();
-		case RenderSettings::SDLGL_PP:
+		case RenderSettings::RendererID::SDLGL_PP:
 			return std::make_unique<LDPixelRenderer>(ld, display);
 		default:
 			UNREACHABLE;

@@ -75,6 +75,7 @@ byte SdCard::transfer(byte value, bool cs)
 	}
 
 	// process output
+	using enum Mode;
 	byte retval = 0xFF;
 	if (transferDelayCounter > 0) {
 		--transferDelayCounter;
@@ -207,6 +208,7 @@ void SdCard::executeCommand()
 {
 	// it takes 2 transfers (2x8 cycles) before a reply
 	// can be given to a command
+	using enum Mode;
 	transferDelayCounter = 2;
 	byte command = cmdBuf[0] & 0x3F;
 	switch (command) {
@@ -321,11 +323,11 @@ void SdCard::executeCommand()
 }
 
 static constexpr std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
-	{ "COMMAND",     SdCard::COMMAND  },
-	{ "READ",        SdCard::READ },
-	{ "MULTI_READ",  SdCard::MULTI_READ },
-	{ "WRITE",       SdCard::WRITE },
-	{ "MULTI_WRITE", SdCard::MULTI_WRITE }
+	{ "COMMAND",     SdCard::Mode::COMMAND  },
+	{ "READ",        SdCard::Mode::READ },
+	{ "MULTI_READ",  SdCard::Mode::MULTI_READ },
+	{ "WRITE",       SdCard::Mode::WRITE },
+	{ "MULTI_WRITE", SdCard::Mode::MULTI_WRITE }
 };
 SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 

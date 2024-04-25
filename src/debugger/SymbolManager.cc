@@ -105,7 +105,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		auto [line, _] = StringOp::splitOnFirst(fullLine, ';');
 
 		auto tokens = static_vector<std::string_view, 3 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(line, whitespace), 3 + 1)};
+			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 3 + 1)};
 		if (auto symbol = lineParser(tokens)) {
 			result.symbols.push_back(std::move(*symbol));
 		}
@@ -212,7 +212,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		}
 
 		auto tokens = static_vector<std::string_view, 2 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(line, whitespace), 2 + 1)};
+			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
 		if (tokens.size() != 2) continue;
 		auto value = tokens[0];
 		auto label = tokens[1];
@@ -251,7 +251,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		//   <xy>h:<abcd>h <name>        <xy>   a 2-digit hex indicating the MegaRom Page (ignored)
 		//                               <name> the symbol name
 		auto tokens = static_vector<std::string_view, 2 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(line, whitespace), 2 + 1)};
+			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
 		if (tokens.size() != 2) continue;
 		auto value = tokens[0];
 		auto label = tokens[1];
@@ -315,7 +315,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		//   * BUT the psect column can be empty!!!
 		//     This in combination with an unknown column-width makes parsing difficult.
 		//     The heuristic we use is that the last column must match: [0-9A-Fa-f]{4}
-		auto tokens = StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(line, whitespace);
+		auto tokens = StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace);
 		auto it = tokens.begin();
 		auto et = tokens.end();
 		while (it != et) {

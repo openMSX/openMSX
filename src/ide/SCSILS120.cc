@@ -20,21 +20,24 @@
  */
 
 #include "SCSILS120.hh"
-#include "FileOperations.hh"
+
+#include "CommandException.hh"
+#include "DeviceConfig.hh"
+#include "FileContext.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "FilePool.hh"
 #include "LedStatus.hh"
-#include "MSXMotherBoard.hh"
-#include "DeviceConfig.hh"
-#include "RecordedCommand.hh"
 #include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "RecordedCommand.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
-#include "FileContext.hh"
+#include "serialize.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "serialize.hh"
+
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -484,9 +487,11 @@ void SCSILS120::insert(const std::string& filename)
 
 unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
+	using enum SCSI::Phase;
+
 	ranges::copy(cdb_, cdb);
 	message = 0;
-	phase = SCSI::STATUS;
+	phase = STATUS;
 	blocks = 0;
 
 	// check unit attention
@@ -525,14 +530,14 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 		case SCSI::OP_INQUIRY: {
 			unsigned counter = inquiry();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
 		case SCSI::OP_REQUEST_SENSE: {
 			unsigned counter = requestSense();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -544,7 +549,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 				unsigned counter = readSector(blocks);
 				if (counter) {
 					cdb[0] = SCSI::OP_READ10;
-					phase = SCSI::DATA_IN;
+					phase = DATA_IN;
 					return counter;
 				}
 			}
@@ -560,7 +565,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
 				cdb[0] = SCSI::OP_WRITE10;
-				phase = SCSI::DATA_OUT;
+				phase = DATA_OUT;
 				return counter;
 			}
 			return 0;
@@ -574,7 +579,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 		case SCSI::OP_MODE_SENSE: {
 			unsigned counter = modeSense();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -603,7 +608,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 			if (checkAddress()) {
 				unsigned counter = readSector(blocks);
 				if (counter) {
-					phase = SCSI::DATA_IN;
+					phase = DATA_IN;
 					return counter;
 				}
 			}
@@ -614,7 +619,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
-				phase = SCSI::DATA_OUT;
+				phase = DATA_OUT;
 				return counter;
 			}
 			return 0;
@@ -622,7 +627,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 		case SCSI::OP_READ_CAPACITY: {
 			unsigned counter = readCapacity();
 			if (counter) {
-				phase = SCSI::DATA_IN;
+				phase = DATA_IN;
 			}
 			return counter;
 		}
@@ -641,7 +646,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 
 unsigned SCSILS120::executingCmd(SCSI::Phase& phase, unsigned& blocks)
 {
-	phase = SCSI::EXECUTE;
+	phase = SCSI::Phase::EXECUTE;
 	blocks = 0;
 	return 0; // we're very fast
 }

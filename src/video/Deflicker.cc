@@ -24,7 +24,7 @@ Deflicker::~Deflicker() = default;
 
 void Deflicker::init()
 {
-	FrameSource::init(FIELD_NONINTERLACED);
+	FrameSource::init(FieldType::NONINTERLACED);
 	setHeight(lastFrames[0]->getHeight());
 }
 

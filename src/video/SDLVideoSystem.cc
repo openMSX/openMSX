@@ -55,7 +55,7 @@ SDLVideoSystem::~SDLVideoSystem()
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 {
-	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
+	assert(renderSettings.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
 	std::string videoSource = (vdp.getName() == "VDP")
 	                        ? "MSX" // for backwards compatibility
 	                        : vdp.getName();
@@ -70,7 +70,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	V9990& vdp)
 {
-	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
+	assert(renderSettings.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
 	std::string videoSource = (vdp.getName() == "Sunrise GFX9000")
 	                        ? "GFX9000" // for backwards compatibility
 	                        : vdp.getName();
@@ -86,7 +86,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	LaserdiscPlayer& ld)
 {
-	assert(renderSettings.getRenderer() == RenderSettings::SDLGL_PP);
+	assert(renderSettings.getRenderer() == RenderSettings::RendererID::SDLGL_PP);
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	return std::make_unique<LDSDLRasterizer>(

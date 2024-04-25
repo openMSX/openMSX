@@ -217,7 +217,7 @@ private:
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
-	RenderSettings::ScaleAlgorithm scaleAlgorithm = RenderSettings::NO_SCALER;
+	RenderSettings::ScaleAlgorithm scaleAlgorithm = RenderSettings::ScaleAlgorithm::NO;
 
 	gl::ShaderProgram monitor3DProg;
 	gl::BufferObject arrayBuffer;

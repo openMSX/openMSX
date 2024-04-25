@@ -13,17 +13,21 @@
  *  Message system might be imperfect. (Not used in MEGA-SCSI usually)
  */
 #include "MB89352.hh"
-#include "SCSIDevice.hh"
+
 #include "DummySCSIDevice.hh"
+#include "SCSIDevice.hh"
 #include "SCSIHD.hh"
 #include "SCSILS120.hh"
+
 #include "DeviceConfig.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
+#include "XMLElement.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -127,12 +131,12 @@ MB89352::MB89352(const DeviceConfig& config)
 
 void MB89352::disconnect()
 {
-	if (phase != SCSI::BUS_FREE) {
+	if (phase != SCSI::Phase::BUS_FREE) {
 		assert(targetId < MAX_DEV);
 		dev[targetId]->disconnect();
 		regs[REG_INTS] |= INTS_Disconnected;
-		phase      = SCSI::BUS_FREE;
-		nextPhase  = SCSI::UNDEFINED;
+		phase      = SCSI::Phase::BUS_FREE;
+		nextPhase  = SCSI::Phase::UNDEFINED;
 	}
 
 	regs[REG_PSNS] = 0;
@@ -155,7 +159,7 @@ void MB89352::softReset()
 
 	cdbIdx = 0;
 	bufIdx = 0;
-	phase  = SCSI::BUS_FREE;
+	phase  = SCSI::Phase::BUS_FREE;
 	disconnect();
 }
 
@@ -200,19 +204,20 @@ void MB89352::setACKREQ(uint8_t& value)
 	}
 
 	switch (phase) {
-	case SCSI::DATA_IN: // Transfer phase (data in)
+	using enum SCSI::Phase;
+	case DATA_IN: // Transfer phase (data in)
 		value = buffer[bufIdx];
 		++bufIdx;
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_DATAIN;
 		break;
 
-	case SCSI::DATA_OUT: // Transfer phase (data out)
+	case DATA_OUT: // Transfer phase (data out)
 		buffer[bufIdx] = value;
 		++bufIdx;
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_DATAOUT;
 		break;
 
-	case SCSI::COMMAND: // Command phase
+	case COMMAND: // Command phase
 		if (counter < 0) {
 			// Initialize command routine
 			cdbIdx  = 0;
@@ -223,17 +228,17 @@ void MB89352::setACKREQ(uint8_t& value)
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_COMMAND;
 		break;
 
-	case SCSI::STATUS: // SCSI::STATUS phase
+	case STATUS: // SCSI::STATUS phase
 		value = dev[targetId]->getStatusCode();
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_STATUS;
 		break;
 
-	case SCSI::MSG_IN: // Message In phase
+	case MSG_IN: // Message In phase
 		value = dev[targetId]->msgIn();
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_MSGIN;
 		break;
 
-	case SCSI::MSG_OUT: // Message Out phase
+	case MSG_OUT: // Message Out phase
 		msgin |= dev[targetId]->msgOut(value);
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_MSGOUT;
 		break;
@@ -262,7 +267,8 @@ void MB89352::resetACKREQ()
 	}
 
 	switch (phase) {
-	case SCSI::DATA_IN: // Transfer phase (data in)
+	using enum SCSI::Phase;
+	case DATA_IN: // Transfer phase (data in)
 		if (--counter > 0) {
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 		} else {
@@ -275,11 +281,11 @@ void MB89352::resetACKREQ()
 				}
 			}
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_STATUS;
-			phase = SCSI::STATUS;
+			phase = STATUS;
 		}
 		break;
 
-	case SCSI::DATA_OUT: // Transfer phase (data out)
+	case DATA_OUT: // Transfer phase (data out)
 		if (--counter > 0) {
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 		} else {
@@ -290,11 +296,11 @@ void MB89352::resetACKREQ()
 				break;
 			}
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_STATUS;
-			phase = SCSI::STATUS;
+			phase = STATUS;
 		}
 		break;
 
-	case SCSI::COMMAND: // Command phase
+	case COMMAND: // Command phase
 		if (--counter > 0) {
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 		} else {
@@ -302,16 +308,16 @@ void MB89352::resetACKREQ()
 			// TODO: devBusy = true;
 			counter = narrow<int>(dev[targetId]->executeCmd(cdb, phase, blockCounter));
 			switch (phase) {
-			case SCSI::DATA_IN:
+			case DATA_IN:
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 				break;
-			case SCSI::DATA_OUT:
+			case DATA_OUT:
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 				break;
-			case SCSI::STATUS:
+			case STATUS:
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_STATUS;
 				break;
-			case SCSI::EXECUTE:
+			case EXECUTE:
 				regs[REG_PSNS] = PSNS_BSY;
 				return; // note: return iso break
 			default:
@@ -322,19 +328,19 @@ void MB89352::resetACKREQ()
 		}
 		break;
 
-	case SCSI::STATUS: // SCSI::STATUS phase
+	case STATUS: // STATUS phase
 		regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGIN;
-		phase = SCSI::MSG_IN;
+		phase = SCSI::Phase::MSG_IN;
 		break;
 
-	case SCSI::MSG_IN: // Message In phase
+	case MSG_IN: // Message In phase
 		if (msgin <= 0) {
 			disconnect();
 			break;
 		}
 		msgin = 0;
 		[[fallthrough]];
-	case SCSI::MSG_OUT: // Message Out phase
+	case MSG_OUT: // Message Out phase
 		if (msgin == -1) {
 			disconnect();
 			return;
@@ -350,33 +356,33 @@ void MB89352::resetACKREQ()
 		}
 
 		if (msgin & 1) {
-			phase = SCSI::MSG_IN;
+			phase = MSG_IN;
 		} else {
 			if (msgin & 4) {
-				phase = SCSI::STATUS;
-				nextPhase = SCSI::UNDEFINED;
+				phase = STATUS;
+				nextPhase = UNDEFINED;
 			} else {
 				phase = nextPhase;
-				nextPhase = SCSI::UNDEFINED;
+				nextPhase = UNDEFINED;
 			}
 		}
 
 		msgin = 0;
 
 		switch (phase) {
-		case SCSI::COMMAND:
+		case COMMAND:
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 			break;
-		case SCSI::DATA_IN:
+		case DATA_IN:
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 			break;
-		case SCSI::DATA_OUT:
+		case DATA_OUT:
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 			break;
-		case SCSI::STATUS:
+		case STATUS:
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_STATUS;
 			break;
-		case SCSI::MSG_IN:
+		case MSG_IN:
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGIN;
 			break;
 		default:
@@ -393,7 +399,7 @@ void MB89352::resetACKREQ()
 
 	if (atn) {
 		nextPhase = phase;
-		phase = SCSI::MSG_OUT;
+		phase = SCSI::Phase::MSG_OUT;
 		regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGOUT;
 	}
 }
@@ -460,12 +466,13 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 		regs[REG_SCMD] = value;
 
 		// execute spc command
+		using enum SCSI::Phase;
 		switch (value & CMD_MASK) {
 		case CMD_Set_ACK_REQ:
 			switch (phase) {
-			case SCSI::DATA_IN:
-			case SCSI::STATUS:
-			case SCSI::MSG_IN:
+			case DATA_IN:
+			case STATUS:
+			case MSG_IN:
 				setACKREQ(regs[REG_TEMP]);
 				break;
 			default:
@@ -491,7 +498,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 			}
 			bool err = false;
 			int x = regs[REG_BDID] & regs[REG_TEMPWR];
-			if (phase == SCSI::BUS_FREE && x && x != regs[REG_TEMPWR]) {
+			if (phase == BUS_FREE && x && x != regs[REG_TEMPWR]) {
 				x = regs[REG_TEMPWR] & ~regs[REG_BDID];
 				assert(x != 0); // because of the check 2 lines above
 
@@ -513,12 +520,12 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 					counter = -1;
 					err     =  false;
 					if (atn) {
-						phase          = SCSI::MSG_OUT;
-						nextPhase      = SCSI::COMMAND;
+						phase          = MSG_OUT;
+						nextPhase      = COMMAND;
 						regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGOUT;
 					} else {
-						phase          = SCSI::COMMAND;
-						nextPhase      = SCSI::UNDEFINED;
+						phase          = COMMAND;
+						nextPhase      = UNDEFINED;
 						regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 					}
 				} else {
@@ -633,13 +640,13 @@ uint8_t MB89352::getSSTS() const
 			}
 		}
 	}
-	if (phase != SCSI::BUS_FREE) {
+	if (phase != SCSI::Phase::BUS_FREE) {
 		result |= 0x80; // set indicator
 	}
 	if (isBusy) {
 		result |= 0x20; // set SPC_BSY
 	}
-	if ((phase >= SCSI::COMMAND) || isTransfer) {
+	if ((phase >= SCSI::Phase::COMMAND) || isTransfer) {
 		result |= 0x10; // set Xfer in Progress
 	}
 	if (rst) {
@@ -658,24 +665,25 @@ uint8_t MB89352::readRegister(uint8_t reg)
 		return readDREG();
 
 	case REG_PSNS:
-		if (phase == SCSI::EXECUTE) {
+		using enum SCSI::Phase;
+		if (phase == EXECUTE) {
 			counter = narrow<int>(dev[targetId]->executingCmd(phase, blockCounter));
-			if (atn && phase != SCSI::EXECUTE) {
+			if (atn && phase != EXECUTE) {
 				nextPhase = phase;
-				phase = SCSI::MSG_OUT;
+				phase = MSG_OUT;
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGOUT;
 			} else {
 				switch (phase) {
-				case SCSI::DATA_IN:
+				case DATA_IN:
 					regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAIN;
 					break;
-				case SCSI::DATA_OUT:
+				case DATA_OUT:
 					regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_DATAOUT;
 					break;
-				case SCSI::STATUS:
+				case STATUS:
 					regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_STATUS;
 					break;
-				case SCSI::EXECUTE:
+				case EXECUTE:
 					regs[REG_PSNS] = PSNS_BSY;
 					break;
 				default:
@@ -723,18 +731,18 @@ uint8_t MB89352::peekRegister(uint8_t reg) const
 
 // TODO duplicated in WD33C93.cc
 static constexpr std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
-	{ "UNDEFINED",   SCSI::UNDEFINED   },
-	{ "BUS_FREE",    SCSI::BUS_FREE    },
-	{ "ARBITRATION", SCSI::ARBITRATION },
-	{ "SELECTION",   SCSI::SELECTION   },
-	{ "RESELECTION", SCSI::RESELECTION },
-	{ "COMMAND",     SCSI::COMMAND     },
-	{ "EXECUTE",     SCSI::EXECUTE     },
-	{ "DATA_IN",     SCSI::DATA_IN     },
-	{ "DATA_OUT",    SCSI::DATA_OUT    },
-	{ "STATUS",      SCSI::STATUS      },
-	{ "MSG_OUT",     SCSI::MSG_OUT     },
-	{ "MSG_IN",      SCSI::MSG_IN      }
+	{ "UNDEFINED",   SCSI::Phase::UNDEFINED   },
+	{ "BUS_FREE",    SCSI::Phase::BUS_FREE    },
+	{ "ARBITRATION", SCSI::Phase::ARBITRATION },
+	{ "SELECTION",   SCSI::Phase::SELECTION   },
+	{ "RESELECTION", SCSI::Phase::RESELECTION },
+	{ "COMMAND",     SCSI::Phase::COMMAND     },
+	{ "EXECUTE",     SCSI::Phase::EXECUTE     },
+	{ "DATA_IN",     SCSI::Phase::DATA_IN     },
+	{ "DATA_OUT",    SCSI::Phase::DATA_OUT    },
+	{ "STATUS",      SCSI::Phase::STATUS      },
+	{ "MSG_OUT",     SCSI::Phase::MSG_OUT     },
+	{ "MSG_IN",      SCSI::Phase::MSG_IN      }
 };
 SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 

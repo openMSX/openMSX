@@ -16,17 +16,18 @@ std::unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
 	GLScaler& fallback = gl::context->getFallbackScaler();
 	switch (renderSettings.getScaleAlgorithm()) {
-	case RenderSettings::SCALER_SIMPLE:
+	using enum RenderSettings::ScaleAlgorithm;
+	case SIMPLE:
 		return std::make_unique<GLSimpleScaler>(renderSettings, fallback);
-	case RenderSettings::SCALER_RGBTRIPLET:
+	case RGBTRIPLET:
 		return std::make_unique<GLRGBScaler>(renderSettings, fallback);
-	case RenderSettings::SCALER_SCALE:
+	case SCALE:
 		return std::make_unique<GLScaleNxScaler>(fallback);
-	case RenderSettings::SCALER_TV:
+	case TV:
 		return std::make_unique<GLTVScaler>(renderSettings);
-	case RenderSettings::SCALER_HQ:
+	case HQ:
 		return std::make_unique<GLHQScaler>(fallback);
-	case RenderSettings::SCALER_HQLITE:
+	case HQLITE:
 		return std::make_unique<GLHQLiteScaler>(fallback);
 	default:
 		UNREACHABLE;

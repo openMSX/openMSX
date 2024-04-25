@@ -147,9 +147,9 @@ void SDLRasterizer::frameStart(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(
-	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? FrameSource::FIELD_ODD
-	                                           : FrameSource::FIELD_EVEN)
-	                       : FrameSource::FIELD_NONINTERLACED);
+	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? FrameSource::FieldType::ODD
+	                                           : FrameSource::FieldType::EVEN)
+	                       : FrameSource::FieldType::NONINTERLACED);
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.

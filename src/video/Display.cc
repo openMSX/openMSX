@@ -81,7 +81,7 @@ Display::~Display()
 void Display::createVideoSystem()
 {
 	assert(!videoSystem);
-	assert(currentRenderer == RenderSettings::UNINITIALIZED);
+	assert(currentRenderer == RenderSettings::RendererID::UNINITIALIZED);
 	assert(!switchInProgress);
 	currentRenderer = renderSettings.getRenderer();
 	switchInProgress = true;
@@ -144,7 +144,7 @@ Display::Layers::iterator Display::baseLayer()
 			return it;
 		}
 		--it;
-		if ((*it)->getCoverage() == Layer::COVER_FULL) return it;
+		if ((*it)->getCoverage() == Layer::Coverage::FULL) return it;
 	}
 }
 
@@ -356,7 +356,7 @@ void Display::repaintImpl()
 void Display::repaintImpl(OutputSurface& surface)
 {
 	for (auto it = baseLayer(); it != end(layers); ++it) {
-		if ((*it)->getCoverage() != Layer::COVER_NONE) {
+		if ((*it)->getCoverage() != Layer::Coverage::NONE) {
 			(*it)->paint(surface);
 		}
 	}

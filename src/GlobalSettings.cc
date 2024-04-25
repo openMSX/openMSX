@@ -37,12 +37,12 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #else
 		// For other platforms, default setting may be changed in future
-		ResampledSoundDevice::RESAMPLE_BLIP,
+		ResampledSoundDevice::ResampleType::BLIP,
 #endif
 		EnumSetting<ResampledSoundDevice::ResampleType>::Map{
-			{"hq",   ResampledSoundDevice::RESAMPLE_HQ},
-			{"fast", ResampledSoundDevice::RESAMPLE_LQ},
-			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
+			{"hq",   ResampledSoundDevice::ResampleType::HQ},
+			{"fast", ResampledSoundDevice::ResampleType::LQ},
+			{"blip", ResampledSoundDevice::ResampleType::BLIP}})
 	, speedManager(commandController)
 	, throttleManager(commandController)
 {

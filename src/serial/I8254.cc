@@ -140,8 +140,8 @@ void Counter::reset(EmuTime::param time)
 	currentTime = time;
 	ltchCtrl = false;
 	ltchCntr = false;
-	readOrder  = LOW;
-	writeOrder = LOW;
+	readOrder  = ByteOrder::LOW;
+	writeOrder = ByteOrder::LOW;
 	control = 0x30; // Write BOTH / mode 0 / binary mode
 	active = false;
 	counting = true;
@@ -171,11 +171,11 @@ uint8_t Counter::readIO(EmuTime::param time)
 		ltchCntr = false;
 		return narrow_cast<uint8_t>(readData >> 8);
 	case WF_BOTH:
-		if (readOrder == LOW) {
-			readOrder = HIGH;
+		if (readOrder == ByteOrder::LOW) {
+			readOrder = ByteOrder::HIGH;
 			return narrow_cast<uint8_t>(readData & 0x00FF);
 		} else {
-			readOrder = LOW;
+			readOrder = ByteOrder::LOW;
 			ltchCntr = false;
 			return narrow_cast<uint8_t>(readData >> 8);
 		}
@@ -201,7 +201,7 @@ uint8_t Counter::peekIO(EmuTime::param time) const
 	case WF_HIGH:
 		return narrow_cast<uint8_t>(readData >> 8);
 	case WF_BOTH:
-		if (readOrder == LOW) {
+		if (readOrder == ByteOrder::LOW) {
 			return narrow_cast<uint8_t>(readData & 0x00FF);
 		} else {
 			return narrow_cast<uint8_t>(readData >> 8);
@@ -224,14 +224,14 @@ void Counter::writeIO(uint8_t value, EmuTime::param time)
 		writeLoad((counterLoad & 0x00FF) | uint16_t(value << 8), time);
 		break;
 	case WF_BOTH:
-		if (writeOrder == LOW) {
-			writeOrder = HIGH;
+		if (writeOrder == ByteOrder::LOW) {
+			writeOrder = ByteOrder::HIGH;
 			writeLatch = value;
 			if ((control & CNTR_MODE) == CNTR_M0)
 				// pause counting when in mode 0
 				counting = false;
 		} else {
-			writeOrder = LOW;
+			writeOrder = ByteOrder::LOW;
 			counting = true;
 			writeLoad(uint16_t((value << 8) | writeLatch), time);
 		}
@@ -286,7 +286,7 @@ void Counter::writeControlWord(uint8_t value, EmuTime::param time)
 	} else {
 		// new control mode
 		control = value;
-		writeOrder = LOW;
+		writeOrder = ByteOrder::LOW;
 		counting = true;
 		active = false;
 		triggered = false;
@@ -322,7 +322,7 @@ void Counter::latchCounter(EmuTime::param time)
 	advance(time);
 	if (!ltchCntr) {
 		ltchCntr = true;
-		readOrder = LOW;
+		readOrder = ByteOrder::LOW;
 		latchedCounter = narrow_cast<uint16_t>(counter);
 	}
 }
@@ -462,8 +462,8 @@ void Counter::advance(EmuTime::param time)
 
 
 static constexpr std::initializer_list<enum_string<Counter::ByteOrder>> byteOrderInfo = {
-	{ "LOW",  Counter::LOW  },
-	{ "HIGH", Counter::HIGH }
+	{ "LOW",  Counter::ByteOrder::LOW  },
+	{ "HIGH", Counter::ByteOrder::HIGH }
 };
 SERIALIZE_ENUM(Counter::ByteOrder, byteOrderInfo);
 

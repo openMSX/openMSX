@@ -13,7 +13,9 @@
 
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
+
 #include "AlignedBuffer.hh"
+
 #include <array>
 #include <memory>
 
@@ -58,7 +60,7 @@ private:
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
 	SCSI::Phase phase;              //
-	SCSI::Phase nextPhase = SCSI::UNDEFINED; // for message system
+	SCSI::Phase nextPhase = SCSI::Phase::UNDEFINED; // for message system
 	uint8_t myId;                   // SPC SCSI ID 0..7
 	uint8_t targetId = 0;           // SCSI Device target ID 0..7
 	std::array<uint8_t, 16> regs;   // SPC register

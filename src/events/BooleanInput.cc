@@ -46,7 +46,7 @@ std::string toString(const BooleanInput& input)
 
 std::optional<BooleanInput> parseBooleanInput(std::string_view text)
 {
-	auto tokenizer = StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(text, ' ');
+	auto tokenizer = StringOp::split_view<StringOp::EmptyParts::REMOVE>(text, ' ');
 	auto it = tokenizer.begin();
 	auto et = tokenizer.end();
 

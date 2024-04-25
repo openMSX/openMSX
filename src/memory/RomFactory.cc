@@ -298,33 +298,33 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_ASCII8_8:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::ASCII8_8);
+			config, std::move(rom), RomAscii8_8::SubType::ASCII8_8);
 		break;
 	case ROM_ASCII8_32:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::ASCII8_32);
+			config, std::move(rom), RomAscii8_8::SubType::ASCII8_32);
 		break;
 	case ROM_ASCII8_2:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::ASCII8_2);
+			config, std::move(rom), RomAscii8_8::SubType::ASCII8_2);
 		break;
 	case ROM_KOEI_8:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::KOEI_8);
+			config, std::move(rom), RomAscii8_8::SubType::KOEI_8);
 		break;
 	case ROM_KOEI_32:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::KOEI_32);
+			config, std::move(rom), RomAscii8_8::SubType::KOEI_32);
 		break;
 	case ROM_WIZARDRY:
 		result = make_unique<RomAscii8_8>(
-			config, std::move(rom), RomAscii8_8::WIZARDRY);
+			config, std::move(rom), RomAscii8_8::SubType::WIZARDRY);
 		break;
 	case ROM_ASCII16_2:
-		result = make_unique<RomAscii16_2>(config, std::move(rom), RomAscii16_2::ASCII16_2);
+		result = make_unique<RomAscii16_2>(config, std::move(rom), RomAscii16_2::SubType::ASCII16_2);
 		break;
 	case ROM_ASCII16_8:
-		result = make_unique<RomAscii16_2>(config, std::move(rom), RomAscii16_2::ASCII16_8);
+		result = make_unique<RomAscii16_2>(config, std::move(rom), RomAscii16_2::SubType::ASCII16_8);
 		break;
 	case ROM_GAME_MASTER2:
 		result = make_unique<RomGameMaster2>(config, std::move(rom));

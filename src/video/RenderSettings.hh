@@ -25,23 +25,22 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDLGL_PP };
+	enum class RendererID { UNINITIALIZED, DUMMY, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
 	  */
-	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
+	enum class Accuracy { SCREEN, LINE, PIXEL };
 
 	/** Scaler algorithm
 	  */
-	enum ScaleAlgorithm {
-		SCALER_SIMPLE, SCALER_SCALE,
-		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV,
-		NO_SCALER
+	enum class ScaleAlgorithm {
+		SIMPLE, SCALE, HQ, HQLITE, RGBTRIPLET, TV,
+		NO
 	};
 
-	enum DisplayDeform {
-		DEFORM_NORMAL, DEFORM_3D
+	enum class DisplayDeform {
+		NORMAL, _3D
 	};
 
 	explicit RenderSettings(CommandController& commandController);

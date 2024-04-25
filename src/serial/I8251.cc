@@ -71,7 +71,7 @@ void I8251::reset(EmuTime::param time)
 	status = STAT_TXRDY | STAT_TXEMPTY;
 	command = 0xFF; // make sure all bits change
 	writeCommand(0, time);
-	cmdFaze = FAZE_MODE;
+	cmdPhase = CmdPhase::MODE;
 }
 
 byte I8251::readIO(word port, EmuTime::param time)
@@ -100,30 +100,31 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 		writeTrans(value, time);
 		break;
 	case 1:
-		switch (cmdFaze) {
-		case FAZE_MODE:
+		switch (cmdPhase) {
+		using enum CmdPhase;
+		case MODE:
 			setMode(value);
 			if ((mode & MODE_BAUDRATE) == MODE_SYNCHRONOUS) {
-				cmdFaze = FAZE_SYNC1;
+				cmdPhase = SYNC1;
 			} else {
-				cmdFaze = FAZE_CMD;
+				cmdPhase = CMD;
 			}
 			break;
-		case FAZE_SYNC1:
+		case SYNC1:
 			sync1 = value;
 			if (mode & MODE_SINGLE_SYNC) {
-				cmdFaze = FAZE_CMD;
+				cmdPhase = CMD;
 			} else {
-				cmdFaze = FAZE_SYNC2;
+				cmdPhase = SYNC2;
 			}
 			break;
-		case FAZE_SYNC2:
+		case SYNC2:
 			sync2 = value;
-			cmdFaze = FAZE_CMD;
+			cmdPhase = CMD;
 			break;
-		case FAZE_CMD:
+		case CMD:
 			if (value & CMD_RESET) {
-				cmdFaze = FAZE_MODE;
+				cmdPhase = MODE;
 			} else {
 				writeCommand(value, time);
 			}
@@ -334,13 +335,13 @@ static constexpr std::initializer_list<enum_string<SerialDataInterface::ParityBi
 };
 SERIALIZE_ENUM(SerialDataInterface::ParityBit, parityBitInfo);
 
-static constexpr std::initializer_list<enum_string<I8251::CmdFaze>> cmdFazeInfo = {
-	{ "MODE",  I8251::FAZE_MODE  },
-	{ "SYNC1", I8251::FAZE_SYNC1 },
-	{ "SYNC2", I8251::FAZE_SYNC2 },
-	{ "CMD",   I8251::FAZE_CMD   }
+static constexpr std::initializer_list<enum_string<I8251::CmdPhase>> cmdFazeInfo = {
+	{ "MODE",  I8251::CmdPhase::MODE  },
+	{ "SYNC1", I8251::CmdPhase::SYNC1 },
+	{ "SYNC2", I8251::CmdPhase::SYNC2 },
+	{ "CMD",   I8251::CmdPhase::CMD   }
 };
-SERIALIZE_ENUM(I8251::CmdFaze, cmdFazeInfo);
+SERIALIZE_ENUM(I8251::CmdPhase, cmdFazeInfo);
 
 // version 1: initial version
 // version 2: removed 'userData' from Schedulable
@@ -368,7 +369,7 @@ void I8251::serialize(Archive& ar, unsigned version)
 	             "mode",              mode,
 	             "sync1",             sync1,
 	             "sync2",             sync2,
-	             "cmdFaze",           cmdFaze);
+	             "cmdFaze",           cmdPhase); // TODO fix spelling error if we ever need to upgrade this savestate format
 }
 INSTANTIATE_SERIALIZE_METHODS(I8251);
 

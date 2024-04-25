@@ -2,9 +2,12 @@
 #define RESAMPLEDSOUNDDEVICE_HH
 
 #include "SoundDevice.hh"
+
 #include "DynamicClock.hh"
 #include "EnumSetting.hh"
+
 #include "Observer.hh"
+
 #include <memory>
 
 namespace openmsx {
@@ -16,7 +19,7 @@ class Setting;
 class ResampledSoundDevice : public SoundDevice, protected Observer<Setting>
 {
 public:
-	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
+	enum class ResampleType { HQ, LQ, BLIP };
 
 	/** Note: To enable various optimizations (like SSE), this method is
 	  * allowed to generate up to 3 extra sample.

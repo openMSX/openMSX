@@ -88,9 +88,9 @@ void V9990SDLRasterizer::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(
-	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? RawFrame::FIELD_EVEN
-	                                           : RawFrame::FIELD_ODD)
-	                       : RawFrame::FIELD_NONINTERLACED);
+	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? RawFrame::FieldType::EVEN
+	                                           : RawFrame::FieldType::ODD)
+	                       : RawFrame::FieldType::NONINTERLACED);
 }
 
 void V9990SDLRasterizer::setDisplayMode(V9990DisplayMode mode)

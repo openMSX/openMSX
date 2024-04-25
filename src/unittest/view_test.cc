@@ -297,7 +297,7 @@ TEST_CASE("view::take") {
 	}
 	SECTION("split_view") {
 		std::string_view str = "abc  def\t \tghi    jkl  mno  pqr";
-		auto v = view::take(StringOp::split_view<StringOp::REMOVE_EMPTY_PARTS>(str, " \t"), 3);
+		auto v = view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(str, " \t"), 3);
 
 		auto it = v.begin();
 		auto et = v.end();

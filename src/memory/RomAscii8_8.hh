@@ -9,7 +9,7 @@ namespace openmsx {
 class RomAscii8_8 final : public Rom8kBBlocks
 {
 public:
-	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2, ASCII8_32 };
+	enum class SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2, ASCII8_32 };
 	RomAscii8_8(const DeviceConfig& config,
 	            Rom&& rom, SubType subType);
 

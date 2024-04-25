@@ -21,7 +21,7 @@ RawFrame::RawFrame(unsigned maxWidth_, unsigned height_)
 	data.resize(size_t(maxWidth) * height_);
 
 	// Start with a black frame.
-	init(FIELD_NONINTERLACED);
+	init(FieldType::NONINTERLACED);
 	for (auto line : xrange(height_)) {
 		setBlank(line, Pixel(0));
 	}

@@ -5,6 +5,7 @@
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
+
 #include <array>
 
 namespace openmsx {

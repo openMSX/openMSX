@@ -154,11 +154,12 @@ LaserdiscPlayer::~LaserdiscPlayer()
 string LaserdiscPlayer::getStateString() const
 {
 	switch (playerState) {
-		case PLAYER_STOPPED:     return "stopped";
-		case PLAYER_PLAYING:     return "playing";
-		case PLAYER_MULTI_SPEED: return "multispeed";
-		case PLAYER_PAUSED:      return "paused";
-		case PLAYER_STILL:       return "still";
+		using enum PlayerState;
+		case STOPPED:     return "stopped";
+		case PLAYING:     return "playing";
+		case MULTI_SPEED: return "multispeed";
+		case PAUSED:      return "paused";
+		case STILL:       return "still";
 	}
 	UNREACHABLE;
 }
@@ -200,31 +201,32 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
 
 	switch (remoteState) {
-	case REMOTE_IDLE:
+	using enum RemoteState;
+	case IDLE:
 		if (bit) {
 			remoteBits = remoteBitNr = 0;
-			remoteState = REMOTE_HEADER_PULSE;
+			remoteState = HEADER_PULSE;
 		}
 		break;
-	case REMOTE_HEADER_PULSE:
+	case HEADER_PULSE:
 		if (5800 <= usec && usec < 11200) {
 			remoteState = NEC_HEADER_SPACE;
 		} else {
-			remoteState = REMOTE_IDLE;
+			remoteState = IDLE;
 		}
 		break;
 	case NEC_HEADER_SPACE:
 		if (3400 <= usec && usec < 6200) {
 			remoteState = NEC_BITS_PULSE;
 		} else {
-			remoteState = REMOTE_IDLE;
+			remoteState = IDLE;
 		}
 		break;
 	case NEC_BITS_PULSE:
 		if (usec >= 380 && usec < 1070) {
 			remoteState = NEC_BITS_SPACE;
 		} else {
-			remoteState = REMOTE_IDLE;
+			remoteState = IDLE;
 		}
 		break;
 	case NEC_BITS_SPACE:
@@ -233,7 +235,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 			remoteBits |= 1 << remoteBitNr;
 		} else if (usec < 300 || usec >= 1065) {
 			// error
-			remoteState = REMOTE_IDLE;
+			remoteState = IDLE;
 			break;
 		}
 
@@ -248,9 +250,9 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 			if (custom == customCompl &&
 			    custom == 0xa8 &&
 			    code == codeCompl) {
-				submitRemote(IR_NEC, code);
+				submitRemote(RemoteProtocol::NEC, code);
 			}
-			remoteState = REMOTE_IDLE;
+			remoteState = IDLE;
 		} else {
 			remoteState = NEC_BITS_PULSE;
 		}
@@ -264,7 +266,7 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, uint8_t code)
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
-	    (protocol == IR_NEC && (code == one_of(0x42u, 0x17u)))) {
+	    (protocol == RemoteProtocol::NEC && (code == one_of(0x42u, 0x17u)))) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
@@ -345,18 +347,18 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 
 		switch (code) {
 		case 0x4b: // L+ (both channels play the left channel)
-			stereoMode = LEFT;
+			stereoMode = StereoMode::LEFT;
 			break;
 		case 0x49: // L- (both channels play the right channel)
-			stereoMode = RIGHT;
+			stereoMode = StereoMode::RIGHT;
 			break;
 		case 0x4a: // L@ (normal stereo)
-			stereoMode = STEREO;
+			stereoMode = StereoMode::STEREO;
 			break;
 		}
 
 		setAck(time, 46);
-	} else if (playerState == PLAYER_STOPPED) {
+	} else if (playerState == PlayerState::STOPPED) {
 		switch (code) {
 		case 0x16: // P@
 			motherBoard.getMSXCliComm().printWarning(
@@ -375,18 +377,19 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 		bool nonSeekAck = true;
 
 		switch (code) {
+		using enum SeekState;
 		case 0x5f:
-			seekState = SEEK_WAIT;
+			seekState = WAIT;
 			seekNum = 0;
 			stillOnWaitFrame = false;
 			nonSeekAck = false;
 			break;
 		case 0x41:
-			seekState = SEEK_FRAME;
+			seekState = FRAME;
 			seekNum = 0;
 			break;
 		case 0x40:
-			seekState = SEEK_CHAPTER;
+			seekState = CHAPTER;
 			seekNum = 0;
 			nonSeekAck = video->getChapter(0) != 0;
 			break;
@@ -404,18 +407,18 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 			break;
 		case 0x42:
 			switch (seekState) {
-			case SEEK_FRAME:
-				seekState = SEEK_NONE;
+			case FRAME:
+				seekState = NONE;
 				seekFrame(seekNum % 100000, time);
 				nonSeekAck = false;
 				break;
-			case SEEK_CHAPTER:
-				seekState = SEEK_NONE;
+			case CHAPTER:
+				seekState = NONE;
 				seekChapter(seekNum % 100, time);
 				nonSeekAck = false;
 				break;
-			case SEEK_WAIT:
-				seekState = SEEK_NONE;
+			case WAIT:
+				seekState = NONE;
 				waitFrame = seekNum % 100000;
 				if (waitFrame >= 101 && waitFrame < 200) {
 					auto frame = video->getChapter(
@@ -424,15 +427,15 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 				}
 				break;
 			default:
-				seekState = SEEK_NONE;
+				seekState = NONE;
 				break;
 			}
 			break;
 		case 0x45: // Clear "X+"
-			if (seekState != SEEK_NONE && seekNum != 0) {
+			if (seekState != NONE && seekNum != 0) {
 				seekNum = 0;
 			} else {
-				seekState = SEEK_NONE;
+				seekState = NONE;
 				seekNum = 0;
 			}
 			waitFrame = 0;
@@ -451,10 +454,10 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 			break;
 		case 0xff:
 			nonSeekAck = false;
-			seekState = SEEK_NONE;
+			seekState = NONE;
 			break;
 		case 0x54: // S+ (frame step forward)
-			if (seekState == SEEK_WAIT) {
+			if (seekState == WAIT) {
 				stillOnWaitFrame = true;
 			} else {
 				stepFrame(true);
@@ -472,7 +475,7 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 			nonSeekAck = false;
 			break;
 		case 0x58: // M+ (multi-speed forwards)
-			playerState = PLAYER_MULTI_SPEED;
+			playerState = PlayerState::MULTI_SPEED;
 			setFrameStep();
 			break;
 		case 0x46: // C- (play slower)
@@ -507,7 +510,7 @@ void LaserdiscPlayer::execSyncAck(EmuTime::param time)
 {
 	updateStream(time);
 
-	if (seeking && playerState == PLAYER_PLAYING) {
+	if (seeking && playerState == PlayerState::PLAYING) {
 		sampleClock.advance(time);
 	}
 
@@ -520,9 +523,9 @@ void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
 	updateStream(time);
 
 	if (!odd || (video && video->getFrameRate() == 60)) {
-		if ((playerState != PLAYER_STOPPED) &&
+		if ((playerState != PlayerState::STOPPED) &&
 		    (currentFrame > video->getFrames())) {
-			playerState = PLAYER_STOPPED;
+			playerState = PlayerState::STOPPED;
 		}
 
 		if (auto* rawFrame = renderer->getRawFrame()) {
@@ -557,13 +560,13 @@ void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
 
 	// Processing of the remote control happens at each frame
 	// (even and odd, so at 59.94Hz)
-	if (remoteProtocol == IR_NEC) {
+	if (remoteProtocol == RemoteProtocol::NEC) {
 		if (remoteExecuteDelayed) {
 			remoteButtonNEC(remoteCode, time);
 		}
 
 		if (++remoteVblanksBack > 6) {
-			remoteProtocol = IR_NONE;
+			remoteProtocol = RemoteProtocol::NONE;
 		}
 	}
 	remoteExecuteDelayed = false;
@@ -600,6 +603,7 @@ void LaserdiscPlayer::setFrameStep()
 
 void LaserdiscPlayer::nextFrame(EmuTime::param time)
 {
+	using enum PlayerState;
 	if (waitFrame && waitFrame == currentFrame) {
 		// Leave ACK raised until the next command
 		ack = true;
@@ -607,12 +611,12 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 
 		if (stillOnWaitFrame) {
 			playingFromSample = getCurrentSample(time);
-			playerState = PLAYER_STILL;
+			playerState = STILL;
 			stillOnWaitFrame = false;
 		}
 	}
 
-	if (playerState == PLAYER_MULTI_SPEED) {
+	if (playerState == MULTI_SPEED) {
 		if (--frameStep)  {
 			return;
 		}
@@ -629,16 +633,16 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 			break;
 		}
 		setFrameStep();
-	} else if (playerState == PLAYER_PLAYING) {
+	} else if (playerState == PLAYING) {
 		currentFrame++;
 	}
 
 	// freeze if stop frame
-	if ((playerState == one_of(PLAYER_PLAYING, PLAYER_MULTI_SPEED))
+	if ((playerState == one_of(PLAYING, MULTI_SPEED))
 	     && video->stopFrame(currentFrame)) {
 		// stop frame reached
 		playingFromSample = getCurrentSample(time);
-		playerState = PLAYER_STILL;
+		playerState = STILL;
 	}
 }
 
@@ -691,7 +695,7 @@ void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 {
 	// Single channel device: replace content of buffers[0] (not add to it).
 	assert(buffers.size() == 1);
-	if (playerState != PLAYER_PLAYING || seeking || (muteLeft && muteRight)) {
+	if (playerState != PlayerState::PLAYING || seeking || (muteLeft && muteRight)) {
 		buffers[0] = nullptr;
 		return;
 	}
@@ -726,8 +730,8 @@ void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 		lastPlayedSample = currentSample;
 	}
 
-	int left = stereoMode == RIGHT ? 1 : 0;
-	int right = stereoMode == LEFT ? 0 : 1;
+	int left = stereoMode == StereoMode::RIGHT ? 1 : 0;
+	int right = stereoMode == StereoMode::LEFT ? 0 : 1;
 
 	while (pos < num) {
 		const AudioFragment* audio = video->getAudio(lastPlayedSample);
@@ -781,52 +785,53 @@ void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)
 
 void LaserdiscPlayer::play(EmuTime::param time)
 {
-	if (video) {
-		updateStream(time);
+	if (!video) return;
 
-		if (seeking) {
-			// Do not ACK, play while seeking
-		} else if (playerState == PLAYER_STOPPED) {
-			// Disk needs to spin up, which takes 9.6s on
-			// my Pioneer LD-92000. Also always seek to
-			// beginning (confirmed on real MSX and LD)
-			video->seek(1, 0);
-			lastPlayedSample = 0;
-			playingFromSample = 0;
-			currentFrame = 1;
-			// Note that with "fullspeedwhenloading" this
-			// should be reduced to.
-			setAck(time, 9600);
-			seekState = SEEK_NONE;
-			seeking = true;
-			waitFrame = 0;
-			stereoMode = STEREO;
-			playingSpeed = SPEED_1IN4;
-		} else if (playerState == PLAYER_PLAYING) {
-			// If Play command is issued while the player
-			// is already playing, then if no ACK is sent then
-			// Astron Belt will send LD1100 commands
-			setAck(time, 46);
-		} else if (playerState == PLAYER_MULTI_SPEED) {
-			// Should be hearing stuff again
-			playingFromSample = (currentFrame - 1LL) * 1001LL *
-					video->getSampleRate() / 30000LL;
-			sampleClock.advance(time);
-			setAck(time, 46);
-		} else {
-			// STILL or PAUSED
-			sampleClock.advance(time);
-			setAck(time, 46);
-		}
-		playerState = PLAYER_PLAYING;
+	updateStream(time);
+
+	using enum PlayerState;
+	if (seeking) {
+		// Do not ACK, play while seeking
+	} else if (playerState == STOPPED) {
+		// Disk needs to spin up, which takes 9.6s on
+		// my Pioneer LD-92000. Also always seek to
+		// beginning (confirmed on real MSX and LD)
+		video->seek(1, 0);
+		lastPlayedSample = 0;
+		playingFromSample = 0;
+		currentFrame = 1;
+		// Note that with "fullspeedwhenloading" this
+		// should be reduced to.
+		setAck(time, 9600);
+		seekState = SeekState::NONE;
+		seeking = true;
+		waitFrame = 0;
+		stereoMode = StereoMode::STEREO;
+		playingSpeed = SPEED_1IN4;
+	} else if (playerState == PLAYING) {
+		// If Play command is issued while the player
+		// is already playing, then if no ACK is sent then
+		// Astron Belt will send LD1100 commands
+		setAck(time, 46);
+	} else if (playerState == MULTI_SPEED) {
+		// Should be hearing stuff again
+		playingFromSample = (currentFrame - 1LL) * 1001LL *
+				video->getSampleRate() / 30000LL;
+		sampleClock.advance(time);
+		setAck(time, 46);
+	} else {
+		// STILL or PAUSED
+		sampleClock.advance(time);
+		setAck(time, 46);
 	}
+	playerState = PLAYING;
 }
 
 size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 {
 	switch(playerState) {
-	case PLAYER_PAUSED:
-	case PLAYER_STILL:
+	case PlayerState::PAUSED:
+	case PlayerState::STILL:
 		return playingFromSample;
 	default:
 		return playingFromSample + sampleClock.getTicksTill(time);
@@ -835,28 +840,29 @@ size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 
 void LaserdiscPlayer::pause(EmuTime::param time)
 {
-	if (playerState != PLAYER_STOPPED) {
-		updateStream(time);
+	using enum PlayerState;
+	if (playerState == STOPPED) return;
 
-		if (playerState == PLAYER_PLAYING) {
-			playingFromSample = getCurrentSample(time);
-		} else if (playerState == PLAYER_MULTI_SPEED) {
-			playingFromSample = (currentFrame - 1LL) * 1001LL *
-					video->getSampleRate() / 30000LL;
-			sampleClock.advance(time);
-		}
+	updateStream(time);
 
-		playerState = PLAYER_PAUSED;
-		setAck(time, 46);
+	if (playerState == PLAYING) {
+		playingFromSample = getCurrentSample(time);
+	} else if (playerState == MULTI_SPEED) {
+		playingFromSample = (currentFrame - 1LL) * 1001LL *
+				video->getSampleRate() / 30000LL;
+		sampleClock.advance(time);
 	}
+
+	playerState = PAUSED;
+	setAck(time, 46);
 }
 
 void LaserdiscPlayer::stop(EmuTime::param time)
 {
-	if (playerState != PLAYER_STOPPED) {
-		updateStream(time);
-		playerState = PLAYER_STOPPED;
-	}
+	if (playerState == PlayerState::STOPPED) return;
+
+	updateStream(time);
+	playerState = PlayerState::STOPPED;
 }
 
 void LaserdiscPlayer::eject(EmuTime::param time)
@@ -874,7 +880,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 
 	// Note that on real hardware, the screen goes dark momentarily
 	// if you try to step before the first frame or after the last one
-	if (playerState == PLAYER_STILL) {
+	if (playerState == PlayerState::STILL) {
 		if (forwards) {
 			if (currentFrame < video->getFrames()) {
 				currentFrame++;
@@ -887,7 +893,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 		}
 	}
 
-	playerState = PLAYER_STILL;
+	playerState = PlayerState::STILL;
 	auto samplePos = (currentFrame - 1LL) * 1001LL *
 	                    video->getSampleRate() / 30000LL;
 	playingFromSample = samplePos;
@@ -902,51 +908,51 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 
 void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
 {
-	if ((playerState != PLAYER_STOPPED) && video) {
-		updateStream(time);
+	if ((playerState == PlayerState::STOPPED) || !video) return;
 
-		if (toFrame <= 0) toFrame = 1;
-		if (toFrame > video->getFrames()) toFrame = video->getFrames();
+	updateStream(time);
 
-		// Seek time needs to be emulated correctly since
-		// e.g. Astron Belt does not wait for the seek
-		// to complete, it simply assumes a certain
-		// delay.
-		//
-		// This calculation is based on measurements on
-		// a Pioneer LD-92000.
-		auto dist = std::abs(int64_t(toFrame) - int64_t(currentFrame));
-		int seekTime = (dist < 1000) // time in ms
-		             ? narrow<int>(dist + 300)
-		             : narrow<int>(1800 + dist / 12);
+	if (toFrame <= 0) toFrame = 1;
+	if (toFrame > video->getFrames()) toFrame = video->getFrames();
 
-		auto samplePos = (toFrame - 1LL) * 1001LL *
-				    video->getSampleRate() / 30000LL;
+	// Seek time needs to be emulated correctly since
+	// e.g. Astron Belt does not wait for the seek
+	// to complete, it simply assumes a certain
+	// delay.
+	//
+	// This calculation is based on measurements on
+	// a Pioneer LD-92000.
+	auto dist = std::abs(int64_t(toFrame) - int64_t(currentFrame));
+	int seekTime = (dist < 1000) // time in ms
+			? narrow<int>(dist + 300)
+			: narrow<int>(1800 + dist / 12);
 
-		if (video->getFrameRate() == 60) {
-			video->seek(toFrame * 2, samplePos);
-		} else {
-			video->seek(toFrame, samplePos);
-		}
-		playerState = PLAYER_STILL;
-		playingFromSample = samplePos;
-		currentFrame = toFrame;
+	auto samplePos = (toFrame - 1LL) * 1001LL *
+				video->getSampleRate() / 30000LL;
 
-		// Seeking clears the frame to wait for
-		waitFrame = 0;
-
-		seeking = true;
-		setAck(time, seekTime);
+	if (video->getFrameRate() == 60) {
+		video->seek(toFrame * 2, samplePos);
+	} else {
+		video->seek(toFrame, samplePos);
 	}
+	playerState = PlayerState::STILL;
+	playingFromSample = samplePos;
+	currentFrame = toFrame;
+
+	// Seeking clears the frame to wait for
+	waitFrame = 0;
+
+	seeking = true;
+	setAck(time, seekTime);
 }
 
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
-	if ((playerState != PLAYER_STOPPED) && video) {
-		auto frameNo = video->getChapter(chapter);
-		if (!frameNo) return;
-		seekFrame(frameNo, time);
-	}
+	if ((playerState == PlayerState::STOPPED) || !video) return;
+
+	auto frameNo = video->getChapter(chapter);
+	if (!frameNo) return;
+	seekFrame(frameNo, time);
 }
 
 int16_t LaserdiscPlayer::readSample(EmuTime::param time)
@@ -955,11 +961,11 @@ int16_t LaserdiscPlayer::readSample(EmuTime::param time)
 	// right audio channel, ignoring muting (this is done in the MSX)
 	// but honouring the stereo mode as this is done in the
 	// Laserdisc player
-	if (playerState == PLAYER_PLAYING && !seeking) {
+	if (playerState == PlayerState::PLAYING && !seeking) {
 		auto sample = getCurrentSample(time);
 		if (const AudioFragment* audio = video->getAudio(sample)) {
 			++sampleReads;
-			int channel = stereoMode == LEFT ? 0 : 1;
+			int channel = stereoMode == StereoMode::LEFT ? 0 : 1;
 			return narrow_cast<int16_t>
 				(audio->pcm[channel][sample - audio->position]
 							 * 32767.f);
@@ -974,9 +980,9 @@ bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
 
 	bool videoOut = [&] {
 		switch (playerState) {
-		case PLAYER_PLAYING:
-		case PLAYER_MULTI_SPEED:
-		case PLAYER_STILL:
+		case PlayerState::PLAYING:
+		case PlayerState::MULTI_SPEED:
+		case PlayerState::STILL:
 			return !seeking;
 		default:
 			return false;
@@ -1004,41 +1010,41 @@ void LaserdiscPlayer::createRenderer()
 }
 
 static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
-	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE		},
-	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
-	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
-	{ "NEC_BITS_PULSE",	LaserdiscPlayer::NEC_BITS_PULSE		},
-	{ "NEC_BITS_SPACE",	LaserdiscPlayer::NEC_BITS_SPACE		},
+	{ "IDLE",             LaserdiscPlayer::RemoteState::IDLE             },
+	{ "HEADER_PULSE",     LaserdiscPlayer::RemoteState::HEADER_PULSE     },
+	{ "NEC_HEADER_SPACE", LaserdiscPlayer::RemoteState::NEC_HEADER_SPACE },
+	{ "NEC_BITS_PULSE",   LaserdiscPlayer::RemoteState::NEC_BITS_PULSE   },
+	{ "NEC_BITS_SPACE",   LaserdiscPlayer::RemoteState::NEC_BITS_SPACE   },
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
 static constexpr std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
-	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},
-	{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
-	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTI_SPEED	},
-	{ "PAUSED",		LaserdiscPlayer::PLAYER_PAUSED		},
-	{ "STILL",		LaserdiscPlayer::PLAYER_STILL		}
+	{ "STOPPED",    LaserdiscPlayer::PlayerState::STOPPED     },
+	{ "PLAYING",    LaserdiscPlayer::PlayerState::PLAYING     },
+	{ "MULTISPEED", LaserdiscPlayer::PlayerState::MULTI_SPEED },
+	{ "PAUSED",     LaserdiscPlayer::PlayerState::PAUSED      },
+	{ "STILL",      LaserdiscPlayer::PlayerState::STILL       }
 };
 SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
 
 static constexpr std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
-	{ "NONE",		LaserdiscPlayer::SEEK_NONE		},
-	{ "CHAPTER",		LaserdiscPlayer::SEEK_CHAPTER		},
-	{ "FRAME",		LaserdiscPlayer::SEEK_FRAME		},
-	{ "WAIT",		LaserdiscPlayer::SEEK_WAIT		}
+	{ "NONE",    LaserdiscPlayer::SeekState::NONE    },
+	{ "CHAPTER", LaserdiscPlayer::SeekState::CHAPTER },
+	{ "FRAME",   LaserdiscPlayer::SeekState::FRAME   },
+	{ "WAIT",    LaserdiscPlayer::SeekState::WAIT    }
 };
 SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 
 static constexpr std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
-	{ "LEFT",		LaserdiscPlayer::LEFT			},
-	{ "RIGHT",		LaserdiscPlayer::RIGHT			},
-	{ "STEREO",		LaserdiscPlayer::STEREO			}
+	{ "LEFT",   LaserdiscPlayer::StereoMode::LEFT   },
+	{ "RIGHT",  LaserdiscPlayer::StereoMode::RIGHT  },
+	{ "STEREO", LaserdiscPlayer::StereoMode::STEREO }
 };
 SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 
 static constexpr std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
-	{ "NONE",		LaserdiscPlayer::IR_NONE		},
-	{ "NEC",		LaserdiscPlayer::IR_NEC			},
+	{ "NONE", LaserdiscPlayer::RemoteProtocol::NONE },
+	{ "NEC",  LaserdiscPlayer::RemoteProtocol::NEC  },
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 
@@ -1051,7 +1057,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
-	if (remoteState != REMOTE_IDLE) {
+	if (remoteState != RemoteState::IDLE) {
 		ar.serialize("RemoteBitNr", remoteBitNr,
 		             "RemoteBits",  remoteBits);
 		if (ar.versionBelow(version, 3)) {
@@ -1062,7 +1068,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("RemoteLastBit",  remoteLastBit,
 	             "RemoteLastEdge", remoteLastEdge,
 	             "RemoteProtocol", remoteProtocol);
-	if (remoteProtocol != IR_NONE) {
+	if (remoteProtocol != RemoteProtocol::NONE) {
 		ar.serialize("RemoteCode", remoteCode);
 		if (ar.versionBelow(version, 3)) {
 			assert(Archive::IS_LOADER);
@@ -1084,10 +1090,10 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("PlayerState", playerState);
 
-	if (playerState != PLAYER_STOPPED) {
+	if (playerState != PlayerState::STOPPED) {
 		// Serialize seek state
 		ar.serialize("SeekState", seekState);
-		if (seekState != SEEK_NONE) {
+		if (seekState != SeekState::NONE) {
 			ar.serialize("SeekNum", seekNum);
 		}
 		ar.serialize("seeking", seeking);
@@ -1105,7 +1111,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 
 		// Frame position
 		ar.serialize("CurrentFrame", currentFrame);
-		if (playerState == PLAYER_MULTI_SPEED) {
+		if (playerState == PlayerState::MULTI_SPEED) {
 			ar.serialize("FrameStep", frameStep);
 		}
 

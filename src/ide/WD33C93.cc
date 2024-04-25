@@ -142,14 +142,14 @@ WD33C93::WD33C93(const DeviceConfig& config)
 
 void WD33C93::disconnect()
 {
-	if (phase != SCSI::BUS_FREE) {
+	if (phase != SCSI::Phase::BUS_FREE) {
 		assert(targetId < MAX_DEV);
 		dev[targetId]->disconnect();
 		if (regs[REG_SCSI_STATUS] != SS_XFER_END) {
 			regs[REG_SCSI_STATUS] = SS_DISCONNECT;
 		}
 		regs[REG_AUX_STATUS] = AS_INT;
-		phase = SCSI::BUS_FREE;
+		phase = SCSI::Phase::BUS_FREE;
 	}
 	tc = 0;
 }
@@ -206,7 +206,7 @@ void WD33C93::execCmd(uint8_t value)
 				subspan<12>(regs, REG_CDB1), phase, blockCounter);
 
 			switch (phase) {
-			case SCSI::STATUS:
+			case SCSI::Phase::STATUS:
 				devBusy = false;
 				regs[REG_TLUN] = dev[targetId]->getStatusCode();
 				dev[targetId]->msgIn();
@@ -214,7 +214,7 @@ void WD33C93::execCmd(uint8_t value)
 				disconnect();
 				break;
 
-			case SCSI::EXECUTE:
+			case SCSI::Phase::EXECUTE:
 				regs[REG_AUX_STATUS] = AS_CIP | AS_BSY;
 				bufIdx = 0;
 				break;
@@ -277,7 +277,7 @@ void WD33C93::writeCtrl(uint8_t value)
 
 	case REG_DATA:
 		regs[REG_DATA] = value;
-		if (phase == SCSI::DATA_OUT) {
+		if (phase == SCSI::Phase::DATA_OUT) {
 			buffer[bufIdx++] = value;
 			--tc;
 			if (--counter == 0) {
@@ -310,18 +310,18 @@ uint8_t WD33C93::readAuxStatus()
 {
 	uint8_t rv = regs[REG_AUX_STATUS];
 
-	if (phase == SCSI::EXECUTE) {
+	if (phase == SCSI::Phase::EXECUTE) {
 		counter = dev[targetId]->executingCmd(phase, blockCounter);
 
 		switch (phase) {
-		case SCSI::STATUS: // TODO how can this ever be the case?
+		case SCSI::Phase::STATUS: // TODO how can this ever be the case?
 			regs[REG_TLUN] = dev[targetId]->getStatusCode();
 			dev[targetId]->msgIn();
 			regs[REG_SCSI_STATUS] = SS_XFER_END;
 			disconnect();
 			break;
 
-		case SCSI::EXECUTE:
+		case SCSI::Phase::EXECUTE:
 			break;
 
 		default:
@@ -351,7 +351,7 @@ uint8_t WD33C93::readCtrl()
 		return regs[REG_CMD]; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_DATA:
-		if (phase == SCSI::DATA_IN) {
+		if (phase == SCSI::Phase::DATA_IN) {
 			rv = buffer[bufIdx++];
 			regs[REG_DATA] = rv;
 			--tc;
@@ -425,7 +425,7 @@ void WD33C93::reset(bool scsiReset)
 	myId  = 0;
 	latch = 0;
 	tc    = 0;
-	phase = SCSI::BUS_FREE;
+	phase = SCSI::Phase::BUS_FREE;
 	bufIdx  = 0;
 	if (scsiReset) {
 		for (auto& d : dev) {
@@ -436,18 +436,18 @@ void WD33C93::reset(bool scsiReset)
 
 
 static constexpr std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
-	{ "UNDEFINED",   SCSI::UNDEFINED   },
-	{ "BUS_FREE",    SCSI::BUS_FREE    },
-	{ "ARBITRATION", SCSI::ARBITRATION },
-	{ "SELECTION",   SCSI::SELECTION   },
-	{ "RESELECTION", SCSI::RESELECTION },
-	{ "COMMAND",     SCSI::COMMAND     },
-	{ "EXECUTE",     SCSI::EXECUTE     },
-	{ "DATA_IN",     SCSI::DATA_IN     },
-	{ "DATA_OUT",    SCSI::DATA_OUT    },
-	{ "STATUS",      SCSI::STATUS      },
-	{ "MSG_OUT",     SCSI::MSG_OUT     },
-	{ "MSG_IN",      SCSI::MSG_IN      }
+	{ "UNDEFINED",   SCSI::Phase::UNDEFINED   },
+	{ "BUS_FREE",    SCSI::Phase::BUS_FREE    },
+	{ "ARBITRATION", SCSI::Phase::ARBITRATION },
+	{ "SELECTION",   SCSI::Phase::SELECTION   },
+	{ "RESELECTION", SCSI::Phase::RESELECTION },
+	{ "COMMAND",     SCSI::Phase::COMMAND     },
+	{ "EXECUTE",     SCSI::Phase::EXECUTE     },
+	{ "DATA_IN",     SCSI::Phase::DATA_IN     },
+	{ "DATA_OUT",    SCSI::Phase::DATA_OUT    },
+	{ "STATUS",      SCSI::Phase::STATUS      },
+	{ "MSG_OUT",     SCSI::Phase::MSG_OUT     },
+	{ "MSG_IN",      SCSI::Phase::MSG_IN      }
 };
 SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
 

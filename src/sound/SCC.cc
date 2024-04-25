@@ -112,19 +112,19 @@ namespace openmsx {
 
 static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
 
-static constexpr auto calcDescription(SCC::ChipMode mode)
+static constexpr auto calcDescription(SCC::Mode mode)
 {
-	return (mode == SCC::SCC_Real) ? static_string_view("Konami SCC")
-	                               : static_string_view("Konami SCC+");
+	return (mode == SCC::Mode::Real) ? static_string_view("Konami SCC")
+	                                 : static_string_view("Konami SCC+");
 }
 
 SCC::SCC(const std::string& name_, const DeviceConfig& config,
-         EmuTime::param time, ChipMode mode)
+         EmuTime::param time, Mode mode)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
-	, currentChipMode(mode)
+	, currentMode(mode)
 {
 	// Make valgrind happy
 	ranges::fill(orgPeriod, 0);
@@ -172,22 +172,22 @@ void SCC::powerUp(EmuTime::param time)
 
 void SCC::reset(EmuTime::param /*time*/)
 {
-	if (currentChipMode != SCC_Real) {
-		setChipMode(SCC_Compatible);
+	if (currentMode != Mode::Real) {
+		setMode(Mode::Compatible);
 	}
 
 	setDeformRegHelper(0);
 	ch_enable = 0;
 }
 
-void SCC::setChipMode(ChipMode newMode)
+void SCC::setMode(Mode newMode)
 {
-	if (currentChipMode == SCC_Real) {
-		assert(newMode == SCC_Real);
+	if (currentMode == Mode::Real) {
+		assert(newMode == Mode::Real);
 	} else {
-		assert(newMode != SCC_Real);
+		assert(newMode != Mode::Real);
 	}
-	currentChipMode = newMode;
+	currentMode = newMode;
 }
 
 uint8_t SCC::readMem(uint8_t addr, EmuTime::param time)
@@ -196,8 +196,8 @@ uint8_t SCC::readMem(uint8_t addr, EmuTime::param time)
 	//   SCC_Real:       0xE0..0xFF
 	//   SCC_Compatible: 0xC0..0xDF
 	//   SCC_plusmode:   0xC0..0xDF
-	if (((currentChipMode == SCC_Real) && (addr >= 0xE0)) ||
-	    ((currentChipMode != SCC_Real) && (0xC0 <= addr) && (addr < 0xE0))) {
+	if (((currentMode == Mode::Real) && (addr >= 0xE0)) ||
+	    ((currentMode != Mode::Real) && (0xC0 <= addr) && (addr < 0xE0))) {
 		setDeformReg(0xFF, time);
 	}
 	return peekMem(addr, time);
@@ -205,8 +205,8 @@ uint8_t SCC::readMem(uint8_t addr, EmuTime::param time)
 
 uint8_t SCC::peekMem(uint8_t address, EmuTime::param time) const
 {
-	switch (currentChipMode) {
-	case SCC_Real:
+	switch (currentMode) {
+	case Mode::Real:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
 			return readWave(address >> 5, address, time);
@@ -216,7 +216,7 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime::param time) const
 			// 0xE0..0xFF : deformation register
 			return 0xFF;
 		}
-	case SCC_Compatible:
+	case Mode::Compatible:
 		if (address < 0x80) {
 			// 0x00..0x7F : read wave form 1..4
 			return readWave(address >> 5, address, time);
@@ -231,7 +231,7 @@ uint8_t SCC::peekMem(uint8_t address, EmuTime::param time) const
 			// 0xE0..0xFF : no function
 			return 0xFF;
 		}
-	case SCC_plusmode:
+	case Mode::Plus:
 		if (address < 0xA0) {
 			// 0x00..0x9F : read wave form 1..5
 			return readWave(address >> 5, address, time);
@@ -253,7 +253,7 @@ uint8_t SCC::readWave(unsigned channel, unsigned address, EmuTime::param time) c
 	} else {
 		unsigned ticks = deformTimer.getTicksTill(time);
 		unsigned periodCh = ((channel == 3) &&
-		                     (currentChipMode != SCC_plusmode) &&
+		                     (currentMode != Mode::Plus) &&
 		                     ((deformValue & 0xC0) == 0x40))
 		                  ? 4 : channel;
 		unsigned shift = ticks / (period[periodCh] + 1);
@@ -286,8 +286,8 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime::param time)
 {
 	updateStream(time);
 
-	switch (currentChipMode) {
-	case SCC_Real:
+	switch (currentMode) {
+	case Mode::Real:
 		if (address < 0x80) {
 			// 0x00..0x7F : write wave form 1..4
 			writeWave(address >> 5, address, value);
@@ -301,7 +301,7 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime::param time)
 			setDeformReg(value, time);
 		}
 		break;
-	case SCC_Compatible:
+	case Mode::Compatible:
 		if (address < 0x80) {
 			// 0x00..0x7F : write wave form 1..4
 			writeWave(address >> 5, address, value);
@@ -317,7 +317,7 @@ void SCC::writeMem(uint8_t address, uint8_t value, EmuTime::param time)
 			// 0xE0..0xFF : no function
 		}
 		break;
-	case SCC_plusmode:
+	case Mode::Plus:
 		if (address < 0xA0) {
 			// 0x00..0x9F : write wave form 1..5
 			writeWave(address >> 5, address, value);
@@ -353,14 +353,14 @@ void SCC::writeWave(unsigned channel, unsigned address, uint8_t value)
 {
 	// write to channel 5 only possible in SCC+ mode
 	assert(channel < 5);
-	assert((channel != 4) || (currentChipMode == SCC_plusmode));
+	assert((channel != 4) || (currentMode == Mode::Plus));
 
 	if (!readOnly[channel]) {
 		unsigned p = address & 0x1F;
 		auto sValue = narrow_cast<int8_t>(value);
 		wave[channel][p] = sValue;
 		volAdjustedWave[channel][p] = adjust(sValue, volume[channel]);
-		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
+		if ((currentMode != Mode::Plus) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][p] = wave[3][p];
 			volAdjustedWave[4][p] = adjust(sValue, volume[4]);
@@ -423,7 +423,7 @@ void SCC::setDeformReg(uint8_t value, EmuTime::param time)
 void SCC::setDeformRegHelper(uint8_t value)
 {
 	deformValue = value;
-	if (currentChipMode != SCC_Real) {
+	if (currentMode != Mode::Real) {
 		value &= ~0x80;
 	}
 	switch (value & 0xC0) {
@@ -540,17 +540,17 @@ void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time
 }
 
 
-static constexpr std::initializer_list<enum_string<SCC::ChipMode>> chipModeInfo = {
-	{ "Real",       SCC::SCC_Real       },
-	{ "Compatible", SCC::SCC_Compatible },
-	{ "Plus",       SCC::SCC_plusmode   },
+static constexpr std::initializer_list<enum_string<SCC::Mode>> chipModeInfo = {
+	{ "Real",       SCC::Mode::Real       },
+	{ "Compatible", SCC::Mode::Compatible },
+	{ "Plus",       SCC::Mode::Plus   },
 };
-SERIALIZE_ENUM(SCC::ChipMode, chipModeInfo);
+SERIALIZE_ENUM(SCC::Mode, chipModeInfo);
 
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode",        currentChipMode,
+	ar.serialize("mode",        currentMode,
 	             "period",      orgPeriod,
 	             "volume",      volume,
 	             "ch_enable",   ch_enable,

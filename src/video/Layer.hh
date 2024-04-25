@@ -26,17 +26,17 @@ public:
 	/** Describes how much of the screen is currently covered by a particular
 	  * layer.
 	  */
-	enum Coverage {
+	enum class Coverage {
 		/** Layer fully covers the screen: any underlying layers are invisible.
 		  */
-		COVER_FULL,
+		FULL,
 		/** Layer partially covers the screen: it may cover only part of the
 		  * screen area, or it may be (semi-)transparent in places.
 		  */
-		COVER_PARTIAL,
+		PARTIAL,
 		/** Layer is not visible, that is completely transparent.
 		  */
-		COVER_NONE
+		NONE
 	};
 
 	virtual ~Layer() = default;
@@ -61,7 +61,7 @@ public:
 
 protected:
 	/** Construct a layer. */
-	explicit Layer(Coverage coverage_ = COVER_NONE, ZIndex z_ = Z_DUMMY)
+	explicit Layer(Coverage coverage_ = Coverage::NONE, ZIndex z_ = Z_DUMMY)
 		: coverage(coverage_), z(z_)
 	{
 	}

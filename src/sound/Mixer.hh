@@ -1,10 +1,12 @@
 #ifndef MIXER_HH
 #define MIXER_HH
 
-#include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
+
+#include "Observer.hh"
+
 #include <vector>
 #include <memory>
 
@@ -23,7 +25,7 @@ struct StereoFloat {
 class Mixer final : private Observer<Setting>
 {
 public:
-	enum SoundDriverType { SND_NULL, SND_SDL };
+	enum class SoundDriverType { NONE, SDL };
 
 	Mixer(Reactor& reactor, CommandController& commandController);
 	~Mixer();

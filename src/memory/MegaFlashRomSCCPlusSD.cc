@@ -276,7 +276,7 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	: MSXDevice(config)
 	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E,
 	        AmdFlash::Addressing::BITS_12, config)
-	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
+	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
@@ -622,8 +622,8 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
 			sccMode = value;
-			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
-			                               : SCC::SCC_Compatible);
+			scc.setMode((value & 0x20) ? SCC::Mode::Plus
+			                           : SCC::Mode::Compatible);
 			invalidateDeviceRWCache(0x9800, 0x800);
 			invalidateDeviceRWCache(0xB800, 0x800);
 		}

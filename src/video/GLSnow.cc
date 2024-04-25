@@ -1,4 +1,5 @@
 #include "GLSnow.hh"
+
 #include "GLContext.hh"
 #include "gl_mat.hh"
 #include "Display.hh"
@@ -11,7 +12,7 @@ using namespace gl;
 namespace openmsx {
 
 GLSnow::GLSnow(Display& display_)
-	: Layer(COVER_FULL, Z_BACKGROUND)
+	: Layer(Coverage::FULL, Z_BACKGROUND)
 	, display(display_)
 	, noiseTexture(true, true) // enable interpolation + wrapping
 {

@@ -75,11 +75,11 @@ namespace StringOp
 
 	//[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 
-	enum KeepOrRemoveEmptyParts {
-		KEEP_EMPTY_PARTS,  // "a,b,,c" -> "a", "b", "", "c"
-		REMOVE_EMPTY_PARTS // "a,b,,c" -> "a", "b", "c"       BUT  ",,a,b" -> "", "a", "b"  (keeps one empty part in front)
+	enum class EmptyParts {
+		KEEP,  // "a,b,,c" -> "a", "b", "", "c"
+		REMOVE // "a,b,,c" -> "a", "b", "c"       BUT  ",,a,b" -> "", "a", "b"  (keeps one empty part in front)
 	};
-	template<KeepOrRemoveEmptyParts keepOrRemove = KEEP_EMPTY_PARTS, typename Separators>
+	template<EmptyParts keepOrRemove = EmptyParts::KEEP, typename Separators>
 	[[nodiscard]] inline auto split_view(std::string_view str, Separators separators) {
 		struct Sentinel {};
 
@@ -130,7 +130,7 @@ namespace StringOp
 			}
 
 			std::string_view::size_type skipSeparators(std::string_view::size_type pos) const {
-				if (keepOrRemove == REMOVE_EMPTY_PARTS) {
+				if (keepOrRemove == EmptyParts::REMOVE) {
 					while ((pos < str.size()) && isSeparator(str[pos], separators)) ++pos;
 				}
 				return pos;

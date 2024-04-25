@@ -17,7 +17,7 @@ EEPROM_93C46::EEPROM_93C46(const std::string& name, const DeviceConfig& config)
 void EEPROM_93C46::reset()
 {
 	completionTime = EmuTime::zero();
-	state = IN_RESET;
+	state = State::IN_RESET;
 	writeProtected = true;
 	bits = 0;
 	address = 0;
@@ -65,9 +65,9 @@ bool EEPROM_93C46::ready(EmuTime::param time) const
 
 bool EEPROM_93C46::read_DO(EmuTime::param time) const
 {
-	if (state == READING_DATA) {
+	if (state == State::READING_DATA) {
 		return shiftRegister & (1 << (SHIFT_REG_BITS - 1));
-	} else if (state == WAIT_FOR_START_BIT) {
+	} else if (state == State::WAIT_FOR_START_BIT) {
 		return ready(time);
 	} else {
 		return true;
@@ -82,10 +82,10 @@ void EEPROM_93C46::write_CS(bool value, EmuTime::param time)
 	if (pinCS) {
 		csTime = time; // see clockEvent()
 
-		assert(state == IN_RESET);
-		state = WAIT_FOR_START_BIT;
+		assert(state == State::IN_RESET);
+		state = State::WAIT_FOR_START_BIT;
 	} else {
-		state = IN_RESET;
+		state = State::IN_RESET;
 	}
 }
 
@@ -107,6 +107,7 @@ void EEPROM_93C46::write_DI(bool value, EmuTime::param /*time*/)
 void EEPROM_93C46::clockEvent(EmuTime::param time)
 {
 	switch (state) {
+	using enum State;
 	case IN_RESET:
 		// nothing
 		break;
@@ -173,6 +174,7 @@ void EEPROM_93C46::execute_command(EmuTime::param time)
 	address = shiftRegister & ADDRESS_MASK;
 
 	switch ((shiftRegister >> ADDRESS_BITS) & 3) {
+	using enum State;
 	case 0:
 		switch (address >> (ADDRESS_BITS - 2)) {
 		case 0: // LOCK
@@ -226,12 +228,12 @@ void EEPROM_93C46::execute_command(EmuTime::param time)
 }
 
 static constexpr std::initializer_list<enum_string<EEPROM_93C46::State>> stateInfo = {
-	{ "IN_RESET",           EEPROM_93C46::IN_RESET           },
-	{ "WAIT_FOR_START_BIT", EEPROM_93C46::WAIT_FOR_START_BIT },
-	{ "WAIT_FOR_COMMAND",   EEPROM_93C46::WAIT_FOR_COMMAND   },
-	{ "READING_DATA",       EEPROM_93C46::READING_DATA       },
-	{ "WAIT_FOR_WRITE",     EEPROM_93C46::WAIT_FOR_WRITE     },
-	{ "WAIT_FOR_WRITEALL",  EEPROM_93C46::WAIT_FOR_WRITE_ALL },
+	{ "IN_RESET",           EEPROM_93C46::State::IN_RESET           },
+	{ "WAIT_FOR_START_BIT", EEPROM_93C46::State::WAIT_FOR_START_BIT },
+	{ "WAIT_FOR_COMMAND",   EEPROM_93C46::State::WAIT_FOR_COMMAND   },
+	{ "READING_DATA",       EEPROM_93C46::State::READING_DATA       },
+	{ "WAIT_FOR_WRITE",     EEPROM_93C46::State::WAIT_FOR_WRITE     },
+	{ "WAIT_FOR_WRITEALL",  EEPROM_93C46::State::WAIT_FOR_WRITE_ALL },
 };
 SERIALIZE_ENUM(EEPROM_93C46::State, stateInfo);
 
