@@ -42,7 +42,6 @@ private:
 
 	int updHufCnt;
 	std::array<int, TBL_SIZE + 1> cpDist;
-	std::array<int, TBL_SIZE> cpdBmask;
 	std::array<int, TBL_SIZE> tblSizes;
 	std::array<HufNode, 2 * TBL_SIZE - 1> hufTbl;
 
@@ -50,7 +49,7 @@ private:
 	uint8_t bitCnt;		// nb bits left
 
 	static constexpr std::array<uint8_t, TBL_SIZE> cpdExt = { // Extra bits for distance codes
-		  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
+		  0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 	};
 };
 
@@ -209,23 +208,20 @@ int XSAExtractor::rdStrPos()
 	auto cpdIndex = narrow<uint8_t>(hufPos - &hufTbl[0]);
 	++tblSizes[cpdIndex];
 
+	auto getNBits = [&](unsigned n) {
+		int result = 0;
+		repeat(n, [&]{
+			result = (result << 1) | (bitIn() ? 1 : 0);
+		});
+		return result;
+	};
 	int strPos = [&] {
-		if (cpdBmask[cpdIndex] >= 256) {
+		if (cpdExt[cpdIndex] >= 8) {
 			uint8_t strPosLsb = charIn();
-			uint8_t strPosMsb = 0;
-			for (auto nrBits = narrow_cast<uint8_t>(cpdExt[cpdIndex] - 8);
-			     nrBits--;
-			     strPosMsb |= uint8_t(bitIn() ? 1 : 0)) {
-				strPosMsb <<= 1;
-			}
+			uint8_t strPosMsb = getNBits(narrow_cast<uint8_t>(cpdExt[cpdIndex] - 8));
 			return strPosLsb + 256 * strPosMsb;
 		} else {
-			int pos = 0;
-			for (uint8_t nrBits = cpdExt[cpdIndex]; nrBits--;
-			     pos |= (bitIn() ? 1 : 0)) {
-				pos <<= 1;
-			}
-			return pos;
+			return getNBits(cpdExt[cpdIndex]);
 		}
 	}();
 	if ((updHufCnt--) == 0) {
@@ -254,8 +250,7 @@ void XSAExtractor::initHufInfo()
 	int offs = 1;
 	for (auto i : xrange(TBL_SIZE)) {
 		cpDist[i] = offs;
-		cpdBmask[i] = 1 << cpdExt[i];
-		offs += cpdBmask[i];
+		offs += 1 << cpdExt[i];
 	}
 	cpDist[TBL_SIZE] = offs;
 
