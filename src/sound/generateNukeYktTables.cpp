@@ -1,20 +1,24 @@
+#include "enumerate.hh"
+#include "narrow.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include <tuple>
+#include <span>
 
-static constexpr bool EG_STEP_HI[4][4] = {
-	{ 0, 1, 1, 1 },
-	{ 0, 0, 0, 1 },
-	{ 0, 0, 1, 1 },
-	{ 0, 0, 0, 0 }
+using B4 = std::array<bool, 4>;
+static constexpr std::array<B4, 4> EG_STEP_HI = {
+	B4{false, true , true , true },
+	B4{false, false, false, true },
+	B4{false, false, true , true },
+	B4{false, false, false, false},
 };
 
 static constexpr struct EnvTables {
-	uint8_t attack [14][4][64];
-	uint8_t release[14][4][4][64];
+	std::array<std::array<std::array<uint8_t, 64/*rate*/>, 4/*timer*/>, 14/*timer_shift*/> attack;
+	std::array<std::array<std::array<std::array<uint8_t, 64/*rate*/>, 4/*counter_state*/>, 4/*timer*/>, 14/*timer_shift*/> release;
 } envTabs = []() {
 	EnvTables r = {};
 	for (auto timer_shift : xrange(14)) {
@@ -60,39 +64,39 @@ static constexpr struct EnvTables {
 	return r;
 }();
 
-constexpr void copy_64(const uint8_t* in, uint8_t* out) // TODO use c++20 std::copy()
+constexpr void copy_64(std::span<const uint8_t, 64> in, std::span<uint8_t, 64> out) // TODO use c++20 std::copy()
 {
 	for (auto i : xrange(64)) {
 		out[i] = in[i];
 	}
 }
-constexpr bool equal_64(const uint8_t* tab1, const uint8_t* tab2) // TODO use c++20 std::equal()
+constexpr bool equal_64(std::span<const uint8_t, 64> tab1, std::span<const uint8_t, 64> tab2) // TODO use c++20 std::equal()
 {
 	for (auto i : xrange(64)) {
 		if (tab1[i] != tab2[i]) return false;
 	}
 	return true;
 }
-constexpr int find_64(const uint8_t* needle, const uint8_t (*haystack)[64], int max_n) // TODO use c++20 std::find
+constexpr int find_64(std::span<const uint8_t, 64> needle, std::span<std::array<uint8_t, 64>> haystack) // TODO use c++20 std::find
 {
-	for (auto i : xrange(max_n)) {
-		if (equal_64(needle, haystack[i])) return i;
+	for (auto [i, candidate] : enumerate(haystack)) {
+		if (equal_64(needle, candidate)) return narrow<int>(i);
 	}
 	return -1;
 }
 
 //constexpr // fine for clang, but not for gcc ???
 struct CompressedEnvTables {
-	uint8_t releaseIndex[14][4][4];
-	uint8_t releaseData[64][64];  // '64' (size after compression) found by trial and error
+	std::array<std::array<std::array<uint8_t, 4>, 4>, 14> releaseIndex;
+	std::array<std::array<uint8_t, 64>, 64> releaseData;  // '64' (size after compression) found by trial and error
 } ctab = []() {
 	CompressedEnvTables r = {};
 	//compressTable(envTabs.release, r.releaseIndex, r.releaseData);
-	int out_n = 0;
+	size_t out_n = 0;
 	for (auto i : xrange(14)) {
 		for (auto j : xrange(4)) {
 			for (auto k : xrange(4)) {
-				int f = find_64(envTabs.release[i][j][k], r.releaseData, out_n);
+				int f = find_64(envTabs.release[i][j][k], std::span{r.releaseData.data(), out_n});
 				if (f == -1) {
 					copy_64(envTabs.release[i][j][k], r.releaseData[out_n]);
 					r.releaseIndex[i][j][k] = out_n;
