@@ -192,7 +192,6 @@ private:
 	const bool isAY8910;
 	const bool ignorePortDirections;
 	bool doDetune;
-	bool detuneInitialized = false; // (lazily) initialize detune stuff
 };
 
 SERIALIZE_CLASS_VERSION(AY8910::Generator, 2);

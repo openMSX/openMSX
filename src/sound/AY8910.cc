@@ -79,21 +79,22 @@ static constexpr auto volumeTab = [] {
 }();
 
 
-// Perlin noise
-static std::array<float, 256 + 3> noiseTab;
-
-static void initDetune()
-{
-	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
-	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
-
-	for (auto i : xrange(256)) {
-		noiseTab[i] = distribution(generator);
+// 256 random floats, each in range [-1, 1).
+//  (with entries 0..2 repeated at entries 256..258).
+static constexpr auto noiseTab = []{
+	std::array<float, 256 + 3> result = {};
+	// Seed doesn't matter. It's OK that these 'random' numbers are the same
+	// in each openMSX run.
+	PCG<0x123456789abcdefLL> pcg;
+	for (int i = 0; i < 256; ++i) {
+		result[i] = 2.0f * getCanonicalFloat(pcg()) - 1.0f;
 	}
-	noiseTab[256] = noiseTab[0];
-	noiseTab[257] = noiseTab[1];
-	noiseTab[258] = noiseTab[2];
-}
+	result[256] = result[0];
+	result[257] = result[1];
+	result[258] = result[2];
+	return result;
+}();
+
 static float noiseValue(float x)
 {
 	// cubic hermite spline interpolation
@@ -969,10 +970,6 @@ void AY8910::update(const Setting& setting) noexcept
 	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
 		doDetune = (vibratoPercent.getFloat() != 0.0f) ||
 			   (detunePercent .getFloat() != 0.0f);
-		if (doDetune && !detuneInitialized) {
-			detuneInitialized = true;
-			initDetune();
-		}
 	} else {
 		ResampledSoundDevice::update(setting);
 	}

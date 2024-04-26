@@ -71,4 +71,41 @@ inline void randomize()
   return d(global_urng(), parm_t{0, 0xffffffff});
 }
 
+
+// Compile-time random numbers
+
+// Constexpr "Permuted Congruential Generator" (PCG)
+//   generated random numbers at compile-time
+//   (or it shifts the problem to obtaining a random seed at compile time)
+// Based upon:
+//   C++ Weekly - Ep 44 - constexpr Compile Time Random
+//   https://www.youtube.com/watch?v=rpn_5Mrrxf8
+template<uint64_t SEED>
+struct PCG
+{
+	constexpr uint32_t operator()()
+	{
+		// Advance internal state
+		auto oldState = state;
+		state = oldState * 6364136223846793005ULL + (SEED | 1);
+
+		// Calculate output function (XSH RR), uses old state for max
+		// ILP
+		uint32_t xorShifted = ((oldState >> 18) ^ oldState) >> 27;
+		uint32_t rot = oldState >> 59;
+		return (xorShifted >> rot) | (xorShifted << ((-rot) & 31));
+	}
+
+private:
+	uint64_t state = SEED;
+};
+
+// Turns a random 32-bit integer into a random float in the range [0, 1).
+[[nodiscard]] constexpr float getCanonicalFloat(uint32_t u)
+{
+	uint32_t b = 1 << 23;
+	uint32_t m = b - 1;
+	return float(u & m) / float(b);
+}
+
 #endif
