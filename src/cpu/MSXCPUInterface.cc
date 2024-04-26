@@ -1005,8 +1005,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	}
 
 	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
-	auto wpCopy = watchPoints;
-	for (auto& w : wpCopy) {
+	for( auto wpCopy = watchPoints; auto& w : wpCopy) {
 		if ((w->getBeginAddress() <= address) &&
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {

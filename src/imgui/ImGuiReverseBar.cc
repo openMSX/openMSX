@@ -152,8 +152,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					std::string displayName;
 				};
 				std::vector<Names> names;
-				auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
-				for (const auto& path : context.getPaths()) {
+				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
+				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());

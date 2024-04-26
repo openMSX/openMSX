@@ -37,7 +37,7 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 	while (auto* d = dir.getEntry()) {
 		auto name = std::string_view(d->d_name);
 		if (name == one_of(std::string_view(".."), std::string_view("."))) continue;
-		if (std::string_view(d->d_name) != "README") return false;
+		if (name != "README") return false;
 	}
 	return true;
 }

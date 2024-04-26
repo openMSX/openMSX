@@ -224,8 +224,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				bool fwdChanged = ImGui::RadioButton("normal", &fastForward, 0);
 				ImGui::SameLine();
 				fwdChanged |= ImGui::RadioButton("fast forward", &fastForward, 1);
-				auto fastForwardShortCut = getShortCutForCommand(reactor.getHotKey(), "toggle fastforward");
-				if (!fastForwardShortCut.empty()) {
+				if (auto fastForwardShortCut = getShortCutForCommand(reactor.getHotKey(), "toggle fastforward");
+				    !fastForwardShortCut.empty()) {
 					HelpMarker(strCat("Use '", fastForwardShortCut ,"' to quickly toggle between these two"));
 				}
 				if (fwdChanged) {
@@ -310,8 +310,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("GUI", [&]{
 			auto getExistingLayouts = [] {
 				std::vector<std::string> names;
-				auto context = userDataFileContext("layouts");
-				for (const auto& path : context.getPaths()) {
+				for (auto context = userDataFileContext("layouts");
+				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(".ini")) {
 							names.emplace_back(fullName);
@@ -341,8 +341,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				return selectedLayout;
 			};
 			im::Menu("Save layout", [&]{
-				auto names = getExistingLayouts();
-				if (!names.empty()) {
+				if (auto names = getExistingLayouts(); !names.empty()) {
 					ImGui::TextUnformatted("Existing layouts"sv);
 					if (auto selectedLayout = listExistingLayouts(names)) {
 						const auto& [name, displayName] = *selectedLayout;
@@ -382,7 +381,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
-				std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
+				static constexpr std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
 				for (auto i : xrange(narrow<int>(names.size()))) {
 					if (ImGui::Selectable(names[i], selectedStyle == i)) {
 						newStyle = i;
@@ -1276,8 +1275,8 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 std::span<const std::string> ImGuiSettings::getAvailableFonts()
 {
 	if (availableFonts.empty()) {
-		const auto& context = systemFileContext();
-		for (const auto& path : context.getPaths()) {
+		for (const auto& context = systemFileContext();
+		     const auto& path : context.getPaths()) {
 			foreach_file(FileOperations::join(path, "skins"), [&](const std::string& /*fullName*/, std::string_view name) {
 				if (name.ends_with(".ttf.gz") || name.ends_with(".ttf")) {
 					availableFonts.emplace_back(name);
@@ -1297,9 +1296,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 	using SP = std::span<const zstring_view>;
 	auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
 	                          : SP{joymega    ::keyNames};
-	const auto numButtons = keyNames.size();
-
-	if (popupForKey >= numButtons) {
+	if (const auto numButtons = keyNames.size(); popupForKey >= numButtons) {
 		deinitListener();
 		return 0; // don't block
 	}
