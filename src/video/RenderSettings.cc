@@ -1,10 +1,14 @@
 #include "RenderSettings.hh"
+
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Version.hh"
+
 #include "stl.hh"
 #include "unreachable.hh"
+
 #include "build-info.hh"
+
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -15,13 +19,14 @@ namespace openmsx {
 
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
+	using enum ScaleAlgorithm;
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
-		{"simple",     ScaleAlgorithm::SIMPLE},
-		{"ScaleNx",    ScaleAlgorithm::SCALE},
-		{"hq",         ScaleAlgorithm::HQ},
-		{"hqlite",     ScaleAlgorithm::HQLITE},
-		{"RGBtriplet", ScaleAlgorithm::RGBTRIPLET},
-		{"TV",         ScaleAlgorithm::TV}
+		{"simple",     SIMPLE},
+		{"ScaleNx",    SCALE},
+		{"hq",         HQ},
+		{"hqlite",     HQLITE},
+		{"RGBtriplet", RGBTRIPLET},
+		{"TV",         TV}
 	};
 	return scalerMap;
 }

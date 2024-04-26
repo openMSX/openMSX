@@ -280,29 +280,30 @@ TEST_CASE("StringOp")
 		checkSplitOnLast("foo-bar-", "foo-bar", "");
 	}
 	SECTION("split") {
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "", {});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "-", {""});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-", {"foo"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "-foo", {"", "foo"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar-qux", {"foo", "bar", "qux"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "-bar-qux", {"", "bar", "qux"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo-bar-", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "foo--bar", {"foo", "", "bar"});
-		checkSplit<StringOp::EmptyParts::KEEP>('-', "--foo--bar--", {"", "", "foo", "", "bar", ""});
-		checkSplit<StringOp::EmptyParts::KEEP>(" \t", "foo\t\t  bar", {"foo", "", "", "", "bar"});
+		using enum StringOp::EmptyParts;
+		checkSplit<KEEP>('-', "", {});
+		checkSplit<KEEP>('-', "-", {""});
+		checkSplit<KEEP>('-', "foo-", {"foo"});
+		checkSplit<KEEP>('-', "-foo", {"", "foo"});
+		checkSplit<KEEP>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<KEEP>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<KEEP>('-', "-bar-qux", {"", "bar", "qux"});
+		checkSplit<KEEP>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<KEEP>('-', "foo--bar", {"foo", "", "bar"});
+		checkSplit<KEEP>('-', "--foo--bar--", {"", "", "foo", "", "bar", ""});
+		checkSplit<KEEP>(" \t", "foo\t\t  bar", {"foo", "", "", "", "bar"});
 
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "", {});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-", {});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-", {"foo"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-foo", {"foo"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar-qux", {"foo", "bar", "qux"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "-bar-qux", {"bar", "qux"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo-bar-", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "foo--bar", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::REMOVE>('-', "--foo--bar--", {"foo", "bar"});
-		checkSplit<StringOp::EmptyParts::REMOVE>(" \t", "foo\t\t  bar", {"foo", "bar"});
+		checkSplit<REMOVE>('-', "", {});
+		checkSplit<REMOVE>('-', "-", {});
+		checkSplit<REMOVE>('-', "foo-", {"foo"});
+		checkSplit<REMOVE>('-', "-foo", {"foo"});
+		checkSplit<REMOVE>('-', "foo-bar", {"foo", "bar"});
+		checkSplit<REMOVE>('-', "foo-bar-qux", {"foo", "bar", "qux"});
+		checkSplit<REMOVE>('-', "-bar-qux", {"bar", "qux"});
+		checkSplit<REMOVE>('-', "foo-bar-", {"foo", "bar"});
+		checkSplit<REMOVE>('-', "foo--bar", {"foo", "bar"});
+		checkSplit<REMOVE>('-', "--foo--bar--", {"foo", "bar"});
+		checkSplit<REMOVE>(" \t", "foo\t\t  bar", {"foo", "bar"});
 	}
 	SECTION("parseRange") {
 		checkParseRange("", {});

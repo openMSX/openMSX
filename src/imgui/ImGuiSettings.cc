@@ -135,14 +135,15 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						bool hasScanline;
 						bool hasBlur;
 					};
+					using enum RenderSettings::ScaleAlgorithm;
 					static constexpr std::array algoEnables = {
-						//                                        scanline / blur
-						AlgoEnable{RenderSettings::ScaleAlgorithm::SIMPLE,     true,  true },
-						AlgoEnable{RenderSettings::ScaleAlgorithm::SCALE,      false, false},
-						AlgoEnable{RenderSettings::ScaleAlgorithm::HQ,         false, false},
-						AlgoEnable{RenderSettings::ScaleAlgorithm::HQLITE,     false, false},
-						AlgoEnable{RenderSettings::ScaleAlgorithm::RGBTRIPLET, true,  true },
-						AlgoEnable{RenderSettings::ScaleAlgorithm::TV,         true,  false},
+						//                 scanline / blur
+						AlgoEnable{SIMPLE,     true,  true },
+						AlgoEnable{SCALE,      false, false},
+						AlgoEnable{HQ,         false, false},
+						AlgoEnable{HQLITE,     false, false},
+						AlgoEnable{RGBTRIPLET, true,  true },
+						AlgoEnable{TV,         true,  false},
 					};
 					auto it = ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
 					assert(it != algoEnables.end());
