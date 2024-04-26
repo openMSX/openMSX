@@ -865,8 +865,7 @@ ListExtCmd::ListExtCmd(MSXMotherBoard& motherBoard_)
 void ListExtCmd::execute(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(
-		view::transform(motherBoard.getExtensions(),
-		                [&](auto& e) { return e->getName(); }));
+		view::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
 }
 
 string ListExtCmd::help(std::span<const TclObject> /*tokens*/) const
@@ -1018,8 +1017,7 @@ void MachineExtensionInfo::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?extension-instance-name?");
 	if (tokens.size() == 2) {
 		result.addListElements(
-			view::transform(motherBoard.getExtensions(),
-					[&](auto& e) { return e->getName(); }));
+			view::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
 	} else if (tokens.size() == 3) {
 		std::string_view extName = tokens[2].getString();
 		HardwareConfig* extension = motherBoard.findExtension(extName);
@@ -1039,8 +1037,7 @@ void MachineExtensionInfo::execute(std::span<const TclObject> tokens,
 		}
 		TclObject deviceList;
 		deviceList.addListElements(
-			view::transform(extension->getDevices(),
-					[&](auto& e) { return e->getName(); }));
+			view::transform(extension->getDevices(), &MSXDevice::getName));
 		result.addDictKeyValue("devices", deviceList);
 	}
 }

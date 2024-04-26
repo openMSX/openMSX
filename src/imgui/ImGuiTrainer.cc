@@ -38,6 +38,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 		// Only query/sort this list once instead of on every frame.
 		// If loading fails, use an empty dict (don't keep on retying).
 		trainers = manager.execute(TclObject("trainer::load_trainers")).value_or(TclObject{});
+		// TODO use c++23 stride_view
 		gameNames = to_vector(view::transform(xrange(trainers->size() / 2), [&](auto i) {
 			return std::string(trainers->getListIndexUnchecked(2 * i).getString());
 		}));
