@@ -82,8 +82,6 @@ public:
 	// RTSchedulable
 	void executeRT() override;
 
-	bool guiActive = false;
-
 private:
 	[[nodiscard]] gl::ivec2 getWindowSize() const;
 	void updateCursor();
@@ -106,6 +104,7 @@ private:
 	SDL_GLContext glContext;
 
 	bool grab = false;
+	bool guiActive = false;
 
 	static int windowPosX;
 	static int windowPosY;

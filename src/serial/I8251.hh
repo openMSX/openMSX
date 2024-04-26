@@ -47,23 +47,6 @@ public:
 	void setParityBit(bool enable, ParityBit parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 
-	// Schedulable
-	struct SyncRecv final : Schedulable {
-		friend class I8251;
-		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
-			auto& i8251 = OUTER(I8251, syncRecv);
-			i8251.execRecv(time);
-		}
-	} syncRecv;
-	struct SyncTrans final : Schedulable {
-		friend class I8251;
-		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
-			auto& i8251 = OUTER(I8251, syncTrans);
-			i8251.execTrans(time);
-		}
-	} syncTrans;
 	void execRecv(EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
@@ -84,6 +67,24 @@ private:
 	void send(byte value, EmuTime::param time);
 
 private:
+	// Schedulable
+	struct SyncRecv final : Schedulable {
+		friend class I8251;
+		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& i8251 = OUTER(I8251, syncRecv);
+			i8251.execRecv(time);
+		}
+	} syncRecv;
+	struct SyncTrans final : Schedulable {
+		friend class I8251;
+		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& i8251 = OUTER(I8251, syncTrans);
+			i8251.execTrans(time);
+		}
+	} syncTrans;
+
 	I8251Interface& interface;
 	ClockPin clock;
 	unsigned charLength;
