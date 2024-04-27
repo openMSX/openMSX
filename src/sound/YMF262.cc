@@ -839,7 +839,7 @@ void YMF262::chan_calc_rhythm(unsigned lfo_am)
 	mod6.op1_out[0] = mod6.op1_out[1];
 	int pm = mod6.CON ? 0 : mod6.op1_out[0];
 	mod6.op1_out[1] = mod6.op_calc(mod6.Cnt.toInt() + (out >> mod6.fb_shift), lfo_am);
-	auto& car6 = channel[6].slot[CAR];
+	const auto& car6 = channel[6].slot[CAR];
 	chanOut[6] += 2 * car6.op_calc(car6.Cnt.toInt() + pm, lfo_am);
 
 	// Phase generation is based on:
@@ -855,13 +855,13 @@ void YMF262::chan_calc_rhythm(unsigned lfo_am)
 	// SD  channel 7->slot2
 	// TOM channel 8->slot1
 	// TOP channel 8->slot2
-	auto& mod7 = channel[7].slot[MOD];
+	const auto& mod7 = channel[7].slot[MOD];
 	chanOut[7] += 2 * mod7.op_calc(genPhaseHighHat(), lfo_am);
-	auto& car7 = channel[7].slot[CAR];
+	const auto& car7 = channel[7].slot[CAR];
 	chanOut[7] += 2 * car7.op_calc(genPhaseSnare(),   lfo_am);
-	auto& mod8 = channel[8].slot[MOD];
+	const auto& mod8 = channel[8].slot[MOD];
 	chanOut[8] += 2 * mod8.op_calc(mod8.Cnt.toInt(),  lfo_am);
-	auto& car8 = channel[8].slot[CAR];
+	const auto& car8 = channel[8].slot[CAR];
 	chanOut[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
 }
 
@@ -990,7 +990,7 @@ void YMF262::set_ksl_tl(unsigned sl, uint8_t v)
 
 	if (isExtended(chan_no)) {
 		// update this slot using frequency data for 1st channel of a pair
-		auto& ch0 = getFirstOfPair(chan_no);
+		const auto& ch0 = getFirstOfPair(chan_no);
 		slot.TLL = slot.TL + (ch0.ksl_base >> slot.ksl);
 	} else {
 		// normal
@@ -1709,7 +1709,7 @@ YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 
 uint8_t YMF262::Debuggable::read(unsigned address)
 {
-	auto& ymf262 = OUTER(YMF262, debuggable);
+	const auto& ymf262 = OUTER(YMF262, debuggable);
 	return ymf262.peekReg(address);
 }
 

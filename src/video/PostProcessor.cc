@@ -272,7 +272,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	}
 	renderedFrame.fbo.push();
 
-	for (auto& r : regions) {
+	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
 		auto* superImpose = superImposeVideoFrame
 		                  ? &superImposeTex : nullptr;
@@ -301,7 +301,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 			vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 		};
 
-		auto& glContext = *gl::context;
+		const auto& glContext = *gl::context;
 		glContext.progTex.activate();
 		glUniform4f(glContext.unifTexColor,
 				1.0f, 1.0f, 1.0f, 1.0f);
@@ -450,8 +450,8 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 void PostProcessor::update(const Setting& setting) noexcept
 {
 	VideoLayer::update(setting);
-	auto& noiseSetting = renderSettings.getNoiseSetting();
-	auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
+	const auto& noiseSetting = renderSettings.getNoiseSetting();
+	const auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
 	if (&setting == &noiseSetting) {
 		preCalcNoise(noiseSetting.getFloat());
 	} else if (&setting == &horizontalStretch) {
@@ -464,7 +464,7 @@ void PostProcessor::uploadFrame()
 	createRegions();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	for (auto& r : regions) {
+	for (const auto& r : regions) {
 		// upload data
 		// TODO get before/after data from scaler
 		int before = 1;
@@ -557,7 +557,7 @@ void PostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	auto& glContext = *gl::context;
+	const auto& glContext = *gl::context;
 	glContext.progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -657,7 +657,7 @@ void PostProcessor::drawNoise() const
 		noise + vec2(0.0f, 0.0f  ),
 	};
 
-	auto& glContext = *gl::context;
+	const auto& glContext = *gl::context;
 	glContext.progTex.activate();
 
 	glEnable(GL_BLEND);

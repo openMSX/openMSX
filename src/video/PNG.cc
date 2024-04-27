@@ -278,7 +278,7 @@ static void IMG_SavePNG_RW(size_t width, std::span<const void*> rowPointers,
 		// some extra buffer space.
 		static constexpr size_t size = (10 + 1 + 8 + 1) + 44;
 		time_t now = time(nullptr);
-		struct tm* tm = localtime(&now);
+		const struct tm* tm = localtime(&now);
 		std::array<char, size> timeStr;
 		snprintf(timeStr.data(), sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",
 		         1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,

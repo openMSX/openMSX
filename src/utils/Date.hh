@@ -1,10 +1,10 @@
 #ifndef DATE_HH
 #define DATE_HH
 
+#include <ctime>
 #include <limits>
 #include <span>
 #include <string>
-#include <ctime>
 
 namespace openmsx::Date {
 

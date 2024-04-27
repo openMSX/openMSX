@@ -1,4 +1,5 @@
 #include "Date.hh"
+
 #include <array>
 #include <concepts>
 #include <iomanip>
@@ -152,7 +153,7 @@ time_t fromString(std::span<const char, 24> s)
 std::string toString(time_t time)
 {
 	if (time < 0) time = 0;
-	struct tm* tm = localtime(&time);
+	const struct tm* tm = localtime(&time);
 	std::ostringstream sstr;
 	sstr << std::setfill('0')
 	     << days  [tm->tm_wday] << ' '

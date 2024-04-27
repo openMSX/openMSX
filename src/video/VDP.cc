@@ -1596,7 +1596,7 @@ VDP::RegDebug::RegDebug(const VDP& vdp_)
 
 byte VDP::RegDebug::read(unsigned address)
 {
-	auto& vdp = OUTER(VDP, vdpRegDebug);
+	const auto& vdp = OUTER(VDP, vdpRegDebug);
 	return vdp.peekRegister(address);
 }
 
@@ -1622,7 +1622,7 @@ VDP::StatusRegDebug::StatusRegDebug(const VDP& vdp_)
 
 byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 {
-	auto& vdp = OUTER(VDP, vdpStatusRegDebug);
+	const auto& vdp = OUTER(VDP, vdpStatusRegDebug);
 	return vdp.peekStatusReg(narrow<byte>(address), time);
 }
 
@@ -1637,7 +1637,7 @@ VDP::PaletteDebug::PaletteDebug(const VDP& vdp_)
 
 byte VDP::PaletteDebug::read(unsigned address)
 {
-	auto& vdp = OUTER(VDP, vdpPaletteDebug);
+	const auto& vdp = OUTER(VDP, vdpPaletteDebug);
 	word grb = vdp.getPalette(address / 2);
 	return (address & 1) ? narrow_cast<byte>(grb >> 8)
 	                     : narrow_cast<byte>(grb & 0xff);
@@ -1671,7 +1671,7 @@ VDP::VRAMPointerDebug::VRAMPointerDebug(const VDP& vdp_)
 
 byte VDP::VRAMPointerDebug::read(unsigned address)
 {
-	auto& vdp = OUTER(VDP, vramPointerDebug);
+	const auto& vdp = OUTER(VDP, vramPointerDebug);
 	if (address & 1) {
 		return narrow_cast<byte>(vdp.vramPointer >> 8);  // TODO add read/write mode?
 	} else {
@@ -1700,7 +1700,7 @@ VDP::RegisterLatchStatusDebug::RegisterLatchStatusDebug(const VDP &vdp_)
 
 byte VDP::RegisterLatchStatusDebug::read(unsigned /*address*/)
 {
-	auto& vdp = OUTER(VDP, registerLatchStatusDebug);
+	const auto& vdp = OUTER(VDP, registerLatchStatusDebug);
 	return byte(vdp.registerDataStored);
 }
 
@@ -1715,7 +1715,7 @@ VDP::VramAccessStatusDebug::VramAccessStatusDebug(const VDP &vdp_)
 
 byte VDP::VramAccessStatusDebug::read(unsigned /*address*/)
 {
-	auto& vdp = OUTER(VDP, vramAccessStatusDebug);
+	const auto& vdp = OUTER(VDP, vramAccessStatusDebug);
 	return byte(vdp.writeAccess);
 }
 
@@ -1729,7 +1729,7 @@ VDP::PaletteLatchStatusDebug::PaletteLatchStatusDebug(const VDP &vdp_)
 
 byte VDP::PaletteLatchStatusDebug::read(unsigned /*address*/)
 {
-	auto& vdp = OUTER(VDP, paletteLatchStatusDebug);
+	const auto& vdp = OUTER(VDP, paletteLatchStatusDebug);
 	return byte(vdp.paletteDataStored);
 }
 
@@ -1743,7 +1743,7 @@ VDP::DataLatchDebug::DataLatchDebug(const VDP &vdp_)
 
 byte VDP::DataLatchDebug::read(unsigned /*address*/)
 {
-	auto& vdp = OUTER(VDP, dataLatchDebug);
+	const auto& vdp = OUTER(VDP, dataLatchDebug);
 	return vdp.dataLatch;
 }
 

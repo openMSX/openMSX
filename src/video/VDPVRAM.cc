@@ -43,7 +43,7 @@ VDPVRAM::LogicalVRAMDebuggable::LogicalVRAMDebuggable(const VDP& vdp_)
 
 unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 {
-	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
+	const auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
 	return vram.vdp.getDisplayMode().isPlanar()
 	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
 	     : address;

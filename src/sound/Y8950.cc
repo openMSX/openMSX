@@ -1352,7 +1352,7 @@ Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 
 uint8_t Y8950::Debuggable::read(unsigned address, EmuTime::param time)
 {
-	auto& y8950 = OUTER(Y8950, debuggable);
+	const auto& y8950 = OUTER(Y8950, debuggable);
 	return y8950.peekReg(narrow<uint8_t>(address), time);
 }
 

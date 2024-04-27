@@ -1,12 +1,15 @@
 #include "GLHQScaler.hh"
+
+#include "File.hh"
+#include "FileContext.hh"
+#include "FrameSource.hh"
 #include "GLUtil.hh"
 #include "HQCommon.hh"
-#include "FrameSource.hh"
-#include "FileContext.hh"
-#include "File.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "vla.hh"
+
 #include <array>
 #include <cstring>
 #include <utility>
@@ -17,7 +20,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	: GLScaler("hq")
 	, fallback(fallback_)
 {
-	for (auto& p : program) {
+	for (const auto& p : program) {
 		p.activate();
 		glUniform1i(p.getUniformLocation("edgeTex"),   2);
 		glUniform1i(p.getUniformLocation("offsetTex"), 3);

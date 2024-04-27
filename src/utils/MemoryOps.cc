@@ -48,7 +48,7 @@ static inline void memset_64_SSE(
 	}
 
 	__m128i val128 = _mm_set1_epi64x(narrow_cast<int64_t>(val64));
-	uint64_t* e = out + num64 - 3;
+	const uint64_t* e = out + num64 - 3;
 	for (/**/; out < e; out += 4) {
 		_mm_store_si128(std::bit_cast<__m128i*>(out + 0), val128);
 		_mm_store_si128(std::bit_cast<__m128i*>(out + 2), val128);
@@ -72,7 +72,7 @@ static inline void memset_64(
 	memset_64_SSE(out, num64, val64);
 	return;
 #endif
-	uint64_t* e = out + num64 - 3;
+	const uint64_t* e = out + num64 - 3;
 	for (/**/; out < e; out += 4) {
 		out[0] = val64;
 		out[1] = val64;

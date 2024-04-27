@@ -62,7 +62,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 		offset + vec2(0.0f, 0.0f),
 	};
 
-	auto& glContext = *gl::context;
+	const auto& glContext = *gl::context;
 	glContext.progTex.activate();
 	glUniform4f(glContext.unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;

@@ -3,6 +3,7 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+
 #include <array>
 #include <cstdint>
 

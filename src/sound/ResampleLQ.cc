@@ -121,7 +121,7 @@ bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	// this is currently only used to upsample cassette player sound,
 	// sound quality is not so important here, so use 0-th order
 	// interpolation (instead of 1st-order).
-	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
+	const auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert(p < valid);
@@ -157,7 +157,7 @@ bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;
 
-	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
+	const auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	for (auto i : xrange(hostNum)) {
 		unsigned p = pos.toInt();
 		assert((p + 1) < valid);

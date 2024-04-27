@@ -832,10 +832,10 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	case 2:
 		result.addListElements(view::transform(
 			msxMixer.infos,
-			[](auto& info) { return info.device->getName(); }));
+			[](const auto& info) { return info.device->getName(); }));
 		break;
 	case 3: {
-		SoundDevice* device = msxMixer.findDevice(tokens[2].getString());
+		const auto* device = msxMixer.findDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

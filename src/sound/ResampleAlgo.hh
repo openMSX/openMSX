@@ -16,7 +16,7 @@ public:
 	bool generateOutput(float* dataOut, size_t num, EmuTime::param time)
 	{
 		bool result = generateOutputImpl(dataOut, num, time);
-		auto& emuClk = getEmuClock(); (void)emuClk;
+		const auto& emuClk = getEmuClock(); (void)emuClk;
 		assert(emuClk.getTime() <= time);
 		assert(emuClk.getFastAdd(1) > time);
 		return result;

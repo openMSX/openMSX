@@ -281,7 +281,7 @@ int VisibleSurface::signalEvent(const Event& event)
 void VisibleSurface::updateCursor()
 {
 	cancelRT();
-	auto& renderSettings = display.getRenderSettings();
+	const auto& renderSettings = display.getRenderSettings();
 	grab = !guiActive &&
 	       (renderSettings.getFullScreen() ||
 	        inputEventGenerator.getGrabInput().getBoolean());
@@ -324,7 +324,7 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 
 gl::ivec2 VisibleSurface::getWindowSize() const
 {
-	auto& renderSettings = display.getRenderSettings();
+	const auto& renderSettings = display.getRenderSettings();
 	int factor = renderSettings.getScaleFactor();
 	return {320 * factor, 240 * factor};
 }
@@ -394,8 +394,8 @@ std::unique_ptr<OutputSurface> VisibleSurface::createOffScreenSurface()
 
 void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 {
-	auto& visSurface = OUTER(VisibleSurface, vSyncObserver);
-	auto& syncSetting = visSurface.getDisplay().getRenderSettings().getVSyncSetting();
+	const auto& visSurface = OUTER(VisibleSurface, vSyncObserver);
+	const auto& syncSetting = visSurface.getDisplay().getRenderSettings().getVSyncSetting();
 	assert(&setting == &syncSetting); (void)setting;
 
 	// for now, we assume that adaptive vsync is the best kind of vsync, so when

@@ -24,7 +24,7 @@ YM2413::Debuggable::Debuggable(
 
 byte YM2413::Debuggable::read(unsigned address)
 {
-	auto& ym2413 = OUTER(YM2413, debuggable);
+	const auto& ym2413 = OUTER(YM2413, debuggable);
 	return ym2413.core->peekReg(narrow<uint8_t>(address));
 }
 

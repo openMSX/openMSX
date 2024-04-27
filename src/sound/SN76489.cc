@@ -1,14 +1,17 @@
 #include "SN76489.hh"
+
 #include "DeviceConfig.hh"
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -149,7 +152,7 @@ void SN76489::write(byte value, EmuTime::param time)
 	if (value & 0x80) {
 		registerLatch = (value & 0x70) >> 4;
 	}
-	auto& reg = regs[registerLatch];
+	const auto& reg = regs[registerLatch];
 
 	auto data = [&]() -> word {
 		switch (registerLatch) {
@@ -354,7 +357,7 @@ byte SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto [reg, hi] = SN76489_DEBUG_MAP[address];
 
-	auto& sn76489 = OUTER(SN76489, debuggable);
+	const auto& sn76489 = OUTER(SN76489, debuggable);
 	word data = sn76489.peekRegister(reg, time);
 	return hi ? narrow_cast<byte>(data >> 4)
 	          : narrow_cast<byte>(data & 0xF);

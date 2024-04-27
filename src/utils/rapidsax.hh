@@ -438,7 +438,7 @@ private:
 	void parseComment(char*& text)
 	{
 		// Skip until end of comment
-		char* value = text; // remember value start
+		const char* value = text; // remember value start
 		while (!next<"-->">(text)) {
 			if (text[0] == 0) {
 				throw ParseError("unexpected end of data", text);
@@ -454,7 +454,7 @@ private:
 
 	void parseDoctype(char*& text)
 	{
-		char* value = text; // remember value start
+		const char* value = text; // remember value start
 
 		// skip to >
 		while (*text != '>') {
@@ -495,7 +495,7 @@ private:
 	void parsePI(char*& text)
 	{
 		// Extract PI target name
-		char* name = text;
+		const char* name = text;
 		skip<NodeNamePred>(text);
 		char* nameEnd = text;
 		if (name == nameEnd) {
@@ -506,7 +506,7 @@ private:
 		skip<WhitespacePred>(text);
 
 		// Skip to '?>'
-		char* value = text; // Remember start of pi
+		const char* value = text; // Remember start of pi
 		while (!next<"?>">(text)) {
 			if (*text == 0) {
 				throw ParseError("unexpected end of data", text);
@@ -530,7 +530,7 @@ private:
 			text = contentsStart;
 		}
 		// Skip until end of data
-		char* value = text;
+		const char* value = text;
 		char* end = (FLAGS & normalizeWhitespace)
 			? skipAndExpand<TextPred, TextPureWithWsPred, FLAGS>(text)
 			: skipAndExpand<TextPred, TextPureNoWsPred  , FLAGS>(text);
@@ -573,7 +573,7 @@ private:
 	void parseCdata(char*& text)
 	{
 		// Skip until end of cdata
-		char* value = text;
+		const char* value = text;
 		while (!next<"]]>">(text)) {
 			if (text[0] == 0) {
 				throw ParseError("unexpected end of data", text);
@@ -590,7 +590,7 @@ private:
 	void parseElement(char*& text)
 	{
 		// Extract element name
-		char* name = text;
+		const char* name = text;
 		skip<NodeNamePred>(text);
 		char* nameEnd = text;
 		if (name == nameEnd) {
@@ -762,7 +762,7 @@ afterText:		// After parseText() jump here instead of continuing
 			// Extract attribute value and expand char refs in it
 			// No whitespace normalization in attributes
 			constexpr int FLAGS2 = FLAGS & ~normalizeWhitespace;
-			char* value = text;
+			const char* value = text;
 			char* valueEnd = (quote == '\'')
 				? skipAndExpand<AttPred1, AttPurePred1, FLAGS2>(text)
 				: skipAndExpand<AttPred2, AttPurePred2, FLAGS2>(text);

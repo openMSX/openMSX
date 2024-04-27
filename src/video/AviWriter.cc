@@ -193,7 +193,7 @@ AviWriter::~AviWriter()
 	constexpr size_t size = (4 + 1 + 2 + 1 + 2 + 1) + 22;
 	std::array<char, size> dateStr;
 	time_t t = time(nullptr);
-	struct tm *tm = localtime(&t);
+	const struct tm* tm = localtime(&t);
 	size_t dateLen = snprintf(dateStr.data(), sizeof(dateStr), "%04d-%02d-%02d", 1900 + tm->tm_year,
 		                  tm->tm_mon + 1, tm->tm_mday);
 	assert(dateLen < size);

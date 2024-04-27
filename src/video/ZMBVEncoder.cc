@@ -182,8 +182,8 @@ unsigned ZMBVEncoder::neededSize() const
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
+	const auto* pOld = &(std::bit_cast<const Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	const auto* pNew = &(std::bit_cast<const Pixel*>(newFrame.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -197,8 +197,8 @@ unsigned ZMBVEncoder::possibleBlock(int vx, int vy, size_t offset)
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, size_t offset)
 {
 	int ret = 0;
-	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
+	const auto* pOld = &(std::bit_cast<const Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	const auto* pNew = &(std::bit_cast<const Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			if (pOld[x] != pNew[x]) ++ret;
@@ -213,8 +213,8 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, size_t offset, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<Pixel>::type;
 
-	auto* pOld = &(std::bit_cast<Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
-	auto* pNew = &(std::bit_cast<Pixel*>(newFrame.data()))[offset];
+	const auto* pOld = &(std::bit_cast<const Pixel*>(oldFrame.data()))[offset + (vy * pitch) + vx];
+	const auto* pNew = &(std::bit_cast<const Pixel*>(newFrame.data()))[offset];
 	repeat(BLOCK_HEIGHT, [&] {
 		for (auto x : xrange(BLOCK_WIDTH)) {
 			auto pXor = pNew[x] ^ pOld[x];
@@ -276,7 +276,7 @@ void ZMBVEncoder::addFullFrame(unsigned& workUsed)
 	auto* readFrame =
 		&newFrame[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	repeat(height, [&] {
-		auto* pixelsIn  = std::bit_cast<Pixel*>(readFrame);
+		const auto* pixelsIn = std::bit_cast<const Pixel*>(readFrame);
 		auto* pixelsOut = std::bit_cast<LE_P*>(&work[workUsed]);
 		for (auto x : xrange(width)) {
 			writePixel(pixelsIn[x], pixelsOut[x]);

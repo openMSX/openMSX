@@ -507,7 +507,7 @@ SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& nam
 
 uint8_t SCC::Debuggable::read(unsigned address, EmuTime::param time)
 {
-	auto& scc = OUTER(SCC, debuggable);
+	const auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
 		// read wave form 1..5
 		return scc.readWave(address >> 5, address, time);

@@ -1133,7 +1133,7 @@ YMF278::DebugRegisters::DebugRegisters(MSXMotherBoard& motherBoard_,
 
 uint8_t YMF278::DebugRegisters::read(unsigned address)
 {
-	auto& ymf278 = OUTER(YMF278, debugRegisters);
+	const auto& ymf278 = OUTER(YMF278, debugRegisters);
 	return ymf278.peekReg(narrow<uint8_t>(address));
 }
 
@@ -1155,7 +1155,7 @@ YMF278::DebugMemory::DebugMemory(MSXMotherBoard& motherBoard_,
 
 uint8_t YMF278::DebugMemory::read(unsigned address)
 {
-	auto& ymf278 = OUTER(YMF278, debugMemory);
+	const auto& ymf278 = OUTER(YMF278, debugMemory);
 	return ymf278.readMem(address);
 }
 

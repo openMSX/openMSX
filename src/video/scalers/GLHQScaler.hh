@@ -2,6 +2,7 @@
 #define GLHQSCALER_HH
 
 #include "GLScaler.hh"
+
 #include <array>
 #include <cstdint>
 
