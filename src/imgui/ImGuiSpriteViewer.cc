@@ -35,14 +35,6 @@ void ImGuiSpriteViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static uint8_t vpeek(std::span<const uint8_t> vram, bool planar, size_t addr)
-{
-	if (planar) {
-		addr = ((addr << 16) | (addr >> 1)) & 0x1'FFFF;
-	}
-	return (addr < vram.size()) ? vram[addr] : 0xFF;
-}
-
 static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uint32_t, 8> out)
 {
 	out[0] = (pattern & 0x80) ? fgCol : bgCol;
@@ -55,16 +47,16 @@ static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uin
 	out[7] = (pattern & 0x01) ? fgCol : bgCol;
 }
 
-static void renderPatterns8(std::span<const uint8_t> vram, bool planar, int patBase, std::span<uint32_t> output)
+static void renderPatterns8(const VramTable& pat, std::span<uint32_t> output)
 {
 	auto zero = getColor(imColor::TRANSPARENT);
 	auto one  = getColor(imColor::TEXT);
 	for (auto row : xrange(8)) {
 		for (auto column : xrange(32)) {
 			auto patNum = 32 * row + column;
-			auto addr = patBase + 8 * patNum;
+			auto offset = 8 * patNum;
 			for (auto y : xrange(8)) {
-				auto pattern = vpeek(vram, planar, addr + y);
+				auto pattern = pat[offset + y];
 				auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
 				draw8(pattern, one, zero, out);
 			}
@@ -72,17 +64,17 @@ static void renderPatterns8(std::span<const uint8_t> vram, bool planar, int patB
 	}
 }
 
-static void renderPatterns16(std::span<const uint8_t> vram, bool planar, int patBase, std::span<uint32_t> output)
+static void renderPatterns16(const VramTable& pat, std::span<uint32_t> output)
 {
 	auto zero = getColor(imColor::TRANSPARENT);
 	auto one  = getColor(imColor::TEXT);
 	for (auto row : xrange(4)) {
 		for (auto column : xrange(16)) {
 			auto patNum = 4 * (16 * row + column);
-			auto addr = patBase + 8 * patNum;
+			auto offset = 8 * patNum;
 			for (auto y : xrange(16)) {
-				auto patternA = vpeek(vram, planar, addr + y +  0);
-				auto patternB = vpeek(vram, planar, addr + y + 16);
+				auto patternA = pat[offset + y +  0];
+				auto patternB = pat[offset + y + 16];
 				auto outA = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  0);
 				auto outB = subspan<8>(output, (16 * row + y) * 256 + 16 * column +  8);
 				draw8(patternA, one, zero, outA);
@@ -92,21 +84,21 @@ static void renderPatterns16(std::span<const uint8_t> vram, bool planar, int pat
 	}
 }
 
-static int getSpriteAttrAddr(int base, int sprite, int mode)
+[[nodiscard]] static int getSpriteAttrAddr(int sprite, int mode)
 {
-	return base + (mode == 2 ? 512 : 0) + 4 * sprite;
+	return (mode == 2 ? 512 : 0) + 4 * sprite;
 }
-static int getSpriteColorAddr(int base, int sprite, int mode)
+[[nodiscard]] static int getSpriteColorAddr(int sprite, int mode)
 {
 	assert(mode == 2); (void)mode;
-	return base + 16 * sprite;
+	return 16 * sprite;
 }
 
-static void renderSpriteAttrib(std::span<const uint8_t> vram, bool planar, int attBase, int sprite, int mode, int size, int transparent,
+static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int size, int transparent,
                                float zoom, std::span<uint32_t, 16> palette, void* patternTex)
 {
-	int addr = getSpriteAttrAddr(attBase, sprite, mode);
-	int pattern = vpeek(vram, planar, addr + 2);
+	int addr = getSpriteAttrAddr(sprite, mode);
+	int pattern = att[addr + 2];
 	if (size == 16) pattern /= 4;
 
 	int patternsPerRow = 256 / size;
@@ -122,15 +114,15 @@ static void renderSpriteAttrib(std::span<const uint8_t> vram, bool planar, int a
 	};
 
 	if (mode == 1) {
-		auto attrib = vpeek(vram, planar, addr + 3);
+		auto attrib = att[addr + 3];
 		auto color = attrib & 0x0f;
 		float v2 = float(size * (rr + 1)) * (1.0f / 64.0f);
 		ImGui::Image(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2}, getColor(color));
 	} else {
-		int colorBase = getSpriteColorAddr(attBase, sprite, mode);
+		int colorBase = getSpriteColorAddr(sprite, mode);
 		gl::vec2 pos = ImGui::GetCursorPos();
 		for (auto y : xrange(size)) {
-			auto attrib = vpeek(vram, planar, colorBase + y);
+			auto attrib = att[colorBase + y];
 			auto color = attrib & 0x0f;
 			ImGui::SetCursorPos({pos.x, pos.y + zoom * float(y)});
 			float v2 = v1 + (1.0f / 64.0f);
@@ -281,9 +273,16 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		                                        256)
 		                   : vdpLines;
 		int transparent  = manual ? manualTransparent  : vdpTransparent;
-		int patBase = manual ? manualPatBase : vdpPatBase;
-		int attBase = manual ? manualAttBase : vdpAttBase;
-		assert((attBase % attMult(mode)) == 0);
+
+		VramTable patTable(vram, planar);
+		unsigned patReg = (manual ? manualPatBase : vdp->getSpritePatternTableBase()) >> 11;
+		patTable.setRegister(patReg, 11);
+		patTable.setIndexSize(11);
+
+		VramTable attTable(vram, planar);
+		unsigned attReg = (manual ? manualAttBase : vdp->getSpriteAttributeTableBase()) >> 7;
+		attTable.setRegister(attReg, 7);
+		attTable.setIndexSize((mode == 2) ? 10 : 7);
 
 		// create pattern texture
 		if (!patternTex.get()) {
@@ -293,9 +292,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		std::array<uint32_t, 256 * 64> pixels;
 		if (mode != 0) {
 			if (size == 8) {
-				renderPatterns8 (vram, planar, patBase, pixels);
+				renderPatterns8 (patTable, pixels);
 			} else {
-				renderPatterns16(vram, planar, patBase, pixels);
+				renderPatterns16(patTable, pixels);
 			}
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 64, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -406,7 +405,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						for (auto column : xrange(8)) {
 							int sprite = 8 * row + column;
 							ImGui::SetCursorPos(topLeft + zoomSize * gl::vec2(float(column), float(row)));
-							renderSpriteAttrib(vram, planar, attBase, sprite, mode, size, transparent,
+							renderSpriteAttrib(attTable, sprite, mode, size, transparent,
 							                   float(zm), palette, patternTex.getImGui());
 						}
 					}
@@ -432,26 +431,26 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 									{}, zoomPatSize / (4.0f * float(checkerBoardSize)));
 							}
 							ImGui::SetCursorPos(pos);
-							renderSpriteAttrib(vram, planar, attBase, sprite, mode, size, transparent,
+							renderSpriteAttrib(attTable, sprite, mode, size, transparent,
 							                   float(3 * zm), palette, patternTex.getImGui());
 						});
 						ImGui::SameLine();
 						im::Group([&]{
-							int addr = getSpriteAttrAddr(attBase, sprite, mode);
-							ImGui::StrCat("x: ", vpeek(vram, planar, addr + 1),
-							              "  y: ", vpeek(vram, planar, addr + 0));
-							ImGui::StrCat("pattern: ", vpeek(vram, planar, addr + 2));
+							int addr = getSpriteAttrAddr(sprite, mode);
+							ImGui::StrCat("x: ", attTable[addr + 1],
+							              "  y: ", attTable[addr + 0]);
+							ImGui::StrCat("pattern: ", attTable[addr + 2]);
 							if (mode == 1) {
-								auto c = vpeek(vram, planar, addr + 3);
+								auto c = attTable[addr + 3];
 								ImGui::StrCat("color: ", c & 15, (c & 80 ? " (EC)" : ""));
 							} else {
-								int colorBase = getSpriteColorAddr(attBase, sprite, mode);
+								int colorBase = getSpriteColorAddr(sprite, mode);
 								im::StyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1), [&]{ // Tighten spacing
 									ImGui::TextUnformatted("Colors per line (hex):"sv);
 									for (auto y : xrange(4)) {
 										for (auto x : xrange(4)) {
 											auto line = 4 * y + x;
-											auto a = vpeek(vram, planar, colorBase + line);
+											auto a = attTable[colorBase + line];
 											ImGui::StrCat(hex_string<1>(line), ": ",
 											              hex_string<1>(a & 15),
 											              (a & 0xe0 ? '*' : ' '),
@@ -487,23 +486,23 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 			uint8_t spriteCnt = 0;
 			for (/**/; spriteCnt < 32; ++spriteCnt) {
-				int addr = getSpriteAttrAddr(attBase, spriteCnt, mode);
-				uint8_t originalY = vpeek(vram, planar, addr + 0);
+				int addr = getSpriteAttrAddr(spriteCnt, mode);
+				uint8_t originalY = attTable[addr + 0];
 				if (enableStopY && (originalY == stopY)) break;
 				auto y = uint8_t(originalY + 1 - verticalScroll);
 				int initialY = y;
 
-				uint8_t x    = vpeek(vram, planar, addr + 1);
-				uint8_t pat  = vpeek(vram, planar, addr + 2) & patMask;
-				uint8_t att1 = vpeek(vram, planar, addr + 3); // only mode 1
+				uint8_t x    = attTable[addr + 1];
+				uint8_t pat  = attTable[addr + 2] & patMask;
+				uint8_t att1 = attTable[addr + 3]; // only mode 1
 
 				bool anyEC = false;
 				bool anyNonEC = false;
 				for (int spriteY : xrange(size)) { // each line in the sprite
 					auto attr = [&]{
 						if (mode != 2) return att1;
-						int colorBase = getSpriteColorAddr(attBase, spriteCnt, mode);
-						return vpeek(vram, planar, colorBase + spriteY);
+						int colorBase = getSpriteColorAddr(spriteCnt, mode);
+						return attTable[colorBase + spriteY];
 					}();
 
 					bool EC = attr & 0x80;
@@ -511,10 +510,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					int xx = EC ? x - 32 : x;
 
 					auto pattern = [&]{
-						uint8_t p0 = vpeek(vram, planar, patBase + 8 * pat + spriteY);
+						uint8_t p0 = patTable[8 * pat + spriteY +  0];
 						SpriteChecker::SpritePattern result = p0 << 24;
 						if (size == 8) return result;
-						uint8_t p1 = vpeek(vram, planar, patBase + 8 * pat + spriteY + 16);
+						uint8_t p1 = patTable[8 * pat + spriteY + 16];
 						return result | (p1 << 16);
 					}();
 					if (mag) pattern = SpriteChecker::doublePattern(pattern);

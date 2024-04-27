@@ -247,6 +247,34 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 std::string getKeyChordName(ImGuiKeyChord keyChord);
 std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
 
+// Read from VRAM-table, including mirroring behavior
+//  shared between ImGuiCharacter, ImGuiSpriteViewer
+class VramTable {
+public:
+	VramTable(std::span<const uint8_t> vram_, bool planar_ = false)
+		: vram(vram_), planar(planar_) {}
+
+	void setRegister(unsigned value, unsigned extraLsbBits) {
+		registerMask = (value << extraLsbBits) | ~(~0u << extraLsbBits);
+	}
+	void setIndexSize(unsigned bits) {
+		indexMask = ~0u << bits;
+	}
+
+	[[nodiscard]] uint8_t operator[](unsigned index) const {
+		auto addr = registerMask & (indexMask | index);
+		if (planar) {
+			addr = ((addr << 16) | (addr >> 1)) & 0x1'FFFF;
+		}
+		return vram[addr];
+	}
+private:
+	std::span<const uint8_t> vram;
+	unsigned registerMask = 0;
+	unsigned indexMask = 0;
+	bool planar = false;
+};
+
 enum class imColor : unsigned {
 	TRANSPARENT,
 	BLACK,

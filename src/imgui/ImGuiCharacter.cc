@@ -193,15 +193,21 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		int mode = manual ? manualMode : vdpMode;
 		if (mode == SCR4) mode = SCR2;
 
-		int patBase = manual ? manualPatBase : vdpPatBase;
-		int colBase = manual ? manualColBase : vdpColBase;
-		int namBase = manual ? manualNamBase : vdpNamBase;
 		int lines = manual ? manualLines : vdpLines;
 		int color0 = manual ? manualColor0 : vdpColor0;
 
-		assert((patBase % patMult(mode)) == 0);
-		assert((colBase % colMult(mode)) == 0);
-		assert((namBase % namMult(mode)) == 0);
+		VramTable patTable(vram);
+		unsigned patReg = (manual ? manualPatBase : vdp->getPatternTableBase()) >> 11;
+		patTable.setRegister(patReg, 11);
+
+		VramTable colTable(vram);
+		unsigned colReg = (manual ? manualColBase : vdp->getColorTableBase()) >> 6;
+		colTable.setRegister(colReg, 6);
+
+		VramTable namTable(vram);
+		unsigned namReg = (manual ? manualNamBase : vdp->getNameTableBase()) >> 10;
+		namTable.setRegister(namReg, 10);
+		namTable.setIndexSize((mode == TEXT80) ? 12 : 10);
 
 		std::array<uint32_t, 16> palette;
 		auto msxPalette = manager.palette->getPalette(vdp);
@@ -244,7 +250,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return {256,  64}; // SCR1, OTHER
 		}();
 		std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
-		renderPatterns(mode, vram, palette, fgCol, bgCol, fgBlink, bgBlink, patBase, colBase, lines, pixels);
+		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable, lines, pixels);
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}
@@ -330,14 +336,14 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				auto getPattern = [&](unsigned column, unsigned row) {
 					auto block = [&]() -> unsigned {
 						if (mode == TEXT80 && blink) {
-							auto colPat = vram[colBase + 10 * row + (column / 8)];
+							auto colPat = colTable[10 * row + (column / 8)];
 							return (colPat & (0x80 >> (column % 8))) ? 1 : 0;
 						}
 						if (mode == SCR2) return row / 8;
 						if (mode == SCR3) return row % 4;
 						return 0;
 					}();
-					return vram[namBase + columns * row + column] + 256 * block;
+					return namTable[columns * row + column] + 256 * block;
 				};
 				auto getPatternUV = [&](unsigned pattern) -> std::pair<gl::vec2, gl::vec2> {
 					auto patRow = pattern / 32;
@@ -442,13 +448,15 @@ static void draw8(uint8_t pattern, uint32_t fgCol, uint32_t bgCol, std::span<uin
 	out[7] = (pattern & 0x01) ? fgCol : bgCol;
 }
 
-void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std::span<const uint32_t, 16> palette,
+void ImGuiCharacter::renderPatterns(int mode, std::span<const uint32_t, 16> palette,
                                     int fgCol, int bgCol, int fgBlink, int bgBlink,
-                                    int patBase, int colBase, int lines, std::span<uint32_t> output)
+                                    VramTable& pat, VramTable& col, int lines, std::span<uint32_t> output)
 {
 	switch (mode) {
 	case TEXT40:
 	case TEXT80: {
+		pat.setIndexSize(11);
+		col.setIndexSize(9); // only matters for TEXT80
 		auto fg = palette[fgCol];
 		auto bg = palette[bgCol];
 		auto fgB = palette[fgBlink];
@@ -456,9 +464,9 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		for (auto row : xrange(8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
-				auto addr = patBase + 8 * patNum;
+				auto offset = 8 * patNum;
 				for (auto y : xrange(8)) {
-					auto pattern = vram[addr + y];
+					auto pattern = pat[offset + y];
 					auto out = subspan<6>(output, (8 * row + y) * 192 + 6 * column);
 					draw6(pattern, fg, bg, out);
 					if (mode == TEXT80) {
@@ -471,17 +479,19 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		break;
 	}
 	case SCR1:
+		pat.setIndexSize(11);
+		col.setIndexSize(6);
 		for (auto row : xrange(8)) {
 			for (auto group : xrange(4)) { // 32 columns, split in 4 groups of 8
-				auto color = vram[colBase + 4 * row + group];
+				auto color = col[4 * row + group];
 				auto fg = palette[color >> 4];
 				auto bg = palette[color & 15];
 				for (auto subColumn : xrange(8)) {
 					auto column = 8 * group + subColumn;
 					auto patNum = 32 * row + column;
-					auto addr = patBase + 8 * patNum;
+					auto offset = 8 * patNum;
 					for (auto y : xrange(8)) {
-						auto pattern = vram[addr + y];
+						auto pattern = pat[offset + y];
 						auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
 						draw8(pattern, fg, bg, out);
 					}
@@ -490,14 +500,15 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		}
 		break;
 	case SCR2:
+		pat.setIndexSize(13);
+		col.setIndexSize(13);
 		for (auto row : xrange((lines == 192 ? 3 : 4) * 8)) {
 			for (auto column : xrange(32)) {
 				auto patNum = 32 * row + column;
-				auto patAddr = patBase + 8 * patNum;
-				auto colAddr = colBase + 8 * patNum;
+				auto offset = 8 * patNum;
 				for (auto y : xrange(8)) {
-					auto pattern = vram[patAddr + y];
-					auto color   = vram[colAddr + y];
+					auto pattern = pat[offset + y];
+					auto color   = col[offset + y];
 					auto fg = palette[color >> 4];
 					auto bg = palette[color & 15];
 					auto out = subspan<8>(output, (8 * row + y) * 256 + 8 * column);
@@ -507,14 +518,16 @@ void ImGuiCharacter::renderPatterns(int mode, std::span<const uint8_t> vram, std
 		}
 		break;
 	case SCR3:
+		pat.setIndexSize(11);
+		col.setIndexSize(13); // not used?
 		for (auto group : xrange(4)) {
 			for (auto row : xrange(8)) {
 				for (auto column : xrange(32)) {
 					auto patNum = 32 * row + column;
-					auto patAddr = patBase + 8 * patNum + 2 * group;
+					auto offset = 8 * patNum + 2 * group;
 					for (auto y : xrange(2)) {
 						auto out = subspan<2>(output, (16 * group + 2 * row + y) * 64 + 2 * column);
-						auto pattern = vram[patAddr + y];
+						auto pattern = pat[offset + y];
 						out[0] = palette[pattern >> 4];
 						out[1] = palette[pattern & 15];
 					}
