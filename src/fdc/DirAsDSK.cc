@@ -1100,8 +1100,8 @@ struct IsDirSector : DirScanner {
 };
 std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 {
-	IsDirSector scanner{sector};
-	if (scanMsxDirs(scanner, firstDirSector)) {
+	if (IsDirSector scanner{sector};
+	    scanMsxDirs(scanner, firstDirSector)) {
 		return scanner.dirDirIndex;
 	}
 	return std::nullopt;
@@ -1124,8 +1124,8 @@ struct DirEntryForCluster : DirScanner {
 };
 std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
-	DirEntryForCluster scanner{cluster};
-	if (scanMsxDirs(scanner, firstDirSector)) {
+	if (DirEntryForCluster scanner{cluster};
+	    scanMsxDirs(scanner, firstDirSector)) {
 		return DirEntryForClusterResult{scanner.dirIndex, scanner.dirDirIndex};
 	}
 	return std::nullopt;
