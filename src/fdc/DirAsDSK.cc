@@ -919,9 +919,9 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
 		sectors[sector] = buf;
-	} else if (DirIndex dirDirIndex; isDirSector(sector, dirDirIndex)) {
+	} else if (auto dirDirIndex = isDirSector(sector)) {
 		// Either root- or sub-directory.
-		writeDIRSector(sector, dirDirIndex, buf);
+		writeDIRSector(sector, *dirDirIndex, buf);
 	} else {
 		writeDataSector(sector, buf);
 	}
@@ -976,9 +976,8 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer>
 
 	// Find the corresponding direntry and (if found) export file based on
 	// new cluster chain.
-	DirIndex dirIndex, dirDirIndex;
-	if (getDirEntryForCluster(startCluster, dirIndex, dirDirIndex)) {
-		exportToHost(dirIndex, dirDirIndex);
+	if (auto result = getDirEntryForCluster(startCluster)) {
+		exportToHost(result->dirIndex, result->dirDirIndex);
 	}
 }
 
@@ -1067,13 +1066,13 @@ struct NullScanner {
 	void onVisitSubDir(DirAsDSK::DirIndex /*subdir*/) const {}
 
 	// Called when a new sector of a (sub)directory is being scanned.
-	inline bool onDirSector(unsigned /*dirSector*/) const {
+	[[nodiscard]] bool onDirSector(unsigned /*dirSector*/) const {
 		return false;
 	}
 
 	// Called for each directory entry (in a sector).
-	inline bool onDirEntry(DirAsDSK::DirIndex /*dirIndex*/,
-	                       const MSXDirEntry& /*entry*/) const {
+	[[nodiscard]] bool onDirEntry(DirAsDSK::DirIndex /*dirIndex*/,
+	                              const MSXDirEntry& /*entry*/) const {
 		return false;
 	}
 };
@@ -1081,67 +1080,55 @@ struct NullScanner {
 // Base class for the IsDirSector and DirEntryForCluster scanner algorithms
 // below. This class remembers the directory entry of the last visited subdir.
 struct DirScanner : NullScanner {
-	explicit DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
-		: dirDirIndex(dirDirIndex_)
-	{
-		dirDirIndex = DirAsDSK::DirIndex(0, 0); // represents entry for root dir
-	}
-
 	// Called right before we enter a new subdirectory.
 	void onVisitSubDir(DirAsDSK::DirIndex subdir) {
 		dirDirIndex = subdir;
 	}
 
-	DirAsDSK::DirIndex& dirDirIndex;
+	DirAsDSK::DirIndex dirDirIndex{0, 0}; // entry for root dir
 };
 
 // Figure out whether a given sector is part of the msx directory structure.
 struct IsDirSector : DirScanner {
-	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex_)
-		: DirScanner(dirDirIndex_)
-		, sector(sector_) {}
+	explicit IsDirSector(unsigned sector_) : sector(sector_) {}
+
 	[[nodiscard]] bool onDirSector(unsigned dirSector) const {
 		return sector == dirSector;
 	}
-	const unsigned sector;
+
+	unsigned sector;
 };
-bool DirAsDSK::isDirSector(unsigned sector, DirIndex& dirDirIndex)
+std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 {
-	return scanMsxDirs(IsDirSector(sector, dirDirIndex), firstDirSector);
+	IsDirSector scanner{sector};
+	if (scanMsxDirs(scanner, firstDirSector)) {
+		return scanner.dirDirIndex;
+	}
+	return std::nullopt;
 }
 
 // Search for the directory entry that has the given startCluster.
 struct DirEntryForCluster : DirScanner {
-	DirEntryForCluster(unsigned cluster_,
-	                   DirAsDSK::DirIndex& dirIndex_,
-	                   DirAsDSK::DirIndex& dirDirIndex_)
-		: DirScanner(dirDirIndex_)
-		, cluster(cluster_)
-		, result(dirIndex_) {}
-	bool onDirEntry(DirAsDSK::DirIndex dirIndex, const MSXDirEntry& entry) {
+	explicit DirEntryForCluster(unsigned cluster_) : cluster(cluster_) {}
+
+	bool onDirEntry(DirAsDSK::DirIndex dirIndex_, const MSXDirEntry& entry) {
 		if (entry.startCluster == cluster) {
-			result = dirIndex;
+			dirIndex = dirIndex_;
 			return true;
 		}
 		return false;
 	}
-	const unsigned cluster;
-	DirAsDSK::DirIndex& result;
+
+	unsigned cluster;
+	DirAsDSK::DirIndex dirIndex{0, 0};
 };
-bool DirAsDSK::getDirEntryForCluster(unsigned cluster,
-                                     DirIndex& dirIndex, DirIndex& dirDirIndex)
+std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
-	return scanMsxDirs(DirEntryForCluster(cluster, dirIndex, dirDirIndex),
-	                   firstDirSector);
-}
-DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
-{
-	DirIndex dirIndex, dirDirIndex;
-	if (getDirEntryForCluster(cluster, dirIndex, dirDirIndex)) {
-		return dirIndex;
-	} else {
-		return {unsigned(-1), unsigned(-1)}; // not found
+	DirEntryForCluster scanner{cluster};
+	if (scanMsxDirs(scanner, firstDirSector)) {
+		return DirEntryForClusterResult{scanner.dirIndex, scanner.dirDirIndex};
 	}
+	return std::nullopt;
 }
 
 // Remove the mapping between the msx and host for all the files/dirs in the
@@ -1345,20 +1332,17 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	offset += narrow<unsigned>((sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength);
 
 	// Get corresponding directory entry.
-	DirIndex dirIndex = getDirEntryForCluster(startCluster);
-	// no need to check for 'dirIndex.sector == unsigned(-1)'
-	auto* v = lookup(mapDirs, dirIndex);
-	if (!v) {
-		// This sector was not mapped to a file, nothing more to do.
-		return;
-	}
+	auto entry = getDirEntryForCluster(startCluster);
+	if (!entry) return;
+	auto* v = lookup(mapDirs, entry->dirIndex);
+	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
 	// Actually write data to host file.
 	string fullHostName = hostDir + v->hostName;
 	try {
 		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
-		unsigned msxSize = msxDir(dirIndex).size;
+		unsigned msxSize = msxDir(entry->dirIndex).size;
 		if (msxSize > offset) {
 			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
 			file.write(subspan(buf.raw, 0, writeSize));
