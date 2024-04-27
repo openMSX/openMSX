@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <functional>
 #include <iterator> // for std::begin(), std::end()
 #include <numeric>
@@ -468,15 +469,21 @@ constexpr auto make_span(Range&& range)
 }
 
 template<typename Range>
-constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
+[[nodiscard]] constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
 {
 	return make_span(std::forward<Range>(range)).subspan(offset, count);
 }
 
 template<size_t Count, typename Range>
-constexpr auto subspan(Range&& range, size_t offset = 0)
+[[nodiscard]] constexpr auto subspan(Range&& range, size_t offset = 0)
 {
 	return make_span(std::forward<Range>(range)).subspan(offset).template first<Count>();
+}
+
+template<typename T, size_t Size>
+[[nodiscard]] inline auto as_byte_span(std::span<T, Size> s)
+{
+	return std::span{std::bit_cast<const uint8_t*>(s.data()), s.size_bytes()};
 }
 
 #endif

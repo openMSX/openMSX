@@ -673,7 +673,7 @@ public:
 
 	template<typename T> void save(const T& t)
 	{
-		put(&t, sizeof(t));
+		buffer.insert(&t, sizeof(t));
 	}
 	inline void saveChar(char c)
 	{
@@ -724,13 +724,6 @@ public:
 	[[nodiscard]] MemBuffer<uint8_t> releaseBuffer(size_t& size);
 
 private:
-	void put(const void* data, size_t len)
-	{
-		if (len) {
-			buffer.insert(data, len);
-		}
-	}
-
 	ALWAYS_INLINE void serialize_group(const std::tuple<>& /*tuple*/) const
 	{
 		// done categorizing, there were no memcpy-able elements
@@ -785,7 +778,7 @@ public:
 
 	template<typename T> void load(T& t)
 	{
-		get(&t, sizeof(t));
+		buffer.read(&t, sizeof(t));
 	}
 	inline void loadChar(char& c)
 	{
@@ -821,13 +814,6 @@ public:
 	}
 
 private:
-	void get(void* data, size_t len)
-	{
-		if (len) {
-			buffer.read(data, len);
-		}
-	}
-
 	// See comments in MemOutputArchive
 	template<typename TUPLE>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple)

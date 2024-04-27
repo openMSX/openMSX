@@ -15,12 +15,13 @@
 #include <sys/stat.h>
 #include <vector>
 
-std::string encode(const void* data, unsigned len)
+std::string encode(std::span<const char> src)
 {
+	auto len = src.size();
 	uLongf dstLen = len + len / 1000 + 12 + 1; // worst-case
 	std::vector<unsigned char> buf(dstLen);
 	if (compress2(buf.data(), &dstLen,
-	              std::bit_cast<const Bytef*>(data), len, 9)
+	              std::bit_cast<const Bytef*>(src.data()), len, 9)
 	    != Z_OK) {
 		std::cerr << "Error while compressing blob.\n";
 		exit(1);
@@ -28,10 +29,10 @@ std::string encode(const void* data, unsigned len)
 	return Base64::encode(std::span(buf.data(), dstLen));
 }
 
-std::string decode(const char* data, unsigned len)
+std::string decode(std::span<const char> src)
 {
 	static const unsigned MAX_SIZE = 1024 * 1024; // 1MB
-	const auto& [decBuf, decBufSize] = Base64::decode(std::string_view(data, len));
+	const auto& [decBuf, decBufSize] = Base64::decode(std::string_view(src.data(), src.size()));
 	std::vector<char> buf(MAX_SIZE);
 	uLongf dstLen = MAX_SIZE;
 	if (uncompress(std::bit_cast<Bytef*>(buf.data()), &dstLen,
@@ -67,9 +68,9 @@ int main(int argc, const char** argv)
 
 	std::string result;
 	if        (strstr(arg[0], "encode-gz-base64")) {
-		result = encode(inBuf.data(), inBuf.size());
+		result = encode(inBuf);
 	} else if (strstr(arg[0], "decode-gz-base64")) {
-		result = decode(inBuf.data(), inBuf.size());
+		result = decode(inBuf);
 	} else {
 		std::cerr << "This executable should be named 'encode-gz-base64' or "
 		             "'decode-gz-base64'.\n";

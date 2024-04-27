@@ -243,24 +243,23 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const void* data, unsigned flags)
+void AviWriter::addAviChunk(std::span<const char, 4> tag, std::span<const uint8_t> data, unsigned flags)
 {
 	struct {
 		std::array<char, 4> t;
 		Endian::L32 s;
 	} chunk;
 
-	assert(size_ <= std::numeric_limits<uint32_t>::max());
-	auto size = uint32_t(size_);
+	auto size32 = narrow<uint32_t>(data.size());
 
 	ranges::copy(tag, chunk.t);
-	chunk.s = size;
+	chunk.s = size32;
 	file.write(std::span{&chunk, 1});
 
-	file.write(std::span{static_cast<const uint8_t*>(data), size});
+	file.write(data);
 	unsigned pos = written + 4;
-	written += size + 8;
-	if (size & 1) {
+	written += size32 + 8;
+	if (size32 & 1) {
 		std::array<uint8_t, 1> padding = {0};
 		file.write(padding);
 		++written;
@@ -271,14 +270,14 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, size_t size_, const vo
 	memcpy(&index[idxSize], tag.data(), tag.size());
 	index[idxSize + 1] = flags;
 	index[idxSize + 2] = pos;
-	index[idxSize + 3] = size;
+	index[idxSize + 3] = size32;
 }
 
 void AviWriter::addFrame(const FrameSource* video, std::span<const int16_t> audio)
 {
 	bool keyFrame = (frames++ % 300 == 0);
 	auto buffer = codec.compressFrame(keyFrame, video);
-	addAviChunk(subspan<4>("00dc"), buffer.size(), buffer.data(), keyFrame ? 0x10 : 0x0);
+	addAviChunk(subspan<4>("00dc"), buffer, keyFrame ? 0x10 : 0x0);
 
 	if (!audio.empty()) {
 		assert((audio.size() % channels) == 0);
@@ -287,9 +286,9 @@ void AviWriter::addFrame(const FrameSource* video, std::span<const int16_t> audi
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
 			auto buf = to_vector<Endian::L16>(audio);
-			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), buf.data(), 0);
+			addAviChunk(subspan<4>("01wb"), as_byte_span(std::span{buf}), 0);
 		} else {
-			addAviChunk(subspan<4>("01wb"), audio.size_bytes(), audio.data(), 0);
+			addAviChunk(subspan<4>("01wb"), as_byte_span(audio), 0);
 		}
 		audioWritten += narrow<uint32_t>(audio.size());
 	}

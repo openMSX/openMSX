@@ -91,8 +91,8 @@ struct PCG
 
 		// Calculate output function (XSH RR), uses old state for max
 		// ILP
-		uint32_t xorShifted = ((oldState >> 18) ^ oldState) >> 27;
-		uint32_t rot = oldState >> 59;
+		auto xorShifted = uint32_t(((oldState >> 18) ^ oldState) >> 27);
+		auto rot = int(oldState >> 59);
 		return (xorShifted >> rot) | (xorShifted << ((-rot) & 31));
 	}
 

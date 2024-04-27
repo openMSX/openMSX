@@ -209,9 +209,10 @@ int XSAExtractor::rdStrPos()
 	++tblSizes[cpdIndex];
 
 	auto getNBits = [&](unsigned n) {
-		int result = 0;
+		assert(n <= 8);
+		uint8_t result = 0;
 		repeat(n, [&]{
-			result = (result << 1) | (bitIn() ? 1 : 0);
+			result = uint8_t((result << 1) | (bitIn() ? 1 : 0));
 		});
 		return result;
 	};
@@ -221,7 +222,7 @@ int XSAExtractor::rdStrPos()
 			uint8_t strPosMsb = getNBits(narrow_cast<uint8_t>(cpdExt[cpdIndex] - 8));
 			return strPosLsb + 256 * strPosMsb;
 		} else {
-			return getNBits(cpdExt[cpdIndex]);
+			return int(getNBits(cpdExt[cpdIndex]));
 		}
 	}();
 	if ((updHufCnt--) == 0) {

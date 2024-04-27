@@ -194,7 +194,7 @@ void MemInputArchive::load(std::string& s)
 	load(length);
 	s.resize(length);
 	if (length) {
-		get(s.data(), length);
+		buffer.read(s.data(), length);
 	}
 }
 
