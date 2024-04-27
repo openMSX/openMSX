@@ -1,15 +1,17 @@
 #include "GlobalCommandController.hh"
-#include "Reactor.hh"
-#include "Setting.hh"
-#include "ProxyCommand.hh"
-#include "ProxySetting.hh"
-#include "LocalFileReference.hh"
-#include "GlobalCliComm.hh"
+
 #include "CliConnection.hh"
 #include "CommandException.hh"
+#include "GlobalCliComm.hh"
+#include "LocalFileReference.hh"
+#include "ProxyCommand.hh"
+#include "ProxySetting.hh"
+#include "Reactor.hh"
+#include "Setting.hh"
 #include "SettingsManager.hh"
 #include "TclObject.hh"
 #include "Version.hh"
+
 #include "ScopedAssign.hh"
 #include "join.hh"
 #include "outer.hh"
@@ -17,7 +19,9 @@
 #include "stl.hh"
 #include "view.hh"
 #include "xrange.hh"
+
 #include "build-info.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -531,7 +535,7 @@ static GlobalCliComm::UpdateType getType(const TclObject& name)
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
-	auto& controller = OUTER(GlobalCommandController, updateCmd);
+	const auto& controller = OUTER(GlobalCommandController, updateCmd);
 	if (auto* c = controller.getConnection()) {
 		return *c;
 	}

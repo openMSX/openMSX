@@ -62,7 +62,7 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 				}
 			}
 			result.addDictKeyValue("patches", patches);
-			if (auto* rom = dynamic_cast<MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
+			if (const auto* rom = dynamic_cast<const MSXRom*>(cpuInterface->getMSXDevice(ps, ss < 0 ? 0: ss, 1))) {
 				rom->getInfo(result);
 			}
 		}

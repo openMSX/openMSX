@@ -120,7 +120,7 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		for (auto& line : formatListInColumns(matches)) {
+		for (const auto& line : formatListInColumns(matches)) {
 			output->output(line);
 		}
 	}

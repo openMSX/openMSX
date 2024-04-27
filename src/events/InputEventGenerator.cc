@@ -326,7 +326,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	case SDL_JOYAXISMOTION: {
 		if (auto joyId = joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
-			auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
+			const auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
 			assert(setting);
 			int deadZone = setting->getInt();
 			int threshold = (deadZone * 32768) / 100;

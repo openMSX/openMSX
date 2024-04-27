@@ -731,7 +731,7 @@ void ReverseManager::loadReplay(
 
 	// Restore snapshots
 	unsigned replayIdx = 0;
-	for (auto& m : replay.motherBoards) {
+	for (const auto& m : replay.motherBoards) {
 		ReverseChunk newChunk;
 		newChunk.time = m->getCurrentTime();
 

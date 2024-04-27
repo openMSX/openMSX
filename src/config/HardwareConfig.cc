@@ -215,7 +215,7 @@ void HardwareConfig::testRemove() const
 		(*rit)->testRemove(alreadyRemoved);
 	}
 
-	auto& slotManager = motherBoard.getSlotManager();
+	const auto& slotManager = motherBoard.getSlotManager();
 	for (auto ps : xrange(4)) {
 		for (auto ss : xrange(4)) {
 			if (externalSlots[ps][ss]) {

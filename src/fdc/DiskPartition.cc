@@ -1,7 +1,10 @@
 #include "DiskPartition.hh"
+
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
+
 #include "strCat.hh"
+
 #include <cassert>
 
 namespace openmsx {
@@ -10,7 +13,7 @@ using namespace DiskImageUtils;
 
 [[nodiscard]] static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
-	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
+	if (const auto* dsk = dynamic_cast<Disk*>(disk)) {
 		return {dsk->getName().getFilename(),
 		        strCat(':', partition)};
 	} else {
@@ -31,7 +34,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 		setNbSectors(disk.getNbSectors());
 	} else {
 		SectorBuffer buf;
-		Partition& p = getPartition(disk, partition, buf); // throws
+		const Partition& p = getPartition(disk, partition, buf); // throws
 		start = p.start;
 		setNbSectors(p.size);
 	}

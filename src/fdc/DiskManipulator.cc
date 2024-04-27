@@ -307,7 +307,7 @@ void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& resu
 		result = imprt(settings, lists, overwrite);
 
 	} else if (subCmd == "savedsk") {
-		auto& settings = getDriveSettings(tokens[2].getString());
+		const auto& settings = getDriveSettings(tokens[2].getString());
 		savedsk(settings, FileOperations::expandTilde(string(tokens[3].getString())));
 
 	} else if (subCmd == "chdir") {

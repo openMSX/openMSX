@@ -42,7 +42,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 
 void MSXFDC::powerDown(EmuTime::param time)
 {
-	for (auto& drive : drives) {
+	for (const auto& drive : drives) {
 		drive->setMotor(false, time);
 	}
 }

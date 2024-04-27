@@ -349,7 +349,7 @@ bool DirAsDSK::hasChanged() const
 void DirAsDSK::checkCaches()
 {
 	bool needSync = [&] {
-		if (auto* scheduler = diskChanger.getScheduler()) {
+		if (const auto* scheduler = diskChanger.getScheduler()) {
 			auto now = scheduler->getCurrentTime();
 			auto delta = now - lastAccess;
 			return delta > EmuDuration::sec(1);
@@ -375,7 +375,7 @@ void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 	// peek-mode we skip the whole sync-step.
 	if (!isPeekMode()) {
 		bool needSync = [&] {
-			if (auto* scheduler = diskChanger.getScheduler()) {
+			if (const auto* scheduler = diskChanger.getScheduler()) {
 				auto now = scheduler->getCurrentTime();
 				auto delta = now - lastAccess;
 				lastAccess = now;
@@ -667,7 +667,7 @@ void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, const FileOperations::Stat& fs
 {
 	// Use intermediate param to prevent compilation error for Android
 	time_t mtime = fst.st_mtime;
-	auto* mtim = localtime(&mtime);
+	const auto* mtim = localtime(&mtime);
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
 	              : 0;
@@ -903,7 +903,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 	auto sector = unsigned(sector_);
 
 	// Update last access time.
-	if (auto* scheduler = diskChanger.getScheduler()) {
+	if (const auto* scheduler = diskChanger.getScheduler()) {
 		lastAccess = scheduler->getCurrentTime();
 	}
 
@@ -1157,7 +1157,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 	}
 	const auto& msxName = msxDir(dirIndex).filename;
 	string hostName;
-	if (auto* v = lookup(mapDirs, dirIndex)) {
+	if (const auto* v = lookup(mapDirs, dirIndex)) {
 		// Hostname is already known.
 		hostName = v->hostName;
 	} else {
@@ -1170,7 +1170,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		string hostSubDir;
 		if (dirDirIndex.sector != 0) {
 			// Not the msx root directory.
-			auto* v2 = lookup(mapDirs, dirDirIndex);
+			const auto* v2 = lookup(mapDirs, dirDirIndex);
 			assert(v2);
 			hostSubDir = v2->hostName;
 			assert(!hostSubDir.ends_with('/'));
@@ -1334,7 +1334,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get corresponding directory entry.
 	auto entry = getDirEntryForCluster(startCluster);
 	if (!entry) return;
-	auto* v = lookup(mapDirs, entry->dirIndex);
+	const auto* v = lookup(mapDirs, entry->dirIndex);
 	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
 	// Actually write data to host file.

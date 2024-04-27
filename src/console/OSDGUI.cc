@@ -73,7 +73,7 @@ void OSDGUI::OSDCommand::create(std::span<const TclObject> tokens, TclObject& re
 	}
 
 	auto widget = create(type, fullname);
-	auto* widget2 = widget.get();
+	const auto* widget2 = widget.get();
 	configure(*widget, tokens.subspan(4));
 	top.addName(*widget);
 	parent->addWidget(std::move(widget));
@@ -155,7 +155,7 @@ void OSDGUI::OSDCommand::exists(std::span<const TclObject> tokens, TclObject& re
 {
 	checkNumArgs(tokens, 3, "name");
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
+	const auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
 	result = widget != nullptr;
 }
 
@@ -165,7 +165,7 @@ void OSDGUI::OSDCommand::configure(std::span<const TclObject> tokens, TclObject&
 	auto& widget = getWidget(tokens[2].getString());
 	configure(widget, tokens.subspan(3));
 	if (widget.isVisible()) {
-		auto& gui = OUTER(OSDGUI, osdCommand);
+		const auto& gui = OUTER(OSDGUI, osdCommand);
 		gui.refresh();
 	}
 }

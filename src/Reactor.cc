@@ -378,7 +378,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 	// right location to store it.
 	try {
 		if (MSXMotherBoard* board = getMotherBoard()) {
-			if (auto* ppi = dynamic_cast<MSXPPI*>(board->findDevice("ppi"))) {
+			if (const auto* ppi = dynamic_cast<const MSXPPI*>(board->findDevice("ppi"))) {
 				return ppi->getKeyboard().getMsxChar2Unicode();
 			}
 		}
@@ -649,7 +649,7 @@ void Reactor::unblock()
 // Observer<Setting>
 void Reactor::update(const Setting& setting) noexcept
 {
-	auto& pauseSetting = getGlobalSettings().getPauseSetting();
+	const auto& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {
 		if (pauseSetting.getBoolean()) {
 			pause();
@@ -929,7 +929,7 @@ void StoreMachineCommand::execute(std::span<const TclObject> tokens, TclObject& 
 	const auto& machineID = tokens[1].getString();
 	const auto& filename = tokens[2].getString();
 
-	auto& board = *reactor.getMachine(machineID);
+	const auto& board = *reactor.getMachine(machineID);
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
@@ -1133,7 +1133,7 @@ void SoftwareInfoTopic::execute(
 	}
 
 	Sha1Sum sha1sum(tokens[2].getString());
-	auto& romDatabase = reactor.getSoftwareDatabase();
+	const auto& romDatabase = reactor.getSoftwareDatabase();
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
 	if (!romInfo) {
 		// no match found

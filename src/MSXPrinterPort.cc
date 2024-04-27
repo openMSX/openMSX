@@ -106,7 +106,7 @@ MSXPrinterPort::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::
 
 uint8_t MSXPrinterPort::Debuggable::read(unsigned address)
 {
-	auto& pPort = OUTER(MSXPrinterPort, debuggable);
+	const auto& pPort = OUTER(MSXPrinterPort, debuggable);
 	return (address == 0) ? pPort.strobe : pPort.data;
 }
 

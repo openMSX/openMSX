@@ -384,7 +384,7 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand)
 void MSXCPU::TimeInfoTopic::execute(
 	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	auto& cpu = OUTER(MSXCPU, timeInfo);
+	const auto& cpu = OUTER(MSXCPU, timeInfo);
 	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
 	result = dur.toDouble();
 }

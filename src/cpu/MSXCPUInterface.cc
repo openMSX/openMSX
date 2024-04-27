@@ -270,13 +270,13 @@ void MSXCPUInterface::testUnsetExpanded(
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
-	std::vector<MSXDevice*> inUse;
+	std::vector<const MSXDevice*> inUse;
 
-	auto isAllowed = [&](MSXDevice* dev) {
+	auto isAllowed = [&](const MSXDevice* dev) {
 		return (dev == dummyDevice.get()) ||
 		       contains(allowed, dev, [](const auto& d) { return d.get(); });
 	};
-	auto check = [&](MSXDevice* dev) {
+	auto check = [&](const MSXDevice* dev) {
 		if (!isAllowed(dev)) {
 			if (!contains(inUse, dev)) { // filter duplicates
 				inUse.push_back(dev);
@@ -286,8 +286,8 @@ void MSXCPUInterface::testUnsetExpanded(
 
 	for (auto ss : xrange(4)) {
 		for (auto page : xrange(4)) {
-			MSXDevice* device = slotLayout[ps][ss][page];
-			if (auto* memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
+			const MSXDevice* device = slotLayout[ps][ss][page];
+			if (const auto* memDev = dynamic_cast<const MSXMultiMemDevice*>(device)) {
 				for (auto* dev : memDev->getDevices()) {
 					check(dev);
 				}
@@ -301,7 +301,7 @@ void MSXCPUInterface::testUnsetExpanded(
 
 	auto msg = strCat("Can't remove slot expander from slot ", ps,
 	                  " because the following devices are still inserted:");
-	for (auto& d : inUse) {
+	for (const auto& d : inUse) {
 		strAppend(msg, ' ', d->getName());
 	}
 	strAppend(msg, '.');
@@ -580,7 +580,7 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 	GlobalRwInfo info = { &device, address };
 	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
-	for (auto& g : globalWrites) {
+	for (const auto& g : globalWrites) {
 		if ((g.addr >> CacheLine::BITS) ==
 		    (address  >> CacheLine::BITS)) {
 			// there is still a global write in this region
@@ -604,7 +604,7 @@ void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 	GlobalRwInfo info = { &device, address };
 	move_pop_back(globalReads, rfind_unguarded(globalReads, info));
 
-	for (auto& g : globalReads) {
+	for (const auto& g : globalReads) {
 		if ((g.addr >> CacheLine::BITS) ==
 		    (address  >> CacheLine::BITS)) {
 			// there is still a global write in this region
@@ -962,7 +962,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	for (auto i : xrange(CacheLine::NUM)) {
 		watchSet[i].reset();
 	}
-	for (auto& w : watchPoints) {
+	for (const auto& w : watchPoints) {
 		if (w->getType() == type) {
 			unsigned beginAddr = w->getBeginAddress();
 			unsigned endAddr   = w->getEndAddress();
@@ -1087,7 +1087,7 @@ MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard_)
 
 byte MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
 {
-	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
+	const auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	return interface.peekMem(narrow<word>(address), time);
 }
 
@@ -1110,7 +1110,7 @@ MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 
 byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
 {
-	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
+	const auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	return interface.peekSlottedMem(address, time);
 }
 
@@ -1174,7 +1174,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(std::span<const TclObject> tokens,
                                               TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "primary");
-	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
+	const auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
 	result = interface.isExpanded(narrow<int>(
 		getSlot(getInterpreter(), tokens[2], "Slot")));
 }
@@ -1209,8 +1209,8 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 		ps = narrow<int>(getSlot(interp, tokens[2], "Primary slot"));
 		break;
 	}
-	auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);
-	auto& manager = interface.motherBoard.getSlotManager();
+	const auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);
+	const auto& manager = interface.motherBoard.getSlotManager();
 	result = manager.isExternalSlot(ps, ss, true);
 }
 

@@ -92,7 +92,7 @@ void PluggingController::PlugCmd::execute(
 		}
 		break;
 	case 2: {
-		auto& connector = pluggingController.getConnector(tokens[1].getString());
+		const auto& connector = pluggingController.getConnector(tokens[1].getString());
 		strAppend(result, connector.getName(), ": ",
 		          connector.getPlugged().getName());
 		break;
@@ -140,7 +140,7 @@ void PluggingController::PlugCmd::tabCompletion(std::vector<string>& tokens) con
 			[](auto& c) -> std::string_view { return c->getName(); }));
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		auto* connector = pluggingController.findConnector(tokens[1]);
+		const auto* connector = pluggingController.findConnector(tokens[1]);
 		string_view className = connector ? connector->getClass() : string_view{};
 		completeString(tokens, view::transform(view::filter(pluggingController.pluggables,
 			[&](auto& p) { return p->getClass() == className; }),
@@ -250,7 +250,7 @@ void PluggingController::PluggableInfo::execute(
 			                [](auto& p) { return p->getName(); }));
 		break;
 	case 3: {
-		auto& pluggable = pluggingController.getPluggable(
+		const auto& pluggable = pluggingController.getPluggable(
 				tokens[2].getString());
 		result = pluggable.getDescription();
 		break;
@@ -294,7 +294,7 @@ void PluggingController::ConnectorInfo::execute(
 			                [](auto& c) { return c->getName(); }));
 		break;
 	case 3: {
-		auto& connector = pluggingController.getConnector(tokens[2].getString());
+		const auto& connector = pluggingController.getConnector(tokens[2].getString());
 		result = connector.getDescription();
 		break;
 	}
@@ -328,7 +328,7 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(
 void PluggingController::ConnectionClassInfo::execute(
 	std::span<const TclObject> tokens, TclObject& result) const
 {
-	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
+	const auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {
 	case 2: {
 		std::vector<string_view> classes;
@@ -336,7 +336,7 @@ void PluggingController::ConnectionClassInfo::execute(
 		for (auto& c : pluggingController.connectors) {
 			classes.push_back(c->getClass());
 		}
-		for (auto& p : pluggingController.pluggables) {
+		for (const auto& p : pluggingController.pluggables) {
 			auto c = p->getClass();
 			if (!contains(classes, c)) classes.push_back(c);
 		}
@@ -345,11 +345,11 @@ void PluggingController::ConnectionClassInfo::execute(
 	}
 	case 3: {
 		const auto& arg = tokens[2].getString();
-		if (auto* connector = pluggingController.findConnector(arg)) {
+		if (const auto* connector = pluggingController.findConnector(arg)) {
 			result = connector->getClass();
 			break;
 		}
-		if (auto* pluggable = pluggingController.findPluggable(arg)) {
+		if (const auto* pluggable = pluggingController.findPluggable(arg)) {
 			result = pluggable->getClass();
 			break;
 		}

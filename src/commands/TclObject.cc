@@ -141,14 +141,14 @@ std::optional<double> TclObject::getOptionalDouble() const
 zstring_view TclObject::getString() const
 {
 	int length;
-	char* buf = Tcl_GetStringFromObj(obj, &length);
+	const char* buf = Tcl_GetStringFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
 
 std::span<const uint8_t> TclObject::getBinary() const
 {
 	int length;
-	auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
+	const auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
 

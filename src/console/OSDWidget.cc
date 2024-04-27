@@ -275,7 +275,7 @@ void OSDWidget::paintRecursive(OutputSurface& output)
 		scopedClip.emplace(output, clipPos, size);
 	}
 
-	for (auto& s : subWidgets) {
+	for (const auto& s : subWidgets) {
 		s->paintRecursive(output);
 	}
 }
@@ -337,7 +337,7 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	auto* output = getDisplay().getOutputSurface();
+	const auto* output = getDisplay().getOutputSurface();
 	if (!output) {
 		throw CommandException(
 			"Can't get mouse coordinates: no window visible");

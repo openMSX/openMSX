@@ -40,7 +40,7 @@ const std::string& MSXMultiIODevice::getName() const
 }
 void MSXMultiIODevice::getNameList(TclObject& result) const
 {
-	for (auto* dev : devices) {
+	for (const auto* dev : devices) {
 		const auto& name = dev->getName();
 		if (!name.empty()) {
 			result.addListElement(name);

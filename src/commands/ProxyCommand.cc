@@ -25,7 +25,7 @@ void ProxyCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
-			auto* controller = checked_cast<MSXCommandController*>(
+			const auto* controller = checked_cast<const MSXCommandController*>(
 				&command->getCommandController());
 			if (!controller->getMSXMotherBoard().getMachineConfig()) {
 				throw CommandException(
@@ -40,7 +40,7 @@ void ProxyCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 
 std::string ProxyCmd::help(std::span<const TclObject> tokens) const
 {
-	if (Command* command = getMachineCommand()) {
+	if (const auto* command = getMachineCommand()) {
 		return command->help(tokens);
 	} else {
 		return "unknown command: " + getName();
@@ -49,7 +49,7 @@ std::string ProxyCmd::help(std::span<const TclObject> tokens) const
 
 void ProxyCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
-	if (Command* command = getMachineCommand()) {
+	if (const auto* command = getMachineCommand()) {
 		command->tabCompletion(tokens);
 	}
 }

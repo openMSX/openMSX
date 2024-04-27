@@ -899,7 +899,7 @@ void ExtCmd::execute(std::span<const TclObject> tokens, TclObject& result,
 			: "any";
 		auto extension = motherBoard.loadExtension(name, slotName);
 		if (slotName != "any") {
-			auto& manager = motherBoard.getSlotManager();
+			const auto& manager = motherBoard.getSlotManager();
 			if (const auto* extConf = manager.getConfigForSlot(commandName[3] - 'a')) {
 				// still a cartridge inserted, (try to) remove it now
 				motherBoard.removeExtension(*extConf);
@@ -1020,7 +1020,7 @@ void MachineExtensionInfo::execute(std::span<const TclObject> tokens,
 			view::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
 	} else if (tokens.size() == 3) {
 		std::string_view extName = tokens[2].getString();
-		HardwareConfig* extension = motherBoard.findExtension(extName);
+		const HardwareConfig* extension = motherBoard.findExtension(extName);
 		if (!extension) {
 			throw CommandException("No such extension: ", extName);
 		}
@@ -1127,7 +1127,7 @@ void DeviceInfo::execute(std::span<const TclObject> tokens, TclObject& result) c
 		break;
 	case 3: {
 		std::string_view deviceName = tokens[2].getString();
-		MSXDevice* device = motherBoard.findDevice(deviceName);
+		const MSXDevice* device = motherBoard.findDevice(deviceName);
 		if (!device) {
 			throw CommandException("No such device: ", deviceName);
 		}

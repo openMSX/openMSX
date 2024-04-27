@@ -25,8 +25,6 @@
 #include <fstream>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
@@ -125,8 +123,8 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if (data == one_of(byte(0), byte(':')) ||
 		    (++recvCount == 40)) {
-			auto* eData = std::bit_cast<char*>(extraData.data());
-			callImage(string(eData, recvCount));
+			const auto* eData = std::bit_cast<const char*>(extraData.data());
+			callImage(std::string(eData, recvCount));
 			state = SYNC1;
 		}
 		break;
@@ -575,9 +573,9 @@ word NowindHost::getFCB() const
 	return word(reg_h * 256 + reg_l);
 }
 
-string NowindHost::extractName(int begin, int end) const
+std::string NowindHost::extractName(int begin, int end) const
 {
-	string result;
+	std::string result;
 	for (auto i : xrange(begin, end)) {
 		auto c = narrow_cast<char>(extraData[i]);
 		if (c == ' ') break;
@@ -620,8 +618,8 @@ void NowindHost::deviceOpen()
 	state = State::SYNC1;
 
 	assert(recvCount == 11);
-	string filename = extractName(0, 8);
-	string ext      = extractName(8, 11);
+	std::string filename = extractName(0, 8);
+	std::string ext      = extractName(8, 11);
 	if (!ext.empty()) {
 		strAppend(filename, '.', ext);
 	}
@@ -748,7 +746,7 @@ void NowindHost::readHelper2(std::span<const char> buf)
 static constexpr std::string_view stripQuotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
-	if (first == string::npos) {
+	if (first == std::string::npos) {
 		// There are no quotes, return the whole string.
 		return str;
 	}
@@ -761,14 +759,14 @@ static constexpr std::string_view stripQuotes(std::string_view str)
 	return str.substr(first + 1, last - first - 1);
 }
 
-void NowindHost::callImage(const string& filename)
+void NowindHost::callImage(const std::string& filename)
 {
 	byte num = cmdData[7]; // reg_a
 	if (num >= drives.size()) {
 		// invalid drive number
 		return;
 	}
-	if (drives[num]->insertDisk(FileOperations::expandTilde(string(stripQuotes(filename))))) {
+	if (drives[num]->insertDisk(FileOperations::expandTilde(std::string(stripQuotes(filename))))) {
 		// TODO error handling
 	}
 }

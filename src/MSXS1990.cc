@@ -100,7 +100,7 @@ MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string
 
 byte MSXS1990::Debuggable::read(unsigned address)
 {
-	auto& s1990 = OUTER(MSXS1990, debuggable);
+	const auto& s1990 = OUTER(MSXS1990, debuggable);
 	return s1990.readRegister(narrow<byte>(address));
 }
 

@@ -81,7 +81,7 @@ static std::string getUserName()
 #ifdef _WIN32
 	return "default";
 #else
-	struct passwd* pw = getpwuid(getuid());
+	const struct passwd* pw = getpwuid(getuid());
 	return pw->pw_name ? pw->pw_name : "";
 #endif
 }
@@ -506,7 +506,7 @@ void collectServers(std::vector<std::string>& servers)
 		return;
 	}
 	ReadDir readDir(dir);
-	while (dirent* entry = readDir.getEntry()) {
+	while (const dirent* entry = readDir.getEntry()) {
 		std::string socketName = dir + '/' + entry->d_name;
 		int sd = openSocket(socketName);
 		if (sd != -1) {

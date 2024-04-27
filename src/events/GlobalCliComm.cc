@@ -45,7 +45,7 @@ void GlobalCliComm::setAllowExternalCommands()
 {
 	assert(!allowExternalCommands); // should only be called once
 	allowExternalCommands = true;
-	for (auto& listener : listeners) {
+	for (const auto& listener : listeners) {
 		if (auto* conn = dynamic_cast<CliConnection*>(listener.get())) {
 			conn->start();
 		}
@@ -71,7 +71,7 @@ void GlobalCliComm::log(LogLevel level, std::string_view message, float fraction
 
 	std::scoped_lock lock(mutex);
 	if (!listeners.empty()) {
-		for (auto& l : listeners) {
+		for (const auto& l : listeners) {
 			l->log(level, message, fraction);
 		}
 	} else {
@@ -109,7 +109,7 @@ void GlobalCliComm::updateHelper(UpdateType type, std::string_view machine,
 {
 	assert(Thread::isMainThread());
 	std::scoped_lock lock(mutex);
-	for (auto& l : listeners) {
+	for (const auto& l : listeners) {
 		l->update(type, machine, name, value);
 	}
 }

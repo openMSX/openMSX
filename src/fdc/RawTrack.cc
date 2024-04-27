@@ -132,7 +132,7 @@ static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned sta
 std::optional<RawTrack::Sector> RawTrack::decodeNextSector(unsigned startIdx) const
 {
 	// get first valid sector-header
-	for (auto& i : rotateIdam(idam, startIdx)) {
+	for (const auto& i : rotateIdam(idam, startIdx)) {
 		if (auto sector = decodeSectorImpl(narrow<int>(i))) {
 			return sector;
 		}

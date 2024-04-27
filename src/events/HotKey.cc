@@ -322,7 +322,7 @@ int HotKey::executeEvent(const Event& event, EventDistributor::Priority priority
 
 	// First search in active layers (from back to front)
 	bool blocking = false;
-	for (auto& info : view::reverse(activeLayers)) {
+	for (const auto& info : view::reverse(activeLayers)) {
 		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
 		if (auto it = findMatch(cmap, event, msx); it != end(cmap)) {
 			executeBinding(event, *it);
@@ -466,7 +466,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	case 0: {
 		// show all bounded keys (for this layer)
 		string r;
-		for (auto& p : cMap) {
+		for (const auto& p : cMap) {
 			r += formatBinding(p);
 		}
 		result = r;
@@ -593,7 +593,7 @@ void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& 
 	switch (args.size()) {
 	case 0: {
 		string r;
-		for (auto& layerInfo : view::reverse(hotKey.activeLayers)) {
+		for (const auto& layerInfo : view::reverse(hotKey.activeLayers)) {
 			r += layerInfo.layer;
 			if (layerInfo.blocking) {
 				r += " -blocking";

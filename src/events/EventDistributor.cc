@@ -86,7 +86,7 @@ void EventDistributor::deliverEvents()
 	while (!scheduledEvents.empty()) {
 		assert(eventsCopy.empty());
 		swap(eventsCopy, scheduledEvents);
-		for (auto& event : eventsCopy) {
+		for (const auto& event : eventsCopy) {
 			auto type = getType(event);
 			priorityMapCopy = listeners[size_t(type)];
 			lock.unlock();

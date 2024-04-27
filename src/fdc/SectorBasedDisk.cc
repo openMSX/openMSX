@@ -13,7 +13,7 @@ SectorBasedDisk::SectorBasedDisk(DiskName name_)
 
 void SectorBasedDisk::writeTrackImpl(uint8_t track, uint8_t side, const RawTrack& input)
 {
-	for (auto& s : input.decodeAll()) {
+	for (const auto& s : input.decodeAll()) {
 		// Ignore 'track' and 'head' information
 		// Always assume sector-size = 512 (so also ignore sizeCode).
 		// Ignore CRC value/errors of both address and data.
@@ -114,7 +114,7 @@ void SectorBasedDisk::readTrack(uint8_t track, uint8_t side, RawTrack& output)
 			auto logicalSector = physToLog(track, side, narrow<uint8_t>(j + 1));
 			SectorBuffer buf;
 			readSector(logicalSector, buf);
-			for (auto& r : buf.raw) output.write(idx++, r);
+			for (auto r : buf.raw) output.write(idx++, r);
 
 			uint16_t dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
 			output.write(idx++, narrow_cast<uint8_t>(dataCrc >> 8));   // CRC (high byte)

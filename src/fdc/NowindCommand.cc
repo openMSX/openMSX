@@ -242,7 +242,7 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 	//   - the new drives (when there was an error)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
-	for (auto& d : drives) {
+	for (const auto& d : drives) {
 		if (auto* disk = dynamic_cast<DiskChanger*>(d.get())) {
 			disk->createCommand();
 		}

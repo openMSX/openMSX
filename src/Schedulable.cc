@@ -61,7 +61,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("syncPoints", syncPoints);
 	if constexpr (Archive::IS_LOADER) {
 		removeSyncPoints();
-		for (auto& s : syncPoints) {
+		for (const auto& s : syncPoints) {
 			setSyncPoint(s.getTime());
 		}
 	}

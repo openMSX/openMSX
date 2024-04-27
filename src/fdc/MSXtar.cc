@@ -1008,7 +1008,7 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 			auto [t, d] = DiskImageUtils::toTimeDate(now);
 			chrootSector = addSubdir(msxName, t, d, chrootSector);
 		} else {
-			auto& dirEntry = buf.dirEntry[entry.index];
+			const auto& dirEntry = buf.dirEntry[entry.index];
 			if (!(dirEntry.attrib & MSXDirEntry::Attrib::DIRECTORY)) {
 				throw MSXException(firstPart, " is not a directory.");
 			}
@@ -1054,7 +1054,7 @@ string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
 		return strCat(itemName, " not found!\n");
 	}
 
-	auto& msxDirEntry = buf.dirEntry[entry.index];
+	const auto& msxDirEntry = buf.dirEntry[entry.index];
 	// create full name for local filesystem
 	string fullName = strCat(dirName, '/', msxToHostFileName(msxDirEntry.filename));
 

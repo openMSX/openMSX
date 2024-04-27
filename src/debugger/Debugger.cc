@@ -183,7 +183,7 @@ void Debugger::transfer(Debugger& other)
 
 	// Copy probes to new machine.
 	assert(probeBreakPoints.empty());
-	for (auto& bp : other.probeBreakPoints) {
+	for (const auto& bp : other.probeBreakPoints) {
 		if (ProbeBase* probe = findProbe(bp->getProbe().getName())) {
 			insertProbeBreakPoint(bp->getCommandObj(),
 			                      bp->getConditionObj(),
@@ -264,14 +264,14 @@ void Debugger::Cmd::list(TclObject& result)
 void Debugger::Cmd::desc(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "debuggable");
-	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
+	const Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getDescription();
 }
 
 void Debugger::Cmd::size(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 3, "debuggable");
-	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
+	const Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getSize();
 }
 
@@ -513,7 +513,7 @@ void Debugger::Cmd::listWatchPoints(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
-	auto& interface = debugger().motherBoard.getCPUInterface();
+	const auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
 		TclObject line = makeTclList(tmpStrCat("wp#", wp->getId()));
 		string type;
@@ -682,7 +682,7 @@ void Debugger::Cmd::probeListBreakPoints(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
-	for (auto& p : debugger().probeBreakPoints) {
+	for (const auto& p : debugger().probeBreakPoints) {
 		TclObject line = makeTclList(tmpStrCat("pp#", p->getId()),
 		                             p->getProbe().getName(),
 		                             p->getCondition(),

@@ -42,10 +42,10 @@ MSXCommandController::~MSXCommandController()
 	machineInfoCommand.reset();
 
 	#ifndef NDEBUG
-	for (auto* c : commandMap) {
+	for (const auto* c : commandMap) {
 		std::cout << "Command not unregistered: " << c->getName() << '\n';
 	}
-	for (auto* s : settings) {
+	for (const auto* s : settings) {
 		std::cout << "Setting not unregistered: " << s->getFullName() << '\n';
 	}
 	assert(commandMap.empty());
@@ -157,7 +157,7 @@ void MSXCommandController::signalMSXEvent(
 	if (getType(event) != EventType::MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (auto* s : settings) {
+	for (const auto* s : settings) {
 		try {
 			getInterpreter().setVariable(
 				s->getFullNameObj(), s->getValue());
@@ -175,9 +175,9 @@ bool MSXCommandController::isActive() const
 void MSXCommandController::transferSettings(const MSXCommandController& from)
 {
 	const auto& fromPrefix = from.getPrefix();
-	auto& manager = globalCommandController.getSettingsManager();
-	for (auto* s : settings) {
-		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getBaseName())) {
+	const auto& manager = globalCommandController.getSettingsManager();
+	for (const auto* s : settings) {
+		if (const auto* fromSetting = manager.findSetting(fromPrefix, s->getBaseName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
 				getInterpreter().setVariable(

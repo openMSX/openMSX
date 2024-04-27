@@ -141,7 +141,7 @@ std::optional<float> OSDImageBasedWidget::getScrollWidth() const
         const auto* parentImage = dynamic_cast<const OSDImageBasedWidget*>(getParent());
         if (!parentImage) return {};
 
-        auto* output = getDisplay().getOutputSurface();
+        const auto* output = getDisplay().getOutputSurface();
         if (!output) return {};
 
         auto [parentPos, parentSize] = parentImage->getBoundingBox(*output);

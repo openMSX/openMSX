@@ -268,7 +268,7 @@ void MSXDevice::registerSlots()
 	}
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (auto& r : tmpMemRegions) {
+	for (const auto& r : tmpMemRegions) {
 		getCPUInterface().registerMemDevice(
 			*this, ps, logicalSS, r.base, r.size);
 		memRegions.push_back(r);
