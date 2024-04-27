@@ -2,6 +2,7 @@
 #define RANGES_HH
 
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <functional>
