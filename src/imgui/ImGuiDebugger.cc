@@ -237,7 +237,7 @@ void ImGuiDebugger::actionStepBack()
 void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface)
 {
 	using enum Shortcuts::ID;
-	auto& shortcuts = manager.getShortcuts();
+	const auto& shortcuts = manager.getShortcuts();
 
 	if (shortcuts.checkShortcut(DEBUGGER_BREAK_CONTINUE)) {
 		actionBreakContinue(cpuInterface);
@@ -262,41 +262,46 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
 	im::Window("Debugger tool bar", &showControl, [&]{
 		checkShortcuts(cpuInterface);
 
-		auto ButtonGlyph = [](const char* id, ImWchar c) {
+		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
 			const auto* font = ImGui::GetFont();
 			auto texId = font->ContainerAtlas->TexID;
 			const auto* g = font->FindGlyph(c);
 			bool result = ImGui::ImageButton(id, texId, {g->X1 - g->X0, g->Y1 - g->Y0}, {g->U0, g->V0}, {g->U1, g->V1});
-			simpleToolTip(id);
+			simpleToolTip([&]() -> std::string {
+				const auto& shortcuts = manager.getShortcuts();
+				const auto& shortcut = shortcuts.getShortcut(sid);
+				if (shortcut.keyChord == ImGuiKey_None) return id;
+				return strCat(id, " (", getKeyChordName(shortcut.keyChord), ')');
+			});
 			return result;
 		};
 
 		bool breaked = MSXCPUInterface::isBreaked();
 		using enum Shortcuts::ID;
 		if (auto breakContinueIcon = breaked ? DEBUGGER_ICON_RUN : DEBUGGER_ICON_BREAK;
-		    ButtonGlyph("run", breakContinueIcon)) {
+		    ButtonGlyph("run", breakContinueIcon, DEBUGGER_BREAK_CONTINUE)) {
 			actionBreakContinue(cpuInterface);
 		}
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(50.0f);
 
 		im::Disabled(!breaked, [&]{
-			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN)) {
+			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN, DEBUGGER_STEP_IN)) {
 				actionStepIn(cpuInterface);
 			}
 			ImGui::SameLine();
 
-			if (ButtonGlyph("step-over", DEBUGGER_ICON_STEP_OVER)) {
+			if (ButtonGlyph("step-over", DEBUGGER_ICON_STEP_OVER, DEBUGGER_STEP_OVER)) {
 				actionStepOver();
 			}
 			ImGui::SameLine();
 
-			if (ButtonGlyph("step-out",  DEBUGGER_ICON_STEP_OUT)) {
+			if (ButtonGlyph("step-out",  DEBUGGER_ICON_STEP_OUT, DEBUGGER_STEP_OUT)) {
 				actionStepOut();
 			}
 			ImGui::SameLine();
 
-			if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK)) {
+			if (ButtonGlyph("step-back", DEBUGGER_ICON_STEP_BACK, DEBUGGER_STEP_BACK)) {
 				actionStepBack();
 			}
 		});
