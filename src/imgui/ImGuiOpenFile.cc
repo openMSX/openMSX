@@ -34,7 +34,7 @@ void ImGuiOpenFile::loadLine(std::string_view name, zstring_view value)
 [[nodiscard]] static bool dirOnlyHasReadme(zstring_view directory)
 {
 	ReadDir dir(directory);
-	while (auto* d = dir.getEntry()) {
+	while (const auto* d = dir.getEntry()) {
 		auto name = std::string_view(d->d_name);
 		if (name == one_of(std::string_view(".."), std::string_view("."))) continue;
 		if (name != "README") return false;
@@ -57,7 +57,7 @@ void ImGuiOpenFile::setBookmarks()
 {
 	auto& dialog = *ImGuiFileDialog::Instance();
 
-	auto& filePool = manager.getReactor().getFilePool();
+	const auto& filePool = manager.getReactor().getFilePool();
 	std::vector<std::string> existingNames;
 	for (const auto& dir : filePool.getDirectories()) {
 		using enum FileType;

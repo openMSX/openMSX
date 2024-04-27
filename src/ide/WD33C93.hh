@@ -13,7 +13,9 @@
 
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
+
 #include "AlignedBuffer.hh"
+
 #include <array>
 #include <memory>
 

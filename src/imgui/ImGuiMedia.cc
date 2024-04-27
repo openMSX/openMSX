@@ -285,7 +285,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 					// Incomplete installation!! Missing C-BIOS machines!
 					// Do a minimal attempt to recover.
 					try {
-						if (auto* current = reactor.getMotherBoard()) {
+						if (const auto* current = reactor.getMotherBoard()) {
 							mb.emplace(reactor); // need to recreate the motherboard
 							mb->getMSXCliComm().setSuppressMessages(true);
 							mb->loadMachine(std::string(current->getMachineName()));
@@ -327,7 +327,7 @@ std::string ImGuiMedia::displayNameForRom(const std::string& filename, bool comp
 {
 	auto& reactor = manager.getReactor();
 	if (auto sha1 = reactor.getFilePool().getSha1Sum(filename)) {
-		auto& database = reactor.getSoftwareDatabase();
+		const auto& database = reactor.getSoftwareDatabase();
 		if (const auto* romInfo = database.fetchRomInfo(*sha1)) {
 			if (auto title = romInfo->getTitle(database.getBufferStart());
 				!title.empty()) {
@@ -486,7 +486,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// cartA / extX
 		elementInGroup();
-		auto& slotManager = motherBoard->getSlotManager();
+		const auto& slotManager = motherBoard->getSlotManager();
 		bool anySlot = false;
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!slotManager.slotExists(i)) continue;
@@ -701,7 +701,7 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 		}
 	}
 
-	auto& slotManager = motherBoard->getSlotManager();
+	const auto& slotManager = motherBoard->getSlotManager();
 	for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 		if (!slotManager.slotExists(i)) continue;
 		if (cartridgeMediaInfo[i].show) {
@@ -756,7 +756,7 @@ bool ImGuiMedia::selectRecent(ItemGroup& group, function_ref<std::string(const s
 	auto preview = leftClip(displayFunc(group.edit.name), textWidth);
 	im::Combo("##recent", preview.c_str(), [&]{
 		int count = 0;
-		for (auto& item : group.recent) {
+		for (const auto& item : group.recent) {
 			auto d = strCat(display(item, displayFunc), "##", count++);
 			if (ImGui::Selectable(d.c_str())) {
 				group.edit = item;
@@ -1079,7 +1079,7 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 			ImGui::TextUnformatted(leftClip(filename, ImGui::GetContentRegionAvail().x));
 		}
 
-		auto& database = manager.getReactor().getSoftwareDatabase();
+		const auto& database = manager.getReactor().getSoftwareDatabase();
 		const auto* romInfo = [&]() -> const RomInfo* {
 			if (auto actual = mediaTopic.getOptionalDictValue(TclObject("actualSHA1"))) {
 				if (const auto* info = database.fetchRomInfo(Sha1Sum(actual->getString()))) {
@@ -1139,7 +1139,7 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 	im::Disabled(disableEject, [&]{
 		copyCurrent = ImGui::SmallButton("Current cartridge");
 	});
-	auto& slotManager = manager.getReactor().getMotherBoard()->getSlotManager();
+	const auto& slotManager = manager.getReactor().getMotherBoard()->getSlotManager();
 	ImGui::SameLine();
 	ImGui::TextUnformatted(tmpStrCat("(slot ", slotManager.getPsSsString(slot), ')'));
 
@@ -1465,8 +1465,8 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			};
 			ImGui::Text("%s / %s", format(pos).c_str(), format(length).c_str());
 
-			auto& reactor = manager.getReactor();
-			auto& controller = reactor.getMotherBoard()->getMSXCommandController();
+			const auto& reactor = manager.getReactor();
+			const auto& controller = reactor.getMotherBoard()->getMSXCommandController();
 			const auto& hotKey = reactor.getHotKey();
 			if (auto* autoRun = dynamic_cast<BooleanSetting*>(controller.findSetting("autoruncassettes"))) {
 				Checkbox(hotKey, "(try to) Auto Run", *autoRun);

@@ -103,7 +103,7 @@ void ImGuiSettings::setStyle() const
 		// This is O(M*N), if needed could be optimized to be O(M+N).
 		if (contains(mods, key)) continue; // skip: mods can't be primary keys in a KeyChord
 		if (ImGui::IsKeyPressed(static_cast<ImGuiKey>(key))) {
-			ImGuiIO& io = ImGui::GetIO();
+			const ImGuiIO& io = ImGui::GetIO();
 			return key
 			     | (io.KeyCtrl  ? ImGuiMod_Ctrl  : 0)
 			     | (io.KeyShift ? ImGuiMod_Shift : 0)
@@ -122,7 +122,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		auto& reactor = manager.getReactor();
 		auto& globalSettings = reactor.getGlobalSettings();
 		auto& renderSettings = reactor.getDisplay().getRenderSettings();
-		auto& settingsManager = reactor.getGlobalCommandController().getSettingsManager();
+		const auto& settingsManager = reactor.getGlobalCommandController().getSettingsManager();
 		const auto& hotKey = reactor.getHotKey();
 
 		im::Menu("Video", [&]{
@@ -297,7 +297,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				EnumToolTip{"POSITIONAL", "Tries to map the keyboard key positions to the MSX keyboard key positions"},
 			};
 			if (motherBoard) {
-				auto& controller = motherBoard->getMSXCommandController();
+				const auto& controller = motherBoard->getMSXCommandController();
 				if (auto* turbo = dynamic_cast<IntegerSetting*>(controller.findSetting("renshaturbo"))) {
 					SliderInt("Ren Sha Turbo (%)", *turbo);
 				}
@@ -861,8 +861,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			}
 		});
 
-		auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
-		auto& controller = motherBoard.getMSXCommandController();
+		const auto& joystickManager = manager.getReactor().getInputEventGenerator().getJoystickManager();
+		const auto& controller = motherBoard.getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return;
 		auto& interp = setting->getInterpreter();
@@ -1238,7 +1238,7 @@ void ImGuiSettings::paintShortcut()
 			ImGui::TableSetupColumn("description");
 			ImGui::TableSetupColumn("key");
 
-			auto& shortcuts = manager.getShortcuts();
+			const auto& shortcuts = manager.getShortcuts();
 			im::ID_for_range(Shortcuts::ID::NUM_SHORTCUTS, [&](int i) {
 				auto id = static_cast<Shortcuts::ID>(i);
 				auto shortcut = shortcuts.getShortcut(id);
@@ -1309,8 +1309,8 @@ int ImGuiSettings::signalEvent(const Event& event)
 	}
 	if (!escape) {
 		auto getJoyDeadZone = [&](JoystickId joyId) {
-			auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
-			auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
+			const auto& joyMan = manager.getReactor().getInputEventGenerator().getJoystickManager();
+			const auto* setting = joyMan.getJoyDeadZoneSetting(joyId);
 			return setting ? setting->getInt() : 0;
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
@@ -1319,7 +1319,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 
 		auto* motherBoard = manager.getReactor().getMotherBoard();
 		if (!motherBoard) return block;
-		auto& controller = motherBoard->getMSXCommandController();
+		const auto& controller = motherBoard->getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
 		if (!setting) return block;
 		auto& interp = setting->getInterpreter();

@@ -84,7 +84,7 @@ std::vector<std::string> SettingsManager::getTabSettingNames() const
 {
 	std::vector<std::string> result;
 	result.reserve(settings.size() * 2);
-	for (auto* s : settings) {
+	for (const auto* s : settings) {
 		std::string_view name = s->getFullName();
 		result.emplace_back(name);
 		if (name.starts_with("::")) {
@@ -135,7 +135,7 @@ void SettingsManager::SettingInfo::execute(
 		break;
 	case 3: {
 		const auto& settingName = tokens[2].getString();
-		auto* setting = manager.findSetting(settingName);
+		const auto* setting = manager.findSetting(settingName);
 		if (!setting) {
 			throw CommandException("No such setting: ", settingName);
 		}
@@ -164,7 +164,7 @@ void SettingsManager::SettingInfo::tabCompletion(std::vector<std::string>& token
 {
 	if (tokens.size() == 3) {
 		// complete setting name
-		auto& manager = OUTER(SettingsManager, settingInfo);
+		const auto& manager = OUTER(SettingsManager, settingInfo);
 		completeString(tokens, manager.getTabSettingNames());
 	}
 }
@@ -181,7 +181,7 @@ SettingsManager::SetCompleter::SetCompleter(
 std::string SettingsManager::SetCompleter::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() == 2) {
-		auto& manager = OUTER(SettingsManager, setCompleter);
+		const auto& manager = OUTER(SettingsManager, setCompleter);
 		return std::string(manager.getByName("set", tokens[1].getString()).getDescription());
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
@@ -193,7 +193,7 @@ std::string SettingsManager::SetCompleter::help(std::span<const TclObject> token
 
 void SettingsManager::SetCompleter::tabCompletion(std::vector<std::string>& tokens) const
 {
-	auto& manager = OUTER(SettingsManager, setCompleter);
+	const auto& manager = OUTER(SettingsManager, setCompleter);
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
@@ -202,7 +202,7 @@ void SettingsManager::SetCompleter::tabCompletion(std::vector<std::string>& toke
 	}
 	case 3:
 		// complete setting value
-		if (auto* setting = manager.findSetting(tokens[1])) {
+		if (const auto* setting = manager.findSetting(tokens[1])) {
 			setting->tabCompletion(tokens);
 		}
 		break;

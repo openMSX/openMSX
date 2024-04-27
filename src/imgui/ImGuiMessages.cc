@@ -239,7 +239,7 @@ void ImGuiMessages::paintOSD()
 
 	const auto& style = ImGui::GetStyle();
 	gl::vec2 offset = style.FramePadding;
-	auto* mainViewPort = ImGui::GetMainViewport();
+	const auto* mainViewPort = ImGui::GetMainViewport();
 
 	struct DrawInfo {
 		// clang workaround:

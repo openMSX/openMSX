@@ -1,13 +1,16 @@
 #include "MSXMapperIO.hh"
+
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
+
 #include "StringOp.hh"
 #include "enumerate.hh"
 #include "outer.hh"
-#include "serialize.hh"
 #include "stl.hh"
+
 #include <algorithm>
 
 namespace openmsx {
@@ -75,7 +78,7 @@ byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 	byte value = [&] {
 		if (mode == Mode::EXTERNAL) {
 			byte result = 0xFF;
-			for (auto* mapper : mappers) {
+			for (const auto* mapper : mappers) {
 				result &= mapper->peekIO(port, time);
 			}
 			return result;

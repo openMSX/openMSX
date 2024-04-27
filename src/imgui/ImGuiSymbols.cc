@@ -78,7 +78,7 @@ void ImGuiSymbols::loadEnd()
 {
 	std::vector<FileInfo> tmp;
 	std::swap(tmp, fileError);
-	for (auto& info : tmp) {
+	for (const auto& info : tmp) {
 		loadFile(info.filename, SymbolManager::LoadEmpty::ALLOWED, info.type);
 	}
 }
@@ -230,7 +230,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 				}));
 				append(tmp, std::move(fileError));
 				fileError.clear();
-				for (auto& info : tmp) {
+				for (const auto& info : tmp) {
 					loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type);
 				}
 			}

@@ -11,17 +11,21 @@
 */
 
 #include "WD33C93.hh"
+
+#include "DummySCSIDevice.hh"
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
-#include "DummySCSIDevice.hh"
 #include "SCSIHD.hh"
 #include "SCSILS120.hh"
+
 #include "DeviceConfig.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
+#include "XMLElement.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -428,7 +432,7 @@ void WD33C93::reset(bool scsiReset)
 	phase = SCSI::Phase::BUS_FREE;
 	bufIdx  = 0;
 	if (scsiReset) {
-		for (auto& d : dev) {
+		for (const auto& d : dev) {
 			d->reset();
 		}
 	}

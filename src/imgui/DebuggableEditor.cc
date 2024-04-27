@@ -242,7 +242,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	std::optional<unsigned> nextAddr;
 	// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
 	if (addrMode == CURSOR) {
-		auto& shortcuts = manager.getShortcuts();
+		const auto& shortcuts = manager.getShortcuts();
 		if ((int(currentAddr) >= columns) &&
 		    shortcuts.checkShortcut({.keyChord = ImGuiKey_UpArrow, .repeat = true})) {
 			nextAddr = currentAddr - columns;

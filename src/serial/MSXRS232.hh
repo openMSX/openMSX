@@ -1,11 +1,12 @@
 #ifndef MSXRS232_HH
 #define MSXRS232_HH
 
-#include "MSXDevice.hh"
-#include "IRQHelper.hh"
-#include "RS232Connector.hh"
 #include "I8251.hh"
 #include "I8254.hh"
+#include "IRQHelper.hh"
+#include "MSXDevice.hh"
+#include "RS232Connector.hh"
+
 #include <memory>
 
 namespace openmsx {

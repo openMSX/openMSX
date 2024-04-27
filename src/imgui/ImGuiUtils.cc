@@ -163,7 +163,7 @@ bool InputText(const char* label, Setting& setting)
 
 void ComboBox(const char* label, Setting& setting, function_ref<std::string(const std::string&)> displayValue, EnumToolTips toolTips)
 {
-	auto* enumSetting = dynamic_cast<EnumSettingBase*>(&setting);
+	const auto* enumSetting = dynamic_cast<const EnumSettingBase*>(&setting);
 	assert(enumSetting);
 	auto current = setting.getValue().getString();
 	im::Combo(label, current.c_str(), [&]{

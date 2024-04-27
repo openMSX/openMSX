@@ -196,7 +196,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 				return 1.0f - (t / iconsFadeDuration);
 			}();
 
-			auto& ic = state ? icon.on : icon.off;
+			const auto& ic = state ? icon.on : icon.off;
 			gl::vec2 cursor = ImGui::GetCursorPos();
 			ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
 			             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});

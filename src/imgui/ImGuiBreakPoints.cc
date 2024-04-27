@@ -281,7 +281,7 @@ static void remove(DebugCondition*, MSXCPUInterface& cpuInterface, unsigned id)
 void ImGuiBreakPoints::clear(BreakPoint* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiBps.empty()) {
-		if (auto& bp = guiBps.back(); bp.id > 0) {
+		if (const auto& bp = guiBps.back(); bp.id > 0) {
 			remove(tag, cpuInterface, bp.id);
 		}
 		guiBps.pop_back();

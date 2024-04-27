@@ -180,7 +180,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette->window.open);
 		ImGui::Separator();
 		im::Menu("Add hex editor", [&]{
-			auto& debugger = motherBoard->getDebugger();
+			const auto& debugger = motherBoard->getDebugger();
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
 			ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {

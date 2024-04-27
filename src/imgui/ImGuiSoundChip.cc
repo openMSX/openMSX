@@ -41,7 +41,7 @@ void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 	}
 
 	// Show sound chip channel settings
-	auto& msxMixer = motherBoard->getMSXMixer();
+	const auto& msxMixer = motherBoard->getMSXMixer();
 	auto& infos = msxMixer.getDeviceInfos();
 	for (const auto& info : infos) {
 		const auto& name = info.device->getName();
@@ -74,12 +74,12 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 	};
 
 	im::Window("Sound chip settings", &showSoundChipSettings, [&]{
-		auto& msxMixer = motherBoard.getMSXMixer();
+		const auto& msxMixer = motherBoard.getMSXMixer();
 		auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
 		im::Table("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX, [&]{
 			for (auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
-					auto& device = *info.device;
+					const auto& device = *info.device;
 					ImGui::TextUnformatted(device.getName());
 					simpleToolTip(device.getDescription());
 				}
@@ -134,7 +134,7 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 
 void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std::string& name, bool* enabled)
 {
-	auto& msxMixer = motherBoard.getMSXMixer();
+	const auto& msxMixer = motherBoard.getMSXMixer();
 	auto* info = msxMixer.findDeviceInfo(name);
 	if (!info) return;
 

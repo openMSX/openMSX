@@ -139,7 +139,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 		ImGui::Separator();
 
-		auto& reverseManager = motherBoard->getReverseManager();
+		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
 		im::Menu("Load replay ...", reverseEnabled, [&]{
@@ -255,7 +255,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showReverseBar) return;
 	if (!motherBoard) return;
-	auto& reverseManager = motherBoard->getReverseManager();
+	const auto& reverseManager = motherBoard->getReverseManager();
 	if (!reverseManager.isCollecting()) return;
 
 	const auto& style = ImGui::GetStyle();

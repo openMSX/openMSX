@@ -213,7 +213,7 @@ void ImGuiWatchExpr::drawRow(int row)
 
 	// evaluate 'expression'
 	auto [result, exprError_] = evalExpr(watch, interp);
-	auto& exprError = exprError_; // clang workaround
+	const auto& exprError = exprError_; // clang workaround
 	bool validExpr = exprError.empty();
 
 	// format the result

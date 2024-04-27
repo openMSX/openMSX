@@ -91,7 +91,7 @@ void MSXFacMidiInterface::Interface::recvByte(byte value, EmuTime::param time)
 
 void MSXFacMidiInterface::Interface::signal(EmuTime::param time)
 {
-	auto& midi = OUTER(MSXFacMidiInterface, interface);
+	const auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.getPluggedMidiInDev().signal(time);
 }
 

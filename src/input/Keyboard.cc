@@ -1087,11 +1087,11 @@ void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 	};
 
 	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
-		if (auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
+		if (const auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
 			process(mapping->msx);
 		}
 	} else {
-		if (auto* mapping = binary_find(keyCodeTab, key.sym.sym, {}, &KeyCodeMsxMapping::hostKeyCode)) {
+		if (const auto* mapping = binary_find(keyCodeTab, key.sym.sym, {}, &KeyCodeMsxMapping::hostKeyCode)) {
 			process(mapping->msx);
 		}
 	}
@@ -1683,7 +1683,7 @@ void Keyboard::KeyInserter::type(std::string_view str)
 	if (str.empty()) {
 		return;
 	}
-	auto& keyboard = OUTER(Keyboard, keyTypeCmd);
+	const auto& keyboard = OUTER(Keyboard, keyTypeCmd);
 	oldLocksOn = keyboard.locksOn;
 	if (text_utf8.empty()) {
 		reschedule(getCurrentTime());
@@ -1813,7 +1813,7 @@ void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, Tc
 	checkNumArgs(tokens, Between{2, 3}, "unicode-string ?fallback?");
 
 	auto& interp = getInterpreter();
-	auto& keyboard = OUTER(Keyboard, unicode2MsxcodeCmd);
+	const auto& keyboard = OUTER(Keyboard, unicode2MsxcodeCmd);
 	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
 
 	const auto& unicode = tokens[1].getString();
@@ -1968,7 +1968,7 @@ Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard_)
 
 uint8_t Keyboard::KeybDebuggable::read(unsigned address)
 {
-	auto& keyboard = OUTER(Keyboard, keybDebuggable);
+	const auto& keyboard = OUTER(Keyboard, keybDebuggable);
 	return keyboard.getKeys()[address];
 }
 
@@ -2089,7 +2089,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("eventQueue", eventStrs);
 	if constexpr (Archive::IS_LOADER) {
 		assert(eventQueue.empty());
-		for (auto& s : eventStrs) {
+		for (const auto& s : eventStrs) {
 			eventQueue.push_back(
 				InputEventFactory::createInputEvent(s, interp));
 		}

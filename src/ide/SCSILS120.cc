@@ -766,7 +766,7 @@ void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		auto& file = ls.file;
+		const auto& file = ls.file;
 		result.addListElement(tmpStrCat(ls.name, ':'),
 		                      file.is_open() ? file.getURL() : std::string{});
 		if (!file.is_open()) result.addListElement("empty");

@@ -128,7 +128,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		im::ScopedFont sf(manager.fontMono);
 
 		// Reserve enough left-over height for 1 separator + 1 input text
-		auto& style = ImGui::GetStyle();
+		const auto& style = ImGui::GetStyle();
 		const float footerHeightToReserve = style.ItemSpacing.y +
 						ImGui::GetFrameHeightWithSpacing();
 		im::Child("ScrollingRegion", ImVec2(0, -footerHeightToReserve), 0,
@@ -238,7 +238,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ // but it's fragile because it depends on some internal implementation
 		/**/ // details. More specifically: the scroll-position. And obtaining this
 		/**/ // information required stuff from <imgui_internal.h>.
-		/**/ auto* font = ImGui::GetFont();
+		/**/ const auto* font = ImGui::GetFont();
 		/**/ auto fontSize = ImGui::GetFontSize();
 		/**/ gl::vec2 frameSize(itemWidth, fontSize + style.FramePadding.y * 2.0f);
 		/**/ gl::vec2 topLeft = cursorScrnPos;
@@ -249,7 +249,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
 		/**/ if (ImGui::IsItemActive()) {
 		/**/	auto id = ImGui::GetID("##Input");
-		/**/	if (auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
+		/**/	if (const auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
 		/**/		// adjust for scroll
 		/**/		drawPos.x -= state->ScrollX;
 		/**/		// redraw cursor (it was drawn transparent before)
@@ -382,7 +382,7 @@ void ImGuiConsole::saveHistory()
 		if (!outputFile) {
 			throw FileException("Error while saving the console history.");
 		}
-		for (auto& s : view::reverse(history)) {
+		for (const auto& s : view::reverse(history)) {
 			outputFile << s << '\n';
 		}
 	} catch (FileException& e) {

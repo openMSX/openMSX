@@ -346,7 +346,7 @@ string getCurrentWorkingDirectory()
 {
 #ifdef _WIN32
 	std::array<wchar_t, MAXPATHLEN> bufW;
-	wchar_t* result = _wgetcwd(bufW.data(), bufW.size());
+	const wchar_t* result = _wgetcwd(bufW.data(), bufW.size());
 	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}
@@ -439,7 +439,7 @@ const string& getUserDataDir()
 	static std::optional<string> result;
 	if (!result) {
 		const char* const NAME = "OPENMSX_USER_DATA";
-		char* value = getenv(NAME);
+		const char* value = getenv(NAME);
 		result = value ? value : getUserOpenMSXDir() + "/share";
 	}
 	return *result;
@@ -449,7 +449,7 @@ const string& getSystemDataDir()
 {
 	static std::optional<string> result;
 	if (!result) result = []() -> string {
-		if (char* value = getenv("OPENMSX_SYSTEM_DATA")) {
+		if (const char* value = getenv("OPENMSX_SYSTEM_DATA")) {
 			return value;
 		}
 #ifdef _WIN32

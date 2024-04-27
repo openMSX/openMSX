@@ -174,7 +174,7 @@ void MB89352::reset(bool scsiReset)
 	softReset();
 
 	if (scsiReset) {
-		for (auto& d : dev) {
+		for (const auto& d : dev) {
 			d->reset();
 		}
 	}
@@ -454,7 +454,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 			if (((regs[REG_SCMD] & 0x10) == 0) && (regs[REG_SCTL] == 0)) {
 				rst = true;
 				regs[REG_INTS] |= INTS_ResetCondition;
-				for (auto& d : dev) {
+				for (const auto& d : dev) {
 					d->busReset();
 				}
 				disconnect();  // alternative routine

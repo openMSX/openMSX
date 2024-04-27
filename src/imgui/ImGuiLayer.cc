@@ -39,7 +39,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	}
 
 	// Rendering
-	ImGuiIO& io = ImGui::GetIO();
+	const ImGuiIO& io = ImGui::GetIO();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

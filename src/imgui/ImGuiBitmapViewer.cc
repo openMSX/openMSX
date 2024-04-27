@@ -132,7 +132,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 		ImGui::Separator();
 
-		auto& vram = vdp->getVRAM();
+		const auto& vram = vdp->getVRAM();
 		int mode   = bitmapManual ? bitmapScrnMode : vdpMode;
 		int page   = bitmapManual ? bitmapPage     : vdpPage;
 		int lines  = bitmapManual ? bitmapLines    : vdpLines;

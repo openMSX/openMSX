@@ -17,8 +17,8 @@ BaseSetting* ProxySetting::getSetting()
 {
 	auto* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
-	auto& manager = reactor.getGlobalCommandController().getSettingsManager();
-	auto& controller = motherBoard->getMSXCommandController();
+	const auto& manager = reactor.getGlobalCommandController().getSettingsManager();
+	const auto& controller = motherBoard->getMSXCommandController();
 	return manager.findSetting(controller.getPrefix(), getFullName());
 }
 

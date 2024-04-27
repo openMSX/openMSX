@@ -251,7 +251,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		.lastTime = Timer::getTime(),
 	};
 
-	for (auto& [path, types] : getDirectories()) {
+	for (const auto& [path, types] : getDirectories()) {
 		if ((types & fileType) != FileType::NONE) {
 			result = scanDirectory(sha1sum, FileOperations::expandTilde(std::string(path)), path, progress);
 			if (result.is_open()) {

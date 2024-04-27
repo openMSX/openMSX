@@ -358,7 +358,7 @@ int ImGuiManager::signalEvent(const Event& event)
 	if (auto* evt = get_event_if<SdlEvent>(event)) {
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
 		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
-		ImGuiIO& io = ImGui::GetIO();
+		const ImGuiIO& io = ImGui::GetIO();
 		if ((io.WantCaptureMouse &&
 		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
@@ -418,7 +418,7 @@ static std::vector<std::string> getSlots(MSXMotherBoard* motherBoard)
 	std::vector<std::string> result;
 	if (!motherBoard) return result;
 
-	auto& slotManager = motherBoard->getSlotManager();
+	const auto& slotManager = motherBoard->getSlotManager();
 	std::string cartName = "cartX";
 	for (auto slot : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 		if (!slotManager.slotExists(slot)) continue;

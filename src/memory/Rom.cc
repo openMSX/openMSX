@@ -259,7 +259,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// TODO fix this, this is a hack that depends heavily on
 	//      HardwareConfig::createRomConfig
 	if (name.starts_with("MSXRom")) {
-		auto& db = motherBoard.getReactor().getSoftwareDatabase();
+		const auto& db = motherBoard.getReactor().getSoftwareDatabase();
 		std::string_view title;
 		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {
 			title = romInfo->getTitle(db.getBufferStart());

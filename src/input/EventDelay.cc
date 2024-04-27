@@ -164,12 +164,12 @@ void EventDelay::flush()
 {
 	EmuTime time = getCurrentTime();
 
-	for (auto& e : scheduledEvents) {
+	for (const auto& e : scheduledEvents) {
 		msxEventDistributor.distributeEvent(e, time);
 	}
 	scheduledEvents.clear();
 
-	for (auto& e : toBeScheduledEvents) {
+	for (const auto& e : toBeScheduledEvents) {
 		msxEventDistributor.distributeEvent(e, time);
 	}
 	toBeScheduledEvents.clear();

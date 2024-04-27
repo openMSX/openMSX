@@ -1,22 +1,23 @@
 #include "IDECDROM.hh"
+
+#include "CommandException.hh"
 #include "DeviceConfig.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandException.hh"
-#include "TclObject.hh"
 #include "MSXCliComm.hh"
+#include "TclObject.hh"
+#include "serialize.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstdio>
 #include <memory>
-
-using std::string;
 
 namespace openmsx {
 
@@ -312,7 +313,7 @@ void IDECDROM::eject()
 	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void IDECDROM::insert(const string& filename)
+void IDECDROM::insert(const std::string& filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -336,9 +337,9 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		auto& file = cd.file;
+		const auto& file = cd.file;
 		result.addListElement(tmpStrCat(cd.name, ':'),
-		                      file.is_open() ? file.getURL() : string{});
+		                      file.is_open() ? file.getURL() : std::string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		cd.eject();
@@ -359,7 +360,7 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			string filename = userFileContext().resolve(
+			std::string filename = userFileContext().resolve(
 				tokens[fileToken].getString());
 			cd.insert(filename);
 		} catch (FileException& e) {
@@ -371,7 +372,7 @@ void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
 	}
 }
 
-string CDXCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string CDXCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return strCat(
 		cd.name, "                   : display the cd image for this CD-ROM drive\n",
@@ -380,7 +381,7 @@ string CDXCommand::help(std::span<const TclObject> /*tokens*/) const
 		cd.name, " <filename>        : change the cd image for this CD-ROM drive\n");
 }
 
-void CDXCommand::tabCompletion(std::vector<string>& tokens) const
+void CDXCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
@@ -393,7 +394,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	string filename = file.is_open() ? file.getURL() : string{};
+	std::string filename = file.is_open() ? file.getURL() : std::string{};
 	ar.serialize("filename", filename);
 	if constexpr (Archive::IS_LOADER) {
 		// re-insert CD-ROM before restoring 'mediaChanged', 'senseKey'

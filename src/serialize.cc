@@ -64,13 +64,13 @@ unsigned OutputArchiveBase2::generateID2(
 
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
-	auto* v = lookup(polyIdMap, p);
+	const auto* v = lookup(polyIdMap, p);
 	return v ? *v : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto* v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
+	const auto* v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
 	return v ? *v : 0;
 }
 
@@ -518,7 +518,7 @@ void XmlInputArchive::beginTag(const char* tag)
 	const auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
 		string path;
-		for (auto& [e, _] : elems) {
+		for (const auto& [e, _] : elems) {
 			strAppend(path, e->getName(), '/');
 		}
 		throw XMLException("No child tag \"", tag,

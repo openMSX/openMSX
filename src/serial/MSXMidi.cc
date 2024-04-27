@@ -281,7 +281,7 @@ void MSXMidi::Interface::setRTS(bool status, EmuTime::param /*time*/)
 
 bool MSXMidi::Interface::getDSR(EmuTime::param /*time*/)
 {
-	auto& midi = OUTER(MSXMidi, interface);
+	const auto& midi = OUTER(MSXMidi, interface);
 	return midi.timerIRQ.getState();
 }
 
@@ -316,7 +316,7 @@ void MSXMidi::Interface::recvByte(byte value, EmuTime::param time)
 
 void MSXMidi::Interface::signal(EmuTime::param time)
 {
-	auto& midi = OUTER(MSXMidi, interface);
+	const auto& midi = OUTER(MSXMidi, interface);
 	midi.getPluggedMidiInDev().signal(time);
 }
 

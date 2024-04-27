@@ -35,7 +35,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 		im::Table("table", 2, [&]{
 			const auto& pluggingController = motherBoard->getPluggingController();
 			const auto& pluggables = pluggingController.getPluggables();
-			for (auto* connector : pluggingController.getConnectors()) {
+			for (const auto* connector : pluggingController.getConnectors()) {
 				if (ImGui::TableNextColumn()) { // connector
 					ImGui::TextUnformatted(connector->getDescription());
 				}

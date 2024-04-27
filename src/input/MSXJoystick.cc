@@ -174,7 +174,7 @@ void MSXJoystick::signalMSXEvent(const Event& event,
 	uint8_t release = 0;
 
 	auto getJoyDeadZone = [&](JoystickId joyId) {
-		auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
+		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
 		return setting ? setting->getInt() : 0;
 	};
 	for (int i : xrange(6)) {

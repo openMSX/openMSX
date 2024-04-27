@@ -47,15 +47,15 @@ void AdjustWindowInMainViewPort::pre()
 {
 	if (setMainViewPort) {
 		setMainViewPort = false;
-		auto* mainViewPort = ImGui::GetMainViewport();
+		const auto* mainViewPort = ImGui::GetMainViewport();
 		ImGui::SetNextWindowViewport(mainViewPort->ID);
 	}
 }
 
 bool AdjustWindowInMainViewPort::post()
 {
-	auto* mainViewPort = ImGui::GetMainViewport();
-	auto* windowViewPort = ImGui::GetWindowViewport();
+	const auto* mainViewPort = ImGui::GetMainViewport();
+	const auto* windowViewPort = ImGui::GetWindowViewport();
 	bool isOnMainViewPort = windowViewPort == mainViewPort;
 	gl::vec2 newViewPortSize = mainViewPort->Size;
 	gl::vec2 mainViewPortPos = mainViewPort->Pos;

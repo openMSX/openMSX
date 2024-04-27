@@ -40,7 +40,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
 
 		if (motherBoard) {
-			auto& controller = motherBoard->getMSXCommandController();
+			const auto& controller = motherBoard->getMSXCommandController();
 			if (auto* firmwareSwitch = dynamic_cast<BooleanSetting*>(controller.findSetting("firmwareswitch"))) {
 				Checkbox(hotKey, "Firmware switch", *firmwareSwitch);
 			}
@@ -357,7 +357,7 @@ static void amendConfigInfo(MSXMotherBoard& mb, ImGuiMachine::MachineInfo& info)
 {
 	auto& configInfo = info.configInfo;
 
-	auto& debugger = mb.getDebugger();
+	const auto& debugger = mb.getDebugger();
 	unsigned ramSize = 0;
 	for (const auto& [name, debuggable] : debugger.getDebuggables()) {
 		if (debuggable->getDescription() == one_of("memory mapper", "ram")) {
@@ -375,7 +375,7 @@ static void amendConfigInfo(MSXMotherBoard& mb, ImGuiMachine::MachineInfo& info)
 		configInfo.emplace_back("Disk drives", strCat(narrow<int>(drives->count())));
 	}
 
-	auto& carts = mb.getSlotManager();
+	const auto& carts = mb.getSlotManager();
 	configInfo.emplace_back("Cartridge slots", strCat(carts.getNumberOfSlots()));
 }
 

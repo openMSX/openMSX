@@ -230,7 +230,7 @@ void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 	unsigned release = 0;
 
 	auto getJoyDeadZone = [&](JoystickId joyId) {
-		auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
+		const auto* setting = joystickManager.getJoyDeadZoneSetting(joyId);
 		return setting ? setting->getInt() : 0;
 	};
 	for (int i : xrange(12)) {

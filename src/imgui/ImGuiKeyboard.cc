@@ -33,7 +33,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 	if (!show) return;
 
 	if (!motherBoard) return;
-	auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"));
+	const auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"));
 	if (!ppi) return;
 	const auto& keyboard = ppi->getKeyboard();
 	auto matrix = keyboard.getKeys();

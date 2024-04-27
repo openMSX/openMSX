@@ -162,7 +162,7 @@ void Setting::setValueDirect(const TclObject& newValue_)
 	}
 
 	// synchronize proxy
-	auto* controller = dynamic_cast<MSXCommandController*>(
+	const auto* controller = dynamic_cast<MSXCommandController*>(
 		&getCommandController());
 	if (!controller) {
 		// This is not a machine specific setting.
