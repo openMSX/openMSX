@@ -34,14 +34,14 @@ public:
 		}
 	}
 
-	void read(void* data, int size)
+	void read(void* data, int size) const
 	{
 		if (fread(data, size, 1, file.get()) != 1) {
 			throw std::runtime_error("Couldn't read file");
 		}
 	}
 
-	void write(const void* data, int size)
+	void write(const void* data, int size) const
 	{
 		if (fwrite(data, size, 1, file.get()) != 1) {
 			throw std::runtime_error("Couldn't write file");

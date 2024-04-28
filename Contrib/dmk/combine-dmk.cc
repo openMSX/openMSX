@@ -242,8 +242,8 @@ done_read:
 			name[5] = char((t % 10) + '0');
 			name[7] = char(h + '0');
 
-			FILE_t file(fopen(name.c_str(), "rb"));
-			if (!file) continue; // ok, we should not have this file
+			if (FILE_t file(fopen(name.c_str(), "rb"));
+			    !file) continue; // ok, we should not have this file
 
 			std::string name2 = "DMK-tt-0.DAT";
 			name2[4] = char((numTracks / 10) + '0');
