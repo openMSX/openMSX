@@ -731,13 +731,13 @@ template<typename... Ts>
 [[nodiscard]] inline std::string strCat(char               x, const std::string& y) { return x + y; }
 [[nodiscard]] inline std::string strCat(const std::string& x, const char*        y) { return x + y; }
 [[nodiscard]] inline std::string strCat(const std::string& x, char               y) { return x + y; }
-[[nodiscard]] inline std::string strCat(std::string&&      x, const std::string& y) { return x + y; }
-[[nodiscard]] inline std::string strCat(const std::string& x, std::string&&      y) { return x + y; }
-[[nodiscard]] inline std::string strCat(std::string&&      x, std::string&&      y) { return x + y; }
-[[nodiscard]] inline std::string strCat(const char*        x, std::string&&      y) { return x + y; }
-[[nodiscard]] inline std::string strCat(char               x, std::string&&      y) { return x + y; }
-[[nodiscard]] inline std::string strCat(std::string&&      x, const char*        y) { return x + y; }
-[[nodiscard]] inline std::string strCat(std::string&&      x, char               y) { return x + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, const std::string& y) { return std::move(x) + y; }
+[[nodiscard]] inline std::string strCat(const std::string& x, std::string&&      y) { return x + std::move(y); }
+[[nodiscard]] inline std::string strCat(std::string&&      x, std::string&&      y) { return std::move(x) + std::move(y); }
+[[nodiscard]] inline std::string strCat(const char*        x, std::string&&      y) { return x + std::move(y); }
+[[nodiscard]] inline std::string strCat(char               x, std::string&&      y) { return x + std::move(y); }
+[[nodiscard]] inline std::string strCat(std::string&&      x, const char*        y) { return std::move(x) + y; }
+[[nodiscard]] inline std::string strCat(std::string&&      x, char               y) { return std::move(x) + y; }
 
 template<typename... Ts> [[nodiscard]] TemporaryString tmpStrCat(Ts&&... ts)
 {
