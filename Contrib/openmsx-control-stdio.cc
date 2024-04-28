@@ -196,14 +196,13 @@ void OpenMSXComm::cb_start_element(OpenMSXComm* comm, const xmlChar* name,
 void OpenMSXComm::parseReply(const char** attrs)
 {
 	replyStatus = REPLY_UNKNOWN;
-	if (attrs) {
-		for ( ; *attrs; attrs += 2) {
-			if (strcmp(attrs[0], "result") == 0) {
-				if (strcmp(attrs[1], "ok") == 0) {
-					replyStatus = REPLY_OK;
-				} else if (strcmp(attrs[1], "nok") == 0) {
-					replyStatus = REPLY_NOK;
-				}
+	if (!attrs) return;
+	for ( ; *attrs; attrs += 2) {
+		if (strcmp(attrs[0], "result") == 0) {
+			if (strcmp(attrs[1], "ok") == 0) {
+				replyStatus = REPLY_OK;
+			} else if (strcmp(attrs[1], "nok") == 0) {
+				replyStatus = REPLY_NOK;
 			}
 		}
 	}
@@ -212,14 +211,13 @@ void OpenMSXComm::parseReply(const char** attrs)
 void OpenMSXComm::parseLog(const char** attrs)
 {
 	logLevel = LOG_UNKNOWN;
-	if (attrs) {
-		for ( ; *attrs; attrs += 2) {
-			if (strcmp(attrs[0], "level") == 0) {
-				if (strcmp(attrs[1], "info") == 0) {
-					logLevel = LOG_INFO;
-				} else if (strcmp(attrs[1], "warning") == 0) {
-					logLevel = LOG_WARNING;
-				}
+	if (!attrs) return;
+	for ( ; *attrs; attrs += 2) {
+		if (strcmp(attrs[0], "level") == 0) {
+			if (strcmp(attrs[1], "info") == 0) {
+				logLevel = LOG_INFO;
+			} else if (strcmp(attrs[1], "warning") == 0) {
+				logLevel = LOG_WARNING;
 			}
 		}
 	}
@@ -228,15 +226,14 @@ void OpenMSXComm::parseLog(const char** attrs)
 void OpenMSXComm::parseUpdate(const char** attrs)
 {
 	updateType = UPDATE_UNKNOWN;
-	if (attrs) {
-		for ( ; *attrs; attrs += 2) {
-			if (strcmp(attrs[0], "type") == 0) {
-				if (strcmp(attrs[1], "led") == 0) {
-					updateType = UPDATE_LED;
-				}
-			} else if (strcmp(attrs[0], "name") == 0) {
-				updateName = attrs[1];
+	if (!attrs) return;
+	for ( ; *attrs; attrs += 2) {
+		if (strcmp(attrs[0], "type") == 0) {
+			if (strcmp(attrs[1], "led") == 0) {
+				updateType = UPDATE_LED;
 			}
+		} else if (strcmp(attrs[0], "name") == 0) {
+			updateName = attrs[1];
 		}
 	}
 }

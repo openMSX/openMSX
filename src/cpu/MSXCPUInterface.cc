@@ -288,7 +288,7 @@ void MSXCPUInterface::testUnsetExpanded(
 		for (auto page : xrange(4)) {
 			const MSXDevice* device = slotLayout[ps][ss][page];
 			if (const auto* memDev = dynamic_cast<const MSXMultiMemDevice*>(device)) {
-				for (auto* dev : memDev->getDevices()) {
+				for (const auto* dev : memDev->getDevices()) {
 					check(dev);
 				}
 			} else {

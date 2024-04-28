@@ -105,7 +105,7 @@ namespace openmsx {
 			bool addSlash = !path.empty() && (path.back() != '/');
 			if (addSlash) path += '/';
 			auto origLen = path.size();
-			while (dirent* d = dir.getEntry()) {
+			while (const dirent* d = dir.getEntry()) {
 				std::string_view f(d->d_name);
 				if (f == one_of(".", "..")) continue;
 				path += f;
