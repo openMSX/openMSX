@@ -449,7 +449,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFile.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFileReference.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\PreCacheFile.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\file\ReadDir.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZipFileAdapter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZlibInflate.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\AbstractIDEDevice.cc" />

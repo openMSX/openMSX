@@ -462,9 +462,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\PreCacheFile.cc">
       <Filter>file</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\file\ReadDir.cc">
-      <Filter>file</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZipFileAdapter.cc">
       <Filter>file</Filter>
     </ClCompile>

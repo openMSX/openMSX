@@ -13,6 +13,7 @@
 #include <deque>
 #include <dirent.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <sys/select.h>
 #include <sys/stat.h>
@@ -35,29 +36,20 @@
 class ReadDir
 {
 public:
-	ReadDir(const ReadDir&) = delete;
-	ReadDir(ReadDir&&) = delete;
-	ReadDir& operator=(const ReadDir&) = delete;
-	ReadDir& operator=(ReadDir&&) = delete;
-
 	explicit ReadDir(const std::string& directory)
 		: dir(opendir(directory.c_str())) {}
 
-	~ReadDir() {
-		if (dir) {
-			closedir(dir);
-		}
-	}
-
 	dirent* getEntry() {
-		if (!dir) {
-			return nullptr;
-		}
-		return readdir(dir);
+		if (!dir) return nullptr;
+		return readdir(dir.get());
 	}
 
 private:
-	DIR* dir;
+	struct CloseDir {
+		void operator()(DIR* d) const { if (d) closedir(d); }
+	};
+	using DIR_t = std::unique_ptr<DIR, CloseDir>;
+	DIR_t dir;
 };
 
 static std::string getTempDir()

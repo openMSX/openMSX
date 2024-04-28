@@ -192,7 +192,6 @@ sources = files(
     'file/LocalFile.cc',
     'file/LocalFileReference.cc',
     'file/PreCacheFile.cc',
-    'file/ReadDir.cc',
     'file/ZipFileAdapter.cc',
     'file/ZlibInflate.cc',
     'ide/AbstractIDEDevice.cc',

@@ -4,6 +4,7 @@
 #include "direntp.hh"
 #include "zstring_view.hh"
 
+#include <memory>
 #include <sys/types.h>
 
 namespace openmsx {
@@ -16,25 +17,28 @@ namespace openmsx {
 class ReadDir
 {
 public:
-	explicit ReadDir(zstring_view directory);
-	ReadDir(const ReadDir&) = delete;
-	ReadDir(ReadDir&&) = delete;
-	ReadDir& operator=(const ReadDir&) = delete;
-	ReadDir& operator=(ReadDir&&) = delete;
-	~ReadDir();
+	explicit ReadDir(zstring_view directory)
+		: dir(opendir(directory.empty() ? "." : directory.c_str())) {}
 
 	/** Get directory entry for next file. Returns nullptr when there
 	  * are no more entries or in case of error (e.g. given directory
 	  * does not exist).
 	  */
-	[[nodiscard]] struct dirent* getEntry();
+	[[nodiscard]] struct dirent* getEntry() {
+		if (!dir) return nullptr;
+		return readdir(dir.get());
+	}
 
 	/** Is the given directory valid (does it exist)?
 	  */
 	[[nodiscard]] bool isValid() const { return dir != nullptr; }
 
 private:
-	DIR* dir;
+	struct CloseDir {
+		void operator()(DIR* d) const { if (d) closedir(d); }
+	};
+	using DIR_t = std::unique_ptr<DIR, CloseDir>;
+	DIR_t dir;
 };
 
 } // namespace openmsx
