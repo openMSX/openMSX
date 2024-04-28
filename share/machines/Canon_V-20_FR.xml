@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Canon</manufacturer>
+    <code>V-20 (FR)</code>
+    <release_year>1985</release_year>
+    <description>Canon's MSX1 proposition in Europe, with 64kB RAM, for the French speaking market.</description>
+    <type>MSX</type>
+    <region>fr</region>
+  </info>
+
+<!-- MRC wiki: 
+PPI: NEC D8255AC-5
+VDP: TI TMS9929ANL
+crystal: X1:10.xx863 (VDP), X2:? possibly not synced
+
+Based on ROM dump by Oliver Klink and the information in the MRC Wiki. No
+actual checks on the real machine have been performed, so all missing data is
+copied from the European V-20 configuration.
+-->
+
+  <CassettePort/>
+
+  <devices>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <mem base="0x0000" size="0x8000"/>
+        <rom>
+          <sha1>d3af963e2529662eae63f04a2530454685a1989f</sha1>
+          <filename>v-20fr_basic-bios1.rom</filename>
+        </rom>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/> <!-- side slot -->
+
+    <primary external="true" slot="2"/> <!-- top slot -->
+
+    <primary slot="3">
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
+    </primary>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="8"/> <!-- mirroring copied from V-20 EU -->
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <keyboard_type>fr</keyboard_type>
+      <has_keypad>false</has_keypad> <!-- TODO: check -->
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- TODO: check -->
+      <code_kana_locks>false</code_kana_locks> <!-- TODO: check -->
+      <graph_locks>false</graph_locks> <!-- TODO: check -->
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="8"/> <!-- mirroring copied from V-20 EU -->
+      <version>TMS9929A</version>
+      <saturation>100</saturation> <!-- TMS9x2x and RGB output -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- TODO: check -->
+      <keyboardlayout>JIS</keyboardlayout> <!-- TODO: check -->
+      <io base="0xA0" num="4" type="IO"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+  </devices>
+
+</msxconfig>
