@@ -40,9 +40,9 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       </ROM>
     </primary>
 
-    <primary external="true" slot="1"/>
+    <primary external="true" slot="1"/> <!-- side slot -->
 
-    <primary external="true" slot="2"/>
+    <primary external="true" slot="2"/> <!-- top slot -->
 
     <primary slot="3">
       <RAM id="Main RAM">
@@ -69,8 +69,8 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     </VDP>
 
     <PSG id="PSG">
-      <keyboardlayout>JIS</keyboardlayout>
       <type>YM2149</type>
+      <keyboardlayout>JIS</keyboardlayout>
       <io base="0xA0" num="4" type="IO"/>
       <sound>
         <volume>21000</volume>
