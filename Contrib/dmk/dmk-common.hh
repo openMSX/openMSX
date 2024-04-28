@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <memory>
 #include <stdexcept>
 #include <string>
 
@@ -17,44 +18,38 @@ struct DmkHeader
 	std::array<uint8_t, 4> format;
 };
 
+struct FClose {
+	void operator()(FILE* f) const { fclose(f); }
+};
+using FILE_t = std::unique_ptr<FILE, FClose>;
 
 class File
 {
 public:
-	File(const File&) = delete;
-	File(File&&) = delete;
-	File& operator=(const File&) = delete;
-	File& operator=(File&&) = delete;
-
 	File(const std::string& filename, const char* mode)
-		: f(fopen(filename.c_str(), mode))
+		: file(fopen(filename.c_str(), mode))
 	{
-		if (!f) {
+		if (!file) {
 			throw std::runtime_error("Couldn't open: " + filename);
 		}
 	}
 
-	~File()
-	{
-		fclose(f);
-	}
-
 	void read(void* data, int size)
 	{
-		if (fread(data, size, 1, f) != 1) {
+		if (fread(data, size, 1, file.get()) != 1) {
 			throw std::runtime_error("Couldn't read file");
 		}
 	}
 
 	void write(const void* data, int size)
 	{
-		if (fwrite(data, size, 1, f) != 1) {
+		if (fwrite(data, size, 1, file.get()) != 1) {
 			throw std::runtime_error("Couldn't write file");
 		}
 	}
 
 private:
-	FILE* f;
+	FILE_t file;
 };
 
 

@@ -23,7 +23,7 @@ int main(int argc, const char** argv)
 		exit(1);
 	}
 
-	FILE* f = fopen(arg[1], "wb");
+	FILE_t f(fopen(arg[1], "wb"));
 	if (!f) {
 		printf("Error opening file '%s' for writing.\n", arg[1]);
 		exit(1);
@@ -34,14 +34,12 @@ int main(int argc, const char** argv)
 	header.numTracks = 80;
 	header.trackLen[0] = (128 + RAW_TRACK_SIZE) & 255;
 	header.trackLen[1] = (128 + RAW_TRACK_SIZE) >> 8;
-	fwrite(&header, sizeof(header), 1, f);
+	fwrite(&header, sizeof(header), 1, f.get());
 
 	std::array<uint8_t, 128 + RAW_TRACK_SIZE> buf;
 	memset(&buf[  0],    0,  128);
 	memset(&buf[128], 0x4e, RAW_TRACK_SIZE);
 	for (int i = 0; i < 2 * 80; ++i) {
-		fwrite(buf.data(), buf.size(), 1, f);
+		fwrite(buf.data(), buf.size(), 1, f.get());
 	}
-
-	fclose(f);
 }

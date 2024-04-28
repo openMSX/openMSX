@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <span>
 #include <sys/stat.h>
 #include <vector>
@@ -51,20 +52,20 @@ int main(int argc, const char** argv)
 		std::cerr << "Usage: " << arg[0] << " <input> <output>\n";
 		exit(1);
 	}
-	FILE* inf = fopen(arg[1], "rb");
+	using FILE_t = std::unique_ptr<FILE, decltype([](FILE* f) { fclose(f); })>;
+	FILE_t inf(fopen(arg[1], "rb"));
 	if (!inf) {
 		std::cerr << "Error while opening " << arg[1] << '\n';
 		exit(1);
 	}
 	struct stat st;
-	fstat(fileno(inf), &st);
+	fstat(fileno(inf.get()), &st);
 	size_t size = st.st_size;
 	std::vector<char> inBuf(size);
-	if (fread(inBuf.data(), size, 1, inf) != 1) {
+	if (fread(inBuf.data(), size, 1, inf.get()) != 1) {
 		std::cerr << "Error while reading " << arg[1] << '\n';
 		exit(1);
 	}
-	fclose(inf);
 
 	std::string result;
 	if        (strstr(arg[0], "encode-gz-base64")) {
@@ -77,15 +78,14 @@ int main(int argc, const char** argv)
 		exit(1);
 	}
 
-	FILE* outf = fopen(arg[2], "wb+");
+	FILE_t outf(fopen(arg[2], "wb+"));
 	if (!outf) {
 		std::cerr << "Error while opening " << arg[2] << '\n';
 		exit(1);
 	}
 
-	if (fwrite(result.data(), result.size(), 1, outf) != 1) {
+	if (fwrite(result.data(), result.size(), 1, outf.get()) != 1) {
 		std::cerr << "Error while writing " << arg[2] << '\n';
 		exit(1);
 	}
-	fclose(outf);
 }
