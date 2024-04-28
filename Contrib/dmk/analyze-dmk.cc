@@ -15,7 +15,7 @@
 
 struct DmkTrackData {
 public:
-	void read(File& file, int dmkTrackLen) {
+	void read(const File& file, int dmkTrackLen) {
 		assert(dmkTrackLen > 128);
 		buffer.resize(dmkTrackLen);
 		file.read(buffer.data(), dmkTrackLen);

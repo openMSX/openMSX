@@ -38,7 +38,7 @@ static void fill(uint8_t*& p, int len, uint8_t value)
 
 static void convertTrack(int cyl, int head,
                          int sectorsPerTrack, int sectorSizeCode, int gap3,
-                         File& inf, File& outf)
+                         const File& inf, const File& outf)
 {
 	int sectorSize = 128 << sectorSizeCode;
 	int rawSectorLen = 12 + 10 + GAP2 + 12 + 4 + sectorSize + 2 + gap3;
