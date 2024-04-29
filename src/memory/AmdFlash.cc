@@ -226,6 +226,14 @@ uint8_t AmdFlash::peek(size_t address) const
 			address >>= 1;
 		}
 		return narrow_cast<uint8_t>(peekAutoSelect(address, chip.autoSelect.undefined));
+	} else if (state == State::CFI) {
+		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
+			// convert byte address to native address
+			const uint16_t result = peekCFI(address >> 1);
+			return narrow_cast<uint8_t>(address & 1 ? result >> 8 : result);
+		} else {
+			return narrow_cast<uint8_t>(peekCFI(address));
+		}
 	} else {
 		UNREACHABLE;
 	}
@@ -276,6 +284,160 @@ uint16_t AmdFlash::peekAutoSelect(size_t address, uint16_t undefined) const
 	}
 }
 
+uint16_t AmdFlash::peekCFI(size_t address) const
+{
+	const size_t maskedAddress = address & chip.cfi.readMask;
+
+	if (maskedAddress < 0x10) {
+		if (chip.cfi.withManufacturerDevice) {
+			// M29W640GB exposes manufacturer & device ID below 0x10 (as 16-bit values)
+			switch (maskedAddress) {
+			case 0x0:
+				return to_underlying(chip.autoSelect.manufacturer);
+			case 0x1:
+				return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
+			case 0x2:
+				return chip.autoSelect.device.size() == 2 ? chip.autoSelect.device[0] | 0x2200 : 0xFFFF;
+			case 0x3:
+				return chip.autoSelect.device.size() == 2 ? chip.autoSelect.device[1] | 0x2200 : 0xFFFF;
+			default:
+				return 0xFFFF;
+			}
+		} else if (chip.cfi.withAutoSelect) {
+			// S29GL064S exposes auto select data below 0x10 (as 16-bit values)
+			return peekAutoSelect(address);
+		}
+	}
+
+	switch (maskedAddress) {
+	case 0x10:
+		return 'Q';
+	case 0x11:
+		return 'R';
+	case 0x12:
+		return 'Y';
+	case 0x13:
+		return 0x02;  // AMD compatible
+	case 0x14:
+		return 0x00;
+	case 0x15:
+		return 0x40;
+	case 0x16:
+	case 0x17:
+	case 0x18:
+	case 0x19:
+	case 0x1A:
+		return 0x00;
+	case 0x1B:
+		return chip.cfi.systemInterface.supply.minVcc;
+	case 0x1C:
+		return chip.cfi.systemInterface.supply.maxVcc;
+	case 0x1D:
+		return chip.cfi.systemInterface.supply.minVpp;
+	case 0x1E:
+		return chip.cfi.systemInterface.supply.maxVpp;
+	case 0x1F:
+		return chip.cfi.systemInterface.typTimeout.singleProgram.exponent;
+	case 0x20:
+		return chip.cfi.systemInterface.typTimeout.multiProgram.exponent;
+	case 0x21:
+		return chip.cfi.systemInterface.typTimeout.sectorErase.exponent;
+	case 0x22:
+		return chip.cfi.systemInterface.typTimeout.chipErase.exponent;
+	case 0x23:
+		return chip.cfi.systemInterface.maxTimeoutMult.singleProgram.exponent;
+	case 0x24:
+		return chip.cfi.systemInterface.maxTimeoutMult.multiProgram.exponent;
+	case 0x25:
+		return chip.cfi.systemInterface.maxTimeoutMult.sectorErase.exponent;
+	case 0x26:
+		return chip.cfi.systemInterface.maxTimeoutMult.chipErase.exponent;
+	case 0x27:
+		return chip.geometry.size.exponent;
+	case 0x28:
+		return narrow<uint8_t>(to_underlying(chip.geometry.deviceInterface) & 0xFF);
+	case 0x29:
+		return narrow<uint8_t>(to_underlying(chip.geometry.deviceInterface) >> 8);
+	case 0x2A:
+		return chip.program.pageSize.exponent;
+	case 0x2B:
+		return 0x00;
+	case 0x2C:
+		return narrow<uint8_t>(chip.geometry.regions.size());
+	case 0x2D:
+	case 0x31:
+	case 0x35:
+	case 0x39:
+		if (const size_t index = (maskedAddress - 0x2D) >> 2; index < chip.geometry.regions.size()) {
+			return narrow<uint8_t>((chip.geometry.regions[index].count - 1) & 0xFF);
+		}
+		return 0x00;
+	case 0x2E:
+	case 0x32:
+	case 0x36:
+	case 0x3A:
+		if (const size_t index = (maskedAddress - 0x2E) >> 2; index < chip.geometry.regions.size()) {
+			return narrow<uint8_t>((chip.geometry.regions[index].count - 1) >> 8);
+		}
+		return 0x00;
+	case 0x2F:
+	case 0x33:
+	case 0x37:
+	case 0x3B:
+		if (const size_t index = (maskedAddress - 0x2F) >> 2; index < chip.geometry.regions.size()) {
+			return narrow<uint8_t>((chip.geometry.regions[index].size >> 8) & 0xFF);
+		}
+		return 0x00;
+	case 0x30:
+	case 0x34:
+	case 0x38:
+	case 0x3C:
+		if (const size_t index = (maskedAddress - 0x30) >> 2; index < chip.geometry.regions.size()) {
+			return narrow<uint8_t>((chip.geometry.regions[index].size >> 8) >> 8);
+		}
+		return 0x00;
+	case 0x40:
+		return 'P';
+	case 0x41:
+		return 'R';
+	case 0x42:
+		return 'I';
+	case 0x43:
+		return '0' + chip.cfi.primaryAlgorithm.version.major;
+	case 0x44:
+		return '0' + chip.cfi.primaryAlgorithm.version.minor;
+	case 0x45:
+		return narrow<uint8_t>(chip.cfi.primaryAlgorithm.addressSensitiveUnlock | (chip.cfi.primaryAlgorithm.siliconRevision << 2));
+	case 0x46:
+		return chip.cfi.primaryAlgorithm.eraseSuspend;
+	case 0x47:
+		return chip.cfi.primaryAlgorithm.sectorProtect;
+	case 0x48:
+		return chip.cfi.primaryAlgorithm.sectorTemporaryUnprotect;
+	case 0x49:
+		return chip.cfi.primaryAlgorithm.sectorProtectScheme;
+	case 0x4A:
+		return chip.cfi.primaryAlgorithm.simultaneousOperation;
+	case 0x4B:
+		return chip.cfi.primaryAlgorithm.burstMode;
+	case 0x4C:
+		return chip.cfi.primaryAlgorithm.pageMode;
+	case 0x4D:
+		return chip.cfi.primaryAlgorithm.version.minor >= 1 ? chip.cfi.primaryAlgorithm.supply.minAcc : 0xFFFF;
+	case 0x4E:
+		return chip.cfi.primaryAlgorithm.version.minor >= 1 ? chip.cfi.primaryAlgorithm.supply.maxAcc : 0xFFFF;
+	case 0x4F:
+		return chip.cfi.primaryAlgorithm.version.minor >= 1 ? chip.cfi.primaryAlgorithm.bootBlockFlag : 0xFFFF;
+	case 0x50:
+		return chip.cfi.primaryAlgorithm.version.minor >= 2 ? chip.cfi.primaryAlgorithm.programSuspend : 0xFFFF;
+	default:
+		// TODO
+		// 0x61-0x64 Unique 64-bit device number / security code for M29W800DB and M29W640GB.
+		// M29W640GB also has unknown data in 0x65-0x6A, as well as some in the 0x80-0xFF range.
+		return 0xFFFF;
+	}
+}
+
 bool AmdFlash::isSectorWritable(size_t sector) const
 {
 	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
@@ -309,6 +471,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 		    checkCommandDoubleByteProgram() ||
 		    checkCommandQuadrupleByteProgram() ||
 		    checkCommandEraseChip() ||
+		    checkCommandCFIQuery() ||
 		    checkCommandLongReset() ||
 		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
@@ -316,7 +479,16 @@ void AmdFlash::write(size_t address, uint8_t value)
 			cmd.clear();
 		}
 	} else if (state == State::IDENT) {
+		if (checkCommandCFIQuery() ||
+		    checkCommandLongReset() ||
+		    checkCommandReset()) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::CFI) {
 		if (checkCommandLongReset() ||
+		    checkCommandCFIExit() ||
 		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
@@ -345,6 +517,24 @@ bool AmdFlash::checkCommandLongReset()
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xf0};
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 3) return true;
+		reset();
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandCFIQuery()
+{
+	// convert byte address to native address
+	const size_t addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[0].addr >> 1 : cmd[0].addr;
+	if (chip.cfi.command && (addr & chip.cfi.commandMask) == 0x55 && cmd[0].value == 0x98) {
+		setState(State::CFI);
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandCFIExit()
+{
+	if (chip.cfi.exitCommand && cmd[0].value == 0xff) {
 		reset();
 	}
 	return false;
@@ -441,7 +631,8 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
 	{ "IDLE",  AmdFlash::State::IDLE  },
-	{ "IDENT", AmdFlash::State::IDENT }
+	{ "IDENT", AmdFlash::State::IDENT },
+	{ "CFI",   AmdFlash::State::CFI }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
