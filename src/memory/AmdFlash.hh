@@ -78,15 +78,71 @@ public:
 		}
 	};
 
+	struct CFI {
+		bool command : 1 = false;
+		bool withManufacturerDevice : 1 = false; // < 0x10 contains mfr / device
+		bool withAutoSelect : 1 = false;         // < 0x10 contains autoselect
+		bool exitCommand : 1 = false;            // also exit by writing 0xFF
+		size_t commandMask = 0xFF;               // command address mask
+		size_t readMask = 0x7F;                  // read address mask
+		struct SystemInterface {
+			struct Supply {
+				uint8_t minVcc = 0;
+				uint8_t maxVcc = 0;
+				uint8_t minVpp = 0;
+				uint8_t maxVpp = 0;
+			} supply = {};
+			struct TypicalTimeout {
+				power_of_two<unsigned> singleProgram = 1;
+				power_of_two<unsigned> multiProgram = 1;
+				power_of_two<unsigned> sectorErase = 1;
+				power_of_two<unsigned> chipErase = 1;
+			} typTimeout = {};
+			struct MaxTimeoutMultiplier {
+				power_of_two<unsigned> singleProgram = 1;
+				power_of_two<unsigned> multiProgram = 1;
+				power_of_two<unsigned> sectorErase = 1;
+				power_of_two<unsigned> chipErase = 1;
+			} maxTimeoutMult = {};
+		} systemInterface = {};
+		struct PrimaryAlgorithm {
+			struct Version {
+				uint8_t major = 0;
+				uint8_t minor = 0;
+			} version = {};
+			uint8_t addressSensitiveUnlock : 2 = 0;
+			uint8_t siliconRevision : 6 = 0;
+			uint8_t eraseSuspend = 0;
+			uint8_t sectorProtect = 0;
+			uint8_t sectorTemporaryUnprotect = 0;
+			uint8_t sectorProtectScheme = 0;
+			uint8_t simultaneousOperation = 0;
+			uint8_t burstMode = 0;
+			uint8_t pageMode = 0;
+			struct Supply {
+				uint8_t minAcc = 0;
+				uint8_t maxAcc = 0;
+			} supply = {};
+			uint8_t bootBlockFlag = 0;
+			uint8_t programSuspend = 0;
+		} primaryAlgorithm = {};
+
+		constexpr void validate() const {
+			assert(!command || primaryAlgorithm.version.major == 1);
+		}
+	};
+
 	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
 		Program program = {};
+		CFI cfi = {};
 
 		constexpr void validate() const {
 			autoSelect.validate();
 			geometry.validate();
 			program.validate();
+			cfi.validate();
 		}
 	};
 
@@ -152,7 +208,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State { IDLE, IDENT };
+	enum class State { IDLE, IDENT, CFI };
 
 private:
 	void init(const std::string& name, const DeviceConfig& config, Load load,
@@ -161,10 +217,13 @@ private:
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
+	[[nodiscard]] uint16_t peekCFI(size_t address) const;
 
 	void setState(State newState);
 	[[nodiscard]] bool checkCommandReset();
 	[[nodiscard]] bool checkCommandLongReset();
+	[[nodiscard]] bool checkCommandCFIQuery();
+	[[nodiscard]] bool checkCommandCFIExit();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
 	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
@@ -212,6 +271,11 @@ namespace AmdFlashChip
 	static constexpr ValidatedChip M29W800DB = {{
 		.autoSelect{.manufacturer = STM, .device{0x5B}},
 		.geometry{DeviceInterface::x8x16, {{1, 0x4000}, {2, 0x2000}, {1, 0x8000}, {15, 0x10000}}},
+		.cfi{
+			.command = true,
+			.systemInterface{{0x27, 0x36, 0x00, 0x00}, {16, 1, 1024, 1}, {16, 1, 8, 1}},
+			.primaryAlgorithm{{1, 0}, 0, 0, 2, 1, 1, 4, 0, 0, 0},
+		},
 	}};
 
 	// Micron M29W640GB
@@ -219,6 +283,11 @@ namespace AmdFlashChip
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
 		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
 		.program{.fastCommand = true, .pageSize = 32},
+		.cfi{
+			.command = true, .withManufacturerDevice = true, .commandMask = 0xFFF, .readMask = 0xFF,
+			.systemInterface{{0x27, 0x36, 0xB5, 0xC5}, {16, 1, 1024, 1}, {16, 1, 8, 1}},
+			.primaryAlgorithm{{1, 3}, 0, 0, 2, 4, 1, 4, 0, 0, 1, {0xB5, 0xC5}, 0x02, 1},
+		},
 	}};
 }
 
