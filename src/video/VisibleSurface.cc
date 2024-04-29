@@ -361,7 +361,7 @@ void VisibleSurface::saveScreenshotGL(
 
 	VLA(const uint32_t*, rowPointers, h);
 	for (auto i : xrange(size_t(h))) {
-		rowPointers[h - 1 - i] = &buffer[4 * size_t(w) * i];
+		rowPointers[h - 1 - i] = &buffer[size_t(w) * i];
 	}
 
 	PNG::saveRGBA(w, rowPointers, filename);
