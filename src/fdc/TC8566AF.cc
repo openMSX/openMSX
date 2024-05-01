@@ -124,6 +124,9 @@ uint8_t TC8566AF::readStatus(EmuTime::param time)
 {
 	if (delayTime.before(time)) {
 		mainStatus |= STM_RQM;
+		if (phase == Phase::DATA_TRANSFER && (status0 & ST0_IC0)) {
+			resultPhase();
+		}
 	}
 	return peekStatus();
 }
@@ -604,9 +607,9 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 	//interrupt = true;
 
 	// load drive head, if not already loaded
-	EmuTime ready = time;
+	EmuTime headLoadTime = time;
 	if (!isHeadLoaded(time)) {
-		ready += getHeadLoadDelay();
+		headLoadTime += getHeadLoadDelay();
 		// set 'head is loaded'
 		headUnloadTime = EmuTime::infinity();
 	}
@@ -617,12 +620,14 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 	// actually read sector header: fills in
 	//   dataAvailable and dataCurrent
 	bool readId = command == Command::READ_ID;
-	ready = locateSector(ready, readId);
-	if (ready == EmuTime::infinity()) {
+	EmuTime foundTime = locateSector(headLoadTime, readId);
+	if (foundTime == EmuTime::infinity()) {
+		// This error condition is only detected when index pulse is seen twice
+		auto* drv = drive[driveSelect];
+		foundTime = drv->getTimeTillIndexPulse(headLoadTime, 2);
 		status0 |= ST0_IC0;
 		status1 |= readId ? ST1_MA : ST1_ND;
-		resultPhase();
-		return;
+		// readStatus() will call resultPhase()
 	}
 	if (command == Command::READ_DATA) {
 		mainStatus |= STM_DIO;
@@ -632,7 +637,7 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 
 	// first byte is available when it's rotated below the
 	// drive-head
-	delayTime.reset(ready);
+	delayTime.reset(foundTime);
 	mainStatus &= ~STM_RQM;
 
 	if (readId) {
