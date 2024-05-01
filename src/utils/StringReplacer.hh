@@ -41,9 +41,9 @@ namespace detail {
 {
 	constexpr unsigned PRIME = 0x811C9DC5;
 	auto hash = narrow<unsigned>(s.size());
-	for (size_t i = 0; i < s.size(); ++i) {
+	for (char c : s) {
 		hash *= PRIME;
-		hash ^= s[i];
+		hash ^= c;
 	}
 	return hash;
 }

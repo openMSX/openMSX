@@ -53,13 +53,11 @@ void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 	}
 }
 
-static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
+[[nodiscard]] static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
 {
-	for (const auto& channel : info.channelSettings) {
-		if (channel.mute->getBoolean()) return true;
-		if (!channel.record->getString().empty()) return true;
-	}
-	return false;
+	return ranges::any_of(info.channelSettings, [&](const auto& channel) {
+		return channel.mute->getBoolean() || !channel.record->getString().empty();
+	});
 }
 
 void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)

@@ -1,5 +1,6 @@
 #include "enumerate.hh"
 #include "narrow.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 
 #include <array>
@@ -64,23 +65,10 @@ static constexpr struct EnvTables {
 	return r;
 }();
 
-constexpr void copy_64(std::span<const uint8_t, 64> in, std::span<uint8_t, 64> out) // TODO use c++20 std::copy()
-{
-	for (auto i : xrange(64)) {
-		out[i] = in[i];
-	}
-}
-constexpr bool equal_64(std::span<const uint8_t, 64> tab1, std::span<const uint8_t, 64> tab2) // TODO use c++20 std::equal()
-{
-	for (auto i : xrange(64)) {
-		if (tab1[i] != tab2[i]) return false;
-	}
-	return true;
-}
 constexpr int find_64(std::span<const uint8_t, 64> needle, std::span<std::array<uint8_t, 64>> haystack) // TODO use c++20 std::find
 {
 	for (auto [i, candidate] : enumerate(haystack)) {
-		if (equal_64(needle, candidate)) return narrow<int>(i);
+		if (ranges::equal(needle, candidate)) return narrow<int>(i);
 	}
 	return -1;
 }
@@ -96,13 +84,13 @@ struct CompressedEnvTables {
 	for (auto i : xrange(14)) {
 		for (auto j : xrange(4)) {
 			for (auto k : xrange(4)) {
-				int f = find_64(envTabs.release[i][j][k], std::span{r.releaseData.data(), out_n});
-				if (f == -1) {
-					copy_64(envTabs.release[i][j][k], r.releaseData[out_n]);
+				if (int f = find_64(envTabs.release[i][j][k], std::span{r.releaseData.data(), out_n});
+				    f != -1) {
+					r.releaseIndex[i][j][k] = f;
+				} else {
+					ranges::copy(envTabs.release[i][j][k], r.releaseData[out_n]);
 					r.releaseIndex[i][j][k] = out_n;
 					++out_n;
-				} else {
-					r.releaseIndex[i][j][k] = f;
 				}
 			}
 		}

@@ -373,17 +373,15 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 {
 	static constexpr std::array<unsigned, 5> addrSeq = {0, 1, 0, 0, 1};
 	static constexpr std::array<unsigned, 2> cmdAddr = {0x555, 0x2aa};
+	(void)addrSeq; (void)cmdAddr; // suppress (invalid) gcc warning
 
 	assert(dataSeq.size() <= 5);
-	for (auto i : xrange(std::min(unsigned(dataSeq.size()), cmdIdx))) {
+	return ranges::all_of(xrange(std::min(unsigned(dataSeq.size()), cmdIdx)), [&](auto i) {
 		// convert the address to the '11 bit case'
 		auto addr = (addressing == Addressing::BITS_12) ? cmd[i].addr >> 1 : cmd[i].addr;
-		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||
-		    (cmd[i].value != dataSeq[i])) {
-			return false;
-		}
-	}
-	return true;
+		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&
+		       (cmd[i].value == dataSeq[i]);
+	});
 }
 
 

@@ -249,13 +249,13 @@ template<typename RandomAccessRange, typename Compare = std::equal_to<>, typenam
 
 template<typename InputRange, typename OutputIter>
 	requires(!range<OutputIter>)
-auto copy(InputRange&& range, OutputIter out)
+constexpr auto copy(InputRange&& range, OutputIter out)
 {
 	return std::copy(std::begin(range), std::end(range), out);
 }
 
 template<sized_range Input, sized_range Output>
-auto copy(Input&& in, Output&& out)
+constexpr auto copy(Input&& in, Output&& out)
 {
 	assert(std::size(in) <= std::size(out));
 	return std::copy(std::begin(in), std::end(in), std::begin(out));
@@ -367,7 +367,7 @@ auto set_difference(InputRange1&& range1, InputRange2&& range2, OutputIter out)
 template<range InputRange1, range InputRange2,
          typename Pred = std::equal_to<void>,
          typename Proj1 = std::identity, typename Proj2 = std::identity>
-bool equal(InputRange1&& range1, InputRange2&& range2, Pred pred = {},
+[[nodiscard]] constexpr bool equal(InputRange1&& range1, InputRange2&& range2, Pred pred = {},
            Proj1 proj1 = {}, Proj2 proj2 = {})
 {
 	auto it1 = std::begin(range1);
@@ -385,7 +385,7 @@ bool equal(InputRange1&& range1, InputRange2&& range2, Pred pred = {},
 template<sized_range SizedRange1, sized_range SizedRange2,
          typename Pred = std::equal_to<void>,
          typename Proj1 = std::identity, typename Proj2 = std::identity>
-bool equal(SizedRange1&& range1, SizedRange2&& range2, Pred pred = {},
+[[nodiscard]] constexpr bool equal(SizedRange1&& range1, SizedRange2&& range2, Pred pred = {},
            Proj1 proj1 = {}, Proj2 proj2 = {})
 {
 	if (std::size(range1) != std::size(range2)) return false;
