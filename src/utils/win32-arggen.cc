@@ -9,30 +9,26 @@
 
 namespace openmsx {
 
-ArgumentGenerator::~ArgumentGenerator()
+ArgumentGenerator::ArgumentGenerator()
 {
-	for (auto i : xrange(argc)) {
-		free(argv[i]);
+	int argc = 0;
+	LPWSTR* pszArgList = CommandLineToArgvW(GetCommandLineW(), &argc);
+	if (!pszArgList) {
+		throw MSXException("Failed to obtain command line arguments");
 	}
+
+	args = dynarray<char*>(argc);
+	for (auto i : xrange(argc)) {
+		args[i] = strdup(utf8::utf16to8(pszArgList[i]).c_str());
+	}
+	LocalFree(pszArgList);
 }
 
-char** ArgumentGenerator::GetArguments(int& argc_)
+ArgumentGenerator::~ArgumentGenerator()
 {
-	if (argv.empty()) {
-		LPWSTR* pszArgList = CommandLineToArgvW(GetCommandLineW(), &argc);
-		if (!pszArgList) {
-			throw MSXException("Failed to obtain command line arguments");
-		}
-
-		argv.resize(argc);
-		for (auto i : xrange(argc)) {
-			argv[i] = strdup(utf8::utf16to8(pszArgList[i]).c_str());
-		}
-		LocalFree(pszArgList);
+	for (auto* arg : args) {
+		free(arg);
 	}
-
-	argc_ = argc;
-	return argv.data();
 }
 
 } // namespace openmsx

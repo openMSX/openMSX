@@ -3,19 +3,29 @@
 
 #ifdef _WIN32
 
-#include "MemBuffer.hh"
+#include "dynarray.hh"
+
+#include <span>
 
 namespace openmsx {
 
 class ArgumentGenerator
 {
 public:
+	ArgumentGenerator(const ArgumentGenerator&) = delete;
+	ArgumentGenerator(ArgumentGenerator&&) = delete;
+	ArgumentGenerator& operator=(const ArgumentGenerator&) = delete;
+	ArgumentGenerator& operator=(ArgumentGenerator&&) = delete;
+
+	ArgumentGenerator();
 	~ArgumentGenerator();
-	[[nodiscard]] char** GetArguments(int& argc);
+
+	[[nodiscard]] std::span<char*> getArgs() {
+		return {args.data(), args.size()};
+	}
 
 private:
-	MemBuffer<char*> argv;
-	int argc;
+	dynarray<char*> args;
 };
 
 #endif

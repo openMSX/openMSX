@@ -116,11 +116,14 @@ static int main(int argc, char **argv)
 		Thread::setMainThread();
 		Reactor reactor;
 #ifdef _WIN32
+		(void)argc; (void)argv;
 		ArgumentGenerator argGen;
-		argv = argGen.GetArguments(argc);
+		auto args = argGen.getArgs();
+#else
+		std::span<char*> args{argv, size_t(argc)};
 #endif
 		CommandLineParser parser(reactor);
-		parser.parse({argv, size_t(argc)});
+		parser.parse(args);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
 		if (parseStatus != CommandLineParser::EXIT) {
