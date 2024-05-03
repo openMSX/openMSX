@@ -30,7 +30,6 @@ TODO:
 #include "EnumSetting.hh"
 #include "HardwareConfig.hh"
 #include "MSXCPU.hh"
-#include "MSXCliComm.hh"
 #include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -104,6 +103,12 @@ VDP::VDP(const DeviceConfig& config)
 		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast",
 		"",
+		Setting::SaveSetting::SAVE)
+	, dotClockDirectionCallback(
+		getCommandController(),
+		getName() + ".dot_clock_direction_callback",
+		"Tcl proc called when DLCLK is set as input",
+		"default_dot_clock_direction_callback",
 		Setting::SaveSetting::SAVE)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
@@ -1208,10 +1213,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
 			warningPrinted = true;
-			getCliComm().printWarning(
-				"The running MSX software has set bit 0 of VDP register 9 "
-				"(dot clock direction) to one. In an ordinary MSX, "
-				"the screen would go black and the CPU would stop running.");
+			dotClockDirectionCallback.execute();
 			// TODO: Emulate such behaviour.
 		}
 		if (change & 0x80) {

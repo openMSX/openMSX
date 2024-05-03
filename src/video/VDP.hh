@@ -1149,6 +1149,7 @@ private:
 	EmuTime hScanSyncTime;
 
 	TclCallback tooFastCallback;
+	TclCallback dotClockDirectionCallback;
 
 	/** VDP version.
 	  */
