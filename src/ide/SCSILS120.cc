@@ -111,13 +111,13 @@ SCSILS120::SCSILS120(const DeviceConfig& targetConfig,
 	reset();
 
 	motherBoard.registerMediaInfo(name, *this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "add");
 }
 
 SCSILS120::~SCSILS120()
 {
 	motherBoard.unregisterMediaInfo(*this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
 	assert((*lsInUse)[id]);
@@ -472,7 +472,7 @@ void SCSILS120::eject()
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, {});
 }
 
 void SCSILS120::insert(const std::string& filename)
@@ -482,7 +482,7 @@ void SCSILS120::insert(const std::string& filename)
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, filename);
 }
 
 unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& phase, unsigned& blocks)

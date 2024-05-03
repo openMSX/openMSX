@@ -493,7 +493,7 @@ void Reactor::switchBoard(Board newBoard)
 		activeBoard = newBoard;
 	}
 	eventDistributor->distributeEvent(MachineLoadedEvent());
-	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
+	globalCliComm->update(CliComm::UpdateType::HARDWARE, getMachineID(), "select");
 	if (activeBoard) {
 		activeBoard->activate(true);
 	}
@@ -617,7 +617,7 @@ void Reactor::unpause()
 {
 	if (paused) {
 		paused = false;
-		globalCliComm->update(CliComm::STATUS, "paused", "false");
+		globalCliComm->update(CliComm::UpdateType::STATUS, "paused", "false");
 		unblock();
 	}
 }
@@ -626,7 +626,7 @@ void Reactor::pause()
 {
 	if (!paused) {
 		paused = true;
-		globalCliComm->update(CliComm::STATUS, "paused", "true");
+		globalCliComm->update(CliComm::UpdateType::STATUS, "paused", "true");
 		block();
 	}
 }

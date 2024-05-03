@@ -77,7 +77,7 @@ void GlobalCliComm::log(LogLevel level, std::string_view message, float fraction
 	} else {
 		// don't let the message get lost
 		std::cerr << message;
-		if (level == PROGRESS && fraction >= 0.0f) {
+		if (level == LogLevel::PROGRESS && fraction >= 0.0f) {
 			std::cerr << "... " << int(100.0f * fraction) << '%';
 		}
 		std::cerr << '\n';
@@ -86,13 +86,11 @@ void GlobalCliComm::log(LogLevel level, std::string_view message, float fraction
 
 void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
-	assert(type < NUM_UPDATES);
 	updateHelper(type, {}, name, value);
 }
 
 void GlobalCliComm::updateFiltered(UpdateType type, std::string_view name, std::string_view value)
 {
-	assert(type < NUM_UPDATES);
 	if (auto [it, inserted] = prevValues[type].try_emplace(name, value);
 	    !inserted) { // was already present ..
 		if (it->second == value) {

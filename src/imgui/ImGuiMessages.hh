@@ -7,6 +7,7 @@
 #include "CliListener.hh"
 
 #include "circular_buffer.hh"
+#include "stl.hh"
 
 #include <array>
 #include <string>
@@ -50,9 +51,9 @@ private:
 	enum PopupAction : int { NO_POPUP, POPUP, MODAL_POPUP };
 	enum OpenLogAction : int { NO_OPEN_LOG, OPEN_LOG, OPEN_LOG_FOCUS };
 	enum OsdAction : int { NO_OSD, SHOW_OSD };
-	std::array<int /*PopupAction*/,   CliComm::NUM_LEVELS> popupAction;
-	std::array<int /*OpenLogAction*/, CliComm::NUM_LEVELS> openLogAction;
-	std::array<int /*OsdAction*/,     CliComm::NUM_LEVELS> osdAction;
+	array_with_enum_index<CliComm::LogLevel, int /*PopupAction*/  > popupAction;
+	array_with_enum_index<CliComm::LogLevel, int /*OpenLogAction*/> openLogAction;
+	array_with_enum_index<CliComm::LogLevel, int /*OsdAction*/    > osdAction;
 
 	circular_buffer<Message> modalMessages;
 	circular_buffer<Message> popupMessages;
@@ -75,7 +76,7 @@ private:
 		Colors colors;
 	};
 	using ColorSequence = std::array<Step, 4>;
-	std::array<ColorSequence, 3> colorSequence = {
+	array_with_enum_index<CliComm::LogLevel, ColorSequence> colorSequence = {
 		ColorSequence{ // Info                     AA'BB'GG'RR
 			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
 			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'80'80'80}}, // start of stable colors
@@ -93,7 +94,8 @@ private:
 			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // start of stable colors
 			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // end of stable colors
 			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'00'00'C0}}, // end of fade-out
-		}
+		},
+		ColorSequence{ /*dummy*/ } // progress
 	};
 	struct OsdMessage {
 		// clang workaround:

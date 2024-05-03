@@ -110,7 +110,7 @@ unsigned Debugger::insertProbeBreakPoint(
 	auto bp = std::make_unique<ProbeBreakPoint>(
 		std::move(command), std::move(condition), *this, probe, once, newId);
 	unsigned result = bp->getId();
-	motherBoard.getMSXCliComm().update(CliComm::DEBUG_UPDT, tmpStrCat("pp#", result), "add");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", result), "add");
 	probeBreakPoints.push_back(std::move(bp));
 	return result;
 }
@@ -123,7 +123,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
 			    it != std::end(probeBreakPoints)) {
 				motherBoard.getMSXCliComm().update(
-					CliComm::DEBUG_UPDT, name, "remove");
+					CliComm::UpdateType::DEBUG_UPDT, name, "remove");
 				move_pop_back(probeBreakPoints, it);
 				return;
 			}
@@ -139,7 +139,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 				"No (unconditional) breakpoint for probe: ", name);
 		}
 		motherBoard.getMSXCliComm().update(
-			CliComm::DEBUG_UPDT, tmpStrCat("pp#", (*it)->getId()), "remove");
+			CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", (*it)->getId()), "remove");
 		move_pop_back(probeBreakPoints, it);
 	}
 }
@@ -147,7 +147,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
 	motherBoard.getMSXCliComm().update(
-		CliComm::DEBUG_UPDT, tmpStrCat("pp#", bp.getId()), "remove");
+		CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", bp.getId()), "remove");
 	move_pop_back(probeBreakPoints, rfind_unguarded(probeBreakPoints, &bp,
 		[](auto& v) { return v.get(); }));
 }

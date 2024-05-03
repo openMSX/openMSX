@@ -49,14 +49,14 @@ PluggingController::~PluggingController()
 void PluggingController::registerConnector(Connector& connector)
 {
 	connectors.push_back(&connector);
-	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "add");
+	getCliComm().update(CliComm::UpdateType::CONNECTOR, connector.getName(), "add");
 }
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
 	connector.unplug(motherBoard.getCurrentTime());
 	move_pop_back(connectors, rfind_unguarded(connectors, &connector));
-	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");
+	getCliComm().update(CliComm::UpdateType::CONNECTOR, connector.getName(), "remove");
 }
 
 
@@ -114,7 +114,7 @@ void PluggingController::PlugCmd::execute(
 		try {
 			connector.plug(pluggable, time);
 			pluggingController.getCliComm().update(
-				CliComm::PLUG, connName, plugName);
+				CliComm::UpdateType::PLUG, connName, plugName);
 		} catch (PlugException& e) {
 			throw CommandException("plug: plug failed: ", e.getMessage());
 		}
@@ -173,7 +173,7 @@ void PluggingController::UnplugCmd::execute(
 	string_view connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
-	pluggingController.getCliComm().update(CliComm::PLUG, connName, {});
+	pluggingController.getCliComm().update(CliComm::UpdateType::PLUG, connName, {});
 }
 
 string PluggingController::UnplugCmd::help(std::span<const TclObject> /*tokens*/) const

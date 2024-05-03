@@ -56,13 +56,13 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	readSectorData = false;
 
 	getMotherBoard().registerMediaInfo(name, *this);
-	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
+	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
 {
 	getMotherBoard().unregisterMediaInfo(*this);
-	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
 	assert((*cdInUse)[id]);
@@ -310,7 +310,7 @@ void IDECDROM::eject()
 	file.close();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, {});
+	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, {});
 }
 
 void IDECDROM::insert(const std::string& filename)
@@ -318,7 +318,7 @@ void IDECDROM::insert(const std::string& filename)
 	file = File(filename);
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, filename);
+	getMotherBoard().getMSXCliComm().update(CliComm::UpdateType::MEDIA, name, filename);
 }
 
 

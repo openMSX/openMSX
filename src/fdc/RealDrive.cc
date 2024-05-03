@@ -51,7 +51,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	if (motherBoard.getMSXCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, driveName, "add");
 	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
 	                [this]() { invalidateTrack(); });
 	motherBoard.registerMediaInfo(changer->getDriveName(), *this);
@@ -69,7 +69,7 @@ RealDrive::~RealDrive()
 	motherBoard.unregisterMediaInfo(*this);
 
 	const auto& driveName = changer->getDriveName();
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, driveName, "remove");
 
 	unsigned driveNum = driveName[4] - 'a';
 	assert((*drivesInUse)[driveNum]);

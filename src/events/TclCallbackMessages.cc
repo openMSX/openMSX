@@ -25,13 +25,12 @@ TclCallbackMessages::~TclCallbackMessages()
 void TclCallbackMessages::log(CliComm::LogLevel level, std::string_view message, float fraction) noexcept
 {
 	// TODO Possibly remove this?  No longer needed now that ImGui displays messages?
-	auto levelStr = CliComm::getLevelStrings();
 	try {
-		if (level == CliComm::PROGRESS && fraction >= 0.0f) {
+		if (level == CliComm::LogLevel::PROGRESS && fraction >= 0.0f) {
 			messageCallback.execute(tmpStrCat(message, "... ", int(100.0f * fraction), '%'),
-			                        levelStr[level]);
+			                        toString(level));
 		} else {
-			messageCallback.execute(message, levelStr[level]);
+			messageCallback.execute(message, toString(level));
 		}
 	} catch (TclObject& command) {
 		// Command for this message could not be executed yet.

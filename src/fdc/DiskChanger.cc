@@ -182,7 +182,7 @@ void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)
 	if (preChangeCallback) preChangeCallback();
 	disk = std::move(newDisk);
 	diskChangedFlag = true;
-	controller.getCliComm().update(CliComm::MEDIA, getDriveName(),
+	controller.getCliComm().update(CliComm::UpdateType::MEDIA, getDriveName(),
 	                               getDiskName().getResolved());
 }
 

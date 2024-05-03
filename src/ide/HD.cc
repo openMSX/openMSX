@@ -74,13 +74,13 @@ HD::HD(const DeviceConfig& config)
 		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
 	motherBoard.registerMediaInfo(name, *this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "add");
 }
 
 HD::~HD()
 {
 	motherBoard.unregisterMediaInfo(*this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
 	assert((*hdInUse)[id]);
@@ -99,7 +99,7 @@ void HD::switchImage(const Filename& newFilename)
 	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree.emplace(*this, filesize, filename.getResolved());
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::MEDIA, getName(),
 	                                   filename.getResolved());
 }
 

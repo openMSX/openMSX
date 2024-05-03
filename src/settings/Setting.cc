@@ -97,7 +97,7 @@ void Setting::notify() const
 	auto base = getBaseName();
 	TclObject val = getValue();
 	commandController.getCliComm().updateFiltered(
-		CliComm::SETTING, base, val.getString());
+		CliComm::UpdateType::SETTING, base, val.getString());
 
 	// Always keep SettingsConfig in sync.
 	auto& config = getGlobalCommandController().getSettingsConfig();
@@ -113,7 +113,7 @@ void Setting::notifyPropertyChange() const
 	TclObject result;
 	info(result);
 	commandController.getCliComm().updateFiltered(
-		CliComm::SETTING_INFO, getBaseName(), result.getString());
+		CliComm::UpdateType::SETTING_INFO, getBaseName(), result.getString());
 }
 
 bool Setting::needLoadSave() const

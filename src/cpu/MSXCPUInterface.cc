@@ -793,14 +793,14 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 
 void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
-	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "add");
 	auto it = ranges::upper_bound(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.insert(it, std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "remove");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "remove");
 	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
 	breakPoints.erase(find_unguarded(first, last, &bp,
 	                                 [](const BreakPoint& i) { return &i; }));
@@ -810,7 +810,7 @@ void MSXCPUInterface::removeBreakPoint(unsigned id)
 	if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
 	    it != breakPoints.end()) {
-		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("bp#", it->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", it->getId()), "remove");
 		breakPoints.erase(it);
 	}
 }
@@ -856,7 +856,7 @@ static void registerIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> d
 
 void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
 {
-	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
 	switch (type) {
@@ -902,7 +902,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	// from the watchPoints collection.
 	if (auto it = ranges::find(watchPoints, watchPoint);
 	    it != end(watchPoints)) {
-		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "remove");
 		// remove before calling updateMemWatch()
 		watchPoints.erase(it);
 		WatchPoint::Type type = watchPoint->getType();
@@ -934,13 +934,13 @@ void MSXCPUInterface::removeWatchPoint(unsigned id)
 
 void MSXCPUInterface::setCondition(DebugCondition cond)
 {
-	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");
 	conditions.push_back(std::move(cond));
 }
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "remove");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "remove");
 	conditions.erase(rfind_unguarded(conditions, &cond,
 	                                 [](auto& e) { return &e; }));
 }
@@ -950,7 +950,7 @@ void MSXCPUInterface::removeCondition(unsigned id)
 	if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
-		cliComm.update(CliComm::DEBUG_UPDT, tmpStrCat("cond#", it->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", it->getId()), "remove");
 		conditions.erase(it);
 	}
 }
@@ -1031,7 +1031,7 @@ void MSXCPUInterface::doBreak()
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.block();
 	breakedSetting->setReadOnlyValue(TclObject("true"));
-	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
+	reactor.getCliComm().update(CliComm::UpdateType::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(BreakEvent());
 }
 
@@ -1052,7 +1052,7 @@ void MSXCPUInterface::doContinue()
 
 		Reactor& reactor = motherBoard.getReactor();
 		breakedSetting->setReadOnlyValue(TclObject("false"));
-		reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
+		reactor.getCliComm().update(CliComm::UpdateType::STATUS, "cpu", "running");
 		reactor.unblock();
 		motherBoard.getRealTime().resync();
 	}

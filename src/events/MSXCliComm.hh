@@ -2,8 +2,11 @@
 #define MSXCLICOMM_HH
 
 #include "CliComm.hh"
+
 #include "hash_map.hh"
+#include "stl.hh"
 #include "xxhash.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -28,7 +31,7 @@ public:
 private:
 	MSXMotherBoard& motherBoard;
 	GlobalCliComm& cliComm;
-	std::array<hash_map<std::string, std::string, XXHasher>, NUM_UPDATES> prevValues;
+	array_with_enum_index<CliComm::UpdateType, hash_map<std::string, std::string, XXHasher>> prevValues;
 	bool suppressMessages = false;
 };
 

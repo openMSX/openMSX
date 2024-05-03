@@ -2,6 +2,8 @@
 
 namespace openmsx {
 
+using enum CliComm::LogLevel;
+
 void CliComm::printInfo(std::string_view message)
 {
 	log(INFO, message);

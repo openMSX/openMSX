@@ -26,7 +26,7 @@ void MessageCommand::execute(std::span<const TclObject> tokens, TclObject& /*res
 {
 	checkNumArgs(tokens, Between{2, 3}, "string ?level?");
 	CliComm& cliComm = getCliComm();
-	CliComm::LogLevel level = CliComm::INFO;
+	CliComm::LogLevel level = CliComm::LogLevel::INFO;
 	switch (tokens.size()) {
 	case 3:
 		level = getLevel(tokens[2].getString());

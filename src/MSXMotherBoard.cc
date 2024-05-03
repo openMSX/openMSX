@@ -403,7 +403,7 @@ string MSXMotherBoard::insertExtension(
 	}
 	string result = extension->getName();
 	extensions.push_back(std::move(extension));
-	getMSXCliComm().update(CliComm::EXTENSION, result, "add");
+	getMSXCliComm().update(CliComm::UpdateType::EXTENSION, result, "add");
 	return result;
 }
 
@@ -416,7 +416,7 @@ HardwareConfig* MSXMotherBoard::findExtension(std::string_view extensionName)
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
+	getMSXCliComm().update(CliComm::UpdateType::EXTENSION, extension.getName(), "remove");
 	auto it = rfind_unguarded(extensions, &extension,
 	                          [](auto& e) { return e.get(); });
 	extensions.erase(it);
@@ -771,13 +771,13 @@ AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 {
 	motherBoard.getReactor().getGlobalCliComm().update(
-		CliComm::HARDWARE, motherBoard.getMachineID(), "add");
+		CliComm::UpdateType::HARDWARE, motherBoard.getMachineID(), "add");
 }
 
 AddRemoveUpdate::~AddRemoveUpdate()
 {
 	motherBoard.getReactor().getGlobalCliComm().update(
-		CliComm::HARDWARE, motherBoard.getMachineID(), "remove");
+		CliComm::UpdateType::HARDWARE, motherBoard.getMachineID(), "remove");
 }
 
 

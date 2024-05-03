@@ -20,6 +20,7 @@
 namespace openmsx {
 
 using namespace std::literals;
+using enum CliComm::LogLevel;
 
 ImGuiMessages::ImGuiMessages(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
@@ -27,18 +28,18 @@ ImGuiMessages::ImGuiMessages(ImGuiManager& manager_)
 	, popupMessages(10)
 	, allMessages(10)
 {
-	popupAction[CliComm::INFO] = NO_POPUP;
-	popupAction[CliComm::WARNING] = POPUP;
-	popupAction[CliComm::LOGLEVEL_ERROR] = MODAL_POPUP;
-	popupAction[CliComm::PROGRESS] = NO_POPUP;
-	openLogAction[CliComm::INFO] = NO_OPEN_LOG;
-	openLogAction[CliComm::WARNING] = NO_OPEN_LOG;
-	openLogAction[CliComm::LOGLEVEL_ERROR] = NO_OPEN_LOG;
-	openLogAction[CliComm::PROGRESS] = NO_OPEN_LOG;
-	osdAction[CliComm::INFO] = SHOW_OSD;
-	osdAction[CliComm::WARNING] = NO_OSD;
-	osdAction[CliComm::LOGLEVEL_ERROR] = NO_OSD;
-	osdAction[CliComm::PROGRESS] = NO_OSD;
+	popupAction[INFO] = NO_POPUP;
+	popupAction[WARNING] = POPUP;
+	popupAction[LOGLEVEL_ERROR] = MODAL_POPUP;
+	popupAction[PROGRESS] = NO_POPUP;
+	openLogAction[INFO] = NO_OPEN_LOG;
+	openLogAction[WARNING] = NO_OPEN_LOG;
+	openLogAction[LOGLEVEL_ERROR] = NO_OPEN_LOG;
+	openLogAction[PROGRESS] = NO_OPEN_LOG;
+	osdAction[INFO] = SHOW_OSD;
+	osdAction[WARNING] = NO_OSD;
+	osdAction[LOGLEVEL_ERROR] = NO_OSD;
+	osdAction[PROGRESS] = NO_OSD;
 
 	auto& reactor = manager.getReactor();
 	auto& cliComm = reactor.getGlobalCliComm();
@@ -56,21 +57,21 @@ void ImGuiMessages::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
 	buf.appendf("popupActions=[%d %d %d]\n",
-		popupAction[CliComm::LOGLEVEL_ERROR],
-		popupAction[CliComm::WARNING],
-		popupAction[CliComm::INFO]);
+		popupAction[LOGLEVEL_ERROR],
+		popupAction[WARNING],
+		popupAction[INFO]);
 	buf.appendf("openLogActions=[%d %d %d]\n",
-		openLogAction[CliComm::LOGLEVEL_ERROR],
-		openLogAction[CliComm::WARNING],
-		openLogAction[CliComm::INFO]);
+		openLogAction[LOGLEVEL_ERROR],
+		openLogAction[WARNING],
+		openLogAction[INFO]);
 	buf.appendf("osdActions=[%d %d %d]\n",
-		osdAction[CliComm::LOGLEVEL_ERROR],
-		osdAction[CliComm::WARNING],
-		osdAction[CliComm::INFO]);
+		osdAction[LOGLEVEL_ERROR],
+		osdAction[WARNING],
+		osdAction[INFO]);
 	buf.appendf("fadeOutDuration=[%f %f %f]\n",
-		double(colorSequence[CliComm::LOGLEVEL_ERROR][2].start), // note: cast to double only to silence warnings
-		double(colorSequence[CliComm::WARNING][2].start),
-		double(colorSequence[CliComm::INFO][2].start));
+		double(colorSequence[LOGLEVEL_ERROR][2].start), // note: cast to double only to silence warnings
+		double(colorSequence[WARNING][2].start),
+		double(colorSequence[INFO][2].start));
 }
 
 void ImGuiMessages::loadLine(std::string_view name, zstring_view value)
@@ -80,30 +81,30 @@ void ImGuiMessages::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "popupActions"sv) {
 		std::array<int, 3> a = {};
 		if (sscanf(value.c_str(), "[%d %d %d]", &a[0], &a[1], &a[2]) == 3) {
-			popupAction[CliComm::LOGLEVEL_ERROR] = PopupAction(a[0]);
-			popupAction[CliComm::WARNING]        = PopupAction(a[1]);
-			popupAction[CliComm::INFO]           = PopupAction(a[2]);
+			popupAction[LOGLEVEL_ERROR] = PopupAction(a[0]);
+			popupAction[WARNING]        = PopupAction(a[1]);
+			popupAction[INFO]           = PopupAction(a[2]);
 		}
 	} else if (name == "openLogActions"sv) {
 		std::array<int, 3> a = {};
 		if (sscanf(value.c_str(), "[%d %d %d]", &a[0], &a[1], &a[2]) == 3) {
-			openLogAction[CliComm::LOGLEVEL_ERROR] = OpenLogAction(a[0]);
-			openLogAction[CliComm::WARNING]        = OpenLogAction(a[1]);
-			openLogAction[CliComm::INFO]           = OpenLogAction(a[2]);
+			openLogAction[LOGLEVEL_ERROR] = OpenLogAction(a[0]);
+			openLogAction[WARNING]        = OpenLogAction(a[1]);
+			openLogAction[INFO]           = OpenLogAction(a[2]);
 		}
 	} else if (name == "osdActions"sv) {
 		std::array<int, 3> a = {};
 		if (sscanf(value.c_str(), "[%d %d %d]", &a[0], &a[1], &a[2]) == 3) {
-			osdAction[CliComm::LOGLEVEL_ERROR] = OsdAction(a[0]);
-			osdAction[CliComm::WARNING]        = OsdAction(a[1]);
-			osdAction[CliComm::INFO]           = OsdAction(a[2]);
+			osdAction[LOGLEVEL_ERROR] = OsdAction(a[0]);
+			osdAction[WARNING]        = OsdAction(a[1]);
+			osdAction[INFO]           = OsdAction(a[2]);
 		}
 	} else if (name == "fadeOutDuration"sv) {
 		std::array<float, 3> a = {};
 		if (sscanf(value.c_str(), "[%f %f %f]", &a[0], &a[1], &a[2]) == 3) {
-			colorSequence[CliComm::LOGLEVEL_ERROR][2].start = a[0];
-			colorSequence[CliComm::WARNING][2].start        = a[1];
-			colorSequence[CliComm::INFO][2].start           = a[2];
+			colorSequence[LOGLEVEL_ERROR][2].start = a[0];
+			colorSequence[WARNING][2].start        = a[1];
+			colorSequence[INFO][2].start           = a[2];
 		}
 	}
 }
@@ -125,9 +126,9 @@ static void printMessages(const circular_buffer<ImGuiMessages::Message>& message
 		for (const auto& message : messages) {
 			auto [color, prefix_] = [&]() -> std::pair<ImU32, std::string_view> {
 				switch (message.level) {
-					case CliComm::LOGLEVEL_ERROR: return {getColor(imColor::ERROR),   "Error:"};
-					case CliComm::WARNING:        return {getColor(imColor::WARNING), "Warning:"};
-					case CliComm::INFO:           return {getColor(imColor::TEXT),    "Info:"};
+					case LOGLEVEL_ERROR: return {getColor(imColor::ERROR),   "Error:"};
+					case WARNING:        return {getColor(imColor::WARNING), "Warning:"};
+					case INFO:           return {getColor(imColor::TEXT),    "Info:"};
 					default: assert(false);       return {getColor(imColor::TEXT),    "Unknown:"};
 				}
 			}();
@@ -353,25 +354,25 @@ void ImGuiMessages::paintConfigure()
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("modal"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##modal" , level).c_str(), &popupAction[level], MODAL_POPUP);
+					ImGui::RadioButton(tmpStrCat("##modal", to_underlying(level)).c_str(), &popupAction[level], MODAL_POPUP);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("non-modal"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##popup" , level).c_str(), &popupAction[level], POPUP);
+					ImGui::RadioButton(tmpStrCat("##popup", to_underlying(level)).c_str(), &popupAction[level], POPUP);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("don't show"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##noPopup" , level).c_str(), &popupAction[level], NO_POPUP);
+					ImGui::RadioButton(tmpStrCat("##noPopup", to_underlying(level)).c_str(), &popupAction[level], NO_POPUP);
 				}
 			}
 
@@ -382,25 +383,25 @@ void ImGuiMessages::paintConfigure()
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("open and focus"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##focus" , level).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
+					ImGui::RadioButton(tmpStrCat("##focus", to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("open without focus"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##log" , level).c_str(), &openLogAction[level], OPEN_LOG);
+					ImGui::RadioButton(tmpStrCat("##log", to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("don't open"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##nolog" , level).c_str(), &openLogAction[level], NO_OPEN_LOG);
+					ImGui::RadioButton(tmpStrCat("##nolog", to_underlying(level)).c_str(), &openLogAction[level], NO_OPEN_LOG);
 				}
 			}
 
@@ -411,26 +412,26 @@ void ImGuiMessages::paintConfigure()
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("show"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##osd" , level).c_str(), &osdAction[level], SHOW_OSD);
+					ImGui::RadioButton(tmpStrCat("##osd", to_underlying(level)).c_str(), &osdAction[level], SHOW_OSD);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("don't show"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##no-osd" , level).c_str(), &osdAction[level], NO_OSD);
+					ImGui::RadioButton(tmpStrCat("##no-osd", to_underlying(level)).c_str(), &osdAction[level], NO_OSD);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
 				im::Indent([]{ ImGui::TextUnformatted("fade-out (seconds)"sv); });
 			}
-			for (auto level : {CliComm::LOGLEVEL_ERROR, CliComm::WARNING, CliComm::INFO}) {
+			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
 					float& d = colorSequence[level][2].start;
-					if (ImGui::InputFloat(tmpStrCat("##dur", level).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
+					if (ImGui::InputFloat(tmpStrCat("##dur", to_underlying(level)).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
 						d = std::clamp(d, 1.0f, 99.0f);
 					}
 				}
@@ -441,7 +442,7 @@ void ImGuiMessages::paintConfigure()
 
 void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fraction)
 {
-	if (level == CliComm::PROGRESS) {
+	if (level == PROGRESS) {
 		progressMessage = text;
 		progressFraction = fraction;
 		if (progressFraction < 1.0f) doOpenProgress = true;

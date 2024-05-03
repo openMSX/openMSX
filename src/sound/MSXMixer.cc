@@ -117,7 +117,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	auto& i = infos.emplace_back(std::move(info));
 	updateVolumeParams(i);
 
-	commandController.getCliComm().update(CliComm::SOUND_DEVICE, device.getName(), "add");
+	commandController.getCliComm().update(CliComm::UpdateType::SOUND_DEVICE, device.getName(), "add");
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
@@ -130,7 +130,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 		s.mute->detach(*this);
 	}
 	move_pop_back(infos, it);
-	commandController.getCliComm().update(CliComm::SOUND_DEVICE, device.getName(), "remove");
+	commandController.getCliComm().update(CliComm::UpdateType::SOUND_DEVICE, device.getName(), "remove");
 }
 
 void MSXMixer::setSynchronousMode(bool synchronous)

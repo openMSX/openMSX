@@ -138,7 +138,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	registerSound(DeviceConfig(hwConf, *xml));
 
 	motherBoard.registerMediaInfo(getLaserDiscPlayerName(), *this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "add");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "add");
 }
 
 LaserdiscPlayer::~LaserdiscPlayer()
@@ -148,7 +148,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	reactor.getDisplay().detach(*this);
 	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
 	motherBoard.unregisterMediaInfo(*this);
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getLaserDiscPlayerName(), "remove");
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "remove");
 }
 
 string LaserdiscPlayer::getStateString() const

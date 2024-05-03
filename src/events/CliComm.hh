@@ -1,7 +1,9 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
+#include "stl.hh"
 #include "strCat.hh"
+
 #include <array>
 #include <span>
 #include <string_view>
@@ -11,14 +13,14 @@ namespace openmsx {
 class CliComm
 {
 public:
-	enum LogLevel {
+	enum class LogLevel {
 		INFO,
 		WARNING,
 		LOGLEVEL_ERROR, // ERROR may give preprocessor name clashes
 		PROGRESS,
-		NUM_LEVELS // must be last
+		NUM // must be last
 	};
-	enum UpdateType {
+	enum class UpdateType {
 		LED,
 		SETTING,
 		SETTING_INFO,
@@ -30,7 +32,7 @@ public:
 		SOUND_DEVICE,
 		CONNECTOR,
 		DEBUG_UPDT,
-		NUM_UPDATES // must be last
+		NUM // must be last
 	};
 
 	/** Log a message with a certain priority level.
@@ -90,25 +92,35 @@ public:
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	[[nodiscard]] static std::span<const std::string_view, NUM_LEVELS> getLevelStrings() {
-		static constexpr std::array<std::string_view, NUM_LEVELS> levelStr = {
+	[[nodiscard]] static auto getLevelStrings() {
+		static constexpr array_with_enum_index<LogLevel, std::string_view> levelStr = {
 			"info", "warning", "error", "progress"
 		};
-		return levelStr;
+		return std::span{levelStr};
 	}
-	[[nodiscard]] static std::span<const std::string_view, NUM_UPDATES> getUpdateStrings() {
-		static constexpr std::array<std::string_view, NUM_UPDATES> updateStr = {
+	[[nodiscard]] static auto getUpdateStrings() {
+		static constexpr array_with_enum_index<UpdateType, std::string_view> updateStr = {
 			"led", "setting", "setting-info", "hardware", "plug",
 			"media", "status", "extension", "sounddevice", "connector",
 			"debug"
 		};
-		return updateStr;
+		return std::span{updateStr};
 	}
 
 protected:
 	CliComm() = default;
 	~CliComm() = default;
 };
+
+[[nodiscard]] inline auto toString(CliComm::LogLevel type)
+{
+	return CliComm::getLevelStrings()[to_underlying(type)];
+}
+
+[[nodiscard]] inline auto toString(CliComm::UpdateType type)
+{
+	return CliComm::getUpdateStrings()[to_underlying(type)];
+}
 
 } // namespace openmsx
 
