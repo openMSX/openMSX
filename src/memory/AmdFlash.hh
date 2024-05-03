@@ -62,13 +62,24 @@ public:
 		}
 	};
 
+	struct Program {
+		bool fastCommand : 1 = false;
+		power_of_two<size_t> pageSize = 1;
+
+		constexpr void validate() const {
+			assert(!fastCommand || pageSize > 1);
+		}
+	};
+
 	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
+		Program program = {};
 
 		constexpr void validate() const {
 			autoSelect.validate();
 			geometry.validate();
+			program.validate();
 		}
 	};
 
@@ -204,6 +215,7 @@ namespace AmdFlashChip
 	static constexpr ValidatedChip M29W640GB = {{
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
 		.geometry{{{8, 0x2000}, {127, 0x10000}}},
+		.program{.fastCommand = true, .pageSize = 32},
 	}};
 }
 
