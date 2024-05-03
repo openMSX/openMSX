@@ -383,7 +383,7 @@ bool AmdFlash::checkCommandEraseChip()
 
 bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
 {
-	if (partialMatch(cmdSeq)) {
+	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
 			auto addr = cmd[i].addr;
@@ -406,13 +406,13 @@ bool AmdFlash::checkCommandProgram()
 bool AmdFlash::checkCommandDoubleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x50};
-	return checkCommandProgramHelper(2, cmdSeq);
+	return chip.program.fastCommand && checkCommandProgramHelper(2, cmdSeq);
 }
 
 bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
-	return checkCommandProgramHelper(4, cmdSeq);
+	return chip.program.fastCommand && checkCommandProgramHelper(4, cmdSeq);
 }
 
 bool AmdFlash::checkCommandAutoSelect()
