@@ -257,30 +257,29 @@ class QuitEvent final : public EventBase {};
 class OsdControlEvent : public EventBase
 {
 public:
-	enum { LEFT_BUTTON, RIGHT_BUTTON, UP_BUTTON, DOWN_BUTTON,
-		A_BUTTON, B_BUTTON };
-
-	[[nodiscard]] unsigned getButton() const { return button; }
+	enum class Button {LEFT, RIGHT, UP, DOWN, A, B,
+	                   NUM};
+	[[nodiscard]] Button getButton() const { return button; }
 
 protected:
-	explicit OsdControlEvent(unsigned button_)
+	explicit OsdControlEvent(Button button_)
 		: button(button_) {}
 
 private:
-	unsigned button;
+	Button button;
 };
 
 class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
-	explicit OsdControlReleaseEvent(unsigned button_)
+	explicit OsdControlReleaseEvent(Button button_)
 		: OsdControlEvent(button_) {}
 };
 
 class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
-	explicit OsdControlPressEvent(unsigned button_)
+	explicit OsdControlPressEvent(Button button_)
 		: OsdControlEvent(button_) {}
 };
 

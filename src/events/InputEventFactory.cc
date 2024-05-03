@@ -152,19 +152,20 @@ namespace openmsx::InputEventFactory {
 {
 	if (str.getListLength(interp) == 3) {
 		auto buttonName = str.getListIndex(interp, 1).getString();
-		unsigned button = [&] {
+		auto button = [&] {
+			using enum OsdControlEvent::Button;
 			if (buttonName == "LEFT") {
-				return OsdControlEvent::LEFT_BUTTON;
+				return LEFT;
 			} else if (buttonName == "RIGHT") {
-				return OsdControlEvent::RIGHT_BUTTON;
+				return RIGHT;
 			} else if (buttonName == "UP") {
-				return OsdControlEvent::UP_BUTTON;
+				return UP;
 			} else if (buttonName == "DOWN") {
-				return OsdControlEvent::DOWN_BUTTON;
+				return DOWN;
 			} else if (buttonName == "A") {
-				return OsdControlEvent::A_BUTTON;
+				return A;
 			} else if (buttonName == "B") {
-				return OsdControlEvent::B_BUTTON;
+				return B;
 			} else {
 				throw CommandException(
 					"Invalid OSDcontrol event, invalid button name: ",

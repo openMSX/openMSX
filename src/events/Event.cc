@@ -1,6 +1,7 @@
 #include "Event.hh"
 #include "stl.hh"
 #include "strCat.hh"
+
 #include <tuple>
 #include <SDL.h>
 
@@ -100,7 +101,7 @@ bool operator==(const Event& x, const Event& y)
 
 TclObject toTclList(const Event& event)
 {
-	static constexpr std::array osdControlNames = {
+	static constexpr array_with_enum_index<OsdControlEvent::Button, std::string_view> osdControlNames = {
 		"LEFT"sv, "RIGHT"sv, "UP"sv, "DOWN"sv, "A"sv, "B"sv
 	};
 
