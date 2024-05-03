@@ -152,7 +152,7 @@ const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
+byte* ColecoSuperGameModule::getWriteCacheLine(word start)
 {
 	if (start < BIOS_ROM_SIZE) {
 		if (ramAtBiosEnabled) {

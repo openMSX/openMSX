@@ -133,7 +133,7 @@ void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomFSA1FM1::getWriteCacheLine(word address) const
+byte* RomFSA1FM1::getWriteCacheLine(word address)
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) {
 		// dont't cache IO area
@@ -253,7 +253,7 @@ void RomFSA1FM2::writeMem(word address, byte value,
 	}
 }
 
-byte* RomFSA1FM2::getWriteCacheLine(word address) const
+byte* RomFSA1FM2::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

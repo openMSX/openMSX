@@ -106,7 +106,7 @@ const byte* MSXAudio::getReadCacheLine(word start) const
 {
 	return periphery->getReadCacheLine(start);
 }
-byte* MSXAudio::getWriteCacheLine(word start) const
+byte* MSXAudio::getWriteCacheLine(word start)
 {
 	return periphery->getWriteCacheLine(start);
 }

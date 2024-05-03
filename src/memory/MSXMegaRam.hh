@@ -23,7 +23,7 @@ public:
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	void writeMem(word address, byte value,
 	              EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) override;
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;

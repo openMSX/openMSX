@@ -34,7 +34,7 @@ void RomHolyQuran::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomHolyQuran::getWriteCacheLine(word address) const
+byte* RomHolyQuran::getWriteCacheLine(word address)
 {
 	if ((0x5000 <= address) && (address < 0x6000)) {
 		return nullptr;

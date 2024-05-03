@@ -91,7 +91,7 @@ const byte* RomHolyQuran2::getReadCacheLine(word address) const
 	}
 }
 
-byte* RomHolyQuran2::getWriteCacheLine(word address) const
+byte* RomHolyQuran2::getWriteCacheLine(word address)
 {
 	if ((0x5000 <= address) && (address < 0x6000)) {
 		return nullptr;

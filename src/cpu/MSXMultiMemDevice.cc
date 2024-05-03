@@ -123,7 +123,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 	return range.device->getReadCacheLine(start);
 }
 
-byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
+byte* MSXMultiMemDevice::getWriteCacheLine(word start)
 {
 	assert((start & CacheLine::HIGH) == start);
 	const auto& range = searchRange(start);

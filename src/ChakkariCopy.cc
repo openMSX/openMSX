@@ -185,22 +185,22 @@ void ChakkariCopy::writeMem(word address, byte value, EmuTime::param /*time*/)
 	*getWriteCacheLine(address) = value;
 }
 
-byte* ChakkariCopy::getWriteCacheLine(word address) const
+byte* ChakkariCopy::getWriteCacheLine(word address)
 {
 	if (modeSetting.getEnum() == COPY) {
 		// page 0
 		if ((address < 0x4000) && ((reg & 0x04) == 0)) {
-			return const_cast<byte*>(&biosRam[address & 0x3FFF]);
+			return &biosRam[address & 0x3FFF];
 		}
 		// page 1
 		// the work RAM is mirrored in 0x6000-0x8000, see above
 		if ((0x6000 <= address) && (address < 0x8000)) {
-			return const_cast<byte*>(&workRam[address & 0x07FF]);
+			return &workRam[address & 0x07FF];
 		}
 	} else {
 		// page 1 RAM mode
 		if ((0x4000 <= address) && (address < 0x8000)) {
-			return const_cast<byte*>(&biosRam[address & 0x3FFF]);
+			return &biosRam[address & 0x3FFF];
 		}
 	}
 	return unmappedWrite.data();

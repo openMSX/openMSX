@@ -118,7 +118,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* MSXFmPac::getWriteCacheLine(word address) const
+byte* MSXFmPac::getWriteCacheLine(word address)
 {
 	address &= 0x3FFF;
 	if (address == (0x1FFE & CacheLine::HIGH)) {

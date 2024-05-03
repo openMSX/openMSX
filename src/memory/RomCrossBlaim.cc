@@ -56,7 +56,7 @@ void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time
 	}
 }
 
-byte* RomCrossBlaim::getWriteCacheLine(word /*address*/) const
+byte* RomCrossBlaim::getWriteCacheLine(word /*address*/)
 {
 	return nullptr;
 }

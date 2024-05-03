@@ -192,7 +192,7 @@ const byte* MusicalMemoryMapper::getReadCacheLine(word start) const
 	return MSXMemoryMapperBase::getReadCacheLine(start);
 }
 
-byte* MusicalMemoryMapper::getWriteCacheLine(word start) const
+byte* MusicalMemoryMapper::getWriteCacheLine(word start)
 {
 	if (controlReg & MEM_ACCESS_ENABLED) {
 		if (0x4000 <= start && start < 0xC000) {

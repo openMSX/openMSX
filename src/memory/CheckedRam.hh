@@ -36,8 +36,8 @@ public:
 	void write(size_t addr, byte value);
 
 	[[nodiscard]] const byte* getReadCacheLine(size_t addr) const;
-	[[nodiscard]] byte* getWriteCacheLine(size_t addr) const;
-	[[nodiscard]] byte* getRWCacheLines(size_t addr, size_t size) const;
+	[[nodiscard]] byte* getWriteCacheLine(size_t addr);
+	[[nodiscard]] byte* getRWCacheLines(size_t addr, size_t size);
 
 	[[nodiscard]] size_t size() const { return ram.size(); }
 	void clear();

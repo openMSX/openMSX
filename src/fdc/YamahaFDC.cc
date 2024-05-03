@@ -174,7 +174,7 @@ void YamahaFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* YamahaFDC::getWriteCacheLine(word address) const
+byte* YamahaFDC::getWriteCacheLine(word address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FC0 & CacheLine::HIGH)) {
 		// FDC at 0x7FC0-0x7FFF  or  0xBFC0-0xBFFF

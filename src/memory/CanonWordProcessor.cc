@@ -101,7 +101,7 @@ void CanonWordProcessor::writeMem(word address, byte value, EmuTime::param /*tim
 	}
 }
 
-byte* CanonWordProcessor::getWriteCacheLine(word /*start*/) const
+byte* CanonWordProcessor::getWriteCacheLine(word /*start*/)
 {
 	return nullptr;
 }

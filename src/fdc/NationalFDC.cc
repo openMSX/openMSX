@@ -123,7 +123,7 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* NationalFDC::getWriteCacheLine(word address) const
+byte* NationalFDC::getWriteCacheLine(word address)
 {
 	if ((address & 0x3FC0) == (0x3F80 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)

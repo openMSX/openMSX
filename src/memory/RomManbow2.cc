@@ -199,7 +199,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* RomManbow2::getWriteCacheLine(word address) const
+byte* RomManbow2::getWriteCacheLine(word address)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;

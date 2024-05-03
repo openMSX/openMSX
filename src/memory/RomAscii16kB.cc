@@ -35,7 +35,7 @@ void RomAscii16kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii16kB::getWriteCacheLine(word address) const
+byte* RomAscii16kB::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		return nullptr;

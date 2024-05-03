@@ -149,7 +149,7 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* SpectravideoFDC::getWriteCacheLine(word address) const
+byte* SpectravideoFDC::getWriteCacheLine(word address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBF - mirrored

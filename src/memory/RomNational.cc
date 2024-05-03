@@ -99,7 +99,7 @@ void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomNational::getWriteCacheLine(word address) const
+byte* RomNational::getWriteCacheLine(word address)
 {
 	if (address == one_of(0x6000 & CacheLine::HIGH,
 	                      0x6400 & CacheLine::HIGH,

@@ -22,7 +22,7 @@ void RomGeneric16kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 	setRom(address >> 14, value);
 }
 
-byte* RomGeneric16kB::getWriteCacheLine(word address) const
+byte* RomGeneric16kB::getWriteCacheLine(word address)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;

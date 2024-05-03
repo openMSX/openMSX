@@ -176,7 +176,7 @@ public:
 	 * The default implementation always returns a null pointer.
 	 * The start of the interval is CacheLine::SIZE aligned.
 	 */
-	[[nodiscard]] virtual byte* getWriteCacheLine(word start) const;
+	[[nodiscard]] virtual byte* getWriteCacheLine(word start);
 
 	/**
 	 * Read a byte from a given memory location. Reading memory

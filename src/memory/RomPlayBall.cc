@@ -58,7 +58,7 @@ void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomPlayBall::getWriteCacheLine(word address) const
+byte* RomPlayBall::getWriteCacheLine(word address)
 {
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;

@@ -43,7 +43,7 @@ public:
 	[[nodiscard]] virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	[[nodiscard]] virtual const byte* getReadCacheLine(word start) const;
-	[[nodiscard]] virtual byte* getWriteCacheLine(word start) const;
+	[[nodiscard]] virtual byte* getWriteCacheLine(word start);
 };
 
 class MSXAudio;

@@ -60,7 +60,7 @@ const byte* MSXRam::getReadCacheLine(word start) const
 	return checkedRam->getReadCacheLine(translate(start));
 }
 
-byte* MSXRam::getWriteCacheLine(word start) const
+byte* MSXRam::getWriteCacheLine(word start)
 {
 	return checkedRam->getWriteCacheLine(translate(start));
 }

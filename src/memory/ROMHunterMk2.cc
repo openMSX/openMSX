@@ -149,7 +149,7 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* ROMHunterMk2::getWriteCacheLine(word /*addr*/) const
+byte* ROMHunterMk2::getWriteCacheLine(word /*addr*/)
 {
 	return nullptr;
 }

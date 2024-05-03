@@ -79,7 +79,7 @@ void RomDooly::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomDooly::getWriteCacheLine(word address) const
+byte* RomDooly::getWriteCacheLine(word address)
 {
 	if (((0x4000 & CacheLine::HIGH) <= address) && (address < (0xc000 & CacheLine::HIGH))) {
 		return nullptr;

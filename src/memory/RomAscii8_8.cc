@@ -104,7 +104,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii8_8::getWriteCacheLine(word address) const
+byte* RomAscii8_8::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching

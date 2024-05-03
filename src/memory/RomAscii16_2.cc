@@ -76,7 +76,7 @@ void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii16_2::getWriteCacheLine(word address) const
+byte* RomAscii16_2::getWriteCacheLine(word address)
 {
 	if ((1 << (address >> 14)) & sramEnabled & 0x04) {
 		// write sram

@@ -240,7 +240,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* ESE_SCC::getWriteCacheLine(word /*address*/) const
+byte* ESE_SCC::getWriteCacheLine(word /*address*/)
 {
 	return nullptr; // not cacheable
 }

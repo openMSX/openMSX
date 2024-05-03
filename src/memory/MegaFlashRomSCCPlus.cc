@@ -483,7 +483,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/) const
+byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/)
 {
 	return nullptr;
 }

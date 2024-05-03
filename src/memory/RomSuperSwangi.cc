@@ -25,7 +25,7 @@ void RomSuperSwangi::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomSuperSwangi::getWriteCacheLine(word address) const
+byte* RomSuperSwangi::getWriteCacheLine(word address)
 {
 	if (address == (0x8000 & CacheLine::HIGH)) return nullptr;
 	return unmappedWrite.data();

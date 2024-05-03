@@ -432,7 +432,7 @@ void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr)
 {
 	if (isSlotExpanderEnabled() &&
 		((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
@@ -477,7 +477,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
 	writeToFlash(addr & 0x3FFF, value);
 }
 
-byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot0(word /*addr*/) const
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot0(word /*addr*/)
 {
 	return nullptr; // flash isn't cacheable
 }
@@ -718,7 +718,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 	}
 }
 
-byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot1(word /*addr*/) const
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot1(word /*addr*/)
 {
 	return nullptr; // flash isn't cacheable
 }
@@ -753,7 +753,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot2(word addr, byte value)
 	checkedRam->write(calcMemMapperAddress(addr), value);
 }
 
-byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot2(word addr) const
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot2(word addr)
 {
 	return checkedRam->getWriteCacheLine(calcMemMapperAddress(addr));
 }
@@ -857,7 +857,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 	}
 }
 
-byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/) const
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/)
 {
 	return nullptr; // flash isn't cacheable
 }

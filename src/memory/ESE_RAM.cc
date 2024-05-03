@@ -93,7 +93,7 @@ void ESE_RAM::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* ESE_RAM::getWriteCacheLine(word address) const
+byte* ESE_RAM::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

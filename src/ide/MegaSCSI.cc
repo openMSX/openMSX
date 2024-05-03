@@ -151,7 +151,7 @@ void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MegaSCSI::getWriteCacheLine(word address) const
+byte* MegaSCSI::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

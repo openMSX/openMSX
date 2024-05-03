@@ -55,7 +55,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 	}
 }
 
-byte* MSXBunsetsu::getWriteCacheLine(word start) const
+byte* MSXBunsetsu::getWriteCacheLine(word start)
 {
 	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;

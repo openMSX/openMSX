@@ -30,7 +30,7 @@ public:
 	// TODO: implement peekMem, because the default isn't OK anymore
 	[[nodiscard]] const byte *getReadCacheLine(word start) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) override;
 	[[nodiscard]] bool allowUnaligned() const override;
 
 	// RS232Connector  (input)

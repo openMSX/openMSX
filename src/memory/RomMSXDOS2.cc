@@ -45,7 +45,7 @@ void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	setRom(1, value);
 }
 
-byte* RomMSXDOS2::getWriteCacheLine(word address) const
+byte* RomMSXDOS2::getWriteCacheLine(word address)
 {
 	switch (range) {
 	case 0x00:

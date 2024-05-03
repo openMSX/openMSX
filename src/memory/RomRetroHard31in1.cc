@@ -38,7 +38,7 @@ void RomRetroHard31in1::writeIO(word /*port*/, byte value, EmuTime::param /*time
 	setRom(3, page + 0);
 }
 
-byte* RomRetroHard31in1::getWriteCacheLine(word /*address*/) const
+byte* RomRetroHard31in1::getWriteCacheLine(word /*address*/)
 {
 	return unmappedWrite.data();
 }

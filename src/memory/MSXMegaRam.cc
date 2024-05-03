@@ -108,13 +108,13 @@ void MSXMegaRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MSXMegaRam::getWriteCacheLine(word address) const
+byte* MSXMegaRam::getWriteCacheLine(word address)
 {
 	if (romMode) return unmappedWrite.data();
 	if (writeMode) {
 		unsigned block = bank[(address & 0x7FFF) / 0x2000];
 		return (block < numBlocks)
-		     ? const_cast<byte*>(&ram[(block * 0x2000) + (address & 0x1FFF)])
+		     ? &ram[(block * 0x2000) + (address & 0x1FFF)]
 		     : unmappedWrite.data();
 	} else {
 		return nullptr;

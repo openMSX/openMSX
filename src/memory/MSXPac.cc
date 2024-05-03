@@ -72,7 +72,7 @@ void MSXPac::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MSXPac::getWriteCacheLine(word address) const
+byte* MSXPac::getWriteCacheLine(word address)
 {
 	address &= 0x3FFF;
 	if (address == (0x1FFE & CacheLine::HIGH)) {

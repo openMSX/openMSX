@@ -127,7 +127,7 @@ void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* ToshibaFDC::getWriteCacheLine(word address) const
+byte* ToshibaFDC::getWriteCacheLine(word address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FF0 & CacheLine::HIGH)) {
 		return nullptr;

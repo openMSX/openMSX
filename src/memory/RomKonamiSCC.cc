@@ -123,7 +123,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* RomKonamiSCC::getWriteCacheLine(word address) const
+byte* RomKonamiSCC::getWriteCacheLine(word address)
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
 		return unmappedWrite.data();

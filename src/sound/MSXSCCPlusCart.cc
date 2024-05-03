@@ -207,7 +207,7 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
+byte* MSXSCCPlusCart::getWriteCacheLine(word start)
 {
 	if ((0x4000 <= start) && (start < 0xC000)) {
 		if (start == (0xBFFF & CacheLine::HIGH)) {

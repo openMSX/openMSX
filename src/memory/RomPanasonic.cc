@@ -130,7 +130,7 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomPanasonic::getWriteCacheLine(word address) const
+byte* RomPanasonic::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// mapper select (low/high), control

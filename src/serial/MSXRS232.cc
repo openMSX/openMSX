@@ -127,7 +127,7 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* MSXRS232::getWriteCacheLine(word start) const
+byte* MSXRS232::getWriteCacheLine(word start)
 {
 	if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
 		return nullptr;

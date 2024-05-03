@@ -34,7 +34,7 @@ void RomZemina126in1::writeMem(word address, byte value, EmuTime::param /*time*/
 	}
 }
 
-byte* RomZemina126in1::getWriteCacheLine(word address) const
+byte* RomZemina126in1::getWriteCacheLine(word address)
 {
 	if (address == (0x4000 & CacheLine::HIGH)) {
 		return nullptr;

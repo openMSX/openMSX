@@ -51,7 +51,7 @@ void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*ti
 	}
 }
 
-byte* RomMatraCompilation::getWriteCacheLine(word address) const
+byte* RomMatraCompilation::getWriteCacheLine(word address)
 {
 	if ((0x5000 <= address) && (address < 0xC000)) {
 		return nullptr;

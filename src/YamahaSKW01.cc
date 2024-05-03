@@ -188,7 +188,7 @@ const byte* YamahaSKW01::getReadCacheLine(word start) const
 	}
 }
 
-byte* YamahaSKW01::getWriteCacheLine(word start) const
+byte* YamahaSKW01::getWriteCacheLine(word start)
 {
 	if ((start & CacheLine::HIGH) == (0x7FC0 & CacheLine::HIGH)) {
 		// 0x7FC0-0x7FCF memory mapped registers

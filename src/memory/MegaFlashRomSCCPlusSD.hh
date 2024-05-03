@@ -26,7 +26,7 @@ public:
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) override;
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
@@ -51,7 +51,7 @@ private:
 	[[nodiscard]] byte readMemSubSlot0(word address) const;
 	[[nodiscard]] byte peekMemSubSlot0(word address) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot0(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address);
 	void writeMemSubSlot0(word address, byte value);
 
 	// subslot 1
@@ -59,7 +59,7 @@ private:
 	[[nodiscard]] byte readMemSubSlot1(word address, EmuTime::param time);
 	[[nodiscard]] byte peekMemSubSlot1(word address, EmuTime::param time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot1(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot1(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot1(word address);
 	void writeMemSubSlot1(word address, byte value, EmuTime::param time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot1(unsigned addr) const;
 
@@ -94,7 +94,7 @@ private:
 	[[nodiscard]] byte readMemSubSlot2(word address);
 	[[nodiscard]] byte peekMemSubSlot2(word address) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot2(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot2(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot2(word address);
 	void writeMemSubSlot2(word address, byte value);
 
 	[[nodiscard]] unsigned calcMemMapperAddress(word address) const;
@@ -124,7 +124,7 @@ private:
 	[[nodiscard]] byte readMemSubSlot3(word address, EmuTime::param time);
 	[[nodiscard]] byte peekMemSubSlot3(word address, EmuTime::param time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot3(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot3(word address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot3(word address);
 	void writeMemSubSlot3(word address, byte value, EmuTime::param time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot3(unsigned addr) const;
 

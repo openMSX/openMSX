@@ -46,7 +46,7 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 		//                interface)
 		// Other bits are not connected, according to service manuals
 		// of VY-0010 and Sony HBD-50.
-		byte value = 0xFF; // all bits are pulled up to 1	
+		byte value = 0xFF; // all bits are pulled up to 1
 		if (controller.getIRQ(time)) value &= ~0x40;
 		if (controller.getDTRQ(time)) value &= ~0x80;
 		return value;
@@ -179,7 +179,7 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* PhilipsFDC::getWriteCacheLine(word address) const
+byte* PhilipsFDC::getWriteCacheLine(word address)
 {
 	if ((address & 0x3FF8) == (0x3FF8 & CacheLine::HIGH)) {
 		return nullptr;

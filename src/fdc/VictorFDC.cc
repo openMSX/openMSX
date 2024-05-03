@@ -141,7 +141,7 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* VictorFDC::getWriteCacheLine(word address) const
+byte* VictorFDC::getWriteCacheLine(word address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC

@@ -75,11 +75,11 @@ const byte* RomMitsubishiMLTS2::getReadCacheLine(word address) const
 	return Rom8kBBlocks::getReadCacheLine(address);
 }
 
-byte* RomMitsubishiMLTS2::getWriteCacheLine(word address) const
+byte* RomMitsubishiMLTS2::getWriteCacheLine(word address)
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return const_cast<byte*>(&ram[address & 0x1FFF]);
+		return &ram[address & 0x1FFF];
 	}
 	return unmappedWrite.data();
 }

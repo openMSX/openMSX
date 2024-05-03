@@ -110,7 +110,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 	samplePlayer.repeat(value & 0xF);
 }
 
-byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
+byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/)
 {
 	return nullptr;
 }

@@ -94,7 +94,7 @@ void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomGameMaster2::getWriteCacheLine(word address) const
+byte* RomGameMaster2::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {

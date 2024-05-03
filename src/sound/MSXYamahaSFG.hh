@@ -19,7 +19,7 @@ public:
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word start) override;
 	[[nodiscard]] byte readIRQVector() override;
 
 	template<typename Archive>

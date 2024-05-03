@@ -215,7 +215,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 	}
 }
 
-byte* KonamiUltimateCollection::getWriteCacheLine(word addr) const
+byte* KonamiUltimateCollection::getWriteCacheLine(word addr)
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable

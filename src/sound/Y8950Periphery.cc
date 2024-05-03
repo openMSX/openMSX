@@ -56,7 +56,7 @@ public:
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -124,7 +124,7 @@ const byte* Y8950Periphery::getReadCacheLine(word /*address*/) const
 {
 	return MSXDevice::unmappedRead.data();
 }
-byte* Y8950Periphery::getWriteCacheLine(word /*address*/) const
+byte* Y8950Periphery::getWriteCacheLine(word /*address*/)
 {
 	return MSXDevice::unmappedWrite.data();
 }
@@ -231,7 +231,7 @@ void PanasonicAudioPeriphery::writeMem(word address, byte value, EmuTime::param 
 	}
 }
 
-byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
+byte* PanasonicAudioPeriphery::getWriteCacheLine(word address)
 {
 	address &= 0x7FFF;
 	if (address == (0x7FFE & CacheLine::HIGH)) {
@@ -239,7 +239,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
-		return const_cast<byte*>(&ram[address - 0x3000]);
+		return &ram[address - 0x3000];
 	} else {
 		return MSXDevice::unmappedWrite.data();
 	}

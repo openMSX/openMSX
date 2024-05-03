@@ -456,7 +456,7 @@ void MSXDevice::globalRead(word /*address*/, EmuTime::param /*time*/)
 	UNREACHABLE;
 }
 
-byte* MSXDevice::getWriteCacheLine(word /*start*/) const
+byte* MSXDevice::getWriteCacheLine(word /*start*/)
 {
 	return nullptr; // uncacheable
 }

@@ -32,7 +32,7 @@ void RomNeo16::writeMem(word address, byte value, EmuTime::param /*time*/)
 	setRom(region, blockReg[region]);
 }
 
-byte* RomNeo16::getWriteCacheLine(word address) const
+byte* RomNeo16::getWriteCacheLine(word address)
 {
 	unsigned bbb = (address >> 11) & 0b111;
 	return ((bbb < 2) || (bbb & 1)) ? unmappedWrite.data() : nullptr;

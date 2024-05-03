@@ -208,7 +208,7 @@ void TurboRFDC::setBank(byte value)
 	memory = subspan<0x4000>(*rom, 0x4000 * bank);
 }
 
-byte* TurboRFDC::getWriteCacheLine(word address) const
+byte* TurboRFDC::getWriteCacheLine(word address)
 {
 	if ((address == (0x7FF0 & CacheLine::HIGH)) ||
 	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {

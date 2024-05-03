@@ -42,13 +42,13 @@ const byte* CheckedRam::getReadCacheLine(size_t addr) const
 	     ? &ram[addr] : nullptr;
 }
 
-byte* CheckedRam::getWriteCacheLine(size_t addr) const
+byte* CheckedRam::getWriteCacheLine(size_t addr)
 {
 	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
-	     ? const_cast<byte*>(&ram[addr]) : nullptr;
+	     ? &ram[addr] : nullptr;
 }
 
-byte* CheckedRam::getRWCacheLines(size_t addr, size_t size) const
+byte* CheckedRam::getRWCacheLines(size_t addr, size_t size)
 {
 	// TODO optimize
 	size_t num = size >> CacheLine::BITS;
@@ -58,7 +58,7 @@ byte* CheckedRam::getRWCacheLines(size_t addr, size_t size) const
 			return nullptr;
 		}
 	}
-	return const_cast<byte*>(&ram[addr]);
+	return &ram[addr];
 }
 
 void CheckedRam::write(size_t addr, const byte value)

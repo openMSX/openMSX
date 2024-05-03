@@ -126,7 +126,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* NowindInterface::getWriteCacheLine(word address) const
+byte* NowindInterface::getWriteCacheLine(word address)
 {
 	if (address < 0xC000) {
 		// not cacheable

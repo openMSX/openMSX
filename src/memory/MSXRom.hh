@@ -11,7 +11,7 @@ class MSXRom : public MSXDevice
 {
 public:
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) const override;
+	[[nodiscard]] byte* getWriteCacheLine(word address) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 

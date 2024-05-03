@@ -198,7 +198,7 @@ void ReproCartridgeV1::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* ReproCartridgeV1::getWriteCacheLine(word addr) const
+byte* ReproCartridgeV1::getWriteCacheLine(word addr)
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable

@@ -75,7 +75,7 @@ void TalentTDC600::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* TalentTDC600::getWriteCacheLine(word address) const
+byte* TalentTDC600::getWriteCacheLine(word address)
 {
 	address &= 0x7fff;
 	if (address < 0x2000) {

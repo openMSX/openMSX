@@ -44,10 +44,10 @@ void RomMSXtra::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomMSXtra::getWriteCacheLine(word address) const
+byte* RomMSXtra::getWriteCacheLine(word address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return const_cast<byte*>(&ram[address & 0x07ff]);
+		return &ram[address & 0x07ff];
 	} else {
 		return unmappedWrite.data();
 	}

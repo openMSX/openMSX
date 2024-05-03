@@ -47,7 +47,7 @@ const byte* RomMatraInk::getReadCacheLine(word address) const
 	return flash.getReadCacheLine(address);
 }
 
-byte* RomMatraInk::getWriteCacheLine(word /*address*/) const
+byte* RomMatraInk::getWriteCacheLine(word /*address*/)
 {
 	return nullptr;
 }

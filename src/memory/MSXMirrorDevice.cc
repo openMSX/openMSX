@@ -42,7 +42,7 @@ const byte* MSXMirrorDevice::getReadCacheLine(word /*start*/) const
 	return nullptr;
 }
 
-byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/) const
+byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/)
 {
 	return nullptr;
 }

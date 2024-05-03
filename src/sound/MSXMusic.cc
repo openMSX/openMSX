@@ -147,7 +147,7 @@ void MSXMusicWX::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MSXMusicWX::getWriteCacheLine(word start) const
+byte* MSXMusicWX::getWriteCacheLine(word start)
 {
 	if ((0x7FF0 & CacheLine::HIGH) == start) {
 		return nullptr;

@@ -20,7 +20,7 @@ void PanasonicRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* PanasonicRam::getWriteCacheLine(word start) const
+byte* PanasonicRam::getWriteCacheLine(word start)
 {
 	unsigned addr = calcAddress(start);
 	if (panasonicMemory.isWritable(addr)) {

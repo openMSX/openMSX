@@ -196,7 +196,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] byte* getWriteCacheLine(word start) const {
+	[[nodiscard]] byte* getWriteCacheLine(word start) {
 		tick(CacheLineCounters::GetWriteCacheLine);
 		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;

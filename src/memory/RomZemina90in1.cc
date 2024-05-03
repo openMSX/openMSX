@@ -66,7 +66,7 @@ void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomZemina90in1::getWriteCacheLine(word /*address*/) const
+byte* RomZemina90in1::getWriteCacheLine(word /*address*/)
 {
 	return unmappedWrite.data();
 }

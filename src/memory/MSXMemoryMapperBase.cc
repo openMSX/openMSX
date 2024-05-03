@@ -99,7 +99,7 @@ const byte* MSXMemoryMapperBase::getReadCacheLine(word start) const
 	return checkedRam.getReadCacheLine(calcAddress(start));
 }
 
-byte* MSXMemoryMapperBase::getWriteCacheLine(word start) const
+byte* MSXMemoryMapperBase::getWriteCacheLine(word start)
 {
 	return checkedRam.getWriteCacheLine(calcAddress(start));
 }

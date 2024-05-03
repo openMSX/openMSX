@@ -95,7 +95,7 @@ const byte* MSXToshibaTcx200x::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-byte* MSXToshibaTcx200x::getWriteCacheLine(word start) const
+byte* MSXToshibaTcx200x::getWriteCacheLine(word start)
 {
 	if ((start & CacheLine::HIGH) == (0x7FFF & CacheLine::HIGH)) {
 		return nullptr;

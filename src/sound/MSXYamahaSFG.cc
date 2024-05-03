@@ -60,7 +60,7 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* MSXYamahaSFG::getWriteCacheLine(word start) const
+byte* MSXYamahaSFG::getWriteCacheLine(word start)
 {
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;

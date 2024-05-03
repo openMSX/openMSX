@@ -125,7 +125,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomHalnote::getWriteCacheLine(word address) const
+byte* RomHalnote::getWriteCacheLine(word address)
 {
 	if (address < 0x4000) {
 		// SRAM region

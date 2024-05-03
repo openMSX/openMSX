@@ -123,7 +123,7 @@ void CanonFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* CanonFDC::getWriteCacheLine(word address) const
+byte* CanonFDC::getWriteCacheLine(word address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;

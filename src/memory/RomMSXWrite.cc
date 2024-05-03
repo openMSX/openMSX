@@ -32,7 +32,7 @@ void RomMSXWrite::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomMSXWrite::getWriteCacheLine(word address) const
+byte* RomMSXWrite::getWriteCacheLine(word address)
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
 	    (address == one_of(0x6FFF & CacheLine::HIGH, 0x7FFF & CacheLine::HIGH))) {
