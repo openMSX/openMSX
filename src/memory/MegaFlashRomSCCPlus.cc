@@ -189,8 +189,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(rom, AmdFlashChip::M29W800DB, {},
-	        AmdFlash::Addressing::BITS_12, config)
+	, flash(rom, AmdFlashChip::M29W800DB, {}, config)
 {
 	powerUp(getCurrentTime());
 	for (auto port : {0x10, 0x11}) {

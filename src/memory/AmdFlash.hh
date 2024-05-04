@@ -43,16 +43,23 @@ public:
 		}
 	};
 
+	enum class DeviceInterface : uint16_t {
+		x8 = 0x0000,
+		x8x16 = 0x0002,
+	};
+
 	struct Region {
 		size_t count = 0;
 		power_of_two<size_t> size = 1;
 	};
 
 	struct Geometry {
-		constexpr Geometry(std::initializer_list<Region> regions_)
-			: regions(regions_)
+		constexpr Geometry(DeviceInterface deviceInterface_, std::initializer_list<Region> regions_)
+			: deviceInterface(deviceInterface_)
+			, regions(regions_)
 			, size(sum(regions, [](Region r) { return r.count * r.size; }))
 			, sectorCount(sum(regions, &Region::count)) {}
+		DeviceInterface deviceInterface;
 		static_vector<Region, 4> regions;
 		power_of_two<size_t> size;
 		size_t sectorCount;
@@ -90,10 +97,6 @@ public:
 		const Chip chip;
 	};
 
-	enum class Addressing {
-		BITS_11,
-		BITS_12,
-	};
 	enum class Load {
 		NORMAL,
 		DONT, // don't load nor save modified flash content
@@ -115,10 +118,10 @@ public:
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
-	         std::span<const bool> writeProtectSectors, Addressing addressing,
+	         std::span<const bool> writeProtectSectors,
 	         const DeviceConfig& config, Load load = Load::NORMAL);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
-	         std::span<const bool> writeProtectSectors, Addressing addressing,
+	         std::span<const bool> writeProtectSectors,
 	         const DeviceConfig& config);
 	~AmdFlash();
 
@@ -179,7 +182,6 @@ private:
 	MemBuffer<ptrdiff_t> writeAddress;
 	MemBuffer<const uint8_t*> readAddress;
 	const Chip& chip;
-	const Addressing addressing;
 
 	static constexpr unsigned MAX_CMD_SIZE = 8;
 	static_vector<AmdCmd, MAX_CMD_SIZE> cmd;
@@ -192,29 +194,30 @@ namespace AmdFlashChip
 {
 	using ValidatedChip = AmdFlash::ValidatedChip;
 	using enum AmdFlash::ManufacturerID;
+	using DeviceInterface = AmdFlash::DeviceInterface;
 
 	// AMD AM29F040
 	static constexpr ValidatedChip AM29F040 = {{
 		.autoSelect{.manufacturer = AMD, .device{0xA4}, .extraCode = 0x01},
-		.geometry{{{8, 0x10000}}},
+		.geometry{DeviceInterface::x8, {{8, 0x10000}}},
 	}};
 
 	// AMD AM29F016
 	static constexpr ValidatedChip AM29F016 = {{
 		.autoSelect{.manufacturer = AMD, .device{0xAD}},
-		.geometry{{{32, 0x10000}}},
+		.geometry{DeviceInterface::x8, {{32, 0x10000}}},
 	}};
 
 	// Numonyx M29W800DB
 	static constexpr ValidatedChip M29W800DB = {{
 		.autoSelect{.manufacturer = STM, .device{0x5B}},
-		.geometry{{{1, 0x4000}, {2, 0x2000}, {1, 0x8000}, {15, 0x10000}}},
+		.geometry{DeviceInterface::x8x16, {{1, 0x4000}, {2, 0x2000}, {1, 0x8000}, {15, 0x10000}}},
 	}};
 
 	// Micron M29W640GB
 	static constexpr ValidatedChip M29W640GB = {{
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
-		.geometry{{{8, 0x2000}, {127, 0x10000}}},
+		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
 		.program{.fastCommand = true, .pageSize = 32},
 	}};
 }

@@ -38,8 +38,7 @@ namespace openmsx {
 KonamiUltimateCollection::KonamiUltimateCollection(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(rom, AmdFlashChip::M29W640GB, {},
-	        AmdFlash::Addressing::BITS_12, config)
+	, flash(rom, AmdFlashChip::M29W640GB, {}, config)
 	, scc("KUC SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, dac("KUC DAC", "Konami Ultimate Collection DAC", config)
 {
