@@ -316,6 +316,7 @@ template<typename Item>
 void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr)
 {
 	constexpr bool isWatchPoint = std::is_same_v<Item, WatchPoint>;
+	constexpr bool isCondition  = std::is_same_v<Item, DebugCondition>;
 	bool hasAddress = HasAddress<Item>{} && !addr; // don't draw address-column if filtering a specific address
 	Item* tag = nullptr;
 	auto& items = getItems(tag);
@@ -348,7 +349,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 		int addressFlags = hasAddress ? ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_DefaultSort
 		                              : ImGuiTableColumnFlags_Disabled;
 		ImGui::TableSetupColumn("Address", addressFlags);
-		ImGui::TableSetupColumn("Condition");
+		ImGui::TableSetupColumn("Condition", isCondition ? ImGuiTableColumnFlags_NoHide : 0);
 		ImGui::TableSetupColumn("Action", addr ? 0 : ImGuiTableColumnFlags_DefaultHide);
 		ImGui::TableHeadersRow();
 
