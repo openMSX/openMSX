@@ -69,8 +69,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getFlashChip(type), getWriteProtectSectors(type),
-		AmdFlash::Addressing::BITS_11, config)
+	, flash(rom, getFlashChip(type), getWriteProtectSectors(type), config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());

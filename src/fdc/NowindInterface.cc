@@ -15,8 +15,7 @@ namespace openmsx {
 NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
-	, flash(rom, AmdFlashChip::AM29F040, {},
-	        AmdFlash::Addressing::BITS_11, config)
+	, flash(rom, AmdFlashChip::AM29F040, {}, config)
 	, host(drives)
 	, basename("nowindX")
 {

@@ -22,21 +22,19 @@
 namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
-                   std::span<const bool> writeProtectSectors, Addressing addressing_,
+                   std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
-	, addressing(addressing_)
 {
 	init(rom.getName() + "_flash", config, load, &rom, writeProtectSectors);
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
-                   std::span<const bool> writeProtectSectors, Addressing addressing_,
+                   std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
-	, addressing(addressing_)
 {
 	init(name, config, Load::NORMAL, nullptr, writeProtectSectors);
 }
@@ -219,12 +217,12 @@ uint8_t AmdFlash::peek(size_t address) const
 			return 0xFF;
 		}
 	} else if (state == State::IDENT) {
-		if (addressing == Addressing::BITS_12) {
+		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
 			if (chip.autoSelect.oddZero && (address & 1)) {
 				// some devices return zero for odd bits instead of mirroring
 				return 0x00;
 			}
-			// convert the address to the '11 bit case'
+			// convert byte address to native address
 			address >>= 1;
 		}
 		return narrow_cast<uint8_t>(peekAutoSelect(address, chip.autoSelect.undefined));
@@ -241,8 +239,8 @@ uint16_t AmdFlash::peekAutoSelect(size_t address, uint16_t undefined) const
 	case 0x1:
 		return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
 	case 0x2:
-		if (addressing == Addressing::BITS_12) {
-			// convert the address from the '11 bit case'
+		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
+			// convert native address to byte address
 			address <<= 1;
 		}
 		return isSectorWritable(getSectorInfo(address).sector) ? 0 : 1;
@@ -433,8 +431,8 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 
 	assert(dataSeq.size() <= 5);
 	return ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
-		// convert the address to the '11 bit case'
-		auto addr = (addressing == Addressing::BITS_12) ? cmd[i].addr >> 1 : cmd[i].addr;
+		// convert byte address to native address
+		auto addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[i].addr >> 1 : cmd[i].addr;
 		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&
 		       (cmd[i].value == dataSeq[i]);
 	});

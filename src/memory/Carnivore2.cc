@@ -27,8 +27,7 @@ namespace openmsx {
 Carnivore2::Carnivore2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
-	, flash(getName() + " flash", AmdFlashChip::M29W640GB, {},
-	        AmdFlash::Addressing::BITS_12, config)
+	, flash(getName() + " flash", AmdFlashChip::M29W640GB, {}, config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",
 	         DeviceConfig(config, config.getChild("eeprom")))
