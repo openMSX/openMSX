@@ -42,21 +42,13 @@
 namespace openmsx {
 namespace YM2413NukeYKT {
 
-enum RmNum : uint8_t {
-	rm_num_bd0 = 0,  // cycles == 11
-	rm_num_hh = 1,   //           12
-	rm_num_tom = 2,  //           13
-	rm_num_bd1 = 3,  //           14
-	rm_num_sd = 4,   //           15
-	rm_num_tc = 5,   //           16
-};
 [[nodiscard]] constexpr bool is_rm_cycle(int cycle)
 {
 	return (11 <= cycle) && (cycle <= 16);
 }
-[[nodiscard]] constexpr RmNum rm_for_cycle(int cycle)
+[[nodiscard]] constexpr YM2413::RmNum rm_for_cycle(int cycle)
 {
-	return RmNum(cycle - 11);
+	return static_cast<YM2413::RmNum>(cycle - 11);
 }
 
 static constexpr auto logSinTab = [] {
@@ -94,7 +86,7 @@ constexpr std::array<YM2413::Patch, 15> YM2413::m_patches = {
 	YM2413::Patch{0x09, 0, 3, {0, 0}, {1, 1}, {1, 0}, {0, 0}, {0x1, 0x1}, {2, 0}, {0xf, 0xe}, {0x1, 0x4}, {0x4, 0x1}, {0x0, 0x3}},
 };
 
-constexpr std::array<YM2413::Patch, 6> YM2413::r_patches = {
+constexpr array_with_enum_index<YM2413::RmNum, YM2413::Patch> YM2413::r_patches = {
 	YM2413::Patch{0x18, 1, 7, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0x1, 0x0}, {0, 0}, {0xd, 0x0}, {0xf, 0x0}, {0x6, 0x0}, {0xa, 0x0}},
 	YM2413::Patch{0x00, 0, 0, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0x1, 0x0}, {0, 0}, {0xc, 0x0}, {0x8, 0x0}, {0xa, 0x0}, {0x7, 0x0}},
 	YM2413::Patch{0x00, 0, 0, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0x5, 0x0}, {0, 0}, {0xf, 0x0}, {0x8, 0x0}, {0x5, 0x0}, {0x9, 0x0}},
@@ -197,7 +189,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 
 	auto ksl = uint32_t(p_ksl[ch]) >> patch1.ksl_t[mcsel];
 	auto tl2 = [&]() -> uint32_t {
-		if ((rm_for_cycle(CYCLES) == one_of(rm_num_hh, rm_num_tom)) && use_rm_patches) {
+		if ((rm_for_cycle(CYCLES) == one_of(RmNum::hh, RmNum::tom)) && use_rm_patches) {
 			return inst[ch] << (2 + 1);
 		} else if /*constexpr*/ (mcsel == 1) { // constexpr triggers compile error on visual studio
 			return vol8[ch];
@@ -330,20 +322,21 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		bool result = sk & 1;
 		if (is_rm_cycle(CYCLES) && use_rm_patches) {
 			switch (rm_for_cycle(CYCLES)) {
-				case rm_num_bd0:
-				case rm_num_bd1:
+				using enum RmNum;
+				case bd0:
+				case bd1:
 					result |= bool(rhythm & 0x10);
 					break;
-				case rm_num_sd:
+				case sd:
 					result |= bool(rhythm & 0x08);
 					break;
-				case rm_num_tom:
+				case tom:
 					result |= bool(rhythm & 0x04);
 					break;
-				case rm_num_tc:
+				case tc:
 					result |= bool(rhythm & 0x02);
 					break;
-				case rm_num_hh:
+				case hh:
 					result |= bool(rhythm & 0x01);
 					break;
 				default:
@@ -371,7 +364,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		if (new_eg_kon && eg_state[CYCLES] == release && !new_eg_off) {
 			return 12 * 4;
 		}
-		bool tom_or_hh = (rm_for_cycle(CYCLES) == one_of(rm_num_tom, rm_num_hh)) && use_rm_patches;
+		bool tom_or_hh = (rm_for_cycle(CYCLES) == one_of(RmNum::tom, RmNum::hh)) && use_rm_patches;
 		if (!new_eg_kon && !mcsel && !tom_or_hh) {
 			return 0 * 4;
 		}

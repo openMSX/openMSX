@@ -20,10 +20,6 @@ inline constexpr int PG_BITS = 9;
 inline constexpr int PG_WIDTH = 1 << PG_BITS;
 inline constexpr int PG_MASK = PG_WIDTH - 1;
 
-enum EnvelopeState {
-	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
-};
-
 class Patch {
 public:
 	/** Creates an uninitialized Patch object; call initXXX() before use.
@@ -65,6 +61,10 @@ public:
 
 class Slot {
 public:
+	enum class EnvelopeState {
+		ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
+	};
+
 	Slot();
 	void reset();
 

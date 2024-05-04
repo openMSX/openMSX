@@ -51,8 +51,8 @@ public:
 	/** 16.16 fixed point type for frequency calculations */
 	using FreqIndex = FixedPoint<16>;
 
-	enum EnvelopeState {
-		EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
+	enum class EnvelopeState {
+		ATTACK, DECAY, SUSTAIN, RELEASE, OFF
 	};
 
 private:
@@ -93,7 +93,7 @@ private:
 
 		std::span<const unsigned, SIN_LEN> waveTable; // waveform select
 
-		EnvelopeState state{EG_OFF}; // EG: phase type
+		EnvelopeState state{EnvelopeState::OFF}; // EG: phase type
 		unsigned eg_m_ar{0};  // (attack state)
 		unsigned eg_m_dr{0};  // (decay state)
 		unsigned eg_m_rr{0};  // (release state)

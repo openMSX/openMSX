@@ -104,17 +104,6 @@ static constexpr uint8_t IP_SIZE_NORMAL = 160 / FR_SIZE;
 static constexpr uint8_t IP_SIZE_FAST   = 120 / FR_SIZE;
 static constexpr uint8_t IP_SIZE_FASTER =  80 / FR_SIZE;
 
-// phase value
-enum {
-	PH_RESET,
-	PH_IDLE,
-	PH_SETUP,
-	PH_WAIT,
-	PH_RUN,
-	PH_STOP,
-	PH_END
-};
-
 // speed parameter
 // SPC SPB SPA
 //  1   0   1  more slow (05h)     : 42ms   (150%) : 60sample
@@ -240,7 +229,8 @@ int VLM5030::parseFrame()
 void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
-	if (phase == PH_IDLE) {
+	using enum Phase;
+	if (phase == IDLE) {
 		bufs[0] = nullptr;
 		return;
 	}
@@ -248,13 +238,13 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 	int buf_count = 0;
 
 	// running
-	if (phase == one_of(PH_RUN, PH_STOP)) {
+	if (phase == one_of(RUN, STOP)) {
 		// playing speech
 		while (num > 0) {
 			// check new interpolator or new frame
 			if (sample_count == 0) {
-				if (phase == PH_STOP) {
-					phase = PH_END;
+				if (phase == STOP) {
+					phase = END;
 					sample_count = 1;
 					goto phase_stop; // continue to end phase
 				}
@@ -267,7 +257,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 						// end mark found
 						interp_count = FR_SIZE;
 						sample_count = frame_size; // end -> stop time
-						phase = PH_STOP;
+						phase = STOP;
 					}
 					// Set old target as new start of frame
 					current_energy = old_energy;
@@ -337,23 +327,27 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 	}
 phase_stop:
 	switch (phase) {
-	case PH_SETUP:
+	using enum Phase;
+	case SETUP:
 		if (sample_count <= num) {
 			sample_count = 0;
 			// pin_BSY = true;
-			phase = PH_WAIT;
+			phase = WAIT;
 		} else {
 			sample_count -= narrow<uint8_t>(num);
 		}
 		break;
-	case PH_END:
+	case END:
 		if (sample_count <= num) {
 			sample_count = 0;
 			pin_BSY = false;
-			phase = PH_IDLE;
+			phase = IDLE;
 		} else {
 			sample_count -= narrow<uint8_t>(num);
 		}
+		break;
+	default:
+		break; // nothing
 	}
 	// silent buffering
 	while (num > 0) {
@@ -397,7 +391,7 @@ void VLM5030::setupParameter(uint8_t param)
 
 void VLM5030::reset()
 {
-	phase = PH_RESET;
+	phase = Phase::RESET;
 	address = 0;
 	vcu_addr_h = 0;
 	pin_BSY = false;
@@ -492,13 +486,13 @@ void VLM5030::setST(bool pin)
 			interp_count = FR_SIZE;
 			// clear filter
 			// start after 3 sampling cycle
-			phase = PH_RUN;
+			phase = Phase::RUN;
 		}
 	} else {
 		// L -> H
 		pin_ST = true;
 		// setup speech, BSY on after 30ms?
-		phase = PH_SETUP;
+		phase = Phase::SETUP;
 		sample_count = 1; // wait time for busy on
 		pin_BSY = true;
 	}
@@ -530,7 +524,7 @@ VLM5030::VLM5030(const std::string& name_, static_string_view desc,
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, *getRomConfig(const_cast<DeviceConfig&>(config), name_, romFilename)))
 {
 	reset();
-	phase = PH_IDLE;
+	phase = Phase::IDLE;
 
 	assert(rom.size() != 0);
 	address_mask = narrow<unsigned>(rom.size() - 1);
@@ -543,8 +537,21 @@ VLM5030::~VLM5030()
 	unregisterSound();
 }
 
+static constexpr std::initializer_list<enum_string<VLM5030::Phase>> phaseInfo = {
+	{ "RESET", VLM5030::Phase::RESET },
+	{ "IDLE",  VLM5030::Phase::IDLE  },
+	{ "SETUP", VLM5030::Phase::SETUP },
+	{ "WAIT",  VLM5030::Phase::WAIT  },
+	{ "RUN",   VLM5030::Phase::RUN   },
+	{ "STOP",  VLM5030::Phase::STOP  },
+	{ "END",   VLM5030::Phase::END   },
+};
+SERIALIZE_ENUM(VLM5030::Phase, phaseInfo);
+
+// version 1: initial version
+// version 2: serialize 'phase' as an enum instead of uint8_t
 template<typename Archive>
-void VLM5030::serialize(Archive& ar, unsigned /*version*/)
+void VLM5030::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("address_mask",   address_mask,
 	             "frame_size",     frame_size,
@@ -570,11 +577,27 @@ void VLM5030::serialize(Archive& ar, unsigned /*version*/)
 	             "pitch_count",    pitch_count,
 	             "latch_data",     latch_data,
 	             "parameter",      parameter,
-	             "phase",          phase,
 	             "pin_BSY",        pin_BSY,
 	             "pin_ST",         pin_ST,
 	             "pin_VCU",        pin_VCU,
 	             "pin_RST",        pin_RST);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("phase", phase);
+	} else {
+		assert(Archive::IS_LOADER);
+		int tmp = 0; // dummy init to avoid warning
+		ar.serialize("phase", tmp);
+		switch (tmp) {
+			using enum Phase;
+			case 0:  phase = RESET; break;
+			case 1:  phase = IDLE;  break;
+			case 2:  phase = SETUP; break;
+			case 3:  phase = WAIT;  break;
+			case 4:  phase = RUN;   break;
+			case 5:  phase = STOP;  break;
+			default: phase = END;   break;
+		}
+	}
 }
 
 INSTANTIATE_SERIALIZE_METHODS(VLM5030);

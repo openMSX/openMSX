@@ -352,7 +352,7 @@ void Y8950::Slot::reset()
 	phase = 0;
 	output = 0;
 	feedback = 0;
-	eg_mode = FINISH;
+	eg_mode = EnvelopeState::FINISH;
 	eg_phase = EG_DP_MAX;
 	key = 0;
 	patch.reset();
@@ -390,6 +390,7 @@ void Y8950::Slot::updateRKS(unsigned freq)
 void Y8950::Slot::updateEG()
 {
 	switch (eg_mode) {
+	using enum EnvelopeState;
 	case ATTACK:
 		eg_dPhase = dPhaseARTableRks[patch.AR];
 		break;
@@ -416,14 +417,14 @@ void Y8950::Slot::updateAll(unsigned freq)
 
 bool Y8950::Slot::isActive() const
 {
-	return eg_mode != FINISH;
+	return eg_mode != EnvelopeState::FINISH;
 }
 
 // Slot key on
 void Y8950::Slot::slotOn(KeyPart part)
 {
 	if (!key) {
-		eg_mode = ATTACK;
+		eg_mode = EnvelopeState::ATTACK;
 		phase = 0;
 		eg_phase = Y8950::EnvPhaseIndex(adjustRA[eg_phase.toInt()]);
 	}
@@ -436,10 +437,10 @@ void Y8950::Slot::slotOff(KeyPart part)
 	if (key) {
 		key &= ~part;
 		if (!key) {
-			if (eg_mode == ATTACK) {
+			if (eg_mode == EnvelopeState::ATTACK) {
 				eg_phase = Y8950::EnvPhaseIndex(adjustAR[eg_phase.toInt()]);
 			}
-			eg_mode = RELEASE;
+			eg_mode = EnvelopeState::RELEASE;
 		}
 	}
 }
@@ -665,6 +666,7 @@ unsigned Y8950::Slot::calc_envelope(int lfo_am)
 {
 	unsigned egOut = 0;
 	switch (eg_mode) {
+	using enum EnvelopeState;
 	case ATTACK:
 		eg_phase += eg_dPhase;
 		if (eg_phase >= EG_DP_MAX) {
@@ -1245,11 +1247,11 @@ void Y8950::Patch::serialize(Archive& ar, unsigned /*version*/)
 }
 
 static constexpr std::initializer_list<enum_string<Y8950::EnvelopeState>> envelopeStateInfo = {
-	{ "ATTACK",  Y8950::ATTACK  },
-	{ "DECAY",   Y8950::DECAY   },
-	{ "SUSTAIN", Y8950::SUSTAIN },
-	{ "RELEASE", Y8950::RELEASE },
-	{ "FINISH",  Y8950::FINISH  }
+	{ "ATTACK",  Y8950::EnvelopeState::ATTACK  },
+	{ "DECAY",   Y8950::EnvelopeState::DECAY   },
+	{ "SUSTAIN", Y8950::EnvelopeState::SUSTAIN },
+	{ "RELEASE", Y8950::EnvelopeState::RELEASE },
+	{ "FINISH",  Y8950::EnvelopeState::FINISH  }
 };
 SERIALIZE_ENUM(Y8950::EnvelopeState, envelopeStateInfo);
 
@@ -1273,6 +1275,7 @@ void Y8950::Slot::serialize(Archive& ar, unsigned version)
 		int tmp = 0; // dummy init to avoid warning
 		ar.serialize("eg_mode", tmp);
 		switch (tmp) {
+			using enum EnvelopeState;
 			case 0:  eg_mode = ATTACK;  break;
 			case 1:  eg_mode = DECAY;   break;
 			case 2:  eg_mode = SUSTAIN; break; // was SUSHOLD

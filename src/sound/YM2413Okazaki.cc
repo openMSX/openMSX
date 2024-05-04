@@ -396,7 +396,7 @@ void Slot::reset()
 	ranges::fill(dPhase, 0);
 	output = 0;
 	feedback = 0;
-	setEnvelopeState(FINISH);
+	setEnvelopeState(EnvelopeState::FINISH);
 	dPhaseDRTableRks = dPhaseDrTab[0];
 	tll = 0;
 	sustain = false;
@@ -435,6 +435,7 @@ void Slot::updateRKS(unsigned freq)
 void Slot::updateEG()
 {
 	switch (state) {
+	using enum EnvelopeState;
 	case ATTACK:
 		// Original code had separate table for AR, the values in
 		// this table were 12 times bigger than the values in the
@@ -496,6 +497,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 {
 	state = state_;
 	switch (state) {
+	using enum EnvelopeState;
 	case ATTACK:
 		eg_phase_max = (patch.AR == 15) ? EnvPhaseIndex(0) : EG_DP_MAX;
 		break;
@@ -520,13 +522,13 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 
 bool Slot::isActive() const
 {
-	return state != FINISH;
+	return state != EnvelopeState::FINISH;
 }
 
 // Slot key on
 void Slot::slotOn()
 {
-	setEnvelopeState(ATTACK);
+	setEnvelopeState(EnvelopeState::ATTACK);
 	eg_phase = EnvPhaseIndex(0);
 	cPhase = 0;
 }
@@ -534,18 +536,18 @@ void Slot::slotOn()
 // Slot key on, without resetting the phase
 void Slot::slotOn2()
 {
-	setEnvelopeState(ATTACK);
+	setEnvelopeState(EnvelopeState::ATTACK);
 	eg_phase = EnvPhaseIndex(0);
 }
 
 // Slot key off
 void Slot::slotOff()
 {
-	if (state == FINISH) return; // already in off state
-	if (state == ATTACK) {
+	if (state == EnvelopeState::FINISH) return; // already in off state
+	if (state == EnvelopeState::ATTACK) {
 		eg_phase = EnvPhaseIndex(arAdjustTab[eg_phase.toInt()]);
 	}
-	setEnvelopeState(RELEASE);
+	setEnvelopeState(EnvelopeState::RELEASE);
 }
 
 
@@ -553,8 +555,8 @@ void Slot::slotOff()
 void Slot::setPatch(const Patch& newPatch)
 {
 	patch = newPatch; // copy data
-	if ((state == SUSHOLD) && (patch.EG == 0)) {
-		setEnvelopeState(SUSTAIN);
+	if ((state == EnvelopeState::SUSHOLD) && (patch.EG == 0)) {
+		setEnvelopeState(EnvelopeState::SUSTAIN);
 	}
 	setEnvelopeState(state); // recalculate eg_phase_max
 }
@@ -607,7 +609,7 @@ void Channel::keyOn()
 	//      Should we    set    mod.slot_on_flag?
 	//      Can make a difference for channel 7/8 in rythm mode.
 	if (!car.slot_on_flag) {
-		car.setEnvelopeState(SETTLE);
+		car.setEnvelopeState(Slot::EnvelopeState::SETTLE);
 		// this will shortly set both car and mod to ATTACK state
 	}
 	car.slot_on_flag |= 1;
@@ -719,7 +721,7 @@ void YM2413::keyOn_BD()
 {
 	Channel& ch6 = channels[6];
 	if (!ch6.car.slot_on_flag) {
-		ch6.car.setEnvelopeState(SETTLE);
+		ch6.car.setEnvelopeState(Slot::EnvelopeState::SETTLE);
 		// this will shortly set both car and mod to ATTACK state
 	}
 	ch6.car.slot_on_flag |= 2;
@@ -901,6 +903,7 @@ ALWAYS_INLINE unsigned Slot::calc_phase(unsigned lfo_pm)
 void Slot::calc_envelope_outline(unsigned& out)
 {
 	switch (state) {
+	using enum EnvelopeState;
 	case ATTACK:
 		out = 0;
 		eg_phase = EnvPhaseIndex(0);
@@ -930,7 +933,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 template<bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
-	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
+	assert(!FIXED_ENV || (state == one_of(EnvelopeState::SUSHOLD, EnvelopeState::FINISH)));
 
 	if constexpr (FIXED_ENV) {
 		unsigned out = fixed_env;
@@ -943,7 +946,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 		return out;
 	} else {
 		unsigned out = eg_phase.toInt(); // in range [0, 128]
-		if (state == ATTACK) {
+		if (state == EnvelopeState::ATTACK) {
 			out = arAdjustTab[out]; // [0, 128]
 		}
 		eg_phase += eg_dPhase;
@@ -959,7 +962,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 }
 template<bool HAS_AM> unsigned Slot::calc_fixed_env() const
 {
-	assert(state == one_of(SUSHOLD, FINISH));
+	assert(state == one_of(EnvelopeState::SUSHOLD, EnvelopeState::FINISH));
 	assert(eg_dPhase == EnvPhaseIndex(0));
 	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	out = EG2DB(out + tll); // [0, 480)
@@ -1127,6 +1130,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			// Below we choose between 128 specialized versions of
 			// calcChannel(). This allows to move a lot of
 			// conditional code out of the inner-loop.
+			using enum Slot::EnvelopeState;
 			bool carFixedEnv = ch.car.state == one_of(SUSHOLD, FINISH);
 			bool modFixedEnv = ch.mod.state == one_of(SUSHOLD, FINISH);
 			if (ch.car.state == SETTLE) {
@@ -1377,6 +1381,7 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 	assert(r < 0x40);
 
 	switch (r) {
+	using enum Slot::EnvelopeState;
 	case 0x00: {
 		reg[r] = data;
 		patches[0][0].AMPM = (data >> 6) & 3;
@@ -1584,16 +1589,16 @@ uint8_t YM2413::peekReg(uint8_t r) const
 
 } // namespace YM2413Okazaki
 
-static constexpr std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
-	{ "ATTACK",  YM2413Okazaki::ATTACK  },
-	{ "DECAY",   YM2413Okazaki::DECAY   },
-	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },
-	{ "SUSTAIN", YM2413Okazaki::SUSTAIN },
-	{ "RELEASE", YM2413Okazaki::RELEASE },
-	{ "SETTLE",  YM2413Okazaki::SETTLE  },
-	{ "FINISH",  YM2413Okazaki::FINISH  }
+static constexpr std::initializer_list<enum_string<YM2413Okazaki::Slot::EnvelopeState>> envelopeStateInfo = {
+	{ "ATTACK",  YM2413Okazaki::Slot::EnvelopeState::ATTACK  },
+	{ "DECAY",   YM2413Okazaki::Slot::EnvelopeState::DECAY   },
+	{ "SUSHOLD", YM2413Okazaki::Slot::EnvelopeState::SUSHOLD },
+	{ "SUSTAIN", YM2413Okazaki::Slot::EnvelopeState::SUSTAIN },
+	{ "RELEASE", YM2413Okazaki::Slot::EnvelopeState::RELEASE },
+	{ "SETTLE",  YM2413Okazaki::Slot::EnvelopeState::SETTLE  },
+	{ "FINISH",  YM2413Okazaki::Slot::EnvelopeState::FINISH  }
 };
-SERIALIZE_ENUM(YM2413Okazaki::EnvelopeState, envelopeStateInfo);
+SERIALIZE_ENUM(YM2413Okazaki::Slot::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Okazaki {
 

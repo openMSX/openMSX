@@ -42,7 +42,7 @@ public:
 	[[nodiscard]] int calc_envelope(const Channel& channel, unsigned eg_cnt, bool carrier);
 	[[nodiscard]] int calc_phase(const Channel& channel, unsigned lfo_pm);
 
-	enum KeyPart : uint8_t { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+	enum class KeyPart : uint8_t { MAIN = 1, RHYTHM = 2 };
 	void setKeyOn(KeyPart part);
 	void setKeyOff(KeyPart part);
 	void setKeyOnOff(KeyPart part, bool enabled);
@@ -112,11 +112,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 public: // public for serialization, otherwise could be private
-	/** Envelope Generator phases
-	 * Note: These are ordered: phase constants are compared in the code.
-	 */
-	enum EnvelopeState {
-		EG_DUMP, EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
+	enum class EnvelopeState {
+		DUMP, ATTACK, DECAY, SUSTAIN, RELEASE, OFF
 	};
 
 private:

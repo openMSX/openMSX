@@ -108,7 +108,7 @@ public:
 	static constexpr int EG_DP_BITS = 23;
 	using EnvPhaseIndex = FixedPoint<EG_DP_BITS - EG_BITS>;
 
-	enum EnvelopeState { ATTACK, DECAY, SUSTAIN, RELEASE, FINISH };
+	enum class EnvelopeState { ATTACK, DECAY, SUSTAIN, RELEASE, FINISH };
 
 private:
 	enum KeyPart : uint8_t { KEY_MAIN = 1, KEY_RHYTHM = 2 };

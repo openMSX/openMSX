@@ -398,7 +398,8 @@ static constexpr FreqIndex fnumToIncrement(int block_fnum)
 inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool carrier)
 {
 	switch (state) {
-	case EG_DUMP:
+	using enum EnvelopeState;
+	case DUMP:
 		// Dump phase is performed by both operators in each channel.
 		// When CARRIER envelope gets down to zero level, phases in BOTH
 		// operators are reset (at the same time?).
@@ -407,33 +408,33 @@ inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool car
 			egOut += eg_sel_dp[(eg_cnt >> eg_sh_dp) & 7];
 			if (egOut >= MAX_ATT_INDEX) {
 				egOut = MAX_ATT_INDEX;
-				setEnvelopeState(EG_ATTACK);
+				setEnvelopeState(ATTACK);
 				phase = FreqIndex(0); // restart Phase Generator
 			}
 		}
 		break;
 
-	case EG_ATTACK:
+	case ATTACK:
 		if (!(eg_cnt & eg_mask_ar)) {
 			egOut +=
 				(~egOut * eg_sel_ar[(eg_cnt >> eg_sh_ar) & 7]) >> 2;
 			if (egOut <= MIN_ATT_INDEX) {
 				egOut = MIN_ATT_INDEX;
-				setEnvelopeState(EG_DECAY);
+				setEnvelopeState(DECAY);
 			}
 		}
 		break;
 
-	case EG_DECAY:
+	case DECAY:
 		if (!(eg_cnt & eg_mask_dr)) {
 			egOut += eg_sel_dr[(eg_cnt >> eg_sh_dr) & 7];
 			if (egOut >= sl) {
-				setEnvelopeState(EG_SUSTAIN);
+				setEnvelopeState(SUSTAIN);
 			}
 		}
 		break;
 
-	case EG_SUSTAIN:
+	case SUSTAIN:
 		// this is important behaviour:
 		// one can change percussive/non-percussive modes on the fly and
 		// the chip will remain in sustain phase
@@ -455,7 +456,7 @@ inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool car
 		}
 		break;
 
-	case EG_RELEASE:
+	case RELEASE:
 		// Exclude modulators in melody channels from performing anything in
 		// this mode.
 		if (carrier) {
@@ -467,13 +468,13 @@ inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool car
 				egOut += sel[(eg_cnt >> shift) & 7];
 				if (egOut >= MAX_ATT_INDEX) {
 					egOut = MAX_ATT_INDEX;
-					setEnvelopeState(EG_OFF);
+					setEnvelopeState(OFF);
 				}
 			}
 		}
 		break;
 
-	case EG_OFF:
+	case OFF:
 		break;
 	}
 	return egOut;
@@ -646,24 +647,24 @@ Slot::Slot()
 	, eg_sel_dp(eg_inc[0]), eg_sel_ar(eg_inc[0]), eg_sel_dr(eg_inc[0])
 	, eg_sel_rr(eg_inc[0]), eg_sel_rs(eg_inc[0])
 {
-	setEnvelopeState(EG_OFF);
+	setEnvelopeState(EnvelopeState::OFF);
 }
 
 void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
-		setEnvelopeState(EG_DUMP);
+		setEnvelopeState(EnvelopeState::DUMP);
 	}
-	key |= part;
+	key |= to_underlying(part);
 }
 
 void Slot::setKeyOff(KeyPart part)
 {
 	if (key) {
-		key &= ~part;
+		key &= ~to_underlying(part);
 		if (!key && isActive()) {
-			setEnvelopeState(EG_RELEASE);
+			setEnvelopeState(EnvelopeState::RELEASE);
 		}
 	}
 }
@@ -679,7 +680,7 @@ void Slot::setKeyOnOff(KeyPart part, bool enabled)
 
 bool Slot::isActive() const
 {
-	return state != EG_OFF;
+	return state != EnvelopeState::OFF;
 }
 
 void Slot::setEnvelopeState(EnvelopeState state_)
@@ -769,7 +770,7 @@ void Slot::updateFrequency(const Channel& channel)
 void Slot::resetOperators()
 {
 	waveTable = sinTab[0];
-	setEnvelopeState(EG_OFF);
+	setEnvelopeState(EnvelopeState::OFF);
 	egOut = MAX_ATT_INDEX;
 }
 
@@ -943,6 +944,7 @@ void YM2413::setRhythmFlags(uint8_t old)
 	Channel& ch8 = channels[8];
 
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
+	using enum Slot::KeyPart;
 	uint8_t flags = reg[0x0E];
 	if ((flags ^ old) & 0x20) {
 		if (flags & 0x20) { // OFF -> ON
@@ -958,31 +960,32 @@ void YM2413::setRhythmFlags(uint8_t old)
 			ch6.updateInstrument(inst_tab[reg[0x36] >> 4]);
 			ch7.updateInstrument(inst_tab[reg[0x37] >> 4]);
 			ch8.updateInstrument(inst_tab[reg[0x38] >> 4]);
+
 			// BD key off
-			ch6.mod.setKeyOff(Slot::KEY_RHYTHM);
-			ch6.car.setKeyOff(Slot::KEY_RHYTHM);
+			ch6.mod.setKeyOff(RHYTHM);
+			ch6.car.setKeyOff(RHYTHM);
 			// HH key off
-			ch7.mod.setKeyOff(Slot::KEY_RHYTHM);
+			ch7.mod.setKeyOff(RHYTHM);
 			// SD key off
-			ch7.car.setKeyOff(Slot::KEY_RHYTHM);
+			ch7.car.setKeyOff(RHYTHM);
 			// TOM key off
-			ch8.mod.setKeyOff(Slot::KEY_RHYTHM);
+			ch8.mod.setKeyOff(RHYTHM);
 			// TOP-CY off
-			ch8.car.setKeyOff(Slot::KEY_RHYTHM);
+			ch8.car.setKeyOff(RHYTHM);
 		}
 	}
 	if (flags & 0x20) {
 		// BD key on/off
-		ch6.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
-		ch6.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		ch6.mod.setKeyOnOff(RHYTHM, (flags & 0x10) != 0);
+		ch6.car.setKeyOnOff(RHYTHM, (flags & 0x10) != 0);
 		// HH key on/off
-		ch7.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
+		ch7.mod.setKeyOnOff(RHYTHM, (flags & 0x01) != 0);
 		// SD key on/off
-		ch7.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
+		ch7.car.setKeyOnOff(RHYTHM, (flags & 0x08) != 0);
 		// TOM key on/off
-		ch8.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
+		ch8.mod.setKeyOnOff(RHYTHM, (flags & 0x04) != 0);
 		// TOP-CY key on/off
-		ch8.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
+		ch8.car.setKeyOnOff(RHYTHM, (flags & 0x02) != 0);
 	}
 }
 
@@ -1230,8 +1233,8 @@ void YM2413::writeReg(uint8_t r, uint8_t v)
 	case 0x20: {
 		// 20-28: susOn, keyOn, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
-		ch.mod.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
-		ch.car.setKeyOnOff(Slot::KEY_MAIN, (v & 0x10) != 0);
+		ch.mod.setKeyOnOff(Slot::KeyPart::MAIN, (v & 0x10) != 0);
+		ch.car.setKeyOnOff(Slot::KeyPart::MAIN, (v & 0x10) != 0);
 		ch.setSustain((v & 0x20) != 0);
 		// Note: When changing the frequency, a new value for RS is
 		//       computed using the sustain value, so make sure the new
@@ -1273,12 +1276,12 @@ uint8_t YM2413::peekReg(uint8_t r) const
 } // namespace YM2413Burczynski
 
 static constexpr std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
-	{ "DUMP",    YM2413Burczynski::Slot::EG_DUMP    },
-	{ "ATTACK",  YM2413Burczynski::Slot::EG_ATTACK  },
-	{ "DECAY",   YM2413Burczynski::Slot::EG_DECAY   },
-	{ "SUSTAIN", YM2413Burczynski::Slot::EG_SUSTAIN },
-	{ "RELEASE", YM2413Burczynski::Slot::EG_RELEASE },
-	{ "OFF",     YM2413Burczynski::Slot::EG_OFF     }
+	{ "DUMP",    YM2413Burczynski::Slot::EnvelopeState::DUMP    },
+	{ "ATTACK",  YM2413Burczynski::Slot::EnvelopeState::ATTACK  },
+	{ "DECAY",   YM2413Burczynski::Slot::EnvelopeState::DECAY   },
+	{ "SUSTAIN", YM2413Burczynski::Slot::EnvelopeState::SUSTAIN },
+	{ "RELEASE", YM2413Burczynski::Slot::EnvelopeState::RELEASE },
+	{ "OFF",     YM2413Burczynski::Slot::EnvelopeState::OFF     }
 };
 SERIALIZE_ENUM(YM2413Burczynski::Slot::EnvelopeState, envelopeStateInfo);
 

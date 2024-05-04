@@ -34,6 +34,16 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	enum Phase : uint8_t {
+		RESET,
+		IDLE,
+		SETUP,
+		WAIT,
+		RUN,
+		STOP,
+		END
+	};
+
 private:
 	void setRST(bool pin);
 	void setVCU(bool pin);
@@ -82,12 +92,13 @@ private:
 
 	uint8_t latch_data{0};
 	uint8_t parameter;
-	uint8_t phase;
+	Phase phase;
 	bool pin_BSY{false};
 	bool pin_ST{false};
 	bool pin_VCU{false};
 	bool pin_RST{false};
 };
+SERIALIZE_CLASS_VERSION(VLM5030, 2);
 
 } // namespace openmsx
 
