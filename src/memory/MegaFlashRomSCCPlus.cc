@@ -162,6 +162,23 @@ Main features:
             Bank2(6 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "00" else 	--#8000-#9FFF
             Bank3(6 downto 0) & adr(12 downto 0);
 
+--------------------------------------------------------------------------------
+[FLASH ROM ADDRESSING]
+
+ In order to be compatible with OPFX which sends command sequences like
+ (0x555) = 0xAA, (0xAAA) = 0x55, whilst dual mode 8/16-bit chips like the
+ M29W800DB expect (0xAAA) = 0xAA, (0x555) = 0x55 when operating in byte mode,
+ CPU line A12 is connected to Flash line A0.
+
+  CPU line | Flash line (-1 on datasheet)
+ ----------+------------------------------
+  A0-A11   |  A1-A12
+  A12      |  A0
+  A13-A15  |  A13-A19 (through mapper)
+
+ Since the smallest sector size is 8 kB, sector numbers are unaffected, only
+ sector offsets are. Unfortunately, this prohibits read caching.
+
 ******************************************************************************/
 
 namespace openmsx {
@@ -173,7 +190,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 	, flash(rom, AmdFlashChip::M29W800DB, {},
-	        AmdFlash::Addressing::BITS_11, config)
+	        AmdFlash::Addressing::BITS_12, config)
 {
 	powerUp(getCurrentTime());
 	for (auto port : {0x10, 0x11}) {
@@ -235,6 +252,9 @@ unsigned MegaFlashRomSCCPlus::getSubslot(unsigned addr) const
 
 unsigned MegaFlashRomSCCPlus::getFlashAddr(unsigned addr) const
 {
+	// Pazos: FlashROM A0 (A-1 on datasheet) is connected to CPU A12.
+	addr = (addr & 0xE000) | ((addr & 0x1000) >> 12) | ((addr & 0x0FFF) << 1);
+
 	unsigned subslot = getSubslot(addr);
 	unsigned tmp = [&] {
 		if ((configReg & 0xC0) == 0x40) {
@@ -327,10 +347,7 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 
 	if (((configReg & 0xC0) == 0x40) ||
 	    ((0x4000 <= addr) && (addr < 0xC000))) {
-		// read (flash)rom content
-		unsigned flashAddr = getFlashAddr(addr);
-		assert(flashAddr != unsigned(-1));
-		return flash.getReadCacheLine(flashAddr);
+		return nullptr; // uncacheable due to address swizzling
 	} else {
 		// unmapped read
 		return unmappedRead.data();
