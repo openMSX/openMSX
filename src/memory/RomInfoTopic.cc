@@ -19,7 +19,7 @@ void RomInfoTopic::execute(std::span<const TclObject> tokens, TclObject& result)
 	}
 	case 3: {
 		RomType type = RomInfo::nameToRomType(tokens[2].getString());
-		if (type == ROM_UNKNOWN) {
+		if (type == RomType::UNKNOWN) {
 			throw CommandException("Unknown rom type");
 		}
 		result.addDictKeyValues("description", RomInfo::getDescription(type),

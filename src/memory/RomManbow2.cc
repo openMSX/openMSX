@@ -47,34 +47,30 @@ static constexpr auto config4 = [] {
 [[nodiscard]] static constexpr std::span<const Info> getSectorInfo(RomType type)
 {
 	switch (type) {
-	case ROM_MANBOW2:
-	case ROM_MANBOW2_2:
-		return config1;
-	case ROM_HAMARAJANIGHT:
-		return config2;
-	case ROM_MEGAFLASHROMSCC:
-		return config3;
-	case ROM_RBSC_FLASH_KONAMI_SCC:
-		return config4;
-	default:
-		UNREACHABLE;
+	using enum RomType;
+	case MANBOW2:
+	case MANBOW2_2:             return config1;
+	case HAMARAJANIGHT:         return config2;
+	case MEGAFLASHROMSCC:       return config3;
+	case RBSC_FLASH_KONAMI_SCC: return config4;
+	default: UNREACHABLE;
 	}
 }
 
 RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
-	, scc((type != ROM_RBSC_FLASH_KONAMI_SCC)
+	, scc((type != RomType::RBSC_FLASH_KONAMI_SCC)
 		? std::make_unique<SCC>(
 			getName() + " SCC", config, getCurrentTime())
 		: nullptr)
-	, psg((type == one_of(ROM_MANBOW2_2, ROM_HAMARAJANIGHT))
+	, psg((type == one_of(RomType::MANBOW2_2, RomType::HAMARAJANIGHT))
 		? std::make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
 	, flash(rom, getSectorInfo(type),
-	        type == ROM_RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4,
+	        type == RomType::RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4,
 		AmdFlash::Addressing::BITS_11, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
@@ -233,7 +229,7 @@ void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
 
 // version 1: initial version
 // version 2: added optional built-in PSG
-// version 3: made SCC optional (for ROM_RBSC_FLASH_KONAMI_SCC)
+// version 3: made SCC optional (for RomType::RBSC_FLASH_KONAMI_SCC)
 template<typename Archive>
 void RomManbow2::serialize(Archive& ar, unsigned version)
 {

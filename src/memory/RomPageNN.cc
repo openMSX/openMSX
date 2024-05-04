@@ -10,16 +10,17 @@ RomPageNN::RomPageNN(const DeviceConfig& config, Rom&& rom_, RomType type)
 {
 	const auto pages = [&] {
 		switch (type) {
-			case ROM_PAGE0:    return 0b0001;
-			case ROM_PAGE1:    return 0b0010;
-			case ROM_PAGE01:   return 0x0011;
-			case ROM_PAGE2:    return 0b0100;
-			case ROM_PAGE12:   return 0b0110;
-			case ROM_PAGE012:  return 0b0111;
-			case ROM_PAGE3:    return 0b1000;
-			case ROM_PAGE23:   return 0b1100;
-			case ROM_PAGE123:  return 0b1110;
-			case ROM_PAGE0123: return 0b1111;
+			using enum RomType;
+			case PAGE0:    return 0b0001;
+			case PAGE1:    return 0b0010;
+			case PAGE01:   return 0x0011;
+			case PAGE2:    return 0b0100;
+			case PAGE12:   return 0b0110;
+			case PAGE012:  return 0b0111;
+			case PAGE3:    return 0b1000;
+			case PAGE23:   return 0b1100;
+			case PAGE123:  return 0b1110;
+			case PAGE0123: return 0b1111;
 			default: UNREACHABLE;
 		}
 	}();

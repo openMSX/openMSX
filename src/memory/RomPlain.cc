@@ -43,24 +43,25 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_, RomType type)
 	}
 	auto romSize = narrow<unsigned>(romSize_);
 
+	using enum RomType;
 	const int start = [&] {
 		switch (type) {
-			case ROM_MIRRORED: return -1;
-			case ROM_NORMAL:   return -1;
-			case ROM_MIRRORED0000: return 0x0000;
-			case ROM_MIRRORED4000: return 0x4000;
-			case ROM_MIRRORED8000: return 0x8000;
-			case ROM_MIRROREDC000: return 0xC000;
-			case ROM_NORMAL0000: return 0x0000;
-			case ROM_NORMAL4000: return 0x4000;
-			case ROM_NORMAL8000: return 0x8000;
-			case ROM_NORMALC000: return 0xC000;
+			case MIRRORED: return -1;
+			case NORMAL:   return -1;
+			case MIRRORED0000: return 0x0000;
+			case MIRRORED4000: return 0x4000;
+			case MIRRORED8000: return 0x8000;
+			case MIRROREDC000: return 0xC000;
+			case NORMAL0000: return 0x0000;
+			case NORMAL4000: return 0x4000;
+			case NORMAL8000: return 0x8000;
+			case NORMALC000: return 0xC000;
 			default: UNREACHABLE;
 		}
 	}();
-	const bool mirrored = type == one_of(ROM_MIRRORED,
-	                                     ROM_MIRRORED0000, ROM_MIRRORED4000,
-	                                     ROM_MIRRORED8000, ROM_MIRROREDC000);
+	const bool mirrored = type == one_of(MIRRORED,
+	                                     MIRRORED0000, MIRRORED4000,
+	                                     MIRRORED8000, MIRROREDC000);
 
 	unsigned romBase = (start == -1)
 	                 ? guessLocation(windowBase, windowSize)

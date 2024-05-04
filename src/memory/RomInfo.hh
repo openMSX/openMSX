@@ -2,8 +2,11 @@
 #define ROMINFO_HH
 
 #include "RomTypes.hh"
+
 #include "String32.hh"
+#include "stl.hh"
 #include "view.hh"
+
 #include <array>
 #include <string_view>
 #include <utility>
@@ -69,7 +72,7 @@ public:
 	[[nodiscard]] static auto getAllRomTypes() {
 		return view::transform(getRomTypeInfo(), &RomTypeInfo::name);
 	}
-	[[nodiscard]] static const std::array<RomInfo::RomTypeInfo, RomType::ROM_LAST>& getRomTypeInfo();
+	[[nodiscard]] static const array_with_enum_index<RomType, RomInfo::RomTypeInfo>& getRomTypeInfo();
 
 private:
 	String32 title;

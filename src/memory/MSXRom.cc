@@ -33,7 +33,7 @@ std::string_view MSXRom::getMapperTypeString() const
 RomType MSXRom::getRomType() const
 {
 	auto result = RomInfo::nameToRomType(getMapperTypeString());
-	assert(result != ROM_UNKNOWN);
+	assert(result != RomType::UNKNOWN);
 	return result;
 }
 

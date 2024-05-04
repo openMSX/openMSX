@@ -171,7 +171,7 @@ void DBParser::start(string_view tag)
 		case 'd':
 			if (small_compare<"dump">(tag)) {
 				dumps.resize(dumps.size() + 1);
-				dumps.back().type = ROM_UNKNOWN;
+				dumps.back().type = RomType::UNKNOWN;
 				dumps.back().origValue = false;
 				toString32(bufStart, bufStart, dumps.back().remark);
 				toString32(bufStart, bufStart, dumps.back().origData);
@@ -518,7 +518,7 @@ void DBParser::stop()
 			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);
-		if (romType == ROM_UNKNOWN) {
+		if (romType == RomType::UNKNOWN) {
 			unknownTypes[std::string(t)]++;
 		}
 		dumps.back().type = romType;

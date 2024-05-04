@@ -52,7 +52,7 @@ void ImGuiMedia::save(ImGuiTextBuffer& buf)
 		for (const auto& patch : item.ipsPatches) {
 			buf.appendf("%s.patch=%s\n", name.c_str(), patch.c_str());
 		}
-		if (item.romType != ROM_UNKNOWN) {
+		if (item.romType != RomType::UNKNOWN) {
 			buf.appendf("%s.romType=%s\n", name.c_str(),
 				std::string(RomInfo::romTypeToName(item.romType)).c_str());
 		}
@@ -122,7 +122,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 		} else if (suffix == "patch") {
 			item.ipsPatches.emplace_back(value);
 		} else if (suffix == "romType") {
-			if (auto type = RomInfo::nameToRomType(value); type != ROM_UNKNOWN) {
+			if (auto type = RomInfo::nameToRomType(value); type != RomType::UNKNOWN) {
 				item.romType = type;
 			}
 		}
@@ -238,7 +238,7 @@ template<std::invocable<const std::string&> DisplayFunc = std::identity>
 static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displayFunc = {})
 {
 	std::string result = displayFunc(item.name);
-	if (item.romType != ROM_UNKNOWN) {
+	if (item.romType != RomType::UNKNOWN) {
 		strAppend(result, " (", RomInfo::romTypeToName(item.romType), ')');
 	}
 	if (auto n = item.ipsPatches.size()) {
@@ -840,13 +840,13 @@ bool ImGuiMedia::selectDirectory(ItemGroup& group, const std::string& title, zst
 bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 {
 	bool interacted = false;
-	bool isAutoDetect = romType == ROM_UNKNOWN;
+	bool isAutoDetect = romType == RomType::UNKNOWN;
 	constexpr const char* autoStr = "auto detect";
 	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(romType));
 	im::Combo(label, current.c_str(), [&]{
 		if (ImGui::Selectable(autoStr, isAutoDetect)) {
 			interacted = true;
-			romType = ROM_UNKNOWN;
+			romType = RomType::UNKNOWN;
 		}
 		int count = 0;
 		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
@@ -1100,7 +1100,7 @@ static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std
 		std::string mapperStr{RomInfo::romTypeToName(romType)};
 		if (romInfo) {
 			if (auto dbType = romInfo->getRomType();
-			dbType != ROM_UNKNOWN && dbType != romType) {
+			dbType != RomType::UNKNOWN && dbType != romType) {
 				strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
 			}
 		}
@@ -1143,7 +1143,7 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 	ImGui::SameLine();
 	ImGui::TextUnformatted(tmpStrCat("(slot ", slotManager.getPsSsString(slot), ')'));
 
-	RomType currentRomType = ROM_UNKNOWN;
+	RomType currentRomType = RomType::UNKNOWN;
 	im::Indent([&]{
 		if (selectType == SELECT_EMPTY_SLOT) {
 			ImGui::TextUnformatted("No cartridge inserted"sv);
@@ -1496,7 +1496,7 @@ void ImGuiMedia::insertMedia(std::string_view mediaName, ItemGroup& group)
 	for (const auto& patch : item.ipsPatches) {
 		cmd.addListElement("-ips", patch);
 	}
-	if (item.romType != ROM_UNKNOWN) {
+	if (item.romType != RomType::UNKNOWN) {
 		cmd.addListElement("-romtype", RomInfo::romTypeToName(item.romType));
 	}
 	manager.executeDelayed(cmd,

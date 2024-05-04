@@ -556,7 +556,7 @@ void ImGuiManager::paintImGui()
 				romInfo = nullptr;
 			}
 			selectedRomType = romInfo ? romInfo->getRomType()
-			                          : ROM_UNKNOWN; // auto-detect
+			                          : RomType::UNKNOWN; // auto-detect
 			ImGui::OpenPopup("select-cart");
 		} else if (category == "cassette") {
 			testMedia("casette port", "cassetteplayer");
@@ -638,7 +638,7 @@ void ImGuiManager::paintImGui()
 
 		if (ImGui::Button("Insert ROM")) {
 			auto cmd = makeTclList(selectedMedia, "insert", droppedFile);
-			if (selectedRomType != ROM_UNKNOWN) {
+			if (selectedRomType != RomType::UNKNOWN) {
 				cmd.addListElement("-romtype", RomInfo::romTypeToName(selectedRomType));
 			}
 			insert2(strCat("cartridge slot ", char(selectedMedia.back() - 'a' + 'A')), cmd);

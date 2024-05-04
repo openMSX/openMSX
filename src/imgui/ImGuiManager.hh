@@ -172,7 +172,7 @@ private:
 	std::vector<std::string> selectList;
 	std::string selectedMedia;
 	const RomInfo* romInfo = nullptr;
-	RomType selectedRomType = ROM_UNKNOWN;
+	RomType selectedRomType = RomType::UNKNOWN;
 	float insertedInfoTimeout = 0.0f;
 	gl::ivec2 windowPos;
 	bool mainMenuBarUndocked = false;
