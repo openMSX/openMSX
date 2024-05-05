@@ -37,12 +37,22 @@ static constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
 static constexpr int PORT_A_DIRECTION = 0x40;
 static constexpr int PORT_B_DIRECTION = 0x80;
 
-enum Register {
-	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
-	AY_CFINE = 4, AY_CCOARSE = 5, AY_NOISEPER = 6, AY_ENABLE = 7,
-	AY_AVOL = 8, AY_BVOL = 9, AY_CVOL = 10, AY_EFINE = 11,
-	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
-};
+static constexpr uint8_t AY_AFINE    =  0;
+static constexpr uint8_t AY_ACOARSE  =  1;
+static constexpr uint8_t AY_BFINE    =  2;
+static constexpr uint8_t AY_BCOARSE  =  3;
+static constexpr uint8_t AY_CFINE    =  4;
+static constexpr uint8_t AY_CCOARSE  =  5;
+static constexpr uint8_t AY_NOISEPER =  6;
+static constexpr uint8_t AY_ENABLE   =  7;
+static constexpr uint8_t AY_AVOL     =  8;
+static constexpr uint8_t AY_BVOL     =  9;
+static constexpr uint8_t AY_CVOL     = 10;
+static constexpr uint8_t AY_EFINE    = 11;
+static constexpr uint8_t AY_ECOARSE  = 12;
+static constexpr uint8_t AY_ESHAPE   = 13;
+static constexpr uint8_t AY_PORTA    = 14;
+static constexpr uint8_t AY_PORTB    = 15;
 
 // Calculate the volume->voltage conversion table. The AY-3-8910 has 16 levels,
 // in a logarithmic scale (3dB per step). YM2149 has 32 levels, the 16 extra
