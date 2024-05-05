@@ -77,7 +77,7 @@ public:
 	void update(const Setting& setting) noexcept override;
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	// RTSchedulable
 	void executeRT() override;

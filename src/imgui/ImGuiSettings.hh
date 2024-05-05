@@ -29,7 +29,7 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 	void initListener();
 	void deinitListener();
 

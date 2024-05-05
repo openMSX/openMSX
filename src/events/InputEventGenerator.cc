@@ -409,7 +409,7 @@ void InputEventGenerator::updateGrab(bool grab)
 	setGrabInput(grab);
 }
 
-int InputEventGenerator::signalEvent(const Event& event)
+bool InputEventGenerator::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
 		[&](const WindowEvent& e) {
@@ -438,7 +438,7 @@ int InputEventGenerator::signalEvent(const Event& event)
 		},
 		[](const EventBase&) { UNREACHABLE; }
 	}, event);
-	return 0;
+	return false;
 }
 
 void InputEventGenerator::setGrabInput(bool grab) const

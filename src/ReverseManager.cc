@@ -836,7 +836,7 @@ void ReverseManager::execInputEvent()
 	}
 }
 
-int ReverseManager::signalEvent(const Event& event)
+bool ReverseManager::signalEvent(const Event& event)
 {
 	(void)event;
 	assert(getType(event) == EventType::TAKE_REVERSE_SNAPSHOT);
@@ -849,7 +849,7 @@ int ReverseManager::signalEvent(const Event& event)
 		// schedule creation of next snapshot
 		schedule(getCurrentTime());
 	}
-	return 0;
+	return false;
 }
 
 unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) const

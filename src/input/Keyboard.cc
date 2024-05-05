@@ -1883,11 +1883,11 @@ Keyboard::CapsLockAligner::~CapsLockAligner()
 	}
 }
 
-int Keyboard::CapsLockAligner::signalEvent(const Event& event)
+bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 {
 	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try
-		return 0;
+		return false;
 	}
 
 	if (state == IDLE) {
@@ -1908,7 +1908,7 @@ int Keyboard::CapsLockAligner::signalEvent(const Event& event)
 			[](const EventBase&) { UNREACHABLE; }
 		}, event);
 	}
-	return 0;
+	return false;
 }
 
 void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)

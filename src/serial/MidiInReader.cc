@@ -119,7 +119,7 @@ void MidiInReader::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInReader::signalEvent(const Event& /*event*/)
+bool MidiInReader::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -127,7 +127,7 @@ int MidiInReader::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 

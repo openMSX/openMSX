@@ -150,12 +150,12 @@ void FilePool::reportProgress(std::string_view message, float fraction)
 	reactor.getDisplay().repaint();
 }
 
-int FilePool::signalEvent(const Event& event)
+bool FilePool::signalEvent(const Event& event)
 {
 	(void)event; // avoid warning for non-assert compiles
 	assert(getType(event) == EventType::QUIT);
 	quit = true;
-	return 0;
+	return false;
 }
 
 

@@ -200,7 +200,7 @@ private:
 	void disconnect();
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 private:
 	EventDistributor& eventDistributor;
@@ -369,7 +369,7 @@ void MidiInALSA::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInALSA::signalEvent(const Event& /*event*/)
+bool MidiInALSA::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -377,7 +377,7 @@ int MidiInALSA::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 std::string_view MidiInALSA::getName() const

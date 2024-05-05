@@ -269,13 +269,13 @@ void VisibleSurface::executeRT()
 	inputEventGenerator.updateGrab(grab);
 }
 
-int VisibleSurface::signalEvent(const Event& event)
+bool VisibleSurface::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::IMGUI_ACTIVE) {
 		guiActive = get_event<ImGuiActiveEvent>(event).getActive();
 	}
 	updateCursor();
-	return 0;
+	return false;
 }
 
 void VisibleSurface::updateCursor()

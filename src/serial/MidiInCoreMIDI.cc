@@ -143,7 +143,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDI::signalEvent(const Event& /*event*/)
+bool MidiInCoreMIDI::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -151,7 +151,7 @@ int MidiInCoreMIDI::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 template<typename Archive>
@@ -267,7 +267,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDIVirtual::signalEvent(const Event& /*event*/)
+bool MidiInCoreMIDIVirtual::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -275,7 +275,7 @@ int MidiInCoreMIDIVirtual::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 template<typename Archive>

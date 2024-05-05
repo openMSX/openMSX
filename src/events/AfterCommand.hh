@@ -44,7 +44,7 @@ private:
 	void afterCancel  (std::span<const TclObject> tokens, TclObject& result);
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 private:
 	std::vector<Index> afterCmds;

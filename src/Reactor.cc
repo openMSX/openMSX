@@ -660,7 +660,7 @@ void Reactor::update(const Setting& setting) noexcept
 }
 
 // EventListener
-int Reactor::signalEvent(const Event& event)
+bool Reactor::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
 		[&](const QuitEvent& /*e*/) {
@@ -692,7 +692,7 @@ int Reactor::signalEvent(const Event& event)
 			UNREACHABLE; // we didn't subscribe to this event...
 		}
 	}, event);
-	return 0;
+	return false;
 }
 
 

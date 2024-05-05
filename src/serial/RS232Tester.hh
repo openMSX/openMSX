@@ -47,7 +47,7 @@ private:
 	void run();
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 private:
 	EventDistributor& eventDistributor;

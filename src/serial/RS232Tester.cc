@@ -140,7 +140,7 @@ void RS232Tester::signal(EmuTime::param time)
 }
 
 // EventListener
-int RS232Tester::signalEvent(const Event& /*event*/)
+bool RS232Tester::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -148,7 +148,7 @@ int RS232Tester::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 

@@ -53,7 +53,7 @@ public:
 
 private:
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 	// Observer
 	void update(const Setting& subject) noexcept override;
 

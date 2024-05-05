@@ -153,7 +153,7 @@ void Display::executeRT()
 	repaint();
 }
 
-int Display::signalEvent(const Event& event)
+bool Display::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
 		[&](const FinishFrameEvent& e) {
@@ -199,7 +199,7 @@ int Display::signalEvent(const Event& event)
 		},
 		[](const EventBase&) { /*ignore*/ }
 	}, event);
-	return 0;
+	return false;
 }
 
 string Display::getWindowTitle()

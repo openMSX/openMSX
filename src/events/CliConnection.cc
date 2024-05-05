@@ -105,7 +105,7 @@ static TemporaryString reply(std::string_view message, bool status)
 	                 XMLEscape(message), "</reply>\n");
 }
 
-int CliConnection::signalEvent(const Event& event)
+bool CliConnection::signalEvent(const Event& event)
 {
 	assert(getType(event) == EventType::CLICOMMAND);
 	if (const auto& commandEvent = get_event<CliCommandEvent>(event);
@@ -119,7 +119,7 @@ int CliConnection::signalEvent(const Event& event)
 			output(reply(result, false));
 		}
 	}
-	return 0;
+	return false;
 }
 
 

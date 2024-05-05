@@ -80,7 +80,7 @@ private:
 	void resetVideoSystem();
 
 	// EventListener interface
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	// RTSchedulable
 	void executeRT() override;

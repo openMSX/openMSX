@@ -62,7 +62,7 @@ private:
 	void executeUntil(EmuTime::param time) override;
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

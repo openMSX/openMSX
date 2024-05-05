@@ -420,7 +420,7 @@ struct AfterInputEventPred {
 	const Event& event;
 };
 
-int AfterCommand::signalEvent(const Event& event)
+bool AfterCommand::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
 		[&](const SimpleEvent&) {
@@ -445,7 +445,7 @@ int AfterCommand::signalEvent(const Event& event)
 			}
 		}
 	}, event);
-	return 0;
+	return false;
 }
 
 

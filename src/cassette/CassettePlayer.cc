@@ -599,7 +599,7 @@ float CassettePlayer::getAmplificationFactorImpl() const
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
 }
 
-int CassettePlayer::signalEvent(const Event& event)
+bool CassettePlayer::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::BOOT && !getImageName().empty()) {
 		// Reinsert tape to make sure everything is reset.
@@ -610,7 +610,7 @@ int CassettePlayer::signalEvent(const Event& event)
 				"Failed to insert tape: ", e.getMessage());
 		}
 	}
-	return 0;
+	return false;
 }
 
 void CassettePlayer::execEndOfTape(EmuTime::param time)

@@ -127,14 +127,14 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 	layer->takeRawScreenShot(height, filename);
 }
 
-int Video9000::signalEvent(const Event& event)
+bool Video9000::signalEvent(const Event& event)
 {
 	int video9000id = getVideoSource();
 
 	assert(getType(event) == EventType::FINISH_FRAME);
 	const auto& ffe = get_event<FinishFrameEvent>(event);
-	if (ffe.isSkipped()) return 0;
-	if (videoSourceSetting.getSource() != video9000id) return 0;
+	if (ffe.isSkipped()) return false;
+	if (videoSourceSetting.getSource() != video9000id) return false;
 
 	bool superimpose = ((value & 0x18) == 0x18);
 	if (superimpose && v99x8Layer && v9990Layer &&
@@ -149,7 +149,7 @@ int Video9000::signalEvent(const Event& event)
 		getReactor().getEventDistributor().distributeEvent(
 			FinishFrameEvent(video9000id, video9000id, false));
 	}
-	return 0;
+	return false;
 }
 
 void Video9000::update(const Setting& setting) noexcept

@@ -76,7 +76,7 @@ private:
 	            std::string_view name, std::string_view value) noexcept override;
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;

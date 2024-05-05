@@ -90,18 +90,17 @@ void EventDistributor::deliverEvents()
 			auto type = getType(event);
 			priorityMapCopy = listeners[size_t(type)];
 			lock.unlock();
-			int blockPriority = Priority::LOWEST; // allow all
+			int allowPriority = Priority::LOWEST; // allow all
 			for (const auto& e : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
 				if (!isRegistered(type, e.listener)) continue;
 
-				if (e.priority >= blockPriority) break;
+				if (e.priority > allowPriority) break;
 
 				// This might throw, e.g. when failing to initialize video system
-				if (int block = e.listener->signalEvent(event)) {
-					assert(block > e.priority);
-					blockPriority = block;
+				if (e.listener->signalEvent(event)) {
+					allowPriority = e.priority;
 				}
 			}
 			lock.lock();

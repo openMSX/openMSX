@@ -278,7 +278,7 @@ void RS232Net::signal(EmuTime::param time)
 }
 
 // EventListener
-int RS232Net::signalEvent(const Event& /*event*/)
+bool RS232Net::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -286,7 +286,7 @@ int RS232Net::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(mutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 // output

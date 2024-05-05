@@ -53,7 +53,7 @@ private:
 	void run();
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	void procShortMsg(long unsigned param);
 	void procLongMsg(LPMIDIHDR p);

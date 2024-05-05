@@ -353,7 +353,7 @@ void ImGuiManager::printError(std::string_view message)
 	getCliComm().printError(message);
 }
 
-int ImGuiManager::signalEvent(const Event& event)
+bool ImGuiManager::signalEvent(const Event& event)
 {
 	if (auto* evt = get_event_if<SdlEvent>(event)) {
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
@@ -364,8 +364,7 @@ int ImGuiManager::signalEvent(const Event& event)
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
 		    (io.WantCaptureKeyboard &&
 		     sdlEvent.type == one_of(SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTINPUT))) {
-			static constexpr auto block = EventDistributor::Priority(EventDistributor::IMGUI + 1);
-			return block; // block event for lower priority listeners
+			return true; // block event for lower priority listeners
 		}
 	} else {
 		switch (getType(event)) {
@@ -389,7 +388,7 @@ int ImGuiManager::signalEvent(const Event& event)
 			UNREACHABLE;
 		}
 	}
-	return 0;
+	return false;
 }
 
 void ImGuiManager::update(const Setting& /*setting*/) noexcept

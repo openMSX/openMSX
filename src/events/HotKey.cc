@@ -294,12 +294,12 @@ void HotKey::executeRT()
 	}
 }
 
-int HotKey::Listener::signalEvent(const Event& event)
+bool HotKey::Listener::signalEvent(const Event& event)
 {
 	return hotKey.signalEvent(event, priority);
 }
 
-int HotKey::signalEvent(const Event& event, EventDistributor::Priority priority)
+bool HotKey::signalEvent(const Event& event, EventDistributor::Priority priority)
 {
 	if (lastEvent && *lastEvent != event) {
 		// If the newly received event is different from the repeating
@@ -315,10 +315,9 @@ int HotKey::signalEvent(const Event& event, EventDistributor::Priority priority)
 	return executeEvent(event, priority);
 }
 
-int HotKey::executeEvent(const Event& event, EventDistributor::Priority priority)
+bool HotKey::executeEvent(const Event& event, EventDistributor::Priority priority)
 {
 	bool msx = priority == EventDistributor::HOTKEY_LOW;
-	auto block = EventDistributor::Priority(priority + 1); // lower priority than this listener
 
 	// First search in active layers (from back to front)
 	bool blocking = false;
@@ -328,7 +327,7 @@ int HotKey::executeEvent(const Event& event, EventDistributor::Priority priority
 			executeBinding(event, *it);
 			// Deny event to lower priority listeners, also don't pass event
 			// to other layers (including the default layer).
-			return block;
+			return true;
 		}
 		blocking = info.blocking;
 		if (blocking) break; // don't try lower layers
@@ -337,12 +336,12 @@ int HotKey::executeEvent(const Event& event, EventDistributor::Priority priority
 	// If the event was not yet handled, try the default layer.
 	if (auto it = findMatch(cmdMap, event, msx); it != end(cmdMap)) {
 		executeBinding(event, *it);
-		return block; // deny event to lower priority listeners
+		return true; // deny event to lower priority listeners
 	}
 
 	// Event is not handled, only let it pass to the MSX if there was no
 	// blocking layer active.
-	return blocking ? block : 0;
+	return blocking;
 }
 
 void HotKey::executeBinding(const Event& event, const HotKeyInfo& info)

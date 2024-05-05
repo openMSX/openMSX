@@ -198,7 +198,7 @@ private:
 
 	private:
 		// EventListener
-		int signalEvent(const Event& event) override;
+		bool signalEvent(const Event& event) override;
 
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;

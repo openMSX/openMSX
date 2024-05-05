@@ -1290,7 +1290,7 @@ std::span<const std::string> ImGuiSettings::getAvailableFonts()
 	return availableFonts;
 }
 
-int ImGuiSettings::signalEvent(const Event& event)
+bool ImGuiSettings::signalEvent(const Event& event)
 {
 	bool msxOrMega = joystick < 2;
 	using SP = std::span<const zstring_view>;
@@ -1298,10 +1298,8 @@ int ImGuiSettings::signalEvent(const Event& event)
 	                          : SP{joymega    ::keyNames};
 	if (const auto numButtons = keyNames.size(); popupForKey >= numButtons) {
 		deinitListener();
-		return 0; // don't block
+		return false; // don't block
 	}
-
-	static constexpr auto block = EventDistributor::Priority(EventDistributor::IMGUI + 1); // lower priority than this listener
 
 	bool escape = false;
 	if (const auto* keyDown = get_event_if<KeyDownEvent>(event)) {
@@ -1314,14 +1312,14 @@ int ImGuiSettings::signalEvent(const Event& event)
 			return setting ? setting->getInt() : 0;
 		};
 		auto b = captureBooleanInput(event, getJoyDeadZone);
-		if (!b) return block; // keep popup active
+		if (!b) return true; // keep popup active
 		auto bs = toString(*b);
 
 		auto* motherBoard = manager.getReactor().getMotherBoard();
-		if (!motherBoard) return block;
+		if (!motherBoard) return true;
 		const auto& controller = motherBoard->getMSXCommandController();
 		auto* setting = dynamic_cast<StringSetting*>(controller.findSetting(settingName(joystick)));
-		if (!setting) return block;
+		if (!setting) return true;
 		auto& interp = setting->getInterpreter();
 
 		TclObject bindings = setting->getValue();
@@ -1336,7 +1334,7 @@ int ImGuiSettings::signalEvent(const Event& event)
 	}
 
 	popupForKey = unsigned(-1); // close popup
-	return block; // block event
+	return true; // block event
 }
 
 void ImGuiSettings::initListener()

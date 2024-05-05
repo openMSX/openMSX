@@ -660,12 +660,12 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(const Event& event)
+bool LaserdiscPlayer::signalEvent(const Event& event)
 {
 	if (getType(event) == EventType::BOOT && video) {
 		autoRun();
 	}
-	return 0;
+	return false;
 }
 
 void LaserdiscPlayer::autoRun()

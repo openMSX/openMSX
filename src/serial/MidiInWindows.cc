@@ -191,7 +191,7 @@ void MidiInWindows::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInWindows::signalEvent(const Event& /*event*/)
+bool MidiInWindows::signalEvent(const Event& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
@@ -199,7 +199,7 @@ int MidiInWindows::signalEvent(const Event& /*event*/)
 		std::scoped_lock lock(queueMutex);
 		queue.clear();
 	}
-	return 0;
+	return false;
 }
 
 template<typename Archive>

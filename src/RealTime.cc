@@ -121,12 +121,12 @@ void RealTime::executeUntil(EmuTime::param time)
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
-int RealTime::signalEvent(const Event& event)
+bool RealTime::signalEvent(const Event& event)
 {
 	if (!motherBoard.isActive() || !enabled) {
 		// these are global events, only the active machine should
 		// synchronize with real time
-		return 0;
+		return false;
 	}
 	visit(overloaded{
 		[&](const FinishFrameEvent& ffe) {
@@ -143,7 +143,7 @@ int RealTime::signalEvent(const Event& event)
 			UNREACHABLE;
 		}
 	}, event);
-	return 0;
+	return false;
 }
 
 void RealTime::update(const Setting& /*setting*/) noexcept

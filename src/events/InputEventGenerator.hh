@@ -48,7 +48,7 @@ private:
 	void setGrabInput(bool grab) const;
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;

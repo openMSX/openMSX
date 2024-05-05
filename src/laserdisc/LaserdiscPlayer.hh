@@ -150,7 +150,7 @@ private:
 	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	// VideoSystemChangeListener interface:
 	void preVideoSystemChange() noexcept override;

@@ -122,7 +122,7 @@ private:
 	void autoRun();
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	// Schedulable
 	struct SyncEndOfTape final : Schedulable {

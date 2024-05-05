@@ -68,7 +68,7 @@ private:
 	void run(); // loop of helper thread that reads from 'sockfd'
 
 	// EventListener
-	int signalEvent(const Event& event) override;
+	bool signalEvent(const Event& event) override;
 
 	bool net_put(std::span<const char> buf);
 	void open_socket(const NetworkSocketAddress& socket_address);

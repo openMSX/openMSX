@@ -51,13 +51,13 @@ EventDelay::~EventDelay()
 	}
 }
 
-int EventDelay::signalEvent(const Event& event)
+bool EventDelay::signalEvent(const Event& event)
 {
 	toBeScheduledEvents.push_back(event);
 	if (delaySetting.getDouble() == 0.0) {
 		sync(getCurrentTime());
 	}
-	return 0;
+	return false;
 }
 
 void EventDelay::sync(EmuTime::param curEmu)
