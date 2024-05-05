@@ -12,7 +12,7 @@ using namespace gl;
 namespace openmsx {
 
 GLSnow::GLSnow(Display& display_)
-	: Layer(Coverage::FULL, Z_BACKGROUND)
+	: Layer(Coverage::FULL, ZIndex::BACKGROUND)
 	, display(display_)
 	, noiseTexture(true, true) // enable interpolation + wrapping
 {

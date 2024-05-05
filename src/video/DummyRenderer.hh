@@ -11,6 +11,8 @@ namespace openmsx {
 class DummyRenderer final : public Renderer, public Layer
 {
 public:
+	DummyRenderer() : Layer(Layer::Coverage::NONE, Layer::ZIndex::BACKGROUND) {}
+
 	// Renderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void reInit() override;

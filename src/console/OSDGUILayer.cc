@@ -5,7 +5,7 @@
 namespace openmsx {
 
 OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
-	: Layer(Coverage::PARTIAL, Z_OSDGUI)
+	: Layer(Coverage::PARTIAL, ZIndex::OSDGUI)
 	, gui(gui_)
 {
 }

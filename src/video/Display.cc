@@ -380,7 +380,7 @@ void Display::repaintDelayed(uint64_t delta)
 
 void Display::addLayer(Layer& layer)
 {
-	int z = layer.getZ();
+	auto z = layer.getZ();
 	auto it = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);

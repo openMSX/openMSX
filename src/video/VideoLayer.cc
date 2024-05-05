@@ -12,7 +12,8 @@ namespace openmsx {
 
 VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
                        const std::string& videoSource_)
-	: motherBoard(motherBoard_)
+	: Layer(Layer::Coverage::NONE, Layer::ZIndex::BACKGROUND)
+	, motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
 	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource_)
@@ -57,8 +58,8 @@ void VideoLayer::update(const Setting& setting) noexcept
 void VideoLayer::calcZ()
 {
 	setZ((videoSourceSetting.getSource() == getVideoSource())
-		? Z_MSX_ACTIVE
-		: Z_MSX_PASSIVE);
+		? ZIndex::MSX_ACTIVE
+		: ZIndex::MSX_PASSIVE);
 }
 
 void VideoLayer::calcCoverage()
