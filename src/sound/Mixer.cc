@@ -40,7 +40,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 		Mixer::SoundDriverType::SDL, getSoundDriverMap())
 	, muteSetting(
 		commandController, "mute",
-		"(un)mute the emulation sound", false, Setting::DONT_SAVE)
+		"(un)mute the emulation sound", false, Setting::Save::NO)
 	, masterVolume(
 		commandController, "master_volume",
 		"master volume", 75, 0, 100)

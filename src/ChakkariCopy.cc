@@ -88,10 +88,10 @@ ChakkariCopy::ChakkariCopy(const DeviceConfig& config)
 	, rom(getName() + " ROM", "rom", config)
 	, pauseButtonPressedSetting(getCommandController(),
 		getName() + " PAUSE button pressed",
-		"controls the PAUSE button state", false, Setting::DONT_SAVE)
+		"controls the PAUSE button state", false, Setting::Save::NO)
 	, copyButtonPressedSetting(getCommandController(),
 		getName() + " COPY button pressed",
-		"controls the COPY button state", false, Setting::DONT_SAVE)
+		"controls the COPY button state", false, Setting::Save::NO)
 	, modeSetting(getCommandController(), getName() + " mode",
 		"Sets mode of the cartridge: in COPY mode you can hardcopy MSX1 screens, "
 		"in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::COPY,

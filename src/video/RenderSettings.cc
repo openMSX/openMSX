@@ -91,7 +91,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		RendererID::SDLGL_PP, getRendererMap(), Setting::DONT_SAVE)
+		RendererID::SDLGL_PP, getRendererMap(), Setting::Save::NO)
 
 	, horizontalBlurSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
@@ -115,12 +115,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, disableSpritesSetting(commandController,
 		"disablesprites", "disable sprite rendering",
-		false, Setting::DONT_SAVE)
+		false, Setting::Save::NO)
 
 	, cmdTimingSetting(commandController,
 		"cmdtiming", "VDP command timing", false,
 		EnumSetting<bool>::Map{{"real", false}, {"broken", true}},
-		Setting::DONT_SAVE)
+		Setting::Save::NO)
 
 	, tooFastAccessSetting(commandController,
 		"too_fast_vram_access",
@@ -130,7 +130,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		" ignore -> access speed is ignored, all accesses are executed",
 		false,
 		EnumSetting<bool>::Map{{"real", false }, {"ignore", true}},
-		Setting::DONT_SAVE)
+		Setting::Save::NO)
 
 	, displayDeformSetting(
 		commandController,

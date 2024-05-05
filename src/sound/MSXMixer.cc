@@ -103,13 +103,13 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		channelSettings.record = std::make_unique<StringSetting>(
 			commandController, tmpStrCat(ch_name, "_record"),
 			"filename to record this channel to",
-			std::string_view{}, Setting::DONT_SAVE);
+			std::string_view{}, Setting::Save::NO);
 		channelSettings.record->attach(*this);
 
 		channelSettings.mute = std::make_unique<BooleanSetting>(
 			commandController, tmpStrCat(ch_name, "_mute"),
 			"sets mute-status of individual sound channels",
-			false, Setting::DONT_SAVE);
+			false, Setting::Save::NO);
 		channelSettings.mute->attach(*this);
 	}
 

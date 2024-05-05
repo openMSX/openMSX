@@ -39,7 +39,7 @@ ImGuiConsole::ImGuiConsole(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
 	, consoleSetting(
 		manager.getReactor().getCommandController(), "console",
-		"turns console display on/off", false, Setting::DONT_SAVE)
+		"turns console display on/off", false, Setting::Save::NO)
 	, history(1000)
 	, lines(1000)
 	, prompt(PROMPT_NEW)

@@ -7,7 +7,7 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
                                std::string_view name_, static_string_view description_,
                                SDLKey initialValue)
 	: Setting(commandController_, name_, description_,
-	          TclObject(initialValue.toString()), SAVE)
+	          TclObject(initialValue.toString()), Save::YES)
 {
 	setChecker([](const TclObject& newValue) {
 		const auto& str = newValue.getString();

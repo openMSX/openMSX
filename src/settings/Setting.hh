@@ -117,10 +117,10 @@ private:
 class Setting : public BaseSetting, public Subject<Setting>
 {
 public:
-	enum SaveSetting {
-		SAVE,          //    save,    transfer
-		DONT_SAVE,     // no-save,    transfer
-		DONT_TRANSFER, // no-save, no-transfer
+	enum class Save {
+		YES,                  //    save,    transfer
+		NO,                   // no-save,    transfer
+		NO_AND_DONT_TRANSFER, // no-save, no-transfer
 	};
 
 	Setting(const Setting&) = delete;
@@ -164,7 +164,7 @@ public:
 protected:
 	Setting(CommandController& commandController,
 	        std::string_view name, static_string_view description,
-	        const TclObject& initialValue, SaveSetting save = SAVE);
+	        const TclObject& initialValue, Save save = Save::YES);
 	void init();
 	void notifyPropertyChange() const;
 
@@ -178,7 +178,7 @@ private:
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?
 	const TclObject defaultValue;
-	const SaveSetting save;
+	const Save save;
 };
 
 } // namespace openmsx

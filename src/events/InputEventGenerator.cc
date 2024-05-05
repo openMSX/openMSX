@@ -27,7 +27,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, grabInput(
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
-		false, Setting::DONT_SAVE)
+		false, Setting::Save::NO)
 	, escapeGrabCmd(commandController)
 {
 	setGrabInput(grabInput.getBoolean());

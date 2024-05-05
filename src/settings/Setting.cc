@@ -35,7 +35,7 @@ void BaseSetting::info(TclObject& result) const
 
 Setting::Setting(CommandController& commandController_,
                  std::string_view name, static_string_view description_,
-                 const TclObject& initialValue, SaveSetting save_)
+                 const TclObject& initialValue, Save save_)
 	: BaseSetting(name)
 	, commandController(commandController_)
 	, description(description_)
@@ -118,11 +118,11 @@ void Setting::notifyPropertyChange() const
 
 bool Setting::needLoadSave() const
 {
-	return save == SAVE;
+	return save == Save::YES;
 }
 bool Setting::needTransfer() const
 {
-	return save != DONT_TRANSFER;
+	return save != Save::NO_AND_DONT_TRANSFER;
 }
 
 GlobalCommandController& Setting::getGlobalCommandController() const

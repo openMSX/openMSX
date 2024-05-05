@@ -103,13 +103,13 @@ VDP::VDP(const DeviceConfig& config)
 		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast",
 		"",
-		Setting::SaveSetting::SAVE)
+		Setting::Save::YES)
 	, dotClockDirectionCallback(
 		getCommandController(),
 		getName() + ".dot_clock_direction_callback",
 		"Tcl proc called when DLCLK is set as input",
 		"default_dot_clock_direction_callback",
-		Setting::SaveSetting::SAVE)
+		Setting::Save::YES)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {

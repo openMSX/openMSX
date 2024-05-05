@@ -67,12 +67,12 @@ V9990::V9990(const DeviceConfig& config)
 		tmpStrCat(getName(), "_invalid_register_read_callback"),
 		"Tcl proc to call when a write-only register was read from. "
 		"Input: register number (0-63)",
-                {}, Setting::SAVE)
+                {}, Setting::Save::YES)
 	, invalidRegisterWriteCallback(getCommandController(),
 		tmpStrCat(getName(), "_invalid_register_write_callback"),
 		"Tcl proc to call when a read-only register was written to. "
 		"Input: register number (0-63), 8-bit data",
-		{}, Setting::SAVE)
+		{}, Setting::Save::YES)
 	, vram(*this, getCurrentTime())
 	, cmdEngine(*this, getCurrentTime(), display.getRenderSettings())
 	, frameStartTime(getCurrentTime())

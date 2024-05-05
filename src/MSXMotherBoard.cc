@@ -235,7 +235,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 		"Intended use is for scripts that create temporary machines "
 		"of which you don't want to see warning messages about blank "
 		"SRAM content or PSG port directions for instance.",
-		false, Setting::DONT_SAVE)
+		false, Setting::Save::NO)
 	, fastForwardHelper(make_unique<FastForwardHelper>(*this))
 	, settingObserver(make_unique<SettingObserver>(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())

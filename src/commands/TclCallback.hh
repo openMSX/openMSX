@@ -20,7 +20,7 @@ public:
 	            std::string_view name,
 	            static_string_view description,
 	            std::string_view defaultValue,
-	            Setting::SaveSetting saveSetting,
+	            Setting::Save saveSetting,
 	            bool isMessageCallback = false);
 	explicit TclCallback(StringSetting& setting);
 

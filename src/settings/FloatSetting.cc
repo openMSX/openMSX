@@ -7,7 +7,7 @@ FloatSetting::FloatSetting(CommandController& commandController_,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController_, name_, description_,
-	          TclObject(initialValue), SAVE)
+	          TclObject(initialValue), Save::YES)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {

@@ -65,7 +65,7 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	, traceKeyPresses(commandController,
 		"kbd_trace_key_presses",
 		"Trace key presses (show SDL key code, SDL modifiers and Unicode code-point value)",
-		false, Setting::DONT_SAVE)
+		false, Setting::Save::NO)
 	, autoToggleCodeKanaLock(commandController,
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",

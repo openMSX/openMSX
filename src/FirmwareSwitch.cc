@@ -15,7 +15,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	, setting(
 		config.getCommandController(), "firmwareswitch",
 		"This setting controls the firmware switch",
-		false, Setting::DONT_SAVE)
+		false, Setting::Save::NO)
 {
 	// load firmware switch setting from persistent data
 	try {

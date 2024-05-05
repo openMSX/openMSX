@@ -22,12 +22,12 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
 	, traceSetting(
 		motherboard.getCommandController(), "cputrace",
-		"CPU tracing on/off", false, Setting::DONT_SAVE)
+		"CPU tracing on/off", false, Setting::Save::NO)
 	, diHaltCallback(
 		motherboard.getCommandController(), "di_halt_callback",
 		"Tcl proc called when the CPU executed a DI/HALT sequence",
 		"default_di_halt_callback",
-		Setting::SaveSetting::SAVE) // user must be able to override
+		Setting::Save::YES) // user must be able to override
 	, z80(std::make_unique<CPUCore<Z80TYPE>>(
 		motherboard, "z80", traceSetting,
 		diHaltCallback, EmuTime::zero()))

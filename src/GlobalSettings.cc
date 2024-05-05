@@ -13,9 +13,9 @@ namespace openmsx {
 GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	: commandController(commandController_)
 	, pauseSetting(commandController, "pause",
-	       "pauses the emulation", false, Setting::DONT_SAVE)
+	       "pauses the emulation", false, Setting::Save::NO)
 	, powerSetting(commandController, "power",
-	        "turn power on/off", false, Setting::DONT_SAVE)
+	        "turn power on/off", false, Setting::Save::NO)
 	, autoSaveSetting(commandController, "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true)
 	, umrCallBackSetting(commandController, "umr_callback",

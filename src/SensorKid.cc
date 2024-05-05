@@ -15,13 +15,13 @@ SensorKid::SensorKid(const DeviceConfig& config)
 	, portStatusCallback(getCommandController(),
 		getName() + "_port_status_callback",
 		"Tcl proc to call when an Sensor Kid port status is changed",
-		"", Setting::DONT_SAVE)
+		"", Setting::Save::NO)
 	, acquireCallback(getCommandController(),
 		getName() + "_acquire_callback",
 		"Tcl proc called to acquire analog data. "
 		"Input: port number (0-3). "
 		"Output: the value for that port (0-255).",
-		"", Setting::DONT_SAVE)
+		"", Setting::Save::NO)
 {
 	reset(getCurrentTime());
 }

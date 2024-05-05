@@ -7,7 +7,7 @@ namespace openmsx {
 ThrottleManager::ThrottleManager(CommandController& commandController)
 	: throttleSetting(
 		commandController, "throttle",
-		"controls speed throttling", true, Setting::DONT_SAVE)
+		"controls speed throttling", true, Setting::Save::NO)
 	, fullSpeedLoadingSetting(
 		commandController, "fullspeedwhenloading",
 		"sets openMSX to full speed when the MSX is loading", false)

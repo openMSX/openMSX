@@ -10,7 +10,7 @@ TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
 		controller, "message_callback",
 		"Tcl proc called when a new message is available",
 		"",
-		Setting::SaveSetting::SAVE, // the user must be able to override
+		Setting::Save::YES, // the user must be able to override
 		true) // this is a message callback (so the TclCallback must prevent recursion)
 {
 	cliComm.addListener(std::unique_ptr<CliListener>(this)); // wrap in unique_ptr

@@ -15,7 +15,7 @@ TclCallback::TclCallback(
 		std::string_view name,
 		static_string_view description,
 		std::string_view defaultValue,
-		Setting::SaveSetting saveSetting,
+		Setting::Save saveSetting,
 		bool isMessageCallback_)
 	: callbackSetting2(std::in_place,
 		controller, name, description, defaultValue,

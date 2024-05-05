@@ -10,7 +10,7 @@ namespace openmsx {
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
 	: Setting(commandController_, "videosource",
 	          "selects the video source to display on the screen",
-	          TclObject("none"), DONT_SAVE)
+	          TclObject("none"), Save::NO)
 {
 	sources = { { "none", 0 } };
 

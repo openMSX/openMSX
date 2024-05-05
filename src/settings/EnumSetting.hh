@@ -59,7 +59,7 @@ public:
 
 	EnumSetting(CommandController& commandController, std::string_view name,
 	            static_string_view description, T initialValue,
-	            Map&& map_, SaveSetting save = SAVE);
+	            Map&& map_, Save save = Save::YES);
 
 	[[nodiscard]] std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
@@ -81,7 +81,7 @@ template<EnumSettingValue T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
 		static_string_view description_, T initialValue,
-		Map&& map, SaveSetting save_)
+		Map&& map, Save save_)
 	: EnumSettingBase(std::move(map))
 	, Setting(commandController_, name, description_,
 	          TclObject(EnumSettingBase::toStringBase(static_cast<int>(initialValue))), save_)
