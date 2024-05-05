@@ -80,20 +80,21 @@ output_iterator replace_invalid(octet_iterator start, octet_iterator end,
 		auto sequence_start = start;
 		internal::utf_error err_code = internal::validate_next(start, end);
 		switch (err_code) {
-		case internal::OK:
+		using enum internal::utf_error;
+		case OK:
 			for (auto it = sequence_start; it != start; ++it) {
 				*out++ = *it;
 			}
 			break;
-		case internal::NOT_ENOUGH_ROOM:
+		case NOT_ENOUGH_ROOM:
 			throw not_enough_room();
-		case internal::INVALID_LEAD:
+		case INVALID_LEAD:
 			append(replacement, out);
 			++start;
 			break;
-		case internal::INCOMPLETE_SEQUENCE:
-		case internal::OVERLONG_SEQUENCE:
-		case internal::INVALID_CODE_POINT:
+		case INCOMPLETE_SEQUENCE:
+		case OVERLONG_SEQUENCE:
+		case INVALID_CODE_POINT:
 			append(replacement, out);
 			++start;
 			// just one replacement mark for the sequence
@@ -149,15 +150,16 @@ uint32_t next(octet_iterator& it, octet_iterator end)
 	uint32_t cp = 0;
 	internal::utf_error err_code = internal::validate_next(it, end, &cp);
 	switch (err_code) {
-	case internal::OK :
+	using enum internal::utf_error;
+	case OK:
 		break;
-	case internal::NOT_ENOUGH_ROOM:
+	case NOT_ENOUGH_ROOM:
 		throw not_enough_room();
-	case internal::INVALID_LEAD:
-	case internal::INCOMPLETE_SEQUENCE:
-	case internal::OVERLONG_SEQUENCE:
+	case INVALID_LEAD:
+	case INCOMPLETE_SEQUENCE:
+	case OVERLONG_SEQUENCE:
 		throw invalid_utf8(*it);
-	case internal::INVALID_CODE_POINT:
+	case INVALID_CODE_POINT:
 		throw invalid_code_point(cp);
 	}
 	return cp;

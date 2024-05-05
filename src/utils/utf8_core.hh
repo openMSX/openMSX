@@ -87,7 +87,7 @@ inline constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 	}
 }
 
-enum utf_error {
+enum class utf_error {
 	OK,
 	NOT_ENOUGH_ROOM,
 	INVALID_LEAD,
@@ -100,6 +100,7 @@ template<typename octet_iterator>
 [[nodiscard]] constexpr utf_error validate_next(octet_iterator& it, octet_iterator end,
                                       uint32_t* code_point)
 {
+	using enum utf_error;
 	uint32_t cp = narrow_cast<unsigned char>(*it);
 	// Check the lead octet
 	int length = sequence_length(*it);
@@ -213,7 +214,7 @@ template<typename octet_iterator>
 	auto result = start;
 	while (result != end) {
 		internal::utf_error err_code = internal::validate_next(result, end);
-		if (err_code != internal::OK) {
+		if (err_code != internal::utf_error::OK) {
 			return result;
 		}
 	}
