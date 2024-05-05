@@ -4,6 +4,7 @@
 #include "ImGuiUtils.hh"
 
 #include "enumerate.hh"
+#include "stl.hh"
 #include "zstring_view.hh"
 
 #include <array>
@@ -15,7 +16,7 @@ namespace openmsx {
 class Shortcuts
 {
 public:
-	enum ID {
+	enum class ID {
 		HEX_GOTO_ADDR,
 		DEBUGGER_STEP_IN,
 		DEBUGGER_STEP_OVER,
@@ -24,8 +25,8 @@ public:
 		DEBUGGER_BREAK_CONTINUE,
 		DISASM_GOTO_ADDR,
 
-		NUM_SHORTCUTS,
-		INVALID = NUM_SHORTCUTS,
+		NUM,
+		INVALID = NUM
 	};
 	enum class Type {
 		LOCAL,
@@ -87,7 +88,7 @@ public:
 	}
 
 private:
-	std::array<Shortcut, ID::NUM_SHORTCUTS> shortcuts;
+	array_with_enum_index<ID, Shortcut> shortcuts;
 };
 
 } // namespace openmsx

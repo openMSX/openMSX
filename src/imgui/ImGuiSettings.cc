@@ -1239,7 +1239,7 @@ void ImGuiSettings::paintShortcut()
 			ImGui::TableSetupColumn("key");
 
 			const auto& shortcuts = manager.getShortcuts();
-			im::ID_for_range(Shortcuts::ID::NUM_SHORTCUTS, [&](int i) {
+			im::ID_for_range(to_underlying(Shortcuts::ID::NUM), [&](int i) {
 				auto id = static_cast<Shortcuts::ID>(i);
 				auto shortcut = shortcuts.getShortcut(id);
 
