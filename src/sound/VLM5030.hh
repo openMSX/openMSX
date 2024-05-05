@@ -34,7 +34,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	enum Phase : uint8_t {
+	enum class Phase : uint8_t {
 		RESET,
 		IDLE,
 		SETUP,

@@ -433,7 +433,7 @@ void DirAsDSK::checkDeletedHostFiles()
 			continue;
 		}
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
-		bool isMSXDirectory = bool(msxDir(dirIdx).attrib &
+		auto isMSXDirectory = bool(msxDir(dirIdx).attrib &
 		                           MSXDirEntry::Attrib::DIRECTORY);
 		auto fst = FileOperations::getStat(fullHostName);
 		if (!fst || (FileOperations::isDirectory(*fst) != isMSXDirectory)) {
@@ -519,7 +519,7 @@ void DirAsDSK::checkModifiedHostFiles()
 			continue;
 		}
 		auto fullHostName = tmpStrCat(hostDir, mapDir.hostName);
-		bool isMSXDirectory = bool(msxDir(dirIdx).attrib &
+		auto isMSXDirectory = bool(msxDir(dirIdx).attrib &
 		                           MSXDirEntry::Attrib::DIRECTORY);
 		auto fst = FileOperations::getStat(fullHostName);
 		if (fst && (FileOperations::isDirectory(*fst) == isMSXDirectory)) {
