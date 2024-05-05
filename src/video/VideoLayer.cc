@@ -86,7 +86,7 @@ bool VideoLayer::needRender() const
 	// (superimposed) image.
 	int current = videoSourceSetting.getSource();
 	return (current == getVideoSource()) ||
-	      ((current == video9000Source) && (activeVideo9000 != INACTIVE));
+	      ((current == video9000Source) && (activeVideo9000 != Video9000Active::NO));
 }
 
 bool VideoLayer::needRecord() const
@@ -96,7 +96,7 @@ bool VideoLayer::needRecord() const
 	// (superimposed) image
 	int current = videoSourceSetting.getSource();
 	return (current == getVideoSource()) ||
-	      ((current == video9000Source) && (activeVideo9000 == ACTIVE_FRONT));
+	      ((current == video9000Source) && (activeVideo9000 == Video9000Active::FRONT));
 }
 
 } // namespace openmsx
