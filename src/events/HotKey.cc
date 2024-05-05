@@ -47,8 +47,8 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	, deactivateCmd   (commandController_)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
-	, listenerHigh(*this, EventDistributor::HOTKEY_HIGH)
-	, listenerLow (*this, EventDistributor::HOTKEY_LOW)
+	, listenerHigh(*this, EventDistributor::Priority::HOTKEY_HIGH)
+	, listenerLow (*this, EventDistributor::Priority::HOTKEY_LOW)
 {
 	initDefaultBindings();
 }
@@ -289,8 +289,8 @@ static HotKey::BindMap::const_iterator findMatch(
 void HotKey::executeRT()
 {
 	if (lastEvent) {
-		executeEvent(*lastEvent, EventDistributor::HOTKEY_HIGH);
-		executeEvent(*lastEvent, EventDistributor::HOTKEY_LOW);
+		executeEvent(*lastEvent, EventDistributor::Priority::HOTKEY_HIGH);
+		executeEvent(*lastEvent, EventDistributor::Priority::HOTKEY_LOW);
 	}
 }
 
@@ -317,7 +317,7 @@ bool HotKey::signalEvent(const Event& event, EventDistributor::Priority priority
 
 bool HotKey::executeEvent(const Event& event, EventDistributor::Priority priority)
 {
-	bool msx = priority == EventDistributor::HOTKEY_LOW;
+	bool msx = priority == EventDistributor::Priority::HOTKEY_LOW;
 
 	// First search in active layers (from back to front)
 	bool blocking = false;

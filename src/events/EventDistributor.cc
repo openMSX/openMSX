@@ -90,7 +90,7 @@ void EventDistributor::deliverEvents()
 			auto type = getType(event);
 			priorityMapCopy = listeners[size_t(type)];
 			lock.unlock();
-			int allowPriority = Priority::LOWEST; // allow all
+			auto allowPriority = Priority::LOWEST; // allow all
 			for (const auto& e : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.

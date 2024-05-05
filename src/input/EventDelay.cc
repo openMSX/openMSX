@@ -35,7 +35,7 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 	for (auto type : {KEY_DOWN, KEY_UP,
 	                  MOUSE_MOTION, MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP,
 	                  JOY_AXIS_MOTION, JOY_HAT, JOY_BUTTON_DOWN, JOY_BUTTON_UP}) {
-		eventDistributor.registerEventListener(type, *this, EventDistributor::MSX);
+		eventDistributor.registerEventListener(type, *this, EventDistributor::Priority::MSX);
 	}
 
 	reverseManager.registerEventDelay(*this);

@@ -228,7 +228,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_, SettingsConfig& settingsConfig)
 	for (auto type : {MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_MOTION, MOUSE_WHEEL,
 	                  KEY_UP, KEY_DOWN, TEXT,
 	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK}) {
-		eventDistributor.registerEventListener(type, *this, EventDistributor::IMGUI);
+		eventDistributor.registerEventListener(type, *this, EventDistributor::Priority::IMGUI);
 	}
 
 	fontPropFilename.attach(*this);
