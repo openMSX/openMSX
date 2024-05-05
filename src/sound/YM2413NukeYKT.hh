@@ -90,12 +90,12 @@ public:
 		release,
 	};
 	enum class RmNum : uint8_t {
-		bd0 = 0,  // cycles == 11
-		hh  = 1,  //           12
-		tom = 2,  //           13
-		bd1 = 3,  //           14
-		sd  = 4,  //           15
-		tc  = 5,  //           16
+		bd0, // cycles == 11
+		hh,  //           12
+		tom, //           13
+		bd1, //           14
+		sd,  //           15
+		tc,  //           16
 		NUM
 	};
 

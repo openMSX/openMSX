@@ -111,9 +111,9 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 3 -> motor on
 		auto drive = [&] {
 			switch (value & 3) {
-				case 1:  return DriveMultiplexer::DRIVE_A;
-				case 2:  return DriveMultiplexer::DRIVE_B;
-				default: return DriveMultiplexer::NO_DRIVE;
+				case 1:  return DriveMultiplexer::Drive::A;
+				case 2:  return DriveMultiplexer::Drive::B;
+				default: return DriveMultiplexer::Drive::NONE;
 			}
 		}();
 		multiplexer.selectDrive(drive, time);

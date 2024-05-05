@@ -134,7 +134,7 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 0 -> enable drive (1 for ENABLE)
 		// bit 2 -> side select (0 for side 0)
 		// bit 3 -> motor on (1 for ON)
-		multiplexer.selectDrive((value & 0x01) != 0 ? DriveMultiplexer::DRIVE_A : DriveMultiplexer::NO_DRIVE, time);
+		multiplexer.selectDrive((value & 0x01) != 0 ? DriveMultiplexer::Drive::A : DriveMultiplexer::Drive::NONE, time);
 		multiplexer.setSide    ((value & 0x04) != 0);
 		multiplexer.setMotor   ((value & 0x08) != 0, time);
 		break;

@@ -15,19 +15,16 @@ namespace openmsx {
 class DriveMultiplexer final : public DiskDrive
 {
 public:
-	enum DriveNum {
-		DRIVE_A = 0,
-		DRIVE_B = 1,
-		DRIVE_C = 2,
-		DRIVE_D = 3,
-		NO_DRIVE = 4
+	enum class Drive {
+		A, B, C, D, NONE,
+		NUM
 	};
 
 	// Multiplexer interface
 	explicit DriveMultiplexer(std::span<std::unique_ptr<DiskDrive>, 4> drv);
 
-	void selectDrive(DriveNum num, EmuTime::param time);
-	[[nodiscard]] DriveNum getSelectedDrive() const { return selected; }
+	void selectDrive(Drive num, EmuTime::param time);
+	[[nodiscard]] Drive getSelectedDrive() const { return selected; }
 
 	// DiskDrive interface
 	[[nodiscard]] bool isDiskInserted() const override;
@@ -52,17 +49,17 @@ public:
 	void applyWd2793ReadTrackQuirk() override;
 	void invalidateWd2793ReadTrackQuirk() override;
 
-	[[nodiscard]] bool isDiskInserted(DriveNum num) const;
-	bool diskChanged(DriveNum num);
-	[[nodiscard]] bool peekDiskChanged(DriveNum num) const;
+	[[nodiscard]] bool isDiskInserted(Drive num) const;
+	bool diskChanged(Drive num);
+	[[nodiscard]] bool peekDiskChanged(Drive num) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	DummyDrive dummyDrive;
-	std::array<DiskDrive*, 5> drive;
-	DriveNum selected = NO_DRIVE;
+	array_with_enum_index<Drive, DiskDrive*> drive;
+	Drive selected = Drive::NONE;
 	bool motor = false;
 	bool side = false;
 };

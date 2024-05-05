@@ -127,14 +127,14 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 		controller.setDataReg(value, time);
 		break;
 	case 0x7FFC:
-		DriveMultiplexer::DriveNum drive
+		auto drive
 			= ((value & DRIVE_DISABLE) != 0)
-			? DriveMultiplexer::NO_DRIVE
-			: (((value & DRIVE_SELECT) != 0) ? DriveMultiplexer::DRIVE_B
-			                                 : DriveMultiplexer::DRIVE_A);
+			? DriveMultiplexer::Drive::NONE
+			: (((value & DRIVE_SELECT) != 0) ? DriveMultiplexer::Drive::B
+			                                 : DriveMultiplexer::Drive::A);
 		multiplexer.selectDrive(drive, time);
 		multiplexer.setSide((value & SIDE_SELECT) != 0);
-		multiplexer.setMotor((drive == DriveMultiplexer::DRIVE_A) ? ((value & DRIVE_A_MOTOR) != 0) : ((value & DRIVE_B_MOTOR) != 0), time); // this is not 100% correct: the motors can be controlled independently via bit 0 and 1
+		multiplexer.setMotor((drive == DriveMultiplexer::Drive::A) ? ((value & DRIVE_A_MOTOR) != 0) : ((value & DRIVE_B_MOTOR) != 0), time); // this is not 100% correct: the motors can be controlled independently via bit 0 and 1
 		// back up for reading:
 		driveControls = value & (DRIVE_A_MOTOR | DRIVE_B_MOTOR | DRIVE_SELECT | SIDE_SELECT | DRIVE_DISABLE);
 		break;

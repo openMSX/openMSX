@@ -59,7 +59,7 @@ byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 		      | (multiplexer.getSide() ? 1 : 0)
 		      | (multiplexer.getMotor() ? 2 : 0);
 	case 0x7FF5:
-		return 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::DRIVE_B) ? 1 : 0);
+		return 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::Drive::B) ? 1 : 0);
 	case 0x7FF6:
 		return 0xFE | (multiplexer.peekDiskChanged() ? 0 : 1);
 	case 0x7FF7: {
@@ -112,8 +112,8 @@ void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x7FF5:
 		// Disk ROM only writes the values 0 or 1.
-		multiplexer.selectDrive((value & 1) ? DriveMultiplexer::DRIVE_B
-		                                    : DriveMultiplexer::DRIVE_A,
+		multiplexer.selectDrive((value & 1) ? DriveMultiplexer::Drive::B
+		                                    : DriveMultiplexer::Drive::A,
 		                        time);
 		break;
 	case 0x7FF6:

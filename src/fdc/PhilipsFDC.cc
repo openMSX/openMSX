@@ -161,16 +161,16 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 		// bit 7 -> motor on
 		// TODO check other bits !!
 		driveReg = value;
-		DriveMultiplexer::DriveNum drive = [&] {
+		auto drive = [&] {
 			switch (value & 3) {
 				case 0:
 				case 2:
-					return DriveMultiplexer::DRIVE_A;
+					return DriveMultiplexer::Drive::A;
 				case 1:
-					return DriveMultiplexer::DRIVE_B;
+					return DriveMultiplexer::Drive::B;
 				case 3:
 				default:
-					return DriveMultiplexer::NO_DRIVE;
+					return DriveMultiplexer::Drive::NONE;
 			}
 		}();
 		multiplexer.selectDrive(drive, time);

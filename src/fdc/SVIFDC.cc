@@ -87,18 +87,18 @@ void SVIFDC::writeIO(word port, byte value, EmuTime::param time)
 		// bit 1:  drive select B
 		// bit 2:  motor on drive A
 		// bit 3:  motor on drive B
-		auto [drive, motor] = [&]() -> std::pair<DriveMultiplexer::DriveNum, bool> {
+		auto [drive, motor] = [&]() -> std::pair<DriveMultiplexer::Drive, bool> {
 			switch (value & 0x03) {
 			case 1:
-				return {DriveMultiplexer::DRIVE_A, value & 0x04};
+				return {DriveMultiplexer::Drive::A, value & 0x04};
 			case 2:
-				return {DriveMultiplexer::DRIVE_B, value & 0x08};
+				return {DriveMultiplexer::Drive::B, value & 0x08};
 			default:
 				// No drive selected or two drives at same time
 				// In a real machine you must take care to do not select more
 				// than one drive at the same time (you could get data
 				// collision).
-				return {DriveMultiplexer::NO_DRIVE, false};
+				return {DriveMultiplexer::Drive::NONE, false};
 			}
 		}();
 		multiplexer.selectDrive(drive, time);

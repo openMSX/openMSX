@@ -5,14 +5,14 @@ namespace openmsx {
 
 DriveMultiplexer::DriveMultiplexer(std::span<std::unique_ptr<DiskDrive>, 4> drv)
 {
-	drive[DRIVE_A]  = drv[0].get();
-	drive[DRIVE_B]  = drv[1].get();
-	drive[DRIVE_C]  = drv[2].get();
-	drive[DRIVE_D]  = drv[3].get();
-	drive[NO_DRIVE] = &dummyDrive;
+	drive[Drive::A] = drv[0].get();
+	drive[Drive::B] = drv[1].get();
+	drive[Drive::C] = drv[2].get();
+	drive[Drive::D] = drv[3].get();
+	drive[Drive::NONE] = &dummyDrive;
 }
 
-void DriveMultiplexer::selectDrive(DriveNum num, EmuTime::param time)
+void DriveMultiplexer::selectDrive(Drive num, EmuTime::param time)
 {
 	if (selected != num) {
 		drive[selected]->setMotor(false, time);
@@ -27,7 +27,7 @@ bool DriveMultiplexer::isDiskInserted() const
 	return drive[selected]->isDiskInserted();
 }
 
-bool DriveMultiplexer::isDiskInserted(DriveNum num) const
+bool DriveMultiplexer::isDiskInserted(Drive num) const
 {
 	return drive[num]->isDiskInserted();
 }
@@ -114,7 +114,7 @@ bool DriveMultiplexer::diskChanged()
 	return drive[selected]->diskChanged();
 }
 
-bool DriveMultiplexer::diskChanged(DriveNum num)
+bool DriveMultiplexer::diskChanged(Drive num)
 {
 	return drive[num]->diskChanged();
 }
@@ -124,7 +124,7 @@ bool DriveMultiplexer::peekDiskChanged() const
 	return drive[selected]->peekDiskChanged();
 }
 
-bool DriveMultiplexer::peekDiskChanged(DriveNum num) const
+bool DriveMultiplexer::peekDiskChanged(Drive num) const
 {
 	return drive[num]->peekDiskChanged();
 }
@@ -145,14 +145,14 @@ void DriveMultiplexer::invalidateWd2793ReadTrackQuirk()
 }
 
 
-static constexpr std::initializer_list<enum_string<DriveMultiplexer::DriveNum>> driveNumInfo = {
-	{ "A",    DriveMultiplexer::DRIVE_A },
-	{ "B",    DriveMultiplexer::DRIVE_B },
-	{ "C",    DriveMultiplexer::DRIVE_C },
-	{ "D",    DriveMultiplexer::DRIVE_D },
-	{ "none", DriveMultiplexer::NO_DRIVE }
+static constexpr std::initializer_list<enum_string<DriveMultiplexer::Drive>> driveNumInfo = {
+	{ "A",    DriveMultiplexer::Drive::A },
+	{ "B",    DriveMultiplexer::Drive::B },
+	{ "C",    DriveMultiplexer::Drive::C },
+	{ "D",    DriveMultiplexer::Drive::D },
+	{ "none", DriveMultiplexer::Drive::NONE }
 };
-SERIALIZE_ENUM(DriveMultiplexer::DriveNum, driveNumInfo);
+SERIALIZE_ENUM(DriveMultiplexer::Drive, driveNumInfo);
 
 template<typename Archive>
 void DriveMultiplexer::serialize(Archive& ar, unsigned /*version*/)

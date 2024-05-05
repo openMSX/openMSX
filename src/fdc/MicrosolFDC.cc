@@ -86,23 +86,23 @@ void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
 		// we need to connect this to the OSD later on.
 
 		// Set correct drive
-		DriveMultiplexer::DriveNum drive = [&] {
+		auto drive = [&] {
 			switch (value & 0x0F) {
 			case 1:
-				return DriveMultiplexer::DRIVE_A;
+				return DriveMultiplexer::Drive::A;
 			case 2:
-				return DriveMultiplexer::DRIVE_B;
+				return DriveMultiplexer::Drive::B;
 			case 4:
-				return DriveMultiplexer::DRIVE_C;
+				return DriveMultiplexer::Drive::C;
 			case 8:
-				return DriveMultiplexer::DRIVE_D;
+				return DriveMultiplexer::Drive::D;
 			default:
 				// No drive selected or two drives at same time
 				// The motor is enabled for all drives at the same time, so
 				// in a real machine you must take care to do not select more
 				// than one drive at the same time (you could get data
 				// collision).
-				return DriveMultiplexer::NO_DRIVE;
+				return DriveMultiplexer::Drive::NONE;
 			}
 		}();
 		multiplexer.selectDrive(drive, time);
