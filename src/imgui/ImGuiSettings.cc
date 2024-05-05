@@ -656,7 +656,7 @@ static void drawLetterZ(gl::vec2 center)
 
 namespace msxjoystick {
 
-enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
+enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS};
 
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
 	"Up", "Down", "Left", "Right", "A", "B" // show in the GUI
@@ -719,7 +719,7 @@ enum {UP, DOWN, LEFT, RIGHT,
       TRIG_A, TRIG_B, TRIG_C,
       TRIG_X, TRIG_Y, TRIG_Z,
       TRIG_SELECT, TRIG_START,
-      NUM_BUTTONS, NUM_DIRECTIONS = TRIG_A};
+      NUM_BUTTONS};
 
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
 	"Up", "Down", "Left", "Right",

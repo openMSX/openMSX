@@ -47,7 +47,7 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
 {
 public:
 	static constexpr int MAX_KEYSYM = 0x150;
-	enum class Matrix { MSX, SVI, CVJOY, SEGA };
+	enum class Matrix { MSX, SVI, CVJOY, SEGA, NUM };
 
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
@@ -125,7 +125,7 @@ private:
 	std::vector<KeyCodeMsxMapping> keyCodeTab;
 	std::vector<ScanCodeMsxMapping> scanCodeTab;
 
-	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>& modifierPos;
+	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,

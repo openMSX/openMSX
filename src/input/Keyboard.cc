@@ -95,31 +95,32 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
-static constexpr std::array<std::string_view, 4> defaultKeymapForMatrix = {
+static constexpr array_with_enum_index<Keyboard::Matrix, std::string_view> defaultKeymapForMatrix = {
 	"int", // Matrix::MSX
 	"svi", // Matrix::SVI
 	"cvjoy", // Matrix::CVJOY
 	"sega_int", // Matrix::SEGA
 };
 
-static constexpr std::array modifierPosForMatrix = {
-	std::array{ // Matrix::MSX
+using ModifierArray = array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>;
+static constexpr array_with_enum_index<Keyboard::Matrix, ModifierArray> modifierPosForMatrix = {
+	ModifierArray{ // Matrix::MSX
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // GRAPH
 		KeyMatrixPosition(6, 3), // CAPS
 		KeyMatrixPosition(6, 4), // CODE
 	},
-	std::array{ // Matrix::SVI
+	ModifierArray{ // Matrix::SVI
 		KeyMatrixPosition(6, 0), // SHIFT
 		KeyMatrixPosition(6, 1), // CTRL
 		KeyMatrixPosition(6, 2), // LGRAPH
 		KeyMatrixPosition(8, 3), // CAPS
 		KeyMatrixPosition(6, 3), // RGRAPH
 	},
-	std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>{ // Matrix::CVJOY
+	ModifierArray{ // Matrix::CVJOY
 	},
-	std::array{ // Matrix::SEGA
+	ModifierArray{ // Matrix::SEGA
 		KeyMatrixPosition(13, 3), // SHIFT
 		KeyMatrixPosition(13, 2), // CTRL
 		KeyMatrixPosition(13, 1), // GRAPH
@@ -672,13 +673,13 @@ static constexpr auto cvJoyScanCodeMapping = extractScanCodeMapping([] { return 
 static constexpr auto segaKeyCodeMapping   = extractKeyCodeMapping ([] { return getSegaMapping(); });
 static constexpr auto segaScanCodeMapping  = extractScanCodeMapping([] { return getSegaMapping(); });
 
-static constexpr std::array<std::span<const KeyCodeMsxMapping>, 4> defaultKeyCodeMappings = {
+static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const KeyCodeMsxMapping>> defaultKeyCodeMappings = {
 	msxKeyCodeMapping,
 	sviKeyCodeMapping,
 	cvJoyKeyCodeMapping,
 	segaKeyCodeMapping,
 };
-static constexpr std::array<std::span<const ScanCodeMsxMapping>, 4> defaultScanCodeMappings = {
+static constexpr array_with_enum_index<Keyboard::Matrix, std::span<const ScanCodeMsxMapping>> defaultScanCodeMappings = {
 	msxScanCodeMapping,
 	sviScanCodeMapping,
 	cvJoyScanCodeMapping,
@@ -697,9 +698,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyCodeTab (to_vector(defaultKeyCodeMappings [to_underlying(matrix)]))
-	, scanCodeTab(to_vector(defaultScanCodeMappings[to_underlying(matrix)]))
-	, modifierPos(modifierPosForMatrix[to_underlying(matrix)])
+	, keyCodeTab (to_vector(defaultKeyCodeMappings [matrix]))
+	, scanCodeTab(to_vector(defaultScanCodeMappings[matrix]))
+	, modifierPos(modifierPosForMatrix[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -710,7 +711,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
-		"keyboard_type", defaultKeymapForMatrix[to_underlying(matrix)]))
+		"keyboard_type", defaultKeymapForMatrix[matrix]))
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix == Matrix::MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
@@ -1013,7 +1014,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 	if (down) {
 		locksOn ^= KeyInfo::CODE_MASK;
 	}
-	updateKeyMatrix(time, down, modifierPos[KeyInfo::CODE]);
+	updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::CODE]);
 }
 
 /*
@@ -1026,7 +1027,7 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 	if (down) {
 		locksOn ^= KeyInfo::GRAPH_MASK;
 	}
-	updateKeyMatrix(time, down, modifierPos[KeyInfo::GRAPH]);
+	updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::GRAPH]);
 }
 
 /*
@@ -1041,11 +1042,11 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 		if (down) {
 			locksOn ^= KeyInfo::CAPS_MASK;
 		}
-		updateKeyMatrix(time, down, modifierPos[KeyInfo::CAPS]);
+		updateKeyMatrix(time, down, modifierPos[KeyInfo::Modifier::CAPS]);
 	} else {
 		debug("Pressing CAPS lock and scheduling a release\n");
 		locksOn ^= KeyInfo::CAPS_MASK;
-		updateKeyMatrix(time, true, modifierPos[KeyInfo::CAPS]);
+		updateKeyMatrix(time, true, modifierPos[KeyInfo::Modifier::CAPS]);
 		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
 	}
 }
@@ -1053,7 +1054,7 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 void Keyboard::executeUntil(EmuTime::param time)
 {
 	debug("Releasing CAPS lock\n");
-	updateKeyMatrix(time, false, modifierPos[KeyInfo::CAPS]);
+	updateKeyMatrix(time, false, modifierPos[KeyInfo::Modifier::CAPS]);
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -1324,7 +1325,7 @@ bool Keyboard::pressUnicodeByUser(
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
 			locksOn ^= KeyInfo::CODE_MASK;
-			pressKeyMatrixEvent(time, modifierPos[KeyInfo::CODE]);
+			pressKeyMatrixEvent(time, modifierPos[KeyInfo::Modifier::CODE]);
 			insertCodeKanaRelease = true;
 		} else {
 			// Press the character key and related modifiers
@@ -1346,7 +1347,7 @@ bool Keyboard::pressUnicodeByUser(
 			} else {
 				// Release SHIFT if our character does not require it.
 				if (~modMask & KeyInfo::SHIFT_MASK) {
-					releaseKeyMatrixEvent(time, modifierPos[KeyInfo::SHIFT]);
+					releaseKeyMatrixEvent(time, modifierPos[KeyInfo::Modifier::SHIFT]);
 				}
 			}
 			// Press required modifiers for our character.
@@ -1442,7 +1443,7 @@ uint8_t Keyboard::pressAscii(unsigned unicode, bool down)
 				auto isPressed = [&](auto& key) {
 					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
 				};
-				if (!isPressed(modifierPos[KeyInfo::GRAPH])) {
+				if (!isPressed(modifierPos[KeyInfo::Modifier::GRAPH])) {
 					// GRAPH not yet pressed ->
 					//  first press it before adding the non-modifier key
 					releaseMask = TRY_AGAIN;
