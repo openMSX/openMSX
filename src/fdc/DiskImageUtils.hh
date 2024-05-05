@@ -4,6 +4,8 @@
 #include "AlignedBuffer.hh"
 #include "endian.hh"
 #include "ranges.hh"
+#include "stl.hh"
+
 #include <array>
 #include <span>
 #include <string>
@@ -58,7 +60,7 @@ struct MSXBootSector {
 static_assert(sizeof(MSXBootSector) == 512);
 
 struct MSXDirEntry {
-	enum Attrib : uint8_t {
+	enum class Attrib : uint8_t {
 		REGULAR   = 0x00, // Normal file
 		READONLY  = 0x01, // Read-Only file
 		HIDDEN    = 0x02, // Hidden file
@@ -67,9 +69,20 @@ struct MSXDirEntry {
 		DIRECTORY = 0x10, // entry is a subdir
 		ARCHIVE   = 0x20, // Archive bit
 	};
+	struct AttribValue {
+		uint8_t value;
+
+		constexpr AttribValue() = default;
+		constexpr /*implicit*/ AttribValue(Attrib v) : value(to_underlying(v)) {}
+		constexpr explicit AttribValue(uint8_t v) : value(v) {}
+		constexpr explicit operator bool() { return value != 0; }
+		constexpr auto operator<=>(const AttribValue&) const = default;
+		friend constexpr AttribValue operator|(AttribValue x, AttribValue y) { return AttribValue(x.value | y.value); }
+		friend constexpr AttribValue operator&(AttribValue x, AttribValue y) { return AttribValue(x.value & y.value); }
+	};
 
 	std::array<char, 8 + 3> filename;     // + 0
-	uint8_t                 attrib;       // +11
+	AttribValue             attrib;       // +11
 	std::array<uint8_t, 10> reserved;     // +12 unused
 	Endian::L16             time;         // +22
 	Endian::L16             date;         // +24
@@ -177,7 +190,7 @@ namespace DiskImageUtils {
 	FatTimeDate toTimeDate(time_t totalSeconds);
 	time_t fromTimeDate(FatTimeDate timeDate);
 
-	[[nodiscard]] std::string formatAttrib(uint8_t attrib);
+	[[nodiscard]] std::string formatAttrib(MSXDirEntry::AttribValue attrib);
 };
 
 } // namespace openmsx

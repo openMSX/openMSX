@@ -36,7 +36,7 @@ private:
 		std::string filename;
 		size_t size = 0;
 		time_t modified = 0;
-		uint8_t attrib = 0;
+		MSXDirEntry::AttribValue attrib{0};
 		bool isDirectory = false;
 		bool isSelected = false;
 	};

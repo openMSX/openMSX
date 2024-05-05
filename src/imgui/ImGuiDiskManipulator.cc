@@ -89,13 +89,13 @@ std::vector<ImGuiDiskManipulator::FileInfo> ImGuiDiskManipulator::dirMSX(DrivePa
 	for (unsigned i = 0; i < num; ++i) {
 		auto entry = dir.getListIndexUnchecked(i);
 		FileInfo info;
-		info.attrib = narrow<uint8_t>(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0));
+		info.attrib = MSXDirEntry::AttribValue(uint8_t(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0)));
 		if (info.attrib & MSXDirEntry::Attrib::VOLUME) continue; // skip
 		info.filename = std::string(entry.getListIndexUnchecked(0).getString());
 		if (info.filename == one_of(".", "..")) continue; // skip
 		info.modified = entry.getListIndexUnchecked(2).getOptionalInt().value_or(0);
 		info.size = entry.getListIndexUnchecked(3).getOptionalInt().value_or(0);
-		info.isDirectory = info.attrib & MSXDirEntry::Attrib::DIRECTORY;
+		info.isDirectory = bool(info.attrib & MSXDirEntry::Attrib::DIRECTORY);
 		if (info.isDirectory) info.size = size_t(-1);
 		result.push_back(std::move(info));
 	}

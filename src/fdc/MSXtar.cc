@@ -82,7 +82,7 @@ static constexpr uint8_t EBPB_SIGNATURE = 0x29;  // Extended BIOS Parameter Bloc
 // This particular combination of flags indicates that this dir entry is used
 // to store a long Unicode file name.
 // For details, read http://home.teleport.com/~brainy/lfn.htm
-static constexpr uint8_t T_MSX_LFN  = 0x0F; // LFN entry (long files names)
+static constexpr MSXDirEntry::AttribValue T_MSX_LFN(0x0F); // LFN entry (long files names)
 
 /** Transforms a cluster number towards the first sector of this cluster
   * The calculation uses info read fom the boot sector
@@ -943,7 +943,7 @@ TclObject MSXtar::dirRaw()
 
 			auto filename = msxToHostFileName(dirEntry.filename);
 			time_t time = DiskImageUtils::fromTimeDate(DiskImageUtils::FatTimeDate{dirEntry.time, dirEntry.date});
-			result.addListElement(makeTclList(filename, dirEntry.attrib, narrow<uint32_t>(time), dirEntry.size));
+			result.addListElement(makeTclList(filename, dirEntry.attrib.value, narrow<uint32_t>(time), dirEntry.size));
 		}
 	}
 	return result;
@@ -957,7 +957,7 @@ std::string MSXtar::dir()
 	for (unsigned i = 0; i < num; ++i) {
 		auto entry = list.getListIndexUnchecked(i);
 		auto filename = std::string(entry.getListIndexUnchecked(0).getString());
-		auto attrib = DiskImageUtils::formatAttrib(narrow<uint8_t>(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0)));
+		auto attrib = DiskImageUtils::formatAttrib(MSXDirEntry::AttribValue(uint8_t(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0))));
 		//time_t time = entry.getListIndexUnchecked(2).getOptionalInt().value_or(0); // ignored
 		auto size = entry.getListIndexUnchecked(3).getOptionalInt().value_or(0);
 

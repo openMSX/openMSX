@@ -664,13 +664,14 @@ time_t fromTimeDate(FatTimeDate timeDate)
 	return mktime(&tm);
 }
 
-std::string formatAttrib(uint8_t attrib)
+std::string formatAttrib(MSXDirEntry::AttribValue attrib)
 {
-	return strCat((attrib & MSXDirEntry::Attrib::DIRECTORY ? 'd' : '-'),
-	              (attrib & MSXDirEntry::Attrib::READONLY  ? 'r' : '-'),
-	              (attrib & MSXDirEntry::Attrib::HIDDEN    ? 'h' : '-'),
-	              (attrib & MSXDirEntry::Attrib::VOLUME    ? 'v' : '-'),  // TODO check if this is the output of files,l
-	              (attrib & MSXDirEntry::Attrib::ARCHIVE   ? 'a' : '-')); // TODO check if this is the output of files,l
+	using enum MSXDirEntry::Attrib;
+	return strCat((attrib & DIRECTORY ? 'd' : '-'),
+	              (attrib & READONLY  ? 'r' : '-'),
+	              (attrib & HIDDEN    ? 'h' : '-'),
+	              (attrib & VOLUME    ? 'v' : '-'),  // TODO check if this is the output of files,l
+	              (attrib & ARCHIVE   ? 'a' : '-')); // TODO check if this is the output of files,l
 }
 
 } // namespace openmsx::DiskImageUtils
