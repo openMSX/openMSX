@@ -32,7 +32,7 @@ class Display;
 class RawFrame;
 class Setting;
 namespace VDPAccessSlots {
-	enum Delta : int;
+	enum class Delta : int;
 	class Calculator;
 }
 

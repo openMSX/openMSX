@@ -810,7 +810,7 @@ void VDPCmdEngine::executePset(EmuTime::param limit)
 		if (doPset) [[likely]] {
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		nextAccessSlot(DELTA_24); // TODO
+		nextAccessSlot(Delta::D24); // TODO
 		[[fallthrough]];
 	case 1:
 		if (engineTime >= limit) [[unlikely]] { phase = 1; break; }
@@ -868,7 +868,7 @@ void VDPCmdEngine::executeSrch(EmuTime::param limit)
 			commandDone(calculator.getTime());
 			break;
 		}
-		calculator.next(DELTA_88); // TODO
+		calculator.next(Delta::D88); // TODO
 	}
 	engineTime = calculator.getTime();
 }
@@ -906,7 +906,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		if (doPset) [[likely]] {
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		calculator.next(DELTA_24);
+		calculator.next(Delta::D24);
 		[[fallthrough]];
 	case 1: {
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
@@ -915,7 +915,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			           tmpDst, CL, LogOp());
 		}
 
-		Delta delta = DELTA_88;
+		Delta delta = Delta::D88;
 		if ((ARG & MAJ) == 0) {
 			// X-Axis is major direction.
 			ADX += TX;
@@ -930,7 +930,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			if (ASX < NY) {
 				ASX += NX;
 				DY += TY;
-				delta = DELTA_120; // 88 + 32
+				delta = Delta::D120; // 88 + 32
 			}
 			ASX -= NY;
 			ASX &= 1023; // mask to 10 bits range
@@ -941,7 +941,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			if (ASX < NY) {
 				ASX += NX;
 				ADX += TX;
-				delta = DELTA_120; // 88 + 32
+				delta = Delta::D120; // 88 + 32
 			}
 			ASX -= NY;
 			ASX &= 1023; // mask to 10 bits range
@@ -999,7 +999,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		if (doPset) [[likely]] {
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		calculator.next(DELTA_24);
+		calculator.next(Delta::D24);
 		[[fallthrough]];
 	case 1: {
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
@@ -1008,9 +1008,9 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			           tmpDst, CL, LogOp());
 		}
 		ADX += TX;
-		Delta delta = DELTA_72;
+		Delta delta = Delta::D72;
 		if (--ANX == 0) {
-			delta = DELTA_136; // 72 + 64;
+			delta = Delta::D136; // 72 + 64;
 			DY += TY; --NY;
 			ADX = DX; ANX = tmpNX;
 			if (--tmpNY == 0) {
@@ -1127,14 +1127,14 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		} else {
 		       tmpSrc = 0xFF;
 		}
-		calculator.next(DELTA_32);
+		calculator.next(Delta::D32);
 		[[fallthrough]];
 	case 1:
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
 		if (doPset) [[likely]] {
 			tmpDst = vram.cmdWriteWindow.readNP(dstAddr);
 		}
-		calculator.next(DELTA_24);
+		calculator.next(Delta::D24);
 		[[fallthrough]];
 	case 2: {
 		if (calculator.limitReached()) [[unlikely]] { phase = 2; break; }
@@ -1143,9 +1143,9 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			           tmpDst, tmpSrc, LogOp());
 		}
 		ASX += TX; ADX += TX;
-		Delta delta = DELTA_64;
+		Delta delta = Delta::D64;
 		if (--ANX == 0) {
-			delta = DELTA_128; // 64 + 64
+			delta = Delta::D128; // 64 + 64
 			SY += TY; DY += TY; --NY;
 			ASX = SX; ADX = DX; ANX = tmpNX;
 			if (--tmpNY == 0) {
@@ -1383,9 +1383,9 @@ void VDPCmdEngine::executeHmmv(EmuTime::param limit)
 			              COL, calculator.getTime());
 		}
 		ADX += TX;
-		Delta delta = DELTA_48;
+		Delta delta = Delta::D48;
 		if (--ANX == 0) {
-			delta = DELTA_104; // 48 + 56;
+			delta = Delta::D104; // 48 + 56;
 			DY += TY; --NY;
 			ADX = DX; ANX = tmpNX;
 			if (--tmpNY == 0) {
@@ -1493,7 +1493,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		} else {
 			tmpSrc = 0xFF;
 		}
-		calculator.next(DELTA_24);
+		calculator.next(Delta::D24);
 		[[fallthrough]];
 	case 1: {
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
@@ -1502,9 +1502,9 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			              tmpSrc, calculator.getTime());
 		}
 		ASX += TX; ADX += TX;
-		Delta delta = DELTA_64;
+		Delta delta = Delta::D64;
 		if (--ANX == 0) {
-			delta = DELTA_128; // 64 + 64
+			delta = Delta::D128; // 64 + 64
 			SY += TY; DY += TY; --NY;
 			ASX = SX; ADX = DX; ANX = tmpNX;
 			if (--tmpNY == 0) {
@@ -1630,7 +1630,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			tmpSrc = vram.cmdReadWindow.readNP(
 			       Mode::addressOf(ADX, SY, dstExt));
 		}
-		calculator.next(DELTA_24);
+		calculator.next(Delta::D24);
 		[[fallthrough]];
 	case 1:
 		if (calculator.limitReached()) [[unlikely]] { phase = 1; break; }
@@ -1648,7 +1648,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 				break;
 			}
 		}
-		calculator.next(DELTA_40);
+		calculator.next(Delta::D40);
 		goto loop;
 	default:
 		UNREACHABLE;

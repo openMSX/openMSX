@@ -47,7 +47,7 @@ public:
 	void stealAccessSlot(EmuTime::param time) {
 		if (CMD && engineTime <= time) {
 			// take the next available slot
-			engineTime = getNextAccessSlot(time, VDPAccessSlots::DELTA_1);
+			engineTime = getNextAccessSlot(time, VDPAccessSlots::Delta::D1);
 			assert(engineTime > time);
 		}
 	}
@@ -156,7 +156,7 @@ private:
 
 	// Advance to the next access slot at or past the given time.
 	inline EmuTime getNextAccessSlot(EmuTime::param time) const {
-		return vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
+		return vdp.getAccessSlot(time, VDPAccessSlots::Delta::D0);
 	}
 	inline void nextAccessSlot(EmuTime::param time) {
 		engineTime = getNextAccessSlot(time);

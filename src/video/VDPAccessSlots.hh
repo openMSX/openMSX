@@ -11,24 +11,24 @@ namespace openmsx::VDPAccessSlots {
 
 inline constexpr int TICKS = VDP::TICKS_PER_LINE;
 
-enum Delta : int {
-	DELTA_0    =  0 * TICKS,
-	DELTA_1    =  1 * TICKS,
-	DELTA_16   =  2 * TICKS,
-	DELTA_24   =  3 * TICKS,
-	DELTA_28   =  4 * TICKS,
-	DELTA_32   =  5 * TICKS,
-	DELTA_40   =  6 * TICKS,
-	DELTA_48   =  7 * TICKS,
-	DELTA_64   =  8 * TICKS,
-	DELTA_72   =  9 * TICKS,
-	DELTA_88   = 10 * TICKS,
-	DELTA_104  = 11 * TICKS,
-	DELTA_120  = 12 * TICKS,
-	DELTA_128  = 13 * TICKS,
-	DELTA_136  = 14 * TICKS,
-	NUM_DELTAS = 15,
+enum class Delta : int {
+	D0    =  0 * TICKS,
+	D1    =  1 * TICKS,
+	D16   =  2 * TICKS,
+	D24   =  3 * TICKS,
+	D28   =  4 * TICKS,
+	D32   =  5 * TICKS,
+	D40   =  6 * TICKS,
+	D48   =  7 * TICKS,
+	D64   =  8 * TICKS,
+	D72   =  9 * TICKS,
+	D88   = 10 * TICKS,
+	D104  = 11 * TICKS,
+	D120  = 12 * TICKS,
+	D128  = 13 * TICKS,
+	D136  = 14 * TICKS,
 };
+static constexpr int NUM_DELTAS = 15;
 
 /** VDP-VRAM access slot calculator, meant to be used in the inner loops of the
   * VDPCmdEngine commands. Code optimized for the case that:
@@ -71,7 +71,7 @@ public:
 	/** Advance time to the earliest access slot that is at least 'delta'
 	  * ticks later than the current time. */
 	inline void next(Delta delta) {
-		ticks += tab[delta + ticks];
+		ticks += tab[to_underlying(delta) + ticks];
 		if (ticks >= TICKS) [[unlikely]] {
 			ticks -= TICKS;
 			limit -= TICKS;
