@@ -147,17 +147,17 @@ void MC6850::writeControlReg(byte value, EmuTime::param time)
 // Sync data-format related parameters with the current value of controlReg
 void MC6850::setDataFormat()
 {
-	outConnector.setDataBits(controlReg & CR_WS3 ? DATA_8 : DATA_7);
+	outConnector.setDataBits(controlReg & CR_WS3 ? DataBits::D8 : DataBits::D7);
 
 	static constexpr std::array<StopBits, 8> stopBits = {
-		STOP_2, STOP_2, STOP_1, STOP_1,
-		STOP_2, STOP_1, STOP_1, STOP_1,
+		StopBits::S2, StopBits::S2, StopBits::S1, StopBits::S1,
+		StopBits::S2, StopBits::S1, StopBits::S1, StopBits::S1,
 	};
 	outConnector.setStopBits(stopBits[(controlReg & CR_WS) >> 2]);
 
 	outConnector.setParityBit(
 		(controlReg & (CR_WS3 | CR_WS2)) != 0x10, // enable
-		(controlReg & CR_WS1) ? ODD : EVEN);
+		(controlReg & CR_WS1) ? Parity::ODD : Parity::EVEN);
 
 	// start-bits, data-bits, parity-bits, stop-bits
 	static constexpr std::array<byte, 8> len = {
@@ -282,7 +282,7 @@ void MC6850::setStopBits(StopBits /*bits*/)
 {
 	// ignore
 }
-void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
+void MC6850::setParityBit(bool /*enable*/, Parity /*parity*/)
 {
 	// ignore
 }

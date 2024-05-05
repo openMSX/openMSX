@@ -9,20 +9,19 @@ namespace openmsx {
 class SerialDataInterface
 {
 public:
-	enum DataBits {
-		DATA_5 = 5, DATA_6 = 6, DATA_7 = 7, DATA_8 = 8
+	enum class DataBits {
+		D5 = 5, D6 = 6, D7 = 7, D8 = 8
 	};
-	enum StopBits {
-		STOP_INV = 0, STOP_1 = 2, STOP_15 = 3, STOP_2 = 4
+	enum class StopBits {
+		INV = 0, S1 = 2, S1_5 = 3, S2 = 4
 	};
-
-	enum ParityBit {
+	enum class Parity {
 		EVEN = 0, ODD = 1
 	};
 
 	virtual void setDataBits(DataBits bits) = 0;
 	virtual void setStopBits(StopBits bits) = 0;
-	virtual void setParityBit(bool enable, ParityBit parity) = 0;
+	virtual void setParityBit(bool enable, Parity parity) = 0;
 	virtual void recvByte(byte value, EmuTime::param time) = 0;
 
 protected:

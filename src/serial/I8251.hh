@@ -44,7 +44,7 @@ public:
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override { recvDataBits = bits; }
 	void setStopBits(StopBits bits) override { recvStopBits = bits; }
-	void setParityBit(bool enable, ParityBit parity) override;
+	void setParityBit(bool enable, Parity parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 
 	void execRecv(EmuTime::param time);
@@ -92,7 +92,7 @@ private:
 	CmdPhase cmdPhase;
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
-	SerialDataInterface::ParityBit recvParityBit;
+	SerialDataInterface::Parity recvParityBit;
 	bool recvParityEnabled;
 	byte recvBuf;
 	bool recvReady;

@@ -18,7 +18,7 @@ public:
 	// SerialDataInterface (part) (output)
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
+	void setParityBit(bool enable, Parity parity) override;
 
 	// control
 	[[nodiscard]] virtual std::optional<bool> getCTS(EmuTime::param time) const;

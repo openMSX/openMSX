@@ -40,7 +40,7 @@ void MidiOutConnector::setStopBits(StopBits bits)
 	getPluggedMidiOutDev().setStopBits(bits);
 }
 
-void MidiOutConnector::setParityBit(bool enable, ParityBit parity)
+void MidiOutConnector::setParityBit(bool enable, Parity parity)
 {
 	getPluggedMidiOutDev().setParityBit(enable, parity);
 }

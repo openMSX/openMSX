@@ -132,7 +132,7 @@ void MidiOutDevice::setStopBits(StopBits /*bits*/)
 	// ignore
 }
 
-void MidiOutDevice::setParityBit(bool /*enable*/, ParityBit /*parity*/)
+void MidiOutDevice::setParityBit(bool /*enable*/, Parity /*parity*/)
 {
 	// ignore
 }

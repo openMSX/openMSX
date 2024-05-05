@@ -170,9 +170,9 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	IP232 = rs232NetUseIP232.getBoolean();
 
 	auto& rs232Connector = checked_cast<RS232Connector&>(connector_);
-	rs232Connector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
-	rs232Connector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
-	rs232Connector.setParityBit(false, SerialDataInterface::EVEN); // no parity
+	rs232Connector.setDataBits(SerialDataInterface::DataBits::D8); // 8 data bits
+	rs232Connector.setStopBits(SerialDataInterface::StopBits::S1); // 1 stop bit
+	rs232Connector.setParityBit(false, SerialDataInterface::Parity::EVEN); // no parity
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it

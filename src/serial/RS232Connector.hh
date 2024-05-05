@@ -21,7 +21,7 @@ public:
 	// input (SerialDataInterface)
 	void setDataBits(DataBits bits) override = 0;
 	void setStopBits(StopBits bits) override = 0;
-	void setParityBit(bool enable, ParityBit parity) override = 0;
+	void setParityBit(bool enable, Parity parity) override = 0;
 	void recvByte(byte value, EmuTime::param time) override = 0;
 	[[nodiscard]] virtual bool ready() = 0;
 	[[nodiscard]] virtual bool acceptsData() = 0;

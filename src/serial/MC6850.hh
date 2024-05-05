@@ -37,7 +37,7 @@ private:
 	[[nodiscard]] bool acceptsData() override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
+	void setParityBit(bool enable, Parity parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable

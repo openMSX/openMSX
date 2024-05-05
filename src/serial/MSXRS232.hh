@@ -36,7 +36,7 @@ public:
 	// RS232Connector  (input)
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
+	void setParityBit(bool enable, Parity parity) override;
 	void recvByte(byte value, EmuTime::param time) override;
 	[[nodiscard]] bool ready() override;
 	[[nodiscard]] bool acceptsData() override;
@@ -73,7 +73,7 @@ private:
 		[[nodiscard]] bool getCTS(EmuTime::param time) override;
 		void setDataBits(DataBits bits) override;
 		void setStopBits(StopBits bits) override;
-		void setParityBit(bool enable, ParityBit parity) override;
+		void setParityBit(bool enable, Parity parity) override;
 		void recvByte(byte value, EmuTime::param time) override;
 		void signal(EmuTime::param time) override;
 	} interface;

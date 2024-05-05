@@ -328,7 +328,7 @@ void MSXRS232::Interface::setStopBits(StopBits bits)
 	rs232.getPluggedRS232Dev().setStopBits(bits);
 }
 
-void MSXRS232::Interface::setParityBit(bool enable, ParityBit parity)
+void MSXRS232::Interface::setParityBit(bool enable, Parity parity)
 {
 	const auto& rs232 = OUTER(MSXRS232, interface);
 	rs232.getPluggedRS232Dev().setParityBit(enable, parity);
@@ -409,7 +409,7 @@ void MSXRS232::setStopBits(StopBits bits)
 	i8251.setStopBits(bits);
 }
 
-void MSXRS232::setParityBit(bool enable, ParityBit parity)
+void MSXRS232::setParityBit(bool enable, Parity parity)
 {
 	i8251.setParityBit(enable, parity);
 }

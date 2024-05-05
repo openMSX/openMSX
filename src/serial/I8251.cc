@@ -57,9 +57,9 @@ void I8251::reset(EmuTime::param time)
 	// initialize these to avoid UMR on savestate
 	//   TODO investigate correct initial state after reset
 	charLength = 0;
-	recvDataBits  = SerialDataInterface::DATA_8;
-	recvStopBits  = SerialDataInterface::STOP_1;
-	recvParityBit = SerialDataInterface::EVEN;
+	recvDataBits  = SerialDataInterface::DataBits::D8;
+	recvStopBits  = SerialDataInterface::StopBits::S1;
+	recvParityBit = SerialDataInterface::Parity::EVEN;
 	recvParityEnabled = false;
 	recvBuf = 0;
 	recvReady = false;
@@ -144,10 +144,11 @@ void I8251::setMode(byte newMode)
 
 	auto dataBits = [&] {
 		switch (mode & MODE_WORD_LENGTH) {
-		case MODE_5BIT: return SerialDataInterface::DATA_5;
-		case MODE_6BIT: return SerialDataInterface::DATA_6;
-		case MODE_7BIT: return SerialDataInterface::DATA_7;
-		case MODE_8BIT: return SerialDataInterface::DATA_8;
+		using enum SerialDataInterface::DataBits;
+		case MODE_5BIT: return D5;
+		case MODE_6BIT: return D6;
+		case MODE_7BIT: return D7;
+		case MODE_8BIT: return D8;
 		default: UNREACHABLE;
 		}
 	}();
@@ -155,18 +156,19 @@ void I8251::setMode(byte newMode)
 
 	auto stopBits = [&] {
 		switch(mode & MODE_STOP_BITS) {
-		case MODE_STOP_INV: return SerialDataInterface::STOP_INV;
-		case MODE_STOP_1:   return SerialDataInterface::STOP_1;
-		case MODE_STOP_15:  return SerialDataInterface::STOP_15;
-		case MODE_STOP_2:   return SerialDataInterface::STOP_2;
+		using enum SerialDataInterface::StopBits;
+		case MODE_STOP_INV: return INV;
+		case MODE_STOP_1:   return S1;
+		case MODE_STOP_15:  return S1_5;
+		case MODE_STOP_2:   return S2;
 		default: UNREACHABLE;
 		}
 	}();
 	interface.setStopBits(stopBits);
 
 	bool parityEnable = (mode & MODE_PARITY_EVEN) != 0;
-	SerialDataInterface::ParityBit parity = (mode & MODE_PARITEVEN) ?
-		SerialDataInterface::EVEN : SerialDataInterface::ODD;
+	SerialDataInterface::Parity parity = (mode & MODE_PARITEVEN) ?
+		SerialDataInterface::Parity::EVEN : SerialDataInterface::Parity::ODD;
 	interface.setParityBit(parityEnable, parity);
 
 	unsigned baudrate = [&] {
@@ -253,7 +255,7 @@ void I8251::writeTrans(byte value, EmuTime::param time)
 	}
 }
 
-void I8251::setParityBit(bool enable, ParityBit parity)
+void I8251::setParityBit(bool enable, Parity parity)
 {
 	recvParityEnabled = enable;
 	recvParityBit = parity;
@@ -314,26 +316,26 @@ void I8251::execTrans(EmuTime::param time)
 
 
 static constexpr std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBitsInfo = {
-		{ "5", SerialDataInterface::DATA_5 },
-		{ "6", SerialDataInterface::DATA_6 },
-		{ "7", SerialDataInterface::DATA_7 },
-		{ "8", SerialDataInterface::DATA_8 }
+		{ "5", SerialDataInterface::DataBits::D5 },
+		{ "6", SerialDataInterface::DataBits::D6 },
+		{ "7", SerialDataInterface::DataBits::D7 },
+		{ "8", SerialDataInterface::DataBits::D8 }
 };
 SERIALIZE_ENUM(SerialDataInterface::DataBits, dataBitsInfo);
 
 static constexpr std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBitsInfo = {
-	{ "INVALID", SerialDataInterface::STOP_INV },
-	{ "1",       SerialDataInterface::STOP_1   },
-	{ "1.5",     SerialDataInterface::STOP_15  },
-	{ "2",       SerialDataInterface::STOP_2   }
+	{ "INVALID", SerialDataInterface::StopBits::INV },
+	{ "1",       SerialDataInterface::StopBits::S1   },
+	{ "1.5",     SerialDataInterface::StopBits::S1_5  },
+	{ "2",       SerialDataInterface::StopBits::S2   }
 };
 SERIALIZE_ENUM(SerialDataInterface::StopBits, stopBitsInfo);
 
-static constexpr std::initializer_list<enum_string<SerialDataInterface::ParityBit>> parityBitInfo = {
-	{ "EVEN", SerialDataInterface::EVEN },
-	{ "ODD",  SerialDataInterface::ODD  }
+static constexpr std::initializer_list<enum_string<SerialDataInterface::Parity>> parityBitInfo = {
+	{ "EVEN", SerialDataInterface::Parity::EVEN },
+	{ "ODD",  SerialDataInterface::Parity::ODD  }
 };
-SERIALIZE_ENUM(SerialDataInterface::ParityBit, parityBitInfo);
+SERIALIZE_ENUM(SerialDataInterface::Parity, parityBitInfo);
 
 static constexpr std::initializer_list<enum_string<I8251::CmdPhase>> cmdFazeInfo = {
 	{ "MODE",  I8251::CmdPhase::MODE  },

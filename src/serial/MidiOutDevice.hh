@@ -27,7 +27,7 @@ public:
 	void recvByte(byte value, EmuTime::param time) override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
+	void setParityBit(bool enable, Parity parity) override;
 
 protected:
 	explicit MidiOutDevice() = default;

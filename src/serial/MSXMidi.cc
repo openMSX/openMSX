@@ -302,7 +302,7 @@ void MSXMidi::Interface::setStopBits(StopBits bits)
 	midi.outConnector.setStopBits(bits);
 }
 
-void MSXMidi::Interface::setParityBit(bool enable, ParityBit parity)
+void MSXMidi::Interface::setParityBit(bool enable, Parity parity)
 {
 	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.setParityBit(enable, parity);
@@ -384,7 +384,7 @@ void MSXMidi::setStopBits(StopBits bits)
 	i8251.setStopBits(bits);
 }
 
-void MSXMidi::setParityBit(bool enable, ParityBit parity)
+void MSXMidi::setParityBit(bool enable, Parity parity)
 {
 	i8251.setParityBit(enable, parity);
 }

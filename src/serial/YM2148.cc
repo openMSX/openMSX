@@ -104,7 +104,7 @@ void YM2148::setStopBits(StopBits /*bits*/)
 {
 	// ignore
 }
-void YM2148::setParityBit(bool /*enable*/, ParityBit /*parity*/)
+void YM2148::setParityBit(bool /*enable*/, Parity /*parity*/)
 {
 	// ignore
 }
