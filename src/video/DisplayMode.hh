@@ -23,20 +23,18 @@ private:
 	byte mode = 0;
 
 public:
-	enum {
-		GRAPHIC1   = 0x00, // Graphic 1
-		TEXT1      = 0x01, // Text 1
-		MULTICOLOR = 0x02, // Multicolor
-		GRAPHIC2   = 0x04, // Graphic 2
-		TEXT1Q     = 0x05, // !!
-		MULTIQ     = 0x06, // !!
-		GRAPHIC3   = 0x08, // Graphic 3
-		TEXT2      = 0x09, // Text 2
-		GRAPHIC4   = 0x0C, // Graphic 4
-		GRAPHIC5   = 0x10, // Graphic 5
-		GRAPHIC6   = 0x14, // Graphic 6
-		GRAPHIC7   = 0x1C  // Graphic 7
-	};
+	static constexpr uint8_t GRAPHIC1   = 0x00; // Graphic 1
+	static constexpr uint8_t TEXT1      = 0x01; // Text 1
+	static constexpr uint8_t MULTICOLOR = 0x02; // Multicolor
+	static constexpr uint8_t GRAPHIC2   = 0x04; // Graphic 2
+	static constexpr uint8_t TEXT1Q     = 0x05; // !!
+	static constexpr uint8_t MULTIQ     = 0x06; // !!
+	static constexpr uint8_t GRAPHIC3   = 0x08; // Graphic 3
+	static constexpr uint8_t TEXT2      = 0x09; // Text 2
+	static constexpr uint8_t GRAPHIC4   = 0x0C; // Graphic 4
+	static constexpr uint8_t GRAPHIC5   = 0x10; // Graphic 5
+	static constexpr uint8_t GRAPHIC6   = 0x14; // Graphic 6
+	static constexpr uint8_t GRAPHIC7   = 0x1C; // Graphic 7
 
 	/** Bits of VDP register 0 that encode part of the display mode. */
 	static constexpr byte REG0_MASK = 0x0E;
