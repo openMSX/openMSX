@@ -38,6 +38,7 @@ public:
 
 private:
 	[[nodiscard]] static bool isHighRes(V9990DisplayMode display) {
+		using enum V9990DisplayMode;
 		return display == one_of(B4, B5, B6, B7);
 	}
 

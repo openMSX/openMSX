@@ -743,6 +743,7 @@ void V9990::raiseIRQ(IRQType irqType)
 void V9990::setHorizontalTiming()
 {
 	switch (mode) {
+	using enum V9990DisplayMode;
 	case P1: case P2:
 	case B1: case B3: case B7:
 		horTiming = &V9990DisplayTiming::lineMCLK;
@@ -759,6 +760,7 @@ void V9990::setHorizontalTiming()
 void V9990::setVerticalTiming()
 {
 	switch (mode) {
+	using enum V9990DisplayMode;
 	case P1: case P2:
 	case B1: case B3: case B7:
 		verTiming = isPalTiming()
@@ -778,6 +780,7 @@ void V9990::setVerticalTiming()
 
 V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 {
+	using enum V9990ColorMode;
 	if (!(regs[SCREEN_MODE_0] & 0x80)) {
 		return BP4;
 	} else {
@@ -805,6 +808,7 @@ V9990ColorMode V9990::getColorMode() const
 
 V9990DisplayMode V9990::calcDisplayMode() const
 {
+	using enum V9990DisplayMode;
 	switch (regs[SCREEN_MODE_0] & 0xC0) {
 		case 0x00:
 			return P1;
@@ -871,10 +875,11 @@ void V9990::scheduleHscan(EmuTime::param time)
 }
 
 static constexpr std::initializer_list<enum_string<V9990DisplayMode>> displayModeInfo = {
-	{ "INVALID", INVALID_DISPLAY_MODE },
-	{ "P1", P1 }, { "P2", P2 },
-	{ "B0", B0 }, { "B1", B1 }, { "B2", B2 }, { "B3", B3 },
-	{ "B4", B4 }, { "B5", B5 }, { "B6", B6 }, { "B7", B7 }
+	{ "P1", V9990DisplayMode::P1 }, { "P2", V9990DisplayMode::P2 },
+	{ "B0", V9990DisplayMode::B0 }, { "B1", V9990DisplayMode::B1 },
+	{ "B2", V9990DisplayMode::B2 }, { "B3", V9990DisplayMode::B3 },
+	{ "B4", V9990DisplayMode::B4 }, { "B5", V9990DisplayMode::B5 },
+	{ "B6", V9990DisplayMode::B6 }, { "B7", V9990DisplayMode::B7 }
 };
 SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 

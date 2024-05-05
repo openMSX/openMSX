@@ -20,7 +20,7 @@ V9990BitmapConverter::V9990BitmapConverter(
 	, palette256(palette256_), palette256_32768(palette256_32768_)
 	, palette32768(palette32768_)
 {
-	setColorMode(PP, B0); // initialize with dummy values
+	setColorMode(V9990ColorMode::PP, V9990DisplayMode::B0); // initialize with dummy values
 }
 
 template<bool YJK, bool PAL, bool SKIP, std::unsigned_integral Pixel, typename ColorLookup>
@@ -351,6 +351,7 @@ static void raster(V9990ColorMode colorMode, bool highRes,
                    std::span<Pixel> out, unsigned x, unsigned y)
 {
 	switch (colorMode) {
+	using enum V9990ColorMode;
 	case BYUV:  return rasterBYUV <Pixel>(color, vdp, vram, out, x, y);
 	case BYUVP: return rasterBYUVP<Pixel>(color, vdp, vram, out, x, y);
 	case BYJK:  return rasterBYJK <Pixel>(color, vdp, vram, out, x, y);

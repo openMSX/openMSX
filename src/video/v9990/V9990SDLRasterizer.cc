@@ -181,12 +181,12 @@ void V9990SDLRasterizer::drawDisplay(
 		int displayWidth  = toX - fromX;
 		int displayHeight = toY - fromY;
 
-		if (displayMode == P1) {
+		if (displayMode == V9990DisplayMode::P1) {
 			drawP1Mode(fromX, fromY, displayX,
 			           displayY, displayYA, displayYB,
 			           displayWidth, displayHeight,
 			           drawSprites);
-		} else if (displayMode == P2) {
+		} else if (displayMode == V9990DisplayMode::P2) {
 			drawP2Mode(fromX, fromY, displayX,
 			           displayY, displayYA,
 			           displayWidth, displayHeight,

@@ -315,7 +315,7 @@ void V9990P1Converter::convertLine(
 
 	// combined back+front sprite plane
 	if (drawSprites) {
-		unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
+		unsigned spritePatternTable = vdp.getSpritePatternAddress(V9990DisplayMode::P1);
 		renderSprites<P1Policy>( // uses and updates 'info'
 			vram, spritePatternTable, palette64,
 			linePtr, info, displayX, displayEnd, displayY);
@@ -351,7 +351,7 @@ void V9990P2Converter::convertLine(
 
 	// combined back+front sprite plane
 	if (drawSprites) {
-		unsigned spritePatternTable = vdp.getSpritePatternAddress(P2);
+		unsigned spritePatternTable = vdp.getSpritePatternAddress(V9990DisplayMode::P2);
 		renderSprites<P2Policy>(
 			vram, spritePatternTable, palette64,
 			linePtr, info, displayX, displayEnd, displayY);

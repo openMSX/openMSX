@@ -134,7 +134,7 @@ public:
 	/** Returns true iff in overscan mode
 	  */
 	[[nodiscard]] inline bool isOverScan() const {
-		return mode == one_of(B0, B2, B4);
+		return mode == one_of(V9990DisplayMode::B0, V9990DisplayMode::B2, V9990DisplayMode::B4);
 	}
 
 	/** Should this frame be superimposed?
@@ -175,6 +175,7 @@ public:
 		int x;
 		ticks = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 		switch (mode) {
+		using enum V9990DisplayMode;
 		case P1: x = ticks / 8;  break;
 		case P2: x = ticks / 4;  break;
 		case B0: x = ticks /12;  break;
@@ -272,6 +273,7 @@ public:
 	  */
 	[[nodiscard]] inline unsigned getLineWidth() const {
 		switch (getDisplayMode()) {
+		using enum V9990DisplayMode;
 		case B0:          return  213;
 		case P1: case B1: return  320;
 		case B2:          return  426;
@@ -294,9 +296,9 @@ public:
 	  */
 	[[nodiscard]] inline int getSpritePatternAddress(V9990DisplayMode m) const {
 		switch (m) {
-		case P1:
+		case V9990DisplayMode::P1:
 			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0E) << 14);
-		case P2:
+		case V9990DisplayMode::P2:
 			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0F) << 15);
 		default:
 			return 0;

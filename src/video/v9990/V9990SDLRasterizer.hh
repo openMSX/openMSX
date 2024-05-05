@@ -115,8 +115,8 @@ private:
 
 	/** The current screen mode
 	  */
-	V9990DisplayMode displayMode = P1; // dummy value
-	V9990ColorMode   colorMode   = PP; //   avoid UMR
+	V9990DisplayMode displayMode = V9990DisplayMode::P1; // dummy value
+	V9990ColorMode   colorMode   = V9990ColorMode::PP; //   avoid UMR
 
 	/** Palette containing the complete V9990 Color space
 	  */

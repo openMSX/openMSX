@@ -9,10 +9,11 @@
 #include "EnumSetting.hh"
 #include "MemBuffer.hh"
 #include "Clock.hh"
+#include "serialize.hh"
 
 #include "checked_cast.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -94,8 +95,8 @@ static constexpr std::array SRCH_TIMING = {
 
 	const auto& vdp = cmdEngine.getVDP();
 	auto mode = vdp.getDisplayMode();
-	unsigned idx1 = (mode == P1) ? 2 :
-	                (mode == P2) ? 3 :
+	unsigned idx1 = (mode == V9990DisplayMode::P1) ? 2 :
+	                (mode == V9990DisplayMode::P2) ? 3 :
 	                (vdp.isOverScan()) ? 0 : 1;
 	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
 	                                       : 2;
@@ -113,7 +114,11 @@ static constexpr std::array SRCH_TIMING = {
 // * A fully populated logOpLUT would take 4MB, however the vast majority of
 //   this table is (almost) never used. So we save quite some memory (and
 //   startup time) by lazily initializing this table.
-static std::array<std::array<MemBuffer<byte>, 16>, 4> logOpLUT;
+enum class Log {
+	NO_T, BPP2, BPP4, BPP8,
+	NUM
+};
+static array_with_enum_index<Log, std::array<MemBuffer<byte>, 16>> logOpLUT;
 
 // to speedup calculating logOpLUT
 static constexpr auto bitLUT = [] {
@@ -132,8 +137,6 @@ static constexpr auto bitLUT = [] {
 	}
 	return result;
 }();
-
-enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 
 [[nodiscard]] static constexpr byte func01(unsigned op, unsigned src, unsigned dst)
 {
@@ -251,7 +254,7 @@ static constexpr void fillTable8(unsigned op, std::span<byte, 256 * 256> table)
 	}
 }
 
-[[nodiscard]] static std::span<const byte, 256 * 256> getLogOpImpl(unsigned mode, unsigned op)
+[[nodiscard]] static std::span<const byte, 256 * 256> getLogOpImpl(Log mode, unsigned op)
 {
 	op &= 0x0f;
 	auto& lut = logOpLUT[mode][op];
@@ -259,16 +262,17 @@ static constexpr void fillTable8(unsigned op, std::span<byte, 256 * 256> table)
 		lut.resize(256 * 256);
 		std::span<byte, 256 * 256> s{lut.data(), 256 * 256};
 		switch (mode) {
-		case LOG_NO_T:
+		using enum Log;
+		case NO_T:
 			fillTableNoT(op, s);
 			break;
-		case LOG_BPP2:
+		case BPP2:
 			fillTable2(op, s);
 			break;
-		case LOG_BPP4:
+		case BPP4:
 			fillTable4(op, s);
 			break;
-		case LOG_BPP8:
+		case BPP8:
 			fillTable8(op, s);
 			break;
 		default:
@@ -319,7 +323,7 @@ inline byte V9990CmdEngine::V9990P1::shiftMask(unsigned x)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
 {
-	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
+	return getLogOpImpl((op & 0x10) ? Log::BPP4 : Log::NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990P1::logOp(
@@ -387,7 +391,7 @@ inline byte V9990CmdEngine::V9990P2::shiftMask(unsigned x)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
 {
-	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
+	return getLogOpImpl((op & 0x10) ? Log::BPP4 : Log::NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990P2::logOp(
@@ -455,7 +459,7 @@ inline byte V9990CmdEngine::V9990Bpp2::shiftMask(unsigned x)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
 {
-	return getLogOpImpl((op & 0x10) ? LOG_BPP2 : LOG_NO_T, op);
+	return getLogOpImpl((op & 0x10) ? Log::BPP2 : Log::NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp2::logOp(
@@ -523,7 +527,7 @@ inline byte V9990CmdEngine::V9990Bpp4::shiftMask(unsigned x)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
 {
-	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
+	return getLogOpImpl((op & 0x10) ? Log::BPP4 : Log::NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp4::logOp(
@@ -590,7 +594,7 @@ inline byte V9990CmdEngine::V9990Bpp8::shiftMask(unsigned /*x*/)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990Bpp8::getLogOpLUT(byte op)
 {
-	return getLogOpImpl((op & 0x10) ? LOG_BPP8 : LOG_NO_T, op);
+	return getLogOpImpl((op & 0x10) ? Log::BPP8 : Log::NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp8::logOp(
@@ -659,7 +663,7 @@ inline word V9990CmdEngine::V9990Bpp16::shiftMask(unsigned /*x*/)
 
 inline std::span<const byte, 256 * 256> V9990CmdEngine::V9990Bpp16::getLogOpLUT(byte op)
 {
-	return getLogOpImpl(LOG_NO_T, op);
+	return getLogOpImpl(Log::NO_T, op);
 }
 
 inline word V9990CmdEngine::V9990Bpp16::logOp(
@@ -889,12 +893,13 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 void V9990CmdEngine::setCommandMode()
 {
 	auto dispMode = vdp.getDisplayMode();
-	if (dispMode == P1) {
+	if (dispMode == V9990DisplayMode::P1) {
 		cmdMode = 0 << 4; // P1;
-	} else if (dispMode == P2) {
+	} else if (dispMode == V9990DisplayMode::P2) {
 		cmdMode = 1 << 4; // P2;
 	} else { // Bx
 		switch (vdp.getColorMode()) {
+			using enum V9990ColorMode;
 			default:
 				UNREACHABLE;
 			case BP2:
