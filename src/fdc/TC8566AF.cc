@@ -454,7 +454,6 @@ EmuTime TC8566AF::locateSector(EmuTime::param time, bool readId)
 			// also skip setting 'ST2_CM' and updating 'crc'
 			break;
 		}
-		if (sectorInfo.addrCrcErr)               continue; // Is this checked for Command::READ_ID?
 		if (sectorInfo.track  != cylinderNumber) continue;
 		if (sectorInfo.head   != headNumber)     continue;
 		if (sectorInfo.sector != sectorNumber)   continue;
@@ -463,6 +462,10 @@ EmuTime TC8566AF::locateSector(EmuTime::param time, bool readId)
 		if (bool expectDeleted = command == Command::READ_DELETED_DATA;
 		    sectorInfo.deleted != expectDeleted) {
 			status2 |= ST2_CM;
+		}
+		if (sectorInfo.addrCrcErr) {
+			status0 |= ST0_IC0;
+			status1 |= readId ? ST1_ND : ST1_DE; // TODO does readId return this header?
 		}
 		crc.update(sectorInfo.deleted ? 0xF8 : 0xFB);
 		break;
@@ -626,7 +629,7 @@ void TC8566AF::startReadWriteSector(EmuTime::param time)
 		auto* drv = drive[driveSelect];
 		foundTime = drv->getTimeTillIndexPulse(headLoadTime, 2);
 		status0 |= ST0_IC0;
-		status1 |= readId ? ST1_MA : ST1_ND;
+		status1 |= ST1_MA;
 		// readStatus() will call resultPhase()
 	}
 	if (command == Command::READ_DATA) {
