@@ -40,7 +40,7 @@ def joinContinuedLines(lines):
 	if buf:
 		raise ValueError('Continuation on last line')
 
-_reEval = re.compile('(\$\(|\))')
+_reEval = re.compile(r'(\$\(|\))')
 def evalMakeExpr(expr, makeVars):
 	'''Evaluates variable references in an expression.
 	Raises ValueError if there is a syntax error in the expression.
