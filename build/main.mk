@@ -315,7 +315,7 @@ LINK_FLAGS+=$(TARGET_FLAGS)
 CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
-ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
+ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX))$(findstring /clang++-,$(CXX)),)
   # Enable C++20 (partially supported since clang-8)
   COMPILE_FLAGS+=-std=c++20 -fconstexpr-steps=2000000
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
