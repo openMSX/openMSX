@@ -1,0 +1,151 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sony</manufacturer>
+    <code>HB-T600</code>
+    <release_year>1987</release_year>
+    <description>Communication Terminal: sold in Japan as stok trading terminal, with disk drive, 3 cartridge slots, and modem (not fully emulated) built in.</description>
+    <type>MSX2</type>
+    <region>jp</region>
+  </info>
+
+  <!-- based on the machine of Peter Hanraets with serial number 202626
+       backside has 2 RJ-45 like connectors and a tone/pulse switch
+       RGB out, CVBS out, printer port and 100W power out. No cassetteport.
+
+       It actually has a tiny keypad instead of normal keyboard. That is not
+       emulated. We emulate it as if a normal Japanese keyboard was connected,
+       like on the Sony HB-F500 or HB-F900.
+
+       All ROM dumps confirmed by Takamichi on his machine and thanks to him
+       and Arjen Zeilemaker the modem ROM could be dumped as well and the modem
+       in slot 3-1 is partly emulated.
+    -->
+
+  <devices>
+
+    <S1985 id="S1985"> <!-- includes 5 bits mapper-read-back-->
+      <sramname>hb-t600_s1985.sram</sramname>
+    </S1985>
+
+    <Kanji id="Kanji ROM">
+      <rom>
+        <filename>hb-t600_kanjifont.rom</filename>
+        <sha1>6acaf2eeb57f65f7408235d5e07b7563229de799</sha1>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD9" num="1" type="I"/>
+    </Kanji>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="8"/> <!-- S-1985 mirrors -->
+      <!-- <keyboard_type>jp_ansi_mini</keyboard_type> -->
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>hb-t600.cmos</sramname>
+      <io base="0xB4" num="4" type="IO"/> <!-- S-1985 mirrors -->
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="8" type="IO"/> <!-- S-1985 mirrors -->
+      <bidirectional>true</bidirectional> <!-- S-1985 feature (but not used, nor implemented) -->
+      <unused_bits>0x00</unused_bits>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>hb-t600_basic-bios2.rom</filename>
+          <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>hb-t600_msx2sub.rom</filename>
+            <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Sony</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
+          <drives>1</drives>
+          <rom>
+            <filename>hb-t600_disk.rom</filename>
+            <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </WD2793>
+      </secondary>
+
+      <secondary slot="1">
+        <MSX-Modem id="HB-T600 modem">
+          <rom>
+            <sha1>773df70f8d88669cd53ed62b3498bfc7972bd0d7</sha1>
+            <filename>hb-t600_modem.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+          <sramname>hb-t600_modem.sram</sramname>
+        </MSX-Modem>
+      </secondary>
+
+      <secondary slot="2">
+        <ROM id="HB-T600 Stocks Firmware">
+          <rom>
+            <filename>hb-t600_firmware.rom</filename>
+            <sha1>6d2a659b65feeccce57cf47ef9ea567794b6d5ce</sha1>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+      </secondary>
+
+      <secondary slot="3">
+        <MemoryMapper id="Main RAM">
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) -->
+          <size>128</size>
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>
