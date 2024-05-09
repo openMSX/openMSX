@@ -101,10 +101,16 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			im::Disabled(bitmapManual != 1, [&]{
 				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
 					ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+
 					int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
 					if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-					ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000" : "0\0001\0002\0003\000");
-					ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
+					if (bitmapPage < 0) bitmapPage = numPages;
+					ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
+					if (bitmapPage == numPages) bitmapPage = -1;
+
+					im::Disabled(bitmapPage < 0, [&]{
+						ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
+					});
 					ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
 				});
 			});
@@ -139,8 +145,13 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		int color0 = bitmapManual ? bitmapColor0   : vdpColor0;
 		int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
 		int height = (lines == 0) ? 192
-				: (lines == 1) ? 212
-						: 256;
+		           : (lines == 1) ? 212
+		           : 256;
+		if (page < 0) {
+			int numPages = mode <= SCR6 ? 4 : 2;
+			height = 256 * numPages;
+			page = 0;
+		}
 
 		std::array<uint32_t, 16> palette;
 		auto msxPalette = manager.palette->getPalette(vdp);
@@ -148,7 +159,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
 		if (color0 < 16) palette[0] = palette[color0];
 
-		std::array<uint32_t, 512 * 256> pixels;
+		std::array<uint32_t, 512 * 256 * 2> pixels; // max size:  512*256*2  or  256*256*4
 		renderBitmap(vram.getData(), palette, mode, height, page,
 				pixels.data());
 		if (!bitmapTex) {

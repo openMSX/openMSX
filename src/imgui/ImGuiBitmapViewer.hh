@@ -33,7 +33,7 @@ private:
 	int bitmapManual = 0; // 0 -> use VDP settings, 1 -> use manual settings
 	enum BitmapScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
 	int bitmapScrnMode = 0;
-	int bitmapPage = 0; // 0-3 or 0-1 depending on screen mode   TODO extended VRAM
+	int bitmapPage = 0; // 0-3 or 0-1 depending on screen mode, -1 for all pages   TODO extended VRAM
 	int bitmapLines = 1; // 0->192, 1->212, 2->256
 	int bitmapColor0 = 16; // 0..15, 16->no replacement
 	int bitmapZoom = 0; // 0->1x, 1->2x, ..., 7->8x
@@ -47,7 +47,7 @@ private:
 		PersistentElement   {"show",     &ImGuiBitmapViewer::showBitmapViewer},
 		PersistentElementMax{"override", &ImGuiBitmapViewer::bitmapManual, 2},
 		PersistentElementMax{"scrnMode", &ImGuiBitmapViewer::bitmapScrnMode, OTHER}, // SCR5..SCR12
-		PersistentElementMax{"page",     &ImGuiBitmapViewer::bitmapPage, 4},
+		PersistentElement   {"page",     &ImGuiBitmapViewer::bitmapPage},
 		PersistentElementMax{"lines",    &ImGuiBitmapViewer::bitmapLines, 3},
 		PersistentElementMax{"color0",   &ImGuiBitmapViewer::bitmapColor0, 16 + 1},
 		PersistentElementMax{"zoom",     &ImGuiBitmapViewer::bitmapZoom, 8},
