@@ -1326,6 +1326,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXModem.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -2972,6 +2975,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\MSXModem.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.hh">

@@ -773,6 +773,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXModem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXRS232.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Connector.cc" />
@@ -1428,6 +1429,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\MSXModem.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MSXRS232.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Connector.hh" />
