@@ -38,7 +38,7 @@ GlobalCommandController::GlobalCommandController(
 	, reactor(reactor_)
 	, openMSXInfoCommand(*this, "openmsx_info")
 	, hotKey(reactor.getRTScheduler(), *this, eventDistributor)
-	, settingsConfig(*this, hotKey)
+	, settingsConfig(*this, hotKey, reactor.getShortcuts())
 	, helpCmd(*this)
 	, tabCompletionCmd(*this)
 	, updateCmd(*this)

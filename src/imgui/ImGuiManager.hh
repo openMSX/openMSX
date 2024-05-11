@@ -58,7 +58,7 @@ class SettingsConfig;
 class ImGuiManager final : public ImGuiPartInterface, private EventListener, private Observer<Setting>
 {
 public:
-	ImGuiManager(Reactor& reactor_, SettingsConfig& config_);
+	explicit ImGuiManager(Reactor& reactor_);
 	ImGuiManager(const ImGuiManager&) = delete;
 	ImGuiManager(ImGuiManager&&) = delete;
 	ImGuiManager& operator=(const ImGuiManager&) = delete;
@@ -69,7 +69,7 @@ public:
 	void unregisterPart(ImGuiPartInterface* part);
 
 	[[nodiscard]] Reactor& getReactor() { return reactor; }
-	[[nodiscard]] Shortcuts& getShortcuts() { return shortcuts; }
+	[[nodiscard]] Shortcuts& getShortcuts() { return reactor.getShortcuts(); }
 	[[nodiscard]] Interpreter& getInterpreter();
 	[[nodiscard]] CliComm& getCliComm();
 	std::optional<TclObject> execute(TclObject command);
@@ -123,7 +123,6 @@ private:
 	std::vector<ImGuiPartInterface*> parts;
 	std::vector<ImGuiPartInterface*> toBeAddedParts;
 	bool removeParts = false;
-	Shortcuts shortcuts;
 
 public:
 	FilenameSetting fontPropFilename;

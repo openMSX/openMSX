@@ -7,7 +7,6 @@
 #include "stl.hh"
 #include "zstring_view.hh"
 
-#include <array>
 #include <optional>
 #include <string_view>
 

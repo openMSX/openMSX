@@ -22,7 +22,7 @@ class SettingsConfig
 {
 public:
 	SettingsConfig(GlobalCommandController& globalCommandController,
-	               HotKey& hotKey);
+	               HotKey& hotKey, Shortcuts& shortcuts);
 	~SettingsConfig();
 
 	void loadSetting(const FileContext& context, std::string_view filename);
@@ -37,11 +37,8 @@ public:
 	void setValueForSetting(std::string_view setting, std::string_view value);
 	void removeValueForSetting(std::string_view setting);
 
-	void setShortcuts(Shortcuts& shortcuts_) { shortcuts = &shortcuts_; };
-
 private:
 	CommandController& commandController;
-	Shortcuts* shortcuts;
 
 	struct SaveSettingsCommand final : Command {
 		explicit SaveSettingsCommand(CommandController& commandController);
@@ -60,6 +57,7 @@ private:
 	SettingsManager settingsManager;
 	hash_map<std::string, std::string, XXHasher> settingValues;
 	HotKey& hotKey;
+	Shortcuts& shortcuts;
 	std::string saveName;
 	bool mustSaveSettings = false;
 };

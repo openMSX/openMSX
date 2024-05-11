@@ -16,49 +16,50 @@
 
 namespace openmsx {
 
-class RTScheduler;
-class EventDistributor;
+class ActivateMachineCommand;
+class AfterCommand;
+class AviRecorder;
+class CliComm;
 class CommandController;
-class InfoCommand;
+class CommandLineParser;
+class ConfigInfo;
+class CreateMachineCommand;
+class DeleteMachineCommand;
+class DiskChanger;
+class DiskFactory;
+class DiskManipulator;
+class Display;
+class EventDistributor;
+class ExitCommand;
+class FilePool;
+class GetClipboardCommand;
 class GlobalCliComm;
 class GlobalCommandController;
 class GlobalSettings;
-class CliComm;
-class ImGuiManager;
-class Interpreter;
-class Display;
-class Mixer;
-class InputEventGenerator;
-class DiskFactory;
-class DiskManipulator;
-class DiskChanger;
-class FilePool;
 class HotKey;
-class UserSettings;
-class RomDatabase;
-class TclCallbackMessages;
-class MsxChar2Unicode;
-class MSXMotherBoard;
-class Setting;
-class CommandLineParser;
-class AfterCommand;
-class ExitCommand;
-class MessageCommand;
-class MachineCommand;
-class TestMachineCommand;
-class CreateMachineCommand;
-class DeleteMachineCommand;
+class ImGuiManager;
+class InfoCommand;
+class InputEventGenerator;
+class Interpreter;
 class ListMachinesCommand;
-class ActivateMachineCommand;
-class StoreMachineCommand;
-class RestoreMachineCommand;
-class GetClipboardCommand;
-class SetClipboardCommand;
-class AviRecorder;
-class ConfigInfo;
+class MSXMotherBoard;
+class MachineCommand;
+class MessageCommand;
+class Mixer;
+class MsxChar2Unicode;
+class RTScheduler;
 class RealTimeInfo;
+class RestoreMachineCommand;
+class RomDatabase;
+class SetClipboardCommand;
+class Setting;
+class Shortcuts;
 class SoftwareInfoTopic;
+class StoreMachineCommand;
 class SymbolManager;
+class TclCallbackMessages;
+class TestMachineCommand;
+class UserSettings;
 
 extern int exitCode;
 
@@ -84,6 +85,7 @@ public:
 
 	void enterMainLoop();
 
+	[[nodiscard]] Shortcuts& getShortcuts() { return *shortcuts; }
 	[[nodiscard]] RTScheduler& getRTScheduler() { return *rtScheduler; }
 	[[nodiscard]] EventDistributor& getEventDistributor() { return *eventDistributor; }
 	[[nodiscard]] GlobalCliComm& getGlobalCliComm() { return *globalCliComm; }
@@ -156,6 +158,7 @@ private:
 	                    // the destructors of the unique_ptr below
 
 	// note: order of unique_ptr's is important
+	std::unique_ptr<Shortcuts> shortcuts; // before globalCommandController
 	std::unique_ptr<RTScheduler> rtScheduler;
 	std::unique_ptr<EventDistributor> eventDistributor;
 	std::unique_ptr<GlobalCliComm> globalCliComm;

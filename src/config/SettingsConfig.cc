@@ -70,12 +70,13 @@ struct SettingsParser : rapidsax::NullHandler
 
 SettingsConfig::SettingsConfig(
 		GlobalCommandController& globalCommandController,
-		HotKey& hotKey_)
+		HotKey& hotKey_, Shortcuts& shortcuts_)
 	: commandController(globalCommandController)
 	, saveSettingsCommand(commandController)
 	, loadSettingsCommand(commandController)
 	, settingsManager(globalCommandController)
 	, hotKey(hotKey_)
+	, shortcuts(shortcuts_)
 {
 }
 
@@ -140,9 +141,9 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 		}
 	}
 
-	shortcuts->setDefaultShortcuts();
+	shortcuts.setDefaultShortcuts();
 	for (const auto& item : parser.shortcutItems) {
-		shortcuts->setShortcut(item.id, item.shortcut);
+		shortcuts.setShortcut(item.id, item.shortcut);
 	}
 
 	getSettingsManager().loadSettings(*this);
@@ -213,7 +214,7 @@ void SettingsConfig::saveSetting(std::string filename)
 			}
 		});
 		hotKey.saveBindings(xml);
-		shortcuts->saveShortcuts(xml);
+		shortcuts.saveShortcuts(xml);
 	});
 }
 

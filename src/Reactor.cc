@@ -221,6 +221,7 @@ Reactor::Reactor() = default;
 
 void Reactor::init()
 {
+	shortcuts = make_unique<Shortcuts>();
 	rtScheduler = make_unique<RTScheduler>();
 	eventDistributor = make_unique<EventDistributor>(*this);
 	globalCliComm = make_unique<GlobalCliComm>();
@@ -232,9 +233,8 @@ void Reactor::init()
 		*globalCommandController, *eventDistributor, *globalSettings);
 	symbolManager = make_unique<SymbolManager>(
 		*globalCommandController);
-	imGuiManager = make_unique<ImGuiManager>(*this, globalCommandController->getSettingsConfig());
-	diskFactory = make_unique<DiskFactory>(
-		*this);
+	imGuiManager = make_unique<ImGuiManager>(*this);
+	diskFactory = make_unique<DiskFactory>(*this);
 	diskManipulator = make_unique<DiskManipulator>(
 		*globalCommandController, *this);
 	virtualDrive = make_unique<DiskChanger>(
