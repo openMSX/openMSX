@@ -64,6 +64,7 @@ private:
 		PersistentElementMax{"zoom",             &ImGuiSpriteViewer::zoom, 8},
 		PersistentElement{"showGrid",            &ImGuiSpriteViewer::grid},
 		PersistentElementMax{"checkerBoardSize", &ImGuiSpriteViewer::checkerBoardSize, 256},
+		PersistentElementMax{"boundingBoxOnAll", &ImGuiSpriteViewer::boundingBoxOnAll, 2},
 		PersistentElement{"gridColor",           &ImGuiSpriteViewer::gridColor},
 		PersistentElement{"checkerBoardColor1",  &ImGuiSpriteViewer::checkerBoardColor1},
 		PersistentElement{"checkerBoardColor2",  &ImGuiSpriteViewer::checkerBoardColor2},

@@ -11,8 +11,6 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
-#include "StringOp.hh"
-#include "one_of.hh"
 #include "xrange.hh"
 
 #include <imgui.h>
