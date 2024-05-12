@@ -696,7 +696,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							const auto& b = clippedBoxes[i];
 							if ((b.x <= hx) && (hx < (b.x + b.w)) &&
 							    (b.y <= hy) && (hy < (b.y + b.h))) {
-								if (!boundingBoxOnAll) {
+								if (drawBoundingBox && (boundingBoxOnAll == 0)) {
 									drawBox(b.x, b.y, b.w, b.h);
 								}
 								ImGui::Text("sprite=%d x=%d y=%d pat=%d", b.sprite, b.vramX, b.vramY, b.pattern);
@@ -705,7 +705,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					}
 				});
 
-				if (boundingBoxOnAll) {
+				if (drawBoundingBox && (boundingBoxOnAll == 1)) {
 					for (int i : xrange(nrClippedBoxes)) {
 						const auto& b = clippedBoxes[i];
 						drawBox(b.x, b.y, b.w, b.h);
