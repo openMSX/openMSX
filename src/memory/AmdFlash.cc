@@ -12,6 +12,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <bit>
 #include <cassert>
@@ -20,25 +21,25 @@
 
 namespace openmsx {
 
-AmdFlash::AmdFlash(const Rom& rom, std::span<const SectorInfo> sectorInfo_,
-                   uint16_t ID_, Addressing addressing_,
+AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
+                   std::span<const SectorInfo> sectorInfo_, Addressing addressing_,
                    const DeviceConfig& config, Load load)
 	: motherBoard(config.getMotherBoard())
+	, chip(validatedChip.chip)
 	, sectorInfo(sectorInfo_)
 	, sz(sum(sectorInfo, &SectorInfo::size))
-	, ID(ID_)
 	, addressing(addressing_)
 {
 	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorInfo_,
-                   uint16_t ID_, Addressing addressing_,
+AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
+                   std::span<const SectorInfo> sectorInfo_, Addressing addressing_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
+	, chip(validatedChip.chip)
 	, sectorInfo(sectorInfo_)
 	, sz(sum(sectorInfo, &SectorInfo::size))
-	, ID(ID_)
 	, addressing(addressing_)
 {
 	init(name, config, Load::NORMAL, nullptr);
@@ -210,32 +211,70 @@ void AmdFlash::setState(State newState)
 
 uint8_t AmdFlash::peek(size_t address) const
 {
-	auto [sector, sectorSize, offset] = getSectorInfo(address);
 	if (state == State::IDLE) {
+		auto [sector, sectorSize, offset] = getSectorInfo(address);
 		if (const uint8_t* addr = readAddress[sector]) {
 			return addr[offset];
 		} else {
 			return 0xFF;
 		}
-	} else {
+	} else if (state == State::IDENT) {
 		if (addressing == Addressing::BITS_12) {
+			if (chip.autoSelect.oddZero && (address & 1)) {
+				// some devices return zero for odd bits instead of mirroring
+				return 0x00;
+			}
 			// convert the address to the '11 bit case'
 			address >>= 1;
 		}
-		switch (address & 3) {
-		case 0:
-			return narrow_cast<uint8_t>(ID >> 8);
-		case 1:
-			return narrow_cast<uint8_t>(ID & 0xFF);
-		case 2:
-			// 1 -> write protected
-			return isSectorWritable(sector) ? 0 : 1;
-		case 3:
-		default:
-			// TODO what is this? According to this it reads as '1'
-			//  http://www.msx.org/forumtopicl8329.html
-			return 1;
+		return narrow_cast<uint8_t>(peekAutoSelect(address, chip.autoSelect.undefined));
+	} else {
+		UNREACHABLE;
+	}
+}
+
+uint16_t AmdFlash::peekAutoSelect(size_t address, uint16_t undefined) const
+{
+	switch (address & chip.autoSelect.readMask) {
+	case 0x0:
+		return to_underlying(chip.autoSelect.manufacturer);
+	case 0x1:
+		return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
+	case 0x2:
+		if (addressing == Addressing::BITS_12) {
+			// convert the address from the '11 bit case'
+			address <<= 1;
 		}
+		return isSectorWritable(getSectorInfo(address).sector) ? 0 : 1;
+	case 0x3:
+		// On AM29F040 it indicates "Autoselect Device Unprotect Code".
+		// Datasheet does not elaborate. Value is 0x01 according to
+		//  https://www.msx.org/forum/semi-msx-talk/emulation/matra-ink-emulated
+		//
+		// On M29W640G it indicates "Extended Block Verify Code".
+		// Bit 7: 0: Extended memory block not factory locked
+		//        1: Extended memory block factory locked
+		// Other bits are 0x18 on GL, GT and GB models, and 0x01 on GH model.
+		// Datasheet does not explain their meaning.
+		// Actual value is 0x08 on GB model (verified on hardware).
+		//
+		// On S29GL064S it indicates "Secure Silicon Region Factory Protect":
+		// Bit 4: 0: WP# protects lowest address (bottom boot)
+		//        1: WP# protects highest address (top boot)
+		// Bit 7: 0: Secure silicon region not factory locked
+		//        1: Secure silicon region factory locked
+		// Other bits are 0xFF0A. Datasheet does not explain their meaning.
+		//
+		// On Alliance Memory AS29CF160B it indicates Continuation ID.
+		// Datasheet does not elaborate. Value is 0x7F.
+		return chip.autoSelect.extraCode;
+	case 0xE:
+		return chip.autoSelect.device.size() == 2 ? chip.autoSelect.device[0] | 0x2200 : undefined;
+	case 0xF:
+		return chip.autoSelect.device.size() == 2 ? chip.autoSelect.device[1] | 0x2200 : undefined;
+	default:
+		// some devices return zero instead of 0xFFFF (typical)
+		return undefined;
 	}
 }
 
@@ -265,16 +304,26 @@ void AmdFlash::write(size_t address, uint8_t value)
 {
 	cmd.push_back({address, value});
 
-	if (checkCommandManufacturer() ||
-	    checkCommandEraseSector() ||
-	    checkCommandProgram() ||
-	    checkCommandDoubleByteProgram() ||
-	    checkCommandQuadrupleByteProgram() ||
-	    checkCommandEraseChip() ||
-	    checkCommandReset()) {
-		// do nothing, we're still matching a command, but it is not complete yet
+	if (state == State::IDLE) {
+		if (checkCommandAutoSelect() ||
+		    checkCommandEraseSector() ||
+		    checkCommandProgram() ||
+		    checkCommandDoubleByteProgram() ||
+		    checkCommandQuadrupleByteProgram() ||
+		    checkCommandEraseChip() ||
+		    checkCommandReset()) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::IDENT) {
+		if (checkCommandReset()) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
 	} else {
-		reset();
+		UNREACHABLE;
 	}
 }
 
@@ -354,14 +403,12 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 	return checkCommandProgramHelper(4, cmdSeq);
 }
 
-bool AmdFlash::checkCommandManufacturer()
+bool AmdFlash::checkCommandAutoSelect()
 {
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
 	if (partialMatch(cmdSeq)) {
-		if (cmd.size() == 3) {
-			setState(State::IDENT);
-		}
-		if (cmd.size() < 4) return true;
+		if (cmd.size() < 3) return true;
+		setState(State::IDENT);
 	}
 	return false;
 }

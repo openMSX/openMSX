@@ -29,8 +29,8 @@ Main features:
 --------------------------------------------------------------------------------
 [Memory]
 
- - Model Numonix M29W800DB TSOP48
- - Datasheet: http://www.numonyx.com/Documents/Datasheets/M29W800D.PDF
+ - Model Numonyx M29W800DB TSOP48
+ - Datasheet: https://media-www.micron.com/-/media/client/global/documents/products/data-sheet/nor-flash/parallel/m29w/m29w800d.pdf
  - Block layout:
      #00000 16K
      #04000  8K
@@ -183,7 +183,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(rom, sectorInfo, 0x205B,
+	, flash(rom, AmdFlashChip::M29W800DB, sectorInfo,
 	        AmdFlash::Addressing::BITS_11, config)
 {
 	powerUp(getCurrentTime());

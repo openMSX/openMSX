@@ -34,8 +34,9 @@ MegaFlashROM SCC+ SD Technical Details
 --------------------------------------------------------------------------------
 [Memory]
 
- - Model Numonix/Micron M29W640FB/M29W640GB TSOP48
- - Datasheet: http://www.micron.com/~/media/Documents/Products/Data%20Sheet/NOR%20Flash/Parallel/M29W/M29W640F.pdf
+ - Model Numonyx / Micron M29W640FB / M29W640GB TSOP48
+ - Datasheet: https://media-www.micron.com/-/media/client/global/documents/products/data-sheet/nor-flash/parallel/m29w/m29w640f.pdf
+              https://media-www.micron.com/-/media/client/global/documents/products/data-sheet/nor-flash/parallel/m29w/m29w640g.pdf
  - Block layout:
      #00000 8K x 8
      #10000 64K x 127
@@ -43,7 +44,7 @@ MegaFlashROM SCC+ SD Technical Details
      #4555 and #4AAA
  - FlashROM ID:
     ID_M29W640FB    #FD
-    ID_M29W640GB    #7E
+    ID_M29W640GB    #7E 10 00
 
 
 --------------------------------------------------------------------------------
@@ -274,7 +275,7 @@ static constexpr auto sectorInfo = [] {
 
 MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	: MSXDevice(config)
-	, flash("MFR SCC+ SD flash", sectorInfo, 0x207E,
+	, flash("MFR SCC+ SD flash", AmdFlashChip::M29W640GB, sectorInfo,
 	        AmdFlash::Addressing::BITS_12, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
