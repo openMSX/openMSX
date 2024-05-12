@@ -442,7 +442,7 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr)
 
 /////////////////////// sub slot 0 ////////////////////////////////////////////
 
-byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr) const
+byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
 {
 	// read from the first 16kB of flash
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
