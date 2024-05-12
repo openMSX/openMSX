@@ -136,17 +136,28 @@ public:
 		}
 	};
 
+	struct Misc {
+		bool statusCommand : 1 = false;
+		bool continuityCommand : 1 = false;
+
+		constexpr void validate() const {
+			assert(!continuityCommand || statusCommand);
+		}
+	};
+
 	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
 		Program program = {};
 		CFI cfi = {};
+		Misc misc = {};
 
 		constexpr void validate() const {
 			autoSelect.validate();
 			geometry.validate();
 			program.validate();
 			cfi.validate();
+			misc.validate();
 		}
 	};
 
@@ -208,11 +219,13 @@ public:
 		size_t addr;
 		uint8_t value;
 
+		auto operator<=>(const AddressValue&) const = default;
+
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State { IDLE, IDENT, CFI, PRGERR };
+	enum class State { IDLE, IDENT, CFI, STATUS, PRGERR };
 
 private:
 	void init(const std::string& name, const DeviceConfig& config, Load load,
@@ -229,6 +242,8 @@ private:
 	[[nodiscard]] bool checkCommandLongReset();
 	[[nodiscard]] bool checkCommandCFIQuery();
 	[[nodiscard]] bool checkCommandCFIExit();
+	[[nodiscard]] bool checkCommandStatusRead();
+	[[nodiscard]] bool checkCommandStatusClear();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
 	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
@@ -237,6 +252,7 @@ private:
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
 	[[nodiscard]] bool checkCommandBufferProgram();
 	[[nodiscard]] bool checkCommandAutoSelect();
+	[[nodiscard]] bool checkCommandContinuityCheck();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
 	[[nodiscard]] bool isSectorWritable(size_t sector) const;

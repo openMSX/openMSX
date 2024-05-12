@@ -241,7 +241,7 @@ uint8_t AmdFlash::peek(size_t address) const
 		} else {
 			return narrow_cast<uint8_t>(peekCFI(address));
 		}
-	} else if (state == State::PRGERR) {
+	} else if (state == one_of(State::STATUS, State::PRGERR)) {
 		return status;
 	} else {
 		UNREACHABLE;
@@ -454,9 +454,10 @@ bool AmdFlash::isSectorWritable(size_t sector) const
 
 uint8_t AmdFlash::read(size_t address)
 {
-	// note: after a read we stay in the same mode
 	const uint8_t value = peek(address);
-	if (state == State::PRGERR) {
+	if (state == State::STATUS) {
+		setState(State::IDLE);
+	} else if (state == State::PRGERR) {
 		status ^= 0x40;
 	}
 	return value;
@@ -486,6 +487,9 @@ void AmdFlash::write(size_t address, uint8_t value)
 		    checkCommandBufferProgram() ||
 		    checkCommandEraseChip() ||
 		    checkCommandCFIQuery() ||
+		    checkCommandContinuityCheck() ||
+		    checkCommandStatusRead() ||
+		    checkCommandStatusClear() ||
 		    checkCommandLongReset() ||
 		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
@@ -503,6 +507,14 @@ void AmdFlash::write(size_t address, uint8_t value)
 	} else if (state == State::CFI) {
 		if (checkCommandLongReset() ||
 		    checkCommandCFIExit() ||
+		    checkCommandReset()) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::STATUS) {
+		// TODO confirm. S29GL064S datasheet: "it is not recommended".
+		if (checkCommandLongReset() ||
 		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
@@ -539,6 +551,35 @@ bool AmdFlash::checkCommandLongReset()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 3) return true;
 		softReset();
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandStatusRead()
+{
+	static constexpr std::array<uint8_t, 1> cmdSeq = {0x70};
+	if (chip.misc.statusCommand && partialMatch(cmdSeq)) {
+		setState(State::STATUS);
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandStatusClear()
+{
+	static constexpr std::array<uint8_t, 1> cmdSeq = {0x71};
+	if (chip.misc.statusCommand && partialMatch(cmdSeq)) {
+		softReset();
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandContinuityCheck()
+{
+	if (chip.misc.continuityCommand && cmd[0] == AddressValue{0x5554AB, 0xFF}) {
+		if (cmd.size() < 2) return true;
+		if (cmd.size() == 2 && cmd[1] == AddressValue{0x2AAB54, 0x00}) {
+			status |= 0x01;
+		}
 	}
 	return false;
 }
@@ -700,6 +741,7 @@ static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo =
 	{ "IDLE",   AmdFlash::State::IDLE  },
 	{ "IDENT",  AmdFlash::State::IDENT },
 	{ "CFI",    AmdFlash::State::CFI },
+	{ "STATUS", AmdFlash::State::STATUS },
 	{ "PRGERR", AmdFlash::State::PRGERR }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
