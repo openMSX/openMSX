@@ -311,13 +311,15 @@ void AmdFlash::write(size_t address, uint8_t value)
 		    checkCommandDoubleByteProgram() ||
 		    checkCommandQuadrupleByteProgram() ||
 		    checkCommandEraseChip() ||
+		    checkCommandLongReset() ||
 		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
 		}
 	} else if (state == State::IDENT) {
-		if (checkCommandReset()) {
+		if (checkCommandLongReset() ||
+		    checkCommandReset()) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -335,6 +337,16 @@ void AmdFlash::write(size_t address, uint8_t value)
 bool AmdFlash::checkCommandReset()
 {
 	if (cmd[0].value == 0xf0) {
+		reset();
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandLongReset()
+{
+	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xf0};
+	if (partialMatch(cmdSeq)) {
+		if (cmd.size() < 3) return true;
 		reset();
 	}
 	return false;
