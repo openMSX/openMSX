@@ -196,6 +196,12 @@ AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(size_t address) const
 
 void AmdFlash::reset()
 {
+	status = 0x80;
+	softReset();
+}
+
+void AmdFlash::softReset()
+{
 	cmd.clear();
 	setState(State::IDLE);
 	status &= 0xC4; // clear status
@@ -522,7 +528,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 bool AmdFlash::checkCommandReset()
 {
 	if (cmd[0].value == 0xf0) {
-		reset();
+		softReset();
 	}
 	return false;
 }
@@ -532,7 +538,7 @@ bool AmdFlash::checkCommandLongReset()
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xf0};
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 3) return true;
-		reset();
+		softReset();
 	}
 	return false;
 }
@@ -550,7 +556,7 @@ bool AmdFlash::checkCommandCFIQuery()
 bool AmdFlash::checkCommandCFIExit()
 {
 	if (chip.cfi.exitCommand && cmd[0].value == 0xff) {
-		reset();
+		softReset();
 	}
 	return false;
 }
