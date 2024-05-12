@@ -197,15 +197,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		int color0 = manual ? manualColor0 : vdpColor0;
 
 		VramTable patTable(vram);
-		unsigned patReg = (manual ? manualPatBase : vdp->getPatternTableBase()) >> 11;
+		unsigned patReg = (manual ? (manualPatBase | (patMult(manualMode) - 1)) : vdp->getPatternTableBase()) >> 11;
 		patTable.setRegister(patReg, 11);
 
 		VramTable colTable(vram);
-		unsigned colReg = (manual ? manualColBase : vdp->getColorTableBase()) >> 6;
+		unsigned colReg = (manual ? (manualColBase | (colMult(manualMode) - 1)) : vdp->getColorTableBase()) >> 6;
 		colTable.setRegister(colReg, 6);
 
 		VramTable namTable(vram);
-		unsigned namReg = (manual ? manualNamBase : vdp->getNameTableBase()) >> 10;
+		unsigned namReg = (manual ? (manualNamBase | (namMult(manualMode) - 1)) : vdp->getNameTableBase()) >> 10;
 		namTable.setRegister(namReg, 10);
 		namTable.setIndexSize((mode == TEXT80) ? 12 : 10);
 

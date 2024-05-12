@@ -273,12 +273,12 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		int transparent  = manual ? manualTransparent  : vdpTransparent;
 
 		VramTable patTable(vram, planar);
-		unsigned patReg = (manual ? manualPatBase : vdp->getSpritePatternTableBase()) >> 11;
+		unsigned patReg = (manual ? (manualPatBase | ((8 * 256) - 1)) : vdp->getSpritePatternTableBase()) >> 11;
 		patTable.setRegister(patReg, 11);
 		patTable.setIndexSize(11);
 
 		VramTable attTable(vram, planar);
-		unsigned attReg = (manual ? manualAttBase : vdp->getSpriteAttributeTableBase()) >> 7;
+		unsigned attReg = (manual ? (manualAttBase | (attMult(manualMode) - 1)) : vdp->getSpriteAttributeTableBase()) >> 7;
 		attTable.setRegister(attReg, 7);
 		attTable.setIndexSize((mode == 2) ? 10 : 7);
 
