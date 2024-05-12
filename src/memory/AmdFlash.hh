@@ -220,6 +220,7 @@ private:
 	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
+	void softReset();
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
 	[[nodiscard]] uint16_t peekCFI(size_t address) const;
 
