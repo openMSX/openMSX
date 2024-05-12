@@ -150,6 +150,7 @@ private:
 
 	void setState(State newState);
 	[[nodiscard]] bool checkCommandReset();
+	[[nodiscard]] bool checkCommandLongReset();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
 	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
