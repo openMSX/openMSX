@@ -256,7 +256,7 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 	}
 }
 
-byte Carnivore2::readConfigRegister(word address, EmuTime::param time) const
+byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 {
 	address &= 0x3f;
 	if (address == 0x04) {

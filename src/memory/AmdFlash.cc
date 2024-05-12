@@ -198,6 +198,7 @@ void AmdFlash::reset()
 {
 	cmd.clear();
 	setState(State::IDLE);
+	status &= 0xC4; // clear status
 }
 
 void AmdFlash::setState(State newState)
@@ -234,6 +235,8 @@ uint8_t AmdFlash::peek(size_t address) const
 		} else {
 			return narrow_cast<uint8_t>(peekCFI(address));
 		}
+	} else if (state == State::PRGERR) {
+		return status;
 	} else {
 		UNREACHABLE;
 	}
@@ -443,10 +446,14 @@ bool AmdFlash::isSectorWritable(size_t sector) const
 	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
 }
 
-uint8_t AmdFlash::read(size_t address) const
+uint8_t AmdFlash::read(size_t address)
 {
 	// note: after a read we stay in the same mode
-	return peek(address);
+	const uint8_t value = peek(address);
+	if (state == State::PRGERR) {
+		status ^= 0x40;
+	}
+	return value;
 }
 
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
@@ -470,6 +477,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 		    checkCommandProgram() ||
 		    checkCommandDoubleByteProgram() ||
 		    checkCommandQuadrupleByteProgram() ||
+		    checkCommandBufferProgram() ||
 		    checkCommandEraseChip() ||
 		    checkCommandCFIQuery() ||
 		    checkCommandLongReset() ||
@@ -490,6 +498,13 @@ void AmdFlash::write(size_t address, uint8_t value)
 		if (checkCommandLongReset() ||
 		    checkCommandCFIExit() ||
 		    checkCommandReset()) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::PRGERR) {
+		if (checkCommandLongReset() ||
+		    (chip.program.shortAbortReset && checkCommandReset())) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -549,9 +564,10 @@ bool AmdFlash::checkCommandEraseSector()
 			auto addr = cmd[5].addr;
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
-				ram->memset(writeAddress[sector],
-				            0xff, sectorSize);
+				ram->memset(writeAddress[sector], 0xff, sectorSize);
 			}
+
+			status |= 0x80; // immediate completion
 		}
 	}
 	return false;
@@ -564,6 +580,8 @@ bool AmdFlash::checkCommandEraseChip()
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
 			if (ram) ram->memset(0, 0xff, ram->size());
+
+			status |= 0x80; // immediate completion
 		}
 	}
 	return false;
@@ -578,7 +596,10 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
 				auto ramAddr = writeAddress[sector] + offset;
-				ram->write(ramAddr, (*ram)[ramAddr] & cmd[i].value);
+				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
+				ram->write(ramAddr, ramValue);
+
+				status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
 			}
 		}
 	}
@@ -601,6 +622,46 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
 	return chip.program.fastCommand && checkCommandProgramHelper(4, cmdSeq);
+}
+
+bool AmdFlash::checkCommandBufferProgram()
+{
+	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
+	if (chip.program.bufferCommand && partialMatch(cmdSeq)) {
+		if (cmd.size() <= 2) return true;
+		if (cmd.size() >= 3 && cmd[2].value == 0x25) {
+			if (cmd.size() <= 3) return true;
+			size_t sector = getSectorInfo(cmd[2].addr).sector;
+			if (cmd.size() >= 4 && cmd[3].value < chip.program.pageSize && getSectorInfo(cmd[3].addr).sector == sector) {
+				if (cmd.size() <= 4) return true;
+				const size_t pageMask = ~(chip.program.pageSize - 1);
+				const unsigned confirmIndex = 4 + cmd[3].value + 1;
+				if (cmd.size() >= 5 && ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask) || cmd.size() > confirmIndex)) {
+					if (cmd.size() >= 5 && cmd.size() <= confirmIndex) {
+						status = (status & 0x7F) | (~cmd.back().value & 0x80);
+					}
+					if (cmd.size() <= confirmIndex) return true;
+					if (cmd.size() == confirmIndex + 1 && cmd[confirmIndex].value == 0x29 && getSectorInfo(cmd[confirmIndex].addr).sector == sector) {
+						if (isSectorWritable(sector)) {
+							// TODO de-duplicate same-address writes to the last one
+							for (auto i : xrange(size_t(4), confirmIndex)) {
+								auto ramAddr = writeAddress[sector] + getSectorInfo(cmd[i].addr).offset;
+								uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
+								ram->write(ramAddr, ramValue);
+
+								status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
+							}
+						}
+						return false;
+					}
+				}
+			}
+
+			status = (status & 0xDF) | 0x02;
+			setState(State::PRGERR);
+		}
+	}
+	return false;
 }
 
 bool AmdFlash::checkCommandAutoSelect()
@@ -630,9 +691,10 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
-	{ "IDLE",  AmdFlash::State::IDLE  },
-	{ "IDENT", AmdFlash::State::IDENT },
-	{ "CFI",   AmdFlash::State::CFI }
+	{ "IDLE",   AmdFlash::State::IDLE  },
+	{ "IDENT",  AmdFlash::State::IDENT },
+	{ "CFI",    AmdFlash::State::CFI },
+	{ "PRGERR", AmdFlash::State::PRGERR }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
@@ -651,7 +713,6 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("ram", *ram);
 	if (ar.versionAtLeast(version, 3)) {
-		uint8_t status = 0x80;
 		ar.serialize("cmd",    cmd,
 		             "status", status);
 	} else {

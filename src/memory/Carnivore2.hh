@@ -48,7 +48,7 @@ private:
 	// config regs
 	[[nodiscard]] unsigned getDirectFlashAddr() const;
 	[[nodiscard]] byte peekConfigRegister(word address, EmuTime::param time) const;
-	[[nodiscard]] byte readConfigRegister(word address, EmuTime::param time) const;
+	[[nodiscard]] byte readConfigRegister(word address, EmuTime::param time);
 	void writeSndLVL(byte value, EmuTime::param time);
 	void writeCfgEEPR(byte value, EmuTime::param time);
 	void writePSGCtrl(byte value, EmuTime::param time);

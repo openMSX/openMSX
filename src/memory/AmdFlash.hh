@@ -71,10 +71,14 @@ public:
 
 	struct Program {
 		bool fastCommand : 1 = false;
+		bool bufferCommand : 1 = false;
+		bool shortAbortReset : 1 = false;
 		power_of_two<size_t> pageSize = 1;
 
 		constexpr void validate() const {
 			assert(!fastCommand || pageSize > 1);
+			assert(!bufferCommand || pageSize > 1);
+			assert(!bufferCommand || AmdFlash::MAX_CMD_SIZE >= pageSize + 5);
 		}
 	};
 
@@ -191,7 +195,7 @@ public:
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
 	[[nodiscard]] size_t size() const { return chip.geometry.size; }
-	[[nodiscard]] uint8_t read(size_t address) const;
+	[[nodiscard]] uint8_t read(size_t address);
 	[[nodiscard]] uint8_t peek(size_t address) const;
 	void write(size_t address, uint8_t value);
 	[[nodiscard]] const uint8_t* getReadCacheLine(size_t address) const;
@@ -208,7 +212,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State { IDLE, IDENT, CFI };
+	enum class State { IDLE, IDENT, CFI, PRGERR };
 
 private:
 	void init(const std::string& name, const DeviceConfig& config, Load load,
@@ -230,10 +234,14 @@ private:
 	[[nodiscard]] bool checkCommandProgram();
 	[[nodiscard]] bool checkCommandDoubleByteProgram();
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
+	[[nodiscard]] bool checkCommandBufferProgram();
 	[[nodiscard]] bool checkCommandAutoSelect();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
 	[[nodiscard]] bool isSectorWritable(size_t sector) const;
+
+public:
+	static constexpr unsigned MAX_CMD_SIZE = 5 + 32; // longest command is BufferProgram
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -242,9 +250,9 @@ private:
 	MemBuffer<const uint8_t*> readAddress;
 	const Chip& chip;
 
-	static constexpr unsigned MAX_CMD_SIZE = 8;
 	static_vector<AmdCmd, MAX_CMD_SIZE> cmd;
 	State state = State::IDLE;
+	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 3);
@@ -282,7 +290,7 @@ namespace AmdFlashChip
 	static constexpr ValidatedChip M29W640GB = {{
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
 		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
-		.program{.fastCommand = true, .pageSize = 32},
+		.program{.fastCommand = true, .bufferCommand = true, .shortAbortReset = true, .pageSize = 32},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0xFFF, .readMask = 0xFF,
 			.systemInterface{{0x27, 0x36, 0xB5, 0xC5}, {16, 1, 1024, 1}, {16, 1, 8, 1}},
