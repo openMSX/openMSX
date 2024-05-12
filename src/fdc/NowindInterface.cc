@@ -16,7 +16,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, flashConfig(rom.size() / 0x10000, {0x10000, false})
-	, flash(rom, flashConfig, 0x01A4,
+	, flash(rom, AmdFlashChip::AM29F040, flashConfig,
 	        AmdFlash::Addressing::BITS_11, config)
 	, host(drives)
 	, basename("nowindX")

@@ -15,6 +15,22 @@
 
 namespace openmsx {
 
+[[nodiscard]] static const AmdFlash::ValidatedChip& getFlashChip(RomType type)
+{
+	switch(type) {
+	using enum RomType;
+	case MANBOW2:
+	case MANBOW2_2:
+	case HAMARAJANIGHT:
+	case MEGAFLASHROMSCC:
+		return AmdFlashChip::AM29F040;
+	case RBSC_FLASH_KONAMI_SCC:
+		return AmdFlashChip::AM29F016;
+	default:
+		UNREACHABLE;
+	}
+}
+
 using Info = AmdFlash::SectorInfo;
 
 // 512kB, only last 64kB writable
@@ -69,8 +85,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(rom, getSectorInfo(type),
-	        type == RomType::RBSC_FLASH_KONAMI_SCC ? 0x01AD : 0x01A4,
+	, flash(rom, getFlashChip(type), getSectorInfo(type),
 		AmdFlash::Addressing::BITS_11, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {

@@ -36,7 +36,7 @@ static constexpr auto sectorInfo = [] {
 Carnivore2::Carnivore2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
-	, flash(getName() + " flash", sectorInfo, 0x207e,
+	, flash(getName() + " flash", AmdFlashChip::M29W640GB, sectorInfo,
 	        AmdFlash::Addressing::BITS_12, config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",
