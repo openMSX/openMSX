@@ -52,8 +52,6 @@ AmdFlash::AmdFlash(const std::string& name, std::span<const SectorInfo> sectorIn
 
 void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load, const Rom* rom)
 {
-	assert(std::has_single_bit(size()));
-
 	auto numSectors = sectorInfo.size();
 
 	size_t writableSize = 0;

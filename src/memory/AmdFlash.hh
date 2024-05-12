@@ -2,6 +2,7 @@
 #define AMDFLASH_HH
 
 #include "MemBuffer.hh"
+#include "power_of_two.hh"
 #include "serialize_meta.hh"
 #include "static_vector.hh"
 #include <array>
@@ -109,7 +110,7 @@ private:
 	MemBuffer<ptrdiff_t> writeAddress;
 	MemBuffer<const uint8_t*> readAddress;
 	const std::span<const SectorInfo> sectorInfo;
-	const size_t sz;
+	const power_of_two<size_t> sz;
 	const uint16_t ID;
 	const Addressing addressing;
 
