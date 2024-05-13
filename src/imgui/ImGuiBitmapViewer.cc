@@ -9,6 +9,7 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
+#include "MemBuffer.hh"
 #include "ranges.hh"
 
 #include <imgui.h>
@@ -159,7 +160,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
 		if (color0 < 16) palette[0] = palette[color0];
 
-		std::array<uint32_t, 512 * 256 * 2> pixels; // max size:  512*256*2  or  256*256*4
+		MemBuffer<uint32_t> pixels(512 * 256 * 2); // max size:  512*256*2  or  256*256*4
 		renderBitmap(vram.getData(), palette, mode, height, page,
 				pixels.data());
 		if (!bitmapTex) {
