@@ -63,7 +63,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Preparations for signing binaries on Darwin builds
-      if: matrix.os == 'darwin'
+      if: ${{ matrix.os == 'darwin' && env.BUILD_CERTIFICATE_BASE64 }}
       uses: ./.github/actions/prepare-sign
       env:
         BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -73,7 +73,7 @@ jobs:
         os: ${{ matrix.os }}
     - name: Perform the actual build
       env: 
-        CODE_SIGN_IDENTITY: 748867M822
+        CODE_SIGN_IDENTITY: ${{ secrets.BUILD_CERTIFICATE_BASE64 && '748867M822' }}
       # Directory name only
       uses: ./.github/actions/build
       with:
