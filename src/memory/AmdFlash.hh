@@ -3,6 +3,7 @@
 
 #include "MemBuffer.hh"
 #include "serialize_meta.hh"
+#include "static_vector.hh"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -113,12 +114,11 @@ private:
 	const Addressing addressing;
 
 	static constexpr unsigned MAX_CMD_SIZE = 8;
-	std::array<AmdCmd, MAX_CMD_SIZE> cmd;
-	unsigned cmdIdx;
+	static_vector<AmdCmd, MAX_CMD_SIZE> cmd;
 	State state = State::IDLE;
 	bool vppWpPinLow = false; // true = protection on
 };
-SERIALIZE_CLASS_VERSION(AmdFlash, 2);
+SERIALIZE_CLASS_VERSION(AmdFlash, 3);
 
 } // namespace openmsx
 
