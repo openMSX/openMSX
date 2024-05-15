@@ -204,7 +204,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 //private:
-	struct AmdCmd {
+	struct AddressValue {
 		size_t addr;
 		uint8_t value;
 
@@ -251,7 +251,7 @@ private:
 	MemBuffer<const uint8_t*> readAddress;
 	const Chip& chip;
 
-	static_vector<AmdCmd, MAX_CMD_SIZE> cmd;
+	static_vector<AddressValue, MAX_CMD_SIZE> cmd;
 	State state = State::IDLE;
 	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on
