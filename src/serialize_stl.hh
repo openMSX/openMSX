@@ -3,6 +3,7 @@
 
 #include "serialize_core.hh"
 #include "circular_buffer.hh"
+#include "static_vector.hh"
 #include <deque>
 #include <iterator>
 #include <vector>
@@ -62,6 +63,9 @@ template<typename T> struct serialize_as_collection<cb_queue<T>>
 		return std::back_inserter(q.getBuffer());
 	}
 };
+
+template<typename T, size_t N> struct serialize_as_collection<static_vector<T, N>>
+	: serialize_as_stl_collection<static_vector<T, N>> {};
 
 } // namespace openmsx
 
