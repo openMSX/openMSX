@@ -11,6 +11,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include "xrange.hh"
 #include <bit>
 #include <cassert>
@@ -198,7 +199,7 @@ AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(size_t address) const
 
 void AmdFlash::reset()
 {
-	cmdIdx = 0;
+	cmd.clear();
 	setState(State::IDLE);
 }
 
@@ -264,10 +265,8 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 
 void AmdFlash::write(size_t address, uint8_t value)
 {
-	assert(cmdIdx < MAX_CMD_SIZE);
-	cmd[cmdIdx].addr = address;
-	cmd[cmdIdx].value = value;
-	++cmdIdx;
+	cmd.push_back({address, value});
+
 	if (checkCommandManufacturer() ||
 	    checkCommandEraseSector() ||
 	    checkCommandProgram() ||
@@ -298,7 +297,7 @@ bool AmdFlash::checkCommandEraseSector()
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
 	if (partialMatch(cmdSeq)) {
-		if (cmdIdx < 6) return true;
+		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
 			auto addr = cmd[5].addr;
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
@@ -315,7 +314,7 @@ bool AmdFlash::checkCommandEraseChip()
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
 	if (partialMatch(cmdSeq)) {
-		if (cmdIdx < 6) return true;
+		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
 			if (ram) ram->memset(0, 0xff, ram->size());
 		}
@@ -326,7 +325,7 @@ bool AmdFlash::checkCommandEraseChip()
 bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
 {
 	if (partialMatch(cmdSeq)) {
-		if (cmdIdx < (cmdSeq.size() + numBytes)) return true;
+		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
 			auto addr = cmd[i].addr;
 			auto [sector, sectorSize, offset] = getSectorInfo(addr);
@@ -361,10 +360,10 @@ bool AmdFlash::checkCommandManufacturer()
 {
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
 	if (partialMatch(cmdSeq)) {
-		if (cmdIdx == 3) {
+		if (cmd.size() == 3) {
 			setState(State::IDENT);
 		}
-		if (cmdIdx < 4) return true;
+		if (cmd.size() < 4) return true;
 	}
 	return false;
 }
@@ -376,7 +375,7 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	(void)addrSeq; (void)cmdAddr; // suppress (invalid) gcc warning
 
 	assert(dataSeq.size() <= 5);
-	return ranges::all_of(xrange(std::min(unsigned(dataSeq.size()), cmdIdx)), [&](auto i) {
+	return ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
 		// convert the address to the '11 bit case'
 		auto addr = (addressing == Addressing::BITS_12) ? cmd[i].addr >> 1 : cmd[i].addr;
 		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&
@@ -398,13 +397,25 @@ void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
 	             "value",   value);
 }
 
+// version 1: Initial version.
+// version 2: Added vppWpPinLow.
+// version 3: Changed cmd to static_vector, added status.
 template<typename Archive>
 void AmdFlash::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("ram",    *ram,
-	             "cmd",    cmd,
-	             "cmdIdx", cmdIdx,
-	             "state",  state);
+	ar.serialize("ram", *ram);
+	if (ar.versionAtLeast(version, 3)) {
+		uint8_t status = 0x80;
+		ar.serialize("cmd",    cmd,
+		             "status", status);
+	} else {
+		std::array<AmdCmd, 8> cmdArray;
+		unsigned cmdSize = 0;
+		ar.serialize("cmd",    cmdArray,
+		             "cmdIdx", cmdSize);
+		cmd = {from_range, subspan(cmdArray, 0, cmdSize)};
+	}
+	ar.serialize("state", state);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("vppWpPinLow", vppWpPinLow);
 	}
