@@ -760,6 +760,14 @@ void WD2793::writeSectorData(EmuTime::param time)
 
 			// Moment in time when next data byte gets written
 			schedule(FSM::WRITE_SECTOR, drqTime + 1);
+
+			if (dataAvailable == 1) {
+				// Don't reactivate DRQ if only the last
+				// data-byte still needs to be written to disk.
+				// At this point the CPU has already send that
+				// last byte.
+				drqTime.reset(EmuTime::infinity()); // DRQ = false
+			}
 		} else {
 			// Next write post-part
 			dataAvailable = 3;
