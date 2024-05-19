@@ -29,6 +29,7 @@ static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
 	{DEBUGGER_STEP_BACK,      ImGuiKey_F8 | ImGuiMod_Shift, LOCAL,         true,  "step-back",               "Debugger: step-back"},
 	{DEBUGGER_BREAK_CONTINUE, ImGuiKey_F5,                  LOCAL,         false, "break-continue",          "Debugger: toggle break / continue"},
 	{DISASM_GOTO_ADDR,        ImGuiMod_Ctrl | ImGuiKey_G,   ALWAYS_LOCAL,  false, "disasm_goto_address",     "Scroll to address in disassembler"},
+	{DISASM_RUN_TO_ADDR,      ImGuiMod_Ctrl | ImGuiKey_R,   ALWAYS_LOCAL,  false, "disasm_run_to_address",   "Debugger: run to a specific address"},
 });
 static_assert(allShortcutInfo.size() == to_underlying(Shortcuts::ID::NUM));
 

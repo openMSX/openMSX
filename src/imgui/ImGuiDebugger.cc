@@ -550,6 +550,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 						if (ImGui::TableNextColumn()) { // addr
 							bool focusScrollToAddress = false;
+							bool focusRunToAddress = false;
 
 							// do the full-row-selectable stuff in a column that cannot be hidden
 							auto pos = ImGui::GetCursorPos();
@@ -558,6 +559,10 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_GOTO_ADDR)) {
 								ImGui::OpenPopup("disassembly-context");
 								focusScrollToAddress = true;
+							}
+							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_RUN_TO_ADDR)) {
+								ImGui::OpenPopup("disassembly-context");
+								focusRunToAddress = true;
 							}
 							if (!bpRightClick && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 								ImGui::OpenPopup("disassembly-context");
@@ -603,6 +608,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								ImGui::AlignTextToFramePadding();
 								ImGui::TextUnformatted("Run to address:"sv);
 								ImGui::SameLine();
+								if (focusRunToAddress) ImGui::SetKeyboardFocusHere();
 								if (ImGui::InputText("##run", &runToAddr, ImGuiInputTextFlags_EnterReturnsTrue)) {
 									if (auto a = symbolManager.parseSymbolOrValue(runToAddr)) {
 										manager.executeDelayed(makeTclList("run_to", *a));
