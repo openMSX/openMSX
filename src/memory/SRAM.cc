@@ -55,7 +55,8 @@ SRAM::SRAM(const std::string& name, static_string_view description, size_t size,
 
 SRAM::~SRAM()
 {
-	if (schedulable) {
+	if (schedulable && schedulable->isPendingRT()) {
+		schedulable->cancelRT();
 		save();
 	}
 }
@@ -102,9 +103,7 @@ void SRAM::load(bool* loaded)
 				"Warning no correct SRAM file: ", filename);
 		}
 	} catch (FileNotFoundException& /*e*/) {
-		config.getCliComm().printInfo(
-			"SRAM file ", filename, " not found, "
-			"assuming blank SRAM content.");
+		// SRAM file not found, assuming blank SRAM content.
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load SRAM ", filename,
