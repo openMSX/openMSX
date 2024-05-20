@@ -178,54 +178,106 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
 		// TODO? if (color0 < 16) palette[0] = palette[color0];
 
+		bool manMode   = overrideAll || overrideMode;
+		bool manSize   = overrideAll || overrideSize;
+		bool manMag    = overrideAll || overrideMag;
+		bool manTrans  = overrideAll || overrideTrans;
+		bool manPat    = overrideAll || overridePat;
+		bool manAtt    = overrideAll || overrideAtt;
+		bool manScroll = overrideAll || overrideScroll;
+		bool manLines  = overrideAll || overrideLines;
+
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			im::Group([&]{
-				ImGui::RadioButton("Use VDP settings", &manual, 0);
-				im::Disabled(manual != 0, [&]{
+				ImGui::TextUnformatted("VDP settings");
+				im::Disabled(manMode, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Sprite mode: ", modeToStr(vdpMode));
+				});
+				im::Disabled(manSize, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Sprite size: ", sizeToStr(vdpSize));
+				});
+				im::Disabled(manMag, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Sprites magnified: ", yesNo(vdpMag));
+				});
+				im::Disabled(manTrans, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Color 0 transparent: ", yesNo(vdpTransparent));
+				});
+				im::Disabled(manPat, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Pattern table: 0x", hex_string<5>(vdpPatBase));
+				});
+				im::Disabled(manAtt, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Attribute table: 0x", hex_string<5>(vdpAttBase | (vdpMode == 2 ? 512 : 0)));
+				});
+				im::Disabled(manScroll, [&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::StrCat("Vertical scroll: ", vdpVerticalScroll);
+				});
+				im::Disabled(manLines, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible lines: 0x", (vdpLines == 192) ? "192" : "212");
+					ImGui::StrCat("Visible lines: ", (vdpLines == 192) ? "192" : "212");
 				});
 			});
 			ImGui::SameLine();
 			im::Group([&]{
-				ImGui::RadioButton("Manual override", &manual, 1);
-				im::Disabled(manual != 1, [&]{
+				ImGui::Checkbox("Manual override", &overrideAll);
+				im::Group([&]{
+					im::Disabled(overrideAll, [&]{
+						ImGui::Checkbox("##o-mode",   overrideAll ? &overrideAll : &overrideMode);
+						ImGui::Checkbox("##o-size",   overrideAll ? &overrideAll : &overrideSize);
+						ImGui::Checkbox("##o-mag",    overrideAll ? &overrideAll : &overrideMag);
+						ImGui::Checkbox("##o-trans",  overrideAll ? &overrideAll : &overrideTrans);
+						ImGui::Checkbox("##o-pat",    overrideAll ? &overrideAll : &overridePat);
+						ImGui::Checkbox("##o-att",    overrideAll ? &overrideAll : &overrideAtt);
+						ImGui::Checkbox("##o-scroll", overrideAll ? &overrideAll : &overrideScroll);
+						ImGui::Checkbox("##o-lines",  overrideAll ? &overrideAll : &overrideLines);
+					});
+				});
+				ImGui::SameLine();
+				im::Group([&]{
 					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-						im::Combo("##mode", modeToStr(manualMode), [&]{
-							if (ImGui::Selectable("1")) manualMode = 1;
-							if (ImGui::Selectable("2")) manualMode = 2;
+						im::Disabled(!manMode, [&]{
+							im::Combo("##mode", modeToStr(manualMode), [&]{
+								if (ImGui::Selectable("1")) manualMode = 1;
+								if (ImGui::Selectable("2")) manualMode = 2;
+							});
 						});
-						im::Combo("##size", sizeToStr(manualSize), [&]{
-							if (ImGui::Selectable(" 8 x  8")) manualSize =  8;
-							if (ImGui::Selectable("16 x 16")) manualSize = 16;
+						im::Disabled(!manSize, [&]{
+							im::Combo("##size", sizeToStr(manualSize), [&]{
+								if (ImGui::Selectable(" 8 x  8")) manualSize =  8;
+								if (ImGui::Selectable("16 x 16")) manualSize = 16;
+							});
 						});
-						im::Combo("##mag", yesNo(manualMag), [&]{
-							if (ImGui::Selectable("no"))  manualMag = 0;
-							if (ImGui::Selectable("yes")) manualMag = 1;
+						im::Disabled(!manMag, [&]{
+							im::Combo("##mag", yesNo(manualMag), [&]{
+								if (ImGui::Selectable("no"))  manualMag = 0;
+								if (ImGui::Selectable("yes")) manualMag = 1;
+							});
 						});
-						im::Combo("##trans", yesNo(manualTransparent), [&]{
-							if (ImGui::Selectable("no"))  manualTransparent = 0;
-							if (ImGui::Selectable("yes")) manualTransparent = 1;
+						im::Disabled(!manTrans, [&]{
+							im::Combo("##trans", yesNo(manualTransparent), [&]{
+								if (ImGui::Selectable("no"))  manualTransparent = 0;
+								if (ImGui::Selectable("yes")) manualTransparent = 1;
+							});
 						});
-						comboHexSequence<5>("##pat", &manualPatBase, 8 * 256);
-						comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode), manualMode == 2 ? 512 : 0);
-						ImGui::InputInt("##verticalScroll", &manualVerticalScroll);
-						manualVerticalScroll &= 0xff;
-						ImGui::Combo("##lines", &manualLines, "192\000212\000256\000");
+						im::Disabled(!manPat, [&]{
+							comboHexSequence<5>("##pat", &manualPatBase, 8 * 256);
+						});
+						im::Disabled(!manAtt, [&]{
+							comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode), manualMode == 2 ? 512 : 0);
+						});
+						im::Disabled(!manScroll, [&]{
+							ImGui::InputInt("##verticalScroll", &manualVerticalScroll);
+							manualVerticalScroll &= 0xff;
+						});
+						im::Disabled(!manLines, [&]{
+							ImGui::Combo("##lines", &manualLines, "192\000212\000256\000");
+						});
 					});
 				});
 			});
@@ -262,23 +314,23 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 
-		int mode = manual ? manualMode : vdpMode;
-		int size = manual ? manualSize : vdpSize;
-		int mag  = manual ? manualMag  : vdpMag;
-		int verticalScroll = manual ? manualVerticalScroll : vdpVerticalScroll;
-		int lines = manual ? (manualLines == 0 ? 192 :
-		                      manualLines == 1 ? 212 :
-		                                        256)
-		                   : vdpLines;
-		int transparent  = manual ? manualTransparent  : vdpTransparent;
+		int mode = manMode ? manualMode : vdpMode;
+		int size = manSize ? manualSize : vdpSize;
+		int mag  = manMag ? manualMag  : vdpMag;
+		int verticalScroll = manScroll ? manualVerticalScroll : vdpVerticalScroll;
+		int lines = manLines ? (manualLines == 0 ? 192 :
+		                        manualLines == 1 ? 212 :
+		                                           256)
+		                     : vdpLines;
+		int transparent  = manTrans ? manualTransparent  : vdpTransparent;
 
 		VramTable patTable(vram, planar);
-		unsigned patReg = (manual ? (manualPatBase | ((8 * 256) - 1)) : vdp->getSpritePatternTableBase()) >> 11;
+		unsigned patReg = (manPat ? (manualPatBase | ((8 * 256) - 1)) : vdp->getSpritePatternTableBase()) >> 11;
 		patTable.setRegister(patReg, 11);
 		patTable.setIndexSize(11);
 
 		VramTable attTable(vram, planar);
-		unsigned attReg = (manual ? (manualAttBase | (attMult(manualMode) - 1)) : vdp->getSpriteAttributeTableBase()) >> 7;
+		unsigned attReg = (manAtt ? (manualAttBase | (attMult(manualMode) - 1)) : vdp->getSpriteAttributeTableBase()) >> 7;
 		attTable.setRegister(attReg, 7);
 		attTable.setIndexSize((mode == 2) ? 10 : 7);
 
