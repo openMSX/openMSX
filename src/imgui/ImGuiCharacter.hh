@@ -28,8 +28,19 @@ public:
 	bool show = false;
 
 private:
-	int manual = 0;
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
+	bool overrideAll     = false;
+	bool overrideMode    = false;
+	bool overrideFgCol   = false;
+	bool overrideBgCol   = false;
+	bool overrideFgBlink = false;
+	bool overrideBgBlink = false;
+	bool overrideBlink   = false;
+	bool overridePat     = false;
+	bool overrideCol     = false;
+	bool overrideNam     = false;
+	bool overrideRows    = false;
+	bool overrideColor0  = false;
 	bool grid = true;
 	bool nameTableOverlay = false;
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
@@ -52,23 +63,34 @@ private:
 	gl::Texture smallHexDigits{gl::Null{}};
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement   {"show",      &ImGuiCharacter::show},
-		PersistentElementMax{"override",  &ImGuiCharacter::manual, 2},
-		PersistentElementMax{"zoom",      &ImGuiCharacter::zoom, 8},
-		PersistentElement   {"showGrid",  &ImGuiCharacter::grid},
-		PersistentElement   {"overlay",   &ImGuiCharacter::nameTableOverlay},
-		PersistentElement   {"gridColor", &ImGuiCharacter::gridColor},
-		PersistentElementMax{"mode",      &ImGuiCharacter::manualMode, OTHER}, // TEXT40..SCR4
-		PersistentElementMax{"fgCol",     &ImGuiCharacter::manualFgCol, 16},
-		PersistentElementMax{"bgCol",     &ImGuiCharacter::manualBgCol, 16},
-		PersistentElementMax{"fgBlink",   &ImGuiCharacter::manualFgBlink, 16},
-		PersistentElementMax{"bgBlink",   &ImGuiCharacter::manualBgBlink, 16},
-		PersistentElement   {"blink",     &ImGuiCharacter::manualBlink},
-		PersistentElementMax{"patBase",   &ImGuiCharacter::manualPatBase, 0x20000},
-		PersistentElementMax{"colBase",   &ImGuiCharacter::manualColBase, 0x20000},
-		PersistentElementMax{"namBase",   &ImGuiCharacter::manualNamBase, 0x20000},
-		PersistentElementMax{"rows",      &ImGuiCharacter::manualRows, 3},
-		PersistentElementMax{"color0",    &ImGuiCharacter::manualColor0, 16 + 1}
+		PersistentElement   {"show",            &ImGuiCharacter::show},
+		PersistentElement   {"overrideAll",     &ImGuiCharacter::overrideAll},
+		PersistentElement   {"overrideMode",    &ImGuiCharacter::overrideMode},
+		PersistentElement   {"overrideFgCol",   &ImGuiCharacter::overrideFgCol},
+		PersistentElement   {"overrideBgCol",   &ImGuiCharacter::overrideBgCol},
+		PersistentElement   {"overrideFgBlink", &ImGuiCharacter::overrideFgBlink},
+		PersistentElement   {"overrideBgBlink", &ImGuiCharacter::overrideBgBlink},
+		PersistentElement   {"overrideBlink",   &ImGuiCharacter::overrideBlink},
+		PersistentElement   {"overridePat",     &ImGuiCharacter::overridePat},
+		PersistentElement   {"overrideCol",     &ImGuiCharacter::overrideCol},
+		PersistentElement   {"overrideNam",     &ImGuiCharacter::overrideNam},
+		PersistentElement   {"overrideRows",    &ImGuiCharacter::overrideRows},
+		PersistentElement   {"overrideColor0",  &ImGuiCharacter::overrideColor0},
+		PersistentElementMax{"zoom",            &ImGuiCharacter::zoom, 8},
+		PersistentElement   {"showGrid",        &ImGuiCharacter::grid},
+		PersistentElement   {"overlay",         &ImGuiCharacter::nameTableOverlay},
+		PersistentElement   {"gridColor",       &ImGuiCharacter::gridColor},
+		PersistentElementMax{"mode",            &ImGuiCharacter::manualMode, OTHER}, // TEXT40..SCR4
+		PersistentElementMax{"fgCol",           &ImGuiCharacter::manualFgCol, 16},
+		PersistentElementMax{"bgCol",           &ImGuiCharacter::manualBgCol, 16},
+		PersistentElementMax{"fgBlink",         &ImGuiCharacter::manualFgBlink, 16},
+		PersistentElementMax{"bgBlink",         &ImGuiCharacter::manualBgBlink, 16},
+		PersistentElement   {"blink",           &ImGuiCharacter::manualBlink},
+		PersistentElementMax{"patBase",         &ImGuiCharacter::manualPatBase, 0x20000},
+		PersistentElementMax{"colBase",         &ImGuiCharacter::manualColBase, 0x20000},
+		PersistentElementMax{"namBase",         &ImGuiCharacter::manualNamBase, 0x20000},
+		PersistentElementMax{"rows",            &ImGuiCharacter::manualRows, 3},
+		PersistentElementMax{"color0",          &ImGuiCharacter::manualColor0, 16 + 1}
 	};
 };
 
