@@ -676,39 +676,37 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 bool AmdFlash::checkCommandBufferProgram()
 {
 	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
-	if (chip.program.bufferCommand && partialMatch(cmdSeq)) {
-		if (cmd.size() <= 2) return true;
-		if (cmd.size() >= 3 && cmd[2].value == 0x25) {
-			if (cmd.size() <= 3) return true;
+	if (chip.program.bufferCommand && partialMatch(cmdSeq) && (cmd.size() <= 2 || cmd[2].value == 0x25)) {
+		if (cmd.size() <= 3) {
+			return true;
+		} else if (cmd.size() <= 4) {
+			if (cmd[3].value < chip.program.pageSize && getSector(cmd[3].addr) == getSector(cmd[2].addr)) {
+				return true;
+			}
+		} else if (cmd.size() <= 5 + cmd[3].value) {
+			const size_t pageMask = ~(chip.program.pageSize - 1);
+			if ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask)) {
+				status = (status & 0x7F) | (~cmd.back().value & 0x80);
+				return true;
+			}
+		} else {
 			const Sector& sector = getSector(cmd[2].addr);
-			if (cmd.size() >= 4 && cmd[3].value < chip.program.pageSize && getSector(cmd[3].addr) == sector) {
-				if (cmd.size() <= 4) return true;
-				const size_t pageMask = ~(chip.program.pageSize - 1);
-				const unsigned confirmIndex = 4 + cmd[3].value + 1;
-				if (cmd.size() >= 5 && ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask) || cmd.size() > confirmIndex)) {
-					if (cmd.size() >= 5 && cmd.size() <= confirmIndex) {
-						status = (status & 0x7F) | (~cmd.back().value & 0x80);
-					}
-					if (cmd.size() <= confirmIndex) return true;
-					if (cmd.size() == confirmIndex + 1 && cmd[confirmIndex].value == 0x29 && getSector(cmd[confirmIndex].addr) == sector) {
-						if (isWritable(sector)) {
-							// TODO de-duplicate same-address writes to the last one
-							for (auto i : xrange(size_t(4), confirmIndex)) {
-								auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
-								uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-								ram->write(ramAddr, ramValue);
+			if (cmd.back().value == 0x29 && getSector(cmd.back().addr) == sector) {
+				if (isWritable(sector)) {
+					// TODO de-duplicate same-address writes to the last one
+					for (auto i : xrange<size_t>(4, cmd.size() - 1)) {
+						auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
+						uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
+						ram->write(ramAddr, ramValue);
 
-								status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
-							}
-						}
-						return false;
+						status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
 					}
 				}
+				return false;
 			}
-
-			status = (status & 0xDF) | 0x02;
-			setState(State::PRGERR);
 		}
+		status = (status & 0xDF) | 0x02;
+		setState(State::PRGERR);
 	}
 	return false;
 }
