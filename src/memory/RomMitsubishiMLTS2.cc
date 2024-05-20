@@ -31,9 +31,7 @@ void RomMitsubishiMLTS2::writeMem(word address, byte value, EmuTime::param /*tim
 	} else if (address == 0x7f03) {
 		// TODO
 	} else if (address == 0x7FC0) {
-		byte bank = ((value & 0x10) >> 2) | // transform bit-pattern
-		            ((value & 0x04) >> 1) | //        ...a.b.c
-		            ((value & 0x01) >> 0);  //  into  00000abc
+		byte bank = value & 0b111;
 		std::cerr << "Setting MLTS2 mapper page 1 to bank " << int(bank) << '\n';
 		setRom(2, bank);
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
