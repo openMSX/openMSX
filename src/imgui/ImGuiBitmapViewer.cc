@@ -81,38 +81,60 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		};
 
 		static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
+		bool manualMode   = overrideAll || overrideMode;
+		bool manualPage   = overrideAll || overridePage;
+		bool manualLines  = overrideAll || overrideLines;
+		bool manualColor0 = overrideAll || overrideColor0;
 		im::Group([&]{
-			ImGui::RadioButton("Use VDP settings", &bitmapManual, 0);
-			im::Disabled(bitmapManual != 0, [&]{
+			ImGui::TextUnformatted("VDP settings");
+			im::Disabled(manualMode, [&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
+			});
+			im::Disabled(manualPage, [&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::StrCat("Display page: ", vdpPage);
+			});
+			im::Disabled(manualLines, [&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::StrCat("Visible lines: ", vdpLines ? 212 : 192);
+			});
+			im::Disabled(manualColor0, [&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::StrCat("Replace color 0: ", getComboString(vdpColor0, color0Str));
-				ImGui::AlignTextToFramePadding();
-				ImGui::StrCat("Interlace: ", "TODO");
 			});
+			// TODO interlace
 		});
 		ImGui::SameLine();
 		im::Group([&]{
-			ImGui::RadioButton("Manual override", &bitmapManual, 1);
-			im::Disabled(bitmapManual != 1, [&]{
+			ImGui::Checkbox("Manual override", &overrideAll);
+			im::Group([&]{
+				im::Disabled(overrideAll, [&]{
+					ImGui::Checkbox("##mode",   overrideAll ? &overrideAll : &overrideMode);
+					ImGui::Checkbox("##page",   overrideAll ? &overrideAll : &overridePage);
+					ImGui::Checkbox("##lines",  overrideAll ? &overrideAll : &overrideLines);
+					ImGui::Checkbox("##color0", overrideAll ? &overrideAll : &overrideColor0);
+				});
+			});
+			ImGui::SameLine();
+			im::Group([&]{
 				im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
-					ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
-
-					int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
-					if (bitmapPage >= numPages) bitmapPage = numPages - 1;
-					if (bitmapPage < 0) bitmapPage = numPages;
-					ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
-					if (bitmapPage == numPages) bitmapPage = -1;
-
-					im::Disabled(bitmapPage < 0, [&]{
+					im::Disabled(!manualMode, [&]{
+						ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
+					});
+					im::Disabled(!manualPage, [&]{
+						int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
+						if (bitmapPage >= numPages) bitmapPage = numPages - 1;
+						if (bitmapPage < 0) bitmapPage = numPages;
+						ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
+						if (bitmapPage == numPages) bitmapPage = -1;
+					});
+					im::Disabled(!manualLines || bitmapPage < 0, [&]{
 						ImGui::Combo("##Visible lines", &bitmapLines, "192\000212\000256\000");
 					});
-					ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
+					im::Disabled(!manualColor0, [&]{
+						ImGui::Combo("##Color 0 replacement", &bitmapColor0, color0Str);
+					});
 				});
 			});
 		});
@@ -140,10 +162,10 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		const auto& vram = vdp->getVRAM();
-		int mode   = bitmapManual ? bitmapScrnMode : vdpMode;
-		int page   = bitmapManual ? bitmapPage     : vdpPage;
-		int lines  = bitmapManual ? bitmapLines    : vdpLines;
-		int color0 = bitmapManual ? bitmapColor0   : vdpColor0;
+		int mode   = manualMode   ? bitmapScrnMode : vdpMode;
+		int page   = manualPage   ? bitmapPage     : vdpPage;
+		int lines  = manualLines  ? bitmapLines    : vdpLines;
+		int color0 = manualColor0 ? bitmapColor0   : vdpColor0;
 		int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
 		int height = (lines == 0) ? 192
 		           : (lines == 1) ? 212
