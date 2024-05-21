@@ -430,7 +430,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
-			auto& guiBps = manager.breakPoints->getBps(cpuInterface);
+			auto& guiBps = manager.breakPoints->getBps();
 			auto textSize = ImGui::GetTextLineHeight();
 
 			std::string mnemonic;

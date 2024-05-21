@@ -138,12 +138,19 @@ void ImGuiBreakPoints::loadEnd()
 
 void ImGuiBreakPoints::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!motherBoard) return;
+
+	// Sync even if not visible (e.g. for disassembly view, but also for imgui.ini)
+	auto& cpuInterface = motherBoard->getCPUInterface();
+	syncFromOpenMsx<BreakPoint>    (guiBps,        cpuInterface);
+	syncFromOpenMsx<WatchPoint>    (guiWps,        cpuInterface);
+	syncFromOpenMsx<DebugCondition>(guiConditions, cpuInterface);
+
+	if (!show) return;
 
 	ImGui::SetNextWindowSize(gl::vec2{25, 14} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Breakpoints", &show, [&]{
 		im::TabBar("tabs", [&]{
-			auto& cpuInterface = motherBoard->getCPUInterface();
 			auto& debugger = motherBoard->getDebugger();
 			im::TabItem("Breakpoints", [&]{
 				paintTab<BreakPoint>(cpuInterface, debugger);
@@ -340,8 +347,6 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 	int count = 0;
 	int lastDrawnRow = -1; // should only be used when count=1
 	im::Table("items", 5, flags, {-width, 0}, [&]{
-		syncFromOpenMsx<Item>(items, cpuInterface);
-
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("Enable", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort);
 		int typeFlags = isWatchPoint ? ImGuiTableColumnFlags_NoHide : ImGuiTableColumnFlags_Disabled;
@@ -436,12 +441,6 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, const
 [[nodiscard]] static TclObject getCommandObj(const BreakPointBase& bp) { return bp.getCommandObj(); }
 [[nodiscard]] static TclObject getCommandObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getCommandObj(); }
 
-
-[[nodiscard]] std::vector<ImGuiBreakPoints::GuiItem>& ImGuiBreakPoints::getBps(MSXCPUInterface& cpuInterface)
-{
-	syncFromOpenMsx<BreakPoint>(guiBps, cpuInterface);
-	return guiBps;
-}
 
 template<typename Item>
 void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface)

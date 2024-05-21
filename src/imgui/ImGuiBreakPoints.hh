@@ -60,7 +60,7 @@ public:
 
 	void refreshSymbols();
 
-	[[nodiscard]] std::vector<GuiItem>& getBps(MSXCPUInterface& cpuInterface);
+	[[nodiscard]] std::vector<GuiItem>& getBps() { return guiBps; }
 	void paintBpTab(MSXCPUInterface& cpuInterface, Debugger& debugger, uint16_t addr);
 
 private:
