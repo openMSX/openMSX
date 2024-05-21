@@ -168,11 +168,6 @@ public:
 		const Chip chip;
 	};
 
-	enum class Load {
-		NORMAL,
-		DONT, // don't load nor save modified flash content
-	};
-
 	/** Create AmdFlash with given configuration.
 	 * @param rom The initial content for this flash
 	 * @param chip Contains chip configuration for this flash.
@@ -190,7 +185,7 @@ public:
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, Load load = Load::NORMAL);
+	         const DeviceConfig& config);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
 	         const DeviceConfig& config);
@@ -230,7 +225,7 @@ public:
 private:
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         const Rom* rom, std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, Load load);
+	         const DeviceConfig& config);
 	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
