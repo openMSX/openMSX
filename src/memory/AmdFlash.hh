@@ -1,7 +1,10 @@
 #ifndef AMDFLASH_HH
 #define AMDFLASH_HH
 
+#include "DeviceConfig.hh"
 #include "MemBuffer.hh"
+#include "TrackedRam.hh"
+#include "RTSchedulable.hh"
 #include "power_of_two.hh"
 #include "serialize_meta.hh"
 #include "static_vector.hh"
@@ -10,6 +13,7 @@
 #include <cstdint>
 #include <memory>
 #include <span>
+#include <vector>
 
 namespace openmsx {
 
@@ -168,11 +172,6 @@ public:
 		const Chip chip;
 	};
 
-	enum class Load {
-		NORMAL,
-		DONT, // don't load nor save modified flash content
-	};
-
 	/** Create AmdFlash with given configuration.
 	 * @param rom The initial content for this flash
 	 * @param chip Contains chip configuration for this flash.
@@ -190,7 +189,7 @@ public:
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, Load load = Load::NORMAL);
+	         const DeviceConfig& config);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
 	         const DeviceConfig& config);
@@ -227,10 +226,23 @@ public:
 
 	enum class State { IDLE, IDENT, CFI, STATUS, PRGERR };
 
+	struct Sector {
+		bool modified = false;
+		bool writeProtect = false;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	};
+
 private:
-	void init(const std::string& name, const DeviceConfig& config, Load load,
-	          const Rom* rom, std::span<const bool> writeProtectSectors);
-	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
+	AmdFlash(const std::string& name, const ValidatedChip& chip,
+	         const Rom* rom, std::span<const bool> writeProtectSectors,
+	         const DeviceConfig& config);
+
+	void markModified(size_t sector);
+	void save();
+
+	struct GetSectorInfoResult { size_t sector, sectorStart, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 
 	void softReset();
@@ -261,16 +273,20 @@ public:
 	static constexpr unsigned MAX_CMD_SIZE = 5 + 256; // longest command is BufferProgram
 
 private:
-	MSXMotherBoard& motherBoard;
-	std::unique_ptr<SRAM> ram;
-	MemBuffer<ptrdiff_t> writeAddress;
-	MemBuffer<const uint8_t*> readAddress;
+	const DeviceConfig config;
 	const Chip& chip;
-
+	std::vector<Sector> sectors;
+	TrackedRam ram;
 	static_vector<AddressValue, MAX_CMD_SIZE> cmd;
 	State state = State::IDLE;
 	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on
+
+	struct FlashSchedulable final : public RTSchedulable {
+		explicit FlashSchedulable(RTScheduler& scheduler_)
+			: RTSchedulable(scheduler_) {}
+		void executeRT() override;
+	} schedulable;
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 3);
 

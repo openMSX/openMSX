@@ -1,14 +1,20 @@
 #include "AmdFlash.hh"
-#include "Rom.hh"
-#include "SRAM.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
-#include "MSXDevice.hh"
-#include "MSXCliComm.hh"
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include "FileNotFoundException.hh"
+#include "FileOperations.hh"
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
+#include "MSXCliComm.hh"
+#include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "Rom.hh"
+#include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
+#include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
@@ -23,175 +29,137 @@ namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config, Load load)
-	: motherBoard(config.getMotherBoard())
-	, chip(validatedChip.chip)
+                   const DeviceConfig& config)
+	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config)
 {
-	init(rom.getName() + "_flash", config, load, &rom, writeProtectSectors);
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config)
-	: motherBoard(config.getMotherBoard())
+	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config)
+{
+}
+
+AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
+                   const Rom* rom, std::span<const bool> writeProtectSectors,
+                   const DeviceConfig& config)
+	: config(config)
 	, chip(validatedChip.chip)
+	, sectors(chip.geometry.sectorCount)
+	, ram(config, name, "flash rom", chip.geometry.size)
+	, schedulable(config.getReactor().getRTScheduler())
 {
-	init(name, config, Load::NORMAL, nullptr, writeProtectSectors);
-}
+	assert(config.getXML());
+	assert(writeProtectSectors.size() <= sectors.size());
 
-[[nodiscard]] static bool sramEmpty(const SRAM& ram)
-{
-	return ranges::all_of(xrange(ram.size()),
-	                      [&](auto i) { return ram[i] == 0xFF; });
-}
+	for (const auto [sector, writeProtect] : enumerate(writeProtectSectors)) {
+		sectors[sector].writeProtect = writeProtect;
+	}
 
-void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load,
-                    const Rom* rom, std::span<const bool> writeProtectSectors)
-{
-	auto numSectors = chip.geometry.sectorCount;
-	assert(writeProtectSectors.size() <= numSectors);
+	File file;
+	try {
+		const auto& filename = config.getChildData("sramname");
+		const std::string path = config.getFileContext().resolveSavePaths(filename);
+		const std::string metaPath = path + ".meta";
 
-	size_t writableSize = 0;
-	size_t readOnlySize = 0;
-	writeAddress.resize(numSectors);
-	for (size_t sector = 0; const AmdFlash::Region& region : chip.geometry.regions) {
-		for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++) {
-			if (sector < writeProtectSectors.size() && writeProtectSectors[sector]) {
-				writeAddress[sector] = -1;
-				readOnlySize += region.size;
-			} else {
-				writeAddress[sector] = narrow<ptrdiff_t>(writableSize);
-				writableSize += region.size;
+		if (FileOperations::exists(metaPath)) {
+			try {
+				XmlInputArchive in(metaPath);
+				in.serialize("sectors", sectors);
+			} catch (MSXException& e) {
+				config.getCliComm().printWarning("Couldn't load Flash metadata ",
+					filename, ".meta (", e.getMessage(), ").");
+			}
+		} else { // back compat
+			for (Sector& sector : sectors) {
+				sector.modified = !sector.writeProtect;
 			}
 		}
-	}
-	assert((writableSize + readOnlySize) == size());
 
-	bool loaded = false;
-	if (writableSize) {
-		if (load == Load::NORMAL) {
-			ram = std::make_unique<SRAM>(
-				name, "flash rom",
-				writableSize, config, nullptr, &loaded);
-		} else {
-			// Hack for 'Matra INK', flash chip is wired-up so that
-			// writes are never visible to the MSX (but the flash
-			// is not made write-protected). In this case it doesn't
-			// make sense to load/save the SRAM file.
-			ram = std::make_unique<SRAM>(
-				name, "flash rom",
-				writableSize, config, SRAM::DontLoadTag{});
-		}
-	}
-	if (readOnlySize) {
-		// If some part of the flash is read-only we require a ROM
-		// constructor parameter.
-		assert(rom);
-	}
-
-	const auto* romTag = config.getXML()->findChild("rom");
-	bool initialContentSpecified = romTag && romTag->findChild("sha1");
-
-	// check whether the loaded SRAM is empty, whilst initial content was specified
-	if (!rom && loaded && initialContentSpecified && sramEmpty(*ram)) {
-		config.getCliComm().printInfo(
-			"This flash device (", config.getHardwareConfig().getName(),
-			") has initial content specified, but this content "
-			"was not loaded, because there was already content found "
-			"and loaded from persistent storage. However, this "
-			"content is blank (it was probably created automatically "
-			"when the specified initial content could not be loaded "
-			"when this device was used for the first time). If you "
-			"still wish to load the specified initial content, "
-			"please remove the blank persistent storage file: ",
-			ram->getLoadedFilename());
-	}
-
-	std::unique_ptr<Rom> rom_;
-	if (!rom && !loaded) {
-		// If we don't have a ROM constructor parameter and there was
-		// no sram content loaded (= previous persistent flash
-		// content), then try to load some initial content. This
-		// represents the original content of the flash when the device
-		// ships. This ROM is optional, if it's not found, then the
-		// initial flash content is all 0xFF.
 		try {
-			rom_ = std::make_unique<Rom>(
-				"", "", // dummy name and description
-				config);
-			rom = rom_.get();
-			config.getCliComm().printInfo(
-				"Loaded initial content for flash ROM from ",
-				rom->getFilename());
-		} catch (MSXException& e) {
-			// ignore error
-			assert(rom == nullptr); // 'rom' remains nullptr
-			// only if an actual sha1sum was given, tell the user we failed to use it
-			if (initialContentSpecified) {
-				config.getCliComm().printWarning(
-					"Could not load specified initial content "
-					"for flash ROM: ", e.getMessage());
-			}
+			file = File(path, File::OpenMode::LOAD_PERSISTENT);
+		} catch (FileException& e) {
+			config.getCliComm().printWarning("Couldn't load Flash data ",
+				filename, " (", e.getMessage(), ").");
 		}
+	} catch (FileException& e) {
+		// SRAM file not found, assuming blank SRAM content.
 	}
 
-	readAddress.resize(numSectors);
-	auto romSize = rom ? rom->size() : 0;
-	size_t offset = 0;
-	for (size_t sector = 0; const AmdFlash::Region& region : chip.geometry.regions) {
-		for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++) {
-			auto sectorSize = region.size;
-			if (isSectorWritable(sector)) {
-				readAddress[sector] = &(*ram)[writeAddress[sector]];
-				if (!loaded) {
-					auto* ramPtr = const_cast<uint8_t*>(
-						&(*ram)[writeAddress[sector]]);
-					if (offset >= romSize) {
-						// completely past end of rom
-						ranges::fill(std::span{ramPtr, sectorSize}, 0xFF);
-					} else if (offset + sectorSize >= romSize) {
-						// partial overlap
-						auto last = romSize - offset;
-						auto missing = sectorSize - last;
-						const uint8_t* romPtr = &(*rom)[offset];
-						ranges::copy(std::span{romPtr, last}, ramPtr);
-						ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
-					} else {
-						// completely before end of rom
-						const uint8_t* romPtr = &(*rom)[offset];
-						ranges::copy(std::span{romPtr, sectorSize}, ramPtr);
-					}
-				}
+	size_t fileRemaining = file.is_open() ? file.getSize() : 0;
+	const std::span<const uint8_t> romData = rom ? std::span{*rom} : std::span<const uint8_t>{};
+	const std::span<uint8_t> ramData = ram.getWriteBackdoor();
+	for (size_t sector = 0, address = 0; const AmdFlash::Region& region : chip.geometry.regions) {
+		for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++, address += region.size) {
+			if (sectors[sector].modified) {
+				const size_t size = std::min<size_t>(region.size, fileRemaining);
+				if (size > 0) file.read(ramData.subspan(address, size));
+				ranges::fill(ramData.subspan(address + size, region.size - size), 0xFF);
+				fileRemaining -= size;
 			} else {
-				assert(rom); // must have rom constructor parameter
-				if ((offset + sectorSize) <= romSize) {
-					readAddress[sector] = &(*rom)[offset];
-				} else {
-					readAddress[sector] = nullptr;
-				}
+				const size_t size = std::min(address + region.size, romData.size()) - std::min(address, romData.size());
+				ranges::copy(romData.subspan(address, size), ramData.subspan(address, size));
+				ranges::fill(ramData.subspan(address + size, region.size - size), 0xFF);
 			}
-			offset += sectorSize;
 		}
 	}
-	assert(offset == size());
 
 	reset();
 }
 
-AmdFlash::~AmdFlash() = default;
+AmdFlash::~AmdFlash()
+{
+	if (schedulable.isPendingRT()) {
+		schedulable.cancelRT();
+		save();
+	}
+}
+
+void AmdFlash::markModified(size_t sector)
+{
+	assert(sector < sectors.size());
+	sectors[sector].modified = true;
+	if (!schedulable.isPendingRT()) {
+		schedulable.scheduleRT(5000000); // sync to disk after 5s
+	}
+}
+
+void AmdFlash::save()
+{
+	const auto& filename = config.getChildData("sramname");
+	try {
+		const std::string path = config.getFileContext().resolveCreate(filename);
+		File file(path, File::OpenMode::SAVE_PERSISTENT);
+		for (size_t sector = 0, address = 0; const AmdFlash::Region& region : chip.geometry.regions) {
+			for (size_t regionSector = 0; regionSector < region.count; regionSector++, sector++, address += region.size) {
+				if (sectors[sector].modified) {
+					file.write(std::span{ram}.subspan(address, region.size));
+				}
+			}
+		}
+		XmlOutputArchive out(path + ".meta");
+		out.serialize("sectors", sectors);
+	} catch (FileException& e) {
+		config.getCliComm().printWarning(
+			"Couldn't save SRAM ", filename, " (", e.getMessage(), ").");
+	}
+}
 
 AmdFlash::GetSectorInfoResult AmdFlash::getSectorInfo(size_t address) const
 {
 	address &= size() - 1;
 	auto it = chip.geometry.regions.begin();
+	size_t regionStart = 0;
 	size_t sector = 0;
 	while (address >= it->count * it->size) {
 		address -= it->count * it->size;
+		regionStart += it->count * it->size;
 		sector += it->count;
 		++it;
 		assert(it != chip.geometry.regions.end());
 	}
-	return {sector + address / it->size, it->size, address % it->size};
+	return {sector + address / it->size, regionStart + (address & ~(it->size - 1)), it->size, address % it->size};
 }
 
 void AmdFlash::reset()
@@ -211,18 +179,13 @@ void AmdFlash::setState(State newState)
 {
 	if (state == newState) return;
 	state = newState;
-	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
+	config.getMotherBoard().getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 uint8_t AmdFlash::peek(size_t address) const
 {
 	if (state == State::IDLE) {
-		auto [sector, sectorSize, offset] = getSectorInfo(address);
-		if (const uint8_t* addr = readAddress[sector]) {
-			return addr[offset];
-		} else {
-			return 0xFF;
-		}
+		return ram[address % size()];
 	} else if (state == State::IDENT) {
 		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
 			if (chip.autoSelect.oddZero && (address & 1)) {
@@ -449,7 +412,7 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 
 bool AmdFlash::isSectorWritable(size_t sector) const
 {
-	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
+	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : !sectors[sector].writeProtect;
 }
 
 uint8_t AmdFlash::read(size_t address)
@@ -466,9 +429,7 @@ uint8_t AmdFlash::read(size_t address)
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
 	if (state == State::IDLE) {
-		auto [sector, sectorSize, offset] = getSectorInfo(address);
-		const uint8_t* addr = readAddress[sector];
-		return addr ? &addr[offset] : MSXDevice::unmappedRead.data();
+		return &ram[address % size()];
 	} else {
 		return nullptr;
 	}
@@ -476,7 +437,7 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 
 void AmdFlash::write(size_t address, uint8_t value)
 {
-	cmd.push_back({address, value});
+	cmd.push_back({address % size(), value});
 
 	if (state == State::IDLE) {
 		if (checkCommandAutoSelect() ||
@@ -609,9 +570,10 @@ bool AmdFlash::checkCommandEraseSector()
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
 			auto addr = cmd[5].addr;
-			auto [sector, sectorSize, offset] = getSectorInfo(addr);
+			auto [sector, sectorStart, sectorSize, offset] = getSectorInfo(addr);
 			if (isSectorWritable(sector)) {
-				ram->memset(writeAddress[sector], 0xff, sectorSize);
+				ranges::fill(ram.getWriteBackdoor().subspan(sectorStart, sectorSize), 0xff);
+				markModified(sector);
 			}
 
 			status |= 0x80; // immediate completion
@@ -626,7 +588,10 @@ bool AmdFlash::checkCommandEraseChip()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
-			if (ram) ram->memset(0, 0xff, ram->size());
+			ranges::fill(ram.getWriteBackdoor().subspan(0, ram.size()), 0xff);
+			for (const size_t sector : xrange(chip.geometry.sectorCount)) {
+				markModified(sector);
+			}
 
 			status |= 0x80; // immediate completion
 		}
@@ -639,12 +604,11 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
-			auto addr = cmd[i].addr;
-			auto [sector, sectorSize, offset] = getSectorInfo(addr);
+			const size_t sector = getSectorInfo(cmd[i].addr).sector;
 			if (isSectorWritable(sector)) {
-				auto ramAddr = writeAddress[sector] + offset;
-				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-				ram->write(ramAddr, ramValue);
+				uint8_t ramValue = ram[cmd[i].addr] & cmd[i].value;
+				ram.write(cmd[i].addr, ramValue);
+				markModified(sector);
 
 				status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
 			}
@@ -675,32 +639,37 @@ bool AmdFlash::checkCommandBufferProgram()
 {
 	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
 	if (chip.program.bufferCommand && partialMatch(cmdSeq)) {
-		if (cmd.size() <= 2) return true;
-		if (cmd.size() >= 3 && cmd[2].value == 0x25) {
-			if (cmd.size() <= 3) return true;
+		if (cmd.size() <= 2) {
+			return true;
+		}
+		if (cmd[2].value == 0x25) {
+			if (cmd.size() <= 3) {
+				return true;
+			}
 			size_t sector = getSectorInfo(cmd[2].addr).sector;
-			if (cmd.size() >= 4 && cmd[3].value < chip.program.pageSize && getSectorInfo(cmd[3].addr).sector == sector) {
-				if (cmd.size() <= 4) return true;
-				const size_t pageMask = ~(chip.program.pageSize - 1);
-				const unsigned confirmIndex = 4 + cmd[3].value + 1;
-				if (cmd.size() >= 5 && ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask) || cmd.size() > confirmIndex)) {
-					if (cmd.size() >= 5 && cmd.size() <= confirmIndex) {
+			if (cmd[3].value < chip.program.pageSize && getSectorInfo(cmd[3].addr).sector == sector) {
+				if (cmd.size() <= 4) {
+					return true;
+				}
+				const size_t confirmIndex = 4 + cmd[3].value + 1;
+				if (cmd.size() <= confirmIndex) {
+					const size_t pageMask = ~(chip.program.pageSize - 1);
+					if ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask)) {
 						status = (status & 0x7F) | (~cmd.back().value & 0x80);
+						return true;
 					}
-					if (cmd.size() <= confirmIndex) return true;
-					if (cmd.size() == confirmIndex + 1 && cmd[confirmIndex].value == 0x29 && getSectorInfo(cmd[confirmIndex].addr).sector == sector) {
-						if (isSectorWritable(sector)) {
-							// TODO de-duplicate same-address writes to the last one
-							for (auto i : xrange(size_t(4), confirmIndex)) {
-								auto ramAddr = writeAddress[sector] + getSectorInfo(cmd[i].addr).offset;
-								uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-								ram->write(ramAddr, ramValue);
+				} else if (cmd[confirmIndex].value == 0x29 && getSectorInfo(cmd[confirmIndex].addr).sector == sector) {
+					if (isSectorWritable(sector)) {
+						// TODO de-duplicate same-address writes to the last one
+						for (auto i : xrange(size_t(4), confirmIndex)) {
+							uint8_t ramValue = ram[cmd[i].addr] & cmd[i].value;
+							ram.write(cmd[i].addr, ramValue);
 
-								status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
-							}
+							status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
 						}
-						return false;
+						markModified(sector);
 					}
+					return false;
 				}
 			}
 
@@ -736,6 +705,11 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	});
 }
 
+void AmdFlash::FlashSchedulable::executeRT()
+{
+	auto& outer = OUTER(AmdFlash, schedulable);
+	outer.save();
+}
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
 	{ "IDLE",   AmdFlash::State::IDLE  },
@@ -753,13 +727,19 @@ void AmdFlash::AddressValue::serialize(Archive& ar, unsigned /*version*/)
 	             "value",   value);
 }
 
+template<typename Archive>
+void AmdFlash::Sector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("modified", modified);
+}
+
 // version 1: Initial version.
 // version 2: Added vppWpPinLow.
 // version 3: Changed cmd to static_vector, added status.
 template<typename Archive>
 void AmdFlash::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("ram", *ram);
+	ar.serialize("ram", ram); // TODO
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("cmd",    cmd,
 		             "status", status);
