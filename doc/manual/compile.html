@@ -813,13 +813,13 @@ The following steps can then be used to build openMSX:</p>
 <ul>
 <li>Open a Visual Studio command prompt</li>
 	<li>Go to the <em>top of the openMSX source tree</em></li>
-	<li>To build 3rd party libraries, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\3rdparty\3rdparty.sln</code></li>
-	<li>To build openMSX, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>Win32</strong> build\msvc\openmsx.sln</code></li>
+	<li>To build 3rd party libraries, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>x64</strong> build\3rdparty\3rdparty.sln</code></li>
+	<li>To build openMSX, type <code>msbuild -p:Configuration=<strong>Release</strong>;Platform=<strong>x64</strong> build\msvc\openmsx.sln</code></li>
 </ul>
 
-<p>The openMSX executable will be generated in <code>derived\Win32-VC-Release\install</code>.</p>
+<p>The openMSX executable will be generated in <code>derived\x64-VC-Release\install</code>.</p>
 <p>To build for other platforms or configurations, simply replace &quot;Release&quot; and
-&quot;Win32&quot;&nbsp;in the command lines above with the desired options.</p>
+&quot;x64&quot;&nbsp;in the command lines above with the desired options.</p>
 <p>To build using the Visual C++ IDE, simply open the aforementioned solution files and from the Build menu select &quot;Build Solution&quot;. This is exactly equivalent to building from the command line using <code>msbuild</code>.</p>
 <h3><a id="installstandalone">5.2 Installation</a></h3>
 
