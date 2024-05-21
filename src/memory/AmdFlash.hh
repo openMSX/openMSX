@@ -228,8 +228,9 @@ public:
 	enum class State { IDLE, IDENT, CFI, STATUS, PRGERR };
 
 private:
-	void init(const std::string& name, const DeviceConfig& config, Load load,
-	          const Rom* rom, std::span<const bool> writeProtectSectors);
+	AmdFlash(const std::string& name, const ValidatedChip& chip,
+	         const Rom* rom, std::span<const bool> writeProtectSectors,
+	         const DeviceConfig& config, Load load);
 	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
 	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
 

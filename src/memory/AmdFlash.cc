@@ -24,19 +24,15 @@ namespace openmsx {
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config, Load load)
-	: motherBoard(config.getMotherBoard())
-	, chip(validatedChip.chip)
+	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config, load)
 {
-	init(rom.getName() + "_flash", config, load, &rom, writeProtectSectors);
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config)
-	: motherBoard(config.getMotherBoard())
-	, chip(validatedChip.chip)
+	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config, Load::NORMAL)
 {
-	init(name, config, Load::NORMAL, nullptr, writeProtectSectors);
 }
 
 [[nodiscard]] static bool sramEmpty(const SRAM& ram)
@@ -45,8 +41,11 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
-void AmdFlash::init(const std::string& name, const DeviceConfig& config, Load load,
-                    const Rom* rom, std::span<const bool> writeProtectSectors)
+AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
+                   const Rom* rom, std::span<const bool> writeProtectSectors,
+                   const DeviceConfig& config, Load load)
+	: motherBoard(config.getMotherBoard())
+	, chip(validatedChip.chip)
 {
 	auto numSectors = chip.geometry.sectorCount;
 	assert(writeProtectSectors.size() <= numSectors);
