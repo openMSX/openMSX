@@ -88,7 +88,7 @@ public:
 	[[nodiscard]] constexpr const T* data()  const noexcept { return array.data(); }
 
 	constexpr void push_back(const T& a) { assert(sz < N); array[sz++] = a; }
-	constexpr void push_back(T&& a)      { assert(sz < N); array[sz++] = a; }
+	constexpr void push_back(T&& a)      { assert(sz < N); array[sz++] = std::move(a); }
 	constexpr void pop_back()   noexcept { assert(sz > 0); sz--; }
 	constexpr void clear()      noexcept { sz = 0; }
 
