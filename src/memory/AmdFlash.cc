@@ -23,15 +23,15 @@ namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config, Load load)
-	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config, load)
+                   const DeviceConfig& config)
+	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config)
 {
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config)
-	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config, Load::NORMAL)
+	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config)
 {
 }
 
@@ -43,7 +43,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    const Rom* rom, std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config, Load load)
+                   const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 {
@@ -68,19 +68,9 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 
 	bool loaded = false;
 	if (writableSize) {
-		if (load == Load::NORMAL) {
-			ram = std::make_unique<SRAM>(
-				name, "flash rom",
-				writableSize, config, nullptr, &loaded);
-		} else {
-			// Hack for 'Matra INK', flash chip is wired-up so that
-			// writes are never visible to the MSX (but the flash
-			// is not made write-protected). In this case it doesn't
-			// make sense to load/save the SRAM file.
-			ram = std::make_unique<SRAM>(
-				name, "flash rom",
-				writableSize, config, SRAM::DontLoadTag{});
-		}
+		ram = std::make_unique<SRAM>(
+			name, "flash rom",
+			writableSize, config, nullptr, &loaded);
 	}
 	if (readOnlySize) {
 		// If some part of the flash is read-only we require a ROM
