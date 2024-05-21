@@ -83,17 +83,21 @@ string FileContext::resolve(string_view filename) const
 	return result;
 }
 
+string FileContext::resolveSavePaths(string_view filename) const
+{
+	string result = resolveHelper(getSavePaths(), filename);
+	assert(!FileOperations::needsTildeExpansion(result));
+	return result;
+}
+
 string FileContext::resolveCreate(string_view filename) const
 {
-	if (savePaths2.empty()) {
-		savePaths2 = getPathsHelper(savePaths);
-	}
-
+	const auto savePaths_ = getSavePaths();
 	string result;
 	try {
-		result = resolveHelper(savePaths2, filename);
+		result = resolveHelper(savePaths_, filename);
 	} catch (FileException&) {
-		const string& path = savePaths2.front();
+		const string& path = savePaths_.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException&) {
@@ -111,6 +115,14 @@ std::span<const string> FileContext::getPaths() const
 		paths2 = getPathsHelper(paths);
 	}
 	return paths2;
+}
+
+std::span<const string> FileContext::getSavePaths() const
+{
+	if (savePaths2.empty()) {
+		savePaths2 = getPathsHelper(savePaths);
+	}
+	return savePaths2;
 }
 
 bool FileContext::isUserContext() const
