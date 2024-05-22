@@ -211,7 +211,7 @@ public:
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
-	[[nodiscard]] size_t size() const { return chip.geometry.size; }
+	[[nodiscard]] power_of_two<size_t> size() const { return chip.geometry.size; }
 	[[nodiscard]] uint8_t read(size_t address);
 	[[nodiscard]] uint8_t peek(size_t address) const;
 	void write(size_t address, uint8_t value);
