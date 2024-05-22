@@ -174,7 +174,6 @@ AmdFlash::~AmdFlash() = default;
 
 size_t AmdFlash::getSectorIndex(size_t address) const
 {
-	address &= size() - 1;
 	size_t sectorIndex = 0;
 	for (const Region& region : chip.geometry.regions) {
 		if (address < region.count * region.size) {
@@ -209,6 +208,7 @@ void AmdFlash::setState(State newState)
 
 uint8_t AmdFlash::peek(size_t address) const
 {
+	address %= size();
 	if (state == State::IDLE) {
 		const Sector& sector = getSector(address);
 		if (const uint8_t* addr = sector.readAddress) {
@@ -454,6 +454,7 @@ bool AmdFlash::isWritable(const Sector& sector) const
 
 uint8_t AmdFlash::read(size_t address)
 {
+	address %= size();
 	const uint8_t value = peek(address);
 	if (state == State::STATUS) {
 		setState(State::IDLE);
@@ -465,6 +466,7 @@ uint8_t AmdFlash::read(size_t address)
 
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
+	address %= size();
 	if (state == State::IDLE) {
 		const Sector& sector = getSector(address);
 		const uint8_t* addr = sector.readAddress;
@@ -476,6 +478,7 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 
 void AmdFlash::write(size_t address, uint8_t value)
 {
+	address %= size();
 	cmd.push_back({address, value});
 
 	if (state == State::IDLE) {
