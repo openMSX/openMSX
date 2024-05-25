@@ -214,12 +214,12 @@ void CommandLineParser::parse(std::span<char*> argv)
 						"Failed to initialize default machine: ",
 						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
-					const auto& fallbackMachine =
-						reactor.getMachineSetting().getDefaultValue().getString();
+					auto fallbackMachine = std::string(
+						reactor.getMachineSetting().getDefaultValue().getString());
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {
-						reactor.switchMachine(string(fallbackMachine));
+						reactor.switchMachine(fallbackMachine);
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
 						throw FatalError(std::move(e2).getMessage());
