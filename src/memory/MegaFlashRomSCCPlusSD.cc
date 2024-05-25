@@ -240,14 +240,16 @@ UPDATE:
     Bank3 = 0
 
   Memory range 1024K: Banks #00-#7F are mirrored in #80-#FF (except registers
-  bank #40)
+  bank #40-#7F)
 
-  Memory registers area (Bank #40):
+  Memory registers area (Bank #40-#7F):
     #4000-#57FF: SD card access (R/W)
                  #4000-#4FFF: /CS signal = 0 - SD enabled
                  #5000-#5FFF: /CS signal = 1 - SD disabled
 
     #5800-#5FFF: SD slot select (bit 0: 0 = SD slot 1, 1 = SD slot 2)
+
+  Writes to these registers do not write through to the FlashROM.
 
   Cards work in SPI mode.
   Signals used: CS, DI, DO, SCLK
@@ -831,19 +833,19 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 			// transfer to SD card
 			sdCard[selectedCard]->transfer(value, (addr & 0x1000) != 0); // ignore return value
 		}
-	}
+	} else {
+		// write to flash (first, before modifying bank regs)
+		if ((0x4000 <= addr) && (addr < 0xC000)) {
+			unsigned flashAddr = getFlashAddrSubSlot3(addr);
+			writeToFlash(flashAddr, value);
+		}
 
-	// write to flash (first, before modifying bank regs)
-	if ((0x4000 <= addr) && (addr < 0xC000)) {
-		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		writeToFlash(flashAddr, value);
-	}
-
-	// ASCII-8 mapper
-	if ((0x6000 <= addr) && (addr < 0x8000)) {
-		byte page8kB = (addr >> 11) & 0x03;
-		bankRegsSubSlot3[page8kB] = value;
-		invalidateDeviceRWCache(0x4000 + 0x2000 * page8kB, 0x2000);
+		// ASCII-8 mapper
+		if ((0x6000 <= addr) && (addr < 0x8000)) {
+			byte page8kB = (addr >> 11) & 0x03;
+			bankRegsSubSlot3[page8kB] = value;
+			invalidateDeviceRWCache(0x4000 + 0x2000 * page8kB, 0x2000);
+		}
 	}
 }
 
