@@ -3,7 +3,6 @@
 
 #include "serialize_meta.hh"
 
-#include "MemBuffer.hh"
 #include "power_of_two.hh"
 #include "ranges.hh"
 #include "static_vector.hh"
@@ -12,6 +11,7 @@
 #include <cstdint>
 #include <memory>
 #include <span>
+#include <vector>
 
 namespace openmsx {
 
@@ -227,12 +227,25 @@ public:
 
 	enum class State { IDLE, IDENT, CFI, STATUS, PRGERR };
 
+	struct Sector {
+		size_t address;
+		power_of_two<size_t> size;
+		bool writeProtect;
+		ptrdiff_t writeAddress = -1;
+		const uint8_t* readAddress = nullptr;
+
+		std::weak_ordering operator<=>(const Sector& sector) const { return address <=> sector.address; }
+		bool operator==(const Sector& sector) const { return address == sector.address; }
+	};
+
 private:
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         const Rom* rom, std::span<const bool> writeProtectSectors,
 	         const DeviceConfig& config);
-	struct GetSectorInfoResult { size_t sector, sectorSize, offset; };
-	[[nodiscard]] GetSectorInfoResult getSectorInfo(size_t address) const;
+
+	[[nodiscard]] size_t getSectorIndex(size_t address) const;
+	[[nodiscard]] Sector& getSector(size_t address) { return sectors[getSectorIndex(address)]; };
+	[[nodiscard]] const Sector& getSector(size_t address) const { return sectors[getSectorIndex(address)]; };
 
 	void softReset();
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
@@ -256,7 +269,7 @@ private:
 	[[nodiscard]] bool checkCommandContinuityCheck();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
-	[[nodiscard]] bool isSectorWritable(size_t sector) const;
+	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 public:
 	static constexpr unsigned MAX_CMD_SIZE = 5 + 256; // longest command is BufferProgram
@@ -264,10 +277,8 @@ public:
 private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
-	MemBuffer<ptrdiff_t> writeAddress;
-	MemBuffer<const uint8_t*> readAddress;
 	const Chip& chip;
-
+	std::vector<Sector> sectors;
 	static_vector<AddressValue, MAX_CMD_SIZE> cmd;
 	State state = State::IDLE;
 	uint8_t status = 0x80;
