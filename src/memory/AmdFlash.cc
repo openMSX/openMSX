@@ -5,7 +5,6 @@
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
 #include "MSXCliComm.hh"
-#include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "narrow.hh"
 #include "one_of.hh"
@@ -33,12 +32,6 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    const DeviceConfig& config)
 	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config)
 {
-}
-
-[[nodiscard]] static bool sramEmpty(const SRAM& ram)
-{
-	return ranges::all_of(xrange(ram.size()),
-	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
@@ -85,24 +78,6 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 		assert(rom);
 	}
 
-	const auto* romTag = config.getXML()->findChild("rom");
-	bool initialContentSpecified = romTag && romTag->findChild("sha1");
-
-	// check whether the loaded SRAM is empty, whilst initial content was specified
-	if (!rom && loaded && initialContentSpecified && sramEmpty(*ram)) {
-		config.getCliComm().printInfo(
-			"This flash device (", config.getHardwareConfig().getName(),
-			") has initial content specified, but this content "
-			"was not loaded, because there was already content found "
-			"and loaded from persistent storage. However, this "
-			"content is blank (it was probably created automatically "
-			"when the specified initial content could not be loaded "
-			"when this device was used for the first time). If you "
-			"still wish to load the specified initial content, "
-			"please remove the blank persistent storage file: ",
-			ram->getLoadedFilename());
-	}
-
 	std::unique_ptr<Rom> rom_;
 	if (!rom && !loaded) {
 		// If we don't have a ROM constructor parameter and there was
@@ -123,6 +98,8 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 			// ignore error
 			assert(rom == nullptr); // 'rom' remains nullptr
 			// only if an actual sha1sum was given, tell the user we failed to use it
+			const auto* romTag = config.getXML()->findChild("rom");
+			const bool initialContentSpecified = romTag && romTag->findChild("sha1");
 			if (initialContentSpecified) {
 				config.getCliComm().printWarning(
 					"Could not load specified initial content "
