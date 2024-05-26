@@ -35,9 +35,6 @@ public:
 	[[nodiscard]] size_t size() const {
 		return ram.size();
 	}
-	[[nodiscard]] const std::string& getLoadedFilename() const {
-		return loadedFilename;
-	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -58,8 +55,6 @@ private:
 	const DeviceConfig config;
 	TrackedRam ram;
 	const char* const header = nullptr;
-
-	std::string loadedFilename;
 };
 
 } // namespace openmsx
