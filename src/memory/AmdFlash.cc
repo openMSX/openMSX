@@ -134,7 +134,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	auto romSize = rom ? rom->size() : 0;
 	size_t offset = 0;
 	for (Sector& sector : sectors) {
-		if (isWritable(sector)) {
+		if (sector.writeAddress != -1) { // don't use isWritable() here
 			sector.readAddress = &(*ram)[sector.writeAddress];
 			if (!loaded) {
 				auto* ramPtr = const_cast<uint8_t*>(
@@ -442,7 +442,14 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 
 bool AmdFlash::isWritable(const Sector& sector) const
 {
-	return vppWpPinLow && (sector == one_of(sectors[0], sectors[1])) ? false : !sector.writeProtect;
+	if (vppWpPinLow) {
+		const auto range = chip.geometry.writeProtectPinRange;
+		if ((range > 0 && sector <= sectors[range - size_t(1)]) ||
+		    (range < 0 && sector >= sectors[range + chip.geometry.sectorCount])) {
+			return false;
+		}
+	}
+	return !sector.writeProtect;
 }
 
 uint8_t AmdFlash::read(size_t address)
@@ -618,7 +625,11 @@ bool AmdFlash::checkCommandEraseChip()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
-			if (ram) ram->memset(0, 0xff, ram->size());
+			for (const Sector& sector : sectors) {
+				if (isWritable(sector)) {
+					ram->memset(sector.writeAddress, 0xff, sector.size);
+				}
+			}
 
 			status |= 0x80; // immediate completion
 		}
