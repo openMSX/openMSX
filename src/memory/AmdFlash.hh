@@ -3,6 +3,8 @@
 
 #include "serialize_meta.hh"
 
+#include "cstd.hh"
+#include "narrow.hh"
 #include "power_of_two.hh"
 #include "ranges.hh"
 #include "static_vector.hh"
@@ -56,9 +58,11 @@ public:
 	};
 
 	struct Geometry {
-		constexpr Geometry(DeviceInterface deviceInterface_, std::initializer_list<Region> regions_)
+		constexpr Geometry(DeviceInterface deviceInterface_, std::initializer_list<Region> regions_,
+			int writeProtectPinRange_ = 0)
 			: deviceInterface(deviceInterface_)
 			, regions(regions_)
+			, writeProtectPinRange(writeProtectPinRange_)
 			, size(sum(regions, [](Region r) { return r.count * r.size; }))
 			// Originally sum(regions, &Region::count), but seems to mis-compile to 0 on MSVC.
 			// It looks like sum with projection doesn’t work at compile-time in MSVC 2022?
@@ -66,11 +70,13 @@ public:
 			, sectorCount(sum(regions, [](Region r) { return r.count; })) {}
 		DeviceInterface deviceInterface;
 		static_vector<Region, 4> regions;
+		int writeProtectPinRange; // sectors protected by WP#, negative: from top
 		power_of_two<size_t> size;
 		size_t sectorCount;
 
 		constexpr void validate() const {
 			assert(ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
+			assert(narrow_cast<unsigned>(cstd::abs(writeProtectPinRange)) <= sectorCount);
 		}
 	};
 
@@ -318,7 +324,7 @@ namespace AmdFlashChip
 	// Micron M29W640GB
 	static constexpr ValidatedChip M29W640GB = {{
 		.autoSelect{.manufacturer = STM, .device{0x10, 0x00}, .extraCode = 0x0008, .undefined = 0, .oddZero = true, .readMask = 0x7F},
-		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
+		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}, 2},
 		.program{.fastCommand = true, .bufferCommand = true, .shortAbortReset = true, .pageSize = 32},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0xFFF, .readMask = 0xFF,
@@ -330,7 +336,7 @@ namespace AmdFlashChip
 	// Infineon / Cypress / Spansion S29GL064S70TFI040
 	static constexpr ValidatedChip S29GL064S70TFI040 = {{
 		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
-		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}},
+		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}, 2},
 		.program{.bufferCommand = true, .pageSize = 256},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
