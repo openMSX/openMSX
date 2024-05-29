@@ -1067,13 +1067,13 @@ struct NullScanner {
 	void onVisitSubDir(DirAsDSK::DirIndex /*subdir*/) const {}
 
 	// Called when a new sector of a (sub)directory is being scanned.
-	inline bool onDirSector(unsigned /*dirSector*/) const {
+	[[nodiscard]] bool onDirSector(unsigned /*dirSector*/) const {
 		return false;
 	}
 
 	// Called for each directory entry (in a sector).
-	inline bool onDirEntry(DirAsDSK::DirIndex /*dirIndex*/,
-	                       const MSXDirEntry& /*entry*/) const {
+	[[nodiscard]] bool onDirEntry(DirAsDSK::DirIndex /*dirIndex*/,
+	                              const MSXDirEntry& /*entry*/) const {
 		return false;
 	}
 };
@@ -1103,7 +1103,8 @@ struct IsDirSector : DirScanner {
 	[[nodiscard]] bool onDirSector(unsigned dirSector) const {
 		return sector == dirSector;
 	}
-	const unsigned sector;
+
+	unsigned sector;
 };
 bool DirAsDSK::isDirSector(unsigned sector, DirIndex& dirDirIndex)
 {
@@ -1125,7 +1126,8 @@ struct DirEntryForCluster : DirScanner {
 		}
 		return false;
 	}
-	const unsigned cluster;
+
+	unsigned cluster;
 	DirAsDSK::DirIndex& result;
 };
 bool DirAsDSK::getDirEntryForCluster(unsigned cluster,
