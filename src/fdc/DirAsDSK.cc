@@ -1112,17 +1112,17 @@ struct DirEntryForCluster : DirScanner {
 	DirEntryForCluster(unsigned cluster_,
 	                   DirAsDSK::DirIndex& dirIndex_)
 		: cluster(cluster_)
-		, result(dirIndex_) {}
-	bool onDirEntry(DirAsDSK::DirIndex dirIndex, const MSXDirEntry& entry) {
+		, dirIndex(dirIndex_) {}
+	bool onDirEntry(DirAsDSK::DirIndex dirIndex_, const MSXDirEntry& entry) {
 		if (entry.startCluster == cluster) {
-			result = dirIndex;
+			dirIndex = dirIndex_;
 			return true;
 		}
 		return false;
 	}
 
 	unsigned cluster;
-	DirAsDSK::DirIndex& result;
+	DirAsDSK::DirIndex& dirIndex;
 };
 std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
