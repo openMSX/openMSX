@@ -1141,15 +1141,6 @@ bool DirAsDSK::getDirEntryForCluster(unsigned cluster,
 	return scanMsxDirs(DirEntryForCluster(cluster, dirIndex, dirDirIndex),
 	                   firstDirSector);
 }
-DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
-{
-	DirIndex dirIndex, dirDirIndex;
-	if (getDirEntryForCluster(cluster, dirIndex, dirDirIndex)) {
-		return dirIndex;
-	} else {
-		return {unsigned(-1), unsigned(-1)}; // not found
-	}
-}
 
 // Remove the mapping between the msx and host for all the files/dirs in the
 // given msx directory (+ subdirectories).
@@ -1352,13 +1343,11 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	offset += narrow<unsigned>((sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength);
 
 	// Get corresponding directory entry.
-	DirIndex dirIndex = getDirEntryForCluster(startCluster);
-	// no need to check for 'dirIndex.sector == unsigned(-1)'
+	DirIndex dirIndex, dirDirIndex;
+	auto entry = getDirEntryForCluster(startCluster, dirIndex, dirDirIndex);
+	if (!entry) return;
 	const auto* v = lookup(mapDirs, dirIndex);
-	if (!v) {
-		// This sector was not mapped to a file, nothing more to do.
-		return;
-	}
+	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
 	// Actually write data to host file.
 	string fullHostName = hostDir + v->hostName;

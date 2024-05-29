@@ -106,7 +106,6 @@ private:
 
 	bool getDirEntryForCluster(unsigned cluster,
 	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
-	[[nodiscard]] DirIndex getDirEntryForCluster(unsigned cluster);
 	void unmapHostFiles(unsigned msxDirSector);
 	template<typename FUNC> bool scanMsxDirs(
 		FUNC func, unsigned msxDirSector);
