@@ -976,9 +976,8 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer>
 
 	// Find the corresponding direntry and (if found) export file based on
 	// new cluster chain.
-	DirIndex dirIndex, dirDirIndex;
-	if (getDirEntryForCluster(startCluster, dirIndex, dirDirIndex)) {
-		exportToHost(dirIndex, dirDirIndex);
+	if (auto result = getDirEntryForCluster(startCluster)) {
+		exportToHost(result->dirIndex, result->dirDirIndex);
 	}
 }
 
@@ -1111,9 +1110,8 @@ std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 	DirIndex dirDirIndex;
 	if (scanMsxDirs(IsDirSector(sector, dirDirIndex), firstDirSector)) {
 		return dirDirIndex;
-	} else {
-		return std::nullopt;
 	}
+	return std::nullopt;
 }
 
 // Search for the directory entry that has the given startCluster.
@@ -1135,11 +1133,13 @@ struct DirEntryForCluster : DirScanner {
 	unsigned cluster;
 	DirAsDSK::DirIndex& result;
 };
-bool DirAsDSK::getDirEntryForCluster(unsigned cluster,
-                                     DirIndex& dirIndex, DirIndex& dirDirIndex)
+std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
-	return scanMsxDirs(DirEntryForCluster(cluster, dirIndex, dirDirIndex),
-	                   firstDirSector);
+	DirIndex dirIndex, dirDirIndex;
+	if (scanMsxDirs(DirEntryForCluster(cluster, dirIndex, dirDirIndex), firstDirSector)) {
+		return DirEntryForClusterResult{dirIndex, dirDirIndex};
+	}
+	return std::nullopt;
 }
 
 // Remove the mapping between the msx and host for all the files/dirs in the
@@ -1343,10 +1343,9 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	offset += narrow<unsigned>((sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength);
 
 	// Get corresponding directory entry.
-	DirIndex dirIndex, dirDirIndex;
-	auto entry = getDirEntryForCluster(startCluster, dirIndex, dirDirIndex);
+	auto entry = getDirEntryForCluster(startCluster);
 	if (!entry) return;
-	const auto* v = lookup(mapDirs, dirIndex);
+	const auto* v = lookup(mapDirs, entry->dirIndex);
 	if (!v) return; // sector was not mapped to a file, nothing more to do.
 
 	// Actually write data to host file.
@@ -1354,7 +1353,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	try {
 		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
-		unsigned msxSize = msxDir(dirIndex).size;
+		unsigned msxSize = msxDir(entry->dirIndex).size;
 		if (msxSize > offset) {
 			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
 			file.write(subspan(buf.raw, 0, writeSize));

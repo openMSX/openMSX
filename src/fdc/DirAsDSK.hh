@@ -104,8 +104,12 @@ private:
 	std::pair<unsigned, unsigned> getChainStart(unsigned cluster);
 	[[nodiscard]] std::optional<DirIndex> isDirSector(unsigned sector);
 
-	bool getDirEntryForCluster(unsigned cluster,
-	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
+	struct DirEntryForClusterResult {
+		DirIndex dirIndex;
+		DirIndex dirDirIndex;
+	};
+	[[nodiscard]] std::optional<DirEntryForClusterResult> getDirEntryForCluster(unsigned cluster);
+
 	void unmapHostFiles(unsigned msxDirSector);
 	template<typename FUNC> bool scanMsxDirs(
 		FUNC func, unsigned msxDirSector);
