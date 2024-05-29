@@ -1109,10 +1109,8 @@ std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 
 // Search for the directory entry that has the given startCluster.
 struct DirEntryForCluster : DirScanner {
-	DirEntryForCluster(unsigned cluster_,
-	                   DirAsDSK::DirIndex& dirIndex_)
-		: cluster(cluster_)
-		, dirIndex(dirIndex_) {}
+	explicit DirEntryForCluster(unsigned cluster_) : cluster(cluster_) {}
+
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex_, const MSXDirEntry& entry) {
 		if (entry.startCluster == cluster) {
 			dirIndex = dirIndex_;
@@ -1122,14 +1120,13 @@ struct DirEntryForCluster : DirScanner {
 	}
 
 	unsigned cluster;
-	DirAsDSK::DirIndex& dirIndex;
+	DirAsDSK::DirIndex dirIndex{0, 0};
 };
 std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
-	DirIndex dirIndex;
-	if (DirEntryForCluster scanner{cluster, dirIndex};
+	if (DirEntryForCluster scanner{cluster};
 	    scanMsxDirs(scanner, firstDirSector)) {
-		return DirEntryForClusterResult{dirIndex, scanner.dirDirIndex};
+		return DirEntryForClusterResult{scanner.dirIndex, scanner.dirDirIndex};
 	}
 	return std::nullopt;
 }
