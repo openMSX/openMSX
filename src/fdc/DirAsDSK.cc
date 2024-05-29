@@ -1080,25 +1080,18 @@ struct NullScanner {
 // Base class for the IsDirSector and DirEntryForCluster scanner algorithms
 // below. This class remembers the directory entry of the last visited subdir.
 struct DirScanner : NullScanner {
-	explicit DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
-		: dirDirIndex(dirDirIndex_)
-	{
-		dirDirIndex = DirAsDSK::DirIndex(0, 0); // represents entry for root dir
-	}
-
 	// Called right before we enter a new subdirectory.
 	void onVisitSubDir(DirAsDSK::DirIndex subdir) {
 		dirDirIndex = subdir;
 	}
 
-	DirAsDSK::DirIndex& dirDirIndex;
+	DirAsDSK::DirIndex dirDirIndex{0, 0}; // entry for root dir
 };
 
 // Figure out whether a given sector is part of the msx directory structure.
 struct IsDirSector : DirScanner {
-	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex_)
-		: DirScanner(dirDirIndex_)
-		, sector(sector_) {}
+	explicit IsDirSector(unsigned sector_) : sector(sector_) {}
+
 	[[nodiscard]] bool onDirSector(unsigned dirSector) const {
 		return sector == dirSector;
 	}
@@ -1107,9 +1100,9 @@ struct IsDirSector : DirScanner {
 };
 std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 {
-	DirIndex dirDirIndex;
-	if (scanMsxDirs(IsDirSector(sector, dirDirIndex), firstDirSector)) {
-		return dirDirIndex;
+	if (IsDirSector scanner{sector};
+	    scanMsxDirs(scanner, firstDirSector)) {
+		return scanner.dirDirIndex;
 	}
 	return std::nullopt;
 }
@@ -1117,10 +1110,8 @@ std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 // Search for the directory entry that has the given startCluster.
 struct DirEntryForCluster : DirScanner {
 	DirEntryForCluster(unsigned cluster_,
-	                   DirAsDSK::DirIndex& dirIndex_,
-	                   DirAsDSK::DirIndex& dirDirIndex_)
-		: DirScanner(dirDirIndex_)
-		, cluster(cluster_)
+	                   DirAsDSK::DirIndex& dirIndex_)
+		: cluster(cluster_)
 		, result(dirIndex_) {}
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex, const MSXDirEntry& entry) {
 		if (entry.startCluster == cluster) {
@@ -1135,9 +1126,10 @@ struct DirEntryForCluster : DirScanner {
 };
 std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {
-	DirIndex dirIndex, dirDirIndex;
-	if (scanMsxDirs(DirEntryForCluster(cluster, dirIndex, dirDirIndex), firstDirSector)) {
-		return DirEntryForClusterResult{dirIndex, dirDirIndex};
+	DirIndex dirIndex;
+	if (DirEntryForCluster scanner{cluster, dirIndex};
+	    scanMsxDirs(scanner, firstDirSector)) {
+		return DirEntryForClusterResult{dirIndex, scanner.dirDirIndex};
 	}
 	return std::nullopt;
 }
