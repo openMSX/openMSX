@@ -102,7 +102,8 @@ private:
 	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT);
 	std::pair<unsigned, unsigned> getChainStart(unsigned cluster);
-	[[nodiscard]] bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
+	[[nodiscard]] std::optional<DirIndex> isDirSector(unsigned sector);
+
 	bool getDirEntryForCluster(unsigned cluster,
 	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
 	[[nodiscard]] DirIndex getDirEntryForCluster(unsigned cluster);

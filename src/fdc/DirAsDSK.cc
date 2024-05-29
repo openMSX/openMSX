@@ -919,9 +919,9 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
 		sectors[sector] = buf;
-	} else if (DirIndex dirDirIndex; isDirSector(sector, dirDirIndex)) {
+	} else if (auto dirDirIndex = isDirSector(sector)) {
 		// Either root- or sub-directory.
-		writeDIRSector(sector, dirDirIndex, buf);
+		writeDIRSector(sector, *dirDirIndex, buf);
 	} else {
 		writeDataSector(sector, buf);
 	}
@@ -1106,9 +1106,14 @@ struct IsDirSector : DirScanner {
 
 	unsigned sector;
 };
-bool DirAsDSK::isDirSector(unsigned sector, DirIndex& dirDirIndex)
+std::optional<DirAsDSK::DirIndex> DirAsDSK::isDirSector(unsigned sector)
 {
-	return scanMsxDirs(IsDirSector(sector, dirDirIndex), firstDirSector);
+	DirIndex dirDirIndex;
+	if (scanMsxDirs(IsDirSector(sector, dirDirIndex), firstDirSector)) {
+		return dirDirIndex;
+	} else {
+		return std::nullopt;
+	}
 }
 
 // Search for the directory entry that has the given startCluster.
