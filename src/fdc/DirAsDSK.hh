@@ -102,14 +102,10 @@ private:
 	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, std::span<SectorBuffer> oldFAT);
 	std::pair<unsigned, unsigned> getChainStart(unsigned cluster);
-	[[nodiscard]] std::optional<DirIndex> isDirSector(unsigned sector);
-
-	struct DirEntryForClusterResult {
-		DirIndex dirIndex;
-		DirIndex dirDirIndex;
-	};
-	[[nodiscard]] std::optional<DirEntryForClusterResult> getDirEntryForCluster(unsigned cluster);
-
+	[[nodiscard]] bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
+	bool getDirEntryForCluster(unsigned cluster,
+	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
+	[[nodiscard]] DirIndex getDirEntryForCluster(unsigned cluster);
 	void unmapHostFiles(unsigned msxDirSector);
 	template<typename FUNC> bool scanMsxDirs(
 		FUNC func, unsigned msxDirSector);
