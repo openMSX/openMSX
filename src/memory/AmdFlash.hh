@@ -1,11 +1,13 @@
 #ifndef AMDFLASH_HH
 #define AMDFLASH_HH
 
+#include "serialize_meta.hh"
+
 #include "MemBuffer.hh"
 #include "power_of_two.hh"
-#include "serialize_meta.hh"
+#include "ranges.hh"
 #include "static_vector.hh"
-#include <array>
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -65,7 +67,7 @@ public:
 		size_t sectorCount;
 
 		constexpr void validate() const {
-			for (const Region& region : regions) assert(region.count > 0);
+			assert(ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
 		}
 	};
 
