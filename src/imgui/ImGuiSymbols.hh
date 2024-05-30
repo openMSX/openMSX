@@ -17,23 +17,26 @@ struct SymbolRef {
 	unsigned fileIdx;
 	unsigned symbolIdx;
 
-	[[nodiscard]] std::string_view file(const SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
-	[[nodiscard]] std::string_view name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
-	[[nodiscard]] uint16_t        value(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
+	[[nodiscard]] std::string_view           file(const SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
+	[[nodiscard]] std::string_view           name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
+	[[nodiscard]] uint16_t                  value(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
+	[[nodiscard]] std::optional<uint8_t>     slot(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].slot; }
+	[[nodiscard]] std::optional<uint16_t> segment(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].segment; }
 };
 
 class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
+public:
 	struct FileInfo {
-		FileInfo(std::string f, std::string e, SymbolFile::Type t)
-			: filename(std::move(f)), error(std::move(e)), type(t) {} // clang-15 workaround
+		FileInfo(std::string f, std::string e, SymbolFile::Type t, std::optional<int> s)
+			: filename(std::move(f)), error(std::move(e)), type(t), slot(s) {} // clang-15 workaround
 
 		std::string filename;
 		std::string error;
 		SymbolFile::Type type;
+		std::optional<int> slot;
 	};
 
-public:
 	explicit ImGuiSymbols(ImGuiManager& manager);
 	~ImGuiSymbols();
 
@@ -48,7 +51,12 @@ public:
 	bool show = false;
 
 private:
-	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type);
+	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot = {});
+
+	template<bool FILTER_FILE>
+	void drawTable(MSXMotherBoard* motherBoard, const std::string& file = {});
+
+	void drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym);
 
 	// SymbolObserver
 	void notifySymbolsChanged() override;

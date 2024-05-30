@@ -36,48 +36,48 @@ TEST_CASE("SymbolManager: parseValue")
 {
 	SECTION("ok") {
 		// hex
-		CHECK(SymbolManager::parseValue("0xa1") == 0xa1);
-		CHECK(SymbolManager::parseValue("0x1234") == 0x1234);
-		CHECK(SymbolManager::parseValue("0XABCD") == 0xabcd);
-		CHECK(SymbolManager::parseValue("0x00002345") == 0x2345);
-		CHECK(SymbolManager::parseValue("$fedc") == 0xfedc);
-		CHECK(SymbolManager::parseValue("#11aA") == 0x11aa);
-		CHECK(SymbolManager::parseValue("bbffh") == 0xbbff);
-		CHECK(SymbolManager::parseValue("3210H") == 0x3210);
-		CHECK(SymbolManager::parseValue("01234h") == 0x1234);
+		CHECK(SymbolManager::parseValue<uint16_t>("0xa1") == 0xa1);
+		CHECK(SymbolManager::parseValue<uint16_t>("0x1234") == 0x1234);
+		CHECK(SymbolManager::parseValue<uint16_t>("0XABCD") == 0xabcd);
+		CHECK(SymbolManager::parseValue<uint16_t>("0x00002345") == 0x2345);
+		CHECK(SymbolManager::parseValue<uint16_t>("$fedc") == 0xfedc);
+		CHECK(SymbolManager::parseValue<uint16_t>("#11aA") == 0x11aa);
+		CHECK(SymbolManager::parseValue<uint16_t>("bbffh") == 0xbbff);
+		CHECK(SymbolManager::parseValue<uint16_t>("3210H") == 0x3210);
+		CHECK(SymbolManager::parseValue<uint16_t>("01234h") == 0x1234);
 		// dec
-		CHECK(SymbolManager::parseValue("123") == 0x007b);
-		CHECK(SymbolManager::parseValue("65535") == 0xffff);
-		CHECK(SymbolManager::parseValue("0020") == 0x0014); // NOT interpreted as octal
+		CHECK(SymbolManager::parseValue<uint16_t>("123") == 0x007b);
+		CHECK(SymbolManager::parseValue<uint16_t>("65535") == 0xffff);
+		CHECK(SymbolManager::parseValue<uint16_t>("0020") == 0x0014); // NOT interpreted as octal
 		// bin
-		CHECK(SymbolManager::parseValue("%1100") == 0x000c);
-		CHECK(SymbolManager::parseValue("0b000100100011") == 0x0123);
-		CHECK(SymbolManager::parseValue("0B1111000001011000") == 0xf058);
+		CHECK(SymbolManager::parseValue<uint16_t>("%1100") == 0x000c);
+		CHECK(SymbolManager::parseValue<uint16_t>("0b000100100011") == 0x0123);
+		CHECK(SymbolManager::parseValue<uint16_t>("0B1111000001011000") == 0xf058);
 	}
 	SECTION("error") {
 		// wrong format
-		CHECK(SymbolManager::parseValue("0xFEDX") == std::nullopt);
-		CHECK(SymbolManager::parseValue("1234a") == std::nullopt);
-		CHECK(SymbolManager::parseValue("-3") == std::nullopt);
-		CHECK(SymbolManager::parseValue("0b00112110") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("0xFEDX") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("1234a") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("-3") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("0b00112110") == std::nullopt);
 		// overflow
-		CHECK(SymbolManager::parseValue("0x10000") == std::nullopt);
-		CHECK(SymbolManager::parseValue("65536") == std::nullopt);
-		CHECK(SymbolManager::parseValue("%11110000111100001") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("0x10000") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("65536") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint16_t>("%11110000111100001") == std::nullopt);
 	}
 }
 
 TEST_CASE("SymbolManager: checkLabel")
 {
-	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123));
-	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234));
+	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, 0));
+	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, 0));
 	CHECK(SymbolManager::checkLabel("", 345) == std::nullopt);
 	CHECK(SymbolManager::checkLabel(":", 456) == std::nullopt);
 }
 
 TEST_CASE("SymbolManager: checkLabelAndValue")
 {
-	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123));
+	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, 0));
 	CHECK(SymbolManager::checkLabelAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelAndValue("foo", "bla") == std::nullopt);
 }
@@ -107,7 +107,7 @@ TEST_CASE("SymbolManager: detectType")
 TEST_CASE("SymbolManager: loadLines")
 {
 	auto dummyParser = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
-		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123};
+		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, 0};
 		return {};
 	};
 
