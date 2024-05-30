@@ -65,7 +65,7 @@ public:
 		size_t sectorCount;
 
 		constexpr void validate() const {
-			for (const Region& region : regions) assert(region.count > 0);
+			for ([[maybe_unused]] const Region& region : regions) assert(region.count > 0);
 		}
 	};
 
