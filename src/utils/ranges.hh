@@ -258,7 +258,15 @@ template<sized_range Input, sized_range Output>
 constexpr auto copy(Input&& in, Output&& out)
 {
 	assert(std::size(in) <= std::size(out));
-	return std::copy(std::begin(in), std::end(in), std::begin(out));
+	// Workaround: this doesn't work when copying a std::initializer_list into a std::array with libstdc++ debug-STL ???
+	//     return std::copy(std::begin(in), std::end(in), std::begin(out));
+	auto f = std::begin(in);
+	auto l = std::end(in);
+	auto o = std::begin(out);
+	while (f != l) {
+		*o++ = *f++;
+	}
+	return o;
 }
 
 template<typename InputRange, typename OutputIter, typename UnaryPredicate>
