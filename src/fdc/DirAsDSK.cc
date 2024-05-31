@@ -1002,7 +1002,7 @@ std::pair<unsigned, unsigned> DirAsDSK::getChainStart(unsigned cluster)
 // Generic helper function that walks over the whole MSX directory tree
 // (possibly it stops early so it doesn't always walk over the whole tree).
 // The action that is performed while walking depends on the functor parameter.
-template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
+template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC&& func, unsigned sector)
 {
 	size_t rdIdx = 0;
 	vector<unsigned> dirs;  // TODO make vector of struct instead of
@@ -1120,7 +1120,7 @@ struct DirEntryForCluster : DirScanner {
 	}
 
 	unsigned cluster;
-	DirAsDSK::DirIndex dirIndex{0, 0};
+	DirAsDSK::DirIndex dirIndex{0, 0}; // dummy initial value, not used
 };
 std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluster(unsigned cluster)
 {

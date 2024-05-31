@@ -112,7 +112,7 @@ private:
 
 	void unmapHostFiles(unsigned msxDirSector);
 	template<typename FUNC> bool scanMsxDirs(
-		FUNC func, unsigned msxDirSector);
+		FUNC&& func, unsigned msxDirSector);
 	friend struct NullScanner;
 	friend struct DirScanner;
 	friend struct IsDirSector;
