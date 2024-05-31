@@ -60,7 +60,9 @@ public:
 			: deviceInterface(deviceInterface_)
 			, regions(regions_)
 			, size(sum(regions, [](Region r) { return r.count * r.size; }))
-			, sectorCount(sum(regions, &Region::count)) {}
+			// Originally sum(regions, &Region::count), but seems to mis-compile to 0 on MSVC.
+			// It looks like sum with projection doesn’t work at compile-time in MSVC 2022?
+			, sectorCount(sum(regions, [](Region r) { return r.count; })) {}
 		DeviceInterface deviceInterface;
 		static_vector<Region, 4> regions;
 		power_of_two<size_t> size;
