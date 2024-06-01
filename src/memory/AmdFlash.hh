@@ -62,6 +62,7 @@ public:
 			, size(sum(regions, [](Region r) { return r.count * r.size; }))
 			// Originally sum(regions, &Region::count), but seems to mis-compile to 0 on MSVC.
 			// It looks like sum with projection doesn’t work at compile-time in MSVC 2022?
+			//   https://developercommunity.visualstudio.com/t/wrong-code-bug-in-constexpr-evaluation/10673004
 			, sectorCount(sum(regions, [](Region r) { return r.count; })) {}
 		DeviceInterface deviceInterface;
 		static_vector<Region, 4> regions;
