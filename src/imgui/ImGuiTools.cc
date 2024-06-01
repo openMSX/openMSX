@@ -13,6 +13,8 @@
 #include "AviRecorder.hh"
 #include "Display.hh"
 
+#include "enumerate.hh"
+#include "escape_newline.hh"
 #include "ranges.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -30,11 +32,30 @@ using namespace std::literals;
 void ImGuiTools::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+
+	for (const auto& note : notes) {
+		buf.appendf("note.show=%d\n", note.show);
+		buf.appendf("note.text=%s\n", escape_newline::encode(note.text).c_str());
+	}
+}
+
+void ImGuiTools::loadStart()
+{
+	notes.clear();
 }
 
 void ImGuiTools::loadLine(std::string_view name, zstring_view value)
 {
-	loadOnePersistent(name, value, *this, persistentElements);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (name.starts_with("note.")) {
+		if (name.ends_with(".show")) {
+			auto& note = notes.emplace_back();
+			note.show = StringOp::stringToBool(value);
+		} else if (name.ends_with(".text") && !notes.empty()) {
+			notes.back().text = escape_newline::decode(value);
+		}
+	}
 }
 
 static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
@@ -69,6 +90,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show);
 		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages->logWindow.open);
 		ImGui::Separator();
+
 		std::string_view copyCommand = "copy_screen_to_clipboard";
 		auto copyShortCut = getShortCutForCommand(hotKey, copyCommand);
 		if (ImGui::MenuItem("Copy screen text to clipboard", copyShortCut.c_str(), nullptr, motherBoard != nullptr)) {
@@ -79,14 +101,29 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Paste clipboard into MSX", pasteShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
+		if (ImGui::MenuItem("Simple notes widget ...")) {
+			if (auto it = ranges::find(notes, false, &Note::show);
+			    it != notes.end()) {
+				// reopen a closed note
+				it->show = true;
+			} else {
+				// create a new note
+				auto& note = notes.emplace_back();
+				note.show = true;
+			}
+		}
+		simpleToolTip("Typical use: dock into a larger layout to add free text.");
 		ImGui::Separator();
+
 		im::Menu("Capture", [&]{
 			ImGui::MenuItem("Screenshot ...", nullptr, &showScreenshot);
 			ImGui::MenuItem("Audio/Video ...", nullptr, &showRecord);
 		});
 		ImGui::Separator();
+
 		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator->show);
 		ImGui::Separator();
+
 		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer->show);
 		ImGui::MenuItem("Cheat Finder ...", nullptr, &manager.cheatFinder->show);
 		ImGui::Separator();
@@ -112,6 +149,7 @@ void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 {
 	if (showScreenshot) paintScreenshot();
 	if (showRecord) paintRecord();
+	paintNotes();
 
 	const auto popupTitle = "Confirm##Tools";
 	if (openConfirmPopup) {
@@ -349,6 +387,17 @@ void ImGuiTools::paintRecord()
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', directory).c_str());
 		}
 	});
+}
+
+void ImGuiTools::paintNotes()
+{
+	for (auto [i, note] : enumerate(notes)) {
+		if (!note.show) continue;
+
+		im::Window(tmpStrCat("Note ", i + 1).c_str(), &note.show, [&]{
+			ImGui::InputTextMultiline("##text", &note.text, {-FLT_MIN, -FLT_MIN});
+		});
+	}
 }
 
 } // namespace openmsx

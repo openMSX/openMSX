@@ -14,13 +14,21 @@ public:
 
 	[[nodiscard]] zstring_view iniName() const override { return "tools"; }
 	void save(ImGuiTextBuffer& buf) override;
+	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
+	struct Note {
+		std::string text;
+		bool show = false;
+	};
+
+private:
 	void paintScreenshot();
 	void paintRecord();
+	void paintNotes();
 
 	[[nodiscard]] bool screenshotNameExists() const;
 	void generateScreenshotName();
@@ -51,6 +59,8 @@ private:
 	TclObject confirmCmd;
 	std::string confirmText;
 	bool openConfirmPopup = false;
+
+	std::vector<Note> notes;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"showScreenshot",  &ImGuiTools::showScreenshot},

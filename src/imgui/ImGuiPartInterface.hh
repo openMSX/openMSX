@@ -4,6 +4,7 @@
 #include "ImGuiCpp.hh"
 
 #include "StringOp.hh"
+#include "escape_newline.hh"
 #include "stl.hh"
 #include "zstring_view.hh"
 
@@ -139,10 +140,10 @@ template<typename C>
 struct PersistentElement<C, std::string> : PersistentElementBase<C, std::string> {
 	using PersistentElementBase<C, std::string>::PersistentElementBase;
 	void save(ImGuiTextBuffer& buf, C& c) const {
-		buf.appendf("%s=%s\n", this->name.c_str(), this->get(c).c_str());
+		buf.appendf("%s=%s\n", this->name.c_str(), escape_newline::encode(this->get(c)).c_str());
 	}
 	void load(C& c, zstring_view value) const {
-		this->get(c) = std::string(value);
+		this->get(c) = escape_newline::decode(value);
 	}
 };
 
