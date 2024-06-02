@@ -37,12 +37,14 @@ jobs:
 #            cpu: x86_64
 #            os: mingw-w64
 #            flavour: opt
-          - image: macos-latest
+          - image: macos-14
+            xcode_version: 15.4
             name: MacOS
             cpu: x86_64
             os: darwin
             flavour: opt
-          - image: macos-latest
+          - image: macos-14
+            xcode_version: 15.4
             name: MacOS
             cpu: aarch64
             os: darwin
@@ -62,6 +64,9 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Select Xcode version
+      if: ${{ matrix.xcode_version }}
+      run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
     - name: Preparations for signing binaries on Darwin builds
       if: ${{ matrix.os == 'darwin' && env.BUILD_CERTIFICATE_BASE64 }}
       uses: ./.github/actions/prepare-sign
