@@ -47,9 +47,9 @@ bind_default SHIFT+ALT+F10 "vdrive diskb -1"
 # assume it's OK).
 bind_default "mouse button2 down" type_clipboard
 if {$tcl_platform(os) eq "Darwin"} { ;# Mac
-	bind_default "keyb META+C" copy_screen_to_clipboard
-	bind_default "keyb META+V" type_clipboard
+	bind_default -msx "keyb META+C" copy_screen_to_clipboard
+	bind_default -msx "keyb META+V" type_clipboard
 } else { ;# any other
-	bind_default "keyb META+CTRL+C" copy_screen_to_clipboard
-	bind_default "keyb META+CTRL+V" type_clipboard
+	bind_default -msx "keyb META+CTRL+C" copy_screen_to_clipboard
+	bind_default -msx "keyb META+CTRL+V" type_clipboard
 }
