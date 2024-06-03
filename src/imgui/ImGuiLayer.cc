@@ -28,7 +28,7 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 	manager.paintImGui();
 
 	// Allow docking in main window
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(),
+	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),
 		ImGuiDockNodeFlags_NoDockingOverCentralNode |
 		ImGuiDockNodeFlags_PassthruCentralNode);
 

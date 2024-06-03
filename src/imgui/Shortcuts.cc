@@ -134,10 +134,9 @@ zstring_view Shortcuts::getShortcutDescription(ID id)
 bool Shortcuts::checkShortcut(const ShortcutWithRepeat& shortcut) const
 {
 	assert(shortcut.keyChord != ImGuiKey_None);
-	auto flags = (shortcut.type == one_of(GLOBAL, ALWAYS_GLOBAL) ? ImGuiInputFlags_RouteGlobalLow : 0)
-	           | ImGuiInputFlags_RouteUnlessBgFocused
+	auto flags = (shortcut.type == one_of(GLOBAL, ALWAYS_GLOBAL) ? (ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_RouteUnlessBgFocused) : 0)
 	           | (shortcut.repeat ? ImGuiInputFlags_Repeat : 0);
-	return ImGui::Shortcut(shortcut.keyChord, 0, flags);
+	return ImGui::Shortcut(shortcut.keyChord, flags, 0);
 }
 
 bool Shortcuts::checkShortcut(ID id) const
