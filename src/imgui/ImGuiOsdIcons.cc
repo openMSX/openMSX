@@ -197,11 +197,13 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 			}();
 
 			const auto& ic = state ? icon.on : icon.off;
-			gl::vec2 cursor = ImGui::GetCursorPos();
-			ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
-			             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});
+			if (ic.tex.get()) {
+				gl::vec2 cursor = ImGui::GetCursorPos();
+				ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
+				             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});
+				ImGui::SetCursorPos(cursor);
+			}
 
-			ImGui::SetCursorPos(cursor);
 			auto size = gl::vec2(max(icon.on.size, icon.off.size));
 			(iconsHorizontal ? size.x : size.y) += spacing;
 			ImGui::Dummy(size);
