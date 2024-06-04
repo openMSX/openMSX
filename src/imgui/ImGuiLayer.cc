@@ -51,6 +51,14 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+
+#ifdef __APPLE__
+		if (ImGui::GetFrameCount() == 1) {
+			// On startup, bring main openMSX window to front, which it doesn't
+			// do it by itself due to creation of platform windows for viewports.
+			SDL_RaiseWindow(SDL_GetWindowFromID(WindowEvent::getMainWindowId()));
+		}
+#endif
 	}
 }
 
