@@ -32,9 +32,8 @@ void ImGuiLayer::paint(OutputSurface& /*surface*/)
 		ImGuiDockNodeFlags_NoDockingOverCentralNode |
 		ImGuiDockNodeFlags_PassthruCentralNode);
 
-	if (first) {
+	if (ImGui::GetFrameCount() == 1) {
 		// on startup, focus main openMSX window instead of the GUI window
-		first = false;
 		ImGui::SetWindowFocus(nullptr);
 	}
 

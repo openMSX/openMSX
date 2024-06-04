@@ -18,7 +18,6 @@ private:
 
 private:
 	ImGuiManager& manager;
-	bool first = true;
 };
 
 } // namespace openmsx
