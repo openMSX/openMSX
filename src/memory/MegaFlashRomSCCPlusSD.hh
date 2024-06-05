@@ -45,16 +45,16 @@ private:
 	/**
 	 * Writes to flash only if it was not write protected.
 	 */
-	void writeToFlash(unsigned addr, byte value);
+	void writeToFlash(unsigned addr, byte value, EmuTime::param time);
 	AmdFlash flash;
 	byte subslotReg;
 
 	// subslot 0
-	[[nodiscard]] byte readMemSubSlot0(word address);
-	[[nodiscard]] byte peekMemSubSlot0(word address) const;
+	[[nodiscard]] byte readMemSubSlot0(word address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot0(word address, EmuTime::param time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot0(word address) const;
 	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address);
-	void writeMemSubSlot0(word address, byte value);
+	void writeMemSubSlot0(word address, byte value, EmuTime::param time);
 
 	// subslot 1
 	// mega flash rom scc+

@@ -41,14 +41,14 @@ unsigned RomAscii16X::getFlashAddr(word addr) const
 	return (bank << 14) | (addr & 0x3FFF);
 }
 
-byte RomAscii16X::readMem(word addr, EmuTime::param /* time */)
+byte RomAscii16X::readMem(word addr, EmuTime::param time)
 {
-	return flash.read(getFlashAddr(addr));
+	return flash.read(getFlashAddr(addr), time);
 }
 
-byte RomAscii16X::peekMem(word addr, EmuTime::param /* time */) const
+byte RomAscii16X::peekMem(word addr, EmuTime::param time) const
 {
-	return flash.peek(getFlashAddr(addr));
+	return flash.peek(getFlashAddr(addr), time);
 }
 
 const byte* RomAscii16X::getReadCacheLine(word addr) const
@@ -56,9 +56,9 @@ const byte* RomAscii16X::getReadCacheLine(word addr) const
 	return flash.getReadCacheLine(getFlashAddr(addr));
 }
 
-void RomAscii16X::writeMem(word addr, byte value, EmuTime::param /* time */)
+void RomAscii16X::writeMem(word addr, byte value, EmuTime::param time)
 {
-	flash.write(getFlashAddr(addr), value);
+	flash.write(getFlashAddr(addr), value, time);
 
 	if ((addr & 0x3FFF) >= 0x2000) {
 		const word index = (addr >> 12) & 1;

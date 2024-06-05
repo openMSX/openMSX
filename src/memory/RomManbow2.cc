@@ -133,7 +133,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		return flash.peek(addr);
+		return flash.peek(addr, time);
 	} else {
 		return 0xFF;
 	}
@@ -146,7 +146,7 @@ byte RomManbow2::readMem(word address, EmuTime::param time)
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		return flash.read(addr);
+		return flash.read(addr, time);
 	} else {
 		return 0xFF;
 	}
@@ -176,7 +176,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		flash.write(addr, value);
+		flash.write(addr, value, time);
 
 		if (scc && ((address & 0xF800) == 0x9000)) {
 			// SCC enable/disable
