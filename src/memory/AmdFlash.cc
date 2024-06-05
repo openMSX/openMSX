@@ -219,10 +219,10 @@ void AmdFlash::setState(State newState)
 	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
-uint8_t AmdFlash::read(size_t address)
+uint8_t AmdFlash::read(size_t address, EmuTime::param time)
 {
 	address %= size();
-	const uint8_t value = peek(address);
+	const uint8_t value = peek(address, time);
 	if (state == State::STATUS) {
 		setState(State::READ);
 	} else if (state == State::ERROR) {
@@ -231,7 +231,7 @@ uint8_t AmdFlash::read(size_t address)
 	return value;
 }
 
-uint8_t AmdFlash::peek(size_t address) const
+uint8_t AmdFlash::peek(size_t address, EmuTime::param /*time*/) const
 {
 	address %= size();
 	if (state == State::READ) {
@@ -482,7 +482,7 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 	}
 }
 
-void AmdFlash::write(size_t address, uint8_t value)
+void AmdFlash::write(size_t address, uint8_t value, EmuTime::param /*time*/)
 {
 	address %= size();
 	cmd.push_back({.addr = address, .value = value});

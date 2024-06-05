@@ -178,22 +178,22 @@ unsigned DalSoRiR2::getFlashAddr(word addr) const
 	return 0x4000 * bank + offset;
 }
 
-byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
+byte DalSoRiR2::readMem(word addr, EmuTime::param time)
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
 	} else if (!biosDisable) {
-		return flash.read(getFlashAddr(addr));
+		return flash.read(getFlashAddr(addr), time);
 	}
 	return 0xFF;
 }
 
-byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
+byte DalSoRiR2::peekMem(word addr, EmuTime::param time) const
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
 	} else if (!biosDisable) {
-		return flash.peek(getFlashAddr(addr));
+		return flash.peek(getFlashAddr(addr), time);
 	}
 	return 0xFF;
 }
@@ -208,7 +208,7 @@ const byte* DalSoRiR2::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
+void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param time)
 {
 	if (auto r = getSramAddr(addr)) {
 		sram[*r] = value;
@@ -223,7 +223,7 @@ void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 	} else if ((0x6700 <= addr) && (addr < 0x6800)) {
 		setRegCfg(value);
 	} else if (!biosDisable && ((regCfg & ENA_FW) != 0)) {
-		flash.write(getFlashAddr(addr), value);
+		flash.write(getFlashAddr(addr), value, time);
 	}
 }
 

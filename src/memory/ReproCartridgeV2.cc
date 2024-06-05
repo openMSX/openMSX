@@ -143,7 +143,7 @@ byte ReproCartridgeV2::readMem(word addr, EmuTime::param time)
 
 	unsigned flashAddr = getFlashAddr(addr);
 	return (flashAddr != unsigned(-1))
-		? flash.read(flashAddr)
+		? flash.read(flashAddr, time)
 		: 0xFF; // unmapped read
 }
 
@@ -155,7 +155,7 @@ byte ReproCartridgeV2::peekMem(word addr, EmuTime::param time) const
 
 	unsigned flashAddr = getFlashAddr(addr);
 	return (flashAddr != unsigned(-1))
-		? flash.peek(flashAddr)
+		? flash.peek(flashAddr, time)
 		: 0xFF; // unmapped read
 }
 
@@ -265,7 +265,7 @@ void ReproCartridgeV2::writeMem(word addr, byte value, EmuTime::param time)
 		}
 	} else {
 		if (flashAddr != unsigned(-1)) {
-			flash.write(flashAddr, value);
+			flash.write(flashAddr, value, time);
 		}
 	}
 }

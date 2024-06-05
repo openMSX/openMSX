@@ -333,10 +333,10 @@ byte MegaFlashRomSCCPlusSD::getSubSlot(unsigned addr) const
 		(subslotReg >> (2 * (addr >> 14))) & 3 : 1;
 }
 
-void MegaFlashRomSCCPlusSD::writeToFlash(unsigned addr, byte value)
+void MegaFlashRomSCCPlusSD::writeToFlash(unsigned addr, byte value, EmuTime::param time)
 {
 	if (isFlashRomWriteEnabled()) {
-		flash.write(addr, value);
+		flash.write(addr, value, time);
 	} else {
 		// flash is write protected, this is implemented by not passing
 		// writes to flash at all.
@@ -351,7 +351,7 @@ byte MegaFlashRomSCCPlusSD::peekMem(word addr, EmuTime::param time) const
 	}
 
 	switch (getSubSlot(addr)) {
-		case 0: return peekMemSubSlot0(addr);
+		case 0: return peekMemSubSlot0(addr, time);
 		case 1: return peekMemSubSlot1(addr, time);
 		case 2: return isMemoryMapperEnabled() ?
 				peekMemSubSlot2(addr) : 0xFF;
@@ -368,7 +368,7 @@ byte MegaFlashRomSCCPlusSD::readMem(word addr, EmuTime::param time)
 	}
 
 	switch (getSubSlot(addr)) {
-		case 0: return readMemSubSlot0(addr);
+		case 0: return readMemSubSlot0(addr, time);
 		case 1: return readMemSubSlot1(addr, time);
 		case 2: return isMemoryMapperEnabled() ?
 				readMemSubSlot2(addr) : 0xFF;
@@ -409,7 +409,7 @@ void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
 	}
 
 	switch (getSubSlot(addr)) {
-		case 0: writeMemSubSlot0(addr, value); break;
+		case 0: writeMemSubSlot0(addr, value, time); break;
 		case 1: writeMemSubSlot1(addr, value, time); break;
 		case 2: if (isMemoryMapperEnabled()) {
 				writeMemSubSlot2(addr, value);
@@ -440,18 +440,18 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr)
 
 /////////////////////// sub slot 0 ////////////////////////////////////////////
 
-byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
+byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr, EmuTime::param time)
 {
 	// read from the first 16kB of flash
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
-	return flash.read(addr & 0x3FFF);
+	return flash.read(addr & 0x3FFF, time);
 }
 
-byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr) const
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr, EmuTime::param time) const
 {
 	// read from the first 16kB of flash
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
-	return flash.peek(addr & 0x3FFF);
+	return flash.peek(addr & 0x3FFF, time);
 }
 
 const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
@@ -459,10 +459,10 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
 	return flash.getReadCacheLine(addr & 0x3FFF);
 }
 
-void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
+void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value, EmuTime::param time)
 {
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF)
-	writeToFlash(addr & 0x3FFF, value);
+	writeToFlash(addr & 0x3FFF, value, time);
 }
 
 byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot0(word /*addr*/)
@@ -534,7 +534,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot1(word addr, EmuTime::param time)
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
-		? flash.read(flashAddr)
+		? flash.read(flashAddr, time)
 		: 0xFF; // unmapped read
 }
 
@@ -551,7 +551,7 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) cons
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
-		? flash.peek(flashAddr)
+		? flash.peek(flashAddr, time)
 		: 0xFF; // unmapped read
 }
 
@@ -710,7 +710,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 	}
 
 	if (flashAddr != unsigned(-1)) {
-		writeToFlash(flashAddr, value);
+		writeToFlash(flashAddr, value, time);
 	}
 }
 
@@ -783,7 +783,7 @@ unsigned MegaFlashRomSCCPlusSD::getFlashAddrSubSlot3(unsigned addr) const
 	return (bankRegsSubSlot3[page8kB] & 0x7f) * 0x2000 + (addr & 0x1fff) + 0x700000;
 }
 
-byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
+byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param time)
 {
 	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
 		// transfer from SD card
@@ -793,19 +793,19 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		return flash.read(flashAddr);
+		return flash.read(flashAddr, time);
 	} else {
 		// unmapped read
 		return 0xFF;
 	}
 }
 
-byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) const
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param time) const
 {
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		return flash.peek(flashAddr);
+		return flash.peek(flashAddr, time);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -827,7 +827,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 	}
 }
 
-void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::param /*time*/)
+void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::param time)
 {
 
 	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
@@ -841,7 +841,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 		// write to flash (first, before modifying bank regs)
 		if ((0x4000 <= addr) && (addr < 0xC000)) {
 			unsigned flashAddr = getFlashAddrSubSlot3(addr);
-			writeToFlash(flashAddr, value);
+			writeToFlash(flashAddr, value, time);
 		}
 
 		// ASCII-8 mapper

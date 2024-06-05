@@ -4,6 +4,7 @@
 #include "serialize_meta.hh"
 
 #include "BitField.hh"
+#include "EmuTime.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "power_of_two.hh"
@@ -215,9 +216,9 @@ public:
 	bool getReadyPin() const;
 
 	[[nodiscard]] power_of_two<size_t> size() const { return chip.geometry.size; }
-	[[nodiscard]] uint8_t read(size_t address);
-	[[nodiscard]] uint8_t peek(size_t address) const;
-	void write(size_t address, uint8_t value);
+	[[nodiscard]] uint8_t read(size_t address, EmuTime::param time);
+	[[nodiscard]] uint8_t peek(size_t address, EmuTime::param time) const;
+	void write(size_t address, uint8_t value, EmuTime::param time);
 	[[nodiscard]] const uint8_t* getReadCacheLine(size_t address) const;
 
 	template<typename Archive>

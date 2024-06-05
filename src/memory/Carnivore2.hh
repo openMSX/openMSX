@@ -108,8 +108,8 @@ private:
 	void writeMemoryMapperSlot(word address, byte value);
 
 	// fm-pac
-	[[nodiscard]] byte readFmPacSlot(word address);
-	[[nodiscard]] byte peekFmPacSlot(word address) const;
+	[[nodiscard]] byte readFmPacSlot(word address, EmuTime::param time);
+	[[nodiscard]] byte peekFmPacSlot(word address, EmuTime::param time) const;
 	void writeFmPacSlot(word address, byte value, EmuTime::param time);
 	[[nodiscard]] bool fmPacPortEnabled1() const { return fmPacEnable & 0x01; }
 	[[nodiscard]] bool fmPacSramEnabled() const {
