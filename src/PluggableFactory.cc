@@ -86,7 +86,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());
 	controller.registerPluggable(std::make_unique<MagicKey>());
-     controller.registerPluggable(std::make_unique<CircuitDesignerRDDongle>());
+    controller.registerPluggable(std::make_unique<CircuitDesignerRDDongle>());
 
 	// Logging:
 	controller.registerPluggable(std::make_unique<PrinterPortLogger>(
