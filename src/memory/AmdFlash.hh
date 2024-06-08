@@ -4,9 +4,12 @@
 #include "serialize_meta.hh"
 
 #include "BitField.hh"
+#include "EmuDuration.hh"
 #include "EmuTime.hh"
+#include "Schedulable.hh"
 #include "cstd.hh"
 #include "narrow.hh"
+#include "outer.hh"
 #include "power_of_two.hh"
 #include "static_vector.hh"
 
@@ -82,6 +85,16 @@ public:
 		constexpr void validate() const {
 			assert(std::ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
 			assert(narrow_cast<unsigned>(cstd::abs(writeProtectPinRange)) <= sectorCount);
+		}
+	};
+
+	struct Erase {
+		EmuDuration duration = EmuDuration::zero();           // per 64K sector
+		EmuDuration timerDuration = EmuDuration::usec(50);    // to accept additional sector erase commands
+		EmuDuration minimumDuration = EmuDuration::usec(100); // when all sectors protected
+
+		constexpr void validate() const {
+			assert(duration > EmuDuration::zero());
 		}
 	};
 
@@ -162,6 +175,7 @@ public:
 	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
+		Erase erase = {};
 		Program program = {};
 		CFI cfi = {};
 		Misc misc = {};
@@ -169,6 +183,7 @@ public:
 		constexpr void validate() const {
 			autoSelect.validate();
 			geometry.validate();
+			erase.validate();
 			program.validate();
 			cfi.validate();
 			misc.validate();
@@ -235,12 +250,13 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State : uint8_t { READ, AUTOSELECT, CFI, STATUS, ERROR };
+	enum class State : uint8_t { READ, AUTOSELECT, CFI, STATUS, ERROR, ERASE_SECTOR, ERASE_CHIP };
 
 	struct Sector {
-		size_t address;
-		power_of_two<size_t> size;
-		bool writeProtect;
+		size_t index = 0;
+		size_t address = 0;
+		power_of_two<size_t> size = 1;
+		bool writeProtect = false;
 		ptrdiff_t writeAddress = -1;
 		const uint8_t* readAddress = nullptr;
 
@@ -273,14 +289,19 @@ private:
 	[[nodiscard]] bool checkCommandStatusRead();
 	[[nodiscard]] bool checkCommandStatusClear();
 	[[nodiscard]] bool checkCommandContinuityCheck();
-	[[nodiscard]] bool checkCommandEraseSector();
-	[[nodiscard]] bool checkCommandEraseChip();
+	[[nodiscard]] bool checkCommandEraseSector(EmuTime::param time);
+	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime::param time);
+	[[nodiscard]] bool checkCommandEraseChip(EmuTime::param time);
 	[[nodiscard]] bool checkCommandProgram();
 	[[nodiscard]] bool checkCommandDoubleByteProgram();
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
 	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
 	[[nodiscard]] bool checkCommandBufferProgram();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
+
+	void scheduleEraseOperation(EmuTime::param time);
+	void execOperation(EmuTime::param time);
+	void execEraseOperation(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
@@ -316,6 +337,26 @@ private:
 		BF8<1> sectorLock;
 		BF8<0> continuity;
 	} statusRegister;
+
+	struct EraseOperation {
+		size_t index = 0;
+		std::vector</*bool*/uint8_t> buffer;
+
+		bool isPending(const Sector& sector) const;
+		void markPending(const Sector& sector);
+		void reset();
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	} erase;
+
+	struct SyncOperation : Schedulable {
+		friend class AmdFlash;
+		explicit SyncOperation(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& outer = OUTER(AmdFlash, syncOperation);
+			outer.execOperation(time);
+		}
+	} syncOperation;
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 4);
 
@@ -333,6 +374,7 @@ namespace AmdFlashChip
 				{.count = 8, .size = 0x10000},
 			},
 		},
+		.erase{.duration = EmuDuration::msec(1000)},
 	}};
 
 	// AMD AM29F016D
@@ -343,6 +385,7 @@ namespace AmdFlashChip
 				{.count = 32, .size = 0x10000},
 			},
 		},
+		.erase{.duration = EmuDuration::msec(1000)},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -376,6 +419,7 @@ namespace AmdFlashChip
 				{.count = 32, .size = 0x1000},
 			},
 		},
+		.erase{.duration = EmuDuration::msec(25)},
 	}};
 
 	// Numonyx M29W800DB
@@ -389,6 +433,7 @@ namespace AmdFlashChip
 				{.count = 15, .size = 0x10000},
 			},
 		},
+		.erase{.duration = EmuDuration::msec(800)},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -421,6 +466,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
+		.erase{.duration = EmuDuration::msec(500)},
 		.program{.shortAbortReset = true, .fastPageSize = 8, .bufferPageSize = 32},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
@@ -457,6 +503,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 1
 		},
+		.erase{.duration = EmuDuration::msec(500)},
 		.program{.bufferPageSize = 32},
 		.cfi{
 			.command = true,
@@ -493,6 +540,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
+		.erase{.duration = EmuDuration::msec(300)},
 		.program{.bufferPageSize = 256},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
