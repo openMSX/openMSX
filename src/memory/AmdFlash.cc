@@ -44,6 +44,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 	, syncOperation(motherBoard.getScheduler())
+	, syncSuspend(motherBoard.getScheduler())
 {
 	cmd.reserve(5 + chip.program.bufferPageSize); // longest command is BufferProgram
 
@@ -192,6 +193,7 @@ void AmdFlash::reset()
 	statusRegister = {};
 	setState(State::READ);
 	syncOperation.removeSyncPoint();
+	syncSuspend.removeSyncPoint();
 	erase.reset();
 	program.reset();
 }
@@ -228,7 +230,11 @@ uint8_t AmdFlash::read(size_t address, EmuTime::param time)
 {
 	address %= size();
 	const uint8_t value = peek(address, time);
-	if (state == State::STATUS) {
+	if (state == State::READ) {
+		if (statusRegister.eraseSuspend && erase.isPending(getSector(address))) {
+			status.eraseToggle = !status.eraseToggle;
+		}
+	} else if (state == State::STATUS) {
 		setState(State::READ);
 	} else if (state == one_of(State::PROGRAM, State::ERROR)) {
 		status.busyToggle = !status.busyToggle;
@@ -249,10 +255,10 @@ uint8_t AmdFlash::peek(size_t address, EmuTime::param /*time*/) const
 	address %= size();
 	if (state == State::READ) {
 		const Sector& sector = getSector(address);
-		if (const uint8_t* addr = sector.readAddress) {
-			return addr[address - sector.address];
+		if (erase.isPending(sector)) {
+			return status.raw;
 		} else {
-			return 0xFF;
+			return sector.readAddress ? sector.readAddress[address - sector.address] : 0xFF;
 		}
 	} else if (state == State::AUTOSELECT) {
 		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
@@ -488,8 +494,12 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 	address %= size();
 	if (state == State::READ) {
 		const Sector& sector = getSector(address);
-		const uint8_t* addr = sector.readAddress;
-		return addr ? &addr[address - sector.address] : MSXDevice::unmappedRead.data();
+		if (erase.isPending(sector)) {
+			return nullptr;
+		} else {
+			const uint8_t* addr = sector.readAddress;
+			return addr ? &addr[address - sector.address] : MSXDevice::unmappedRead.data();
+		}
 	} else {
 		return nullptr;
 	}
@@ -508,6 +518,7 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 		    checkCommandDoubleByteProgram(time) ||
 		    checkCommandQuadrupleByteProgram(time) ||
 		    checkCommandBufferProgram(time) ||
+		    checkCommandResume(time) ||
 		    checkCommandCFIQuery() ||
 		    checkCommandContinuityCheck() ||
 		    checkCommandStatusRead() ||
@@ -551,7 +562,8 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 			cmd.clear();
 		}
 	} else if (state == State::ERASE_SECTOR) {
-		if (checkCommandEraseAdditionalSector(time)) {
+		if (checkCommandEraseAdditionalSector(time) ||
+		    checkCommandSuspend(time)) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -656,7 +668,7 @@ bool AmdFlash::checkCommandContinuityCheck()
 bool AmdFlash::checkCommandEraseSector(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
-	if (partialMatch(cmdSeq)) {
+	if (!statusRegister.eraseSuspend && partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
 			clearStatus();
@@ -696,7 +708,7 @@ bool AmdFlash::checkCommandEraseAdditionalSector(EmuTime::param time)
 bool AmdFlash::checkCommandEraseChip(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
-	if (partialMatch(cmdSeq)) {
+	if (!statusRegister.eraseSuspend && partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
 			clearStatus();
@@ -781,6 +793,55 @@ void AmdFlash::EraseOperation::reset()
 	buffer.clear();
 }
 
+bool AmdFlash::checkCommandSuspend(EmuTime::param time)
+{
+	if (state == State::ERASE_SECTOR) {
+		if (chip.erase.suspend) {
+			if (cmd[0].value == 0xB0) {
+				if (!status.eraseTimer) {
+					syncOperation.removeSyncPoint();
+					execSuspend(time);
+				} else {
+					if (!syncSuspend.pendingSyncPoint()) {
+						syncOperation.removeSyncPoint();
+						syncSuspend.setSyncPoint(time + chip.erase.suspendDuration);
+					}
+				}
+			}
+		}
+	} else {
+		UNREACHABLE;
+	}
+	return false;
+}
+
+void AmdFlash::execSuspend(EmuTime::param /*time*/)
+{
+	if (state == State::ERASE_SECTOR) {
+		statusRegister.ready = true;
+		statusRegister.eraseSuspend = true;
+		status.dataPolling = true;
+		status.eraseTimer = true;
+		setState(State::READ);
+	} else {
+		UNREACHABLE;
+	}
+}
+
+bool AmdFlash::checkCommandResume(EmuTime::param time)
+{
+	if (statusRegister.eraseSuspend) {
+		if (cmd[0].value == 0x30) {
+			statusRegister.ready = false;
+			statusRegister.eraseSuspend = false;
+			status.dataPolling = false;
+			setState(State::ERASE_SECTOR);
+			scheduleEraseOperation(time);
+		}
+	}
+	return false;
+}
+
 bool AmdFlash::checkCommandProgram(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xa0};
@@ -807,7 +868,7 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 		status.dataPolling = ~cmd.back().value & 0x80;
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		const Sector& sector = getSector(cmd.back().addr);
-		if (isWritable(sector)) {
+		if (isWritable(sector) && !erase.isPending(sector)) {
 			const size_t pageMask = chip.program.fastPageSize - 1;
 			program.address = cmd.back().addr & ~pageMask;
 			program.buffer.assign(chip.program.fastPageSize, 0xFFFF);
@@ -825,7 +886,7 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 		} else {
 			// immediate completion
 			statusRegister.sectorLock = true;
-			status.dataPolling = !status.dataPolling;
+			status.dataPolling = !status.dataPolling || statusRegister.eraseSuspend;
 		}
 	}
 	return false;
@@ -856,7 +917,7 @@ bool AmdFlash::checkCommandBufferProgram(EmuTime::param time)
 		} else {
 			const Sector& sector = getSector(cmd[2].addr);
 			if (cmd.back().value == 0x29 && getSector(cmd.back().addr) == sector) {
-				if (isWritable(sector)) {
+				if (isWritable(sector) && !erase.isPending(sector)) {
 					const size_t pageMask = chip.program.bufferPageSize - 1;
 					program.address = cmd[4].addr & ~pageMask;
 					program.buffer.assign(chip.program.bufferPageSize, 0xFFFF);
@@ -874,7 +935,7 @@ bool AmdFlash::checkCommandBufferProgram(EmuTime::param time)
 				} else {
 					// immediate completion
 					statusRegister.sectorLock = true;
-					status.dataPolling = !status.dataPolling;
+					status.dataPolling = !status.dataPolling || statusRegister.eraseSuspend;
 				}
 				return false;
 			}
@@ -919,7 +980,7 @@ void AmdFlash::execProgramOperation(EmuTime::param time)
 	if (program.index >= program.buffer.size()) {
 		program.reset();
 		statusRegister.ready = true;
-		status.dataPolling = !status.dataPolling;
+		status.dataPolling = !status.dataPolling || statusRegister.eraseSuspend;
 		setState(State::READ);
 	} else {
 		syncOperation.setSyncPoint(time + chip.program.additionalDuration);
@@ -999,7 +1060,7 @@ void AmdFlash::ProgramOperation::serialize(Archive& ar, unsigned /*version*/)
 // version 1: Initial version.
 // version 2: Added vppWpPinLow.
 // version 3: Changed cmd to static_vector, added status.
-// version 4: Added status register, sectors and operation schedulable.
+// version 4: Added status register, sectors and operation / suspend schedulables.
 template<typename Archive>
 void AmdFlash::serialize(Archive& ar, unsigned version)
 {
@@ -1022,7 +1083,8 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 		ar.serialize("statusRegister", statusRegister.raw,
 		             "erase", erase,
 					 "program", program,
-		             "syncOperation", syncOperation);
+		             "syncOperation", syncOperation,
+		             "syncSuspend", syncSuspend);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash);

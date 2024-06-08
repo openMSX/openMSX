@@ -89,12 +89,15 @@ public:
 	};
 
 	struct Erase {
+		bool suspend : 1 = false;                             // erase suspend support
 		EmuDuration duration = EmuDuration::zero();           // per 64K sector
 		EmuDuration timerDuration = EmuDuration::usec(50);    // to accept additional sector erase commands
 		EmuDuration minimumDuration = EmuDuration::usec(100); // when all sectors protected
+		EmuDuration suspendDuration = EmuDuration::zero();    // time to suspend (max)
 
 		constexpr void validate() const {
 			assert(duration > EmuDuration::zero());
+			assert(!suspend || suspendDuration > EmuDuration::zero());
 		}
 	};
 
@@ -162,8 +165,10 @@ public:
 			uint8_t programSuspend = 0;
 		} primaryAlgorithm = {};
 
-		constexpr void validate() const {
+		constexpr void validate(const Erase& erase_) const {
+			(void)erase_;
 			assert(!command || primaryAlgorithm.version.major == 1);
+			assert(!command || erase_.suspend == (primaryAlgorithm.eraseSuspend > 0));
 		}
 	};
 
@@ -190,7 +195,7 @@ public:
 			geometry.validate();
 			erase.validate();
 			program.validate();
-			cfi.validate();
+			cfi.validate(erase);
 			misc.validate();
 		}
 	};
@@ -297,6 +302,8 @@ private:
 	[[nodiscard]] bool checkCommandEraseSector(EmuTime::param time);
 	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime::param time);
 	[[nodiscard]] bool checkCommandEraseChip(EmuTime::param time);
+	[[nodiscard]] bool checkCommandSuspend(EmuTime::param time);
+	[[nodiscard]] bool checkCommandResume(EmuTime::param time);
 	[[nodiscard]] bool checkCommandProgram(EmuTime::param time);
 	[[nodiscard]] bool checkCommandDoubleByteProgram(EmuTime::param time);
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram(EmuTime::param time);
@@ -309,6 +316,7 @@ private:
 	void execOperation(EmuTime::param time);
 	void execEraseOperation(EmuTime::param time);
 	void execProgramOperation(EmuTime::param time);
+	void execSuspend(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
@@ -374,6 +382,15 @@ private:
 			outer.execOperation(time);
 		}
 	} syncOperation;
+
+	struct SyncSuspend : Schedulable {
+		friend class AmdFlash;
+		explicit SyncSuspend(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& outer = OUTER(AmdFlash, syncSuspend);
+			outer.execSuspend(time);
+		}
+	} syncSuspend;
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 4);
 
@@ -391,7 +408,7 @@ namespace AmdFlashChip
 				{.count = 8, .size = 0x10000},
 			},
 		},
-		.erase{.duration = EmuDuration::msec(1000)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(1000), .suspendDuration = EmuDuration::usec(20)},
 		.program{.duration = EmuDuration::usec(7)},
 	}};
 
@@ -403,7 +420,7 @@ namespace AmdFlashChip
 				{.count = 32, .size = 0x10000},
 			},
 		},
-		.erase{.duration = EmuDuration::msec(1000)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(1000), .suspendDuration = EmuDuration::usec(20)},
 		.program{.duration = EmuDuration::usec(7)},
 		.cfi{
 			.command = true,
@@ -453,7 +470,7 @@ namespace AmdFlashChip
 				{.count = 15, .size = 0x10000},
 			},
 		},
-		.erase{.duration = EmuDuration::msec(800)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(800), .suspendDuration = EmuDuration::usec(25)},
 		.program{.duration = EmuDuration::usec(10)},
 		.cfi{
 			.command = true,
@@ -487,7 +504,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.erase{.duration = EmuDuration::msec(500)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(500), .suspendDuration = EmuDuration::usec(4)},
 		.program{
 			.shortAbortReset = true, .bitRaiseError = true, .fastPageSize = 8, .bufferPageSize = 32,
 			.duration = EmuDuration::usec(10), .additionalDuration = EmuDuration::usec(5.5)
@@ -527,7 +544,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 1
 		},
-		.erase{.duration = EmuDuration::msec(500)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(500), .suspendDuration = EmuDuration::usec(20)},
 		.program{
 			.bufferPageSize = 32,
 			.duration = EmuDuration::usec(60), .additionalDuration = EmuDuration::usec(5.8)
@@ -567,7 +584,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.erase{.duration = EmuDuration::msec(300)},
+		.erase{.suspend = true, .duration = EmuDuration::msec(300), .suspendDuration = EmuDuration::usec(30)},
 		.program{
 			.shortAbortReset = false, .bitRaiseError = false, .bufferPageSize = 256,
 			.duration = EmuDuration::usec(150), .additionalDuration = EmuDuration::usec(1.0)
