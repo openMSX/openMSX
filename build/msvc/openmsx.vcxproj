@@ -524,6 +524,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\CircuitDesignerRDDongle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
@@ -1104,6 +1105,7 @@
     <None Include="$(OpenMSXSrcDir)\input\Trackball.hh" />
     <None Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\CircuitDesignerRDDongle.hh" />
     <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
