@@ -213,6 +213,7 @@ sources = files(
     'ide/SunriseIDE.cc',
     'ide/WD33C93.cc',
     'input/ArkanoidPad.cc',
+    'input/CircuitDesignerRDDongle.cc',
     'input/ColecoJoystickIO.cc',
     'input/DummyJoystick.cc',
     'input/EventDelay.cc',

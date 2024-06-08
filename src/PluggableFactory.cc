@@ -9,6 +9,7 @@
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
+#include "CircuitDesignerRDDongle.hh"
 #include "MagicKey.hh"
 #include "MSXJoystick.hh"
 #include "MidiInReader.hh"
@@ -85,6 +86,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());
 	controller.registerPluggable(std::make_unique<MagicKey>());
+     controller.registerPluggable(std::make_unique<CircuitDesignerRDDongle>());
 
 	// Logging:
 	controller.registerPluggable(std::make_unique<PrinterPortLogger>(
