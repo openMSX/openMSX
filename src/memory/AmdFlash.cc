@@ -43,6 +43,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    DeviceConfig& config, std::string_view id)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
+	, syncAlgorithm(motherBoard.getScheduler())
 {
 	cmd.reserve(5 + chip.program.bufferPageSize); // longest command is BufferProgram
 
@@ -185,6 +186,10 @@ bool AmdFlash::getReadyPin() const
 
 void AmdFlash::reset()
 {
+	syncAlgorithm.removeSyncPoint();
+	for (Sector& sector : sectors) {
+		sector.erasePending = std::nullopt;
+	}
 	cmd.clear();
 	status = {};
 	setState(State::IDLE);
@@ -254,6 +259,11 @@ uint8_t AmdFlash::read(size_t address, EmuTime::param time)
 		setState(State::IDLE);
 	} else if (state == State::ERROR) {
 		status.busyToggle = !status.busyToggle;
+	} else if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP)) {
+		status.busyToggle = !status.busyToggle;
+		if (getSector(address).erasePending) {
+			status.eraseToggle = !status.eraseToggle;
+		}
 	}
 	return value;
 }
@@ -288,7 +298,7 @@ uint8_t AmdFlash::peek(size_t address, EmuTime::param /*time*/) const
 		}
 	} else if (state == State::STATUS) {
 		return getStatusRegister();
-	} else if (state == State::ERROR) {
+	} else if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP, State::ERROR)) {
 		return getOperationStatus();
 	} else {
 		UNREACHABLE;
@@ -509,19 +519,19 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 	}
 }
 
-void AmdFlash::write(size_t address, uint8_t value, EmuTime::param /*time*/)
+void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 {
 	address %= size();
 	cmd.push_back({.addr = address, .value = value});
 
 	if (state == State::IDLE) {
 		if (checkCommandAutoSelect() ||
-		    checkCommandEraseSector() ||
+		    checkCommandEraseSector(time) ||
+		    checkCommandEraseChip(time) ||
 		    checkCommandProgram() ||
 		    checkCommandDoubleByteProgram() ||
 		    checkCommandQuadrupleByteProgram() ||
 		    checkCommandBufferProgram() ||
-		    checkCommandEraseChip() ||
 		    checkCommandCFIQuery() ||
 		    checkCommandContinuityCheck() ||
 		    checkCommandStatusRead() ||
@@ -559,6 +569,18 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param /*time*/)
 	} else if (state == State::ERROR) {
 		if (checkCommandLongReset() ||
 		    (chip.program.shortAbortReset && checkCommandReset())) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::ERASE_SECTOR) {
+		if (checkCommandEraseAdditionalSector(time)) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::ERASE_CHIP) {
+		if (false) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -648,7 +670,7 @@ bool AmdFlash::checkCommandContinuityCheck()
 	return false;
 }
 
-bool AmdFlash::checkCommandEraseSector()
+bool AmdFlash::checkCommandEraseSector(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
 	if (partialMatch(cmdSeq)) {
@@ -656,20 +678,39 @@ bool AmdFlash::checkCommandEraseSector()
 		if (cmd[5].value == 0x30) {
 			clearStatus();
 
-			if (const Sector& sector = getSector(cmd[5].addr);
+			if (Sector& sector = getSector(cmd[5].addr);
 			    isWritable(sector)) {
-				ram->memset(sector.writeAddress, 0xff, sector.size);
+				sector.erasePending = true;
 			} else {
 				status.sectorLock = true;
 			}
 
-			status.dataPolling = true; // immediate completion
+			status.ready = false;
+			status.dataPolling = false;
+			setState(State::ERASE_SECTOR);
+			scheduleEraseAlgorithm(time);
 		}
 	}
 	return false;
 }
 
-bool AmdFlash::checkCommandEraseChip()
+bool AmdFlash::checkCommandEraseAdditionalSector(EmuTime::param time)
+{
+	assert(state == State::ERASE_SECTOR);
+	if (!status.eraseTimer && cmd[0].value == 0x30) {
+		Sector& sector = getSector(cmd[0].addr);
+		if (isWritable(sector)) {
+			sector.erasePending = true;
+		} else {
+			status.sectorLock = true;
+		}
+
+		scheduleEraseAlgorithm(time);
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandEraseChip(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
 	if (partialMatch(cmdSeq)) {
@@ -677,18 +718,65 @@ bool AmdFlash::checkCommandEraseChip()
 		if (cmd[5].value == 0x10) {
 			clearStatus();
 
-			for (const Sector& sector : sectors) {
+			for (Sector& sector : sectors) {
 				if (isWritable(sector)) {
-					ram->memset(sector.writeAddress, 0xff, sector.size);
+					sector.erasePending = true;
 				} else {
 					status.sectorLock = true;
 				}
 			}
 
-			status.dataPolling = true; // immediate completion
+			status.ready = false;
+			status.dataPolling = false;
+			setState(State::ERASE_CHIP);
+			scheduleEraseAlgorithm(time);
 		}
 	}
 	return false;
+}
+
+void AmdFlash::scheduleEraseAlgorithm(EmuTime::param time)
+{
+	if (state == State::ERASE_SECTOR && !status.eraseTimer) {
+		syncAlgorithm.removeSyncPoint();
+		syncAlgorithm.setSyncPoint(time + chip.erase.timerDuration);
+	} else if (std::ranges::any_of(sectors, [](auto& s) { return s.erasePending.value_or(false); })) {
+		assert(!syncAlgorithm.pendingSyncPoint());
+		syncAlgorithm.setSyncPoint(time + chip.erase.duration);
+	} else {
+		assert(!syncAlgorithm.pendingSyncPoint());
+		syncAlgorithm.setSyncPoint(time + chip.erase.minimumDuration);
+	}
+}
+
+void AmdFlash::execEraseAlgorithm(EmuTime::param time)
+{
+	assert(state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP));
+	if (state == State::ERASE_SECTOR && !status.eraseTimer) {
+		status.eraseTimer = true;
+		scheduleEraseAlgorithm(time);
+	} else {
+		for (Sector& sector : sectors) {
+			if (sector.erasePending.value_or(false)) {
+				assert(!sector.writeProtect);
+				ram->memset(sector.writeAddress, 0xff, sector.size);
+				sector.erasePending = false;
+				break;
+			}
+		}
+
+		if (std::ranges::none_of(sectors, [](auto& s) { return s.erasePending.value_or(false); })) {
+			for (Sector& sector : sectors) {
+				sector.erasePending = std::nullopt;
+			}
+			status.ready = true;
+			status.dataPolling = true;
+			status.eraseTimer = false;
+			setState(State::IDLE);
+		} else {
+			syncAlgorithm.setSyncPoint(time + chip.erase.duration);
+		}
+	}
 }
 
 bool AmdFlash::checkCommandProgram()
@@ -821,13 +909,24 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	});
 }
 
+void AmdFlash::execAlgorithm(EmuTime::param time)
+{
+	if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP)) {
+		execEraseAlgorithm(time);
+	} else {
+		UNREACHABLE;
+	}
+}
+
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
 	{ "IDLE",   AmdFlash::State::IDLE  },
 	{ "IDENT",  AmdFlash::State::IDENT },
 	{ "CFI",    AmdFlash::State::CFI },
 	{ "STATUS", AmdFlash::State::STATUS },
-	{ "ERROR",  AmdFlash::State::ERROR }
+	{ "ERROR",  AmdFlash::State::ERROR },
+	{ "ERASE_SECTOR",  AmdFlash::State::ERASE_SECTOR },
+	{ "ERASE_CHIP",    AmdFlash::State::ERASE_CHIP }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
@@ -858,9 +957,16 @@ void AmdFlash::Status::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash::Status);
 
+template<typename Archive>
+void AmdFlash::Sector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("erasePending", erasePending);
+}
+
 // version 1: Initial version.
 // version 2: Added vppWpPinLow.
 // version 3: Changed cmd to static_vector, added status.
+// version 4: Added sectors and algorithm schedulable.
 template<typename Archive>
 void AmdFlash::serialize(Archive& ar, unsigned version)
 {
@@ -878,6 +984,17 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 	ar.serialize("state", state);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("vppWpPinLow", vppWpPinLow);
+	}
+	if (ar.versionAtLeast(version, 3)) {
+		// manually serialise sectors, don't reconstruct the vector
+		ar.beginTag("sectors");
+		for (Sector& sector : sectors) {
+			ar.beginTag("item");
+			ar.serialize("sector", sector);
+			ar.endTag("item");
+		}
+		ar.endTag("sectors");
+		ar.serialize("syncAlgorithm", syncAlgorithm);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash);
