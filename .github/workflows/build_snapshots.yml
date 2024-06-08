@@ -23,6 +23,11 @@ jobs:
             os: linux
             flavour: unittest
           - image: ubuntu-latest
+            name: Linux (native, super-opt)
+            cpu: x86_64
+            os: linux
+            flavour: super-opt
+          - image: ubuntu-latest
             name: Linux
             cpu: x86_64
             os: linux
