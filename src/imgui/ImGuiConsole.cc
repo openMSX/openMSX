@@ -131,6 +131,9 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		const auto& style = ImGui::GetStyle();
 		const float footerHeightToReserve = style.ItemSpacing.y +
 						ImGui::GetFrameHeightWithSpacing();
+
+		bool scrollUp   = ImGui::Shortcut(ImGuiKey_PageUp);
+		bool scrollDown = ImGui::Shortcut(ImGuiKey_PageDown);
 		im::Child("ScrollingRegion", ImVec2(0, -footerHeightToReserve), 0,
 		          ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			im::PopupContextWindow([&]{
@@ -151,6 +154,14 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 			if (scrollToBottom || (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())) {
 				scrollToBottom = false;
 				ImGui::SetScrollHereY(1.0f);
+			}
+
+			auto scrollDelta = ImGui::GetWindowHeight() * 0.5f;
+			if (scrollUp) {
+				ImGui::SetScrollY(std::max(ImGui::GetScrollY() - scrollDelta, 0.0f));
+			}
+			if (scrollDown) {
+				ImGui::SetScrollY(std::min(ImGui::GetScrollY() + scrollDelta, ImGui::GetScrollMaxY()));
 			}
 
 			// recalculate the number of columns
