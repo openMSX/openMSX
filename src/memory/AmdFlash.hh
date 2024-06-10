@@ -92,7 +92,6 @@ public:
 		constexpr void validate() const {
 			assert(!fastCommand || pageSize > 1);
 			assert(!bufferCommand || pageSize > 1);
-			assert(!bufferCommand || AmdFlash::MAX_CMD_SIZE >= pageSize + 5);
 		}
 	};
 
@@ -280,15 +279,11 @@ private:
 	[[nodiscard]] bool checkCommandBufferProgram();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
-public:
-	static constexpr unsigned MAX_CMD_SIZE = 5 + 256; // longest command is BufferProgram
-
-private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
 	const Chip& chip;
 	std::vector<Sector> sectors;
-	static_vector<AddressValue, MAX_CMD_SIZE> cmd;
+	std::vector<AddressValue> cmd;
 	State state = State::IDLE;
 	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on

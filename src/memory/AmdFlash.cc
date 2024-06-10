@@ -44,8 +44,9 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 {
-	assert(writeProtectSectors.size() <= chip.geometry.sectorCount);
+	cmd.reserve(5 + chip.program.pageSize); // longest command is BufferProgram
 
+	assert(writeProtectSectors.size() <= chip.geometry.sectorCount);
 	sectors.reserve(chip.geometry.sectorCount);
 	for (size_t address = 0; const Region& region : chip.geometry.regions) {
 		for (size_t regionSector = 0; regionSector < region.count; ++regionSector, address += region.size) {
@@ -753,7 +754,7 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 		unsigned cmdSize = 0;
 		ar.serialize("cmd",    cmdArray,
 		             "cmdIdx", cmdSize);
-		cmd = {from_range, subspan(cmdArray, 0, cmdSize)};
+		cmd.assign(cmdArray.begin(), cmdArray.begin() + cmdSize);
 	}
 	ar.serialize("state", state);
 	if (ar.versionAtLeast(version, 2)) {
