@@ -102,9 +102,13 @@ public:
 		bool shortAbortReset : 1 = false; // permit short program abort reset command
 		power_of_two<size_t> fastPageSize = 1;   // >1 enables fast program commands
 		power_of_two<size_t> bufferPageSize = 1; // >1 enables buffer program command
+		EmuDuration duration = EmuDuration::zero();        // per command (incl. fast program)
+		EmuDuration bufferDuration = EmuDuration::zero();  // additional time per additional byte
 
 		constexpr void validate() const {
 			assert(fastPageSize <= bufferPageSize);
+			assert(duration > EmuDuration::zero());
+			assert(bufferPageSize == 1 || bufferDuration > EmuDuration::zero());
 		}
 	};
 
@@ -250,7 +254,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, ERROR, ERASE_SECTOR, ERASE_CHIP };
+	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, ERROR, ERASE_SECTOR, ERASE_CHIP, PROGRAM };
 
 	struct Status {
 		// operation status
@@ -322,16 +326,18 @@ private:
 	[[nodiscard]] bool checkCommandEraseSector(EmuTime::param time);
 	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime::param time);
 	[[nodiscard]] bool checkCommandEraseChip(EmuTime::param time);
-	[[nodiscard]] bool checkCommandProgram();
-	[[nodiscard]] bool checkCommandDoubleByteProgram();
-	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
-	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
-	[[nodiscard]] bool checkCommandBufferProgram();
+	[[nodiscard]] bool checkCommandProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandDoubleByteProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandQuadrupleByteProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq, EmuTime::param time);
+	[[nodiscard]] bool checkCommandBufferProgram(EmuTime::param time);
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
 	void scheduleEraseAlgorithm(EmuTime::param time);
+	void scheduleProgramAlgorithm(EmuTime::param time);
 	void execAlgorithm(EmuTime::param time);
 	void execEraseAlgorithm(EmuTime::param time);
+	void execProgramAlgorithm(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
@@ -340,6 +346,8 @@ private:
 	std::vector<AddressValue> cmd;
 	State state = State::IDLE;
 	Status status;
+	bool programBuffered = false;
+	size_t programAddress = 0;
 	std::vector<std::optional<uint8_t>> programBuffer;
 	bool vppWpPinLow = false; // true = protection on
 
@@ -371,6 +379,7 @@ namespace AmdFlashChip
 			},
 		},
 		.erase{.duration = EmuDuration{1.0}},
+		.program{.duration = EmuDuration{0.000007}},
 	}};
 
 	// AMD AM29F016D
@@ -382,6 +391,7 @@ namespace AmdFlashChip
 			},
 		},
 		.erase{.duration = EmuDuration{1.0}},
+		.program{.duration = EmuDuration{0.000007}},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -416,6 +426,7 @@ namespace AmdFlashChip
 			},
 		},
 		.erase{.duration = EmuDuration{0.025}},
+		.program{.duration = EmuDuration{0.00002}},
 	}};
 
 	// Numonyx M29W800DB
@@ -430,6 +441,7 @@ namespace AmdFlashChip
 			},
 		},
 		.erase{.duration = EmuDuration{0.8}},
+		.program{.duration = EmuDuration{0.00001}},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -463,7 +475,10 @@ namespace AmdFlashChip
 			}, 2
 		},
 		.erase{.duration = EmuDuration{0.5}},
-		.program{.shortAbortReset = true, .fastPageSize = 8, .bufferPageSize = 32},
+		.program{
+			.shortAbortReset = true, .fastPageSize = 8, .bufferPageSize = 32,
+			.duration = EmuDuration{0.00001}, .bufferDuration = EmuDuration{0.000005}
+		},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
 			.systemInterface{
@@ -500,7 +515,10 @@ namespace AmdFlashChip
 			}, 1
 		},
 		.erase{.duration = EmuDuration{0.5}},
-		.program{.bufferPageSize = 32},
+		.program{
+			.bufferPageSize = 32,
+			.duration = EmuDuration{0.00006}, .bufferDuration = EmuDuration{0.0000075}
+		},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -537,7 +555,10 @@ namespace AmdFlashChip
 			}, 2
 		},
 		.erase{.duration = EmuDuration{0.3}},
-		.program{.bufferPageSize = 256},
+		.program{
+			.bufferPageSize = 256,
+			.duration = EmuDuration{0.00015}, .bufferDuration = EmuDuration{0.000001}
+		},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
 			.systemInterface{
