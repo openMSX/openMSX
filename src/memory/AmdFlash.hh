@@ -84,14 +84,12 @@ public:
 	};
 
 	struct Program {
-		bool fastCommand : 1 = false;
-		bool bufferCommand : 1 = false;
-		bool shortAbortReset : 1 = false;
-		power_of_two<size_t> pageSize = 1;
+		bool shortAbortReset : 1 = false; // permit short program abort reset command
+		power_of_two<size_t> fastPageSize = 1;   // >1 enables fast program commands
+		power_of_two<size_t> bufferPageSize = 1; // >1 enables buffer program command
 
 		constexpr void validate() const {
-			assert(!fastCommand || pageSize > 1);
-			assert(!bufferCommand || pageSize > 1);
+			assert(fastPageSize <= bufferPageSize);
 		}
 	};
 
@@ -423,7 +421,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.program{.fastCommand = true, .bufferCommand = true, .shortAbortReset = true, .pageSize = 32},
+		.program{.shortAbortReset = true, .fastPageSize = 8, .bufferPageSize = 32},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
 			.systemInterface{
@@ -459,7 +457,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 1
 		},
-		.program{.bufferCommand = true, .pageSize = 32},
+		.program{.bufferPageSize = 32},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -495,7 +493,7 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.program{.bufferCommand = true, .pageSize = 256},
+		.program{.bufferPageSize = 256},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
 			.systemInterface{
