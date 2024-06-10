@@ -314,6 +314,7 @@ private:
 	std::vector<AddressValue> cmd;
 	State state = State::IDLE;
 	Status status;
+	std::vector<std::optional<uint8_t>> programBuffer;
 	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 3);

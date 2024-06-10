@@ -719,11 +719,25 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 		const Sector& sector = getSector(cmd.back().addr);
 		if (isWritable(sector)) {
 			const size_t pageMask = chip.program.fastPageSize - 1;
+			const size_t programAddress = cmd.back().addr & ~pageMask;
+			programBuffer.assign(chip.program.fastPageSize, std::nullopt);
+
+			// For fast program commands, if you write 0x7F and then 0xF7 to the same empty
+			// flash memory location within the same command, the final value is 0x77.
+			// Tested on: M29W640GB.
 			for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
-				auto ramAddr = sector.writeAddress + (cmd.back().addr & ~pageMask) + (cmd[i].addr & pageMask) - sector.address;
-				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-				ram->write(ramAddr, ramValue);
+				auto& value = programBuffer[cmd[i].addr & pageMask];
+				value = value ? cmd[i].value & *value : cmd[i].value;
 			}
+
+			for (size_t i : xrange(programBuffer.size())) {
+				if (programBuffer[i]) {
+					auto ramAddr = sector.writeAddress + programAddress + i - sector.address;
+					uint8_t ramValue = (*ram)[ramAddr] & *programBuffer[i];
+					ram->write(ramAddr, ramValue);
+				}
+			}
+			programBuffer.clear();
 		} else {
 			status.sectorLock = true;
 		}
@@ -758,12 +772,25 @@ bool AmdFlash::checkCommandBufferProgram()
 			const Sector& sector = getSector(cmd[2].addr);
 			if (cmd.back().value == 0x29 && getSector(cmd.back().addr) == sector) {
 				if (isWritable(sector)) {
-					// TODO de-duplicate same-address writes to the last one
-					for (auto i : xrange<size_t>(4, cmd.size() - 1)) {
-						auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
-						uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-						ram->write(ramAddr, ramValue);
+					const size_t pageMask = chip.program.bufferPageSize - 1;
+					const size_t programAddress = cmd[4].addr & ~pageMask;
+					programBuffer.assign(chip.program.bufferPageSize, std::nullopt);
+
+					// For buffer program commands, if you write 0x7F and then 0xF7 to the same empty
+					// flash memory location within the same command, the final value is 0xF7.
+					// Tested on: M29W640GB, S29GL064S.
+					for (size_t i : xrange<size_t>(4, cmd.size() - 1)) {
+						programBuffer[cmd[i].addr & pageMask] = cmd[i].value;
 					}
+
+					for (size_t i : xrange(programBuffer.size())) {
+						if (programBuffer[i]) {
+							auto ramAddr = sector.writeAddress + programAddress + i - sector.address;
+							uint8_t ramValue = (*ram)[ramAddr] & *programBuffer[i];
+							ram->write(ramAddr, ramValue);
+						}
+					}
+					programBuffer.clear();
 				} else {
 					status.sectorLock = true;
 				}
