@@ -193,6 +193,7 @@ void AmdFlash::reset()
 	setState(State::READ);
 	syncOperation.removeSyncPoint();
 	erase.reset();
+	program.reset();
 }
 
 void AmdFlash::softReset()
@@ -229,7 +230,7 @@ uint8_t AmdFlash::read(size_t address, EmuTime::param time)
 	const uint8_t value = peek(address, time);
 	if (state == State::STATUS) {
 		setState(State::READ);
-	} else if (state == State::ERROR) {
+	} else if (state == one_of(State::PROGRAM, State::ERROR)) {
 		status.busyToggle = !status.busyToggle;
 	} else if (state == State::ERASE_SECTOR) {
 		status.busyToggle = !status.busyToggle;
@@ -273,7 +274,7 @@ uint8_t AmdFlash::peek(size_t address, EmuTime::param /*time*/) const
 		}
 	} else if (state == State::STATUS) {
 		return statusRegister.raw;
-	} else if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP, State::ERROR)) {
+	} else if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP, State::PROGRAM, State::ERROR)) {
 		return status.raw;
 	} else {
 		UNREACHABLE;
@@ -503,10 +504,10 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 		if (checkCommandAutoSelect() ||
 		    checkCommandEraseSector(time) ||
 		    checkCommandEraseChip(time) ||
-		    checkCommandProgram() ||
-		    checkCommandDoubleByteProgram() ||
-		    checkCommandQuadrupleByteProgram() ||
-		    checkCommandBufferProgram() ||
+		    checkCommandProgram(time) ||
+		    checkCommandDoubleByteProgram(time) ||
+		    checkCommandQuadrupleByteProgram(time) ||
+		    checkCommandBufferProgram(time) ||
 		    checkCommandCFIQuery() ||
 		    checkCommandContinuityCheck() ||
 		    checkCommandStatusRead() ||
@@ -555,6 +556,12 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 			cmd.clear();
 		}
 	} else if (state == State::ERASE_CHIP) {
+		if (false) {
+			// do nothing, we're still matching a command, but it is not complete yet
+		} else {
+			cmd.clear();
+		}
+	} else if (state == State::PROGRAM) {
 		if (false) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
@@ -773,25 +780,25 @@ void AmdFlash::EraseOperation::reset()
 	buffer.clear();
 }
 
-bool AmdFlash::checkCommandProgram()
+bool AmdFlash::checkCommandProgram(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xa0};
-	return checkCommandProgramHelper(1, cmdSeq);
+	return checkCommandProgramHelper(1, cmdSeq, time);
 }
 
-bool AmdFlash::checkCommandDoubleByteProgram()
+bool AmdFlash::checkCommandDoubleByteProgram(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x50};
-	return checkCommandProgramHelper(2, cmdSeq);
+	return checkCommandProgramHelper(2, cmdSeq, time);
 }
 
-bool AmdFlash::checkCommandQuadrupleByteProgram()
+bool AmdFlash::checkCommandQuadrupleByteProgram(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
-	return checkCommandProgramHelper(4, cmdSeq);
+	return checkCommandProgramHelper(4, cmdSeq, time);
 }
 
-bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
+bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq, EmuTime::param time)
 {
 	if (numBytes <= chip.program.fastPageSize && partialMatch(cmdSeq)) {
 		if (cmd.size() == cmdSeq.size()) clearStatus();
@@ -801,34 +808,29 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 		const Sector& sector = getSector(cmd.back().addr);
 		if (isWritable(sector)) {
 			const size_t pageMask = chip.program.fastPageSize - 1;
-			const size_t programAddress = cmd.back().addr & ~pageMask;
-			std::vector<uint16_t> programBuffer;
-			programBuffer.assign(chip.program.fastPageSize, 0xFFFF);
+			program.address = cmd.back().addr & ~pageMask;
+			program.buffer.assign(chip.program.fastPageSize, 0xFFFF);
 
 			// For fast program commands, if you write 0x7F and then 0xF7 to the same empty
 			// flash memory location within the same command, the final value is 0x77.
 			// Tested on: M29W640GB.
 			for (size_t i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
-				programBuffer[cmd[i].addr & pageMask] &= cmd[i].value;
+				program.buffer[cmd[i].addr & pageMask] &= cmd[i].value;
 			}
 
-			size_t ramAddr = programAddress - sector.address + sector.writeAddress;
-			for (const uint16_t value : programBuffer) {
-				if (value < 0x100) {
-					const uint8_t ramValue = (*ram)[ramAddr] & value;
-					ram->write(ramAddr, ramValue);
-				}
-				++ramAddr;
-			}
+			statusRegister.ready = false;
+			setState(State::PROGRAM);
+			scheduleProgramOperation(time);
 		} else {
+			// immediate completion
 			statusRegister.sectorLock = true;
+			status.dataPolling = !status.dataPolling;
 		}
-		status.dataPolling = !status.dataPolling; // immediate completion
 	}
 	return false;
 }
 
-bool AmdFlash::checkCommandBufferProgram()
+bool AmdFlash::checkCommandBufferProgram(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
 	if (chip.program.bufferPageSize > 1 && partialMatch(cmdSeq) && (cmd.size() <= 2 || cmd[2].value == 0x25)) {
@@ -855,29 +857,24 @@ bool AmdFlash::checkCommandBufferProgram()
 			if (cmd.back().value == 0x29 && getSector(cmd.back().addr) == sector) {
 				if (isWritable(sector)) {
 					const size_t pageMask = chip.program.bufferPageSize - 1;
-					const size_t programAddress = cmd[4].addr & ~pageMask;
-					std::vector<uint16_t> programBuffer;
-					programBuffer.assign(chip.program.bufferPageSize, 0xFFFF);
+					program.address = cmd[4].addr & ~pageMask;
+					program.buffer.assign(chip.program.bufferPageSize, 0xFFFF);
 
 					// For buffer program commands, if you write 0x7F and then 0xF7 to the same empty
 					// flash memory location within the same command, the final value is 0xF7.
 					// Tested on: M29W640GB, S29GL064S.
 					for (size_t i : xrange<size_t>(4, cmd.size() - 1)) {
-						programBuffer[cmd[i].addr & pageMask] = cmd[i].value;
+						program.buffer[cmd[i].addr & pageMask] = cmd[i].value;
 					}
 
-					size_t ramAddr = programAddress - sector.address + sector.writeAddress;
-					for (const uint16_t value : programBuffer) {
-						if (value < 0x100) {
-							const uint8_t ramValue = (*ram)[ramAddr] & value;
-							ram->write(ramAddr, ramValue);
-						}
-						++ramAddr;
-					}
+					statusRegister.ready = false;
+					setState(State::PROGRAM);
+					scheduleProgramOperation(time);
 				} else {
+					// immediate completion
 					statusRegister.sectorLock = true;
+					status.dataPolling = !status.dataPolling;
 				}
-				status.dataPolling = !status.dataPolling; // immediate completion
 				return false;
 			}
 		}
@@ -887,6 +884,46 @@ bool AmdFlash::checkCommandBufferProgram()
 		setState(State::ERROR);
 	}
 	return false;
+}
+
+void AmdFlash::scheduleProgramOperation(EmuTime::param time)
+{
+	assert(!syncOperation.pendingSyncPoint());
+	syncOperation.setSyncPoint(time + chip.program.duration);
+}
+
+void AmdFlash::execProgramOperation(EmuTime::param time)
+{
+	assert(state == State::PROGRAM);
+	const Sector& sector = getSector(program.address);
+	assert(!sector.writeProtect);
+	size_t ramAddr = program.address - sector.address + sector.writeAddress + program.index;
+	while (program.index < program.buffer.size()) {
+		const uint16_t value = program.buffer[program.index];
+		++program.index;
+		if (value < 0x100) {
+			const uint8_t ramValue = (*ram)[ramAddr] & value;
+			ram->write(ramAddr, ramValue);
+			break;
+		}
+		++ramAddr;
+	}
+
+	if (program.index >= program.buffer.size()) {
+		program.reset();
+		statusRegister.ready = true;
+		status.dataPolling = !status.dataPolling;
+		setState(State::READ);
+	} else {
+		syncOperation.setSyncPoint(time + chip.program.additionalDuration);
+	}
+}
+
+void AmdFlash::ProgramOperation::reset()
+{
+	address = 0;
+	index = 0;
+	buffer.clear();
 }
 
 bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
@@ -908,6 +945,8 @@ void AmdFlash::execOperation(EmuTime::param time)
 {
 	if (state == one_of(State::ERASE_SECTOR, State::ERASE_CHIP)) {
 		execEraseOperation(time);
+	} else if (state == State::PROGRAM) {
+		execProgramOperation(time);
 	} else {
 		UNREACHABLE;
 	}
@@ -923,7 +962,8 @@ static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo =
 	{ "STATUS",       AmdFlash::State::STATUS },
 	{ "ERROR",        AmdFlash::State::ERROR },
 	{ "ERASE_SECTOR", AmdFlash::State::ERASE_SECTOR },
-	{ "ERASE_CHIP",   AmdFlash::State::ERASE_CHIP }
+	{ "ERASE_CHIP",   AmdFlash::State::ERASE_CHIP },
+	{ "PROGRAM",      AmdFlash::State::PROGRAM }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
@@ -939,6 +979,14 @@ void AmdFlash::EraseOperation::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("index", index,
 	             "buffer", buffer);
+}
+
+template<typename Archive>
+void AmdFlash::ProgramOperation::serialize(Archive& ar, unsigned /*version*/)
+{
+		ar.serialize("address", address,
+		             "index", index,
+		             "buffer", buffer);
 }
 
 // version 1: Initial version.
@@ -966,7 +1014,8 @@ void AmdFlash::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("statusRegister", statusRegister.raw,
 		             "erase", erase,
-					 "syncOperation", syncOperation);
+					 "program", program,
+		             "syncOperation", syncOperation);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash);
