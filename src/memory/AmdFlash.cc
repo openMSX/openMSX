@@ -575,7 +575,7 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 			cmd.clear();
 		}
 	} else if (state == State::PROGRAM) {
-		if (false) {
+		if (checkCommandSuspend(time)) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -668,7 +668,7 @@ bool AmdFlash::checkCommandContinuityCheck()
 bool AmdFlash::checkCommandEraseSector(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
-	if (!statusRegister.eraseSuspend && partialMatch(cmdSeq)) {
+	if (!statusRegister.eraseSuspend && !statusRegister.programSuspend && partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
 			clearStatus();
@@ -708,7 +708,7 @@ bool AmdFlash::checkCommandEraseAdditionalSector(EmuTime::param time)
 bool AmdFlash::checkCommandEraseChip(EmuTime::param time)
 {
 	static constexpr std::array<uint8_t, 5> cmdSeq = {0xaa, 0x55, 0x80, 0xaa, 0x55};
-	if (!statusRegister.eraseSuspend && partialMatch(cmdSeq)) {
+	if (!statusRegister.eraseSuspend && !statusRegister.programSuspend && partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
 			clearStatus();
@@ -809,6 +809,15 @@ bool AmdFlash::checkCommandSuspend(EmuTime::param time)
 				}
 			}
 		}
+	} else if (state == State::PROGRAM) {
+		if (chip.program.suspend) {
+			if ((cmd[0].value == 0xB0 || (chip.program.enhancedSuspend && cmd[0].value == 0x51))) {
+				if (!syncSuspend.pendingSyncPoint()) {
+					syncOperation.removeSyncPoint();
+					syncSuspend.setSyncPoint(time + chip.program.suspendDuration);
+				}
+			}
+		}
 	} else {
 		UNREACHABLE;
 	}
@@ -823,6 +832,10 @@ void AmdFlash::execSuspend(EmuTime::param /*time*/)
 		status.dataPolling = true;
 		status.eraseTimer = true;
 		setState(State::READ);
+	} else if (state == State::PROGRAM) {
+		statusRegister.ready = true;
+		statusRegister.programSuspend = true;
+		setState(State::READ);
 	} else {
 		UNREACHABLE;
 	}
@@ -830,7 +843,14 @@ void AmdFlash::execSuspend(EmuTime::param /*time*/)
 
 bool AmdFlash::checkCommandResume(EmuTime::param time)
 {
-	if (statusRegister.eraseSuspend) {
+	if (statusRegister.programSuspend) {
+		if ((cmd[0].value == 0x30 || (chip.program.enhancedSuspend && cmd[0].value == 0x50))) {
+			statusRegister.ready = false;
+			statusRegister.programSuspend = false;
+			setState(State::PROGRAM);
+			scheduleProgramOperation(time);
+		}
+	} else if (statusRegister.eraseSuspend) {
 		if (cmd[0].value == 0x30) {
 			statusRegister.ready = false;
 			statusRegister.eraseSuspend = false;
