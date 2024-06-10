@@ -686,6 +686,8 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 {
 	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
 		if (cmd.size() == cmdSeq.size()) clearStatus();
+		if (cmd.size() <= cmdSeq.size()) return true;
+		status.dataPolling = ~cmd.back().value & 0x80;
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
 			const Sector& sector = getSector(cmd[i].addr);
@@ -693,12 +695,11 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 				auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
 				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
 				ram->write(ramAddr, ramValue);
-
-				status.dataPolling = ramValue & 0x80; // immediate completion
 			} else {
 				statusRegister.sectorLock = true;
 			}
 		}
+		status.dataPolling = !status.dataPolling; // immediate completion
 	}
 	return false;
 }
@@ -729,12 +730,11 @@ bool AmdFlash::checkCommandBufferProgram()
 						auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
 						uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
 						ram->write(ramAddr, ramValue);
-
-						status.dataPolling = ramValue & 0x80; // immediate completion
 					}
 				} else {
 					statusRegister.sectorLock = true;
 				}
+				status.dataPolling = !status.dataPolling; // immediate completion
 				return false;
 			}
 		}
