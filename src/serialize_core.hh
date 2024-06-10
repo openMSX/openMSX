@@ -10,6 +10,7 @@
 #include <cassert>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <variant>
@@ -62,6 +63,28 @@ void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 	             "second", p.second);
 }
 template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
+{
+	static constexpr unsigned value = 0;
+};
+
+template<typename Archive, typename T>
+void serialize(Archive& ar, std::optional<T>& o, unsigned /*version*/)
+{
+	bool hasValue = o.has_value();
+	ar.attribute("hasValue", hasValue);
+	if (hasValue) {
+		if (o.has_value()) {
+			ar.serialize("value", *o);
+		} else {
+			T value{};
+			ar.serialize("value", value);
+			o = std::move(value);
+		}
+	} else {
+		o.reset();
+	}
+}
+template<typename T> struct SerializeClassVersion<std::optional<T>>
 {
 	static constexpr unsigned value = 0;
 };
