@@ -44,7 +44,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 {
-	cmd.reserve(5 + chip.program.pageSize); // longest command is BufferProgram
+	cmd.reserve(5 + chip.program.bufferPageSize); // longest command is BufferProgram
 
 	assert(writeProtectSectors.size() <= chip.geometry.sectorCount);
 	sectors.reserve(chip.geometry.sectorCount);
@@ -391,7 +391,7 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 	case 0x29:
 		return narrow<uint8_t>(std::to_underlying(chip.geometry.deviceInterface) >> 8);
 	case 0x2A:
-		return chip.program.pageSize.exponent;
+		return std::max(chip.program.fastPageSize.exponent, chip.program.bufferPageSize.exponent);
 	case 0x2B:
 		return 0x00;
 	case 0x2C:
@@ -673,31 +673,32 @@ bool AmdFlash::checkCommandProgram()
 bool AmdFlash::checkCommandDoubleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x50};
-	return chip.program.fastCommand && checkCommandProgramHelper(2, cmdSeq);
+	return checkCommandProgramHelper(2, cmdSeq);
 }
 
 bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
-	return chip.program.fastCommand && checkCommandProgramHelper(4, cmdSeq);
+	return checkCommandProgramHelper(4, cmdSeq);
 }
 
 bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
 {
-	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
+	if (numBytes <= chip.program.fastPageSize && partialMatch(cmdSeq)) {
 		if (cmd.size() == cmdSeq.size()) clearStatus();
 		if (cmd.size() <= cmdSeq.size()) return true;
 		status.dataPolling = ~cmd.back().value & 0x80;
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
-		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
-			const Sector& sector = getSector(cmd[i].addr);
-			if (isWritable(sector)) {
-				auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
+		const Sector& sector = getSector(cmd.back().addr);
+		if (isWritable(sector)) {
+			const size_t pageMask = chip.program.fastPageSize - 1;
+			for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
+				auto ramAddr = sector.writeAddress + (cmd.back().addr & ~pageMask) + (cmd[i].addr & pageMask) - sector.address;
 				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
 				ram->write(ramAddr, ramValue);
-			} else {
-				statusRegister.sectorLock = true;
 			}
+		} else {
+			statusRegister.sectorLock = true;
 		}
 		status.dataPolling = !status.dataPolling; // immediate completion
 	}
@@ -707,17 +708,17 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 bool AmdFlash::checkCommandBufferProgram()
 {
 	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
-	if (chip.program.bufferCommand && partialMatch(cmdSeq) && (cmd.size() <= 2 || cmd[2].value == 0x25)) {
+	if (chip.program.bufferPageSize > 1 && partialMatch(cmdSeq) && (cmd.size() <= 2 || cmd[2].value == 0x25)) {
 		if (cmd.size() <= 3) {
 			if (cmd.size() == 3) clearStatus();
 			return true;
 		} else if (cmd.size() <= 4) {
-			if (cmd[3].value < chip.program.pageSize && getSector(cmd[3].addr) == getSector(cmd[2].addr)) {
+			if (cmd[3].value < chip.program.bufferPageSize && getSector(cmd[3].addr) == getSector(cmd[2].addr)) {
 				return true;
 			}
 		} else if (cmd.size() <= size_t(5 + cmd[3].value)) {
-			const size_t pageMask = ~(chip.program.pageSize - 1);
-			if ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask)) {
+			const size_t pageMask = chip.program.bufferPageSize - 1;
+			if ((cmd.back().addr & ~pageMask) == (cmd[4].addr & ~pageMask)) {
 				status.dataPolling = ~cmd.back().value & 0x80;
 				return true;
 			}
