@@ -104,15 +104,20 @@ public:
 	struct Program {
 		bool shortAbortReset : 1 = false; // permit short program abort reset command
 		bool bitRaiseError   : 1 = true;  // raising bit from 0 to 1 causes DQ5 error
+		bool suspend         : 1 = false; // program suspend support
+		bool enhancedSuspend : 1 = false; // enhanced program suspend / resume commands
 		power_of_two<size_t> fastPageSize = 1;   // >1 enables fast program commands
 		power_of_two<size_t> bufferPageSize = 1; // >1 enables buffer program command
 		EmuDuration duration = EmuDuration::zero();        // per command (incl. fast program)
 		EmuDuration bufferDuration = EmuDuration::zero();  // additional time per additional byte
+		EmuDuration suspendDuration = EmuDuration::zero(); // time to suspend
 
 		constexpr void validate() const {
 			assert(fastPageSize <= bufferPageSize);
 			assert(duration > EmuDuration::zero());
 			assert(bufferPageSize == 1 || bufferDuration > EmuDuration::zero());
+			assert(!enhancedSuspend || suspend);
+			assert(!suspend || suspendDuration > EmuDuration::zero());
 		}
 	};
 
@@ -165,10 +170,11 @@ public:
 			uint8_t programSuspend = 0;
 		} primaryAlgorithm = {};
 
-		constexpr void validate(const Erase& erase) const {
-			(void)erase;
+		constexpr void validate(const Erase& erase, const Program& program) const {
+			(void)erase, (void)program;
 			assert(!command || primaryAlgorithm.version.major == 1);
 			assert(!command || erase.suspend == (primaryAlgorithm.eraseSuspend > 0));
+			assert(!command || program.suspend == (primaryAlgorithm.programSuspend > 0));
 		}
 	};
 
@@ -195,7 +201,7 @@ public:
 			geometry.validate();
 			erase.validate();
 			program.validate();
-			cfi.validate(erase);
+			cfi.validate(erase, program);
 			misc.validate();
 		}
 	};
@@ -494,8 +500,8 @@ namespace AmdFlashChip
 		},
 		.erase{.suspend = true, .duration = EmuDuration{0.5}, .suspendDuration = EmuDuration{0.000004}},
 		.program{
-			.shortAbortReset = true, .bitRaiseError = true, .fastPageSize = 8, .bufferPageSize = 32,
-			.duration = EmuDuration{0.00001}, .bufferDuration = EmuDuration{0.000005}
+			.shortAbortReset = true, .bitRaiseError = true, .suspend = true, .fastPageSize = 8, .bufferPageSize = 32,
+			.duration = EmuDuration{0.00001}, .bufferDuration = EmuDuration{0.000005}, .suspendDuration = EmuDuration{0.000004}
 		},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
@@ -534,8 +540,8 @@ namespace AmdFlashChip
 		},
 		.erase{.suspend = true, .duration = EmuDuration{0.5}, .suspendDuration = EmuDuration{0.00002}},
 		.program{
-			.bufferPageSize = 32,
-			.duration = EmuDuration{0.00006}, .bufferDuration = EmuDuration{0.0000075}
+			.suspend = true, .bufferPageSize = 32,
+			.duration = EmuDuration{0.00006}, .bufferDuration = EmuDuration{0.0000075}, .suspendDuration = EmuDuration{0.00002}
 		},
 		.cfi{
 			.command = true,
@@ -574,8 +580,8 @@ namespace AmdFlashChip
 		},
 		.erase{.suspend = true, .duration = EmuDuration{0.3}, .suspendDuration = EmuDuration{0.00003}},
 		.program{
-			.shortAbortReset = false, .bitRaiseError = false, .bufferPageSize = 256,
-			.duration = EmuDuration{0.00015}, .bufferDuration = EmuDuration{0.000001}
+			.shortAbortReset = false, .bitRaiseError = false, .suspend = true, .enhancedSuspend = true, .bufferPageSize = 256,
+			.duration = EmuDuration{0.00015}, .bufferDuration = EmuDuration{0.000001}, .suspendDuration = EmuDuration{0.0000235}
 		},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
