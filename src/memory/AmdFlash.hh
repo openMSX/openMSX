@@ -3,6 +3,7 @@
 
 #include "serialize_meta.hh"
 
+#include "BitField.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "power_of_two.hh"
@@ -150,8 +151,8 @@ public:
 	};
 
 	struct Misc {
-		bool statusCommand : 1 = false;
-		bool continuityCommand : 1 = false;
+		bool statusCommand       : 1 = false; // enables status command
+		bool continuityCommand   : 1 = false; // enables continuity check command
 
 		constexpr void validate() const {
 			assert(!continuityCommand || statusCommand);
@@ -257,6 +258,7 @@ private:
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 	void softReset();
+	void clearStatus();
 	void setState(State newState);
 
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
@@ -285,10 +287,36 @@ private:
 	std::vector<Sector> sectors;
 	std::vector<AddressValue> cmd;
 	State state = State::READ;
-	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on
+
+	template<size_t POS, size_t WIDTH = 1, typename T2 = bool>
+	using BF8 = BitField<uint8_t, POS, WIDTH, T2>;
+
+	union OperationStatus {
+		uint8_t raw = 0x00;
+		BF8<7> dataPolling;
+		BF8<6> busyToggle;
+		BF8<5> error;
+		BF8<4> dq4;
+		BF8<3> eraseTimer;
+		BF8<2> eraseToggle;
+		BF8<1> abort;
+		BF8<0> dq0;
+	} status;
+
+	union StatusRegister {
+		uint8_t raw = 0x80;
+		BF8<7> ready;
+		BF8<6> eraseSuspend;
+		BF8<5> eraseStatus;
+		BF8<4> programStatus;
+		BF8<3> bufferAbort;
+		BF8<2> programSuspend;
+		BF8<1> sectorLock;
+		BF8<0> continuity;
+	} statusRegister;
 };
-SERIALIZE_CLASS_VERSION(AmdFlash, 3);
+SERIALIZE_CLASS_VERSION(AmdFlash, 4);
 
 namespace AmdFlashChip
 {
