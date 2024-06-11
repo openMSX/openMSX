@@ -187,7 +187,7 @@ void AmdFlash::reset()
 void AmdFlash::softReset()
 {
 	cmd.clear();
-	setState(State::IDLE);
+	setState(State::READ);
 	status &= 0xC4; // clear status
 }
 
@@ -203,8 +203,8 @@ uint8_t AmdFlash::read(size_t address)
 	address %= size();
 	const uint8_t value = peek(address);
 	if (state == State::STATUS) {
-		setState(State::IDLE);
-	} else if (state == State::PRGERR) {
+		setState(State::READ);
+	} else if (state == State::ERROR) {
 		status ^= 0x40;
 	}
 	return value;
@@ -213,14 +213,14 @@ uint8_t AmdFlash::read(size_t address)
 uint8_t AmdFlash::peek(size_t address) const
 {
 	address %= size();
-	if (state == State::IDLE) {
+	if (state == State::READ) {
 		const Sector& sector = getSector(address);
 		if (const uint8_t* addr = sector.readAddress) {
 			return addr[address - sector.address];
 		} else {
 			return 0xFF;
 		}
-	} else if (state == State::IDENT) {
+	} else if (state == State::AUTOSELECT) {
 		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
 			if (chip.autoSelect.oddZero && (address & 1)) {
 				// some devices return zero for odd bits instead of mirroring
@@ -238,7 +238,7 @@ uint8_t AmdFlash::peek(size_t address) const
 		} else {
 			return narrow_cast<uint8_t>(peekCFI(address));
 		}
-	} else if (state == one_of(State::STATUS, State::PRGERR)) {
+	} else if (state == one_of(State::STATUS, State::ERROR)) {
 		return status;
 	} else {
 		UNREACHABLE;
@@ -450,7 +450,7 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
 	address %= size();
-	if (state == State::IDLE) {
+	if (state == State::READ) {
 		const Sector& sector = getSector(address);
 		const uint8_t* addr = sector.readAddress;
 		return addr ? &addr[address - sector.address] : MSXDevice::unmappedRead.data();
@@ -464,7 +464,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 	address %= size();
 	cmd.push_back({.addr = address, .value = value});
 
-	if (state == State::IDLE) {
+	if (state == State::READ) {
 		if (checkCommandAutoSelect() ||
 		    checkCommandEraseSector() ||
 		    checkCommandProgram() ||
@@ -482,7 +482,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 		} else {
 			cmd.clear();
 		}
-	} else if (state == State::IDENT) {
+	} else if (state == State::AUTOSELECT) {
 		if (checkCommandCFIQuery() ||
 		    checkCommandLongReset() ||
 		    checkCommandReset()) {
@@ -506,7 +506,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 		} else {
 			cmd.clear();
 		}
-	} else if (state == State::PRGERR) {
+	} else if (state == State::ERROR) {
 		if (checkCommandLongReset() ||
 		    (chip.program.shortAbortReset && checkCommandReset())) {
 			// do nothing, we're still matching a command, but it is not complete yet
@@ -546,7 +546,7 @@ bool AmdFlash::checkCommandAutoSelect()
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 3) return true;
-		setState(State::IDENT);
+		setState(State::AUTOSELECT);
 	}
 	return false;
 }
@@ -702,7 +702,7 @@ bool AmdFlash::checkCommandBufferProgram()
 			}
 		}
 		status = (status & 0xDF) | 0x02;
-		setState(State::PRGERR);
+		setState(State::ERROR);
 	}
 	return false;
 }
@@ -724,11 +724,14 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 
 
 static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
-	{ "IDLE",   AmdFlash::State::IDLE  },
-	{ "IDENT",  AmdFlash::State::IDENT },
-	{ "CFI",    AmdFlash::State::CFI },
-	{ "STATUS", AmdFlash::State::STATUS },
-	{ "PRGERR", AmdFlash::State::PRGERR }
+	{ "IDLE",         AmdFlash::State::READ },       // back compat with v3
+	{ "IDENT",        AmdFlash::State::AUTOSELECT }, // back compat with v3
+	{ "PRGERR",       AmdFlash::State::ERROR },      // back compat with v3
+	{ "READ",         AmdFlash::State::READ  },
+	{ "AUTOSELECT",   AmdFlash::State::AUTOSELECT },
+	{ "CFI",          AmdFlash::State::CFI },
+	{ "STATUS",       AmdFlash::State::STATUS },
+	{ "ERROR",        AmdFlash::State::ERROR }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 

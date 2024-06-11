@@ -233,7 +233,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, PRGERR };
+	enum class State : uint8_t { READ, AUTOSELECT, CFI, STATUS, ERROR };
 
 	struct Sector {
 		size_t address;
@@ -284,7 +284,7 @@ private:
 	const Chip& chip;
 	std::vector<Sector> sectors;
 	std::vector<AddressValue> cmd;
-	State state = State::IDLE;
+	State state = State::READ;
 	uint8_t status = 0x80;
 	bool vppWpPinLow = false; // true = protection on
 };
