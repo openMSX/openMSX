@@ -165,6 +165,18 @@ size_t AmdFlash::getSectorIndex(size_t address) const
 	UNREACHABLE;
 }
 
+bool AmdFlash::isWritable(const Sector& sector) const
+{
+	if (vppWpPinLow) {
+		const auto range = chip.geometry.writeProtectPinRange;
+		if ((range > 0 && sector <= sectors[range - size_t(1)]) ||
+		    (range < 0 && sector >= sectors[range + chip.geometry.sectorCount])) {
+			return false;
+		}
+	}
+	return !sector.writeProtect;
+}
+
 void AmdFlash::reset()
 {
 	status = 0x80;
@@ -183,6 +195,18 @@ void AmdFlash::setState(State newState)
 	if (state == newState) return;
 	state = newState;
 	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
+}
+
+uint8_t AmdFlash::read(size_t address)
+{
+	address %= size();
+	const uint8_t value = peek(address);
+	if (state == State::STATUS) {
+		setState(State::IDLE);
+	} else if (state == State::PRGERR) {
+		status ^= 0x40;
+	}
+	return value;
 }
 
 uint8_t AmdFlash::peek(size_t address) const
@@ -419,30 +443,6 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 	}
 }
 
-bool AmdFlash::isWritable(const Sector& sector) const
-{
-	if (vppWpPinLow) {
-		const auto range = chip.geometry.writeProtectPinRange;
-		if ((range > 0 && sector <= sectors[range - size_t(1)]) ||
-		    (range < 0 && sector >= sectors[range + chip.geometry.sectorCount])) {
-			return false;
-		}
-	}
-	return !sector.writeProtect;
-}
-
-uint8_t AmdFlash::read(size_t address)
-{
-	address %= size();
-	const uint8_t value = peek(address);
-	if (state == State::STATUS) {
-		setState(State::IDLE);
-	} else if (state == State::PRGERR) {
-		status ^= 0x40;
-	}
-	return value;
-}
-
 const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 {
 	address %= size();
@@ -537,6 +537,34 @@ bool AmdFlash::checkCommandLongReset()
 	return false;
 }
 
+bool AmdFlash::checkCommandAutoSelect()
+{
+	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
+	if (partialMatch(cmdSeq)) {
+		if (cmd.size() < 3) return true;
+		setState(State::IDENT);
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandCFIQuery()
+{
+	// convert byte address to native address
+	const size_t addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[0].addr >> 1 : cmd[0].addr;
+	if (chip.cfi.command && (addr & chip.cfi.commandMask) == 0x55 && cmd[0].value == 0x98) {
+		setState(State::CFI);
+	}
+	return false;
+}
+
+bool AmdFlash::checkCommandCFIExit()
+{
+	if (chip.cfi.exitCommand && cmd[0].value == 0xff) {
+		softReset();
+	}
+	return false;
+}
+
 bool AmdFlash::checkCommandStatusRead()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x70};
@@ -562,24 +590,6 @@ bool AmdFlash::checkCommandContinuityCheck()
 		if (cmd.size() == 2 && cmd[1] == AddressValue{.addr = 0x2AAB54, .value = 0x00}) {
 			status |= 0x01;
 		}
-	}
-	return false;
-}
-
-bool AmdFlash::checkCommandCFIQuery()
-{
-	// convert byte address to native address
-	const size_t addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[0].addr >> 1 : cmd[0].addr;
-	if (chip.cfi.command && (addr & chip.cfi.commandMask) == 0x55 && cmd[0].value == 0x98) {
-		setState(State::CFI);
-	}
-	return false;
-}
-
-bool AmdFlash::checkCommandCFIExit()
-{
-	if (chip.cfi.exitCommand && cmd[0].value == 0xff) {
-		softReset();
 	}
 	return false;
 }
@@ -619,24 +629,6 @@ bool AmdFlash::checkCommandEraseChip()
 	return false;
 }
 
-bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
-{
-	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
-		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
-		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
-			const Sector& sector = getSector(cmd[i].addr);
-			if (isWritable(sector)) {
-				auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
-				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
-				ram->write(ramAddr, ramValue);
-
-				status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
-			}
-		}
-	}
-	return false;
-}
-
 bool AmdFlash::checkCommandProgram()
 {
 	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0xa0};
@@ -653,6 +645,24 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
 	static constexpr std::array<uint8_t, 1> cmdSeq = {0x56};
 	return chip.program.fastCommand && checkCommandProgramHelper(4, cmdSeq);
+}
+
+bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
+{
+	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
+		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
+		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
+			const Sector& sector = getSector(cmd[i].addr);
+			if (isWritable(sector)) {
+				auto ramAddr = sector.writeAddress + cmd[i].addr - sector.address;
+				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
+				ram->write(ramAddr, ramValue);
+
+				status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
+			}
+		}
+	}
+	return false;
 }
 
 bool AmdFlash::checkCommandBufferProgram()
@@ -689,16 +699,6 @@ bool AmdFlash::checkCommandBufferProgram()
 		}
 		status = (status & 0xDF) | 0x02;
 		setState(State::PRGERR);
-	}
-	return false;
-}
-
-bool AmdFlash::checkCommandAutoSelect()
-{
-	static constexpr std::array<uint8_t, 3> cmdSeq = {0xaa, 0x55, 0x90};
-	if (partialMatch(cmdSeq)) {
-		if (cmd.size() < 3) return true;
-		setState(State::IDENT);
 	}
 	return false;
 }

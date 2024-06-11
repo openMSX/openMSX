@@ -255,30 +255,30 @@ private:
 	[[nodiscard]] size_t getSectorIndex(size_t address) const;
 	[[nodiscard]] Sector& getSector(size_t address) { return sectors[getSectorIndex(address)]; };
 	[[nodiscard]] const Sector& getSector(size_t address) const { return sectors[getSectorIndex(address)]; };
+	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 	void softReset();
+	void setState(State newState);
+
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
 	[[nodiscard]] uint16_t peekCFI(size_t address) const;
 
-	void setState(State newState);
 	[[nodiscard]] bool checkCommandReset();
 	[[nodiscard]] bool checkCommandLongReset();
+	[[nodiscard]] bool checkCommandAutoSelect();
 	[[nodiscard]] bool checkCommandCFIQuery();
 	[[nodiscard]] bool checkCommandCFIExit();
 	[[nodiscard]] bool checkCommandStatusRead();
 	[[nodiscard]] bool checkCommandStatusClear();
+	[[nodiscard]] bool checkCommandContinuityCheck();
 	[[nodiscard]] bool checkCommandEraseSector();
 	[[nodiscard]] bool checkCommandEraseChip();
-	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
 	[[nodiscard]] bool checkCommandProgram();
 	[[nodiscard]] bool checkCommandDoubleByteProgram();
 	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
 	[[nodiscard]] bool checkCommandBufferProgram();
-	[[nodiscard]] bool checkCommandAutoSelect();
-	[[nodiscard]] bool checkCommandContinuityCheck();
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
-
-	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 public:
 	static constexpr unsigned MAX_CMD_SIZE = 5 + 256; // longest command is BufferProgram
