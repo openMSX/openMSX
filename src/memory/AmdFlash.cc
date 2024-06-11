@@ -716,6 +716,11 @@ bool AmdFlash::checkCommandBufferProgram()
 			if (cmd[3].value < chip.program.bufferPageSize && getSector(cmd[3].addr) == getSector(cmd[2].addr)) {
 				return true;
 			}
+		} else if (cmd.size() <= 5) {
+			if (getSector(cmd[4].addr) == getSector(cmd[2].addr)) {
+				status.dataPolling = ~cmd.back().value & 0x80;
+				return true;
+			}
 		} else if (cmd.size() <= size_t(5 + cmd[3].value)) {
 			const size_t pageMask = chip.program.bufferPageSize - 1;
 			if ((cmd.back().addr & ~pageMask) == (cmd[4].addr & ~pageMask)) {
