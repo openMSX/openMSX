@@ -180,15 +180,58 @@ bool AmdFlash::isWritable(const Sector& sector) const
 
 void AmdFlash::reset()
 {
-	status = 0x80;
-	softReset();
+	cmd.clear();
+	status = {};
+	setState(State::IDLE);
 }
 
 void AmdFlash::softReset()
 {
-	cmd.clear();
+	clearStatus();
 	setState(State::IDLE);
-	status &= 0xC4; // clear status
+}
+
+void AmdFlash::clearStatus()
+{
+	status.dataPolling = false;
+	status.busyToggle = false;
+	status.error = false;
+	status.eraseTimer = false;
+	status.eraseToggle = false;
+	status.abort = false;
+	status.eraseStatus = false;
+	status.programStatus = false;
+	status.bufferAbort = false;
+	status.sectorLock = false;
+	status.continuity = false;
+}
+
+uint8_t AmdFlash::getOperationStatus() const
+{
+	uint8_t value = 0;
+	value |= status.dataPolling << 7;
+	value |= status.busyToggle  << 6;
+	value |= status.error       << 5;
+	value |= status.dq4         << 4;
+	value |= status.eraseTimer  << 3;
+	value |= status.eraseToggle << 2;
+	value |= status.abort       << 1;
+	value |= status.dq0         << 0;
+	return value;
+}
+
+uint8_t AmdFlash::getStatusRegister() const
+{
+	uint8_t value = 0;
+	value |= status.ready          << 7;
+	value |= status.eraseSuspend   << 6;
+	value |= status.eraseStatus    << 5;
+	value |= status.programStatus  << 4;
+	value |= status.bufferAbort    << 3;
+	value |= status.programSuspend << 2;
+	value |= status.sectorLock     << 1;
+	value |= status.continuity     << 0;
+	return value;
 }
 
 void AmdFlash::setState(State newState)
@@ -205,7 +248,7 @@ uint8_t AmdFlash::read(size_t address)
 	if (state == State::STATUS) {
 		setState(State::IDLE);
 	} else if (state == State::ERROR) {
-		status ^= 0x40;
+		status.busyToggle = !status.busyToggle;
 	}
 	return value;
 }
@@ -238,8 +281,10 @@ uint8_t AmdFlash::peek(size_t address) const
 		} else {
 			return narrow_cast<uint8_t>(peekCFI(address));
 		}
-	} else if (state == one_of(State::STATUS, State::ERROR)) {
-		return status;
+	} else if (state == State::STATUS) {
+		return getStatusRegister();
+	} else if (state == State::ERROR) {
+		return getOperationStatus();
 	} else {
 		UNREACHABLE;
 	}
@@ -592,7 +637,7 @@ bool AmdFlash::checkCommandContinuityCheck()
 	if (chip.misc.continuityCommand && cmd[0] == AddressValue{.addr = 0x5554AB, .value = 0xFF}) {
 		if (cmd.size() < 2) return true;
 		if (cmd.size() == 2 && cmd[1] == AddressValue{.addr = 0x2AAB54, .value = 0x00}) {
-			status |= 0x01;
+			status.continuity = true;
 		}
 	}
 	return false;
@@ -604,12 +649,16 @@ bool AmdFlash::checkCommandEraseSector()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
+			clearStatus();
+
 			if (const Sector& sector = getSector(cmd[5].addr);
 			    isWritable(sector)) {
 				ram->memset(sector.writeAddress, 0xff, sector.size);
+			} else {
+				status.sectorLock = true;
 			}
 
-			status |= 0x80; // immediate completion
+			status.dataPolling = true; // immediate completion
 		}
 	}
 	return false;
@@ -621,13 +670,17 @@ bool AmdFlash::checkCommandEraseChip()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x10) {
+			clearStatus();
+
 			for (const Sector& sector : sectors) {
 				if (isWritable(sector)) {
 					ram->memset(sector.writeAddress, 0xff, sector.size);
+				} else {
+					status.sectorLock = true;
 				}
 			}
 
-			status |= 0x80; // immediate completion
+			status.dataPolling = true; // immediate completion
 		}
 	}
 	return false;
@@ -654,6 +707,7 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq)
 {
 	if (numBytes <= chip.program.pageSize && partialMatch(cmdSeq)) {
+		if (cmd.size() == cmdSeq.size()) clearStatus();
 		if (cmd.size() < (cmdSeq.size() + numBytes)) return true;
 		for (auto i : xrange(cmdSeq.size(), cmdSeq.size() + numBytes)) {
 			const Sector& sector = getSector(cmd[i].addr);
@@ -662,7 +716,9 @@ bool AmdFlash::checkCommandProgramHelper(size_t numBytes, std::span<const uint8_
 				uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
 				ram->write(ramAddr, ramValue);
 
-				status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
+				status.dataPolling = ramValue & 0x80; // immediate completion
+			} else {
+				status.sectorLock = true;
 			}
 		}
 	}
@@ -674,6 +730,7 @@ bool AmdFlash::checkCommandBufferProgram()
 	static constexpr std::array<uint8_t, 2> cmdSeq = {0xaa, 0x55};
 	if (chip.program.bufferCommand && partialMatch(cmdSeq) && (cmd.size() <= 2 || cmd[2].value == 0x25)) {
 		if (cmd.size() <= 3) {
+			if (cmd.size() == 3) clearStatus();
 			return true;
 		} else if (cmd.size() <= 4) {
 			if (cmd[3].value < chip.program.pageSize && getSector(cmd[3].addr) == getSector(cmd[2].addr)) {
@@ -682,7 +739,7 @@ bool AmdFlash::checkCommandBufferProgram()
 		} else if (cmd.size() <= size_t(5 + cmd[3].value)) {
 			const size_t pageMask = ~(chip.program.pageSize - 1);
 			if ((cmd.back().addr & pageMask) == (cmd[4].addr & pageMask)) {
-				status = (status & 0x7F) | (~cmd.back().value & 0x80);
+				status.dataPolling = ~cmd.back().value & 0x80;
 				return true;
 			}
 		} else {
@@ -695,13 +752,17 @@ bool AmdFlash::checkCommandBufferProgram()
 						uint8_t ramValue = (*ram)[ramAddr] & cmd[i].value;
 						ram->write(ramAddr, ramValue);
 
-						status = (status & 0x7F) | (ramValue & 0x80); // immediate completion
+						status.dataPolling = ramValue & 0x80; // immediate completion
 					}
+				} else {
+					status.sectorLock = true;
 				}
 				return false;
 			}
 		}
-		status = (status & 0xDF) | 0x02;
+		status.abort = true;
+		status.programStatus = true;
+		status.bufferAbort = true;
 		setState(State::ERROR);
 	}
 	return false;
@@ -738,6 +799,26 @@ void AmdFlash::AddressValue::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("address", addr,
 	             "value",   value);
 }
+
+template<typename Archive>
+void AmdFlash::Status::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("dataPolling",    dataPolling,
+	             "busyToggle",     busyToggle,
+	             "error",          error,
+	             "eraseTimer",     eraseTimer,
+	             "eraseToggle",    eraseToggle,
+	             "abort",          abort,
+	             "ready",          ready,
+	             "eraseSuspend",   eraseSuspend,
+	             "eraseStatus",    eraseStatus,
+	             "programStatus",  programStatus,
+	             "bufferAbort",    bufferAbort,
+	             "programSuspend", programSuspend,
+	             "sectorLock",     sectorLock,
+	             "continuity",     continuity);
+}
+INSTANTIATE_SERIALIZE_METHODS(AmdFlash::Status);
 
 // version 1: Initial version.
 // version 2: Added vppWpPinLow.

@@ -150,8 +150,8 @@ public:
 	};
 
 	struct Misc {
-		bool statusCommand : 1 = false;
-		bool continuityCommand : 1 = false;
+		bool statusCommand       : 1 = false; // enables status command
+		bool continuityCommand   : 1 = false; // enables continuity check command
 
 		constexpr void validate() const {
 			assert(!continuityCommand || statusCommand);
@@ -235,6 +235,31 @@ public:
 
 	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, ERROR };
 
+	struct Status {
+		// operation status
+		bool dataPolling    = false; // DQ7
+		bool busyToggle     = false; // DQ6
+		bool error          = false; // DQ5
+		bool dq4            = false; // DQ4
+		bool eraseTimer     = false; // DQ3
+		bool eraseToggle    = false; // DQ2
+		bool abort          = false; // DQ1
+		bool dq0            = false; // DQ0
+
+		// status register
+		bool ready          = true;  // SR(7)
+		bool eraseSuspend   = false; // SR(6)
+		bool eraseStatus    = false; // SR(5)
+		bool programStatus  = false; // SR(4)
+		bool bufferAbort    = false; // SR(3)
+		bool programSuspend = false; // SR(2)
+		bool sectorLock     = false; // SR(1)
+		bool continuity     = false; // SR(0)
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	};
+
 	struct Sector {
 		size_t address;
 		power_of_two<size_t> size;
@@ -257,6 +282,9 @@ private:
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 	void softReset();
+	void clearStatus();
+	uint8_t getOperationStatus() const;
+	uint8_t getStatusRegister() const;
 	void setState(State newState);
 
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
@@ -285,10 +313,11 @@ private:
 	std::vector<Sector> sectors;
 	std::vector<AddressValue> cmd;
 	State state = State::IDLE;
-	uint8_t status = 0x80;
+	Status status;
 	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 3);
+SERIALIZE_CLASS_VERSION(AmdFlash::Status, 1);
 
 namespace AmdFlashChip
 {
