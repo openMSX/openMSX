@@ -204,7 +204,7 @@ uint8_t AmdFlash::read(size_t address)
 	const uint8_t value = peek(address);
 	if (state == State::STATUS) {
 		setState(State::IDLE);
-	} else if (state == State::PRGERR) {
+	} else if (state == State::ERROR) {
 		status ^= 0x40;
 	}
 	return value;
@@ -238,7 +238,7 @@ uint8_t AmdFlash::peek(size_t address) const
 		} else {
 			return narrow_cast<uint8_t>(peekCFI(address));
 		}
-	} else if (state == one_of(State::STATUS, State::PRGERR)) {
+	} else if (state == one_of(State::STATUS, State::ERROR)) {
 		return status;
 	} else {
 		UNREACHABLE;
@@ -506,7 +506,7 @@ void AmdFlash::write(size_t address, uint8_t value)
 		} else {
 			cmd.clear();
 		}
-	} else if (state == State::PRGERR) {
+	} else if (state == State::ERROR) {
 		if (checkCommandLongReset() ||
 		    (chip.program.shortAbortReset && checkCommandReset())) {
 			// do nothing, we're still matching a command, but it is not complete yet
@@ -702,7 +702,7 @@ bool AmdFlash::checkCommandBufferProgram()
 			}
 		}
 		status = (status & 0xDF) | 0x02;
-		setState(State::PRGERR);
+		setState(State::ERROR);
 	}
 	return false;
 }
@@ -728,7 +728,7 @@ static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo =
 	{ "IDENT",  AmdFlash::State::IDENT },
 	{ "CFI",    AmdFlash::State::CFI },
 	{ "STATUS", AmdFlash::State::STATUS },
-	{ "PRGERR", AmdFlash::State::PRGERR }
+	{ "ERROR",  AmdFlash::State::ERROR }
 };
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
