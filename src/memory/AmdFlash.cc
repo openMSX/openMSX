@@ -570,8 +570,9 @@ void AmdFlash::write(size_t address, uint8_t value, EmuTime::param time)
 			cmd.clear();
 		}
 	} else if (state == State::ERROR) {
+		const bool shortReset = !status.abort || chip.program.shortAbortReset;
 		if (checkCommandLongReset() ||
-		    (chip.program.shortAbortReset && checkCommandReset())) {
+		    (shortReset && checkCommandReset())) {
 			// do nothing, we're still matching a command, but it is not complete yet
 		} else {
 			cmd.clear();
@@ -911,6 +912,12 @@ void AmdFlash::execProgramAlgorithm(EmuTime::param time)
 		if (programBuffer[i]) {
 			auto ramAddr = sector.writeAddress + programAddress + i - sector.address;
 			uint8_t ramValue = (*ram)[ramAddr] & *programBuffer[i];
+			if (chip.program.bitRaiseError && ramValue != *programBuffer[i]) {
+				programBuffer.clear();
+				status.error = true;
+				setState(State::ERROR);
+				return;
+			}
 			ram->write(ramAddr, ramValue);
 			programBuffer[i] = std::nullopt;
 			if (programBuffered) {

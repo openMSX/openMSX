@@ -100,6 +100,7 @@ public:
 
 	struct Program {
 		bool shortAbortReset : 1 = false; // permit short program abort reset command
+		bool bitRaiseError   : 1 = true;  // raising bit from 0 to 1 causes DQ5 error
 		power_of_two<size_t> fastPageSize = 1;   // >1 enables fast program commands
 		power_of_two<size_t> bufferPageSize = 1; // >1 enables buffer program command
 		EmuDuration duration = EmuDuration::zero();        // per command (incl. fast program)
@@ -476,7 +477,7 @@ namespace AmdFlashChip
 		},
 		.erase{.duration = EmuDuration{0.5}},
 		.program{
-			.shortAbortReset = true, .fastPageSize = 8, .bufferPageSize = 32,
+			.shortAbortReset = true, .bitRaiseError = true, .fastPageSize = 8, .bufferPageSize = 32,
 			.duration = EmuDuration{0.00001}, .bufferDuration = EmuDuration{0.000005}
 		},
 		.cfi{
@@ -556,7 +557,7 @@ namespace AmdFlashChip
 		},
 		.erase{.duration = EmuDuration{0.3}},
 		.program{
-			.bufferPageSize = 256,
+			.shortAbortReset = false, .bitRaiseError = false, .bufferPageSize = 256,
 			.duration = EmuDuration{0.00015}, .bufferDuration = EmuDuration{0.000001}
 		},
 		.cfi{
