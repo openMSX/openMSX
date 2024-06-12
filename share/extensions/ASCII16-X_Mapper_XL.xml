@@ -12,13 +12,14 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <ASCII16-X id="ASCII16-X Mapper XL">
+        <ROM id="ASCII16-X Mapper XL">
           <mem base="0x0000" size="0x10000"/>
           <rom>
             <size>8192</size>
           </rom>
+          <mappertype>ASCII16-X</mappertype>
           <sramname>ASCII16-X_Mapper_XL.sram</sramname>
-        </YamahaSFG>
+        </ROM>
       </secondary>
     </primary>
   </devices>

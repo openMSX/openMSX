@@ -11,7 +11,6 @@ namespace openmsx {
 class RomAscii16X final : public MSXRom
 {
 public:
-	explicit RomAscii16X(const DeviceConfig& config);
 	RomAscii16X(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;

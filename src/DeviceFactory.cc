@@ -308,8 +308,6 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
 		result = make_unique<Carnivore2>(conf);
-	} else if (type == "ASCII16-X") {
-		result = make_unique<RomAscii16X>(conf);
 	} else if (type == "YamahaSKW01") {
 		result = make_unique<YamahaSKW01>(conf);
 	} else if (type == one_of("T7775", "T7937", "T9763", "T9769")) {

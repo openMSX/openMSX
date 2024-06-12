@@ -19,11 +19,6 @@
 
 namespace openmsx {
 
-RomAscii16X::RomAscii16X(const DeviceConfig& config)
-	: RomAscii16X(config, Rom(std::string(config.getAttributeValue("id")), "ASCII16-X", config))
-{
-}
-
 RomAscii16X::RomAscii16X(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, debuggable(getMotherBoard(), getName())
