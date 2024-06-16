@@ -12,6 +12,7 @@
 
 #include "circular_buffer.hh"
 #include "function_ref.hh"
+#include "stl.hh"
 #include "zstring_view.hh"
 
 #include <array>
@@ -56,16 +57,13 @@ public:
 	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 
 public:
-	enum SelectDiskType {
-		SELECT_DISK_IMAGE,
-		SELECT_DIR_AS_DISK,
-		SELECT_RAMDISK,
-		SELECT_EMPTY_DISK,
+	enum class SelectDiskType : int {
+		IMAGE, DIR_AS_DISK, RAMDISK, EMPTY,
+		NUM
 	};
-	enum SelectCartridgeType {
-		SELECT_ROM_IMAGE,
-		SELECT_EXTENSION,
-		SELECT_EMPTY_SLOT,
+	enum class SelectCartridgeType : int {
+		IMAGE, EXTENSION, EMPTY,
+		NUM
 	};
 
 	struct MediaItem {
@@ -73,6 +71,7 @@ public:
 		std::vector<std::string> ipsPatches; // only used for disk and rom images
 		RomType romType = RomType::UNKNOWN; // only used for rom images
 
+		[[nodiscard]] bool isEject() const { return romType == RomType::NUM; } // hack
 		[[nodiscard]] bool operator==(const MediaItem&) const = default;
 	};
 
@@ -85,16 +84,20 @@ public:
 	};
 
 	struct CartridgeMediaInfo {
-		std::array<ItemGroup, 2> groups;
-		int select = 0; // 0-> romImage, 1->extension
+		CartridgeMediaInfo() {
+			groups[SelectCartridgeType::EMPTY].edit.romType = RomType::NUM; // hack: indicates "eject"
+		}
+		array_with_enum_index<SelectCartridgeType, ItemGroup> groups;
+		SelectCartridgeType select = SelectCartridgeType::IMAGE;
 		bool show = false;
 	};
 	struct DiskMediaInfo {
 		DiskMediaInfo() {
-			groups[2].edit.name = "ramdsk";
+			groups[SelectDiskType::RAMDISK].edit.name = "ramdsk";
+			groups[SelectDiskType::EMPTY].edit.romType = RomType::NUM; // hack: indicates "eject"
 		}
-		std::array<ItemGroup, 3> groups;
-		int select = 0; // 0->diskImage, 1->dirAsDsk, 2->ramDisk
+		array_with_enum_index<SelectDiskType, ItemGroup> groups;
+		SelectDiskType select = SelectDiskType::IMAGE;
 		bool show = false;
 	};
 	struct CassetteMediaInfo {
