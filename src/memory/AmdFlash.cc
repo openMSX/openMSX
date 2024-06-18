@@ -178,6 +178,11 @@ bool AmdFlash::isWritable(const Sector& sector) const
 	return !sector.writeProtect;
 }
 
+bool AmdFlash::getReadyPin() const
+{
+	return !chip.misc.readyPin || (statusRegister.ready && !status.error && !status.abort);
+}
+
 void AmdFlash::reset()
 {
 	cmd.clear();
