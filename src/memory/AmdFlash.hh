@@ -152,6 +152,7 @@ public:
 	struct Misc {
 		bool statusCommand       : 1 = false; // enables status command
 		bool continuityCommand   : 1 = false; // enables continuity check command
+		bool readyPin            : 1 = false; // device has ready / not busy pin (RY/BY#)
 
 		constexpr void validate() const {
 			assert(!continuityCommand || statusCommand);
@@ -212,6 +213,7 @@ public:
 	 * Numonix/Micron M29W640FB/M29W640GB.)
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
+	bool getReadyPin() const;
 
 	[[nodiscard]] power_of_two<size_t> size() const { return chip.geometry.size; }
 	[[nodiscard]] uint8_t read(size_t address);
@@ -365,6 +367,7 @@ namespace AmdFlashChip
 				.bootBlockFlag = 0
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Microchip SST39SF010  (128kB, 32 x 4kB sectors)
@@ -408,6 +411,7 @@ namespace AmdFlashChip
 				.pageMode = 0,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Micron M29W640GB
@@ -443,6 +447,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Infineon / Cypress / Spansion S29GL064N90TFI04
@@ -478,6 +483,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Infineon / Cypress / Spansion S29GL064S70TFI040
@@ -512,7 +518,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
-		.misc{.statusCommand = true, .continuityCommand = true},
+		.misc{.statusCommand = true, .continuityCommand = true, .readyPin = true},
 	}};
 }
 
