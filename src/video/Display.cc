@@ -243,6 +243,11 @@ gl::ivec2 Display::retrieveWindowPosition()
 	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
+float Display::getFps() const
+{
+	return 1000000.0f * NUM_FRAME_DURATIONS / narrow_cast<float>(frameDurationSum);
+}
+
 void Display::update(const Setting& setting) noexcept
 {
 	if (&setting == &renderSettings.getRendererSetting()) {
@@ -518,7 +523,7 @@ void Display::FpsInfoTopic::execute(std::span<const TclObject> /*tokens*/,
                                     TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
-	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / narrow_cast<float>(display.frameDurationSum);
+	result = display.getFps();
 }
 
 string Display::FpsInfoTopic::help(std::span<const TclObject> /*tokens*/) const

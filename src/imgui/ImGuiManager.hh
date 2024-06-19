@@ -5,6 +5,7 @@
 #include "ImGuiUtils.hh"
 #include "Shortcuts.hh"
 
+#include "EmuTime.hh"
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "IntegerSetting.hh"
@@ -96,6 +97,7 @@ private:
 	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize);
 	void loadFont();
 	void reloadFont();
+	void drawStatusBar(MSXMotherBoard* motherBoard);
 
 	// ImGuiPartInterface
 	[[nodiscard]] zstring_view iniName() const override { return "manager"; }
@@ -160,6 +162,7 @@ public:
 
 	bool menuFade = true;
 	bool needReloadFont = false;
+	bool statusBarVisible = false;
 	std::string loadIniFile;
 
 private:
@@ -179,10 +182,17 @@ private:
 	bool openInsertedInfo = false;
 	bool guiActive = false;
 
+	EmuTime prevBoardTime = EmuTime::zero();
+	float speedDrawTimeOut = 0.0f;
+	float fpsDrawTimeOut = 0.0f;
+	float fps = 0.0f;
+	float speed = 0.0f;
+
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked},
 		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade},
-		PersistentElement{"windowPos",           &ImGuiManager::windowPos}
+		PersistentElement{"windowPos",           &ImGuiManager::windowPos},
+		PersistentElement{"statusBarVisible",    &ImGuiManager::statusBarVisible}
 	};
 };
 
