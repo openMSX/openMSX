@@ -43,6 +43,7 @@
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 #include "SettingsConfig.hh"
+#include "HardwareConfig.hh"
 
 #include "stl.hh"
 #include "strCat.hh"
@@ -743,6 +744,28 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 			ImGui::RightAlignText(strCat(std::round(speed), '%'), "10000%");
 			simpleToolTip("emulation speed");
 			ImGui::Separator();
+
+			if (motherBoard) {
+				if (const HardwareConfig* machineConfig = motherBoard->getMachineConfig()) {
+					if (const auto* info = machineConfig->getConfig().findChild("info")) {
+						auto type  = info->getChildData("type", "");
+						auto manuf = info->getChildData("manufacturer", "?");
+						auto code  = info->getChildData("code", "?");
+						auto desc = info->getChildData("description", "");
+						ImGui::TextUnformatted(strCat(manuf, " ", code));
+						if (!type.empty() || !desc.empty()) {
+							simpleToolTip(strCat((type.empty() ? "" : strCat("Machine type: ", type), (desc.empty() ? "" : strCat((type.empty() ? "" : "\n"), desc)))));
+						}
+					}
+				}
+			}
+			ImGui::Separator();
+
+			if (auto result = execute(TclObject("guess_title"))) {
+				ImGui::TextUnformatted(result->getString());
+				simpleToolTip("the (probably) currently running software");
+			}
+
 		});
 	}
 	ImGui::End();
