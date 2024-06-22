@@ -711,7 +711,13 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 					: std::pair{"8", "GRAPHIC 7"};
 			}();
 			ImGui::RightAlignText(modeStr, "0 (80)");
-			simpleToolTip(strCat("screen mode as used in MSX-BASIC", (extendedStr[0] ? ", corresponds to VDP mode " : ""), extendedStr));
+			simpleToolTip([&]{
+				std::string result = "screen mode as used in MSX-BASIC";
+				if (extendedStr[0]) {
+					strAppend(result, ", corresponds to VDP mode ", extendedStr);
+				}
+				return result;
+			});
 			ImGui::Separator();
 
 			auto timeStr = motherBoard
@@ -729,10 +735,9 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 					speedDrawTimeOut = 1.0f;
 
 					auto boardTime = motherBoard->getCurrentTime();
-					if (prevBoardTime > boardTime) { // due to reverse for instance
-						prevBoardTime = boardTime;
-					}
-					auto boardTimePassed = (boardTime - prevBoardTime).toDouble();
+					auto boardTimePassed = (boardTime < prevBoardTime)
+						? 0.0 // due to reverse for instance
+						: (boardTime - prevBoardTime).toDouble();
 					prevBoardTime = boardTime;
 
 					speed = 100.0f * boardTimePassed / realTimePassed;
@@ -748,14 +753,14 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 			if (motherBoard) {
 				if (const HardwareConfig* machineConfig = motherBoard->getMachineConfig()) {
 					if (const auto* info = machineConfig->getConfig().findChild("info")) {
-						auto type  = info->getChildData("type", "");
 						auto manuf = info->getChildData("manufacturer", "?");
 						auto code  = info->getChildData("code", "?");
-						auto desc = info->getChildData("description", "");
-						ImGui::TextUnformatted(strCat(manuf, " ", code));
-						if (!type.empty() || !desc.empty()) {
-							simpleToolTip(strCat((type.empty() ? "" : strCat("Machine type: ", type), (desc.empty() ? "" : strCat((type.empty() ? "" : "\n"), desc)))));
-						}
+						ImGui::StrCat(manuf, ' ', code);
+						simpleToolTip([&]{
+							auto type  = info->getChildData("type", "");
+							auto desc = info->getChildData("description", "");
+							return strCat((type.empty() ? "" : strCat("Machine type: ", type, '\n')), desc);
+						});
 					}
 				}
 			}
