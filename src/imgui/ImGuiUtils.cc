@@ -231,16 +231,18 @@ const char* getComboString(int item, const char* itemsSeparatedByZeros)
 	}
 }
 
-std::string formatTime(double time)
+std::string formatTime(std::optional<double> time)
 {
-	assert(time >= 0.0);
-	auto hours = int(time * (1.0 / 3600.0));
-	time -= double(hours * 3600);
-	auto minutes = int(time * (1.0 / 60.0));
-	time -= double(minutes * 60);
-	auto seconds = int(time);
-	time -= double(seconds);
-	auto hundreds = int(100.0 * time);
+	if (!time) return "--:--:--.--";
+	auto remainingTime = *time;
+	assert(remainingTime >= 0.0);
+	auto hours = int(remainingTime * (1.0 / 3600.0));
+	remainingTime -= double(hours * 3600);
+	auto minutes = int(remainingTime * (1.0 / 60.0));
+	remainingTime -= double(minutes * 60);
+	auto seconds = int(remainingTime);
+	remainingTime -= double(seconds);
+	auto hundreds = int(100.0 * remainingTime);
 
 	std::string result = "00:00:00.00";
 	auto insert = [&](size_t pos, unsigned value) {

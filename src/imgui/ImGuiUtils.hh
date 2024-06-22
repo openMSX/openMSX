@@ -129,7 +129,7 @@ void ComboBox(const char* label, VideoSourceSetting& setting);
 
 const char* getComboString(int item, const char* itemsSeparatedByZeros);
 
-std::string formatTime(double time);
+std::string formatTime(std::optional<double> time);
 float calculateFade(float current, float target, float period);
 
 template<int HexDigits>
