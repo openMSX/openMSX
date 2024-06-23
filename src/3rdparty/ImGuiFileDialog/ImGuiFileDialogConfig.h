@@ -70,14 +70,14 @@
 
 // locales string
 #define createDirButtonString ICON_IGFD_ADD
-#define resetButtonString ICON_IGFD_RESET
+#define resetButtonString ICON_IGFD_UNDO
 #define drivesButtonString ICON_IGFD_DRIVES
 #define editPathButtonString ICON_IGFD_EDIT
-#define searchString ICON_IGFD_SEARCH
+#define searchString ICON_IGFD_FILTER
 #define dirEntryString ICON_IGFD_FOLDER
 #define linkEntryString ICON_IGFD_LINK
 #define fileEntryString ICON_IGFD_FILE
-//#define buttonResetSearchString "Reset search"
+//#define buttonResetSearchString "Reset filter"
 //#define buttonDriveString "Drives"
 //#define buttonEditPathString "Edit path\nYou can also right click on path buttons"
 //#define buttonResetPathString "Reset to current directory"

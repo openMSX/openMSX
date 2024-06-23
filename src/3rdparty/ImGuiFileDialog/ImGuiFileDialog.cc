@@ -197,7 +197,7 @@ SOFTWARE.
 #define editPathButtonString "E"
 #endif  // editPathButtonString
 #ifndef searchString
-#define searchString "Search :"
+#define searchString "Filter:"
 #endif  // searchString
 #ifndef dirEntryString
 #define dirEntryString "[Dir]"
@@ -215,7 +215,7 @@ SOFTWARE.
 #define dirNameString "Directory Path:"
 #endif  // dirNameString
 #ifndef buttonResetSearchString
-#define buttonResetSearchString "Reset search"
+#define buttonResetSearchString "Reset filter"
 #endif  // buttonResetSearchString
 #ifndef buttonDriveString
 #define buttonDriveString "Drives"
