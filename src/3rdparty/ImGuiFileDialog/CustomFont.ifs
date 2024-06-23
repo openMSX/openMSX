@@ -2,7 +2,8 @@
 	<project>
 		<font name="Roboto-Medium.ttf">
 			<prefix>RM</prefix>
-			<pathfilename>..\ImGuiFontStudio\3rdparty\imgui\misc\fonts\Roboto-Medium.ttf</pathfilename>
+			<genmodeflags>1297</genmodeflags>
+			<pathfilename>../ImGuiFontStudio/3rdparty/imgui/misc/fonts/Roboto-Medium.ttf</pathfilename>
 			<oversample>1</oversample>
 			<fontsize>50</fontsize>
 			<generatedfilename></generatedfilename>
@@ -13,6 +14,8 @@
 			<freetypemultiply>1</freetypemultiply>
 			<padding>1</padding>
 			<filtering>9729</filtering>
+			<enabled>true</enabled>
+			<collapsed>false</collapsed>
 		</font>
 		<font name="fontawesome-webfont.ttf">
 			<glyphs>
@@ -33,14 +36,17 @@
 				<glyph orgId="61563" newId="61563" orgName="folder_close" newName="folder" trans="0;0" scale="1;1"/>
 				<glyph orgId="61564" newId="61564" orgName="folder_open" newName="folder_open" trans="0;0" scale="1;1"/>
 				<glyph orgId="61600" newId="61600" orgName="hdd" newName="drives" trans="0;0" scale="1;1"/>
+				<glyph orgId="61616" newId="61616" orgName="filter" newName="filter" trans="0;0" scale="1;1"/>
 				<glyph orgId="61639" newId="61639" orgName="save" newName="save" trans="0;0" scale="1;1"/>
 				<glyph orgId="61641" newId="61641" orgName="reorder" newName="file_list" trans="0;-124.675" scale="1;1"/>
+				<glyph orgId="61666" newId="61666" orgName="undo" newName="undo" trans="0;0" scale="1;1"/>
 				<glyph orgId="61787" newId="61787" orgName="file" newName="file" trans="0;0" scale="1;1"/>
 				<glyph orgId="61893" newId="61893" orgName="_425" newName="file_pic" trans="0;0" scale="1;1"/>
 				<glyph orgId="61897" newId="61897" orgName="_429" newName="link" trans="0;0" scale="1;1"/>
 			</glyphs>
 			<prefix>IGFD</prefix>
-			<pathfilename>..\ImGuiFontStudio\samples_Fonts\fontawesome-webfont.ttf</pathfilename>
+			<genmodeflags>1297</genmodeflags>
+			<pathfilename>../ImGuiFontStudio/samples_Fonts/fontawesome-webfont.ttf</pathfilename>
 			<oversample>3</oversample>
 			<fontsize>50</fontsize>
 			<generatedfilename>CustomFont</generatedfilename>
@@ -51,6 +57,8 @@
 			<freetypemultiply>1</freetypemultiply>
 			<padding>1</padding>
 			<filtering>9729</filtering>
+			<enabled>true</enabled>
+			<collapsed>false</collapsed>
 		</font>
 		<rangecoloring show="false" hash="42.606;14.789;27.817;0.5"/>
 		<previewglyphcount>20</previewglyphcount>
