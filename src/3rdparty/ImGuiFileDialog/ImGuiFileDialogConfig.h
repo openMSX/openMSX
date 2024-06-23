@@ -111,7 +111,7 @@
 //#define tableHeaderFileSizeString " Size"
 //#define tableHeaderFileDateTimeString " Date"
 #define fileSizeBytes "B"
-#define fileSizeKiloBytes "KB"
+#define fileSizeKiloBytes "kB"
 #define fileSizeMegaBytes "MB"
 #define fileSizeGigaBytes "GB"
 
