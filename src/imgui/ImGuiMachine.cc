@@ -154,7 +154,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 			displayFilterCombo(filterType, "Type", allMachines);
 			displayFilterCombo(filterRegion, "Region", allMachines);
 			if (ImGui::IsWindowAppearing()) ImGui::SetKeyboardFocusHere();
-			ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+			ImGui::InputText(ICON_IGFD_FILTER, &filterString);
 			simpleToolTip("A list of substrings that must be part of the machine name.\n"
 					"\n"
 					"For example: enter 'pa' to search for 'Panasonic' machines. "

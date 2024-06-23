@@ -58,7 +58,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 		zstring_view displayName = activeGame.getString();
 		if (displayName.empty()) displayName = "none";
 		bool useFilter = im::TreeNode("filter", [&]{
-			ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+			ImGui::InputText(ICON_IGFD_FILTER, &filterString);
 			HelpMarker("A list of substrings that must be part of the game name.\n"
 			           "\n"
 			           "For example: enter 'vamp' to search for 'Akumajyo Drakyula - Vampire Killer'.");

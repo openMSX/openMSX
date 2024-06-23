@@ -425,7 +425,7 @@ bool ImGuiMedia::drawExtensionFilter()
 	bool newFilterOpen = filterOpen;
 	im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
 		displayFilterCombo(filterType, "Type", getAllExtensions());
-		ImGui::InputText(ICON_IGFD_SEARCH, &filterString);
+		ImGui::InputText(ICON_IGFD_FILTER, &filterString);
 		simpleToolTip("A list of substrings that must be part of the extension.\n"
 				"\n"
 				"For example: enter 'ko' to search for 'Konami' extensions. "
