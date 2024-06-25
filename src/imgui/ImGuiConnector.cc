@@ -60,6 +60,9 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 								manager.executeDelayed(makeTclList("plug", connectorName, plugName));
 							}
 							simpleToolTip(plug->getDescription());
+							if (selected) {
+								ImGui::SetItemDefaultFocus();
+							}
 						}
 					});
 					if (const auto& desc = currentPluggable.getDescription(); !desc.empty()) {
