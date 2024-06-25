@@ -1222,7 +1222,9 @@ void ImGuiMedia::diskMenu(int i)
 				});
 			});
 			ImGui::RadioButton("RAM disk", std::bit_cast<int*>(&info.select), to_underlying(SelectDiskType::RAMDISK));
-			ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(SelectDiskType::EMPTY));
+			if (!current.empty()) {
+				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(SelectDiskType::EMPTY));
+			}
 		});
 		insertMediaButton(mediaName, info.groups[info.select], &info.show);
 	});
@@ -1301,7 +1303,9 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 					if (interacted) info.select = SelectCartridgeType::EXTENSION;
 				});
 			});
-			ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(SelectCartridgeType::EMPTY));
+			if (!current.empty()) {
+				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(SelectCartridgeType::EMPTY));
+			}
 		});
 		if (insertMediaButton(info.select == SelectCartridgeType::EXTENSION ? extName : cartName,
 		                      info.groups[info.select], &info.show)) {
