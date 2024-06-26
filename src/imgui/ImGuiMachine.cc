@@ -182,9 +182,11 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 							manager.executeDelayed(makeTclList("machine", newMachineConfig));
 						}
 					}
-					im::ItemTooltip([&]{
-						printConfigInfo(info);
-					});
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+						im::ItemTooltip([&]{
+							printConfigInfo(info);
+						});
+					}
 				});
 			});
 		});
