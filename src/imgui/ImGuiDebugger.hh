@@ -32,6 +32,7 @@ public:
 	void save(ImGuiTextBuffer& buf) override;
 	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
+	bool createHexEditor(const std::string& name, uint16_t address = 0x0);
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 

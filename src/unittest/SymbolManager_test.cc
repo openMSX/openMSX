@@ -69,15 +69,15 @@ TEST_CASE("SymbolManager: parseValue")
 
 TEST_CASE("SymbolManager: checkLabel")
 {
-	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123));
-	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234));
+	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, 0));
+	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, 0));
 	CHECK(SymbolManager::checkLabel("", 345) == std::nullopt);
 	CHECK(SymbolManager::checkLabel(":", 456) == std::nullopt);
 }
 
 TEST_CASE("SymbolManager: checkLabelAndValue")
 {
-	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123));
+	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, 0));
 	CHECK(SymbolManager::checkLabelAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelAndValue("foo", "bla") == std::nullopt);
 }
@@ -107,7 +107,7 @@ TEST_CASE("SymbolManager: detectType")
 TEST_CASE("SymbolManager: loadLines")
 {
 	auto dummyParser = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
-		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123};
+		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, 0};
 		return {};
 	};
 

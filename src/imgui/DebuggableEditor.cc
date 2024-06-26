@@ -46,6 +46,12 @@ DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggabl
 	}
 }
 
+void DebuggableEditor::setAddress(uint16_t address)
+{
+	currentAddr = address;
+	updateAddr = true;
+}
+
 void DebuggableEditor::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);

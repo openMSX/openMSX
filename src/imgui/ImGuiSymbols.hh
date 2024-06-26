@@ -17,23 +17,27 @@ struct SymbolRef {
 	unsigned fileIdx;
 	unsigned symbolIdx;
 
-	[[nodiscard]] std::string_view file(const SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
-	[[nodiscard]] std::string_view name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
-	[[nodiscard]] uint16_t        value(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
+	[[nodiscard]] std::string_view file(SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
+	[[nodiscard]] std::string_view name(SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
+	[[nodiscard]] uint16_t        value(SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
+	[[nodiscard]] int16_t       segment(SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].segment; }
+	[[nodiscard]] SymbolFile&      info(SymbolManager& m) const { return m.getFiles()[fileIdx]; }
 };
 
 class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
+public:
 	struct FileInfo {
-		FileInfo(std::string f, std::string e, SymbolFile::Type t)
-			: filename(std::move(f)), error(std::move(e)), type(t) {} // clang-15 workaround
+		FileInfo(std::string f, std::string e, SymbolFile::Type t, int s, int a)
+			: filename(std::move(f)), error(std::move(e)), type(t), slot(s), address(a) {} // clang-15 workaround
 
 		std::string filename;
 		std::string error;
 		SymbolFile::Type type;
+		int slot; // slot and subslot
+		int address;
 	};
 
-public:
 	explicit ImGuiSymbols(ImGuiManager& manager);
 	~ImGuiSymbols();
 
@@ -46,9 +50,15 @@ public:
 
 public:
 	bool show = false;
+	bool showSeg = false;
 
 private:
 	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type);
+
+	template<bool FILTER_FILE>
+	void drawTable(MSXMotherBoard* motherBoard, const std::string& file = {});
+
+	void drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym);
 
 	// SymbolObserver
 	void notifySymbolsChanged() override;

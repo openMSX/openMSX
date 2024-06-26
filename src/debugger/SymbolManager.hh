@@ -19,11 +19,12 @@ class CommandController;
 
 struct Symbol
 {
-	Symbol(std::string n, uint16_t v)
-		: name(std::move(n)), value(v) {} // clang-15 workaround
+	Symbol(std::string n, uint16_t v, uint16_t s)
+		: name(std::move(n)), value(v), segment(s) {} // clang-15 workaround
 
 	std::string name;
 	uint16_t value;
+	uint16_t segment;
 
 	auto operator<=>(const Symbol&) const = default;
 };
@@ -45,6 +46,7 @@ struct SymbolFile
 	[[nodiscard]] static zstring_view toString(Type type);
 	[[nodiscard]] static std::optional<Type> parseType(std::string_view str);
 
+	uint16_t base;
 	std::string filename;
 	std::vector<Symbol> symbols;
 	Type type;
@@ -77,9 +79,9 @@ public:
 	void removeFile(std::string_view filename);
 	void removeAllFiles();
 
-	[[nodiscard]] const auto& getFiles() const { return files; }
+	[[nodiscard]] auto& getFiles() { return files; }
 	[[nodiscard]] std::span<Symbol const * const> lookupValue(uint16_t value);
-	[[nodiscard]] std::optional<uint16_t> parseSymbolOrValue(std::string_view s) const;
+	[[nodiscard]] std::optional<uint32_t> parseSymbolOrValue(std::string_view s) const;
 
 	[[nodiscard]] static std::string getFileFilters();
 	[[nodiscard]] static SymbolFile::Type getTypeForFilter(std::string_view filter);
@@ -88,8 +90,8 @@ public:
 	// These should not be called directly, except by the unittest
 	[[nodiscard]] static std::optional<unsigned> isHexDigit(char c);
 	[[nodiscard]] static std::optional<uint16_t> is4DigitHex(std::string_view s);
-	[[nodiscard]] static std::optional<uint16_t> parseValue(std::string_view str);
-	[[nodiscard]] static std::optional<Symbol> checkLabel(std::string_view label, uint16_t value);
+	[[nodiscard]] static std::optional<uint32_t> parseValue(std::string_view str);
+	[[nodiscard]] static std::optional<Symbol> checkLabel(std::string_view label, uint32_t value);
 	[[nodiscard]] static std::optional<Symbol> checkLabelAndValue(std::string_view label, std::string_view value);
 	[[nodiscard]] static SymbolFile::Type detectType(std::string_view filename, std::string_view buffer);
 	[[nodiscard]] static SymbolFile loadLines(

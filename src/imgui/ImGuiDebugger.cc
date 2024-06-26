@@ -134,23 +134,29 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+bool ImGuiDebugger::createHexEditor(const std::string& name, uint16_t address) {
+	// prefer to reuse a previously closed editor
+	auto [b, e] = ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
+	for (auto it = b; it != e; ++it) {
+		if (!(*it)->open) {
+			(*it)->setAddress(address);
+			(*it)->open = true;
+			return true;
+		}
+	}
+	// or create a new one
+	auto index = std::distance(b, e);
+	auto it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, name, index));
+	if (!(*it)->open) {
+		(*it)->setAddress(address);
+		(*it)->open = true;
+		return true;
+	}
+	return false;
+}
+
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
-	auto createHexEditor = [&](const std::string& name) {
-		// prefer to reuse a previously closed editor
-		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
-		for (auto it = b; it != e; ++it) {
-			if (!(*it)->open) {
-				(*it)->open = true;
-				return;
-			}
-		}
-		// or create a new one
-		auto index = std::distance(b, e);
-		auto it = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, name, index));
-		(*it)->open = true;
-	};
-
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
 		ImGui::MenuItem("Tool bar", nullptr, &showControl);
 		ImGui::MenuItem("Disassembly", nullptr, &showDisassembly);

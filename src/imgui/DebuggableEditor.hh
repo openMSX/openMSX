@@ -43,6 +43,7 @@ public:
 
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return title; }
+	void setAddress(uint16_t address);
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void loadEnd() override;

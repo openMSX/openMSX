@@ -3,6 +3,7 @@
 #include "ImGuiBreakPoints.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiDebugger.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiWatchExpr.hh"
@@ -10,7 +11,9 @@
 #include "CliComm.hh"
 #include "File.hh"
 #include "Interpreter.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 
 #include "enumerate.hh"
@@ -46,7 +49,7 @@ void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 		buf.appendf("symbolfile=%s\n", file.filename.c_str());
 		buf.appendf("symbolfiletype=%s\n", SymbolFile::toString(file.type).c_str());
 	}
-	for (const auto& [file, error, type] : fileError) {
+	for (const auto& [file, error, type, slot, address] : fileError) {
 		buf.appendf("symbolfile=%s\n", file.c_str());
 		buf.appendf("symbolfiletype=%s\n", SymbolFile::toString(type).c_str());
 	}
@@ -65,7 +68,9 @@ void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 	} else if (name == "symbolfile") {
 		fileError.emplace_back(std::string{value}, // filename
 		                       std::string{}, // error
-		                       SymbolFile::Type::AUTO_DETECT); // type
+		                       SymbolFile::Type::AUTO_DETECT, // type
+		                       0, // slot
+		                       0); // address
 	} else if (name == "symbolfiletype") {
 		if (!fileError.empty()) {
 			fileError.back().type =
@@ -100,12 +105,12 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 			it->error = e.getMessage(); // overwrite previous error
 			it->type = type;
 		} else {
-			fileError.emplace_back(filename, e.getMessage(), type); // set error
+			fileError.emplace_back(filename, e.getMessage(), type, 0, 0); // set error
 		}
 	}
 }
 
-static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symbols)
+static void checkSort(SymbolManager& manager, std::vector<SymbolRef>& symbols)
 {
 	auto* sortSpecs = ImGui::TableGetSortSpecs();
 	if (!sortSpecs->SpecsDirty) return;
@@ -129,8 +134,31 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 		UNREACHABLE;
 	}
 }
+
+void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym)
+{
+	if (ImGui::MenuItem("Open on hex editor...")) {
+		auto     filename = sym.file(symbolManager);
+		auto old_filename = filename;
+		if (auto pos = filename.rfind("/"); pos != std::string_view::npos) {
+			filename = filename.substr(pos + 1);
+			old_filename = filename;
+		}
+	        if (auto pos = filename.rfind("."); pos != std::string_view::npos) {
+			filename = filename.substr(0, pos);
+		}
+		if (!manager.debugger->createHexEditor(std::string(filename), sym.value(symbolManager))) {
+			// try .rom file next
+			auto romfile = tmpStrCat(filename, ".rom");
+			if (!manager.debugger->createHexEditor(std::string(romfile), sym.value(symbolManager))) {
+				motherBoard->getMSXCliComm().printWarning("Failed to find ROM for ", old_filename);
+			}
+		}
+	}
+}
+
 template<bool FILTER_FILE>
-static void drawTable(ImGuiManager& manager, const SymbolManager& symbolManager, std::vector<SymbolRef>& symbols, const std::string& file = {})
+void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& file)
 {
 	assert(FILTER_FILE == !file.empty());
 
@@ -141,12 +169,14 @@ static void drawTable(ImGuiManager& manager, const SymbolManager& symbolManager,
 	            ImGuiTableFlags_Resizable |
 	            ImGuiTableFlags_Reorderable |
 	            ImGuiTableFlags_Sortable |
+	            ImGuiTableFlags_Hideable |
 	            ImGuiTableFlags_SizingStretchProp |
 	            (FILTER_FILE ? ImGuiTableFlags_ScrollY : 0);
-	im::Table(file.c_str(), FILTER_FILE ? 2 : 3, flags, {0, 100}, [&]{
+	im::Table(file.c_str(), (FILTER_FILE ? 3 : 4), flags, {0, 100}, [&]{
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("name");
 		ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthFixed);
+		ImGui::TableSetupColumn("segment", showSeg ? 0 : ImGuiTableColumnFlags_DefaultHide);
 		if (!FILTER_FILE) {
 			ImGui::TableSetupColumn("file");
 		}
@@ -158,11 +188,22 @@ static void drawTable(ImGuiManager& manager, const SymbolManager& symbolManager,
 
 			if (ImGui::TableNextColumn()) { // name
 				im::ScopedFont sf(manager.fontMono);
-				ImGui::TextUnformatted(sym.name(symbolManager));
+                                im::StyleColor(sym.segment(symbolManager) > 0, ImGuiCol_Text, getColor(imColor::YELLOW), [&]{
+					ImGui::TextUnformatted(sym.name(symbolManager));
+				});
+				auto symNameMenu = tmpStrCat("symbol-manager##", sym.name(symbolManager)).data();
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+					ImGui::OpenPopup(symNameMenu);
+				}
+				im::Popup(symNameMenu, [&]{ drawContext(motherBoard, sym); });
 			}
 			if (ImGui::TableNextColumn()) { // value
 				im::ScopedFont sf(manager.fontMono);
-				ImGui::StrCat(hex_string<4>(sym.value(symbolManager)));
+				ImGui::TextUnformatted(tmpStrCat(hex_string<4>(sym.value(symbolManager))).c_str());
+			}
+			if (ImGui::TableNextColumn()) { // segment
+				im::ScopedFont sf(manager.fontMono);
+				ImGui::TextUnformatted(tmpStrCat(sym.segment(symbolManager)).c_str());
 			}
 			if (!FILTER_FILE && ImGui::TableNextColumn()) { // file
 				ImGui::TextUnformatted(sym.file(symbolManager));
@@ -171,10 +212,11 @@ static void drawTable(ImGuiManager& manager, const SymbolManager& symbolManager,
 	});
 }
 
-void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
+void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
 
+	const auto& style = ImGui::GetStyle();
 	ImGui::SetNextWindowSize(gl::vec2{24, 18} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Symbol Manager", &show, [&]{
 		if (ImGui::Button("Load symbol file...")) {
@@ -188,7 +230,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 		}
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			auto drawFile = [&](const FileInfo& info) {
+			auto drawFile = [&](FileInfo& info) {
 				im::StyleColor(!info.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 					auto title = strCat("File: ", info.filename);
 					im::TreeNode(title.c_str(), [&]{
@@ -196,6 +238,16 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 							ImGui::TextUnformatted(info.error);
 						}
 						im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
+							auto arrowSize = ImGui::GetFrameHeight();
+							auto extra = arrowSize + 2.0f * style.FramePadding.x;
+							ImGui::SetNextItemWidth(ImGui::CalcTextSize("3-3").x + extra);
+						        //ImGui::AlignTextToFramePadding();
+							ImGui::Combo("Slot", &info.slot, "0\0001\0002\0003-0\0003-1\0003-2\0003-3\000", 7);
+
+							ImGui::SameLine();
+							ImGui::SetNextItemWidth(ImGui::CalcTextSize("0x0000").x + extra);
+							ImGui::Combo("Base address", &info.address, "0x0000\0000x2000\000", 2);
+							ImGui::SameLine();
 							if (ImGui::Button("Reload")) {
 								loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type);
 							}
@@ -207,7 +259,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 									fileError.erase(it);
 								}
 							}
-							drawTable<true>(manager, symbolManager, symbols, info.filename);
+							drawTable<true>(motherBoard, info.filename);
 						});
 					});
 				});
@@ -215,10 +267,10 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 
 			// make copy because cache may get dropped
 			auto infos = to_vector(view::transform(symbolManager.getFiles(), [](const auto& file) {
-				return FileInfo{file.filename, std::string{}, file.type};
+				return FileInfo{file.filename, std::string{}, file.type, 0, 0};
 			}));
 			append(infos, fileError);
-			for (const auto& info : infos) {
+			for (auto& info : infos) {
 				drawFile(info);
 			}
 
@@ -226,7 +278,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
 				auto tmp = to_vector(view::transform(symbolManager.getFiles(), [](const auto& file) {
-					return FileInfo{file.filename, std::string{}, file.type};
+					return FileInfo{file.filename, std::string{}, file.type, 0, 0};
 				}));
 				append(tmp, std::move(fileError));
 				fileError.clear();
@@ -239,7 +291,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* /*motherBoard*/)
 				symbolManager.removeAllFiles();
 				fileError.clear();
 			}
-			drawTable<false>(manager, symbolManager, symbols);
+			drawTable<false>(motherBoard);
 		});
 	});
 }
