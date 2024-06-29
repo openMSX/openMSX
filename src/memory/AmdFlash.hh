@@ -301,8 +301,8 @@ namespace AmdFlashChip
 	using enum AmdFlash::ManufacturerID;
 	using DeviceInterface = AmdFlash::DeviceInterface;
 
-	// AMD AM29F040
-	static constexpr ValidatedChip AM29F040 = {{
+	// AMD AM29F040B
+	static constexpr ValidatedChip AM29F040B = {{
 		.autoSelect{.manufacturer = AMD, .device{0xA4}, .extraCode = 0x01},
 		.geometry{
 			DeviceInterface::x8, {
@@ -311,12 +311,34 @@ namespace AmdFlashChip
 		},
 	}};
 
-	// AMD AM29F016
-	static constexpr ValidatedChip AM29F016 = {{
+	// AMD AM29F016D
+	static constexpr ValidatedChip AM29F016D = {{
 		.autoSelect{.manufacturer = AMD, .device{0xAD}},
 		.geometry{
 			DeviceInterface::x8, {
 				{.count = 32, .size = 0x10000},
+			},
+		},
+		.cfi{
+			.command = true,
+			.systemInterface{
+				.supply = {.minVcc = 0x45, .maxVcc = 0x55, .minVpp = 0x00, .maxVpp = 0x00},
+				.typTimeout     = {.singleProgram =  8, .multiProgram = 1, .sectorErase = 1024, .chipErase = 1},
+				.maxTimeoutMult = {.singleProgram = 32, .multiProgram = 1, .sectorErase =   16, .chipErase = 1},
+			},
+			.primaryAlgorithm{
+				.version = {.major = 1, .minor = 1},
+				.addressSensitiveUnlock = 0,
+				.siliconRevision = 0,
+				.eraseSuspend = 2,
+				.sectorProtect = 4,
+				.sectorTemporaryUnprotect = 1,
+				.sectorProtectScheme = 4,
+				.simultaneousOperation = 0,
+				.burstMode = 0,
+				.pageMode = 0,
+				.supply = {.minAcc = 0, .maxAcc = 0},
+				.bootBlockFlag = 0
 			},
 		},
 	}};

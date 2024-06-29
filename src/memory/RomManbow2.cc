@@ -25,9 +25,9 @@ namespace openmsx {
 	case MANBOW2_2:
 	case HAMARAJANIGHT:
 	case MEGAFLASHROMSCC:
-		return AmdFlashChip::AM29F040;
+		return AmdFlashChip::AM29F040B;
 	case RBSC_FLASH_KONAMI_SCC:
-		return AmdFlashChip::AM29F016;
+		return AmdFlashChip::AM29F016D;
 	default:
 		UNREACHABLE;
 	}
