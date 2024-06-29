@@ -397,7 +397,7 @@ namespace AmdFlashChip
 		},
 		.program{.fastCommand = true, .bufferCommand = true, .shortAbortReset = true, .pageSize = 32},
 		.cfi{
-			.command = true, .withManufacturerDevice = true, .commandMask = 0xFFF, .readMask = 0xFF,
+			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
 			.systemInterface{
 				.supply = {.minVcc = 0x27, .maxVcc = 0x36, .minVpp = 0xB5, .maxVpp = 0xC5},
 				.typTimeout     = {.singleProgram = 16, .multiProgram = 1, .sectorErase = 1024, .chipErase = 1},
