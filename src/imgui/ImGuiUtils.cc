@@ -363,7 +363,7 @@ void setColors(int style)
 	imColors[size_t(KEY_ACTIVE    )] = 0xff'10'40'ff;
 	imColors[size_t(KEY_NOT_ACTIVE)] = 0x80'00'00'00;
 
-	imColors[size_t(FOLDER        )] = light ? 0xff'80'70'70 : 0x80'ff'e5'e5;
+	imColors[size_t(FOLDER        )] = light ? 0xff'80'40'40 : 0xe0'ff'e0'e0;
 }
 
 } // namespace openmsx
