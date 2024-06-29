@@ -1705,7 +1705,7 @@ void IGFD::FileManager::m_SortFields(const FileDialogInternal& vFileDialogIntern
         auto compare = [&](auto extractor) {
             // directories before (or after) files
             auto a_type = a->fileType;
-            auto b_type = a->fileType;
+            auto b_type = b->fileType;
             if (a_type != b_type) return ascending ? a_type < b_type : b_type < a_type;
 
             // then sort on column-specific properties
