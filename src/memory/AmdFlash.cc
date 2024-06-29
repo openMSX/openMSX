@@ -252,6 +252,9 @@ uint16_t AmdFlash::peekAutoSelect(size_t address, uint16_t undefined) const
 	case 0x1:
 		return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
 	case 0x2:
+		if (address & 0x40) {
+			return undefined;
+		}
 		if (chip.geometry.deviceInterface == DeviceInterface::x8x16) {
 			// convert native address to byte address
 			address <<= 1;
@@ -310,7 +313,7 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 			}
 		} else if (chip.cfi.withAutoSelect) {
 			// S29GL064S exposes auto select data below 0x10 (as 16-bit values)
-			return peekAutoSelect(address);
+			return peekAutoSelect(address | 0x40);
 		}
 	}
 
