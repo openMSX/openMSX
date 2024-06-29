@@ -1520,7 +1520,7 @@ public:
     static size_t GetLastCharPosWithMinCharCount(const std::string& vString, const char& vChar, const size_t& vMinCharCount);
     static std::string GetPathSeparator(); // return the slash for any OS ( \\ win, / unix)
     static std::string RoundNumber(double vvalue, int n);  // custom rounding number
-    static std::string FormatFileSize(size_t vByteSize);   // format file size field
+    static std::pair<std::string, std::string> FormatFileSize(size_t vByteSize);   // format file size field
 };
 
 #pragma endregion
@@ -1698,7 +1698,7 @@ public:
     std::string tooltipMessage;                                      // message to display on the tooltip, is not empty
     int32_t tooltipColumn = -1;                                      // the tooltip will appears only when the mouse is over the tooltipColumn if > -1
     size_t fileSize = 0U;                                            // for sorting operations
-    std::string formatedFileSize;                                    // file size formated (10 o, 10 ko, 10 mo, 10 go)
+    std::pair<std::string, std::string> formatedFileSize;            // file size formated with number in first and unit in second (10 o, 10 ko, 10 mo, 10 go)
     std::string fileModifDate;                                       // file user defined format of the date (data + time by default)
     std::shared_ptr<FileStyle> fileStyle = nullptr;                  // style of the file
 #ifdef USE_THUMBNAILS

@@ -50,6 +50,22 @@ SOFTWARE.
 #include <cstdio>
 #include <cerrno>
 
+//////////////// copied from openMSX //////////////////////////////////////////
+static void RightAlignText(const char* text, const char* maxWidthText)
+{
+	auto maxWidth = ImGui::CalcTextSize(maxWidthText).x;
+	auto actualWidth = ImGui::CalcTextSize(text).x;
+	if (auto spacing = maxWidth - actualWidth; spacing > 0.0f) {
+		auto pos = ImGui::GetCursorPosX();
+		ImGui::SetCursorPosX(pos + spacing);
+	}
+	ImGui::TextUnformatted(text);
+
+}
+//////////// end copied from openMSX //////////////////////////////////////////
+
+
+
 // this option need c++17
 #ifdef USE_STD_FILESYSTEM
 #include <filesystem>
@@ -918,7 +934,7 @@ std::string IGFD::Utils::RoundNumber(double vvalue, int n) {
     return tmp.str();
 }
 
-std::string IGFD::Utils::FormatFileSize(size_t vByteSize) {
+std::pair<std::string, std::string> IGFD::Utils::FormatFileSize(size_t vByteSize) {
     if (vByteSize != 0) {
         static double lo = 1024.0;
         static double ko = 1024.0 * 1024.0;
@@ -927,16 +943,16 @@ std::string IGFD::Utils::FormatFileSize(size_t vByteSize) {
         auto v = (double)vByteSize;
 
         if (v < lo)
-            return RoundNumber(v, 0) + " " + fileSizeBytes;  // octet
+            return {RoundNumber(v, 0), fileSizeBytes};  // octet
         else if (v < ko)
-            return RoundNumber(v / lo, 2) + " " + fileSizeKiloBytes;  // ko
+            return {RoundNumber(v / lo, 2), fileSizeKiloBytes};  // ko
         else if (v < mo)
-            return RoundNumber(v / ko, 2) + " " + fileSizeMegaBytes;  // Mo
+            return {RoundNumber(v / ko, 2), fileSizeMegaBytes};  // Mo
         else
-            return RoundNumber(v / mo, 2) + " " + fileSizeGigaBytes;  // Go
+            return {RoundNumber(v / mo, 2), fileSizeGigaBytes};  // Go
     }
 
-    return "0 " fileSizeBytes;
+    return {"0", fileSizeBytes};
 }
 
 //#pragma endregion
@@ -3998,7 +4014,9 @@ void IGFD::FileDialog::m_DrawFileListView(ImVec2 vSize) {
                     if (ImGui::TableNextColumn())  // file size
                     {
                         if (!infos->fileType.isDir()) {
-                            ImGui::Text("%s ", infos->formatedFileSize.c_str());
+                            RightAlignText(infos->formatedFileSize.first.c_str(), "1888.88");
+                            ImGui::SameLine(0.0f, 0.0f);
+                            ImGui::Text(" %s ", infos->formatedFileSize.second.c_str());
                         } else {
                             ImGui::TextUnformatted("");
                         }
@@ -4186,7 +4204,9 @@ void IGFD::FileDialog::m_DrawThumbnailsListView(ImVec2 vSize) {
                     if (ImGui::TableNextColumn())  // file size
                     {
                         if (!infos->fileType.isDir()) {
-                            ImGui::Text("%s ", infos->formatedFileSize.c_str());
+                            RightAlignText(infos->formatedFileSize.first.c_str(), "1888.88");
+                            ImGui::SameLine(0.0f, 0.0f);
+                            ImGui::Text(" %s ", infos->formatedFileSize.second.c_str());
                         } else {
                             ImGui::TextUnformatted("");
                         }
