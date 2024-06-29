@@ -310,8 +310,6 @@ enum class imColor : unsigned {
 	KEY_ACTIVE,     // virtual keyboard
 	KEY_NOT_ACTIVE,
 
-	FOLDER,
-
 	NUM_COLORS
 };
 inline std::array<ImU32, size_t(imColor::NUM_COLORS)> imColors;
