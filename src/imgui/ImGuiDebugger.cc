@@ -134,6 +134,11 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+void ImGuiDebugger::loadEnd()
+{
+	setDisassemblyScrollY = disassemblyScrollY;
+}
+
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
 	auto createHexEditor = [&](const std::string& name) {
@@ -700,7 +705,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 				auto topAddr = nInstructionsBefore(cpuInterface, pc, time, narrow<int>(lines / 4) + 1);
 
 				ImGui::SetScrollY(topAddr * itemHeight);
+			} else if (setDisassemblyScrollY) {
+				ImGui::SetScrollY(*setDisassemblyScrollY);
+				setDisassemblyScrollY.reset();
 			}
+			disassemblyScrollY = ImGui::GetScrollY();
 		});
 		// only add/remove bp's after drawing (can't change list of bp's while iterating over it)
 		if (addBp) {
