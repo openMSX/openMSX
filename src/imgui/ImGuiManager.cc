@@ -357,9 +357,13 @@ void ImGuiManager::printError(std::string_view message)
 bool ImGuiManager::signalEvent(const Event& event)
 {
 	if (auto* evt = get_event_if<SdlEvent>(event)) {
+		const ImGuiIO& io = ImGui::GetIO();
+		if (!io.BackendPlatformUserData) {
+			// ImGui backend not (yet) initialized (e.g. after 'set renderer none')
+			return false;
+		}
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
 		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
-		const ImGuiIO& io = ImGui::GetIO();
 		if ((io.WantCaptureMouse &&
 		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
