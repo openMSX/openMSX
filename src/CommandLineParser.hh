@@ -65,10 +65,6 @@ public:
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
 	[[nodiscard]] Interpreter& getInterpreter() const;
 
-	/** Need to suppress renderer window on startup?
-	  */
-	[[nodiscard]] bool isHiddenStartup() const;
-
 private:
 	struct OptionData {
 		OptionData(std::string_view n, CLIOption* o, ParsePhase p, unsigned l)

@@ -267,11 +267,6 @@ void CommandLineParser::parse(std::span<char*> argv)
 	}
 }
 
-bool CommandLineParser::isHiddenStartup() const
-{
-	return parseStatus == one_of(CONTROL, TEST);
-}
-
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 {
 	assert(parseStatus != UNPARSED);

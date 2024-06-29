@@ -27,8 +27,6 @@ public:
 	using Map = std::vector<MapEntry>;
 	[[nodiscard]] const auto& getMap() const { return baseMap; }
 
-protected:
-
 	explicit EnumSettingBase(Map&& m);
 
 	[[nodiscard]] int fromStringBase(std::string_view str) const;

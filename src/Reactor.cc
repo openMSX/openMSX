@@ -533,7 +533,7 @@ void Reactor::enterMainLoop()
 	}
 }
 
-void Reactor::run(const CommandLineParser& parser)
+void Reactor::runStartupScripts(const CommandLineParser& parser)
 {
 	auto& commandController = *globalCommandController;
 
@@ -572,45 +572,42 @@ void Reactor::run(const CommandLineParser& parser)
 	// ...and re-emit any postponed message callbacks now that the scripts
 	// are loaded
 	tclCallbackMessages->redoPostponedCallbacks();
+}
 
-	// Run
-	if (parser.getParseStatus() == CommandLineParser::RUN) {
-		// don't use Tcl to power up the machine, we cannot pass
-		// exceptions through Tcl and ADVRAM might throw in its
-		// powerUp() method. Solution is to implement dependencies
-		// between devices so ADVRAM can check the error condition
-		// in its constructor
-		//commandController.executeCommand("set power on");
-		if (activeBoard) {
-			activeBoard->powerUp();
-		}
-	}
-
-	while (doOneIteration()) {
-		// nothing
+void Reactor::powerOn()
+{
+	// don't use Tcl to power up the machine, we cannot pass
+	// exceptions through Tcl and ADVRAM might throw in its
+	// powerUp() method. Solution is to implement dependencies
+	// between devices so ADVRAM can check the error condition
+	// in its constructor
+	//commandController.executeCommand("set power on");
+	if (activeBoard) {
+		activeBoard->powerUp();
 	}
 }
 
-bool Reactor::doOneIteration()
+void Reactor::run()
 {
-	eventDistributor->deliverEvents();
-	bool blocked = (blockedCounter > 0) || !activeBoard;
-	if (!blocked) {
-		// copy shared_ptr to keep Board alive (e.g. in case of Tcl
-		// callbacks)
-		auto copy = activeBoard;
-		blocked = !copy->execute();
+	while (running) {
+		eventDistributor->deliverEvents();
+		bool blocked = (blockedCounter > 0) || !activeBoard;
+		if (!blocked) {
+			// copy shared_ptr to keep Board alive (e.g. in case of Tcl
+			// callbacks)
+			auto copy = activeBoard;
+			blocked = !copy->execute();
+		}
+		if (blocked) {
+			// At first sight a better alternative is to use the
+			// SDL_WaitEvent() function. Though when inspecting
+			// the implementation of that function, it turns out
+			// to also use a sleep/poll loop, with even shorter
+			// sleep periods as we use here. Maybe in future
+			// SDL implementations this will be improved.
+			eventDistributor->sleep(20 * 1000);
+		}
 	}
-	if (blocked) {
-		// At first sight a better alternative is to use the
-		// SDL_WaitEvent() function. Though when inspecting
-		// the implementation of that function, it turns out
-		// to also use a sleep/poll loop, with even shorter
-		// sleep periods as we use here. Maybe in future
-		// SDL implementations this will be improved.
-		eventDistributor->sleep(20 * 1000);
-	}
-	return running;
 }
 
 void Reactor::unpause()

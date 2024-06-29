@@ -3,20 +3,24 @@
  *
  */
 
-#include "openmsx.hh"
-#include "Date.hh"
-#include "Reactor.hh"
-#include "CommandLineParser.hh"
 #include "CliServer.hh"
+#include "CommandLineParser.hh"
 #include "Display.hh"
-#include "EventDistributor.hh"
-#include "RenderSettings.hh"
 #include "EnumSetting.hh"
+#include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "MSXException.hh"
+#include "Reactor.hh"
+#include "RenderSettings.hh"
 #include "Thread.hh"
-#include "build-info.hh"
+#include "openmsx.hh"
+
+#include "Date.hh"
+#include "one_of.hh"
 #include "random.hh"
+
+#include "build-info.hh"
+
 #include <iostream>
 #include <exception>
 #include <ctime>
@@ -126,10 +130,13 @@ static int main(int argc, char **argv)
 		parser.parse(args);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
-		if (parseStatus != CommandLineParser::EXIT) {
+		if (parseStatus != one_of(CommandLineParser::EXIT, CommandLineParser::TEST)) {
+			reactor.runStartupScripts(parser);
+
 			auto& display = reactor.getDisplay();
-			if (!parser.isHiddenStartup()) {
-				auto& render = display.getRenderSettings().getRendererSetting();
+			auto& render = display.getRenderSettings().getRendererSetting();
+			if ((render.getEnum() == RenderSettings::RendererID::UNINITIALIZED) &&
+			    (parseStatus != CommandLineParser::CONTROL)) {
 				render.setValue(render.getDefaultValue());
 				// Switching renderer requires events, handle
 				// these events before continuing with the rest
@@ -139,14 +146,16 @@ static int main(int argc, char **argv)
 				// 'ext gfx9000'.
 				reactor.getEventDistributor().deliverEvents();
 			}
-			if (parseStatus != CommandLineParser::TEST) {
-				display.repaint();
 
-				CliServer cliServer(reactor.getCommandController(),
-				                    reactor.getEventDistributor(),
-				                    reactor.getGlobalCliComm());
-				reactor.run(parser);
+			CliServer cliServer(reactor.getCommandController(),
+			                    reactor.getEventDistributor(),
+			                    reactor.getGlobalCliComm());
+
+			if (parser.getParseStatus() == CommandLineParser::RUN) {
+				reactor.powerOn();
 			}
+			display.repaint();
+			reactor.run();
 		}
 	} catch (FatalError& e) {
 		std::cerr << "Fatal error: " << e.getMessage() << '\n';

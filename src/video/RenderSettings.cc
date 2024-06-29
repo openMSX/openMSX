@@ -34,8 +34,9 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 {
 	EnumSetting<RendererID>::Map rendererMap = {
-		{"none",     RendererID::DUMMY},// TODO: only register when in CliComm mode
-		{"SDLGL-PP", RendererID::SDLGL_PP}
+		{"uninitialized", RendererID::UNINITIALIZED},
+		{"none",          RendererID::DUMMY},
+		{"SDLGL-PP",      RendererID::SDLGL_PP}
 	};
 	return rendererMap;
 }
@@ -195,7 +196,14 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		cmIdentity = true;
 	}
 
-	rendererSetting.setEnum(RendererID::DUMMY); // always start hidden
+	rendererSetting.setEnum(RendererID::UNINITIALIZED); // always start hidden
+	rendererSetting.setChecker([this](const TclObject& newValue) {
+		if (newValue.getString() == "uninitialized") {
+			throw CommandException("can't set special value 'uninitialized'");
+		}
+		// the default enum check
+		(void)rendererSetting.fromStringBase(newValue.getString());
+	});
 }
 
 RenderSettings::~RenderSettings()

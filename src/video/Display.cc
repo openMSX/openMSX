@@ -250,11 +250,8 @@ float Display::getFps() const
 
 void Display::update(const Setting& setting) noexcept
 {
-	if (&setting == &renderSettings.getRendererSetting()) {
-		checkRendererSwitch();
-	} else {
-		UNREACHABLE;
-	}
+	assert(&setting == &renderSettings.getRendererSetting());
+	checkRendererSwitch();
 }
 
 void Display::checkRendererSwitch()

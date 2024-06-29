@@ -78,10 +78,9 @@ public:
 	void init();
 	~Reactor();
 
-	/**
-	 * Main loop.
-	 */
-	void run(const CommandLineParser& parser);
+	void runStartupScripts(const CommandLineParser& parser);
+	void powerOn();
+	void run();
 
 	void enterMainLoop();
 
@@ -143,12 +142,6 @@ private:
 
 	// EventListener
 	bool signalEvent(const Event& event) override;
-
-	// Run 1 iteration of the openMSX event loop. Typically this will
-	// emulate about 1 frame (but could be more or less depending on
-	// various factors). Returns true when openMSX wants to continue
-	// running.
-	[[nodiscard]] bool doOneIteration();
 
 	void unpause();
 	void pause();
