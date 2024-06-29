@@ -141,10 +141,6 @@ void ImGuiOpenFile::common(const std::string& title, const char* filters,
 		ImGuiFileDialogFlags_DontShowHiddenFiles |
 		ImGuiFileDialogFlags_CaseInsensitiveExtention |
 		ImGuiFileDialogFlags_Modal;
-
-	// tweak rendering of directories, so they stand out from files a bit more
-	ImGuiFileDialog::Instance()->SetFileStyle(IGFD_FileStyleByTypeDir, "", ImVec4(0.5f, 1.0f, 0.9f, 0.9f), ICON_IGFD_FOLDER);
-
 	ImGuiFileDialog::Instance()->OpenDialog(
 		"FileDialog", title, filters, config);
 	openFileCallback = callback;
