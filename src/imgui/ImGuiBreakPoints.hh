@@ -64,7 +64,7 @@ public:
 	void paintBpTab(MSXCPUInterface& cpuInterface, Debugger& debugger, uint16_t addr);
 
 private:
-	template<typename Item> void loadItem(zstring_view value);
+	//template<typename Item> void loadItem(zstring_view value);
 	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr = {});
 	template<typename Item> void syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
 	void checkSort(std::vector<GuiItem>& items) const;

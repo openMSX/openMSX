@@ -41,6 +41,7 @@ ImGuiBreakPoints::ImGuiBreakPoints(ImGuiManager& manager_)
 {
 }
 
+#if 0
 static void saveItems(zstring_view label, const std::vector<ImGuiBreakPoints::GuiItem>& items, ImGuiTextBuffer& buf)
 {
 	auto saveAddr = [](std::optional<uint16_t> addr) {
@@ -59,15 +60,19 @@ static void saveItems(zstring_view label, const std::vector<ImGuiBreakPoints::Gu
 		buf.appendf("%s=%s\n", label.c_str(), list.getString().c_str());
 	}
 }
+#endif
 
 void ImGuiBreakPoints::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+#if 0
 	saveItems("breakpoint", guiBps, buf);
 	saveItems("watchpoint", guiWps, buf);
 	saveItems("condition", guiConditions, buf);
+#endif
 }
 
+#if 0
 template<typename Item>
 void ImGuiBreakPoints::loadItem(zstring_view value)
 {
@@ -107,27 +112,32 @@ void ImGuiBreakPoints::loadItem(zstring_view value)
 		// ignore
 	}
 }
+#endif
 
 void ImGuiBreakPoints::loadStart()
 {
+	#if 0
 	if (auto* motherBoard = manager.getReactor().getMotherBoard()) {
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		clear(static_cast<BreakPoint    *>(nullptr), cpuInterface);
 		clear(static_cast<WatchPoint    *>(nullptr), cpuInterface);
 		clear(static_cast<DebugCondition*>(nullptr), cpuInterface);
 	}
+	#endif
 }
 
 void ImGuiBreakPoints::loadLine(std::string_view name, zstring_view value)
 {
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
+#if 0
 	} else if (name == "breakpoint"sv) {
 		loadItem<BreakPoint>(value);
 	} else if (name == "watchpoint"sv) {
 		loadItem<WatchPoint>(value);
 	} else if (name == "condition"sv) {
 		loadItem<DebugCondition>(value);
+#endif
 	}
 }
 
