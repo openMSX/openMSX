@@ -166,21 +166,27 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 		applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
 		applyDisplayNameFilter(filterString, allMachines, filteredMachines);
 
-		bool inFilteredList = contains(filteredMachines, newMachineConfig,
-						[&](auto idx) { return allMachines[idx].configName; });
+		auto it = ranges::find(filteredMachines, newMachineConfig,
+			[&](auto idx) { return allMachines[idx].configName; });
+		bool inFilteredList = it != filteredMachines.end();
+		int selectedIdx = inFilteredList ? narrow<int>(*it) : -1;
 
 		im::ListBox("##list", {-FLT_MIN, -ImGui::GetFrameHeightWithSpacing()}, [&]{
-			im::ListClipper(filteredMachines.size(), [&](int i) {
+			im::ListClipper(filteredMachines.size(), selectedIdx, [&](int i) {
 				auto idx = filteredMachines[i];
 				auto& info = allMachines[idx];
 				bool ok = getTestResult(info).empty();
 				im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-					if (ImGui::Selectable(info.displayName.c_str(), info.configName == newMachineConfig, ImGuiSelectableFlags_AllowDoubleClick)) {
+					bool selected = info.configName == newMachineConfig;
+					if (ImGui::Selectable(info.displayName.c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick)) {
 						newMachineConfig = info.configName;
 						if (ok && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 							showSelectMachine = false; // close window
 							manager.executeDelayed(makeTclList("machine", newMachineConfig));
 						}
+					}
+					if (selected) {
+						if (ImGui::IsWindowAppearing()) ImGui::SetScrollHereY();
 					}
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
 						im::ItemTooltip([&]{
