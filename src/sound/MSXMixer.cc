@@ -50,9 +50,6 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(commandController.getMachineInfoCommand())
 {
-	muteCount = 1;
-	unmute(); // calls Mixer::registerMixer()
-
 	reschedule2();
 
 	masterVolume.attach(*this);

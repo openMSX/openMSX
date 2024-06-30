@@ -254,8 +254,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	deviceInfo = make_unique<DeviceInfo>(*this);
 	debugger = make_unique<Debugger>(*this);
 
-	msxMixer->mute(); // powered down
-
 	// Do this before machine-specific settings are created, otherwise
 	// a setting-info CliComm message is send with a machine id that hasn't
 	// been announced yet over CliComm.

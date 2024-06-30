@@ -59,7 +59,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	// Set correct initial mute state.
 	if (muteSetting.getBoolean()) ++muteCount;
 
-	reloadDriver();
+	assert(!driver);
 }
 
 Mixer::~Mixer()
@@ -83,9 +83,6 @@ void Mixer::reloadDriver()
 
 	try {
 		switch (soundDriverSetting.getEnum()) {
-		case SoundDriverType::NONE:
-			driver = std::make_unique<NullSoundDriver>();
-			break;
 		case SoundDriverType::SDL:
 			driver = std::make_unique<SDLSoundDriver>(
 				reactor,
@@ -93,13 +90,12 @@ void Mixer::reloadDriver()
 				samplesSetting.getInt());
 			break;
 		default:
-			UNREACHABLE;
+			// nothing, NullSoundDriver already created
+			break;
 		}
 	} catch (MSXException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
 	}
-
-	muteHelper();
 }
 
 void Mixer::registerMixer(MSXMixer& mixer)
@@ -133,6 +129,8 @@ void Mixer::unmute()
 
 void Mixer::muteHelper()
 {
+	if (!driver) reloadDriver();
+
 	bool isMuted = muteCount || msxMixers.empty();
 	unsigned samples = isMuted ? 0 : driver->getSamples();
 	unsigned frequency = driver->getFrequency();
@@ -149,6 +147,11 @@ void Mixer::muteHelper()
 
 void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, std::span<const StereoFloat> buffer)
 {
+	if (!driver) {
+		reloadDriver();
+		muteHelper();
+	}
+
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());
 
@@ -165,6 +168,7 @@ void Mixer::update(const Setting& setting) noexcept
 		}
 	} else if (&setting == one_of(&samplesSetting, &soundDriverSetting, &frequencySetting)) {
 		reloadDriver();
+		muteHelper();
 	} else {
 		UNREACHABLE;
 	}

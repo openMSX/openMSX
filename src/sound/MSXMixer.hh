@@ -190,7 +190,7 @@ private:
 	AviRecorder* recorder = nullptr;
 	unsigned synchronousCounter = 0;
 
-	unsigned muteCount;
+	unsigned muteCount = 1; // start muted
 	float tl0, tr0; // internal DC-filter state
 };
 
