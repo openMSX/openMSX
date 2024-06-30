@@ -588,8 +588,8 @@ bool AmdFlash::checkCommandEraseSector()
 	if (partialMatch(cmdSeq)) {
 		if (cmd.size() < 6) return true;
 		if (cmd[5].value == 0x30) {
-			const Sector& sector = getSector(cmd[5].addr);
-			if (isWritable(sector)) {
+			if (const Sector& sector = getSector(cmd[5].addr);
+			    isWritable(sector)) {
 				ram->memset(sector.writeAddress, 0xff, sector.size);
 			}
 

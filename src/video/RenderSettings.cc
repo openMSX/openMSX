@@ -33,10 +33,11 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 
 EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 {
+	using enum RendererID;
 	EnumSetting<RendererID>::Map rendererMap = {
-		{"uninitialized", RendererID::UNINITIALIZED},
-		{"none",          RendererID::DUMMY},
-		{"SDLGL-PP",      RendererID::SDLGL_PP}
+		{"uninitialized", UNINITIALIZED},
+		{"none",          DUMMY},
+		{"SDLGL-PP",      SDLGL_PP}
 	};
 	return rendererMap;
 }

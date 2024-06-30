@@ -33,10 +33,10 @@ public:
 	         std::enable_if_t<!std::is_same_v<std::decay_t<F>, function_ref> &&
 	                          std::is_invocable_r_v<R, F &&, Args...>>* = nullptr>
 	constexpr function_ref(F&& f) noexcept
-		: obj(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(f))))
+		: obj(const_cast<void*>(static_cast<const void*>(std::addressof(f))))
 	{
 		callback = [](void* o, Args... args) -> R {
-			return std::invoke(*reinterpret_cast<std::add_pointer_t<F>>(o),
+			return std::invoke(*static_cast<std::add_pointer_t<F>>(o),
 			                   std::forward<Args>(args)...);
 		};
 	}

@@ -695,7 +695,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 
 			auto [modeStr, extendedStr] = [&] { // TODO: remove duplication with VDP debugger code
 				if (!motherBoard) return std::pair{"-", ""};
-				auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP"));
+				const auto* vdp = dynamic_cast<const VDP*>(motherBoard->findDevice("VDP"));
 				if (!vdp) return std::pair{"-", ""};
 
 				auto mode = vdp->getDisplayMode();
