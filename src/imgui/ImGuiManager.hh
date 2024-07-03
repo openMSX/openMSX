@@ -51,6 +51,7 @@ class ImGuiSpriteViewer;
 class ImGuiSymbols;
 class ImGuiTools;
 class ImGuiTrainer;
+class ImGuiSCCViewer;
 class ImGuiVdpRegs;
 class ImGuiWatchExpr;
 class RomInfo;
@@ -152,6 +153,7 @@ public:
 	std::unique_ptr<ImGuiConnector> connector;
 	std::unique_ptr<ImGuiTools> tools;
 	std::unique_ptr<ImGuiTrainer> trainer;
+	std::unique_ptr<ImGuiSCCViewer> sccViewer;
 	std::unique_ptr<ImGuiCheatFinder> cheatFinder;
 	std::unique_ptr<ImGuiDiskManipulator> diskManipulator;
 	std::unique_ptr<ImGuiSettings> settings;

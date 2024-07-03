@@ -27,6 +27,7 @@
 #include "ImGuiUtils.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
+#include "ImGuiSCCViewer.hh"
 
 
 #include "CartridgeSlotManager.hh"
@@ -187,6 +188,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	openFile = std::make_unique<ImGuiOpenFile>(*this);
 	trainer = std::make_unique<ImGuiTrainer>(*this);
 	cheatFinder = std::make_unique<ImGuiCheatFinder>(*this);
+	sccViewer = std::make_unique<ImGuiSCCViewer>(*this);
 	diskManipulator = std::make_unique<ImGuiDiskManipulator>(*this);
 	soundChip = std::make_unique<ImGuiSoundChip>(*this);
 	keyboard = std::make_unique<ImGuiKeyboard>(*this);

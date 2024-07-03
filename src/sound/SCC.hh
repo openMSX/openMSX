@@ -29,6 +29,9 @@ public:
 	void writeMem(uint8_t address, uint8_t value, EmuTime::param time);
 	void setMode(Mode newMode);
 
+	// public getters for classes interested to show SCC data
+	const std::array<std::array<int8_t, 32>, 5>& getWaveData() const { return wave; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
