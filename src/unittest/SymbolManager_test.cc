@@ -37,49 +37,81 @@ TEST_CASE("SymbolManager: parseValue")
 	SECTION("ok") {
 		// hex
 		CHECK(SymbolManager::parseValue<uint16_t>("0xa1") == 0xa1);
+		CHECK(SymbolManager::parseValue<uint32_t>("0xa1") == 0xa1);
 		CHECK(SymbolManager::parseValue<uint16_t>("0x1234") == 0x1234);
+		CHECK(SymbolManager::parseValue<uint32_t>("0x1234") == 0x1234);
 		CHECK(SymbolManager::parseValue<uint16_t>("0XABCD") == 0xabcd);
+		CHECK(SymbolManager::parseValue<uint32_t>("0XABCD") == 0xabcd);
 		CHECK(SymbolManager::parseValue<uint16_t>("0x00002345") == 0x2345);
+		CHECK(SymbolManager::parseValue<uint32_t>("0x00002345") == 0x2345);
 		CHECK(SymbolManager::parseValue<uint16_t>("$fedc") == 0xfedc);
+		CHECK(SymbolManager::parseValue<uint32_t>("$fedc") == 0xfedc);
 		CHECK(SymbolManager::parseValue<uint16_t>("#11aA") == 0x11aa);
+		CHECK(SymbolManager::parseValue<uint32_t>("#11aA") == 0x11aa);
 		CHECK(SymbolManager::parseValue<uint16_t>("bbffh") == 0xbbff);
+		CHECK(SymbolManager::parseValue<uint32_t>("bbffh") == 0xbbff);
 		CHECK(SymbolManager::parseValue<uint16_t>("3210H") == 0x3210);
+		CHECK(SymbolManager::parseValue<uint32_t>("3210H") == 0x3210);
 		CHECK(SymbolManager::parseValue<uint16_t>("01234h") == 0x1234);
+		CHECK(SymbolManager::parseValue<uint32_t>("01234h") == 0x1234);
 		// dec
 		CHECK(SymbolManager::parseValue<uint16_t>("123") == 0x007b);
+		CHECK(SymbolManager::parseValue<uint32_t>("123") == 0x007b);
 		CHECK(SymbolManager::parseValue<uint16_t>("65535") == 0xffff);
+		CHECK(SymbolManager::parseValue<uint32_t>("65535") == 0xffff);
 		CHECK(SymbolManager::parseValue<uint16_t>("0020") == 0x0014); // NOT interpreted as octal
+		CHECK(SymbolManager::parseValue<uint32_t>("0020") == 0x0014); // NOT interpreted as octal
 		// bin
 		CHECK(SymbolManager::parseValue<uint16_t>("%1100") == 0x000c);
+		CHECK(SymbolManager::parseValue<uint32_t>("%1100") == 0x000c);
 		CHECK(SymbolManager::parseValue<uint16_t>("0b000100100011") == 0x0123);
+		CHECK(SymbolManager::parseValue<uint32_t>("0b000100100011") == 0x0123);
 		CHECK(SymbolManager::parseValue<uint16_t>("0B1111000001011000") == 0xf058);
+		CHECK(SymbolManager::parseValue<uint32_t>("0B1111000001011000") == 0xf058);
 	}
 	SECTION("error") {
 		// wrong format
 		CHECK(SymbolManager::parseValue<uint16_t>("0xFEDX") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("0xFEDGFF") == std::nullopt);
 		CHECK(SymbolManager::parseValue<uint16_t>("1234a") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("1234567a") == std::nullopt);
 		CHECK(SymbolManager::parseValue<uint16_t>("-3") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("-100000") == std::nullopt);
 		CHECK(SymbolManager::parseValue<uint16_t>("0b00112110") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("0b00110113") == std::nullopt);
 		// overflow
 		CHECK(SymbolManager::parseValue<uint16_t>("0x10000") == std::nullopt);
 		CHECK(SymbolManager::parseValue<uint16_t>("65536") == std::nullopt);
 		CHECK(SymbolManager::parseValue<uint16_t>("%11110000111100001") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("0x100000000") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("4294967296") == std::nullopt);
+		CHECK(SymbolManager::parseValue<uint32_t>("%111100001111000011110000111100001") == std::nullopt);
 	}
 }
 
 TEST_CASE("SymbolManager: checkLabel")
 {
-	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, 0));
-	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, 0));
+	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, {}, 0));
+	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, {}, 0));
 	CHECK(SymbolManager::checkLabel("", 345) == std::nullopt);
 	CHECK(SymbolManager::checkLabel(":", 456) == std::nullopt);
 }
 
 TEST_CASE("SymbolManager: checkLabelAndValue")
 {
-	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, 0));
+	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, {}, 0));
 	CHECK(SymbolManager::checkLabelAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelAndValue("foo", "bla") == std::nullopt);
+}
+
+TEST_CASE("SymbolManager: checkLabelSegmentAndValue")
+{
+	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "123") == Symbol("foo", 123, {}, 0));
+	CHECK(SymbolManager::checkLabelSegmentAndValue("", "123") == std::nullopt);
+	CHECK(SymbolManager::checkLabelSegmentAndValue("", "123") == std::nullopt);
+	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "0x123456") == Symbol("foo", 0x3456, {}, 0x12));
+	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "2311527") == Symbol("foo", 0x4567, {}, 0x23));
+	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "0x123456") == Symbol("foo", 0x3456, {}, 0x12));
 }
 
 TEST_CASE("SymbolManager: detectType")
@@ -107,7 +139,7 @@ TEST_CASE("SymbolManager: detectType")
 TEST_CASE("SymbolManager: loadLines")
 {
 	auto dummyParser = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
-		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, 0};
+		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, 0, {}};
 		return {};
 	};
 
