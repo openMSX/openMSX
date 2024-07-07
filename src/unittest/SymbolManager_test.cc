@@ -91,22 +91,22 @@ TEST_CASE("SymbolManager: parseValue")
 
 TEST_CASE("SymbolManager: checkLabel")
 {
-	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, {}, 0));
-	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, {}, 0));
+	CHECK(SymbolManager::checkLabel("foo", 123) == Symbol("foo", 123, {}, {}));
+	CHECK(SymbolManager::checkLabel("bar:", 234) == Symbol("bar", 234, {}, {}));
 	CHECK(SymbolManager::checkLabel("", 345) == std::nullopt);
 	CHECK(SymbolManager::checkLabel(":", 456) == std::nullopt);
 }
 
 TEST_CASE("SymbolManager: checkLabelAndValue")
 {
-	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, {}, 0));
+	CHECK(SymbolManager::checkLabelAndValue("foo", "123") == Symbol("foo", 123, {}, {}));
 	CHECK(SymbolManager::checkLabelAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelAndValue("foo", "bla") == std::nullopt);
 }
 
 TEST_CASE("SymbolManager: checkLabelSegmentAndValue")
 {
-	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "123") == Symbol("foo", 123, {}, 0));
+	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "123") == Symbol("foo", 123, {}, {}));
 	CHECK(SymbolManager::checkLabelSegmentAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelSegmentAndValue("", "123") == std::nullopt);
 	CHECK(SymbolManager::checkLabelSegmentAndValue("foo", "0x123456") == Symbol("foo", 0x3456, {}, 0x12));
@@ -139,7 +139,7 @@ TEST_CASE("SymbolManager: detectType")
 TEST_CASE("SymbolManager: loadLines")
 {
 	auto dummyParser = [](std::span<std::string_view> tokens) -> std::optional<Symbol> {
-		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, 0, {}};
+		if (tokens.size() == 1) return Symbol{std::string(tokens[0]), 123, {}, {}};
 		return {};
 	};
 
@@ -188,7 +188,7 @@ TEST_CASE("SymbolManager: loadGeneric")
 	CHECK(file.symbols[2].value == 3);
 }
 
-TEST_CASE("SymbolManager: loadNoICE")
+TEST_CASE("SymbolManager: loadNoICE without segments")
 {
 	std::string_view buffer =
 		"def foo 1\n"
@@ -201,8 +201,33 @@ TEST_CASE("SymbolManager: loadNoICE")
 	REQUIRE(file.symbols.size() == 2);
 	CHECK(file.symbols[0].name == "foo");
 	CHECK(file.symbols[0].value == 1);
+	CHECK(file.symbols[0].segment == std::nullopt);
 	CHECK(file.symbols[1].name == "bar");
 	CHECK(file.symbols[1].value == 0x234);
+	CHECK(file.symbols[1].segment == std::nullopt);
+}
+
+TEST_CASE("SymbolManager: loadNoICE with segments")
+{
+	std::string_view buffer =
+		"def foo 1\n"
+		"def bar 234h ; comment\n"
+		"error def 123\n"
+		"def error 99 extra stuff\n"
+		"def baz 123456h ; comment\n";
+	auto file = SymbolManager::loadNoICE("noice.sym", buffer);
+	CHECK(file.filename == "noice.sym");
+	CHECK(file.type == SymbolFile::Type::NOICE);
+	REQUIRE(file.symbols.size() == 3);
+	CHECK(file.symbols[0].name == "foo");
+	CHECK(file.symbols[0].value == 1);
+	CHECK(file.symbols[0].segment == 0);
+	CHECK(file.symbols[1].name == "bar");
+	CHECK(file.symbols[1].value == 0x234);
+	CHECK(file.symbols[1].segment == 0);
+	CHECK(file.symbols[2].name == "baz");
+	CHECK(file.symbols[2].value == 0x3456);
+	CHECK(file.symbols[2].segment == 0x12);
 }
 
 TEST_CASE("SymbolManager: loadHTC")

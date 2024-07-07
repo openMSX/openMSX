@@ -145,7 +145,8 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	if (label.ends_with(':')) label.remove_suffix(1);
 	if (label.empty()) return {};
 
-	return Symbol{std::string(label), static_cast<uint16_t>(value), {}, static_cast<uint16_t>(value >> 16)};
+	auto tmp{value > 0xFFFF ? std::optional<uint16_t>(static_cast<uint16_t>(value >> 16)) : std::nullopt};
+	return Symbol{std::string(label), static_cast<uint16_t>(value), {}, tmp};
 }
 
 [[nodiscard]] std::optional<Symbol> SymbolManager::checkLabelAndValue(std::string_view label, std::string_view value)
@@ -181,6 +182,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 
 [[nodiscard]] SymbolFile SymbolManager::loadNoICE(std::string_view filename, std::string_view buffer)
 {
+	bool anySegment = false;
 	auto parseLine = [&](std::span<std::string_view> tokens) -> std::optional<Symbol> {
 		if (tokens.size() != 3) return {};
 		auto def   = tokens[0];
@@ -188,9 +190,19 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 		auto value = tokens[2];
 		if (StringOp::casecmp cmp; !cmp(def, "def")) return {};
 		// detecting segment information above 16bits
-		return checkLabelSegmentAndValue(label, value);
+		auto symbol = checkLabelSegmentAndValue(label, value);
+		anySegment |= symbol->segment.has_value();
+		return symbol;
 	};
-	return loadLines(filename, buffer, SymbolFile::Type::NOICE, parseLine);
+	auto file = loadLines(filename, buffer, SymbolFile::Type::NOICE, parseLine);
+	 // Heuristic: if all segments in the symbol file are 0,
+	 // then assume the file contains no segment information.
+	if (anySegment) {
+		for (auto& symbol: file.getSymbols()) {
+			if (!symbol.segment) symbol.segment = 0;
+		}
+	}
+	return file;
 }
 
 [[nodiscard]] SymbolFile SymbolManager::loadHTC(std::string_view filename, std::string_view buffer)
