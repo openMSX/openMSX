@@ -216,8 +216,9 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 
 			if (ImGui::TableNextColumn()) { // name
 				im::ScopedFont sf(manager.fontMono);
-				ImGui::TextUnformatted(sym.name(symbolManager));
-				auto symNameMenu = tmpStrCat("symbol-manager##", sym.name(symbolManager)).data();
+				auto symName = sym.name(symbolManager);
+				ImGui::Selectable(symName.data(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
+				auto symNameMenu = tmpStrCat("symbol-manager##", symName).data();
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
 					ImGui::OpenPopup(symNameMenu);
 				}
