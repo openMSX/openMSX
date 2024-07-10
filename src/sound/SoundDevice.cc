@@ -6,10 +6,8 @@
 #include "XMLElement.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
-#include "MemBuffer.hh"
 #include "MSXException.hh"
 
-#include "aligned.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "one_of.hh"
@@ -19,20 +17,8 @@
 #include <array>
 #include <bit>
 #include <cassert>
-#include <memory>
 
 namespace openmsx {
-
-static MemBuffer<float, SSE_ALIGNMENT> mixBuffer;
-static size_t mixBufferSize = 0;
-
-static void allocateMixBuffer(size_t size)
-{
-	if (mixBufferSize < size) [[unlikely]] {
-		mixBufferSize = size;
-		mixBuffer.resize(mixBufferSize);
-	}
-}
 
 [[nodiscard]] static std::string makeUnique(const MSXMixer& mixer, std::string_view name)
 {
@@ -78,11 +64,6 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 }
 
 SoundDevice::~SoundDevice() = default;
-
-bool SoundDevice::isStereo() const
-{
-	return stereo == 2 || !balanceCenter;
-}
 
 float SoundDevice::getAmplificationFactorImpl() const
 {
@@ -191,6 +172,18 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 	channelMuted[channel] = muted;
 }
 
+std::span<const float> SoundDevice::getLastBuffer(unsigned channel)
+{
+	assert(channel < numChannels);
+	auto& buf = channelBuffers[channel];
+
+	buf.requestCounter = inputSampleRate; // active for ~1 second
+
+	unsigned requestedSize = getLastBufferSize();
+	if (buf.stopIdx < requestedSize) return {}; // not enough samples (yet)
+	return {&buf.buffer[buf.stopIdx - requestedSize], requestedSize};
+}
+
 bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
 #ifdef __SSE2__
@@ -199,27 +192,56 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	if (samples == 0) return true;
 	size_t outputStereo = isStereo() ? 2 : 1;
 
-	std::array<float*,  MAX_CHANNELS> bufs_;
+	std::array<float*, MAX_CHANNELS> bufs_;
 	auto bufs = subspan(bufs_, 0, numChannels);
 
-	unsigned separateChannels = 0;
-	size_t pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// TODO optimization: All channels with the same balance (according to
 	// channelBalance[]) could use the same buffer when balanceCenter is
 	// false
+	auto needSeparateBuffer = [&](unsigned channel) {
+		return channelBuffers[channel].requestCounter != 0
+		    || channelMuted[channel]
+		    || writer[channel]
+		    || !balanceCenter;
+	};
+	bool anySeparateChannel = false;
+	unsigned size = samples * stereo;
+	unsigned padded = (size + 3) & ~3; // round up to multiple of 4
 	for (auto i : xrange(numChannels)) {
-		if (!channelMuted[i] && !writer[i] && balanceCenter) {
+		auto& cb = channelBuffers[i];
+		if (!needSeparateBuffer(i)) {
 			// no need to keep this channel separate
 			bufs[i] = dataOut;
+			cb.stopIdx = 0; // no valid last data
 		} else {
-			// muted or recorded channels must go separate
-			//  cannot yet fill in bufs[i] here
-			++separateChannels;
+			anySeparateChannel = true;
+			cb.requestCounter = std::max<int>(0, cb.requestCounter - samples);
+
+			unsigned remainingSize = cb.buffer.size() - cb.stopIdx;
+			if (remainingSize < padded) {
+				// not enough space at the tail of the buffer
+				unsigned lastBufferSize = getLastBufferSize();
+				auto allocateSize = 2 * std::max(lastBufferSize, padded);
+				if (cb.buffer.size() < allocateSize) [[unlikely]] {
+					// increase buffer size
+					cb.buffer.resize(allocateSize);
+				}
+				unsigned reuse = lastBufferSize >= size ? lastBufferSize - size : 0;
+				if (cb.stopIdx > reuse) {
+					// move existing data to front
+					memmove(&cb.buffer[0], &cb.buffer[cb.stopIdx - reuse], reuse * sizeof(float));
+				}
+				cb.stopIdx = reuse;
+			}
+			auto* ptr = &cb.buffer[cb.stopIdx];
+			bufs[i] = ptr;
+			ranges::fill(std::span{ptr, size}, 0.0f);
+			cb.stopIdx += size;
 		}
 	}
 
 	static_assert(sizeof(float) == sizeof(uint32_t));
-	if ((numChannels != 1) || separateChannels) {
+	if ((numChannels != 1) || anySeparateChannel) {
 		// The generateChannels() method of SoundDevices with more than
 		// one channel will _add_ the generated channel data in the
 		// provided buffers. Those with only one channel will directly
@@ -228,22 +250,9 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
 	}
 
-	if (separateChannels) {
-		allocateMixBuffer(pitch * separateChannels);
-		ranges::fill(std::span{mixBuffer.data(), pitch * separateChannels}, 0.0f);
-		// still need to fill in (some) bufs[i] pointers
-		unsigned count = 0;
-		for (auto i : xrange(numChannels)) {
-			if (channelMuted[i] || writer[i] || !balanceCenter) {
-				bufs[i] = &mixBuffer[pitch * count++];
-			}
-		}
-		assert(count == separateChannels);
-	}
-
 	generateChannels(bufs, narrow<unsigned>(samples));
 
-	if (separateChannels == 0) {
+	if (!anySeparateChannel) {
 		return ranges::any_of(xrange(numChannels),
 		                      [&](auto i) { return bufs[i]; });
 	}
