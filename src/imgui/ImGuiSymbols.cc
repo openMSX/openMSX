@@ -218,11 +218,11 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 				im::ScopedFont sf(manager.fontMono);
 				auto symName = sym.name(symbolManager);
 				ImGui::Selectable(symName.data(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
-				auto symNameMenu = tmpStrCat("symbol-manager##", symName).data();
+				auto symNameMenu = strCat("symbol-manager##", symName);
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-					ImGui::OpenPopup(symNameMenu);
+					ImGui::OpenPopup(symNameMenu.c_str());
 				}
-				im::Popup(symNameMenu, [&]{ drawContext(motherBoard, sym); });
+				im::Popup(symNameMenu.c_str(), [&]{ drawContext(motherBoard, sym); });
 			}
 			if (ImGui::TableNextColumn()) { // value
 				im::ScopedFont sf(manager.fontMono);
