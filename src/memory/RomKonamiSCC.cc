@@ -23,7 +23,7 @@ namespace openmsx {
 
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
-	, scc("SCC", config, getCurrentTime())
+	, scc(getName() + " SCC", config, getCurrentTime())
 {
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
 	if (rom.size() > 512 * 1024) {
