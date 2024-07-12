@@ -49,7 +49,7 @@ void paintSCC(const SCC& scc) {
 				channelWaveData.size(),
 				0, nullptr,
 				-128.0f, 127.0f,
-				{32.0f * scale, 64.0f * scale});
+				{32.0f * scale + 2.0f * ImGui::GetStyle().FramePadding.x, 64.0f * scale + 2.0f * ImGui::GetStyle().FramePadding.y});
 			if (channelNr < (waveData.size() - 1)) ImGui::SameLine();
 		}
 	});
