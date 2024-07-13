@@ -4,9 +4,9 @@
 #include "ImGuiBreakPoints.hh"
 #include "ImGuiCharacter.hh"
 #include "ImGuiCheatFinder.hh"
-#include "ImGuiCpp.hh"
 #include "ImGuiConnector.hh"
 #include "ImGuiConsole.hh"
+#include "ImGuiCpp.hh"
 #include "ImGuiDebugger.hh"
 #include "ImGuiDiskManipulator.hh"
 #include "ImGuiHelp.hh"
@@ -15,9 +15,10 @@
 #include "ImGuiMedia.hh"
 #include "ImGuiMessages.hh"
 #include "ImGuiOpenFile.hh"
-#include "ImGuiPalette.hh"
 #include "ImGuiOsdIcons.hh"
+#include "ImGuiPalette.hh"
 #include "ImGuiReverseBar.hh"
+#include "ImGuiSCCViewer.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
 #include "ImGuiSpriteViewer.hh"
@@ -27,7 +28,7 @@
 #include "ImGuiUtils.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
-#include "ImGuiSCCViewer.hh"
+#include "ImGuiWaveViewer.hh"
 
 
 #include "CartridgeSlotManager.hh"
@@ -189,6 +190,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	trainer = std::make_unique<ImGuiTrainer>(*this);
 	cheatFinder = std::make_unique<ImGuiCheatFinder>(*this);
 	sccViewer = std::make_unique<ImGuiSCCViewer>(*this);
+	waveViewer = std::make_unique<ImGuiWaveViewer>(*this);
 	diskManipulator = std::make_unique<ImGuiDiskManipulator>(*this);
 	soundChip = std::make_unique<ImGuiSoundChip>(*this);
 	keyboard = std::make_unique<ImGuiKeyboard>(*this);

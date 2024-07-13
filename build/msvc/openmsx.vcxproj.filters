@@ -615,6 +615,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\Shortcuts.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2103,6 +2106,9 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWatchExpr.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiWaveViewer.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\Shortcuts.hh">
