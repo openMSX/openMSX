@@ -278,15 +278,11 @@ inline void ID(std::string_view str, std::invocable<> auto next)
 	ID(begin, end, next);
 }
 
-inline void ID_for_range(int count, std::invocable<int> auto next)
+inline void ID_for_range(std::integral auto count, std::invocable<int> auto next)
 {
-	for (auto i : xrange(count)) {
+	for (auto i : xrange(narrow<int>(count))) {
 		ID(i, [&]{ next(i); });
 	}
-}
-inline void ID_for_range(size_t count, std::invocable<int> auto next)
-{
-	ID_for_range(narrow<int>(count), next);
 }
 
 // im::Combo(): wrapper around ImGui::BeginCombo() / ImGui::EndCombo()

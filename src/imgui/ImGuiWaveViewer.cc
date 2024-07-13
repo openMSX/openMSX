@@ -32,7 +32,7 @@ void ImGuiWaveViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static void paintVUMeter(std::span<const float> buf, float factor)
+static void paintVUMeter(std::span<const float> buf, float factor, bool muted)
 {
 	// skip if not visible
 	gl::vec2 pos = ImGui::GetCursorScreenPos();
@@ -56,8 +56,8 @@ static void paintVUMeter(std::span<const float> buf, float factor)
 
 	// draw gradient
 	auto size = gl::vec2{f * width, height};
-	auto colorL = ImVec4{0.0f, 1.0f, 0.0f, 1.0f}; // green
-	auto colorR = ImVec4{1.0f, 0.0f, 0.0f, 1.0f}; // red
+	auto colorL = muted ? ImVec4{0.2f, 0.2f, 0.2f, 1.0f} : ImVec4{0.0f, 1.0f, 0.0f, 1.0f}; // green
+	auto colorR = muted ? ImVec4{0.7f, 0.7f, 0.7f, 1.0f} : ImVec4{1.0f, 0.0f, 0.0f, 1.0f}; // red
 	auto color1 = ImGui::ColorConvertFloat4ToU32(colorL);
 	auto color2 = ImGui::ColorConvertFloat4ToU32(ImLerp(colorL, colorR, f));
 	auto* drawList = ImGui::GetWindowDrawList();
@@ -209,7 +209,7 @@ static void stereoToMono(std::span<const float> stereo, float factorL, float fac
 	}
 }
 
-static void paintDevice(SoundDevice& device)
+static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDeviceInfo::ChannelSettings> settings)
 {
 	std::vector<float> tmpBuf; // recycle buffer for all channels
 
@@ -217,7 +217,7 @@ static void paintDevice(SoundDevice& device)
 	auto [factorL, factorR] = device.getAmplificationFactor();
 	auto factor = stereo ? 1.0f : factorL;
 
-	for (auto channel : xrange(device.getNumChannels())) {
+	im::ID_for_range(device.getNumChannels(), [&](int channel) {
 		auto monoBuf = [&]{
 			auto buf = device.getLastBuffer(channel);
 			if (!stereo) return buf;
@@ -228,8 +228,15 @@ static void paintDevice(SoundDevice& device)
 		if (ImGui::TableNextColumn()) { // name
 			ImGui::StrCat(channel + 1);
 		}
+		auto& muteSetting = *settings[channel].mute;
+		bool muted = muteSetting.getBoolean();
+		if (ImGui::TableNextColumn()) { // mute
+			if (ImGui::Checkbox("##mute", &muted)) {
+				muteSetting.setBoolean(muted);
+			}
+		}
 		if (ImGui::TableNextColumn()) { // vu-meter
-			paintVUMeter(monoBuf, factor);
+			paintVUMeter(monoBuf, factor, muted);
 		}
 		if (ImGui::TableNextColumn()) { // waveform
 			paintWave(monoBuf);
@@ -237,17 +244,21 @@ static void paintDevice(SoundDevice& device)
 		if (ImGui::TableNextColumn()) { // spectrum
 			paintSpectrum(monoBuf, factor);
 		}
-	}
+	});
 }
 
 void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
 
+	ImGui::SetNextWindowSize(gl::vec2{38, 15} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Audio channel viewer", &show, [&]{
 		for (const auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
 			auto& device = *info.device;
-			if (!ImGui::CollapsingHeader(device.getName().c_str())) continue;
+			const auto& name = device.getName();
+			if (!ImGui::CollapsingHeader(name.c_str())) continue;
+			HelpMarker("Right-click column header to (un)hide columns.\n"
+			           "Drag to reorder or resize columns.");
 
 			int flags = ImGuiTableFlags_RowBg |
 			            ImGuiTableFlags_BordersV |
@@ -256,14 +267,17 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 			            ImGuiTableFlags_Reorderable |
 			            ImGuiTableFlags_Hideable |
 			            ImGuiTableFlags_SizingStretchProp;
-			im::Table("##table", 4, flags, [&]{ // note: use the same id for all tables
+			im::Table("##table", 5, flags, [&]{ // note: use the same id for all tables
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("channel", ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed);
-				ImGui::TableSetupColumn("VU-meter");
-				ImGui::TableSetupColumn("Waveform");
-				ImGui::TableSetupColumn("Spectrum");
+				ImGui::TableSetupColumn("mute", ImGuiTableColumnFlags_DefaultHide | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("VU-meter", 0, 1.0f);
+				ImGui::TableSetupColumn("Waveform", 0, 2.0f);
+				ImGui::TableSetupColumn("Spectrum", 0, 3.0f);
 				ImGui::TableHeadersRow();
-				paintDevice(device);
+				im::ID(name, [&]{
+					paintDevice(device, info.channelSettings);
+				});
 			});
 		}
 	});
