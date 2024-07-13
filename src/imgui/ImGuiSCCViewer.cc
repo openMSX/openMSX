@@ -43,13 +43,14 @@ void paintSCC(const SCC& scc) {
 				return float(static_cast<const int8_t*>(data)[idx]);
 			};
 			const auto scale = 2.0f;
+			auto size = scale * gl::vec2{32.0f, 64.0f} + 2.0f * gl::vec2(ImGui::GetStyle().FramePadding);
 			ImGui::PlotHistogram("",
 				getFloatData,
 				const_cast<int8_t*>(channelWaveData.data()),
 				channelWaveData.size(),
 				0, nullptr,
 				-128.0f, 127.0f,
-				{32.0f * scale + 2.0f * ImGui::GetStyle().FramePadding.x, 64.0f * scale + 2.0f * ImGui::GetStyle().FramePadding.y});
+				size);
 			if (channelNr < (waveData.size() - 1)) ImGui::SameLine();
 		}
 	});
