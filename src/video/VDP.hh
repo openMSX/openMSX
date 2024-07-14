@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 
 #include "Observer.hh"
+#include "gl_vec.hh"
 #include "narrow.hh"
 #include "outer.hh"
 
@@ -708,6 +709,27 @@ public:
 			t = now + VDPClock::duration(LARGEST_STALL);
 		}
 		syncCmdDone.setSyncPoint(t);
+	}
+
+	/**
+	 * Returns the position of the raster beam expressed in 'narrow' MSX
+	 * screen coordinates (like 'screen 7').
+	 *
+	 * Horizontally: pixels in the left border have a negative coordinate,
+	 * pixels in the right border have a coordinate bigger than or equal to
+	 * 512.
+	 * For MSX screen modes that are 256 pixels wide (e.g. 'screen 5')
+	 * divide the x-coordinate by 2. For text modes (aka screen 0, width
+	 * 40/80) subtract 16 from the x-coordinate (= (512-480)/2), and divide
+	 * by 2 (for width 40).
+	 *
+	 * Vertically: lines in the top border have negative coordinates, lines
+	 * in the bottom border have coordinates bigger or equal to 192 or 212.
+	 */
+	[[nodiscard]] gl::ivec2 getMSXPos(EmuTime::param time) const {
+		auto ticks = getTicksThisFrame(time);
+		return {((ticks % VDP::TICKS_PER_LINE) - getLeftSprites()) / 2,
+		         (ticks / VDP::TICKS_PER_LINE) - getLineZero()};
 	}
 
 	template<typename Archive>

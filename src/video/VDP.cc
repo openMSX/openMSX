@@ -1850,8 +1850,7 @@ VDP::MsxYPosInfo::MsxYPosInfo(VDP& vdp_)
 
 int VDP::MsxYPosInfo::calc(const EmuTime& time) const
 {
-	return (vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE) -
-		vdp.getLineZero();
+	return vdp.getMSXPos(time).y;
 }
 
 
@@ -1862,15 +1861,14 @@ VDP::MsxX256PosInfo::MsxX256PosInfo(VDP& vdp_)
 	       "Similar to 'cycle_in_frame', but expressed in MSX "
 	       "coordinates. So a position in the left border has "
 	       "a negative coordinate and a position in the right "
-	       "border has a coordinated bigger or equal to 256. "
+	       "border has a coordinate bigger or equal to 256. "
 	       "See also 'msx_x512_pos'.")
 {
 }
 
 int VDP::MsxX256PosInfo::calc(const EmuTime& time) const
 {
-	return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
-		 vdp.getLeftSprites()) / 4;
+	return vdp.getMSXPos(time).x / 2;
 }
 
 
@@ -1881,15 +1879,14 @@ VDP::MsxX512PosInfo::MsxX512PosInfo(VDP& vdp_)
 	       "Similar to 'cycle_in_frame', but expressed in "
 	       "'narrow' (screen 7) MSX coordinates. So a position "
 	       "in the left border has a negative coordinate and "
-	       "a position in the right border has a coordinated "
+	       "a position in the right border has a coordinate "
 	       "bigger or equal to 512. See also 'msx_x256_pos'.")
 {
 }
 
 int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 {
-	return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
-		 vdp.getLeftSprites()) / 2;
+	return vdp.getMSXPos(time).x;
 }
 
 
