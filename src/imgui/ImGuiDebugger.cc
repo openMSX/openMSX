@@ -2,6 +2,7 @@
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
+#include "ImGuiCodeAnalyzer.hh"
 #include "ImGuiCharacter.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
@@ -167,6 +168,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				(*it)->open = false;
 			}
 		}
+		ImGui::MenuItem("Code Analyzer", nullptr, &manager.codeAnalyzer->show);
 		ImGui::Separator();
 		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints->show);
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);

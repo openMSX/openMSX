@@ -28,6 +28,7 @@ namespace openmsx {
 class CliComm;
 class ImGuiBitmapViewer;
 class ImGuiBreakPoints;
+class ImGuiCodeAnalyzer;
 class ImGuiCharacter;
 class ImGuiCheatFinder;
 class ImGuiConnector;
@@ -127,6 +128,7 @@ public:
 	std::unique_ptr<ImGuiMachine> machine;
 	std::unique_ptr<ImGuiDebugger> debugger;
 	std::unique_ptr<ImGuiBreakPoints> breakPoints;
+	std::unique_ptr<ImGuiCodeAnalyzer> codeAnalyzer;
 	std::unique_ptr<ImGuiSymbols> symbols;
 	std::unique_ptr<ImGuiWatchExpr> watchExpr;
 	std::unique_ptr<ImGuiBitmapViewer> bitmap;
