@@ -56,7 +56,7 @@ private:
 	[[nodiscard]] std::string formatAddr(const Sizes& s, unsigned addr) const;
 	void setStrings(const Sizes& s, Debuggable& debuggable);
 	bool setAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr);
-	void scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr);
+	void scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr, bool forceScroll);
 
 	void drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 	void drawSearch(const Sizes& s, Debuggable& debuggable, unsigned memSize);

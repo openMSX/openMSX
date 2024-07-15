@@ -194,9 +194,9 @@ bool DebuggableEditor::setAddr(const Sizes& s, Debuggable& debuggable, unsigned 
 	setStrings(s, debuggable);
 	return true;
 }
-void DebuggableEditor::scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr)
+void DebuggableEditor::scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr, bool forceScroll)
 {
-	if (setAddr(s, debuggable, memSize, addr)) {
+	if (setAddr(s, debuggable, memSize, addr) || forceScroll) {
 		im::Child("##scrolling", [&]{
 			int row = narrow<int>(currentAddr) / columns;
 			ImGui::SetScrollFromPosY(ImGui::GetCursorStartPos().y + float(row) * ImGui::GetTextLineHeight());
@@ -209,9 +209,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	const auto& style = ImGui::GetStyle();
 	if (updateAddr) {
 		updateAddr = false;
-		auto addr = currentAddr;
-		++currentAddr; // any change
-		scrollAddr(s, debuggable, memSize, addr);
+		scrollAddr(s, debuggable, memSize, currentAddr, true);
 	} else {
 		// still clip addr (for the unlikely case that 'memSize' got smaller)
 		setAddr(s, debuggable, memSize, currentAddr);
@@ -460,6 +458,8 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	}
 
 	if (showAddress) {
+		bool forceScroll = ImGui::IsWindowAppearing();
+
 		ImGui::Separator();
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Address");
@@ -467,6 +467,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
 		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0")) {
 			dataEditingTakeFocus = true;
+			forceScroll = true;
 			if (addrMode >=2) {
 				static constexpr std::array linkExpr = {
 					"[reg bc]", "[reg de]", "[reg hl]"
@@ -481,7 +482,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		auto r = parseAddressExpr(*as, symbolManager, manager.getInterpreter());
 		im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
 			if (addrMode == EXPRESSION && r.error.empty()) {
-				scrollAddr(s, debuggable, memSize, r.addr);
+				scrollAddr(s, debuggable, memSize, r.addr, forceScroll);
 			}
 			if (manager.getShortcuts().checkShortcut(Shortcuts::ID::HEX_GOTO_ADDR)) {
 				ImGui::SetKeyboardFocusHere();
@@ -490,7 +491,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto r2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter());
 				if (r2.error.empty()) {
-					scrollAddr(s, debuggable, memSize, r2.addr);
+					scrollAddr(s, debuggable, memSize, r2.addr, forceScroll);
 					dataEditingTakeFocus = true;
 				}
 			}
@@ -746,7 +747,7 @@ void DebuggableEditor::search(const Sizes& s, Debuggable& debuggable, unsigned m
 	}
 	if (found) {
 		searchResult = *found;
-		scrollAddr(s, debuggable, memSize, *found);
+		scrollAddr(s, debuggable, memSize, *found, false);
 		dataEditingTakeFocus = true;
 		addrMode = CURSOR;
 	} else {
