@@ -37,12 +37,14 @@ private:
 	int bitmapColor0 = 16; // 0..15, 16->no replacement
 	int bitmapZoom = 0; // 0->1x, 1->2x, ..., 7->8x
 	gl::vec4 bitmapGridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
+	gl::vec4 rasterBeamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 	bool overrideAll    = false;
 	bool overrideMode   = false;
 	bool overridePage   = false;
 	bool overrideLines  = false;
 	bool overrideColor0 = false;
 	bool bitmapGrid = true;
+	bool rasterBeam = false;
 
 	std::optional<gl::Texture> bitmapTex; // TODO also deallocate when needed
 	std::optional<gl::Texture> bitmapGridTex;
@@ -60,7 +62,9 @@ private:
 		PersistentElementMax{"color0",         &ImGuiBitmapViewer::bitmapColor0, 16 + 1},
 		PersistentElementMax{"zoom",           &ImGuiBitmapViewer::bitmapZoom, 8},
 		PersistentElement   {"showGrid",       &ImGuiBitmapViewer::bitmapGrid},
-		PersistentElement   {"gridColor",      &ImGuiBitmapViewer::bitmapGridColor}
+		PersistentElement   {"gridColor",      &ImGuiBitmapViewer::bitmapGridColor},
+		PersistentElement   {"showRasterBeam", &ImGuiBitmapViewer::rasterBeam},
+		PersistentElement   {"rasterBeamColor",&ImGuiBitmapViewer::rasterBeamColor}
 	};
 };
 

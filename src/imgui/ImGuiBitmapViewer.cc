@@ -140,8 +140,27 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		});
 
 		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(25, 1));
+		ImGui::Dummy(ImVec2(15, 1));
 		ImGui::SameLine();
+
+		const auto& vram = vdp->getVRAM();
+		int mode   = manualMode   ? bitmapScrnMode : vdpMode;
+		int page   = manualPage   ? bitmapPage     : vdpPage;
+		int lines  = manualLines  ? bitmapLines    : vdpLines;
+		int color0 = manualColor0 ? bitmapColor0   : vdpColor0;
+		int divX = mode == one_of(SCR6, SCR7) ? 1 : 2;
+		int width  = 512 / divX;
+		int height = (lines == 0) ? 192
+		           : (lines == 1) ? 212
+		           : 256;
+		if (page < 0) {
+			int numPages = mode <= SCR6 ? 4 : 2;
+			height = 256 * numPages;
+			page = 0;
+		}
+		auto rasterBeamPos = vdp->getMSXPos(vdp->getCurrentTime());
+		rasterBeamPos.x /= divX;
+
 		im::Group([&]{
 			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
 			ImGui::Combo("Palette", &manager.palette->whichPalette, "VDP\000Custom\000Fixed\000");
@@ -157,24 +176,24 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::ColorEdit4("Grid color", bitmapGridColor.data(),
 					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 			});
+			ImGui::Separator();
+			ImGui::Checkbox("beam", &rasterBeam);
+			ImGui::SameLine();
+			im::Disabled(!rasterBeam, [&]{
+				ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
+					ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+				ImGui::SameLine();
+				im::Font(manager.fontMono, [&]{
+					ImGui::StrCat('(',  dec_string<4>(rasterBeamPos.x),
+					              ',', dec_string<4>(rasterBeamPos.y), ')');
+				});
+			});
+			HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
+			           "Left/top border have negative x/y-coordinates.\n"
+			           "Only practically useful when emulation is paused.");
 		});
 
 		ImGui::Separator();
-
-		const auto& vram = vdp->getVRAM();
-		int mode   = manualMode   ? bitmapScrnMode : vdpMode;
-		int page   = manualPage   ? bitmapPage     : vdpPage;
-		int lines  = manualLines  ? bitmapLines    : vdpLines;
-		int color0 = manualColor0 ? bitmapColor0   : vdpColor0;
-		int width  = mode == one_of(SCR6, SCR7) ? 512 : 256;
-		int height = (lines == 0) ? 192
-		           : (lines == 1) ? 212
-		           : 256;
-		if (page < 0) {
-			int numPages = mode <= SCR6 ? 4 : 2;
-			height = 256 * numPages;
-			page = 0;
-		}
 
 		std::array<uint32_t, 16> palette;
 		auto msxPalette = manager.palette->getPalette(vdp);
@@ -191,13 +210,15 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		bitmapTex->bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		int zx = (1 + bitmapZoom) * (width == 256 ? 2 : 1);
+		int zx = (1 + bitmapZoom) * divX;
 		int zy = (1 + bitmapZoom) * 2;
+		gl::vec2 zm = gl::vec2(float(zx), float(zy));
 
 		gl::vec2 scrnPos;
-		gl::vec2 size(float(width * zx), float(height * zy));
-		gl::vec2 availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
-		gl::vec2 reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
+		auto msxSize = gl::vec2(float(width), float(height));
+		auto size = msxSize * zm;
+		auto availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
+		auto reqSize = size + gl::vec2(ImGui::GetStyle().ScrollbarSize);
 		im::Child("##bitmap", min(availSize, reqSize), 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 			scrnPos = ImGui::GetCursorScreenPos();
 			auto pos = ImGui::GetCursorPos();
@@ -218,13 +239,24 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, zx, zy, 0,
 						GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 				ImGui::SetCursorPos(pos);
-				ImGui::Image(bitmapGridTex->getImGui(), size,
-						ImVec2(0.0f, 0.0f), ImVec2(float(width), float(height)));
+				ImGui::Image(bitmapGridTex->getImGui(), size, gl::vec2{}, msxSize);
+			}
+			if (rasterBeam) {
+				auto* drawList = ImGui::GetWindowDrawList();
+				auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
+				auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
+				auto thickness = zm.y * 0.5f;
+				auto zm1 = 1.5f * zm;
+				auto zm3 = 3.5f * zm;
+				drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
+				drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
+				drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
+				drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
+				drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
 			}
 		});
 		if (ImGui::IsItemHovered() && (mode != OTHER)) {
-			gl::vec2 zoom{float(zx), float(zy)};
-			auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoom);
+			auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
 			auto x = x_; auto y = y_; // clang workaround
 			if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
 				auto dec3 = [&](int d) {
