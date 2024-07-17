@@ -636,13 +636,39 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							});
 
+							enum Priority {
+								MISSING_BOTH = 0, // from lowest to highest
+								MISSING_ONE,
+								SLOT_AND_SEGMENT
+							};
+							Priority currentPriority = Priority::MISSING_BOTH;
+							std::vector<std::string_view> candidates;
+							auto add = [&](const Symbol* sym, Priority newPriority) {
+								if (newPriority < currentPriority) return; // we already have a better candidate
+								if (newPriority > currentPriority) candidates.clear(); // drop previous candidates, we found a better one
+								currentPriority = newPriority;
+								candidates.push_back(sym->name); // cycle symbols in the same priority level
+							};
+
+							auto slot = getCurrentSlot(cpuInterface, debugger, addr16);
+							auto psss = (slot.ss.value_or(0) << 2) + slot.ps;
 							auto addrLabels = symbolManager.lookupValue(addr16);
-							std::string_view displayAddr = addrLabels.empty()
-								? std::string_view(addrStr)
-								: std::string_view(addrLabels[cycleLabelsCounter % addrLabels.size()]->name);
+							for (const Symbol* symbol: addrLabels) {
+								// skip symbols with any mismatch
+								if (symbol->slot && *symbol->slot != psss) continue;
+								if (symbol->segment && *symbol->segment != slot.seg) continue;
+								// the info that's present does match
+								if (symbol->slot && symbol->segment == slot.seg) {
+									add(symbol, Priority::SLOT_AND_SEGMENT);
+								} else if (!symbol->slot && !symbol->segment) {
+									add(symbol, Priority::MISSING_BOTH);
+								} else {
+									add(symbol, Priority::MISSING_ONE);
+								}
+							}
 							ImGui::SetCursorPos(pos);
 							im::Font(manager.fontMono, [&]{
-								ImGui::TextUnformatted(displayAddr);
+								ImGui::TextUnformatted(candidates.empty() ? addrStr : candidates[cycleLabelsCounter % candidates.size()]);
 							});
 							if (!addrLabels.empty()) {
 								simpleToolTip([&]{
