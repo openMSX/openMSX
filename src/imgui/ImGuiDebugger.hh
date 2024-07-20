@@ -35,6 +35,7 @@ public:
 	void loadEnd() override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
+	void setGotoTarget(uint16_t target);
 
 private:
 	void drawControl(MSXCPUInterface& cpuInterface);

@@ -169,6 +169,9 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 
 void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym)
 {
+	if (ImGui::MenuItem("Show in Dissassembly", nullptr, nullptr, motherBoard != nullptr)) {
+		manager.debugger->setGotoTarget(sym.value(symbolManager));
+	}
 	if (ImGui::MenuItem("Set breakpoint", nullptr, nullptr, motherBoard != nullptr)) {
 		std::string cond;
 		if (auto slot = sym.slot(symbolManager)) {
