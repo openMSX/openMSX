@@ -197,6 +197,12 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 	});
 }
 
+void ImGuiDebugger::setGotoTarget(uint16_t target)
+{
+	gotoTarget = target;
+	showDisassembly = true;
+}
+
 void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 {
 	if (!motherBoard) return;
