@@ -201,6 +201,7 @@ void ImGuiDebugger::setGotoTarget(uint16_t target)
 {
 	gotoTarget = target;
 	showDisassembly = true;
+	setDisassemblyScrollY.reset(); // don't restore initial scroll position
 }
 
 void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
