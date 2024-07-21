@@ -140,6 +140,7 @@ static void paintVUMeter(std::span<const float> buf, float factor, bool muted)
 	auto height = ImGui::GetFrameHeight();
 	ImGui::Dummy(gl::vec2{width, height});
 	if (!ImGui::IsItemVisible()) return;
+	if (buf.size() <= 2) return;
 
 	// calculate the average power of the signal
 	auto len = float(buf.size());
@@ -258,6 +259,10 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	ImGui::Dummy(size);
 	if (!ImGui::IsItemVisible()) return;
 	ImGui::SetCursorPos(pos);
+	if (buf.size() <= 2) {
+		plotHistogram({}, 0.0f, 6.0f, size);
+		return;
+	}
 
 	// We want to take an FFT of fixed length (2048 points), reduce the
 	// input (decimate + zero-pad) to this exact length.

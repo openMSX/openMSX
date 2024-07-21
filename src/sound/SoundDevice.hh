@@ -256,6 +256,7 @@ private:
 		std::vector<float> buffer; // dynamically grows when needed
 		unsigned stopIdx = 0; // buffer only contains valid data at indices [0, stopIdx)
 		unsigned requestCounter = 0; // != 0 means we're interested in collecting this data
+		unsigned silent = 999999; // how many 0 samples are at the end of the buffer
 	};
 	std::array<PerChannelBuffer, MAX_CHANNELS> channelBuffers = {};
 };

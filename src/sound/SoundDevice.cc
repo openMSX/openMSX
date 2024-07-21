@@ -181,6 +181,7 @@ std::span<const float> SoundDevice::getLastBuffer(unsigned channel)
 
 	unsigned requestedSize = getLastBufferSize();
 	if (buf.stopIdx < requestedSize) return {}; // not enough samples (yet)
+	if (buf.silent >= requestedSize) return {}; // silent
 	return {&buf.buffer[buf.stopIdx - requestedSize], requestedSize};
 }
 
@@ -257,8 +258,8 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		                      [&](auto i) { return bufs[i]; });
 	}
 
-	// record channels
 	for (auto i : xrange(numChannels)) {
+		// record channels
 		if (writer[i]) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
@@ -275,6 +276,13 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			} else {
 				writer[i]->writeSilence(narrow<unsigned>(stereo * samples));
 			}
+		}
+		// update silent info in channelBuffers
+		auto& cb = channelBuffers[i];
+		if (bufs[i]) {
+			cb.silent = 0;
+		} else {
+			cb.silent += samples;
 		}
 	}
 
