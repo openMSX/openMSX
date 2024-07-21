@@ -131,7 +131,7 @@ void ImGuiWaveViewer::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static void paintVUMeter(std::span<const float> buf, float factor, bool muted)
+static void paintVUMeter(std::span<const float>& buf, float factor, bool muted)
 {
 	// skip if not visible
 	gl::vec2 pos = ImGui::GetCursorScreenPos();
@@ -147,6 +147,10 @@ static void paintVUMeter(std::span<const float> buf, float factor, bool muted)
 	auto avg = std::reduce(buf.begin(), buf.end()) / len;
 	auto squaredSum = std::transform_reduce(buf.begin(), buf.end(), 0.0f,
 		std::plus<>{}, [avg](float x) { auto norm = x - avg; return norm * norm; });
+	if (squaredSum == 0.0f) {
+		buf = {}; // allows to skip waveform and spectrum calculations
+		return;
+	}
 	auto power = std::log10((squaredSum * factor * factor) / len);
 
 	// transform into a value for how to draw this [0, 1]
