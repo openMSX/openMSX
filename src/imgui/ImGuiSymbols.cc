@@ -117,7 +117,7 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 			it->error = e.getMessage(); // overwrite previous error
 			it->type = type;
 		} else {
-			fileError.emplace_back(filename, e.getMessage(), type, it->slot); // set error
+			fileError.emplace_back(filename, e.getMessage(), type, slot); // set error
 		}
 	}
 }
@@ -246,6 +246,8 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 	});
 }
 
+static SymbolFile nullfile = SymbolFile{{}, {}, {}, SymbolFile::Type::GENERIC};
+
 void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show) return;
@@ -265,7 +267,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto drawFile = [&](const FileInfo& info) {
-				auto* file = symbolManager.findFile(info.filename);
+				auto* file = symbolManager.findFile(info.filename) != nullptr ? symbolManager.findFile(info.filename) : &nullfile;
 				im::StyleColor(!info.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 					auto title = strCat("File: ", info.filename);
 					im::TreeNode(title.c_str(), [&]{
