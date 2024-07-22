@@ -6,6 +6,7 @@
 
 #include "FFTReal.hh"
 #include "blackmanWindow.hh"
+#include "fast_log2.hh"
 #include "halfband.hh"
 #include "narrow.hh"
 #include "ranges.hh"
@@ -18,6 +19,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <numbers>
 #include <numeric>
 
 namespace openmsx {
@@ -151,10 +153,11 @@ static void paintVUMeter(std::span<const float>& buf, float factor, bool muted)
 		buf = {}; // allows to skip waveform and spectrum calculations
 		return;
 	}
-	auto power = std::log10((squaredSum * factor * factor) / len);
+	auto power = fast_log2((squaredSum * factor * factor) / len);
 
 	// transform into a value for how to draw this [0, 1]
-	static constexpr auto range = 6.0f; // 60dB
+	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
+	static constexpr auto range = 6.0f * convertLog; // 60dB
 	auto clamped = std::clamp(power, -range, 0.0f);
 	auto f = (clamped + range) / range;
 
@@ -286,20 +289,23 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	std::array<float, FFT_LEN> tmp; // ok, uninitialized
 	FFTReal<FFT_LEN_L2>::execute(zeroPadded, f, tmp);
 
+	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
+	static constexpr auto range = 6.0f * convertLog; // 60dB
+
 	// combine real and imaginary components into magnitude (we ignore phase)
 	normalize *= factor;
-	auto offset = std::log10(normalize * normalize * (1.0f / FFT_LEN));
+	auto offset = fast_log2(normalize * normalize * (1.0f / FFT_LEN)) + range;
 	static constexpr int HALF = FFT_LEN / 2;
 	std::array<float, HALF - 1> magnitude; // ok, uninitialized
 	for (int i = 0; i < 1023; ++i) {
 		float real = f[i + 1];
 		float imag = f[i + 1 + HALF];
 		float mag = real * real + imag * imag;
-		magnitude[i] = std::log10(mag) + offset + 6.0f;
+		magnitude[i] = fast_log2(mag) + offset;
 	}
 
 	// actually plot the result
-	plotHistogram(magnitude, 0.0f, 6.0f, size);
+	plotHistogram(magnitude, 0.0f, range, size);
 }
 
 static void stereoToMono(std::span<const float> stereo, float factorL, float factorR,
