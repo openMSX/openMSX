@@ -117,7 +117,7 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 			it->error = e.getMessage(); // overwrite previous error
 			it->type = type;
 		} else {
-			fileError.emplace_back(filename, e.getMessage(), type, it->slot); // set error
+			fileError.emplace_back(filename, e.getMessage(), type, slot); // set error
 		}
 	}
 }
@@ -265,50 +265,54 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto drawFile = [&](const FileInfo& info) {
+				bool error = !info.error.empty();
 				auto* file = symbolManager.findFile(info.filename);
-				im::StyleColor(!info.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				assert((file != nullptr) ^ error); // not both
+				im::StyleColor(error, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 					auto title = strCat("File: ", info.filename);
 					im::TreeNode(title.c_str(), [&]{
 						if (!info.error.empty()) {
 							ImGui::TextUnformatted(info.error);
 						}
 						im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
-							auto arrowSize = ImGui::GetFrameHeight();
-							auto extra = arrowSize + 2.0f * style.FramePadding.x;
-							ImGui::SetNextItemWidth(ImGui::CalcTextSize("3-3").x + extra);
-						        ImGui::AlignTextToFramePadding();
+							if (!error) {
+								auto arrowSize = ImGui::GetFrameHeight();
+								auto extra = arrowSize + 2.0f * style.FramePadding.x;
+								ImGui::SetNextItemWidth(ImGui::CalcTextSize("3-3").x + extra);
+								ImGui::AlignTextToFramePadding();
 
-							auto preview = formatSlot(file->slot, motherBoard);
-				                        im::Combo(tmpStrCat("Slot##", info.filename).data(), preview.c_str(), [&]{
-								// Set slot and all the symbols in it
-								auto setSlot = [&](std::optional<uint8_t> newSlot) {
- 									file->slot = newSlot;
-									for (auto& symbol : file->getSymbols()) {
-										symbol.slot = newSlot;
+								auto preview = formatSlot(file->slot, motherBoard);
+								im::Combo(tmpStrCat("Slot##", info.filename).data(), preview.c_str(), [&]{
+									// Set slot and all the symbols in it
+									auto setSlot = [&](std::optional<uint8_t> newSlot) {
+										file->slot = newSlot;
+										for (auto& symbol : file->getSymbols()) {
+											symbol.slot = newSlot;
+										}
+									};
+									// initial state
+									if (ImGui::Selectable("-", !file->slot)) {
+										setSlot({});
 									}
-								};
-								// initial state
-								if (ImGui::Selectable("-", !file->slot)) {
-									setSlot({});
-								}
 
-								for (uint8_t ps = 0; ps < 4; ++ps) {
-									if (isSlotExpanded(motherBoard, ps)) {
-										for (uint8_t ss = 0; ss < 4; ++ss) {
-											auto slotInfo = tmpStrCat(ps, "-", ss);
-											int psSs = (ss << 2) + ps;
-											if (ImGui::Selectable(slotInfo.c_str(), psSs == file->slot)) {
-												setSlot(psSs);
+									for (uint8_t ps = 0; ps < 4; ++ps) {
+										if (isSlotExpanded(motherBoard, ps)) {
+											for (uint8_t ss = 0; ss < 4; ++ss) {
+												auto slotInfo = tmpStrCat(ps, "-", ss);
+												int psSs = (ss << 2) + ps;
+												if (ImGui::Selectable(slotInfo.c_str(), psSs == file->slot)) {
+													setSlot(psSs);
+												}
+											}
+										} else {
+											if (ImGui::Selectable(tmpStrCat(ps).c_str(), file->slot && ps == file->slot)) {
+												setSlot(ps);
 											}
 										}
-									} else {
-										if (ImGui::Selectable(tmpStrCat(ps).c_str(), file->slot && ps == file->slot)) {
-											setSlot(ps);
-										}
 									}
-								}
-							});
-							ImGui::SameLine();
+								});
+								ImGui::SameLine();
+							}
 
 							if (ImGui::Button("Reload")) {
 								loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type, info.slot);
@@ -321,7 +325,9 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 									fileError.erase(it);
 								}
 							}
-							drawTable<true>(motherBoard, info.filename);
+							if (!error) {
+								drawTable<true>(motherBoard, info.filename);
+							}
 						});
 					});
 				});
