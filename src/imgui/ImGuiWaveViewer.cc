@@ -5,7 +5,7 @@
 #include "SoundDevice.hh"
 
 #include "FFTReal.hh"
-#include "blackmanWindow.hh"
+#include "hammingWindow.hh"
 #include "fast_log2.hh"
 #include "halfband.hh"
 #include "narrow.hh"
@@ -259,7 +259,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 static void paintSpectrum(std::span<const float> buf, float factor)
 {
 	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
-	static constexpr auto range = 6.0f * convertLog; // 60dB
+	static constexpr auto range = 5.0f * convertLog; // 50dB
 
 	// skip if not visible
 	auto pos = ImGui::GetCursorPos();
@@ -298,7 +298,7 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	assert(zeroPadded.size() == fftLen);
 
 	// remove DC and apply window-function
-	auto window = blackmanWindow(signal.size());
+	auto window = hammingWindow(signal.size());
 	auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
 	for (auto [s, w] : view::zip_equal(signal, window)) {
 		s = (s - avg) * w;
