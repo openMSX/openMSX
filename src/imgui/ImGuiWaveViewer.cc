@@ -226,32 +226,33 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work)
 	// * Finally zero-pad the result to exactly 2048 samples (this does not
 	//   change the spectrum).
 	float normalize = 1.0f;
+	std::span<float> extended;
 	if (buf.size() <= FFT_LEN) {
-		auto extended = std::span<float, FFT_LEN>(allocate(FFT_LEN));
-		auto result = extended.subspan(0, buf.size());
-		ranges::copy(buf, result);
-		ranges::fill(extended.subspan(buf.size()), 0.0f);
-		return {result, extended, normalize};
-	}
-	while (true) {
-		static_assert(HALF_BAND_EXTRA & 1);
-		if ((buf.size() & 1) == 0) {
-			buf = buf.subspan(1); // drop oldest sample (need an odd number)
-		}
+		extended = std::span<float, FFT_LEN>(allocate(FFT_LEN));
+		auto buf2 = extended.subspan(0, buf.size());
+		ranges::copy(buf, buf2);
+		buf = buf2;
+	} else {
 		assert(buf.size() >= HALF_BAND_EXTRA);
-		size_t m = (buf.size() - HALF_BAND_EXTRA) / 2;
-		auto extended = allocate(std::max(m, size_t(FFT_LEN)));
-		auto result = extended.subspan(0, m);
-		halfBand(buf, result);
-		normalize *= 0.5f;
+		extended = allocate(std::max((buf.size() - HALF_BAND_EXTRA) / 2, size_t(FFT_LEN)));
+		do {
+			static_assert(HALF_BAND_EXTRA & 1);
+			if ((buf.size() & 1) == 0) {
+				buf = buf.subspan(1); // drop oldest sample (need an odd number)
+			}
+			assert(buf.size() >= HALF_BAND_EXTRA);
+			auto buf2 = extended.subspan(0, (buf.size() - HALF_BAND_EXTRA) / 2);
 
-		if (m <= FFT_LEN) {
-			assert(extended.size() == FFT_LEN);
-			ranges::fill(extended.subspan(m), 0.0f);
-			return {result, std::span<float, FFT_LEN>(extended), normalize};
-		}
-		buf = result;
+			halfBand(buf, buf2); // possibly inplace
+			normalize *= 0.5f;
+
+			buf = buf2;
+		} while (buf.size() > FFT_LEN);
 	}
+	assert(extended.size() >= FFT_LEN);
+	ranges::fill(extended.subspan(buf.size()), 0.0f);
+	auto result = extended.subspan(0, buf.size());
+	return {result, std::span<float, FFT_LEN>(extended), normalize};
 }
 
 static void paintSpectrum(std::span<const float> buf, float factor)

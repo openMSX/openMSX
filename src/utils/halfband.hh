@@ -9,6 +9,10 @@
 //
 // The input must contain twice the number of output samples plus some extra.
 //   in.size() == 2 * out.size() + HALF_BAND_EXTRA
+//
+// About overlapping input and output (calculate in-place):
+// The output buffer is smaller than the input. Overlap is allowed, but only
+// when the beginning of the output is aligned with the beginning of the input.
 static constexpr size_t HALF_BAND_EXTRA = 13; // depends on the number of coefficients in the filter
 inline void halfBand(std::span<const float> in, std::span<float> out)
 {
