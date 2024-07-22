@@ -196,14 +196,12 @@ static void paintWave(std::span<const float> buf)
 	plotLines(buf, -peak, peak, size);
 }
 
-static constexpr int FFT_LEN_L2 = 11; // 2048-point FFT -> 1024 bins in the spectrum
-static constexpr int FFT_LEN = 1 << FFT_LEN_L2;
 struct ReduceResult {
 	std::span<float> result; // down-sampled input
-	std::span<float, FFT_LEN> extendedResult; // zero-padded
+	std::span<float> extendedResult; // zero-padded to power-of-2
 	float normalize = 1.0f; // down-sampling changes amplitude
 };
-static ReduceResult reduce(std::span<const float> buf, std::span<float> work)
+static ReduceResult reduce(std::span<const float> buf, std::span<float> work, size_t fftLen)
 {
 	// allocate part of the workBuffer (like a monotonic memory allocator)
 	auto allocate = [&](size_t size) {
@@ -225,19 +223,19 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work)
 	//   half-band FIR filter).
 	// * Then drops every other sample (this doesn't change the spectrum if
 	//   the filter has high enough quality).
-	// * Repeat until the buffer has 2048 samples or less.
-	// * Finally zero-pad the result to exactly 2048 samples (this does not
+	// * Repeat until the buffer has 'fftLen' samples or less.
+	// * Finally zero-pad the result to exactly 'fftLen' samples (this does not
 	//   change the spectrum).
 	float normalize = 1.0f;
 	std::span<float> extended;
-	if (buf.size() <= FFT_LEN) {
-		extended = std::span<float, FFT_LEN>(allocate(FFT_LEN));
+	if (buf.size() <= fftLen) {
+		extended = allocate(fftLen);
 		auto buf2 = extended.subspan(0, buf.size());
 		ranges::copy(buf, buf2);
 		buf = buf2;
 	} else {
 		assert(buf.size() >= HALF_BAND_EXTRA);
-		extended = allocate(std::max((buf.size() - HALF_BAND_EXTRA) / 2, size_t(FFT_LEN)));
+		extended = allocate(std::max((buf.size() - HALF_BAND_EXTRA) / 2, size_t(fftLen)));
 		do {
 			static_assert(HALF_BAND_EXTRA & 1);
 			if ((buf.size() & 1) == 0) {
@@ -250,16 +248,19 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work)
 			normalize *= 0.5f;
 
 			buf = buf2;
-		} while (buf.size() > FFT_LEN);
+		} while (buf.size() > fftLen);
+		extended = extended.subspan(0, fftLen);
 	}
-	assert(extended.size() >= FFT_LEN);
 	ranges::fill(extended.subspan(buf.size()), 0.0f);
 	auto result = extended.subspan(0, buf.size());
-	return {result, std::span<float, FFT_LEN>(extended), normalize};
+	return {result, extended, normalize};
 }
 
 static void paintSpectrum(std::span<const float> buf, float factor)
 {
+	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
+	static constexpr auto range = 6.0f * convertLog; // 60dB
+
 	// skip if not visible
 	auto pos = ImGui::GetCursorPos();
 	ImGui::SetNextItemWidth(-FLT_MIN); // full cell-width
@@ -267,15 +268,34 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	ImGui::Dummy(size);
 	if (!ImGui::IsItemVisible()) return;
 	ImGui::SetCursorPos(pos);
+
+	auto graphWidth = size.x - 2.0f * ImGui::GetStyle().FramePadding.x;
+	auto fftLen = std::clamp<size_t>(2 * std::bit_ceil(size_t(graphWidth)), 256, 2048);
+	switch (fftLen) {
+	case 256: // 128 pixels-wide or less
+		buf = buf.last(buf.size() / 8); // keep last 1/8 (18ms, 112Hz bins)
+		break;
+	case 512: // 129..256 pixels (this is the default)
+		buf = buf.last(buf.size() / 4); // keep last 1/4 (36ms, 56Hz bins)
+		break;
+	case 1024: // 257..512 pixels
+		buf = buf.last(buf.size() / 2); // keep last 1/2 (71ms, 28Hz bins)
+		break;
+	default: // more than 513 pixels wide
+		// keep full buffer (143ms, 14Hz bins)
+		break;
+	}
+
 	if (buf.size() <= 2) {
-		plotHistogram({}, 0.0f, 6.0f, size);
+		plotHistogram({}, 0.0f, range, size);
 		return;
 	}
 
-	// We want to take an FFT of fixed length (2048 points), reduce the
+	// We want to take an FFT of fixed length (256, 512, 1024, 2048 points), reduce the
 	// input (decimate + zero-pad) to this exact length.
 	std::array<float, 32768> workBuf; // ok, uninitialized
-	auto [signal, zeroPadded, normalize] = reduce(buf, workBuf);
+	auto [signal, zeroPadded, normalize] = reduce(buf, workBuf, fftLen);
+	assert(zeroPadded.size() == fftLen);
 
 	// remove DC and apply window-function
 	auto window = blackmanWindow(signal.size());
@@ -285,21 +305,33 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	}
 
 	// perform FFT
-	std::array<float, FFT_LEN> f;   // ok, uninitialized
-	std::array<float, FFT_LEN> tmp; // ok, uninitialized
-	FFTReal<FFT_LEN_L2>::execute(zeroPadded, f, tmp);
-
-	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
-	static constexpr auto range = 6.0f * convertLog; // 60dB
+	std::array<float, 2048> tmp_; // ok, uninitialized
+	std::array<float, 2048> f_;   // ok, uninitialized
+	switch (fftLen) {
+	case 256:
+		FFTReal<8>::execute(subspan<256>(zeroPadded), subspan<256>(f_), subspan<256>(tmp_));
+		break;
+	case 512:
+		FFTReal<9>::execute(subspan<512>(zeroPadded), subspan<512>(f_), subspan<512>(tmp_));
+		break;
+	case 1024:
+		FFTReal<10>::execute(subspan<1024>(zeroPadded), subspan<1024>(f_), subspan<1024>(tmp_));
+		break;
+	default:
+		FFTReal<11>::execute(subspan<2048>(zeroPadded), subspan<2048>(f_), subspan<2048>(tmp_));
+		break;
+	}
+	auto f = subspan(f_, 0, fftLen);
 
 	// combine real and imaginary components into magnitude (we ignore phase)
 	normalize *= factor;
-	auto offset = fast_log2(normalize * normalize * (1.0f / FFT_LEN)) + range;
-	static constexpr int HALF = FFT_LEN / 2;
-	std::array<float, HALF - 1> magnitude; // ok, uninitialized
-	for (int i = 0; i < 1023; ++i) {
+	auto offset = fast_log2(normalize * normalize * (1.0f / float(fftLen))) + range;
+	auto halfFftLen = fftLen / 2;
+	std::array<float, 1023> magnitude_; // ok, uninitialized
+	auto magnitude = subspan(magnitude_, 0, halfFftLen - 1);
+	for (unsigned i = 0; i < halfFftLen - 1; ++i) {
 		float real = f[i + 1];
-		float imag = f[i + 1 + HALF];
+		float imag = f[i + 1 + halfFftLen];
 		float mag = real * real + imag * imag;
 		magnitude[i] = fast_log2(mag) + offset;
 	}
