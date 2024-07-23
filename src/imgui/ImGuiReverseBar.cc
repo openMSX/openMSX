@@ -300,14 +300,6 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 		gl::vec2 outerTopLeft = pos;
 		gl::vec2 outerBottomRight = outerTopLeft + outerSize;
 
-		gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
-		gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
-		gl::vec2 innerBottomRight = innerTopLeft + innerSize;
-		gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize.x * fraction, innerSize.y);
-
-		gl::vec2 middleTopLeft    (barBottomRight.x - 2.0f, innerTopLeft.y);
-		gl::vec2 middleBottomRight(barBottomRight.x + 2.0f, innerBottomRight.y);
-
 		const auto& io = ImGui::GetIO();
 		bool hovered = ImGui::IsWindowHovered();
 		bool replaying = reverseManager.isReplaying();
@@ -319,44 +311,55 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 			auto period = hovered ? 0.5f : 5.0f; // TODO configurable speed
 			reverseAlpha = calculateFade(reverseAlpha, target, period);
 		}
-		auto color = [&](gl::vec4 col) {
-			return ImGui::ColorConvertFloat4ToU32(col * reverseAlpha);
-		};
+		if (reverseAlpha != 0.0f) {
+			gl::vec2 innerSize = outerSize - gl::vec2(2, 2);
+			gl::vec2 innerTopLeft = outerTopLeft + gl::vec2(1, 1);
+			gl::vec2 innerBottomRight = innerTopLeft + innerSize;
+			gl::vec2 barBottomRight = innerTopLeft + gl::vec2(innerSize.x * fraction, innerSize.y);
 
-		auto* drawList = ImGui::GetWindowDrawList();
-		drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
+			gl::vec2 middleTopLeft    (barBottomRight.x - 2.0f, innerTopLeft.y);
+			gl::vec2 middleBottomRight(barBottomRight.x + 2.0f, innerBottomRight.y);
 
-		for (double s : snapshots) {
-			float x = narrow_cast<float>((s - b) * recipLength) * innerSize.x;
-			drawList->AddLine(gl::vec2(innerTopLeft.x + x, innerTopLeft.y),
-					gl::vec2(innerTopLeft.x + x, innerBottomRight.y),
-					color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+			auto color = [&](gl::vec4 col) {
+				return ImGui::ColorConvertFloat4ToU32(col * reverseAlpha);
+			};
+
+			auto* drawList = ImGui::GetWindowDrawList();
+			drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
+
+			for (double s : snapshots) {
+				float x = narrow_cast<float>((s - b) * recipLength) * innerSize.x;
+				drawList->AddLine(gl::vec2(innerTopLeft.x + x, innerTopLeft.y),
+						gl::vec2(innerTopLeft.x + x, innerBottomRight.y),
+						color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+			}
+
+			static constexpr std::array barColors = {
+				std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
+				           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
+				std::array{gl::vec4(0.00f, 0.27f, 1.00f, 0.63f), gl::vec4(0.00f, 0.13f, 0.73f, 0.63f),
+				           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.20f, 0.87f, 0.63f)}, // replaying
+				std::array{gl::vec4(1.00f, 0.27f, 0.00f, 0.63f), gl::vec4(0.87f, 0.20f, 0.00f, 0.63f),
+				           gl::vec4(0.80f, 0.80f, 0.07f, 0.63f), gl::vec4(0.73f, 0.13f, 0.00f, 0.63f)}, // recording
+			};
+			int barColorsIndex = replaying ? (reverseManager.isViewOnlyMode() ? 0 : 1)
+						: 2;
+			const auto& barColor = barColors[barColorsIndex];
+			drawList->AddRectFilledMultiColor(
+				innerTopLeft, barBottomRight,
+				color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
+
+			drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
+			drawList->AddRect(
+				outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
+
+			auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
+			auto timeSize = ImGui::CalcTextSize(timeStr).x;
+			gl::vec2 cursor = ImGui::GetCursorPos();
+			ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize.x - timeSize)), textHeight * 0.5f));
+			ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
+			ImGui::SetCursorPos(cursor); // restore position (for later ImGui::Dummy())
 		}
-
-		static constexpr std::array barColors = {
-			std::array{gl::vec4(0.00f, 1.00f, 0.27f, 0.63f), gl::vec4(0.00f, 0.73f, 0.13f, 0.63f),
-			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.87f, 0.20f, 0.63f)}, // view-only
-			std::array{gl::vec4(0.00f, 0.27f, 1.00f, 0.63f), gl::vec4(0.00f, 0.13f, 0.73f, 0.63f),
-			           gl::vec4(0.07f, 0.80f, 0.80f, 0.63f), gl::vec4(0.00f, 0.20f, 0.87f, 0.63f)}, // replaying
-			std::array{gl::vec4(1.00f, 0.27f, 0.00f, 0.63f), gl::vec4(0.87f, 0.20f, 0.00f, 0.63f),
-			           gl::vec4(0.80f, 0.80f, 0.07f, 0.63f), gl::vec4(0.73f, 0.13f, 0.00f, 0.63f)}, // recording
-		};
-		int barColorsIndex = replaying ? (reverseManager.isViewOnlyMode() ? 0 : 1)
-					: 2;
-		const auto& barColor = barColors[barColorsIndex];
-		drawList->AddRectFilledMultiColor(
-			innerTopLeft, barBottomRight,
-			color(barColor[0]), color(barColor[1]), color(barColor[2]), color(barColor[3]));
-
-		drawList->AddRectFilled(middleTopLeft, middleBottomRight, color(gl::vec4(1.0f, 0.5f, 0.0f, 0.75f)));
-		drawList->AddRect(
-			outerTopLeft, outerBottomRight, color(gl::vec4(1.0f)), 0.0f, 0, 2.0f);
-
-		auto timeStr = strCat(formatTime(playLength), " / ", formatTime(totalLength));
-		auto timeSize = ImGui::CalcTextSize(timeStr).x;
-		gl::vec2 cursor = ImGui::GetCursorPos();
-		ImGui::SetCursorPos(cursor + gl::vec2(std::max(0.0f, 0.5f * (outerSize.x - timeSize)), textHeight * 0.5f));
-		ImGui::TextColored(gl::vec4(1.0f) * reverseAlpha, "%s", timeStr.c_str());
 
 		if (hovered && ImGui::IsMouseHoveringRect(outerTopLeft, outerBottomRight)) {
 			float ratio = (io.MousePos.x - pos.x) / outerSize.x;
@@ -369,7 +372,6 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 			}
 		}
 
-		ImGui::SetCursorPos(cursor); // cover full window for context menu
 		ImGui::Dummy(availableSize);
 		im::PopupContextItem("reverse context menu", [&]{
 			ImGui::Checkbox("Hide title", &reverseHideTitle);
