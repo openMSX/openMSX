@@ -19,8 +19,8 @@ using namespace std::literals;
 
 void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 {
-	auto docDir = FileOperations::getSystemDocDir();
 	im::Menu("Help", [&]{
+		auto docDir = FileOperations::getSystemDocDir();
 		im::Menu("Manual", [&]{
 			drawURL("FAQ", strCat("file://", docDir, "/manual/faq.html"));
 			drawURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html"));
