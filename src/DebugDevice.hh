@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "FilenameSetting.hh"
+
 #include <fstream>
 
 namespace openmsx {

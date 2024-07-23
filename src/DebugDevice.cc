@@ -1,8 +1,13 @@
 #include "DebugDevice.hh"
+
 #include "Clock.hh"
-#include "FileOperations.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "FileOperations.hh"
+
+#include "narrow.hh"
+#include "strCat.hh"
+
 #include <iostream>
 #include <iomanip>
 
@@ -11,8 +16,8 @@ namespace openmsx {
 DebugDevice::DebugDevice(const DeviceConfig& config)
 	: MSXDevice(config)
 	, fileNameSetting(
-		getCommandController(), "debugoutput",
-		"name of the file the debugdevice outputs to",
+		getCommandController(), tmpStrCat(getName(), " output"),
+		"name of the file the debug-device outputs to",
 		config.getChildData("filename", "stdout"))
 {
 	openOutput(fileNameSetting.getString());
