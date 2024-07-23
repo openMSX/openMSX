@@ -5,9 +5,12 @@
 #include "EventListener.hh"
 #include "Command.hh"
 #include "EmuTime.hh"
+
 #include "MemBuffer.hh"
 #include "DeltaBlock.hh"
 #include "outer.hh"
+#include "view.hh"
+
 #include <cstdint>
 #include <deque>
 #include <span>
@@ -72,7 +75,11 @@ public:
 	[[nodiscard]] double getBegin() const;
 	[[nodiscard]] double getEnd() const;
 	[[nodiscard]] double getCurrent() const;
-	[[nodiscard]] std::vector<double> getSnapshotTimes() const;
+	[[nodiscard]] auto getSnapshotTimes() const {
+		return view::transform(history.chunks, [](auto& p) {
+			return (p.second.time - EmuTime::zero()).toDouble();
+		});
+	}
 
 private:
 	struct ReverseChunk {

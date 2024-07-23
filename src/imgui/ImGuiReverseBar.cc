@@ -287,7 +287,6 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 		auto b = reverseManager.getBegin();
 		auto e = reverseManager.getEnd();
 		auto c = reverseManager.getCurrent();
-		auto snapshots = reverseManager.getSnapshotTimes();
 
 		auto totalLength = e - b;
 		auto playLength = c - b;
@@ -327,11 +326,11 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 			auto* drawList = ImGui::GetWindowDrawList();
 			drawList->AddRectFilled(innerTopLeft, innerBottomRight, color(gl::vec4(0.0f, 0.0f, 0.0f, 0.5f)));
 
-			for (double s : snapshots) {
+			for (double s : reverseManager.getSnapshotTimes()) {
 				float x = narrow_cast<float>((s - b) * recipLength) * innerSize.x;
 				drawList->AddLine(gl::vec2(innerTopLeft.x + x, innerTopLeft.y),
-						gl::vec2(innerTopLeft.x + x, innerBottomRight.y),
-						color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
+				                  gl::vec2(innerTopLeft.x + x, innerBottomRight.y),
+				                  color(gl::vec4(0.25f, 0.25f, 0.25f, 1.00f)));
 			}
 
 			static constexpr std::array barColors = {

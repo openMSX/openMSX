@@ -219,12 +219,6 @@ double ReverseManager::getCurrent() const
 	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
 	return (current - EmuTime::zero()).toDouble();
 }
-std::vector<double> ReverseManager::getSnapshotTimes() const
-{
-	return to_vector(view::transform(history.chunks, [](auto& p) {
-		return (p.second.time - EmuTime::zero()).toDouble();
-	}));
-}
 
 void ReverseManager::status(TclObject& result) const
 {
