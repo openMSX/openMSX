@@ -200,8 +200,9 @@ struct ReduceResult {
 	std::span<float> result; // down-sampled input
 	std::span<float> extendedResult; // zero-padded to power-of-2
 	float normalize = 1.0f; // down-sampling changes amplitude
+	float reducedSampleRate = 0.0f;
 };
-static ReduceResult reduce(std::span<const float> buf, std::span<float> work, size_t fftLen)
+static ReduceResult reduce(std::span<const float> buf, std::span<float> work, size_t fftLen, float sampleRate)
 {
 	// allocate part of the workBuffer (like a monotonic memory allocator)
 	auto allocate = [&](size_t size) {
@@ -246,6 +247,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 
 			halfBand(buf, buf2); // possibly inplace
 			normalize *= 0.5f;
+			sampleRate *= 0.5f;
 
 			buf = buf2;
 		} while (buf.size() > fftLen);
@@ -253,10 +255,10 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 	}
 	ranges::fill(extended.subspan(buf.size()), 0.0f);
 	auto result = extended.subspan(0, buf.size());
-	return {result, extended, normalize};
+	return {result, extended, normalize, sampleRate};
 }
 
-static void paintSpectrum(std::span<const float> buf, float factor)
+static void paintSpectrum(std::span<const float> buf, float factor, const SoundDevice& device)
 {
 	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
 	static constexpr auto range = 5.0f * convertLog; // 50dB
@@ -269,75 +271,111 @@ static void paintSpectrum(std::span<const float> buf, float factor)
 	if (!ImGui::IsItemVisible()) return;
 	ImGui::SetCursorPos(pos);
 
-	auto graphWidth = size.x - 2.0f * ImGui::GetStyle().FramePadding.x;
+	const auto& style = ImGui::GetStyle();
+	auto graphWidth = size.x - 2.0f * style.FramePadding.x;
 	auto fftLen = std::clamp<size_t>(2 * std::bit_ceil(size_t(graphWidth)), 256, 2048);
 	switch (fftLen) {
 	case 256: // 128 pixels-wide or less
-		buf = buf.last(buf.size() / 8); // keep last 1/8 (18ms, 112Hz bins)
+		buf = buf.last(buf.size() / 8); // keep last 1/8 (18ms, 56Hz bins)
 		break;
 	case 512: // 129..256 pixels (this is the default)
-		buf = buf.last(buf.size() / 4); // keep last 1/4 (36ms, 56Hz bins)
+		buf = buf.last(buf.size() / 4); // keep last 1/4 (36ms, 28Hz bins)
 		break;
 	case 1024: // 257..512 pixels
-		buf = buf.last(buf.size() / 2); // keep last 1/2 (71ms, 28Hz bins)
+		buf = buf.last(buf.size() / 2); // keep last 1/2 (71ms, 14Hz bins)
 		break;
 	default: // more than 513 pixels wide
-		// keep full buffer (143ms, 14Hz bins)
+		// keep full buffer (143ms, 7Hz bins)
 		break;
 	}
 
-	if (buf.size() <= 2) {
-		plotHistogram({}, 0.0f, range, size);
-		return;
-	}
-
-	// We want to take an FFT of fixed length (256, 512, 1024, 2048 points), reduce the
-	// input (decimate + zero-pad) to this exact length.
-	std::array<float, 32768> workBuf; // ok, uninitialized
-	auto [signal, zeroPadded, normalize] = reduce(buf, workBuf, fftLen);
-	assert(zeroPadded.size() == fftLen);
-
-	// remove DC and apply window-function
-	auto window = hammingWindow(signal.size());
-	auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
-	for (auto [s, w] : view::zip_equal(signal, window)) {
-		s = (s - avg) * w;
-	}
-
-	// perform FFT
-	std::array<float, 2048> tmp_; // ok, uninitialized
-	std::array<float, 2048> f_;   // ok, uninitialized
-	switch (fftLen) {
-	case 256:
-		FFTReal<8>::execute(subspan<256>(zeroPadded), subspan<256>(f_), subspan<256>(tmp_));
-		break;
-	case 512:
-		FFTReal<9>::execute(subspan<512>(zeroPadded), subspan<512>(f_), subspan<512>(tmp_));
-		break;
-	case 1024:
-		FFTReal<10>::execute(subspan<1024>(zeroPadded), subspan<1024>(f_), subspan<1024>(tmp_));
-		break;
-	default:
-		FFTReal<11>::execute(subspan<2048>(zeroPadded), subspan<2048>(f_), subspan<2048>(tmp_));
-		break;
-	}
-	auto f = subspan(f_, 0, fftLen);
-
-	// combine real and imaginary components into magnitude (we ignore phase)
-	normalize *= factor;
-	auto offset = fast_log2(normalize * normalize * (1.0f / float(fftLen))) + range;
-	auto halfFftLen = fftLen / 2;
+	float sampleRate = 0.0f;
 	std::array<float, 1023> magnitude_; // ok, uninitialized
-	auto magnitude = subspan(magnitude_, 0, halfFftLen - 1);
-	for (unsigned i = 0; i < halfFftLen - 1; ++i) {
-		float real = f[i + 1];
-		float imag = f[i + 1 + halfFftLen];
-		float mag = real * real + imag * imag;
-		magnitude[i] = fast_log2(mag) + offset;
+	std::span<float> magnitude;
+	if (buf.size() >= 2) {
+		// We want to take an FFT of fixed length (256, 512, 1024, 2048 points), reduce the
+		// input (decimate + zero-pad) to this exact length.
+		std::array<float, 32768> workBuf; // ok, uninitialized
+		auto [signal, zeroPadded, normalize, sampleRate_] = reduce(buf, workBuf, fftLen, device.getNativeSampleRate());
+		sampleRate = sampleRate_;
+		assert(zeroPadded.size() == fftLen);
+
+		// remove DC and apply window-function
+		auto window = hammingWindow(signal.size());
+		auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
+		for (auto [s, w] : view::zip_equal(signal, window)) {
+			s = (s - avg) * w;
+		}
+
+		// perform FFT
+		std::array<float, 2048> tmp_; // ok, uninitialized
+		std::array<float, 2048> f_;   // ok, uninitialized
+		switch (fftLen) {
+		case 256:
+			FFTReal<8>::execute(subspan<256>(zeroPadded), subspan<256>(f_), subspan<256>(tmp_));
+			break;
+		case 512:
+			FFTReal<9>::execute(subspan<512>(zeroPadded), subspan<512>(f_), subspan<512>(tmp_));
+			break;
+		case 1024:
+			FFTReal<10>::execute(subspan<1024>(zeroPadded), subspan<1024>(f_), subspan<1024>(tmp_));
+			break;
+		default:
+			FFTReal<11>::execute(subspan<2048>(zeroPadded), subspan<2048>(f_), subspan<2048>(tmp_));
+			break;
+		}
+		auto f = subspan(f_, 0, fftLen);
+
+		// combine real and imaginary components into magnitude (we ignore phase)
+		normalize *= factor;
+		auto offset = fast_log2(normalize * normalize * (1.0f / float(fftLen))) + range;
+		auto halfFftLen = fftLen / 2;
+		magnitude = subspan(magnitude_, 0, halfFftLen - 1);
+		for (unsigned i = 0; i < halfFftLen - 1; ++i) {
+			float real = f[i + 1];
+			float imag = f[i + 1 + halfFftLen];
+			float mag = real * real + imag * imag;
+			magnitude[i] = fast_log2(mag) + offset;
+		}
 	}
 
 	// actually plot the result
 	plotHistogram(magnitude, 0.0f, range, size);
+
+	simpleToolTip([&]() -> std::string {
+		auto scrnPosX = ImGui::GetCursorScreenPos().x + style.FramePadding.x;
+		auto mouseX = (ImGui::GetIO().MousePos.x - scrnPosX) / graphWidth;
+		if ((mouseX <= 0.0f) || (mouseX >= 1.0f)) return {};
+
+		if (sampleRate == 0.0f) {
+			// silent -> reduced sampleRate hasn't been calculated yet
+			sampleRate = device.getNativeSampleRate();
+			auto samples = device.getLastMonoBufferSize();
+			switch (fftLen) {
+				case 256:  samples /= 8; break;
+				case 512:  samples /= 4; break;
+				case 1024: samples /= 2; break;
+				default: /*nothing*/     break;
+			}
+			while (samples > fftLen) {
+				sampleRate *= 0.5f;
+				if ((samples & 1) == 0) --samples;
+				samples = (samples - HALF_BAND_EXTRA) / 2;
+			}
+		}
+
+		// format with "Hz" or "kHz" suffix and 3 significant digits
+		auto freq = std::lround(sampleRate * 0.5f * mouseX);
+		if (freq < 1000) {
+			return strCat(freq, "Hz");
+		} else {
+			auto k = freq / 1000;
+			auto t = (freq % 1000) / 10;
+			char t1 = (t / 10) + '0';
+			char t2 = (t % 10) + '0';
+			return strCat(k, '.', t1, t2, "kHz");
+		}
+	});
 }
 
 static void stereoToMono(std::span<const float> stereo, float factorL, float factorR,
@@ -385,7 +423,7 @@ static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDevi
 			paintWave(monoBuf);
 		}
 		if (ImGui::TableNextColumn()) { // spectrum
-			paintSpectrum(monoBuf, factor);
+			paintSpectrum(monoBuf, factor, device);
 		}
 	});
 }

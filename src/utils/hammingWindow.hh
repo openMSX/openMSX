@@ -26,7 +26,6 @@ inline std::span<const float> hammingWindow(unsigned n)
 		return window;
 	}
 
-
 	assert(window.size() == n);
 	return window;
 }

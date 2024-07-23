@@ -106,14 +106,21 @@ public:
 	  */
 	[[nodiscard]] std::span<const float> getLastBuffer(unsigned channel);
 
+	/** The samples returned by 'getLastBuffer()' have this sample rate.
+	  */
+	[[nodiscard]] float getNativeSampleRate() const { return float(inputSampleRate); }
+
 	/** getLastBuffer() with return buffers containing this many samples.
 	  * This number depends on the native-sample-rate of the device. For all
 	  * devices it will be (approximately) represent the same time duration.
 	  */
-	[[nodiscard]] unsigned getLastBufferSize() const {
+	[[nodiscard]] unsigned getLastMonoBufferSize() const {
 		// Tuned so that both the ImGui waveform and spectrum viewer
 		// look 'nice' (and aren't too expensive to calculate).
-		return (inputSampleRate / 7) * stereo; // ~0.14 seconds
+		return inputSampleRate / 7; // ~0.14 seconds
+	}
+	[[nodiscard]] unsigned getLastBufferSize() const {
+		return getLastMonoBufferSize() * stereo;
 	}
 
 protected:
