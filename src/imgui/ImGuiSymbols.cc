@@ -264,25 +264,27 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 		}
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			auto drawFile = [&](const FileInfo& info) {
-				bool error = !info.error.empty();
-				auto* file = symbolManager.findFile(info.filename);
-				assert((file != nullptr) ^ error); // not both
-				im::StyleColor(error, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-					auto title = strCat("File: ", info.filename);
+			std::optional<FileInfo> reloadAction;
+			std::string removeAction;
+			auto drawFile = [&](const std::string& filename, std::string_view error, SymbolFile::Type type, std::optional<int> slot) {
+				bool hasError = !error.empty();
+				auto* file = symbolManager.findFile(filename);
+				assert((file != nullptr) ^ hasError); // not both
+				im::StyleColor(hasError, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+					auto title = tmpStrCat("File: ", filename);
 					im::TreeNode(title.c_str(), [&]{
-						if (!info.error.empty()) {
-							ImGui::TextUnformatted(info.error);
+						if (hasError) {
+							ImGui::TextUnformatted(error);
 						}
 						im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
-							if (!error) {
+							if (!hasError) {
 								auto arrowSize = ImGui::GetFrameHeight();
 								auto extra = arrowSize + 2.0f * style.FramePadding.x;
 								ImGui::SetNextItemWidth(ImGui::CalcTextSize("3-3").x + extra);
 								ImGui::AlignTextToFramePadding();
 
 								auto preview = formatSlot(file->slot, motherBoard);
-								im::Combo(tmpStrCat("Slot##", info.filename).data(), preview.c_str(), [&]{
+								im::Combo(tmpStrCat("Slot##", filename).data(), preview.c_str(), [&]{
 									// Set slot and all the symbols in it
 									auto setSlot = [&](std::optional<uint8_t> newSlot) {
 										file->slot = newSlot;
@@ -315,32 +317,39 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 							}
 
 							if (ImGui::Button("Reload")) {
-								loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type, info.slot);
+								reloadAction.emplace(filename, std::string{}, type, slot);
 							}
 							ImGui::SameLine();
 							if (ImGui::Button("Remove")) {
-								symbolManager.removeFile(info.filename);
-								if (auto it = ranges::find(fileError, info.filename, &FileInfo::filename);
-								    it != fileError.end()) {
-									fileError.erase(it);
-								}
+								removeAction = filename;
 							}
-							if (!error) {
-								drawTable<true>(motherBoard, info.filename);
+							if (!hasError) {
+								drawTable<true>(motherBoard, filename);
 							}
 						});
 					});
 				});
 			};
-			// make copy because cache may get dropped
-			auto infos = to_vector(view::transform(symbolManager.getFiles(), [&](const auto& file) {
-				return FileInfo{file.filename, std::string{}, file.type, file.slot};
-			}));
-			append(infos, fileError);
-			for (const auto& info : infos) {
-				drawFile(info);
+
+			for (const auto& file : symbolManager.getFiles()) {
+				drawFile(file.filename, {}, file.type, file.slot);
+			}
+			for (const auto& info : fileError) {
+				drawFile(info.filename, info.error, info.type, info.slot);
 			}
 
+			// only make changes after the above loops (don't loop over changing collection)
+			if (reloadAction) {
+				loadFile(reloadAction->filename, SymbolManager::LoadEmpty::NOT_ALLOWED,
+				         reloadAction->type, reloadAction->slot);
+			}
+			if (!removeAction.empty()) {
+				symbolManager.removeFile(removeAction);
+				if (auto it = ranges::find(fileError, removeAction, &FileInfo::filename);
+					it != fileError.end()) {
+					fileError.erase(it);
+				}
+			}
 		});
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {

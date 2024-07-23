@@ -489,7 +489,7 @@ std::span<Symbol const * const> SymbolManager::lookupValue(uint16_t value)
 	return {};
 }
 
-SymbolFile* SymbolManager::findFile(std::string filename)
+SymbolFile* SymbolManager::findFile(std::string_view filename)
 {
 	if (auto it = ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
 		return nullptr;
