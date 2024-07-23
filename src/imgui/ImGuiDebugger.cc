@@ -447,6 +447,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 
 			std::string mnemonic;
 			std::string opcodesStr;
+			std::vector<std::string_view> candidates;
 			std::array<uint8_t, 4> opcodes;
 			ImGuiListClipper clipper; // only draw the actually visible rows
 			clipper.Begin(0x10000);
@@ -642,7 +643,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								SLOT_AND_SEGMENT
 							};
 							Priority currentPriority = Priority::MISSING_BOTH;
-							std::vector<std::string_view> candidates;
+							candidates.clear();
 							auto add = [&](const Symbol* sym, Priority newPriority) {
 								if (newPriority < currentPriority) return; // we already have a better candidate
 								if (newPriority > currentPriority) candidates.clear(); // drop previous candidates, we found a better one
