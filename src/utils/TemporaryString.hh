@@ -27,17 +27,32 @@ class TemporaryString {
 public:
 	static constexpr size_t BUFSIZE = 127;
 
-	TemporaryString(size_t n_, std::invocable<char*> auto fillOp)
+	explicit TemporaryString()
+		: n(0)
+	{
+		ptr = buffer.data();
+		buffer[0] = '\0';
+	}
+
+	explicit TemporaryString(const char* s)
+		: n(std::char_traits<char>::length(s)), ptr(s) {}
+	explicit TemporaryString(zstring_view s)
+		: n(s.size()), ptr(s.data()) {}
+
+	explicit TemporaryString(size_t n_, std::invocable<char*> auto fillOp)
 		: n(n_)
 	{
-		if (n <= BUFSIZE) {
-			ptr = buffer.data();
-		} else {
-			owner = allocate_string_storage(n + 1);
-			ptr = owner.get();
-		}
-		fillOp(ptr);
-		ptr[n] = '\0';
+		char* p = [&] {
+			if (n <= BUFSIZE) {
+				return buffer.data();
+			} else {
+				owner = allocate_string_storage(n + 1);
+				return owner.get();
+			}
+		}();
+		ptr = p;
+		fillOp(p);
+		p[n] = '\0';
 	}
 	TemporaryString(const TemporaryString&) = delete;
 	TemporaryString(TemporaryString&&) = delete;
@@ -45,15 +60,26 @@ public:
 	TemporaryString& operator=(TemporaryString&&) = delete;
 	~TemporaryString() = default;
 
-	[[nodiscard]]       char* data()        { return ptr; }
+	[[nodiscard]] auto size()  const { return n; }
+	[[nodiscard]] auto empty() const { return n == 0; }
+
+	[[nodiscard]] const char* data()  const { return ptr; }
 	[[nodiscard]] const char* c_str() const { return ptr; }
 
+	[[nodiscard]] std::string_view view()     const { return {ptr, n}; }
 	[[nodiscard]] operator std::string_view() const { return {ptr, n}; }
 	[[nodiscard]] operator     zstring_view() const { return {ptr, n}; }
 
+	[[nodiscard]] bool starts_with(std::string_view s) const { return view().starts_with(s); }
+	[[nodiscard]] bool starts_with(char c)             const { return view().starts_with(c); }
+	[[nodiscard]] bool starts_with(const char* s)      const { return view().starts_with(s); }
+	[[nodiscard]] bool ends_with(std::string_view s) const { return view().ends_with(s); }
+	[[nodiscard]] bool ends_with(char c)             const { return view().ends_with(c); }
+	[[nodiscard]] bool ends_with(const char* s)      const { return view().ends_with(s); }
+
 private:
 	size_t n;
-	char* ptr;
+	const char* ptr;
 	StringStorage owner;
 	std::array<char, BUFSIZE + 1> buffer;
 };

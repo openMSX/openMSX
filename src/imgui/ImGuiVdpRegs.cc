@@ -7,6 +7,7 @@
 
 #include "strCat.hh"
 #include "xrange.hh"
+#include "zstring_view.hh"
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -177,13 +178,13 @@ struct RegFunction {
 	// when 'subs[0].mask == 0' the item cannot be highlighted (typically such items show a fixed string)
 	std::array<SubFunction, 2> subs;
 	std::string_view toolTip;
-	std::string(*displayFunc)(uint32_t);
+	TemporaryString(*displayFunc)(uint32_t);
 };
 using S = SubFunction;
 using R = RegFunction;
 using namespace std::literals;
-static std::string noExplanation(uint32_t) { return {}; }
-static std::string spacing(uint32_t) { return "\n"s; }
+static TemporaryString noExplanation(uint32_t) { return TemporaryString{}; }
+static TemporaryString spacing(uint32_t) { return TemporaryString("\n"); }
 
 static const VDP* g_vdp; // HACK: global!!
 static std::array<uint8_t, 64 + 10> registerValues; // HACK: global!!
@@ -196,44 +197,44 @@ static bool isPlanarMode() { return (getMode() & 0x14) == 0x14; }
 
 static constexpr auto regFunctions = std::array{
 	// mode registers
-	R{{S{0, 0}}, "", [](uint32_t) { return "screen: "s; }},
+	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString("screen: "); }},
 	R{{S{1, 0x40}}, "screen display enable/disable",
-	  [](uint32_t v) { return std::string(v ? "enabled" : "disabled"); }},
-	R{{S{0, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return TemporaryString(v ? "enabled" : "disabled"); }},
+	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{1, 0x18}, {0, 0x0E}}, "display mode",
-	  [](uint32_t v) { return std::string(modeName(v)); }},
-	R{{S{9, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return TemporaryString(modeName(v)); }},
+	R{{S{9, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{9, 0x02}}, "select PAL or NTSC",
-	  [](uint32_t v) { return std::string(v ? "PAL (50Hz)" : "NTSC (60Hz)"); }},
-	R{{S{0, 0}}, "", [](uint32_t) { return "\n"s; }},
+	  [](uint32_t v) { return TemporaryString(v ? "PAL (50Hz)" : "NTSC (60Hz)"); }},
+	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString("\n"); }},
 
 	R{{S{9, 0x80}}, "select 192 or 212 lines",
-	  [](uint32_t v) { return std::string(v ? "212 lines" : "192 lines"); }},
-	R{{S{9, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return TemporaryString(v ? "212 lines" : "192 lines"); }},
+	R{{S{9, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{9, 0x08}}, "interlace enable/disable",
-	  [](uint32_t v) { return std::string(v ? "interlaced" : "non-interlaced"); }},
-	R{{S{9, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return TemporaryString(v ? "interlaced" : "non-interlaced"); }},
+	R{{S{9, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{9, 0x04}}, "alternate odd/even pages enable/disable",
-	  [](uint32_t v) { return strCat(v ? "" : "do not", " alternate odd/even pages\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "do not", " alternate odd/even pages\n"); }},
 
-	R{{S{1, 0}}, "", [](uint32_t) { return "sprites: "s; }},
+	R{{S{1, 0}}, "", [](uint32_t) { return TemporaryString("sprites: "); }},
 	R{{S{8, 0x02}}, "sprite enable/disable",
-	  [](uint32_t v) { return std::string(v ? "disabled" : "enabled"); }},
-	R{{S{8, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return TemporaryString(v ? "disabled" : "enabled"); }},
+	R{{S{8, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{1, 0x02}}, "sprite size, 8x8 or 16x16",
-	  [](uint32_t v) { return strCat("size=", v ? "16x16" : "8x8"); }},
-	R{{S{1, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return tmpStrCat("size=", v ? "16x16" : "8x8"); }},
+	R{{S{1, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{1, 0x01}}, "sprite magnification enable/disable",
-	  [](uint32_t v) { return std::string(v ? "magnified\n" : "not-magnified\n"); }},
+	  [](uint32_t v) { return TemporaryString(v ? "magnified\n" : "not-magnified\n"); }},
 
 	R{{S{8, 0x20}}, "color 0 transparent or not",
-	  [](uint32_t v) { return strCat("color 0 is ", v ? "a regular color\n" : "transparent\n"); }},
+	  [](uint32_t v) { return tmpStrCat("color 0 is ", v ? "a regular color\n" : "transparent\n"); }},
 
 	R{{S{1, 0x20}}, "V-Blank interrupt enable/disable",
-	  [](uint32_t v) { return strCat("V-Blank-IRQ: ", v ? "enabled" : "disabled"); }},
-	R{{S{1, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return tmpStrCat("V-Blank-IRQ: ", v ? "enabled" : "disabled"); }},
+	R{{S{1, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{0, 0x10}}, "line interrupt enable/disable",
-	  [](uint32_t v) { return strCat("line-IRQ: ", v ? "enabled" : "disabled", '\n'); }},
+	  [](uint32_t v) { return tmpStrCat("line-IRQ: ", v ? "enabled" : "disabled", '\n'); }},
 
 	R{{S{0, 0x40}}, "digitize", &noExplanation},
 	R{{S{0, 0x20}}, "light pen interrupt enable", &noExplanation},
@@ -257,129 +258,129 @@ static constexpr auto regFunctions = std::array{
 				v *= 2;
 			}
 		}
-		return strCat("name table:    0x", hex_string<5>(v << 10), '\n');
+		return tmpStrCat("name table:    0x", hex_string<5>(v << 10), '\n');
 	  }},
 	R{{S{3, 0xFF}, S{10, 0x07}}, "color table address", [](uint32_t v) {
 		if (isText2Mode()) v &= ~0x07;
 		if (isGraph23Mode()) v &= ~0x7F;
-		return strCat("color table:   0x", hex_string<5>(v << 6), '\n');
+		return tmpStrCat("color table:   0x", hex_string<5>(v << 6), '\n');
 	  }},
 	R{{S{4, 0x3F}}, "pattern table address", [](uint32_t v) {
 		if (isGraph23Mode()) v &= ~0x03;
-		return strCat("pattern table: 0x", hex_string<5>(v << 11), '\n');
+		return tmpStrCat("pattern table: 0x", hex_string<5>(v << 11), '\n');
 	  }},
 	R{{S{5, 0xFF}, S{11, 0x03}}, "sprite attribute table address", [](uint32_t v) {
 		if (isSprite2Mode()) {
 			v &= ~0x03; // note: '3' instead of '7' because we want to display 'addr + 512'
 		}
-		return strCat("sprite attribute table: 0x", hex_string<5>(v << 7), '\n');
+		return tmpStrCat("sprite attribute table: 0x", hex_string<5>(v << 7), '\n');
 	  }},
 	R{{S{6, 0x3F}}, "sprite pattern table address", [](uint32_t v) {
-		return strCat("sprite pattern table:   0x", hex_string<5>(v << 11), '\n');
+		return tmpStrCat("sprite pattern table:   0x", hex_string<5>(v << 11), '\n');
 	  }},
 	R{{S{2, 0}}, "", &spacing},
 
 	// Color registers
-	R{{S{13, 0}}, "", [](uint32_t) { return "text color:"s; }},
+	R{{S{13, 0}}, "", [](uint32_t) { return TemporaryString("text color:"); }},
 	R{{S{7, 0xF0}}, "text color",
-	  [](uint32_t v) { return strCat(" foreground=", v); }},
+	  [](uint32_t v) { return tmpStrCat(" foreground=", v); }},
 	R{{S{7, 0x0F}}, "background color",
-	  [](uint32_t v) { return strCat(" background=", v, '\n'); }},
-	R{{S{13, 0}}, "", [](uint32_t) { return "text blink color:"s; }},
+	  [](uint32_t v) { return tmpStrCat(" background=", v, '\n'); }},
+	R{{S{13, 0}}, "", [](uint32_t) { return TemporaryString("text blink color:"); }},
 	R{{S{12, 0xF0}}, "text blink color",
-	  [](uint32_t v) { return strCat(" foreground=", v); }},
+	  [](uint32_t v) { return tmpStrCat(" foreground=", v); }},
 	R{{S{12, 0x0F}}, "background blink color",
-	  [](uint32_t v) { return strCat(" background=", v, '\n'); }},
-	R{{S{13, 0}}, "", [](uint32_t) { return "blink period:"s; }},
+	  [](uint32_t v) { return tmpStrCat(" background=", v, '\n'); }},
+	R{{S{13, 0}}, "", [](uint32_t) { return TemporaryString("blink period:"); }},
 	R{{S{13, 0xF0}}, "blink period on",
-	  [](uint32_t v) { return strCat(" on=", 10 * v); }},
+	  [](uint32_t v) { return tmpStrCat(" on=", 10 * v); }},
 	R{{S{13, 0x0F}}, "blink period off",
-	  [](uint32_t v) { return strCat(" off=", 10 * v); }},
-	R{{S{13, 0}}, "", [](uint32_t) { return " frames\n"s; }},
+	  [](uint32_t v) { return tmpStrCat(" off=", 10 * v); }},
+	R{{S{13, 0}}, "", [](uint32_t) { return TemporaryString(" frames\n"); }},
 	R{{S{7, 0}}, "", &spacing},
 
 	// Display registers
-	R{{S{18, 0}}, "", [](uint32_t) { return "set-adjust:"s; }},
+	R{{S{18, 0}}, "", [](uint32_t) { return TemporaryString("set-adjust:"); }},
 	R{{S{18, 0x0F}}, "horizontal set-adjust",
-	  [](uint32_t v) { return strCat(" horizontal=", int(v ^ 7) - 7); }},
+	  [](uint32_t v) { return tmpStrCat(" horizontal=", int(v ^ 7) - 7); }},
 	R{{S{18, 0xF0}}, "vertical set-adjust",
-	  [](uint32_t v) { return strCat(" vertical=", int(v ^ 7) - 7, '\n'); }},
+	  [](uint32_t v) { return tmpStrCat(" vertical=", int(v ^ 7) - 7, '\n'); }},
 	R{{S{19, 0xFF}}, "line number for line-interrupt",
-	  [](uint32_t v) { return strCat("line interrupt=", v, '\n'); }},
+	  [](uint32_t v) { return tmpStrCat("line interrupt=", v, '\n'); }},
 	R{{S{23, 0xFF}}, "vertical scroll (line number for 1st line)",
-	  [](uint32_t v) { return strCat("vertical scroll=", v, '\n'); }},
+	  [](uint32_t v) { return tmpStrCat("vertical scroll=", v, '\n'); }},
 	R{{S{18, 0}}, "", &spacing},
 
 	// Access registers
 	R{{S{14, 0x07}}, "VRAM access base address",
-	  [](uint32_t v) { return strCat("VRAM access base address: ", hex_string<5>(v << 14)); }},
+	  [](uint32_t v) { return tmpStrCat("VRAM access base address: ", hex_string<5>(v << 14)); }},
 	R{{S{14, 0}}, "", [](uint32_t) {
 		auto addr = (registerValues[14] << 14) | g_vdp->getVramPointer();
-		return strCat(", full address: ", hex_string<5>(addr), '\n');
+		return tmpStrCat(", full address: ", hex_string<5>(addr), '\n');
 	}},
 	R{{S{15, 0x0F}}, "select status register",
-	  [](uint32_t v) { return strCat("selected status register: ", v, '\n'); }},
+	  [](uint32_t v) { return tmpStrCat("selected status register: ", v, '\n'); }},
 	R{{S{16, 0x0F}}, "select palette entry",
-	  [](uint32_t v) { return strCat("selected palette entry: ", v, '\n'); }},
+	  [](uint32_t v) { return tmpStrCat("selected palette entry: ", v, '\n'); }},
 	R{{S{17, 0x3F}}, "indirect register access",
-	  [](uint32_t v) { return strCat("selected indirect register: ", v); }},
-	R{{S{17, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return tmpStrCat("selected indirect register: ", v); }},
+	R{{S{17, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{17, 0x80}}, "auto-increment",
-	  [](uint32_t v) { return strCat(v ? "no " : "", "auto-increment\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "no " : "", "auto-increment\n"); }},
 	R{{S{14, 0}}, "", &spacing},
 
 	// V9958 registers
 	R{{S{27, 0x07}, S{26, 0x3F}}, "horizontal scroll", [](uint32_t v) {
 		auto s = (v & ~7) - (v & 7);
-		return strCat("horizontal scroll: ", s);
+		return tmpStrCat("horizontal scroll: ", s);
 	}},
-	R{{S{25, 0}}, "", [](uint32_t) { return ", "s; }},
+	R{{S{25, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{25, 0x01}}, "2-page scroll enable/disable",
-	  [](uint32_t v) { return strCat(v + 1, "-page"); }},
-	R{{S{25, 0}}, "", [](uint32_t) { return ", "s; }},
+	  [](uint32_t v) { return tmpStrCat(v + 1, "-page"); }},
+	R{{S{25, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{25, 0x02}}, "mask 8 left dots",
-	  [](uint32_t v) { return strCat(v ? "" : "not-", "masked\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "not-", "masked\n"); }},
 	R{{S{25, 0x18}}, "YJK/YAE mode",
-	  [](uint32_t v) { return strCat((v & 1) ? ((v & 2) ? "YJK+YAE" : "YJK") : "RGB", "-mode\n"); }},
+	  [](uint32_t v) { return tmpStrCat((v & 1) ? ((v & 2) ? "YJK+YAE" : "YJK") : "RGB", "-mode\n"); }},
 	R{{S{25, 0x40}}, "expand command mode",
-	  [](uint32_t v) { return strCat("commands ", (v ? "work in all " : "only work in bitmap-"), "modes\n"); }},
+	  [](uint32_t v) { return tmpStrCat("commands ", (v ? "work in all " : "only work in bitmap-"), "modes\n"); }},
 	R{{S{25, 0x20}}, "output select between CPUCLK and /VDS", &noExplanation},
 	R{{S{25, 0x04}}, "enable/disable WAIT (not used on MSX)", &noExplanation},
 	R{{S{25, 0}}, "", &spacing},
 
 	// Command registers
 	R{{S{46, 0xF0}}, "command code", [](uint32_t v) {
-		static constexpr std::array<std::string_view, 16> COMMANDS = {
+		static constexpr std::array<zstring_view, 16> COMMANDS = {
 			" ABRT"," ????"," ????"," ????","POINT"," PSET"," SRCH"," LINE",
 			" LMMV"," LMMM"," LMCM"," LMMC"," HMMV"," HMMM"," YMMM"," HMMC"
 		};
-		return std::string(COMMANDS[v]);
+		return TemporaryString(COMMANDS[v]);
 	}},
-	R{{S{46, 0}}, "", [](uint32_t) { return "-"s; }},
+	R{{S{46, 0}}, "", [](uint32_t) { return TemporaryString("-"); }},
 	R{{S{46, 0x0F}}, "command code", [](uint32_t v) {
-		static constexpr std::array<std::string_view, 16> OPS = {
+		static constexpr std::array<zstring_view, 16> OPS = {
 			"IMP ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
 			"TIMP","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "
 		};
-		return std::string(OPS[v]);
+		return TemporaryString(OPS[v]);
 	}},
-	R{{S{32, 0}}, "", [](uint32_t) { return "("s; }},
-	R{{S{32, 0xFF}, S{33, 0x01}}, "source X", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return ","s; }},
-	R{{S{34, 0xFF}, S{35, 0x03}}, "source Y", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return ")->("s; }},
-	R{{S{36, 0xFF}, S{37, 0x01}}, "destination X", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return ","s; }},
-	R{{S{38, 0xFF}, S{39, 0x03}}, "destination Y", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return "),"s; }},
-	R{{S{44, 0xFF}}, "color", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return " ["s; }},
-	R{{S{45, 0x04}}, "direction X", [](uint32_t v) { return std::string(v ? "-" : "+"); }},
-	R{{S{40, 0xFF}, S{41, 0x01}}, "number of dots X", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return ","s; }},
-	R{{S{45, 0x08}}, "direction Y", [](uint32_t v) { return std::string(v ? "-" : "+"); }},
-	R{{S{42, 0xFF}, S{43, 0x03}}, "number of dots Y", [](uint32_t v) { return strCat(v); }},
-	R{{S{32, 0}}, "", [](uint32_t) { return "]\n"s; }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString("("); }},
+	R{{S{32, 0xFF}, S{33, 0x01}}, "source X", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString(","); }},
+	R{{S{34, 0xFF}, S{35, 0x03}}, "source Y", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString(")->("); }},
+	R{{S{36, 0xFF}, S{37, 0x01}}, "destination X", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString(","); }},
+	R{{S{38, 0xFF}, S{39, 0x03}}, "destination Y", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString("),"); }},
+	R{{S{44, 0xFF}}, "color", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString(" ["); }},
+	R{{S{45, 0x04}}, "direction X", [](uint32_t v) { return TemporaryString(v ? "-" : "+"); }},
+	R{{S{40, 0xFF}, S{41, 0x01}}, "number of dots X", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString(","); }},
+	R{{S{45, 0x08}}, "direction Y", [](uint32_t v) { return TemporaryString(v ? "-" : "+"); }},
+	R{{S{42, 0xFF}, S{43, 0x03}}, "number of dots Y", [](uint32_t v) { return tmpStrCat(v); }},
+	R{{S{32, 0}}, "", [](uint32_t) { return TemporaryString("]\n"); }},
 
 	R{{S{45, 0x40}}, "expanded VRAM for CPU access", &noExplanation},
 	R{{S{45, 0x20}}, "expanded VRAM for destination", &noExplanation},
@@ -390,40 +391,40 @@ static constexpr auto regFunctions = std::array{
 
 	// Status registers
 	R{{S{64, 0x80}}, "VBLANK interrupt pending",
-	  [](uint32_t v) { return strCat("VBLANK-IRQ: ", v); }},
-	R{{S{65, 0}}, "", [](uint32_t) { return " "s; }},
+	  [](uint32_t v) { return tmpStrCat("VBLANK-IRQ: ", v); }},
+	R{{S{65, 0}}, "", [](uint32_t) { return TemporaryString(" "); }},
 	R{{S{65, 0x01}}, "line interrupt pending",
-	  [](uint32_t v) { return strCat("line-IRQ: ", v); }},
-	R{{S{64, 0}}, "", [](uint32_t) { return "\n"s; }},
+	  [](uint32_t v) { return tmpStrCat("line-IRQ: ", v); }},
+	R{{S{64, 0}}, "", [](uint32_t) { return TemporaryString("\n"); }},
 
 	R{{S{64, 0x40}}, "5th/9th sprite detected",
-	  [](uint32_t v) { return strCat(v ? "" : "no ", "5th/9th sprite per line"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "no ", "5th/9th sprite per line"); }},
 	R{{S{64, 0x1F}}, "5th/9th sprite number",
-	  [](uint32_t v) { return strCat(" (sprite number=", v, ")\n"); }},
+	  [](uint32_t v) { return tmpStrCat(" (sprite number=", v, ")\n"); }},
 
 	R{{S{64, 0x20}}, "sprite collision",
-	  [](uint32_t v) { return strCat(v ? "" : "no ", "sprite collision"); }},
-	R{{S{67, 0}}, "", [](uint32_t) { return " (at coordinate "s; }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "no ", "sprite collision"); }},
+	R{{S{67, 0}}, "", [](uint32_t) { return TemporaryString(" (at coordinate "); }},
 	R{{S{67, 0xFF}, S{68, 0x01}}, "x-coordinate",
-	  [](uint32_t v) { return strCat("x=", v); }},
+	  [](uint32_t v) { return tmpStrCat("x=", v); }},
 	R{{S{69, 0xFF}, S{70, 0x03}}, "y-coordinate",
-	  [](uint32_t v) { return strCat("y=", v); }},
-	R{{S{67, 0}}, "", [](uint32_t) { return ")"s; }},
-	R{{S{64, 0}}, "", [](uint32_t) { return "\n"s; }},
+	  [](uint32_t v) { return tmpStrCat("y=", v); }},
+	R{{S{67, 0}}, "", [](uint32_t) { return TemporaryString(")"); }},
+	R{{S{64, 0}}, "", [](uint32_t) { return TemporaryString("\n"); }},
 
-	R{{S{66, 0}}, "", [](uint32_t) { return "command: "s; }},
+	R{{S{66, 0}}, "", [](uint32_t) { return TemporaryString("command: "); }},
 	R{{S{66, 0x01}}, "command executing",
-	  [](uint32_t v) { return strCat(v ? "" : "not ", "running"); }},
-	R{{S{66, 0}}, "", [](uint32_t) { return " "s; }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "not ", "running"); }},
+	R{{S{66, 0}}, "", [](uint32_t) { return TemporaryString(" "); }},
 	R{{S{66, 0x80}}, "transfer ready flag",
-	  [](uint32_t v) { return strCat(v ? "" : "not ", "ready to transfer\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "not ", "ready to transfer\n"); }},
 
-	R{{S{66, 0}}, "", [](uint32_t) { return "scan position: "s; }},
+	R{{S{66, 0}}, "", [](uint32_t) { return TemporaryString("scan position: "); }},
 	R{{S{66, 0x20}}, "horizontal border",
-	  [](uint32_t v) { return strCat(v ? "" : "not ", "in horizontal border"); }},
-	R{{S{66, 0}}, "", [](uint32_t) { return " "s; }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "not ", "in horizontal border"); }},
+	R{{S{66, 0}}, "", [](uint32_t) { return TemporaryString(" "); }},
 	R{{S{66, 0x40}}, "vertical border",
-	  [](uint32_t v) { return strCat(v ? "" : "not ", "in vertical border\n"); }},
+	  [](uint32_t v) { return tmpStrCat(v ? "" : "not ", "in vertical border\n"); }},
 
 	R{{S{65, 0x80}}, "light pen (not used on MSX)", &noExplanation},
 	R{{S{65, 0x40}}, "light pen switch (not used on MSX)", &noExplanation},
