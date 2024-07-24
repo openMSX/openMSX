@@ -733,10 +733,14 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 						});
 					});
-					auto maxStr = strCat("Max ", spriteLimit, " sprites per line");
-					ImGui::Checkbox(maxStr.c_str(), &enableLimitPerLine);
-					auto stopStr = strCat("Stop at y=", stopY);
-					ImGui::Checkbox(stopStr.c_str(), &enableStopY);
+					{
+						auto maxStr = tmpStrCat("Max ", spriteLimit, " sprites per line");
+						ImGui::Checkbox(maxStr.c_str(), &enableLimitPerLine);
+					}
+					{
+						auto stopStr = tmpStrCat("Stop at y=", stopY);
+						ImGui::Checkbox(stopStr.c_str(), &enableStopY);
+					}
 
 					if (hovered) {
 						ImGui::Separator();
