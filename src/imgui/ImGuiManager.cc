@@ -232,7 +232,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	using enum EventType;
 	for (auto type : {MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_MOTION, MOUSE_WHEEL,
 	                  KEY_UP, KEY_DOWN, TEXT,
-	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK}) {
+	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK, MACHINE_LOADED}) {
 		eventDistributor.registerEventListener(type, *this, EventDistributor::Priority::IMGUI);
 	}
 
@@ -251,7 +251,7 @@ ImGuiManager::~ImGuiManager()
 
 	auto& eventDistributor = reactor.getEventDistributor();
 	using enum EventType;
-	for (auto type : {BREAK, IMGUI_DELAYED_ACTION, FILE_DROP, WINDOW, TEXT,
+	for (auto type : {MACHINE_LOADED, BREAK, IMGUI_DELAYED_ACTION, FILE_DROP, WINDOW, TEXT,
 	                  KEY_DOWN, KEY_UP,
 	                  MOUSE_WHEEL, MOUSE_MOTION, MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP}) {
 		eventDistributor.unregisterEventListener(type, *this);
@@ -390,6 +390,12 @@ bool ImGuiManager::signalEvent(const Event& event)
 			handleDropped = true;
 			break;
 		}
+		case EventType::MACHINE_LOADED:
+			// Triggers when a new machine gets activated, e.g.:
+			// * after a 'step_back' (or any click in the reverse bar).
+			// * after a machine instance switch
+			// (For now) this triggers the same behavior as BREAK: scroll debugger to PC
+			[[fallthrough]];
 		case EventType::BREAK:
 			debugger->signalBreak();
 			break;
