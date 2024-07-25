@@ -258,6 +258,20 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 	return {result, extended, normalize, sampleRate};
 }
 
+static std::string freq2note(float freq)
+{
+	static constexpr auto a4_freq = 440.0f;
+	static constexpr std::array<std::string_view, 12> names = {
+		"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+	};
+
+	auto n = int(std::lround(12.0f * fast_log2(freq / a4_freq))) + 9 + 4 * 12;
+	if (n < 0) return ""; // these are below 20Hz, so inaudible
+	auto note = n % 12;
+	auto octave = n / 12;
+	return strCat(names[note], octave);
+}
+
 static void paintSpectrum(std::span<const float> buf, float factor, const SoundDevice& device)
 {
 	static constexpr auto convertLog = std::numbers::ln10_v<float> / std::numbers::ln2_v<float>; // log2 vs log10
@@ -366,14 +380,15 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 
 		// format with "Hz" or "kHz" suffix and 3 significant digits
 		auto freq = std::lround(sampleRate * 0.5f * mouseX);
+		auto note = freq2note(freq);
 		if (freq < 1000) {
-			return strCat(freq, "Hz");
+			return strCat(freq, "Hz  ", note);
 		} else {
 			auto k = freq / 1000;
 			auto t = (freq % 1000) / 10;
 			char t1 = (t / 10) + '0';
 			char t2 = (t % 10) + '0';
-			return strCat(k, '.', t1, t2, "kHz");
+			return strCat(k, '.', t1, t2, "kHz  ", note);
 		}
 	});
 }
