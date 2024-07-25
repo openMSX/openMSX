@@ -29,6 +29,7 @@ std::shared_ptr<IDECDROM::CDInUse> IDECDROM::getDrivesInUse(MSXMotherBoard& moth
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
+	, devName(config.getChildData("name", "openMSX CD-ROM"))
 {
 	cdInUse = getDrivesInUse(getMotherBoard());
 
@@ -81,7 +82,7 @@ bool IDECDROM::isPacketDevice()
 
 std::string_view IDECDROM::getDeviceName()
 {
-	return "OPENMSX CD-ROM";
+	return devName;
 }
 
 void IDECDROM::fillIdentifyBlock(AlignedBuffer& buf)

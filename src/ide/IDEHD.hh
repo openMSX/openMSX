@@ -34,6 +34,7 @@ private:
 private:
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber = 0; // avoid UMR in serialize()
+	const std::string devName;
 };
 
 } // namespace openmsx

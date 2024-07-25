@@ -24,9 +24,11 @@
             <type>IDEHD</type>
             <filename>hd.dsk</filename>
             <size>100</size>
+            <name>openMSX harddisk</name>
           </master>
           <slave>
             <type>IDECDROM</type>
+            <name>openMSX CD-ROM</name>
           </slave>
         </SunriseIDE>
       </secondary>

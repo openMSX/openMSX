@@ -17,6 +17,7 @@ IDEHD::IDEHD(const DeviceConfig& config)
 	: HD(config)
 	, AbstractIDEDevice(config.getMotherBoard())
 	, diskManipulator(config.getReactor().getDiskManipulator())
+	, devName(config.getChildData("name", "openMSX hard disk"))
 {
 	diskManipulator.registerDrive(
 		*this, tmpStrCat(config.getMotherBoard().getMachineID(), "::"));
@@ -34,7 +35,7 @@ bool IDEHD::isPacketDevice()
 
 std::string_view IDEHD::getDeviceName()
 {
-	return "OPENMSX HARD DISK";
+	return devName;
 }
 
 void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)

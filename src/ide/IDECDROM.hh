@@ -95,6 +95,8 @@ private:
 	std::shared_ptr<CDInUse> cdInUse;
 
 	friend class CDXCommand;
+
+	const std::string devName;
 };
 
 } // namespace openmsx
