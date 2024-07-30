@@ -1,6 +1,8 @@
 #ifndef IMGUI_ADJUST_HH
 #define IMGUI_ADJUST_HH
 
+#include "ImGuiPartInterface.hh"
+
 #include "gl_vec.hh"
 
 namespace openmsx {
@@ -30,11 +32,20 @@ public:
 	// should be called right after the call to im::Window()
 	bool post();
 
+	void save(ImGuiTextBuffer& buf);
+	bool loadLine(std::string_view name, zstring_view value);
+
 private:
 	gl::vec2 oldViewPortSize;
 	gl::vec2 oldRelWindowPos;
 	bool oldIsOnMainViewPort = false;
 	bool setMainViewPort = false;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"viewPortSize",   &AdjustWindowInMainViewPort::oldViewPortSize},
+		PersistentElement{"windowPos",      &AdjustWindowInMainViewPort::oldRelWindowPos},
+		PersistentElement{"onMainViewPort", &AdjustWindowInMainViewPort::oldIsOnMainViewPort}
+	};
 };
 
 } // namespace openmsx

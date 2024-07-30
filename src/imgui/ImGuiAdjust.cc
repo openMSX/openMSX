@@ -90,4 +90,14 @@ bool AdjustWindowInMainViewPort::post()
 	return isOnMainViewPort;
 }
 
+void AdjustWindowInMainViewPort::save(ImGuiTextBuffer& buf)
+{
+	savePersistent(buf, *this, persistentElements);
+}
+
+bool AdjustWindowInMainViewPort::loadLine(std::string_view name, zstring_view value)
+{
+	return loadOnePersistent(name, value, *this, persistentElements);
+}
+
 } // namespace openmsx

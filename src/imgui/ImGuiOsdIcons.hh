@@ -74,7 +74,7 @@ private:
 		PersistentElement{"fadeDuration", &ImGuiOsdIcons::iconsFadeDuration},
 		PersistentElement{"fadeDelay",    &ImGuiOsdIcons::iconsFadeDelay},
 		PersistentElement{"showConfig",   &ImGuiOsdIcons::showConfigureIcons}
-		// manually handle "icon.xxx"
+		// manually handle "icon.xxx", "adjust"
 	};
 };
 

@@ -33,6 +33,7 @@ ImGuiOsdIcons::ImGuiOsdIcons(ImGuiManager& manager_)
 void ImGuiOsdIcons::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+	adjust.save(buf);
 	for (const auto& [i, icon] : enumerate(iconInfo)) {
 		auto n = narrow<int>(i + 1);
 		buf.appendf("icon.%d.enabled=%d\n",   n, icon.enable);
@@ -51,6 +52,8 @@ void ImGuiOsdIcons::loadStart()
 void ImGuiOsdIcons::loadLine(std::string_view name, zstring_view value)
 {
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (adjust.loadLine(name, value)) {
 		// already handled
 	} else if (name.starts_with("icon.")) {
 		auto [numStr, suffix] = StringOp::splitOnFirst(name.substr(5), '.');

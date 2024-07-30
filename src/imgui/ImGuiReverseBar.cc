@@ -23,11 +23,16 @@ namespace openmsx {
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+	adjust.save(buf);
 }
 
 void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 {
-	loadOnePersistent(name, value, *this, persistentElements);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (adjust.loadLine(name, value)) {
+		// already handled
+	}
 }
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)

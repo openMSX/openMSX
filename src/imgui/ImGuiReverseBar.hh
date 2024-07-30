@@ -50,6 +50,7 @@ private:
 		PersistentElement{"hideTitle", &ImGuiReverseBar::reverseHideTitle},
 		PersistentElement{"fadeOut",   &ImGuiReverseBar::reverseFadeOut},
 		PersistentElement{"allowMove", &ImGuiReverseBar::reverseAllowMove}
+		// manually handle "adjust"
 	};
 };
 
