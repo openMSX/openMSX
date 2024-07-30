@@ -212,8 +212,8 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	auto& cpuInterface = motherBoard->getCPUInterface();
 	auto& debugger = motherBoard->getDebugger();
 	auto time = motherBoard->getCurrentTime();
-	drawControl(cpuInterface);
-	drawDisassembly(regs, cpuInterface, debugger, time);
+	drawControl(cpuInterface, *motherBoard);
+	drawDisassembly(regs, cpuInterface, debugger, *motherBoard, time);
 	drawSlots(cpuInterface, debugger);
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
@@ -246,33 +246,31 @@ void ImGuiDebugger::actionStepBack()
 	                       [&](const TclObject&) { syncDisassemblyWithPC = true; });
 }
 
-void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface)
+void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard)
 {
 	using enum Shortcuts::ID;
 	const auto& shortcuts = manager.getShortcuts();
 
 	if (shortcuts.checkShortcut(DEBUGGER_BREAK_CONTINUE)) {
 		actionBreakContinue(cpuInterface);
-	}
-	if (shortcuts.checkShortcut(DEBUGGER_STEP_IN)) {
+	} else if (shortcuts.checkShortcut(DEBUGGER_STEP_IN)) {
 		actionStepIn(cpuInterface);
-	}
-	if (shortcuts.checkShortcut(DEBUGGER_STEP_OVER)) {
+	} else if (shortcuts.checkShortcut(DEBUGGER_STEP_OVER)) {
 		actionStepOver();
-	}
-	if (shortcuts.checkShortcut(DEBUGGER_STEP_OUT)) {
+	} else if (shortcuts.checkShortcut(DEBUGGER_STEP_OUT)) {
 		actionStepOut();
-	}
-	if (shortcuts.checkShortcut(DEBUGGER_STEP_BACK)) {
+	} else if (shortcuts.checkShortcut(DEBUGGER_STEP_BACK)) {
 		actionStepBack();
+	} else if (shortcuts.checkShortcut(DISASM_TOGGLE_BREAKPOINT)) {
+		actionToggleBp(motherBoard);
 	}
 }
 
-void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface)
+void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard)
 {
 	if (!showControl) return;
 	im::Window("Debugger tool bar", &showControl, [&]{
-		checkShortcuts(cpuInterface);
+		checkShortcuts(cpuInterface, motherBoard);
 
 		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
 			const auto* font = ImGui::GetFont();
@@ -410,12 +408,54 @@ static BpLine examineBpLine(uint16_t addr, std::span<const ImGuiBreakPoints::Gui
 	return result;
 }
 
-void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time)
+static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreakPoints::GuiItem>& guiBps,
+                     MSXCPUInterface& cpuInterface, Debugger& debugger,
+                     std::optional<BreakPoint>& addBp, std::optional<unsigned>& removeBpId)
+{
+	if (bpLine.count != 0) {
+		// only allow to remove single breakpoints,
+		// others can be edited via the breakpoint viewer
+		if (bpLine.count == 1) {
+			auto& bp = guiBps[bpLine.idx];
+			if (bp.id > 0) {
+				removeBpId = bp.id; // schedule removal
+			} else {
+				guiBps.erase(guiBps.begin() + bpLine.idx);
+			}
+		}
+	} else {
+		// schedule creation of new bp
+		auto slot = getCurrentSlot(cpuInterface, debugger, addr);
+		addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
+	}
+}
+void ImGuiDebugger::actionToggleBp(MSXMotherBoard& motherBoard)
+{
+	auto pc = motherBoard.getCPU().getRegisters().getPC();
+	auto& cpuInterface = motherBoard.getCPUInterface();
+	auto& debugger = motherBoard.getDebugger();
+	auto& guiBps = manager.breakPoints->getBps();
+
+	auto bpLine = examineBpLine(pc, guiBps, cpuInterface, debugger);
+
+	std::optional<BreakPoint> addBp;
+	std::optional<unsigned> removeBpId;
+	toggleBp(pc, bpLine, guiBps, cpuInterface, debugger, addBp, removeBpId);
+	if (addBp) {
+		cpuInterface.insertBreakPoint(std::move(*addBp));
+	}
+	if (removeBpId) {
+		cpuInterface.removeBreakPoint(*removeBpId);
+	}
+}
+
+void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger,
+                                    MSXMotherBoard& motherBoard, EmuTime::param time)
 {
 	if (!showDisassembly) return;
 	ImGui::SetNextWindowSize({340, 540}, ImGuiCond_FirstUseEver);
 	im::Window("Disassembly", &showDisassembly, [&]{
-		checkShortcuts(cpuInterface);
+		checkShortcuts(cpuInterface, motherBoard);
 
 		std::optional<BreakPoint> addBp;
 		std::optional<unsigned> removeBpId;
@@ -509,22 +549,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							}
 							if (ImGui::InvisibleButton("##bp-button", {-FLT_MIN, textSize})) {
-								if (hasBp) {
-									// only allow to remove single breakpoints,
-									// others can be edited via the breakpoint viewer
-									if (!multi) {
-										auto& bp = guiBps[bpLine.idx];
-										if (bp.id > 0) {
-											removeBpId = bp.id; // schedule removal
-										} else {
-											guiBps.erase(guiBps.begin() + bpLine.idx);
-										}
-									}
-								} else {
-									// schedule creation of new bp
-									auto slot = getCurrentSlot(cpuInterface, debugger, addr16);
-									addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
-								}
+								toggleBp(addr16, bpLine, guiBps, cpuInterface, debugger, addBp, removeBpId);
 							} else {
 								bpRightClick = hasBp && ImGui::IsItemClicked(ImGuiMouseButton_Right);
 								if (bpRightClick) ImGui::OpenPopup("bp-context");
@@ -569,11 +594,13 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 							auto pos = ImGui::GetCursorPos();
 							ImGui::Selectable("##row", false,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
-							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_GOTO_ADDR)) {
+							using enum Shortcuts::ID;
+							auto& shortcuts = manager.getShortcuts();
+							if (shortcuts.checkShortcut(DISASM_GOTO_ADDR)) {
 								ImGui::OpenPopup("disassembly-context");
 								focusScrollToAddress = true;
 							}
-							if (manager.getShortcuts().checkShortcut(Shortcuts::ID::DISASM_RUN_TO_ADDR)) {
+							if (shortcuts.checkShortcut(DISASM_RUN_TO_ADDR)) {
 								ImGui::OpenPopup("disassembly-context");
 								focusRunToAddress = true;
 							}

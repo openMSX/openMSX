@@ -38,19 +38,21 @@ public:
 	void setGotoTarget(uint16_t target);
 
 private:
-	void drawControl(MSXCPUInterface& cpuInterface);
-	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger, EmuTime::param time);
+	void drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
+	void drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface, Debugger& debugger,
+	                     MSXMotherBoard& motherBoard, EmuTime::param time);
 	void drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger);
 	void drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime::param time);
 	void drawRegisters(CPURegs& regs);
 	void drawFlags(CPURegs& regs);
 
-	void checkShortcuts(MSXCPUInterface& cpuInterface);
+	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
 	void actionBreakContinue(MSXCPUInterface& cpuInterface);
 	void actionStepIn(MSXCPUInterface& cpuInterface);
 	void actionStepOver();
 	void actionStepOut();
 	void actionStepBack();
+	void actionToggleBp(MSXMotherBoard& motherBoard);
 
 private:
 	SymbolManager& symbolManager;
