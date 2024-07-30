@@ -243,6 +243,12 @@ gl::ivec2 Display::retrieveWindowPosition()
 	return reactor.getImGuiManager().retrieveWindowPosition();
 }
 
+gl::ivec2 Display::getWindowSize() const
+{
+	int factor = renderSettings.getScaleFactor();
+	return {320 * factor, 240 * factor};
+}
+
 float Display::getFps() const
 {
 	return 1000000.0f * NUM_FRAME_DURATIONS / narrow_cast<float>(frameDurationSum);

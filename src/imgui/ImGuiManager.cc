@@ -301,9 +301,33 @@ void ImGuiManager::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
+static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
+{
+	auto windowTL = windowPos;
+	auto windowBR = windowTL + windowSize;
+	auto overlaps = [&](const ImGuiPlatformMonitor& monitor) {
+		auto monitorTL = trunc(gl::vec2(monitor.MainPos));
+		auto monitorBR = monitorTL + trunc(gl::vec2(monitor.MainSize));
+		return windowTL.x < monitorBR.x &&
+		       windowBR.x > monitorTL.x &&
+		       windowTL.y < monitorBR.y &&
+		       windowBR.y > monitorTL.y;
+	};
+
+	const auto& monitors = ImGui::GetPlatformIO().Monitors;
+	if (!monitors.empty() && ranges::none_of(monitors, overlaps)) {
+		// window isn't visible in any of the monitors
+		// -> place centered on primary monitor
+		return gl::ivec2(SDL_WINDOWPOS_CENTERED);
+	}
+	return windowPos; // current placement is fine
+}
+
 void ImGuiManager::loadEnd()
 {
-	reactor.getDisplay().setWindowPosition(windowPos);
+	auto& display = reactor.getDisplay();
+	windowPos = ensureVisible(windowPos, display.getWindowSize());
+	display.setWindowPosition(windowPos);
 }
 
 Interpreter& ImGuiManager::getInterpreter()

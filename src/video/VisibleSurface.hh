@@ -83,9 +83,8 @@ public:
 	void executeRT() override;
 
 private:
-	[[nodiscard]] gl::ivec2 getWindowSize() const;
 	void updateCursor();
-	void createSurface(int width, int height, unsigned flags);
+	void createSurface(gl::ivec2 size, unsigned flags);
 	void setViewPort(gl::ivec2 logicalSize, bool fullScreen);
 
 private:

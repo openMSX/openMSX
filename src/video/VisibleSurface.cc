@@ -22,7 +22,6 @@
 #include "VideoSystem.hh"
 
 #include "narrow.hh"
-#include "one_of.hh"
 #include "outer.hh"
 #include "vla.hh"
 
@@ -91,8 +90,8 @@ VisibleSurface::VisibleSurface(
 
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
-	auto [width, height] = getWindowSize();
-	createSurface(width, height, flags);
+	auto size = display.getWindowSize();
+	createSurface(size, flags);
 	WindowEvent::setMainWindowId(SDL_GetWindowID(window.get()));
 
 	glContext = SDL_GL_CreateContext(window.get());
@@ -137,7 +136,7 @@ VisibleSurface::VisibleSurface(
 	gl::context.emplace();
 
 	bool fullScreen = renderSettings.getFullScreen();
-	setViewPort(gl::ivec2(width, height), fullScreen); // set initial values
+	setViewPort(size, fullScreen); // set initial values
 
 	renderSettings.getVSyncSetting().attach(vSyncObserver);
 	// set initial value
@@ -199,7 +198,7 @@ void VisibleSurface::setWindowPosition(gl::ivec2 pos)
 // TODO: The video subsystem is not de-initialized on errors.
 //       While it would be consistent to do so, doing it in this class is
 //       not ideal since the init doesn't happen here.
-void VisibleSurface::createSurface(int width, int height, unsigned flags)
+void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 {
 	if (getDisplay().getRenderSettings().getFullScreen()) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -214,7 +213,7 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	window.reset(SDL_CreateWindow(
 			getDisplay().getWindowTitle().c_str(),
 			pos.x, pos.y,
-			width, height,
+			size.x, size.y,
 			flags));
 	if (!window) {
 		std::string err = SDL_GetError();
@@ -322,16 +321,9 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 	return true; // success
 }
 
-gl::ivec2 VisibleSurface::getWindowSize() const
-{
-	const auto& renderSettings = display.getRenderSettings();
-	int factor = renderSettings.getScaleFactor();
-	return {320 * factor, 240 * factor};
-}
-
 void VisibleSurface::resize()
 {
-	auto size = getWindowSize();
+	auto size = display.getWindowSize();
 	SDL_SetWindowSize(window.get(), size.x, size.y);
 
 	bool fullScreen = display.getRenderSettings().getFullScreen();

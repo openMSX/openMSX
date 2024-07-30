@@ -76,6 +76,8 @@ public:
 	void storeWindowPosition(gl::ivec2 pos);
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition();
 
+	[[nodiscard]] gl::ivec2 getWindowSize() const;
+
 	// Get the latest fps value
 	[[nodiscard]] float getFps() const;
 
