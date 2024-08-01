@@ -75,6 +75,7 @@ public:
 	[[nodiscard]] std::span<const uint8_t, KeyMatrixPosition::NUM_ROWS> getKeys() const;
 
 	void transferHostKeyMatrix(const Keyboard& source);
+	void setFocus(bool newFocus, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -90,6 +91,7 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
+	void syncHostKeyMatrix(EmuTime::param time);
 	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime::param time, uint8_t row, uint8_t newValue);
@@ -275,6 +277,8 @@ private:
 	  * the emulated machine.
 	  */
 	uint8_t locksOn = 0;
+
+	bool focus = true;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 4);
 

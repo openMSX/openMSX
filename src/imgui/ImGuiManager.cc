@@ -30,22 +30,22 @@
 #include "ImGuiWatchExpr.hh"
 #include "ImGuiWaveViewer.hh"
 
-
 #include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
 #include "Display.hh"
-#include "VDP.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FilePool.hh"
+#include "HardwareConfig.hh"
+#include "MSXPPI.hh" //
 #include "Reactor.hh"
 #include "RealDrive.hh"
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 #include "SettingsConfig.hh"
-#include "HardwareConfig.hh"
+#include "VDP.hh"
 
 #include "stl.hh"
 #include "strCat.hh"
@@ -484,6 +484,14 @@ void ImGuiManager::paintImGui()
 	updateParts();
 
 	auto* motherBoard = reactor.getMotherBoard();
+	if (motherBoard) {
+		if (const auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"))) {
+			auto& keyb = const_cast<Keyboard&>(ppi->getKeyboard()); // HACK
+			auto time = motherBoard->getCurrentTime();
+			keyb.setFocus(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow), time);
+		}
+	}
+
 	for (auto* part : parts) {
 		part->paint(motherBoard);
 	}
