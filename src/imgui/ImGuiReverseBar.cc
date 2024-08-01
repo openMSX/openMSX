@@ -284,6 +284,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 	                               ImGuiWindowFlags_NoCollapse |
 	                               ImGuiWindowFlags_NoBackground |
 	                               ImGuiWindowFlags_NoFocusOnAppearing |
+	                               ImGuiWindowFlags_NoNav |
 	                               (reverseAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                             : 0;
 	adjust.pre();
@@ -386,6 +387,10 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 				});
 			});
 		});
+
+		if (reverseHideTitle && ImGui::IsWindowFocused()) {
+			ImGui::SetWindowFocus(nullptr); // give-up focus
+		}
 	});
 }
 

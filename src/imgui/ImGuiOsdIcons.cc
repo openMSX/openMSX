@@ -163,6 +163,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	                             ImGuiWindowFlags_NoCollapse |
 	                             ImGuiWindowFlags_NoBackground |
 	                             ImGuiWindowFlags_NoFocusOnAppearing |
+	                             ImGuiWindowFlags_NoNav |
 	                             (iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
 	                           : 0;
 	adjust.pre();
@@ -221,6 +222,10 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 					showConfigureIcons = true;
 				}
 			});
+		}
+
+		if (iconsHideTitle && ImGui::IsWindowFocused()) {
+			ImGui::SetWindowFocus(nullptr); // give-up focus
 		}
 	});
 }
