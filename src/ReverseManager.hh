@@ -25,7 +25,6 @@ class EventDelay;
 class EventDistributor;
 class Interpreter;
 class MSXMotherBoard;
-class Keyboard;
 class StateChange;
 class TclObject;
 
@@ -38,13 +37,6 @@ public:
 public:
 	explicit ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
-
-	// Keyboard is special because we need to transfer the host keyboard
-	// state on 'reverse goto' to be able to resynchronize when replay
-	// stops. See Keyboard::transferHostKeyMatrix() for more info.
-	void registerKeyboard(Keyboard& keyboard_) {
-		keyboard = &keyboard_;
-	}
 
 	// To not loose any events we need to flush delayed events before
 	// switching machine. See comments in goTo() for more info.
@@ -166,7 +158,6 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;
 
-	Keyboard* keyboard = nullptr;
 	EventDelay* eventDelay = nullptr;
 	ReverseHistory history;
 	unsigned replayIndex = 0;

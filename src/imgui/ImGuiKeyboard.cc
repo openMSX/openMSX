@@ -9,7 +9,6 @@
 
 #include "Keyboard.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXPPI.hh"
 #include "UnicodeKeymap.hh" // KeyMatrixPosition
 
 #include <imgui.h>
@@ -33,10 +32,9 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 	if (!show) return;
 
 	if (!motherBoard) return;
-	const auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"));
-	if (!ppi) return;
-	const auto& keyboard = ppi->getKeyboard();
-	auto matrix = keyboard.getKeys();
+	const auto* keyboard = motherBoard->getKeyboard();
+	if (!keyboard) return;
+	auto matrix = keyboard->getKeys();
 
 	ImGui::SetNextWindowSize({640, 200}, ImGuiCond_FirstUseEver);
 	im::Window("Virtual keyboard", &show, [&]{

@@ -33,10 +33,6 @@ MSXPPI::~MSXPPI()
 	powerDown(EmuTime::dummy());
 }
 
-const Keyboard& MSXPPI::getKeyboard() const {
-	return keyboard;
-}
-
 void MSXPPI::reset(EmuTime::param time)
 {
 	i8255.reset(time);

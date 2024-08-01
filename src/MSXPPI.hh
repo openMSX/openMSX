@@ -42,8 +42,6 @@ public:
 	explicit MSXPPI(const DeviceConfig& config);
 	~MSXPPI() override;
 
-	[[nodiscard]] const Keyboard& getKeyboard() const;
-
 	void reset(EmuTime::param time) override;
 	void powerDown(EmuTime::param time) override;
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;

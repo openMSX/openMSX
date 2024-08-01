@@ -1,31 +1,34 @@
 #include "ReverseManager.hh"
-#include "Event.hh"
-#include "MSXMotherBoard.hh"
-#include "EventDistributor.hh"
-#include "StateChangeDistributor.hh"
-#include "Keyboard.hh"
+
+#include "CommandException.hh"
 #include "Debugger.hh"
+#include "Display.hh"
+#include "Event.hh"
 #include "EventDelay.hh"
-#include "MSXMixer.hh"
+#include "EventDistributor.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
+#include "Keyboard.hh"
+#include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
-#include "XMLException.hh"
+#include "MSXMixer.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "StateChange.hh"
+#include "StateChangeDistributor.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
-#include "FileOperations.hh"
-#include "FileContext.hh"
-#include "StateChange.hh"
 #include "Timer.hh"
-#include "MSXCliComm.hh"
-#include "Display.hh"
-#include "Reactor.hh"
-#include "CommandException.hh"
+#include "XMLException.hh"
+#include "serialize.hh"
+#include "serialize_meta.hh"
+
 #include "MemBuffer.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "serialize.hh"
-#include "serialize_meta.hh"
 #include "view.hh"
+
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -519,8 +522,10 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 
 	// transfer keyboard state
 	auto& newManager = newBoard.getReverseManager();
-	if (newManager.keyboard && keyboard) {
-		newManager.keyboard->transferHostKeyMatrix(*keyboard);
+	if (auto* newKeyb = newManager.motherBoard.getKeyboard()) {
+		if (const auto* oldKeyb = motherBoard.getKeyboard()) {
+			newKeyb->transferHostKeyMatrix(*oldKeyb);
+		}
 	}
 
 	// transfer watchpoints

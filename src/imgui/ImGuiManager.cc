@@ -39,7 +39,7 @@
 #include "FileOperations.hh"
 #include "FilePool.hh"
 #include "HardwareConfig.hh"
-#include "MSXPPI.hh" //
+#include "Keyboard.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
 #include "RomDatabase.hh"
@@ -485,10 +485,9 @@ void ImGuiManager::paintImGui()
 
 	auto* motherBoard = reactor.getMotherBoard();
 	if (motherBoard) {
-		if (const auto* ppi = dynamic_cast<MSXPPI*>(motherBoard->findDevice("ppi"))) {
-			auto& keyb = const_cast<Keyboard&>(ppi->getKeyboard()); // HACK
+		if (auto* keyb = motherBoard->getKeyboard()) {
 			auto time = motherBoard->getCurrentTime();
-			keyb.setFocus(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow), time);
+			keyb->setFocus(!ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow), time);
 		}
 	}
 

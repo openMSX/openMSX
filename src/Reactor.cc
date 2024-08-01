@@ -23,8 +23,8 @@
 #include "ImGuiManager.hh"
 #include "InfoTopic.hh"
 #include "InputEventGenerator.hh"
+#include "Keyboard.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXPPI.hh"
 #include "MessageCommand.hh"
 #include "Mixer.hh"
 #include "MsxChar2Unicode.hh"
@@ -378,8 +378,8 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 	// right location to store it.
 	try {
 		if (MSXMotherBoard* board = getMotherBoard()) {
-			if (const auto* ppi = dynamic_cast<const MSXPPI*>(board->findDevice("ppi"))) {
-				return ppi->getKeyboard().getMsxChar2Unicode();
+			if (const auto* keyb = board->getKeyboard()) {
+				return keyb->getMsxChar2Unicode();
 			}
 		}
 	} catch (MSXException&) {

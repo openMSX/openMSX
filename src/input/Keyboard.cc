@@ -733,11 +733,14 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
-	motherBoard.getReverseManager().registerKeyboard(*this);
+	motherBoard.registerKeyboard(*this);
 }
 
 Keyboard::~Keyboard()
 {
+	auto& motherBoard = keybDebuggable.getMotherBoard();
+	motherBoard.unregisterKeyboard(*this);
+
 	stateChangeDistributor.unregisterListener(*this);
 	msxEventDistributor.unregisterEventListener(*this);
 }

@@ -31,6 +31,7 @@ class HardwareConfig;
 class InfoCommand;
 class JoyPortDebuggable;
 class JoystickPortIf;
+class Keyboard;
 class LedStatus;
 class ListExtCmd;
 class LoadMachineCmd;
@@ -232,6 +233,23 @@ public:
 	void registerMediaInfo(std::string_view name, MediaInfoProvider& provider);
 	void unregisterMediaInfo(MediaInfoProvider& provider);
 
+	void registerKeyboard(Keyboard& keyboard) {
+		// Typically there's only 1 keyboard, but we shouldn't crash on
+		// configurations that artificially use 2 MSXPPI devices.
+		keyboards.push_back(&keyboard);
+	}
+	void unregisterKeyboard(Keyboard& keyboard) {
+		auto it = find_unguarded(keyboards, &keyboard);
+		keyboards.erase(it);
+	}
+	[[nodiscard]] Keyboard* getKeyboard() const {
+		// Typically there's exactly 1 keyboard, except for early during
+		// machine construction, or on artificial machine configs
+		// without MSXPPI (they don't make sense, but we shouldn't crash
+		// on it).
+		return keyboards.empty() ? nullptr : keyboards.front();
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -306,6 +324,8 @@ private:
 	std::unique_ptr<SettingObserver> settingObserver;
 	friend class SettingObserver;
 	BooleanSetting& powerSetting;
+
+	std::vector<Keyboard*> keyboards; // typically contains exactly 1 item
 
 	bool powered = false;
 	bool active = false;
