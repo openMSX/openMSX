@@ -2,6 +2,7 @@
 
 #include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
+#include "ImGuiCodeAnalyzer.hh"
 #include "ImGuiCharacter.hh"
 #include "ImGuiCheatFinder.hh"
 #include "ImGuiConnector.hh"
