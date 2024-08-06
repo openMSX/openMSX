@@ -90,6 +90,10 @@ public:
 	}
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 
+	void disasmBlobCommand(Interpreter& interp,
+	                       std::span<const TclObject> tokens,
+	                       TclObject& result) const;
+
 	void disasmCommand(Interpreter& interp,
 	                   std::span<const TclObject> tokens,
 	                   TclObject& result) const;

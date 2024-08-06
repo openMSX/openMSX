@@ -135,6 +135,11 @@ public:
 
 	void setInterface(MSXCPUInterface* interface);
 
+	// TODO: move it to its own Command class
+	void disasmBlobCommand(Interpreter& interp,
+	                       std::span<const TclObject> tokens,
+	                       TclObject& result) const;
+
 	void disasmCommand(Interpreter& interp,
 	                   std::span<const TclObject> tokens,
 	                   TclObject& result) const;

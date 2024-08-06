@@ -17,6 +17,15 @@ class MSXCPUInterface;
 void appendAddrAsHex(std::string& output, uint16_t addr);
 
 /** Disassemble
+  * @param binary Buffer containing the machine language instruction
+  * @param pc Program Counter used for disassembling relative addresses
+  * @param dest String representation of the disassembled opcode
+  * @return Length of the disassembled opcode in bytes
+  */
+void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
+          function_ref<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
+
+/** Disassemble
   * @param interface The CPU interface, used to peek bytes from memory
   * @param pc The position (program counter) where to start disassembling
   * @param buf The bytes that form this opcode (max 4). The buffer is only
@@ -36,8 +45,7 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
   * repeated prefixes (e.g. an instruction like 'DD DD DD DD DD 00'). Because of
   * this, the instruction length is always between 1 and 4 (inclusive).
   */
-unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
-                           EmuTime::param time);
+std::optional<unsigned> instructionLength(std::span<const uint8_t> bin);
 
 /** This is only an _heuristic_ to display instructions in a debugger disassembly
   * view. (In reality Z80 instruction can really start at _any_ address).
