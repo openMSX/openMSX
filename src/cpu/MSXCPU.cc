@@ -354,6 +354,14 @@ void MSXCPU::update(const Setting& setting) noexcept
 
 // Command
 
+void MSXCPU::disasmBlobCommand(
+	Interpreter& interp, std::span<const TclObject> tokens,
+	TclObject& result) const
+{
+	z80Active ? z80 ->disasmBlobCommand(interp, tokens, result)
+	          : r800->disasmBlobCommand(interp, tokens, result);
+}
+
 void MSXCPU::disasmCommand(
 	Interpreter& interp, std::span<const TclObject> tokens,
 	TclObject& result) const
