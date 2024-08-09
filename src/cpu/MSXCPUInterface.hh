@@ -8,6 +8,7 @@
 
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
+#include "MemInterface.hh"
 #include "MSXDevice.hh"
 #include "ProfileCounters.hh"
 #include "openmsx.hh"
@@ -53,7 +54,7 @@ enum class CacheLineCounters {
 std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>);
 std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn);
 
-class MSXCPUInterface : public ProfileCounters<PROFILE_CACHELINES, CacheLineCounters>
+class MSXCPUInterface : public ProfileCounters<PROFILE_CACHELINES, CacheLineCounters>, public MemInterface
 {
 public:
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
@@ -230,7 +231,7 @@ public:
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const;
+	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
 	[[nodiscard]] byte peekSlottedMem(unsigned address, EmuTime::param time) const;
 	byte readSlottedMem(unsigned address, EmuTime::param time);
 	void writeSlottedMem(unsigned address, byte value,

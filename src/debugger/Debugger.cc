@@ -241,6 +241,7 @@ void Debugger::Cmd::execute(
 		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
 		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
+		"disasm_blob",       [&]{ debugger().cpu->disasmBlobCommand(getInterpreter(), tokens, result); },
 		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
 		"breaked",           [&]{ result = MSXCPUInterface::isBreaked(); },
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
@@ -801,6 +802,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    break             break CPU at current position\n"
 		"    breaked           query CPU breaked status\n"
 		"    disasm            disassemble instructions\n"
+		"    disasm_blob       disassemble a instruction in Tcl binary string\n"
 		"    symbols           manage debug symbols\n"
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
@@ -962,6 +964,12 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convenient to use than this subcommand.";
+	auto disasmBlobHelp =
+		"debug disasm_blob <value> <addr>\n"
+		"  This is a more generic version of the disasm subcommand, but it "
+		"works on a Tcl binary string (see Tcl manual) to disassemble a "
+		"single instruction. The given address is used when relative "
+		"address to jump to is necessary.\n";
 	auto symbolsHelp =
 		"debug symbols <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
@@ -1025,6 +1033,8 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		return breakedHelp;
 	} else if (tokens[1] == "disasm") {
 		return disasmHelp;
+	} else if (tokens[1] == "disasm_blob") {
+		return disasmBlobHelp;
 	} else if (tokens[1] == "symbols") {
 		return symbolsHelp;
 	} else {
@@ -1063,7 +1073,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 		"write"sv, "write_block"sv,
 	};
 	static constexpr std::array otherCmds = {
-		"disasm"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
+		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
 		"probe"sv, "symbols"sv,
 	};

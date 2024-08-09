@@ -12,9 +12,18 @@
 
 namespace openmsx {
 
-class MSXCPUInterface;
+class MemInterface;
 
 void appendAddrAsHex(std::string& output, uint16_t addr);
+
+/** Disassemble
+  * @param binary Buffer containing the machine language instruction
+  * @param pc Program Counter used for disassembling relative addresses
+  * @param dest String representation of the disassembled opcode
+  * @return Length of the disassembled opcode in bytes
+  */
+unsigned dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
+              function_ref<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
 
 /** Disassemble
   * @param interface The CPU interface, used to peek bytes from memory
@@ -25,7 +34,7 @@ void appendAddrAsHex(std::string& output, uint16_t addr);
   * @param time TODO
   * @return Length of the disassembled opcode in bytes
   */
-unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
+unsigned dasm(const MemInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
               std::string& dest, EmuTime::param time,
               function_ref<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
 
@@ -36,8 +45,10 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
   * repeated prefixes (e.g. an instruction like 'DD DD DD DD DD 00'). Because of
   * this, the instruction length is always between 1 and 4 (inclusive).
   */
-unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
-                           EmuTime::param time);
+std::optional<unsigned> instructionLength(std::span<const uint8_t> bin);
+
+std::span<uint8_t> fetchInstruction(const MemInterface& interface, uint16_t addr,
+                                    std::span<uint8_t, 4> buffer, EmuTime::param time);
 
 /** This is only an _heuristic_ to display instructions in a debugger disassembly
   * view. (In reality Z80 instruction can really start at _any_ address).
@@ -57,7 +68,7 @@ unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
   * calculates the start address of the instruction that contains the given
   * address.
   */
-uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
+uint16_t instructionBoundary(const MemInterface& interface, uint16_t addr,
                              EmuTime::param time);
 
 /** Get the start address of the 'n'th instruction before the instruction
@@ -68,7 +79,7 @@ uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
   * Unless there aren't enough instructions in front. In that case address 0 is
   * returned.
   */
-uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
+uint16_t nInstructionsBefore(const MemInterface& interface, uint16_t addr,
                              EmuTime::param time, int n);
 
 } // namespace openmsx
