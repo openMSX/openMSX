@@ -1,12 +1,14 @@
 #include "Dasm.hh"
 
 #include "DasmTables.hh"
-#include "MSXCPUInterface.hh"
+#include "MemInterface.hh"
 
 #include "narrow.hh"
 #include "strCat.hh"
 
 namespace openmsx {
+
+class MemInterface;
 
 static constexpr char sign(uint8_t a)
 {
@@ -23,18 +25,27 @@ void appendAddrAsHex(std::string& output, uint16_t addr)
 	strAppend(output, '#', hex_string<4>(addr));
 }
 
+constexpr std::array<uint8_t, 28> ddcb__ = {
+	// keep'em in order
+	0x06, 0x0e, 0x16, 0x1e, 0x46, 0x4e, 0x56, 0x5e, 0x66, 0x6e, 0x76, 0x7e, 0x86, 0x8e,
+	0x96, 0x9e, 0xa6, 0xae, 0xb6, 0xbe, 0xc6, 0xce, 0xd6, 0xde, 0xe6, 0xee, 0xf6, 0xfe
+};
+
 std::optional<unsigned> instructionLength(std::span<const uint8_t> bin)
 {
 	if (bin.empty()) return {};
 	auto t = instr_len_tab[bin[0]];
 	if (t < 4) return t;
 
-	if (bin.size() < 2) return {};
-	return instr_len_tab[64 * t + bin[1]];
+	if (bin.size() < 2) return 1;
+	t = instr_len_tab[64 * t + bin[1]];
+	if (t != bin.size()) return 1;
+	if (bin.size() == 4 || !std::binary_search(ddcb__.begin(), ddcb__.end(), bin[3])) return 1;
+	return t;
 }
 
-void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
-          function_ref<void(std::string&, uint16_t)> appendAddr)
+unsigned dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
+              function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	const char* r = nullptr;
 
@@ -47,7 +58,7 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 			case 0xDD:
 			case 0xFD:
 				r = (bin[0] == 0xDD) ? "ix" : "iy";
-				if (bin[1] != 0xcb) {
+				if (bin[1] != 0xCB) {
 					return {mnemonic_xx[bin[1]], 2};
 				} else {
 					return {mnemonic_xx_cb[bin[3]], 4};
@@ -85,21 +96,19 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 			dest += r;
 			break;
 		case '!': // used when bin contains invalid z80 instruction
-			dest = strCat("db     #ED,#", hex_string<2>(bin[1]),
-			              "     ");
+			dest = strCat("db     #ED         ");
 			// skip assertion at the end of function
-			return;
+			return 1;
 		case '@': // used when bin contains invalid z80 instruction
 			dest = strCat("db     #", hex_string<2>(bin[0]),
 			              "         ");
 			// skip assertion at the end of function
-			return;
+			return 1;
 		case '#': // used when bin contains invalid z80 instruction
 			dest = strCat("db     #", hex_string<2>(bin[0]),
-			              ",#CB,#", hex_string<2>(bin[2]),
-			              ' ');
+			              "         ");
 			// skip assertion at the end of function
-			return;
+			return 1;
 		case ' ': {
 			dest.resize(7, ' ');
 			break;
@@ -109,11 +118,12 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 			break;
 		}
 	}
-	assert(i == bin.size());
+	// used by unittest only
+	return i;
 }
 
-static std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t addr,
-                                           std::span<uint8_t, 4> buffer, EmuTime::param time)
+std::span<uint8_t> fetchInstruction(const MemInterface& interface, uint16_t addr,
+                                    std::span<uint8_t, 4> buffer, EmuTime::param time)
 {
 	uint16_t idx = 0;
 	buffer[idx++] = interface.peekMem(addr, time);
@@ -125,19 +135,20 @@ static std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uin
 	while (idx < len) {
 		buffer[idx++] = interface.peekMem(addr + idx, time);
 	}
+	if (!std::binary_search(ddcb__.begin(), ddcb__.end(), buffer[3])) len = 1;
 	return buffer.subspan(0, len);
 }
 
-unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
-                        std::string& dest, EmuTime::param time,
-                        function_ref<void(std::string&, uint16_t)> appendAddr)
+unsigned dasm(const MemInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
+              std::string& dest, EmuTime::param time,
+              function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	auto opcodes = fetchInstruction(interface, pc, buf, time);
 	dasm(opcodes, pc, dest, appendAddr);
 	return narrow_cast<unsigned>(opcodes.size());
 }
 
-static unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
+static unsigned instructionLength(const MemInterface& interface, uint16_t pc,
                                   EmuTime::param time)
 {
 	auto op0 = interface.peekMem(pc, time);
@@ -145,14 +156,19 @@ static unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
 	if (t < 4) return t;
 
 	auto op1 = interface.peekMem(pc + 1, time);
-	return instr_len_tab[64 * t + op1];
+	t = instr_len_tab[64 * t + op1];
+
+	auto op3 = interface.peekMem(pc + 3, time);
+	if (std::find(ddcb__.begin(), ddcb__.end(), op3) == ddcb__.end()) return 1;
+
+	return t;
 }
 
 // Calculates an address smaller or equal to the given 'addr' where there is for
 // sure a boundary. Though this is not (yet) necessarily the largest address
 // with this property.
 // In addition return the length of the instruction at the resulting address.
-static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterface& interface, uint16_t addr, EmuTime::param time)
+static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MemInterface& interface, uint16_t addr, EmuTime::param time)
 {
 	if (addr < 3) {
 		// address 0 (the top) is a boundary
@@ -186,7 +202,7 @@ static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterfac
 }
 
 static std::pair<uint16_t, unsigned> instructionBoundaryAndLength(
-	const MSXCPUInterface& interface, uint16_t addr, EmuTime::param time)
+	const MemInterface& interface, uint16_t addr, EmuTime::param time)
 {
 	// scan backwards for a guaranteed boundary
 	auto [candidate, len] = findGuaranteedBoundary(interface, addr, time);
@@ -198,14 +214,14 @@ static std::pair<uint16_t, unsigned> instructionBoundaryAndLength(
 	}
 }
 
-uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
+uint16_t instructionBoundary(const MemInterface& interface, uint16_t addr,
                              EmuTime::param time)
 {
 	auto [result, len] = instructionBoundaryAndLength(interface, addr, time);
 	return result;
 }
 
-uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
+uint16_t nInstructionsBefore(const MemInterface& interface, uint16_t addr,
                              EmuTime::param time, int n)
 {
 	auto start = uint16_t(std::max(0, int(addr - 4 * n))); // for sure small enough
