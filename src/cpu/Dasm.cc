@@ -1,5 +1,4 @@
 #include "Dasm.hh"
-
 #include "DasmTables.hh"
 #include "MSXCPUInterface.hh"
 
@@ -23,6 +22,12 @@ void appendAddrAsHex(std::string& output, uint16_t addr)
 	strAppend(output, '#', hex_string<4>(addr));
 }
 
+constexpr std::array<uint8_t, 28> ddcbxx__ = {
+	// keep'em in order
+	0x06, 0x0e, 0x16, 0x1e, 0x46, 0x4e, 0x56, 0x5e, 0x66, 0x6e, 0x76, 0x7e, 0x86, 0x8e,
+	0x96, 0x9e, 0xa6, 0xae, 0xb6, 0xbe, 0xc6, 0xce, 0xd6, 0xde, 0xe6, 0xee, 0xf6, 0xfe
+};
+
 std::optional<unsigned> instructionLength(std::span<const uint8_t> bin)
 {
 	if (bin.empty()) return {};
@@ -30,11 +35,14 @@ std::optional<unsigned> instructionLength(std::span<const uint8_t> bin)
 	if (t < 4) return t;
 
 	if (bin.size() < 2) return {};
-	return instr_len_tab[64 * t + bin[1]];
+	t = instr_len_tab[64 * t + bin[1]];
+	if (t > bin.size()) return {};
+	if (bin.size() == 4 && !std::binary_search(ddcbxx__.begin(), ddcbxx__.end(), bin[3])) return {};
+	return t;
 }
 
-void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
-          function_ref<void(std::string&, uint16_t)> appendAddr)
+unsigned dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
+              function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	const char* r = nullptr;
 
@@ -47,7 +55,7 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 			case 0xDD:
 			case 0xFD:
 				r = (bin[0] == 0xDD) ? "ix" : "iy";
-				if (bin[1] != 0xcb) {
+				if (bin[1] != 0xCB) {
 					return {mnemonic_xx[bin[1]], 2};
 				} else {
 					return {mnemonic_xx_cb[bin[3]], 4};
@@ -84,22 +92,19 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 		case 'I':
 			dest += r;
 			break;
-		case '!': // used when bin contains invalid z80 instruction
+		case '!': // invalid z80 instruction
 			dest = strCat("db     #ED,#", hex_string<2>(bin[1]),
 			              "     ");
-			// skip assertion at the end of function
-			return;
-		case '@': // used when bin contains invalid z80 instruction
+			return 0;
+		case '@': // invalid z80 instruction
 			dest = strCat("db     #", hex_string<2>(bin[0]),
 			              "         ");
-			// skip assertion at the end of function
-			return;
-		case '#': // used when bin contains invalid z80 instruction
+			return 0;
+		case '#': // invalid z80 instruction
 			dest = strCat("db     #", hex_string<2>(bin[0]),
 			              ",#CB,#", hex_string<2>(bin[2]),
 			              ' ');
-			// skip assertion at the end of function
-			return;
+			return 0;
 		case ' ': {
 			dest.resize(7, ' ');
 			break;
@@ -109,11 +114,12 @@ void dasm(std::span<const uint8_t> bin, uint16_t pc, std::string& dest,
 			break;
 		}
 	}
-	assert(i == bin.size());
+	// used by unittest only
+	return i;
 }
 
-static std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t addr,
-                                           std::span<uint8_t, 4> buffer, EmuTime::param time)
+std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t addr,
+                                    std::span<uint8_t, 4> buffer, EmuTime::param time)
 {
 	uint16_t idx = 0;
 	buffer[idx++] = interface.peekMem(addr, time);
@@ -125,15 +131,17 @@ static std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uin
 	while (idx < len) {
 		buffer[idx++] = interface.peekMem(addr + idx, time);
 	}
+	if (len == 4 && !std::binary_search(ddcbxx__.begin(), ddcbxx__.end(), buffer[3])) len = 3;
 	return buffer.subspan(0, len);
 }
 
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
-                        std::string& dest, EmuTime::param time,
-                        function_ref<void(std::string&, uint16_t)> appendAddr)
+              std::string& dest, EmuTime::param time,
+              function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	auto opcodes = fetchInstruction(interface, pc, buf, time);
 	dasm(opcodes, pc, dest, appendAddr);
+	assert(opcodes.size() > 0);
 	return narrow_cast<unsigned>(opcodes.size());
 }
 
@@ -145,7 +153,12 @@ static unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
 	if (t < 4) return t;
 
 	auto op1 = interface.peekMem(pc + 1, time);
-	return instr_len_tab[64 * t + op1];
+	t = instr_len_tab[64 * t + op1];
+
+	auto op3 = interface.peekMem(pc + 3, time);
+	if (!std::binary_search(ddcbxx__.begin(), ddcbxx__.end(), op3)) return 2;
+
+	return t;
 }
 
 // Calculates an address smaller or equal to the given 'addr' where there is for
