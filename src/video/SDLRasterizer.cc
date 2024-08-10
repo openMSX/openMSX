@@ -26,6 +26,7 @@ using Pixel = SDLRasterizer::Pixel;
 /** VDP ticks between start of line and start of left border.
   */
 static constexpr int TICKS_LEFT_BORDER = 100 + 102;
+static constexpr int TICKS_RIGHT_BORDER = 100 + 102 + 56 + 1024 + 59;
 
 /** The middle of the visible (display + borders) part of a line,
   * expressed in VDP ticks since the start of the line.
@@ -43,16 +44,35 @@ static constexpr int TICKS_VISIBLE_MIDDLE =
 static constexpr int translateX(int absoluteX, bool narrow)
 {
 	int maxX = narrow ? 640 : 320;
-	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;
+
+	// Clip positions outside left/right VDP border to left/right "extended"
+	// border ("extended" because we map 569.5 VDP pixels to 640 host pixels).
+	// This prevents "inventing" new pixels that the real VDP would not
+	// render (e.g. by rapidly changing the border-color register). So we
+	// only extend actual VDP pixels.
+	//
+	// This was also needed to prevent a UMR:
+	// * The VDP switches to a new display mode at a specific moment in the
+	//   line, for details see VDP::syncAtNextLine(). Summary: (with
+	//   set-adjust=0) that is 144 cycles past the (start of the) sync
+	//   signal.
+	// * Without this check, for 'absoluteX=144', this function would return
+	//   a non-zero value.
+	// * Suppose we're switching from a 256 to a 512 pixel wide mode. This
+	//   switch happens at cycle=144, but that meant the first few pixels
+	//   are still renderer at width=256 and the rest of the line at
+	//   width=512. But, without this check, that meant some pixels in the
+	//   640-pixel wide host buffer are never written, resulting in a UMR.
+	// * Clipping to TICKS_{LEFT,RIGHT}_BORDER prevents this.
+	if (absoluteX < TICKS_LEFT_BORDER) return 0;
+	if (absoluteX > TICKS_RIGHT_BORDER) return maxX;
 
 	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
 	const int ROUND_MASK = narrow ? ~1 : ~3;
-	int screenX =
-		((absoluteX - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
+	return ((absoluteX - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
 		>> (narrow ? 1 : 2))
 		+ maxX / 2;
-	return std::max(screenX, 0);
 }
 
 inline void SDLRasterizer::renderBitmapLine(std::span<Pixel> buf, unsigned vramLine)
