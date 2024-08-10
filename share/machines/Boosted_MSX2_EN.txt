@@ -1,7 +1,8 @@
 This directory contains a so-called "Boosted" MSX2 configuration. It has the
 following features:
 
-- based on Philips NMS-8250 (most standard MSX2 in the Netherlands at least)
+- based on Philips NMS-8245 (newest and quite standard MSX2 in the Netherlands
+  at least), and sub ROM has a RAM counter, which looks nice.
 - three external slots, slot B and C are in a sub slot (2-0 and 2-1)
 - 2048 kB memory mapper (in slot 3-2)
 - 2 disk drives
@@ -12,11 +13,10 @@ following features:
 - MoonSound with 640 kB sample RAM
 - GFX9000 with Video9000
 - 512 kB MegaRAM in slot 2-2
-- BASIC Compiler (MSX-BASIC Kun)
+- BASIC Compiler (MSX-BASIC Kun) from Sanyo PHC-70FD2
 
 This configuration needs the following system ROMs:
-- nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
-  needed for the Philips NMS 8250 config
+- NMS8245SystemROM1.08.bin: same as needed for the Philips NMS 8245 config
 - fmpac.rom: same as needed for the FMPAC extension
 - phc-70fd2_basickun.rom: same as needed for the basic compiler in the Sanyo
   PHC-70FD2

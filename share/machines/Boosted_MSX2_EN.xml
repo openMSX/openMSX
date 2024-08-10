@@ -6,7 +6,7 @@
     <manufacturer>openMSX Team</manufacturer>
     <code>Boosted MSX2 EN</code>
     <release_year>2004</release_year>
-    <description>A super-charged Philips NMS 8250</description>
+    <description>A super-charged Philips NMS 8245</description>
     <type>MSX2</type>
     <region>eu</region>
   </info>
@@ -21,8 +21,9 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
-          <filename>nms8250_basic-bios2.rom</filename>
+          <filename>NMS8245SystemROM1.08.bin</filename>
+          <sha1>cc57c1dcd7249ea9f8e2547244592e7d97308ed0</sha1>
+          <window base="0x0000" size="0x8000"/>
         </rom>
       </ROM>
     </primary>
@@ -59,10 +60,11 @@
 
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
-          <mem base="0x0000" size="0x10000"/> <!-- it is mirrored all over the slot -->
+          <mem base="0x0000" size="0x4000"/> <!-- no mirroring -->
           <rom>
-            <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
-            <filename>nms8250_msx2sub.rom</filename>
+            <filename>NMS8245SystemROM1.08.bin</filename>
+            <sha1>cc57c1dcd7249ea9f8e2547244592e7d97308ed0</sha1>
+            <window base="0x8000" size="0x4000"/>
           </rom>
         </ROM>
       </secondary>
@@ -77,8 +79,7 @@
           </sound>
           <ym2413-core>NukeYKT</ym2413-core>
           <rom>
-            <sha1>fec451b9256570a0e4869355a40329c57f40705f</sha1> <!-- EPROM dump, same as 9d789, but then the memory mapped registers are 0xFF -->
-            <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+            <sha1>fec451b9256570a0e4869355a40329c57f40705f</sha1>
             <filename>fmpac.rom</filename>
           </rom>
           <sramname>fmpac.pac</sramname>
@@ -103,12 +104,12 @@
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
-          <mem base="0x0000" size="0x10000"/>
-          <!-- See 8250 config for info on mirroring stuff -->
+          <!-- See 8245 config for info on mirroring stuff -->
+          <mem base="0x4000" size="0x8000"/>
           <rom>
-            <sha1>dab3e6f36843392665b71b04178aadd8762c6589</sha1>
-            <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
-            <filename>nms8250_disk.rom</filename>
+            <filename>NMS8245SystemROM1.08.bin</filename>
+            <sha1>cc57c1dcd7249ea9f8e2547244592e7d97308ed0</sha1> <!-- EPROM dump by Erik Luppes -->
+            <window base="0xC000" size="0x4000"/>
           </rom>
           <drives>2</drives>
         </WD2793>
