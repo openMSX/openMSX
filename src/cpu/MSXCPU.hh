@@ -10,6 +10,7 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+
 #include <array>
 #include <memory>
 #include <span>
@@ -135,15 +136,6 @@ public:
 
 	void setInterface(MSXCPUInterface* interface);
 
-	// TODO: move it to its own Command class
-	void disasmBlobCommand(Interpreter& interp,
-	                       std::span<const TclObject> tokens,
-	                       TclObject& result) const;
-
-	void disasmCommand(Interpreter& interp,
-	                   std::span<const TclObject> tokens,
-	                   TclObject& result) const;
-
 	/** (un)pause CPU. During pause the CPU executes NOP instructions
 	  * continuously (just like during HALT). Used by turbor hw pause. */
 	void setPaused(bool paused);
@@ -155,7 +147,6 @@ public:
 	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
 	[[nodiscard]] CPURegs& getRegisters();
-	[[nodiscard]] const CPURegs& getRegisters() const;
 
 	[[nodiscard]] auto* getZ80() { return z80.get(); }
 	[[nodiscard]] auto* getR800() { return r800.get(); }

@@ -2,6 +2,8 @@
 
 #include "BreakPoint.hh"
 #include "CommandException.hh"
+#include "CPURegs.hh"
+#include "Dasm.hh"
 #include "DebugCondition.hh"
 #include "Debuggable.hh"
 #include "MSXCPU.hh"
@@ -227,7 +229,7 @@ bool Debugger::Cmd::needRecord(std::span<const TclObject> tokens) const
 }
 
 void Debugger::Cmd::execute(
-	std::span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[1].getString(),
@@ -240,8 +242,8 @@ void Debugger::Cmd::execute(
 		"list",              [&]{ list(result); },
 		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
-		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
-		"disasm_blob",       [&]{ debugger().cpu->disasmBlobCommand(getInterpreter(), tokens, result); },
+		"disasm",            [&]{ disasm(tokens, result, time); },
+		"disasm_blob",       [&]{ disasmBlob(tokens, result); },
 		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
 		"breaked",           [&]{ result = MSXCPUInterface::isBreaked(); },
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
@@ -343,6 +345,47 @@ void Debugger::Cmd::writeBlock(std::span<const TclObject> tokens, TclObject& /*r
 	for (auto i : xrange(buf.size())) {
 		device.write(unsigned(addr + i), buf[i]);
 	}
+}
+
+static constexpr char toHex(byte x)
+{
+	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'A'));
+}
+static constexpr void toHex(byte x, std::span<char, 3> buf)
+{
+	buf[0] = toHex(x / 16);
+	buf[1] = toHex(x & 15);
+}
+
+void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const
+{
+	word address = (tokens.size() < 3) ? debugger().cpu->getRegisters().getPC()
+	                                   : word(tokens[2].getInt(getInterpreter()));
+	std::array<byte, 4> outBuf;
+	std::string dasmOutput;
+	unsigned len = dasm(debugger().motherBoard.getCPUInterface(), address, outBuf, dasmOutput, time);
+	dasmOutput.resize(19, ' ');
+	result.addListElement(dasmOutput);
+	std::array<char, 3> tmp; tmp[2] = 0;
+	for (auto i : xrange(len)) {
+		toHex(outBuf[i], tmp);
+		result.addListElement(tmp.data());
+	}
+}
+
+void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& result) const
+{
+	checkNumArgs(tokens, 4, Prefix{2}, "value addr");
+	std::span<const uint8_t> bin = tokens[2].getBinary();
+	auto len = instructionLength(bin);
+	if (!len || *len > bin.size()) {
+		throw CommandException("Blob does not contain a complete Z80 instruction");
+	}
+	std::string dasmOutput;
+	dasm(bin.subspan(0, *len), word(tokens[3].getInt(getInterpreter())), dasmOutput);
+	dasmOutput.resize(19, ' ');
+	result.addListElement(dasmOutput);
+	result.addListElement(*len);
 }
 
 void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& result)

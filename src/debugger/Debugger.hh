@@ -86,6 +86,8 @@ private:
 		void readBlock(std::span<const TclObject> tokens, TclObject& result);
 		void write(std::span<const TclObject> tokens, TclObject& result);
 		void writeBlock(std::span<const TclObject> tokens, TclObject& result);
+		void disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const;
+		void disasmBlob(std::span<const TclObject> tokens, TclObject& result) const;
 		void setBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void removeBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void listBreakPoints(std::span<const TclObject> tokens, TclObject& result) const;
