@@ -9,6 +9,7 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+
 #include <array>
 #include <atomic>
 #include <span>
@@ -20,8 +21,6 @@ class MSXCPUInterface;
 class Scheduler;
 class MSXMotherBoard;
 class TclCallback;
-class TclObject;
-class Interpreter;
 enum Reg8  : int;
 enum Reg16 : int;
 
@@ -89,14 +88,6 @@ public:
 		return {readCacheLine, writeCacheLine};
 	}
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
-
-	void disasmBlobCommand(Interpreter& interp,
-	                       std::span<const TclObject> tokens,
-	                       TclObject& result) const;
-
-	void disasmCommand(Interpreter& interp,
-	                   std::span<const TclObject> tokens,
-	                   TclObject& result) const;
 
 	/**
 	 * Raises the maskable interrupt count.

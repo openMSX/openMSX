@@ -155,6 +155,7 @@ public:
 	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
 	[[nodiscard]] CPURegs& getRegisters();
+	[[nodiscard]] const CPURegs& getRegisters() const;
 
 	[[nodiscard]] auto* getZ80() { return z80.get(); }
 	[[nodiscard]] auto* getR800() { return r800.get(); }

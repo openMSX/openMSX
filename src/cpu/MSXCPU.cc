@@ -1,18 +1,24 @@
 #include "MSXCPU.hh"
+
+#include "CPUCore.hh"
+#include "Dasm.hh"
 #include "MSXCPUInterface.hh"
+#include "R800.hh"
+#include "Z80.hh"
+
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
 #include "IntegerSetting.hh"
-#include "CPUCore.hh"
-#include "Z80.hh"
-#include "R800.hh"
+#include "Interpreter.hh"
 #include "TclObject.hh"
+#include "serialize.hh"
+
 #include "outer.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <cassert>
 #include <memory>
 
@@ -345,6 +351,15 @@ CPURegs& MSXCPU::getRegisters()
 	}
 }
 
+const CPURegs& MSXCPU::getRegisters() const
+{
+	if (z80Active) {
+		return *z80;
+	} else {
+		return *r800;
+	}
+}
+
 void MSXCPU::update(const Setting& setting) noexcept
 {
 	          z80 ->update(setting);
@@ -358,16 +373,46 @@ void MSXCPU::disasmBlobCommand(
 	Interpreter& interp, std::span<const TclObject> tokens,
 	TclObject& result) const
 {
-	z80Active ? z80 ->disasmBlobCommand(interp, tokens, result)
-	          : r800->disasmBlobCommand(interp, tokens, result);
+	if (tokens.size() < 4) {
+		interp.wrongNumArgs(2, tokens, "value addr");
+	}
+	std::span<const uint8_t> bin = tokens[2].getBinary();
+	auto len = instructionLength(bin);
+	if (!len || *len > bin.size()) {
+		throw CommandException("Blob does not contain a complete Z80 instruction");
+	}
+	std::string dasmOutput;
+	dasm(bin.subspan(0, *len), word(tokens[3].getInt(interp)), dasmOutput);
+	dasmOutput.resize(19, ' ');
+	result.addListElement(dasmOutput);
+	result.addListElement(*len);
+}
+
+static constexpr char toHex(byte x)
+{
+	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'A'));
+}
+static constexpr void toHex(byte x, std::span<char, 3> buf)
+{
+	buf[0] = toHex(x / 16);
+	buf[1] = toHex(x & 15);
 }
 
 void MSXCPU::disasmCommand(
 	Interpreter& interp, std::span<const TclObject> tokens,
 	TclObject& result) const
 {
-	z80Active ? z80 ->disasmCommand(interp, tokens, result)
-	          : r800->disasmCommand(interp, tokens, result);
+	word address = (tokens.size() < 3) ? getRegisters().getPC() : word(tokens[2].getInt(interp));
+	std::array<byte, 4> outBuf;
+	std::string dasmOutput;
+	unsigned len = dasm(*interface, address, outBuf, dasmOutput, getCurrentTime());
+	dasmOutput.resize(19, ' ');
+	result.addListElement(dasmOutput);
+	std::array<char, 3> tmp; tmp[2] = 0;
+	for (auto i : xrange(len)) {
+		toHex(outBuf[i], tmp);
+		result.addListElement(tmp.data());
+	}
 }
 
 void MSXCPU::setPaused(bool paused)

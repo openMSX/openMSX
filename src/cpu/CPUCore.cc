@@ -160,7 +160,6 @@
 
 #include "CPUCore.hh"
 
-#include "Interpreter.hh"
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
@@ -508,51 +507,6 @@ template<typename T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
 	T::setLimit(time);
 }
 
-
-static constexpr char toHex(byte x)
-{
-	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'A'));
-}
-static constexpr void toHex(byte x, std::span<char, 3> buf)
-{
-	buf[0] = toHex(x / 16);
-	buf[1] = toHex(x & 15);
-}
-
-template<typename T> void CPUCore<T>::disasmBlobCommand(
-	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result) const
-{
-	if (tokens.size() < 4) {
-		interp.wrongNumArgs(2, tokens, "value addr");
-	}
-	std::span<const uint8_t> bin = tokens[2].getBinary();
-	auto len = instructionLength(bin);
-	if (!len || *len > bin.size()) {
-		throw CommandException("Blob does not contain a complete Z80 instruction");
-	}
-	std::string dasmOutput;
-	dasm(bin.subspan(0, *len), word(tokens[3].getInt(interp)), dasmOutput);
-	dasmOutput.resize(19, ' ');
-	result.addListElement(dasmOutput);
-	result.addListElement(*len);
-}
-
-template<typename T> void CPUCore<T>::disasmCommand(
-	Interpreter& interp, std::span<const TclObject> tokens, TclObject& result) const
-{
-	word address = (tokens.size() < 3) ? getPC() : word(tokens[2].getInt(interp));
-	std::array<byte, 4> outBuf;
-	std::string dasmOutput;
-	unsigned len = dasm(*interface, address, outBuf, dasmOutput,
-	                    T::getTimeFast());
-	dasmOutput.resize(19, ' ');
-	result.addListElement(dasmOutput);
-	std::array<char, 3> tmp; tmp[2] = 0;
-	for (auto i : xrange(len)) {
-		toHex(outBuf[i], tmp);
-		result.addListElement(tmp.data());
-	}
-}
 
 template<typename T> void CPUCore<T>::update(const Setting& setting) noexcept
 {
