@@ -543,9 +543,10 @@ void ImGuiManager::paintImGui()
 	// drag and drop  (move this to ImGuiMedia ?)
 	auto insert2 = [&](std::string_view displayName, TclObject cmd) {
 		auto message = strCat("Inserted ", droppedFile, " in ", displayName);
-		executeDelayed(cmd, [this, message](const TclObject&){
+		executeDelayed(cmd, [this, message, cmd](const TclObject&){
 			insertedInfo = message;
 			openInsertedInfo = true;
+			media->addRecent(cmd);
 		});
 	};
 	auto insert = [&](std::string_view displayName, std::string_view cmd) {

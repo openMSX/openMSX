@@ -56,6 +56,8 @@ public:
 	ExtensionInfo* findExtensionInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 
+	void addRecent(const TclObject& cmd);
+
 public:
 	enum class SelectDiskType : int {
 		IMAGE, DIR_AS_DISK, RAMDISK, EMPTY,
@@ -128,7 +130,7 @@ private:
 	void diskMenu(int i);
 	void cartridgeMenu(int i);
 	void cassetteMenu(const TclObject& cmdResult);
-	void insertMedia(std::string_view mediaName, ItemGroup& group);
+	void insertMedia(std::string_view mediaName, const MediaItem& item);
 
 	void printExtensionInfo(ExtensionInfo& info);
 	void extensionTooltip(ExtensionInfo& info);

@@ -477,7 +477,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							auto d = strCat(display(item, displayFunc), "##", count++);
 							if (ImGui::MenuItem(d.c_str())) {
 								group.edit = item;
-								insertMedia(mediaName, group);
+								insertMedia(mediaName, group.edit);
 							}
 							if (toolTip) toolTip(item.name);
 						}
@@ -528,7 +528,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 							if (ImGui::Selectable(ext.displayName.c_str())) {
 								group.edit.name = ext.configName;
-								insertMedia(mediaName, group);
+								insertMedia(mediaName, group.edit);
 								ImGui::CloseCurrentPopup();
 							}
 							extensionTooltip(ext);
@@ -617,7 +617,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 								hdFilter(),
 								[this, &group, hdName](const auto& fn) {
 									group.edit.name = fn;
-									this->insertMedia(hdName, group);
+									this->insertMedia(hdName, group.edit);
 								},
 								currentImage.getString());
 						}
@@ -655,7 +655,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							cdFilter(),
 							[this, &group, cdName](const auto& fn) {
 								group.edit.name = fn;
-								this->insertMedia(cdName, group);
+								this->insertMedia(cdName, group.edit);
 							},
 							currentImage.getString());
 					}
@@ -680,7 +680,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
 						[this](const auto& fn) {
 							laserdiscMediaInfo.edit.name = fn;
-							this->insertMedia("laserdiscplayer", laserdiscMediaInfo);
+							this->insertMedia("laserdiscplayer", laserdiscMediaInfo.edit);
 						},
 						currentImage.getString());
 				}
@@ -941,7 +941,7 @@ bool ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group,
 			clicked = true;
 		}
 		if (clicked) {
-			insertMedia(mediaName, group);
+			insertMedia(mediaName, group.edit);
 		}
 	});
 	return clicked;
@@ -1289,7 +1289,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 									item.name = ext.configName;
 								}
 								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-									insertMedia(extName, group); // Apply
+									insertMedia(extName, group.edit); // Apply
 								}
 								extensionTooltip(ext);
 							});
@@ -1322,16 +1322,16 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 	});
 }
 
-static void addRecent(ImGuiMedia::ItemGroup& group)
+static void addRecentItem(ImGuiMedia::ItemGroup& group, const ImGuiMedia::MediaItem& item)
 {
 	auto& recent = group.recent;
-	if (auto it2 = ranges::find(recent, group.edit); it2 != recent.end()) {
+	if (auto it2 = ranges::find(recent, item); it2 != recent.end()) {
 		// was already present, move to front
 		std::rotate(recent.begin(), it2, it2 + 1);
 	} else {
 		// new entry, add it, but possibly remove oldest entry
 		if (recent.full()) recent.pop_back();
-		recent.push_front(group.edit);
+		recent.push_front(item);
 	}
 }
 
@@ -1433,7 +1433,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 						manager.executeDelayed(makeTclList("cassetteplayer", "new", fn),
 							[&group](const TclObject&) {
 								// only add to 'recent' when command succeeded
-								addRecent(group);
+								addRecentItem(group, group.edit);
 							});
 					},
 					current);
@@ -1481,10 +1481,8 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 	});
 }
 
-void ImGuiMedia::insertMedia(std::string_view mediaName, ItemGroup& group)
+void ImGuiMedia::insertMedia(std::string_view mediaName, const MediaItem& item)
 {
-	auto& item = group.edit;
-
 	TclObject cmd = makeTclList(mediaName);
 	if (item.isEject()) {
 		cmd.addListElement("eject");
@@ -1499,11 +1497,65 @@ void ImGuiMedia::insertMedia(std::string_view mediaName, ItemGroup& group)
 		}
 	}
 	manager.executeDelayed(cmd,
-		[&group](const TclObject&) {
+		[this, cmd](const TclObject&) {
 			// only add to 'recent' when insert command succeeded
-			if (group.edit.isEject()) return;
-			addRecent(group);
+			addRecent(cmd);
 		});
 }
+
+void ImGuiMedia::addRecent(const TclObject& cmd)
+{
+	auto n = cmd.size();
+	if (n < 3) return;
+	if (cmd.getListIndexUnchecked(1).getString() != "insert") return;
+
+	auto* group = [&]{
+		auto mediaName = cmd.getListIndexUnchecked(0).getString();
+		if (mediaName.starts_with("cart")) {
+			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(CartridgeSlotManager::MAX_SLOTS)) {
+				return &cartridgeMediaInfo[i].groups[SelectCartridgeType::IMAGE];
+			}
+		} else if (mediaName.starts_with("disk")) {
+			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(RealDrive::MAX_DRIVES)) {
+				return &diskMediaInfo[i].groups[SelectDiskType::IMAGE];
+			}
+		} else if (mediaName.starts_with("hd")) {
+			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(HD::MAX_HD)) {
+				return &hdMediaInfo[i];
+			}
+		} else if (mediaName.starts_with("cd")) {
+			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(IDECDROM::MAX_CD)) {
+				return &cdMediaInfo[i];
+			}
+		} else if (mediaName == "cassetteplayer") {
+			return &cassetteMediaInfo.group;
+		} else if (mediaName == "laserdiscplayer") {
+			return &laserdiscMediaInfo;
+		} else if (mediaName == "ext") {
+			return &extensionMediaInfo;
+		}
+		return static_cast<ItemGroup*>(nullptr);
+	}();
+	if (!group) return;
+
+	MediaItem item;
+	item.name = cmd.getListIndexUnchecked(2).getString();
+	unsigned i = 3;
+	while (i < n) {
+		auto option = cmd.getListIndexUnchecked(i);
+		++i;
+		if (option == "-ips" && i < n) {
+			item.ipsPatches.emplace_back(cmd.getListIndexUnchecked(i).getString());
+			++i;
+		}
+		if (option == "-romtype" && i < n) {
+			item.romType = RomInfo::nameToRomType(cmd.getListIndexUnchecked(i).getString());
+			++i;
+		}
+	}
+
+	addRecentItem(*group, item);
+}
+
 
 } // namespace openmsx
