@@ -155,8 +155,13 @@ you also need the system ROMs for that machine.
 See the <a class="internal" href="#systemroms">next chapter</a> for more
 information on system ROMs.
 You can also create your own machine descriptions,
-to expand existing MSX models or to create your own fantasy MSX. There are currently some of such fantasy MSX machines, based on real MSX machines, shipped with openMSX. Examples are a machine called "Boosted_MSX2_EN" (a European MSX2 with loads of hardware built in) and one called "Boosted_MSX2+_JP" (a Japanese MSX2+ with loads of hardware built in). You can find some more information about them in their accompanying txt file in <code>share/machines/</code>.
-More about creating fantasy MSX machines in a
+to expand existing MSX models or to create your own fantasy MSX. There are
+currently some of such fantasy MSX machines, based on real MSX machines,
+shipped with openMSX. Examples are a machine called "Boosted_MSX2_EN" (a
+European MSX2 with loads of hardware built in) and one called
+"Boosted_MSX2+_JP" (a Japanese MSX2+ with loads of hardware built in). You can
+find some more information about them in their accompanying txt file in
+<code>share/machines/</code>. More about creating fantasy MSX machines in a
 <a class="internal" href="#hardwareedit">later chapter</a>.
 </p>
 
@@ -171,7 +176,10 @@ in the <code>share/extensions</code> directory.
 Some extensions need ROM images in order to run, similar to system ROMs.
 </p>
 
-<p>In general, the XML files that describe the hardware configuration are called "hardware configuration XML files".</p>
+<p>
+In general, the XML files that describe the hardware configuration are called
+"hardware configuration XML files".
+</p>
 
 <h2><a id="systemroms">3. System ROMs</a></h2>
 
@@ -204,8 +212,8 @@ BouKiChi, the original author of C-BIOS, was kind enough to allow C-BIOS
 to be distributed together with openMSX.
 Since then, Reikan took over maintenance of C-BIOS and the license
 was changed to give users and developers even more freedom in using C-BIOS.
-Even later, C-BIOS was moved to a SourceForge.net project, with several new maintainers.
-Every now and then, an updated version of C-BIOS is released.
+Even later, C-BIOS was moved to a SourceForge.net project, with several new
+maintainers. Every now and then, an updated version of C-BIOS is released.
 You can wait for it to be included in the next openMSX release,
 or download it directly from the
 <a class="external" href="http://cbios.sourceforge.net/">C-BIOS web site</a>.
@@ -490,7 +498,10 @@ data will get stored that openMSX produces.</td></tr>
 searched</td></tr> <tr><td><code>OPENMSX_SYSTEM_DATA</code></td><td>The system
 wide <code>share</code> folder in the openMSX installation directory</td></tr>
 </table>
-<p>In the <a class="internal" href="#romlocation">section about ROM locations</a> you get an idea about the default values of these on different platforms.</p>
+<p>
+In the <a class="internal" href="#romlocation">section about ROM locations</a>
+you get an idea about the default values of these on different platforms.
+</p>
 
 <h2><a id="tuning">6. Performance Tuning</a></h2>
 
@@ -502,14 +513,20 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> (and thus openMSX) needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0.
+The SDLGL-PP <a class="external" href="user.html#video">renderer</a> (and
+thus openMSX) needs hardware acceleration to run at a decent speed, with
+support for OpenGL 2.0.
 </p>
 <p>
 Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.
-However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg/Wayland or Windows environment.
+However, nowadays there is a big chance that your system already has hardware
+accelerated OpenGL supported in the default installation of your Xorg/Wayland
+or Windows environment.
 </p>
 <p>
-You can verify hardware acceleration on your Linux system by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
+You can verify hardware acceleration on your Linux system by typing
+<code>glxinfo</code> on the command line. If you have everything working, this
+command should output a line like this: <code>direct rendering: Yes</code>.
 </p>
 
 <h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
@@ -526,7 +543,10 @@ If openMSX runs slow, you can try the following measures:
 </p>
 <ul>
 <li>
-Disable the <a class="external" href="user.html#reverse">reverse</a> feature (especially if the platform you're running on has a low amount of RAM), which is enabled by default on most platforms: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code>
+Disable the <a class="external" href="user.html#reverse">reverse</a> feature
+(especially if the platform you're running on has a low amount of RAM), which
+is enabled by default on most platforms: <code>set  <a class="external"
+href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code>
 </li>
 <li>
 Make sure there are no CPU or I/O heavy background processes is running.
@@ -536,14 +556,17 @@ Even if they only do so only once in a while, it may be enough to cause
 emulation to stutter.
 </li>
 <li>
-Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
+Increase the number of frames that may be skipped (<code>set <a
+class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>,
+for example).
 </li>
 <li>
 Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
 </li>
 <li>
-Emulate MSX software that uses less sound channels, for example MSX-MUSIC (maximum 9 channels)
-instead of MoonSound (maximum 18+24 channels). Or run simpler software altogether (e.g. MSX1 software instead of turboR software).
+Emulate MSX software that uses less sound channels, for example MSX-MUSIC
+(maximum 9 channels) instead of MoonSound (maximum 18+24 channels). Or run
+simpler software altogether (e.g. MSX1 software instead of turboR software).
 </li>
 </ul>
 
@@ -631,18 +654,29 @@ Don't forget to add the <code>fmpac.rom</code> file to one of your <code>system_
 </p>
 
 <p>
-Because we changed the FMPAC from extension to built-in device, we have to specify in which slot the FMPAC is residing inside the modified 8250. So, we should replace the <code>slot="any"</code> stuff, with a specified slot as you can see in the above fragment.
-The number in the <code>slot</code> attribute of the <code>&lt;primary&gt;</code> tag indicates the
+Because we changed the FMPAC from extension to built-in device, we have to
+specify in which slot the FMPAC is residing inside the modified 8250. So, we
+should replace the <code>slot="any"</code> stuff, with a specified slot as you
+can see in the above fragment.
+The number in the <code>slot</code> attribute of the
+<code>&lt;primary&gt;</code> tag indicates the
 primary slot of the emulated MSX you're editing. In this case the second
-cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub slot. If we leave it out, the slot is not expanded and the primary slot is used. If we use it like in the above example, it means that slot 1 (of the <code>&lt;primary&gt;</code> tag) will be an expanded slot. If a <code>&lt;primary&gt;</code>
-tag has the attribute <code>external="true"</code>, this means that the slot is visible on the outside of the machine and can thus be used for external cartridges like extensions and ROM software.
-As explained above, the parameter filename can be adjusted to the name of your (64 kB!) FMPAC ROM
-file (note: if the file is not 64 kB (65536 bytes) in size, it won't work).
+cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means
+sub slot. If we leave it out, the slot is not expanded and the primary slot is
+used. If we use it like in the above example, it means that slot 1 (of the
+<code>&lt;primary&gt;</code> tag) will be an expanded slot. If a
+<code>&lt;primary&gt;</code> tag has the attribute
+<code>external="true"</code>, this means that the slot is visible on the
+outside of the machine and can thus be used for external cartridges like
+extensions and ROM software. As explained above, the parameter filename can be
+adjusted to the name of your (64 kB!) FMPAC ROM file (note: if the file is not
+64 kB (65536 bytes) in size, it won't work).
 "balance" defines to what channel the FMPAC's sound will be routed by
-default: in this case most of the sound goes to the left channel and a little bit goes to the right channel.
-"sramname" specifies the file name for file in which the SRAM contents will be
-saved to or loaded from. The saved files are compatible with the files that are
-saved by the (real) FMPAC commander's save option.
+default: in this case most of the sound goes to the left channel and a little
+bit goes to the right channel. "sramname" specifies the file name for file in
+which the SRAM contents will be saved to or loaded from. The saved files are
+compatible with the files that are saved by the (real) FMPAC commander's save
+option.
 </p>
 
 <p>
@@ -676,7 +710,10 @@ Another thing you may want to change: the amount of RAM of the MSX: change the
 </p>
 
 <p>
-In principle all of the above mentioned things are also valid for extensions. The main difference is the fact that you should use <code>"any"</code> for the slot specification as was already mentioned above. Just compare the fragment above with the original FMPAC extension we based it on.
+In principle all of the above mentioned things are also valid for extensions.
+The main difference is the fact that you should use <code>"any"</code> for the
+slot specification as was already mentioned above. Just compare the fragment
+above with the original FMPAC extension we based it on.
 </p>
 
 <p>
@@ -698,8 +735,14 @@ If you encounter problems, you have several options:
 
 <ol>
 <li>
-Go to our IRC channel: <a class="external" href="ircs://irc.libera.chat:6697/#openMSX"><code>#openMSX</code> on <code>libera.chat</code></a>
-and ask your question there. Also reachable via <a class="external" href="https://web.libera.chat/#openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
+Go to our IRC channel: <a class="external"
+href="ircs://irc.libera.chat:6697/#openMSX"><code>#openMSX</code> on
+<code>libera.chat</code></a> and ask your question there. Also reachable via <a
+class="external" href="https://web.libera.chat/#openMSX">webchat</a>! If you
+don't get a reply immediately, please stick around for a while, or use one of
+the other contact options. The majority of the developers lives in time zone
+GMT+1. You may get no response if you contact them in the middle of the
+night...
 </li>
 <li>
 Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
@@ -711,21 +754,21 @@ on GitHub.
 You need a (free) log-in on GitHub to get access.
 </li>
 <li>
-Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
-join our <code>openmsx-user</code> mailing list.
-If you want to address the openMSX developers directly,
+Contact us and other users via one of the mailing lists. If you're a regular
+user and want to discuss openMSX and possible problems, join our
+<code>openmsx-user</code> mailing list. If you want to address the openMSX
+developers directly,
 post a message to the <code>openmsx-devel</code> mailing list.
-More info on the
-<a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
+More info on the <a class="external"
+href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
 </li>
 </ol>
 
 <p>
-For experienced users: if you get a crash,
-try to provide a <code>gdb</code> backtrace.
-This will only work if you did not strip the openMSX binary
-of its debug symbols.
+For experienced users: if you get a crash, try to provide a <code>gdb</code>
+backtrace. This will only work if you did not strip the openMSX binary of its
+debug symbols.
 </p>
 
 <p>
