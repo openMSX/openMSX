@@ -80,25 +80,13 @@ You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is not completed yet, which means that most things work but not all
-features are implemented yet.
-Many emulation features are implemented, but in terms of user interface
-it is rather bare bones.
-However, because the emulation is already pretty good,
-it would be nice if non-insiders would be able to play with it, too.
-For those people, we have written this guide.
-</p>
-
-<p>
 This guide describes the setup of openMSX.
-After installation,
-openMSX is ready to run using C-BIOS and the default settings.
-In this guide you can read how to configure openMSX
-to emulate actual MSX machines (such as Panasonic FS-A1GT).
-It also describes how you can have openMSX start up
-with your personal settings,
-how you can configure openMSX and your system for optimal performance
-and several other configuration related topics.
+After installation, openMSX is ready to run using C-BIOS and the default
+settings. In this guide you can read how to configure openMSX to emulate actual
+MSX machines (such as Panasonic FS-A1GT). It also describes how you can have
+openMSX start up with your personal settings, how you can configure openMSX and
+your system for optimal performance and several other configuration related
+topics.
 </p>
 
 <p>
@@ -143,7 +131,7 @@ what video processor it has, in which slots its system ROMs are located,
 whether the machine has a built-in disk drive etc.
 openMSX reads the machine description XML and will then emulate exactly
 that MSX machine, which can be anything from an MSX1 with 16 kB of RAM
-to the MSXturboR GT.
+to the Panasonic FS-A1GT MSXturboR.
 </p>
 
 <p>
@@ -319,25 +307,34 @@ platform dependent:
 <tr><td>Unix and Linux</td><td><code>~/.openMSX/share</code></td></tr>
 <tr><td>Android</td><td><code>&lt;external storage&gt;/openMSX/share</code>, whereby <code>&lt;external storage&gt;</code> stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard</code></td></tr>
 </table>
+
 <p>
 Please note that the path part which comes before <code>share</code> can be
-overridden by setting the <code>OPENMSX_HOME</code> environment variable, see the <a class="internal" href="#settings">chapter about User Preferences</a>.</p>
-<p> That way, you do not need special privilages. Furtermore, the installer
-won't touch them for sure on Windows nor on Android. </p> <p> A template for
-the <code>systemroms</code> sub directory is present in the installation
-directory of openMSX, which is also platform dependent: </p> <table
-class="border_enabled"> <tr><th>Platform</th><th>Typical openMSX file pool
-installation directory</th></tr> <tr><td>Windows (any
-version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
-<tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or
-<code>/usr/share/openmsx</code></td></tr>
-<tr><td>Android</td><td><code>&lt;internal app install
-dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby
-<code>&lt;internal app install dir&gt;</code> stands for the default internal
-app installation directory of your Android device. On the Samsung Galaxy Nexus
-it is for example <code>/sdcard/Android/data</code></td></tr> </table>
+overridden by setting the <code>OPENMSX_HOME</code> environment variable, see the <a class="internal" href="#settings">chapter about User Preferences</a>.
+</p>
 
-<p> So, you can just copy all your system ROMs to the
+<p> That way, you do not need special privilages. Furtermore, the installer
+won't touch them for sure on Windows nor on Android. </p>
+
+<p> A template for the <code>systemroms</code> sub directory is present in the
+installation directory of openMSX, which is also platform dependent:
+</p>
+
+<table class="border_enabled">
+<tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
+<tr><td>Windows (any version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
+<tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code></td></tr>
+<tr><td>Android</td><td><code>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby <code>&lt;internal app install dir&gt;</code> stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard/Android/data</code></td></tr>
+</table>
+
+<p> The quickest way to see where openMSX is searching for system ROMs on your
+installation is by the GUI under <span class="menu-reference">Main menu bar
+&rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
+you can find buttons to quickly open a (native) file browser on the locations
+where the ROMs are searched for, both for the user folder and the system wide
+folder. </p>
+
+<p> In short: you can just copy all your system ROMs to the
 <code>share/systemroms</code> directory of your user account. The ROM files can
 be zipped (or gzipped), but only one file can be in a ZIP file. If multiple ROM
 files are in a single ZIP file, openMSX will not find them. The directory
@@ -381,6 +378,18 @@ missing required system ROMs and thus something went wrong installing them
 (typically either not a file with the proper content or you put the file in the
 wrong place, or you put it in a large ZIP file with multiple files). </p>
 
+<p> The quickest way to see which machine and extensions work (i.e.: openMSX
+can find the required system ROMs the configuration is referring to) is by
+using the GUI under <span class="menu-reference">Main menu bar &rarr; Machine
+&rarr; Test MSX hardware...</span>. It will quickly check all machines and
+extensions and will show which are working and which are not, and which error
+occurred when trying to use it.  Besides this, when selecting to run a machine
+using the GUI under <span class="menu-reference">Main menu bar &rarr; Machine
+&rarr; Select MSX machine ...</span>, you can also see which are working and
+which not and why. Likewise for extensions via <span
+class="menu-reference">Main menu bar &rarr; Media &rarr; Extensions &rarr;
+Insert</span> for instance. </p>
+
 <p> You can also manually check whether you have the correct ROM images. The
 value in the &lt;sha1&gt; tag(s) in the hardware configuration XML files
 contain checksums of ROM images that are known to work. You can compare the
@@ -423,16 +432,20 @@ Laserdisc Player, making it possible to run Palcom Laserdisc software. </p>
 <p> The laserdisc must be captured before it can be used with an emulator. The
 file must adhere to the following rules: </p>
 
-<ul> <li>Use the Ogg container format</li> <li>Use the Vorbis codec for
-audio</li> <li>Use the Theora codec for video</li> <li>Captured at
-640&times;480, YUV420</li> <li>A bitrate of at least 200kpbs for audio,
-otherwise the computer code encoded on the right audio channel will degrade too
-much for it to be readable</li> <li>Theora frame numbers must correspond to
-laserdisc frame numbers</li> <li>Some laserdiscs have chapters and/or stop
-frames. This is encoded in the <a
-href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>,
-and must be converted to plain text. This must be added to the theora meta
-data</li> </ul>
+<ul>
+  <li>Use the Ogg container format</li>
+  <li>Use the Vorbis codec for audio</li>
+  <li>Use the Theora codec for video</li>
+  <li>Captured at 640&times;480, YUV420</li>
+  <li>A bitrate of at least 200kpbs for audio, otherwise the computer code
+  encoded on the right audio channel will degrade too much for it to be
+  readable</li>
+  <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
+  <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the
+  <a href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI
+  signal</a>, and must be converted to plain text. This must be added to the
+  theora meta data</li>
+</ul>
 
 <p> The metadata for chapters and stop frames has the form "chapter:
 &lt;chapter-no&gt;,&lt;first-frame&gt;-&lt;last-frame&gt;" and stop frames are
@@ -450,30 +463,17 @@ identical, except that the Pioneer PX-7 has pseudo-stereo for its PSG. </p>
 
 <h2><a id="settings">5. User Preferences</a></h2>
 
-<p> Almost all user preferences can be done via the openMSX console, at openMSX
-run time. This is more thoroughly explained in <a class="external"
-href="user.html#controlling">the User's Manual</a>. In short: you can save your
-settings with the <code><a class="external"
-href="commands.html#save_settings">save_settings</a></code> command, which will
-save the settings in your personal settings file. The settings file will be
-loaded every time openMSX starts. </p>
-
-<p> One of the preferences is the default machine: the machine openMSX uses if
-you did not specify one on the command line. The name of this setting is
-<code><a class="external"
-href="commands.html#default_machine">default_machine</a></code>. Switching
-machines at run time is done via the <code><a class="external"
-href="commands.html#machine">machine</a></code> command (more about this in <a
-class="external" href="user.html#controlling">the User's Manual</a>). </p>
+<p> Almost all user preferences can be done via the GUI menu and the openMSX
+console, at openMSX run time. This is more thoroughly explained in <a
+class="external" href="user.html#controlling">the User's Manual</a>. </p>
 
 <p> By using the <code><a class="external"
 href="commands.html#bind">bind</a></code> command you can create custom key
 bindings. These bindings will also be saved as settings in your settings file
 if you issue a <code><a class="external"
-	href="commands.html#save_settings">save_settings</a></code> command.
-	</p>
+href="commands.html#save_settings">save_settings</a></code> command. </p>
 
-<p> The other settings are discussed in <a class="external"
+<p> Many important settings are discussed in <a class="external"
 href="user.html#controlling">the User's Manual</a> and there is an overview in
 the <a class="external" href="commands.html">Console Command Reference</a>.
 </p>
@@ -513,9 +513,9 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#video">renderer</a> (and
-thus openMSX) needs hardware acceleration to run at a decent speed, with
-support for OpenGL 2.0.
+As openMSX is using the SDLGL-PP <a class="external"
+href="user.html#video">renderer</a>, it needs hardware acceleration to run at a
+decent speed, with support for OpenGL 2.0.
 </p>
 <p>
 Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.
@@ -571,7 +571,7 @@ simpler software altogether (e.g. MSX1 software instead of turboR software).
 </ul>
 
 <h2><a id="androidtips">7. Android Tips</a></h2>
-<p>This section has some tips specific to the Android version</p>
+<p>This section has some tips specific to the Android version (which is currently not maintained anymore)</p>
 <ul>
   <li>If the sound is choppy, you should increase the SDL audio buffer size as follows
     <ul>
@@ -597,35 +597,37 @@ simpler software altogether (e.g. MSX1 software instead of turboR software).
 <h2><a id="hardwareedit">8. Writing Hardware Descriptions</a></h2>
 
 <p>
-There are two ways to use extra devices in your emulated MSX:
-you can use a shipped extension
-(which is analogous to inserting a cartridge with the device into the MSX)
-or you can modify the hardware configuration file
-(which is analogous to open the MSX and build in the device).
-As in the real world, extensions are easier to use,
-but modifying the machine gives you more possibilities.
-Normal usage of machines and extensions is covered in the
-<a class="external" href="user.html">User's Manual</a>;
-this chapter tells you how you can create or modify these hardware descriptions, which is a topic for advanced users and definitely something very few people will (want to) do.
+There are two ways to use extra devices in your emulated MSX: you can use a
+shipped extension (which is analogous to inserting a cartridge with the device
+into the MSX) or you can modify the hardware configuration file (which is
+analogous to open the MSX and build in the device). As in the real world,
+extensions are easier to use, but modifying the machine gives you more
+possibilities.
+Normal usage of machines and extensions is covered in the <a class="external"
+href="user.html">User's Manual</a>; this chapter tells you how you can create
+or modify these hardware descriptions, which is a topic for advanced users and
+definitely something very few people will (want to) do.
 By editing the hardware configuration XML files, you can for example increase
 the amount of RAM, add a built-in MSX-MUSIC, add a disk drive, create extra
 cartridge slots etc.
 </p>
 
 <p>
-You can modify an MSX machine (e.g. to add devices) by editing its hardware configration XML file. So, let's make a copy of <code>share/machines/Philips_NMS_8250.xml</code> and
-put it in <code>share/machines/mymsx.xml</code>.
+You can modify an MSX machine (e.g. to add devices) by editing its hardware
+configration XML file. So, let's make a copy of
+<code>share/machines/Philips_NMS_8250.xml</code> and put it in
+<code>share/machines/mymsx.xml</code>.
 It's the config we are going to play with; our custom MSX.
 Note: it is convenient to use the user directory (see <a href="#romlocation">above</a>)
 to store your home-made machines, instead of the openMSX installation directory.
 </p>
 
 <p>
-The easiest thing to do is to copy and modify
-fragments from other existing configurations that can be found in
-<code>share/machines</code> or <code>share/extensions</code>. For example,
-to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac.xml</code> to
-some place in your <code>mymsx.xml</code> file (between the <code>&lt;devices&gt;</code> and
+The easiest thing to do is to copy and modify fragments from other existing
+configurations that can be found in <code>share/machines</code> or
+<code>share/extensions</code>. For example, to add an FMPAC to the 8250, just
+copy it from the <code>share/extensions/fmpac.xml</code> to some place in your
+<code>mymsx.xml</code> file (between the <code>&lt;devices&gt;</code> and
 <code>&lt;/devices&gt;</code> tags!):
 </p>
 
