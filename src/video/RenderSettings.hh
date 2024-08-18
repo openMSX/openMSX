@@ -47,6 +47,7 @@ public:
 	~RenderSettings();
 
 	/** Accuracy [screen, line, pixel]. */
+	[[nodiscard]] EnumSetting<Accuracy>& getAccuracySetting() { return accuracySetting; }
 	[[nodiscard]] Accuracy getAccuracy() const { return accuracySetting.getEnum(); }
 
 	/** Deinterlacing [on, off]. */
