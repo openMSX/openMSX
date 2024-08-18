@@ -62,7 +62,6 @@
 					<li><a class="internal" href="#scsi">4.4.3 SCSI devices</a></li>
 					<li><a class="internal" href="#sd">4.4.4 MegaFlashROM SCC+ SD</a></li>
 				</ol>
-
 			</li>
 
 			<li><a class="internal" href="#laserdisc">4.5 Running Laserdisc Software</a></li>
@@ -94,13 +93,12 @@
 
 	<li><a class="internal" href="#video">6. Video</a>
 		<ol class="toc">
-			<li><a class="internal" href="#renderers">6.1 Renderers</a></li>
-			<li><a class="internal" href="#accuracy">6.2 Accuracy</a></li>
-			<li><a class="internal" href="#scalers">6.3 Scalers</a></li>
-			<li><a class="internal" href="#gamma">6.4 Gamma Correction</a></li>
-			<li><a class="internal" href="#videoeffects">6.5 Special Effects</a></li>
-			<li><a class="internal" href="#gfx9000">6.6 GFX9000/Video 9000</a></li>
-			<li><a class="internal" href="#recording">6.7 Video Recording</a></li>
+			<li><a class="internal" href="#scalers">6.1 Scalers</a></li>
+			<li><a class="internal" href="#gamma">6.2 Gamma Correction</a></li>
+			<li><a class="internal" href="#videoeffects">6.3 Special Effects</a></li>
+			<li><a class="internal" href="#accuracy">6.4 Accuracy</a></li>
+			<li><a class="internal" href="#gfx9000">6.5 GFX9000/Video 9000</a></li>
+			<li><a class="internal" href="#recording">6.6 Video Recording</a></li>
 		</ol>
 	</li>
 
@@ -1479,79 +1477,34 @@ the program:
 
 <h2><a id="video">6. Video</a></h2>
 
-<h3><a id="renderers">6.1 Renderers</a></h3>
-
 <p>
-A renderer is a part of the emulator that generates the graphical part of the
-emulation: the MSX 'screen'. At the moment, there is only one useful renderer:
-</p>
-
-<dl>
-
-<dt>SDLGL-PP</dt>
-<dd>
-This renderer uses the OpenGL graphics library for all post processing (hence
-the PP), which includes scalers and other effects.
+openMSX uses the OpenGL graphics library for all post processing (hence
+the PP in SDLGL-PP, which is the name of the "renderer", which is the part that generates
+the graphical part of the emulation: the MSX 'screen'). This includes
+scalers and other effects, but also the GI..
 Because part of the rendering is done by the graphics hardware,
 the CPU load can vary a lot, but it is usually a lot less than with pure
 software based renderers.
-The SDLGL-PP renderer (and thus openMSX) requires a hardware accelerated
+Because of all this, openMSX requires a hardware accelerated
 OpenGL library; a software GL implementation will be too slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-So, again, note that this renderer (and thus openMSX) requires both your video
+So, again, be aware that openMSX requires both your video
 card and video driver to support at least OpenGL 2.0. Sometimes you need to
 upgrade your driver to make it work. If your videocard or driver don't support
 OpenGL 2.0, openMSX will not start up and report an error.
-</dd>
-
-</dl>
-
-<p>
-You can set the renderer with the <code><a class="external"
-href="commands.html#renderer">renderer</a></code> setting. You can set full
-screen mode with the <code><a class="external"
-href="commands.html#fullscreen">fullscreen</a></code> setting (also available
-under <span class="menu-reference">Main menu bar &rarr; Settings &rarr; Video</span>).
 </p>
 
-<h3><a id="accuracy">6.2 Accuracy</a></h3>
-
 <p>
-The <code><a class="external" href="commands.html#accuracy">accuracy</a></code>
-setting controls how often the renderer is synchronised with the MSX video
-processor (VDP).
-There are three options:
+Most video related settings can be found under the <span
+class="menu-reference">Main menu bar &rarr; Settings &rarr; Video</span> menu.
+The rest of this section describes more details about the settings you can find
+there. For instance, for full screen mode, there is a checkbox in that menu,
+which maps to the <code><a class="external"
+href="commands.html#fullscreen">fullscreen</a></code> setting.
 </p>
 
-<dl>
-<dt>screen</dt>
-<dd>
-Synchronise once per screen (frame).
-Good enough for most MSX1 software, but will break most raster effects.
-</dd>
-
-<dt>line</dt>
-<dd>
-Synchronise at the start of a line.
-This is good enough for most software.
-This setting hides imperfections in raster effects,
-which could be considered a useful feature.
-</dd>
-
-<dt>pixel</dt>
-<dd>
-Synchronise at the exact pixel where a change occurs.
-This is the most realistic setting and therefore set as the default.
-To see demos like Unknown Reality (scope part) and Verti correctly,
-you should use this setting.
-Also, you will see any imperfections in raster effects
-just like they occur on a real MSX.
-</dd>
-
-</dl>
-
-<h3><a id="scalers">6.3 Scalers</a></h3>
+<h3><a id="scalers">6.1 Scalers</a></h3>
 
 <p>
 Most MSX screen modes are only 256&times;212 pixels big. This is quite small
@@ -1648,7 +1601,7 @@ found on <a class="external" href="http://openmsx.org/">the openMSX web
 site</a>.
 </p>
 
-<h3><a id="gamma">6.4 Gamma Correction</a></h3>
+<h3><a id="gamma">6.2 Gamma Correction</a></h3>
 
 <p>
 PC monitors can have different gamma values than MSX monitors.
@@ -1673,7 +1626,7 @@ However, 0.8 is not the value I'm actually using: I prefer a brighter image
 than my MSX monitor, so I chose to use a gamma correction of 1.1.
 </p>
 
-<h3><a id="videoeffects">6.5 Special Effects</a></h3>
+<h3><a id="videoeffects">6.3 Special Effects</a></h3>
 
 <p>
 openMSX contains a couple of special effects settings that can be applied to
@@ -1695,8 +1648,7 @@ output frame, thus eliminating the flicker.
 The <code><a class="external"
 href="commands.html#deinterlace">deinterlace</a></code> setting controls this
 feature:
-it can be on (enabled) or off (disabled); it is enabled by default. This
-feature needs a scaling factor of at least 2.
+it can be on (enabled) or off (disabled); it is enabled by default.
 </dd>
 
 <dt><code><a class="external" href="commands.html#deflicker">deflicker</a></code></dt>
@@ -1716,8 +1668,7 @@ On TV's and MSX monitors, you can see a small black space in between the
 display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing some lines a bit darker.
 This feature is disabled when a scaling algorithm other than
-<code>simple</code>, <code>tv</code> or <code>RGBTriplet</code> is used and
-needs a scaling factor of at least 2.
+<code>simple</code>, <code>tv</code> or <code>RGBTriplet</code> is used.
 </dd>
 
 <dt><code><a class="external" href="commands.html#blur">blur</a></code></dt>
@@ -1731,8 +1682,7 @@ settings control this:
 100 means maximum blur (like a TV).
 All other values between 0 and 100 are also possible of course.
 This feature is disabled when a scaling algorithm other than
-<code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling
-factor of at least 2.
+<code>simple</code> or <code>RGBTriplet</code> is used.
 </dd>
 
 <dt>after glow (<code><a class="external" href="commands.html#glow">glow</a></code>)</dt>
@@ -1763,10 +1713,47 @@ This feature makes it possible to change the shape of the MSX screen. Here are t
  </ul>
 </dd>
 
+</dl>
+
+<h3><a id="accuracy">6.4 Accuracy</a></h3>
+
+<p>
+An advanced setting (which yo can find under <span class="menu-reference">Main
+menu bar &rarr; Settings &rarr; Video &rarr; Advanced (for debugging)</span>
+(the <code><a class="external"
+href="commands.html#accuracy">accuracy</a></code> setting) controls how often
+the renderer is synchronised with the MSX video processor (VDP).
+There are three options:
+</p>
+
+<dl>
+<dt>screen</dt>
+<dd>
+Synchronise once per screen (frame).
+Good enough for most MSX1 software, but will break most raster effects.
+</dd>
+
+<dt>line</dt>
+<dd>
+Synchronise at the start of a line.
+This is good enough for most software.
+This setting hides imperfections in raster effects,
+which could be considered a useful feature.
+</dd>
+
+<dt>pixel</dt>
+<dd>
+Synchronise at the exact pixel where a change occurs.
+This is the most realistic setting and therefore set as the default.
+To see demos like Unknown Reality (scope part) and Verti correctly,
+you should use this setting.
+Also, you will see any imperfections in raster effects
+just like they occur on a real MSX.
+</dd>
 
 </dl>
 
-<h3><a id="gfx9000">6.6 GFX9000/Video 9000</a></h3>
+<h3><a id="gfx9000">6.5 GFX9000/Video 9000</a></h3>
 
 <p>
 openMSX has GFX9000 emulation. As there isn't that much software for it
@@ -1779,12 +1766,13 @@ found it worth sharing with you anyway.
 <p>
 The real GFX9000 has an external video connector to which you can connect a
 second monitor. Because of limits of the SDL library we used to create openMSX,
-we cannot have more than one window for openMSX, so we cannot emulate a second
-monitor. To see the GFX9000 in action, you need to switch the videosource
-setting, which equals to a so-called SCART-switch in the real world: <code>set
+we cannot have more than one video output window for openMSX, so we cannot
+emulate a second monitor. To see the GFX9000 in action, you need to switch the
+videosource setting, which equals to a so-called SCART-switch in the real
+world: <code>set
 <a class="external" href="commands.html#videosource">videosource</a> GFX9000</code>.
 This setting is only available when there are actually multiple videosources
-available.
+available and in the GUI you can find it under <span class="menu-reference">Main menu bar &rarr; Settings &rarr; Video &rarr; Video source to display</span>.
 </p>
 
 <p>
@@ -1814,7 +1802,7 @@ class="external" href="commands.html#videosource">videosource</a></code>.<br/>
 command that cycles through the options of the setting in the parameter.
 </p>
 
-<h3><a id="recording">6.7 Video Recording</a></h3>
+<h3><a id="recording">6.6 Video Recording</a></h3>
 
 <p>
 The video recorder enables you to record the audio and video rendered by
@@ -1837,16 +1825,7 @@ or, more importantly, if the software changes from PAL (50 Hz) to NTSC (60 Hz)
 during recording, the video will get out of sync with the audio. Most of the <a
 class="internal" href="#videoeffects">special effects</a> will not be recorded.
 </p>
-<p>
-Use the command <code><a class="external"
-href="commands.html#record">record</a> start</code> to record to a default file
-name, or you can use an additional parameter to specify a file. The command
-<code><a class="external" href="commands.html#record">record</a> stop</code>
-stops recording and <code><a class="external"
-href="commands.html#record">record</a> toggle</code> toggles it. You can use
-the <code>-audioonly</code> or <code>-videoonly</code> option to record only
-sound or video.
-</p>
+
 <p>
 If any stereo sound devices are present or any sound device has an off-center
 balance, the recording will be made in stereo, otherwise it will be mono. If
@@ -1856,6 +1835,21 @@ channels will be mixed down to mono. You can prevent this from happening by
 using the <code>-stereo</code> option to force a stereo recording even if
 no stereo devices are present at the time you enter the command. You can also
 force a mono recording with <code>-mono</code> to save space.
+</p>
+
+<p>
+In the GUI you can find the video recorder under <span class="menu-reference">Main menu bar &rarr; Tools &rarr; Capture &rarr; Audio/Video</span>, which will open a the corresponding window, in which you can specify all the above mentioned settings.
+</p>
+
+<p>
+In the console, you can use the command <code><a class="external"
+href="commands.html#record">record</a> start</code> to record to a default file
+name, or you can use an additional parameter to specify a file. The command
+<code><a class="external" href="commands.html#record">record</a> stop</code>
+stops recording and <code><a class="external"
+href="commands.html#record">record</a> toggle</code> toggles it. You can use
+the <code>-audioonly</code> or <code>-videoonly</code> option to record only
+sound or video.
 </p>
 <p>
 If you want to put a recorded video on your web site, it is better to transcode
@@ -1891,6 +1885,11 @@ chapter about this feature</a>.
 <h3><a id="audiosettings">7.1 Audio Settings</a></h3>
 
 <p>
+Most audio related settings can be found under the <span
+class="menu-reference">Main menu bar &rarr; Settings &rarr; Sound</span> menu.
+</p>
+
+<p>
 There is a <code><a class="external"
 href="commands.html#master_volume">master_volume</a></code> setting, which
 controls the overall output volume of openMSX (it applies to all sound
@@ -1905,8 +1904,14 @@ mute is bound to the F12 key.
 </p>
 
 <p>
-Each sound device in the MSX you are emulating also has its own volume setting.
-Volume 0 means no sound, volume 100 is maximum. For example: <code>set <a
+There are also settings for each emulated sound device. These can be found
+under the <span class="menu-reference">Main menu bar &rarr; Settings &rarr;
+Sound &rarr; Show sound chip settings</span> option in the menu.
+</p>
+
+<p>
+For each sound device there is a volume setting.
+Volume 0 means no sound, volume 100 is maximum. In the console you can do this, for example: <code>set <a
 class="external" href="commands.html#soundchip_volume">"MSX Music_volume"</a>
 50</code>.
 </p>
@@ -1959,15 +1964,15 @@ virtual MIDI port for Mac MIDI software to connect to.
 <p>
 For example, use the machine <code>Panasonic_FS-A1GT</code> and plug into the
 <a class="external" href="https://sourceforge.net/projects/munt/">Munt</a> soft
-synthesizer (MT-32 emulator) using the console command:
+synthesizer (MT-32 emulator) using <span class="menu-reference">Main menu bar &rarr; Connectors</span> menu, or the the console command:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out Munt\ MT-32
 </div>
 <p>
-The exact naming of the host MIDI devices differs per platform. You can use tab
-completion to see the options: type <code>plug msx-midi-out</code> and hit TAB
-twice.
+The exact naming of the host MIDI devices differs per platform. In the console
+you can use tab completion to see the options: type <code>plug
+msx-midi-out</code> and hit TAB twice.
 </p>
 
 <p>
@@ -1999,15 +2004,14 @@ forum thread</a> which describes how to connect openMSX to Timidity via
 <h4>MIDI In</h4>
 
 <p>
-Vice versa, the MIDI in port can also receive data from the system by plugging a device
-into <code>msx-midi-in</code> (for the Panasonic FS-A1GT; use the appropriate
-connector name for other devices). Analogous to the above mentioned outputs you
-can connect a <code>midi-in-reader</code> which reads from a file or
-<code>/dev/midi</code> on Linux. On Windows and macOS available MIDI devices
+Vice versa, the MIDI in port can also receive data from the system by plugging
+a device into <code>msx-midi-in</code> (for the Panasonic FS-A1GT; use the
+appropriate connector name for other devices). Analogous to the above mentioned
+outputs you can connect a <code>midi-in-reader</code> which reads from a file
+or <code>/dev/midi</code> on Linux. On Windows and macOS available MIDI devices
 show up as separate pluggables. On macOS a <code>Virtual IN</code> port is
 available as well.
 </p>
-
 
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
@@ -2019,7 +2023,11 @@ at 44.1 kHz it will take about 176 kB per second.
 </p>
 
 <p>
-You can start the recording of sound by issuing the command <code><a
+In the GUI you can find the audio recorder under <span class="menu-reference">Main menu bar &rarr; Tools &rarr; Capture &rarr; Audio/Video</span>, which will open a the audio/video recording window. Just select only Audio to log to said WAV file.
+<p>
+
+<p>
+The underlying console command to start the recording of sound is <code><a
 class="external" href="commands.html#soundlog">soundlog</a> start</code>. It
 will automatically choose a file name and save it in the <code>soundlogs</code>
 directory in your personal openMSX folder. You can also add an extra parameter
@@ -2036,8 +2044,12 @@ There is also an advanced feature for recording audio to file: you can record
 individual channels of sound chips to individual files on disk. The sound is in
 the native frequency of the sound chip this time, which means that for chips
 like PSG or SCC (which run at very high frequencies), the files will be huge.
-(You are warned!) This feature is easiest to control with the <code><a
-class="external"
+(You are warned!) This feature can be controlled in the GUI via <span
+class="menu-reference">Main menu bar &rarr; Settings &rarr; Sound &rarr; Show
+sound chip settings</span> and in that window click on the "channels" checkbox,
+which opens a window where you can fill in a file name for each channel you
+want to record with. Perhaps it is easiest to control from the console with the
+<code><a class="external"
 href="commands.html#record_channels">record_channels</a></code> command. Note
 that in contrast to the <code><a class="external"
 href="commands.html#soundlog">soundlog</a></code> command, the output file of
@@ -2054,15 +2066,20 @@ software and make great remakes of them.
 A feature of emulators which is particularly useful is saving the state of the
 emulated machine to a file, in order to load it again later and continue
 exactly where you left off when saving. Not only useful for games, but also for
-debugging or testing. This feature is now also available in openMSX! And the
-best thing is, that it is designed in such way that it is able to cope with
-older save states in future releases. So, you don't have to be afraid to
-upgrade to a new version of openMSX: your save states will remain usable!
+debugging or testing. For openMSX we designed this feature in such a way
+that it is able to cope with older save states in future releases. So, you
+don't have to be afraid to upgrade to a new version of openMSX: your save
+states will remain usable!
 </p>
 
 <p>
+In the GUI's <span class="menu-reference">Main menu bar &rarr; Save
+state</span> menu you find all options to (quick) load and save states and even
+more. </p>
+
+<p>
 The easiest way to use it is by using the keyboard shortcuts for quickly saving
-and loading a state, see the <a class="internal" href="#keymapping">key mapping
+and loading a state, see the shortcut hints in the aforementioned menu and also the <a class="internal" href="#keymapping">key mapping
 section</a>. These shortcuts basically use the <a class="external"
 href="commands.html#savestate">savestate</a> and loadstate commands, with the
 parameter <code>quicksave</code>, i.e. they use a savestate file with the name
@@ -2083,7 +2100,7 @@ with it, so that those could be used for save state browsing.
 <h3><a id="reverse">8.2 Reverse</a></h3>
 
 <p>
-Inspired by the meisei MSX emulator, openMSX now also has a reverse feature.
+Inspired by the meisei MSX emulator, openMSX also has a reverse feature.
 This enables you to go back in MSX time, so you can correct mistakes in your
 game play or you can watch what you did (and also record a video of it).
 </p>
@@ -2118,15 +2135,18 @@ and forward in time. The vertical lines indicate times when snapshots where
 made. The bar will fade out after a while, but hovering your cursor over it
 makes it reappear. If you want to get rid of the bar, toggle this setting in
 the GUI menu: <span class="menu-reference">Main menu bar &rarr; Save state
-&rarr; Show reverse bar</span>. (This will not turn off the reverse feature
-itself.)
+&rarr; Reverse/replay settings &rarr; Show reverse bar</span>. (This will not
+turn off the reverse feature itself.)
 </p>
 
 <p>
-If you want to disable the reverse feature, you can use the <code><a
-class="external" href="commands.html#reverse">reverse stop</a></code> command.
-And if you don't want it to restart again anymore, use the <code><a
-class="external"
+If you want to disable the reverse feature, you can use <span
+class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
+settings &rarr; Enable reverse/replay</span> or the underlying <code><a
+class="external" href="commands.html#reverse">reverse stop</a></code> console command.
+And if you don't want it to restart again anymore, uncheck <span
+class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
+settings &rarr; Auto enable reverse</span> or use the <code><a class="external"
 href="commands.html#auto_enable_reverse">auto_enable_reverse</a></code>
 setting.
 </p>
@@ -2134,9 +2154,13 @@ setting.
 <p>
 If you want to save a very compact recording of what you did, or want to have
 the possibility to start off in the middle of a recording, you can save your
-complete replay to a file with the <code><a class="external"
+complete replay to a file with <span
+class="menu-reference">Main menu bar &rarr; Save state &rarr; Save
+replay...</span> or the <code><a class="external"
 href="commands.html#reverse">reverse savereplay</a></code> command. They can
-also be loaded of course, with <code><a class="external"
+also be loaded of course, with <span
+class="menu-reference">Main menu bar &rarr; Save state &rarr; Load
+replay...</span> or <code><a class="external"
 href="commands.html#reverse">reverse loadreplay</a></code>.
 </p>
 
@@ -2150,7 +2174,6 @@ supported games. When a game is selected, you see the list of cheats displayed
 for the game, where you can also toggle the different cheats you want to
 activate.
 </p>
-
 
 <p>
 As with most openMSX functionality, the trainers can also be used from the <a
