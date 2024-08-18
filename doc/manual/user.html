@@ -213,7 +213,7 @@ not change the default machine, you will get the C-BIOS MSX2+ machine.
 </p>
 
 <p>
-To select machines from the GUI, use the Machine menu and choose "Select MSX
+To select machines from the GUI, use the <span class="menu-reference">Main menu bar &rarr; Machine</span> menu and choose "Select MSX
 machine ..." This will give a window in which you can seen an overview of all
 available machines to select from and hovering on items in the list shows you
 the most important properties of these machines. You can also filter on type,
@@ -253,7 +253,7 @@ details.
 </p>
 
 <p>
-Using the GUI, use the Media menu where you can either first select the MSX
+Using the GUI, use the <span class="menu-reference">Main menu bar &rarr; Media</span> menu where you can either first select the MSX
 cartridge slot to put the extension into, or directly select the Extensions
 menu option to insert an extension in the first free slot or remove extensions
 from the slot they're in.
@@ -389,7 +389,7 @@ commands will be discussed later on in this manual.
 
 <p>
 There are many settings in openMSX for customization, changing preferences or
-enabling extras. The most important ones are in the Settings menu in the GUI.
+enabling extras. The most important ones are in the <span class="menu-reference">Main menu bar &rarr; Settings</span> menu in the GUI.
 There is also an Advanced item in that menu that will give a huge window with
 all possible settings. Usually, you can revert a setting to its default value
 by right-clicking it and then clicking the "Restore default" button in the
@@ -424,7 +424,7 @@ which has the speed percentage as parameter. So, typing <code>set
 speed 120</code>, will let the emulated MSX run at 120% of normal MSX speed.
 This is useful for debugging purposes (slow down) or when you want to skip
 certain parts of a demo for example (speed up). The GUI has this setting under
-Settings &rarr; Speed &rarr; Emulation.
+<span class="menu-reference">Main menu bar &rarr; Settings &rarr; Speed &rarr; Emulation</span>.
 </p>
 
 <p>
@@ -434,7 +434,7 @@ In openMSX the internal software is switched off by default, but you can switch
 it on with the following setting: <code>set <a class="external"
 href="commands.html#firmwareswitch">firmwareswitch</a> on</code>. If the
 currently running machine has a firmware swich, a toggle option will show up in
-the Machine menu to control it.
+the <span class="menu-reference">Main menu bar &rarr; Machine</span> menu to control it.
 </p>
 
 <p>
@@ -442,7 +442,8 @@ If you're not really interested in how long a real MSX would take for loading
 from diskette, cassette or laserdisc, you could enable the full speed when
 loading feature: <code>set <a class="external"
 href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code>,
-or from the GUI at Settings &rarr; Speed &rarr; Go full speed when loading.. It
+or from the GUI at <span class="menu-reference">Main menu bar &rarr; Settings
+&rarr; Speed &rarr; Go full speed when loading</span>. It
 runs openMSX at maximum speed whenever it thinks that the MSX is loading. The
 drawbacks: it might detect a bit too late that the MSX isn't loading anymore,
 so sometimes the first notes of music played right after loading might be too
@@ -465,7 +466,8 @@ automatically save your settings on exit (which ever way they were changed).
 <h3><a id="plug">3.4 Plugging in devices in connectors</a></h3>
 
 <p>
-The Connectors menu will show you all connectors of the currently running
+The <span class="menu-reference">Main menu bar &rarr; Connectors</span> menu
+will show you all connectors of the currently running
 machine and which (pluggable) device is currently plugged in. You can easily
 plug in other devices there, e.g. a mouse in a joystick port.
 </p>
@@ -502,7 +504,7 @@ Add the complete list of pluggables here.
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
 <p>
-With this information, you can run most of the existing MSX software. If you use the GUI, refer to the Media menu.
+With this information, you can run most of the existing MSX software. If you use the GUI, refer to the <span class="menu-reference">Main menu bar &rarr; Media</span> menu.
 </p>
 
 <p>
@@ -518,7 +520,8 @@ line. For some media examples of command line usage are given below.
 
 <p>
 In the GUI you can choose which ROM software you want to run by selecting the
-Cartridge Slot you want to insert it in from the Media menu. This will open a
+Cartridge Slot you want to insert it in from the <span
+class="menu-reference">Main menu bar &rarr; Media</span> menu. This will open a
 window where you can tell openMSX exactly what you want to put in the slot,
 like a ROM image, which mapper to use if the automatically selected one isn't
 correct and whether the MSX must be reset after inserting. And finally, you can
@@ -712,13 +715,14 @@ exports, with support for normal disk images, Sunrise IDE harddisk images (FAT12
 only) with partitions, and Nextor harddisk images (FAT12 and FAT16) with partitions.
 <p>
 <p>
-In the GUI, you can find this tool under Tools &rarr; Disk Manipulator. This
-will open a big window, which has many powerful options. On the left side you
-select the emulated machine drive (any existing drive or the "Virtual drive",
-which only exists in memory). On the right side, you see the host directories
-with their file content. Use the arrows in the middle to transfer files, the
-plus-button on the left side to create a new (hard) disk image and the
-directory-button to browse for a disk image to insert.
+In the GUI, you can find this tool under <span class="menu-reference">Main menu
+bar &rarr; Tools &rarr; Disk Manipulator</span>. This will open a big window,
+which has many powerful options. On the left side you select the emulated
+machine drive (any existing drive or the "Virtual drive", which only exists in
+memory). On the right side, you see the host directories with their file
+content. Use the arrows in the middle to transfer files, the plus-button on the
+left side to create a new (hard) disk image and the directory-button to browse
+for a disk image to insert.
 </p>
 
 <p>
@@ -730,7 +734,7 @@ For the console commands that are behind this window, please see the separate ma
 
 <p>
 Unless the current machine has no cassette port, like the MSX turboR, in the
-GUI select Media &rarr; Tape Deck to open the virtual cassette player control
+GUI select <span class="menu-reference">Main menu bar &rarr; Media &rarr; Tape Deck</span> to open the virtual cassette player control
 window.
 </p>
 
@@ -856,7 +860,7 @@ In the GUI you can find under Media entries like "Hard Disk A" or "CDROM Drive
 A" if such devices are connected to the (IDE/SCSI/SD) extension that is
 currently in the active machine. If wanted, you can also change the used image
 there, but note that for media like hard disks, this can only be done when the
-machine is first powered off (see the Machine menu).
+machine is first powered off (see the <span class="menu-reference">Main menu bar &rarr; Machine</span> menu).
 </p>
 
 <p>Please read the following sections for details about the specific extensions.</p>
@@ -1090,7 +1094,7 @@ laserdisc player.
 
 
 <p>
-The Laserdisc image can be selected under Media &rarr; LaserDisc Player or in
+The Laserdisc image can be selected under <span class="menu-reference">Main menu bar &rarr; Media &rarr; LaserDisc Player</span> or in
 the <a class="internal" href="#console">console</a>, type:
 </p>
 
@@ -1284,8 +1288,9 @@ A of the emulated MSX.
 <p>
 How your host devices (host controllers, joysticks or keyboard) are mapped to
 these 4 emulated MSX joysticks is fully configurable. The easiest way is to use
-the GUI menu for that under Settings &rarr; Input &rarr; Configure MSX
-joysticks. You can also do it in the console with the  <a class="external"
+the GUI menu for that under <span class="menu-reference">Main menu bar &rarr;
+Settings &rarr; Input &rarr; Configure MSX joysticks</span>. You can also do it
+in the console with the  <a class="external"
 href="commands.html#msxjoystickN_config">msxjoystick&lt;n&gt;_config/joymega&lt;n&gt;_config</a>
 settings.
 </p>
@@ -1319,7 +1324,8 @@ unfortunately, such mappings are not configurable via the GUI menu.
 <h3><a id="mouse">5.3 Mouse</a></h3>
 
 <p>
-To connect a mouse, you can also use the Connectors menu or the <code><a
+To connect a mouse, you can also use the <span class="menu-reference">Main menu
+bar &rarr; Connectors</span> menu or the <code><a
 class="external" href="commands.html#plugunplug">plug</a></code> command:
 </p>
 <div class="commandline">
@@ -1352,7 +1358,8 @@ mentioned above.
 The Arkanoid games by Taito both have support for a special Arkanoid game pad,
 with a classical turning knob to control the position of the bat. This device
 is emulated as well and can be controlled by the mouse. Plug it via the GUI
-Connector menu or in the console as follows:</p>
+<span class="menu-reference">Main menu bar &rarr; Connector</span> menu or in
+the console as follows:</p>
 
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> joyporta arkanoidpad
@@ -1504,7 +1511,7 @@ You can set the renderer with the <code><a class="external"
 href="commands.html#renderer">renderer</a></code> setting. You can set full
 screen mode with the <code><a class="external"
 href="commands.html#fullscreen">fullscreen</a></code> setting (also available
-under Settings &rarr; Video).
+under <span class="menu-reference">Main menu bar &rarr; Settings &rarr; Video</span>).
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -2109,8 +2116,9 @@ current moment in time (the red indicator). You can click on it to jump back
 and forward in time. The vertical lines indicate times when snapshots where
 made. The bar will fade out after a while, but hovering your cursor over it
 makes it reappear. If you want to get rid of the bar, toggle this setting in
-the GUI menu: Save state &rarr; Show reverse bar. (This will not turn off the
-reverse feature itself.)
+the GUI menu: <span class="menu-reference">Main menu bar &rarr; Save state
+&rarr; Show reverse bar</span>. (This will not turn off the reverse feature
+itself.)
 </p>
 
 <p>
@@ -2135,7 +2143,7 @@ href="commands.html#reverse">reverse loadreplay</a></code>.
 
 <p>
 openMSX includes a game trainer system. You start with it by using the GUI
-menu: Tools &rarr; Trainer Selector... This will open a window in which you
+menu: <span class="menu-reference">Main menu bar &rarr; Tools &rarr; Trainer Selector...</span> This will open a window in which you
 must first select the game you want to use a trainer for from the list of
 supported games. When a game is selected, you see the list of cheats displayed
 for the game, where you can also toggle the different cheats you want to

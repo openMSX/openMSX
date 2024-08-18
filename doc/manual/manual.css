@@ -111,3 +111,10 @@ td {
 	vertical-align: top;
 	padding-right: 32pt;
 }
+.menu-reference {
+	font-style: italic;
+	border: 1px solid #ccc;
+	padding: 1px;
+	border-radius: 1px;
+}
+
