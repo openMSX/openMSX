@@ -184,13 +184,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				Checkbox(hotKey, "VSync", renderSettings.getVSyncSetting());
 				SliderInt("Minimum frame-skip", renderSettings.getMinFrameSkipSetting()); // TODO: either leave out this setting, or add a tooltip like, "Leave on 0 unless you use a very slow device and want regular frame skipping");
 				SliderInt("Maximum frame-skip", renderSettings.getMaxFrameSkipSetting()); // TODO: either leave out this setting or add a tooltip like  "On slow devices, skip no more than this amount of frames to keep emulation on time.");
-				ComboBox("Rendering accuracy", renderSettings.getAccuracySetting());
 			});
 			im::TreeNode("Advanced (for debugging)", [&]{ // default collapsed
 				Checkbox(hotKey, "Enforce VDP sprites-per-line limit", renderSettings.getLimitSpritesSetting());
 				Checkbox(hotKey, "Disable sprites", renderSettings.getDisableSpritesSetting());
 				ComboBox("Way to handle too fast VDP access", renderSettings.getTooFastAccessSetting());
 				ComboBox("Emulate VDP command timing", renderSettings.getCmdTimingSetting());
+				ComboBox("Rendering accuracy", renderSettings.getAccuracySetting());
 			});
 		});
 		im::Menu("Sound", [&]{
