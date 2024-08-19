@@ -28,9 +28,19 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 		});
 		ImGui::MenuItem("Dear ImGui user guide", nullptr, &showImGuiUserGuide);
 		ImGui::Separator();
+		ImGui::Checkbox("ImGui Demo Window", &showDemoWindow);
+		HelpMarker("Show the ImGui demo window.\n"
+			"This is purely to demonstrate the ImGui capabilities\n"
+			"and can sometimes help to diagnose problems.\n"
+			"There is no connection with any openMSX functionality.");
+		ImGui::Separator();
 		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX);
 		ImGui::MenuItem("About Dear ImGui", nullptr, &showAboutImGui);
 	});
+
+	if (showDemoWindow) {
+		ImGui::ShowDemoWindow(&showDemoWindow);
+	}
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)

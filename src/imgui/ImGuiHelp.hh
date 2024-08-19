@@ -33,6 +33,7 @@ private:
 	bool showImGuiUserGuide = false;
 	bool showAboutOpenMSX = false;
 	bool showAboutImGui = false;
+	bool showDemoWindow = false;
 
 	std::optional<LogoImage> logo; // initialized on first use
 };

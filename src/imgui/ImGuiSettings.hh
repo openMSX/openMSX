@@ -46,7 +46,6 @@ private:
 	bool showFont = false;
 	bool showShortcut = false;
 	Shortcuts::ID editShortcutId = Shortcuts::ID::INVALID;
-	bool showDemoWindow = false;
 
 	unsigned joystick = 0;
 	unsigned popupForKey = unsigned(-1);
