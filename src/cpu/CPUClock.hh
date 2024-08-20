@@ -39,7 +39,7 @@ protected:
 		return clock.getFastAdd(limit - remaining + cc);
 	}
 	void setTime(EmuTime::param time) { sync(); clock.reset(time); }
-	void setFreq(unsigned freq) { clock.setFreq(freq); }
+	void setFreq(unsigned freq) { sync(); disableLimit(); clock.setFreq(freq); }
 	void advanceTime(EmuTime::param time);
 	[[nodiscard]] EmuTime calcTime(EmuTime::param time, unsigned ticks) const {
 		return clock.add(time, ticks);
