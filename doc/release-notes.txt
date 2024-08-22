@@ -199,6 +199,8 @@ New or improved emulator features:
 
 Build system, packaging, documentation:
 - added support for loongarch
+- required GNU compiler is now at least g++-11
+- required clang compiler is at least 16
 - on macOS, at least XCode 15.3 is required
 - Android build is totally broken, and will require a lot of effort and help to
   get back up, which is not planned by us.
