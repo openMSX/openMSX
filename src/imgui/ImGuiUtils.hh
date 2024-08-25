@@ -107,8 +107,6 @@ inline void centerNextWindowOverCurrent()
 	ImGui::SetNextWindowPos(windowCenter, ImGuiCond_Appearing, center);
 }
 
-void drawURL(std::string_view text, zstring_view url);
-
 struct GetSettingDescription {
 	std::string operator()(const Setting& setting) const;
 };

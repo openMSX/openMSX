@@ -27,29 +27,6 @@ void HelpMarker(std::string_view desc)
 	simpleToolTip(desc);
 }
 
-void drawURL(std::string_view text, zstring_view url)
-{
-	auto pos = ImGui::GetCursorScreenPos();
-	auto color = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
-	im::StyleColor(ImGuiCol_Text, color, [&]{
-		ImGui::TextUnformatted(text);
-	});
-
-	simpleToolTip(url);
-
-	if (ImGui::IsItemHovered()) { // underline
-		auto size = ImGui::CalcTextSize(text);
-		auto* drawList = ImGui::GetWindowDrawList();
-		ImVec2 p1{pos.x, pos.y + size.y};
-		ImVec2 p2{pos.x + size.x, pos.y + size.y};
-		drawList->AddLine(p1, p2, color);
-	}
-
-	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-		SDL_OpenURL(url.c_str());
-	}
-}
-
 std::string GetSettingDescription::operator()(const Setting& setting) const
 {
 	return std::string(setting.getDescription());

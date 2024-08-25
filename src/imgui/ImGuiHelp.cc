@@ -22,9 +22,9 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 	im::Menu("Help", [&]{
 		auto docDir = FileOperations::getSystemDocDir();
 		im::Menu("Manual", [&]{
-			drawURL("FAQ", strCat("file://", docDir, "/manual/faq.html"));
-			drawURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html"));
-			drawURL("User Manual", strCat("file://", docDir, "/manual/user.html"));
+			ImGui::TextLinkOpenURL("FAQ", strCat("file://", docDir, "/manual/faq.html").c_str());
+			ImGui::TextLinkOpenURL("Setup Guide", strCat("file://", docDir, "/manual/setup.html").c_str());
+			ImGui::TextLinkOpenURL("User Manual", strCat("file://", docDir, "/manual/user.html").c_str());
 		});
 		ImGui::MenuItem("Dear ImGui user guide", nullptr, &showImGuiUserGuide);
 		ImGui::Separator();
@@ -96,7 +96,7 @@ void ImGuiHelp::paintAbout()
 
 			ImGui::TextUnformatted("Visit our website:"sv);
 			ImGui::SameLine();
-			drawURL("openMSX.org", "https://openmsx.org");
+			ImGui::TextLinkOpenURL("openMSX.org", "https://openmsx.org");
 		});
 	});
 }
