@@ -29,7 +29,7 @@ using Pixel = uint32_t;
 void scale_1on3(std::span<const Pixel> in, std::span<Pixel> out);
 void scale_1on4(std::span<const Pixel> in, std::span<Pixel> out);
 void scale_1on6(std::span<const Pixel> in, std::span<Pixel> out);
-void Scale_1on2(std::span<const Pixel> in, std::span<Pixel> out);
+void scale_1on2(std::span<const Pixel> in, std::span<Pixel> out);
 void scale_2on1(std::span<const Pixel> in, std::span<Pixel> out);
 void scale_6on1(std::span<const Pixel> in, std::span<Pixel> out);
 void scale_4on1(std::span<const Pixel> in, std::span<Pixel> out);
@@ -171,7 +171,7 @@ inline void scale_1on2(std::span<const Pixel> in, std::span<Pixel> out)
 	// Hopefully in some years the compilers have improved further so that
 	// the intrinsic version is no longer needed.
 	auto srcWidth = in.size();
-	assert(out.size() == 2 * srcWidth);
+	assert((out.size() / 2) == srcWidth);
 
 #ifdef __SSE2__
 	size_t chunk = 4 * sizeof(__m128i) / sizeof(Pixel);
@@ -238,7 +238,7 @@ inline void scale_2on1_SSE(
 
 inline void scale_2on1(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	assert(in.size() == 2 * out.size());
+	assert((in.size() / 2) == out.size());
 	auto outWidth = out.size();
 #ifdef __SSE2__
 	auto n64 = (outWidth * sizeof(Pixel)) & ~63;
@@ -259,7 +259,7 @@ inline void scale_2on1(std::span<const Pixel> in, std::span<Pixel> out)
 
 inline void scale_6on1(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	assert(in.size() == 6 * out.size());
+	assert((in.size() / 6) == out.size());
 	PixelOperations pixelOps;
 	for (auto i : xrange(out.size())) {
 		out[i] = pixelOps.template blend<1, 1, 1, 1, 1, 1>(subspan<6>(in, 6 * i));
@@ -268,7 +268,7 @@ inline void scale_6on1(std::span<const Pixel> in, std::span<Pixel> out)
 
 inline void scale_4on1(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	assert(in.size() == 4 * out.size());
+	assert((in.size() / 4) == out.size());
 	PixelOperations pixelOps;
 	for (auto i : xrange(out.size())) {
 		out[i] = pixelOps.template blend<1, 1, 1, 1>(subspan<4>(in, 4 * i));
@@ -277,7 +277,7 @@ inline void scale_4on1(std::span<const Pixel> in, std::span<Pixel> out)
 
 inline void scale_3on1(std::span<const Pixel> in, std::span<Pixel> out)
 {
-	assert(in.size() == 3 * out.size());
+	assert((in.size() / 3) == out.size());
 	PixelOperations pixelOps;
 	for (auto i : xrange(out.size())) {
 		out[i] = pixelOps.template blend<1, 1, 1>(subspan<3>(in, 3 * i));
