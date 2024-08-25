@@ -375,14 +375,27 @@ void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result,
 
 void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& result) const
 {
-	checkNumArgs(tokens, 4, Prefix{2}, "value addr");
+	checkNumArgs(tokens, Between{4, 5}, Prefix{2}, "value addr ?function?");
 	std::span<const uint8_t> bin = tokens[2].getBinary();
 	auto len = instructionLength(bin);
 	if (!len || *len > bin.size()) {
 		throw CommandException("Blob does not contain a complete Z80 instruction");
 	}
 	std::string dasmOutput;
-	dasm(bin.subspan(0, *len), word(tokens[3].getInt(getInterpreter())), dasmOutput);
+	unsigned addr = tokens[3].getInt(getInterpreter());
+	dasm(bin.subspan(0, *len), word(addr), dasmOutput,
+		[&](std::string& output, uint16_t a) {
+			zstring_view result;
+			if (tokens.size() > 4) {
+				auto command = makeTclList(tokens[4], a);
+				result = command.executeCommand(getInterpreter()).getString();
+			}
+			if (result.size() > 0) {
+				strAppend(output, result);
+			} else {
+				appendAddrAsHex(output, a);
+			}
+		});
 	dasmOutput.resize(19, ' ');
 	result.addListElement(dasmOutput);
 	result.addListElement(*len);
@@ -1008,11 +1021,14 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convenient to use than this subcommand.";
 	auto disasmBlobHelp =
-		"debug disasm_blob <value> <addr>\n"
+		"debug disasm_blob <value> <addr> [<function>]\n"
 		"  This is a more generic version of the disasm subcommand, but it "
 		"works on a Tcl binary string (see Tcl manual) to disassemble a "
 		"single instruction. The given address is used when relative "
-		"address to jump to is necessary.\n";
+		"address to jump to is necessary. The optional fuction will be "
+		"called with an address as parameter and may return a symbol name "
+		"that replaces that address if a symbol that matches the address "
+		"is found.\n";
 	auto symbolsHelp =
 		"debug symbols <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
