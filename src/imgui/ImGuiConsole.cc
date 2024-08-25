@@ -165,7 +165,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 			}
 
 			// recalculate the number of columns
-			auto width = ImGui::GetContentRegionMax().x;
+			auto width = ImGui::GetContentRegionAvail().x;
 			auto charWidth = ImGui::CalcTextSize("M"sv).x;
 			columns = narrow_cast<unsigned>(width / charWidth);
 		});
