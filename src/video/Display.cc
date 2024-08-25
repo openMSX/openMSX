@@ -401,10 +401,17 @@ void Display::removeLayer(Layer& layer)
 
 void Display::updateZ(Layer& layer) noexcept
 {
-	// Remove at old Z-index...
-	removeLayer(layer);
-	// ...and re-insert at new Z-index.
-	addLayer(layer);
+	auto oldPos = rfind_unguarded(layers, &layer);
+	auto z = layer.getZ();
+	auto newPos = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
+
+	if (oldPos == newPos) {
+		return;
+	} else if (oldPos < newPos) {
+		std::rotate(oldPos, oldPos + 1, newPos);
+	} else {
+		std::rotate(newPos, oldPos, oldPos + 1);
+	}
 }
 
 
