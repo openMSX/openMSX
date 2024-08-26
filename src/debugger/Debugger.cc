@@ -390,7 +390,7 @@ void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& res
 				auto command = makeTclList(tokens[4], a);
 				result = command.executeCommand(getInterpreter()).getString();
 			}
-			if (result.size() > 0) {
+			if (!result.empty()) {
 				strAppend(output, result);
 			} else {
 				appendAddrAsHex(output, a);
