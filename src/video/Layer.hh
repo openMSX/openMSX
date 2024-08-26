@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
+class Display;
 class OutputSurface;
-class LayerListener;
 
 /** Interface for display layers.
   */
@@ -59,7 +59,7 @@ public:
 	/** Store pointer to Display.
 	  * Will be called by Display::addLayer().
 	  */
-	void setDisplay(LayerListener& display_) { display = &display_; }
+	void setDisplay(Display& display_) { display = &display_; }
 
 protected:
 	/** Construct a layer. */
@@ -78,7 +78,7 @@ protected:
 
 private:
 	/** The display this layer is part of. */
-	LayerListener* display = nullptr;
+	Display* display = nullptr;
 
 	/** Inspected by Display to determine which layers to paint. */
 	Coverage coverage;

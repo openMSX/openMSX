@@ -6,7 +6,6 @@
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "EventListener.hh"
-#include "LayerListener.hh"
 #include "RTSchedulable.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
@@ -28,7 +27,7 @@ class OutputSurface;
   * A display contains several layers.
   */
 class Display final : public EventListener, private Observer<Setting>
-                    , private LayerListener, private RTSchedulable
+                    , private RTSchedulable
 {
 public:
 	static constexpr std::string_view SCREENSHOT_DIR = "screenshots";
@@ -57,6 +56,7 @@ public:
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);
+	void updateZ(Layer& layer);
 
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
@@ -100,9 +100,6 @@ private:
 	/** Find front most opaque layer.
 	  */
 	[[nodiscard]] Layers::iterator baseLayer();
-
-	// LayerListener interface
-	void updateZ(Layer& layer) noexcept override;
 
 private:
 	Layers layers; // sorted on z

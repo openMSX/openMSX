@@ -1,5 +1,6 @@
 #include "Layer.hh"
-#include "LayerListener.hh"
+
+#include "Display.hh"
 
 namespace openmsx {
 

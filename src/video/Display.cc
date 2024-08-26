@@ -399,7 +399,7 @@ void Display::removeLayer(Layer& layer)
 	layers.erase(rfind_unguarded(layers, &layer));
 }
 
-void Display::updateZ(Layer& layer) noexcept
+void Display::updateZ(Layer& layer)
 {
 	auto oldPos = rfind_unguarded(layers, &layer);
 	auto z = layer.getZ();
