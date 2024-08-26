@@ -256,7 +256,7 @@ float Display::getFps() const
 
 void Display::update(const Setting& setting) noexcept
 {
-	assert(&setting == &renderSettings.getRendererSetting());
+	assert(&setting == &renderSettings.getRendererSetting()); (void)setting;
 	checkRendererSwitch();
 }
 
