@@ -384,16 +384,16 @@ void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& res
 	std::string dasmOutput;
 	unsigned addr = tokens[3].getInt(getInterpreter());
 	dasm(bin.subspan(0, *len), word(addr), dasmOutput,
-		[&](std::string& output, uint16_t a) {
-			zstring_view result;
+		[&](std::string& out, uint16_t a) {
+			zstring_view cmdRes;
 			if (tokens.size() > 4) {
 				auto command = makeTclList(tokens[4], a);
-				result = command.executeCommand(getInterpreter()).getString();
+				cmdRes = command.executeCommand(getInterpreter()).getString();
 			}
-			if (!result.empty()) {
-				strAppend(output, result);
+			if (!cmdRes.empty()) {
+				strAppend(out, cmdRes);
 			} else {
-				appendAddrAsHex(output, a);
+				appendAddrAsHex(out, a);
 			}
 		});
 	dasmOutput.resize(19, ' ');
