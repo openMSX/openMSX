@@ -468,7 +468,7 @@ void V9990BitmapConverter::convertLine(
 
 	if (cursor0.isVisible() || cursor1.isVisible()) {
 		// raster background into a temporary buffer
-		std::array<uint16_t, 1024> buf;
+		std::array<uint16_t, 1024 + 3> buf; // allow to draw upto 3 pixels too many, e.g. see rasterBP2()
 		raster(colorMode, highRes,
 		       IndexLookup(palette64_32768, palette256_32768),
 		       vdp, vram,
