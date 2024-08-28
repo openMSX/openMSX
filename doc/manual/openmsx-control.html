@@ -16,9 +16,9 @@
 
   <h2>Introduction</h2>
 
-  <p>The architecture of openMSX is that the main emulation code is all in a
-  separate program, the main openMSX executable. Debugger GUI's, launcher
-  GUI's, etc., can be external programs that control openMSX. This document
+  <p>Despite that openMSX now has an internal GUI that can control most of the
+  emulator's functionality, it is still possible for debugger GUIs, launcher
+  GUIs, etc., to be external programs that control openMSX. This document
   explains you how you can control openMSX from your own application.</p>
 
   <div class="note">
@@ -311,9 +311,9 @@ application that can control openMSX.</p>
 
   <ul>
     <li>in the Contrib directory of openMSX (openmsx-control*)</li>
-    <li>in the code of openMSX Catapult (C++ via pipe)</li>
+    <li>in the code of (the now deprecated) openMSX Catapult (C++ via pipe)</li>
     <li>in the code of the never released newer openMSX Catapult (Python, still via pipe)</li>
-    <li>in the code of the openMSX GUI Debugger (C++ via socket)</li>
+    <li>in the code of the (now deprecated) openMSX GUI Debugger (C++ via socket)</li>
   </ul>
 
 </body>
