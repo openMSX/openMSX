@@ -37,7 +37,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #else
 		// For other platforms, default setting may be changed in future
-		ResampledSoundDevice::ResampleType::BLIP,
+		ResampledSoundDevice::ResampleType::HQ,
 #endif
 		EnumSetting<ResampledSoundDevice::ResampleType>::Map{
 			{"hq",   ResampledSoundDevice::ResampleType::HQ},
