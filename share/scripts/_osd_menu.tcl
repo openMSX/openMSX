@@ -410,7 +410,7 @@ proc do_menu_open {top_menu} {
 		eval $::osd_control::close
 	}
 	# end tell how to close this widget
-	namespace eval ::osd_control {set close ::osd_menu::main_menu_close}
+	namespace eval ::osd_control {set close ::osd_menu::menu_close_all}
 
 	menu_create $top_menu
 
