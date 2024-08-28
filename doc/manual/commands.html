@@ -90,14 +90,6 @@
         <li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
         <li><a class="internal" href="#color_matrix">color_matrix</a></li>
         <li><a class="internal" href="#console">console</a></li>
-        <li><a class="internal" href="#consolebackground">consolebackground</a></li>
-        <li><a class="internal" href="#consolecolumns">consolecolumns</a></li>
-        <li><a class="internal" href="#consolefont">consolefont</a></li>
-        <li><a class="internal" href="#consolefontsize">consolefontsize</a></li>
-        <li><a class="internal" href="#console_history_size">console_history_size</a></li>
-        <li><a class="internal" href="#consoleplacement">consoleplacement</a></li>
-        <li><a class="internal" href="#consolerows">consolerows</a></li>
-        <li><a class="internal" href="#console_remove_doubles">console_remove_doubles</a></li>
         <li><a class="internal" href="#contrast">contrast</a></li>
         <li><a class="internal" href="#cputrace">cputrace</a></li>
         <li><a class="internal" href="#debugoutput">debugoutput</a></li>
@@ -150,6 +142,10 @@
         <li><a class="internal" href="#power">power</a></li>
         <li><a class="internal" href="#printerlogfilename">printerlogfilename</a></li>
         <li><a class="internal" href="#print-resolution">print-resolution</a></li>
+        <li><a class="internal" href="#psg_detune_frequency">PSG_detune_frequency</a></li>
+        <li><a class="internal" href="#psg_detune_percent">PSG_detune_percent</a></li>
+        <li><a class="internal" href="#psg_vibrato_frequency">PSG_vibrato_frequency</a></li>
+        <li><a class="internal" href="#psg_vibrato_percent">PSG_vibrato_percent</a></li>
         <li><a class="internal" href="#r800_freq">r800_freq / r800_freq_locked</a></li>
         <li><a class="internal" href="#renderer">renderer</a></li>
         <li><a class="internal" href="#renshaturbo">renshaturbo</a></li>
@@ -169,10 +165,6 @@
         <li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
         <li><a class="internal" href="#soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></li>
         <li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
-        <li><a class="internal" href="#soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></li>
-        <li><a class="internal" href="#soundchip_detune_percent">&lt;soundchip&gt;_detune_percent</a></li>
-        <li><a class="internal" href="#soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></li>
-        <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
@@ -1885,7 +1877,7 @@
 
   <h3><a id="screenshot">screenshot</a></h3>
 
-  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">scale_algorithm</a></code> setting) without OSD elements (e.g. console and icons). If you want to include the OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' raw MSX screen, pass the <code>-raw</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory. There's also an option <code>-no-sprites</code> to take a screenshot with sprite rendering disabled.</p>
+  <p>Take a screenshot of the openMSX screen. By default this takes a screenshot of the 'scaled' MSX screen (see <code><a class="internal" href="#scale_algorithm">scale_algorithm</a></code> setting) without OSD/GUI elements (e.g. console and icons). If you want to include the GUI and OSD elements pass the <code>-with-osd</code> option. If you want a screenshot of the 'unscaled' raw MSX screen, pass the <code>-raw</code> option. The screenshots are PNG files and (by default) are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory. There's also an option <code>-no-sprites</code> to take a screenshot with sprite rendering disabled.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2079,7 +2071,8 @@
 
   <h3><a id="test_machine">test_machine / test_all_machines / test_all_extensions</a></h3>
 
-  <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
+  <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>. This is an alternative to using the equivalent option in the GUI <span class="menu-reference">Main menu bar
+&rarr; Machine &rarr; Test MSX hardware...</span></p>
 
   <div class="subsectiontitle">
     usage:
@@ -2148,7 +2141,7 @@
     </tr>
 
     <tr>
-      <td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td>
+      <td><code>trainer &lt;game&gt; [&lt;cheat&gt; ..]</code></td>
 
       <td>Toggle cheats of &lt;game&gt; on/off</td>
     </tr>
@@ -2344,10 +2337,6 @@
       <td>Write the content of a file to a openMSX debuggable</td>
     </tr>
     <tr>
-      <td><code>main_menu_open</code> / <code>main_menu_close</code> / <code>main_menu_toggle</code></td>
-      <td>Control the visibility of the default OSD menu</td>
-    </tr>
-    <tr>
       <td><code>multi_screenshot</code></td>
       <td>Take screenshots of multiple successive frames</td>
     </tr>
@@ -2436,10 +2425,6 @@
       <td>Skip the current CPU instruction</td>
     </tr>
     <tr>
-      <td><code>sprite_viewer</code></td>
-      <td>Show a widget with which you can view the sprite patterns</td>
-    </tr>
-    <tr>
       <td><code>stack</code></td>
       <td>Print the top of the CPU stack</td>
     </tr>
@@ -2481,7 +2466,13 @@
     </tr>
     <tr>
       <td><code>toggle_info_panel</code></td>
-      <td>Show (or hide) a panel with various types of info on the currently running MSX (emulation); similar to the info in the panel you get when using the DIGIblue theme in blueMSX</td>
+      <td>Show (or hide) a panel with various types of info on the currently
+          running MSX (emulation); similar to the info in the panel you get
+          when using the DIGIblue theme in blueMSX. In the future, this will be
+          fully replaced by the Status bar, which can be toggled via <span
+          class="menu-reference">Main menu bar &rarr; Settings &rarr; Misc
+          &rarr; Show status bar</span>.
+      </td>
     </tr>
     <tr>
       <td><code>toggle_mog_overlay</code></td>
@@ -2500,10 +2491,6 @@
       <td>Enable (or disable) an OSD drawn shield in Nemesis (Gradius) 1, all enemy objects will repel from it</td>
     </tr>
     <tr>
-      <td><code>toggle_osd_keyboard</code></td>
-      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international keyboard-layout for now</td>
-    </tr>
-    <tr>
       <td><code>toggle_psg2scc</code></td>
       <td>Enable (or disable) playing PSG sound on SCC</td>
     </tr>
@@ -2513,11 +2500,11 @@
     </tr>
     <tr>
       <td><code>toggle_scc_viewer</code></td>
-      <td>Show a graphical view of the SCC chip(s) of the system, showing waveforms and volume per channel</td>
-    </tr>
-    <tr>
-      <td><code>toggle_show_palette</code></td>
-      <td>Show (or hide) a graphical view on the palette registers</td>
+      <td>Show a graphical view of the SCC chip(s) of the system, showing
+          waveforms and volume per channel. In the future, this will be fully
+          replaced by <span class="menu-reference">Main menu bar &rarr; Tools
+          &rarr; SCC viewer ...</span>.
+      </td>
     </tr>
     <tr>
       <td><code>toggle_tron</code></td>
@@ -2532,12 +2519,13 @@
       <td>Enable (or disable) display on the OSD how busy the VDP is</td>
     </tr>
     <tr>
-      <td><code>toggle_vdp_reg_viewer</code></td>
-      <td>Enable (or disable) a widget that shows an overview of all VDP registers and highlights changes in the values</td>
-    </tr>
-    <tr>
       <td><code>toggle_vu_meters</code></td>
-      <td>Show (or hide) a graphical view of the volumes of the sound channels of several sound chips</td>
+      <td>Show (or hide) a graphical view of the volumes of the sound channels
+      of several sound chips. These are volumes based on the current register
+      values of the chips and only for those for which this is implemented. For
+      "physical" VU-meters for all possible audio channels, check out <span
+      class="menu-reference">Main menu bar &rarr; Tools &rarr; Audio channel
+      viewer...</span>.</td>
     </tr>
     <tr>
       <td><code>type_via_keybuf</code></td>
@@ -2925,189 +2913,6 @@
       <td><code>set console off</code></td>
 
       <td>Turns the console off</td>
-    </tr>
-  </table>
-
-  <h3><a id="consolebackground">consolebackground</a></h3>
-
-  <p>Change the console background image. Only images in the PNG format are supported. Background images may also have an alpha channel (amount of transparency per pixel).</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consolebackground</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consolebackground &lt;image&gt;</code></td>
-
-      <td>Sets a new background image</td>
-    </tr>
-  </table>
-
-  <h3><a id="consolecolumns">consolecolumns</a></h3>
-
-  <p>Change the width of the console measured by the number of columns.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consolecolumns</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consolecolumns &lt;value&gt;</code></td>
-
-      <td>Set the specified width</td>
-    </tr>
-  </table>
-
-  <h3><a id="consolefont">consolefont</a></h3>
-
-  <p>Change the console font. This should be the filename of a True Type Font. The default value is <code>skins/VeraMono.ttf.gz</code>.</p>
-  <p>Font files of other types than True Type Fonts (TTF) are not supported. The font must also be monospaced.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consolefont</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consolefont &lt;myfont.ttf&gt;</code></td>
-
-      <td>Sets a new font</td>
-    </tr>
-  </table>
-
-  <h3><a id="consolefontsize">consolefontsize</a></h3>
-
-  <p>Set the size for the console font. The default value is 12.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consolefontsize</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consolefontsize 16</code></td>
-
-      <td>Set a bigger than default font size</td>
-    </tr>
-  </table>
-
-  <h3><a id="console_history_size">console_history_size</a></h3>
-
-  <p>Determines how many commands are saved into the console history.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set console_history_size</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set console_history_size 5000</code></td>
-
-      <td>Keep a maximum of 5000 commands in the console history</td>
-    </tr>
-  </table>
-
-  <h3><a id="consoleplacement">consoleplacement</a></h3>
-
-  <p>Changes the position of the console on the emulator screen.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consoleplacement</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consoleplacement &lt;place&gt;</code></td>
-
-      <td>Moves the console to the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
-    </tr>
-  </table>
-
-  <h3><a id="consolerows">consolerows</a></h3>
-
-  <p>Change the height of the console measured by the number of rows.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set consolerows</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set consolerows &lt;value&gt;</code></td>
-
-      <td>Set the specified number of rows</td>
-    </tr>
-  </table>
-
-  <h3><a id="console_remove_doubles">console_remove_doubles</a></h3>
-
-  <p>Determines whether the console history remembers two identical subsequent commands.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set console_remove_doubles</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set console_remove_doubles on</code></td>
-
-      <td>Remove (do not remember) the last command if it's the same as the previous (default)</td>
-    </tr>
-
-    <tr>
-      <td><code>set console_remove_doubles off</code></td>
-
-      <td>Allow double subsequent command entries in the console history</td>
     </tr>
   </table>
 
@@ -3619,10 +3424,6 @@
       <td>Change the amount of afterglow</td>
     </tr>
   </table>
-
-  <div class="note">
-    Note: Not all renderers support this.
-  </div>
 
   <h3><a id="grabinput">grabinput</a></h3>
 
@@ -4650,13 +4451,159 @@
     </tr>
   </table>
 
+  <h3><a id="psg_detune_frequency">PSG_detune_frequency</a></h3>
+
+  <p>Sets the frequency of the detune (a random variation in a sound's frequency) effect. It makes a sound fatter and more natural, as if played by a human being.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set PSG_detune_frequency</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set PSG_detune_frequency &lt;num&gt;</code></td>
+
+      <td>Sets new detune frequency in Hz; 1 is minimum, 100 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_detune_frequency</code><br />
+    <code>set PSG_detune_frequency 5</code> (default)<br />
+  </div>
+
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
+  </div>
+
+  <h3><a id="psg_detune_percent">psg_detune_percent</a></h3>
+
+  <p>Sets the strength of the detune effect. By default it is 0, which means the effect is switched off.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set PSG_detune_percent</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set PSG_detune_percent &lt;num&gt;</code></td>
+
+      <td>Sets new detune strength; 0 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_detune_percent</code><br />
+    <code>set PSG_detune_percent 0</code> (switched off, default)<br />
+    <code>set PSG_detune_percent 0.5</code> (recommended)<br />
+  </div>
+
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
+  </div>
+
+  <h3><a id="psg_vibrato_frequency">PSG_vibrato_frequency</a></h3>
+
+  <p>Sets the frequency of the vibrato (a periodic variation in a sound's frequency) effect.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set PSG_vibrato_frequency</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set PSG_vibrato_frequency &lt;num&gt;</code></td>
+
+      <td>Sets new vibrato frequency in Hz; 1 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_vibrato_frequency</code><br />
+    <code>set PSG_vibrato_frequency 5</code> (default)<br />
+  </div>
+
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
+  </div>
+
+  <h3><a id="psg_vibrato_percent">PSG_vibrato_percent</a></h3>
+
+  <p>Sets the strength of the vibrato effect. By default it is 0, which means the effect is switched off.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set PSG_vibrato_percent</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set PSG_vibrato_percent &lt;num&gt;</code></td>
+
+      <td>Sets new vibrato strength; 0 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_vibrato_percent</code><br />
+    <code>set PSG_vibrato_percent 0</code> (switched off, default)<br />
+    <code>set PSG_vibrato_percent 1</code> (recommended)<br />
+  </div>
+
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
+  </div>
+
   <h3><a id="r800_freq">r800_freq / r800_freq_locked</a></h3>
 
   <p>These two settings control the R800 clock frequency. See <code><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></code> for details.</p>
 
   <h3><a id="renderer">renderer</a></h3>
 
-  <p>Switch to a different video renderer. See the User's Manual for <a class="external" href="user.html#renderers">a description of the available renderers</a>.</p>
+  <p>Switch to a different video renderer. However, currently there is only one alternative: <code>none</code> and that is only useful in scripts to disable rendering completely.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -4670,9 +4617,9 @@
     </tr>
 
     <tr>
-      <td><code>set renderer &lt;name&gt;</code></td>
+      <td><code>set renderer none</code></td>
 
-      <td>Switches to the given renderer</td>
+      <td>Disable rendering completely</td>
     </tr>
   </table>
 
@@ -4726,13 +4673,13 @@
     <tr>
       <td><code>set resampler blip</code></td>
 
-      <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio (this is the default value).</td>
+      <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio.</td>
     </tr>
 
     <tr>
       <td><code>set resampler hq</code></td>
 
-      <td>Sets the highest quality resampler, but it also takes the most CPU time. It's based on the <a href="http://www.mega-nerd.com/SRC/">libsamplerate</a> algorithm.</td>
+      <td>Sets the highest quality resampler, but it also takes the most CPU time. It's based on the <a href="http://www.mega-nerd.com/SRC/">libsamplerate</a> algorithm. This is the default value on most platforms, as it gives the best quality.</td>
     </tr>
   </table>
 
@@ -5017,7 +4964,7 @@
 
   <h3><a id="sound_driver">sound_driver</a></h3>
 
-  <p>Select the sound output driver. The list of available sound drivers is platform specific.</p>
+  <p>Select the sound output driver.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5180,164 +5127,6 @@
     <code>set SCC_ch1_mute</code><br />
     <code>set PSG_ch3_mute on</code><br />
     <code>set SCC_ch5_mute off</code>
-  </div>
-
-  <h3><a id="soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></h3>
-
-  <p>Sets the frequency of the detune (a random variation in a sound's frequency) effect. It makes a sound fatter and more natural, as if played by a human being.
-  </p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set &lt;soundchip&gt;_detune_frequency</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_detune_frequency &lt;num&gt;</code></td>
-
-      <td>Sets new detune frequency in Hz; 1 is minimum, 100 is maximum</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>set PSG_detune_frequency</code><br />
-    <code>set PSG_detune_frequency 5</code> (default)<br />
-  </div>
-
-  <div class="note">
-    Note: For now, this setting is only available for the PSG soundchip.
-  </div>
-  <div class="note">
-    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
-  </div>
-
-  <h3><a id="soundchip_detune_percent">&lt;soundchip&gt;_detune_percent</a></h3>
-
-  <p>Sets the strength of the detune effect. By default it is 0, which means the effect is switched off.
-  </p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set &lt;soundchip&gt;_detune_percent</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_detune_percent &lt;num&gt;</code></td>
-
-      <td>Sets new detune strength; 0 is minimum, 10 is maximum</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>set PSG_detune_percent</code><br />
-    <code>set PSG_detune_percent 0</code> (switched off, default)<br />
-    <code>set PSG_detune_percent 0.5</code> (recommended)<br />
-  </div>
-
-  <div class="note">
-    Note: For now, this setting is only available for the PSG soundchip.
-  </div>
-  <div class="note">
-    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
-  </div>
-
-  <h3><a id="soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></h3>
-
-  <p>Sets the frequency of the vibrato (a periodic variation in a sound's frequency) effect.
-  </p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set &lt;soundchip&gt;_vibrato_frequency</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_vibrato_frequency &lt;num&gt;</code></td>
-
-      <td>Sets new vibrato frequency in Hz; 1 is minimum, 10 is maximum</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>set PSG_vibrato_frequency</code><br />
-    <code>set PSG_vibrato_frequency 5</code> (default)<br />
-  </div>
-
-  <div class="note">
-    Note: For now, this setting is only available for the PSG soundchip.
-  </div>
-  <div class="note">
-    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
-  </div>
-
-  <h3><a id="soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></h3>
-
-  <p>Sets the strength of the vibrato effect. By default it is 0, which means the effect is switched off.
-  </p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set &lt;soundchip&gt;_vibrato_percent</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_vibrato_percent &lt;num&gt;</code></td>
-
-      <td>Sets new vibrato strength; 0 is minimum, 10 is maximum</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>set PSG_vibrato_percent</code><br />
-    <code>set PSG_vibrato_percent 0</code> (switched off, default)<br />
-    <code>set PSG_vibrato_percent 1</code> (recommended)<br />
-  </div>
-
-  <div class="note">
-    Note: For now, this setting is only available for the PSG soundchip.
-  </div>
-  <div class="note">
-    Note: It is often more convenient to use the <code><a class="internal" href="#psg_profile">psg_profile</a></code> command.
   </div>
 
   <h3><a id="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
@@ -5651,7 +5440,7 @@
 
   <h3><a id="vsync">vsync</a></h3>
 
-  <p>Enables or disables vsync. This setting determines whether the SDLGL-PP renderer should synchronize its frames to your host monitors frame rate (e.g. 60fps).</p>
+  <p>Enables or disables vsync. This setting determines whether MSX frame rendering should be synchronized to your host monitors frame rate (e.g. 60fps).</p>
   <p>The default value is not to synchronize ("<code>off</code>"). When enabled, adaptive vsync is attempted if your hardware and driver support it, which means that if a frame is too late, it will be output immediately anyway. If not supported, normal vsync will be used, which may mean a frame is output later, when the sync is missed.</p>
   <p>Enable this if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="#throttle">throttle mode</a> off works a bit differently if vsync is enabled (see there).</p>
 
