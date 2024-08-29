@@ -6,6 +6,7 @@
 #include <ctime>
 #include <memory>
 #include <span>
+#include <string>
 #include <string_view>
 
 namespace openmsx {
