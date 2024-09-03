@@ -20,6 +20,7 @@
 		<li><a class="internal" href="#ziporinstaller">Should I download the Zip or the Installer for Windows?</a></li>
 		<li><a class="internal" href="#roms">Why doesn't openMSX come with system ROMs?</a></li>
 		<li><a class="internal" href="#whereroms">Where do I install the system ROMs?</a> </li>
+		<li><a class="internal" href="#blackscreen">Why do I only get a black screen?</a> </li>
 	</ul></li>
 	<li><a class="internal" href="#use">Using openMSX</a>:
 	<ul class="toc">
@@ -42,6 +43,7 @@
 		<li><a class="internal" href="#codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a> </li>
 		<li><a class="internal" href="#soundproblems">Why do I hear serious sound glitches and/or stuttering, especially when using Windows?</a> </li>
 		<li><a class="internal" href="#techinfo">Where can I find more technical info about openMSX?</a> </li>
+		<li><a class="internal" href="#tworeversebars">Why do I see/get two reverse bars in openMSX?</a> </li>
 		<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
 	</ul></li>
 </ul>
@@ -166,6 +168,22 @@ installation is by the GUI under <span class="menu-reference">Main menu bar
 you can find buttons to quickly open a (native) file browser on the locations
 where the ROMs are searched for, both for the user folder and the system wide
 folder.
+</p>
+
+<h3><a id="blackscreen">Why do I only get a black screen?</a></h3>
+
+<p>
+You may also see errors like "Error compiling shader".
+</p>
+
+<p>
+You are probably mixing two installations of openMSX. Make sure that your
+openMSX user directory (see <a class="external"
+href="setup.html#romlocation">this overview where it is for your platform</a>)
+does not have any openMSX installation stuff, only your own files, like system
+ROMs and what not. Make sure there are no other folders like
+<code>share/shaders</code> or <code>share/scripts</code> are there, which may
+interfere with the files that we ship with openMSX.
 </p>
 
 <h2><a id="use">Using openMSX</a></h2>
@@ -693,6 +711,12 @@ Next to the <a class="external" href="index.html">openMSX manuals</a> (which
 includes documentation on how you can control openMSX from an external
 application, so that you can make your own GUI, launcher or debugger), also
 check out the doc directory of your openMSX distribution.
+</p>
+
+<h2><a id="tworeversebars">Why do I see/get two reverse bars in openMSX?</a></h2>
+
+<p>
+This has the same cause and solution as <a href class="internal" href="#blackscreen">Why do I only get a black screen?</a>.
 </p>
 
 <h2><a id="otherquestion">My question is not listed here.</a></h2>
