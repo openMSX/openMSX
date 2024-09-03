@@ -2,16 +2,16 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>OPL3 Cartridge (MSX-Audio)</name>
+    <name>OPL3 Cartridge (Moonsound)</name>
     <manufacturer>Luciano Sturaro</manufacturer>
     <code/>
     <release_year>2004</release_year>
-    <description>Yamaha OPL3 based sound expansion, version 1, jumpered to be partial compatible with MSX-Audio. This is the older version without MSX-Audio BIOS.</description>
+    <description>Yamaha OPL3 based sound expansion, version 1, jumpered to be partial compatible with Moonsound (FM part).</description>
     <type>sound expansion</type>
   </info>
   <devices>
     <OPL3Cartridge id="OPL3 Cartridge">
-      <io base="0xC0" num="4"/>
+      <io base="0xC4" num="4"/>
       <sound>
         <volume>12000</volume>
       </sound>
