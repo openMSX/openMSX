@@ -589,7 +589,7 @@
       <td><code>debug list</code></td>
 
       <td>Return a list of all debuggables.<br />
-      A debuggable is (part of) the state of a MSX device that can be accessed
+      A debuggable is (part of) the state of an MSX device that can be accessed
       via these debug commands.<br />
       Examples are:
         <ul>
@@ -894,7 +894,7 @@
   <p>Insert an MSX extension in a running MSX machine. The <code>ext</code> command inserts the extension in the first available slot. The <code>exta</code>, <code>extb</code> etc. commands insert it in the specified slot. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
-  <p>To get a list of possible extensions it's convenient to use the tab-completetion feature, i.e. type '<code>ext&lt;space&gt;&lt;tab&gt;</code>'. Alternatively the command '<code><a class="internal" href="#openmsx_info">openmsx_info</a> extensions</code>' gives you the same information (and is easier to use in a scripting context).</p>
+  <p>To get a list of possible extensions it's convenient to use the tab-completion feature, i.e. type '<code>ext&lt;space&gt;&lt;tab&gt;</code>'. Alternatively the command '<code><a class="internal" href="#openmsx_info">openmsx_info</a> extensions</code>' gives you the same information (and is easier to use in a scripting context).</p>
 
   <p>Note that some extensions (i.e. those without any memory) will not physically occupy any slot when inserted, even when they were inserted in a specific slot.</p>
 
@@ -917,7 +917,7 @@
 
   <h3><a id="filepool">filepool</a></h3>
 
-  <p>With this command you can manage your file pool settings. File pools are directories on your host system (PC/Mac/Dingoo/etc.). They are used by openMSX to search files in, which are referred to from machine or extension definition files, save states or replays which you are trying to load. First, the file will be searched at the path that was also used when the save state or replay was created. But if it isn't found there (which is usually the case if you load such a state or replay you got from someone else), it will use the file pools to search instead. In other words, if you are trying to load such replays, it's probably a good idea to put the media files referred to (ROMs, disks, tapes) in the (proper) filepool.</p>
+  <p>With this command you can manage your file pool settings. File pools are directories on your host system (PC/Mac/Dingoo/etc.). They are used by openMSX to search files in, which are referred to from machine or extension definition files, save states or replays which you are trying to load. First, the file will be searched at the path that was also used when the save state or replay was created. But if it isn't found there (which is usually the case if you load such a state or replay you got from someone else), it will use the file pools to search instead. In other words, if you are trying to load such replays, it's probably a good idea to put the media files referred to (ROMs, disks, tapes) in the (proper) file pool.</p>
 
   <p>File pools have the following properties:</p>
   <dl>
@@ -1401,7 +1401,7 @@
 
   <p>Similar to the <code><a class="internal" href="#disk">disk&lt;x&gt;</a></code>
   commands there is a <code>nowind&lt;x&gt;</code> command for each nowind
-  interface. This command is modeled after the 'usbhost' command of the real
+  interface. This command is modelled after the 'usbhost' command of the real
   nowind interface. Though only a subset of the options is supported. Here's a
   short overview of the command line options:</p>
 
@@ -2314,7 +2314,7 @@
     </tr>
     <tr>
       <td><code>get_screen</code></td>
-      <td>Capture the content of a MSX text screen in a Tcl string</td>
+      <td>Capture the content of an MSX text screen in a Tcl string</td>
     </tr>
     <tr>
       <td><code>get_screen_mode</code></td>
@@ -2354,7 +2354,7 @@
     </tr>
     <tr>
       <td><code>poke</code></td>
-      <td>Write a byte to the given memory location. Use <code>dpoke</code> to only write if the to be written value is different from the current value.</td>
+      <td>Write a byte to the given memory location. Use <code>dpoke</code> to only write if the value to be written is different from the current value.</td>
     </tr>
     <tr>
       <td><code>poke16</code></td>
@@ -2366,7 +2366,7 @@
     </tr>
     <tr>
       <td><code>ram_watch</code></td>
-      <td>Add or remove RAM watch addresses to/from the list on the right side of the screen, useful for debugging or TASing</td>
+      <td>Add or remove RAM watch addresses to/from the list on the right side of the screen, useful for debugging or tool assisted speedrunning (TAS)</td>
     </tr>
     <tr>
       <td><code>reg</code></td>
@@ -2712,7 +2712,7 @@
 
   <h3><a id="auto_enable_reverse">auto_enable_reverse</a></h3>
 
-  <p>Using the <code><a class="internal" href="#reverse">reverse</a></code> feature has a small memory and performance cost. Therefore it has to be enabled before it can be used. This setting controls whether the reverse feature should automatically be activated when openMSX starts. On desktop computers this generally won't be a problem. But for small handheld devices it can be.</p>
+  <p>Using the <code><a class="internal" href="#reverse">reverse</a></code> feature comes at a small memory and performance cost. Therefore it has to be enabled before it can be used. This setting controls whether the reverse feature should automatically be activated when openMSX starts. While with desktop computers this generally won't be a problem, the performance drop might be more noticeable on older/smaller handheld devices.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2788,7 +2788,7 @@
 
   <h3><a id="brightness">brightness</a></h3>
 
-  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values are brighter. The default is 0, which is neutral. This setting shifts the brightness of all colors, including black and white, while the <code><a class="internal" href="#gamma">gamma</a></code> setting changes the relative brightness of colors but does not change black and white.</p>
+  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values are brighter. The default is 0, which is neutral. This setting shifts the brightness of all colours, including black and white, while the <code><a class="internal" href="#gamma">gamma</a></code> setting changes the relative brightness of colours but does not change black and white.</p>
 
   <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>brightness</code>.</p>
 
@@ -2846,10 +2846,10 @@
 
   <h3><a id="color_matrix">color_matrix</a></h3>
 
-  <p>This setting represents a 3&times;3 matrix that is used to transform MSX RGB colors to host RGB colors. This setting can
-  be used to generate all kind of color schemes, see <code>scripts/monitor.tcl</code> for examples.</p>
+  <p>This setting represents a 3&times;3 matrix that is used to transform MSX RGB colours to host RGB colours. This setting can
+  be used to generate all kind of colour schemes, see <code>scripts/monitor.tcl</code> for examples.</p>
 
-  <p>To get the following color transformation:</p>
+  <p>To get the following colour transformation:</p>
   <pre>
         | a b c |   | Rm |   | Rh |
         | d e f | &times; | Gm | = | Gh |
@@ -2874,7 +2874,7 @@
     <tr>
       <td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td>
 
-      <td>This is the default (no color transformation)</td>
+      <td>This is the default (no colour transformation)</td>
     </tr>
 
     <tr>
@@ -3032,7 +3032,7 @@
 
   <h3><a id="DirAsDSKmode">DirAsDSKmode</a></h3>
 
-  <p>Determine the behavior of the DirAsDSK when inserting a directory to be used as diskimage.</p>
+  <p>Determine the behaviour of the DirAsDSK when inserting a directory to be used as diskimage.</p>
 
   <p>The possible values are <code>read_only</code> and <code>full</code>. The default mode is <code>full</code>.</p>
 
@@ -3069,14 +3069,13 @@
   <h3><a id="deflicker">deflicker</a></h3>
 
   <p>Turns deflicker on/off. deflicker is a filter which tries to detect pixels
-  that alternate each frame between two different color values and replaces
-  those alternations with the average color. It gives a very nice result for
+  that alternate each frame between two different colour values and replaces
+  those alternations with the average colour. It gives a very nice result for
   software (mostly demos) that use this technique to get the optical illusion
-  of more colors than are actually supported by the hardware. It also works
+  of more colours than are actually supported by the hardware. It also works
   well in games with flickering sprites on a static background (like Maze of
   Galious). This setting is disabled by default because there aren't that many
-  situations were it really improves video quality and it does have a
-  performance cost. </p>
+  situations where the performance cost justifies the improved video quality. </p>
 
   <div class="subsectiontitle">
     usage:
@@ -3349,7 +3348,7 @@
 
   <h3><a id="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
-  <p>When enabled, openMSX will try to detect when the MSX is loading from diskette, cassette or laserdisc. During loading openMSX will run at full speed (<code><a class="internal" href="#throttle">throttle</a></code> off). This can be convenient if you're not interested in the realistic but slow loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
+  <p>When enabled, openMSX will try to detect when the MSX is loading from diskette, cassette or laserdisc. During loading openMSX will run at full speed (<code><a class="internal" href="#throttle">throttle</a></code> off). This can be convenient if you're not interested in the realistic but slow loading times on MSX. Default is off, because it is not how a real MSX behaves.</p>
 
   <p>Unlike the fast loading features in for example fMSX, <code>fullspeedwhenloading</code> does not intercept BIOS calls. Instead, it speeds up the emulation of the entire MSX, including all hardware devices.</p>
 
@@ -3457,7 +3456,7 @@
 
   <h3><a id="horizontal_stretch">horizontal_stretch</a></h3>
 
-  <p>Sets the amount of horizontal stretch, thus also the aspect ratio of the screen. More specifically, a setting of <code>n</code> means stretch the center <code>n</code> MSX pixels to the full width of the host output window (at the virtual <code><a class="internal" href="#scale_factor">scale_factor</a></code> 1).</p>
+  <p>Sets the amount of horizontal stretch, thus also the aspect ratio of the screen. More specifically, a setting of <code>n</code> means stretch the centre <code>n</code> MSX pixels to the full width of the host output window (at the virtual <code><a class="internal" href="#scale_factor">scale_factor</a></code> 1).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3546,7 +3545,7 @@
 
   <p>Selects the Tcl procedure to be called when the running MSX software has selected an invalid PPI mode. Or at least a PPI mode that's not yet correctly emulated. Typically on a real machine these modes will hang the MSX.</p>
 
-  <p>The default openmsx startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens so you can debug the problem.</p>
+  <p>The default openMSX startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens so you can debug the problem.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3567,7 +3566,7 @@
 
   <p>Selects the Tcl procedure to be called when the running MSX software has selected invalid PSG port directions (port A should always be set as input).</p>
 
-  <p>The default openmsx startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens so you can debug the problem.</p>
+  <p>The default openMSX startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens, so you can debug the problem.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3613,7 +3612,7 @@
   <p>Let's explain this with an example. The following is the default value for
   this setting:<br/>
   &nbsp;<code>UP {{joy1 -axis1} {joy1 hat0 up}} DOWN {{joy1 +axis1} {joy1 hat0 down}} LEFT {{joy1 -axis0} {joy1 hat0 left}} RIGHT {{joy1 +axis0} {joy1 hat0 right}} A {{joy1 button0} {joy1 button2} {joy1 button4} {joy1 button6} {joy1 button8} {joy1 button10}} B {{joy1 button1} {joy1 button3} {joy1 button5} {joy1 button7} {joy1 button9} {joy1 button11}}</code><br/>
-  Axis 0 is usually the primary X-axis of the host controller's analog stick.
+  Axis 0 is usually the primary X-axis of the host controller's analogue stick.
   When that axis is moved towards negative values the LEFT input switch on the
   emulated joystick is activated. When it is moved towards positive values the
   RIGHT MSX input switch is activated. The D-pad of the detected host
@@ -3682,10 +3681,10 @@
 
   <h3><a id="joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></h3>
 
-  <p>This setting configures how big the dead center zone of an (analogue)
+  <p>This setting configures how big the dead centre zone of an (analogue)
   joystick is. This is expressed as a percentage: 0 means no dead zone, 100
   means everything falls inside the dead zone. The setting is only available
-  when connected host analog sticks are detected.</p>
+  when connected host analogue sticks are detected.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3772,7 +3771,7 @@
   <h3><a id="kbd_deadkey1_host_key">kbd_deadkey1_host_key</a></h3>
 
   <p>Host key that maps to the (1st) dead key. By default right-CTRL (RCTRL) key.</p>
-  <p>Some MSX models have one dead key that can be used to enter accented charachters. For example the MSX
+  <p>Some MSX models have one dead key that can be used to enter accented characters. For example the MSX
   models sold in the Netherlands have a dead key that has following four accents printed on it: ` &#xb4; ^ &#xa8;.
   On the other hand, the Brazilian Gradiente Expert XP-800 has following four accents on its
   dead key: ` &#xb4; ^ <sup>~</sup>.</p>
@@ -3785,7 +3784,7 @@
   <p>Following table shows for example how to
   enter respectively &#xf9;, &#xfa;, &#xfb; or &#xfc; on the MSX models sold in the Netherlands:</p>
   <table>
-	  <tr><th>Key presses</th><th>Charachter</th></tr>
+	  <tr><th>Key presses</th><th>Character</th></tr>
 	  <tr><td>DEAD_KEY1 followed by u</td><td>&#xf9;</td></tr>
 	  <tr><td>DEAD_KEY1+SHIFT followed by u</td><td>&#xfa;</td></tr>
 	  <tr><td>DEAD_KEY1+CODE followed by u</td><td>&#xfb;</td></tr>
@@ -3908,7 +3907,7 @@
 
     <dt>KEY mapping:</dt>
     <dd>This mode is deprecated, it's superseded by the previous two modes and may get removed in a future openMSX release.<br/>
-    This mode has rudimentary knowledge about the host keyboard layout, but no knowledge about the MSX keyboard layout. It remaps individual keys, not key combinations. Take for example a french AZERTY host keyboard and an emulated MSX with 'international' keyboard layout. Pressing the 'A' host key correctly maps to the 'A' MSX key. But pressing SHIFT+'3' on the host (which produces '3'), maps to SHIFT+'3' on the MSX keyboard (which produces '#').</dd>
+    This mode has rudimentary knowledge about the host keyboard layout, but no knowledge about the MSX keyboard layout. It remaps individual keys, not key combinations. Take for example a French AZERTY host keyboard and an emulated MSX with 'international' keyboard layout. Pressing the 'A' host key correctly maps to the 'A' MSX key. But pressing SHIFT+'3' on the host (which produces '3'), maps to SHIFT+'3' on the MSX keyboard (which produces '#').</dd>
   </dl>
 
   <div class="subsectiontitle">
@@ -4001,8 +4000,8 @@
   pressed on the host keyboard on stderr.  Also show Unicode value and
   corresponding MSX key-presses for characters that get 'pasted' into the MSX
   by the console <code><a class="internal" href="#type">type</a></code>
-  command. This setting is especially useful when defining unicode keymap
-  files, so that you can find out the unicode values belonging to certain
+  command. This setting is especially useful when defining Unicode keymap
+  files, so that you can find out the Unicode values belonging to certain
   keys/characters.</p>
 
   <div class="subsectiontitle">
@@ -4603,7 +4602,7 @@
 
   <h3><a id="renderer">renderer</a></h3>
 
-  <p>Switch to a different video renderer. However, currently there is only one alternative: <code>none</code> and that is only useful in scripts to disable rendering completely.</p>
+  <p>Switch to a different video renderer. However, currently there is only one alternative: <code>none</code>, and that is useful only for disabling rendering in scripts completely.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -4646,7 +4645,7 @@
   </table>
 
   <div class="note">
-    Note: This setting is only available if the current MSX machine has hardware Rensha Turbo support.
+    Note: This setting is only available if the current MSX machine has hardware Ren-Sha Turbo support.
   </div>
 
   <h3><a id="resampler">resampler</a></h3>
@@ -4739,15 +4738,15 @@
   <p>Sets the ip address (or hostname) and port for the RS232-Net pluggable. Note that
   <code>rs232-net</code> has to be plugged in the <code>msx-rs232</code>
   connector for this to become useful. This setting
-  needs to point to a valid host at the moment of pluggin it.</p>
+  needs to point to a valid host at the moment of plugging it.</p>
   <p>The address must follow one of the following syntaxes:</p>
   <ul>
-    <li><strong>hostname</strong> ie: abc.com</li>
-    <li><strong>hostname:port</strong> ie: abc.com:23</li>
-    <li><strong>ipv4</strong> ie: 127.0.0.1</li>
-    <li><strong>ipv4:port</strong> ie: 127.0.0.1:2323</li>
-    <li><strong>ipv6</strong> ie: ::1</li>
-    <li><strong>[ipv6]:port</strong> ie: [::1]:8080</li>
+    <li><strong>hostname</strong> e.g.: abc.com</li>
+    <li><strong>hostname:port</strong> e.g.: abc.com:23</li>
+    <li><strong>ipv4</strong> e.g.: 127.0.0.1</li>
+    <li><strong>ipv4:port</strong> e.g.: 127.0.0.1:2323</li>
+    <li><strong>ipv6</strong> e.g.: ::1</li>
+    <li><strong>[ipv6]:port</strong> e.g.: [::1]:8080</li>
   </ul>
 
   <div class="subsectiontitle">
@@ -4809,7 +4808,7 @@
 
   <p>In <code>EmuTime</code> mode the time is only synchronized with the host clock when openMSX starts. From then on the clock ticks at the same pace as the emulated machine. So when emulation is paused, the clock is paused as well. If emulation is run at 200% speed, the clock also ticks twice as fast.</p>
 
-  <p>In <code>EmuTime</code> mode it's not possible for a MSX program to detect whether it's running on a real or on an emulated machine. That's why this is the default mode. On the other hand the <code>RealTime</code> mode might be better if for example you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
+  <p>In <code>EmuTime</code> mode it's not possible for an MSX program to detect whether it's running on a real or on an emulated machine. That's why this is the default mode. On the other hand the <code>RealTime</code> mode might be better if for example you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5300,7 +5299,7 @@
 
   <h3><a id="turborpause">turborpause</a></h3>
 
-  <p>Controls the pause key on a MSX turboR machine.</p>
+  <p>Controls the pause key on an MSX turboR machine.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5406,8 +5405,7 @@
     Video 9000 is available), <code>GFX9000</code> (V9990),
     <code>Video9000</code> (V9990 superimposed on top of V99x8, default if
     available) and <code>Laserdisc</code> (for Palcom machines). There can be
-    even more video sources, e.g. due to cartridges with a built in VDP like
-    the Neos MA-20(V).
+    even more video sources, e.g. offered by cartridges with a built in VDP such as the Neos MA-20(V).
   </p>
 
   <div class="subsectiontitle">
@@ -5435,7 +5433,7 @@
   </table>
 
   <div class="note">
-    Note: This setting is only available if multiple videosources are present.
+    Note: This setting is only available if multiple video sources are present.
   </div>
 
   <h3><a id="vsync">vsync</a></h3>
