@@ -36,7 +36,7 @@
 			<li><a class="internal" href="#installrom">3.4 Installing ROMs</a>
 				<ol class="toc">
 					<li><a class="internal" href="#romlocation">3.4.1 ROM Locations</a></li>
-					<li><a class="internal" href="#romchecksums">3.4.2 Checksums</a></li>
+					<li><a class="internal" href="#romchecksums">3.4.2 How openMSX knows which ROM files to use</a></li>
 					<li><a class="internal" href="#romsplit">3.4.3 How to handle split ROMs</a></li>
 				</ol>
 			</li>
@@ -313,7 +313,8 @@ installation is by the GUI under <span class="menu-reference">Main menu bar
 &rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
 you can find buttons to quickly open a (native) file browser on the locations
 where the ROMs are searched for, both for the user folder and the system wide
-folder. </p>
+folder. The main function of this window is to verify whether your system ROMs
+have been installed properly. </p>
 
 <p> In short: you can just copy all your system ROMs to the
 <code>share/systemroms</code> directory of your user account. The ROM files can
@@ -324,8 +325,7 @@ search completely through it. </p>
 
 <p> More info about file pools is in the documentation of the <code><a
 class="external" href="commands.html#filepool">filepool</a></code> command. If
-you can't get this working, please read one of the next sections about
-Checksums. </p>
+you can't get this working, please read one of the next section. </p>
 
 <p> For advanced users, it is also possible to let openMSX load a specific set
 of ROM images for a machine, independent of any file pool or the checksums of
@@ -338,7 +338,7 @@ dumped the ROMs of a Philips NMS 8250 machine, copy them to
 this: <code>nms8250_msx2sub.rom</code>. We recommend to not use this feature,
 but use the file pools as mentioned above. </p>
 
-<h4><a id="romchecksums">3.4.2 Checksums</a></h4>
+<h4><a id="romchecksums">3.4.2 How openMSX knows which ROM files to use</a></h4>
 
 <p> All necessary system ROM files used in machines and extensions are
 primarily identified with a checksum: a sha1sum. This enables openMSX to find
