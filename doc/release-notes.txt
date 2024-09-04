@@ -85,7 +85,8 @@ MSX device support:
   - DamnedAngel: Hitachi MB-H21
   - Peter Hanraets, Takamichi Suzukawa, Arjen Zeilemaker and Benoit Delvaux:
     Sony HB-T600
-  - Others: Philips VU-0040, General Paxon PCT-55, Sanyo MPC-64
+  - Others: Philips VU-0040, General Paxon PCT-55, Sanyo MPC-64, OPL3 Cartridge
+    with Moonsound compatible port mapping
 
 New or improved emulator features:
 - removed SDL renderer
