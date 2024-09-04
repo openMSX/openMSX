@@ -80,7 +80,7 @@ anyway nowadays, as there is a built-in GUI now. </dd>
 <dd>Install the <code><a class="external"
 href="http://packages.debian.org/openmsx">openmsx</a></code>,
 <code>openmsx-data</code>, <code>cbios</code> and <code>openmsx-catapult</code>
-packages. The simplest way is to run <code>aptitude install
+packages. The simplest way is to run <code>apt install
 openmsx-catapult</code>, APT will install the other needed packages as well.
 </dd>
 <dt>Ubuntu</dt>
@@ -93,11 +93,9 @@ make sure you have that enabled in your <code>/etc/apt/sources.list</code>.
 <dd>Fedora has <a class="external"
 href="http://koji.fedoraproject.org/koji/packageinfo?packageID=4949">packaged</a>
 openMSX in the main archive since Fedora 7. You can just run <code>yum install
-openmsx</code> to install openMSX. Catapult does not seem to be packaged yet at
-the moment.</dd>
+openmsx</code> to install openMSX.</dd>
 <dt>Gentoo</dt>
 <dd>You can find an ebuild for openMSX in the "games-emulation" category.
-Catapult does not have an ebuild yet.
 </dd>
 <dt>openSUSE</dt>
 <dd>openSUSE 10.3 (and 11.x) seems to contain an openMSX package, but it seems to be somewhat outdated.</dd>
@@ -115,7 +113,7 @@ up. If it doesn't, see a few lines below at "other".</dd>
 <dt>FreeBSD</dt>
 <dd>There is a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/openmsx">port for openMSX</a> in FreeBSD. It is called simply "openmsx". There is also a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/catapult/">port for Catapult</a>.</dd>
 <dt>NetBSD</dt>
-<dd>There is a <a class="external" href="http://cdn.netbsd.org/pub/pkgsrc/current/pkgsrc/emulators/openmsx/">port for openMSX</a> in NetBSD, but it seems to be somewhat outdated. There is no port for Catapult yet.
+<dd>There is a <a class="external" href="http://cdn.netbsd.org/pub/pkgsrc/current/pkgsrc/emulators/openmsx/">port for openMSX</a> in NetBSD, but it seems to be somewhat outdated.
 </dd>
 <dt>other</dt>
 <dd>You'll have to install openMSX from source. This is not as complicated as it sounds, because we have automated most of the process and documented the rest. Just read the <a class="external" href="compile.html">Compilation Guide</a>.
@@ -167,7 +165,8 @@ installation is by the GUI under <span class="menu-reference">Main menu bar
 &rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
 you can find buttons to quickly open a (native) file browser on the locations
 where the ROMs are searched for, both for the user folder and the system wide
-folder.
+folder. We recommend to use the user folder, so that your system wide folder
+only contains the files that come with the openMSX installation.
 </p>
 
 <h3><a id="blackscreen">Why do I only get a black screen?</a></h3>
@@ -257,19 +256,15 @@ href="setup.html#cbios">Setup Guide</a>.</p>
 
 <p>The tricky thing is that Catapult always shows the disk, tape and cartridge
 controls, independent whether the machine you're emulating actually supports
-them. There is an abandoned improved Catapult project that doesn't have this
-behavior, but the best thing is to simply use the built-in GUI, which
-integrates perfectly with the capabilities of the selected machine.</p>
+them. However, the built in GUI menus show
+exactly what you can do with the currently running MSX: it only shows options
+to insert a disk drive if there is actually a disk drive present on the system.
+Please give it a try! It's the future of openMSX!</p>
 
 <p>If you want to use disks or tapes with your emulated MSX, you will have to
 install the system ROMs of a real MSX (one with a disk drive!) to emulate that
 one, until C-BIOS supports this as well. More about this in the <a
 class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
-
-<p>You might want to stop using Catapult anyway. The built in GUI menus show
-exactly what you can do with the currently running MSX: it only shows options
-to insert a disk drive if there is actually a disk drive present on the system.
-Please give it a try! It's the future of openMSX!</p>
 
 <h3><a id="rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></h3>
 
@@ -566,7 +561,9 @@ explanation here.
 If you need also a live RAM watch, check out the <code><a class="external"
 href="commands.html#other">ram_watch</a></code> command. It enables you to add
 live views of values on multiple addresses with several view options, like
-titles, formats and data types.
+titles, formats and data types. Please also try the similar functionality under <span
+class="menu-reference">Main menu bar &rarr; Debugger &rarr; Watch
+expression</span>, which is even more powerful.
 </p>
 
 <p>For MSX TASing, we recommend to not use the (default) C-BIOS based machines,
@@ -716,7 +713,7 @@ check out the doc directory of your openMSX distribution.
 <h2><a id="tworeversebars">Why do I see/get two reverse bars in openMSX?</a></h2>
 
 <p>
-This has the same cause and solution as <a href class="internal" href="#blackscreen">Why do I only get a black screen?</a>.
+This has the same cause and solution as <a class="internal" href="#blackscreen">Why do I only get a black screen?</a>.
 </p>
 
 <h2><a id="otherquestion">My question is not listed here.</a></h2>
