@@ -189,7 +189,7 @@ href="https://github.com/openMSX/openMSX/commits/master/doc/manual/user.html">co
 <h2><a id="starting">2. Starting the Emulator</a></h2>
 
 <p>
-In this chapter we will tell you how to select MSX machines and how to use extension cartridges.
+In this chapter we will tell you how to select MSX machines and how to use extension cartridges, when starting up openMSX.
 </p>
 
 <h3><a id="machines">2.1 Machines</a></h3>
@@ -298,7 +298,8 @@ main menu bar as starting points. This will be sufficient for most users.
 Originally, this GUI wasn't available and most functionality had to be
 controlled differently. This way of control is still available (and will remain
 so) this section will tell you more about it. You don't need to care about any
-of these commands if the GUI is sufficient for you.
+of these commands if the GUI is sufficient for you, but the section about "Settings"
+and "Plugging in devices in connectors" we still recommend to look at.
 </p>
 
 <p>
@@ -515,6 +516,14 @@ class="internal" href="#contact">10. Contact Info</a> section for more
 information on how to give your feedback.
 </p>
 
+<p>
+Almost all commands and settings available in the GUI have an underlying
+console command and setting accessible with the console. In several places
+these underlying commands are mentioned in this manual. This is mostly useful
+for power users who want to manipulate openMSX with external programs, scripts
+or other more advanced methods.
+</p>
+
 <h3><a id="guimainmenu">4.2 Main menu bar</a></h3>
 
 <p>
@@ -648,12 +657,17 @@ Cartridge Slot you want to insert it in from the <span
 class="menu-reference">Main menu bar &rarr; Media</span> menu. This will open a
 window where you can tell openMSX exactly what you want to put in the slot,
 like a ROM image, which mapper to use if the automatically selected one isn't
-correct and whether the MSX must be reset after inserting. And finally, you can
+correct and whether the MSX must be reset after inserting.
+</p>
+<p>
+And finally, you can
 also browse for and select (multiple) IPS patches to apply to the selected ROM
 image. IPS patches are files that describe a modification of the ROM you are
 applying it to, e.g. a translation or a cheat. This way you do not need to
 alter any files.
 </p>
+
+<h4>Command line and console</h4>
 
 <p>
 Using the command line, suppose you want to run the ROM file
@@ -724,6 +738,8 @@ Note that in zipped disk images the first file that is packed into the zip file
 will be used as disk image.
 </p>
 
+
+<h5>Command line and console</h5>
 
 <p>
 To specify disk images on the commandline, you can type:
@@ -911,22 +927,16 @@ We don't support using CAS files by patching a BIOS natively, because it is not
 really something we want: we prefer a more authentic emulation without hacks
 like this.
 So, the CAS files are automatically converted to WAV files, internally. Note
-that the loading time is drastically longer this way (but: doing a <code>set <a
-class="external"
-href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code>
+that the loading time is drastically longer this way (but the <span class="menu-reference">Main menu bar &rarr; Settings &rarr; Speed &rarr; Go full speed when loading</span> <a class="external" href="commands.html#fullspeedwhenloading">setting</a>
 will help a lot). On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
 without those characteristic sounds?
 </p>
 
 <p>
-To make it even more comfortable to run software from CAS images, try the
-following setting (also shown in the Tape Deck window), that will attempt to
-type the loading instruction for you after the MSX has started up:
+To make it even more comfortable to run software from CAS images, check the try to enable the <span class="menu-reference">Main menu bar &rarr; Media &rarr; Tape Deck &rarr; Controls &rarr; (try to) Auto Run</span> <a class="external" href="commands.html#autoruncassettes">setting</a>, that will attempt to
+type the loading instruction for you after the MSX has started up.
 </p>
-<div class="commandline">
-     set <a class="external" href="commands.html#autoruncassettes">autoruncassettes</a> on
-</div>
 
 <p>
 Note that saving to CAS files (new or existing ones) is not possible; one can
@@ -984,8 +994,23 @@ A" if such devices are connected to the (IDE/SCSI/SD) extension that is
 currently in the active machine. If wanted, you can also change the used image
 there, but note that for media like hard disks, this can only be done when the
 machine is first powered off (see the <span class="menu-reference">Main menu
-bar &rarr; Machine</span> menu).
+bar &rarr; Machine</span> menu for the <code><a class="external" href="commands.html#power">power</a></code>
+setting).
 </p>
+
+<p>
+To specify the harddisk image to be used on the command line, use the applicable command line option, e.g. for Sunrise IDE:
+</p>
+<div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
+<p>
+This means that you're using the ide extension with symbos.dsk as harddisk
+image. You can also change the harddisk image at run time in the <a
+class="internal" href="#console">console</a>, with similar commands as the <code><a class="external"
+href="commands.html#disk">diska</a></code> command:
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
+</div>
 
 <p>Please read the following sections for details about the specific extensions.</p>
 
@@ -996,23 +1021,6 @@ The extension for this is called 'ide' (shown with the full name Sunrise
 ATA-IDE in the extension selector). By default it has a harddisk connected to
 the master port and a CD-ROM player connected to the slave port.
 </p>
-
-<p>
-If you don't want to use the default harddisk image as is described above, you
-can specify the harddisk image to be used on the command line:
-</p>
-<div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
-<p>
-This means that you're using the ide extension with symbos.dsk as harddisk
-image. You can also change the harddisk image at run time in the <a
-class="internal" href="#console">console</a> (only when the MSX is powered off
-via the <code><a class="external" href="commands.html#power">power</a></code>
-setting). This works the same as the <code><a class="external"
-href="commands.html#disk">diska</a></code> command:
-</p>
-<div class="commandline">
-    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
-</div>
 
 <p>
 The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE
@@ -1167,7 +1175,13 @@ enough to rely on it for development.
 </p>
 
 <p>
-The difference compared to a real MegaFlashROM SCC+ SD, is that it does not
+The SD card slots appear in the openMSX user interface as "Hard Disk A/B" and
+hot plugging is not supported. So, it shows up almost identically to the
+Sunrise IDE interface.
+</p>
+
+<p>
+The difference compared to a real MegaFlashROM SCC+ SD, is that the extension does not
 come with anything flashed on the flash ROM by default. There are two ways to
 overcome that. The first one is to download the preflashed ROM content (for URL
 see below) and install it into your systemroms folder, like any usual system
@@ -1184,7 +1198,7 @@ SCC+ SD, because on a real device you may also need to do this.
 
 <p>
 Once you achieved this, usage is again identical to using the Sunrise hard disk
-interface: you can use the <a class="external"
+interface, so in the console you can use the <a class="external"
 href="commands.html#hd">hda/hdb</a> commands and the matching command line
 parameters <code>-hda</code> and <code>-hdb</code> to control which image will
 be used for the first and second SD card.
@@ -1221,18 +1235,14 @@ laserdisc player.
 <p>
 The Laserdisc image can be selected under <span class="menu-reference">Main
 menu bar &rarr; Media &rarr; LaserDisc Player</span> or in the <a
-class="internal" href="#console">console</a>, type:
+class="internal" href="#console">console</a>, type <code><a class="external" href="commands.html#laserdiscplayer">laserdiscplayer</a> insert &lt;file&gt;.ogv</code>.
 </p>
-
-<div class="commandline">
-     <a class="external" href="commands.html#laserdiscplayer">laserdiscplayer</a> insert &lt;file&gt;.ogv
-</div>
 <p>
 to insert a Laserdisc (image) into the Laserdisc player.
 By default, the Laserdisc will be loaded automatically. If the
 <a class="external" href="commands.html#autorunlaserdisc">autorunlaserdisc</a>
 setting is off, then you will have to enter the following into the MSX
-by hand:
+by hand, as follows.
 </p>
 
 <p>
@@ -1344,8 +1354,8 @@ Make the table look better by using cellpadding stuff in the css.
 </p>-->
 
 <p>
-Note that Mac user must use <code>META</code> as a modifier for the Command
-(Apple logo) key. On PC's use <code>META</code> for the Windows key.
+Note that Mac user must use <code>GUI</code> as a modifier for the Command
+(Apple logo) key. On PC's use <code>GUI</code> for the Windows key.
 </p>
 
 <p>
@@ -1366,7 +1376,7 @@ emulating a Spanish MSX computer.
 </p>
 
 <p>
-As of openMSX 0.7.0, there are facilities to make this as smooth as possible,
+There are facilities to make this as smooth as possible,
 so that you can use your own keyboard on any kind of MSX with as little
 surprises as possible. The trick is the new character-based <a class="external"
 href="commands.html#kbd_mapping_mode">mapping mode</a>, which tries to convert
@@ -1389,27 +1399,22 @@ href="commands.html#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a>
 (specifies mapping of the ENTER key of the keypad).
 </p>
 
+<p>
+You can find the mapping mode setting in <span class="menu-reference">Main menu
+bar &rarr; Settings &rarr; Input &rarr; Keyboard mapping mode</span>.
+</p>
+
 <h3><a id="joystick">6.2 Joystick</a></h3>
 
 <p>
 If you have a controller or joystick connected to your PC, you can map its
-input to one of the emulated MSX joystick (like) devices, called msxjoystick1,
-msxjoystick2, joymega1 and joymega2.
+input to one of the emulated MSX joystick (like) devices, internall called <code>msxjoystick1</code>,
+<code>msxjoystick2</code>, <code>joymega1</code> and <code>joymega2</code>.
 </p>
 
 <p>
 See the <a class="internal" href="#plug">earlier section about plugging
 devices</a> on how to connect these devices to your emulated machine.
-</p>
-
-<p>In the console, one can do it like this::
-</p>
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta msxjoystick1
-</div>
-<p>
-This connects the emulated MSX joystick 1 (which is named msxjoystick1) to port
-A of the emulated MSX.
 </p>
 
 <p>
@@ -1453,12 +1458,7 @@ unfortunately, such mappings are not configurable via the GUI menu.
 <p>
 To connect a mouse, you can also use the <span class="menu-reference">Main menu
 bar &rarr; Connectors</span> menu or the <code><a
-class="external" href="commands.html#plugunplug">plug</a></code> command:
-</p>
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta mouse
-</div>
-<p>
+class="external" href="commands.html#plugunplug">plug</a></code> command: <code>plug joyporta mouse</code>
 will connect a mouse to joystick port A. If you want the joystick emulation
 feature that some mice (like the Philips SBC-3810 and the Sony MOS-1) have,
 keep the left mouse key pressed when plugging it in, just as on a real MSX.
@@ -1486,22 +1486,19 @@ The Arkanoid games by Taito both have support for a special Arkanoid game pad,
 with a classical turning knob to control the position of the bat. This device
 is emulated as well and can be controlled by the mouse. Plug it via the GUI
 <span class="menu-reference">Main menu bar &rarr; Connector</span> menu or in
-the console as follows:</p>
-
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta arkanoidpad
-</div>
+the console with <code><a class="external" href="commands.html#plugunplug">plug</a> joyporta arkanoidpad
+</code>.
+</p>
 
 <h3><a id="trackball">6.5 Trackball</a></h3>
 
 <p>
 Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to be the same
 and are also emulated by openMSX, again using the mouse to control it. In MSX
-software, the trackball is mostly supported in port B only:</p>
-
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyportb trackball
-</div>
+software, the trackball is mostly supported in port B only. Using the console
+you can use therefore <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyportb trackball</code>.
+</p>
 
 <p>
 Quite some HAL programs have support for it, e.g. Hole in One, Eddy II, Music
@@ -1515,11 +1512,9 @@ Sony HB-G7B service manual also works fine, of course.
 Some MSX touch pads like the Philips NMS 1150 Graphic Tablet are also emulated
 by openMSX, again using the mouse to control it (where mouse button 1
 corresponds to touch or no touch and mouse button 2 to the button on the pen of
-the touch pad). Also the touch pad is mostly supported in port B only:</p>
-
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyportb touchpad
-</div>
+the touch pad). Also the touch pad is mostly supported in port B only, so the
+console command is <code><a class="external" href="commands.html#plugunplug">plug</a> joyportb touchpad</code>
+</p>
 
 <p>
 This device is mostly supported by the Philips drawing programs Designer,
@@ -1540,10 +1535,11 @@ setting for how to adjust this.
 <p>
 Sony made a small dongle for game testers to cheat within the games. The games
 that have support for it will check if the UP and DOWN keys are pressed. The
-magic key is supported by these games in port B only:</p>
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyportb magic-key
-</div>
+magic key is supported by these games in port B only (console: <code><a
+class="external" href="commands.html#plugunplug">plug</a> joyportb
+magic-key</code>.
+</p>
+
 
 <p>
 Known games that can use this Magic Key are:
@@ -1563,46 +1559,38 @@ Known games that can use this Magic Key are:
 <p>
 The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber then
 sold in Japan by PCCM. This adapter allows to use up to 4 joysticks by port.
-Plug it via the GUI or with the console as follows:
+Plug it via the GUI or with the console using <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyporta ninjatap</code>.
 </p>
 
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta ninjatap
-</div>
 
 <h3><a id="tetris2dongle">6.9 Tetris II Special Edition dongle</a></h3>
 
 <p>
 Tetris 2 Special Edition from R.A.M., an Italian MSX group needs the dongle in
-port B too start the game:
+port B too start the game. So on the console use <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyportb tetris2-protection
+</code>
 </p>
-
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyportb tetris2-protection
-</div>
 
 <h3><a id="msxpaddle">6.10 MSX Paddle</a></h3>
 
 <p>
 MSX paddle controller is quite a simple device, but there are not so many
 commercial implementations for MSX. The Yamaha MMP-01 is a music pad that is
-known to use this protocol to transmit its coordinates. Plug it as follows:
+known to use this protocol to transmit its coordinates. Plug it as follows in
+the console: <code><a class="external" href="commands.html#plugunplug">plug</a>
+joyporta paddle</code>.
 </p>
 
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyporta paddle
-</div>
-
-<h3><a id="circuitdesignerrddongle">6.9 Circuit Designer dongle</a></h3>
+<h3><a id="circuitdesignerrddongle">6.11 Circuit Designer dongle</a></h3>
 
 <p>
 Circuit Designer dongle from The Falcon, needs the dongle in port B to start
-the program:
+the program, so in the console: <code><a class="external"
+href="commands.html#plugunplug">plug</a> joyportb circuit-designer-rd-dongle
+</code>.
 </p>
-
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> joyportb circuit-designer-rd-dongle
-</div>
 
 <h2><a id="video">7. Video</a></h2>
 
@@ -1838,7 +1826,7 @@ This feature makes it possible to change the shape of the MSX screen. Here are t
 <h3><a id="accuracy">7.4 Accuracy</a></h3>
 
 <p>
-An advanced setting (which yo can find under <span class="menu-reference">Main
+An advanced setting (which you can find under <span class="menu-reference">Main
 menu bar &rarr; Settings &rarr; Video &rarr; Advanced (for debugging)</span>
 (the <code><a class="external"
 href="commands.html#accuracy">accuracy</a></code> setting) controls how often
@@ -1912,9 +1900,7 @@ still have to switch videosources manually, just like on a real system.
 </p>
 
 <p>
-To get your normal MSX screen back, you should
-type <code>set <a class="external"
-href="commands.html#videosource">videosource</a> MSX</code>. If you want to
+To get your normal MSX screen back, set the setting back to MSX. If you want to
 toggle with a hot key
 between them, it might be useful to bind a key for it. E.g.: <code><a
 class="external" href="commands.html#bind">bind</a> F6 cycle <a
@@ -2093,11 +2079,10 @@ virtual MIDI port for Mac MIDI software to connect to.
 For example, use the machine <code>Panasonic_FS-A1GT</code> and plug into the
 <a class="external" href="https://sourceforge.net/projects/munt/">Munt</a> soft
 synthesizer (MT-32 emulator) using <span class="menu-reference">Main menu bar
-&rarr; Connectors</span> menu, or the the console command:
+&rarr; Connectors</span> menu, or with the console command <code><a
+class="external" href="commands.html#plugunplug">plug</a> msx-midi-out Munt\
+MT-32</code>.
 </p>
-<div class="commandline">
-    <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out Munt\ MT-32
-</div>
 <p>
 The exact naming of the host MIDI devices differs per platform. In the console
 you can use tab completion to see the options: type <code>plug
@@ -2108,9 +2093,6 @@ msx-midi-out</code> and hit TAB twice.
 The <code>midi-out-logger</code> MIDI device is available on all platforms and
 logs MIDI events to a file.
 </p>
-<div class="commandline">
-  <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out midi-out-logger
-</div>
 <p>
 You can specify the file to log to using <code>set
 <a class="external"
@@ -2275,11 +2257,10 @@ If you want to disable the reverse feature, you can use <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
 settings &rarr; Enable reverse/replay</span> or the underlying <code><a
 class="external" href="commands.html#reverse">reverse stop</a></code> console command.
-And if you don't want it to restart again anymore, uncheck <span
+And if you don't want it to restart again anymore, uncheck the <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
-settings &rarr; Auto enable reverse</span> or use the <code><a class="external"
-href="commands.html#auto_enable_reverse">auto_enable_reverse</a></code>
-setting.
+settings &rarr; Auto enable reverse</span> <a class="external"
+href="commands.html#auto_enable_reverse">setting</a>.
 </p>
 
 <p>
@@ -2347,6 +2328,8 @@ accessed with the <code><a class="external"
 href="commands.html#debug">debug</a></code> console command. With that debugger
 you can read and write all registers and memory of almost all devices that are
 supported in openMSX. It also supports break points, watch points and stepping.
+See the <span class="menu-reference">Main menu
+bar &rarr; Debugger</span> menu for the most common debugging options.
 </p>
 
 <h4><a id="debugdeviceenable">9.4.1 Enabling the Debug Device</a></h4>
