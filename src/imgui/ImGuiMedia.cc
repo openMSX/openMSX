@@ -493,7 +493,9 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!slotManager.slotExists(i)) continue;
 			anySlot = true;
-			auto displayName = strCat("Cartridge Slot ", char('A' + i));
+			auto [ps, ss] = slotManager.getPsSs(i);
+			std::string extraInfo = ss == -1 ? "" : strCat(" (", slotManager.getPsSsString(i), ")");
+			auto displayName = strCat("Cartridge Slot ", char('A' + i), extraInfo);
 			ImGui::MenuItem(displayName.c_str(), nullptr, &cartridgeMediaInfo[i].show);
 			simpleToolTip([&]{ return displayNameForSlotContent(slotManager, i); });
 		}
