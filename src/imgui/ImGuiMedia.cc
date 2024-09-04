@@ -1520,11 +1520,11 @@ void ImGuiMedia::addRecent(const TclObject& cmd)
 				return &diskMediaInfo[i].groups[SelectDiskType::IMAGE];
 			}
 		} else if (mediaName.starts_with("hd")) {
-			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(HD::MAX_HD)) {
+			if (int i = mediaName[2] - 'a'; 0 <= i && i < int(HD::MAX_HD)) {
 				return &hdMediaInfo[i];
 			}
 		} else if (mediaName.starts_with("cd")) {
-			if (int i = mediaName[4] - 'a'; 0 <= i && i < int(IDECDROM::MAX_CD)) {
+			if (int i = mediaName[2] - 'a'; 0 <= i && i < int(IDECDROM::MAX_CD)) {
 				return &cdMediaInfo[i];
 			}
 		} else if (mediaName == "cassetteplayer") {
