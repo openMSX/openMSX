@@ -50,9 +50,8 @@
 			<li><a class="internal" href="#tuningvarious">6.2 Various Tuning Tips</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#androidtips">7. Android Tips</a></li>
-	<li><a class="internal" href="#hardwareedit">8. Writing Hardware Descriptions</a></li>
-	<li><a class="internal" href="#contact">9. Contact Info</a></li>
+	<li><a class="internal" href="#hardwareedit">7. Writing Hardware Descriptions</a></li>
+	<li><a class="internal" href="#contact">8. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -289,7 +288,6 @@ platform dependent:
 <tr><th>Platform</th><th>User directory</th></tr>
 <tr><td>Windows (e.g. Windows 7)</td><td><code>C:\Users\&lt;user name&gt;\Documents\openMSX\share</code> whereby <code>&lt;user name&gt;</code> stands for your Windows login name</td></tr>
 <tr><td>Unix and Linux</td><td><code>~/.openMSX/share</code></td></tr>
-<tr><td>Android</td><td><code>&lt;external storage&gt;/openMSX/share</code>, whereby <code>&lt;external storage&gt;</code> stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard</code></td></tr>
 </table>
 
 <p>
@@ -297,8 +295,8 @@ Please note that the path part which comes before <code>share</code> can be
 overridden by setting the <code>OPENMSX_HOME</code> environment variable, see the <a class="internal" href="#settings">chapter about User Preferences</a>.
 </p>
 
-<p> That way, you do not need special privilages. Furtermore, the installer
-won't touch them for sure on Windows nor on Android. </p>
+<p>That way, you do not need special privilages. Furtermore, the (Windows) installer
+won't touch them for sure.</p>
 
 <p> A template for the <code>systemroms</code> sub directory is present in the
 installation directory of openMSX, which is also platform dependent:
@@ -308,7 +306,6 @@ installation directory of openMSX, which is also platform dependent:
 <tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
 <tr><td>Windows (any version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
 <tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code></td></tr>
-<tr><td>Android</td><td><code>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby <code>&lt;internal app install dir&gt;</code> stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard/Android/data</code></td></tr>
 </table>
 
 <p> The quickest way to see where openMSX is searching for system ROMs on your
@@ -554,31 +551,7 @@ simpler software altogether (e.g. MSX1 software instead of turboR software).
 </li>
 </ul>
 
-<h2><a id="androidtips">7. Android Tips</a></h2>
-<p>This section has some tips specific to the Android version (which is currently not maintained anymore)</p>
-<ul>
-  <li>If the sound is choppy, you should increase the SDL audio buffer size as follows
-    <ul>
-      <li>Start openMSX</li>
-      <li>Tap the button "Change device configuration" on the SDL Splash screen that is shown for 3 seconds during the startup</li>
-      <li>Tap the button "Size of audio buffer" in the device configuration screen</li>
-      <li>Change the buffer size from "Very small" to "Small"</li>
-      <li>Tap "OK" to close the device configuration screen</li>
-    </ul>
-  </li>
-  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to functions as in following table:
-    <table class="border_enabled">
-      <tr><td>Console</td><td>openMSX virtual keyboard</td></tr>
-      <tr><td>Joystick button 2</td><td>Joystick button 1</td></tr>
-    </table>
-  </li>
-  <li>It is possible to change these mappings using the "Change device configuration" button on the SDL Splash screen</li>
-  <li>By default, the Android build has a button in the left upper corner of the screen to open the Android virtual keyboard</li>
-  <li>If you use the Android keyboard a lot, then it is advisable to install the "Hackers keyboard" app from Google Play and to use that one
-  instead of the standard Android keyboard. It is much more convenient for openMSX and other old-school applications.</li>
-</ul>
-
-<h2><a id="hardwareedit">8. Writing Hardware Descriptions</a></h2>
+<h2><a id="hardwareedit">7. Writing Hardware Descriptions</a></h2>
 
 <p>
 There are two ways to use extra devices in your emulated MSX: you can use a
@@ -708,7 +681,7 @@ You can use the ready-made configurations in <code>share/machines</code> as
 examples.
 </p>
 
-<h2><a id="contact">9. Contact Info</a></h2>
+<h2><a id="contact">8. Contact Info</a></h2>
 
 <p>
 Because openMSX is still in heavy development, feedback and bug reports are very
