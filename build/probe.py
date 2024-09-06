@@ -360,6 +360,10 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 						print('Using libraries from MacPorts.')
 						distroRoot = '/opt/local'
 						break
+					elif searchPath == '/opt/homebrew/bin':
+						print('Using libraries from Homebrew.')
+						distroRoot = '/opt/homebrew'
+						break
 					elif searchPath == '/sw/bin':
 						print('Using libraries from Fink.')
 						distroRoot = '/sw'
