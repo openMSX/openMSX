@@ -106,12 +106,12 @@ href="https://github.com/openMSX/openMSX/commits/master/doc/manual/compile.html"
 <h2><a id="preparation">2. Preparation</a></h2>
 
 <p>
-Before you can start compiling openMSX, you have to make sure your system
+Before you can start compiling openMSX, please make sure your system
 has all the necessary build tools installed, as well as the libraries
 openMSX depends upon. The following sections tell you how you can prepare your system.
 </p>
 <p>
-Every section starts with generic instructions, that apply to all platforms and
+Every section starts with generic instructions that apply to all platforms and
 compilers. At the end of each section, platform specific notes cover differences or additional steps for certain platforms
 or compilers.
 </p>
@@ -156,14 +156,14 @@ At least version 11 is required to build openMSX.
 <h5>macOS</h5>
 
 <p>
-Install Xcode from Apple, which you can find in the Mac App Store. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode. At least Xcode 15.4 is required.
+Install Xcode from Apple, which you can find in the Mac App Store. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode. Xcode 15.4 or higher is required.
 </p>
 
 <h4>Visual C++</h4>
 
-<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is 2022.</p>
+<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is Visual C++ 2022.</p>
 
-<p>Use this way to obtain the Visual C++ compiler:</p>
+<p>How to obtain the Visual C++ compiler:</p>
 <dl>
 	<dt><a class="external" href="http://www.visualstudio.com/downloads/">Visual Studio Community</a></dt>
 	<dd>This is a free (as in beer) IDE and development environment. It builds 32 and 64-bit binaries out of the box. Make sure you download the latest version. </dd>
@@ -213,10 +213,10 @@ openMSX depends on the following libraries:
 <dd>The Laserdisc emulation expects files in the Ogg container format for the video and audio of Laserdiscs.</dd>
 
 <dt><a class="external" href="http://www.xiph.org/vorbis/">Vorbis</a> (optional)</dt>
-<dd>The Laserdisc emulation expects audio encoded with Vorbis in the ogg container format for the audio of Laserdiscs. Vorbis was chosen since it is not patent-encumbered.</dd>
+<dd>The Laserdisc emulation expects audio encoded with Vorbis in the Ogg container format for the audio of Laserdiscs. Vorbis was chosen since it is not patent-encumbered.</dd>
 
 <dt><a class="external" href="http://www.xiph.org/theora/">Theora</a> (optional)</dt>
-<dd>The Laserdisc emulation expects video encoded with the Theora codec in the ogg container format for the video of Laserdiscs. Again, Theora was chosen since it is not patent-encumbered.</dd>
+<dd>The Laserdisc emulation expects video encoded with the Theora codec in the Ogg container format for the video of Laserdiscs. Again, Theora was chosen since it is not patent-encumbered.</dd>
 
 <dt><a class="external" href="http://www.alsa-project.org/">ALSA</a> (optional, Linux only)</dt>
 <dd>The ALSA library for ALSA MIDI out support on Linux.</dd>
@@ -243,7 +243,7 @@ Typical dependending packages are: <code>libsdl2-ttf-dev</code> <code>libogg-dev
 
 <h5>Other Linux</h5>
 <p>
-Most Linux distributions have libraries split over two packages: a runtime package and a development package.
+Most Linux distributions have their libraries split over two packages: a runtime package and a development package.
 The runtime package for the "Foo" library is typically called
 <code>libfoo</code>, the development package is typically named
 <code>libfoo-dev</code> or <code>libfoo-devel</code>.
@@ -266,10 +266,10 @@ or
 
 <p>
 When building with Visual C++, the optional libraries mentioned above are
-arranged as follows:</p>
+treated as follows:</p>
 <ul>
 	<li>Headers and libraries for OpenGL are included with Visual C++ by default.</li>
-	<li>The GLEW, Ogg, Theora and Vorbis libraries are required.</li>
+	<li>The GLEW, Ogg, Theora and Vorbis libraries are not optional, but required.</li>
 </ul>
 <p>
 Also, when building with Visual C++, the &quot;3rd party libraries&quot; support in the openMSX
@@ -284,7 +284,7 @@ openMSX is developed using the tools
 <a class="external" href="http://github.com/">GitHub</a>
 freely offers to open source projects.
 The code is stored in Git, an open source version management system.
-Once in a while an openMSX release is made.
+Every once in a while, a new version of openMSX is released.
 </p>
 
 <p>
@@ -295,37 +295,35 @@ There are several options for getting the source code:
 
 <dt><a class="internal" href="#getrelease">Released Version</a></dt>
 <dd>
-These are tested versions, which should give you little problems compiling
-and running.
-However, as openMSX development if often quite fast, they may not have all
+These are tested versions, which should little or no trouble getting them compiled and running.
+However, as openMSX development if often quite fast, these tested versions may not have all
 the latest features.
-Also there could be bugs that have been fixed since the last release.
+Bugs that have been fixed since the last release could also still be present.
 </dd>
 
 <dt><a class="internal" href="#getscm">Git Clone</a></dt>
 <dd>
 Through Git you can get the same development version the
 openMSX developers are using.
-This is the bleeding edge:
-the latest stuff, which may be great or may be horribly broken.
+This is the bleeding edge version, which contains all the latest stuff and may be absolutely fantastic or horribly broken.
 Usually the latest openMSX code compiles and runs fine, but we're only human,
-so once in a while it breaks.
-Also there may be changes that are not documented yet.
+so once in a while it may break.
+This version may also contain changes that have not been documented yet.
 </dd>
 
 </dl>
 
 <p>
 Releases are intended for general users, Git Clone is intended for
-(would be) developers, heavy testers and people who want to follow new
-developments closely. It might be a good idea to play with a release first. If
+(would-be) developers, heavy testers and people who want to follow up new
+developments closely. It might be a good idea to play with a tested release first. If
 you like what you see and want to get in deeper, you can switch to a Git Clone later.
-A Git Clone is very comfortable, because then you can do efficient
+Using a Git Clone is quite comfortable, as it allows you to do efficient
 incremental updates, saving network bandwidth and compile time.
 </p>
 
 <p>
-If you downloaded a version that is either a lot older or a lot newer than
+If the version you downloaded is either a lot older or a lot newer than 
 this guide, it is a good idea to read the guide included in your downloaded
 version instead of the version you're reading right now.
 You can find the Compilation Guide in the directory
@@ -364,17 +362,17 @@ but this guide will tell you how to use Git from the command line. More informat
 href="http://git-scm.com/documentation">Git Documentation</a> site.</p>
 <p>
 Windows
-users might want to look at <a class="external" href="https://git-for-windows.github.io/">msysGit</a> for a command line tool, <a class="external" href="http://code.google.com/p/tortoisegit/">TortoiseGit</a> for Windows Explorer integration, or <a class="external" href="http://gitextensions.github.io/">Git Extensions</a>, which also includes Visual Studio integration.
+users might want to have a look at <a class="external" href="https://git-for-windows.github.io/">msysGit</a> as a command line tool, <a class="external" href="http://code.google.com/p/tortoisegit/">TortoiseGit</a>, which offers Windows Explorer integration, or <a class="external" href="http://gitextensions.github.io/">Git Extensions</a>, a tool which also includes Visual Studio integration.
 </p>
 
 <p>
-With the following line (which is also displayed when you <a class="external" href="https://github.com/openMSX">browse an openMSX git repository</a>) you can retrieve the latest sources (also works on Windows when using msysGit):
+The following command (which is also displayed when you <a class="external" href="https://github.com/openMSX">browse an openMSX Git repository</a>) retrieves the latest source code (also works on Windows when using msysGit):
 </p>
 <div class="commandline">
 git clone https://github.com/openMSX/openMSX.git openMSX
 </div>
 <p>
-In this line you specified where you want to retrieve the files from
+This line specifies where you want to retrieve the files from
 (host name of the Git server),
 what project you want to retrieve (<em>openMSX</em> in this case), what
 module you want to get (<em>openMSX.git</em> in this case, which is the module that contains
@@ -383,24 +381,24 @@ cloned to (we chose <em>openMSX</em> in this example).
 </p>
 
 <p>
-If you're a developer, it makes sense to use this git commandline:
+If you're a developer, it makes sense to use this Git command line:
 </p>
 <div class="commandline">
 git clone git@github.com:openMSX/openMSX.git openMSX
 </div>
 
 <p>
-For this to work smoothly, without having to type your password all the time, it's probably a good idea to <a class="external" href="https://help.github.com/articles/generating-ssh-keys/#platform-all">read the GitHub docs about SSH keys</a>.
+Pro tip: <a class="external" href="https://help.github.com/articles/generating-ssh-keys/#platform-all">read the GitHub docs about SSH keys</a> if you want this to work smoothly, without having to (re)type your password all the time.
 </p>
 
 <p>
 The Git command creates a directory called <code>openMSX</code> for you
 in the current directory (or in the directory you specified in TortoiseGit).
-This directory is what we call in this manual <em>the top
+In this manual, this directory is referred to as <em>the top
 of the source tree</em>.
 In addition to the openMSX code, you will see a hidden
 Git administration directory called <code>.git</code>.
-Do not mess with it (nor move contents of this directory around), otherwise Git will get confused.
+Do not mess with it (nor move contents of this directory around), otherwise Git will get very confused.
 </p>
 
 <p>
@@ -411,13 +409,13 @@ go to the top of the source tree and type:
 git pull
 </div>
 <p>
-or right click on the openMSX directory in Windows Explorer and select "TortoiseGit -&gt; Pull...".
+or right-click on the openMSX directory in Windows Explorer and select "TortoiseGit -&gt; Pull...".
 </p>
 
 <h2><a id="local">4. Binary for Local System</a></h2>
 
 <p>
-This section explains how to build openMSX for a local system. If you want to create a binary that runs everywhere, we recommend to skip this chapter and use the <a class="internal" href="#standalone">stand-alone binary</a> method. We also recommend to do that for macOS and especially for Microsoft Windows systems.
+This section explains how to build openMSX for a local system. If you want to create a binary that runs everywhere, we recommend to skip this chapter and use the <a class="internal" href="#standalone">stand-alone binary</a> method. This is also the recommended approach for macOS and especially for Microsoft Windows systems.
 </p>
 
 <h3><a id="compilelocal">4.1 Compilation</a></h3>
@@ -478,15 +476,15 @@ components, or to continue without building some components (e.g. the Laserdisc 
 <p>
 If installing the correct libraries doesn't help,
 <a class="internal" href="#contact">contact the openMSX developers</a>.
-If you file a bug report, please attach the <code>probe.log</code> file
-that is written by the <code>configure</code> script in the directory
+When filing a bug report, please attach the <code>probe.log</code> file 
+created by the <code>configure</code> script in the directory
 <code>derived/&lt;cpu&gt;-&lt;os&gt;-&lt;flavour&gt;/config/</code>.
 </p>
 
 <p>
 You can customise the build process by editing the file
 <code>build/custom.mk</code>.
-The most likely thing you might want to customise is the installation directory (<code>INSTALL_BASE</code>).
+The thing you most likely might want to customise is the installation directory (<code>INSTALL_BASE</code>).
 If you are installing openMSX on a system on which you do not have
 superuser (root) privileges, you can set the installation directory
 to a subdirectory of your home directory.
@@ -494,7 +492,7 @@ to a subdirectory of your home directory.
 
 <p>
 After successfully running <code>configure</code>,
-it's time to compile everything.
+it's finally time to compile everything.
 To start compilation, type:
 </p>
 <div class="commandline">
@@ -502,7 +500,7 @@ make
 </div>
 <p>
 Depending on how fast your system is,
-this may take several minutes to half an hour.
+this may take anywhere between several minutes to half an hour.
 </p>
 
 <p>
@@ -510,10 +508,10 @@ If you get errors during compilation,
 there may be something wrong that was not detected by configure.
 Verify that you installed
 <a class="internal" href="#libs">all required libraries</a>,
-both the run time and development packages.
-If that doesn't help, or we forgot to list a library openMSX depends on,
+both the runtime and development packages.
+If that doesn't help, or we forgot to list a library openMSX depends on, please 
 <a class="internal" href="#contact">contact the openMSX developers</a>.
-Make sure you provide us with the error message you got.
+Make sure to include the error message you got.
 </p>
 
 <p>
@@ -523,7 +521,7 @@ If you want to debug openMSX compilation problems yourself, you can add <code>V=
 <h5>macOS</h5>
 
 <p>
-The minimum required macOS release to build openMSX out of the box is whatever version runs the required version of XCode.
+The version of Xcode required also determines which version of macOS you need to build openMSX out of the box.
 </p>
 
 <h4>Visual C++</h4>
@@ -544,16 +542,20 @@ To install openMSX, run the following command:
 make install
 </div>
 <p>
-This installs openMSX, by default in <code>/opt/openMSX</code>.
+This installs openMSX in <code>/opt/openMSX</code> by default.
 Note that only root has rights to write to system-wide directories such as
 <code>/opt</code>,
-so you may have to do <code>su</code> before <code>make install</code>, or use <code>sudo</code>.
+so you may have to do <code>su</code> before <code>make install</code>, or use <code>sudo</code>:
+<div class="commandline">
+sudo make install
+</div>
+
 </p>
 
 <h5>macOS</h5>
 
 <p>
-On macOS, the build creates an application folder. You can "install" this by copying it to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs without those libraries.
+On macOS, the build creates an application folder. You can "install" this simply by copying this folder to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs lacking those libraries.
 </p>
 <p>
 You can run openMSX from the application folder with the following command:
@@ -585,7 +587,7 @@ If you want to change something about this process, for example switch to a newe
 </p>
 
 <p>
-Just like for normal compilation, you can set environment variables such as <code>OPENMSX_FLAVOUR</code>, <code>CXX</code>, <code>OPENMSX_TARGET_CPU</code> and <code>OPENMSX_TARGET_OS</code>.
+Similar to standard compilation, you can set environment variables such as <code>OPENMSX_FLAVOUR</code>, <code>CXX</code>, <code>OPENMSX_TARGET_CPU</code> and <code>OPENMSX_TARGET_OS</code>.
 </p>
 
 <p>
@@ -604,7 +606,7 @@ The final output files will be produced in <code>derived/&lt;cpu&gt;-&lt;os&gt;-
 The final output is a DMG file (Mac disk image) containing the openMSX application folder and documentation. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
 </p>
 <p>
-If you have a Apple Developers ID, you can automatically sign the app bundle by providing the following environment variable in your shell, before building the app bundle:
+If you have an Apple Developers ID, you can automatically sign the app bundle by providing the following environment variable in your shell before building the app bundle:
 </p>
 <div class="commandline">
     <pre>
@@ -613,7 +615,7 @@ make staticbindist
     </pre>
 </div>
 <p>
-To find the exact string, needed for the CODE_SIGN_IDENTITY, you can use the command:
+To find the exact string needed for the CODE_SIGN_IDENTITY, use the command:
 </p>
 <div class="commandline">
 security find-identity
@@ -661,7 +663,7 @@ The following steps can then be used to build openMSX:</p>
 <p>The openMSX executable will be generated in <code>derived\x64-VC-Release\install</code>.</p>
 <p>To build for other platforms or configurations, simply replace &quot;Release&quot; and
 &quot;x64&quot;&nbsp;in the command lines above with the desired options.</p>
-<p>To build using the Visual C++ IDE, simply open the aforementioned solution files and from the Build menu select &quot;Build Solution&quot;. This is exactly equivalent to building from the command line using <code>msbuild</code>.</p>
+<p>To build using the Visual C++ IDE, simply open the aforementioned solution files and from the Build menu select &quot;Build Solution&quot;. This is the same as building from the command line using <code>msbuild</code>.</p>
 <h3><a id="installstandalone">5.2 Installation</a></h3>
 
 <!-- TODO - generalize this for both MinGW and VC++, integrate into make install -->
@@ -683,7 +685,7 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 	</li>
 </ul>
 
-<p>An example command line would be (for 64 bit):</p>
+<p>An example command line (for 64 bit) could be:</p>
 <div class="commandline">
 	build\package-windows\package.cmd x64 Release ..\wxCatapult</div>
 
@@ -692,7 +694,7 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 <h2><a id="next">7. Next Steps</a></h2>
 
 <p>
-If all went well, you should have openMSX installed now or have a stand alone working binary.
+If all went well, you should have openMSX installed now or have a stand-alone working binary.
 You can test it by executing openMSX from the command line:
 </p>
 <div class="commandline">
@@ -700,7 +702,7 @@ openmsx
 </div>
 
 <p>
-or, by double clicking the openMSX executable or icon that resulted
+or, by double-clicking the openMSX executable or icon that resulted
 from the previous step.
 </p>
 
@@ -721,7 +723,7 @@ inserted.
 
 <p>
 C-BIOS MSX2+ is the default system BIOS used by openMSX.
-It was written from scratch by BouKiCHi and he was kind enough to let us
+It was written from scratch by BouKiCHi, who was kind enough to let us
 distribute it together with openMSX.
 It is not perfect yet, but it runs many ROM games well.
 Nowadays C-BIOS is a separate (SourceForge.net) project, with its own <a class="external" href="http://cbios.sourceforge.net/">web page</a>.
@@ -775,13 +777,13 @@ welcome!
 </p>
 
 <p>
-If you encounter problems, you have several options:
+Should you encounter problems, you have several options:
 </p>
 
 <ol>
 <li>
 Go to our IRC channel: <a class="external" href="ircs://irc.libera.chat:6697/#openMSX"><code>#openMSX</code> on <code>libera.chat</code></a>
-and ask your question there. Also reachable via <a class="external" href="https://web.libera.chat/#openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
+and ask your question there. Also reachable via <a class="external" href="https://web.libera.chat/#openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers live in time zone GMT+1. You may get no response if you contact them in the middle of their night...
 </li>
 <li>
 Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
@@ -793,7 +795,7 @@ on GitHub.
 You need a (free) log-in on GitHub to get access.
 </li>
 <li>
-Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
+Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible issues,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
 post a message to the <code>openmsx-devel</code> mailing list.
@@ -814,8 +816,8 @@ This will only work if you did not strip the openMSX binary
 of its debug symbols.</p>
 
 <p>Another useful thing to do is to install the debug versions of libstdc++ and libc6,
-and then run openmsx with an <code>LD_LIBRARY_PATH=/usr/lib/debug</code> exported in the environment.
-This will give a more detailed stacktrace, especially in optimized code.
+and then run openMSX with an <code>LD_LIBRARY_PATH=/usr/lib/debug</code> exported in the environment.
+This will give a more detailed stack trace, especially in optimized code.
 </p>
 
 <h4>Visual C++</h4><p>For experienced users: if you get a crash or a hang,
@@ -823,7 +825,7 @@ try to provide a user dump. This will work for any openMSX binary, including
 pre-built binaries obtained from <a class="external" href="http://openmsx.org/">openmsx.org</a>.</p>
 <p>On Windows you can find user dump files for crashed processes
 in the &quot;%LocalAppData%\CrashDumps&quot; directory. The default Windows crash dump
-behavior can be further customized as per
+behaviour can be further customized as per
 <a href="http://msdn.microsoft.com/en-us/library/bb513638(VS.85).aspx">MSDN</a>.</p>
 <p>To generate a user dump on demand on any Windows OS, please read
 <a class="external" href="http://support.microsoft.com/kb/286350">KB286350</a>.</p>

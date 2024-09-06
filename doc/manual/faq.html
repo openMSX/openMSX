@@ -29,7 +29,7 @@
 		<li><a class="internal" href="#nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></li>
 		<li><a class="internal" href="#rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
-		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
+		<li><a class="internal" href="#harddisk">What about openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
 		<li><a class="internal" href="#leds">Great, those on-screen LEDs! How do I get rid of them?</a></li>
 		<li><a class="internal" href="#commands">Where is the full list of commands and settings?</a></li>
@@ -40,11 +40,11 @@
 	</ul></li>
 	<li><a class="internal" href="#other">Other</a>:
 	<ul class="toc">
-		<li><a class="internal" href="#codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a> </li>
+		<li><a class="internal" href="#codec">What codec do you use to record videos and where do I get it (because I only get eternal darkness in my videos)?</a> </li>
 		<li><a class="internal" href="#soundproblems">Why do I hear serious sound glitches and/or stuttering, especially when using Windows?</a> </li>
 		<li><a class="internal" href="#techinfo">Where can I find more technical info about openMSX?</a> </li>
 		<li><a class="internal" href="#tworeversebars">Why do I see/get two reverse bars in openMSX?</a> </li>
-		<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
+		<li><a class="internal" href="#otherquestion">My question is not listed here. Help me.</a> </li>
 	</ul></li>
 </ul>
 
@@ -53,7 +53,7 @@
 <h3><a id="easyinstall">What is the easiest way to install openMSX?</a></h3>
 
 <p>
-The easiest way to install openMSX is to use a ready-made package. Whether one
+The easiest way to install openMSX is to use a ready-made package. Whether or not one
 is available depends on your operating system:
 </p>
 
@@ -98,30 +98,29 @@ openmsx</code> to install openMSX.</dd>
 <dd>You can find an ebuild for openMSX in the "games-emulation" category.
 </dd>
 <dt>openSUSE</dt>
-<dd>openSUSE 10.3 (and 11.x) seems to contain an openMSX package, but it seems to be somewhat outdated.</dd>
+<dd>openSUSE 10.3 (and 11.x) contains an openMSX package, but it seems to be somewhat outdated.</dd>
 <dt>Mandriva</dt>
-<dd>There seem to appear at least source RPM's on the <a class="external" href="http://rpmfind.net/linux/rpm2html/search.php?query=openmsx">RPMFind.net search for openMSX</a> sometimes, but we don't know how to use them exactly or if they are also included in the official distribution.</dd>
+<dd>Source RPMs occasionally appear on the <a class="external" href="http://rpmfind.net/linux/rpm2html/search.php?query=openmsx">RPMFind.net search for openMSX</a>, but we don't know how to use them exactly or if they are also included in the official distribution.</dd>
 <dt>ArchLinux</dt>
-<dd>There are packages for <a class="external" href="https://aur.archlinux.org/packages/openmsx">openMSX</a> and <a class="external" href="https://aur.archlinux.org/packages/openmsx-catapult">Catapult</a> in the <a class="external" href="http://aur.archlinux.org/packages">ArchLinux User-community Respository (AUR)</a>.</dd>
+<dd>Packages are available for <a class="external" href="https://aur.archlinux.org/packages/openmsx">openMSX</a> and <a class="external" href="https://aur.archlinux.org/packages/openmsx-catapult">Catapult</a> in the <a class="external" href="http://aur.archlinux.org/packages">ArchLinux User-community Respository (AUR)</a>.</dd>
 <dt>other</dt>
 <dd>It is possible that openMSX has been packaged for other Linux systems as
-well, but we are not able to keep track of them all. Search in your package
-management system for openMSX and there's a fair chance that openMSX will pop
-up. If it doesn't, see a few lines below at "other".</dd>
+well, but we are not able to keep track of all of them. Search for openMSX in your package management system and there's a fair chance that openMSX will pop
+up. If it doesn't, look for "other", a few lines below.</dd>
 </dl>
 </dd>
 <dt>FreeBSD</dt>
-<dd>There is a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/openmsx">port for openMSX</a> in FreeBSD. It is called simply "openmsx". There is also a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/catapult/">port for Catapult</a>.</dd>
+<dd>There is a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/openmsx">port for openMSX</a> in FreeBSD. It is simply called "openmsx". There is also a <a class="external" href="https://cgit.freebsd.org/ports/tree/emulators/catapult/">port for Catapult</a>.</dd>
 <dt>NetBSD</dt>
 <dd>There is a <a class="external" href="http://cdn.netbsd.org/pub/pkgsrc/current/pkgsrc/emulators/openmsx/">port for openMSX</a> in NetBSD, but it seems to be somewhat outdated.
 </dd>
 <dt>other</dt>
-<dd>You'll have to install openMSX from source. This is not as complicated as it sounds, because we have automated most of the process and documented the rest. Just read the <a class="external" href="compile.html">Compilation Guide</a>.
+<dd>Right. Sorry, but you'll have to install openMSX from source. This is not as complicated as it may sound, because we have automated most of the process and documented the rest. For clarity's sake: we're talking about the <a class="external" href="compile.html">Compilation Guide</a>.
 </dd>
 </dl>
 
 <p>
-Note that in any case, there are no system ROMs installed, so only the C-BIOS
+Note that in any case, no system ROMs are ever installed, so only the C-BIOS
 machines work out-of-the-box. See also the next couple of questions.
 </p>
 <p>
@@ -139,8 +138,8 @@ emulators in general.
 </p>
 
 <p>
-The zip file may suggest that it is a "portable" version of the emulator. But
-it isn't. It's just the same thing, just not packaged in the installer. It
+The zip file may suggest that it is a "portable" version of the emulator, but
+it isn't. It's exactly the same thing, just not packaged in the installer. The zip file 
 still assumes the same paths as described in the <a class="external"
 href="setup.html#romlocations">Setup Guide</a>.
 </p>
@@ -155,17 +154,17 @@ class="external" href="setup.html#systemroms">section about system ROMs</a>.
 
 <h3><a id="whereroms">Where do I install the system ROMs?</a></h3>
 
-<p>You can put all the system ROMs in <code>share/systemroms</code>. Please see
+<p>System ROMs should be put in <code>share/systemroms</code>. Please see
 the <a class="external" href="setup.html#romlocation">Setup Guide</a> for the
 exact location for your operating system.
 </p>
 <p>
 The quickest way to see where openMSX is searching for system ROMs on your
-installation is by the GUI under <span class="menu-reference">Main menu bar
+installation is via the GUI under <span class="menu-reference">Main menu bar
 &rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
 you can find buttons to quickly open a (native) file browser on the locations
-where the ROMs are searched for, both for the user folder and the system wide
-folder. We recommend to use the user folder, so that your system wide folder
+where the ROMs are searched for, both for the user folder and the system-wide
+folder. We recommend to use the user folder, so that your system-wide folder
 only contains the files that come with the openMSX installation.
 </p>
 
@@ -180,8 +179,8 @@ You are probably mixing two installations of openMSX. Make sure that your
 openMSX user directory (see <a class="external"
 href="setup.html#romlocation">this overview where it is for your platform</a>)
 does not have any openMSX installation stuff, only your own files, like system
-ROMs and what not. Make sure there are no other folders like
-<code>share/shaders</code> or <code>share/scripts</code> are there, which may
+ROMs and whatnot. Make sure no other folders (like
+<code>share/shaders</code> or <code>share/scripts</code>) are there, as they may
 interfere with the files that we ship with openMSX.
 </p>
 
@@ -190,14 +189,14 @@ interfere with the files that we ship with openMSX.
 <h3><a id="easyuse">Is openMSX easy to use?</a></h3>
 
 <p>
-We hope it is, as there is a built-in GUI nowadays. If you find problems using openMSX, we'd love to hear about it.
+We sure hope so, especially with the built-in GUI nowadays. Still encountering problems using openMSX? We'd <a class="external" href="user.html#contact">love to hear about it</a>.
 </p>
 
 <p>
 Although the GUI is quite comprehensive, it doesn't give you access to all
-features of openMSX. You can do even more by using the openMSX built-in
-console. You can read a lot more about this in <a class="external"
-href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did
+features of openMSX. Get access to all the features by using the openMSX built-in
+console, and find out in <a class="external"
+href="user.html#controlling">the User's Manual</a> how this works. It's not a GUI, but we still did
 our best to make this console as easy to use as possible.
 </p>
 
@@ -208,7 +207,7 @@ If you think openMSX is not easy to use, please tell us why! Contact info is in
 
 <p>
 Oh, you might wonder: why isn't the GUI looking more like other applications of
-my operating system, like in (most) other emulators? We choose this GUI
+my operating system, like with (most) other emulators? We chose this GUI
 toolkit, because it's independent of the operating system and it is easily
 integrated into our code. This way we can support more operating systems with
 the same amount of work (and developers) and make it easy for us to add new
@@ -233,11 +232,11 @@ screen: C-BIOS 0.25.
 </p>
 
 <p>
-So, the message is not from openMSX, but from C-BIOS, an MSX program which
+The message, in other words, does not come from openMSX, but rather from C-BIOS, an MSX program which
 tries to start a cartridge that is inserted in the MSX that is being emulated
 by openMSX. And it seems you didn't insert any cartridge for it... So, either
 run openMSX with a ROM image or <a class="internal"
-href="setup.html#installrom">install real MSX system ROMs</a> for a certain
+href="setup.html#installrom">install real MSX system ROMs</a> for a particular
 machine and run that one.
 </p>
 
@@ -255,20 +254,19 @@ disk or tape usage. Please see the <a class="external"
 href="setup.html#cbios">Setup Guide</a>.</p>
 
 <p>The tricky thing is that Catapult always shows the disk, tape and cartridge
-controls, independent whether the machine you're emulating actually supports
+controls, ignoring if the machine you're emulating actually supports
 them. However, the built in GUI menus show
 exactly what you can do with the currently running MSX: it only shows options
 to insert a disk drive if there is actually a disk drive present on the system.
 Please give it a try! It's the future of openMSX!</p>
 
-<p>If you want to use disks or tapes with your emulated MSX, you will have to
-install the system ROMs of a real MSX (one with a disk drive!) to emulate that
-one, until C-BIOS supports this as well. More about this in the <a
+<p>Until C-BIOS supports disks or tapes, you will have to
+install the system ROMs of a real MSX (one with a disk drive!) and emulate that machine. More about this in the <a
 class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
 
 <h3><a id="rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></h3>
 
-<p>You probably are running the C-BIOS machines that came with openMSX and did
+<p>You are probably running the C-BIOS machines that came with openMSX and did
 not install any system ROMs of other machines (or did not choose to emulate
 another machine). The C-BIOS machines rely on the freely available C-BIOS ROMs
 and that's why we can ship them with openMSX. However, C-BIOS only supports ROM
@@ -277,8 +275,8 @@ href="setup.html#cbios">C-BIOS section of the Setup Guide</a>.
 </p>
 
 <p>If you want to run software from other media (disks, tapes, etc.), you will
-have to install other system ROMs, which are from real, existing MSX machines.
-Then you can run other MSX machines than the C-BIOS machines, which do support
+have to install other system ROMs, originating from real, existing MSX machines.
+Then you can run MSX machines other than the C-BIOS machines, and which do support
 tape and/or disk software (depending on the emulated MSX model). More about
 this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.
 </p>
@@ -318,7 +316,7 @@ for saving games. Make sure you insert the <code>pac</code> or
 The SRAM is divided into 8 blocks and different games typically use different
 blocks. However, there are many games using the SRAM, so it is unavoidable that
 some games use the same block. If you play more than one game and want to be
-safe, copy the <code>.pac</code> file from "persistent/fmpac/untitled1" in your
+on the safe side, copy the <code>.pac</code> file from "persistent/fmpac/untitled1" in your
 openMSX user directory (see <a class="external"
 href="setup.html#romlocation">this overview where it is for your platform</a>)
 to a safe location.
@@ -339,14 +337,14 @@ system ROMs.
 <dt>Password</dt>
 <dd>Some games show a password that you can enter to resume the game at the
 same point. You can write down the password of course, or type it into a text
-file, but if you're really lazy, just make a screenshot! (press PrtScr)</dd>
+file, but if you're really lazy, just make a screenshot (press PrtScr)!</dd>
 </dl>
 
 <h4><a id="savegame-mg">In Metal Gear</a></h4>
 
 <p>
 Many people wonder how to save in Metal Gear. Here we will explain how that is
-done on a real MSX, which is also the way to work if you don't want to use the
+done on a real MSX, which is also the way to go about it if you don't want to use the
 built in <a class="external" href="user.html#savestate">save state
 mechanism</a> of openMSX.
 </p>
@@ -359,17 +357,17 @@ Metal Gear has two ways of saving games:
   <ol class="alpha">
     <li> Press <strong>F1</strong> and then <strong>F5</strong> and you can
          save on tape. <br />
-         For this to work, you need to use an MSX machine with a cassetteport.
+         For this to work, you need to use an MSX machine with a cassette port.
          (So, you cannot use C-BIOS machines, because they do not have a
-         cassetteport (yet)!)</li>
-    <li> Insert a tape with the GUI: click <span class="menu-reference">Main
+         cassette port (yet)!)</li>
+    <li> Insert a tape using the GUI: click <span class="menu-reference">Main
          menu bar &rarr; Media &rarr; Tape Deck</span> to open the Tape Deck
          control window. Press the button on the right with the circle
          and browse to the location where you want to create the new tape file
           with the name <code>my_save_game.wav</code>.</li>
     <li> Type the file name in the Metal Gear game (can be any name, but you
          need to remember it! Choose something easy. It's not related to the
-         filename of the WAV file you just chose.) and press enter.<br />
+         filename of the WAV file you just chose) and press enter.<br />
          The game will now save to that <code>my_save_game.wav</code> cassette
          image file, under the name you just entered.</li>
     <li> To verify: in Tape Deck window click the rewind button and then press
@@ -391,7 +389,7 @@ Gear (if you use the command line, mention it before Metal Gear).
     (<strong>F8</strong> in openMSX). <br />
     The CAPS LED will light, which means you are now in the Game Master mode.</li>
     <li> Press <strong>CTRL</strong> to open the save and load menu.<br />
-         For this to work, you need to use an MSX with a diskdrive (again: not C-BIOS yet!). </li>
+         For this to work, you need to use an MSX with a diskdrive (again: not C-BIOS, yet!). </li>
     <li> Insert a (blank) disk in the openMSX diskdrive.<br />
          This can be a disk image you created with some external tool, but you
          can also create one from within openMSX itself: click on the plus-icon
@@ -446,7 +444,7 @@ For loading back your game:
  </li>
 </ol>
 
-<h3><a id="harddisk">What is the openMSX harddisk support?</a></h3>
+<h3><a id="harddisk">What about openMSX harddisk support?</a></h3>
 
 <p>
 This is explained in the <a class="external" href="user.html#harddisks">User's
@@ -488,19 +486,19 @@ have minimal hardware, you should use minimal settings as well, to get decent
 speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada
 720, see <a class="external"
 href="https://www.msx.org/forum/semi-msx-talk/emulation/openmsx-arm-without-x-window">this
-thread on MRC</a>. On PC's, it really helps if your graphics card is not slow,
-or actually, the pipe between the CPU and the graphics card. Tips on how to
+thread on MRC</a>. On PCs, it really helps if your graphics card
+(or actually, the pipe between the CPU and the graphics card) is not slow. Tips on how to
 performance tune openMSX can be found in the <a class="external"
 href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep
-the performance of openMSX as good as possible, whilst still achieving the
-highest level of accuracy that we can.
+the performance of openMSX as good as possible, while still achieving the
+highest possible level of accuracy.
 </p>
 <p>
-In general people wonder why you need 200MHz+ machines to emulate a computer
-based on a 3.5MHz CPU. Well, you don't only have to emulate the CPU, you also
+People often wonder why you would need 200MHz+ machines to emulate computers
+based on 3.5MHz CPUs. The thing is, there's not only the CPU you have to emulate, you also
 have to emulate the VDP (21MHz), the monitor (writing at least 50 times per
 second at least 256&times;192 pixels to a window), the sound chips, etc. This
-is relatively simple hardware, but having that run in software with cycle
+is relatively simple hardware, but having that run in software with clock cycle
 accuracy is quite heavy. In general, it is a lot of work for a general purpose
 CPU to emulate functionality that was originally made in dedicated hardware.
 Rebuilding an MSX in general purpose hardware (using VHDL on FPGA) is already a
@@ -532,12 +530,12 @@ want to record a video from a later point in time, just let it play until it
 reaches the right position, or click on another part of the reverse bar, or
 just search a bit with PageUp/PageDown.)
 </p>
-<p>So finally, <a class="external" href="user.html#recording">start
-recording</a> and unpause openMSX. If you want it quickly, run in <a
+<p>As a final step, <a class="external" href="user.html#recording">start
+recording</a> and unpause openMSX. If you want the video quickly, run in <a
 class="external" href="commands.html#throttle">full throttle</a> (F9 by
 default) to speed things up. The resulting movie will be the same. If you want
 to split up the recorded video in chunks of under 15 minutes that are accepted
-by YouTube on unverified channels, you probably want to look at the <a class="external"
+by YouTube on unverified channels, you'll probably want to have a look at the <a class="external"
 href="commands.html#record">record_chunks</a> command.
 </p>
 
@@ -548,15 +546,15 @@ Easy! Now fill up YouTube with MSX material!
 <h3><a id="tas">How do I use openMSX for TAS (Tool-Assisted Speedruns)?</a></h3>
 
 <p>If just creating <a href="#perfect_videos">perfect play videos</a> isn't
-enough for you, you are probably going for Tool-Assisted Speedruns, of which
-you can find all information on <a class="external"
+enough for you, you are probably going for Tool-Assisted Speedruns - more 
+information on <a class="external"
 href="http://tasvideos.org">tasvideos.org</a>. The rest of this item gives you
 some hints to help you with this.
 </p>
 
 <p>First of all, the basics are explained in the previous section, of course.
 But you can get extra tools if you enable the <a class="external"
-href="commands.html#mode">TAS mode</a>, of which we won't repeat the
+href="commands.html#mode">TAS mode</a>, we're just not going to repeat the
 explanation here.
 If you need also a live RAM watch, check out the <code><a class="external"
 href="commands.html#other">ram_watch</a></code> command. It enables you to add
@@ -568,9 +566,9 @@ expression</span>, which is even more powerful.
 
 <p>For MSX TASing, we recommend to not use the (default) C-BIOS based machines,
 but real machines, because C-BIOS is still in development and this means your
-replay (in most other TASing emulators called "movie") won't be easy to get
-working again once a new version of C-BIOS has been released. Also, MSXturboR
-machines are not recommended, because it has a relatively large amount of
+replay (called "movie" in most other TASing emulators) won't be easy to get
+working again once a new version of C-BIOS has been released. Also, MSX turboR
+machines are not recommended, because their emulation has a relatively large amount of
 timing inaccuracies. So which machines do we recommend? Here's a table with
 some very rough directions:</p>
  <table>
@@ -589,7 +587,7 @@ European MSX and MSX2 software. The FMPAC extension is for better sound. There
 are no native European MSX2+ machines.</p>
 
 <p>When doing MSX TASing, be aware that (unlike consoles), MSX machines have
-full keyboard attached, and touching them means input for the MSX. And that
+a full keyboard attached, and touching the keyboard provides input to the MSX, which in turn
 means you will interrupt the replay if it's playing. You can avoid this (when
 merely viewing a replay) by using the <code>-viewonly</code> option when using
 the <a class="external" href="user.html#reverse">reverse loadreplay</a>
@@ -603,7 +601,7 @@ configure and which keys you press.</p>
 href="http://tasvideos.org">tasvideos.org</a>!</p>
 
 <p>A final note: if you have problems replaying other people's TAS (or other
-openMSX replay), because openMSX can't find the required media (ROMs, disks,
+openMSX replays), because openMSX can't find the required media (ROMs, disks,
 tapes, etc.), make sure you put the required media in the proper <code><a
 class="external" href="commands.html#filepool">filepool</a></code>; by default
 <code>share/software</code>.</p>
@@ -619,7 +617,7 @@ when reversing, openMSX does not revert changes to media, so replaying these
 may cause corruption on the media e.g. due to double writes.
 </p>
 
-<p>So if you are using large media and you don't really need the reverse
+<p>In other words, if you are using large media and you don't really need the reverse
 feature, you probably want to disable it: use the  <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
 settings &rarr; Enable reverse/replay</span> checkbox. And if you don't want it
@@ -628,8 +626,8 @@ to restart again anymore, uncheck  <span class="menu-reference">Main menu bar
 reverse</span>.
 </p>
 
-<p>It can also be that you don't want to disable reverse necessarily, but that
-you're working with the mouse a lot and the reverse bar shown on the screen in
+<p>Perhaps you don't want to disable reverse necessarily, but
+you're working with the mouse a lot and the reverse bar shown on the screen is getting in
 the way. In such a case you can get rid of the bar by toggling the setting using <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Reverse/replay
 settings &rarr; Show reverse bar</span>. Alternatively, if you still
@@ -646,7 +644,7 @@ href="user.html#reverse">User's Manual</a>.
 
 <h2><a id="other">Other</a></h2>
 
-<h3><a id="codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a></h3>
+<h3><a id="codec">What codec do you use to record videos and where do I get it (because I only get eternal darkness in my videos)?</a></h3>
 
 <p>
 The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in
@@ -705,7 +703,7 @@ or stuttering, you can try the following. </p>
 
 <p>
 Next to the <a class="external" href="index.html">openMSX manuals</a> (which
-includes documentation on how you can control openMSX from an external
+include documentation on how you can control openMSX from an external
 application, so that you can make your own GUI, launcher or debugger), also
 check out the doc directory of your openMSX distribution.
 </p>
@@ -716,7 +714,7 @@ check out the doc directory of your openMSX distribution.
 This has the same cause and solution as <a class="internal" href="#blackscreen">Why do I only get a black screen?</a>.
 </p>
 
-<h2><a id="otherquestion">My question is not listed here.</a></h2>
+<h2><a id="otherquestion">My question is not listed here. Help me.</a></h2>
 
 <p>
 You can look in the following places for answers:
