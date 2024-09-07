@@ -213,6 +213,7 @@ Build system, packaging, documentation:
 - added patch to add aarch64 support to libtheora 3rdparty build
 - fixed link error in libvorbis for XCode 15 on macOS
 - avoid pkg-config build error with Clang 15 on macOS
+- quite a large update of the manual (mostly to include the new GUI)
 
 
 And of course the usual various bug fixes and performance improvements.
