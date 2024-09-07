@@ -532,6 +532,9 @@ top of the openMSX main window. The menu bar fades out when the MSX screen has
 focus. To get it back, move mouse cursor to the top of the openMSX window.
 </p>
 
+<p class="image">
+<img src="main_menu_bar.png" width="588" height="22" alt="Main menu bar.">
+</p>
 <p>
 The Main menu bar contains the following top level menus:
 </p>
@@ -579,6 +582,7 @@ Here is a small overview.
 
 <dl>
 <dt>Reverse bar</dt>
+<dd><img src="reverse_bar.png" width="245" height="39" alt="Main menu bar."></dd>
 <dd>Placed on the lower right of the main openMSX window by default.</dd>
 <dd>Fades out when the mouse cursor is not on top if it, by default. So it's often not visible.</dd>
 <dd>Select <span class="menu-reference">Right click &rarr; Allow
@@ -587,7 +591,9 @@ Hide title</span> to move and resize it, possibly outside the main openMSX
 window.</dd>
 <dd>Can be disabled via <span class="menu-reference">Main menu bar &rarr; Save
 state &rarr; Reverse/replay settings &rarr; Show reverse bar</span>.</dd>
+<dd>Blue means it's replaying (with interruption possible), red means it's recording new input and green means it's replaying without interruption possible.</dd>
 <dt>OSD icons</dt>
+<dd><img src="osd_icons.png" width="516" height="57" alt="Main menu bar."></dd>
 <dd>Represent the LEDs on the machines and contain important status icons.</dd>
 <dd>By default appear in the lower left corner.</dd>
 <dd>By default most icons fade out (so typically nothing is visible).</dd>
@@ -597,6 +603,7 @@ Settings &rarr; Misc &rarr; Configure OSD icons...</span>.</dd>
 and drag the icons to a new location, possibly outside the main openMSX window,
 possibly docked in another window.</dd>
 <dt>Status bar</dt>
+<dd><img src="status_bar.png" width="739" height="29" alt="Main menu bar."></dd>
 <dd>Shows up at the bottom of the main openMSX window and contains some
 information about the currently running machine and emulation performance.</dd>
 <dd>Disabled by default, can be enabled via <span class="menu-reference">Main
@@ -621,11 +628,23 @@ other. This is still a rather rough feature, as it also saves and loads other
 data, like the history information from some menus.
 </p>
 
-<p class="todo">
-TODO: extend this section and add screenshots.
-Missing topics are possibly: messages (log/configuration), Toys (which are
-older OSD widgets), the Simple Note Widget and possibly Drag and Drop.
+<p>
+As an example of a layout, we created one with a debugger focus. The image below shows:
 </p>
+<ul>
+  <li>docking with split windows horizontal/vertical, sometimes multiple times</li>
+  <li>docking with tab bar (e.g. memory/VRAM/PSG regs),</li>
+  <li>hiding the (sub)window title, as it is often quite obvious. For "stack" this wasn't done on purpose, to show the difference.</li>
+</ul>
+
+<p class="image">
+<img src="debugger-layout.png" width="935" height="610" alt="Example debugger focused layout.">
+</p>
+
+<!-- 
+TODO: extend this section and add screenshots.
+Missing topics are possibly: messages (log/configuration), the Simple Note Widget and possibly Drag and Drop.
+-->
 
 <h2><a id="media">5. Running MSX Software and Using Media</a></h2>
 
