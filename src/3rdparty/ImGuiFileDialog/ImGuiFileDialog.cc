@@ -3815,7 +3815,7 @@ void IGFD::FileDialog::m_SelectableItem(int vidx, std::shared_ptr<FileInfos> vIn
                 {
                     fdi.SelectFileName(m_FileDialogInternal, vInfos);
                 } else {
-                    fdi.puPathClicked = fdi.SelectDirectory(vInfos);
+                    //fdi.puPathClicked = fdi.SelectDirectory(vInfos);
                 }
             } else  // no nav system => classic behavior
             {
