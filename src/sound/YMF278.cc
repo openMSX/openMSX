@@ -854,6 +854,8 @@ void YMF278::reset(EmuTime::param time)
 	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(narrow<uint8_t>(i), 0, time);
 	}
+	regs[0xf8] = 0x1b; // FM mix-level, see also YMF262 reset
+	regs[0xf9] = 0x00; // Wave mix-level
 	memAdr = 0;
 	setMixLevel(0, time);
 }
