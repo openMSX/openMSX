@@ -83,7 +83,7 @@ After installation, openMSX is ready to run using C-BIOS and the default
 settings. In this guide you can read how to configure openMSX to emulate actual
 MSX machines (such as Panasonic FS-A1GT). It also describes how you can have
 openMSX start up with your personal settings, how you can configure openMSX and
-your system for optimal performance and several other configuration related
+your system for optimal performance, and several other configuration related
 topics.
 </p>
 
@@ -114,7 +114,7 @@ what video processor it has, in which slots its system ROMs are located,
 whether the machine has a built-in disk drive etc.
 openMSX reads the machine description XML and will then emulate exactly
 that MSX machine, which can be anything from an MSX1 with 16 kB of RAM
-to the Panasonic FS-A1GT MSXturboR.
+to the Panasonic FS-A1GT MSX turboR.
 </p>
 
 <p>
@@ -128,8 +128,8 @@ information on system ROMs.
 You can also create your own machine descriptions,
 to expand existing MSX models or to create your own fantasy MSX. There are
 currently some of such fantasy MSX machines, based on real MSX machines,
-shipped with openMSX. Examples are a machine called "Boosted_MSX2_EN" (a
-European MSX2 with loads of hardware built in) and one called
+shipped with openMSX. Examples of such machines are "Boosted_MSX2_EN" (a
+European MSX2 with loads of hardware built in) and
 "Boosted_MSX2+_JP" (a Japanese MSX2+ with loads of hardware built in). You can
 find some more information about them in their accompanying txt file in
 <code>share/machines/</code>. More about creating fantasy MSX machines in a
@@ -177,13 +177,13 @@ It is up to you, the user, to select an option that is legal in your country.
 
 <p>
 C-BIOS stands for "Compatible BIOS".
-It tries to be compatible with the MSX BIOS found in real MSX machines,
+It aims to be compatible with the MSX BIOS found in real MSX machines,
 but it was written from scratch, so all copyrights belong to its authors.
-BouKiChi, the original author of C-BIOS, was kind enough to allow C-BIOS
-to be distributed together with openMSX.
-Since then, Reikan took over maintenance of C-BIOS and the license
+BouKiChi, the original author of C-BIOS, was kind enough to allow
+distribution of C-BIOS with openMSX.
+When Reikan took over maintenance of C-BIOS, the license
 was changed to give users and developers even more freedom in using C-BIOS.
-Even later, C-BIOS was moved to a SourceForge.net project, with several new
+Later still, C-BIOS was moved to a SourceForge.net project, with several new
 maintainers. Every now and then, an updated version of C-BIOS is released.
 You can wait for it to be included in the next openMSX release,
 or download it directly from the
@@ -192,10 +192,9 @@ or download it directly from the
 
 <p>
 C-BIOS can be used to run most MSX1, MSX2 and MSX2+ cartridge-based games.
-It does not include MSX-BASIC and does not support disk drives yet,
-so programs depending on that will not run. So, with the C-BIOS machines and
-ROMs that came with openMSX, you cannot run software that comes on tape, disk
-or any other media than cartridges with ROMs.
+It does not include support for MSX-BASIC or disk drives yet, 
+so software that comes on tape, disk or any other media than ROM cartridges
+will not run on standard openMSX C-BIOS machines.
 </p>
 
 <p>
@@ -207,9 +206,9 @@ The latter is the default machine for openMSX after installation,
 so if you change nothing to the openMSX configuration,
 then <code>C-BIOS_MSX2+</code> is the machine that will be booted. The
 mentioned machines have a US English (international) keyboard layout and
-character set and run at 60Hz (like NTSC) interrupt frequency. From C-BIOS
-0.25, there are also localized versions available: Japanese, European (like US,
-but 50Hz) and Brazilian types. You can recognize them easily.
+character set and run at 60Hz (like NTSC) interrupt frequency. Since C-BIOS
+0.25, some localized versions are also available: Japanese, European (like US,
+but 50Hz), and Brazilian. You can easily recognize them.
 </p>
 
 <p>
@@ -242,8 +241,7 @@ if you want to use certain extensions or play games.
 <h4><a id="dumpromlegal">3.2.2 Legal Issues</a></h4>
 
 <p>
-Using ROMs dumped from machines you own is generally considered
-a proper thing to do in the MSX community.
+Using ROMs dumped from machines you own is generally speaking not frowned upon in the MSX community.
 When the MSX machine was bought in a shop years ago, you or the person that
 originally bought it paid money for the MSX machine.
 A small part of that money paid for the software in the system ROMs.
@@ -295,7 +293,7 @@ Please note that the path part which comes before <code>share</code> can be
 overridden by setting the <code>OPENMSX_HOME</code> environment variable, see the <a class="internal" href="#settings">chapter about User Preferences</a>.
 </p>
 
-<p>That way, you do not need special privilages. Furtermore, the (Windows) installer
+<p>That way, you do not need special privileges. Furthermore, the (Windows) installer
 won't touch them for sure.</p>
 
 <p> A template for the <code>systemroms</code> sub directory is present in the
@@ -309,7 +307,7 @@ installation directory of openMSX, which is also platform dependent:
 </table>
 
 <p> The quickest way to see where openMSX is searching for system ROMs on your
-installation is by the GUI under <span class="menu-reference">Main menu bar
+installation is via the GUI under <span class="menu-reference">Main menu bar
 &rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
 you can find buttons to quickly open a (native) file browser on the locations
 where the ROMs are searched for, both for the user folder and the system wide
@@ -321,11 +319,11 @@ have been installed properly. </p>
 be zipped (or gzipped), but only one file can be in a ZIP file. If multiple ROM
 files are in a single ZIP file, openMSX will not find them. The directory
 structure below <code>share/systemroms</code> is not relevant, openMSX will
-search completely through it. </p>
+search it completely. </p>
 
 <p> More info about file pools is in the documentation of the <code><a
 class="external" href="commands.html#filepool">filepool</a></code> command. If
-you can't get this working, please read one of the next section. </p>
+you can't get this working, please read one of the next sections. </p>
 
 <p> For advanced users, it is also possible to let openMSX load a specific set
 of ROM images for a machine, independent of any file pool or the checksums of
@@ -344,7 +342,7 @@ but use the file pools as mentioned above. </p>
 primarily identified with a checksum: a sha1sum. This enables openMSX to find
 the right ROM file from one of the <a class="external"
 href="commands.html#filepool">file pool</a>s of type <code>system_rom</code>,
-without depending on the file name. So the actual content is guaranteed to be
+regardless of the file name. So the actual content is guaranteed to be
 what was intended. If the ROM is explicitly specified in the configuration file
 (which is also supported) and the sha1sum doesn't match, a warning will be
 printed. </p>
@@ -355,7 +353,7 @@ BASIC ROM" (sha1: 12345c041975f31dc2ab1019cfdd4967999de53e).</code> it means
 that the required system ROM for that machine with the given sha1sum cannot be
 found in one of the file pools as mentioned above (typically
 <code>share/systemroms</code>). This is the primary way to know that you are
-missing required system ROMs and thus something went wrong installing them
+missing required system ROMs and therefore something went wrong installing them
 (typically either not a file with the proper content or you put the file in the
 wrong place, or you put it in a large ZIP file with multiple files). </p>
 
@@ -376,7 +374,7 @@ value in the &lt;sha1&gt; tag(s) in the hardware configuration XML files
 contain checksums of ROM images that are known to work. You can compare the
 checksums of your ROM images to the ones in the hardware configuration XML
 files with the <code>sha1sum</code> tool. It is installed by default on most
-UNIX systems, on Windows you would have to download it separately. If the
+UNIX systems, on Windows you will have to download it separately. If the
 checksums match, it is almost certain you have correct system ROMs. If the
 checksums do not match, it could mean something went wrong dumping the ROMs, or
 it could mean you have a slightly older/newer model which contains different
@@ -425,7 +423,7 @@ file must adhere to the following rules: </p>
   <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the
   <a href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI
   signal</a>, and must be converted to plain text. This must be added to the
-  theora meta data</li>
+  Theora meta data</li>
 </ul>
 
 <p> The metadata for chapters and stop frames has the form "chapter:
@@ -444,7 +442,7 @@ identical, except that the Pioneer PX-7 has pseudo-stereo for its PSG. </p>
 
 <h2><a id="settings">5. User Preferences</a></h2>
 
-<p> Almost all user preferences can be done via the GUI menu and the openMSX
+<p> Almost all user preferences can be set via the GUI menu and the openMSX
 console, at openMSX run time. This is more thoroughly explained in <a
 class="external" href="user.html#controlling">the User's Manual</a>. </p>
 
@@ -463,13 +461,13 @@ the <a class="external" href="commands.html">Console Command Reference</a>.
 the start of each openMSX start up, put those commands in a text file, one
 command per line (i.e. a script) and put it in the <code>share/scripts</code>
 directory. You can also explicitly specify a Tcl file to be loaded and executed
-on the openMSX commandline. For this, use the <code>-script</code> command line
+on the openMSX command line. For this, use the <code>-script</code> command line
 option, which has the filename of the Tcl script as argument. </p>
 
 <p> If you're a power user and want to tweak where openMSX reads and writes
 files from, you can use these hacky environment variables. Hacky, because we
-don't really expect anyone to change them. Just in case you really want to, do
-it at your own risk... Be warned that they may change without notice in a next
+don't really expect anyone to change them, but when the urge is stronger than yourself, do
+so at your own risk... Be warned that they may change without notice in a next
 release. </p> <table class="border_enabled">
 <tr><th>variable</th><th>meaning</th></tr>
 <tr><td><code>OPENMSX_HOME</code></td><td>The user's home folder, where all
@@ -520,7 +518,7 @@ machine.
 </p>
 
 <p>
-If openMSX runs slow, you can try the following measures:
+If openMSX is running slow, you can try the following measures:
 </p>
 <ul>
 <li>
@@ -531,7 +529,7 @@ href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code>
 </li>
 <li>
 Make sure there are no CPU or I/O heavy background processes is running.
-Downloads, P2P software, distributed calculation efforts, search indexers etc may grab
+Downloads, P2P software, distributed calculation efforts, search indexers etc. may grab
 the CPU from time to time, leaving less time for openMSX to do its job.
 Even if they only do so only once in a while, it may be enough to cause
 emulation to stutter.
@@ -545,7 +543,7 @@ for example).
 Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
 </li>
 <li>
-Emulate MSX software that uses less sound channels, for example MSX-MUSIC
+Emulate MSX software that uses fewer sound channels, for example MSX-MUSIC
 (maximum 9 channels) instead of MoonSound (maximum 18+24 channels). Or run
 simpler software altogether (e.g. MSX1 software instead of turboR software).
 </li>
@@ -555,9 +553,9 @@ simpler software altogether (e.g. MSX1 software instead of turboR software).
 
 <p>
 There are two ways to use extra devices in your emulated MSX: you can use a
-shipped extension (which is analogous to inserting a cartridge with the device
-into the MSX) or you can modify the hardware configuration file (which is
-analogous to open the MSX and build in the device). As in the real world,
+shipped extension (which is similar to inserting a cartridge with the device
+into the MSX) or you can modify the hardware configuration file (the same as
+opening the MSX and building in the device). As in the real world,
 extensions are easier to use, but modifying the machine gives you more
 possibilities.
 Normal usage of machines and extensions is covered in the <a class="external"
@@ -565,13 +563,13 @@ href="user.html">User's Manual</a>; this chapter tells you how you can create
 or modify these hardware descriptions, which is a topic for advanced users and
 definitely something very few people will (want to) do.
 By editing the hardware configuration XML files, you can for example increase
-the amount of RAM, add a built-in MSX-MUSIC, add a disk drive, create extra
-cartridge slots etc.
+the amount of RAM, add built-in MSX-MUSIC, a disk drive, extra
+cartridge slots, etc.
 </p>
 
 <p>
 You can modify an MSX machine (e.g. to add devices) by editing its hardware
-configration XML file. So, let's make a copy of
+configuration XML file. So, let's make a copy of
 <code>share/machines/Philips_NMS_8250.xml</code> and put it in
 <code>share/machines/mymsx.xml</code>.
 It's the config we are going to play with; our custom MSX.
@@ -629,7 +627,7 @@ used. If we use it like in the above example, it means that slot 1 (of the
 outside of the machine and can thus be used for external cartridges like
 extensions and ROM software. As explained above, the parameter filename can be
 adjusted to the name of your (64 kB!) FMPAC ROM file (note: if the file is not
-64 kB (65536 bytes) in size, it won't work).
+65536 bytes in size, it won't work).
 "balance" defines to what channel the FMPAC's sound will be routed by
 default: in this case most of the sound goes to the left channel and a little
 bit goes to the right channel. "sramname" specifies the file name for file in
@@ -655,11 +653,11 @@ configuration file and see what you can find.
 <p>
 Devices that contain ROM or RAM will have to be put inside a slot of the MSX,
 using the <code>&lt;primary&gt;</code> and <code>&lt;secondary&gt;</code> tags
-as is demonstrated with the above mentioned FMPAC example. Other devices don't
+as demonstrated with the above mentioned FMPAC example. Other devices don't
 need this.
-Remember that you can not put two devices that have a ROM in the same (sub)slot!
+Remember that you cannot put two devices that have a ROM in the same (sub)slot!
 Just use a new free subslot if you need to add such a device and all your
-primary slots are full. Devices that do not need a slot, like the MSX-Audio
+primary slots are full. If a device does not need a slot, like the MSX-Audio
 device, you can add as many as you like.
 </p>
 

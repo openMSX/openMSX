@@ -22,9 +22,8 @@
   explains you how you can control openMSX from your own application.</p>
 
   <div class="note">
-    Note: This document was not written for normal end users, but only for
-    developers who are interested in writing their own application that
-    controls openMSX.
+    Note: This document was written for developers who are interested in writing their own application that
+    controls openMSX, rather than normal end-users.
   </div>
 
   <div class="note">
@@ -36,8 +35,8 @@
   <h2>Connecting</h2>
 
   <p>There are multiple ways to connect to openMSX. The first (and oldest) way
-  is using a pipe. On Windows you can use a named pipe, on other systems you
-  use <code>stdio</code>. To enable this, start openMSX like this:</p>
+  is using a pipe. Non-Windows systems use <code>stdio</code>, in Windows you can use a named pipe.
+  To enable this, start openMSX like this:</p>
 
   <div class="commandline">
   openmsx -control stdio
@@ -50,7 +49,7 @@
   </div>
 
   <p>The second method is using a socket. Connecting on non-Windows systems
-  goes with a UNIX domain socket. openMSX puts the socket in
+  is done with a UNIX domain socket. openMSX puts the socket in
   <code>/tmp/openmsx-&lt;username&gt;/socket.&lt;pid&gt;</code>. The
   <code>/tmp/</code> dir can be overridden by environment variables
   <code>TMPDIR</code>, <code>TMP</code> or <code>TEMP</code> (in that order).
@@ -68,9 +67,9 @@
   <p>or, when <code>%USERPROFILE%</code> does not exist:</p>
 
   <p>
-  <code>%TMPDIR%\openmsx-default</code> or<br/>
-  <code>%TMP%\openmsx-default</code> or<br/>
-  <code>%TEMP%\openmsx-default</code> or as a last resort:<br/>
+  <code>%TMPDIR%\openmsx-default</code>, or<br/>
+  <code>%TMP%\openmsx-default</code>, or<br/>
+  <code>%TEMP%\openmsx-default</code>, or as a last resort:<br/>
   <code>C:\WINDOWS\TEMP</code>
   </p>
 
@@ -88,8 +87,8 @@
 &lt;openmsx-output&gt;
 </pre>
 
-  <p>On non Windows systems you can easily try it out by just starting openMSX
-  via the <code>stdio</code> method, like explained above. You give XML
+  <p>On non-Windows systems you can easily try it out by just starting openMSX
+  via the <code>stdio</code> method, as explained above. You give XML
   commands via the keyboard in the terminal and openMSX will print its
   responses on the terminal as well.
   </p>
@@ -134,10 +133,10 @@
 </pre>
 
   <p>
-  The order is guaranteed, i.e. the replies will follow in the same order as in
-  which you gave the commands to openMSX. In this reply example, you see that
+  The order is maintained, i.e. the replies will be in the same order as
+  the commands you gave to openMSX. In this reply example, you see that
   the command succeeded (result=ok) and it also gives you the actual result
-  text that would also be printed on the console. In this case, the value of
+  text that would be printed on the console. In this case, the value of
   the renderer setting. When a command fails, you get something like this:
   </p>
 
@@ -165,8 +164,8 @@
   </div>
 
   <p>
-  This command will enable updates about LED events. So, when a LED changes, you
-get messages like this:
+  This command will enable updates about LED events. When a LED changes, you'll
+get messages such as:
   </p>
 
 <pre>
@@ -174,7 +173,7 @@ get messages like this:
 </pre>
 
   <p>
-  So, when you get &lt;update&gt; tags, openMSX tells you that something
+  &lt;update&gt; tags are openMSX's way of telling you that something
   changed. In this case, it is a LED update, for the machine with ID
   "machine1". The name of the LED is "power" and the value is in the text node:
   on.
@@ -209,7 +208,7 @@ get messages like this:
     </tr>
     <tr>
       <td><code>status</code></td>
-      <td>status changed, currently this is pause and debug break status</td>
+      <td>status changed, currently only pause and debug break status</td>
     </tr>
     <tr>
       <td><code>extension</code></td>
@@ -250,7 +249,7 @@ get messages like this:
 &lt;update type="led" machine="machine2" name="caps"&gt;off&lt;/update&gt;
 </pre>
 
-  <p>A tape was inserted in the cassetteplayer:</p>
+  <p>A tape was inserted in the cassette player:</p>
 
 <pre>
 &lt;update type="media" machine="machine2" name="cassetteplayer"&gt;/home/manuel/msx-soft/tapes/Zoids.zip&lt;/update&gt;
@@ -267,13 +266,13 @@ get messages like this:
 <pre>
 &lt;update type="plug" machine="machine2" name="joyporta"&gt;joystick1&lt;/update&gt;
 </pre>
-  <p>And unplugs it again:</p>
+  <p>And unplugged it again:</p>
 
 <pre>
 &lt;update type="plug" machine="machine2" name="joyporta"&gt;&lt;/update&gt;
 </pre>
 
-  <p>Someone set the maxframeskip setting to 12:</p>
+  <p>The maxframeskip setting was set to 12:</p>
 
 <pre>
 &lt;update type="setting" name="maxframeskip"&gt;12&lt;/update&gt;
@@ -285,16 +284,16 @@ get messages like this:
 <pre>
 &lt;update type="status" name="paused"&gt;true&lt;/update&gt;
 </pre>
-  <p>openMSX got into a debug break state:</p>
+  <p>openMSX entered a debug break state:</p>
 <pre>
 &lt;update type="status" machine="machine1" name="cpu"&gt;suspended&lt;/update&gt;
 </pre>
-  <p>openMSX got out of debug break state:</p>
+  <p>openMSX exited the debug break state:</p>
 <pre>
 &lt;update type="status" machine="machine1" name="cpu"&gt;running&lt;/update&gt;
 </pre>
 
-  <p>Someone inserted a Philips NMS-1205 Music Module:</p>
+  <p>A Philips NMS-1205 Music Module was inserted:</p>
 
 <pre>
 &lt;update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio 8-bit DAC"&gt;add&lt;/update&gt;
