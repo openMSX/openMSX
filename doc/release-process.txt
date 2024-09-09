@@ -30,7 +30,6 @@ Creating a release candidate
   use a version number that ends with -rc1, so 1.2.3-rc1. Only the final
   release will be without the -rc suffix (in both tag and version
   numbers.)
-- Update the copyright year in src/resource/openmsx.rc
 - Edit the version number in build/version.py:
     packageVersionNumber = '1.2.3'
   And set releaseFlag to True.
