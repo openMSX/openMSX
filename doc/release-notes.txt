@@ -1,5 +1,5 @@
-Release Notes for openMSX 20.0 (2024-0x-xx)
-===========================================
+Release Notes for openMSX 20.0-RC1 (2024-09-10)
+===============================================
 
 This is a major release, in which we introduce the new Graphical User
 Interface, replacing the OSD menu. A debugger is now included in openMSX itself
