@@ -34,6 +34,7 @@ Creating a release candidate
     packageVersionNumber = '1.2.3'
   And set releaseFlag to True.
   Additionally, increase the androidReleaseVersionCode with 1.
+  And update the copyright year in build/version.py
 - Update the release date in "doc/release-notes.txt" and
   "doc/release-history.txt".
 - Don't forget to commit and push all these last changes before tagging!
