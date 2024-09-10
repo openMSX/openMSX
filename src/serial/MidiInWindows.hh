@@ -12,7 +12,7 @@
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
-#include <Windows.h>
+#include <windows.h>
 #include <mmsystem.h>
 #include <mutex>
 #include <condition_variable>

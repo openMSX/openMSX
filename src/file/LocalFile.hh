@@ -2,7 +2,7 @@
 #define LOCALFILE_HH
 
 #if defined _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include "File.hh"
 #include "FileBase.hh"

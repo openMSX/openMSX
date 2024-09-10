@@ -30,7 +30,7 @@
 
 #ifdef _WIN32
 #include <string>
-#include <Windows.h>
+#include <windows.h>
 #include <mmsystem.h>
 #define MAXPATHLEN MAX_PATH
 

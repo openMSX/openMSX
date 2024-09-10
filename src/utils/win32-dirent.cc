@@ -26,7 +26,7 @@
 #include "MSXException.hh"
 #include "xrange.hh"
 #include "zstring_view.hh"
-#include <Windows.h>
+#include <windows.h>
 #include <cstring>
 #include <cstdlib>
 #include <exception>

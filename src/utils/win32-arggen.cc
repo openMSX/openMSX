@@ -4,7 +4,7 @@
 #include "MSXException.hh"
 #include "utf8_checked.hh"
 #include "xrange.hh"
-#include <Windows.h>
+#include <windows.h>
 #include <shellapi.h>
 
 namespace openmsx {
