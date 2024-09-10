@@ -31,7 +31,7 @@ jobs:
 #            cpu: aarch64
 #            os: linux
 #            flavour: opt
-          - image: ubuntu-22.04
+          - image: ubuntu-24.04
             name: Windows
             cpu: x86_64
             os: mingw-w64

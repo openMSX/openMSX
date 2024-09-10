@@ -37,11 +37,11 @@ jobs:
 #            cpu: aarch64
 #            os: linux
 #            flavour: opt
-#          - image: ubuntu-24.04 # disabled until this image becomes available, as we need mingw with gcc-11, not avaible on 22.04
-#            name: Windows
-#            cpu: x86_64
-#            os: mingw-w64
-#            flavour: opt
+          - image: ubuntu-24.04
+            name: Windows
+            cpu: x86_64
+            os: mingw-w64
+            flavour: opt
           - image: macos-14
             xcode_version: 15.4
             name: MacOS
