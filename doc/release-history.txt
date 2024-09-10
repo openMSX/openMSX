@@ -3,60 +3,64 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 20.0-RC1 (2024-09-10)
+openMSX 20.0-RC1 (2024-09-xx)
 -----------------------------
 
 This is a major release, in which we introduce the new Graphical User
-Interface, replacing the OSD menu. A debugger is now included in openMSX itself
-and is faster and more powerful than the old separate program. Configuration
-for MSX joystick/JoyMega has been improved drastically using the new GUI.
-openMSX runs now only on systems with support for OpenGL 2.
+Interface, replacing the OSD menu. A faster and more powerful debugger is now
+included in openMSX itself. Configuration for MSX joystick/JoyMega has been
+improved drastically using the new GUI.
+As of now, a system with OpenGL 2 support is required to run openMSX.
 
-Specifically on the GUI...
 
+The GUI
+^^^^^^^
 We already had two separate GUI applications:
 - openMSX Catapult, a tool to control common functionality of openMSX, in a
   limited way.
 - openMSX Debugger, a great and helpful tool, but never officially released and
   packaged.
 Keeping the GUI separate from the emulation core seemed like a good idea at
-first. Though keeping the state of both applications in sync turned out to be a
-hard problem. Many seemingly easy functions were hard to implement in this
-structure.
+first. Keeping the state of both applications in sync turned out to be a hard
+problem, however. Functions that seemed easy, were in fact very hard to
+implement in this structure.
 In this release we integrated the GUI directly in openMSX itself. All
-information is now guaranteed in sync and real-time updated (this would be very
-hard in the old structure).
-This is the first release with the new GUI. Not everything will be perfect in
-this release. Feedback or help to improve things further will be highly
-appreciated. The Catapult and openMSX Debugger applications remain
-available, and at least for now we will (try to) keep them working. But they
-won't receive any new development anymore (from us anyway). When they become
-too much of a burden to keep working, we will abandon these applications
-altogether.
+information is now guaranteed in sync and updated real-time (which would have
+been very hard in the old structure).
+As this is the first release with the new GUI, not everything will be perfect
+straight away. Feedback or help to improve things further will be highly
+appreciated. The Catapult and openMSX Debugger applications remain available
+for the time being. We will (try to) keep them working, but they won't receive
+any new development anymore - from us anyway. When keeping them working becomes
+too much of a burden, we will abandon these applications altogether.
 
+Joystick emulation
+^^^^^^^^^^^^^^^^^^
 Another big change is the joystick emulation. There are now fixed joystick and
 JoyMega (MegaDrive controller) pluggables (2 for each), which can also be
-configured via the GUI and also supports keyboard inputs, so they also replace
+configured via the GUI and also support keyboard inputs, so they also replace
 the old keyjoystick devices. This gives optimal flexibility for configuring how
 you want to control MSX controllers.
 On top of that, it is now possible to plug and unplug host controllers at
 run-time.
 
-Regarding rendering there is also a big change. We removed the "SDL" renderer,
-as the GUI requires an accelerated backend, for which we use OpenGL 2, which
-was already required for the (already default and now only) SDLGL-PP renderer.
+Rendering
+^^^^^^^^^
+Rendering has also undergone a big change. We removed the "SDL" renderer, as
+the GUI requires an accelerated backend, for which we use OpenGL 2, which was
+already required for the (already default and now only) SDLGL-PP renderer.
 We also removed 1x scaling, so the minimum is now 2x. Video recording and
 screenshots on the 320x240 resolution are still possible, though. All of this
 allowed us to simplify the code a lot, making it easier to add new features and
 maintain the code.
 
-As for custom key bindings you may have: we renamed some keys to match the SDL
+Other important changes
+^^^^^^^^^^^^^^^^^^^^^^^
+As for any custom key bindings you might have: we renamed some keys to match the SDL
 library names instead of inventing our own. Old names are still recognized, but
 be careful if you also run older openMSX versions, as openMSX will use the new
 names and the old openMSX will not recognize them. Examples are: PRINT ->
 PrintScreen, META -> GUI.
-
-There are also the usual bug fixes and smaller improvements.
 
 Special thanks to all the contributors of this release who are not in the core
 team! Keep these pull requests coming!
@@ -74,7 +78,7 @@ MSX device support:
 - Konami mapper: added missing mirroring
 - improvements on I8254 mode 3 used in some RS-232C interfaces
 - added support for the concept 16-bit NEO mappers, which may be used by
-  someone in the future. If this doesn't happen, support will be removed again
+  someone in the future. If this doesn't happen, support will be dropped again
 - added support for the ASCII16-X mapper which will be used by some upcoming
   games
 - fixed mapper of Mitsubishi ML-TS2 modem software
