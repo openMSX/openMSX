@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1724898128">
+<softwaredb timestamp="1726078997">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2443,20 +2443,20 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Sudoku</title>
 	<genmsxid>3715</genmsxid>
 	<system>COLECOVISION</system>
-	<company>Luc Miron</company>
-	<year>2008</year>
-	<country>CA</country>
-		<dump><rom><type>page23</type><hash>0124ba683340188c7a9a89122af7a54db07e1edb</hash><remark>v01</remark></rom></dump>
-		<dump><rom><type>page23</type><hash>499c9746f0dacab59a3fb23f80169df34cfbb91a</hash><remark>v02</remark></rom></dump>
+	<company>DVIK &amp; Joyrex productions</company>
+	<year>2016</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>78ad45a24d949651d8811336332d6af78fa9613e</hash></rom></dump>
 </software>
 <software>
 	<title>Sudoku</title>
 	<genmsxid>3715</genmsxid>
 	<system>COLECOVISION</system>
-	<company>DVIK &amp; Joyrex productions</company>
-	<year>2016</year>
-	<country>US</country>
-		<dump><rom><type>page23</type><hash>78ad45a24d949651d8811336332d6af78fa9613e</hash></rom></dump>
+	<company>Luc Miron</company>
+	<year>2008</year>
+	<country>CA</country>
+		<dump><rom><type>page23</type><hash>0124ba683340188c7a9a89122af7a54db07e1edb</hash><remark>v01</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>499c9746f0dacab59a3fb23f80169df34cfbb91a</hash><remark>v02</remark></rom></dump>
 </software>
 <software>
 	<title>Super Action Baseball</title>
@@ -3427,6 +3427,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>816100d4858c1a02769231c2a5095eda3695a403</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>5550bc42bf15c61cdd5fd4be72434d3dac1d60b7</hash><remark>[a]</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>49c19d9250cdb42d1a402bdae4c6baefea0abe0a</hash><remark>MSX1 only due to faulty basic loader</remark></megarom></dump>
 </software>
 <software>
 	<title>Aleste 2 Theme</title>
@@ -3505,6 +3506,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>43ef933943fa5433b3cb48e0ea8b4b7f43a81541</hash><remark>L1A Edition</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>81b1b5fe4861079cd316a05d6bb0b77007a39ad7</hash><remark>L1B Edition</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>500f02907586b4cbc7da254b190cdfe1599ccb96</hash><remark>L1 Edition</remark></megarom></dump>
+</software>
+<software>
+	<title>Alien Attack</title>
+	<system>MSX</system>
+	<company>L. Dorsman</company>
+	<year>1985</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>8c09e6f89e6f3991ff643d29cf3707e141c030a0</hash><remark>Project</remark></rom></dump>
 </software>
 <software>
 	<title>Alien Syndrome</title>
@@ -3768,6 +3777,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>de1552efd0a3f43581366c2f1daeeb81a66bffdc</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>430b61af335cf6bd982ada52a27d93162bd52253</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>b7ae14346dcace31fd18a89566b25af85a477365</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>aab1dec019b3e3033153feceb7889288f1248bb4</hash></megarom></dump>
 </software>
 <software>
 	<title>Antares</title>
@@ -5031,6 +5041,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>f54243e461cd8852fbe5e612bbe0ab71cf6ee524</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>356b216cc7790b62af460f5720646c4d4803502e</hash><remark>h Clover</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>3ce035efbc70dd73de6c9f2db08cf2b28e41004e</hash><remark>Eric And The Floaters version</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>bbe90b76029c00b1b2dc31b0b662e4edb65a0a62</hash><remark>v2.0</remark></rom></dump>
 </software>
 <software>
 	<title>Bomber Man Special</title>
@@ -5649,6 +5660,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>aabbe983157761623cc6e6de61c8365c37074e49</hash></rom></dump>
+</software>
+<software>
+	<title>Can You Survive</title>
+	<system>MSX</system>
+	<company>Russ Hall</company>
+	<year>2001</year>
+	<country>US</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>82216791641aa98b3f37e68c6164f60424375daa</hash><remark>Adapted for MSX by Renato Paulo de Mello</remark></rom></dump>
 </software>
 <software>
 	<title>Candoo Ninja</title>
@@ -6305,6 +6324,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>488a9aaed538c2a24088cbd6815d47414cff999f</hash><remark>[h Sammi]</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>07af8b1ec0786c44778f68ef3bb0b3d4793f42e3</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>fbcb0507cc1a42ec1ebdb75e66d3459bd17f2bfc</hash><remark>Aquarius</remark></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>bb603358879b407a12dc3efc6f7ce7fb32119b34</hash><remark>Spanish Version</remark></rom></dump>
 </software>
 <software>
 	<title>Classic Adventure</title>
@@ -6576,6 +6596,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>db9e0af04429a397bf14374d1fc2cae6e087d494</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>03815512c062d9c9269431b6b14e1701e8b5abaf</hash></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>ce6e01d3c36edcd2376ee16d510bd93b3c30e3f6</hash><remark>[RC-706]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>816d0d383605bd6ee7f4129ca81be68eb0e9b42c</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>0a3a5f486377530e00a383b41f04fae8bcea1a8f</hash></megarom></dump>
 </software>
 <software>
 	<title>Computer Music Composer</title>
@@ -7565,6 +7587,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>9a743e997179bafc51f04d422f0bf1e8b22fb1d5</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>3e98965975166c9c97349427e97447a8817cec44</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>0818f00730aacd2cc83cd76491ce82228026d690</hash><remark>Bitgame Release</remark></rom></dump>
+</software>
+<software>
+	<title>Don Madusak</title>
+	<system>MSX</system>
+	<company>TD-Soft</company>
+	<year>1986</year>
+	<country>NL</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>6dab05a2d310fb49bd89915d6785aa75c8e23454</hash><remark>English Translated by MSX Nostalgia</remark></rom></dump>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>d7c882136b6c73121e6712d95d816b0b12d350d0</hash><remark>Orginal Dutch Text Adventure</remark></rom></dump>
 </software>
 <software>
 	<title>Donkey Kong</title>
@@ -8763,6 +8794,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash>91d5d2db0ae113ffef61e14d5d6595415127a967</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>48ed4c5fc55620ccd235f85a6635ca08ccfcd806</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>628934119c933243c6e3c571225e93eaae9c5d80</hash></megarom></dump>
 </software>
 <software>
 	<title>Field Of View</title>
@@ -8872,14 +8904,6 @@ The softwaredb.xml file contains information about rom mapper types
 </software>
 <software>
 	<title>Flappy Bird</title>
-	<system>MSX</system>
-	<company>SCS</company>
-	<year>2014</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>bfec80f1c35293f31be8b34058e2e0e6da9aef09</hash></rom></dump>
-</software>
-<software>
-	<title>Flappy Bird</title>
 	<genmsxid>4017</genmsxid>
 	<system>MSX</system>
 	<company>Crunchworks</company>
@@ -8887,6 +8911,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>BR</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>c5cdd1109b1e24906c5f0530f09e9ec95fbd7bb0</hash><remark>Rev. A</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>7fdc2c70bcfd2560aa9523001cbaeeb8652418b8</hash></rom></dump>
+</software>
+<software>
+	<title>Flappy Bird</title>
+	<system>MSX</system>
+	<company>SCS</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>bfec80f1c35293f31be8b34058e2e0e6da9aef09</hash></rom></dump>
 </software>
 <software>
 	<title>Flappy Limited</title>
@@ -9293,15 +9325,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Frogger</title>
 	<genmsxid>70</genmsxid>
 	<system>MSX</system>
-	<company>Parker Brothers</company>
-	<year>1983</year>
-	<country>US</country>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>a3ba8ab285d51e0b366e0402f8240e26de7b24be</hash><remark>Needs Musical Memory Mapper - Doesn't work on openMSX</remark></rom></dump>
-</software>
-<software>
-	<title>Frogger</title>
-	<genmsxid>70</genmsxid>
-	<system>MSX</system>
 	<company>Konami</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -9313,6 +9336,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>58b20a4bde5477094c6065c368c994bb42551754</hash><remark>[RC-704]</remark></rom></dump>
 		<dump><rom><hash>2ddd61546a471016cac614d3b1db05aab262d034</hash><remark>[RC-704]</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>c43e83b398198c203f1778a037b41a3674a2ae74</hash></rom></dump>
+</software>
+<software>
+	<title>Frogger</title>
+	<genmsxid>70</genmsxid>
+	<system>MSX</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>a3ba8ab285d51e0b366e0402f8240e26de7b24be</hash><remark>Needs Musical Memory Mapper - Doesn't work on openMSX</remark></rom></dump>
 </software>
 <software>
 	<title>Frogger (Coleco Vision)</title>
@@ -9468,17 +9500,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Galaxian</title>
 	<genmsxid>142</genmsxid>
 	<system>MSX</system>
-	<company>Atarisoft</company>
-	<year>1983</year>
-	<country>US</country>
-		<dump><megarom><type>KonamiSCC</type><hash>356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark>Conversion by GDX</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>017e82a5e7dbb7eba4cb8830ca16834f99905479</hash><remark>[r2]</remark></megarom></dump>
-		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>84c559b77dede39345cf97a31f5d90fc215e1229</hash></megarom></dump>
-</software>
-<software>
-	<title>Galaxian</title>
-	<genmsxid>142</genmsxid>
-	<system>MSX</system>
 	<company>NAMCO</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -9491,6 +9512,17 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>307f5680290a88400126010ab26cbc87fb85913c</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>a2816649eac034d3b068678860ace2b94d4c1def</hash><remark>GDX SCC Version</remark></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>4d5ae087f24575ed4789957104f2807d67d0ae4b</hash><remark>hi com hack</remark></rom></dump>
+</software>
+<software>
+	<title>Galaxian</title>
+	<genmsxid>142</genmsxid>
+	<system>MSX</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash>356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark>Conversion by GDX</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>017e82a5e7dbb7eba4cb8830ca16834f99905479</hash><remark>[r2]</remark></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>84c559b77dede39345cf97a31f5d90fc215e1229</hash></megarom></dump>
 </software>
 <software>
 	<title>Galaxians</title>
@@ -9563,6 +9595,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII16</type><hash>431ea3f61f030e8d9e48df7e10487de2f41242e6</hash><remark>Part 1</remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>4fc188cc05c181b2b162b85fe26e44b6c985dc17</hash><remark>Part 2</remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>9fb00fcb38567aa03e8f3d93735a210b954e192b</hash><remark>Part 1 and 2</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>aa856890baeb6bce163ada10fde02f9c654db949</hash><remark>Part 1 and 2</remark></megarom></dump>
 </software>
 <software>
 	<title>Game Over II - Phantis</title>
@@ -9644,21 +9677,21 @@ The softwaredb.xml file contains information about rom mapper types
 	<genmsxid>3948</genmsxid>
 	<system>MSX</system>
 	<company>SIECO</company>
-	<year>1988</year>
+	<year>1992</year>
 	<country>KR</country>
-		<dump><megarom><type>KonamiSCC</type><hash>555475b0f5b23b192d89c0bbda2c2c2f4b182c25</hash></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>77cacb5e9a6cef48a36e8acabc938d5f1f1beadc</hash></megarom></dump>
-		<dump><megarom><type>ASCII8</type><hash>ad21deb6e85eeb1098d4ee0a84e00755c185dc15</hash></megarom></dump>
-		<dump><megarom><type>ASCII16</type><hash>7ad8e384785ab62dee1b34af4dfcb1f6e1e8b3d1</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>9d7dfb01f3bed10a708a8a496798599693decf21</hash></megarom></dump>
 </software>
 <software>
 	<title>Gangjeol Robocop</title>
 	<genmsxid>3948</genmsxid>
 	<system>MSX</system>
 	<company>SIECO</company>
-	<year>1992</year>
+	<year>1988</year>
 	<country>KR</country>
-		<dump><megarom><type>Konami</type><hash>9d7dfb01f3bed10a708a8a496798599693decf21</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>555475b0f5b23b192d89c0bbda2c2c2f4b182c25</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>77cacb5e9a6cef48a36e8acabc938d5f1f1beadc</hash></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>ad21deb6e85eeb1098d4ee0a84e00755c185dc15</hash></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>7ad8e384785ab62dee1b34af4dfcb1f6e1e8b3d1</hash></megarom></dump>
 </software>
 <software>
 	<title>Genesis: Dawn of a new day</title>
@@ -10166,6 +10199,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>a99ceb22bbdd130f426424db3743b504c31a28d6</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>e2f207b8c17d3e0b51f366fd7f697e901a718c42</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>2eac7071473c8c5afe0cb3abeba0f6f45ac419af</hash><remark>[RC-764]</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>c14bc4503ba8294da67c74eec24096863adc74ba</hash></megarom></dump>
 </software>
 <software>
 	<title>Gradius 2 - Nemesis 2 - Voice Set Add-on</title>
@@ -11092,6 +11126,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII8</type><hash>074d77d1bbb74fa58b40dd19663de0f7836b74a2</hash><remark>with FM by Icon Games - Needs a Turbo R</remark></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>3aa203a3a9159b61e509e2f9f917a9486318a9af</hash><remark>AlAlamiah [a]</remark></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>f77bf9bf8b3ac1ed8237518c4f113fa5e1a37f6a</hash><remark>missing sprites</remark></rom></dump>
+		<dump><megarom><type>ASCII8</type><hash>c49422a681160384e578a810bb5cc492bf51035e</hash><remark>with Moonsound by Maurício Braga  and Pablo Vasques</remark></megarom></dump>
 </software>
 <software>
 	<title>Hyper Olympic 1</title>
@@ -11152,8 +11187,11 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>44c762693a587ce55a007c0204aeb9680d6c1eaa</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>d02a0a9a09a2f278b8ba5220df77dcc591165e6a</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>f5136f54129dac48c921edbe4e58ae2aed1c7b0a</hash><remark>[RC-718]</remark></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>4c66e83bb7bfae1100b58f4578f126f28c3bb6e3</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>40901af34a3164c9fedb73021f5a93855f7efec6</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>4c66e83bb7bfae1100b58f4578f126f28c3bb6e3</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>40901af34a3164c9fedb73021f5a93855f7efec6</hash></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>8e4bbae1ae5b22eecf6fbcca880f91d2039a918b</hash><remark>[RC-718]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b5abb5ec261483698d10dd959c47cf1941c2eedd</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>ca511ec8e39c139b2315c025afd607b1f99b7ed6</hash></megarom></dump>
 </software>
 <software>
 	<title>Hyper Sports 1</title>
@@ -11195,6 +11233,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>e07fefd24366bfd7f854e25777b92542c3206a4b</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>01bf3b96386e37410fe91e397f4869107386adde</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>3fc067b6f62142b8abc7442d004b59a16d0392b2</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>1c6ef0ba360d01eb2d6858ee2b9b21f8dadfa03c</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>2e7d9597fda90e20883bbdcd6efdf854dfd3ee5b</hash></megarom></dump>
 </software>
 <software>
 	<title>Hyper Sports 3</title>
@@ -11214,6 +11254,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>e88d9a7cdfa947ce1715c60237f817ceffb7d248</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>98e5afc17ee2aa87dc31b7740cc5173d2a80c8bc</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>6911568c3c7bfe1df651d105729a30c554db02f6</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>4ad0a3d531ad1c9972c1665b3b96ed383c136ce0</hash></megarom></dump>
 </software>
 <software>
 	<title>Hyper Viper</title>
@@ -11387,18 +11428,18 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Impetus</title>
 	<system>MSX</system>
-	<company>Inufuto</company>
-	<year>2021</year>
-	<country>JP</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>b31b68de515469a836bb570ae88fa321059b6602</hash></rom></dump>
-</software>
-<software>
-	<title>Impetus</title>
-	<system>MSX</system>
 	<company>mxb03523</company>
 	<year>2021</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>4deabbbe2f9c4b1e7893ab1b75311839115d271e</hash></rom></dump>
+</software>
+<software>
+	<title>Impetus</title>
+	<system>MSX</system>
+	<company>Inufuto</company>
+	<year>2021</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>b31b68de515469a836bb570ae88fa321059b6602</hash></rom></dump>
 </software>
 <software>
 	<title>Inca</title>
@@ -11548,6 +11589,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>46f995308d736da235ba7f17841d8afeff403c99</hash></megarom></dump>
+</software>
+<software>
+	<title>Invasion</title>
+	<system>MSX</system>
+	<company>Sherif Hashim</company>
+	<year>2011</year>
+	<country></country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>2c07244d7dc05a74b3276b28bf6cf51d9267e68c</hash><remark>Unreleased MSXDev2011 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Invasion</title>
@@ -11995,6 +12044,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>b0ccdc9fba5af2450e1f2ccb30efebc9e283f51f</hash><remark>Demo Version</remark></rom></dump>
 </software>
 <software>
+	<title>Kachin</title>
+	<system>MSX</system>
+	<company>TPM.co Soft Works</company>
+	<year></year>
+	<country>JP</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>03692071e23ff8976af28f70b701e6264cd0d711</hash></rom></dump>
+</software>
+<software>
 	<title>Kaeru Shooter</title>
 	<genmsxid>122</genmsxid>
 	<system>MSX</system>
@@ -12034,6 +12091,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>223337db25c942ece732214aba5dd624b574e9c4</hash></rom></dump>
+</software>
+<software>
+	<title>Karate</title>
+	<system>MSX</system>
+	<company>Courbois Software</company>
+	<year>1986</year>
+	<country>NL</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>3c05e0ccccd3b23a66f60dedc870c5071b8309e3</hash></rom></dump>
 </software>
 <software>
 	<title>Karoshi Demo</title>
@@ -12173,7 +12238,9 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>4607f812ef55f67bfd11db3d20eb38877edc768a</hash></rom></dump>
 		<dump><megarom><type>ASCII16</type><hash>806f6d388cfd0519eadee0cdbae0157e5203faba</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>585ca5e4515a53dc9a3d3b547b37815f63e395f4</hash></megarom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>cb751352b1f41b06576e7fb61a942cac9c725af8</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>cb751352b1f41b06576e7fb61a942cac9c725af8</hash></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>dda0d1bf4da8b159d08add8b7f4dc75da3e6e242</hash><remark>[RC-727]</remark></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>e049742ab8f9c9d9e0c938fc98fc1d6c9947a4d1</hash></rom></dump>
 </software>
 <software>
 	<title>King's Valley 2 - The Seal Of El Giza - MSX1 Version</title>
@@ -12287,6 +12354,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>5d848a6aef8035e1ca94f76cfda14d928833157c</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>aedd73b4061a36f86c02331a7da33aae44802b84</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>de8d90cea5e5e0cfc6f8c9d1fedb6e1243c77b5c</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>eb7eaea9463432d34ba6ea3ac5e689fedf0ea2d9</hash><remark>SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Knightmare III - Shalom</title>
@@ -12478,6 +12546,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>ddfac0f89d4e0337f4c47d680422aaca458d6a45</hash><remark>[RC-724]</remark></rom></dump>
 		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>64cea5cdb2ff0d033793bbcf470de7ac1cf71993</hash><remark>[RC-724]</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>d5079f10f49ea62870e624b9f30bd9a4a48e7357</hash></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>a5b2bac80ac1558521f8a33eb87514b084a15781</hash><remark>[RC-724]</remark></rom></dump>
 </software>
 <software>
 	<title>Konami's Boxing</title>
@@ -12550,7 +12619,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>d9634296511c599852aff0c6b9993509bcbc3bef</hash><remark>[RC-723]</remark></rom></dump>
 		<dump><rom><hash>1fb821d2007b28fd6a05974454f5bf8767b106ac</hash></rom></dump>
 		<dump><rom><hash>8db04faa22e5366d1903abb0728e41adc981f99a</hash><remark>[RC-723]</remark></rom></dump>
-		<dump><rom><type>Mirrored</type><hash>612dc0c710ff07586237ebc4d9244f785f32677b</hash><remark>Game Collection</remark></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>612dc0c710ff07586237ebc4d9244f785f32677b</hash></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>2974d7d7962a4f327e515678f24c9f6a5935aff1</hash><remark>[RC-723]</remark></rom></dump>
 </software>
 <software>
 	<title>Konami's Mahjong Dojo</title>
@@ -12585,7 +12655,9 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>4076b4bd6eb390f049434601962358ea2cd2f877</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>b29c6906106b5f93d22abff13b44616cb99a592d</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>46adcfc1677817db5448f5c127f8f42165b9365a</hash></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>e797488ae315344dbe59643a694e58005f9b0d43</hash><remark>Not a ROM image</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>e797488ae315344dbe59643a694e58005f9b0d43</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>3f2be25fe111d8c79ba945e2e4c895de455ca92b</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>73cb0e8d11bc671441fa45b343193ea912fa56ca</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami's Soccer</title>
@@ -12608,6 +12680,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>7afd779fc7507170e21b4bb76374b09210b0da38</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>fb785423f9086d9f218d3b5dee5c4e9a1052ce17</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>2b63010b48ae646ea3cadc536e5bc9f21e745279</hash></megarom></dump>
+		<dump><rom><type>Mirrored</type><hash>87a93d98e980e15964377d617b827c4ddbd8ace6</hash><remark>[RC-732]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>575149e76119ea3bc72a19a338dd1c6cac173888</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami's Synthesizer</title>
@@ -13203,6 +13277,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>a8f59a75b101e071feeef29f585dc33cb918ae2a</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>470e4cd1da400da5610a7f10fc31496648a3da9b</hash></megarom></dump>
 </software>
 <software>
 	<title>Livingstone Supongo 2</title>
@@ -13214,6 +13289,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>8a3059bf17f141a66077d19b1eef10ed048acc82</hash><remark>No Turbo-R</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>dc26c994cc0914854fd747869bcaafb98d4e3063</hash><remark>No Turbo-R Side 2</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>cc5cd994b44366c0984e59316602b95c008eca03</hash><remark>No Turbo-R Side 1</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>3ec613da79f6271247911a92e727b7ec9531c0eb</hash><remark>No Turbo-R Side 1 and 2</remark></megarom></dump>
 </software>
 <software>
 	<title>Lizard Willy</title>
@@ -13983,18 +14059,18 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Mazy</title>
 	<system>MSX</system>
-	<company>Inufuto</company>
-	<year>2021</year>
-	<country>JP</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>426ff1d094ce34b4fd0ae52dab88217d7c1eba82</hash></rom></dump>
-</software>
-<software>
-	<title>Mazy</title>
-	<system>MSX</system>
 	<company>mxb03523</company>
 	<year>2020</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>6a141f68444dc10a65ddda18b78782651fab3250</hash></rom></dump>
+</software>
+<software>
+	<title>Mazy</title>
+	<system>MSX</system>
+	<company>Inufuto</company>
+	<year>2021</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>426ff1d094ce34b4fd0ae52dab88217d7c1eba82</hash></rom></dump>
 </software>
 <software>
 	<title>Meaning</title>
@@ -14116,6 +14192,14 @@ The softwaredb.xml file contains information about rom mapper types
 </software>
 <software>
 	<title>Memory</title>
+	<system>MSX</system>
+	<company>Paulo Silva</company>
+	<year>2016</year>
+	<country>EU</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>70e9d336b5fdf5ab6c4c3725cae96ffc13e2b094</hash></rom></dump>
+</software>
+<software>
+	<title>Memory</title>
 	<genmsxid>1942</genmsxid>
 	<system>MSX</system>
 	<company>Al Alamiah</company>
@@ -14123,14 +14207,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>KW</country>
 		<dump><rom><type>Mirrored</type><hash>6523381fa5012b45a69af0e351f239c97afd4be7</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>7f0037069d75a36f1a73b8f7dd286d33f80be6dd</hash></rom></dump>
-</software>
-<software>
-	<title>Memory</title>
-	<system>MSX</system>
-	<company>Paulo Silva</company>
-	<year>2016</year>
-	<country>EU</country>
-		<dump><rom><start>0x8000</start><type>Normal</type><hash>70e9d336b5fdf5ab6c4c3725cae96ffc13e2b094</hash></rom></dump>
 </software>
 <software>
 	<title>Menace</title>
@@ -14624,6 +14700,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>05abbf9ee057cdcaa48244c964791a32c9f9635e</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>9c41f80ce2ecae8d5a8b76e85e5f135c9bc0f4eb</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>41109dd3e9906bde3aacebc0125d458f33e45b18</hash><remark>[RC-728]</remark></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>a626751cf22a625c05aa6fc78097cd98952e24d5</hash><remark>[RC-728]</remark></rom></dump>
 </software>
 <software>
 	<title>Morita Kazurou no Othello</title>
@@ -14650,6 +14727,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1990</year>
 	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>477cfd7d29843223dc096e84e87ae4a4cfb0b379</hash><remark>cas2rom</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>546ec7d7cacb23e6d5248fadcb1c40a602bcde75</hash><remark>No Turbo-R</remark></megarom></dump>
 </software>
 <software>
 	<title>Motkonqe</title>
@@ -15397,18 +15475,18 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Neuras</title>
 	<system>MSX</system>
-	<company>Inufuto</company>
-	<year>2021</year>
-	<country>JP</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>e40b6cc6349d719505527e4afa5453be6e00763e</hash></rom></dump>
-</software>
-<software>
-	<title>Neuras</title>
-	<system>MSX</system>
 	<company>mxb03523</company>
 	<year>2021</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>09203847c1093d78e971b39a6bb0b3eedbcec166</hash></rom></dump>
+</software>
+<software>
+	<title>Neuras</title>
+	<system>MSX</system>
+	<company>Inufuto</company>
+	<year>2021</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>e40b6cc6349d719505527e4afa5453be6e00763e</hash></rom></dump>
 </software>
 <software>
 	<title>Never Forget To Nausicaä Game Forever</title>
@@ -15881,15 +15959,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2018</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>987c709827ae5730dc765b93676383426ebe1d50</hash></rom></dump>
-</software>
-<software>
-	<title>open for other use</title>
-	<genmsxid>14</genmsxid>
-	<system>MSX</system>
-	<company>Rutubo Gameworks</company>
-	<year>2021</year>
-	<country>JP</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>1382d03595d380e82c0de7a971871d6fbbbd40f1</hash><remark>Project Egg</remark></rom></dump>
 </software>
 <software>
 	<title>Open Wide!</title>
@@ -16414,6 +16483,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>bfa533c539035345cee719b4bbc7b30989e97372</hash></rom></dump>
 </software>
 <software>
+	<title>Penguin Catcher</title>
+	<genmsxid>7607</genmsxid>
+	<system>MSX</system>
+	<company>NetNomad</company>
+	<year>2022</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash>9981f8ad62a1b3aa9808dfd2e101c1c0e3ad2d9b</hash></megarom></dump>
+</software>
+<software>
 	<title>Penguin Mind</title>
 	<genmsxid>3751</genmsxid>
 	<system>MSX</system>
@@ -16433,6 +16511,7 @@ The softwaredb.xml file contains information about rom mapper types
 </software>
 <software>
 	<title>Penguin Run</title>
+	<genmsxid>7598</genmsxid>
 	<system>MSX</system>
 	<company>Patrik's Retro Tech</company>
 	<year>2022</year>
@@ -16941,7 +17020,9 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>935785b6f6a7f3e6ae6df0b8ff682b0ccaf1645d</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>9983ab09dabaa99336c84a9aec81c45405461c7e</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>4cf292c0228c4744475b2e77df79051df95cd182</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>3e257e21bf9de45a30739341f5753eba742d9b47</hash><remark>Darky Version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>3e257e21bf9de45a30739341f5753eba742d9b47</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>4be897f7fd51a750518d278dfd7e5c5905eeab9f</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>b26991db469957c79858e24fc1514f0114e09747</hash></megarom></dump>
 </software>
 <software>
 	<title>Piso Zero</title>
@@ -17938,6 +18019,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>4c6390b855d4fa210020d03b185a9823e3b5f0ba</hash><remark>Sharp Epcom</remark></rom></dump>
 </software>
 <software>
+	<title>Riyadh</title>
+	<system>MSX</system>
+	<company>Bandwagon</company>
+	<year>2001</year>
+	<country>FI</country>
+		<dump><megarom><type>KonamiSCC</type><hash>2ef2562fce5a818c41af2c59ce599a3df917446f</hash><remark>Ranked 1st for Oldskool Demo at Assembly 2001</remark></megarom></dump>
+</software>
+<software>
 	<title>RMD</title>
 	<system>MSX</system>
 	<company>N.I</company>
@@ -18004,20 +18093,20 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Robots</title>
 	<genmsxid>5711</genmsxid>
 	<system>MSX</system>
-	<company>German Gomez Herrera</company>
-	<year>2008</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>b7f36450d1ac76834046fd582d6e77a6d3881a8c</hash></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>c960c1b895557ef1b336035029d5c6d553c64085</hash></megarom></dump>
+	<company>Michel d'Alger</company>
+	<year>2011</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Robots</title>
 	<genmsxid>5711</genmsxid>
 	<system>MSX</system>
-	<company>Michel d'Alger</company>
-	<year>2011</year>
-	<country>EU</country>
-		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
+	<company>German Gomez Herrera</company>
+	<year>2008</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>b7f36450d1ac76834046fd582d6e77a6d3881a8c</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>c960c1b895557ef1b336035029d5c6d553c64085</hash></megarom></dump>
 </software>
 <software>
 	<title>Robotto Demo</title>
@@ -18215,18 +18304,18 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Ruptus</title>
 	<system>MSX</system>
-	<company>Inufuto</company>
-	<year>2021</year>
-	<country>JP</country>
-		<dump><rom><type>Mirrored</type><hash>76f802caecb913a7eac1872c9efbe32662c3b6f2</hash></rom></dump>
-</software>
-<software>
-	<title>Ruptus</title>
-	<system>MSX</system>
 	<company>mxb03523</company>
 	<year>2021</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>a2418ad9bf80d585d09dfff33d69e686c9a75855</hash></rom></dump>
+</software>
+<software>
+	<title>Ruptus</title>
+	<system>MSX</system>
+	<company>Inufuto</company>
+	<year>2021</year>
+	<country>JP</country>
+		<dump><rom><type>Mirrored</type><hash>76f802caecb913a7eac1872c9efbe32662c3b6f2</hash></rom></dump>
 </software>
 <software>
 	<title>RX Editor YRM-302</title>
@@ -19147,6 +19236,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>5b8fd60070b8e3e32edf69f305f394f63c27f317</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>688efb1042d8435f02bb27bc5e218aab46cc4d93</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>b737fa701906119eb61a567c54dd87af09e8b34c</hash><remark>[RC-721]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>fdc255b9f83a2caa1342569225494fa28c1177ac</hash></megarom></dump>
 </software>
 <software>
 	<title>Sky Vision</title>
@@ -20096,6 +20186,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>Konami</type><hash>49f9d62f121d3b7e35d38436c920a53b7070ecd4</hash><remark>Zemina</remark></megarom></dump>
 </software>
 <software>
+	<title>Streetfighter</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year></year>
+	<country>JP</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>d568cf5bb52f2417f2ec1e20966884031994f1f6</hash></rom></dump>
+</software>
+<software>
 	<title>Strike It!</title>
 	<system>MSX</system>
 	<company>Telegames</company>
@@ -20303,10 +20401,13 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>8ce853700c5929fe0fb735494b39f814eb109fb2</hash></megarom></dump>
 		<dump><rom><type>Mirrored</type><hash>e4a0bf7e002026f2aff0936cbfb13e14fcfdbbb9</hash></rom></dump>
 		<dump><megarom><type>ASCII8</type><hash>e9f3192dd6a10906746c1ba5fa72154148731ee5</hash></megarom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>3a18db5fb491fe6818564078d4f2bb8489065633</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>18392fa562b39e96bba7416d246182733c625967</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>026522a4d250c328801bb0e73c326d9458696ea8</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>cfd3beb99b7c5811a0d33fb162dcc1d17f6fe205</hash><remark>CFD3BEB99B7C5811A0D33FB162DCC1D17F6FE205</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>3a18db5fb491fe6818564078d4f2bb8489065633</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>18392fa562b39e96bba7416d246182733c625967</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>026522a4d250c328801bb0e73c326d9458696ea8</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>cfd3beb99b7c5811a0d33fb162dcc1d17f6fe205</hash><remark>[RC-705]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>9c359ce77e1e51d75fc6838edaffadaf980a0d41</hash></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>dfb6a60891d9717cf4bec1be6ecf7215cf2e97e8</hash></megarom></dump>
+		<dump><rom><type>Mirrored</type><hash>1ca9662565cc991f379d55201381f83da06af408</hash></rom></dump>
 </software>
 <software>
 	<title>Super Columns</title>
@@ -20375,6 +20476,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><type>Mirrored</type><hash>27c2cdee4be0ca166c2ebd2dac61115a56bb9856</hash></rom></dump>
 		<dump><megarom><type>Konami</type><hash>75569bb341466f4a3637f02da949139a9c437eab</hash></megarom></dump>
+</software>
+<software>
+	<title>Super Heli</title>
+	<system>MSX</system>
+	<company>Michel Jansen</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>c7b1c5d2f9b1a9d3496a6d7586573822ff54c97b</hash></rom></dump>
 </software>
 <software>
 	<title>Super Ilevan</title>
@@ -20460,6 +20569,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><type>Mirrored</type><hash>996a1c0d92400287c15545116b952f84c7dc03b1</hash></rom></dump>
+</software>
+<software>
+	<title>Super Star Trek</title>
+	<system>MSX</system>
+	<company>Artrag</company>
+	<year>2010</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>38a5d5c44ca46fd495cf3f3413c2777e0af2bc34</hash><remark>Original Version 1978 by by Bob Leedom and David Ahl - Report to MSX ROM by YMN</remark></rom></dump>
 </software>
 <software>
 	<title>Super Swangi - Super Altered Beast</title>
@@ -20947,16 +21064,6 @@ The softwaredb.xml file contains information about rom mapper types
 </software>
 <software>
 	<title>Tetris</title>
-	<genmsxid>2745</genmsxid>
-	<system>MSX</system>
-	<company>Mirrorsoft</company>
-	<year>1987</year>
-	<country>UK</country>
-		<dump><rom><type>Mirrored</type><hash>61411b093a068bcef2fdf3f78a3ecea939eb346b</hash></rom></dump>
-		<dump><rom><type>Mirrored</type><hash>d73ebc1502737ff950d63e93763c8715b369e200</hash></rom></dump>
-</software>
-<software>
-	<title>Tetris</title>
 	<genmsxid>3572</genmsxid>
 	<system>MSX</system>
 	<company>MSXosaure</company>
@@ -20982,6 +21089,16 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fd1eecd9c89f47741276433b99b75eca2930b58d</hash></megarom></dump>
+</software>
+<software>
+	<title>Tetris</title>
+	<genmsxid>2745</genmsxid>
+	<system>MSX</system>
+	<company>Mirrorsoft</company>
+	<year>1987</year>
+	<country>UK</country>
+		<dump><rom><type>Mirrored</type><hash>61411b093a068bcef2fdf3f78a3ecea939eb346b</hash></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>d73ebc1502737ff950d63e93763c8715b369e200</hash></rom></dump>
 </software>
 <software>
 	<title>Tetris II</title>
@@ -21562,6 +21679,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>7428159df6bf4ecc84a3ed9fb302b2da059475d7</hash><remark>Ulver crack</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>46e20aa2910cc934cf8e7921cf866d881335831b</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>cc182696200b7004c646624d3532488f75b0c9be</hash><remark>Italian hack - Derex</remark></rom></dump>
+		<dump><megarom><type>ASCII8</type><hash>c2d8ef34b824020465dc2912f84dbca020ec1a66</hash><remark>Dual PSG by ToughkidDev</remark></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>7bc2f40a002f84927f9aa853994b2e429573dc61</hash><remark>Darky Enhanced by ToughkidDev</remark></megarom></dump>
 </software>
 <software>
 	<title>Thing Bounces Back</title>
@@ -22267,7 +22386,10 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>7eb0747b926b9f06c0a56dc50a5cc89f087e242d</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>f9fc3a7f9da16cd4d08de920226abd2affe1aeb8</hash></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>a5c573c6949e720ace74c898d6e7df42482c6f99</hash></megarom></dump>
-		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>58e3f5c59c11fc2814f5559b3d96ddb78776d8ad</hash><remark>Saturn MSX Collection Dump - Only works on Saturn Konami MSX Emulation</remark></rom></dump>
+		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>58e3f5c59c11fc2814f5559b3d96ddb78776d8ad</hash></rom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>a35edba2203907bb71efcfd69cc070e3248473bb</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>af2b752bc91f847a67ff964687ca0b0f2a2bc506</hash></megarom></dump>
+		<dump><rom><type>Mirrored</type><hash>997dbee7d16ea3441028416e0eb5d77065ed4392</hash><remark>[RC-740]</remark></rom></dump>
 </software>
 <software>
 	<title>Twinbee Theme</title>
@@ -22471,21 +22593,21 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Vampire</title>
 	<genmsxid>2143</genmsxid>
 	<system>MSX</system>
+	<company>Codemasters</company>
+	<year>1987</year>
+	<country>UK</country>
+		<dump><megarom><type>ASCII16</type><hash>e10e20c1a023b88c39566803998fbaf9e342ea6d</hash></megarom></dump>
+</software>
+<software>
+	<title>Vampire</title>
+	<genmsxid>2143</genmsxid>
+	<system>MSX</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
 		<dump><megarom><type>KonamiSCC</type><hash>a83f21c1e6ebaf134e40116e4a23e8afb4bae58c</hash><remark>GDX Conversion</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>cd3d237f8c6430e6912baaa17c099397431d9f49</hash><remark>GDX Conversion</remark></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>63b1165f7bdea77059cf94547b137a0e58c641f0</hash></megarom></dump>
-</software>
-<software>
-	<title>Vampire</title>
-	<genmsxid>2143</genmsxid>
-	<system>MSX</system>
-	<company>Codemasters</company>
-	<year>1987</year>
-	<country>UK</country>
-		<dump><megarom><type>ASCII16</type><hash>e10e20c1a023b88c39566803998fbaf9e342ea6d</hash></megarom></dump>
 </software>
 <software>
 	<title>Vampire Slayer</title>
@@ -22616,10 +22738,11 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Vicious Viper</title>
 	<genmsxid>3269</genmsxid>
 	<system>MSX</system>
-	<company>Sanyo</company>
+	<company>Knights Computers</company>
 	<year>1985</year>
-	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash>220bd5640bf589b7727b60bcb7c36b57a2393143</hash></megarom></dump>
+	<country>UK</country>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>220bd5640bf589b7727b60bcb7c36b57a2393143</hash><remark>Overdumped (16KB basic listing)</remark></megarom></dump>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>178ea1e96dfb1aa78281f1b03403e53eced37484</hash></rom></dump>
 </software>
 <software>
 	<title>Video Hustler - Konami Billiards</title>
@@ -22975,6 +23098,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>3b1a450960b65b752f1bd3098fecc371dfa23a36</hash><remark>ROM version by Kabish</remark></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>009ad00a92d679166ae4ab72c757a0ee005070ec</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>88be357bc9d39024dfae20a11a9bbc4b9a6941da</hash><remark>a2</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>f3de70dfb9a6aee5a9ed56d19de1d53ec543fd14</hash><remark>overdump</remark></megarom></dump>
 </software>
 <software>
 	<title>Who?</title>
@@ -23035,6 +23159,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>4b934f0c383136ff315d04a56d2a8631169f9628</hash><remark>MSXDev2015</remark></rom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>0fcbfed932e02277932f03610784151d93b13777</hash><remark>2021 Edition</remark></megarom></dump>
 		<dump><original value="true">Author</original><rom><type>Mirrored</type><hash>9ddc0f9c0e4f0a72f6e034177db4fe382e6c2a8c</hash><remark>2016 Cartridge Edition</remark></rom></dump>
+		<dump><rom><type>Mirrored</type><hash>e87fc6c98d6380453292d5102c69f24d219e2698</hash></rom></dump>
 </software>
 <software>
 	<title>Winterhawk</title>
@@ -23182,6 +23307,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1987</year>
 	<country>KW</country>
 		<dump><rom><type>Mirrored</type><hash>4666e2fe5d8ed47c990a39cc345c744202228924</hash></rom></dump>
+		<dump><megarom><type>Normal</type><hash>92f26bcd265d32fa8b45e9c071462cc8802b6b39</hash><remark>hold shift while booting</remark></megarom></dump>
 </software>
 <software>
 	<title>X0rz</title>
@@ -23551,6 +23677,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>4fd924e60076d571364fc52b053f27018c322d37</hash><remark>Broken music - Translated to Spanish and Trained Lives</remark></rom></dump>
 		<dump><megarom><type>8kB</type><hash>c9d93f5d3c9545b731f071245db7832497f45cf2</hash><remark>Overdump</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>4d55f61fbd312431ea480530ab9ece2fda0c6de7</hash><remark>Massive Overdump</remark></megarom></dump>
+		<dump><rom><type>Mirrored</type><hash>6982adfe92051f82ec577f8fece8380151d635c2</hash><remark>Control Panel Edition v1.4</remark></rom></dump>
 </software>
 <software>
 	<title>Zanac A.I. - 2nd Version</title>
@@ -23669,6 +23796,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>UK</country>
 		<dump><rom><type>Mirrored</type><hash>52f388014e85aa4b10fea0e6b82c1e6653587b9f</hash></rom></dump>
+</software>
+<software>
+	<title>Zirkus</title>
+	<system>MSX</system>
+	<company>Albert Kavsek</company>
+	<year>1986</year>
+	<country>NL</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash>3dfde89db8f334b6dcf3c5bcb6c38de62ee33934</hash></rom></dump>
 </software>
 <software>
 	<title>Zombie Calavera Prologue</title>
@@ -23993,6 +24128,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII8</type><hash>336bfc27d88de62e6f0d696034f059889664e12e</hash><remark>Trained</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>25ba083eb7c06e1259bd15d4ce48ff487e0de8c6</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>d3bb7c2441f490ecb366b61fc216cb612f132059</hash><remark>Arcade Enhanced by  Toughkid  - Needs Yamaha SFG-01 or  SFG-05</remark></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>cf870d6d2c7c2b244dcf875d6acc7694bbf1bd9e</hash><remark>Spanish Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Arsene Lupin 3rd - Babiron no Ougon Densetsu</title>
@@ -24895,6 +25031,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>9af054a9e4ad4ade22036a4e1ff09676e139d971</hash><remark>SD Snatcher SCCI</remark></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>d2bf0752652fca2854291ab29ce6a78ef90dab79</hash><remark>Snatcher SCCI-a</remark></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>8655daf0c2514871b1193a9501f313b1ca1205f5</hash><remark>Snatcher SCCI</remark></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>2798c71eddc5bafc8623cb46927502eb2d155d35</hash><remark>No SCC sound</remark></megarom></dump>
 </software>
 <software>
 	<title>Gogoboom</title>
@@ -26039,6 +26176,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2023</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>53919444590db931fa8e4937beb896d23b54ca53</hash><remark>Version R-03</remark></megarom></dump>
+		<dump><megarom><type>KonamiUltimateCollection</type><hash>ac2618eb9a576da3a1fad09f2f144b1e7d9e600b</hash></megarom></dump>
+		<dump><megarom><type>KonamiUltimateCollection</type><hash>b6b2d49fff339a68d03f8fc91f7ca33a9d1059f2</hash></megarom></dump>
 </software>
 <software>
 	<title>Pengo</title>
@@ -26182,6 +26321,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>0bc23c0a560d26fd9623a3ced86636f157949022</hash><remark>[RC-769]</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>64f9ab6f6a825a9cde96aeee6c9a12ffecbe899e</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>e8bdc4737a62a257759b96c185e5bf4bda7880d5</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>28fe3aa76895260c7bce3f2581263b0107aebcd9</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>d059c317afd0d5ac3849507410a56ce16d3be181</hash></megarom></dump>
 </software>
 <software>
 	<title>Quarth Demo Version</title>
@@ -26913,6 +27054,8 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>b29673df820cfceb3958709c18680bab8f6d0295</hash><remark>SCCI</remark></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>3d7c3bb24ed17d0a100bc767a1eacc1bc775a788</hash><remark>SCCI</remark></megarom></dump>
 		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>5907bebbe4236a998b126179b01ba4b67753531b</hash><remark>SCCI</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>6f25dc06a0464ed572839ab8d9bcbba3f0efb044</hash><remark>SCC</remark></megarom></dump>
+		<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>1594ab4c3729e5dabfaaaef201b98cc85ad70b1d</hash><remark>No SCC</remark></megarom></dump>
 </software>
 <software>
 	<title>Topple Zip - MSX2 Version</title>
@@ -27164,6 +27307,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX2</original><megarom><type>ASCII16</type><hash>f84d7fc089b31440cac1f4fbee3d45b2f6c90e37</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>28b54294007ec345aef7322a2fcaa18d3363a73e</hash><remark>Ulver crack</remark></megarom></dump>
 		<dump><megarom><type>16kb</type><hash>84277f022b9ddf12d664a608f5da1e01b28416dd</hash></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>0c5e32ef6785df49d5aa9722fb1ecd1c2427df01</hash><remark>Spanish Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Yaksa</title>
@@ -27193,6 +27337,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII8</type><hash>c0d9b7ca46e4c6a96961a18550ef2c71545ac6a5</hash><remark>English by MSX Translations</remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>bfe62e8eab59a92315604dd322f186c96ba358f2</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>7eb29671e42fab172a750f53edf05f5966da8c8e</hash><remark>Korean Translation</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>91e62a02b0bb5bef73d97ff1943378ea9764f282</hash><remark>English by MSX Translations - Alternate Dump</remark></megarom></dump>
 </software>
 <software>
 	<title>Zakil Wood Remake</title>
@@ -27386,4 +27531,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>b6dd7af36c8d16b04fca4963f081db534e91b360</hash><remark>SD-003C</remark></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:7180 - Created on Thu Aug 29 2024 - 2:22:14 UTC-->
+<!-- Roms in this XML file:7247 - Created on Wed Sep 11 2024 - 18:23:23 UTC-->
