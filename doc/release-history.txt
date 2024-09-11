@@ -215,12 +215,12 @@ Build system, packaging, documentation:
 - required GNU compiler is now at least g++-11
 - required clang compiler is at least clang++-16
 - required Visual Studio Compiler is at least 2022
-- on macOS, at least XCode 15.3 is required
+- on macOS, at least Xcode 15.4 is required
 - Android build is totally broken, and will require a lot of effort and help to
   get back up, which is not planned by us.
 - 3rd party updates of SDL (2.30.1), SDL2_ttf (2.22.0), GLEW (2.2.0)
 - added patch to add aarch64 support to libtheora 3rdparty build
-- fixed link error in libvorbis for XCode 15 on macOS
+- fixed link error in libvorbis for Xcode 15 on macOS
 - avoid pkg-config build error with Clang 15 on macOS
 - quite a large update of the manual (mostly to include the new GUI)
 
