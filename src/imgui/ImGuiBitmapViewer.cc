@@ -36,7 +36,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	ImGui::SetNextWindowSize({528, 618}, ImGuiCond_FirstUseEver);
 	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
-		if (!vdp) return;
+		if (!vdp || vdp->isMSX1VDP()) return;
 
 		auto parseMode = [](DisplayMode mode) {
 			auto base = mode.getBase();
