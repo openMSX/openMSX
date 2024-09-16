@@ -107,7 +107,9 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		int vdpNamBase = vdp->getNameTableBase() & ~(namMult(vdpMode) - 1);
 		int vdpLines = vdp->getNumberOfLines();
 		int vdpColor0 = vdp->getTransparency() ? vdpBgCol
-						: 16; // no replacement
+		                                       : 16; // no replacement
+		auto vramSize = std::min(vdp->getVRAM().getSize(), 0x20000u); // max 128kB
+		bool isMSX1 = vdp->isMSX1VDP();
 
 		bool manMode    = overrideAll || overrideMode;
 		bool manFgCol   = overrideAll || overrideFgCol;
@@ -192,7 +194,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
 						im::Disabled(!manMode, [&]{
-							ImGui::Combo("##mode", &manualMode, "screen 0,40\000screen 0,80\000screen 1\000screen 2\000screen 3\000screen 4\000");
+							if (isMSX1 && (manualMode == one_of(TEXT80, SCR4))) manualMode = TEXT40;
+							im::Combo("##mode", modeToStr(manualMode), [&]{
+								if            (ImGui::Selectable("screen 0,40")) manualMode = TEXT40;
+								if (!isMSX1 && ImGui::Selectable("screen 0,80")) manualMode = TEXT80;
+								if            (ImGui::Selectable("screen 1"))    manualMode = SCR1;
+								if            (ImGui::Selectable("screen 2"))    manualMode = SCR2;
+								if            (ImGui::Selectable("screen 3"))    manualMode = SCR3;
+								if (!isMSX1 && ImGui::Selectable("screen 4"))    manualMode = SCR4;
+							});
 						});
 						static const char* const range0_15 = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000";
 						im::Disabled(manualMode != one_of(TEXT40, TEXT80), [&]{
@@ -215,15 +225,15 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manPat, [&]{
-							comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode));
+							comboHexSequence<5>("##pattern", &manualPatBase, patMult(manualMode), vramSize, 0);
 						});
 						im::Disabled(manualMode == one_of(TEXT40, SCR3), [&]{
 							im::Disabled(!manCol, [&]{
-								comboHexSequence<5>("##color", &manualColBase, colMult(manualMode));
+								comboHexSequence<5>("##color", &manualColBase, colMult(manualMode), vramSize, 0);
 							});
 						});
 						im::Disabled(!manNam, [&]{
-							comboHexSequence<5>("##name", &manualNamBase, namMult(manualMode));
+							comboHexSequence<5>("##name", &manualNamBase, namMult(manualMode), vramSize, 0);
 						});
 						im::Disabled(!manRows, [&]{
 							ImGui::Combo("##rows", &manualRows, "24\00026.5\00032\000");

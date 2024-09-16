@@ -172,6 +172,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		int vdpPatBase = vdp->getSpritePatternTableBase();
 		int vdpAttBase = vdp->getSpriteAttributeTableBase() & ~(attMult(vdpMode) - 1);
 
+		auto vramSize = std::min(vdp->getVRAM().getSize(), 0x20000u); // max 128kB
+
 		std::array<uint32_t, 16> palette;
 		auto msxPalette = manager.palette->getPalette(vdp);
 		ranges::transform(msxPalette, palette.data(),
@@ -242,9 +244,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					im::ItemWidth(ImGui::GetFontSize() * 9.0f, [&]{
 						im::Disabled(!manMode, [&]{
+							if (manMode && isMSX1) manualMode = 1;
 							im::Combo("##mode", modeToStr(manualMode), [&]{
 								if (ImGui::Selectable("1")) manualMode = 1;
-								if (ImGui::Selectable("2")) manualMode = 2;
+								if (!isMSX1 && ImGui::Selectable("2")) manualMode = 2;
 							});
 						});
 						im::Disabled(!manSize, [&]{
@@ -266,10 +269,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							});
 						});
 						im::Disabled(!manPat, [&]{
-							comboHexSequence<5>("##pat", &manualPatBase, 8 * 256);
+							comboHexSequence<5>("##pat", &manualPatBase, 8 * 256, vramSize, 0);
 						});
 						im::Disabled(!manAtt, [&]{
-							comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode), manualMode == 2 ? 512 : 0);
+							comboHexSequence<5>("##att", &manualAttBase, attMult(manualMode), vramSize, manualMode == 2 ? 512 : 0);
 						});
 						im::Disabled(!manScroll, [&]{
 							ImGui::InputInt("##verticalScroll", &manualVerticalScroll);
