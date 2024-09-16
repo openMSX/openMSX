@@ -94,7 +94,7 @@ std::span<const uint16_t, 16> ImGuiPalette::getPalette(const VDP* vdp) const
 {
 	if (whichPalette == PALETTE_CUSTOM) {
 		return customPalette;
-	} else if (whichPalette == PALETTE_VDP && vdp) {
+	} else if (whichPalette == PALETTE_VDP && vdp && !vdp->isMSX1VDP()) {
 		return vdp->getPalette();
 	} else {
 		return fixedPalette;
@@ -107,7 +107,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 	im::Window("Palette editor", window, [&]{
 		VDP* vdp = motherBoard ? dynamic_cast<VDP*>(motherBoard->findDevice("VDP")) : nullptr; // TODO name based OK?
 
-		im::Disabled(vdp == nullptr, [&]{
+		im::Disabled(!vdp || vdp->isMSX1VDP(), [&]{
 			ImGui::RadioButton("VDP palette", &whichPalette, PALETTE_VDP);
 		});
 		ImGui::SameLine();
@@ -118,7 +118,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 		std::array<uint16_t, 16> paletteCopy;
 		std::span<uint16_t, 16> palette = customPalette;
 		bool disabled = (whichPalette == PALETTE_FIXED) ||
-				((whichPalette == PALETTE_VDP) && !vdp);
+				((whichPalette == PALETTE_VDP) && (!vdp || vdp->isMSX1VDP()));
 		if (disabled) {
 			palette = std::span<uint16_t, 16>{const_cast<uint16_t*>(fixedPalette.data()), 16};
 		} else if (whichPalette == PALETTE_VDP) {
