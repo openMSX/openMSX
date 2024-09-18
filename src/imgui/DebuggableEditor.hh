@@ -83,6 +83,7 @@ private:
 	bool showAddress = true;      // display the address bar (e.g. on small views it can make sense to hide this)
 	bool showSearch = false;      // display search functionality
 	bool showDataPreview = false; // display a footer previewing the decimal/binary/hex/float representation of the currently selected bytes.
+	bool showSymbolInfo = false;  // display symbol information and highlight known symbols in hex view
 	bool greyOutZeroes = true;    // display null/zero bytes using the TextDisabled color.
 	std::string addrExpr;
 	std::string searchString;
@@ -101,6 +102,7 @@ private:
 		PersistentElement   {"showAddress",      &DebuggableEditor::showAddress},
 		PersistentElement   {"showSearch",       &DebuggableEditor::showSearch},
 		PersistentElement   {"showDataPreview",  &DebuggableEditor::showDataPreview},
+		PersistentElement   {"showSymbolInfo",   &DebuggableEditor::showSymbolInfo},
 		PersistentElement   {"greyOutZeroes",    &DebuggableEditor::greyOutZeroes},
 		PersistentElement   {"addrExpr",         &DebuggableEditor::addrExpr},
 		PersistentElement   {"searchString",     &DebuggableEditor::searchString},

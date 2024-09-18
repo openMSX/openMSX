@@ -34,6 +34,7 @@ using namespace std::literals;
 
 static constexpr int MidColsCount = 8; // extra spacing between every mid-cols.
 static constexpr auto HighlightColor = IM_COL32(255, 255, 255, 50); // background color of highlighted bytes.
+static constexpr auto HighlightSymbolColor = IM_COL32(148, 95, 35, 255); // background color of known symbol bytes.
 
 DebuggableEditor::DebuggableEditor(ImGuiManager& manager_, std::string debuggableName_, size_t index)
 	: ImGuiPart(manager_)
@@ -225,6 +226,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	if (showDataPreview) {
 		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing() + 3 * ImGui::GetTextLineHeightWithSpacing();
 	}
+	if (showSymbolInfo) {
+		footerHeight += style.ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+	}
 	// We begin into our scrolling region with the 'ImGuiWindowFlags_NoMove' in order to prevent click from moving the window.
 	// This is used as a facility since our main click detection code doesn't assign an ActiveId so the click would normally be caught as a window-move.
 	int cFlags = ImGuiWindowFlags_NoMove;
@@ -376,6 +380,16 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightColor);
 			}
 
+			// Draw symbol highlight
+			if (showSymbolInfo) {
+				auto symbol = symbolManager.lookupValue(addr);
+				if (!symbol.empty()) {
+					float highlightWidth = s.glyphWidth * 2;
+					ImVec2 pos = ImGui::GetCursorScreenPos();
+					drawList->AddRectFilled(pos, ImVec2(pos.x + highlightWidth, pos.y + s.lineHeight), HighlightSymbolColor);
+				}
+			}
+
 			if (currentAddr == addr && (dataEditingActive == HEX)) {
 				handleInput(addr, 2,
 					[&](ImGuiInputTextCallbackData* data) { // format
@@ -522,6 +536,16 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Separator();
 		drawPreviewLine(s, debuggable, memSize);
 	}
+	if (showSymbolInfo) {
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		auto symbol = symbolManager.lookupValue(currentAddr);
+		if (!symbol.empty()) {
+			ImGui::Text("Current symbol: %s", symbol[0]->name.c_str());
+		} else {
+			ImGui::TextUnformatted("No symbol for this address defined"sv);
+		}
+	}
 
 	im::Popup("context", [&]{
 		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
@@ -532,6 +556,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Checkbox("Show Search pane", &showSearch);
 		ImGui::Checkbox("Show Data Preview", &showDataPreview);
 		ImGui::Checkbox("Show Ascii", &showAscii);
+		ImGui::Checkbox("Show Symbol info", &showSymbolInfo);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
 	});
 	im::Popup("NotFound", [&]{
