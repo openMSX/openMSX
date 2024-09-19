@@ -78,7 +78,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 			return GENERIC;
 		} else if (StringOp::containsCaseInsensitive(line, "Sections:")) {
 			return VASM;
-		} else if (StringOp::containsCaseInsensitive(line, "; this file was created with wlalink")) {
+		} else if (line.starts_with("; this file was created with wlalink")) {
 			return WLALINK_NOGMB;
 		} else {
 			// this is a blunt conclusion but I don't know a way

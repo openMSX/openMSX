@@ -287,7 +287,7 @@ TEST_CASE("SymbolManager: loadNoGmb")
 		"00:402d main@main_loop\n"
 		"00:404f Game_Initialize\n"
 		"00:404e Game_Update\n";
-	auto file = SymbolManager::loadGeneric("myfile.sym", buffer);
+	auto file = SymbolManager::loadNoGmb("myfile.sym", buffer);
 	CHECK(file.filename == "myfile.sym");
 	CHECK(file.type == SymbolFile::Type::WLALINK_NOGMB);
 	REQUIRE(file.symbols.size() == 4);
