@@ -3,8 +3,8 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 20.0-RC1 (2024-09-xx)
------------------------------
+openMSX 20.0 (2024-09-22)
+-------------------------
 
 This is a major release, in which we introduce the new Graphical User
 Interface, replacing the OSD menu. A faster and more powerful debugger is now
