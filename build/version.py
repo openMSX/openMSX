@@ -25,7 +25,7 @@ packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = True
+releaseFlag = False
 
 # Release year for copyright message. Make sure to update it when releasing.
 # (Or just when a new year arrives?)
