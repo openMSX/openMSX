@@ -110,6 +110,10 @@ https://help.github.com/articles/creating-releases/):
 - At "Attach binaries" select the files to upload, including our own
   tarballs.
   In short: all the files we used to upload for an SF.net release.
+  Upload the relevant binaries that came out of the GitHub Actions build done
+  based on the tarball, as described above. For some reason, these results are
+  zipped or get an extra zip extension. Make sure to unzip (e.g. the dmg files)
+  or strip the extra .zip file extension (e.g. the Linux build).
 - Note: GitHub also generates a tarball and a zip file. Just ignore it for
   now. Do not use these in any links on our website or somewhere else.
   They contain a lot of unnecessary stuff.
