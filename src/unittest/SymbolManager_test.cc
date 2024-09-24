@@ -120,11 +120,14 @@ TEST_CASE("SymbolManager: detectType")
 		std::string_view buffer = "content doesn't matter";
 		CHECK(SymbolManager::detectType("symbols.noi", buffer) == SymbolFile::Type::NOICE);
 		CHECK(SymbolManager::detectType("symbols.NOI", buffer) == SymbolFile::Type::NOICE);
-		CHECK(SymbolManager::detectType("symbols.Map", buffer) == SymbolFile::Type::LINKMAP);
 		CHECK(SymbolManager::detectType("symbols.symbol", buffer) == SymbolFile::Type::GENERIC); // pasmo
 		CHECK(SymbolManager::detectType("symbols.publics", buffer) == SymbolFile::Type::GENERIC); // pasmo
 		CHECK(SymbolManager::detectType("symbols.sys", buffer) == SymbolFile::Type::GENERIC); // pasmo
 		CHECK(SymbolManager::detectType("symbols.unknown", buffer) == SymbolFile::Type::GENERIC); // unknown extension
+	}
+	SECTION(".map extension") {
+		CHECK(SymbolManager::detectType("symbols.Map", "HI-TECH Software ZC Compiler V7.80PL2") == SymbolFile::Type::LINKMAP);
+		CHECK(SymbolManager::detectType("symbols.Map", "CHGMOD                          = $005F ; const, local, , sample025, , sample025.asm:2") == SymbolFile::Type::GENERIC);
 	}
 	SECTION(".sym extension") {
 		CHECK(SymbolManager::detectType("myfile.sym", "; Symbol table from myfile.asm") == SymbolFile::Type::ASMSX);
@@ -172,8 +175,8 @@ TEST_CASE("SymbolManager: loadGeneric")
 {
 	std::string_view buffer =
 		"foo: equ 1\n"
-		"bar equ 2\n"
-		"qux: equ 3 ; comment\n"
+		"bar %equ 2\n"
+		"qux = 3 ; comment\n"
 		"; only comment\n"
 		"error equ\n"
 		"error equ 123 extra stuff\n";

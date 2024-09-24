@@ -65,8 +65,13 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		// NoICE command file
 		return NOICE;
 	} else if (fname.ends_with(".map")) {
-		// HiTech link map file
-		return LINKMAP;
+		auto [line, _] = StringOp::splitOnFirst(buffer, "\n\r");
+		if (StringOp::containsCaseInsensitive(line, "hi-tech")) {
+			// HiTech link map file
+			return LINKMAP;
+		}
+		// map file output by the Z80ASM from Z88DK
+		return GENERIC;
 	} else if (fname.ends_with(".sym")) {
 		// auto detect which sym file
 		auto [line, _] = StringOp::splitOnFirst(buffer, "\n\r");
@@ -177,8 +182,9 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 		auto equ   = tokens[1];
 		auto value = tokens[2];
 		StringOp::casecmp cmp;
-		if (!cmp(equ, "equ") &&         // TNIASM0, PASMO, SJASM, ...
-		    !cmp(equ, "%equ")) return {};  // TNIASM1
+		if (!cmp(equ, "equ") &&      // TNIASM0, PASMO, SJASM, ...
+		    !cmp(equ, "%equ") &&     // TNIASM1
+		    (equ != "=")) return {}; // Z80ASM map file (Z88DK)
 		return checkLabelAndValue(label, value);
 	};
 	return loadLines(filename, buffer, SymbolFile::Type::GENERIC, parseLine);
