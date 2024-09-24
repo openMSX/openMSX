@@ -49,27 +49,6 @@ static constexpr std::array<int16_t, 88 + 16> slotsSpritesOff = {
 	1368+162,
 };
 
-// Character mode, sprites disabled.
-// TODO these are not actually measured! See 'vdp-timing-2.html'.
-//  [166,1212] is likely correct
-//  [1270,122] is an educated guess, the amount of slots is likely correct,
-//             but they might be shifted a few cycles forwards or backwards.
-static constexpr std::array<int16_t, 88 + 17> slotsCharSpritesOff = {
-	   2,   10,   18,   26,   34,   42,   50,   58,   66,   74,
-	  82,   90,   98,  106,  114,  122,  166,  174,  188,  194,
-	 220,  226,  252,  258,  290,  316,  322,  348,  354,  380,
-	 386,  418,  444,  450,  476,  482,  508,  514,  546,  572,
-	 578,  604,  610,  636,  642,  674,  700,  706,  732,  738,
-	 764,  770,  802,  828,  834,  860,  866,  892,  898,  930,
-	 956,  962,  988,  994, 1020, 1026, 1058, 1084, 1090, 1116,
-	1122, 1148, 1154, 1186, 1212, 1218, 1270, 1278, 1286, 1294,
-	1302, 1310, 1318, 1326, 1336, 1346, 1354, 1362,
-	1368+  2, 1368+ 10, 1368+18, 1368+ 26, 1368+ 34,
-	1368+ 42, 1368+ 50, 1368+58, 1368+ 66, 1368+ 74,
-	1368+ 82, 1368+ 90, 1368+98, 1368+106, 1368+114,
-	1368+122, 1368+166,
-};
-
 // Bitmap mode, sprites enabled.
 static constexpr std::array<int16_t, 31 + 3> slotsSpritesOn = {
 	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
@@ -80,7 +59,7 @@ static constexpr std::array<int16_t, 31 + 3> slotsSpritesOn = {
 };
 
 // Character mode, sprites enabled.
-static constexpr std::array<int16_t, 31 + 3> slotsCharSpritesOn = {
+static constexpr std::array<int16_t, 31 + 3> slotsChar = {
 	  32,   96,  166,  174,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1268,
@@ -204,8 +183,7 @@ struct ZeroTable : AccessTable
 
 static constexpr CycleTable tabSpritesOn     (false, slotsSpritesOn);
 static constexpr CycleTable tabSpritesOff    (false, slotsSpritesOff);
-static constexpr CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
-static constexpr CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
+static constexpr CycleTable tabChar          (false, slotsChar);
 static constexpr CycleTable tabText          (false, slotsText);
 static constexpr CycleTable tabScreenOff     (false, slotsScreenOff);
 static constexpr CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
@@ -232,12 +210,16 @@ static constexpr ZeroTable  tabBroken;
 		                    : tabMsx1Gfx12);
 		// TODO undocumented modes
 	} else {
-		if (!enabled) return tabScreenOff;
-		return bitmap ? (sprites ? tabSpritesOn
-		                         : tabSpritesOff)
-		              : (text ? tabText
-		                      : (sprites ? tabCharSpritesOn
-		                                 : tabCharSpritesOff));
+		if (bitmap) {
+			return !enabled ? tabScreenOff
+			      : sprites ? tabSpritesOn
+			                : tabSpritesOff;
+		} else {
+			// 'enabled' or 'sprites' doesn't matter in V99x8 non-bitmap mode
+			// See: https://github.com/openMSX/openMSX/issues/1754
+			return text ? tabText
+			            : tabChar;
+		}
 	}
 }
 
