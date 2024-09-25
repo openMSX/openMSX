@@ -10,6 +10,7 @@
 #include "Reactor.hh"
 
 #include "stl.hh"
+#include "Timer.hh"
 
 #include <imgui_stdlib.h>
 #include <imgui.h>
@@ -440,6 +441,12 @@ void ImGuiMessages::paintConfigure()
 	});
 }
 
+static bool needThrottle(const circular_buffer<ImGuiMessages::Message>& buffer, uint64_t now)
+{
+	return ((buffer.size() >=  5) && ((now - buffer[4].timestamp) <  1'000'000)) || // 5 in the last second
+	       ((buffer.size() >= 10) && ((now - buffer[9].timestamp) < 60'000'000));   // 10 in the last minute
+}
+
 void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fraction)
 {
 	if (level == PROGRESS) {
@@ -449,25 +456,35 @@ void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fr
 		return;
 	}
 
-	Message message{level, std::string(text)};
+	auto now = Timer::getTime();
+	Message message{level, std::string(text), now};
 
 	if (popupAction[level] == MODAL_POPUP) {
 		if (modalMessages.full()) modalMessages.pop_back();
 		modalMessages.push_front(message);
-		doOpenModal = true;
+		if (!needThrottle(modalMessages, now)) {
+			doOpenModal = true;
+		}
 	} else if (popupAction[level] == POPUP) {
 		if (popupMessages.full()) popupMessages.pop_back();
 		popupMessages.push_front(message);
-		doOpenPopup = popupMessages.size();
+		if (!needThrottle(popupMessages, now)) {
+			doOpenPopup = popupMessages.size();
+		}
 	}
 
 	if (openLogAction[level] == OPEN_LOG) {
 		logWindow.open = true;
 	} else if (openLogAction[level] == OPEN_LOG_FOCUS) {
-		logWindow.raise();
+		if (!needThrottle(allMessages, now)) {
+			logWindow.raise();
+		}
 	}
 
 	if (osdAction[level] == SHOW_OSD) {
+		if (osdMessages.size() >= 10) {
+			osdMessages.erase(osdMessages.begin());
+		}
 		osdMessages.emplace_back(std::string(text), 0.0f, level);
 	}
 

@@ -10,6 +10,7 @@
 #include "stl.hh"
 
 #include <array>
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -22,6 +23,7 @@ public:
 	struct Message {
 		CliComm::LogLevel level;
 		std::string text;
+		uint64_t timestamp; // us
 	};
 public:
 	explicit ImGuiMessages(ImGuiManager& manager_);
