@@ -1,6 +1,7 @@
 #include "ImGuiBreakPoints.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -724,6 +725,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			im::Font(manager.fontMono, [&]{
 				addrChanged |= ImGui::InputText("##addr", &addr);
 			});
+
+			im::PopupContextItem("context menu", [&]{
+				if (ImGui::MenuItem("Show in Dissassembly", nullptr, nullptr, item.addr.has_value())) {
+					manager.debugger->setGotoTarget(*item.addr);
+				}
+			});
+
 			addrToolTip();
 			if (ImGui::IsItemActive()) selectedRow = row;
 		}
