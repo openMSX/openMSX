@@ -478,6 +478,16 @@ void ImGuiManager::preNewFrame()
 	}
 }
 
+static bool hoverMenuBar()
+{
+	const auto* viewport = ImGui::GetMainViewport();
+	gl::vec2 topLeft = viewport->Pos;
+	gl::vec2 bottomRight = topLeft + gl::vec2(viewport->Size.x, ImGui::GetFrameHeight());
+	gl::vec2 mouse = ImGui::GetMousePos();
+	return mouse.x >= topLeft.x && mouse.x <= bottomRight.x &&
+	       mouse.y >= topLeft.y && mouse.y <= bottomRight.y;
+}
+
 void ImGuiManager::paintImGui()
 {
 	// Apply added/removed parts. Avoids iterating over a changing vector.
@@ -515,7 +525,8 @@ void ImGuiManager::paintImGui()
 		});
 	} else {
 		bool active = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) ||
-		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow);
+		              ImGui::IsWindowFocused(ImGuiHoveredFlags_AnyWindow) ||
+		              hoverMenuBar();
 		if (active != guiActive) {
 			guiActive = active;
 			auto& eventDistributor = reactor.getEventDistributor();
@@ -523,7 +534,7 @@ void ImGuiManager::paintImGui()
 		}
 		menuAlpha = [&] {
 			if (!menuFade) return 1.0f;
-			auto target = active ? 1.0f : 0.0001f;
+			auto target = active ? 1.0f : 0.0f;
 			auto period = active ? 0.5f : 5.0f;
 			return calculateFade(menuAlpha, target, period);
 		}();
