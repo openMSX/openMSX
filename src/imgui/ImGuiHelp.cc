@@ -37,10 +37,6 @@ void ImGuiHelp::showMenu(MSXMotherBoard* /*motherBoard*/)
 		ImGui::MenuItem("About openMSX", nullptr, &showAboutOpenMSX);
 		ImGui::MenuItem("About Dear ImGui", nullptr, &showAboutImGui);
 	});
-
-	if (showDemoWindow) {
-		ImGui::ShowDemoWindow(&showDemoWindow);
-	}
 }
 
 void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
@@ -51,6 +47,9 @@ void ImGuiHelp::paint(MSXMotherBoard* /*motherBoard*/)
 		im::Window("Dear ImGui User Guide", &showImGuiUserGuide, [&]{
 			ImGui::ShowUserGuide();
 		});
+	}
+	if (showDemoWindow) {
+		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 }
 
