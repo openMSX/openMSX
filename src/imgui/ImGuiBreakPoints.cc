@@ -1,6 +1,7 @@
 #include "ImGuiBreakPoints.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiUtils.hh"
 
@@ -724,6 +725,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			im::Font(manager.fontMono, [&]{
 				addrChanged |= ImGui::InputText("##addr", &addr);
 			});
+
+			auto breakpointsNameMenu = strCat("breakpoint-manager##", item.addr.value_or(0));
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				ImGui::OpenPopup(breakpointsNameMenu.c_str());
+			}
+			im::Popup(breakpointsNameMenu.c_str(), [&] { drawBreakpointContext(item); });
+
 			addrToolTip();
 			if (ImGui::IsItemActive()) selectedRow = row;
 		}
@@ -770,6 +778,12 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 	}
 	if (needSync) {
 		syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
+	}
+}
+void ImGuiBreakPoints::drawBreakpointContext(const GuiItem &item)
+{
+	if (ImGui::MenuItem("Show in Dissassembly", nullptr, nullptr, item.addr.has_value())) {
+		manager.debugger->setGotoTarget(item.addr.value());
 	}
 }
 

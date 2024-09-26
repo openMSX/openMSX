@@ -75,6 +75,7 @@ private:
 	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item);
 	bool editRange(std::string& begin, std::string& end);
 	bool editCondition(ParsedSlotCond& slot);
+	void drawBreakpointContext(const GuiItem &item);
 
 	[[nodiscard]] auto& getItems(BreakPoint*) { return guiBps; }
 	[[nodiscard]] auto& getItems(WatchPoint*) { return guiWps; }
