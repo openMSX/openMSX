@@ -1487,6 +1487,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 					manager.executeDelayed(makeTclList("cassetteplayer", "setpos", *newPos));
 				}
 			}
+			simpleToolTip("Indicates the current position of the tape, but can be edited to change the position manual (like fast forward)");
 
 			ImGui::SameLine();
 			ImGui::Text("/ %s", format(length).c_str());
