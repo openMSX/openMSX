@@ -1441,7 +1441,8 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 					current);
 			}
 
-			ImGui::SameLine();
+			const auto& style = ImGui::GetStyle();
+			ImGui::SameLine(0.0f, 3.0f * style.ItemSpacing.x);
 			auto getFloat = [&](std::string_view subCmd) {
 				auto r = manager.execute(makeTclList("cassetteplayer", subCmd)).value_or(TclObject(0.0));
 				return r.getOptionalFloat().value_or(0.0f);
@@ -1459,7 +1460,36 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 				os << std::setw(2) << s;
 				return os.str();
 			};
-			ImGui::Text("%s / %s", format(pos).c_str(), format(length).c_str());
+			auto parse = [](std::string_view str) -> std::optional<unsigned> {
+				auto [head, seconds] = StringOp::splitOnLast(str, ':');
+				auto s = StringOp::stringTo<unsigned>(seconds);
+				if (!s) return {};
+				unsigned result = *s;
+
+				if (!head.empty()) {
+					auto [hours, minutes] = StringOp::splitOnLast(head, ':');
+					auto m = StringOp::stringTo<unsigned>(minutes);
+					if (!m) return {};
+					result += *m * 60;
+
+					if (!hours.empty()) {
+						auto h = StringOp::stringTo<unsigned>(hours);
+						if (!h) return {};
+						result += *h * 60 * 60;
+					}
+				}
+				return result;
+			};
+			auto posStr = format(pos);
+			ImGui::SetNextItemWidth(ImGui::CalcTextSize(std::string_view(posStr)).x + 2.0f * style.FramePadding.x);
+			if (ImGui::InputText("##pos", &posStr, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				if (auto newPos = parse(posStr)) {
+					manager.executeDelayed(makeTclList("cassetteplayer", "setpos", *newPos));
+				}
+			}
+
+			ImGui::SameLine();
+			ImGui::Text("/ %s", format(length).c_str());
 
 			const auto& reactor = manager.getReactor();
 			const auto& controller = reactor.getMotherBoard()->getMSXCommandController();
