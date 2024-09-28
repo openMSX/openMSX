@@ -87,6 +87,7 @@ private:
 	  * anyway.)
 	  */
 	void rewind(EmuTime::param time);
+	void wind(EmuTime::param time);
 
 	/** Enable or disable motor control.
 	 */
@@ -106,6 +107,10 @@ private:
 	/** Returns the position of the tape, in seconds from the
 	  * beginning of the tape. */
 	double getTapePos(EmuTime::param time);
+
+	/** Set the position of the tape, in seconds from the
+	  * beginning of the tape. Clipped to [0, tape-length]. */
+	void setTapePos(EmuTime::param time, double newPos);
 
 	/** Returns the length of the tape in seconds.
 	  * When no tape is inserted, this returns 0. While recording this

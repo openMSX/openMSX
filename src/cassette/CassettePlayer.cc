@@ -234,6 +234,15 @@ double CassettePlayer::getTapePos(EmuTime::param time)
 	}
 }
 
+void CassettePlayer::setTapePos(EmuTime::param time, double newPos)
+{
+	assert(getState() != RECORD);
+	sync(time);
+	auto pos = std::clamp(newPos, 0.0, getTapeLength(time));
+	tapePos = EmuTime::zero() + EmuDuration(pos);
+	wind(time);
+}
+
 double CassettePlayer::getTapeLength(EmuTime::param time)
 {
 	if (playImage) {
@@ -401,7 +410,11 @@ void CassettePlayer::rewind(EmuTime::param time)
 	assert(getState() != RECORD);
 	tapePos = EmuTime::zero();
 	audioPos = 0;
+	wind(time);
+}
 
+void CassettePlayer::wind(EmuTime::param time)
+{
 	if (getImageName().empty()) {
 		// no image inserted, do nothing
 		assert(getState() == STOP);
@@ -654,6 +667,19 @@ void CassettePlayer::TapeCommand::execute(
 	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	auto& cassettePlayer = OUTER(CassettePlayer, tapeCommand);
+
+	auto stopRecording = [&] {
+		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
+			try {
+				cassettePlayer.playTape(cassettePlayer.getImageName(), time);
+				return true;
+			} catch (MSXException& e) {
+				throw CommandException(std::move(e).getMessage());
+			}
+		}
+		return false; // was not recording
+	};
+
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
@@ -692,6 +718,10 @@ void CassettePlayer::TapeCommand::execute(
 			throw SyntaxError();
 		}
 
+	} else if (tokens[1] == "setpos" && tokens.size() == 3) {
+		stopRecording();
+		cassettePlayer.setTapePos(time, tokens[2].getDouble(getInterpreter()));
+
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
 
@@ -703,14 +733,8 @@ void CassettePlayer::TapeCommand::execute(
 			result = "TODO: implement this... (sorry)";
 
 	} else if (tokens[1] == "play") {
-		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
-			try {
-				result = "Play mode set, rewinding tape.";
-				cassettePlayer.playTape(
-					cassettePlayer.getImageName(), time);
-			} catch (MSXException& e) {
-				throw CommandException(std::move(e).getMessage());
-			}
+		if (stopRecording()) {
+			result = "Play mode set, rewinding tape.";
 		} else if (cassettePlayer.getState() == CassettePlayer::STOP) {
 			throw CommandException("No tape inserted or tape at end!");
 		} else {
@@ -723,16 +747,7 @@ void CassettePlayer::TapeCommand::execute(
 		cassettePlayer.removeTape(time);
 
 	} else if (tokens[1] == "rewind") {
-		string r;
-		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
-			try {
-				r = "First stopping recording... ";
-				cassettePlayer.playTape(
-					cassettePlayer.getImageName(), time);
-			} catch (MSXException& e) {
-				throw CommandException(std::move(e).getMessage());
-			}
-		}
+		string r = stopRecording() ? "First stopping recording... " : "";
 		cassettePlayer.rewind(time);
 		r += "Tape rewound";
 		result = r;
@@ -805,6 +820,10 @@ string CassettePlayer::TapeCommand::help(std::span<const TclObject> tokens) cons
 			helpText =
 			    "Return the position of the tape, in seconds from "
 			    "the beginning of the tape.";
+		} else if (tokens[1] == "setpos") {
+			helpText =
+			    "Wind the tape to the given position, in seconds from "
+			    "the beginning of the tape.";
 		} else if (tokens[1] == "getlength") {
 			helpText =
 			    "Return the length of the tape in seconds.";
@@ -827,6 +846,8 @@ string CassettePlayer::TapeCommand::help(std::span<const TclObject> tokens) cons
 		    ": insert (a different) tape file\n"
 		    "cassetteplayer getpos            "
 		    ": query the position of the tape\n"
+		    "cassetteplayer setpos <new-pos>  "
+		    ": wind the tape to the given position\n"
 		    "cassetteplayer getlength         "
 		    ": query the total length of the tape\n"
 		    "cassetteplayer <filename>        "
@@ -841,7 +862,7 @@ void CassettePlayer::TapeCommand::tabCompletion(std::vector<string>& tokens) con
 	if (tokens.size() == 2) {
 		static constexpr std::array cmds = {
 			"eject"sv, "rewind"sv, "motorcontrol"sv, "insert"sv, "new"sv,
-			"play"sv, "getpos"sv, "getlength"sv,
+			"play"sv, "getpos"sv, "setpos"sv, "getlength"sv,
 			//"record"sv,
 		};
 		completeFileName(tokens, userFileContext(), cmds);
