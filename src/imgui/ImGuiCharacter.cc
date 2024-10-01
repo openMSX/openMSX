@@ -67,7 +67,7 @@ void ImGuiCharacter::initHexDigits()
 void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
-	ImGui::SetNextWindowSize({686, 886}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({692, 886}, ImGuiCond_FirstUseEver);
 	im::Window("Tile viewer", &show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
@@ -364,10 +364,33 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			initHexDigits();
 		}
 
+		auto printPatternNr = [](unsigned pat) {
+			ImGui::StrCat("Pattern: ", pat, " (0x", hex_string<3>(pat), ')');
+		};
+		auto printAddressName = [](std::string_view name) {
+			ImGui::StrCat(name, " address:");
+		};
+		auto printAddress = [&](std::string_view name, unsigned address) {
+			printAddressName(name);
+			ImGui::StrCat("  0x", hex_string<5>(address));
+		};
+		auto printAddressRange8 = [&](std::string_view name, unsigned address) {
+			printAddressName(name);
+			ImGui::StrCat("  0x", hex_string<5>(address), "-0x", hex_string<5>(address + 7));
+		};
+		auto printPatternColorAddress = [&](unsigned pattern) {
+			printAddressRange8("Pattern", patTable.getAddress(8 * pattern));
+			if (mode == one_of(SCR1, SCR2, SCR4)) {
+				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
+			}
+		};
+
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto size = gl::vec2(patternDisplaySize) * zm;
-			im::Child("##pattern", {0, size.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			auto textLines = (mode == TEXT40) ? 3.0f : 5.0f;
+			auto previewHeight = zoomCharSize.y + textLines * ImGui::GetTextLineHeightWithSpacing();
+			im::Child("##pattern", {0, std::max(size.y, previewHeight)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(patternTex.getImGui(), size);
@@ -376,7 +399,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						ImGui::StrCat("Pattern: ", gridPos.x + 32 * gridPos.y);
+						auto pat = gridPos.x + 32 * gridPos.y;
+						printPatternNr(pat);
 						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
 						auto uv2 = uv1 + recipPatTexChars;
 						auto pos2 = ImGui::GetCursorPos();
@@ -386,6 +410,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							ImGui::Image(gridTex.getImGui(),
 								zoomCharSize, {}, charSize);
 						}
+						printPatternColorAddress(pat);
 					} else {
 						ImGui::Dummy(zoomCharSize);
 					}
@@ -483,7 +508,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
 						ImGui::StrCat("Column: ", gridPos.x, " Row: ", gridPos.y);
 						auto pattern = getPattern(gridPos.x, gridPos.y);
-						ImGui::StrCat("Pattern: ", pattern);
+						printPatternNr(pattern);
 						auto [uv1, uv2] = getPatternUV(pattern);
 						auto pos2 = ImGui::GetCursorPos();
 						ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
@@ -491,6 +516,12 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							ImGui::SetCursorPos(pos2);
 							ImGui::Image(gridTex.getImGui(),
 								zoomCharSize, {}, charSize);
+						}
+						auto nameIndex = columns * gridPos.y + gridPos.x;
+						printAddress("Name", namTable.getAddress(nameIndex));
+						printPatternColorAddress(pattern);
+						if (mode == TEXT80) {
+							printAddress("Color", colTable.getAddress(nameIndex / 8));
 						}
 					} else {
 						gl::vec2 textSize = ImGui::CalcTextSize("Column: 31 Row: 23"sv);

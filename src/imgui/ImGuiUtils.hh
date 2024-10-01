@@ -270,8 +270,11 @@ public:
 		indexMask = ~0u << bits;
 	}
 
+	[[nodiscard]] auto getAddress(unsigned index) const {
+		return registerMask & (indexMask | index);
+	}
 	[[nodiscard]] uint8_t operator[](unsigned index) const {
-		auto addr = registerMask & (indexMask | index);
+		auto addr = getAddress(index);
 		if (planar) {
 			addr = ((addr << 16) | (addr >> 1)) & 0x1'FFFF;
 		}
