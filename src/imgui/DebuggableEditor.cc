@@ -114,8 +114,8 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 
 [[nodiscard]] static unsigned DataTypeGetSize(ImGuiDataType dataType)
 {
-	std::array<unsigned, ImGuiDataType_COUNT - 2> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
-	assert(dataType >= 0 && dataType < (ImGuiDataType_COUNT - 2));
+	std::array<unsigned, 8> sizes = { 1, 1, 2, 2, 4, 4, 8, 8 };
+	assert(dataType >= 0 && dataType < 8);
 	return sizes[dataType];
 }
 
@@ -566,10 +566,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 [[nodiscard]] static const char* DataTypeGetDesc(ImGuiDataType dataType)
 {
-	std::array<const char*, ImGuiDataType_COUNT - 2> desc = {
+	std::array<const char*, 8> desc = {
 		"Int8", "Uint8", "Int16", "Uint16", "Int32", "Uint32", "Int64", "Uint64"
 	};
-	assert(dataType >= 0 && dataType < (ImGuiDataType_COUNT - 2));
+	assert(dataType >= 0 && dataType < 8);
 	return desc[dataType];
 }
 
@@ -789,7 +789,7 @@ void DebuggableEditor::drawPreviewLine(const Sizes& s, Debuggable& debuggable, u
 	ImGui::SameLine();
 	ImGui::SetNextItemWidth((s.glyphWidth * 10.0f) + style.FramePadding.x * 2.0f + style.ItemInnerSpacing.x);
 	if (ImGui::BeginCombo("##combo_type", DataTypeGetDesc(previewDataType), ImGuiComboFlags_HeightLargest)) {
-		for (ImGuiDataType n = 0; n < (ImGuiDataType_COUNT - 2); ++n) {
+		for (ImGuiDataType n = 0; n < 8; ++n) {
 			if (ImGui::Selectable(DataTypeGetDesc(n), previewDataType == n)) {
 				previewDataType = n;
 			}
