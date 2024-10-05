@@ -168,7 +168,7 @@ uint8_t JoyHandle::read(EmuTime::param time)
 			((analogValue < 0) && ((analogValue == -100) || (cycle == 1))) ? JOY_LEFT
 		  : ((analogValue > 0) && ((analogValue ==  100) || (cycle == 1))) ? JOY_RIGHT
 		  : 0;
-	return status | wheelStatus;
+	return status & ~wheelStatus;
 }
 
 void JoyHandle::write(uint8_t /*value*/, EmuTime::param /*time*/)
@@ -206,26 +206,9 @@ void JoyHandle::signalMSXEvent(const Event& event,
 
 	for (int i = 6; i < 8; i++) {
 		for (const auto& binding : bindings[i]) {
-			std::visit(overloaded{
-				[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) {
-					if (bind.getJoystick() != e.getJoystick()) return;
-					if (bind.getAxis() != e.getAxis()) return;
-					int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
-					int threshold = (deadZone * 32768) / 100; // 0..32768
-					int halfwayZone = (deadZone + 100) / 2; // percentage 0..100 halfway between deadZone and 100
-					int halfwayThreshold = (halfwayZone * 32768) / 100; // 0..32768
-					if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
-						analogValue = e.getValue() > halfwayThreshold ? 100
-									: e.getValue() > threshold        ?  50
-																	  :   0;
-					} else {
-						analogValue = e.getValue() < -halfwayThreshold ? -100
-									: e.getValue() < -threshold        ?  -50
-																	   :    0;
-					}
-				},
-				[](const auto&, const auto&) { /*ignore*/ }
-			}, binding, event);
+			if (auto value = matchAnalog(binding, event, getJoyDeadZone)) {
+				analogValue = *value;
+			}
 		}
 	}
 
@@ -235,6 +218,36 @@ void JoyHandle::signalMSXEvent(const Event& event,
 		stateChangeDistributor.distributeNew<JoyHandleState>(
 			time, id, press, release);
 	}
+}
+
+std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& event,
+                                  function_ref<int(JoystickId)> getJoyDeadZone)
+{
+	return std::visit(overloaded{
+		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<int8_t> {
+			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
+			if (bind.getAxis() != e.getAxis()) return std::nullopt;
+			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
+			int threshold = (deadZone * 32768) / 100; // 0..32768
+			int halfwayZone = 100 - deadZone; // percentage 0..100
+			int halfwayThreshold = (halfwayZone * 32768) / 100; // 0..32768
+			if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
+				if (e.getValue() < 0) return std::nullopt;
+				return e.getValue() >  halfwayThreshold ? 100
+					 : e.getValue() >  threshold        ?  50
+					 									:   0;
+			} else {
+				if (e.getValue() > 0) return std::nullopt;
+				return e.getValue() < -halfwayThreshold ? -100
+					 : e.getValue() < -threshold        ?  -50
+					 									:    0;
+			}
+		},
+
+		[](const auto& /*bind*/, const auto& /*event*/) -> std::optional<int8_t> {
+			return std::nullopt;
+		}
+	}, binding, event);
 }
 
 // StateChangeListener

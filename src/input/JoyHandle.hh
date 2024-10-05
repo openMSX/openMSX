@@ -75,6 +75,9 @@ private:
 	int8_t analogValue = 0;
 };
 
+[[nodiscard]] std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& event,
+												function_ref<int(JoystickId)> getJoyDeadZone);
+
 } // namespace openmsx
 
 #endif
