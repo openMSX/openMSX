@@ -38,7 +38,6 @@
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
 #include "CommandException.hh"
-#include "EventDistributor.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
 #include "TclObject.hh"
@@ -96,8 +95,6 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
 
-	motherBoard.getReactor().getEventDistributor().registerEventListener(
-		EventType::BOOT, *this);
 	motherBoard.registerMediaInfo(getCassettePlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getCassettePlayerName(), "add");
 
@@ -110,8 +107,6 @@ CassettePlayer::~CassettePlayer()
 	if (auto* c = getConnector()) {
 		c->unplug(getCurrentTime());
 	}
-	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
-		EventType::BOOT, *this);
 	motherBoard.unregisterMediaInfo(*this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getCassettePlayerName(), "remove");
 }
@@ -401,7 +396,6 @@ void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 	setState(STOP, getImageName(), time); // keep current image
 	insertTape(filename, time);
 	rewind(time); // sets PLAY mode
-	autoRun();
 }
 
 void CassettePlayer::rewind(EmuTime::param time)
@@ -411,6 +405,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 	tapePos = EmuTime::zero();
 	audioPos = 0;
 	wind(time);
+	autoRun();
 }
 
 void CassettePlayer::wind(EmuTime::param time)
@@ -610,20 +605,6 @@ void CassettePlayer::generateChannels(std::span<float*> buffers, unsigned num)
 float CassettePlayer::getAmplificationFactorImpl() const
 {
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
-}
-
-bool CassettePlayer::signalEvent(const Event& event)
-{
-	if (getType(event) == EventType::BOOT && !getImageName().empty()) {
-		// Reinsert tape to make sure everything is reset.
-		try {
-			playTape(getImageName(), getCurrentTime());
-		} catch (MSXException& e) {
-			motherBoard.getMSXCliComm().printWarning(
-				"Failed to insert tape: ", e.getMessage());
-		}
-	}
-	return false;
 }
 
 void CassettePlayer::execEndOfTape(EmuTime::param time)
