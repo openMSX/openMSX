@@ -1,7 +1,6 @@
 #ifndef CASSETTEPLAYER_HH
 #define CASSETTEPLAYER_HH
 
-#include "EventListener.hh"
 #include "CassetteDevice.hh"
 #include "ResampledSoundDevice.hh"
 #include "MSXMotherBoard.hh"
@@ -26,7 +25,6 @@ class Wav8Writer;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
                            , public MediaInfoProvider
-                           , private EventListener
 {
 public:
 	static constexpr std::string_view TAPE_RECORDING_DIR = "taperecordings";
@@ -125,9 +123,6 @@ private:
 	void fillBuf(size_t length, double x);
 	void flushOutput();
 	void autoRun();
-
-	// EventListener
-	bool signalEvent(const Event& event) override;
 
 	// Schedulable
 	struct SyncEndOfTape final : Schedulable {
