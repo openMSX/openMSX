@@ -314,7 +314,7 @@ template<typename T> CPUCore<T>::CPUCore(
 	, freqLocked(
 		motherboard.getCommandController(), tmpStrCat(name, "_freq_locked"),
 	        "real (locked) or custom (unlocked) CPU frequency",
-	        true)
+	        true, Setting::Save::NO)
 	, freqValue(
 		motherboard.getCommandController(), tmpStrCat(name, "_freq"),
 		"custom CPU frequency (only valid when unlocked)",
