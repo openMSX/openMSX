@@ -7,11 +7,11 @@ namespace openmsx {
 SpeedManager::SpeedManager(CommandController& commandController)
 	: speedSetting(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 10000, Setting::Save::NO)
+	       100.0, 0.01, 10000.0, Setting::Save::NO)
 	, fastforwardSpeedSetting(commandController, "fastforwardspeed",
 	       "controls the emulation speed in fastforward mode: "
-		   "higher is faster, 100 is normal",
-	       2000, 1, 10000)
+		   "higher is faster, 100 is normal speed",
+	       2000.0, 0.01, 10000.0)
 	, fastforwardSetting(commandController, "fastforward",
 	       "select emulation speed:\n"
 	       " on -> fastforward speed ('fastforwardspeed' setting)\n"
@@ -33,7 +33,7 @@ SpeedManager::~SpeedManager()
 void SpeedManager::updateSpeed()
 {
 	speed = (fastforwardSetting.getBoolean() ? fastforwardSpeedSetting : speedSetting)
-	        .getInt() * (1.0 / 100.0);
+	        .getFloat() * (1.0 / 100.0);
 	notify();
 }
 

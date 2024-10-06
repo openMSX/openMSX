@@ -5,9 +5,10 @@ namespace openmsx {
 FloatSetting::FloatSetting(CommandController& commandController_,
                            std::string_view name_, static_string_view description_,
                            double initialValue,
-                           double minValue_, double maxValue_)
+                           double minValue_, double maxValue_,
+                           Save save_)
 	: Setting(commandController_, name_, description_,
-	          TclObject(initialValue), Save::YES)
+	          TclObject(initialValue), save_)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
