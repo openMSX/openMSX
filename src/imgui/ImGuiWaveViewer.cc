@@ -466,7 +466,7 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 			im::Table("##table", 5, flags, [&]{ // note: use the same id for all tables
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 				ImGui::TableSetupColumn("ch.", ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed);
-				simpleToolTip("channel number");
+				// TODO: make this work here, or add an alternative: simpleToolTip("channel number");
 				ImGui::TableSetupColumn("mute", ImGuiTableColumnFlags_DefaultHide | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed);
 				ImGui::TableSetupColumn("VU-meter", 0, 1.0f);
 				ImGui::TableSetupColumn("Waveform", 0, 2.0f);
