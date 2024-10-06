@@ -262,7 +262,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/	auto id = ImGui::GetID("##Input");
 		/**/	if (const auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
 		/**/		// adjust for scroll
-		/**/		drawPos.x -= state->ScrollX;
+		/**/		drawPos.x -= state->Scroll.x;
 		/**/		// redraw cursor (it was drawn transparent before)
 		/**/		bool cursorIsVisible = (state->CursorAnim <= 0.0f) || ImFmod(state->CursorAnim, 1.20f) <= 0.80f;
 		/**/		if (cursorIsVisible) {

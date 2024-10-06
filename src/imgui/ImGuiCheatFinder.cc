@@ -27,7 +27,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 		auto height = 12.5f * ImGui::GetTextLineHeightWithSpacing();
 		auto sWidth = 2.0f * (style.WindowBorderSize + style.WindowPadding.x)
 		              + style.IndentSpacing + 6 * tSize + 5 * bSpacing;
-		im::Child("search", {sWidth, height}, ImGuiChildFlags_Border, [&]{
+		im::Child("search", {sWidth, height}, ImGuiChildFlags_Borders, [&]{
 			ImGui::TextUnformatted("Search"sv);
 			HelpMarker("OpenMSX cheat finder. See here for a quick tutorial:\n"
 			           "  openMSX tutorial: Working with the Cheat Finder\n"
@@ -70,7 +70,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 		});
 
 		ImGui::SameLine();
-		im::Child("result", {0.0f, height}, ImGuiChildFlags_Border, [&]{
+		im::Child("result", {0.0f, height}, ImGuiChildFlags_Borders, [&]{
 			auto num = searchResults.size();
 			if (num == 0) {
 				ImGui::TextUnformatted("Results: no remaining locations"sv);
