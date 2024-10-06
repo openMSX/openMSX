@@ -54,8 +54,6 @@ private:
 	void signalStateChange(const StateChange& event) override;
 	void stopReplay(EmuTime::param time) noexcept override;
 
-	void checkTime(EmuTime::param time);
-
 private:
 	CommandController& commandController;
 	MSXEventDistributor& eventDistributor;
@@ -70,8 +68,6 @@ private:
 	const uint8_t id;
 	uint8_t status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	                 JOY_BUTTONA | JOY_BUTTONB;
-	EmuTime lastTime = EmuTime::zero();
-	uint8_t cycle = 0; // 0-1
 	int8_t analogValue = 0;
 };
 

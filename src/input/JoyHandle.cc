@@ -148,8 +148,6 @@ void JoyHandle::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 
-	lastTime = EmuTime::zero();
-	cycle = 0;
 	analogValue = 0;
 }
 
@@ -163,7 +161,9 @@ void JoyHandle::unplugHelper(EmuTime::param /*time*/)
 // MSXJoystickDevice
 uint8_t JoyHandle::read(EmuTime::param time)
 {
-	checkTime(time);
+	Clock<2> clock(EmuTime::zero()); // ticks at 2Hz
+	uint8_t cycle = clock.getTicksTill(time) & 1;
+
 	const uint8_t wheelStatus =
 			((analogValue < 0) && ((analogValue == -100) || (cycle == 1))) ? JOY_LEFT
 		  : ((analogValue > 0) && ((analogValue ==  100) || (cycle == 1))) ? JOY_RIGHT
@@ -173,15 +173,6 @@ uint8_t JoyHandle::read(EmuTime::param time)
 
 void JoyHandle::write(uint8_t /*value*/, EmuTime::param /*time*/)
 {
-}
-
-void JoyHandle::checkTime(EmuTime::param time)
-{
-	if ((time - lastTime) > EmuDuration::msec(500)) {
-		// longer than 500ms since last read -> change cycle
-		lastTime = time;
-		cycle = 1 - cycle;
-	}
 }
 
 
@@ -229,7 +220,13 @@ std::optional<int8_t> matchAnalog(const BooleanInput& binding, const Event& even
 			if (bind.getAxis() != e.getAxis()) return std::nullopt;
 			int deadZone = getJoyDeadZone(bind.getJoystick()); // percentage 0..100
 			int threshold = (deadZone * 32768) / 100; // 0..32768
-			int halfwayZone = 100 - deadZone; // percentage 0..100
+			/*
+			 * Modern gamepad saturate analog values halfway already,
+			 * so let's use a minimal upper dead zone (99%) for now
+			 * instead of mirroring the lower dead zone percentage
+			int halfwayZone = (100 - deadZone); // percentage 0..100
+			 */
+			int halfwayZone = 99;
 			int halfwayThreshold = (halfwayZone * 32768) / 100; // 0..32768
 			if (bind.getDirection() == BooleanJoystickAxis::Direction::POS) {
 				if (e.getValue() < 0) return std::nullopt;
@@ -278,8 +275,6 @@ template<typename Archive>
 void JoyHandle::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("status",      status,
-				 "lastTime",    lastTime,
-				 "cycle",       cycle,
 				 "analogValue", analogValue);
 	if constexpr (Archive::IS_LOADER) {
 		if (isPluggedIn()) {
