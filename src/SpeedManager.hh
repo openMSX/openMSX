@@ -3,7 +3,7 @@
 
 #include "Subject.hh"
 #include "BooleanSetting.hh"
-#include "IntegerSetting.hh"
+#include "FloatSetting.hh"
 
 namespace openmsx {
 
@@ -36,8 +36,8 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 private:
-	IntegerSetting speedSetting;
-	IntegerSetting fastforwardSpeedSetting;
+	FloatSetting speedSetting;
+	FloatSetting fastforwardSpeedSetting;
 	BooleanSetting fastforwardSetting;
 	double speed = 1.0;
 };

@@ -12,7 +12,8 @@ class FloatSetting final : public Setting
 public:
 	FloatSetting(CommandController& commandController,
 	             std::string_view name, static_string_view description,
-	             double initialValue, double minValue, double maxValue);
+	             double initialValue, double minValue, double maxValue,
+	             Save save = Save::YES);
 
 	[[nodiscard]] std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;

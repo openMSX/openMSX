@@ -234,10 +234,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 				im::Indent([&]{
 					im::Disabled(fastForward != 0, [&]{
-						SliderInt("Speed (%)", speedManager.getSpeedSetting());
+						SliderFloat("Speed (%)", speedManager.getSpeedSetting(), "%.1f", ImGuiSliderFlags_Logarithmic);
 					});
 					im::Disabled(fastForward != 1, [&]{
-						SliderInt("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting());
+						SliderFloat("Fast forward speed (%)", speedManager.getFastForwardSpeedSetting(), "%.1f", ImGuiSliderFlags_Logarithmic);
 					});
 				});
 				Checkbox(hotKey, "Go full speed when loading", globalSettings.getThrottleManager().getFullSpeedLoadingSetting());
