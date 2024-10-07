@@ -44,7 +44,7 @@ void paintSCC(const SCC& scc) {
 			};
 			const auto scale = 2.0f;
 			auto size = scale * gl::vec2{32.0f, 64.0f} + 2.0f * gl::vec2(ImGui::GetStyle().FramePadding);
-			ImGui::PlotHistogram("",
+			ImGui::PlotHistogram(tmpStrCat("##sccWave", channelNr).c_str(),
 				getFloatData,
 				const_cast<int8_t*>(channelWaveData.data()),
 				channelWaveData.size(),
