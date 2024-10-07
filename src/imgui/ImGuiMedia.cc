@@ -6,7 +6,9 @@
 #include "ImGuiUtils.hh"
 
 #include "CartridgeSlotManager.hh"
+#include "CassettePlayer.hh"
 #include "CassettePlayerCLI.hh"
+#include "CassettePort.hh"
 #include "DiskImageCLI.hh"
 #include "DiskImageUtils.hh"
 #include "DiskManipulator.hh"
@@ -587,11 +589,11 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// cassetteplayer
 		elementInGroup();
-		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
+		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
 			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
 			simpleToolTip([&]() -> std::string {
-				auto tip = cmdResult->getListIndexUnchecked(1).getString();
-				return !tip.empty() ? std::string(tip) : "Empty";
+				auto current = player->getImageName().getResolved();
+				return current.empty() ? "Empty" : current;
 			});
 		} else {
 			ImGui::TextDisabled("No cassette port present");
@@ -714,8 +716,8 @@ void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
 	}
 
 	if (cassetteMediaInfo.show) {
-		if (auto cmdResult = manager.execute(TclObject("cassetteplayer"))) {
-			cassetteMenu(*cmdResult);
+		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
+			cassetteMenu(*player);
 		}
 	}
 }
@@ -1386,14 +1388,14 @@ static void RenderRecord(gl::vec2 center, ImDrawList* drawList)
 }
 
 
-void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
+void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 {
 	ImGui::SetNextWindowSize(gl::vec2{29, 20} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	auto& info = cassetteMediaInfo;
 	auto& group = info.group;
 	im::Window("Tape Deck", &info.show, [&]{
 		ImGui::TextUnformatted("Current tape"sv);
-		auto current = cmdResult.getListIndexUnchecked(1).getString();
+		auto current = cassettePlayer.getImageName().getResolved();
 		im::Indent([&]{
 			if (current.empty()) {
 				ImGui::TextUnformatted("No tape inserted"sv);
@@ -1412,9 +1414,9 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 
 		ImGui::TextUnformatted("Controls"sv);
 		im::Indent([&]{
-			auto status = cmdResult.getListIndexUnchecked(2).getString();
+			auto status = cassettePlayer.getState();
 			auto size = ImGui::GetFrameHeightWithSpacing();
-			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, status == "play", RenderPlay)) {
+			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, status == CassettePlayer::State::PLAY, RenderPlay)) {
 				manager.executeDelayed(makeTclList("cassetteplayer", "play"));
 			}
 			ImGui::SameLine();
@@ -1422,11 +1424,11 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 				manager.executeDelayed(makeTclList("cassetteplayer", "rewind"));
 			}
 			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, status == "stop", RenderStop)) {
+			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, status == CassettePlayer::State::STOP, RenderStop)) {
 				// nothing, this button only exists to indicate stop-state
 			}
 			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == "record", RenderRecord)) {
+			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == CassettePlayer::State::RECORD, RenderRecord)) {
 				manager.openFile->selectNewFile(
 					"Select new wav file for record",
 					"Tape images (*.wav){.wav}",
@@ -1443,12 +1445,11 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 
 			const auto& style = ImGui::GetStyle();
 			ImGui::SameLine(0.0f, 3.0f * style.ItemSpacing.x);
-			auto getFloat = [&](std::string_view subCmd) {
-				auto r = manager.execute(makeTclList("cassetteplayer", subCmd)).value_or(TclObject(0.0));
-				return r.getOptionalFloat().value_or(0.0f);
-			};
-			auto length = getFloat("getlength");
-			auto pos = getFloat("getpos");
+			const auto& reactor = manager.getReactor();
+			const auto& motherBoard = reactor.getMotherBoard();
+			const auto now = motherBoard->getCurrentTime();
+			auto length = cassettePlayer.getTapeLength(now);
+			auto pos = cassettePlayer.getTapePos(now);
 			auto format = [](float time) {
 				int t = narrow_cast<int>(time); // truncated to seconds
 				int s = t % 60; t /= 60;
@@ -1492,8 +1493,7 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			ImGui::SameLine();
 			ImGui::Text("/ %s", format(length).c_str());
 
-			const auto& reactor = manager.getReactor();
-			const auto& controller = reactor.getMotherBoard()->getMSXCommandController();
+			const auto& controller = motherBoard->getMSXCommandController();
 			const auto& hotKey = reactor.getHotKey();
 			if (auto* autoRun = dynamic_cast<BooleanSetting*>(controller.findSetting("autoruncassettes"))) {
 				Checkbox(hotKey, "(try to) Auto Run", *autoRun);
@@ -1501,6 +1501,13 @@ void ImGuiMedia::cassetteMenu(const TclObject& cmdResult)
 			if (auto* mute = dynamic_cast<BooleanSetting*>(controller.findSetting("cassetteplayer_ch1_mute"))) {
 				Checkbox(hotKey, "Mute tape audio", *mute, [](const Setting&) { return std::string{}; });
 			}
+			bool enabled = cassettePlayer.isMotorControlEnabled();
+			bool changed = ImGui::Checkbox("Motor control enabled", &enabled);
+			if (changed) {
+				manager.execute(makeTclList("cassetteplayer", "motorcontrol", enabled ? "on" : "off"));
+			}
+			simpleToolTip("Enable or disable motor control. Disable in some rare cases where you don't want the motor of the player to be controlled by the MSX, e.g. for CD-Sequential.");
+
 		});
 		ImGui::Separator();
 

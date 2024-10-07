@@ -58,6 +58,11 @@ public:
 	*/
 	virtual void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) = 0;
 #endif
+
+	/**
+	* Get the cassette player (if available)
+	*/
+	virtual CassettePlayer* getCassettePlayer() = 0;
 };
 
 class CassettePort final : public CassettePortInterface, public Connector
@@ -72,6 +77,7 @@ public:
 	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
 	[[nodiscard]] bool lastOut() const override;
+	CassettePlayer* getCassettePlayer() override { return cassettePlayer; }
 
 	// Connector
 	[[nodiscard]] std::string_view getDescription() const override;
@@ -105,6 +111,7 @@ public:
 	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
 #endif
 	[[nodiscard]] bool lastOut() const override;
+	CassettePlayer* getCassettePlayer() override { return nullptr; }
 };
 
 } // namespace openmsx
