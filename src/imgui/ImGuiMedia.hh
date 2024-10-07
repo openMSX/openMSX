@@ -22,6 +22,7 @@
 
 namespace openmsx {
 
+class CassettePlayer;
 class HardwareConfig;
 class RomInfo;
 
@@ -129,7 +130,7 @@ private:
 	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);
 	void cartridgeMenu(int i);
-	void cassetteMenu(const TclObject& cmdResult);
+	void cassetteMenu(CassettePlayer& cassettePlayer);
 	void insertMedia(std::string_view mediaName, const MediaItem& item);
 
 	void printExtensionInfo(ExtensionInfo& info);
