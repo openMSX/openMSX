@@ -54,6 +54,10 @@ public:
 		return view().find(c, pos);
 	}
 
+	[[nodiscard]] constexpr auto find(std::string_view sv, size_type pos = 0) const {
+		return view().find(sv, pos);
+	}
+
 	[[nodiscard]] constexpr zstring_view substr(size_type pos) const {
 		assert(pos <= siz);
 		return {dat + pos, siz - pos};
