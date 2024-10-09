@@ -25,9 +25,9 @@ public:
 
 private:
 	GLScaler& fallback;
-	gl::Texture edgeTexture;
+	gl::Texture edgeTexture320, edgeTexture640;
 	std::array<gl::Texture, 3> offsetTexture;
-	gl::PixelBuffer<uint16_t> edgeBuffer;
+	gl::PixelBuffer<uint16_t> edgeBuffer320, edgeBuffer640;
 };
 
 } // namespace openmsx

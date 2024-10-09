@@ -63,9 +63,9 @@ template<typename EdgeOp>
 void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
                  std::span<Endian::L32> edges2, EdgeOp edgeOp)
 {
-	assert(curr.size() == 320);
-	assert(next.size() == 320);
-	assert(edges2.size() == 320 / 2);
+	assert(curr.size() % 320 == 0);
+	assert(next.size() % 320 == 0);
+	assert(edges2.size() % (320 / 2) == 0);
 	// Consider a grid of 3x3 pixels, numbered like this:
 	//    1 | 2 | 3
 	//   ---A---B---
@@ -112,7 +112,7 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	Pixel c8 = next[0];
 	if (edgeOp(c5, c8)) pattern |= 0x1800'0000; // edges: 9,D (right pixel)
 
-	for (auto xx : xrange((320 - 2) / 2)) {
+	for (auto xx : xrange((edges2.size() * 2 - 2) / 2)) {
 		pattern = (pattern >> (16 + 9)) & 0x001C;   // edges: 6,D,9 -> 4,7,C        (left pixel)
 		pattern |= (edges2[xx] << 3) & 0xC460'C460; // edges C,8,D,7,9 -> 1,2,3,A,B (left and right)
 

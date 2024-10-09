@@ -40,7 +40,7 @@ void GLRGBScaler::scaleImage(
 			src.setInterpolation(true);
 		} else {
 			// treat border as 256-pixel wide display area
-			srcWidth = 320;
+			srcWidth = 640;
 		}
 		auto yScaleF = narrow<float>(yScale);
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScaleF + 1.0f) / (2.0f * yScaleF));
