@@ -55,15 +55,28 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	enum State { PLAY, RECORD, STOP }; // public for serialization
+	enum class State { PLAY, RECORD, STOP };
+
+	// methods to query the status of the player
+	const Filename& getImageName() const { return casImage; }
+	[[nodiscard]] State getState() const { return state; }
+	[[nodiscard]] bool isMotorControlEnabled() const { return motorControl; }
+
+	/** Returns the position of the tape, in seconds from the
+	  * beginning of the tape. */
+	double getTapePos(EmuTime::param time);
+
+	/** Returns the length of the tape in seconds.
+	  * When no tape is inserted, this returns 0. While recording this
+	  * returns the current position (so while recording, tape length grows
+	  * continuously). */
+	double getTapeLength(EmuTime::param time);
 
 private:
-	[[nodiscard]] State getState() const { return state; }
 	[[nodiscard]] std::string getStateString() const;
 	void setState(State newState, const Filename& newImage,
 	              EmuTime::param time);
 	void setImageName(const Filename& newImage);
-	const Filename& getImageName() const { return casImage; }
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.
@@ -102,19 +115,9 @@ private:
 	  */
 	void updateLoadingState(EmuTime::param time);
 
-	/** Returns the position of the tape, in seconds from the
-	  * beginning of the tape. */
-	double getTapePos(EmuTime::param time);
-
 	/** Set the position of the tape, in seconds from the
 	  * beginning of the tape. Clipped to [0, tape-length]. */
 	void setTapePos(EmuTime::param time, double newPos);
-
-	/** Returns the length of the tape in seconds.
-	  * When no tape is inserted, this returns 0. While recording this
-	  * returns the current position (so while recording, tape length grows
-	  * continuously). */
-	double getTapeLength(EmuTime::param time);
 
 	void sync(EmuTime::param time);
 	void updateTapePosition(EmuDuration::param duration, EmuTime::param time);
@@ -183,7 +186,7 @@ private:
 	std::unique_ptr<CassetteImage> playImage;
 
 	size_t sampCnt = 0;
-	State state = STOP;
+	State state = State::STOP;
 	bool lastOutput = false;
 	bool motor = false, motorControl = true;
 	bool syncScheduled = false;
