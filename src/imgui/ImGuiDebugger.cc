@@ -272,11 +272,21 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 	im::Window("Debugger tool bar", &showControl, [&]{
 		checkShortcuts(cpuInterface, motherBoard);
 
-		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
-			const auto* font = ImGui::GetFont();
-			auto texId = font->ContainerAtlas->TexID;
+		gl::vec2 buttonSize; // max of all icon sizes
+		const auto* font = ImGui::GetFont();
+		auto texId = font->ContainerAtlas->TexID;
+		for (auto c : {
+			DEBUGGER_ICON_RUN, DEBUGGER_ICON_BREAK,
+			DEBUGGER_ICON_STEP_IN, DEBUGGER_ICON_STEP_OVER,
+			DEBUGGER_ICON_STEP_OUT, DEBUGGER_ICON_STEP_BACK,
+		}) {
 			const auto* g = font->FindGlyph(c);
-			bool result = ImGui::ImageButton(id, texId, {g->X1 - g->X0, g->Y1 - g->Y0}, {g->U0, g->V0}, {g->U1, g->V1});
+			buttonSize = max(buttonSize, gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0});
+		}
+
+		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
+			const auto* g = font->FindGlyph(c);
+			bool result = ImGui::ImageButton(id, texId, buttonSize, {g->U0, g->V0}, {g->U1, g->V1});
 			simpleToolTip([&]() -> std::string {
 				const auto& shortcuts = manager.getShortcuts();
 				const auto& shortcut = shortcuts.getShortcut(sid);
@@ -292,8 +302,8 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 		    ButtonGlyph("run", breakContinueIcon, DEBUGGER_BREAK_CONTINUE)) {
 			actionBreakContinue(cpuInterface);
 		}
-		ImGui::SameLine();
-		ImGui::SetCursorPosX(50.0f);
+		const auto& style = ImGui::GetStyle();
+		ImGui::SameLine(0.0f, 2.0f * style.ItemSpacing.x);
 
 		im::Disabled(!breaked, [&]{
 			if (ButtonGlyph("step-in", DEBUGGER_ICON_STEP_IN, DEBUGGER_STEP_IN)) {
