@@ -11,6 +11,7 @@
 #include "ImGuiUtils.hh"
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
+#include "imgui_internal.h"
 
 #include "CPURegs.hh"
 #include "Dasm.hh"
@@ -283,10 +284,16 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 			const auto* g = font->FindGlyph(c);
 			buttonSize = max(buttonSize, gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0});
 		}
+		// Create a reasonable minimum square button size.
+		buttonSize = max(buttonSize, gl::vec2(28, 28));
 
 		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
-			const auto* g = font->FindGlyph(c);
-			bool result = ImGui::ImageButton(id, texId, buttonSize, {g->U0, g->V0}, {g->U1, g->V1});
+			char glyphString[5];
+			ImTextCharToUtf8(glyphString, c);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 8));
+			ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
+			bool result = ImGui::Button(glyphString, buttonSize);
+			ImGui::PopStyleVar(2);
 			simpleToolTip([&]() -> std::string {
 				const auto& shortcuts = manager.getShortcuts();
 				const auto& shortcut = shortcuts.getShortcut(sid);
