@@ -63,9 +63,6 @@ template<typename EdgeOp>
 void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
                  std::span<Endian::L32> edges2, EdgeOp edgeOp)
 {
-	assert(curr.size() == 320);
-	assert(next.size() == 320);
-	assert(edges2.size() == 320 / 2);
 	// Consider a grid of 3x3 pixels, numbered like this:
 	//    1 | 2 | 3
 	//   ---A---B---
@@ -105,6 +102,10 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	// * 2 rows of input pixels: the middle and the lower pixel rows.
 	// * An edge-function (to distinguish 'hq' from 'hqlite').
 
+	auto size = curr.size();
+	assert(next.size() == size);
+	assert(2 * edges2.size() == size);
+
 	using Pixel = uint32_t;
 
 	uint32_t pattern = 0;
@@ -112,7 +113,8 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	Pixel c8 = next[0];
 	if (edgeOp(c5, c8)) pattern |= 0x1800'0000; // edges: 9,D (right pixel)
 
-	for (auto xx : xrange((320 - 2) / 2)) {
+	auto size2 = size / 2;
+	for (auto xx : xrange(size2 - 1)) {
 		pattern = (pattern >> (16 + 9)) & 0x001C;   // edges: 6,D,9 -> 4,7,C        (left pixel)
 		pattern |= (edges2[xx] << 3) & 0xC460'C460; // edges C,8,D,7,9 -> 1,2,3,A,B (left and right)
 
@@ -134,18 +136,18 @@ void calcEdgesGL(std::span<const uint32_t> curr, std::span<const uint32_t> next,
 	}
 
 	pattern = (pattern >> (16 + 9)) & 0x001C;    // edges: 6,D,9 -> 4,7,C         (left pixel)
-	pattern |= (edges2[159] << 3) & 0xC460'C460; // edges: C,8,D,7,9 -> 1,2,3,A,B (left and right)
+	pattern |= (edges2[size2 - 1] << 3) & 0xC460'C460; // edges: C,8,D,7,9 -> 1,2,3,A,B (left and right)
 
 	if (edgeOp(c5, c8)) pattern |= 0x0000'0080;  // edge: 8 (left)
-	Pixel c6 = curr[319];
+	Pixel c6 = curr[size - 1];
 	if (edgeOp(c6, c8)) pattern |= 0x0004'0800;  // edge: D (left), 7 (right)
 	if (edgeOp(c5, c6)) pattern |= 0x0010'2000;  // edge: 6 (left), 4 (right)
-	Pixel c9 = next[319];
+	Pixel c9 = next[size - 1];
 	if (edgeOp(c5, c9)) pattern |= 0x0008'1000;  // edge: 9 (left), C (right)
 
 	if (edgeOp(c6, c9)) pattern |= 0x1880'0000;  // edges:      8,9,D (right)
 
-	edges2[159] = pattern;
+	edges2[size2 - 1] = pattern;
 }
 
 } // namespace openmsx
