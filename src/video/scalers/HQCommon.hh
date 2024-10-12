@@ -10,25 +10,19 @@
 
 namespace openmsx {
 
-class EdgeHQ
+struct EdgeHQ
 {
-public:
-	EdgeHQ(unsigned shiftR_, unsigned shiftG_, unsigned shiftB_)
-		: shiftR(shiftR_), shiftG(shiftG_), shiftB(shiftB_)
-	{
-	}
-
 	[[nodiscard]] inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		if (c1 == c2) return false;
 
-		unsigned r1 = (c1 >> shiftR) & 0xFF;
-		unsigned g1 = (c1 >> shiftG) & 0xFF;
-		unsigned b1 = (c1 >> shiftB) & 0xFF;
+		unsigned r1 = (c1 >>  0) & 0xFF;
+		unsigned g1 = (c1 >>  8) & 0xFF;
+		unsigned b1 = (c1 >> 16) & 0xFF;
 
-		unsigned r2 = (c2 >> shiftR) & 0xFF;
-		unsigned g2 = (c2 >> shiftG) & 0xFF;
-		unsigned b2 = (c2 >> shiftB) & 0xFF;
+		unsigned r2 = (c2 >>  0) & 0xFF;
+		unsigned g2 = (c2 >>  8) & 0xFF;
+		unsigned b2 = (c2 >> 16) & 0xFF;
 
 		auto dr = narrow_cast<int>(r1 - r2);
 		auto dg = narrow_cast<int>(g1 - g2);
@@ -45,10 +39,6 @@ public:
 
 		return false;
 	}
-private:
-	const unsigned shiftR;
-	const unsigned shiftG;
-	const unsigned shiftB;
 };
 
 struct EdgeHQLite

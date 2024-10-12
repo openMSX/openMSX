@@ -128,7 +128,7 @@ void GLHQScaler::uploadBlock(
 	VLA_SSE_ALIGNED(Pixel, buf2, lineWidth);
 	auto curr = paintFrame.getLine(narrow<int>(srcStartY) - 1, buf1);
 	auto next = paintFrame.getLine(narrow<int>(srcStartY) + 0, buf2);
-	EdgeHQ edgeOp(0, 8, 16);
+	EdgeHQ edgeOp;
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer.bind();
