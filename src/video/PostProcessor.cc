@@ -506,7 +506,7 @@ void PostProcessor::uploadBlock(
 
 		textureData.tex.resize(narrow<GLsizei>(lineWidth),
 		                       narrow<GLsizei>(height * 2)); // *2 for interlace
-		textureData.pbo.setImage(lineWidth, height * 2);
+		textureData.pbo.allocate(lineWidth * height * 2);
 		textures.push_back(std::move(textureData));
 		it = end(textures) - 1;
 	}
@@ -518,11 +518,12 @@ void PostProcessor::uploadBlock(
 
 	// upload data
 	pbo.bind();
-	uint32_t* mapped = pbo.mapWrite();
-	for (auto y : xrange(srcStartY, srcEndY)) {
-		auto* dest = mapped + y * size_t(lineWidth);
-		auto line = paintFrame->getLine(narrow<int>(y), std::span{dest, lineWidth});
-		if (line.data() != dest) {
+	auto mapped = pbo.mapWrite();
+	auto numLines = srcEndY - srcStartY;
+	for (auto yy : xrange(numLines)) {
+		auto dest = mapped.subspan(yy * size_t(lineWidth), lineWidth);
+		auto line = paintFrame->getLine(narrow<int>(yy + srcStartY), dest);
+		if (line.data() != dest.data()) {
 			ranges::copy(line, dest);
 		}
 	}
@@ -536,15 +537,15 @@ void PostProcessor::uploadBlock(
 	}
 #endif
 	glTexSubImage2D(
-		GL_TEXTURE_2D,                      // target
-		0,                                  // level
-		0,                                  // offset x
-		narrow<GLint>(srcStartY),           // offset y
-		narrow<GLint>(lineWidth),           // width
-		narrow<GLint>(srcEndY - srcStartY), // height
-		GL_RGBA,                            // format
-		GL_UNSIGNED_BYTE,                   // type
-		pbo.getOffset(0, srcStartY));       // data
+		GL_TEXTURE_2D,            // target
+		0,                        // level
+		0,                        // offset x
+		narrow<GLint>(srcStartY), // offset y
+		narrow<GLint>(lineWidth), // width
+		narrow<GLint>(numLines),  // height
+		GL_RGBA,                  // format
+		GL_UNSIGNED_BYTE,         // type
+		mapped.data());           // data
 	pbo.unbind();
 
 	// possibly upload scaler specific data

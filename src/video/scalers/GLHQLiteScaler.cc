@@ -42,7 +42,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
 #endif
-	edgeBuffer.setImage(320, 240);
+	edgeBuffer.allocate(320 * 240);
 
 	const auto& context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -106,7 +106,8 @@ void GLHQLiteScaler::uploadBlock(
 {
 	if ((lineWidth != 320) || (srcEndY > 240)) return;
 
-	std::array<Endian::L32, 320 / 2> tmpBuf2; // 2 x uint16_t
+	std::array<Endian::L32, 320 / 2> tmpBufMax; // 2 x uint16_t
+	auto tmpBuf2 = subspan(tmpBufMax, 0, lineWidth / 2);
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
 	ranges::fill(tmpBuf2, 0);
@@ -119,28 +120,30 @@ void GLHQLiteScaler::uploadBlock(
 	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
 	edgeBuffer.bind();
-	if (auto* mapped = edgeBuffer.mapWrite()) {
-		for (auto y : xrange(srcStartY, srcEndY)) {
-			curr = next;
-			std::swap(buf1, buf2);
-			next = paintFrame.getLine(narrow<int>(y + 1), buf2);
-			calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
-			memcpy(mapped + 320 * size_t(y), tmpBuf2.data(), 320 * sizeof(uint16_t));
-		}
-		edgeBuffer.unmap();
-
-		auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
-		edgeTexture.bind();
-		glTexSubImage2D(GL_TEXTURE_2D,                      // target
-		                0,                                  // level
-		                0,                                  // offset x
-		                narrow<GLint>(srcStartY),           // offset y
-		                narrow<GLint>(lineWidth),           // width
-		                narrow<GLint>(srcEndY - srcStartY), // height
-		                format,                             // format
-		                GL_UNSIGNED_BYTE,                   // type
-		                edgeBuffer.getOffset(0, srcStartY));// data
+	auto mapped = edgeBuffer.mapWrite();
+	auto numLines = srcEndY - srcStartY;
+	for (auto yy : xrange(numLines)) {
+		curr = next;
+		std::swap(buf1, buf2);
+		next = paintFrame.getLine(narrow<int>(yy + srcStartY + 1), buf2);
+		calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
+		auto dest = mapped.subspan(yy * size_t(lineWidth), lineWidth);
+		assert(dest.size_bytes() == tmpBuf2.size_bytes()); // note: convert L32 -> 2 x uint16_t
+		memcpy(dest.data(), tmpBuf2.data(), tmpBuf2.size_bytes());
 	}
+	edgeBuffer.unmap();
+
+	auto format = (OPENGL_VERSION >= OPENGL_3_3) ? GL_RG : GL_LUMINANCE_ALPHA;
+	edgeTexture.bind();
+	glTexSubImage2D(GL_TEXTURE_2D,            // target
+			0,                        // level
+			0,                        // offset x
+			narrow<GLint>(srcStartY), // offset y
+			narrow<GLint>(lineWidth), // width
+			narrow<GLint>(numLines),  // height
+			format,                   // format
+			GL_UNSIGNED_BYTE,         // type
+			mapped.data());           // data
 	edgeBuffer.unbind();
 }
 
