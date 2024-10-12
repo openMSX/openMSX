@@ -16,14 +16,17 @@
 
 namespace openmsx {
 
-GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
+GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_, unsigned maxWidth_, unsigned maxHeight_)
 	: GLScaler("hqlite")
 	, fallback(fallback_)
+	, maxWidth(maxWidth_), maxHeight(maxHeight_)
 {
-	for (const auto& p : program) {
+	for (auto i : xrange(2)) {
+		auto& p = program[i];
 		p.activate();
 		glUniform1i(p.getUniformLocation("edgeTex"),   2);
 		glUniform1i(p.getUniformLocation("offsetTex"), 3);
+		edgePosScaleUnif[i] = p.getUniformLocation("edgePosScale");
 	}
 
 	// GL_LUMINANCE_ALPHA is no longer supported in newer openGL versions
@@ -32,8 +35,8 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             format,           // internal format
-	             320,              // width
-	             240,              // height
+	             maxWidth,         // width
+	             maxHeight,        // height
 	             0,                // border
 	             format,           // format
 	             GL_UNSIGNED_BYTE, // type
@@ -42,7 +45,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	GLint swizzleMask1[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
 	glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask1);
 #endif
-	edgeBuffer.allocate(320 * 240);
+	edgeBuffer.allocate(maxWidth * maxHeight);
 
 	const auto& context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -76,9 +79,8 @@ void GLHQLiteScaler::scaleImage(
 	unsigned logSrcHeight)
 {
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
-	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
+	if ((factorX >= 2) && ((srcWidth % 320) == 0)) {
 		setup(superImpose != nullptr);
 		src.setInterpolation(true);
 		glActiveTexture(GL_TEXTURE3);
@@ -86,6 +88,10 @@ void GLHQLiteScaler::scaleImage(
 		glActiveTexture(GL_TEXTURE2);
 		edgeTexture.bind();
 		glActiveTexture(GL_TEXTURE0);
+
+		int i = superImpose ? 1 : 0;
+		glUniform2f(edgePosScaleUnif[i], src.getWidth() / float(maxWidth), src.getHeight() / float(maxHeight));
+
 		execute(src, superImpose,
 		        srcStartY, srcEndY, srcWidth,
 		        dstStartY, dstEndY, dstWidth,
@@ -104,9 +110,10 @@ void GLHQLiteScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
-	if ((lineWidth != 320) || (srcEndY > 240)) return;
+	if ((lineWidth % 320) != 0) return;
 
-	std::array<Endian::L32, 320 / 2> tmpBufMax; // 2 x uint16_t
+	assert(maxWidth <= 1280);
+	std::array<Endian::L32, 1280 / 2> tmpBufMax; // 2 x uint16_t
 	auto tmpBuf2 = subspan(tmpBufMax, 0, lineWidth / 2);
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.

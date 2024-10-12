@@ -12,7 +12,7 @@ namespace openmsx {
 class GLHQLiteScaler final : public GLScaler
 {
 public:
-	explicit GLHQLiteScaler(GLScaler& fallback);
+	explicit GLHQLiteScaler(GLScaler& fallback, unsigned maxWidth, unsigned maxHeight);
 
 	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
@@ -28,6 +28,9 @@ private:
 	gl::Texture edgeTexture;
 	std::array<gl::Texture, 3> offsetTexture;
 	gl::PixelBuffer<uint16_t> edgeBuffer;
+
+	unsigned maxWidth, maxHeight;
+	std::array<int, 2> edgePosScaleUnif;
 };
 
 } // namespace openmsx

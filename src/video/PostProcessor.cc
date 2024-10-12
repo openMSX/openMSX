@@ -240,7 +240,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	if (auto algo = renderSettings.getScaleAlgorithm();
 	    scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
-		currScaler = GLScalerFactory::createScaler(renderSettings);
+		currScaler = GLScalerFactory::createScaler(renderSettings, maxWidth, height * 2); // *2 for interlace   TODO only when canDoInterlace
 
 		// Re-upload frame data, this is both
 		//  - Chunks of RawFrame with a specific line width, possibly

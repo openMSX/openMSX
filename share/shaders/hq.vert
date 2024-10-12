@@ -1,5 +1,6 @@
 uniform mat4 u_mvpMatrix;
 uniform vec3 texSize;
+uniform vec2 edgePosScale;
 
 attribute vec4 a_position;
 attribute vec3 a_texCoord;
@@ -19,8 +20,8 @@ void main()
 	mid     = a_texCoord.xy;
 	leftTop = a_texCoord.xy - texStep;
 
-	edgePos = a_texCoord.xy * vec2(1.0, 2.0);
-	weightPos = edgePos * texSize.xy * vec2(1.0, 0.5);
+	edgePos = a_texCoord.xy * edgePosScale;
+	weightPos = a_texCoord.xy * texSize.xy;
 
 	texStep2 = 2.0 * texStep;
 
