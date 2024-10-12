@@ -189,10 +189,10 @@ private:
 
 	struct TextureData {
 		gl::ColorTexture tex;
-		gl::PixelBuffer<unsigned> pbo;
 		[[nodiscard]] unsigned width() const { return tex.getWidth(); }
 	};
 	std::vector<TextureData> textures;
+	gl::PixelBuffer<unsigned> pbo;
 
 	gl::ColorTexture superImposeTex;
 

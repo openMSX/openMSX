@@ -82,6 +82,8 @@ PostProcessor::PostProcessor(
 	monitor3DProg.link();
 	preCalcMonitor3D(renderSettings.getHorizontalStretch());
 
+	pbo.allocate(maxWidth * height * 2); // *2 for interlace    TODO only when 'canDoInterlace'
+
 	renderSettings.getNoiseSetting().attach(*this);
 	renderSettings.getHorizontalStretchSetting().attach(*this);
 }
@@ -499,19 +501,16 @@ void PostProcessor::uploadFrame()
 void PostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
-	// create texture/pbo if needed
+	// create texture on demand
 	auto it = ranges::find(textures, lineWidth, &TextureData::width);
 	if (it == end(textures)) {
 		TextureData textureData;
-
 		textureData.tex.resize(narrow<GLsizei>(lineWidth),
-		                       narrow<GLsizei>(height * 2)); // *2 for interlace
-		textureData.pbo.allocate(lineWidth * height * 2);
+		                       narrow<GLsizei>(height * 2)); // *2 for interlace   TODO only when canDoInterlace
 		textures.push_back(std::move(textureData));
 		it = end(textures) - 1;
 	}
 	auto& tex = it->tex;
-	auto& pbo = it->pbo;
 
 	// bind texture
 	tex.bind();
