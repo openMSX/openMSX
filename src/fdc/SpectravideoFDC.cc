@@ -33,6 +33,7 @@ SpectravideoFDC::SpectravideoFDC(const DeviceConfig& config)
 void SpectravideoFDC::reset(EmuTime::param /*time*/)
 {
 	cpmRomEnabled = true;
+	invalidateDeviceRCache(0x4000, 0x4000);
 }
 
 byte SpectravideoFDC::readMem(word address, EmuTime::param time)
@@ -55,10 +56,12 @@ byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
 		cpmRomEnabled = true;
+		invalidateDeviceRCache(0x4000, 0x4000);
 		return 0xFF;
 	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
 		cpmRomEnabled = false;
+		invalidateDeviceRCache(0x4000, 0x4000);
 		return 0xFF;
 	default:
 		return SpectravideoFDC::peekMem(address, time);
@@ -140,10 +143,12 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
+		invalidateDeviceRCache(0x4000, 0x4000);
 		cpmRomEnabled = true;
 		break;
 	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
+		invalidateDeviceRCache(0x4000, 0x4000);
 		cpmRomEnabled = false;
 		break;
 	}
