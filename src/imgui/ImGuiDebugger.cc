@@ -272,21 +272,19 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 	im::Window("Debugger tool bar", &showControl, [&]{
 		checkShortcuts(cpuInterface, motherBoard);
 
-		gl::vec2 buttonSize; // max of all icon sizes
+		gl::vec2 maxIconSize;
 		const auto* font = ImGui::GetFont();
-		auto texId = font->ContainerAtlas->TexID;
 		for (auto c : {
 			DEBUGGER_ICON_RUN, DEBUGGER_ICON_BREAK,
 			DEBUGGER_ICON_STEP_IN, DEBUGGER_ICON_STEP_OVER,
 			DEBUGGER_ICON_STEP_OUT, DEBUGGER_ICON_STEP_BACK,
 		}) {
 			const auto* g = font->FindGlyph(c);
-			buttonSize = max(buttonSize, gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0});
+			maxIconSize = max(maxIconSize, gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0});
 		}
 
-		auto ButtonGlyph = [&](const char* id, ImWchar c, Shortcuts::ID sid) {
-			const auto* g = font->FindGlyph(c);
-			bool result = ImGui::ImageButton(id, texId, buttonSize, {g->U0, g->V0}, {g->U1, g->V1});
+		auto ButtonGlyph = [&](const char* id, ImWchar glyph, Shortcuts::ID sid) {
+			bool result = ButtonWithCenteredGlyph(glyph, maxIconSize);
 			simpleToolTip([&]() -> std::string {
 				const auto& shortcuts = manager.getShortcuts();
 				const auto& shortcut = shortcuts.getShortcut(sid);

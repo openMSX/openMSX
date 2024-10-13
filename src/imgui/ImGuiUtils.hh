@@ -11,6 +11,7 @@
 #include "StringOp.hh"
 
 #include <imgui.h>
+#include <imgui_internal.h> // ImTextCharToUtf8
 
 #include <algorithm>
 #include <concepts>
@@ -97,6 +98,44 @@ void simpleToolTip(std::invocable<> auto descFunc)
 }
 
 void HelpMarker(std::string_view desc);
+
+inline bool ButtonWithCustomRendering(
+	const char* label, gl::vec2 size, bool pressed,
+	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
+{
+	bool result = false;
+	im::StyleColor(pressed, ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_ButtonActive), [&]{
+		gl::vec2 topLeft = ImGui::GetCursorScreenPos();
+		gl::vec2 center = topLeft + size * 0.5f;
+		result = ImGui::Button(label, size);
+		render(center, ImGui::GetWindowDrawList());
+	});
+	return result;
+}
+
+inline bool ButtonWithCustomRendering(
+	const char* label, gl::vec2 size,
+	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
+{
+	return ButtonWithCustomRendering(label, size, false, render);
+}
+
+inline bool ButtonWithCenteredGlyph(ImWchar glyph, gl::vec2 maxGlyphSize)
+{
+	std::array<char, 2 + 5> label = {'#', '#'};
+	ImTextCharToUtf8(&label[2], glyph);
+
+	const auto& style = ImGui::GetStyle();
+	auto buttonSize = maxGlyphSize + 2.0f* gl::vec2(style.FramePadding);
+
+	return ButtonWithCustomRendering(label.data(), buttonSize, [&](gl::vec2 center, ImDrawList* drawList) {
+		const auto* font = ImGui::GetFont();
+		auto texId = font->ContainerAtlas->TexID;
+		const auto* g = font->FindGlyph(glyph);
+		auto halfSize = gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0} * 0.5f;
+		drawList->AddImage(texId, center - halfSize, center + halfSize, {g->U0, g->V0}, {g->U1, g->V1});
+	});
+};
 
 inline void centerNextWindowOverCurrent()
 {

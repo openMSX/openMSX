@@ -1339,20 +1339,6 @@ static void addRecentItem(ImGuiMedia::ItemGroup& group, const ImGuiMedia::MediaI
 	}
 }
 
-static bool ButtonWithCustomRendering(
-	const char* label, gl::vec2 size, bool pressed,
-	std::invocable<gl::vec2 /*center*/, ImDrawList*> auto render)
-{
-	bool result = false;
-	im::StyleColor(pressed, ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_ButtonActive), [&]{
-		gl::vec2 topLeft = ImGui::GetCursorScreenPos();
-		gl::vec2 center = topLeft + size * 0.5f;
-		result = ImGui::Button(label, size);
-		render(center, ImGui::GetWindowDrawList());
-	});
-	return result;
-}
-
 static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
 {
 	float half = 0.4f * ImGui::GetTextLineHeight();
