@@ -10,6 +10,7 @@
 #include "EventDistributor.hh"
 #include "VDP.hh"
 #include "V9990.hh"
+#include "imgui.h"
 #include "unreachable.hh"
 #include <memory>
 
@@ -137,6 +138,11 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 void SDLVideoSystem::showCursor(bool show)
 {
 	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+	if (show) {
+		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+	} else {
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	}
 }
 
 bool SDLVideoSystem::getCursorEnabled()
