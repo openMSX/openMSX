@@ -16,6 +16,7 @@
         <ChakkariCopy id="Chakkari Copy">
           <io base="0x7F" num="1"/>
           <rom>
+            <sha1>aa45362b4ea7c7274e4988966bd08e114e56d04a</sha1> <!-- Seems newer version with improved texts and other changes -->
             <sha1>aa98b0822d768acb73ab729d736c8fb682685492</sha1>
             <filename>chakkari.rom</filename>
           </rom>
