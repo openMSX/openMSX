@@ -62,23 +62,26 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		im::Menu("Load state ...", [&]{
+		loadStateOpen = im::Menu("Load state ...", [&]{
+			if (!loadStateOpen) {
+				// on each re-open of this menu, we recreate the list of states
+				stateNames.clear();
+				for (auto context = userDataFileContext(STATE_DIR);
+				     const auto& path : context.getPaths()) {
+					foreach_file(path, [&](const std::string&, std::string_view name) {
+						if (name.ends_with(STATE_EXTENSION)) {
+							name.remove_suffix(STATE_EXTENSION.size());
+							stateNames.emplace_back(name);
+						}
+					});
+				}
+				ranges::sort(stateNames, StringOp::caseless{});
+			}
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted("Select save state"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-						std::vector<std::string> names;
-						for (auto context = userDataFileContext(STATE_DIR);
-						     const auto& path : context.getPaths()) {
-							foreach_file(path, [&](const std::string&, std::string_view name) {
-								if (name.ends_with(STATE_EXTENSION)) {
-									name.remove_suffix(STATE_EXTENSION.size());
-									names.emplace_back(name);
-								}
-							});
-						}
-						ranges::sort(names, StringOp::caseless{});
-						for (const auto& name : names) {
+						for (const auto& name : stateNames) {
 							if (ImGui::Selectable(name.c_str())) {
 								manager.executeDelayed(makeTclList("loadstate", name));
 							}

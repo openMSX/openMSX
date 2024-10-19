@@ -29,7 +29,17 @@ private:
 	std::string saveStateName;
 	std::string saveReplayName;
 	bool saveStateOpen = false;
+	bool loadStateOpen = false;
+	std::vector<std::string> stateNames;
 	bool saveReplayOpen = false;
+	bool loadReplayOpen = false;
+	struct Names {
+		Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
+			: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
+		std::string fullName;
+		std::string displayName;
+	};
+	std::vector<Names> replayNames;
 	TclObject confirmCmd;
 	std::string confirmText;
 
