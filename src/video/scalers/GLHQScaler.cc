@@ -89,10 +89,9 @@ void GLHQScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	unsigned factorX = dstWidth / srcWidth; // 1 - 4
-	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
+	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY); // 1 - 4
 
-	if ((factorX >= 2) && ((srcWidth % 320) == 0)) {
+	if ((factorY >= 2) && ((srcWidth % 320) == 0)) {
 		assert(src.getHeight() == 2 * 240);
 		setup(superImpose != nullptr);
 		glActiveTexture(GL_TEXTURE4);
