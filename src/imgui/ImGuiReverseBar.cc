@@ -20,6 +20,10 @@ using namespace std::literals;
 
 namespace openmsx {
 
+
+static constexpr std::string_view STATE_EXTENSION = ".oms";
+static constexpr std::string_view STATE_DIR = "savestates";
+
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -58,13 +62,23 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		auto existingStates = manager.execute(TclObject("list_savestates"));
-		im::Menu("Load state ...", existingStates && !existingStates->empty(), [&]{
+		im::Menu("Load state ...", [&]{
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted("Select save state"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-						for (const auto& name : *existingStates) {
+						std::vector<std::string> names;
+						for (auto context = userDataFileContext(STATE_DIR);
+						     const auto& path : context.getPaths()) {
+							foreach_file(path, [&](const std::string&, std::string_view name) {
+								if (name.ends_with(STATE_EXTENSION)) {
+									name.remove_suffix(STATE_EXTENSION.size());
+									names.emplace_back(name);
+								}
+							});
+						}
+						ranges::sort(names, StringOp::caseless{});
+						for (const auto& name : names) {
 							if (ImGui::Selectable(name.c_str())) {
 								manager.executeDelayed(makeTclList("loadstate", name));
 							}
@@ -77,7 +91,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 								std::string filename = FileOperations::join(
 									FileOperations::getUserOpenMSXDir(),
-									"savestates", tmpStrCat(name, ".png"));
+									STATE_DIR, tmpStrCat(name, ".png"));
 								if (FileOperations::exists(filename)) {
 									try {
 										gl::ivec2 dummy;
@@ -111,7 +125,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		saveStateOpen = im::Menu("Save state ...", [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
-					saveStateName, "savestates", "", ".oms");
+					saveStateName, STATE_DIR, "", STATE_EXTENSION);
 				return FileOperations::exists(filename);
 			};
 			if (!saveStateOpen) {
@@ -120,7 +134,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					saveStateName = result->getString();
 					if (exists()) {
 						saveStateName = stem(FileOperations::getNextNumberedFileName(
-							"savestates", result->getString(), ".oms", true));
+							STATE_DIR, result->getString(), STATE_EXTENSION, true));
 					}
 				}
 			}
@@ -139,7 +153,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::MenuItem("Open savestates folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/savestates").c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', STATE_DIR).c_str());
 		}
 
 		ImGui::Separator();
