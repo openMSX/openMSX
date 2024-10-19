@@ -79,12 +79,13 @@ void GLHQLiteScaler::scaleImage(
 	unsigned logSrcHeight)
 {
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
+	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
 	if ((factorX >= 2) && ((srcWidth % 320) == 0)) {
 		setup(superImpose != nullptr);
 		src.setInterpolation(true);
 		glActiveTexture(GL_TEXTURE3);
-		offsetTexture[factorX - 2].bind();
+		offsetTexture[factorY - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
 		edgeTexture.bind();
 		glActiveTexture(GL_TEXTURE0);
