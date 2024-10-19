@@ -62,23 +62,26 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		im::Menu("Load state ...", [&]{
+		loadStateOpen = im::Menu("Load state ...", [&]{
+			if (!loadStateOpen) {
+				// on each re-open of this menu, we recreate the list of states
+				stateNames.clear();
+				for (auto context = userDataFileContext(STATE_DIR);
+				     const auto& path : context.getPaths()) {
+					foreach_file(path, [&](const std::string&, std::string_view name) {
+						if (name.ends_with(STATE_EXTENSION)) {
+							name.remove_suffix(STATE_EXTENSION.size());
+							stateNames.emplace_back(std::string(name));
+						}
+					});
+				}
+				ranges::sort(stateNames, StringOp::caseless{});
+			}
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted("Select save state"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-						std::vector<std::string> names;
-						for (auto context = userDataFileContext(STATE_DIR);
-						     const auto& path : context.getPaths()) {
-							foreach_file(path, [&](const std::string&, std::string_view name) {
-								if (name.ends_with(STATE_EXTENSION)) {
-									name.remove_suffix(STATE_EXTENSION.size());
-									names.emplace_back(std::string(name));
-								}
-							});
-						}
-						ranges::sort(names, StringOp::caseless{});
-						for (const auto& name : names) {
+						for (const auto& name : stateNames) {
 							if (ImGui::Selectable(name.c_str())) {
 								manager.executeDelayed(makeTclList("loadstate", name));
 							}
@@ -161,27 +164,24 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		im::Menu("Load replay ...", reverseEnabled, [&]{
-			ImGui::TextUnformatted("Select replay"sv);
-			im::ListBox("##select-replay", [&]{
-				struct Names {
-					Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
-						: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
-					std::string fullName;
-					std::string displayName;
-				};
-				std::vector<Names> names;
+		loadReplayOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
+			if (!loadReplayOpen) {
+				// on each re-open of this menu, we recreate the list of replays
+				replayNames.clear();
 				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							names.emplace_back(fullName, std::string(name));
+							replayNames.emplace_back(fullName, std::string(name));
 						}
 					});
 				}
-				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
-				for (const auto& [fullName_, displayName_] : names) {
+				ranges::sort(replayNames, StringOp::caseless{}, &Names::displayName);
+			}
+			ImGui::TextUnformatted("Select replay"sv);
+			im::ListBox("##select-replay", [&]{
+				for (const auto& [fullName_, displayName_] : replayNames) {
 					const auto& fullName = fullName_; // clang workaround
 					const auto& displayName = displayName_; // clang workaround
 					if (ImGui::Selectable(displayName.c_str())) {
