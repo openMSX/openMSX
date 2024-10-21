@@ -20,6 +20,10 @@ using namespace std::literals;
 
 namespace openmsx {
 
+
+static constexpr std::string_view STATE_EXTENSION = ".oms";
+static constexpr std::string_view STATE_DIR = "savestates";
+
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -58,13 +62,26 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		auto existingStates = manager.execute(TclObject("list_savestates"));
-		im::Menu("Load state ...", existingStates && !existingStates->empty(), [&]{
+		loadStateOpen = im::Menu("Load state ...", [&]{
+			if (!loadStateOpen) {
+				// on each re-open of this menu, we recreate the list of states
+				stateNames.clear();
+				for (auto context = userDataFileContext(STATE_DIR);
+				     const auto& path : context.getPaths()) {
+					foreach_file(path, [&](const std::string&, std::string_view name) {
+						if (name.ends_with(STATE_EXTENSION)) {
+							name.remove_suffix(STATE_EXTENSION.size());
+							stateNames.emplace_back(std::string(name));
+						}
+					});
+				}
+				ranges::sort(stateNames, StringOp::caseless{});
+			}
 			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted("Select save state"sv);
 					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-						for (const auto& name : *existingStates) {
+						for (const auto& name : stateNames) {
 							if (ImGui::Selectable(name.c_str())) {
 								manager.executeDelayed(makeTclList("loadstate", name));
 							}
@@ -77,7 +94,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 								std::string filename = FileOperations::join(
 									FileOperations::getUserOpenMSXDir(),
-									"savestates", tmpStrCat(name, ".png"));
+									STATE_DIR, tmpStrCat(name, ".png"));
 								if (FileOperations::exists(filename)) {
 									try {
 										gl::ivec2 dummy;
@@ -111,7 +128,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		saveStateOpen = im::Menu("Save state ...", [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
-					saveStateName, "savestates", "", ".oms");
+					saveStateName, STATE_DIR, "", STATE_EXTENSION);
 				return FileOperations::exists(filename);
 			};
 			if (!saveStateOpen) {
@@ -120,7 +137,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					saveStateName = result->getString();
 					if (exists()) {
 						saveStateName = stem(FileOperations::getNextNumberedFileName(
-							"savestates", result->getString(), ".oms", true));
+							STATE_DIR, result->getString(), STATE_EXTENSION, true));
 					}
 				}
 			}
@@ -139,7 +156,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::MenuItem("Open savestates folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/savestates").c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), "/", STATE_DIR).c_str());
 		}
 
 		ImGui::Separator();
@@ -147,27 +164,24 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		im::Menu("Load replay ...", reverseEnabled, [&]{
-			ImGui::TextUnformatted("Select replay"sv);
-			im::ListBox("##select-replay", [&]{
-				struct Names {
-					Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
-						: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
-					std::string fullName;
-					std::string displayName;
-				};
-				std::vector<Names> names;
+		loadReplayOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
+			if (!loadReplayOpen) {
+				// on each re-open of this menu, we recreate the list of replays
+				replayNames.clear();
 				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							names.emplace_back(fullName, std::string(name));
+							replayNames.emplace_back(fullName, std::string(name));
 						}
 					});
 				}
-				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
-				for (const auto& [fullName_, displayName_] : names) {
+				ranges::sort(replayNames, StringOp::caseless{}, &Names::displayName);
+			}
+			ImGui::TextUnformatted("Select replay"sv);
+			im::ListBox("##select-replay", [&]{
+				for (const auto& [fullName_, displayName_] : replayNames) {
 					const auto& fullName = fullName_; // clang workaround
 					const auto& displayName = displayName_; // clang workaround
 					if (ImGui::Selectable(displayName.c_str())) {
