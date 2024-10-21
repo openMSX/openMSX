@@ -8,6 +8,7 @@
 #include "TclObject.hh"
 
 #include <string>
+#include <filesystem>
 
 namespace openmsx {
 
@@ -30,16 +31,22 @@ private:
 	std::string saveReplayName;
 	bool saveStateOpen = false;
 	bool loadStateOpen = false;
-	std::vector<std::string> stateNames;
+	struct StateNames {
+		StateNames(std::string n, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
+			: name(std::move(n)), ftime(std::move(t)) {} // fixed in clang-16
+		std::string name;
+		std::filesystem::file_time_type ftime;
+	};
+	std::vector<StateNames> stateNames;
 	bool saveReplayOpen = false;
 	bool loadReplayOpen = false;
-	struct Names {
-		Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
+	struct ReplayNames {
+		ReplayNames(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
 			: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
 		std::string fullName;
 		std::string displayName;
 	};
-	std::vector<Names> replayNames;
+	std::vector<ReplayNames> replayNames;
 	TclObject confirmCmd;
 	std::string confirmText;
 

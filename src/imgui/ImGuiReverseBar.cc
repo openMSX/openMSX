@@ -68,14 +68,15 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				stateNames.clear();
 				for (auto context = userDataFileContext(STATE_DIR);
 				     const auto& path : context.getPaths()) {
-					foreach_file(path, [&](const std::string&, std::string_view name) {
+					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(STATE_EXTENSION)) {
 							name.remove_suffix(STATE_EXTENSION.size());
-							stateNames.emplace_back(name);
+							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
+							stateNames.emplace_back(std::string(name), ftime);
 						}
 					});
 				}
-				ranges::sort(stateNames, StringOp::caseless{});
+				ranges::sort(stateNames, std::greater<>{}, &StateNames::ftime);
 			}
 			if (stateNames.empty()) {
 				ImGui::TextUnformatted("No save states found"sv);
@@ -84,7 +85,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::TableNextColumn()) {
 						ImGui::TextUnformatted("Select save state"sv);
 						im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-							for (const auto& name : stateNames) {
+							for (const auto& [name_, _] : stateNames) {
+								const auto& name = name_; // clang workaround
 								if (ImGui::Selectable(name.c_str())) {
 									manager.executeDelayed(makeTclList("loadstate", name));
 								}
@@ -181,7 +183,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				ranges::sort(replayNames, StringOp::caseless{}, &Names::displayName);
+				ranges::sort(replayNames, StringOp::caseless{}, &ReplayNames::displayName);
 			}
 			if (replayNames.empty()) {
 				ImGui::TextUnformatted("No replays found"sv);
