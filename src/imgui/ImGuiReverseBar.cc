@@ -77,53 +77,57 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 				ranges::sort(stateNames, StringOp::caseless{});
 			}
-			im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Select save state"sv);
-					im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-						for (const auto& name : stateNames) {
-							if (ImGui::Selectable(name.c_str())) {
-								manager.executeDelayed(makeTclList("loadstate", name));
-							}
-							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
-							    (previewImage.name != name)) {
-								// record name, but (so far) without image
-								// this prevents that on a missing image, we don't continue retrying
-								previewImage.name = std::string(name);
-								previewImage.texture = gl::Texture(gl::Null{});
+			if (stateNames.empty()) {
+				ImGui::TextUnformatted("No save states found"sv);
+			} else {
+				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
+					if (ImGui::TableNextColumn()) {
+						ImGui::TextUnformatted("Select save state"sv);
+						im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
+							for (const auto& name : stateNames) {
+								if (ImGui::Selectable(name.c_str())) {
+									manager.executeDelayed(makeTclList("loadstate", name));
+								}
+								if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
+								    (previewImage.name != name)) {
+									// record name, but (so far) without image
+									// this prevents that on a missing image, we don't continue retrying
+									previewImage.name = std::string(name);
+									previewImage.texture = gl::Texture(gl::Null{});
 
-								std::string filename = FileOperations::join(
-									FileOperations::getUserOpenMSXDir(),
-									STATE_DIR, tmpStrCat(name, ".png"));
-								if (FileOperations::exists(filename)) {
-									try {
-										gl::ivec2 dummy;
-										previewImage.texture = loadTexture(filename, dummy);
-									} catch (...) {
-										// ignore
+									std::string filename = FileOperations::join(
+										FileOperations::getUserOpenMSXDir(),
+										STATE_DIR, tmpStrCat(name, ".png"));
+									if (FileOperations::exists(filename)) {
+										try {
+											gl::ivec2 dummy;
+											previewImage.texture = loadTexture(filename, dummy);
+										} catch (...) {
+											// ignore
+										}
 									}
 								}
+								im::PopupContextItem([&]{
+									if (ImGui::MenuItem("delete")) {
+										confirmCmd = makeTclList("delete_savestate", name);
+										confirmText = strCat("Delete savestate '", name, "'?");
+										openConfirmPopup = true;
+									}
+								});
 							}
-							im::PopupContextItem([&]{
-								if (ImGui::MenuItem("delete")) {
-									confirmCmd = makeTclList("delete_savestate", name);
-									confirmText = strCat("Delete savestate '", name, "'?");
-									openConfirmPopup = true;
-								}
-							});
-						}
-					});
-				}
-				if (ImGui::TableNextColumn()) {
-					ImGui::TextUnformatted("Preview"sv);
-					ImVec2 size(320, 240);
-					if (previewImage.texture.get()) {
-						ImGui::Image(previewImage.texture.getImGui(), size);
-					} else {
-						ImGui::Dummy(size);
+						});
 					}
-				}
-			});
+					if (ImGui::TableNextColumn()) {
+						ImGui::TextUnformatted("Preview"sv);
+						ImVec2 size(320, 240);
+						if (previewImage.texture.get()) {
+							ImGui::Image(previewImage.texture.getImGui(), size);
+						} else {
+							ImGui::Dummy(size);
+						}
+					}
+				});
+			}
 		});
 		saveStateOpen = im::Menu("Save state ...", [&]{
 			auto exists = [&]{
@@ -164,41 +168,42 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		im::Menu("Load replay ...", reverseEnabled, [&]{
-			ImGui::TextUnformatted("Select replay"sv);
-			im::ListBox("##select-replay", [&]{
-				struct Names {
-					Names(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
-						: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
-					std::string fullName;
-					std::string displayName;
-				};
-				std::vector<Names> names;
+		loadReplayOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
+			if (!loadReplayOpen) {
+				// on each re-open of this menu, we recreate the list of replays
+				replayNames.clear();
 				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							names.emplace_back(fullName, std::string(name));
+							replayNames.emplace_back(fullName, std::string(name));
 						}
 					});
 				}
-				ranges::sort(names, StringOp::caseless{}, &Names::displayName);
-				for (const auto& [fullName_, displayName_] : names) {
-					const auto& fullName = fullName_; // clang workaround
-					const auto& displayName = displayName_; // clang workaround
-					if (ImGui::Selectable(displayName.c_str())) {
-						manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+				ranges::sort(replayNames, StringOp::caseless{}, &Names::displayName);
+			}
+			if (replayNames.empty()) {
+				ImGui::TextUnformatted("No replays found"sv);
+			} else {
+				ImGui::TextUnformatted("Select replay"sv);
+				im::ListBox("##select-replay", [&]{
+					for (const auto& [fullName_, displayName_] : replayNames) {
+						const auto& fullName = fullName_; // clang workaround
+						const auto& displayName = displayName_; // clang workaround
+						if (ImGui::Selectable(displayName.c_str())) {
+							manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+						}
+						im::PopupContextItem([&]{
+							if (ImGui::MenuItem("delete")) {
+								confirmCmd = makeTclList("file", "delete", fullName);
+								confirmText = strCat("Delete replay '", displayName, "'?");
+								openConfirmPopup = true;
+							}
+						});
 					}
-					im::PopupContextItem([&]{
-						if (ImGui::MenuItem("delete")) {
-							confirmCmd = makeTclList("file", "delete", fullName);
-							confirmText = strCat("Delete replay '", displayName, "'?");
-							openConfirmPopup = true;
-						}
-					});
-				}
-			});
+				});
+			}
 		});
 		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{
 			auto exists = [&]{
