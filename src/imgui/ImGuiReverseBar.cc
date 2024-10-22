@@ -178,19 +178,20 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
+							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							replayNames.emplace_back(fullName, std::string(name));
+							replayNames.emplace_back(fullName, std::string(name), ftime);
 						}
 					});
 				}
-				ranges::sort(replayNames, StringOp::caseless{}, &ReplayNames::displayName);
+				ranges::sort(replayNames, std::greater<>{}, &ReplayNames::ftime);
 			}
 			if (replayNames.empty()) {
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				ImGui::TextUnformatted("Select replay"sv);
 				im::ListBox("##select-replay", [&]{
-					for (const auto& [fullName_, displayName_] : replayNames) {
+					for (const auto& [fullName_, displayName_, _] : replayNames) {
 						const auto& fullName = fullName_; // clang workaround
 						const auto& displayName = displayName_; // clang workaround
 						if (ImGui::Selectable(displayName.c_str())) {

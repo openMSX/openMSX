@@ -41,10 +41,11 @@ private:
 	bool saveReplayOpen = false;
 	bool loadReplayOpen = false;
 	struct ReplayNames {
-		ReplayNames(std::string f, std::string d) // workaround, needed for clang, not gcc or msvc
-			: fullName(std::move(f)), displayName(std::move(d)) {} // fixed in clang-16
+		ReplayNames(std::string f, std::string d, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
+			: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
 		std::string fullName;
 		std::string displayName;
+		std::filesystem::file_time_type ftime;
 	};
 	std::vector<ReplayNames> replayNames;
 	TclObject confirmCmd;
