@@ -174,6 +174,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (!loadReplayOpen) {
 				// on each re-open of this menu, we recreate the list of replays
 				replayNames.clear();
+				replayNamesChanged = true;
 				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
@@ -184,28 +185,83 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				ranges::sort(replayNames, std::greater<>{}, &ReplayNames::ftime);
 			}
 			if (replayNames.empty()) {
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				ImGui::TextUnformatted("Select replay"sv);
-				im::ListBox("##select-replay", [&]{
-					for (const auto& [fullName_, displayName_, _] : replayNames) {
-						const auto& fullName = fullName_; // clang workaround
-						const auto& displayName = displayName_; // clang workaround
-						if (ImGui::Selectable(displayName.c_str())) {
-							manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+				int flags = ImGuiTableFlags_RowBg |
+					ImGuiTableFlags_BordersV |
+					ImGuiTableFlags_BordersOuter |
+					ImGuiTableFlags_Resizable |
+					ImGuiTableFlags_Sortable |
+					ImGuiTableFlags_Hideable |
+					ImGuiTableFlags_Reorderable |
+					ImGuiTableFlags_ContextMenuInBody |
+					ImGuiTableFlags_ScrollY |
+					ImGuiTableFlags_SizingStretchProp;
+				im::Table("##select-replay", 2, flags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+					ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+					ImGui::TableSetupColumn("Name");
+					ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableHeadersRow();
+					// check sort order
+					auto* sortSpecs = ImGui::TableGetSortSpecs();
+					if (sortSpecs->SpecsDirty || replayNamesChanged) {
+						sortSpecs->SpecsDirty = false;
+						replayNamesChanged = false;
+						assert(sortSpecs->SpecsCount == 1);
+						assert(sortSpecs->Specs);
+						assert(sortSpecs->Specs->SortOrder == 0);
+
+						switch (sortSpecs->Specs->ColumnIndex) {
+						case 0: // name
+							sortUpDown_String(replayNames, sortSpecs, &ReplayNames::displayName);
+							break;
+						case 1: // time
+							sortUpDown_T(replayNames, sortSpecs, &ReplayNames::ftime);
+							break;
+						default:
+							UNREACHABLE;
 						}
-						im::PopupContextItem([&]{
-							if (ImGui::MenuItem("delete")) {
-								confirmCmd = makeTclList("file", "delete", fullName);
-								confirmText = strCat("Delete replay '", displayName, "'?");
-								openConfirmPopup = true;
-							}
-						});
 					}
-				});
+					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
+						const auto& fullName = fullName_; // clang workaround
+						if (ImGui::TableNextColumn()) {
+							const auto& displayName = displayName_; // clang workaround
+							if (ImGui::Selectable(displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
+								manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
+							}
+							im::PopupContextItem([&]{
+								if (ImGui::MenuItem("delete")) {
+									confirmCmd = makeTclList("file", "delete", fullName);
+									confirmText = strCat("Delete replay '", displayName, "'?");
+									openConfirmPopup = true;
+								}
+							});
+						}
+						if (ImGui::TableNextColumn()) {
+							// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
+							// as workaround instead of using more modern std::chrono and std::format stuff.
+
+							// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
+							auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+									ftime - std::filesystem::file_time_type::clock::now() +
+									std::chrono::system_clock::now());
+
+							// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
+							std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+
+							// Convert time_t to local time (broken-down time in the local time zone)
+							std::tm* local_time = std::localtime(&cftime);
+
+							// Get the local time in human-readable format
+							std::stringstream ss;
+							ss << std::put_time(local_time, "%F %T");
+							ImGui::TextUnformatted(ss.str().c_str());
+						}
+
+				}});
 			}
 		});
 		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{

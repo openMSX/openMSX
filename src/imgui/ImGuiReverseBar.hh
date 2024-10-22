@@ -48,6 +48,7 @@ private:
 		std::filesystem::file_time_type ftime;
 	};
 	std::vector<ReplayNames> replayNames;
+	bool replayNamesChanged = false;
 	TclObject confirmCmd;
 	std::string confirmText;
 
