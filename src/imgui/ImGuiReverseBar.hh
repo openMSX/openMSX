@@ -38,6 +38,7 @@ private:
 		std::filesystem::file_time_type ftime;
 	};
 	std::vector<StateNames> stateNames;
+	bool stateNamesChanged = false;
 	bool saveReplayOpen = false;
 	bool loadReplayOpen = false;
 	struct ReplayNames {
