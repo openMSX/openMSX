@@ -62,10 +62,32 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
+		auto formatFileTime = [](std::filesystem::file_time_type fileTime) {
+			// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
+			// as workaround instead of using more modern std::chrono and std::format stuff.
+
+			// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
+			auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+					fileTime - std::filesystem::file_time_type::clock::now() +
+					std::chrono::system_clock::now());
+
+			// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
+			std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+
+			// Convert time_t to local time (broken-down time in the local time zone)
+			std::tm* local_time = std::localtime(&cftime);
+
+			// Get the local time in human-readable format
+			std::stringstream ss;
+			ss << std::put_time(local_time, "%F %T");
+			return ss.str();
+		};
+
 		loadStateOpen = im::Menu("Load state ...", [&]{
 			if (!loadStateOpen) {
 				// on each re-open of this menu, we recreate the list of states
 				stateNames.clear();
+				stateNamesChanged = true;
 				for (auto context = userDataFileContext(STATE_DIR);
 				     const auto& path : context.getPaths()) {
 					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
@@ -76,7 +98,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				ranges::sort(stateNames, std::greater<>{}, &StateNames::ftime);
 			}
 			if (stateNames.empty()) {
 				ImGui::TextUnformatted("No save states found"sv);
@@ -84,38 +105,77 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 					if (ImGui::TableNextColumn()) {
 						ImGui::TextUnformatted("Select save state"sv);
-						im::ListBox("##list", ImVec2(ImGui::GetFontSize() * 20.0f, 240.0f), [&]{
-							for (const auto& [name_, _] : stateNames) {
-								const auto& name = name_; // clang workaround
-								if (ImGui::Selectable(name.c_str())) {
-									manager.executeDelayed(makeTclList("loadstate", name));
-								}
-								if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
-								    (previewImage.name != name)) {
-									// record name, but (so far) without image
-									// this prevents that on a missing image, we don't continue retrying
-									previewImage.name = std::string(name);
-									previewImage.texture = gl::Texture(gl::Null{});
+						int flags = ImGuiTableFlags_RowBg |
+							ImGuiTableFlags_BordersV |
+							ImGuiTableFlags_BordersOuter |
+							ImGuiTableFlags_Resizable |
+							ImGuiTableFlags_Sortable |
+							ImGuiTableFlags_Hideable |
+							ImGuiTableFlags_Reorderable |
+							ImGuiTableFlags_ContextMenuInBody |
+							ImGuiTableFlags_ScrollY |
+							ImGuiTableFlags_SizingStretchProp;
+						im::Table("##select-savestate", 2, flags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+							ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+							ImGui::TableSetupColumn("Name");
+							ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
+							ImGui::TableHeadersRow();
+							// check sort order
+							auto* sortSpecs = ImGui::TableGetSortSpecs();
+							if (sortSpecs->SpecsDirty || stateNamesChanged) {
+								sortSpecs->SpecsDirty = false;
+								stateNamesChanged = false;
+								assert(sortSpecs->SpecsCount == 1);
+								assert(sortSpecs->Specs);
+								assert(sortSpecs->Specs->SortOrder == 0);
 
-									std::string filename = FileOperations::join(
-										FileOperations::getUserOpenMSXDir(),
-										STATE_DIR, tmpStrCat(name, ".png"));
-									if (FileOperations::exists(filename)) {
-										try {
-											gl::ivec2 dummy;
-											previewImage.texture = loadTexture(filename, dummy);
-										} catch (...) {
-											// ignore
+								switch (sortSpecs->Specs->ColumnIndex) {
+								case 0: // name
+									sortUpDown_String(stateNames, sortSpecs, &StateNames::name);
+									break;
+								case 1: // time
+									sortUpDown_T(stateNames, sortSpecs, &StateNames::ftime);
+									break;
+								default:
+									UNREACHABLE;
+								}
+							}
+							for (const auto& [name_, ftime] : stateNames) {
+								const auto& name = name_; // clang workaround
+								if (ImGui::TableNextColumn()) {
+									if (ImGui::Selectable(name.c_str())) {
+										manager.executeDelayed(makeTclList("loadstate", name));
+									}
+									if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
+									    (previewImage.name != name)) {
+										// record name, but (so far) without image
+										// this prevents that on a missing image, we don't continue retrying
+										previewImage.name = std::string(name);
+										previewImage.texture = gl::Texture(gl::Null{});
+
+										std::string filename = FileOperations::join(
+											FileOperations::getUserOpenMSXDir(),
+											STATE_DIR, tmpStrCat(name, ".png"));
+										if (FileOperations::exists(filename)) {
+											try {
+												gl::ivec2 dummy;
+												previewImage.texture = loadTexture(filename, dummy);
+											} catch (...) {
+												// ignore
+											}
 										}
 									}
+									im::PopupContextItem([&]{
+										if (ImGui::MenuItem("delete")) {
+											confirmCmd = makeTclList("delete_savestate", name);
+											confirmText = strCat("Delete savestate '", name, "'?");
+											openConfirmPopup = true;
+										}
+									});
 								}
-								im::PopupContextItem([&]{
-									if (ImGui::MenuItem("delete")) {
-										confirmCmd = makeTclList("delete_savestate", name);
-										confirmText = strCat("Delete savestate '", name, "'?");
-										openConfirmPopup = true;
-									}
-								});
+								if (ImGui::TableNextColumn()) {
+									ImGui::TextUnformatted(formatFileTime(ftime));
+								}
 							}
 						});
 					}
@@ -190,7 +250,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				ImGui::TextUnformatted("Select replay"sv);
-				int flags = ImGuiTableFlags_RowBg |
+int flags = ImGuiTableFlags_RowBg |
 					ImGuiTableFlags_BordersV |
 					ImGuiTableFlags_BordersOuter |
 					ImGuiTableFlags_Resizable |
@@ -227,7 +287,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					}
 					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
 						const auto& fullName = fullName_; // clang workaround
-						if (ImGui::TableNextColumn()) {
+if (ImGui::TableNextColumn()) {
 							const auto& displayName = displayName_; // clang workaround
 							if (ImGui::Selectable(displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
 								manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
@@ -241,24 +301,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 							});
 						}
 						if (ImGui::TableNextColumn()) {
-							// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
-							// as workaround instead of using more modern std::chrono and std::format stuff.
-
-							// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
-							auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-									ftime - std::filesystem::file_time_type::clock::now() +
-									std::chrono::system_clock::now());
-
-							// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
-							std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
-
-							// Convert time_t to local time (broken-down time in the local time zone)
-							std::tm* local_time = std::localtime(&cftime);
-
-							// Get the local time in human-readable format
-							std::stringstream ss;
-							ss << std::put_time(local_time, "%F %T");
-							ImGui::TextUnformatted(ss.str().c_str());
+							ImGui::TextUnformatted(formatFileTime(ftime));
 						}
 
 				}});
