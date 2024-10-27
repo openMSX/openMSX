@@ -83,6 +83,44 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			return ss.str();
 		};
 
+		int selectionTableFlags = ImGuiTableFlags_RowBg |
+			ImGuiTableFlags_BordersV |
+			ImGuiTableFlags_BordersOuter |
+			ImGuiTableFlags_Resizable |
+			ImGuiTableFlags_Sortable |
+			ImGuiTableFlags_Hideable |
+			ImGuiTableFlags_Reorderable |
+			ImGuiTableFlags_ContextMenuInBody |
+			ImGuiTableFlags_ScrollY |
+			ImGuiTableFlags_SizingStretchProp;
+
+		auto setAndSortColumns = [](bool& namesChanged, std::vector<StateOrReplayInfo>& names) {
+			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableHeadersRow();
+			// check sort order
+			auto* sortSpecs = ImGui::TableGetSortSpecs();
+			if (sortSpecs->SpecsDirty || namesChanged) {
+				sortSpecs->SpecsDirty = false;
+				namesChanged = false;
+				assert(sortSpecs->SpecsCount == 1);
+				assert(sortSpecs->Specs);
+				assert(sortSpecs->Specs->SortOrder == 0);
+
+				switch (sortSpecs->Specs->ColumnIndex) {
+				case 0: // name
+					sortUpDown_String(names, sortSpecs, &StateOrReplayInfo::displayName);
+					break;
+				case 1: // time
+					sortUpDown_T(names, sortSpecs, &StateOrReplayInfo::ftime);
+					break;
+				default:
+					UNREACHABLE;
+				}
+			}
+		};
+
 		loadStateOpen = im::Menu("Load state ...", [&]{
 			if (!loadStateOpen) {
 				// on each re-open of this menu, we recreate the list of states
@@ -94,7 +132,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						if (name.ends_with(STATE_EXTENSION)) {
 							name.remove_suffix(STATE_EXTENSION.size());
 							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-							stateNames.emplace_back(std::string(name), ftime);
+							stateNames.emplace_back("", std::string(name), ftime); // we don't care about full name
 						}
 					});
 				}
@@ -105,42 +143,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 					if (ImGui::TableNextColumn()) {
 						ImGui::TextUnformatted("Select save state"sv);
-						int flags = ImGuiTableFlags_RowBg |
-							ImGuiTableFlags_BordersV |
-							ImGuiTableFlags_BordersOuter |
-							ImGuiTableFlags_Resizable |
-							ImGuiTableFlags_Sortable |
-							ImGuiTableFlags_Hideable |
-							ImGuiTableFlags_Reorderable |
-							ImGuiTableFlags_ContextMenuInBody |
-							ImGuiTableFlags_ScrollY |
-							ImGuiTableFlags_SizingStretchProp;
-						im::Table("##select-savestate", 2, flags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
-							ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-							ImGui::TableSetupColumn("Name");
-							ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
-							ImGui::TableHeadersRow();
-							// check sort order
-							auto* sortSpecs = ImGui::TableGetSortSpecs();
-							if (sortSpecs->SpecsDirty || stateNamesChanged) {
-								sortSpecs->SpecsDirty = false;
-								stateNamesChanged = false;
-								assert(sortSpecs->SpecsCount == 1);
-								assert(sortSpecs->Specs);
-								assert(sortSpecs->Specs->SortOrder == 0);
-
-								switch (sortSpecs->Specs->ColumnIndex) {
-								case 0: // name
-									sortUpDown_String(stateNames, sortSpecs, &StateNames::name);
-									break;
-								case 1: // time
-									sortUpDown_T(stateNames, sortSpecs, &StateNames::ftime);
-									break;
-								default:
-									UNREACHABLE;
-								}
-							}
-							for (const auto& [name_, ftime] : stateNames) {
+						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+							setAndSortColumns(stateNamesChanged, stateNames);
+							for (const auto& [_, name_, ftime] : stateNames) {
 								const auto& name = name_; // clang workaround
 								if (ImGui::TableNextColumn()) {
 									if (ImGui::Selectable(name.c_str())) {
@@ -250,44 +255,11 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				ImGui::TextUnformatted("Select replay"sv);
-int flags = ImGuiTableFlags_RowBg |
-					ImGuiTableFlags_BordersV |
-					ImGuiTableFlags_BordersOuter |
-					ImGuiTableFlags_Resizable |
-					ImGuiTableFlags_Sortable |
-					ImGuiTableFlags_Hideable |
-					ImGuiTableFlags_Reorderable |
-					ImGuiTableFlags_ContextMenuInBody |
-					ImGuiTableFlags_ScrollY |
-					ImGuiTableFlags_SizingStretchProp;
-				im::Table("##select-replay", 2, flags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
-					ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-					ImGui::TableSetupColumn("Name");
-					ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
-					ImGui::TableHeadersRow();
-					// check sort order
-					auto* sortSpecs = ImGui::TableGetSortSpecs();
-					if (sortSpecs->SpecsDirty || replayNamesChanged) {
-						sortSpecs->SpecsDirty = false;
-						replayNamesChanged = false;
-						assert(sortSpecs->SpecsCount == 1);
-						assert(sortSpecs->Specs);
-						assert(sortSpecs->Specs->SortOrder == 0);
-
-						switch (sortSpecs->Specs->ColumnIndex) {
-						case 0: // name
-							sortUpDown_String(replayNames, sortSpecs, &ReplayNames::displayName);
-							break;
-						case 1: // time
-							sortUpDown_T(replayNames, sortSpecs, &ReplayNames::ftime);
-							break;
-						default:
-							UNREACHABLE;
-						}
-					}
+				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+					setAndSortColumns(replayNamesChanged, replayNames);
 					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
 						const auto& fullName = fullName_; // clang workaround
-if (ImGui::TableNextColumn()) {
+						if (ImGui::TableNextColumn()) {
 							const auto& displayName = displayName_; // clang workaround
 							if (ImGui::Selectable(displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
 								manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
