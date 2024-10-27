@@ -31,24 +31,18 @@ private:
 	std::string saveReplayName;
 	bool saveStateOpen = false;
 	bool loadStateOpen = false;
-	struct StateNames {
-		StateNames(std::string n, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
-			: name(std::move(n)), ftime(std::move(t)) {} // fixed in clang-16
-		std::string name;
-		std::filesystem::file_time_type ftime;
-	};
-	std::vector<StateNames> stateNames;
-	bool stateNamesChanged = false;
-	bool saveReplayOpen = false;
-	bool loadReplayOpen = false;
-	struct ReplayNames {
-		ReplayNames(std::string f, std::string d, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
+	struct StateOrReplayInfo {
+		StateOrReplayInfo(std::string f, std::string d, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
 			: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
 		std::string fullName;
 		std::string displayName;
 		std::filesystem::file_time_type ftime;
 	};
-	std::vector<ReplayNames> replayNames;
+	std::vector<StateOrReplayInfo> stateNames;
+	bool stateNamesChanged = false;
+	bool saveReplayOpen = false;
+	bool loadReplayOpen = false;
+	std::vector<StateOrReplayInfo> replayNames;
 	bool replayNamesChanged = false;
 	TclObject confirmCmd;
 	std::string confirmText;
