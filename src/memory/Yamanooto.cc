@@ -1,0 +1,309 @@
+#include "Yamanooto.hh"
+
+#include "DummyAY8910Periphery.hh"
+#include "MSXCPUInterface.hh"
+
+#include "ranges.hh"
+#include "unreachable.hh"
+
+#include <cassert>
+
+// TODO:
+// * HOME/DEL boot keys.  How are these handled?
+// * SCC stereo mode.
+
+namespace openmsx {
+
+static constexpr word ENAR = 0x7FFF;
+static constexpr byte REGEN  = 0x01;
+static constexpr byte WREN   = 0x10;
+static constexpr word OFFR = 0x7FFE;
+static constexpr word CFGR = 0x7FFD;
+static constexpr byte MDIS   = 0x01;
+static constexpr byte ECHO   = 0x02;
+static constexpr byte ROMDIS = 0x04;
+static constexpr byte K4     = 0x08;
+static constexpr byte SUBOFF = 0x30;
+// undocumented stuff
+static constexpr byte FPGA_EN   = 0x40; // write: 1 -> enable communication with FPGA commands ???
+static constexpr byte FPGA_WAIT = 0x80; // read: ready signal ??? (1 = ready)
+static constexpr word FPGA_REG  = 0x7FFC; // bi-direction 8-bit communication channel
+
+Yamanooto::Yamanooto(const DeviceConfig& config, Rom&& rom_)
+	: MSXRom(config, std::move(rom_))
+	, flash(rom, AmdFlashChip::S29GL064N90TFI04, {}, config)
+	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible)
+	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
+{
+	getCPUInterface().register_IO_Out_range(0x10, 2, this);
+	powerUp(getCurrentTime());
+}
+
+Yamanooto::~Yamanooto()
+{
+	writeConfigReg(0); // unregister A0-A2 ports
+	getCPUInterface().unregister_IO_Out_range(0x10, 2, this);
+}
+
+void Yamanooto::powerUp(EmuTime::param time)
+{
+	scc.powerUp(time);
+	reset(time);
+}
+
+void Yamanooto::reset(EmuTime::param time)
+{
+	// TODO is offsetReg changed by reset?
+	// TODO are all bits in configReg set to zero?   (also bit 0,1)
+	enableReg = 0;
+	offsetReg = 0;
+	writeConfigReg(0);
+	fpgaFsm = 0;
+
+	ranges::iota(bankRegs, uint16_t(0));
+	sccMode = 0;
+	scc.reset(time);
+
+	psgLatch = 0;
+	psg.reset(time);
+
+	flash.reset();
+
+	invalidateDeviceRCache(); // flush all to be sure
+}
+
+void Yamanooto::writeConfigReg(byte value)
+{
+	if ((value ^ configReg) & ECHO) {
+		if (value & ECHO) {
+			getCPUInterface().register_IO_Out_range(0xA0, 2, this);
+		} else {
+			getCPUInterface().unregister_IO_Out_range(0xA0, 2, this);
+		}
+	}
+	configReg = value;
+}
+
+bool Yamanooto::isSCCAccess(word address) const
+{
+	if (configReg & K4) return false; // Konami4 doesn't have SCC
+
+	if (sccMode & 0x20) {
+		// SCC+   range: 0xB800..0xBFFF,  excluding 0xBFFE-0xBFFF
+		return  (bankRegs[3] & 0x80)          && (0xB800 <= address) && (address < 0xBFFE);
+	} else {
+		// SCC    range: 0x9800..0x9FFF
+		return ((bankRegs[2] & 0x3F) == 0x3F) && (0x9800 <= address) && (address < 0xA000);
+	}
+}
+
+unsigned Yamanooto::getFlashAddr(unsigned addr) const
+{
+	unsigned page8kB = (addr >> 13) - 2;
+	assert(page8kB < 4); // must be inside [0x4000, 0xBFFF]
+	auto bank = bankRegs[page8kB] & 0x3ff; // max 8MB
+	return (bank << 13) | (addr & 0x1FFF);
+}
+
+[[nodiscard]] static word mirror(word address)
+{
+	if (address < 0x4000 || 0xC000 <= address) {
+		// mirror 0x4000 <-> 0xc000   /   0x8000 <-> 0x0000
+		address ^= 0x8000; // real hw probably just ignores upper address bit
+	}
+	assert((0x4000 <= address) && (address < 0xC000));
+	return address;
+}
+
+static constexpr std::array<byte, 4 + 1> FPGA_ID = {
+	0xFF, // idle
+	0x1F, 0x23, 0x00, 0x00, // TODO check last 2
+};
+byte Yamanooto::peekMem(word address, EmuTime::param time) const
+{
+	address = mirror(address);
+
+	// 0x7ffc-0x7fff
+	if (FPGA_REG <= address && address <= ENAR && (enableReg & REGEN)) {
+		switch (address) {
+		case FPGA_REG:
+			if (!(configReg & FPGA_EN)) return 0xFF; // TODO check this
+			assert(fpgaFsm < 5);
+			return FPGA_ID[fpgaFsm];
+		case CFGR: return configReg | FPGA_WAIT; // not-busy
+		case OFFR: return offsetReg;
+		case ENAR: return enableReg;
+		default: UNREACHABLE;
+		}
+	}
+
+	// 0x9800-0x9FFF or 0xB800-0xBFFD
+	if (isSCCAccess(address)) {
+		return scc.peekMem(narrow_cast<uint8_t>(address & 0xFF), time);
+	}
+	return ((configReg & ROMDIS) == 0) ? flash.peek(getFlashAddr(address))
+	                                   : 0xFF; // access to flash ROM disabled
+}
+
+byte Yamanooto::readMem(word address, EmuTime::param time)
+{
+	address = mirror(address);
+
+	// 0x7ffc-0x7fff
+	if (FPGA_REG <= address && address <= ENAR && (enableReg & REGEN)) {
+		return peekMem(address, time);
+	}
+
+	// 0x9800-0x9FFF or 0xB800-0xBFFD
+	if (isSCCAccess(address)) {
+		return scc.readMem(narrow_cast<uint8_t>(address & 0xFF), time);
+	}
+	return ((configReg & ROMDIS) == 0) ? flash.read(getFlashAddr(address))
+	                                   : 0xFF; // access to flash ROM disabled
+}
+
+const byte* Yamanooto::getReadCacheLine(word address) const
+{
+	address = mirror(address);
+	if (((address & CacheLine::HIGH) == (ENAR & CacheLine::HIGH)) && (enableReg & REGEN)) {
+		return nullptr; // Yamanooto registers, non-cacheable
+	}
+	if (isSCCAccess(address)) return nullptr;
+	return ((configReg & ROMDIS) == 0) ? flash.getReadCacheLine(getFlashAddr(address))
+	                                   : unmappedRead.data(); // access to flash ROM disabled
+}
+
+void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
+{
+	address = mirror(address);
+	unsigned page8kB = (address >> 13) - 2;
+
+	// 0x7ffc-0x7fff
+	if (FPGA_REG <= address && address <= ENAR) {
+		if (address == ENAR) {
+			enableReg = value;
+		} else if (enableReg & REGEN) {
+			switch (address) {
+			case FPGA_REG:
+				if (!(configReg & FPGA_EN)) break;
+				switch (fpgaFsm) {
+				case 0:
+					if (value == 0x9f) { // read ID command ??
+						++fpgaFsm;
+					}
+					break;
+				case 1: case 2: case 3:
+					++fpgaFsm;
+					break;
+				case 4:
+					fpgaFsm = 0;
+					break;
+				default:
+					UNREACHABLE;
+				}
+				break;
+			case CFGR:
+				writeConfigReg(value);
+				break;
+			case OFFR:
+				offsetReg = value; // does NOT immediately switch bankRegs
+				break;
+			default:
+				UNREACHABLE;
+			}
+		}
+		invalidateDeviceRCache();
+	}
+
+	if (enableReg & WREN) {
+		// write to flash rom
+		if (!(configReg & ROMDIS)) { // disabled?
+			flash.write(getFlashAddr(address), value);
+			invalidateDeviceRCache(); // needed ?
+		}
+	} else {
+		auto invalidateCache = [&](unsigned start, unsigned size) {
+			invalidateDeviceRCache(start, size);
+			invalidateDeviceRCache(start ^ 0x8000, size); // mirror
+		};
+		auto offset = (offsetReg << 2) | ((configReg & SUBOFF) >> 4);
+		if (configReg & K4) {
+			// Konami-4
+			if (((configReg & MDIS) == 0) && (0x6000 <= address)) {
+				// bank 0 is NOT switchable, but it keeps the
+				// value it had before activating K4 mode
+				bankRegs[page8kB] = (value + offset) & 0x3FF;
+				invalidateCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			}
+		} else {
+			// 0x9800-0x9FFF or 0xB800-0xBFFD
+			if (isSCCAccess(address)) {
+				scc.writeMem(narrow_cast<uint8_t>(address & 0xFF), value, time);
+			}
+
+			// Konami-SCC
+			if (((address & 0x1800) == 0x1000) && ((configReg & MDIS) == 0)) {
+				// [0x5000,0x57FF] [0x7000,0x77FF]
+				// [0x9000,0x97FF] [0xB000,0xB7FF]
+				bankRegs[page8kB] = (value + offset) & 0x3FF;
+				invalidateCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			}
+
+			// SCC mode register
+			if ((address & 0xFFFE) == 0xBFFE) {
+				sccMode = value;
+				scc.setMode((value & 0x20) ? SCC::Mode::Plus
+				                           : SCC::Mode::Compatible);
+				invalidateCache(0x9800, 0x800);
+				invalidateCache(0xB800, 0x800);
+			}
+		}
+	}
+}
+
+byte* Yamanooto::getWriteCacheLine(word /*address*/)
+{
+	return nullptr;
+}
+
+byte Yamanooto::peekIO(word /*port*/, EmuTime::param /*time*/) const
+{
+	return 0xff;
+}
+
+byte Yamanooto::readIO(word /*port*/, EmuTime::param /*time*/)
+{
+	// PSG is not readable
+	return 0xff; // should never be called
+}
+
+void Yamanooto::writeIO(word port, byte value, EmuTime::param time)
+{
+	if (port & 1) { // 0x11 or 0xA1
+		psg.writeRegister(psgLatch, value, time);
+	} else { // 0x10 or 0xA0
+		psgLatch = value & 0x0F;
+	}
+}
+
+template<typename Archive>
+void Yamanooto::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize(
+		"flash", flash,
+		"scc", scc,
+		"psg", psg,
+		"bankRegs", bankRegs,
+		"enableReg", enableReg,
+		"offsetReg", offsetReg,
+		"configReg", configReg,
+		"sccMode", sccMode,
+		"sccMode", sccMode,
+		"psgLatch", psgLatch,
+		"fpgaFsm", fpgaFsm
+	);
+}
+INSTANTIATE_SERIALIZE_METHODS(Yamanooto);
+REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");
+
+} // namespace openmsx

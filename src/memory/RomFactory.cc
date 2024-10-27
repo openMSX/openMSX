@@ -64,6 +64,7 @@
 #include "RomDatabase.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
+#include "Yamanooto.hh"
 #include "MSXException.hh"
 
 #include "enumerate.hh"
@@ -419,6 +420,9 @@ std::unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case REPRO_CARTRIDGE2:
 		result = make_unique<ReproCartridgeV2>(config, std::move(rom));
+		break;
+	case YAMANOOTO:
+		result = make_unique<Yamanooto>(config, std::move(rom));
 		break;
 	case KONAMI_ULTIMATE_COLLECTION:
 		result = make_unique<KonamiUltimateCollection>(config, std::move(rom));

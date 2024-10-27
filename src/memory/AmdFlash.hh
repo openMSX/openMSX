@@ -341,6 +341,18 @@ namespace AmdFlashChip
 		},
 	}};
 
+	// Infineon / Cypress / Spansion S29GL064N90TFI04
+	static constexpr ValidatedChip S29GL064N90TFI04 = {{
+		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
+		.geometry{DeviceInterface::x8x16, {{8, 0x2000}, {127, 0x10000}}, 1},
+		.program{.bufferCommand = true, .pageSize = 32},
+		.cfi{
+			.command = true,
+			.systemInterface{{0x27, 0x36, 0x00, 0x00}, {128, 128, 1024, 1}, {8, 32, 16, 1}},
+			.primaryAlgorithm{{1, 3}, 0, 8, 2, 1, 0, 8, 0, 0, 2, {0xB5, 0xC5}, 0x02, 1},
+		}
+	}};
+
 	// Infineon / Cypress / Spansion S29GL064S70TFI040
 	static constexpr ValidatedChip S29GL064S70TFI040 = {{
 		.autoSelect{.manufacturer = AMD, .device{0x10, 0x00}, .extraCode = 0xFF0A, .readMask = 0x0F},
