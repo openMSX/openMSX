@@ -161,7 +161,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			} else {
 				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 					if (ImGui::TableNextColumn()) {
-						ImGui::TextUnformatted("Select save state"sv);
 						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 							setAndSortColumns(stateNamesChanged, stateNames);
 							for (const auto& [_, name_, ftime] : stateNames) {
@@ -206,12 +205,16 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						});
 					}
 					if (ImGui::TableNextColumn()) {
-						ImGui::TextUnformatted("Preview"sv);
-						ImVec2 size(320, 240);
+						gl::vec2 size(320, 240);
 						if (previewImage.texture.get()) {
 							ImGui::Image(previewImage.texture.getImGui(), size);
 						} else {
+							gl::vec2 pos = ImGui::GetCursorPos();
 							ImGui::Dummy(size);
+							auto text = "No preview available..."sv;
+							gl::vec2 textSize = ImGui::CalcTextSize(text);
+							ImGui::SetCursorPos(pos + 0.5f*(size - textSize));
+							ImGui::TextUnformatted(text);
 						}
 					}
 				});
@@ -275,7 +278,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (replayNames.empty()) {
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
-				ImGui::TextUnformatted("Select replay"sv);
 				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 					setAndSortColumns(replayNamesChanged, replayNames);
 					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
