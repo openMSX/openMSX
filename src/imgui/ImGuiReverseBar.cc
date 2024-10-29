@@ -62,24 +62,43 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		auto formatFileTime = [](std::filesystem::file_time_type fileTime) {
-			// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
-			// as workaround instead of using more modern std::chrono and std::format stuff.
-
+		// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
+		// as workaround instead of using more modern std::chrono and std::format stuff in all time
+		// calculations and formatting.
+		auto fileTimeToTimeT = [](std::filesystem::file_time_type fileTime) {
 			// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
 			auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
 					fileTime - std::filesystem::file_time_type::clock::now() +
 					std::chrono::system_clock::now());
 
 			// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
-			std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+			return std::chrono::system_clock::to_time_t(sctp);
+		};
 
+		auto formatFileTimeFull = [](std::time_t fileTime) {
 			// Convert time_t to local time (broken-down time in the local time zone)
-			std::tm* local_time = std::localtime(&cftime);
+			std::tm* local_time = std::localtime(&fileTime);
 
 			// Get the local time in human-readable format
 			std::stringstream ss;
 			ss << std::put_time(local_time, "%F %T");
+			return ss.str();
+		};
+
+		auto formatFileAbbreviated = [](std::time_t fileTime) {
+			// Convert time_t to local time (broken-down time in the local time zone)
+			std::tm local_time = *std::localtime(&fileTime);
+
+			std::time_t t_now = std::time(0);   // get time now
+			std::tm now = *std::localtime(&t_now);
+
+			const std::string format = ((now.tm_mday == local_time.tm_mday) &&
+						    (now.tm_mon  == local_time.tm_mon ) &&
+						    (now.tm_year == local_time.tm_year)) ? "%T" : "%F";
+
+			// Get the local time in human-readable format
+			std::stringstream ss;
+			ss << std::put_time(&local_time, format.c_str());
 			return ss.str();
 		};
 
@@ -132,7 +151,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						if (name.ends_with(STATE_EXTENSION)) {
 							name.remove_suffix(STATE_EXTENSION.size());
 							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-							stateNames.emplace_back("", std::string(name), ftime); // we don't care about full name
+							stateNames.emplace_back("", std::string(name), fileTimeToTimeT(ftime)); // we don't care about full name
 						}
 					});
 				}
@@ -143,7 +162,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 					if (ImGui::TableNextColumn()) {
 						ImGui::TextUnformatted("Select save state"sv);
-						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 							setAndSortColumns(stateNamesChanged, stateNames);
 							for (const auto& [_, name_, ftime] : stateNames) {
 								const auto& name = name_; // clang workaround
@@ -151,6 +170,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 									if (ImGui::Selectable(name.c_str())) {
 										manager.executeDelayed(makeTclList("loadstate", name));
 									}
+									simpleToolTip(name);
 									if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
 									    (previewImage.name != name)) {
 										// record name, but (so far) without image
@@ -179,7 +199,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 									});
 								}
 								if (ImGui::TableNextColumn()) {
-									ImGui::TextUnformatted(formatFileTime(ftime));
+									ImGui::TextUnformatted(formatFileAbbreviated(ftime));
+									simpleToolTip([&] { return formatFileTimeFull(ftime); });
 								}
 							}
 						});
@@ -246,7 +267,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
 							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
 							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							replayNames.emplace_back(fullName, std::string(name), ftime);
+							replayNames.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
 						}
 					});
 				}
@@ -255,7 +276,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				ImGui::TextUnformatted("Select replay"sv);
-				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 40.0f, 240.0f), [&]{
+				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 					setAndSortColumns(replayNamesChanged, replayNames);
 					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
 						const auto& fullName = fullName_; // clang workaround
@@ -264,6 +285,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 							if (ImGui::Selectable(displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
 								manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
 							}
+							simpleToolTip(displayName);
 							im::PopupContextItem([&]{
 								if (ImGui::MenuItem("delete")) {
 									confirmCmd = makeTclList("file", "delete", fullName);
@@ -273,9 +295,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 							});
 						}
 						if (ImGui::TableNextColumn()) {
-							ImGui::TextUnformatted(formatFileTime(ftime));
+							ImGui::TextUnformatted(formatFileAbbreviated(ftime));
+							simpleToolTip([&] { return formatFileTimeFull(ftime); });
 						}
-
 				}});
 			}
 		});
