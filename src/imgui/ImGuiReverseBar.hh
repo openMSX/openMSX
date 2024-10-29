@@ -32,11 +32,11 @@ private:
 	bool saveStateOpen = false;
 	bool loadStateOpen = false;
 	struct StateOrReplayInfo {
-		StateOrReplayInfo(std::string f, std::string d, std::filesystem::file_time_type t) // workaround, needed for clang, not gcc or msvc
+		StateOrReplayInfo(std::string f, std::string d, std::time_t t) // workaround, needed for clang, not gcc or msvc
 			: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
 		std::string fullName;
 		std::string displayName;
-		std::filesystem::file_time_type ftime;
+		std::time_t ftime;
 	};
 	std::vector<StateOrReplayInfo> stateNames;
 	bool stateNamesChanged = false;
