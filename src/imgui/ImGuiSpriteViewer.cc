@@ -536,6 +536,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			uint8_t stopY = (mode == 1) ? 208 : 216;
 			uint8_t patMask = (size == 8) ? 0xff : 0xfc;
 			int magFactor = mag ? 2 : 1;
+			auto magSize = magFactor * size;
 
 			uint8_t spriteCnt = 0;
 			for (/**/; spriteCnt < 32; ++spriteCnt) {
@@ -589,8 +590,8 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				spriteBoxes[spriteCnt] = SpriteBox{
 					anyEC ? x - 32 : x,
 					initialY,
-					anyEC && anyNonEC ? size + 32 : size,
-					size,
+					magSize + (anyEC && anyNonEC ? 32 : 0),
+					magSize,
 					spriteCnt, x, originalY, pat};
 			}
 
