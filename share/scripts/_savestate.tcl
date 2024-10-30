@@ -83,7 +83,7 @@ proc list_savestates {args} {
 
 proc delete_savestate {{name ""}} {
 	savestate_common
-	catch {file delete -- $fullname_bwcompat}
+	catch {file delete -- $fullname}
 	catch {file delete -- $png}
 	return ""
 }
