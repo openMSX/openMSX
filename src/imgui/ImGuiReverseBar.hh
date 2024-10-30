@@ -29,21 +29,24 @@ public:
 private:
 	std::string saveStateName;
 	std::string saveReplayName;
-	bool saveStateOpen = false;
-	bool loadStateOpen = false;
-	struct StateOrReplayInfo {
-		StateOrReplayInfo(std::string f, std::string d, std::time_t t) // workaround, needed for clang, not gcc or msvc
-			: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
-		std::string fullName;
-		std::string displayName;
-		std::time_t ftime;
+	struct Info {
+		struct Entry {
+			Entry(std::string f, std::string d, std::time_t t) // workaround, needed for clang, not gcc or msvc
+				: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
+			std::string fullName;
+			std::string displayName;
+			std::time_t ftime;
+		};
+		std::vector<Entry> entries;
+		bool entriesChanged = false;
+		bool submenuOpen = false;
 	};
-	std::vector<StateOrReplayInfo> stateNames;
-	bool stateNamesChanged = false;
+	Info saveStateInfo;
+	Info replayInfo;
+
+	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
-	bool loadReplayOpen = false;
-	std::vector<StateOrReplayInfo> replayNames;
-	bool replayNamesChanged = false;
+	
 	TclObject confirmCmd;
 	std::string confirmText;
 

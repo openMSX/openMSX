@@ -62,19 +62,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
-		// as workaround instead of using more modern std::chrono and std::format stuff in all time
-		// calculations and formatting.
-		auto fileTimeToTimeT = [](std::filesystem::file_time_type fileTime) {
-			// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
-			auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-					fileTime - std::filesystem::file_time_type::clock::now() +
-					std::chrono::system_clock::now());
-
-			// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
-			return std::chrono::system_clock::to_time_t(sctp);
-		};
-
 		auto formatFileTimeFull = [](std::time_t fileTime) {
 			// Convert time_t to local time (broken-down time in the local time zone)
 			std::tm* local_time = std::localtime(&fileTime);
@@ -102,6 +89,35 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			return ss.str();
 		};
 
+		auto scanDirectory = [](std::string_view dir, std::string_view extension, Info& info) {
+			// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
+			// as workaround instead of using more modern std::chrono and std::format stuff in all time
+			// calculations and formatting.
+			auto fileTimeToTimeT = [](std::filesystem::file_time_type fileTime) {
+				// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
+				auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+						fileTime - std::filesystem::file_time_type::clock::now() +
+						std::chrono::system_clock::now());
+
+				// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
+				return std::chrono::system_clock::to_time_t(sctp);
+			};
+
+			// on each re-open of this menu, we recreate the list of entries
+			info.entries.clear();
+			info.entriesChanged = true;
+			for (auto context = userDataFileContext(dir);
+			     const auto& path : context.getPaths()) {
+				foreach_file(path, [&](const std::string& fullName, std::string_view name) {
+					if (name.ends_with(extension)) {
+						std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
+						info.entries.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
+						name.remove_suffix(extension.size());
+					}
+				});
+			}
+		};
+
 		int selectionTableFlags = ImGuiTableFlags_RowBg |
 			ImGuiTableFlags_BordersV |
 			ImGuiTableFlags_BordersOuter |
@@ -113,7 +129,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGuiTableFlags_ScrollY |
 			ImGuiTableFlags_SizingStretchProp;
 
-		auto setAndSortColumns = [](bool& namesChanged, std::vector<StateOrReplayInfo>& names) {
+		auto setAndSortColumns = [](bool& namesChanged, std::vector<Info::Entry>& names) {
 			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 			ImGui::TableSetupColumn("Name");
 			ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
@@ -129,10 +145,10 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 
 				switch (sortSpecs->Specs->ColumnIndex) {
 				case 0: // name
-					sortUpDown_String(names, sortSpecs, &StateOrReplayInfo::displayName);
+					sortUpDown_String(names, sortSpecs, &Info::Entry::displayName);
 					break;
 				case 1: // time
-					sortUpDown_T(names, sortSpecs, &StateOrReplayInfo::ftime);
+					sortUpDown_T(names, sortSpecs, &Info::Entry::ftime);
 					break;
 				default:
 					UNREACHABLE;
@@ -140,30 +156,18 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		};
 
-		loadStateOpen = im::Menu("Load state ...", [&]{
-			if (!loadStateOpen) {
-				// on each re-open of this menu, we recreate the list of states
-				stateNames.clear();
-				stateNamesChanged = true;
-				for (auto context = userDataFileContext(STATE_DIR);
-				     const auto& path : context.getPaths()) {
-					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-						if (name.ends_with(STATE_EXTENSION)) {
-							name.remove_suffix(STATE_EXTENSION.size());
-							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-							stateNames.emplace_back("", std::string(name), fileTimeToTimeT(ftime)); // we don't care about full name
-						}
-					});
-				}
+		saveStateInfo.submenuOpen = im::Menu("Load state ...", [&]{
+			if (!saveStateInfo.submenuOpen) {
+				scanDirectory(STATE_DIR, STATE_EXTENSION, saveStateInfo);
 			}
-			if (stateNames.empty()) {
+			if (saveStateInfo.entries.empty()) {
 				ImGui::TextUnformatted("No save states found"sv);
 			} else {
 				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
 					if (ImGui::TableNextColumn()) {
 						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
-							setAndSortColumns(stateNamesChanged, stateNames);
-							for (const auto& [_, name_, ftime] : stateNames) {
+							setAndSortColumns(saveStateInfo.entriesChanged, saveStateInfo.entries);
+							for (const auto& [fullName, name_, ftime] : saveStateInfo.entries) {
 								const auto& name = name_; // clang workaround
 								if (ImGui::TableNextColumn()) {
 									if (ImGui::Selectable(name.c_str())) {
@@ -176,10 +180,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 										// this prevents that on a missing image, we don't continue retrying
 										previewImage.name = std::string(name);
 										previewImage.texture = gl::Texture(gl::Null{});
-
-										std::string filename = FileOperations::join(
-											FileOperations::getUserOpenMSXDir(),
-											STATE_DIR, tmpStrCat(name, ".png"));
+										std::string_view shortFullName = fullName;
+										shortFullName.remove_suffix(STATE_EXTENSION.size());
+										std::string filename = strCat(shortFullName, ".png");
 										if (FileOperations::exists(filename)) {
 											try {
 												gl::ivec2 dummy;
@@ -259,28 +262,16 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		loadReplayOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
-			if (!loadReplayOpen) {
-				// on each re-open of this menu, we recreate the list of replays
-				replayNames.clear();
-				replayNamesChanged = true;
-				for (auto context = userDataFileContext(ReverseManager::REPLAY_DIR);
-				     const auto& path : context.getPaths()) {
-					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-						if (name.ends_with(ReverseManager::REPLAY_EXTENSION)) {
-							std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-							name.remove_suffix(ReverseManager::REPLAY_EXTENSION.size());
-							replayNames.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
-						}
-					});
-				}
+		replayInfo.submenuOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
+			if (!replayInfo.submenuOpen) {
+				scanDirectory(ReverseManager::REPLAY_DIR, ReverseManager::REPLAY_EXTENSION, replayInfo);
 			}
-			if (replayNames.empty()) {
+			if (replayInfo.entries.empty()) {
 				ImGui::TextUnformatted("No replays found"sv);
 			} else {
 				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
-					setAndSortColumns(replayNamesChanged, replayNames);
-					for (const auto& [fullName_, displayName_, ftime] : replayNames) {
+					setAndSortColumns(replayInfo.entriesChanged, replayInfo.entries);
+					for (const auto& [fullName_, displayName_, ftime] : replayInfo.entries) {
 						const auto& fullName = fullName_; // clang workaround
 						if (ImGui::TableNextColumn()) {
 							const auto& displayName = displayName_; // clang workaround
