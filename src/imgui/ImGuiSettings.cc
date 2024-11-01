@@ -141,7 +141,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						AlgoEnable{SIMPLE,     true,  true },
 						AlgoEnable{SCALE,      false, false},
 						AlgoEnable{HQ,         false, false},
-						AlgoEnable{HQLITE,     false, false},
 						AlgoEnable{RGBTRIPLET, true,  true },
 						AlgoEnable{TV,         true,  false},
 					};

@@ -495,7 +495,6 @@ if not get_option('glrenderer').disabled()
         'video/GLUtil.cc',
         'video/OffScreenSurface.cc',
         'video/scalers/GLDefaultScaler.cc',
-        'video/scalers/GLHQLiteScaler.cc',
         'video/scalers/GLHQScaler.cc',
         'video/scalers/GLRGBScaler.cc',
         'video/scalers/GLScaleNxScaler.cc',

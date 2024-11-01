@@ -711,7 +711,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\DummyRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\FrameSource.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.cc" />
@@ -1345,7 +1344,6 @@
     <None Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\FrameSource.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLImage.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLRGBScaler.hh" />

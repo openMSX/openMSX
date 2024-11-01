@@ -4,7 +4,6 @@
 #include "GLScaleNxScaler.hh"
 #include "GLTVScaler.hh"
 #include "GLHQScaler.hh"
-#include "GLHQLiteScaler.hh"
 #include "GLContext.hh"
 #include "RenderSettings.hh"
 #include "unreachable.hh"
@@ -28,8 +27,6 @@ std::unique_ptr<GLScaler> createScaler(
 		return std::make_unique<GLTVScaler>(renderSettings);
 	case HQ:
 		return std::make_unique<GLHQScaler>(fallback, maxWidth, maxHeight);
-	case HQLITE:
-		return std::make_unique<GLHQLiteScaler>(fallback, maxWidth, maxHeight);
 	default:
 		UNREACHABLE;
 	}

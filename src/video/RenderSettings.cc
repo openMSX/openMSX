@@ -24,7 +24,6 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 		{"simple",     SIMPLE},
 		{"ScaleNx",    SCALE},
 		{"hq",         HQ},
-		{"hqlite",     HQLITE},
 		{"RGBtriplet", RGBTRIPLET},
 		{"TV",         TV}
 	};

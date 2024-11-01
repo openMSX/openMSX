@@ -35,7 +35,7 @@ public:
 	/** Scaler algorithm
 	  */
 	enum class ScaleAlgorithm {
-		SIMPLE, SCALE, HQ, HQLITE, RGBTRIPLET, TV,
+		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
 		NO
 	};
 
