@@ -36,11 +36,12 @@ public:
 	[[nodiscard]] constexpr auto operator<=>(const EmuTime&) const = default;
 
 	// arithmetic operators
-	[[nodiscard]] constexpr friend EmuTime operator+(const EmuTime& l, const EmuDuration& r)
-		{ return EmuTime(l.time + r.time); }
-	[[nodiscard]] constexpr friend EmuTime operator-(const EmuTime& l, const EmuDuration& r)
-		{ assert(l.time >= r.time);
-		  return EmuTime(l.time - r.time); }
+	// TODO these 2 should be 'friend', workaround for pre-gcc-13 bug
+	[[nodiscard]] constexpr EmuTime operator+(const EmuDuration& r) const
+		{ return EmuTime(time + r.time); }
+	[[nodiscard]] constexpr EmuTime operator-(const EmuDuration& r) const
+		{ assert(time >= r.time);
+		  return EmuTime(time - r.time); }
 	constexpr EmuTime& operator+=(EmuDuration::param d)
 		{ time += d.time; return *this; }
 	constexpr EmuTime& operator-=(EmuDuration::param d)

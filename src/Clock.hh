@@ -84,8 +84,9 @@ public:
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	[[nodiscard]] constexpr friend EmuTime operator+(const Clock& c, uint64_t n) {
-		return EmuTime(c.lastTick.time + n * MASTER_TICKS);
+	// TODO should be friend, workaround for pre-gcc-13 bug
+	[[nodiscard]] constexpr EmuTime operator+(uint64_t n) const {
+		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 
 	/** Like operator+() but faster, though the step can't be too big (max
