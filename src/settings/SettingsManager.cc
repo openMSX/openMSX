@@ -8,7 +8,6 @@
 
 #include "outer.hh"
 #include "view.hh"
-#include "vla.hh"
 
 #include <cassert>
 
@@ -63,11 +62,7 @@ BaseSetting* SettingsManager::findSetting(std::string_view name) const
 
 BaseSetting* SettingsManager::findSetting(std::string_view prefix, std::string_view baseName) const
 {
-	auto size = prefix.size() + baseName.size();
-	VLA(char, fullname, size);
-	ranges::copy(prefix,   fullname);
-	ranges::copy(baseName, fullname.subspan(prefix.size()));
-	return findSetting(std::string_view(fullname.data(), size)); // TODO simplify in c++23
+	return findSetting(tmpStrCat(prefix, baseName));
 }
 
 // Helper functions for setting commands
