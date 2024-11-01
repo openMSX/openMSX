@@ -8,13 +8,12 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 
+#include "inplace_buffer.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "one_of.hh"
-#include "vla.hh"
 #include "xrange.hh"
 
-#include <array>
 #include <bit>
 #include <cassert>
 
@@ -193,8 +192,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	if (samples == 0) return true;
 	size_t outputStereo = isStereo() ? 2 : 1;
 
-	std::array<float*, MAX_CHANNELS> bufs_;
-	auto bufs = subspan(bufs_, 0, numChannels);
+	inplace_buffer<float*, MAX_CHANNELS> bufs(uninitialized_tag{}, numChannels);
 
 	// TODO optimization: All channels with the same balance (according to
 	// channelBalance[]) could use the same buffer when balanceCenter is
@@ -289,7 +287,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// remove muted channels (explicitly by user or by device itself)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
-	VLA(int, mixBalance, numChannels);
+	inplace_buffer<int, MAX_CHANNELS> mixBalance(uninitialized_tag{}, numChannels);
 	for (auto i : xrange(numChannels)) {
 		if (bufs[i] && !channelMuted[i]) {
 			anyUnmuted = true;
