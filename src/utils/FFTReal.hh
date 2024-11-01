@@ -10,6 +10,7 @@
 
 #include "cstd.hh"
 #include "narrow.hh"
+#include "xrange.hh"
 
 #include <array>
 #include <cmath>
@@ -137,7 +138,7 @@ private:
 	static constexpr auto bitRevBuf = []{
 		constexpr int BR_ARR_SIZE = FFT_LEN / 4;
 		std::array<uint16_t, BR_ARR_SIZE> result = {};
-		for (unsigned cnt = 0; cnt < result.size(); ++cnt) {
+		for (unsigned cnt : xrange(result.size())) {
 			unsigned index = cnt << 2;
 			unsigned res = 0;
 			for (int bit_cnt = FFT_LEN_L2; bit_cnt > 0; --bit_cnt) {
@@ -154,7 +155,7 @@ private:
 	static constexpr auto cosBuf = []{
 		std::array<float, COS_ARR_SIZE> result = {};
 		const double mul = (0.5 * std::numbers::pi) / COS_ARR_SIZE;
-		for (unsigned i = 0; i < result.size(); ++i) {
+		for (unsigned i : xrange(result.size())) {
 			result[i] = float(cstd::cos<4>(i * mul));
 		}
 		return result;

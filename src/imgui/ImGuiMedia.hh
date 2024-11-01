@@ -125,7 +125,7 @@ private:
 	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current,
 	                     const std::function<void()>& createNewCallback);
 	bool selectPatches(MediaItem& item, int& patchIndex);
-	bool insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow);
+	bool insertMediaButton(std::string_view mediaName, const ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);

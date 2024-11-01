@@ -314,8 +314,8 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 		       windowBR.y > monitorTL.y;
 	};
 
-	const auto& monitors = ImGui::GetPlatformIO().Monitors;
-	if (!monitors.empty() && ranges::none_of(monitors, overlaps)) {
+	if (const auto& monitors = ImGui::GetPlatformIO().Monitors;
+	    !monitors.empty() && ranges::none_of(monitors, overlaps)) {
 		// window isn't visible in any of the monitors
 		// -> place centered on primary monitor
 		return gl::ivec2(SDL_WINDOWPOS_CENTERED);

@@ -218,12 +218,12 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			anySeparateChannel = true;
 			cb.requestCounter = std::max<int>(0, cb.requestCounter - samples);
 
-			unsigned remainingSize = cb.buffer.size() - cb.stopIdx;
-			if (remainingSize < padded) {
+			if (unsigned remainingSize = cb.buffer.size() - cb.stopIdx;
+			    remainingSize < padded) {
 				// not enough space at the tail of the buffer
 				unsigned lastBufferSize = getLastBufferSize();
-				auto allocateSize = 2 * std::max(lastBufferSize, padded);
-				if (cb.buffer.size() < allocateSize) [[unlikely]] {
+				if (auto allocateSize = 2 * std::max(lastBufferSize, padded);
+				    cb.buffer.size() < allocateSize) [[unlikely]] {
 					// increase buffer size
 					cb.buffer.resize(allocateSize);
 				}

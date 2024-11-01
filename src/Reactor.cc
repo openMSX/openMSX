@@ -377,7 +377,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 	// 'MsxChar2Unicode' object. Probably the 'Keyboard' class is not the
 	// right location to store it.
 	try {
-		if (MSXMotherBoard* board = getMotherBoard()) {
+		if (const auto* board = getMotherBoard()) {
 			if (const auto* keyb = board->getKeyboard()) {
 				return keyb->getMsxChar2Unicode();
 			}

@@ -9,7 +9,7 @@ using namespace openmsx;
 
 TEST_CASE("instructionLength, dasm")
 {
-	std::set<std::string> allInstructions;
+	std::set<std::string, std::less<>> allInstructions;
 	std::array<uint8_t, 4> opcode = {0, 0, 0, 0};
 	std::string dasmString;
 

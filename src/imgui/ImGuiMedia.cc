@@ -930,7 +930,7 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 	return interacted;
 }
 
-bool ImGuiMedia::insertMediaButton(std::string_view mediaName, ItemGroup& group, bool* showWindow)
+bool ImGuiMedia::insertMediaButton(std::string_view mediaName, const ItemGroup& group, bool* showWindow)
 {
 	bool clicked = false;
 	im::Disabled(group.edit.name.empty() && !group.edit.isEject(), [&]{

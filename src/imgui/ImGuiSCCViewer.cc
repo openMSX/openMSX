@@ -23,7 +23,7 @@ void ImGuiSCCViewer::paint(MSXMotherBoard* motherBoard)
 	im::Window("SCC Viewer", &show, [&] {
 		bool noDevices = true;
 		for (auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
-			if (auto* device = dynamic_cast<SCC*>(info.device)) {
+			if (const auto* device = dynamic_cast<const SCC*>(info.device)) {
 				noDevices = false;
 				paintSCC(*device);
 			}
