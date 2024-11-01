@@ -75,9 +75,9 @@ public:
 
 	/** Return as a 'void*' (needed for 'Dear ImGui').
 	  */
-	[[nodiscard]] void* getImGui() const {
+	[[nodiscard]] unsigned long long getImGui() const {
 		assert(textureId);
-		return std::bit_cast<void*>(uintptr_t(textureId));
+		return uintptr_t(textureId);
 	}
 
 	/** Makes this texture the active GL texture.

@@ -93,7 +93,7 @@ static void renderPatterns16(const VramTable& pat, std::span<uint32_t> output)
 }
 
 static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int size, int transparent,
-                               float zoom, std::span<uint32_t, 16> palette, void* patternTex)
+                               float zoom, std::span<uint32_t, 16> palette, ImTextureID patternTex)
 {
 	int addr = getSpriteAttrAddr(sprite, mode);
 	int pattern = att[addr + 2];
