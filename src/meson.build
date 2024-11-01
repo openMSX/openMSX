@@ -392,7 +392,6 @@ sources = files(
     'sound/NullSoundDriver.cc',
     'sound/ResampleBlip.cc',
     'sound/ResampleHQ.cc',
-    'sound/ResampleLQ.cc',
     'sound/ResampleTrivial.cc',
     'sound/ResampledSoundDevice.cc',
     'sound/SCC.cc',

@@ -656,7 +656,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleBlip.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleHQ.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleLQ.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleTrivial.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SamplePlayer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SCC.cc" />
@@ -1247,7 +1246,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\ResampleBlip.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleCoeffs.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleHQ.hh" />
-    <None Include="$(OpenMSXSrcDir)\sound\ResampleLQ.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleTrivial.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SamplePlayer.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SCC.hh" />

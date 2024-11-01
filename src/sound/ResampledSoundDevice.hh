@@ -19,7 +19,7 @@ class Setting;
 class ResampledSoundDevice : public SoundDevice, protected Observer<Setting>
 {
 public:
-	enum class ResampleType { HQ, LQ, BLIP };
+	enum class ResampleType { HQ, BLIP };
 
 	/** Note: To enable various optimizations (like SSE), this method is
 	  * allowed to generate up to 3 extra sample.

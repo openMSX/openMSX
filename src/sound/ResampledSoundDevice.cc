@@ -2,7 +2,6 @@
 
 #include "ResampleTrivial.hh"
 #include "ResampleHQ.hh"
-#include "ResampleLQ.hh"
 #include "ResampleBlip.hh"
 
 #include "EnumSetting.hh"
@@ -73,13 +72,6 @@ void ResampledSoundDevice::createResampler()
 				algo = std::make_unique<ResampleHQ<1>>(*this, hostClock);
 			} else {
 				algo = std::make_unique<ResampleHQ<2>>(*this, hostClock);
-			}
-			break;
-		case ResampleType::LQ:
-			if (!isStereo()) {
-				algo = ResampleLQ<1>::create(*this, hostClock);
-			} else {
-				algo = ResampleLQ<2>::create(*this, hostClock);
 			}
 			break;
 		case ResampleType::BLIP:

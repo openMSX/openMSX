@@ -29,19 +29,9 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"Tcl proc called when the MSX program has set an invalid PPI mode",
 		"default_invalid_ppi_mode_callback")
 	, resampleSetting(commandController, "resampler", "Resample algorithm",
-#if PLATFORM_DINGUX
-		// For Dingux, LQ is good compromise between quality and performance
-		ResampledSoundDevice::RESAMPLE_LQ,
-#elif PLATFORM_ANDROID
-		// For Android, BLIP is good compromise between quality and performance
-		ResampledSoundDevice::RESAMPLE_BLIP,
-#else
-		// For other platforms, default setting may be changed in future
 		ResampledSoundDevice::ResampleType::HQ,
-#endif
 		EnumSetting<ResampledSoundDevice::ResampleType>::Map{
 			{"hq",   ResampledSoundDevice::ResampleType::HQ},
-			{"fast", ResampledSoundDevice::ResampleType::LQ},
 			{"blip", ResampledSoundDevice::ResampleType::BLIP}})
 	, speedManager(commandController)
 	, throttleManager(commandController)

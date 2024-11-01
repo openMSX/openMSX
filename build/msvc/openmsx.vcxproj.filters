@@ -1020,9 +1020,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleHQ.cc">
       <Filter>sound</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleLQ.cc">
-      <Filter>sound</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleTrivial.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -2534,9 +2531,6 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\ResampleHQ.hh">
-      <Filter>sound</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\sound\ResampleLQ.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\ResampleTrivial.hh">
