@@ -201,9 +201,10 @@ void CassettePlayer::autoRun()
 string CassettePlayer::getStateString() const
 {
 	switch (getState()) {
-		case State::PLAY:   return "play";
-		case State::RECORD: return "record";
-		case State::STOP:   return "stop";
+		using enum State;
+		case PLAY:   return "play";
+		case RECORD: return "record";
+		case STOP:   return "stop";
 	}
 	UNREACHABLE;
 }

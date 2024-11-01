@@ -32,7 +32,7 @@ private:
 	struct Info {
 		struct Entry {
 			Entry(std::string f, std::string d, std::time_t t) // workaround, needed for clang, not gcc or msvc
-				: fullName(std::move(f)), displayName(std::move(d)), ftime(std::move(t)) {} // fixed in clang-16
+				: fullName(std::move(f)), displayName(std::move(d)), ftime(t) {} // fixed in clang-16
 			std::string fullName;
 			std::string displayName;
 			std::time_t ftime;
@@ -46,7 +46,7 @@ private:
 
 	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
-	
+
 	TclObject confirmCmd;
 	std::string confirmText;
 

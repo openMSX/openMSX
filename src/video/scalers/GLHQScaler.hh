@@ -29,7 +29,8 @@ private:
 	std::array<gl::Texture, 3> weightTexture;
 	gl::PixelBuffer<uint16_t> edgeBuffer;
 
-	unsigned maxWidth, maxHeight;
+	unsigned maxWidth;
+	unsigned maxHeight;
 	std::array<int, 2> edgePosScaleUnif;
 };
 

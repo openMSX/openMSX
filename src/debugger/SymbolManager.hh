@@ -33,7 +33,9 @@ struct Symbol
 struct SymbolFile
 {
 	enum class Type {
-		AUTO_DETECT = 0,
+		FIRST = 0,
+
+		AUTO_DETECT = FIRST,
 		ASMSX,
 		GENERIC, // includes PASMO, SJASM, TNIASM0, TNIASM1
 		HTC,
@@ -42,8 +44,7 @@ struct SymbolFile
 		VASM,
 		WLALINK_NOGMB,
 
-		FIRST = AUTO_DETECT,
-		LAST = VASM + 1,
+		LAST,
 	};
 	[[nodiscard]] static zstring_view toString(Type type);
 	[[nodiscard]] static std::optional<Type> parseType(std::string_view str);

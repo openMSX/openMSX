@@ -76,7 +76,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			// Convert time_t to local time (broken-down time in the local time zone)
 			std::tm local_time = *std::localtime(&fileTime);
 
-			std::time_t t_now = std::time(0);   // get time now
+			std::time_t t_now = std::time(nullptr); // get time now
 			std::tm now = *std::localtime(&t_now);
 
 			const std::string format = ((now.tm_mday == local_time.tm_mday) &&

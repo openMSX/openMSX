@@ -520,7 +520,7 @@ SymbolFile* SymbolManager::findFile(std::string_view filename)
 	if (auto it = ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
 		return nullptr;
 	} else {
-		return &(*it);
+		return std::to_address(it);
 	}
 }
 

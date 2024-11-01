@@ -672,12 +672,13 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							});
 
-							enum Priority {
+							enum class Priority {
 								MISSING_BOTH = 0, // from lowest to highest
 								MISSING_ONE,
 								SLOT_AND_SEGMENT
 							};
-							Priority currentPriority = Priority::MISSING_BOTH;
+							using enum Priority;
+							Priority currentPriority = MISSING_BOTH;
 							candidates.clear();
 							auto add = [&](const Symbol* sym, Priority newPriority) {
 								if (newPriority < currentPriority) return; // we already have a better candidate
@@ -695,11 +696,11 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								if (symbol->segment && *symbol->segment != slot.seg) continue;
 								// the info that's present does match
 								if (symbol->slot && symbol->segment == slot.seg) {
-									add(symbol, Priority::SLOT_AND_SEGMENT);
+									add(symbol, SLOT_AND_SEGMENT);
 								} else if (!symbol->slot && !symbol->segment) {
-									add(symbol, Priority::MISSING_BOTH);
+									add(symbol, MISSING_BOTH);
 								} else {
-									add(symbol, Priority::MISSING_ONE);
+									add(symbol, MISSING_ONE);
 								}
 							}
 							ImGui::SetCursorPos(pos);

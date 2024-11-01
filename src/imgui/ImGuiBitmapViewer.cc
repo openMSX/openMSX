@@ -212,7 +212,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		int zx = (1 + bitmapZoom) * divX;
 		int zy = (1 + bitmapZoom) * 2;
-		gl::vec2 zm = gl::vec2(float(zx), float(zy));
+		auto zm = gl::vec2(float(zx), float(zy));
 
 		gl::vec2 scrnPos;
 		auto msxSize = gl::vec2(float(width), float(height));
