@@ -165,6 +165,58 @@ private:
 		}
 	}
 
+	[[nodiscard]] constexpr friend uint128 operator+(const uint128& a, const uint128& b)
+	{
+		return uint128(a) += b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator-(const uint128& a, const uint128& b)
+	{
+		return uint128(a) -= b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator*(const uint128& a, const uint128& b)
+	{
+		return uint128(a) *= b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator/(const uint128& a, const uint128& b)
+	{
+		return uint128(a) /= b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator%(const uint128& a, const uint128& b)
+	{
+		return uint128(a) %= b;
+	}
+
+	[[nodiscard]] constexpr friend uint128 operator>>(const uint128& a, unsigned n)
+	{
+		return uint128(a) >>= n;
+	}
+	[[nodiscard]] constexpr friend uint128 operator<<(const uint128 & a, unsigned n)
+	{
+		return uint128(a) <<= n;
+	}
+
+	[[nodiscard]] constexpr friend uint128 operator&(const uint128& a, const uint128& b)
+	{
+		return uint128(a) &= b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator|(const uint128& a, const uint128& b)
+	{
+		return uint128(a) |= b;
+	}
+	[[nodiscard]] constexpr friend uint128 operator^(const uint128& a, const uint128& b)
+	{
+		return uint128(a) ^= b;
+	}
+
+	[[nodiscard]] constexpr friend auto operator<=>(const uint128& a, const uint128& b)
+	{
+		// Doesn't work yet with clang-13 libc++
+		//return std::tuple(high64(a), low64(a)) <=>
+		//       std::tuple(high64(b), low64(b));
+		if (auto cmp = high64(a) <=> high64(b); cmp != 0) return cmp;
+		return low64(a) <=> low64(b);
+	}
+
 	[[nodiscard]] friend constexpr uint64_t low64(const uint128& a)
 	{
 		return a.lo;
@@ -179,58 +231,6 @@ private:
 	uint64_t lo = 0;
 	uint64_t hi = 0;
 };
-
-[[nodiscard]] constexpr uint128 operator+(const uint128& a, const uint128& b)
-{
-	return uint128(a) += b;
-}
-[[nodiscard]] constexpr uint128 operator-(const uint128& a, const uint128& b)
-{
-	return uint128(a) -= b;
-}
-[[nodiscard]] constexpr uint128 operator*(const uint128& a, const uint128& b)
-{
-	return uint128(a) *= b;
-}
-[[nodiscard]] constexpr uint128 operator/(const uint128& a, const uint128& b)
-{
-	return uint128(a) /= b;
-}
-[[nodiscard]] constexpr uint128 operator%(const uint128& a, const uint128& b)
-{
-	return uint128(a) %= b;
-}
-
-[[nodiscard]] constexpr uint128 operator>>(const uint128& a, unsigned n)
-{
-	return uint128(a) >>= n;
-}
-[[nodiscard]] constexpr uint128 operator<<(const uint128 & a, unsigned n)
-{
-	return uint128(a) <<= n;
-}
-
-[[nodiscard]] constexpr uint128 operator&(const uint128& a, const uint128& b)
-{
-	return uint128(a) &= b;
-}
-[[nodiscard]] constexpr uint128 operator|(const uint128& a, const uint128& b)
-{
-	return uint128(a) |= b;
-}
-[[nodiscard]] constexpr uint128 operator^(const uint128& a, const uint128& b)
-{
-	return uint128(a) ^= b;
-}
-
-[[nodiscard]] constexpr auto operator<=>(const uint128& a, const uint128& b)
-{
-	// Doesn't work yet with clang-13 libc++
-	//return std::tuple(high64(a), low64(a)) <=>
-	//       std::tuple(high64(b), low64(b));
-	if (auto cmp = high64(a) <=> high64(b); cmp != 0) return cmp;
-	return low64(a) <=> low64(b);
-}
 
 [[nodiscard]] constexpr bool operator&&(const uint128& a, const uint128& b)
 {

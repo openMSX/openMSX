@@ -109,6 +109,60 @@ public:
 
 	[[nodiscard]] constexpr bool operator==(const matMxN&) const = default;
 
+	// matrix + matrix
+	[[nodiscard]] constexpr friend matMxN operator+(const matMxN& A, const matMxN& B) {
+		matMxN<M, N, T> R;
+		for (auto i : xrange(N)) R[i] = A[i] + B[i];
+		return R;
+	}
+
+	// matrix - matrix
+	[[nodiscard]] constexpr friend matMxN operator-(const matMxN& A, const matMxN& B) {
+		matMxN<M, N, T> R;
+		for (auto i : xrange(N)) R[i] = A[i] - B[i];
+		return R;
+	}
+
+	// scalar * matrix
+	[[nodiscard]] constexpr friend matMxN operator*(T x, const matMxN& A) {
+		matMxN<M, N, T> R;
+		for (auto i : xrange(N)) R[i] = x * A[i];
+		return R;
+	}
+
+	// matrix * scalar
+	[[nodiscard]] constexpr friend matMxN operator*(const matMxN& A, T x) {
+		matMxN<M, N, T> R;
+		for (auto i : xrange(N)) R[i] = A[i] * x;
+		return R;
+	}
+
+	// matrix * column-vector
+	[[nodiscard]] constexpr friend vecN<M, T> operator*(const matMxN& A, const vecN<N, T>& x) {
+		vecN<M, T> r;
+		for (auto i : xrange(N)) r += A[i] * x[i];
+		return r;
+	}
+
+	// matrix * matrix
+	template<int O>
+	[[nodiscard]] constexpr friend matMxN<M, O, T> operator*(const matMxN& A, const matMxN<N, O, T>& B) {
+		matMxN<M, O, T> R;
+		for (auto i : xrange(O)) R[i] = A * B[i];
+		return R;
+	}
+
+	// Textual representation. (Only) used to debug unittest.
+	friend std::ostream& operator<<(std::ostream& os, const matMxN& A) {
+		for (auto j : xrange(M)) {
+			for (auto i : xrange(N)) {
+				os << A[i][j] << ' ';
+			}
+			os << '\n';
+		}
+		return os;
+	}
+
 private:
 	std::array<vecN<M, T>, N> c;
 };
@@ -122,65 +176,11 @@ using mat4 = matMxN<4, 4, float>;
 
 // -- Matrix functions --
 
-// matrix + matrix
-template<int M, int N, typename T>
-[[nodiscard]] constexpr matMxN<M, N, T> operator+(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	matMxN<M, N, T> R;
-	for (auto i : xrange(N)) R[i] = A[i] + B[i];
-	return R;
-}
-
-// matrix - matrix
-template<int M, int N, typename T>
-[[nodiscard]] constexpr matMxN<M, N, T> operator-(const matMxN<M, N, T>& A, const matMxN<M, N, T>& B)
-{
-	matMxN<M, N, T> R;
-	for (auto i : xrange(N)) R[i] = A[i] - B[i];
-	return R;
-}
-
 // matrix negation
 template<int M, int N, typename T>
 [[nodiscard]] constexpr matMxN<M, N, T> operator-(const matMxN<M, N, T>& A)
 {
 	return matMxN<M, N, T>(vecN<(M < N ? M : N), T>()) - A;
-}
-
-// scalar * matrix
-template<int M, int N, typename T>
-[[nodiscard]] constexpr matMxN<M, N, T> operator*(T x, const matMxN<M, N, T>& A)
-{
-	matMxN<M, N, T> R;
-	for (auto i : xrange(N)) R[i] = x * A[i];
-	return R;
-}
-
-// matrix * scalar
-template<int M, int N, typename T>
-[[nodiscard]] constexpr matMxN<M, N, T> operator*(const matMxN<M, N, T>& A, T x)
-{
-	matMxN<M, N, T> R;
-	for (auto i : xrange(N)) R[i] = A[i] * x;
-	return R;
-}
-
-// matrix * column-vector
-template<int M, int N, typename T>
-[[nodiscard]] constexpr vecN<M, T> operator*(const matMxN<M, N, T>& A, const vecN<N, T>& x)
-{
-	vecN<M, T> r;
-	for (auto i : xrange(N)) r += A[i] * x[i];
-	return r;
-}
-
-// matrix * matrix
-template<int M, int N, int O, typename T>
-[[nodiscard]] constexpr matMxN<M, O, T> operator*(const matMxN<M, N, T>& A, const matMxN<N, O, T>& B)
-{
-	matMxN<M, O, T> R;
-	for (auto i : xrange(O)) R[i] = A * B[i];
-	return R;
 }
 
 // matrix transpose
@@ -320,19 +320,6 @@ template<int M, int N, typename T>
 	vecN<M, T> t;
 	for (auto i : xrange(N)) t += A[i] * A[i];
 	return sum(t);
-}
-
-// Textual representation. (Only) used to debug unittest.
-template<int M, int N, typename T>
-std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
-{
-	for (auto j : xrange(M)) {
-		for (auto i : xrange(N)) {
-			os << A[i][j] << ' ';
-		}
-		os << '\n';
-	}
-	return os;
 }
 
 } // namespace gl

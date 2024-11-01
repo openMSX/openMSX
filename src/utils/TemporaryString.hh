@@ -3,6 +3,7 @@
 
 #include "StringStorage.hh"
 #include "zstring_view.hh"
+
 #include <array>
 #include <concepts>
 #include <iostream>
@@ -77,17 +78,33 @@ public:
 	[[nodiscard]] bool ends_with(char c)             const { return view().ends_with(c); }
 	[[nodiscard]] bool ends_with(const char* s)      const { return view().ends_with(s); }
 
+	[[nodiscard]] friend bool operator==(const TemporaryString& x, const TemporaryString& y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+	[[nodiscard]] friend bool operator==(const TemporaryString& x, const zstring_view& y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+	[[nodiscard]] friend bool operator==(const TemporaryString& x, const std::string& y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+	[[nodiscard]] friend bool operator==(const TemporaryString& x, const std::string_view& y) {
+		return std::string_view(x) == y;
+	}
+	[[nodiscard]] friend bool operator==(const TemporaryString& x, const char* y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const TemporaryString& str)
+	{
+		os << std::string_view(str);
+		return os;
+	}
+
 private:
 	size_t n;
 	const char* ptr;
 	StringStorage owner;
 	std::array<char, BUFSIZE + 1> buffer;
 };
-
-inline std::ostream& operator<<(std::ostream& os, const TemporaryString& str)
-{
-	os << std::string_view(str);
-	return os;
-}
 
 #endif

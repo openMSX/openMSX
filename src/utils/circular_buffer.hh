@@ -38,8 +38,8 @@ public:
 	[[nodiscard]] T& operator*()  const { return *p; }
 	T* operator->() const { return  p; }
 
-	[[nodiscard]] difference_type operator-(const cb_iterator& it) const {
-		return index(p) - index(it.p);
+	[[nodiscard]] friend difference_type operator-(const cb_iterator& l, const cb_iterator& r) {
+		return r.index(r.p) - l.index(l.p);
 	}
 
 	cb_iterator& operator++() {

@@ -92,6 +92,25 @@ public:
 		return view();
 	}
 
+	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const zstring_view& y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+	[[nodiscard]] inline friend bool operator==(const zstring_view& x, const std::string& y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const std::string_view& y) {
+		return std::string_view(x) == y;
+	}
+	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const char* y) {
+		return std::string_view(x) == std::string_view(y);
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const zstring_view& str)
+	{
+		os << std::string_view(str);
+		return os;
+	}
+
 private:
 	const char* dat;
 	size_type siz;
@@ -107,19 +126,6 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 
 [[nodiscard]] constexpr auto begin(const zstring_view& x) { return x.begin(); }
 [[nodiscard]] constexpr auto end  (const zstring_view& x) { return x.end();   }
-
-[[nodiscard]] constexpr bool operator==(const zstring_view& x, const zstring_view& y) {
-	return std::string_view(x) == std::string_view(y);
-}
-[[nodiscard]] inline bool operator==(const zstring_view& x, const std::string& y) {
-	return std::string_view(x) == std::string_view(y);
-}
-[[nodiscard]] constexpr bool operator==(const zstring_view& x, const std::string_view& y) {
-	return std::string_view(x) == y;
-}
-[[nodiscard]] constexpr bool operator==(const zstring_view& x, const char* y) {
-	return std::string_view(x) == std::string_view(y);
-}
 
 // !!! Workaround clang-15, libc++ bug !!! (fixed in clang-16)
 // These should be 4x operator<=> instead of 4x operator<, <=, >=, >
@@ -172,9 +178,4 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 	return std::string_view(x) >= std::string_view(y);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const zstring_view& str)
-{
-	os << std::string_view(str);
-	return os;
-}
 #endif

@@ -56,19 +56,19 @@ public:
 	[[nodiscard]] constexpr auto operator<=>(const EmuDuration&) const = default;
 
 	// arithmetic operators
-	[[nodiscard]] constexpr EmuDuration operator%(EmuDuration::param d) const
-		{ return EmuDuration(time % d.time); }
-	[[nodiscard]] constexpr EmuDuration operator+(EmuDuration::param d) const
-		{ return EmuDuration(time + d.time); }
-	[[nodiscard]] constexpr EmuDuration operator*(uint64_t fact) const
-		{ return EmuDuration(time * fact); }
-	[[nodiscard]] constexpr EmuDuration operator/(unsigned fact) const
-		{ return EmuDuration(time / fact); }
+	[[nodiscard]] constexpr friend EmuDuration operator%(const EmuDuration& l, const EmuDuration& r)
+		{ return EmuDuration(l.time % r.time); }
+	[[nodiscard]] constexpr friend EmuDuration operator+(const EmuDuration& l, const EmuDuration& r)
+		{ return EmuDuration(l.time + r.time); }
+	[[nodiscard]] constexpr friend EmuDuration operator*(const EmuDuration& l, uint64_t fact)
+		{ return EmuDuration(l.time * fact); }
+	[[nodiscard]] constexpr friend EmuDuration operator/(const EmuDuration& l, unsigned fact)
+		{ return EmuDuration(l.time / fact); }
 	[[nodiscard]] constexpr EmuDuration divRoundUp(unsigned fact) const
 		{ return EmuDuration((time + fact - 1) / fact); }
-	[[nodiscard]] constexpr unsigned operator/(EmuDuration::param d) const
+	[[nodiscard]] constexpr friend unsigned operator/(const EmuDuration& l, const EmuDuration& r)
 	{
-		uint64_t result = time / d.time;
+		uint64_t result = l.time / r.time;
 #ifdef DEBUG
 		// we don't even want this overhead in devel builds
 		assert(result == unsigned(result));

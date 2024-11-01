@@ -80,6 +80,74 @@ public:
 
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
+	// vector + vector
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(2)) r[i] = x[i] + y[i];
+		return r;
+	}
+
+	// vector - vector
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(2)) r[i] = x[i] - y[i];
+		return r;
+	}
+
+	// scalar * vector
+	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(2)) r[i] = x * y[i];
+		return r;
+	}
+
+	// vector * scalar
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+		vecN r;
+		for (auto i : xrange(2)) r[i] = x[i] * y;
+		return r;
+	}
+
+	// vector * vector
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	{
+		vecN r;
+		for (auto i : xrange(2)) r[i] = x[i] * y[i];
+		return r;
+	}
+
+	// element-wise reciprocal
+	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+		vecN r;
+		for (auto i : xrange(2)) r[i] = T(1) / x[i];
+		return r;
+	}
+
+	// scalar / vector
+	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// vector / scalar
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
+		return x * (T(1) / y);
+	}
+
+	// vector / vector
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// Textual representation. (Only) used to debug unittest.
+	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+		os << "[ ";
+		for (auto i : xrange(2)) {
+			os << x[i] << ' ';
+		}
+		os << ']';
+		return os;
+	}
+
 public:
 	T x, y;
 };
@@ -122,6 +190,74 @@ public:
 	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+
+	// vector + vector
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(3)) r[i] = x[i] + y[i];
+		return r;
+	}
+
+	// vector - vector
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(3)) r[i] = x[i] - y[i];
+		return r;
+	}
+
+	// scalar * vector
+	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(3)) r[i] = x * y[i];
+		return r;
+	}
+
+	// vector * scalar
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+		vecN r;
+		for (auto i : xrange(3)) r[i] = x[i] * y;
+		return r;
+	}
+
+	// vector * vector
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	{
+		vecN r;
+		for (auto i : xrange(3)) r[i] = x[i] * y[i];
+		return r;
+	}
+
+	// element-wise reciprocal
+	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+		vecN r;
+		for (auto i : xrange(3)) r[i] = T(1) / x[i];
+		return r;
+	}
+
+	// scalar / vector
+	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// vector / scalar
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
+		return x * (T(1) / y);
+	}
+
+	// vector / vector
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// Textual representation. (Only) used to debug unittest.
+	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+		os << "[ ";
+		for (auto i : xrange(3)) {
+			os << x[i] << ' ';
+		}
+		os << ']';
+		return os;
+	}
 
 public:
 	T x, y, z;
@@ -168,6 +304,74 @@ public:
 	constexpr vecN& operator*=(T           t) { *this = *this * t; return *this; }
 
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
+
+	// vector + vector
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(4)) r[i] = x[i] + y[i];
+		return r;
+	}
+
+	// vector - vector
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(4)) r[i] = x[i] - y[i];
+		return r;
+	}
+
+	// scalar * vector
+	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+		vecN r;
+		for (auto i : xrange(4)) r[i] = x * y[i];
+		return r;
+	}
+
+	// vector * scalar
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+		vecN r;
+		for (auto i : xrange(4)) r[i] = x[i] * y;
+		return r;
+	}
+
+	// vector * vector
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	{
+		vecN r;
+		for (auto i : xrange(4)) r[i] = x[i] * y[i];
+		return r;
+	}
+
+	// element-wise reciprocal
+	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+		vecN r;
+		for (auto i : xrange(4)) r[i] = T(1) / x[i];
+		return r;
+	}
+
+	// scalar / vector
+	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// vector / scalar
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
+		return x * (T(1) / y);
+	}
+
+	// vector / vector
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
+		return x * recip(y);
+	}
+
+	// Textual representation. (Only) used to debug unittest.
+	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+		os << "[ ";
+		for (auto i : xrange(4)) {
+			os << x[i] << ' ';
+		}
+		os << ']';
+		return os;
+	}
 
 public:
 	T x, y, z, w;
@@ -220,81 +424,6 @@ template<int N, typename T>
 [[nodiscard]] constexpr vecN<N, T> operator-(const vecN<N, T>& x)
 {
 	return vecN<N, T>() - x;
-}
-
-// vector + vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator+(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = x[i] + y[i];
-	return r;
-}
-
-// vector - vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator-(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = x[i] - y[i];
-	return r;
-}
-
-// scalar * vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator*(T x, const vecN<N, T>& y)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = x * y[i];
-	return r;
-}
-
-// vector * scalar
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator*(const vecN<N, T>& x, T y)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = x[i] * y;
-	return r;
-}
-
-// vector * vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = x[i] * y[i];
-	return r;
-}
-
-// element-wise reciprocal
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> recip(const vecN<N, T>& x)
-{
-	vecN<N, T> r;
-	for (auto i : xrange(N)) r[i] = T(1) / x[i];
-	return r;
-}
-
-// scalar / vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator/(T x, const vecN<N, T>& y)
-{
-	return x * recip(y);
-}
-
-// vector / scalar
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator/(const vecN<N, T>& x, T y)
-{
-	return x * (T(1) / y);
-}
-
-// vector / vector
-template<int N, typename T>
-[[nodiscard]] constexpr vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
-{
-	return x * recip(y);
 }
 
 // min(vector, vector)
@@ -413,18 +542,6 @@ template<int N, typename T>
 	vecN<N, int> r;
 	for (auto i : xrange(N)) r[i] = int(x[i]);
 	return r;
-}
-
-// Textual representation. (Only) used to debug unittest.
-template<int N, typename T>
-std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
-{
-	os << "[ ";
-	for (auto i : xrange(N)) {
-		os << x[i] << ' ';
-	}
-	os << ']';
-	return os;
 }
 
 } // namespace gl

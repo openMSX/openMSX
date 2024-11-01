@@ -42,9 +42,9 @@ public:
 	[[nodiscard]] const auto* data() const { return p(); }
 
 	template<std::integral I>
-	[[nodiscard]]       auto* operator+(I i)       { return p() + i; }
+	[[nodiscard]] friend       auto* operator+(      AlignedBuffer& b, I i) { return b.p() + i; }
 	template<std::integral I>
-	[[nodiscard]] const auto* operator+(I i) const { return p() + i; }
+	[[nodiscard]] friend const auto* operator+(const AlignedBuffer& b, I i) { return b.p() + i; }
 
 	template<std::integral I>
 	[[nodiscard]]       auto& operator[](I i)       { return *(p() + i); }
