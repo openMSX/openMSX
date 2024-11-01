@@ -1,14 +1,18 @@
 #include "Printer.hh"
+
 #include "PNG.hh"
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
-#include "Math.hh"
 #include "serialize.hh"
-#include "vla.hh"
+
+#include "Math.hh"
+#include "small_buffer.hh"
+#include "view.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -1590,10 +1594,8 @@ std::string Paper::save() const
 {
 	auto filename = FileOperations::getNextNumberedFileName(
 		PRINT_DIR, "page", PRINT_EXTENSION);
-	VLA(const uint8_t*, rowPointers, sizeY);
-	for (size_t y : xrange(sizeY)) {
-		rowPointers[y] = &buf[sizeX * y];
-	}
+	small_buffer<const uint8_t*, 4096> rowPointers(view::transform(xrange(sizeY),
+		[&](size_t y) { return &buf[sizeX * y]; }));
 	PNG::saveGrayscale(sizeX, rowPointers, filename);
 	return filename;
 }
