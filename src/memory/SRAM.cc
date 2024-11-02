@@ -8,9 +8,9 @@
 #include "MSXCliComm.hh"
 #include "Reactor.hh"
 #include "openmsx.hh"
-#include "serialize.hh"
 
-#include "vla.hh"
+#include "serialize.hh"
+#include "small_buffer.hh"
 
 namespace openmsx {
 
@@ -90,8 +90,8 @@ void SRAM::load(bool* loaded)
 			  File::OpenMode::LOAD_PERSISTENT);
 		if (header) {
 			size_t length = strlen(header);
-			VLA(char, buf, length);
-			file.read(buf);
+			small_buffer<char, 64> buf(uninitialized_tag{}, length);
+			file.read(std::span{buf});
 			headerOk = ranges::equal(buf, std::span{header, length});
 		}
 		if (headerOk) {
