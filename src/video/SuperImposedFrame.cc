@@ -2,7 +2,7 @@
 
 #include "LineScalers.hh"
 
-#include "vla.hh"
+#include "inplace_buffer.hh"
 
 #include <algorithm>
 #include <cstdint>
@@ -38,8 +38,8 @@ std::span<const FrameSource::Pixel> SuperImposedFrame::getUnscaledLine(
 	auto width = std::min(std::max<size_t>(tWidth, bWidth), // as wide as the widest source
 	                      helpBuf.size()); // but no wider than the output buffer
 
-	auto tBuf = std::span{helpBuf.data(), width};
-	VLA_SSE_ALIGNED(Pixel, bBuf, width);
+	auto tBuf = helpBuf.subspan(0, width);
+	inplace_buffer<Pixel, 1280> bBuf(uninitialized_tag{}, width);
 	auto tLine = top   ->getLine(narrow<int>(tNum), tBuf);
 	auto bLine = bottom->getLine(narrow<int>(bNum), bBuf);
 
