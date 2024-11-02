@@ -13,6 +13,9 @@
 #include <variant>
 #include <vector>
 
+// shared between various other classes
+struct uninitialized_tag {};
+
 // Predicate that can be called with any number of parameters (of any type) and
 // just always returns 'true'. This can be useful as a default parameter value.
 struct always_true {
