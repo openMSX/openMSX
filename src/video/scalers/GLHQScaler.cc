@@ -6,9 +6,9 @@
 #include "GLUtil.hh"
 #include "HQCommon.hh"
 
+#include "inplace_buffer.hh"
 #include "narrow.hh"
 #include "ranges.hh"
-#include "vla.hh"
 
 #include <array>
 #include <cstring>
@@ -125,15 +125,14 @@ void GLHQScaler::uploadBlock(
 	if ((lineWidth % 320) != 0) return;
 
 	assert(maxWidth <= 1280);
-	std::array<Endian::L32, 1280 / 2> tmpBufMax; // 2 x uint16_t
-	auto tmpBuf2 = subspan(tmpBufMax, 0, lineWidth / 2);
+	inplace_buffer<Endian::L32, 1280 / 2> tmpBuf2(uninitialized_tag{}, lineWidth / 2); // 2 x uint16_t
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
 	ranges::fill(tmpBuf2, 0);
 	#endif
 
-	VLA_SSE_ALIGNED(Pixel, buf1, lineWidth);
-	VLA_SSE_ALIGNED(Pixel, buf2, lineWidth);
+	inplace_buffer<Pixel, 1280> buf1(uninitialized_tag{}, lineWidth);
+	inplace_buffer<Pixel, 1280> buf2(uninitialized_tag{}, lineWidth);
 	auto curr = paintFrame.getLine(narrow<int>(srcStartY) - 1, buf1);
 	auto next = paintFrame.getLine(narrow<int>(srcStartY) + 0, buf2);
 	EdgeHQ edgeOp;
@@ -148,8 +147,8 @@ void GLHQScaler::uploadBlock(
 		next = paintFrame.getLine(narrow<int>(yy + srcStartY + 1), buf2);
 		calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 		auto dest = mapped.subspan(yy * size_t(lineWidth), lineWidth);
-		assert(dest.size_bytes() == tmpBuf2.size_bytes()); // note: convert L32 -> 2 x uint16_t
-		memcpy(dest.data(), tmpBuf2.data(), tmpBuf2.size_bytes());
+		assert(dest.size_bytes() == std::span{tmpBuf2}.size_bytes()); // note: convert L32 -> 2 x uint16_t
+		memcpy(dest.data(), tmpBuf2.data(), std::span{tmpBuf2}.size_bytes());
 	}
 	edgeBuffer.unmap();
 
