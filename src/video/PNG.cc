@@ -5,11 +5,12 @@
 #include "PixelOperations.hh"
 #include "Version.hh"
 
+#include "cstdiop.hh"
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "vla.hh"
-#include "cstdiop.hh"
+#include "small_buffer.hh"
+#include "view.hh"
 
 #include <png.h>
 #include <SDL.h>
@@ -22,7 +23,6 @@
 #include <ctime>
 #include <iostream>
 #include <limits>
-#include <tuple>
 
 namespace openmsx::PNG {
 
@@ -180,11 +180,8 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		                      ((bpp == 32) ? pixelOps.getAmask() : 0));
 
 		// Create the array of pointers to image data.
-		VLA(png_bytep, rowPointers, height);
-		for (auto row : xrange(height)) {
-			rowPointers[row] = std::bit_cast<png_bytep>(
-				surface.getLinePtr(row));
-		}
+		small_buffer<png_bytep, 1080> rowPointers(view::transform(xrange(height),
+			[&](auto y) { return std::bit_cast<png_bytep>(surface.getLinePtr(y)); }));
 
 		// Read the entire image in one go.
 		png_read_image(png.ptr, rowPointers.data());
@@ -316,12 +313,10 @@ static void save(SDL_Surface* image, const std::string& filename)
 	SDLSurfacePtr surf24(SDL_ConvertSurface(image, frmt24.get(), 0));
 
 	// Create the array of pointers to image data
-	VLA(const void*, row_pointers, image->h);
-	for (auto i : xrange(image->h)) {
-		row_pointers[i] = surf24.getLinePtr(i);
-	}
+	small_buffer<const void*, 1080> rowPointers(view::transform(xrange(image->h),
+		[&](auto y) { return surf24.getLinePtr(y); }));
 
-	IMG_SavePNG_RW(image->w, row_pointers, filename, true);
+	IMG_SavePNG_RW(image->w, rowPointers, filename, true);
 }
 
 void saveRGBA(size_t width, std::span<const uint32_t*> rowPointers,
