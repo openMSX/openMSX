@@ -1,9 +1,12 @@
 #include "ImGuiSCCViewer.hh"
-#include "MSXMotherBoard.hh"
+
 #include "MSXDevice.hh"
-#include "SoundDevice.hh"
 #include "MSXMixer.hh"
+#include "MSXMotherBoard.hh"
 #include "SCC.hh"
+#include "SoundDevice.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 
@@ -47,7 +50,7 @@ void paintSCC(const SCC& scc) {
 			ImGui::PlotHistogram(tmpStrCat("##sccWave", channelNr).c_str(),
 				getFloatData,
 				const_cast<int8_t*>(channelWaveData.data()),
-				channelWaveData.size(),
+				narrow<int>(channelWaveData.size()),
 				0, nullptr,
 				-128.0f, 127.0f,
 				size);

@@ -103,7 +103,9 @@ void GLHQScaler::scaleImage(
 		glActiveTexture(GL_TEXTURE0);
 
 		int i = superImpose ? 1 : 0;
-		glUniform2f(edgePosScaleUnif[i], src.getWidth() / float(maxWidth), src.getHeight() / float(maxHeight));
+		glUniform2f(edgePosScaleUnif[i],
+		            float(src.getWidth()) / float(maxWidth),
+		            float(src.getHeight()) / float(maxHeight));
 
 		execute(src, superImpose,
 		        srcStartY, srcEndY, srcWidth,

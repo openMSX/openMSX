@@ -204,8 +204,8 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		    || !balanceCenter;
 	};
 	bool anySeparateChannel = false;
-	unsigned size = samples * stereo;
-	unsigned padded = (size + 3) & ~3; // round up to multiple of 4
+	auto size = narrow<unsigned>(samples * stereo);
+	auto padded = (size + 3) & ~3; // round up to multiple of 4
 	for (auto i : xrange(numChannels)) {
 		auto& cb = channelBuffers[i];
 		if (!needSeparateBuffer(i)) {
@@ -214,9 +214,9 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			cb.stopIdx = 0; // no valid last data
 		} else {
 			anySeparateChannel = true;
-			cb.requestCounter = std::max<int>(0, cb.requestCounter - samples);
+			cb.requestCounter = std::max(0, narrow<int>(cb.requestCounter - samples));
 
-			if (unsigned remainingSize = cb.buffer.size() - cb.stopIdx;
+			if (auto remainingSize = narrow<unsigned>(cb.buffer.size() - cb.stopIdx);
 			    remainingSize < padded) {
 				// not enough space at the tail of the buffer
 				unsigned lastBufferSize = getLastBufferSize();

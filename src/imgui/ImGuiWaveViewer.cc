@@ -60,7 +60,7 @@ static void plotLines(std::span<const float> values, float scale_min, float scal
 
 	auto* drawList = ImGui::GetWindowDrawList();
 	for (int n = 0; n < res_w; n++) {
-		auto idx = static_cast<int>(t * num_items + 0.5f);
+		auto idx = static_cast<int>(t * float(num_items) + 0.5f);
 		assert(0 <= idx && idx < num_values);
 		float v = values[(idx + 1) % num_values];
 
@@ -109,7 +109,7 @@ static void plotHistogram(std::span<const float> values, float scale_min, float 
 	drawList->PrimReserve(6 * res_w, 4 * res_w);
 
 	for (int n = 0; n < res_w; n++) {
-		auto idx = static_cast<int>(t0 * num_values + 0.5f);
+		auto idx = static_cast<int>(t0 * float(num_values) + 0.5f);
 		assert(0 <= idx && idx < num_values);
 		float y0 = valueToY(values[idx]);
 		float t1 = t0 + t_step;
@@ -315,7 +315,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 		assert(zeroPadded.size() == fftLen);
 
 		// remove DC and apply window-function
-		auto window = hammingWindow(signal.size());
+		auto window = hammingWindow(narrow<unsigned>(signal.size()));
 		auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
 		for (auto [s, w] : view::zip_equal(signal, window)) {
 			s = (s - avg) * w;
@@ -380,14 +380,14 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 
 		// format with "Hz" or "kHz" suffix and 3 significant digits
 		auto freq = std::lround(sampleRate * 0.5f * mouseX);
-		auto note = freq2note(freq);
+		auto note = freq2note(float(freq));
 		if (freq < 1000) {
 			return strCat(freq, "Hz  ", note);
 		} else {
 			auto k = freq / 1000;
 			auto t = (freq % 1000) / 10;
-			char t1 = (t / 10) + '0';
-			char t2 = (t % 10) + '0';
+			char t1 = char(t / 10) + '0';
+			char t2 = char(t % 10) + '0';
 			return strCat(k, '.', t1, t2, "kHz  ", note);
 		}
 	});

@@ -382,7 +382,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 			// Draw symbol highlight
 			if (showSymbolInfo) {
-				auto symbol = symbolManager.lookupValue(addr);
+				auto symbol = symbolManager.lookupValue(narrow_cast<uint16_t>(addr));
 				if (!symbol.empty()) {
 					float highlightWidth = s.glyphWidth * 2;
 					ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -539,7 +539,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	if (showSymbolInfo) {
 		ImGui::Separator();
 		ImGui::AlignTextToFramePadding();
-		auto symbol = symbolManager.lookupValue(currentAddr);
+		auto symbol = symbolManager.lookupValue(narrow_cast<uint16_t>(currentAddr));
 		if (!symbol.empty()) {
 			ImGui::Text("Current symbol: %s", symbol[0]->name.c_str());
 		} else {

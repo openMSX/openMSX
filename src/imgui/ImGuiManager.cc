@@ -797,7 +797,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 						: (boardTime - prevBoardTime).toDouble();
 					prevBoardTime = boardTime;
 
-					speed = 100.0f * boardTimePassed / realTimePassed;
+					speed = 100.0f * float(boardTimePassed) / realTimePassed;
 				}
 			} else {
 				speed = 0.0f;

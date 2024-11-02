@@ -21,7 +21,7 @@ inline std::span<const float> hammingWindow(unsigned n)
 	if (inserted) {
 		window.resize(n);
 		for (auto i : xrange(n)) {
-			window[i] = 0.53836 - 0.46164 * cos(2 * std::numbers::pi * i / (n - 1));
+			window[i] = float(0.53836 - 0.46164 * cos(2 * std::numbers::pi * i / (n - 1)));
 		}
 		return window;
 	}
