@@ -3,7 +3,7 @@
 #include "PixelOperations.hh"
 #include "RawFrame.hh"
 
-#include "vla.hh"
+#include "inplace_buffer.hh"
 #include "xrange.hh"
 
 #include <bit>
@@ -79,7 +79,7 @@ std::span<const Pixel> Deflicker::getUnscaledLine(
 
 	// Prefer to write directly to the output buffer, if that's not
 	// possible store the intermediate result in a temp buffer.
-	VLA_SSE_ALIGNED(Pixel, buf2, width0);
+	inplace_buffer<Pixel, 1280> buf2(uninitialized_tag{}, width0);
 	auto* buf = helpBuf.data();
 	Pixel* out = (width0 <= helpBuf.size()) ? buf : buf2.data();
 
