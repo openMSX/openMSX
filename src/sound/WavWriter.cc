@@ -1,14 +1,15 @@
 #include "WavWriter.hh"
-#include "MSXException.hh"
-#include "Math.hh"
+
 #include "Mixer.hh"
+#include "MSXException.hh"
+
+#include "Math.hh"
 #include "endian.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "one_of.hh"
 #include "ranges.hh"
-#include "vla.hh"
-#include "xrange.hh"
+#include "small_buffer.hh"
+
 #include <array>
 #include <vector>
 
@@ -89,14 +90,7 @@ void Wav8Writer::write(std::span<const uint8_t> buffer)
 void Wav16Writer::write(std::span<const int16_t> buffer)
 {
 	if constexpr (Endian::BIG) {
-		// Variable length arrays (VLA) are part of c99 but not of c++
-		// (not even c++11). Some compilers (like gcc) do support VLA
-		// in c++ mode, others (like VC++) don't. Still other compilers
-		// (like clang) only support VLA for POD types.
-		// To side-step this issue we simply use a std::vector, this
-		// code is anyway not performance critical.
-		//VLA(Endian::L16, buf, samples); // doesn't work in clang
-		std::vector<Endian::L16> buf(buffer.begin(), buffer.end());
+		small_buffer<Endian::L16, 4096> buf(buffer);
 		file.write(std::span{buf});
 	} else {
 		file.write(buffer);
@@ -132,8 +126,8 @@ void Wav16Writer::write(std::span<const StereoFloat> buffer, float ampLeft, floa
 
 void Wav16Writer::writeSilence(uint32_t samples)
 {
-	VLA(int16_t, buf, samples);
-	ranges::fill(buf, 0);
+	small_buffer<int16_t, 4096> buf_(samples, 0);
+	std::span buf{buf_};
 	file.write(buf);
 	bytes += narrow<uint32_t>(buf.size_bytes());
 }

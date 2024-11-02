@@ -10,6 +10,7 @@
 #include "endian.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "small_buffer.hh"
 #include "stl.hh"
 #include "zstring_view.hh"
 
@@ -283,9 +284,7 @@ void AviWriter::addFrame(const FrameSource* video, std::span<const int16_t> audi
 		assert((audio.size() % channels) == 0);
 		assert(audioRate != 0);
 		if constexpr (Endian::BIG) {
-			// See comment in WavWriter::write()
-			//VLA(Endian::L16, buf, samples); // doesn't work in clang
-			auto buf = to_vector<Endian::L16>(audio);
+			small_buffer<Endian::L16, 4096> buf(audio);
 			addAviChunk(subspan<4>("01wb"), as_byte_span(std::span{buf}), 0);
 		} else {
 			addAviChunk(subspan<4>("01wb"), as_byte_span(audio), 0);
