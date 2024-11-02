@@ -1,10 +1,12 @@
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "vla.hh"
+#include "small_buffer.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 
@@ -35,7 +37,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, size_t hostNum,
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
 		const unsigned len = emuNum * CHANNELS + std::max(3u, CHANNELS);
-		VLA_SSE_ALIGNED(float, buf, len);
+		small_buffer<float, 8192> buf(uninitialized_tag{}, len); // typical ~5194 (PSG, samples=1024) but could be larger
 		EmuTime emu1 = emuClk.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
 		if (input.generateInput(buf.data(), emuNum)) {

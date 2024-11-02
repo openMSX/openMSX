@@ -18,8 +18,8 @@
 #include "aligned.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "small_buffer.hh"
 #include "stl.hh"
-#include "vla.hh"
 #include "xrange.hh"
 
 #include <array>
@@ -640,8 +640,8 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 			buffer.resize(buffer.size() + missing * size_t(CHANNELS));
 		}
 	}
-	VLA_SSE_ALIGNED(float, tmpBufExtra, emuNum * CHANNELS + 3);
-	auto tmpBuf = tmpBufExtra.subspan(0, emuNum * CHANNELS);
+	small_buffer<float, 8192> tmpBufExtra(uninitialized_tag{}, emuNum * CHANNELS + 3); // typical ~5194 (PSG, samples=1024) but could be larger
+	auto tmpBuf = subspan(tmpBufExtra, 0, emuNum * CHANNELS);
 	if (input.generateInput(tmpBufExtra.data(), emuNum)) {
 		ranges::copy(tmpBuf,
 		             subspan(buffer, bufEnd * CHANNELS));
