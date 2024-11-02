@@ -2740,9 +2740,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\utf8_unchecked.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\vla.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\win32-arggen.hh">
       <Filter>utils</Filter>
     </None>

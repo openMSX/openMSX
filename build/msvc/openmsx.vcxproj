@@ -1323,7 +1323,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\utf8_checked.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_core.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\utf8_unchecked.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\vla.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-arggen.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-dirent.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Poller.hh" />
