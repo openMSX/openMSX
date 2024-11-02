@@ -23,7 +23,8 @@
 
 #include "narrow.hh"
 #include "outer.hh"
-#include "vla.hh"
+#include "small_buffer.hh"
+#include "view.hh"
 
 #include "build-info.hh"
 
@@ -351,10 +352,8 @@ void VisibleSurface::saveScreenshotGL(
 	MemBuffer<uint32_t> buffer(size_t(w) * size_t(h));
 	glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data());
 
-	VLA(const uint32_t*, rowPointers, h);
-	for (auto i : xrange(size_t(h))) {
-		rowPointers[h - 1 - i] = &buffer[size_t(w) * i];
-	}
+	small_buffer<const uint32_t*, 1080> rowPointers(view::transform(xrange(size_t(h)),
+		[&](auto i) { return &buffer[size_t(w) * (h - 1 - i)]; }));
 
 	PNG::saveRGBA(w, rowPointers, filename);
 }
