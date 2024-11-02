@@ -50,11 +50,11 @@ static inline void memset_64_SSE(
 	__m128i val128 = _mm_set1_epi64x(narrow_cast<int64_t>(val64));
 	const uint64_t* e = out + num64 - 3;
 	for (/**/; out < e; out += 4) {
-		_mm_store_si128(std::bit_cast<__m128i*>(out + 0), val128);
-		_mm_store_si128(std::bit_cast<__m128i*>(out + 2), val128);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 0), val128);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out + 2), val128);
 	}
 	if (num64 & 2) [[unlikely]] {
-		_mm_store_si128(std::bit_cast<__m128i*>(out), val128);
+		_mm_storeu_si128(std::bit_cast<__m128i*>(out), val128);
 		out += 2;
 	}
 	if (num64 & 1) [[unlikely]] {

@@ -74,8 +74,8 @@ static inline void yuv2rgb_sse2(
 	const __m128i Y_MASK  = _mm_set1_epi16(0x00FF);
 
 	// left
-	__m128i u0f  = _mm_load_si128(u);
-	__m128i v0f  = _mm_load_si128(v);
+	__m128i u0f  = _mm_loadu_si128(u);
+	__m128i v0f  = _mm_loadu_si128(v);
 	__m128i u07  = _mm_unpacklo_epi8(u0f, ZERO);
 	__m128i v07  = _mm_unpacklo_epi8(v0f, ZERO);
 	__m128i mr07 = _mm_srai_epi16(_mm_mullo_epi16(v07, RED_V), 6);
@@ -88,7 +88,7 @@ static inline void yuv2rgb_sse2(
 	__m128i db07 = _mm_adds_epi16(mb07, CNST_B);
 
 	// block top,left
-	__m128i y00_0f    = _mm_load_si128(y0 + 0);
+	__m128i y00_0f    = _mm_loadu_si128(y0 + 0);
 	__m128i y00_even  = _mm_and_si128(y00_0f, Y_MASK);
 	__m128i y00_odd   = _mm_srli_epi16(y00_0f, 8);
 	__m128i dy00_even = _mm_srai_epi16(_mm_mullo_epi16(y00_even, COEF_Y), 6);
@@ -113,13 +113,13 @@ static inline void yuv2rgb_sse2(
 	__m128i rgba00_47 = _mm_unpackhi_epi8(rb00_07, ga00_07);
 	__m128i rgba00_8b = _mm_unpacklo_epi8(rb00_8f, ga00_8f);
 	__m128i rgba00_cf = _mm_unpackhi_epi8(rb00_8f, ga00_8f);
-	_mm_store_si128(out0 + 0, rgba00_03);
-	_mm_store_si128(out0 + 1, rgba00_47);
-	_mm_store_si128(out0 + 2, rgba00_8b);
-	_mm_store_si128(out0 + 3, rgba00_cf);
+	_mm_storeu_si128(out0 + 0, rgba00_03);
+	_mm_storeu_si128(out0 + 1, rgba00_47);
+	_mm_storeu_si128(out0 + 2, rgba00_8b);
+	_mm_storeu_si128(out0 + 3, rgba00_cf);
 
 	// block bottom,left
-	__m128i y10_0f    = _mm_load_si128(y1 + 0);
+	__m128i y10_0f    = _mm_loadu_si128(y1 + 0);
 	__m128i y10_even  = _mm_and_si128(y10_0f, Y_MASK);
 	__m128i y10_odd   = _mm_srli_epi16(y10_0f, 8);
 	__m128i dy10_even = _mm_srai_epi16(_mm_mullo_epi16(y10_even, COEF_Y), 6);
@@ -144,10 +144,10 @@ static inline void yuv2rgb_sse2(
 	__m128i rgba10_47 = _mm_unpackhi_epi8(rb10_07, ga10_07);
 	__m128i rgba10_8b = _mm_unpacklo_epi8(rb10_8f, ga10_8f);
 	__m128i rgba10_cf = _mm_unpackhi_epi8(rb10_8f, ga10_8f);
-	_mm_store_si128(out1 + 0, rgba10_03);
-	_mm_store_si128(out1 + 1, rgba10_47);
-	_mm_store_si128(out1 + 2, rgba10_8b);
-	_mm_store_si128(out1 + 3, rgba10_cf);
+	_mm_storeu_si128(out1 + 0, rgba10_03);
+	_mm_storeu_si128(out1 + 1, rgba10_47);
+	_mm_storeu_si128(out1 + 2, rgba10_8b);
+	_mm_storeu_si128(out1 + 3, rgba10_cf);
 
 	// right
 	__m128i u8f  = _mm_unpackhi_epi8(u0f, ZERO);
@@ -162,7 +162,7 @@ static inline void yuv2rgb_sse2(
 	__m128i db8f = _mm_adds_epi16(mb8f, CNST_B);
 
 	// block top,right
-	__m128i y01_0f    = _mm_load_si128(y0 + 1);
+	__m128i y01_0f    = _mm_loadu_si128(y0 + 1);
 	__m128i y01_even  = _mm_and_si128(y01_0f, Y_MASK);
 	__m128i y01_odd   = _mm_srli_epi16(y01_0f, 8);
 	__m128i dy01_even = _mm_srai_epi16(_mm_mullo_epi16(y01_even, COEF_Y), 6);
@@ -187,13 +187,13 @@ static inline void yuv2rgb_sse2(
 	__m128i rgba01_47 = _mm_unpackhi_epi8(rb01_07, ga01_07);
 	__m128i rgba01_8b = _mm_unpacklo_epi8(rb01_8f, ga01_8f);
 	__m128i rgba01_cf = _mm_unpackhi_epi8(rb01_8f, ga01_8f);
-	_mm_store_si128(out0 + 4, rgba01_03);
-	_mm_store_si128(out0 + 5, rgba01_47);
-	_mm_store_si128(out0 + 6, rgba01_8b);
-	_mm_store_si128(out0 + 7, rgba01_cf);
+	_mm_storeu_si128(out0 + 4, rgba01_03);
+	_mm_storeu_si128(out0 + 5, rgba01_47);
+	_mm_storeu_si128(out0 + 6, rgba01_8b);
+	_mm_storeu_si128(out0 + 7, rgba01_cf);
 
 	// block bottom,right
-	__m128i y11_0f    = _mm_load_si128(y1 + 1);
+	__m128i y11_0f    = _mm_loadu_si128(y1 + 1);
 	__m128i y11_even  = _mm_and_si128(y11_0f, Y_MASK);
 	__m128i y11_odd   = _mm_srli_epi16(y11_0f, 8);
 	__m128i dy11_even = _mm_srai_epi16(_mm_mullo_epi16(y11_even, COEF_Y), 6);
@@ -218,10 +218,10 @@ static inline void yuv2rgb_sse2(
 	__m128i rgba11_47 = _mm_unpackhi_epi8(rb11_07, ga11_07);
 	__m128i rgba11_8b = _mm_unpacklo_epi8(rb11_8f, ga11_8f);
 	__m128i rgba11_cf = _mm_unpackhi_epi8(rb11_8f, ga11_8f);
-	_mm_store_si128(out1 + 4, rgba11_03);
-	_mm_store_si128(out1 + 5, rgba11_47);
-	_mm_store_si128(out1 + 6, rgba11_8b);
-	_mm_store_si128(out1 + 7, rgba11_cf);
+	_mm_storeu_si128(out1 + 4, rgba11_03);
+	_mm_storeu_si128(out1 + 5, rgba11_47);
+	_mm_storeu_si128(out1 + 6, rgba11_8b);
+	_mm_storeu_si128(out1 + 7, rgba11_cf);
 }
 
 static inline void convertHelperSSE2(

@@ -406,6 +406,12 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 #ifdef __SSE2__
+
+static inline __m128 reverse(__m128 x)
+{
+	return _mm_shuffle_ps(x, x, _MM_SHUFFLE(0, 1, 2, 3));
+}
+
 template<bool REVERSE>
 static inline void calcSseMono(const float* buf_, const float* tab_, size_t len, float* out)
 {
@@ -425,11 +431,11 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 		__m128 b1 = _mm_loadu_ps(std::bit_cast<const float*>(buf + x + 16));
 		__m128 t0, t1;
 		if constexpr (REVERSE) {
-			t0 = _mm_loadr_ps(std::bit_cast<const float*>(tab - x - 16));
-			t1 = _mm_loadr_ps(std::bit_cast<const float*>(tab - x - 32));
+			t0 = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - x - 16)));
+			t1 = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - x - 32)));
 		} else {
-			t0 = _mm_load_ps (std::bit_cast<const float*>(tab + x +  0));
-			t1 = _mm_load_ps (std::bit_cast<const float*>(tab + x + 16));
+			t0 = _mm_loadu_ps (std::bit_cast<const float*>(tab + x +  0));
+			t1 = _mm_loadu_ps (std::bit_cast<const float*>(tab + x + 16));
 		}
 		__m128 m0 = _mm_mul_ps(b0, t0);
 		__m128 m1 = _mm_mul_ps(b1, t1);
@@ -441,9 +447,9 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 		__m128 b0 = _mm_loadu_ps(std::bit_cast<const float*>(buf));
 		__m128 t0;
 		if constexpr (REVERSE) {
-			t0 = _mm_loadr_ps(std::bit_cast<const float*>(tab - 16));
+			t0 = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - 16)));
 		} else {
-			t0 = _mm_load_ps (std::bit_cast<const float*>(tab));
+			t0 = _mm_loadu_ps (std::bit_cast<const float*>(tab));
 		}
 		__m128 m0 = _mm_mul_ps(b0, t0);
 		a0 = _mm_add_ps(a0, m0);
@@ -484,12 +490,12 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b3 = _mm_loadu_ps(std::bit_cast<const float*>(buf + x + 48));
 		__m128 ta, tb;
 		if constexpr (REVERSE) {
-			ta = _mm_loadr_ps(std::bit_cast<const float*>(tab - 16));
-			tb = _mm_loadr_ps(std::bit_cast<const float*>(tab - 32));
+			ta = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - 16)));
+			tb = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - 32)));
 			tab -= 2 * sizeof(__m128);
 		} else {
-			ta = _mm_load_ps (std::bit_cast<const float*>(tab +  0));
-			tb = _mm_load_ps (std::bit_cast<const float*>(tab + 16));
+			ta = _mm_loadu_ps (std::bit_cast<const float*>(tab +  0));
+			tb = _mm_loadu_ps (std::bit_cast<const float*>(tab + 16));
 			tab += 2 * sizeof(__m128);
 		}
 		__m128 t0 = shuffle<0x50>(ta);
@@ -511,9 +517,9 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b1 = _mm_loadu_ps(std::bit_cast<const float*>(buf + 16));
 		__m128 ta;
 		if constexpr (REVERSE) {
-			ta = _mm_loadr_ps(std::bit_cast<const float*>(tab - 16));
+			ta = reverse(_mm_loadu_ps(std::bit_cast<const float*>(tab - 16)));
 		} else {
-			ta = _mm_load_ps (std::bit_cast<const float*>(tab +  0));
+			ta = _mm_loadu_ps (std::bit_cast<const float*>(tab +  0));
 		}
 		__m128 t0 = shuffle<0x50>(ta);
 		__m128 t1 = shuffle<0xFA>(ta);

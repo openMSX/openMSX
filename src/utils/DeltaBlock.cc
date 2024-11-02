@@ -67,8 +67,8 @@ template<> bool comp<16>(const uint8_t* p, const uint8_t* q)
 	// Tests show that (on my machine) using 1 128-bit load is faster than
 	// 2 64-bit loads. Even though the actual comparison is slightly more
 	// complicated with SSE instructions.
-	__m128i a = _mm_load_si128(std::bit_cast<const __m128i*>(p));
-	__m128i b = _mm_load_si128(std::bit_cast<const __m128i*>(q));
+	__m128i a = _mm_loadu_si128(std::bit_cast<const __m128i*>(p));
+	__m128i b = _mm_loadu_si128(std::bit_cast<const __m128i*>(q));
 	__m128i d = _mm_cmpeq_epi8(a, b);
 	return _mm_movemask_epi8(d) == 0xffff;
 }
