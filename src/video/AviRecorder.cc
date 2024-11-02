@@ -1,4 +1,5 @@
 #include "AviRecorder.hh"
+
 #include "AviWriter.hh"
 #include "Mixer.hh"
 #include "WavWriter.hh"
@@ -8,18 +9,19 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "PostProcessor.hh"
-#include "Math.hh"
 #include "MSXMixer.hh"
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
+
+#include "Math.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "vla.hh"
-#include "xrange.hh"
+#include "small_buffer.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -136,16 +138,16 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 		if (wavWriter) {
 			wavWriter->write(data);
 		} else {
-			VLA(int16_t, buf, 2 * num);
+			small_buffer<int16_t, 2 * 4096> buf(uninitialized_tag{}, 2 * size_t(num));
 			for (auto [i, s] : enumerate(data)) {
 				buf[2 * i + 0] = float2int16(s.left);
 				buf[2 * i + 1] = float2int16(s.right);
 			}
 			assert(aviWriter);
-			append(audioBuf, buf);
+			append(audioBuf, std::span{buf});
 		}
 	} else {
-		VLA(int16_t, buf, num);
+		small_buffer<int16_t, 4096> buf(uninitialized_tag{}, num);
 		size_t i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
 			if (data[i].left != data[i].right) {
@@ -167,7 +169,7 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 			wavWriter->write(buf);
 		} else {
 			assert(aviWriter);
-			append(audioBuf, buf);
+			append(audioBuf, std::span{buf});
 		}
 	}
 }
