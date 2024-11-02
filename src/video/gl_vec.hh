@@ -81,68 +81,68 @@ public:
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 	// vector + vector
-	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(2)) r[i] = x[i] + y[i];
+		for (auto i : xrange(2)) r[i] = v1[i] + v2[i];
 		return r;
 	}
 
 	// vector - vector
-	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(2)) r[i] = x[i] - y[i];
+		for (auto i : xrange(2)) r[i] = v1[i] - v2[i];
 		return r;
 	}
 
 	// scalar * vector
-	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator*(T a, const vecN& v) {
 		vecN r;
-		for (auto i : xrange(2)) r[i] = x * y[i];
+		for (auto i : xrange(2)) r[i] = a * v[i];
 		return r;
 	}
 
 	// vector * scalar
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v, T a) {
 		vecN r;
-		for (auto i : xrange(2)) r[i] = x[i] * y;
+		for (auto i : xrange(2)) r[i] = v[i] * a;
 		return r;
 	}
 
 	// vector * vector
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v1, const vecN& v2)
 	{
 		vecN r;
-		for (auto i : xrange(2)) r[i] = x[i] * y[i];
+		for (auto i : xrange(2)) r[i] = v1[i] * v2[i];
 		return r;
 	}
 
 	// element-wise reciprocal
-	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+	[[nodiscard]] constexpr friend vecN recip(const vecN& v) {
 		vecN r;
-		for (auto i : xrange(2)) r[i] = T(1) / x[i];
+		for (auto i : xrange(2)) r[i] = T(1) / v[i];
 		return r;
 	}
 
 	// scalar / vector
-	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(T a, const vecN& v) {
+		return a * recip(v);
 	}
 
 	// vector / scalar
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
-		return x * (T(1) / y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v, T a) {
+		return v * (T(1) / a);
 	}
 
 	// vector / vector
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v1, const vecN& v2) {
+		return v1 * recip(v2);
 	}
 
 	// Textual representation. (Only) used to debug unittest.
-	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+	friend std::ostream& operator<<(std::ostream& os, const vecN& v) {
 		os << "[ ";
 		for (auto i : xrange(2)) {
-			os << x[i] << ' ';
+			os << v[i] << ' ';
 		}
 		os << ']';
 		return os;
@@ -192,68 +192,68 @@ public:
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 	// vector + vector
-	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(3)) r[i] = x[i] + y[i];
+		for (auto i : xrange(3)) r[i] = v1[i] + v2[i];
 		return r;
 	}
 
 	// vector - vector
-	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(3)) r[i] = x[i] - y[i];
+		for (auto i : xrange(3)) r[i] = v1[i] - v2[i];
 		return r;
 	}
 
 	// scalar * vector
-	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator*(T a, const vecN& v) {
 		vecN r;
-		for (auto i : xrange(3)) r[i] = x * y[i];
+		for (auto i : xrange(3)) r[i] = a * v[i];
 		return r;
 	}
 
 	// vector * scalar
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v, T a) {
 		vecN r;
-		for (auto i : xrange(3)) r[i] = x[i] * y;
+		for (auto i : xrange(3)) r[i] = v[i] * a;
 		return r;
 	}
 
 	// vector * vector
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v1, const vecN& v2)
 	{
 		vecN r;
-		for (auto i : xrange(3)) r[i] = x[i] * y[i];
+		for (auto i : xrange(3)) r[i] = v1[i] * v2[i];
 		return r;
 	}
 
 	// element-wise reciprocal
-	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+	[[nodiscard]] constexpr friend vecN recip(const vecN& v) {
 		vecN r;
-		for (auto i : xrange(3)) r[i] = T(1) / x[i];
+		for (auto i : xrange(3)) r[i] = T(1) / v[i];
 		return r;
 	}
 
 	// scalar / vector
-	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(T a, const vecN& v) {
+		return a * recip(v);
 	}
 
 	// vector / scalar
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
-		return x * (T(1) / y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v, T a) {
+		return v * (T(1) / a);
 	}
 
 	// vector / vector
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v1, const vecN& v2) {
+		return v1 * recip(v2);
 	}
 
 	// Textual representation. (Only) used to debug unittest.
-	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+	friend std::ostream& operator<<(std::ostream& os, const vecN& v) {
 		os << "[ ";
 		for (auto i : xrange(3)) {
-			os << x[i] << ' ';
+			os << v[i] << ' ';
 		}
 		os << ']';
 		return os;
@@ -306,68 +306,68 @@ public:
 	[[nodiscard]] constexpr bool operator==(const vecN&) const = default;
 
 	// vector + vector
-	[[nodiscard]] constexpr friend vecN operator+(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator+(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(4)) r[i] = x[i] + y[i];
+		for (auto i : xrange(4)) r[i] = v1[i] + v2[i];
 		return r;
 	}
 
 	// vector - vector
-	[[nodiscard]] constexpr friend vecN operator-(const vecN& x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator-(const vecN& v1, const vecN& v2) {
 		vecN r;
-		for (auto i : xrange(4)) r[i] = x[i] - y[i];
+		for (auto i : xrange(4)) r[i] = v1[i] - v2[i];
 		return r;
 	}
 
 	// scalar * vector
-	[[nodiscard]] constexpr friend vecN operator*(T x, const vecN& y) {
+	[[nodiscard]] constexpr friend vecN operator*(T a, const vecN& v) {
 		vecN r;
-		for (auto i : xrange(4)) r[i] = x * y[i];
+		for (auto i : xrange(4)) r[i] = a * v[i];
 		return r;
 	}
 
 	// vector * scalar
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, T y) {
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v, T a) {
 		vecN r;
-		for (auto i : xrange(4)) r[i] = x[i] * y;
+		for (auto i : xrange(4)) r[i] = v[i] * a;
 		return r;
 	}
 
 	// vector * vector
-	[[nodiscard]] constexpr friend vecN operator*(const vecN& x, const vecN& y)
+	[[nodiscard]] constexpr friend vecN operator*(const vecN& v1, const vecN& v2)
 	{
 		vecN r;
-		for (auto i : xrange(4)) r[i] = x[i] * y[i];
+		for (auto i : xrange(4)) r[i] = v1[i] * v2[i];
 		return r;
 	}
 
 	// element-wise reciprocal
-	[[nodiscard]] constexpr friend vecN recip(const vecN& x) {
+	[[nodiscard]] constexpr friend vecN recip(const vecN& v) {
 		vecN r;
-		for (auto i : xrange(4)) r[i] = T(1) / x[i];
+		for (auto i : xrange(4)) r[i] = T(1) / v[i];
 		return r;
 	}
 
 	// scalar / vector
-	[[nodiscard]] constexpr friend vecN operator/(T x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(T a, const vecN& v) {
+		return a * recip(v);
 	}
 
 	// vector / scalar
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, T y) {
-		return x * (T(1) / y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v, T a) {
+		return v * (T(1) / a);
 	}
 
 	// vector / vector
-	[[nodiscard]] constexpr friend vecN operator/(const vecN& x, const vecN& y) {
-		return x * recip(y);
+	[[nodiscard]] constexpr friend vecN operator/(const vecN& v1, const vecN& v2) {
+		return v1 * recip(v2);
 	}
 
 	// Textual representation. (Only) used to debug unittest.
-	friend std::ostream& operator<<(std::ostream& os, const vecN& x) {
+	friend std::ostream& operator<<(std::ostream& os, const vecN& v) {
 		os << "[ ";
 		for (auto i : xrange(4)) {
-			os << x[i] << ' ';
+			os << v[i] << ' ';
 		}
 		os << ']';
 		return os;
