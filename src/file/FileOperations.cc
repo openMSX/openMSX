@@ -3,7 +3,6 @@
 #define _WIN32_IE 0x0500	// For SHGetSpecialFolderPathW with MinGW
 #endif
 #include "utf8_checked.hh"
-#include "vla.hh"
 #include <windows.h>
 #include <shlobj.h>
 #include <shellapi.h>
@@ -679,14 +678,14 @@ string getTempDir()
 {
 #ifdef _WIN32
 	if (DWORD len = GetTempPathW(0, nullptr)) {
-		VLA(wchar_t, bufW, (len + 1));
+		std::wstring bufW(len, L'\0'); // TODO use c++23 resize_and_overwrite()
 		len = GetTempPathW(len, bufW.data());
 		if (len) {
 			// Strip last backslash
 			if (bufW[len - 1] == L'\\') {
 				bufW[len - 1] = L'\0';
 			}
-			return utf16to8(bufW.data());
+			return utf16to8(bufW);
 		}
 	}
 	throw FatalError("GetTempPathW failed: ", GetLastError());
