@@ -4,7 +4,7 @@
 #include "CassetteDevice.hh"
 #include "ResampledSoundDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "RecordedCommand.hh"
+#include "CassettePlayerCommand.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
 #include "Filename.hh"
@@ -71,6 +71,8 @@ public:
 	  * returns the current position (so while recording, tape length grows
 	  * continuously). */
 	double getTapeLength(EmuTime::param time);
+
+	friend class CassettePlayerCommand;
 
 private:
 	[[nodiscard]] std::string getStateString() const;
@@ -169,16 +171,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 
-	struct TapeCommand final : RecordedCommand {
-		TapeCommand(CommandController& commandController,
-			    StateChangeDistributor& stateChangeDistributor,
-			    Scheduler& scheduler);
-		void execute(std::span<const TclObject> tokens, TclObject& result,
-			     EmuTime::param time) override;
-		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
-		void tabCompletion(std::vector<std::string>& tokens) const override;
-		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
-	} tapeCommand;
+	CassettePlayerCommand tapeCommand;
 
 	LoadingIndicator loadingIndicator;
 	BooleanSetting autoRunSetting;
