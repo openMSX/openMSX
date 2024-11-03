@@ -410,7 +410,9 @@ static void paintDevice(SoundDevice& device, std::span<const MSXMixer::SoundDevi
 	std::vector<float> tmpBuf; // recycle buffer for all channels
 
 	bool stereo = device.hasStereoChannels();
-	auto [factorL, factorR] = device.getAmplificationFactor();
+	auto [factorL_, factorR_] = device.getAmplificationFactor();
+	auto factorL = factorL_; // pre-clang-16 workaround
+	auto factorR = factorR_;
 	auto factor = stereo ? 1.0f : factorL;
 
 	im::ID_for_range(device.getNumChannels(), [&](int channel) {

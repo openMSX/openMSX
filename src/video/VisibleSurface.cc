@@ -346,7 +346,9 @@ void VisibleSurface::saveScreenshotGL(
 	const OutputSurface& output, const std::string& filename)
 {
 	auto [x, y] = output.getViewOffset();
-	auto [w, h] = output.getViewSize();
+	auto [w_, h_] = output.getViewSize();
+	auto w = w_; // pre-clang-16 workaround
+	auto h = h_;
 
 	// OpenGL ES only supports reading RGBA (not RGB)
 	MemBuffer<uint32_t> buffer(size_t(w) * size_t(h));

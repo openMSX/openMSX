@@ -397,7 +397,8 @@ void ImGuiTools::paintRecord()
 
 void ImGuiTools::paintNotes()
 {
-	for (auto [i, note] : enumerate(notes)) {
+	for (auto [i, note_] : enumerate(notes)) {
+		auto& note = note_; // pre-clang-16 workaround
 		if (!note.show) continue;
 
 		im::Window(tmpStrCat("Note ", i + 1).c_str(), &note.show, [&]{

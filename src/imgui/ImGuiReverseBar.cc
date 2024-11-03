@@ -167,7 +167,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					if (ImGui::TableNextColumn()) {
 						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 							setAndSortColumns(saveStateInfo.entriesChanged, saveStateInfo.entries);
-							for (const auto& [fullName, name_, ftime] : saveStateInfo.entries) {
+							for (const auto& [fullName, name_, ftime_] : saveStateInfo.entries) {
+								auto ftime = ftime_; // pre-clang-16 workaround
 								const auto& name = name_; // clang workaround
 								if (ImGui::TableNextColumn()) {
 									if (ImGui::Selectable(name.c_str())) {
@@ -271,7 +272,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			} else {
 				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
 					setAndSortColumns(replayInfo.entriesChanged, replayInfo.entries);
-					for (const auto& [fullName_, displayName_, ftime] : replayInfo.entries) {
+					for (const auto& [fullName_, displayName_, ftime_] : replayInfo.entries) {
+						auto ftime = ftime_; // pre-clang-16 workaround
 						const auto& fullName = fullName_; // clang workaround
 						if (ImGui::TableNextColumn()) {
 							const auto& displayName = displayName_; // clang workaround
