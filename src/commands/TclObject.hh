@@ -3,6 +3,7 @@
 
 #include "narrow.hh"
 #include "small_buffer.hh"
+#include "stl.hh"
 #include "view.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
@@ -15,7 +16,6 @@
 #include <initializer_list>
 #include <iterator>
 #include <optional>
-#include <ranges>
 #include <span>
 #include <string_view>
 
@@ -271,7 +271,7 @@ private:
 	}
 	template<typename ITER>
 	void addListElementsImpl(ITER first, ITER last, std::random_access_iterator_tag) {
-		small_buffer<Tcl_Obj*, 128> objv(view::transform(std::ranges::subrange(first, last),
+		small_buffer<Tcl_Obj*, 128> objv(view::transform(iterator_range(first, last),
 			[](const auto& t) { return newObj(t); }));
 		addListElementsImpl(narrow<int>(objv.size()), objv.data());
 	}
