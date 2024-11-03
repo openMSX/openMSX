@@ -76,7 +76,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())
-	, tapeCommand(
+	, cassettePlayerCommand(
 		this,
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),

@@ -171,7 +171,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 
-	CassettePlayerCommand tapeCommand;
+	CassettePlayerCommand cassettePlayerCommand;
 
 	LoadingIndicator loadingIndicator;
 	BooleanSetting autoRunSetting;
