@@ -470,7 +470,7 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 		if (getMachineConfig()->getConfig().findChild("CassettePort")) {
 			cassettePort = make_unique<CassettePort>(*getMachineConfig());
 		} else {
-			cassettePort = make_unique<DummyCassettePort>();
+			cassettePort = make_unique<DummyCassettePort>(*this);
 		}
 	}
 	return *cassettePort;

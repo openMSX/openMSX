@@ -2,6 +2,7 @@
 #define CASSETTEPORT_HH
 
 #include "Connector.hh"
+#include "CassettePlayerCommand.hh"
 #include "serialize_meta.hh"
 #include "components.hh"
 
@@ -104,6 +105,7 @@ SERIALIZE_CLASS_VERSION(CassettePort, 2);
 class DummyCassettePort final : public CassettePortInterface
 {
 public:
+	explicit DummyCassettePort(MSXMotherBoard& motherBoard);
 	void setMotor(bool status, EmuTime::param time) override;
 	void cassetteOut(bool output, EmuTime::param time) override;
 	bool cassetteIn(EmuTime::param time) override;
@@ -112,6 +114,8 @@ public:
 #endif
 	[[nodiscard]] bool lastOut() const override;
 	CassettePlayer* getCassettePlayer() override { return nullptr; }
+private:
+	CassettePlayerCommand cassettePlayerCommand;
 };
 
 } // namespace openmsx
