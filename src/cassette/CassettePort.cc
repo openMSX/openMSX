@@ -17,6 +17,15 @@ namespace openmsx {
 
 // DummyCassettePort
 
+DummyCassettePort::DummyCassettePort(MSXMotherBoard& motherBoard)
+	: cassettePlayerCommand(
+		nullptr,
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler())
+{
+}
+
 void DummyCassettePort::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// do nothing
