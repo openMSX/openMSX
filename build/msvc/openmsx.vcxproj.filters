@@ -129,6 +129,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCLI.cc">
       <Filter>cassette</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCommand.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CassettePort.cc">
       <Filter>cassette</Filter>
     </ClCompile>
@@ -1566,6 +1569,9 @@
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCLI.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCommand.hh">
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\CassettePort.hh">
