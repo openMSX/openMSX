@@ -1,6 +1,5 @@
 #include "XSAExtractor.hh"
 
-#include "File.hh"
 #include "MSXException.hh"
 
 #include "narrow.hh"
@@ -8,12 +7,9 @@
 
 namespace openmsx {
 
-XSAExtractor::XSAExtractor(File& file)
+XSAExtractor::XSAExtractor(std::span<const uint8_t> file_)
+	: file(file_)
 {
-	auto mmap = file.mmap();
-	inBufPos = mmap.begin();
-	inBufEnd = mmap.end();
-
 	if ((charIn() != 'P') || (charIn() != 'C') ||
 	    (charIn() != 'K') || (charIn() != '\010')) {
 		throw MSXException("Not an XSA image");
@@ -24,19 +20,21 @@ XSAExtractor::XSAExtractor(File& file)
 	unLz77();
 }
 
-std::pair<MemBuffer<SectorBuffer>, unsigned> XSAExtractor::extractData()
+std::vector<SectorBuffer> XSAExtractor::extractData() &&
 {
 	// destroys internal outBuf, but that's ok
-	return {std::move(outBuf), sectors};
+	return std::move(output);
 }
 
 // Get the next character from the input buffer
 uint8_t XSAExtractor::charIn()
 {
-	if (inBufPos >= inBufEnd) {
+	if (file.empty()) {
 		throw MSXException("Corrupt XSA image: unexpected end of file");
 	}
-	return *inBufPos++;
+	auto result = file.front();
+	file = file.subspan(1);
+	return result;
 }
 
 // check fileheader
@@ -47,11 +45,11 @@ void XSAExtractor::chkHeader()
 	for (auto i : xrange(4)) {
 		outBufLen |= charIn() << (8 * i);
 	}
-	sectors = (outBufLen + 511) / 512;
-	outBuf.resize(sectors);
+	auto sectors = (outBufLen + 511) / 512;
+	output.resize(sectors);
 
 	// skip compressed length
-	inBufPos += 4;
+	repeat(4, [&]{ (void)charIn(); });
 
 	// skip original filename
 	while (charIn()) /*empty*/;
@@ -62,8 +60,8 @@ void XSAExtractor::unLz77()
 {
 	bitCnt = 0; // no bits read yet
 
-	size_t remaining = sectors * sizeof(SectorBuffer);
-	std::span out = outBuf.data()->raw;
+	size_t remaining = output.size() * sizeof(SectorBuffer);
+	std::span out{output.data()->raw.data(), remaining};
 	size_t outIdx = 0;
 	while (true) {
 		if (bitIn()) {

@@ -9,7 +9,8 @@
 #define XSADISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
-#include "MemBuffer.hh"
+
+#include <vector>
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ private:
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
 
-	MemBuffer<SectorBuffer> data;
+	std::vector<SectorBuffer> data;
 };
 
 } // namespace openmsx
