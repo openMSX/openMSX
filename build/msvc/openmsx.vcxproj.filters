@@ -429,6 +429,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\XSADiskImage.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\XSAExtractor.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\file\CompressedFileAdapter.cc">
       <Filter>file</Filter>
     </ClCompile>
@@ -1898,6 +1901,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\XSADiskImage.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\XSAExtractor.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\CompressedFileAdapter.hh">

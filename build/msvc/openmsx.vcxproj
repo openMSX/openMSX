@@ -438,6 +438,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\XSADiskImage.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\XSAExtractor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\CompressedFileAdapter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\File.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\FileBase.cc" />
@@ -1010,6 +1011,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\WD2793BasedFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\XSADiskImage.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\XSAExtractor.hh" />
     <None Include="$(OpenMSXSrcDir)\file\CompressedFileAdapter.hh" />
     <None Include="$(OpenMSXSrcDir)\file\File.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileBase.hh" />

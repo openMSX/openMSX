@@ -179,6 +179,7 @@ sources = files(
     'fdc/WD2793.cc',
     'fdc/WD2793BasedFDC.cc',
     'fdc/XSADiskImage.cc',
+    'fdc/XSAExtractor.cc',
     'fdc/YamahaFDC.cc',
     'file/CompressedFileAdapter.cc',
     'file/File.cc',
