@@ -679,11 +679,11 @@ string getTempDir()
 #ifdef _WIN32
 	if (DWORD len = GetTempPathW(0, nullptr)) {
 		std::wstring bufW(len, L'\0'); // TODO use c++23 resize_and_overwrite()
-		len = GetTempPathW(len, bufW.data());
-		if (len) {
+		if (int len2 = GetTempPathW(len, bufW.data())) {
+			bufW.resize(len2);
 			// Strip last backslash
-			if (bufW[len - 1] == L'\\') {
-				bufW[len - 1] = L'\0';
+			if (bufW.ends_with(L'\\')) {
+				bufW.pop_back();
 			}
 			return utf16to8(bufW);
 		}

@@ -11,8 +11,9 @@ static bool multiByteToUtf16(zstring_view multiByte, UINT cp, DWORD dwFlags, std
 	const char* multiByteA = multiByte.c_str();
 	if (int len = MultiByteToWideChar(cp, dwFlags, multiByteA, -1, nullptr, 0)) {
 		utf16.resize(len); // TODO use c++23 resize_and_overwrite()
-		len = MultiByteToWideChar(cp, dwFlags, multiByteA, -1, utf16.data(), len);
-		if (len) return true;
+		int len2 = MultiByteToWideChar(cp, dwFlags, multiByteA, -1, utf16.data(), len);
+		utf16.resize(len - 1); // remove 0-terminator, std::wstring handles it internally
+		if (len2) return true;
 	}
 	return false;
 }
@@ -22,8 +23,9 @@ static bool utf16ToMultiByte(const std::wstring& utf16, UINT cp, std::string& mu
 	const wchar_t* utf16W = utf16.c_str();
 	if (int len = WideCharToMultiByte(cp, 0, utf16W, -1, nullptr, 0, nullptr, nullptr)) {
 		multiByte.resize(len); // TODO use c++23 resize_and_overwrite()
-		len = WideCharToMultiByte(cp, 0, utf16W, -1, multiByte.data(), len, nullptr, nullptr);
-		if (len) return true;
+		int len2 = WideCharToMultiByte(cp, 0, utf16W, -1, multiByte.data(), len, nullptr, nullptr);
+		multiByte.resize(len - 1); // remove 0-terminator, std::string handles it internally
+		if (len2) return true;
 	}
 	return false;
 }
