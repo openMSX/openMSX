@@ -214,7 +214,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			cb.stopIdx = 0; // no valid last data
 		} else {
 			anySeparateChannel = true;
-			cb.requestCounter = std::max(0, narrow<int>(cb.requestCounter - samples));
+			cb.requestCounter = (cb.requestCounter < samples) ? 0 : (cb.requestCounter - samples);
 
 			if (auto remainingSize = narrow<unsigned>(cb.buffer.size() - cb.stopIdx);
 			    remainingSize < padded) {
