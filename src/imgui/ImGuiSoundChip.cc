@@ -136,20 +136,31 @@ void ImGuiSoundChip::showChannelSettings(MSXMotherBoard& motherBoard, const std:
 	auto* info = msxMixer.findDeviceInfo(name);
 	if (!info) return;
 
-	std::string label = name + " channel setting";
+	std::string label = name + " channel settings";
+	ImGui::SetNextWindowSize(gl::vec2{40, 0} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window(label.c_str(), enabled, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
-		im::Table("table", 3, [&]{
+		int flags = ImGuiTableFlags_ScrollY |
+			    ImGuiTableFlags_RowBg |
+		            ImGuiTableFlags_SizingStretchProp;
+		im::Table("table", 3, flags, [&]{
+			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+			ImGui::TableSetupColumn("ch.",  ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("mute", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("file to record to", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableHeadersRow();
 			im::ID_for_range(info->channelSettings.size(), [&](int i) {
 				auto& channel =  info->channelSettings[i];
 				if (ImGui::TableNextColumn()) {
-					ImGui::StrCat("channel ", i);
+					ImGui::StrCat(i + 1);
 				}
 				if (ImGui::TableNextColumn()) {
-					Checkbox(hotKey, "mute", *channel.mute);
+					Checkbox(hotKey, "##mute", *channel.mute);
 				}
 				if (ImGui::TableNextColumn()) {
-					InputText("record", *channel.record);
+					// TODO: use a file browser (in "create mode")
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					InputText("##rec", *channel.record);
 				}
 			});
 		});
