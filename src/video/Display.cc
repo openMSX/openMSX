@@ -49,7 +49,7 @@ Display::Display(Reactor& reactor_)
 {
 	frameDurationSum = 0;
 	repeat(NUM_FRAME_DURATIONS, [&] {
-		frameDurations.addFront(20);
+		frameDurations.push_front(20);
 		frameDurationSum += 20;
 	});
 	prevTimeStamp = Timer::getTime();
@@ -353,8 +353,8 @@ void Display::repaintImpl()
 	auto now = Timer::getTime();
 	auto duration = now - prevTimeStamp;
 	prevTimeStamp = now;
-	frameDurationSum += duration - frameDurations.removeBack();
-	frameDurations.addFront(duration);
+	frameDurationSum += duration - frameDurations.pop_back();
+	frameDurations.push_front(duration);
 
 	// TODO maybe revisit this later (and/or simplify other calls to repaintDelayed())
 	// This ensures a minimum framerate for ImGui

@@ -14,39 +14,40 @@ class CircularBuffer
 public:
 	constexpr CircularBuffer() = default;
 
-	constexpr void addFront(const T& element) {
-		assert(!isFull());
+	constexpr void push_front(const T& element) {
+		assert(!full());
 		first = prev(first);
 		buffer[first] = element;
 	}
-	constexpr void addFront(T&& element) {
-		assert(!isFull());
+	constexpr void push_front(T&& element) {
+		assert(!full());
 		first = prev(first);
 		buffer[first] = std::move(element);
 	}
-	constexpr void addBack(const T& element) {
-		assert(!isFull());
+	constexpr void push_back(const T& element) {
+		assert(!full());
 		buffer[last] = element;
 		last = next(last);
 	}
-	constexpr void addBack(T&& element) {
-		assert(!isFull());
+	constexpr void push_back(T&& element) {
+		assert(!full());
 		buffer[last] = std::move(element);
 		last = next(last);
 	}
-	constexpr T& removeFront() {
-		assert(!isEmpty());
+	constexpr T& pop_front() {
+		assert(!empty());
 		auto tmp = first;
 		first = next(first);
 		return buffer[tmp];
 	}
-	constexpr T& removeBack() {
-		assert(!isEmpty());
+	constexpr T& pop_back() {
+		assert(!empty());
 		last = prev(last);
 		return buffer[last];
 	}
+
 	[[nodiscard]] constexpr T& operator[](size_t pos) {
-		assert(pos < MAXSIZE);
+		assert(pos < size());
 		auto tmp = first + pos;
 		if (tmp > MAXSIZE) {
 			tmp -= (MAXSIZE + 1);
@@ -56,10 +57,27 @@ public:
 	[[nodiscard]] constexpr const T& operator[](size_t pos) const {
 		return const_cast<CircularBuffer&>(*this)[pos];
 	}
-	[[nodiscard]] constexpr bool isEmpty() const {
+
+	[[nodiscard]] constexpr T& front() {
+		assert(!empty());
+		return buffer[first];
+	}
+	[[nodiscard]] constexpr const T& front() const {
+		return const_cast<CircularBuffer&>(*this)->front();
+	}
+
+	[[nodiscard]] constexpr T& back() {
+		assert(!empty());
+		return buffer[prev(last)];
+	}
+	[[nodiscard]] constexpr const T& back() const {
+		return const_cast<CircularBuffer&>(*this)->back();
+	}
+
+	[[nodiscard]] constexpr bool empty() const {
 		return (first == last);
 	}
-	[[nodiscard]] constexpr bool isFull() const {
+	[[nodiscard]] constexpr bool full() const {
 		return (first == next(last));
 	}
 	[[nodiscard]] constexpr size_t size() const {
