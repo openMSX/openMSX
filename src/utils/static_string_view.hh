@@ -45,7 +45,7 @@ public:
 		: s(v) {}
 
 	// Allow (implicit) conversion to std::string_view.
-	constexpr operator std::string_view() const { return s; }
+	explicit(false) constexpr operator std::string_view() const { return s; }
 
 private:
 	std::string_view s;

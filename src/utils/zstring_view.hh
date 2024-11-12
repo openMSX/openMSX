@@ -88,7 +88,7 @@ public:
 	[[nodiscard]] constexpr std::string_view view() const {
 		return {dat, siz};
 	}
-	[[nodiscard]] constexpr /*implicit*/ operator std::string_view() const {
+	[[nodiscard]] explicit(false) constexpr operator std::string_view() const {
 		return view();
 	}
 

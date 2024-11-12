@@ -73,7 +73,7 @@ struct MSXDirEntry {
 		uint8_t value;
 
 		constexpr AttribValue() = default;
-		constexpr /*implicit*/ AttribValue(Attrib v) : value(to_underlying(v)) {}
+		constexpr explicit(false) AttribValue(Attrib v) : value(to_underlying(v)) {}
 		constexpr explicit AttribValue(uint8_t v) : value(v) {}
 		constexpr explicit operator bool() const { return value != 0; }
 		constexpr auto operator<=>(const AttribValue&) const = default;

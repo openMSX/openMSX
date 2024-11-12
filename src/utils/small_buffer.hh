@@ -51,7 +51,7 @@ public:
 		std::copy(std::begin(range), std::end(range), begin());
 	}
 
-	[[nodiscard]] operator std::span<T>() noexcept { return sp; }
+	[[nodiscard]] explicit(false) operator std::span<T>() noexcept { return sp; }
 
 	[[nodiscard]] auto size()  const noexcept { return sp.size(); }
 	[[nodiscard]] auto empty() const noexcept { return sp.empty(); }

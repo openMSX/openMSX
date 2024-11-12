@@ -241,8 +241,8 @@ TEST_CASE("view::keys, view::values") {
 
 struct F {
 	int i;
-	/*implicit*/ F(int i_) : i(i_) {}
-	/*implicit*/ operator int() const { return i; }
+	explicit(false) F(int i_) : i(i_) {}
+	explicit(false) operator int() const { return i; }
 	bool isOdd() const { return i & 1; }
 };
 

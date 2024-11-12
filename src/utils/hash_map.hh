@@ -45,7 +45,7 @@ public:
 	{
 	}
 
-	/*implicit*/ hash_map(std::initializer_list<std::pair<Key, Value>> list)
+	explicit(false) hash_map(std::initializer_list<std::pair<Key, Value>> list)
 		: BaseType(list)
 	{
 	}

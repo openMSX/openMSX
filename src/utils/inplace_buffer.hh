@@ -56,7 +56,7 @@ public:
 		std::copy(std::begin(range), std::end(range), begin());
 	}
 
-	[[nodiscard]] operator std::span<T>() noexcept {
+	[[nodiscard]] explicit(false) operator std::span<T>() noexcept {
 		return {buffer.data(), sz};
 	}
 
