@@ -46,9 +46,9 @@ public:
 
 	template<typename Range>
 	explicit small_buffer(const Range& range)
-		: small_buffer(uninitialized_tag{}, std::distance(range.begin(), range.end()))
+		: small_buffer(uninitialized_tag{}, std::distance(std::begin(range), std::end(range)))
 	{
-		std::copy(range.begin(), range.end(), begin());
+		std::copy(std::begin(range), std::end(range), begin());
 	}
 
 	[[nodiscard]] operator std::span<T>() noexcept { return sp; }

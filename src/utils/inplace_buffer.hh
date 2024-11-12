@@ -51,9 +51,9 @@ public:
 
 	template<typename Range>
 	explicit inplace_buffer(const Range& range)
-		: inplace_buffer(uninitialized_tag{}, std::distance(range.begin(), range.end()))
+		: inplace_buffer(uninitialized_tag{}, std::distance(std::begin(range), std::end(range)))
 	{
-		std::copy(range.begin(), range.end(), begin());
+		std::copy(std::begin(range), std::end(range), begin());
 	}
 
 	[[nodiscard]] operator std::span<T>() noexcept {
