@@ -110,9 +110,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			     const auto& path : context.getPaths()) {
 				foreach_file(path, [&](const std::string& fullName, std::string_view name) {
 					if (name.ends_with(extension)) {
+						name.remove_suffix(extension.size());
 						std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
 						info.entries.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
-						name.remove_suffix(extension.size());
 					}
 				});
 			}
