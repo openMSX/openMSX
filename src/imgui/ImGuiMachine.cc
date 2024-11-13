@@ -31,6 +31,20 @@ using namespace std::literals;
 
 namespace openmsx {
 
+void ImGuiMachine::save(ImGuiTextBuffer& buf)
+{
+	for (const auto& item : recentMachines) {
+		buf.appendf("machine.recent=%s\n", item.c_str());
+	}
+}
+
+void ImGuiMachine::loadLine(std::string_view name, zstring_view value)
+{
+	if (name == "machine.recent") {
+		recentMachines.push_back(value);
+	}
+}
+
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Machine", [&]{
@@ -142,6 +156,39 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		}
 
+		im::TreeNode("Recently used", recentMachines.empty() ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			if (recentMachines.empty()) {
+				ImGui::TextUnformatted("(none)"sv);
+			} else {
+				MachineInfo* info = nullptr;
+				im::Combo("##recent", "Switch to recently used machine...", [&]{
+					for (const auto& item : recentMachines) {
+						info = findMachineInfo(item);
+						if (!info) continue;
+						bool ok = getTestResult(*info).empty();
+						im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+							bool selected = info->configName == newMachineConfig;
+							if (ImGui::Selectable(info->displayName.c_str(), selected)) {
+								newMachineConfig = info->configName;
+								if (ok) {
+									showSelectMachine = false; // close window
+									manager.executeDelayed(makeTclList("machine", newMachineConfig));
+									addRecentItem(recentMachines, newMachineConfig);
+								}
+							}
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+								im::ItemTooltip([&]{
+									printConfigInfo(*info);
+								});
+							}
+						});
+					}
+				});
+				simpleToolTip("Replace the current with the selected machine.");
+			}
+		});
+		ImGui::Separator();
+
 		ImGui::TextUnformatted("Available machines:"sv);
 		auto& allMachines = getAllMachines();
 		std::string filterDisplay = "filter";
@@ -183,6 +230,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 						if (ok && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 							showSelectMachine = false; // close window
 							manager.executeDelayed(makeTclList("machine", newMachineConfig));
+							addRecentItem(recentMachines, newMachineConfig);
 						}
 					}
 					if (selected) {

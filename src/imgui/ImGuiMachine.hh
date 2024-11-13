@@ -3,6 +3,8 @@
 
 #include "ImGuiPart.hh"
 
+#include "circular_buffer.hh"
+
 #include <string>
 #include <vector>
 
@@ -21,6 +23,9 @@ public:
 public:
 	using ImGuiPart::ImGuiPart;
 
+	[[nodiscard]] zstring_view iniName() const override { return "machine"; }
+	void save(ImGuiTextBuffer& buf) override;
+	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
@@ -42,6 +47,10 @@ private:
 	std::string filterType;
 	std::string filterRegion;
 	std::string filterString;
+
+	static constexpr size_t HISTORY_SIZE = 8;
+	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
+
 };
 
 } // namespace openmsx
