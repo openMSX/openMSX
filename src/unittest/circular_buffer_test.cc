@@ -17,6 +17,9 @@ static void check_buf(
 	CHECK(buf.empty() == (expectedSize == 0));
 	CHECK(buf.full()  == (expectedCapacity == expectedSize));
 
+	auto iter_diff = buf.end() - buf.begin();
+	CHECK(ptrdiff_t(buf.size()) == iter_diff);
+
 	if (expectedSize != 0) {
 		CHECK(buf.front() == expectedElements.front());
 		CHECK(buf.back()  == expectedElements.back());
@@ -64,6 +67,9 @@ static void check_buf(
 	CHECK(buf.reserve() == expectedCapacity - expectedSize);
 	CHECK(buf.empty() == (expectedSize == 0));
 	CHECK(buf.full()  == (expectedCapacity == expectedSize));
+
+	auto iter_diff = buf.end() - buf.begin();
+	CHECK(ptrdiff_t(buf.size()) == iter_diff);
 
 	if (expectedSize != 0) {
 		CHECK(*buf.front() == expectedElements.front());
