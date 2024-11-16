@@ -20,6 +20,15 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiCharacter::ImGuiCharacter(ImGuiManager& manager_, size_t index)
+	: ImGuiPart(manager_)
+	, title("Tile viewer")
+{
+	if (index) {
+		strAppend(title, " (", index + 1, ')');
+	}
+}
+
 void ImGuiCharacter::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -68,7 +77,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 {
 	if (!show || !motherBoard) return;
 	ImGui::SetNextWindowSize({692, 886}, ImGuiCond_FirstUseEver);
-	im::Window("Tile viewer", &show, [&]{
+	im::Window(title.c_str(), &show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		const auto& vram = vdp->getVRAM().getData();

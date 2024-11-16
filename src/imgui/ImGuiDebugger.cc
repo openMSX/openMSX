@@ -91,9 +91,25 @@ void ImGuiDebugger::signalBreak()
 	syncDisassemblyWithPC = true;
 }
 
+template<typename T>
+static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
+{
+	// prefer to reuse a previously closed viewer
+	if (auto it = ranges::find(viewers, false, &T::show); it != viewers.end()) {
+		(*it)->show = true;
+		return;
+	}
+	// or create a new one
+	viewers.push_back(std::make_unique<T>(manager, viewers.size()));
+}
+
 void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+
+	buf.appendf("bitmapViewers=%d\n", narrow<int>(bitmapViewers.size()));
+	buf.appendf("tileViewers=%d\n", narrow<int>(tileViewers.size()));
+	buf.appendf("spriteViewers=%d\n", narrow<int>(spriteViewers.size()));
 
 	// TODO in the future use c++23 std::chunk_by
 	auto it = hexEditors.begin();
@@ -107,23 +123,37 @@ void ImGuiDebugger::save(ImGuiTextBuffer& buf)
 		} while (it != et && (*it)->getDebuggableName() == name);
 		buf.appendf("hexEditor.%s=%d\n", name.c_str(), count);
 	}
-
 }
 
 void ImGuiDebugger::loadStart()
 {
+	bitmapViewers.clear();
+	tileViewers.clear();
+	spriteViewers.clear();
 	hexEditors.clear();
 }
 
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 {
-	static constexpr std::string_view prefix = "hexEditor.";
+	static constexpr std::string_view hexEditorPrefix = "hexEditor.";
 
 	if (loadOnePersistent(name, value, *this, persistentElements)) {
 		// already handled
-	} else if (name.starts_with(prefix)) {
+	} else if (name == "bitmapViewers") {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
-			auto debuggableName = std::string(name.substr(prefix.size()));
+			repeat(*r, [&] { openOrCreate(manager, bitmapViewers); });
+		}
+	} else if (name == "tileViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, tileViewers); });
+		}
+	} else if (name == "spriteViewers") {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			repeat(*r, [&] { openOrCreate(manager, spriteViewers); });
+		}
+	} else if (name.starts_with(hexEditorPrefix)) {
+		if (auto r = StringOp::stringTo<unsigned>(value)) {
+			auto debuggableName = std::string(name.substr(hexEditorPrefix.size()));
 			auto [b, e] = ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
 			auto index = std::distance(b, e); // expected to be 0, but be robust against imgui.ini changes
 			for (auto i : xrange(*r)) {
@@ -178,9 +208,15 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
 		ImGui::Separator();
-		ImGui::MenuItem("VDP bitmap viewer", nullptr, &manager.bitmap->showBitmapViewer);
-		ImGui::MenuItem("VDP tile viewer", nullptr, &manager.character->show);
-		ImGui::MenuItem("VDP sprite viewer", nullptr, &manager.sprite->show);
+		if (ImGui::MenuItem("VDP bitmap viewer ...")) {
+			openOrCreate(manager, bitmapViewers);
+		}
+		if (ImGui::MenuItem("VDP tile viewer ...")) {
+			openOrCreate(manager, tileViewers);
+		}
+		if (ImGui::MenuItem("VDP sprite viewer ...")) {
+			openOrCreate(manager, spriteViewers);
+		}
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette->window.open);
 		ImGui::Separator();

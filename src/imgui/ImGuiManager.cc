@@ -1,8 +1,6 @@
 #include "ImGuiManager.hh"
 
-#include "ImGuiBitmapViewer.hh"
 #include "ImGuiBreakPoints.hh"
-#include "ImGuiCharacter.hh"
 #include "ImGuiCheatFinder.hh"
 #include "ImGuiConnector.hh"
 #include "ImGuiConsole.hh"
@@ -21,7 +19,6 @@
 #include "ImGuiSCCViewer.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiSoundChip.hh"
-#include "ImGuiSpriteViewer.hh"
 #include "ImGuiSymbols.hh"
 #include "ImGuiTools.hh"
 #include "ImGuiTrainer.hh"
@@ -180,9 +177,6 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	breakPoints = std::make_unique<ImGuiBreakPoints>(*this);
 	symbols = std::make_unique<ImGuiSymbols>(*this);
 	watchExpr = std::make_unique<ImGuiWatchExpr>(*this);
-	bitmap = std::make_unique<ImGuiBitmapViewer>(*this);
-	character = std::make_unique<ImGuiCharacter>(*this);
-	sprite = std::make_unique<ImGuiSpriteViewer>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
 	osdIcons = std::make_unique<ImGuiOsdIcons>(*this);

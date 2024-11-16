@@ -9,15 +9,16 @@
 #include <cstdint>
 #include <optional>
 #include <span>
+#include <string>
 
 namespace openmsx {
 
 class ImGuiBitmapViewer final : public ImGuiPart
 {
 public:
-	using ImGuiPart::ImGuiPart;
+	ImGuiBitmapViewer(ImGuiManager& manager_, size_t index);
 
-	[[nodiscard]] zstring_view iniName() const override { return "bitmap viewer"; }
+	[[nodiscard]] zstring_view iniName() const override { return title; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -27,9 +28,11 @@ private:
 	                  int mode, int lines, int page, uint32_t* output) const;
 
 public:
-	bool showBitmapViewer = false;
+	bool show = true;
 
 private:
+	std::string title;
+
 	enum BitmapScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
 	int bitmapScrnMode = 0;
 	int bitmapPage = 0; // 0-3 or 0-1 depending on screen mode, -1 for all pages   TODO extended VRAM
@@ -50,7 +53,7 @@ private:
 	std::optional<gl::Texture> bitmapGridTex;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement   {"show",           &ImGuiBitmapViewer::showBitmapViewer},
+		PersistentElement   {"show",           &ImGuiBitmapViewer::show},
 		PersistentElement   {"overrideAll",    &ImGuiBitmapViewer::overrideAll},
 		PersistentElement   {"overrideMode",   &ImGuiBitmapViewer::overrideMode},
 		PersistentElement   {"overridePage",   &ImGuiBitmapViewer::overridePage},

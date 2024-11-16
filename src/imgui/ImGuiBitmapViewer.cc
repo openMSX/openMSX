@@ -18,6 +18,15 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_, size_t index)
+	: ImGuiPart(manager_)
+	, title("Bitmap viewer")
+{
+	if (index) {
+		strAppend(title, " (", index + 1, ')');
+	}
+}
+
 void ImGuiBitmapViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -30,11 +39,11 @@ void ImGuiBitmapViewer::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!showBitmapViewer) return;
+	if (!show) return;
 	if (!motherBoard) return;
 
 	ImGui::SetNextWindowSize({528, 618}, ImGuiCond_FirstUseEver);
-	im::Window("Bitmap viewer", &showBitmapViewer, [&]{
+	im::Window(title.c_str(), &show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp || vdp->isMSX1VDP()) return;
 

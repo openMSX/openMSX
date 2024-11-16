@@ -28,9 +28,7 @@ struct ImGuiTextBuffer;
 namespace openmsx {
 
 class CliComm;
-class ImGuiBitmapViewer;
 class ImGuiBreakPoints;
-class ImGuiCharacter;
 class ImGuiCheatFinder;
 class ImGuiConnector;
 class ImGuiConsole;
@@ -48,7 +46,6 @@ class ImGuiReverseBar;
 class ImGuiSCCViewer;
 class ImGuiSettings;
 class ImGuiSoundChip;
-class ImGuiSpriteViewer;
 class ImGuiSymbols;
 class ImGuiTools;
 class ImGuiTrainer;
@@ -141,9 +138,6 @@ public:
 	std::unique_ptr<ImGuiBreakPoints> breakPoints;
 	std::unique_ptr<ImGuiSymbols> symbols;
 	std::unique_ptr<ImGuiWatchExpr> watchExpr;
-	std::unique_ptr<ImGuiBitmapViewer> bitmap;
-	std::unique_ptr<ImGuiCharacter> character;
-	std::unique_ptr<ImGuiSpriteViewer> sprite;
 	std::unique_ptr<ImGuiVdpRegs> vdpRegs;
 	std::unique_ptr<ImGuiPalette> palette;
 	std::unique_ptr<ImGuiReverseBar> reverseBar;

@@ -6,14 +6,16 @@
 #include "GLUtil.hh"
 #include "gl_vec.hh"
 
+#include <string>
+
 namespace openmsx {
 
 class ImGuiCharacter final : public ImGuiPart
 {
 public:
-	using ImGuiPart::ImGuiPart;
+	ImGuiCharacter(ImGuiManager& manager_, size_t index);
 
-	[[nodiscard]] zstring_view iniName() const override { return "Tile viewer"; }
+	[[nodiscard]] zstring_view iniName() const override { return title; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -25,9 +27,11 @@ private:
 	void initHexDigits();
 
 public:
-	bool show = false;
+	bool show = true;
 
 private:
+	std::string title;
+
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
 	bool overrideAll     = false;
 	bool overrideMode    = false;

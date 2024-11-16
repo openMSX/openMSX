@@ -23,6 +23,15 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiSpriteViewer::ImGuiSpriteViewer(ImGuiManager& manager_, size_t index)
+	: ImGuiPart(manager_)
+	, title("Sprite viewer")
+{
+	if (index) {
+		strAppend(title, " (", index + 1, ')');
+	}
+}
+
 void ImGuiSpriteViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -135,7 +144,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 	if (!show || !motherBoard) return;
 
 	ImGui::SetNextWindowSize({748, 1010}, ImGuiCond_FirstUseEver);
-	im::Window("Sprite viewer", &show, [&]{
+	im::Window(title.c_str(), &show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp) return;
 		const auto& vram = vdp->getVRAM().getData();

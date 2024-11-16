@@ -15,6 +15,9 @@ namespace openmsx {
 class CPURegs;
 class Debuggable;
 class Debugger;
+class ImGuiBitmapViewer;
+class ImGuiCharacter;
+class ImGuiSpriteViewer;
 class MSXCPUInterface;
 class SymbolManager;
 
@@ -58,6 +61,9 @@ private:
 	SymbolManager& symbolManager;
 	size_t cycleLabelsCounter = 0;
 
+	std::vector<std::unique_ptr<ImGuiBitmapViewer>> bitmapViewers;
+	std::vector<std::unique_ptr<ImGuiCharacter>> tileViewers;
+	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 
 	std::string gotoAddr;
