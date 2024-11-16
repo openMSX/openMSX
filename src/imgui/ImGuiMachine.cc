@@ -156,32 +156,39 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		}
 
+		auto showMachine = [&](MachineInfo& info, bool doubleClickToSelect) {
+			bool ok = getTestResult(info).empty();
+			im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				bool selected = info.configName == newMachineConfig;
+				if (ImGui::Selectable(info.displayName.c_str(), selected,
+						doubleClickToSelect ? ImGuiSelectableFlags_AllowDoubleClick: ImGuiSelectableFlags_None)) {
+					newMachineConfig = info.configName;
+					if (ok && (doubleClickToSelect ? ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) : true)) {
+						showSelectMachine = false; // close window
+						manager.executeDelayed(makeTclList("machine", newMachineConfig));
+						addRecentItem(recentMachines, newMachineConfig);
+					}
+				}
+				if (selected) {
+					if (ImGui::IsWindowAppearing()) ImGui::SetScrollHereY();
+				}
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+					im::ItemTooltip([&]{
+						printConfigInfo(info);
+					});
+				}
+			});
+		};
+
 		im::TreeNode("Recently used", recentMachines.empty() ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			if (recentMachines.empty()) {
 				ImGui::TextUnformatted("(none)"sv);
 			} else {
-				MachineInfo* info = nullptr;
 				im::Combo("##recent", "Switch to recently used machine...", [&]{
 					for (const auto& item : recentMachines) {
-						info = findMachineInfo(item);
-						if (!info) continue;
-						bool ok = getTestResult(*info).empty();
-						im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-							bool selected = info->configName == newMachineConfig;
-							if (ImGui::Selectable(info->displayName.c_str(), selected)) {
-								newMachineConfig = info->configName;
-								if (ok) {
-									showSelectMachine = false; // close window
-									manager.executeDelayed(makeTclList("machine", newMachineConfig));
-									addRecentItem(recentMachines, newMachineConfig);
-								}
-							}
-							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
-								im::ItemTooltip([&]{
-									printConfigInfo(*info);
-								});
-							}
-						});
+						if (auto* info = findMachineInfo(item)) {
+							showMachine(*info, false);
+						}
 					}
 				});
 				simpleToolTip("Replace the current with the selected machine.");
@@ -222,26 +229,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 			im::ListClipper(filteredMachines.size(), selectedIdx, [&](int i) {
 				auto idx = filteredMachines[i];
 				auto& info = allMachines[idx];
-				bool ok = getTestResult(info).empty();
-				im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-					bool selected = info.configName == newMachineConfig;
-					if (ImGui::Selectable(info.displayName.c_str(), selected, ImGuiSelectableFlags_AllowDoubleClick)) {
-						newMachineConfig = info.configName;
-						if (ok && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-							showSelectMachine = false; // close window
-							manager.executeDelayed(makeTclList("machine", newMachineConfig));
-							addRecentItem(recentMachines, newMachineConfig);
-						}
-					}
-					if (selected) {
-						if (ImGui::IsWindowAppearing()) ImGui::SetScrollHereY();
-					}
-					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
-						im::ItemTooltip([&]{
-							printConfigInfo(info);
-						});
-					}
-				});
+				showMachine(info, true);
 			});
 		});
 
