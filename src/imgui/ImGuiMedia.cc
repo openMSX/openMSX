@@ -1326,19 +1326,6 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 	});
 }
 
-static void addRecentItem(ImGuiMedia::ItemGroup& group, const ImGuiMedia::MediaItem& item)
-{
-	auto& recent = group.recent;
-	if (auto it2 = ranges::find(recent, item); it2 != recent.end()) {
-		// was already present, move to front
-		std::rotate(recent.begin(), it2, it2 + 1);
-	} else {
-		// new entry, add it, but possibly remove oldest entry
-		if (recent.full()) recent.pop_back();
-		recent.push_front(item);
-	}
-}
-
 static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
 {
 	float half = 0.4f * ImGui::GetTextLineHeight();
@@ -1423,7 +1410,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 						manager.executeDelayed(makeTclList("cassetteplayer", "new", fn),
 							[&group](const TclObject&) {
 								// only add to 'recent' when command succeeded
-								addRecentItem(group, group.edit);
+								addRecentItem(group.recent, group.edit);
 							});
 					},
 					current);
@@ -1580,7 +1567,7 @@ void ImGuiMedia::addRecent(const TclObject& cmd)
 		}
 	}
 
-	addRecentItem(*group, item);
+	addRecentItem(group->recent, item);
 }
 
 

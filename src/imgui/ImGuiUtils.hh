@@ -9,6 +9,7 @@
 #include "ranges.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
+#include "circular_buffer.hh"
 
 #include <imgui.h>
 #include <imgui_internal.h> // ImTextCharToUtf8
@@ -272,6 +273,19 @@ template<typename T>
 void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>& items, std::vector<size_t>& indices)
 {
 	filterIndices(filterString, [&](size_t idx) { return items[idx].displayName; }, indices);
+}
+
+template<typename T>
+void addRecentItem(circular_buffer<T>& recentItems, const T& item)
+{
+	if (auto it = ranges::find(recentItems, item); it != recentItems.end()) {
+		// was already present, move to front
+		std::rotate(recentItems.begin(), it, it + 1);
+	} else {
+		// new entry, add it, but possibly remove oldest entry
+		if (recentItems.full()) recentItems.pop_back();
+		recentItems.push_front(item);
+	}
 }
 
 // Similar to c++23 chunk_by(). Main difference is internal vs external iteration.
