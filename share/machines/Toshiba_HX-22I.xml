@@ -56,7 +56,7 @@
     </MSX-RS232>
 
     <primary slot="0">
-      <RAM id="Main RAM 1">
+      <RAM id="Main RAM page 2, 3">
         <mem base="0x8000" size="0x8000"/>
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
@@ -75,7 +75,7 @@
     <primary slot="3">
 
       <secondary slot="0">
-        <RAM id="Main RAM 2">
+        <RAM id="Main RAM page 0, 1">
           <mem base="0x0000" size="0x8000"/>
         </RAM>
       </secondary>

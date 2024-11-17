@@ -88,7 +88,7 @@
 
       <secondary slot="1">
 
-        <ROM id="MSX2+ Sub ROM">
+        <ROM id="MSX Sub ROM">
           <rom> <!-- From original EPROM dump -->
             <filename>2+FM cks-B414h.ROM</filename>
             <sha1>c5bfa85f7315fb11928b27a721a908c93b7d3fbf</sha1>

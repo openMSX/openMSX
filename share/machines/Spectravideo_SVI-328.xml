@@ -53,7 +53,7 @@
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
-      <RAM id="Main RAM 1">
+      <RAM id="Main RAM bank 02">
         <mem base="0x8000" size="0x8000"/>
       </RAM>
     </primary>
@@ -61,7 +61,7 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <RAM id="Main RAM 2">
+      <RAM id="Main RAM bank 21">
         <mem base="0x0000" size="0x8000"/>
       </RAM>
     </primary>

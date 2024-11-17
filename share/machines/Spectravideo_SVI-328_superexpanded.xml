@@ -64,7 +64,7 @@
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
-      <RAM id="Main RAM 1">
+      <RAM id="Main RAM bank 02">
         <mem base="0x8000" size="0x8000"/>
       </RAM>
     </primary>
@@ -72,13 +72,16 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <RAM id="Main RAM 2"> <!-- SV-807 1 with S2 ON, and all other OFF -->
-        <mem base="0x0000" size="0x10000"/>
+      <RAM id="Main RAM bank 21">
+        <mem base="0x0000" size="0x8000"/>
+      </RAM>
+      <RAM id="Expanded RAM bank 22"> <!-- SV-807 1 with S2 ON, and all other OFF -->
+        <mem base="0x8000" size="0x8000"/>
       </RAM>
     </primary>
 
     <primary slot="3">
-      <RAM id="Main RAM 3"> <!-- SV-807 2 with S3 and S4 ON, and all other off -->
+      <RAM id="Expanded RAM bank 31, 32"> <!-- SV-807 2 with S3 and S4 ON, and all other off -->
         <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>
