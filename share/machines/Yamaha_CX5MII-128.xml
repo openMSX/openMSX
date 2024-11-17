@@ -68,7 +68,7 @@
     <primary slot="3">
 
       <secondary slot="0">
-        <ROM id="CX5MII MSX sub ROM">
+        <ROM id="MSX Sub ROM">
           <rom>
             <sha1>c2340313bfda751181e8a5287d60f77bc6a2f3e6</sha1> <!-- From Gerrit's machine -->
             <sha1>df503d6f5d72a2a355db53c35950348fb7c767bf</sha1>

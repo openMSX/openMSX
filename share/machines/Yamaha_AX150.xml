@@ -77,7 +77,7 @@ Motherboard ID: GCMK-77X YAMAHA XB155[B]
           </rom>
           <mem base="0x0000" size="0x8000"/>
         </ROM>
-        <RAM id="Main RAM">
+        <RAM id="Main RAM page 2, 3">
           <mem base="0x8000" size="0x8000"/>
           <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) -->
         </RAM>
@@ -95,7 +95,7 @@ Motherboard ID: GCMK-77X YAMAHA XB155[B]
       </secondary>
 
       <secondary slot="2">
-        <RAM id="Lower RAM">
+        <RAM id="Main RAM page 0, 1">
           <mem base="0x0000" size="0x8000"/>
           <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) -->
         </RAM>

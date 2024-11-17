@@ -124,7 +124,7 @@
       </secondary>
 
       <secondary slot="1">
-        <ROM id="MSX2 subROM">
+        <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
             <sha1>4cbceba8f37f08272b612b6fc212eeaf379da9c3</sha1>
