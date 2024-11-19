@@ -4,6 +4,7 @@
 #define STATISTICS 0
 
 #include "MemBuffer.hh"
+
 #include <cstdint>
 #include <memory>
 #include <span>

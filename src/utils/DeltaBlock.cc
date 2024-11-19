@@ -259,7 +259,7 @@ DeltaBlockCopy::DeltaBlockCopy(std::span<const uint8_t> data)
 #ifdef DEBUG
 	sha1 = SHA1::calc(data);
 #endif
-	ranges::copy(data, block.data());
+	ranges::copy(data, std::span{block});
 	assert(!compressed());
 #if STATISTICS
 	allocSize = size;
