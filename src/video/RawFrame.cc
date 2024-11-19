@@ -36,7 +36,7 @@ unsigned RawFrame::getLineWidth(unsigned line) const
 std::span<const RawFrame::Pixel> RawFrame::getUnscaledLine(
 	unsigned line, std::span<Pixel> /*helpBuf*/) const
 {
-	return getLineDirect(line).subspan(0, lineWidths[line]);
+	return getLineDirect(line).first(lineWidths[line]);
 }
 
 bool RawFrame::hasContiguousStorage() const
