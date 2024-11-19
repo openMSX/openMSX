@@ -101,7 +101,7 @@ void ResampleCoeffs::getCoeffs(
 {
 	if (auto it = ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
-		permute   = std::span<int16_t, HALF_TAB_LEN>{it->permute.data(), HALF_TAB_LEN};
+		permute   = std::span<int16_t, HALF_TAB_LEN>{it->permute};
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
@@ -111,7 +111,7 @@ void ResampleCoeffs::getCoeffs(
 	elem.ratio = ratio;
 	elem.count = 1;
 	elem.permute = PermuteTable(HALF_TAB_LEN);
-	auto perm = std::span<int16_t, HALF_TAB_LEN>{elem.permute.data(), HALF_TAB_LEN};
+	auto perm = std::span<int16_t, HALF_TAB_LEN>{elem.permute};
 	elem.table = calcTable(ratio, perm, elem.filterLen);
 	permute   = perm;
 	table     = elem.table.data();
@@ -347,7 +347,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (narrow<int>(filterLen) - idx_cnt) / 2;
 	Table table(HALF_TAB_LEN * filterLen);
-	ranges::fill(std::span{table.data(), HALF_TAB_LEN * filterLen}, 0);
+	ranges::fill(std::span{table}, 0.0f);
 
 	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[permute[t] * filterLen];
