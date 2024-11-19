@@ -308,7 +308,7 @@ void Debugger::Cmd::readBlock(std::span<const TclObject> tokens, TclObject& resu
 	for (auto i : xrange(num)) {
 		buf[i] = device.read(addr + i);
 	}
-	result = std::span<byte>{buf.data(), num};
+	result = std::span{buf}; // makes a copy
 }
 
 void Debugger::Cmd::write(std::span<const TclObject> tokens, TclObject& /*result*/)
