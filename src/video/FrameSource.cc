@@ -2,7 +2,6 @@
 
 #include "LineScalers.hh"
 
-#include "MemoryOps.hh"
 #include "aligned.hh"
 #include "inplace_buffer.hh"
 #include "ranges.hh"
@@ -83,8 +82,7 @@ void FrameSource::scaleLine(
 	// TODO is there a better way to implement this?
 	switch (in.size()) {
 	case 1:  // blank
-		MemoryOps::MemSet<Pixel> memset;
-		memset(out, in[0]);
+		ranges::fill(out, in[0]);
 		break;
 	case 213:
 		switch (out.size()) {

@@ -5,10 +5,10 @@
 #include "Display.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
-#include "MemoryOps.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <array>
@@ -132,10 +132,9 @@ void V9990SDLRasterizer::drawBorder(
 	if (startX >= endX) return;
 
 	unsigned lineWidth = vdp.getLineWidth();
-	MemoryOps::MemSet<Pixel> memset;
 	for (auto y : xrange(startY, endY)) {
-		memset(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
-		       bgColor);
+		ranges::fill(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
+		             bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
 }

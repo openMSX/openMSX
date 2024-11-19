@@ -417,10 +417,9 @@ void SDLRasterizer::drawBorder(
 		unsigned x = translateX(fromX, (lineWidth == 512));
 		unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 		unsigned width = (lineWidth == 512) ? 640 : 320;
-		MemoryOps::MemSet2<Pixel> memset;
 		for (auto y : xrange(startY, endY)) {
-			memset(workFrame->getLineDirect(y).subspan(x, num),
-			       border0, border1);
+			MemoryOps::fill_2(workFrame->getLineDirect(y).subspan(x, num),
+			                  border0, border1);
 			if (limitX == VDP::TICKS_PER_LINE) {
 				// Only set line width at the end (right
 				// border) of the line. This ensures we can

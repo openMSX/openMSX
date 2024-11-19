@@ -9,23 +9,12 @@
 #include <bit>
 #include <cassert>
 #include <cstdlib>
-#include <cstdint>
 #include <new> // for std::bad_alloc
-#include <type_traits>
 
 namespace openmsx::MemoryOps {
 
-template<typename Pixel>
-void MemSet<Pixel>::operator()(std::span<Pixel> out, Pixel val) const
+void fill_2(std::span<uint32_t> out, uint32_t val0, uint32_t val1)
 {
-	ranges::fill(out, val);
-}
-
-template<typename Pixel>
-void MemSet2<Pixel>::operator()(std::span<Pixel> out, Pixel val0, Pixel val1) const
-{
-	static_assert(std::is_same_v<Pixel, uint32_t>); // (for now) only implemented for 32-bit
-
 	if (out.empty()) [[unlikely]] return;
 
 	// Align at 64-bit boundary.
@@ -45,11 +34,6 @@ void MemSet2<Pixel>::operator()(std::span<Pixel> out, Pixel val0, Pixel val1) co
 		out.back() = val0;
 	}
 }
-
-// Force template instantiation
-template struct MemSet <uint32_t>;
-template struct MemSet2<uint32_t>;
-
 
 
 /** Aligned memory (de)allocation
