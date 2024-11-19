@@ -200,10 +200,6 @@ private:
 	  */
 	openmsx::MemBuffer<T> allocated;
 
-	/** Available buffer size
-	 */
-	GLuint size = 0;
-
 	/** Handle of the GL buffer, or 0 if no GL buffer is available.
 	  */
 	//GLuint bufferId;
@@ -226,7 +222,6 @@ PixelBuffer<T>::~PixelBuffer()
 template<typename T>
 PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
-	, size(other.size)
 	//, bufferId(other.bufferId)
 {
 	other.size = 0;
@@ -237,15 +232,13 @@ template<typename T>
 PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 {
 	std::swap(allocated, other.allocated);
-	std::swap(size,      other.size);
 	//std::swap(bufferId,  other.bufferId);
 	return *this;
 }
 
 template<typename T>
-void PixelBuffer<T>::allocate(GLuint size_)
+void PixelBuffer<T>::allocate(GLuint size)
 {
-	size = size_;
 	//if (bufferId != 0) {
 	//	bind();
 	//	// TODO make performance hint configurable?
@@ -282,7 +275,7 @@ std::span<T> PixelBuffer<T>::mapWrite()
 	//	return std::bit_cast<T*>(glMapBuffer(
 	//		GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
 	//} else {
-		return {allocated.data(), size};
+		return std::span{allocated};
 	//}
 }
 
