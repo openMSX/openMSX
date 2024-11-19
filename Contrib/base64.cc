@@ -33,11 +33,11 @@ std::string encode(std::span<const char> src)
 std::string decode(std::span<const char> src)
 {
 	static const unsigned MAX_SIZE = 1024 * 1024; // 1MB
-	const auto& [decBuf, decBufSize] = Base64::decode(std::string_view(src.data(), src.size()));
+	auto decBuf = Base64::decode(std::string_view(src.data(), src.size()));
 	std::vector<char> buf(MAX_SIZE);
 	uLongf dstLen = MAX_SIZE;
 	if (uncompress(std::bit_cast<Bytef*>(buf.data()), &dstLen,
-	               std::bit_cast<const Bytef*>(decBuf.data()), uLong(decBufSize))
+	               std::bit_cast<const Bytef*>(decBuf.data()), uLong(decBuf.size()))
 	    != Z_OK) {
 		std::cerr << "Error while decompressing blob.\n";
 		exit(1);

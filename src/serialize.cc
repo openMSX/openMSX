@@ -146,10 +146,10 @@ void InputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		auto [buf, bufSize] = Base64::decode(tmp);
+		auto buf = Base64::decode(tmp);
 		auto dstLen = uLongf(data.size()); // TODO check for overflow?
 		if ((uncompress(std::bit_cast<Bytef*>(data.data()), &dstLen,
-		                std::bit_cast<const Bytef*>(buf.data()), uLong(bufSize))
+		                std::bit_cast<const Bytef*>(buf.data()), uLong(buf.size()))
 		     != Z_OK) ||
 		    (dstLen != data.size())) {
 			throw MSXException("Error while decompressing blob.");

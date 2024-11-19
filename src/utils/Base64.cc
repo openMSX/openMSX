@@ -86,7 +86,7 @@ std::string encode(std::span<const uint8_t> input)
 	return ret;
 }
 
-std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
+MemBuffer<uint8_t> decode(std::string_view input)
 {
 	auto outSize = (input.size() * 3 + 3) / 4; // overestimation
 	MemBuffer<uint8_t> ret(outSize); // too big
@@ -120,7 +120,7 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return {std::move(ret), out};
+	return ret;
 }
 
 bool decode_inplace(std::string_view input, std::span<uint8_t> output)
