@@ -100,7 +100,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		    != Z_OK) {
 			throw MSXException("Error while compressing blob.");
 		}
-		tmp = Base64::encode(std::span{buf.data(), dstLen});
+		tmp = Base64::encode(buf.first(dstLen));
 	}
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);
@@ -179,11 +179,6 @@ void MemOutputArchive::save(std::string_view s)
 	auto buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf.data(), &size, sizeof(size));
 	ranges::copy(s, subspan(buf, sizeof(size)));
-}
-
-MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
-{
-	return buffer.release(size);
 }
 
 ////

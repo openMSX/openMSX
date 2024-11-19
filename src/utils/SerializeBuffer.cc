@@ -9,7 +9,6 @@ namespace openmsx {
 OutputBuffer::OutputBuffer()
 	: buf(lastSize)
 	, end(buf.data())
-	, finish(buf.data() + lastSize)
 {
 	// We've allocated a buffer with an estimated initial size. This
 	// estimate is based on the largest intermediate size of the previously
@@ -31,7 +30,7 @@ OutputBuffer::OutputBuffer()
 template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data)
 {
 	uint8_t* newEnd = end + LEN;
-	if (newEnd <= finish) [[likely]] {
+	if (newEnd <= buf.end()) [[likely]] {
 		memcpy(end, data, LEN);
 		end = newEnd;
 	} else {
@@ -48,7 +47,7 @@ template void OutputBuffer::insertN<8>(const void* __restrict data);
 void OutputBuffer::insertN(const void* __restrict data, size_t len)
 {
 	uint8_t* newEnd = end + len;
-	if (newEnd <= finish) [[likely]] {
+	if (newEnd <= buf.end()) [[likely]] {
 		memcpy(end, data, len);
 		end = newEnd;
 	} else {
@@ -56,14 +55,13 @@ void OutputBuffer::insertN(const void* __restrict data, size_t len)
 	}
 }
 
-MemBuffer<uint8_t> OutputBuffer::release(size_t& size)
+MemBuffer<uint8_t> OutputBuffer::release() &&
 {
-	size = end - buf.data();
-
 	// Deallocate unused buffer space.
+	size_t size = end - buf.data();
 	buf.resize(size);
 
-	end = finish = nullptr;
+	end = nullptr;
 	return std::move(buf);
 }
 
@@ -73,7 +71,6 @@ void OutputBuffer::grow(size_t len)
 	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);
 	buf.resize(newSize);
 	end    = buf.data() + oldSize;
-	finish = buf.data() + newSize;
 }
 
 uint8_t* OutputBuffer::allocateGrow(size_t len)
@@ -88,19 +85,6 @@ void OutputBuffer::insertGrow(const void* __restrict data, size_t len)
 {
 	uint8_t* pos = allocateGrow(len);
 	memcpy(pos, data, len);
-}
-
-
-
-// class InputBuffer
-
-InputBuffer::InputBuffer(const uint8_t* data, size_t size)
-	: buf(data)
-#ifndef NDEBUG
-	, finish(buf + size)
-#endif
-{
-	(void)size;
 }
 
 } // namespace openmsx

@@ -721,7 +721,10 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	[[nodiscard]] MemBuffer<uint8_t> releaseBuffer(size_t& size);
+	[[nodiscard]] MemBuffer<uint8_t> releaseBuffer() &&
+	{
+		return std::move(buffer).release();
+	}
 
 private:
 	ALWAYS_INLINE void serialize_group(const std::tuple<>& /*tuple*/) const
@@ -759,9 +762,9 @@ private:
 class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const uint8_t* data, size_t size,
+	MemInputArchive(std::span<const uint8_t> buf_,
 	                std::span<const std::shared_ptr<DeltaBlock>> deltaBlocks_)
-		: buffer(data, size)
+		: buffer(buf_)
 		, deltaBlocks(deltaBlocks_)
 	{
 	}

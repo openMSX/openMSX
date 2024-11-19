@@ -3,6 +3,7 @@
 
 #include "MemBuffer.hh"
 #include "inline.hh"
+
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -68,7 +69,7 @@ public:
 		auto accum = [&](auto* p) { len += sizeof(*p); };
 		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
 
-		if (const uint8_t* newEnd = end + len; newEnd > finish) [[unlikely]] {
+		if (const uint8_t* newEnd = end + len; newEnd > buf.end()) [[unlikely]] {
 			grow(len); // reallocates, thus newEnd is no longer valid.
 		}
 
@@ -95,7 +96,7 @@ public:
 	  */
 	void insertAt(size_t pos, const void* __restrict data, size_t len)
 	{
-		assert(buf.data() + pos + len <= finish);
+		assert(buf.data() + pos + len <= buf.end());
 		memcpy(buf.data() + pos, data, len);
 	}
 
@@ -114,7 +115,7 @@ public:
 		// that can hold this much space plus some slack.
 		size_t newSize = newEnd - buf.data();
 		lastSize = std::max(lastSize, newSize + 1000);
-		if (newEnd <= finish) {
+		if (newEnd <= buf.end()) {
 			uint8_t* result = end;
 			end = newEnd;
 			return {result, len};
@@ -151,18 +152,16 @@ public:
 	/** Release ownership of the buffer.
 	 * Returns both the buffer and its size.
 	 */
-	[[nodiscard]] MemBuffer<uint8_t> release(size_t& size);
+	[[nodiscard]] MemBuffer<uint8_t> release() &&;
 
 private:
 	void insertGrow(const void* __restrict data, size_t len);
 	[[nodiscard]] uint8_t* allocateGrow(size_t len);
 	void grow(size_t len);
 
-	MemBuffer<uint8_t> buf; // begin of allocated memory
+	MemBuffer<uint8_t> buf; // allocated memory
 	uint8_t* end;           // points right after the last used byte
-	                        // so   end - buf == size
-	uint8_t* finish;        // points right after the last allocated byte
-	                        // so   finish - buf == capacity
+	                        // so   end - buf == size_in_use
 
 	static inline size_t lastSize = 50000; // initial estimate
 };
@@ -175,20 +174,21 @@ private:
 class InputBuffer
 {
 public:
-	/** Construct new InputBuffer, typically the data and size parameters
+	/** Construct new InputBuffer, typically the buf_ parameter
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(const uint8_t* data, size_t size);
+	InputBuffer(std::span<const uint8_t> buf_)
+		: buf(buf_) {}
 
 	/** Read the given number of bytes.
 	  * This 'consumes' the read bytes, so a future read() will continue
 	  * where this read stopped.
 	  */
-	void read(void* __restrict result, size_t len) __restrict
+	void read(void* __restrict result, size_t len)
 	{
-		memcpy(result, buf, len);
-		buf += len;
-		assert(buf <= finish);
+		assert(buf.size() >= len);
+		memcpy(result, buf.data(), len);
+		buf = buf.subspan(len);
 	}
 
 	/** Skip the given number of bytes.
@@ -197,8 +197,8 @@ public:
 	  */
 	void skip(size_t len)
 	{
-		buf += len;
-		assert(buf <= finish);
+		assert(buf.size() >= len);
+		buf = buf.subspan(len);
 	}
 
 	/** Return a pointer to the current position in the buffer.
@@ -206,13 +206,10 @@ public:
 	  * as input for an uncompress algorithm. You can later use skip() to
 	  * actually consume the data.
 	  */
-	[[nodiscard]] const uint8_t* getCurrentPos() const { return buf; }
+	[[nodiscard]] const uint8_t* getCurrentPos() const { return buf.data(); }
 
 private:
-	const uint8_t* buf;
-#ifndef NDEBUG
-	const uint8_t* finish; // only used to check asserts
-#endif
+	std::span<const uint8_t> buf;
 };
 
 } // namespace openmsx
