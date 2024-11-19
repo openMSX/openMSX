@@ -42,10 +42,9 @@ private:
 	Reactor& reactor;
 	SDL_AudioDeviceID deviceID;
 	MemBuffer<StereoFloat> mixBuffer;
-	unsigned mixBufferSize;
 	unsigned frequency;
 	unsigned fragmentSize;
-	unsigned readIdx, writeIdx;
+	unsigned readIdx = 0, writeIdx = 0;
 	bool muted = true;
 	[[no_unique_address]] SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
 };

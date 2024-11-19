@@ -40,8 +40,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	frequency = obtained.freq;
 	fragmentSize = obtained.samples;
 
-	mixBufferSize = narrow<unsigned>(3 * (obtained.size / sizeof(StereoFloat)) + 1);
-	mixBuffer.resize(mixBufferSize);
+	mixBuffer.resize(3 * (obtained.size / sizeof(StereoFloat)) + 1);
 	reInit();
 }
 
@@ -96,8 +95,8 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
 unsigned SDLSoundDriver::getBufferFilled() const
 {
 	int result = narrow_cast<int>(writeIdx - readIdx);
-	if (result < 0) result += narrow<int>(mixBufferSize);
-	assert((0 <= result) && (narrow<unsigned>(result) < mixBufferSize));
+	if (result < 0) result += narrow<int>(mixBuffer.size());
+	assert((0 <= result) && (narrow<unsigned>(result) < mixBuffer.size()));
 	return result;
 }
 
@@ -106,9 +105,9 @@ unsigned SDLSoundDriver::getBufferFree() const
 	// we can't distinguish completely filled from completely empty
 	// (in both cases readIx would be equal to writeIdx), so instead
 	// we define full as '(writeIdx + 1) == readIdx'.
-	unsigned result = mixBufferSize - 1 - getBufferFilled();
+	unsigned result = mixBuffer.size() - 1 - getBufferFilled();
 	assert(narrow_cast<int>(result) >= 0);
-	assert(result < mixBufferSize);
+	assert(result < mixBuffer.size());
 	return result;
 }
 
@@ -118,14 +117,14 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 
 	size_t available = getBufferFilled();
 	auto num = narrow<unsigned>(std::min(len, available));
-	if ((readIdx + num) < mixBufferSize) {
-		ranges::copy(std::span{&mixBuffer[readIdx], num}, stream);
+	if ((readIdx + num) < mixBuffer.size()) {
+		ranges::copy(mixBuffer.subspan(readIdx, num), stream);
 		readIdx += num;
 	} else {
-		unsigned len1 = mixBufferSize - readIdx;
-		ranges::copy(std::span{&mixBuffer[readIdx], len1}, stream);
+		unsigned len1 = mixBuffer.size() - readIdx;
+		ranges::copy(mixBuffer.subspan(readIdx, len1), stream);
 		unsigned len2 = num - len1;
-		ranges::copy(std::span{&mixBuffer[0], len2}, stream.subspan(len1));
+		ranges::copy(mixBuffer.first(len2), stream.subspan(len1));
 		readIdx = len2;
 	}
 	auto missing = narrow_cast<ptrdiff_t>(len - available);
@@ -156,14 +155,14 @@ void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 		}
 	}
 	assert(buffer.size() <= free);
-	if ((writeIdx + buffer.size()) < mixBufferSize) {
-		ranges::copy(buffer, &mixBuffer[writeIdx]);
+	if ((writeIdx + buffer.size()) < mixBuffer.size()) {
+		ranges::copy(buffer, mixBuffer.subspan(writeIdx));
 		writeIdx += narrow<unsigned>(buffer.size());
 	} else {
-		unsigned len1 = mixBufferSize - writeIdx;
-		ranges::copy(buffer.subspan(0, len1), &mixBuffer[writeIdx]);
+		unsigned len1 = mixBuffer.size() - writeIdx;
+		ranges::copy(buffer.subspan(0, len1), mixBuffer.subspan(writeIdx));
 		unsigned len2 = narrow<unsigned>(buffer.size()) - len1;
-		ranges::copy(buffer.subspan(len1, len2), &mixBuffer[0]);
+		ranges::copy(buffer.subspan(len1, len2), std::span{mixBuffer});
 		writeIdx = len2;
 	}
 
