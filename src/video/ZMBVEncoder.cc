@@ -152,8 +152,8 @@ void ZMBVEncoder::setupBuffers()
 
 	oldFrame.resize(bufSize);
 	newFrame.resize(bufSize);
-	ranges::fill(std::span{oldFrame.data(), bufSize}, 0);
-	ranges::fill(std::span{newFrame.data(), bufSize}, 0);
+	ranges::fill(std::span{oldFrame}, 0);
+	ranges::fill(std::span{newFrame}, 0);
 	work.resize(bufSize);
 	outputSize = neededSize();
 	output.resize(outputSize);

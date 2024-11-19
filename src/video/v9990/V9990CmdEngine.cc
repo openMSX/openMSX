@@ -260,7 +260,7 @@ static constexpr void fillTable8(unsigned op, std::span<byte, 256 * 256> table)
 	auto& lut = logOpLUT[mode][op];
 	if (!lut.data()) {
 		lut.resize(256 * 256);
-		std::span<byte, 256 * 256> s{lut.data(), 256 * 256};
+		std::span<byte, 256 * 256> s{lut};
 		switch (mode) {
 		using enum Log;
 		case NO_T:
@@ -279,7 +279,7 @@ static constexpr void fillTable8(unsigned op, std::span<byte, 256 * 256> table)
 			UNREACHABLE;
 		}
 	}
-	return std::span<byte, 256 * 256>{lut.data(), 256 * 256};
+	return std::span<byte, 256 * 256>{lut};
 }
 
 
