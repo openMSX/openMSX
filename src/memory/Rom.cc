@@ -217,9 +217,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// content)
 		unsigned size = config.getChildDataAsInt("size", 0) * 1024; // in kb
 		extendedRom.resize(size);
-		std::span newRom{extendedRom.data(), size};
-		ranges::fill(newRom, 0xff);
-		rom = newRom;
+		ranges::fill(std::span{extendedRom}, 0xff);
+		rom = std::span{extendedRom};
 
 		// Content does not depend on external files. No need to check
 		checkResolvedSha1 = false;
@@ -243,9 +242,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				patch->copyBlock(0, std::span{const_cast<uint8_t*>(rom.data()), rom.size()});
 			} else {
 				MemBuffer<byte> extendedRom2(patchSize);
-				patch->copyBlock(0, std::span{extendedRom2.data(), patchSize});
+				patch->copyBlock(0, std::span{extendedRom2});
 				extendedRom = std::move(extendedRom2);
-				rom = std::span{extendedRom.data(), patchSize};
+				rom = std::span{extendedRom};
 			}
 
 			// calculated because it's different from original
@@ -371,12 +370,11 @@ void Rom::addPadding(size_t newSize, byte filler)
 	if (newSize == rom.size()) return;
 
 	MemBuffer<byte> tmp(newSize);
-	std::span newRom{tmp.data(), newSize};
-	ranges::copy(rom, newRom);
-	ranges::fill(newRom.subspan(rom.size()), filler);
+	ranges::copy(rom, std::span{tmp});
+	ranges::fill(tmp.subspan(rom.size()), filler);
 
+	rom = std::span{tmp};
 	extendedRom = std::move(tmp);
-	rom = newRom;
 }
 
 void Rom::getInfo(TclObject& result) const
