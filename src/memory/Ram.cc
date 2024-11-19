@@ -22,7 +22,6 @@ Ram::Ram(const DeviceConfig& config, const std::string& name,
          static_string_view description, size_t size)
 	: xml(*config.getXML())
 	, ram(size)
-	, sz(size)
 	, debuggable(std::in_place,
 		config.getMotherBoard(), name, description, *this)
 {
@@ -32,7 +31,6 @@ Ram::Ram(const DeviceConfig& config, const std::string& name,
 Ram::Ram(const XMLElement& xml_, size_t size)
 	: xml(xml_)
 	, ram(size)
-	, sz(size)
 {
 	clear();
 }

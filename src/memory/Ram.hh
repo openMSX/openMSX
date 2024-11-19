@@ -41,13 +41,13 @@ public:
 	[[nodiscard]] byte& operator[](size_t addr) {
 		return ram[addr];
 	}
-	[[nodiscard]] auto size()  const { return sz; }
+	[[nodiscard]] auto size()  const { return ram.size(); }
 	[[nodiscard]] auto data()        { return ram.data(); }
 	[[nodiscard]] auto data()  const { return ram.data(); }
-	[[nodiscard]] auto begin()       { return ram.data(); }
-	[[nodiscard]] auto begin() const { return ram.data(); }
-	[[nodiscard]] auto end()         { return ram.data() + sz; }
-	[[nodiscard]] auto end()   const { return ram.data() + sz; }
+	[[nodiscard]] auto begin()       { return ram.begin(); }
+	[[nodiscard]] auto begin() const { return ram.begin(); }
+	[[nodiscard]] auto end()         { return ram.end(); }
+	[[nodiscard]] auto end()   const { return ram.end(); }
 
 	[[nodiscard]] const std::string& getName() const;
 	void clear(byte c = 0xff);
@@ -58,7 +58,6 @@ public:
 private:
 	const XMLElement& xml;
 	MemBuffer<byte> ram;
-	size_t sz; // must come before debuggable
 	const std::optional<RamDebuggable> debuggable; // can be nullopt
 };
 
