@@ -14,12 +14,12 @@ std::span<const uint8_t> FileBase::mmap()
 		seek(0);
 
 		MemBuffer<uint8_t> tmpBuf(size);
-		read(std::span{tmpBuf.data(), size});
+		read(std::span{tmpBuf});
 		std::swap(mmapBuf, tmpBuf);
 
 		seek(pos);
 	}
-	return {mmapBuf.data(), size};
+	return std::span{mmapBuf};
 }
 
 void FileBase::munmap()

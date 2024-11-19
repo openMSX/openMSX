@@ -58,11 +58,10 @@ void CompressedFileAdapter::decompress()
 void CompressedFileAdapter::read(std::span<uint8_t> buffer)
 {
 	decompress();
-	if (decompressed->size < (pos + buffer.size())) {
+	if (decompressed->buf.size() < (pos + buffer.size())) {
 		throw FileException("Read beyond end of file");
 	}
-	const auto& buf = decompressed->buf;
-	ranges::copy(std::span{&buf[pos], buffer.size()}, buffer);
+	ranges::copy(decompressed->buf.subspan(pos, buffer.size()), buffer);
 	pos += buffer.size();
 }
 
@@ -74,7 +73,7 @@ void CompressedFileAdapter::write(std::span<const uint8_t> /*buffer*/)
 std::span<const uint8_t> CompressedFileAdapter::mmap()
 {
 	decompress();
-	return { decompressed->buf.data(), decompressed->size };
+	return std::span{decompressed->buf};
 }
 
 void CompressedFileAdapter::munmap()
@@ -85,7 +84,7 @@ void CompressedFileAdapter::munmap()
 size_t CompressedFileAdapter::getSize()
 {
 	decompress();
-	return decompressed->size;
+	return decompressed->buf.size();
 }
 
 void CompressedFileAdapter::seek(size_t newPos)

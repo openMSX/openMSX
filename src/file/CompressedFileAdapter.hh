@@ -12,7 +12,6 @@ class CompressedFileAdapter : public FileBase
 public:
 	struct Decompressed {
 		MemBuffer<uint8_t> buf;
-		size_t size;
 		std::string originalName;
 		std::string cachedURL;
 		time_t cachedModificationDate;

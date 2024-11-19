@@ -35,7 +35,7 @@ void ZipFileAdapter::decompress(FileBase& f, Decompressed& d)
 	d.originalName = zlib.getString(filenameLen); // original filename
 	zlib.skip(extraFieldLen); // skip "extra field"
 
-	d.size = zlib.inflate(d.buf, origSize);
+	d.buf = zlib.inflate(origSize);
 }
 
 } // namespace openmsx

@@ -1,8 +1,10 @@
 #include "ZlibInflate.hh"
+
 #include "FileException.hh"
-#include "MemBuffer.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <limits>
 
 namespace openmsx {
@@ -78,7 +80,7 @@ std::string ZlibInflate::getCString()
 	return result;
 }
 
-size_t ZlibInflate::inflate(MemBuffer<uint8_t>& output, size_t sizeHint)
+MemBuffer<uint8_t> ZlibInflate::inflate(size_t sizeHint)
 {
 	if (int err = inflateInit2(&s, -MAX_WBITS);
 	    err != Z_OK) {
@@ -88,7 +90,7 @@ size_t ZlibInflate::inflate(MemBuffer<uint8_t>& output, size_t sizeHint)
 	wasInit = true;
 
 	size_t outSize = sizeHint;
-	output.resize(outSize);
+	MemBuffer<uint8_t> output(outSize);
 	s.avail_out = uInt(outSize); // TODO overflow?
 	while (true) {
 		s.next_out = output.data() + s.total_out;
@@ -107,7 +109,7 @@ size_t ZlibInflate::inflate(MemBuffer<uint8_t>& output, size_t sizeHint)
 
 	// set actual size
 	output.resize(s.total_out);
-	return s.total_out;
+	return output;
 }
 
 } // namespace openmsx
