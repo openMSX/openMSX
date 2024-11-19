@@ -101,7 +101,7 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 		File file(resolved);
 		auto size = file.getSize();
 		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
-		file.read(std::span{buf.data(), size});
+		file.read(buf.first(size));
 		buf[size] = 0;
 	} catch (FileException& e) {
 		throw MSXException("Failed to read settings file '", filename,

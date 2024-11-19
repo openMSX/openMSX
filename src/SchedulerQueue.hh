@@ -142,7 +142,7 @@ private:
 private:
 	// Invariant: storage.data() <= useBegin <= useEnd <= storageEnd
 	MemBuffer<T> storage;
-	T* storageEnd;
+	T* storageEnd; // == storage.end() - 1 // for sentinel
 	T* useBegin;
 	T* useEnd;
 };
