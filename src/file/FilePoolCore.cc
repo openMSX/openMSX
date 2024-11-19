@@ -173,13 +173,13 @@ void FilePoolCore::readSha1sums()
 	File file(fileCache);
 	auto size = file.getSize();
 	fileMem.resize(size + 1);
-	file.read(std::span{fileMem.data(), size});
+	file.read(fileMem.first(size));
 	fileMem[size] = '\n'; // ensure there's always a '\n' at the end
 
 	// Process each line.
 	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").
-	char* data = fileMem.data();
-	char* data_end = data + size + 1;
+	char* data = fileMem.begin();
+	char* data_end = fileMem.end();
 	while (data != data_end) {
 		// memchr() seems better optimized than std::find_if()
 		auto* it = static_cast<char*>(memchr(data, '\n', data_end - data));
