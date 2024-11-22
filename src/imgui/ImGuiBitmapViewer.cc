@@ -286,7 +286,13 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 				ImGui::TextUnformatted("x="sv); dec3(x);
 				ImGui::SameLine();
-				ImGui::TextUnformatted("y="sv); dec3(y);
+				ImGui::TextUnformatted("y="sv); dec3(y&255);
+
+				if (bitmapPage == -1) {
+					im::ScopedFont sf(manager.fontMono);
+					ImGui::SameLine();
+					ImGui::Text("page=%1d", y>>8);
+				};
 
 				unsigned physAddr = 0x8000 * page + 128 * y;
 				switch (mode) {
