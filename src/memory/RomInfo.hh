@@ -6,11 +6,9 @@
 #include "String32.hh"
 #include "stl.hh"
 #include "view.hh"
+#include "zstring_view.hh"
 
-#include <array>
 #include <string_view>
-#include <utility>
-#include <vector>
 
 namespace openmsx {
 
@@ -21,7 +19,7 @@ public:
 	// contains the primary (non-alias) rom types.
 	struct RomTypeInfo {
 		unsigned blockSize;
-		std::string_view name;
+		zstring_view name;
 		std::string_view description;
 	};
 
@@ -66,7 +64,7 @@ public:
 	[[nodiscard]] unsigned         getGenMSXid()  const { return genMSXid; }
 
 	[[nodiscard]] static RomType nameToRomType(std::string_view name);
-	[[nodiscard]] static std::string_view romTypeToName (RomType type);
+	[[nodiscard]] static zstring_view     romTypeToName (RomType type);
 	[[nodiscard]] static std::string_view getDescription(RomType type);
 	[[nodiscard]] static unsigned         getBlockSize  (RomType type);
 	[[nodiscard]] static auto getAllRomTypes() {

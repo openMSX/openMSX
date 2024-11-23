@@ -18,7 +18,7 @@ struct SymbolRef {
 	unsigned symbolIdx;
 
 	[[nodiscard]] std::string_view           file(const SymbolManager& m) const { return m.getFiles()[fileIdx].filename; }
-	[[nodiscard]] std::string_view           name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
+	[[nodiscard]] const std::string&         name(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].name; }
 	[[nodiscard]] uint16_t                  value(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].value; }
 	[[nodiscard]] std::optional<uint8_t>     slot(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].slot; }
 	[[nodiscard]] std::optional<uint16_t> segment(const SymbolManager& m) const { return m.getFiles()[fileIdx].symbols[symbolIdx].segment; }

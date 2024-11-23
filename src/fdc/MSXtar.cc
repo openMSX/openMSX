@@ -498,9 +498,9 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	StringOp::trimRight(file, ' ');
 	StringOp::trimRight(ext,  ' ');
 
-	// put in major case and create '_' if needed
-	string fileS(file.data(), std::min<size_t>(8, file.size()));
-	string extS (ext .data(), std::min<size_t>(3, ext .size()));
+	// truncate to 8.3 characters, put in uppercase and create '_' if needed
+	string fileS(file.substr(0, 8));
+	string extS (ext .substr(0, 3));
 	transform_in_place(fileS, toFileNameChar);
 	transform_in_place(extS,  toFileNameChar);
 

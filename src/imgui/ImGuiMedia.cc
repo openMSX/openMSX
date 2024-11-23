@@ -857,7 +857,7 @@ bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 		int count = 0;
 		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
 			bool selected = romType == static_cast<RomType>(count);
-			if (ImGui::Selectable(std::string(romInfo.name).c_str(), selected)) {
+			if (ImGui::Selectable(romInfo.name.c_str(), selected)) {
 				interacted = true;
 				romType = static_cast<RomType>(count);
 			}
