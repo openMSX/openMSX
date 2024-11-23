@@ -572,7 +572,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			float r1 = 0.0f;
 			float r2 = 0.0f;
 			float r3 = 0.0f;
-			for (unsigned i = 0; i < filterLen; i += 4) {
+			for (size_t i = 0; i < filterLen; i += 4) {
 				r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
 				r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
 				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
@@ -601,7 +601,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			float r1 = 0.0f;
 			float r2 = 0.0f;
 			float r3 = 0.0f;
-			for (int i = 0; i < int(filterLen); i += 4) {
+			for (ptrdiff_t i = 0; i < ptrdiff_t(filterLen); i += 4) {
 				r0 += tab[-i - 1] * buf[CHANNELS * (i + 0)];
 				r1 += tab[-i - 2] * buf[CHANNELS * (i + 1)];
 				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];

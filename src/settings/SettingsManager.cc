@@ -78,7 +78,7 @@ BaseSetting& SettingsManager::getByName(std::string_view cmd, std::string_view n
 std::vector<std::string> SettingsManager::getTabSettingNames() const
 {
 	std::vector<std::string> result;
-	result.reserve(settings.size() * 2);
+	result.reserve(size_t(settings.size()) * 2);
 	for (const auto* s : settings) {
 		std::string_view name = s->getFullName();
 		result.emplace_back(name);

@@ -370,7 +370,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		int zm = 2 * (1 + zoom);
 		auto gColor = ImGui::ColorConvertFloat4ToU32(gridColor);
 		if (grid) {
-			auto gridSize = size * zm;
+			size_t gridSize = size * zm;
 			for (auto y : xrange(gridSize)) {
 				auto* line = &pixels[y * gridSize];
 				for (auto x : xrange(gridSize)) {

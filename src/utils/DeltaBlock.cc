@@ -94,7 +94,7 @@ static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 	// bytes. This routine also benefits from AVX2 instructions. Though not
 	// all x86_64 CPUs have AVX2 (all have SSE2), so using them requires
 	// extra run-time checks and that's not worth it at this point.
-	constexpr int WORD_SIZE =
+	constexpr ptrdiff_t WORD_SIZE =
 #ifdef __SSE2__
 		sizeof(__m128i);
 #else
