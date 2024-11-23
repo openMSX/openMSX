@@ -791,7 +791,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 				unsigned nextT = t.getNextEventTime();
 				unsigned nextN = noise.getNextEventTime();
 				unsigned nextE = envelope.getNextEventTime();
-				unsigned next = std::min(std::min(nextT, nextN), nextE);
+				unsigned next = std::min({nextT, nextN, nextE});
 				while (next <= remaining) {
 					addFill(buf, val, next);
 					remaining -= next;
@@ -816,7 +816,7 @@ void AY8910::generateChannels(std::span<float*> bufs, unsigned num)
 						envelope.doNextEvent();
 						nextE = envelope.getNextEventTime();
 					}
-					next = std::min(std::min(nextT, nextN), nextE);
+					next = std::min({nextT, nextN, nextE});
 					val = calc(noise.getOutput(), t.getOutput(), envelope.getVolume());
 				}
 				if (remaining) {
