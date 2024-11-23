@@ -65,7 +65,7 @@ std::vector<JoystickId> JoystickManager::getConnectedJoysticks() const
 	std::vector<JoystickId> result;
 	for (auto i : xrange(infos.size())) {
 		if (!infos[i].joystick) continue;
-		result.push_back(JoystickId(unsigned(i)));
+		result.emplace_back(unsigned(i));
 	}
 	return result;
 }
