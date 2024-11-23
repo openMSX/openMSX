@@ -459,7 +459,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			status = ITEM;
 		};
 
-		auto showCurrent = [&](TclObject current, std::string_view type) {
+		auto showCurrent = [&](const TclObject& current, std::string_view type) {
 			if (current.empty()) {
 				ImGui::StrCat("Current: no ", type, " inserted");
 			} else {

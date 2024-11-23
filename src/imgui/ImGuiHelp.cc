@@ -59,8 +59,7 @@ void ImGuiHelp::paintAbout()
 		if (!logo) {
 			logo.emplace(); // initialize with null-image
 			try {
-				FileContext context = systemFileContext();
-				auto r = context.resolve("icons/openMSX-logo-256.png");
+				auto r = systemFileContext().resolve("icons/openMSX-logo-256.png");
 				gl::ivec2 isize;
 				logo->texture = loadTexture(r, isize);
 				logo->size = gl::vec2(isize);

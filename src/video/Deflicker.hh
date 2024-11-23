@@ -18,7 +18,7 @@ public:
 	Deflicker(Deflicker&&) = default;
 	Deflicker& operator=(const Deflicker&) = default;
 	Deflicker& operator=(Deflicker&&) = default;
-	~Deflicker();
+	~Deflicker() = default;
 
 	void init();
 

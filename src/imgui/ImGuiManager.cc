@@ -546,7 +546,7 @@ void ImGuiManager::paintImGui()
 	if (statusBarVisible) drawStatusBar(motherBoard);
 
 	// drag and drop  (move this to ImGuiMedia ?)
-	auto insert2 = [&](std::string_view displayName, TclObject cmd) {
+	auto insert2 = [&](std::string_view displayName, const TclObject& cmd) {
 		auto message = strCat("Inserted ", droppedFile, " in ", displayName);
 		executeDelayed(cmd, [this, message, cmd](const TclObject&){
 			insertedInfo = message;
