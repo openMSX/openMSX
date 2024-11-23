@@ -149,7 +149,8 @@ VDP::VDP(const DeviceConfig& config)
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
 	// saturation parameters only make sense when using TMS VDPs
-	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
+	if (!versionString.starts_with("TMS") &&
+	    (config.findChild("saturationPr") || config.findChild("saturationPb") || config.findChild("saturation"))) {
 		throw MSXException("Specifying saturation parameters only makes sense for TMS VDPs");
 	}
 
