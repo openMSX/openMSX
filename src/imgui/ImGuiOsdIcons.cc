@@ -109,7 +109,6 @@ void ImGuiOsdIcons::loadIcons()
 		auto load = [&](IconInfo::Icon& i) {
 			try {
 				if (!i.filename.empty()) {
-					auto r = context.resolve(i.filename);
 					i.tex = loadTexture(context.resolve(i.filename), i.size);
 					return;
 				}

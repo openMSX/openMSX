@@ -179,7 +179,6 @@ void ComboBox(VideoSourceSetting& setting) // TODO share code with EnumSetting?
 }
 void ComboBox(const char* label, VideoSourceSetting& setting) // TODO share code with EnumSetting?
 {
-	std::string name(setting.getBaseName());
 	auto current = setting.getValue().getString();
 	im::Combo(label, current.c_str(), [&]{
 		for (const auto& value : setting.getPossibleValues()) {
