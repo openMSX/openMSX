@@ -15,6 +15,8 @@
 
 #include "one_of.hh"
 #include "small_compare.hh"
+#include "zstring_view.hh"
+
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -57,12 +59,17 @@ inline constexpr int zeroTerminateStrings = 0x8;
 
 // Callback handler with all empty implementations (can be used as a base
 // class in case you only need to reimplement a few of the methods).
+//
+// Several methods are overloaded with either 'std::string_view' or
+// 'zstring_view' parameter types. Which one gets called depends on whether the
+// 'zeroTerminateStrings' flag was passed.
 class NullHandler
 {
 public:
 	// Called when an opening XML tag is encountered.
 	// 'name' is the name of the XML tag.
 	void start(std::string_view /*name*/) {}
+	void start(zstring_view /*name*/) {}
 
 	// Called when a XML tag is closed.
 	// Note: the parser does currently not check whether the name of the
@@ -77,28 +84,35 @@ public:
 	// passed in a single chunk (so no need to concatenate this text
 	// with previous chunks in the callback).
 	void text(std::string_view /*text*/) {}
+	void text(zstring_view /*text*/) {}
 
 	// Called for each parsed attribute.
 	// Attributes can occur inside xml tags or inside XML declarations.
 	void attribute(std::string_view /*name*/, std::string_view /*value*/) {}
+	void attribute(zstring_view /*name*/, zstring_view /*value*/) {}
 
 	// Called for parsed CDATA sections.
 	void cdata(std::string_view /*value*/) {}
+	void cdata(zstring_view /*value*/) {}
 
 	// Called when a XML comment (<!-- ... -->) is parsed.
 	void comment(std::string_view /*value*/) {}
+	void comment(zstring_view /*value*/) {}
 
 	// Called when XML declaration (<?xml .. ?>) is parsed.
 	// Inside a XML declaration there can be attributes.
 	void declarationStart() {}
 	void declAttribute(std::string_view /*name*/, std::string_view /*value*/) {}
+	void declAttribute(zstring_view /*name*/, zstring_view /*value*/) {}
 	void declarationStop() {}
 
 	// Called when the <!DOCTYPE ..> is parsed.
 	void doctype(std::string_view /*text*/) {}
+	void doctype(zstring_view /*text*/) {}
 
 	// Called when XML processing instructions (<? .. ?>) are parsed.
 	void procInstr(std::string_view /*target*/, std::string_view /*instr*/) {}
+	void procInstr(zstring_view /*target*/, zstring_view /*instr*/) {}
 };
 
 
@@ -445,10 +459,12 @@ private:
 			}
 			++text;
 		}
-		if (FLAGS & zeroTerminateStrings) {
+		if constexpr (FLAGS & zeroTerminateStrings) {
 			*text = '\0';
+			handler.comment(zstring_view(value, text - value));
+		} else {
+			handler.comment(std::string_view(value, text - value));
 		}
-		handler.comment(std::string_view(value, text - value));
 		text += 3; // skip '-->'
 	}
 
@@ -485,10 +501,12 @@ private:
 			}
 		}
 
-		if (FLAGS & zeroTerminateStrings) {
+		if constexpr (FLAGS & zeroTerminateStrings) {
 			*text = '\0';
+			handler.doctype(zstring_view(value, text - value));
+		} else {
+			handler.doctype(std::string_view(value, text - value));
 		}
-		handler.doctype(std::string_view(value, text - value));
 		text += 1; // skip '>'
 	}
 
@@ -514,12 +532,15 @@ private:
 			++text;
 		}
 		// Set pi value (verbatim, no entity expansion or ws normalization)
-		if (FLAGS & zeroTerminateStrings) {
+		if constexpr (FLAGS & zeroTerminateStrings) {
 			*nameEnd = '\0';
 			*text = '\0';
+			handler.procInstr(zstring_view(name,  nameEnd - name),
+			                  zstring_view(value, text - value));
+		} else {
+			handler.procInstr(std::string_view(name,  nameEnd - name),
+			                  std::string_view(value, text - value));
 		}
-		handler.procInstr(std::string_view(name,  nameEnd - name),
-			          std::string_view(value, text - value));
 		text += 2; // skip '?>'
 	}
 
@@ -563,10 +584,12 @@ private:
 		// Handle text, but only if non-empty.
 		auto len = end - value;
 		if (len) {
-			if (FLAGS & zeroTerminateStrings) {
+			if constexpr (FLAGS & zeroTerminateStrings) {
 				*end = '\0';
+				handler.text(zstring_view(value, len));
+			} else {
+				handler.text(std::string_view(value, len));
 			}
-			handler.text(std::string_view(value, len));
 		}
 	}
 
@@ -580,10 +603,12 @@ private:
 			}
 			++text;
 		}
-		if (FLAGS & zeroTerminateStrings) {
+		if constexpr (FLAGS & zeroTerminateStrings) {
 			*text = '\0';
+			handler.cdata(zstring_view(value, text - value));
+		} else {
+			handler.cdata(std::string_view(value, text - value));
 		}
-		handler.cdata(std::string_view(value, text - value));
 		text += 3; // skip ]]>
 	}
 
@@ -596,22 +621,24 @@ private:
 		if (name == nameEnd) {
 			throw ParseError("expected element name", text);
 		}
-		handler.start(std::string_view(name, nameEnd - name));
-
+		char savedChar = *nameEnd;
 		skip<WhitespacePred>(text); // skip ws before attributes or >
+		if constexpr (FLAGS & zeroTerminateStrings) {
+			*nameEnd = '\0';
+			handler.start(zstring_view(name, nameEnd - name));
+		} else {
+			handler.start(std::string_view(name, nameEnd - name));
+		}
+
 		parseAttributes(text, false);
 
 		// Determine ending type
-		if (*text == '>') {
-			if (FLAGS & zeroTerminateStrings) {
-				*nameEnd = '\0';
-			}
+		char endChar = ((FLAGS & zeroTerminateStrings) && (text == nameEnd))
+		             ? savedChar : *text;
+		if (endChar == '>') {
 			++text;
 			parseNodeContents(text);
-		} else if (*text == '/') {
-			if (FLAGS & zeroTerminateStrings) {
-				*nameEnd = '\0';
-			}
+		} else if (endChar == '/') {
 			handler.stop();
 			++text;
 			if (*text != '>') {
@@ -773,16 +800,24 @@ afterText:		// After parseText() jump here instead of continuing
 			}
 			++text; // skip quote
 
-			if (FLAGS & zeroTerminateStrings) {
+			if constexpr (FLAGS & zeroTerminateStrings) {
 				*nameEnd = '\0';
 				*valueEnd = '\0';
-			}
-			if (!declaration) {
-				handler.attribute(std::string_view(name, nameEnd - name),
-				                  std::string_view(value, valueEnd - value));
+				if (!declaration) {
+					handler.attribute(zstring_view(name, nameEnd - name),
+					                  zstring_view(value, valueEnd - value));
+				} else {
+					handler.declAttribute(zstring_view(name, nameEnd - name),
+					                      zstring_view(value, valueEnd - value));
+				}
 			} else {
-				handler.declAttribute(std::string_view(name, nameEnd - name),
-				                      std::string_view(value, valueEnd - value));
+				if (!declaration) {
+					handler.attribute(std::string_view(name, nameEnd - name),
+					                  std::string_view(value, valueEnd - value));
+				} else {
+					handler.declAttribute(std::string_view(name, nameEnd - name),
+					                      std::string_view(value, valueEnd - value));
+				}
 			}
 
 			skip<WhitespacePred>(text); // skip ws after value

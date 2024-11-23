@@ -53,6 +53,9 @@ public:
 	[[nodiscard]] constexpr auto find(char c, size_type pos = 0) const {
 		return view().find(c, pos);
 	}
+	[[nodiscard]] constexpr auto find(const char* s, size_type pos = 0) const {
+		return view().find(s, pos);
+	}
 
 	[[nodiscard]] constexpr zstring_view substr(size_type pos) const {
 		assert(pos <= siz);
