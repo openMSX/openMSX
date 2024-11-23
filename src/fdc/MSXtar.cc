@@ -609,8 +609,8 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	if (!st) {
 		throw MSXException("Error reading host file: ", hostName);
 	}
-	unsigned hostSize = narrow<unsigned>(st->st_size);
-	unsigned remaining = hostSize;
+	auto hostSize = narrow<unsigned>(st->st_size);
+	auto remaining = hostSize;
 
 	// open host file for reading
 	File file(hostName, "rb");

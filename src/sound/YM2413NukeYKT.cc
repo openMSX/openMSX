@@ -629,7 +629,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(std::span<float*
 	auto output = [&]() -> int32_t {
 		if (eg_silent) return 0;
 		auto prev2_phase = op_phase[(CYCLES - 2) & 1];
-		uint8_t quarter = narrow_cast<uint8_t>((prev2_phase & 0x100) ? ~prev2_phase : prev2_phase);
+		auto quarter = narrow_cast<uint8_t>((prev2_phase & 0x100) ? ~prev2_phase : prev2_phase);
 		auto logSin = logSinTab[quarter];
 		auto op_level = std::min(4095, logSin + (eg_out[(CYCLES - 2) & 1] << 4));
 		uint32_t op_exp_m = expTab[op_level & 0xff];

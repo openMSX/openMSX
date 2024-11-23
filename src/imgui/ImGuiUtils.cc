@@ -107,9 +107,9 @@ bool SliderFloat(FloatSetting& setting, const char* format, ImGuiSliderFlags fla
 }
 bool SliderFloat(const char* label, FloatSetting& setting, const char* format, ImGuiSliderFlags flags)
 {
-	float value = setting.getFloat();
-	float min = narrow_cast<float>(setting.getMinValue());
-	float max = narrow_cast<float>(setting.getMaxValue());
+	auto value = setting.getFloat();
+	auto min = narrow_cast<float>(setting.getMinValue());
+	auto max = narrow_cast<float>(setting.getMaxValue());
 	bool changed = ImGui::SliderFloat(label, &value, min, max, format, flags);
 	try {
 		if (changed) setting.setFloat(value);

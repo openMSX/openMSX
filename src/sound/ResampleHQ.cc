@@ -671,7 +671,7 @@ bool ResampleHQ<CHANNELS>::generateOutputImpl(
 		// main processing loop
 		EmuTime host1 = hostClock.getFastAdd(1);
 		assert(host1 > emuClk.getTime());
-		float pos = narrow_cast<float>(emuClk.getTicksTillDouble(host1));
+		auto pos = narrow_cast<float>(emuClk.getTicksTillDouble(host1));
 		assert(pos <= (ratio + 2));
 		for (auto i : xrange(hostNum)) {
 			calcOutput(pos, &dataOut[i * CHANNELS]);

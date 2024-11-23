@@ -204,15 +204,15 @@ static SetBootSectorResult setBootSector(
 
 		// Calculate fat size based on cluster count estimate
 		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
-		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
-		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
-		unsigned fatSize = 2 * (estClusterCount + 2);
+		auto estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		auto estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
+		auto fatSize = 2 * (estClusterCount + 2);
 		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
 
 		// Adjust sectors count down to match cluster count
-		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
-		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
-		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
+		auto dataStart = fatStart + nbFats * nbSectorsPerFat;
+		auto dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		auto clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, FAT16_MAX_CLUSTER_COUNT);
 		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
 	} else if (bootType == MSXBootSectorType::NEXTOR) {
 		// using the same layout as Nextor 2.1.1’s FDISK
@@ -236,15 +236,15 @@ static SetBootSectorResult setBootSector(
 
 		// Calculate fat size based on cluster count estimate
 		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
-		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
-		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, maxClusterCount);
-		unsigned fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
+		auto estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		auto estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, maxClusterCount);
+		auto fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
 		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
 
 		// Adjust sectors count down to match cluster count
-		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
-		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
-		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, maxClusterCount);
+		auto dataStart = fatStart + nbFats * nbSectorsPerFat;
+		auto dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		auto clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, maxClusterCount);
 		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
 	} else if (bootType == MSXBootSectorType::DOS1 && nbSectors > 1440) {
 		// DOS1 supports up to 3 sectors per FAT, limiting the cluster count to 1022.
@@ -259,15 +259,15 @@ static SetBootSectorResult setBootSector(
 
 		// Calculate fat size based on cluster count estimate
 		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
-		unsigned estSectorCount = narrow<unsigned>(nbSectors - fatStart);
-		unsigned estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
-		unsigned fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
+		auto estSectorCount = narrow<unsigned>(nbSectors - fatStart);
+		auto estClusterCount = std::min(estSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
+		auto fatSize = (3 * (estClusterCount + 2) + 1) / 2;  // round up
 		nbSectorsPerFat = narrow<uint16_t>((fatSize + SECTOR_SIZE - 1) / SECTOR_SIZE);  // round up
 
 		// Adjust sectors count down to match cluster count
-		unsigned dataStart = fatStart + nbFats * nbSectorsPerFat;
-		unsigned dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
-		unsigned clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
+		auto dataStart = fatStart + nbFats * nbSectorsPerFat;
+		auto dataSectorCount = narrow<unsigned>(nbSectors - dataStart);
+		auto clusterCount = std::min(dataSectorCount / nbSectorsPerCluster, DOS1_MAX_CLUSTER_COUNT);
 		nbSectors = dataStart + clusterCount * nbSectorsPerCluster;
 	} else if (nbSectors > 32732) {
 		// using the same layout as used by Jon in IDEFDISK v 3.1

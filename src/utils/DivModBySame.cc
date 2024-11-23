@@ -28,7 +28,7 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 		// Generate m, s for algorithm 0. Based on: Granlund, T.; Montgomery,
 		// P.L.: "Division by Invariant Integers using Multiplication".
 		// SIGPLAN Notices, Vol. 29, June 1994, page 61.
-		uint32_t l = narrow<uint32_t>(std::bit_width(t));
+		auto l = narrow<uint32_t>(std::bit_width(t));
 		uint64_t j = 0xffffffffffffffffULL % t;
 		uint128 k = (uint128(1) << (64 + l)) / (0xffffffffffffffffULL - j);
 		uint128 m_low  =  (uint128(1) << (64 + l))      / t;
