@@ -532,6 +532,7 @@ void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
 			renderer->frameStart(time);
 
 			if (isVideoOutputAvailable(time)) {
+				assert(video);
 				auto frame = currentFrame;
 				if (video->getFrameRate() == 60) {
 					frame *= 2;
@@ -638,11 +639,13 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if ((playerState == one_of(PLAYING, MULTI_SPEED))
-	     && video->stopFrame(currentFrame)) {
-		// stop frame reached
-		playingFromSample = getCurrentSample(time);
-		playerState = STILL;
+	if (playerState == one_of(PLAYING, MULTI_SPEED)) {
+		assert(video);
+		if (video->stopFrame(currentFrame)) {
+			// stop frame reached
+			playingFromSample = getCurrentSample(time);
+			playerState = STILL;
+		}
 	}
 }
 
@@ -699,6 +702,7 @@ void LaserdiscPlayer::generateChannels(std::span<float*> buffers, unsigned num)
 		buffers[0] = nullptr;
 		return;
 	}
+	assert(video);
 
 	unsigned pos = 0;
 	size_t currentSample;
@@ -876,11 +880,13 @@ void LaserdiscPlayer::eject(EmuTime::param time)
 // we won't be playing afterwards
 void LaserdiscPlayer::stepFrame(bool forwards)
 {
+	// TODO can video be nullopt?
 	bool needSeek = false;
 
 	// Note that on real hardware, the screen goes dark momentarily
 	// if you try to step before the first frame or after the last one
 	if (playerState == PlayerState::STILL) {
+		assert(video);
 		if (forwards) {
 			if (currentFrame < video->getFrames()) {
 				currentFrame++;
@@ -962,6 +968,7 @@ int16_t LaserdiscPlayer::readSample(EmuTime::param time)
 	// but honouring the stereo mode as this is done in the
 	// Laserdisc player
 	if (playerState == PlayerState::PLAYING && !seeking) {
+		assert(video);
 		auto sample = getCurrentSample(time);
 		if (const AudioFragment* audio = video->getAudio(sample)) {
 			++sampleReads;

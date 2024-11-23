@@ -26,6 +26,7 @@ void PrinterPortSimpl::setStrobe(bool /*strobe*/, EmuTime::param /*time*/)
 
 void PrinterPortSimpl::writeData(uint8_t data, EmuTime::param time)
 {
+	assert(dac);
 	dac->writeDAC(data, time);
 }
 

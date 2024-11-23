@@ -59,6 +59,7 @@ byte MSXFDC::peekMem(word address, EmuTime::param /*time*/) const
 
 const byte* MSXFDC::getReadCacheLine(word start) const
 {
+	assert(rom);
 	return &(*rom)[start & 0x3FFF];
 }
 

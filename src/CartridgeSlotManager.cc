@@ -183,6 +183,7 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	auto& slot = slots[slotNum];
 	assert(!slot.used());
 	motherBoard.unregisterMediaInfo(slot);
+	assert(slot.cartCommand);
 	motherBoard.getMSXCliComm().update(
 		CliComm::UpdateType::HARDWARE, slot.cartCommand->getName(), "remove");
 	slot.cartCommand.reset();
