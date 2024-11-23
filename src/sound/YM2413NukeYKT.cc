@@ -42,11 +42,11 @@
 namespace openmsx {
 namespace YM2413NukeYKT {
 
-[[nodiscard]] constexpr bool is_rm_cycle(int cycle)
+[[nodiscard]] static constexpr bool is_rm_cycle(int cycle)
 {
 	return (11 <= cycle) && (cycle <= 16);
 }
-[[nodiscard]] constexpr YM2413::RmNum rm_for_cycle(int cycle)
+[[nodiscard]] static constexpr YM2413::RmNum rm_for_cycle(int cycle)
 {
 	return static_cast<YM2413::RmNum>(cycle - 11);
 }

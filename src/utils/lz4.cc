@@ -143,7 +143,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 	}
 }
 
-[[nodiscard]] ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
+[[nodiscard]] static ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
 {
 	const uint8_t* const pStart = pIn;
 
@@ -272,7 +272,7 @@ template<> struct HashImpl<false, false> {
 };
 
 template<bool L64K, bool ARCH64>
-ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const int inputSize)
+static ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const int inputSize)
 {
 	HashImpl<L64K, ARCH64> hashTable;
 
