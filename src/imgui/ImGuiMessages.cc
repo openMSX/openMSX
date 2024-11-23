@@ -245,8 +245,8 @@ void ImGuiMessages::paintOSD()
 
 	struct DrawInfo {
 		// clang workaround:
-		DrawInfo(const std::string& m, gl::vec2 s, float y, uint32_t t, uint32_t b)
-			: message(m), boxSize(s), yPos(y), textCol(t), bgCol(b) {}
+		DrawInfo(std::string m, gl::vec2 s, float y, uint32_t t, uint32_t b)
+			: message(std::move(m)), boxSize(s), yPos(y), textCol(t), bgCol(b) {}
 
 		std::string message;
 		gl::vec2 boxSize;
