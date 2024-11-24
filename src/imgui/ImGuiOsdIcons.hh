@@ -34,11 +34,10 @@ public:
 	bool showConfigureIcons = false;
 
 private:
-	bool iconsHideTitle = true;
-	bool iconsAllowMove = false;
-	int iconsHorizontal = 1; // 0=vertical, 1=horizontal
-	float iconsFadeDuration = 5.0f;
-	float iconsFadeDelay = 5.0f;
+	bool hideTitle = true;
+	bool allowMove = false;
+	float fadeDuration = 5.0f;
+	float fadeDelay = 5.0f;
 
 	struct IconInfo {
 		IconInfo() = default;
@@ -59,20 +58,18 @@ private:
 		bool fade = false;
 	};
 	std::vector<IconInfo> iconInfo;
-	gl::ivec2 iconsTotalSize;
-	gl::ivec2 iconsMaxSize;
-	int iconsNumEnabled = 0;
+	gl::vec2 maxIconSize;
+	int numIcons = 0; // number of enabled icons
 	bool iconInfoDirty = true;
 
 	AdjustWindowInMainViewPort adjust;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show",         &ImGuiOsdIcons::showIcons},
-		PersistentElement{"hideTitle",    &ImGuiOsdIcons::iconsHideTitle},
-		PersistentElement{"allowMove",    &ImGuiOsdIcons::iconsAllowMove},
-		PersistentElementMax{"layout",    &ImGuiOsdIcons::iconsHorizontal, 2},
-		PersistentElement{"fadeDuration", &ImGuiOsdIcons::iconsFadeDuration},
-		PersistentElement{"fadeDelay",    &ImGuiOsdIcons::iconsFadeDelay},
+		PersistentElement{"hideTitle",    &ImGuiOsdIcons::hideTitle},
+		PersistentElement{"allowMove",    &ImGuiOsdIcons::allowMove},
+		PersistentElement{"fadeDuration", &ImGuiOsdIcons::fadeDuration},
+		PersistentElement{"fadeDelay",    &ImGuiOsdIcons::fadeDelay},
 		PersistentElement{"showConfig",   &ImGuiOsdIcons::showConfigureIcons}
 		// manually handle "icon.xxx", "adjust"
 	};

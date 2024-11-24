@@ -101,11 +101,12 @@ void ImGuiOsdIcons::setDefaultIcons()
 
 void ImGuiOsdIcons::loadIcons()
 {
-	iconsTotalSize = gl::ivec2();
-	iconsMaxSize = gl::ivec2();
-	iconsNumEnabled = 0;
+	maxIconSize = gl::vec2();
+	numIcons = 0;
 	FileContext context = systemFileContext();
 	for (auto& icon : iconInfo) {
+		if (!icon.enable) continue;
+
 		auto load = [&](IconInfo::Icon& i) {
 			try {
 				if (!i.filename.empty()) {
@@ -120,12 +121,11 @@ void ImGuiOsdIcons::loadIcons()
 		};
 		load(icon.on);
 		load(icon.off);
-		if (icon.enable) {
-			++iconsNumEnabled;
-			auto m = max(icon.on.size, icon.off.size);
-			iconsTotalSize += m;
-			iconsMaxSize = max(iconsMaxSize, m);
-		}
+
+		auto m = max(icon.on.size, icon.off.size);
+		maxIconSize = max(maxIconSize, gl::vec2(m));
+
+		++numIcons;
 	}
 	iconInfoDirty = false;
 }
@@ -136,48 +136,52 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showConfigureIcons) paintConfigureIcons();
 	if (!showIcons) return;
 
-	const auto& style = ImGui::GetStyle();
-	auto windowPadding = 2.0f * gl::vec2(style.WindowPadding);
-	auto totalSize = windowPadding + gl::vec2(iconsTotalSize) + float(iconsNumEnabled) * gl::vec2(style.ItemSpacing);
-	auto minSize = iconsHorizontal
-		? gl::vec2(totalSize.x, float(iconsMaxSize.y) + windowPadding.y)
-		: gl::vec2(float(iconsMaxSize.x) + windowPadding.x, totalSize.y);
-	if (!iconsHideTitle) {
-		minSize.y += 2.0f * style.FramePadding.y + ImGui::GetTextLineHeight();
-	}
-	auto maxSize = iconsHorizontal
-		? gl::vec2(FLT_MAX, minSize.y)
-		: gl::vec2(minSize.x, FLT_MAX);
-	ImGui::SetNextWindowSizeConstraints(minSize, maxSize);
-
 	// default placement: bottom left
 	const auto* mainViewPort = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(gl::vec2(mainViewPort->Pos) + gl::vec2{10.0f, mainViewPort->WorkSize.y - 10.0f},
 	                        ImGuiCond_FirstUseEver,
 	                        {0.0f, 1.0f}); // pivot = bottom-left
-	int flags = iconsHideTitle ? ImGuiWindowFlags_NoTitleBar |
-	                             ImGuiWindowFlags_NoResize |
-	                             ImGuiWindowFlags_NoScrollbar |
-	                             ImGuiWindowFlags_NoScrollWithMouse |
-	                             ImGuiWindowFlags_NoCollapse |
-	                             ImGuiWindowFlags_NoBackground |
-	                             ImGuiWindowFlags_NoFocusOnAppearing |
-	                             ImGuiWindowFlags_NoNav |
-	                             (iconsAllowMove ? 0 : ImGuiWindowFlags_NoMove)
-	                           : 0;
+	int flags = hideTitle ? ImGuiWindowFlags_NoTitleBar |
+	                        ImGuiWindowFlags_NoResize |
+	                        ImGuiWindowFlags_NoScrollbar |
+	                        ImGuiWindowFlags_NoScrollWithMouse |
+	                        ImGuiWindowFlags_NoCollapse |
+	                        ImGuiWindowFlags_NoBackground |
+	                        ImGuiWindowFlags_NoFocusOnAppearing |
+	                        ImGuiWindowFlags_NoNav |
+	                        (allowMove ? 0 : ImGuiWindowFlags_NoMove)
+	                      : 0;
 	adjust.pre();
 	im::Window("Icons", &showIcons, flags | ImGuiWindowFlags_HorizontalScrollbar, [&]{
 		bool isOnMainViewPort = adjust.post();
-		auto cursor0 = ImGui::GetCursorPos();
-		auto availableSize = ImGui::GetContentRegionAvail();
-		float slack = iconsHorizontal ? (availableSize.x - totalSize.x)
-		                              : (availableSize.y - totalSize.y);
-		float spacing = (iconsNumEnabled >= 2) ? (std::max(0.0f, slack) / float(iconsNumEnabled)) : 0.0f;
+		gl::vec2 topLeft = ImGui::GetCursorPos();
 
-		bool fade = iconsHideTitle && !ImGui::IsWindowDocked() && isOnMainViewPort;
+		const auto& style = ImGui::GetStyle();
+		const auto& io = ImGui::GetIO();
+
+		auto availableSize = ImGui::GetContentRegionAvail();
+		auto columns = std::max(int(floor((availableSize.x + style.ItemSpacing.x) / (maxIconSize.x + style.ItemSpacing.x))), 1);
+		auto rows = (numIcons + columns - 1) / columns; // round up
+
+		// cover full canvas, both for context menu and to set dimensions (SetCursorPos() can't extend canvas)
+		ImGui::Dummy(gl::vec2(float(columns) * maxIconSize.x + float(columns - 1) * style.ItemSpacing.x,
+		                      float(rows   ) * maxIconSize.y + float(rows    - 1) * style.ItemSpacing.y));
+		if (allowMove) {
+			im::PopupContextItem("icons context menu", [&]{
+				if (ImGui::MenuItem("Configure icons ...")) {
+					showConfigureIcons = true;
+				}
+			});
+		}
+
+		bool fade = hideTitle && !ImGui::IsWindowDocked() && isOnMainViewPort;
+
+		auto cursor = topLeft;
+		int col = 0;
 		for (auto& icon : iconInfo) {
 			if (!icon.enable) continue;
 
+			// is the icon on or off?
 			bool state = [&] {
 				try {
 					return icon.expr.evalBool(manager.getInterpreter());
@@ -189,41 +193,43 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 				icon.lastState = state;
 				icon.time = 0.0f;
 			}
-			const auto& io = ImGui::GetIO();
 			icon.time += io.DeltaTime;
+
+			// calculate fade status
 			float alpha = [&] {
 				if (!fade || !icon.fade) return 1.0f;
-				auto t = icon.time - iconsFadeDelay;
+				auto t = icon.time - fadeDelay;
 				if (t <= 0.0f) return 1.0f;
-				if (t >= iconsFadeDuration) return 0.0f;
-				return 1.0f - (t / iconsFadeDuration);
+				if (t >= fadeDuration) return 0.0f;
+				return 1.0f - (t / fadeDuration);
 			}();
 
+			// draw icon
 			const auto& ic = state ? icon.on : icon.off;
-			if (ic.tex.get()) {
-				gl::vec2 cursor = ImGui::GetCursorPos();
+			if (alpha > 0.0f && ic.tex.get()) {
+				ImGui::SetCursorPos(cursor);
 				ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
 				             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});
-				ImGui::SetCursorPos(cursor);
 			}
 
-			auto size = gl::vec2(max(icon.on.size, icon.off.size));
-			(iconsHorizontal ? size.x : size.y) += spacing;
-			ImGui::Dummy(size);
-			if (iconsHorizontal) ImGui::SameLine();
+			// draw outline
+			if (showConfigureIcons) {
+				ImGui::SetCursorPos(cursor);
+				gl::vec2 rectMin = ImGui::GetCursorScreenPos();
+				gl::vec2 rectMax = rectMin + gl::vec2(maxIconSize);
+				ImGui::GetWindowDrawList()->AddRect(rectMin, rectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 1.0f);
+			}
+
+			// advance to next icon position
+			if (++col == columns) {
+				col = 0;
+				cursor = gl::vec2(topLeft.x, cursor.y + style.ItemSpacing.y + maxIconSize.y);
+			} else {
+				cursor = gl::vec2(cursor.x + style.ItemSpacing.x + maxIconSize.x, cursor.y);
+			}
 		}
 
-		ImGui::SetCursorPos(cursor0); // cover full window for context menu
-		ImGui::Dummy(availableSize);
-		if (iconsAllowMove) {
-			im::PopupContextItem("icons context menu", [&]{
-				if (ImGui::MenuItem("Configure icons ...")) {
-					showConfigureIcons = true;
-				}
-			});
-		}
-
-		if (iconsHideTitle && ImGui::IsWindowFocused()) {
+		if (hideTitle && ImGui::IsWindowFocused()) {
 			ImGui::SetWindowFocus(nullptr); // give-up focus
 		}
 	});
@@ -234,14 +240,9 @@ void ImGuiOsdIcons::paintConfigureIcons()
 	ImGui::SetNextWindowSize(gl::vec2{37, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Configure Icons", &showConfigureIcons, [&]{
 		ImGui::Checkbox("Show OSD icons", &showIcons);
-		ImGui::TextUnformatted("Layout:"sv);
-		ImGui::SameLine();
-		ImGui::RadioButton("Horizontal", &iconsHorizontal, 1);
-		ImGui::SameLine();
-		ImGui::RadioButton("Vertical", &iconsHorizontal, 0);
 		ImGui::Separator();
 
-		if (ImGui::Checkbox("Hide Title", &iconsHideTitle)) {
+		if (ImGui::Checkbox("Hide Title", &hideTitle)) {
 			// reset fade-out-delay (on hiding the title)
 			for (auto& icon : iconInfo) {
 				icon.time = 0.0f;
@@ -250,18 +251,18 @@ void ImGuiOsdIcons::paintConfigureIcons()
 		HelpMarker("When you want the icons inside the MSX window, you might want to hide the window title.\n"
 		           "To further hide the icons, it's possible to make them fade-out after some time.");
 		im::Indent([&]{
-			im::Disabled(!iconsHideTitle, [&]{
-				ImGui::Checkbox("Allow move", &iconsAllowMove);
+			im::Disabled(!hideTitle, [&]{
+				ImGui::Checkbox("Allow move", &allowMove);
 				HelpMarker("When the icons are in the MSX window (without title bar), you might want "
 				           "to lock them in place, to prevent them from being moved by accident.\n"
 				           "Move by click and drag the icon box.\n");
 				auto width = ImGui::GetFontSize() * 10.0f;
 				ImGui::SetNextItemWidth(width);
-				ImGui::SliderFloat("Fade-out delay",    &iconsFadeDelay,    0.0f, 30.0f, "%.1f");
+				ImGui::SliderFloat("Fade-out delay",    &fadeDelay,    0.0f, 30.0f, "%.1f");
 				HelpMarker("After some delay, fade-out icons that haven't changed status for a while.\n"
 				           "Note: by default some icons are configured to never fade-out.");
 				ImGui::SetNextItemWidth(width);
-				ImGui::SliderFloat("Fade-out duration", &iconsFadeDuration, 0.0f, 30.0f, "%.1f");
+				ImGui::SliderFloat("Fade-out duration", &fadeDuration, 0.0f, 30.0f, "%.1f");
 				HelpMarker("Configure the fade-out speed.");
 			});
 		});
@@ -325,7 +326,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 						}
 					}
 					if (ImGui::TableNextColumn()) { // fade-out
-						im::Disabled(!iconsHideTitle, [&]{
+						im::Disabled(!hideTitle, [&]{
 							if (ImGui::Checkbox("##fade-out", &icon.fade)) {
 								iconInfoDirty = true;
 							}
