@@ -87,6 +87,8 @@ private:
 
 using Point = gl::ivec2;
 struct Rect {
+	Rect() = default; // workaround
+	Rect(const Point& p1_, const Point& p2_) : p1(p1_), p2(p2_) {} // workaround apple-clang-16(?) limitation
 	Point p1, p2;
 };
 struct DoneTodo {
