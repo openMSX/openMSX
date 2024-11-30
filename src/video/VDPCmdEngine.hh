@@ -23,6 +23,15 @@ class CommandController;
 class VDPCmdEngine
 {
 public:
+	// bits in ARG register
+	static constexpr byte MXD = 0x20;
+	static constexpr byte MXS = 0x10;
+	static constexpr byte DIY = 0x08;
+	static constexpr byte DIX = 0x04;
+	static constexpr byte EQ  = 0x02;
+	static constexpr byte MAJ = 0x01;
+
+public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);
 
 	/** Reinitialize Renderer state.
@@ -115,6 +124,27 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	void updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time);
+
+	// For debugging only
+	bool commandInProgress(EmuTime::param time) {
+		sync(time);
+		return status & 1;
+	}
+	/** Get the register-values for the last executed (or still in progress)
+	 * command. For debugging purposes only.
+	 */
+	auto getLastCommand() const {
+		return std::tuple{
+			lastSX, lastSY, lastDX, lastDY, lastNX, lastNY,
+			lastCOL, lastARG, lastCMD};
+	}
+	/** Get the (source and destination) X/Y coordinates of the currently
+	  * executing command. For debugging purposes only.
+	  */
+	auto getInprogressPosition() const {
+		return (status & 1) ? std::tuple{int(ASX), int(SY), int(ADX), int(DY)}
+		                    : std::tuple{-1, -1, -1, -1};
+	}
 
 	/** Interface for logical operations.
 	  */
@@ -226,6 +256,14 @@ private:
 	                                 // Register ASX can be read (via status register 8/9)
 	byte COL{0}, ARG{0}, CMD{0};
 
+	/** The last executed command (for debugging only).
+	  * A copy of the above registers when the command starts. Remains valid
+	  * until the next command starts (also if the corresponding VDP
+	  * registers are being changed).
+	  */
+	int lastSX{0}, lastSY{0}, lastDX{0}, lastDY{0}, lastNX{0}, lastNY{0};
+	byte lastCOL{0}, lastARG{0}, lastCMD{0};
+
 	/** When a command needs multiple VRAM accesses per pixel, the result
 	 * of intermediate reads is stored in these variables. */
 	byte tmpSrc{0};
@@ -248,7 +286,7 @@ private:
 	 */
 	const bool hasExtendedVRAM;
 };
-SERIALIZE_CLASS_VERSION(VDPCmdEngine, 3);
+SERIALIZE_CLASS_VERSION(VDPCmdEngine, 4);
 
 } // namespace openmsx
 

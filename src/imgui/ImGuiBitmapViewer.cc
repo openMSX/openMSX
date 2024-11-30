@@ -18,6 +18,149 @@ namespace openmsx {
 
 using namespace std::literals;
 
+// Take VDPCmdEngine info like {sx,sy} (or {dx,dy}), {nx,ny}, ...
+// And turn that into a rectangle that's properly clipped horizontally for the
+// given screen mode. Taking into account pixel vs byte mode.
+
+// Usually this returns just 1 retangle, but in case of vertical wrapping this
+// can be split over two (disjunct) rectangles. In that case the order in which
+// the VDP handles these rectangles (via 'diy') is preserved.
+//
+// Also within a single rectangle the VDP order (via 'dix' and 'diy') is
+// preserved. So start at corner 'p1', end at corner 'p2'.
+//
+// Both start and end points of the rectangle(s) are inclusive.
+static_vector<Rect, 2> rectFromVdpCmd(
+	int x, int y, // either sx,sy or dx,dy
+	int nx, int ny,
+	bool dix, bool diy,
+	ImGuiBitmapViewer::ScrnMode screenMode,
+	bool byteMode) // Lxxx or Hxxx command
+{
+	const auto [width, height, pixelsPerByte] = [&] {
+		switch (screenMode) {
+		using enum ImGuiBitmapViewer::ScrnMode;
+		case SCR5: return std::tuple{256, 1024, 2};
+		case SCR6: return std::tuple{512, 1024, 4};
+		case SCR7: return std::tuple{512,  512, 2};
+		default:   return std::tuple{256,  512, 1}; // screen 8, 11, 12  (and fallback for non-bitmap)
+		}
+	}();
+
+	// clamp/wrap start-point
+	x = std::clamp(x, 0, width - 1); // Clamp to border. This is different from the real VDP behavior.
+	                            // But for debugging it's visually less confusing??
+	y &= (height - 1); // wrap around
+
+	if (nx <= 0) nx = width;
+	if (ny <= 0) ny = height;
+	if (byteMode) { // round to byte positions
+		auto mask = ~(pixelsPerByte - 1);
+		x &= mask;
+		nx &= mask;
+	}
+	nx -= 1; // because coordinates are inclusive
+	ny -= 1;
+
+	// horizontally clamp to left/right border
+	auto endX = std::clamp(x + (dix ? -nx : nx), 0, width - 1);
+
+	// but vertically wrap around, possibly that splits the rectangle in two parts
+	if (diy) {
+		auto endY = y - ny;
+		if (endY >= 0) {
+			return {Rect{Point{x, y}, Point{endX, endY}}};
+		} else {
+			return {Rect{Point{x, y}, Point{endX, 0}},
+			        Rect{Point{x, height - 1},
+			             Point{endX, endY & (height - 1)}}};
+		}
+	} else {
+		auto endY = (y + ny);
+		if (endY < height) {
+			return {Rect{Point{x, y}, Point{endX, endY}}};
+		} else {
+			return {Rect{Point{x, y}, Point{endX, height - 1}},
+			        Rect{Point{x, 0},
+			             Point{endX, endY & (height - 1)}}};
+		}
+	}
+}
+
+// Given a VDPCmdEngine-rectangle and a point, split that rectangle in a 'done'
+// and a 'todo' part.
+//
+// The VDPCmdEngine walks over this rectangle line by line. But the direction
+// can still vary ('dix' and 'diy'). These directions are implicit: the first
+// 'Point' in 'Rect' is the start point, the second is the end point. (Start and
+// end points are inclusive).
+//
+// The given point is assumed to be 'done' (in reality we can make a small error
+// here, but that's just a few dozen VDP cycles, so just a few Z80
+// instructions). If the point lies outside the rectangle, the result will be
+// shown as fully 'done'.
+//
+// The full result contains 1 or 2 'done' parts, and 0, 1 or 2 'todo' parts. So
+// e.g. a top rectangle of fully processed lines, a middle line that's in
+// progress (split over two lines (represented as a rectangle with height=1)),
+// and a bottom rectangle of still todo lines.
+//
+// All the sub-rectangles in the result have their corners in 'natural' order:
+// left-to-right and top-to-bottom (this simplifies drawing later). This is
+// explicitly not the case for the input rectangle(s) (those are ordered
+// according to 'dix' and 'diy').
+//
+// The order of the sub-rectangles in the output is no longer guaranteed to be
+// in VDP command processing order, and for drawing the overlay that doesn't
+// matter.
+DoneTodo splitRect(const Rect& r, int x, int y)
+{
+	DoneTodo result;
+	auto& done = result.done;
+	auto& todo = result.todo;
+
+	auto minX = std::min(r.p1.x, r.p2.x);
+	auto maxX = std::max(r.p1.x, r.p2.x);
+	auto minY = std::min(r.p1.y, r.p2.y);
+	auto maxY = std::max(r.p1.y, r.p2.y);
+
+	if ((x < minX) || (x > maxX) || (y < minY) || (y > maxY)) {
+		// outside rect
+		done.emplace_back(Point{minX, minY}, Point{maxX, maxY});
+		return result;
+	}
+
+	bool diy = r.p1.y > r.p2.y;
+	if (minY < y) {
+		// top part (either done or todo), full lines
+		auto& res = diy ? todo : done;
+		res.emplace_back(Point{minX, minY}, Point{maxX, y - 1});
+	}
+	if (r.p1.x <= r.p2.x) {
+		// left-to-right
+		assert(r.p1.x <= x);
+		done.emplace_back(Point{r.p1.x, y}, Point{x, y});
+		if (x < r.p2.x) {
+			todo.emplace_back(Point{x + 1, y}, Point{r.p2.x, y});
+		}
+	} else {
+		// right to-left
+		assert(x <= r.p1.x);
+		done.emplace_back(Point{x, y}, Point{r.p1.x, y});
+		if (r.p2.x < x) {
+			todo.emplace_back(Point{r.p2.x, y}, Point{x - 1, y});
+		}
+	}
+
+	if (y < maxY) {
+		// bottom part (either done or todo), full lines
+		auto& res = diy ? done : todo;
+		res.emplace_back(Point{minX, y + 1}, Point{maxX, maxY});
+	}
+
+	return result;
+}
+
 ImGuiBitmapViewer::ImGuiBitmapViewer(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
 	, title("Bitmap viewer")
@@ -42,7 +185,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 	if (!show) return;
 	if (!motherBoard) return;
 
-	ImGui::SetNextWindowSize({528, 618}, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({528, 620}, ImGuiCond_FirstUseEver);
 	im::Window(title.c_str(), &show, [&]{
 		auto* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP")); // TODO name based OK?
 		if (!vdp || vdp->isMSX1VDP()) return;
@@ -202,6 +345,173 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			           "Only practically useful when emulation is paused.");
 		});
 
+		// VDP block command overlay settings
+		auto& cmdEngine = vdp->getCmdEngine();
+		bool inProgress = cmdEngine.commandInProgress(motherBoard->getCurrentTime());
+
+		auto [sx, sy, dx, dy, nx, ny, col, arg, cmdReg] = cmdEngine.getLastCommand();
+		auto cmd = cmdReg >> 4;
+		bool dix = arg & VDPCmdEngine::DIX;
+		bool diy = arg & VDPCmdEngine::DIY;
+		bool byteMode = cmd >= 12; // hmmv, hmmm, ymmm, hmmc
+
+		// only calculate src/dst rect when needed for the command
+		std::optional<static_vector<Rect, 2>> srcRect;
+		std::optional<static_vector<Rect, 2>> dstRect;
+		if (cmd == one_of(9, 10, 13)) { // lmmm, lmcm, hmmm
+			srcRect = rectFromVdpCmd(sx, sy, nx, ny, dix, diy, ScrnMode(mode), byteMode);
+		}
+		if (cmd == one_of(8, 9, 11, 12, 13, 15)) { // lmmv, lmmm, lmmc, hmmv, hmmm, hmmc
+			dstRect = rectFromVdpCmd(dx, dy, nx, ny, dix, diy, ScrnMode(mode), byteMode);
+		}
+		if (cmd == 14) { // ymmm
+			// different from normal: NO 'sx', and NO 'nx'
+			srcRect = rectFromVdpCmd(dx, sy, 512, ny, dix, diy, ScrnMode(mode), byteMode);
+			dstRect = rectFromVdpCmd(dx, dy, 512, ny, dix, diy, ScrnMode(mode), byteMode);
+		}
+
+		im::TreeNode("Show VDP block command overlay", [&]{
+			ImGui::RadioButton("never", &showCmdOverlay, 0);
+			HelpMarker("Don't draw any overlay in the bitmap view");
+			ImGui::SameLine();
+			ImGui::RadioButton("in progress", &showCmdOverlay, 1);
+			HelpMarker("Only show overlay for VDP block command that is currently executing");
+			ImGui::SameLine();
+			ImGui::RadioButton("also finished", &showCmdOverlay, 2);
+			HelpMarker("Show overlay for the currently executing VDP block command, but also the last finished block command");
+
+			im::TreeNode("Overlay colors", [&]{
+				int colorFlags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel |
+				                 ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				im::Group([&]{
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("Source (done)"sv);
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("Source (todo)"sv);
+				});
+				ImGui::SameLine();
+				im::Group([&]{
+					ImGui::ColorEdit4("src-done", colorSrcDone.data(), colorFlags);
+					ImGui::ColorEdit4("src-todo", colorSrcTodo.data(), colorFlags);
+				});
+				ImGui::SameLine(0.0f, ImGui::GetFontSize() * 3.0f);
+				im::Group([&]{
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("Destination (done)"sv);
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextUnformatted("Destination (todo)"sv);
+				});
+				ImGui::SameLine();
+				im::Group([&]{
+					ImGui::ColorEdit4("dst-done", colorDstDone.data(), colorFlags);
+					ImGui::ColorEdit4("dst-todo", colorDstTodo.data(), colorFlags);
+				});
+			});
+
+			ImGui::TextUnformatted("Last command "sv);
+			ImGui::SameLine();
+			ImGui::TextUnformatted(inProgress ? "[in progress]"sv : "[finished]"sv);
+
+			// Textual-representation of last command (grayed-out if finished).
+			// Note:
+			// * The representation _resembles_ to notation in MSX-BASIC, but is (intentionally) not
+			//   the same. Here we need to convey more information (e.g. for copy commands we show
+			//   both corners of the destination).
+			// * For the non-block commands we don't clamp/wrap the coordinates.
+			// * For the logical commands we don't mask the color register (e.g. to 4 bits for SCRN5).
+			// * For the LINE command, we don't clamp/wrap the end-point.
+			// * Src and dst rectangles are _separately_ clamped to left/right borders.
+			//   That's different from the real VDP behavior, but maybe less confusing to show in the debugger.
+			// * The first coordinate is always the start-corner. The second may be larger or
+			//   smaller depending on 'dix' and 'diy'.
+			// * The textual representation for commands that wrap around the top/bottom border is
+			//   ambiguous (but the drawn overlay should be fine).
+			im::DisabledIndent(!inProgress, [&]{
+				static constexpr std::array<const char*, 16> logOps = {
+					"",     ",AND", ",OR", ",XOR", ",NOT", "","","",
+					",TIMP",",TAND",",TOR",",TXOR",",TNOT","","",""
+				};
+				const char* logOp = logOps[cmdReg & 15];
+				auto printRect = [](const char* s, std::optional<static_vector<Rect, 2>>& r) {
+					assert(r);
+					ImGui::TextUnformatted(s);
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::Text("(%d,%d)-(%d,%d)",
+						r->front().p1.x, // front/back for the (unlikely) case of vertical wrapping
+						r->front().p1.y,
+						r->back().p2.x,
+						r->back().p2.y);
+				};
+				auto printSrcDstRect = [&](const char* c) {
+					printRect(c, srcRect);
+					ImGui::SameLine(0.0f, 0.0f);
+					printRect(" TO ", dstRect);
+				};
+				auto printCol = [&]{
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::Text(",%d", col);
+				};
+				auto printLogOp = [&]{
+					ImGui::SameLine(0.0f, 0.0f);
+					ImGui::TextUnformatted(logOp);
+				};
+				switch (cmd) {
+				case 0: case 1: case 2: case 3:
+					ImGui::TextUnformatted("ABORT"sv);
+					break;
+				case 4:
+					ImGui::Text("POINT (%d,%d)", sx, sy);
+					break;
+				case 5:
+					ImGui::Text("PSET (%d,%d),%d%s", dx, dy, col, logOp);
+					break;
+				case 6:
+					ImGui::Text("SRCH (%d,%d) %s %d", sx, sy,
+					            ((arg & VDPCmdEngine::EQ) ? "==" : "!="), col);
+					break;
+				case 7: {
+					auto nx2 = nx; auto ny2 = ny;
+					if (arg & VDPCmdEngine::MAJ) std::swap(nx2, ny2);
+					auto x = int(sx) + (dix ? -int(nx2) : int(nx2));
+					auto y = int(sy) + (diy ? -int(ny2) : int(ny2));
+					ImGui::Text("LINE (%d,%d)-(%d,%d),%d%s", sx, sy, x, y, col, logOp);
+					break;
+				}
+				case 8:
+					printRect("LMMV ", dstRect);
+					printCol();
+					printLogOp();
+					break;
+				case 9:
+					printSrcDstRect("LMMM ");
+					printLogOp();
+					break;
+				case 10:
+					printRect("LMCM ", srcRect);
+					break;
+				case 11:
+					printRect("LMMC ", dstRect);
+					printLogOp();
+					break;
+				case 12:
+					printRect("HMMV ", dstRect);
+					printCol();
+					break;
+				case 13:
+					printSrcDstRect("HMMM ");
+					break;
+				case 14:
+					printSrcDstRect("YMMM ");
+					break;
+				case 15:
+					printRect("HMMC ", dstRect);
+					break;
+				default:
+					UNREACHABLE;
+				}
+			});
+		});
+
 		ImGui::Separator();
 
 		std::array<uint32_t, 16> palette;
@@ -250,8 +560,8 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::SetCursorPos(pos);
 				ImGui::Image(bitmapGridTex->getImGui(), size, gl::vec2{}, msxSize);
 			}
+			auto* drawList = ImGui::GetWindowDrawList();
 			if (rasterBeam) {
-				auto* drawList = ImGui::GetWindowDrawList();
 				auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
 				auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
 				auto thickness = zm.y * 0.5f;
@@ -262,6 +572,40 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
 				drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
 				drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+			}
+
+			// draw the VDP command overlay
+			auto offset = gl::vec2(0.0f, height > 256 ? 0.0f : float(256 * page));
+			auto drawRect = [&](const Rect& r, ImU32 color) {
+				auto tl = zm * (gl::vec2(r.p1) - offset);
+				auto br = zm * (gl::vec2(r.p2) - offset + gl::vec2(1.0f)); // rect is inclusive, openGL is exclusive
+				drawList->AddRectFilled(scrnPos + tl, scrnPos + br, color);
+			};
+			auto drawSplit = [&](const DoneTodo& dt, ImU32 colDone, ImU32 colTodo) {
+				for (const auto& r : dt.done) drawRect(r, colDone);
+				for (const auto& r : dt.todo) drawRect(r, colTodo);
+			};
+			auto drawOverlay = [&](const static_vector<Rect, 2>& rects, int x, int y, ImU32 colDone, ImU32 colTodo) {
+				auto split1 = splitRect(rects[0], x, y);
+				drawSplit(split1, colDone, colTodo);
+				if (rects.size() == 2) {
+					auto split2 = splitRect(rects[1], x, y);
+					auto col1 = (split1.done.size() == 2) ? colTodo : colDone; // if (x,y) is in rects[0], then use todo-color
+					drawSplit(split2, col1, colTodo);
+				}
+			};
+			if ((showCmdOverlay == 2) || ((showCmdOverlay == 1) && inProgress)) {
+				auto [sx2, sy2, dx2, dy2] = cmdEngine.getInprogressPosition();
+				if (srcRect) {
+					drawOverlay(*srcRect, sx2, sy2,
+					            ImGui::ColorConvertFloat4ToU32(colorSrcDone),
+					            ImGui::ColorConvertFloat4ToU32(colorSrcTodo));
+				}
+				if (dstRect) {
+					drawOverlay(*dstRect, dx2, dy2,
+					            ImGui::ColorConvertFloat4ToU32(colorDstDone),
+					            ImGui::ColorConvertFloat4ToU32(colorDstTodo));
+				}
 			}
 		});
 		if (ImGui::IsItemHovered() && (mode != OTHER)) {

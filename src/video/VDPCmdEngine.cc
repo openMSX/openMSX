@@ -52,15 +52,6 @@ namespace openmsx {
 
 using namespace VDPAccessSlots;
 
-// Constants:
-static constexpr byte MXD = 0x20;
-static constexpr byte MXS = 0x10;
-static constexpr byte DIY = 0x08;
-static constexpr byte DIX = 0x04;
-static constexpr byte EQ  = 0x02;
-static constexpr byte MAJ = 0x01;
-
-
 template<typename Mode>
 static constexpr unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 {
@@ -68,7 +59,7 @@ static constexpr unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
-	return (ARG & DIX)
+	return (ARG & VDPCmdEngine::DIX)
 		? std::min(NX, DX + 1)
 		: std::min(NX, Mode::PIXELS_PER_LINE - DX);
 }
@@ -85,7 +76,7 @@ static constexpr unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 	}
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
-	return (ARG & DIX)
+	return (ARG & VDPCmdEngine::DIX)
 		? std::min(NX, DX + 1)
 		: std::min(NX, BYTES_PER_LINE - DX);
 }
@@ -98,7 +89,7 @@ static constexpr unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, 
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
-	return (ARG & DIX)
+	return (ARG & VDPCmdEngine::DIX)
 		? std::min(NX, std::min(SX, DX) + 1)
 		: std::min(NX, Mode::PIXELS_PER_LINE - std::max(SX, DX));
 }
@@ -117,7 +108,7 @@ static constexpr unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, b
 	}
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
-	return (ARG & DIX)
+	return (ARG & VDPCmdEngine::DIX)
 		? std::min(NX, std::min(SX, DX) + 1)
 		: std::min(NX, BYTES_PER_LINE - std::max(SX, DX));
 }
@@ -125,13 +116,13 @@ static constexpr unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, b
 static constexpr unsigned clipNY_1(unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? std::min(NY, DY + 1) : NY;
+	return (ARG & VDPCmdEngine::DIY) ? std::min(NY, DY + 1) : NY;
 }
 
 static constexpr unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? std::min(NY, std::min(SY, DY) + 1) : NY;
+	return (ARG & VDPCmdEngine::DIY) ? std::min(NY, std::min(SY, DY) + 1) : NY;
 }
 
 
@@ -1942,6 +1933,12 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 		return;
 	}
 
+	// store a copy of the start registers
+	lastSX = SX; lastSY = SY;
+	lastDX = DX; lastDY = DY;
+	lastNX = NX; lastNY = NY;
+	lastCOL = COL; lastARG = ARG; lastCMD = CMD;
+
 	if (cmdTraceSetting.getBoolean()) {
 		reportVdpCommand();
 	}
@@ -2612,6 +2609,10 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 // version 1: initial version
 // version 2: replaced member 'Clock<> clock' with 'EmuTime time'
 // version 3: added 'phase', 'tmpSrc', 'tmpDst'
+// version 4: added 'lastXXX'. This is only used for debugging, so you could ask
+//            why this needs to be serialized. Maybe for savestate/replay-files
+//            it's not super useful, but it is important for reverse during a
+//            debug session.
 template<typename Archive>
 void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 {
@@ -2661,6 +2662,29 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		} else {
 			CMD = 0; // see note above
 		}
+	}
+
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("lastSX",  lastSX,
+		             "lastSY",  lastSY,
+		             "lastDX",  lastDX,
+		             "lastDY",  lastDY,
+		             "lastNX",  lastNX,
+		             "lastNY",  lastNY,
+		             "lastCOL", lastCOL,
+		             "lastARG", lastARG,
+		             "lastCMD", lastCMD);
+	} else {
+		assert(Archive::IS_LOADER);
+		lastSX = SX;
+		lastSY = SY;
+		lastDX = DX;
+		lastDY = DY;
+		lastNX = NX;
+		lastNY = NY;
+		lastCOL = COL;
+		lastARG = ARG;
+		lastCMD = CMD;
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPCmdEngine);

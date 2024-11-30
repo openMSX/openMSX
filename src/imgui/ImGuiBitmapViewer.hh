@@ -5,6 +5,7 @@
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
+#include "static_vector.hh"
 
 #include <cstdint>
 #include <optional>
@@ -15,6 +16,9 @@ namespace openmsx {
 
 class ImGuiBitmapViewer final : public ImGuiPart
 {
+public:
+	enum ScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
+
 public:
 	ImGuiBitmapViewer(ImGuiManager& manager_, size_t index);
 
@@ -33,7 +37,6 @@ public:
 private:
 	std::string title;
 
-	enum BitmapScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
 	int bitmapScrnMode = 0;
 	int bitmapPage = 0; // 0-3 or 0-1 depending on screen mode, -1 for all pages   TODO extended VRAM
 	int bitmapLines = 1; // 0->192, 1->212, 2->256
@@ -52,6 +55,12 @@ private:
 	std::optional<gl::Texture> bitmapTex; // TODO also deallocate when needed
 	std::optional<gl::Texture> bitmapGridTex;
 
+	int showCmdOverlay = 0; // 0->none, 1->in-progress, 2->also finished
+	gl::vec4 colorSrcDone{0.0f, 1.0f, 0.0f, 0.66f};
+	gl::vec4 colorSrcTodo{0.0f, 1.0f, 0.0f, 0.33f};
+	gl::vec4 colorDstDone{1.0f, 0.0f, 0.0f, 0.66f};
+	gl::vec4 colorDstTodo{1.0f, 0.0f, 0.0f, 0.33f};
+
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"show",           &ImGuiBitmapViewer::show},
 		PersistentElement   {"overrideAll",    &ImGuiBitmapViewer::overrideAll},
@@ -67,9 +76,28 @@ private:
 		PersistentElement   {"showGrid",       &ImGuiBitmapViewer::bitmapGrid},
 		PersistentElement   {"gridColor",      &ImGuiBitmapViewer::bitmapGridColor},
 		PersistentElement   {"showRasterBeam", &ImGuiBitmapViewer::rasterBeam},
-		PersistentElement   {"rasterBeamColor",&ImGuiBitmapViewer::rasterBeamColor}
+		PersistentElement   {"rasterBeamColor",&ImGuiBitmapViewer::rasterBeamColor},
+		PersistentElementMax{"showCmdOverlay", &ImGuiBitmapViewer::showCmdOverlay, 3},
+		PersistentElement   {"colorSrcDone",   &ImGuiBitmapViewer::colorSrcDone},
+		PersistentElement   {"colorSrcTodo",   &ImGuiBitmapViewer::colorSrcTodo},
+		PersistentElement   {"colorDstDone",   &ImGuiBitmapViewer::colorDstDone},
+		PersistentElement   {"colorDstTodo",   &ImGuiBitmapViewer::colorDstTodo}
 	};
 };
+
+using Point = gl::ivec2;
+struct Rect {
+	Point p1, p2;
+};
+struct DoneTodo {
+	static_vector<Rect, 2> done, todo;
+};
+
+// TODO write a unittest for these 2 functions.
+static_vector<Rect, 2> rectFromVdpCmd(
+	int x, int y, int nx, int ny,
+	bool dix, bool diy, ImGuiBitmapViewer::ScrnMode screenMode, bool byteMode);
+DoneTodo splitRect(const Rect& r, int x, int y);
 
 } // namespace openmsx
 

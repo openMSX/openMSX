@@ -732,6 +732,9 @@ public:
 		         (ticks / VDP::TICKS_PER_LINE) - getLineZero()};
 	}
 
+	// for debugging only
+	VDPCmdEngine& getCmdEngine() { return *cmdEngine; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
