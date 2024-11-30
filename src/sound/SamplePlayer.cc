@@ -82,7 +82,7 @@ void SamplePlayer::setWavParams()
 	if ((currentSampleNum < samples.size()) &&
 	    samples[currentSampleNum].getSize()) {
 		const auto& wav = samples[currentSampleNum];
-		bufferSize = wav.getSize();
+		bufferSize = narrow<unsigned>(wav.getSize());
 
 		unsigned freq = wav.getFreq();
 		if (freq != getInputRate()) {

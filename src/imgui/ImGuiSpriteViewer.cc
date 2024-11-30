@@ -381,8 +381,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				gridTex = gl::Texture(false, true); // no interpolation, with wrapping
 			}
 			gridTex.bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gridSize, gridSize, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+			             narrow<int>(gridSize), narrow<int>(gridSize),
+			             0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		}
 
 		// create checker board texture
