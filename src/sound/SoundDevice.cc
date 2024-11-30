@@ -186,9 +186,6 @@ std::span<const float> SoundDevice::getLastBuffer(unsigned channel)
 
 bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 {
-#ifdef __SSE2__
-	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
-#endif
 	if (samples == 0) return true;
 	size_t outputStereo = isStereo() ? 2 : 1;
 

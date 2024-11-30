@@ -3,9 +3,7 @@
 
 #include "inline.hh"
 
-#include <bit>
 #include <cstdint>
-#include <cassert>
 #include <cstring>
 
 // Only need to (more strictly) align when SSE is actually enabled.
@@ -56,50 +54,5 @@ ALWAYS_INLINE void unalignedStore32(void* p, uint32_t v) {
 ALWAYS_INLINE void unalignedStore64(void* p, uint64_t v) {
 	unalignedStore(p, v);
 }
-
-
-// assume_aligned, assume_SSE_aligned
-//
-// Let the compiler know a pointer is more strictly aligned than guaranteed by
-// the C++ language rules. Sometimes this allows the compiler to generate more
-// efficient code (typically when auto-vectorization is performed).
-//
-// Example:
-//   int* p = ...
-//   assume_SSE_aligned(p); // compiler can now assume 16-byte alignment for p
-
-// clang offers __has_builtin, fallback for other compilers
-#ifndef __has_builtin
-#  define __has_builtin(x) 0
-#endif
-
-// gcc-version check macro
-#if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#  define GNUC_PREREQ(maj, min) \
-	(((maj) * 100 + (min)) <= (__GNUC__ * 100 + __GNUC_MINOR__))
-#else
-#  define GNUC_PREREQ(maj, min) 0
-#endif
-
-template<size_t A, typename T>
-static ALWAYS_INLINE void assume_aligned(T* __restrict & ptr)
-{
-#ifdef DEBUG // only check in debug build
-	assert((std::bit_cast<uintptr_t>(ptr) % A) == 0);
-#endif
-
-#if __has_builtin(__builtin_assume_aligned) || GNUC_PREREQ(4, 7)
-	ptr = static_cast<T* __restrict>(__builtin_assume_aligned(ptr, A));
-#else
-	(void)ptr; // nothing
-#endif
-}
-
-template<typename T> static ALWAYS_INLINE void assume_SSE_aligned(
-#ifdef __SSE2__
-		T* __restrict & ptr) { assume_aligned<16>(ptr); }
-#else
-		T* __restrict & /*ptr*/) { /* nothing */ }
-#endif
 
 #endif // ALIGNED_HH

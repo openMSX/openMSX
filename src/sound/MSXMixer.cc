@@ -32,10 +32,6 @@
 #include <memory>
 #include <tuple>
 
-#ifdef __SSE2__
-#include "emmintrin.h"
-#endif
-
 namespace openmsx {
 
 MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
@@ -185,7 +181,6 @@ static inline void mul(float* buf, size_t n, float f)
 	// C++ version, unrolled 4x,
 	//   this allows gcc/clang to do much better auto-vectorization
 	// Note that this can process upto 3 samples too many, but that's OK.
-	assume_SSE_aligned(buf);
 	size_t i = 0;
 	do {
 		buf[i + 0] *= f;
@@ -211,8 +206,6 @@ static inline void mulAcc(
 	float* __restrict acc, const float* __restrict mul, size_t n, float f)
 {
 	// C++ version, unrolled 4x, see comments above.
-	assume_SSE_aligned(acc);
-	assume_SSE_aligned(mul);
 	size_t i = 0;
 	do {
 		acc[i + 0] += mul[i + 0] * f;
