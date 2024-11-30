@@ -224,7 +224,6 @@ PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
 	//, bufferId(other.bufferId)
 {
-	other.size = 0;
 	//other.bufferId = 0;
 }
 
