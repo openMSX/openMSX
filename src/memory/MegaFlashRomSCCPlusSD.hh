@@ -84,7 +84,8 @@ private:
 	[[nodiscard]] bool isFlashRomBlockProtectEnabled() const { return  (configReg & 0x02) != 0; }
 	[[nodiscard]] bool isFlashRomWriteEnabled()        const { return  (configReg & 0x01) != 0; }
 
-	std::array<byte, 4> bankRegsSubSlot1;
+	// Note: the bankRegsSubSlot1 registers are actually only 9 bit.
+	std::array<uint16_t, 4> bankRegsSubSlot1;
 	byte psgLatch;
 	byte sccMode;
 	std::array<byte, 4> sccBanks;

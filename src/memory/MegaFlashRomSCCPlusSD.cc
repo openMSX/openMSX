@@ -306,7 +306,7 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	offsetReg = 0;
 	updateConfigReg(3);
 	subslotReg = 0;
-	ranges::iota(bankRegsSubSlot1, byte(0));
+	ranges::iota(bankRegsSubSlot1, uint16_t(0));
 
 	sccMode = 0;
 	ranges::iota(sccBanks, byte(0));
@@ -691,14 +691,22 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			// This matters when switching mapper mode, because
 			// the content of the bank registers is unchanged after
 			// a switch.
+			// In the first versions of the VHDL code, the bankRegs
+			// were 8-bit, but due to the construction explained
+			// above, this results in a maximum size of 2MB for the
+			// ASCII-16 mapper, as we throw away 1 bit. Later,
+			// Manuel Pazos made an update to use 9 bits for the
+			// registers to overcome this limitation. We emulate
+			// the updated version now.
+			const uint16_t mask = (1 << 9) - 1;
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
-				bankRegsSubSlot1[0] = narrow_cast<uint8_t>(2 * value + 0);
-				bankRegsSubSlot1[1] = narrow_cast<uint8_t>(2 * value + 1);
+				bankRegsSubSlot1[0] = (2 * value + 0) & mask;
+				bankRegsSubSlot1[1] = (2 * value + 1) & mask;
 				invalidateDeviceRWCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
-				bankRegsSubSlot1[2] = narrow_cast<uint8_t>(2 * value + 0);
-				bankRegsSubSlot1[3] = narrow_cast<uint8_t>(2 * value + 1);
+				bankRegsSubSlot1[2] = (2 * value + 0) & mask;
+				bankRegsSubSlot1[3] = (2 * value + 1) & mask;
 				invalidateDeviceRWCache(0x8000, 0x4000);
 			}
 			break;
