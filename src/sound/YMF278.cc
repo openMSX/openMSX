@@ -23,7 +23,7 @@
 // Known issues:
 // - Octave -8 was only tested with fnum 0. Other fnum values might behave differently.
 
-// This class doesn't model a full YMF278b chip. Instead it only models the
+// This class doesn't model a full YMF278B chip. Instead it only models the
 // wave part. The FM part in modeled in YMF262 (it's almost 100% compatible,
 // the small differences are handled in YMF262). The status register and
 // interaction with the FM registers (e.g. the NEW2 bit) is currently handled
@@ -542,8 +542,8 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 			int32_t volLeft  = pan_left [sl.pan]; // note: register 0xF9 is handled externally
 			int32_t volRight = pan_right[sl.pan];
 			// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (not using vol_factor here saves array boundary checks)
-			volLeft  = (0x20 - (volLeft  & 0x0f)) >> (volLeft  >> 4);
-			volRight = (0x20 - (volRight & 0x0f)) >> (volRight >> 4);
+			volLeft  = (0x20 - (volLeft  & 0x0F)) >> (volLeft  >> 4);
+			volRight = (0x20 - (volRight & 0x0F)) >> (volRight >> 4);
 
 			bufs[i][2 * j + 0] += narrow_cast<float>((smplOut * volLeft ) >> 5);
 			bufs[i][2 * j + 1] += narrow_cast<float>((smplOut * volRight) >> 5);
@@ -555,7 +555,7 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 
 			if (sl.stepPtr >= 0x10000) {
 				sl.pos = nextPos(sl, sl.pos, narrow<uint16_t>(sl.stepPtr >> 16));
-				sl.stepPtr &= 0xffff;
+				sl.stepPtr &= 0xFFFF;
 			}
 		}
 		advance();
@@ -709,6 +709,9 @@ void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time)
 		case 0x02:
 			// wave-table-header / memory-type / memory-access-mode
 			// Simply store in regs[2]
+			// Immediately write reg here and update memory pointers
+			regs[reg] = data;
+			setupMemoryPointers();
 			break;
 
 		case 0x03:
@@ -790,37 +793,42 @@ uint8_t YMF278::peekReg(uint8_t reg) const
 
 static constexpr unsigned INPUT_RATE = 44100;
 
-static size_t getRamSize(int ramSizeInKb)
+static size_t getRamSize(int ramSizeInKb, YMF278::MemoryConfig memoryConfig)
 {
-	if ((ramSizeInKb !=    0) &&  //   -     -
-	    (ramSizeInKb !=  128) &&  // 128kB   -
-	    (ramSizeInKb !=  256) &&  // 128kB  128kB
-	    (ramSizeInKb !=  512) &&  // 512kB   -
-	    (ramSizeInKb !=  640) &&  // 512kB  128kB
-	    (ramSizeInKb != 1024) &&  // 512kB  512kB
-	    (ramSizeInKb != 2048)) {  // 512kB  512kB  512kB  512kB
-		throw MSXException(
-			"Wrong sample ram size for MoonSound (YMF278). "
-			"Got ", ramSizeInKb, ", but must be one of "
-			"0, 128, 256, 512, 640, 1024 or 2048.");
+	if (memoryConfig == YMF278::MemoryConfig::DalSoRiR2) {
+		assert(ramSizeInKb == 4096); // note: we could also just use the ramsize as memory-config indicator...
+	} else {
+		if ((ramSizeInKb !=    0) &&  //   -     -
+		    (ramSizeInKb !=  128) &&  // 128kB   -
+		    (ramSizeInKb !=  256) &&  // 128kB  128kB
+		    (ramSizeInKb !=  512) &&  // 512kB   -
+		    (ramSizeInKb !=  640) &&  // 512kB  128kB
+		    (ramSizeInKb != 1024) &&  // 512kB  512kB
+		    (ramSizeInKb != 2048)) {  // 512kB  512kB  512kB  512kB
+			throw MSXException(
+				"Wrong sample RAM size for Moonsound's YMF278. "
+				"Got ", ramSizeInKb, ", but must be one of "
+				"0, 128, 256, 512, 640, 1024 or 2048.");
+		}
 	}
 	return size_t(ramSizeInKb) * 1024; // kilo-bytes -> bytes
 }
 
-YMF278::YMF278(const std::string& name_, int ramSizeInKb,
+YMF278::YMF278(const std::string& name_, int ramSizeInKb, MemoryConfig memoryConfig_,
                const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
 	                       24, INPUT_RATE, true)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
 	, rom(getName() + " ROM", "rom", config)
 	, ram(config, getName() + " RAM", "YMF278 sample RAM",
-	      getRamSize(ramSizeInKb)) // check size before allocating
+	      getRamSize(ramSizeInKb, memoryConfig_)) // check size before allocating
+	, memoryConfig(memoryConfig_)
 {
 	if (rom.size() != 0x200000) { // 2MB
 		throw MSXException(
-			"Wrong ROM for MoonSound (YMF278). The ROM (usually "
+			"Wrong ROM for OPL4 (YMF278B). The ROM (usually "
 			"called yrw801.rom) should have a size of exactly 2MB.");
 	}
 
@@ -851,138 +859,143 @@ void YMF278::reset(EmuTime::param time)
 		op.reset();
 	}
 	regs[2] = 0; // avoid UMR
-	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
+	for (int i = 0xF7; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(narrow<uint8_t>(i), 0, time);
 	}
-	regs[0xf8] = 0x1b; // FM mix-level, see also YMF262 reset
-	regs[0xf9] = 0x00; // Wave mix-level
+	regs[0xF8] = 0x1B; // FM mix-level, see also YMF262 reset
+	regs[0xF9] = 0x00; // Wave mix-level
 	memAdr = 0;
 	setMixLevel(0, time);
+
+	romDisabled = false;
+	setupMemoryPointers();
 }
 
-// This routine translates an address from the (upper) MoonSound address space
-// to an address inside the (linearized) SRAM address space.
+// The YMF278B chip has 10 chip-select output signals named /MCS0 .. /MSC9.
+// There is a 4MB address space to store samples (e.g. in ROM or RAM). Depending on
+// which address is accessed, one or more of these /MCSx signals get active. And there
+// are two modes for this mapping (controlled via bit 1 in R#2):
 //
-// The following info is based on measurements on a real MoonSound (v2.0)
-// PCB. This PCB can have several possible SRAM configurations:
-//   128kB:
-//    1 SRAM chip of 128kB, chip enable (/CE) of this SRAM chip is connected to
-//    the 1Y0 output of a 74LS139 (2-to-4 decoder). The enable input of the
-//    74LS139 is connected to YMF278 pin /MCS6 and the 74LS139 1B:1A inputs are
-//    connected to YMF278 pins MA18:MA17. So the SRAM is selected when /MC6 is
-//    active and MA18:MA17 == 0:0.
-//   256kB:
-//    2 SRAM chips of 128kB. First one connected as above. Second one has /CE
-//    connected to 74LS139 pin 1Y1. So SRAM2 is selected when /MSC6 is active
-//    and MA18:MA17 == 0:1.
-//   512kB:
-//    1 SRAM chip of 512kB, /CE connected to /MCS6
-//   640kB:
-//    1 SRAM chip of 512kB, /CE connected to /MCS6
-//    1 SRAM chip of 128kB, /CE connected to /MCS7.
-//      (This means SRAM2 is potentially mirrored over a 512kB region)
-//  1024kB:
-//    1 SRAM chip of 512kB, /CE connected to /MCS6
-//    1 SRAM chip of 512kB, /CE connected to /MCS7
-//  2048kB:
-//    1 SRAM chip of 512kB, /CE connected to /MCS6
-//    1 SRAM chip of 512kB, /CE connected to /MCS7
-//    1 SRAM chip of 512kB, /CE connected to /MCS8
-//    1 SRAM chip of 512kB, /CE connected to /MCS9
-//      This configuration is not so easy to create on the v2.0 PCB. So it's
-//      very rare.
-//
-// So the /MCS6 and /MCS7 (and /MCS8 and /MCS9 in case of 2048kB) signals are
-// used to select the different SRAM chips. The meaning of these signals
-// depends on the 'memory access mode'. This mode can be changed at run-time
-// via bit 1 in register 2. The following table indicates for which regions
-// these signals are active (normally MoonSound should be used with mode=0):
 //              mode=0              mode=1
+//  /MCS0   0x000000-0x1FFFFF   0x000000-0x1FFFFF
+//  /MCS1   0x200000-0x3FFFFF   0x000000-0x0FFFFF
+//  /MCS2   0x000000-0x0FFFFF   0x100000-0x1FFFFF
+//  /MCS3   0x100000-0x1FFFFF   0x200000-0x2FFFFF
+//  /MCS4   0x200000-0x2FFFFF   0x200000-0x27FFFF
+//  /MCS5   0x300000-0x3FFFFF   0x280000-0x2FFFFF
 //  /MCS6   0x200000-0x27FFFF   0x380000-0x39FFFF
 //  /MCS7   0x280000-0x2FFFFF   0x3A0000-0x3BFFFF
 //  /MCS8   0x300000-0x37FFFF   0x3C0000-0x3DFFFF
 //  /MCS9   0x380000-0x3FFFFF   0x3E0000-0x3FFFFF
 //
-// (For completeness) MoonSound also has 2MB ROM (YRW801), /CE of this ROM is
-// connected to YMF278 /MCS0. In both mode=0 and mode=1 this signal is active
-// for the region 0x000000-0x1FFFFF. (But this routine does not handle ROM).
-unsigned YMF278::getRamAddress(unsigned addr) const
+// The Moonsound and the DalSoRi R2 cartridge use these /MCSx signals in a different way:
+// * DalSoRi R2:
+//   /MCS0: connected to either a 2MB ROM or a 2MB RAM chip (dynamically
+//          selectable via software)
+//   /MCS1: connected to a 2MB RAM chip
+//   /MCS2../MCS9: unused
+// * Moonsound:
+//   /MCS0: connected to a 2MB ROM chip
+//   For RAM there are multiple possibilities (but they all use /MCS6../MCS9)
+//   * 128kB:
+//     1 SRAM chip of 128kB, chip enable (/CE) of this SRAM chip is connected to
+//     the 1Y0 output of a 74LS139 (2-to-4 decoder). The enable input of the
+//     74LS139 is connected to YMF278 pin /MCS6 and the 74LS139 1B:1A inputs are
+//     connected to YMF278 pins MA18:MA17. So the SRAM is selected when /MC6 is
+//     active and MA18:MA17 == 0:0.
+//   * 256kB:
+//     2 SRAM chips of 128kB. First one connected as above. Second one has /CE
+//     connected to 74LS139 pin 1Y1. So SRAM2 is selected when /MSC6 is active
+//     and MA18:MA17 == 0:1.
+//   * 512kB:
+//     1 SRAM chip of 512kB, /CE connected to /MCS6
+//   * 640kB:
+//     1 SRAM chip of 512kB, /CE connected to /MCS6
+//     1 SRAM chip of 128kB, /CE connected to /MCS7.
+//       (This means SRAM2 is mirrored over a 512kB region)
+//   * 1024kB:
+//     1 SRAM chip of 512kB, /CE connected to /MCS6
+//     1 SRAM chip of 512kB, /CE connected to /MCS7
+//   * 2048kB:
+//     1 SRAM chip of 512kB, /CE connected to /MCS6
+//     1 SRAM chip of 512kB, /CE connected to /MCS7
+//     1 SRAM chip of 512kB, /CE connected to /MCS8
+//     1 SRAM chip of 512kB, /CE connected to /MCS9
+//     This configuration is not so easy to create on the v2.0 PCB. So it's
+//     very rare.
+//   /MCS1../MCS5: unused
+void YMF278::setupMemoryPointers()
 {
-	addr -= 0x200000; // RAM starts at 0x200000
-	if (regs[2] & 2) [[unlikely]] {
-		// Normally MoonSound is used in 'memory access mode = 0'. But
-		// in the rare case that mode=1 we adjust the address.
-		if ((0x180000 <= addr) && (addr <= 0x1FFFFF)) {
-			addr -= 0x180000;
-			switch (addr & 0x060000) {
-			case 0x000000: // [0x380000-0x39FFFF]
-				// 1st 128kB of SRAM1
-				break;
-			case 0x020000: // [0x3A0000-0x3BFFFF]
-				if (ram.size() == 256 * 1024) {
-					// 2nd 128kB SRAM chip
-				} else {
-					// 2nd block of 128kB in SRAM2
-					// In case of 512+128, we use mirroring
-					addr += 0x080000;
-				}
-				break;
-			case 0x040000: // [0x3C0000-0x3DFFFF]
-				// 3rd 128kB block in SRAM3
-				addr += 0x100000;
-				break;
-			case 0x060000: // [0x3EFFFF-0x3FFFFF]
-				// 4th 128kB block in SRAM4
-				addr += 0x180000;
-				break;
+	ranges::fill(memPtrs, nullptr); // start with all unmapped
+
+	static constexpr size_t k128 = 128 * 1024;
+	bool mode0 = (regs[2] & 2) == 0;
+	if (memoryConfig == MemoryConfig::Moonsound) {
+		// first 2MB, ROM, both mode0 and mode1
+		for (auto i : xrange(16)) {
+			memPtrs[i] = &rom[i * k128];
+		}
+
+		if (mode0) [[likely]] {
+			// second 2MB, RAM, as much as if available, upto 2MB
+			for (auto i : xrange(ram.size() / k128)) {
+				memPtrs[i + 16] = &ram[i * k128];
 			}
 		} else {
-			addr = unsigned(-1); // unmapped
+			// mode1, normally this shouldn't be used on moonsound
+			memPtrs[28] = (ram.size() >= (1 * k128)) ? &ram[0 * k128] : nullptr;
+			memPtrs[29] = (ram.size() >= (2 * k128)) ? &ram[1 * k128] : nullptr;
+			memPtrs[30] = (ram.size() >= (3 * k128)) ? &ram[2 * k128] : nullptr;
+			memPtrs[31] = (ram.size() >= (4 * k128)) ? &ram[3 * k128] : nullptr;
+		}
+	} else if (memoryConfig == MemoryConfig::DalSoRiR2) {
+		// first 2MB, either ROM or RAM, both mode0 and mode1
+		auto* p = romDisabled ? &ram[0] : &rom[0];
+		for (auto i : xrange(16)) {
+			memPtrs[i] = &p[i * k128];
+		}
+		// second 2MB
+		if (mode0) [[likely]] {
+			// mode 0: RAM
+			for (auto i : xrange(16, 32)) {
+				memPtrs[i] = &ram[i * k128];
+			}
+		} else {
+			// mode 1: unmapped (normally shouldn't be used on DalSoRiR2)
+			// Note: in this mode accessing region [0x00'0000, 0x10'0000) activates
+			// both /MCS0 and /MCS1, thus two chips (ROM+RAM or RAM+RAM) get activated
+			// simultaneously. That might cause problems on the real hardware. Here we
+			// emulate it by ignoring the problem, as-if only /MCS0 was active.
 		}
 	}
-	if (ram.size() == 640 * 1024) {
-		// Verified on real MoonSound cartridge (v2.0): In case of
-		// 640kB (1x512kB + 1x128kB), the 128kB SRAM chip is 4 times
-		// visible. None of the other SRAM configurations show similar
-		// mirroring (because the others are powers of two).
-		if (addr > 0x080000) {
-			addr &= ~0x060000;
-		}
-	}
-	return addr;
+}
+
+void YMF278::disableRomForDalSoRiR2(bool disable)
+{
+	romDisabled = disable;
+	setupMemoryPointers();
 }
 
 uint8_t YMF278::readMem(unsigned address) const
 {
 	// Verified on real YMF278: address space wraps at 4MB.
-	address &= 0x3FFFFF;
-	if (address < 0x200000) {
-		// ROM connected to /MCS0
-		return rom[address];
-	} else {
-		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.size()) {
-			return ram[ramAddr];
-		} else {
-			// unmapped region
-			return 255; // TODO check
-		}
-	}
+	address &= 0x3F'FFFF;
+	const auto* ptr = memPtrs[address >> 17]; // chunks of 128kB
+	return ptr ? ptr[address & 0x1'FFFF] : 0xff;
 }
 
 void YMF278::writeMem(unsigned address, uint8_t value)
 {
-	address &= 0x3FFFFF;
-	if (address < 0x200000) {
-		// can't write to ROM
-	} else {
-		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.size()) {
-			ram.write(ramAddr, value);
-		} else {
-			// can't write to unmapped memory
+	address &= 0x3F'FFFF;
+	if (const auto* ptr = memPtrs[address >> 17]) { // mapped?
+		ptr += address & 0x1'ffff;
+		if ((&ram[0] <= ptr) && (ptr < (&ram[0] + ram.size()))) { // points to RAM?
+			// this assumes all RAM is emulated via a single contiguous memory block
+			auto ramOffset = ptr - &ram[0];
+			ram.write(ramOffset, value);
 		}
 	}
+	// ignore writes to non-mapped, or non-RAM regions
 }
 
 // version 1: initial version, some variables were saved as char
@@ -1020,7 +1033,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 		ar.serialize("endaddr", endAddr,
 		             "OCT",     OCT);
 	} else {
-		unsigned e = 0; ar.serialize("endaddr", e); endAddr = uint16_t((e ^ 0xffff) + 1);
+		unsigned e = 0; ar.serialize("endaddr", e); endAddr = uint16_t((e ^ 0xFFFF) + 1);
 
 		char O = 0;
 		if (ar.versionAtLeast(version, 2)) {
@@ -1087,11 +1100,18 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 // version 2: loadTime and busyTime moved to MSXMoonSound class
 // version 3: memAdr cannot be restored from register values
 // version 4: implement ram via Ram class
+// version 5: allow mapping 2MB RAM for ROM ("romDisabled")
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("slots",  slots,
 	             "eg_cnt", eg_cnt);
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("romDisabled", romDisabled);
+	} else {
+		assert(Archive::IS_LOADER);
+		romDisabled = false;
+	}
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("ram", ram);
 	} else {
@@ -1120,6 +1140,8 @@ void YMF278::serialize(Archive& ar, unsigned version)
 			sl.lfo   = (regs[0x80 + i] >> 3) & 7;
 		}
 	}
+	// based on restored state, set up the memory pointers
+	setupMemoryPointers();
 }
 INSTANTIATE_SERIALIZE_METHODS(YMF278);
 

@@ -20,7 +20,9 @@ class DeviceConfig;
 class YMF278 final : public ResampledSoundDevice
 {
 public:
-	YMF278(const std::string& name, int ramSizeInKb,
+	enum class MemoryConfig { Moonsound, DalSoRiR2 };
+
+	YMF278(const std::string& name, int ramSizeInKb, MemoryConfig memoryConfig,
 	       const DeviceConfig& config);
 	~YMF278();
 	void clearRam();
@@ -33,6 +35,8 @@ public:
 	void writeMem(unsigned address, uint8_t value);
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
+
+	void disableRomForDalSoRiR2(bool disable);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -100,6 +104,8 @@ private:
 	[[nodiscard]] bool anyActive();
 	void keyOnHelper(Slot& slot) const;
 
+	void setupMemoryPointers();
+
 	MSXMotherBoard& motherBoard;
 
 	struct DebugRegisters final : SimpleDebuggable {
@@ -125,6 +131,15 @@ private:
 	TrackedRam ram;
 
 	std::array<uint8_t, 256> regs;
+
+	// To speed-up memory access we divide the 4MB address-space in 32 blocks of 128kB.
+	// For each block we point to the corresponding region inside 'rom' or 'ram',
+	// or nullptr means this region is unmapped.
+	// Note: we can only _read_ via these pointers, not write.
+	std::array<const uint8_t*, 32> memPtrs = {};
+
+	bool romDisabled = false;
+	const MemoryConfig memoryConfig;
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);

@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>DalSoRi R2</name>
+    <manufacturer>Jun Soft</manufacturer>
+    <code/>
+    <release_year>2017</release_year>
+    <description>Yamaha OPL4 sound cartridge with 4MB sample RAM.</description>
+    <type>sound expansion</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <DalSoRiR2 id="DalSoRi R2">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
+            <filename>yrw801.rom</filename>
+          </rom>
+          <sound>
+            <volume>17000</volume>
+          </sound>
+          <sramname>dalsori2.flash</sramname> <!-- in contrast to what the tag name suggests, this is about the flash chip, not about the internal SRAM which is not battery backed, so it's an internal RAM -->
+        </DalSoRiR2>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

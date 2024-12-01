@@ -1,3 +1,5 @@
+// TODO: for now copied from MSXMoonsound. Must be cleaned up.
+
 // ATM this class does several things:
 // - It connects the YMF278b chip to specific I/O ports in the MSX machine
 // - It glues the YMF262 (FM-part) and YMF278 (Wave-part) classes together in a
@@ -7,7 +9,8 @@
 //      different class, but until there's a 2nd user of this chip, this is
 //      low priority.
 
-#include "MSXMoonSound.hh"
+#include "DalSoRiR2.hh"
+#include "MSXCPUInterface.hh"
 #include "Clock.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -45,27 +48,71 @@ static constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 // but within 2%-4% of real value, needs more detailed tests).
 static constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
+static constexpr byte waveIOBase = 0x7E;
 
-MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
+// DalSoRi2 specifics
+
+// bit(s) of the memory bank selection registers regBank[n]
+static constexpr byte REG_BANK_SEGMENT_MASK = (1 << 5) - 1; // 5-bits
+
+// bit(s) of the frame selection registers regFrame[n]
+static constexpr byte DISABLE = 1 << 7;
+static constexpr byte REG_FRAME_SEGMENT_MASK = (1 << 3) - 1; // 3-bits
+
+// bits of the configuration register regCfg
+static constexpr byte ENA_S0 = 1 << 5;
+static constexpr byte ENA_FW = 1 << 4;
+static constexpr byte ENA_C4 = 1 << 1;
+static constexpr byte ENA_C0 = 1 << 0;
+
+DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, ymf262(getName() + " FM", config, true)
 	, ymf278(getName() + " wave",
-	         config.getChildDataAsInt("sampleram", 512), // size in kb
-	         YMF278::MemoryConfig::Moonsound,
+	         4096, // 4MB RAM
+	         YMF278::MemoryConfig::DalSoRiR2,
 	         config)
 	, ymf278LoadTime(getCurrentTime())
 	, ymf278BusyTime(getCurrentTime())
+	, sram(config, getName() + " SRAM", "DalSoRi R2 RAM", 0x8000)
+	, flash(getName() + " flash", AmdFlashChip::SST39SF010, {}, config)
+	, dipSwitchBDIS(getCommandController(),
+		getName() + " DIP switch BDIS",
+		"Controls the BDIS DIP switch position. ON = Disable BIOS (flash memory access)", false)
+	, dipSwitchMCFG(getCommandController(),
+		getName() + " DIP switch MCFG",
+		"Controls the MCFG DIP switch position. ON = Enable sample SRAM instead of sample ROM on reset.", false)
+	, dipSwitchIO_C0(getCommandController(),
+		getName() + " DIP switch IO/C0",
+		"Controls the IO/C0 DIP switch position. ON = Enable I/O addres C0H~C3H on reset. This is the Moonsound compatible I/O port range.", true)
+	, dipSwitchIO_C4(getCommandController(),
+		getName() + " DIP switch IO/C4",
+		"Controls the IO/C4 DIP switch position. ON = Enable I/O addres C4H~C7H on reset. This is the MSX-AUDIO compatible I/O port range", true)
 {
+	for (auto p : xrange(2)) {
+		getCPUInterface().register_IO_Out(waveIOBase + p, this);
+		getCPUInterface().register_IO_In (waveIOBase + p, this);
+	}
+
 	powerUp(getCurrentTime());
 }
 
-void MSXMoonSound::powerUp(EmuTime::param time)
+DalSoRiR2::~DalSoRiR2()
+{
+	for (auto p : xrange(2)) {
+		getCPUInterface().unregister_IO_Out(waveIOBase + p, this);
+		getCPUInterface().unregister_IO_In (waveIOBase + p, this);
+	}
+	setRegCfg(0); // unregister any FM I/O ports
+}
+
+void DalSoRiR2::powerUp(EmuTime::param time)
 {
 	ymf278.clearRam();
 	reset(time);
 }
 
-void MSXMoonSound::reset(EmuTime::param time)
+void DalSoRiR2::reset(EmuTime::param time)
 {
 	ymf262.reset(time);
 	ymf278.reset(time);
@@ -75,9 +122,55 @@ void MSXMoonSound::reset(EmuTime::param time)
 
 	ymf278BusyTime = time;
 	ymf278LoadTime = time;
+
+	for (auto reg : xrange(4)) {
+		regBank[reg] = reg;
+	}
+	for (auto reg : xrange(2)) {
+		regFrame[reg] = reg;
+	}
+	setRegCfg((dipSwitchMCFG. getBoolean() ? ENA_S0 : 0) |
+	          (dipSwitchIO_C0.getBoolean() ? ENA_C0 : 0) |
+	          (dipSwitchIO_C4.getBoolean() ? ENA_C4 : 0));
+
+	flash.reset();
 }
 
-byte MSXMoonSound::readIO(word port, EmuTime::param time)
+void DalSoRiR2::setRegCfg(byte value)
+{
+	auto registerFMPortsFromBase = [this] (byte ioBase) {
+		for (auto p : xrange(4)) {
+			getCPUInterface().register_IO_Out(ioBase + p, this);
+			getCPUInterface().register_IO_In (ioBase + p, this);
+		}
+	};
+	auto unregisterFMPortsFromBase = [this] (byte ioBase) {
+		for (auto p : xrange(4)) {
+			getCPUInterface().unregister_IO_Out(ioBase + p, this);
+			getCPUInterface().unregister_IO_In (ioBase + p, this);
+		}
+	};
+
+	if ((value ^ regCfg) & ENA_C0) { // enable C0 changed
+		if (value & ENA_C0) {
+			registerFMPortsFromBase(0xC0);
+		} else {
+			unregisterFMPortsFromBase(0xC0);
+		}
+	}
+	if ((value ^ regCfg) & ENA_C4) { // enable C4 changed
+		if (value & ENA_C4) {
+			registerFMPortsFromBase(0xC4);
+		} else {
+			unregisterFMPortsFromBase(0xC4);
+		}
+	}
+	regCfg = value;
+	ymf278.disableRomForDalSoRiR2((regCfg & ENA_S0) != 0);
+	flash.setVppWpPinLow((regCfg & ENA_FW) == 0);
+}
+
+byte DalSoRiR2::readIO(word port, EmuTime::param time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -105,7 +198,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 			UNREACHABLE;
 		}
 	} else {
-		// FM part  0xC4-0xC7
+		// FM part  0xC0-0xC7
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
@@ -119,7 +212,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
+byte DalSoRiR2::peekIO(word port, EmuTime::param time) const
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -132,7 +225,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			UNREACHABLE;
 		}
 	} else {
-		// FM part  0xC4-0xC7
+		// FM part  0xC0-0xC7
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
@@ -146,7 +239,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
+void DalSoRiR2::writeIO(word port, byte value, EmuTime::param time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -188,7 +281,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 			// and register write).
 		}
 	} else {
-		// FM part  0xC4-0xC7
+		// FM part  0xC0-0xC7
 		switch (port & 0x03) {
 		case 0: // select register bank 0
 			opl3latch = value;
@@ -209,12 +302,56 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-bool MSXMoonSound::getNew2() const
+byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
+{
+	if ((0x3000 <= addr) && (addr < 0x4000)) {
+		// SRAM frame 0
+		return sram[addr & 0x0FFF];
+	} else if ((0x7000 <= addr) && (addr < 0x8000) && ((regFrame[0] & DISABLE) == 0)) {
+		// SRAM frame 1
+		return sram[(addr & 0x0FFF) + (regFrame[0] & REG_FRAME_SEGMENT_MASK) * 0x1000];
+	} else if ((0xB000 <= addr) && (addr < 0xC000) && ((regFrame[1] & DISABLE) == 0)) {
+		// SRAM frame 2
+		return sram[(addr & 0x0FFF) + (regFrame[1] & REG_FRAME_SEGMENT_MASK) * 0x1000];
+	} else if (!dipSwitchBDIS.getBoolean()) {
+		// read selected segment of flash
+		auto flashBank = addr >> 14;
+		auto flashSegmentAddr = addr & 0x3FFF;
+		return flash.read(flashSegmentAddr + (regBank[flashBank] & REG_BANK_SEGMENT_MASK) * 0x4000);
+	}
+	return 0xFF;
+}
+
+void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
+{
+	if ((0x3000 <= addr) && (addr < 0x4000)) {
+		// SRAM frame 0
+		sram[addr & 0x0FFF] = value;
+	} else if ((0x7000 <= addr) && (addr < 0x8000) && ((regFrame[0] & DISABLE) == 0)) {
+		// SRAM frame 1
+		sram[(addr & 0x0FFF) + (regFrame[0] & REG_FRAME_SEGMENT_MASK) * 0x1000] = value;
+	} else if ((0xB000 <= addr) && (addr < 0xC000) && ((regFrame[1] & DISABLE) == 0)) {
+		// SRAM frame 2
+		sram[(addr & 0x0FFF) + (regFrame[1] & REG_FRAME_SEGMENT_MASK) * 0x1000] = value;
+	} else if ((0x6000 <= addr) && (addr < 0x6400)) {
+		regBank [(addr >> 8) & 3] = value;
+	} else if ((0x6500 <= addr) && (addr < 0x6700)) {
+		regFrame[(addr >> 9) & 1] = value;
+	} else if ((0x6700 <= addr) && (addr < 0x6800)) {
+		setRegCfg(value);
+	} else if (!dipSwitchBDIS.getBoolean()) {
+		auto flashBank = addr >> 14;
+		auto flashSegmentAddr = addr & 0x3FFF;
+		flash.write(flashSegmentAddr + (regBank[flashBank] & REG_FRAME_SEGMENT_MASK) * 0x4000, value);
+	}
+}
+
+bool DalSoRiR2::getNew2() const
 {
 	return (ymf262.peekReg(0x105) & 0x02) != 0;
 }
 
-byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
+byte DalSoRiR2::readYMF278Status(EmuTime::param time) const
 {
 	byte result = 0;
 	if (time < ymf278BusyTime) result |= 0x01;
@@ -223,30 +360,26 @@ byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
 }
 
 // version 1: initial version
-// version 2: added alreadyReadID
-// version 3: moved loadTime and busyTime from YMF278 to here
-//            removed alreadyReadID
 template<typename Archive>
-void MSXMoonSound::serialize(Archive& ar, unsigned version)
+void DalSoRiR2::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+	auto backupRegCfg = regCfg;
 	ar.serialize("ymf262",    ymf262,
 	             "ymf278",    ymf278,
 	             "opl3latch", opl3latch,
-	             "opl4latch", opl4latch);
-	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("loadTime", ymf278LoadTime,
-		             "busyTime", ymf278BusyTime);
-	} else {
-		assert(Archive::IS_LOADER);
-		// For 100% backwards compatibility we should restore these two
-		// from the (old) YMF278 class. Though that's a lot of extra
-		// work for very little gain.
-		ymf278LoadTime = getCurrentTime();
-		ymf278BusyTime = getCurrentTime();
+	             "opl4latch", opl4latch,
+	             "loadTime",  ymf278LoadTime,
+	             "sram",      sram,
+	             "regBank",   regBank,
+	             "regFrame",  regFrame,
+	             "regCfg",    backupRegCfg);
+
+	if constexpr (Archive::IS_LOADER) {
+		setRegCfg(backupRegCfg);
 	}
 }
-INSTANTIATE_SERIALIZE_METHODS(MSXMoonSound);
-REGISTER_MSXDEVICE(MSXMoonSound, "MoonSound");
+INSTANTIATE_SERIALIZE_METHODS(DalSoRiR2);
+REGISTER_MSXDEVICE(DalSoRiR2, "DalSoRiR2");
 
 } // namespace openmsx
