@@ -14,10 +14,8 @@ class GlobalCliComm;
 class BreakPointBase
 {
 public:
-	[[nodiscard]] std::string_view getCondition() const { return condition.getString(); }
-	[[nodiscard]] std::string_view getCommand()   const { return command  .getString(); }
-	[[nodiscard]] TclObject getConditionObj() const { return condition; }
-	[[nodiscard]] TclObject getCommandObj()   const { return command; }
+	[[nodiscard]] TclObject getCondition() const { return condition; }
+	[[nodiscard]] TclObject getCommand()   const { return command; }
 	[[nodiscard]] bool onlyOnce() const { return once; }
 
 	bool checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);

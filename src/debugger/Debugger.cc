@@ -177,7 +177,7 @@ void Debugger::transfer(Debugger& other)
 	// Copy watchpoints to new machine.
 	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
 	for (const auto& wp : other.motherBoard.getCPUInterface().getWatchPoints()) {
-		setWatchPoint(wp->getCommandObj(), wp->getConditionObj(),
+		setWatchPoint(wp->getCommand(),    wp->getCondition(),
 		              wp->getType(),       wp->getBeginAddress(),
 		              wp->getEndAddress(), wp->onlyOnce(),
 		              wp->getId());
@@ -187,8 +187,8 @@ void Debugger::transfer(Debugger& other)
 	assert(probeBreakPoints.empty());
 	for (const auto& bp : other.probeBreakPoints) {
 		if (ProbeBase* probe = findProbe(bp->getProbe().getName())) {
-			insertProbeBreakPoint(bp->getCommandObj(),
-			                      bp->getConditionObj(),
+			insertProbeBreakPoint(bp->getCommand(),
+			                      bp->getCondition(),
 			                      *probe, bp->onlyOnce(),
 			                      bp->getId());
 		}
@@ -454,7 +454,7 @@ void Debugger::Cmd::removeBreakPoint(
 		word addr = getAddress(getInterpreter(), tokens[2]);
 		auto [first, last] = ranges::equal_range(breakPoints, addr, {}, &BreakPoint::getAddress);
 		auto it = std::find_if(first, last, [](auto& bp) {
-			return bp.getCondition().empty();
+			return bp.getCondition().getString().empty();
 		});
 		if (it == last) {
 			throw CommandException(

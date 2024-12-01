@@ -446,11 +446,11 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, const
 [[nodiscard]] static uint16_t getEndAddress(const std::shared_ptr<WatchPoint>& wp) { return narrow<uint16_t>(wp->getEndAddress()); }
 [[nodiscard]] static uint16_t getEndAddress(const DebugCondition& cond) = delete;
 
-[[nodiscard]] static TclObject getConditionObj(const BreakPointBase& bp) { return bp.getConditionObj(); }
-[[nodiscard]] static TclObject getConditionObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getConditionObj(); }
+[[nodiscard]] static TclObject getCondition(const BreakPointBase& bp) { return bp.getCondition(); }
+[[nodiscard]] static TclObject getCondition(const std::shared_ptr<WatchPoint>& wp) { return wp->getCondition(); }
 
-[[nodiscard]] static TclObject getCommandObj(const BreakPointBase& bp) { return bp.getCommandObj(); }
-[[nodiscard]] static TclObject getCommandObj(const std::shared_ptr<WatchPoint>& wp) { return wp->getCommandObj(); }
+[[nodiscard]] static TclObject getCommand(const BreakPointBase& bp) { return bp.getCommand(); }
+[[nodiscard]] static TclObject getCommand(const std::shared_ptr<WatchPoint>& wp) { return wp->getCommand(); }
 
 
 template<typename Item>
@@ -501,8 +501,8 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 			} else {
 				assert(!it->addr);
 			}
-			it->cond = getConditionObj(item);
-			it->cmd  = getCommandObj(item);
+			it->cond = getCondition(item);
+			it->cmd  = getCommand(item);
 		} else {
 			// item was added on the openMSX side, copy to the GUI side
 			WatchPoint::Type wpType = WatchPoint::Type::WRITE_MEM;
@@ -525,7 +525,7 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 				true,
 				to_underlying(wpType),
 				addr, endAddr, std::move(addrStr), std::move(endAddrStr),
-				getConditionObj(item), getCommandObj(item)});
+				getCondition(item), getCommand(item)});
 			selectedRow = -1;
 		}
 	}
