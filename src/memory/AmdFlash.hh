@@ -30,6 +30,7 @@ public:
 	enum class ManufacturerID : uint8_t {
 		AMD = 0x01,
 		STM = 0x20,
+		SST = 0xBF,
 	};
 
 	struct AutoSelect {
@@ -309,6 +310,12 @@ namespace AmdFlashChip
 	static constexpr ValidatedChip AM29F016 = {{
 		.autoSelect{.manufacturer = AMD, .device{0xAD}},
 		.geometry{DeviceInterface::x8, {{32, 0x10000}}},
+	}};
+
+	// Microchip SST39SF010  (128kB, 32 x 4kB sectors)
+	static constexpr ValidatedChip SST39SF010 = {{
+		.autoSelect{.manufacturer = SST, .device{0xB5}},
+		.geometry{DeviceInterface::x8, {{32, 0x1000}}},
 	}};
 
 	// Numonyx M29W800DB
