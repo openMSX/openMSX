@@ -44,8 +44,7 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 	configRegs[0x24] = 0; // to avoid UMR in powerUp -> reset -> writePSGAlt
 	configRegs[0x30] = 0; // to avoid UMR in powerUp -> writePSGCtrl
 	configRegs[0x35] = 0xf0; // to avoid UMR in powerUp -> writePFXN
-	getCPUInterface().register_IO_Out(idControlPort(), this);
-	getCPUInterface().register_IO_In (idControlPort(), this);
+	getCPUInterface().register_IO_InOut(idControlPort(), this);
 }
 
 Carnivore2::~Carnivore2()
@@ -53,8 +52,7 @@ Carnivore2::~Carnivore2()
 	// unregister PSG I/O ports, by disabling PSG
 	writePSGCtrl(0, getCurrentTime());
 	// unregister user-defined ID and control port
-	getCPUInterface().unregister_IO_Out(idControlPort(), this);
-	getCPUInterface().unregister_IO_In (idControlPort(), this);
+	getCPUInterface().unregister_IO_InOut(idControlPort(), this);
 }
 
 void Carnivore2::powerUp(EmuTime::param time)
@@ -293,11 +291,9 @@ void Carnivore2::writePSGCtrl(byte value, EmuTime::param time)
 	if ((value ^ configRegs[0x24]) & 0x80) {   // enable changed
 		byte ioBase = (configRegs[0x30] & 0x01) ?  0x10 : 0xa0;
 		if (value & 0x80) {
-			getCPUInterface().  register_IO_Out(ioBase + 0, this);
-			getCPUInterface().  register_IO_Out(ioBase + 1, this);
+			getCPUInterface().  register_IO_Out_range(ioBase, 2, this);
 		} else {
-			getCPUInterface().unregister_IO_Out(ioBase + 0, this);
-			getCPUInterface().unregister_IO_Out(ioBase + 1, this);
+			getCPUInterface().unregister_IO_Out_range(ioBase, 2, this);
 		}
 	}
 	configRegs[0x24] = value;
@@ -310,10 +306,8 @@ void Carnivore2::writePSGAlt(byte value)
 		if (configRegs[0x24] & 0x80) {
 			byte ioBaseOld = (configRegs[0x30] & 0x01) ? 0x10 : 0xa0;
 			byte ioBaseNew = (value            & 0x01) ? 0x10 : 0xa0;
-			getCPUInterface().unregister_IO_Out(ioBaseOld + 0, this);
-			getCPUInterface().unregister_IO_Out(ioBaseOld + 1, this);
-			getCPUInterface().  register_IO_Out(ioBaseNew + 0, this);
-			getCPUInterface().  register_IO_Out(ioBaseNew + 1, this);
+			getCPUInterface().unregister_IO_Out_range(ioBaseOld, 2, this);
+			getCPUInterface().  register_IO_Out_range(ioBaseNew, 2, this);
 		}
 	}
 	configRegs[0x30] = value;
@@ -324,10 +318,8 @@ void Carnivore2::writePFXN(byte value)
 	byte oldPort = idControlPort();
 	configRegs[0x35] = 0xf0 | (value & 0b11);
 	if (auto newPort = idControlPort(); newPort != oldPort) {
-		getCPUInterface().unregister_IO_Out(oldPort, this);
-		getCPUInterface().unregister_IO_In (oldPort, this);
-		getCPUInterface().  register_IO_Out(newPort, this);
-		getCPUInterface().  register_IO_In (newPort, this);
+		getCPUInterface().unregister_IO_InOut(oldPort, this);
+		getCPUInterface().  register_IO_InOut(newPort, this);
 	}
 }
 

@@ -79,6 +79,18 @@ public:
 	void register_IO_Out(byte port, MSXDevice* device);
 	void unregister_IO_Out(byte port, MSXDevice* device);
 
+	/** Convenience methods for {un}register_IO_{In,Out}.
+	 * At the same time (un)register both In and Out, and/or a range of ports.
+	 */
+	void register_IO_InOut(byte port, MSXDevice* device);
+	void register_IO_In_range(byte port, unsigned num, MSXDevice* device);
+	void register_IO_Out_range(byte port, unsigned num, MSXDevice* device);
+	void register_IO_InOut_range(byte port, unsigned num, MSXDevice* device);
+	void unregister_IO_InOut(byte port, MSXDevice* device);
+	void unregister_IO_In_range(byte port, unsigned num, MSXDevice* device);
+	void unregister_IO_Out_range(byte port, unsigned num, MSXDevice* device);
+	void unregister_IO_InOut_range(byte port, unsigned num, MSXDevice* device);
+
 	/**
 	 * These methods replace a previously registered device with a new one.
 	 *

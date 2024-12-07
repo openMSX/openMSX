@@ -157,6 +157,7 @@ void MSXMidi::registerIOports(byte value)
 	bool newIsEnabled = (value & DISABLED_VALUE) == 0;
 	bool newIsLimited = (value & LIMITED_RANGE_VALUE) != 0;
 
+	auto& cpuInterface = getCPUInterface();
 	if (newIsEnabled != isEnabled) {
 		// Enable/disabled status changes, possibly limited status
 		// changes as well but that doesn't matter, we anyway need
@@ -164,16 +165,16 @@ void MSXMidi::registerIOports(byte value)
 		if (newIsEnabled) {
 			// disabled -> enabled
 			if (newIsLimited) {
-				registerRange(0xE0, 2);
+				cpuInterface.register_IO_InOut_range(0xE0, 2, this);
 			} else {
-				registerRange(0xE8, 8);
+				cpuInterface.register_IO_InOut_range(0xE8, 8, this);
 			}
 		} else {
 			// enabled -> disabled
 			if (isLimitedTo8251) { // note: old isLimited status
-				unregisterRange(0xE0, 2);
+				cpuInterface.unregister_IO_InOut_range(0xE0, 2, this);
 			} else {
-				unregisterRange(0xE8, 8);
+				cpuInterface.unregister_IO_InOut_range(0xE8, 8, this);
 			}
 		}
 
@@ -182,32 +183,17 @@ void MSXMidi::registerIOports(byte value)
 		// Need to switch between the low/high range.
 		if (newIsLimited) {
 			// Switch high->low range.
-			unregisterRange(0xE8, 8);
-			registerRange  (0xE0, 2);
+			cpuInterface.unregister_IO_InOut_range(0xE8, 8, this);
+			cpuInterface.register_IO_InOut_range  (0xE0, 2, this);
 		} else {
 			// Switch low->high range.
-			unregisterRange(0xE0, 2);
-			registerRange  (0xE8, 8);
+			cpuInterface.unregister_IO_InOut_range(0xE0, 2, this);
+			cpuInterface.register_IO_InOut_range  (0xE8, 8, this);
 		}
 	}
 
 	isEnabled       = newIsEnabled;
 	isLimitedTo8251 = newIsLimited;
-}
-
-void MSXMidi::registerRange(byte port, unsigned num)
-{
-	for (auto i : xrange(num)) {
-		getCPUInterface().register_IO_In (narrow<byte>(port + i), this);
-		getCPUInterface().register_IO_Out(narrow<byte>(port + i), this);
-	}
-}
-void MSXMidi::unregisterRange(byte port, unsigned num)
-{
-	for (auto i : xrange(num)) {
-		getCPUInterface().unregister_IO_In (narrow<byte>(port + i), this);
-		getCPUInterface().unregister_IO_Out(narrow<byte>(port + i), this);
-	}
 }
 
 void MSXMidi::setTimerIRQ(bool status, EmuTime::param time)

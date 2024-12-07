@@ -40,8 +40,6 @@ private:
 	void enableRxRDYIRQ(bool enabled);
 
 	void registerIOports(byte value);
-	void registerRange(byte port, unsigned num);
-	void unregisterRange(byte port, unsigned num);
 
 private:
 	struct Counter0 final : ClockPinListener {

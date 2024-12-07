@@ -266,15 +266,9 @@ void PanasonicAudioPeriphery::setIOPortsHelper(byte base, bool enable)
 {
 	MSXCPUInterface& cpu = audio.getCPUInterface();
 	if (enable) {
-		cpu.register_IO_In (base + 0, &audio);
-		cpu.register_IO_In (base + 1, &audio);
-		cpu.register_IO_Out(base + 0, &audio);
-		cpu.register_IO_Out(base + 1, &audio);
+		cpu.register_IO_InOut_range(base, 2, &audio);
 	} else {
-		cpu.unregister_IO_In (base + 0, &audio);
-		cpu.unregister_IO_In (base + 1, &audio);
-		cpu.unregister_IO_Out(base + 0, &audio);
-		cpu.unregister_IO_Out(base + 1, &audio);
+		cpu.unregister_IO_InOut_range(base, 2, &audio);
 	}
 }
 

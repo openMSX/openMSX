@@ -105,18 +105,12 @@ RomAlAlamiah30in1::RomAlAlamiah30in1(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
-	for (auto port : xrange(byte(8))) {
-		getCPUInterface().register_IO_Out(port, this);
-		getCPUInterface().register_IO_In(port, this);
-	}
+	getCPUInterface().register_IO_InOut_range(0x00, 8, this);
 }
 
 RomAlAlamiah30in1::~RomAlAlamiah30in1()
 {
-	for (auto port : xrange(byte(8))) {
-		getCPUInterface().unregister_IO_Out(port, this);
-		getCPUInterface().unregister_IO_In(port, this);
-	}
+	getCPUInterface().unregister_IO_InOut_range(0x00, 8, this);
 }
 
 void RomAlAlamiah30in1::reset(EmuTime::param time)

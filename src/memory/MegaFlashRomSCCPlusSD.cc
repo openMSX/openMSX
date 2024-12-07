@@ -277,9 +277,7 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	, mapperIO(checkedRam ? std::make_unique<MapperIO>(*this) : nullptr) // handles ports 0xfc-0xff
 {
 	powerUp(getCurrentTime());
-	for (auto port : {0x10, 0x11}) {
-		getCPUInterface().register_IO_Out(narrow_cast<byte>(port), this);
-	}
+	getCPUInterface().register_IO_Out_range(0x10, 2, this);
 
 	sdCard[0] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
 	sdCard[1] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
@@ -289,9 +287,7 @@ MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
 {
 	// unregister extra PSG I/O ports
 	updateConfigReg(3);
-	for (auto port : {0x10, 0x11}) {
-		getCPUInterface().unregister_IO_Out(narrow_cast<byte>(port), this);
-	}
+	getCPUInterface().unregister_IO_Out_range(0x10, 2, this);
 }
 
 void MegaFlashRomSCCPlusSD::powerUp(EmuTime::param time)

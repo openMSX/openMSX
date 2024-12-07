@@ -16,14 +16,12 @@ RomArc::RomArc(const DeviceConfig& config, Rom&& rom_)
 
 	reset(EmuTime::dummy());
 
-	getCPUInterface().register_IO_Out(0x7f, this);
-	getCPUInterface().register_IO_In (0x7f, this);
+	getCPUInterface().register_IO_InOut(0x7f, this);
 }
 
 RomArc::~RomArc()
 {
-	getCPUInterface().unregister_IO_Out(0x7f, this);
-	getCPUInterface().unregister_IO_In (0x7f, this);
+	getCPUInterface().unregister_IO_InOut(0x7f, this);
 }
 
 void RomArc::reset(EmuTime::param /*time*/)
