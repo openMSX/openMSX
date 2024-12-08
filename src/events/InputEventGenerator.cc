@@ -312,6 +312,21 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	case SDL_MOUSEMOTION:
 		event = MouseMotionEvent(evt);
+		{
+			auto *window = SDL_GL_GetCurrentWindow();
+			if (SDL_GetWindowGrab(window)) {
+				int w, h;
+				SDL_GetWindowSize(window, &w, &h);
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				int xn = x, yn = y;
+				if (x <= 10)     xn = 10;
+				if (x >= w - 2)  xn = w/2;
+				if (y <= 10)     yn = 10;
+				if (y >= h - 2)  yn = h/2;
+				if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
+			}
+		}
 		break;
 
 	case SDL_JOYBUTTONUP:
@@ -443,12 +458,7 @@ bool InputEventGenerator::signalEvent(const Event& event)
 
 void InputEventGenerator::setGrabInput(bool grab) const
 {
-	SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
-
-	// TODO is this still the correct place in SDL2
-	// TODO get the SDL_window
-	//SDL_Window* window = ...;
-	//SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
+	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab ? SDL_TRUE : SDL_FALSE);
 }
 
 
