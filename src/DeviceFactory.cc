@@ -28,6 +28,7 @@
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
 #include "MSXMoonSound.hh"
+#include "DalSoRiR2.hh"
 #include "MSXOPL3Cartridge.hh"
 #include "MSXYamahaSFG.hh"
 #include "MusicModuleMIDI.hh"
@@ -199,6 +200,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
 		result = make_unique<MSXMoonSound>(conf);
+	} else if (type == "DalSoRiR2") {
+		result = make_unique<DalSoRiR2>(conf);
 	} else if (type == "OPL3Cartridge") {
 		result = make_unique<MSXOPL3Cartridge>(conf);
 	} else if (type == "Kanji") {

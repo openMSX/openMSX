@@ -972,6 +972,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound8U.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\DalSoRiR2.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -2483,6 +2486,9 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\DACSound8U.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\DalSoRiR2.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.hh">

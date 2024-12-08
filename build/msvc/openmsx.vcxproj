@@ -639,6 +639,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\BlipBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound16S.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound8U.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\DalSoRiR2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyY8950KeyboardDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\EmuTimer.cc" />
@@ -1229,6 +1230,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiTable.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound16S.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound8U.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\DalSoRiR2.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DummyY8950KeyboardDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\EmuTimer.hh" />
