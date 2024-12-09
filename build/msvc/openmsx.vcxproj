@@ -683,6 +683,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\opll.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278B.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
@@ -1281,6 +1282,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\opll.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF262.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\YMF278B.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />

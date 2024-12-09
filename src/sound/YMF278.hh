@@ -33,7 +33,7 @@ public:
 		std::span<YMF278::Block128, 32> /*memPtrs*/)>;
 
 public:
-	YMF278(const std::string& name, int ramSize, const DeviceConfig& config,
+	YMF278(const std::string& name, size_t ramSize, const DeviceConfig& config,
 	       SetupMemPtrFunc setupMemPtrs_);
 
 	~YMF278();

@@ -3,11 +3,7 @@
 
 #include "AmdFlash.hh"
 #include "MSXDevice.hh"
-#include "YMF262.hh"
-#include "YMF278.hh"
-#include "serialize_meta.hh"
-
-// TODO: for now copied from MSXMoonsound. Must be cleaned up.
+#include "YMF278B.hh"
 
 namespace openmsx {
 
@@ -29,8 +25,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] bool getNew2() const;
-	[[nodiscard]] byte readYMF278Status(EmuTime::param time) const;
 	void setRegCfg(byte value);
 
 	void setupMemPtrs(
@@ -40,16 +34,7 @@ private:
 		std::span<YMF278::Block128, 32> memPtrs);
 
 private:
-	YMF262 ymf262;
-	YMF278 ymf278;
-
-	/** Time at which instrument loading is finished. */
-	EmuTime ymf278LoadTime;
-	/** Time until which the YMF278 is busy. */
-	EmuTime ymf278BusyTime;
-
-	int opl3latch;
-	byte opl4latch;
+	YMF278B ymf278b;
 
 	Ram sram;
 	AmdFlash flash;
@@ -63,7 +48,6 @@ private:
 	std::array<byte, 2> regFrame;
 	byte regCfg = 0;
 };
-SERIALIZE_CLASS_VERSION(DalSoRiR2, 1);
 
 } // namespace openmsx
 

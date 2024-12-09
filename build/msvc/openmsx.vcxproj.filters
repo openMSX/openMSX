@@ -1101,6 +1101,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278B.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc">
       <Filter>thread</Filter>
     </ClCompile>
@@ -2636,6 +2639,9 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\YMF278B.hh">
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh">
