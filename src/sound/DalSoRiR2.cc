@@ -10,9 +10,12 @@
 //      low priority.
 
 #include "DalSoRiR2.hh"
+
 #include "MSXCPUInterface.hh"
 #include "Clock.hh"
 #include "serialize.hh"
+
+#include "ranges.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -99,10 +102,7 @@ DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 
 DalSoRiR2::~DalSoRiR2()
 {
-	for (auto p : xrange(2)) {
-		getCPUInterface().unregister_IO_Out(waveIOBase + p, this);
-		getCPUInterface().unregister_IO_In (waveIOBase + p, this);
-	}
+	getCPUInterface().unregister_IO_InOut_range(waveIOBase, 2, this);
 	setRegCfg(0); // unregister any FM I/O ports
 }
 
@@ -123,12 +123,9 @@ void DalSoRiR2::reset(EmuTime::param time)
 	ymf278BusyTime = time;
 	ymf278LoadTime = time;
 
-	for (auto reg : xrange(4)) {
-		regBank[reg] = reg;
-	}
-	for (auto reg : xrange(2)) {
-		regFrame[reg] = reg;
-	}
+	ranges::iota(regBank, 0);
+	ranges::iota(regFrame, 0);
+
 	setRegCfg((dipSwitchMCFG. getBoolean() ? ENA_S0 : 0) |
 	          (dipSwitchIO_C0.getBoolean() ? ENA_C0 : 0) |
 	          (dipSwitchIO_C4.getBoolean() ? ENA_C4 : 0));
@@ -138,34 +135,22 @@ void DalSoRiR2::reset(EmuTime::param time)
 
 void DalSoRiR2::setRegCfg(byte value)
 {
-	auto registerFMPortsFromBase = [this] (byte ioBase) {
-		for (auto p : xrange(4)) {
-			getCPUInterface().register_IO_Out(ioBase + p, this);
-			getCPUInterface().register_IO_In (ioBase + p, this);
-		}
-	};
-	auto unregisterFMPortsFromBase = [this] (byte ioBase) {
-		for (auto p : xrange(4)) {
-			getCPUInterface().unregister_IO_Out(ioBase + p, this);
-			getCPUInterface().unregister_IO_In (ioBase + p, this);
-		}
-	};
-
-	if ((value ^ regCfg) & ENA_C0) { // enable C0 changed
-		if (value & ENA_C0) {
-			registerFMPortsFromBase(0xC0);
+	auto registerHelper = [this](bool enable, byte base) {
+		if (enable) {
+			getCPUInterface().  register_IO_InOut_range(base, 4, this);
 		} else {
-			unregisterFMPortsFromBase(0xC0);
+			getCPUInterface().unregister_IO_InOut_range(base, 4, this);
 		}
+	};
+	if ((value ^ regCfg) & ENA_C0) { // enable C0 changed
+		registerHelper((value & ENA_C0) != 0, 0xC0);
 	}
 	if ((value ^ regCfg) & ENA_C4) { // enable C4 changed
-		if (value & ENA_C4) {
-			registerFMPortsFromBase(0xC4);
-		} else {
-			unregisterFMPortsFromBase(0xC4);
-		}
+		registerHelper((value & ENA_C4) != 0, 0xC4);
 	}
+
 	regCfg = value;
+
 	ymf278.disableRomForDalSoRiR2((regCfg & ENA_S0) != 0);
 	flash.setVppWpPinLow((regCfg & ENA_FW) == 0);
 }

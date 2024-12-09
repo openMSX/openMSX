@@ -1,10 +1,10 @@
 #ifndef DALSORIR2_HH
 #define DALSORIR2_HH
 
+#include "AmdFlash.hh"
 #include "MSXDevice.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "AmdFlash.hh"
 #include "serialize_meta.hh"
 
 // TODO: for now copied from MSXMoonsound. Must be cleaned up.
