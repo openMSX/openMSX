@@ -72,9 +72,12 @@ DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 	: MSXDevice(config)
 	, ymf262(getName() + " FM", config, true)
 	, ymf278(getName() + " wave",
-	         4096, // 4MB RAM
-	         YMF278::MemoryConfig::DalSoRiR2,
-	         config)
+	         size_t(4096 * 1024), // 4MB RAM
+	         config,
+	         [this](bool mode0, std::span<const uint8_t> rom, std::span<const uint8_t> ram,
+	                std::span<YMF278::Block128, 32> memPtrs) {
+		     setupMemPtrs(mode0, rom, ram, memPtrs);
+		 })
 	, ymf278LoadTime(getCurrentTime())
 	, ymf278BusyTime(getCurrentTime())
 	, sram(config, getName() + " SRAM", "DalSoRi R2 RAM", 0x8000)
@@ -106,6 +109,41 @@ DalSoRiR2::~DalSoRiR2()
 	setRegCfg(0); // unregister any FM I/O ports
 }
 
+void DalSoRiR2::setupMemPtrs(
+	bool mode0,
+	std::span<const uint8_t> rom,
+	std::span<const uint8_t> ram,
+	std::span<YMF278::Block128, 32> memPtrs)
+{
+	// /MCS0: connected to either a 2MB ROM or a 2MB RAM chip (dynamically
+	//        selectable via software)
+	// /MCS1: connected to a 2MB RAM chip
+	// /MCS2../MCS9: unused
+	static constexpr auto k128 = YMF278::k128;
+
+	// first 2MB, either ROM or RAM, both mode0 and mode1
+	bool enableRam = regCfg & ENA_S0;
+	auto mem0 = enableRam ? std::span<const uint8_t>{ram} : std::span<const uint8_t>{rom};
+	for (auto i : xrange(16)) {
+		memPtrs[i] = subspan<k128>(mem0, i * k128);
+	}
+	// second 2MB
+	if (mode0) [[likely]] {
+		// mode 0: RAM
+		for (auto i : xrange(16, 32)) {
+			memPtrs[i] = subspan<k128>(ram, i * k128);
+		}
+	} else {
+		// mode 1: unmapped (normally shouldn't be used on DalSoRiR2)
+		// Note: in this mode accessing region [0x00'0000, 0x10'0000) activates
+		// both /MCS0 and /MCS1, thus two chips (ROM+RAM or RAM+RAM) get activated
+		// simultaneously. That might cause problems on the real hardware. Here we
+		// emulate it by ignoring the problem, as-if only /MCS0 was active.
+		for (auto i : xrange(16, 32)) {
+			memPtrs[i] = YMF278::nullBlock;
+		}
+	}
+}
 void DalSoRiR2::powerUp(EmuTime::param time)
 {
 	ymf278.clearRam();
@@ -151,7 +189,7 @@ void DalSoRiR2::setRegCfg(byte value)
 
 	regCfg = value;
 
-	ymf278.disableRomForDalSoRiR2((regCfg & ENA_S0) != 0);
+	ymf278.setupMemoryPointers(); // ENA_S0 might have changed
 	flash.setVppWpPinLow((regCfg & ENA_FW) == 0);
 }
 
@@ -361,7 +399,7 @@ void DalSoRiR2::serialize(Archive& ar, unsigned /*version*/)
 	             "regCfg",    backupRegCfg);
 
 	if constexpr (Archive::IS_LOADER) {
-		setRegCfg(backupRegCfg);
+		setRegCfg(backupRegCfg); // register ports and setupMemoryPointers()
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(DalSoRiR2);

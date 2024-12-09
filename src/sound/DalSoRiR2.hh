@@ -33,6 +33,12 @@ private:
 	[[nodiscard]] byte readYMF278Status(EmuTime::param time) const;
 	void setRegCfg(byte value);
 
+	void setupMemPtrs(
+		bool mode0,
+		std::span<const uint8_t> rom,
+		std::span<const uint8_t> ram,
+		std::span<YMF278::Block128, 32> memPtrs);
+
 private:
 	YMF262 ymf262;
 	YMF278 ymf278;

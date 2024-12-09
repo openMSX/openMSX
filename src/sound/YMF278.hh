@@ -11,6 +11,8 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -20,10 +22,20 @@ class DeviceConfig;
 class YMF278 final : public ResampledSoundDevice
 {
 public:
-	enum class MemoryConfig { Moonsound, DalSoRiR2 };
+	static constexpr auto k128 = size_t(128 * 1024); // 128kB
+	using Block128 = std::span<const uint8_t, k128>; // a 128kB read-only memory block
+	static constexpr auto nullBlock = std::span<const uint8_t, k128>(static_cast<const uint8_t*>(nullptr), k128);
 
-	YMF278(const std::string& name, int ramSizeInKb, MemoryConfig memoryConfig,
-	       const DeviceConfig& config);
+	using SetupMemPtrFunc = std::function<void(
+		bool /*mode0*/,
+		std::span<const uint8_t> /*rom*/,
+		std::span<const uint8_t> /*ram*/,
+		std::span<YMF278::Block128, 32> /*memPtrs*/)>;
+
+public:
+	YMF278(const std::string& name, int ramSize, const DeviceConfig& config,
+	       SetupMemPtrFunc setupMemPtrs_);
+
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);
@@ -36,7 +48,7 @@ public:
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
 
-	void disableRomForDalSoRiR2(bool disable);
+	void setupMemoryPointers();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -104,8 +116,6 @@ private:
 	[[nodiscard]] bool anyActive();
 	void keyOnHelper(Slot& slot) const;
 
-	void setupMemoryPointers();
-
 	MSXMotherBoard& motherBoard;
 
 	struct DebugRegisters final : SimpleDebuggable {
@@ -134,12 +144,17 @@ private:
 
 	// To speed-up memory access we divide the 4MB address-space in 32 blocks of 128kB.
 	// For each block we point to the corresponding region inside 'rom' or 'ram',
-	// or nullptr means this region is unmapped.
+	// or 'nullBlock' means this region is unmapped.
 	// Note: we can only _read_ via these pointers, not write.
-	std::array<const uint8_t*, 32> memPtrs = {};
+	std::array<Block128, 32> memPtrs{
+		nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock,
+		nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock,
+		nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock,
+		nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock, nullBlock,
+	};
 
-	bool romDisabled = false;
-	const MemoryConfig memoryConfig;
+	// callback-function that fills in the above array
+	SetupMemPtrFunc setupMemPtrs;
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
