@@ -2,8 +2,7 @@
 #define MSXMOONSOUND_HH
 
 #include "MSXDevice.hh"
-#include "YMF262.hh"
-#include "YMF278.hh"
+#include "YMF278B.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
@@ -23,22 +22,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] bool getNew2() const;
-	[[nodiscard]] byte readYMF278Status(EmuTime::param time) const;
-
-private:
-	YMF262 ymf262;
-	YMF278 ymf278;
-
-	/** Time at which instrument loading is finished. */
-	EmuTime ymf278LoadTime;
-	/** Time until which the YMF278 is busy. */
-	EmuTime ymf278BusyTime;
-
-	int opl3latch;
-	byte opl4latch;
+	YMF278B ymf278b;
 };
-SERIALIZE_CLASS_VERSION(MSXMoonSound, 3);
+SERIALIZE_CLASS_VERSION(MSXMoonSound, 4);
 
 } // namespace openmsx
 
