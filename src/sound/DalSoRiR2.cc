@@ -41,10 +41,10 @@ DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 		"Controls the MCFG DIP switch position. ON = Enable sample RAM instead of sample ROM on reset.", false)
 	, dipSwitchIO_C0(getCommandController(),
 		getName() + " DIP switch IO/C0",
-		"Controls the IO/C0 DIP switch position. ON = Enable I/O addres C0H~C3H on reset. This is the MoonSound compatible I/O port range.", true)
+		"Controls the IO/C0 DIP switch position. ON = Enable I/O addres C0H~C3H on reset. This is the MSX-AUDIO compatible I/O port range.", true)
 	, dipSwitchIO_C4(getCommandController(),
 		getName() + " DIP switch IO/C4",
-		"Controls the IO/C4 DIP switch position. ON = Enable I/O addres C4H~C7H on reset. This is the MSX-AUDIO compatible I/O port range", true)
+		"Controls the IO/C4 DIP switch position. ON = Enable I/O addres C4H~C7H on reset. This is the MoonSound compatible I/O port range", true)
 	, biosDisable(dipSwitchBDIS.getBoolean())
 {
 	dipSwitchBDIS.attach(*this);
