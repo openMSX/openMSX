@@ -20,7 +20,7 @@ static size_t getRamSize(const DeviceConfig& config)
 		1024,     // 512kB  512kB
 		2048)) {  // 512kB  512kB  512kB  512kB
 		throw MSXException(
-			"Wrong sample RAM size for Moonsound's YMF278. "
+			"Wrong sample RAM size for MoonSound's YMF278. "
 			"Got ", ramSizeInKb, ", but must be one of "
 			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
@@ -77,7 +77,7 @@ static void setupMemPtrs(bool mode0, std::span<const uint8_t> rom, std::span<con
 			memPtrs[i + 16] = ramPart(i);
 		}
 	} else {
-		// mode1, normally this shouldn't be used on Moonsound
+		// mode1, normally this shouldn't be used on MoonSound
 		for (auto i : xrange(12)) {
 			memPtrs[i + 16] = YMF278::nullBlock;
 		}

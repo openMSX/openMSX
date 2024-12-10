@@ -41,20 +41,23 @@ DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 		"Controls the MCFG DIP switch position. ON = Enable sample RAM instead of sample ROM on reset.", false)
 	, dipSwitchIO_C0(getCommandController(),
 		getName() + " DIP switch IO/C0",
-		"Controls the IO/C0 DIP switch position. ON = Enable I/O addres C0H~C3H on reset. This is the Moonsound compatible I/O port range.", true)
+		"Controls the IO/C0 DIP switch position. ON = Enable I/O addres C0H~C3H on reset. This is the MoonSound compatible I/O port range.", true)
 	, dipSwitchIO_C4(getCommandController(),
 		getName() + " DIP switch IO/C4",
 		"Controls the IO/C4 DIP switch position. ON = Enable I/O addres C4H~C7H on reset. This is the MSX-AUDIO compatible I/O port range", true)
+	, biosDisable(dipSwitchBDIS.getBoolean())
 {
-	getCPUInterface().register_IO_InOut_range(waveIOBase, 2, this);
+	dipSwitchBDIS.attach(*this);
 
+	getCPUInterface().register_IO_InOut_range(waveIOBase, 2, this);
 	powerUp(getCurrentTime());
 }
 
 DalSoRiR2::~DalSoRiR2()
 {
-	getCPUInterface().unregister_IO_InOut_range(waveIOBase, 2, this);
 	setRegCfg(0); // unregister any FM I/O ports
+	getCPUInterface().unregister_IO_InOut_range(waveIOBase, 2, this);
+	dipSwitchBDIS.detach(*this);
 }
 
 void DalSoRiR2::setupMemPtrs(
@@ -186,7 +189,7 @@ byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
 {
 	if (const auto* r = getSramAddr(addr)) {
 		return *r;
-	} else if (!dipSwitchBDIS.getBoolean()) {
+	} else if (!biosDisable) {
 		return flash.read(getFlashAddr(addr));
 	}
 	return 0xFF;
@@ -196,7 +199,7 @@ byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
 {
 	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(addr)) {
 		return *r;
-	} else if (!dipSwitchBDIS.getBoolean()) {
+	} else if (!biosDisable) {
 		return flash.peek(getFlashAddr(addr));
 	}
 	return 0xFF;
@@ -206,8 +209,7 @@ const byte* DalSoRiR2::getReadCacheLine(word start) const
 {
 	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(start)) {
 		return r;
-	} else if (!dipSwitchBDIS.getBoolean()) {
-		// TODO need to invalidate cache when 'dipSwitchBDIS' changes
+	} else if (!biosDisable) {
 		return flash.getReadCacheLine(getFlashAddr(start));
 	}
 	return unmappedRead.data();
@@ -227,7 +229,7 @@ void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 		invalidateDeviceRWCache(0x7000 + frame * 0x4000, 0x1000);
 	} else if ((0x6700 <= addr) && (addr < 0x6800)) {
 		setRegCfg(value);
-	} else if (!dipSwitchBDIS.getBoolean()) {
+	} else if (!biosDisable) {
 		flash.write(getFlashAddr(addr), value);
 	}
 }
@@ -239,6 +241,16 @@ byte* DalSoRiR2::getWriteCacheLine(word start)
 	} else {
 		// bank/frame/cfg registers or flash, not cacheable
 		return nullptr;
+	}
+}
+
+void DalSoRiR2::update(const Setting& setting) noexcept
+{
+	assert(&setting == &dipSwitchBDIS);
+	auto newBiosDisable = dipSwitchBDIS.getBoolean();
+	if (biosDisable != newBiosDisable) {
+		biosDisable = newBiosDisable;
+		invalidateDeviceRWCache();
 	}
 }
 
@@ -256,6 +268,7 @@ void DalSoRiR2::serialize(Archive& ar, unsigned /*version*/)
 	if constexpr (Archive::IS_LOADER) {
 		setRegCfg(backupRegCfg); // register ports and setupMemoryPointers()
 	}
+	// no need to serialize biosDisable
 }
 INSTANTIATE_SERIALIZE_METHODS(DalSoRiR2);
 REGISTER_MSXDEVICE(DalSoRiR2, "DalSoRiR2");

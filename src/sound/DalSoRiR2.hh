@@ -3,11 +3,12 @@
 
 #include "AmdFlash.hh"
 #include "MSXDevice.hh"
+#include "Observer.hh"
 #include "YMF278B.hh"
 
 namespace openmsx {
 
-class DalSoRiR2 final : public MSXDevice
+class DalSoRiR2 final : public MSXDevice, private Observer<Setting>
 {
 public:
 	explicit DalSoRiR2(const DeviceConfig& config);
@@ -38,6 +39,9 @@ private:
 		std::span<const uint8_t> ram,
 		std::span<YMF278::Block128, 32> memPtrs);
 
+	// Observer<Setting>
+	void update(const Setting& setting) noexcept override;
+
 private:
 	YMF278B ymf278b;
 
@@ -52,6 +56,8 @@ private:
 	std::array<byte, 4> regBank = {};
 	std::array<byte, 2> regFrame = {};
 	byte regCfg = 0;
+
+	bool biosDisable;
 };
 
 } // namespace openmsx
