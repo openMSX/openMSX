@@ -6,6 +6,7 @@
 #include "sha1.hh"
 #include "static_string_view.hh"
 #include "openmsx.hh"
+
 #include <cassert>
 #include <memory>
 #include <span>
@@ -24,9 +25,12 @@ class TclObject;
 class Rom final
 {
 public:
+	struct Dummy {};
+public:
 	Rom(std::string name, static_string_view description,
 	    const DeviceConfig& config, const std::string& id = {});
 	Rom(Rom&& other) noexcept;
+	Rom(Dummy, std::string name);
 	~Rom();
 
 	[[nodiscard]] const byte& operator[](size_t address) const {

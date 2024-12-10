@@ -340,6 +340,11 @@ Rom::Rom(Rom&& r) noexcept
 	if (romDebuggable) romDebuggable->moved(*this);
 }
 
+Rom::Rom(Dummy, std::string name_)
+	: name(std::move(name_)), description("dummy")
+{
+}
+
 Rom::~Rom() = default;
 
 std::string_view Rom::getFilename() const

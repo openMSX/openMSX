@@ -32,7 +32,8 @@ DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
 		     setupMemPtrs(mode0, rom, ram, memPtrs);
 		  }, getCurrentTime())
 	, sram(config, getName() + " RAM", "DalSoRi R2 RAM", 0x8000)
-	, flash(getName() + " flash", AmdFlashChip::SST39SF010, {}, config)
+	, dummyRom(Rom::Dummy{}, getName())
+	, flash(dummyRom, AmdFlashChip::SST39SF010, {}, config)
 	, dipSwitchBDIS(getCommandController(),
 		getName() + " DIP switch BDIS",
 		"Controls the BDIS DIP switch position. ON = Disable BIOS (flash memory access)", false)

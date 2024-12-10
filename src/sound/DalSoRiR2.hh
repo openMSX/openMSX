@@ -4,6 +4,7 @@
 #include "AmdFlash.hh"
 #include "MSXDevice.hh"
 #include "Observer.hh"
+#include "Rom.hh"
 #include "YMF278B.hh"
 
 namespace openmsx {
@@ -46,6 +47,10 @@ private:
 	YMF278B ymf278b;
 
 	Ram sram;
+	Rom dummyRom; // To prevent loading initial content for 'flash'.
+	              // The default conflicts with the <rom> tag for yrw801.rom
+	              // and giving that one an id-attribute cause bw-compat
+	              // issues with the existing MoonSound extension
 	AmdFlash flash;
 
 	BooleanSetting dipSwitchBDIS;
