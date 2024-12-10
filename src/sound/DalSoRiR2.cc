@@ -93,6 +93,7 @@ void DalSoRiR2::setupMemPtrs(
 		}
 	}
 }
+
 void DalSoRiR2::powerUp(EmuTime::param time)
 {
 	ymf278b.powerUp(time);
@@ -102,6 +103,7 @@ void DalSoRiR2::powerUp(EmuTime::param time)
 void DalSoRiR2::reset(EmuTime::param time)
 {
 	ymf278b.reset(time);
+	flash.reset();
 
 	ranges::iota(regBank, 0);
 	ranges::iota(regFrame, 0);
@@ -109,8 +111,6 @@ void DalSoRiR2::reset(EmuTime::param time)
 	setRegCfg((dipSwitchMCFG. getBoolean() ? ENA_S0 : 0) |
 	          (dipSwitchIO_C0.getBoolean() ? ENA_C0 : 0) |
 	          (dipSwitchIO_C4.getBoolean() ? ENA_C4 : 0));
-
-	flash.reset();
 }
 
 void DalSoRiR2::setRegCfg(byte value)
@@ -150,22 +150,48 @@ void DalSoRiR2::writeIO(word port, byte value, EmuTime::param time)
 	ymf278b.writeIO(port, value, time);
 }
 
-byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
+std::optional<byte> DalSoRiR2::readCommon(word addr) const
 {
+	auto read = [&](byte frame) {
+		return sram[(addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000];
+	};
+
 	if ((0x3000 <= addr) && (addr < 0x4000)) {
 		// SRAM frame 0
-		return sram[addr & 0x0FFF];
+		return read(0);
 	} else if ((0x7000 <= addr) && (addr < 0x8000) && ((regFrame[0] & DISABLE) == 0)) {
 		// SRAM frame 1
-		return sram[(addr & 0x0FFF) + (regFrame[0] & REG_FRAME_SEGMENT_MASK) * 0x1000];
+		return read(regFrame[0]);
 	} else if ((0xB000 <= addr) && (addr < 0xC000) && ((regFrame[1] & DISABLE) == 0)) {
 		// SRAM frame 2
-		return sram[(addr & 0x0FFF) + (regFrame[1] & REG_FRAME_SEGMENT_MASK) * 0x1000];
+		return read(regFrame[1]);
+	} else {
+		return {};
+	}
+}
+
+byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
+{
+	if (auto r = readCommon(addr)) {
+		return *r;
 	} else if (!dipSwitchBDIS.getBoolean()) {
-		// read selected segment of flash
-		auto flashBank = addr >> 14;
-		auto flashSegmentAddr = addr & 0x3FFF;
-		return flash.read(flashSegmentAddr + (regBank[flashBank] & REG_BANK_SEGMENT_MASK) * 0x4000);
+		auto page = addr >> 14;
+		auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
+		auto offset = addr & 0x3FFF;
+		return flash.read(0x4000 * bank + offset);
+	}
+	return 0xFF;
+}
+
+byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
+{
+	if (auto r = readCommon(addr)) {
+		return *r;
+	} else if (!dipSwitchBDIS.getBoolean()) {
+		auto page = addr >> 14;
+		auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
+		auto offset = addr & 0x3FFF;
+		return flash.peek(0x4000 * bank + offset);
 	}
 	return 0xFF;
 }

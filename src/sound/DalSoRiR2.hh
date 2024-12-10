@@ -5,6 +5,8 @@
 #include "MSXDevice.hh"
 #include "YMF278B.hh"
 
+#include <optional>
+
 namespace openmsx {
 
 class DalSoRiR2 final : public MSXDevice
@@ -19,6 +21,7 @@ public:
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 	byte readMem(word addr, EmuTime::param time) override;
+	byte peekMem(word addr, EmuTime::param time) const override;
 	void writeMem(word addr, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -26,6 +29,7 @@ public:
 
 private:
 	void setRegCfg(byte value);
+	std::optional<byte> readCommon(word addr) const;
 
 	void setupMemPtrs(
 		bool mode0,
