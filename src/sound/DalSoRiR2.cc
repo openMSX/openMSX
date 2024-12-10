@@ -138,8 +138,6 @@ void DalSoRiR2::setRegCfg(byte value)
 	regCfg = value;
 
 	ymf278b.setupMemoryPointers(); // ENA_S0 might have changed
-
-	flash.setVppWpPinLow((regCfg & ENA_FW) == 0); // TODO is this correct?
 }
 
 byte DalSoRiR2::readIO(word port, EmuTime::param time)
@@ -229,7 +227,7 @@ void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 		invalidateDeviceRWCache(0x7000 + frame * 0x4000, 0x1000);
 	} else if ((0x6700 <= addr) && (addr < 0x6800)) {
 		setRegCfg(value);
-	} else if (!biosDisable) {
+	} else if (!biosDisable && ((regCfg & ENA_FW) != 0)) {
 		flash.write(getFlashAddr(addr), value);
 	}
 }
