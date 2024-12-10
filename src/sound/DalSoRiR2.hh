@@ -5,8 +5,6 @@
 #include "MSXDevice.hh"
 #include "YMF278B.hh"
 
-#include <optional>
-
 namespace openmsx {
 
 class DalSoRiR2 final : public MSXDevice
@@ -22,6 +20,8 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 	byte readMem(word addr, EmuTime::param time) override;
 	byte peekMem(word addr, EmuTime::param time) const override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word start) override;
 	void writeMem(word addr, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -29,7 +29,8 @@ public:
 
 private:
 	void setRegCfg(byte value);
-	std::optional<byte> readCommon(word addr) const;
+	byte* getSramAddr(word addr);
+	unsigned getFlashAddr(word addr) const;
 
 	void setupMemPtrs(
 		bool mode0,
@@ -48,8 +49,8 @@ private:
 	BooleanSetting dipSwitchIO_C0;
 	BooleanSetting dipSwitchIO_C4;
 
-	std::array<byte, 4> regBank;
-	std::array<byte, 2> regFrame;
+	std::array<byte, 4> regBank = {};
+	std::array<byte, 2> regFrame = {};
 	byte regCfg = 0;
 };
 

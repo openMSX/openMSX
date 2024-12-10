@@ -4,7 +4,6 @@
 #include "serialize.hh"
 
 #include "ranges.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -129,10 +128,15 @@ void DalSoRiR2::setRegCfg(byte value)
 		registerHelper((value & ENA_C4) != 0, 0xC4);
 	}
 
+	if ((value ^ regCfg) & ENA_FW) {
+		invalidateDeviceRWCache();
+	}
+
 	regCfg = value;
 
 	ymf278b.setupMemoryPointers(); // ENA_S0 might have changed
-	flash.setVppWpPinLow((regCfg & ENA_FW) == 0);
+
+	flash.setVppWpPinLow((regCfg & ENA_FW) == 0); // TODO is this correct?
 }
 
 byte DalSoRiR2::readIO(word port, EmuTime::param time)
@@ -150,73 +154,91 @@ void DalSoRiR2::writeIO(word port, byte value, EmuTime::param time)
 	ymf278b.writeIO(port, value, time);
 }
 
-std::optional<byte> DalSoRiR2::readCommon(word addr) const
+byte* DalSoRiR2::getSramAddr(word addr)
 {
-	auto read = [&](byte frame) {
-		return sram[(addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000];
+	auto get = [&](byte frame) {
+		return &sram[(addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000];
 	};
 
 	if ((0x3000 <= addr) && (addr < 0x4000)) {
 		// SRAM frame 0
-		return read(0);
+		return get(0);
 	} else if ((0x7000 <= addr) && (addr < 0x8000) && ((regFrame[0] & DISABLE) == 0)) {
 		// SRAM frame 1
-		return read(regFrame[0]);
+		return get(regFrame[0]);
 	} else if ((0xB000 <= addr) && (addr < 0xC000) && ((regFrame[1] & DISABLE) == 0)) {
 		// SRAM frame 2
-		return read(regFrame[1]);
+		return get(regFrame[1]);
 	} else {
-		return {};
+		return nullptr;
 	}
+}
+
+unsigned DalSoRiR2::getFlashAddr(word addr) const
+{
+	auto page = addr >> 14;
+	auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
+	auto offset = addr & 0x3FFF;
+	return 0x4000 * bank + offset;
 }
 
 byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
 {
-	if (auto r = readCommon(addr)) {
+	if (const auto* r = getSramAddr(addr)) {
 		return *r;
 	} else if (!dipSwitchBDIS.getBoolean()) {
-		auto page = addr >> 14;
-		auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
-		auto offset = addr & 0x3FFF;
-		return flash.read(0x4000 * bank + offset);
+		return flash.read(getFlashAddr(addr));
 	}
 	return 0xFF;
 }
 
 byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
 {
-	if (auto r = readCommon(addr)) {
+	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(addr)) {
 		return *r;
 	} else if (!dipSwitchBDIS.getBoolean()) {
-		auto page = addr >> 14;
-		auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
-		auto offset = addr & 0x3FFF;
-		return flash.peek(0x4000 * bank + offset);
+		return flash.peek(getFlashAddr(addr));
 	}
 	return 0xFF;
 }
 
+const byte* DalSoRiR2::getReadCacheLine(word start) const
+{
+	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(start)) {
+		return r;
+	} else if (!dipSwitchBDIS.getBoolean()) {
+		// TODO need to invalidate cache when 'dipSwitchBDIS' changes
+		return flash.getReadCacheLine(getFlashAddr(start));
+	}
+	return unmappedRead.data();
+}
+
 void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 {
-	if ((0x3000 <= addr) && (addr < 0x4000)) {
-		// SRAM frame 0
-		sram[addr & 0x0FFF] = value;
-	} else if ((0x7000 <= addr) && (addr < 0x8000) && ((regFrame[0] & DISABLE) == 0)) {
-		// SRAM frame 1
-		sram[(addr & 0x0FFF) + (regFrame[0] & REG_FRAME_SEGMENT_MASK) * 0x1000] = value;
-	} else if ((0xB000 <= addr) && (addr < 0xC000) && ((regFrame[1] & DISABLE) == 0)) {
-		// SRAM frame 2
-		sram[(addr & 0x0FFF) + (regFrame[1] & REG_FRAME_SEGMENT_MASK) * 0x1000] = value;
+	if (auto* r = getSramAddr(addr)) {
+		*r = value;
 	} else if ((0x6000 <= addr) && (addr < 0x6400)) {
-		regBank [(addr >> 8) & 3] = value;
+		auto bank = (addr >> 8) & 3;
+		regBank[bank] = value;
+		invalidateDeviceRWCache(bank * 0x4000, 0x4000);
 	} else if ((0x6500 <= addr) && (addr < 0x6700)) {
-		regFrame[(addr >> 9) & 1] = value;
+		auto frame = (addr >> 9) & 1; // [0x6500,0x65FF] -> 0, [0x6600,0x66FF] -> 1
+		regFrame[frame] = value;
+		invalidateDeviceRWCache(0x7000 + frame * 0x4000, 0x1000);
 	} else if ((0x6700 <= addr) && (addr < 0x6800)) {
 		setRegCfg(value);
 	} else if (!dipSwitchBDIS.getBoolean()) {
-		auto flashBank = addr >> 14;
-		auto flashSegmentAddr = addr & 0x3FFF;
-		flash.write(flashSegmentAddr + (regBank[flashBank] & REG_FRAME_SEGMENT_MASK) * 0x4000, value);
+		flash.write(getFlashAddr(addr), value);
+	}
+}
+
+byte* DalSoRiR2::getWriteCacheLine(word start)
+{
+	if (auto* r = getSramAddr(start)) {
+		return r;
+	} else {
+		// bank/frame/cfg registers or flash, not cacheable
+		return nullptr;
 	}
 }
 
