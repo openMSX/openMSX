@@ -23,11 +23,11 @@
 // Known issues:
 // - Octave -8 was only tested with fnum 0. Other fnum values might behave differently.
 
-// This class doesn't model a full YMF278b chip. Instead it only models the
+// This class doesn't model a full YMF278B chip. Instead it only models the
 // wave part. The FM part in modeled in YMF262 (it's almost 100% compatible,
 // the small differences are handled in YMF262). The status register and
-// interaction with the FM registers (e.g. the NEW2 bit) is currently handled
-// in the MSXMoonSound class.
+// interaction with the FM registers (e.g. the NEW2 bit) is handled in the
+// YMF278B class.
 
 #include "YMF278.hh"
 
@@ -790,37 +790,18 @@ uint8_t YMF278::peekReg(uint8_t reg) const
 
 static constexpr unsigned INPUT_RATE = 44100;
 
-static size_t getRamSize(int ramSizeInKb)
-{
-	if ((ramSizeInKb !=    0) &&  //   -     -
-	    (ramSizeInKb !=  128) &&  // 128kB   -
-	    (ramSizeInKb !=  256) &&  // 128kB  128kB
-	    (ramSizeInKb !=  512) &&  // 512kB   -
-	    (ramSizeInKb !=  640) &&  // 512kB  128kB
-	    (ramSizeInKb != 1024) &&  // 512kB  512kB
-	    (ramSizeInKb != 2048)) {  // 512kB  512kB  512kB  512kB
-		throw MSXException(
-			"Wrong sample ram size for MoonSound (YMF278). "
-			"Got ", ramSizeInKb, ", but must be one of "
-			"0, 128, 256, 512, 640, 1024 or 2048.");
-	}
-	return size_t(ramSizeInKb) * 1024; // kilo-bytes -> bytes
-}
-
-YMF278::YMF278(const std::string& name_, int ramSizeInKb,
-               const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
+YMF278::YMF278(const std::string& name_, size_t ramSize, const DeviceConfig& config)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
 	                       24, INPUT_RATE, true)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
 	, rom(getName() + " ROM", "rom", config)
-	, ram(config, getName() + " RAM", "YMF278 sample RAM",
-	      getRamSize(ramSizeInKb)) // check size before allocating
+	, ram(config, getName() + " RAM", "YMF278 sample RAM", ramSize)
 {
 	if (rom.size() != 0x200000) { // 2MB
 		throw MSXException(
-			"Wrong ROM for MoonSound (YMF278). The ROM (usually "
+			"Wrong ROM for OPL4 (YMF278B). The ROM (usually "
 			"called yrw801.rom) should have a size of exactly 2MB.");
 	}
 
