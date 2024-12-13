@@ -9,8 +9,12 @@
 #include "TrackedRam.hh"
 #include "serialize_meta.hh"
 
+#include "stl.hh"
+
 #include <array>
 #include <cstdint>
+#include <functional>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -20,7 +24,19 @@ class DeviceConfig;
 class YMF278 final : public ResampledSoundDevice
 {
 public:
-	YMF278(const std::string& name, size_t ramSize, const DeviceConfig& config);
+	static constexpr auto k128 = size_t(128 * 1024); // 128kB
+	using Block128 = std::span<const uint8_t, k128>; // a 128kB read-only memory block
+	static constexpr auto nullBlock = std::span<const uint8_t, k128>(static_cast<const uint8_t*>(nullptr), k128);
+
+	using SetupMemPtrFunc = std::function<void(
+		bool /*mode0*/,
+		std::span<const uint8_t> /*rom*/,
+		std::span<const uint8_t> /*ram*/,
+		std::span<YMF278::Block128, 32> /*memPtrs*/)>;
+
+public:
+	YMF278(const std::string& name, size_t ramSize, const DeviceConfig& config,
+	       SetupMemPtrFunc setupMemPtrs_);
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);
@@ -32,6 +48,8 @@ public:
 	void writeMem(unsigned address, uint8_t value);
 
 	void setMixLevel(uint8_t x, EmuTime::param time);
+
+	void setupMemoryPointers();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -124,6 +142,15 @@ private:
 	TrackedRam ram;
 
 	std::array<uint8_t, 256> regs;
+
+	// To speed-up memory access we divide the 4MB address-space in 32 blocks of 128kB.
+	// For each block we point to the corresponding region inside 'rom' or 'ram',
+	// or 'nullBlock' means this region is unmapped.
+	// Note: we can only _read_ via these pointers, not write.
+	std::array<Block128, 32> memPtrs = generate_array<32>([](size_t) { return nullBlock; });
+
+	// callback-function that fills in the above array
+	SetupMemPtrFunc setupMemPtrs;
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 6);
 SERIALIZE_CLASS_VERSION(YMF278, 4);

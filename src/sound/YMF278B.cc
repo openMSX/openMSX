@@ -39,9 +39,9 @@ static constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 static constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
 YMF278B::YMF278B(const std::string& name, size_t ramSize, const DeviceConfig& config,
-                 EmuTime::param time)
+                 YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime::param time)
 	: ymf262(name + " FM", config, true)
-	, ymf278(name + " wave", ramSize, config)
+	, ymf278(name + " wave", ramSize, config, std::move(setupMemPtrs))
 	, ymf278LoadTime(time)
 	, ymf278BusyTime(time)
 {
@@ -209,6 +209,11 @@ byte YMF278B::readYMF278Status(EmuTime::param time) const
 	if (time < ymf278BusyTime) result |= 0x01;
 	if (time < ymf278LoadTime) result |= 0x02;
 	return result;
+}
+
+void YMF278B::setupMemoryPointers()
+{
+	ymf278.setupMemoryPointers();
 }
 
 // For backwards compatible savestates with (old) MSXMoonSound class.
