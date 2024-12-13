@@ -5070,7 +5070,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>Mirrored</type><hash>8fe21e5ff12cbd52e379bfc1feaf9f560289ba42</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>2a91ccc4a8085a9acd195bf1a264deaf2db329b0</hash></rom></dump>
 		<dump><rom><type>Mirrored</type><hash>31b7005f26f291d215cd02d9f85c132f07de28a4</hash><remark>fixed</remark></rom></dump>
-		<dump><rom><type>Mirrored</type><hash>7ca0ca4b9ca9715fe65427ca47c634103e1f7ca3</hash></rom></dump>
+        <dump><original value="true">Cartridge dump on 11/11/2024</original><rom><type>Mirrored</type><hash>7ca0ca4b9ca9715fe65427ca47c634103e1f7ca3</hash></rom></dump>
 </software>
 <software>
 	<title>Boogie Woogi Jungle</title>
