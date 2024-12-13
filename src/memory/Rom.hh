@@ -6,6 +6,7 @@
 #include "sha1.hh"
 #include "static_string_view.hh"
 #include "openmsx.hh"
+
 #include <cassert>
 #include <memory>
 #include <span>
@@ -25,7 +26,7 @@ class Rom final
 {
 public:
 	Rom(std::string name, static_string_view description,
-	    const DeviceConfig& config, const std::string& id = {});
+	    const DeviceConfig& config, std::string_view id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 

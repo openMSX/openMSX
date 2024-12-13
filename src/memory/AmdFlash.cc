@@ -23,20 +23,20 @@ namespace openmsx {
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
                    const DeviceConfig& config)
-	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config)
+	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config, {})
 {
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config)
-	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config)
+                   const DeviceConfig& config, std::string_view id)
+	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config, id)
 {
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    const Rom* rom, std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config)
+                   const DeviceConfig& config, std::string_view id)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 {
@@ -89,7 +89,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 		try {
 			rom_ = std::make_unique<Rom>(
 				"", "", // dummy name and description
-				config);
+				config, id);
 			rom = rom_.get();
 			config.getCliComm().printInfo(
 				"Loaded initial content for flash ROM from ",

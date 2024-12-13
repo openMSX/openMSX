@@ -53,7 +53,7 @@ private:
 
 
 Rom::Rom(string name_, static_string_view description_,
-         const DeviceConfig& config, const string& id /*= {}*/)
+         const DeviceConfig& config, std::string_view id /*= {}*/)
 	: name(std::move(name_)), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
