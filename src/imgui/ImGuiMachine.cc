@@ -152,7 +152,13 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 					defaultMachine.setValue(TclObject(configName));
 				}
 				simpleToolTip("Use this as the default MSX machine when openMSX starts.");
+			} else {
+				im::Indent([] {
+					ImGui::TextUnformatted("(This is the default machine)"sv);
+					HelpMarker("If you select another machine than the default machine, a button will appear here to make that machine the default, i.e. the machine that is used when openMSX starts.");
+				});
 			}
+
 			ImGui::Separator();
 		}
 
