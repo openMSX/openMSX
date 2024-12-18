@@ -246,6 +246,7 @@ void Debugger::Cmd::execute(
 		"disasm_blob",       [&]{ disasmBlob(tokens, result); },
 		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
 		"breaked",           [&]{ result = MSXCPUInterface::isBreaked(); },
+		"breakpoint",        [&]{ breakPoint(tokens, result); },
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
 		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
 		"list_bp",           [&]{ listBreakPoints(tokens, result); },
@@ -399,6 +400,92 @@ void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& res
 	dasmOutput.resize(19, ' ');
 	result.addListElement(dasmOutput);
 	result.addListElement(*len);
+}
+
+void Debugger::Cmd::breakPoint(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[2].getString(),
+		"list",      [&]{ breakPointList(tokens, result); },
+		"create",    [&]{ breakPointCreate(tokens, result); },
+		"configure", [&]{ breakPointConfigure(tokens, result); },
+		"remove",    [&]{ breakPointRemove(tokens, result); });
+}
+
+BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
+{
+	if (!str.starts_with("bp#")) return nullptr;
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(3))) {
+		auto& breakPoints = MSXCPUInterface::getBreakPoints();
+		if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+		    it != std::end(breakPoints)) {
+			return &*it;
+		}
+	}
+	return nullptr;
+}
+
+void Debugger::Cmd::breakPointList(std::span<const TclObject> /*tokens*/, TclObject& result)
+{
+	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
+		TclObject dict = makeTclDict(
+			TclObject("-address"), tmpStrCat("0x", hex_string<4>(bp.getAddress())), // TODO keep original format
+			TclObject("-condition"), bp.getCondition(),
+			TclObject("-command"), bp.getCommand(),
+			TclObject("-once"), bp.onlyOnce());
+			// TODO enabled
+		result.addDictKeyValue(tmpStrCat("bp#", bp.getId()), std::move(dict));
+	}
+}
+
+void Debugger::Cmd::parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObject> tokens)
+{
+	std::array info = {
+		funcArg("-address", [&](Interpreter& interp, const TclObject& arg) {
+			bp.setAddress(interp, arg);
+		}),
+		funcArg("-condition", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			bp.setCondition(arg);
+		}),
+		funcArg("-command", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			bp.setCommand(arg);
+		}),
+		funcArg("-once", [&](Interpreter& interp, const TclObject& arg) {
+			bp.setOnce(interp, arg);
+		}),
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+}
+
+void Debugger::Cmd::breakPointCreate(std::span<const TclObject> tokens, TclObject& result)
+{
+	BreakPoint bp;
+	parseCreateBreakPoint(bp, tokens.subspan(3));
+	result = tmpStrCat("bp#", bp.getId());
+	debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
+}
+
+void Debugger::Cmd::breakPointConfigure(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, AtLeast{4}, "id ?arg ...?");
+	auto id = tokens[3].getString();
+	auto* bp = lookupBreakPoint(id);
+	if (!bp) {
+		throw CommandException("No such breakpoint: ", id);
+	}
+	parseCreateBreakPoint(*bp, tokens.subspan(4));
+	//debugger().motherBoard.getCPUInterface().editedBreakPoint(*bp);
+}
+
+void Debugger::Cmd::breakPointRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 4, "id");
+	auto id = tokens[3].getString();
+	auto* bp = lookupBreakPoint(tokens[3].getString());
+	if (!bp) {
+		throw CommandException("No such breakpoint: ", id);
+	}
+	debugger().motherBoard.getCPUInterface().removeBreakPoint(*bp);
 }
 
 void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& result)
@@ -843,6 +930,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    write             write a byte to a debuggable\n"
 		"    read_block        read a whole block at once\n"
 		"    write_block       write a whole block at once\n"
+		"    breakpoint        breakpoint related subcommands\n"
 		"    set_bp            insert a new breakpoint\n"
 		"    remove_bp         remove a certain breakpoint\n"
 		"    list_bp           list the active breakpoints\n"
@@ -904,7 +992,37 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  The block has a size and an offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
+	auto breakPointHelp =
+		"debug breakpoint <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    list      list all active breakpoints\n"
+		"    create    create a new breakpoint\n"
+		"    configure configure an existing breakpoint\n"
+		"    remove    remove an existing breakpoint\n"
+		"  Type 'help debug breakpoint <subcommand>' for help about a specific subcommand.\n";
+	auto breakPointListHelp =
+		"debug breakpoint list\n"
+		"  Lists all breakpoints. The result is a Tcl dict (<key>/<value>-pairs), where\n"
+		"  * <key> is the breakpoint ID\n"
+		"  * <value> is another Tcl dict containing the properties of the breakpoint.\n"
+		"            See 'help debug breakpoint create' for a description of these properties.\n";
+	auto breakPointCreateHelp =
+		"debug breakpoint create [<property-name> <property-value>]...\n"
+		"  Create a new breakpoint with given properties. The following properties are supported:\n"
+		"  -address    the address where the breakpoint should trigger\n"
+		"  -condition  a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition)\n"
+		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
+		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
+	auto breakPointConfigureHelp =
+		"debug breakpoint configure <id> [<property-name> <property-value>]...\n"
+		"  Change one or more properties of an existing breakpoint.\n"
+		"  See 'help debug breakpoint create' for a description of the properties.\n";
+	auto breakPointRemoveHelp =
+		"debug breakpoint remove <id>\n"
+		"  Remove the breakpoint with given ID.\n";
 	auto setBpHelp =
+		"[deprecated] replaced by: 'debug breakpoint create <args>...'\n"
+		"\n"
 		"debug set_bp [-once] <addr> [<cond>] [<cmd>]\n"
 		"  Insert a new breakpoint at given address. When the CPU is about "
 		"to execute the instruction at this address, execution will be "
@@ -925,10 +1043,14 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  The result of this command is a breakpoint ID. This ID can "
 		"later be used to remove this breakpoint again.\n";
 	auto removeBpHelp =
+		"[deprecated] replaced by: 'debug breakpoint remove <id>'\n"
+		"\n"
 		"debug remove_bp <id>\n"
 		"  Remove the breakpoint with given ID again. You can use the "
 		"'list_bp' subcommand to see all valid IDs.\n";
 	auto listBpHelp =
+		"[deprecated] replaced by: 'debug breakpoint list'\n"
+		"\n"
 		"debug list_bp\n"
 		"  Lists all active breakpoints. The result is printed in 4 "
 		"columns. The first column contains the breakpoint ID. The "
@@ -1046,7 +1168,9 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"Unknown subcommand, use 'help debug' to see a list of valid "
 		"subcommands.\n";
 
-	if (tokens.size() == 1) {
+	auto size = tokens.size();
+	assert(size >= 1);
+	if (size == 1) {
 		return generalHelp;
 	} else if (tokens[1] == "list") {
 		return listHelp;
@@ -1062,6 +1186,20 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		return readBlockHelp;
 	} else if (tokens[1] == "write_block") {
 		return writeBlockHelp;
+	} else if (tokens[1] == "breakpoint") {
+		if (size == 2) {
+			return breakPointHelp;
+		} else if (tokens[2] == "list") {
+			return breakPointListHelp;
+		} else if (tokens[2] == "create") {
+			return breakPointCreateHelp;
+		} else if (tokens[2] == "configure") {
+			return breakPointConfigureHelp;
+		} else if (tokens[2] == "remove") {
+			return breakPointRemoveHelp;
+		} else {
+			return breakPointHelp;
+		}
 	} else if (tokens[1] == "set_bp") {
 		return setBpHelp;
 	} else if (tokens[1] == "remove_bp") {
@@ -1134,9 +1272,9 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	static constexpr std::array otherCmds = {
 		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
-		"probe"sv, "symbols"sv,
+		"probe"sv, "symbols"sv, "breakpoint"sv,
 	};
-	switch (tokens.size()) {
+	switch (auto size = tokens.size(); size) {
 	case 2: {
 		completeString(tokens, concatArray(singleArgCmds, debuggableArgCmds, otherCmds));
 		break;
@@ -1147,6 +1285,12 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
 				completeString(tokens, view::keys(debugger().debuggables));
+			} else if (tokens[1] == "breakpoint") {
+				static constexpr std::array subCmds = {
+					"list"sv, "create"sv,
+					"configure"sv, "remove"sv,
+				};
+				completeString(tokens, subCmds);
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
 				completeString(tokens, getBreakPointIds());
@@ -1177,12 +1321,22 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			}
 		}
 		break;
-	case 4:
-		if ((tokens[1] == "probe") &&
+	default:
+		if ((size == 4) && (tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
 			completeString(tokens, view::transform(
 				debugger().probes,
 				[](auto* p) -> std::string_view { return p->getName(); }));
+		} else if (tokens[1] == "breakpoint") {
+			if ((size == 4) && tokens[2] == one_of("remove", "configure")) {
+				completeString(tokens, getBreakPointIds());
+			} else if (((size >= 4) && (tokens[2] == "create")) ||
+			           ((size >= 5) && (tokens[2] == "configure"))) {
+				static constexpr std::array properties = {
+					"-address"sv, "-command"sv, "-condition"sv, "-once"sv,
+				};
+				completeString(tokens, properties);
+			}
 		}
 		break;
 	}

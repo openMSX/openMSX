@@ -264,7 +264,7 @@ public:
 	void removeBreakPoint(const BreakPoint& bp);
 	void removeBreakPoint(unsigned id);
 	using BreakPoints = std::vector<BreakPoint>;
-	[[nodiscard]] static const BreakPoints& getBreakPoints() { return breakPoints; }
+	[[nodiscard]] static BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);

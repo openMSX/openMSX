@@ -18,24 +18,31 @@ public:
 	[[nodiscard]] TclObject getCommand()   const { return command; }
 	[[nodiscard]] bool onlyOnce() const { return once; }
 
+	void setCondition(const TclObject& c) { condition = c; }
+	void setCommand(const TclObject& c) { command = c; }
+	void setOnce(Interpreter& interp, const TclObject& o) {
+		once = o.getBoolean(interp); // may throw
+	}
+
 	bool checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
 protected:
-	// Note: we require GlobalCliComm here because breakpoint objects can
-	// be transferred to different MSX machines, and so the MSXCliComm
-	// object won't remain valid.
+	BreakPointBase() = default;
 	BreakPointBase(TclObject command_, TclObject condition_, bool once_)
 		: command(std::move(command_))
 		, condition(std::move(condition_))
 		, once(once_) {}
 
 private:
+	// Note: we require GlobalCliComm here because breakpoint objects can
+	// be transferred to different MSX machines, and so the MSXCliComm
+	// object won't remain valid.
 	[[nodiscard]] bool isTrue(GlobalCliComm& cliComm, Interpreter& interp) const;
 
 private:
-	TclObject command;
+	TclObject command{"debug break"};
 	TclObject condition;
-	bool once;
+	bool once = false;
 	bool executing = false;
 };
 

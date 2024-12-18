@@ -15,11 +15,12 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class BreakPoint;
 class Debuggable;
+class MSXCPU;
+class MSXMotherBoard;
 class ProbeBase;
 class ProbeBreakPoint;
-class MSXCPU;
 class SymbolManager;
 
 class Debugger
@@ -88,6 +89,13 @@ private:
 		void writeBlock(std::span<const TclObject> tokens, TclObject& result);
 		void disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const;
 		void disasmBlob(std::span<const TclObject> tokens, TclObject& result) const;
+		void breakPoint(std::span<const TclObject> tokens, TclObject& result);
+		[[nodiscard]] BreakPoint* lookupBreakPoint(std::string_view str);
+		void breakPointList(std::span<const TclObject> tokens, TclObject& result);
+		void parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObject> tokens);
+		void breakPointCreate(std::span<const TclObject> tokens, TclObject& result);
+		void breakPointConfigure(std::span<const TclObject> tokens, TclObject& result);
+		void breakPointRemove(std::span<const TclObject> tokens, TclObject& result);
 		void setBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void removeBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void listBreakPoints(std::span<const TclObject> tokens, TclObject& result) const;
