@@ -109,7 +109,7 @@ public:
 	};
 
 public:
-	bool resetOnInsertRom = true;
+	bool resetOnCartChanges = true;
 
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
 	static bool selectMapperType(const char* label, RomType& item);
@@ -153,7 +153,7 @@ private:
 	std::vector<ExtensionInfo> extensionInfo;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"resetOnInsertRom", &ImGuiMedia::resetOnInsertRom},
+		PersistentElement{"resetOnCartChanges", &ImGuiMedia::resetOnCartChanges},
 		// most media stuff is handled elsewhere
 	};
 };
