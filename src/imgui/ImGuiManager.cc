@@ -687,7 +687,7 @@ void ImGuiManager::paintImGui()
 			});
 		}
 
-		ImGui::Checkbox("Reset MSX on inserting ROM", &media->resetOnInsertRom);
+		ImGui::Checkbox("Reset MSX on inserting ROM", &media->resetOnCartChanges);
 
 		if (ImGui::Button("Insert ROM")) {
 			auto cmd = makeTclList(selectedMedia, "insert", droppedFile);
@@ -695,7 +695,7 @@ void ImGuiManager::paintImGui()
 				cmd.addListElement("-romtype", RomInfo::romTypeToName(selectedRomType));
 			}
 			insert2(strCat("cartridge slot ", char(selectedMedia.back() - 'a' + 'A')), cmd);
-			if (media->resetOnInsertRom) {
+			if (media->resetOnCartChanges) {
 				executeDelayed(TclObject("reset"));
 			}
 			ImGui::CloseCurrentPopup();
