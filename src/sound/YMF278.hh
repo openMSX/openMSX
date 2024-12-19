@@ -9,7 +9,7 @@
 #include "TrackedRam.hh"
 #include "serialize_meta.hh"
 
-#include "stl.hh"
+#include "optional_fixed_span.hh"
 
 #include <array>
 #include <cstdint>
@@ -25,8 +25,7 @@ class YMF278 final : public ResampledSoundDevice
 {
 public:
 	static constexpr auto k128 = size_t(128 * 1024); // 128kB
-	using Block128 = std::span<const uint8_t, k128>; // a 128kB read-only memory block
-	static constexpr auto nullBlock = std::span<const uint8_t, k128>(static_cast<const uint8_t*>(nullptr), k128);
+	using Block128 = optional_fixed_span<const uint8_t, k128>; // a 128kB read-only memory block
 
 	using SetupMemPtrFunc = std::function<void(
 		bool /*mode0*/,
@@ -147,7 +146,7 @@ private:
 	// For each block we point to the corresponding region inside 'rom' or 'ram',
 	// or 'nullBlock' means this region is unmapped.
 	// Note: we can only _read_ via these pointers, not write.
-	std::array<Block128, 32> memPtrs = generate_array<32>([](size_t) { return nullBlock; });
+	std::array<Block128, 32> memPtrs;
 
 	// callback-function that fills in the above array
 	SetupMemPtrFunc setupMemPtrs;

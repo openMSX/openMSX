@@ -86,7 +86,7 @@ void DalSoRiR2::setupMemPtrs(
 		// simultaneously. That might cause problems on the real hardware. Here we
 		// emulate it by ignoring the problem, as-if only /MCS0 was active.
 		for (auto i : xrange(16, 32)) {
-			memPtrs[i] = YMF278::nullBlock;
+			memPtrs[i] = YMF278::Block128{};
 		}
 	}
 }

@@ -69,7 +69,7 @@ static void setupMemPtrs(bool mode0, std::span<const uint8_t> rom, std::span<con
 	auto ramPart = [&](int i) {
 		return (ram.size() >= (i + 1) * k128)
 			? subspan<k128>(ram, i * k128)
-			: YMF278::nullBlock;
+			: YMF278::Block128{};
 	};
 	if (mode0) [[likely]] {
 		// second 2MB, RAM, as much as if available, upto 2MB
@@ -79,7 +79,7 @@ static void setupMemPtrs(bool mode0, std::span<const uint8_t> rom, std::span<con
 	} else {
 		// mode1, normally this shouldn't be used on MoonSound
 		for (auto i : xrange(12)) {
-			memPtrs[i + 16] = YMF278::nullBlock;
+			memPtrs[i + 16] = YMF278::Block128{};
 		}
 		for (auto i : xrange(4)) {
 			memPtrs[i + 28] = ramPart(i);

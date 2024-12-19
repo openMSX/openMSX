@@ -874,15 +874,17 @@ uint8_t YMF278::readMem(unsigned address) const
 {
 	// Verified on real YMF278: address space wraps at 4MB.
 	address &= 0x3F'FFFF;
-	auto chunk = memPtrs[address >> 17]; // 128kB chunk
-	return chunk.data() ? chunk[address & 0x1'FFFF] : 0xFF;
+	if (auto chunk = memPtrs[address >> 17].asOptional()) { // 128kB chunk
+		return (*chunk)[address & 0x1'FFFF];
+	}
+	return 0xFF;
 }
 
 void YMF278::writeMem(unsigned address, uint8_t value)
 {
 	address &= 0x3F'FFFF;
-	if (const auto* ptr = memPtrs[address >> 17].data()) { // mapped?
-		ptr += address & 0x1'ffff;
+	if (auto chunk = memPtrs[address >> 17].asOptional()) { // mapped?
+		auto* ptr = chunk->data() + (address & 0x1'ffff);
 		if ((&ram[0] <= ptr) && (ptr < (&ram[0] + ram.size()))) { // points to RAM?
 			// this assumes all RAM is emulated via a single contiguous memory block
 			auto ramOffset = ptr - &ram[0];
