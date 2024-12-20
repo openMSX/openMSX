@@ -13,20 +13,19 @@ class WatchIO final : public WatchPoint
                     , public std::enable_shared_from_this<WatchIO>
 {
 public:
-	WatchIO(MSXMotherBoard& motherboard,
-	        WatchPoint::Type type,
+	WatchIO(WatchPoint::Type type,
 	        unsigned beginAddr, unsigned endAddr,
 	        TclObject command, TclObject condition,
 	        bool once, unsigned newId = -1);
 
-	MSXWatchIODevice& getDevice(byte port);
+	void registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices);
+	void unregisterIOWatch(std::span<MSXDevice*, 256> devices);
 
 private:
-	void doReadCallback(unsigned port);
-	void doWriteCallback(unsigned port, unsigned value);
+	void doReadCallback(MSXMotherBoard& motherBoard, unsigned port);
+	void doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value);
 
 private:
-	MSXMotherBoard& motherboard;
 	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
 
 	friend class MSXWatchIODevice;

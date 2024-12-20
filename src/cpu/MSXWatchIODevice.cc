@@ -7,7 +7,8 @@
 #include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 
-#include "narrow.hh"
+#include "checked_cast.hh"
+#include "one_of.hh"
 
 #include <cassert>
 #include <memory>
@@ -16,39 +17,65 @@ namespace openmsx {
 
 // class WatchIO
 
-WatchIO::WatchIO(MSXMotherBoard& motherboard_,
-                 WatchPoint::Type type_,
+WatchIO::WatchIO(WatchPoint::Type type_,
                  unsigned beginAddr_, unsigned endAddr_,
                  TclObject command_, TclObject condition_,
                  bool once_, unsigned newId /*= -1*/)
 	: WatchPoint(std::move(command_), std::move(condition_), type_, beginAddr_, endAddr_, once_, newId)
-	, motherboard(motherboard_)
 {
-	for (unsigned i = narrow_cast<byte>(beginAddr_); i <= narrow_cast<byte>(endAddr_); ++i) {
-		ios.push_back(std::make_unique<MSXWatchIODevice>(
-			*motherboard.getMachineConfig(), *this));
+}
+
+void WatchIO::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices)
+{
+	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
+	unsigned beginPort = getBeginAddress();
+	unsigned endPort   = getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		// create new MSXWatchIOdevice ...
+		auto& dev = ios.emplace_back(std::make_unique<MSXWatchIODevice>(
+			*motherBoard.getMachineConfig(), *this));
+		// ... and insert (prepend) in chain
+		dev->getDevicePtr() = devices[port];
+		devices[port] = dev.get();
 	}
 }
 
-MSXWatchIODevice& WatchIO::getDevice(byte port)
+void WatchIO::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 {
-	auto begin = narrow_cast<byte>(getBeginAddress());
-	return *ios[port - begin];
+	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
+	unsigned beginPort = getBeginAddress();
+	unsigned endPort   = getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
+
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		// find pointer to watchpoint
+		MSXDevice** prev = &devices[port];
+		while (*prev != ios[port - beginPort].get()) {
+			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+		}
+		// remove watchpoint from chain
+		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+	}
+	ios.clear();
 }
 
-void WatchIO::doReadCallback(unsigned port)
+void WatchIO::doReadCallback(MSXMotherBoard& motherBoard, unsigned port)
 {
-	auto& cpuInterface = motherboard.getCPUInterface();
+	auto& cpuInterface = motherBoard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
 
-	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
-	auto& interp  = motherboard.getReactor().getInterpreter();
+	auto& reactor = motherBoard.getReactor();
+	auto& cliComm = reactor.getGlobalCliComm();
+	auto& interp  = reactor.getInterpreter();
 	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
 	auto keepAlive = shared_from_this();
-	auto scopedBlock = motherboard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	if (bool remove = checkAndExecute(cliComm, interp); remove) {
 		cpuInterface.removeWatchPoint(keepAlive);
 	}
@@ -56,19 +83,20 @@ void WatchIO::doReadCallback(unsigned port)
 	interp.unsetVariable("wp_last_address");
 }
 
-void WatchIO::doWriteCallback(unsigned port, unsigned value)
+void WatchIO::doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value)
 {
-	auto& cpuInterface = motherboard.getCPUInterface();
+	auto& cpuInterface = motherBoard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
 
-	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
-	auto& interp  = motherboard.getReactor().getInterpreter();
+	auto& reactor = motherBoard.getReactor();
+	auto& cliComm = reactor.getGlobalCliComm();
+	auto& interp  = reactor.getInterpreter();
 	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
 	interp.setVariable(TclObject("wp_last_value"),   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
 	auto keepAlive = shared_from_this();
-	auto scopedBlock = motherboard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
+	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
 	if (bool remove = checkAndExecute(cliComm, interp); remove) {
 		cpuInterface.removeWatchPoint(keepAlive);
 	}
@@ -104,7 +132,7 @@ byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 	assert(device);
 
 	// first trigger watchpoint, then read from device
-	watchIO.doReadCallback(port);
+	watchIO.doReadCallback(getMotherBoard(), port);
 	return device->readIO(port, time);
 }
 
@@ -114,7 +142,7 @@ void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
 
 	// first write to device, then trigger watchpoint
 	device->writeIO(port, value, time);
-	watchIO.doWriteCallback(port, value);
+	watchIO.doWriteCallback(getMotherBoard(), port, value);
 }
 
 } // namespace openmsx

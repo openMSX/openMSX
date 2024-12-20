@@ -162,7 +162,7 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 	std::shared_ptr<WatchPoint> wp;
 	if (type == one_of(WatchPoint::Type::READ_IO, WatchPoint::Type::WRITE_IO)) {
 		wp = std::make_shared<WatchIO>(
-			motherBoard, type, beginAddr, endAddr,
+			type, beginAddr, endAddr,
 			std::move(command), std::move(condition), once, newId);
 	} else {
 		wp = std::make_shared<WatchPoint>(

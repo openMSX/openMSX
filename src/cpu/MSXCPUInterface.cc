@@ -876,17 +876,16 @@ void MSXCPUInterface::checkBreakPoints(
 	}
 }
 
-static void registerIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
+static void registerIOWatch(MSXMotherBoard& motherBoard, WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
 	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
-	unsigned beginPort = ioWatch.getBeginAddress();
-	unsigned endPort   = ioWatch.getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
-	for (unsigned port = beginPort; port <= endPort; ++port) {
-		ioWatch.getDevice(narrow_cast<byte>(port)).getDevicePtr() = devices[port];
-		devices[port] = &ioWatch.getDevice(narrow_cast<byte>(port));
-	}
+	ioWatch.registerIOWatch(motherBoard, devices);
+}
+
+static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
+{
+	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
+	ioWatch.unregisterIOWatch(devices);
 }
 
 void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
@@ -897,10 +896,10 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 	switch (type) {
 	using enum WatchPoint::Type;
 	case READ_IO:
-		registerIOWatch(*watchPoint, IO_In);
+		registerIOWatch(motherBoard, *watchPoint, IO_In);
 		break;
 	case WRITE_IO:
-		registerIOWatch(*watchPoint, IO_Out);
+		registerIOWatch(motherBoard, *watchPoint, IO_Out);
 		break;
 	case READ_MEM:
 	case WRITE_MEM:
@@ -908,25 +907,6 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 		break;
 	default:
 		UNREACHABLE;
-	}
-}
-
-static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
-{
-	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
-	unsigned beginPort = ioWatch.getBeginAddress();
-	unsigned endPort   = ioWatch.getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
-
-	for (unsigned port = beginPort; port <= endPort; ++port) {
-		// find pointer to watchpoint
-		MSXDevice** prev = &devices[port];
-		while (*prev != &ioWatch.getDevice(narrow_cast<byte>(port))) {
-			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
-		}
-		// remove watchpoint from chain
-		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 	}
 }
 
