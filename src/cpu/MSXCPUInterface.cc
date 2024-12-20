@@ -16,7 +16,6 @@
 #include "MSXMotherBoard.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
-#include "MSXWatchIODevice.hh"
 #include "Reactor.hh"
 #include "ReadOnlySetting.hh"
 #include "RealTime.hh"
@@ -24,6 +23,7 @@
 #include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "VDPIODelay.hh"
+#include "WatchPoint.hh"
 #include "serialize.hh"
 
 #include "checked_cast.hh"
@@ -878,14 +878,12 @@ void MSXCPUInterface::checkBreakPoints(
 
 static void registerIOWatch(MSXMotherBoard& motherBoard, WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
-	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
-	ioWatch.registerIOWatch(motherBoard, devices);
+	watchPoint.registerIOWatch(motherBoard, devices);
 }
 
 static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
 {
-	auto& ioWatch = checked_cast<WatchIO&>(watchPoint);
-	ioWatch.unregisterIOWatch(devices);
+	watchPoint.unregisterIOWatch(devices);
 }
 
 void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)

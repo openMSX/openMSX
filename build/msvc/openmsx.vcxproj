@@ -368,7 +368,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiIODevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiMemDevice.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXWatchIODevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\DasmTables.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Debugger.cc" />
@@ -938,7 +937,6 @@
     <None Include="$(OpenMSXSrcDir)\cpu\MSXMultiDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\MSXMultiIODevice.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\MSXMultiMemDevice.hh" />
-    <None Include="$(OpenMSXSrcDir)\cpu\MSXWatchIODevice.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\R800.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\WatchPoint.hh" />

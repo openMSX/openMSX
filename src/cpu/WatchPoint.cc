@@ -1,4 +1,4 @@
-#include "MSXWatchIODevice.hh"
+#include "WatchPoint.hh"
 
 #include "Interpreter.hh"
 #include "MSXCPUInterface.hh"
@@ -15,17 +15,9 @@
 
 namespace openmsx {
 
-// class WatchIO
+// class WatchPoint
 
-WatchIO::WatchIO(WatchPoint::Type type_,
-                 unsigned beginAddr_, unsigned endAddr_,
-                 TclObject command_, TclObject condition_,
-                 bool once_, unsigned newId /*= -1*/)
-	: WatchPoint(std::move(command_), std::move(condition_), type_, beginAddr_, endAddr_, once_, newId)
-{
-}
-
-void WatchIO::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices)
+void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices)
 {
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
 	unsigned beginPort = getBeginAddress();
@@ -42,7 +34,7 @@ void WatchIO::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*,
 	}
 }
 
-void WatchIO::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
+void WatchPoint::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 {
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
 	unsigned beginPort = getBeginAddress();
@@ -62,7 +54,7 @@ void WatchIO::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 	ios.clear();
 }
 
-void WatchIO::doReadCallback(MSXMotherBoard& motherBoard, unsigned port)
+void WatchPoint::doReadCallback(MSXMotherBoard& motherBoard, unsigned port)
 {
 	auto& cpuInterface = motherBoard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
@@ -83,7 +75,7 @@ void WatchIO::doReadCallback(MSXMotherBoard& motherBoard, unsigned port)
 	interp.unsetVariable("wp_last_address");
 }
 
-void WatchIO::doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value)
+void WatchPoint::doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value)
 {
 	auto& cpuInterface = motherBoard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
@@ -109,9 +101,9 @@ void WatchIO::doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsign
 // class MSXWatchIODevice
 
 MSXWatchIODevice::MSXWatchIODevice(
-		const HardwareConfig& hwConf, WatchIO& watchIO_)
+		const HardwareConfig& hwConf, WatchPoint& wp_)
 	: MSXMultiDevice(hwConf)
-	, watchIO(watchIO_)
+	, wp(wp_)
 {
 }
 
@@ -132,7 +124,7 @@ byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 	assert(device);
 
 	// first trigger watchpoint, then read from device
-	watchIO.doReadCallback(getMotherBoard(), port);
+	wp.doReadCallback(getMotherBoard(), port);
 	return device->readIO(port, time);
 }
 
@@ -142,7 +134,7 @@ void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
 
 	// first write to device, then trigger watchpoint
 	device->writeIO(port, value, time);
-	watchIO.doWriteCallback(getMotherBoard(), port, value);
+	wp.doWriteCallback(getMotherBoard(), port, value);
 }
 
 } // namespace openmsx

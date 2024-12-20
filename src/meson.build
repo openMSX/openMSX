@@ -111,7 +111,6 @@ sources = files(
     'cpu/MSXMultiDevice.cc',
     'cpu/MSXMultiIODevice.cc',
     'cpu/MSXMultiMemDevice.cc',
-    'cpu/MSXWatchIODevice.cc',
     'cpu/VDPIODelay.cc',
     'debugger/DasmTables.cc',
     'debugger/Debugger.cc',

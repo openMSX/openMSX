@@ -10,12 +10,12 @@
 #include "MSXCPUInterface.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXWatchIODevice.hh"
 #include "ProbeBreakPoint.hh"
 #include "Reactor.hh"
 #include "SymbolManager.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
+#include "WatchPoint.hh"
 
 #include "MemBuffer.hh"
 #include "StringOp.hh"
@@ -159,15 +159,8 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
                                  unsigned beginAddr, unsigned endAddr,
                                  bool once, unsigned newId /*= -1*/)
 {
-	std::shared_ptr<WatchPoint> wp;
-	if (type == one_of(WatchPoint::Type::READ_IO, WatchPoint::Type::WRITE_IO)) {
-		wp = std::make_shared<WatchIO>(
-			type, beginAddr, endAddr,
-			std::move(command), std::move(condition), once, newId);
-	} else {
-		wp = std::make_shared<WatchPoint>(
-			std::move(command), std::move(condition), type, beginAddr, endAddr, once, newId);
-	}
+	auto wp = std::make_shared<WatchPoint>(
+		std::move(command), std::move(condition), type, beginAddr, endAddr, once, newId);
 	motherBoard.getCPUInterface().setWatchPoint(wp);
 	return wp->getId();
 }

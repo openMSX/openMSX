@@ -2,15 +2,17 @@
 #define WATCHPOINT_HH
 
 #include "BreakPointBase.hh"
+#include "MSXMultiDevice.hh"
+
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
-/** Base class for CPU breakpoints.
- *  For performance reasons every bp is associated with exactly one
- *  (immutable) address.
- */
-class WatchPoint : public BreakPointBase
+class MSXWatchIODevice;
+
+class WatchPoint final : public BreakPointBase
+                       , public std::enable_shared_from_this<WatchPoint>
 {
 public:
 	enum class Type { READ_IO, WRITE_IO, READ_MEM, WRITE_MEM };
@@ -27,12 +29,17 @@ public:
 		assert(beginAddr <= endAddr);
 	}
 
-	virtual ~WatchPoint() = default; // needed for dynamic_cast
-
 	[[nodiscard]] unsigned getId()           const { return id; }
 	[[nodiscard]] Type     getType()         const { return type; }
 	[[nodiscard]] unsigned getBeginAddress() const { return beginAddr; }
 	[[nodiscard]] unsigned getEndAddress()   const { return endAddr; }
+
+	void registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices);
+	void unregisterIOWatch(std::span<MSXDevice*, 256> devices);
+
+private:
+	void doReadCallback(MSXMotherBoard& motherBoard, unsigned port);
+	void doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value);
 
 private:
 	unsigned id;
@@ -40,7 +47,30 @@ private:
 	unsigned endAddr;
 	Type type;
 
+	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
+
 	static inline unsigned lastId = 0;
+
+	friend class MSXWatchIODevice;
+};
+
+class MSXWatchIODevice final : public MSXMultiDevice
+{
+public:
+	MSXWatchIODevice(const HardwareConfig& hwConf, WatchPoint& wp);
+
+	[[nodiscard]] MSXDevice*& getDevicePtr() { return device; }
+
+private:
+	// MSXDevice
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+
+private:
+	WatchPoint& wp;
+	MSXDevice* device = nullptr;
 };
 
 } // namespace openmsx
