@@ -876,28 +876,16 @@ void MSXCPUInterface::checkBreakPoints(
 	}
 }
 
-static void registerIOWatch(MSXMotherBoard& motherBoard, WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
+void MSXCPUInterface::registerWatchPoint(WatchPoint& wp)
 {
-	watchPoint.registerIOWatch(motherBoard, devices);
-}
-
-static void unregisterIOWatch(WatchPoint& watchPoint, std::span<MSXDevice*, 256> devices)
-{
-	watchPoint.unregisterIOWatch(devices);
-}
-
-void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
-{
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
-	watchPoints.push_back(watchPoint);
-	WatchPoint::Type type = watchPoint->getType();
+	auto type = wp.getType();
 	switch (type) {
 	using enum WatchPoint::Type;
 	case READ_IO:
-		registerIOWatch(motherBoard, *watchPoint, IO_In);
+		wp.registerIOWatch(motherBoard, IO_In);
 		break;
 	case WRITE_IO:
-		registerIOWatch(motherBoard, *watchPoint, IO_Out);
+		wp.registerIOWatch(motherBoard, IO_Out);
 		break;
 	case READ_MEM:
 	case WRITE_MEM:
@@ -906,6 +894,33 @@ void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoin
 	default:
 		UNREACHABLE;
 	}
+}
+
+void MSXCPUInterface::unregisterWatchPoint(WatchPoint& wp)
+{
+	auto type = wp.getType();
+	switch (type) {
+	using enum WatchPoint::Type;
+	case READ_IO:
+		wp.unregisterIOWatch(IO_In);
+		break;
+	case WRITE_IO:
+		wp.unregisterIOWatch(IO_Out);
+		break;
+	case READ_MEM:
+	case WRITE_MEM:
+		updateMemWatch(type);
+		break;
+	default:
+		UNREACHABLE;
+	}
+}
+
+void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
+{
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
+	watchPoints.push_back(watchPoint);
+	registerWatchPoint(*watchPoint);
 }
 
 void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
@@ -918,22 +933,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "remove");
 		// remove before calling updateMemWatch()
 		watchPoints.erase(it);
-		WatchPoint::Type type = watchPoint->getType();
-		switch (type) {
-		using enum WatchPoint::Type;
-		case READ_IO:
-			unregisterIOWatch(*watchPoint, IO_In);
-			break;
-		case WRITE_IO:
-			unregisterIOWatch(*watchPoint, IO_Out);
-			break;
-		case READ_MEM:
-		case WRITE_MEM:
-			updateMemWatch(type);
-			break;
-		default:
-			UNREACHABLE;
-		}
+		unregisterWatchPoint(*watchPoint);
 	}
 }
 
@@ -977,10 +977,8 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	}
 	for (const auto& w : watchPoints) {
 		if (w->getType() == type) {
-			unsigned beginAddr = w->getBeginAddress();
-			unsigned endAddr   = w->getEndAddress();
-			assert(beginAddr <= endAddr);
-			assert(endAddr < 0x10000);
+			unsigned beginAddr = std::min(w->getBeginAddress(), 0xffffu);
+			unsigned endAddr   = std::min(w->getEndAddress(),   0xffffu);
 			for (unsigned addr = beginAddr; addr <= endAddr; ++addr) {
 				watchSet[addr >> CacheLine::BITS].set(
 				         addr  & CacheLine::LOW);

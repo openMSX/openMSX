@@ -10,6 +10,7 @@
 #include "checked_cast.hh"
 #include "one_of.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -20,10 +21,8 @@ namespace openmsx {
 void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices)
 {
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	unsigned beginPort = getBeginAddress();
-	unsigned endPort   = getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
+	unsigned beginPort = std::min(getBeginAddress(), 0xffu);
+	unsigned endPort   = std::min(getEndAddress(),   0xffu);
 	for (unsigned port = beginPort; port <= endPort; ++port) {
 		// create new MSXWatchIOdevice ...
 		auto& dev = ios.emplace_back(std::make_unique<MSXWatchIODevice>(
@@ -37,11 +36,8 @@ void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevic
 void WatchPoint::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 {
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	unsigned beginPort = getBeginAddress();
-	unsigned endPort   = getEndAddress();
-	assert(beginPort <= endPort);
-	assert(endPort < 0x100);
-
+	unsigned beginPort = std::min(getBeginAddress(), 0xffu);
+	unsigned endPort   = std::min(getEndAddress(),   0xffu);
 	for (unsigned port = beginPort; port <= endPort; ++port) {
 		// find pointer to watchpoint
 		MSXDevice** prev = &devices[port];

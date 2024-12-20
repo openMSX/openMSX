@@ -273,6 +273,25 @@ public:
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
 
+	// Temporarily unregister and then re-register a watchpoint. E.g.
+	// because you want to change the type or address, and then it needs to
+	// be registered in a different way.
+	struct ScopedChangeWatchpoint {
+		ScopedChangeWatchpoint(MSXCPUInterface& interface_, std::shared_ptr<WatchPoint> wp_)
+			: interface(interface_), wp(std::move(wp_)) {
+			interface.unregisterWatchPoint(*wp);
+		}
+		~ScopedChangeWatchpoint() {
+			interface.registerWatchPoint(*wp);
+		}
+	private:
+		MSXCPUInterface& interface;
+		std::shared_ptr<WatchPoint> wp;
+	};
+	[[nodiscard]] auto getScopedChangeWatchpoint(std::shared_ptr<WatchPoint> wp) {
+		return ScopedChangeWatchpoint(*this, std::move(wp));
+	}
+
 	void setCondition(DebugCondition cond);
 	void removeCondition(const DebugCondition& cond);
 	void removeCondition(unsigned id);
@@ -334,6 +353,9 @@ private:
 
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	                                BreakPoints::const_iterator> range);
+
+	void registerWatchPoint(WatchPoint& wp);
+	void unregisterWatchPoint(WatchPoint& wp);
 
 	void removeAllWatchPoints();
 	void updateMemWatch(WatchPoint::Type type);

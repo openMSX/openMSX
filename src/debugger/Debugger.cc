@@ -243,6 +243,7 @@ void Debugger::Cmd::execute(
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
 		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
 		"list_bp",           [&]{ listBreakPoints(tokens, result); },
+		"watchpoint",        [&]{ watchPoint(tokens, result); },
 		"set_watchpoint",    [&]{ setWatchPoint(tokens, result); },
 		"remove_watchpoint", [&]{ removeWatchPoint(tokens, result); },
 		"list_watchpoints",  [&]{ listWatchPoints(tokens, result); },
@@ -405,6 +406,16 @@ void Debugger::Cmd::breakPoint(std::span<const TclObject> tokens, TclObject& res
 		"remove",    [&]{ breakPointRemove(tokens, result); });
 }
 
+void Debugger::Cmd::watchPoint(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[2].getString(),
+		"list",      [&]{ watchPointList(tokens, result); },
+		"create",    [&]{ watchPointCreate(tokens, result); },
+		"configure", [&]{ watchPointConfigure(tokens, result); },
+		"remove",    [&]{ watchPointRemove(tokens, result); });
+}
+
 BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 {
 	if (!str.starts_with("bp#")) return nullptr;
@@ -418,16 +429,59 @@ BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 	return nullptr;
 }
 
+std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str)
+{
+	if (!str.starts_with("wp#")) return nullptr;
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(3))) {
+		auto& interface = debugger().motherBoard.getCPUInterface();
+		auto& watchPoints = interface.getWatchPoints();
+		if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+		    it != std::end(watchPoints)) {
+			return *it;
+		}
+	}
+	return {};
+}
+
+static auto formatAddr(word addr)
+{
+	return tmpStrCat("0x", hex_string<4>(addr));
+}
+static auto formatWpAddr(const WatchPoint& wp)
+{
+	TclObject result;
+	result.addListElement(formatAddr(wp.getBeginAddress()));
+	if (wp.getBeginAddress() != wp.getEndAddress()) {
+		result.addListElement(formatAddr(wp.getEndAddress()));
+	}
+	return result;
+}
+
 void Debugger::Cmd::breakPointList(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject dict = makeTclDict(
-			TclObject("-address"), tmpStrCat("0x", hex_string<4>(bp.getAddress())), // TODO keep original format
+			TclObject("-address"), formatAddr(bp.getAddress()), // TODO keep original format
 			TclObject("-condition"), bp.getCondition(),
 			TclObject("-command"), bp.getCommand(),
 			TclObject("-once"), bp.onlyOnce());
 			// TODO enabled
 		result.addDictKeyValue(tmpStrCat("bp#", bp.getId()), std::move(dict));
+	}
+}
+
+void Debugger::Cmd::watchPointList(std::span<const TclObject> /*tokens*/, TclObject& result)
+{
+	auto& interface = debugger().motherBoard.getCPUInterface();
+	for (const auto& wp : interface.getWatchPoints()) {
+		TclObject dict = makeTclDict(
+			TclObject("-type"), WatchPoint::format(wp->getType()),
+			TclObject("-address"), formatWpAddr(*wp),
+			TclObject("-condition"), wp->getCondition(),
+			TclObject("-command"), wp->getCommand(),
+			TclObject("-once"), wp->onlyOnce());
+			// TODO enabled
+		result.addDictKeyValue(tmpStrCat("wp#", wp->getId()), std::move(dict));
 	}
 }
 
@@ -450,12 +504,42 @@ void Debugger::Cmd::parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObj
 	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
 }
 
+void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObject> tokens)
+{
+	std::array info = {
+		funcArg("-type", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			wp.setType(arg);
+		}),
+		funcArg("-address", [&](Interpreter& interp, const TclObject& arg) {
+			wp.setAddress(interp, arg);
+		}),
+		funcArg("-condition", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			wp.setCondition(arg);
+		}),
+		funcArg("-command", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			wp.setCommand(arg);
+		}),
+		funcArg("-once", [&](Interpreter& interp, const TclObject& arg) {
+			wp.setOnce(interp, arg);
+		}),
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+}
+
 void Debugger::Cmd::breakPointCreate(std::span<const TclObject> tokens, TclObject& result)
 {
 	BreakPoint bp;
 	parseCreateBreakPoint(bp, tokens.subspan(3));
 	result = tmpStrCat("bp#", bp.getId());
 	debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
+}
+
+void Debugger::Cmd::watchPointCreate(std::span<const TclObject> tokens, TclObject& result)
+{
+	auto wp = std::make_shared<WatchPoint>();
+	parseCreateWatchPoint(*wp, tokens.subspan(3));
+	result = tmpStrCat("wp#", wp->getId());
+	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
 
 void Debugger::Cmd::breakPointConfigure(std::span<const TclObject> tokens, TclObject& /*result*/)
@@ -466,8 +550,20 @@ void Debugger::Cmd::breakPointConfigure(std::span<const TclObject> tokens, TclOb
 	if (!bp) {
 		throw CommandException("No such breakpoint: ", id);
 	}
+	// No need to get a scoped change breakpoint.
 	parseCreateBreakPoint(*bp, tokens.subspan(4));
-	//debugger().motherBoard.getCPUInterface().editedBreakPoint(*bp);
+}
+
+void Debugger::Cmd::watchPointConfigure(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, AtLeast{4}, "id ?arg ...?");
+	auto id = tokens[3].getString();
+	auto wp = lookupWatchPoint(id);
+	if (!wp) {
+		throw CommandException("No such breakpoint: ", id);
+	}
+	auto ch = debugger().motherBoard.getCPUInterface().getScopedChangeWatchpoint(wp);
+	parseCreateWatchPoint(*wp, tokens.subspan(4));
 }
 
 void Debugger::Cmd::breakPointRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
@@ -479,6 +575,17 @@ void Debugger::Cmd::breakPointRemove(std::span<const TclObject> tokens, TclObjec
 		throw CommandException("No such breakpoint: ", id);
 	}
 	debugger().motherBoard.getCPUInterface().removeBreakPoint(*bp);
+}
+
+void Debugger::Cmd::watchPointRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 4, "id");
+	auto id = tokens[3].getString();
+	auto wp = lookupWatchPoint(tokens[3].getString());
+	if (!wp) {
+		throw CommandException("No such watchpoint: ", id);
+	}
+	debugger().motherBoard.getCPUInterface().removeWatchPoint(wp);
 }
 
 void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& result)
@@ -581,43 +688,10 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	case 3: // condition
 		condition = arguments[2];
 		[[fallthrough]];
-	case 2: { // address + type
-		string_view typeStr = arguments[0].getString();
-		unsigned max = [&] {
-			using enum WatchPoint::Type;
-			if (typeStr == "read_io") {
-				type = READ_IO;
-				return 0x100;
-			} else if (typeStr == "write_io") {
-				type = WRITE_IO;
-				return 0x100;
-			} else if (typeStr == "read_mem") {
-				type = READ_MEM;
-				return 0x10000;
-			} else if (typeStr == "write_mem") {
-				type = WRITE_MEM;
-				return 0x10000;
-			} else {
-				throw CommandException("Invalid type: ", typeStr);
-			}
-		}();
-		auto& interp = getInterpreter();
-		if (arguments[1].getListLength(interp) == 2) {
-			beginAddr = arguments[1].getListIndex(interp, 0).getInt(interp);
-			endAddr   = arguments[1].getListIndex(interp, 1).getInt(interp);
-			if (endAddr < beginAddr) {
-				throw CommandException(
-					"Not a valid range: end address may "
-					"not be smaller than begin address.");
-			}
-		} else {
-			beginAddr = endAddr = arguments[1].getInt(interp);
-		}
-		if (endAddr >= max) {
-			throw CommandException("Invalid address: out of range");
-		}
+	case 2: // address + type
+		type = WatchPoint::parseType(arguments[0].getString());
+		std::tie(beginAddr, endAddr) = WatchPoint::parseAddress(getInterpreter(), arguments[1], type);
 		break;
-	}
 	default:
 		UNREACHABLE;
 	}
@@ -653,25 +727,7 @@ void Debugger::Cmd::listWatchPoints(
 	const auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
 		TclObject line = makeTclList(tmpStrCat("wp#", wp->getId()));
-		string type;
-		switch (wp->getType()) {
-		using enum WatchPoint::Type;
-		case READ_IO:
-			type = "read_io";
-			break;
-		case WRITE_IO:
-			type = "write_io";
-			break;
-		case READ_MEM:
-			type = "read_mem";
-			break;
-		case WRITE_MEM:
-			type = "write_mem";
-			break;
-		default:
-			UNREACHABLE;
-		}
-		line.addListElement(type);
+		line.addListElement(WatchPoint::format(wp->getType()));
 		unsigned beginAddr = wp->getBeginAddress();
 		unsigned endAddr   = wp->getEndAddress();
 		if (beginAddr == endAddr) {
@@ -924,12 +980,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    read_block        read a whole block at once\n"
 		"    write_block       write a whole block at once\n"
 		"    breakpoint        breakpoint related subcommands\n"
-		"    set_bp            insert a new breakpoint\n"
-		"    remove_bp         remove a certain breakpoint\n"
-		"    list_bp           list the active breakpoints\n"
-		"    set_watchpoint    insert a new watchpoint\n"
-		"    remove_watchpoint remove a certain watchpoint\n"
-		"    list_watchpoints  list the active watchpoints\n"
+		"    watchpoint        watchpoint related subcommands\n"
 		"    set_condition     insert a new condition\n"
 		"    remove_condition  remove a certain condition\n"
 		"    list_conditions   list the active conditions\n"
@@ -993,12 +1044,26 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    configure configure an existing breakpoint\n"
 		"    remove    remove an existing breakpoint\n"
 		"  Type 'help debug breakpoint <subcommand>' for help about a specific subcommand.\n";
+	auto watchPointHelp =
+		"debug watchpoint <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    list      list all active watchpoints\n"
+		"    create    create a new watchpoint\n"
+		"    configure configure an existing watchpoint\n"
+		"    remove    remove an existing watchpoint\n"
+		"  Type 'help debug watchpoint <subcommand>' for help about a specific subcommand.\n";
 	auto breakPointListHelp =
 		"debug breakpoint list\n"
 		"  Lists all breakpoints. The result is a Tcl dict (<key>/<value>-pairs), where\n"
 		"  * <key> is the breakpoint ID\n"
 		"  * <value> is another Tcl dict containing the properties of the breakpoint.\n"
 		"            See 'help debug breakpoint create' for a description of these properties.\n";
+	auto watchPointListHelp =
+		"debug watchpoint list\n"
+		"  Lists all watchpoints. The result is a Tcl dict (<key>/<value>-pairs), where\n"
+		"  * <key> is the watchpoint ID\n"
+		"  * <value> is another Tcl dict containing the properties of the watchpoint.\n"
+		"            See 'help debug watchpoint create' for a description of these properties.\n";
 	auto breakPointCreateHelp =
 		"debug breakpoint create [<property-name> <property-value>]...\n"
 		"  Create a new breakpoint with given properties. The following properties are supported:\n"
@@ -1006,13 +1071,28 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  -condition  a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
 		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
+	auto watchPointCreateHelp =
+		"debug watchpoint create [<property-name> <property-value>]...\n"
+		"  Create a new watchpoint with given properties. The following properties are supported:\n"
+		"  -type       one of 'read_io', 'write_io', 'read_mem', 'write_mem'\n"
+		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a begin/end-pair\n"
+		"  -condition  a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition)\n"
+		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"
+		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
 	auto breakPointConfigureHelp =
 		"debug breakpoint configure <id> [<property-name> <property-value>]...\n"
 		"  Change one or more properties of an existing breakpoint.\n"
 		"  See 'help debug breakpoint create' for a description of the properties.\n";
+	auto watchPointConfigureHelp =
+		"debug watchpoint configure <id> [<property-name> <property-value>]...\n"
+		"  Change one or more properties of an existing watchpoint.\n"
+		"  See 'help debug watchpoint create' for a description of the properties.\n";
 	auto breakPointRemoveHelp =
 		"debug breakpoint remove <id>\n"
 		"  Remove the breakpoint with given ID.\n";
+	auto watchPointRemoveHelp =
+		"debug watchpoint remove <id>\n"
+		"  Remove the watchpoint with given ID.\n";
 	auto setBpHelp =
 		"[deprecated] replaced by: 'debug breakpoint create <args>...'\n"
 		"\n"
@@ -1051,6 +1131,8 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"(default condition is empty). And the last column contains "
 		"the command that will be executed (default is 'debug break').\n";
 	auto setWatchPointHelp =
+		"[deprecated] replaced by: 'debug watchpoint create <args>...'\n"
+		"\n"
 		"debug set_watchpoint [-once] <type> <region> [<cond>] [<cmd>]\n"
 		"  Insert a new watchpoint of given type on the given region, "
 		"there can be an optional -once flag, a condition and alternative "
@@ -1074,10 +1156,14 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
 		"  debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
 	auto removeWatchPointHelp =
+		"[deprecated] replaced by: 'debug watchpoint remove <id>'\n"
+		"\n"
 		"debug remove_watchpoint <id>\n"
 		"  Remove the watchpoint with given ID again. You can use the "
 		"'list_watchpoints' subcommand to see all valid IDs.\n";
 	auto listWatchPointsHelp =
+		"[deprecated] replaced by: 'debug watchpoint list'\n"
+		"\n"
 		"debug list_watchpoints\n"
 		"  Lists all active watchpoints. The result is similar to the "
 		"'list_bp' subcommand, but there is an extra column (2nd column) "
@@ -1193,6 +1279,20 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		} else {
 			return breakPointHelp;
 		}
+	} else if (tokens[1] == "watchpoint") {
+		if (size == 2) {
+			return watchPointHelp;
+		} else if (tokens[2] == "list") {
+			return watchPointListHelp;
+		} else if (tokens[2] == "create") {
+			return watchPointCreateHelp;
+		} else if (tokens[2] == "configure") {
+			return watchPointConfigureHelp;
+		} else if (tokens[2] == "remove") {
+			return watchPointRemoveHelp;
+		} else {
+			return watchPointHelp;
+		}
 	} else if (tokens[1] == "set_bp") {
 		return setBpHelp;
 	} else if (tokens[1] == "remove_bp") {
@@ -1265,7 +1365,10 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	static constexpr std::array otherCmds = {
 		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
-		"probe"sv, "symbols"sv, "breakpoint"sv,
+		"probe"sv, "symbols"sv, "breakpoint"sv, "watchpoint"sv,
+	};
+	static constexpr std::array types = {
+		"read_io"sv, "write_io"sv, "read_mem"sv, "write_mem"sv,
 	};
 	switch (auto size = tokens.size(); size) {
 	case 2: {
@@ -1278,7 +1381,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
 				completeString(tokens, view::keys(debugger().debuggables));
-			} else if (tokens[1] == "breakpoint") {
+			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv)) {
 				static constexpr std::array subCmds = {
 					"list"sv, "create"sv,
 					"configure"sv, "remove"sv,
@@ -1294,10 +1397,6 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 				// this one takes a cond id
 				completeString(tokens, getConditionIds());
 			} else if (tokens[1] == "set_watchpoint") {
-				static constexpr std::array types = {
-					"write_io"sv, "write_mem"sv,
-					"read_io"sv, "read_mem"sv,
-				};
 				completeString(tokens, types);
 			} else if (tokens[1] == "probe") {
 				static constexpr std::array subCmds = {
@@ -1321,7 +1420,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 				debugger().probes,
 				[](auto* p) -> std::string_view { return p->getName(); }));
 		} else if (tokens[1] == "breakpoint") {
-			if ((size == 4) && tokens[2] == one_of("remove", "configure")) {
+			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
 				completeString(tokens, getBreakPointIds());
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
@@ -1329,6 +1428,20 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 					"-address"sv, "-command"sv, "-condition"sv, "-once"sv,
 				};
 				completeString(tokens, properties);
+			}
+		} else if (tokens[1] == "watchpoint") {
+			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
+				completeString(tokens, getWatchPointIds());
+			} else if (((size >= 4) && (tokens[2] == "create")) ||
+			           ((size >= 5) && (tokens[2] == "configure"))) {
+				if (tokens[size - 2] == "-type") {
+					completeString(tokens, types);
+				} else {
+					static constexpr std::array properties = {
+						"-type"sv, "-address"sv, "-command"sv, "-condition"sv, "-once"sv,
+					};
+					completeString(tokens, properties);
+				}
 			}
 		}
 		break;
