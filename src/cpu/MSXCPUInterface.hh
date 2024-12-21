@@ -296,7 +296,7 @@ public:
 	void removeCondition(const DebugCondition& cond);
 	void removeCondition(unsigned id);
 	using Conditions = std::vector<DebugCondition>;
-	[[nodiscard]] static const Conditions& getConditions() { return conditions; }
+	[[nodiscard]] static Conditions& getConditions() { return conditions; }
 
 	[[nodiscard]] static bool isBreaked() { return breaked; }
 	void doBreak();
