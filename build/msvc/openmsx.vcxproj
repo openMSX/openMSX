@@ -619,6 +619,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\Yamanooto.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\BooleanSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\EnumSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\FilenameSetting.cc" />
@@ -1205,6 +1206,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\Yamanooto.hh" />
     <None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
     <None Include="$(OpenMSXSrcDir)\settings\BooleanSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\EnumSetting.hh" />
