@@ -828,13 +828,13 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 
 void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, bp.getIdStr(), "add");
 	breakPoints.push_back(std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "remove");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, bp.getIdStr(), "remove");
 	breakPoints.erase(find_unguarded(breakPoints, &bp, [](const BreakPoint& i) { return &i; }));
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)
@@ -842,7 +842,7 @@ void MSXCPUInterface::removeBreakPoint(unsigned id)
 	if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
 	    it != breakPoints.end()) {
-		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", it->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, it->getIdStr(), "remove");
 		breakPoints.erase(it);
 	}
 }
@@ -918,7 +918,7 @@ void MSXCPUInterface::unregisterWatchPoint(WatchPoint& wp)
 
 void MSXCPUInterface::setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint)
 {
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, watchPoint->getIdStr(), "add");
 	watchPoints.push_back(watchPoint);
 	registerWatchPoint(*watchPoint);
 }
@@ -930,7 +930,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	// from the watchPoints collection.
 	if (auto it = ranges::find(watchPoints, watchPoint);
 	    it != end(watchPoints)) {
-		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("wp#", watchPoint->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, watchPoint->getIdStr(), "remove");
 		// remove before calling updateMemWatch()
 		watchPoints.erase(it);
 		unregisterWatchPoint(*watchPoint);
@@ -947,13 +947,13 @@ void MSXCPUInterface::removeWatchPoint(unsigned id)
 
 void MSXCPUInterface::setCondition(DebugCondition cond)
 {
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "add");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, cond.getIdStr(), "add");
 	conditions.push_back(std::move(cond));
 }
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", cond.getId()), "remove");
+	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, cond.getIdStr(), "remove");
 	conditions.erase(rfind_unguarded(conditions, &cond,
 	                                 [](auto& e) { return &e; }));
 }
@@ -963,7 +963,7 @@ void MSXCPUInterface::removeCondition(unsigned id)
 	if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
-		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("cond#", it->getId()), "remove");
+		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, it->getIdStr(), "remove");
 		conditions.erase(it);
 	}
 }

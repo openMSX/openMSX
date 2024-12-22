@@ -429,8 +429,8 @@ void Debugger::Cmd::condition(std::span<const TclObject> tokens, TclObject& resu
 
 BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 {
-	if (!str.starts_with("bp#")) return nullptr;
-	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(3))) {
+	if (!str.starts_with(BreakPoint::prefix)) return nullptr;
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(BreakPoint::prefix.size()))) {
 		auto& breakPoints = MSXCPUInterface::getBreakPoints();
 		if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 		    it != std::end(breakPoints)) {
@@ -442,8 +442,8 @@ BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 
 std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str)
 {
-	if (!str.starts_with("wp#")) return {};
-	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(3))) {
+	if (!str.starts_with(WatchPoint::prefix)) return {};
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(WatchPoint::prefix.size()))) {
 		auto& interface = debugger().motherBoard.getCPUInterface();
 		auto& watchPoints = interface.getWatchPoints();
 		if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
@@ -456,8 +456,8 @@ std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str
 
 DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
 {
-	if (!str.starts_with("cond#")) return {};
-	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(5))) {
+	if (!str.starts_with(DebugCondition::prefix)) return {};
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(DebugCondition::prefix.size()))) {
 		auto& conditions = MSXCPUInterface::getConditions();
 		if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
 		    it != std::end(conditions)) {
@@ -490,7 +490,7 @@ void Debugger::Cmd::breakPointList(std::span<const TclObject> /*tokens*/, TclObj
 			TclObject("-command"), bp.getCommand(),
 			TclObject("-once"), bp.onlyOnce());
 			// TODO enabled
-		result.addDictKeyValue(tmpStrCat("bp#", bp.getId()), std::move(dict));
+		result.addDictKeyValue(bp.getIdStr(), std::move(dict));
 	}
 }
 
@@ -505,7 +505,7 @@ void Debugger::Cmd::watchPointList(std::span<const TclObject> /*tokens*/, TclObj
 			TclObject("-command"), wp->getCommand(),
 			TclObject("-once"), wp->onlyOnce());
 			// TODO enabled
-		result.addDictKeyValue(tmpStrCat("wp#", wp->getId()), std::move(dict));
+		result.addDictKeyValue(wp->getIdStr(), std::move(dict));
 	}
 }
 
@@ -517,7 +517,7 @@ void Debugger::Cmd::conditionList(std::span<const TclObject> /*tokens*/, TclObje
 			TclObject("-command"), cond.getCommand(),
 			TclObject("-once"), cond.onlyOnce());
 			// TODO enabled
-		result.addDictKeyValue(tmpStrCat("cond#", cond.getId()), std::move(dict));
+		result.addDictKeyValue(cond.getIdStr(), std::move(dict));
 	}
 }
 
@@ -582,7 +582,7 @@ void Debugger::Cmd::breakPointCreate(std::span<const TclObject> tokens, TclObjec
 {
 	BreakPoint bp;
 	parseCreateBreakPoint(bp, tokens.subspan(3));
-	result = tmpStrCat("bp#", bp.getId());
+	result = bp.getIdStr();
 	debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 }
 
@@ -590,7 +590,7 @@ void Debugger::Cmd::watchPointCreate(std::span<const TclObject> tokens, TclObjec
 {
 	auto wp = std::make_shared<WatchPoint>();
 	parseCreateWatchPoint(*wp, tokens.subspan(3));
-	result = tmpStrCat("wp#", wp->getId());
+	result = wp->getIdStr();
 	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
 
@@ -598,7 +598,7 @@ void Debugger::Cmd::conditionCreate(std::span<const TclObject> tokens, TclObject
 {
 	DebugCondition cond;
 	parseCreateCondition(cond, tokens.subspan(3));
-	result = tmpStrCat("cond#", cond.getId());
+	result = cond.getIdStr();
 	debugger().motherBoard.getCPUInterface().setCondition(std::move(cond));
 }
 
@@ -694,7 +694,7 @@ void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& 
 	case 1: { // address
 		word addr = getAddress(getInterpreter(), arguments[0]);
 		BreakPoint bp(addr, command, condition, once);
-		result = tmpStrCat("bp#", bp.getId());
+		result = bp.getIdStr();
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 		break;
 	}
@@ -709,9 +709,9 @@ void Debugger::Cmd::removeBreakPoint(
 	auto& breakPoints = MSXCPUInterface::getBreakPoints();
 
 	string_view tmp = tokens[2].getString();
-	if (tmp.starts_with("bp#")) {
+	if (tmp.starts_with(BreakPoint::prefix)) {
 		// remove by id
-		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(BreakPoint::prefix.size()))) {
 			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
 			    it != std::end(breakPoints)) {
 				interface.removeBreakPoint(*it);
@@ -739,7 +739,7 @@ void Debugger::Cmd::listBreakPoints(std::span<const TclObject> /*tokens*/, TclOb
 	string res;
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject line = makeTclList(
-			tmpStrCat("bp#", bp.getId()),
+			bp.getIdStr(),
 			tmpStrCat("0x", hex_string<4>(bp.getAddress())),
 			bp.getCondition(),
 			bp.getCommand());
@@ -780,7 +780,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr, once);
-	result = tmpStrCat("wp#", id);
+	result = tmpStrCat(WatchPoint::prefix, id);
 }
 
 void Debugger::Cmd::removeWatchPoint(
@@ -788,9 +788,9 @@ void Debugger::Cmd::removeWatchPoint(
 {
 	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
-	if (tmp.starts_with("wp#")) {
+	if (tmp.starts_with(WatchPoint::prefix)) {
 		// remove by id
-		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(3))) {
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(WatchPoint::prefix.size()))) {
 			auto& interface = debugger().motherBoard.getCPUInterface();
 			for (auto& wp : interface.getWatchPoints()) {
 				if (wp->getId() == *id) {
@@ -809,7 +809,7 @@ void Debugger::Cmd::listWatchPoints(
 	string res;
 	const auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
-		TclObject line = makeTclList(tmpStrCat("wp#", wp->getId()));
+		TclObject line = makeTclList(wp->getIdStr());
 		line.addListElement(WatchPoint::format(wp->getType()));
 		unsigned beginAddr = wp->getBeginAddress();
 		unsigned endAddr   = wp->getEndAddress();
@@ -848,7 +848,7 @@ void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& r
 	case 1: { // condition
 		condition = arguments[0];
 		DebugCondition dc(command, condition, once);
-		result = tmpStrCat("cond#", dc.getId());
+		result = dc.getIdStr();
 		debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
 		break;
 	}
@@ -861,9 +861,9 @@ void Debugger::Cmd::removeCondition(
 	checkNumArgs(tokens, 3, "id");
 
 	string_view tmp = tokens[2].getString();
-	if (tmp.starts_with("cond#")) {
+	if (tmp.starts_with(DebugCondition::prefix)) {
 		// remove by id
-		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(5))) {
+		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(DebugCondition::prefix.size()))) {
 			for (auto& c : MSXCPUInterface::getConditions()) {
 				if (c.getId() == *id) {
 					auto& interface = debugger().motherBoard.getCPUInterface();
@@ -880,7 +880,7 @@ void Debugger::Cmd::listConditions(std::span<const TclObject> /*tokens*/, TclObj
 {
 	string res;
 	for (const auto& c : MSXCPUInterface::getConditions()) {
-		TclObject line = makeTclList(tmpStrCat("cond#", c.getId()),
+		TclObject line = makeTclList(c.getIdStr(),
 		                             c.getCondition(),
 		                             c.getCommand());
 		strAppend(res, line.getString(), '\n');
@@ -1464,19 +1464,19 @@ std::vector<string> Debugger::Cmd::getBreakPointIds() const
 {
 	return to_vector(view::transform(
 		MSXCPUInterface::getBreakPoints(),
-		[](auto& bp) { return strCat("bp#", bp.getId()); }));
+		[](auto& bp) { return bp.getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getWatchPointIds() const
 {
 	return to_vector(view::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
-		[](auto& w) { return strCat("wp#", w->getId()); }));
+		[](auto& w) { return w->getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getConditionIds() const
 {
 	return to_vector(view::transform(
 		MSXCPUInterface::getConditions(),
-		[](auto& c) { return strCat("cond#", c.getId()); }));
+		[](auto& c) { return c.getIdStr(); }));
 }
 
 void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const

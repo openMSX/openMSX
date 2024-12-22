@@ -5,6 +5,8 @@
 #include "CommandException.hh"
 #include "openmsx.hh"
 
+#include "strCat.hh"
+
 namespace openmsx {
 
 /** Base class for CPU breakpoints.
@@ -14,6 +16,9 @@ namespace openmsx {
 class BreakPoint final : public BreakPointBase
 {
 public:
+	static constexpr std::string_view prefix = "bp#";
+
+public:
 	BreakPoint()
 		: id(++lastId) {}
 	BreakPoint(word address_, TclObject command_, TclObject condition_, bool once_)
@@ -21,8 +26,9 @@ public:
 		, id(++lastId)
 		, address(address_) {}
 
-	[[nodiscard]] word getAddress() const { return address; }
 	[[nodiscard]] unsigned getId() const { return id; }
+	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
+	[[nodiscard]] word getAddress() const { return address; }
 
 	void setAddress(Interpreter& interp, const TclObject& a) {
 		// TODO store value with given formatting

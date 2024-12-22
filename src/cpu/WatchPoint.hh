@@ -6,6 +6,7 @@
 #include "MSXMultiDevice.hh"
 
 #include "one_of.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 
 #include <cassert>
@@ -20,6 +21,8 @@ class WatchPoint final : public BreakPointBase
                        , public std::enable_shared_from_this<WatchPoint>
 {
 public:
+	static constexpr std::string_view prefix = "wp#";
+
 	enum class Type { READ_IO, WRITE_IO, READ_MEM, WRITE_MEM };
 
 	static std::string_view format(Type type)
@@ -76,7 +79,8 @@ public:
 		assert(beginAddr <= endAddr);
 	}
 
-	[[nodiscard]] unsigned getId()           const { return id; }
+	[[nodiscard]] unsigned getId() const { return id; }
+	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
 	[[nodiscard]] Type     getType()         const { return type; }
 	[[nodiscard]] unsigned getBeginAddress() const { return beginAddr; }
 	[[nodiscard]] unsigned getEndAddress()   const { return endAddr; }

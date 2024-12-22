@@ -2,7 +2,6 @@
 #define BREAKPOINTBASE_HH
 
 #include "TclObject.hh"
-#include <string_view>
 
 namespace openmsx {
 
