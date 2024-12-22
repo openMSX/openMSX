@@ -308,17 +308,7 @@ public:
 	{
 		return !breakPoints.empty() || !conditions.empty();
 	}
-	[[nodiscard]] bool checkBreakPoints(unsigned pc)
-	{
-		auto range = ranges::equal_range(breakPoints, pc, {}, &BreakPoint::getAddress);
-		if (conditions.empty() && (range.first == range.second)) {
-			return false;
-		}
-
-		// slow path non-inlined
-		checkBreakPoints(range);
-		return isBreaked();
-	}
+	[[nodiscard]] bool checkBreakPoints(unsigned pc);
 
 	// cleanup global variables
 	static void cleanup();
@@ -349,10 +339,6 @@ private:
 	                  int ps, int ss, unsigned base, unsigned size);
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, unsigned base, unsigned size);
-
-
-	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
-	                                BreakPoints::const_iterator> range);
 
 	void registerWatchPoint(WatchPoint& wp);
 	void unregisterWatchPoint(WatchPoint& wp);
@@ -466,7 +452,7 @@ private:
 	bool fastForward = false; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
-	static inline BreakPoints breakPoints; // sorted on address
+	static inline BreakPoints breakPoints; // unsorted
 	WatchPoints watchPoints; // ordered in creation order,  TODO must also be static
 	static inline Conditions conditions; // ordered in creation order
 	static inline bool breaked = false;

@@ -829,16 +829,13 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
 	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "add");
-	auto it = ranges::upper_bound(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
-	breakPoints.insert(it, std::move(bp));
+	breakPoints.push_back(std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
 	cliComm.update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("bp#", bp.getId()), "remove");
-	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), {}, &BreakPoint::getAddress);
-	breakPoints.erase(find_unguarded(first, last, &bp,
-	                                 [](const BreakPoint& i) { return &i; }));
+	breakPoints.erase(find_unguarded(breakPoints, &bp, [](const BreakPoint& i) { return &i; }));
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)
 {
@@ -850,14 +847,16 @@ void MSXCPUInterface::removeBreakPoint(unsigned id)
 	}
 }
 
-void MSXCPUInterface::checkBreakPoints(
-	std::pair<BreakPoints::const_iterator,
-	          BreakPoints::const_iterator> range)
+bool MSXCPUInterface::checkBreakPoints(unsigned pc)
 {
 	// create copy for the case that breakpoint/condition removes itself
-	//  - keeps object alive by holding a shared_ptr to it
 	//  - avoids iterating over a changing collection
-	BreakPoints bpCopy(range.first, range.second);
+	std::vector<BreakPoint> bpCopy;
+	for (const auto& bp : breakPoints) {
+		if (bp.getAddress() == pc) bpCopy.push_back(bp);
+	}
+	if (bpCopy.empty() && conditions.empty()) return false;
+
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
 	auto scopedBlock = motherBoard.getStateChangeDistributor().tempBlockNewEventsDuringReplay();
@@ -874,6 +873,7 @@ void MSXCPUInterface::checkBreakPoints(
 			removeCondition(c.getId());
 		}
 	}
+	return isBreaked();
 }
 
 void MSXCPUInterface::registerWatchPoint(WatchPoint& wp)
