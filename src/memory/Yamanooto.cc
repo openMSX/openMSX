@@ -35,6 +35,11 @@ Yamanooto::Yamanooto(const DeviceConfig& config, Rom&& rom_)
 	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
 {
+	// Tests shown that the PSG has higher volume than the scc. See
+	//   https://www.msx.org/forum/msx-talk/openmsx/openmsx-cartridge-type?page=2#comment-470014
+	//   https://msx.pics/images/2024/12/23/yamanooto_volume_comparison.png
+	psg.setSoftwareVolume(3.0f, getCurrentTime());
+
 	getCPUInterface().register_IO_Out_range(0x10, 2, this);
 	powerUp(getCurrentTime());
 }
