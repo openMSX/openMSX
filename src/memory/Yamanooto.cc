@@ -147,12 +147,11 @@ byte Yamanooto::peekMem(word address, EmuTime::param time) const
 
 byte Yamanooto::readMem(word address, EmuTime::param time)
 {
-	address = mirror(address);
-
-	// 0x7ffc-0x7fff
+	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR && (enableReg & REGEN)) {
 		return peekMem(address, time);
 	}
+	address = mirror(address);
 
 	// 0x9800-0x9FFF or 0xB800-0xBFFD
 	if (isSCCAccess(address)) {
@@ -175,11 +174,9 @@ const byte* Yamanooto::getReadCacheLine(word address) const
 
 void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
 {
-	address = mirror(address);
-	unsigned page8kB = (address >> 13) - 2;
-
-	// 0x7ffc-0x7fff
+	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR) {
+		assert(false);
 		if (address == ENAR) {
 			enableReg = value;
 		} else if (enableReg & REGEN) {
@@ -214,6 +211,8 @@ void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
 		}
 		invalidateDeviceRCache();
 	}
+	address = mirror(address);
+	unsigned page8kB = (address >> 13) - 2;
 
 	if (enableReg & WREN) {
 		// write to flash rom
