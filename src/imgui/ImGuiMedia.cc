@@ -807,7 +807,10 @@ bool ImGuiMedia::selectImage(ItemGroup& group, const std::string& title,
 			manager.openFile->selectFile(
 				title,
 				createFilter(),
-				[&](const auto& fn) { group.edit.name = fn; },
+				[&](const auto& fn) {
+					group.edit.name = fn;
+					group.edit.romType = RomType::UNKNOWN; // also executed for other types than ROMs, but that's harmless
+				},
 				current);
 		}
 		simpleToolTip("Browse file");
