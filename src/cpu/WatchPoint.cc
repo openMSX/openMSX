@@ -20,10 +20,11 @@ namespace openmsx {
 
 void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices)
 {
+	assert(!registered);
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	unsigned beginPort = std::min(getBeginAddress(), 0xffu);
-	unsigned endPort   = std::min(getEndAddress(),   0xffu);
-	for (unsigned port = beginPort; port <= endPort; ++port) {
+	if (!beginAddr || !endAddr) return;
+	assert(*beginAddr < 0x100 && *endAddr < 0x100 && *beginAddr <= *endAddr);
+	for (unsigned port = *beginAddr; port <= *endAddr; ++port) {
 		// create new MSXWatchIOdevice ...
 		auto& dev = ios.emplace_back(std::make_unique<MSXWatchIODevice>(
 			*motherBoard.getMachineConfig(), *this));
@@ -31,23 +32,26 @@ void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevic
 		dev->getDevicePtr() = devices[port];
 		devices[port] = dev.get();
 	}
+	registered = true;
 }
 
 void WatchPoint::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 {
+	assert(registered);
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	unsigned beginPort = std::min(getBeginAddress(), 0xffu);
-	unsigned endPort   = std::min(getEndAddress(),   0xffu);
-	for (unsigned port = beginPort; port <= endPort; ++port) {
+	if (!beginAddr || !endAddr) return;
+	assert(*beginAddr < 0x100 && *endAddr < 0x100 && *beginAddr <= *endAddr);
+	for (unsigned port = *beginAddr; port <= *endAddr; ++port) {
 		// find pointer to watchpoint
 		MSXDevice** prev = &devices[port];
-		while (*prev != ios[port - beginPort].get()) {
+		while (*prev != ios[port - *beginAddr].get()) {
 			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 		}
 		// remove watchpoint from chain
 		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 	}
 	ios.clear();
+	registered = false;
 }
 
 void WatchPoint::doReadCallback(MSXMotherBoard& motherBoard, unsigned port)

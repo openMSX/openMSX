@@ -3,16 +3,14 @@
 
 #include "BreakPointBase.hh"
 #include "CommandException.hh"
-#include "openmsx.hh"
 
 #include "strCat.hh"
 
+#include <cstdint>
+#include <optional>
+
 namespace openmsx {
 
-/** Base class for CPU breakpoints.
- *  For performance reasons every bp is associated with exactly one
- *  (immutable) address.
- */
 class BreakPoint final : public BreakPointBase
 {
 public:
@@ -21,27 +19,42 @@ public:
 public:
 	BreakPoint()
 		: id(++lastId) {}
-	BreakPoint(word address_, TclObject command_, TclObject condition_, bool once_)
+	BreakPoint(Interpreter& interp, TclObject address_, TclObject command_, TclObject condition_, bool once_)
 		: BreakPointBase(std::move(command_), std::move(condition_), once_)
 		, id(++lastId)
-		, address(address_) {}
+		, addrStr(std::move(address_))
+	{
+		evaluateAddress(interp);
+	}
 
 	[[nodiscard]] unsigned getId() const { return id; }
 	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
-	[[nodiscard]] word getAddress() const { return address; }
 
-	void setAddress(Interpreter& interp, const TclObject& a) {
-		// TODO store value with given formatting
-		auto tmp = a.getInt(interp); // may throw
-		if ((tmp < 0) || (tmp > 0xffff)) {
-			throw CommandException("address outside of range: ", a.getString());
+	[[nodiscard]] std::optional<uint16_t> getAddress() const { return address; }
+	[[nodiscard]] TclObject getAddressString() const { return addrStr; }
+	void setAddress(Interpreter& interp, const TclObject& addr) {
+		addrStr = addr;
+		evaluateAddress(interp);
+	}
+
+	std::string evaluateAddress(Interpreter& interp) {
+		try {
+			auto tmp = addrStr.eval(interp).getInt(interp); // may throw
+			if ((tmp < 0) || (tmp > 0xffff)) {
+				throw CommandException("address outside of range");
+			}
+			address = uint16_t(tmp);
+			return {}; // success
+		} catch (MSXException& e) {
+			address = {};
+			return e.getMessage();
 		}
-		address = word(tmp);
 	}
 
 private:
 	unsigned id;
-	word address = 0;
+	TclObject addrStr;
+	std::optional<uint16_t> address = 0;
 
 	static inline unsigned lastId = 0;
 };

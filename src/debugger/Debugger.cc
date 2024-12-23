@@ -154,26 +154,14 @@ void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 		[](auto& v) { return v.get(); }));
 }
 
-unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
-                                 WatchPoint::Type type,
-                                 unsigned beginAddr, unsigned endAddr,
-                                 bool once, unsigned newId /*= -1*/)
-{
-	auto wp = std::make_shared<WatchPoint>(
-		std::move(command), std::move(condition), type, beginAddr, endAddr, once, newId);
-	motherBoard.getCPUInterface().setWatchPoint(wp);
-	return wp->getId();
-}
-
 void Debugger::transfer(Debugger& other)
 {
 	// Copy watchpoints to new machine.
-	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
+	auto& cpuInterface = motherBoard.getCPUInterface();
+	assert(cpuInterface.getWatchPoints().empty());
 	for (const auto& wp : other.motherBoard.getCPUInterface().getWatchPoints()) {
-		setWatchPoint(wp->getCommand(),    wp->getCondition(),
-		              wp->getType(),       wp->getBeginAddress(),
-		              wp->getEndAddress(), wp->onlyOnce(),
-		              wp->getId());
+		cpuInterface.setWatchPoint(std::make_shared<WatchPoint>(
+			WatchPoint::clone_tag{}, *wp));
 	}
 
 	// Copy probes to new machine.
@@ -191,6 +179,10 @@ void Debugger::transfer(Debugger& other)
 	// copy those.
 }
 
+Interpreter& Debugger::getInterpreter()
+{
+	return motherBoard.getReactor().getInterpreter();
+}
 
 // class Debugger::Cmd
 
@@ -467,16 +459,12 @@ DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
 	return {};
 }
 
-static auto formatAddr(word addr)
-{
-	return tmpStrCat("0x", hex_string<4>(addr));
-}
 static auto formatWpAddr(const WatchPoint& wp)
 {
 	TclObject result;
-	result.addListElement(formatAddr(wp.getBeginAddress()));
-	if (wp.getBeginAddress() != wp.getEndAddress()) {
-		result.addListElement(formatAddr(wp.getEndAddress()));
+	result.addListElement(wp.getBeginAddressString());
+	if (auto end = wp.getEndAddressString(); !end.getString().empty()) {
+		result.addListElement(end);
 	}
 	return result;
 }
@@ -485,7 +473,7 @@ void Debugger::Cmd::breakPointList(std::span<const TclObject> /*tokens*/, TclObj
 {
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject dict = makeTclDict(
-			TclObject("-address"), formatAddr(bp.getAddress()), // TODO keep original format
+			TclObject("-address"), bp.getAddressString(),
 			TclObject("-condition"), bp.getCondition(),
 			TclObject("-command"), bp.getCommand(),
 			TclObject("-once"), bp.onlyOnce());
@@ -692,8 +680,7 @@ void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& 
 		condition = arguments[1];
 		[[fallthrough]];
 	case 1: { // address
-		word addr = getAddress(getInterpreter(), arguments[0]);
-		BreakPoint bp(addr, command, condition, once);
+		BreakPoint bp(getInterpreter(), arguments[0], command, condition, once);
 		result = bp.getIdStr();
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 		break;
@@ -739,10 +726,8 @@ void Debugger::Cmd::listBreakPoints(std::span<const TclObject> /*tokens*/, TclOb
 	string res;
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject line = makeTclList(
-			bp.getIdStr(),
-			tmpStrCat("0x", hex_string<4>(bp.getAddress())),
-			bp.getCondition(),
-			bp.getCommand());
+			bp.getIdStr(), bp.getAddressString(),
+			bp.getCondition(), bp.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -754,7 +739,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type address ?-once? ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
-	unsigned beginAddr, endAddr;
+	TclObject address;
 	WatchPoint::Type type;
 	bool once = false;
 
@@ -773,14 +758,16 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 		[[fallthrough]];
 	case 2: // address + type
 		type = WatchPoint::parseType(arguments[0].getString());
-		std::tie(beginAddr, endAddr) = WatchPoint::parseAddress(getInterpreter(), arguments[1], type);
+		address = arguments[1];
+		//std::tie(beginAddr, endAddr) = WatchPoint::parseAddress(getInterpreter(), arguments[1], type);
 		break;
 	default:
 		UNREACHABLE;
 	}
-	unsigned id = debugger().setWatchPoint(
-		command, condition, type, beginAddr, endAddr, once);
-	result = tmpStrCat(WatchPoint::prefix, id);
+	auto wp = std::make_shared<WatchPoint>(
+		getInterpreter(), std::move(command), std::move(condition), type, address, once);
+	result = wp->getIdStr();
+	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
 
 void Debugger::Cmd::removeWatchPoint(
@@ -809,19 +796,16 @@ void Debugger::Cmd::listWatchPoints(
 	string res;
 	const auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
-		TclObject line = makeTclList(wp->getIdStr());
-		line.addListElement(WatchPoint::format(wp->getType()));
-		unsigned beginAddr = wp->getBeginAddress();
-		unsigned endAddr   = wp->getEndAddress();
-		if (beginAddr == endAddr) {
-			line.addListElement(tmpStrCat("0x", hex_string<4>(beginAddr)));
-		} else {
-			line.addListElement(makeTclList(
-				tmpStrCat("0x", hex_string<4>(beginAddr)),
-				tmpStrCat("0x", hex_string<4>(endAddr))));
+		auto address = makeTclList(wp->getBeginAddressString());
+		if (auto end = wp->getEndAddressString(); !end.getString().empty()) {
+			address.addListElement(end);
 		}
-		line.addListElement(wp->getCondition(),
-		                    wp->getCommand());
+		TclObject line = makeTclList(
+			wp->getIdStr(),
+			WatchPoint::format(wp->getType()),
+			address,
+			wp->getCondition(),
+			wp->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;

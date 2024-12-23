@@ -977,9 +977,11 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	}
 	for (const auto& w : watchPoints) {
 		if (w->getType() == type) {
-			unsigned beginAddr = std::min(w->getBeginAddress(), 0xffffu);
-			unsigned endAddr   = std::min(w->getEndAddress(),   0xffffu);
-			for (unsigned addr = beginAddr; addr <= endAddr; ++addr) {
+			auto begin = w->getBeginAddress();
+			auto end = w->getEndAddress();
+			if (!begin || !end) continue;
+			assert(*begin < 0x1000 && *end < 0x1000 && begin <= end);
+			for (unsigned addr = *begin; addr <= *end; ++addr) {
 				watchSet[addr >> CacheLine::BITS].set(
 				         addr  & CacheLine::LOW);
 			}

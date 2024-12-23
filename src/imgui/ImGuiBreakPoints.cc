@@ -438,13 +438,21 @@ static const std::vector<DebugCondition>& getOpenMSXItems(DebugCondition*, const
 [[nodiscard]] static unsigned getId(const std::shared_ptr<WatchPoint>& wp) { return wp->getId(); }
 [[nodiscard]] static unsigned getId(const DebugCondition& cond) { return cond.getId(); }
 
-[[nodiscard]] static uint16_t getAddress(const BreakPoint& bp) { return bp.getAddress(); }
-[[nodiscard]] static uint16_t getAddress(const std::shared_ptr<WatchPoint>& wp) { return narrow<uint16_t>(wp->getBeginAddress()); }
-[[nodiscard]] static uint16_t getAddress(const DebugCondition& cond) = delete;
+[[nodiscard]] static std::optional<uint16_t> getAddress(const BreakPoint& bp) { return bp.getAddress(); }
+[[nodiscard]] static std::optional<uint16_t> getAddress(const std::shared_ptr<WatchPoint>& wp) { return wp->getBeginAddress(); }
+[[nodiscard]] static std::optional<uint16_t> getAddress(const DebugCondition& cond) = delete;
 
-[[nodiscard]] static uint16_t getEndAddress(const BreakPoint& bp) { return bp.getAddress(); } // same as begin
-[[nodiscard]] static uint16_t getEndAddress(const std::shared_ptr<WatchPoint>& wp) { return narrow<uint16_t>(wp->getEndAddress()); }
-[[nodiscard]] static uint16_t getEndAddress(const DebugCondition& cond) = delete;
+[[nodiscard]] static TclObject getAddressString(const BreakPoint& bp) { return bp.getAddressString(); }
+[[nodiscard]] static TclObject getAddressString(const std::shared_ptr<WatchPoint>& wp) { return wp->getBeginAddressString(); }
+[[nodiscard]] static TclObject getAddressString(const DebugCondition& cond) = delete;
+
+[[nodiscard]] static std::optional<uint16_t> getEndAddress(const BreakPoint&) { return {}; }
+[[nodiscard]] static std::optional<uint16_t> getEndAddress(const std::shared_ptr<WatchPoint>& wp) { return wp->getEndAddress(); }
+[[nodiscard]] static std::optional<uint16_t> getEndAddress(const DebugCondition& cond) = delete;
+
+[[nodiscard]] static TclObject getEndAddressString(const BreakPoint&) { return {}; }
+[[nodiscard]] static TclObject getEndAddressString(const std::shared_ptr<WatchPoint>& wp) { return wp->getEndAddressString(); }
+[[nodiscard]] static TclObject getEndAddressString(const DebugCondition& cond) = delete;
 
 [[nodiscard]] static TclObject getCondition(const BreakPointBase& bp) { return bp.getCondition(); }
 [[nodiscard]] static TclObject getCondition(const std::shared_ptr<WatchPoint>& wp) { return wp->getCondition(); }
@@ -472,12 +480,6 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 		return remove;
 	});
 	for (const auto& item : openMsxItems) {
-		auto formatAddr = [&](uint16_t addr) {
-			if (auto syms = symbolManager.lookupValue(addr); !syms.empty()) {
-				return TclObject(syms.front()->name);
-			}
-			return TclObject(tmpStrCat("0x", hex_string<4>(addr)));
-		};
 		if (auto it = ranges::find(items, narrow<int>(getId(item)), &GuiItem::id);
 			it != items.end()) {
 			// item exists on the openMSX side, make sure it's in sync
@@ -485,19 +487,10 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 				it->wpType = to_underlying(item->getType());
 			}
 			if constexpr (hasAddress) {
-				assert(it->addr);
-				auto addr = getAddress(item);
-				auto endAddr = getEndAddress(item);
-				bool needUpdate =
-					(*it->addr != addr) ||
-					(it->endAddr && (it->endAddr != endAddr)) ||
-					(!it->endAddr && (addr != endAddr));
-				if (needUpdate) {
-					it->addr = addr;
-					it->endAddr = (addr != endAddr) ? std::optional<uint16_t>(endAddr) : std::nullopt;
-					it->addrStr = formatAddr(addr);
-					it->endAddrStr = (addr != endAddr) ? formatAddr(endAddr) : TclObject{};
-				}
+				it->addr = getAddress(item);
+				it->endAddr = getEndAddress(item);
+				it->addrStr = getAddressString(item);
+				it->endAddrStr = getEndAddressString(item);
 			} else {
 				assert(!it->addr);
 			}
@@ -516,9 +509,8 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 			if constexpr (hasAddress) {
 				addr = getAddress(item);
 				endAddr = getEndAddress(item);
-				if (*addr == *endAddr) endAddr.reset();
-				addrStr = formatAddr(*addr);
-				if (endAddr) endAddrStr = formatAddr(*endAddr);
+				addrStr = getAddressString(item);
+				endAddrStr = getEndAddressString(item);
 			}
 			items.push_back(GuiItem{
 				narrow<int>(getId(item)),
@@ -598,19 +590,24 @@ static bool isValidCmd(std::string_view cmd, Interpreter& interp)
 	return !cmd.empty() && interp.validCommand(cmd);
 }
 
-static void create(BreakPoint*, MSXCPUInterface& cpuInterface, Debugger&, ImGuiBreakPoints::GuiItem& item)
+static void create(BreakPoint*, MSXCPUInterface& cpuInterface, Debugger& debugger, ImGuiBreakPoints::GuiItem& item)
 {
-	BreakPoint newBp(*item.addr, item.cmd, item.cond, false);
+	BreakPoint newBp(debugger.getInterpreter(), item.addrStr, item.cmd, item.cond, false);
 	item.id = narrow<int>(newBp.getId());
 	cpuInterface.insertBreakPoint(std::move(newBp));
 }
-static void create(WatchPoint*, MSXCPUInterface&, Debugger& debugger, ImGuiBreakPoints::GuiItem& item)
+static void create(WatchPoint*, MSXCPUInterface& cpuInterface, Debugger& debugger, ImGuiBreakPoints::GuiItem& item)
 {
-	item.id = debugger.setWatchPoint(
-		item.cmd, item.cond,
+	auto address = makeTclList(item.addrStr);
+	if (!item.endAddrStr.getString().empty()) {
+		address.addListElement(item.endAddrStr);
+	}
+	auto newWp = std::make_shared<WatchPoint>(
+		debugger.getInterpreter(), item.cmd, item.cond,
 		static_cast<WatchPoint::Type>(item.wpType),
-		*item.addr, (item.endAddr ? *item.endAddr : *item.addr),
-		false);
+		address, false);
+	item.id = narrow<int>(newWp->getId());
+	cpuInterface.setWatchPoint(std::move(newWp));
 }
 static void create(DebugCondition*, MSXCPUInterface& cpuInterface, Debugger&, ImGuiBreakPoints::GuiItem& item)
 {
@@ -639,6 +636,26 @@ void ImGuiBreakPoints::syncToOpenMsx(
 		create(tag, cpuInterface, debugger, item);
 		assert(item.id > 0);
 	}
+}
+
+std::string ImGuiBreakPoints::displayAddr(const TclObject& addr) const
+{
+	auto str = addr.getString();
+	if (str.starts_with("$sym(") && str.ends_with(')')) {
+		auto symbol = str.substr(5, str.size() - 6);
+		if (symbolManager.lookupSymbol(symbol)) {
+			return std::string(symbol);
+		}
+	}
+	return std::string(str);
+}
+
+std::string ImGuiBreakPoints::parseDisplayAddress(std::string_view str) const
+{
+	if (symbolManager.lookupSymbol(str)) {
+		return strCat("$sym(", str, ')');
+	}
+	return std::string(str);
 }
 
 template<typename Item>
@@ -699,8 +716,8 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		};
 		setRedBg(validAddr);
 		bool addrChanged = false;
-		std::string addr{item.addrStr.getString()};
-		std::string endAddr{item.endAddrStr.getString()};
+		std::string addr    = displayAddr(item.addrStr);
+		std::string endAddr = displayAddr(item.endAddrStr);
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		if constexpr (isWatchPoint) {
 			auto pos = ImGui::GetCursorPos();
@@ -727,7 +744,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			});
 
 			im::PopupContextItem("context menu", [&]{
-				if (ImGui::MenuItem("Show in Dissassembly", nullptr, nullptr, item.addr.has_value())) {
+				if (ImGui::MenuItem("Show in Disassembly", nullptr, nullptr, item.addr.has_value())) {
 					manager.debugger->setGotoTarget(*item.addr);
 				}
 			});
@@ -736,10 +753,10 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 			if (ImGui::IsItemActive()) selectedRow = row;
 		}
 		if (addrChanged) {
-			item.addrStr = addr;
-			item.endAddrStr = endAddr;
-			item.addr    = parseAddress(item.addrStr);
-			item.endAddr = parseAddress(item.endAddrStr);
+			item.addrStr    = parseDisplayAddress(addr);
+			item.endAddrStr = parseDisplayAddress(endAddr);
+			item.addr    = parseAddress(TclObject(addr)); // TODO inefficient, but will be removed later
+			item.endAddr = parseAddress(TclObject(endAddr));
 			if (item.endAddr && !item.addr) item.endAddr.reset();
 			needSync = true;
 		}

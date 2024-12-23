@@ -477,7 +477,7 @@ void SymbolManager::removeAllFiles()
 	refresh();
 }
 
-std::optional<uint16_t> SymbolManager::parseSymbolOrValue(std::string_view str) const
+std::optional<uint16_t> SymbolManager::lookupSymbol(std::string_view str) const
 {
 	// linear search is fine: only used interactively
 	// prefer an exact match
@@ -495,7 +495,14 @@ std::optional<uint16_t> SymbolManager::parseSymbolOrValue(std::string_view str) 
 			return it->value;
 		}
 	}
-	// also not found, then try to parse as a numerical value
+	return {};
+}
+
+std::optional<uint16_t> SymbolManager::parseSymbolOrValue(std::string_view str) const
+{
+	// first try symbol
+	if (auto r = lookupSymbol(str)) return r;
+	// if not found, then try to parse as a numerical value
 	return parseValue<uint16_t>(str);
 }
 

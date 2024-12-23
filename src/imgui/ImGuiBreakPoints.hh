@@ -68,6 +68,8 @@ private:
 	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr = {});
 	template<typename Item> void syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
 	void checkSort(std::vector<GuiItem>& items) const;
+	std::string displayAddr(const TclObject& addr) const;
+	std::string parseDisplayAddress(std::string_view str) const;
 	std::optional<uint16_t> parseAddress(const TclObject& o);
 	template<typename Item> void syncToOpenMsx(
 		MSXCPUInterface& cpuInterface, Debugger& debugger,

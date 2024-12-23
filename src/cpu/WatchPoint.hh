@@ -5,12 +5,15 @@
 #include "CommandException.hh"
 #include "MSXMultiDevice.hh"
 
+#include "narrow.hh"
 #include "one_of.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
 
 #include <cassert>
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace openmsx {
@@ -49,52 +52,82 @@ public:
 	{
 		return (type == one_of(Type::READ_IO, Type::WRITE_IO)) ? 0x100 : 0x10000;
 	}
-	static std::pair<unsigned, unsigned> parseAddress(Interpreter& interp, const TclObject& a, Type type)
+	static std::pair<TclObject, TclObject> parseAddress(Interpreter& interp, const TclObject& a)
 	{
-		unsigned begin = a.getListIndex(interp, 0).getInt(interp);
-		unsigned end = (a.getListLength(interp) == 2)
-		             ? a.getListIndex(interp, 1).getInt(interp)
-		             : begin;
-		if (end < begin) {
-			throw CommandException(
-				"Not a valid range: end address may "
-				"not be smaller than begin address.");
+		auto len = a.getListLength(interp);
+		if (len != one_of(1u, 2u)) {
+			throw CommandException("Invalid address: must be a single address, or a begin/end pair");
 		}
-		if (end >= rangeForType(type)) {
-			throw CommandException("Invalid address: out of range");
-		}
+		auto begin = a.getListIndex(interp, 0);
+		auto end = (len == 2) ? a.getListIndex(interp, 1) : TclObject{};
 		return {begin, end};
 	}
 
 public:
 	WatchPoint()
 		: id(++lastId) {}
-	WatchPoint(TclObject command_, TclObject condition_,
-	           Type type_, unsigned beginAddr_, unsigned endAddr_,
-	           bool once_, unsigned newId = -1)
+	WatchPoint(Interpreter& interp, TclObject command_, TclObject condition_,
+	           Type type_, TclObject address, bool once_, unsigned newId = -1)
 		: BreakPointBase(std::move(command_), std::move(condition_), once_)
 		, id((newId == unsigned(-1)) ? ++lastId : newId)
-		, beginAddr(beginAddr_), endAddr(endAddr_), type(type_)
+		, type(type_)
 	{
-		assert(beginAddr <= endAddr);
+		setAddress(interp, address);
+	}
+
+	struct clone_tag {};
+	WatchPoint(clone_tag, const WatchPoint& wp)
+		: BreakPointBase(wp)
+		, id(wp.id), type(wp.type)
+		, beginAddrStr(wp.beginAddrStr), endAddrStr(wp.endAddrStr)
+		, beginAddr(wp.beginAddr), endAddr(wp.endAddr)
+	{
+		assert(ios.empty());
+		assert(!registered);
 	}
 
 	[[nodiscard]] unsigned getId() const { return id; }
 	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
-	[[nodiscard]] Type     getType()         const { return type; }
-	[[nodiscard]] unsigned getBeginAddress() const { return beginAddr; }
-	[[nodiscard]] unsigned getEndAddress()   const { return endAddr; }
 
-	void registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices);
-	void unregisterIOWatch(std::span<MSXDevice*, 256> devices);
-
+	[[nodiscard]] Type getType() const { return type; }
 	void setType(const TclObject& t) {
 		type = parseType(t.getString());
 	}
+
+	[[nodiscard]] auto getBeginAddress() const { return beginAddr; }
+	[[nodiscard]] auto getEndAddress()   const { return endAddr; }
+	[[nodiscard]] auto getBeginAddressString() const { return beginAddrStr; }
+	[[nodiscard]] auto getEndAddressString()   const { return endAddrStr; }
 	void setAddress(Interpreter& interp, const TclObject& a) {
-		// TODO store value with given formatting
-		std::tie(beginAddr, endAddr) = parseAddress(interp, a, type);
+		std::tie(beginAddrStr, endAddrStr) = parseAddress(interp, a);
+		evaluateAddress(interp);
 	}
+
+	std::string evaluateAddress(Interpreter& interp) {
+		assert(!registered);
+		try {
+			auto begin = beginAddrStr.eval(interp).getInt(interp); // may throw
+			auto end = endAddrStr.getString().empty()
+			         ? begin
+				 : endAddrStr.eval(interp).getInt(interp); // may throw
+			if (end < begin) {
+				throw CommandException("begin may not be larger than end: ", begin, " > ", end);
+			}
+			auto max = rangeForType(type);
+			if ((begin < 0) || (end >= int(max))) {
+				throw CommandException("address outside of range [0, ", max , ')');
+			}
+			beginAddr = narrow<uint16_t>(begin);
+			endAddr   = narrow<uint16_t>(end);
+			return {}; // success
+		} catch (MSXException& e) {
+			beginAddr = endAddr = {};
+			return e.getMessage();
+		}
+	}
+
+	void registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevice*, 256> devices);
+	void unregisterIOWatch(std::span<MSXDevice*, 256> devices);
 
 private:
 	void doReadCallback(MSXMotherBoard& motherBoard, unsigned port);
@@ -102,11 +135,14 @@ private:
 
 private:
 	unsigned id;
-	unsigned beginAddr = 0; // begin and end address are inclusive (IOW range = [begin, end])
-	unsigned endAddr = 0;
 	Type type = Type::WRITE_MEM;
+	TclObject beginAddrStr;
+	TclObject endAddrStr;
+	std::optional<uint16_t> beginAddr; // begin and end address are inclusive (IOW range = [begin, end])
+	std::optional<uint16_t> endAddr;
 
 	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
+	bool registered = false; // for debugging only
 
 	static inline unsigned lastId = 0;
 

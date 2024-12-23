@@ -86,6 +86,7 @@ public:
 	[[nodiscard]] const auto& getFiles() const { return files; }
 	[[nodiscard]] SymbolFile* findFile(std::string_view filename);
 	[[nodiscard]] std::span<Symbol const * const> lookupValue(uint16_t value);
+	[[nodiscard]] std::optional<uint16_t> lookupSymbol(std::string_view s) const;
 	[[nodiscard]] std::optional<uint16_t> parseSymbolOrValue(std::string_view s) const;
 
 	[[nodiscard]] static std::string getFileFilters();

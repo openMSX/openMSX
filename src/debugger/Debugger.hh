@@ -43,17 +43,13 @@ public:
 	void unregisterProbe(ProbeBase& probe);
 	[[nodiscard]] ProbeBase* findProbe(std::string_view name);
 
-	unsigned setWatchPoint(TclObject command, TclObject condition,
-	                       WatchPoint::Type type,
-	                       unsigned beginAddr, unsigned endAddr,
-	                       bool once, unsigned newId = -1);
-
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
 
 	void transfer(Debugger& other);
 
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
+	[[nodiscard]] Interpreter& getInterpreter();
 
 private:
 	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);

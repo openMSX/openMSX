@@ -473,7 +473,12 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreak
 	} else {
 		// schedule creation of new bp
 		auto slot = getCurrentSlot(cpuInterface, debugger, addr);
-		addBp.emplace(addr, TclObject("debug break"), toTclExpression(slot), false);
+		addBp.emplace(
+			debugger.getInterpreter(),
+			TclObject(tmpStrCat("0x", hex_string<4>(addr))),
+			TclObject("debug break"),
+			toTclExpression(slot),
+			false);
 	}
 }
 void ImGuiDebugger::actionToggleBp(MSXMotherBoard& motherBoard)
