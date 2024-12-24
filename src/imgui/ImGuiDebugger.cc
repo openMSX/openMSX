@@ -443,7 +443,7 @@ static BpLine examineBpLine(uint16_t addr, std::span<const ImGuiBreakPoints::Gui
 		++result.count;
 		result.idx = int(i);
 
-		bool enabled = (bp.id > 0) && bp.wantEnable;
+		bool enabled = bp.wantEnable;
 		result.anyEnabled |= enabled;
 		result.anyDisabled |= !enabled;
 
@@ -464,11 +464,7 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreak
 		// others can be edited via the breakpoint viewer
 		if (bpLine.count == 1) {
 			auto& bp = guiBps[bpLine.idx];
-			if (bp.id > 0) {
-				removeBpId = bp.id; // schedule removal
-			} else {
-				guiBps.erase(guiBps.begin() + bpLine.idx);
-			}
+			removeBpId = bp.id; // schedule removal
 		}
 	} else {
 		// schedule creation of new bp

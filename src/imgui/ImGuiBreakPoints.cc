@@ -88,7 +88,6 @@ void ImGuiBreakPoints::loadItem(zstring_view value)
 		TclObject list(value);
 		if (list.getListLength(interp) != 8) return; // ignore
 		GuiItem item {
-			.id = --idCounter,
 			.wantEnable = list.getListIndex(interp, 0).getBoolean(interp),
 			.wpType     = list.getListIndex(interp, 1).getInt(interp),
 			.addr    = loadAddr(list.getListIndex(interp, 2)),
@@ -299,18 +298,14 @@ static void remove(DebugCondition*, MSXCPUInterface& cpuInterface, unsigned id)
 void ImGuiBreakPoints::clear(BreakPoint* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiBps.empty()) {
-		if (const auto& bp = guiBps.back(); bp.id > 0) {
-			remove(tag, cpuInterface, bp.id);
-		}
+		remove(tag, cpuInterface, guiBps.back().id);
 		guiBps.pop_back();
 	}
 }
 void ImGuiBreakPoints::clear(WatchPoint* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiWps.empty()) {
-		if (auto& wp = guiWps.back(); wp.id > 0) {
-			remove(tag, cpuInterface, wp.id);
-		}
+		remove(tag, cpuInterface, guiWps.back().id);
 		guiWps.pop_back();
 	}
 }
@@ -318,9 +313,7 @@ void ImGuiBreakPoints::clear(WatchPoint* tag, MSXCPUInterface& cpuInterface)
 void ImGuiBreakPoints::clear(DebugCondition* tag, MSXCPUInterface& cpuInterface)
 {
 	while (!guiConditions.empty()) {
-		if (auto& cond = guiConditions.back(); cond.id > 0) {
-			remove(tag, cpuInterface, cond.id);
-		}
+		remove(tag, cpuInterface, guiConditions.back().id);
 		guiConditions.pop_back();
 	}
 }
@@ -383,9 +376,8 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 	ImGui::SameLine();
 	im::Group([&] {
 		if (ImGui::Button("Add")) {
-			--idCounter;
 			GuiItem item{
-				idCounter,
+				0,
 				true, // enabled, but still invalid
 				to_underlying(WatchPoint::Type::WRITE_MEM),
 				{}, {}, {}, {}, // address
@@ -397,6 +389,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, Debugger& debugge
 				item.addrStr = TclObject(tmpStrCat("0x", hex_string<4>(*addr)));
 			}
 			items.push_back(std::move(item));
+			create(tag, cpuInterface, debugger, items.back());
 			selectedRow = -1;
 		}
 		im::Disabled(disableRemove, [&]{
@@ -472,7 +465,6 @@ void ImGuiBreakPoints::syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterf
 	const auto& openMsxItems = getOpenMSXItems(tag, cpuInterface);
 	std::erase_if(items, [&](auto& item) {
 		int id = item.id;
-		if (id < 0) return false; // keep disabled bp
 		bool remove = !contains(openMsxItems, unsigned(id), [](const auto& i) { return getId(i); });
 		if (remove) {
 			selectedRow = -1;
@@ -592,8 +584,7 @@ static bool isValidCmd(std::string_view cmd, Interpreter& interp)
 
 static void create(BreakPoint*, MSXCPUInterface& cpuInterface, Debugger& debugger, ImGuiBreakPoints::GuiItem& item)
 {
-	bool enabled = true; // TODO
-	BreakPoint newBp(debugger.getInterpreter(), item.addrStr, item.cmd, item.cond, enabled, false);
+	BreakPoint newBp(debugger.getInterpreter(), item.addrStr, item.cmd, item.cond, item.wantEnable, false);
 	item.id = narrow<int>(newBp.getId());
 	cpuInterface.insertBreakPoint(std::move(newBp));
 }
@@ -603,42 +594,33 @@ static void create(WatchPoint*, MSXCPUInterface& cpuInterface, Debugger& debugge
 	if (!item.endAddrStr.getString().empty()) {
 		address.addListElement(item.endAddrStr);
 	}
-	bool enabled = true; // TODO
 	auto newWp = std::make_shared<WatchPoint>(
 		debugger.getInterpreter(), item.cmd, item.cond,
 		static_cast<WatchPoint::Type>(item.wpType),
-		address, enabled, false);
+		address, item.wantEnable, false);
 	item.id = narrow<int>(newWp->getId());
 	cpuInterface.setWatchPoint(std::move(newWp));
 }
 static void create(DebugCondition*, MSXCPUInterface& cpuInterface, Debugger&, ImGuiBreakPoints::GuiItem& item)
 {
-	bool enabled = true; // TODO
-	DebugCondition newCond(item.cmd, item.cond, enabled, false);
+	DebugCondition newCond(item.cmd, item.cond, item.wantEnable, false);
 	item.id = narrow<int>(newCond.getId());
 	cpuInterface.setCondition(std::move(newCond));
 }
 
 template<typename Item>
 void ImGuiBreakPoints::syncToOpenMsx(
-	MSXCPUInterface& cpuInterface, Debugger& debugger,
-	Interpreter& interp, GuiItem& item) const
+	MSXCPUInterface& cpuInterface, Debugger& debugger, GuiItem& item) const
 {
+	// TODO don't remove/recreate, but instead just change the properties
 	Item* tag = nullptr;
 
-	if (item.id > 0) {
-		// (temporarily) remove it from the openMSX side
-		remove(tag, cpuInterface, item.id); // temp remove it
-		item.id = --idCounter;
-	}
-	if (item.wantEnable &&
-	    isValidAddr<Item>(item) &&
-	    isValidCond<Item>(item.cond.getString(), interp) &&
-	    isValidCmd(item.cmd.getString(), interp)) {
-		// (re)create on the openMSX side
-		create(tag, cpuInterface, debugger, item);
-		assert(item.id > 0);
-	}
+	// (temporarily) remove it from the openMSX side
+	remove(tag, cpuInterface, item.id); // temp remove it
+
+	// (re)create on the openMSX side
+	create(tag, cpuInterface, debugger, item);
+	assert(item.id > 0);
 }
 
 std::string ImGuiBreakPoints::displayAddr(const TclObject& addr) const
@@ -797,7 +779,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger
 		});
 	}
 	if (needSync) {
-		syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
+		syncToOpenMsx<Item>(cpuInterface, debugger, item);
 	}
 }
 
@@ -924,8 +906,7 @@ void ImGuiBreakPoints::refresh(std::vector<GuiItem>& items)
 		if (sync) {
 			auto& cpuInterface = motherBoard->getCPUInterface();
 			auto& debugger = motherBoard->getDebugger();
-			auto& interp = manager.getInterpreter();
-			syncToOpenMsx<Item>(cpuInterface, debugger, interp, item);
+			syncToOpenMsx<Item>(cpuInterface, debugger, item);
 		}
 	}
 }

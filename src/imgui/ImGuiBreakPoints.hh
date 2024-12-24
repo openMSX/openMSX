@@ -36,8 +36,7 @@ class ImGuiBreakPoints final : public ImGuiPart
 {
 public:
 	struct GuiItem {
-		int id; // id > 0: exists also on the openMSX side
-		        // id < 0: only exists on the GUI side
+		int id;
 		bool wantEnable; // only really enabled if it's also valid
 		int wpType; // only used for Watchpoint
 		std::optional<uint16_t> addr; // not used for DebugCondition
@@ -72,8 +71,7 @@ private:
 	std::string parseDisplayAddress(std::string_view str) const;
 	std::optional<uint16_t> parseAddress(const TclObject& o);
 	template<typename Item> void syncToOpenMsx(
-		MSXCPUInterface& cpuInterface, Debugger& debugger,
-		Interpreter& interp, GuiItem& item) const;
+		MSXCPUInterface& cpuInterface, Debugger& debugger, GuiItem& item) const;
 	template<typename Item> void drawRow(MSXCPUInterface& cpuInterface, Debugger& debugger, int row, GuiItem& item);
 	bool editRange(std::string& begin, std::string& end);
 	bool editCondition(ParsedSlotCond& slot);
@@ -94,7 +92,6 @@ public:
 private:
 	SymbolManager& symbolManager;
 
-	static inline int idCounter = 0;
 	std::vector<GuiItem> guiBps;
 	std::vector<GuiItem> guiWps;
 	std::vector<GuiItem> guiConditions;
