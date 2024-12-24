@@ -312,6 +312,33 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	case SDL_MOUSEMOTION:
 		event = MouseMotionEvent(evt);
+		{
+			auto *window = SDL_GL_GetCurrentWindow();
+			if (SDL_GetWindowGrab(window)) {
+				int w, h;
+				SDL_GetWindowSize(window, &w, &h);
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				int xn = x, yn = y;
+				// There seems to be a bug in Windows in which the mouse can be locked on the right edge
+				// only when moving fast to the right (not so fast actually) when grabbing is enabled
+				// which stops generating mouse events
+				// When moving to the left, events resume, and then moving even slower to the right fixes it
+				// This only occurs when grabbing is explicitly enabled in windowed mode,
+				// not in fullscreen mode (though not sure what happens with multiple monitors)
+				// To reduce the impact of this bug, long range warping (e.g. to the middle of the window)
+				// was attempted but that caused race conditions with fading in of gui elements
+				// So, in the end it was decided that to go for the least kind of trouble
+				// The value of 10 below is a heurstic value which seems to balance all factors
+				// such as font size and the overall size of gui elements
+				// and the speed of crossing virtual barriers
+				if (x <= 10)     xn = 10;
+				if (x >= w - 11) xn = w - 11;
+				if (y <= 10)     yn = 10;
+				if (y >= h - 11) yn = h - 11;
+				if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
+			}
+		}
 		break;
 
 	case SDL_JOYBUTTONUP:
@@ -443,12 +470,7 @@ bool InputEventGenerator::signalEvent(const Event& event)
 
 void InputEventGenerator::setGrabInput(bool grab) const
 {
-	SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
-
-	// TODO is this still the correct place in SDL2
-	// TODO get the SDL_window
-	//SDL_Window* window = ...;
-	//SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
+	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab ? SDL_TRUE : SDL_FALSE);
 }
 
 
