@@ -476,8 +476,8 @@ void Debugger::Cmd::breakPointList(std::span<const TclObject> /*tokens*/, TclObj
 			TclObject("-address"), bp.getAddressString(),
 			TclObject("-condition"), bp.getCondition(),
 			TclObject("-command"), bp.getCommand(),
+			TclObject("-enabled"), bp.isEnabled(),
 			TclObject("-once"), bp.onlyOnce());
-			// TODO enabled
 		result.addDictKeyValue(bp.getIdStr(), std::move(dict));
 	}
 }
@@ -491,8 +491,8 @@ void Debugger::Cmd::watchPointList(std::span<const TclObject> /*tokens*/, TclObj
 			TclObject("-address"), formatWpAddr(*wp),
 			TclObject("-condition"), wp->getCondition(),
 			TclObject("-command"), wp->getCommand(),
+			TclObject("-enabled"), wp->isEnabled(),
 			TclObject("-once"), wp->onlyOnce());
-			// TODO enabled
 		result.addDictKeyValue(wp->getIdStr(), std::move(dict));
 	}
 }
@@ -503,8 +503,8 @@ void Debugger::Cmd::conditionList(std::span<const TclObject> /*tokens*/, TclObje
 		TclObject dict = makeTclDict(
 			TclObject("-condition"), cond.getCondition(),
 			TclObject("-command"), cond.getCommand(),
+			TclObject("-enabled"), cond.isEnabled(),
 			TclObject("-once"), cond.onlyOnce());
-			// TODO enabled
 		result.addDictKeyValue(cond.getIdStr(), std::move(dict));
 	}
 }
@@ -520,6 +520,9 @@ void Debugger::Cmd::parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObj
 		}),
 		funcArg("-command", [&](Interpreter& /*interp*/, const TclObject& arg) {
 			bp.setCommand(arg);
+		}),
+		funcArg("-enabled", [&](Interpreter& interp, const TclObject& arg) {
+			bp.setEnabled(interp, arg);
 		}),
 		funcArg("-once", [&](Interpreter& interp, const TclObject& arg) {
 			bp.setOnce(interp, arg);
@@ -543,6 +546,9 @@ void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObj
 		funcArg("-command", [&](Interpreter& /*interp*/, const TclObject& arg) {
 			wp.setCommand(arg);
 		}),
+		funcArg("-enabled", [&](Interpreter& interp, const TclObject& arg) {
+			wp.setEnabled(interp, arg);
+		}),
 		funcArg("-once", [&](Interpreter& interp, const TclObject& arg) {
 			wp.setOnce(interp, arg);
 		}),
@@ -558,6 +564,9 @@ void Debugger::Cmd::parseCreateCondition(DebugCondition& cond, std::span<const T
 		}),
 		funcArg("-command", [&](Interpreter& /*interp*/, const TclObject& arg) {
 			cond.setCommand(arg);
+		}),
+		funcArg("-enabled", [&](Interpreter& interp, const TclObject& arg) {
+			cond.setEnabled(interp, arg);
 		}),
 		funcArg("-once", [&](Interpreter& interp, const TclObject& arg) {
 			cond.setOnce(interp, arg);
@@ -664,6 +673,7 @@ void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& 
 	checkNumArgs(tokens, AtLeast{3}, "address ?-once? ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
+	bool enabled = true; // can't be configure with 'debug set_bp'
 	bool once = false;
 
 	std::array info = {flagArg("-once", once)};
@@ -680,7 +690,7 @@ void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& 
 		condition = arguments[1];
 		[[fallthrough]];
 	case 1: { // address
-		BreakPoint bp(getInterpreter(), arguments[0], command, condition, once);
+		BreakPoint bp(getInterpreter(), arguments[0], command, condition, enabled, once);
 		result = bp.getIdStr();
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 		break;
@@ -741,6 +751,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 	TclObject condition;
 	TclObject address;
 	WatchPoint::Type type;
+	bool enabled = true; // can't be configure with 'debug set_watchpoint'
 	bool once = false;
 
 	std::array info = {flagArg("-once", once)};
@@ -765,7 +776,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 		UNREACHABLE;
 	}
 	auto wp = std::make_shared<WatchPoint>(
-		getInterpreter(), std::move(command), std::move(condition), type, address, once);
+		getInterpreter(), std::move(command), std::move(condition), type, address, enabled, once);
 	result = wp->getIdStr();
 	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
@@ -817,6 +828,7 @@ void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& r
 	checkNumArgs(tokens, AtLeast{3}, "condition ?-once? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
+	bool enabled = true; // can't be configure with 'debug set_condition'
 	bool once = false;
 
 	std::array info = {flagArg("-once", once)};
@@ -831,7 +843,7 @@ void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& r
 		[[fallthrough]];
 	case 1: { // condition
 		condition = arguments[0];
-		DebugCondition dc(command, condition, once);
+		DebugCondition dc(command, condition, enabled, once);
 		result = dc.getIdStr();
 		debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
 		break;
@@ -1149,6 +1161,7 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  -address    the address where the breakpoint should trigger\n"
 		"  -condition  a Tcl expression that must evaluate to true for the breakpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
+		"  -enabled    set to false to (temporarily) disable this breakpoint\n"
 		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
 	auto watchPointCreateHelp =
 		"debug watchpoint create [<property-name> <property-value>]...\n"
@@ -1157,12 +1170,14 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  -address    the address(es) where the watchpoint should trigger, can be a single address or a begin/end-pair\n"
 		"  -condition  a Tcl expression that must evaluate to true for the watchpoint to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"
+		"  -enabled    set to false to (temporarily) disable this watchpoint\n"
 		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
 	auto conditionCreateHelp =
 		"debug condition create [<property-name> <property-value>]...\n"
 		"  Create a new debug condition with given properties. The following properties are supported:\n"
 		"  -condition  a Tcl expression that must evaluate to true for the debug condition to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the debug condition triggers (default = 'debug break')\n"
+		"  -enabled    set to false to (temporarily) disable this condition\n"
 		"  -once       if 'true' the debug condition is automatically removed after it triggered (default = 'false', meaning recurring)\n";
 	auto breakPointConfigureHelp =
 		"debug breakpoint configure <id> [<property-name> <property-value>]...\n"
@@ -1537,7 +1552,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				static constexpr std::array properties = {
-					"-address"sv, "-command"sv, "-condition"sv, "-once"sv,
+					"-address"sv, "-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 				};
 				completeString(tokens, properties);
 			}
@@ -1550,7 +1565,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 					completeString(tokens, types);
 				} else {
 					static constexpr std::array properties = {
-						"-type"sv, "-address"sv, "-command"sv, "-condition"sv, "-once"sv,
+						"-type"sv, "-address"sv, "-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 					};
 					completeString(tokens, properties);
 				}
@@ -1561,7 +1576,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				static constexpr std::array properties = {
-					"-command"sv, "-condition"sv, "-once"sv,
+					"-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 				};
 				completeString(tokens, properties);
 			}

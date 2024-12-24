@@ -15,10 +15,14 @@ class BreakPointBase
 public:
 	[[nodiscard]] TclObject getCondition() const { return condition; }
 	[[nodiscard]] TclObject getCommand()   const { return command; }
+	[[nodiscard]] bool isEnabled() const { return enabled; }
 	[[nodiscard]] bool onlyOnce() const { return once; }
 
 	void setCondition(const TclObject& c) { condition = c; }
 	void setCommand(const TclObject& c) { command = c; }
+	void setEnabled(Interpreter& interp, const TclObject& e) {
+		enabled = e.getBoolean(interp); // may throw
+	}
 	void setOnce(Interpreter& interp, const TclObject& o) {
 		once = o.getBoolean(interp); // may throw
 	}
@@ -27,10 +31,10 @@ public:
 
 protected:
 	BreakPointBase() = default;
-	BreakPointBase(TclObject command_, TclObject condition_, bool once_)
+	BreakPointBase(TclObject command_, TclObject condition_, bool enabled_, bool once_)
 		: command(std::move(command_))
 		, condition(std::move(condition_))
-		, once(once_) {}
+		, enabled(enabled_), once(once_) {}
 
 private:
 	// Note: we require GlobalCliComm here because breakpoint objects can
@@ -41,6 +45,7 @@ private:
 private:
 	TclObject command{"debug break"};
 	TclObject condition;
+	bool enabled = true;
 	bool once = false;
 	bool executing = false;
 };

@@ -853,9 +853,13 @@ bool MSXCPUInterface::checkBreakPoints(unsigned pc)
 	//  - avoids iterating over a changing collection
 	std::vector<BreakPoint> bpCopy;
 	for (const auto& bp : breakPoints) {
-		if (bp.getAddress() == pc) bpCopy.push_back(bp);
+		if (bp.isEnabled() && bp.getAddress() == pc) bpCopy.push_back(bp);
 	}
-	if (bpCopy.empty() && conditions.empty()) return false;
+	std::vector<DebugCondition> condCopy;
+	for (const auto& cond : conditions) {
+		if (cond.isEnabled()) condCopy.push_back(cond);
+	}
+	if (bpCopy.empty() && condCopy.empty()) return false;
 
 	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp        = motherBoard.getReactor().getInterpreter();
@@ -866,7 +870,6 @@ bool MSXCPUInterface::checkBreakPoints(unsigned pc)
 			removeBreakPoint(p.getId());
 		}
 	}
-	auto condCopy = conditions;
 	for (auto& c : condCopy) {
 		bool remove = c.checkAndExecute(globalCliComm, interp);
 		if (remove) {
@@ -1052,7 +1055,7 @@ void MSXCPUInterface::doStep()
 {
 	assert(!isFastForward());
 	setCondition(DebugCondition(
-		TclObject("debug break"), TclObject(), true));
+		TclObject("debug break"), TclObject(), true, true));
 	doContinue();
 }
 

@@ -22,7 +22,7 @@ void WatchPoint::registerIOWatch(MSXMotherBoard& motherBoard, std::span<MSXDevic
 {
 	assert(!registered);
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	if (!beginAddr || !endAddr) return;
+	if (!beginAddr || !endAddr || !isEnabled()) return;
 	assert(*beginAddr < 0x100 && *endAddr < 0x100 && *beginAddr <= *endAddr);
 	for (unsigned port = *beginAddr; port <= *endAddr; ++port) {
 		// create new MSXWatchIOdevice ...
@@ -39,7 +39,7 @@ void WatchPoint::unregisterIOWatch(std::span<MSXDevice*, 256> devices)
 {
 	assert(registered);
 	assert(getType() == one_of(Type::READ_IO, Type::WRITE_IO));
-	if (!beginAddr || !endAddr) return;
+	if (!beginAddr || !endAddr || !isEnabled()) return;
 	assert(*beginAddr < 0x100 && *endAddr < 0x100 && *beginAddr <= *endAddr);
 	for (unsigned port = *beginAddr; port <= *endAddr; ++port) {
 		// find pointer to watchpoint

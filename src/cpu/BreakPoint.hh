@@ -19,8 +19,8 @@ public:
 public:
 	BreakPoint()
 		: id(++lastId) {}
-	BreakPoint(Interpreter& interp, TclObject address_, TclObject command_, TclObject condition_, bool once_)
-		: BreakPointBase(std::move(command_), std::move(condition_), once_)
+	BreakPoint(Interpreter& interp, TclObject address_, TclObject command_, TclObject condition_, bool enabled_, bool once_)
+		: BreakPointBase(std::move(command_), std::move(condition_), enabled_, once_)
 		, id(++lastId)
 		, addrStr(std::move(address_))
 	{

@@ -478,6 +478,7 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreak
 			TclObject(tmpStrCat("0x", hex_string<4>(addr))),
 			TclObject("debug break"),
 			toTclExpression(slot),
+			true,
 			false);
 	}
 }

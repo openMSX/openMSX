@@ -18,8 +18,8 @@ public:
 public:
 	DebugCondition()
 		: id(++lastId) {}
-	DebugCondition(TclObject command_, TclObject condition_, bool once_)
-		: BreakPointBase(std::move(command_), std::move(condition_), once_)
+	DebugCondition(TclObject command_, TclObject condition_, bool enabled_, bool once_)
+		: BreakPointBase(std::move(command_), std::move(condition_), enabled_, once_)
 		, id(++lastId) {}
 
 	[[nodiscard]] unsigned getId() const { return id; }

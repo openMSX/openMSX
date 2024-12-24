@@ -592,7 +592,8 @@ static bool isValidCmd(std::string_view cmd, Interpreter& interp)
 
 static void create(BreakPoint*, MSXCPUInterface& cpuInterface, Debugger& debugger, ImGuiBreakPoints::GuiItem& item)
 {
-	BreakPoint newBp(debugger.getInterpreter(), item.addrStr, item.cmd, item.cond, false);
+	bool enabled = true; // TODO
+	BreakPoint newBp(debugger.getInterpreter(), item.addrStr, item.cmd, item.cond, enabled, false);
 	item.id = narrow<int>(newBp.getId());
 	cpuInterface.insertBreakPoint(std::move(newBp));
 }
@@ -602,16 +603,18 @@ static void create(WatchPoint*, MSXCPUInterface& cpuInterface, Debugger& debugge
 	if (!item.endAddrStr.getString().empty()) {
 		address.addListElement(item.endAddrStr);
 	}
+	bool enabled = true; // TODO
 	auto newWp = std::make_shared<WatchPoint>(
 		debugger.getInterpreter(), item.cmd, item.cond,
 		static_cast<WatchPoint::Type>(item.wpType),
-		address, false);
+		address, enabled, false);
 	item.id = narrow<int>(newWp->getId());
 	cpuInterface.setWatchPoint(std::move(newWp));
 }
 static void create(DebugCondition*, MSXCPUInterface& cpuInterface, Debugger&, ImGuiBreakPoints::GuiItem& item)
 {
-	DebugCondition newCond(item.cmd, item.cond, false);
+	bool enabled = true; // TODO
+	DebugCondition newCond(item.cmd, item.cond, enabled, false);
 	item.id = narrow<int>(newCond.getId());
 	cpuInterface.setCondition(std::move(newCond));
 }

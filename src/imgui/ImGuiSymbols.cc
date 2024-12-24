@@ -184,7 +184,7 @@ void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym
 		auto& interp = motherBoard->getReactor().getInterpreter();
 		BreakPoint newBp(
 			interp, TclObject(strCat("$sym(", sym.name(symbolManager), ')')),
-			TclObject("debug break"), TclObject(cond), false);
+			TclObject("debug break"), TclObject(cond), true, false);
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		cpuInterface.insertBreakPoint(std::move(newBp));
 	}

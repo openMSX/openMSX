@@ -21,6 +21,7 @@ bool BreakPointBase::isTrue(GlobalCliComm& cliComm, Interpreter& interp) const
 
 bool BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp)
 {
+	if (!enabled) return false;
 	if (executing) {
 		// no recursive execution
 		return false;

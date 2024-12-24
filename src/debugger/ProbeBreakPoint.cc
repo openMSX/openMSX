@@ -17,7 +17,7 @@ ProbeBreakPoint::ProbeBreakPoint(
 		ProbeBase& probe_,
 		bool once_,
 		unsigned newId /*= -1*/)
-	: BreakPointBase(std::move(command_), std::move(condition_), once_)
+	: BreakPointBase(std::move(command_), std::move(condition_), true, once_)
 	, debugger(debugger_)
 	, probe(probe_)
 	, id((newId == unsigned(-1)) ? ++lastId : newId)
