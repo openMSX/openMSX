@@ -4,6 +4,7 @@
 #include "AY8910.hh"
 #include "AmdFlash.hh"
 #include "MSXRom.hh"
+#include "RomBlockDebuggable.hh"
 #include "SCC.hh"
 
 #include <array>
@@ -37,6 +38,12 @@ private:
 	[[nodiscard]] unsigned getFlashAddr(unsigned addr) const;
 
 private:
+	struct Blocks final : RomBlockDebuggableBase {
+		explicit Blocks(const Yamanooto& device)
+			: RomBlockDebuggableBase(device) {}
+		[[nodiscard]] byte read(unsigned address) override;
+	} romBlockDebug;
+
 	AmdFlash flash;
 	SCC scc;
 	AY8910 psg;

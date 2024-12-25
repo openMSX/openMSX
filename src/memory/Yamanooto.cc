@@ -3,6 +3,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 
+#include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 
@@ -31,11 +32,12 @@ static constexpr word FPGA_REG  = 0x7FFC; // bi-direction 8-bit communication ch
 
 Yamanooto::Yamanooto(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
+	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::S29GL064N90TFI04, {}, config)
 	, scc(getName() + " SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
 {
-	// Tests shown that the PSG has higher volume than the scc. See
+	// Tests show that the PSG has higher volume than the scc. See
 	//   https://www.msx.org/forum/msx-talk/openmsx/openmsx-cartridge-type?page=2#comment-470014
 	//   https://msx.pics/images/2024/12/23/yamanooto_volume_comparison.png
 	psg.setSoftwareVolume(3.0f, getCurrentTime());
@@ -168,10 +170,10 @@ byte Yamanooto::readMem(word address, EmuTime::param time)
 
 const byte* Yamanooto::getReadCacheLine(word address) const
 {
-	address = mirror(address);
 	if (((address & CacheLine::HIGH) == (ENAR & CacheLine::HIGH)) && (enableReg & REGEN)) {
 		return nullptr; // Yamanooto registers, non-cacheable
 	}
+	address = mirror(address);
 	if (isSCCAccess(address)) return nullptr;
 	return ((configReg & ROMDIS) == 0) ? flash.getReadCacheLine(getFlashAddr(address))
 	                                   : unmappedRead.data(); // access to flash ROM disabled
@@ -181,7 +183,6 @@ void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
 {
 	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR) {
-		assert(false);
 		if (address == ENAR) {
 			enableReg = value;
 		} else if (enableReg & REGEN) {
@@ -309,5 +310,14 @@ void Yamanooto::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(Yamanooto);
 REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");
+
+
+byte Yamanooto::Blocks::read(unsigned address)
+{
+	const auto& dev = OUTER(Yamanooto, romBlockDebug);
+	address = mirror(address);
+	unsigned page8kB = (address >> 13) - 2;
+	return narrow_cast<byte>(dev.bankRegs[page8kB]); // TODO need mechanism to return the full segment number
+}
 
 } // namespace openmsx
