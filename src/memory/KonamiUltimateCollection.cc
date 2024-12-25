@@ -1,7 +1,11 @@
 #include "KonamiUltimateCollection.hh"
-#include "narrow.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
+
+#include "narrow.hh"
+#include "outer.hh"
+#include "ranges.hh"
+
 #include <array>
 
 /******************************************************************************
@@ -38,6 +42,7 @@ namespace openmsx {
 KonamiUltimateCollection::KonamiUltimateCollection(
 		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
+	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::M29W640GB, {}, config)
 	, scc("KUC SCC", config, getCurrentTime(), SCC::Mode::Compatible)
 	, dac("KUC DAC", "Konami Ultimate Collection DAC", config)
@@ -228,5 +233,13 @@ void KonamiUltimateCollection::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(KonamiUltimateCollection);
 REGISTER_MSXDEVICE(KonamiUltimateCollection, "KonamiUltimateCollection");
+
+
+byte KonamiUltimateCollection::Blocks::read(unsigned address)
+{
+	const auto& dev = OUTER(KonamiUltimateCollection, romBlockDebug);
+	auto addr = dev.getFlashAddr(address);
+	return narrow_cast<byte>(addr >> 13); // TODO need mechanism to return the full segment number
+}
 
 } // namespace openmsx
