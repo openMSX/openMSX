@@ -235,9 +235,9 @@ SunriseIDE::Blocks::Blocks(const SunriseIDE& device)
 {
 }
 
-byte SunriseIDE::Blocks::read(unsigned address)
+unsigned SunriseIDE::Blocks::readExt(unsigned address)
 {
-	if ((address < 0x4000) || (address >= 0x8000)) return 255;
+	if ((address < 0x4000) || (address >= 0x8000)) return unsigned(-1);
 	const auto& ide = OUTER(SunriseIDE, romBlockDebug);
 	return ide.getBank();
 }

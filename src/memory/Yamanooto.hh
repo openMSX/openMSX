@@ -41,7 +41,7 @@ private:
 	struct Blocks final : RomBlockDebuggableBase {
 		explicit Blocks(const Yamanooto& device)
 			: RomBlockDebuggableBase(device) {}
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] unsigned readExt(unsigned address) override;
 	} romBlockDebug;
 
 	AmdFlash flash;

@@ -20,6 +20,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
+#include "RomBlockDebuggable.hh"
 #include "RomPlain.hh"
 #include "RomInfo.hh"
 #include "SymbolManager.hh"
@@ -362,12 +363,14 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 	});
 }
 
-[[nodiscard]] static std::pair<const MSXRom*, Debuggable*> getRomBlocks(Debugger& debugger, const MSXDevice* device)
+[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase*>
+		getRomBlocks(Debugger& debugger, const MSXDevice* device)
 {
-	Debuggable* debuggable = nullptr;
+	RomBlockDebuggableBase* debuggable = nullptr;
 	const auto* rom = dynamic_cast<const MSXRom*>(device);
 	if (rom && !dynamic_cast<const RomPlain*>(rom)) {
-		debuggable = debugger.findDebuggable(rom->getName() + " romblocks");
+		debuggable = dynamic_cast<RomBlockDebuggableBase*>(
+			debugger.findDebuggable(rom->getName() + " romblocks"));
 	}
 	return {rom, debuggable};
 }
@@ -393,7 +396,7 @@ struct CurrentSlot {
 		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
 			result.seg = mapper->getSelectedSegment(narrow<uint8_t>(page));
 		} else if (auto [_, romBlocks] = getRomBlocks(debugger, device); romBlocks) {
-			result.seg = romBlocks->read(addr);
+			result.seg = romBlocks->readExt(addr);
 		}
 	}
 	return result;
@@ -869,7 +872,12 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 							std::string text;
 							char separator = 'R';
 							for (int offset = 0; offset < 0x4000; offset += blockSize) {
-								strAppend(text, separator, romBlocks->read(addr + offset));
+								text += separator;
+								if (auto seg = romBlocks->readExt(addr + offset); seg != unsigned(-1)) {
+									strAppend(text, seg);
+								} else {
+									text += '-';
+								}
 								separator = '/';
 							}
 							ImGui::TextUnformatted(text);

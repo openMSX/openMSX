@@ -312,12 +312,12 @@ INSTANTIATE_SERIALIZE_METHODS(Yamanooto);
 REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");
 
 
-byte Yamanooto::Blocks::read(unsigned address)
+unsigned Yamanooto::Blocks::readExt(unsigned address)
 {
 	const auto& dev = OUTER(Yamanooto, romBlockDebug);
 	address = mirror(address);
 	unsigned page8kB = (address >> 13) - 2;
-	return narrow_cast<byte>(dev.bankRegs[page8kB]); // TODO need mechanism to return the full segment number
+	return dev.bankRegs[page8kB];
 }
 
 } // namespace openmsx

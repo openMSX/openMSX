@@ -130,12 +130,12 @@ RomHolyQuran2::Blocks::Blocks(const RomHolyQuran2& device_)
 {
 }
 
-byte RomHolyQuran2::Blocks::read(unsigned address)
+unsigned RomHolyQuran2::Blocks::readExt(unsigned address)
 {
-	if ((address < 0x4000) || (address >= 0xc000)) return 255;
+	if ((address < 0x4000) || (address >= 0xc000)) return unsigned(-1);
 	unsigned page = (address - 0x4000) / 0x2000;
 	auto& device = OUTER(RomHolyQuran2, romBlocks);
-	return narrow<byte>((device.bank[page] - &device.rom[0]) / 0x2000);
+	return (device.bank[page] - &device.rom[0]) / 0x2000;
 }
 
 } // namespace openmsx

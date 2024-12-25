@@ -235,11 +235,10 @@ INSTANTIATE_SERIALIZE_METHODS(KonamiUltimateCollection);
 REGISTER_MSXDEVICE(KonamiUltimateCollection, "KonamiUltimateCollection");
 
 
-byte KonamiUltimateCollection::Blocks::read(unsigned address)
+unsigned KonamiUltimateCollection::Blocks::readExt(unsigned address)
 {
 	const auto& dev = OUTER(KonamiUltimateCollection, romBlockDebug);
-	auto addr = dev.getFlashAddr(address);
-	return narrow_cast<byte>(addr >> 13); // TODO need mechanism to return the full segment number
+	return dev.getFlashAddr(address) >> 13;
 }
 
 } // namespace openmsx

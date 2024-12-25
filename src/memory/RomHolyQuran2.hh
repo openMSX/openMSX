@@ -25,7 +25,7 @@ public:
 private:
 	struct Blocks final : RomBlockDebuggableBase {
 		explicit Blocks(const RomHolyQuran2& device);
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] unsigned readExt(unsigned address) override;
 	} romBlocks;
 
 	std::array<const byte*, 4> bank;
