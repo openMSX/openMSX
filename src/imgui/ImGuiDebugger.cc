@@ -435,27 +435,27 @@ struct BpLine {
 	bool anyInSlot = false;
 	bool anyComplex = false;
 };
-static BpLine examineBpLine(uint16_t addr, std::span<const ImGuiBreakPoints::GuiItem> bps, MSXCPUInterface& cpuInterface, Debugger& debugger)
+static BpLine examineBpLine(uint16_t addr, std::span<BreakPoint> bps, MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
 	BpLine result;
 	for (auto [i, bp] : enumerate(bps)) {
-		if (!bp.addr || *bp.addr != addr) continue;
+		if (bp.getAddress() != addr) continue;
 		++result.count;
 		result.idx = int(i);
 
-		bool enabled = bp.wantEnable;
+		bool enabled = bp.isEnabled();
 		result.anyEnabled |= enabled;
 		result.anyDisabled |= !enabled;
 
-		ParsedSlotCond bpSlot("pc_in_slot", bp.cond.getString());
+		ParsedSlotCond bpSlot("pc_in_slot", bp.getCondition().getString());
 		result.anyInSlot |= addrInSlot(bpSlot, cpuInterface, debugger, addr);
 
-		result.anyComplex |= !bpSlot.rest.empty() || (bp.cmd.getString() != "debug break");
+		result.anyComplex |= !bpSlot.rest.empty() || (bp.getCommand().getString() != "debug break");
 	}
 	return result;
 }
 
-static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreakPoints::GuiItem>& guiBps,
+static void toggleBp(uint16_t addr, const BpLine& bpLine, std::span<BreakPoint> bps,
                      MSXCPUInterface& cpuInterface, Debugger& debugger,
                      std::optional<BreakPoint>& addBp, std::optional<unsigned>& removeBpId)
 {
@@ -463,8 +463,8 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::vector<ImGuiBreak
 		// only allow to remove single breakpoints,
 		// others can be edited via the breakpoint viewer
 		if (bpLine.count == 1) {
-			auto& bp = guiBps[bpLine.idx];
-			removeBpId = bp.id; // schedule removal
+			auto& bp = bps[bpLine.idx];
+			removeBpId = bp.getId(); // schedule removal
 		}
 	} else {
 		// schedule creation of new bp
@@ -483,13 +483,13 @@ void ImGuiDebugger::actionToggleBp(MSXMotherBoard& motherBoard)
 	auto pc = motherBoard.getCPU().getRegisters().getPC();
 	auto& cpuInterface = motherBoard.getCPUInterface();
 	auto& debugger = motherBoard.getDebugger();
-	auto& guiBps = manager.breakPoints->getBps();
+	auto& bps = cpuInterface.getBreakPoints();
 
-	auto bpLine = examineBpLine(pc, guiBps, cpuInterface, debugger);
+	auto bpLine = examineBpLine(pc, bps, cpuInterface, debugger);
 
 	std::optional<BreakPoint> addBp;
 	std::optional<unsigned> removeBpId;
-	toggleBp(pc, bpLine, guiBps, cpuInterface, debugger, addBp, removeBpId);
+	toggleBp(pc, bpLine, bps, cpuInterface, debugger, addBp, removeBpId);
 	if (addBp) {
 		cpuInterface.insertBreakPoint(std::move(*addBp));
 	}
@@ -531,7 +531,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 			ImGui::TableSetupColumn("mnemonic", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableHeadersRow();
 
-			auto& guiBps = manager.breakPoints->getBps();
+			auto& bps = cpuInterface.getBreakPoints();
 			auto textSize = ImGui::GetTextLineHeight();
 
 			std::string mnemonic;
@@ -562,7 +562,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 						}
 						bool bpRightClick = false;
 						if (ImGui::TableNextColumn()) { // bp
-							auto bpLine = examineBpLine(addr16, guiBps, cpuInterface, debugger);
+							auto bpLine = examineBpLine(addr16, bps, cpuInterface, debugger);
 							bool hasBp = bpLine.count != 0;
 							bool multi = bpLine.count > 1;
 							if (hasBp) {
@@ -598,7 +598,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								}
 							}
 							if (ImGui::InvisibleButton("##bp-button", {-FLT_MIN, textSize})) {
-								toggleBp(addr16, bpLine, guiBps, cpuInterface, debugger, addBp, removeBpId);
+								toggleBp(addr16, bpLine, bps, cpuInterface, debugger, addBp, removeBpId);
 							} else {
 								bpRightClick = hasBp && ImGui::IsItemClicked(ImGuiMouseButton_Right);
 								if (bpRightClick) ImGui::OpenPopup("bp-context");
