@@ -52,7 +52,6 @@ public:
 
 	[[nodiscard]] zstring_view iniName() const override { return "breakpoints"; }
 	void save(ImGuiTextBuffer& buf) override;
-	void loadStart() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void loadEnd() override;
 	void paint(MSXMotherBoard* motherBoard) override;
@@ -62,7 +61,6 @@ public:
 	void paintBpTab(MSXCPUInterface& cpuInterface, Debugger& debugger, uint16_t addr);
 
 private:
-	//template<typename Item> void loadItem(zstring_view value);
 	template<typename Item> void paintTab(MSXCPUInterface& cpuInterface, Debugger& debugger, std::optional<uint16_t> addr = {});
 	template<typename Item> void syncFromOpenMsx(std::vector<GuiItem>& items, MSXCPUInterface& cpuInterface);
 	void checkSort(std::vector<GuiItem>& items) const;
