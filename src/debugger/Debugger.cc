@@ -529,6 +529,7 @@ void Debugger::Cmd::parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObj
 		}),
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+	if (!arguments.empty()) throw SyntaxError();
 }
 
 void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObject> tokens)
@@ -554,6 +555,7 @@ void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObj
 		}),
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+	if (!arguments.empty()) throw SyntaxError();
 }
 
 void Debugger::Cmd::parseCreateCondition(DebugCondition& cond, std::span<const TclObject> tokens)
@@ -573,6 +575,7 @@ void Debugger::Cmd::parseCreateCondition(DebugCondition& cond, std::span<const T
 		}),
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+	if (!arguments.empty()) throw SyntaxError();
 }
 
 void Debugger::Cmd::breakPointCreate(std::span<const TclObject> tokens, TclObject& result)
