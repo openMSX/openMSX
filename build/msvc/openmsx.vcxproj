@@ -357,7 +357,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDTopWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUCore.cc" />

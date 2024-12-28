@@ -9,9 +9,12 @@ namespace openmsx {
 class Debugger;
 class ProbeBase;
 
-class ProbeBreakPoint final : public BreakPointBase
+class ProbeBreakPoint final : public BreakPointBase<ProbeBreakPoint>
                             , private Observer<ProbeBase>
 {
+public:
+	static constexpr std::string_view prefix = "pp#";
+
 public:
 	ProbeBreakPoint(TclObject command,
 	                TclObject condition,
@@ -21,7 +24,6 @@ public:
 	                unsigned newId = -1);
 	~ProbeBreakPoint();
 
-	[[nodiscard]] unsigned getId() const { return id; }
 	[[nodiscard]] const ProbeBase& getProbe() const { return probe; }
 
 private:
@@ -32,9 +34,6 @@ private:
 private:
 	Debugger& debugger;
 	ProbeBase& probe;
-	const unsigned id;
-
-	static inline unsigned lastId = 0;
 };
 
 } // namespace openmsx

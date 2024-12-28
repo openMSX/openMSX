@@ -105,23 +105,23 @@ ProbeBase& Debugger::getProbe(string_view name)
 	return *result;
 }
 
-unsigned Debugger::insertProbeBreakPoint(
+std::string Debugger::insertProbeBreakPoint(
 	TclObject command, TclObject condition,
 	ProbeBase& probe, bool once, unsigned newId /*= -1*/)
 {
 	auto bp = std::make_unique<ProbeBreakPoint>(
 		std::move(command), std::move(condition), *this, probe, once, newId);
-	unsigned result = bp->getId();
-	motherBoard.getMSXCliComm().update(CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", result), "add");
+	auto result = bp->getIdStr();
+	motherBoard.getMSXCliComm().update(CliComm::UpdateType::DEBUG_UPDT, result, "add");
 	probeBreakPoints.push_back(std::move(bp));
 	return result;
 }
 
 void Debugger::removeProbeBreakPoint(string_view name)
 {
-	if (name.starts_with("pp#")) {
+	if (name.starts_with(ProbeBreakPoint::prefix)) {
 		// remove by id
-		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(3))) {
+		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(ProbeBreakPoint::prefix.size()))) {
 			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
 			    it != std::end(probeBreakPoints)) {
 				motherBoard.getMSXCliComm().update(
@@ -141,7 +141,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 				"No (unconditional) breakpoint for probe: ", name);
 		}
 		motherBoard.getMSXCliComm().update(
-			CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", (*it)->getId()), "remove");
+			CliComm::UpdateType::DEBUG_UPDT, (*it)->getIdStr(), "remove");
 		move_pop_back(probeBreakPoints, it);
 	}
 }
@@ -149,7 +149,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
 	motherBoard.getMSXCliComm().update(
-		CliComm::UpdateType::DEBUG_UPDT, tmpStrCat("pp#", bp.getId()), "remove");
+		CliComm::UpdateType::DEBUG_UPDT, bp.getIdStr(), "remove");
 	move_pop_back(probeBreakPoints, rfind_unguarded(probeBreakPoints, &bp,
 		[](auto& v) { return v.get(); }));
 }
@@ -941,8 +941,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		UNREACHABLE;
 	}
 
-	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p, once);
-	result = tmpStrCat("pp#", id);
+	result = debugger().insertProbeBreakPoint(command, condition, *p, once);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
 	std::span<const TclObject> tokens, TclObject& /*result*/)
@@ -955,7 +954,7 @@ void Debugger::Cmd::probeListBreakPoints(
 {
 	string res;
 	for (const auto& p : debugger().probeBreakPoints) {
-		TclObject line = makeTclList(tmpStrCat("pp#", p->getId()),
+		TclObject line = makeTclList(p->getIdStr(),
 		                             p->getProbe().getName(),
 		                             p->getCondition(),
 		                             p->getCommand());

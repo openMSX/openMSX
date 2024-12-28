@@ -11,18 +11,12 @@
 
 namespace openmsx {
 
-class BreakPoint final : public BreakPointBase
+class BreakPoint final : public BreakPointBase<BreakPoint>
 {
 public:
 	static constexpr std::string_view prefix = "bp#";
 
 public:
-	BreakPoint()
-		: id(++lastId) {}
-
-	[[nodiscard]] unsigned getId() const { return id; }
-	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
-
 	[[nodiscard]] std::optional<uint16_t> getAddress() const { return address; }
 	[[nodiscard]] TclObject getAddressString() const { return addrStr; }
 	void setAddress(Interpreter& interp, const TclObject& addr) {
@@ -45,11 +39,8 @@ public:
 	}
 
 private:
-	unsigned id;
 	TclObject addrStr;
 	std::optional<uint16_t> address; // redundant: calculated from 'addrStr'
-
-	static inline unsigned lastId = 0;
 };
 
 } // namespace openmsx

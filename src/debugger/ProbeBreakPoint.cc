@@ -19,8 +19,8 @@ ProbeBreakPoint::ProbeBreakPoint(
 		unsigned newId /*= -1*/)
 	: debugger(debugger_)
 	, probe(probe_)
-	, id((newId == unsigned(-1)) ? ++lastId : newId)
 {
+	if (newId != unsigned(-1)) id = newId;
 	setCommand(std::move(command_));
 	setCondition(std::move(condition_));
 	setOnce(once_);

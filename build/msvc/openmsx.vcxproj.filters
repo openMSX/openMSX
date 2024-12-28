@@ -207,9 +207,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc">
-      <Filter>cpu</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc">
       <Filter>cpu</Filter>
     </ClCompile>

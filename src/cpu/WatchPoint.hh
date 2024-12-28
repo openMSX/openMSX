@@ -20,7 +20,7 @@ namespace openmsx {
 
 class MSXWatchIODevice;
 
-class WatchPoint final : public BreakPointBase
+class WatchPoint final : public BreakPointBase<WatchPoint>
                        , public std::enable_shared_from_this<WatchPoint>
 {
 public:
@@ -64,22 +64,19 @@ public:
 	}
 
 public:
-	WatchPoint()
-		: id(++lastId) {}
+	WatchPoint() = default;
 
 	struct clone_tag {};
 	WatchPoint(clone_tag, const WatchPoint& wp)
 		: BreakPointBase(wp)
-		, id(wp.id), type(wp.type)
+		, type(wp.type)
 		, beginAddrStr(wp.beginAddrStr), endAddrStr(wp.endAddrStr)
 		, beginAddr(wp.beginAddr), endAddr(wp.endAddr)
 	{
+		id = wp.id;
 		assert(ios.empty());
 		assert(!registered);
 	}
-
-	[[nodiscard]] unsigned getId() const { return id; }
-	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
 
 	[[nodiscard]] Type getType() const { return type; }
 	void setType(Type t) { type = t; }
@@ -135,7 +132,6 @@ private:
 	void doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value);
 
 private:
-	unsigned id;
 	Type type = Type::WRITE_MEM;
 	TclObject beginAddrStr;
 	TclObject endAddrStr;
@@ -144,8 +140,6 @@ private:
 
 	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
 	bool registered = false; // for debugging only
-
-	static inline unsigned lastId = 0;
 
 	friend class MSXWatchIODevice;
 };

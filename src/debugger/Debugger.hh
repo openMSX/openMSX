@@ -55,7 +55,7 @@ private:
 	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);
 	[[nodiscard]] ProbeBase& getProbe(std::string_view name);
 
-	unsigned insertProbeBreakPoint(
+	std::string insertProbeBreakPoint(
 		TclObject command, TclObject condition,
 		ProbeBase& probe, bool once, unsigned newId = -1);
 	void removeProbeBreakPoint(std::string_view name);

@@ -100,7 +100,6 @@ sources = files(
     'console/OSDTopWidget.cc',
     'console/OSDWidget.cc',
     'console/TTFFont.cc',
-    'cpu/BreakPointBase.cc',
     'cpu/CPUClock.cc',
     'cpu/CPUCore.cc',
     'cpu/CPURegs.cc',
