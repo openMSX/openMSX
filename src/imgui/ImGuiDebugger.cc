@@ -468,14 +468,9 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::span<BreakPoint> 
 		}
 	} else {
 		// schedule creation of new bp
-		auto slot = getCurrentSlot(cpuInterface, debugger, addr);
-		addBp.emplace(
-			debugger.getInterpreter(),
-			TclObject(tmpStrCat("0x", hex_string<4>(addr))),
-			TclObject("debug break"),
-			toTclExpression(slot),
-			true,
-			false);
+		addBp.emplace();
+		addBp->setAddress(debugger.getInterpreter(), TclObject(tmpStrCat("0x", hex_string<4>(addr))));
+		addBp->setCondition(toTclExpression(getCurrentSlot(cpuInterface, debugger, addr)));
 	}
 }
 void ImGuiDebugger::actionToggleBp(MSXMotherBoard& motherBoard)

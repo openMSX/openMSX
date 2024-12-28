@@ -1054,8 +1054,9 @@ void MSXCPUInterface::doBreak()
 void MSXCPUInterface::doStep()
 {
 	assert(!isFastForward());
-	setCondition(DebugCondition(
-		TclObject("debug break"), TclObject(), true, true));
+	DebugCondition dc; // cmd = debug break
+	dc.setOnce(true);
+	setCondition(std::move(dc));
 	doContinue();
 }
 

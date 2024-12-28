@@ -671,31 +671,33 @@ void Debugger::Cmd::conditionRemove(std::span<const TclObject> tokens, TclObject
 void Debugger::Cmd::setBreakPoint(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "address ?-once? ?condition? ?command?");
-	TclObject command("debug break");
-	TclObject condition;
-	bool enabled = true; // can't be configure with 'debug set_bp'
-	bool once = false;
 
+	bool once = false;
 	std::array info = {flagArg("-once", once)};
-	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
+
+	auto& interp = getInterpreter();
+	auto arguments = parseTclArgs(interp, tokens.subspan(2), info);
 	if ((arguments.size() < 1) || (arguments.size() > 3)) {
 		throw SyntaxError();
 	}
 
+	BreakPoint bp;
+	bp.setOnce(once);
+
 	switch (arguments.size()) {
 	case 3: // command
-		command = arguments[2];
+		bp.setCommand(arguments[2]);
 		[[fallthrough]];
 	case 2: // condition
-		condition = arguments[1];
+		bp.setCondition(arguments[1]);
 		[[fallthrough]];
-	case 1: { // address
-		BreakPoint bp(getInterpreter(), arguments[0], command, condition, enabled, once);
-		result = bp.getIdStr();
-		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
+	case 1: // address
+		bp.setAddress(interp, arguments[0]);
 		break;
 	}
-	}
+
+	result = bp.getIdStr();
+	debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 }
 
 void Debugger::Cmd::removeBreakPoint(
@@ -747,36 +749,34 @@ void Debugger::Cmd::listBreakPoints(std::span<const TclObject> /*tokens*/, TclOb
 void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type address ?-once? ?condition? ?command?");
-	TclObject command("debug break");
-	TclObject condition;
-	TclObject address;
-	WatchPoint::Type type;
-	bool enabled = true; // can't be configure with 'debug set_watchpoint'
-	bool once = false;
 
+	bool once = false;
 	std::array info = {flagArg("-once", once)};
-	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
+
+	auto& interp = getInterpreter();
+	auto arguments = parseTclArgs(interp, tokens.subspan(2), info);
 	if ((arguments.size() < 2) || (arguments.size() > 4)) {
 		throw SyntaxError();
 	}
 
+	auto wp = std::make_shared<WatchPoint>();
+	wp->setOnce(once);
+
 	switch (arguments.size()) {
 	case 4: // command
-		command = arguments[3];
+		wp->setCommand(arguments[3]);
 		[[fallthrough]];
 	case 3: // condition
-		condition = arguments[2];
+		wp->setCondition(arguments[2]);
 		[[fallthrough]];
 	case 2: // address + type
-		type = WatchPoint::parseType(arguments[0].getString());
-		address = arguments[1];
-		//std::tie(beginAddr, endAddr) = WatchPoint::parseAddress(getInterpreter(), arguments[1], type);
+		wp->setType(arguments[0]);
+		wp->setAddress(interp, arguments[1]);
 		break;
 	default:
 		UNREACHABLE;
 	}
-	auto wp = std::make_shared<WatchPoint>(
-		getInterpreter(), std::move(command), std::move(condition), type, address, enabled, once);
+
 	result = wp->getIdStr();
 	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
@@ -826,29 +826,29 @@ void Debugger::Cmd::listWatchPoints(
 void Debugger::Cmd::setCondition(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "condition ?-once? ?command?");
-	TclObject command("debug break");
-	TclObject condition;
-	bool enabled = true; // can't be configure with 'debug set_condition'
-	bool once = false;
 
+	bool once = false;
 	std::array info = {flagArg("-once", once)};
+
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(2), info);
 	if ((arguments.size() < 1) || (arguments.size() > 2)) {
 		throw SyntaxError();
 	}
 
+	DebugCondition dc;
+	dc.setOnce(once);
+
 	switch (arguments.size()) {
 	case 2: // command
-		command = arguments[1];
+		dc.setCommand(arguments[1]);
 		[[fallthrough]];
-	case 1: { // condition
-		condition = arguments[0];
-		DebugCondition dc(command, condition, enabled, once);
-		result = dc.getIdStr();
-		debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
+	case 1:
+		dc.setCondition(arguments[0]);
 		break;
 	}
-	}
+
+	result = dc.getIdStr();
+	debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
 }
 
 void Debugger::Cmd::removeCondition(

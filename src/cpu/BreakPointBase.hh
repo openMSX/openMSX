@@ -25,17 +25,14 @@ public:
 	}
 	void setEnabled(bool e) { enabled = e; }
 	void setOnce(Interpreter& interp, const TclObject& o) {
-		once = o.getBoolean(interp); // may throw
+		setOnce(o.getBoolean(interp)); // may throw
 	}
+	void setOnce(bool o) { once = o; }
 
 	bool checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
 protected:
 	BreakPointBase() = default;
-	BreakPointBase(TclObject command_, TclObject condition_, bool enabled_, bool once_)
-		: command(std::move(command_))
-		, condition(std::move(condition_))
-		, enabled(enabled_), once(once_) {}
 
 private:
 	// Note: we require GlobalCliComm here because breakpoint objects can

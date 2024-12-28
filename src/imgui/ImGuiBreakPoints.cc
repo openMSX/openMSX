@@ -198,15 +198,11 @@ static std::vector<DebugCondition>& getItems(DebugCondition*, MSXCPUInterface&)
 template<typename T> static void createNew(MSXCPUInterface& cpuInterface, Interpreter& interp, std::optional<uint16_t> addr);
 template<> void createNew<BreakPoint>(MSXCPUInterface& cpuInterface, Interpreter& interp, std::optional<uint16_t> addr)
 {
-	TclObject addrStr = addr ? TclObject(tmpStrCat("0x", hex_string<4>(*addr)))
-	                         : TclObject();
-	TclObject cmd = makeTclList("debug", "break");
-	TclObject cond;
-	bool once = false;
-	bool enable = true;
-
-	cpuInterface.insertBreakPoint(BreakPoint(
-		interp, addrStr, cmd, cond, enable, once));
+	BreakPoint bp;
+	if (addr) {
+		bp.setAddress(interp, TclObject(tmpStrCat("0x", hex_string<4>(*addr))));
+	}
+	cpuInterface.insertBreakPoint(std::move(bp));
 }
 template<> void createNew<WatchPoint>(MSXCPUInterface& cpuInterface, Interpreter&, std::optional<uint16_t>)
 {

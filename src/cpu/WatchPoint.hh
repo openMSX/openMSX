@@ -66,14 +66,6 @@ public:
 public:
 	WatchPoint()
 		: id(++lastId) {}
-	WatchPoint(Interpreter& interp, TclObject command_, TclObject condition_,
-	           Type type_, TclObject address, bool enabled_, bool once_, unsigned newId = -1)
-		: BreakPointBase(std::move(command_), std::move(condition_), enabled_, once_)
-		, id((newId == unsigned(-1)) ? ++lastId : newId)
-		, type(type_)
-	{
-		setAddress(interp, address);
-	}
 
 	struct clone_tag {};
 	WatchPoint(clone_tag, const WatchPoint& wp)

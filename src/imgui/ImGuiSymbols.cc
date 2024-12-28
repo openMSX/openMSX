@@ -169,22 +169,23 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 
 void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym)
 {
-	if (ImGui::MenuItem("Show in Dissassembly", nullptr, nullptr, motherBoard != nullptr)) {
+	if (ImGui::MenuItem("Show in Disassembly", nullptr, nullptr, motherBoard != nullptr)) {
 		manager.debugger->setGotoTarget(sym.value(symbolManager));
 	}
 	if (ImGui::MenuItem("Set breakpoint", nullptr, nullptr, motherBoard != nullptr)) {
-		std::string cond;
+		auto& interp = motherBoard->getReactor().getInterpreter();
+		BreakPoint newBp;
+		newBp.setAddress(interp, TclObject(strCat("$sym(", sym.name(symbolManager), ')')));
+
 		if (auto slot = sym.slot(symbolManager)) {
-			strAppend(cond, "[pc_in_slot ", *slot & 3, ' ', (*slot >> 2) & 3);
+			auto cond = strCat("[pc_in_slot ", *slot & 3, ' ', (*slot >> 2) & 3);
 			if (auto segment = sym.segment(symbolManager)) {
 				strAppend(cond, ' ', *segment);
 			}
 			strAppend(cond, ']');
+			newBp.setCondition(TclObject(cond));
 		}
-		auto& interp = motherBoard->getReactor().getInterpreter();
-		BreakPoint newBp(
-			interp, TclObject(strCat("$sym(", sym.name(symbolManager), ')')),
-			TclObject("debug break"), TclObject(cond), true, false);
+
 		auto& cpuInterface = motherBoard->getCPUInterface();
 		cpuInterface.insertBreakPoint(std::move(newBp));
 	}
