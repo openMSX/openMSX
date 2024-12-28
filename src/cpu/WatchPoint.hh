@@ -90,14 +90,23 @@ public:
 	[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
 
 	[[nodiscard]] Type getType() const { return type; }
+	void setType(Type t) { type = t; }
 	void setType(const TclObject& t) {
-		type = parseType(t.getString());
+		setType(parseType(t.getString()));
 	}
 
 	[[nodiscard]] auto getBeginAddress() const { return beginAddr; }
 	[[nodiscard]] auto getEndAddress()   const { return endAddr; }
 	[[nodiscard]] auto getBeginAddressString() const { return beginAddrStr; }
 	[[nodiscard]] auto getEndAddressString()   const { return endAddrStr; }
+	void setBeginAddressString(Interpreter& interp, const TclObject& s) {
+		beginAddrStr = s;
+		evaluateAddress(interp);
+	}
+	void setEndAddressString(Interpreter& interp, const TclObject& s) {
+		endAddrStr = s;
+		evaluateAddress(interp);
+	}
 	void setAddress(Interpreter& interp, const TclObject& a) {
 		std::tie(beginAddrStr, endAddrStr) = parseAddress(interp, a);
 		evaluateAddress(interp);

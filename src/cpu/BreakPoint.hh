@@ -54,7 +54,7 @@ public:
 private:
 	unsigned id;
 	TclObject addrStr;
-	std::optional<uint16_t> address = 0;
+	std::optional<uint16_t> address; // redundant: calculated from 'addrStr'
 
 	static inline unsigned lastId = 0;
 };

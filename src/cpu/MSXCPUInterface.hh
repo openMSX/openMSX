@@ -272,6 +272,7 @@ public:
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	[[nodiscard]] const WatchPoints& getWatchPoints() const { return watchPoints; }
+	[[nodiscard]] WatchPoints& getWatchPoints() { return watchPoints; }
 
 	// Temporarily unregister and then re-register a watchpoint. E.g.
 	// because you want to change the type or address, and then it needs to

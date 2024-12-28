@@ -21,8 +21,9 @@ public:
 	void setCondition(const TclObject& c) { condition = c; }
 	void setCommand(const TclObject& c) { command = c; }
 	void setEnabled(Interpreter& interp, const TclObject& e) {
-		enabled = e.getBoolean(interp); // may throw
+		setEnabled(e.getBoolean(interp)); // may throw
 	}
+	void setEnabled(bool e) { enabled = e; }
 	void setOnce(Interpreter& interp, const TclObject& o) {
 		once = o.getBoolean(interp); // may throw
 	}

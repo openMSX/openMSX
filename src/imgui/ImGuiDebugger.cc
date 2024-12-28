@@ -603,7 +603,7 @@ void ImGuiDebugger::drawDisassembly(CPURegs& regs, MSXCPUInterface& cpuInterface
 								bpRightClick = hasBp && ImGui::IsItemClicked(ImGuiMouseButton_Right);
 								if (bpRightClick) ImGui::OpenPopup("bp-context");
 								im::Popup("bp-context", [&]{
-									manager.breakPoints->paintBpTab(cpuInterface, debugger, addr16);
+									manager.breakPoints->paintBpTab(cpuInterface, addr16);
 								});
 							}
 						}
