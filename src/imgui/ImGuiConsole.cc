@@ -148,6 +148,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					drawLine(lines[i]);
 				});
 			});
+			ImGui::Spacing();
 
 			// Keep up at the bottom of the scroll region if we were already
 			// at the bottom at the beginning of the frame.
