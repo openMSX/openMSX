@@ -535,8 +535,8 @@ void Debugger::Cmd::parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObj
 void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObject> tokens)
 {
 	std::array info = {
-		funcArg("-type", [&](Interpreter& /*interp*/, const TclObject& arg) {
-			wp.setType(arg);
+		funcArg("-type", [&](Interpreter& interp, const TclObject& arg) {
+			wp.setType(interp, arg);
 		}),
 		funcArg("-address", [&](Interpreter& interp, const TclObject& arg) {
 			wp.setAddress(interp, arg);
@@ -773,7 +773,7 @@ void Debugger::Cmd::setWatchPoint(std::span<const TclObject> tokens, TclObject& 
 		wp->setCondition(arguments[2]);
 		[[fallthrough]];
 	case 2: // address + type
-		wp->setType(arguments[0]);
+		wp->setType(interp, arguments[0]);
 		wp->setAddress(interp, arguments[1]);
 		break;
 	default:

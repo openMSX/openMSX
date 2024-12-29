@@ -24,21 +24,32 @@ public:
 		evaluateAddress(interp);
 	}
 
-	std::string evaluateAddress(Interpreter& interp) {
+	void evaluateAddress(Interpreter& interp) {
 		try {
-			auto tmp = addrStr.eval(interp).getInt(interp); // may throw
-			if ((tmp < 0) || (tmp > 0xffff)) {
-				throw CommandException("address outside of range");
-			}
-			address = uint16_t(tmp);
-			return {}; // success
+			address = parseAddress(interp);
 		} catch (MSXException& e) {
 			address = {};
+		}
+	}
+
+	[[nodiscard]] std::string parseAddressError(Interpreter& interp) const {
+		try {
+			parseAddress(interp);
+			return {};
+		} catch (MSXException& e) {
 			return e.getMessage();
 		}
 	}
 
 private:
+	uint16_t parseAddress(Interpreter& interp) const {
+		auto tmp = addrStr.eval(interp).getInt(interp); // may throw
+		if ((tmp < 0) || (tmp > 0xffff)) {
+			throw CommandException("address outside of range 0...0xffff");
+		}
+		return uint16_t(tmp);
+	}
+
 	TclObject addrStr;
 	std::optional<uint16_t> address; // redundant: calculated from 'addrStr'
 };

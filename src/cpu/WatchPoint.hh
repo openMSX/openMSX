@@ -79,9 +79,12 @@ public:
 	}
 
 	[[nodiscard]] Type getType() const { return type; }
-	void setType(Type t) { type = t; }
-	void setType(const TclObject& t) {
-		setType(parseType(t.getString()));
+	void setType(Interpreter& interp, Type t) {
+		type = t;
+		evaluateAddress(interp); // because range may have changed
+	}
+	void setType(Interpreter& interp, const TclObject& t) {
+		setType(interp, parseType(t.getString()));
 	}
 
 	[[nodiscard]] auto getBeginAddress() const { return beginAddr; }
@@ -101,25 +104,22 @@ public:
 		evaluateAddress(interp);
 	}
 
-	std::string evaluateAddress(Interpreter& interp) {
+	void evaluateAddress(Interpreter& interp) {
 		assert(!registered);
 		try {
-			auto begin = beginAddrStr.eval(interp).getInt(interp); // may throw
-			auto end = endAddrStr.getString().empty()
-			         ? begin
-				 : endAddrStr.eval(interp).getInt(interp); // may throw
-			if (end < begin) {
-				throw CommandException("begin may not be larger than end: ", begin, " > ", end);
-			}
-			auto max = rangeForType(type);
-			if ((begin < 0) || (end >= int(max))) {
-				throw CommandException("address outside of range [0, ", max , ')');
-			}
-			beginAddr = narrow<uint16_t>(begin);
-			endAddr   = narrow<uint16_t>(end);
-			return {}; // success
+			auto [b, e] = parseAddress(interp);
+			beginAddr = b;
+			endAddr = e;
 		} catch (MSXException& e) {
 			beginAddr = endAddr = {};
+		}
+	}
+
+	[[nodiscard]] std::string parseAddressError(Interpreter& interp) const {
+		try {
+			parseAddress(interp);
+			return {};
+		} catch (MSXException& e) {
 			return e.getMessage();
 		}
 	}
@@ -131,6 +131,20 @@ private:
 	void doReadCallback(MSXMotherBoard& motherBoard, unsigned port);
 	void doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, unsigned value);
 
+	std::pair<uint16_t, uint16_t> parseAddress(Interpreter& interp) const {
+		auto begin = beginAddrStr.eval(interp).getInt(interp); // may throw
+		auto end = endAddrStr.getString().empty()
+		         ? begin
+			 : endAddrStr.eval(interp).getInt(interp); // may throw
+		if (end < begin) {
+			throw CommandException("begin may not be larger than end: ", begin, " > ", end);
+		}
+		auto max = rangeForType(type);
+		if ((begin < 0) || (end >= int(max))) {
+			throw CommandException("address outside of range 0...", max - 1);
+		}
+		return {narrow<uint16_t>(begin), narrow<uint16_t>(end)};
+	}
 private:
 	Type type = Type::WRITE_MEM;
 	TclObject beginAddrStr;
