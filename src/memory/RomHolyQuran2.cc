@@ -7,13 +7,16 @@
 // sharing his implementation with us (and pointing us to it).
 
 #include "RomHolyQuran2.hh"
+
 #include "MSXCPU.hh"
 #include "MSXException.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+
 #include <array>
 
 namespace openmsx {
@@ -135,7 +138,7 @@ unsigned RomHolyQuran2::Blocks::readExt(unsigned address)
 	if ((address < 0x4000) || (address >= 0xc000)) return unsigned(-1);
 	unsigned page = (address - 0x4000) / 0x2000;
 	auto& device = OUTER(RomHolyQuran2, romBlocks);
-	return (device.bank[page] - &device.rom[0]) / 0x2000;
+	return narrow<unsigned>(device.bank[page] - &device.rom[0]) / 0x2000;
 }
 
 } // namespace openmsx

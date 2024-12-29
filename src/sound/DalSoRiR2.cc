@@ -102,8 +102,8 @@ void DalSoRiR2::reset(EmuTime::param time)
 	ymf278b.reset(time);
 	flash.reset();
 
-	ranges::iota(regBank, 0);
-	ranges::iota(regFrame, 0);
+	ranges::iota(regBank, byte(0));
+	ranges::iota(regFrame, byte(0));
 
 	setRegCfg((dipSwitchMCFG. getBoolean() ? ENA_S0 : 0) |
 	          (dipSwitchIO_C0.getBoolean() ? ENA_C0 : 0) |
@@ -239,7 +239,7 @@ byte* DalSoRiR2::getWriteCacheLine(word start)
 
 void DalSoRiR2::update(const Setting& setting) noexcept
 {
-	assert(&setting == &dipSwitchBDIS);
+	assert(&setting == &dipSwitchBDIS); (void)setting;
 	auto newBiosDisable = dipSwitchBDIS.getBoolean();
 	if (biosDisable != newBiosDisable) {
 		biosDisable = newBiosDisable;

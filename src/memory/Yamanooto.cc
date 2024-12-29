@@ -3,6 +3,7 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 
+#include "narrow.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
@@ -315,7 +316,7 @@ REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");
 unsigned Yamanooto::Blocks::readExt(unsigned address)
 {
 	const auto& dev = OUTER(Yamanooto, romBlockDebug);
-	address = mirror(address);
+	address = mirror(narrow<word>(address));
 	unsigned page8kB = (address >> 13) - 2;
 	return dev.bankRegs[page8kB];
 }

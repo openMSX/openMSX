@@ -383,27 +383,27 @@ void MSXCPUInterface::unregister_IO_InOut(byte port, MSXDevice* device)
 }
 void MSXCPUInterface::register_IO_In_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_In(port + i, device);
+	for (auto i : xrange(num)) register_IO_In(narrow<byte>(port + i), device);
 }
 void MSXCPUInterface::register_IO_Out_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_Out(port + i, device);
+	for (auto i : xrange(num)) register_IO_Out(narrow<byte>(port + i), device);
 }
 void MSXCPUInterface::register_IO_InOut_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_InOut(port + i, device);
+	for (auto i : xrange(num)) register_IO_InOut(narrow<byte>(port + i), device);
 }
 void MSXCPUInterface::unregister_IO_In_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_In(port + i, device);
+	for (auto i : xrange(num)) unregister_IO_In(narrow<byte>(port + i), device);
 }
 void MSXCPUInterface::unregister_IO_Out_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_Out(port + i, device);
+	for (auto i : xrange(num)) unregister_IO_Out(narrow<byte>(port + i), device);
 }
 void MSXCPUInterface::unregister_IO_InOut_range(byte port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_InOut(port + i, device);
+	for (auto i : xrange(num)) unregister_IO_InOut(narrow<byte>(port + i), device);
 }
 
 void MSXCPUInterface::register_IO(int port, bool isIn,
