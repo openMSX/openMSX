@@ -260,6 +260,13 @@ static void setCommand(BreakPoint& bp,                  const TclObject& c) { bp
 static void setCommand(std::shared_ptr<WatchPoint>& wp, const TclObject& c) { wp->setCommand(c); }
 static void setCommand(DebugCondition& cond,            const TclObject& c) { cond.setCommand(c); }
 
+[[nodiscard]] static bool getOnce(const BreakPoint& bp)                  { return bp.onlyOnce(); }
+[[nodiscard]] static bool getOnce(const std::shared_ptr<WatchPoint>& wp) { return wp->onlyOnce(); }
+[[nodiscard]] static bool getOnce(const DebugCondition& cond)            { return cond.onlyOnce(); }
+static void setOnce(BreakPoint& bp,                  bool o) { bp.setOnce(o); }
+static void setOnce(std::shared_ptr<WatchPoint>& wp, bool o) { wp->setOnce(o); }
+static void setOnce(DebugCondition& cond,            bool o) { cond.setOnce(o); }
+
 struct DummyScopedChange {};
 [[nodiscard]] static DummyScopedChange getScopedChange(BreakPoint&, MSXCPUInterface&) { return {}; }
 [[nodiscard]] static auto getScopedChange(std::shared_ptr<WatchPoint>& wp, MSXCPUInterface& cpuInterface) {
@@ -490,6 +497,13 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 		});
 		simpleToolTip(parseError);
 	}
+	if (ImGui::TableNextColumn()) { // once
+		bool once = getOnce(item);
+		if (ImGui::Checkbox("##once", &once)) {
+			setOnce(item, once);
+		}
+		if (ImGui::IsItemActive()) selectedRow = row;
+	}
 }
 
 void ImGuiBreakPoints::paintBpTab(MSXCPUInterface& cpuInterface, uint16_t addr)
@@ -524,7 +538,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, std::optional<uin
 	bool disableRemove = true;
 	int count = 0;
 	int lastDrawnRow = -1; // should only be used when count=1
-	im::Table("items", 5, flags, {-width, 0}, [&]{
+	im::Table("items", 6, flags, {-width, 0}, [&]{
 		ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
 		ImGui::TableSetupColumn("Enable", ImGuiTableColumnFlags_WidthFixed);
 		int typeFlags = isWatchPoint ? ImGuiTableColumnFlags_NoHide : ImGuiTableColumnFlags_Disabled;
@@ -534,6 +548,7 @@ void ImGuiBreakPoints::paintTab(MSXCPUInterface& cpuInterface, std::optional<uin
 		ImGui::TableSetupColumn("Address", addressFlags);
 		ImGui::TableSetupColumn("Condition", isCondition ? ImGuiTableColumnFlags_NoHide : 0);
 		ImGui::TableSetupColumn("Action", addr ? 0 : ImGuiTableColumnFlags_DefaultHide);
+		ImGui::TableSetupColumn("Once", ImGuiTableColumnFlags_DefaultHide);
 		ImGui::TableHeadersRow();
 
 		checkSort(items);
