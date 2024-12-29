@@ -368,6 +368,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiIODevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiMemDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\cpu\WatchPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\DasmTables.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Debugger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Probe.cc" />
