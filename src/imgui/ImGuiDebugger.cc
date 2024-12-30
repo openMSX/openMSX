@@ -310,7 +310,7 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 		checkShortcuts(cpuInterface, motherBoard);
 
 		gl::vec2 maxIconSize;
-		const auto* font = ImGui::GetFont();
+		auto* font = ImGui::GetFont();
 		for (auto c : {
 			DEBUGGER_ICON_RUN, DEBUGGER_ICON_BREAK,
 			DEBUGGER_ICON_STEP_IN, DEBUGGER_ICON_STEP_OVER,

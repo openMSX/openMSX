@@ -250,7 +250,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ // but it's fragile because it depends on some internal implementation
 		/**/ // details. More specifically: the scroll-position. And obtaining this
 		/**/ // information required stuff from <imgui_internal.h>.
-		/**/ const auto* font = ImGui::GetFont();
+		/**/ auto* font = ImGui::GetFont();
 		/**/ auto fontSize = ImGui::GetFontSize();
 		/**/ gl::vec2 frameSize(itemWidth, fontSize + style.FramePadding.y * 2.0f);
 		/**/ gl::vec2 topLeft = cursorScrnPos;
