@@ -43,6 +43,13 @@ Yamanooto::Yamanooto(const DeviceConfig& config, Rom&& rom_)
 	//   https://msx.pics/images/2024/12/23/yamanooto_volume_comparison.png
 	psg.setSoftwareVolume(3.0f, getCurrentTime());
 
+	scc.setBalance(0,  0.00f);
+	scc.setBalance(1, -0.67f);
+	scc.setBalance(2,  0.67f);
+	scc.setBalance(3, -0.67f);
+	scc.setBalance(4,  0.67f);
+	scc.postSetBalance();
+
 	getCPUInterface().register_IO_Out_range(0x10, 2, this);
 	powerUp(getCurrentTime());
 }

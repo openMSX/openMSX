@@ -16,6 +16,7 @@
 
 #include <bit>
 #include <cassert>
+#include <cmath>
 
 namespace openmsx {
 
@@ -59,7 +60,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 
 	// initially no channels are muted
 	ranges::fill(channelMuted, false);
-	ranges::fill(channelBalance, 0);
+	ranges::fill(channelBalance, Balance{1.0f, 1.0f});
 }
 
 SoundDevice::~SoundDevice() = default;
@@ -90,6 +91,9 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		if (!balance) {
 			throw MSXException("balance ", b->getData(), " illegal");
 		}
+		if ((*balance < -100) || (balance > 100)) {
+			throw MSXException("balance must be between -100...100: ", *balance);
+		}
 
 		const auto* channel = b->findAttribute("channel");
 		if (!channel) {
@@ -97,21 +101,30 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			continue;
 		}
 
-		// TODO Support other balances
-		if (*balance != one_of(0, -100, 100)) {
-			throw MSXException("balance ", *balance, " illegal");
-		}
-		if (*balance != 0) {
-			balanceCenter = false;
-		}
-
 		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels);
 		channels.foreachSetBit([&](size_t c) {
-			channelBalance[c - 1] = *balance;
+			setBalance(c - 1, *balance * (1.0f / 100.0f));
 		});
 	}
 
 	mixer.registerSound(*this, volume, devBalance, numChannels);
+}
+
+void SoundDevice::setBalance(unsigned channel, float balance)
+{
+	assert(channel < numChannels);
+	assert(-1.0f <= balance);
+	assert(balance <= 1.0f);
+
+	if (balance != 0.0f) balanceCenter = false;
+	auto left  = std::sqrt(1.0f - balance);
+	auto right = std::sqrt(1.0f + balance);
+	channelBalance[channel] = Balance{left, right};
+}
+
+void SoundDevice::postSetBalance()
+{
+	mixer.updateSoftwareVolume(*this);
 }
 
 void SoundDevice::unregisterSound()
@@ -284,7 +297,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	// remove muted channels (explicitly by user or by device itself)
 	bool anyUnmuted = false;
 	unsigned numMix = 0;
-	inplace_buffer<int, MAX_CHANNELS> mixBalance(uninitialized_tag{}, numChannels);
+	inplace_buffer<Balance, MAX_CHANNELS> mixBalance(uninitialized_tag{}, numChannels);
 	for (auto i : xrange(numChannels)) {
 		if (bufs[i] && !channelMuted[i]) {
 			anyUnmuted = true;
@@ -311,14 +324,10 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			float right1 = 0.0f;
 			unsigned j = 0;
 			do {
-				if (mixBalance[j] <= 0) {
-					left0  += bufs[j][i + 0];
-					left1  += bufs[j][i + 1];
-				}
-				if (mixBalance[j] >= 0) {
-					right0 += bufs[j][i + 0];
-					right1 += bufs[j][i + 1];
-				}
+				left0  += bufs[j][i + 0] * mixBalance[j].left;
+				left1  += bufs[j][i + 1] * mixBalance[j].left;
+				right0 += bufs[j][i + 0] * mixBalance[j].right;
+				right1 += bufs[j][i + 1] * mixBalance[j].right;
 				j++;
 			} while (j < numMix);
 			dataOut[i * 2 + 0] = left0;

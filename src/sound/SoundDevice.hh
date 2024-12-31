@@ -89,6 +89,15 @@ public:
 	void recordChannel(unsigned channel, const Filename& filename);
 	void muteChannel  (unsigned channel, bool muted);
 
+	/** Change the balance of a single channel.
+	 * @param channel [0, numChannels)
+	 * @param balance [-1, +1], -1: fully left, 0: center, +1: fully right
+	 *                 The sum of the energy of the left and right channel is kept constant.
+	 * NOTE: after calling setBalance() a number of times you must also call postSetBalance() once.
+	 */
+	void setBalance(unsigned channel, float balance);
+	virtual void postSetBalance();
+
 	/** Query the last generated audio signal for a specific channel.
 	  * The length of this buffer is fixed (for a specific sound device),
 	  * see getLastBufferSize().
@@ -240,6 +249,10 @@ protected:
 	[[nodiscard]] double getEffectiveSpeed() const;
 
 private:
+	struct Balance { // amplitude multiplication factors
+		float left, right;
+	};
+
 	MSXMixer& mixer;
 	const std::string name;
 	const static_string_view description;
@@ -252,7 +265,7 @@ private:
 	const unsigned numChannels;
 	const unsigned stereo;
 	unsigned numRecordChannels = 0;
-	std::array<int,  MAX_CHANNELS> channelBalance;
+	std::array<Balance,  MAX_CHANNELS> channelBalance;
 	std::array<bool, MAX_CHANNELS> channelMuted;
 	bool balanceCenter = true;
 
