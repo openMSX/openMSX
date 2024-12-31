@@ -197,6 +197,10 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 				historyPos = -1;
 				colorize(inputBuf);
 			}
+			if (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+				commandBuffer.clear();
+				prompt = PROMPT_NEW;
+			}
 		});
 		if (enter && (prompt != PROMPT_BUSY)) {
 			// print command in output buffer, with prompt prepended
