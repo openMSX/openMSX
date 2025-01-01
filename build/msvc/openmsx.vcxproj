@@ -479,6 +479,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiConnector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiConsole.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.cc" />
@@ -1061,6 +1062,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiConsole.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiCpp.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDebugger.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDisassembly.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiDiskManipulator.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiHelp.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiKeyboard.hh" />
