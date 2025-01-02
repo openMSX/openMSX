@@ -59,7 +59,7 @@
     </PrinterPort>
 
     <T9769 id="T9769">
-      <subtype>A</subtype> <!-- To be verified with PCB shot -->
+      <subtype>B</subtype> <!-- was verified on another machine, Bengalack's, with serial 01- 54209802 see https://www.msx.org/forum/msx-talk/hardware/msx-engine-t9769b-does-it-really-add-2-wait-cycles -->
     </T9769>
 
     <primary slot="0">
