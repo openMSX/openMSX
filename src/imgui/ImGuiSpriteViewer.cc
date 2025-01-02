@@ -183,10 +183,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 		auto vramSize = std::min(vdp->getVRAM().getSize(), 0x20000u); // max 128kB
 
-		std::array<uint32_t, 16> palette;
-		auto msxPalette = manager.palette->getPalette(vdp);
-		ranges::transform(msxPalette, palette.data(),
-			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
+		auto palette = manager.palette->getPalette(vdp);
 		// TODO? if (color0 < 16) palette[0] = palette[color0];
 
 		bool manMode   = overrideAll || overrideMode;

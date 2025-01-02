@@ -514,10 +514,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 		ImGui::Separator();
 
-		std::array<uint32_t, 16> palette;
-		auto msxPalette = manager.palette->getPalette(vdp);
-		ranges::transform(msxPalette, palette.data(),
-			[](uint16_t msx) { return ImGuiPalette::toRGBA(msx); });
+		auto palette = manager.palette->getPalette(vdp);
 		if (color0 < 16) palette[0] = palette[color0];
 
 		MemBuffer<uint32_t> pixels(512 * 256 * 4); // max size: screen 6/7, show all pages
