@@ -336,10 +336,15 @@ template<typename Type>
 std::string ImGuiBreakPoints::displayAddr(const TclObject& addr) const
 {
 	auto str = addr.getString();
-	if (str.starts_with("$sym(") && str.ends_with(')')) {
-		auto symbol = str.substr(5, str.size() - 6);
-		if (symbolManager.lookupSymbol(symbol)) {
-			return std::string(symbol);
+	if (auto symbol = [&]() -> std::optional<std::string_view> {
+		if (str.ends_with(')')) {
+			if (str.starts_with("$sym("))   return str.substr(5, str.size() - 6);
+			if (str.starts_with("$::sym(")) return str.substr(7, str.size() - 8);
+		}
+		return {};
+	}()) {
+		if (symbolManager.lookupSymbol(*symbol)) {
+			return std::string(*symbol);
 		}
 	}
 	return std::string(str);
