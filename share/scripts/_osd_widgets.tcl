@@ -118,30 +118,6 @@ proc hide_power_bar {name} {
 }
 
 
-set_help_text toggle_fps \
-{Enable/disable a frames per second indicator in the top-left corner of the screen.}
-
-variable fps_after
-
-proc toggle_fps {} {
-	variable fps_after
-	if {[info exists fps_after]} {
-		after cancel $osd_widgets::fps_after
-		osd destroy fps_viewer
-		unset fps_after
-	} else {
-		osd create rectangle fps_viewer -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080
-		osd create text fps_viewer.text -x 5 -y 3 -z 1 -rgba 0xffffffff
-		proc fps_refresh {} {
-			variable fps_after
-			osd configure fps_viewer.text -text [format "%2.1fFPS" [openmsx_info fps]]
-			set fps_after [after realtime .5 [namespace code fps_refresh]]
-		}
-		fps_refresh
-	}
-	return ""
-}
-
 set_help_text osd_widgets::text_box\
 {The 'osd_widgets::text_box' widget supports the same properties as a 'rectangle' widget with the following additions:
  -text: defines the text to be printed, can have multiple lines (separated by 'new line' characters).
@@ -274,7 +250,6 @@ proc volume_control {incr_val} {
 }
 
 # only export stuff that is useful in other scripts or for the console user
-namespace export toggle_fps
 namespace export msx_init
 namespace export msx_update
 namespace export box
@@ -287,5 +262,4 @@ namespace export volume_control
 };# namespace osd_widgets
 
 # only import stuff to global that is useful outside of scripts (i.e. for the console user)
-namespace import osd_widgets::toggle_fps
 namespace import osd_widgets::volume_control
