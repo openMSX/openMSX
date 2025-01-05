@@ -16,7 +16,6 @@ register_lazy "_disasm.tcl" {
 register_lazy "_example_tools.tcl" {get_screen copy_screen_to_clipboard listing get_color_count toggle_tron}
 register_lazy "_filepool.tcl" {filepool get_paths_for_type}
 register_lazy "_guess_title.tcl" {guess_title guess_rom_title guess_rom_device}
-register_lazy "_info_panel.tcl" toggle_info_panel
 register_lazy "_metal_gear_overlay.tcl" {toggle_metal_gear_overlay}
 register_lazy "_mog-overlay.tcl" {toggle_mog_overlay toggle_mog_editor}
 register_lazy "_multi_screenshot.tcl" multi_screenshot
