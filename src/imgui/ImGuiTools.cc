@@ -72,6 +72,8 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 			result.clear();
 			for (const auto& cmd : *commands) {
 				if (cmd.starts_with("toggle_")) {
+					// filter out exceptions (not all toggle commands are useful toys for the GUI)
+					if (cmd == "toggle_breaked") continue;
 					result.emplace_back(cmd.view());
 				}
 			}
