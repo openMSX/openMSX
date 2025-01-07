@@ -559,7 +559,10 @@ std::optional<Stat> getStat(zstring_view filename)
 		// string was either empty or a (sequence of) '/' character(s)
 		if (!filename2.empty()) filename2.resize(1);
 	}
-	if (_wstat(utf8to16(filename2).c_str(), &*st)) {
+	// For some reason, the default _wstat is 32-bit, even though we do not
+	// seem to define _USE_32BIT_TIME anywhere... so use explicit 64-bit
+	// call.
+	if (_wstat64(utf8to16(filename2).c_str(), &*st)) {
 		st.reset();
 	}
 #else
