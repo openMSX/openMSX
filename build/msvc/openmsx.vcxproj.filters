@@ -138,6 +138,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\DummyCassetteDevice.cc">
       <Filter>cassette</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\cassette\TsxImage.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\cassette\TsxParser.cc">
+      <Filter>cassette</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\WavImage.cc">
       <Filter>cassette</Filter>
     </ClCompile>
@@ -1584,6 +1590,12 @@
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\DummyCassetteDevice.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\cassette\TsxImage.hh">
+      <Filter>cassette</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\cassette\TsxParser.hh">
       <Filter>cassette</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cassette\WavImage.hh">
