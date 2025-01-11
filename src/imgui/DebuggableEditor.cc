@@ -242,26 +242,6 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
 	std::optional<unsigned> nextAddr;
-	// Move cursor but only apply on next frame so scrolling with be synchronized (because currently we can't change the scrolling while the window is being rendered)
-	if (addrMode == CURSOR) {
-		const auto& shortcuts = manager.getShortcuts();
-		if ((int(currentAddr) >= columns) &&
-		    shortcuts.checkShortcut({.keyChord = ImGuiKey_UpArrow, .repeat = true})) {
-			nextAddr = currentAddr - columns;
-		}
-		if ((int(currentAddr) < int(memSize - columns)) &&
-		    shortcuts.checkShortcut({.keyChord = ImGuiKey_DownArrow, .repeat = true})) {
-			nextAddr = currentAddr + columns;
-		}
-		if ((int(currentAddr) > 0) &&
-		    shortcuts.checkShortcut({.keyChord = ImGuiKey_LeftArrow, .repeat = true})) {
-			nextAddr = currentAddr - 1;
-		}
-		if ((int(currentAddr) < int(memSize - 1)) &&
-		    shortcuts.checkShortcut({.keyChord = ImGuiKey_RightArrow, .repeat = true})) {
-			nextAddr = currentAddr + 1;
-		}
-	}
 
 	// Draw vertical separator
 	auto* drawList = ImGui::GetWindowDrawList();
@@ -282,6 +262,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			// TODO: We should have a way to retrieve the text edit cursor position more easily in the API, this is rather tedious. This is such a ugly mess we may be better off not using InputText() at all here.
 			static int Callback(ImGuiInputTextCallbackData* data) {
 				auto* userData = static_cast<UserData*>(data->UserData);
+				if (userData->cursorPos != -1) { // reset cursor
+					data->CursorPos = userData->cursorPos;
+				}
 				if (!data->HasSelection()) {
 					userData->cursorPos = data->CursorPos;
 				}
@@ -302,6 +285,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		};
 		UserData userData;
 		userData.format = formatData;
+		if (resetCursor) {
+			resetCursor = false;
+			userData.cursorPos = 0;
+		}
 		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
 					  | ImGuiInputTextFlags_AutoSelectAll
 					  | ImGuiInputTextFlags_NoHorizontalScroll
@@ -317,9 +304,57 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 				setStrings(s, debuggable);
 			}
 		});
+		// Move cursor but only apply on next frame so scrolling will be synchronized (because currently we can't change the scrolling while the window is being rendered)
+		if (addrMode == CURSOR && ImGui::IsItemActive()) {
+			if (ImGui::IsKeyChordPressed(ImGuiKey_Home | ImGuiMod_Ctrl)) {
+				nextAddr = 0;
+				updateAddr = true; // force scroll
+			} else if (ImGui::IsKeyPressed(ImGuiKey_Home)) {
+				nextAddr = currentAddr - (currentAddr % unsigned(columns));
+			}
+			if (ImGui::IsKeyChordPressed(ImGuiKey_End | ImGuiMod_Ctrl)) {
+				nextAddr = memSize - 1;
+				updateAddr = true; // force scroll
+				// ImGui::InputText() already reacted to 'End' by placing the edit cursor at the end.
+				// And normally that's a signal to write the value to memory. We don't want that.
+				resetCursor = true;
+			} else if (ImGui::IsKeyPressed(ImGuiKey_End)) {
+				auto tmp = currentAddr - (currentAddr % unsigned(columns)) + columns - 1;
+				nextAddr = std::min(tmp, memSize - 1);
+				resetCursor = true;
+			}
+			if ((int(currentAddr) >= columns) &&
+			    ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+				nextAddr = currentAddr - columns;
+			}
+			if ((int(currentAddr) < int(memSize - columns)) &&
+			    ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+				nextAddr = currentAddr + columns;
+			}
+			if ((int(currentAddr) > 0) &&
+			    ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+				nextAddr = currentAddr - 1;
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+				// always set nextAddr, also when already on the very last address
+				// this prevents doing a 'dataWrite'
+				nextAddr = std::min(currentAddr + 1, memSize - 1);
+				resetCursor = true; // see comment on 'End'
+			}
+			if (!switchedTab && ImGui::IsKeyPressed(ImGuiKey_Tab)) {
+				dataEditingActive = (dataEditingActive == HEX) ? ASCII : HEX;
+				nextAddr = currentAddr;
+				switchedTab = true; // to prevent switching back already in the next frame
+			} else {
+				switchedTab = false;
+			}
+		}
 		dataEditingTakeFocus = false;
 		dataWrite |= userData.cursorPos >= width;
-		if (nextAddr) dataWrite = false;
+		if (nextAddr) {
+			dataWrite = false;
+			dataEditingTakeFocus = true;
+		}
 		if (dataWrite) {
 			if (auto value = parseData(dataInput)) {
 				debuggable.write(addr, *value);
