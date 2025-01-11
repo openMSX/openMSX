@@ -124,6 +124,8 @@ private:
 	EditType dataEditingActive = HEX;
 	bool dataEditingTakeFocus = true;
 	bool updateAddr = false;
+	bool switchedTab = false;
+	bool resetCursor = false;
 };
 
 } // namespace openmsx

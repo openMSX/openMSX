@@ -330,6 +330,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\CassettePort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\DummyCassetteDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\cassette\TsxImage.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\cassette\TsxParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cassette\WavImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\Command.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\CommandException.cc" />
@@ -894,6 +896,8 @@
     <None Include="$(OpenMSXSrcDir)\cassette\CassettePlayerCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\cassette\CassettePort.hh" />
     <None Include="$(OpenMSXSrcDir)\cassette\DummyCassetteDevice.hh" />
+    <None Include="$(OpenMSXSrcDir)\cassette\TsxImage.hh" />
+    <None Include="$(OpenMSXSrcDir)\cassette\TsxParser.h" />
     <None Include="$(OpenMSXSrcDir)\cassette\WavImage.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\Command.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\CommandController.hh" />

@@ -982,8 +982,14 @@ byte VDP::readStatusReg(byte reg, EmuTime::param time)
 	return ret;
 }
 
-byte VDP::readIO(word port, EmuTime::param time)
+byte VDP::readIO(word port, EmuTime::param time_)
 {
+	// See comment in writeIO().
+	EmuTime time = time_;
+	if (fixedVDPIOdelayCycles > 0) {
+		time = cpu.waitCyclesZ80(time, fixedVDPIOdelayCycles);
+	}
+
 	assert(isInsideFrame(time));
 
 	registerDataStored = false; // Abort any port #1 writes in progress.

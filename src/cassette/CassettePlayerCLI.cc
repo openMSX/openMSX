@@ -8,9 +8,9 @@ namespace openmsx {
 
 std::span<const std::string_view> CassettePlayerCLI::getExtensions()
 {
-	static constexpr std::array<std::string_view, 2> extensions = {
-		"cas", "wav"
-	};
+	static constexpr auto extensions = std::to_array<std::string_view>({
+		"cas", "wav", "tsx"
+	});
 	return extensions;
 }
 
@@ -45,7 +45,7 @@ void CassettePlayerCLI::parseFileType(const std::string& filename,
 
 std::string_view CassettePlayerCLI::fileTypeHelp() const
 {
-	return "Cassette image, raw recording or fMSX CAS image";
+	return "Cassette image, raw recording, fMSX CAS image or TSX file";
 }
 
 std::string_view CassettePlayerCLI::fileTypeCategoryName() const
