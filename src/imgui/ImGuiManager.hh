@@ -161,6 +161,13 @@ public:
 	bool menuFade = true;
 	bool needReloadFont = false;
 	bool statusBarVisible = false;
+	bool statusBarItemVisibilityFps = true;
+	bool statusBarItemVisibilityScreenModeInfo = true;
+	bool statusBarItemVisibilityTime = true;
+	bool statusBarItemVisibilityActualSpeed = true;
+	bool statusBarItemVisibilityMachine = true;
+	bool statusBarItemVisibilityRunningSoftware = true;
+
 	std::string loadIniFile;
 
 private:
@@ -190,7 +197,13 @@ private:
 		PersistentElement{"mainMenuBarUndocked", &ImGuiManager::mainMenuBarUndocked},
 		PersistentElement{"mainMenuBarFade",     &ImGuiManager::menuFade},
 		PersistentElement{"windowPos",           &ImGuiManager::windowPos},
-		PersistentElement{"statusBarVisible",    &ImGuiManager::statusBarVisible}
+		PersistentElement{"statusBarVisible",    &ImGuiManager::statusBarVisible},
+		PersistentElement{"statusBarItemvisibility.fps",                 &ImGuiManager::statusBarItemVisibilityFps},
+		PersistentElement{"statusBarItemVisibility.screenModeInfo",      &ImGuiManager::statusBarItemVisibilityScreenModeInfo},
+		PersistentElement{"statusBarItemVisibility.time",                &ImGuiManager::statusBarItemVisibilityTime},
+		PersistentElement{"statusBarItemVisibility.actualSpeed",         &ImGuiManager::statusBarItemVisibilityActualSpeed},
+		PersistentElement{"statusBarItemVisibility.machine",             &ImGuiManager::statusBarItemVisibilityMachine},
+		PersistentElement{"statusBarItemVisibility.runningSoftware",     &ImGuiManager::statusBarItemVisibilityRunningSoftware},
 	};
 };
 
