@@ -394,8 +394,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
 			ImGui::MenuItem("Edit shortcuts...", nullptr, &showShortcut);
-		});
-		im::Menu("Misc", [&]{
+			ImGui::Separator();
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
