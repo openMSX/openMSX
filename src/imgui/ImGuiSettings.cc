@@ -398,7 +398,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Misc", [&]{
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
-			ImGui::MenuItem("Show status bar", nullptr, &manager.statusBarVisible);
+			im::Menu("Status bar", [&]{
+				ImGui::Checkbox("Show status bar", &manager.statusBarVisible);
+				im::DisabledIndent(!manager.statusBarVisible, [&]{
+					manager.configStatusBarVisibilityItems();
+				});
+			});
 			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages->configureWindow.open);
 		});
 		ImGui::Separator();
