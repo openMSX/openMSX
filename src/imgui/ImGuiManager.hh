@@ -91,6 +91,8 @@ public:
 	void storeWindowPosition(gl::ivec2 pos) { windowPos = pos; }
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition() const { return windowPos; }
 
+	void configStatusBarVisibilityItems();
+
 private:
 	void initializeImGui();
 	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize);

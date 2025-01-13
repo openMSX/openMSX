@@ -399,14 +399,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
-				ImGui::MenuItem("Show bar", nullptr, &manager.statusBarVisible);
+				ImGui::Checkbox("Show status bar", &manager.statusBarVisible);
 				im::DisabledIndent(!manager.statusBarVisible, [&]{
-					ImGui::MenuItem("Show FPS indicator", nullptr, &manager.statusBarItemVisibilityFps);
-					ImGui::MenuItem("Show screen mode info", nullptr, &manager.statusBarItemVisibilityScreenModeInfo);
-					ImGui::MenuItem("Show machine time", nullptr, &manager.statusBarItemVisibilityTime);
-					ImGui::MenuItem("Show actual emulation speed", nullptr, &manager.statusBarItemVisibilityActualSpeed);
-					ImGui::MenuItem("Show machine name info", nullptr, &manager.statusBarItemVisibilityMachine);
-					ImGui::MenuItem("Show running software", nullptr, &manager.statusBarItemVisibilityRunningSoftware);
+					manager.configStatusBarVisibilityItems();
 				});
 			});
 			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages->configureWindow.open);

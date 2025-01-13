@@ -726,6 +726,8 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 	if (ImGui::BeginViewportSideBar("##MainStatusBar", nullptr, ImGuiDir_Down, ImGui::GetFrameHeight(),
 			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
 		im::MenuBar([&]{
+			auto pos = ImGui::GetCursorPos();
+
 			auto frameTime = ImGui::GetIO().DeltaTime;
 
 			if (statusBarItemVisibilityFps) {
@@ -835,9 +837,24 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 				}
 			}
 
+			ImGui::SetCursorPos(pos);
+			ImGui::Dummy(ImGui::GetContentRegionAvail());
+			im::PopupContextItem("status bar context menu", [&]{
+				configStatusBarVisibilityItems();
+			});
 		});
 	}
 	ImGui::End();
+}
+
+void ImGuiManager::configStatusBarVisibilityItems()
+{
+	ImGui::Checkbox("Show FPS indicator", &statusBarItemVisibilityFps);
+	ImGui::Checkbox("Show screen mode info", &statusBarItemVisibilityScreenModeInfo);
+	ImGui::Checkbox("Show machine time", &statusBarItemVisibilityTime);
+	ImGui::Checkbox("Show actual emulation speed", &statusBarItemVisibilityActualSpeed);
+	ImGui::Checkbox("Show machine name info", &statusBarItemVisibilityMachine);
+	ImGui::Checkbox("Show running software", &statusBarItemVisibilityRunningSoftware);
 }
 
 void ImGuiManager::iniReadInit()
