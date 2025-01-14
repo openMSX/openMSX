@@ -117,7 +117,6 @@ private:
 		explicit ScreenShotCmd(CommandController& commandController);
 		void execute(std::span<const TclObject> tokens, TclObject& result) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
-		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
 	struct FpsInfoTopic final : InfoTopic {
