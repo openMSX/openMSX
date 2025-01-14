@@ -20,7 +20,7 @@ proc savestate {{name ""}} {
 	}
 	set currentID [machine]
 	store_machine $currentID $fullname
-	return $name
+	return $fullname
 }
 
 proc loadstate {{name ""}} {

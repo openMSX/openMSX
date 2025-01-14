@@ -642,7 +642,7 @@ void ReverseManager::saveReplay(
 		history.events.pop_back();
 	}
 
-	result = tmpStrCat("Saved replay to ", filename);
+	result = filename;
 }
 
 void ReverseManager::loadReplay(
