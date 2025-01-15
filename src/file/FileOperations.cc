@@ -19,6 +19,7 @@
 #include <unistd.h>
 #endif // ifdef _WIN32_ ... else ...
 
+#include "narrow.hh"
 #include "openmsx.hh" // for ad_printf
 
 #include "systemfuncs.hh"
@@ -345,7 +346,7 @@ string getCurrentWorkingDirectory()
 {
 #ifdef _WIN32
 	std::array<wchar_t, MAXPATHLEN> bufW;
-	const wchar_t* result = _wgetcwd(bufW.data(), bufW.size());
+	const wchar_t* result = _wgetcwd(bufW.data(), narrow<int>(bufW.size()));
 	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}

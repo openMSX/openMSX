@@ -110,7 +110,7 @@ public:
 			auto [b, e] = parseAddress(interp);
 			beginAddr = b;
 			endAddr = e;
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			beginAddr = endAddr = {};
 		}
 	}

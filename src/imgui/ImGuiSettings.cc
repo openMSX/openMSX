@@ -601,7 +601,7 @@ static void drawLetterA(gl::vec2 center)
 	auto tr = [&](gl::vec2 p) { return center + p; };
 	const std::array<ImVec2, 3> lines = { tr({-6, 7}), tr({0, -7}), tr({6, 7}) };
 	auto color = getColor(imColor::TEXT);
-	drawList->AddPolyline(lines.data(), lines.size(), color, 0, thickness);
+	drawList->AddPolyline(lines.data(), narrow<int>(lines.size()), color, 0, thickness);
 	drawList->AddLine(tr({-3, 1}), tr({3, 1}), color, thickness);
 }
 static void drawLetterB(gl::vec2 center)
@@ -610,7 +610,7 @@ static void drawLetterB(gl::vec2 center)
 	auto tr = [&](gl::vec2 p) { return center + p; };
 	const std::array<ImVec2, 4> lines = { tr({1, -7}), tr({-4, -7}), tr({-4, 7}), tr({2, 7}) };
 	auto color = getColor(imColor::TEXT);
-	drawList->AddPolyline(lines.data(), lines.size(), color, 0, thickness);
+	drawList->AddPolyline(lines.data(), narrow<int>(lines.size()), color, 0, thickness);
 	drawList->AddLine(tr({-4, -1}), tr({2, -1}), color, thickness);
 	drawList->AddBezierQuadratic(tr({1, -7}), tr({4, -7}), tr({4, -4}), color, thickness);
 	drawList->AddBezierQuadratic(tr({4, -4}), tr({4, -1}), tr({1, -1}), color, thickness);
@@ -1041,7 +1041,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			TclObject key(keyNames[popupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			unsigned remove = -1u;
+			unsigned remove = unsigned(-1);
 			unsigned counter = 0;
 			for (const auto& b : bindingList) {
 				if (ImGui::Selectable(b.c_str())) {

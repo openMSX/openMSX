@@ -27,7 +27,7 @@ public:
 	void evaluateAddress(Interpreter& interp) {
 		try {
 			address = parseAddress(interp);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			address = {};
 		}
 	}
