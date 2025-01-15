@@ -426,26 +426,17 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 {
 	std::string_view prefix = "openmsx";
 	bool rawShot = false;
-	bool msxOnly = false;
 	bool doubleSize = false;
 	bool withOsd = false;
 	std::array info = {
 		valueArg("-prefix", prefix),
 		flagArg("-raw", rawShot),
-		flagArg("-msxonly", msxOnly),
 		flagArg("-doublesize", doubleSize),
 		flagArg("-with-osd", withOsd)
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
 	auto& display = OUTER(Display, screenShotCmd);
-	if (msxOnly) {
-		display.getCliComm().printWarning(
-			"The -msxonly option has been deprecated and will "
-			"be removed in a future release. Instead, use the "
-			"-raw option for the same effect.");
-		rawShot = true;
-	}
 	if (doubleSize && !rawShot) {
 		throw CommandException("-doublesize option can only be used in "
 		                       "combination with -raw");
