@@ -379,6 +379,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ImGui::CloseCurrentPopup();
 				}
 			});
+			ImGui::Separator();
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
 				static constexpr std::array names = {"Dark", "Light", "Classic"}; // must be in sync with setStyle()
@@ -394,11 +395,10 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			});
 			ImGui::MenuItem("Select font...", nullptr, &showFont);
 			ImGui::MenuItem("Edit shortcuts...", nullptr, &showShortcut);
-			ImGui::Separator();
 			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
-				ImGui::Checkbox("Show status bar", &manager.statusBarVisible);
+				ImGui::Checkbox("Show", &manager.statusBarVisible);
 				im::DisabledIndent(!manager.statusBarVisible, [&]{
 					manager.configStatusBarVisibilityItems();
 				});
