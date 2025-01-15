@@ -169,7 +169,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 			loadGroup(cart->groups[EXTENSION], suffix.substr(10));
 		} else if (suffix == "select") {
 			if (auto i = StringOp::stringTo<unsigned>(value)) {
-				if (i < to_underlying(NUM)) {
+				if (*i < unsigned(to_underlying(NUM))) {
 					cart->select = SelectCartridgeType(*i);
 				}
 			}
