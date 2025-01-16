@@ -983,7 +983,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			auto begin = w->getBeginAddress();
 			auto end = w->getEndAddress();
 			if (!begin || !end) continue;
-			assert(*begin < 0x10000 && *end < 0x10000 && begin <= end);
+			assert(begin <= end);
 			for (unsigned addr = *begin; addr <= *end; ++addr) {
 				watchSet[addr >> CacheLine::BITS].set(
 				         addr  & CacheLine::LOW);
