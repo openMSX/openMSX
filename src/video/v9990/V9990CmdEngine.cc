@@ -901,7 +901,7 @@ void V9990CmdEngine::setCommandMode()
 		switch (vdp.getColorMode()) {
 			using enum V9990ColorMode;
 			default:
-				UNREACHABLE;
+				UNREACHABLE; break;
 			case BP2:
 				cmdMode = 2 << 4; // BPP2;
 				break;

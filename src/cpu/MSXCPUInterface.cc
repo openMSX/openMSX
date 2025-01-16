@@ -1221,7 +1221,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	switch (tokens.size()) {
 	case 4:
 		ss = narrow<int>(getSlot(interp, tokens[3], "Secondary slot"));
-		// Fall-through
+		[[fallthrough]];
 	case 3:
 		ps = narrow<int>(getSlot(interp, tokens[2], "Primary slot"));
 		break;
