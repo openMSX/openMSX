@@ -317,7 +317,8 @@ WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++23 (partially supported since clang-17)
-  COMPILE_FLAGS+=-std=c++23 -fconstexpr-steps=2000000
+  # apple-clang still needs -std=c++2b
+  COMPILE_FLAGS+=-std=c++2b -fconstexpr-steps=2000000
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wconversion -Wno-sign-conversion
   # Hardware descriptions can contain constants that are not used in the code
