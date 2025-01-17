@@ -1,5 +1,5 @@
 // Compile with:
-//   g++ -std=c++20 -O3 -Wall -Wextra xsa2dsk.cc ../../src/fdc/XSAExtractor.cc -I../../src -I../../src/fdc -I../../src/utils -o xsa2dsk
+//   g++ -std=c++23 -O3 -Wall -Wextra xsa2dsk.cc ../../src/fdc/XSAExtractor.cc -I../../src -I../../src/fdc -I../../src/utils -o xsa2dsk
 
 #include "MSXException.hh"
 #include "XSAExtractor.hh"

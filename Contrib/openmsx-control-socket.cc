@@ -3,8 +3,8 @@
  *
  *  requires: libxml2
  *  compile:
- *    *nix:  g++ -std=c++20 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
- *    win32: g++ -std=c++20 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc -lwsock32
+ *    *nix:  g++ -std=c++23 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
+ *    win32: g++ -std=c++23 `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc -lwsock32
  */
 
 #include <libxml/parser.h>

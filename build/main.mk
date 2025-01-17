@@ -316,8 +316,8 @@ CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
-  # Enable C++20 (partially supported since clang-8)
-  COMPILE_FLAGS+=-std=c++20 -fconstexpr-steps=2000000
+  # Enable C++23 (partially supported since clang-17)
+  COMPILE_FLAGS+=-std=c++23 -fconstexpr-steps=2000000
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wconversion -Wno-sign-conversion
   # Hardware descriptions can contain constants that are not used in the code
@@ -329,8 +329,8 @@ else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
-  # Enable C++20  (good support since gcc-10)
-  COMPILE_FLAGS+=-std=c++20
+  # Enable C++23  (partially supported since gcc-11)
+  COMPILE_FLAGS+=-std=c++23
   # Stricter warning and error reporting.
   #COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
 
