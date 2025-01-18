@@ -92,7 +92,8 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 					ImGui::TableSetupColumn("New value");
 					ImGui::TableHeadersRow();
 
-					for (const auto& row : searchResults) {
+					im::ListClipper(searchResults.size(), [&](int i) {
+						const auto& row = searchResults[i];
 						if (ImGui::TableNextColumn()) { // addr
 							ImGui::Text("0x%04x", row.address);
 						}
@@ -102,7 +103,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 						if (ImGui::TableNextColumn()) { // new
 							ImGui::Text("%d", row.newValue);
 						}
-					}
+					});
 				});
 			}
 		});
