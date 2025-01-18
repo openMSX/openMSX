@@ -451,9 +451,7 @@ void GlobalCommandController::HelpCmd::execute(
 		auto cmds = concat<string_view>(
 			view::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
-		cmds.erase(ranges::remove_if(cmds, [](const auto& c) {
-		                   return c.find("::") != std::string_view::npos; }),
-		           cmds.end());
+		std::erase_if(cmds, [](const auto& c) { return c.find("::") != std::string_view::npos; });
 		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
