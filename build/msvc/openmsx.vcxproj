@@ -115,7 +115,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -148,7 +148,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -174,7 +174,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -217,7 +217,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -254,7 +254,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -288,7 +288,7 @@
     <ClCompile>
       <AdditionalOptions>/utf-8 /constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <CppLanguageStandard>c++23</CppLanguageStandard>
+      <CppLanguageStandard>c++latest</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType)\include;$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog;$(OpenMSXSrcDir)\3rdparty\imgui;$(OpenMSXSrcDir)\3rdparty\imgui_memory_editor;$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\imgui;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
