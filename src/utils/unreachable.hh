@@ -4,7 +4,11 @@
 #include <utility>
 
 #if defined(NDEBUG)
-  #define UNREACHABLE std::unreachable()
+  #ifdef _MSC_VER
+    #define UNREACHABLE __assume(0)
+  #else
+    #define UNREACHABLE std::unreachable()
+  #endif
 
 #else
   // asserts enabled
