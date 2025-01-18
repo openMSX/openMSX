@@ -270,11 +270,10 @@ static string escapeChars(const string& str, string_view chars)
 {
 	string result;
 	for (auto chr : str) {
-		if (chars.find(chr) != string::npos) {
+		if (chars.contains(chr)) {
 			result += '\\';
 		}
 		result += chr;
-
 	}
 	return result;
 }
@@ -451,7 +450,7 @@ void GlobalCommandController::HelpCmd::execute(
 		auto cmds = concat<string_view>(
 			view::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
-		std::erase_if(cmds, [](const auto& c) { return c.find("::") != std::string_view::npos; });
+		std::erase_if(cmds, [](const auto& c) { return c.contains("::"); });
 		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');

@@ -242,7 +242,7 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 	// Mode must contain a 'b' character. On unix this doesn't make any
 	// difference. But on windows this is required to open the file
 	// in binary mode.
-	assert(mode.find('b') != std::string::npos);
+	assert(mode.contains('b'));
 #ifdef _WIN32
 	return FILE_t(_wfopen(utf8to16(filename).c_str(),
 	                      utf8to16(mode).c_str()));
@@ -618,7 +618,7 @@ string getNextNumberedFileName(
 {
 	std::string newPrefix;
 	if (addSeparator) {
-		newPrefix = strCat(prefix, ((prefix.find(' ') != std::string_view::npos) ? ' ' : '_'));
+		newPrefix = strCat(prefix, (prefix.contains(' ') ? ' ' : '_'));
 		prefix = newPrefix;
 	}
 

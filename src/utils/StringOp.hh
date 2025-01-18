@@ -121,7 +121,7 @@ namespace StringOp
 				return c == separators;
 			}
 			static bool isSeparator(char c, std::string_view separators) {
-				return separators.find(c) != std::string_view::npos;
+				return separators.contains(c);
 			}
 
 			void next_p() {
