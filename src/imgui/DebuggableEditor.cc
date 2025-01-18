@@ -26,6 +26,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <expected>
 #include <span>
 
 namespace openmsx {
@@ -141,29 +142,22 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	return std::nullopt;
 }
 
-struct ParseAddrResult { // TODO c++23 std::expected might be a good fit here
-	std::string error;
-	unsigned addr = 0;
-};
-[[nodiscard]] static ParseAddrResult parseAddressExpr(
+[[nodiscard]] static std::expected<unsigned, std::string> parseAddressExpr(
 	std::string_view str, const SymbolManager& symbolManager, Interpreter& interp)
 {
-	ParseAddrResult r;
-	if (str.empty()) return r;
+	if (str.empty()) return 0;
 
 	// TODO linear search, probably OK for now, but can be improved if it turns out to be a problem
 	// Note: limited to 16-bit, but larger values trigger an errors and are then handled below, so that's fine
 	if (auto addr = symbolManager.parseSymbolOrValue(str)) {
-		r.addr = *addr;
-		return r;
+		return *addr;
 	}
 
 	try {
-		r.addr = TclObject(str).eval(interp).getInt(interp);
+		return TclObject(str).eval(interp).getInt(interp);
 	} catch (CommandException& e) {
-		r.error = e.getMessage();
+		return std::unexpected(e.getMessage());
 	}
-	return r;
 }
 
 [[nodiscard]] static std::string formatData(uint8_t val)
@@ -528,25 +522,24 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::SameLine();
 
 		std::string* as = addrMode == CURSOR ? &addrStr : &addrExpr;
-		auto r = parseAddressExpr(*as, symbolManager, manager.getInterpreter());
-		im::StyleColor(!r.error.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&] {
-			if (addrMode == EXPRESSION && r.error.empty()) {
-				scrollAddr(s, debuggable, memSize, r.addr, forceScroll);
+		auto addr = parseAddressExpr(*as, symbolManager, manager.getInterpreter());
+		im::StyleColor(!addr, ImGuiCol_Text, getColor(imColor::ERROR), [&] {
+			if (addrMode == EXPRESSION && addr) {
+				scrollAddr(s, debuggable, memSize, *addr, forceScroll);
 			}
 			if (manager.getShortcuts().checkShortcut(Shortcuts::ID::HEX_GOTO_ADDR)) {
 				ImGui::SetKeyboardFocusHere();
 			}
 			ImGui::SetNextItemWidth(15.0f * ImGui::GetFontSize());
 			if (ImGui::InputText("##addr", as, ImGuiInputTextFlags_EnterReturnsTrue)) {
-				auto r2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter());
-				if (r2.error.empty()) {
-					scrollAddr(s, debuggable, memSize, r2.addr, forceScroll);
+				if (auto addr2 = parseAddressExpr(addrStr, symbolManager, manager.getInterpreter())) {
+					scrollAddr(s, debuggable, memSize, *addr2, forceScroll);
 					dataEditingTakeFocus = true;
 				}
 			}
 			simpleToolTip([&]{
-				return r.error.empty() ? strCat("0x", formatAddr(s, r.addr))
-						: r.error;
+				return addr ? strCat("0x", formatAddr(s, *addr))
+				            : addr.error();
 			});
 		});
 		im::Font(manager.fontProp, [&]{
