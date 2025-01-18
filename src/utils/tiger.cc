@@ -2,8 +2,8 @@
 #include "endian.hh"
 #include "ranges.hh"
 #include "ScopedAssign.hh"
-#include "xrange.hh"
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstring>
 
@@ -671,9 +671,9 @@ static constexpr void initState(std::span<uint64_t, 3> state)
 static inline void returnState(std::span<uint64_t, 3> state)
 {
 	if constexpr (Endian::BIG) {
-		state[0] = Endian::byteswap64(state[0]);
-		state[1] = Endian::byteswap64(state[1]);
-		state[2] = Endian::byteswap64(state[2]);
+		state[0] = std::byteswap(state[0]);
+		state[1] = std::byteswap(state[1]);
+		state[2] = std::byteswap(state[2]);
 	}
 }
 
