@@ -2,10 +2,13 @@
 #define VDPACCESSSLOTS_HH
 
 #include "VDP.hh"
+
 #include "narrow.hh"
+
 #include <cassert>
 #include <cstdint>
 #include <span>
+#include <utility>
 
 namespace openmsx::VDPAccessSlots {
 
@@ -71,7 +74,7 @@ public:
 	/** Advance time to the earliest access slot that is at least 'delta'
 	  * ticks later than the current time. */
 	inline void next(Delta delta) {
-		ticks += tab[to_underlying(delta) + ticks];
+		ticks += tab[std::to_underlying(delta) + ticks];
 		if (ticks >= TICKS) [[unlikely]] {
 			ticks -= TICKS;
 			limit -= TICKS;

@@ -8,9 +8,9 @@
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
 
 #include <tuple>
+#include <utility>
 
 namespace openmsx {
 
@@ -209,7 +209,7 @@ std::optional<bool> match(const BooleanInput& binding, const Event& event,
 		[](const BooleanJoystickHat& bind, const JoystickHatEvent& e) -> std::optional<bool> {
 			if (bind.getJoystick() != e.getJoystick()) return std::nullopt;
 			if (bind.getHat() != e.getHat()) return std::nullopt;
-			return to_underlying(bind.getValue()) & e.getValue();
+			return std::to_underlying(bind.getValue()) & e.getValue();
 		},
 
 		[&](const BooleanJoystickAxis& bind, const JoystickAxisMotionEvent& e) -> std::optional<bool> {

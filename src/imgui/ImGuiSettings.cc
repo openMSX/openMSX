@@ -42,7 +42,6 @@
 #include "foreach_file.hh"
 #include "narrow.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
 #include "zstring_view.hh"
 
 #include <imgui.h>
@@ -51,6 +50,7 @@
 #include <SDL.h>
 
 #include <optional>
+#include <utility>
 
 using namespace std::literals;
 
@@ -1234,7 +1234,7 @@ void ImGuiSettings::paintShortcut()
 			ImGui::TableSetupColumn("key");
 
 			const auto& shortcuts = manager.getShortcuts();
-			im::ID_for_range(to_underlying(Shortcuts::ID::NUM), [&](int i) {
+			im::ID_for_range(std::to_underlying(Shortcuts::ID::NUM), [&](int i) {
 				auto id = static_cast<Shortcuts::ID>(i);
 				auto shortcut = shortcuts.getShortcut(id);
 

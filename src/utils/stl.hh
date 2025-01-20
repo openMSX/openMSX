@@ -463,12 +463,6 @@ template<size_t N, typename F>
 }
 
 
-// c++23 std::to_underlying
-template<typename E>
-[[nodiscard]] constexpr auto to_underlying(E e) noexcept {
-	return static_cast<std::underlying_type_t<E>>(e);
-}
-
 // Like std::array, but operator[] takes an enum
 template<typename Enum, typename T, size_t S = size_t(-1)>
 struct array_with_enum_index {
@@ -487,8 +481,8 @@ public:
 
 	// Note: explicitly NO constructors, we want aggregate initialization
 
-	[[nodiscard]] constexpr const auto& operator[](Enum e) const { return storage[to_underlying(e)]; }
-	[[nodiscard]] constexpr auto& operator[](Enum e) { return storage[to_underlying(e)]; }
+	[[nodiscard]] constexpr const auto& operator[](Enum e) const { return storage[std::to_underlying(e)]; }
+	[[nodiscard]] constexpr auto& operator[](Enum e) { return storage[std::to_underlying(e)]; }
 
 	// This list is incomplete. Add more when needed.
 	[[nodiscard]] constexpr auto begin() const { return storage.begin(); }

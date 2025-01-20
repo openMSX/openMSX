@@ -14,6 +14,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -43,7 +44,7 @@ public:
 
 		constexpr void validate() const {
 			// check parity
-			assert(std::popcount(to_underlying(manufacturer)) & 1);
+			assert(std::popcount(std::to_underlying(manufacturer)) & 1);
 			// extended marker is not part of ID
 			assert(device.size() > 0 && device[0] != 0x7E);
 		}

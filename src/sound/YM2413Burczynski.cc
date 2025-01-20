@@ -20,15 +20,18 @@
  */
 
 #include "YM2413Burczynski.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cstdint>
 #include <iostream>
+#include <utility>
 
 namespace openmsx {
 namespace YM2413Burczynski {
@@ -656,13 +659,13 @@ void Slot::setKeyOn(KeyPart part)
 		// do NOT restart Phase Generator (verified on real YM2413)
 		setEnvelopeState(EnvelopeState::DUMP);
 	}
-	key |= to_underlying(part);
+	key |= std::to_underlying(part);
 }
 
 void Slot::setKeyOff(KeyPart part)
 {
 	if (key) {
-		key &= ~to_underlying(part);
+		key &= ~std::to_underlying(part);
 		if (!key && isActive()) {
 			setEnvelopeState(EnvelopeState::RELEASE);
 		}

@@ -1,7 +1,7 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
-#include "stl.hh"
+#include <utility>
 
 namespace openmsx {
 
@@ -23,7 +23,7 @@ public:
 		OSDGUI,
 		IMGUI,
 	};
-	[[nodiscard]] friend auto operator<=>(ZIndex x, ZIndex y) { return to_underlying(x) <=> to_underlying(y); }
+	[[nodiscard]] friend auto operator<=>(ZIndex x, ZIndex y) { return std::to_underlying(x) <=> std::to_underlying(y); }
 
 	/** Describes how much of the screen is currently covered by a particular
 	  * layer.

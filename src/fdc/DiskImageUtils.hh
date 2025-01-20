@@ -4,11 +4,11 @@
 #include "AlignedBuffer.hh"
 #include "endian.hh"
 #include "ranges.hh"
-#include "stl.hh"
 
 #include <array>
 #include <span>
 #include <string>
+#include <utility>
 
 namespace openmsx {
 
@@ -73,7 +73,7 @@ struct MSXDirEntry {
 		uint8_t value;
 
 		constexpr AttribValue() = default;
-		constexpr explicit(false) AttribValue(Attrib v) : value(to_underlying(v)) {}
+		constexpr explicit(false) AttribValue(Attrib v) : value(std::to_underlying(v)) {}
 		constexpr explicit AttribValue(uint8_t v) : value(v) {}
 		constexpr explicit operator bool() const { return value != 0; }
 		constexpr auto operator<=>(const AttribValue&) const = default;

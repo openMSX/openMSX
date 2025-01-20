@@ -4,9 +4,9 @@
 #include "stl.hh"
 #include "strCat.hh"
 
-#include <array>
 #include <span>
 #include <string_view>
+#include <utility>
 
 namespace openmsx {
 
@@ -114,12 +114,12 @@ protected:
 
 [[nodiscard]] inline auto toString(CliComm::LogLevel type)
 {
-	return CliComm::getLevelStrings()[to_underlying(type)];
+	return CliComm::getLevelStrings()[std::to_underlying(type)];
 }
 
 [[nodiscard]] inline auto toString(CliComm::UpdateType type)
 {
-	return CliComm::getUpdateStrings()[to_underlying(type)];
+	return CliComm::getUpdateStrings()[std::to_underlying(type)];
 }
 
 } // namespace openmsx
