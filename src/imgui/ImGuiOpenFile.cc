@@ -92,7 +92,7 @@ void ImGuiOpenFile::selectFile(const std::string& title, std::string filters,
                                zstring_view lastLocationHint,
                                Painter painter_)
 {
-	if (filters.find("{.*}") == std::string::npos) {
+	if (!filters.contains("{.*}")) {
 		filters += ",All files (*){.*}";
 	}
 	int extraFlags = ImGuiFileDialogFlags_DisableCreateDirectoryButton;
@@ -104,7 +104,7 @@ void ImGuiOpenFile::selectNewFile(const std::string& title, std::string filters,
                                   zstring_view lastLocationHint,
                                   Painter painter_)
 {
-	if (filters.find("{.*}") == std::string::npos) {
+	if (!filters.contains("{.*}")) {
 		filters += ",All files (*){.*}";
 	}
 	int extraFlags =

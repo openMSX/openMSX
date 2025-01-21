@@ -103,7 +103,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 
 		auto channels = StringOp::parseRange(channel->getValue(), 1, numChannels);
 		channels.foreachSetBit([&](size_t c) {
-			setBalance(c - 1, *balance * (1.0f / 100.0f));
+			setBalance(unsigned(c - 1), narrow_cast<float>(*balance) * (1.0f / 100.0f));
 		});
 	}
 
@@ -290,7 +290,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		if (bufs[i]) {
 			cb.silent = 0;
 		} else {
-			cb.silent += samples;
+			cb.silent += narrow<unsigned>(samples);
 		}
 	}
 

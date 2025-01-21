@@ -14,17 +14,13 @@ proc savestate_common {} {
 proc savestate {{name ""}} {
 	savestate_common
 	file mkdir $directory
-	if {[catch {screenshot -raw -doublesize $png}]} {
-		# some renderers don't support msx-only screenshots
-		if {[catch {screenshot $png}]} {
-			# even this failed, but (try to) remove old screenshot
-			# to avoid confusion
-			catch {file delete -- $png}
-		}
+	if {[catch {::openmsx::internal_screenshot -raw -doublesize $png}]} {
+		# Creating the new screenshot failed, (try to) remove old screenshot to avoid confusion
+		catch {file delete -- $png}
 	}
 	set currentID [machine]
 	store_machine $currentID $fullname
-	return $name
+	return $fullname
 }
 
 proc loadstate {{name ""}} {

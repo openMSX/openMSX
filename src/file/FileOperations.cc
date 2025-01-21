@@ -19,6 +19,7 @@
 #include <unistd.h>
 #endif // ifdef _WIN32_ ... else ...
 
+#include "narrow.hh"
 #include "openmsx.hh" // for ad_printf
 
 #include "systemfuncs.hh"
@@ -241,7 +242,7 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 	// Mode must contain a 'b' character. On unix this doesn't make any
 	// difference. But on windows this is required to open the file
 	// in binary mode.
-	assert(mode.find('b') != std::string::npos);
+	assert(mode.contains('b'));
 #ifdef _WIN32
 	return FILE_t(_wfopen(utf8to16(filename).c_str(),
 	                      utf8to16(mode).c_str()));
@@ -345,7 +346,7 @@ string getCurrentWorkingDirectory()
 {
 #ifdef _WIN32
 	std::array<wchar_t, MAXPATHLEN> bufW;
-	const wchar_t* result = _wgetcwd(bufW.data(), bufW.size());
+	const wchar_t* result = _wgetcwd(bufW.data(), narrow<int>(bufW.size()));
 	if (!result) {
 		throw FileException("Couldn't get current working directory.");
 	}
@@ -620,7 +621,7 @@ string getNextNumberedFileName(
 {
 	std::string newPrefix;
 	if (addSeparator) {
-		newPrefix = strCat(prefix, ((prefix.find(' ') != std::string_view::npos) ? ' ' : '_'));
+		newPrefix = strCat(prefix, (prefix.contains(' ') ? ' ' : '_'));
 		prefix = newPrefix;
 	}
 

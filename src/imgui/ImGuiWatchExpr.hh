@@ -5,6 +5,7 @@
 
 #include "TclObject.hh"
 
+#include <expected>
 #include <vector>
 
 namespace openmsx {
@@ -45,11 +46,7 @@ private:
 	};
 	std::vector<WatchExpr> watches;
 
-	struct EvalResult {
-		TclObject result;
-		std::string error;
-	};
-	[[nodiscard]] EvalResult evalExpr(WatchExpr& watch, Interpreter& interp) const;
+	[[nodiscard]] std::expected<TclObject, std::string> evalExpr(WatchExpr& watch, Interpreter& interp) const;
 
 	int selectedRow = -1;
 

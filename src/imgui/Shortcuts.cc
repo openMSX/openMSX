@@ -1,10 +1,12 @@
 #include "Shortcuts.hh"
 
+#include "narrow.hh"
 #include "one_of.hh"
 
 #include "imgui_internal.h"
 
 #include <array>
+#include <utility>
 
 namespace openmsx {
 
@@ -32,11 +34,11 @@ static constexpr auto allShortcutInfo = std::to_array<AllShortcutInfo>({
 	{DISASM_RUN_TO_ADDR,      ImGuiMod_Ctrl | ImGuiKey_R,   ALWAYS_LOCAL,  false, "disasm_run_to_address",   "Debugger: run to a specific address"},
 	{DISASM_TOGGLE_BREAKPOINT,ImGuiMod_Ctrl | ImGuiKey_B,   ALWAYS_LOCAL,  false, "disasm_toggle_breakpoint","Debugger: toggle breakpoint at current address"},
 });
-static_assert(allShortcutInfo.size() == to_underlying(Shortcuts::ID::NUM));
+static_assert(narrow<int>(allShortcutInfo.size()) == std::to_underlying(Shortcuts::ID::NUM));
 
 static constexpr auto defaultShortcuts = []{
 	array_with_enum_index<Shortcuts::ID, Shortcuts::Shortcut> result = {};
-	for (int i = 0; i < to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
 		const auto& all = allShortcutInfo[i];
 		auto id = static_cast<Shortcuts::ID>(i);
 		assert(all.id == id); // verify that rows are in-order
@@ -48,7 +50,7 @@ static constexpr auto defaultShortcuts = []{
 
 static constexpr auto shortcutRepeats = []{
 	array_with_enum_index<Shortcuts::ID, bool> result = {};
-	for (int i = 0; i < to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].repeat;
 	}
@@ -57,7 +59,7 @@ static constexpr auto shortcutRepeats = []{
 
 static constexpr auto shortcutNames = []{
 	array_with_enum_index<Shortcuts::ID, zstring_view> result = {};
-	for (int i = 0; i < to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].name;
 	}
@@ -66,7 +68,7 @@ static constexpr auto shortcutNames = []{
 
 static constexpr auto shortcutDescriptions = []{
 	array_with_enum_index<Shortcuts::ID, zstring_view> result = {};
-	for (int i = 0; i < to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].description;
 	}

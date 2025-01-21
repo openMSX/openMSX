@@ -182,10 +182,9 @@ void ImGuiWatchExpr::refreshSymbols()
 	}
 }
 
-ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interpreter& interp) const
+std::expected<TclObject, std::string> ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interpreter& interp) const
 {
-	EvalResult r; // TODO c++23 std::expected might be a good fit here
-	if (watch.exprStr.empty()) return r;
+	if (watch.exprStr.empty()) return {};
 
 	if (!watch.expression) {
 		if (auto addr = symbolManager.parseSymbolOrValue(watch.exprStr)) {
@@ -199,11 +198,10 @@ ImGuiWatchExpr::EvalResult ImGuiWatchExpr::evalExpr(WatchExpr& watch, Interprete
 	assert(watch.expression);
 
 	try {
-		r.result = watch.expression->eval(interp);
+		return watch.expression->eval(interp);
 	} catch (CommandException& e) {
-		r.error = e.getMessage();
+		return std::unexpected(e.getMessage());
 	}
-	return r;
 }
 
 void ImGuiWatchExpr::drawRow(int row)
@@ -212,28 +210,29 @@ void ImGuiWatchExpr::drawRow(int row)
 	auto& watch = watches[row];
 
 	// evaluate 'expression'
-	auto [result, exprError_] = evalExpr(watch, interp);
-	const auto& exprError = exprError_; // clang workaround
-	bool validExpr = exprError.empty();
+	auto exprVal = evalExpr(watch, interp);
 
 	// format the result
-	TclObject frmtResult = result; // also fallback for error in format
-	std::string frmtError;
+	std::expected<TclObject, std::string> formatted;
 	if (!watch.format.getString().empty()) {
-		auto frmtCmd = makeTclList("format", watch.format, validExpr ? result : TclObject("0"));
+		auto frmtCmd = makeTclList("format", watch.format, exprVal ? *exprVal : TclObject("0"));
 		try {
-			frmtResult = frmtCmd.executeCommand(interp);
+			formatted = frmtCmd.executeCommand(interp);
 		} catch (CommandException& e) {
-			frmtError = e.getMessage();
+			formatted = std::unexpected(e.getMessage());
 		}
+	} else {
+		formatted = exprVal ? *exprVal : TclObject();
 	}
-	bool validFrmt = frmtError.empty();
+
+	const auto& display = exprVal ? (formatted ? formatted->getString() : exprVal->getString())
+	                              : exprVal.error();
 
 	if (ImGui::TableNextColumn()) { // description
 		auto pos = ImGui::GetCursorPos();
 		const auto& style = ImGui::GetStyle();
 		float rowHeight = 2.0f * style.FramePadding.y;
-		rowHeight += ImGui::CalcTextSize(validExpr ? frmtResult.getString() : exprError).y;
+		rowHeight += ImGui::CalcTextSize(display).y;
 		if (ImGui::Selectable("##selection", selectedRow == row,
 				ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap,
 				{0.0f, rowHeight})) {
@@ -247,7 +246,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		tooWideToolTip(avail, watch.description);
 	}
 	if (ImGui::TableNextColumn()) { // expression
-		im::StyleColor(!validExpr, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+		im::StyleColor(!exprVal, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 			im::ScopedFont sf(manager.fontMono);
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
@@ -258,7 +257,7 @@ void ImGuiWatchExpr::drawRow(int row)
 		});
 	}
 	if (ImGui::TableNextColumn()) { // format
-		im::StyleColor(!validFrmt, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+		im::StyleColor(!formatted, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
 			im::ScopedFont sf(manager.fontMono);
 			auto avail = ImGui::GetContentRegionAvail().x;
 			ImGui::SetNextItemWidth(-FLT_MIN);
@@ -266,26 +265,20 @@ void ImGuiWatchExpr::drawRow(int row)
 			if (ImGui::InputText("##format", &str)) {
 				watch.format = str;
 			}
-			if (validFrmt) {
+			if (formatted) {
 				tooWideToolTip(avail, str);
 			} else {
-				simpleToolTip(frmtError);
+				simpleToolTip(formatted.error());
 			}
 		});
 	}
 	if (ImGui::TableNextColumn()) { // result
 		im::ScopedFont sf(manager.fontMono);
 		auto avail = ImGui::GetContentRegionAvail().x;
-		if (validExpr) {
-			const auto& str = frmtResult.getString();
-			ImGui::TextUnformatted(str);
-			tooWideToolTip(avail, str);
-		} else {
-			im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-				ImGui::TextUnformatted(exprError);
-				tooWideToolTip(avail, exprError);
-			});
-		}
+		im::StyleColor(!exprVal, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+			ImGui::TextUnformatted(display);
+			tooWideToolTip(avail, display);
+		});
 	}
 }
 

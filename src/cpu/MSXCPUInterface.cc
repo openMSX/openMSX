@@ -983,7 +983,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			auto begin = w->getBeginAddress();
 			auto end = w->getEndAddress();
 			if (!begin || !end) continue;
-			assert(*begin < 0x10000 && *end < 0x10000 && begin <= end);
+			assert(begin <= end);
 			for (unsigned addr = *begin; addr <= *end; ++addr) {
 				watchSet[addr >> CacheLine::BITS].set(
 				         addr  & CacheLine::LOW);
@@ -1221,7 +1221,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	switch (tokens.size()) {
 	case 4:
 		ss = narrow<int>(getSlot(interp, tokens[3], "Secondary slot"));
-		// Fall-through
+		[[fallthrough]];
 	case 3:
 		ps = narrow<int>(getSlot(interp, tokens[2], "Primary slot"));
 		break;

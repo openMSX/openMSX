@@ -750,6 +750,7 @@ void V9990::setHorizontalTiming()
 		break;
 	case B0: case B2: case B4:
 		horTiming = &V9990DisplayTiming::lineXTAL;
+		break;
 	case B5: case B6:
 		break;
 	default:
@@ -771,6 +772,7 @@ void V9990::setVerticalTiming()
 		verTiming = isPalTiming()
 		          ? &V9990DisplayTiming::displayPAL_XTAL
 		          : &V9990DisplayTiming::displayNTSC_XTAL;
+		break;
 	case B5: case B6:
 		break;
 	default:

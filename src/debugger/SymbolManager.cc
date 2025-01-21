@@ -348,7 +348,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	bool symbolPart = false;
 	for (std::string_view line : StringOp::split_view(buffer, '\n')) {
 		if (!symbolPart) {
-			if (line.find("Symbol Table") != std::string_view::npos) { // c++23 contains()
+			if (line.contains("Symbol Table")) {
 				symbolPart = true;
 			}
 			continue;

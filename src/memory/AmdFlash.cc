@@ -11,12 +11,12 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "stl.hh"
 #include "xrange.hh"
 #include <bit>
 #include <cassert>
 #include <iterator>
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -222,7 +222,7 @@ uint16_t AmdFlash::peekAutoSelect(size_t address, uint16_t undefined) const
 {
 	switch (address & chip.autoSelect.readMask) {
 	case 0x0:
-		return to_underlying(chip.autoSelect.manufacturer);
+		return std::to_underlying(chip.autoSelect.manufacturer);
 	case 0x1:
 		return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
 	case 0x2:
@@ -272,7 +272,7 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 			// M29W640GB exposes manufacturer & device ID below 0x10 (as 16-bit values)
 			switch (maskedAddress) {
 			case 0x0:
-				return to_underlying(chip.autoSelect.manufacturer);
+				return std::to_underlying(chip.autoSelect.manufacturer);
 			case 0x1:
 				return chip.autoSelect.device.size() == 1 ? chip.autoSelect.device[0] | 0x2200 : 0x227E;
 			case 0x2:
@@ -334,9 +334,9 @@ uint16_t AmdFlash::peekCFI(size_t address) const
 	case 0x27:
 		return chip.geometry.size.exponent;
 	case 0x28:
-		return narrow<uint8_t>(to_underlying(chip.geometry.deviceInterface) & 0xFF);
+		return narrow<uint8_t>(std::to_underlying(chip.geometry.deviceInterface) & 0xFF);
 	case 0x29:
-		return narrow<uint8_t>(to_underlying(chip.geometry.deviceInterface) >> 8);
+		return narrow<uint8_t>(std::to_underlying(chip.geometry.deviceInterface) >> 8);
 	case 0x2A:
 		return chip.program.pageSize.exponent;
 	case 0x2B:

@@ -87,7 +87,7 @@ void FrameSource::scaleLine(
 	case 213:
 		switch (out.size()) {
 		case    1: out[0] = in[0]; break;
-		case  213: UNREACHABLE;
+		case  213: UNREACHABLE; break;
 		case  320: scale_2on3(in, out); break;
 		case  426: scale_1on2(in, out); break;
 		case  640: scale_1on3(in, out); break;
@@ -101,7 +101,7 @@ void FrameSource::scaleLine(
 		switch (out.size()) {
 		case    1: out[0] = in[0]; break;
 		case  213: scale_3on2(in, out); break;
-		case  320: UNREACHABLE;
+		case  320: UNREACHABLE; break;
 		case  426: scale_3on4(in, out); break;
 		case  640: scale_1on2(in, out); break;
 		case  853: scale_3on8(in, out); break;
@@ -115,7 +115,7 @@ void FrameSource::scaleLine(
 		case    1: out[0] = in[0]; break;
 		case  213: scale_2on1(in, out); break;
 		case  320: scale_4on3(in, out); break;
-		case  426: UNREACHABLE;
+		case  426: UNREACHABLE; break;
 		case  640: scale_2on3(in, out); break;
 		case  853: scale_1on2(in, out); break;
 		case  960: scale_4on9(in, out); break;
@@ -129,7 +129,7 @@ void FrameSource::scaleLine(
 		case  213: scale_3on1(in, out); break;
 		case  320: scale_2on1(in, out); break;
 		case  426: scale_3on2(in, out); break;
-		case  640: UNREACHABLE;
+		case  640: UNREACHABLE; break;
 		case  853: scale_3on4(in, out); break;
 		case  960: scale_2on3(in, out); break;
 		case 1280: scale_1on2(in, out); break;
@@ -143,7 +143,7 @@ void FrameSource::scaleLine(
 		case  320: scale_8on3(in, out); break;
 		case  426: scale_2on1(in, out); break;
 		case  640: scale_4on3(in, out); break;
-		case  853: UNREACHABLE;
+		case  853: UNREACHABLE; break;
 		case  960: scale_8on9(in, out); break;
 		case 1280: scale_2on3(in, out); break;
 		default: UNREACHABLE;
@@ -158,7 +158,7 @@ void FrameSource::scaleLine(
 		case  640: scale_2on1(in, out); break;
 		case  853: scale_3on2(in, out); break;
 		case  960: scale_4on3(in, out); break;
-		case 1280: UNREACHABLE;
+		case 1280: UNREACHABLE; break;
 		default: UNREACHABLE;
 		}
 		break;

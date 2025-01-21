@@ -343,7 +343,7 @@ static void OPLL_DoRegWrite(opll_t *chip) {
 
     /* Update registers */
     if (chip->write_fm_data && !chip->write_a_en) {
-        if ((chip->address & 0x0f) == chip->cycles && chip->cycles < 16) {
+        if (uint32_t(chip->address & 0x0f) == chip->cycles && chip->cycles < 16) {
             uint32_t channel = chip->cycles % 9;
             switch (chip->address & 0xf0) {
             case 0x10:

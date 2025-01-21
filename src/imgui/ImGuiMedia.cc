@@ -39,6 +39,7 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include <utility>
 
 using namespace std::literals;
 
@@ -153,7 +154,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 			loadGroup(disk->groups[DIR_AS_DISK], suffix.substr(9));
 		} else if (suffix == "select") {
 			if (auto i = StringOp::stringTo<unsigned>(value)) {
-				if (*i < to_underlying(NUM)) {
+				if (*i < unsigned(std::to_underlying(NUM))) {
 					disk->select = SelectDiskType(*i);
 				}
 			}
@@ -169,7 +170,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 			loadGroup(cart->groups[EXTENSION], suffix.substr(10));
 		} else if (suffix == "select") {
 			if (auto i = StringOp::stringTo<unsigned>(value)) {
-				if (i < to_underlying(NUM)) {
+				if (*i < unsigned(std::to_underlying(NUM))) {
 					cart->select = SelectCartridgeType(*i);
 				}
 			}
@@ -1183,7 +1184,7 @@ void ImGuiMedia::diskMenu(int i)
 			using enum SelectDiskType;
 			ImGui::TextUnformatted("Select new disk"sv);
 
-			ImGui::RadioButton("disk image", std::bit_cast<int*>(&info.select), to_underlying(IMAGE));
+			ImGui::RadioButton("disk image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
 			im::VisuallyDisabled(info.select != IMAGE, [&]{
 				im::Indent([&]{
 					auto& group = info.groups[IMAGE];
@@ -1209,7 +1210,7 @@ void ImGuiMedia::diskMenu(int i)
 					if (interacted) info.select = IMAGE;
 				});
 			});
-			ImGui::RadioButton("dir as disk", std::bit_cast<int*>(&info.select), to_underlying(DIR_AS_DISK));
+			ImGui::RadioButton("dir as disk", std::bit_cast<int*>(&info.select), std::to_underlying(DIR_AS_DISK));
 			im::VisuallyDisabled(info.select != DIR_AS_DISK, [&]{
 				im::Indent([&]{
 					auto& group = info.groups[DIR_AS_DISK];
@@ -1233,9 +1234,9 @@ void ImGuiMedia::diskMenu(int i)
 					if (interacted) info.select = DIR_AS_DISK;
 				});
 			});
-			ImGui::RadioButton("RAM disk", std::bit_cast<int*>(&info.select), to_underlying(RAMDISK));
+			ImGui::RadioButton("RAM disk", std::bit_cast<int*>(&info.select), std::to_underlying(RAMDISK));
 			if (!current.empty()) {
-				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(EMPTY));
+				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
 			}
 		});
 		insertMediaButton(mediaName, info.groups[info.select], &info.show);
@@ -1257,7 +1258,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			ImGui::TextUnformatted("Select new cartridge:"sv);
 
-			ImGui::RadioButton("ROM image", std::bit_cast<int*>(&info.select), to_underlying(IMAGE));
+			ImGui::RadioButton("ROM image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
 			im::VisuallyDisabled(info.select != IMAGE, [&]{
 				im::Indent([&]{
 					auto& group = info.groups[IMAGE];
@@ -1272,7 +1273,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 					if (interacted) info.select = IMAGE;
 				});
 			});
-			ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), to_underlying(EXTENSION));
+			ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), std::to_underlying(EXTENSION));
 			im::VisuallyDisabled(info.select != EXTENSION, [&]{
 				im::Indent([&]{
 					auto& allExtensions = getAllExtensions();
@@ -1316,7 +1317,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 				});
 			});
 			if (!current.empty()) {
-				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), to_underlying(EMPTY));
+				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
 			}
 			ImGui::Checkbox("Reset MSX on changes", &resetOnCartChanges);
 		});

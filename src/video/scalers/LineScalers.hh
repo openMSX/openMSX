@@ -4,13 +4,13 @@
 #include "PixelOperations.hh"
 
 #include "ranges.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
 #include <span>
 #ifdef __SSE2__
 #include "emmintrin.h"
@@ -466,7 +466,7 @@ void blendLines(std::span<const Pixel> in1, std::span<const Pixel> in2, std::spa
 	assert(in1.size() == in2.size());
 	assert(in1.size() == out.size());
 	PixelOperations pixelOps;
-	for (auto [i1, i2, o] : view::zip_equal(in1, in2, out)) {
+	for (auto [i1, i2, o] : std::views::zip(in1, in2, out)) {
 		o = pixelOps.template blend<w1, w2>(i1, i2);
 	}
 }
@@ -478,7 +478,7 @@ inline void alphaBlendLines(
 	assert(in1.size() == in2.size());
 	assert(in1.size() == out.size());
 	PixelOperations pixelOps;
-	for (auto [i1, i2, o] : view::zip_equal(in1, in2, out)) {
+	for (auto [i1, i2, o] : std::views::zip(in1, in2, out)) {
 		o = pixelOps.alphaBlend(i1, i2);
 	}
 }
@@ -503,7 +503,7 @@ inline void alphaBlendLines(
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (auto [i2, o] : view::zip_equal(in2, out)) {
+	for (auto [i2, o] : std::views::zip(in2, out)) {
 		o = in1M + pixelOps.multiply(i2, alpha2);
 	}
 }

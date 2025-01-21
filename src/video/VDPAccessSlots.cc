@@ -1,5 +1,7 @@
 #include "VDPAccessSlots.hh"
+
 #include <array>
+#include <utility>
 
 namespace openmsx::VDPAccessSlots {
 
@@ -230,7 +232,7 @@ EmuTime getAccessSlot(
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
 	auto tab = getTab(vdp);
-	return time + VDP::VDPClock::duration(tab[to_underlying(delta) + ticks]);
+	return time + VDP::VDPClock::duration(tab[std::to_underlying(delta) + ticks]);
 }
 
 Calculator getCalculator(
