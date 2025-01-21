@@ -123,14 +123,28 @@ static void plotHistogram(std::span<const float> values, float scale_min, float 
 }
 
 
+#define SHOW_CHIP_KEY "showChip"
+
 void ImGuiWaveViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+	for (const auto& chip: openChips) {
+		buf.appendf(SHOW_CHIP_KEY"=%s\n", chip.c_str());
+	}
+}
+
+void ImGuiWaveViewer::loadStart()
+{
+	openChips.clear();
 }
 
 void ImGuiWaveViewer::loadLine(std::string_view name, zstring_view value)
 {
-	loadOnePersistent(name, value, *this, persistentElements);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (name == SHOW_CHIP_KEY) {
+		openChips.emplace(value);
+	}
 }
 
 static void paintVUMeter(std::span<const float>& buf, float factor, bool muted)
@@ -454,7 +468,13 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 		for (const auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
 			auto& device = *info.device;
 			const auto& name = device.getName();
-			if (!ImGui::CollapsingHeader(name.c_str())) continue;
+			auto it = openChips.find(name);
+			bool wasOpen = it != openChips.end();
+			bool nowOpen = ImGui::CollapsingHeader(name.c_str(), wasOpen ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None);
+			if (wasOpen != nowOpen) {
+			    if (nowOpen) openChips.insert(name); else openChips.erase(it);
+			}
+			if (!nowOpen) continue;
 			HelpMarker("Right-click column header to (un)hide columns.\n"
 			           "Drag to reorder or resize columns.");
 
