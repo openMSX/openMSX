@@ -394,29 +394,6 @@ private:
 	difference_type n;
 };
 
-template<typename Range>
-class Take
-{
-public:
-	using Iterator = decltype(std::begin(std::declval<Range>()));
-	using Sentinel = decltype(std::end  (std::declval<Range>()));
-	using Take_Iterator = TakeIterator<Iterator, Sentinel>;
-
-	constexpr Take(Range&& range_, size_t n_)
-	        : range(std::forward<Range>(range_)), n(n_) {}
-
-	[[nodiscard]] constexpr Take_Iterator begin() const {
-		return {std::begin(range), n};
-	}
-	[[nodiscard]] constexpr Sentinel end() const {
-		return std::end(range);
-	}
-
-private:
-	Range range;
-	size_t n;
-};
-
 } // namespace detail
 
 template<typename Range>
@@ -459,12 +436,6 @@ template<typename ForwardRange, typename Predicate>
 [[nodiscard]] auto filter(ForwardRange&& range, Predicate pred)
 {
     return detail::Filter<ForwardRange, Predicate>{std::forward<ForwardRange>(range), pred};
-}
-
-template<typename ForwardRange>
-[[nodiscard]] constexpr auto take(ForwardRange&& range, size_t n)
-{
-    return detail::Take<ForwardRange>{std::forward<ForwardRange>(range), n};
 }
 
 } // namespace view

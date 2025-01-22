@@ -283,36 +283,3 @@ TEST_CASE("view::filter") {
 		REQUIRE(it == et);
 	}
 }
-
-TEST_CASE("view::take") {
-	SECTION("n") {
-		vector v = {1, 2, 3, 4};
-		check(view::take(v, 0), vector<int>{});
-		check(view::take(v, 1), vector{1});
-		check(view::take(v, 2), vector{1, 2});
-		check(view::take(v, 3), vector{1, 2, 3});
-		check(view::take(v, 4), vector{1, 2, 3, 4});
-		check(view::take(v, 5), vector{1, 2, 3, 4});
-		check(view::take(v, 6), vector{1, 2, 3, 4});
-	}
-	SECTION("split_view") {
-		std::string_view str = "abc  def\t \tghi    jkl  mno  pqr";
-		auto v = view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(str, " \t"), 3);
-
-		auto it = v.begin();
-		auto et = v.end();
-		REQUIRE(it != et);
-		CHECK(*it == "abc");
-
-		++it;
-		REQUIRE(it != et);
-		CHECK(*it == "def");
-
-		++it;
-		REQUIRE(it != et);
-		CHECK(*it == "ghi");
-
-		++it;
-		REQUIRE(it == et);
-	}
-}
