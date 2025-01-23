@@ -1,4 +1,5 @@
 #include "CommandLineParser.hh"
+
 #include "GlobalCommandController.hh"
 #include "Interpreter.hh"
 #include "SettingsConfig.hh"
@@ -13,21 +14,23 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "XMLException.hh"
-#include "StringOp.hh"
-#include "xrange.hh"
 #include "Reactor.hh"
 #include "RomInfo.hh"
+
+#include "StringOp.hh"
 #include "hash_map.hh"
-#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
 #include "xxhash.hh"
+
 #include "build-info.hh"
+
 #include <cassert>
 #include <iostream>
 #include <memory>
+#include <ranges>
 
 using std::cout;
 using std::string;
@@ -151,7 +154,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 {
 	parseStatus = RUN;
 
-	auto cmdLineBuf = to_vector(view::transform(view::drop(argv, 1), [](const char* a) {
+	auto cmdLineBuf = to_vector(view::transform(std::views::drop(argv, 1), [](const char* a) {
 		return FileOperations::getConventionalPath(a);
 	}));
 	std::span<string> cmdLine(cmdLineBuf);

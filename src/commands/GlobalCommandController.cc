@@ -24,6 +24,7 @@
 
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::string;
 using std::string_view;
@@ -463,7 +464,7 @@ void GlobalCommandController::HelpCmd::execute(
 			result = (*v)->help(tokens.subspan(1));
 		} else {
 			TclObject command = makeTclList("openmsx::help");
-			command.addListElements(view::drop(tokens, 1));
+			command.addListElements(std::views::drop(tokens, 1));
 			result = command.executeCommand(getInterpreter());
 		}
 		break;

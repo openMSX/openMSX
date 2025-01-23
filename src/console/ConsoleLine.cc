@@ -5,7 +5,8 @@
 #include "stl.hh"
 #include "strCat.hh"
 #include "utf8_unchecked.hh"
-#include "view.hh"
+
+#include <ranges>
 
 namespace openmsx {
 
@@ -56,7 +57,7 @@ ConsoleLine ConsoleLine::splitAtColumn(unsigned column)
 	if (it != et) {
 		result.addChunk(std::string_view{it, et}, splitColor);
 		result.chunks.insert(result.chunks.end(), it2, chunks.end());
-		for (auto& c : view::drop(result.chunks, 1)) {
+		for (auto& c : std::views::drop(result.chunks, 1)) {
 			c.pos -= pos;
 		}
 	}

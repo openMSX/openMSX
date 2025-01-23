@@ -43,32 +43,6 @@ template<typename Iterator>
 
 
 template<typename Range>
-class Drop
-{
-public:
-	constexpr Drop(Range&& range_, size_t n_)
-		: range(std::forward<Range>(range_))
-		, n(n_)
-	{
-	}
-
-	[[nodiscard]] constexpr auto begin() const {
-		using Iterator = decltype(std::begin(range));
-		return safe_next(std::begin(range), std::end(range), n,
-		                 typename std::iterator_traits<Iterator>::iterator_category());
-	}
-
-	[[nodiscard]] constexpr auto end() const {
-		return std::end(range);
-	}
-
-private:
-	Range range;
-	size_t n;
-};
-
-
-template<typename Range>
 class DropBack
 {
 public:
@@ -395,12 +369,6 @@ private:
 };
 
 } // namespace detail
-
-template<typename Range>
-[[nodiscard]] constexpr auto drop(Range&& range, size_t n)
-{
-	return detail::Drop<Range>(std::forward<Range>(range), n);
-}
 
 template<typename Range>
 [[nodiscard]] constexpr auto drop_back(Range&& range, size_t n)

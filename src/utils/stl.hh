@@ -272,7 +272,7 @@ namespace detail {
 // Convert any range to a vector. Optionally specify the type of the elements
 // in the result.
 // Example:
-//   auto v1 = to_vector(view::drop(my_list, 3));
+//   auto v1 = to_vector(std::views::drop(my_list, 3));
 //   auto v2 = to_vector<Base*>(getDerivedPtrs());
 template<typename T = void, typename Range>
 [[nodiscard]] auto to_vector(Range&& range)

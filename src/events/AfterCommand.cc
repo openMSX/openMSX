@@ -18,10 +18,10 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <sstream>
 #include <variant>
 
@@ -233,7 +233,7 @@ void AfterCommand::afterTclTime(
 	int ms, std::span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command;
-	command.addListElements(view::drop(tokens, 2));
+	command.addListElements(std::views::drop(tokens, 2));
 	auto [idx, ptr] = afterCmdPool.emplace(
 		std::in_place_type_t<AfterRealTimeCmd>{},
 		reactor.getRTScheduler(), *this, command, ms * (1.0 / 1000.0));
@@ -320,7 +320,7 @@ void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*r
 		}
 	}
 	TclObject command;
-	command.addListElements(view::drop(tokens, 2));
+	command.addListElements(std::views::drop(tokens, 2));
 	std::string_view cmdStr = command.getString();
 	auto equalCmd = [&](Index idx) {
 		return std::visit([&](const AfterCmd& cmd) {

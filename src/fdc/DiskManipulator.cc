@@ -25,13 +25,13 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <array>
 #include <cassert>
 #include <cctype>
 #include <memory>
+#include <ranges>
 
 using std::string;
 using std::string_view;
@@ -539,7 +539,7 @@ static std::pair<MSXBootSectorType, std::vector<unsigned>> parsePartitionSizes(a
 
 void DiskManipulator::create(std::span<const TclObject> tokens) const
 {
-	auto [bootType, sizes] = parsePartitionSizes(view::drop(tokens, 3));
+	auto [bootType, sizes] = parsePartitionSizes(std::views::drop(tokens, 3));
 	auto filename = FileOperations::expandTilde(string(tokens[2].getString()));
 	create(filename, bootType, sizes);
 }
@@ -577,7 +577,7 @@ void DiskManipulator::create(const std::string& filename_, MSXBootSectorType boo
 
 void DiskManipulator::partition(std::span<const TclObject> tokens)
 {
-	auto [bootType, sizes] = parsePartitionSizes(view::drop(tokens, 3));
+	auto [bootType, sizes] = parsePartitionSizes(std::views::drop(tokens, 3));
 
 	// initialize (create partition tables and format partitions)
 	auto& settings = getDriveSettings(tokens[2].getString());
@@ -598,7 +598,7 @@ void DiskManipulator::format(std::span<const TclObject> tokens)
 	MSXBootSectorType bootType = MSXBootSectorType::DOS2;
 	std::optional<string> drive;
 	std::optional<size_t> size;
-	for (const auto& token_ : view::drop(tokens, 2)) {
+	for (const auto& token_ : std::views::drop(tokens, 2)) {
 		if (auto t = parseBootSectorType(token_.getString())) {
 			bootType = *t;
 		} else if (!drive) {

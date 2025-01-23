@@ -22,66 +22,6 @@ static vector<int> getVector(int n)
 	return to_vector(xrange(n));
 }
 
-TEST_CASE("view::drop random-access-range")
-{
-	SECTION("empty") {
-		vector<int> v;
-		CHECK(to_vector(drop(v, 0)) == vector<int>{});
-		CHECK(to_vector(drop(v, 3)) == vector<int>{});
-	}
-	SECTION("non-empty") {
-		vector<int> v = {1, 2, 3, 4, 5};
-		CHECK(to_vector(drop(v, 0)) == vector<int>{1, 2, 3, 4, 5});
-		CHECK(to_vector(drop(v, 1)) == vector<int>{2, 3, 4, 5});
-		CHECK(to_vector(drop(v, 2)) == vector<int>{3, 4, 5});
-		CHECK(to_vector(drop(v, 3)) == vector<int>{4, 5});
-		CHECK(to_vector(drop(v, 4)) == vector<int>{5});
-		CHECK(to_vector(drop(v, 5)) == vector<int>{});
-		CHECK(to_vector(drop(v, 6)) == vector<int>{});
-		CHECK(to_vector(drop(v, 7)) == vector<int>{});
-	}
-	SECTION("r-value") {
-		CHECK(to_vector(drop(getVector(6), 3)) == vector<int>{3, 4, 5});
-	}
-}
-
-TEST_CASE("view::drop non-random-access-range")
-{
-	SECTION("empty") {
-		std::list<int> l;
-		CHECK(to_vector(drop(l, 0)) == vector<int>{});
-		CHECK(to_vector(drop(l, 3)) == vector<int>{});
-	}
-	SECTION("non-empty") {
-		std::list<int> l = {1, 2, 3, 4, 5};
-		CHECK(to_vector(drop(l, 0)) == vector<int>{1, 2, 3, 4, 5});
-		CHECK(to_vector(drop(l, 1)) == vector<int>{2, 3, 4, 5});
-		CHECK(to_vector(drop(l, 2)) == vector<int>{3, 4, 5});
-		CHECK(to_vector(drop(l, 3)) == vector<int>{4, 5});
-		CHECK(to_vector(drop(l, 4)) == vector<int>{5});
-		CHECK(to_vector(drop(l, 5)) == vector<int>{});
-		CHECK(to_vector(drop(l, 6)) == vector<int>{});
-		CHECK(to_vector(drop(l, 7)) == vector<int>{});
-	}
-}
-
-TEST_CASE("view::drop capture")
-{
-	REQUIRE(sizeof(vector<int>*) != sizeof(vector<int>));
-	SECTION("l-value") {
-		vector<int> v = {0, 1, 2, 3};
-		auto d = drop(v, 1);
-		// 'd' stores a reference to 'v'
-		CHECK(sizeof(d) == (sizeof(vector<int>*) + sizeof(size_t)));
-	}
-	SECTION("r-value") {
-		auto d = drop(getVector(4), 1);
-		// 'd' stores a vector by value
-		CHECK(sizeof(d) == (sizeof(vector<int>) + sizeof(size_t)));
-	}
-}
-
-
 TEST_CASE("view::drop_back random-access-range")
 {
 	SECTION("empty") {

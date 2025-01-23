@@ -1,4 +1,5 @@
 #include "HotKey.hh"
+
 #include "InputEventFactory.hh"
 #include "GlobalCommandController.hh"
 #include "CommandException.hh"
@@ -8,14 +9,18 @@
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
+
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "view.hh"
+
 #include "build-info.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::string;
 
@@ -484,7 +489,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	default: {
 		// make a new binding
 		string command(arguments[1].getString());
-		for (const auto& arg : view::drop(arguments, 2)) {
+		for (const auto& arg : std::views::drop(arguments, 2)) {
 			strAppend(command, ' ', arg.getString());
 		}
 		HotKey::HotKeyInfo info(

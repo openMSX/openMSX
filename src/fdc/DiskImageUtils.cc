@@ -1,19 +1,22 @@
 #include "DiskImageUtils.hh"
+
 #include "DiskPartition.hh"
 #include "CommandException.hh"
 #include "BootBlocks.hh"
+
 #include "endian.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
 #include "strCat.hh"
-#include "view.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <bit>
 #include <cassert>
 #include <ctime>
+#include <ranges>
 
 namespace openmsx::DiskImageUtils {
 
@@ -533,7 +536,7 @@ static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::sp
 			link.sys_ind = 0x05; // EBR
 			if (i == 0) {
 				link.start = ptSector + 1 + size;
-				link.size = sum(view::drop(sizes, 1), [](unsigned s) { return 1 + s; });
+				link.size = sum(std::views::drop(sizes, 1), [](unsigned s) { return 1 + s; });
 			} else {
 				link.start = ptSector + 1 + size - (1 + clampedSizes[0]);
 				link.size = 1 + clampedSizes[i + 1];

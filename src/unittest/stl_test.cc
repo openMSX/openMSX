@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include "stl.hh"
 
-#include "view.hh"
 #include <list>
+#include <ranges>
 
 struct S {
 	S()                        { ++default_constructed; }
@@ -54,7 +54,7 @@ TEST_CASE("append")
 		CHECK(v == std::vector<int>{});
 	}
 	SECTION("non-empty + view") {
-		append(v45, view::drop(v123, 1));
+		append(v45, std::views::drop(v123, 1));
 		CHECK(v45 == std::vector<int>{4, 5, 2, 3});
 	}
 	SECTION("empty + l-value") {
@@ -144,13 +144,13 @@ TEST_CASE("to_vector: from view")
 {
 	std::vector<int> v1 = {1, 2, 3};
 	SECTION("deduce type") {
-		auto v = to_vector(view::drop(v1, 2));
+		auto v = to_vector(std::views::drop(v1, 2));
 		CHECK(v.size() == 1);
 		CHECK(v[0] == 3);
 		CHECK(std::is_same_v<decltype(v)::value_type, int>);
 	}
 	SECTION("convert type") {
-		auto v = to_vector<long long>(view::drop(v1, 1));
+		auto v = to_vector<long long>(std::views::drop(v1, 1));
 		CHECK(v.size() == 2);
 		CHECK(v[0] == 2LL);
 		CHECK(v[1] == 3LL);
@@ -224,7 +224,7 @@ TEST_CASE("to_vector: optimized r-value")
 #if 0
 std::vector<int> check1(const std::vector<int>& v)
 {
-	return to_vector(view::drop(v, 1));
+	return to_vector(std::views::drop(v, 1));
 }
 std::vector<int> check2(const std::vector<int>& v)
 {
