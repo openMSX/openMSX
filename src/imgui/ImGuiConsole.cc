@@ -26,6 +26,7 @@
 #include <imgui_stdlib.h>
 
 #include <fstream>
+#include <ranges>
 
 namespace openmsx {
 
@@ -398,7 +399,7 @@ void ImGuiConsole::saveHistory()
 		if (!outputFile) {
 			throw FileException("Error while saving the console history.");
 		}
-		for (const auto& s : view::reverse(history)) {
+		for (const auto& s : std::views::reverse(history)) {
 			outputFile << s << '\n';
 		}
 	} catch (FileException& e) {

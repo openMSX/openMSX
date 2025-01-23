@@ -1,17 +1,20 @@
 #include "OggReader.hh"
+
 #include "MSXException.hh"
 #include "yuv2rgb.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "stringsp.hh" // for strncasecmp
-#include "view.hh"
 #include "xrange.hh"
+
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
 #include <memory>
+#include <ranges>
 
 // TODO
 // - Improve error handling
@@ -224,7 +227,7 @@ OggReader::~OggReader()
 void OggReader::vorbisFoundPosition()
 {
 	auto last = vorbisPos;
-	for (const auto& audioFrag : view::reverse(audioList)) {
+	for (const auto& audioFrag : std::views::reverse(audioList)) {
 		last -= audioFrag->length;
 		audioFrag->position = last;
 	}
@@ -584,7 +587,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	// numbers correctly
 	if (!frameList.empty() && (frameno != size_t(-1)) &&
 	    (frameList[0]->no == size_t(-1))) {
-		for (auto& frm : view::reverse(frameList)) {
+		for (auto& frm : std::views::reverse(frameList)) {
 			frameno -= frm->length;
 			frm->no = frameno;
 		}

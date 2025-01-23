@@ -68,29 +68,6 @@ private:
 };
 
 
-template<typename Range>
-class Reverse
-{
-public:
-	constexpr explicit Reverse(Range&& range_)
-		: range(std::forward<Range>(range_))
-	{
-	}
-
-	[[nodiscard]] constexpr auto begin()  const { return range.rbegin(); }
-	[[nodiscard]] constexpr auto begin()        { return range.rbegin(); }
-	[[nodiscard]] constexpr auto end()    const { return range.rend(); }
-	[[nodiscard]] constexpr auto end()          { return range.rend(); }
-	[[nodiscard]] constexpr auto rbegin() const { return range.begin(); }
-	[[nodiscard]] constexpr auto rbegin()       { return range.begin(); }
-	[[nodiscard]] constexpr auto rend()   const { return range.end(); }
-	[[nodiscard]] constexpr auto rend()         { return range.end(); }
-
-private:
-	Range range;
-};
-
-
 template<typename Iterator, typename UnaryOp> class TransformIterator
 {
 public:
@@ -374,12 +351,6 @@ template<typename Range>
 [[nodiscard]] constexpr auto drop_back(Range&& range, size_t n)
 {
 	return detail::DropBack<Range>(std::forward<Range>(range), n);
-}
-
-template<typename Range>
-[[nodiscard]] constexpr auto reverse(Range&& range)
-{
-	return detail::Reverse<Range>(std::forward<Range>(range));
 }
 
 template<typename Range, typename UnaryOp>

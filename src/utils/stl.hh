@@ -324,7 +324,7 @@ void append(Result& x, Range&& y, Tail&&... tail)
 
 // Allow move from an rvalue-vector.
 // But don't allow to move from any rvalue-range. It breaks stuff like
-//   append(v, view::reverse(w));
+//   append(v, std::views::reverse(w));
 template<typename Result, typename T2, typename... Tail>
 void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
 {

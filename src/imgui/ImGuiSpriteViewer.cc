@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <ranges>
 #include <span>
 
 namespace openmsx {
@@ -611,7 +612,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 				if (mode == 1) {
 					auto visibleSprites = subspan(spriteBuffer[line], 0, count);
-					for (const auto& spr : view::reverse(visibleSprites)) {
+					for (const auto& spr : std::views::reverse(visibleSprites)) {
 						uint8_t colIdx = spr.colorAttrib & 0x0f;
 						if (colIdx == 0 && transparent) continue;
 						auto color = palette[colIdx];

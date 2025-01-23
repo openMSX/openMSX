@@ -11,7 +11,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -24,6 +23,7 @@
 #include <ctime>
 #include <fstream>
 #include <memory>
+#include <ranges>
 
 namespace openmsx {
 
@@ -469,7 +469,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	for (auto buf = fullBuf.subspan(transferred, amount);
-	     auto b : view::reverse(buf)) {
+	     auto b : std::views::reverse(buf)) {
 		send(b);
 	}
 	send(0xAF);
