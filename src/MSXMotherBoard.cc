@@ -47,12 +47,12 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <cassert>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <ranges>
 
 using std::make_unique;
 using std::string;
@@ -853,7 +853,7 @@ ListExtCmd::ListExtCmd(MSXMotherBoard& motherBoard_)
 void ListExtCmd::execute(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(
-		view::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
+		std::views::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
 }
 
 string ListExtCmd::help(std::span<const TclObject> /*tokens*/) const
@@ -945,7 +945,7 @@ string RemoveExtCmd::help(std::span<const TclObject> /*tokens*/) const
 void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			motherBoard.getExtensions(),
 			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
@@ -1005,7 +1005,7 @@ void MachineExtensionInfo::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?extension-instance-name?");
 	if (tokens.size() == 2) {
 		result.addListElements(
-			view::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
+			std::views::transform(motherBoard.getExtensions(), &HardwareConfig::getName));
 	} else if (tokens.size() == 3) {
 		std::string_view extName = tokens[2].getString();
 		const HardwareConfig* extension = motherBoard.findExtension(extName);
@@ -1025,7 +1025,7 @@ void MachineExtensionInfo::execute(std::span<const TclObject> tokens,
 		}
 		TclObject deviceList;
 		deviceList.addListElements(
-			view::transform(extension->getDevices(), &MSXDevice::getName));
+			std::views::transform(extension->getDevices(), &MSXDevice::getName));
 		result.addDictKeyValue("devices", deviceList);
 	}
 }
@@ -1038,7 +1038,7 @@ string MachineExtensionInfo::help(std::span<const TclObject> /*tokens*/) const
 void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			motherBoard.getExtensions(),
 			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
@@ -1058,7 +1058,7 @@ void MachineMediaInfo::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?media-slot-name?");
 	if (tokens.size() == 2) {
 		result.addListElements(
-			view::transform(providers, &ProviderInfo::name));
+			std::views::transform(providers, &ProviderInfo::name));
 	} else if (tokens.size() == 3) {
 		auto name = tokens[2].getString();
 		if (auto it = ranges::find(providers, name, &ProviderInfo::name);
@@ -1078,7 +1078,7 @@ string MachineMediaInfo::help(std::span<const TclObject> /*tokens*/) const
 void MachineMediaInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			providers, &ProviderInfo::name));
 	}
 }
@@ -1110,7 +1110,7 @@ void DeviceInfo::execute(std::span<const TclObject> tokens, TclObject& result) c
 	switch (tokens.size()) {
 	case 2:
 		result.addListElements(
-			view::transform(motherBoard.availableDevices,
+			std::views::transform(motherBoard.availableDevices,
 			                [](auto& d) { return d->getName(); }));
 		break;
 	case 3: {
@@ -1135,7 +1135,7 @@ string DeviceInfo::help(std::span<const TclObject> /*tokens*/) const
 void DeviceInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			motherBoard.availableDevices,
 			[](auto& d) -> std::string_view { return d->getName(); }));
 	}

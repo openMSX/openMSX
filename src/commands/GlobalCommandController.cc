@@ -17,7 +17,6 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include "build-info.hh"
@@ -449,7 +448,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		auto cmds = concat<string_view>(
-			view::keys(controller.commandCompleters),
+			std::views::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
 		std::erase_if(cmds, [](const auto& c) { return c.contains("::"); });
 		ranges::sort(cmds);

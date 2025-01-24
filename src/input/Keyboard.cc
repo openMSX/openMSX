@@ -27,7 +27,6 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_checked.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <SDL.h>
@@ -37,6 +36,7 @@
 #include <cassert>
 #include <cstdarg>
 #include <functional>
+#include <ranges>
 #include <type_traits>
 
 namespace openmsx {
@@ -2102,7 +2102,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	std::vector<std::string> eventStrs;
 	if constexpr (!Archive::IS_LOADER) {
-		eventStrs = to_vector(view::transform(
+		eventStrs = to_vector(std::views::transform(
 			eventQueue, [](const auto& e) { return toString(e); }));
 	}
 	ar.serialize("eventQueue", eventStrs);

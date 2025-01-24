@@ -20,12 +20,12 @@
 #include "narrow.hh"
 #include "join.hh"
 #include "strCat.hh"
-#include "view.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
 #include <cstdint>
+#include <ranges>
 #include <vector>
 
 using namespace std::literals;
@@ -332,7 +332,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 							len = pc - addr;
 							assert((1 <= len) && (len <= 3));
 							mnemonic = strCat("db     ", join(
-								view::transform(xrange(len),
+								std::views::transform(xrange(len),
 									[&](unsigned i) { return strCat('#', hex_string<2>(opcodes[i])); }),
 								','));
 						}
@@ -456,7 +456,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 									std::string tip(addrStr);
 									if (addrLabels.size() > 1) {
 										strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
-											join(view::transform(addrLabels, &Symbol::name), ' '));
+											join(std::views::transform(addrLabels, &Symbol::name), ' '));
 									}
 									return tip;
 								});
@@ -497,7 +497,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 										auto tip = strCat('#', hex_string<4>(*mnemonicAddr));
 										if (mnemonicLabels.size() > 1) {
 											strAppend(tip, "\nmultiple possibilities (click to cycle):\n",
-												join(view::transform(mnemonicLabels, &Symbol::name), ' '));
+												join(std::views::transform(mnemonicLabels, &Symbol::name), ' '));
 										}
 										return tip;
 									});

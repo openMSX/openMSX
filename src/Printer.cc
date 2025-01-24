@@ -10,7 +10,6 @@
 
 #include "Math.hh"
 #include "small_buffer.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -18,6 +17,7 @@
 #include <cassert>
 #include <cmath>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 namespace openmsx {
@@ -1594,7 +1594,7 @@ std::string Paper::save() const
 {
 	auto filename = FileOperations::getNextNumberedFileName(
 		PRINT_DIR, "page", PRINT_EXTENSION);
-	small_buffer<const uint8_t*, 4096> rowPointers(view::transform(xrange(sizeY),
+	small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(sizeY),
 		[&](size_t y) { return &buf[sizeX * y]; }));
 	PNG::saveGrayscale(sizeX, rowPointers, filename);
 	return filename;

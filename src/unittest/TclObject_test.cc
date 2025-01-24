@@ -1,10 +1,13 @@
 #include "catch.hpp"
+
 #include "Interpreter.hh"
 #include "TclObject.hh"
+
 #include "ranges.hh"
-#include "view.hh"
+
 #include <cstdint>
 #include <iterator>
+#include <ranges>
 #include <string>
 
 using namespace openmsx;
@@ -241,8 +244,8 @@ TEST_CASE("TclObject, addListElements")
 		t.addListElements(doubles);
 		CHECK(t.getListLength(interp) == 5);
 		CHECK(t.getListIndex(interp, 3).getString() == "1.2");
-		// view::transform
-		t.addListElements(view::transform(ints, [](int i) { return 2 * i; }));
+		// std::views::transform
+		t.addListElements(std::views::transform(ints, [](int i) { return 2 * i; }));
 		CHECK(t.getListLength(interp) == 8);
 		CHECK(t.getListIndex(interp, 7).getString() == "10");
 		// multiple

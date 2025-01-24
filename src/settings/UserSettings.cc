@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 namespace openmsx {
 
@@ -165,7 +166,7 @@ UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> toke
 
 	int initVal = -1;
 	int i = 0;
-	auto map = to_vector(view::transform(list, [&](const auto& s) {
+	auto map = to_vector(std::views::transform(list, [&](const auto& s) {
 		if (s == initStr) initVal = i;
 		return EnumSettingBase::MapEntry{std::string(s), i++};
 	}));

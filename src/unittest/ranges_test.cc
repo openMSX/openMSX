@@ -1,8 +1,10 @@
 #include "catch.hpp"
+
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
+
 #include <array>
+#include <ranges>
 #include <span>
 #include <string>
 #include <vector>
@@ -102,10 +104,10 @@ TEST_CASE("ranges::equal")
 		std::array a5 = {1, 2, 3, 4, 5};
 		auto is_even = [](const auto& e) { return (e & 1) == 0; };
 		auto is_odd  = [](const auto& e) { return (e & 1) == 1; };
-		auto ve = view::filter(a5, is_even);
-		auto vo = view::filter(a5, is_odd);
-		// The size of a "view::filter" is only known after the filter
-		// has been applied. This makes "view::filter" a non-size range.
+		auto ve = std::views::filter(a5, is_even);
+		auto vo = std::views::filter(a5, is_odd);
+		// The size of a "std::views::filter" is only known after the filter
+		// has been applied. This makes "std::views::filter" a non-size range.
 
 		CHECK( ranges::equal(ve, a2));
 		CHECK(!ranges::equal(ve, a3));

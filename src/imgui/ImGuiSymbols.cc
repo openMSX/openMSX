@@ -28,6 +28,7 @@
 #include <imgui.h>
 
 #include <cassert>
+#include <ranges>
 
 namespace openmsx {
 
@@ -357,7 +358,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 		});
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
-				auto tmp = to_vector(view::transform(symbolManager.getFiles(), [&](const auto& file) {
+				auto tmp = to_vector(std::views::transform(symbolManager.getFiles(), [&](const auto& file) {
 					return FileInfo{file.filename, std::string{}, file.type, file.slot};
 				}));
 				append(tmp, std::move(fileError));

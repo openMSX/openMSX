@@ -25,7 +25,6 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <cassert>
 #include <cmath>
@@ -821,7 +820,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
-		result.addListElements(view::transform(
+		result.addListElements(std::views::transform(
 			msxMixer.infos,
 			[](const auto& info) { return info.device->getName(); }));
 		break;
@@ -846,7 +845,7 @@ std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*to
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			OUTER(MSXMixer, soundDeviceInfo).infos,
 			[](auto& info) -> std::string_view { return info.device->getName(); }));
 	}

@@ -1,4 +1,5 @@
 #include "OSDImageBasedWidget.hh"
+
 #include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
 #include "Display.hh"
@@ -6,14 +7,16 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <ranges>
 
 using namespace gl;
 
@@ -101,7 +104,7 @@ static void set4(std::span<const uint32_t, 4> rgba, uint32_t mask, unsigned shif
 	if (ranges::all_equal(rgba)) {
 		result = (rgba[0] & mask) >> shift;
 	} else {
-		result.addListElements(view::transform(xrange(4), [&](auto i) {
+		result.addListElements(std::views::transform(xrange(4), [&](auto i) {
 			return int((rgba[i] & mask) >> shift);
 		}));
 	}

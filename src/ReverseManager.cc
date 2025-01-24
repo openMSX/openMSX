@@ -26,12 +26,12 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
-#include "view.hh"
 
 #include <array>
 #include <cassert>
 #include <cmath>
 #include <iomanip>
+#include <ranges>
 
 namespace openmsx {
 
@@ -232,7 +232,7 @@ void ReverseManager::status(TclObject& result) const
 	result.addDictKeyValue("current", getCurrent());
 
 	TclObject snapshots;
-	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
+	snapshots.addListElements(std::views::transform(history.chunks, [](auto& p) {
 		return (p.second.time - EmuTime::zero()).toDouble();
 	}));
 	result.addDictKeyValue("snapshots", snapshots);

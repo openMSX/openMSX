@@ -9,13 +9,13 @@
 #include "MemBuffer.hh"
 #include "DeltaBlock.hh"
 #include "outer.hh"
-#include "view.hh"
 
 #include <cstdint>
 #include <deque>
 #include <span>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string_view>
 #include <vector>
 
@@ -68,7 +68,7 @@ public:
 	[[nodiscard]] double getEnd() const;
 	[[nodiscard]] double getCurrent() const;
 	[[nodiscard]] auto getSnapshotTimes() const {
-		return view::transform(history.chunks, [](auto& p) {
+		return std::views::transform(history.chunks, [](auto& p) {
 			return (p.second.time - EmuTime::zero()).toDouble();
 		});
 	}

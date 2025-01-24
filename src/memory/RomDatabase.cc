@@ -13,11 +13,11 @@
 #include "rapidsax.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xxhash.hh"
 
 #include <array>
 #include <cassert>
+#include <ranges>
 #include <string_view>
 
 using std::string_view;
@@ -381,7 +381,7 @@ String32 DBParser::cIndex(string_view str) const
 // called on </software>
 void DBParser::addEntries()
 {
-	append(db, view::transform(dumps, [&](auto& d) {
+	append(db, std::views::transform(dumps, [&](auto& d) {
 		return RomDatabase::Entry{
 			d.hash,
 			RomInfo(title, year, company, country, d.origValue,

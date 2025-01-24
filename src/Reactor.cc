@@ -55,6 +55,7 @@
 #include <array>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::make_unique;
 using std::string;
@@ -396,7 +397,7 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	machines.reserve(names.size() + 1);
 	int count = 1;
-	append(machines, view::transform(names,
+	append(machines, std::views::transform(names,
 		[&](auto& name) { return EnumSettingBase::MapEntry(std::move(name), count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 

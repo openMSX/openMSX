@@ -1,11 +1,15 @@
 #include "MSXMultiMemDevice.hh"
+
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
+
 #include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
+
 #include <cassert>
+#include <ranges>
 
 namespace openmsx {
 
@@ -15,8 +19,8 @@ MSXMultiMemDevice::Range::Range(
 {
 }
 
-
 MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
+
 	: MSXMultiDevice(hwConf)
 {
 	// add sentinel at the end
@@ -60,7 +64,7 @@ void MSXMultiMemDevice::remove(MSXDevice& device, unsigned base, unsigned size)
 
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
-	return to_vector(view::transform(view::drop_back(ranges, 1),
+	return to_vector(std::views::transform(view::drop_back(ranges, 1),
 	                                 [](auto& rn) { return rn.device; }));
 }
 

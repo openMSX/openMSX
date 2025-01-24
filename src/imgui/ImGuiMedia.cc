@@ -29,7 +29,6 @@
 #include "ranges.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <CustomFont.h>
 #include <imgui.h>
@@ -38,6 +37,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <memory>
+#include <ranges>
 #include <sstream>
 #include <utility>
 
@@ -199,7 +199,7 @@ static std::string buildFilter(std::string_view description, std::span<const std
 {
 	auto formatExtensions = [&]() -> std::string {
 		if (extensions.size() <= 3) {
-			return join(view::transform(extensions,
+			return join(std::views::transform(extensions,
 			                [](const auto& ext) { return strCat("*.", ext); }),
 			       ' ');
 		} else {
@@ -208,7 +208,7 @@ static std::string buildFilter(std::string_view description, std::span<const std
 	};
 	return strCat(
 		description, " (", formatExtensions(), "){",
-		join(view::transform(extensions,
+		join(std::views::transform(extensions,
 		                     [](const auto& ext) { return strCat('.', ext); }),
 		     ','),
 		",.gz,.zip}");

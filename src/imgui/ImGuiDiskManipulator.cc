@@ -21,13 +21,13 @@
 #include "one_of.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xxhash.hh"
 
 #include <imgui_stdlib.h>
 
 #include <algorithm>
 #include <cassert>
+#include <ranges>
 
 namespace openmsx {
 
@@ -747,7 +747,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 						if (newDiskType == UNPARTITIONED) {
 							return std::vector<unsigned>(1, unpartitionedSize.asSectorCount());
 						} else {
-							return to_vector(view::transform(partitionSizes, &PartitionSize::asSectorCount));
+							return to_vector(std::views::transform(partitionSizes, &PartitionSize::asSectorCount));
 						}
 					}();
 					try {

@@ -61,7 +61,7 @@ void JoystickManager::remove(int instanceId)
 
 std::vector<JoystickId> JoystickManager::getConnectedJoysticks() const
 {
-	// TODO c++20 view::filter | view::transform
+	// TODO c++20 std::views::filter | std::views::transform
 	std::vector<JoystickId> result;
 	for (auto i : xrange(infos.size())) {
 		if (!infos[i].joystick) continue;

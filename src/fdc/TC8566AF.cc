@@ -4,15 +4,18 @@
  */
 
 #include "TC8566AF.hh"
+
 #include "DiskDrive.hh"
 #include "RawTrack.hh"
 #include "Clock.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+
 #include "one_of.hh"
 #include "serialize.hh"
-#include "view.hh"
 #include "xrange.hh"
+
+#include <ranges>
 
 namespace openmsx {
 
@@ -69,7 +72,7 @@ TC8566AF::TC8566AF(Scheduler& scheduler_, std::span<std::unique_ptr<DiskDrive>, 
 {
 	setDrqRate(RawTrack::STANDARD_SIZE);
 
-	ranges::copy(view::transform(drv, [](auto& p) { return p.get(); }),
+	ranges::copy(std::views::transform(drv, [](auto& p) { return p.get(); }),
 	             drive);
 	reset(time);
 }

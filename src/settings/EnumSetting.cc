@@ -1,12 +1,13 @@
 #include "EnumSetting.hh"
+
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
+
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh"
-#include "view.hh"
 
 namespace openmsx {
 

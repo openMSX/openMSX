@@ -24,12 +24,12 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <array>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::string;
 using std::string_view;
@@ -249,7 +249,7 @@ void Debugger::Cmd::execute(
 
 void Debugger::Cmd::list(TclObject& result)
 {
-	result.addListElements(view::keys(debugger().debuggables));
+	result.addListElements(std::views::keys(debugger().debuggables));
 }
 
 void Debugger::Cmd::desc(std::span<const TclObject> tokens, TclObject& result)
@@ -901,7 +901,7 @@ void Debugger::Cmd::probe(std::span<const TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
-	result.addListElements(view::transform(debugger().probes,
+	result.addListElements(std::views::transform(debugger().probes,
 		[](auto* p) { return p->getName(); }));
 }
 void Debugger::Cmd::probeDesc(std::span<const TclObject> tokens, TclObject& result)
@@ -1463,19 +1463,19 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 
 std::vector<string> Debugger::Cmd::getBreakPointIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		MSXCPUInterface::getBreakPoints(),
 		[](auto& bp) { return bp.getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getWatchPointIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
 		[](auto& w) { return w->getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getConditionIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		MSXCPUInterface::getConditions(),
 		[](auto& c) { return c.getIdStr(); }));
 }
@@ -1509,7 +1509,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			// this command takes (an) argument(s)
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
-				completeString(tokens, view::keys(debugger().debuggables));
+				completeString(tokens, std::views::keys(debugger().debuggables));
 			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv, "condition"sv)) {
 				static constexpr std::array subCmds = {
 					"list"sv, "create"sv,
@@ -1545,7 +1545,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	default:
 		if ((size == 4) && (tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
-			completeString(tokens, view::transform(
+			completeString(tokens, std::views::transform(
 				debugger().probes,
 				[](auto* p) -> std::string_view { return p->getName(); }));
 		} else if (tokens[1] == "breakpoint") {

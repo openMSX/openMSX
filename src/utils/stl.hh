@@ -308,7 +308,7 @@ template<typename Result, typename Range, typename... Tail>
 void append(Result& x, Range&& y, Tail&&... tail)
 {
 #ifdef _GLIBCXX_DEBUG
-	// Range can be a view::transform
+	// Range can be a std::views::transform
 	// but vector::insert in libstdc++ debug mode will wrongly try
 	// to take its address to check for self-insertion (see
 	// gcc/include/c++/7.1.0/debug/functions.h

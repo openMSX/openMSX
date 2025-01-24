@@ -22,7 +22,6 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include "xxhash.hh"
 
 #include "build-info.hh"
@@ -84,7 +83,7 @@ void CommandLineParser::registerOption(
 void CommandLineParser::registerFileType(
 	std::span<const string_view> extensions, CLIFileType& cliFileType)
 {
-	append(fileTypes, view::transform(extensions,
+	append(fileTypes, std::views::transform(extensions,
 		[&](auto& ext) { return FileTypeData{ext, &cliFileType}; }));
 }
 
@@ -154,7 +153,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 {
 	parseStatus = RUN;
 
-	auto cmdLineBuf = to_vector(view::transform(std::views::drop(argv, 1), [](const char* a) {
+	auto cmdLineBuf = to_vector(std::views::transform(std::views::drop(argv, 1), [](const char* a) {
 		return FileOperations::getConventionalPath(a);
 	}));
 	std::span<string> cmdLine(cmdLineBuf);
@@ -423,7 +422,7 @@ static string formatHelpText(string_view helpText,
 using GroupedItems = hash_map<string_view, std::vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
-	auto printSet = to_vector(view::transform(itemMap, [](auto& p) {
+	auto printSet = to_vector(std::views::transform(itemMap, [](auto& p) {
 		return strCat(formatSet(p.second, 15), ' ',
 		              formatHelpText(p.first, 50, 20));
 	}));
