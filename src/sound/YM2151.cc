@@ -17,6 +17,7 @@
 #include "ranges.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -921,7 +922,7 @@ YM2151::~YM2151()
 
 bool YM2151::checkMuteHelper()
 {
-	return ranges::all_of(oper, [](auto& op) { return op.state == EG_OFF; });
+	return std::ranges::all_of(oper, [](auto& op) { return op.state == EG_OFF; });
 }
 
 void YM2151::reset(EmuTime::param time)

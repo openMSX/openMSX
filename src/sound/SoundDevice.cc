@@ -14,6 +14,7 @@
 #include "one_of.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cmath>
@@ -262,7 +263,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 	generateChannels(bufs, narrow<unsigned>(samples));
 
 	if (!anySeparateChannel) {
-		return ranges::any_of(xrange(numChannels),
+		return std::ranges::any_of(xrange(numChannels),
 		                      [&](auto i) { return bufs[i]; });
 	}
 

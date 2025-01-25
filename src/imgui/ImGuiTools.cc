@@ -213,7 +213,7 @@ void ImGuiTools::nextScreenshotName()
 	if (prefix.ends_with(Display::SCREENSHOT_EXTENSION)) prefix.remove_suffix(Display::SCREENSHOT_EXTENSION.size());
 	if (prefix.size() > 4) {
 		auto counter = prefix.substr(prefix.size() - 4);
-		if (ranges::all_of(counter, [](char c) { return ('0' <= c) && (c <= '9'); })) {
+		if (std::ranges::all_of(counter, [](char c) { return ('0' <= c) && (c <= '9'); })) {
 			prefix.remove_suffix(4);
 			if (prefix.ends_with(' ') || prefix.ends_with('_')) {
 				prefix.remove_suffix(1);

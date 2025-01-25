@@ -75,7 +75,7 @@ bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 bool Completer::completeImpl(string& str, vector<string_view> matches,
                              bool caseSensitive)
 {
-	assert(ranges::all_of(matches, [&](auto& m) {
+	assert(std::ranges::all_of(matches, [&](auto& m) {
 		return equalHead(str, m, caseSensitive);
 	}));
 

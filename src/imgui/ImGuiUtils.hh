@@ -264,7 +264,7 @@ void filterIndices(std::string_view filterString, GetName getName, std::vector<s
 	if (filterString.empty()) return;
 	std::erase_if(indices, [&](auto idx) {
 		const auto& name = getName(idx);
-		return !ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterString, ' '),
+		return !std::ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterString, ' '),
 			[&](auto part) { return StringOp::containsCaseInsensitive(name, part); });
 	});
 }

@@ -474,7 +474,7 @@ uint16_t YMF278::nextPos(const Slot& slot, uint16_t pos, uint16_t increment)
 
 bool YMF278::anyActive()
 {
-	return ranges::any_of(slots, [](auto& op) { return op.state != EG_OFF; });
+	return std::ranges::any_of(slots, [](auto& op) { return op.state != EG_OFF; });
 }
 
 // In: 'envVol', 0=max volume, others -> -3/32 = -0.09375 dB/step

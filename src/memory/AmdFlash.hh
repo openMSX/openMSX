@@ -6,9 +6,9 @@
 #include "cstd.hh"
 #include "narrow.hh"
 #include "power_of_two.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -78,7 +78,7 @@ public:
 		size_t sectorCount;
 
 		constexpr void validate() const {
-			assert(ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
+			assert(std::ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
 			assert(narrow_cast<unsigned>(cstd::abs(writeProtectPinRange)) <= sectorCount);
 		}
 	};

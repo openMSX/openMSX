@@ -16,7 +16,6 @@
 #include "FileOperations.hh"
 #include "MSXCliComm.hh"
 
-#include "stl.hh"
 #include "aligned.hh"
 #include "enumerate.hh"
 #include "inplace_buffer.hh"
@@ -24,8 +23,10 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -589,7 +590,7 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 
 bool MSXMixer::needStereoRecording() const
 {
-	return ranges::any_of(infos, [](auto& info) {
+	return std::ranges::any_of(infos, [](auto& info) {
 		return info.device->isStereo() ||
 		       info.balanceSetting->getInt() != 0;
 	});

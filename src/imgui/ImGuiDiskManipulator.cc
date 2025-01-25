@@ -448,7 +448,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 		auto byPos = (availableSize.y - b2Height) * 0.5f;
 		im::Group([&]{
 			ImGui::Dummy({0.0f, byPos});
-			im::Disabled(!writable || ranges::none_of(hostFileCache, &FileInfo::isSelected), [&]{
+			im::Disabled(!writable || std::ranges::none_of(hostFileCache, &FileInfo::isSelected), [&]{
 				if (ImGui::Button("<<")) {
 					if (setupTransferHostToMsx(*stuff)) {
 						openCheckTransfer = true;
@@ -456,7 +456,7 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 				}
 				simpleToolTip("Transfer files or directories from host to MSX");
 			});
-			im::Disabled(!stuff || ranges::none_of(msxFileCache, &FileInfo::isSelected), [&]{
+			im::Disabled(!stuff || std::ranges::none_of(msxFileCache, &FileInfo::isSelected), [&]{
 				if (ImGui::Button(">>")) transferMsxToHost(*stuff);
 				simpleToolTip("Transfer files or directories from MSX to host");
 			});

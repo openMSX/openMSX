@@ -26,6 +26,7 @@ A million repetitions of "a"
 #include "narrow.hh"
 #include "ranges.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cstring>
@@ -245,7 +246,7 @@ std::string Sha1Sum::toString() const
 
 bool Sha1Sum::empty() const
 {
-	return ranges::all_of(a, [](auto& e) { return e == 0; });
+	return std::ranges::all_of(a, [](auto& e) { return e == 0; });
 }
 void Sha1Sum::clear()
 {

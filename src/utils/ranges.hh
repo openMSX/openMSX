@@ -184,42 +184,6 @@ template<typename InputRange, typename UnaryPredicate>
 	return it;
 }
 
-template<typename InputRange, typename UnaryPredicate>
-[[nodiscard]] constexpr bool all_of(InputRange&& range, UnaryPredicate pred)
-{
-	//return std::all_of(std::begin(range), std::end(range), pred);
-	auto it = std::begin(range);
-	auto et = std::end(range); // allow 'it' and 'et' to have different types
-	for (/**/; it != et; ++it) {
-		if (!std::invoke(pred, *it)) return false;
-	}
-	return true;
-}
-
-template<typename InputRange, typename UnaryPredicate>
-[[nodiscard]] constexpr bool any_of(InputRange&& range, UnaryPredicate pred)
-{
-	//return std::any_of(std::begin(range), std::end(range), pred);
-	auto it = std::begin(range);
-	auto et = std::end(range); // allow 'it' and 'et' to have different types
-	for (/**/; it != et; ++it) {
-		if (std::invoke(pred, *it)) return true;
-	}
-	return false;
-}
-
-template<typename InputRange, typename UnaryPredicate>
-[[nodiscard]] constexpr bool none_of(InputRange&& range, UnaryPredicate pred)
-{
-	//return std::none_of(std::begin(range), std::end(range), pred);
-	auto it = std::begin(range);
-	auto et = std::end(range); // allow 'it' and 'et' to have different types
-	for (/**/; it != et; ++it) {
-		if (std::invoke(pred, *it)) return false;
-	}
-	return true;
-}
-
 template<typename ForwardRange>
 [[nodiscard]] auto unique(ForwardRange&& range)
 {

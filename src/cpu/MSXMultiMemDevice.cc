@@ -8,6 +8,7 @@
 #include "stl.hh"
 #include "view.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <ranges>
 
@@ -46,7 +47,7 @@ static constexpr bool overlap(unsigned start1, unsigned size1,
 
 bool MSXMultiMemDevice::canAdd(unsigned base, unsigned size)
 {
-	return ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
+	return std::ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
 		return overlap(base, size, rn.base, rn.size);
 	});
 }

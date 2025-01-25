@@ -55,6 +55,8 @@
 
 #include <SDL.h>
 
+#include <algorithm>
+
 namespace openmsx {
 
 using namespace std::literals;
@@ -309,7 +311,7 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 	};
 
 	if (const auto& monitors = ImGui::GetPlatformIO().Monitors;
-	    !monitors.empty() && ranges::none_of(monitors, overlaps)) {
+	    !monitors.empty() && std::ranges::none_of(monitors, overlaps)) {
 		// window isn't visible in any of the monitors
 		// -> place centered on primary monitor
 		return gl::ivec2(SDL_WINDOWPOS_CENTERED);

@@ -16,9 +16,9 @@
 
 #include "build-info.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
-#include <memory>
 #include <ranges>
 
 using std::string;
@@ -174,7 +174,7 @@ struct EqualEvent {
 
 static bool contains(auto&& range, const Event& event)
 {
-	return ranges::any_of(range, EqualEvent(event));
+	return std::ranges::any_of(range, EqualEvent(event));
 }
 
 template<typename T>

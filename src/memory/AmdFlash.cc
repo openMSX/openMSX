@@ -1,4 +1,5 @@
 #include "AmdFlash.hh"
+
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
@@ -6,12 +7,15 @@
 #include "MSXDevice.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <iterator>
@@ -708,7 +712,7 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	(void)addrSeq; (void)cmdAddr; // suppress (invalid) gcc warning
 
 	assert(dataSeq.size() <= 5);
-	return ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
+	return std::ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
 		// convert byte address to native address
 		auto addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[i].addr >> 1 : cmd[i].addr;
 		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&

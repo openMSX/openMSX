@@ -15,6 +15,7 @@
 #include <imgui_stdlib.h>
 #include <imgui.h>
 
+#include <algorithm>
 #include <cassert>
 #include <concepts>
 #include <utility>
@@ -310,7 +311,7 @@ void ImGuiMessages::paintLog()
 			printMessages(allMessages, [&](std::string_view prefix, std::string_view message) {
 				if (filterLog.empty()) return true;
 				auto full = tmpStrCat(prefix, message);
-				return ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterLog, ' '),
+				return std::ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterLog, ' '),
 					[&](auto part) { return StringOp::containsCaseInsensitive(full, part); });
 			});
 		});
