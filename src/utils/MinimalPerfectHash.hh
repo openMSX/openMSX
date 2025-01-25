@@ -7,6 +7,8 @@
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -142,7 +144,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Change unused entries to zero because it must be valid indices (< N).
-	ranges::replace(r.tab2, UNUSED, uint8_t(0));
+	std::ranges::replace(r.tab2, UNUSED, uint8_t(0));
 	return r;
 }
 

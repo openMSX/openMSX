@@ -47,9 +47,10 @@
 #include "StringOp.hh"
 #include "unistdp.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "strCat.hh"
+
 #include "build-info.hh"
+
 #include <algorithm>
 #include <array>
 #include <sstream>
@@ -331,13 +332,13 @@ string join(string_view part1, string_view part2,
 #ifdef _WIN32
 string getNativePath(string path)
 {
-	ranges::replace(path, '/', '\\');
+	std::ranges::replace(path, '/', '\\');
 	return path;
 }
 
 string getConventionalPath(string path)
 {
-	ranges::replace(path, '\\', '/');
+	std::ranges::replace(path, '\\', '/');
 	return path;
 }
 #endif

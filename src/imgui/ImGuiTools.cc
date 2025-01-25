@@ -24,6 +24,7 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -140,7 +141,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			const auto& toys = getAllToyScripts(manager);
 			for (const auto& toy : toys) {
 				std::string displayText = toy.substr(7);
-				ranges::replace(displayText, '_', ' ');
+				std::ranges::replace(displayText, '_', ' ');
 				if (ImGui::MenuItem(displayText.c_str())) {
 					manager.executeDelayed(TclObject(toy));
 				}

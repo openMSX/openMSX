@@ -49,6 +49,7 @@
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <optional>
 #include <utility>
 
@@ -166,7 +167,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				SliderInt("Glow (%)", renderSettings.getGlowSetting());
 				if (auto* monitor = dynamic_cast<Setting*>(settingsManager.findSetting("monitor_type"))) {
 					ComboBox("Monitor type", *monitor, [](std::string s) {
-						ranges::replace(s, '_', ' ');
+						std::ranges::replace(s, '_', ' ');
 						return s;
 					});
 				}

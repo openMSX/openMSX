@@ -275,7 +275,7 @@ void ImGuiManager::updateParts()
 {
 	if (removeParts) {
 		removeParts = false;
-		parts.erase(ranges::remove(parts, nullptr), parts.end());
+		std::erase(parts, nullptr);
 	}
 
 	append(parts, toBeAddedParts);

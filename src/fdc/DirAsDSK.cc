@@ -241,7 +241,7 @@ static std::array<char, 11> hostToMsxName(string hostName)
 	ranges::fill(result, ' ');
 	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
 	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
-	ranges::replace(result, '.', '_');
+	std::ranges::replace(result, '.', '_');
 	return result;
 }
 
