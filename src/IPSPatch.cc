@@ -1,9 +1,13 @@
 #include "IPSPatch.hh"
+
 #include "File.hh"
 #include "Filename.hh"
 #include "MSXException.hh"
+
 #include "ranges.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -17,12 +21,12 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 
 	std::array<uint8_t, 5> header;
 	ipsFile.read(header);
-	if (!ranges::equal(header, std::string_view("PATCH"))) {
+	if (!std::ranges::equal(header, std::string_view("PATCH"))) {
 		throw MSXException("Invalid IPS file: ", filename.getOriginal());
 	}
 	std::array<uint8_t, 3> offsetBuf;
 	ipsFile.read(offsetBuf);
-	while (!ranges::equal(offsetBuf, std::string_view("EOF"))) {
+	while (!std::ranges::equal(offsetBuf, std::string_view("EOF"))) {
 		size_t offset = 0x10000 * offsetBuf[0] + 0x100 * offsetBuf[1] + offsetBuf[2];
 		std::array<uint8_t, 2> lenBuf;
 		ipsFile.read(lenBuf);

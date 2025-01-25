@@ -709,8 +709,8 @@ void MSXtar::deleteEntry(MSXDirEntry& msxDirEntry)
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
 		if (const auto& msxName = msxDirEntry.filename;
-		    ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		    std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
 		}
@@ -786,7 +786,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < DIR_ENTRIES_PER_SECTOR; ++result.index) {
-			if (ranges::equal(buf.dirEntry[result.index].filename, msxName)) {
+			if (std::ranges::equal(buf.dirEntry[result.index].filename, msxName)) {
 				return result;
 			}
 		}

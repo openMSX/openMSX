@@ -3,6 +3,7 @@
 #include "ranges.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -68,7 +69,7 @@ static constexpr struct EnvTables {
 constexpr int find_64(std::span<const uint8_t, 64> needle, std::span<std::array<uint8_t, 64>> haystack) // TODO use c++20 std::find
 {
 	for (auto [i, candidate] : enumerate(haystack)) {
-		if (ranges::equal(needle, candidate)) return narrow<int>(i);
+		if (std::ranges::equal(needle, candidate)) return narrow<int>(i);
 	}
 	return -1;
 }

@@ -12,6 +12,8 @@
 #include "serialize.hh"
 #include "small_buffer.hh"
 
+#include <algorithm>
+
 namespace openmsx {
 
 // class SRAM
@@ -92,7 +94,7 @@ void SRAM::load(bool* loaded)
 			size_t length = strlen(header);
 			small_buffer<char, 64> buf(uninitialized_tag{}, length);
 			file.read(std::span{buf});
-			headerOk = ranges::equal(buf, std::span{header, length});
+			headerOk = std::ranges::equal(buf, std::span{header, length});
 		}
 		if (headerOk) {
 			file.read(ram.getWriteBackdoor());

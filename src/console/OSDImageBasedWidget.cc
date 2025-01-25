@@ -92,7 +92,7 @@ void OSDImageBasedWidget::setProperty(
 
 void OSDImageBasedWidget::setRGBA(std::span<const uint32_t, 4> newRGBA)
 {
-	if (ranges::equal(rgba, newRGBA)) {
+	if (std::ranges::equal(rgba, newRGBA)) {
 		return; // not changed
 	}
 	invalidateLocal();

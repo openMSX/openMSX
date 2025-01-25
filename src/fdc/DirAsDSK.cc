@@ -198,7 +198,7 @@ bool DirAsDSK::checkMSXFileExists(
 
 		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
-			if (ranges::equal(msxDir(dirIndex).filename, msxFilename)) {
+			if (std::ranges::equal(msxDir(dirIndex).filename, msxFilename)) {
 				return true;
 			}
 		}
@@ -463,8 +463,8 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
 		if (const auto& msxName = msxDir(dirIndex).filename;
-		    ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		    std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
 		}
@@ -944,7 +944,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	}
 	// At this point there should be no more differences.
 	// Note: we can't use
-	//   assert(ranges::equal(fat(), oldFAT));
+	//   assert(std::ranges::equal(fat(), oldFAT));
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unused part at the end. And for example the 'CALL
@@ -1181,8 +1181,8 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		mapDirs[dirIndex].hostName = hostName;
 	}
 	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
-		if (ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		if (std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// Don't export "." or "..".
 			return;
 		}
@@ -1282,7 +1282,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 		}
 	}
 	// At this point sector should be updated.
-	assert(ranges::equal(sectors[sector].raw, buf.raw));
+	assert(std::ranges::equal(sectors[sector].raw, buf.raw));
 }
 
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
