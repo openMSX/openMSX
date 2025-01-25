@@ -332,7 +332,7 @@ Cluster MSXtar::findFirstFreeCluster()
 
 unsigned MSXtar::countFreeClusters() const
 {
-	return narrow<unsigned>(ranges::count_if(xrange(findFirstFreeClusterStart.index, clusterCount),
+	return narrow<unsigned>(std::ranges::count_if(xrange(findFirstFreeClusterStart.index, clusterCount),
 		[&](unsigned cluster) { return readFAT({cluster}) == FatCluster(Free{}); }));
 }
 

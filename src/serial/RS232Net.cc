@@ -8,9 +8,9 @@
 #include "serialize.hh"
 
 #include "checked_cast.hh"
-#include "ranges.hh"
 #include "StringOp.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -122,7 +122,7 @@ static std::optional<RS232Net::NetworkSocketAddress> parseNetworkAddress(std::st
 		portPart    = std::string(ipv6_port_part   .substr(1)); // drop ':'
 		setIPv6();
 	} else {
-		auto numColons = ranges::count(address, ':');
+		auto numColons = std::ranges::count(address, ':');
 		if (numColons == 0) {
 			// either IPv4 or IPv6
 			addressPart = std::string(address);

@@ -345,25 +345,6 @@ template<typename InputRange, typename T, typename BinaryOperation>
 	return std::accumulate(std::begin(range), std::end(range), init, op);
 }
 
-template<typename InputRange, typename T>
-[[nodiscard]] auto count(InputRange&& range, const T& value)
-{
-	return std::count(std::begin(range), std::end(range), value);
-}
-
-template<typename InputRange, typename UnaryPredicate>
-[[nodiscard]] auto count_if(InputRange&& range, UnaryPredicate pred)
-{
-	auto first = std::begin(range);
-	auto last = std::end(range);
-	typename std::iter_difference_t<decltype(first)> count = 0;
-	while (first != last) {
-		if (std::invoke(pred, *first++)) ++count;
-	}
-	return count;
-	//return std::count_if(std::begin(range), std::end(range), pred);
-}
-
 template<typename InputRange1, typename InputRange2, typename OutputIter>
 auto set_difference(InputRange1&& range1, InputRange2&& range2, OutputIter out)
 {

@@ -7,9 +7,9 @@
 
 #include "TclObject.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "strCat.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <optional>
@@ -56,7 +56,7 @@ public:
 		return slots[slot].exists();
 	}
 	[[nodiscard]] int getNumberOfSlots() const {
-		return narrow<int>(ranges::count_if(slots, &Slot::exists));
+		return narrow<int>(std::ranges::count_if(slots, &Slot::exists));
 	}
 	[[nodiscard]] const HardwareConfig* getConfigForSlot(unsigned slot) const {
 		assert(slot < MAX_SLOTS);

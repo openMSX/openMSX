@@ -15,6 +15,7 @@
 #include "stl.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -692,7 +693,7 @@ static size_t weight(const string& hostName)
 	size_t result = 0;
 	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	// too many '.' characters
-	result += ranges::count(file, '.') * 100;
+	result += std::ranges::count(file, '.') * 100;
 	// too long extension
 	result += ext.size() * 10;
 	// too long file
