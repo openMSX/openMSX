@@ -317,7 +317,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
 {
 	auto& allExtensions = getAllExtensions();
-	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
+	auto it = std::ranges::find(allExtensions, config, &ExtensionInfo::configName);
 	return (it != allExtensions.end()) ? std::to_address(it) : nullptr;
 }
 

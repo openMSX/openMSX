@@ -33,6 +33,8 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+
 using namespace std::literals;
 
 namespace openmsx {
@@ -91,7 +93,7 @@ template<typename T>
 static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
 {
 	// prefer to reuse a previously closed viewer
-	if (auto it = ranges::find(viewers, false, &T::show); it != viewers.end()) {
+	if (auto it = std::ranges::find(viewers, false, &T::show); it != viewers.end()) {
 		(*it)->show = true;
 		return;
 	}

@@ -107,7 +107,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
 		if (ImGui::MenuItem("Simple notes widget ...")) {
-			if (auto it = ranges::find(notes, false, &Note::show);
+			if (auto it = std::ranges::find(notes, false, &Note::show);
 			    it != notes.end()) {
 				// reopen a closed note
 				it->show = true;

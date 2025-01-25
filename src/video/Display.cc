@@ -27,11 +27,11 @@
 
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -125,7 +125,7 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findActiveLayer() const
 {
-	auto it = ranges::find_if(layers, &Layer::isActive);
+	auto it = std::ranges::find_if(layers, &Layer::isActive);
 	return (it != layers.end()) ? *it : nullptr;
 }
 
@@ -389,7 +389,7 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	auto z = layer.getZ();
-	auto it = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
+	auto it = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }
@@ -403,7 +403,7 @@ void Display::updateZ(Layer& layer)
 {
 	auto oldPos = rfind_unguarded(layers, &layer);
 	auto z = layer.getZ();
-	auto newPos = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
+	auto newPos = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
 
 	if (oldPos == newPos) {
 		return;

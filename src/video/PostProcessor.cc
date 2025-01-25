@@ -502,7 +502,7 @@ void PostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture on demand
-	auto it = ranges::find(textures, lineWidth, &TextureData::width);
+	auto it = std::ranges::find(textures, lineWidth, &TextureData::width);
 	if (it == end(textures)) {
 		TextureData textureData;
 		textureData.tex.resize(narrow<GLsizei>(lineWidth),

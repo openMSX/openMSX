@@ -15,10 +15,10 @@
 #include "TclObject.hh"
 
 #include "StringOp.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <iterator>
 #include <memory>
 #include <ranges>
@@ -309,7 +309,7 @@ void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*r
 						 return cmd.getId() == id;
 					}, afterCmdPool[idx]);
 				};
-				if (auto it = ranges::find_if(afterCmds, equalId);
+				if (auto it = std::ranges::find_if(afterCmds, equalId);
 				    it != end(afterCmds)) {
 					auto idx = *it;
 					afterCmds.erase(it);
@@ -327,7 +327,7 @@ void AfterCommand::afterCancel(std::span<const TclObject> tokens, TclObject& /*r
 			return cmd.getCommand() == cmdStr;
 		}, afterCmdPool[idx]);
 	};
-	if (auto it = ranges::find_if(afterCmds, equalCmd);
+	if (auto it = std::ranges::find_if(afterCmds, equalCmd);
 	    it != end(afterCmds)) {
 		auto idx = *it;
 		afterCmds.erase(it);

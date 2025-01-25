@@ -21,6 +21,7 @@
 
 #include "build-info.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <ranges>
@@ -84,7 +85,7 @@ void GlobalCommandController::unregisterProxyCommand(string_view name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(string_view name)
 {
-	return ranges::find(proxySettings, name,
+	return std::ranges::find(proxySettings, name,
 		[](auto& v) { return v.first->getFullName(); });
 }
 

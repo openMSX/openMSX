@@ -22,6 +22,7 @@
 #include "stl.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
@@ -99,7 +100,7 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, std::span<const int16_t, HALF_TAB_LEN>& permute, float*& table, unsigned& filterLen)
 {
-	if (auto it = ranges::find(cache, ratio, &Element::ratio);
+	if (auto it = std::ranges::find(cache, ratio, &Element::ratio);
 	    it != end(cache)) {
 		permute   = std::span<int16_t, HALF_TAB_LEN>{it->permute};
 		table     = it->table.data();

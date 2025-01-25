@@ -3,9 +3,9 @@
 #include "CommandException.hh"
 
 #include "join.hh"
-#include "ranges.hh"
 #include "stl.hh"
 
+#include <algorithm>
 #include <ranges>
 
 namespace openmsx {
@@ -24,7 +24,7 @@ std::vector<TclObject> parseTclArgs(Interpreter& interp, std::span<const TclObje
 				append(outArgs, inArgs);
 				break;
 			}
-			auto it = ranges::find(table, argStr, &ArgsInfo::name);
+			auto it = std::ranges::find(table, argStr, &ArgsInfo::name);
 			if (it == table.end()) {
 				throw CommandException(
 					"Invalid option: '", argStr, "'. Must be one of ",

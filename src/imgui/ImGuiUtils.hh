@@ -211,7 +211,7 @@ void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Proje
 	const std::vector<std::pair<std::string, std::string>>& info,
 	std::string_view key)
 {
-	auto it = ranges::find_if(info, [&](const auto& p) { return p.first == key; });
+	auto it = std::ranges::find_if(info, [&](const auto& p) { return p.first == key; });
 	if (it == info.end()) return {};
 	return &it->second;
 }
@@ -278,7 +278,7 @@ void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>&
 template<typename T>
 void addRecentItem(circular_buffer<T>& recentItems, const T& item)
 {
-	if (auto it = ranges::find(recentItems, item); it != recentItems.end()) {
+	if (auto it = std::ranges::find(recentItems, item); it != recentItems.end()) {
 		// was already present, move to front
 		std::rotate(recentItems.begin(), it, it + 1);
 	} else {

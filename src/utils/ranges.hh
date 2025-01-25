@@ -158,32 +158,6 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 	return std::equal_range(std::begin(range), std::end(range), value, Comp2{comp, proj});
 }
 
-template<typename InputRange, typename T>
-[[nodiscard]] auto find(InputRange&& range, const T& value)
-{
-	return std::find(std::begin(range), std::end(range), value);
-}
-
-template<typename InputRange, typename T, typename Proj>
-[[nodiscard]] auto find(InputRange&& range, const T& value, Proj proj)
-{
-	return find_if(std::forward<InputRange>(range),
-	               [&](const auto& e) { return std::invoke(proj, e) == value; });
-}
-
-template<typename InputRange, typename UnaryPredicate>
-[[nodiscard]] auto find_if(InputRange&& range, UnaryPredicate pred)
-{
-	auto it = std::begin(range);
-	auto et = std::end(range);
-	for (/**/; it != et; ++it) {
-		if (std::invoke(pred, *it)) {
-			return it;
-		}
-	}
-	return it;
-}
-
 template<typename ForwardRange>
 [[nodiscard]] auto unique(ForwardRange&& range)
 {

@@ -9,6 +9,8 @@
 #include "stl.hh"
 #include "stringsp.hh"
 
+#include <algorithm>
+
 namespace openmsx {
 
 EnumSettingBase::EnumSettingBase(Map&& map)
@@ -27,7 +29,7 @@ int EnumSettingBase::fromStringBase(std::string_view str) const
 
 std::string_view EnumSettingBase::toStringBase(int value) const
 {
-	auto it = ranges::find(baseMap, value, &MapEntry::value);
+	auto it = std::ranges::find(baseMap, value, &MapEntry::value);
 	assert(it != baseMap.end());
 	return it->name;
 }

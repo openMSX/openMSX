@@ -265,10 +265,10 @@ void ImGuiManager::registerPart(ImGuiPartInterface* part)
 
 void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
 {
-	if (auto it1 = ranges::find(parts, part); it1 != parts.end()) {
+	if (auto it1 = std::ranges::find(parts, part); it1 != parts.end()) {
 		*it1 = nullptr;
 		removeParts = true; // filter nullptr later
-	} else if (auto it2 = ranges::find(toBeAddedParts, part); it2 != toBeAddedParts.end()) {
+	} else if (auto it2 = std::ranges::find(toBeAddedParts, part); it2 != toBeAddedParts.end()) {
 		toBeAddedParts.erase(it2); // fine to remove now
 	}
 }

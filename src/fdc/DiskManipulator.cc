@@ -22,11 +22,11 @@
 #include "TclObject.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cctype>
@@ -118,9 +118,9 @@ DiskContainer* DiskManipulator::getDrive(std::string_view fullName) const
 		? fullName.substr(0, pos) // drop partition number
 		: fullName;
 
-	auto it = ranges::find(drives, driveName, &DriveSettings::driveName);
+	auto it = std::ranges::find(drives, driveName, &DriveSettings::driveName);
 	if (it == end(drives)) {
-		it = ranges::find(drives, tmpStrCat(getMachinePrefix(), driveName), &DriveSettings::driveName);
+		it = std::ranges::find(drives, strCat(getMachinePrefix(), driveName), &DriveSettings::driveName);
 		if (it == end(drives)) {
 			return {}; // drive doesn't exist
 		}
@@ -170,13 +170,13 @@ void DiskManipulator::DriveSettings::setWorkingDir(unsigned p, std::string_view 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	return ranges::find(drives, &drive, &DriveSettings::drive);
+	return std::ranges::find(drives, &drive, &DriveSettings::drive);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	string_view driveName)
 {
-	return ranges::find(drives, driveName, &DriveSettings::driveName);
+	return std::ranges::find(drives, driveName, &DriveSettings::driveName);
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(

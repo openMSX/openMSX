@@ -1,9 +1,12 @@
 #include "VideoSourceSetting.hh"
+
 #include "CommandException.hh"
 #include "Completer.hh"
+
 #include "StringOp.hh"
-#include "ranges.hh"
 #include "stl.hh"
+
+#include <algorithm>
 
 namespace openmsx {
 
@@ -129,7 +132,7 @@ bool VideoSourceSetting::has(int val) const
 
 int VideoSourceSetting::has(std::string_view val) const
 {
-	auto it = ranges::find_if(sources, [&](auto& p) {
+	auto it = std::ranges::find_if(sources, [&](auto& p) {
 		StringOp::casecmp cmp;
 		return cmp(p.name, val);
 	});

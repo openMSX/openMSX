@@ -88,7 +88,7 @@ void MSXMultiMemDevice::getNameList(TclObject& result) const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	auto it = ranges::find_if(ranges, [&](const auto& r) { return isInside(address, r.base, r.size); });
+	auto it = std::ranges::find_if(ranges, [&](const auto& r) { return isInside(address, r.base, r.size); });
 	assert(it != ranges.end());
 	return *it;
 }

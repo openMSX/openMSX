@@ -12,7 +12,6 @@
 
 #include "one_of.hh"
 #include "outer.hh"
-#include "ranges.hh"
 
 #include "build-info.hh"
 
@@ -180,14 +179,14 @@ static bool contains(auto&& range, const Event& event)
 template<typename T>
 static void erase(std::vector<T>& v, const Event& event)
 {
-	if (auto it = ranges::find_if(v, EqualEvent(event)); it != end(v)) {
+	if (auto it = std::ranges::find_if(v, EqualEvent(event)); it != end(v)) {
 		move_pop_back(v, it);
 	}
 }
 
 static void insert(HotKey::KeySet& set, const Event& event)
 {
-	if (auto it = ranges::find_if(set, EqualEvent(event)); it != end(set)) {
+	if (auto it = std::ranges::find_if(set, EqualEvent(event)); it != end(set)) {
 		*it = event;
 	} else {
 		set.push_back(event);
@@ -197,7 +196,7 @@ static void insert(HotKey::KeySet& set, const Event& event)
 template<typename HotKeyInfo>
 static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 {
-	if (auto it = ranges::find_if(map, EqualEvent(info.event)); it != end(map)) {
+	if (auto it = std::ranges::find_if(map, EqualEvent(info.event)); it != end(map)) {
 		*it = std::forward<HotKeyInfo>(info);
 	} else {
 		map.push_back(std::forward<HotKeyInfo>(info));
@@ -214,7 +213,7 @@ void HotKey::bind(HotKeyInfo&& info)
 
 void HotKey::unbind(const Event& event)
 {
-	if (auto it1 = ranges::find_if(boundKeys, EqualEvent(event));
+	if (auto it1 = std::ranges::find_if(boundKeys, EqualEvent(event));
 	    it1 == end(boundKeys)) {
 		// only when not a regular bound event
 		insert(unboundKeys, event);
@@ -275,7 +274,7 @@ void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	if (auto it = ranges::find(std::views::reverse(activeLayers), layer, &LayerInfo::layer);
+	if (auto it = std::ranges::find(std::views::reverse(activeLayers), layer, &LayerInfo::layer);
 	    it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());
@@ -285,7 +284,7 @@ void HotKey::deactivateLayer(std::string_view layer)
 static HotKey::BindMap::const_iterator findMatch(
 	const HotKey::BindMap& map, const Event& event, bool msx)
 {
-	return ranges::find_if(map, [&](auto& p) {
+	return std::ranges::find_if(map, [&](auto& p) {
 		return (p.msx == msx) && matches(p.event, event);
 	});
 }
@@ -477,7 +476,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	}
 	case 1: {
 		// show bindings for this key (in this layer)
-		auto it = ranges::find_if(cMap,
+		auto it = std::ranges::find_if(cMap,
 		                          EqualEvent(createEvent(arguments[0], getInterpreter())));
 		if (it == end(cMap)) {
 			throw CommandException("Key not bound");

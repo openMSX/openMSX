@@ -6,12 +6,12 @@
 #include "TclObject.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <fstream>
@@ -453,7 +453,7 @@ bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty,
 	auto file = loadSymbolFile(filename, type, slot); // might throw
 	if (file.symbols.empty() && loadEmpty == LoadEmpty::NOT_ALLOWED) return false;
 
-	if (auto it = ranges::find(files, filename, &SymbolFile::filename);
+	if (auto it = std::ranges::find(files, filename, &SymbolFile::filename);
 	    it == files.end()) {
 		files.push_back(std::move(file));
 	} else {
@@ -465,7 +465,7 @@ bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty,
 
 void SymbolManager::removeFile(std::string_view filename)
 {
-	auto it = ranges::find(files, filename, &SymbolFile::filename);
+	auto it = std::ranges::find(files, filename, &SymbolFile::filename);
 	if (it == files.end()) return; // not found
 	files.erase(it);
 	refresh();
@@ -482,14 +482,14 @@ std::optional<uint16_t> SymbolManager::lookupSymbol(std::string_view str) const
 	// linear search is fine: only used interactively
 	// prefer an exact match
 	for (const auto& file : files) {
-		if (auto it = ranges::find(file.symbols, str, &Symbol::name);
+		if (auto it = std::ranges::find(file.symbols, str, &Symbol::name);
 		    it != file.symbols.end()) {
 			return it->value;
 		}
 	}
 	// but if not found, a case-insensitive match is fine as well
 	for (const auto& file : files) {
-		if (auto it = ranges::find_if(file.symbols, [&](const auto& sym) {
+		if (auto it = std::ranges::find_if(file.symbols, [&](const auto& sym) {
 			return StringOp::casecmp{}(str, sym.name); });
 		    it != file.symbols.end()) {
 			return it->value;
@@ -524,7 +524,7 @@ std::span<Symbol const * const> SymbolManager::lookupValue(uint16_t value)
 
 SymbolFile* SymbolManager::findFile(std::string_view filename)
 {
-	if (auto it = ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
+	if (auto it = std::ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
 		return nullptr;
 	} else {
 		return std::to_address(it);

@@ -44,10 +44,10 @@
 
 #include "ScopedAssign.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <iostream>
@@ -407,7 +407,7 @@ string MSXMotherBoard::insertExtension(
 
 HardwareConfig* MSXMotherBoard::findExtension(std::string_view extensionName)
 {
-	auto it = ranges::find(extensions, extensionName, &HardwareConfig::getName);
+	auto it = std::ranges::find(extensions, extensionName, &HardwareConfig::getName);
 	return (it != end(extensions)) ? it->get() : nullptr;
 }
 
@@ -699,7 +699,7 @@ void MSXMotherBoard::exitCPULoopSync()
 
 MSXDevice* MSXMotherBoard::findDevice(std::string_view name)
 {
-	auto it = ranges::find(availableDevices, name, &MSXDevice::getName);
+	auto it = std::ranges::find(availableDevices, name, &MSXDevice::getName);
 	return (it != end(availableDevices)) ? *it : nullptr;
 }
 
@@ -1061,7 +1061,7 @@ void MachineMediaInfo::execute(std::span<const TclObject> tokens,
 			std::views::transform(providers, &ProviderInfo::name));
 	} else if (tokens.size() == 3) {
 		auto name = tokens[2].getString();
-		if (auto it = ranges::find(providers, name, &ProviderInfo::name);
+		if (auto it = std::ranges::find(providers, name, &ProviderInfo::name);
 		    it != providers.end()) {
 			it->provider->getMediaInfo(result);
 		} else {

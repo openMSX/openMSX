@@ -1,10 +1,14 @@
 #include "Scheduler.hh"
+
 #include "Schedulable.hh"
 #include "Thread.hh"
 #include "MSXCPU.hh"
+
 #include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <iterator> // for back_inserter
 
@@ -71,7 +75,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	if (auto it = ranges::find(queue, &device, &SynchronizationPoint::getDevice);
+	if (auto it = std::ranges::find(queue, &device, &SynchronizationPoint::getDevice);
 	    it != std::end(queue)) {
 		result = it->getTime();
 		return true;

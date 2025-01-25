@@ -1,12 +1,15 @@
 #include "TTFFont.hh"
+
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+
 #include "StringOp.hh"
-#include "ranges.hh"
 #include "stl.hh"
-#include "xrange.hh"
 #include "zstring_view.hh"
+
 #include <SDL_ttf.h>
+
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -104,7 +107,7 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize)
 {
-	if (auto it = ranges::find(pool, std::tuple(filename, ptSize),
+	if (auto it = std::ranges::find(pool, std::tuple(filename, ptSize),
 	        [](auto& info) { return std::tuple(info.name, info.size); });
 	    it != end(pool)) {
 		++it->count;

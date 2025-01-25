@@ -10,8 +10,8 @@
 #include "MSXCliComm.hh"
 
 #include "outer.hh"
-#include "ranges.hh"
 
+#include <algorithm>
 #include <iostream>
 #include <ranges>
 
@@ -197,7 +197,7 @@ void PluggingController::UnplugCmd::tabCompletion(std::vector<string>& tokens) c
 
 Connector* PluggingController::findConnector(string_view name) const
 {
-	auto it = ranges::find(connectors, name, &Connector::getName);
+	auto it = std::ranges::find(connectors, name, &Connector::getName);
 	return (it != end(connectors)) ? *it : nullptr;
 }
 
@@ -211,7 +211,7 @@ Connector& PluggingController::getConnector(string_view name) const
 
 Pluggable* PluggingController::findPluggable(string_view name) const
 {
-	auto it = ranges::find(pluggables, name, &Pluggable::getName);
+	auto it = std::ranges::find(pluggables, name, &Pluggable::getName);
 	return (it != end(pluggables)) ? it->get() : nullptr;
 }
 

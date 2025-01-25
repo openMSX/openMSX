@@ -52,6 +52,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -420,7 +421,7 @@ string_view Reactor::getMachineID() const
 
 Reactor::Board Reactor::getMachine(string_view machineID) const
 {
-	if (auto it = ranges::find(boards, machineID, &MSXMotherBoard::getMachineID);
+	if (auto it = std::ranges::find(boards, machineID, &MSXMotherBoard::getMachineID);
 	    it != boards.end()) {
 		return *it;
 	}

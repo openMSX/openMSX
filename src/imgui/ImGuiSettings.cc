@@ -145,7 +145,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						AlgoEnable{RGBTRIPLET, true,  true },
 						AlgoEnable{TV,         true,  false},
 					};
-					auto it = ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
+					auto it = std::ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
 					assert(it != algoEnables.end());
 					im::Disabled(!it->hasScanline, [&]{
 						SliderInt("Scanline (%)", renderSettings.getScanlineSetting());

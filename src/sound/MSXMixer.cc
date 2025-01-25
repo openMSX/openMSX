@@ -798,7 +798,7 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 const MSXMixer::SoundDeviceInfo* MSXMixer::findDeviceInfo(std::string_view name) const
 {
-	auto it = ranges::find(infos, name,
+	auto it = std::ranges::find(infos, name,
 		[](auto& i) { return i.device->getName(); });
 	return (it != end(infos)) ? std::to_address(it) : nullptr;
 }

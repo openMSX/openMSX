@@ -858,7 +858,7 @@ bool ImGuiDiskManipulator::setupTransferHostToMsx(DrivePartitionTar& stuff)
 		if (!item.isSelected) continue;
 		auto msxName = stuff.tar->convertToMsxName(item.filename);
 		duplicateEntries[msxName].push_back(item);
-		auto it = ranges::find(msxFileCache, msxName, &FileInfo::filename);
+		auto it = std::ranges::find(msxFileCache, msxName, &FileInfo::filename);
 		if (it == msxFileCache.end()) continue;
 		(it->isDirectory ? existingDirs : existingFiles).push_back(*it);
 	}

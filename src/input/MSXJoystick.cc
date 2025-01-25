@@ -16,6 +16,8 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
+
 namespace openmsx {
 
 class MSXJoyState final : public StateChange
@@ -104,7 +106,7 @@ void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 			"UP", "DOWN", "LEFT", "RIGHT", "A", "B"
 		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = ranges::find(keys, key);
+		auto it = std::ranges::find(keys, key);
 		if (it == keys.end()) {
 			throw CommandException(
 				"Invalid key: must be one of ", join(keys, ", "));

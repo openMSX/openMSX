@@ -12,8 +12,8 @@
 #include "TclObject.hh"
 
 #include "checked_cast.hh"
-#include "ranges.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <ranges>
@@ -41,7 +41,7 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(std::string_view name) const
 {
-	auto it = ranges::find(settings, name, [](auto& info) {
+	auto it = std::ranges::find(settings, name, [](auto& info) {
 		return info.setting->getFullName(); });
 	return (it != end(settings)) ? it->setting.get() : nullptr;
 }

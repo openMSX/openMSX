@@ -104,7 +104,7 @@ void ImGuiSymbols::loadEnd()
 void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot)
 {
 	auto& cliComm = manager.getCliComm();
-	auto it = ranges::find(fileError, filename, &FileInfo::filename);
+	auto it = std::ranges::find(fileError, filename, &FileInfo::filename);
 	try {
 		if (!symbolManager.reloadFile(filename, loadEmpty, type, slot)) {
 			cliComm.printWarning("Symbol file \"", filename,
@@ -350,7 +350,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 			}
 			if (!removeAction.empty()) {
 				symbolManager.removeFile(removeAction);
-				if (auto it = ranges::find(fileError, removeAction, &FileInfo::filename);
+				if (auto it = std::ranges::find(fileError, removeAction, &FileInfo::filename);
 					it != fileError.end()) {
 					fileError.erase(it);
 				}

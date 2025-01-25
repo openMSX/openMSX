@@ -15,6 +15,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <memory>
 
 namespace openmsx {
@@ -114,7 +115,7 @@ void JoyMega::checkJoystickConfig(const TclObject& newValue)
 			"X", "Y", "Z", "SELECT",
 		};
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
-		auto it = ranges::find(keys, key);
+		auto it = std::ranges::find(keys, key);
 		if (it == keys.end()) {
 			throw CommandException(
 				"Invalid key: must be one of ", join(keys, ", "));

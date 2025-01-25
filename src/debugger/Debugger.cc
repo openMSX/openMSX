@@ -21,11 +21,11 @@
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -122,7 +122,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 	if (name.starts_with(ProbeBreakPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(ProbeBreakPoint::prefix.size()))) {
-			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
+			if (auto it = std::ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
 			    it != std::end(probeBreakPoints)) {
 				motherBoard.getMSXCliComm().update(
 					CliComm::UpdateType::DEBUG_UPDT, name, "remove");
@@ -133,7 +133,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		throw CommandException("No such breakpoint: ", name);
 	} else {
 		// remove by probe, only works for unconditional bp
-		auto it = ranges::find(probeBreakPoints, name, [](auto& bp) {
+		auto it = std::ranges::find(probeBreakPoints, name, [](auto& bp) {
 			return bp->getProbe().getName();
 		});
 		if (it == std::end(probeBreakPoints)) {
@@ -424,7 +424,7 @@ BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 	if (!str.starts_with(BreakPoint::prefix)) return nullptr;
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(BreakPoint::prefix.size()))) {
 		auto& breakPoints = MSXCPUInterface::getBreakPoints();
-		if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+		if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 		    it != std::end(breakPoints)) {
 			return &*it;
 		}
@@ -438,7 +438,7 @@ std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(WatchPoint::prefix.size()))) {
 		auto& interface = debugger().motherBoard.getCPUInterface();
 		auto& watchPoints = interface.getWatchPoints();
-		if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+		if (auto it = std::ranges::find(watchPoints, id, &WatchPoint::getId);
 		    it != std::end(watchPoints)) {
 			return *it;
 		}
@@ -451,7 +451,7 @@ DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
 	if (!str.starts_with(DebugCondition::prefix)) return {};
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(DebugCondition::prefix.size()))) {
 		auto& conditions = MSXCPUInterface::getConditions();
-		if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
+		if (auto it = std::ranges::find(conditions, id, &DebugCondition::getId);
 		    it != std::end(conditions)) {
 			return &*it;
 		}
@@ -714,7 +714,7 @@ void Debugger::Cmd::removeBreakPoint(
 	if (tmp.starts_with(BreakPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(BreakPoint::prefix.size()))) {
-			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+			if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 			    it != std::end(breakPoints)) {
 				interface.removeBreakPoint(*it);
 				return;
@@ -724,7 +724,7 @@ void Debugger::Cmd::removeBreakPoint(
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
-		auto it = ranges::find_if(breakPoints, [&](auto& bp) {
+		auto it = std::ranges::find_if(breakPoints, [&](auto& bp) {
 			return (bp.getAddress() == addr) &&
 			       bp.getCondition().getString().empty();
 		});
