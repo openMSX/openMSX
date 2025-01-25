@@ -31,6 +31,7 @@
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cassert>
@@ -1227,7 +1228,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		// value (it always returns the value 0). But we must know
 		// the unicode value in order to be able to perform the correct
 		// key-combination-release in the MSX
-		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
 		if ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode)) {
 			// after a while we can overwrite existing elements, and
 			// then we stop growing/reallocating this vector
@@ -1256,7 +1257,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 	} else {
 		// key was released
-		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
 		unsigned unicode = ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode))
 		                 ? it->second // get the unicode that was derived from this key
 		                 : 0;

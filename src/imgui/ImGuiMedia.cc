@@ -26,7 +26,6 @@
 
 #include "join.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
 
@@ -749,7 +748,7 @@ static std::string leftClip(std::string_view s, float maxWidth)
 	if (maxWidth <= 0.0f) return "...";
 
 	auto len = s.size();
-	auto num = *ranges::lower_bound(xrange(len), maxWidth, {},
+	auto num = *std::ranges::lower_bound(std::views::iota(size_t(0), len), maxWidth, {},
 		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
 	return strCat("...", s.substr(len - num));
 }

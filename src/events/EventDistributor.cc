@@ -1,12 +1,15 @@
 #include "EventDistributor.hh"
+
 #include "EventListener.hh"
 #include "Reactor.hh"
 #include "RTScheduler.hh"
 #include "Interpreter.hh"
 #include "InputEventGenerator.hh"
 #include "Thread.hh"
-#include "ranges.hh"
+
 #include "stl.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 
@@ -25,7 +28,7 @@ void EventDistributor::registerEventListener(
 	// a listener may only be registered once for each type
 	assert(!contains(priorityMap, &listener, &Entry::listener));
 	// insert at highest position that keeps listeners sorted on priority
-	auto it = ranges::upper_bound(priorityMap, priority, {}, &Entry::priority);
+	auto it = std::ranges::upper_bound(priorityMap, priority, {}, &Entry::priority);
 	priorityMap.emplace(it, Entry{priority, &listener});
 }
 

@@ -1,11 +1,11 @@
 #include "ConsoleLine.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "utf8_unchecked.hh"
 
+#include <algorithm>
 #include <ranges>
 
 namespace openmsx {
@@ -50,7 +50,7 @@ ConsoleLine ConsoleLine::splitAtColumn(unsigned column)
 	}
 	auto pos = narrow<unsigned>(std::distance(line.begin(), it));
 
-	auto it2 = ranges::upper_bound(chunks, pos, {}, &Chunk::pos);
+	auto it2 = std::ranges::upper_bound(chunks, pos, {}, &Chunk::pos);
 	assert(it2 != chunks.begin());
 	auto splitColor = it2[-1].color;
 

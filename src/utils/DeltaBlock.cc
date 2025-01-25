@@ -363,7 +363,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, std::span<const uint8_t> data)
 {
 	auto size = data.size();
-	auto it = ranges::lower_bound(infos, std::tuple(id, size), {},
+	auto it = std::ranges::lower_bound(infos, std::tuple(id, size), {},
 		[](const Info& info) { return std::tuple(info.id, info.size); });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
@@ -400,7 +400,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		const void* id, std::span<const uint8_t> data)
 {
 	auto size = data.size();
-	auto it = ranges::lower_bound(infos, id, {}, &Info::id);
+	auto it = std::ranges::lower_bound(infos, id, {}, &Info::id);
 	if ((it == end(infos)) || (it->id != id)) {
 		// no previous block yet
 		it = infos.emplace(it, id, size);

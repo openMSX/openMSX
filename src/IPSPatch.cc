@@ -44,12 +44,12 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			ipsFile.read(v);
 		}
 		// find overlapping or adjacent patch regions
-		auto b = ranges::lower_bound(result, offset, {}, &Chunk::startAddress);
+		auto b = std::ranges::lower_bound(result, offset, {}, &Chunk::startAddress);
 		if (b != begin(result)) {
 			--b;
 			if (b->stopAddress() < offset) ++b;
 		}
-		if (auto e = ranges::upper_bound(result, offset + v.size(), {}, &Chunk::startAddress);
+		if (auto e = std::ranges::upper_bound(result, offset + v.size(), {}, &Chunk::startAddress);
 		    b != e) {
 			// remove overlapping regions, merge adjacent regions
 			--e;
@@ -94,10 +94,10 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 {
 	parent->copyBlock(src, dst);
 
-	auto b = ranges::lower_bound(chunks, src, {}, &Chunk::startAddress);
+	auto b = std::ranges::lower_bound(chunks, src, {}, &Chunk::startAddress);
 	if (b != begin(chunks)) --b;
 	auto srcEnd = src + dst.size();
-	auto e = ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
+	auto e = std::ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
 	for (auto it : xrange(b, e)) {
 		auto chunkStart = it->startAddress;
 		auto chunkSize = int(it->size());

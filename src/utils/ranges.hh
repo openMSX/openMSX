@@ -113,51 +113,6 @@ template<typename ForwardRange, typename T, typename Compare>
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
-[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
-{
-	auto comp2 = [&](const auto& x, const auto& y) {
-		return comp(std::invoke(proj, x), y);
-	};
-	return std::lower_bound(std::begin(range), std::end(range), value, comp2);
-}
-
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
-[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
-{
-	auto comp2 = [&](const auto& x, const auto& y) {
-		return comp(x, std::invoke(proj, y));
-	};
-	return std::upper_bound(std::begin(range), std::end(range), value, comp2);
-}
-
-template<typename ForwardRange, typename T, typename Compare = std::less<>>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp = {})
-{
-	return std::equal_range(std::begin(range), std::end(range), value, comp);
-}
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
-[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp, Proj proj)
-{
-	using Iter = decltype(std::begin(range));
-	using R = typename std::iterator_traits<Iter>::value_type;
-	struct Comp2 {
-		[[no_unique_address]] Compare comp;
-		[[no_unique_address]] Proj proj;
-
-		bool operator()(const R& x, const R& y) const {
-			return comp(std::invoke(proj, x), std::invoke(proj, y));
-		}
-		bool operator()(const R& x, const T& y) const {
-			return comp(std::invoke(proj, x), y);
-		}
-		bool operator()(const T& x, const R& y) const {
-			return comp(x, std::invoke(proj, y));
-		}
-	};
-	return std::equal_range(std::begin(range), std::end(range), value, Comp2{comp, proj});
-}
-
 template<typename ForwardRange>
 [[nodiscard]] auto unique(ForwardRange&& range)
 {
@@ -293,7 +248,7 @@ bool all_equal(InputRange&& range, Proj proj = {})
 // Returns a pointer to the element in 'range', or nullptr if not found.
 //
 // This helper function is typically used to simplify code like:
-//     auto it = ranges::lower_bound(myMap, name, {}, &Element::name);
+//     auto it = std::ranges::lower_bound(myMap, name, {}, &Element::name);
 //     if ((it != myMap.end()) && (it->name == name)) {
 //         ... use *it
 //     }
@@ -305,7 +260,7 @@ bool all_equal(InputRange&& range, Proj proj = {})
 template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
 [[nodiscard]] auto* binary_find(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
-	auto it = ranges::lower_bound(range, value, comp, proj);
+	auto it = std::ranges::lower_bound(range, value, comp, proj);
 	return ((it != std::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
 	       ? &*it
 	       : nullptr;

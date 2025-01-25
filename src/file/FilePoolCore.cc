@@ -9,6 +9,7 @@
 #include "one_of.hh"
 #include "ranges.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <optional>
 #include <tuple>
@@ -49,7 +50,7 @@ void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const std::string& fi
 {
 	stringBuffer.push_back(filename);
 	auto idx = pool.emplace(sum, time, stringBuffer.back()).idx;
-	auto it = ranges::upper_bound(sha1Index, sum, {}, GetSha1{pool});
+	auto it = std::ranges::upper_bound(sha1Index, sum, {}, GetSha1{pool});
 	sha1Index.insert(it, idx);
 	filenameIndex.insert(idx);
 	needWrite = true;
@@ -58,7 +59,7 @@ void FilePoolCore::insert(const Sha1Sum& sum, time_t time, const std::string& fi
 FilePoolCore::Sha1Index::iterator FilePoolCore::getSha1Iterator(Index idx, const Entry& entry)
 {
 	// There can be multiple entries for the same sha1, look for the specific one.
-	for (auto [b, e] = ranges::equal_range(sha1Index, entry.sum, {}, GetSha1{pool}); b != e; ++b) {
+	for (auto [b, e] = std::ranges::equal_range(sha1Index, entry.sum, {}, GetSha1{pool}); b != e; ++b) {
 		if (*b == idx) {
 			return b;
 		}
@@ -94,7 +95,7 @@ void FilePoolCore::remove(Index idx)
 bool FilePoolCore::adjustSha1(Sha1Index::iterator it, Entry& entry, const Sha1Sum& newSum)
 {
 	needWrite = true;
-	auto newIt = ranges::upper_bound(sha1Index, newSum, {}, GetSha1{pool});
+	auto newIt = std::ranges::upper_bound(sha1Index, newSum, {}, GetSha1{pool});
 	entry.sum = newSum; // update sum
 	if (newIt > it) {
 		// move to back
@@ -313,7 +314,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file) const
 
 File FilePoolCore::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto [b, e] = ranges::equal_range(sha1Index, sha1sum, {}, GetSha1{pool});
+	auto [b, e] = std::ranges::equal_range(sha1Index, sha1sum, {}, GetSha1{pool});
 	// use indices instead of iterators
 	auto i    = distance(begin(sha1Index), b);
 	auto last = distance(begin(sha1Index), e);

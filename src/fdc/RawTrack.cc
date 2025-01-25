@@ -1,4 +1,5 @@
 #include "RawTrack.hh"
+
 #include "CRC16.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
@@ -6,6 +7,8 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -31,7 +34,7 @@ void RawTrack::addIdam(unsigned idx)
 void RawTrack::write(int idx, uint8_t val, bool setIdam)
 {
 	unsigned i2 = wrapIndex(idx);
-	auto it = ranges::lower_bound(idam, i2);
+	auto it = std::ranges::lower_bound(idam, i2);
 	if (setIdam) {
 		// add idam (if not already present)
 		if ((it == end(idam)) || (*it != i2)) {
@@ -123,7 +126,7 @@ std::vector<RawTrack::Sector> RawTrack::decodeAll() const
 static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
-	auto it = ranges::lower_bound(idam, startIdx);
+	auto it = std::ranges::lower_bound(idam, startIdx);
 	// rotate range so that we start at that element
 	std::rotate(begin(idam), it, end(idam));
 	return idam;
