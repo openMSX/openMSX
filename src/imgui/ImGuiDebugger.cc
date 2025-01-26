@@ -26,7 +26,6 @@
 #include "RomInfo.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
@@ -224,7 +223,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Add hex editor", [&]{
 			const auto& debugger = motherBoard->getDebugger();
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
-			ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
+			std::ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
 				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
 					createHexEditor(name);

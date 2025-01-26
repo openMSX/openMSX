@@ -26,6 +26,7 @@
 
 #include "build-info.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <memory>
@@ -70,8 +71,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
-	ranges::sort(options, {}, &OptionData::name);
-	ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
+	std::ranges::sort(options, {}, &OptionData::name);
+	std::ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
 }
 
 void CommandLineParser::registerOption(
@@ -426,7 +427,7 @@ static void printItemMap(const GroupedItems& itemMap)
 		return strCat(formatSet(p.second, 15), ' ',
 		              formatHelpText(p.first, 50, 20));
 	}));
-	ranges::sort(printSet);
+	std::ranges::sort(printSet);
 	for (const auto& s : printSet) {
 		cout << s << '\n';
 	}

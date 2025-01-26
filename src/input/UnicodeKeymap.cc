@@ -10,6 +10,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 
+#include <algorithm>
 #include <bit>
 #include <optional>
 
@@ -223,7 +224,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 		}
 	}
 
-	ranges::sort(mapData, {}, &Entry::unicode);
+	std::ranges::sort(mapData, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

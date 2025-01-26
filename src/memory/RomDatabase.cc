@@ -15,6 +15,7 @@
 #include "unreachable.hh"
 #include "xxhash.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <ranges>
@@ -402,7 +403,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
+	std::ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.

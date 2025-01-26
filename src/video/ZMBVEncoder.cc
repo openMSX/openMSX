@@ -11,6 +11,7 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -90,7 +91,7 @@ static constexpr auto vectorTable = [] {
 		return std::tuple(cost(l), l.x, l.y) <
 		       std::tuple(cost(r), r.x, r.y);
 	};
-	ranges::sort(result, compare);
+	std::ranges::sort(result, compare);
 
 	return result;
 }();

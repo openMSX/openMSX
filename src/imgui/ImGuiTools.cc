@@ -17,7 +17,6 @@
 
 #include "enumerate.hh"
 #include "escape_newline.hh"
-#include "ranges.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
 
@@ -78,7 +77,7 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 					result.emplace_back(cmd.view());
 				}
 			}
-			ranges::sort(result, StringOp::caseless{});
+			std::ranges::sort(result, StringOp::caseless{});
 		}
 	}
 	refresh += ImGui::GetIO().DeltaTime;

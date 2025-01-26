@@ -168,7 +168,7 @@ static constexpr auto extractKeyCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
+	std::ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
 	return result;
 }
 template<typename GetMapping>
@@ -186,7 +186,7 @@ static constexpr auto extractScanCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
+	std::ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
 	return result;
 }
 

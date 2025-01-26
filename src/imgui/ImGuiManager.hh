@@ -17,6 +17,7 @@
 #include "strCat.hh"
 #include "StringReplacer.hh"
 
+#include <algorithm>
 #include <functional>
 #include <optional>
 #include <string_view>
@@ -263,7 +264,7 @@ std::vector<InfoType> parseAllConfigFiles(ImGuiManager& manager, std::string_vie
 		if (display.empty()) display = config;
 	}
 
-	ranges::sort(result, StringOp::caseless{}, &InfoType::displayName);
+	std::ranges::sort(result, StringOp::caseless{}, &InfoType::displayName);
 
 	// make 'displayName' unique again
 	auto sameDisplayName = [](InfoType& x, InfoType& y) {
@@ -275,7 +276,7 @@ std::vector<InfoType> parseAllConfigFiles(ImGuiManager& manager, std::string_vie
 		for (auto it = first; it != last; ++it) {
 			strAppend(it->displayName, " (", it->configName, ')');
 		}
-		ranges::sort(first, last, StringOp::caseless{}, &InfoType::displayName);
+		std::ranges::sort(first, last, StringOp::caseless{}, &InfoType::displayName);
 	});
 
 	return result;

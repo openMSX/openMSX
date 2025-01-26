@@ -96,7 +96,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
-	ranges::sort(buckets, [](const auto& x, const auto& y) {
+	std::ranges::sort(buckets, [](const auto& x, const auto& y) {
 		// sort largest first
 		if (x.size() != y.size()) {
 			return x.size() > y.size();

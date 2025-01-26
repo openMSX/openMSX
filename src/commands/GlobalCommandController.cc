@@ -15,7 +15,6 @@
 #include "ScopedAssign.hh"
 #include "join.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
 
@@ -452,7 +451,7 @@ void GlobalCommandController::HelpCmd::execute(
 			std::views::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
 		std::erase_if(cmds, [](const auto& c) { return c.contains("::"); });
-		ranges::sort(cmds);
+		std::ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
 		}

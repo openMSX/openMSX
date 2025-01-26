@@ -43,7 +43,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 		gameNames = to_vector(std::views::transform(xrange(trainers->size() / 2), [&](auto i) {
 			return std::string(trainers->getListIndexUnchecked(2 * i).getString());
 		}));
-		ranges::sort(gameNames, StringOp::caseless{});
+		std::ranges::sort(gameNames, StringOp::caseless{});
 	}
 	auto activeGame = manager.execute(makeTclList("set", "trainer::active_trainer")).value_or(TclObject{});
 	auto activeList = manager.execute(makeTclList("set", "trainer::items_active")).value_or(TclObject{});

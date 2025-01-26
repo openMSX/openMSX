@@ -46,7 +46,6 @@
 #include "Timer.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -368,8 +367,9 @@ vector<string> Reactor::getHwConfigs(string_view type)
 		foreach_file_and_directory(FileOperations::join(p, type), fileAction, dirAction);
 	}
 	// remove duplicates
-	ranges::sort(result);
-	result.erase(ranges::unique(result), end(result));
+	std::ranges::sort(result);
+	auto u = std::ranges::unique(result);
+	result.erase(u.begin(), u.end());
 	return result;
 }
 

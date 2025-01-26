@@ -6,7 +6,6 @@
 #include "Reactor.hh"
 
 #include "function_ref.hh"
-#include "ranges.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 #include "circular_buffer.hh"
@@ -192,17 +191,17 @@ void comboHexSequence(const char* label, int* value, int mult, int max, int offs
 template<typename Range, typename Projection>
 void sortUpDown_T(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		ranges::stable_sort(range, std::greater<>{}, proj);
+		std::ranges::stable_sort(range, std::greater<>{}, proj);
 	} else {
-		ranges::stable_sort(range, std::less<>{}, proj);
+		std::ranges::stable_sort(range, std::less<>{}, proj);
 	}
 };
 template<typename Range, typename Projection>
 void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
+		std::ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
 	} else {
-		ranges::stable_sort(range, StringOp::caseless{}, proj);
+		std::ranges::stable_sort(range, StringOp::caseless{}, proj);
 	}
 };
 
@@ -227,7 +226,7 @@ template<typename T> // 'MachineInfo' or 'ExtensionInfo', both have a 'configInf
 			}
 		}
 	}
-	ranges::sort(result, StringOp::caseless{});
+	std::ranges::sort(result, StringOp::caseless{});
 	return result;
 }
 

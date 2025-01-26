@@ -94,8 +94,9 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	ranges::sort(matches);
-	matches.erase(ranges::unique(matches), end(matches));
+	std::ranges::sort(matches);
+	auto u = std::ranges::unique(matches);
+	matches.erase(u.begin(), u.end());
 
 	bool expanded = false;
 	while (true) {

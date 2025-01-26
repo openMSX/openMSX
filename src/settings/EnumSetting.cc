@@ -6,8 +6,6 @@
 
 #include "StringOp.hh"
 #include "ranges.hh"
-#include "stl.hh"
-#include "stringsp.hh"
 
 #include <algorithm>
 
@@ -16,7 +14,7 @@ namespace openmsx {
 EnumSettingBase::EnumSettingBase(Map&& map)
 	: baseMap(std::move(map))
 {
-	ranges::sort(baseMap, StringOp::caseless{}, &MapEntry::name);
+	std::ranges::sort(baseMap, StringOp::caseless{}, &MapEntry::name);
 }
 
 int EnumSettingBase::fromStringBase(std::string_view str) const

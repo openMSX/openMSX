@@ -10,8 +10,8 @@
 #include "ranges.hh"
 #include "strCat.hh"
 #include "utf8_unchecked.hh"
-#include "xrange.hh"
 
+#include <algorithm>
 #include <bit>
 
 namespace openmsx {
@@ -154,8 +154,9 @@ void MsxChar2Unicode::parseVid(std::string_view file)
 	// Sort on unicode (for later binary-search). If there are duplicate
 	// unicodes (with different msx-code), then keep the first entry (hence
 	// use stable_sort).
-	ranges::stable_sort(unicode2msx, {}, &Entry::unicode);
-	unicode2msx.erase(ranges::unique(unicode2msx, {}, &Entry::unicode), end(unicode2msx));
+	std::ranges::stable_sort(unicode2msx, {}, &Entry::unicode);
+	auto u = std::ranges::unique(unicode2msx, {}, &Entry::unicode);
+	unicode2msx.erase(u.begin(), u.end());
 }
 
 std::string MsxChar2Unicode::msxToUtf8(

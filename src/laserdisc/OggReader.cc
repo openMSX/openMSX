@@ -456,8 +456,8 @@ void OggReader::readMetadata(th_comment& tc)
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
-	ranges::sort(stopFrames);
-	ranges::sort(chapters, {}, &ChapterFrame::chapter);
+	std::ranges::sort(stopFrames);
+	std::ranges::sort(chapters, {}, &ChapterFrame::chapter);
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -952,7 +952,7 @@ bool OggReader::seek(size_t frame, size_t samples)
 
 bool OggReader::stopFrame(size_t frame) const
 {
-	return ranges::binary_search(stopFrames, frame);
+	return std::ranges::binary_search(stopFrames, frame);
 }
 
 size_t OggReader::getChapter(int chapterNo) const
