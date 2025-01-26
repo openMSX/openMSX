@@ -28,6 +28,11 @@ jobs:
             os: linux
             flavour: super-opt
           - image: ubuntu-latest
+            name: Linux (native, debug, minimal g++)
+            cpu: x86_64
+            os: linux
+            flavour: debug
+          - image: ubuntu-latest
             name: Linux
             cpu: x86_64
             os: linux

@@ -20,7 +20,7 @@ runs:
       shell: bash
       run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev
     - name: Install extra Linux prerequisites for native/dynamic build (e.g. for unittesting)
-      if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt')}}
+      if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
       run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
     - name: Install Windows prerequisites
@@ -63,7 +63,11 @@ runs:
       run: |
         CXX_PART=""
         BUILD_TARGET="staticbindist"
-        if [ "${{ inputs.flavour }}" = "unittest" ] || [ "${{ inputs.flavour }}" = "super-opt" ]; then
+        # run with minimal g++ version for native debug build, to get that covered
+        if [ "${{ inputs.flavour }}" = "debug" ]; then
+          CXX_PART="CXX=g++-12"
+        fi
+        if [ "${{ inputs.flavour }}" = "unittest" ] || [ "${{ inputs.flavour }}" = "super-opt" ] || [ "${{ inputs.flavour }}" = "debug" ]; then
           BUILD_TARGET=""
         fi
         make \
@@ -106,25 +110,25 @@ runs:
       shell: bash
       run: derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}/bin/openmsx
     - name: Rename output folder for upload
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' }}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       shell: bash
       run: |
         cd ${{ steps.openmsx.outputs.derived_path }}/bindist
         mv install ../${{ steps.openmsx.outputs.target_file }}
     - name: Upload redistributable zip
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' }}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'false' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}.zip
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.target_file }}
     - name: Upload single redistributable ${{ steps.openmsx.outputs.single_output_file}}
-      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' }}
+      if: ${{ inputs.os != 'windows-vc' && steps.openmsx.outputs.single_file == 'true' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
