@@ -73,7 +73,7 @@ void Ram::clear(byte c)
 		}
 	} else {
 		// no init pattern specified
-		ranges::fill(*this, c);
+		std::ranges::fill(*this, c);
 	}
 }
 

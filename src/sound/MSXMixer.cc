@@ -556,7 +556,7 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 			if (approxEqual(tl0, 0.0f)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
-				ranges::fill(output, StereoFloat{});
+				std::ranges::fill(output, StereoFloat{});
 				tl0 = tr0 = 0.0f;
 			} else {
 				// Output was not zero, but it was the same left and right.

@@ -723,11 +723,11 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
-	ranges::fill(keyMatrix,     255);
-	ranges::fill(cmdKeyMatrix,  255);
-	ranges::fill(typeKeyMatrix, 255);
-	ranges::fill(userKeyMatrix, 255);
-	ranges::fill(hostKeyMatrix, 255);
+	std::ranges::fill(keyMatrix,     255);
+	std::ranges::fill(cmdKeyMatrix,  255);
+	std::ranges::fill(typeKeyMatrix, 255);
+	std::ranges::fill(userKeyMatrix, 255);
+	std::ranges::fill(hostKeyMatrix, 255);
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);

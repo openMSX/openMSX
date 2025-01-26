@@ -1,7 +1,6 @@
 #ifndef INPLACE_BUFFER_HH
 #define INPLACE_BUFFER_HH
 
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <algorithm>
@@ -46,7 +45,7 @@ public:
 	explicit inplace_buffer(size_t size, const T& t)
 		: inplace_buffer(uninitialized_tag{}, size)
 	{
-		ranges::fill(std::span{buffer.data(), sz}, t);
+		std::ranges::fill(std::span{buffer.data(), sz}, t);
 	}
 
 	template<typename Range>

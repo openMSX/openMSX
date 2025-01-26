@@ -1,7 +1,6 @@
 #ifndef SMALL_BUFFER_HH
 #define SMALL_BUFFER_HH
 
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <algorithm>
@@ -41,7 +40,7 @@ public:
 	explicit small_buffer(size_t size, const T& t)
 		: small_buffer(uninitialized_tag{}, size)
 	{
-		ranges::fill(sp, t);
+		std::ranges::fill(sp, t);
 	}
 
 	template<typename Range>

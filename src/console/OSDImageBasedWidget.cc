@@ -25,7 +25,7 @@ namespace openmsx {
 OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& name_)
 	: OSDWidget(display_, name_)
 {
-	ranges::fill(rgba, 0x000000ff); // black, opaque
+	std::ranges::fill(rgba, 0x000000ff); // black, opaque
 }
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
@@ -39,7 +39,7 @@ OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 			result[i] = value.getListIndex(interp, i).getInt(interp);
 		}
 	} else if (len == 1) {
-		ranges::fill(result, value.getInt(interp));
+		std::ranges::fill(result, value.getInt(interp));
 	} else {
 		throw CommandException("Expected either 1 or 4 values.");
 	}

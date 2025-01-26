@@ -12,9 +12,9 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 
-#include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -157,11 +157,11 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, std::string hwName_
 	, hwName(std::move(hwName_))
 {
 	for (auto& sub : externalSlots) {
-		ranges::fill(sub, false);
+		std::ranges::fill(sub, false);
 	}
-	ranges::fill(externalPrimSlots, false);
-	ranges::fill(expandedSlots, false);
-	ranges::fill(allocatedPrimarySlots, false);
+	std::ranges::fill(externalPrimSlots, false);
+	std::ranges::fill(expandedSlots, false);
+	std::ranges::fill(allocatedPrimarySlots, false);
 	userName = motherBoard.getUserName(hwName);
 }
 

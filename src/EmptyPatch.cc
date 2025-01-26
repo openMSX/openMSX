@@ -1,5 +1,8 @@
 #include "EmptyPatch.hh"
+
 #include "ranges.hh"
+
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -11,13 +14,13 @@ void EmptyPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 		// past end
 		if (size <= src) {
 			// start past size, only fill block
-			ranges::fill(dst, 0);
+			std::ranges::fill(dst, 0);
 		} else {
 			auto part1 = size - src;
 			auto part2 = dst.size() - part1;
 			assert(dst.data() != &block[src]);
 			ranges::copy(block.subspan(src, part1), dst);
-			ranges::fill(dst.subspan(part1, part2), 0);
+			std::ranges::fill(dst.subspan(part1, part2), 0);
 		}
 	} else {
 		if (dst.data() != &block[src]) {

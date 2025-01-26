@@ -94,7 +94,7 @@ BlipBuffer::BlipBuffer()
 		}
 	}
 
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 void BlipBuffer::addDelta(TimeIndex time, float delta)

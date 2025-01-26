@@ -250,7 +250,7 @@ bool Sha1Sum::empty() const
 }
 void Sha1Sum::clear()
 {
-	ranges::fill(a, 0);
+	std::ranges::fill(a, 0);
 }
 
 
@@ -345,11 +345,11 @@ void SHA1::finalize()
 	uint32_t j = m_count & 63;
 	m_buffer[j++] = 0x80;
 	if (j > 56) {
-		ranges::fill(subspan(m_buffer, j, 64 - j), 0);
+		std::ranges::fill(subspan(m_buffer, j, 64 - j), 0);
 		transform(m_buffer);
 		j = 0;
 	}
-	ranges::fill(subspan(m_buffer, j, 56 - j), 0);
+	std::ranges::fill(subspan(m_buffer, j, 56 - j), 0);
 	Endian::B64 finalCount(8 * m_count); // convert number of bytes to bits
 	memcpy(&m_buffer[56], &finalCount, 8);
 	transform(m_buffer);

@@ -6,6 +6,7 @@
 // - Unsubscribe at CliComm after stream is closed.
 
 #include "CliConnection.hh"
+
 #include "EventDistributor.hh"
 #include "Event.hh"
 #include "CommandController.hh"
@@ -13,9 +14,12 @@
 #include "TclObject.hh"
 #include "TemporaryString.hh"
 #include "XMLEscape.hh"
+
 #include "cstdiop.hh"
 #include "ranges.hh"
 #include "unistdp.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -35,7 +39,7 @@ CliConnection::CliConnection(CommandController& commandController_,
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
-	ranges::fill(updateEnabled, false);
+	std::ranges::fill(updateEnabled, false);
 
 	eventDistributor.registerEventListener(EventType::CLICOMMAND, *this);
 }

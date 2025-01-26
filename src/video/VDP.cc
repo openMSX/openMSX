@@ -38,9 +38,9 @@ TODO:
 
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -253,7 +253,7 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	ranges::fill(controlRegs, 0);
+	std::ranges::fill(controlRegs, 0);
 	if (isVDPwithPALonly()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;

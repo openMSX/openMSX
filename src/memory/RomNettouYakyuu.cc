@@ -39,10 +39,13 @@
 // specialized class some time in the future.
 
 #include "RomNettouYakyuu.hh"
+
 #include "FileOperations.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 
 namespace openmsx {
 
@@ -68,7 +71,7 @@ void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 	setUnmapped(6);
 	setUnmapped(7);
 
-	ranges::fill(redirectToSamplePlayer, false);
+	std::ranges::fill(redirectToSamplePlayer, false);
 	samplePlayer.reset();
 }
 

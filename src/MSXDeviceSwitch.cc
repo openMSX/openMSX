@@ -4,7 +4,6 @@
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
 
-#include "ranges.hh"
 #include "serialize.hh"
 
 #include <algorithm>
@@ -15,7 +14,7 @@ namespace openmsx {
 MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
-	ranges::fill(devices, nullptr);
+	std::ranges::fill(devices, nullptr);
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()

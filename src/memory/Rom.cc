@@ -25,6 +25,7 @@
 #include "sha1.hh"
 #include "stl.hh"
 
+#include <algorithm>
 #include <memory>
 
 using std::string;
@@ -217,7 +218,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// content)
 		unsigned size = config.getChildDataAsInt("size", 0) * 1024; // in kb
 		extendedRom.resize(size);
-		ranges::fill(std::span{extendedRom}, 0xff);
+		std::ranges::fill(std::span{extendedRom}, 0xff);
 		rom = std::span{extendedRom};
 
 		// Content does not depend on external files. No need to check
@@ -371,7 +372,7 @@ void Rom::addPadding(size_t newSize, byte filler)
 
 	MemBuffer<byte> tmp(newSize);
 	ranges::copy(rom, std::span{tmp});
-	ranges::fill(tmp.subspan(rom.size()), filler);
+	std::ranges::fill(tmp.subspan(rom.size()), filler);
 
 	rom = std::span{tmp};
 	extendedRom = std::move(tmp);

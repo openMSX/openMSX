@@ -18,7 +18,7 @@ namespace openmsx {
 
 MsxChar2Unicode::MsxChar2Unicode(std::string_view mappingName)
 {
-	ranges::fill(msx2unicode, uint32_t(-1));
+	std::ranges::fill(msx2unicode, uint32_t(-1));
 
 	std::string filename;
 	try {

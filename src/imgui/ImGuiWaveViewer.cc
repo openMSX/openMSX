@@ -267,7 +267,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 		} while (buf.size() > fftLen);
 		extended = extended.subspan(0, fftLen);
 	}
-	ranges::fill(extended.subspan(buf.size()), 0.0f);
+	std::ranges::fill(extended.subspan(buf.size()), 0.0f);
 	auto result = extended.subspan(0, buf.size());
 	return {result, extended, normalize, sampleRate};
 }

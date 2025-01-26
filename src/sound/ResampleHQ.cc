@@ -268,7 +268,7 @@ static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 	}();
 
 	// initially set all as unassigned
-	ranges::fill(permute, -1);
+	std::ranges::fill(permute, -1);
 
 	unsigned restart = incr ? 0 : N2 - 1;
 	unsigned curr = restart;
@@ -348,7 +348,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (narrow<int>(filterLen) - idx_cnt) / 2;
 	Table table(HALF_TAB_LEN * filterLen);
-	ranges::fill(std::span{table}, 0.0f);
+	std::ranges::fill(std::span{table}, 0.0f);
 
 	for (auto t : xrange(HALF_TAB_LEN)) {
 		float* tab = &table[permute[t] * filterLen];
@@ -649,7 +649,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {
-		ranges::fill(subspan(buffer, bufEnd * CHANNELS, emuNum * CHANNELS), 0);
+		std::ranges::fill(subspan(buffer, bufEnd * CHANNELS, emuNum * CHANNELS), 0);
 		bufEnd += emuNum;
 	}
 

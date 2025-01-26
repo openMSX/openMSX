@@ -1,7 +1,9 @@
 #include "ROMHunterMk2.hh"
+
 #include "narrow.hh"
-#include "ranges.hh"
 #include "serialize.hh"
+
+#include <algorithm>
 #include <cassert>
 
 /*
@@ -37,7 +39,7 @@ ROMHunterMk2::ROMHunterMk2(const DeviceConfig& config, Rom&& rom_)
 void ROMHunterMk2::reset(EmuTime::param /*time*/)
 {
 	configReg = 0;
-	ranges::fill(bankRegs, 0);
+	std::ranges::fill(bankRegs, 0);
 	invalidateDeviceRCache(); // flush all to be sure
 }
 

@@ -2,8 +2,6 @@
 #define MINIMAL_PERFECT_HASH_HH
 
 #include "cstd.hh"
-#include "Math.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
@@ -108,7 +106,7 @@ template<size_t N, typename Hash, typename GetKey>
 
 	// Step 3: Map the items in buckets into hash tables.
 	constexpr auto UNUSED = uint8_t(-1);
-	ranges::fill(r.tab2, UNUSED);
+	std::ranges::fill(r.tab2, UNUSED);
 	for (const auto& bucket : buckets) {
 		auto const bSize = bucket.size();
 		if (bSize == 0) break; // done

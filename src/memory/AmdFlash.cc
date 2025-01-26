@@ -122,14 +122,14 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 					&(*ram)[sector.writeAddress]);
 				if (offset >= romSize) {
 					// completely past end of rom
-					ranges::fill(std::span{ramPtr, sector.size}, 0xFF);
+					std::ranges::fill(std::span{ramPtr, sector.size}, 0xFF);
 				} else if (offset + sector.size >= romSize) {
 					// partial overlap
 					auto last = romSize - offset;
 					auto missing = sector.size - last;
 					const uint8_t* romPtr = &(*rom)[offset];
 					ranges::copy(std::span{romPtr, last}, ramPtr);
-					ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
+					std::ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
 				} else {
 					// completely before end of rom
 					const uint8_t* romPtr = &(*rom)[offset];

@@ -28,7 +28,6 @@
 
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -93,22 +92,22 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, motherBoard(motherBoard_)
 	, pauseSetting(motherBoard.getReactor().getGlobalSettings().getPauseSetting())
 {
-	ranges::fill(primarySlotState, 0);
-	ranges::fill(secondarySlotState, 0);
-	ranges::fill(expanded, 0);
-	ranges::fill(subSlotRegister, 0);
-	ranges::fill(IO_In,  dummyDevice.get());
-	ranges::fill(IO_Out, dummyDevice.get());
-	ranges::fill(visibleDevices, dummyDevice.get());
+	std::ranges::fill(primarySlotState, 0);
+	std::ranges::fill(secondarySlotState, 0);
+	std::ranges::fill(expanded, 0);
+	std::ranges::fill(subSlotRegister, 0);
+	std::ranges::fill(IO_In,  dummyDevice.get());
+	std::ranges::fill(IO_Out, dummyDevice.get());
+	std::ranges::fill(visibleDevices, dummyDevice.get());
 	for (auto& sub1 : slotLayout) {
 		for (auto& sub2 : sub1) {
-			ranges::fill(sub2, dummyDevice.get());
+			std::ranges::fill(sub2, dummyDevice.get());
 		}
 	}
 
 	// initially allow all regions to be cached
-	ranges::fill(disallowReadCache,  0);
-	ranges::fill(disallowWriteCache, 0);
+	std::ranges::fill(disallowReadCache,  0);
+	std::ranges::fill(disallowWriteCache, 0);
 
 	initialPrimarySlots = motherBoard.getMachineConfig()->parseSlotMap();
 	// Note: SlotState is initialised at reset

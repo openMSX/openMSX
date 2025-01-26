@@ -118,7 +118,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 
 void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 {
-	ranges::fill(relevantMods, 0);
+	std::ranges::fill(relevantMods, 0);
 
 	while (!data.empty()) {
 		if (data.front() == '\n') {

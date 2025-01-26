@@ -28,6 +28,7 @@
 #include "serialize.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -126,7 +127,7 @@ MB89352::MB89352(const DeviceConfig& config)
 	reset(false);
 
 	// avoid UMR on savestate
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 void MB89352::disconnect()
@@ -155,7 +156,7 @@ void MB89352::softReset()
 		regs[i] = 0;
 	}
 	regs[15] = 0xFF;               // un mapped
-	ranges::fill(cdb, 0);
+	std::ranges::fill(cdb, 0);
 
 	cdbIdx = 0;
 	bufIdx = 0;

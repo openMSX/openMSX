@@ -28,6 +28,7 @@
 #include "serialize.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <iostream>
@@ -919,7 +920,7 @@ YM2413::YM2413()
 		}
 	}
 
-	ranges::fill(reg, 0); // avoid UMR
+	std::ranges::fill(reg, 0); // avoid UMR
 	eg_cnt = 0;
 	noise_rng = 0;
 
@@ -1052,7 +1053,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 		}
 	}
 	if (isRhythm()) {
-		ranges::fill(subspan<3>(bufs, 6), nullptr);
+		std::ranges::fill(subspan<3>(bufs, 6), nullptr);
 		for (auto ch : xrange(6, 9)) {
 			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
@@ -1071,7 +1072,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			bufs[13] = nullptr;
 		}
 	} else {
-		ranges::fill(subspan<5>(bufs, 9), nullptr);
+		std::ranges::fill(subspan<5>(bufs, 9), nullptr);
 	}
 
 	if (channelActiveBits) {

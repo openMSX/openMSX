@@ -4,6 +4,8 @@
 
 #include "serialize.hh"
 
+#include <algorithm>
+
 namespace openmsx {
 
 V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
@@ -19,8 +21,8 @@ void V9990VRAM::clear()
 	std::span s = data.getWriteBackdoor();
 	assert((s.size() % 1024) == 0);
 	while (!s.empty()) {
-		ranges::fill(s.subspan(  0, 512), 0x00);
-		ranges::fill(s.subspan(512, 512), 0xff);
+		std::ranges::fill(s.subspan(  0, 512), 0x00);
+		std::ranges::fill(s.subspan(512, 512), 0xff);
 		s = s.subspan(1024);
 	}
 }

@@ -3,9 +3,9 @@
 #include "systemfuncs.hh"
 
 #include "endian.hh"
-#include "ranges.hh"
 #include "stl.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cstdlib>
@@ -27,7 +27,7 @@ void fill_2(std::span<uint32_t> out, uint32_t val0, uint32_t val1)
 	std::span<uint64_t> out64{std::bit_cast<uint64_t*>(out.data()), out.size() / 2};
 	uint64_t val64 = Endian::BIG ? (uint64_t(val0) << 32) | val1
 	                             : val0 | (uint64_t(val1) << 32);
-	ranges::fill(out64, val64);
+	std::ranges::fill(out64, val64);
 
 	// Single remaining pixel.
 	if (out.size() & 1) [[unlikely]] {

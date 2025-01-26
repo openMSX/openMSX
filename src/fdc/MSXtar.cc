@@ -398,7 +398,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 
 	// clear this cluster
 	SectorBuffer buf;
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + nextSector, buf);
 	}
@@ -541,14 +541,14 @@ unsigned MSXtar::addSubdir(
 
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curCl);
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
 	memset(&buf.dirEntry[0], 0, sizeof(MSXDirEntry));
-	ranges::fill(buf.dirEntry[0].filename, ' ');
+	std::ranges::fill(buf.dirEntry[0].filename, ' ');
 	buf.dirEntry[0].filename[0] = '.';
 	buf.dirEntry[0].attrib = MSXDirEntry::Attrib::DIRECTORY;
 	buf.dirEntry[0].time = t;
@@ -556,7 +556,7 @@ unsigned MSXtar::addSubdir(
 	setStartCluster(buf.dirEntry[0], curCl);
 
 	memset(&buf.dirEntry[1], 0, sizeof(MSXDirEntry));
-	ranges::fill(buf.dirEntry[1].filename, ' ');
+	std::ranges::fill(buf.dirEntry[1].filename, ' ');
 	buf.dirEntry[1].filename[0] = '.';
 	buf.dirEntry[1].filename[1] = '.';
 	buf.dirEntry[1].attrib = MSXDirEntry::Attrib::DIRECTORY;
@@ -650,7 +650,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 			SectorBuffer buf;
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
 			file.read(subspan(buf.raw, 0, chunkSize));
-			ranges::fill(subspan(buf.raw, chunkSize), 0);
+			std::ranges::fill(subspan(buf.raw, chunkSize), 0);
 			writeLogicalSector(logicalSector + j, buf);
 			remaining -= chunkSize;
 		}

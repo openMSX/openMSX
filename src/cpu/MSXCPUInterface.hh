@@ -13,7 +13,6 @@
 #include "openmsx.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 
 #include <array>
 #include <bitset>

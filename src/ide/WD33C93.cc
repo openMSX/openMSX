@@ -26,6 +26,7 @@
 #include "enumerate.hh"
 #include "narrow.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -141,7 +142,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	reset(false);
 
 	// avoid UMR on savestate
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 void WD33C93::disconnect()
@@ -170,7 +171,7 @@ void WD33C93::execCmd(uint8_t value)
 	bool atn = false;
 	switch (value) {
 	case 0x00: // Reset controller (software reset)
-		ranges::fill(subspan<0x1a>(regs, 1), 0);
+		std::ranges::fill(subspan<0x1a>(regs, 1), 0);
 		disconnect();
 		latch = 0; // TODO: is this correct? Some doc says: reset to zero by master-reset-signal but not by reset command.
 		regs[REG_SCSI_STATUS] =
@@ -423,8 +424,8 @@ uint8_t WD33C93::peekCtrl() const
 void WD33C93::reset(bool scsiReset)
 {
 	// initialized register
-	ranges::fill(subspan<0x1b>(regs, 0x00), 0x00);
-	ranges::fill(subspan<0x04>(regs, 0x1b), 0xff);
+	std::ranges::fill(subspan<0x1b>(regs, 0x00), 0x00);
+	std::ranges::fill(subspan<0x04>(regs, 0x1b), 0xff);
 	regs[REG_AUX_STATUS] = AS_INT;
 	myId  = 0;
 	latch = 0;

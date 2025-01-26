@@ -78,7 +78,7 @@ void SRAM::memset(size_t addr, byte c, size_t aSize)
 		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert((addr + aSize) <= size());
-	ranges::fill(ram.getWriteBackdoor().subspan(addr, aSize), c);
+	std::ranges::fill(ram.getWriteBackdoor().subspan(addr, aSize), c);
 }
 
 void SRAM::load(bool* loaded)

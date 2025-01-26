@@ -114,7 +114,7 @@ void ImagePrinter::write(uint8_t data)
 	} else if (escSequence) {
 		escSequence = false;
 
-		ranges::fill(abEscSeq, 0);
+		std::ranges::fill(abEscSeq, 0);
 		abEscSeq[0] = data;
 		sizeEscPos = 1;
 
@@ -1586,7 +1586,7 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 	: buf(size_t(x) * size_t(y))
 	, sizeX(x), sizeY(y)
 {
-	ranges::fill(buf, 255);
+	std::ranges::fill(buf, 255);
 	setDotSize(dotSizeX, dotSizeY);
 }
 

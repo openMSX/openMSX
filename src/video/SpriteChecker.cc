@@ -9,9 +9,11 @@ TODO:
 */
 
 #include "SpriteChecker.hh"
+
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "serialize.hh"
+
 #include <algorithm>
 #include <bit>
 #include <cassert>
@@ -494,7 +496,7 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		// any influence on the MSX state. So the effect of not
 		// serializing these two is that no sprites will be shown in the
 		// first (partial) frame after loadstate.
-		ranges::fill(spriteCount, 0);
+		std::ranges::fill(spriteCount, 0);
 		// content of spriteBuffer[] doesn't matter if spriteCount[] is 0
 	}
 	ar.serialize("collisionX", collisionX,

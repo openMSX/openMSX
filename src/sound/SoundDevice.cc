@@ -10,7 +10,6 @@
 
 #include "inplace_buffer.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "one_of.hh"
 #include "xrange.hh"
 
@@ -60,8 +59,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 	setInputRate(inputRate);
 
 	// initially no channels are muted
-	ranges::fill(channelMuted, false);
-	ranges::fill(channelBalance, Balance{1.0f, 1.0f});
+	std::ranges::fill(channelMuted, false);
+	std::ranges::fill(channelBalance, Balance{1.0f, 1.0f});
 }
 
 SoundDevice::~SoundDevice() = default;
@@ -245,7 +244,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 			}
 			auto* ptr = &cb.buffer[cb.stopIdx];
 			bufs[i] = ptr;
-			ranges::fill(std::span{ptr, size}, 0.0f);
+			std::ranges::fill(std::span{ptr, size}, 0.0f);
 			cb.stopIdx += size;
 		}
 	}
@@ -257,7 +256,7 @@ bool SoundDevice::mixChannels(float* dataOut, size_t samples)
 		// provided buffers. Those with only one channel will directly
 		// replace the content of the buffer. For the former we must
 		// start from a buffer containing all zeros.
-		ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
+		std::ranges::fill(std::span{dataOut, outputStereo * samples}, 0.0f);
 	}
 
 	generateChannels(bufs, narrow<unsigned>(samples));

@@ -5,6 +5,8 @@
 #include "ranges.hh"
 #include "xrange.hh"
 #include "zstring_view.hh"
+
+#include <algorithm>
 #include <array>
 #include <climits>
 #include <limits>
@@ -450,7 +452,7 @@ struct ConcatSpaces
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		ranges::fill(std::span{dst, n}, ' ');
+		std::ranges::fill(std::span{dst, n}, ' ');
 		return dst + n;
 	}
 

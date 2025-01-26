@@ -130,7 +130,7 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 	auto missing = narrow_cast<ptrdiff_t>(len - available);
 	if (missing > 0) {
 		// buffer underrun
-		ranges::fill(subspan(stream, available, missing), StereoFloat{});
+		std::ranges::fill(subspan(stream, available, missing), StereoFloat{});
 	}
 }
 

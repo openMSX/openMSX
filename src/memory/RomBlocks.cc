@@ -1,10 +1,13 @@
-#include "MSXCliComm.hh"
 #include "RomBlocks.hh"
+
+#include "MSXCliComm.hh"
 #include "SRAM.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <bit>
 
 namespace openmsx {
@@ -174,7 +177,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	} else {
 		assert(Archive::IS_LOADER);
 		// set dummy value, anyway only used for debuggable
-		ranges::fill(blockNr, 255);
+		std::ranges::fill(blockNr, 255);
 	}*/
 }
 

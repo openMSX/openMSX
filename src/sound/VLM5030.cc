@@ -94,7 +94,6 @@ chirp 12-..: volume   0   : silent
 
 namespace openmsx {
 
-
 // interpolator per frame
 static constexpr int FR_SIZE = 4;
 // samples per interpolator
@@ -193,7 +192,7 @@ int VLM5030::parseFrame()
 	    cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
-		ranges::fill(new_k, 0);
+		std::ranges::fill(new_k, 0);
 		++address;
 		if (cmd & 0x02) {
 			// end of speech
@@ -400,12 +399,12 @@ void VLM5030::reset()
 	new_energy = new_pitch = 0;
 	current_energy = current_pitch = 0;
 	target_energy = target_pitch = 0;
-	ranges::fill(old_k, 0);
-	ranges::fill(new_k, 0);
-	ranges::fill(current_k, 0);
-	ranges::fill(target_k, 0);
+	std::ranges::fill(old_k, 0);
+	std::ranges::fill(new_k, 0);
+	std::ranges::fill(current_k, 0);
+	std::ranges::fill(target_k, 0);
 	interp_count = sample_count = pitch_count = 0;
-	ranges::fill(x, 0);
+	std::ranges::fill(x, 0);
 	// reset parameters
 	setupParameter(0x00);
 }

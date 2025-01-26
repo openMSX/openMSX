@@ -8,7 +8,6 @@
 #include "cstd.hh"
 #include "endian.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 
 #include <algorithm>
@@ -153,8 +152,8 @@ void ZMBVEncoder::setupBuffers()
 
 	oldFrame.resize(bufSize);
 	newFrame.resize(bufSize);
-	ranges::fill(std::span{oldFrame}, 0);
-	ranges::fill(std::span{newFrame}, 0);
+	std::ranges::fill(std::span{oldFrame}, 0);
+	std::ranges::fill(std::span{newFrame}, 0);
 	work.resize(bufSize);
 	outputSize = neededSize();
 	output.resize(outputSize);
