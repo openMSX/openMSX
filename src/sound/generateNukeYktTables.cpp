@@ -89,7 +89,7 @@ struct CompressedEnvTables {
 				    f != -1) {
 					r.releaseIndex[i][j][k] = f;
 				} else {
-					ranges::copy(envTabs.release[i][j][k], r.releaseData[out_n]);
+					copy_to_range(envTabs.release[i][j][k], r.releaseData[out_n]);
 					r.releaseIndex[i][j][k] = out_n;
 					++out_n;
 				}

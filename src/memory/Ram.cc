@@ -57,7 +57,7 @@ void Ram::clear(byte c)
 				throw MSXException("Zero-length initial pattern");
 			}
 			done = std::min(size(), buf.size());
-			ranges::copy(buf.first(done), ram.data());
+			copy_to_range(buf.first(done), ram);
 		} else {
 			throw MSXException("Unsupported encoding \"", encoding,
 			                   "\" for initialContent");
@@ -67,7 +67,7 @@ void Ram::clear(byte c)
 		auto left = size() - done;
 		while (left) {
 			auto tmp = std::min(done, left);
-			ranges::copy(std::span{ram.data(), tmp}, &ram[done]);
+			copy_to_range(std::span{ram.data(), tmp}, subspan(ram, done));
 			done += tmp;
 			left -= tmp;
 		}

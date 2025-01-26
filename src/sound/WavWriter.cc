@@ -36,10 +36,10 @@ WavWriter::WavWriter(const Filename& filename,
 		Endian::L32         subChunk2Size; // +40
 	} header;
 
-	ranges::copy(std::string_view("RIFF"), header.chunkID);
+	copy_to_range(std::string_view("RIFF"), header.chunkID);
 	header.chunkSize     = 0; // actual value filled in later
-	ranges::copy(std::string_view("WAVE"), header.format);
-	ranges::copy(std::string_view("fmt "), header.subChunk1ID);
+	copy_to_range(std::string_view("WAVE"), header.format);
+	copy_to_range(std::string_view("fmt "), header.subChunk1ID);
 	header.subChunk1Size = 16;
 	header.audioFormat   = 1;
 	header.numChannels   = narrow<uint16_t>(channels);
@@ -47,7 +47,7 @@ WavWriter::WavWriter(const Filename& filename,
 	header.byteRate      = (channels * frequency * bits) / 8;
 	header.blockAlign    = narrow<uint16_t>((channels * bits) / 8);
 	header.bitsPerSample = narrow<uint16_t>(bits);
-	ranges::copy(std::string_view("data"), header.subChunk2ID);
+	copy_to_range(std::string_view("data"), header.subChunk2ID);
 	header.subChunk2Size = 0; // actual value filled in later
 
 	file.write(std::span{&header, 1});

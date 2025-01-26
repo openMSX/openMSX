@@ -488,7 +488,7 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	FileName result;
 	result.fill(' ');
 	if (hostFile == one_of(".", "..")) {
-		ranges::copy(hostFile, result);
+		copy_to_range(hostFile, result);
 		return result;
 	}
 
@@ -505,8 +505,8 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	transform_in_place(extS,  toFileNameChar);
 
 	// add correct number of spaces
-	ranges::copy(fileS, subspan<8>(result, 0));
-	ranges::copy(extS,  subspan<3>(result, 8));
+	copy_to_range(fileS, subspan<8>(result, 0));
+	copy_to_range(extS,  subspan<3>(result, 8));
 	return result;
 }
 
@@ -526,7 +526,7 @@ unsigned MSXtar::addSubdir(
 	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
-	ranges::copy(msxName, dirEntry.filename);
+	copy_to_range(msxName, dirEntry.filename);
 	dirEntry.attrib = MSXDirEntry::Attrib::DIRECTORY;
 	dirEntry.time = t;
 	dirEntry.date = d;
@@ -821,7 +821,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector, Add
 	readLogicalSector(entry.sector, buf);
 	auto& dirEntry = buf.dirEntry[entry.index];
 	memset(&dirEntry, 0, sizeof(dirEntry));
-	ranges::copy(msxName, dirEntry.filename);
+	copy_to_range(msxName, dirEntry.filename);
 	dirEntry.attrib = MSXDirEntry::Attrib::REGULAR;
 
 	// compute time/date stamps

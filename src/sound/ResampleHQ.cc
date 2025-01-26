@@ -644,8 +644,8 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 	small_buffer<float, 8192> tmpBufExtra(uninitialized_tag{}, emuNum * CHANNELS + 3); // typical ~5194 (PSG, samples=1024) but could be larger
 	auto tmpBuf = subspan(tmpBufExtra, 0, emuNum * CHANNELS);
 	if (input.generateInput(tmpBufExtra.data(), emuNum)) {
-		ranges::copy(tmpBuf,
-		             subspan(buffer, bufEnd * CHANNELS));
+		copy_to_range(tmpBuf,
+		              subspan(buffer, bufEnd * CHANNELS));
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {

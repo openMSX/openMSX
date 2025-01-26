@@ -2,7 +2,6 @@
 #define STRCAT_HH
 
 #include "TemporaryString.hh"
-#include "ranges.hh"
 #include "xrange.hh"
 #include "zstring_view.hh"
 
@@ -133,7 +132,7 @@ struct ConcatViaString
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		ranges::copy(s, dst);
+		std::ranges::copy(s, dst);
 		return dst + s.size();
 	}
 
@@ -187,7 +186,7 @@ template<> struct ConcatUnit<std::string_view>
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		ranges::copy(v, dst);
+		std::ranges::copy(v, dst);
 		return dst + v.size();
 	}
 
@@ -307,14 +306,14 @@ template<std::integral T> struct ConcatIntegral
 
 	[[nodiscard]] char* copy(char* dst) const
 	{
-		ranges::copy(std::span{data(), sz}, dst);
+		std::ranges::copy(std::span{data(), sz}, dst);
 		return dst + sz;
 	}
 
 	[[nodiscard]] char* copyTail(char* dst, size_t n) const
 	{
 		assert(n <= sz);
-		ranges::copy(std::span{buf.data() + BUF_SIZE - n, n}, dst);
+		std::ranges::copy(std::span{buf.data() + BUF_SIZE - n, n}, dst);
 		return dst + n;
 	}
 

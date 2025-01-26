@@ -625,7 +625,7 @@ void ImagePrinterMSX::resetSettings()
 	eightBit     = -1;
 
 	// note: this only overwrites 9/12 of the fontInfo.rom array.
-	ranges::copy(MSXFont, fontInfo.rom);
+	copy_to_range(MSXFont, fontInfo.rom);
 	fontInfo.charWidth = 9;
 	fontInfo.pixelDelta = 1.0;
 	fontInfo.useRam = false;
@@ -1167,7 +1167,7 @@ void ImagePrinterEpson::resetSettings()
 	fontWidth    = 6;
 	eightBit     = -1;
 
-	ranges::copy(EpsonFontRom, fontInfo.rom);
+	copy_to_range(EpsonFontRom, fontInfo.rom);
 	fontInfo.charWidth = 12;
 	fontInfo.pixelDelta = 0.5;
 	fontInfo.useRam = false;
@@ -1300,7 +1300,7 @@ void ImagePrinterEpson::processEscSequence()
 			detectPaperOut = false;
 			break;
 		case ':': // Copies Rom Character set to RAM
-			ranges::copy(fontInfo.rom, fontInfo.ram);
+			copy_to_range(fontInfo.rom, fontInfo.ram);
 			break;
 		case '<': // Turn Uni-directional printing ON (left to right)
 			leftToRight = true;

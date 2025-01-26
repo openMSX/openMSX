@@ -233,7 +233,7 @@ static void applyDeltaInPlace(std::span<uint8_t> buf, std::span<const uint8_t> d
 		if (buf.empty()) break;
 
 		auto n2 = loadUleb(delta);
-		ranges::copy(delta.subspan(0, n2), buf);
+		copy_to_range(delta.subspan(0, n2), buf);
 		buf   = buf  .subspan(n2);
 		delta = delta.subspan(n2);
 	}
@@ -260,7 +260,7 @@ DeltaBlockCopy::DeltaBlockCopy(std::span<const uint8_t> data)
 #ifdef DEBUG
 	sha1 = SHA1::calc(data);
 #endif
-	ranges::copy(data, std::span{block});
+	copy_to_range(data, std::span{block});
 	assert(!compressed());
 #if STATISTICS
 	allocSize = size;
@@ -275,7 +275,7 @@ void DeltaBlockCopy::apply(std::span<uint8_t> dst) const
 	if (compressed()) {
 		LZ4::decompress(block.data(), dst.data(), int(compressedSize), int(dst.size()));
 	} else {
-		ranges::copy(std::span{block.data(), dst.size()}, dst);
+		copy_to_range(std::span{block.data(), dst.size()}, dst);
 	}
 #ifdef DEBUG
 	assert(SHA1::calc(dst) == sha1);

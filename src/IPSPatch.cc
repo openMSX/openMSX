@@ -59,9 +59,9 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			++e;
 			std::vector<uint8_t> tmp(length2);
 			for (auto it : xrange(b, e)) {
-				ranges::copy(*it, subspan(tmp, it->startAddress - start));
+				copy_to_range(*it, subspan(tmp, it->startAddress - start));
 			}
-			ranges::copy(v, subspan(tmp, offset - start));
+			copy_to_range(v, subspan(tmp, offset - start));
 			*b = Chunk{start, std::move(tmp)};
 			result.erase(b + 1, e);
 		} else {
@@ -127,8 +127,8 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 		assert((chunkOffset + chunkSize) <= int(it->size()));
 		assert(src <= chunkStart);
 		assert((chunkStart + chunkSize) <= srcEnd);
-		ranges::copy(subspan(*it, chunkOffset, size_t(chunkSize)),
-		             subspan(dst, chunkStart - src));
+		copy_to_range(subspan(*it, chunkOffset, size_t(chunkSize)),
+		              subspan(dst, chunkStart - src));
 	}
 }
 

@@ -239,8 +239,8 @@ static std::array<char, 11> hostToMsxName(string hostName)
 
 	std::array<char, 8 + 3> result;
 	std::ranges::fill(result, ' ');
-	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
-	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
+	copy_to_range(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
+	copy_to_range(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
 	std::ranges::replace(result, '.', '_');
 	return result;
 }
@@ -845,7 +845,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
-		ranges::copy(msxFilename, msxDir(dirIndex).filename);
+		copy_to_range(msxFilename, msxDir(dirIndex).filename);
 		return dirIndex;
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't add ", hostPath, ": ",

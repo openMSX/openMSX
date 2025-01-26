@@ -371,7 +371,7 @@ void Rom::addPadding(size_t newSize, byte filler)
 	if (newSize == rom.size()) return;
 
 	MemBuffer<byte> tmp(newSize);
-	ranges::copy(rom, std::span{tmp});
+	copy_to_range(rom, std::span{tmp});
 	std::ranges::fill(tmp.subspan(rom.size()), filler);
 
 	rom = std::span{tmp};

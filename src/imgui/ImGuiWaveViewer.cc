@@ -246,7 +246,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 	if (buf.size() <= fftLen) {
 		extended = allocate(fftLen);
 		auto buf2 = extended.subspan(0, buf.size());
-		ranges::copy(buf, buf2);
+		copy_to_range(buf, buf2);
 		buf = buf2;
 	} else {
 		assert(buf.size() >= HALF_BAND_EXTRA);

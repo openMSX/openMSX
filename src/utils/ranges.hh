@@ -6,8 +6,8 @@
 #include <cassert>
 #include <cstdint>
 #include <functional>
-#include <iterator> // for std::begin(), std::end()
-#include <numeric>
+#include <iterator>
+#include <ranges>
 #include <span>
 #include <version> // for _LIBCPP_VERSION
 
@@ -25,43 +25,8 @@
 
 namespace ranges {
 
-// (Simplified) implementation of c++20 "range" and "sized_range" concepts.
-// * A "range" is something that has a begin() and end().
-// * A "sized_range" in addition has a size().
-template<typename T>
-concept range = requires(T& t) {
-	std::begin(t);
-	std::end  (t);
-};
-
-template<typename T>
-concept sized_range = range<T> && requires(T& t) { std::size(t); };
-
-
-template<typename InputRange, typename OutputIter>
-	requires(!range<OutputIter>)
-constexpr auto copy(InputRange&& range, OutputIter out)
-{
-	return std::copy(std::begin(range), std::end(range), out);
-}
-
-template<sized_range Input, sized_range Output>
-constexpr auto copy(Input&& in, Output&& out)
-{
-	assert(std::size(in) <= std::size(out));
-	// Workaround: this doesn't work when copying a std::initializer_list into a std::array with libstdc++ debug-STL ???
-	//     return std::copy(std::begin(in), std::end(in), std::begin(out));
-	auto f = std::begin(in);
-	auto l = std::end(in);
-	auto o = std::begin(out);
-	while (f != l) {
-		*o++ = *f++;
-	}
-	return o;
-}
-
 // part of c++23, not yet available in clang-16
-template<typename ForwardIt, typename T>
+template<std::forward_iterator ForwardIt, typename T>
 constexpr void iota(ForwardIt first, ForwardIt last, T value)
 {
 	while (first != last) {
@@ -70,19 +35,19 @@ constexpr void iota(ForwardIt first, ForwardIt last, T value)
 	}
 }
 
-template<typename ForwardRange, typename T>
-constexpr void iota(ForwardRange&& range, T&& value)
+template<std::ranges::forward_range Range, typename T>
+constexpr void iota(Range&& range, T&& value)
 {
-	::ranges::iota(std::begin(range), std::end(range), std::forward<T>(value));
+	::ranges::iota(std::ranges::begin(range), std::ranges::end(range), std::forward<T>(value));
 }
 
 // Test whether all elements in the given range are equal to each other (after
 // applying a projection).
-template<typename InputRange, typename Proj = std::identity>
-bool all_equal(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+bool all_equal(Range&& range, Proj proj = {})
 {
-	auto it = std::begin(range);
-	auto et = std::end(range);
+	auto it = std::ranges::begin(range);
+	auto et = std::ranges::end(range);
 	if (it == et) return true;
 
 	auto val = std::invoke(proj, *it);
@@ -95,6 +60,27 @@ bool all_equal(InputRange&& range, Proj proj = {})
 }
 
 } // namespace ranges
+
+// Copy from a (sized-)range to another (non-overlapping) (sized-)range.
+// This differs from std::ranges::copy() in how the destination is passed:
+// * This version requires a (sized-)range.
+// * std::ranges::copy() requires an output-iterator.
+// The latter is more general, but the former can do an extra safety check:
+// * The destination size must be as least as large as the source size.
+template<std::ranges::sized_range Input, std::ranges::sized_range Output>
+constexpr auto copy_to_range(Input&& in, Output&& out)
+{
+	assert(std::ranges::size(in) <= std::ranges::size(out));
+	// Workaround: this doesn't work when copying a std::initializer_list into a std::array with libstdc++ debug-STL ???
+	//     return std::copy(std::begin(in), std::end(in), std::begin(out));
+	auto f = std::ranges::begin(in);
+	auto l = std::ranges::end(in);
+	auto o = std::ranges::begin(out);
+	while (f != l) {
+		*o++ = *f++;
+	}
+	return o;
+}
 
 // Perform a binary-search in a sorted range.
 // The given 'range' must be sorted according to 'comp'.
@@ -111,11 +97,11 @@ bool all_equal(InputRange&& range, Proj proj = {})
 //     if (auto m = binary_find(myMap, name, {}, &Element::name)) {
 //         ... use *m
 //     }
-template<typename ForwardRange, typename T, typename Compare = std::less<>, typename Proj = std::identity>
-[[nodiscard]] auto* binary_find(ForwardRange&& range, const T& value, Compare comp = {}, Proj proj = {})
+template<std::ranges::forward_range Range, typename T, typename Compare = std::less<>, typename Proj = std::identity>
+[[nodiscard]] auto* binary_find(Range&& range, const T& value, Compare comp = {}, Proj proj = {})
 {
 	auto it = std::ranges::lower_bound(range, value, comp, proj);
-	return ((it != std::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
+	return ((it != std::ranges::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
 	       ? &*it
 	       : nullptr;
 }
@@ -125,7 +111,7 @@ template<typename ForwardRange, typename T, typename Compare = std::less<>, type
 // are then further used in range algorithms, that's why I placed them in this
 // header.
 
-template<typename Range>
+template<std::ranges::range Range>
 constexpr auto make_span(Range&& range)
 {
 #ifndef _LIBCPP_VERSION
@@ -144,13 +130,13 @@ constexpr auto make_span(Range&& range)
 #endif
 }
 
-template<typename Range>
+template<std::ranges::range Range>
 [[nodiscard]] constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
 {
 	return make_span(std::forward<Range>(range)).subspan(offset, count);
 }
 
-template<size_t Count, typename Range>
+template<size_t Count, std::ranges::range Range>
 [[nodiscard]] constexpr auto subspan(Range&& range, size_t offset = 0)
 {
 	return make_span(std::forward<Range>(range)).subspan(offset).template first<Count>();

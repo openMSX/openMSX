@@ -57,7 +57,7 @@ AviWriter::~AviWriter()
 
 	auto AVIOUT4 = [&](std::string_view s) {
 		assert(s.size() == 4);
-		ranges::copy(s, subspan(avi_header, header_pos));
+		copy_to_range(s, subspan(avi_header, header_pos));
 		header_pos += 4;
 	};
 	auto AVIOUTw = [&](uint16_t w) {
@@ -70,7 +70,7 @@ AviWriter::~AviWriter()
 	};
 	auto AVIOUTs = [&](zstring_view s) {
 		auto len1 = s.size() + 1; // +1 for zero-terminator
-		ranges::copy(std::span{s.data(), len1}, subspan(avi_header, header_pos));
+		copy_to_range(std::span{s.data(), len1}, subspan(avi_header, header_pos));
 		header_pos += narrow<unsigned>((len1 + 1) & ~1); // round-up to even
 	};
 
@@ -253,7 +253,7 @@ void AviWriter::addAviChunk(std::span<const char, 4> tag, std::span<const uint8_
 
 	auto size32 = narrow<uint32_t>(data.size());
 
-	ranges::copy(tag, chunk.t);
+	copy_to_range(tag, chunk.t);
 	chunk.s = size32;
 	file.write(std::span{&chunk, 1});
 

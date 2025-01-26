@@ -19,14 +19,14 @@ void EmptyPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 			auto part1 = size - src;
 			auto part2 = dst.size() - part1;
 			assert(dst.data() != &block[src]);
-			ranges::copy(block.subspan(src, part1), dst);
+			copy_to_range(block.subspan(src, part1), dst);
 			std::ranges::fill(dst.subspan(part1, part2), 0);
 		}
 	} else {
 		if (dst.data() != &block[src]) {
-			// ranges::copy cannot handle overlapping regions, but in
+			// copy_to_range cannot handle overlapping regions, but in
 			// that case we don't need to copy at all
-			ranges::copy(block.subspan(src, dst.size()), dst);
+			copy_to_range(block.subspan(src, dst.size()), dst);
 		}
 	}
 }

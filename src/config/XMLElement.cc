@@ -12,6 +12,7 @@
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -312,7 +313,7 @@ XMLAttribute* XMLDocument::allocateAttribute(const char* name, const char* value
 const char* XMLDocument::allocateString(std::string_view str)
 {
 	auto* p = static_cast<char*>(allocator.allocate(str.size() + 1, alignof(char)));
-	auto e = ranges::copy(str, p);
+	auto e = std::ranges::copy(str, p).out;
 	*e = '\0';
 	return p;
 }

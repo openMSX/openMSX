@@ -118,13 +118,13 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 	size_t available = getBufferFilled();
 	auto num = std::min(len, available);
 	if ((readIdx + num) < mixBuffer.size()) {
-		ranges::copy(mixBuffer.subspan(readIdx, num), stream);
+		copy_to_range(mixBuffer.subspan(readIdx, num), stream);
 		readIdx += narrow<unsigned>(num);
 	} else {
 		auto len1 = mixBuffer.size() - readIdx;
-		ranges::copy(mixBuffer.subspan(readIdx, len1), stream);
+		copy_to_range(mixBuffer.subspan(readIdx, len1), stream);
 		auto len2 = num - len1;
-		ranges::copy(mixBuffer.first(len2), stream.subspan(len1));
+		copy_to_range(mixBuffer.first(len2), stream.subspan(len1));
 		readIdx = narrow<unsigned>(len2);
 	}
 	auto missing = narrow_cast<ptrdiff_t>(len - available);
@@ -156,13 +156,13 @@ void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 	}
 	assert(buffer.size() <= free);
 	if ((writeIdx + buffer.size()) < mixBuffer.size()) {
-		ranges::copy(buffer, mixBuffer.subspan(writeIdx));
+		copy_to_range(buffer, mixBuffer.subspan(writeIdx));
 		writeIdx += narrow<unsigned>(buffer.size());
 	} else {
 		auto len1 = mixBuffer.size() - writeIdx;
-		ranges::copy(buffer.subspan(0, len1), mixBuffer.subspan(writeIdx));
+		copy_to_range(buffer.subspan(0, len1), mixBuffer.subspan(writeIdx));
 		auto len2 = buffer.size() - len1;
-		ranges::copy(buffer.subspan(len1, len2), std::span{mixBuffer});
+		copy_to_range(buffer.subspan(len1, len2), std::span{mixBuffer});
 		writeIdx = narrow<unsigned>(len2);
 	}
 

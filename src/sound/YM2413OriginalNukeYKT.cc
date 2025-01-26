@@ -26,7 +26,7 @@ void YM2413::reset()
 void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
 	std::array<float*, 9 + 5> out;
-	ranges::copy(out_, out);
+	copy_to_range(out_, out);
 
 	auto f = [&] {
 		std::array<int32_t, 2> buf;

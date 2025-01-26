@@ -261,7 +261,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 					// Set old target as new start of frame
 					current_energy = old_energy;
 					current_pitch = old_pitch;
-					ranges::copy(old_k, current_k); // no assignment because arrays have different type (intentional?)
+					copy_to_range(old_k, current_k); // no assignment because arrays have different type (intentional?)
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;

@@ -121,8 +121,8 @@ void MSXCPU::execute(bool fastForward)
 		auto rCache = r800->getCacheLines();
 		auto from = z80Active ? rCache : zCache;
 		auto to   = z80Active ? zCache : rCache;
-		ranges::copy(from.read,  to.read);
-		ranges::copy(from.write, to.write);
+		copy_to_range(from.read,  to.read);
+		copy_to_range(from.write, to.write);
 	}
 	z80Active ? z80 ->execute(fastForward)
 	          : r800->execute(fastForward);

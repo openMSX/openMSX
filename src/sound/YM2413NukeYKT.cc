@@ -119,7 +119,7 @@ YM2413::YM2413()
 	, releasePtr(/*dummy*/releaseData[0])
 {
 	// copy ROM patches to array (for faster lookup)
-	ranges::copy(m_patches, subspan(patches, 1));
+	copy_to_range(m_patches, subspan(patches, 1));
 	reset();
 }
 
@@ -817,7 +817,7 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
 	std::array<float*, 9 + 5> out;
-	ranges::copy(out_, out);
+	copy_to_range(out_, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
 	if (test_mode_active) [[unlikely]] {

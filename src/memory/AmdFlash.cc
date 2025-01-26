@@ -128,12 +128,12 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 					auto last = romSize - offset;
 					auto missing = sector.size - last;
 					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, last}, ramPtr);
+					std::ranges::copy(std::span{romPtr, last}, ramPtr);
 					std::ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
 				} else {
 					// completely before end of rom
 					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, sector.size}, ramPtr);
+					std::ranges::copy(std::span{romPtr, sector.size}, ramPtr);
 				}
 			}
 		} else {

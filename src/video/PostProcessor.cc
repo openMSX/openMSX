@@ -523,7 +523,7 @@ void PostProcessor::uploadBlock(
 		auto dest = mapped.subspan(yy * size_t(lineWidth), lineWidth);
 		auto line = paintFrame->getLine(narrow<int>(yy + srcStartY), dest);
 		if (line.data() != dest.data()) {
-			ranges::copy(line, dest);
+			copy_to_range(line, dest);
 		}
 	}
 	pbo.unmap();

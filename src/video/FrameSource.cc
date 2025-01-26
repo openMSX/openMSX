@@ -76,7 +76,7 @@ void FrameSource::scaleLine(
 		// scaled.
 		// TODO If the LineScaler routines can work in-place then this
 		//      copy can be avoided.
-		ranges::copy(in, tmpBuf);
+		copy_to_range(in, tmpBuf);
 		in = tmpBuf;
 	}
 

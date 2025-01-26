@@ -96,7 +96,7 @@ void OSDImageBasedWidget::setRGBA(std::span<const uint32_t, 4> newRGBA)
 		return; // not changed
 	}
 	invalidateLocal();
-	ranges::copy(newRGBA, rgba);
+	copy_to_range(newRGBA, rgba);
 }
 
 static void set4(std::span<const uint32_t, 4> rgba, uint32_t mask, unsigned shift, TclObject& result)

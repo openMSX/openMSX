@@ -367,8 +367,8 @@ void OggReader::readVorbis(ogg_packet* packet)
 		auto len = std::min(decoded - pos,
 		                    narrow<int>(AudioFragment::MAX_SAMPLES - audio->length));
 
-		ranges::copy(std::span{&pcm[0][pos], size_t(len)}, &audio->pcm[0][audio->length]);
-		ranges::copy(std::span{&pcm[1][pos], size_t(len)}, &audio->pcm[1][audio->length]);
+		std::ranges::copy(std::span{&pcm[0][pos], size_t(len)}, &audio->pcm[0][audio->length]);
+		std::ranges::copy(std::span{&pcm[1][pos], size_t(len)}, &audio->pcm[1][audio->length]);
 		audio->length += len;
 		pos += len;
 
@@ -564,9 +564,9 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	size_t y_size  = yuv[0].height * size_t(yuv[0].stride);
 	size_t uv_size = yuv[1].height * size_t(yuv[1].stride);
-	ranges::copy(std::span{yuv[0].data,  y_size}, frame->buffer[0].data);
-	ranges::copy(std::span{yuv[1].data, uv_size}, frame->buffer[1].data);
-	ranges::copy(std::span{yuv[2].data, uv_size}, frame->buffer[2].data);
+	std::ranges::copy(std::span{yuv[0].data,  y_size}, frame->buffer[0].data);
+	std::ranges::copy(std::span{yuv[1].data, uv_size}, frame->buffer[1].data);
+	std::ranges::copy(std::span{yuv[2].data, uv_size}, frame->buffer[2].data);
 
 	// At lot of frames have frame number -1, only some have the correct
 	// frame number. We continue counting from the previous known

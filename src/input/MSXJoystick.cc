@@ -125,7 +125,7 @@ void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 	}
 
 	// only change current bindings when parsing was fully successful
-	ranges::copy(newBindings, bindings);
+	copy_to_range(newBindings, bindings);
 }
 
 // Pluggable

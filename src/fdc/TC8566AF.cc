@@ -72,8 +72,8 @@ TC8566AF::TC8566AF(Scheduler& scheduler_, std::span<std::unique_ptr<DiskDrive>, 
 {
 	setDrqRate(RawTrack::STANDARD_SIZE);
 
-	ranges::copy(std::views::transform(drv, [](auto& p) { return p.get(); }),
-	             drive);
+	copy_to_range(std::views::transform(drv, [](auto& p) { return p.get(); }),
+	              drive);
 	reset(time);
 }
 

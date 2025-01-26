@@ -689,7 +689,7 @@ void tiger(std::span<const uint8_t> input, TigerHash& result)
 
 	std::array<uint8_t, 64> temp;
 	assert(input.size() < 64);
-	ranges::copy(input, temp);
+	copy_to_range(input, temp);
 	size_t j = input.size();
 	temp[j++] = 0x01;
 	while (j & 7) { // pad to 8-byte boundary

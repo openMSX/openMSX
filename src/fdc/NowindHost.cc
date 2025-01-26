@@ -540,7 +540,7 @@ void NowindHost::doDiskWrite2()
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	auto dst = fullBuf.subspan(transferred, transferSize);
 	auto src = subspan(extraData, 1, transferSize);
-	ranges::copy(src, dst);
+	copy_to_range(src, dst);
 
 	byte seq1 = extraData[0];
 	byte seq2 = extraData[transferSize + 1];
@@ -800,7 +800,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	std::span<uint8_t> buf{buffer.data()->raw.data(), bufSize};
 	auto tmp = to_vector(buf);
 	ar.serialize("buffer", tmp);
-	ranges::copy(tmp, buf);
+	copy_to_range(tmp, buf);
 
 	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,

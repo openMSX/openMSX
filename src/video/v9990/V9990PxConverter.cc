@@ -1,9 +1,12 @@
 #include "V9990PxConverter.hh"
+
 #include "V9990.hh"
 #include "V9990VRAM.hh"
+
 #include "ScopedAssign.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+
 #include <array>
 #include <cassert>
 #include <algorithm>

@@ -11,7 +11,7 @@ void MemoryBufferFile::read(std::span<uint8_t> dst)
 	if (getSize() < (getPos() + dst.size())) {
 		throw FileException("Read beyond end of file");
 	}
-	ranges::copy(buffer.subspan(pos, dst.size()), dst);
+	copy_to_range(buffer.subspan(pos, dst.size()), dst);
 	pos += dst.size();
 }
 

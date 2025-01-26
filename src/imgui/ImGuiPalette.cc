@@ -136,7 +136,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 			palette = std::span<uint16_t, 16>{const_cast<uint16_t*>(fixedPalette.data()), 16};
 		} else if (whichPalette == PALETTE_VDP) {
 			assert(vdp);
-			ranges::copy(vdp->getPalette(), paletteCopy);
+			copy_to_range(vdp->getPalette(), paletteCopy);
 			palette = paletteCopy;
 		}
 

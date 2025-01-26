@@ -326,7 +326,7 @@ void SHA1::update(std::span<const uint8_t> data)
 	size_t i;
 	if ((j + len) > 63) {
 		i = 64 - j;
-		ranges::copy(data.subspan(0, i), subspan(m_buffer, j));
+		copy_to_range(data.subspan(0, i), subspan(m_buffer, j));
 		transform(m_buffer);
 		for (/**/; i + 63 < len; i += 64) {
 			transform(subspan<64>(data, i));
@@ -335,7 +335,7 @@ void SHA1::update(std::span<const uint8_t> data)
 	} else {
 		i = 0;
 	}
-	ranges::copy(data.subspan(i, len - i), subspan(m_buffer, j));
+	copy_to_range(data.subspan(i, len - i), subspan(m_buffer, j));
 }
 
 void SHA1::finalize()
