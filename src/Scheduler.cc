@@ -4,7 +4,6 @@
 #include "Thread.hh"
 #include "MSXCPU.hh"
 
-#include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
 
@@ -55,7 +54,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
+	std::ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
 	return result;
 }
 

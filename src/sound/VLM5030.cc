@@ -267,7 +267,7 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 					if (current_energy == 0) {
 						target_energy = 0;
 						target_pitch = narrow_cast<uint8_t>(current_pitch);
-						ranges::transform(current_k, target_k.data(), [](int k) { return int16_t(k); }); // type conversion intentional?
+						std::ranges::transform(current_k, target_k.data(), [](int k) { return int16_t(k); }); // type conversion intentional?
 					} else {
 						// normal frame
 						target_energy = new_energy;

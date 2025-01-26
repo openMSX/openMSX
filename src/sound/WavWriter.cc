@@ -107,7 +107,7 @@ void Wav16Writer::write(std::span<const float> buffer, float amp)
 {
 	std::vector<Endian::L16> buf_(buffer.size());
 	std::span buf{buf_};
-	ranges::transform(buffer, buf.data(), [=](float f) { return float2int16(f * amp); });
+	std::ranges::transform(buffer, buf.data(), [=](float f) { return float2int16(f * amp); });
 	file.write(buf);
 	bytes += narrow<uint32_t>(buf.size_bytes());
 }

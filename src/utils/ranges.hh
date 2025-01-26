@@ -60,31 +60,13 @@ constexpr auto copy(Input&& in, Output&& out)
 	return o;
 }
 
-template<typename InputRange, typename OutputIter, typename UnaryPredicate>
-auto copy_if(InputRange&& range, OutputIter out, UnaryPredicate pred)
-{
-	return std::copy_if(std::begin(range), std::end(range), out, pred);
-}
-
-template<typename InputRange, typename OutputIter, typename UnaryOperation>
-auto transform(InputRange&& range, OutputIter out, UnaryOperation op)
-{
-	return std::transform(std::begin(range), std::end(range), out, op);
-}
-
-template<typename ForwardRange, typename Generator>
-void generate(ForwardRange&& range, Generator&& g)
-{
-	std::generate(std::begin(range), std::end(range), std::forward<Generator>(g));
-}
-
 template<typename ForwardRange, typename T>
 constexpr void fill(ForwardRange&& range, const T& value)
 {
 	std::fill(std::begin(range), std::end(range), value);
 }
 
-// part of c++20
+// part of c++23, not yet available in clang-16
 template<typename ForwardIt, typename T>
 constexpr void iota(ForwardIt first, ForwardIt last, T value)
 {
@@ -98,26 +80,6 @@ template<typename ForwardRange, typename T>
 constexpr void iota(ForwardRange&& range, T&& value)
 {
 	::ranges::iota(std::begin(range), std::end(range), std::forward<T>(value));
-}
-
-template<typename InputRange, typename T>
-[[nodiscard]] T accumulate(InputRange&& range, T init)
-{
-	return std::accumulate(std::begin(range), std::end(range), init);
-}
-
-template<typename InputRange, typename T, typename BinaryOperation>
-[[nodiscard]] T accumulate(InputRange&& range, T init, BinaryOperation op)
-{
-	return std::accumulate(std::begin(range), std::end(range), init, op);
-}
-
-template<typename InputRange1, typename InputRange2, typename OutputIter>
-auto set_difference(InputRange1&& range1, InputRange2&& range2, OutputIter out)
-{
-	return std::set_difference(std::begin(range1), std::end(range1),
-	                           std::begin(range2), std::end(range2),
-	                           out);
 }
 
 // Test whether all elements in the given range are equal to each other (after
