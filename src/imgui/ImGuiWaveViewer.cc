@@ -10,6 +10,7 @@
 #include "halfband.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "view.hh"
 #include "xrange.hh"
 
 #include "imgui.h"
@@ -20,7 +21,6 @@
 #include <functional>
 #include <numbers>
 #include <numeric>
-#include <ranges>
 
 namespace openmsx {
 
@@ -331,7 +331,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 		// remove DC and apply window-function
 		auto window = hammingWindow(narrow<unsigned>(signal.size()));
 		auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
-		for (auto [s, w] : std::views::zip(signal, window)) {
+		for (auto [s, w] : view::zip_equal(signal, window)) {
 			s = (s - avg) * w;
 		}
 

@@ -25,12 +25,12 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <memory>
-#include <ranges>
 #include <tuple>
 
 namespace openmsx {
@@ -351,7 +351,7 @@ static inline float filterMonoMono(
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : std::views::zip(in, out)) {
+	for (auto [i, o] : view::zip_equal(in, out)) {
 		auto t1 = R * t0 + i;
 		auto s = t1 - t0;
 		o.left  = s;
@@ -369,7 +369,7 @@ filterStereoMono(float tl0, float tr0,
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : std::views::zip(in, out)) {
+	for (auto [i, o] : view::zip_equal(in, out)) {
 		auto tl1 = R * tl0 + i;
 		auto tr1 = R * tr0 + i;
 		o.left  = tl1 - tl0;
@@ -388,7 +388,7 @@ filterStereoStereo(float tl0, float tr0,
 {
 	assert(in.size() == out.size());
 	assert(!out.empty());
-	for (auto [i, o] : std::views::zip(in, out)) {
+	for (auto [i, o] : view::zip_equal(in, out)) {
 		auto tl1 = R * tl0 + i.left;
 		auto tr1 = R * tr0 + i.right;
 		o.left  = tl1 - tl0;
@@ -409,7 +409,7 @@ filterBothStereo(float tl0, float tr0,
 	assert(inM.size() == out.size());
 	assert(inS.size() == out.size());
 	assert(!out.empty());
-	for (auto [im, is, o] : std::views::zip(inM, inS, out)) {
+	for (auto [im, is, o] : view::zip_equal(inM, inS, out)) {
 		auto tl1 = R * tl0 + is.left  + im;
 		auto tr1 = R * tr0 + is.right + im;
 		o.left  = tl1 - tl0;
