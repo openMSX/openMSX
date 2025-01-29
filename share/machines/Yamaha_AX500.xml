@@ -134,7 +134,7 @@
     <primary slot="3">
 
       <secondary slot="0">
-        <ROM id="Painter & Graphic BIOS">
+        <ROM id="Painter &amp; Graphic BIOS">
           <mem base="0x0000" size="0x10000"/>
           <rom>
             <sha1>80872d997d18e1a633e70b9da35a0d28113073e5</sha1>

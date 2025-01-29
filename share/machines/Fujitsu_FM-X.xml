@@ -60,7 +60,7 @@
     <VDP id="VDP">
       <version>TMS9928A</version>
       <io base="0x98" num="2"/>
-      <3bitrgboutput/> <!-- This machine's RGB output is 3-bit RGB... REALLY! -->
+      <rgboutput3bit/> <!-- This machine's RGB output is 3-bit RGB... REALLY! -->
     </VDP>
 
     <PSG id="PSG">

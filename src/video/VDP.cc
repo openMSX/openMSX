@@ -1550,7 +1550,7 @@ static constexpr std::array<std::array<float, 3>, 16> TMS9XXXA_ANALOG_OUTPUT = {
 std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 {
 	assert(isMSX1VDP());
-	if (MSXDevice::getDeviceConfig().findChild("3bitrgboutput") != nullptr) {
+	if (MSXDevice::getDeviceConfig().findChild("rgboutput3bit") != nullptr) {
 		return THREE_BIT_RGB_PALETTE;
 	}
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
