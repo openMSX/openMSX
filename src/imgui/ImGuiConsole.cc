@@ -310,11 +310,13 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 
 		auto& commandController = manager.getReactor().getGlobalCommandController();
 		std::string newFront = commandController.tabCompletion(front);
+		auto newPos = narrow<int>(newFront.size());
 		historyBackupLine = strCat(std::move(newFront), back);
 		historyPos = -1;
 
 		data->DeleteChars(0, data->BufTextLen);
 		data->InsertChars(0, historyBackupLine.c_str());
+		data->CursorPos = newPos;
 
 		colorize(historyBackupLine);
 		break;
