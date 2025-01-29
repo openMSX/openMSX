@@ -176,7 +176,7 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	poller.reset();
+	poller.emplace();
 	thread = std::thread([this]() { run(); });
 }
 
@@ -192,8 +192,11 @@ void RS232Net::unplugHelper(EmuTime::param /*time*/)
 		sockfd = OPENMSX_INVALID_SOCKET;
 	}
 	// stop helper thread
-	poller.abort();
-	if (thread.joinable()) thread.join();
+	if (thread.joinable()) {
+		poller->abort();
+		thread.join();
+	}
+	poller.reset();
 }
 
 std::string_view RS232Net::getName() const
@@ -213,7 +216,7 @@ void RS232Net::run()
 	while (true) {
 		if (sockfd == OPENMSX_INVALID_SOCKET) break;
 #ifndef _WIN32
-		if (poller.poll(sockfd)) {
+		if (poller->poll(sockfd)) {
 			break; // error or abort
 		}
 #endif

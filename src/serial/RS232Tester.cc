@@ -58,7 +58,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	poller.reset();
+	poller.emplace();
 	thread = std::thread([this]() { run(); });
 }
 
@@ -68,8 +68,9 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	outFile.close();
 
 	// input
-	poller.abort();
+	poller->abort();
 	thread.join();
+	poller.reset();
 	inFile.reset();
 }
 
@@ -91,13 +92,13 @@ void RS232Tester::run()
 	if (!inFile) return;
 	while (!feof(inFile.get())) {
 #ifndef _WIN32
-		if (poller.poll(fileno(inFile.get()))) {
+		if (poller->poll(fileno(inFile.get()))) {
 			break;
 		}
 #endif
 		std::array<uint8_t, 1> buf;
 		size_t num = fread(buf.data(), sizeof(uint8_t), buf.size(), inFile.get());
-		if (poller.aborted()) {
+		if (poller->aborted()) {
 			break;
 		}
 		if (num != 1) {

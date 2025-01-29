@@ -13,6 +13,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <optional>
 #include <span>
 #include <thread>
 #include <cstdint>
@@ -85,7 +86,7 @@ private:
 
 	std::thread thread; // receiving thread (reads from 'sockfd')
 	std::mutex mutex; // to protect shared data between emulation and receiving thread
-	Poller poller; // safe to use from main and receiver thread without extra locking
+	std::optional<Poller> poller; // safe to use from main and receiver thread without extra locking
 	cb_queue<char> queue; // read/written by both the main and the receiver thread. Must hold 'mutex' while doing so.
 	std::atomic<SOCKET> sockfd; // read/written by both threads (use std::atomic as an alternative for locking)
 
