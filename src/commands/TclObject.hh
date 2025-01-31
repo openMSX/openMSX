@@ -3,7 +3,6 @@
 
 #include "narrow.hh"
 #include "small_buffer.hh"
-#include "stl.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
 
@@ -272,7 +271,7 @@ private:
 	}
 	template<std::random_access_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
 	void addListElementsImpl(Iterator first, Sentinel last) {
-		small_buffer<Tcl_Obj*, 128> objv(std::views::transform(iterator_range(first, last),
+		small_buffer<Tcl_Obj*, 128> objv(std::views::transform(std::ranges::subrange(first, last),
 			[](const auto& t) { return newObj(t); }));
 		addListElementsImpl(narrow<int>(objv.size()), objv.data());
 	}

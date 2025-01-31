@@ -499,19 +499,4 @@ public:
 	[[nodiscard]] friend constexpr auto operator<=>(const array_with_enum_index& x, const array_with_enum_index& y) = default;
 };
 
-template<typename Iterator, typename Sentinel>
-class iterator_range
-{
-public:
-	iterator_range(Iterator first_, Sentinel last_)
-		: first(first_), last(last_) {}
-
-	Iterator begin() const { return first; }
-	Sentinel end()   const { return last; }
-
-private:
-	Iterator first;
-	Sentinel last;
-};
-
 #endif
