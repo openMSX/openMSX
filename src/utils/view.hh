@@ -63,7 +63,7 @@ class Zip
 
 public:
 	Zip(Zip&&) noexcept = default;
-	Zip(RangesTuple&& ranges_) : ranges(std::move(ranges_)) {}
+	explicit Zip(RangesTuple&& ranges_) : ranges(std::move(ranges_)) {}
 
 	[[nodiscard]] auto begin() const {
 		return Iterator{IteratorsTuple(std::begin(std::get<Is>(ranges))...)};
@@ -74,16 +74,16 @@ public:
 };
 
 template<typename RangesTuple, size_t ...Is>
-[[nodiscard]] Zip<true, RangesTuple, Is...> zip(RangesTuple&& ranges, std::index_sequence<Is...>){
-	return {std::forward<RangesTuple>(ranges)};
+[[nodiscard]] auto zip(RangesTuple&& ranges, std::index_sequence<Is...>){
+	return Zip<true, RangesTuple, Is...>{std::forward<RangesTuple>(ranges)};
 }
 
 template<typename RangesTuple, size_t ...Is>
-[[nodiscard]] Zip<false, RangesTuple, Is...> zip_equal(RangesTuple&& ranges, std::index_sequence<Is...>)
+[[nodiscard]] auto zip_equal(RangesTuple&& ranges, std::index_sequence<Is...>)
 {
 	auto size0 = std::size(std::get<0>(ranges)); (void)size0;
 	assert((... && (std::size(std::get<Is>(ranges)) == size0)));
-	return {std::forward<RangesTuple>(ranges)};
+	return Zip<false, RangesTuple, Is...>{std::forward<RangesTuple>(ranges)};
 }
 
 } // namespace detail

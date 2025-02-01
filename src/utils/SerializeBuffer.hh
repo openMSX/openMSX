@@ -177,7 +177,7 @@ public:
 	/** Construct new InputBuffer, typically the buf_ parameter
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(std::span<const uint8_t> buf_)
+	explicit InputBuffer(std::span<const uint8_t> buf_)
 		: buf(buf_) {}
 
 	/** Read the given number of bytes.
