@@ -31,38 +31,13 @@ struct always_true {
   * Note: we don't need a variant that uses 'find_if' instead of 'find' because
   * STL already has the 'any_of' algorithm.
   */
-template<typename ITER, typename VAL>
-[[nodiscard]] constexpr bool contains(ITER first, ITER last, const VAL& val)
+template<std::ranges::input_range Range, typename VAL, typename Proj = std::identity>
+[[nodiscard]] constexpr bool contains(Range&& range, const VAL& val, Proj proj = {})
 {
-	// c++20: return std::find(first, last, val) != last;
-	while (first != last) {
-		if (*first == val) return true;
-		++first;
-	}
-	return false;
+	auto first = std::ranges::begin(range);
+	auto last = std::ranges::end(range);
+	return std::ranges::find(first, last, val, proj) != last;
 }
-template<typename RANGE, typename VAL>
-[[nodiscard]] constexpr bool contains(const RANGE& range, const VAL& val)
-{
-	return contains(std::begin(range), std::end(range), val);
-}
-
-template<typename ITER, typename VAL, typename Proj>
-[[nodiscard]] /*constexpr*/ bool contains(ITER first, ITER last, const VAL& val, Proj proj)
-{
-	// c++20: return std::find(first, last, val) != last;
-	while (first != last) {
-		if (std::invoke(proj, *first) == val) return true;
-		++first;
-	}
-	return false;
-}
-template<typename RANGE, typename VAL, typename Proj>
-[[nodiscard]] /*constexpr*/ bool contains(const RANGE& range, const VAL& val, Proj proj)
-{
-	return contains(std::begin(range), std::end(range), val, proj);
-}
-
 
 /** Faster alternative to 'find' when it's guaranteed that the value will be
   * found (if not the behavior is undefined).
