@@ -7,8 +7,7 @@
 #include <iterator>
 #include <initializer_list>
 #include <map>
-#include <numeric>
-#include <tuple>
+#include <ranges>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -46,24 +45,24 @@ template<std::ranges::input_range Range, typename VAL, typename Proj = std::iden
   * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
   * parameter, we could consider providing such an overload as well.
   */
-template<typename ITER, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ ITER find_unguarded(ITER first, ITER last, const VAL& val, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr Iterator find_unguarded(Iterator first, Sentinel last, const Val& val, Proj proj = {})
 {
 	return find_if_unguarded(first, last,
 		[&](const auto& e) { return std::invoke(proj, e) == val; });
 }
-template<typename RANGE, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto find_unguarded(RANGE& range, const VAL& val, Proj proj = {})
+template<std::ranges::input_range Range, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr auto find_unguarded(Range&& range, const Val& val, Proj proj = {})
 {
-	return find_unguarded(std::begin(range), std::end(range), val, proj);
+	return find_unguarded(std::ranges::begin(range), std::ranges::end(range), val, proj);
 }
 
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
   * will be true for at least one element in the given range.
   * See also 'find_unguarded'.
   */
-template<typename ITER, typename PRED>
-[[nodiscard]] constexpr ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, std::indirect_unary_predicate<Iterator> Predicate>
+[[nodiscard]] constexpr Iterator find_if_unguarded(Iterator first, Sentinel last, Predicate pred)
 {
 	(void)last;
 	while (true) {
@@ -72,10 +71,10 @@ template<typename ITER, typename PRED>
 		++first;
 	}
 }
-template<typename RANGE, typename PRED>
-[[nodiscard]] constexpr auto find_if_unguarded(RANGE& range, PRED pred)
+template<std::ranges::input_range Range, typename Predicate>
+[[nodiscard]] constexpr auto find_if_unguarded(Range&& range, Predicate pred)
 {
-	return find_if_unguarded(std::begin(range), std::end(range), pred);
+	return find_if_unguarded(std::ranges::begin(range), std::ranges::end(range), pred);
 }
 
 /** Similar to the find(_if)_unguarded functions above, but searches from the
@@ -83,18 +82,18 @@ template<typename RANGE, typename PRED>
   * Note that we only need to provide range versions. Because for the iterator
   * versions it is already possible to pass reverse iterators.
   */
-template<typename RANGE, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto rfind_unguarded(RANGE& range, const VAL& val, Proj proj = {})
+template<std::ranges::bidirectional_range Range, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr auto rfind_unguarded(Range&& range, const Val& val, Proj proj = {})
 {
-	auto it = find_unguarded(std::rbegin(range), std::rend(range), val, proj);
+	auto it = find_unguarded(std::ranges::rbegin(range), std::ranges::rend(range), val, proj);
 	++it;
 	return it.base();
 }
 
-template<typename RANGE, typename PRED>
-[[nodiscard]] constexpr auto rfind_if_unguarded(RANGE& range, PRED pred)
+template<std::ranges::bidirectional_range Range, typename Predicate>
+[[nodiscard]] constexpr auto rfind_if_unguarded(Range&& range, Predicate pred)
 {
-	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
+	auto it = find_if_unguarded(std::ranges::rbegin(range), std::ranges::rend(range), pred);
 	++it;
 	return it.base();
 }
