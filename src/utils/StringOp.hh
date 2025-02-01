@@ -81,8 +81,6 @@ namespace StringOp
 	};
 	template<EmptyParts keepOrRemove = EmptyParts::KEEP, typename Separators>
 	[[nodiscard]] inline auto split_view(std::string_view str, Separators separators) {
-		struct Sentinel {};
-
 		struct Iterator {
 			using value_type      = std::string_view;
 			using difference_type = ptrdiff_t;
@@ -114,7 +112,7 @@ namespace StringOp
 			Iterator operator++(int) { auto copy = *this; ++(*this); return copy; }
 
 			[[nodiscard]] bool operator==(const Iterator&) const = default;
-			[[nodiscard]] bool operator==(Sentinel) const { return str.empty(); }
+			[[nodiscard]] bool operator==(std::default_sentinel_t) const { return str.empty(); }
 
 		private:
 			static bool isSeparator(char c, char separators) {
@@ -142,14 +140,14 @@ namespace StringOp
 			Separators separators;
 		};
 		static_assert(std::forward_iterator<Iterator>);
-		static_assert(std::sentinel_for<Sentinel, Iterator>);
+		static_assert(std::sentinel_for<std::default_sentinel_t, Iterator>);
 
 		struct Splitter {
 			std::string_view str;
 			Separators separators;
 
 			[[nodiscard]] auto begin() const { return Iterator{str, separators}; }
-			[[nodiscard]] auto end()   const { return Sentinel{}; }
+			[[nodiscard]] auto end()   const { return std::default_sentinel_t{}; }
 		};
 
 		return Splitter{str, separators};
