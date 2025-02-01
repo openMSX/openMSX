@@ -173,17 +173,18 @@ template<std::ranges::forward_range Range,
 
 
 // Like range::transform(), but with equal source and destination.
-template<typename ForwardRange, typename UnaryOperation>
-auto transform_in_place(ForwardRange&& range, UnaryOperation op)
+template<std::ranges::forward_range Range,
+         std::invocable<std::ranges::range_value_t<Range>> Operation>
+auto transform_in_place(Range&& range, Operation op)
 {
-	return std::transform(std::begin(range), std::end(range), std::begin(range), op);
+	return std::transform(std::ranges::begin(range), std::ranges::end(range), std::ranges::begin(range), op);
 }
 
 
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto min_value(InputIterator first, InputIterator last, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Proj = std::identity>
+[[nodiscard]] constexpr auto min_value(Iterator first, Sentinel last, Proj proj = {})
 {
 	assert(first != last);
 	auto result = std::invoke(proj, *first++);
@@ -193,16 +194,16 @@ template<typename InputIterator, typename Proj = std::identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto min_value(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto min_value(Range&& range, Proj proj = {})
 {
-	return min_value(std::begin(range), std::end(range), proj);
+	return min_value(std::ranges::begin(range), std::ranges::end(range), proj);
 }
 
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto max_value(InputIterator first, InputIterator last, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Proj = std::identity>
+[[nodiscard]] constexpr auto max_value(Iterator first, Sentinel last, Proj proj = {})
 {
 	assert(first != last);
 	auto result = std::invoke(proj, *first++);
@@ -212,10 +213,10 @@ template<typename InputIterator, typename Proj = std::identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto max_value(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto max_value(Range&& range, Proj proj = {})
 {
-	return max_value(std::begin(range), std::end(range), proj);
+	return max_value(std::ranges::begin(range), std::ranges::end(range), proj);
 }
 
 
