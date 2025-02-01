@@ -223,15 +223,15 @@ template<std::ranges::input_range Range, typename Proj = std::identity>
 // Returns the sum of the elements in the given range.
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] constexpr auto sum(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto sum(Range&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));
 	using VT = typename std::iterator_traits<Iter>::value_type;
 	using RT = decltype(std::invoke(proj, std::declval<VT>()));
 
-	auto first = std::begin(range);
-	auto last = std::end(range);
+	auto first = std::ranges::begin(range);
+	auto last = std::ranges::end(range);
 	RT init{};
 	while (first != last) {
 		init = std::move(init) + std::invoke(proj, *first++);
@@ -253,7 +253,7 @@ namespace detail {
 // Example:
 //   auto v1 = to_vector(std::views::drop(my_list, 3));
 //   auto v2 = to_vector<Base*>(getDerivedPtrs());
-template<typename T = void, typename Range>
+template<typename T = void, std::ranges::common_range Range>
 [[nodiscard]] auto to_vector(Range&& range)
 	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
 {
