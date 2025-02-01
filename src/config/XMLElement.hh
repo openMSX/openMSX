@@ -92,7 +92,6 @@ private:
 class XMLElement
 {
 	// iterator classes for children and attributes
-	// TODO c++20: use iterator + sentinel instead of 2 x iterator
 	struct ChildIterator {
 		using difference_type = ptrdiff_t;
 		using value_type = const XMLElement;
@@ -106,12 +105,14 @@ class XMLElement
 		ChildIterator& operator++() { elem = elem->nextSibling; return *this; }
 		ChildIterator operator++(int) { auto result = *this; elem = elem->nextSibling; return result; }
 		[[nodiscard]] bool operator==(const ChildIterator& i) const = default;
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return elem == nullptr; }
 	};
 	static_assert(std::forward_iterator<ChildIterator>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, ChildIterator>);
 	struct ChildRange {
 		const XMLElement* elem;
 		[[nodiscard]] ChildIterator begin() const { return {elem->firstChild}; }
-		[[nodiscard]] ChildIterator end()   const { return {nullptr}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
 	static_assert(std::ranges::range<ChildRange>);
 
@@ -143,13 +144,15 @@ class XMLElement
 		}
 		NamedChildIterator operator++(int) { auto result = *this; ++(*this); return result; }
 		[[nodiscard]] bool operator==(const NamedChildIterator& i) const { return elem == i.elem; }
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return elem == nullptr; }
 	};
 	static_assert(std::forward_iterator<NamedChildIterator>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, NamedChildIterator>);
 	struct NamedChildRange {
 		const XMLElement* elem;
 		std::string_view name;
 		[[nodiscard]] NamedChildIterator begin() const { return {elem->firstChild, name}; }
-		[[nodiscard]] NamedChildIterator end()   const { return {nullptr, std::string_view{}}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
 	static_assert(std::ranges::range<NamedChildRange>);
 
@@ -166,12 +169,14 @@ class XMLElement
 		AttributeIterator& operator++() { attr = attr->nextAttribute; return *this; }
 		AttributeIterator operator++(int) { auto result = *this; attr = attr->nextAttribute; return result; }
 		[[nodiscard]] bool operator==(const AttributeIterator& i) const = default;
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return attr == nullptr; }
 	};
 	static_assert(std::forward_iterator<AttributeIterator>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, AttributeIterator>);
 	struct AttributeRange {
 		const XMLElement* elem;
 		[[nodiscard]] AttributeIterator begin() const { return {elem->firstAttribute}; }
-		[[nodiscard]] AttributeIterator end()   const { return {nullptr}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
 	static_assert(std::ranges::range<AttributeRange>);
 

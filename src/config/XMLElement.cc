@@ -90,7 +90,7 @@ int XMLElement::getChildDataAsInt(std::string_view childName, int defaultValue) 
 
 size_t XMLElement::numChildren() const
 {
-	return std::distance(getChildren().begin(), getChildren().end());
+	return std::ranges::distance(getChildren().begin(), getChildren().end());
 }
 
 // Return nullptr when not found.
@@ -163,7 +163,7 @@ void XMLElement::removeAttribute(XMLAttribute** attrPtr)
 
 size_t XMLElement::numAttributes() const
 {
-	return std::distance(getAttributes().begin(), getAttributes().end());
+	return std::ranges::distance(getAttributes().begin(), getAttributes().end());
 }
 
 

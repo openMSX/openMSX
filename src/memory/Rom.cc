@@ -96,8 +96,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	auto sums      = to_vector(config.getChildren("sha1"));
-	auto filenames = to_vector(config.getChildren("filename"));
+	auto sums      = config.getChildren("sha1");
+	auto filenames = config.getChildren("filename");
 	const auto* resolvedFilenameElem = config.findChild("resolvedFilename");
 	const auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	if (config.findChild("firstblock")) {
@@ -119,7 +119,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		checkResolvedSha1 = false;
 
 	} else if (resolvedFilenameElem || resolvedSha1Elem ||
-	           !sums.empty() || !filenames.empty()) {
+	           !std::ranges::empty(sums) || !std::ranges::empty(filenames)) {
 		auto& filePool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
@@ -142,7 +142,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. and then try filename as originally given by user ..
 		if (!file.is_open()) {
-			for (auto& f : filenames) {
+			for (const auto& f : filenames) {
 				try {
 					file = File(Filename(f->getData(), context));
 					break;
@@ -154,7 +154,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. then try all alternative sha1sums ..
 		// (this might retry the actual sha1sum)
 		if (!file.is_open()) {
-			for (auto& s : sums) {
+			for (const auto& s : sums) {
 				Sha1Sum sha1(s->getData());
 				file = filePool.getFile(fileType, sha1);
 				if (file.is_open()) {
@@ -167,13 +167,13 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. still no file, then error
 		if (!file.is_open()) {
 			string error = strCat("Couldn't find ROM file for \"", name, '"');
-			if (!filenames.empty()) {
-				strAppend(error, ' ', filenames.front()->getData());
+			if (!std::ranges::empty(filenames)) {
+				strAppend(error, ' ', (*std::ranges::begin(filenames))->getData());
 			}
 			if (resolvedSha1Elem) {
 				strAppend(error, " (sha1: ", resolvedSha1Elem->getData(), ')');
-			} else if (!sums.empty()) {
-				strAppend(error, " (sha1: ", sums.front()->getData(), ')');
+			} else if (!std::ranges::empty(sums)) {
+				strAppend(error, " (sha1: ", (*std::ranges::begin(sums))->getData(), ')');
 			}
 			strAppend(error, '.');
 			throw MSXException(std::move(error));
@@ -322,8 +322,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 bool Rom::checkSHA1(const XMLElement& config) const
 {
-	auto sums = to_vector(config.getChildren("sha1"));
-	return sums.empty() ||
+	auto sums = config.getChildren("sha1");
+	return std::ranges::empty(sums) ||
 	       contains(sums, getOriginalSHA1(),
 	                [](const auto* s) { return Sha1Sum(s->getData()); });
 }
