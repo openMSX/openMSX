@@ -178,6 +178,7 @@ void PostProcessor::createRegions()
 
 	const unsigned srcHeight = paintFrame->getHeight();
 	const unsigned dstHeight = screen.getLogicalHeight();
+	regionsDstHeight = dstHeight;
 
 	unsigned g = std::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
@@ -236,12 +237,18 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		}
 	}
 
+	auto size = screen.getLogicalSize();
+	bool needReUpload = size.y != int(regionsDstHeight);
+
 	// New scaler algorithm selected?
 	if (auto algo = renderSettings.getScaleAlgorithm();
 	    scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings, maxWidth, height * 2); // *2 for interlace   TODO only when canDoInterlace
+		needReUpload = true;
+	}
 
+	if (needReUpload) {
 		// Re-upload frame data, this is both
 		//  - Chunks of RawFrame with a specific line width, possibly
 		//    with some extra lines above and below each chunk that are
@@ -254,7 +261,6 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
-	auto size = screen.getLogicalSize();
 	glViewport(0, 0, size.x, size.y);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	auto& renderedFrame = renderedFrames[frameCounter & 1];
