@@ -29,7 +29,8 @@ void test(const IterableBitSet<N>& s, std::initializer_list<size_t> list)
 		for (auto i = b; i != e; ++i) v.push_back(i);
 	}
 	std::ranges::sort(v);
-	v.erase(std::unique(v.begin(), v.end()), v.end());
+	auto u = std::ranges::unique(v);
+	v.erase(u.begin(), u.end());
 
 	expect(s, v);
 }

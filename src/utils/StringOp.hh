@@ -178,10 +178,9 @@ namespace StringOp
 
 	[[nodiscard]] inline bool containsCaseInsensitive(std::string_view haystack, std::string_view needle)
 	{
-		return std::search(haystack.begin(), haystack.end(),
-		                   needle.begin(), needle.end(),
-		                   [](char x, char y) { return toupper(x) == toupper(y); })
-			!= haystack.end();
+		return !std::ranges::search(haystack, needle,
+		                   [](char x, char y) { return toupper(x) == toupper(y); }
+		        ).empty();
 	}
 
 #if defined(__APPLE__)

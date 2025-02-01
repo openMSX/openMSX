@@ -128,7 +128,7 @@ static std::vector<unsigned> rotateIdam(std::vector<unsigned> idam, unsigned sta
 	// find first element that is equal or bigger
 	auto it = std::ranges::lower_bound(idam, startIdx);
 	// rotate range so that we start at that element
-	std::rotate(begin(idam), it, end(idam));
+	std::ranges::rotate(idam, it);
 	return idam;
 }
 

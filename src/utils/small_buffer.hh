@@ -43,11 +43,11 @@ public:
 		std::ranges::fill(sp, t);
 	}
 
-	template<typename Range>
+	template<std::ranges::forward_range Range>
 	explicit small_buffer(const Range& range)
-		: small_buffer(uninitialized_tag{}, std::distance(std::begin(range), std::end(range)))
+		: small_buffer(uninitialized_tag{}, std::ranges::distance(range))
 	{
-		std::copy(std::begin(range), std::end(range), begin());
+		std::ranges::copy(range, begin());
 	}
 
 	[[nodiscard]] explicit(false) operator std::span<T>() noexcept { return sp; }

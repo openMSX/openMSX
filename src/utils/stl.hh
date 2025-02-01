@@ -177,7 +177,7 @@ template<std::ranges::forward_range Range,
          std::invocable<std::ranges::range_value_t<Range>> Operation>
 auto transform_in_place(Range&& range, Operation op)
 {
-	return std::transform(std::ranges::begin(range), std::ranges::end(range), std::ranges::begin(range), op);
+	return std::ranges::transform(range, std::ranges::begin(range), op);
 }
 
 

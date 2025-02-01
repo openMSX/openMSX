@@ -100,8 +100,7 @@ template<size_t N, typename Hash, typename GetKey>
 			return x.size() > y.size();
 		}
 		// same size, sort lexicographical
-		return std::lexicographical_compare(x.begin(), x.end(),
-		                                    y.begin(), y.end());
+		return std::ranges::lexicographical_compare(x, y);
 	});
 
 	// Step 3: Map the items in buckets into hash tables.
