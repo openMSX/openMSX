@@ -142,9 +142,11 @@ void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
   * -second: one past the non-matching elements (in the input range). Similar
   *    to the return value of the remove() algorithm.
   */
-template<typename ForwardIt, typename OutputIt, typename UnaryPredicate>
+template<std::forward_iterator ForwardIt, std::sentinel_for<ForwardIt> Sentinel,
+         std::output_iterator<std::iter_value_t<ForwardIt>> OutputIt,
+         std::indirect_unary_predicate<ForwardIt> Predicate>
 [[nodiscard]] std::pair<OutputIt, ForwardIt> partition_copy_remove(
-	ForwardIt first, ForwardIt last, OutputIt out_true, UnaryPredicate p)
+	ForwardIt first, Sentinel last, OutputIt out_true, Predicate p)
 {
 	first = std::find_if(first, last, p);
 	auto out_false = first;
@@ -161,10 +163,12 @@ l_true:				*out_true++  = std::move(*first++);
 	return std::pair(out_true, out_false);
 }
 
-template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
-[[nodiscard]] auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
+template<std::ranges::forward_range Range,
+         std::output_iterator<std::ranges::range_value_t<Range>> Output,
+         std::predicate<std::ranges::range_value_t<Range>> UnaryPredicate>
+[[nodiscard]] auto partition_copy_remove(Range&& range, Output out_true, UnaryPredicate p)
 {
-	return partition_copy_remove(std::begin(range), std::end(range), out_true, p);
+	return partition_copy_remove(std::ranges::begin(range), std::ranges::end(range), out_true, p);
 }
 
 
