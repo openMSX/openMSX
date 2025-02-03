@@ -9,13 +9,16 @@
 #include "CPURegs.hh"
 #include "Dasm.hh"
 #include "Debugger.hh"
+#include "Display.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "RomBlockDebuggable.hh"
 #include "RomPlain.hh"
 #include "SymbolManager.hh"
+#include "VideoSystem.hh"
 
 #include "narrow.hh"
 #include "join.hh"
@@ -241,15 +244,24 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 			std::vector<std::string_view> candidates;
 			std::array<uint8_t, 4> opcodes;
 			ImGuiListClipper clipper; // only draw the actually visible rows
-			clipper.Begin(0x10000);
+			clipper.Begin(0x10000, ImGui::GetTextLineHeightWithSpacing());
 			if (gotoTarget) {
 				clipper.IncludeItemsByIndex(narrow<int>(*gotoTarget), narrow<int>(*gotoTarget + 4));
 			}
 			std::optional<unsigned> nextGotoTarget;
+			std::optional<unsigned> minAddr;
+			std::optional<unsigned> maxAddr;
+			bool toClipboard = false;
 			while (clipper.Step()) {
+				// Note this while loop can iterate multiple times, though we mitigate this by passing the
+				// row height to the ImGuiListClipper constructor. Another reason is because we called
+				// clipper.IncludeItemsByIndex(), but that only happens when 'gotoTarget' is set.
+				// Because of this it's acceptable to just record the min and max address in the for loop below.
 				auto addr16 = instructionBoundary(cpuInterface, narrow<uint16_t>(clipper.DisplayStart), time);
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
 					unsigned addr = addr16;
+					minAddr = std::min(addr, minAddr.value_or(std::numeric_limits<unsigned>::max()));
+					maxAddr = std::max(addr, maxAddr.value_or(std::numeric_limits<unsigned>::min()));
 					ImGui::TableNextRow();
 					if (addr >= 0x10000) continue;
 					im::ID(narrow<int>(addr), [&]{
@@ -310,32 +322,10 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 							}
 						}
 
-						mnemonic.clear();
 						std::optional<uint16_t> mnemonicAddr;
 						std::span<const Symbol* const> mnemonicLabels;
-						auto len = dasm(cpuInterface, addr16, opcodes, mnemonic, time,
-							[&](std::string& output, uint16_t a) {
-								mnemonicAddr = a;
-								mnemonicLabels = symbolManager.lookupValue(a);
-								if (!mnemonicLabels.empty()) {
-									strAppend(output, mnemonicLabels[cycleLabelsCounter % mnemonicLabels.size()]->name);
-								} else {
-									appendAddrAsHex(output, a);
-								}
-							});
-						assert(len >= 1);
-						if ((addr < pc) && (pc < (addr + len))) {
-							// pc is strictly inside current instruction,
-							// replace the just disassembled instruction with "db #..."
-							mnemonicAddr.reset();
-							mnemonicLabels = {};
-							len = pc - addr;
-							assert((1 <= len) && (len <= 3));
-							mnemonic = strCat("db     ", join(
-								std::views::transform(xrange(len),
-									[&](unsigned i) { return strCat('#', hex_string<2>(opcodes[i])); }),
-								','));
-						}
+						auto len = disassemble(cpuInterface, addr, pc, time,
+							opcodes, mnemonic, mnemonicAddr, mnemonicLabels);
 
 						if (ImGui::TableNextColumn()) { // addr
 							bool focusScrollToAddress = false;
@@ -413,6 +403,12 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 								auto setPc = strCat("Set PC to 0x", addrStr);
 								if (ImGui::MenuItem(setPc.c_str())) {
 									regs.setPC(addr16);
+								}
+
+								ImGui::Separator();
+
+								if (ImGui::MenuItem("Copy instructions to clipboard")) {
+									toClipboard = true;
 								}
 							});
 
@@ -524,6 +520,10 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 				setDisassemblyScrollY.reset();
 			}
 			disassemblyScrollY = ImGui::GetScrollY();
+
+			if (toClipboard && minAddr && maxAddr) {
+				disassembleToClipboard(cpuInterface, pc, time, *minAddr, *maxAddr);
+			}
 		});
 		// only add/remove bp's after drawing (can't change list of bp's while iterating over it)
 		if (addBp) {
@@ -533,6 +533,61 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 			cpuInterface.removeBreakPoint(*removeBpId);
 		}
 	});
+}
+
+unsigned ImGuiDisassembly::disassemble(
+	const MSXCPUInterface& cpuInterface, unsigned addr, unsigned pc, EmuTime::param time,
+	std::span<uint8_t, 4> opcodes, std::string& mnemonic,
+	std::optional<uint16_t>& mnemonicAddr, std::span<const Symbol* const>& mnemonicLabels)
+{
+	mnemonic.clear();
+	auto len = dasm(cpuInterface, narrow<uint16_t>(addr), opcodes, mnemonic, time,
+		[&](std::string& output, uint16_t a) {
+			mnemonicAddr = a;
+			mnemonicLabels = symbolManager.lookupValue(a);
+			if (!mnemonicLabels.empty()) {
+				strAppend(output, mnemonicLabels[cycleLabelsCounter % mnemonicLabels.size()]->name);
+			} else {
+				appendAddrAsHex(output, a);
+			}
+		});
+	assert(len >= 1);
+	if ((addr < pc) && (pc < (addr + len))) {
+		// pc is strictly inside current instruction,
+		// replace the just disassembled instruction with "db #..."
+		mnemonicAddr.reset();
+		mnemonicLabels = {};
+		len = pc - addr;
+		assert((1 <= len) && (len <= 3));
+		mnemonic = strCat("db     ", join(
+			std::views::transform(xrange(len),
+				[&](unsigned i) { return strCat('#', hex_string<2>(opcodes[i])); }),
+			','));
+	}
+	return len;
+}
+
+void ImGuiDisassembly::disassembleToClipboard(
+	MSXCPUInterface& cpuInterface, unsigned pc, EmuTime::param time,
+	unsigned minAddr, unsigned maxAddr)
+{
+	std::string mnemonic;
+	std::array<uint8_t, 4> opcodes;
+	std::optional<uint16_t> mnemonicAddr;
+	std::span<const Symbol* const> mnemonicLabels;
+
+	std::string result;
+
+	unsigned addr = minAddr;
+	while (addr <= maxAddr) {
+		mnemonic.clear();
+		auto len = disassemble(cpuInterface, addr, pc, time,
+			opcodes, mnemonic, mnemonicAddr, mnemonicLabels);
+		strAppend(result , '\t', mnemonic, '\n');
+		addr += len;
+	}
+
+	manager.getReactor().getDisplay().getVideoSystem().setClipboardText(result);
 }
 
 } // namespace openmsx

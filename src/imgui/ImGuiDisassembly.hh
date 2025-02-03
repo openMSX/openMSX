@@ -11,8 +11,10 @@ namespace openmsx {
 
 class Debugger;
 class MSXDevice;
+class MSXCPUInterface;
 class MSXRom;
 class RomBlockDebuggableBase;
+class Symbol;
 class SymbolManager;
 
 class ImGuiDisassembly final : public ImGuiPart
@@ -34,6 +36,15 @@ public:
 	static void actionToggleBp(MSXMotherBoard& motherBoard);
 	[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase*>
 		getRomBlocks(Debugger& debugger, const MSXDevice* device);
+
+private:
+	unsigned disassemble(
+		const MSXCPUInterface& cpuInterface, unsigned addr, unsigned pc, EmuTime::param time,
+		std::span<uint8_t, 4> opcodes, std::string& mnemonic,
+		std::optional<uint16_t>& mnemonicAddr, std::span<const Symbol* const>& mnemonicLabels);
+	void disassembleToClipboard(
+		MSXCPUInterface& cpuInterface, unsigned pc, EmuTime::param time,
+		unsigned minAddr, unsigned maxAddr);
 
 public:
 	bool show = true;
