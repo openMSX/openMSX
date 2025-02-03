@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 
 #include <optional>
+#include <span>
 #include <string>
 #include <utility>
 
