@@ -6,8 +6,8 @@
     <manufacturer>Yamaha</manufacturer>
     <code>CX5MII/128</code>
     <release_year>1985</release_year>
-    <description>Japanese MSX2 with 128kB RAM and SFG-05 module built in.</description>
-    <type>MSX2</type>
+    <description>Japanese MSX with MSX2 videochop, 128kB RAM and SFG-05 module built in.</description>
+    <type>MSX</type>
     <region>jp</region>
   </info>
 
