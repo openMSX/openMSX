@@ -219,6 +219,7 @@ sources = files(
     'input/DummyJoystick.cc',
     'input/EventDelay.cc',
     'input/JoyMega.cc',
+    'input/JoyHandle.cc',
     'input/JoyTap.cc',
     'input/JoystickDevice.cc',
     'input/JoystickPort.cc',
