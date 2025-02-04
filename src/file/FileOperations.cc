@@ -254,25 +254,13 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 
 void openOfStream(std::ofstream& stream, zstring_view filename)
 {
-#if defined _WIN32 && defined _MSC_VER
-	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
-	// TODO - this means that unicode text may not work right here
 	stream.open(utf8to16(filename).c_str());
-#else
-	stream.open(filename.c_str());
-#endif
 }
 
 void openOfStream(std::ofstream& stream, zstring_view filename,
                   std::ios_base::openmode mode)
 {
-#if defined _WIN32 && defined _MSC_VER
-	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
-	// TODO - this means that unicode text may not work right here
 	stream.open(utf8to16(filename).c_str(), mode);
-#else
-	stream.open(filename.c_str(), mode);
-#endif
 }
 
 string_view getFilename(string_view path)
