@@ -15,7 +15,7 @@ class MSXDevice;
 class MSXCPUInterface;
 class MSXRom;
 class RomBlockDebuggableBase;
-class Symbol;
+struct Symbol;
 class SymbolManager;
 
 class ImGuiDisassembly final : public ImGuiPart
