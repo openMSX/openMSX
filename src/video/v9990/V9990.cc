@@ -860,8 +860,9 @@ void V9990::scheduleHscan(EmuTime::param time)
 	}
 
 	int ticks = narrow<int>(frameStartTime.getTicksTill_fast(time));
+	bool perLine = regs[INTERRUPT_2] & 0x80;
 	int offset = [&] {
-		if (regs[INTERRUPT_2] & 0x80) {
+		if (perLine) {
 			// every line
 			return ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
 		} else {
@@ -873,7 +874,8 @@ void V9990::scheduleHscan(EmuTime::param time)
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
 	if (offset <= ticks) {
-		offset += V9990DisplayTiming::getUCTicksPerFrame(palTiming);
+		offset += perLine ? V9990DisplayTiming::UC_TICKS_PER_LINE
+		                  : V9990DisplayTiming::getUCTicksPerFrame(palTiming);
 	}
 
 	hScanSyncTime = frameStartTime + offset;
