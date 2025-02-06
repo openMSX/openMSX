@@ -88,8 +88,6 @@ void MSXCPU::doReset(EmuTime::param time)
 	if (r800) r800->doReset(time);
 
 	invalidateAllSlotsRWCache(0x0000, 0x10000);
-
-	reference = time;
 }
 
 void MSXCPU::setActiveCPU(Type cpu)
@@ -380,7 +378,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	const auto& cpu = OUTER(MSXCPU, timeInfo);
-	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
+	EmuDuration dur = cpu.getCurrentTime() - EmuTime::zero();
 	result = dur.toDouble();
 }
 
@@ -523,6 +521,7 @@ void MSXCPU::Debuggable::write(unsigned address, byte value)
 
 // version 1: initial version
 // version 2: activeCPU,newCPU -> z80Active,newZ80Active
+// version 3: removed resetTime
 template<typename Archive>
 void MSXCPU::serialize(Archive& ar, unsigned version)
 {
@@ -548,7 +547,6 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 			newZ80Active = z80Active;
 		}
 	}
-	ar.serialize("resetTime", reference);
 
 	if constexpr (Archive::IS_LOADER) {
 		invalidateMemCacheSlot();
