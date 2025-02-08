@@ -381,7 +381,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 
 			im::TreeNode("Overlay colors", [&]{
 				int colorFlags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel |
-				                 ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
+				                 ImGuiColorEditFlags_AlphaBar;
 				im::Group([&]{
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted("Source (done)"sv);

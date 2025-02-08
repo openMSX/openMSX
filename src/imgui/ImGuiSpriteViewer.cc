@@ -313,9 +313,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				auto checkerBoardColorFlags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha;
+				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), checkerBoardColorFlags);
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), checkerBoardColorFlags);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 					ImGui::InputInt("size", &checkerBoardSize);
