@@ -7,6 +7,7 @@
 #include <iterator>
 #include <initializer_list>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <utility>
 #include <variant>
@@ -120,7 +121,7 @@ void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
 	//    http://stackoverflow.com/questions/13129031/on-implementing-stdswap-in-terms-of-move-assignment-and-move-constructor
 	// It's not clear whether the assert in libstdc++ is conforming
 	// behavior.
-	if (&*it != &v.back()) {
+	if (std::to_address(it) != &v.back()) {
 		*it = std::move(v.back());
 	}
 	v.pop_back();

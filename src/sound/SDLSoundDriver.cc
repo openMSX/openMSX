@@ -116,8 +116,8 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 	auto len = stream.size();
 
 	size_t available = getBufferFilled();
-	auto num = std::min(len, available);
-	if ((readIdx + num) < mixBuffer.size()) {
+	if (auto num = std::min(len, available);
+	    (readIdx + num) < mixBuffer.size()) {
 		copy_to_range(mixBuffer.subspan(readIdx, num), stream);
 		readIdx += narrow<unsigned>(num);
 	} else {

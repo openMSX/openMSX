@@ -277,6 +277,11 @@ public:
 	// because you want to change the type or address, and then it needs to
 	// be registered in a different way.
 	struct ScopedChangeWatchpoint {
+		ScopedChangeWatchpoint(const ScopedChangeWatchpoint&) = delete;
+		ScopedChangeWatchpoint(ScopedChangeWatchpoint&&) = delete;
+		ScopedChangeWatchpoint& operator=(const ScopedChangeWatchpoint&) = delete;
+		ScopedChangeWatchpoint& operator=(ScopedChangeWatchpoint&&) = delete;
+
 		ScopedChangeWatchpoint(MSXCPUInterface& interface_, std::shared_ptr<WatchPoint> wp_)
 			: interface(interface_), wp(std::move(wp_)) {
 			interface.unregisterWatchPoint(*wp);

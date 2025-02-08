@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <memory>
 #include <ranges>
 #include <span>
 #include <version> // for _LIBCPP_VERSION
@@ -102,7 +103,7 @@ template<std::ranges::forward_range Range, typename T, typename Compare = std::l
 {
 	auto it = std::ranges::lower_bound(range, value, comp, proj);
 	return ((it != std::ranges::end(range)) && (!std::invoke(comp, value, std::invoke(proj, *it))))
-	       ? &*it
+	       ? std::to_address(it)
 	       : nullptr;
 }
 

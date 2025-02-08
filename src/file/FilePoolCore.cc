@@ -179,8 +179,8 @@ void FilePoolCore::readSha1sums()
 
 	// Process each line.
 	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").
-	char* data = fileMem.begin();
-	char* data_end = fileMem.end();
+	auto* data = fileMem.begin();
+	auto* data_end = fileMem.end();
 	while (data != data_end) {
 		// memchr() seems better optimized than std::find_if()
 		auto* it = static_cast<char*>(memchr(data, '\n', data_end - data));

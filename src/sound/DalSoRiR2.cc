@@ -59,7 +59,7 @@ void DalSoRiR2::setupMemPtrs(
 	bool mode0,
 	std::span<const uint8_t> rom,
 	std::span<const uint8_t> ram,
-	std::span<YMF278::Block128, 32> memPtrs)
+	std::span<YMF278::Block128, 32> memPtrs) const
 {
 	// /MCS0: connected to either a 2MB ROM or a 2MB RAM chip (dynamically
 	//        selectable via software)

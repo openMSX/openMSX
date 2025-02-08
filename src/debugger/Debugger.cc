@@ -426,7 +426,7 @@ BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 		auto& breakPoints = MSXCPUInterface::getBreakPoints();
 		if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 		    it != std::end(breakPoints)) {
-			return &*it;
+			return std::to_address(it);
 		}
 	}
 	return nullptr;
@@ -453,7 +453,7 @@ DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
 		auto& conditions = MSXCPUInterface::getConditions();
 		if (auto it = std::ranges::find(conditions, id, &DebugCondition::getId);
 		    it != std::end(conditions)) {
-			return &*it;
+			return std::to_address(it);
 		}
 	}
 	return {};
