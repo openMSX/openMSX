@@ -25,7 +25,7 @@ private:
 		PersistentElement{"show", &ImGuiWaveViewer::show}
 	};
 
-	std::set<std::string> openChips;
+	std::set<std::string, std::less<>> openChips;
 };
 
 } // namespace openmsx

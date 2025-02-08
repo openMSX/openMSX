@@ -568,7 +568,7 @@ unsigned ImGuiDisassembly::disassemble(
 }
 
 void ImGuiDisassembly::disassembleToClipboard(
-	MSXCPUInterface& cpuInterface, unsigned pc, EmuTime::param time,
+	const MSXCPUInterface& cpuInterface, unsigned pc, EmuTime::param time,
 	unsigned minAddr, unsigned maxAddr)
 {
 	std::string mnemonic;

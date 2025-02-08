@@ -94,11 +94,11 @@ private:
 
 	std::vector<Dump> dumps;
 	string_view system;
-	String32 title;
-	String32 company;
-	String32 year;
-	String32 country;
-	unsigned genMSXid;
+	String32 title = {};
+	String32 company = {};
+	String32 year = {};
+	String32 country = {};
+	unsigned genMSXid = 0;
 
 	State state = BEGIN;
 	unsigned unknownLevel = 0;
