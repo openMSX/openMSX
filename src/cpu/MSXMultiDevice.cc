@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-static DeviceConfig getMultiConfig(const HardwareConfig& hwConf)
+static DeviceConfig getMultiConfig(HardwareConfig& hwConf)
 {
 	static const XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
@@ -14,7 +14,7 @@ static DeviceConfig getMultiConfig(const HardwareConfig& hwConf)
 	return {hwConf, *xml};
 }
 
-MSXMultiDevice::MSXMultiDevice(const HardwareConfig& hwConf)
+MSXMultiDevice::MSXMultiDevice(HardwareConfig& hwConf)
 	: MSXDevice(getMultiConfig(hwConf), "Multi")
 {
 }

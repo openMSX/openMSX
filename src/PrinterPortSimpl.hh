@@ -12,7 +12,7 @@ class HardwareConfig;
 class PrinterPortSimpl final : public PrinterPortDevice
 {
 public:
-	explicit PrinterPortSimpl(const HardwareConfig& hwConf);
+	explicit PrinterPortSimpl(HardwareConfig& hwConf);
 
 	// PrinterPortDevice
 	[[nodiscard]] bool getStatus(EmuTime::param time) override;
@@ -32,7 +32,7 @@ private:
 	void createDAC();
 
 private:
-	const HardwareConfig& hwConf;
+	HardwareConfig& hwConf;
 	std::optional<DACSound8U> dac;
 };
 

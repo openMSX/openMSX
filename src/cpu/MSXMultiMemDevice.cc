@@ -19,7 +19,7 @@ MSXMultiMemDevice::Range::Range(
 {
 }
 
-MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
+MSXMultiMemDevice::MSXMultiMemDevice(HardwareConfig& hwConf)
 
 	: MSXMultiDevice(hwConf)
 {

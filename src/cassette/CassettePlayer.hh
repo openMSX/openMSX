@@ -31,7 +31,7 @@ public:
 	static constexpr std::string_view TAPE_RECORDING_EXTENSION = ".wav";
 
 public:
-	explicit CassettePlayer(const HardwareConfig& hwConf);
+	explicit CassettePlayer(HardwareConfig& hwConf);
 	~CassettePlayer() override;
 
 	// CassetteDevice

@@ -19,7 +19,7 @@ PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 				getConfig().findChild("PanasonicRom");
 		if (!elem) return std::nullopt;
 
-		const HardwareConfig* hwConf = motherBoard.getMachineConfig();
+		HardwareConfig* hwConf = motherBoard.getMachineConfig();
 		assert(hwConf);
 		return std::optional<Rom>(std::in_place,
 			"PanasonicRom", "Turbor-R main ROM",

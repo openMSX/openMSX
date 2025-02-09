@@ -21,11 +21,11 @@ class DeviceConfig
 {
 public:
 	DeviceConfig() = default;
-	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
+	DeviceConfig(HardwareConfig& hwConf_, const XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 	{
 	}
-	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_,
+	DeviceConfig(HardwareConfig& hwConf_, const XMLElement& devConf_,
 	             const XMLElement* primary_, const XMLElement* secondary_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 		, primary(primary_), secondary(secondary_)
@@ -41,6 +41,11 @@ public:
 	}
 
 	[[nodiscard]] const HardwareConfig& getHardwareConfig() const
+	{
+		assert(hwConf);
+		return *hwConf;
+	}
+	[[nodiscard]] HardwareConfig& getHardwareConfig()
 	{
 		assert(hwConf);
 		return *hwConf;
@@ -81,7 +86,7 @@ public:
 	[[nodiscard]] int getAttributeValueAsInt(std::string_view attName, int defaultValue) const;
 
 private:
-	const HardwareConfig* hwConf = nullptr;
+	HardwareConfig* hwConf = nullptr;
 	const XMLElement* devConf = nullptr;
 	const XMLElement* primary = nullptr;
 	const XMLElement* secondary = nullptr;

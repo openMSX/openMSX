@@ -23,7 +23,7 @@ class WatchPoint;
 class MSXWatchIODevice final : public MSXMultiDevice
 {
 public:
-	MSXWatchIODevice(const HardwareConfig& hwConf, WatchPoint& wp);
+	MSXWatchIODevice(HardwareConfig& hwConf, WatchPoint& wp);
 
 	[[nodiscard]] MSXDevice*& getDevicePtr() { return device; }
 

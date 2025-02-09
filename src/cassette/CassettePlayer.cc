@@ -72,7 +72,7 @@ static std::string_view getCassettePlayerName()
 	return "cassetteplayer";
 }
 
-CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
+CassettePlayer::CassettePlayer(HardwareConfig& hwConf)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getCassettePlayerName(), DESCRIPTION, 1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())

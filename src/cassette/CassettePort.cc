@@ -52,7 +52,7 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 // CassettePort
 
-CassettePort::CassettePort(const HardwareConfig& hwConf)
+CassettePort::CassettePort(HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
 	            std::make_unique<DummyCassetteDevice>())
 	, motherBoard(hwConf.getMotherBoard())

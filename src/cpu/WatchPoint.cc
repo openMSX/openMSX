@@ -100,7 +100,7 @@ void WatchPoint::doWriteCallback(MSXMotherBoard& motherBoard, unsigned port, uns
 // class MSXWatchIODevice
 
 MSXWatchIODevice::MSXWatchIODevice(
-		const HardwareConfig& hwConf, WatchPoint& wp_)
+		HardwareConfig& hwConf, WatchPoint& wp_)
 	: MSXMultiDevice(hwConf)
 	, wp(wp_)
 {

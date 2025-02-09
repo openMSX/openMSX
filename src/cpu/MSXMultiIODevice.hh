@@ -11,7 +11,7 @@ class MSXMultiIODevice final : public MSXMultiDevice
 public:
 	using Devices = std::vector<MSXDevice*>;
 
-	explicit MSXMultiIODevice(const HardwareConfig& hwConf);
+	explicit MSXMultiIODevice(HardwareConfig& hwConf);
 	~MSXMultiIODevice() override;
 
 	void addDevice(MSXDevice* device);

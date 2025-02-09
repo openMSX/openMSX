@@ -49,6 +49,9 @@ public:
 	[[nodiscard]] const HardwareConfig& getHardwareConfig() const {
 		return deviceConfig.getHardwareConfig();
 	}
+	[[nodiscard]] HardwareConfig& getHardwareConfig() {
+		return deviceConfig.getHardwareConfig();
+	}
 
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.

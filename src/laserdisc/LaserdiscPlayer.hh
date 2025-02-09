@@ -30,8 +30,7 @@ class LaserdiscPlayer final : public ResampledSoundDevice
                             , public MediaInfoProvider
 {
 public:
-	LaserdiscPlayer(const HardwareConfig& hwConf,
-			PioneerLDControl& ldControl);
+	LaserdiscPlayer(HardwareConfig& hwConf, PioneerLDControl& ldControl);
 	~LaserdiscPlayer();
 
 	// Called from CassettePort

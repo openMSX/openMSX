@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXMultiIODevice::MSXMultiIODevice(const HardwareConfig& hwConf)
+MSXMultiIODevice::MSXMultiIODevice(HardwareConfig& hwConf)
 	: MSXMultiDevice(hwConf)
 {
 }

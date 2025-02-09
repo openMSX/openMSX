@@ -38,7 +38,7 @@ GlobalSettings& DeviceConfig::getGlobalSettings() const
 XMLDocument& DeviceConfig::getXMLDocument()
 {
 	assert(hwConf);
-	return const_cast<HardwareConfig*>(hwConf)->getXMLDocument();
+	return hwConf->getXMLDocument();
 }
 
 const XMLElement& DeviceConfig::getChild(std::string_view name) const
