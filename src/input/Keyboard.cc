@@ -228,7 +228,9 @@ static constexpr auto getMSXMapping()
 		M{P{0x12}, K{SDLK_MINUS},       S{SDL_SCANCODE_MINUS}},
 		M{P{0x13}, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}},
 //		M{P{0x14}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
-		M{P{0x14}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH, SDL_SCANCODE_INTERNATIONAL3}}, // japanese yen
+		M{P{0x14}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH, SDL_SCANCODE_INTERNATIONAL3}},
+																// japanese yen == SDL_SCANCODE_INTERNATIONAL3
+																// but japanese RIGHTBRACKET == SDL_SCANCODE_BACKSLASH ....
 		M{P{0x15}, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
 		M{P{0x16}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
 		M{P{0x17}, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
@@ -1113,7 +1115,17 @@ void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 		updateKeyMatrix(time, key.down, pos);
 	};
 
-	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
+	bool use_scancode = keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL;
+
+	if (use_scancode) {
+		if ((key.sym.sym == SDLK_RIGHTBRACKET) && (key.sym.scancode == SDL_SCANCODE_BACKSLASH))
+		{
+			// host: japanese keyboard "]" -> potison as -> us keyboard "GRAVE"
+			if (const auto* mapping = binary_find(scanCodeTab, SDL_SCANCODE_GRAVE, {}, &ScanCodeMsxMapping::hostScanCode)) {
+				process(mapping->msx);
+			}
+		}
+		else
 		if (const auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
 			process(mapping->msx);
 		}
