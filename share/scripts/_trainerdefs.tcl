@@ -5980,36 +5980,31 @@ create_trainer "Space Invaders" {time 1} {
 }
 
 create_trainer "Space Manbow" {time 1} {
-	"Easy End Bosses" {dpoke 0xce82 0;poke 0xce96 0;dpoke 0xced6 0;dpoke 0xcf16 0;dpoke 0xcfd6 0}
-	"Finished Space Manbow 1x" {dpoke 0xca04 1}
-	"Finished Space Manbow 2x" {dpoke 0xca04 2}
-	"Finished Space Manbow 3x" {dpoke 0xca04 3}
-	"Invincible" {dpoke 0xca53 03;poke 0xca54 03}
+	"Stage: Stage 1" {dpoke 0xf0fc 0}
+	"Stage: Stage 2" {dpoke 0xf0fc 1}
+	"Stage: Stage 3" {dpoke 0xf0fc 2}
+	"Stage: Stage 4" {dpoke 0xf0fc 3}
+	"Stage: Stage 5" {dpoke 0xf0fc 4}
+	"Stage: Stage 6" {dpoke 0xf0fc 5}
+	"Stage: Stage 7" {dpoke 0xf0fc 6}
+	"Stage: Stage 9" {dpoke 0xf0fc 8}
+	"Invincible" {dpoke 0xca53 3;poke 0xca54 3}
+	"Lives: Lives" {dpoke 0xcb0f 153}
 	"Player Speed 1" {dpoke 0xcb01 1}
 	"Player Speed 2" {dpoke 0xcb01 2}
 	"Player Speed 3" {dpoke 0xcb01 3}
 	"Player Speed 4" {dpoke 0xcb01 4}
-	"Lives: Lives" {dpoke 0xcb0f 153}
-	"Stage: Stage 0" {dpoke 0xca10 0}
-	"Stage: Stage 1" {dpoke 0xca10 1}
-	"Stage: Stage 2" {dpoke 0xca10 2}
-	"Stage: Stage 3" {dpoke 0xca10 3}
-	"Stage: Stage 4" {dpoke 0xca10 4}
-	"Stage: Stage 5" {dpoke 0xca10 5}
-	"Stage: Stage 6" {dpoke 0xca10 6}
-	"Stage: Stage 7" {dpoke 0xca10 7}
-	"Stage: Stage 8" {dpoke 0xca10 8}
-	"Weapon: Have Flash Bomb" {dpoke 0xcb1d 1}
+	"Weapon: N weapon" {dpoke 0xcb41 1}
+	"Weapon: W weapon" {dpoke 0xcb41 10}
 	"Weapon: Missile" {dpoke 0xcb48 128;poke 0xcb49 3}
-	"Weapon: Option 1" {dpoke 0xcac0 2;poke 0xcac1 3;dpoke 0xcad8 253;dpoke 0xcb51 1}
-	"Weapon: Option 1 Shoots Backwards" {dpoke 0xcb50 6}
-	"Weapon: Option 1 Shoots Forwards" {dpoke 0xcb50 8}
-	"Weapon: Option 1 Shoots Upwards" {dpoke 0xcb50 7}
-	"Weapon: Option 2" {dpoke 0xcae0 2;poke 0xcae1 3;dpoke 0xcaf8 2;dpoke 0xcb59 1}
-	"Weapon: Option 2 Shoots Backwards" {dpoke 0xcb58 4}
-	"Weapon: Option 2 Shoots Downwards" {dpoke 0xcb58 3}
-	"Weapon: Option 2 Shoots Forwards" {dpoke 0xcb58 2}
+	"Weapon: Have Flash Bomb" {dpoke 0xcb1d 1}
+	"Weapon: Option 1" {dpoke 0xcac0 2;poke 0xcac1 3;dpoke 0xcad8 253;dpoke 0xcb51 1;if {[ peek 0xcb50 ] == 0} {dpoke 0xcb50 8}}
+	"Weapon: Option 2" {dpoke 0xcae0 2;poke 0xcae1 3;dpoke 0xcaf8 2;dpoke 0xcb59 1;if {[ peek 0xcb58 ] == 0} {dpoke 0xcb58 2}}
 	"Weapon: Power Bar" {dpoke 0xcb08 16}
+	"Easy End Bosses" { switch [peek 0xca10] 0 {dpoke 0xced6 0} 1 {poke 0xcfd6 0} 2 {dpoke 0xce96 0} 3 {dpoke 0xce96 0} 4 {dpoke 0xce96 0} 5 {if {[ peek 0xce96 ] > 120 && [ peek 0xce96 ] < 165} {dpoke 0xce96 16}} 6 {dpoke 0xce82 0} 7 {dpoke 0xce96 0} 8 {dpoke 0xcf16 0} }
+	"Finished Space Manbow 1x" {dpoke 0xca04 1}
+	"Finished Space Manbow 2x" {dpoke 0xca04 2}
+	"Finished Space Manbow 3x" {dpoke 0xca04 3}
 }
 
 create_trainer "Space Rescue" {time 1} {
