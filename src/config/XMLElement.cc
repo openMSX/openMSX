@@ -28,6 +28,15 @@ const XMLElement* XMLElement::findChild(std::string_view childName) const
 	}
 	return nullptr;
 }
+XMLElement* XMLElement::findChild(std::string_view childName)
+{
+	for (auto* child = firstChild; child; child = child->nextSibling) {
+		if (child->name == childName) {
+			return child;
+		}
+	}
+	return nullptr;
+}
 
 // Similar to above, but instead of starting the search from the start of the
 // list, start searching at 'hint'. This 'hint' parameter must be initialized
@@ -56,6 +65,14 @@ const XMLElement* XMLElement::findChild(std::string_view childName, const XMLEle
 const XMLElement& XMLElement::getChild(std::string_view childName) const
 {
 	if (const auto* elem = findChild(childName)) {
+		return *elem;
+	}
+	throw ConfigException("Missing tag \"", childName, "\".");
+}
+
+XMLElement& XMLElement::getChild(std::string_view childName)
+{
+	if (auto* elem = findChild(childName)) {
 		return *elem;
 	}
 	throw ConfigException("Missing tag \"", childName, "\".");

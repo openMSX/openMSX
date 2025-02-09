@@ -237,6 +237,11 @@ const XMLElement& HardwareConfig::getDevicesElem() const
 	return getConfig().getChild("devices");
 }
 
+XMLElement& HardwareConfig::getDevicesElem()
+{
+	return getConfig().getChild("devices");
+}
+
 static void loadHelper(XMLDocument& doc, const std::string& filename)
 {
 	try {
@@ -373,10 +378,10 @@ void HardwareConfig::createDevices()
 	createDevices(getDevicesElem(), nullptr, nullptr);
 }
 
-void HardwareConfig::createDevices(const XMLElement& elem,
-	const XMLElement* primary, const XMLElement* secondary)
+void HardwareConfig::createDevices(XMLElement& elem,
+	XMLElement* primary, XMLElement* secondary)
 {
-	for (const auto& c : elem.getChildren()) {
+	for (auto& c : elem.getChildren()) {
 		const auto& childName = c.getName();
 		if (childName == "primary") {
 			createDevices(c, &c, secondary);

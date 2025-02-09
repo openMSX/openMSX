@@ -26,7 +26,7 @@ public:
 	{
 	}
 	DeviceConfig(HardwareConfig& hwConf_, const XMLElement& devConf_,
-	             const XMLElement* primary_, const XMLElement* secondary_)
+	             XMLElement* primary_, XMLElement* secondary_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 		, primary(primary_), secondary(secondary_)
 	{
@@ -56,11 +56,11 @@ public:
 	}
 	[[nodiscard]] XMLElement* getPrimary() const
 	{
-		return const_cast<XMLElement*>(primary);
+		return primary;
 	}
 	[[nodiscard]] XMLElement* getSecondary() const
 	{
-		return const_cast<XMLElement*>(secondary);
+		return secondary;
 	}
 
 	// convenience methods:
@@ -88,8 +88,8 @@ public:
 private:
 	HardwareConfig* hwConf = nullptr;
 	const XMLElement* devConf = nullptr;
-	const XMLElement* primary = nullptr;
-	const XMLElement* secondary = nullptr;
+	XMLElement* primary = nullptr;
+	XMLElement* secondary = nullptr;
 };
 
 } // namespace openmsx
