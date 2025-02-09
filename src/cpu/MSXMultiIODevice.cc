@@ -35,7 +35,7 @@ const std::string& MSXMultiIODevice::getName() const
 {
 	TclObject list;
 	getNameList(list);
-	const_cast<std::string&>(deviceName) = list.getString();
+	deviceName = list.getString();
 	return deviceName;
 }
 void MSXMultiIODevice::getNameList(TclObject& result) const

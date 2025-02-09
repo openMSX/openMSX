@@ -72,7 +72,7 @@ const std::string& MSXMultiMemDevice::getName() const
 {
 	TclObject list;
 	getNameList(list);
-	const_cast<std::string&>(deviceName) = list.getString();
+	deviceName = list.getString();
 	return deviceName;
 }
 void MSXMultiMemDevice::getNameList(TclObject& result) const

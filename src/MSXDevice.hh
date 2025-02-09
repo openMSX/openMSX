@@ -326,7 +326,7 @@ private:
 	void unregisterPorts();
 
 protected:
-	std::string deviceName;
+	mutable std::string deviceName; // MSXMultiXxxDevice has a dynamic (lazy) name
 
 	[[nodiscard]] byte getPrimarySlot() const {
 		// must already be resolved to an actual slot
