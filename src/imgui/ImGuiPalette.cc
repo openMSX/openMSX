@@ -128,17 +128,21 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 		ImGui::SameLine();
 		ImGui::RadioButton("Fixed palette", &whichPalette, PALETTE_FIXED);
 
-		std::array<uint16_t, 16> paletteCopy;
-		std::span<uint16_t, 16> palette = customPalette;
+		std::array<uint16_t, 16> paletteCopy; // uninitialized
 		bool disabled = (whichPalette == PALETTE_FIXED) ||
 				((whichPalette == PALETTE_VDP) && (!vdp || vdp->isMSX1VDP()));
-		if (disabled) {
-			palette = std::span<uint16_t, 16>{const_cast<uint16_t*>(fixedPalette.data()), 16};
-		} else if (whichPalette == PALETTE_VDP) {
-			assert(vdp);
-			copy_to_range(vdp->getPalette(), paletteCopy);
-			palette = paletteCopy;
-		}
+		auto palette = [&]() -> std::span<uint16_t, 16> {
+			if (disabled) {
+				copy_to_range(fixedPalette, paletteCopy);
+				return paletteCopy;
+			} else if (whichPalette == PALETTE_VDP) {
+				assert(vdp);
+				copy_to_range(vdp->getPalette(), paletteCopy);
+				return paletteCopy;
+			} else {
+				return customPalette;
+			}
+		}();
 
 		im::Table("left/right", 2, [&]{
 			ImGui::TableSetupColumn("left",  ImGuiTableColumnFlags_WidthFixed, 200.0f);
