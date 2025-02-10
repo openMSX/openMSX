@@ -694,9 +694,9 @@ int SCSILS120::msgOut(uint8_t value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-size_t SCSILS120::getNbSectorsImpl() const
+size_t SCSILS120::getNbSectorsImpl()
 {
-	return file.is_open() ? (const_cast<File&>(file).getSize() / SECTOR_SIZE) : 0;
+	return file.is_open() ? (file.getSize() / SECTOR_SIZE) : 0;
 }
 
 bool SCSILS120::isWriteProtectedImpl() const

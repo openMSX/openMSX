@@ -351,7 +351,7 @@ unsigned NowindHost::getCurrentAddress() const
 }
 
 
-void NowindHost::diskReadInit(const SectorAccessibleDisk& disk)
+void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 {
 	unsigned sectorAmount = getSectorAmount();
 	buffer.resize(sectorAmount);

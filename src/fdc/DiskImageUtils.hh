@@ -158,15 +158,15 @@ namespace DiskImageUtils {
 	 * @param buf Sector buffer for partition table.
 	 * @return Reference to partition information struct in sector buffer.
 	 */
-	Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
+	Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf);
 
 	/** Check whether partition is of type FAT12 or FAT16.
 	 */
-	void checkSupportedPartition(const SectorAccessibleDisk& disk, unsigned partition);
+	void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition);
 
 	/** Check whether the given disk is partitioned.
 	 */
-	[[nodiscard]] bool hasPartitionTable(const SectorAccessibleDisk& disk);
+	[[nodiscard]] bool hasPartitionTable(SectorAccessibleDisk& disk);
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.

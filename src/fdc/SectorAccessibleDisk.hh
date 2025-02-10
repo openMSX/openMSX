@@ -21,11 +21,11 @@ public:
 	static constexpr size_t SECTOR_SIZE = sizeof(SectorBuffer);
 
 	// sector stuff
-	void readSector (size_t sector,       SectorBuffer& buf) const;
+	void readSector (size_t sector,       SectorBuffer& buf);
 	void writeSector(size_t sector, const SectorBuffer& buf);
-	void readSectors (std::span<      SectorBuffer> buffers, size_t startSector) const;
+	void readSectors (std::span<      SectorBuffer> buffers, size_t startSector);
 	void writeSectors(std::span<const SectorBuffer> buffers, size_t startSector);
-	[[nodiscard]] size_t getNbSectors() const;
+	[[nodiscard]] size_t getNbSectors();
 
 	// write protected stuff
 	[[nodiscard]] bool isWriteProtected() const;
@@ -66,7 +66,7 @@ protected:
 
 private:
 	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf) = 0;
-	[[nodiscard]] virtual size_t getNbSectorsImpl() const = 0;
+	[[nodiscard]] virtual size_t getNbSectorsImpl() = 0;
 	[[nodiscard]] virtual bool isWriteProtectedImpl() const = 0;
 
 private:

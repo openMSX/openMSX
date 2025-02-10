@@ -206,10 +206,10 @@ void DMKDiskImage::writeSectorImpl(size_t logicalSector, const SectorBuffer& buf
 	writeTrack(track, side, rawTrack);
 }
 
-size_t DMKDiskImage::getNbSectorsImpl() const
+size_t DMKDiskImage::getNbSectorsImpl()
 {
 	size_t t = singleSided ? numTracks : (2 * numTracks);
-	return t * const_cast<DMKDiskImage*>(this)->getSectorsPerTrack();
+	return t * getSectorsPerTrack();
 }
 
 bool DMKDiskImage::isWriteProtectedImpl() const
