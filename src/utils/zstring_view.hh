@@ -66,6 +66,12 @@ public:
 		return view().substr(pos, count);
 	}
 
+	constexpr void remove_prefix(size_type n) {
+		assert(n <= siz);
+		siz -= n;
+		dat += n;
+	}
+
 	[[nodiscard]] constexpr bool starts_with(std::string_view sv) const {
 		return view().starts_with(sv);
 	}
