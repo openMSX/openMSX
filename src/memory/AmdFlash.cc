@@ -118,22 +118,20 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 		if (sector.writeAddress != -1) { // don't use isWritable() here
 			sector.readAddress = &(*ram)[sector.writeAddress];
 			if (!loaded) {
-				auto* ramPtr = const_cast<uint8_t*>(
-					&(*ram)[sector.writeAddress]);
+				auto ramBlock = ram->getWriteBackdoor().subspan(sector.writeAddress, sector.size);
 				if (offset >= romSize) {
 					// completely past end of rom
-					std::ranges::fill(std::span{ramPtr, sector.size}, 0xFF);
+					std::ranges::fill(ramBlock, 0xFF);
 				} else if (offset + sector.size >= romSize) {
 					// partial overlap
 					auto last = romSize - offset;
-					auto missing = sector.size - last;
 					const uint8_t* romPtr = &(*rom)[offset];
-					std::ranges::copy(std::span{romPtr, last}, ramPtr);
-					std::ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
+					copy_to_range(std::span{romPtr, last}, ramBlock);
+					std::ranges::fill(ramBlock.subspan(last), 0xFF);
 				} else {
 					// completely before end of rom
 					const uint8_t* romPtr = &(*rom)[offset];
-					std::ranges::copy(std::span{romPtr, sector.size}, ramPtr);
+					copy_to_range(std::span{romPtr, sector.size}, ramBlock);
 				}
 			}
 		} else {

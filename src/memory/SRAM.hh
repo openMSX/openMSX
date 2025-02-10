@@ -32,6 +32,14 @@ public:
 	// write() is non-inline because of the auto-sync to disk feature
 	void write(size_t addr, byte value);
 	void memset(size_t addr, byte c, size_t size);
+
+	// Writing via this span will NOT schedule a 'save()' operation. This
+	// should only be used to write initial content into the SRAM that
+	// should NOT be save to disk.
+	[[nodiscard]] std::span<byte> getWriteBackdoor() {
+		return ram.getWriteBackdoor();
+	}
+
 	[[nodiscard]] size_t size() const {
 		return ram.size();
 	}
