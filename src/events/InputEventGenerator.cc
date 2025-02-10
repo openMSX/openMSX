@@ -267,7 +267,7 @@ void InputEventGenerator::splitText(uint32_t timestamp, const char* utf8)
 	}
 }
 
-void InputEventGenerator::handle(const SDL_Event& evt)
+void InputEventGenerator::handle(SDL_Event& evt)
 {
 	std::optional<Event> event;
 	switch (evt.type) {
@@ -337,21 +337,21 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		}
 		break;
 	case SDL_JOYBUTTONUP:
-		if (joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonUpEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, false);
 		}
 		break;
 	case SDL_JOYBUTTONDOWN:
-		if (joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonDownEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, true);
 		}
 		break;
 	case SDL_JOYAXISMOTION: {
-		if (auto joyId = joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			const auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
 			assert(setting);
 			int deadZone = setting->getInt();
@@ -366,7 +366,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	}
 	case SDL_JOYHATMOTION:
-		if (auto joyId = joystickManager.translateSdlInstanceId(const_cast<SDL_Event&>(evt))) {
+		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickHatEvent(evt);
 			triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
 		}
