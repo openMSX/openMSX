@@ -18,7 +18,7 @@ runs:
     - name: Install Linux prerequisites
       if: ${{ inputs.os == 'linux' }}
       shell: bash
-      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev
+      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev
     - name: Install extra Linux prerequisites for native/dynamic build (e.g. for unittesting)
       if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
