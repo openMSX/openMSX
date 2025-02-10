@@ -18,7 +18,7 @@ namespace openmsx {
 // Assumption that SRAM is only visible in page 2, because the ROM segment
 // select is also for page 2 only
 
-MSXToshibaTcx200x::MSXToshibaTcx200x(const DeviceConfig& config)
+MSXToshibaTcx200x::MSXToshibaTcx200x(DeviceConfig& config)
 	: MSXDevice(config)
 	, rs232Rom(getName() + " RS232C ROM", "rom", config, "rs232")
 	, wordProcessorRom(getName() + " Word Processor ROM", "rom", config, "wordpro")

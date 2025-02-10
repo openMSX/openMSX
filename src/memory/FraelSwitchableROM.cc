@@ -18,7 +18,7 @@
 
 namespace openmsx {
 
-FraelSwitchableROM::FraelSwitchableROM(const DeviceConfig& config)
+FraelSwitchableROM::FraelSwitchableROM(DeviceConfig& config)
 	: MSXDevice(config)
 	, basicBiosRom(getName() + " BASIC/BIOS", "rom", config, "basicbios")
 	, firmwareRom (getName() + " firmware"  , "rom", config, "firmware" )

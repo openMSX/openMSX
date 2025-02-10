@@ -8,7 +8,7 @@ namespace openmsx {
 class ToshibaFDC final : public WD2793BasedFDC
 {
 public:
-	explicit ToshibaFDC(const DeviceConfig& config);
+	explicit ToshibaFDC(DeviceConfig& config);
 
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;

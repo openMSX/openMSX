@@ -64,7 +64,7 @@ size_t MegaSCSI::getSramSize() const
 	return sramSize * 1024; // in bytes
 }
 
-MegaSCSI::MegaSCSI(const DeviceConfig& config)
+MegaSCSI::MegaSCSI(DeviceConfig& config)
 	: MSXDevice(config)
 	, mb89352(config)
 	, sram(getName() + " SRAM", getSramSize(), config)

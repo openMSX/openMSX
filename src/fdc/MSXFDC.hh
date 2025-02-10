@@ -25,7 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = {},
+	explicit MSXFDC(DeviceConfig& config, const std::string& romId = {},
 	                bool needROM = true,
 	                DiskDrive::TrackMode trackMode = DiskDrive::TrackMode::NORMAL);
 

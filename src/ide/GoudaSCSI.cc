@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-GoudaSCSI::GoudaSCSI(const DeviceConfig& config)
+GoudaSCSI::GoudaSCSI(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, wd33c93(config)

@@ -29,7 +29,7 @@ namespace openmsx {
  * ends up in the PSG (regardless of muting); if the motor relay is ON
  * then normal tape input is used.
  */
-PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
+PioneerLDControl::PioneerLDControl(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, irq(getMotherBoard(), "PioneerLDControl.IRQdisplayoff")

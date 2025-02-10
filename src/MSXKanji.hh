@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXKanji final : public MSXDevice
 {
 public:
-	explicit MSXKanji(const DeviceConfig& config);
+	explicit MSXKanji(DeviceConfig& config);
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;

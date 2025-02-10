@@ -16,7 +16,7 @@ namespace openmsx {
 class NowindInterface final : public MSXDevice
 {
 public:
-	explicit NowindInterface(const DeviceConfig& config);
+	explicit NowindInterface(DeviceConfig& config);
 	~NowindInterface() override;
 
 	void reset(EmuTime::param time) override;

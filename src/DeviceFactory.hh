@@ -17,7 +17,7 @@ class MSXCPUInterface;
 class DeviceFactory
 {
 public:
-	[[nodiscard]] static std::unique_ptr<MSXDevice> create(const DeviceConfig& conf);
+	[[nodiscard]] static std::unique_ptr<MSXDevice> create(DeviceConfig conf);
 	[[nodiscard]] static std::unique_ptr<DummyDevice> createDummyDevice(
 		HardwareConfig& hwConf);
 	[[nodiscard]] static std::unique_ptr<MSXDeviceSwitch> createDeviceSwitch(

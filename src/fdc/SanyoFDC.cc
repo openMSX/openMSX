@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-SanyoFDC::SanyoFDC(const DeviceConfig& config)
+SanyoFDC::SanyoFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 }

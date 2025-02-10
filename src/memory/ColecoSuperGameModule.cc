@@ -15,7 +15,7 @@ static constexpr unsigned MAIN_RAM_SIZE = 0x400; // 1kB
 static constexpr unsigned SGM_RAM_SIZE = 0x8000; // 32kB
 static constexpr unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
 
-ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
+ColecoSuperGameModule::ColecoSuperGameModule(DeviceConfig& config)
 	: MSXDevice(config)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
 	, sgmRam(config, getName() + " RAM", "SGM RAM", SGM_RAM_SIZE)

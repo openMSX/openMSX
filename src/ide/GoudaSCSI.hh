@@ -10,7 +10,7 @@ namespace openmsx {
 class GoudaSCSI final : public MSXDevice
 {
 public:
-	explicit GoudaSCSI(const DeviceConfig& config);
+	explicit GoudaSCSI(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

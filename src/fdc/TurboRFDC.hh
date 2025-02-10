@@ -13,7 +13,7 @@ class TurboRFDC final : public MSXFDC
 public:
 	enum class Type { BOTH, R7FF2, R7FF8 };
 
-	explicit TurboRFDC(const DeviceConfig& config);
+	explicit TurboRFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

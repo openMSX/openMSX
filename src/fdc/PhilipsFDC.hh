@@ -8,7 +8,7 @@ namespace openmsx {
 class PhilipsFDC final : public WD2793BasedFDC
 {
 public:
-	explicit PhilipsFDC(const DeviceConfig& config);
+	explicit PhilipsFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

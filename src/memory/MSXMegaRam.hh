@@ -14,7 +14,7 @@ class Rom;
 class MSXMegaRam final : public MSXDevice
 {
 public:
-	explicit MSXMegaRam(const DeviceConfig& config);
+	explicit MSXMegaRam(DeviceConfig& config);
 	~MSXMegaRam() override;
 
 	void powerUp(EmuTime::param time) override;

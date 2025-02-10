@@ -45,6 +45,10 @@ const XMLElement& DeviceConfig::getChild(std::string_view name) const
 {
 	return getXML()->getChild(name);
 }
+XMLElement& DeviceConfig::getChild(std::string_view name)
+{
+	return getXML()->getChild(name);
+}
 std::string_view DeviceConfig::getChildData(std::string_view name) const
 {
 	return getXML()->getChildData(name);
@@ -64,6 +68,10 @@ bool DeviceConfig::getChildDataAsBool(std::string_view name,
 	return getXML()->getChildDataAsBool(name, defaultValue);
 }
 const XMLElement* DeviceConfig::findChild(std::string_view name) const
+{
+	return getXML()->findChild(name);
+}
+XMLElement* DeviceConfig::findChild(std::string_view name)
 {
 	return getXML()->findChild(name);
 }

@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXBunsetsu final : public MSXDevice
 {
 public:
-	explicit MSXBunsetsu(const DeviceConfig& config);
+	explicit MSXBunsetsu(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

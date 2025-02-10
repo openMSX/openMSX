@@ -49,7 +49,7 @@ class IDEDevice;
 class BeerIDE final : public MSXDevice, public I8255Interface
 {
 public:
-	explicit BeerIDE(const DeviceConfig& config);
+	explicit BeerIDE(DeviceConfig& config);
 	~BeerIDE() override;
 
 	void reset(EmuTime::param time) override;

@@ -81,7 +81,7 @@
 
 namespace openmsx {
 
-ChakkariCopy::ChakkariCopy(const DeviceConfig& config)
+ChakkariCopy::ChakkariCopy(DeviceConfig& config)
 	: MSXDevice(config)
 	, biosRam(config, getName() + " BIOS RAM", "Chakkari Copy BIOS RAM", 0x4000)
 	, workRam(config, getName() + " work RAM", "Chakkari Copy work RAM", 0x0800)

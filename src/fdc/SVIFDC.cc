@@ -26,7 +26,7 @@
 
 namespace openmsx {
 
-SVIFDC::SVIFDC(const DeviceConfig& config)
+SVIFDC::SVIFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config, "", false) // doesn't require a <rom>
 {
 }

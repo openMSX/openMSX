@@ -9,7 +9,7 @@ namespace openmsx {
 class SpectravideoFDC final : public WD2793BasedFDC
 {
 public:
-	explicit SpectravideoFDC(const DeviceConfig& config);
+	explicit SpectravideoFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

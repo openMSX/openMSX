@@ -32,7 +32,7 @@ static constexpr int DATA_REQUEST  = 0x40;
 static constexpr int INTR_REQUEST  = 0x80;
 
 
-VictorFDC::VictorFDC(const DeviceConfig& config)
+VictorFDC::VictorFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 	reset(getCurrentTime());

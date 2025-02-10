@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-ToshibaFDC::ToshibaFDC(const DeviceConfig& config)
+ToshibaFDC::ToshibaFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 }

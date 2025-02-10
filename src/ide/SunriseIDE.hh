@@ -14,7 +14,7 @@ class IDEDevice;
 class SunriseIDE final : public MSXDevice
 {
 public:
-	explicit SunriseIDE(const DeviceConfig& config);
+	explicit SunriseIDE(DeviceConfig& config);
 	~SunriseIDE() override;
 
 	void powerUp(EmuTime::param time) override;

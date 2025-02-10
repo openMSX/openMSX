@@ -110,9 +110,9 @@ static constexpr uint8_t AS_INT          = 0x80;
 0x60    COMPLETE_RECEIVED
 */
 
-WD33C93::WD33C93(const DeviceConfig& config)
+WD33C93::WD33C93(DeviceConfig& config)
 {
-	for (const auto* t : config.getXML()->getChildren("target")) {
+	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeValueAsInt("id", 0);
 		if (id >= MAX_DEV) {
 			throw MSXException("Invalid SCSI id: ", id,

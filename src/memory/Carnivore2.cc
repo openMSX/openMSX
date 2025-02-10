@@ -24,7 +24,7 @@
 
 namespace openmsx {
 
-Carnivore2::Carnivore2(const DeviceConfig& config)
+Carnivore2::Carnivore2(DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXMapperIOClient(getMotherBoard())
 	, flash(getName() + " flash", AmdFlashChip::M29W640GB, {}, config)

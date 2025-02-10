@@ -8,7 +8,7 @@ namespace openmsx {
 class YamahaFDC final : public WD2793BasedFDC
 {
 public:
-	explicit YamahaFDC(const DeviceConfig& config);
+	explicit YamahaFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

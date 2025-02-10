@@ -32,7 +32,7 @@ void PrinterPortSimpl::writeData(uint8_t data, EmuTime::param time)
 
 void PrinterPortSimpl::createDAC()
 {
-	static const XMLElement* xml = [] {
+	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		auto* result = doc.allocateElement("simpl");
 		result->setFirstChild(doc.allocateElement("sound"))

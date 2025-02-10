@@ -14,7 +14,7 @@ class ChakkariCopy final : public MSXDevice, private Observer<Setting>
 public:
 	enum Mode { COPY, RAM };
 
-	explicit ChakkariCopy(const DeviceConfig& config);
+	explicit ChakkariCopy(DeviceConfig& config);
 	~ChakkariCopy() override;
 
 	void reset(EmuTime::param time) override;

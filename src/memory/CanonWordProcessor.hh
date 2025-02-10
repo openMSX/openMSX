@@ -9,7 +9,7 @@ namespace openmsx {
 class CanonWordProcessor final : public MSXDevice
 {
 public:
-	explicit CanonWordProcessor(const DeviceConfig& config);
+	explicit CanonWordProcessor(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

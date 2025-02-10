@@ -119,18 +119,19 @@ class XMLElement
 	};
 	static_assert(std::ranges::range<ChildRange<XMLElement>>);
 
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
 	struct NamedChildIterator {
 		using difference_type = ptrdiff_t;
-		using value_type = const XMLElement*;
+		using value_type = Elem*;
 		using pointer = value_type*;
 		using reference = value_type&;
 		using iterator_category = std::forward_iterator_tag;
 
-		const XMLElement* elem;
+		Elem* elem;
 		std::string_view name;
 
 		NamedChildIterator() : elem(nullptr) {}
-		NamedChildIterator(const XMLElement* elem_, std::string_view name_)
+		NamedChildIterator(Elem* elem_, std::string_view name_)
 			: elem(elem_), name(name_)
 		{
 			while (elem && elem->getName() != name) {
@@ -138,7 +139,7 @@ class XMLElement
 			}
 		}
 
-		const XMLElement* operator*() const { return elem; }
+		Elem* operator*() const { return elem; }
 		NamedChildIterator& operator++() {
 			do {
 				elem = elem->nextSibling;
@@ -149,15 +150,17 @@ class XMLElement
 		[[nodiscard]] bool operator==(const NamedChildIterator& i) const { return elem == i.elem; }
 		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return elem == nullptr; }
 	};
-	static_assert(std::forward_iterator<NamedChildIterator>);
-	static_assert(std::sentinel_for<std::default_sentinel_t, NamedChildIterator>);
+	static_assert(std::forward_iterator<NamedChildIterator<XMLElement>>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, NamedChildIterator<XMLElement>>);
+
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
 	struct NamedChildRange {
-		const XMLElement* elem;
+		Elem* elem;
 		std::string_view name;
-		[[nodiscard]] NamedChildIterator begin() const { return {elem->firstChild, name}; }
+		[[nodiscard]] NamedChildIterator<Elem> begin() const { return {elem->firstChild, name}; }
 		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
-	static_assert(std::ranges::range<NamedChildRange>);
+	static_assert(std::ranges::range<NamedChildRange<XMLElement>>);
 
 	struct AttributeIterator {
 		using difference_type = ptrdiff_t;
@@ -215,7 +218,8 @@ public:
 	[[nodiscard]] size_t numChildren() const;
 	[[nodiscard]] ChildRange<const XMLElement> getChildren() const { return {this}; }
 	[[nodiscard]] ChildRange<      XMLElement> getChildren()       { return {this}; }
-	[[nodiscard]] NamedChildRange getChildren(std::string_view childName) const { return {this, childName}; }
+	[[nodiscard]] NamedChildRange<const XMLElement> getChildren(std::string_view childName) const { return {this, childName}; }
+	[[nodiscard]] NamedChildRange<      XMLElement> getChildren(std::string_view childName)       { return {this, childName}; }
 
 	[[nodiscard]] const XMLAttribute* findAttribute(std::string_view attrName) const;
 	[[nodiscard]] const XMLAttribute& getAttribute(std::string_view attrName) const;

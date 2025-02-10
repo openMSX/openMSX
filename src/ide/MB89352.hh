@@ -26,7 +26,7 @@ class DeviceConfig;
 class MB89352
 {
 public:
-	explicit MB89352(const DeviceConfig& config);
+	explicit MB89352(DeviceConfig& config);
 
 	void reset(bool scsiReset);
 	[[nodiscard]] uint8_t readRegister(uint8_t reg);

@@ -54,12 +54,12 @@ private:
 
 
 Rom::Rom(string name_, static_string_view description_,
-         const DeviceConfig& config, std::string_view id /*= {}*/)
+         DeviceConfig config, std::string_view id /*= {}*/)
 	: name(std::move(name_)), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
-	for (const auto* c : config.getXML()->getChildren("rom")) {
+	for (auto* c : config.getXML()->getChildren("rom")) {
 		if (c->getAttributeValue("id", {}) == id) {
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
@@ -87,7 +87,7 @@ Rom::Rom(string name_, static_string_view description_,
 	}
 }
 
-void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
+void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
                const FileContext& context)
 {
 	// (Only) if the content of this ROM depends on state that is not part
@@ -287,8 +287,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		auto& doc = motherBoard.getMachineConfig()->getXMLDocument();
 		auto patchedSha1Str = getSHA1().toString();
 		const auto* actualSha1Elem = doc.getOrCreateChild(
-			const_cast<XMLElement&>(config),
-			"resolvedSha1", doc.allocateString(patchedSha1Str));
+			config, "resolvedSha1", doc.allocateString(patchedSha1Str));
 		if (actualSha1Elem->getData() != patchedSha1Str) {
 			std::string_view tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
