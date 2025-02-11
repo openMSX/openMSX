@@ -54,7 +54,7 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 	return TCL_ERROR;
 }
 Tcl_ChannelType Interpreter::channelType = {
-	const_cast<char*>("openMSX console"),// Type name
+	"openMSX console",	 // Type name
 	nullptr,		 // Always non-blocking
 	dummyClose,		 // Close proc
 	dummyInput,		 // Input proc
