@@ -146,7 +146,7 @@ template<std::signed_integral T>
   * @return 0 if the input is zero (no bits are set),
   *   otherwise the index of the first set bit + 1.
   */
-[[nodiscard]] inline /*constexpr*/ unsigned findFirstSet(uint32_t x)
+[[nodiscard]] inline constexpr unsigned findFirstSet(uint32_t x)
 {
 	return x ? std::countr_zero(x) + 1 : 0;
 }

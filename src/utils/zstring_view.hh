@@ -32,7 +32,7 @@ public:
 		: dat(s), siz(std::char_traits<char>::length(s)) {}
 	constexpr zstring_view(const char* s, size_t n)
 		: dat(s), siz(n) { assert(s[n] == '\0'); }
-	/*constexpr*/ zstring_view(const std::string& s)
+	constexpr zstring_view(const std::string& s)
 		: dat(s.c_str()), siz(s.size()) {}
 
 	[[nodiscard]] constexpr auto begin() const { return dat; }
