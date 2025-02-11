@@ -500,7 +500,7 @@ void PostProcessor::uploadFrame()
 			h,                 // height
 			GL_RGBA,           // format
 			GL_UNSIGNED_BYTE,  // type
-			const_cast<RawFrame*>(superImposeVideoFrame)->getLineDirect(0).data()); // data
+			superImposeVideoFrame->getLineDirect(0).data()); // data
 	}
 }
 
