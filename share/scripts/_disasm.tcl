@@ -152,8 +152,7 @@ set_help_text run_to \
 {Run to the specified address, if a breakpoint is reached earlier we stop
 at that breakpoint.}
 proc run_to {address} {
-	set bp [debug set_bp $address]
-	after break "debug remove_bp $bp"
+	debug set_bp -once $address
 	debug cont
 }
 
