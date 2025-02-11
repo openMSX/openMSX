@@ -1,6 +1,8 @@
 #include "RTScheduler.hh"
+
 #include "RTSchedulable.hh"
-#include "ranges.hh"
+
+#include <algorithm>
 #include <limits>
 
 namespace openmsx {
@@ -30,7 +32,7 @@ bool RTScheduler::remove(RTSchedulable& schedulable)
 
 bool RTScheduler::isPending(const RTSchedulable& schedulable) const
 {
-	return ranges::any_of(queue, EqualRTSchedulable(schedulable));
+	return std::ranges::any_of(queue, EqualRTSchedulable(schedulable));
 }
 
 void RTScheduler::scheduleHelper(uint64_t limit)

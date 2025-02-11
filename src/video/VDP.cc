@@ -38,9 +38,9 @@ TODO:
 
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -253,7 +253,7 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	ranges::fill(controlRegs, 0);
+	std::ranges::fill(controlRegs, 0);
 	if (isVDPwithPALonly()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
@@ -1550,7 +1550,7 @@ static constexpr std::array<std::array<float, 3>, 16> TMS9XXXA_ANALOG_OUTPUT = {
 std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 {
 	assert(isMSX1VDP());
-	if (MSXDevice::getDeviceConfig().findChild("3bitrgboutput") != nullptr) {
+	if (MSXDevice::getDeviceConfig().findChild("rgboutput3bit") != nullptr) {
 		return THREE_BIT_RGB_PALETTE;
 	}
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {

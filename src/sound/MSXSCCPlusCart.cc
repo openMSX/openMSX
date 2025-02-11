@@ -2,15 +2,19 @@
 // renaming, which isn't worth it right now. TODO rename this :)
 
 #include "MSXSCCPlusCart.hh"
+
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+
+#include <algorithm>
 #include <bit>
 
 namespace openmsx {
@@ -81,8 +85,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 		}
 	}
 	// make valgrind happy
-	ranges::fill(isRamSegment, true);
-	ranges::fill(mapper, 0);
+	std::ranges::fill(isRamSegment, true);
+	std::ranges::fill(mapper, 0);
 
 	powerUp(getCurrentTime());
 }

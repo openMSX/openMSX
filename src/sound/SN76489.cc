@@ -8,7 +8,6 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
@@ -122,8 +121,8 @@ void SN76489::initState()
 		regs[chan * 2 + 0] = 0x0;
 		regs[chan * 2 + 1] = 0xF;
 	}
-	ranges::fill(counters, 0);
-	ranges::fill(outputs, 0);
+	std::ranges::fill(counters, 0);
+	std::ranges::fill(outputs, 0);
 
 	initNoise();
 }

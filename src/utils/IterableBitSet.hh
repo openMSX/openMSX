@@ -1,8 +1,9 @@
 #ifndef ITERABLEBITSET_HH
 #define ITERABLEBITSET_HH
 
-#include "ranges.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -44,7 +45,7 @@ public:
 	  */
 	[[nodiscard]] bool empty() const
 	{
-		return ranges::all_of(words, [](auto w) { return w == 0; });
+		return std::ranges::all_of(words, [](auto w) { return w == 0; });
 	}
 
 	/** Set the (single) bit at position 'pos' to '1'.

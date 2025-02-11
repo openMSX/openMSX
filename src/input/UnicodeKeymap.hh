@@ -5,13 +5,13 @@
 #include "MsxChar2Unicode.hh"
 
 #include "narrow.hh"
-#include "stl.hh"
 
 #include <array>
 #include <cassert>
 #include <cstdint>
 #include <optional>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -104,11 +104,11 @@ public:
 	struct KeyInfo {
 		enum class Modifier { SHIFT, CTRL, GRAPH, CAPS, CODE, NUM };
 		// Modifier masks:
-		static constexpr uint8_t SHIFT_MASK = 1 << to_underlying(Modifier::SHIFT);
-		static constexpr uint8_t CTRL_MASK  = 1 << to_underlying(Modifier::CTRL);
-		static constexpr uint8_t GRAPH_MASK = 1 << to_underlying(Modifier::GRAPH);
-		static constexpr uint8_t CAPS_MASK  = 1 << to_underlying(Modifier::CAPS);
-		static constexpr uint8_t CODE_MASK  = 1 << to_underlying(Modifier::CODE);
+		static constexpr uint8_t SHIFT_MASK = 1 << std::to_underlying(Modifier::SHIFT);
+		static constexpr uint8_t CTRL_MASK  = 1 << std::to_underlying(Modifier::CTRL);
+		static constexpr uint8_t GRAPH_MASK = 1 << std::to_underlying(Modifier::GRAPH);
+		static constexpr uint8_t CAPS_MASK  = 1 << std::to_underlying(Modifier::CAPS);
+		static constexpr uint8_t CODE_MASK  = 1 << std::to_underlying(Modifier::CODE);
 
 		constexpr KeyInfo() = default;
 		constexpr KeyInfo(KeyMatrixPosition pos_, uint8_t modMask_)

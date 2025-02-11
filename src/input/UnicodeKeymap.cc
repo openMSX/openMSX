@@ -10,6 +10,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 
+#include <algorithm>
 #include <bit>
 #include <optional>
 
@@ -117,7 +118,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadKey(unsigned n) const
 
 void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 {
-	ranges::fill(relevantMods, 0);
+	std::ranges::fill(relevantMods, 0);
 
 	while (!data.empty()) {
 		if (data.front() == '\n') {
@@ -223,7 +224,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 		}
 	}
 
-	ranges::sort(mapData, {}, &Entry::unicode);
+	std::ranges::sort(mapData, {}, &Entry::unicode);
 }
 
 } // namespace openmsx

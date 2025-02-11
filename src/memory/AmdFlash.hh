@@ -6,14 +6,15 @@
 #include "cstd.hh"
 #include "narrow.hh"
 #include "power_of_two.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -43,7 +44,7 @@ public:
 
 		constexpr void validate() const {
 			// check parity
-			assert(std::popcount(to_underlying(manufacturer)) & 1);
+			assert(std::popcount(std::to_underlying(manufacturer)) & 1);
 			// extended marker is not part of ID
 			assert(device.size() > 0 && device[0] != 0x7E);
 		}
@@ -77,7 +78,7 @@ public:
 		size_t sectorCount;
 
 		constexpr void validate() const {
-			assert(ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
+			assert(std::ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
 			assert(narrow_cast<unsigned>(cstd::abs(writeProtectPinRange)) <= sectorCount);
 		}
 	};

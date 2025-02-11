@@ -2,9 +2,10 @@
 #define ENUMSETTING_HH
 
 #include "Setting.hh"
-#include "view.hh"
+
 #include <concepts>
 #include <iterator>
+#include <ranges>
 #include <utility>
 #include <vector>
 
@@ -33,7 +34,7 @@ public:
 	[[nodiscard]] std::string_view toStringBase(int value) const;
 
 	[[nodiscard]] auto getPossibleValues() const {
-		return view::transform(baseMap,
+		return std::views::transform(baseMap,
 			[](const auto& e) -> std::string_view { return e.name; });
 	}
 

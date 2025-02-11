@@ -11,7 +11,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -24,6 +23,7 @@
 #include <ctime>
 #include <fstream>
 #include <memory>
+#include <ranges>
 
 namespace openmsx {
 
@@ -469,7 +469,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	for (auto buf = fullBuf.subspan(transferred, amount);
-	     auto b : view::reverse(buf)) {
+	     auto b : std::views::reverse(buf)) {
 		send(b);
 	}
 	send(0xAF);
@@ -540,7 +540,7 @@ void NowindHost::doDiskWrite2()
 	std::span fullBuf{buffer[0].raw.data(), buffer.size() * SECTOR_SIZE};
 	auto dst = fullBuf.subspan(transferred, transferSize);
 	auto src = subspan(extraData, 1, transferSize);
-	ranges::copy(src, dst);
+	copy_to_range(src, dst);
 
 	byte seq1 = extraData[0];
 	byte seq2 = extraData[transferSize + 1];
@@ -800,7 +800,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	std::span<uint8_t> buf{buffer.data()->raw.data(), bufSize};
 	auto tmp = to_vector(buf);
 	ar.serialize("buffer", tmp);
-	ranges::copy(tmp, buf);
+	copy_to_range(tmp, buf);
 
 	ar.serialize("transfered",          transferred, // for bw compat, keep typo in serialize name
 	             "retryCount",          retryCount,

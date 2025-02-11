@@ -15,8 +15,10 @@
 #include <imgui_stdlib.h>
 #include <imgui.h>
 
+#include <algorithm>
 #include <cassert>
 #include <concepts>
+#include <utility>
 
 namespace openmsx {
 
@@ -309,7 +311,7 @@ void ImGuiMessages::paintLog()
 			printMessages(allMessages, [&](std::string_view prefix, std::string_view message) {
 				if (filterLog.empty()) return true;
 				auto full = tmpStrCat(prefix, message);
-				return ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterLog, ' '),
+				return std::ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterLog, ' '),
 					[&](auto part) { return StringOp::containsCaseInsensitive(full, part); });
 			});
 		});
@@ -357,7 +359,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##modal", to_underlying(level)).c_str(), &popupAction[level], MODAL_POPUP);
+					ImGui::RadioButton(tmpStrCat("##modal", std::to_underlying(level)).c_str(), &popupAction[level], MODAL_POPUP);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -365,7 +367,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##popup", to_underlying(level)).c_str(), &popupAction[level], POPUP);
+					ImGui::RadioButton(tmpStrCat("##popup", std::to_underlying(level)).c_str(), &popupAction[level], POPUP);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -373,7 +375,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##noPopup", to_underlying(level)).c_str(), &popupAction[level], NO_POPUP);
+					ImGui::RadioButton(tmpStrCat("##noPopup", std::to_underlying(level)).c_str(), &popupAction[level], NO_POPUP);
 				}
 			}
 
@@ -386,7 +388,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##focus", to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
+					ImGui::RadioButton(tmpStrCat("##focus", std::to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG_FOCUS);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -394,7 +396,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##log", to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG);
+					ImGui::RadioButton(tmpStrCat("##log", std::to_underlying(level)).c_str(), &openLogAction[level], OPEN_LOG);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -402,7 +404,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##nolog", to_underlying(level)).c_str(), &openLogAction[level], NO_OPEN_LOG);
+					ImGui::RadioButton(tmpStrCat("##nolog", std::to_underlying(level)).c_str(), &openLogAction[level], NO_OPEN_LOG);
 				}
 			}
 
@@ -415,7 +417,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##osd", to_underlying(level)).c_str(), &osdAction[level], SHOW_OSD);
+					ImGui::RadioButton(tmpStrCat("##osd", std::to_underlying(level)).c_str(), &osdAction[level], SHOW_OSD);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -423,7 +425,7 @@ void ImGuiMessages::paintConfigure()
 			}
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
-					ImGui::RadioButton(tmpStrCat("##no-osd", to_underlying(level)).c_str(), &osdAction[level], NO_OSD);
+					ImGui::RadioButton(tmpStrCat("##no-osd", std::to_underlying(level)).c_str(), &osdAction[level], NO_OSD);
 				}
 			}
 			if (ImGui::TableNextColumn()) {
@@ -432,7 +434,7 @@ void ImGuiMessages::paintConfigure()
 			for (auto level : {LOGLEVEL_ERROR, WARNING, INFO}) {
 				if (ImGui::TableNextColumn()) {
 					float& d = colorSequence[level][2].start;
-					if (ImGui::InputFloat(tmpStrCat("##dur", to_underlying(level)).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
+					if (ImGui::InputFloat(tmpStrCat("##dur", std::to_underlying(level)).c_str(), &d, 0.0f, 0.0f, "%.0f", ImGuiInputTextFlags_CharsDecimal)) {
 						d = std::clamp(d, 1.0f, 99.0f);
 					}
 				}

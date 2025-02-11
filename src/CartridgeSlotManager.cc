@@ -1,4 +1,5 @@
 #include "CartridgeSlotManager.hh"
+
 #include "HardwareConfig.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
@@ -7,12 +8,14 @@
 #include "MSXCPUInterface.hh"
 #include "MSXRom.hh"
 #include "MSXCliComm.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -306,7 +309,7 @@ void CartridgeSlotManager::freeSlot(
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	return ranges::any_of(xrange(MAX_SLOTS), [&](auto slot) {
+	return std::ranges::any_of(xrange(MAX_SLOTS), [&](auto slot) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
 		return slots[slot].exists() && (slots[slot].ps == ps) && (tmp == ss);
 	});

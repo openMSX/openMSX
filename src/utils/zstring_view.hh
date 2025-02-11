@@ -84,6 +84,15 @@ public:
 	[[nodiscard]] constexpr bool ends_with(const char* s) const {
 		return view().ends_with(s);
 	}
+	[[nodiscard]] constexpr bool contains(std::string_view sv) const {
+		return view().contains(sv);
+	}
+	[[nodiscard]] constexpr bool contains(char c) const {
+		return view().contains(c);
+	}
+	[[nodiscard]] constexpr bool contains(const char* s) const {
+		return view().contains(s);
+	}
 
 	[[nodiscard]] explicit operator std::string() const {
 		return {dat, siz};

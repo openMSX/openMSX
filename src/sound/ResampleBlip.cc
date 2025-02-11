@@ -1,12 +1,13 @@
 #include "ResampleBlip.hh"
+
 #include "ResampledSoundDevice.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "small_buffer.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -24,7 +25,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 			                          narrow<unsigned>(hostPeriod));
 		}())
 {
-	ranges::fill(lastInput, 0.0f);
+	std::ranges::fill(lastInput, 0.0f);
 }
 
 template<unsigned CHANNELS>

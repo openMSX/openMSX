@@ -10,12 +10,11 @@
 #include "VideoSourceSetting.hh"
 #include "KeyMappings.hh"
 
-#include "ranges.hh"
-
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <SDL.h>
 
+#include <algorithm>
 #include <variant>
 
 namespace openmsx {
@@ -154,7 +153,7 @@ void ComboBox(const char* label, Setting& setting, function_ref<std::string(cons
 					// ignore
 				}
 			}
-			if (auto it = ranges::find(toolTips, entry.name, &EnumToolTip::value);
+			if (auto it = std::ranges::find(toolTips, entry.name, &EnumToolTip::value);
 			    it != toolTips.end()) {
 				simpleToolTip(it->tip);
 			}
@@ -296,15 +295,11 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 	SDL_Keycode keyCode = SDL_GetKeyFromName(std::string(key).c_str());
 	if (keyCode == SDLK_UNKNOWN) return {};
 
-	auto contains = [](std::string_view haystack, std::string_view needle) {
-		// TODO in the future use c++23 std::string_view::contains()
-		return haystack.find(needle) != std::string_view::npos;
-	};
 	ImGuiKeyChord keyMods =
-		(contains(modifiers, "Ctrl+" ) ? ImGuiMod_Ctrl  : 0) |
-		(contains(modifiers, "Shift+") ? ImGuiMod_Shift : 0) |
-		(contains(modifiers, "Alt+"  ) ? ImGuiMod_Alt   : 0) |
-		(contains(modifiers, superName()) ? ImGuiMod_Super : 0);
+		(modifiers.contains("Ctrl+" ) ? ImGuiMod_Ctrl  : 0) |
+		(modifiers.contains("Shift+") ? ImGuiMod_Shift : 0) |
+		(modifiers.contains("Alt+"  ) ? ImGuiMod_Alt   : 0) |
+		(modifiers.contains(superName()) ? ImGuiMod_Super : 0);
 
 	return SDLKey2ImGui(keyCode) | keyMods;
 }

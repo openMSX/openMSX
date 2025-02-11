@@ -332,7 +332,7 @@ Cluster MSXtar::findFirstFreeCluster()
 
 unsigned MSXtar::countFreeClusters() const
 {
-	return narrow<unsigned>(ranges::count_if(xrange(findFirstFreeClusterStart.index, clusterCount),
+	return narrow<unsigned>(std::ranges::count_if(xrange(findFirstFreeClusterStart.index, clusterCount),
 		[&](unsigned cluster) { return readFAT({cluster}) == FatCluster(Free{}); }));
 }
 
@@ -398,7 +398,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 
 	// clear this cluster
 	SectorBuffer buf;
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + nextSector, buf);
 	}
@@ -488,7 +488,7 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	FileName result;
 	result.fill(' ');
 	if (hostFile == one_of(".", "..")) {
-		ranges::copy(hostFile, result);
+		copy_to_range(hostFile, result);
 		return result;
 	}
 
@@ -505,8 +505,8 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	transform_in_place(extS,  toFileNameChar);
 
 	// add correct number of spaces
-	ranges::copy(fileS, subspan<8>(result, 0));
-	ranges::copy(extS,  subspan<3>(result, 8));
+	copy_to_range(fileS, subspan<8>(result, 0));
+	copy_to_range(extS,  subspan<3>(result, 8));
 	return result;
 }
 
@@ -526,7 +526,7 @@ unsigned MSXtar::addSubdir(
 	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
-	ranges::copy(msxName, dirEntry.filename);
+	copy_to_range(msxName, dirEntry.filename);
 	dirEntry.attrib = MSXDirEntry::Attrib::DIRECTORY;
 	dirEntry.time = t;
 	dirEntry.date = d;
@@ -541,14 +541,14 @@ unsigned MSXtar::addSubdir(
 
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curCl);
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	for (auto i : xrange(sectorsPerCluster)) {
 		writeLogicalSector(i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
 	memset(&buf.dirEntry[0], 0, sizeof(MSXDirEntry));
-	ranges::fill(buf.dirEntry[0].filename, ' ');
+	std::ranges::fill(buf.dirEntry[0].filename, ' ');
 	buf.dirEntry[0].filename[0] = '.';
 	buf.dirEntry[0].attrib = MSXDirEntry::Attrib::DIRECTORY;
 	buf.dirEntry[0].time = t;
@@ -556,7 +556,7 @@ unsigned MSXtar::addSubdir(
 	setStartCluster(buf.dirEntry[0], curCl);
 
 	memset(&buf.dirEntry[1], 0, sizeof(MSXDirEntry));
-	ranges::fill(buf.dirEntry[1].filename, ' ');
+	std::ranges::fill(buf.dirEntry[1].filename, ' ');
 	buf.dirEntry[1].filename[0] = '.';
 	buf.dirEntry[1].filename[1] = '.';
 	buf.dirEntry[1].attrib = MSXDirEntry::Attrib::DIRECTORY;
@@ -650,7 +650,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 			SectorBuffer buf;
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
 			file.read(subspan(buf.raw, 0, chunkSize));
-			ranges::fill(subspan(buf.raw, chunkSize), 0);
+			std::ranges::fill(subspan(buf.raw, chunkSize), 0);
 			writeLogicalSector(logicalSector + j, buf);
 			remaining -= chunkSize;
 		}
@@ -709,8 +709,8 @@ void MSXtar::deleteEntry(MSXDirEntry& msxDirEntry)
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
 		if (const auto& msxName = msxDirEntry.filename;
-		    ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		    std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
 		}
@@ -786,7 +786,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < DIR_ENTRIES_PER_SECTOR; ++result.index) {
-			if (ranges::equal(buf.dirEntry[result.index].filename, msxName)) {
+			if (std::ranges::equal(buf.dirEntry[result.index].filename, msxName)) {
 				return result;
 			}
 		}
@@ -821,7 +821,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector, Add
 	readLogicalSector(entry.sector, buf);
 	auto& dirEntry = buf.dirEntry[entry.index];
 	memset(&dirEntry, 0, sizeof(dirEntry));
-	ranges::copy(msxName, dirEntry.filename);
+	copy_to_range(msxName, dirEntry.filename);
 	dirEntry.attrib = MSXDirEntry::Attrib::REGULAR;
 
 	// compute time/date stamps

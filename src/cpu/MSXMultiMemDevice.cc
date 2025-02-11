@@ -1,11 +1,15 @@
 #include "MSXMultiMemDevice.hh"
+
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
-#include "ranges.hh"
+
 #include "stl.hh"
 #include "view.hh"
+
+#include <algorithm>
 #include <cassert>
+#include <ranges>
 
 namespace openmsx {
 
@@ -15,8 +19,8 @@ MSXMultiMemDevice::Range::Range(
 {
 }
 
-
 MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
+
 	: MSXMultiDevice(hwConf)
 {
 	// add sentinel at the end
@@ -42,7 +46,7 @@ static constexpr bool overlap(unsigned start1, unsigned size1,
 
 bool MSXMultiMemDevice::canAdd(unsigned base, unsigned size)
 {
-	return ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
+	return std::ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
 		return overlap(base, size, rn.base, rn.size);
 	});
 }
@@ -60,7 +64,7 @@ void MSXMultiMemDevice::remove(MSXDevice& device, unsigned base, unsigned size)
 
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
-	return to_vector(view::transform(view::drop_back(ranges, 1),
+	return to_vector(std::views::transform(view::drop_back(ranges, 1),
 	                                 [](auto& rn) { return rn.device; }));
 }
 
@@ -83,7 +87,7 @@ void MSXMultiMemDevice::getNameList(TclObject& result) const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	auto it = ranges::find_if(ranges, [&](const auto& r) { return isInside(address, r.base, r.size); });
+	auto it = std::ranges::find_if(ranges, [&](const auto& r) { return isInside(address, r.base, r.size); });
 	assert(it != ranges.end());
 	return *it;
 }

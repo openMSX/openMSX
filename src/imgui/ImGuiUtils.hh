@@ -6,7 +6,6 @@
 #include "Reactor.hh"
 
 #include "function_ref.hh"
-#include "ranges.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 #include "circular_buffer.hh"
@@ -192,17 +191,17 @@ void comboHexSequence(const char* label, int* value, int mult, int max, int offs
 template<typename Range, typename Projection>
 void sortUpDown_T(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		ranges::stable_sort(range, std::greater<>{}, proj);
+		std::ranges::stable_sort(range, std::greater<>{}, proj);
 	} else {
-		ranges::stable_sort(range, std::less<>{}, proj);
+		std::ranges::stable_sort(range, std::less<>{}, proj);
 	}
 };
 template<typename Range, typename Projection>
 void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Projection proj) {
 	if (sortSpecs->Specs->SortDirection == ImGuiSortDirection_Descending) {
-		ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
+		std::ranges::stable_sort(range, StringOp::inv_caseless{}, proj);
 	} else {
-		ranges::stable_sort(range, StringOp::caseless{}, proj);
+		std::ranges::stable_sort(range, StringOp::caseless{}, proj);
 	}
 };
 
@@ -211,7 +210,7 @@ void sortUpDown_String(Range& range, const ImGuiTableSortSpecs* sortSpecs, Proje
 	const std::vector<std::pair<std::string, std::string>>& info,
 	std::string_view key)
 {
-	auto it = ranges::find_if(info, [&](const auto& p) { return p.first == key; });
+	auto it = std::ranges::find_if(info, [&](const auto& p) { return p.first == key; });
 	if (it == info.end()) return {};
 	return &it->second;
 }
@@ -227,7 +226,7 @@ template<typename T> // 'MachineInfo' or 'ExtensionInfo', both have a 'configInf
 			}
 		}
 	}
-	ranges::sort(result, StringOp::caseless{});
+	std::ranges::sort(result, StringOp::caseless{});
 	return result;
 }
 
@@ -264,7 +263,7 @@ void filterIndices(std::string_view filterString, GetName getName, std::vector<s
 	if (filterString.empty()) return;
 	std::erase_if(indices, [&](auto idx) {
 		const auto& name = getName(idx);
-		return !ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterString, ' '),
+		return !std::ranges::all_of(StringOp::split_view<StringOp::EmptyParts::REMOVE>(filterString, ' '),
 			[&](auto part) { return StringOp::containsCaseInsensitive(name, part); });
 	});
 }
@@ -278,7 +277,7 @@ void applyDisplayNameFilter(std::string_view filterString, const std::vector<T>&
 template<typename T>
 void addRecentItem(circular_buffer<T>& recentItems, const T& item)
 {
-	if (auto it = ranges::find(recentItems, item); it != recentItems.end()) {
+	if (auto it = std::ranges::find(recentItems, item); it != recentItems.end()) {
 		// was already present, move to front
 		std::rotate(recentItems.begin(), it, it + 1);
 	} else {

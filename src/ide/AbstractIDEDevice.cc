@@ -1,11 +1,14 @@
 #include "AbstractIDEDevice.hh"
+
 #include "MSXMotherBoard.hh"
 #include "LedStatus.hh"
 #include "Version.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "xrange.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 
@@ -14,7 +17,7 @@ namespace openmsx {
 AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 {
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 byte AbstractIDEDevice::diagnostic() const
@@ -341,7 +344,7 @@ AlignedBuffer& AbstractIDEDevice::startShortReadTransfer(unsigned count)
 	transferCount = 0;
 	bufferLeft = count;
 	transferIdx = 0;
-	ranges::fill(std::span{buffer.data(), count}, 0);
+	std::ranges::fill(std::span{buffer.data(), count}, 0);
 	return buffer;
 }
 

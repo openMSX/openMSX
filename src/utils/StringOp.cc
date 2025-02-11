@@ -2,7 +2,6 @@
 
 #include "MSXException.hh"
 
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <bit>
@@ -48,7 +47,7 @@ void trimRight(string& str, char chars)
 }
 void trimRight(string_view& str, string_view chars)
 {
-	while (!str.empty() && (chars.find(str.back()) != string_view::npos)) {
+	while (!str.empty() && chars.contains(str.back())) {
 		str.remove_suffix(1);
 	}
 }
@@ -69,7 +68,7 @@ void trimLeft(string& str, char chars)
 }
 void trimLeft(string_view& str, string_view chars)
 {
-	while (!str.empty() && (chars.find(str.front()) != string_view::npos)) {
+	while (!str.empty() && chars.contains(str.front())) {
 		str.remove_prefix(1);
 	}
 }

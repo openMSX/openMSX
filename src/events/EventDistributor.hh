@@ -3,12 +3,11 @@
 
 #include "Event.hh"
 
-#include "stl.hh"
-
 #include <array>
 #include <condition_variable>
 #include <mutex>
 #include <vector>
+#include <utility>
 
 namespace openmsx {
 
@@ -29,7 +28,7 @@ public:
 		MSX,
 		LOWEST, // should only be used internally in EventDistributor
 	};
-	friend auto operator<=>(Priority x, Priority y) { return to_underlying(x) <=> to_underlying(y); }
+	friend auto operator<=>(Priority x, Priority y) { return std::to_underlying(x) <=> std::to_underlying(y); }
 
 	explicit EventDistributor(Reactor& reactor);
 

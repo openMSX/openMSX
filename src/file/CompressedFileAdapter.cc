@@ -61,7 +61,7 @@ void CompressedFileAdapter::read(std::span<uint8_t> buffer)
 	if (decompressed->buf.size() < (pos + buffer.size())) {
 		throw FileException("Read beyond end of file");
 	}
-	ranges::copy(decompressed->buf.subspan(pos, buffer.size()), buffer);
+	copy_to_range(decompressed->buf.subspan(pos, buffer.size()), buffer);
 	pos += buffer.size();
 }
 

@@ -7,14 +7,6 @@ using namespace Endian;
 
 TEST_CASE("endian: byteswap")
 {
-	CHECK(byteswap16(0x1122) == 0x2211);
-	CHECK(byteswap32(0x11223344) == 0x44332211);
-	CHECK(byteswap64(0x1122334455667788) == 0x8877665544332211);
-
-	CHECK(byteswap(uint16_t(0x1234)) == 0x3412);
-	CHECK(byteswap(uint32_t(0x12345678)) == 0x78563412);
-	CHECK(byteswap(uint64_t(0x123456789abcdef0)) == 0xf0debc9a78563412);
-
 	ByteSwap swapper;
 	CHECK(swapper(uint16_t(0xaabb)) == 0xbbaa);
 	CHECK(swapper(uint32_t(0xaabbccdd)) == 0xddccbbaa);
@@ -73,10 +65,10 @@ TEST_CASE("endian: 32-bit")
 
 // Small functions to inspect code quality
 
-uint16_t testSwap16(uint16_t x) { return byteswap16(x); }
-uint16_t testSwap16()           { return byteswap16(0x1234); }
-uint32_t testSwap32(uint32_t x) { return byteswap32(x); }
-uint32_t testSwap32()           { return byteswap32(0x12345678); }
+uint16_t testSwap16(uint16_t x) { return std::byteswap(x); }
+uint16_t testSwap16()           { return std::byteswap(0x1234); }
+uint32_t testSwap32(uint32_t x) { return std::byteswap(x); }
+uint32_t testSwap32()           { return std::byteswap(0x12345678); }
 
 void testA(uint16_t& s, uint16_t x) { write_UA_L16(&s, x); }
 void testB(uint16_t& s, uint16_t x) { write_UA_B16(&s, x); }

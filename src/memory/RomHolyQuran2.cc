@@ -14,9 +14,9 @@
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "serialize.hh"
 
+#include <algorithm>
 #include <array>
 
 namespace openmsx {
@@ -49,7 +49,7 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
 {
-	ranges::fill(bank, &rom[0]);
+	std::ranges::fill(bank, &rom[0]);
 	decrypt = false;
 }
 

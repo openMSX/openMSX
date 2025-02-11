@@ -1,7 +1,6 @@
 #include "RomMatraInk.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
-#include <array>
 
 namespace openmsx {
 

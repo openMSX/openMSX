@@ -3,6 +3,7 @@
 #include "ranges.hh"
 #include "lz4.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <tuple>
@@ -232,7 +233,7 @@ static void applyDeltaInPlace(std::span<uint8_t> buf, std::span<const uint8_t> d
 		if (buf.empty()) break;
 
 		auto n2 = loadUleb(delta);
-		ranges::copy(delta.subspan(0, n2), buf);
+		copy_to_range(delta.subspan(0, n2), buf);
 		buf   = buf  .subspan(n2);
 		delta = delta.subspan(n2);
 	}
@@ -259,7 +260,7 @@ DeltaBlockCopy::DeltaBlockCopy(std::span<const uint8_t> data)
 #ifdef DEBUG
 	sha1 = SHA1::calc(data);
 #endif
-	ranges::copy(data, std::span{block});
+	copy_to_range(data, std::span{block});
 	assert(!compressed());
 #if STATISTICS
 	allocSize = size;
@@ -274,7 +275,7 @@ void DeltaBlockCopy::apply(std::span<uint8_t> dst) const
 	if (compressed()) {
 		LZ4::decompress(block.data(), dst.data(), int(compressedSize), int(dst.size()));
 	} else {
-		ranges::copy(std::span{block.data(), dst.size()}, dst);
+		copy_to_range(std::span{block.data(), dst.size()}, dst);
 	}
 #ifdef DEBUG
 	assert(SHA1::calc(dst) == sha1);
@@ -300,7 +301,7 @@ void DeltaBlockCopy::compress(size_t size)
 #ifdef DEBUG
 	MemBuffer<uint8_t> buf3(size);
 	apply({buf3.data(), size});
-	assert(ranges::equal(std::span{buf3.data(), size}, std::span{buf2.data(), size}));
+	assert(std::ranges::equal(std::span{buf3.data(), size}, std::span{buf2.data(), size}));
 #endif
 #if STATISTICS
 	int delta = compressedSize - allocSize;
@@ -331,7 +332,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 
 	MemBuffer<uint8_t> buf(data.size());
 	apply({buf.data(), data.size()});
-	assert(ranges::equal(std::span{buf.data(), data.size()}, data));
+	assert(std::ranges::equal(std::span{buf.data(), data.size()}, data));
 #endif
 #if STATISTICS
 	allocSize = delta.size();
@@ -362,7 +363,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, std::span<const uint8_t> data)
 {
 	auto size = data.size();
-	auto it = ranges::lower_bound(infos, std::tuple(id, size), {},
+	auto it = std::ranges::lower_bound(infos, std::tuple(id, size), {},
 		[](const Info& info) { return std::tuple(info.id, info.size); });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
@@ -399,7 +400,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		const void* id, std::span<const uint8_t> data)
 {
 	auto size = data.size();
-	auto it = ranges::lower_bound(infos, id, {}, &Info::id);
+	auto it = std::ranges::lower_bound(infos, id, {}, &Info::id);
 	if ((it == end(infos)) || (it->id != id)) {
 		// no previous block yet
 		it = infos.emplace(it, id, size);

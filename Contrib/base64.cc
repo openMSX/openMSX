@@ -1,6 +1,6 @@
 // compile with:
-//   g++ -std=c++20 -Wall -Os base64.cc -I ../src/utils/ ../src/utils/Base64.cc -lz -o encode-gz-base64
-//   g++ -std=c++20 -Wall -Os base64.cc -I ../src/utils/ ../src/utils/Base64.cc -lz -o decode-gz-base64
+//   g++ -std=c++23 -Wall -Os base64.cc -I ../src/utils/ ../src/utils/Base64.cc -lz -o encode-gz-base64
+//   g++ -std=c++23 -Wall -Os base64.cc -I ../src/utils/ ../src/utils/Base64.cc -lz -o decode-gz-base64
 
 #include "Base64.hh"
 

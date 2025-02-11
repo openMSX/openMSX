@@ -4,6 +4,7 @@
 #include "inline.hh"
 
 #include <concepts>
+#include <ranges>
 #include <span>
 #include <string>
 #include <string_view>
@@ -39,18 +40,18 @@ public:
 
 	[[nodiscard]] virtual Interpreter& getInterpreter() const = 0;
 
-	template<typename ITER>
+	template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
 	static void completeString(std::vector<std::string>& tokens,
-	                           ITER begin, ITER end,
+	                           Iterator begin, Sentinel end,
 	                           bool caseSensitive = true);
-	template<typename RANGE>
+	template<std::ranges::forward_range Range>
 	static void completeString(std::vector<std::string>& tokens,
-	                           RANGE&& possibleValues,
+	                           Range&& possibleValues,
 	                           bool caseSensitive = true);
-	template<typename RANGE>
+	template<std::ranges::forward_range Range>
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context,
-	                             const RANGE& extra);
+	                             const Range& extra);
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context);
 
@@ -83,12 +84,12 @@ protected:
 
 private:
 	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
-	template<typename ITER>
+	template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
 	static std::vector<std::string_view> filter(
-		std::string_view str, ITER begin, ITER end, bool caseSensitive);
-	template<typename RANGE>
+		std::string_view str, Iterator begin, Sentinel end, bool caseSensitive);
+	template<std::ranges::forward_range Range>
 	static std::vector<std::string_view> filter(
-		std::string_view str, RANGE&& range, bool caseSensitive);
+		std::string_view str, Range&& range, bool caseSensitive);
 	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
 	                         bool caseSensitive);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
@@ -100,9 +101,9 @@ private:
 };
 
 
-template<typename ITER>
+template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
 NEVER_INLINE std::vector<std::string_view> Completer::filter(
-	std::string_view str, ITER begin, ITER end, bool caseSensitive)
+	std::string_view str, Iterator begin, Sentinel end, bool caseSensitive)
 {
 	std::vector<std::string_view> result;
 	for (auto it = begin; it != end; ++it) {
@@ -113,31 +114,31 @@ NEVER_INLINE std::vector<std::string_view> Completer::filter(
 	return result;
 }
 
-template<typename RANGE>
+template<std::ranges::forward_range Range>
 inline std::vector<std::string_view> Completer::filter(
-	std::string_view str, RANGE&& range, bool caseSensitive)
+	std::string_view str, Range&& range, bool caseSensitive)
 {
-	return filter(str, std::begin(range), std::end(range), caseSensitive);
+	return filter(str, std::ranges::begin(range), std::ranges::end(range), caseSensitive);
 }
 
-template<typename RANGE>
+template<std::ranges::forward_range Range>
 void Completer::completeString(
 	std::vector<std::string>& tokens,
-	RANGE&& possibleValues,
+	Range&& possibleValues,
 	bool caseSensitive)
 {
 	auto& str = tokens.back();
 	if (completeImpl(str,
-	                 filter(str, std::forward<RANGE>(possibleValues), caseSensitive),
+	                 filter(str, std::forward<Range>(possibleValues), caseSensitive),
 	                 caseSensitive)) {
 		tokens.emplace_back();
 	}
 }
 
-template<typename ITER>
+template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
 void Completer::completeString(
 	std::vector<std::string>& tokens,
-	ITER begin, ITER end,
+	Iterator begin, Sentinel end,
 	bool caseSensitive)
 {
 	auto& str = tokens.back();
@@ -148,11 +149,11 @@ void Completer::completeString(
 	}
 }
 
-template<typename RANGE>
+template<std::ranges::forward_range Range>
 void Completer::completeFileName(
 	std::vector<std::string>& tokens,
 	const FileContext& context,
-	const RANGE& extra)
+	const Range& extra)
 {
 	completeFileNameImpl(tokens, context, filter(tokens.back(), extra, true));
 }

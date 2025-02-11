@@ -15,6 +15,7 @@
 #include "build-info.hh"
 
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -120,8 +121,8 @@ void InputEventGenerator::setNewOsdControlButtonState(unsigned newState)
 	unsigned deltaState = osdControlButtonsState ^ newState;
 	using enum OsdControlEvent::Button;
 	for (auto b : {LEFT, RIGHT, UP, DOWN, A, B}) {
-		if (deltaState & (1 << to_underlying(b))) {
-			if (newState & (1 << to_underlying(b))) {
+		if (deltaState & (1 << std::to_underlying(b))) {
+			if (newState & (1 << std::to_underlying(b))) {
 				eventDistributor.distributeEvent(OsdControlReleaseEvent(b));
 			} else {
 				eventDistributor.distributeEvent(OsdControlPressEvent(b));
@@ -138,11 +139,11 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 		switch (axis) {
 		using enum OsdControlEvent::Button;
 		case 0:
-			return std::pair{1u << to_underlying(LEFT),
-			                 1u << to_underlying(RIGHT)};
+			return std::pair{1u << std::to_underlying(LEFT),
+			                 1u << std::to_underlying(RIGHT)};
 		case 1:
-			return std::pair{1u << to_underlying(UP),
-			                 1u << to_underlying(DOWN)};
+			return std::pair{1u << std::to_underlying(UP),
+			                 1u << std::to_underlying(DOWN)};
 		default:
 			// Ignore all other axis (3D joysticks and flight joysticks may
 			// have more than 2 axis)
@@ -169,12 +170,12 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(int value)
 {
 	using enum OsdControlEvent::Button;
 	unsigned dir = 0;
-	if (!(value & SDL_HAT_UP   )) dir |= 1 << to_underlying(UP);
-	if (!(value & SDL_HAT_DOWN )) dir |= 1 << to_underlying(DOWN);
-	if (!(value & SDL_HAT_LEFT )) dir |= 1 << to_underlying(LEFT);
-	if (!(value & SDL_HAT_RIGHT)) dir |= 1 << to_underlying(RIGHT);
-	unsigned ab = osdControlButtonsState & ((1 << to_underlying(A)) |
-	                                        (1 << to_underlying(B)));
+	if (!(value & SDL_HAT_UP   )) dir |= 1 << std::to_underlying(UP);
+	if (!(value & SDL_HAT_DOWN )) dir |= 1 << std::to_underlying(DOWN);
+	if (!(value & SDL_HAT_LEFT )) dir |= 1 << std::to_underlying(LEFT);
+	if (!(value & SDL_HAT_RIGHT)) dir |= 1 << std::to_underlying(RIGHT);
+	unsigned ab = osdControlButtonsState & ((1 << std::to_underlying(A)) |
+	                                        (1 << std::to_underlying(B)));
 	setNewOsdControlButtonState(ab | dir);
 }
 
@@ -191,8 +192,8 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigne
 	using enum OsdControlEvent::Button;
 	osdControlChangeButton(
 		down,
-		((button & 1) ? (1 << to_underlying(B))
-		              : (1 << to_underlying(A))));
+		((button & 1) ? (1 << std::to_underlying(B))
+		              : (1 << std::to_underlying(A))));
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat)
@@ -200,13 +201,13 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool r
 	unsigned buttonMask = [&] {
 		switch (key.sym.sym) {
 		using enum OsdControlEvent::Button;
-		case SDLK_LEFT:   return 1 << to_underlying(LEFT);
-		case SDLK_RIGHT:  return 1 << to_underlying(RIGHT);
-		case SDLK_UP:     return 1 << to_underlying(UP);
-		case SDLK_DOWN:   return 1 << to_underlying(DOWN);
-		case SDLK_SPACE:  return 1 << to_underlying(A);
-		case SDLK_RETURN: return 1 << to_underlying(A);
-		case SDLK_ESCAPE: return 1 << to_underlying(B);
+		case SDLK_LEFT:   return 1 << std::to_underlying(LEFT);
+		case SDLK_RIGHT:  return 1 << std::to_underlying(RIGHT);
+		case SDLK_UP:     return 1 << std::to_underlying(UP);
+		case SDLK_DOWN:   return 1 << std::to_underlying(DOWN);
+		case SDLK_SPACE:  return 1 << std::to_underlying(A);
+		case SDLK_RETURN: return 1 << std::to_underlying(A);
+		case SDLK_ESCAPE: return 1 << std::to_underlying(B);
 		default: return 0;
 		}
 	}();

@@ -7,11 +7,10 @@
 #include "MSXException.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
 
-#include <memory>
+#include <algorithm>
 #include <span>
 
 static constexpr std::array<uint8_t, 10> ASCII_HEADER  = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
@@ -47,7 +46,7 @@ static void writeSilence(std::vector<int8_t>& wave, unsigned s)
 
 static bool compare(const uint8_t* p, std::span<const uint8_t> rhs)
 {
-	return ranges::equal(std::span{p, rhs.size()}, rhs);
+	return std::ranges::equal(std::span{p, rhs.size()}, rhs);
 }
 
 namespace MSX_CAS {

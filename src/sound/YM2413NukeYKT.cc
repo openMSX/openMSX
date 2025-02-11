@@ -26,6 +26,7 @@
 */
 
 #include "YM2413NukeYKT.hh"
+
 #include "serialize.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
@@ -35,6 +36,7 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -117,7 +119,7 @@ YM2413::YM2413()
 	, releasePtr(/*dummy*/releaseData[0])
 {
 	// copy ROM patches to array (for faster lookup)
-	ranges::copy(m_patches, subspan(patches, 1));
+	copy_to_range(m_patches, subspan(patches, 1));
 	reset();
 }
 
@@ -133,17 +135,17 @@ void YM2413::reset()
 	attackPtr  = attack[eg_timer_shift_lock][eg_timer_lock];
 	auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
 	releasePtr = releaseData[idx];
-	ranges::fill(eg_state, EgState::release);
-	ranges::fill(eg_level, 0x7f);
-	ranges::fill(eg_dokon, false);
+	std::ranges::fill(eg_state, EgState::release);
+	std::ranges::fill(eg_level, 0x7f);
+	std::ranges::fill(eg_dokon, false);
 	eg_rate[0] = eg_rate[1] = 0;
 	eg_sl[0] = eg_sl[1] = eg_out[0] = eg_out[1] = 0;
 	eg_timer_shift_stop = false;
 	eg_kon[0] = eg_kon[1] = eg_off[0] = eg_off[1] = false;
 
-	ranges::fill(pg_phase, 0);
-	ranges::fill(op_fb1, 0);
-	ranges::fill(op_fb2, 0);
+	std::ranges::fill(pg_phase, 0);
+	std::ranges::fill(op_fb1, 0);
+	std::ranges::fill(op_fb2, 0);
 
 	op_mod = 0;
 	op_phase[0] = op_phase[1] = 0;
@@ -153,11 +155,11 @@ void YM2413::reset()
 	lfo_vib = VIB_TAB[lfo_vib_counter];
 	lfo_am_step = lfo_am_dir = false;
 
-	ranges::fill(fnum, 0);
-	ranges::fill(block, 0);
-	ranges::fill(vol8, 0);
-	ranges::fill(inst, 0);
-	ranges::fill(sk_on, 0);
+	std::ranges::fill(fnum, 0);
+	std::ranges::fill(block, 0);
+	std::ranges::fill(vol8, 0);
+	std::ranges::fill(inst, 0);
+	std::ranges::fill(sk_on, 0);
 	for (auto i : xrange(9)) {
 		p_inst[i] = &patches[inst[i]];
 		changeFnumBlock(i);
@@ -171,7 +173,7 @@ void YM2413::reset()
 
 	delay6 = delay7 = delay10 = delay11 = delay12 = 0;
 
-	ranges::fill(regs, 0);
+	std::ranges::fill(regs, 0);
 	latch = 0;
 }
 
@@ -815,7 +817,7 @@ ALWAYS_INLINE void YM2413::step(Locals& l)
 void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
 	std::array<float*, 9 + 5> out;
-	ranges::copy(out_, out);
+	copy_to_range(out_, out);
 
 	// Loop here (instead of in step18) seems faster. (why?)
 	if (test_mode_active) [[unlikely]] {

@@ -1,10 +1,13 @@
 #include "Scheduler.hh"
+
 #include "Schedulable.hh"
 #include "Thread.hh"
 #include "MSXCPU.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
 #include "stl.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <iterator> // for back_inserter
 
@@ -51,7 +54,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
+	std::ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
 	return result;
 }
 
@@ -71,7 +74,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	if (auto it = ranges::find(queue, &device, &SynchronizationPoint::getDevice);
+	if (auto it = std::ranges::find(queue, &device, &SynchronizationPoint::getDevice);
 	    it != std::end(queue)) {
 		result = it->getTime();
 		return true;

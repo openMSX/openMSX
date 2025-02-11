@@ -1,7 +1,9 @@
 #include "HDImageCLI.hh"
+
 #include "CommandLineParser.hh"
 #include "MSXException.hh"
-#include "ranges.hh"
+
+#include <algorithm>
 #include <utility>
 #include <vector>
 
@@ -37,7 +39,7 @@ std::string HDImageCLI::getImageForId(int id)
 	// HD queries image. Return (and clear) the remembered value, or return
 	// an empty string.
 	std::string result;
-	if (auto it = ranges::find(images, id, &IdImage::id);
+	if (auto it = std::ranges::find(images, id, &IdImage::id);
 	    it != end(images)) {
 		result = std::move(it->image);
 		images.erase(it);

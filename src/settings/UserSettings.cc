@@ -12,10 +12,11 @@
 #include "TclObject.hh"
 
 #include "checked_cast.hh"
-#include "ranges.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 namespace openmsx {
 
@@ -40,7 +41,7 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(std::string_view name) const
 {
-	auto it = ranges::find(settings, name, [](auto& info) {
+	auto it = std::ranges::find(settings, name, [](auto& info) {
 		return info.setting->getFullName(); });
 	return (it != end(settings)) ? it->setting.get() : nullptr;
 }
@@ -165,7 +166,7 @@ UserSettings::Info UserSettings::Cmd::createEnum(std::span<const TclObject> toke
 
 	int initVal = -1;
 	int i = 0;
-	auto map = to_vector(view::transform(list, [&](const auto& s) {
+	auto map = to_vector(std::views::transform(list, [&](const auto& s) {
 		if (s == initStr) initVal = i;
 		return EnumSettingBase::MapEntry{std::string(s), i++};
 	}));

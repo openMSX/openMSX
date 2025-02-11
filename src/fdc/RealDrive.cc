@@ -1,4 +1,5 @@
 #include "RealDrive.hh"
+
 #include "Disk.hh"
 #include "DummyDisk.hh"
 #include "DirAsDSK.hh"
@@ -11,10 +12,13 @@
 #include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+
 #include <memory>
+#include <ranges>
 
 namespace openmsx {
 
@@ -98,7 +102,7 @@ void RealDrive::getMediaInfo(TclObject& result)
 	}
 	if (const auto* disk = changer->getSectorAccessibleDisk()) {
 		TclObject patches;
-		patches.addListElements(view::transform(disk->getPatches(), [](auto& p) {
+		patches.addListElements(std::views::transform(disk->getPatches(), [](auto& p) {
 			return p.getResolved();
 		}));
 		result.addDictKeyValue("patches", patches);

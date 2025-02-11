@@ -1,9 +1,11 @@
 #include "BlipBuffer.hh"
+
 #include "cstd.hh"
 #include "Math.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -92,7 +94,7 @@ BlipBuffer::BlipBuffer()
 		}
 	}
 
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 void BlipBuffer::addDelta(TimeIndex time, float delta)
@@ -154,7 +156,7 @@ bool BlipBuffer::readSamples(float* __restrict out, size_t samples)
 	if (availSamp <= 0) {
 		#ifdef DEBUG
 		// buffer contains all zeros (only check this in debug mode)
-		assert(ranges::all_of(buffer, [](const auto& b) { return b == 0.0f; }));
+		assert(std::ranges::all_of(buffer, [](const auto& b) { return b == 0.0f; }));
 		#endif
 		if (isSilent(accum)) {
 			return false; // muted

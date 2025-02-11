@@ -1,8 +1,12 @@
 #include "serialize_meta.hh"
+
 #include "serialize.hh"
 #include "MSXException.hh"
+
 #include "ranges.hh"
 #include "stl.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 
@@ -31,7 +35,7 @@ void PolymorphicSaverRegistry<Archive>::save(
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
 	if (!reg.initialized) [[unlikely]] {
 		reg.initialized = true;
-		ranges::sort(reg.saverMap, {}, &Entry::index);
+		std::ranges::sort(reg.saverMap, {}, &Entry::index);
 	}
 	auto s = binary_find(reg.saverMap, std::type_index(typeInfo), {}, &Entry::index);
 	if (!s) {

@@ -15,15 +15,15 @@
 #include "ScopedAssign.hh"
 #include "join.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include "build-info.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::string;
 using std::string_view;
@@ -84,7 +84,7 @@ void GlobalCommandController::unregisterProxyCommand(string_view name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(string_view name)
 {
-	return ranges::find(proxySettings, name,
+	return std::ranges::find(proxySettings, name,
 		[](auto& v) { return v.first->getFullName(); });
 }
 
@@ -270,11 +270,10 @@ static string escapeChars(const string& str, string_view chars)
 {
 	string result;
 	for (auto chr : str) {
-		if (chars.find(chr) != string::npos) {
+		if (chars.contains(chr)) {
 			result += '\\';
 		}
 		result += chr;
-
 	}
 	return result;
 }
@@ -449,12 +448,10 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		auto cmds = concat<string_view>(
-			view::keys(controller.commandCompleters),
+			std::views::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
-		cmds.erase(ranges::remove_if(cmds, [](const auto& c) {
-		                   return c.find("::") != std::string_view::npos; }),
-		           cmds.end());
-		ranges::sort(cmds);
+		std::erase_if(cmds, [](const auto& c) { return c.contains("::"); });
+		std::ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
 		}
@@ -466,7 +463,7 @@ void GlobalCommandController::HelpCmd::execute(
 			result = (*v)->help(tokens.subspan(1));
 		} else {
 			TclObject command = makeTclList("openmsx::help");
-			command.addListElements(view::drop(tokens, 1));
+			command.addListElements(std::views::drop(tokens, 1));
 			result = command.executeCommand(getInterpreter());
 		}
 		break;

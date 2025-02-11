@@ -1,139 +1,24 @@
 #include "catch.hpp"
+
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
+
 #include <array>
+#include <ranges>
 #include <span>
 #include <string>
 #include <vector>
 
-TEST_CASE("ranges::copy")
+TEST_CASE("copy_to_range")
 {
 	std::array a = {1, 2, 3, 4, 5};
 	std::vector v = {9, 9, 9, 9, 9, 9, 9, 9};
 
-	// this is the c++20 std::ranges::copy() version
-	SECTION("range to output-iterator") {
-		ranges::copy(a, subspan(v, 1).data());
-		CHECK(v == std::vector{9, 1, 2, 3, 4, 5, 9, 9});
+	copy_to_range(a, subspan(v, 1));
+	CHECK(v == std::vector{9, 1, 2, 3, 4, 5, 9, 9});
 
-		ranges::copy(a, v.data());
-		CHECK(v == std::vector{1, 2, 3, 4, 5, 5, 9, 9});
-	}
-
-	// this is our own extension
-	SECTION("sized_range to sized_range") {
-		ranges::copy(a, subspan(v, 1));
-		CHECK(v == std::vector{9, 1, 2, 3, 4, 5, 9, 9});
-
-		ranges::copy(a, v);
-		CHECK(v == std::vector{1, 2, 3, 4, 5, 5, 9, 9});
-	}
-
-	// Unfortunately our extension is not 100% backwards compatible.
-	// This example breaks:
-	SECTION("bw-compat") {
-		std::array<int, 10> buffer = {};
-
-		// This now triggers a compilation error: ambiguous overload
-		// It compiled fine before our extension.
-		//ranges::copy(a, buffer);
-
-		// It worked because c-arrays can (implicitly) decay to pointers
-		// when passed to functions. We can do that explicitly to
-		// resolve the ambiguity.
-		ranges::copy(a, std::begin(buffer));
-		CHECK(to_vector(buffer) == std::vector{1, 2, 3, 4, 5, 0, 0, 0, 0, 0});
-
-		// But a better solution is to replace teh c-array with a
-		// std::array. (This has other benefits as well, though not
-		// relevant for this example).
-		std::array<int, 10> buffer2 = {};
-		ranges::copy(a, buffer2);
-		CHECK(to_vector(buffer2) == std::vector{1, 2, 3, 4, 5, 0, 0, 0, 0, 0});
-	}
-}
-
-TEST_CASE("ranges::equal")
-{
-	auto always_equal = [](const auto&, const auto&) { return true; };
-
-	SECTION("sized ranges") {
-		std::array  a3 = {1, 2, 3};
-		std::vector v3 = {1, 2, 3};
-		std::array  a4 = {2, 4, 6, 8};
-		std::vector v4 = {1, 2, 3, 4};
-
-		CHECK( ranges::equal(a3, a3));
-		CHECK( ranges::equal(a3, v3));
-		CHECK(!ranges::equal(a3, a4));
-		CHECK(!ranges::equal(a3, v4));
-
-		CHECK( ranges::equal(v3, v3));
-		CHECK( ranges::equal(v3, v3));
-		CHECK(!ranges::equal(v3, a4));
-		CHECK(!ranges::equal(v3, v4));
-
-		CHECK(!ranges::equal(a4, v3));
-		CHECK(!ranges::equal(a4, v3));
-		CHECK( ranges::equal(a4, a4));
-		CHECK(!ranges::equal(a4, v4));
-
-		CHECK(!ranges::equal(v4, v3));
-		CHECK(!ranges::equal(v4, v3));
-		CHECK(!ranges::equal(v4, a4));
-		CHECK( ranges::equal(v4, v4));
-
-		CHECK( ranges::equal(a4, v4, always_equal));
-		CHECK(!ranges::equal(a3, a4, always_equal)); // size is different
-
-		auto mul2 = [](const auto& e) { return e * 2; };
-		auto div2 = [](const auto& e) { return e / 2; };
-		CHECK( ranges::equal(a4, v4, {}, div2));
-		CHECK( ranges::equal(a4, v4, {}, {}, mul2));
-		CHECK(!ranges::equal(a4, v4, {}, div2, mul2));
-		CHECK( ranges::equal(a4, v4, always_equal, div2, mul2));
-		CHECK(!ranges::equal(a4, v3, always_equal, div2, mul2)); // size is different
-	}
-	SECTION("non-sized ranges") {
-		std::array a2 = {2, 4};
-		std::array a3 = {1, 3, 5};
-		std::array a4 = {1, 3, 5, 7};
-		std::array a5 = {1, 2, 3, 4, 5};
-		auto is_even = [](const auto& e) { return (e & 1) == 0; };
-		auto is_odd  = [](const auto& e) { return (e & 1) == 1; };
-		auto ve = view::filter(a5, is_even);
-		auto vo = view::filter(a5, is_odd);
-		// The size of a "view::filter" is only known after the filter
-		// has been applied. This makes "view::filter" a non-size range.
-
-		CHECK( ranges::equal(ve, a2));
-		CHECK(!ranges::equal(ve, a3));
-		CHECK(!ranges::equal(ve, a4));
-		CHECK(!ranges::equal(ve, vo));
-		CHECK( ranges::equal(ve, ve));
-
-		CHECK(!ranges::equal(vo, a2));
-		CHECK( ranges::equal(vo, a3));
-		CHECK(!ranges::equal(vo, a4)); // front matches, but a4 is longer
-		CHECK( ranges::equal(vo, vo));
-		CHECK(!ranges::equal(vo, ve));
-
-		std::array b3 = {9, 9, 9};
-		CHECK(!ranges::equal(ve, b3, always_equal)); // different size
-		CHECK( ranges::equal(vo, b3, always_equal));
-		CHECK(!ranges::equal(b3, ve, always_equal)); // different size
-		CHECK( ranges::equal(b3, vo, always_equal));
-
-		struct S {
-			int x, y;
-		};
-		std::array ss = {S{9, 1}, S{9, 3}, S{9, 5}};
-		CHECK(!ranges::equal(vo, ss, {}, {}, &S::x));
-		CHECK( ranges::equal(vo, ss, {}, {}, &S::y));
-		CHECK(!ranges::equal(ss, vo, {}, &S::x));
-		CHECK( ranges::equal(ss, vo, {}, &S::y));
-	}
+	copy_to_range(a, v);
+	CHECK(v == std::vector{1, 2, 3, 4, 5, 5, 9, 9});
 }
 
 TEST_CASE("ranges::all_equal")

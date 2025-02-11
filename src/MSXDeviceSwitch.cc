@@ -1,10 +1,12 @@
 #include "MSXDeviceSwitch.hh"
+
 #include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
-#include "xrange.hh"
+
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -12,13 +14,13 @@ namespace openmsx {
 MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
-	ranges::fill(devices, nullptr);
+	std::ranges::fill(devices, nullptr);
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
 	// all devices must be unregistered
-	assert(ranges::all_of(devices, [](auto* dev) { return dev == nullptr; }));
+	assert(std::ranges::all_of(devices, [](auto* dev) { return dev == nullptr; }));
 	assert(count == 0);
 }
 

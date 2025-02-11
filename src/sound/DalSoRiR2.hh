@@ -37,7 +37,7 @@ private:
 		bool mode0,
 		std::span<const uint8_t> rom,
 		std::span<const uint8_t> ram,
-		std::span<YMF278::Block128, 32> memPtrs);
+		std::span<YMF278::Block128, 32> memPtrs) const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

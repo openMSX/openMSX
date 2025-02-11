@@ -18,7 +18,26 @@
 
 namespace openmsx {
 
-class MSXWatchIODevice;
+class WatchPoint;
+
+class MSXWatchIODevice final : public MSXMultiDevice
+{
+public:
+	MSXWatchIODevice(const HardwareConfig& hwConf, WatchPoint& wp);
+
+	[[nodiscard]] MSXDevice*& getDevicePtr() { return device; }
+
+private:
+	// MSXDevice
+	[[nodiscard]] const std::string& getName() const override;
+	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+
+private:
+	WatchPoint& wp;
+	MSXDevice* device = nullptr;
+};
 
 class WatchPoint final : public BreakPointBase<WatchPoint>
                        , public std::enable_shared_from_this<WatchPoint>
@@ -110,7 +129,7 @@ public:
 			auto [b, e] = parseAddress(interp);
 			beginAddr = b;
 			endAddr = e;
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			beginAddr = endAddr = {};
 		}
 	}
@@ -156,25 +175,6 @@ private:
 	bool registered = false; // for debugging only
 
 	friend class MSXWatchIODevice;
-};
-
-class MSXWatchIODevice final : public MSXMultiDevice
-{
-public:
-	MSXWatchIODevice(const HardwareConfig& hwConf, WatchPoint& wp);
-
-	[[nodiscard]] MSXDevice*& getDevicePtr() { return device; }
-
-private:
-	// MSXDevice
-	[[nodiscard]] const std::string& getName() const override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
-
-private:
-	WatchPoint& wp;
-	MSXDevice* device = nullptr;
 };
 
 } // namespace openmsx

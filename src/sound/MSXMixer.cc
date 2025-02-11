@@ -16,7 +16,6 @@
 #include "FileOperations.hh"
 #include "MSXCliComm.hh"
 
-#include "stl.hh"
 #include "aligned.hh"
 #include "enumerate.hh"
 #include "inplace_buffer.hh"
@@ -24,9 +23,11 @@
 #include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -555,7 +556,7 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 			if (approxEqual(tl0, 0.0f)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
-				ranges::fill(output, StereoFloat{});
+				std::ranges::fill(output, StereoFloat{});
 				tl0 = tr0 = 0.0f;
 			} else {
 				// Output was not zero, but it was the same left and right.
@@ -589,7 +590,7 @@ void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
 
 bool MSXMixer::needStereoRecording() const
 {
-	return ranges::any_of(infos, [](auto& info) {
+	return std::ranges::any_of(infos, [](auto& info) {
 		return info.device->isStereo() ||
 		       info.balanceSetting->getInt() != 0;
 	});
@@ -797,7 +798,7 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 const MSXMixer::SoundDeviceInfo* MSXMixer::findDeviceInfo(std::string_view name) const
 {
-	auto it = ranges::find(infos, name,
+	auto it = std::ranges::find(infos, name,
 		[](auto& i) { return i.device->getName(); });
 	return (it != end(infos)) ? std::to_address(it) : nullptr;
 }
@@ -820,7 +821,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
-		result.addListElements(view::transform(
+		result.addListElements(std::views::transform(
 			msxMixer.infos,
 			[](const auto& info) { return info.device->getName(); }));
 		break;
@@ -845,7 +846,7 @@ std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*to
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, view::transform(
+		completeString(tokens, std::views::transform(
 			OUTER(MSXMixer, soundDeviceInfo).infos,
 			[](auto& info) -> std::string_view { return info.device->getName(); }));
 	}

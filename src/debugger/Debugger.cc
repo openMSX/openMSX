@@ -21,15 +21,15 @@
 #include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
+#include <ranges>
 
 using std::string;
 using std::string_view;
@@ -122,7 +122,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 	if (name.starts_with(ProbeBreakPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(name.substr(ProbeBreakPoint::prefix.size()))) {
-			if (auto it = ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
+			if (auto it = std::ranges::find(probeBreakPoints, id, &ProbeBreakPoint::getId);
 			    it != std::end(probeBreakPoints)) {
 				motherBoard.getMSXCliComm().update(
 					CliComm::UpdateType::DEBUG_UPDT, name, "remove");
@@ -133,7 +133,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		throw CommandException("No such breakpoint: ", name);
 	} else {
 		// remove by probe, only works for unconditional bp
-		auto it = ranges::find(probeBreakPoints, name, [](auto& bp) {
+		auto it = std::ranges::find(probeBreakPoints, name, [](auto& bp) {
 			return bp->getProbe().getName();
 		});
 		if (it == std::end(probeBreakPoints)) {
@@ -249,7 +249,7 @@ void Debugger::Cmd::execute(
 
 void Debugger::Cmd::list(TclObject& result)
 {
-	result.addListElements(view::keys(debugger().debuggables));
+	result.addListElements(std::views::keys(debugger().debuggables));
 }
 
 void Debugger::Cmd::desc(std::span<const TclObject> tokens, TclObject& result)
@@ -424,9 +424,9 @@ BreakPoint* Debugger::Cmd::lookupBreakPoint(std::string_view str)
 	if (!str.starts_with(BreakPoint::prefix)) return nullptr;
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(BreakPoint::prefix.size()))) {
 		auto& breakPoints = MSXCPUInterface::getBreakPoints();
-		if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+		if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 		    it != std::end(breakPoints)) {
-			return &*it;
+			return std::to_address(it);
 		}
 	}
 	return nullptr;
@@ -438,7 +438,7 @@ std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(WatchPoint::prefix.size()))) {
 		auto& interface = debugger().motherBoard.getCPUInterface();
 		auto& watchPoints = interface.getWatchPoints();
-		if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+		if (auto it = std::ranges::find(watchPoints, id, &WatchPoint::getId);
 		    it != std::end(watchPoints)) {
 			return *it;
 		}
@@ -451,9 +451,9 @@ DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
 	if (!str.starts_with(DebugCondition::prefix)) return {};
 	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(DebugCondition::prefix.size()))) {
 		auto& conditions = MSXCPUInterface::getConditions();
-		if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
+		if (auto it = std::ranges::find(conditions, id, &DebugCondition::getId);
 		    it != std::end(conditions)) {
-			return &*it;
+			return std::to_address(it);
 		}
 	}
 	return {};
@@ -714,7 +714,7 @@ void Debugger::Cmd::removeBreakPoint(
 	if (tmp.starts_with(BreakPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(BreakPoint::prefix.size()))) {
-			if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+			if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 			    it != std::end(breakPoints)) {
 				interface.removeBreakPoint(*it);
 				return;
@@ -724,7 +724,7 @@ void Debugger::Cmd::removeBreakPoint(
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
-		auto it = ranges::find_if(breakPoints, [&](auto& bp) {
+		auto it = std::ranges::find_if(breakPoints, [&](auto& bp) {
 			return (bp.getAddress() == addr) &&
 			       bp.getCondition().getString().empty();
 		});
@@ -901,7 +901,7 @@ void Debugger::Cmd::probe(std::span<const TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
-	result.addListElements(view::transform(debugger().probes,
+	result.addListElements(std::views::transform(debugger().probes,
 		[](auto* p) { return p->getName(); }));
 }
 void Debugger::Cmd::probeDesc(std::span<const TclObject> tokens, TclObject& result)
@@ -1463,19 +1463,19 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 
 std::vector<string> Debugger::Cmd::getBreakPointIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		MSXCPUInterface::getBreakPoints(),
 		[](auto& bp) { return bp.getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getWatchPointIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
 		[](auto& w) { return w->getIdStr(); }));
 }
 std::vector<string> Debugger::Cmd::getConditionIds() const
 {
-	return to_vector(view::transform(
+	return to_vector(std::views::transform(
 		MSXCPUInterface::getConditions(),
 		[](auto& c) { return c.getIdStr(); }));
 }
@@ -1509,7 +1509,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 			// this command takes (an) argument(s)
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
-				completeString(tokens, view::keys(debugger().debuggables));
+				completeString(tokens, std::views::keys(debugger().debuggables));
 			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv, "condition"sv)) {
 				static constexpr std::array subCmds = {
 					"list"sv, "create"sv,
@@ -1545,7 +1545,7 @@ void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
 	default:
 		if ((size == 4) && (tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
-			completeString(tokens, view::transform(
+			completeString(tokens, std::views::transform(
 				debugger().probes,
 				[](auto* p) -> std::string_view { return p->getName(); }));
 		} else if (tokens[1] == "breakpoint") {

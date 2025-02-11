@@ -1,4 +1,5 @@
 #include "CommandLineParser.hh"
+
 #include "GlobalCommandController.hh"
 #include "Interpreter.hh"
 #include "SettingsConfig.hh"
@@ -13,21 +14,23 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "XMLException.hh"
-#include "StringOp.hh"
-#include "xrange.hh"
 #include "Reactor.hh"
 #include "RomInfo.hh"
+
+#include "StringOp.hh"
 #include "hash_map.hh"
-#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "view.hh"
 #include "xxhash.hh"
+
 #include "build-info.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <memory>
+#include <ranges>
 
 using std::cout;
 using std::string;
@@ -68,8 +71,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
-	ranges::sort(options, {}, &OptionData::name);
-	ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
+	std::ranges::sort(options, {}, &OptionData::name);
+	std::ranges::sort(fileTypes, StringOp::caseless{}, &FileTypeData::extension);
 }
 
 void CommandLineParser::registerOption(
@@ -81,7 +84,7 @@ void CommandLineParser::registerOption(
 void CommandLineParser::registerFileType(
 	std::span<const string_view> extensions, CLIFileType& cliFileType)
 {
-	append(fileTypes, view::transform(extensions,
+	append(fileTypes, std::views::transform(extensions,
 		[&](auto& ext) { return FileTypeData{ext, &cliFileType}; }));
 }
 
@@ -151,7 +154,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 {
 	parseStatus = RUN;
 
-	auto cmdLineBuf = to_vector(view::transform(view::drop(argv, 1), [](const char* a) {
+	auto cmdLineBuf = to_vector(std::views::transform(std::views::drop(argv, 1), [](const char* a) {
 		return FileOperations::getConventionalPath(a);
 	}));
 	std::span<string> cmdLine(cmdLineBuf);
@@ -420,11 +423,11 @@ static string formatHelpText(string_view helpText,
 using GroupedItems = hash_map<string_view, std::vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
-	auto printSet = to_vector(view::transform(itemMap, [](auto& p) {
+	auto printSet = to_vector(std::views::transform(itemMap, [](auto& p) {
 		return strCat(formatSet(p.second, 15), ' ',
 		              formatHelpText(p.first, 50, 20));
 	}));
-	ranges::sort(printSet);
+	std::ranges::sort(printSet);
 	for (const auto& s : printSet) {
 		cout << s << '\n';
 	}

@@ -2,7 +2,8 @@
 #include "join.hh"
 
 #include "strCat.hh"
-#include "view.hh"
+
+#include <ranges>
 #include <string_view>
 
 TEST_CASE("join: vector<string_view>, char")
@@ -61,7 +62,7 @@ TEST_CASE("join: various types")
 	check(ac, sep4, "blabla123xyz1234567");
 
 	auto quote = [](auto& s) { return strCat('\'', s, '\''); };
-	check(view::transform(vs, quote), ", ", "'foo', 'bar', 'qux'");
-	check(view::transform(vi, quote), ", ", "'1', '-89', '673', '0'");
-	check(view::transform(ac, quote), ", ", "'blabla', 'xyz', '4567'");
+	check(std::views::transform(vs, quote), ", ", "'foo', 'bar', 'qux'");
+	check(std::views::transform(vi, quote), ", ", "'1', '-89', '673', '0'");
+	check(std::views::transform(ac, quote), ", ", "'blabla', 'xyz', '4567'");
 }

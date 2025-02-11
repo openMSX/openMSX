@@ -5,6 +5,7 @@
  */
 
 #include "YM2413Okazaki.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
@@ -15,6 +16,8 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
@@ -393,7 +396,7 @@ Slot::Slot()
 void Slot::reset()
 {
 	cPhase = 0;
-	ranges::fill(dPhase, 0);
+	std::ranges::fill(dPhase, 0);
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(EnvelopeState::FINISH);
@@ -690,7 +693,7 @@ YM2413::YM2413()
 		std::cout << '\n';
 	}
 
-	ranges::fill(reg, 0); // avoid UMR
+	std::ranges::fill(reg, 0); // avoid UMR
 
 	for (auto i : xrange(16 + 3)) {
 		patches[i][0].initModulator(inst_data[i]);

@@ -1,11 +1,10 @@
 #include "GlobalSettings.hh"
+
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
-#include "strCat.hh"
-#include "view.hh"
-#include "xrange.hh"
+
 #include "build-info.hh"
-#include <memory>
+
 #include <SDL.h>
 
 namespace openmsx {

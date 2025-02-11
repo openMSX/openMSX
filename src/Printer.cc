@@ -10,7 +10,6 @@
 
 #include "Math.hh"
 #include "small_buffer.hh"
-#include "view.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -18,6 +17,7 @@
 #include <cassert>
 #include <cmath>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 namespace openmsx {
@@ -114,7 +114,7 @@ void ImagePrinter::write(uint8_t data)
 	} else if (escSequence) {
 		escSequence = false;
 
-		ranges::fill(abEscSeq, 0);
+		std::ranges::fill(abEscSeq, 0);
 		abEscSeq[0] = data;
 		sizeEscPos = 1;
 
@@ -625,7 +625,7 @@ void ImagePrinterMSX::resetSettings()
 	eightBit     = -1;
 
 	// note: this only overwrites 9/12 of the fontInfo.rom array.
-	ranges::copy(MSXFont, fontInfo.rom);
+	copy_to_range(MSXFont, fontInfo.rom);
 	fontInfo.charWidth = 9;
 	fontInfo.pixelDelta = 1.0;
 	fontInfo.useRam = false;
@@ -1167,7 +1167,7 @@ void ImagePrinterEpson::resetSettings()
 	fontWidth    = 6;
 	eightBit     = -1;
 
-	ranges::copy(EpsonFontRom, fontInfo.rom);
+	copy_to_range(EpsonFontRom, fontInfo.rom);
 	fontInfo.charWidth = 12;
 	fontInfo.pixelDelta = 0.5;
 	fontInfo.useRam = false;
@@ -1300,7 +1300,7 @@ void ImagePrinterEpson::processEscSequence()
 			detectPaperOut = false;
 			break;
 		case ':': // Copies Rom Character set to RAM
-			ranges::copy(fontInfo.rom, fontInfo.ram);
+			copy_to_range(fontInfo.rom, fontInfo.ram);
 			break;
 		case '<': // Turn Uni-directional printing ON (left to right)
 			leftToRight = true;
@@ -1586,7 +1586,7 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 	: buf(size_t(x) * size_t(y))
 	, sizeX(x), sizeY(y)
 {
-	ranges::fill(buf, 255);
+	std::ranges::fill(buf, 255);
 	setDotSize(dotSizeX, dotSizeY);
 }
 
@@ -1594,7 +1594,7 @@ std::string Paper::save() const
 {
 	auto filename = FileOperations::getNextNumberedFileName(
 		PRINT_DIR, "page", PRINT_EXTENSION);
-	small_buffer<const uint8_t*, 4096> rowPointers(view::transform(xrange(sizeY),
+	small_buffer<const uint8_t*, 4096> rowPointers(std::views::transform(xrange(sizeY),
 		[&](size_t y) { return &buf[sizeX * y]; }));
 	PNG::saveGrayscale(sizeX, rowPointers, filename);
 	return filename;

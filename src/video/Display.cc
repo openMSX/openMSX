@@ -27,11 +27,11 @@
 
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -125,7 +125,7 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findActiveLayer() const
 {
-	auto it = ranges::find_if(layers, &Layer::isActive);
+	auto it = std::ranges::find_if(layers, &Layer::isActive);
 	return (it != layers.end()) ? *it : nullptr;
 }
 
@@ -389,7 +389,7 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	auto z = layer.getZ();
-	auto it = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
+	auto it = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }
@@ -403,7 +403,7 @@ void Display::updateZ(Layer& layer)
 {
 	auto oldPos = rfind_unguarded(layers, &layer);
 	auto z = layer.getZ();
-	auto newPos = ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
+	auto newPos = std::ranges::find_if(layers, [&](const Layer* l) { return l->getZ() >= z; });
 
 	if (oldPos == newPos) {
 		return;
@@ -418,7 +418,7 @@ void Display::updateZ(Layer& layer)
 // ScreenShotCmd
 
 Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
-	: Command(commandController_, "screenshot")
+	: Command(commandController_, "openmsx::internal_screenshot")
 {
 }
 
@@ -426,26 +426,17 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 {
 	std::string_view prefix = "openmsx";
 	bool rawShot = false;
-	bool msxOnly = false;
 	bool doubleSize = false;
 	bool withOsd = false;
 	std::array info = {
 		valueArg("-prefix", prefix),
 		flagArg("-raw", rawShot),
-		flagArg("-msxonly", msxOnly),
 		flagArg("-doublesize", doubleSize),
 		flagArg("-with-osd", withOsd)
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
 	auto& display = OUTER(Display, screenShotCmd);
-	if (msxOnly) {
-		display.getCliComm().printWarning(
-			"The -msxonly option has been deprecated and will "
-			"be removed in a future release. Instead, use the "
-			"-raw option for the same effect.");
-		rawShot = true;
-	}
 	if (doubleSize && !rawShot) {
 		throw CommandException("-doublesize option can only be used in "
 		                       "combination with -raw");
@@ -493,32 +484,12 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 		}
 	}
 
-	display.getCliComm().printInfo("Screen saved to ", filename);
 	result = filename;
 }
 
 string Display::ScreenShotCmd::help(std::span<const TclObject> /*tokens*/) const
 {
-	// Note: -no-sprites and -guess-name options are implemented in Tcl.
-	// TODO: find a way to extend the help and completion for a command
-	// when extending it in Tcl
-	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
-	       "screenshot <filename>        Write screenshot to indicated file\n"
-	       "screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
-	       "screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
-	       "screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
-	       "screenshot -with-osd         Include OSD elements in the screenshot\n"
-	       "screenshot -no-sprites       Don't include sprites in the screenshot\n"
-	       "screenshot -guess-name       Guess the name of the running software and use it as prefix\n";
-}
-
-void Display::ScreenShotCmd::tabCompletion(std::vector<string>& tokens) const
-{
-	using namespace std::literals;
-	static constexpr std::array extra = {
-		"-prefix"sv, "-raw"sv, "-doublesize"sv, "-with-osd"sv, "-no-sprites"sv, "-guess-name"sv,
-	};
-	completeFileName(tokens, userFileContext(), extra);
+	return "This is a low-level internal command, you probably want to use 'screenshot' instead.";
 }
 
 

@@ -57,7 +57,7 @@ void BitmapConverter::convertLine(std::span<Pixel> buf, std::span<const byte, 12
 	case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
 	case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
 	case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
-		UNREACHABLE;
+		UNREACHABLE; break;
 	// TODO: Support YJK on modes other than Graphic 6/7.
 	case DisplayMode::GRAPHIC4 | DisplayMode::YJK:
 	case DisplayMode::GRAPHIC5 | DisplayMode::YJK:
@@ -98,7 +98,7 @@ void BitmapConverter::convertLinePlanar(
 	case DisplayMode::GRAPHIC5 | DisplayMode::YJK:
 	case DisplayMode::GRAPHIC4 | DisplayMode::YJK | DisplayMode::YAE:
 	case DisplayMode::GRAPHIC5 | DisplayMode::YJK | DisplayMode::YAE:
-		UNREACHABLE;
+		UNREACHABLE; break;
 	default:
 		renderBogus(subspan<256>(buf));
 		break;
@@ -290,7 +290,7 @@ void BitmapConverter::renderBogus(std::span<Pixel, 256> buf) const
 	// show palette color 15.
 	// When this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated.
-	ranges::fill(buf, palette16[15]);
+	std::ranges::fill(buf, palette16[15]);
 }
 
 } // namespace openmsx

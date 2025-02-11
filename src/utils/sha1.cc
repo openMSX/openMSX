@@ -26,6 +26,7 @@ A million repetitions of "a"
 #include "narrow.hh"
 #include "ranges.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cstring>
@@ -245,11 +246,11 @@ std::string Sha1Sum::toString() const
 
 bool Sha1Sum::empty() const
 {
-	return ranges::all_of(a, [](auto& e) { return e == 0; });
+	return std::ranges::all_of(a, [](auto& e) { return e == 0; });
 }
 void Sha1Sum::clear()
 {
-	ranges::fill(a, 0);
+	std::ranges::fill(a, 0);
 }
 
 
@@ -325,7 +326,7 @@ void SHA1::update(std::span<const uint8_t> data)
 	size_t i;
 	if ((j + len) > 63) {
 		i = 64 - j;
-		ranges::copy(data.subspan(0, i), subspan(m_buffer, j));
+		copy_to_range(data.subspan(0, i), subspan(m_buffer, j));
 		transform(m_buffer);
 		for (/**/; i + 63 < len; i += 64) {
 			transform(subspan<64>(data, i));
@@ -334,7 +335,7 @@ void SHA1::update(std::span<const uint8_t> data)
 	} else {
 		i = 0;
 	}
-	ranges::copy(data.subspan(i, len - i), subspan(m_buffer, j));
+	copy_to_range(data.subspan(i, len - i), subspan(m_buffer, j));
 }
 
 void SHA1::finalize()
@@ -344,11 +345,11 @@ void SHA1::finalize()
 	uint32_t j = m_count & 63;
 	m_buffer[j++] = 0x80;
 	if (j > 56) {
-		ranges::fill(subspan(m_buffer, j, 64 - j), 0);
+		std::ranges::fill(subspan(m_buffer, j, 64 - j), 0);
 		transform(m_buffer);
 		j = 0;
 	}
-	ranges::fill(subspan(m_buffer, j, 56 - j), 0);
+	std::ranges::fill(subspan(m_buffer, j, 56 - j), 0);
 	Endian::B64 finalCount(8 * m_count); // convert number of bytes to bits
 	memcpy(&m_buffer[56], &finalCount, 8);
 	transform(m_buffer);

@@ -56,7 +56,7 @@ int Gaps::getLargestGap()
 	if (v.empty()) return totalSize / 2;
 
 	// sort begin and end point
-	std::sort(v.begin(), v.end());
+	std::ranges::sort(v);
 
 	// largest gap found so far (and its start and stop position)
 	int maxLen = 0;

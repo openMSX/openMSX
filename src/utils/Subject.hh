@@ -2,7 +2,6 @@
 #define SUBJECT_HH
 
 #include "Observer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <vector>
@@ -82,7 +81,7 @@ template<typename T> void Subject<T>::notify() const
 	}
 
 	if (notifyState == DETACH) {
-		observers.erase(ranges::remove(observers, nullptr), observers.end());
+		std::erase(observers, nullptr);
 	}
 	notifyState = IDLE;
 }

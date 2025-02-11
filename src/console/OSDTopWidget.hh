@@ -2,11 +2,13 @@
 #define OSDTOPWIDGET_HH
 
 #include "OSDWidget.hh"
+
 #include "TclObject.hh"
 #include "hash_set.hh"
-#include "view.hh"
-#include <vector>
+
+#include <ranges>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -27,7 +29,7 @@ public:
 	void addName(OSDWidget& widget);
 	void removeName(OSDWidget& widget);
 	[[nodiscard]] auto getAllWidgetNames() const {
-		return view::transform(widgetsByName,
+		return std::views::transform(widgetsByName,
 			[](auto* p) -> std::string_view { return p->getName(); });
 	}
 

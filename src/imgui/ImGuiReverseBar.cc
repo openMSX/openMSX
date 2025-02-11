@@ -10,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
 #include "GlobalCommandController.hh"
+#include "CliComm.hh"
 
 #include "foreach_file.hh"
 
@@ -250,7 +251,10 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					openConfirmPopup = true;
 					confirmText = strCat("Overwrite save state with name '", saveStateName, "'?");
 				} else {
-					manager.executeDelayed(confirmCmd);
+					manager.executeDelayed(confirmCmd,
+						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("State saved to ", result.getString())); },
+						[&] (const std::string& error) { manager.getCliComm().printError(error); }
+						);
 				}
 			}
 		});
@@ -323,7 +327,10 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 					openConfirmPopup = true;
 					confirmText = strCat("Overwrite replay with name '", saveReplayName, "'?");
 				} else {
-					manager.executeDelayed(confirmCmd);
+					manager.executeDelayed(confirmCmd,
+						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("Replay saved to ", result.getString())); },
+						[&] (const std::string& error) { manager.getCliComm().printError(error); }
+						);
 				}
 			}
 		});

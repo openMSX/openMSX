@@ -47,6 +47,7 @@ register_lazy "_savestate.tcl" {
 	savestate loadstate delete_savestate list_savestates list_savestates_raw}
 register_lazy "_scc_toys.tcl" {
 	toggle_scc_editor toggle_psg2scc set_scc_wave toggle_scc_viewer}
+register_lazy "_shuffler.tcl" {shuffler}
 register_lazy "_showdebuggable.tcl" {showdebuggable showmem}
 register_lazy "_slot.tcl" {
 	get_selected_slot slotselect get_mapper_size pc_in_slot watch_in_slot

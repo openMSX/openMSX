@@ -13,11 +13,12 @@
 #include "rapidsax.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xxhash.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
+#include <ranges>
 #include <string_view>
 
 using std::string_view;
@@ -93,11 +94,11 @@ private:
 
 	std::vector<Dump> dumps;
 	string_view system;
-	String32 title;
-	String32 company;
-	String32 year;
-	String32 country;
-	unsigned genMSXid;
+	String32 title = {};
+	String32 company = {};
+	String32 year = {};
+	String32 country = {};
+	unsigned genMSXid = 0;
 
 	State state = BEGIN;
 	unsigned unknownLevel = 0;
@@ -381,7 +382,7 @@ String32 DBParser::cIndex(string_view str) const
 // called on </software>
 void DBParser::addEntries()
 {
-	append(db, view::transform(dumps, [&](auto& d) {
+	append(db, std::views::transform(dumps, [&](auto& d) {
 		return RomDatabase::Entry{
 			d.hash,
 			RomInfo(title, year, company, country, d.origValue,
@@ -402,7 +403,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
+	std::ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.
@@ -506,14 +507,14 @@ void DBParser::stop()
 		std::array<char, 8 + 4> buf;
 		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				ranges::copy(t,                      subspan<8>(buf, 0));
-				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 8));
+				copy_to_range(t,                      subspan<8>(buf, 0));
+				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 8));
 				t = string_view(buf.data(), 8 + 4);
 			}
 		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				ranges::copy(t,                      subspan<6>(buf, 0));
-				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 6));
+				copy_to_range(t,                      subspan<6>(buf, 0));
+				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 6));
 				t = string_view(buf.data(), 6 + 4);
 			}
 		}

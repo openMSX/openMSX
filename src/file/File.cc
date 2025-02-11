@@ -1,10 +1,14 @@
 #include "File.hh"
+
 #include "Filename.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
+
 #include "checked_cast.hh"
 #include "ranges.hh"
+
+#include <algorithm>
 #include <array>
 #include <memory>
 
@@ -22,9 +26,9 @@ File::File() = default;
 		std::array<uint8_t, 4> buf;
 		file->read(buf);
 		file->seek(0);
-		if (ranges::equal(subspan<3>(buf), GZ_HEADER)) {
+		if (std::ranges::equal(subspan<3>(buf), GZ_HEADER)) {
 			file = std::make_unique<GZFileAdapter>(std::move(file));
-		} else if (ranges::equal(subspan<4>(buf), ZIP_HEADER)) {
+		} else if (std::ranges::equal(subspan<4>(buf), ZIP_HEADER)) {
 			file = std::make_unique<ZipFileAdapter>(std::move(file));
 		} else {
 			// only pre-cache non-compressed files

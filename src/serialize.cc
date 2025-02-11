@@ -178,7 +178,7 @@ void MemOutputArchive::save(std::string_view s)
 	auto size = s.size();
 	auto buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf.data(), &size, sizeof(size));
-	ranges::copy(s, subspan(buf, sizeof(size)));
+	copy_to_range(s, subspan(buf, sizeof(size)));
 }
 
 ////
@@ -222,7 +222,7 @@ void MemOutputArchive::serialize_blob(const char* /*tag*/, std::span<const uint8
 			: lastDeltaBlocks.createNullDiff(data.data(), data));
 	} else {
 		auto buf = buffer.allocate(data.size());
-		ranges::copy(data, buf);
+		copy_to_range(data, buf);
 	}
 }
 
@@ -241,7 +241,7 @@ void MemInputArchive::serialize_blob(const char* /*tag*/, std::span<uint8_t> dat
 		unsigned deltaBlockIdx; load(deltaBlockIdx);
 		deltaBlocks[deltaBlockIdx]->apply(data);
 	} else {
-		ranges::copy(std::span{buffer.getCurrentPos(), data.size()}, data);
+		copy_to_range(std::span{buffer.getCurrentPos(), data.size()}, data);
 		buffer.skip(data.size());
 	}
 }

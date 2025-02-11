@@ -16,7 +16,7 @@ RamDSKDiskImage::RamDSKDiskImage(size_t size)
 void RamDSKDiskImage::readSectorsImpl(
 	std::span<SectorBuffer> buffers, size_t startSector)
 {
-	ranges::copy(data.subspan(startSector, buffers.size()), buffers);
+	copy_to_range(data.subspan(startSector, buffers.size()), buffers);
 }
 
 void RamDSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)

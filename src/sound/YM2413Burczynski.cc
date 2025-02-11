@@ -20,15 +20,19 @@
  */
 
 #include "YM2413Burczynski.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <iostream>
+#include <utility>
 
 namespace openmsx {
 namespace YM2413Burczynski {
@@ -656,13 +660,13 @@ void Slot::setKeyOn(KeyPart part)
 		// do NOT restart Phase Generator (verified on real YM2413)
 		setEnvelopeState(EnvelopeState::DUMP);
 	}
-	key |= to_underlying(part);
+	key |= std::to_underlying(part);
 }
 
 void Slot::setKeyOff(KeyPart part)
 {
 	if (key) {
-		key &= ~to_underlying(part);
+		key &= ~std::to_underlying(part);
 		if (!key && isActive()) {
 			setEnvelopeState(EnvelopeState::RELEASE);
 		}
@@ -916,7 +920,7 @@ YM2413::YM2413()
 		}
 	}
 
-	ranges::fill(reg, 0); // avoid UMR
+	std::ranges::fill(reg, 0); // avoid UMR
 	eg_cnt = 0;
 	noise_rng = 0;
 
@@ -1049,7 +1053,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 		}
 	}
 	if (isRhythm()) {
-		ranges::fill(subspan<3>(bufs, 6), nullptr);
+		std::ranges::fill(subspan<3>(bufs, 6), nullptr);
 		for (auto ch : xrange(6, 9)) {
 			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
@@ -1068,7 +1072,7 @@ void YM2413::generateChannels(std::span<float*, 9 + 5> bufs, unsigned num)
 			bufs[13] = nullptr;
 		}
 	} else {
-		ranges::fill(subspan<5>(bufs, 9), nullptr);
+		std::ranges::fill(subspan<5>(bufs, 9), nullptr);
 	}
 
 	if (channelActiveBits) {

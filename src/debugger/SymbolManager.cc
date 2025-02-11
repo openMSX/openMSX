@@ -6,16 +6,16 @@
 #include "TclObject.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <fstream>
+#include <ranges>
 
 namespace openmsx {
 
@@ -114,7 +114,7 @@ SymbolManager::SymbolManager(CommandController& commandController_)
 		auto [line, _] = StringOp::splitOnFirst(fullLine, ';');
 
 		auto tokens = static_vector<std::string_view, 3 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 3 + 1)};
+			std::views::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 3 + 1)};
 		if (auto symbol = lineParser(tokens)) {
 			result.symbols.push_back(std::move(*symbol));
 		}
@@ -248,7 +248,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 		}
 
 		auto tokens = static_vector<std::string_view, 2 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
+			std::views::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
 		if (tokens.size() != 2) continue;
 		auto value = tokens[0];
 		auto label = tokens[1];
@@ -301,7 +301,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 		//   <xy>h:<abcd>h <name>        <xy>   a 2-digit hex indicating the MegaRom Page (ignored)
 		//                               <name> the symbol name
 		auto tokens = static_vector<std::string_view, 2 + 1>{from_range,
-			view::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
+			std::views::take(StringOp::split_view<StringOp::EmptyParts::REMOVE>(line, whitespace), 2 + 1)};
 		if (tokens.size() != 2) continue;
 		auto value = tokens[0];
 		auto label = tokens[1];
@@ -348,7 +348,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	bool symbolPart = false;
 	for (std::string_view line : StringOp::split_view(buffer, '\n')) {
 		if (!symbolPart) {
-			if (line.find("Symbol Table") != std::string_view::npos) { // c++23 contains()
+			if (line.contains("Symbol Table")) {
 				symbolPart = true;
 			}
 			continue;
@@ -453,7 +453,7 @@ bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty,
 	auto file = loadSymbolFile(filename, type, slot); // might throw
 	if (file.symbols.empty() && loadEmpty == LoadEmpty::NOT_ALLOWED) return false;
 
-	if (auto it = ranges::find(files, filename, &SymbolFile::filename);
+	if (auto it = std::ranges::find(files, filename, &SymbolFile::filename);
 	    it == files.end()) {
 		files.push_back(std::move(file));
 	} else {
@@ -465,7 +465,7 @@ bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty,
 
 void SymbolManager::removeFile(std::string_view filename)
 {
-	auto it = ranges::find(files, filename, &SymbolFile::filename);
+	auto it = std::ranges::find(files, filename, &SymbolFile::filename);
 	if (it == files.end()) return; // not found
 	files.erase(it);
 	refresh();
@@ -482,14 +482,14 @@ std::optional<uint16_t> SymbolManager::lookupSymbol(std::string_view str) const
 	// linear search is fine: only used interactively
 	// prefer an exact match
 	for (const auto& file : files) {
-		if (auto it = ranges::find(file.symbols, str, &Symbol::name);
+		if (auto it = std::ranges::find(file.symbols, str, &Symbol::name);
 		    it != file.symbols.end()) {
 			return it->value;
 		}
 	}
 	// but if not found, a case-insensitive match is fine as well
 	for (const auto& file : files) {
-		if (auto it = ranges::find_if(file.symbols, [&](const auto& sym) {
+		if (auto it = std::ranges::find_if(file.symbols, [&](const auto& sym) {
 			return StringOp::casecmp{}(str, sym.name); });
 		    it != file.symbols.end()) {
 			return it->value;
@@ -524,7 +524,7 @@ std::span<Symbol const * const> SymbolManager::lookupValue(uint16_t value)
 
 SymbolFile* SymbolManager::findFile(std::string_view filename)
 {
-	if (auto it = ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
+	if (auto it = std::ranges::find(files, filename, &SymbolFile::filename); it == files.end()) {
 		return nullptr;
 	} else {
 		return std::to_address(it);

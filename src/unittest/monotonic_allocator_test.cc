@@ -2,8 +2,7 @@
 
 #include "monotonic_allocator.hh"
 
-#include "ranges.hh"
-
+#include <algorithm>
 #include <bit>
 #include <span>
 
@@ -12,7 +11,7 @@
 	auto* result = static_cast<char*>(a.allocate(size, alignment));
 	CHECK(result != nullptr);
 	CHECK((std::bit_cast<uintptr_t>(result) & (alignment - 1)) == 0);
-	ranges::fill(std::span{result, size}, 0xab); // this shouldn't crash
+	std::ranges::fill(std::span{result, size}, 0xab); // this shouldn't crash
 	return result;
 }
 

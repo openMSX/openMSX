@@ -2,8 +2,8 @@
 #include "endian.hh"
 #include "ranges.hh"
 #include "ScopedAssign.hh"
-#include "xrange.hh"
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cstring>
 
@@ -671,9 +671,9 @@ static constexpr void initState(std::span<uint64_t, 3> state)
 static inline void returnState(std::span<uint64_t, 3> state)
 {
 	if constexpr (Endian::BIG) {
-		state[0] = Endian::byteswap64(state[0]);
-		state[1] = Endian::byteswap64(state[1]);
-		state[2] = Endian::byteswap64(state[2]);
+		state[0] = std::byteswap(state[0]);
+		state[1] = std::byteswap(state[1]);
+		state[2] = std::byteswap(state[2]);
 	}
 }
 
@@ -689,7 +689,7 @@ void tiger(std::span<const uint8_t> input, TigerHash& result)
 
 	std::array<uint8_t, 64> temp;
 	assert(input.size() < 64);
-	ranges::copy(input, temp);
+	copy_to_range(input, temp);
 	size_t j = input.size();
 	temp[j++] = 0x01;
 	while (j & 7) { // pad to 8-byte boundary

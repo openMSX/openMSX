@@ -1,8 +1,11 @@
 #include "NinjaTap.hh"
+
 #include "JoystickPort.hh"
+
 #include "enumerate.hh"
-#include "ranges.hh"
 #include "serialize.hh"
+
+#include <algorithm>
 
 // See this (long) MRC thread for a detailed discussion on NinjaTap, including
 // an electric schema.
@@ -13,7 +16,7 @@ namespace openmsx {
 NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
 	: JoyTap(pluggingController_, std::move(name_))
 {
-	ranges::fill(buf, 0xFF);
+	std::ranges::fill(buf, 0xFF);
 }
 
 std::string_view NinjaTap::getDescription() const

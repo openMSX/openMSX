@@ -1,7 +1,7 @@
 #ifndef STRINGSTORAGE_HH
 #define STRINGSTORAGE_HH
 
-#include "ranges.hh"
+#include <algorithm>
 #include <cstdlib>
 #include <memory>
 #include <string_view>
@@ -33,7 +33,7 @@ inline StringStorage allocate_c_string(std::string_view s)
 {
 	auto result = allocate_string_storage(s.size() + 1);
 	char* p = result.get();
-	char* z = ranges::copy(s, p);
+	char* z = std::ranges::copy(s, p).out;
 	*z = '\0';
 	return result;
 }

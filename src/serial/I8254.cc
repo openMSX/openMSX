@@ -163,7 +163,7 @@ uint8_t Counter::readIO(EmuTime::param time)
 	uint16_t readData = ltchCntr ? latchedCounter : narrow_cast<uint16_t>(counter);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		UNREACHABLE;
+		UNREACHABLE; break;
 	case WF_LOW:
 		ltchCntr = false;
 		return narrow_cast<uint8_t>(readData & 0x00FF);
@@ -195,7 +195,7 @@ uint8_t Counter::peekIO(EmuTime::param time) const
 	uint16_t readData = ltchCntr ? latchedCounter : narrow_cast<uint16_t>(counter);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		UNREACHABLE;
+		UNREACHABLE; break;
 	case WF_LOW:
 		return narrow_cast<uint8_t>(readData & 0x00FF);
 	case WF_HIGH:
@@ -216,7 +216,7 @@ void Counter::writeIO(uint8_t value, EmuTime::param time)
 	advance(time);
 	switch (control & WRT_FRMT) {
 	case WF_LATCH:
-		UNREACHABLE;
+		UNREACHABLE; break;
 	case WF_LOW:
 		writeLoad((counterLoad & 0xFF00) | uint16_t(value << 0), time);
 		break;
