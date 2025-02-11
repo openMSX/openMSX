@@ -71,7 +71,7 @@ struct D88SectorHeader
             return false;
     }
 
-	return ranges::all_of(header.reserved, [](auto& r) { return r == 0; });
+	return std::ranges::all_of(header.reserved, [](auto& r) { return r == 0; });
 }
 
 D88DiskImage::D88DiskImage(const Filename& filename, std::shared_ptr<File> file_)
