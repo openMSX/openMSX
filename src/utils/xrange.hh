@@ -117,7 +117,7 @@ template<typename T> struct XRange
 			return *(*this + n);
 		}
 
-		[[nodiscard]] constexpr auto operator<=>(const Iter&) const = default;
+		[[nodiscard]] /*constexpr*/ auto operator<=>(const Iter&) const = default;
 
 		T x;
 	};
