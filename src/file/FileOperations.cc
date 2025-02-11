@@ -715,7 +715,7 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 #else
 	filename = directory + "/XXXXXX";
 	auto oldMask = umask(S_IRWXO | S_IRWXG);
-	int fd = mkstemp(const_cast<char*>(filename.c_str()));
+	int fd = mkstemp(filename.data());
 	umask(oldMask);
 	if (fd == -1) {
 		throw FileException("Couldnt get temp file name");
