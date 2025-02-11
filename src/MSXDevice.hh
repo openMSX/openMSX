@@ -239,6 +239,9 @@ public:
 	[[nodiscard]] const XMLElement& getDeviceConfig() const {
 		return *deviceConfig.getXML();
 	}
+	[[nodiscard]] XMLElement& getDeviceConfig() {
+		return *deviceConfig.getXML();
+	}
 	[[nodiscard]] const DeviceConfig& getDeviceConfig2() const { // TODO
 		return deviceConfig;
 	}

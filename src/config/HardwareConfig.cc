@@ -293,8 +293,8 @@ void HardwareConfig::parseSlots()
 	//      once machine and extensions are parsed separately move parsing
 	//      of 'expanded' to MSXCPUInterface
 	//
-	for (const auto* psElem : getDevicesElem().getChildren("primary")) {
-		const auto& primSlot = psElem->getAttribute("slot");
+	for (auto* psElem : getDevicesElem().getChildren("primary")) {
+		auto& primSlot = psElem->getAttribute("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot.getValue());
 		if (psElem->getAttributeValueAsBool("external", false)) {
 			if (ps < 0) {
@@ -334,8 +334,7 @@ void HardwareConfig::parseSlots()
 				} else {
 					ps = getSpecificFreePrimarySlot(-ps - 1);
 				}
-				auto& mutablePrimSlot = const_cast<XMLAttribute&>(primSlot);
-				mutablePrimSlot.setValue(config.allocateString(strCat(ps)));
+				primSlot.setValue(config.allocateString(strCat(ps)));
 			}
 			createExpandedSlot(ps);
 			if (ssElem->getAttributeValueAsBool("external", false)) {
@@ -457,11 +456,10 @@ void HardwareConfig::setName(std::string_view proposedName)
 
 void HardwareConfig::setSlot(std::string_view slotName)
 {
-	for (const auto* psElem : getDevicesElem().getChildren("primary")) {
-		const auto& primSlot = psElem->getAttribute("slot");
+	for (auto* psElem : getDevicesElem().getChildren("primary")) {
+		auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot.getValue() == "any") {
-			auto& mutablePrimSlot = const_cast<XMLAttribute&>(primSlot);
-			mutablePrimSlot.setValue(config.allocateString(slotName));
+			primSlot.setValue(config.allocateString(slotName));
 		}
 	}
 }

@@ -223,7 +223,9 @@ public:
 	[[nodiscard]] NamedChildRange<      XMLElement> getChildren(std::string_view childName)       { return {this, childName}; }
 
 	[[nodiscard]] const XMLAttribute* findAttribute(std::string_view attrName) const;
+	[[nodiscard]] XMLAttribute* findAttribute(std::string_view attrName);
 	[[nodiscard]] const XMLAttribute& getAttribute(std::string_view attrName) const;
+	[[nodiscard]] XMLAttribute& getAttribute(std::string_view attrName);
 	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName) const;
 	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName,
 	                                                 std::string_view defaultValue) const;

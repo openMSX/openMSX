@@ -215,7 +215,7 @@ void MSXDevice::registerSlots()
 	// the (possibly shared) <primary> and <secondary> tags. When loading
 	// an old savestate these tags can still occur, so keep this code. Also
 	// remove these attributes to convert to the new format.
-	auto& mutableConfig = const_cast<XMLElement&>(getDeviceConfig());
+	auto& mutableConfig = getDeviceConfig();
 	if (auto** primSlotPtr = mutableConfig.findAttributePointer("primary_slot")) {
 		ps = slotManager.getSlotNum((*primSlotPtr)->getValue());
 		mutableConfig.removeAttribute(primSlotPtr);

@@ -120,11 +120,27 @@ const XMLAttribute* XMLElement::findAttribute(std::string_view attrName) const
 	}
 	return nullptr;
 }
+XMLAttribute* XMLElement::findAttribute(std::string_view attrName)
+{
+	for (auto* attr = firstAttribute; attr; attr = attr->nextAttribute) {
+		if (attr->getName() == attrName) {
+			return attr;
+		}
+	}
+	return nullptr;
+}
 
 // Throws when not found.
 const XMLAttribute& XMLElement::getAttribute(std::string_view attrName) const
 {
 	if (const auto* result = findAttribute(attrName)) {
+		return *result;
+	}
+	throw ConfigException("Missing attribute \"", attrName, "\".");
+}
+XMLAttribute& XMLElement::getAttribute(std::string_view attrName)
+{
+	if (auto* result = findAttribute(attrName)) {
 		return *result;
 	}
 	throw ConfigException("Missing attribute \"", attrName, "\".");
