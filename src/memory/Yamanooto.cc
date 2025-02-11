@@ -31,7 +31,7 @@ static constexpr byte FPGA_EN   = 0x40; // write: 1 -> enable communication with
 static constexpr byte FPGA_WAIT = 0x80; // read: ready signal ??? (1 = ready)
 static constexpr word FPGA_REG  = 0x7FFC; // bi-direction 8-bit communication channel
 
-Yamanooto::Yamanooto(const DeviceConfig& config, Rom&& rom_)
+Yamanooto::Yamanooto(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::S29GL064N90TFI04, {}, config)

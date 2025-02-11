@@ -19,7 +19,7 @@
 
 namespace openmsx {
 
-RomAscii16X::RomAscii16X(const DeviceConfig& config, Rom&& rom_)
+RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, debuggable(getMotherBoard(), getName())
 	, flash(rom, AmdFlashChip::S29GL064S70TFI040, {}, config)

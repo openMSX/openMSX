@@ -792,7 +792,7 @@ uint8_t YMF278::peekReg(uint8_t reg) const
 
 static constexpr unsigned INPUT_RATE = 44100;
 
-YMF278::YMF278(const std::string& name_, size_t ramSize, const DeviceConfig& config,
+YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
                SetupMemPtrFunc setupMemPtrs_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
 	                       24, INPUT_RATE, true)

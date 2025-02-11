@@ -388,8 +388,8 @@ void HardwareConfig::createDevices(XMLElement& elem,
 		} else if (childName == "secondary") {
 			createDevices(c, primary, &c);
 		} else {
-			auto device = DeviceFactory::create(
-				DeviceConfig(*this, c, primary, secondary));
+			DeviceConfig config2(*this, c, primary, secondary);
+			auto device = DeviceFactory::create(config2);
 			if (device) {
 				addDevice(std::move(device));
 			} else {

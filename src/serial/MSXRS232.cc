@@ -20,7 +20,7 @@ namespace openmsx {
 const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
 
-MSXRS232::MSXRS232(const DeviceConfig& config)
+MSXRS232::MSXRS232(DeviceConfig& config)
 	: MSXDevice(config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
 	, i8254(getScheduler(), &cntr0, &cntr1, nullptr, getCurrentTime())

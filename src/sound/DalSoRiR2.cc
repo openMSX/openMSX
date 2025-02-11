@@ -20,7 +20,7 @@ static constexpr byte ENA_FW = 1 << 4;
 static constexpr byte ENA_C4 = 1 << 1;
 static constexpr byte ENA_C0 = 1 << 0;
 
-DalSoRiR2::DalSoRiR2(const DeviceConfig& config)
+DalSoRiR2::DalSoRiR2(DeviceConfig& config)
 	: MSXDevice(config)
 	, ymf278b(getName(),
 	          size_t(4096 * 1024), // 4MB RAM

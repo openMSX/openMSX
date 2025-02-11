@@ -140,7 +140,7 @@ namespace openmsx {
 	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
 
-std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig conf)
+std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 {
 	std::unique_ptr<MSXDevice> result;
 	const auto& type = conf.getXML()->getName();

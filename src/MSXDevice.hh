@@ -242,6 +242,9 @@ public:
 	[[nodiscard]] const DeviceConfig& getDeviceConfig2() const { // TODO
 		return deviceConfig;
 	}
+	[[nodiscard]] DeviceConfig& getDeviceConfig2() { // TODO
+		return deviceConfig;
+	}
 
 	/** Get the device references that are specified for this device
 	 */

@@ -11,7 +11,7 @@ namespace openmsx {
 class RomAscii16X final : public MSXRom
 {
 public:
-	RomAscii16X(const DeviceConfig& config, Rom&& rom);
+	RomAscii16X(DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;

@@ -54,8 +54,7 @@ differences:
 
 namespace openmsx {
 
-ReproCartridgeV2::ReproCartridgeV2(
-		const DeviceConfig& config, Rom&& rom_)
+ReproCartridgeV2::ReproCartridgeV2(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, flash(rom, AmdFlashChip::M29W640GB, {}, config)
 	, scc("ReproCartV2 SCC", config, getCurrentTime(), SCC::Mode::Compatible)

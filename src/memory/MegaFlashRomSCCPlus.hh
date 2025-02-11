@@ -12,7 +12,7 @@ namespace openmsx {
 class MegaFlashRomSCCPlus final : public MSXRom
 {
 public:
-	MegaFlashRomSCCPlus(const DeviceConfig& config, Rom&& rom);
+	MegaFlashRomSCCPlus(DeviceConfig& config, Rom&& rom);
 	~MegaFlashRomSCCPlus() override;
 
 	void powerUp(EmuTime::param time) override;

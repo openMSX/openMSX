@@ -14,7 +14,7 @@ namespace openmsx {
 class KonamiUltimateCollection final : public MSXRom
 {
 public:
-	KonamiUltimateCollection(const DeviceConfig& config, Rom&& rom);
+	KonamiUltimateCollection(DeviceConfig& config, Rom&& rom);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXMoonSound final : public MSXDevice
 {
 public:
-	explicit MSXMoonSound(const DeviceConfig& config);
+	explicit MSXMoonSound(DeviceConfig& config);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

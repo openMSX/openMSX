@@ -8,7 +8,7 @@ namespace openmsx {
 
 // class MSXMusicBase
 
-MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
+MSXMusicBase::MSXMusicBase(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, ym2413(getName(), config)
@@ -71,7 +71,7 @@ INSTANTIATE_SERIALIZE_METHODS(MSXMusicBase);
 
 // class MSXMusic
 
-MSXMusic::MSXMusic(const DeviceConfig& config)
+MSXMusic::MSXMusic(DeviceConfig& config)
 	: MSXMusicBase(config)
 {
 }
@@ -100,7 +100,7 @@ REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
 //    reads return 0xff
 //  - reading any other memory location returns 0xff
 
-MSXMusicWX::MSXMusicWX(const DeviceConfig& config)
+MSXMusicWX::MSXMusicWX(DeviceConfig& config)
 	: MSXMusicBase(config)
 {
 	reset(getCurrentTime());

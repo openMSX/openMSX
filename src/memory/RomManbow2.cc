@@ -59,8 +59,7 @@ namespace openmsx {
 	}
 }
 
-RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
-                       RomType type)
+RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 	: MSXRom(config, std::move(rom_))
 	, scc((type != RomType::RBSC_FLASH_KONAMI_SCC)
 		? std::make_unique<SCC>(

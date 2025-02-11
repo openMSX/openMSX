@@ -3,6 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 
+#include "DeviceConfig.hh"
 #include "EmuTime.hh"
 #include "Rom.hh"
 
@@ -58,6 +59,7 @@ private:
 	[[nodiscard]] int parseFrame();
 
 private:
+	DeviceConfig config2;
 	Rom rom;
 	unsigned address_mask;
 

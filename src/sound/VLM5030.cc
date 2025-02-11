@@ -520,7 +520,8 @@ static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 VLM5030::VLM5030(const std::string& name_, static_string_view desc,
                  std::string_view romFilename, DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
-	, rom(name_ + " ROM", "rom", DeviceConfig(config, *getRomConfig(config, name_, romFilename)))
+	, config2(config, *getRomConfig(config, name_, romFilename))
+	, rom(name_ + " ROM", "rom", config2)
 {
 	reset();
 	phase = Phase::IDLE;

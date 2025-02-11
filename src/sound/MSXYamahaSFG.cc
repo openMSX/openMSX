@@ -12,7 +12,7 @@ static YM2151::Variant parseVariant(const DeviceConfig& config)
 	throw MSXException("Invalid variant '", variant, "', expected 'YM2151' or 'YM2164'.");
 }
 
-MSXYamahaSFG::MSXYamahaSFG(const DeviceConfig& config)
+MSXYamahaSFG::MSXYamahaSFG(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, ym2151(getName(), "Yamaha SFG-01/05", config, getCurrentTime(), parseVariant(config))

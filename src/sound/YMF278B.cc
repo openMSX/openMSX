@@ -38,7 +38,7 @@ static constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 // but within 2%-4% of real value, needs more detailed tests).
 static constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
-YMF278B::YMF278B(const std::string& name, size_t ramSize, const DeviceConfig& config,
+YMF278B::YMF278B(const std::string& name, size_t ramSize, DeviceConfig& config,
                  YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime::param time)
 	: ymf262(name + " FM", config, true)
 	, ymf278(name + " wave", ramSize, config, std::move(setupMemPtrs))

@@ -199,10 +199,10 @@ public:
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config);
+	         DeviceConfig& config);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, std::string_view id = {});
+	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
 
 	void reset();
@@ -250,7 +250,7 @@ public:
 private:
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         const Rom* rom, std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, std::string_view id);
+	         DeviceConfig& config, std::string_view id);
 
 	[[nodiscard]] size_t getSectorIndex(size_t address) const;
 	[[nodiscard]] Sector& getSector(size_t address) { return sectors[getSectorIndex(address)]; };

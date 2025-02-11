@@ -13,7 +13,7 @@ namespace openmsx {
 class DalSoRiR2 final : public MSXDevice, private Observer<Setting>
 {
 public:
-	explicit DalSoRiR2(const DeviceConfig& config);
+	explicit DalSoRiR2(DeviceConfig& config);
 	~DalSoRiR2() override;
 
 	void powerUp(EmuTime::param time) override;

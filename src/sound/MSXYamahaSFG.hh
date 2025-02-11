@@ -12,7 +12,7 @@ namespace openmsx {
 class MSXYamahaSFG final : public MSXDevice
 {
 public:
-	explicit MSXYamahaSFG(const DeviceConfig& config);
+	explicit MSXYamahaSFG(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

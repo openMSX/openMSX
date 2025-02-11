@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXFmPac final : public MSXMusicBase
 {
 public:
-	explicit MSXFmPac(const DeviceConfig& config);
+	explicit MSXFmPac(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

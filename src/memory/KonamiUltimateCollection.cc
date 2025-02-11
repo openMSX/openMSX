@@ -39,8 +39,7 @@ all Konami and Konami SCC ROMs should work with "Konami" mapper in KUC.
 
 namespace openmsx {
 
-KonamiUltimateCollection::KonamiUltimateCollection(
-		const DeviceConfig& config, Rom&& rom_)
+KonamiUltimateCollection::KonamiUltimateCollection(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(*this)
 	, flash(rom, AmdFlashChip::M29W640GB, {}, config)

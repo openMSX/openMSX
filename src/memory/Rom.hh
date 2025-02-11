@@ -26,7 +26,7 @@ class Rom final
 {
 public:
 	Rom(std::string name, static_string_view description,
-	    DeviceConfig config, std::string_view id = {});
+	    DeviceConfig& config, std::string_view id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 

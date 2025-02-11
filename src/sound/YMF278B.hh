@@ -12,7 +12,7 @@ namespace openmsx {
 class YMF278B
 {
 public:
-	YMF278B(const std::string& name, size_t ramSize, const DeviceConfig& config,
+	YMF278B(const std::string& name, size_t ramSize, DeviceConfig& config,
 	        YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime::param time);
 
 	void powerUp(EmuTime::param time);

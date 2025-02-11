@@ -184,7 +184,7 @@ Main features:
 namespace openmsx {
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
-		const DeviceConfig& config, Rom&& rom_)
+		DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
