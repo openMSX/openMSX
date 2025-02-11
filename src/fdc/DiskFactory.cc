@@ -5,6 +5,7 @@
 #include "DSKDiskImage.hh"
 #include "XSADiskImage.hh"
 #include "DMKDiskImage.hh"
+#include "D88DiskImage.hh"
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
@@ -64,6 +65,13 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			return std::make_unique<DMKDiskImage>(filename, file);
 		} catch (MSXException& /*e*/) {
 			// DMK didn't work, still no problem
+		}
+		try {
+			// next try d88
+			file->seek(0);
+			return std::make_unique<D88DiskImage>(filename, file);
+		} catch (MSXException& /*e*/) {
+			// D88 didn't work, still no problem
 		}
 		// next try normal DSK
 		return std::make_unique<DSKDiskImage>(filename, std::move(file));

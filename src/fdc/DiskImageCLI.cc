@@ -9,8 +9,8 @@ namespace openmsx {
 
 std::span<const std::string_view> DiskImageCLI::getExtensions()
 {
-	static constexpr std::array<std::string_view, 7> extensions = {
-		"di1", "di2", "dmk", "dsk", "xsa", "fd1", "fd2"
+	static constexpr std::array<std::string_view, 8> extensions = {
+		"di1", "di2", "dmk", "dsk", "d88", "xsa", "fd1", "fd2"
 	};
 	return extensions;
 }
