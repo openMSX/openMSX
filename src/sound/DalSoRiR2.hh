@@ -6,6 +6,8 @@
 #include "Observer.hh"
 #include "YMF278B.hh"
 
+#include <optional>
+
 namespace openmsx {
 
 class DalSoRiR2 final : public MSXDevice, private Observer<Setting>
@@ -30,7 +32,7 @@ public:
 
 private:
 	void setRegCfg(byte value);
-	byte* getSramAddr(word addr);
+	std::optional<size_t> getSramAddr(word addr) const;
 	unsigned getFlashAddr(word addr) const;
 
 	void setupMemPtrs(

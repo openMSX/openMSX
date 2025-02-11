@@ -150,10 +150,10 @@ void DalSoRiR2::writeIO(word port, byte value, EmuTime::param time)
 	ymf278b.writeIO(port, value, time);
 }
 
-byte* DalSoRiR2::getSramAddr(word addr)
+std::optional<size_t> DalSoRiR2::getSramAddr(word addr) const
 {
-	auto get = [&](byte frame) {
-		return &sram[(addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000];
+	auto get = [&](byte frame) -> size_t {
+		return (addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000;
 	};
 
 	if ((0x3000 <= addr) && (addr < 0x4000)) {
@@ -166,7 +166,7 @@ byte* DalSoRiR2::getSramAddr(word addr)
 		// SRAM frame 2
 		return get(regFrame[1]);
 	} else {
-		return nullptr;
+		return {};
 	}
 }
 
@@ -180,8 +180,8 @@ unsigned DalSoRiR2::getFlashAddr(word addr) const
 
 byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
 {
-	if (const auto* r = getSramAddr(addr)) {
-		return *r;
+	if (auto r = getSramAddr(addr)) {
+		return sram[*r];
 	} else if (!biosDisable) {
 		return flash.read(getFlashAddr(addr));
 	}
@@ -190,8 +190,8 @@ byte DalSoRiR2::readMem(word addr, EmuTime::param /*time*/)
 
 byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
 {
-	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(addr)) {
-		return *r;
+	if (auto r = getSramAddr(addr)) {
+		return sram[*r];
 	} else if (!biosDisable) {
 		return flash.peek(getFlashAddr(addr));
 	}
@@ -200,8 +200,8 @@ byte DalSoRiR2::peekMem(word addr, EmuTime::param /*time*/) const
 
 const byte* DalSoRiR2::getReadCacheLine(word start) const
 {
-	if (const auto* r = const_cast<DalSoRiR2*>(this)->getSramAddr(start)) {
-		return r;
+	if (auto r = getSramAddr(start)) {
+		return &sram[*r];
 	} else if (!biosDisable) {
 		return flash.getReadCacheLine(getFlashAddr(start));
 	}
@@ -210,8 +210,8 @@ const byte* DalSoRiR2::getReadCacheLine(word start) const
 
 void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 {
-	if (auto* r = getSramAddr(addr)) {
-		*r = value;
+	if (auto r = getSramAddr(addr)) {
+		sram[*r] = value;
 	} else if ((0x6000 <= addr) && (addr < 0x6400)) {
 		auto bank = (addr >> 8) & 3;
 		regBank[bank] = value;
@@ -229,8 +229,8 @@ void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 
 byte* DalSoRiR2::getWriteCacheLine(word start)
 {
-	if (auto* r = getSramAddr(start)) {
-		return r;
+	if (auto r = getSramAddr(start)) {
+		return &sram[*r];
 	} else {
 		// bank/frame/cfg registers or flash, not cacheable
 		return nullptr;
