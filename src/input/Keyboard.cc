@@ -20,6 +20,11 @@
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
 
+#define KEYTEST 1
+#if KEYTEST //-->
+#include "MSXCliComm.hh"
+#endif // <-- KEYTEST
+
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -1568,12 +1573,41 @@ bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2) const
 
 void Keyboard::debug(const char* format, ...) const
 {
+#if KEYTEST //-->
+	if (keyboardSettings.getTraceKeyPresses()) {
+		std::string buffer(1024, '\0');
+
+		va_list args;
+		va_start(args, format);
+		vsnprintf(buffer.data(), buffer.size(), format, args);
+		va_end(args);
+
+		// trim size;
+		auto lastpos = buffer.find('\0');
+		if (lastpos == std::string::npos) {
+			lastpos = buffer.length();
+		}
+
+		// suppress last lf
+		const std::string lf("\n");
+		auto lastlf = buffer.rfind(lf);
+		if (lastlf != std::string::npos) {
+			if ((lastlf + lf.length()) >= lastpos) {
+				lastpos = lastlf;
+			}
+		}
+
+		auto& motherBoard = keybDebuggable.getMotherBoard();
+		motherBoard.getMSXCliComm().printInfo(buffer.substr(0, lastpos));
+	}
+#else
 	if (keyboardSettings.getTraceKeyPresses()) {
 		va_list args;
 		va_start(args, format);
 		vfprintf(stderr, format, args);
 		va_end(args);
 	}
+#endif
 }
 
 
