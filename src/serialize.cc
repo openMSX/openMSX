@@ -390,7 +390,7 @@ void XmlOutputArchive::endTag(const char* tag)
 XmlInputArchive::XmlInputArchive(const string& filename)
 {
 	xmlDoc.load(filename, "openmsx-serialize.dtd");
-	const auto* root = xmlDoc.getRoot();
+	auto* root = xmlDoc.getRoot();
 	elems.emplace_back(root, root->getFirstChild());
 }
 
@@ -510,7 +510,7 @@ void XmlInputArchive::load(char& c) const
 
 void XmlInputArchive::beginTag(const char* tag)
 {
-	const auto* child = currentElement()->findChild(tag, elems.back().second);
+	auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
 		string path;
 		for (const auto& [e, _] : elems) {
@@ -523,13 +523,12 @@ void XmlInputArchive::beginTag(const char* tag)
 }
 void XmlInputArchive::endTag(const char* tag)
 {
-	const auto& elem = *currentElement();
+	auto& elem = *currentElement();
 	if (elem.getName() != tag) {
 		throw XMLException("End tag \"", elem.getName(),
 		                   "\" not equal to begin tag \"", tag, "\"");
 	}
-	auto& elem2 = const_cast<XMLElement&>(elem);
-	elem2.clearName(); // mark this elem for later beginTag() calls
+	elem.clearName(); // mark this elem for later beginTag() calls
 	elems.pop_back();
 }
 

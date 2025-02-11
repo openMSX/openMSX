@@ -203,9 +203,10 @@ public:
 
 	[[nodiscard]] bool hasChildren() const { return firstChild; }
 	[[nodiscard]] const XMLElement* getFirstChild() const { return firstChild; }
+	[[nodiscard]] XMLElement* getFirstChild() { return firstChild; }
 	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
 	[[nodiscard]] XMLElement* findChild(std::string_view childName);
-	[[nodiscard]] const XMLElement* findChild(std::string_view childName, const XMLElement*& hint) const;
+	[[nodiscard]] XMLElement* findChild(std::string_view childName, XMLElement*& hint);
 	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
 	[[nodiscard]] XMLElement& getChild(std::string_view childName);
 

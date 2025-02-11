@@ -44,15 +44,15 @@ XMLElement* XMLElement::findChild(std::string_view childName)
 // point to the next child (so that the next search starts from there). If the
 // end of the list is reached we restart the search from the start (so that the
 // full list is searched before giving up).
-const XMLElement* XMLElement::findChild(std::string_view childName, const XMLElement*& hint) const
+XMLElement* XMLElement::findChild(std::string_view childName, XMLElement*& hint)
 {
-	for (const auto* current = hint; current; current = current->nextSibling) {
+	for (auto* current = hint; current; current = current->nextSibling) {
 		if (current->name == childName) {
 			hint = current->nextSibling;
 			return current;
 		}
 	}
-	for (const auto* current = firstChild; current != hint; current = current->nextSibling) {
+	for (auto* current = firstChild; current != hint; current = current->nextSibling) {
 		if (current->name == childName) {
 			hint = current->nextSibling;
 			return current;
