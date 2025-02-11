@@ -55,7 +55,12 @@ public:
 		return buffer[tmp];
 	}
 	[[nodiscard]] constexpr const T& operator[](size_t pos) const {
-		return const_cast<CircularBuffer&>(*this)[pos];
+		assert(pos < size());
+		auto tmp = first + pos;
+		if (tmp > MAXSIZE) {
+			tmp -= (MAXSIZE + 1);
+		}
+		return buffer[tmp];
 	}
 
 	[[nodiscard]] constexpr T& front() {
@@ -63,7 +68,8 @@ public:
 		return buffer[first];
 	}
 	[[nodiscard]] constexpr const T& front() const {
-		return const_cast<CircularBuffer&>(*this)->front();
+		assert(!empty());
+		return buffer[first];
 	}
 
 	[[nodiscard]] constexpr T& back() {
@@ -71,7 +77,8 @@ public:
 		return buffer[prev(last)];
 	}
 	[[nodiscard]] constexpr const T& back() const {
-		return const_cast<CircularBuffer&>(*this)->back();
+		assert(!empty());
+		return buffer[prev(last)];
 	}
 
 	[[nodiscard]] constexpr bool empty() const {
