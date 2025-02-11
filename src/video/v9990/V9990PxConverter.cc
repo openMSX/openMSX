@@ -17,13 +17,13 @@ namespace openmsx {
 
 using Pixel = V9990P1Converter::Pixel;
 
-V9990P1Converter::V9990P1Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
+V9990P1Converter::V9990P1Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
-V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span<const Pixel, 64> palette64_)
+V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
 }
@@ -134,7 +134,7 @@ static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, std::span<byte> info_,
 	Pixel bgCol, unsigned x, unsigned y,
 	unsigned nameTable, unsigned patternBase,
-	std::span<const Pixel, 16> palette0, std::span<const Pixel, 16> palette1)
+	std::span</*const*/ Pixel, 16> palette0, std::span</*const*/ Pixel, 16> palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
 	auto width = narrow<int>(info_.size());
@@ -147,8 +147,8 @@ static void renderPattern(
 		// OK because palette0 and palette1 never partially overlap, IOW either:
 		// - palette0 == palette1           (fully overlap)
 		// - abs(palette0 - palette1) >= 16 (no overlap at all)
-		col0.emplace(*const_cast<Pixel*>(palette0.data()), bgCol);
-		col1.emplace(*const_cast<Pixel*>(palette1.data()), bgCol);
+		col0.emplace(palette0[0], bgCol);
+		col1.emplace(palette1[0], bgCol);
 	}
 
 	unsigned nameAddr = nameTable + (((y / 8) * Policy::NAME_CHARS + (x / 8)) * 2);
@@ -192,8 +192,8 @@ static void renderPattern(
 template<typename Policy> // only used for P1
 static void renderPattern2(
 	V9990VRAM& vram, Pixel* buffer, std::span<byte, 256> info, Pixel bgCol, unsigned width1, unsigned width2,
-	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span<const Pixel, 16> palA,
-	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, std::span<const Pixel, 16> palB)
+	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span</*const*/ Pixel, 16> palA,
+	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, std::span</*const*/ Pixel, 16> palB)
 {
 	renderPattern<Policy>(
 		vram, buffer, subspan(info, 0, width1), bgCol,

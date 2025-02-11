@@ -14,7 +14,7 @@ class V9990P1Converter
 public:
 	using Pixel = uint32_t;
 
-	V9990P1Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
+	V9990P1Converter(V9990& vdp, std::span</*const*/ Pixel, 64> palette64);
 
 	void convertLine(
 		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
@@ -23,7 +23,7 @@ public:
 private:
 	V9990& vdp;
 	V9990VRAM& vram;
-	std::span<const Pixel, 64> palette64;
+	std::span</*const*/ Pixel, 64> palette64;
 };
 
 class V9990P2Converter
@@ -31,7 +31,7 @@ class V9990P2Converter
 public:
 	using Pixel = uint32_t;
 
-	V9990P2Converter(V9990& vdp, std::span<const Pixel, 64> palette64);
+	V9990P2Converter(V9990& vdp, std::span</*const*/ Pixel, 64> palette64);
 
 	void convertLine(
 		std::span<Pixel> buf, unsigned displayX, unsigned displayY,
@@ -40,7 +40,7 @@ public:
 private:
 	V9990& vdp;
 	V9990VRAM& vram;
-	std::span<const Pixel, 64> palette64;
+	std::span</*const*/ Pixel, 64> palette64;
 };
 
 } // namespace openmsx
