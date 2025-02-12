@@ -129,7 +129,8 @@ public:
 	}
 	[[nodiscard]] const void* getLinePtr(unsigned y) const
 	{
-		return const_cast<SDLSurfacePtr*>(this)->getLinePtr(y);
+		assert(y < unsigned(surface->h));
+		return static_cast<const Uint8*>(surface->pixels) + y * surface->pitch;
 	}
 
 private:

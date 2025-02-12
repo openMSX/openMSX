@@ -113,7 +113,8 @@ public:
 	}
 	[[nodiscard]] const Elem& get(PoolIndex idx) const
 	{
-		return const_cast<Pool&>(*this).get(idx);
+		assert(idx.idx < capacity_);
+		return buf_[idx.idx];
 	}
 
 	// - Insert a new Element in the pool (will be created with the given
