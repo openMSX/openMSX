@@ -1015,6 +1015,12 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      key.toString().c_str());
 	}
 
+	// To work around a Japanese keyboard Kanji mode bug. (Multi-character
+	// input makes a keydown event without keyrelease message.)
+	if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+		return false;
+	}
+
 	// Process dead keys.
 	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
 		for (auto n : xrange(3)) {
