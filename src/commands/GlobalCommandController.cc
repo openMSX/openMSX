@@ -378,23 +378,29 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		string_view ns = (p1 == string_view::npos) ? cmd : cmd.substr(0, p1 + 2);
 
 		// build a list of all command strings
-		TclObject names = interpreter.getCommandNames();
-		vector<string> names2;
-		names2.reserve(names.size());
-		for (string_view n1 : names) {
-			// remove leading ::
-			if (n1.starts_with("::")) n1.remove_prefix(2);
-			// initial namespace part must match
-			if (!n1.starts_with(ns)) continue;
-			// the part following the initial namespace
-			string_view n2 = n1.substr(ns.size());
-			// only keep upto the next namespace portion,
-			auto p2 = n2.find("::");
-			auto n3 = (p2 == string_view::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
-			// don't care about adding the same string multiple times
-			names2.push_back(strCat(leadingNs, n3));
+		try {
+			TclObject names = interpreter.getCommandNames();
+			vector<string> names2;
+			names2.reserve(names.size());
+			for (string_view n1 : names) {
+				// remove leading ::
+				if (n1.starts_with("::")) n1.remove_prefix(2);
+				// initial namespace part must match
+				if (!n1.starts_with(ns)) continue;
+				// the part following the initial namespace
+				string_view n2 = n1.substr(ns.size());
+				// only keep upto the next namespace portion,
+				auto p2 = n2.find("::");
+				auto n3 = (p2 == string_view::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
+				// don't care about adding the same string multiple times
+				names2.push_back(strCat(leadingNs, n3));
+			}
+			Completer::completeString(tokens, names2);
+		} catch (CommandException& e) {
+			cliComm.printWarning(
+				"Error while executing \"<openmsx>/share/init.tcl\" "
+				"file: ", e.getMessage());
 		}
-		Completer::completeString(tokens, names2);
 	} else {
 		string_view cmd = tokens.front();
 		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
