@@ -18,6 +18,7 @@
 #include "Date.hh"
 #include "one_of.hh"
 #include "random.hh"
+#include "setenv.hh" // setenv() for windows
 
 #include "build-info.hh"
 
@@ -43,17 +44,6 @@ static constexpr const char* STDERR_LOG_FILE_NAME = "openmsx_system/openmsx.stde
 #endif
 
 namespace openmsx {
-
-#ifdef _WIN32
-// wrapper for Windows, as the MS runtime doesn't provide setenv!?
-static int setenv(const char* name, const char* value, int overwrite)
-{
-	if (!overwrite && getenv(name)) {
-		return 0;
-	}
-	return _putenv_s(name, value);
-}
-#endif
 
 #ifdef _WIN32
 // enable console output on Windows

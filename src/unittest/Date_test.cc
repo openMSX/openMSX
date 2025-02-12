@@ -1,6 +1,9 @@
 #include "catch.hpp"
 #include "Date.hh"
+
 #include "ranges.hh"
+#include "setenv.hh"
+
 #include <cstring>
 
 using namespace openmsx;
@@ -14,7 +17,8 @@ static void test(time_t t, const char* s)
 
 TEST_CASE("Date")
 {
-	putenv(const_cast<char*>("TZ=UTC")); tzset();
+	setenv("TZ", "UTC", 1);
+	tzset();
 	test(         0, "Thu Jan 01 00:00:00 1970");
 	test(         1, "Thu Jan 01 00:00:01 1970");
 	test(        60, "Thu Jan 01 00:01:00 1970");
