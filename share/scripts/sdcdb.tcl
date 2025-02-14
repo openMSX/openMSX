@@ -69,6 +69,7 @@ variable current_line   {}              ;# debugger line
 variable cond           {}              ;# breakpoint check condition
 variable old_PC         {}
 variable times_left     0
+variable out_of_scope   0               ;# running without debug info?
 proc ASM {} { return ".asm" }
 
 set_help_proc sdcdb [namespace code sdcdb_help]
@@ -154,10 +155,7 @@ proc debug_out {args} {
 
 proc sdcdb {args} {
     if {[catch {set result [dispatcher {*}$args]} msg]} {
-        variable debug
-        if {$debug} {
-            puts stderr $::errorInfo
-        }
+        debug_out stderr $::errorInfo
         error $msg
     }
     return $result
@@ -188,11 +186,8 @@ proc dispatcher {args} {
 }
 
 proc sdcdb_open {param args} {
+    free
     set function normal_glob
-    variable initialized
-    if {$initialized} {
-        free
-    }
     if {$param eq "-recursive"} {
         set function recursive_glob
     } else {
@@ -223,9 +218,11 @@ proc sdcdb_open {param args} {
         }
         set cdb_file $cdb_files
     }
+    variable initialized
     set initialized 1
-    read_cdb $cdb_file
+    set result [read_cdb $cdb_file]
     process_data
+    return $result
 }
 
 proc complete {arrayname name list} {
@@ -360,14 +357,16 @@ proc read_cdb {fname} {
     close $fh
     variable c_files
     variable a_files
-    puts "[array size c_files] C files added"
-    puts "[array size a_files] assembly files added"
-    puts "[array size c_files_count] C files references added"
-    puts "[array size a_files_count] assembly files references added"
-    puts "$c_count C source lines found"
-    puts "$a_count assembly source lines found"
-    puts "$gf_count global function(s) registered"
-    puts "$sf_count static function(s) registered"
+    set result ""
+    append result "[array size c_files] C files added\n"
+    append result "[array size a_files] assembly files added\n"
+    append result "[array size c_files_count] C files references added\n"
+    append result "[array size a_files_count] assembly files references added\n"
+    append result "$c_count C source lines found\n"
+    append result "$a_count assembly source lines found\n"
+    append result "$gf_count global function(s) registered\n"
+    append result "$sf_count static function(s) registered\n"
+    return $result
 }
 
 proc fix_blank_spaces {arrayname} {
@@ -419,7 +418,6 @@ proc process_data {} {
         fix_blank_spaces $arrayname
     }
     fix_blank_spaces addr2file
-    return
 }
 
 proc normal_glob {dir pattern} {
@@ -490,22 +488,23 @@ proc list_file {file begin {end {}} {focus 0} {showerror 0}} {
         if {$showerror} {
             error "file '$file' not found in database, add a directory that contains such file with 'sdcdb add <dir>'"
         }
-        puts "$file: not found"
-        return
+        return "$file: not found"
     }
     debug_out "opening file [lindex $record 1]..."
     set fh [open [lindex $record 1] r]
     set pos 0
     # 10 lines by default
     if {$end eq {}} { set end [expr {$begin + 9}] }
+    set result ""
     while {[gets $fh line] >= 0} {
         incr pos
         if {$pos >= $begin} {
-            puts "[format %-5d $pos][expr {$pos == $focus ? "*" : ":"}]    $line"
+            append result "[format %-5d $pos][expr {$pos == $focus ? "*" : ":"}]    $line\n"
         }
         if {$pos >= $end} { break }
     }
     close $fh
+    return $result
 }
 
 proc list_pc {{x0 -1} {x1 9}} {
@@ -515,13 +514,13 @@ proc list_pc {{x0 -1} {x1 9}} {
 proc list_address {address {x0 -1} {x1 9} {showerror 0}} {
     variable addr2file
     set address [expr {$address}]
-    if {![info exists addr2file($address)]} {
-        if {$showerror} {
-            error "database address not found for 0x[h $address]"
-        }
-        return [puts "no file"]
+    set record [lindex [array get addr2file $address] 1]
+    if {$record eq {}} {
+        set msg "database address not found for 0x[h $address]"
+        if {$showerror} { error $msg }
+        return $msg
     }
-    lassign $addr2file($address) file begin
+    lassign $record file begin
     list_file $file [expr {$begin + $x0}] [expr {$begin + $x1}] $begin
 }
 
@@ -656,32 +655,28 @@ proc break_func {funcname cond cmd} {
     debug breakpoint create -address $start -condition $cond -command $cmd
 }
 
-proc check {} {
-    variable old_PC
-    return [reg PC] != $old_PC
-}
-
-proc print_status {file line} {
-    puts "file: $file:$line, position: 0x[h [reg PC]]"
-    list_pc -1 1
+proc check_status {file line} {
+    return "file: $file:$line, position: 0x[h [reg PC]]\n[list_pc -1 1]"
 }
 
 proc update_step {{type {step}}} {
-    set record [find_source [reg PC]]
+    variable out_of_scope
     variable current_file
     variable current_line
+    variable times_left
+    # different file position?
+    set record [find_source [reg PC]]
     if {$record ne {} && $record ne [list $current_file $current_line]} {
         lassign $record current_file current_line
-        variable times_left
         incr times_left -1
-        if {$times_left <= 0} { print_status $current_file $current_line }
-        debug break
+        set out_of_scope 0
     }
-    variable times_left
-    if {$times_left > 0} {
-        # still looping
+    # still looping under these conditions
+    if {$out_of_scope || $times_left > 0} {
         after break "sdcdb::update_step $type"
         $type  ;# call "step" or "step_over"
+    } else {
+        puts -nonewline [check_status $current_file $current_line]
     }
 }
 
@@ -694,6 +689,7 @@ proc find_source {address} {
 
 proc prepare_step {{n 1}} {
     debug break  ;# just to be sure
+    variable times_left $n
     # get current position in source code
     set record [find_source [reg PC]]
     lassign $record file line
@@ -703,15 +699,15 @@ proc prepare_step {{n 1}} {
         variable current_file $file
         variable current_line $line
     } else {
-        puts "Possibly out of scope, skipping till we get back."
+        variable out_of_scope 1
+        return "Possibly out of scope, skipping till we get back."
     }
-    variable times_left $n
 }
 
 proc sdcdb_step {{n 1}} {
     after break "sdcdb::update_step"
-    prepare_step $n
     debug step
+    prepare_step $n
 }
 
 proc sdcdb_next {{n 1}} {
@@ -720,7 +716,7 @@ proc sdcdb_next {{n 1}} {
     step_over
 }
 
-proc print_info {} {
+proc check_info {} {
     variable addr2file
     if {[array get addr2file [reg PC]] eq {}} {
         error "line mapping not found for 0x[h [reg PC]]"
@@ -729,16 +725,19 @@ proc print_info {} {
     if {$file eq {}} {
         error "address [h [reg PC]] not found in database."
     }
-    print_status $file $line
+    puts -nonewline [check_status $file $line]
 }
 
-proc sdcdb_info {arg} {
-    if {$arg eq "-break"} {
+proc sdcdb_info {{param {}}} {
+    if {$param eq "-break"} {
         debug break
     }
-    if {[catch {print_info} fid]} {
-        puts $fid
+    set result {}
+    if {[catch {set result [check_info]} msg]} {
+        debug_out stderr $::errorInfo
+        error $msg
     }
+    puts -nonewline $result
 }
 
 proc sdcdb_whereis {file} {
