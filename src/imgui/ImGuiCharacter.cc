@@ -134,6 +134,13 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		bool manRows    = overrideAll || overrideRows;
 		bool manColor0  = overrideAll || overrideColor0;
 
+		int mode = manMode ? manualMode : vdpMode;
+		if (mode == SCR4) mode = SCR2;
+
+		auto rasterBeamPos = vdp->getMSXPos(vdp->getCurrentTime());
+		if (mode == one_of(TEXT40, TEXT80)) rasterBeamPos.x -= (512 - (6 * 80)) / 2;
+		if (mode != TEXT80) rasterBeamPos.x /= 2;
+
 		im::TreeNode("Settings", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			static const char* const color0Str = "0\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\000none\000";
 			im::Group([&]{
@@ -275,14 +282,27 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 				});
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
+
+				ImGui::Separator();
+				ImGui::Checkbox("beam", &rasterBeam);
+				ImGui::SameLine();
+				im::Disabled(!rasterBeam, [&]{
+					ImGui::ColorEdit4("raster beam color", rasterBeamColor.data(),
+						ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+					ImGui::SameLine();
+					im::Font(manager.fontMono, [&]{
+						ImGui::StrCat('(', dec_string<4>(rasterBeamPos.x),
+						              ',', dec_string<4>(rasterBeamPos.y), ')');
+					});
+				});
+				HelpMarker("Position of the raster beam, expressed in MSX coordinates.\n"
+				           "Left/top border have negative x/y-coordinates.\n"
+				           "Only practically useful when emulation is paused.");
 			});
 		});
 		int manualLines = (manualRows == 0) ? 192
 		                : (manualRows == 1) ? 212
 		                : 256;
-
-		int mode = manMode ? manualMode : vdpMode;
-		if (mode == SCR4) mode = SCR2;
 
 		int lines = manRows ? manualLines : vdpLines;
 		int color0 = manColor0 ? manualColor0 : vdpColor0;
@@ -505,6 +525,18 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 						drawList->PopTextureID();
 					}
 					drawList->PopClipRect();
+				}
+				if (rasterBeam) {
+					auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
+					auto color = ImGui::ColorConvertFloat4ToU32(rasterBeamColor);
+					auto thickness = zm.y * 0.5f;
+					auto zm1 = 1.5f * zm;
+					auto zm3 = 3.5f * zm;
+					drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
+					drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
+					drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
+					drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
+					drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
 				}
 
 				auto pos1 = ImGui::GetCursorPos();
