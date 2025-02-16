@@ -2,13 +2,17 @@
 #define SPRITECHECKER_HH
 
 #include "VDP.hh"
+
 #include "VDPVRAM.hh"
 #include "VRAMObserver.hh"
 #include "DisplayMode.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <span>
@@ -224,7 +228,7 @@ public:
 	inline void frameStart(EmuTime::param time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
-		ranges::fill(spriteCount, 0);
+		std::ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
 

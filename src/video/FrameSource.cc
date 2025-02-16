@@ -7,6 +7,7 @@
 #include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <array>
 #include <span>
 
@@ -75,14 +76,14 @@ void FrameSource::scaleLine(
 		// scaled.
 		// TODO If the LineScaler routines can work in-place then this
 		//      copy can be avoided.
-		ranges::copy(in, tmpBuf);
+		copy_to_range(in, tmpBuf);
 		in = tmpBuf;
 	}
 
 	// TODO is there a better way to implement this?
 	switch (in.size()) {
 	case 1:  // blank
-		ranges::fill(out, in[0]);
+		std::ranges::fill(out, in[0]);
 		break;
 	case 213:
 		switch (out.size()) {

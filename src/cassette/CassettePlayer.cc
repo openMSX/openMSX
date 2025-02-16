@@ -72,7 +72,7 @@ static std::string_view getCassettePlayerName()
 	return "cassetteplayer";
 }
 
-CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
+CassettePlayer::CassettePlayer(HardwareConfig& hwConf)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getCassettePlayerName(), DESCRIPTION, 1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
@@ -88,7 +88,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true)
 {
-	static const XMLElement* xml = [] {
+	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		XMLElement* result = doc.allocateElement("cassetteplayer");
 		result->setFirstChild(doc.allocateElement("sound"))

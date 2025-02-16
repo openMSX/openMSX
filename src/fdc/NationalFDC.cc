@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-NationalFDC::NationalFDC(const DeviceConfig& config)
+NationalFDC::NationalFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 }

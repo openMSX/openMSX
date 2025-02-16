@@ -2,7 +2,6 @@
 
 #include "MSXException.hh"
 
-#include "ranges.hh"
 #include "stl.hh"
 
 #include <bit>

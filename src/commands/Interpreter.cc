@@ -54,7 +54,7 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 	return TCL_ERROR;
 }
 Tcl_ChannelType Interpreter::channelType = {
-	const_cast<char*>("openMSX console"),// Type name
+	"openMSX console",	 // Type name
 	nullptr,		 // Always non-blocking
 	dummyClose,		 // Close proc
 	dummyInput,		 // Input proc
@@ -405,7 +405,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				setVar(interp, part1Obj, variable->getValue());
 			} catch (MSXException& e) {
 				static_string = std::move(e).getMessage();
-				return const_cast<char*>(static_string.c_str());
+				return static_string.data();
 			}
 		}
 		if (flags & TCL_TRACE_WRITES) {
@@ -420,7 +420,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			} catch (MSXException& e) {
 				setVar(interp, part1Obj, getSafeValue(*variable));
 				static_string = std::move(e).getMessage();
-				return const_cast<char*>(static_string.c_str());
+				return static_string.data();
 			}
 		}
 		if (flags & TCL_TRACE_UNSETS) {

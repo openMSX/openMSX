@@ -15,7 +15,7 @@
 
 namespace openmsx {
 
-MSXModem::MSXModem(const DeviceConfig& config)
+MSXModem::MSXModem(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
 	, sram(getName() + " SRAM", 0x2000, config)

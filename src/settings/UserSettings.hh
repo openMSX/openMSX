@@ -2,17 +2,16 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
+#include "Setting.hh"
 
 #include "outer.hh"
-#include "view.hh"
 
 #include <memory>
+#include <ranges>
 #include <string_view>
 #include <vector>
 
 namespace openmsx {
-
-class Setting;
 
 class UserSettings
 {
@@ -50,7 +49,7 @@ private:
 		[[nodiscard]] Info createEnum   (std::span<const TclObject> tokens) const;
 
 		[[nodiscard]] auto getSettingNames() const {
-			return view::transform(
+			return std::views::transform(
 				OUTER(UserSettings, userSettingCommand).settings,
 				[](const auto& info) { return info.setting->getFullName(); });
 		}

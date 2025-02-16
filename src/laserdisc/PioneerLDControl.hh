@@ -16,7 +16,7 @@ class VDP;
 class PioneerLDControl final : public MSXDevice
 {
 public:
-	explicit PioneerLDControl(const DeviceConfig& config);
+	explicit PioneerLDControl(DeviceConfig& config);
 	~PioneerLDControl() override;
 
 	void reset(EmuTime::param time) override;

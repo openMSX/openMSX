@@ -48,7 +48,7 @@ private:
 	void readSectorsImpl(
 		std::span<SectorBuffer> buffers, size_t startSector) override;
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
-	[[nodiscard]] size_t getNbSectorsImpl() const override;
+	[[nodiscard]] size_t getNbSectorsImpl() override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
 	[[nodiscard]] Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 

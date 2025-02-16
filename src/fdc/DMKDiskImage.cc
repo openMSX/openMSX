@@ -1,12 +1,15 @@
 #include "DMKDiskImage.hh"
+
 #include "RawTrack.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "FilePool.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -28,7 +31,7 @@ static constexpr unsigned IDAM_FLAGS_MASK = 0xC000;
 static constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 
 
-[[nodiscard]] static /*constexpr*/ bool isValidDmkHeader(const DmkHeader& header)
+[[nodiscard]] static constexpr bool isValidDmkHeader(const DmkHeader& header)
 {
 	if (header.writeProtected != one_of(0x00, 0xff)) {
 		return false;
@@ -37,8 +40,8 @@ static constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 	if (trackLen >= 0x4000) return false; // too large track length
 	if (trackLen <= 128)    return false; // too small
 	if (header.flags & ~0xd0) return false; // unknown flag set
-	return ranges::all_of(header.reserved, [](auto& r) { return r == 0; }) &&
-	       ranges::all_of(header.format,   [](auto& f) { return f == 0; });
+	return std::ranges::all_of(header.reserved, [](auto& r) { return r == 0; }) &&
+	       std::ranges::all_of(header.format,   [](auto& f) { return f == 0; });
 }
 
 DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
@@ -203,10 +206,10 @@ void DMKDiskImage::writeSectorImpl(size_t logicalSector, const SectorBuffer& buf
 	writeTrack(track, side, rawTrack);
 }
 
-size_t DMKDiskImage::getNbSectorsImpl() const
+size_t DMKDiskImage::getNbSectorsImpl()
 {
 	size_t t = singleSided ? numTracks : (2 * numTracks);
-	return t * const_cast<DMKDiskImage*>(this)->getSectorsPerTrack();
+	return t * getSectorsPerTrack();
 }
 
 bool DMKDiskImage::isWriteProtectedImpl() const

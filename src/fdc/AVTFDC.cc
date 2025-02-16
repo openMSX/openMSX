@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-AVTFDC::AVTFDC(const DeviceConfig& config)
+AVTFDC::AVTFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 }

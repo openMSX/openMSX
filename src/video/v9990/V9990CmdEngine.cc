@@ -1839,7 +1839,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 			break;
 
 		case 0x0B: // LINE
-			delta = getTiming(*this, LINE_TIMING) * (NX - ANX); // TODO ignores clipping
+			delta = getTiming(*this, LINE_TIMING) * (NX - ANX + 1); // TODO ignores clipping
 			break;
 
 		case 0x0C: // SRCH

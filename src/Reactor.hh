@@ -5,11 +5,10 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 
-#include "view.hh"
-
 #include <cassert>
 #include <memory>
 #include <mutex>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -129,7 +128,7 @@ public:
 	[[nodiscard]] bool isFullyStarted() const { return fullyStarted; }
 
 	[[nodiscard]] auto getMachineIDs() const {
-		return view::transform(boards,
+		return std::views::transform(boards,
 			[](auto& b) -> std::string_view { return b->getMachineID(); });
 	}
 private:

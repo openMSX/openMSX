@@ -17,6 +17,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -87,8 +88,6 @@ void MSXCPU::doReset(EmuTime::param time)
 	if (r800) r800->doReset(time);
 
 	invalidateAllSlotsRWCache(0x0000, 0x10000);
-
-	reference = time;
 }
 
 void MSXCPU::setActiveCPU(Type cpu)
@@ -120,8 +119,8 @@ void MSXCPU::execute(bool fastForward)
 		auto rCache = r800->getCacheLines();
 		auto from = z80Active ? rCache : zCache;
 		auto to   = z80Active ? zCache : rCache;
-		ranges::copy(from.read,  to.read);
-		ranges::copy(from.write, to.write);
+		copy_to_range(from.read,  to.read);
+		copy_to_range(from.write, to.write);
 	}
 	z80Active ? z80 ->execute(fastForward)
 	          : r800->execute(fastForward);
@@ -152,12 +151,12 @@ void MSXCPU::setNextSyncPoint(EmuTime::param time)
 
 void MSXCPU::invalidateMemCacheSlot()
 {
-	ranges::fill(slots, 0);
+	std::ranges::fill(slots, 0);
 
 	// nullptr: means not a valid entry and not yet attempted to fill this entry
 	for (auto i : xrange(16)) {
-		ranges::fill(slotReadLines[i], nullptr);
-		ranges::fill(slotWriteLines[i], nullptr);
+		std::ranges::fill(slotReadLines[i], nullptr);
+		std::ranges::fill(slotWriteLines[i], nullptr);
 	}
 }
 
@@ -189,12 +188,12 @@ void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
-	ranges::fill(subspan(cpuReadLines,  first, num), nullptr); // nullptr: means not a valid entry and not
-	ranges::fill(subspan(cpuWriteLines, first, num), nullptr); //   yet attempted to fill this entry
+	std::ranges::fill(subspan(cpuReadLines,  first, num), nullptr); // nullptr: means not a valid entry and not
+	std::ranges::fill(subspan(cpuWriteLines, first, num), nullptr); //   yet attempted to fill this entry
 
 	for (auto i : xrange(16)) {
-		ranges::fill(subspan(slotReadLines [i], first, num), nullptr);
-		ranges::fill(subspan(slotWriteLines[i], first, num), nullptr);
+		std::ranges::fill(subspan(slotReadLines [i], first, num), nullptr);
+		std::ranges::fill(subspan(slotWriteLines[i], first, num), nullptr);
 	}
 }
 
@@ -379,7 +378,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	const auto& cpu = OUTER(MSXCPU, timeInfo);
-	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
+	EmuDuration dur = cpu.getCurrentTime() - EmuTime::zero();
 	result = dur.toDouble();
 }
 
@@ -522,6 +521,7 @@ void MSXCPU::Debuggable::write(unsigned address, byte value)
 
 // version 1: initial version
 // version 2: activeCPU,newCPU -> z80Active,newZ80Active
+// version 3: removed resetTime
 template<typename Archive>
 void MSXCPU::serialize(Archive& ar, unsigned version)
 {
@@ -547,7 +547,6 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 			newZ80Active = z80Active;
 		}
 	}
-	ar.serialize("resetTime", reference);
 
 	if constexpr (Archive::IS_LOADER) {
 		invalidateMemCacheSlot();

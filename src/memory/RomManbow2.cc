@@ -1,14 +1,16 @@
 #include "RomManbow2.hh"
+
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "SCC.hh"
 #include "MSXCPUInterface.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -57,8 +59,7 @@ namespace openmsx {
 	}
 }
 
-RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
-                       RomType type)
+RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 	: MSXRom(config, std::move(rom_))
 	, scc((type != RomType::RBSC_FLASH_KONAMI_SCC)
 		? std::make_unique<SCC>(

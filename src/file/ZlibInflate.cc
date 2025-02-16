@@ -20,7 +20,7 @@ ZlibInflate::ZlibInflate(std::span<const uint8_t> input)
 	s.zalloc = nullptr;
 	s.zfree  = nullptr;
 	s.opaque = nullptr;
-	s.next_in  = const_cast<uint8_t*>(input.data());
+	s.next_in  = input.data();
 	s.avail_in = inputLen;
 	wasInit = false;
 }

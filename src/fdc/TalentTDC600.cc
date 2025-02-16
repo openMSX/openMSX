@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-TalentTDC600::TalentTDC600(const DeviceConfig& config)
+TalentTDC600::TalentTDC600(DeviceConfig& config)
 	: MSXFDC(config)
 	, controller(getScheduler(), drives, getCliComm(), getCurrentTime())
 {

@@ -1,11 +1,13 @@
 #include "GLSnow.hh"
 
-#include "GLContext.hh"
-#include "gl_mat.hh"
 #include "Display.hh"
+#include "GLContext.hh"
+
+#include "gl_mat.hh"
 #include "gl_vec.hh"
-#include "openmsx.hh"
 #include "random.hh"
+
+#include <algorithm>
 
 using namespace gl;
 
@@ -20,7 +22,7 @@ GLSnow::GLSnow(Display& display_)
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution distribution(0, 255);
 	std::array<uint8_t, 128 * 128> buf;
-	ranges::generate(buf, [&] { return distribution(generator); });
+	std::ranges::generate(buf, [&] { return distribution(generator); });
 #if OPENGL_VERSION < OPENGL_3_3
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf.data());

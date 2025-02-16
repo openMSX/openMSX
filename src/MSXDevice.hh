@@ -49,6 +49,9 @@ public:
 	[[nodiscard]] const HardwareConfig& getHardwareConfig() const {
 		return deviceConfig.getHardwareConfig();
 	}
+	[[nodiscard]] HardwareConfig& getHardwareConfig() {
+		return deviceConfig.getHardwareConfig();
+	}
 
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
@@ -236,7 +239,13 @@ public:
 	[[nodiscard]] const XMLElement& getDeviceConfig() const {
 		return *deviceConfig.getXML();
 	}
+	[[nodiscard]] XMLElement& getDeviceConfig() {
+		return *deviceConfig.getXML();
+	}
 	[[nodiscard]] const DeviceConfig& getDeviceConfig2() const { // TODO
+		return deviceConfig;
+	}
+	[[nodiscard]] DeviceConfig& getDeviceConfig2() { // TODO
 		return deviceConfig;
 	}
 
@@ -323,7 +332,7 @@ private:
 	void unregisterPorts();
 
 protected:
-	std::string deviceName;
+	mutable std::string deviceName; // MSXMultiXxxDevice has a dynamic (lazy) name
 
 	[[nodiscard]] byte getPrimarySlot() const {
 		// must already be resolved to an actual slot

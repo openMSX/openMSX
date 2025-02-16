@@ -12,7 +12,7 @@ namespace openmsx {
 class ReproCartridgeV1 final : public MSXRom
 {
 public:
-	ReproCartridgeV1(const DeviceConfig& config, Rom&& rom);
+	ReproCartridgeV1(DeviceConfig& config, Rom&& rom);
 	~ReproCartridgeV1() override;
 
 	void powerUp(EmuTime::param time) override;

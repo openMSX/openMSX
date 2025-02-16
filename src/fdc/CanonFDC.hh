@@ -8,7 +8,7 @@ namespace openmsx {
 class CanonFDC final : public WD2793BasedFDC
 {
 public:
-	explicit CanonFDC(const DeviceConfig& config);
+	explicit CanonFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

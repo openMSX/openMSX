@@ -9,7 +9,7 @@ namespace openmsx {
 
 static constexpr byte ID = 0xF7;
 
-MSXKanji12::MSXKanji12(const DeviceConfig& config)
+MSXKanji12::MSXKanji12(DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, rom(getName(), "Kanji-12 ROM", config)

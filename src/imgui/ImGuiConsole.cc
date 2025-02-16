@@ -26,6 +26,7 @@
 #include <imgui_stdlib.h>
 
 #include <fstream>
+#include <ranges>
 
 namespace openmsx {
 
@@ -184,16 +185,12 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 
 		ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue |
 					ImGuiInputTextFlags_EscapeClearsAll |
+					ImGuiInputTextFlags_CallbackEdit |
 					ImGuiInputTextFlags_CallbackCompletion |
 					ImGuiInputTextFlags_CallbackHistory;
 		bool enter = false;
 		im::StyleColor(ImGuiCol_Text, 0x00000000, [&]{ // transparent, see HACK below
 			enter = ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this);
-			if (ImGui::IsItemEdited()) {
-				historyBackupLine = inputBuf;
-				historyPos = -1;
-				colorize(inputBuf);
-			}
 			if (ImGui::IsItemFocused() && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
 				commandBuffer.clear();
 				prompt = PROMPT_NEW;
@@ -313,11 +310,13 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 
 		auto& commandController = manager.getReactor().getGlobalCommandController();
 		std::string newFront = commandController.tabCompletion(front);
+		auto newPos = narrow<int>(newFront.size());
 		historyBackupLine = strCat(std::move(newFront), back);
 		historyPos = -1;
 
 		data->DeleteChars(0, data->BufTextLen);
 		data->InsertChars(0, historyBackupLine.c_str());
+		data->CursorPos = newPos;
 
 		colorize(historyBackupLine);
 		break;
@@ -341,6 +340,12 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 			data->InsertChars(0, historyStr.c_str());
 			colorize(std::string_view{data->Buf, narrow<size_t>(data->BufTextLen)});
 		}
+		break;
+	}
+	case ImGuiInputTextFlags_CallbackEdit: {
+		historyBackupLine.assign(data->Buf, narrow<size_t>(data->BufTextLen));
+		historyPos = -1;
+		colorize(historyBackupLine);
 		break;
 	}
 	}
@@ -396,7 +401,7 @@ void ImGuiConsole::saveHistory()
 		if (!outputFile) {
 			throw FileException("Error while saving the console history.");
 		}
-		for (const auto& s : view::reverse(history)) {
+		for (const auto& s : std::views::reverse(history)) {
 			outputFile << s << '\n';
 		}
 	} catch (FileException& e) {

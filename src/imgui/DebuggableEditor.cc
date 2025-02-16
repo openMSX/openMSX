@@ -2,6 +2,7 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
+#include "ImGuiOpenFile.hh"
 #include "ImGuiSettings.hh"
 #include "ImGuiUtils.hh"
 #include "Shortcuts.hh"
@@ -9,15 +10,19 @@
 #include "CommandException.hh"
 #include "Debuggable.hh"
 #include "Debugger.hh"
+#include "Display.hh"
+#include "File.hh"
 #include "Interpreter.hh"
 #include "MSXMotherBoard.hh"
 #include "SymbolManager.hh"
 #include "TclObject.hh"
+#include "VideoSystem.hh"
 
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "unreachable.hh"
 
+#include "CustomFont.h"
 #include "imgui_stdlib.h"
 
 #include <algorithm>
@@ -97,11 +102,16 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	auto* debuggable = debugger.findDebuggable(getDebuggableName());
 	if (!debuggable) return;
 
-	im::ScopedFont sf(manager.fontMono);
-
 	unsigned memSize = debuggable->getSize();
 	columns = std::min(columns, narrow<int>(memSize));
 	auto s = calcSizes(memSize);
+
+	if (showExportWindow) {
+		drawExport(s, *debuggable);
+	}
+
+	im::ScopedFont sf(manager.fontMono);
+
 	ImGui::SetNextWindowSize(ImVec2(s.windowWidth, s.windowWidth * 0.60f), ImGuiCond_FirstUseEver);
 
 	im::Window(title.c_str(), &open, ImGuiWindowFlags_NoScrollbar, [&]{
@@ -110,6 +120,237 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 			ImGui::OpenPopup("context");
 		}
 		drawContents(s, *debuggable, memSize);
+	});
+}
+
+
+[[nodiscard]] static std::string formatToString(
+	Debuggable& debuggable, unsigned begin, unsigned end,
+	std::string_view prefix, unsigned columns, std::string_view suffix,
+	std::string_view formatStr, Interpreter& interp)
+{
+	std::string result;
+	unsigned col = 0;
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		if (col == 0) strAppend(result, prefix);
+
+		auto val = debuggable.read(addr);
+		auto cmd = makeTclList("format", formatStr, val);
+		auto formatted = cmd.executeCommand(interp); // may throw
+		strAppend(result, formatted.getString());
+
+		if (++col == columns) {
+			col = 0;
+			strAppend(result, suffix, '\n');
+		} else if (addr != end) {
+			strAppend(result, ", ");
+		}
+	}
+	if (col != 0) {
+		strAppend(result, suffix, '\n');
+	}
+	return result;
+}
+
+[[nodiscard]] static std::string rawToString(
+	Debuggable& debuggable, unsigned begin, unsigned end)
+{
+	std::string result;
+	result.reserve(end - begin + 1);
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		auto val = debuggable.read(addr);
+		result += static_cast<char>(val);
+	}
+	return result;
+}
+
+void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
+{
+	auto& interp = manager.getInterpreter();
+	const auto& style = ImGui::GetStyle();
+
+	im::Window(tmpStrCat("Export ", title).c_str(), &showExportWindow, [&]{
+		if (ImGui::IsWindowAppearing()) {
+			exportBegin = strCat("0x", formatAddr(s, 0));
+			exportEnd   = strCat("0x", formatAddr(s, debuggable.getSize() - 1));
+		}
+
+		std::optional<unsigned> begin, end;
+		std::string formatError;
+
+		ImGui::SeparatorText("Input");
+
+		ImGui::RadioButton("All", &exportRange, RANGE_ALL);
+		if (exportRange == RANGE_ALL) {
+			begin = 0;
+			end = debuggable.getSize() - 1;
+		}
+
+		ImGui::RadioButton("Range   ", &exportRange, RANGE_RANGE);
+		auto handleAddress = [&](std::string_view label, std::string& text, int lowerBound) {
+			std::optional<unsigned> addr;
+			std::string error;
+			try {
+				auto i = TclObject(text).eval(interp).getInt(interp);
+				if ((i < 0) || (i >= narrow<int>(debuggable.getSize()))) {
+					error = "out of range";
+				} else if (i < lowerBound) {
+					error = "'end' smaller than 'begin'";
+				} else {
+					addr = narrow<unsigned>(i);
+				}
+			} catch (MSXException& e) {
+				error = e.getMessage();
+			}
+			ImGui::SameLine();
+			ImGui::TextUnformatted(label);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.0f);
+			im::StyleColor(!addr, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				ImGui::InputText(tmpStrCat("##", label).c_str(), &text);
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+					text = strCat("0x", formatAddr(s, currentAddr));
+				}
+				simpleToolTip([&]{
+					return addr ? strCat("0x", formatAddr(s, *addr))
+					            : error;
+				});
+			});
+			return addr;
+		};
+		im::Disabled(exportRange != RANGE_RANGE, [&]{
+			begin = handleAddress("begin:", exportBegin, 0);
+			end =   handleAddress("end:", exportEnd, begin.value_or(0));
+		});
+		HelpMarker("Both 'begin' and 'end' are inclusive.\n"
+		           "You can enter an expression line '0x100 + 7' or '[reg HL]'.\n"
+		           "Right-click to enter the current cursor position.");
+
+		ImGui::SeparatorText("Format");
+
+		ImGui::RadioButton("Raw", &exportFormatted, EXPORT_RAW);
+		HelpMarker("Produce binary (unformatted) output");
+
+		ImGui::RadioButton("Formatted", &exportFormatted, EXPORT_FORMATTED);
+		HelpMarker("Produce formatted ASCII output");
+		im::DisabledIndent(exportFormatted != EXPORT_FORMATTED, [&]{
+			ImGui::TextUnformatted("Line");
+			HelpMarker("Formatting options per line");
+			im::Indent([&]{
+				ImGui::TextUnformatted("Prefix:");
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
+				ImGui::InputText("##prefix", &exportPrefix);
+				HelpMarker("Output a prefix at the start of each line.\n"
+					"For example 'db ', note the space after 'db'.");
+
+				ImGui::TextUnformatted("Columns:");
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(9.0f * s.glyphWidth + 2.0f * style.FramePadding.x);
+				if (ImGui::InputInt("##columns", &exportColumns, 1, 0)) {
+					exportColumns = std::clamp(exportColumns, 1, MAX_COLUMNS);
+				}
+				HelpMarker("Output N columns of comma-separated values.");
+
+				ImGui::TextUnformatted("Suffix:");
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
+				ImGui::InputText("##suffix", &exportSuffix);
+				HelpMarker("Output a suffix at the end of each line.\n"
+					"This might be useful if you want a trailing comma.");
+			});
+			ImGui::TextUnformatted("Value");
+			HelpMarker("Formatting options per value (multiple per line)");
+			im::Indent([&]{
+				ImGui::RadioButton("Bin", &exportFormat, FORMAT_BIN);
+				HelpMarker("8 digit binary with prefix '0b'\n"
+					"corresponding to custom format '0b%08b'");
+				ImGui::SameLine();
+				ImGui::RadioButton("Dec", &exportFormat, FORMAT_DEC);
+				HelpMarker("3 digit decimal right padded with spaces\n"
+					"corresponding to custom format '%3d'");
+				ImGui::SameLine();
+				ImGui::RadioButton("Hex", &exportFormat, FORMAT_HEX);
+				HelpMarker("2 digit hexadecimal\n"
+					"corresponding to custom format '0x%02X'");
+
+				try {
+					if (exportFormatted == EXPORT_FORMATTED) {
+						makeTclList("format", exportCustomFormat, 0).executeCommand(interp);
+					}
+				} catch (MSXException& e) {
+					formatError = e.getMessage();
+				}
+				ImGui::RadioButton("Custom", &exportFormat, FORMAT_CUSTOM);
+				ImGui::SameLine();
+				im::Disabled(exportFormat != FORMAT_CUSTOM, [&]{
+					im::StyleColor(!formatError.empty(), ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+						ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10.0f);
+						ImGui::InputText("##custom", &exportCustomFormat);
+						if (!formatError.empty()) {
+							simpleToolTip(formatError);
+						}
+					});
+				});
+				HelpMarker("format string passed to the Tcl 'format' command");
+			});
+		});
+		std::string formatStr = (exportFormat == FORMAT_BIN) ? "0b%08b"
+		                      : (exportFormat == FORMAT_DEC) ? "%3d"
+		                      : (exportFormat == FORMAT_HEX) ? "0x%02X"
+		                      : exportCustomFormat;
+
+		ImGui::SeparatorText("Output");
+
+		ImGui::RadioButton("Clipboard", &exportDestination, OUTPUT_CLIPBOARD);
+
+		ImGui::RadioButton("File", &exportDestination, OUTPUT_FILE);
+		ImGui::SameLine();
+		im::Disabled(exportDestination != OUTPUT_FILE, [&]{
+			ImGui::SetNextItemWidth(ImGui::GetFontSize() * 18.0f);
+			ImGui::InputText("##filename", &exportFilename);
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_IGFD_FOLDER_OPEN)) {
+				manager.openFile->selectNewFile(
+					strCat("Select output file for ", title), "",
+					[&](const auto& fn) { exportFilename = fn; });
+			}
+		});
+
+		bool ok = begin && end &&
+		          (exportFormat != FORMAT_CUSTOM || formatError.empty()) &&
+			  (exportDestination != OUTPUT_FILE || !exportFilename.empty());
+		im::Disabled(!ok, [&]{
+			if (ImGui::Button("Export")) {
+				try {
+					auto output = (exportFormatted == EXPORT_FORMATTED)
+						? formatToString(
+							debuggable, *begin, *end, exportPrefix, exportColumns,
+							exportSuffix, formatStr, interp)
+						: rawToString(debuggable, *begin, *end);
+					if (exportDestination == OUTPUT_CLIPBOARD) {
+						manager.getReactor().getDisplay().getVideoSystem().setClipboardText(output);
+					} else {
+						File file(exportFilename, File::OpenMode::TRUNCATE);
+						file.write(std::span(std::bit_cast<const uint8_t*>(output.data()), output.size()));
+					}
+					exportStatus = "Export successful";
+					exportStatusTimeout = 3.0f;
+				} catch (MSXException& e) {
+					exportStatus = e.getMessage();
+					exportStatusTimeout = 5.0f;
+					manager.printError(e.getMessage());
+				}
+			}
+		});
+		if (exportStatusTimeout > 0.0f) {
+			const auto& io = ImGui::GetIO();
+			exportStatusTimeout -= io.DeltaTime;
+
+			ImGui::SameLine();
+			ImGui::TextUnformatted(exportStatus);
+		}
+
 	});
 }
 
@@ -576,6 +817,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 	}
 
 	im::Popup("context", [&]{
+		im::ScopedFont sf(manager.fontProp);
 		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputInt("Columns", &columns, 1, 0)) {
 			columns = std::clamp(columns, 1, MAX_COLUMNS);
@@ -586,6 +828,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Checkbox("Show Ascii", &showAscii);
 		ImGui::Checkbox("Show Symbol info", &showSymbolInfo);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
+		ImGui::Separator();
+		if (ImGui::MenuItem("Export ...")) {
+			showExportWindow = true;
+		}
 	});
 	im::Popup("NotFound", [&]{
 		ImGui::TextUnformatted("Not found");

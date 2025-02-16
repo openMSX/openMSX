@@ -10,6 +10,7 @@
 #include "halfband.hh"
 #include "narrow.hh"
 #include "ranges.hh"
+#include "view.hh"
 #include "xrange.hh"
 
 #include "imgui.h"
@@ -20,7 +21,6 @@
 #include <functional>
 #include <numbers>
 #include <numeric>
-#include <ranges>
 
 namespace openmsx {
 
@@ -123,14 +123,28 @@ static void plotHistogram(std::span<const float> values, float scale_min, float 
 }
 
 
+#define SHOW_CHIP_KEY "showChip"
+
 void ImGuiWaveViewer::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
+	for (const auto& chip: openChips) {
+		buf.appendf(SHOW_CHIP_KEY"=%s\n", chip.c_str());
+	}
+}
+
+void ImGuiWaveViewer::loadStart()
+{
+	openChips.clear();
 }
 
 void ImGuiWaveViewer::loadLine(std::string_view name, zstring_view value)
 {
-	loadOnePersistent(name, value, *this, persistentElements);
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (name == SHOW_CHIP_KEY) {
+		openChips.emplace(value);
+	}
 }
 
 static void paintVUMeter(std::span<const float>& buf, float factor, bool muted)
@@ -232,7 +246,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 	if (buf.size() <= fftLen) {
 		extended = allocate(fftLen);
 		auto buf2 = extended.subspan(0, buf.size());
-		ranges::copy(buf, buf2);
+		copy_to_range(buf, buf2);
 		buf = buf2;
 	} else {
 		assert(buf.size() >= HALF_BAND_EXTRA);
@@ -253,7 +267,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 		} while (buf.size() > fftLen);
 		extended = extended.subspan(0, fftLen);
 	}
-	ranges::fill(extended.subspan(buf.size()), 0.0f);
+	std::ranges::fill(extended.subspan(buf.size()), 0.0f);
 	auto result = extended.subspan(0, buf.size());
 	return {result, extended, normalize, sampleRate};
 }
@@ -317,7 +331,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 		// remove DC and apply window-function
 		auto window = hammingWindow(narrow<unsigned>(signal.size()));
 		auto avg = std::reduce(signal.begin(), signal.end()) / float(signal.size());
-		for (auto [s, w] : std::views::zip(signal, window)) {
+		for (auto [s, w] : view::zip_equal(signal, window)) {
 			s = (s - avg) * w;
 		}
 
@@ -454,7 +468,13 @@ void ImGuiWaveViewer::paint(MSXMotherBoard* motherBoard)
 		for (const auto& info: motherBoard->getMSXMixer().getDeviceInfos()) {
 			auto& device = *info.device;
 			const auto& name = device.getName();
-			if (!ImGui::CollapsingHeader(name.c_str())) continue;
+			auto it = openChips.find(name);
+			bool wasOpen = it != openChips.end();
+			bool nowOpen = ImGui::CollapsingHeader(name.c_str(), wasOpen ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None);
+			if (wasOpen != nowOpen) {
+			    if (nowOpen) openChips.insert(name); else openChips.erase(it);
+			}
+			if (!nowOpen) continue;
 			HelpMarker("Right-click column header to (un)hide columns.\n"
 			           "Drag to reorder or resize columns.");
 

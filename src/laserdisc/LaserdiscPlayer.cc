@@ -102,7 +102,7 @@ void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
 static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
 LaserdiscPlayer::LaserdiscPlayer(
-		const HardwareConfig& hwConf, PioneerLDControl& ldControl_)
+		HardwareConfig& hwConf, PioneerLDControl& ldControl_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getLaserDiscPlayerName(),
 	                       "Laserdisc Player", 1, DUMMY_INPUT_RATE, true)
 	, syncAck (hwConf.getMotherBoard().getScheduler())
@@ -128,7 +128,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	reactor.getEventDistributor().registerEventListener(EventType::BOOT, *this);
 	scheduleDisplayStart(getCurrentTime());
 
-	static const XMLElement* xml = [] {
+	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		auto* result = doc.allocateElement(string(getLaserDiscPlayerName()).c_str());
 		result->setFirstChild(doc.allocateElement("sound"))

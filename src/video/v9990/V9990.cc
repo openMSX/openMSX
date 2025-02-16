@@ -1,12 +1,16 @@
 #include "V9990.hh"
+
 #include "Display.hh"
 #include "RendererFactory.hh"
 #include "V9990Renderer.hh"
 #include "Reactor.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -132,7 +136,7 @@ void V9990::reset(EmuTime::param time)
 	syncCmdEnd      .removeSyncPoint();
 
 	// Clear registers / ports
-	ranges::fill(regs, 0);
+	std::ranges::fill(regs, 0);
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	vramWritePtr = 0;
@@ -856,8 +860,9 @@ void V9990::scheduleHscan(EmuTime::param time)
 	}
 
 	int ticks = narrow<int>(frameStartTime.getTicksTill_fast(time));
+	bool perLine = regs[INTERRUPT_2] & 0x80;
 	int offset = [&] {
-		if (regs[INTERRUPT_2] & 0x80) {
+		if (perLine) {
 			// every line
 			return ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
 		} else {
@@ -869,7 +874,8 @@ void V9990::scheduleHscan(EmuTime::param time)
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1
 	offset += (regs[INTERRUPT_3] & 0x0F) * 64 * mult;
 	if (offset <= ticks) {
-		offset += V9990DisplayTiming::getUCTicksPerFrame(palTiming);
+		offset += perLine ? V9990DisplayTiming::UC_TICKS_PER_LINE
+		                  : V9990DisplayTiming::getUCTicksPerFrame(palTiming);
 	}
 
 	hScanSyncTime = frameStartTime + offset;

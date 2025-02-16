@@ -17,7 +17,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit WD2793BasedFDC(const DeviceConfig& config, const std::string& romId = {},
+	explicit WD2793BasedFDC(DeviceConfig& config, const std::string& romId = {},
 	                        bool needROM = true,
 	                        DiskDrive::TrackMode mode = DiskDrive::TrackMode::NORMAL);
 	~WD2793BasedFDC() override = default;

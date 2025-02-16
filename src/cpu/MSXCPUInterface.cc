@@ -26,14 +26,13 @@
 #include "WatchPoint.hh"
 #include "serialize.hh"
 
-#include "checked_cast.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <iterator>
@@ -93,22 +92,22 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, motherBoard(motherBoard_)
 	, pauseSetting(motherBoard.getReactor().getGlobalSettings().getPauseSetting())
 {
-	ranges::fill(primarySlotState, 0);
-	ranges::fill(secondarySlotState, 0);
-	ranges::fill(expanded, 0);
-	ranges::fill(subSlotRegister, 0);
-	ranges::fill(IO_In,  dummyDevice.get());
-	ranges::fill(IO_Out, dummyDevice.get());
-	ranges::fill(visibleDevices, dummyDevice.get());
+	std::ranges::fill(primarySlotState, 0);
+	std::ranges::fill(secondarySlotState, 0);
+	std::ranges::fill(expanded, 0);
+	std::ranges::fill(subSlotRegister, 0);
+	std::ranges::fill(IO_In,  dummyDevice.get());
+	std::ranges::fill(IO_Out, dummyDevice.get());
+	std::ranges::fill(visibleDevices, dummyDevice.get());
 	for (auto& sub1 : slotLayout) {
 		for (auto& sub2 : sub1) {
-			ranges::fill(sub2, dummyDevice.get());
+			std::ranges::fill(sub2, dummyDevice.get());
 		}
 	}
 
 	// initially allow all regions to be cached
-	ranges::fill(disallowReadCache,  0);
-	ranges::fill(disallowWriteCache, 0);
+	std::ranges::fill(disallowReadCache,  0);
+	std::ranges::fill(disallowWriteCache, 0);
 
 	initialPrimarySlots = motherBoard.getMachineConfig()->parseSlotMap();
 	// Note: SlotState is initialised at reset
@@ -839,7 +838,7 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)
 {
-	if (auto it = ranges::find(breakPoints, id, &BreakPoint::getId);
+	if (auto it = std::ranges::find(breakPoints, id, &BreakPoint::getId);
 	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
 	    it != breakPoints.end()) {
 		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, it->getIdStr(), "remove");
@@ -931,7 +930,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 	// Pass shared_ptr by value to keep the object alive for the duration
 	// of this function, otherwise it gets deleted as soon as it's removed
 	// from the watchPoints collection.
-	if (auto it = ranges::find(watchPoints, watchPoint);
+	if (auto it = std::ranges::find(watchPoints, watchPoint);
 	    it != end(watchPoints)) {
 		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, watchPoint->getIdStr(), "remove");
 		// remove before calling updateMemWatch()
@@ -942,7 +941,7 @@ void MSXCPUInterface::removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint)
 
 void MSXCPUInterface::removeWatchPoint(unsigned id)
 {
-	if (auto it = ranges::find(watchPoints, id, &WatchPoint::getId);
+	if (auto it = std::ranges::find(watchPoints, id, &WatchPoint::getId);
 	    it != watchPoints.end()) {
 		removeWatchPoint(*it); // not efficient, does a 2nd search, but good enough
 	}
@@ -963,7 +962,7 @@ void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 
 void MSXCPUInterface::removeCondition(unsigned id)
 {
-	if (auto it = ranges::find(conditions, id, &DebugCondition::getId);
+	if (auto it = std::ranges::find(conditions, id, &DebugCondition::getId);
 	    // could be ==end for a condition that removes itself AND has the -once flag set
 	    it != conditions.end()) {
 		cliComm.update(CliComm::UpdateType::DEBUG_UPDT, it->getIdStr(), "remove");

@@ -5,6 +5,7 @@
 
 #include "imgui_internal.h"
 
+#include <algorithm>
 #include <array>
 #include <utility>
 
@@ -117,7 +118,7 @@ zstring_view Shortcuts::getShortcutName(Shortcuts::ID id)
 
 std::optional<Shortcuts::ID> Shortcuts::parseShortcutName(std::string_view name)
 {
-	auto it = ranges::find(shortcutNames, name);
+	auto it = std::ranges::find(shortcutNames, name);
 	if (it == shortcutNames.end()) return {};
 	return static_cast<Shortcuts::ID>(std::distance(shortcutNames.begin(), it));
 }

@@ -24,6 +24,7 @@
 #include <imgui_stdlib.h>
 #include <imgui.h>
 
+#include <algorithm>
 #include <memory>
 
 using namespace std::literals;
@@ -226,7 +227,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 		applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
 		applyDisplayNameFilter(filterString, allMachines, filteredMachines);
 
-		auto it = ranges::find(filteredMachines, newMachineConfig,
+		auto it = std::ranges::find(filteredMachines, newMachineConfig,
 			[&](auto idx) { return allMachines[idx].configName; });
 		bool inFilteredList = it != filteredMachines.end();
 		int selectedIdx = inFilteredList ? narrow<int>(*it) : -1;
@@ -482,7 +483,7 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config)
 {
 	auto& allMachines = getAllMachines();
-	auto it = ranges::find(allMachines, config, &MachineInfo::configName);
+	auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
 	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
 }
 

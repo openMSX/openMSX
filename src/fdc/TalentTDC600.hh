@@ -9,7 +9,7 @@ namespace openmsx {
 class TalentTDC600 final : public MSXFDC
 {
 public:
-	explicit TalentTDC600(const DeviceConfig& config);
+	explicit TalentTDC600(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

@@ -47,7 +47,9 @@ private:
 	bool overrideColor0  = false;
 	bool grid = true;
 	bool nameTableOverlay = false;
+	bool rasterBeam = false;
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
+	gl::vec4 rasterBeamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 
 	enum CharScrnMode : int { TEXT40, TEXT80, SCR1, SCR2, SCR3, SCR4, OTHER };
 	int manualMode = 0;
@@ -83,6 +85,8 @@ private:
 		PersistentElementMax{"zoom",            &ImGuiCharacter::zoom, 8},
 		PersistentElement   {"showGrid",        &ImGuiCharacter::grid},
 		PersistentElement   {"overlay",         &ImGuiCharacter::nameTableOverlay},
+		PersistentElement   {"showRasterBeam",  &ImGuiCharacter::rasterBeam},
+		PersistentElement   {"rasterBeamColor", &ImGuiCharacter::rasterBeamColor},
 		PersistentElement   {"gridColor",       &ImGuiCharacter::gridColor},
 		PersistentElementMax{"mode",            &ImGuiCharacter::manualMode, OTHER}, // TEXT40..SCR4
 		PersistentElementMax{"fgCol",           &ImGuiCharacter::manualFgCol, 16},

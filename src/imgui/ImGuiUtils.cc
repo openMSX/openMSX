@@ -10,12 +10,11 @@
 #include "VideoSourceSetting.hh"
 #include "KeyMappings.hh"
 
-#include "ranges.hh"
-
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <SDL.h>
 
+#include <algorithm>
 #include <variant>
 
 namespace openmsx {
@@ -154,7 +153,7 @@ void ComboBox(const char* label, Setting& setting, function_ref<std::string(cons
 					// ignore
 				}
 			}
-			if (auto it = ranges::find(toolTips, entry.name, &EnumToolTip::value);
+			if (auto it = std::ranges::find(toolTips, entry.name, &EnumToolTip::value);
 			    it != toolTips.end()) {
 				simpleToolTip(it->tip);
 			}

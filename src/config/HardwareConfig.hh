@@ -54,10 +54,12 @@ public:
 
 	[[nodiscard]] XMLDocument& getXMLDocument() { return config; }
 	[[nodiscard]] const XMLElement& getConfig() const { return *config.getRoot(); }
+	[[nodiscard]] XMLElement& getConfig() { return *config.getRoot(); }
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] const std::string& getConfigName() const { return hwName; }
 	[[nodiscard]] std::string_view getRomFilename() const;
 	[[nodiscard]] const XMLElement& getDevicesElem() const;
+	[[nodiscard]] XMLElement& getDevicesElem();
 	[[nodiscard]] Type getType() const { return type; }
 
 	/** Parses a slot mapping.
@@ -83,8 +85,7 @@ private:
 	void setConfig(XMLElement* root) { config.setRoot(root); }
 	void load(std::string_view type);
 
-	void createDevices(const XMLElement& elem,
-	                   const XMLElement* primary, const XMLElement* secondary);
+	void createDevices(XMLElement& elem, XMLElement* primary, XMLElement* secondary);
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);

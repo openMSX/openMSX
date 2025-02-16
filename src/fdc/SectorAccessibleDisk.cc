@@ -20,13 +20,13 @@ SectorAccessibleDisk::SectorAccessibleDisk()
 
 SectorAccessibleDisk::~SectorAccessibleDisk() = default;
 
-void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf) const
+void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 {
 	readSectors(std::span{&buf, 1}, sector);
 }
 
 void SectorAccessibleDisk::readSectors(
-	std::span<SectorBuffer> buffers, size_t startSector) const
+	std::span<SectorBuffer> buffers, size_t startSector)
 {
 	auto last = startSector + buffers.size() - 1;
 	if (!isDummyDisk() && // in that case we want DriveEmptyException
@@ -91,7 +91,7 @@ void SectorAccessibleDisk::writeSectors(
 }
 
 
-size_t SectorAccessibleDisk::getNbSectors() const
+size_t SectorAccessibleDisk::getNbSectors()
 {
 	return getNbSectorsImpl();
 }

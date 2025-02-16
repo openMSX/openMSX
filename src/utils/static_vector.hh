@@ -55,7 +55,7 @@ public:
 
 	constexpr static_vector(std::initializer_list<T> list) {
 		assert(list.size() <= N);
-		ranges::copy(list, array);
+		copy_to_range(list, array);
 		sz = SizeType(list.size());
 	}
 

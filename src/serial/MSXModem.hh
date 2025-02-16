@@ -21,7 +21,7 @@ namespace openmsx {
 class MSXModem final : public MSXDevice
 {
 public:
-	explicit MSXModem(const DeviceConfig& config);
+	explicit MSXModem(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

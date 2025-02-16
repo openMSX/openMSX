@@ -32,7 +32,7 @@ public:
 		: dat(s), siz(std::char_traits<char>::length(s)) {}
 	constexpr zstring_view(const char* s, size_t n)
 		: dat(s), siz(n) { assert(s[n] == '\0'); }
-	/*constexpr*/ zstring_view(const std::string& s)
+	constexpr zstring_view(const std::string& s)
 		: dat(s.c_str()), siz(s.size()) {}
 
 	[[nodiscard]] constexpr auto begin() const { return dat; }
@@ -64,6 +64,12 @@ public:
 	[[nodiscard]] constexpr std::string_view substr(size_type pos, size_type count) const {
 		assert(pos <= siz);
 		return view().substr(pos, count);
+	}
+
+	constexpr void remove_prefix(size_type n) {
+		assert(n <= siz);
+		siz -= n;
+		dat += n;
 	}
 
 	[[nodiscard]] constexpr bool starts_with(std::string_view sv) const {

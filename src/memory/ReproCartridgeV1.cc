@@ -29,7 +29,7 @@ Otherwise, the mapper is enabled and the flash is readonly.
 namespace openmsx {
 
 ReproCartridgeV1::ReproCartridgeV1(
-		const DeviceConfig& config, Rom&& rom_)
+		DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, flash(rom, AmdFlashChip::M29W640GB, {}, config)
 	, scc("ReproCartV1 SCC", config, getCurrentTime(), SCC::Mode::Compatible)

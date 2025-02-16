@@ -49,6 +49,7 @@
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <optional>
 #include <utility>
 
@@ -144,7 +145,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						AlgoEnable{RGBTRIPLET, true,  true },
 						AlgoEnable{TV,         true,  false},
 					};
-					auto it = ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
+					auto it = std::ranges::find(algoEnables, scaler.getEnum(), &AlgoEnable::algo);
 					assert(it != algoEnables.end());
 					im::Disabled(!it->hasScanline, [&]{
 						SliderInt("Scanline (%)", renderSettings.getScanlineSetting());
@@ -166,7 +167,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				SliderInt("Glow (%)", renderSettings.getGlowSetting());
 				if (auto* monitor = dynamic_cast<Setting*>(settingsManager.findSetting("monitor_type"))) {
 					ComboBox("Monitor type", *monitor, [](std::string s) {
-						ranges::replace(s, '_', ' ');
+						std::ranges::replace(s, '_', ' ');
 						return s;
 					});
 				}
@@ -318,7 +319,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						}
 					});
 				}
-				ranges::sort(names, StringOp::caseless{});
+				std::ranges::sort(names, StringOp::caseless{});
 				return names;
 			};
 			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
@@ -415,7 +416,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				if (dynamic_cast<ReadOnlySetting*>(setting)) continue;
 				settings.push_back(checked_cast<Setting*>(setting));
 			}
-			ranges::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
+			std::ranges::sort(settings, StringOp::caseless{}, &Setting::getBaseName);
 			for (auto* setting : settings) {
 				if (auto* bSetting = dynamic_cast<BooleanSetting*>(setting)) {
 					Checkbox(hotKey, *bSetting);
@@ -1041,7 +1042,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			TclObject key(keyNames[popupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			unsigned remove = unsigned(-1);
+			auto remove = unsigned(-1);
 			unsigned counter = 0;
 			for (const auto& b : bindingList) {
 				if (ImGui::Selectable(b.c_str())) {
@@ -1279,8 +1280,9 @@ std::span<const std::string> ImGuiSettings::getAvailableFonts()
 			});
 		}
 		// sort and remove duplicates
-		ranges::sort(availableFonts);
-		availableFonts.erase(ranges::unique(availableFonts), end(availableFonts));
+		std::ranges::sort(availableFonts);
+		auto u = std::ranges::unique(availableFonts);
+		availableFonts.erase(u.begin(), u.end());
 	}
 	return availableFonts;
 }

@@ -212,13 +212,12 @@ private:
 		void write(unsigned address, byte value) override;
 	} debuggable;
 
-	EmuTime reference{EmuTime::zero()};
 	bool z80Active{true};
 	bool newZ80Active{true};
 
 	MSXCPUInterface* interface{nullptr}; // only used for debug
 };
-SERIALIZE_CLASS_VERSION(MSXCPU, 2);
+SERIALIZE_CLASS_VERSION(MSXCPU, 3);
 
 } // namespace openmsx
 

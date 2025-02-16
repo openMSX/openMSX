@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM,
+MSXFDC::MSXFDC(DeviceConfig& config, const std::string& romId, bool needROM,
                DiskDrive::TrackMode trackMode)
 	: MSXDevice(config)
 	, rom(needROM

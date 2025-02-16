@@ -69,7 +69,7 @@ public:
 class CassettePort final : public CassettePortInterface, public Connector
 {
 public:
-	explicit CassettePort(const HardwareConfig& hwConf);
+	explicit CassettePort(HardwareConfig& hwConf);
 	~CassettePort() override;
 	void setMotor(bool status, EmuTime::param time) override;
 	void cassetteOut(bool output, EmuTime::param time) override;

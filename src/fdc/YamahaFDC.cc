@@ -42,7 +42,7 @@ static constexpr int DATA_REQUEST  = 0x40;
 static constexpr int INTR_REQUEST  = 0x80;
 
 
-YamahaFDC::YamahaFDC(const DeviceConfig& config)
+YamahaFDC::YamahaFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config, "", true, DiskDrive::TrackMode::YAMAHA_FD_03)
 {
 	if (rom->size() != one_of(0x4000u, 0x8000u)) {

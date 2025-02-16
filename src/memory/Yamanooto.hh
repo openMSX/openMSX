@@ -14,7 +14,7 @@ namespace openmsx {
 class Yamanooto final : public MSXRom
 {
 public:
-	Yamanooto(const DeviceConfig& config, Rom&& rom);
+	Yamanooto(DeviceConfig& config, Rom&& rom);
 	~Yamanooto() override;
 
 	void powerUp(EmuTime::param time) override;

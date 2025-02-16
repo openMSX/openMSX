@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <span>
 #include <string>
+
+#define ZLIB_CONST
 #include <zlib.h>
 
 namespace openmsx {

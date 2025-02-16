@@ -86,7 +86,7 @@ void YamahaSKW01PrinterPort::serialize(Archive& ar, unsigned /*version*/)
 	// TODO force writing data to port?? (See MSXPrinterPort)
 }
 
-YamahaSKW01::YamahaSKW01(const DeviceConfig& config)
+YamahaSKW01::YamahaSKW01(DeviceConfig& config)
 	: MSXDevice(config)
 	, mainRom(MSXDevice::getName() + " main"     , "rom", config, "main")
 	, fontRom(MSXDevice::getName() + " kanjifont", "rom", config, "kanjifont")

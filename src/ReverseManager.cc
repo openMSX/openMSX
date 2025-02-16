@@ -25,13 +25,12 @@
 
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
-#include "view.hh"
 
 #include <array>
 #include <cassert>
 #include <cmath>
 #include <iomanip>
+#include <ranges>
 
 namespace openmsx {
 
@@ -232,7 +231,7 @@ void ReverseManager::status(TclObject& result) const
 	result.addDictKeyValue("current", getCurrent());
 
 	TclObject snapshots;
-	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
+	snapshots.addListElements(std::views::transform(history.chunks, [](auto& p) {
 		return (p.second.time - EmuTime::zero()).toDouble();
 	}));
 	result.addDictKeyValue("snapshots", snapshots);
@@ -903,7 +902,7 @@ void ReverseManager::stopReplay(EmuTime::param time) noexcept
 		Events& events = history.events;
 		events.erase(begin(events) + replayIndex, end(events));
 		// search snapshots that are newer than 'time' and erase them
-		auto it = ranges::find_if(history.chunks, [&](auto& p) {
+		auto it = std::ranges::find_if(history.chunks, [&](auto& p) {
 			return p.second.time > time;
 		});
 		history.chunks.erase(it, end(history.chunks));

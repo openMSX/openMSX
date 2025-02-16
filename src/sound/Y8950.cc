@@ -5,18 +5,20 @@
   */
 
 #include "Y8950.hh"
+
 #include "Y8950Periphery.hh"
 #include "MSXAudio.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+
 #include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -572,7 +574,7 @@ void Y8950::reset(EmuTime::param time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	ranges::fill(reg, 0x00);
+	std::ranges::fill(reg, 0x00);
 
 	reg[0x04] = 0x18;
 	reg[0x19] = 0x0F; // fixes 'Thunderbirds are Go'
@@ -815,7 +817,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 		// TODO update internal state even when muted
 		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
 		// and noise_seed aren't updated, probably ok
-		ranges::fill(bufs, nullptr);
+		std::ranges::fill(bufs, nullptr);
 		return;
 	}
 

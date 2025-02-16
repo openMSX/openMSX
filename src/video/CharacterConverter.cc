@@ -15,6 +15,7 @@ TODO:
 #include "ranges.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <bit>
 #include <cstdint>
 
@@ -368,7 +369,7 @@ void CharacterConverter::renderBlank(std::span<Pixel, 256> buf) const
 {
 	// when this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated
-	ranges::fill(buf, palFg[15]);
+	std::ranges::fill(buf, palFg[15]);
 }
 
 } // namespace openmsx

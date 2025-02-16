@@ -596,9 +596,12 @@ public:
 	  *       in text mode?
 	  */
 	[[nodiscard]] inline int getLeftSprites() const {
+		// The text mode (40*6 = 240) pixels are not centered in the 256
+		// pixels of the other modes. And it's different between TMSxxx
+		// and V99x8. See https://github.com/openMSX/openMSX/issues/708
 		return 100 + 102 + 56
 			+ (horizontalAdjust - 7) * 4
-			+ (displayMode.isTextMode() ? 36 : 0);
+			+ (displayMode.isTextMode() ? (isMSX1VDP() ? 6 : 9) : 0) * 4;
 	}
 
 	/** Gets the number of VDP clock ticks between start of line and the end

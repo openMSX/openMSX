@@ -6,9 +6,9 @@
 #include "cstd.hh"
 #include "narrow.hh"
 #include "power_of_two.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -78,7 +78,7 @@ public:
 		size_t sectorCount;
 
 		constexpr void validate() const {
-			assert(ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
+			assert(std::ranges::all_of(regions, [](const auto& region) { return region.count > 0; }));
 			assert(narrow_cast<unsigned>(cstd::abs(writeProtectPinRange)) <= sectorCount);
 		}
 	};
@@ -199,10 +199,10 @@ public:
 	 */
 	AmdFlash(const Rom& rom, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config);
+	         DeviceConfig& config);
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, std::string_view id = {});
+	         DeviceConfig& config, std::string_view id = {});
 	~AmdFlash();
 
 	void reset();
@@ -250,7 +250,7 @@ public:
 private:
 	AmdFlash(const std::string& name, const ValidatedChip& chip,
 	         const Rom* rom, std::span<const bool> writeProtectSectors,
-	         const DeviceConfig& config, std::string_view id);
+	         DeviceConfig& config, std::string_view id);
 
 	[[nodiscard]] size_t getSectorIndex(size_t address) const;
 	[[nodiscard]] Sector& getSector(size_t address) { return sectors[getSectorIndex(address)]; };

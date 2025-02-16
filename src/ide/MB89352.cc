@@ -28,6 +28,7 @@
 #include "serialize.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -91,13 +92,13 @@ static constexpr uint8_t CMD_Reset_ACK_REQ = 0xC0;
 static constexpr uint8_t CMD_Set_ACK_REQ   = 0xE0;
 static constexpr uint8_t CMD_MASK          = 0xE0;
 
-MB89352::MB89352(const DeviceConfig& config)
+MB89352::MB89352(DeviceConfig& config)
 {
 	// TODO: devBusy = false;
 
 	// ALMOST COPY PASTED FROM WD33C93:
 
-	for (const auto* t : config.getXML()->getChildren("target")) {
+	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeValueAsInt("id", 0);
 		if (id >= MAX_DEV) {
 			throw MSXException(
@@ -126,7 +127,7 @@ MB89352::MB89352(const DeviceConfig& config)
 	reset(false);
 
 	// avoid UMR on savestate
-	ranges::fill(buffer, 0);
+	std::ranges::fill(buffer, 0);
 }
 
 void MB89352::disconnect()
@@ -155,7 +156,7 @@ void MB89352::softReset()
 		regs[i] = 0;
 	}
 	regs[15] = 0xFF;               // un mapped
-	ranges::fill(cdb, 0);
+	std::ranges::fill(cdb, 0);
 
 	cdbIdx = 0;
 	bufIdx = 0;

@@ -40,7 +40,6 @@
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
-#include "ranges.hh"
 #include "xrange.hh"
 
 #include <algorithm>
@@ -474,7 +473,7 @@ uint16_t YMF278::nextPos(const Slot& slot, uint16_t pos, uint16_t increment)
 
 bool YMF278::anyActive()
 {
-	return ranges::any_of(slots, [](auto& op) { return op.state != EG_OFF; });
+	return std::ranges::any_of(slots, [](auto& op) { return op.state != EG_OFF; });
 }
 
 // In: 'envVol', 0=max volume, others -> -3/32 = -0.09375 dB/step
@@ -509,7 +508,7 @@ void YMF278::generateChannels(std::span<float*> bufs, unsigned num)
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
 		// TODO also mute individual channels
-		ranges::fill(bufs, nullptr);
+		std::ranges::fill(bufs, nullptr);
 		return;
 	}
 
@@ -793,7 +792,7 @@ uint8_t YMF278::peekReg(uint8_t reg) const
 
 static constexpr unsigned INPUT_RATE = 44100;
 
-YMF278::YMF278(const std::string& name_, size_t ramSize, const DeviceConfig& config,
+YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
                SetupMemPtrFunc setupMemPtrs_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "OPL4 wave-part",
 	                       24, INPUT_RATE, true)
@@ -811,7 +810,7 @@ YMF278::YMF278(const std::string& name_, size_t ramSize, const DeviceConfig& con
 	}
 
 	memAdr = 0; // avoid UMR
-	ranges::fill(regs, 0);
+	std::ranges::fill(regs, 0);
 
 	registerSound(config);
 	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()

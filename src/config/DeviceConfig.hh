@@ -21,21 +21,21 @@ class DeviceConfig
 {
 public:
 	DeviceConfig() = default;
-	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
+	DeviceConfig(HardwareConfig& hwConf_, XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 	{
 	}
-	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_,
-	             const XMLElement* primary_, const XMLElement* secondary_)
+	DeviceConfig(HardwareConfig& hwConf_, XMLElement& devConf_,
+	             XMLElement* primary_, XMLElement* secondary_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 		, primary(primary_), secondary(secondary_)
 	{
 	}
-	DeviceConfig(const DeviceConfig& other, const XMLElement& devConf_)
+	DeviceConfig(const DeviceConfig& other, XMLElement& devConf_)
 		: hwConf(other.hwConf), devConf(&devConf_)
 	{
 	}
-	DeviceConfig(const DeviceConfig& other, const XMLElement* devConf_)
+	DeviceConfig(const DeviceConfig& other, XMLElement* devConf_)
 		: hwConf(other.hwConf), devConf(devConf_)
 	{
 	}
@@ -45,17 +45,26 @@ public:
 		assert(hwConf);
 		return *hwConf;
 	}
+	[[nodiscard]] HardwareConfig& getHardwareConfig()
+	{
+		assert(hwConf);
+		return *hwConf;
+	}
 	[[nodiscard]] const XMLElement* getXML() const
+	{
+		return devConf;
+	}
+	[[nodiscard]] XMLElement* getXML()
 	{
 		return devConf;
 	}
 	[[nodiscard]] XMLElement* getPrimary() const
 	{
-		return const_cast<XMLElement*>(primary);
+		return primary;
 	}
 	[[nodiscard]] XMLElement* getSecondary() const
 	{
-		return const_cast<XMLElement*>(secondary);
+		return secondary;
 	}
 
 	// convenience methods:
@@ -70,6 +79,7 @@ public:
 	[[nodiscard]] XMLDocument& getXMLDocument();
 
 	[[nodiscard]] const XMLElement& getChild(std::string_view name) const;
+	[[nodiscard]] XMLElement& getChild(std::string_view name);
 	[[nodiscard]] std::string_view getChildData(std::string_view name) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view name,
 	                                            std::string_view defaultValue) const;
@@ -77,14 +87,15 @@ public:
 	[[nodiscard]] bool getChildDataAsBool(std::string_view name,
 	                                      bool defaultValue = false) const;
 	[[nodiscard]] const XMLElement* findChild(std::string_view name) const;
+	[[nodiscard]] XMLElement* findChild(std::string_view name);
 	[[nodiscard]] std::string_view getAttributeValue(std::string_view attName) const;
 	[[nodiscard]] int getAttributeValueAsInt(std::string_view attName, int defaultValue) const;
 
 private:
-	const HardwareConfig* hwConf = nullptr;
-	const XMLElement* devConf = nullptr;
-	const XMLElement* primary = nullptr;
-	const XMLElement* secondary = nullptr;
+	HardwareConfig* hwConf = nullptr;
+	XMLElement* devConf = nullptr;
+	XMLElement* primary = nullptr;
+	XMLElement* secondary = nullptr;
 };
 
 } // namespace openmsx

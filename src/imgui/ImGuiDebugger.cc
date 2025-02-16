@@ -26,12 +26,13 @@
 #include "RomInfo.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 
 #include <imgui.h>
+
+#include <algorithm>
 
 using namespace std::literals;
 
@@ -91,7 +92,7 @@ template<typename T>
 static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
 {
 	// prefer to reuse a previously closed viewer
-	if (auto it = ranges::find(viewers, false, &T::show); it != viewers.end()) {
+	if (auto it = std::ranges::find(viewers, false, &T::show); it != viewers.end()) {
 		(*it)->show = true;
 		return;
 	}
@@ -156,7 +157,7 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 	} else if (name.starts_with(hexEditorPrefix)) {
 		if (auto r = StringOp::stringTo<unsigned>(value)) {
 			auto debuggableName = std::string(name.substr(hexEditorPrefix.size()));
-			auto [b, e] = ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
+			auto [b, e] = std::ranges::equal_range(hexEditors, debuggableName, {}, &DebuggableEditor::getDebuggableName);
 			auto index = std::distance(b, e); // expected to be 0, but be robust against imgui.ini changes
 			for (auto i : xrange(*r)) {
 				e = hexEditors.insert(e, std::make_unique<DebuggableEditor>(manager, debuggableName, index + i));
@@ -170,7 +171,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
 	auto createHexEditor = [&](const std::string& name) {
 		// prefer to reuse a previously closed editor
-		auto [b, e] = ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
+		auto [b, e] = std::ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
 		for (auto it = b; it != e; ++it) {
 			if (!(*it)->open) {
 				(*it)->open = true;
@@ -192,7 +193,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("CPU flags", nullptr, &showFlags);
 		ImGui::MenuItem("Slots", nullptr, &showSlots);
 		ImGui::MenuItem("Stack", nullptr, &showStack);
-		auto it = ranges::lower_bound(hexEditors, "memory", {}, &DebuggableEditor::getDebuggableName);
+		auto it = std::ranges::lower_bound(hexEditors, "memory", {}, &DebuggableEditor::getDebuggableName);
 		bool memoryOpen = (it != hexEditors.end()) && (*it)->open;
 		if (ImGui::MenuItem("Memory", nullptr, &memoryOpen)) {
 			if (memoryOpen) {
@@ -222,7 +223,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("Add hex editor", [&]{
 			const auto& debugger = motherBoard->getDebugger();
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
-			ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
+			std::ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
 				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
 					createHexEditor(name);

@@ -1,4 +1,5 @@
 #include "AmdFlash.hh"
+
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
@@ -6,12 +7,15 @@
 #include "MSXDevice.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <bit>
 #include <cassert>
 #include <iterator>
@@ -22,21 +26,21 @@ namespace openmsx {
 
 AmdFlash::AmdFlash(const Rom& rom, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config)
+                   DeviceConfig& config)
 	: AmdFlash(rom.getName() + "_flash", validatedChip, &rom, writeProtectSectors, config, {})
 {
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config, std::string_view id)
+                   DeviceConfig& config, std::string_view id)
 	: AmdFlash(name, validatedChip, nullptr, writeProtectSectors, config, id)
 {
 }
 
 AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
                    const Rom* rom, std::span<const bool> writeProtectSectors,
-                   const DeviceConfig& config, std::string_view id)
+                   DeviceConfig& config, std::string_view id)
 	: motherBoard(config.getMotherBoard())
 	, chip(validatedChip.chip)
 {
@@ -114,22 +118,20 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 		if (sector.writeAddress != -1) { // don't use isWritable() here
 			sector.readAddress = &(*ram)[sector.writeAddress];
 			if (!loaded) {
-				auto* ramPtr = const_cast<uint8_t*>(
-					&(*ram)[sector.writeAddress]);
+				auto ramBlock = ram->getWriteBackdoor().subspan(sector.writeAddress, sector.size);
 				if (offset >= romSize) {
 					// completely past end of rom
-					ranges::fill(std::span{ramPtr, sector.size}, 0xFF);
+					std::ranges::fill(ramBlock, 0xFF);
 				} else if (offset + sector.size >= romSize) {
 					// partial overlap
 					auto last = romSize - offset;
-					auto missing = sector.size - last;
 					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, last}, ramPtr);
-					ranges::fill(std::span{&ramPtr[last], missing}, 0xFF);
+					copy_to_range(std::span{romPtr, last}, ramBlock);
+					std::ranges::fill(ramBlock.subspan(last), 0xFF);
 				} else {
 					// completely before end of rom
 					const uint8_t* romPtr = &(*rom)[offset];
-					ranges::copy(std::span{romPtr, sector.size}, ramPtr);
+					copy_to_range(std::span{romPtr, sector.size}, ramBlock);
 				}
 			}
 		} else {
@@ -708,7 +710,7 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	(void)addrSeq; (void)cmdAddr; // suppress (invalid) gcc warning
 
 	assert(dataSeq.size() <= 5);
-	return ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
+	return std::ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
 		// convert byte address to native address
 		auto addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[i].addr >> 1 : cmd[i].addr;
 		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&

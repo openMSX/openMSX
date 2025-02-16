@@ -1,8 +1,9 @@
 #ifndef STATIC_STRING_VIEW_HH
 #define STATIC_STRING_VIEW_HH
 
-#include "ranges.hh"
 #include "StringStorage.hh"
+
+#include <algorithm>
 #include <cassert>
 #include <string_view>
 #include <utility>
@@ -64,7 +65,7 @@ inline auto make_string_storage(std::string_view sv)
 {
 	auto storage = allocate_string_storage(sv.size());
 	char* p = storage.get();
-	ranges::copy(sv, p);
+	std::ranges::copy(sv, p);
 	return std::pair{std::move(storage),
 	                 static_string_view(static_string_view::lifetime_ok_tag{},
 			                    std::string_view(p, sv.size()))};

@@ -1,8 +1,11 @@
 #include "MSXMemoryMapperBase.hh"
+
 #include "MSXException.hh"
+
 #include "outer.hh"
-#include "ranges.hh"
 #include "serialize.hh"
+
+#include <algorithm>
 #include <bit>
 
 namespace openmsx {
@@ -45,7 +48,7 @@ void MSXMemoryMapperBase::reset(EmuTime::param /*time*/)
 {
 	// Most mappers initialize to segment 0 for all pages.
 	// On MSX2 and higher, the BIOS will select segments 3..0 for pages 0..3.
-	ranges::fill(registers, 0);
+	std::ranges::fill(registers, 0);
 }
 
 byte MSXMemoryMapperBase::readIO(word port, EmuTime::param time)

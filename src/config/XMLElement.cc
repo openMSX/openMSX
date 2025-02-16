@@ -12,6 +12,7 @@
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -27,6 +28,15 @@ const XMLElement* XMLElement::findChild(std::string_view childName) const
 	}
 	return nullptr;
 }
+XMLElement* XMLElement::findChild(std::string_view childName)
+{
+	for (auto* child = firstChild; child; child = child->nextSibling) {
+		if (child->name == childName) {
+			return child;
+		}
+	}
+	return nullptr;
+}
 
 // Similar to above, but instead of starting the search from the start of the
 // list, start searching at 'hint'. This 'hint' parameter must be initialized
@@ -34,15 +44,15 @@ const XMLElement* XMLElement::findChild(std::string_view childName) const
 // point to the next child (so that the next search starts from there). If the
 // end of the list is reached we restart the search from the start (so that the
 // full list is searched before giving up).
-const XMLElement* XMLElement::findChild(std::string_view childName, const XMLElement*& hint) const
+XMLElement* XMLElement::findChild(std::string_view childName, XMLElement*& hint)
 {
-	for (const auto* current = hint; current; current = current->nextSibling) {
+	for (auto* current = hint; current; current = current->nextSibling) {
 		if (current->name == childName) {
 			hint = current->nextSibling;
 			return current;
 		}
 	}
-	for (const auto* current = firstChild; current != hint; current = current->nextSibling) {
+	for (auto* current = firstChild; current != hint; current = current->nextSibling) {
 		if (current->name == childName) {
 			hint = current->nextSibling;
 			return current;
@@ -55,6 +65,14 @@ const XMLElement* XMLElement::findChild(std::string_view childName, const XMLEle
 const XMLElement& XMLElement::getChild(std::string_view childName) const
 {
 	if (const auto* elem = findChild(childName)) {
+		return *elem;
+	}
+	throw ConfigException("Missing tag \"", childName, "\".");
+}
+
+XMLElement& XMLElement::getChild(std::string_view childName)
+{
+	if (auto* elem = findChild(childName)) {
 		return *elem;
 	}
 	throw ConfigException("Missing tag \"", childName, "\".");
@@ -89,7 +107,7 @@ int XMLElement::getChildDataAsInt(std::string_view childName, int defaultValue) 
 
 size_t XMLElement::numChildren() const
 {
-	return std::distance(getChildren().begin(), getChildren().end());
+	return std::ranges::distance(getChildren());
 }
 
 // Return nullptr when not found.
@@ -102,11 +120,27 @@ const XMLAttribute* XMLElement::findAttribute(std::string_view attrName) const
 	}
 	return nullptr;
 }
+XMLAttribute* XMLElement::findAttribute(std::string_view attrName)
+{
+	for (auto* attr = firstAttribute; attr; attr = attr->nextAttribute) {
+		if (attr->getName() == attrName) {
+			return attr;
+		}
+	}
+	return nullptr;
+}
 
 // Throws when not found.
 const XMLAttribute& XMLElement::getAttribute(std::string_view attrName) const
 {
 	if (const auto* result = findAttribute(attrName)) {
+		return *result;
+	}
+	throw ConfigException("Missing attribute \"", attrName, "\".");
+}
+XMLAttribute& XMLElement::getAttribute(std::string_view attrName)
+{
+	if (auto* result = findAttribute(attrName)) {
 		return *result;
 	}
 	throw ConfigException("Missing attribute \"", attrName, "\".");
@@ -162,7 +196,7 @@ void XMLElement::removeAttribute(XMLAttribute** attrPtr)
 
 size_t XMLElement::numAttributes() const
 {
-	return std::distance(getAttributes().begin(), getAttributes().end());
+	return std::ranges::distance(getAttributes());
 }
 
 
@@ -312,7 +346,7 @@ XMLAttribute* XMLDocument::allocateAttribute(const char* name, const char* value
 const char* XMLDocument::allocateString(std::string_view str)
 {
 	auto* p = static_cast<char*>(allocator.allocate(str.size() + 1, alignof(char)));
-	auto e = ranges::copy(str, p);
+	auto e = std::ranges::copy(str, p).out;
 	*e = '\0';
 	return p;
 }

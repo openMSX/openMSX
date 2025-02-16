@@ -787,8 +787,8 @@ void WD2793::postWriteSector(EmuTime::param time)
 		--dataAvailable;
 		if (dataAvailable > 0) {
 			// write 2 CRC bytes (big endian)
-			uint8_t val = (dataAvailable == 2) ? narrow_cast<uint8_t>((crc.getValue() >> 8))
-			                                   : narrow_cast<uint8_t>((crc.getValue() & 0xFF));
+			uint8_t val = (dataAvailable == 2) ? narrow_cast<uint8_t>(crc.getValue() >> 8)
+			                                   : narrow_cast<uint8_t>(crc.getValue() & 0xFF);
 			drive.writeTrackByte(dataCurrent++, val);
 			drqTime.reset(time);
 			schedule(FSM::POST_WRITE_SECTOR, drqTime + 1);

@@ -15,6 +15,7 @@
 #include "stl.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -197,7 +198,7 @@ bool DirAsDSK::checkMSXFileExists(
 
 		for (auto idx : xrange(DIR_ENTRIES_PER_SECTOR)) {
 			DirIndex dirIndex(msxDirSector, idx);
-			if (ranges::equal(msxDir(dirIndex).filename, msxFilename)) {
+			if (std::ranges::equal(msxDir(dirIndex).filename, msxFilename)) {
 				return true;
 			}
 		}
@@ -237,10 +238,10 @@ static std::array<char, 11> hostToMsxName(string hostName)
 	if (file.empty()) std::swap(file, ext);
 
 	std::array<char, 8 + 3> result;
-	ranges::fill(result, ' ');
-	ranges::copy(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
-	ranges::copy(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
-	ranges::replace(result, '.', '_');
+	std::ranges::fill(result, ' ');
+	copy_to_range(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
+	copy_to_range(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
+	std::ranges::replace(result, '.', '_');
 	return result;
 }
 
@@ -288,7 +289,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 
 	// Initially the whole disk is filled with 0xE5 (at least on Philips
 	// NMS8250).
-	ranges::fill(std::span{sectors[0].raw.data(), sizeof(SectorBuffer) * nofSectors}, 0xE5);
+	std::ranges::fill(std::span{sectors[0].raw.data(), sizeof(SectorBuffer) * nofSectors}, 0xE5);
 
 	// Use selected boot sector, fill-in values.
 	uint8_t mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
@@ -308,7 +309,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	bootSector.nrSides      = numSides;
 
 	// Clear FAT1 + FAT2.
-	ranges::fill(std::span{fat()[0].raw.data(), SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
+	std::ranges::fill(std::span{fat()[0].raw.data(), SECTOR_SIZE * nofSectorsPerFat * NUM_FATS}, 0);
 	// First 3 bytes are initialized specially:
 	//  'cluster 0' contains the media descriptor
 	//  'cluster 1' is marked as EOF_FAT
@@ -322,7 +323,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	init(fat2());
 
 	// Assign empty directory entries.
-	ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * SECTORS_PER_DIR}, 0);
+	std::ranges::fill(std::span{sectors[firstDirSector].raw.data(), SECTOR_SIZE * SECTORS_PER_DIR}, 0);
 
 	// No host files are mapped to this disk yet.
 	assert(mapDirs.empty());
@@ -462,8 +463,8 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 		// If we're deleting a directory then also (recursively)
 		// delete the files/directories in this directory.
 		if (const auto& msxName = msxDir(dirIndex).filename;
-		    ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		    std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// But skip the "." and ".." entries.
 			return;
 		}
@@ -595,7 +596,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, const FileOperations::Stat& fst
 				auto* buf = &sectors[sector];
 				auto sz = std::min(remainingSize, SECTOR_SIZE);
 				file.read(subspan(buf->raw, 0, sz));
-				ranges::fill(subspan(buf->raw, sz), 0); // in case (end of) file only fills partial sector
+				std::ranges::fill(subspan(buf->raw, sz), 0); // in case (end of) file only fills partial sector
 				remainingSize -= sz;
 				if (remainingSize == 0) {
 					// Don't fill next sectors in this cluster
@@ -692,7 +693,7 @@ static size_t weight(const string& hostName)
 	size_t result = 0;
 	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	// too many '.' characters
-	result += ranges::count(file, '.') * 100;
+	result += std::ranges::count(file, '.') * 100;
 	// too long extension
 	result += ext.size() * 10;
 	// too long file
@@ -712,7 +713,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	ranges::sort(hostNames, {}, [](const string& n) { return weight(n); });
+	std::ranges::sort(hostNames, {}, [](const string& n) { return weight(n); });
 
 	for (auto& hostName : hostNames) {
 		try {
@@ -764,7 +765,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
-		ranges::fill(std::span{sectors[newMsxDirSector].raw.data(),
+		std::ranges::fill(std::span{sectors[newMsxDirSector].raw.data(),
 		                       SECTORS_PER_CLUSTER * SECTOR_SIZE},
 			     0);
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
@@ -773,8 +774,8 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		auto& e1 = msxDir(idx1);
 		auto& f0 = e0.filename;
 		auto& f1 = e1.filename;
-		f0[0] = '.';              ranges::fill(subspan(f0, 1), ' ');
-		f1[0] = '.'; f1[1] = '.'; ranges::fill(subspan(f1, 2), ' ');
+		f0[0] = '.';              std::ranges::fill(subspan(f0, 1), ' ');
+		f1[0] = '.'; f1[1] = '.'; std::ranges::fill(subspan(f1, 2), ' ');
 		e0.attrib = MSXDirEntry::Attrib::DIRECTORY;
 		e1.attrib = MSXDirEntry::Attrib::DIRECTORY;
 		setMSXTimeStamp(idx0, fst);
@@ -844,7 +845,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		assert(!hostPath.ends_with('/'));
 		mapDirs[dirIndex].hostName = hostPath;
 		memset(&msxDir(dirIndex), 0, sizeof(MSXDirEntry)); // clear entry
-		ranges::copy(msxFilename, msxDir(dirIndex).filename);
+		copy_to_range(msxFilename, msxDir(dirIndex).filename);
 		return dirIndex;
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't add ", hostPath, ": ",
@@ -888,7 +889,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	unsigned cluster = sectorToCluster(msxDirSector);
 	unsigned newCluster = getFreeCluster(); // throws if disk full
 	unsigned sector = clusterToSector(newCluster);
-	ranges::fill(std::span{sectors[sector].raw.data(), SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
+	std::ranges::fill(std::span{sectors[sector].raw.data(), SECTORS_PER_CLUSTER * SECTOR_SIZE}, 0);
 	writeFAT12(cluster, newCluster);
 	writeFAT12(newCluster, EOF_FAT);
 
@@ -943,7 +944,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	}
 	// At this point there should be no more differences.
 	// Note: we can't use
-	//   assert(ranges::equal(fat(), oldFAT));
+	//   assert(std::ranges::equal(fat(), oldFAT));
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unused part at the end. And for example the 'CALL
@@ -1180,8 +1181,8 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		mapDirs[dirIndex].hostName = hostName;
 	}
 	if (msxDir(dirIndex).attrib & MSXDirEntry::Attrib::DIRECTORY) {
-		if (ranges::equal(msxName, std::string_view(".          ")) ||
-		    ranges::equal(msxName, std::string_view("..         "))) {
+		if (std::ranges::equal(msxName, std::string_view(".          ")) ||
+		    std::ranges::equal(msxName, std::string_view("..         "))) {
 			// Don't export "." or "..".
 			return;
 		}
@@ -1281,7 +1282,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 		}
 	}
 	// At this point sector should be updated.
-	assert(ranges::equal(sectors[sector].raw, buf.raw));
+	assert(std::ranges::equal(sectors[sector].raw, buf.raw));
 }
 
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,

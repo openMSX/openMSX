@@ -15,15 +15,15 @@ namespace openmsx {
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
 	, rom([&]() -> std::optional<Rom> {
-		const auto* elem = motherBoard.getMachineConfig()->
+		auto* elem = motherBoard.getMachineConfig()->
 				getConfig().findChild("PanasonicRom");
 		if (!elem) return std::nullopt;
 
-		const HardwareConfig* hwConf = motherBoard.getMachineConfig();
+		HardwareConfig* hwConf = motherBoard.getMachineConfig();
 		assert(hwConf);
+		DeviceConfig config(*hwConf, *elem);
 		return std::optional<Rom>(std::in_place,
-			"PanasonicRom", "Turbor-R main ROM",
-			DeviceConfig(*hwConf, *elem));
+			"PanasonicRom", "Turbor-R main ROM", config);
 	}())
 {
 }

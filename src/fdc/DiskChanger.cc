@@ -25,11 +25,11 @@
 #include "serialize_stl.hh"
 
 #include "strCat.hh"
-#include "view.hh"
 
 #include <array>
 #include <functional>
 #include <memory>
+#include <ranges>
 #include <utility>
 
 namespace openmsx {
@@ -163,7 +163,7 @@ void DiskChanger::insertDisk(std::span<const TclObject> args)
 	std::string diskImage = FileOperations::getConventionalPath(std::string(args[1].getString()));
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
-	for (const auto& arg : view::drop(args, 2)) {
+	for (const auto& arg : std::views::drop(args, 2)) {
 		newDisk->applyPatch(Filename(
 			arg.getString(), userFileContext()));
 	}

@@ -8,7 +8,7 @@ namespace openmsx {
 class SanyoFDC final : public WD2793BasedFDC
 {
 public:
-	explicit SanyoFDC(const DeviceConfig& config);
+	explicit SanyoFDC(DeviceConfig& config);
 
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;

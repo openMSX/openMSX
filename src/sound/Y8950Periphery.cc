@@ -40,7 +40,7 @@ class PanasonicAudioPeriphery final : public Y8950Periphery
 {
 public:
 	PanasonicAudioPeriphery(
-		MSXAudio& audio, const DeviceConfig& config,
+		MSXAudio& audio, DeviceConfig& config,
 		const std::string& soundDeviceName);
 	PanasonicAudioPeriphery(const PanasonicAudioPeriphery&) = delete;
 	PanasonicAudioPeriphery(PanasonicAudioPeriphery&&) = delete;
@@ -158,7 +158,7 @@ nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
 // PanasonicAudioPeriphery implementation:
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
-		MSXAudio& audio_, const DeviceConfig& config,
+		MSXAudio& audio_, DeviceConfig& config,
 		const std::string& soundDeviceName)
 	: audio(audio_)
 	, swSwitch(audio.getCommandController(), tmpStrCat(soundDeviceName, "_firmware"),
@@ -316,7 +316,7 @@ void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 // Y8950PeripheryFactory implementation:
 
 std::unique_ptr<Y8950Periphery> Y8950PeripheryFactory::create(
-	MSXAudio& audio, const DeviceConfig& config,
+	MSXAudio& audio, DeviceConfig& config,
 	const std::string& soundDeviceName)
 {
 	auto type = config.getChildData("type", "philips");

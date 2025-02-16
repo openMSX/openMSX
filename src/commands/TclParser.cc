@@ -1,12 +1,13 @@
 #include "TclParser.hh"
+
 #include "ScopedAssign.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "strCat.hh"
+
 #include <algorithm>
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #if DEBUG_TCLPARSER
 void TclParser::DEBUG_PRINT(const std::string& s)
@@ -55,13 +56,13 @@ static bool isNumber(std::string_view str)
 	}
 	if (str.starts_with("0x") || str.starts_with("0X")) {
 		str.remove_prefix(2);
-		return ranges::all_of(str, [](char c) {
+		return std::ranges::all_of(str, [](char c) {
 			return inRange(c, '0', '9') ||
 			       inRange(c, 'a', 'f') ||
 			       inRange(c, 'A', 'F');
 		});
 	} else {
-		return ranges::all_of(str,
+		return std::ranges::all_of(str,
 		                      [](char c) { return inRange(c, '0', '9'); });
 	}
 }

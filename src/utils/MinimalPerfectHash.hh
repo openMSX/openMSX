@@ -2,11 +2,11 @@
 #define MINIMAL_PERFECT_HASH_HH
 
 #include "cstd.hh"
-#include "Math.hh"
-#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -94,19 +94,18 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
-	ranges::sort(buckets, [](const auto& x, const auto& y) {
+	std::ranges::sort(buckets, [](const auto& x, const auto& y) {
 		// sort largest first
 		if (x.size() != y.size()) {
 			return x.size() > y.size();
 		}
 		// same size, sort lexicographical
-		return std::lexicographical_compare(x.begin(), x.end(),
-		                                    y.begin(), y.end());
+		return std::ranges::lexicographical_compare(x, y);
 	});
 
 	// Step 3: Map the items in buckets into hash tables.
 	constexpr auto UNUSED = uint8_t(-1);
-	ranges::fill(r.tab2, UNUSED);
+	std::ranges::fill(r.tab2, UNUSED);
 	for (const auto& bucket : buckets) {
 		auto const bSize = bucket.size();
 		if (bSize == 0) break; // done
@@ -142,7 +141,7 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Change unused entries to zero because it must be valid indices (< N).
-	ranges::replace(r.tab2, UNUSED, uint8_t(0));
+	std::ranges::replace(r.tab2, UNUSED, uint8_t(0));
 	return r;
 }
 

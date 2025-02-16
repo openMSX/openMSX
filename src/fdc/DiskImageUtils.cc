@@ -1,19 +1,21 @@
 #include "DiskImageUtils.hh"
+
 #include "DiskPartition.hh"
 #include "CommandException.hh"
 #include "BootBlocks.hh"
+
 #include "endian.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "random.hh"
-#include "ranges.hh"
 #include "strCat.hh"
-#include "view.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <bit>
 #include <cassert>
 #include <ctime>
+#include <ranges>
 
 namespace openmsx::DiskImageUtils {
 
@@ -46,7 +48,7 @@ static constexpr std::array<char, 11> NEXTOR_PARTITION_TABLE_HEADER = {
 	return {};
 }
 
-bool hasPartitionTable(const SectorAccessibleDisk& disk)
+bool hasPartitionTable(SectorAccessibleDisk& disk)
 {
 	SectorBuffer buf;
 	disk.readSector(0, buf);
@@ -55,7 +57,7 @@ bool hasPartitionTable(const SectorAccessibleDisk& disk)
 
 // Get partition from Nextor extended boot record (standard EBR) chain.
 static Partition& getPartitionNextorExtended(
-	const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf,
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf,
 	unsigned remaining, unsigned ebrOuterSector)
 {
 	unsigned ebrSector = ebrOuterSector;
@@ -88,7 +90,7 @@ static Partition& getPartitionNextorExtended(
 
 // Get partition from Nextor master boot record (standard MBR).
 static Partition& getPartitionNextor(
-	const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+	SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	unsigned remaining = partition - 1;
 	for (auto& p : buf.ptNextor.part) {
@@ -121,7 +123,7 @@ static Partition& getPartitionSunrise(unsigned partition, SectorBuffer& buf)
 	return p;
 }
 
-Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
+Partition& getPartition(SectorAccessibleDisk& disk, unsigned partition, SectorBuffer& buf)
 {
 	// check drive has a partition table
 	// check valid partition number and return the entry
@@ -136,7 +138,7 @@ Partition& getPartition(const SectorAccessibleDisk& disk, unsigned partition, Se
 	}
 }
 
-void checkSupportedPartition(const SectorAccessibleDisk& disk, unsigned partition)
+void checkSupportedPartition(SectorAccessibleDisk& disk, unsigned partition)
 {
 	SectorBuffer buf;
 	const Partition& p = getPartition(disk, partition, buf);
@@ -414,7 +416,7 @@ void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType, size_t nbSec
 	disk.writeSector(0, buf);
 
 	// write empty FAT sectors (except for first sector, see below)
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	for (auto fat : xrange(result.fatCount)) {
 		for (auto i : xrange(1u, result.sectorsPerFat)) {
 			disk.writeSector(i + result.fatStart + fat * result.sectorsPerFat, buf);
@@ -440,7 +442,7 @@ void format(SectorAccessibleDisk& disk, MSXBootSectorType bootType, size_t nbSec
 	}
 
 	// write 'empty' data sectors
-	ranges::fill(buf.raw, 0xE5);
+	std::ranges::fill(buf.raw, 0xE5);
 	for (auto i : xrange(result.dataStart, nbSectors)) {
 		disk.writeSector(i, buf);
 	}
@@ -505,7 +507,7 @@ static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::sp
 	std::vector<unsigned> clampedSizes = clampPartitionSizes(sizes, disk.getNbSectors(), 0, 1);
 
 	if (clampedSizes.empty()) {
-		ranges::fill(buf.raw, 0);
+		std::ranges::fill(buf.raw, 0);
 		pt.header = NEXTOR_PARTITION_TABLE_HEADER;
 		pt.end = 0xAA55;
 		disk.writeSector(0, buf);
@@ -514,7 +516,7 @@ static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::sp
 
 	unsigned ptSector = 0;
 	for (auto [i, size] : enumerate(clampedSizes)) {
-		ranges::fill(buf.raw, 0);
+		std::ranges::fill(buf.raw, 0);
 		if (i == 0) {
 			pt.header = NEXTOR_PARTITION_TABLE_HEADER;
 		}
@@ -533,7 +535,7 @@ static std::vector<unsigned> partitionNextor(SectorAccessibleDisk& disk, std::sp
 			link.sys_ind = 0x05; // EBR
 			if (i == 0) {
 				link.start = ptSector + 1 + size;
-				link.size = sum(view::drop(sizes, 1), [](unsigned s) { return 1 + s; });
+				link.size = sum(std::views::drop(sizes, 1), [](unsigned s) { return 1 + s; });
 			} else {
 				link.start = ptSector + 1 + size - (1 + clampedSizes[0]);
 				link.size = 1 + clampedSizes[i + 1];
@@ -558,7 +560,7 @@ static std::vector<unsigned> partitionSunrise(SectorAccessibleDisk& disk, std::s
 		clampedSizes.resize(pt.part.size());
 	}
 
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	pt.header = SUNRISE_PARTITION_TABLE_HEADER;
 	pt.end = 0xAA55;
 
@@ -597,7 +599,7 @@ static std::vector<unsigned> partitionBeer(SectorAccessibleDisk& disk, std::span
 		clampedSizes.resize(pt.part.size());
 	}
 
-	ranges::fill(buf.raw, 0);
+	std::ranges::fill(buf.raw, 0);
 	pt.header = NEXTOR_PARTITION_TABLE_HEADER; // TODO: Find out BEER IDE signature
 	pt.end = 0xAA55;
 

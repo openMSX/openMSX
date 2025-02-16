@@ -38,10 +38,14 @@ GlobalSettings& DeviceConfig::getGlobalSettings() const
 XMLDocument& DeviceConfig::getXMLDocument()
 {
 	assert(hwConf);
-	return const_cast<HardwareConfig*>(hwConf)->getXMLDocument();
+	return hwConf->getXMLDocument();
 }
 
 const XMLElement& DeviceConfig::getChild(std::string_view name) const
+{
+	return getXML()->getChild(name);
+}
+XMLElement& DeviceConfig::getChild(std::string_view name)
 {
 	return getXML()->getChild(name);
 }
@@ -64,6 +68,10 @@ bool DeviceConfig::getChildDataAsBool(std::string_view name,
 	return getXML()->getChildDataAsBool(name, defaultValue);
 }
 const XMLElement* DeviceConfig::findChild(std::string_view name) const
+{
+	return getXML()->findChild(name);
+}
+XMLElement* DeviceConfig::findChild(std::string_view name)
 {
 	return getXML()->findChild(name);
 }

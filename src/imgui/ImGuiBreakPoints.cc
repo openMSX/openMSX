@@ -393,7 +393,7 @@ void ImGuiBreakPoints::drawRow(MSXCPUInterface& cpuInterface, int row, Item& ite
 	if (ImGui::TableNextColumn()) { // type
 		if constexpr (isWatchPoint) {
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			int wpType = static_cast<int>(item->getType());
+			auto wpType = static_cast<int>(item->getType());
 			if (ImGui::Combo("##type", &wpType, "read IO\000write IO\000read memory\000write memory\000")) {
 				auto sc = getScopedChange(item, cpuInterface); (void)sc;
 				item->setType(interp, static_cast<WatchPoint::Type>(wpType));

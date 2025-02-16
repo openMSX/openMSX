@@ -14,7 +14,7 @@ class MB89352;
 class ESE_SCC final : public MSXDevice
 {
 public:
-	ESE_SCC(const DeviceConfig& config, bool withSCSI);
+	ESE_SCC(DeviceConfig& config, bool withSCSI);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

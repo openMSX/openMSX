@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config, const std::string& romId,
+WD2793BasedFDC::WD2793BasedFDC(DeviceConfig& config, const std::string& romId,
                                bool needROM, DiskDrive::TrackMode trackMode)
 	: MSXFDC(config, romId, needROM, trackMode)
 	, multiplexer(drives)

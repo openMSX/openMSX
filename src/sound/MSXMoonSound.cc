@@ -87,7 +87,7 @@ static void setupMemPtrs(bool mode0, std::span<const uint8_t> rom, std::span<con
 	}
 }
 
-MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
+MSXMoonSound::MSXMoonSound(DeviceConfig& config)
 	: MSXDevice(config)
 	, ymf278b(getName(), getRamSize(config), config, setupMemPtrs, getCurrentTime())
 {

@@ -18,7 +18,7 @@ class BooleanSetting;
 class MSXRS232 final : public MSXDevice, public RS232Connector
 {
 public:
-	explicit MSXRS232(const DeviceConfig& config);
+	explicit MSXRS232(DeviceConfig& config);
 	~MSXRS232() override;
 
 	void powerUp(EmuTime::param time) override;

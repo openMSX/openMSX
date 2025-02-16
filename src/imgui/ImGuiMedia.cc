@@ -26,10 +26,8 @@
 
 #include "join.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
-#include "view.hh"
 
 #include <CustomFont.h>
 #include <imgui.h>
@@ -38,6 +36,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <memory>
+#include <ranges>
 #include <sstream>
 #include <utility>
 
@@ -199,7 +198,7 @@ static std::string buildFilter(std::string_view description, std::span<const std
 {
 	auto formatExtensions = [&]() -> std::string {
 		if (extensions.size() <= 3) {
-			return join(view::transform(extensions,
+			return join(std::views::transform(extensions,
 			                [](const auto& ext) { return strCat("*.", ext); }),
 			       ' ');
 		} else {
@@ -208,7 +207,7 @@ static std::string buildFilter(std::string_view description, std::span<const std
 	};
 	return strCat(
 		description, " (", formatExtensions(), "){",
-		join(view::transform(extensions,
+		join(std::views::transform(extensions,
 		                     [](const auto& ext) { return strCat('.', ext); }),
 		     ','),
 		",.gz,.zip}");
@@ -317,7 +316,7 @@ const std::string& ImGuiMedia::getTestResult(ExtensionInfo& info)
 ImGuiMedia::ExtensionInfo* ImGuiMedia::findExtensionInfo(std::string_view config)
 {
 	auto& allExtensions = getAllExtensions();
-	auto it = ranges::find(allExtensions, config, &ExtensionInfo::configName);
+	auto it = std::ranges::find(allExtensions, config, &ExtensionInfo::configName);
 	return (it != allExtensions.end()) ? std::to_address(it) : nullptr;
 }
 
@@ -749,7 +748,7 @@ static std::string leftClip(std::string_view s, float maxWidth)
 	if (maxWidth <= 0.0f) return "...";
 
 	auto len = s.size();
-	auto num = *ranges::lower_bound(xrange(len), maxWidth, {},
+	auto num = *std::ranges::lower_bound(std::views::iota(size_t(0), len), maxWidth, {},
 		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
 	return strCat("...", s.substr(len - num));
 }

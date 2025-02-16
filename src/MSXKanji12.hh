@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXKanji12 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	explicit MSXKanji12(const DeviceConfig& config);
+	explicit MSXKanji12(DeviceConfig& config);
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;

@@ -8,7 +8,7 @@ namespace openmsx {
 class AVTFDC final : public WD2793BasedFDC
 {
 public:
-	explicit AVTFDC(const DeviceConfig& config);
+	explicit AVTFDC(DeviceConfig& config);
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;

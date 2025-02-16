@@ -1,7 +1,10 @@
 #include "SDLKey.hh"
+
 #include "StringOp.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+
+#include <algorithm>
 #include <array>
 
 namespace openmsx {
@@ -96,7 +99,7 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	};
 	static constexpr auto map = []{
 		auto result = unsortedMap;
-		ranges::sort(result, {}, &M::name);
+		std::ranges::sort(result, {}, &M::name);
 		return result;
 	}();
 

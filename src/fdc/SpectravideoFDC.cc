@@ -20,7 +20,7 @@
 
 namespace openmsx {
 
-SpectravideoFDC::SpectravideoFDC(const DeviceConfig& config)
+SpectravideoFDC::SpectravideoFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config, "msxdos")
 	, cpmRom(getName() + " CP/M ROM", "rom", config, "cpm")
 {

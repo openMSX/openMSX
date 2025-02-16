@@ -8,9 +8,9 @@
 #include "cstd.hh"
 #include "endian.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "unreachable.hh"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -90,7 +90,7 @@ static constexpr auto vectorTable = [] {
 		return std::tuple(cost(l), l.x, l.y) <
 		       std::tuple(cost(r), r.x, r.y);
 	};
-	ranges::sort(result, compare);
+	std::ranges::sort(result, compare);
 
 	return result;
 }();
@@ -152,8 +152,8 @@ void ZMBVEncoder::setupBuffers()
 
 	oldFrame.resize(bufSize);
 	newFrame.resize(bufSize);
-	ranges::fill(std::span{oldFrame}, 0);
-	ranges::fill(std::span{newFrame}, 0);
+	std::ranges::fill(std::span{oldFrame}, 0);
+	std::ranges::fill(std::span{newFrame}, 0);
 	work.resize(bufSize);
 	outputSize = neededSize();
 	output.resize(outputSize);

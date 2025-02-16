@@ -72,7 +72,7 @@ size_t ESE_SCC::getSramSize(bool withSCSI) const
 	return sramSize * 1024; // in bytes
 }
 
-ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
+ESE_SCC::ESE_SCC(DeviceConfig& config, bool withSCSI)
 	: MSXDevice(config)
 	, sram(getName() + " SRAM", getSramSize(withSCSI), config)
 	, scc(getName(), config, getCurrentTime())

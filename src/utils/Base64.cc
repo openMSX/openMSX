@@ -1,7 +1,9 @@
 #include "Base64.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -62,7 +64,7 @@ std::string encode(std::span<const uint8_t> input)
 		}
 		if (n) {
 			std::array<uint8_t, 3> buf3 = {0, 0, 0};
-			ranges::copy(input.subspan(0, n), buf3);
+			copy_to_range(input.subspan(0, n), buf3);
 			input = input.subspan(n);
 
 			std::array<uint8_t, 4> buf4;

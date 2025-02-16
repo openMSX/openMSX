@@ -8,7 +8,7 @@ namespace openmsx {
 class VictorFDC final : public WD2793BasedFDC
 {
 public:
-	explicit VictorFDC(const DeviceConfig& config);
+	explicit VictorFDC(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;

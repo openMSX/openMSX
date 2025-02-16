@@ -1,11 +1,10 @@
 #ifndef KEYMAPPINGS_HH
 #define KEYMAPPINGS_HH
 
-#include "ranges.hh"
-
 #include <imgui.h>
 #include <SDL.h>
 
+#include <algorithm>
 #include <array>
 
 namespace openmsx {
@@ -143,10 +142,10 @@ inline constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 {
 	static constexpr auto lookup = []{
 		auto result = unsortedKeys;
-		ranges::sort(result, {}, &ImGui_SDL_Key::imgui);
+		std::ranges::sort(result, {}, &ImGui_SDL_Key::imgui);
 		return result;
 	}();
-	auto it = ranges::lower_bound(lookup, imgui, {}, &ImGui_SDL_Key::imgui);
+	auto it = std::ranges::lower_bound(lookup, imgui, {}, &ImGui_SDL_Key::imgui);
 	return ((it != lookup.end()) && (it->imgui == imgui)) ? it->sdl : SDLK_UNKNOWN;
 }
 
@@ -154,10 +153,10 @@ inline constexpr auto unsortedKeys = std::to_array<ImGui_SDL_Key>({
 {
 	static constexpr auto lookup = []{
 		auto result = unsortedKeys;
-		ranges::sort(result, {}, &ImGui_SDL_Key::sdl);
+		std::ranges::sort(result, {}, &ImGui_SDL_Key::sdl);
 		return result;
 	}();
-	auto it = ranges::lower_bound(lookup, sdl, {}, &ImGui_SDL_Key::sdl);
+	auto it = std::ranges::lower_bound(lookup, sdl, {}, &ImGui_SDL_Key::sdl);
 	return ((it != lookup.end()) && (it->sdl == sdl)) ? it->imgui : ImGuiKey_None;
 }
 

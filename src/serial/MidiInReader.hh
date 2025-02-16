@@ -2,13 +2,17 @@
 #define MIDIINREADER_HH
 
 #include "MidiInDevice.hh"
+
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
+
 #include "circular_buffer.hh"
 #include "Poller.hh"
+
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace openmsx {
@@ -49,7 +53,7 @@ private:
 	FileOperations::FILE_t file;
 	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
-	Poller poller;
+	std::optional<Poller> poller;
 
 	FilenameSetting readFilenameSetting;
 };

@@ -22,7 +22,8 @@ public:
 		return data.subspan(y * size_t(maxWidth), maxWidth);
 	}
 	[[nodiscard]] std::span<const Pixel> getLineDirect(unsigned y) const {
-		return const_cast<RawFrame*>(this)->getLineDirect(y);
+		assert(y < getHeight());
+		return data.subspan(y * size_t(maxWidth), maxWidth);
 	}
 
 	[[nodiscard]] unsigned getLineWidthDirect(unsigned y) const {

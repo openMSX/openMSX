@@ -38,7 +38,7 @@ namespace openmsx {
 	}
 }
 
-TurboRFDC::TurboRFDC(const DeviceConfig& config)
+TurboRFDC::TurboRFDC(DeviceConfig& config)
 	: MSXFDC(config)
 	, controller(getScheduler(), drives, getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, std::span{&bank, 1}, 0x4000, 0x4000, 14)

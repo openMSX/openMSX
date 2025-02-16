@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-MSXKanji::MSXKanji(const DeviceConfig& config)
+MSXKanji::MSXKanji(DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName(), "Kanji ROM", config)
 	, isLascom(config.getChildData("type", {}) == "lascom")

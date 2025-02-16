@@ -43,7 +43,7 @@ private:
 class YamahaSKW01 final : public MSXDevice
 {
 public:
-	explicit YamahaSKW01(const DeviceConfig& config);
+	explicit YamahaSKW01(DeviceConfig& config);
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;

@@ -7,8 +7,8 @@
 #include <iterator>
 #include <initializer_list>
 #include <map>
-#include <numeric>
-#include <tuple>
+#include <memory>
+#include <ranges>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -31,38 +31,13 @@ struct always_true {
   * Note: we don't need a variant that uses 'find_if' instead of 'find' because
   * STL already has the 'any_of' algorithm.
   */
-template<typename ITER, typename VAL>
-[[nodiscard]] constexpr bool contains(ITER first, ITER last, const VAL& val)
+template<std::ranges::input_range Range, typename VAL, typename Proj = std::identity>
+[[nodiscard]] constexpr bool contains(Range&& range, const VAL& val, Proj proj = {})
 {
-	// c++20: return std::find(first, last, val) != last;
-	while (first != last) {
-		if (*first == val) return true;
-		++first;
-	}
-	return false;
+	auto first = std::ranges::begin(range);
+	auto last = std::ranges::end(range);
+	return std::ranges::find(first, last, val, proj) != last;
 }
-template<typename RANGE, typename VAL>
-[[nodiscard]] constexpr bool contains(const RANGE& range, const VAL& val)
-{
-	return contains(std::begin(range), std::end(range), val);
-}
-
-template<typename ITER, typename VAL, typename Proj>
-[[nodiscard]] /*constexpr*/ bool contains(ITER first, ITER last, const VAL& val, Proj proj)
-{
-	// c++20: return std::find(first, last, val) != last;
-	while (first != last) {
-		if (std::invoke(proj, *first) == val) return true;
-		++first;
-	}
-	return false;
-}
-template<typename RANGE, typename VAL, typename Proj>
-[[nodiscard]] /*constexpr*/ bool contains(const RANGE& range, const VAL& val, Proj proj)
-{
-	return contains(std::begin(range), std::end(range), val, proj);
-}
-
 
 /** Faster alternative to 'find' when it's guaranteed that the value will be
   * found (if not the behavior is undefined).
@@ -71,24 +46,24 @@ template<typename RANGE, typename VAL, typename Proj>
   * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
   * parameter, we could consider providing such an overload as well.
   */
-template<typename ITER, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ ITER find_unguarded(ITER first, ITER last, const VAL& val, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr Iterator find_unguarded(Iterator first, Sentinel last, const Val& val, Proj proj = {})
 {
 	return find_if_unguarded(first, last,
 		[&](const auto& e) { return std::invoke(proj, e) == val; });
 }
-template<typename RANGE, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto find_unguarded(RANGE& range, const VAL& val, Proj proj = {})
+template<std::ranges::input_range Range, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr auto find_unguarded(Range&& range, const Val& val, Proj proj = {})
 {
-	return find_unguarded(std::begin(range), std::end(range), val, proj);
+	return find_unguarded(std::ranges::begin(range), std::ranges::end(range), val, proj);
 }
 
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
   * will be true for at least one element in the given range.
   * See also 'find_unguarded'.
   */
-template<typename ITER, typename PRED>
-[[nodiscard]] constexpr ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, std::indirect_unary_predicate<Iterator> Predicate>
+[[nodiscard]] constexpr Iterator find_if_unguarded(Iterator first, Sentinel last, Predicate pred)
 {
 	(void)last;
 	while (true) {
@@ -97,10 +72,10 @@ template<typename ITER, typename PRED>
 		++first;
 	}
 }
-template<typename RANGE, typename PRED>
-[[nodiscard]] constexpr auto find_if_unguarded(RANGE& range, PRED pred)
+template<std::ranges::input_range Range, typename Predicate>
+[[nodiscard]] constexpr auto find_if_unguarded(Range&& range, Predicate pred)
 {
-	return find_if_unguarded(std::begin(range), std::end(range), pred);
+	return find_if_unguarded(std::ranges::begin(range), std::ranges::end(range), pred);
 }
 
 /** Similar to the find(_if)_unguarded functions above, but searches from the
@@ -108,18 +83,18 @@ template<typename RANGE, typename PRED>
   * Note that we only need to provide range versions. Because for the iterator
   * versions it is already possible to pass reverse iterators.
   */
-template<typename RANGE, typename VAL, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto rfind_unguarded(RANGE& range, const VAL& val, Proj proj = {})
+template<std::ranges::bidirectional_range Range, typename Val, typename Proj = std::identity>
+[[nodiscard]] constexpr auto rfind_unguarded(Range&& range, const Val& val, Proj proj = {})
 {
-	auto it = find_unguarded(std::rbegin(range), std::rend(range), val, proj);
+	auto it = find_unguarded(std::ranges::rbegin(range), std::ranges::rend(range), val, proj);
 	++it;
 	return it.base();
 }
 
-template<typename RANGE, typename PRED>
-[[nodiscard]] constexpr auto rfind_if_unguarded(RANGE& range, PRED pred)
+template<std::ranges::bidirectional_range Range, typename Predicate>
+[[nodiscard]] constexpr auto rfind_if_unguarded(Range&& range, Predicate pred)
 {
-	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
+	auto it = find_if_unguarded(std::ranges::rbegin(range), std::ranges::rend(range), pred);
 	++it;
 	return it.base();
 }
@@ -146,7 +121,7 @@ void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
 	//    http://stackoverflow.com/questions/13129031/on-implementing-stdswap-in-terms-of-move-assignment-and-move-constructor
 	// It's not clear whether the assert in libstdc++ is conforming
 	// behavior.
-	if (&*it != &v.back()) {
+	if (std::to_address(it) != &v.back()) {
 		*it = std::move(v.back());
 	}
 	v.pop_back();
@@ -168,9 +143,11 @@ void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
   * -second: one past the non-matching elements (in the input range). Similar
   *    to the return value of the remove() algorithm.
   */
-template<typename ForwardIt, typename OutputIt, typename UnaryPredicate>
+template<std::forward_iterator ForwardIt, std::sentinel_for<ForwardIt> Sentinel,
+         std::output_iterator<std::iter_value_t<ForwardIt>> OutputIt,
+         std::indirect_unary_predicate<ForwardIt> Predicate>
 [[nodiscard]] std::pair<OutputIt, ForwardIt> partition_copy_remove(
-	ForwardIt first, ForwardIt last, OutputIt out_true, UnaryPredicate p)
+	ForwardIt first, Sentinel last, OutputIt out_true, Predicate p)
 {
 	first = std::find_if(first, last, p);
 	auto out_false = first;
@@ -187,25 +164,28 @@ l_true:				*out_true++  = std::move(*first++);
 	return std::pair(out_true, out_false);
 }
 
-template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
-[[nodiscard]] auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
+template<std::ranges::forward_range Range,
+         std::output_iterator<std::ranges::range_value_t<Range>> Output,
+         std::predicate<std::ranges::range_value_t<Range>> UnaryPredicate>
+[[nodiscard]] auto partition_copy_remove(Range&& range, Output out_true, UnaryPredicate p)
 {
-	return partition_copy_remove(std::begin(range), std::end(range), out_true, p);
+	return partition_copy_remove(std::ranges::begin(range), std::ranges::end(range), out_true, p);
 }
 
 
 // Like range::transform(), but with equal source and destination.
-template<typename ForwardRange, typename UnaryOperation>
-auto transform_in_place(ForwardRange&& range, UnaryOperation op)
+template<std::ranges::forward_range Range,
+         std::invocable<std::ranges::range_value_t<Range>> Operation>
+auto transform_in_place(Range&& range, Operation op)
 {
-	return std::transform(std::begin(range), std::end(range), std::begin(range), op);
+	return std::ranges::transform(range, std::ranges::begin(range), op);
 }
 
 
 // Returns (a copy of) the minimum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto min_value(InputIterator first, InputIterator last, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Proj = std::identity>
+[[nodiscard]] constexpr auto min_value(Iterator first, Sentinel last, Proj proj = {})
 {
 	assert(first != last);
 	auto result = std::invoke(proj, *first++);
@@ -215,16 +195,16 @@ template<typename InputIterator, typename Proj = std::identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto min_value(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto min_value(Range&& range, Proj proj = {})
 {
-	return min_value(std::begin(range), std::end(range), proj);
+	return min_value(std::ranges::begin(range), std::ranges::end(range), proj);
 }
 
 // Returns (a copy of) the maximum value in [first, last).
 // Requires: first != last.
-template<typename InputIterator, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto max_value(InputIterator first, InputIterator last, Proj proj = {})
+template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel, typename Proj = std::identity>
+[[nodiscard]] constexpr auto max_value(Iterator first, Sentinel last, Proj proj = {})
 {
 	assert(first != last);
 	auto result = std::invoke(proj, *first++);
@@ -234,25 +214,25 @@ template<typename InputIterator, typename Proj = std::identity>
 	return result;
 }
 
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] /*constexpr*/ auto max_value(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto max_value(Range&& range, Proj proj = {})
 {
-	return max_value(std::begin(range), std::end(range), proj);
+	return max_value(std::ranges::begin(range), std::ranges::end(range), proj);
 }
 
 
 // Returns the sum of the elements in the given range.
 // Assumes: elements can be summed via operator+, with a default constructed
 // value being the identity-element for this operator.
-template<typename InputRange, typename Proj = std::identity>
-[[nodiscard]] constexpr auto sum(InputRange&& range, Proj proj = {})
+template<std::ranges::input_range Range, typename Proj = std::identity>
+[[nodiscard]] constexpr auto sum(Range&& range, Proj proj = {})
 {
 	using Iter = decltype(std::begin(range));
 	using VT = typename std::iterator_traits<Iter>::value_type;
 	using RT = decltype(std::invoke(proj, std::declval<VT>()));
 
-	auto first = std::begin(range);
-	auto last = std::end(range);
+	auto first = std::ranges::begin(range);
+	auto last = std::ranges::end(range);
 	RT init{};
 	while (first != last) {
 		init = std::move(init) + std::invoke(proj, *first++);
@@ -272,9 +252,9 @@ namespace detail {
 // Convert any range to a vector. Optionally specify the type of the elements
 // in the result.
 // Example:
-//   auto v1 = to_vector(view::drop(my_list, 3));
+//   auto v1 = to_vector(std::views::drop(my_list, 3));
 //   auto v2 = to_vector<Base*>(getDerivedPtrs());
-template<typename T = void, typename Range>
+template<typename T = void, std::ranges::common_range Range>
 [[nodiscard]] auto to_vector(Range&& range)
 	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
 {
@@ -308,7 +288,7 @@ template<typename Result, typename Range, typename... Tail>
 void append(Result& x, Range&& y, Tail&&... tail)
 {
 #ifdef _GLIBCXX_DEBUG
-	// Range can be a view::transform
+	// Range can be a std::views::transform
 	// but vector::insert in libstdc++ debug mode will wrongly try
 	// to take its address to check for self-insertion (see
 	// gcc/include/c++/7.1.0/debug/functions.h
@@ -324,7 +304,7 @@ void append(Result& x, Range&& y, Tail&&... tail)
 
 // Allow move from an rvalue-vector.
 // But don't allow to move from any rvalue-range. It breaks stuff like
-//   append(v, view::reverse(w));
+//   append(v, std::views::reverse(w));
 template<typename Result, typename T2, typename... Tail>
 void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
 {
@@ -497,21 +477,6 @@ public:
 	[[nodiscard]] constexpr auto* data() { return storage.data(); }
 
 	[[nodiscard]] friend constexpr auto operator<=>(const array_with_enum_index& x, const array_with_enum_index& y) = default;
-};
-
-template<typename Iterator, typename Sentinel>
-class iterator_range
-{
-public:
-	iterator_range(Iterator first_, Sentinel last_)
-		: first(first_), last(last_) {}
-
-	Iterator begin() const { return first; }
-	Sentinel end()   const { return last; }
-
-private:
-	Iterator first;
-	Sentinel last;
 };
 
 #endif

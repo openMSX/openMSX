@@ -265,7 +265,7 @@ static constexpr uint8_t MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
-MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
+MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(DeviceConfig& config)
 	: MSXDevice(config)
 	, flash("MFR SCC+ SD flash", AmdFlashChip::M29W640GB, {}, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::Mode::Compatible)

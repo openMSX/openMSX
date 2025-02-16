@@ -49,6 +49,7 @@
 #include "outer.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -1526,7 +1527,7 @@ void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 	// TODO output rhythm on separate channels?
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
-		ranges::fill(bufs, nullptr);
+		std::ranges::fill(bufs, nullptr);
 		return;
 	}
 
@@ -1545,7 +1546,7 @@ void YMF262::generateChannels(std::span<float*> bufs, unsigned num)
 		unsigned lfo_am = lfo_am_depth ? tmp : tmp / 4;
 
 		// clear channel outputs
-		ranges::fill(chanOut, 0);
+		std::ranges::fill(chanOut, 0);
 
 		// channels 0,3 1,4 2,5  9,12 10,13 11,14
 		// in either 2op or 4op mode

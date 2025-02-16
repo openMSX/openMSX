@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <ranges>
 #include <span>
 
 namespace openmsx {
@@ -312,9 +313,10 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted("Checkerboard:"sv);
 				simpleToolTip("Used as background in 'Sprite attribute' and 'Rendered sprites' view");
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				auto checkerBoardColorFlags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha;
+				ImGui::ColorEdit4("checkerboard color1", checkerBoardColor1.data(), checkerBoardColorFlags);
 				ImGui::SameLine();
-				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+				ImGui::ColorEdit4("checkerboard color2", checkerBoardColor2.data(), checkerBoardColorFlags);
 				im::Indent([&]{
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.0f);
 					ImGui::InputInt("size", &checkerBoardSize);
@@ -409,7 +411,11 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
 						auto pattern = (size == 16) ? ((16 * gridPos.y) + gridPos.x) * 4
 						                            : ((32 * gridPos.y) + gridPos.x) * 1;
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 						ImGui::StrCat("pattern: ", pattern);
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
+						ImGui::StrCat("address: 0x", hex_string<5>(patTable.getAddress(8 * pattern)));
+						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 						auto recipPatTex = recip((size == 16) ? gl::vec2{16, 4} : gl::vec2{32, 8});
 						auto uv1 = gl::vec2(gridPos) * recipPatTex;
 						auto uv2 = uv1 + recipPatTex;
@@ -481,10 +487,15 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						gl::vec2 zoomPatSize{float(size * zm)};
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
 						auto sprite = 8 * gridPos.y + gridPos.x;
+						int addr = getSpriteAttrAddr(sprite, mode);
 
 						ImGui::SameLine();
 						im::Group([&]{
+							ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 							ImGui::StrCat("sprite: ", sprite);
+							ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
+							ImGui::StrCat("address: 0x", hex_string<5>(attTable.getAddress(addr)));
+							ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 							auto pos = ImGui::GetCursorPos();
 							if (checkerBoardSize) {
 								ImGui::Image(checkerTex.getImGui(), 3.0f * zoomPatSize,
@@ -496,7 +507,6 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 						});
 						ImGui::SameLine();
 						im::Group([&]{
-							int addr = getSpriteAttrAddr(sprite, mode);
 							ImGui::StrCat("x: ", attTable[addr + 1],
 							              "  y: ", attTable[addr + 0]);
 							ImGui::StrCat("pattern: ", attTable[addr + 2]);
@@ -518,6 +528,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 											if (x != 3) ImGui::SameLine();
 										}
 									}
+									ImGui::StrCat("address: 0x", hex_string<5>(attTable.getAddress(colorBase)));
 								});
 							}
 						});
@@ -611,7 +622,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 
 				if (mode == 1) {
 					auto visibleSprites = subspan(spriteBuffer[line], 0, count);
-					for (const auto& spr : view::reverse(visibleSprites)) {
+					for (const auto& spr : std::views::reverse(visibleSprites)) {
 						uint8_t colIdx = spr.colorAttrib & 0x0f;
 						if (colIdx == 0 && transparent) continue;
 						auto color = palette[colIdx];

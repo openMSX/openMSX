@@ -1,15 +1,17 @@
 #include "V9990SDLRasterizer.hh"
+
 #include "V9990.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
 #include "Display.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -133,7 +135,7 @@ void V9990SDLRasterizer::drawBorder(
 
 	unsigned lineWidth = vdp.getLineWidth();
 	for (auto y : xrange(startY, endY)) {
-		ranges::fill(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
+		std::ranges::fill(workFrame->getLineDirect(y).subspan(startX, size_t(endX - startX)),
 		             bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}

@@ -1,4 +1,5 @@
 #include "MSXCommandController.hh"
+
 #include "GlobalCommandController.hh"
 #include "Reactor.hh"
 #include "MSXEventDistributor.hh"
@@ -8,8 +9,11 @@
 #include "Setting.hh"
 #include "Event.hh"
 #include "MSXException.hh"
+
 #include "TemporaryString.hh"
 #include "stl.hh"
+
+#include <algorithm>
 #include <iostream>
 #include <memory>
 
@@ -120,7 +124,7 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 
 Setting* MSXCommandController::findSetting(std::string_view name) const
 {
-	auto it = ranges::find(settings, name, &Setting::getBaseName);
+	auto it = std::ranges::find(settings, name, &Setting::getBaseName);
 	return it != settings.end() ? *it : nullptr;
 }
 

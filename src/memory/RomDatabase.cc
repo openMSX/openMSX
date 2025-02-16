@@ -13,11 +13,12 @@
 #include "rapidsax.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "view.hh"
 #include "xxhash.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
+#include <ranges>
 #include <string_view>
 
 using std::string_view;
@@ -40,16 +41,16 @@ public:
 	}
 
 	// rapidsax handler interface
-	void start(string_view tag);
-	void attribute(string_view name, string_view value);
-	void text(string_view txt);
+	void start(zstring_view tag);
+	void attribute(zstring_view name, zstring_view value);
+	void text(zstring_view txt);
 	void stop();
-	void doctype(string_view txt);
+	void doctype(zstring_view txt);
 
 	[[nodiscard]] string_view getSystemID() const { return systemID; }
 
 private:
-	[[nodiscard]] String32 cIndex(string_view str) const;
+	[[nodiscard]] String32 cIndex(zstring_view str) const;
 	void addEntries();
 	void addAllEntries();
 
@@ -93,18 +94,18 @@ private:
 
 	std::vector<Dump> dumps;
 	string_view system;
-	String32 title;
-	String32 company;
-	String32 year;
-	String32 country;
-	unsigned genMSXid;
+	String32 title = {};
+	String32 company = {};
+	String32 year = {};
+	String32 country = {};
+	unsigned genMSXid = 0;
 
 	State state = BEGIN;
 	unsigned unknownLevel = 0;
 	size_t initialSize;
 };
 
-void DBParser::start(string_view tag)
+void DBParser::start(zstring_view tag)
 {
 	if (unknownLevel) {
 		++unknownLevel;
@@ -270,7 +271,7 @@ void DBParser::start(string_view tag)
 	++unknownLevel;
 }
 
-void DBParser::attribute(string_view name, string_view value)
+void DBParser::attribute(zstring_view name, zstring_view value)
 {
 	if (unknownLevel) return;
 
@@ -303,7 +304,7 @@ void DBParser::attribute(string_view name, string_view value)
 	}
 }
 
-void DBParser::text(string_view txt)
+void DBParser::text(zstring_view txt)
 {
 	if (unknownLevel) return;
 
@@ -368,20 +369,17 @@ void DBParser::text(string_view txt)
 	}
 }
 
-String32 DBParser::cIndex(string_view str) const
+String32 DBParser::cIndex(zstring_view str) const
 {
-	auto* begin = const_cast<char*>(str.data());
-	auto* end = begin + str.size();
-	*end = 0;
 	String32 result;
-	toString32(bufStart, begin, result);
+	toString32(bufStart, str.data(), result);
 	return result;
 }
 
 // called on </software>
 void DBParser::addEntries()
 {
-	append(db, view::transform(dumps, [&](auto& d) {
+	append(db, std::views::transform(dumps, [&](auto& d) {
 		return RomDatabase::Entry{
 			d.hash,
 			RomInfo(title, year, company, country, d.origValue,
@@ -402,7 +400,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
+	std::ranges::sort(mid, last, {}, &RomDatabase::Entry::sha1);
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.
@@ -506,14 +504,14 @@ void DBParser::stop()
 		std::array<char, 8 + 4> buf;
 		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				ranges::copy(t,                      subspan<8>(buf, 0));
-				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 8));
+				copy_to_range(t,                      subspan<8>(buf, 0));
+				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 8));
 				t = string_view(buf.data(), 8 + 4);
 			}
 		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
-				ranges::copy(t,                      subspan<6>(buf, 0));
-				ranges::copy(std::string_view(s, 4), subspan<4>(buf, 6));
+				copy_to_range(t,                      subspan<6>(buf, 0));
+				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 6));
 				t = string_view(buf.data(), 6 + 4);
 			}
 		}
@@ -543,7 +541,7 @@ void DBParser::stop()
 	}
 }
 
-void DBParser::doctype(string_view txt)
+void DBParser::doctype(zstring_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM \"");
 	if (pos1 == string_view::npos) return;
@@ -557,7 +555,7 @@ static void parseDB(CliComm& cliComm, char* buf, char* bufStart,
                     RomDatabase::RomDB& db, UnknownTypes& unknownTypes)
 {
 	DBParser handler(db, unknownTypes, cliComm, bufStart);
-	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf);
+	rapidsax::parse<rapidsax::trimWhitespace | rapidsax::zeroTerminateStrings>(handler, buf);
 
 	if (handler.getSystemID() != "softwaredb1.dtd") {
 		throw rapidsax::ParseError(

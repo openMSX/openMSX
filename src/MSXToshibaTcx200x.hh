@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXToshibaTcx200x final : public MSXDevice
 {
 public:
-	explicit MSXToshibaTcx200x(const DeviceConfig& config);
+	explicit MSXToshibaTcx200x(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

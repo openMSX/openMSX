@@ -25,7 +25,7 @@
 
 namespace openmsx {
 
-CanonWordProcessor::CanonWordProcessor(const DeviceConfig& config)
+CanonWordProcessor::CanonWordProcessor(DeviceConfig& config)
 	: MSXDevice(config)
 	, programRom   (strCat(config.getAttributeValue("id"), "_program"),    "rom", config, "program")
 	, dictionaryRom(strCat(config.getAttributeValue("id"), "_dictionary"), "rom", config, "dictionary")

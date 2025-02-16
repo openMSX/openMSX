@@ -103,7 +103,7 @@ void HD::switchImage(const Filename& newFilename)
 	                                   filename.getResolved());
 }
 
-size_t HD::getNbSectorsImpl() const
+size_t HD::getNbSectorsImpl()
 {
 	return filesize / sizeof(SectorBuffer);
 }

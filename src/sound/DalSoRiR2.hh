@@ -6,12 +6,14 @@
 #include "Observer.hh"
 #include "YMF278B.hh"
 
+#include <optional>
+
 namespace openmsx {
 
 class DalSoRiR2 final : public MSXDevice, private Observer<Setting>
 {
 public:
-	explicit DalSoRiR2(const DeviceConfig& config);
+	explicit DalSoRiR2(DeviceConfig& config);
 	~DalSoRiR2() override;
 
 	void powerUp(EmuTime::param time) override;
@@ -30,14 +32,14 @@ public:
 
 private:
 	void setRegCfg(byte value);
-	byte* getSramAddr(word addr);
+	std::optional<size_t> getSramAddr(word addr) const;
 	unsigned getFlashAddr(word addr) const;
 
 	void setupMemPtrs(
 		bool mode0,
 		std::span<const uint8_t> rom,
 		std::span<const uint8_t> ram,
-		std::span<YMF278::Block128, 32> memPtrs);
+		std::span<YMF278::Block128, 32> memPtrs) const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

@@ -8,7 +8,7 @@ namespace openmsx {
 class NationalFDC final : public WD2793BasedFDC
 {
 public:
-	explicit NationalFDC(const DeviceConfig& config);
+	explicit NationalFDC(DeviceConfig& config);
 
 	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;

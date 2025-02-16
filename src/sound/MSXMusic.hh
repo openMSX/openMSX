@@ -21,7 +21,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit MSXMusicBase(const DeviceConfig& config);
+	explicit MSXMusicBase(DeviceConfig& config);
 	~MSXMusicBase() override = default;
 
 	void writePort(bool port, byte value, EmuTime::param time);
@@ -36,7 +36,7 @@ SERIALIZE_CLASS_VERSION(MSXMusicBase, 3);
 class MSXMusic final : public MSXMusicBase
 {
 public:
-	explicit MSXMusic(const DeviceConfig& config);
+	explicit MSXMusic(DeviceConfig& config);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -48,7 +48,7 @@ SERIALIZE_CLASS_VERSION(MSXMusic, 3); // must be same as MSXMusicBase
 class MSXMusicWX final : public MSXMusicBase
 {
 public:
-	explicit MSXMusicWX(const DeviceConfig& config);
+	explicit MSXMusicWX(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;

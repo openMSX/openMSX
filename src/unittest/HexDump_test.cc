@@ -2,15 +2,14 @@
 
 #include "HexDump.hh"
 
-#include "ranges.hh"
-
+#include <algorithm>
 #include <bit>
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {
 	auto buf = HexDump::decode(encoded);
 	REQUIRE(buf.size() == decoded.size());
-	CHECK(ranges::equal(std::span{buf}, decoded));
+	CHECK(std::ranges::equal(std::span{buf}, decoded));
 }
 
 static void test(const std::string& decoded, const std::string& encoded)

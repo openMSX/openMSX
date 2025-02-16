@@ -1,8 +1,11 @@
 #include "YM2413OriginalNukeYKT.hh"
+
 #include "narrow.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -17,13 +20,13 @@ YM2413::YM2413()
 void YM2413::reset()
 {
 	OPLL_Reset(&opll, opll_type_ym2413b);
-	ranges::fill(regs, 0);
+	std::ranges::fill(regs, 0);
 }
 
 void YM2413::generateChannels(std::span<float*, 9 + 5> out_, uint32_t n)
 {
 	std::array<float*, 9 + 5> out;
-	ranges::copy(out_, out);
+	copy_to_range(out_, out);
 
 	auto f = [&] {
 		std::array<int32_t, 2> buf;
@@ -66,7 +69,7 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 		while (cycle_offset < allowed_offset) [[unlikely]] {
 			float d = 0.0f;
 			std::array<float*, 9 + 5> dummy;
-			ranges::fill(dummy, &d);
+			std::ranges::fill(dummy, &d);
 			generateChannels(dummy, 1);
 		}
 		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;

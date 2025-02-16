@@ -3,8 +3,9 @@
 #include "IntegerSetting.hh"
 
 #include "narrow.hh"
-#include "ranges.hh"
 #include "strCat.hh"
+
+#include <algorithm>
 
 namespace openmsx {
 
@@ -28,7 +29,7 @@ JoystickManager::~JoystickManager()
 
 size_t JoystickManager::getFreeSlot()
 {
-	if (auto it = ranges::find(infos, nullptr, &Info::joystick); it != infos.end()) {
+	if (auto it = std::ranges::find(infos, nullptr, &Info::joystick); it != infos.end()) {
 		return std::distance(infos.begin(), it);
 	}
 	auto idx = infos.size();
@@ -51,7 +52,7 @@ void JoystickManager::add(int deviceIndex)
 
 void JoystickManager::remove(int instanceId)
 {
-	auto it = ranges::find(infos, instanceId, &Info::instanceId);
+	auto it = std::ranges::find(infos, instanceId, &Info::instanceId);
 	if (it == infos.end()) return; // this shouldn't happen
 
 	SDL_JoystickClose(it->joystick);
@@ -61,7 +62,7 @@ void JoystickManager::remove(int instanceId)
 
 std::vector<JoystickId> JoystickManager::getConnectedJoysticks() const
 {
-	// TODO c++20 view::filter | view::transform
+	// TODO c++20 std::views::filter | std::views::transform
 	std::vector<JoystickId> result;
 	for (auto i : xrange(infos.size())) {
 		if (!infos[i].joystick) continue;
@@ -94,7 +95,7 @@ std::optional<unsigned> JoystickManager::getNumButtons(JoystickId joyId) const
 std::optional<JoystickId> JoystickManager::translateSdlInstanceId(SDL_Event& evt) const
 {
 	int instanceId = evt.jbutton.which; // any SDL joystick event
-	auto it = ranges::find(infos, instanceId, &Info::instanceId);
+	auto it = std::ranges::find(infos, instanceId, &Info::instanceId);
 	if (it == infos.end()) return {}; // should not happen
 	evt.jbutton.which = narrow<int>(std::distance(infos.begin(), it));
 	return JoystickId(evt.jbutton.which);

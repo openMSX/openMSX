@@ -92,41 +92,46 @@ private:
 class XMLElement
 {
 	// iterator classes for children and attributes
-	// TODO c++20: use iterator + sentinel instead of 2 x iterator
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
 	struct ChildIterator {
 		using difference_type = ptrdiff_t;
-		using value_type = const XMLElement;
+		using value_type = Elem;
 		using pointer = value_type*;
 		using reference = value_type&;
 		using iterator_category = std::forward_iterator_tag;
 
-		const XMLElement* elem;
+		Elem* elem;
 
-		const XMLElement& operator*() const { return *elem; }
+		Elem& operator*() const { return *elem; }
 		ChildIterator& operator++() { elem = elem->nextSibling; return *this; }
 		ChildIterator operator++(int) { auto result = *this; elem = elem->nextSibling; return result; }
 		[[nodiscard]] bool operator==(const ChildIterator& i) const = default;
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return elem == nullptr; }
 	};
-	static_assert(std::forward_iterator<ChildIterator>);
-	struct ChildRange {
-		const XMLElement* elem;
-		[[nodiscard]] ChildIterator begin() const { return {elem->firstChild}; }
-		[[nodiscard]] ChildIterator end()   const { return {nullptr}; }
-	};
-	static_assert(std::ranges::range<ChildRange>);
+	static_assert(std::forward_iterator<ChildIterator<XMLElement>>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, ChildIterator<XMLElement>>);
 
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
+	struct ChildRange {
+		Elem* elem;
+		[[nodiscard]] ChildIterator<Elem> begin() const { return {elem->firstChild}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
+	};
+	static_assert(std::ranges::range<ChildRange<XMLElement>>);
+
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
 	struct NamedChildIterator {
 		using difference_type = ptrdiff_t;
-		using value_type = const XMLElement*;
+		using value_type = Elem*;
 		using pointer = value_type*;
 		using reference = value_type&;
 		using iterator_category = std::forward_iterator_tag;
 
-		const XMLElement* elem;
+		Elem* elem;
 		std::string_view name;
 
 		NamedChildIterator() : elem(nullptr) {}
-		NamedChildIterator(const XMLElement* elem_, std::string_view name_)
+		NamedChildIterator(Elem* elem_, std::string_view name_)
 			: elem(elem_), name(name_)
 		{
 			while (elem && elem->getName() != name) {
@@ -134,7 +139,7 @@ class XMLElement
 			}
 		}
 
-		const XMLElement* operator*() const { return elem; }
+		Elem* operator*() const { return elem; }
 		NamedChildIterator& operator++() {
 			do {
 				elem = elem->nextSibling;
@@ -143,15 +148,19 @@ class XMLElement
 		}
 		NamedChildIterator operator++(int) { auto result = *this; ++(*this); return result; }
 		[[nodiscard]] bool operator==(const NamedChildIterator& i) const { return elem == i.elem; }
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return elem == nullptr; }
 	};
-	static_assert(std::forward_iterator<NamedChildIterator>);
+	static_assert(std::forward_iterator<NamedChildIterator<XMLElement>>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, NamedChildIterator<XMLElement>>);
+
+	template<typename Elem> // 'XMLElement' or 'const XMLElement'
 	struct NamedChildRange {
-		const XMLElement* elem;
+		Elem* elem;
 		std::string_view name;
-		[[nodiscard]] NamedChildIterator begin() const { return {elem->firstChild, name}; }
-		[[nodiscard]] NamedChildIterator end()   const { return {nullptr, std::string_view{}}; }
+		[[nodiscard]] NamedChildIterator<Elem> begin() const { return {elem->firstChild, name}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
-	static_assert(std::ranges::range<NamedChildRange>);
+	static_assert(std::ranges::range<NamedChildRange<XMLElement>>);
 
 	struct AttributeIterator {
 		using difference_type = ptrdiff_t;
@@ -166,12 +175,14 @@ class XMLElement
 		AttributeIterator& operator++() { attr = attr->nextAttribute; return *this; }
 		AttributeIterator operator++(int) { auto result = *this; attr = attr->nextAttribute; return result; }
 		[[nodiscard]] bool operator==(const AttributeIterator& i) const = default;
+		[[nodiscard]] bool operator==(std::default_sentinel_t) const { return attr == nullptr; }
 	};
 	static_assert(std::forward_iterator<AttributeIterator>);
+	static_assert(std::sentinel_for<std::default_sentinel_t, AttributeIterator>);
 	struct AttributeRange {
 		const XMLElement* elem;
 		[[nodiscard]] AttributeIterator begin() const { return {elem->firstAttribute}; }
-		[[nodiscard]] AttributeIterator end()   const { return {nullptr}; }
+		[[nodiscard]] std::default_sentinel_t end() const { return {}; }
 	};
 	static_assert(std::ranges::range<AttributeRange>);
 
@@ -192,9 +203,12 @@ public:
 
 	[[nodiscard]] bool hasChildren() const { return firstChild; }
 	[[nodiscard]] const XMLElement* getFirstChild() const { return firstChild; }
+	[[nodiscard]] XMLElement* getFirstChild() { return firstChild; }
 	[[nodiscard]] const XMLElement* findChild(std::string_view childName) const;
-	[[nodiscard]] const XMLElement* findChild(std::string_view childName, const XMLElement*& hint) const;
+	[[nodiscard]] XMLElement* findChild(std::string_view childName);
+	[[nodiscard]] XMLElement* findChild(std::string_view childName, XMLElement*& hint);
 	[[nodiscard]] const XMLElement& getChild(std::string_view childName) const;
+	[[nodiscard]] XMLElement& getChild(std::string_view childName);
 
 	[[nodiscard]] std::string_view getChildData(std::string_view childName) const;
 	[[nodiscard]] std::string_view getChildData(std::string_view childName,
@@ -203,11 +217,15 @@ public:
 	[[nodiscard]] int getChildDataAsInt(std::string_view childName, int defaultValue) const;
 
 	[[nodiscard]] size_t numChildren() const;
-	[[nodiscard]] ChildRange getChildren() const { return {this}; }
-	[[nodiscard]] NamedChildRange getChildren(std::string_view childName) const { return {this, childName}; }
+	[[nodiscard]] ChildRange<const XMLElement> getChildren() const { return {this}; }
+	[[nodiscard]] ChildRange<      XMLElement> getChildren()       { return {this}; }
+	[[nodiscard]] NamedChildRange<const XMLElement> getChildren(std::string_view childName) const { return {this, childName}; }
+	[[nodiscard]] NamedChildRange<      XMLElement> getChildren(std::string_view childName)       { return {this, childName}; }
 
 	[[nodiscard]] const XMLAttribute* findAttribute(std::string_view attrName) const;
+	[[nodiscard]] XMLAttribute* findAttribute(std::string_view attrName);
 	[[nodiscard]] const XMLAttribute& getAttribute(std::string_view attrName) const;
+	[[nodiscard]] XMLAttribute& getAttribute(std::string_view attrName);
 	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName) const;
 	[[nodiscard]] std::string_view getAttributeValue(std::string_view attrName,
 	                                                 std::string_view defaultValue) const;
@@ -288,6 +306,7 @@ public:
 	void load(const std::string& filename, std::string_view systemID);
 
 	[[nodiscard]] const XMLElement* getRoot() const { return root; }
+	[[nodiscard]] XMLElement* getRoot() { return root; }
 	void setRoot(XMLElement* root_) { assert(!root); root = root_; }
 
 	[[nodiscard]] XMLElement* allocateElement(const char* name);

@@ -17,13 +17,13 @@
 
 #include "enumerate.hh"
 #include "escape_newline.hh"
-#include "ranges.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -77,7 +77,7 @@ static const std::vector<std::string>& getAllToyScripts(ImGuiManager& manager)
 					result.emplace_back(cmd.view());
 				}
 			}
-			ranges::sort(result, StringOp::caseless{});
+			std::ranges::sort(result, StringOp::caseless{});
 		}
 	}
 	refresh += ImGui::GetIO().DeltaTime;
@@ -106,7 +106,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
 		if (ImGui::MenuItem("Simple notes widget ...")) {
-			if (auto it = ranges::find(notes, false, &Note::show);
+			if (auto it = std::ranges::find(notes, false, &Note::show);
 			    it != notes.end()) {
 				// reopen a closed note
 				it->show = true;
@@ -140,7 +140,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 			const auto& toys = getAllToyScripts(manager);
 			for (const auto& toy : toys) {
 				std::string displayText = toy.substr(7);
-				ranges::replace(displayText, '_', ' ');
+				std::ranges::replace(displayText, '_', ' ');
 				if (ImGui::MenuItem(displayText.c_str())) {
 					manager.executeDelayed(TclObject(toy));
 				}
@@ -212,7 +212,7 @@ void ImGuiTools::nextScreenshotName()
 	if (prefix.ends_with(Display::SCREENSHOT_EXTENSION)) prefix.remove_suffix(Display::SCREENSHOT_EXTENSION.size());
 	if (prefix.size() > 4) {
 		auto counter = prefix.substr(prefix.size() - 4);
-		if (ranges::all_of(counter, [](char c) { return ('0' <= c) && (c <= '9'); })) {
+		if (std::ranges::all_of(counter, [](char c) { return ('0' <= c) && (c <= '9'); })) {
 			prefix.remove_suffix(4);
 			if (prefix.ends_with(' ') || prefix.ends_with('_')) {
 				prefix.remove_suffix(1);

@@ -202,10 +202,10 @@ unsigned SCSILS120::inquiry()
 	buffer[0] = SCSI::DT_DirectAccess;
 	buffer[1] = 0x80; // removable
 	if (fdsMode) {
-		ranges::copy(subspan<6>(inqData, 2), &buffer[2]);
-		ranges::copy(fds120, &buffer[8]);
+		std::ranges::copy(subspan<6>(inqData, 2), &buffer[2]);
+		std::ranges::copy(fds120, &buffer[8]);
 	} else {
-		ranges::copy(subspan(inqData, 2), &buffer[2]);
+		std::ranges::copy(subspan(inqData, 2), &buffer[2]);
 	}
 
 	if (!(mode & BIT_SCSI2)) {
@@ -235,7 +235,7 @@ unsigned SCSILS120::inquiry()
 	if (length > 36) {
 		std::string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
-		ranges::copy(filename, &buffer[36]);
+		std::ranges::copy(filename, &buffer[36]);
 	}
 	return length;
 }
@@ -489,7 +489,7 @@ unsigned SCSILS120::executeCmd(std::span<const uint8_t, 12> cdb_, SCSI::Phase& p
 {
 	using enum SCSI::Phase;
 
-	ranges::copy(cdb_, cdb);
+	copy_to_range(cdb_, cdb);
 	message = 0;
 	phase = STATUS;
 	blocks = 0;
@@ -694,9 +694,9 @@ int SCSILS120::msgOut(uint8_t value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-size_t SCSILS120::getNbSectorsImpl() const
+size_t SCSILS120::getNbSectorsImpl()
 {
-	return file.is_open() ? (const_cast<File&>(file).getSize() / SECTOR_SIZE) : 0;
+	return file.is_open() ? (file.getSize() / SECTOR_SIZE) : 0;
 }
 
 bool SCSILS120::isWriteProtectedImpl() const

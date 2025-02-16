@@ -3,8 +3,6 @@
 
 #include "narrow.hh"
 #include "small_buffer.hh"
-#include "stl.hh"
-#include "view.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
 
@@ -16,6 +14,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string_view>
 
@@ -131,12 +130,13 @@ public:
 
 	// add elements to a Tcl list
 	template<typename T> void addListElement(const T& t) { addListElement(newObj(t)); }
-	template<typename ITER> void addListElements(ITER first, ITER last) {
-		addListElementsImpl(first, last,
-		                typename std::iterator_traits<ITER>::iterator_category());
+
+	template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
+	void addListElements(Iterator first, Sentinel last) {
+		addListElementsImpl(first, last);
 	}
-	template<typename Range> void addListElements(Range&& range) {
-		addListElements(std::begin(range), std::end(range));
+	template<std::ranges::input_range Range> void addListElements(Range&& range) {
+		addListElements(std::ranges::begin(range), std::ranges::end(range));
 	}
 	template<typename... Args> void addListElement(Args&&... args) {
 		addListElementsImpl({newObj(std::forward<Args>(args))...});
@@ -263,15 +263,15 @@ private:
 		Tcl_SetByteArrayObj(obj, b.data(), int(b.size()));
 	}
 
-	template<typename ITER>
-	void addListElementsImpl(ITER first, ITER last, std::input_iterator_tag) {
-		for (ITER it = first; it != last; ++it) {
+	template<std::input_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
+	void addListElementsImpl(Iterator first, Sentinel last) {
+		for (auto it = first; it != last; ++it) {
 			addListElement(*it);
 		}
 	}
-	template<typename ITER>
-	void addListElementsImpl(ITER first, ITER last, std::random_access_iterator_tag) {
-		small_buffer<Tcl_Obj*, 128> objv(view::transform(iterator_range(first, last),
+	template<std::random_access_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
+	void addListElementsImpl(Iterator first, Sentinel last) {
+		small_buffer<Tcl_Obj*, 128> objv(std::views::transform(std::ranges::subrange(first, last),
 			[](const auto& t) { return newObj(t); }));
 		addListElementsImpl(narrow<int>(objv.size()), objv.data());
 	}

@@ -55,6 +55,8 @@
 
 #include <SDL.h>
 
+#include <algorithm>
+
 namespace openmsx {
 
 using namespace std::literals;
@@ -263,10 +265,10 @@ void ImGuiManager::registerPart(ImGuiPartInterface* part)
 
 void ImGuiManager::unregisterPart(ImGuiPartInterface* part)
 {
-	if (auto it1 = ranges::find(parts, part); it1 != parts.end()) {
+	if (auto it1 = std::ranges::find(parts, part); it1 != parts.end()) {
 		*it1 = nullptr;
 		removeParts = true; // filter nullptr later
-	} else if (auto it2 = ranges::find(toBeAddedParts, part); it2 != toBeAddedParts.end()) {
+	} else if (auto it2 = std::ranges::find(toBeAddedParts, part); it2 != toBeAddedParts.end()) {
 		toBeAddedParts.erase(it2); // fine to remove now
 	}
 }
@@ -275,7 +277,7 @@ void ImGuiManager::updateParts()
 {
 	if (removeParts) {
 		removeParts = false;
-		parts.erase(ranges::remove(parts, nullptr), parts.end());
+		std::erase(parts, nullptr);
 	}
 
 	append(parts, toBeAddedParts);
@@ -309,7 +311,7 @@ static gl::ivec2 ensureVisible(gl::ivec2 windowPos, gl::ivec2 windowSize)
 	};
 
 	if (const auto& monitors = ImGui::GetPlatformIO().Monitors;
-	    !monitors.empty() && ranges::none_of(monitors, overlaps)) {
+	    !monitors.empty() && std::ranges::none_of(monitors, overlaps)) {
 		// window isn't visible in any of the monitors
 		// -> place centered on primary monitor
 		return gl::ivec2(SDL_WINDOWPOS_CENTERED);

@@ -1,10 +1,11 @@
 #include "InfoCommand.hh"
+
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include "unreachable.hh"
-#include "view.hh"
-#include <iostream>
+
 #include <cassert>
+#include <iostream>
+#include <ranges>
 
 namespace openmsx {
 
@@ -48,7 +49,7 @@ void InfoCommand::execute(std::span<const TclObject> tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		result.addListElements(view::transform(
+		result.addListElements(std::views::transform(
 			infoTopics, [](auto* t) { return t->getName(); }));
 		break;
 	default:
@@ -92,7 +93,7 @@ void InfoCommand::tabCompletion(std::vector<std::string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		completeString(tokens, view::transform(infoTopics,
+		completeString(tokens, std::views::transform(infoTopics,
 			[](auto* t) -> std::string_view { return t->getName(); }));
 		break;
 	}

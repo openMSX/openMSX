@@ -4,11 +4,11 @@
 #include "CommandController.hh"
 #include "Timer.hh"
 
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <string_view>
 
@@ -38,7 +38,7 @@ LedStatus::LedStatus(
 	}))
 	, lastTime(Timer::getTime())
 {
-	ranges::fill(ledValue, false);
+	std::ranges::fill(ledValue, false);
 }
 
 void LedStatus::setLed(Led led, bool status)

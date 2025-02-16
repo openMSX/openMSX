@@ -290,7 +290,7 @@ void BitmapConverter::renderBogus(std::span<Pixel, 256> buf) const
 	// show palette color 15.
 	// When this is in effect, the VRAM is not refreshed anymore, but that
 	// is not emulated.
-	ranges::fill(buf, palette16[15]);
+	std::ranges::fill(buf, palette16[15]);
 }
 
 } // namespace openmsx

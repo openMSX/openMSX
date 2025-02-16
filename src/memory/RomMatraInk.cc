@@ -1,11 +1,10 @@
 #include "RomMatraInk.hh"
-#include "ranges.hh"
+
 #include "serialize.hh"
-#include <array>
 
 namespace openmsx {
 
-RomMatraInk::RomMatraInk(const DeviceConfig& config, Rom&& rom_)
+RomMatraInk::RomMatraInk(DeviceConfig& config, Rom&& rom_)
         : MSXRom(config, std::move(rom_))
         , flash(rom, AmdFlashChip::AM29F040, {}, config)
 {

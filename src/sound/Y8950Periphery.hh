@@ -53,7 +53,7 @@ class Y8950PeripheryFactory
 {
 public:
 	[[nodiscard]] static std::unique_ptr<Y8950Periphery> create(
-		MSXAudio& audio, const DeviceConfig& config,
+		MSXAudio& audio, DeviceConfig& config,
 		const std::string& soundDeviceName);
 };
 

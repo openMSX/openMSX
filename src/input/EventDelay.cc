@@ -9,12 +9,12 @@
 
 #include "narrow.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "stl.hh"
 
-#include <cassert>
-
 #include <SDL.h>
+
+#include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
@@ -99,7 +99,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 		if (getType(e) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
 			const auto& keyEvent = get_event<KeyEvent>(e);
 			int maskedKeyCode = int(keyEvent.getKeyCode()) & int(Keys::K_MASK);
-			auto it = ranges::find(nonMatchedKeyPresses, maskedKeyCode,
+			auto it = std::ranges::find(nonMatchedKeyPresses, maskedKeyCode,
 			                       [](const auto& p) { return p.first; });
 			if (getType(e) == EventType::KEY_DOWN) {
 				if (it == end(nonMatchedKeyPresses)) {

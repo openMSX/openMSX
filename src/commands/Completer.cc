@@ -14,6 +14,7 @@
 #include "utf8_unchecked.hh"
 #include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 #include <memory>
 
@@ -65,7 +66,7 @@ bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
 	if (caseSensitive) {
-		return ranges::equal(s1, subspan(s2, 0, s1.size()));
+		return std::ranges::equal(s1, subspan(s2, 0, s1.size()));
 	} else {
 		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 	}
@@ -74,7 +75,7 @@ bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 bool Completer::completeImpl(string& str, vector<string_view> matches,
                              bool caseSensitive)
 {
-	assert(ranges::all_of(matches, [&](auto& m) {
+	assert(std::ranges::all_of(matches, [&](auto& m) {
 		return equalHead(str, m, caseSensitive);
 	}));
 
@@ -93,8 +94,9 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	ranges::sort(matches);
-	matches.erase(ranges::unique(matches), end(matches));
+	std::ranges::sort(matches);
+	auto u = std::ranges::unique(matches);
+	matches.erase(u.begin(), u.end());
 
 	bool expanded = false;
 	while (true) {

@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(const DeviceConfig& config)
+MSXBunsetsu::MSXBunsetsu(DeviceConfig& config)
 	: MSXDevice(config)
 	, bunsetsuRom(getName() + "_1", "rom", config, "bunsetsu")
 	, jisyoRom   (getName() + "_2", "rom", config, "jisyo")

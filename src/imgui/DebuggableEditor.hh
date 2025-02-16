@@ -58,6 +58,7 @@ private:
 	bool setAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr);
 	void scrollAddr(const Sizes& s, Debuggable& debuggable, unsigned memSize, unsigned addr, bool forceScroll);
 
+	void drawExport(const Sizes& s, Debuggable& debuggable);
 	void drawContents(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 	void drawSearch(const Sizes& s, Debuggable& debuggable, unsigned memSize);
 	void parseSearchString(std::string_view str);
@@ -71,6 +72,11 @@ private:
 	enum class SearchHighlight : int {NONE, SINGLE, ALL};
 	enum class SearchDirection : int {FWD, BWD};
 	enum PreviewEndianess : int {LE, BE};
+
+	enum ExportRange : int {RANGE_ALL, RANGE_RANGE};
+	enum ExportFormatted : int {EXPORT_RAW, EXPORT_FORMATTED};
+	enum ExportFormat : int {FORMAT_BIN, FORMAT_DEC, FORMAT_HEX, FORMAT_CUSTOM};
+	enum ExportDestination : int {OUTPUT_CLIPBOARD, OUTPUT_FILE};
 
 	SymbolManager& symbolManager;
 	std::string title; // debuggableName + suffix
@@ -94,6 +100,20 @@ private:
 	int searchDirection = static_cast<int>(SearchDirection::FWD);
 	int previewEndianess = LE;
 	ImGuiDataType previewDataType = ImGuiDataType_U8;
+
+	bool showExportWindow = false;
+	int exportRange = RANGE_ALL;
+	int exportFormatted = EXPORT_FORMATTED;
+	int exportFormat = FORMAT_HEX;
+	int exportDestination = OUTPUT_CLIPBOARD;
+	int exportColumns = 16;
+	std::string exportBegin, exportEnd;
+	std::string exportPrefix;
+	std::string exportSuffix;
+	std::string exportCustomFormat = "#%02X";
+	std::string exportFilename;
+	std::string exportStatus;
+	float exportStatusTimeout = 0.0f;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement   {"open",             &DebuggableEditor::open},

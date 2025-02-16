@@ -47,9 +47,10 @@
 #include "StringOp.hh"
 #include "unistdp.hh"
 #include "one_of.hh"
-#include "ranges.hh"
 #include "strCat.hh"
+
 #include "build-info.hh"
+
 #include <algorithm>
 #include <array>
 #include <sstream>
@@ -253,9 +254,7 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 
 void openOfStream(std::ofstream& stream, zstring_view filename)
 {
-#if defined _WIN32 && defined _MSC_VER
-	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
-	// TODO - this means that unicode text may not work right here
+#if defined _WIN32
 	stream.open(utf8to16(filename).c_str());
 #else
 	stream.open(filename.c_str());
@@ -265,9 +264,7 @@ void openOfStream(std::ofstream& stream, zstring_view filename)
 void openOfStream(std::ofstream& stream, zstring_view filename,
                   std::ios_base::openmode mode)
 {
-#if defined _WIN32 && defined _MSC_VER
-	// MinGW 3.x doesn't support ofstream.open(wchar_t*)
-	// TODO - this means that unicode text may not work right here
+#if defined _WIN32
 	stream.open(utf8to16(filename).c_str(), mode);
 #else
 	stream.open(filename.c_str(), mode);
@@ -331,13 +328,13 @@ string join(string_view part1, string_view part2,
 #ifdef _WIN32
 string getNativePath(string path)
 {
-	ranges::replace(path, '/', '\\');
+	std::ranges::replace(path, '/', '\\');
 	return path;
 }
 
 string getConventionalPath(string path)
 {
-	ranges::replace(path, '\\', '/');
+	std::ranges::replace(path, '\\', '/');
 	return path;
 }
 #endif
@@ -721,7 +718,7 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 #else
 	filename = directory + "/XXXXXX";
 	auto oldMask = umask(S_IRWXO | S_IRWXG);
-	int fd = mkstemp(const_cast<char*>(filename.c_str()));
+	int fd = mkstemp(filename.data());
 	umask(oldMask);
 	if (fd == -1) {
 		throw FileException("Couldnt get temp file name");

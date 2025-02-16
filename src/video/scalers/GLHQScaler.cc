@@ -8,8 +8,8 @@
 
 #include "inplace_buffer.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <utility>
@@ -130,7 +130,7 @@ void GLHQScaler::uploadBlock(
 	inplace_buffer<Endian::L32, 1280 / 2> tmpBuf2(uninitialized_tag{}, lineWidth / 2); // 2 x uint16_t
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
-	ranges::fill(tmpBuf2, 0);
+	std::ranges::fill(tmpBuf2, 0);
 	#endif
 
 	inplace_buffer<Pixel, 1280> buf1(uninitialized_tag{}, lineWidth);

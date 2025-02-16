@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(const DeviceConfig& config)
+SunriseIDE::SunriseIDE(DeviceConfig& config)
 	: MSXDevice(config)
 	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)

@@ -27,16 +27,18 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_checked.hh"
-#include "view.hh"
+#include "utf8_unchecked.hh"
 #include "xrange.hh"
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cassert>
 #include <cstdarg>
 #include <functional>
+#include <ranges>
 #include <type_traits>
 
 namespace openmsx {
@@ -167,7 +169,7 @@ static constexpr auto extractKeyCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
+	std::ranges::sort(result, {}, &KeyCodeMsxMapping::hostKeyCode);
 	return result;
 }
 template<typename GetMapping>
@@ -185,7 +187,7 @@ static constexpr auto extractScanCodeMapping(GetMapping getMapping)
 		}
 	}
 	assert(i == N);
-	ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
+	std::ranges::sort(result, {}, &ScanCodeMsxMapping::hostScanCode);
 	return result;
 }
 
@@ -226,7 +228,7 @@ static constexpr auto getMSXMapping()
 		M{P{0x11}, K{SDLK_9},           S{SDL_SCANCODE_9}},
 		M{P{0x12}, K{SDLK_MINUS},       S{SDL_SCANCODE_MINUS}},
 		M{P{0x13}, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}},
-		M{P{0x14}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
+		M{P{0x14}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH, SDL_SCANCODE_INTERNATIONAL3}}, // on Japanese keyboard, the YEN = SDL_SCANCODE_INTERNATIONAL3, but RIGHTBRACKET = SDL_SCANCODE_BACKSLASH
 		M{P{0x15}, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
 		M{P{0x16}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
 		M{P{0x17}, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
@@ -236,7 +238,7 @@ static constexpr auto getMSXMapping()
 		M{P{0x22}, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
 		M{P{0x23}, K{SDLK_PERIOD},      S{SDL_SCANCODE_PERIOD}},
 		M{P{0x24}, K{SDLK_SLASH},       S{SDL_SCANCODE_SLASH}},
-		M{P{0x25}, K{SDLK_RCTRL},       S{SDL_SCANCODE_RCTRL}}, // Acc
+		M{P{0x25}, K{SDLK_RCTRL},       S{SDL_SCANCODE_RCTRL, SDL_SCANCODE_NONUSBACKSLASH}}, // Acc / BACKSLASH on Japanese keyboard
 		M{P{0x26}, K{SDLK_a},           S{SDL_SCANCODE_A}},
 		M{P{0x27}, K{SDLK_b},           S{SDL_SCANCODE_B}},
 
@@ -722,11 +724,11 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
-	ranges::fill(keyMatrix,     255);
-	ranges::fill(cmdKeyMatrix,  255);
-	ranges::fill(typeKeyMatrix, 255);
-	ranges::fill(userKeyMatrix, 255);
-	ranges::fill(hostKeyMatrix, 255);
+	std::ranges::fill(keyMatrix,     255);
+	std::ranges::fill(cmdKeyMatrix,  255);
+	std::ranges::fill(typeKeyMatrix, 255);
+	std::ranges::fill(userKeyMatrix, 255);
+	std::ranges::fill(hostKeyMatrix, 255);
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
@@ -969,27 +971,54 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 	auto key = keyEvent.getKey();
 
 	if (down) {
+		auto codepointToUtf8 = [](uint32_t cp) {
+			std::array<char, 4> buffer;
+			auto* start = buffer.data();
+			auto* end = utf8::unchecked::append(cp, start);
+			return std::string(start, end);
+		};
+
 		// TODO: refactor debug(...) method to expect a std::string and then adapt
 		// all invocations of it to provide a properly formatted string, using the C++
 		// features for it.
 		// Once that is done, debug(...) can pass the c_str() version of that string
 		// to ad_printf(...) so that I don't have to make an explicit ad_printf(...)
 		// invocation for each debug(...) invocation
-		ad_printf("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		ad_printf("Key pressed, unicode: 0x%04x (%s), keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getUnicode(),
+		      codepointToUtf8(keyEvent.getUnicode()).c_str(),
 		      keyEvent.getKeyCode(),
+		      SDL_GetKeyName(keyEvent.getKeyCode()),
+		      keyEvent.getScanCode(),
+		      SDL_GetScancodeName(keyEvent.getScanCode()),
 		      key.toString().c_str());
-		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		debug("Key pressed, unicode: 0x%04x (%s), keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getUnicode(),
+		      codepointToUtf8(keyEvent.getUnicode()).c_str(),
 		      keyEvent.getKeyCode(),
+		      SDL_GetKeyName(keyEvent.getKeyCode()),
+		      keyEvent.getScanCode(),
+		      SDL_GetScancodeName(keyEvent.getScanCode()),
 		      key.toString().c_str());
 	} else {
-		ad_printf("Key released, keyCode: 0x%05x, keyName: %s\n",
+		ad_printf("Key released, keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getKeyCode(),
+		      SDL_GetKeyName(keyEvent.getKeyCode()),
+		      keyEvent.getScanCode(),
+		      SDL_GetScancodeName(keyEvent.getScanCode()),
 		      key.toString().c_str());
-		debug("Key released, keyCode: 0x%05x, keyName: %s\n",
+		debug("Key released, keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getKeyCode(),
+		      SDL_GetKeyName(keyEvent.getKeyCode()),
+		      keyEvent.getScanCode(),
+		      SDL_GetScancodeName(keyEvent.getScanCode()),
 		      key.toString().c_str());
+	}
+
+	// To work around a Japanese keyboard Kanji mode bug. (Multi-character
+	// input makes a keydown event without keyrelease message.)
+	if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+		return false;
 	}
 
 	// Process dead keys.
@@ -1106,7 +1135,13 @@ void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 	};
 
 	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
-		if (const auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
+		if ((key.sym.sym == SDLK_RIGHTBRACKET) && (key.sym.scancode == SDL_SCANCODE_BACKSLASH))
+		{
+			// host: Japanese keyboard "]" -> position as -> US keyboard "GRAVE"
+			if (const auto* mapping = binary_find(scanCodeTab, SDL_SCANCODE_GRAVE, {}, &ScanCodeMsxMapping::hostScanCode)) {
+				process(mapping->msx);
+			}
+		} else if (const auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
 			process(mapping->msx);
 		}
 	} else {
@@ -1227,7 +1262,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		// value (it always returns the value 0). But we must know
 		// the unicode value in order to be able to perform the correct
 		// key-combination-release in the MSX
-		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
 		if ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode)) {
 			// after a while we can overwrite existing elements, and
 			// then we stop growing/reallocating this vector
@@ -1256,7 +1291,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 	} else {
 		// key was released
-		auto it = ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
+		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
 		unsigned unicode = ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode))
 		                 ? it->second // get the unicode that was derived from this key
 		                 : 0;
@@ -2102,7 +2137,7 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	std::vector<std::string> eventStrs;
 	if constexpr (!Archive::IS_LOADER) {
-		eventStrs = to_vector(view::transform(
+		eventStrs = to_vector(std::views::transform(
 			eventQueue, [](const auto& e) { return toString(e); }));
 	}
 	ar.serialize("eventQueue", eventStrs);

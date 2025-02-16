@@ -212,6 +212,7 @@ private:
 		unsigned lineWidth;
 	};
 	std::vector<Region> regions;
+	unsigned regionsDstHeight = 0; // 'regions' were calculated for this output height (relevant when changing scale_factor when paused)
 
 	unsigned frameCounter = 0;
 

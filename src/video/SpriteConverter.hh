@@ -7,10 +7,13 @@ TODO:
 #define SPRITECONVERTER_HH
 
 #include "SpriteChecker.hh"
+
 #include "DisplayMode.hh"
-#include "view.hh"
+
 #include "narrow.hh"
+
 #include <cstdint>
+#include <ranges>
 #include <span>
 
 namespace openmsx {
@@ -102,7 +105,7 @@ public:
 		if (visibleSprites.empty()) return;
 
 		// Render using overdraw.
-		for (const auto& si : view::reverse(visibleSprites)) {
+		for (const auto& si : std::views::reverse(visibleSprites)) {
 			// Get sprite info.
 			Pixel colIndex = si.colorAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.

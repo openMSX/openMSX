@@ -9,7 +9,7 @@ namespace openmsx {
 static constexpr static_string_view DESCRIPTION =
 	"Play samples via your printer port.";
 
-PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
+PrinterPortSimpl::PrinterPortSimpl(HardwareConfig& hwConf_)
 	: hwConf(hwConf_)
 {
 }
@@ -32,7 +32,7 @@ void PrinterPortSimpl::writeData(uint8_t data, EmuTime::param time)
 
 void PrinterPortSimpl::createDAC()
 {
-	static const XMLElement* xml = [] {
+	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
 		auto* result = doc.allocateElement("simpl");
 		result->setFirstChild(doc.allocateElement("sound"))

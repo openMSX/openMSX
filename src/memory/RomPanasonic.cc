@@ -1,13 +1,16 @@
 #include "RomPanasonic.hh"
+
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
 #include "SRAM.hh"
 #include "CacheLine.hh"
+
 #include "one_of.hh"
-#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <memory>
 
 namespace openmsx {
@@ -45,7 +48,7 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 void RomPanasonic::reset(EmuTime::param /*time*/)
 {
 	control = 0;
-	ranges::fill(bankSelect, 0);
+	std::ranges::fill(bankSelect, 0);
 	for (auto region : xrange(8)) {
 		setRom(region, 0);
 	}

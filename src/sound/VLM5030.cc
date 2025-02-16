@@ -94,7 +94,6 @@ chirp 12-..: volume   0   : silent
 
 namespace openmsx {
 
-
 // interpolator per frame
 static constexpr int FR_SIZE = 4;
 // samples per interpolator
@@ -193,7 +192,7 @@ int VLM5030::parseFrame()
 	    cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
-		ranges::fill(new_k, 0);
+		std::ranges::fill(new_k, 0);
 		++address;
 		if (cmd & 0x02) {
 			// end of speech
@@ -262,12 +261,12 @@ void VLM5030::generateChannels(std::span<float*> bufs, unsigned num)
 					// Set old target as new start of frame
 					current_energy = old_energy;
 					current_pitch = old_pitch;
-					ranges::copy(old_k, current_k); // no assignment because arrays have different type (intentional?)
+					copy_to_range(old_k, current_k); // no assignment because arrays have different type (intentional?)
 					// is this a zero energy frame?
 					if (current_energy == 0) {
 						target_energy = 0;
 						target_pitch = narrow_cast<uint8_t>(current_pitch);
-						ranges::transform(current_k, target_k.data(), [](int k) { return int16_t(k); }); // type conversion intentional?
+						std::ranges::transform(current_k, target_k.data(), [](int k) { return int16_t(k); }); // type conversion intentional?
 					} else {
 						// normal frame
 						target_energy = new_energy;
@@ -400,12 +399,12 @@ void VLM5030::reset()
 	new_energy = new_pitch = 0;
 	current_energy = current_pitch = 0;
 	target_energy = target_pitch = 0;
-	ranges::fill(old_k, 0);
-	ranges::fill(new_k, 0);
-	ranges::fill(current_k, 0);
-	ranges::fill(target_k, 0);
+	std::ranges::fill(old_k, 0);
+	std::ranges::fill(new_k, 0);
+	std::ranges::fill(current_k, 0);
+	std::ranges::fill(target_k, 0);
 	interp_count = sample_count = pitch_count = 0;
-	ranges::fill(x, 0);
+	std::ranges::fill(x, 0);
 	// reset parameters
 	setupParameter(0x00);
 }
@@ -519,9 +518,10 @@ static XMLElement* getRomConfig(
 static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 
 VLM5030::VLM5030(const std::string& name_, static_string_view desc,
-                 std::string_view romFilename, const DeviceConfig& config)
+                 std::string_view romFilename, DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
-	, rom(name_ + " ROM", "rom", DeviceConfig(config, *getRomConfig(const_cast<DeviceConfig&>(config), name_, romFilename)))
+	, config2(config, *getRomConfig(config, name_, romFilename))
+	, rom(name_ + " ROM", "rom", config2)
 {
 	reset();
 	phase = Phase::IDLE;

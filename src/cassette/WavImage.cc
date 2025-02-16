@@ -1,13 +1,16 @@
 #include "WavImage.hh"
+
 #include "File.hh"
 #include "Filename.hh"
 #include "FilePool.hh"
+
 #include "Math.hh"
 #include "narrow.hh"
-#include "ranges.hh"
 #include "xrange.hh"
-#include <cassert>
+
+#include <algorithm>
 #include <array>
+#include <cassert>
 #include <map>
 
 namespace openmsx {
@@ -94,7 +97,7 @@ const WavImageCache::WavInfo& WavImageCache::get(const Filename& filename, FileP
 void WavImageCache::release(const WavData* wav)
 {
 	// cache contains very few entries, so linear search is ok
-	auto it = ranges::find(cache, wav, [](auto& pr) { return &pr.second.info.wav; });
+	auto it = std::ranges::find(cache, wav, [](auto& pr) { return &pr.second.info.wav; });
 	assert(it != end(cache));
 	auto& entry = it->second;
 	--entry.refCount; // decrease reference count

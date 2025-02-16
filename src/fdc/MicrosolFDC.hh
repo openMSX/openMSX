@@ -8,7 +8,7 @@ namespace openmsx {
 class MicrosolFDC final : public WD2793BasedFDC
 {
 public:
-	explicit MicrosolFDC(const DeviceConfig& config);
+	explicit MicrosolFDC(DeviceConfig& config);
 
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
 	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;

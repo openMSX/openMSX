@@ -524,7 +524,7 @@ void SDLRasterizer::drawDisplay(
 					lineInBuf = vramLine[scrollPage1];
 					renderBitmapLine(buf, vramLine[scrollPage1]);
 					auto src = subspan(buf, displayX + hScroll, firstPageWidth);
-					ranges::copy(src, dst);
+					copy_to_range(src, dst);
 				}
 			} else {
 				firstPageWidth = 0;
@@ -535,8 +535,8 @@ void SDLRasterizer::drawDisplay(
 				}
 				unsigned x = displayX < pageBorder
 					   ? 0 : displayX + hScroll - lineWidth;
-				ranges::copy(subspan(buf, x, displayWidth - firstPageWidth),
-				             subspan(dst, firstPageWidth));
+				copy_to_range(subspan(buf, x, displayWidth - firstPageWidth),
+				              subspan(dst, firstPageWidth));
 			}
 
 			displayY = (displayY + 1) & 255;
@@ -553,7 +553,7 @@ void SDLRasterizer::drawDisplay(
 				std::array<Pixel, 512> buf;
 				characterConverter.convertLine(buf, displayY);
 				auto src = subspan(buf, displayX, displayWidth);
-				ranges::copy(src, dst);
+				copy_to_range(src, dst);
 			}
 
 			displayY = (displayY + 1) & 255;

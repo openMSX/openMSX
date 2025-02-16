@@ -11,6 +11,8 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+
 using namespace std::literals;
 
 
@@ -55,7 +57,7 @@ void ImGuiSoundChip::paint(MSXMotherBoard* motherBoard)
 
 [[nodiscard]] static bool anySpecialChannelSettings(const MSXMixer::SoundDeviceInfo& info)
 {
-	return ranges::any_of(info.channelSettings, [&](const auto& channel) {
+	return std::ranges::any_of(info.channelSettings, [&](const auto& channel) {
 		return channel.mute->getBoolean() || !channel.record->getString().empty();
 	});
 }

@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(const DeviceConfig& config)
+PhilipsFDC::PhilipsFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 	reset(getCurrentTime());

@@ -9,7 +9,7 @@ namespace openmsx {
 class FraelSwitchableROM final : public MSXDevice
 {
 public:
-	explicit FraelSwitchableROM(const DeviceConfig& DeviceConfig);
+	explicit FraelSwitchableROM(DeviceConfig& DeviceConfig);
 
 	void reset(EmuTime::param time) override;
 

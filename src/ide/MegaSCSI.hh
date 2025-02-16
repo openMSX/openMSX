@@ -12,7 +12,7 @@ namespace openmsx {
 class MegaSCSI final : public MSXDevice
 {
 public:
-	explicit MegaSCSI(const DeviceConfig& config);
+	explicit MegaSCSI(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

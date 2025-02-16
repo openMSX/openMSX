@@ -21,7 +21,7 @@
 
 namespace openmsx {
 
-CanonFDC::CanonFDC(const DeviceConfig& config)
+CanonFDC::CanonFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
 }

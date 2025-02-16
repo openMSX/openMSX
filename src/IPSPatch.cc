@@ -1,9 +1,13 @@
 #include "IPSPatch.hh"
+
 #include "File.hh"
 #include "Filename.hh"
 #include "MSXException.hh"
+
 #include "ranges.hh"
 #include "xrange.hh"
+
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -17,12 +21,12 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 
 	std::array<uint8_t, 5> header;
 	ipsFile.read(header);
-	if (!ranges::equal(header, std::string_view("PATCH"))) {
+	if (!std::ranges::equal(header, std::string_view("PATCH"))) {
 		throw MSXException("Invalid IPS file: ", filename.getOriginal());
 	}
 	std::array<uint8_t, 3> offsetBuf;
 	ipsFile.read(offsetBuf);
-	while (!ranges::equal(offsetBuf, std::string_view("EOF"))) {
+	while (!std::ranges::equal(offsetBuf, std::string_view("EOF"))) {
 		size_t offset = 0x10000 * offsetBuf[0] + 0x100 * offsetBuf[1] + offsetBuf[2];
 		std::array<uint8_t, 2> lenBuf;
 		ipsFile.read(lenBuf);
@@ -40,12 +44,12 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			ipsFile.read(v);
 		}
 		// find overlapping or adjacent patch regions
-		auto b = ranges::lower_bound(result, offset, {}, &Chunk::startAddress);
+		auto b = std::ranges::lower_bound(result, offset, {}, &Chunk::startAddress);
 		if (b != begin(result)) {
 			--b;
 			if (b->stopAddress() < offset) ++b;
 		}
-		if (auto e = ranges::upper_bound(result, offset + v.size(), {}, &Chunk::startAddress);
+		if (auto e = std::ranges::upper_bound(result, offset + v.size(), {}, &Chunk::startAddress);
 		    b != e) {
 			// remove overlapping regions, merge adjacent regions
 			--e;
@@ -55,9 +59,9 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			++e;
 			std::vector<uint8_t> tmp(length2);
 			for (auto it : xrange(b, e)) {
-				ranges::copy(*it, subspan(tmp, it->startAddress - start));
+				copy_to_range(*it, subspan(tmp, it->startAddress - start));
 			}
-			ranges::copy(v, subspan(tmp, offset - start));
+			copy_to_range(v, subspan(tmp, offset - start));
 			*b = Chunk{start, std::move(tmp)};
 			result.erase(b + 1, e);
 		} else {
@@ -90,10 +94,10 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 {
 	parent->copyBlock(src, dst);
 
-	auto b = ranges::lower_bound(chunks, src, {}, &Chunk::startAddress);
+	auto b = std::ranges::lower_bound(chunks, src, {}, &Chunk::startAddress);
 	if (b != begin(chunks)) --b;
 	auto srcEnd = src + dst.size();
-	auto e = ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
+	auto e = std::ranges::upper_bound(chunks, srcEnd - 1, {}, &Chunk::startAddress);
 	for (auto it : xrange(b, e)) {
 		auto chunkStart = it->startAddress;
 		auto chunkSize = int(it->size());
@@ -123,8 +127,8 @@ void IPSPatch::copyBlock(size_t src, std::span<uint8_t> dst) const
 		assert((chunkOffset + chunkSize) <= int(it->size()));
 		assert(src <= chunkStart);
 		assert((chunkStart + chunkSize) <= srcEnd);
-		ranges::copy(subspan(*it, chunkOffset, size_t(chunkSize)),
-		             subspan(dst, chunkStart - src));
+		copy_to_range(subspan(*it, chunkOffset, size_t(chunkSize)),
+		              subspan(dst, chunkStart - src));
 	}
 }
 

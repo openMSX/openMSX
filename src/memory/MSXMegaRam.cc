@@ -48,7 +48,7 @@ namespace openmsx {
 	return size / 8;
 }
 
-MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
+MSXMegaRam::MSXMegaRam(DeviceConfig& config)
 	: MSXDevice(config)
 	, numBlocks(getNumBlocks(config)) // number of 8kB blocks
 	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)

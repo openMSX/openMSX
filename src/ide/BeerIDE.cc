@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-BeerIDE::BeerIDE(const DeviceConfig& config)
+BeerIDE::BeerIDE(DeviceConfig& config)
 	: MSXDevice(config)
 	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, rom(getName() + " ROM", "rom", config)

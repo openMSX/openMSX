@@ -26,7 +26,7 @@ class Rom final
 {
 public:
 	Rom(std::string name, static_string_view description,
-	    const DeviceConfig& config, std::string_view id = {});
+	    DeviceConfig& config, std::string_view id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 
@@ -52,7 +52,7 @@ public:
 	void getInfo(TclObject& result) const;
 
 private:
-	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
+	void init(MSXMotherBoard& motherBoard, XMLElement& config,
 	          const FileContext& context);
 	[[nodiscard]] bool checkSHA1(const XMLElement& config) const;
 

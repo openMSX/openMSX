@@ -1,15 +1,17 @@
 #include "RecordedCommand.hh"
+
 #include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "Scheduler.hh"
 #include "StateChange.hh"
+
 #include "ScopedAssign.hh"
 #include "dynarray.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "stl.hh"
-#include "view.hh"
-#include "xrange.hh"
+
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -101,14 +103,14 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	// serialize vector<TclObject> as vector<string>
 	std::vector<std::string> str;
 	if constexpr (!Archive::IS_LOADER) {
-		str = to_vector(view::transform(
+		str = to_vector(std::views::transform(
 			tokens, [](auto& t) { return std::string(t.getString()); }));
 	}
 	ar.serialize("tokens", str);
 	if constexpr (Archive::IS_LOADER) {
 		assert(tokens.empty());
 		tokens = dynarray<TclObject>(dynarray<TclObject>::construct_from_range_tag{},
-		                             view::transform(str, [](const auto& s) { return TclObject(s); }));
+		                             std::views::transform(str, [](const auto& s) { return TclObject(s); }));
 	}
 }
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");
