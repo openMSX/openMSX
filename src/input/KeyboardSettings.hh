@@ -42,6 +42,9 @@ public:
 	[[nodiscard]] bool getAutoToggleCodeKanaLock() const {
 		return autoToggleCodeKanaLock.getBoolean();
 	}
+	[[nodiscard]] bool getDisableIME() const {
+		return disableIME.getBoolean();
+	}
 
 private:
 	std::array<EnumSetting<SDL_Keycode>, 3> deadKeyHostKey;
@@ -51,6 +54,7 @@ private:
 	BooleanSetting alwaysEnableKeypad;
 	BooleanSetting traceKeyPresses;
 	BooleanSetting autoToggleCodeKanaLock;
+	BooleanSetting disableIME;
 };
 
 } // namespace openmsx
