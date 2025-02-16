@@ -898,7 +898,7 @@ void Keyboard::syncHostKeyMatrix(EmuTime::param time)
 	}
 	msxModifiers = 0xff;
 	msxKeyEventQueue.clear();
-	lastUnicodeForKeycode.clear();
+	lastUnicodeForScancode.clear();
 }
 
 uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
@@ -1194,7 +1194,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 {
 	auto mode = keyboardSettings.getMappingMode();
 
-	auto keyCode  = keyEvent.getKeyCode();
+	auto keyCode = keyEvent.getKeyCode();
+	auto ScanCode = keyEvent.getScanCode();
 	auto key = keyEvent.getKey();
 
 	bool isOnKeypad =
@@ -1262,14 +1263,14 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		// value (it always returns the value 0). But we must know
 		// the unicode value in order to be able to perform the correct
 		// key-combination-release in the MSX
-		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
-		if ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode)) {
+		auto it = std::ranges::lower_bound(lastUnicodeForScancode, ScanCode, {}, &std::pair<int32_t, uint32_t>::first);
+		if ((it != lastUnicodeForScancode.end()) && (it->first == ScanCode)) {
 			// after a while we can overwrite existing elements, and
 			// then we stop growing/reallocating this vector
 			it->second = unicode;
 		} else {
 			// insert new element (in the right location)
-			lastUnicodeForKeycode.emplace(it, keyCode, unicode);
+			lastUnicodeForScancode.emplace(it, ScanCode, unicode);
 		}
 
 		if (unicode == 0) {
@@ -1291,8 +1292,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 	} else {
 		// key was released
-		auto it = std::ranges::lower_bound(lastUnicodeForKeycode, keyCode, {}, &std::pair<SDL_Keycode, uint32_t>::first);
-		unsigned unicode = ((it != lastUnicodeForKeycode.end()) && (it->first == keyCode))
+		auto it = std::ranges::lower_bound(lastUnicodeForScancode, ScanCode, {}, &std::pair<int32_t, uint32_t>::first);
+		unsigned unicode = ((it != lastUnicodeForScancode.end()) && (it->first == ScanCode))
 		                 ? it->second // get the unicode that was derived from this key
 		                 : 0;
 		if (unicode == 0) {
@@ -2066,6 +2067,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 //            full state of the MSX keyboard, so now we do serialize it.
 // version 3: split cmdKeyMatrix into cmdKeyMatrix + typeKeyMatrix
 // version 4: changed 'dynKeymap' to 'lastUnicodeForKeycode'
+// version 5: changed 'dynKeymap' to 'lastUnicodeForScancode'
 // TODO Is the assumption in version 1 correct (clear keyb state on load)?
 //      If it is still useful for 'regular' loadstate, then we could implement
 //      it by explicitly clearing the keyb state from the actual loadstate
@@ -2102,8 +2104,18 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 		             "msxmodifiers",     msxModifiers,
 		             "msxKeyEventQueue", msxKeyEventQueue);
 	}
-	if (ar.versionAtLeast(version, 4)) {
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("lastUnicodeForScancode", lastUnicodeForScancode);
+	}
+	else if (ar.versionAtLeast(version, 4)) {
+		// convert keycode to scancode
+		std::vector<std::pair<SDL_Keycode, uint32_t> > lastUnicodeForKeycode;
 		ar.serialize("lastUnicodeForKeycode", lastUnicodeForKeycode);
+		lastUnicodeForScancode.clear();
+		for (const auto& [keyCode, unicode] : lastUnicodeForKeycode) {
+			auto scanCode = SDL_GetScancodeFromKey(keyCode);
+			lastUnicodeForScancode.emplace_back(scanCode, unicode);
+		}
 	} else {
 		// We can't (easily) reconstruct 'lastUnicodeForKeycode' from
 		// 'dynKeymap'. Usually this won't cause problems. E.g.
