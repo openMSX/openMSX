@@ -275,32 +275,46 @@ proc read_cdb {fname} {
         set match [regexp -inline $cline_pat $line]
         if {[llength $match] == 6} {
             lassign $match {} filename linenum {} {} address
-            incr c_files_count($filename)
+            set address [expr {"0x$address"}]
             # Put line -> address mapping of array with dynamic name
             set arrayname c_[file rootname $filename]2addr
+            incr c_files_count($filename)
             if {$c_files_count($filename) eq 1} {
                 debug_out "Created new dynamic array $arrayname"
             }
             variable $arrayname
-            set ${arrayname}($linenum) [expr {"0x$address"}]
-            set addr2file([expr {"0x$address"}]) [list $filename $linenum]
-            debug_out "mapping C source ${arrayname}\($linenum\): [set ${arrayname}($linenum)]"
+            # <file>2addr: linenum to address
+            set ${arrayname}($linenum) $address
+            # address to file:linenum
+            set record [lindex [array get addr2file $address] 1]
+            if {$record ne {}} {
+                lassign $record old_file {}
+                # Stop C code from overwriting used address.
+                if {$filename eq $old_file} {
+                    debug_out "not mapping [h $address] to C source: address already taken by '$old_file'"
+                    continue
+                }
+            }
+            set addr2file($address) [list $filename $linenum]
+            debug_out "mapping C source ${arrayname}\($linenum\): [set ${arrayname}($linenum)] ($line)"
             incr c_count
             continue
         }
         set match [regexp -inline $aline_pat $line]
         if {[llength $match] == 4} {
             lassign $match {} filename linenum address
-            incr a_files_count($filename[ASM])  ;# SDCC removes the file extension for some reason
+            set address [expr {"0x$address"}]
             # Put line -> address mapping of array with dynamic name
-            set arrayname a_[file rootname $filename]2addr
-            if {$a_files_count($filename[ASM]) eq 1} {
+            set arrayname a_${filename}2addr
+            set filename $filename[ASM]
+            incr a_files_count($filename)  ;# SDCC removes the file extension for some reason
+            if {$a_files_count($filename) eq 1} {
                 debug_out "Created new dynamic array $arrayname"
             }
             variable $arrayname
-            set ${arrayname}($linenum) [expr {"0x$address"}]
-            # Is it possible for assembly to override the C mappings?
-            set addr2file([expr {"0x$address"}]) [list $filename[ASM] $linenum]
+            # <file>2addr: linenum to address
+            set ${arrayname}($linenum) $address
+            set addr2file($address) [list $filename $linenum]
             debug_out "mapping asm source ${arrayname}\($linenum\): [set ${arrayname}($linenum)]"
             incr a_count
             continue
@@ -308,20 +322,23 @@ proc read_cdb {fname} {
         set match [regexp -inline $func_bn_pat $line]
         if {[llength $match] == 8} {
             lassign $match {} context {} {} funcname {} {} address
+            set address [expr {"0x$address"}]
             # Put function begin record in array with dynamic name
             switch -- [string index $context 0] {
                 G {
                     variable g_func2addr
-                    if {[complete g_func2addr $funcname [list [expr {"0x$address"}]]]} {
-                        debug_out "1:mapping function g_func2addr\($funcname\): [set g_func2addr($funcname)]"
+                    # g_func2addr: funcname -> start address (global)
+                    if {[complete g_func2addr $funcname [list $address]]} {
+                        debug_out "mapping function g_func2addr\($funcname\): [set g_func2addr($funcname)]"
                         incr gf_count
                     }
                 }
                 F {
+                    # <file>_func2addr: funcname -> start address (static)
                     set arrayname [string range $context 1 [string length $context]]_func2addr
                     variable $arrayname
-                    if {[complete $arrayname $funcname [list [expr {"0x$address"}]]]} {
-                        debug_out "1:mapping function ${arrayname}\($funcname\): [set ${arrayname}($funcname)]"
+                    if {[complete $arrayname $funcname [list $address]]} {
+                        debug_out "mapping function ${arrayname}\($funcname\): [set ${arrayname}($funcname)]"
                         incr sf_count
                     }
                 }
@@ -332,18 +349,21 @@ proc read_cdb {fname} {
         set match [regexp -inline $func_ed_pat $line]
         if {[llength $match] == 8} {
             lassign $match {} context {} {} funcname {} {} address
+            set address [expr {"0x$address"}]
             # Put function end record in array with dynamic name
             switch -- [string index $context 0] {
                 G {
+                    # g_func2addr: funcname -> end address (global)
                     variable g_func2addr
-                    if {[complete g_func2addr $funcname [list [expr {"0x$address"}]]]} {
+                    if {[complete g_func2addr $funcname [list $address]]} {
                         debug_out "mapping function g_func2addr\($funcname\): [set g_func2addr($funcname)]"
                     }
                 }
                 F {
+                    # <file>_func2addr: funcname -> end address (static)
                     set arrayname [string range $context 1 [string length $context]]_func2addr
                     variable $arrayname
-                    if {[complete $arrayname $funcname [list [expr {"0x$address"}]]]} {
+                    if {[complete $arrayname $funcname [list $address]]} {
                         debug_out "mapping function ${arrayname}\($funcname\): [set ${arrayname}($funcname)]"
                     }
                 }
@@ -464,12 +484,12 @@ proc sdcdb_list {args} {
     set match [regexp -inline $pattern2 $arg]
     if {[llength $match] == 3} {
         lassign $match {} file funcname
-        return [list_fun $file $funcname]
+        return [list_func $file $funcname]
     }
     set match [regexp -inline $pattern3 $arg]
     if {[llength $match] == 2} {
         lassign $match {} funcname
-        return [list_fun {} $funcname]
+        return [list_func {} $funcname]
     }
     list_pc
 }
@@ -511,10 +531,16 @@ proc list_pc {{x0 -1} {x1 9}} {
     list_address [reg PC] $x0 $x1 1
 }
 
-proc list_address {address {x0 -1} {x1 9} {showerror 0}} {
-    variable addr2file
+proc list_addr2file {arrayname address} {
+    variable $arrayname
     set address [expr {$address}]
-    set record [lindex [array get addr2file $address] 1]
+    return [lindex [array get $arrayname $address] 1]
+}
+
+proc list_address {address {x0 -1} {x1 9} {showerror 0}} {
+    set address [expr {$address}]
+    variable addr2file
+    set record [list_addr2file addr2file $address]
     if {$record eq {}} {
         set msg "database address not found for 0x[h $address]"
         if {$showerror} { error $msg }
@@ -528,43 +554,77 @@ proc sdcdb_laddr {address} {
     list_address $address
 }
 
-proc list_fun {filename funcname} {
-    lassign [search_func $filename $funcname] begin end
+proc list_func {filename funcname} {
+    set results {}
     variable addr2file
-    set record [lindex [array get addr2file $begin] 1]
-    if {$record eq {}} {
+    foreach region [search_func $filename $funcname] {
+        lassign [lindex $region 0] begin end
+        set record [lindex [array get addr2file $begin] 1]
+        lassign $record filename lbegin
+        lassign [lindex [array get addr2file $end] 1] {} lend
+        append results "$filename:$funcname\n"
+        append results [list_file $filename $lbegin $lend 0 1]
+    }
+    if {$results eq {}} {
         error "database function '$funcname' not found"
     }
-    lassign $record {} lbegin
-    lassign [lindex [array get addr2file $end] 1] {} lend
-    list_file $filename [expr {$lbegin - 1}] $lend 0 1
+    return $results
 }
 
-# scan static file database then global database for function name
-proc search_func {filename funcname} {
-    # search for static function first
+proc search_static_func {funcname {filename {}}} {
+    set results [list]
     if {$filename ne {}} {
         set arrayname [file rootname $filename]_func2addr
         variable $arrayname
-        if {[info exists ${arrayname}($funcname)]} {
-            return [lindex [array get $arrayname $funcname] 1]
+        set result [lindex [array get $arrayname $funcname] 1]
+        if {$result ne {}} {
+            lappend results [lindex [array get $arrayname $funcname] 1]
+        }
+        return $results
+    }
+    variable c_files
+    foreach filename [array names c_files] {
+        set arrayname [file rootname $filename]_func2addr
+        variable $arrayname
+        set result [lindex [array get $arrayname $funcname] 1]
+        if {$result ne {}} {
+            lappend results $result
         }
     }
-    # not a static function in file, searching globally
+    return $results
+}
+
+proc search_global_func {funcname {filename {}}} {
+    set results [list]
     variable g_func2addr
-    set record [lindex [array get g_func2addr $funcname] 1]
-    # Check if filename matches
-    if {$filename ne {}} {
-        variable addr2file
-        lassign [lindex [array get addr2file [lindex $record 0]] 1] tmp
-        if {$tmp ne {} && $tmp ne $filename} {
-            error "'$funcname' not found in file '$filename' according to database"
-        }
+    set result [lindex [array get g_func2addr $funcname] 1]
+    if {$result eq {}} {
+        return $results
     }
-    if {$record eq {}} {
-        error "'$funcname' not found in file database"
+    # No filename specified? Return first entry
+    if {$filename eq {} && $result ne {}} {
+        return [lappend results $result]
     }
-    return $record
+    lassign $result begin end
+    variable addr2file
+    lassign [lindex [array get addr2file $begin] 1] tmp {}
+    if {$tmp ne {} && $tmp ne $filename} {
+        return $results
+    }
+    return [lappend results $result]
+}
+
+# scan static file database then global database for function by name
+proc search_func {filename funcname} {
+    set results [list]
+    set tmp1 [search_global_func $funcname $filename]
+    if {$tmp1 ne {}} { lappend results $tmp1 }
+    set tmp2 [search_static_func $funcname $filename]
+    if {$tmp2 ne {}} { lappend results $tmp2 }
+    if {$results eq {}} {
+        error "'$funcname' not found"
+    }
+    return $results
 }
 
 proc search_file {file line} {
@@ -639,20 +699,27 @@ proc break_fline {filename linenum cond cmd} {
 }
 
 proc break_ffunc {filename funcname cond cmd} {
-    lassign [search_func $filename $funcname] start {}
-    if {$start eq {}} {
+    set count 0
+    foreach region [search_func $filename $funcname] {
+        lassign [lindex $region 0] begin {}
+        debug breakpoint create -address $begin -condition $cond -command $cmd
+        incr count
+    }
+    if {$count eq 0} {
         error "function not found"
-    } else {
-        debug breakpoint create -address $start -condition $cond -command $cmd
     }
 }
 
 proc break_func {funcname cond cmd} {
-    lassign [search_func {} $funcname] start {}
-    if {$start eq {}} {
+    set count 0
+    foreach region [search_func {} $funcname] {
+        lassign [lindex $region 0] begin {}
+        debug breakpoint create -address $begin -condition $cond -command $cmd
+        incr count
+    }
+    if {$count eq 0} {
         error "function not found"
     }
-    debug breakpoint create -address $start -condition $cond -command $cmd
 }
 
 proc check_status {file line} {
