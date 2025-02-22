@@ -238,8 +238,8 @@ namespace openmsx::FileOperations {
 	[[nodiscard]] const std::string& getSystemDocDir();
 
 #ifdef _WIN32
-	// using Stat = struct _stat; // doesn't work for some reason
-	typedef struct _stat Stat;
+	// using Stat = struct _stat64; // doesn't work for some reason
+	typedef struct _stat64 Stat; // See cc file for why we use _stat64
 #else
 	using Stat = struct stat;
 #endif
