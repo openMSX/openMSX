@@ -55,6 +55,8 @@ private:
 	std::string title;
 	size_t cycleLabelsCounter = 0;
 
+	static ImGuiDisassembly* lastWidget;
+	std::optional<uint16_t> selectedAddr = {};
 	std::string gotoAddr;
 	std::string runToAddr;
 	std::optional<unsigned> gotoTarget;
