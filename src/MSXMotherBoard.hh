@@ -115,6 +115,7 @@ public:
 	void unpause();
 
 	void powerUp();
+	void powerDown();
 	[[nodiscard]] bool isPowered() const { return powered; }
 
 	void doReset();
@@ -254,7 +255,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void powerDown();
 	void deleteMachine();
 
 private:

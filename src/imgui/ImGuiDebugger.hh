@@ -3,15 +3,16 @@
 
 #include "ImGuiPart.hh"
 
+#include "CPURegs.hh"
 #include "EmuTime.hh"
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace openmsx {
 
-class CPURegs;
 class DebuggableEditor;
 class Debugger;
 class ImGuiBitmapViewer;
@@ -36,8 +37,14 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 	void signalBreak();
+	void signalContinue();
 	void setGotoTarget(uint16_t target);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
+
+	[[nodiscard]] bool needSnapshot() const { return showChanges == SHOW_ALWAYS; }
+	[[nodiscard]] bool needDrawChanges() const;
+	[[nodiscard]] auto getChangesColor() const { return ImGui::ColorConvertFloat4ToU32(changesColor); }
+	void configureChangesMenu();
 
 private:
 	void drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
@@ -59,6 +66,12 @@ private:
 	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 
+	std::optional<CPURegs> cpuRegsSnapshot;
+	int showChangesFrameCounter = 0;
+	enum ShowChanges : int { SHOW_NEVER, SHOW_DURING_BREAK, SHOW_ALWAYS };
+	int showChanges = SHOW_DURING_BREAK;
+	gl::vec4 changesColor{1.0f, 0.0f, 0.0f, 1.0f}; // RGBA
+
 	bool showControl = false;
 	bool showSlots = false;
 	bool showStack = false;
@@ -74,7 +87,10 @@ private:
 		PersistentElement{"showStack",       &ImGuiDebugger::showStack},
 		PersistentElement{"showFlags",       &ImGuiDebugger::showFlags},
 		PersistentElement{"showXYFlags",     &ImGuiDebugger::showXYFlags},
-		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2}
+		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2},
+		PersistentElement{"showChanges",     &ImGuiDebugger::showChanges},
+		PersistentElement{"changesColor",    &ImGuiDebugger::changesColor}
+
 		// manually handle "showDebuggable.xxx"
 	};
 };

@@ -3,6 +3,7 @@
 
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+
 #include <bit>
 #include <cassert>
 
@@ -202,7 +203,7 @@ private:
 	byte HALT_ = 0;
 	byte IM_, I_;
 	byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
-	const byte Rmask; // 0x7F for Z80, 0xFF for R800
+	/*const*/ byte Rmask; // 0x7F for Z80, 0xFF for R800
 	unsigned prev_;
 };
 SERIALIZE_CLASS_VERSION(CPURegs, 3);

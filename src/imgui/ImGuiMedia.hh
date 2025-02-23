@@ -131,7 +131,7 @@ private:
 	void diskMenu(int i);
 	void cartridgeMenu(int i);
 	void cassetteMenu(CassettePlayer& cassettePlayer);
-	void insertMedia(std::string_view mediaName, const MediaItem& item);
+	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 
 	void printExtensionInfo(ExtensionInfo& info);
 	void extensionTooltip(ExtensionInfo& info);
@@ -149,6 +149,7 @@ private:
 	std::string filterType;
 	std::string filterString;
 	bool filterOpen = false;
+	std::function<void(void)> switchHdAction;
 
 	std::vector<ExtensionInfo> extensionInfo;
 

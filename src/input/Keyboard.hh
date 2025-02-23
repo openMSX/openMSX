@@ -267,9 +267,15 @@ private:
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;
-	// Remembers the last unicode for a key-press-keycode. To be used later
+
+	// Remembers the last unicode for a key-press-scancode. To be used later
 	// on the corresponding key-release, because those don't have unicode info.
-	std::vector<std::pair<SDL_Keycode, uint32_t>> lastUnicodeForKeycode; // sorted on SDL_keycode
+	// Since there are keys for which keycodes are not reported, it is not
+	// desirable to save them as keycodes.
+	// To be able to serialize this, we use int32_t instead of
+	// SDL_Scancode, because enums are not serializable
+	std::vector<std::pair<int32_t, uint32_t>> lastUnicodeForScancode; // sorted on SDL_Scancode
+	static_assert(sizeof(int32_t) >= sizeof(SDL_Scancode), "lastUnicodeForScancode: 1st elm. size error.");
 
 	/** Keyboard matrix state for 'keymatrix' command. */
 	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> cmdKeyMatrix;
@@ -307,7 +313,7 @@ private:
 
 	bool focus = true;
 };
-SERIALIZE_CLASS_VERSION(Keyboard, 4);
+SERIALIZE_CLASS_VERSION(Keyboard, 5);
 
 } // namespace openmsx
 

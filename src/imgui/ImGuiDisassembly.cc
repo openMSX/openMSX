@@ -10,6 +10,7 @@
 #include "Dasm.hh"
 #include "Debugger.hh"
 #include "Display.hh"
+#include "GlobalSettings.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
@@ -215,7 +216,8 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 		std::optional<unsigned> removeBpId;
 
 		auto pc = regs.getPC();
-		if (followPC && !MSXCPUInterface::isBreaked()) {
+		auto& reactor = manager.getReactor();
+		if (followPC && (!MSXCPUInterface::isBreaked() && !reactor.getGlobalSettings().getPauseSetting().getBoolean())) {
 			gotoTarget = pc;
 		}
 
@@ -479,16 +481,11 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 								ImGui::TextUnformatted(mnemonic);
 							});
 							if (mnemonicAddr) {
-								ImGui::SetCursorPos(pos);
-								if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
-									if (!mnemonicLabels.empty()) {
+								if (!mnemonicLabels.empty()) {
+									ImGui::SetCursorPos(pos);
+									if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
 										++cycleLabelsCounter;
 									}
-								}
-								if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-									nextGotoTarget = *mnemonicAddr;
-								}
-								if (!mnemonicLabels.empty()) {
 									simpleToolTip([&]{
 										auto tip = strCat('#', hex_string<4>(*mnemonicAddr));
 										if (mnemonicLabels.size() > 1) {
@@ -497,6 +494,9 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 										}
 										return tip;
 									});
+								}
+								if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+									nextGotoTarget = *mnemonicAddr;
 								}
 							}
 						}
