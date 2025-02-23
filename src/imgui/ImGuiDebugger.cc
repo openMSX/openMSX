@@ -14,7 +14,6 @@
 #include "ImGuiVdpRegs.hh"
 #include "ImGuiWatchExpr.hh"
 
-#include "CPURegs.hh"
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "MSXCPU.hh"
@@ -86,6 +85,19 @@ void ImGuiDebugger::signalBreak()
 	for (auto& d : disassemblyViewers) {
 		d->signalBreak();
 	}
+}
+
+void ImGuiDebugger::signalContinue()
+{
+	auto* motherBoard = manager.getReactor().getMotherBoard();
+	if (!motherBoard) return;
+
+	cpuRegsSnapshot = motherBoard->getCPU().getRegisters();
+	for (auto& h : hexEditors) {
+		h->makeSnapshot(*motherBoard);
+	}
+
+	showChangesFrameCounter = 10;
 }
 
 template<typename T>
@@ -254,6 +266,8 @@ void ImGuiDebugger::paint(MSXMotherBoard* motherBoard)
 	drawStack(regs, cpuInterface, time);
 	drawRegisters(regs);
 	drawFlags(regs);
+
+	showChangesFrameCounter = std::max(0, showChangesFrameCounter - 1);
 }
 
 void ImGuiDebugger::actionBreakContinue(MSXCPUInterface& cpuInterface)
@@ -469,25 +483,41 @@ void ImGuiDebugger::drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInt
 	});
 }
 
+bool ImGuiDebugger::needDrawChanges() const
+{
+	if (showChanges == SHOW_NEVER) return false;
+	if (showChanges == SHOW_ALWAYS) return true;
+	return MSXCPUInterface::isBreaked() || showChangesFrameCounter;
+}
+
 void ImGuiDebugger::drawRegisters(CPURegs& regs)
 {
 	if (!showRegisters) return;
 	im::Window("CPU registers", &showRegisters, [&]{
-		im::ScopedFont sf(manager.fontMono);
+		std::optional<im::ScopedFont> sf(manager.fontMono);
+
+		if (!cpuRegsSnapshot && needSnapshot()) {
+			cpuRegsSnapshot = regs;
+		}
+		bool drawChanges = cpuRegsSnapshot && needDrawChanges();
+		auto color = getChangesColor();
 
 		const auto& style = ImGui::GetStyle();
 		auto padding = 2 * style.FramePadding.x;
 		auto width16 = ImGui::CalcTextSize("FFFF"sv).x + padding;
 		auto edit16 = [&](std::string_view label, std::string_view high, std::string_view low, auto getter, auto setter) {
-			uint16_t value = getter();
+			auto value = getter(regs);
 			im::Group([&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(label);
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(width16);
-				if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
-					setter(value);
-				}
+				bool changed = drawChanges && (getter(*cpuRegsSnapshot) != value);
+				im::StyleColor(changed, ImGuiCol_Text, color, [&]{
+					if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U16, &value, nullptr, nullptr, "%04X")) {
+						setter(value);
+					}
+				});
 			});
 			simpleToolTip([&]{
 				return strCat(
@@ -498,15 +528,18 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 			});
 		};
 		auto edit8 = [&](std::string_view label, auto getter, auto setter) {
-			uint8_t value = getter();
+			auto value = getter(regs);
 			im::Group([&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(label);
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(width16);
-				if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
-					setter(value);
-				}
+				bool changed = drawChanges && (getter(*cpuRegsSnapshot) != value);
+				im::StyleColor(changed, ImGuiCol_Text, color, [&]{
+					if (ImGui::InputScalar(tmpStrCat("##", label).c_str(), ImGuiDataType_U8, &value, nullptr, nullptr, "%02X")) {
+						setter(value);
+					}
+				});
 			});
 			simpleToolTip([&]{
 				return strCat(
@@ -515,54 +548,81 @@ void ImGuiDebugger::drawRegisters(CPURegs& regs)
 			});
 		};
 
-		edit16("AF", "A", "F", [&]{ return regs.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
+		edit16("AF", "A", "F", [&](const CPURegs& r) { return r.getAF(); }, [&](uint16_t value) { regs.setAF(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("AF'", "A'", "F'", [&]{ return regs.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
+		edit16("AF'", "A'", "F'", [&](const CPURegs& r) { return r.getAF2(); }, [&](uint16_t value) { regs.setAF2(value); });
 
-		edit16("BC", "B", "C", [&]{ return regs.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
+		edit16("BC", "B", "C", [&](const CPURegs& r) { return r.getBC(); }, [&](uint16_t value) { regs.setBC(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("BC'", "B'", "C'", [&]{ return regs.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
+		edit16("BC'", "B'", "C'", [&](const CPURegs& r) { return r.getBC2(); }, [&](uint16_t value) { regs.setBC2(value); });
 
-		edit16("DE", "D", "E", [&]{ return regs.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
+		edit16("DE", "D", "E", [&](const CPURegs& r) { return r.getDE(); }, [&](uint16_t value) { regs.setDE(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("DE'", "D'", "E'", [&]{ return regs.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
+		edit16("DE'", "D'", "E'", [&](const CPURegs& r) { return r.getDE2(); }, [&](uint16_t value) { regs.setDE2(value); });
 
-		edit16("HL", "H", "L", [&]{ return regs.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
+		edit16("HL", "H", "L", [&](const CPURegs& r) { return r.getHL(); }, [&](uint16_t value) { regs.setHL(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("HL'", "H'", "L'", [&]{ return regs.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
+		edit16("HL'", "H'", "L'", [&](const CPURegs& r) { return r.getHL2(); }, [&](uint16_t value) { regs.setHL2(value); });
 
-		edit16("IX", "IXh", "IXl", [&]{ return regs.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
+		edit16("IX", "IXh", "IXl", [&](const CPURegs& r) { return r.getIX(); }, [&](uint16_t value) { regs.setIX(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("IY ", "IYh", "IYl", [&]{ return regs.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
+		edit16("IY ", "IYh", "IYl", [&](const CPURegs& r) { return r.getIY(); }, [&](uint16_t value) { regs.setIY(value); });
 
-		edit16("PC", "PCh", "PCl", [&]{ return regs.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
+		edit16("PC", "PCh", "PCl", [&](const CPURegs& r) { return r.getPC(); }, [&](uint16_t value) { regs.setPC(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit16("SP ", "SPh", "SPl", [&]{ return regs.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
+		edit16("SP ", "SPh", "SPl", [&](const CPURegs& r) { return r.getSP(); }, [&](uint16_t value) { regs.setSP(value); });
 
-		edit8("I ", [&]{ return regs.getI(); }, [&](uint8_t value) { regs.setI(value); });
+		edit8("I ", [&](const CPURegs& r) { return r.getI(); }, [&](uint8_t value) { regs.setI(value); });
 		ImGui::SameLine(0.0f, 20.0f);
-		edit8("R  ", [&]{ return regs.getR(); }, [&](uint8_t value) { regs.setR(value); });
+		edit8("R  ", [&](const CPURegs& r) { return r.getR(); }, [&](uint8_t value) { regs.setR(value); });
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("IM"sv);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(width16);
-		if (uint8_t im = regs.getIM();
-		    ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
-			if (im <= 2) regs.setIM(im);
-		}
+		uint8_t im = regs.getIM();
+		bool imChanged = drawChanges && (im != cpuRegsSnapshot->getIM());
+		im::StyleColor(imChanged, ImGuiCol_Text, color, [&]{
+			if (ImGui::InputScalar("##IM", ImGuiDataType_U8, &im, nullptr, nullptr, "%d")) {
+				if (im <= 2) regs.setIM(im);
+			}
+		});
 
 		ImGui::SameLine(0.0f, 20.0f);
 		ImGui::AlignTextToFramePadding();
-		if (bool ei = regs.getIFF1();
-		    ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick)) {
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-				regs.setIFF1(!ei);
-				regs.setIFF2(!ei);
+		bool ei = regs.getIFF1();
+		bool eiChanged = drawChanges && (ei != cpuRegsSnapshot->getIFF1());
+		im::StyleColor(eiChanged, ImGuiCol_Text, color, [&]{
+			auto size = ImGui::CalcTextSize("EI");
+			if (ImGui::Selectable(ei ? "EI" : "DI", false, ImGuiSelectableFlags_AllowDoubleClick, size)) {
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					regs.setIFF1(!ei);
+					regs.setIFF2(!ei);
+				}
 			}
-		}
+		});
+
+		sf.reset();
 		simpleToolTip("double-click to toggle");
+
+		HelpMarker("Click values to edit, double-click EI/DI to toggle.\n"
+		           "Right-click to configure",
+		           2.0f * ImGui::GetFontSize());
+
+		im::PopupContextWindow([&]{
+			configureChangesMenu();
+		});
 	});
+}
+
+void ImGuiDebugger::configureChangesMenu()
+{
+	ImGui::TextUnformatted("Highlight changes between breaks"sv);
+	ImGui::RadioButton("don't show", &showChanges, SHOW_NEVER);
+	ImGui::RadioButton("show during break", &showChanges, SHOW_DURING_BREAK);
+	ImGui::RadioButton("always show", &showChanges, SHOW_ALWAYS);
+	ImGui::ColorEdit4("highlight color", changesColor.data(),
+		ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
 }
 
 void ImGuiDebugger::drawFlags(CPURegs& regs)
@@ -580,29 +640,40 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 		// clang workaround
 		auto sizeH1 = sizeH1_; auto sizeH2 = sizeH2_; auto sizeV = sizeV_;
 
+		if (!cpuRegsSnapshot && needSnapshot()) {
+			cpuRegsSnapshot = regs;
+		}
+		bool drawChanges = cpuRegsSnapshot && needDrawChanges();
+		auto color = getChangesColor();
+
 		auto f = regs.getF();
+		auto oldF = drawChanges ? cpuRegsSnapshot->getF() : f;
 
 		auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
 			std::string s;
 			ImVec2 sz;
+			bool val = f & bit;
+			bool oldVal = oldF & bit;
+
 			if (flagsLayout == 0) {
 				// horizontal
 				if (val0) {
-					s = (f & bit) ? val1 : val0;
+					s = val ? val1 : val0;
 					sz = sizeH1;
 				} else {
-					s = strCat(name, ':', (f & bit) ? '1' : '0');
+					s = strCat(name, ':', val ? '1' : '0');
 					sz = sizeH2;
 				}
 			} else {
 				// vertical
-				s = strCat(name, ' ', (f & bit) ? '1' : '0');
+				s = strCat(name, ' ', val ? '1' : '0');
 				if (val0) {
-					strAppend(s, " (", (f & bit) ? val1 : val0, ')');
+					strAppend(s, " (", val ? val1 : val0, ')');
 				}
 				sz = sizeV;
 			}
-			im::Font(manager.fontMono, [&]{
+
+			im::StyleColor(val != oldVal, ImGuiCol_Text, color, [&]{
 				if (ImGui::Selectable(s.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, sz)) {
 					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 						regs.setF(f ^ bit);
@@ -616,14 +687,16 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 			}
 		};
 
-		draw("S", 0x80, " P", " M");
-		draw("Z", 0x40, "NZ", " Z");
-		if (showXYFlags) draw("Y", 0x20);
-		draw("H", 0x10);
-		if (showXYFlags) draw("X", 0x08);
-		draw("P", 0x04, "PO", "PE");
-		draw("N", 0x02);
-		draw("C", 0x01, "NC", " C");
+		im::Font(manager.fontMono, [&]{
+			draw("S", 0x80, " P", " M");
+			draw("Z", 0x40, "NZ", " Z");
+			if (showXYFlags) draw("Y", 0x20);
+			draw("H", 0x10);
+			if (showXYFlags) draw("X", 0x08);
+			draw("P", 0x04, "PO", "PE");
+			draw("N", 0x02);
+			draw("C", 0x01, "NC", " C");
+		});
 
 		im::PopupContextWindow([&]{
 			ImGui::TextUnformatted("Layout"sv);

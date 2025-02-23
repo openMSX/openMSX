@@ -228,7 +228,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	using enum EventType;
 	for (auto type : {MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_MOTION, MOUSE_WHEEL,
 	                  KEY_UP, KEY_DOWN, TEXT,
-	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK, MACHINE_LOADED}) {
+	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK, CONTINUE, MACHINE_LOADED}) {
 		eventDistributor.registerEventListener(type, *this, EventDistributor::Priority::IMGUI);
 	}
 
@@ -247,7 +247,7 @@ ImGuiManager::~ImGuiManager()
 
 	auto& eventDistributor = reactor.getEventDistributor();
 	using enum EventType;
-	for (auto type : {MACHINE_LOADED, BREAK, IMGUI_DELAYED_ACTION, FILE_DROP, WINDOW, TEXT,
+	for (auto type : {MACHINE_LOADED, CONTINUE, BREAK, IMGUI_DELAYED_ACTION, FILE_DROP, WINDOW, TEXT,
 	                  KEY_DOWN, KEY_UP,
 	                  MOUSE_WHEEL, MOUSE_MOTION, MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP}) {
 		eventDistributor.unregisterEventListener(type, *this);
@@ -418,6 +418,9 @@ bool ImGuiManager::signalEvent(const Event& event)
 			[[fallthrough]];
 		case EventType::BREAK:
 			debugger->signalBreak();
+			break;
+		case EventType::CONTINUE:
+			debugger->signalContinue();
 			break;
 		default:
 			UNREACHABLE;
