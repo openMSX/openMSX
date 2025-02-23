@@ -45,6 +45,7 @@ public:
 	[[nodiscard]] unsigned getSize() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 	[[nodiscard]] byte read(unsigned address) override;
+	void readBlock(unsigned start, std::span<byte> output) override;
 	void write(unsigned address, byte value) override;
 	void moved(Rom& r);
 private:
@@ -410,6 +411,11 @@ byte RomDebuggable::read(unsigned address)
 {
 	assert(address < getSize());
 	return (*rom)[address];
+}
+
+void RomDebuggable::readBlock(unsigned start, std::span<byte> output)
+{
+	copy_to_range(std::span{*rom}.subspan(start), output);
 }
 
 void RomDebuggable::write(unsigned /*address*/, byte /*value*/)

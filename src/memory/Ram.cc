@@ -96,6 +96,11 @@ byte RamDebuggable::read(unsigned address)
 	return ram[address];
 }
 
+void RamDebuggable::readBlock(unsigned start, std::span<byte> output)
+{
+	copy_to_range(std::span{ram}.subspan(start), output);
+}
+
 void RamDebuggable::write(unsigned address, byte value)
 {
 	ram[address] = value;

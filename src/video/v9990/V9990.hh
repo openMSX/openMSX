@@ -520,12 +520,14 @@ private:
 		explicit RegDebug(const V9990& v9990);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
+		void readBlock(unsigned start, std::span<byte> output) override;
 	} v9990RegDebug;
 
 	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(const V9990& v9990);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
+		void readBlock(unsigned start, std::span<byte> output) override;
 	} v9990PalDebug;
 
 	IRQHelper irq;

@@ -493,6 +493,12 @@ byte V9990::RegDebug::read(unsigned address)
 	return v9990.regs[address];
 }
 
+void V9990::RegDebug::readBlock(unsigned start, std::span<byte> output)
+{
+	auto& v9990 = OUTER(V9990, v9990RegDebug);
+	copy_to_range(std::span{v9990.regs}.subspan(start), output);
+}
+
 void V9990::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
@@ -514,6 +520,12 @@ byte V9990::PalDebug::read(unsigned address)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	return v9990.palette[address];
+}
+
+void V9990::PalDebug::readBlock(unsigned start, std::span<byte> output)
+{
+	auto& v9990 = OUTER(V9990, v9990PalDebug);
+	copy_to_range(std::span{v9990.palette}.subspan(start), output);
 }
 
 void V9990::PalDebug::write(unsigned address, byte value, EmuTime::param time)

@@ -21,6 +21,7 @@ public:
 	              static_string_view description, Ram& ram);
 	byte read(unsigned address) override;
 	void write(unsigned address, byte value) override;
+	void readBlock(unsigned start, std::span<byte> output) override;
 private:
 	Ram& ram;
 };

@@ -237,6 +237,7 @@ private:
 		explicit KeybDebuggable(MSXMotherBoard& motherBoard);
 		[[nodiscard]] uint8_t read(unsigned address) override;
 		void write(unsigned address, uint8_t value) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;

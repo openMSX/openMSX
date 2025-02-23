@@ -45,6 +45,7 @@ private:
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
+		void readBlock(unsigned start, std::span<byte> output) override;
 	} debuggable;
 
 	std::vector<MSXMemoryMapperInterface*> mappers;

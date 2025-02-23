@@ -62,6 +62,7 @@ private:
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
+		void readBlock(unsigned start, std::span<byte> output) override;
 	} debuggable;
 };
 SERIALIZE_CLASS_VERSION(MSXMemoryMapperBase, 2);
