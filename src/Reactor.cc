@@ -543,8 +543,9 @@ void Reactor::runStartupScripts(const CommandLineParser& parser)
 	try {
 		commandController.source(
 			preferSystemFileContext().resolve("init.tcl"));
-	} catch (FileException&) {
-		// no init.tcl, ignore
+	} catch (FileException& e) {
+		throw FatalError("Couldn't execute \"<openmsx>/share/init.tcl\": ", e.getMessage(), "\n"
+		                 "Most likely you have an incomplete openMSX installation!!!");
 	}
 
 	// execute startup scripts
