@@ -1069,6 +1069,7 @@ void MSXCPUInterface::doContinue()
 		Reactor& reactor = motherBoard.getReactor();
 		breakedSetting->setReadOnlyValue(TclObject("false"));
 		reactor.getCliComm().update(CliComm::UpdateType::STATUS, "cpu", "running");
+		reactor.getEventDistributor().distributeEvent(ContinueEvent());
 		reactor.unblock();
 		motherBoard.getRealTime().resync();
 	}

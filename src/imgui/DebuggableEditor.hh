@@ -41,6 +41,9 @@ public:
 	explicit DebuggableEditor(ImGuiManager& manager_, std::string debuggableName, size_t index);
 	[[nodiscard]] std::string_view getDebuggableName() const { return {title.data(), debuggableNameSize}; }
 
+	void makeSnapshot(MSXMotherBoard& motherBoard);
+	void makeSnapshot(Debuggable& debuggable);
+
 	// ImGuiPart
 	[[nodiscard]] zstring_view iniName() const override { return title; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -146,6 +149,8 @@ private:
 	bool updateAddr = false;
 	bool switchedTab = false;
 	bool resetCursor = false;
+
+	std::vector<uint8_t> snapshot;
 };
 
 } // namespace openmsx

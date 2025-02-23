@@ -468,9 +468,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 		};
 
-		auto showRecent = [&](std::string_view mediaName, ItemGroup& group,
+		auto showRecent = [&](const std::string& mediaName, ItemGroup& group,
 		                      function_ref<std::string(const std::string&)> displayFunc = std::identity{},
-		                      const std::function<void(const std::string&)>& toolTip = {}) {
+		                      const std::function<void(const std::string&)>& toolTip = {},
+				      std::function<void()>* actionToSet = nullptr) {
 			if (!group.recent.empty()) {
 				im::Indent([&] {
 					im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
@@ -478,8 +479,16 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						for (const auto& item : group.recent) {
 							auto d = strCat(display(item, displayFunc), "##", count++);
 							if (ImGui::MenuItem(d.c_str())) {
-								group.edit = item;
-								insertMedia(mediaName, group.edit);
+								bool delayed = actionToSet == nullptr;
+								auto action = [this, &group, item, mediaName, delayed] {
+									group.edit = item;
+									insertMedia(mediaName, group.edit, delayed);
+								};
+								if (actionToSet) {
+									*actionToSet = action;
+								} else {
+									action();
+								}
 							}
 							if (toolTip) toolTip(item.name);
 						}
@@ -541,7 +550,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				});
 			});
 
-			showRecent(mediaName, group,
+			showRecent(std::string(mediaName), group,
 				[this](const std::string& config) { // displayFunc
 					return displayNameForExtension(config);
 				},
@@ -602,6 +611,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// hdX
 		auto hdInUse = HD::getDrivesInUse(*motherBoard);
+
 		std::string hdName = "hdX";
 		for (auto i : xrange(HD::MAX_HD)) {
 			if (!(*hdInUse)[i]) continue;
@@ -613,25 +623,24 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				im::Menu(displayName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
 					showCurrent(currentImage, "hard disk");
-					bool powered = motherBoard->isPowered();
-					im::Disabled(powered, [&]{
-						if (ImGui::MenuItem("Select hard disk image...")) {
-							manager.openFile->selectFile(
-								"Select image for " + displayName,
-								hdFilter(),
-								[this, &group, hdName](const auto& fn) {
+					if (ImGui::MenuItem("Select hard disk image...")) {
+						manager.openFile->selectFile(
+							"Select image for " + displayName,
+							hdFilter(),
+							[this, &group, hdName](const auto& fn) {
+								switchHdAction = [this, &group, hdName, fn] {
 									group.edit.name = fn;
-									this->insertMedia(hdName, group.edit);
-								},
-								currentImage.getString());
-						}
-					});
-					if (powered) {
-						HelpMarker("Hard disk image cannot be switched while the MSX is powered on.");
+									bool delayed = false;
+									this->insertMedia(hdName, group.edit, delayed);
+								};
+							},
+							currentImage.getString());
 					}
-					im::Disabled(powered, [&]{
-						showRecent(hdName, group);
-					});
+					if (motherBoard->isPowered()) {
+						HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
+						           "so a power cycle is required.");
+					}
+					showRecent(hdName, group, std::identity{}, {}, &switchHdAction);
 				});
 			}
 		}
@@ -693,6 +702,42 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		}
 		endGroup();
 	});
+
+	if (switchHdAction) {
+		if (motherBoard) {
+			if (motherBoard->isPowered()) {
+				static constexpr auto confirmSwitchHdTitle = "Confirm power cycle";
+				ImGui::OpenPopup(confirmSwitchHdTitle);
+				im::PopupModal(confirmSwitchHdTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+					ImGui::TextUnformatted(
+						"Switching hard disk image requires a power cycle of the MSX.\n"
+						"Are you sure you want to proceed?\n"
+						"\n");
+
+					bool close = false;
+					if (ImGui::Button("Ok")) {
+						motherBoard->powerDown();
+						switchHdAction();
+						motherBoard->powerUp();
+						close = true;
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel")) {
+						close = true;
+					}
+					if (close) {
+						switchHdAction = {};
+						ImGui::CloseCurrentPopup();
+					}
+				});
+			} else {
+				switchHdAction();
+				switchHdAction = {};
+			}
+		} else {
+			switchHdAction = {};
+		}
+	}
 }
 
 void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
@@ -1497,7 +1542,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 	});
 }
 
-void ImGuiMedia::insertMedia(std::string_view mediaName, const MediaItem& item)
+void ImGuiMedia::insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed)
 {
 	TclObject cmd = makeTclList(mediaName);
 	if (item.isEject()) {
@@ -1512,11 +1557,16 @@ void ImGuiMedia::insertMedia(std::string_view mediaName, const MediaItem& item)
 			cmd.addListElement("-romtype", RomInfo::romTypeToName(item.romType));
 		}
 	}
-	manager.executeDelayed(cmd,
-		[this, cmd](const TclObject&) {
-			// only add to 'recent' when insert command succeeded
-			addRecent(cmd);
-		});
+
+	auto onOk = [this, cmd](const TclObject&) {
+		// only add to 'recent' when insert command succeeded
+		addRecent(cmd);
+	};
+	if (delayed) {
+		manager.executeDelayed(cmd, onOk);
+	} else {
+		if (auto r = manager.execute(cmd)) onOk(*r);
+	}
 }
 
 void ImGuiMedia::addRecent(const TclObject& cmd)
