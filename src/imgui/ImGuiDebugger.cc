@@ -297,7 +297,8 @@ void ImGuiDebugger::actionStepBack()
 	});
 }
 
-void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard)
+void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
+                                   ImGuiDisassembly* disassembly)
 {
 	using enum Shortcuts::ID;
 	const auto& shortcuts = manager.getShortcuts();
@@ -313,7 +314,12 @@ void ImGuiDebugger::checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard
 	} else if (shortcuts.checkShortcut(DEBUGGER_STEP_BACK)) {
 		actionStepBack();
 	} else if (shortcuts.checkShortcut(DISASM_TOGGLE_BREAKPOINT)) {
-		ImGuiDisassembly::actionToggleBp(motherBoard);
+		if (!disassembly && !disassemblyViewers.empty()) {
+			// Just pick one, doesn't matter which one. Because disassembly view
+			//  doesn't have focus, they all behave the same (=toggle PC).
+			disassembly = disassemblyViewers.front().get();
+		}
+		if (disassembly) disassembly->actionToggleBp(motherBoard);
 	}
 }
 
@@ -321,7 +327,7 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 {
 	if (!showControl) return;
 	im::Window("Debugger tool bar", &showControl, [&]{
-		checkShortcuts(cpuInterface, motherBoard);
+		checkShortcuts(cpuInterface, motherBoard, nullptr);
 
 		gl::vec2 maxIconSize;
 		auto* font = ImGui::GetFont();

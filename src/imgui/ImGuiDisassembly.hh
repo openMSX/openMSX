@@ -34,7 +34,7 @@ public:
 	void syncWithPC() { syncDisassemblyWithPC = true; }
 
 public:
-	static void actionToggleBp(MSXMotherBoard& motherBoard);
+	void actionToggleBp(MSXMotherBoard& motherBoard);
 	[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase*>
 		getRomBlocks(Debugger& debugger, const MSXDevice* device);
 
@@ -55,6 +55,8 @@ private:
 	std::string title;
 	size_t cycleLabelsCounter = 0;
 
+	static ImGuiDisassembly* lastWidget;
+	std::optional<uint16_t> selectedAddr = {};
 	std::string gotoAddr;
 	std::string runToAddr;
 	std::optional<unsigned> gotoTarget;

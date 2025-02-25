@@ -39,7 +39,8 @@ public:
 	void signalBreak();
 	void signalContinue();
 	void setGotoTarget(uint16_t target);
-	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
+	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
+	                    ImGuiDisassembly* disassembly);
 
 	[[nodiscard]] bool needSnapshot() const { return showChanges == SHOW_ALWAYS; }
 	[[nodiscard]] bool needDrawChanges() const;
