@@ -36,6 +36,8 @@ using namespace std::literals;
 
 namespace openmsx {
 
+ImGuiDisassembly* ImGuiDisassembly::lastWidget = nullptr;
+
 ImGuiDisassembly::ImGuiDisassembly(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
@@ -181,16 +183,16 @@ static void toggleBp(uint16_t addr, const BpLine& bpLine, std::span<BreakPoint> 
 }
 void ImGuiDisassembly::actionToggleBp(MSXMotherBoard& motherBoard)
 {
-	auto pc = motherBoard.getCPU().getRegisters().getPC();
 	auto& cpuInterface = motherBoard.getCPUInterface();
 	auto& debugger = motherBoard.getDebugger();
 	auto& bps = cpuInterface.getBreakPoints();
-
-	auto bpLine = examineBpLine(pc, bps, cpuInterface, debugger);
-
 	std::optional<BreakPoint> addBp;
 	std::optional<unsigned> removeBpId;
-	toggleBp(pc, bpLine, bps, cpuInterface, debugger, addBp, removeBpId);
+	auto addr = lastWidget && lastWidget->selectedAddr ? *lastWidget->selectedAddr : motherBoard.getCPU().getRegisters().getPC();
+
+	auto bpLine = examineBpLine(addr, bps, cpuInterface, debugger);
+
+	toggleBp(addr, bpLine, bps, cpuInterface, debugger, addBp, removeBpId);
 	if (addBp) {
 		cpuInterface.insertBreakPoint(std::move(*addBp));
 	}
@@ -217,8 +219,15 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 
 		auto pc = regs.getPC();
 		auto& reactor = manager.getReactor();
-		if (followPC && (!MSXCPUInterface::isBreaked() && !reactor.getGlobalSettings().getPauseSetting().getBoolean())) {
+		auto running = !MSXCPUInterface::isBreaked() && !reactor.getGlobalSettings().getPauseSetting().getBoolean();
+		if (followPC && running) {
 			gotoTarget = pc;
+		}
+
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
+			lastWidget = this;
+		} else {
+			selectedAddr = {};
 		}
 
 		auto widthOpcode = ImGui::CalcTextSize("12 34 56 78"sv).x;
@@ -335,8 +344,11 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 
 							// do the full-row-selectable stuff in a column that cannot be hidden
 							auto pos = ImGui::GetCursorPos();
-							ImGui::Selectable("##row", false,
+							ImGui::Selectable("##row", selectedAddr == addr,
 									ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
+							if (ImGui::IsItemFocused()) {
+								selectedAddr = addr;
+							}
 							using enum Shortcuts::ID;
 							auto& shortcuts = manager.getShortcuts();
 							if (shortcuts.checkShortcut(DISASM_GOTO_ADDR)) {
