@@ -724,11 +724,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 {
-#if USE_KEYPRESSCNT
 	for (auto& i : cntKeyMatrix) {
 		std::ranges::fill(i,  0);
 	}
-#endif //USE_KEYPRESSCNT
 
 	std::ranges::fill(keyMatrix,     255);
 	std::ranges::fill(cmdKeyMatrix,  255);
@@ -1167,12 +1165,11 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 		return;
 	}
 	if (down) {
-	#if USE_KEYPRESSCNT
+		// support for multi-bindded key
 		auto row = pos.getRow();
 		auto col = pos.getColumn();
 		assert(cntKeyMatrix[row][col] < 255); // safe check
 		cntKeyMatrix[row][col]++;
-	#endif //USE_KEYPRESSCNT
 
 		pressKeyMatrixEvent(time, pos);
 		// Keep track of the MSX modifiers.
@@ -1185,13 +1182,12 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 			}
 		}
 	} else {
-	#if USE_KEYPRESSCNT
+		// support for multi-bindded key
 		auto row = pos.getRow();
 		auto col = pos.getColumn();
 		// allow - > assert(cntKeyMatrix[row][col]);
 		if (cntKeyMatrix[row][col]) --cntKeyMatrix[row][col]; //care for overflow -> std:min(0, cntKeyMatrix[row][col]-1); 
 		if (cntKeyMatrix[row][col] > 0) return;
-	#endif //USE_KEYPRESSCNT
 
 		releaseKeyMatrixEvent(time, pos);
 		for (auto [i, mp] : enumerate(modifierPos)) {
