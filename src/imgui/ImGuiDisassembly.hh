@@ -34,7 +34,7 @@ public:
 	void syncWithPC() { syncDisassemblyWithPC = true; }
 
 public:
-	static void actionToggleBp(MSXMotherBoard& motherBoard);
+	void actionToggleBp(MSXMotherBoard& motherBoard);
 	[[nodiscard]] static std::pair<const MSXRom*, RomBlockDebuggableBase*>
 		getRomBlocks(Debugger& debugger, const MSXDevice* device);
 

@@ -36,8 +36,6 @@ using namespace std::literals;
 
 namespace openmsx {
 
-ImGuiDisassembly* ImGuiDisassembly::lastWidget = nullptr;
-
 ImGuiDisassembly::ImGuiDisassembly(ImGuiManager& manager_, size_t index)
 	: ImGuiPart(manager_)
 	, symbolManager(manager.getReactor().getSymbolManager())
@@ -188,7 +186,7 @@ void ImGuiDisassembly::actionToggleBp(MSXMotherBoard& motherBoard)
 	auto& bps = cpuInterface.getBreakPoints();
 	std::optional<BreakPoint> addBp;
 	std::optional<unsigned> removeBpId;
-	auto addr = lastWidget && lastWidget->selectedAddr ? *lastWidget->selectedAddr : motherBoard.getCPU().getRegisters().getPC();
+	auto addr = selectedAddr ? *selectedAddr : motherBoard.getCPU().getRegisters().getPC();
 
 	auto bpLine = examineBpLine(addr, bps, cpuInterface, debugger);
 
@@ -212,7 +210,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 		auto& debugger = motherBoard->getDebugger();
 		auto time = motherBoard->getCurrentTime();
 
-		manager.debugger->checkShortcuts(cpuInterface, *motherBoard);
+		manager.debugger->checkShortcuts(cpuInterface, *motherBoard, this);
 
 		std::optional<BreakPoint> addBp;
 		std::optional<unsigned> removeBpId;
@@ -224,9 +222,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 			gotoTarget = pc;
 		}
 
-		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
-			lastWidget = this;
-		} else {
+		if (!ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
 			selectedAddr = {};
 		}
 
