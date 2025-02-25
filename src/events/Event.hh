@@ -376,6 +376,7 @@ class BootEvent                  final : public SimpleEvent {};
 class FrameDrawnEvent            final : public SimpleEvent {};
 
 class BreakEvent                 final : public SimpleEvent {};
+class ContinueEvent              final : public SimpleEvent {};
 class SwitchRendererEvent        final : public SimpleEvent {};
 
 /** Used to schedule 'taking reverse snapshots' between Z80 instructions. */
@@ -427,6 +428,7 @@ using Event = std::variant<
 	BootEvent,
 	FrameDrawnEvent,
 	BreakEvent,
+	ContinueEvent,
 	SwitchRendererEvent,
 	TakeReverseSnapshotEvent,
 	AfterTimedEvent,
@@ -473,6 +475,7 @@ enum class EventType : uint8_t
 	FINISH_FRAME             = event_index<FinishFrameEvent>,
 	FRAME_DRAWN              = event_index<FrameDrawnEvent>,
 	BREAK                    = event_index<BreakEvent>,
+	CONTINUE                 = event_index<ContinueEvent>,
 	SWITCH_RENDERER          = event_index<SwitchRendererEvent>,
 	TAKE_REVERSE_SNAPSHOT    = event_index<TakeReverseSnapshotEvent>,
 	CLICOMMAND               = event_index<CliCommandEvent>,

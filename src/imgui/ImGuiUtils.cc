@@ -19,9 +19,9 @@
 
 namespace openmsx {
 
-void HelpMarker(std::string_view desc)
+void HelpMarker(std::string_view desc, float spacing)
 {
-	ImGui::SameLine();
+	ImGui::SameLine(0.0f, spacing);
 	ImGui::TextDisabled("(?)");
 	simpleToolTip(desc);
 }

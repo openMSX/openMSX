@@ -1,6 +1,7 @@
 #include "DebuggableEditor.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiDebugger.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiSettings.hh"
@@ -93,6 +94,19 @@ DebuggableEditor::Sizes DebuggableEditor::calcSizes(unsigned memSize) const
 	}
 	s.windowWidth = s.posAsciiEnd + style.ScrollbarSize + style.WindowPadding.x * 2 + s.glyphWidth;
 	return s;
+}
+
+void DebuggableEditor::makeSnapshot(MSXMotherBoard& motherBoard)
+{
+	auto& debugger = motherBoard.getDebugger();
+	if (auto* debuggable = debugger.findDebuggable(getDebuggableName())) {
+		makeSnapshot(*debuggable);
+	}
+}
+void DebuggableEditor::makeSnapshot(Debuggable& debuggable)
+{
+	snapshot.resize(debuggable.getSize());
+	debuggable.readBlock(0, snapshot);
 }
 
 void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
@@ -599,6 +613,14 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		}
 	};
 
+	auto& debugger = manager.debugger;
+	if ((snapshot.size() != memSize) && debugger->needSnapshot()) {
+		makeSnapshot(debuggable);
+	}
+	bool drawChanges = (snapshot.size() == memSize) && debugger->needDrawChanges();
+	auto changedColor = debugger->getChangesColor();
+	auto greyColor = getColor(imColor::TEXT_DISABLED);
+
 	const auto totalLineCount = int((memSize + columns - 1) / columns);
 	im::ListClipper(totalLineCount, -1, s.lineHeight, [&](int line) {
 		auto addr = unsigned(line) * columns;
@@ -673,7 +695,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 					ImGuiInputTextFlags_CharsHexadecimal);
 			} else {
 				uint8_t b = debuggable.read(addr);
-				im::StyleColor(b == 0 && greyOutZeroes, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+				bool changed = drawChanges && (b != snapshot[addr]);
+				bool grey = (b == 0) && greyOutZeroes;
+				im::StyleColor(changed || grey, ImGuiCol_Text, changed ? changedColor : greyColor, [&]{
 					ImGui::StrCat(formatData(b), ' ');
 				});
 				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
@@ -723,8 +747,10 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 						});
 				} else {
 					uint8_t c = debuggable.read(addr);
+					bool changed = drawChanges && (c != snapshot[addr]);
 					char display = formatAsciiData(c);
-					im::StyleColor(display != char(c), ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+					bool grey = display != char(c);
+					im::StyleColor(changed || grey, ImGuiCol_Text, changed ? changedColor : greyColor, [&]{
 						ImGui::TextUnformatted(&display, &display + 1);
 					});
 				}
@@ -818,7 +844,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 
 	im::Popup("context", [&]{
 		im::ScopedFont sf(manager.fontProp);
-		ImGui::SetNextItemWidth(7.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
+		ImGui::SetNextItemWidth(8.5f * s.glyphWidth + 2.0f * style.FramePadding.x);
 		if (ImGui::InputInt("Columns", &columns, 1, 0)) {
 			columns = std::clamp(columns, 1, MAX_COLUMNS);
 		}
@@ -828,6 +854,9 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::Checkbox("Show Ascii", &showAscii);
 		ImGui::Checkbox("Show Symbol info", &showSymbolInfo);
 		ImGui::Checkbox("Grey out zeroes", &greyOutZeroes);
+		im::Menu("Highlight changes", [&]{
+			debugger->configureChangesMenu();
+		});
 		ImGui::Separator();
 		if (ImGui::MenuItem("Export ...")) {
 			showExportWindow = true;
