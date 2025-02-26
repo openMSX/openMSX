@@ -6,6 +6,7 @@
 #include "CPURegs.hh"
 #include "EmuTime.hh"
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -23,6 +24,14 @@ class MSXCPUInterface;
 
 class ImGuiDebugger final : public ImGuiPart
 {
+public:
+	struct PageInfo {
+		uint8_t ps = 0;
+		std::optional<uint8_t> ss;
+		std::string segment;
+	};
+	using SlotInfo = std::array<PageInfo, 4>;
+
 public:
 	explicit ImGuiDebugger(ImGuiManager& manager);
 	~ImGuiDebugger();
@@ -48,6 +57,8 @@ public:
 	void configureChangesMenu();
 
 private:
+	SlotInfo getSlotInfo(MSXCPUInterface& cpuInterface, Debugger& debugger) const;
+
 	void drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
 	void drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger);
 	void drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime::param time);
@@ -67,6 +78,7 @@ private:
 	std::vector<std::unique_ptr<ImGuiSpriteViewer>> spriteViewers;
 	std::vector<std::unique_ptr<DebuggableEditor>> hexEditors; // sorted on 'getDebuggableName()'
 
+	std::optional<SlotInfo> slotSnapshot;
 	std::optional<CPURegs> cpuRegsSnapshot;
 	int showChangesFrameCounter = 0;
 	enum ShowChanges : int { SHOW_NEVER, SHOW_DURING_BREAK, SHOW_ALWAYS };

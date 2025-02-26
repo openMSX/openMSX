@@ -92,7 +92,12 @@ void ImGuiDebugger::signalContinue()
 	auto* motherBoard = manager.getReactor().getMotherBoard();
 	if (!motherBoard) return;
 
+	auto& cpuInterface = motherBoard->getCPUInterface();
+	auto& debugger = motherBoard->getDebugger();
+	slotSnapshot = getSlotInfo(cpuInterface, debugger);
+
 	cpuRegsSnapshot = motherBoard->getCPU().getRegisters();
+
 	for (auto& h : hexEditors) {
 		h->makeSnapshot(*motherBoard);
 	}
@@ -383,6 +388,43 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 	});
 }
 
+ImGuiDebugger::SlotInfo ImGuiDebugger::getSlotInfo(MSXCPUInterface& cpuInterface, Debugger& debugger) const
+{
+	SlotInfo result;
+	for (auto page : xrange(uint8_t(4))) {
+		auto& r = result[page];
+
+		r.ps = cpuInterface.getPrimarySlot(page);
+		if (cpuInterface.isExpanded(r.ps)) {
+			r.ss = cpuInterface.getSecondarySlot(page);
+		}
+
+		const auto* device = cpuInterface.getVisibleMSXDevice(page);
+		if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
+			r.segment = strCat(mapper->getSelectedSegment(page));
+		} else if (auto [rom, romBlocks] = ImGuiDisassembly::getRomBlocks(debugger, device); romBlocks) {
+			if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
+				auto addr = 0x4000 * page;
+				char separator = 'R';
+				for (int offset = 0; offset < 0x4000; offset += blockSize) {
+					r.segment += separator;
+					if (auto seg = romBlocks->readExt(addr + offset); seg != unsigned(-1)) {
+						strAppend(r.segment, seg);
+					} else {
+						r.segment += '-';
+					}
+					separator = '/';
+				}
+			} else {
+				r.segment = "-";
+			}
+		} else {
+			r.segment = "-";
+		}
+	}
+	return result;
+}
+
 void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 {
 	if (!showSlots) return;
@@ -399,47 +441,35 @@ void ImGuiDebugger::drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger)
 			ImGui::TableSetupColumn("Segment");
 			ImGui::TableHeadersRow();
 
+			auto slots = getSlotInfo(cpuInterface, debugger);
+
+			if (!slotSnapshot && needSnapshot()) {
+				slotSnapshot = slots;
+			}
+			bool drawChanges = slotSnapshot && needDrawChanges();
+			auto color = getChangesColor();
+
 			for (auto page : xrange(uint8_t(4))) {
-				auto addr = 0x4000 * page;
+				const auto& p = slots[page];
 				if (ImGui::TableNextColumn()) { // page
 					ImGui::StrCat(page);
 				}
 				if (ImGui::TableNextColumn()) { // address
-					ImGui::StrCat("0x", hex_string<4>(addr));
+					ImGui::StrCat("0x", hex_string<4>(0x4000 * page));
 				}
 				if (ImGui::TableNextColumn()) { // slot
-					int ps = cpuInterface.getPrimarySlot(page);
-					if (cpuInterface.isExpanded(ps)) {
-						int ss = cpuInterface.getSecondarySlot(page);
-						ImGui::StrCat(ps, '-', ss);
-					} else {
-						ImGui::StrCat(' ', ps);
-					}
+					auto s = p.ss ? strCat(p.ps, '-', *p.ss) : strCat(' ', p.ps);
+					bool changed = drawChanges && ((p.ps != (*slotSnapshot)[page].ps) ||
+					                               (p.ss != (*slotSnapshot)[page].ss));
+					im::StyleColor(changed, ImGuiCol_Text, color, [&]{
+						ImGui::TextUnformatted(s);
+					});
 				}
 				if (ImGui::TableNextColumn()) { // segment
-					const auto* device = cpuInterface.getVisibleMSXDevice(page);
-					if (const auto* mapper = dynamic_cast<const MSXMemoryMapperBase*>(device)) {
-						ImGui::StrCat(mapper->getSelectedSegment(page));
-					} else if (auto [rom, romBlocks] = ImGuiDisassembly::getRomBlocks(debugger, device); romBlocks) {
-						if (unsigned blockSize = RomInfo::getBlockSize(rom->getRomType())) {
-							std::string text;
-							char separator = 'R';
-							for (int offset = 0; offset < 0x4000; offset += blockSize) {
-								text += separator;
-								if (auto seg = romBlocks->readExt(addr + offset); seg != unsigned(-1)) {
-									strAppend(text, seg);
-								} else {
-									text += '-';
-								}
-								separator = '/';
-							}
-							ImGui::TextUnformatted(text);
-						} else {
-							ImGui::TextUnformatted("-"sv);
-						}
-					} else {
-						ImGui::TextUnformatted("-"sv);
-					}
+					bool changed = drawChanges && (p.segment != (*slotSnapshot)[page].segment);
+					im::StyleColor(changed, ImGuiCol_Text, color, [&]{
+						ImGui::TextUnformatted(p.segment);
+					});
 				}
 			}
 		});
