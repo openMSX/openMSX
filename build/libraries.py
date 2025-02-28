@@ -17,6 +17,18 @@ from os import listdir
 from os.path import isdir, isfile
 from os import environ
 
+def _get_pkg_config(distroRoot):
+	if distroRoot is None:
+		return 'pkg-config'
+	elif distroRoot.startswith('derived/'):
+		toolsDir = '%s/../tools/bin' % distroRoot
+		for name in listdir(toolsDir):
+			if name.endswith('-pkg-config'):
+				return toolsDir + '/' + name
+		raise RuntimeError('No cross-pkg-config found in 3rdparty build')
+	else:
+		return '%s/bin/pkg-config' % distroRoot
+
 class Library(object):
 	libName = None
 	makeName = None
@@ -166,20 +178,11 @@ class FreeType(Library):
 		script = super().getConfigScript(
 			platform, linkStatic, distroRoot
 			)
-		# FreeType 2.9.1 no longer installs the freetype-config script
-		# by default and expects pkg-config to be used instead.
 		if isfile(script):
 			return script
-		elif distroRoot is None:
-			return 'pkg-config freetype2'
-		elif distroRoot.startswith('derived/'):
-			toolsDir = '%s/../tools/bin' % distroRoot
-			for name in listdir(toolsDir):
-				if name.endswith('-pkg-config'):
-					return toolsDir + '/' + name + ' freetype2'
-			raise RuntimeError('No cross-pkg-config found in 3rdparty build')
-		else:
-			return '%s/bin/pkg-config freetype2' % distroRoot
+		# FreeType 2.9.1 no longer installs the freetype-config script
+		# by default and expects pkg-config to be used instead.
+		return '%s freetype2' % _get_pkg_config(distroRoot)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
