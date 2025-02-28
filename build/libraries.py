@@ -133,6 +133,8 @@ class Library(object):
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is None:
 			return 'unknown'
+		elif 'pkg-config' in configScript:
+			return '`%s --modversion`' % configScript
 		else:
 			return '`%s --version`' % configScript
 
