@@ -287,49 +287,27 @@ class OGG(Library):
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
 
-class SDL2(Library):
-	libName = 'SDL2'
-	makeName = 'SDL2'
-	header = '<SDL.h>'
-	configScriptName = 'sdl2-config'
-	staticLibsOption = '--static-libs'
+class SDL3(Library):
+	libName = 'SDL3'
+	makeName = 'SDL3'
+	header = '<SDL3/SDL.h>'
+	staticLibsOption = '--static'
 	function = 'SDL_Init'
 
 	@classmethod
-	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super().getLinkFlags(platform, linkStatic, distroRoot)
-		if platform in ('android',):
-			flags += ' -lOpenSLES'
-		return flags
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		return '%s sdl3' % _get_pkg_config(distroRoot)
 
-class SDL2_ttf(Library):
-	libName = 'SDL2_ttf'
-	makeName = 'SDL2_TTF'
-	header = '<SDL_ttf.h>'
+class SDL3_ttf(Library):
+	libName = 'SDL3_ttf'
+	makeName = 'SDL3_TTF'
+	header = '<SDL3_ttf/SDL_ttf.h>'
 	function = 'TTF_OpenFont'
-	dependsOn = ('SDL2', 'FREETYPE')
+	dependsOn = ('SDL3', 'FREETYPE')
 
 	@classmethod
-	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super().getLinkFlags(
-			platform, linkStatic, distroRoot
-			)
-		if not linkStatic:
-			# Because of the SDLmain trickery, we need SDL's link flags too
-			# on some platforms even though we're linking dynamically.
-			flags += ' ' + SDL2.getLinkFlags(platform, linkStatic, distroRoot)
-		return flags
-
-	@classmethod
-	def getVersion(cls, platform, linkStatic, distroRoot):
-		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeaders(platform),
-				'SDL_TTF_MAJOR_VERSION',
-				'SDL_TTF_MINOR_VERSION',
-				'SDL_TTF_PATCHLEVEL',
-				)
-			return None if None in version else '%s.%s.%s' % version
-		return execute
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		return '%s sdl3-ttf' % _get_pkg_config(distroRoot)
 
 class TCL(Library):
 	libName = 'tcl'
