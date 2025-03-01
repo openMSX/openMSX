@@ -1,6 +1,7 @@
 # Extract files from archives.
 
-from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen, utime
+from pathlib import Path
+from os import O_CREAT, O_WRONLY, fdopen, open as osopen, utime
 try:
 	from os import O_BINARY
 except ImportError:
@@ -32,27 +33,24 @@ def extract(archivePath, destDir, rename = None):
 	created files and ignores the ownership and permissions from the archive,
 	since we are not restoring a backup.
 	'''
-	absDestDir = abspath(destDir) + sep
-	if not isdir(absDestDir):
+	absDestDir = Path(destDir).resolve()
+	if not absDestDir.is_dir():
 		raise ValueError(
-			'Destination directory "%s" does not exist' % absDestDir
-			)
+			f'Destination directory "{absDestDir}" does not exist'
+		)
 
 	with TarFile.open(archivePath, errorlevel=2) as tar:
 		for member in tar.getmembers():
-			absMemberPath = abspath(joinpath(absDestDir, member.name))
-			if member.isdir():
-				absMemberPath += sep
-			if not absMemberPath.startswith(absDestDir):
+			absMemberPath = absDestDir / member.name
+			if not absMemberPath.is_relative_to(absDestDir):
 				raise ValueError(
-					'Refusing to extract tar entry "%s" '
+					f'Refusing to extract tar entry "{member.name}" '
 					'outside destination directory'
-					% member.name
-					)
+				)
 			if rename:
-				absMemberPath = absDestDir + rename(
-					absMemberPath[len(absDestDir) : ]
-					)
+				absMemberPath = absDestDir / rename(
+					absMemberPath.relative_to(absDestDir)
+				)
 
 			if member.isfile():
 				mode = S_IRWXU | S_IRWXG | S_IRWXO
@@ -67,47 +65,34 @@ def extract(archivePath, destDir, rename = None):
 						out.write(buf)
 						bytesLeft -= len(buf)
 			elif member.isdir():
-				if not isdir(absMemberPath):
-					mkdir(absMemberPath)
+				absMemberPath.mkdir(exist_ok=True)
 			elif member.issym():
 				try:
 					symlink(member.linkname, absMemberPath)
 				except OSError as ex:
 					print(
-						'WARNING: Skipping symlink creation: %s -> %s: %s'
-						% (absMemberPath, member.linkname, ex)
-						)
+						'WARNING: Skipping symlink creation: '
+						f'{absMemberPath} -> {member.linkname}: {ex}'
+					)
 			else:
 				raise ValueError(
-					'Cannot extract tar entry "%s": '
+					f'Cannot extract tar entry "{member.name}": '
 					'not a regular file, symlink or directory'
-					% member.name
-					)
+				)
 			# Set file/directory modification time to match the archive.
 			# For example autotools track dependencies between archived files
 			# and will attempt to regenerate them if the time stamps indicate
 			# one is older than the other.
-			# Note: Apparently Python 2.5's utime() cannot set timestamps on
-			#       directories in Windows.
-			if member.isfile() or (
-				member.isdir() and not hostOS.startswith('mingw')
-				):
+			if member.isfile():
 				utime(absMemberPath, (member.mtime, member.mtime))
 
-class TopLevelDirRenamer(object):
+class TopLevelDirRenamer:
 
 	def __init__(self, newName):
 		self.newName = newName
 
 	def __call__(self, oldPath):
-		head, tail = splitpath(oldPath)
-		headParts = head.split(sep)
-		if not headParts:
-			raise ValueError(
-				'Directory part is empty for entry "%s"' % oldPath
-				)
-		headParts[0] = self.newName
-		return sep.join(headParts + [ tail ])
+		return Path(self.newName, *oldPath.parts[1:])
 
 if __name__ == '__main__':
 	if 3 <= len(sys.argv) <= 4:
