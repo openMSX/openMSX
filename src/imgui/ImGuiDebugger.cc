@@ -297,6 +297,7 @@ void ImGuiDebugger::actionStepOut()
 }
 void ImGuiDebugger::actionStepBack()
 {
+	signalContinue(); // make a snapshot
 	manager.executeDelayed(TclObject("step_back"), [&](const TclObject&) {
 		for (auto& d : disassemblyViewers) d->syncWithPC();
 	});
