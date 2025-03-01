@@ -39,6 +39,7 @@ def extract(archivePath, destDir, rename = None):
 			f'Destination directory "{absDestDir}" does not exist'
 		)
 
+	createdDirs = set()
 	with TarFile.open(archivePath, errorlevel=2) as tar:
 		for member in tar.getmembers():
 			absMemberPath = absDestDir / member.name
@@ -53,6 +54,10 @@ def extract(archivePath, destDir, rename = None):
 				)
 
 			if member.isfile():
+				parent = absMemberPath.parent
+				if parent not in createdDirs:
+					parent.mkdir(parents=True, exist_ok=True)
+					createdDirs.add(parent)
 				mode = S_IRWXU | S_IRWXG | S_IRWXO
 				if not (member.mode & S_IXUSR):
 					mode &= ~(S_IXUSR | S_IXGRP | S_IXOTH)
@@ -65,7 +70,8 @@ def extract(archivePath, destDir, rename = None):
 						out.write(buf)
 						bytesLeft -= len(buf)
 			elif member.isdir():
-				absMemberPath.mkdir(exist_ok=True)
+				absMemberPath.mkdir(parents=True, exist_ok=True)
+				createdDirs.add(absMemberPath)
 			elif member.issym():
 				try:
 					symlink(member.linkname, absMemberPath)
