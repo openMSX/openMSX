@@ -20,7 +20,7 @@ all: default
 # Get information about packages.
 -include derived/3rdparty/packages.mk
 
-ifneq ($(origin PACKAGE_SDL2),undefined)
+ifneq ($(origin PACKAGE_SDL3),undefined)
 
 # These libraries are part of the base system, therefore we do not need to
 # link them statically for building a redistributable binary.
@@ -105,15 +105,6 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-ifeq ($(OPENMSX_TARGET_OS),android)
-# SDL2's top-level Makefile does not build the platform glue, so linking will fail.
-# As a workaround, we disable HIDAPI, but in the long term we should either fix the
-# issue in SDL2 or build SDL2 using its top-level Android.mk.
-USE_HIDAPI:=disable
-else
-USE_HIDAPI:=enable
-endif
-
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
@@ -170,25 +161,18 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		CFLAGS="-Wno-error=int-conversion" \
 		CC= LD= AR= RANLIB= STRIP=
 
-# Configure SDL2.
-$(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
+# Configure SDL3.
+$(BUILD_DIR)/$(PACKAGE_SDL3)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL3)/.extracted \
   $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
-	cd $(@D) && \
-		$(PWD)/$(<D)/configure \
-		--$(USE_HIDAPI)-hidapi \
-		--$(USE_VIDEO_X11)-video-x11 \
-		--disable-video-directfb \
-		--disable-video-opengles1 \
-		--disable-nas \
-		--disable-esd \
-		--disable-arts \
-		--disable-shared \
-		$(if $(filter %clang,$(CC)),--disable-arm-simd,) \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+	cmake -B $(@D) -S $(PWD)/$(<D) \
+		-DSDL_SHARED=OFF \
+		-DSDL_STATIC=ON \
+		-DSDL_HAPTIC=OFF \
+		-DSDL_POWER=OFF \
+		-DSDL_SENSOR=OFF \
+		-DCMAKE_INSTALL_PREFIX="$(PWD)/$(INSTALL_DIR)" \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -197,27 +181,26 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 # - "joystick" depends on "haptic" (at least in the Windows back-end)
 # - OpenGL on Windows depends on "loadso"
 
-# Configure SDL2_ttf.
-$(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL2_TTF)/.extracted \
-  $(call installdeps,PKG_CONFIG SDL2 FREETYPE)
+# Configure SDL3_ttf.
+$(BUILD_DIR)/$(PACKAGE_SDL3_TTF)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL3_TTF)/.extracted \
+  $(call installdeps,PKG_CONFIG SDL3 FREETYPE)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$(<D)/configure \
-		--disable-sdltest \
-		--disable-shared \
-		--disable-freetype-builtin \
-		--disable-harfbuzz \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
+	cmake -B $(@D) -S $(PWD)/$(<D) \
+		-DSDLTTF_INSTALL=ON \
+		-DSDLTTF_INSTALL_CPACK=OFF \
+		-DSDLTTF_INSTALL_MAN=OFF \
+		-DSDLTTF_RELOCATABLE=OFF \
+		-DSDLTTF_BUILD_SHARED_LIBS=OFF \
+		-DSDLTTF_STRICT=ON \
+		-DSDLTTF_VENDORED=OFF \
+		-DSDLTTF_HARFBUZZ=OFF \
+		-DSDLTTF_PLUTOSVG=OFF \
+		-DSDLTTF_SAMPLES=OFF \
+		-DCMAKE_INSTALL_PREFIX="$(PWD)/$(INSTALL_DIR)" \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS)"
-# Disable building of example programs.
-# This build fails on Android (SDL main issues), but on other platforms
-# we don't need these programs either.
-MAKEVAR_OVERRIDE_SDL2_TTF:=noinst_PROGRAMS=""
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
