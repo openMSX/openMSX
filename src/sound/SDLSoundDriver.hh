@@ -7,7 +7,7 @@
 
 #include "MemBuffer.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 

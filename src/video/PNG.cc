@@ -12,7 +12,7 @@
 #include "one_of.hh"
 #include "small_buffer.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <png.h>
 
 #include <array>

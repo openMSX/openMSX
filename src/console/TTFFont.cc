@@ -7,7 +7,7 @@
 #include "stl.hh"
 #include "zstring_view.hh"
 
-#include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <algorithm>
 #include <cassert>

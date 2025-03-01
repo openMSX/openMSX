@@ -7,7 +7,7 @@
 #include "JoystickManager.hh"
 
 #include "SDLKey.hh"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdint>
 #include <optional>
