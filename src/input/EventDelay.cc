@@ -11,7 +11,7 @@
 #include "one_of.hh"
 #include "stl.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <cassert>

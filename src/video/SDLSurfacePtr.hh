@@ -6,7 +6,7 @@
 #include "MemBuffer.hh"
 #include "narrow.hh"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <cassert>

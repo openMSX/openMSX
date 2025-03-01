@@ -17,7 +17,7 @@
 #include "random.hh"
 #include "setenv.hh" // setenv() for windows
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdio>
 #include <cstdlib>

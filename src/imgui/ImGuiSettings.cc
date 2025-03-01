@@ -49,7 +49,7 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <optional>

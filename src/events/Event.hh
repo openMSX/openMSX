@@ -16,7 +16,7 @@
 #include <utility>
 #include <variant>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace openmsx {
 
