@@ -64,13 +64,13 @@ public:
 	void getDir(std::string_view rootDirName);
 	std::string deleteItem(std::string_view itemName); // delete file or directory (recursive)
 	std::string renameItem(std::string_view currentName, std::string_view newName); // rename file or directory
-	std::string convertToMsxName(std::string_view name) const; // truncate to 8.3 filename
+	[[nodiscard]] std::string convertToMsxName(std::string_view name) const; // truncate to 8.3 filename
 
 	struct FreeSpaceResult {
 		unsigned numFreeClusters;
 		unsigned clusterSize; // in bytes
 	};
-	FreeSpaceResult getFreeSpace() const;
+	[[nodiscard]] FreeSpaceResult getFreeSpace() const;
 
 private:
 	struct DirEntry {

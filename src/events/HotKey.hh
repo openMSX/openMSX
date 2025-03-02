@@ -83,7 +83,7 @@ public:
 		xml.end("bindings");
 	}
 
-	const auto& getGlobalBindings() const { return cmdMap; }
+	[[nodiscard]] const auto& getGlobalBindings() const { return cmdMap; }
 
 private:
 	struct LayerInfo {

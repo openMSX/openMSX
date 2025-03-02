@@ -88,7 +88,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	unsigned mapAddress(unsigned address) const;
+	[[nodiscard]] unsigned mapAddress(unsigned address) const;
 
 private:
 	/** V9990 VDP this VRAM belongs to.

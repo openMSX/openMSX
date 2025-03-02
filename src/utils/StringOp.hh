@@ -127,7 +127,7 @@ namespace StringOp
 				while ((p < str.size()) && !isSeparator(str[p], separators)) ++p;
 			}
 
-			std::string_view::size_type skipSeparators(std::string_view::size_type pos) const {
+			[[nodiscard]] std::string_view::size_type skipSeparators(std::string_view::size_type pos) const {
 				if (keepOrRemove == EmptyParts::REMOVE) {
 					while ((pos < str.size()) && isSeparator(str[pos], separators)) ++pos;
 				}
