@@ -69,8 +69,8 @@ private:
 
 	const uint8_t scsiId;  // SCSI ID 0..7
 	bool unitAttention;    // Unit Attention (was: reset)
-	uint8_t message;
-	uint8_t lun;
+	uint8_t message = 0;
+	uint8_t lun = 0;
 	std::array<uint8_t, 12> cdb; // Command Descriptor Block
 };
 

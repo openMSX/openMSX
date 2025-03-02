@@ -76,8 +76,6 @@ SCSIHD::SCSIHD(const DeviceConfig& targetConfig,
 	, buffer(buf)
 	, mode(mode_)
 	, scsiId(narrow_cast<uint8_t>(targetConfig.getAttributeValueAsInt("id", 0)))
-	, message(0)
-	, lun(0) // move to reset() ?
 {
 	reset();
 }
