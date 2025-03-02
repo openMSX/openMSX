@@ -80,22 +80,22 @@ private:
 	using ColorSequence = std::array<Step, 4>;
 	array_with_enum_index<CliComm::LogLevel, ColorSequence> colorSequence = {
 		ColorSequence{ // Info                     AA'BB'GG'RR
-			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
-			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'80'80'80}}, // start of stable colors
-			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'80'80'80}}, // end of stable colors
-			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'80'80'80}}, // end of fade-out
+			Step{.start = 0.0f, .colors = Colors{.text = 0xff'00'ff'ff, .background = 0x80'ff'ff'ff}}, // start of flash
+			Step{.start = 0.5f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'80'80'80}}, // start of stable colors
+			Step{.start = 5.0f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'80'80'80}}, // end of stable colors
+			Step{.start = 1.5f, .colors = Colors{.text = 0x00'ff'ff'ff, .background = 0x00'80'80'80}}, // end of fade-out
 		},
 		ColorSequence{ // warning
-			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
-			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'00'60'A0}}, // start of stable colors
-			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'00'60'A0}}, // end of stable colors
-			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'00'60'A0}}, // end of fade-out
+			Step{.start = 0.0f, .colors = Colors{.text = 0xff'00'ff'ff, .background = 0x80'ff'ff'ff}}, // start of flash
+			Step{.start = 0.5f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'00'60'A0}}, // start of stable colors
+			Step{.start = 5.0f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'00'60'A0}}, // end of stable colors
+			Step{.start = 1.5f, .colors = Colors{.text = 0x00'ff'ff'ff, .background = 0x00'00'60'A0}}, // end of fade-out
 		},
 		ColorSequence{ // error
-			Step{0.0f, Colors{0xff'00'ff'ff, 0x80'ff'ff'ff}}, // start of flash
-			Step{0.5f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // start of stable colors
-			Step{5.0f, Colors{0xff'ff'ff'ff, 0x80'00'00'C0}}, // end of stable colors
-			Step{1.5f, Colors{0x00'ff'ff'ff, 0x00'00'00'C0}}, // end of fade-out
+			Step{.start = 0.0f, .colors = Colors{.text = 0xff'00'ff'ff, .background = 0x80'ff'ff'ff}}, // start of flash
+			Step{.start = 0.5f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'00'00'C0}}, // start of stable colors
+			Step{.start = 5.0f, .colors = Colors{.text = 0xff'ff'ff'ff, .background = 0x80'00'00'C0}}, // end of stable colors
+			Step{.start = 1.5f, .colors = Colors{.text = 0x00'ff'ff'ff, .background = 0x00'00'00'C0}}, // end of fade-out
 		},
 		ColorSequence{ /*dummy*/ } // progress
 	};

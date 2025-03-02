@@ -71,7 +71,7 @@ public:
 		auto [q, r] = divMod.divMod(dur);
 		auto f = float(r) / float(getStep());
 		assert(0.0f <= f); assert(f < 1.0f);
-		return {q, f};
+		return {.integral = q, .fractional = f};
 	}
 
 	template<typename FIXED>

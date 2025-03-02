@@ -147,8 +147,8 @@ std::optional<DiskManipulator::DriveAndPartition> DiskManipulator::getDriveAndDi
 	}
 	try {
 		return DriveAndPartition{
-			drive,
-			std::make_unique<DiskPartition>(*disk, partitionNum)};
+			.drive = drive,
+			.partition = std::make_unique<DiskPartition>(*disk, partitionNum)};
 	} catch (MSXException&) {
 		return {}; // invalid partition?
 	}

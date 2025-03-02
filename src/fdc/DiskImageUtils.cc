@@ -463,7 +463,7 @@ struct CHS {
 	tmp = (tmp - sector) / 32;
 	uint8_t head = tmp % 16;
 	unsigned cylinder = tmp / 16;
-	return {cylinder, head, sector};
+	return {.cylinder = cylinder, .head = head, .sector = sector};
 }
 
 static std::vector<unsigned> clampPartitionSizes(std::span<const unsigned> sizes,
@@ -648,9 +648,9 @@ FatTimeDate toTimeDate(time_t totalSeconds)
 		auto date = narrow<uint16_t>(
 			mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 			(std::clamp(mtim->tm_year + 1900 - 1980, 0, 119) << 9));
-		return {time, date};
+		return {.time = time, .date = date};
 	}
-	return {0, 0};
+	return {.time = 0, .date = 0};
 }
 
 time_t fromTimeDate(FatTimeDate timeDate)

@@ -218,7 +218,7 @@ void UnicodeKeymap::parseUnicodeKeyMapFile(string_view data)
 			}
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
-			mapData.emplace_back(Entry{unicode, KeyInfo(pos, modMask)});
+			mapData.emplace_back(Entry{.unicode = unicode, .keyInfo = KeyInfo(pos, modMask)});
 			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
 			relevantMods[pos.getRowCol()] |= modMask;
 		}

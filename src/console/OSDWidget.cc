@@ -31,7 +31,7 @@ static constexpr Rectangle intersect(const Rectangle& a, const Rectangle& b)
 	int y2 = std::min<int>(a.y + a.h, b.y + b.h);
 	int w = std::max(0, x2 - x1);
 	int h = std::max(0, y2 - y1);
-	return {x1, y1, w, h};
+	return {.x = x1, .y = y1, .w = w, .h = h};
 }
 
 ////
@@ -75,8 +75,8 @@ GLScopedClip::GLScopedClip(const OutputSurface& output, vec2 xy, vec2 wh)
 		origClip.emplace();
 		glGetIntegerv(GL_SCISSOR_BOX, origClip->data());
 		auto [xn, yn, wn, hn] = intersect(
-			Rectangle{(*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3]},
-			Rectangle{ix, iy, iw, ih});
+			Rectangle{.x = (*origClip)[0], .y = (*origClip)[1], .w = (*origClip)[2], .h = (*origClip)[3]},
+			Rectangle{.x = ix, .y = iy, .w = iw, .h = ih});
 		glScissor(xn, yn, wn, hn);
 	} else {
 		glScissor(ix, iy, iw, ih);
@@ -358,7 +358,7 @@ OSDWidget::BoundingBox OSDWidget::getBoundingBox(const OutputSurface& output) co
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
-	return {topLeft, bottomRight - topLeft};
+	return {.pos = topLeft, .size = bottomRight - topLeft};
 }
 
 } // namespace openmsx

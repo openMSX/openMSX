@@ -252,7 +252,7 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		evt.key.keysym.unused = unicode;
 		Event event = KeyDownEvent(evt);
-		triggerOsdControlEventsFromKeyEvent(SDLKey{key.keysym, true}, key.repeat);
+		triggerOsdControlEventsFromKeyEvent({.sym = key.keysym, .down = true}, key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
@@ -295,7 +295,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			event = KeyUpEvent(e);
 			bool down = false;
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent(SDLKey{e.key.keysym, down}, repeat);
+			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
 		}
 		break;
 	case SDL_KEYDOWN:

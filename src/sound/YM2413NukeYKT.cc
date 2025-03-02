@@ -881,7 +881,7 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 	}
 
-	writes[cycle_offset] = {port, value};
+	writes[cycle_offset] = {.port = port, .value = value};
 	if (port && (write_address == 0xf)) {
 		test_mode_active = true;
 	}

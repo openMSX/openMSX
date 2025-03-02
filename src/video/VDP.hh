@@ -486,7 +486,7 @@ public:
 		assert(isFastBlinkEnabled());
 
 		if (blinkCount == 0) { // not changing
-			return {blinkState, blinkCount};
+			return {.state = blinkState, .count = blinkCount};
 		}
 
 		unsigned evenLen = ((controlRegs[13] >> 4) & 0x0F) * 10;
@@ -515,7 +515,7 @@ public:
 				assert(newCount > 0);
 			}
 		}
-		return {resultState, newCount};
+		return {.state = resultState, .count = newCount};
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between

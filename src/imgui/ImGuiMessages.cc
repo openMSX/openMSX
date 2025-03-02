@@ -234,7 +234,7 @@ void ImGuiMessages::paintOSD()
 				auto x = int(256.0f * (t / step1.start));
 				auto tCol = p.lerp(step0.colors.text,       step1.colors.text,       x);
 				auto bCol = p.lerp(step0.colors.background, step1.colors.background, x);
-				return Colors{tCol, bCol};
+				return Colors{.text = tCol, .background = bCol};
 			}
 			t -= step1.start;
 		}

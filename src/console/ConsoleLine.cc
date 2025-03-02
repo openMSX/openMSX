@@ -18,7 +18,7 @@ ConsoleLine::ConsoleLine(std::string line_, imColor color)
 
 void ConsoleLine::addChunk(std::string_view text, imColor color)
 {
-	chunks.emplace_back(Chunk{color, line.size()});
+	chunks.push_back({.color = color, .pos = line.size()});
 	line.append(text.data(), text.size());
 }
 

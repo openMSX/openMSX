@@ -49,7 +49,7 @@ Disk::TSS Disk::logToPhys(size_t log)
 		uint8_t track = 0;
 		uint8_t side = 0;
 		auto sector = narrow<uint8_t>(log + 1);
-		return {track, side, sector};
+		return {.track = track, .side = side, .sector = sector};
 	}
 	if (!nbSides) {
 		detectGeometry();
@@ -57,7 +57,7 @@ Disk::TSS Disk::logToPhys(size_t log)
 	auto track  = narrow<uint8_t>(log / (size_t(nbSides) * sectorsPerTrack));
 	auto side   = narrow<uint8_t>((log / sectorsPerTrack) % nbSides);
 	auto sector = narrow<uint8_t>((log % sectorsPerTrack) + 1);
-	return {track, side, sector};
+	return {.track = track, .side = side, .sector = sector};
 }
 
 unsigned Disk::getSectorsPerTrack()

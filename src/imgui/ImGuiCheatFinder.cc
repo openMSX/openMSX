@@ -121,9 +121,9 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 			auto addr     = line.getListIndexUnchecked(0).getOptionalInt().value_or(0);
 			auto oldValue = line.getListIndexUnchecked(1).getOptionalInt().value_or(0);
 			auto newValue = line.getListIndexUnchecked(2).getOptionalInt().value_or(0);
-			return SearchResult{narrow_cast<uint16_t>(addr),
-			                    narrow_cast<uint8_t>(oldValue),
-			                    narrow_cast<uint8_t>(newValue)};
+			return SearchResult{.address = narrow_cast<uint16_t>(addr),
+			                    .oldValue = narrow_cast<uint8_t>(oldValue),
+			                    .newValue = narrow_cast<uint8_t>(newValue)};
 		}));
 	}
 }

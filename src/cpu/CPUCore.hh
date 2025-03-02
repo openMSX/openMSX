@@ -85,7 +85,7 @@ public:
 	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
 	[[nodiscard]] CacheLines getCacheLines() {
-		return {readCacheLine, writeCacheLine};
+		return {.read = readCacheLine, .write = writeCacheLine};
 	}
 	[[nodiscard]] bool isM1Cycle(unsigned address) const;
 

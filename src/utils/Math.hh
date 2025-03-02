@@ -192,7 +192,7 @@ constexpr QuotientRemainder div_mod_floor(int dividend, int divisor) {
         --q;
         r += divisor;
     }
-    return {q, r};
+    return {.quotient = q, .remainder = r};
 }
 constexpr int div_floor(int dividend, int divisor) {
     return div_mod_floor(dividend, divisor).quotient;

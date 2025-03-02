@@ -56,7 +56,7 @@ public:
 	void insert(void* aligned, void* unaligned) {
 		if (!aligned) return;
 		assert(!contains(allocMap, aligned, &Entry::aligned));
-		allocMap.emplace_back(Entry{aligned, unaligned});
+		allocMap.push_back({.aligned = aligned, .unaligned = unaligned});
 	}
 
 	void* remove(void* aligned) {

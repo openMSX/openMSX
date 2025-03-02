@@ -201,7 +201,7 @@ static constexpr auto regFunctions = std::array{
 	R{{S{1, 0x40}}, "screen display enable/disable",
 	  [](uint32_t v) { return TemporaryString(v ? "enabled" : "disabled"); }},
 	R{{S{0, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
-	R{{S{1, 0x18}, {0, 0x0E}}, "display mode",
+	R{{S{1, 0x18}, S{0, 0x0E}}, "display mode",
 	  [](uint32_t v) { return TemporaryString(modeName(v)); }},
 	R{{S{9, 0}}, "", [](uint32_t) { return TemporaryString(", "); }},
 	R{{S{9, 0x02}}, "select PAL or NTSC",

@@ -219,9 +219,12 @@ public:
 	[[nodiscard]] size_t numChildren() const;
 	[[nodiscard]] ChildRange<const XMLElement> getChildren() const { return {this}; }
 	[[nodiscard]] ChildRange<      XMLElement> getChildren()       { return {this}; }
-	[[nodiscard]] NamedChildRange<const XMLElement> getChildren(std::string_view childName) const { return {this, childName}; }
-	[[nodiscard]] NamedChildRange<      XMLElement> getChildren(std::string_view childName)       { return {this, childName}; }
-
+	[[nodiscard]] NamedChildRange<const XMLElement> getChildren(std::string_view childName) const {
+		return {.elem = this, .name = childName};
+	}
+	[[nodiscard]] NamedChildRange<      XMLElement> getChildren(std::string_view childName) {
+		return {.elem = this, .name = childName};
+	}
 	[[nodiscard]] const XMLAttribute* findAttribute(std::string_view attrName) const;
 	[[nodiscard]] XMLAttribute* findAttribute(std::string_view attrName);
 	[[nodiscard]] const XMLAttribute& getAttribute(std::string_view attrName) const;

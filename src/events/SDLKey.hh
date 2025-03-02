@@ -25,7 +25,7 @@ struct SDLKey {
 		sym.sym = code;
 		sym.mod = mod;
 		sym.unused = 0; // unicode
-		return {sym, down};
+		return {.sym = sym, .down = down};
 	}
 
 	[[nodiscard]] static SDLKey createDown(SDL_Keycode code) {

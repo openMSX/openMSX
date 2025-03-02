@@ -222,8 +222,8 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 		if (slot == slots[page]) {
 			return z80Active ? z80->getCacheLines() : r800->getCacheLines();
 		} else {
-			return CacheLines{slotReadLines [slot],
-			                  slotWriteLines[slot]};
+			return CacheLines{.read  = slotReadLines [slot],
+			                  .write = slotWriteLines[slot]};
 		}
 	}();
 

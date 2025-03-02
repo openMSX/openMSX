@@ -29,7 +29,7 @@ void EventDistributor::registerEventListener(
 	assert(!contains(priorityMap, &listener, &Entry::listener));
 	// insert at highest position that keeps listeners sorted on priority
 	auto it = std::ranges::upper_bound(priorityMap, priority, {}, &Entry::priority);
-	priorityMap.emplace(it, Entry{priority, &listener});
+	priorityMap.emplace(it, Entry{.priority = priority, .listener = &listener});
 }
 
 void EventDistributor::unregisterEventListener(

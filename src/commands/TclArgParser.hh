@@ -72,8 +72,8 @@ struct ArgsInfo
 [[nodiscard]] inline ArgsInfo flagArg(std::string_view name, bool& flag)
 {
 	return {
-		name,
-		[&flag](Interpreter& /*interp*/, std::span<const TclObject> /*args*/) {
+		.name = name,
+		.func = [&flag](Interpreter& /*interp*/, std::span<const TclObject> /*args*/) {
 			flag = true;
 			return 0;
 		}
@@ -86,8 +86,8 @@ struct ArgsInfo
 	std::function<void(Interpreter&, const TclObject&)> func)
 {
 	return {
-		name,
-		[name, func = std::move(func)](Interpreter& interp, std::span<const TclObject> args) {
+		.name = name,
+		.func = [name, func = std::move(func)](Interpreter& interp, std::span<const TclObject> args) {
 			if (args.empty()) {
 				throw CommandException("missing argument for ", name);
 			}

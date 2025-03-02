@@ -182,7 +182,7 @@ void MSXDevice::registerSlots()
 				getName(), " should be aligned on at least 0x",
 				hex_string<4>(align), '.');
 		}
-		tmpMemRegions.emplace_back(BaseSize{base, size});
+		tmpMemRegions.push_back({.base = base, .size = size});
 	}
 	if (tmpMemRegions.empty()) {
 		return;

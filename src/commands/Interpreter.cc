@@ -325,7 +325,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 	// problems. TODO investigate this further.
 
 	uintptr_t traceID = traceCount++;
-	traces.emplace_back(Trace{traceID, &variable}); // still in sorted order
+	traces.emplace_back(Trace{.id = traceID, .setting = &variable}); // still in sorted order
 	Tcl_TraceVar(interp, name.getString().data(), // 0-terminated
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, std::bit_cast<ClientData>(traceID));

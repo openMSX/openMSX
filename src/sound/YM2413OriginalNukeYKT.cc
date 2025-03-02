@@ -75,7 +75,7 @@ void YM2413::writePort(bool port, uint8_t value, int cycle_offset)
 		allowed_offset = ((port ? 84 : 12) / 4) + cycle_offset;
 	}
 
-	writes[cycle_offset] = {port, value};
+	writes[cycle_offset] = {.port = port, .value = value};
 
 	// only needed for peekReg()
 	if (port == 0) {

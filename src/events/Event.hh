@@ -51,7 +51,7 @@ public:
 		// HACK: repurposed 'unused' field as 'unicode' field
 		return evt.key.keysym.unused;
 	}
-	[[nodiscard]] SDLKey getKey() const { return SDLKey{evt.key.keysym, evt.type == SDL_KEYDOWN}; }
+	[[nodiscard]] SDLKey getKey() const { return {.sym = evt.key.keysym, .down = evt.type == SDL_KEYDOWN}; }
 };
 
 class KeyUpEvent final : public KeyEvent

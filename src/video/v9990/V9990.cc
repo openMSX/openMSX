@@ -704,7 +704,7 @@ V9990::GetPaletteResult V9990::getPalette(int index) const
 	byte g = palette[4 * index + 1];
 	byte b = palette[4 * index + 2];
 	bool ys = isSuperimposing() && (palette[4 * index + 0] & 0x80);
-	return {r, g, b, ys};
+	return {.r = r, .g = g, .b = b, .ys = ys};
 }
 
 void V9990::createRenderer(EmuTime::param time)

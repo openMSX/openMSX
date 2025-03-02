@@ -606,11 +606,14 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				}
 				assert(anyEC || anyNonEC);
 				spriteBoxes[spriteCnt] = SpriteBox{
-					anyEC ? x - 32 : x,
-					initialY,
-					magSize + (anyEC && anyNonEC ? 32 : 0),
-					magSize,
-					spriteCnt, x, originalY, pat};
+					.x = anyEC ? x - 32 : x,
+					.y = initialY,
+					.w = magSize + (anyEC && anyNonEC ? 32 : 0),
+					.h = magSize,
+					.sprite = spriteCnt,
+					.vramX = x,
+					.vramY = originalY,
+					.pattern = pat};
 			}
 
 			std::array<uint32_t, 256 * 256> screen; // TODO screen6 striped colors

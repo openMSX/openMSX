@@ -269,7 +269,10 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 	}
 	std::ranges::fill(extended.subspan(buf.size()), 0.0f);
 	auto result = extended.subspan(0, buf.size());
-	return {result, extended, normalize, sampleRate};
+	return {.result = result,
+		.extendedResult = extended,
+		.normalize = normalize,
+		.reducedSampleRate = sampleRate};
 }
 
 static std::string freq2note(float freq)

@@ -1127,7 +1127,7 @@ std::optional<DirAsDSK::DirEntryForClusterResult> DirAsDSK::getDirEntryForCluste
 {
 	if (DirEntryForCluster scanner{cluster};
 	    scanMsxDirs(scanner, firstDirSector)) {
-		return DirEntryForClusterResult{scanner.dirIndex, scanner.dirDirIndex};
+		return DirEntryForClusterResult{.dirIndex = scanner.dirIndex, .dirDirIndex = scanner.dirDirIndex};
 	}
 	return std::nullopt;
 }

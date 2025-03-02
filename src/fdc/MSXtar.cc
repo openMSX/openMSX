@@ -585,7 +585,7 @@ static DiskImageUtils::FatTimeDate getTimeDate(zstring_view filename)
 		return DiskImageUtils::toTimeDate(reinterpret_cast<time_t&>(st->st_mtime));
 	} else {
 		// stat failed
-		return {0, 0};
+		return {.time = 0, .date = 0};
 	}
 }
 
@@ -942,7 +942,7 @@ TclObject MSXtar::dirRaw()
 			}
 
 			auto filename = msxToHostFileName(dirEntry.filename);
-			time_t time = DiskImageUtils::fromTimeDate(DiskImageUtils::FatTimeDate{dirEntry.time, dirEntry.date});
+			time_t time = DiskImageUtils::fromTimeDate({.time = dirEntry.time, .date = dirEntry.date});
 			result.addListElement(makeTclList(filename, dirEntry.attrib.value, narrow<uint32_t>(time), dirEntry.size));
 		}
 	}
@@ -1154,7 +1154,8 @@ std::string MSXtar::convertToMsxName(std::string_view name) const
 
 MSXtar::FreeSpaceResult MSXtar::getFreeSpace() const
 {
-	return {countFreeClusters(), sectorsPerCluster * SECTOR_SIZE};
+	return {.numFreeClusters = countFreeClusters(),
+		.clusterSize = sectorsPerCluster * SECTOR_SIZE};
 }
 
 } // namespace openmsx

@@ -458,7 +458,7 @@ const uint8_t* AmdFlash::getReadCacheLine(size_t address) const
 void AmdFlash::write(size_t address, uint8_t value)
 {
 	address %= size();
-	cmd.push_back({address, value});
+	cmd.push_back({.addr = address, .value = value});
 
 	if (state == State::IDLE) {
 		if (checkCommandAutoSelect() ||
@@ -557,9 +557,9 @@ bool AmdFlash::checkCommandStatusClear()
 
 bool AmdFlash::checkCommandContinuityCheck()
 {
-	if (chip.misc.continuityCommand && cmd[0] == AddressValue{0x5554AB, 0xFF}) {
+	if (chip.misc.continuityCommand && cmd[0] == AddressValue{.addr = 0x5554AB, .value = 0xFF}) {
 		if (cmd.size() < 2) return true;
-		if (cmd.size() == 2 && cmd[1] == AddressValue{0x2AAB54, 0x00}) {
+		if (cmd.size() == 2 && cmd[1] == AddressValue{.addr = 0x2AAB54, .value = 0x00}) {
 			status |= 0x01;
 		}
 	}

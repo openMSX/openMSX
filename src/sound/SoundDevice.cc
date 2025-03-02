@@ -60,7 +60,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, static_string
 
 	// initially no channels are muted
 	std::ranges::fill(channelMuted, false);
-	std::ranges::fill(channelBalance, Balance{1.0f, 1.0f});
+	std::ranges::fill(channelBalance, Balance{.left = 1.0f, .right = 1.0f});
 }
 
 SoundDevice::~SoundDevice() = default;
@@ -119,7 +119,7 @@ void SoundDevice::setBalance(unsigned channel, float balance)
 	if (balance != 0.0f) balanceCenter = false;
 	auto left  = std::sqrt(1.0f - balance);
 	auto right = std::sqrt(1.0f + balance);
-	channelBalance[channel] = Balance{left, right};
+	channelBalance[channel] = Balance{.left = left, .right = right};
 }
 
 void SoundDevice::postSetBalance()

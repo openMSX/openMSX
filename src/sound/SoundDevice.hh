@@ -70,7 +70,7 @@ public:
 	};
 	[[nodiscard]] AmplificationFactors getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
-		return {f * softwareVolumeLeft, f * softwareVolumeRight};
+		return {.left = f * softwareVolumeLeft, .right = f * softwareVolumeRight};
 	}
 
 	/** Change the 'software volume' of this sound device.

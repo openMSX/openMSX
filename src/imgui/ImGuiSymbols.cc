@@ -384,8 +384,8 @@ void ImGuiSymbols::notifySymbolsChanged()
 			//symbols.emplace_back(narrow<unsigned>(fileIdx),
 			//                     narrow<unsigned>(symbolIdx));
 			// clang workaround
-			symbols.push_back(SymbolRef{narrow<unsigned>(fileIdx),
-			                            narrow<unsigned>(symbolIdx)});
+			symbols.push_back(SymbolRef{.fileIdx = narrow<unsigned>(fileIdx),
+			                            .symbolIdx = narrow<unsigned>(symbolIdx)});
 		}
 	}
 

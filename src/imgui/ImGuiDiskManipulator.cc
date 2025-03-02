@@ -52,7 +52,7 @@ std::optional<ImGuiDiskManipulator::DrivePartitionTar> ImGuiDiskManipulator::get
 	auto& [drive, disk] = *dd;
 	try {
 		auto tar = std::make_unique<MSXtar>(*disk, manager.getReactor().getMsxChar2Unicode());
-		return DrivePartitionTar{drive, std::move(disk), std::move(tar)};
+		return DrivePartitionTar{.drive = drive, .disk = std::move(disk), .tar = std::move(tar)};
 	} catch (MSXException&) {
 		// e.g. triggers when trying to parse a partition table as a FAT-disk
 		return {};
@@ -668,8 +668,8 @@ void ImGuiDiskManipulator::paint(MSXMotherBoard* /*motherBoard*/)
 
 			newDiskType = UNPARTITIONED;
 			bootType = static_cast<int>(MSXBootSectorType::DOS2);
-			unpartitionedSize = {720, PartitionSize::KB};
-			partitionSizes.assign(3, {32, PartitionSize::MB});
+			unpartitionedSize = {.count = 720, .unit = PartitionSize::KB};
+			partitionSizes.assign(3, {.count = 32, .unit = PartitionSize::MB});
 			ImGui::OpenPopup(newDiskImageTitle);
 		}
 		ImGui::SetNextWindowSize(gl::vec2{30, 22} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);

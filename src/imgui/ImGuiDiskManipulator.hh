@@ -108,7 +108,7 @@ private:
 	enum NewDiskType : int { UNPARTITIONED = 0, PARTITIONED = 1 };
 	int newDiskType = UNPARTITIONED;
 	int bootType = static_cast<int>(MSXBootSectorType::DOS2);
-	PartitionSize unpartitionedSize = {720, PartitionSize::KB};
+	PartitionSize unpartitionedSize = {.count = 720, .unit = PartitionSize::KB};
 	std::vector<PartitionSize> partitionSizes;
 };
 

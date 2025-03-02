@@ -611,7 +611,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
-	GlobalRwInfo info = { &device, address };
+	GlobalRwInfo info = { .device = &device, .addr = address };
 	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
 	for (const auto& g : globalWrites) {
@@ -635,7 +635,7 @@ void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
 
 void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 {
-	GlobalRwInfo info = { &device, address };
+	GlobalRwInfo info = { .device = &device, .addr = address };
 	move_pop_back(globalReads, rfind_unguarded(globalReads, info));
 
 	for (const auto& g : globalReads) {

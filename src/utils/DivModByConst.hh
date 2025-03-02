@@ -29,7 +29,7 @@ struct Reduce0Result {
 		divisor >>= 1;
 		++shift;
 	}
-	return {divisor, shift};
+	return {.divisor = divisor, .shift = shift};
 }
 
 struct Reduce1Result {
@@ -42,7 +42,7 @@ struct Reduce1Result {
 		m >>= 1;
 		--s;
 	}
-	return {m, s};
+	return {.m = m, .s = s};
 }
 
 struct Reduce2Result {
@@ -56,7 +56,7 @@ struct Reduce2Result {
 		m_high >>= 1;
 		--l;
 	}
-	return {m_low, m_high, l};
+	return {.m_low = m_low, .m_high = m_high, .l = l};
 }
 
 
