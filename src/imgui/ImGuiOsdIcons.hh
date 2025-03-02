@@ -42,7 +42,7 @@ private:
 	struct IconInfo {
 		IconInfo() = default;
 		IconInfo(TclObject expr_, std::string on_, std::string off_, bool fade_)
-			: expr(expr_), on(std::move(on_)), off(std::move(off_)), fade(fade_) {}
+			: expr(std::move(expr_)), on(std::move(on_)), off(std::move(off_)), fade(fade_) {}
 		struct Icon {
 			Icon() = default;
 			explicit Icon(std::string filename_) : filename(std::move(filename_)) {}

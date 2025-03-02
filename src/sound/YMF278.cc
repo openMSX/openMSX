@@ -801,7 +801,7 @@ YMF278::YMF278(const std::string& name_, size_t ramSize, DeviceConfig& config,
 	, debugMemory   (motherBoard, getName())
 	, rom(getName() + " ROM", "rom", config)
 	, ram(config, getName() + " RAM", "YMF278 sample RAM", ramSize)
-	, setupMemPtrs(setupMemPtrs_)
+	, setupMemPtrs(std::move(setupMemPtrs_))
 {
 	if (rom.size() != 0x200000) { // 2MB
 		throw MSXException(
