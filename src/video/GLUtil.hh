@@ -208,16 +208,16 @@ private:
 // class PixelBuffer
 
 template<typename T>
-PixelBuffer<T>::PixelBuffer()
-{
-	//glGenBuffers(1, &bufferId);
-}
+PixelBuffer<T>::PixelBuffer() = default;
+//{
+//	glGenBuffers(1, &bufferId);
+//}
 
 template<typename T>
-PixelBuffer<T>::~PixelBuffer()
-{
-	//glDeleteBuffers(1, &bufferId); // ok to delete '0'
-}
+PixelBuffer<T>::~PixelBuffer() = default;
+//{
+//	glDeleteBuffers(1, &bufferId); // ok to delete '0'
+//}
 
 template<typename T>
 PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept

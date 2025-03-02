@@ -15,12 +15,12 @@ class CommandController;
 class IntegerSetting;
 
 class JoystickManager {
+public:
 	JoystickManager(const JoystickManager&) = delete;
 	JoystickManager(JoystickManager&&) = delete;
 	JoystickManager& operator=(const JoystickManager&) = delete;
 	JoystickManager& operator=(JoystickManager&&) = delete;
 
-public:
 	explicit JoystickManager(CommandController& commandController_);
 	~JoystickManager();
 
