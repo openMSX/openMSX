@@ -3,6 +3,7 @@
 
 #include "ImGuiPart.hh"
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
@@ -12,7 +13,7 @@ namespace openmsx {
 class ImGuiOpenFile final : public ImGuiPart
 {
 public:
-	enum class Painter {
+	enum class Painter : uint8_t {
 		MANAGER,
 		DISKMANIPULATOR,
 	};

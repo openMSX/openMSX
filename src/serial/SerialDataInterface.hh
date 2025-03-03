@@ -4,18 +4,20 @@
 #include "EmuTime.hh"
 #include "openmsx.hh"
 
+#include <cstdint>
+
 namespace openmsx {
 
 class SerialDataInterface
 {
 public:
-	enum class DataBits {
+	enum class DataBits : uint8_t {
 		D5 = 5, D6 = 6, D7 = 7, D8 = 8
 	};
-	enum class StopBits {
+	enum class StopBits : uint8_t {
 		INV = 0, S1 = 2, S1_5 = 3, S2 = 4
 	};
-	enum class Parity {
+	enum class Parity : uint8_t {
 		EVEN = 0, ODD = 1
 	};
 

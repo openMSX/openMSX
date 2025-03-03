@@ -114,7 +114,7 @@ static constexpr std::array SRCH_TIMING = {
 // * A fully populated logOpLUT would take 4MB, however the vast majority of
 //   this table is (almost) never used. So we save quite some memory (and
 //   startup time) by lazily initializing this table.
-enum class Log {
+enum class Log : uint8_t {
 	NO_T, BPP2, BPP4, BPP8,
 	NUM
 };

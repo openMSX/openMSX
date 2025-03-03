@@ -5,6 +5,7 @@
 #include "SRAM.hh"
 
 #include <climits>
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -51,7 +52,7 @@ private:
 	void execute_command(EmuTime::param time);
 
 public: // for serialize
-	enum class State {
+	enum class State : uint8_t {
 		IN_RESET,
 		WAIT_FOR_START_BIT,
 		WAIT_FOR_COMMAND,

@@ -4,6 +4,7 @@
 #include "stl.hh"
 #include "strCat.hh"
 
+#include <cstdint>
 #include <span>
 #include <string_view>
 #include <utility>
@@ -13,14 +14,14 @@ namespace openmsx {
 class CliComm
 {
 public:
-	enum class LogLevel {
+	enum class LogLevel : uint8_t {
 		INFO,
 		WARNING,
 		LOGLEVEL_ERROR, // ERROR may give preprocessor name clashes
 		PROGRESS,
 		NUM // must be last
 	};
-	enum class UpdateType {
+	enum class UpdateType : uint8_t {
 		LED,
 		SETTING,
 		SETTING_INFO,

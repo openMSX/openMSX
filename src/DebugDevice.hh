@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "FilenameSetting.hh"
 
+#include <cstdint>
 #include <fstream>
 
 namespace openmsx {
@@ -20,10 +21,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
-	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
+	enum DebugMode : uint8_t {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 
 private:
-	enum DisplayType {HEX, BIN, DEC, ASC};
+	enum DisplayType : uint8_t {HEX, BIN, DEC, ASC};
 
 	void outputSingleByte(byte value, EmuTime::param time);
 	void outputMultiByte(byte value);

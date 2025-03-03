@@ -51,7 +51,7 @@ public:
 	/** 16.16 fixed point type for frequency calculations */
 	using FreqIndex = FixedPoint<16>;
 
-	enum class EnvelopeState {
+	enum class EnvelopeState : uint8_t {
 		ATTACK, DECAY, SUSTAIN, RELEASE, OFF
 	};
 

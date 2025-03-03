@@ -21,7 +21,7 @@ public:
 	static constexpr unsigned OUTPUT_FREQUENCY   = 58900;   // ~ = Z80_FREQ * 4 / T_STATES_MSX_PULSE
 	static constexpr float    T_STATES_MSX_PULSE = 238.f;
 
-	enum class FileType {
+	enum class FileType : uint8_t {
 		ASCII, BINARY, BASIC, UNKNOWN,
 	};
 

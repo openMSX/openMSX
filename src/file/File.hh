@@ -17,7 +17,7 @@ class FileBase;
 class File
 {
 public:
-	enum class OpenMode {
+	enum class OpenMode : uint8_t {
 		NORMAL,
 		TRUNCATE,
 		CREATE,

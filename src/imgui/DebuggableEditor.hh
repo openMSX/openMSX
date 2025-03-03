@@ -143,7 +143,7 @@ private:
 	std::string addrStr;
 	std::optional<std::vector<uint8_t>> searchPattern;
 	std::optional<unsigned> searchResult;
-	enum EditType { HEX, ASCII };
+	enum EditType : uint8_t { HEX, ASCII };
 	EditType dataEditingActive = HEX;
 	bool dataEditingTakeFocus = false;
 	bool updateAddr = false;

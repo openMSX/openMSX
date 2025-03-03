@@ -257,8 +257,7 @@ class QuitEvent final : public EventBase {};
 class OsdControlEvent : public EventBase
 {
 public:
-	enum class Button {LEFT, RIGHT, UP, DOWN, A, B,
-	                   NUM};
+	enum class Button : uint8_t {LEFT, RIGHT, UP, DOWN, A, B, NUM};
 	[[nodiscard]] Button getButton() const { return button; }
 
 protected:

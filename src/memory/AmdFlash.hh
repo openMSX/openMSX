@@ -234,7 +234,7 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State { IDLE, IDENT, CFI, STATUS, PRGERR };
+	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, PRGERR };
 
 	struct Sector {
 		size_t address;

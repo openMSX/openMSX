@@ -1,24 +1,28 @@
 #ifndef V9990_HH
 #define V9990_HH
 
+#include "V9990CmdEngine.hh"
+#include "V9990DisplayTiming.hh"
+#include "V9990ModeEnum.hh"
+#include "V9990VRAM.hh"
+
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "TclCallback.hh"
 #include "VideoSystemChangeListener.hh"
 #include "IRQHelper.hh"
-#include "V9990CmdEngine.hh"
-#include "V9990DisplayTiming.hh"
-#include "V9990ModeEnum.hh"
-#include "V9990VRAM.hh"
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
+
 #include "narrow.hh"
 #include "openmsx.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -430,7 +434,7 @@ private:
 
 	/** IRQ types
 	  */
-	enum IRQType : byte {
+	enum IRQType : uint8_t {
 		VER_IRQ = 1,
 		HOR_IRQ = 2,
 		CMD_IRQ = 4
@@ -438,7 +442,7 @@ private:
 
 	/** I/O Ports
 	  */
-	enum PortId {
+	enum PortId : uint8_t {
 		VRAM_DATA = 0,
 		PALETTE_DATA,
 		COMMAND_DATA,
@@ -459,7 +463,7 @@ private:
 
 	/** Registers
 	  */
-	enum RegisterId {
+	enum RegisterId : uint8_t {
 		VRAM_WRITE_ADDRESS_0 = 0,
 		VRAM_WRITE_ADDRESS_1,
 		VRAM_WRITE_ADDRESS_2,

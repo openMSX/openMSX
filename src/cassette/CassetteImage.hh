@@ -3,6 +3,7 @@
 
 #include "EmuTime.hh"
 #include "sha1.hh"
+
 #include <cstdint>
 #include <span>
 #include <string>
@@ -12,7 +13,7 @@ namespace openmsx {
 class CassetteImage
 {
 public:
-	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
+	enum FileType : uint8_t { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() = default;
 	[[nodiscard]] virtual int16_t getSampleAt(EmuTime::param time) const = 0;

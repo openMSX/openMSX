@@ -9,6 +9,8 @@
 #include "Clock.hh"
 #include "EnumSetting.hh"
 #include "openmsx.hh"
+
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -19,7 +21,7 @@ class SRAM;
 class RP5C01
 {
 public:
-	enum RTCMode { EMUTIME, REALTIME };
+	enum RTCMode : uint8_t { EMUTIME, REALTIME };
 
 	RP5C01(CommandController& commandController, SRAM& regs,
 	       EmuTime::param time, const std::string& name);

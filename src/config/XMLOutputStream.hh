@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <concepts>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -94,7 +95,7 @@ private:
 private:
 	Operations& ops;
 	unsigned level = 0;
-	enum State {
+	enum State : uint8_t {
 		INDENT, // the next (begin or end) tag needs to be indented
 		CLOSE,  // the begin tag still needs to be closed
 		DATA,   // we got data, but no end-tag yet

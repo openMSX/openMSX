@@ -45,7 +45,7 @@ class WatchPoint final : public BreakPointBase<WatchPoint>
 public:
 	static constexpr std::string_view prefix = "wp#";
 
-	enum class Type { READ_IO, WRITE_IO, READ_MEM, WRITE_MEM };
+	enum class Type : uint8_t { READ_IO, WRITE_IO, READ_MEM, WRITE_MEM };
 
 	static std::string_view format(Type type)
 	{

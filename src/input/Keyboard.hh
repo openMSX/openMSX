@@ -47,7 +47,7 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
 {
 public:
 	static constexpr int MAX_KEYSYM = 0x150;
-	enum class Matrix { MSX, SVI, CVJOY, SEGA, NUM };
+	enum class Matrix : uint8_t { MSX, SVI, CVJOY, SEGA, NUM };
 
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
@@ -210,7 +210,7 @@ private:
 	private:
 		EventDistributor& eventDistributor;
 
-		enum CapsLockAlignerStateType {
+		enum CapsLockAlignerStateType : uint8_t {
 			MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
 		} state = IDLE;
 	} capsLockAligner;

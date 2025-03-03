@@ -7,8 +7,9 @@
 
 #include "Observer.hh"
 
-#include <vector>
+#include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ struct StereoFloat {
 class Mixer final : private Observer<Setting>
 {
 public:
-	enum class SoundDriverType { NONE, SDL };
+	enum class SoundDriverType : uint8_t { NONE, SDL };
 
 	Mixer(Reactor& reactor, CommandController& commandController);
 	~Mixer();

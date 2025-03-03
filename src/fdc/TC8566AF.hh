@@ -6,6 +6,7 @@
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -37,7 +38,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
-	enum class Command {
+	enum class Command : uint8_t {
 		UNKNOWN,
 		READ_DATA,
 		WRITE_DATA,
@@ -55,13 +56,13 @@ public:
 		SPECIFY,
 		SENSE_DEVICE_STATUS,
 	};
-	enum class Phase {
+	enum class Phase : uint8_t {
 		IDLE,
 		COMMAND,
 		DATA_TRANSFER,
 		RESULT,
 	};
-	enum class Seek {
+	enum class Seek : uint8_t {
 		IDLE,
 		SEEK,
 		RECALIBRATE

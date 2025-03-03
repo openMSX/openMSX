@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <climits>
+#include <cstdint>
 #include <limits>
 #include <span>
 #include <sstream>
@@ -97,7 +98,7 @@ void strAppend(std::string& result, Ts&& ...ts);
 struct Digits {
 	size_t n;
 };
-enum class HexCase {
+enum class HexCase : uint8_t {
 	lower, upper
 };
 

@@ -339,7 +339,7 @@ private:
 	bool planar = false;
 };
 
-enum class imColor : unsigned {
+enum class imColor : uint8_t {
 	TRANSPARENT,
 	BLACK,
 	WHITE,

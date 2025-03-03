@@ -25,7 +25,7 @@
 
 #include <cstdint>
 
-enum {
+enum : uint8_t {
     opll_type_ym2413 = 0x00,    /* Yamaha YM2413  */
     opll_type_ds1001,           /* Konami VRC VII */
     opll_type_ym2413b,          /* Yamaha YM2413B */
@@ -35,7 +35,7 @@ enum {
     opll_type_ym2423,           /* Yamaha YM2423  */
 };
 
-enum {
+enum : uint8_t {
     opll_patch_1 = 0x00,
     opll_patch_2,
     opll_patch_3,

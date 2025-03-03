@@ -19,7 +19,7 @@
 #include "rapidsax.hh"
 #include "unreachable.hh"
 
-using std::string;
+#include <cstdint>
 
 namespace openmsx {
 
@@ -50,7 +50,7 @@ struct SettingsParser : rapidsax::NullHandler
 
 	// parse state
 	unsigned unknownLevel = 0;
-	enum State {
+	enum class State : uint8_t{
 		START,
 		TOP,
 		SETTINGS,
@@ -61,7 +61,7 @@ struct SettingsParser : rapidsax::NullHandler
 		SHORTCUTS,
 		SHORTCUT,
 		END
-	} state = START;
+	} state = State::START;
 	Setting currentSetting;
 	HotKey::Data currentBind;
 	std::string_view currentUnbind;
@@ -94,7 +94,7 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(const FileContext& context, std::string_view filename)
 {
-	string resolved = context.resolve(filename);
+	std::string resolved = context.resolve(filename);
 
 	MemBuffer<char> buf;
 	try {
@@ -239,7 +239,7 @@ void SettingsConfig::SaveSettingsCommand::execute(
 			break;
 		case 2:
 			settingsConfig.saveSetting(FileOperations::expandTilde(
-				string(tokens[1].getString())));
+				std::string(tokens[1].getString())));
 			break;
 		}
 	} catch (FileException& e) {
@@ -247,12 +247,12 @@ void SettingsConfig::SaveSettingsCommand::execute(
 	}
 }
 
-string SettingsConfig::SaveSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string SettingsConfig::SaveSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Save the current settings.";
 }
 
-void SettingsConfig::SaveSettingsCommand::tabCompletion(std::vector<string>& tokens) const
+void SettingsConfig::SaveSettingsCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, systemFileContext());
@@ -276,12 +276,12 @@ void SettingsConfig::LoadSettingsCommand::execute(
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }
 
-string SettingsConfig::LoadSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string SettingsConfig::LoadSettingsCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Load settings from given file.";
 }
 
-void SettingsConfig::LoadSettingsCommand::tabCompletion(std::vector<string>& tokens) const
+void SettingsConfig::LoadSettingsCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, systemFileContext());
@@ -296,6 +296,7 @@ void SettingsParser::start(std::string_view tag)
 		return;
 	}
 	switch (state) {
+	using enum State;
 	case START:
 		if (tag == "settings") {
 			state = TOP;
@@ -358,6 +359,7 @@ void SettingsParser::attribute(std::string_view name, std::string_view value)
 	if (unknownLevel) return;
 
 	switch (state) {
+	using enum State;
 	case SETTING:
 		if (name == "id") {
 			currentSetting.name = value;
@@ -404,6 +406,7 @@ void SettingsParser::text(std::string_view txt)
 	if (unknownLevel) return;
 
 	switch (state) {
+	using enum State;
 	case SETTING:
 		currentSetting.value = txt;
 		break;
@@ -430,6 +433,7 @@ void SettingsParser::stop()
 	}
 
 	switch (state) {
+	using enum State;
 	case TOP:
 		state = END;
 		break;

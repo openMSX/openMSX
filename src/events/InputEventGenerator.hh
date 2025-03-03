@@ -9,6 +9,8 @@
 #include "SDLKey.hh"
 #include <SDL.h>
 
+#include <cstdint>
+
 namespace openmsx {
 
 class CommandController;
@@ -61,7 +63,7 @@ private:
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} escapeGrabCmd;
 
-	enum EscapeGrabState {
+	enum EscapeGrabState : uint8_t {
 		ESCAPE_GRAB_WAIT_CMD,
 		ESCAPE_GRAB_WAIT_LOST,
 		ESCAPE_GRAB_WAIT_GAIN

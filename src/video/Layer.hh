@@ -1,6 +1,7 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
+#include <cstdint>
 #include <utility>
 
 namespace openmsx {
@@ -16,7 +17,7 @@ public:
 	/** Determines stacking order of layers:
 	  * layers with higher Z-indices are closer to the viewer.
 	  */
-	enum class ZIndex {
+	enum class ZIndex : uint8_t {
 		BACKGROUND,
 		MSX_PASSIVE,
 		MSX_ACTIVE,
@@ -28,7 +29,7 @@ public:
 	/** Describes how much of the screen is currently covered by a particular
 	  * layer.
 	  */
-	enum class Coverage {
+	enum class Coverage : uint8_t {
 		/** Layer fully covers the screen: any underlying layers are invisible.
 		  */
 		FULL,

@@ -6,6 +6,7 @@
 #include "ranges.hh"
 
 #include <array>
+#include <cstdint>
 #include <span>
 #include <string>
 #include <utility>
@@ -14,7 +15,7 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
-enum class MSXBootSectorType : int {
+enum class MSXBootSectorType : int { // int for ImGui
 	DOS1 = 0,
 	DOS2 = 1,
 	NEXTOR = 2,

@@ -286,7 +286,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 				ImGui::TableSetupColumn("Expression");
 				ImGui::TableHeadersRow();
 
-				enum class Cmd { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
+				enum class Cmd : uint8_t { MOVE_FRONT, MOVE_FWD, MOVE_BWD, MOVE_BACK, INSERT, DELETE };
 				using enum Cmd;
 				std::pair<int, Cmd> cmd(-1, MOVE_FRONT);
 				auto lastRow = narrow<int>(iconInfo.size()) - 1;

@@ -4,8 +4,9 @@
 #include "Observer.hh"
 #include "stl.hh"
 
-#include <vector>
 #include <cassert>
+#include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
@@ -31,7 +32,7 @@ protected:
 	void notify() const;
 
 private:
-	enum NotifyState {
+	enum NotifyState : uint8_t {
 		IDLE,        // no notify in progress
 		IN_PROGRESS, // notify in progress, no detach
 		DETACH,      // notify in progress, some observer(s) have been detached

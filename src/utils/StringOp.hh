@@ -3,6 +3,7 @@
 
 #include "IterableBitSet.hh"
 #include "stringsp.hh"
+
 #include <algorithm>
 #include <charconv>
 #include <concepts>
@@ -15,6 +16,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -75,7 +77,7 @@ namespace StringOp
 
 	//[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 
-	enum class EmptyParts {
+	enum class EmptyParts : uint8_t {
 		KEEP,  // "a,b,,c" -> "a", "b", "", "c"
 		REMOVE // "a,b,,c" -> "a", "b", "c"       BUT  ",,a,b" -> "", "a", "b"  (keeps one empty part in front)
 	};

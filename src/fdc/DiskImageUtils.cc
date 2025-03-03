@@ -25,7 +25,7 @@ static constexpr unsigned FAT16_MAX_CLUSTER_COUNT = 0xFFF4;
 static constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static constexpr unsigned DIR_ENTRIES_PER_SECTOR = SECTOR_SIZE / sizeof(MSXDirEntry);
 
-enum class PartitionTableType {
+enum class PartitionTableType : uint8_t {
 	SUNRISE_IDE,
 	NEXTOR
 };

@@ -3,8 +3,11 @@
 
 #include "VideoSourceSetting.hh"
 #include "Layer.hh"
+
 #include "Observer.hh"
 #include "MSXEventListener.hh"
+
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -40,7 +43,7 @@ public:
 	// Z-coordinate (Z_MSX_ACTIVE vs Z_MSX_PASSIVE). Though in case of
 	// Video9000 it's possible the Video9000 layer is selected, but we
 	// still need to render this layer (the v99x8 or v9990 layer).
-	enum class Video9000Active { NO, FRONT, BACK };
+	enum class Video9000Active : uint8_t { NO, FRONT, BACK };
 	void setVideo9000Active(int video9000Source_, Video9000Active active) {
 		video9000Source = video9000Source_;
 		activeVideo9000 = active;

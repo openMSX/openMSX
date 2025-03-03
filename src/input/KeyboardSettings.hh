@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -15,8 +16,8 @@ class CommandController;
 class KeyboardSettings
 {
 public:
-	enum class KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
-	enum class MappingMode { KEY, CHARACTER, POSITIONAL };
+	enum class KpEnterMode : uint8_t { MSX_KP_COMMA, MSX_ENTER };
+	enum class MappingMode : uint8_t { KEY, CHARACTER, POSITIONAL };
 
 	explicit KeyboardSettings(CommandController& commandController);
 

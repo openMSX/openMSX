@@ -12,6 +12,7 @@
 
 #include <array>
 #include <atomic>
+#include <cstdint>
 #include <span>
 #include <string>
 
@@ -21,8 +22,8 @@ class MSXCPUInterface;
 class Scheduler;
 class MSXMotherBoard;
 class TclCallback;
-enum Reg8  : int;
-enum Reg16 : int;
+enum Reg8  : uint8_t;
+enum Reg16 : uint8_t;
 
 class CPUBase {}; // only for bw-compat savestates
 
@@ -39,7 +40,7 @@ struct II { // InstructionInfo
 	int cycles;
 };
 
-enum class ExecIRQ {
+enum class ExecIRQ : uint8_t {
 	NMI,  // about to execute NMI routine
 	IRQ,  // about to execute normal IRQ routine
 	NONE, // about to execute regular instruction

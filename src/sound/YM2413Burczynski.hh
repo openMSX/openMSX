@@ -7,6 +7,7 @@
 #include "serialize_meta.hh"
 
 #include <array>
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -112,7 +113,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 public: // public for serialization, otherwise could be private
-	enum class EnvelopeState {
+	enum class EnvelopeState : uint8_t {
 		DUMP, ATTACK, DECAY, SUSTAIN, RELEASE, OFF
 	};
 

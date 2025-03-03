@@ -422,7 +422,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 								}
 							});
 
-							enum class Priority {
+							enum class Priority : uint8_t {
 								MISSING_BOTH = 0, // from lowest to highest
 								MISSING_ONE,
 								SLOT_AND_SEGMENT

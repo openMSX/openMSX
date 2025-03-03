@@ -5,6 +5,7 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+
 #include <cstdint>
 #include <memory>
 
@@ -62,7 +63,7 @@ public:
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
-	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
+	enum DrawType : uint8_t { DRAW_BORDER, DRAW_DISPLAY };
 
 	// Observer<Setting> interface:
 	void update(const Setting& setting) noexcept override;

@@ -6,7 +6,9 @@
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
+
 #include <array>
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -34,7 +36,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	enum SCCEnable { EN_NONE, EN_SCC, EN_SCCPLUS };
+	enum SCCEnable : uint8_t { EN_NONE, EN_SCC, EN_SCCPLUS };
 	[[nodiscard]] SCCEnable getSCCEnable() const;
 	void updateConfigReg(byte value);
 

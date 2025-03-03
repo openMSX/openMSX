@@ -23,14 +23,14 @@
 #include "opll.hh"
 #include <cstring>
 
-enum {
+enum : uint8_t {
     eg_num_attack = 0,
     eg_num_decay = 1,
     eg_num_sustain = 2,
     eg_num_release = 3
 };
 
-enum {
+enum : uint8_t {
     rm_num_bd0 = 0,
     rm_num_hh = 1,
     rm_num_tom = 2,

@@ -95,7 +95,7 @@ private:
 	bool hostNeedRefresh = true;
 	bool hostForceSort = false;
 
-	enum TransferHostToMsxPhase {
+	enum TransferHostToMsxPhase : uint8_t {
 		IDLE,
 		CHECK,
 		EXECUTE_PRESERVE,

@@ -8,6 +8,7 @@
 
 #include "ClockPin.hh"
 #include "EmuTime.hh"
+
 #include <array>
 #include <cstdint>
 
@@ -33,7 +34,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 //private:
-	enum class ByteOrder {LOW, HIGH};
+	enum class ByteOrder : uint8_t {LOW, HIGH};
 
 private:
 	static constexpr uint8_t WRT_FRMT = 0x30;

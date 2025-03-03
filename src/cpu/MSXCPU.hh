@@ -12,6 +12,7 @@
 #include "openmsx.hh"
 
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <span>
 
@@ -30,7 +31,7 @@ class Interpreter;
 class MSXCPU final : private Observer<Setting>
 {
 public:
-	enum class Type { Z80, R800 };
+	enum class Type : uint8_t { Z80, R800 };
 
 	explicit MSXCPU(MSXMotherBoard& motherboard);
 	~MSXCPU();

@@ -4,7 +4,9 @@
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "serialize_meta.hh"
+
 #include <array>
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -61,7 +63,7 @@ public:
 
 class Slot {
 public:
-	enum class EnvelopeState {
+	enum class EnvelopeState : uint8_t {
 		ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
 	};
 

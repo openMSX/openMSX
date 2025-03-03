@@ -54,7 +54,7 @@ private:
 	void addEntries();
 	void addAllEntries();
 
-	enum State {
+	enum State : uint8_t {
 		BEGIN,
 		SOFTWAREDB,
 		SOFTWARE,

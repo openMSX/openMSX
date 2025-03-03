@@ -8,6 +8,7 @@
 #include "serialize_meta.hh"
 
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <span>
 #include <string>
@@ -23,7 +24,7 @@ class TclObject;
 class HardwareConfig
 {
 public:
-	enum class Type {
+	enum class Type : uint8_t {
 		MACHINE,
 		EXTENSION,
 		ROM

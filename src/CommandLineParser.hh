@@ -11,7 +11,10 @@
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
 #include "InfoTopic.hh"
+
 #include "components.hh"
+
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <optional>
@@ -34,8 +37,8 @@ class Interpreter;
 class CommandLineParser
 {
 public:
-	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
-	enum ParsePhase {
+	enum ParseStatus : uint8_t { UNPARSED, RUN, CONTROL, TEST, EXIT };
+	enum ParsePhase : uint8_t {
 		PHASE_BEFORE_INIT,       // --help, --version, -bash
 		PHASE_INIT,              // calls Reactor::init()
 		PHASE_BEFORE_SETTINGS,   // -setting, ...

@@ -5,7 +5,9 @@
 #include "TclObject.hh"
 #include "static_string_view.hh"
 #include "strCat.hh"
+
 #include <cassert>
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string_view>
@@ -117,7 +119,7 @@ private:
 class Setting : public BaseSetting, public Subject<Setting>
 {
 public:
-	enum class Save {
+	enum class Save : uint8_t {
 		YES,                  //    save,    transfer
 		NO,                   // no-save,    transfer
 		NO_AND_DONT_TRANSFER, // no-save, no-transfer

@@ -11,7 +11,9 @@
 #define PRINTER_HH
 
 #include "PrinterPortDevice.hh"
+
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -97,7 +99,7 @@ protected:
 	unsigned ramLoadOffset = 0;
 	unsigned ramLoadEnd = 0;
 	unsigned lines;
-	enum CountryCode {
+	enum CountryCode : uint8_t {
 		CC_USA              = 0,
 		CC_FRANCE           = 1,
 		CC_GERMANY          = 2,

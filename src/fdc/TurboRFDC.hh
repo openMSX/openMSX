@@ -4,6 +4,8 @@
 #include "MSXFDC.hh"
 #include "RomBlockDebuggable.hh"
 #include "TC8566AF.hh"
+
+#include <cstdint>
 #include <span>
 
 namespace openmsx {
@@ -11,7 +13,7 @@ namespace openmsx {
 class TurboRFDC final : public MSXFDC
 {
 public:
-	enum class Type { BOTH, R7FF2, R7FF8 };
+	enum class Type : uint8_t { BOTH, R7FF2, R7FF8 };
 
 	explicit TurboRFDC(DeviceConfig& config);
 

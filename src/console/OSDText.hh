@@ -7,6 +7,7 @@
 #include "stl.hh"
 
 #include <array>
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -51,7 +52,7 @@ private:
 	[[nodiscard]] std::string getWordWrappedText(const std::string& txt, unsigned maxWidth) const;
 
 private:
-	enum WrapMode { NONE, WORD, CHAR };
+	enum WrapMode : uint8_t { NONE, WORD, CHAR };
 
 	std::string text;
 	std::string fontFile;

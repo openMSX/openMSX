@@ -102,7 +102,7 @@ class UnicodeKeymap
 {
 public:
 	struct KeyInfo {
-		enum class Modifier { SHIFT, CTRL, GRAPH, CAPS, CODE, NUM };
+		enum class Modifier : uint8_t { SHIFT, CTRL, GRAPH, CAPS, CODE, NUM };
 		// Modifier masks:
 		static constexpr uint8_t SHIFT_MASK = 1 << std::to_underlying(Modifier::SHIFT);
 		static constexpr uint8_t CTRL_MASK  = 1 << std::to_underlying(Modifier::CTRL);

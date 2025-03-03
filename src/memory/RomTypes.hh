@@ -1,9 +1,11 @@
 #ifndef ROMTYPES_HH
 #define ROMTYPES_HH
 
+#include <cstdint>
+
 namespace openmsx {
 
-enum class RomType {
+enum class RomType : uint8_t {
 	// Order doesn't matter (I sorted them alphabetically)
 	ARC,
 	ALALAMIAH30IN1,
@@ -93,7 +95,7 @@ enum class RomType {
 	ZEMINA126IN1,
 
 	NUM,
-	UNKNOWN = -1
+	UNKNOWN
 };
 
 } // namespace openmsx

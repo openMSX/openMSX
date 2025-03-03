@@ -4,7 +4,9 @@
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
 #include "openmsx.hh"
+
 #include <array>
+#include <cstdint>
 #include <fstream>
 #include <memory>
 #include <optional>
@@ -49,7 +51,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
-	enum class State {
+	enum class State : uint8_t {
 		SYNC1,     // waiting for AF
 		SYNC2,     // waiting for 05
 		COMMAND,   // waiting for command (9 bytes)

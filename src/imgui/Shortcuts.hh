@@ -7,6 +7,7 @@
 #include "stl.hh"
 #include "zstring_view.hh"
 
+#include <cstdint>
 #include <optional>
 #include <string_view>
 
@@ -15,7 +16,7 @@ namespace openmsx {
 class Shortcuts
 {
 public:
-	enum class ID {
+	enum class ID : uint8_t {
 		HEX_GOTO_ADDR,
 		DEBUGGER_STEP_IN,
 		DEBUGGER_STEP_OVER,
@@ -29,7 +30,7 @@ public:
 		NUM,
 		INVALID = NUM
 	};
-	enum class Type {
+	enum class Type : uint8_t {
 		LOCAL,
 		GLOBAL,
 		ALWAYS_LOCAL,

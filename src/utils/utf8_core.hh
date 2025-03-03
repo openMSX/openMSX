@@ -87,7 +87,7 @@ inline constexpr uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 	}
 }
 
-enum class utf_error {
+enum class utf_error : uint8_t {
 	OK,
 	NOT_ENOUGH_ROOM,
 	INVALID_LEAD,

@@ -15,6 +15,7 @@
 #include "narrow.hh"
 
 #include <array>
+#include <cstdint>
 #include <bitset>
 #include <concepts>
 #include <memory>
@@ -31,7 +32,7 @@ class MSXMotherBoard;
 class VDPIODelay;
 
 inline constexpr bool PROFILE_CACHELINES = false;
-enum class CacheLineCounters {
+enum class CacheLineCounters : uint8_t {
 	NonCachedRead,
 	NonCachedWrite,
 	GetReadCacheLine,

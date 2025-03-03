@@ -2,6 +2,7 @@
 #define CASSETTEPLAYER_HH
 
 #include "CassetteDevice.hh"
+
 #include "ResampledSoundDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "CassettePlayerCommand.hh"
@@ -10,8 +11,10 @@
 #include "Filename.hh"
 #include "EmuTime.hh"
 #include "BooleanSetting.hh"
+
 #include "outer.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -55,7 +58,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	enum class State { PLAY, RECORD, STOP };
+	enum class State : uint8_t { PLAY, RECORD, STOP };
 
 	// methods to query the status of the player
 	const Filename& getImageName() const { return casImage; }

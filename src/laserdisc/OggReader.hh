@@ -2,12 +2,16 @@
 #define OGGREADER_HH
 
 #include "File.hh"
+
 #include "circular_buffer.hh"
 #include "narrow.hh"
+
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
+
 #include <array>
+#include <cstdint>
 #include <list>
 #include <memory>
 #include <vector>
@@ -84,7 +88,7 @@ private:
 	CliComm& cli;
 	File file;
 
-	enum State {
+	enum State : uint8_t {
 		PLAYING,
 		FIND_LAST,
 		FIND_FIRST,

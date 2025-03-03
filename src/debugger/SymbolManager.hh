@@ -32,7 +32,7 @@ struct Symbol
 
 struct SymbolFile
 {
-	enum class Type {
+	enum class Type : uint8_t {
 		FIRST = 0,
 
 		AUTO_DETECT = FIRST,
@@ -77,7 +77,7 @@ public:
 	// * When the file contains no symbols and when 'allowEmpty=false' the
 	//   existing file is not replaced and this method returns 'false'.
 	//   Otherwise it return 'true'.
-	enum class LoadEmpty { ALLOWED, NOT_ALLOWED };
+	enum class LoadEmpty : uint8_t { ALLOWED, NOT_ALLOWED };
 	bool reloadFile(const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot = {});
 
 	void removeFile(std::string_view filename);

@@ -183,7 +183,8 @@ static vector<string> split(string_view str, const char delimiter)
 {
 	vector<string> tokens;
 
-	enum ParseState {Alpha, BackSlash, Quote};
+	enum class ParseState : uint8_t {Alpha, BackSlash, Quote};
+	using enum ParseState;
 	ParseState state = Alpha;
 
 	for (auto chr : str) {
@@ -221,7 +222,8 @@ static vector<string> split(string_view str, const char delimiter)
 
 static string removeEscaping(const string& str)
 {
-	enum ParseState {Alpha, BackSlash, Quote};
+	enum class ParseState : uint8_t {Alpha, BackSlash, Quote};
+	using enum ParseState;
 	ParseState state = Alpha;
 
 	string result;

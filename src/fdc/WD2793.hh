@@ -47,7 +47,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
-	enum class FSM {
+	enum class FSM : uint8_t {
 		NONE,
 		SEEK,
 		TYPE2_LOADED,

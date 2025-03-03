@@ -2,9 +2,12 @@
 #define V9990PIXELRENDERER_HH
 
 #include "V9990Renderer.hh"
+
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
+
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -51,7 +54,7 @@ private:
 
 	/** Type of drawing to do.
 	  */
-	enum DrawType {
+	enum DrawType : uint8_t {
 		DRAW_BORDER,
 		DRAW_DISPLAY
 	};

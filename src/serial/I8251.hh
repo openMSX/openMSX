@@ -5,10 +5,14 @@
 
 #include "ClockPin.hh"
 #include "SerialDataInterface.hh"
+
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+
 #include "outer.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -54,7 +58,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialize
-	enum class CmdPhase {
+	enum class CmdPhase : uint8_t {
 		MODE, SYNC1, SYNC2, CMD
 	};
 

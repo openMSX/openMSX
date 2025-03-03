@@ -13,6 +13,7 @@
 #include "MemBuffer.hh"
 #include "zstring_view.hh"
 
+#include <cstdint>
 #include <string_view>
 #include <variant>
 
@@ -44,7 +45,7 @@ namespace FAT {
 class MSXtar
 {
 public:
-	enum class Add {
+	enum class Add : uint8_t {
 		PRESERVE,
 		OVERWRITE,
 	};

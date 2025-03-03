@@ -17,7 +17,7 @@ class Interpreter;
 class LedStatus final : public RTSchedulable
 {
 public:
-	enum Led {
+	enum Led : uint8_t {
 		POWER,
 		CAPS,
 		KANA, // same as CODE LED

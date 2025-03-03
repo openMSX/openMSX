@@ -4,7 +4,9 @@
 #include "MSXDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
+
 #include <array>
+#include <cstdint>
 #include <vector>
 
 namespace openmsx {
@@ -23,7 +25,7 @@ protected:
 class MSXMapperIO final : public MSXDevice
 {
 public:
-	enum class Mode { INTERNAL, EXTERNAL };
+	enum class Mode : uint8_t { INTERNAL, EXTERNAL };
 
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);

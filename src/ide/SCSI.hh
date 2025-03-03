@@ -96,7 +96,7 @@ inline constexpr uint8_t DT_MediaChanger     = 0x08;
 inline constexpr uint8_t DT_Communications   = 0x09;
 inline constexpr uint8_t DT_Undefined        = 0x1f;
 
-enum class Phase {
+enum class Phase : uint8_t {
 	UNDEFINED, // used in MB89532
 	BUS_FREE,
 	ARBITRATION,

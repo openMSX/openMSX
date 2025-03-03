@@ -4,6 +4,8 @@
 #include "Probe.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -38,7 +40,7 @@ protected:
 	void lower();
 private:
 	MSXCPU& cpu;
-	enum Type { NotConnected, Maskable, NonMaskable };
+	enum Type : uint8_t { NotConnected, Maskable, NonMaskable };
 	const Type type;
 };
 

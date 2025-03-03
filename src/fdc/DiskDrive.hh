@@ -4,6 +4,8 @@
 #include "EmuTime.hh"
 #include "RawTrack.hh"
 
+#include <cstdint>
+
 namespace openmsx {
 
 /**
@@ -12,7 +14,7 @@ namespace openmsx {
 class DiskDrive
 {
 public:
-	enum class TrackMode {
+	enum class TrackMode : uint8_t {
 		NORMAL, YAMAHA_FD_03,
 	};
 

@@ -1,10 +1,12 @@
 #ifndef TCLPARSER_HH
 #define TCLPARSER_HH
 
+#include <cstdint>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
+
 #include <tcl.h>
 
 #define DEBUG_TCLPARSER 0
@@ -37,7 +39,7 @@ public:
 	[[nodiscard]] static bool isProc(Tcl_Interp* interp, std::string_view str);
 
 private:
-	enum ParseType { COMMAND, EXPRESSION, OTHER };
+	enum ParseType : uint8_t { COMMAND, EXPRESSION, OTHER };
 
 	void parse(const char* p, int size, ParseType type);
 	void printTokens(std::span<const Tcl_Token> tokens);

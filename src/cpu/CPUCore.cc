@@ -214,8 +214,8 @@
 
 namespace openmsx {
 
-enum Reg8  : int { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
-enum Reg16 : int { AF, BC, DE, HL, IX, IY, SP };
+enum Reg8  : uint8_t { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
+enum Reg16 : uint8_t { AF, BC, DE, HL, IX, IY, SP };
 
 // flag positions
 static constexpr byte S_FLAG = 0x80;

@@ -6,9 +6,12 @@
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
+
 #include "Observer.hh"
 #include "gl_mat.hh"
 #include "narrow.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -25,21 +28,21 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum class RendererID { UNINITIALIZED, DUMMY, SDLGL_PP };
+	enum class RendererID : uint8_t { UNINITIALIZED, DUMMY, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
 	  */
-	enum class Accuracy { SCREEN, LINE, PIXEL };
+	enum class Accuracy : uint8_t { SCREEN, LINE, PIXEL };
 
 	/** Scaler algorithm
 	  */
-	enum class ScaleAlgorithm {
+	enum class ScaleAlgorithm : uint8_t {
 		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
 		NO
 	};
 
-	enum class DisplayDeform {
+	enum class DisplayDeform : uint8_t {
 		NORMAL, _3D
 	};
 

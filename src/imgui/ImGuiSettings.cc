@@ -651,7 +651,7 @@ static void drawLetterZ(gl::vec2 center)
 
 namespace msxjoystick {
 
-enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS};
+enum : uint8_t {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, NUM_BUTTONS};
 
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
 	"Up", "Down", "Left", "Right", "A", "B" // show in the GUI
@@ -710,11 +710,11 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 
 namespace joymega {
 
-enum {UP, DOWN, LEFT, RIGHT,
-      TRIG_A, TRIG_B, TRIG_C,
-      TRIG_X, TRIG_Y, TRIG_Z,
-      TRIG_SELECT, TRIG_START,
-      NUM_BUTTONS};
+enum : uint8_t {UP, DOWN, LEFT, RIGHT,
+                TRIG_A, TRIG_B, TRIG_C,
+                TRIG_X, TRIG_Y, TRIG_Z,
+                TRIG_SELECT, TRIG_START,
+                NUM_BUTTONS};
 
 static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = { // show in the GUI
 	"Up", "Down", "Left", "Right",

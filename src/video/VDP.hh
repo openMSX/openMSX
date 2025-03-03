@@ -18,8 +18,9 @@
 #include "narrow.hh"
 #include "outer.hh"
 
-#include <memory>
 #include <array>
+#include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -755,7 +756,7 @@ private:
 	static constexpr unsigned VM_YM2220_PALETTE   = 128; // set-> has YM2220 palette
 
 	/** VDP version: the VDP model being emulated. */
-	enum VdpVersion {
+	enum VdpVersion : uint8_t {
 		/** MSX1 VDP, NTSC version.
 		  * TMS9918A has NTSC encoding built in,
 		  * while TMS9928A has color difference output;

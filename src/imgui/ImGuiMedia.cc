@@ -445,7 +445,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 	im::Menu("Media", motherBoard != nullptr, [&]{
 		auto& interp = manager.getInterpreter();
 
-		enum class Status { NONE, ITEM, SEPARATOR };
+		enum class Status : uint8_t { NONE, ITEM, SEPARATOR };
 		using enum Status;
 		Status status = NONE;
 

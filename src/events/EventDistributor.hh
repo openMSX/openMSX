@@ -5,6 +5,7 @@
 
 #include <array>
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 #include <vector>
 #include <utility>
@@ -20,7 +21,7 @@ public:
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
 	  */
-	enum class Priority {
+	enum class Priority : uint8_t {
 		OTHER,
 		HOTKEY_HIGH, // above IMGUI
 		IMGUI,

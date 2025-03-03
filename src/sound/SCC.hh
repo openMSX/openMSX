@@ -15,7 +15,7 @@ namespace openmsx {
 class SCC final : public ResampledSoundDevice
 {
 public:
-	enum class Mode {Real, Compatible, Plus};
+	enum class Mode : uint8_t {Real, Compatible, Plus};
 
 	SCC(const std::string& name, const DeviceConfig& config,
 	    EmuTime::param time, Mode mode = Mode::Real);

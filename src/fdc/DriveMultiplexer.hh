@@ -2,7 +2,10 @@
 #define DRIVEMULTIPLEXER_HH
 
 #include "DiskDrive.hh"
-#include <array>
+
+#include "stl.hh"
+
+#include <cstdint>
 #include <memory>
 #include <span>
 
@@ -15,7 +18,7 @@ namespace openmsx {
 class DriveMultiplexer final : public DiskDrive
 {
 public:
-	enum class Drive {
+	enum class Drive : uint8_t {
 		A, B, C, D, NONE,
 		NUM
 	};

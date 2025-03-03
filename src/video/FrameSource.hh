@@ -23,7 +23,7 @@ public:
 
 	/** What role does this frame play in interlacing?
 	  */
-	enum class FieldType {
+	enum class FieldType : uint8_t {
 		/** Interlacing is off for this frame.
 		  */
 		NONINTERLACED,

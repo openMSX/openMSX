@@ -5,7 +5,9 @@
 #include "SCC.hh"
 #include "AY8910.hh"
 #include "AmdFlash.hh"
+
 #include <array>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -31,7 +33,7 @@ public:
 private:
 	[[nodiscard]] byte readMem2(word addr, EmuTime::param time);
 
-	enum SCCEnable { EN_NONE, EN_SCC, EN_SCCPLUS };
+	enum SCCEnable : uint8_t { EN_NONE, EN_SCC, EN_SCCPLUS };
 	[[nodiscard]] SCCEnable getSCCEnable() const;
 
 	[[nodiscard]] unsigned getSubslot(unsigned address) const;

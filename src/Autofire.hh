@@ -7,6 +7,8 @@
 #include "Observer.hh"
 #include "StateChangeListener.hh"
 
+#include <cstdint>
+
 namespace openmsx {
 
 class MSXMotherBoard;
@@ -24,7 +26,7 @@ class StateChangeDistributor;
 class Autofire final : private Observer<Setting>, private StateChangeListener
 {
 public:
-	enum ID { RENSHATURBO, UNKNOWN };
+	enum ID : uint8_t { RENSHATURBO, UNKNOWN };
 
 public:
 	Autofire(MSXMotherBoard& motherBoard,

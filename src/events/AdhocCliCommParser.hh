@@ -18,7 +18,7 @@ private:
 	std::function<void(const std::string&)> callback;
 	std::string command;
 	uint32_t unicode;
-	enum State {
+	enum State : uint8_t {
 		O0, // no tag char matched yet
 		O1, // matched <
 		O2, //         <c

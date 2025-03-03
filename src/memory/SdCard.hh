@@ -4,7 +4,9 @@
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
+
 #include <array>
+#include <cstdint>
 #include <memory>
 
 namespace openmsx {
@@ -24,7 +26,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 // private:
-	enum class Mode {
+	enum class Mode : uint8_t {
 		COMMAND,
 		READ,
 		MULTI_READ,
