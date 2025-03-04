@@ -1,6 +1,8 @@
 #ifndef SCOPEDASSIGN_HH
 #define SCOPEDASSIGN_HH
 
+#include <utility>
+
 /** Assign new value to some variable and restore the original value
   * when this object goes out of scope.
   */
@@ -16,11 +18,11 @@ public:
 		: var(var_)
 	{
 		oldValue = var;
-		var = newValue;
+		var = std::move(newValue);
 	}
 	~ScopedAssign()
 	{
-		var = oldValue;
+		var = std::move(oldValue);
 	}
 private:
 	T& var;

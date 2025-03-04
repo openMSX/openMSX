@@ -72,11 +72,11 @@ class TclObject
 	static_assert(std::bidirectional_iterator<iterator>);
 
 public:
-	TclObject()                                  { init(Tcl_NewObj()); }
-	explicit TclObject(Tcl_Obj* o)               { init(o); }
-	template<typename T> explicit TclObject(T t) { init(newObj(t)); }
-	TclObject(const TclObject&  o)               { init(newObj(o)); }
-	TclObject(      TclObject&& o) noexcept      { init(newObj(o)); }
+	TclObject()                                    { init(Tcl_NewObj()); }
+	explicit TclObject(Tcl_Obj* o)                 { init(o); }
+	template<typename T> explicit TclObject(T&& t) { init(newObj(std::forward<T>(t))); }
+	TclObject(const TclObject&  o)                 { init(newObj(o)); }
+	TclObject(      TclObject&& o) noexcept        { init(newObj(o)); }
 
 	struct MakeListTag {};
 	template<typename... Args>
