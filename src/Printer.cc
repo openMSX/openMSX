@@ -583,7 +583,7 @@ static constexpr auto MSXFont = []{
 		end = end + 1;
 		if (start < 0 || start >= 7) start = 0;
 		if (end == 1) end = 5;
-		if (end >= 7) end = 7;
+		end = std::min(end, 7);
 		result[9 * i] = uint8_t((start << 4) | end);
 	}
 	return result;
@@ -775,10 +775,7 @@ void ImagePrinterMSX::processEscSequence()
 			rightBorder = parseNumber(1, 3);
 			break;
 		case 'G':
-			graphDensity = parseNumber(1, 3) * (1.0 / 100.0);
-			if (graphDensity < 0.1) {
-				graphDensity = 0.1;
-			}
+			graphDensity = std::max(0.1, parseNumber(1, 3) * (1.0 / 100.0));
 			sizeRemainingDataBytes = parseNumber(4, 4);
 			break;
 		case 'S': // Print graphics, density depending on font
@@ -816,10 +813,7 @@ void ImagePrinterMSX::processCharacter(uint8_t data)
 				break;
 			case 8: // BS: Backstep (1 Character)
 				// TODO: fix for other font-sizes
-				hpos -= 8;
-				if (hpos < leftBorder) {
-					hpos = leftBorder;
-				}
+				hpos = std::max(hpos - 8, double(leftBorder));
 				break;
 			case 9: // HAT: Horizontal tabulator
 				// TODO: fix for other font-sizes
@@ -1233,11 +1227,8 @@ void ImagePrinterEpson::processEscSequence()
 			fontInfo.useRam = parseNumber(1, 1) & 1;
 			break;
 		case '&': // Custom character set, variable length
-			ramLoadOffset = 12 * parseNumber(2, 1);
-			ramLoadEnd    = 12 * parseNumber(3, 1) + 12;
-			if (ramLoadEnd <= ramLoadOffset) {
-				ramLoadEnd = ramLoadOffset;
-			}
+			ramLoadOffset =       12 * parseNumber(2, 1);
+			ramLoadEnd = std::max(12 * parseNumber(3, 1) + 12, ramLoadOffset);
 			break;
 		case '*': // Turn Graphics Mode ON
 			ninePinGraphics = false;
@@ -1390,8 +1381,7 @@ void ImagePrinterEpson::processEscSequence()
 			fontDensity = compressed ? 1.72 : 1.00;
 			break;
 		case 'Q': { // Set Right Margin
-			auto width = parseNumber(1, 2);
-			if (width > 78) width = 78; // TODO Font dependent !!
+			auto width = std::min(parseNumber(1, 2), 78u); // TODO Font dependent !!
 			rightBorder = 6 * width;
 			break;
 		}
@@ -1436,9 +1426,7 @@ void ImagePrinterEpson::processEscSequence()
 			break;
 		case 'j': // Immediate Reverse Line Feed
 			vpos -= (parseNumber(1, 1) & 127) * (1.0 / 3.0);
-			if (vpos < pageTop) {
-				vpos = pageTop;
-			}
+			vpos = std::max(vpos, pageTop);
 			break;
 		case 'l': // Set Left Margin
 			break;
@@ -1509,10 +1497,7 @@ void ImagePrinterEpson::processCharacter(uint8_t data)
 			break;
 		case 8: // Backspace
 			// TODO: fix for other font-sizes
-			hpos -= 8;
-			if (hpos < leftBorder) {
-				hpos = leftBorder;
-			}
+			hpos = std::max(hpos - 8, double(leftBorder));
 			break;
 		case 9: // Horizontal TAB
 			// TODO: fix for other font-sizes

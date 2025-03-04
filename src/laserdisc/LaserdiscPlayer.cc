@@ -918,8 +918,7 @@ void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
 
 	updateStream(time);
 
-	if (toFrame <= 0) toFrame = 1;
-	if (toFrame > video->getFrames()) toFrame = video->getFrames();
+	toFrame = std::clamp(toFrame, size_t(1), video->getFrames());
 
 	// Seek time needs to be emulated correctly since
 	// e.g. Astron Belt does not wait for the seek

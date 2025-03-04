@@ -152,7 +152,7 @@ time_t fromString(std::span<const char, 24> s)
 
 std::string toString(time_t time)
 {
-	if (time < 0) time = 0;
+	time = std::max(time, time_t(0));
 	const struct tm* tm = localtime(&time);
 	std::ostringstream sstr;
 	sstr << std::setfill('0')

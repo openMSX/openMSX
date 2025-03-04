@@ -238,11 +238,8 @@ void OggReader::vorbisFoundPosition()
 		cli.printWarning("missing part of audio stream");
 	}
 
-	if (vorbisPos > currentSample) {
-		currentSample = vorbisPos;
-	}
+	currentSample = std::max(currentSample, vorbisPos);
 }
-
 
 void OggReader::vorbisHeaderPage(ogg_page* page)
 {

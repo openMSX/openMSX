@@ -452,9 +452,7 @@ inline int Slot::calc_envelope(const Channel& channel, unsigned eg_cnt, bool car
 			// percussive mode)
 			if (!(eg_cnt & eg_mask_rr)) {
 				egOut += eg_sel_rr[(eg_cnt >> eg_sh_rr) & 7];
-				if (egOut >= MAX_ATT_INDEX) {
-					egOut = MAX_ATT_INDEX;
-				}
+				egOut = std::min(egOut, MAX_ATT_INDEX);
 			}
 			// else do nothing in sustain phase
 		}

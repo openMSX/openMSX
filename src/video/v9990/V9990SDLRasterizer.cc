@@ -165,12 +165,8 @@ void V9990SDLRasterizer::drawDisplay(
 		displayYB -= fromY;
 		fromY = 0;
 	}
-	if (toX > screenW) {
-		toX = screenW;
-	}
-	if (toY > screenH) {
-		toY = screenH;
-	}
+	toX = std::min(toX, screenW);
+	toY = std::min(toY, screenH);
 	fromX = V9990::UCtoX(fromX, displayMode);
 	toX   = V9990::UCtoX(toX,   displayMode);
 

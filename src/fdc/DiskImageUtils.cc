@@ -285,7 +285,7 @@ static SetBootSectorResult setBootSector(
 		// for a 32MB disk or greater the sectors would be >= 65536
 		// since MSX use 16 bits for this, in case of sectors = 65536
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
-		if (nbSectors > 65535) nbSectors = 65535; // this is the max size for fat12 :-)
+		nbSectors = std::min(nbSectors, size_t(65535)); // this is the max size for fat12 :-)
 	} else if (nbSectors > 16388) {
 		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 16388 < nbSectors <= 32732
