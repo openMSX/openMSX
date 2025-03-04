@@ -303,7 +303,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	if (deform == RenderSettings::DisplayDeform::_3D) {
 		drawMonitor3D();
 	} else {
-		float x1 = (320.0f - float(horStretch)) * (1.0f / (2.0f * 320.0f));
+		float x1 = (320.0f - horStretch) * (1.0f / (2.0f * 320.0f));
 		float x2 = 1.0f - x1;
 		std::array tex = {
 			vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)

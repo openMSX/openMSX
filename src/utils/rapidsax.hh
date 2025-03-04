@@ -484,8 +484,8 @@ private:
 				int depth = 1;
 				while (depth > 0) {
 					switch (*text) {
-						case char('['): ++depth; break;
-						case char(']'): --depth; break;
+						case '[': ++depth; break;
+						case ']': --depth; break;
 						case 0: throw ParseError(
 							"unexpected end of data", text);
 					}

@@ -135,7 +135,7 @@ int16_t WavImage::getSampleAt(EmuTime::param time) const
 	// work in openMSX (with sample-and-hold it didn't work).
 	auto [sample, x] = clock.getTicksTillAsIntFloat(time);
 	std::array<float, 4> p = {
-		float(wav->getSample(unsigned(sample) - 1)), // intentional: underflow wraps to UINT_MAX
+		float(wav->getSample(sample - 1)), // intentional: underflow wraps to UINT_MAX
 		float(wav->getSample(sample + 0)),
 		float(wav->getSample(sample + 1)),
 		float(wav->getSample(sample + 2))

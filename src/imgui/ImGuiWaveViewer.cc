@@ -250,7 +250,7 @@ static ReduceResult reduce(std::span<const float> buf, std::span<float> work, si
 		buf = buf2;
 	} else {
 		assert(buf.size() >= HALF_BAND_EXTRA);
-		extended = allocate(std::max((buf.size() - HALF_BAND_EXTRA) / 2, size_t(fftLen)));
+		extended = allocate(std::max((buf.size() - HALF_BAND_EXTRA) / 2, fftLen));
 		do {
 			static_assert(HALF_BAND_EXTRA & 1);
 			if ((buf.size() & 1) == 0) {

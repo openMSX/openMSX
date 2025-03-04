@@ -186,7 +186,7 @@ TclObject toTclList(const Event& event)
 			return makeTclList("quit");
 		},
 		[](const FinishFrameEvent& e) {
-			return makeTclList("finishframe", int(e.getSource()), int(e.getSelectedSource()), e.isSkipped());
+			return makeTclList("finishframe", e.getSource(), e.getSelectedSource(), e.isSkipped());
 		},
 		[](const CliCommandEvent& e) {
 			return makeTclList("CliCmd", e.getCommand());
