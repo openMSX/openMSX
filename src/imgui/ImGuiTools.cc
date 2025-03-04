@@ -159,7 +159,7 @@ void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showRecord) paintRecord();
 	paintNotes();
 
-	const auto popupTitle = "Confirm##Tools";
+	const auto* popupTitle = "Confirm##Tools";
 	if (openConfirmPopup) {
 		openConfirmPopup = false;
 		ImGui::OpenPopup(popupTitle);

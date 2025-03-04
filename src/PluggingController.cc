@@ -336,7 +336,7 @@ void PluggingController::ConnectionClassInfo::execute(
 	case 2: {
 		std::vector<string_view> classes;
 		classes.reserve(pluggingController.connectors.size());
-		for (auto& c : pluggingController.connectors) {
+		for (const auto& c : pluggingController.connectors) {
 			classes.push_back(c->getClass());
 		}
 		for (const auto& p : pluggingController.pluggables) {

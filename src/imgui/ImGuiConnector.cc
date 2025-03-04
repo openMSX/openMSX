@@ -51,7 +51,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 								manager.executeDelayed(makeTclList("unplug", connectorName));
 							}
 						}
-						for (auto& plug : pluggables) {
+						for (const auto& plug : pluggables) {
 							if (plug->getClass() != connectorClass) continue;
 							auto plugName = plug->getName();
 							bool selected = plug.get() == &currentPluggable;

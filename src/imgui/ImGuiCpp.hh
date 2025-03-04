@@ -267,14 +267,14 @@ inline void ID(int int_id, std::invocable<> auto next)
 }
 inline void ID(const std::string& str, std::invocable<> auto next)
 {
-	auto begin = str.data();
-	auto end = begin + str.size();
+	const auto* begin = str.data();
+	const auto* end = begin + str.size();
 	ID(begin, end, next);
 }
 inline void ID(std::string_view str, std::invocable<> auto next)
 {
-	auto begin = str.data();
-	auto end = begin + str.size();
+	const auto* begin = str.data();
+	const auto* end = begin + str.size();
 	ID(begin, end, next);
 }
 

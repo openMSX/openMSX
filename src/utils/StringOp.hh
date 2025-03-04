@@ -193,8 +193,8 @@ namespace StringOp
 	[[nodiscard]] std::optional<T> stringToBase(std::string_view s)
 	{
 		T result = {}; // dummy init to avoid warning
-		auto b = s.data();
-		auto e = s.data() + s.size();
+		const auto* b = s.data();
+		const auto* e = s.data() + s.size();
 		if (auto [p, ec] = std::from_chars(b, e, result, BASE);
 		    (ec == std::errc()) && (p == e)) {
 			return result;

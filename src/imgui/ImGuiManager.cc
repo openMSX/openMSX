@@ -380,7 +380,7 @@ void ImGuiManager::printError(std::string_view message)
 
 bool ImGuiManager::signalEvent(const Event& event)
 {
-	if (auto* evt = get_event_if<SdlEvent>(event)) {
+	if (const auto* evt = get_event_if<SdlEvent>(event)) {
 		const ImGuiIO& io = ImGui::GetIO();
 		if (!io.BackendPlatformUserData) {
 			// ImGui backend not (yet) initialized (e.g. after 'set renderer none')
@@ -771,7 +771,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 						? (mode.getByte() & DisplayMode::YAE) ? std::pair{"11", "GRAPHIC 7 (YJK/YAE mode)"} : std::pair{"12", "GRAPHIC 7 (YJK mode)"}
 						: std::pair{"8", "GRAPHIC 7"};
 				}();
-				auto extendedStr = extendedStr_; // pre-clang-16 workaround
+				const auto* extendedStr = extendedStr_; // pre-clang-16 workaround
 				ImGui::RightAlignText(modeStr, "0 (80)");
 				simpleToolTip([&]{
 					std::string result = "screen mode as used in MSX-BASIC";

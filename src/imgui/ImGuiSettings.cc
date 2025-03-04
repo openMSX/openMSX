@@ -440,7 +440,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		});
 	});
 
-	const auto confirmTitle = "Confirm##settings";
+	const auto* confirmTitle = "Confirm##settings";
 	if (openConfirmPopup) {
 		ImGui::OpenPopup(confirmTitle);
 	}

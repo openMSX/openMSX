@@ -1485,8 +1485,8 @@ uint8_t YMF262::peekStatus() const
 bool YMF262::checkMuteHelper() const
 {
 	// TODO this doesn't always mute when possible
-	for (auto& ch : channel) {
-		for (auto& sl : ch.slot) {
+	for (const auto& ch : channel) {
+		for (const auto& sl : ch.slot) {
 			if (!((sl.state == EnvelopeState::OFF) ||
 			      ((sl.state == EnvelopeState::RELEASE) &&
 			       ((narrow<int>(sl.TLL) + sl.volume) >= ENV_QUIET)))) {
