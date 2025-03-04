@@ -19,12 +19,12 @@ static_assert(BIG || LITTLE, "mixed endian not supported");
 
 // Identity operator, simply returns the given value.
 struct Ident {
-	[[nodiscard]] inline auto operator()(std::integral auto t) const { return t; }
+	[[nodiscard]] auto operator()(std::integral auto t) const { return t; }
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
 struct ByteSwap {
-	[[nodiscard]] inline auto operator()(std::integral auto t) const { return std::byteswap(t); }
+	[[nodiscard]] auto operator()(std::integral auto t) const { return std::byteswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though
@@ -34,9 +34,9 @@ struct ByteSwap {
 template<std::integral T, std::invocable<T> Op> class EndianT {
 public:
 	EndianT() = default; // leave uninitialized
-	explicit EndianT(T t_)                  { Op op; t = op(t_); }
-	[[nodiscard]] inline operator T() const { Op op; return op(t); }
-	inline EndianT& operator=(T a) { Op op; t = op(a); return *this; }
+	explicit EndianT(T t_) { Op op; t = op(t_); }
+	[[nodiscard]] operator T() const { Op op; return op(t); }
+	EndianT& operator=(T a) { Op op; t = op(a); return *this; }
 private:
 	T t;
 };
@@ -212,40 +212,40 @@ template<bool SWAP, std::integral T> [[nodiscard]] static ALWAYS_INLINE T read_U
 
 class UA_B16 {
 public:
-	[[nodiscard]] inline operator uint16_t() const { return read_UA_B16(x.data()); }
-	inline UA_B16& operator=(uint16_t a) { write_UA_B16(x.data(), a); return *this; }
+	[[nodiscard]] operator uint16_t() const { return read_UA_B16(x.data()); }
+	UA_B16& operator=(uint16_t a) { write_UA_B16(x.data(), a); return *this; }
 private:
 	std::array<uint8_t, 2> x;
 };
 
 class UA_L16 {
 public:
-	[[nodiscard]] inline operator uint16_t() const { return read_UA_L16(x.data()); }
-	inline UA_L16& operator=(uint16_t a) { write_UA_L16(x.data(), a); return *this; }
+	[[nodiscard]] operator uint16_t() const { return read_UA_L16(x.data()); }
+	UA_L16& operator=(uint16_t a) { write_UA_L16(x.data(), a); return *this; }
 private:
 	std::array<uint8_t, 2> x;
 };
 
 class UA_L24 {
 public:
-	inline operator uint32_t() const     { return read_UA_L24(x.data()); }
-	inline UA_L24& operator=(uint32_t a) { write_UA_L24(x.data(), a); return *this; }
+	[[nodiscard]] operator uint32_t() const { return read_UA_L24(x.data()); }
+	UA_L24& operator=(uint32_t a) { write_UA_L24(x.data(), a); return *this; }
 private:
 	std::array<uint8_t, 3> x;
 };
 
 class UA_B32 {
 public:
-	[[nodiscard]] inline operator uint32_t() const { return read_UA_B32(x.data()); }
-	inline UA_B32& operator=(uint32_t a) { write_UA_B32(x.data(), a); return *this; }
+	[[nodiscard]] operator uint32_t() const { return read_UA_B32(x.data()); }
+	UA_B32& operator=(uint32_t a) { write_UA_B32(x.data(), a); return *this; }
 private:
 	std::array<uint8_t, 4> x;
 };
 
 class UA_L32 {
 public:
-	[[nodiscard]] inline operator uint32_t() const { return read_UA_L32(x.data()); }
-	inline UA_L32& operator=(uint32_t a) { write_UA_L32(x.data(), a); return *this; }
+	[[nodiscard]] operator uint32_t() const { return read_UA_L32(x.data()); }
+	UA_L32& operator=(uint32_t a) { write_UA_L32(x.data(), a); return *this; }
 private:
 	std::array<uint8_t, 4> x;
 };

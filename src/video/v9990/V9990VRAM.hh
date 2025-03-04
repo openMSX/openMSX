@@ -31,17 +31,17 @@ public:
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronize VRAM to
 	  */
-	inline void sync(EmuTime::param time) {
+	void sync(EmuTime::param time) {
 		cmdEngine->sync(time);
 	}
 
-	[[nodiscard]] static inline unsigned transformBx(unsigned address) {
+	[[nodiscard]] static unsigned transformBx(unsigned address) {
 		return ((address & 1) << 18) | ((address & 0x7FFFE) >> 1);
 	}
-	[[nodiscard]] static inline unsigned transformP1(unsigned address) {
+	[[nodiscard]] static unsigned transformP1(unsigned address) {
 		return address;
 	}
-	[[nodiscard]] static inline unsigned transformP2(unsigned address) {
+	[[nodiscard]] static unsigned transformP2(unsigned address) {
 		// Verified on a real Graphics9000
 		if (address < 0x78000) {
 			return transformBx(address);
@@ -52,30 +52,30 @@ public:
 		}
 	}
 
-	[[nodiscard]] inline byte readVRAMBx(unsigned address) const {
+	[[nodiscard]] byte readVRAMBx(unsigned address) const {
 		return data[transformBx(address)];
 	}
-	[[nodiscard]] inline byte readVRAMP1(unsigned address) const {
+	[[nodiscard]] byte readVRAMP1(unsigned address) const {
 		return data[transformP1(address)];
 	}
-	[[nodiscard]] inline byte readVRAMP2(unsigned address) const {
+	[[nodiscard]] byte readVRAMP2(unsigned address) const {
 		return data[transformP2(address)];
 	}
 
-	inline void writeVRAMBx(unsigned address, byte value) {
+	void writeVRAMBx(unsigned address, byte value) {
 		data.write(transformBx(address), value);
 	}
-	inline void writeVRAMP1(unsigned address, byte value) {
+	void writeVRAMP1(unsigned address, byte value) {
 		data.write(transformP1(address), value);
 	}
-	inline void writeVRAMP2(unsigned address, byte value) {
+	void writeVRAMP2(unsigned address, byte value) {
 		data.write(transformP2(address), value);
 	}
 
-	[[nodiscard]] inline byte readVRAMDirect(unsigned address) const {
+	[[nodiscard]] byte readVRAMDirect(unsigned address) const {
 		return data[address];
 	}
-	inline void writeVRAMDirect(unsigned address, byte value) {
+	void writeVRAMDirect(unsigned address, byte value) {
 		data.write(address, value);
 	}
 

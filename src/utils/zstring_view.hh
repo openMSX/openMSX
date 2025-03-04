@@ -113,7 +113,7 @@ public:
 	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const zstring_view& y) {
 		return std::string_view(x) == std::string_view(y);
 	}
-	[[nodiscard]] inline friend bool operator==(const zstring_view& x, const std::string& y) {
+	[[nodiscard]] friend bool operator==(const zstring_view& x, const std::string& y) {
 		return std::string_view(x) == std::string_view(y);
 	}
 	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const std::string_view& y) {

@@ -144,7 +144,7 @@ public:
 	  * TODO: Only used by dirty checking. Maybe a new dirty checking
 	  *       approach can obsolete this method?
 	  */
-	[[nodiscard]] inline unsigned getMask() const {
+	[[nodiscard]] unsigned getMask() const {
 		assert(isEnabled());
 		return effectiveBaseMask;
 	}
@@ -162,7 +162,7 @@ public:
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
 	  */
-	inline void setMask(unsigned newBaseMask, unsigned newIndexMask,
+	void setMask(unsigned newBaseMask, unsigned newIndexMask,
 	                    unsigned newSizeMask, EmuTime::param time) {
 		origBaseMask = newBaseMask;
 		newBaseMask &= newSizeMask;
@@ -181,7 +181,7 @@ public:
 	/** Same as above, but 'sizeMask' doesn't change.
 	 * This is a useful shortcut, because 'sizeMask' rarely changes.
 	 */
-	inline void setMask(unsigned newBaseMask, unsigned newIndexMask,
+	void setMask(unsigned newBaseMask, unsigned newIndexMask,
 	                    EmuTime::param time) {
 		setMask(newBaseMask, newIndexMask, sizeMask, time);
 	}
@@ -189,7 +189,7 @@ public:
 	/** Disable this window: no address will be considered inside.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void disable(EmuTime::param time) {
+	void disable(EmuTime::param time) {
 		observer->updateWindow(false, time);
 		baseAddr = unsigned(-1);
 	}
@@ -197,7 +197,7 @@ public:
 	/** Is the given index range continuous in VRAM (iow there's no mirroring)
 	  * Only if the range is continuous it's allowed to call getReadArea().
 	  */
-	[[nodiscard]] inline bool isContinuous(unsigned index, unsigned size) const {
+	[[nodiscard]] bool isContinuous(unsigned index, unsigned size) const {
 		assert(isEnabled());
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
@@ -214,7 +214,7 @@ public:
 	  * 1-bits in the parameter correspond with 'X' in the pattern above.
 	  * Or IOW it tests an aligned-power-of-2-sized region.
 	  */
-	[[nodiscard]] inline bool isContinuous(unsigned mask) const {
+	[[nodiscard]] bool isContinuous(unsigned mask) const {
 		assert(isEnabled());
 		assert((mask & ~indexMask)        == mask);
 		return (mask & effectiveBaseMask) == mask;
@@ -225,7 +225,7 @@ public:
 	  * @param index Index in window
 	  */
 	template<size_t size>
-	[[nodiscard]] inline std::span<const byte, size> getReadArea(unsigned index) const {
+	[[nodiscard]] std::span<const byte, size> getReadArea(unsigned index) const {
 		assert(isContinuous(index, size));
 		return std::span<const byte, size>{
 				&data[effectiveBaseMask & (indexMask | index)],
@@ -241,7 +241,7 @@ public:
 	  *    span1: The block of odd  numbered bytes.
 	  */
 	template<size_t size>
-	[[nodiscard]] inline std::pair<std::span<const byte, size / 2>, std::span<const byte, size / 2>>
+	[[nodiscard]] std::pair<std::span<const byte, size / 2>, std::span<const byte, size / 2>>
 			getReadAreaPlanar(unsigned index) const {
 		assert((index & 1) == 0);
 		assert((size & 1) == 0);
@@ -262,7 +262,7 @@ public:
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	[[nodiscard]] inline byte readNP(unsigned index) const {
+	[[nodiscard]] byte readNP(unsigned index) const {
 		assert(isEnabled());
 		return data[effectiveBaseMask & index];
 	}
@@ -270,7 +270,7 @@ public:
 	/** Similar to readNP, but now with planar addressing.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	[[nodiscard]] inline byte readPlanar(unsigned index) const {
+	[[nodiscard]] byte readPlanar(unsigned index) const {
 		assert(isEnabled());
 		index = ((index & 1) << 16) | ((index & 0x1FFFE) >> 1);
 		unsigned addr = effectiveBaseMask & index;
@@ -279,7 +279,7 @@ public:
 
 	/** Is there an observer registered for this window?
 	  */
-	[[nodiscard]] inline bool hasObserver() const {
+	[[nodiscard]] bool hasObserver() const {
 		return observer != &dummyObserver;
 	}
 
@@ -288,13 +288,13 @@ public:
 	  * There can be only one observer per window at any given time.
 	  * @param newObserver The observer to register.
 	  */
-	inline void setObserver(VRAMObserver* newObserver) {
+	void setObserver(VRAMObserver* newObserver) {
 		observer = newObserver;
 	}
 
 	/** Unregister the observer of this VRAM window.
 	  */
-	inline void resetObserver() {
+	void resetObserver() {
 		observer = &dummyObserver;
 	}
 
@@ -305,7 +305,7 @@ public:
 	  * @param address The address to test.
 	  * @return true iff the address is inside this window.
 	  */
-	[[nodiscard]] inline bool isInside(unsigned address) const {
+	[[nodiscard]] bool isInside(unsigned address) const {
 		return (address & combiMask) == baseAddr;
 	}
 
@@ -314,7 +314,7 @@ public:
 	  * @param address The address to test.
 	  * @param time The moment in emulated time the change occurs.
 	  */
-	inline void notify(unsigned address, EmuTime::param time) {
+	void notify(unsigned address, EmuTime::param time) {
 		if (isInside(address)) {
 			observer->updateVRAM(address - baseAddr, time);
 		}
@@ -336,7 +336,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] inline bool isEnabled() const {
+	[[nodiscard]] bool isEnabled() const {
 		return baseAddr != unsigned(-1);
 	}
 
@@ -413,7 +413,7 @@ public:
 	  * @param time Moment in emulated time to update VRAM to.
 	  * TODO: Replace this method by VRAMWindow::sync().
 	  */
-	inline void sync(EmuTime::param time) {
+	void sync(EmuTime::param time) {
 		assert(vdp.isInsideFrame(time));
 		cmdEngine->sync(time);
 	}
@@ -424,7 +424,7 @@ public:
 	  *       Note: "cmdSync", because it checks against read windows, unlike
 	  *       the other sync which checks against the cmd write window.
 	  */
-	inline void cmdWrite(unsigned address, byte value, EmuTime::param time) {
+	void cmdWrite(unsigned address, byte value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -449,7 +449,7 @@ public:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	inline void cpuWrite(unsigned address, byte value, EmuTime::param time) {
+	void cpuWrite(unsigned address, byte value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -485,7 +485,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	[[nodiscard]] inline byte cpuRead(unsigned address, EmuTime::param time) {
+	[[nodiscard]] byte cpuRead(unsigned address, EmuTime::param time) {
 		#ifdef DEBUG
 		// VRAM should never get ahead of CPU.
 		assert(time >= vramTime);
@@ -544,13 +544,13 @@ public:
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setSpriteChecker(SpriteChecker* newSpriteChecker) {
+	void setSpriteChecker(SpriteChecker* newSpriteChecker) {
 		spriteChecker = newSpriteChecker;
 	}
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setCmdEngine(VDPCmdEngine* newCmdEngine) {
+	void setCmdEngine(VDPCmdEngine* newCmdEngine) {
 		cmdEngine = newCmdEngine;
 	}
 
@@ -571,7 +571,7 @@ public:
 private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
-	inline void writeCommon(unsigned address, byte value, EmuTime::param time) {
+	void writeCommon(unsigned address, byte value, EmuTime::param time) {
 		#ifdef DEBUG
 		assert(time >= vramTime);
 		vramTime = time;

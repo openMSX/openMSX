@@ -77,7 +77,7 @@ public:
 	  * line. But it's fine to call this on non-border lines as well, in
 	  * that case the color of the first pixel of the line is returned.
 	  */
-	[[nodiscard]] inline Pixel getLineColor(unsigned line) const {
+	[[nodiscard]] Pixel getLineColor(unsigned line) const {
 		ALIGNAS_SSE std::array<Pixel, 1280> buf; // large enough for widest line
 		return getUnscaledLine(line, buf)[0];
 	}
@@ -91,7 +91,7 @@ public:
 	  * value of this function will point to the line data (some internal
 	  * buffer or the work buffer).
 	  */
-	[[nodiscard]] inline std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
+	[[nodiscard]] std::span<const Pixel> getLine(int line, std::span<Pixel> buf) const
 	{
 		line = std::clamp(line, 0, narrow<int>(getHeight() - 1));
 		auto unscaledLine = getUnscaledLine(line, buf);

@@ -26,7 +26,7 @@ class DivModBySame
 {
 public:
 	void setDivisor(uint32_t divisor);
-	[[nodiscard]] inline uint32_t getDivisor() const { return divisor; }
+	[[nodiscard]] uint32_t getDivisor() const { return divisor; }
 
 	[[nodiscard]] uint32_t div(uint64_t dividend) const
 	{
@@ -38,7 +38,7 @@ public:
 	#endif
 	}
 
-	[[nodiscard]] inline uint32_t divInC(uint64_t dividend) const
+	[[nodiscard]] uint32_t divInC(uint64_t dividend) const
 	{
 		uint64_t t1 = uint64_t(uint32_t(dividend)) * uint32_t(m);
 		uint64_t t2 = (dividend >> 32) * uint32_t(m);

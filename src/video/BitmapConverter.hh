@@ -69,14 +69,14 @@ public:
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode_ The new display mode.
 	  */
-	inline void setDisplayMode(DisplayMode mode_)
+	void setDisplayMode(DisplayMode mode_)
 	{
 		mode = mode_;
 	}
 
 	/** Inform this class about changes in the palette16 array.
 	  */
-	inline void palette16Changed()
+	void palette16Changed()
 	{
 		dPaletteValid = false;
 	}
@@ -84,23 +84,23 @@ public:
 private:
 	void calcDPalette();
 
-	inline void renderGraphic4(std::span<Pixel, 256> buf,
-	                           std::span<const byte, 128> vramPtr0);
-	inline void renderGraphic5(std::span<Pixel, 512> buf,
-	                           std::span<const byte, 128> vramPtr0) const;
-	inline void renderGraphic6(std::span<Pixel, 512> buf,
-	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1);
-	inline void renderGraphic7(std::span<Pixel, 256> buf,
-	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1) const;
-	inline void renderYJK(     std::span<Pixel, 256> buf,
-	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1) const;
-	inline void renderYAE(     std::span<Pixel, 256> buf,
-	                           std::span<const byte, 128> vramPtr0,
-				   std::span<const byte, 128> vramPtr1) const;
-	inline void renderBogus(   std::span<Pixel, 256> buf) const;
+	void renderGraphic4(std::span<Pixel, 256> buf,
+	                    std::span<const byte, 128> vramPtr0);
+	void renderGraphic5(std::span<Pixel, 512> buf,
+	                    std::span<const byte, 128> vramPtr0) const;
+	void renderGraphic6(std::span<Pixel, 512> buf,
+	                    std::span<const byte, 128> vramPtr0,
+	                    std::span<const byte, 128> vramPtr1);
+	void renderGraphic7(std::span<Pixel, 256> buf,
+	                    std::span<const byte, 128> vramPtr0,
+	                    std::span<const byte, 128> vramPtr1) const;
+	void renderYJK(     std::span<Pixel, 256> buf,
+	                    std::span<const byte, 128> vramPtr0,
+	                    std::span<const byte, 128> vramPtr1) const;
+	void renderYAE(     std::span<Pixel, 256> buf,
+	                    std::span<const byte, 128> vramPtr0,
+	                    std::span<const byte, 128> vramPtr1) const;
+	void renderBogus(   std::span<Pixel, 256> buf) const;
 
 private:
 	std::span<const Pixel, 16 * 2> palette16;

@@ -50,7 +50,7 @@ public:
 	/**
 	 * TODO
 	 */
-	[[nodiscard]] inline EmuTime::param getNext() const
+	[[nodiscard]] EmuTime::param getNext() const
 	{
 		return queue.front().getTime();
 	}
@@ -58,7 +58,7 @@ public:
 	/**
 	 * Schedule till a certain moment in time.
 	 */
-	inline void schedule(EmuTime::param limit)
+	void schedule(EmuTime::param limit)
 	{
 		if (EmuTime next = getNext(); limit >= next) [[unlikely]] {
 			scheduleHelper(limit, next); // slow path not inlined

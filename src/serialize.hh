@@ -356,7 +356,7 @@ protected:
 	/** Returns a reference to the most derived class.
 	 * Helper function to implement static polymorphism.
 	 */
-	inline Derived& self()
+	Derived& self()
 	{
 		return static_cast<Derived&>(*this);
 	}
@@ -367,11 +367,11 @@ class OutputArchiveBase2
 {
 public:
 	static constexpr bool IS_LOADER = false;
-	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
 	}
-	[[nodiscard]] inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return false;
 	}
@@ -675,7 +675,7 @@ public:
 	{
 		buffer.insert(&t, sizeof(t));
 	}
-	inline void saveChar(char c)
+	void saveChar(char c)
 	{
 		save(c);
 	}
@@ -770,11 +770,11 @@ public:
 	}
 
 	static constexpr bool NEED_VERSION = false;
-	[[nodiscard]] inline bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] bool versionAtLeast(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return true;
 	}
-	[[nodiscard]] inline bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
+	[[nodiscard]] bool versionBelow(unsigned /*actual*/, unsigned /*required*/) const
 	{
 		return false;
 	}
@@ -783,7 +783,7 @@ public:
 	{
 		buffer.read(&t, sizeof(t));
 	}
-	inline void loadChar(char& c)
+	void loadChar(char& c)
 	{
 		load(c);
 	}
@@ -923,11 +923,11 @@ class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 public:
 	explicit XmlInputArchive(const std::string& filename);
 
-	[[nodiscard]] inline bool versionAtLeast(unsigned actual, unsigned required) const
+	[[nodiscard]] bool versionAtLeast(unsigned actual, unsigned required) const
 	{
 		return actual >= required;
 	}
-	[[nodiscard]] inline bool versionBelow(unsigned actual, unsigned required) const
+	[[nodiscard]] bool versionBelow(unsigned actual, unsigned required) const
 	{
 		return actual < required;
 	}

@@ -79,7 +79,7 @@ public:
 	  * This includes a VRAM sync.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void sync(EmuTime::param time) {
+	void sync(EmuTime::param time) {
 		if (!updateSpritesMethod) {
 			// Optimization: skip vram sync and sprite checks
 			// in sprite mode 0.
@@ -103,7 +103,7 @@ public:
 
 	/** Clear status bits triggered by reading of S#0.
 	  */
-	inline void resetStatus() {
+	void resetStatus() {
 		// TODO: Used to be 0x5F, but that is contradicted by
 		//       TMS9918.pdf. Check on real MSX.
 		vdp.setSpriteStatus(vdp.getStatusReg0() & 0x1F);
@@ -113,7 +113,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayMode(DisplayMode mode, EmuTime::param time) {
+	void updateDisplayMode(DisplayMode mode, EmuTime::param time) {
 		sync(time);
 		setDisplayMode(mode);
 
@@ -134,7 +134,7 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateDisplayEnabled(bool enabled, EmuTime::param time) {
+	void updateDisplayEnabled(bool enabled, EmuTime::param time) {
 		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -144,7 +144,7 @@ public:
 	  * @param enabled The new sprite enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpritesEnabled(bool enabled, EmuTime::param time) {
+	void updateSpritesEnabled(bool enabled, EmuTime::param time) {
 		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -156,7 +156,7 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateSpriteSizeMag(byte sizeMag, EmuTime::param time) {
+	void updateSpriteSizeMag(byte sizeMag, EmuTime::param time) {
 		(void)sizeMag;
 		sync(time);
 		// TODO: Precalc something?
@@ -166,7 +166,7 @@ public:
 	  * @param tp The new transparency value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateTransparency(bool tp, EmuTime::param time) {
+	void updateTransparency(bool tp, EmuTime::param time) {
 		(void)tp;
 		sync(time);
 	}
@@ -175,7 +175,7 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	inline void updateVerticalScroll(int scroll, EmuTime::param time) {
+	void updateVerticalScroll(int scroll, EmuTime::param time) {
 		(void)scroll;
 		sync(time);
 		// TODO: Precalc something?
@@ -186,7 +186,7 @@ public:
 	  * It is not allowed to call this method in a spriteless display mode.
 	  * @param time The moment in emulated time to update to.
 	  */
-	inline void checkUntil(EmuTime::param time) {
+	void checkUntil(EmuTime::param time) {
 		// TODO:
 		// Currently the sprite checking is done atomically at the end of
 		// the display line. In reality, sprite checking is probably done
@@ -202,14 +202,14 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	[[nodiscard]] inline int getCollisionX(EmuTime::param time) {
+	[[nodiscard]] int getCollisionX(EmuTime::param time) {
 		sync(time);
 		return collisionX;
 	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	[[nodiscard]] inline int getCollisionY(EmuTime::param time) {
+	[[nodiscard]] int getCollisionY(EmuTime::param time) {
 		sync(time);
 		return collisionY;
 	}
@@ -218,14 +218,14 @@ public:
 	  * This happens directly after a read, so a timestamp for syncing is
 	  * not necessary.
 	  */
-	inline void resetCollision() {
+	void resetCollision() {
 		collisionX = collisionY = 0;
 	}
 
 	/** Signals the start of a new frame.
 	  * @param time Moment in emulated time the new frame starts.
 	  */
-	inline void frameStart(EmuTime::param time) {
+	void frameStart(EmuTime::param time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
 		std::ranges::fill(spriteCount, 0);
@@ -235,7 +235,7 @@ public:
 	/** Signals the end of the current frame.
 	  * @param time Moment in emulated time the current frame ends.
 	  */
-	inline void frameEnd(EmuTime::param time) {
+	void frameEnd(EmuTime::param time) {
 		sync(time);
 	}
 
@@ -252,7 +252,7 @@ public:
 	  *   included in the returned span (IOW the span can be extended with
 	  *   one extra element which is the sentinel).
 	  */
-	[[nodiscard]] inline std::span<const SpriteInfo> getSprites(int line) const {
+	[[nodiscard]] std::span<const SpriteInfo> getSprites(int line) const {
 		// Compensate for the fact sprites are checked one line earlier
 		// than they are displayed.
 		line--;
@@ -280,7 +280,7 @@ public:
 private:
 	/** Calculate 'updateSpritesMethod' and 'planar'.
 	  */
-	inline void setDisplayMode(DisplayMode mode) {
+	void setDisplayMode(DisplayMode mode) {
 		switch (mode.getSpriteMode(vdp.isMSX1VDP())) {
 		case 0:
 			updateSpritesMethod = nullptr;
@@ -315,8 +315,8 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	[[nodiscard]] inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y) const;
-	[[nodiscard]] inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y) const;
+	[[nodiscard]] SpritePattern calculatePatternNP(unsigned patternNr, unsigned y) const;
+	[[nodiscard]] SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y) const;
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -328,7 +328,7 @@ private:
 	  *                should be checked.
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	inline void checkSprites1(int minLine, int maxLine);
+	void checkSprites1(int minLine, int maxLine);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -340,7 +340,7 @@ private:
 	  *                should be checked.
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	inline void checkSprites2(int minLine, int maxLine);
+	void checkSprites2(int minLine, int maxLine);
 
 private:
 	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);

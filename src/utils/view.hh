@@ -119,12 +119,12 @@ public:
 	constexpr drop_back_view(V base, std::size_t n)
 		: base_(std::move(base)), n_(n) {}
 
-	constexpr V base() const& noexcept { return base_; }
-	constexpr V base() && { return std::move(base_); }
+	[[nodiscard]] constexpr V base() const& noexcept { return base_; }
+	[[nodiscard]] constexpr V base() && { return std::move(base_); }
 
-	constexpr auto begin() { return std::ranges::begin(base_); }
+	[[nodiscard]] constexpr auto begin() { return std::ranges::begin(base_); }
 
-	constexpr auto end() {
+	[[nodiscard]] constexpr auto end() {
 		auto size = std::ranges::size(base_);
 		if (n_ >= static_cast<std::size_t>(size)) {
 			return std::ranges::begin(base_); // skip everything

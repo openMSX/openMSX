@@ -255,18 +255,18 @@ template<typename T> struct serialize_as_pointer_impl : std::true_type
 template<typename T> struct serialize_as_pointer<T*>
 	: serialize_as_pointer_impl<T>
 {
-	static inline T* getPointer(T* t) { return t; }
+	static T* getPointer(T* t) { return t; }
 	template<typename Archive>
-	static inline void setPointer(T*& t, T* p, Archive& /*ar*/) {
+	static void setPointer(T*& t, T* p, Archive& /*ar*/) {
 		t = p;
 	}
 };
 template<typename T> struct serialize_as_pointer<std::unique_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
-	static inline T* getPointer(const std::unique_ptr<T>& t) { return t.get(); }
+	static T* getPointer(const std::unique_ptr<T>& t) { return t.get(); }
 	template<typename Archive>
-	static inline void setPointer(std::unique_ptr<T>& t, T* p, Archive& /*ar*/) {
+	static void setPointer(std::unique_ptr<T>& t, T* p, Archive& /*ar*/) {
 		t.reset(p);
 	}
 };

@@ -20,13 +20,13 @@ protected:
 // when using the following code:
 #if 0
 	// 64-bit addition is cheap
-	inline void add(unsigned ticks) { clock += ticks; }
-	inline void sync() const { }
+	void add(unsigned ticks) { clock += ticks; }
+	void sync() const { }
 #else
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
-	inline void add(unsigned ticks) { remaining -= narrow_cast<int>(ticks); }
-	inline void sync() const {
+	void add(unsigned ticks) { remaining -= narrow_cast<int>(ticks); }
+	void sync() const {
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
 	}
@@ -110,7 +110,7 @@ protected:
 		limit = -1;
 		remaining = limit - extra;
 	}
-	[[nodiscard]] inline bool limitReached() const {
+	[[nodiscard]] bool limitReached() const {
 		return remaining < 0;
 	}
 

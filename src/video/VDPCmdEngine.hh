@@ -44,7 +44,7 @@ public:
 	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.
 	  */
-	inline void sync(EmuTime::param time) {
+	void sync(EmuTime::param time) {
 		if (CMD) sync2(time);
 	}
 	void sync2(EmuTime::param time);
@@ -67,7 +67,7 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	[[nodiscard]] inline byte getStatus(EmuTime::param time) {
+	[[nodiscard]] byte getStatus(EmuTime::param time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
@@ -79,11 +79,11 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Color value of the pixel.
 	  */
-	[[nodiscard]] inline byte readColor(EmuTime::param time) {
+	[[nodiscard]] byte readColor(EmuTime::param time) {
 		sync(time);
 		return COL;
 	}
-	inline void resetColor() {
+	void resetColor() {
 		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
 		// TODO: What happens on non-transfer commands?
@@ -98,7 +98,7 @@ public:
           * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
-	[[nodiscard]] inline unsigned getBorderX(EmuTime::param time) {
+	[[nodiscard]] unsigned getBorderX(EmuTime::param time) {
 		sync(time);
 		return ASX;
 	}
@@ -185,21 +185,21 @@ private:
 	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
 	// Advance to the next access slot at or past the given time.
-	inline EmuTime getNextAccessSlot(EmuTime::param time) const {
+	EmuTime getNextAccessSlot(EmuTime::param time) const {
 		return vdp.getAccessSlot(time, VDPAccessSlots::Delta::D0);
 	}
-	inline void nextAccessSlot(EmuTime::param time) {
+	void nextAccessSlot(EmuTime::param time) {
 		engineTime = getNextAccessSlot(time);
 	}
 	// Advance to the next access slot that is at least 'delta' cycles past
 	// the current one.
-	inline EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const {
+	EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const {
 		return vdp.getAccessSlot(time, delta);
 	}
-	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {
+	void nextAccessSlot(VDPAccessSlots::Delta delta) {
 		engineTime = getNextAccessSlot(engineTime, delta);
 	}
-	inline VDPAccessSlots::Calculator getSlotCalculator(
+	VDPAccessSlots::Calculator getSlotCalculator(
 			EmuTime::param limit) const {
 		return vdp.getAccessSlotCalculator(engineTime, limit);
 	}

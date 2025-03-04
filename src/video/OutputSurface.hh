@@ -57,7 +57,7 @@ public:
 
 	/** Returns the color key for this output surface.
 	  */
-	[[nodiscard]] inline Pixel getKeyColor() const
+	[[nodiscard]] Pixel getKeyColor() const
 	{
 		return 0x00000000; // alpha = 0
 	}
