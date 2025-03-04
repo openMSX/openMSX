@@ -1112,7 +1112,7 @@ void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
                                          EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
-	return interface.writeMem(narrow<word>(address), value, time);
+	interface.writeMem(narrow<word>(address), value, time);
 }
 
 
@@ -1135,7 +1135,7 @@ void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
                                                 EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
-	return interface.writeSlottedMem(address, value, time);
+	interface.writeSlottedMem(address, value, time);
 }
 
 

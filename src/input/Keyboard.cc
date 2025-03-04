@@ -1591,7 +1591,7 @@ void Keyboard::KeyMatrixUpCmd::execute(
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
-	return keyboard.processCmd(getInterpreter(), tokens, true);
+	keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
 std::string Keyboard::KeyMatrixUpCmd::help(std::span<const TclObject> /*tokens*/) const
@@ -1615,7 +1615,7 @@ void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
-	return keyboard.processCmd(getInterpreter(), tokens, false);
+	keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
 std::string Keyboard::KeyMatrixDownCmd::help(std::span<const TclObject> /*tokens*/) const

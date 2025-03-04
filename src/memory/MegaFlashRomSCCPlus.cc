@@ -480,7 +480,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	if (((configReg & 0xC0) == 0x40) ||
 	    ((0x4000 <= addr) && (addr < 0xC000))) {
 		assert(flashAddr != unsigned(-1));
-		return flash.write(flashAddr, value);
+		flash.write(flashAddr, value);
 	}
 }
 

@@ -1006,7 +1006,7 @@ uint8_t AY8910::Debuggable::read(unsigned address, EmuTime::param time)
 void AY8910::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& ay8910 = OUTER(AY8910, debuggable);
-	return ay8910.writeRegister(address, value, time);
+	ay8910.writeRegister(address, value, time);
 }
 
 

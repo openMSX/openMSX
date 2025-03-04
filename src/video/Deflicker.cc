@@ -49,7 +49,7 @@ static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 {
 	auto* p8   = std::bit_cast<  char *>(ptr);
 	auto* p128 = std::bit_cast<__m128i*>(p8 + byteOffst);
-	return _mm_storeu_si128(p128, val);
+	_mm_storeu_si128(p128, val);
 }
 
 static __m128i compare(__m128i x, __m128i y)

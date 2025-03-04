@@ -458,7 +458,8 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 {
 	if (isConfigReg(address)) {
 		// this blocks writes to switch-region and bank-region
-		return writeConfigRegister(address, value, time);
+		writeConfigRegister(address, value, time);
+		return;
 	}
 
 	// check (all) 4 bank switch regions

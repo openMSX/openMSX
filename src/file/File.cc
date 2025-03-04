@@ -130,7 +130,7 @@ size_t File::getPos()
 
 void File::truncate(size_t size)
 {
-	return file->truncate(size);
+	file->truncate(size);
 }
 
 void File::flush()

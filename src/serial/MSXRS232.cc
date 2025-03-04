@@ -119,7 +119,8 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 		if (address == 0xBFFA) {
 			ioAccessEnabled = (value & (1 << 4))!=0;
 		}
-		return writeIOImpl(address & 0x07, value, time);
+		writeIOImpl(address & 0x07, value, time);
+		return;
 	}
 	word addr = address & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
