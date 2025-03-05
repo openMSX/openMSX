@@ -39,7 +39,7 @@ void V9990DummyRenderer::setColorMode(V9990ColorMode /*mode*/,
 }
 
 void V9990DummyRenderer::updatePalette(
-	int /*index*/, byte /*r*/, byte /*g*/, byte /*b*/, bool /*ys*/,
+	int /*index*/, uint8_t /*r*/, uint8_t /*g*/, uint8_t /*b*/, bool /*ys*/,
 	EmuTime::param /*time*/)
 {
 }

@@ -24,7 +24,7 @@ public:
 	// MSXDevice
 	void init() override;
 	void reset(EmuTime::param time) override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -54,7 +54,7 @@ private:
 	Layer* activeLayer = nullptr;
 	PostProcessor* v99x8Layer = nullptr;
 	PostProcessor* v9990Layer = nullptr;
-	byte value = 0x10;
+	uint8_t value = 0x10;
 };
 
 } // namespace openmsx

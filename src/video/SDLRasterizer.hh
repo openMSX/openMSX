@@ -6,7 +6,7 @@
 #include "CharacterConverter.hh"
 #include "SpriteConverter.hh"
 #include "Observer.hh"
-#include "openmsx.hh"
+
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -48,9 +48,9 @@ public:
 	void frameEnd() override;
 	void setDisplayMode(DisplayMode mode) override;
 	void setPalette(unsigned index, int grb) override;
-	void setBackgroundColor(byte index) override;
+	void setBackgroundColor(uint8_t index) override;
 	void setHorizontalAdjust(int adjust) override;
-	void setHorizontalScrollLow(byte scroll) override;
+	void setHorizontalScrollLow(uint8_t scroll) override;
 	void setBorderMask(bool masked) override;
 	void setTransparency(bool enabled) override;
 	void setSuperimposeVideoFrame(const RawFrame* videoSource) override;
@@ -83,7 +83,7 @@ private:
 	  * @param transparency True iff transparency is enabled.
 	  */
 	void precalcColorIndex0(DisplayMode mode, bool transparency,
-	                        const RawFrame* superimposing, byte bgcolorIndex);
+	                        const RawFrame* superimposing, uint8_t bgcolorIndex);
 
 	// Get the border color(s). These are 16bpp or 32bpp host pixels.
 	std::pair<Pixel, Pixel> getBorderColors();

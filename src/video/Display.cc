@@ -193,7 +193,6 @@ bool Display::signalEvent(const Event& event)
 				//  the renderFrozen flag is still false
 				repaint();
 				bool lost = evt.event == SDL_WINDOWEVENT_FOCUS_LOST;
-				ad_printf("Setting renderFrozen to %d", lost);
 				renderFrozen = lost;
 			}
 		},

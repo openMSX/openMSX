@@ -93,7 +93,7 @@ static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
 #endif
 
 static inline void draw6(
-	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
+	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, uint8_t pattern)
 {
 	pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 	pixelPtr[1] = (pattern & 0x40) ? fg : bg;
@@ -105,7 +105,7 @@ static inline void draw6(
 }
 
 static inline void draw8(
-	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
+	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, uint8_t pattern)
 {
 #ifdef __SSE2__
 	// SSE2 version, 32bpp
@@ -245,7 +245,7 @@ void CharacterConverter::renderText2(std::span<Pixel, 512> buf, int line) const
 	}
 }
 
-std::span<const byte, 32> CharacterConverter::getNamePtr(int line, int scroll) const
+std::span<const uint8_t, 32> CharacterConverter::getNamePtr(int line, int scroll) const
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it

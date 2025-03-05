@@ -28,7 +28,7 @@ static inline void draw_YJK_YUV_PAL(
 	ColorLookup color, const V9990VRAM& vram,
 	Pixel* __restrict& out, unsigned& address, int firstX = 0)
 {
-	std::array<byte, 4> data;
+	std::array<uint8_t, 4> data;
 	for (auto& d : data) {
 		d = vram.readVRAMBx(address++);
 	}
@@ -147,11 +147,11 @@ static void rasterBD16(
 	if (vdp.isSuperimposing()) {
 		auto transparent = color.lookup256(0);
 		for (/**/; nrPixels > 0; --nrPixels) {
-			byte high = vram.readVRAMBx(address + 1);
+			uint8_t high = vram.readVRAMBx(address + 1);
 			if (high & 0x80) {
 				*out = transparent;
 			} else {
-				byte low  = vram.readVRAMBx(address + 0);
+				uint8_t low  = vram.readVRAMBx(address + 0);
 				*out = color.lookup32768(low + 256 * high);
 			}
 			address += 2;
@@ -159,8 +159,8 @@ static void rasterBD16(
 		}
 	} else {
 		for (/**/; nrPixels > 0; --nrPixels) {
-			byte low  = vram.readVRAMBx(address++);
-			byte high = vram.readVRAMBx(address++);
+			uint8_t low  = vram.readVRAMBx(address++);
+			uint8_t high = vram.readVRAMBx(address++);
 			*out++ = color.lookup32768((low + 256 * high) & 0x7FFF);
 		}
 	}
@@ -203,12 +203,12 @@ static void rasterBP4(
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0xC) << 2);
 	if (x & 1) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64(data & 0x0F);
 		--nrPixels;
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 2) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64(data >> 4);
 		*out++ = color.lookup64(data & 0x0F);
 	}
@@ -227,12 +227,12 @@ static void rasterBP4HiRes(
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
 	color.set64Offset((vdp.getPaletteOffset() & 0x4) << 2);
 	if (x & 1) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64(32 | (data & 0x0F));
 		--nrPixels;
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 2) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64( 0 | (data >> 4  ));
 		*out++ = color.lookup64(32 | (data & 0x0F));
 	}
@@ -250,14 +250,14 @@ static void rasterBP2(
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset(vdp.getPaletteOffset() << 2);
 	if (x & 3) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		if ((x & 3) <= 1) *out++ = color.lookup64((data & 0x30) >> 4);
 		if ((x & 3) <= 2) *out++ = color.lookup64((data & 0x0C) >> 2);
 		if (true)         *out++ = color.lookup64((data & 0x03) >> 0);
 		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64((data & 0xC0) >> 6);
 		*out++ = color.lookup64((data & 0x30) >> 4);
 		*out++ = color.lookup64((data & 0x0C) >> 2);
@@ -279,14 +279,14 @@ static void rasterBP2HiRes(
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
 	color.set64Offset((vdp.getPaletteOffset() & 0x7) << 2);
 	if (x & 3) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		if ((x & 3) <= 1) *out++ = color.lookup64(32 | ((data & 0x30) >> 4));
 		if ((x & 3) <= 2) *out++ = color.lookup64( 0 | ((data & 0x0C) >> 2));
 		if (true)         *out++ = color.lookup64(32 | ((data & 0x03) >> 0));
 		nrPixels -= narrow<int>(4 - (x & 3));
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
-		byte data = vram.readVRAMBx(address++);
+		uint8_t data = vram.readVRAMBx(address++);
 		*out++ = color.lookup64( 0 | ((data & 0xC0) >> 6));
 		*out++ = color.lookup64(32 | ((data & 0x30) >> 4));
 		*out++ = color.lookup64( 0 | ((data & 0x0C) >> 2));
@@ -411,7 +411,7 @@ public:
 		unsigned cursorLine = (displayY - attrY) & 511;
 		if (cursorLine >= 32) return;
 
-		byte attr = vram.readVRAMBx(attrAddr + 6);
+		uint8_t attr = vram.readVRAMBx(attrAddr + 6);
 		if ((attr & 0x10) || ((attr & 0xe0) == 0x00)) {
 			// don't display
 			return;

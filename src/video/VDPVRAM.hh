@@ -7,8 +7,9 @@
 #include "SimpleDebuggable.hh"
 #include "Ram.hh"
 #include "Math.hh"
-#include "openmsx.hh"
+
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -225,9 +226,9 @@ public:
 	  * @param index Index in window
 	  */
 	template<size_t size>
-	[[nodiscard]] std::span<const byte, size> getReadArea(unsigned index) const {
+	[[nodiscard]] std::span<const uint8_t, size> getReadArea(unsigned index) const {
 		assert(isContinuous(index, size));
-		return std::span<const byte, size>{
+		return std::span<const uint8_t, size>{
 				&data[effectiveBaseMask & (indexMask | index)],
 				size};
 	}
@@ -241,7 +242,7 @@ public:
 	  *    span1: The block of odd  numbered bytes.
 	  */
 	template<size_t size>
-	[[nodiscard]] std::pair<std::span<const byte, size / 2>, std::span<const byte, size / 2>>
+	[[nodiscard]] std::pair<std::span<const uint8_t, size / 2>, std::span<const uint8_t, size / 2>>
 			getReadAreaPlanar(unsigned index) const {
 		assert((index & 1) == 0);
 		assert((size & 1) == 0);
@@ -253,16 +254,16 @@ public:
 		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
 		unsigned addr = effectiveBaseMask & (indexMask | (index >> 1));
-		const byte* ptr0 = &data[addr | 0x00000];
-		const byte* ptr1 = &data[addr | 0x10000];
-		return {std::span<const byte, size / 2>{ptr0, size / 2},
-		        std::span<const byte, size / 2>{ptr1, size / 2}};
+		const uint8_t* ptr0 = &data[addr | 0x00000];
+		const uint8_t* ptr1 = &data[addr | 0x10000];
+		return {std::span<const uint8_t, size / 2>{ptr0, size / 2},
+		        std::span<const uint8_t, size / 2>{ptr1, size / 2}};
 	}
 
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	[[nodiscard]] byte readNP(unsigned index) const {
+	[[nodiscard]] uint8_t readNP(unsigned index) const {
 		assert(isEnabled());
 		return data[effectiveBaseMask & index];
 	}
@@ -270,7 +271,7 @@ public:
 	/** Similar to readNP, but now with planar addressing.
 	  * @param index Index in table, with unused bits set to 1.
 	  */
-	[[nodiscard]] byte readPlanar(unsigned index) const {
+	[[nodiscard]] uint8_t readPlanar(unsigned index) const {
 		assert(isEnabled());
 		index = ((index & 1) << 16) | ((index & 0x1FFFE) >> 1);
 		unsigned addr = effectiveBaseMask & index;
@@ -352,7 +353,7 @@ private:
 
 	/** Pointer to the entire VRAM data.
 	  */
-	byte* data;
+	uint8_t* data;
 
 	/** Observer associated with this VRAM window.
 	  * It will be called when changes occur within the window.
@@ -424,7 +425,7 @@ public:
 	  *       Note: "cmdSync", because it checks against read windows, unlike
 	  *       the other sync which checks against the cmd write window.
 	  */
-	void cmdWrite(unsigned address, byte value, EmuTime::param time) {
+	void cmdWrite(unsigned address, uint8_t value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -449,7 +450,7 @@ public:
 	  * @param value The value to write.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	void cpuWrite(unsigned address, byte value, EmuTime::param time) {
+	void cpuWrite(unsigned address, uint8_t value, EmuTime::param time) {
 		#ifdef DEBUG
 		// Rewriting history is not allowed.
 		assert(time >= vramTime);
@@ -485,7 +486,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return The VRAM contents at the specified address.
 	  */
-	[[nodiscard]] byte cpuRead(unsigned address, EmuTime::param time) {
+	[[nodiscard]] uint8_t cpuRead(unsigned address, EmuTime::param time) {
 		#ifdef DEBUG
 		// VRAM should never get ahead of CPU.
 		assert(time >= vramTime);
@@ -571,7 +572,7 @@ public:
 private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
-	void writeCommon(unsigned address, byte value, EmuTime::param time) {
+	void writeCommon(unsigned address, uint8_t value, EmuTime::param time) {
 		#ifdef DEBUG
 		assert(time >= vramTime);
 		vramTime = time;
@@ -636,8 +637,8 @@ private:
 	class LogicalVRAMDebuggable final : public SimpleDebuggable {
 	public:
 		explicit LogicalVRAMDebuggable(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	private:
 		unsigned transform(unsigned address);
 	} logicalVRAMDebug;
@@ -648,8 +649,8 @@ private:
 	  */
 	struct PhysicalVRAMDebuggable final : SimpleDebuggable {
 		PhysicalVRAMDebuggable(const VDP& vdp, unsigned actualSize);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} physicalVRAMDebug;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode

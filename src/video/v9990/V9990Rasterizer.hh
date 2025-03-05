@@ -3,7 +3,8 @@
 
 #include "V9990ModeEnum.hh"
 #include "EmuTime.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -58,7 +59,7 @@ public:
 	  * @param b      Blue component intensity (5 bits)
 	  * @param ys     Is this entry transparent
 	  */
-	virtual void setPalette(int index, byte r, byte g, byte b, bool ys) = 0;
+	virtual void setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys) = 0;
 
 	/** Is superimpose enabled? */
 	virtual void setSuperimpose(bool enabled) = 0;

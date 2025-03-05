@@ -29,16 +29,16 @@ V9990P2Converter::V9990P2Converter(V9990& vdp_, std::span</*const*/ Pixel, 64> p
 }
 
 struct P1Policy {
-	static byte readNameTable(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readNameTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
-	static byte readPatternTable(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readPatternTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
-	static byte readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMP1(addr);
 	}
-	static unsigned spritePatOfst(byte spriteNo, byte spriteY) {
+	static unsigned spritePatOfst(uint8_t spriteNo, uint8_t spriteY) {
 		return (128 * ((spriteNo & 0xF0) + spriteY))
 		     + (  8 *  (spriteNo & 0x0F));
 	}
@@ -50,7 +50,7 @@ struct P1Policy {
 struct P1BackgroundPolicy : P1Policy {
 	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
-		byte* __restrict /*info*/, size_t p)
+		uint8_t* __restrict /*info*/, size_t p)
 	{
 		*buffer = palette[p];
 	}
@@ -59,7 +59,7 @@ struct P1BackgroundPolicy : P1Policy {
 struct P1ForegroundPolicy : P1Policy {
 	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
-		byte* __restrict info, size_t p)
+		uint8_t* __restrict info, size_t p)
 	{
 		*info = bool(p);
 		if (p) *buffer = palette[p];
@@ -67,22 +67,22 @@ struct P1ForegroundPolicy : P1Policy {
 	static constexpr bool DRAW_BACKDROP = false;
 };
 struct P2Policy {
-	static byte readNameTable(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readNameTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMDirect(addr);
 	}
-	static byte readPatternTable(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readPatternTable(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMBx(addr);
 	}
-	static byte readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
+	static uint8_t readSpriteAttr(const V9990VRAM& vram, unsigned addr) {
 		return vram.readVRAMDirect(addr);
 	}
-	static unsigned spritePatOfst(byte spriteNo, byte spriteY) {
+	static unsigned spritePatOfst(uint8_t spriteNo, uint8_t spriteY) {
 		return (256 * (((spriteNo & 0xE0) >> 1) + spriteY))
 		     + (  8 *  (spriteNo & 0x1F));
 	}
 	static void draw1(
 		std::span<const Pixel, 16> palette, Pixel* __restrict buffer,
-		byte* __restrict info, size_t p)
+		uint8_t* __restrict info, size_t p)
 	{
 		*info = bool(p);
 		*buffer = palette[p];
@@ -116,10 +116,10 @@ static constexpr unsigned nextNameAddr(unsigned addr)
 
 template<typename Policy, bool CHECK_WIDTH>
 static void draw2(
-	V9990VRAM& vram, std::span<const Pixel, 16> palette, Pixel* __restrict& buffer, byte* __restrict& info,
+	V9990VRAM& vram, std::span<const Pixel, 16> palette, Pixel* __restrict& buffer, uint8_t* __restrict& info,
 	unsigned& address, int& width)
 {
-	byte data = Policy::readPatternTable(vram, address++);
+	uint8_t data = Policy::readPatternTable(vram, address++);
 	Policy::draw1(palette, buffer + 0, info + 0, data >> 4);
 	if (!CHECK_WIDTH || (width != 1)) {
 		Policy::draw1(palette, buffer + 1, info + 1, data & 0x0F);
@@ -131,7 +131,7 @@ static void draw2(
 
 template<typename Policy>
 static void renderPattern(
-	V9990VRAM& vram, Pixel* __restrict buffer, std::span<byte> info_,
+	V9990VRAM& vram, Pixel* __restrict buffer, std::span<uint8_t> info_,
 	Pixel bgCol, unsigned x, unsigned y,
 	unsigned nameTable, unsigned patternBase,
 	std::span</*const*/ Pixel, 16> palette0, std::span</*const*/ Pixel, 16> palette1)
@@ -139,7 +139,7 @@ static void renderPattern(
 	assert(x < Policy::IMAGE_WIDTH);
 	auto width = narrow<int>(info_.size());
 	if (width == 0) return;
-	byte* info = info_.data();
+	uint8_t* info = info_.data();
 
 	std::optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
 	if constexpr (Policy::DRAW_BACKDROP) {
@@ -157,7 +157,7 @@ static void renderPattern(
 	if (x & 7) {
 		unsigned address = getPatternAddress<Policy, false>(vram, nameAddr, patternBase, x, y);
 		if (x & 1) {
-			byte data = Policy::readPatternTable(vram, address);
+			uint8_t data = Policy::readPatternTable(vram, address);
 			Policy::draw1((address & 1) ? palette1 : palette0, buffer, info, data & 0x0F);
 			++address;
 			++x;
@@ -191,7 +191,7 @@ static void renderPattern(
 
 template<typename Policy> // only used for P1
 static void renderPattern2(
-	V9990VRAM& vram, Pixel* buffer, std::span<byte, 256> info, Pixel bgCol, unsigned width1, unsigned width2,
+	V9990VRAM& vram, Pixel* buffer, std::span<uint8_t, 256> info, Pixel bgCol, unsigned width1, unsigned width2,
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, std::span</*const*/ Pixel, 16> palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, std::span</*const*/ Pixel, 16> palB)
 {
@@ -211,7 +211,7 @@ static void renderPattern2(
 template<typename Policy>
 static void renderSprites(
 	V9990VRAM& vram, unsigned spritePatternTable, std::span<const Pixel, 64> palette64,
-	Pixel* __restrict buffer, std::span<byte> info,
+	Pixel* __restrict buffer, std::span<uint8_t> info,
 	int displayX, int displayEnd, unsigned displayY)
 {
 	constexpr unsigned spriteTable = 0x3FE00;
@@ -222,10 +222,10 @@ static void renderSprites(
 	int index_max = 16;
 	for (auto sprite : xrange(125)) {
 		unsigned spriteInfo = spriteTable + 4 * sprite;
-		byte spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
-		auto posY = narrow_cast<byte>(displayY - spriteY);
+		uint8_t spriteY = Policy::readSpriteAttr(vram, spriteInfo) + 1;
+		auto posY = narrow_cast<uint8_t>(displayY - spriteY);
 		if (posY < 16) {
-			if (byte attr = Policy::readSpriteAttr(vram, spriteInfo + 3);
+			if (uint8_t attr = Policy::readSpriteAttr(vram, spriteInfo + 3);
 			    attr & 0x10) {
 				// Invisible sprites do contribute towards the
 				// 16-sprites-per-line limit.
@@ -241,15 +241,15 @@ static void renderSprites(
 	// actually draw sprites
 	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
 		unsigned addr = spriteTable + 4 * visibleSprites[sprite];
-		byte spriteAttr = Policy::readSpriteAttr(vram, addr + 3);
+		uint8_t spriteAttr = Policy::readSpriteAttr(vram, addr + 3);
 		bool front = (spriteAttr & 0x20) == 0;
-		byte level = front ? 2 : 1;
+		uint8_t level = front ? 2 : 1;
 		int spriteX = Policy::readSpriteAttr(vram, addr + 2);
 		spriteX += 256 * (spriteAttr & 0x03);
 		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
-		byte spriteY  = Policy::readSpriteAttr(vram, addr + 0);
-		byte spriteNo = Policy::readSpriteAttr(vram, addr + 1);
-		spriteY = narrow_cast<byte>(displayY - (spriteY + 1));
+		uint8_t spriteY  = Policy::readSpriteAttr(vram, addr + 0);
+		uint8_t spriteNo = Policy::readSpriteAttr(vram, addr + 1);
+		spriteY = narrow_cast<uint8_t>(displayY - (spriteY + 1));
 		unsigned patAddr = spritePatternTable + Policy::spritePatOfst(spriteNo, spriteY);
 		auto palette16 = subspan<16>(palette64, (spriteAttr >> 2) & 0x30);
 		for (int x = 0; x < 16; x +=2) {
@@ -264,7 +264,7 @@ static void renderSprites(
 					}
 				}
 			};
-			byte data = Policy::readPatternTable(vram, patAddr++);
+			uint8_t data = Policy::readPatternTable(vram, patAddr++);
 			draw(spriteX + x + 0, data >> 4);
 			draw(spriteX + x + 1, data & 0x0F);
 		}
@@ -297,11 +297,11 @@ void V9990P1Converter::convertLine(
 	unsigned displayEnd = displayX + displayWidth;
 	unsigned end1 = std::max(0, narrow<int>(std::min(prioX, displayEnd)) - narrow<int>(displayX));
 
-	std::array<byte, 256> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
+	std::array<uint8_t, 256> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
 
 	// background + backdrop color
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
-	byte offset = vdp.getPaletteOffset();
+	uint8_t offset = vdp.getPaletteOffset();
 	auto palA = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palB = subspan<16>(palette64, (offset & 0x0C) << 2);
 	renderPattern2<P1BackgroundPolicy>( // does not yet fill-in 'info'
@@ -343,9 +343,9 @@ void V9990P2Converter::convertLine(
 
 	// image plane + backdrop color + fill-in 'info'
 	assert(displayWidth <= 512);
-	std::array<byte, 512> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
+	std::array<uint8_t, 512> info; // filled in later: 0->background, 1->foreground, 2->sprite (front or back)
 	Pixel bgCol = palette64[vdp.getBackDropColor()];
-	byte offset = vdp.getPaletteOffset();
+	uint8_t offset = vdp.getPaletteOffset();
 	auto palette0 = subspan<16>(palette64, (offset & 0x03) << 4);
 	auto palette1 = subspan<16>(palette64, (offset & 0x0C) << 2);
 	renderPattern<P2Policy>(

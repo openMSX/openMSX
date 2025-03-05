@@ -54,10 +54,10 @@ public:
 	/** Changes the background color.
 	  * @param index Palette index of the new background color.
 	  */
-	virtual void setBackgroundColor(byte index) = 0;
+	virtual void setBackgroundColor(uint8_t index) = 0;
 
 	virtual void setHorizontalAdjust(int adjust) = 0;
-	virtual void setHorizontalScrollLow(byte scroll) = 0;
+	virtual void setHorizontalScrollLow(uint8_t scroll) = 0;
 	virtual void setBorderMask(bool masked) = 0;
 	virtual void setTransparency(bool enabled) = 0;
 	virtual void setSuperimposeVideoFrame(const RawFrame* videoSource) = 0;

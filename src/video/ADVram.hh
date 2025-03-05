@@ -27,30 +27,30 @@ public:
 	 * and possibly the enable bit are set according to address lines
 	 * that are normally ignored for IO reads.  Returns 255.
 	 */
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
 	// default peekIO() implementation is ok.
 
 	/** Write a byte to a given IO port, set mapper register.  */
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	/** Read a byte from a location in the video ram at a certain
 	 * time.  If the device is enabled then the value returned comes
 	 * from the video ram, otherwise it returns 255.
 	 */
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
 
 	/** Write a given byte at a certain time to a given location in
 	 * the video ram.  If the device is enabled then the write is
 	 * redirected to the video ram, if it is not, nothing happens.
 	 */
-	void writeMem(word address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void init() override;
-	[[nodiscard]] inline unsigned calcAddress(word address) const;
+	[[nodiscard]] inline unsigned calcAddress(uint16_t address) const;
 
 private:
 	VDP* vdp = nullptr;

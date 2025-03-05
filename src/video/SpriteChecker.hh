@@ -46,7 +46,7 @@ public:
 		  * or 1 for OR-ing of sprite colors.
 		  * Other bits are undefined.
 		  */
-		byte colorAttrib;
+		uint8_t colorAttrib;
 	};
 
 	static constexpr SpritePattern doublePattern(SpritePattern a)
@@ -156,7 +156,7 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateSpriteSizeMag(byte sizeMag, EmuTime::param time) {
+	void updateSpriteSizeMag(uint8_t sizeMag, EmuTime::param time) {
 		(void)sizeMag;
 		sync(time);
 		// TODO: Precalc something?

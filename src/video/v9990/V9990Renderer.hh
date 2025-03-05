@@ -3,7 +3,8 @@
 
 #include "V9990ModeEnum.hh"
 #include "EmuTime.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -64,7 +65,7 @@ public:
 	                          EmuTime::param time) = 0;
 
 	/** Set a palette entry. */
-	virtual void updatePalette(int index, byte r, byte g, byte b, bool ys,
+	virtual void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
 	                        EmuTime::param time) = 0;
 
 	/** Change superimpose status. */

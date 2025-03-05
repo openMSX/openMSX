@@ -2,7 +2,7 @@
 #define RENDERER_HH
 
 #include "VRAMObserver.hh"
-#include "openmsx.hh"
+
 #include <array>
 #include <cstdint>
 
@@ -62,25 +62,25 @@ public:
 	  * @param color The new foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColor(byte color, EmuTime::param time) = 0;
+	virtual void updateForegroundColor(uint8_t color, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP background color change.
 	  * @param color The new background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColor(byte color, EmuTime::param time) = 0;
+	virtual void updateBackgroundColor(uint8_t color, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP blink foreground color change.
 	  * @param color The new blink foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkForegroundColor(byte color, EmuTime::param time) = 0;
+	virtual void updateBlinkForegroundColor(uint8_t color, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP blink background color change.
 	  * @param color The new blink background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkBackgroundColor(byte color, EmuTime::param time) = 0;
+	virtual void updateBlinkBackgroundColor(uint8_t color, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP blinking state change.
 	  * @param enabled The new blink state.
@@ -108,14 +108,14 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollLow(byte scroll, EmuTime::param time) = 0;
+	virtual void updateHorizontalScrollLow(uint8_t scroll, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the higher scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollHigh(byte scroll, EmuTime::param time) = 0;
+	virtual void updateHorizontalScrollHigh(uint8_t scroll, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the border mask has been enabled/disabled.

@@ -47,7 +47,7 @@ public:
 	void frameEnd(EmuTime::param time) override;
 	void setDisplayMode(V9990DisplayMode displayMode) override;
 	void setColorMode(V9990ColorMode colorMode) override;
-	void setPalette(int index, byte r, byte g, byte b, bool ys) override;
+	void setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys) override;
 	void setSuperimpose(bool enabled) override;
 	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
 	void drawDisplay(int fromX, int fromY, int toX, int toY,

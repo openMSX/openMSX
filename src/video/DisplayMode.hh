@@ -1,8 +1,9 @@
 #ifndef DISPLAYMODE_HH
 #define DISPLAYMODE_HH
 
-#include "openmsx.hh"
 #include "one_of.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -15,12 +16,12 @@ namespace openmsx {
 class DisplayMode
 {
 private:
-	constexpr explicit DisplayMode(byte mode_) : mode(mode_) {}
+	constexpr explicit DisplayMode(uint8_t mode_) : mode(mode_) {}
 	/** Display mode flags: YAE YJK M5..M1.
 	  * The YAE flag indicates whether YAE is active, not just the value of
 	  * the corresponding mode bit; so if YJK is 0, YAE is 0 as well.
 	  */
-	byte mode = 0;
+	uint8_t mode = 0;
 
 public:
 	static constexpr uint8_t GRAPHIC1   = 0x00; // Graphic 1
@@ -37,19 +38,19 @@ public:
 	static constexpr uint8_t GRAPHIC7   = 0x1C; // Graphic 7
 
 	/** Bits of VDP register 0 that encode part of the display mode. */
-	static constexpr byte REG0_MASK = 0x0E;
+	static constexpr uint8_t REG0_MASK = 0x0E;
 
 	/** Bits of VDP register 1 that encode part of the display mode. */
-	static constexpr byte REG1_MASK = 0x18;
+	static constexpr uint8_t REG1_MASK = 0x18;
 
 	/** Bits of VDP register 25 that encode part of the display mode. */
-	static constexpr byte REG25_MASK = 0x18;
+	static constexpr uint8_t REG25_MASK = 0x18;
 
 	/** Encoding of YJK flag. */
-	static constexpr byte YJK = 0x20;
+	static constexpr uint8_t YJK = 0x20;
 
 	/** Encoding of YAE flag. */
-	static constexpr byte YAE = 0x40;
+	static constexpr uint8_t YAE = 0x40;
 
 	/** Create the initial display mode.
 	  */
@@ -61,18 +62,18 @@ public:
 	  * @param reg25 The contents of VDP register 25;
 	  *     on non-V9958 chips, pass 0.
 	  */
-	constexpr DisplayMode(byte reg0, byte reg1, byte reg25) {
+	constexpr DisplayMode(uint8_t reg0, uint8_t reg1, uint8_t reg25) {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
-		mode = byte(
+		mode = uint8_t(
 			((reg25 & 0x18) << 2) | // YAE YJK
 			((reg0  & 0x0E) << 1) | // M5..M3
 			((reg1  & 0x08) >> 2) | // M2
 			((reg1  & 0x10) >> 4)); // M1
 	}
 
-	[[nodiscard]] constexpr DisplayMode updateReg25(byte reg25) const {
+	[[nodiscard]] constexpr DisplayMode updateReg25(uint8_t reg25) const {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
-		return DisplayMode(byte(getBase() | ((reg25 & 0x18) << 2)));
+		return DisplayMode(uint8_t(getBase() | ((reg25 & 0x18) << 2)));
 	}
 
 	/** Bring the display mode to its initial state.
@@ -89,12 +90,12 @@ public:
 	  * @return The byte representation of this display mode,
 	  *     in the range [0..0x7F].
 	  */
-	[[nodiscard]] constexpr byte getByte() const {
+	[[nodiscard]] constexpr uint8_t getByte() const {
 		return mode;
 	}
 
 	/** Used for de-serialization. */
-	constexpr void setByte(byte mode_) {
+	constexpr void setByte(uint8_t mode_) {
 		mode = mode_;
 	}
 
@@ -103,7 +104,7 @@ public:
 	  * @return The integer representation of the base of this display mode,
 	  *     in the range [0..0x1F].
 	  */
-	[[nodiscard]] constexpr byte getBase() const {
+	[[nodiscard]] constexpr uint8_t getBase() const {
 		return mode & 0x1F;
 	}
 

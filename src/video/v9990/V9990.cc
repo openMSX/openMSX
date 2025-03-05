@@ -17,13 +17,13 @@
 
 namespace openmsx {
 
-static constexpr byte ALLOW_READ  = 1;
-static constexpr byte ALLOW_WRITE = 2;
-static constexpr byte NO_ACCESS = 0;
-static constexpr byte RD_ONLY   = ALLOW_READ;
-static constexpr byte WR_ONLY   = ALLOW_WRITE;
-static constexpr byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
-static constexpr std::array<byte, 64> regAccess = {
+static constexpr uint8_t ALLOW_READ  = 1;
+static constexpr uint8_t ALLOW_WRITE = 2;
+static constexpr uint8_t NO_ACCESS = 0;
+static constexpr uint8_t RD_ONLY   = ALLOW_READ;
+static constexpr uint8_t WR_ONLY   = ALLOW_WRITE;
+static constexpr uint8_t RD_WR     = ALLOW_READ | ALLOW_WRITE;
+static constexpr std::array<uint8_t, 64> regAccess = {
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Write Address
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Read Address
 	RD_WR, RD_WR,                       // Screen Mode
@@ -162,12 +162,12 @@ void V9990::reset(EmuTime::param time)
 	frameStart(time);
 }
 
-byte V9990::readIO(word port, EmuTime::param time)
+uint8_t V9990::readIO(uint16_t port, EmuTime::param time)
 {
 	port &= 0x0F;
 
 	// calculate return value (mostly uses peekIO)
-	byte result = [&] {
+	uint8_t result = [&] {
 		switch (port) {
 		case COMMAND_DATA:
 			return cmdEngine.getCmdData(time);
@@ -202,7 +202,7 @@ byte V9990::readIO(word port, EmuTime::param time)
 
 	case PALETTE_DATA:
 		if (!(regs[PALETTE_CONTROL] & 0x10)) {
-			byte& palPtr = regs[PALETTE_POINTER];
+			uint8_t& palPtr = regs[PALETTE_POINTER];
 			switch (palPtr & 3) {
 			case 0:  palPtr += 1; break; // red
 			case 1:  palPtr += 1; break; // green
@@ -223,7 +223,7 @@ byte V9990::readIO(word port, EmuTime::param time)
 	return result;
 }
 
-byte V9990::peekIO(word port, EmuTime::param time) const
+uint8_t V9990::peekIO(uint16_t port, EmuTime::param time) const
 {
 	switch (port & 0x0F) {
 	case VRAM_DATA: {
@@ -276,7 +276,7 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void V9990::writeIO(word port, byte val, EmuTime::param time)
+void V9990::writeIO(uint16_t port, uint8_t val, EmuTime::param time)
 {
 	port &= 0x0F;
 	switch (port) {
@@ -303,7 +303,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 				writePaletteRegister(0, 0, time);
 				return;
 			}
-			byte& palPtr = regs[PALETTE_POINTER];
+			uint8_t& palPtr = regs[PALETTE_POINTER];
 			writePaletteRegister(palPtr, val, time);
 			switch (palPtr & 3) {
 				case 0:  palPtr += 1; break; // red
@@ -368,7 +368,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 		case SYSTEM_CONTROL: {
 			// TODO investigate: does switching overscan mode
 			//      happen at next line or next frame
-			status = byte((status & 0xFB) | ((val & 1) << 2));
+			status = uint8_t((status & 0xFB) | ((val & 1) << 2));
 			syncAtNextLine(syncSetMode, time);
 
 			if (bool newSystemReset = (val & 2) != 0;
@@ -378,7 +378,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 					// Enter systemReset mode
 					//   Verified on real MSX: palette data
 					//   and VRAM content are NOT reset.
-					for (auto i : xrange(byte(64))) {
+					for (auto i : xrange(uint8_t(64))) {
 						writeRegister(i, 0, time);
 					}
 					// TODO verify IRQ behaviour
@@ -487,22 +487,22 @@ V9990::RegDebug::RegDebug(const V9990& v9990_)
 {
 }
 
-byte V9990::RegDebug::read(unsigned address)
+uint8_t V9990::RegDebug::read(unsigned address)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	return v9990.regs[address];
 }
 
-void V9990::RegDebug::readBlock(unsigned start, std::span<byte> output)
+void V9990::RegDebug::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	copy_to_range(std::span{v9990.regs}.subspan(start), output);
 }
 
-void V9990::RegDebug::write(unsigned address, byte value, EmuTime::param time)
+void V9990::RegDebug::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
-	v9990.writeRegister(narrow<byte>(address), value, time);
+	v9990.writeRegister(narrow<uint8_t>(address), value, time);
 }
 
 // -------------------------------------------------------------------------
@@ -516,22 +516,22 @@ V9990::PalDebug::PalDebug(const V9990& v9990_)
 {
 }
 
-byte V9990::PalDebug::read(unsigned address)
+uint8_t V9990::PalDebug::read(unsigned address)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	return v9990.palette[address];
 }
 
-void V9990::PalDebug::readBlock(unsigned start, std::span<byte> output)
+void V9990::PalDebug::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	copy_to_range(std::span{v9990.palette}.subspan(start), output);
 }
 
-void V9990::PalDebug::write(unsigned address, byte value, EmuTime::param time)
+void V9990::PalDebug::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
-	v9990.writePaletteRegister(narrow<byte>(address), value, time);
+	v9990.writePaletteRegister(narrow<uint8_t>(address), value, time);
 }
 
 // -------------------------------------------------------------------------
@@ -553,7 +553,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 	// TODO check
 }
 
-byte V9990::readRegister(byte reg, EmuTime::param time) const
+uint8_t V9990::readRegister(uint8_t reg, EmuTime::param time) const
 {
 	// TODO sync(time) (if needed at all)
 	if (systemReset) return 255; // verified on real MSX
@@ -563,10 +563,10 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 		if (reg < CMD_PARAM_BORDER_X_0) {
 			return regs[reg];
 		} else {
-			word borderX = cmdEngine.getBorderX(time);
+			uint16_t borderX = cmdEngine.getBorderX(time);
 			return (reg == CMD_PARAM_BORDER_X_0)
-			       ? narrow_cast<byte>(borderX & 0xFF)
-			       : narrow_cast<byte>(borderX >> 8);
+			       ? narrow_cast<uint8_t>(borderX & 0xFF)
+			       : narrow_cast<uint8_t>(borderX >> 8);
 		}
 	} else {
 		invalidRegisterReadCallback.execute(reg);
@@ -582,11 +582,11 @@ void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time) const
 	type.setSyncPoint(nextTime);
 }
 
-void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
+void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime::param time)
 {
 	// Found this table by writing 0xFF to a register and reading
 	// back the value (only works for read/write registers)
-	static constexpr std::array<byte, 32> regWriteMask = {
+	static constexpr std::array<uint8_t, 32> regWriteMask = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0x87, 0xFF, 0x83, 0x0F, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xDF, 0x07, 0xFF, 0xFF, 0xC1, 0x07,
@@ -679,7 +679,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 	}
 }
 
-void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
+void V9990::writePaletteRegister(uint8_t reg, uint8_t val, EmuTime::param time)
 {
 	switch (reg & 3) {
 		case 0: val &= 0x9F; break;
@@ -689,7 +689,7 @@ void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
 	}
 	palette[reg] = val;
 	reg &= ~3;
-	byte index = reg / 4;
+	uint8_t index = reg / 4;
 	bool ys = isSuperimposing() && (palette[reg] & 0x80);
 	renderer->updatePalette(index, palette[reg + 0] & 0x1F, palette[reg + 1],
 	                        palette[reg + 2], ys, time);
@@ -700,9 +700,9 @@ void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
 
 V9990::GetPaletteResult V9990::getPalette(int index) const
 {
-	byte r = palette[4 * index + 0] & 0x1F;
-	byte g = palette[4 * index + 1];
-	byte b = palette[4 * index + 2];
+	uint8_t r = palette[4 * index + 0] & 0x1F;
+	uint8_t g = palette[4 * index + 1];
+	uint8_t b = palette[4 * index + 2];
 	bool ys = isSuperimposing() && (palette[4 * index + 0] & 0x80);
 	return {.r = r, .g = g, .b = b, .ys = ys};
 }
@@ -796,7 +796,7 @@ void V9990::setVerticalTiming()
 	}
 }
 
-V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
+V9990ColorMode V9990::getColorMode(uint8_t pal_ctrl) const
 {
 	using enum V9990ColorMode;
 	if (!(regs[SCREEN_MODE_0] & 0x80)) {

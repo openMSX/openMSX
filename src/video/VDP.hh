@@ -11,7 +11,6 @@
 #include "Clock.hh"
 #include "DisplayMode.hh"
 #include "EnumSetting.hh"
-#include "openmsx.hh"
 
 #include "Observer.hh"
 #include "gl_vec.hh"
@@ -81,19 +80,19 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 	[[nodiscard]] std::string_view getVersionString() const;
 
-	[[nodiscard]] byte peekRegister(unsigned address) const;
-	[[nodiscard]] byte peekStatusReg(byte reg, EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekRegister(unsigned address) const;
+	[[nodiscard]] uint8_t peekStatusReg(uint8_t reg, EmuTime::param time) const;
 
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(byte reg, byte val, EmuTime::param time);
+	void changeRegister(uint8_t reg, uint8_t val, EmuTime::param time);
 
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
@@ -217,8 +216,8 @@ public:
 	  *   In Graphic7 mode with YJK off, the range is [0..255].
 	  *   In other modes, the range is [0..15].
 	  */
-	[[nodiscard]] byte getBackgroundColor() const {
-		byte reg7 = controlRegs[7];
+	[[nodiscard]] uint8_t getBackgroundColor() const {
+		uint8_t reg7 = controlRegs[7];
 		if (displayMode.getByte() == DisplayMode::GRAPHIC7) {
 			return reg7;
 		} else {
@@ -290,7 +289,7 @@ public:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  * @param time Moment in time palette change occurs.
 	  */
-	void setPalette(unsigned index, word grb, EmuTime::param time);
+	void setPalette(unsigned index, uint16_t grb, EmuTime::param time);
 
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
@@ -329,7 +328,7 @@ public:
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
-	[[nodiscard]] byte getVerticalScroll() const {
+	[[nodiscard]] uint8_t getVerticalScroll() const {
 		return controlRegs[23];
 	}
 
@@ -338,7 +337,7 @@ public:
 	  * screen 0..7 bytes to the right.
 	  * @return Horizontal scroll low register value.
 	  */
-	[[nodiscard]] byte getHorizontalScrollLow() const {
+	[[nodiscard]] uint8_t getHorizontalScrollLow() const {
 		return controlRegs[27];
 	}
 
@@ -347,7 +346,7 @@ public:
 	  * rotated to the left.
 	  * @return Horizontal scroll high register value.
 	  */
-	[[nodiscard]] byte getHorizontalScrollHigh() const {
+	[[nodiscard]] uint8_t getHorizontalScrollHigh() const {
 		return controlRegs[26];
 	}
 
@@ -634,7 +633,7 @@ public:
 	/** Should only be used by SpriteChecker. Returns the current value
 	  * of status register 0 (both the F-flag and the sprite related bits).
 	  */
-	[[nodiscard]] byte getStatusReg0() const { return statusReg0; }
+	[[nodiscard]] uint8_t getStatusReg0() const { return statusReg0; }
 
 	/** Should only be used by SpriteChecker. Change the sprite related
 	  * bits of status register 0 (leaves the F-flag unchanged).
@@ -644,7 +643,7 @@ public:
 	  * Bit 4..0 (5th sprite number) contains the number of the first
 	  *   sprite to exceed the limit per line.
 	  */
-	void setSpriteStatus(byte value)
+	void setSpriteStatus(uint8_t value)
 	{
 		statusReg0 = (statusReg0 & 0x80) | (value & 0x7F);
 	}
@@ -974,19 +973,19 @@ private:
 
 	/** Byte is written to VRAM by the CPU.
 	  */
-	void vramWrite(byte value, EmuTime::param time);
+	void vramWrite(uint8_t value, EmuTime::param time);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	[[nodiscard]] byte vramRead(EmuTime::param time);
+	[[nodiscard]] uint8_t vramRead(EmuTime::param time);
 
 	/** Helper methods for CPU-VRAM access. */
-	void scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time);
+	void scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime::param time);
 	void executeCpuVramAccess(EmuTime::param time);
 
 	/** Read the contents of a status register
 	  */
-	[[nodiscard]] byte readStatusReg(byte reg, EmuTime::param time);
+	[[nodiscard]] uint8_t readStatusReg(uint8_t reg, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */
@@ -1036,45 +1035,45 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} vdpRegDebug;
 
 	struct StatusRegDebug final : SimpleDebuggable {
 		explicit StatusRegDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
 	} vdpStatusRegDebug;
 
 	struct PaletteDebug final : SimpleDebuggable {
 		explicit PaletteDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} vdpPaletteDebug;
 
 	struct VRAMPointerDebug final : SimpleDebuggable {
 		explicit VRAMPointerDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} vramPointerDebug;
 
 	struct RegisterLatchStatusDebug final : SimpleDebuggable {
 		explicit RegisterLatchStatusDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
 	} registerLatchStatusDebug;
 
 	struct VramAccessStatusDebug final : SimpleDebuggable {
 		explicit VramAccessStatusDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
 	} vramAccessStatusDebug;
 
 	struct PaletteLatchStatusDebug final : SimpleDebuggable {
 		explicit PaletteLatchStatusDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
 	} paletteLatchStatusDebug;
 
 	struct DataLatchDebug final : SimpleDebuggable {
 		explicit DataLatchDebug(const VDP& vdp);
-		[[nodiscard]] byte read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
 	} dataLatchDebug;
 
 	class Info : public InfoTopic {
@@ -1219,13 +1218,13 @@ private:
 
 	/** Control registers.
 	  */
-	std::array<byte, 32> controlRegs;
+	std::array<uint8_t, 32> controlRegs;
 
 	/** Mask on the control register index:
 	  * makes MSX2 registers inaccessible on MSX1,
 	  * instead the MSX1 registers are mirrored.
 	  */
-	byte controlRegMask;
+	uint8_t controlRegMask;
 
 	/** Mask on the values of control registers.
 	  * This saves a lot of masking when using the register values,
@@ -1233,7 +1232,7 @@ private:
 	  * It also disables access to VDP features on a VDP model
 	  * which does not support those features.
 	  */
-	std::array<byte, 32> controlValueMasks;
+	std::array<uint8_t, 32> controlValueMasks;
 
 	/** Blinking count: number of frames until next state.
 	  * If the ON or OFF period is 0, blinkCount is fixed to 0.
@@ -1269,20 +1268,20 @@ private:
 	  * Both the F flag (bit 7) and the sprite related bits (bits 6-0)
 	  * are stored here.
 	  */
-	byte statusReg0;
+	uint8_t statusReg0;
 
 	/** Status register 1.
 	  * Bit 7 and 6 are always zero because light pen is not implemented.
 	  * Bit 0 is always zero; its calculation depends on IE1.
 	  * So all that remains is the version number.
 	  */
-	byte statusReg1;
+	uint8_t statusReg1;
 
 	/** Status register 2.
 	  * Bit 7, 4 and 0 of this field are always zero,
 	  * their value can be retrieved from the command engine.
 	  */
-	byte statusReg2;
+	uint8_t statusReg2;
 
 	/** Blinking state: should alternate color / page be displayed?
 	  */
@@ -1290,7 +1289,7 @@ private:
 
 	/** First byte written through port #99, #9A or #9B.
 	  */
-	byte dataLatch;
+	uint8_t dataLatch;
 
 	/** Direction of VRAM access for reading or writing
 	  * Note: this variable is _only_ used for the 'VRAM access status' debuggable.
@@ -1315,7 +1314,7 @@ private:
 	  *   I wonder if they are consistent with this implementation.
 	  * This also holds the soon-to-be-written data for CPU-VRAM writes.
 	  */
-	byte cpuVramData;
+	uint8_t cpuVramData;
 
 	/** CPU-VRAM requests are not executed immediately (though soon). This
 	  * variable indicates whether the pending request is read or write.
@@ -1359,7 +1358,7 @@ private:
 
 	/** Cached CPU reference */
 	MSXCPU& cpu;
-	const byte fixedVDPIOdelayCycles;
+	const uint8_t fixedVDPIOdelayCycles;
 };
 SERIALIZE_CLASS_VERSION(VDP, 10);
 

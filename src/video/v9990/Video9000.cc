@@ -54,7 +54,7 @@ void Video9000::reset(EmuTime::param time)
 	Video9000::writeIO(0x6f, 0x10, time);
 }
 
-void Video9000::writeIO(word /*port*/, byte newValue, EmuTime::param /*time*/)
+void Video9000::writeIO(uint16_t /*port*/, uint8_t newValue, EmuTime::param /*time*/)
 {
 	if (newValue == value) return;
 	value = newValue;

@@ -211,7 +211,7 @@ void SDLRasterizer::setPalette(unsigned index, int grb)
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
 
-void SDLRasterizer::setBackgroundColor(byte index)
+void SDLRasterizer::setBackgroundColor(uint8_t index)
 {
 	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
 		precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
@@ -223,7 +223,7 @@ void SDLRasterizer::setHorizontalAdjust(int /*adjust*/)
 {
 }
 
-void SDLRasterizer::setHorizontalScrollLow(byte /*scroll*/)
+void SDLRasterizer::setHorizontalScrollLow(uint8_t /*scroll*/)
 {
 }
 
@@ -344,7 +344,7 @@ void SDLRasterizer::precalcPalette()
 }
 
 void SDLRasterizer::precalcColorIndex0(DisplayMode mode,
-		bool transparency, const RawFrame* superimposing, byte bgColorIndex)
+		bool transparency, const RawFrame* superimposing, uint8_t bgColorIndex)
 {
 	// Graphic7 mode doesn't use transparency.
 	if (mode.getByte() == DisplayMode::GRAPHIC7) {
@@ -592,7 +592,7 @@ void SDLRasterizer::drawSprites(
 			spriteConverter.drawMode1(y, displayX, displayLimitX, dst);
 		}
 	} else {
-		byte mode = vdp.getDisplayMode().getByte();
+		uint8_t mode = vdp.getDisplayMode().getByte();
 		if (mode == DisplayMode::GRAPHIC5) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
 				auto dst = workFrame->getLineDirect(screenY).subspan(screenX);

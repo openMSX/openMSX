@@ -1,8 +1,6 @@
 #ifndef CHARACTERCONVERTER_HH
 #define CHARACTERCONVERTER_HH
 
-#include "openmsx.hh"
-
 #include <cstdint>
 #include <span>
 
@@ -61,7 +59,7 @@ private:
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       unsigned mask, unsigned patternQuarter) const;
 
-	[[nodiscard]] std::span<const byte, 32> getNamePtr(int line, int scroll) const;
+	[[nodiscard]] std::span<const uint8_t, 32> getNamePtr(int line, int scroll) const;
 
 private:
 	VDP& vdp;

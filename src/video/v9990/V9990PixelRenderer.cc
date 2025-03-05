@@ -258,7 +258,7 @@ void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, EmuTime::param ti
 	rasterizer->setDisplayMode(mode);
 }
 
-void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b, bool ys,
+void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
                                        EmuTime::param time)
 {
 	if (displayEnabled) {

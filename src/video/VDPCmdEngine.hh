@@ -7,8 +7,9 @@
 #include "BooleanSetting.hh"
 #include "Probe.hh"
 #include "TclCallback.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -24,12 +25,12 @@ class VDPCmdEngine
 {
 public:
 	// bits in ARG register
-	static constexpr byte MXD = 0x20;
-	static constexpr byte MXS = 0x10;
-	static constexpr byte DIY = 0x08;
-	static constexpr byte DIX = 0x04;
-	static constexpr byte EQ  = 0x02;
-	static constexpr byte MAJ = 0x01;
+	static constexpr uint8_t MXD = 0x20;
+	static constexpr uint8_t MXS = 0x10;
+	static constexpr uint8_t DIY = 0x08;
+	static constexpr uint8_t DIX = 0x04;
+	static constexpr uint8_t EQ  = 0x02;
+	static constexpr uint8_t MAJ = 0x01;
 
 public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);
@@ -67,7 +68,7 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	[[nodiscard]] byte getStatus(EmuTime::param time) {
+	[[nodiscard]] uint8_t getStatus(EmuTime::param time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
@@ -79,7 +80,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Color value of the pixel.
 	  */
-	[[nodiscard]] byte readColor(EmuTime::param time) {
+	[[nodiscard]] uint8_t readColor(EmuTime::param time) {
 		sync(time);
 		return COL;
 	}
@@ -108,7 +109,7 @@ public:
 	  * @param value The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	void setCmdReg(byte index, byte value, EmuTime::param time);
+	void setCmdReg(uint8_t index, uint8_t value, EmuTime::param time);
 
 	/** Read the content of a command register. This method is meant to
 	  * be used by the debugger, there is no strict guarantee that the
@@ -116,7 +117,7 @@ public:
 	  * time (IOW this method does not sync the complete CmdEngine)
 	  * @param index The register [0..14] to read from.
 	  */
-	[[nodiscard]] byte peekCmdReg(byte index) const;
+	[[nodiscard]] uint8_t peekCmdReg(uint8_t index) const;
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
@@ -254,7 +255,7 @@ private:
 	unsigned SX{0}, SY{0}, DX{0}, DY{0}, NX{0}, NY{0}; // registers that can be set by CPU
 	unsigned ASX{0}, ADX{0}, ANX{0}; // Temporary registers used in the VDP commands
 	                                 // Register ASX can be read (via status register 8/9)
-	byte COL{0}, ARG{0}, CMD{0};
+	uint8_t COL{0}, ARG{0}, CMD{0};
 
 	/** The last executed command (for debugging only).
 	  * A copy of the above registers when the command starts. Remains valid
@@ -262,12 +263,12 @@ private:
 	  * registers are being changed).
 	  */
 	int lastSX{0}, lastSY{0}, lastDX{0}, lastDY{0}, lastNX{0}, lastNY{0};
-	byte lastCOL{0}, lastARG{0}, lastCMD{0};
+	uint8_t lastCOL{0}, lastARG{0}, lastCMD{0};
 
 	/** When a command needs multiple VRAM accesses per pixel, the result
 	 * of intermediate reads is stored in these variables. */
-	byte tmpSrc{0};
-	byte tmpDst{0};
+	uint8_t tmpSrc{0};
+	uint8_t tmpDst{0};
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -275,7 +276,7 @@ private:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	byte status{0};
+	uint8_t status{0};
 
 	/** Used in LMCM LMMC HMMC cmds, true when CPU has read or written
 	  * next byte.

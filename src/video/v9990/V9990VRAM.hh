@@ -5,7 +5,8 @@
 
 #include "EmuTime.hh"
 #include "TrackedRam.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -52,35 +53,35 @@ public:
 		}
 	}
 
-	[[nodiscard]] byte readVRAMBx(unsigned address) const {
+	[[nodiscard]] uint8_t readVRAMBx(unsigned address) const {
 		return data[transformBx(address)];
 	}
-	[[nodiscard]] byte readVRAMP1(unsigned address) const {
+	[[nodiscard]] uint8_t readVRAMP1(unsigned address) const {
 		return data[transformP1(address)];
 	}
-	[[nodiscard]] byte readVRAMP2(unsigned address) const {
+	[[nodiscard]] uint8_t readVRAMP2(unsigned address) const {
 		return data[transformP2(address)];
 	}
 
-	void writeVRAMBx(unsigned address, byte value) {
+	void writeVRAMBx(unsigned address, uint8_t value) {
 		data.write(transformBx(address), value);
 	}
-	void writeVRAMP1(unsigned address, byte value) {
+	void writeVRAMP1(unsigned address, uint8_t value) {
 		data.write(transformP1(address), value);
 	}
-	void writeVRAMP2(unsigned address, byte value) {
+	void writeVRAMP2(unsigned address, uint8_t value) {
 		data.write(transformP2(address), value);
 	}
 
-	[[nodiscard]] byte readVRAMDirect(unsigned address) const {
+	[[nodiscard]] uint8_t readVRAMDirect(unsigned address) const {
 		return data[address];
 	}
-	void writeVRAMDirect(unsigned address, byte value) {
+	void writeVRAMDirect(unsigned address, uint8_t value) {
 		data.write(address, value);
 	}
 
-	[[nodiscard]] byte readVRAMCPU(unsigned address, EmuTime::param time);
-	void writeVRAMCPU(unsigned address, byte val, EmuTime::param time);
+	[[nodiscard]] uint8_t readVRAMCPU(unsigned address, EmuTime::param time);
+	void writeVRAMCPU(unsigned address, uint8_t val, EmuTime::param time);
 
 	void setCmdEngine(V9990CmdEngine& cmdEngine_) { cmdEngine = &cmdEngine_; }
 

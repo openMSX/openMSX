@@ -23,16 +23,16 @@ void DummyRenderer::updateSuperimposing(const RawFrame* /*videoSource*/,
                                         EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateForegroundColor(byte /*color*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateForegroundColor(uint8_t /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBackgroundColor(byte /*color*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBackgroundColor(uint8_t /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkForegroundColor(byte /*color*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBlinkForegroundColor(uint8_t /*color*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateBlinkBackgroundColor(byte /*color*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateBlinkBackgroundColor(uint8_t /*color*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateBlinkState(bool /*enabled*/, EmuTime::param /*time*/) {
@@ -44,10 +44,10 @@ void DummyRenderer::updatePalette(unsigned /*index*/, int /*grb*/, EmuTime::para
 void DummyRenderer::updateVerticalScroll(int /*scroll*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateHorizontalScrollLow(byte /*scroll*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateHorizontalScrollLow(uint8_t /*scroll*/, EmuTime::param /*time*/) {
 }
 
-void DummyRenderer::updateHorizontalScrollHigh(byte /*scroll*/, EmuTime::param /*time*/) {
+void DummyRenderer::updateHorizontalScrollHigh(uint8_t /*scroll*/, EmuTime::param /*time*/) {
 }
 
 void DummyRenderer::updateBorderMask(bool /*masked*/, EmuTime::param /*time*/) {

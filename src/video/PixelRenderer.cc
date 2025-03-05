@@ -251,14 +251,14 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
-	byte scroll, EmuTime::param time)
+	uint8_t scroll, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 	rasterizer->setHorizontalScrollLow(scroll);
 }
 
 void PixelRenderer::updateHorizontalScrollHigh(
-	byte /*scroll*/, EmuTime::param time)
+	uint8_t /*scroll*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
@@ -291,26 +291,26 @@ void PixelRenderer::updateSuperimposing(
 }
 
 void PixelRenderer::updateForegroundColor(
-	byte /*color*/, EmuTime::param time)
+	uint8_t /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBackgroundColor(
-	byte color, EmuTime::param time)
+	uint8_t color, EmuTime::param time)
 {
 	sync(time);
 	rasterizer->setBackgroundColor(color);
 }
 
 void PixelRenderer::updateBlinkForegroundColor(
-	byte /*color*/, EmuTime::param time)
+	uint8_t /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBlinkBackgroundColor(
-	byte /*color*/, EmuTime::param time)
+	uint8_t /*color*/, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
 }

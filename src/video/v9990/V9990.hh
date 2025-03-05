@@ -15,7 +15,6 @@
 #include "Clock.hh"
 
 #include "narrow.hh"
-#include "openmsx.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "serialize_meta.hh"
@@ -44,9 +43,9 @@ public:
 	// MSXDevice interface:
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -102,7 +101,7 @@ public:
 	  * between [0..63] with lowest two bits always 0).
 	  * @return palette offset
 	  */
-	[[nodiscard]] byte getPaletteOffset() const {
+	[[nodiscard]] uint8_t getPaletteOffset() const {
 		return (regs[PALETTE_CONTROL] & 0x0F);
 	}
 
@@ -114,7 +113,7 @@ public:
 	  *  - the YS bit in the palette-entry is set
 	  */
 	struct GetPaletteResult {
-		byte r, g, b;
+		uint8_t r, g, b;
 		bool ys;
 	};
 	[[nodiscard]] GetPaletteResult getPalette(int index) const;
@@ -219,7 +218,7 @@ public:
 	/** Return the current back drop color
 	  * @return  Index the color palette
 	  */
-	[[nodiscard]] byte getBackDropColor() const {
+	[[nodiscard]] uint8_t getBackDropColor() const {
 		return regs[BACK_DROP_COLOR];
 	}
 
@@ -311,8 +310,8 @@ public:
 
 	/** return sprite palette offset
 	  */
-	[[nodiscard]] byte getSpritePaletteOffset() const {
-		return narrow_cast<byte>(regs[SPRITE_PALETTE_CONTROL] << 2);
+	[[nodiscard]] uint8_t getSpritePaletteOffset() const {
+		return narrow_cast<uint8_t>(regs[SPRITE_PALETTE_CONTROL] << 2);
 	}
 
 	/** Get horizontal display timings
@@ -522,16 +521,16 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const V9990& v9990);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
-		void readBlock(unsigned start, std::span<byte> output) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} v9990RegDebug;
 
 	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(const V9990& v9990);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
-		void readBlock(unsigned start, std::span<byte> output) override;
+		[[nodiscard]] uint8_t read(unsigned address) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} v9990PalDebug;
 
 	IRQHelper irq;
@@ -545,7 +544,7 @@ private:
 	  */
 	V9990VRAM vram;
 	unsigned vramReadPtr, vramWritePtr;
-	byte vramReadBuffer;
+	uint8_t vramReadBuffer;
 
 	/** Command Engine
 	  */
@@ -574,20 +573,20 @@ private:
 
 	/** Palette
 	  */
-	std::array<byte, 0x100> palette;
+	std::array<uint8_t, 0x100> palette;
 
 	/** Status port (P#5)
 	  */
-	byte status;
+	uint8_t status;
 
 	/** Interrupt flag (P#6)
 	  */
-	byte pendingIRQs = 0;
+	uint8_t pendingIRQs = 0;
 
 	/** Registers
 	  */
-	std::array<byte, 0x40> regs = {}; // fill with zero
-	byte regSelect;
+	std::array<uint8_t, 0x40> regs = {}; // fill with zero
+	uint8_t regSelect;
 
 	/** Is PAL timing active?  False means NTSC timing
 	  */
@@ -617,8 +616,8 @@ private:
 	  *       as on V99x8, see V9990PixelRenderer::updateScrollAYLow() for
 	  *       details.
 	  */
-	byte scrollAYHigh;
-	byte scrollBYHigh;
+	uint8_t scrollAYHigh;
+	uint8_t scrollBYHigh;
 
 	/** Corresponds to bit 1 in the System Control Port.
 	  * When this is true, all registers are held in the 'power ON reset'
@@ -642,7 +641,7 @@ private:
 	void setHorizontalTiming();
 	void setVerticalTiming();
 
-	[[nodiscard]] V9990ColorMode getColorMode(byte pal_ctrl) const;
+	[[nodiscard]] V9990ColorMode getColorMode(uint8_t pal_ctrl) const;
 
 	/** Get VRAM read or write address from V9990 registers
 	  * @param base  VRAM_READ_ADDRESS_0 or VRAM_WRITE_ADDRESS_0
@@ -661,21 +660,21 @@ private:
 	  * @param time  Moment in emulated time to read register
 	  * @returns     Register value
 	  */
-	[[nodiscard]] byte readRegister(byte reg, EmuTime::param time) const;
+	[[nodiscard]] uint8_t readRegister(uint8_t reg, EmuTime::param time) const;
 
 	/** Write V9990 register value
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writeRegister(byte reg, byte val, EmuTime::param time);
+	void writeRegister(uint8_t reg, uint8_t val, EmuTime::param time);
 
 	/** Write V9990 palette register
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writePaletteRegister(byte reg, byte val, EmuTime::param time);
+	void writePaletteRegister(uint8_t reg, uint8_t val, EmuTime::param time);
 
 	/** Schedule a sync point at the start of the next line
 	 */

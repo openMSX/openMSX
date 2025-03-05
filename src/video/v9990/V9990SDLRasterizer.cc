@@ -313,8 +313,7 @@ void V9990SDLRasterizer::preCalcPalettes()
 	resetPalette();
 }
 
-void V9990SDLRasterizer::setPalette(int index,
-                                           byte r, byte g, byte b, bool ys)
+void V9990SDLRasterizer::setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys)
 {
 	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
 	palette64_32768[index & 63] = narrow<int16_t>(idx32768); // TODO what with ys?

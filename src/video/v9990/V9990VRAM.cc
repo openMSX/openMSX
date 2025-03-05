@@ -40,14 +40,14 @@ unsigned V9990VRAM::mapAddress(unsigned address) const
 	}
 }
 
-byte V9990VRAM::readVRAMCPU(unsigned address, EmuTime::param time)
+uint8_t V9990VRAM::readVRAMCPU(unsigned address, EmuTime::param time)
 {
 	// note: used for both normal and debug read
 	sync(time);
 	return data[mapAddress(address)];
 }
 
-void V9990VRAM::writeVRAMCPU(unsigned address, byte value, EmuTime::param time)
+void V9990VRAM::writeVRAMCPU(unsigned address, uint8_t value, EmuTime::param time)
 {
 	sync(time);
 	data.write(mapAddress(address), value);

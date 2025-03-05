@@ -52,14 +52,14 @@ unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 	     : address;
 }
 
-byte VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
 	return vram.cpuRead(transform(address), time);
 }
 
 void VDPVRAM::LogicalVRAMDebuggable::write(
-	unsigned address, byte value, EmuTime::param time)
+	unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
 	vram.cpuWrite(transform(address), value, time);
@@ -77,14 +77,14 @@ VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
 {
 }
 
-byte VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	return vram.cpuRead(address, time);
 }
 
 void VDPVRAM::PhysicalVRAMDebuggable::write(
-	unsigned address, byte value, EmuTime::param time)
+	unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	vram.cpuWrite(address, value, time);
@@ -275,7 +275,7 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 	 * even in 4K mode, all 16K of VRAM can be accessed. The only
 	 * difference is in what addresses are used to store data.
 	 */
-	std::array<byte, 0x4000> tmp;
+	std::array<uint8_t, 0x4000> tmp;
 	if (mapping8k) {
 		// from 8k/16k to 4k mapping
 		for (unsigned addr8 = 0; addr8 < 0x4000; addr8 += 64) {
