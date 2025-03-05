@@ -46,7 +46,7 @@ public:
 			// check parity
 			assert(std::popcount(std::to_underlying(manufacturer)) & 1);
 			// extended marker is not part of ID
-			assert(device.size() > 0 && device[0] != 0x7E);
+			assert(!device.empty() && device[0] != 0x7E);
 		}
 	};
 
