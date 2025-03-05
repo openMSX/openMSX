@@ -66,7 +66,7 @@ void YMF278B::reset(EmuTime::param time)
 	ymf278LoadTime = time;
 }
 
-byte YMF278B::readIO(word port, EmuTime::param time)
+uint8_t YMF278B::readIO(uint16_t port, EmuTime::param time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -108,7 +108,7 @@ byte YMF278B::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte YMF278B::peekIO(word port, EmuTime::param time) const
+uint8_t YMF278B::peekIO(uint16_t port, EmuTime::param time) const
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -135,7 +135,7 @@ byte YMF278B::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void YMF278B::writeIO(word port, byte value, EmuTime::param time)
+void YMF278B::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -203,9 +203,9 @@ bool YMF278B::getNew2() const
 	return (ymf262.peekReg(0x105) & 0x02) != 0;
 }
 
-byte YMF278B::readYMF278Status(EmuTime::param time) const
+uint8_t YMF278B::readYMF278Status(EmuTime::param time) const
 {
-	byte result = 0;
+	uint8_t result = 0;
 	if (time < ymf278BusyTime) result |= 0x01;
 	if (time < ymf278LoadTime) result |= 0x02;
 	return result;

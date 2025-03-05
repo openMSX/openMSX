@@ -6,6 +6,8 @@
 
 #include "serialize.hh"
 
+#include <cstdint>
+
 namespace openmsx {
 
 // This combines the FM-part (YMF262) and the Wave-part (YMF278) into a single chip.
@@ -17,9 +19,9 @@ public:
 
 	void powerUp(EmuTime::param time);
 	void reset(EmuTime::param time);
-	[[nodiscard]] byte readIO(word port, EmuTime::param time);
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const;
-	void writeIO(word port, byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time);
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time);
 	void setupMemoryPointers();
 
 	void serialize_bw_compat(XmlInputArchive& ar, unsigned version, EmuTime::param time);
@@ -29,7 +31,7 @@ public:
 
 private:
 	[[nodiscard]] bool getNew2() const;
-	[[nodiscard]] byte readYMF278Status(EmuTime::param time) const;
+	[[nodiscard]] uint8_t readYMF278Status(EmuTime::param time) const;
 
 private:
 	YMF262 ymf262;
@@ -41,7 +43,7 @@ private:
 	EmuTime ymf278BusyTime;
 
 	int opl3latch = 0;
-	byte opl4latch = 0;
+	uint8_t opl4latch = 0;
 };
 
 } // namespace openmsx

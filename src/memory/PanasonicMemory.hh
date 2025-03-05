@@ -2,7 +2,8 @@
 #define PANASONICMEMORY_HH
 
 #include "Rom.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 #include <optional>
 
 namespace openmsx {
@@ -21,13 +22,13 @@ public:
 	 * access via the ROM mapper. Note that this is always unchecked Ram!
 	 */
 	void registerRam(Ram& ram);
-	[[nodiscard]] std::span<const byte, 0x2000> getRomBlock(unsigned block) const;
-	[[nodiscard]] std::span<const byte> getRomRange(unsigned first, unsigned last) const;
+	[[nodiscard]] std::span<const uint8_t, 0x2000> getRomBlock(unsigned block) const;
+	[[nodiscard]] std::span<const uint8_t> getRomRange(unsigned first, unsigned last) const;
 	/**
 	 * Note that this is always unchecked RAM! There is no UMR detection
 	 * when accessing Ram in DRAM mode or via the ROM mapper!
 	 */
-	[[nodiscard]] byte* getRamBlock(unsigned block);
+	[[nodiscard]] uint8_t* getRamBlock(unsigned block);
 	[[nodiscard]] unsigned getRamSize() const { return ramSize; }
 	void setDRAM(bool dram);
 	[[nodiscard]] bool isWritable(unsigned address) const;
@@ -36,7 +37,7 @@ private:
 	MSXCPU& msxcpu;
 
 	const std::optional<Rom> rom; // can be nullptr
-	byte* ram = nullptr;
+	uint8_t* ram = nullptr;
 	unsigned ramSize = 0;
 	bool dram = false;
 };

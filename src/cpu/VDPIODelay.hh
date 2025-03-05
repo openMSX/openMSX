@@ -15,13 +15,13 @@ class VDPIODelay final : public MSXDevice
 public:
 	VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface);
 
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
-	[[nodiscard]] const MSXDevice& getInDevice(byte port) const;
-	[[nodiscard]] MSXDevice*& getInDevicePtr (byte port);
-	[[nodiscard]] MSXDevice*& getOutDevicePtr(byte port);
+	[[nodiscard]] const MSXDevice& getInDevice(uint8_t port) const;
+	[[nodiscard]] MSXDevice*& getInDevicePtr (uint8_t port);
+	[[nodiscard]] MSXDevice*& getOutDevicePtr(uint8_t port);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -34,7 +34,7 @@ Ram::Ram(const XMLElement& xml_, size_t size)
 	clear();
 }
 
-void Ram::clear(byte c)
+void Ram::clear(uint8_t c)
 {
 	if (const auto* init = xml.findChild("initialContent")) {
 		// get pattern (and decode)
@@ -91,17 +91,17 @@ RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
 {
 }
 
-byte RamDebuggable::read(unsigned address)
+uint8_t RamDebuggable::read(unsigned address)
 {
 	return ram[address];
 }
 
-void RamDebuggable::readBlock(unsigned start, std::span<byte> output)
+void RamDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	copy_to_range(std::span{ram}.subspan(start), output);
 }
 
-void RamDebuggable::write(unsigned address, byte value)
+void RamDebuggable::write(unsigned address, uint8_t value)
 {
 	ram[address] = value;
 }

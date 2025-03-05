@@ -12,45 +12,45 @@ VDPIODelay::VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface
 	: MSXDevice(config)
 	, cpu(getCPU()) // used frequently, so cache it
 {
-	for (auto port : xrange(byte(0x98), byte(0x9c))) {
+	for (auto port : xrange(uint8_t(0x98), uint8_t(0x9c))) {
 		getInDevicePtr (port) = &cpuInterface.getDummyDevice();
 		getOutDevicePtr(port) = &cpuInterface.getDummyDevice();
 	}
 }
 
-const MSXDevice& VDPIODelay::getInDevice(byte port) const
+const MSXDevice& VDPIODelay::getInDevice(uint8_t port) const
 {
 	assert((0x98 <= port) && (port <= 0x9B));
 	return *inDevices[port - 0x98];
 }
 
-MSXDevice*& VDPIODelay::getInDevicePtr(byte port)
+MSXDevice*& VDPIODelay::getInDevicePtr(uint8_t port)
 {
 	assert((0x98 <= port) && (port <= 0x9B));
 	return inDevices[port - 0x98];
 }
 
-MSXDevice*& VDPIODelay::getOutDevicePtr(byte port)
+MSXDevice*& VDPIODelay::getOutDevicePtr(uint8_t port)
 {
 	assert((0x98 <= port) && (port <= 0x9B));
 	return outDevices[port - 0x98];
 }
 
-byte VDPIODelay::readIO(word port, EmuTime::param time)
+uint8_t VDPIODelay::readIO(uint16_t port, EmuTime::param time)
 {
 	delay(time);
-	return getInDevicePtr(byte(port))->readIO(byte(port), lastTime.getTime());
+	return getInDevicePtr(uint8_t(port))->readIO(uint8_t(port), lastTime.getTime());
 }
 
-byte VDPIODelay::peekIO(word port, EmuTime::param time) const
+uint8_t VDPIODelay::peekIO(uint16_t port, EmuTime::param time) const
 {
-	return getInDevice(byte(port)).peekIO(byte(port), time);
+	return getInDevice(uint8_t(port)).peekIO(uint8_t(port), time);
 }
 
-void VDPIODelay::writeIO(word port, byte value, EmuTime::param time)
+void VDPIODelay::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	delay(time);
-	getOutDevicePtr(byte(port))->writeIO(byte(port), value, lastTime.getTime());
+	getOutDevicePtr(uint8_t(port))->writeIO(uint8_t(port), value, lastTime.getTime());
 }
 
 void VDPIODelay::delay(EmuTime::param time)

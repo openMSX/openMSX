@@ -3,10 +3,11 @@
 
 #include "DeviceConfig.hh"
 #include "EmuTime.hh"
+
 #include "IterableBitSet.hh"
 #include "narrow.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 #include <cassert>
 #include <span>
@@ -14,6 +15,9 @@
 #include <vector>
 
 namespace openmsx {
+
+using byte = uint8_t;  // TODO over time deprecate and remove these
+using word = uint16_t;
 
 class XMLElement;
 class MSXMotherBoard;

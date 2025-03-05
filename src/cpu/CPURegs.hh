@@ -2,117 +2,117 @@
 #define CPUREGS_HH
 
 #include "serialize_meta.hh"
-#include "openmsx.hh"
 
 #include <bit>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
 template<std::endian> struct z80regPair_8bit;
-template<> struct z80regPair_8bit<std::endian::little> { byte l, h; };
-template<> struct z80regPair_8bit<std::endian::big   > { byte h, l; };
+template<> struct z80regPair_8bit<std::endian::little> { uint8_t l, h; };
+template<> struct z80regPair_8bit<std::endian::big   > { uint8_t h, l; };
 union z80regPair {
 	z80regPair_8bit<std::endian::native> b;
-	word w;
+	uint16_t w;
 };
 
 class CPURegs
 {
 public:
 	explicit CPURegs(bool r800) : Rmask(r800 ? 0xff : 0x7f) {}
-	[[nodiscard]] byte getA()   const { return AF_.b.h; }
-	[[nodiscard]] byte getF()   const { return AF_.b.l; }
-	[[nodiscard]] byte getB()   const { return BC_.b.h; }
-	[[nodiscard]] byte getC()   const { return BC_.b.l; }
-	[[nodiscard]] byte getD()   const { return DE_.b.h; }
-	[[nodiscard]] byte getE()   const { return DE_.b.l; }
-	[[nodiscard]] byte getH()   const { return HL_.b.h; }
-	[[nodiscard]] byte getL()   const { return HL_.b.l; }
-	[[nodiscard]] byte getA2()  const { return AF2_.b.h; }
-	[[nodiscard]] byte getF2()  const { return AF2_.b.l; }
-	[[nodiscard]] byte getB2()  const { return BC2_.b.h; }
-	[[nodiscard]] byte getC2()  const { return BC2_.b.l; }
-	[[nodiscard]] byte getD2()  const { return DE2_.b.h; }
-	[[nodiscard]] byte getE2()  const { return DE2_.b.l; }
-	[[nodiscard]] byte getH2()  const { return HL2_.b.h; }
-	[[nodiscard]] byte getL2()  const { return HL2_.b.l; }
-	[[nodiscard]] byte getIXh() const { return IX_.b.h; }
-	[[nodiscard]] byte getIXl() const { return IX_.b.l; }
-	[[nodiscard]] byte getIYh() const { return IY_.b.h; }
-	[[nodiscard]] byte getIYl() const { return IY_.b.l; }
-	[[nodiscard]] byte getPCh() const { return PC_.b.h; }
-	[[nodiscard]] byte getPCl() const { return PC_.b.l; }
-	[[nodiscard]] byte getSPh() const { return SP_.b.h; }
-	[[nodiscard]] byte getSPl() const { return SP_.b.l; }
+	[[nodiscard]] uint8_t getA()   const { return AF_.b.h; }
+	[[nodiscard]] uint8_t getF()   const { return AF_.b.l; }
+	[[nodiscard]] uint8_t getB()   const { return BC_.b.h; }
+	[[nodiscard]] uint8_t getC()   const { return BC_.b.l; }
+	[[nodiscard]] uint8_t getD()   const { return DE_.b.h; }
+	[[nodiscard]] uint8_t getE()   const { return DE_.b.l; }
+	[[nodiscard]] uint8_t getH()   const { return HL_.b.h; }
+	[[nodiscard]] uint8_t getL()   const { return HL_.b.l; }
+	[[nodiscard]] uint8_t getA2()  const { return AF2_.b.h; }
+	[[nodiscard]] uint8_t getF2()  const { return AF2_.b.l; }
+	[[nodiscard]] uint8_t getB2()  const { return BC2_.b.h; }
+	[[nodiscard]] uint8_t getC2()  const { return BC2_.b.l; }
+	[[nodiscard]] uint8_t getD2()  const { return DE2_.b.h; }
+	[[nodiscard]] uint8_t getE2()  const { return DE2_.b.l; }
+	[[nodiscard]] uint8_t getH2()  const { return HL2_.b.h; }
+	[[nodiscard]] uint8_t getL2()  const { return HL2_.b.l; }
+	[[nodiscard]] uint8_t getIXh() const { return IX_.b.h; }
+	[[nodiscard]] uint8_t getIXl() const { return IX_.b.l; }
+	[[nodiscard]] uint8_t getIYh() const { return IY_.b.h; }
+	[[nodiscard]] uint8_t getIYl() const { return IY_.b.l; }
+	[[nodiscard]] uint8_t getPCh() const { return PC_.b.h; }
+	[[nodiscard]] uint8_t getPCl() const { return PC_.b.l; }
+	[[nodiscard]] uint8_t getSPh() const { return SP_.b.h; }
+	[[nodiscard]] uint8_t getSPl() const { return SP_.b.l; }
 
-	[[nodiscard]] word getAF()  const { return AF_.w; }
-	[[nodiscard]] word getBC()  const { return BC_.w; }
-	[[nodiscard]] word getDE()  const { return DE_.w; }
-	[[nodiscard]] word getHL()  const { return HL_.w; }
-	[[nodiscard]] word getAF2() const { return AF2_.w; }
-	[[nodiscard]] word getBC2() const { return BC2_.w; }
-	[[nodiscard]] word getDE2() const { return DE2_.w; }
-	[[nodiscard]] word getHL2() const { return HL2_.w; }
-	[[nodiscard]] word getIX()  const { return IX_.w; }
-	[[nodiscard]] word getIY()  const { return IY_.w; }
-	[[nodiscard]] word getPC()  const { return PC_.w; }
-	[[nodiscard]] word getSP()  const { return SP_.w; }
+	[[nodiscard]] uint16_t getAF()  const { return AF_.w; }
+	[[nodiscard]] uint16_t getBC()  const { return BC_.w; }
+	[[nodiscard]] uint16_t getDE()  const { return DE_.w; }
+	[[nodiscard]] uint16_t getHL()  const { return HL_.w; }
+	[[nodiscard]] uint16_t getAF2() const { return AF2_.w; }
+	[[nodiscard]] uint16_t getBC2() const { return BC2_.w; }
+	[[nodiscard]] uint16_t getDE2() const { return DE2_.w; }
+	[[nodiscard]] uint16_t getHL2() const { return HL2_.w; }
+	[[nodiscard]] uint16_t getIX()  const { return IX_.w; }
+	[[nodiscard]] uint16_t getIY()  const { return IY_.w; }
+	[[nodiscard]] uint16_t getPC()  const { return PC_.w; }
+	[[nodiscard]] uint16_t getSP()  const { return SP_.w; }
 
-	[[nodiscard]] byte getIM()  const { return IM_; }
-	[[nodiscard]] byte getI()   const { return I_; }
-	[[nodiscard]] byte getR()   const { return (R_ & Rmask) | (R2_ & ~Rmask); }
+	[[nodiscard]] uint8_t getIM()  const { return IM_; }
+	[[nodiscard]] uint8_t getI()   const { return I_; }
+	[[nodiscard]] uint8_t getR()   const { return (R_ & Rmask) | (R2_ & ~Rmask); }
 	[[nodiscard]] bool getIFF1()     const { return IFF1_; }
 	[[nodiscard]] bool getIFF2()     const { return IFF2_; }
-	[[nodiscard]] byte getHALT()     const { return HALT_; }
+	[[nodiscard]] uint8_t getHALT()     const { return HALT_; }
 
-	void setA(byte x)   { AF_.b.h = x; }
-	void setF(byte x)   { AF_.b.l = x; }
-	void setB(byte x)   { BC_.b.h = x; }
-	void setC(byte x)   { BC_.b.l = x; }
-	void setD(byte x)   { DE_.b.h = x; }
-	void setE(byte x)   { DE_.b.l = x; }
-	void setH(byte x)   { HL_.b.h = x; }
-	void setL(byte x)   { HL_.b.l = x; }
-	void setA2(byte x)  { AF2_.b.h = x; }
-	void setF2(byte x)  { AF2_.b.l = x; }
-	void setB2(byte x)  { BC2_.b.h = x; }
-	void setC2(byte x)  { BC2_.b.l = x; }
-	void setD2(byte x)  { DE2_.b.h = x; }
-	void setE2(byte x)  { DE2_.b.l = x; }
-	void setH2(byte x)  { HL2_.b.h = x; }
-	void setL2(byte x)  { HL2_.b.l = x; }
-	void setIXh(byte x) { IX_.b.h = x; }
-	void setIXl(byte x) { IX_.b.l = x; }
-	void setIYh(byte x) { IY_.b.h = x; }
-	void setIYl(byte x) { IY_.b.l = x; }
-	void setPCh(byte x) { PC_.b.h = x; }
-	void setPCl(byte x) { PC_.b.l = x; }
-	void setSPh(byte x) { SP_.b.h = x; }
-	void setSPl(byte x) { SP_.b.l = x; }
+	void setA(uint8_t x)   { AF_.b.h = x; }
+	void setF(uint8_t x)   { AF_.b.l = x; }
+	void setB(uint8_t x)   { BC_.b.h = x; }
+	void setC(uint8_t x)   { BC_.b.l = x; }
+	void setD(uint8_t x)   { DE_.b.h = x; }
+	void setE(uint8_t x)   { DE_.b.l = x; }
+	void setH(uint8_t x)   { HL_.b.h = x; }
+	void setL(uint8_t x)   { HL_.b.l = x; }
+	void setA2(uint8_t x)  { AF2_.b.h = x; }
+	void setF2(uint8_t x)  { AF2_.b.l = x; }
+	void setB2(uint8_t x)  { BC2_.b.h = x; }
+	void setC2(uint8_t x)  { BC2_.b.l = x; }
+	void setD2(uint8_t x)  { DE2_.b.h = x; }
+	void setE2(uint8_t x)  { DE2_.b.l = x; }
+	void setH2(uint8_t x)  { HL2_.b.h = x; }
+	void setL2(uint8_t x)  { HL2_.b.l = x; }
+	void setIXh(uint8_t x) { IX_.b.h = x; }
+	void setIXl(uint8_t x) { IX_.b.l = x; }
+	void setIYh(uint8_t x) { IY_.b.h = x; }
+	void setIYl(uint8_t x) { IY_.b.l = x; }
+	void setPCh(uint8_t x) { PC_.b.h = x; }
+	void setPCl(uint8_t x) { PC_.b.l = x; }
+	void setSPh(uint8_t x) { SP_.b.h = x; }
+	void setSPl(uint8_t x) { SP_.b.l = x; }
 
-	void setAF(word x)  { AF_.w = x; }
-	void setBC(word x)  { BC_.w = x; }
-	void setDE(word x)  { DE_.w = x; }
-	void setHL(word x)  { HL_.w = x; }
-	void setAF2(word x) { AF2_.w = x; }
-	void setBC2(word x) { BC2_.w = x; }
-	void setDE2(word x) { DE2_.w = x; }
-	void setHL2(word x) { HL2_.w = x; }
-	void setIX(word x)  { IX_.w = x; }
-	void setIY(word x)  { IY_.w = x; }
-	void setPC(word x)  { PC_.w = x; }
-	void setSP(word x)  { SP_.w = x; }
+	void setAF(uint16_t x)  { AF_.w = x; }
+	void setBC(uint16_t x)  { BC_.w = x; }
+	void setDE(uint16_t x)  { DE_.w = x; }
+	void setHL(uint16_t x)  { HL_.w = x; }
+	void setAF2(uint16_t x) { AF2_.w = x; }
+	void setBC2(uint16_t x) { BC2_.w = x; }
+	void setDE2(uint16_t x) { DE2_.w = x; }
+	void setHL2(uint16_t x) { HL2_.w = x; }
+	void setIX(uint16_t x)  { IX_.w = x; }
+	void setIY(uint16_t x)  { IY_.w = x; }
+	void setPC(uint16_t x)  { PC_.w = x; }
+	void setSP(uint16_t x)  { SP_.w = x; }
 
-	void setIM(byte x) { IM_ = x; }
-	void setI(byte x)  { I_ = x; }
-	void setR(byte x)  { R_ = x; R2_ = x; }
+	void setIM(uint8_t x) { IM_ = x; }
+	void setI(uint8_t x)  { I_ = x; }
+	void setR(uint8_t x)  { R_ = x; R2_ = x; }
 	void setIFF1(bool x)    { IFF1_ = x; }
 	void setIFF2(bool x)    { IFF2_ = x; }
 	void setHALT(bool x)    { HALT_ = (HALT_ & ~1) | (x ? 1 : 0); }
 	void setExtHALT(bool x) { HALT_ = (HALT_ & ~2) | (x ? 2 : 0); }
 
-	void incR(byte x) { R_ += x; }
+	void incR(uint8_t x) { R_ += x; }
 
 	// Sometimes we need to look at sequences of instructions/actions
 	// instead of only individual instructions. The most obvious example is
@@ -200,10 +200,10 @@ private:
 	z80regPair AF2_, BC2_, DE2_, HL2_;
 	z80regPair IX_, IY_, SP_;
 	bool IFF1_, IFF2_;
-	byte HALT_ = 0;
-	byte IM_, I_;
-	byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
-	/*const*/ byte Rmask; // 0x7F for Z80, 0xFF for R800
+	uint8_t HALT_ = 0;
+	uint8_t IM_, I_;
+	uint8_t R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
+	/*const*/ uint8_t Rmask; // 0x7F for Z80, 0xFF for R800
 	unsigned prev_;
 };
 SERIALIZE_CLASS_VERSION(CPURegs, 3);
@@ -218,101 +218,101 @@ SERIALIZE_CLASS_VERSION(CPURegs, 3);
 #if 0
 class CPURegs {
 public:
-	[[nodiscard]] byte getA()   const { return AF >> 8; }
-	[[nodiscard]] byte getF()   const { return AF & 255; }
-	[[nodiscard]] byte getB()   const { return BC >> 8; }
-	[[nodiscard]] byte getC()   const { return BC & 255; }
-	[[nodiscard]] byte getD()   const { return DE >> 8; }
-	[[nodiscard]] byte getE()   const { return DE & 255; }
-	[[nodiscard]] byte getH()   const { return HL >> 8; }
-	[[nodiscard]] byte getL()   const { return HL & 255; }
-	[[nodiscard]] byte getA2()  const { return AF2 >> 8; }
-	[[nodiscard]] byte getF2()  const { return AF2 & 255; }
-	[[nodiscard]] byte getB2()  const { return BC2 >> 8; }
-	[[nodiscard]] byte getC2()  const { return BC2 & 255; }
-	[[nodiscard]] byte getD2()  const { return DE2 >> 8; }
-	[[nodiscard]] byte getE2()  const { return DE2 & 255; }
-	[[nodiscard]] byte getH2()  const { return HL2 >> 8; }
-	[[nodiscard]] byte getL2()  const { return HL2 & 255; }
-	[[nodiscard]] byte getIXh() const { return IX >> 8; }
-	[[nodiscard]] byte getIXl() const { return IX & 255; }
-	[[nodiscard]] byte getIYh() const { return IY >> 8; }
-	[[nodiscard]] byte getIYl() const { return IY & 255; }
-	[[nodiscard]] byte getPCh() const { return PC >> 8; }
-	[[nodiscard]] byte getPCl() const { return PC & 255; }
-	[[nodiscard]] byte getSPh() const { return SP >> 8; }
-	[[nodiscard]] byte getSPl() const { return SP & 255; }
-	[[nodiscard]] word getAF()  const { return AF; }
-	[[nodiscard]] word getBC()  const { return BC; }
-	[[nodiscard]] word getDE()  const { return DE; }
-	[[nodiscard]] word getHL()  const { return HL; }
-	[[nodiscard]] word getAF2() const { return AF2; }
-	[[nodiscard]] word getBC2() const { return BC2; }
-	[[nodiscard]] word getDE2() const { return DE2; }
-	[[nodiscard]] word getHL2() const { return HL2; }
-	[[nodiscard]] word getIX()  const { return IX; }
-	[[nodiscard]] word getIY()  const { return IY; }
-	[[nodiscard]] word getPC()  const { return PC; }
-	[[nodiscard]] word getSP()  const { return SP; }
-	[[nodiscard]] byte getIM()  const { return IM; }
-	[[nodiscard]] byte getI()   const { return I; }
-	[[nodiscard]] byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
+	[[nodiscard]] uint8_t getA()   const { return AF >> 8; }
+	[[nodiscard]] uint8_t getF()   const { return AF & 255; }
+	[[nodiscard]] uint8_t getB()   const { return BC >> 8; }
+	[[nodiscard]] uint8_t getC()   const { return BC & 255; }
+	[[nodiscard]] uint8_t getD()   const { return DE >> 8; }
+	[[nodiscard]] uint8_t getE()   const { return DE & 255; }
+	[[nodiscard]] uint8_t getH()   const { return HL >> 8; }
+	[[nodiscard]] uint8_t getL()   const { return HL & 255; }
+	[[nodiscard]] uint8_t getA2()  const { return AF2 >> 8; }
+	[[nodiscard]] uint8_t getF2()  const { return AF2 & 255; }
+	[[nodiscard]] uint8_t getB2()  const { return BC2 >> 8; }
+	[[nodiscard]] uint8_t getC2()  const { return BC2 & 255; }
+	[[nodiscard]] uint8_t getD2()  const { return DE2 >> 8; }
+	[[nodiscard]] uint8_t getE2()  const { return DE2 & 255; }
+	[[nodiscard]] uint8_t getH2()  const { return HL2 >> 8; }
+	[[nodiscard]] uint8_t getL2()  const { return HL2 & 255; }
+	[[nodiscard]] uint8_t getIXh() const { return IX >> 8; }
+	[[nodiscard]] uint8_t getIXl() const { return IX & 255; }
+	[[nodiscard]] uint8_t getIYh() const { return IY >> 8; }
+	[[nodiscard]] uint8_t getIYl() const { return IY & 255; }
+	[[nodiscard]] uint8_t getPCh() const { return PC >> 8; }
+	[[nodiscard]] uint8_t getPCl() const { return PC & 255; }
+	[[nodiscard]] uint8_t getSPh() const { return SP >> 8; }
+	[[nodiscard]] uint8_t getSPl() const { return SP & 255; }
+	[[nodiscard]] uint16_t getAF()  const { return AF; }
+	[[nodiscard]] uint16_t getBC()  const { return BC; }
+	[[nodiscard]] uint16_t getDE()  const { return DE; }
+	[[nodiscard]] uint16_t getHL()  const { return HL; }
+	[[nodiscard]] uint16_t getAF2() const { return AF2; }
+	[[nodiscard]] uint16_t getBC2() const { return BC2; }
+	[[nodiscard]] uint16_t getDE2() const { return DE2; }
+	[[nodiscard]] uint16_t getHL2() const { return HL2; }
+	[[nodiscard]] uint16_t getIX()  const { return IX; }
+	[[nodiscard]] uint16_t getIY()  const { return IY; }
+	[[nodiscard]] uint16_t getPC()  const { return PC; }
+	[[nodiscard]] uint16_t getSP()  const { return SP; }
+	[[nodiscard]] uint8_t getIM()  const { return IM; }
+	[[nodiscard]] uint8_t getI()   const { return I; }
+	[[nodiscard]] uint8_t getR()   const { return (R & 0x7F) | (R2 & 0x80); }
 	[[nodiscard]] bool getIFF1()     const { return IFF1; }
 	[[nodiscard]] bool getIFF2()     const { return IFF2; }
 	[[nodiscard]] bool getHALT()     const { return HALT; }
 
-	void setA(byte x)   { AF = (AF & 0x00FF) | (x << 8); }
-	void setF(byte x)   { AF = (AF & 0xFF00) | x; }
-	void setB(byte x)   { BC = (BC & 0x00FF) | (x << 8); }
-	void setC(byte x)   { BC = (BC & 0xFF00) | x; }
-	void setD(byte x)   { DE = (DE & 0x00FF) | (x << 8); }
-	void setE(byte x)   { DE = (DE & 0xFF00) | x; }
-	void setH(byte x)   { HL = (HL & 0x00FF) | (x << 8); }
-	void setL(byte x)   { HL = (HL & 0xFF00) | x; }
-	void setA2(byte x)  { AF2 = (AF2 & 0x00FF) | (x << 8); }
-	void setF2(byte x)  { AF2 = (AF2 & 0xFF00) | x; }
-	void setB2(byte x)  { BC2 = (BC2 & 0x00FF) | (x << 8); }
-	void setC2(byte x)  { BC2 = (BC2 & 0xFF00) | x; }
-	void setD2(byte x)  { DE2 = (DE2 & 0x00FF) | (x << 8); }
-	void setE2(byte x)  { DE2 = (DE2 & 0xFF00) | x; }
-	void setH2(byte x)  { HL2 = (HL2 & 0x00FF) | (x << 8); }
-	void setL2(byte x)  { HL2 = (HL2 & 0xFF00) | x; }
-	void setIXh(byte x) { IX = (IX & 0x00FF) | (x << 8); }
-	void setIXl(byte x) { IX = (IX & 0xFF00) | x; }
-	void setIYh(byte x) { IY = (IY & 0x00FF) | (x << 8); }
-	void setIYl(byte x) { IY = (IY & 0xFF00) | x; }
-	void setPCh(byte x) { PC = (PC & 0x00FF) | (x << 8); }
-	void setPCl(byte x) { PC = (PC & 0xFF00) | x; }
-	void setSPh(byte x) { SP = (SP & 0x00FF) | (x << 8); }
-	void setSPl(byte x) { SP = (SP & 0xFF00) | x; }
-	void setAF(word x)  { AF = x; }
-	void setBC(word x)  { BC = x; }
-	void setDE(word x)  { DE = x; }
-	void setHL(word x)  { HL = x; }
-	void setAF2(word x) { AF2 = x; }
-	void setBC2(word x) { BC2 = x; }
-	void setDE2(word x) { DE2 = x; }
-	void setHL2(word x) { HL2 = x; }
-	void setIX(word x)  { IX = x; }
-	void setIY(word x)  { IY = x; }
-	void setPC(word x)  { PC = x; }
-	void setSP(word x)  { SP = x; }
-	void setIM(byte x)  { IM = x; }
-	void setI(byte x)   { I = x; }
-	void setR(byte x)   { R = x; R2 = x; }
+	void setA(uint8_t x)   { AF = (AF & 0x00FF) | (x << 8); }
+	void setF(uint8_t x)   { AF = (AF & 0xFF00) | x; }
+	void setB(uint8_t x)   { BC = (BC & 0x00FF) | (x << 8); }
+	void setC(uint8_t x)   { BC = (BC & 0xFF00) | x; }
+	void setD(uint8_t x)   { DE = (DE & 0x00FF) | (x << 8); }
+	void setE(uint8_t x)   { DE = (DE & 0xFF00) | x; }
+	void setH(uint8_t x)   { HL = (HL & 0x00FF) | (x << 8); }
+	void setL(uint8_t x)   { HL = (HL & 0xFF00) | x; }
+	void setA2(uint8_t x)  { AF2 = (AF2 & 0x00FF) | (x << 8); }
+	void setF2(uint8_t x)  { AF2 = (AF2 & 0xFF00) | x; }
+	void setB2(uint8_t x)  { BC2 = (BC2 & 0x00FF) | (x << 8); }
+	void setC2(uint8_t x)  { BC2 = (BC2 & 0xFF00) | x; }
+	void setD2(uint8_t x)  { DE2 = (DE2 & 0x00FF) | (x << 8); }
+	void setE2(uint8_t x)  { DE2 = (DE2 & 0xFF00) | x; }
+	void setH2(uint8_t x)  { HL2 = (HL2 & 0x00FF) | (x << 8); }
+	void setL2(uint8_t x)  { HL2 = (HL2 & 0xFF00) | x; }
+	void setIXh(uint8_t x) { IX = (IX & 0x00FF) | (x << 8); }
+	void setIXl(uint8_t x) { IX = (IX & 0xFF00) | x; }
+	void setIYh(uint8_t x) { IY = (IY & 0x00FF) | (x << 8); }
+	void setIYl(uint8_t x) { IY = (IY & 0xFF00) | x; }
+	void setPCh(uint8_t x) { PC = (PC & 0x00FF) | (x << 8); }
+	void setPCl(uint8_t x) { PC = (PC & 0xFF00) | x; }
+	void setSPh(uint8_t x) { SP = (SP & 0x00FF) | (x << 8); }
+	void setSPl(uint8_t x) { SP = (SP & 0xFF00) | x; }
+	void setAF(uint16_t x)  { AF = x; }
+	void setBC(uint16_t x)  { BC = x; }
+	void setDE(uint16_t x)  { DE = x; }
+	void setHL(uint16_t x)  { HL = x; }
+	void setAF2(uint16_t x) { AF2 = x; }
+	void setBC2(uint16_t x) { BC2 = x; }
+	void setDE2(uint16_t x) { DE2 = x; }
+	void setHL2(uint16_t x) { HL2 = x; }
+	void setIX(uint16_t x)  { IX = x; }
+	void setIY(uint16_t x)  { IY = x; }
+	void setPC(uint16_t x)  { PC = x; }
+	void setSP(uint16_t x)  { SP = x; }
+	void setIM(uint8_t x)  { IM = x; }
+	void setI(uint8_t x)   { I = x; }
+	void setR(uint8_t x)   { R = x; R2 = x; }
 	void setIFF1(bool x)     { IFF1 = x; }
 	void setIFF2(bool x)     { IFF2 = x; }
 	void setHALT(bool x)     { HALT = x; }
 
-	void incR(byte x) { R += x; }
+	void incR(uint8_t x) { R += x; }
 
 private:
-	word AF, BC, DE, HL;
-	word AF2, BC2, DE2, HL2;
-	word IX, IY, PC, SP;
+	uint16_t AF, BC, DE, HL;
+	uint16_t AF2, BC2, DE2, HL2;
+	uint16_t IX, IY, PC, SP;
 	bool IFF1, IFF2, HALT;
-	byte IM, I;
-	byte R, R2; // refresh = R&127 | R2&128
+	uint8_t IM, I;
+	uint8_t R, R2; // refresh = R&127 | R2&128
 };
 #endif
 

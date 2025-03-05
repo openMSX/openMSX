@@ -112,13 +112,13 @@ const std::string& MSXWatchIODevice::getName() const
 	return device->getName();
 }
 
-byte MSXWatchIODevice::peekIO(word port, EmuTime::param time) const
+uint8_t MSXWatchIODevice::peekIO(uint16_t port, EmuTime::param time) const
 {
 	assert(device);
 	return device->peekIO(port, time);
 }
 
-byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
+uint8_t MSXWatchIODevice::readIO(uint16_t port, EmuTime::param time)
 {
 	assert(device);
 
@@ -127,7 +127,7 @@ byte MSXWatchIODevice::readIO(word port, EmuTime::param time)
 	return device->readIO(port, time);
 }
 
-void MSXWatchIODevice::writeIO(word port, byte value, EmuTime::param time)
+void MSXWatchIODevice::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	assert(device);
 

@@ -10,7 +10,6 @@
 #include "InfoTopic.hh"
 #include "MSXDevice.hh"
 #include "ProfileCounters.hh"
-#include "openmsx.hh"
 
 #include "narrow.hh"
 
@@ -68,28 +67,28 @@ public:
 	 * in their constructor. Once device are registered, their
 	 * readIO() method can get called.
 	 */
-	void register_IO_In(byte port, MSXDevice* device);
-	void unregister_IO_In(byte port, MSXDevice* device);
+	void register_IO_In(uint8_t port, MSXDevice* device);
+	void unregister_IO_In(uint8_t port, MSXDevice* device);
 
 	/**
 	 * Devices can register their Out ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * writeIO() method can get called.
 	 */
-	void register_IO_Out(byte port, MSXDevice* device);
-	void unregister_IO_Out(byte port, MSXDevice* device);
+	void register_IO_Out(uint8_t port, MSXDevice* device);
+	void unregister_IO_Out(uint8_t port, MSXDevice* device);
 
 	/** Convenience methods for {un}register_IO_{In,Out}.
 	 * At the same time (un)register both In and Out, and/or a range of ports.
 	 */
-	void register_IO_InOut(byte port, MSXDevice* device);
-	void register_IO_In_range(byte port, unsigned num, MSXDevice* device);
-	void register_IO_Out_range(byte port, unsigned num, MSXDevice* device);
-	void register_IO_InOut_range(byte port, unsigned num, MSXDevice* device);
-	void unregister_IO_InOut(byte port, MSXDevice* device);
-	void unregister_IO_In_range(byte port, unsigned num, MSXDevice* device);
-	void unregister_IO_Out_range(byte port, unsigned num, MSXDevice* device);
-	void unregister_IO_InOut_range(byte port, unsigned num, MSXDevice* device);
+	void register_IO_InOut(uint8_t port, MSXDevice* device);
+	void register_IO_In_range(uint8_t port, unsigned num, MSXDevice* device);
+	void register_IO_Out_range(uint8_t port, unsigned num, MSXDevice* device);
+	void register_IO_InOut_range(uint8_t port, unsigned num, MSXDevice* device);
+	void unregister_IO_InOut(uint8_t port, MSXDevice* device);
+	void unregister_IO_In_range(uint8_t port, unsigned num, MSXDevice* device);
+	void unregister_IO_Out_range(uint8_t port, unsigned num, MSXDevice* device);
+	void unregister_IO_InOut_range(uint8_t port, unsigned num, MSXDevice* device);
 
 	/**
 	 * These methods replace a previously registered device with a new one.
@@ -106,8 +105,8 @@ public:
 	 * destructor of the wrapping device will perform the inverse
 	 * replacement.
 	 */
-	bool replace_IO_In (byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
-	bool replace_IO_Out(byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
+	bool replace_IO_In (uint8_t port, MSXDevice* oldDevice, MSXDevice* newDevice);
+	bool replace_IO_Out(uint8_t port, MSXDevice* oldDevice, MSXDevice* newDevice);
 
 	/**
 	 * Devices can register themself in the MSX slot structure.
@@ -123,14 +122,14 @@ public:
 	/** (Un)register global writes.
 	  * @see MSXDevice::globalWrite()
 	  */
-	void   registerGlobalWrite(MSXDevice& device, word address);
-	void unregisterGlobalWrite(MSXDevice& device, word address);
+	void   registerGlobalWrite(MSXDevice& device, uint16_t address);
+	void unregisterGlobalWrite(MSXDevice& device, uint16_t address);
 
 	/** (Un)register global read.
 	  * @see MSXDevice::globalRead()
 	  */
-	void   registerGlobalRead(MSXDevice& device, word address);
-	void unregisterGlobalRead(MSXDevice& device, word address);
+	void   registerGlobalRead(MSXDevice& device, uint16_t address);
+	void unregisterGlobalRead(MSXDevice& device, uint16_t address);
 
 	/**
 	 * Reset (the slot state)
@@ -140,7 +139,7 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	byte readMem(word address, EmuTime::param time) {
+	uint8_t readMem(uint16_t address, EmuTime::param time) {
 		tick(CacheLineCounters::SlowRead);
 		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
@@ -151,7 +150,7 @@ public:
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	void writeMem(word address, byte value, EmuTime::param time) {
+	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) {
 		tick(CacheLineCounters::SlowWrite);
 		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
@@ -164,7 +163,7 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	byte readIO(word port, EmuTime::param time) {
+	uint8_t readIO(uint16_t port, EmuTime::param time) {
 		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
@@ -172,7 +171,7 @@ public:
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	void writeIO(word port, byte value, EmuTime::param time) {
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) {
 		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
@@ -188,7 +187,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] const byte* getReadCacheLine(word start) const {
+	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t start) const {
 		tick(CacheLineCounters::GetReadCacheLine);
 		if (disallowReadCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -208,7 +207,7 @@ public:
 	 * An interval will never cross a 16KB border.
 	 * An interval will never contain the address 0xffff.
 	 */
-	[[nodiscard]] byte* getWriteCacheLine(word start) {
+	[[nodiscard]] uint8_t* getWriteCacheLine(uint16_t start) {
 		tick(CacheLineCounters::GetWriteCacheLine);
 		if (disallowWriteCache[start >> CacheLine::BITS]) [[unlikely]] {
 			return nullptr;
@@ -220,32 +219,32 @@ public:
 	 * CPU uses this method to read 'extra' data from the data bus
 	 * used in interrupt routines. In MSX this returns always 255.
 	 */
-	[[nodiscard]] byte readIRQVector() const;
+	[[nodiscard]] uint8_t readIRQVector() const;
 
 	/*
 	 * Should only be used by PPI
 	 *  TODO: make private / friend
 	 */
-	void setPrimarySlots(byte value);
+	void setPrimarySlots(uint8_t value);
 
 	/** @see MSXCPU::invalidateRWCache() */
-	void invalidateRWCache(word start, unsigned size, int ps, int ss);
-	void invalidateRCache (word start, unsigned size, int ps, int ss);
-	void invalidateWCache (word start, unsigned size, int ps, int ss);
+	void invalidateRWCache(uint16_t start, unsigned size, int ps, int ss);
+	void invalidateRCache (uint16_t start, unsigned size, int ps, int ss);
+	void invalidateWCache (uint16_t start, unsigned size, int ps, int ss);
 
 	/** @see MSXCPU::fillRWCache() */
-	void fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss);
-	void fillRCache (unsigned start, unsigned size, const byte* rData,              int ps, int ss);
-	void fillWCache (unsigned start, unsigned size,                    byte* wData, int ps, int ss);
+	void fillRWCache(unsigned start, unsigned size, const uint8_t* rData, uint8_t* wData, int ps, int ss);
+	void fillRCache (unsigned start, unsigned size, const uint8_t* rData,                 int ps, int ss);
+	void fillWCache (unsigned start, unsigned size,                       uint8_t* wData, int ps, int ss);
 
 	/**
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const;
-	[[nodiscard]] byte peekSlottedMem(unsigned address, EmuTime::param time) const;
-	byte readSlottedMem(unsigned address, EmuTime::param time);
-	void writeSlottedMem(unsigned address, byte value,
+	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekSlottedMem(unsigned address, EmuTime::param time) const;
+	uint8_t readSlottedMem(unsigned address, EmuTime::param time);
+	void writeSlottedMem(unsigned address, uint8_t value,
 	                     EmuTime::param time);
 
 	void setExpanded(int ps);
@@ -331,10 +330,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	byte readMemSlow(word address, EmuTime::param time);
-	void writeMemSlow(word address, byte value, EmuTime::param time);
+	uint8_t readMemSlow(uint16_t address, EmuTime::param time);
+	void writeMemSlow(uint16_t address, uint8_t value, EmuTime::param time);
 
-	MSXDevice*& getDevicePtr(byte port, bool isIn);
+	MSXDevice*& getDevicePtr(uint8_t port, bool isIn);
 
 	void register_IO  (int port, bool isIn,
 	                   MSXDevice*& devicePtr, MSXDevice* device);
@@ -356,20 +355,20 @@ private:
 
 	struct MemoryDebug final : SimpleDebuggable {
 		explicit MemoryDebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} memoryDebug;
 
 	struct SlottedMemoryDebug final : SimpleDebuggable {
 		explicit SlottedMemoryDebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} slottedMemoryDebug;
 
 	struct IODebug final : SimpleDebuggable {
 		explicit IODebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} ioDebug;
 
 	struct SlotInfo final : InfoTopic {
@@ -420,9 +419,9 @@ private:
 	  * was modified.
 	  * @param page page [0..3] to update visibleDevices for.
 	  */
-	void updateVisible(byte page);
-	inline void updateVisible(byte page, byte ps, byte ss);
-	void setSubSlot(byte primSlot, byte value);
+	void updateVisible(uint8_t page);
+	inline void updateVisible(uint8_t page, uint8_t ps, uint8_t ss);
+	void setSubSlot(uint8_t primSlot, uint8_t value);
 
 	std::unique_ptr<DummyDevice> dummyDevice;
 	MSXCPU& msxcpu;
@@ -432,14 +431,14 @@ private:
 
 	std::unique_ptr<VDPIODelay> delayDevice; // can be nullptr
 
-	std::array<byte, CacheLine::NUM> disallowReadCache;
-	std::array<byte, CacheLine::NUM> disallowWriteCache;
+	std::array<uint8_t, CacheLine::NUM> disallowReadCache;
+	std::array<uint8_t, CacheLine::NUM> disallowWriteCache;
 	std::array<std::bitset<CacheLine::SIZE>, CacheLine::NUM> readWatchSet;
 	std::array<std::bitset<CacheLine::SIZE>, CacheLine::NUM> writeWatchSet;
 
 	struct GlobalRwInfo {
 		MSXDevice* device;
-		word addr;
+		uint16_t addr;
 		[[nodiscard]] constexpr bool operator==(const GlobalRwInfo&) const = default;
 	};
 	std::vector<GlobalRwInfo> globalReads;
@@ -449,10 +448,10 @@ private:
 	std::array<MSXDevice*, 256> IO_Out;
 	std::array<std::array<std::array<MSXDevice*, 4>, 4>, 4> slotLayout;
 	std::array<MSXDevice*, 4> visibleDevices;
-	std::array<byte, 4> subSlotRegister;
-	std::array<byte, 4> primarySlotState;
-	std::array<byte, 4> secondarySlotState;
-	byte initialPrimarySlots;
+	std::array<uint8_t, 4> subSlotRegister;
+	std::array<uint8_t, 4> primarySlotState;
+	std::array<uint8_t, 4> secondarySlotState;
+	uint8_t initialPrimarySlots;
 	std::array<unsigned, 4> expanded;
 
 	bool fastForward = false; // no need to serialize
@@ -513,14 +512,14 @@ struct GlobalWriteClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
 	GlobalWriteClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
-			cpu.registerGlobalWrite(dev, narrow<word>(addr));
+			cpu.registerGlobalWrite(dev, narrow<uint16_t>(addr));
 		});
 	}
 
 	~GlobalWriteClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
-			cpu.unregisterGlobalWrite(dev, narrow<word>(addr));
+			cpu.unregisterGlobalWrite(dev, narrow<uint16_t>(addr));
 		});
 	}
 };
@@ -536,14 +535,14 @@ struct GlobalReadClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
 	GlobalReadClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
-			cpu.registerGlobalRead(dev, narrow<word>(addr));
+			cpu.registerGlobalRead(dev, narrow<uint16_t>(addr));
 		});
 	}
 
 	~GlobalReadClient()
 	{
 		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
-			cpu.unregisterGlobalRead(dev, narrow<word>(addr));
+			cpu.unregisterGlobalRead(dev, narrow<uint16_t>(addr));
 		});
 	}
 };

@@ -21,11 +21,11 @@ public:
 	// MSXDevice
 	[[nodiscard]] const std::string& getName() const override;
 	void getNameList(TclObject& result) const override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
-	[[nodiscard]] byte* getWriteCacheLine(word start) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime::param time) const override;
+	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t start) const override;
+	[[nodiscard]] uint8_t* getWriteCacheLine(uint16_t start) override;
 
 private:
 	struct Range {

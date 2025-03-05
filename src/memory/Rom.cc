@@ -44,9 +44,9 @@ public:
 
 	[[nodiscard]] unsigned getSize() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	[[nodiscard]] byte read(unsigned address) override;
-	void readBlock(unsigned start, std::span<byte> output) override;
-	void write(unsigned address, byte value) override;
+	[[nodiscard]] uint8_t read(unsigned address) override;
+	void readBlock(unsigned start, std::span<uint8_t> output) override;
+	void write(unsigned address, uint8_t value) override;
 	void moved(Rom& r);
 private:
 	Debugger& debugger;
@@ -243,7 +243,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 			if (patchSize <= rom.size()) {
 				patch->copyBlock(0, std::span{const_cast<uint8_t*>(rom.data()), rom.size()});
 			} else {
-				MemBuffer<byte> extendedRom2(patchSize);
+				MemBuffer<uint8_t> extendedRom2(patchSize);
 				patch->copyBlock(0, std::span{extendedRom2});
 				extendedRom = std::move(extendedRom2);
 				rom = std::span{extendedRom};
@@ -365,12 +365,12 @@ const Sha1Sum& Rom::getSHA1() const
 	return actualSha1;
 }
 
-void Rom::addPadding(size_t newSize, byte filler)
+void Rom::addPadding(size_t newSize, uint8_t filler)
 {
 	assert(newSize >= rom.size());
 	if (newSize == rom.size()) return;
 
-	MemBuffer<byte> tmp(newSize);
+	MemBuffer<uint8_t> tmp(newSize);
 	copy_to_range(rom, std::span{tmp});
 	std::ranges::fill(tmp.subspan(rom.size()), filler);
 
@@ -407,18 +407,18 @@ std::string_view RomDebuggable::getDescription() const
 	return rom->getDescription();
 }
 
-byte RomDebuggable::read(unsigned address)
+uint8_t RomDebuggable::read(unsigned address)
 {
 	assert(address < getSize());
 	return (*rom)[address];
 }
 
-void RomDebuggable::readBlock(unsigned start, std::span<byte> output)
+void RomDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	copy_to_range(std::span{*rom}.subspan(start), output);
 }
 
-void RomDebuggable::write(unsigned /*address*/, byte /*value*/)
+void RomDebuggable::write(unsigned /*address*/, uint8_t /*value*/)
 {
 	// ignore
 }

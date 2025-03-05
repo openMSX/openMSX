@@ -7,7 +7,6 @@
 #include "FileNotFoundException.hh"
 #include "MSXCliComm.hh"
 #include "Reactor.hh"
-#include "openmsx.hh"
 
 #include "serialize.hh"
 #include "small_buffer.hh"
@@ -63,7 +62,7 @@ SRAM::~SRAM()
 	}
 }
 
-void SRAM::write(size_t addr, byte value)
+void SRAM::write(size_t addr, uint8_t value)
 {
 	if (schedulable && !schedulable->isPendingRT()) {
 		schedulable->scheduleRT(5000000); // sync to disk after 5s
@@ -72,7 +71,7 @@ void SRAM::write(size_t addr, byte value)
 	ram.write(addr, value);
 }
 
-void SRAM::memset(size_t addr, byte c, size_t aSize)
+void SRAM::memset(size_t addr, uint8_t c, size_t aSize)
 {
 	if (schedulable && !schedulable->isPendingRT()) {
 		schedulable->scheduleRT(5000000); // sync to disk after 5s

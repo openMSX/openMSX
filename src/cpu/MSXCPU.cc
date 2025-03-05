@@ -160,13 +160,13 @@ void MSXCPU::invalidateMemCacheSlot()
 	}
 }
 
-void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
+void MSXCPU::updateVisiblePage(uint8_t page, uint8_t primarySlot, uint8_t secondarySlot)
 {
 	assert(primarySlot < 4);
 	assert(secondarySlot < 4);
 
-	byte from = slots[page];
-	byte to = narrow<byte>(4 * primarySlot + secondarySlot);
+	uint8_t from = slots[page];
+	uint8_t to = narrow<uint8_t>(4 * primarySlot + secondarySlot);
 	slots[page] = to;
 
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
@@ -181,7 +181,7 @@ void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 	if (r800) r800->updateVisiblePage(page, primarySlot, secondarySlot);
 }
 
-void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
+void MSXCPU::invalidateAllSlotsRWCache(uint16_t start, unsigned size)
 {
 	if (interface) interface->tick(CacheLineCounters::InvalidateAllSlots);
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
@@ -198,9 +198,9 @@ void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 }
 
 template<bool READ, bool WRITE, bool SUB_START>
-void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
-                        std::span<const byte, 256> disallowRead,
-                        std::span<const byte, 256> disallowWrite)
+void MSXCPU::setRWCache(unsigned start, unsigned size, const uint8_t* rData, uint8_t* wData, int ps, int ss,
+                        std::span<const uint8_t, 256> disallowRead,
+                        std::span<const uint8_t, 256> disallowWrite)
 {
 	if constexpr (!SUB_START) {
 		assert(rData == nullptr);
@@ -230,7 +230,7 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = size / CacheLine::SIZE;
 
-	static auto* const NON_CACHEABLE = std::bit_cast<byte*>(uintptr_t(1));
+	static auto* const NON_CACHEABLE = std::bit_cast<uint8_t*>(uintptr_t(1));
 	for (auto i : xrange(num)) {
 		if constexpr (READ)  readLines [first + i] = disallowRead [first + i] ? NON_CACHEABLE : rData;
 		if constexpr (WRITE) writeLines[first + i] = disallowWrite[first + i] ? NON_CACHEABLE : wData;
@@ -248,43 +248,43 @@ static constexpr void extendForAlignment(unsigned& start, unsigned& size)
 }
 
 void MSXCPU::invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
-                               std::span<const byte, 256> disallowRead,
-                               std::span<const byte, 256> disallowWrite)
+                               std::span<const uint8_t, 256> disallowRead,
+                               std::span<const uint8_t, 256> disallowWrite)
 {
 	// unaligned [start, start+size) is OK for invalidate, then simply invalidate a little more.
 	extendForAlignment(start, size);
 	setRWCache<true, true, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, disallowWrite);
 }
 void MSXCPU::invalidateRCache(unsigned start, unsigned size, int ps, int ss,
-                              std::span<const byte, 256> disallowRead,
-                              std::span<const byte, 256> disallowWrite)
+                              std::span<const uint8_t, 256> disallowRead,
+                              std::span<const uint8_t, 256> disallowWrite)
 {
 	extendForAlignment(start, size);
 	setRWCache<true, false, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, disallowWrite);
 }
 void MSXCPU::invalidateWCache(unsigned start, unsigned size, int ps, int ss,
-                              std::span<const byte, 256> disallowRead,
-                              std::span<const byte, 256> disallowWrite)
+                              std::span<const uint8_t, 256> disallowRead,
+                              std::span<const uint8_t, 256> disallowWrite)
 {
 	extendForAlignment(start, size);
 	setRWCache<false, true, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, disallowWrite);
 }
 
-void MSXCPU::fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
-                         std::span<const byte, 256> disallowRead,
-                         std::span<const byte, 256> disallowWrite)
+void MSXCPU::fillRWCache(unsigned start, unsigned size, const uint8_t* rData, uint8_t* wData, int ps, int ss,
+                         std::span<const uint8_t, 256> disallowRead,
+                         std::span<const uint8_t, 256> disallowWrite)
 {
 	setRWCache<true, true, true>(start, size, rData, wData, ps, ss, disallowRead, disallowWrite);
 }
-void MSXCPU::fillRCache(unsigned start, unsigned size, const byte* rData, int ps, int ss,
-                        std::span<const byte, 256> disallowRead,
-                        std::span<const byte, 256> disallowWrite)
+void MSXCPU::fillRCache(unsigned start, unsigned size, const uint8_t* rData, int ps, int ss,
+                        std::span<const uint8_t, 256> disallowRead,
+                        std::span<const uint8_t, 256> disallowWrite)
 {
 	setRWCache<true, false, true>(start, size, rData, nullptr, ps, ss, disallowRead, disallowWrite);
 }
-void MSXCPU::fillWCache(unsigned start, unsigned size, byte* wData, int ps, int ss,
-                        std::span<const byte, 256> disallowRead,
-                        std::span<const byte, 256> disallowWrite)
+void MSXCPU::fillWCache(unsigned start, unsigned size, uint8_t* wData, int ps, int ss,
+                        std::span<const uint8_t, 256> disallowRead,
+                        std::span<const uint8_t, 256> disallowWrite)
 {
 	setRWCache<false, true, true>(start, size, nullptr, wData, ps, ss, disallowRead, disallowWrite);
 }
@@ -436,7 +436,7 @@ MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard_)
 {
 }
 
-byte MSXCPU::Debuggable::read(unsigned address)
+uint8_t MSXCPU::Debuggable::read(unsigned address)
 {
 	auto& cpu = OUTER(MSXCPU, debuggable);
 	const CPURegs& regs = cpu.getRegisters();
@@ -468,14 +468,14 @@ byte MSXCPU::Debuggable::read(unsigned address)
 	case 24: return regs.getI();
 	case 25: return regs.getR();
 	case 26: return regs.getIM();
-	case 27: return byte(1 *  regs.getIFF1() +
-	                     2 *  regs.getIFF2() +
-	                     4 * (regs.getIFF1() && !regs.prevWasEI()));
+	case 27: return uint8_t(1 *  regs.getIFF1() +
+	                        2 *  regs.getIFF2() +
+	                        4 * (regs.getIFF1() && !regs.prevWasEI()));
 	default: UNREACHABLE;
 	}
 }
 
-void MSXCPU::Debuggable::write(unsigned address, byte value)
+void MSXCPU::Debuggable::write(unsigned address, uint8_t value)
 {
 	auto& cpu = OUTER(MSXCPU, debuggable);
 	CPURegs& regs = cpu.getRegisters();

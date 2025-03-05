@@ -5,9 +5,10 @@
 #include "TclCallback.hh"
 #include "CacheLine.hh"
 #include "Observer.hh"
-#include "openmsx.hh"
-#include <vector>
+
 #include <bitset>
+#include <cstdint>
+#include <vector>
 
 namespace openmsx {
 
@@ -31,13 +32,13 @@ public:
 	           static_string_view description, size_t size);
 	~CheckedRam();
 
-	[[nodiscard]] byte read(size_t addr);
-	[[nodiscard]] byte peek(size_t addr) const { return ram[addr]; }
-	void write(size_t addr, byte value);
+	[[nodiscard]] uint8_t read(size_t addr);
+	[[nodiscard]] uint8_t peek(size_t addr) const { return ram[addr]; }
+	void write(size_t addr, uint8_t value);
 
-	[[nodiscard]] const byte* getReadCacheLine(size_t addr) const;
-	[[nodiscard]] byte* getWriteCacheLine(size_t addr);
-	[[nodiscard]] byte* getRWCacheLines(size_t addr, size_t size);
+	[[nodiscard]] const uint8_t* getReadCacheLine(size_t addr) const;
+	[[nodiscard]] uint8_t* getWriteCacheLine(size_t addr);
+	[[nodiscard]] uint8_t* getRWCacheLines(size_t addr, size_t size);
 
 	[[nodiscard]] size_t size() const { return ram.size(); }
 	void clear();

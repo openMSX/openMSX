@@ -6,6 +6,7 @@
 #include "DeviceConfig.hh"
 #include "RTSchedulable.hh"
 
+#include <cstdint>
 #include <optional>
 
 namespace openmsx {
@@ -25,18 +26,18 @@ public:
 	     bool* loaded = nullptr);
 	~SRAM();
 
-	[[nodiscard]] const byte& operator[](size_t addr) const {
+	[[nodiscard]] const uint8_t& operator[](size_t addr) const {
 		assert(addr < size());
 		return ram[addr];
 	}
 	// write() is non-inline because of the auto-sync to disk feature
-	void write(size_t addr, byte value);
-	void memset(size_t addr, byte c, size_t size);
+	void write(size_t addr, uint8_t value);
+	void memset(size_t addr, uint8_t c, size_t size);
 
 	// Writing via this span will NOT schedule a 'save()' operation. This
 	// should only be used to write initial content into the SRAM that
 	// should NOT be save to disk.
-	[[nodiscard]] std::span<byte> getWriteBackdoor() {
+	[[nodiscard]] std::span<uint8_t> getWriteBackdoor() {
 		return ram.getWriteBackdoor();
 	}
 

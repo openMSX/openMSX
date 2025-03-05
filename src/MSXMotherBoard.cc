@@ -200,8 +200,8 @@ class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
 	explicit JoyPortDebuggable(MSXMotherBoard& motherBoard);
-	[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value) override;
+	[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, uint8_t value) override;
 };
 
 class SettingObserver final : public Observer<Setting>
@@ -617,9 +617,9 @@ void MSXMotherBoard::doReset()
 	reactor.getEventDistributor().distributeEvent(BootEvent());
 }
 
-byte MSXMotherBoard::readIRQVector() const
+uint8_t MSXMotherBoard::readIRQVector() const
 {
-	byte result = 0xff;
+	uint8_t result = 0xff;
 	for (auto& d : availableDevices) {
 		result &= d->readIRQVector();
 	}
@@ -1168,12 +1168,12 @@ JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard_)
 {
 }
 
-byte JoyPortDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t JoyPortDebuggable::read(unsigned address, EmuTime::param time)
 {
 	return getMotherBoard().getJoystickPort(address).read(time);
 }
 
-void JoyPortDebuggable::write(unsigned /*address*/, byte /*value*/)
+void JoyPortDebuggable::write(unsigned /*address*/, uint8_t /*value*/)
 {
 	// ignore
 }

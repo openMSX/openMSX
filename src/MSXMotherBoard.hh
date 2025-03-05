@@ -6,12 +6,12 @@
 #include "RecordedCommand.hh"
 #include "VideoSourceSetting.hh"
 #include "hash_map.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "xxhash.hh"
 
 #include <array>
 #include <cassert>
+#include <cstdint>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -123,7 +123,7 @@ public:
 	[[nodiscard]] bool isActive() const { return active; }
 	[[nodiscard]] bool isFastForwarding() const { return fastForwarding; }
 
-	[[nodiscard]] byte readIRQVector() const;
+	[[nodiscard]] uint8_t readIRQVector() const;
 
 	[[nodiscard]] const HardwareConfig* getMachineConfig() const { return machineConfig; }
 	[[nodiscard]] HardwareConfig* getMachineConfig() { return machineConfig; }

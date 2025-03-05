@@ -48,29 +48,29 @@ void MSXMultiIODevice::getNameList(TclObject& result) const
 	}
 }
 
-byte MSXMultiIODevice::readIO(word port, EmuTime::param time)
+uint8_t MSXMultiIODevice::readIO(uint16_t port, EmuTime::param time)
 {
 	// conflict: In practice, pull down seems to win over pull up,
 	//           so a logical AND over the read values most accurately
 	//           resembles what real hardware does.
-	byte result = 0xFF;
+	uint8_t result = 0xFF;
 	for (auto& dev : devices) {
 		result &= dev->readIO(port, time);
 	}
 	return result;
 }
 
-byte MSXMultiIODevice::peekIO(word port, EmuTime::param time) const
+uint8_t MSXMultiIODevice::peekIO(uint16_t port, EmuTime::param time) const
 {
 	// conflict: Handle this in the same way as readIO.
-	byte result = 0xFF;
+	uint8_t result = 0xFF;
 	for (const auto& dev : devices) {
 		result &= dev->peekIO(port, time);
 	}
 	return result;
 }
 
-void MSXMultiIODevice::writeIO(word port, byte value, EmuTime::param time)
+void MSXMultiIODevice::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	for (auto& dev : devices) {
 		dev->writeIO(port, value, time);

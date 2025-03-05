@@ -97,22 +97,22 @@ MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
 	return searchRange(address).device;
 }
 
-byte MSXMultiMemDevice::readMem(word address, EmuTime::param time)
+uint8_t MSXMultiMemDevice::readMem(uint16_t address, EmuTime::param time)
 {
 	return searchDevice(address)->readMem(address, time);
 }
 
-byte MSXMultiMemDevice::peekMem(word address, EmuTime::param time) const
+uint8_t MSXMultiMemDevice::peekMem(uint16_t address, EmuTime::param time) const
 {
 	return searchDevice(address)->peekMem(address, time);
 }
 
-void MSXMultiMemDevice::writeMem(word address, byte value, EmuTime::param time)
+void MSXMultiMemDevice::writeMem(uint16_t address, uint8_t value, EmuTime::param time)
 {
 	searchDevice(address)->writeMem(address, value, time);
 }
 
-const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
+const uint8_t* MSXMultiMemDevice::getReadCacheLine(uint16_t start) const
 {
 	assert((start & CacheLine::HIGH) == start); // start is aligned
 	// Because start is aligned we don't need to worry about the begin
@@ -127,7 +127,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 	return range.device->getReadCacheLine(start);
 }
 
-byte* MSXMultiMemDevice::getWriteCacheLine(word start)
+uint8_t* MSXMultiMemDevice::getWriteCacheLine(uint16_t start)
 {
 	assert((start & CacheLine::HIGH) == start);
 	const auto& range = searchRange(start);

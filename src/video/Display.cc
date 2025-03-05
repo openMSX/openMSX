@@ -31,6 +31,8 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 
+#include "build-info.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>

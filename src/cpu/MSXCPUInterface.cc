@@ -46,9 +46,9 @@ static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-static constexpr byte SECONDARY_SLOT_BIT = 0x01;
-static constexpr byte MEMORY_WATCH_BIT   = 0x02;
-static constexpr byte GLOBAL_RW_BIT      = 0x04;
+static constexpr uint8_t SECONDARY_SLOT_BIT = 0x01;
+static constexpr uint8_t MEMORY_WATCH_BIT   = 0x02;
+static constexpr uint8_t GLOBAL_RW_BIT      = 0x04;
 
 std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>)
 {
@@ -187,7 +187,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 	}
 }
 
-byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
+uint8_t MSXCPUInterface::readMemSlow(uint16_t address, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
@@ -213,7 +213,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 	}
 }
 
-void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
+void MSXCPUInterface::writeMemSlow(uint16_t address, uint8_t value, EmuTime::param time)
 {
 	tick(CacheLineCounters::DisallowCacheWrite);
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
@@ -333,7 +333,7 @@ void MSXCPUInterface::changeExpanded(bool newExpanded)
 	msxcpu.invalidateAllSlotsRWCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
 
-MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
+MSXDevice*& MSXCPUInterface::getDevicePtr(uint8_t port, bool isIn)
 {
 	MSXDevice** devicePtr = isIn ? &IO_In[port] : &IO_Out[port];
 	while (auto* watch = dynamic_cast<MSXWatchIODevice*>(*devicePtr)) {
@@ -346,63 +346,63 @@ MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
 	return *devicePtr;
 }
 
-void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
+void MSXCPUInterface::register_IO_In(uint8_t port, MSXDevice* device)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
 	register_IO(port, true, devicePtr, device); // in
 }
 
-void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_In(uint8_t port, MSXDevice* device)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
 	unregister_IO(devicePtr, device);
 }
 
-void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
+void MSXCPUInterface::register_IO_Out(uint8_t port, MSXDevice* device)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
 	register_IO(port, false, devicePtr, device); // out
 }
 
-void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_Out(uint8_t port, MSXDevice* device)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
 	unregister_IO(devicePtr, device);
 }
 
-void MSXCPUInterface::register_IO_InOut(byte port, MSXDevice* device)
+void MSXCPUInterface::register_IO_InOut(uint8_t port, MSXDevice* device)
 {
 	register_IO_In(port, device);
 	register_IO_Out(port, device);
 }
-void MSXCPUInterface::unregister_IO_InOut(byte port, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_InOut(uint8_t port, MSXDevice* device)
 {
 	unregister_IO_In(port, device);
 	unregister_IO_Out(port, device);
 }
-void MSXCPUInterface::register_IO_In_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::register_IO_In_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_In(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) register_IO_In(narrow<uint8_t>(port + i), device);
 }
-void MSXCPUInterface::register_IO_Out_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::register_IO_Out_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_Out(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) register_IO_Out(narrow<uint8_t>(port + i), device);
 }
-void MSXCPUInterface::register_IO_InOut_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::register_IO_InOut_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) register_IO_InOut(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) register_IO_InOut(narrow<uint8_t>(port + i), device);
 }
-void MSXCPUInterface::unregister_IO_In_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_In_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_In(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) unregister_IO_In(narrow<uint8_t>(port + i), device);
 }
-void MSXCPUInterface::unregister_IO_Out_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_Out_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_Out(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) unregister_IO_Out(narrow<uint8_t>(port + i), device);
 }
-void MSXCPUInterface::unregister_IO_InOut_range(byte port, unsigned num, MSXDevice* device)
+void MSXCPUInterface::unregister_IO_InOut_range(uint8_t port, unsigned num, MSXDevice* device)
 {
-	for (auto i : xrange(num)) unregister_IO_InOut(narrow<byte>(port + i), device);
+	for (auto i : xrange(num)) unregister_IO_InOut(narrow<uint8_t>(port + i), device);
 }
 
 void MSXCPUInterface::register_IO(int port, bool isIn,
@@ -454,7 +454,7 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 }
 
 bool MSXCPUInterface::replace_IO_In(
-	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
+	uint8_t port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
 	if (devicePtr != oldDevice) {
@@ -465,7 +465,7 @@ bool MSXCPUInterface::replace_IO_In(
 	return true;
 }
 bool MSXCPUInterface::replace_IO_Out(
-	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
+	uint8_t port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
 	if (devicePtr != oldDevice) {
@@ -512,7 +512,7 @@ void MSXCPUInterface::testRegisterSlot(
 void MSXCPUInterface::registerSlot(
 	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
-	auto page = narrow<byte>(base >> 14);
+	auto page = narrow<uint8_t>(base >> 14);
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {
 		// full 16kb, directly register device (no multiplexer)
@@ -534,14 +534,14 @@ void MSXCPUInterface::registerSlot(
 			assert(false);
 		}
 	}
-	invalidateRWCache(narrow<word>(base), size, ps, ss);
+	invalidateRWCache(narrow<uint16_t>(base), size, ps, ss);
 	updateVisible(page);
 }
 
 void MSXCPUInterface::unregisterSlot(
 	MSXDevice& device, int ps, int ss, unsigned base, unsigned size)
 {
-	auto page = narrow<byte>(base >> 14);
+	auto page = narrow<uint8_t>(base >> 14);
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
@@ -555,7 +555,7 @@ void MSXCPUInterface::unregisterSlot(
 		assert(slot == &device);
 		slot = dummyDevice.get();
 	}
-	invalidateRWCache(narrow<word>(base), size, ps, ss);
+	invalidateRWCache(narrow<uint16_t>(base), size, ps, ss);
 	updateVisible(page);
 }
 
@@ -601,7 +601,7 @@ void MSXCPUInterface::unregisterMemDevice(
 	}
 }
 
-void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
+void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, uint16_t address)
 {
 	globalWrites.push_back({&device, address});
 
@@ -609,7 +609,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
-void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
+void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, uint16_t address)
 {
 	GlobalRwInfo info = { .device = &device, .addr = address };
 	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
@@ -625,7 +625,7 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
-void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
+void MSXCPUInterface::registerGlobalRead(MSXDevice& device, uint16_t address)
 {
 	globalReads.push_back({&device, address});
 
@@ -633,7 +633,7 @@ void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
 	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
-void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
+void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, uint16_t address)
 {
 	GlobalRwInfo info = { .device = &device, .addr = address };
 	move_pop_back(globalReads, rfind_unguarded(globalReads, info));
@@ -649,7 +649,7 @@ void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
-ALWAYS_INLINE void MSXCPUInterface::updateVisible(byte page, byte ps, byte ss)
+ALWAYS_INLINE void MSXCPUInterface::updateVisible(uint8_t page, uint8_t ps, uint8_t ss)
 {
 	MSXDevice* newDevice = slotLayout[ps][ss][page];
 	if (visibleDevices[page] != newDevice) {
@@ -657,38 +657,38 @@ ALWAYS_INLINE void MSXCPUInterface::updateVisible(byte page, byte ps, byte ss)
 		msxcpu.updateVisiblePage(page, ps, ss);
 	}
 }
-void MSXCPUInterface::updateVisible(byte page)
+void MSXCPUInterface::updateVisible(uint8_t page)
 {
 	updateVisible(page, primarySlotState[page], secondarySlotState[page]);
 }
 
-void MSXCPUInterface::invalidateRWCache(word start, unsigned size, int ps, int ss)
+void MSXCPUInterface::invalidateRWCache(uint16_t start, unsigned size, int ps, int ss)
 {
 	tick(CacheLineCounters::InvalidateReadWrite);
 	msxcpu.invalidateRWCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
 }
-void MSXCPUInterface::invalidateRCache (word start, unsigned size, int ps, int ss)
+void MSXCPUInterface::invalidateRCache (uint16_t start, unsigned size, int ps, int ss)
 {
 	tick(CacheLineCounters::InvalidateRead);
 	msxcpu.invalidateRCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
 }
-void MSXCPUInterface::invalidateWCache (word start, unsigned size, int ps, int ss)
+void MSXCPUInterface::invalidateWCache (uint16_t start, unsigned size, int ps, int ss)
 {
 	tick(CacheLineCounters::InvalidateWrite);
 	msxcpu.invalidateWCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
 }
 
-void MSXCPUInterface::fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss)
+void MSXCPUInterface::fillRWCache(unsigned start, unsigned size, const uint8_t* rData, uint8_t* wData, int ps, int ss)
 {
 	tick(CacheLineCounters::FillReadWrite);
 	msxcpu.fillRWCache(start, size, rData, wData, ps, ss, disallowReadCache, disallowWriteCache);
 }
-void MSXCPUInterface::fillRCache(unsigned start, unsigned size, const byte* rData, int ps, int ss)
+void MSXCPUInterface::fillRCache(unsigned start, unsigned size, const uint8_t* rData, int ps, int ss)
 {
 	tick(CacheLineCounters::FillRead);
 	msxcpu.fillRCache(start, size, rData, ps, ss, disallowReadCache, disallowWriteCache);
 }
-void MSXCPUInterface::fillWCache(unsigned start, unsigned size, byte* wData, int ps, int ss)
+void MSXCPUInterface::fillWCache(unsigned start, unsigned size, uint8_t* wData, int ps, int ss)
 {
 	tick(CacheLineCounters::FillWrite);
 	msxcpu.fillWCache(start, size, wData, ps, ss, disallowReadCache, disallowWriteCache);
@@ -696,18 +696,18 @@ void MSXCPUInterface::fillWCache(unsigned start, unsigned size, byte* wData, int
 
 void MSXCPUInterface::reset()
 {
-	for (auto i : xrange(byte(4))) {
+	for (auto i : xrange(uint8_t(4))) {
 		setSubSlot(i, 0);
 	}
 	setPrimarySlots(initialPrimarySlots);
 }
 
-byte MSXCPUInterface::readIRQVector() const
+uint8_t MSXCPUInterface::readIRQVector() const
 {
 	return motherBoard.readIRQVector();
 }
 
-void MSXCPUInterface::setPrimarySlots(byte value)
+void MSXCPUInterface::setPrimarySlots(uint8_t value)
 {
 	// Change the slot structure.
 	// Originally the code below was a loop over the 4 pages, and the check
@@ -721,29 +721,29 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 	// difference.  Changing the slots several hundreds of times per
 	// (EmuTime) is not unusual. So this routine ended up quite high
 	// (top-10) in some profile results.
-	if (byte ps0 = (value >> 0) & 3; primarySlotState[0] != ps0) [[unlikely]] {
+	if (uint8_t ps0 = (value >> 0) & 3; primarySlotState[0] != ps0) [[unlikely]] {
 		primarySlotState[0] = ps0;
-		byte ss0 = (subSlotRegister[ps0] >> 0) & 3;
+		uint8_t ss0 = (subSlotRegister[ps0] >> 0) & 3;
 		secondarySlotState[0] = ss0;
 		updateVisible(0, ps0, ss0);
 	}
-	if (byte ps1 = (value >> 2) & 3; primarySlotState[1] != ps1) [[unlikely]] {
+	if (uint8_t ps1 = (value >> 2) & 3; primarySlotState[1] != ps1) [[unlikely]] {
 		primarySlotState[1] = ps1;
-		byte ss1 = (subSlotRegister[ps1] >> 2) & 3;
+		uint8_t ss1 = (subSlotRegister[ps1] >> 2) & 3;
 		secondarySlotState[1] = ss1;
 		updateVisible(1, ps1, ss1);
 	}
-	if (byte ps2 = (value >> 4) & 3; primarySlotState[2] != ps2) [[unlikely]] {
+	if (uint8_t ps2 = (value >> 4) & 3; primarySlotState[2] != ps2) [[unlikely]] {
 		primarySlotState[2] = ps2;
-		byte ss2 = (subSlotRegister[ps2] >> 4) & 3;
+		uint8_t ss2 = (subSlotRegister[ps2] >> 4) & 3;
 		secondarySlotState[2] = ss2;
 		updateVisible(2, ps2, ss2);
 	}
-	if (byte ps3 = (value >> 6) & 3; primarySlotState[3] != ps3) [[unlikely]] {
+	if (uint8_t ps3 = (value >> 6) & 3; primarySlotState[3] != ps3) [[unlikely]] {
 		bool oldExpanded = isExpanded(primarySlotState[3]);
 		bool newExpanded = isExpanded(ps3);
 		primarySlotState[3] = ps3;
-		byte ss3 = (subSlotRegister[ps3] >> 6) & 3;
+		uint8_t ss3 = (subSlotRegister[ps3] >> 6) & 3;
 		secondarySlotState[3] = ss3;
 		updateVisible(3, ps3, ss3);
 		if (oldExpanded != newExpanded) [[unlikely]] {
@@ -752,10 +752,10 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 	}
 }
 
-void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
+void MSXCPUInterface::setSubSlot(uint8_t primSlot, uint8_t value)
 {
 	subSlotRegister[primSlot] = value;
-	for (byte page = 0; page < 4; ++page, value >>= 2) {
+	for (uint8_t page = 0; page < 4; ++page, value >>= 2) {
 		if (primSlot == primarySlotState[page]) {
 			secondarySlotState[page] = value & 3;
 			// Change the visible devices
@@ -764,7 +764,7 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 	}
 }
 
-byte MSXCPUInterface::peekMem(word address, EmuTime::param time) const
+uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
@@ -773,12 +773,12 @@ byte MSXCPUInterface::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-byte MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) const
+uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) const
 {
-	byte primSlot = (address & 0xC0000) >> 18;
-	byte subSlot = (address & 0x30000) >> 16;
-	byte page = (address & 0x0C000) >> 14;
-	word offset = (address & 0xFFFF); // includes page
+	uint8_t primSlot = (address & 0xC0000) >> 18;
+	uint8_t subSlot = (address & 0x30000) >> 16;
+	uint8_t page = (address & 0x0C000) >> 14;
+	uint16_t offset = (address & 0xFFFF); // includes page
 	if (!isExpanded(primSlot)) {
 		subSlot = 0;
 	}
@@ -790,12 +790,12 @@ byte MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) cons
 	}
 }
 
-byte MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
 {
-	byte primSlot = (address & 0xC0000) >> 18;
-	byte subSlot = (address & 0x30000) >> 16;
-	byte page = (address & 0x0C000) >> 14;
-	word offset = (address & 0xFFFF); // includes page
+	uint8_t primSlot = (address & 0xC0000) >> 18;
+	uint8_t subSlot = (address & 0x30000) >> 16;
+	uint8_t page = (address & 0x0C000) >> 14;
+	uint16_t offset = (address & 0xFFFF); // includes page
 	if (!isExpanded(primSlot)) {
 		subSlot = 0;
 	}
@@ -807,13 +807,13 @@ byte MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
 	}
 }
 
-void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
+void MSXCPUInterface::writeSlottedMem(unsigned address, uint8_t value,
                                       EmuTime::param time)
 {
-	byte primSlot = (address & 0xC0000) >> 18;
-	byte subSlot = (address & 0x30000) >> 16;
-	byte page = (address & 0x0C000) >> 14;
-	word offset = (address & 0xFFFF); // includes page
+	uint8_t primSlot = (address & 0xC0000) >> 18;
+	uint8_t subSlot = (address & 0x30000) >> 16;
+	uint8_t page = (address & 0x0C000) >> 14;
+	uint16_t offset = (address & 0xFFFF); // includes page
 	if (!isExpanded(primSlot)) {
 		subSlot = 0;
 	}
@@ -1102,17 +1102,17 @@ MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard_)
 {
 }
 
-byte MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	const auto& interface = OUTER(MSXCPUInterface, memoryDebug);
-	return interface.peekMem(narrow<word>(address), time);
+	return interface.peekMem(narrow<uint16_t>(address), time);
 }
 
-void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
+void MSXCPUInterface::MemoryDebug::write(unsigned address, uint8_t value,
                                          EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
-	interface.writeMem(narrow<word>(address), value, time);
+	interface.writeMem(narrow<uint16_t>(address), value, time);
 }
 
 
@@ -1125,13 +1125,13 @@ MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 {
 }
 
-byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	const auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	return interface.peekSlottedMem(address, time);
 }
 
-void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
+void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, uint8_t value,
                                                 EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
@@ -1245,16 +1245,16 @@ MSXCPUInterface::IODebug::IODebug(MSXMotherBoard& motherBoard_)
 {
 }
 
-byte MSXCPUInterface::IODebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::IODebug::read(unsigned address, EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, ioDebug);
-	return interface.IO_In[address & 0xFF]->peekIO(narrow<word>(address), time);
+	return interface.IO_In[address & 0xFF]->peekIO(narrow<uint16_t>(address), time);
 }
 
-void MSXCPUInterface::IODebug::write(unsigned address, byte value, EmuTime::param time)
+void MSXCPUInterface::IODebug::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& interface = OUTER(MSXCPUInterface, ioDebug);
-	interface.writeIO(word(address), value, time);
+	interface.writeIO(uint16_t(address), value, time);
 }
 
 
@@ -1300,17 +1300,17 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 	// TODO watchPoints ???
 
 	// primary and 4 secondary slot select registers
-	byte prim = 0;
+	uint8_t prim = 0;
 	if constexpr (!Archive::IS_LOADER) {
 		for (auto i : xrange(4)) {
-			prim |= byte(primarySlotState[i] << (2 * i));
+			prim |= uint8_t(primarySlotState[i] << (2 * i));
 		}
 	}
 	ar.serialize("primarySlots", prim,
 	             "subSlotRegs",  subSlotRegister);
 	if constexpr (Archive::IS_LOADER) {
 		setPrimarySlots(prim);
-		for (auto i : xrange(byte(4))) {
+		for (auto i : xrange(uint8_t(4))) {
 			setSubSlot(i, subSlotRegister[i]);
 		}
 	}

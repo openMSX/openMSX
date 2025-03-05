@@ -17,7 +17,7 @@ namespace openmsx {
 class R800TYPE : public CPUClock
 {
 public:
-	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
+	void updateVisiblePage(uint8_t page, uint8_t primarySlot, uint8_t secondarySlot)
 	{
 		extraMemoryDelay[page] =
 			extraMemoryDelays[page][primarySlot][secondarySlot];

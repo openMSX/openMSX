@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-MSXSwitchedDevice::MSXSwitchedDevice(MSXMotherBoard& motherBoard_, byte id_)
+MSXSwitchedDevice::MSXSwitchedDevice(MSXMotherBoard& motherBoard_, uint8_t id_)
 	: motherBoard(motherBoard_), id(id_)
 {
 	motherBoard.getDeviceSwitch().registerDevice(id, this);

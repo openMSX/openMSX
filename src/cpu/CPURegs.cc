@@ -22,7 +22,7 @@ void CPURegs::serialize(Archive& ar, unsigned version)
 	             "pc",  PC_.w,
 	             "sp",  SP_.w,
 	             "i",   I_);
-	byte r = getR();
+	uint8_t r = getR();
 	ar.serialize("r",   r);  // combined R_ and R2_
 	if constexpr (Archive::IS_LOADER) setR(r);
 	ar.serialize("im",   IM_,
@@ -36,7 +36,7 @@ void CPURegs::serialize(Archive& ar, unsigned version)
 		if (afterEI) setCurrentEI();
 		endInstruction();
 	} else if (ar.versionBelow(version, 3)) {
-		byte after = 0;
+		uint8_t after = 0;
 		ar.serialize("after", after);
 		clearPrevious();
 		prev_ = after; // flags still in same position
