@@ -153,7 +153,7 @@ void Y8950Adpcm::executeUntil(EmuTime::param time)
 	}
 }
 
-void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
+void Y8950Adpcm::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 {
 	sync(time); // TODO only when needed
 	switch (rg) {
@@ -256,7 +256,7 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 	}
 }
 
-void Y8950Adpcm::writeData(byte data)
+void Y8950Adpcm::writeData(uint8_t data)
 {
 	reg15 = data;
 	if ((reg7 & R07_MODE) == 0x60) {
@@ -303,22 +303,22 @@ void Y8950Adpcm::writeData(byte data)
 	}
 }
 
-byte Y8950Adpcm::readReg(byte rg, EmuTime::param time)
+uint8_t Y8950Adpcm::readReg(uint8_t rg, EmuTime::param time)
 {
 	sync(time); // TODO only when needed
-	byte result = (rg == 0x0F)
+	uint8_t result = (rg == 0x0F)
 	            ? readData()   // ADPCM-DATA
 	            : peekReg(rg); // other
 	return result;
 }
 
-byte Y8950Adpcm::peekReg(byte rg, EmuTime::param time) const
+uint8_t Y8950Adpcm::peekReg(uint8_t rg, EmuTime::param time) const
 {
 	const_cast<Y8950Adpcm*>(this)->sync(time); // TODO only when needed
 	return peekReg(rg);
 }
 
-byte Y8950Adpcm::peekReg(byte rg) const
+uint8_t Y8950Adpcm::peekReg(uint8_t rg) const
 {
 	switch (rg) {
 	case 0x0F: // ADPCM-DATA
@@ -327,9 +327,9 @@ byte Y8950Adpcm::peekReg(byte rg) const
 		// TODO check: is this before or after
 		//   volume is applied
 		//   filtering is performed
-		return narrow_cast<byte>((emu.output >>  8) & 0xFF);
+		return narrow_cast<uint8_t>((emu.output >>  8) & 0xFF);
 	case 0x14:
-		return narrow_cast<byte>((emu.output >> 16) & 0xFF);
+		return narrow_cast<uint8_t>((emu.output >> 16) & 0xFF);
 	default:
 		return 255;
 	}
@@ -360,7 +360,7 @@ void Y8950Adpcm::resetStatus()
 	}
 }
 
-byte Y8950Adpcm::readData()
+uint8_t Y8950Adpcm::readData()
 {
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
 		// external memory read
@@ -369,7 +369,7 @@ byte Y8950Adpcm::readData()
 			emu.memPtr = startAddr;
 		}
 	}
-	byte result = peekData();
+	uint8_t result = peekData();
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
 		assert(!isPlaying()); // no need to update the 'aud' data
 		if (readDelay) {
@@ -399,7 +399,7 @@ byte Y8950Adpcm::readData()
 	return result;
 }
 
-byte Y8950Adpcm::peekData() const
+uint8_t Y8950Adpcm::peekData() const
 {
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
 		// external memory read
@@ -416,14 +416,14 @@ byte Y8950Adpcm::peekData() const
 	}
 }
 
-void Y8950Adpcm::writeMemory(unsigned memPtr, byte value)
+void Y8950Adpcm::writeMemory(unsigned memPtr, uint8_t value)
 {
 	unsigned addr = (memPtr / 2) & addrMask;
 	if ((addr < ram.size()) && !romBank) {
 		ram.write(addr, value);
 	}
 }
-byte Y8950Adpcm::readMemory(unsigned memPtr) const
+uint8_t Y8950Adpcm::readMemory(unsigned memPtr) const
 {
 	unsigned addr = (memPtr / 2) & addrMask;
 	if (romBank || (addr >= ram.size())) {
@@ -459,7 +459,7 @@ int Y8950Adpcm::calcSample(bool doEmu)
 	pd.nowStep += delta;
 	if (pd.nowStep & ~STEP_MASK) {
 		pd.nowStep &= STEP_MASK;
-		byte val = [&] {
+		uint8_t val = [&] {
 			if (!(pd.memPtr & 1)) {
 				// even nibble
 				if (reg7 & R07_MEMORY_DATA) {
@@ -471,10 +471,10 @@ int Y8950Adpcm::calcSample(bool doEmu)
 						y8950.setStatus(Y8950::STATUS_BUF_RDY);
 					}
 				}
-				return byte(pd.adpcm_data >> 4);
+				return uint8_t(pd.adpcm_data >> 4);
 			} else {
 				// odd nibble
-				return byte(pd.adpcm_data & 0x0F);
+				return uint8_t(pd.adpcm_data & 0x0F);
 			}
 		}();
 		int prevOut = pd.out;

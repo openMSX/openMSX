@@ -23,21 +23,21 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
 	// TODO: implement peekMem, because the default isn't OK anymore
-	[[nodiscard]] const byte *getReadCacheLine(word start) const override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word start) override;
+	[[nodiscard]] const uint8_t *getReadCacheLine(uint16_t start) const override;
+	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t* getWriteCacheLine(uint16_t start) override;
 	[[nodiscard]] bool allowUnaligned() const override;
 
 	// RS232Connector  (input)
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 	[[nodiscard]] bool ready() override;
 	[[nodiscard]] bool acceptsData() override;
 
@@ -45,11 +45,11 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] byte readIOImpl(word port, EmuTime::param time);
-	void writeIOImpl(word port, byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t readIOImpl(uint16_t port, EmuTime::param time);
+	void writeIOImpl(uint16_t port, uint8_t value, EmuTime::param time);
 
-	[[nodiscard]] byte readStatus(EmuTime::param time);
-	void setIRQMask(byte value);
+	[[nodiscard]] uint8_t readStatus(EmuTime::param time);
+	void setIRQMask(uint8_t value);
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
@@ -74,7 +74,7 @@ private:
 		void setDataBits(DataBits bits) override;
 		void setStopBits(StopBits bits) override;
 		void setParityBit(bool enable, Parity parity) override;
-		void recvByte(byte value, EmuTime::param time) override;
+		void recvByte(uint8_t value, EmuTime::param time) override;
 		void signal(EmuTime::param time) override;
 	} interface;
 

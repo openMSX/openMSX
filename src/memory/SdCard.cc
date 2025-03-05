@@ -17,23 +17,23 @@
 namespace openmsx {
 
 // data response tokens
-static constexpr byte DRT_ACCEPTED    = 0x05;
-static constexpr byte DRT_WRITE_ERROR = 0x0D;
+static constexpr uint8_t DRT_ACCEPTED    = 0x05;
+static constexpr uint8_t DRT_WRITE_ERROR = 0x0D;
 
 // start block tokens and stop tran token
-static constexpr byte START_BLOCK_TOKEN     = 0xFE;
-static constexpr byte START_BLOCK_TOKEN_MBW = 0xFC;
-static constexpr byte STOP_TRAN_TOKEN       = 0xFD;
+static constexpr uint8_t START_BLOCK_TOKEN     = 0xFE;
+static constexpr uint8_t START_BLOCK_TOKEN_MBW = 0xFC;
+static constexpr uint8_t STOP_TRAN_TOKEN       = 0xFD;
 
 // data error token
-static constexpr byte DATA_ERROR_TOKEN_ERROR        = 0x01;
-static constexpr byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x08;
+static constexpr uint8_t DATA_ERROR_TOKEN_ERROR        = 0x01;
+static constexpr uint8_t DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x08;
 
 // responses
-static constexpr byte R1_BUSY            = 0x00;
-static constexpr byte R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_BUSY?
-static constexpr byte R1_ILLEGAL_COMMAND = 0x04;
-static constexpr byte R1_PARAMETER_ERROR = 0x80;
+static constexpr uint8_t R1_BUSY            = 0x00;
+static constexpr uint8_t R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_BUSY?
+static constexpr uint8_t R1_ILLEGAL_COMMAND = 0x04;
+static constexpr uint8_t R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
 	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
@@ -43,9 +43,9 @@ SdCard::SdCard(const DeviceConfig& config)
 SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
-byte SdCard::readCurrentByteFromCurrentSector()
+uint8_t SdCard::readCurrentByteFromCurrentSector()
 {
-	byte result = [&] {
+	uint8_t result = [&] {
 		if (currentByteInSector == -1) {
 			try {
 				hd->readSector(currentSector, sectorBuf);
@@ -60,12 +60,12 @@ byte SdCard::readCurrentByteFromCurrentSector()
 	}();
 	currentByteInSector++;
 	if (currentByteInSector == sizeof(sectorBuf)) {
-		responseQueue.push_back({byte(0x00), byte(0x00)}); // 2 CRC's (dummy)
+		responseQueue.push_back({uint8_t(0x00), uint8_t(0x00)}); // 2 CRC's (dummy)
 	}
 	return result;
 }
 
-byte SdCard::transfer(byte value, bool cs)
+uint8_t SdCard::transfer(uint8_t value, bool cs)
 {
 	if (!hd) return 0xFF; // no card inserted
 
@@ -76,7 +76,7 @@ byte SdCard::transfer(byte value, bool cs)
 
 	// process output
 	using enum Mode;
-	byte retval = 0xFF;
+	uint8_t retval = 0xFF;
 	if (transferDelayCounter > 0) {
 		--transferDelayCounter;
 	} else {
@@ -131,7 +131,7 @@ byte SdCard::transfer(byte value, bool cs)
 		}
 		currentByteInSector++;
 		if (currentByteInSector == (sizeof(sectorBuf) + 2)) {
-			byte response = DRT_ACCEPTED;
+			uint8_t response = DRT_ACCEPTED;
 			// copy buffer to SD card
 			try {
 				hd->writeSector(currentSector, sectorBuf);
@@ -160,7 +160,7 @@ byte SdCard::transfer(byte value, bool cs)
 		currentByteInSector++;
 		if (currentByteInSector == (sizeof(sectorBuf) + 2)) {
 			// check if still in valid range
-			byte response = DRT_ACCEPTED;
+			uint8_t response = DRT_ACCEPTED;
 			if (currentSector >= hd->getNbSectors()) {
 				response = DRT_WRITE_ERROR;
 				// note: mode is not changed, should be done by
@@ -210,7 +210,7 @@ void SdCard::executeCommand()
 	// can be given to a command
 	using enum Mode;
 	transferDelayCounter = 2;
-	byte command = cmdBuf[0] & 0x3F;
+	uint8_t command = cmdBuf[0] & 0x3F;
 	switch (command) {
 	case 0:  // GO_IDLE_STATE
 		responseQueue.clear();
@@ -221,9 +221,9 @@ void SdCard::executeCommand()
 		// conditions are always OK
 		responseQueue.push_back({
 			R1_IDLE,    // R1 (OK) SDHC (checked by MegaSD and FUZIX)
-			byte(0x02), // command version
-			byte(0x00), // reserved
-			byte(0x01), // voltage accepted
+			uint8_t(0x02), // command version
+			uint8_t(0x00), // reserved
+			uint8_t(0x01), // voltage accepted
 			cmdBuf[4]});// check pattern
 		break;
 	case 9:{ // SEND_CSD
@@ -231,46 +231,46 @@ void SdCard::executeCommand()
 			R1_BUSY, // OK (ignored on MegaSD code, used in FUZIX)
 		// now follows a CSD version 2.0 (for SDHC)
 			START_BLOCK_TOKEN, // data token
-			byte(0x40),        // CSD_STRUCTURE [127:120]
-			byte(0x0E),        // (TAAC)
-			byte(0x00),        // (NSAC)
-			byte(0x32),        // (TRAN_SPEED)
-			byte(0x00),        // CCC
-			byte(0x00),        // CCC / (READ_BL_LEN)
-			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
+			uint8_t(0x40),        // CSD_STRUCTURE [127:120]
+			uint8_t(0x0E),        // (TAAC)
+			uint8_t(0x00),        // (NSAC)
+			uint8_t(0x32),        // (TRAN_SPEED)
+			uint8_t(0x00),        // CCC
+			uint8_t(0x00),        // CCC / (READ_BL_LEN)
+			uint8_t(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
 		auto c_size = narrow<uint32_t>((hd->getNbSectors() * sizeof(sectorBuf)) / size_t(512 * 1024) - 1);
 		responseQueue.push_back({
-			byte((c_size >> 16) & 0x3F), // C_SIZE 1
-			byte((c_size >>  8) & 0xFF), // C_SIZE 2
-			byte((c_size >>  0) & 0xFF), // C_SIZE 3
-			byte(0x00),   // res/(EBE)/(SS1)
-			byte(0x00),   // (SS2)/(WGS)
-			byte(0x00),   // (WGE)/res/(RF)/(WBL1)
-			byte(0x00),   // (WBL2)/(WBP)/res
-			byte(0x00),   // (FFG)/COPY/PWP/TWP/(FF)/res
-			byte(0x01)}); // CRC / 1
+			uint8_t((c_size >> 16) & 0x3F), // C_SIZE 1
+			uint8_t((c_size >>  8) & 0xFF), // C_SIZE 2
+			uint8_t((c_size >>  0) & 0xFF), // C_SIZE 3
+			uint8_t(0x00),   // res/(EBE)/(SS1)
+			uint8_t(0x00),   // (SS2)/(WGS)
+			uint8_t(0x00),   // (WGE)/res/(RF)/(WBL1)
+			uint8_t(0x00),   // (WBL2)/(WBP)/res
+			uint8_t(0x00),   // (FFG)/COPY/PWP/TWP/(FF)/res
+			uint8_t(0x01)}); // CRC / 1
 		break;}
 	case 10: // SEND_CID
 		responseQueue.push_back({
 			R1_BUSY, // OK (ignored on MegaSD, unused in FUZIX so far)
 			START_BLOCK_TOKEN, // data token
-			byte(0xAA),   // CID01 // manuf ID
-			byte('o' ),   // CID02 // OEM/App ID 1
-			byte('p' ),   // CID03 // OEM/App ID 2
-			byte('e' ),   // CID04 // Prod name 1
-			byte('n' ),   // CID05 // Prod name 2
-			byte('M' ),   // CID06 // Prod name 3
-			byte('S' ),   // CID07 // Prod name 4
-			byte('X' ),   // CID08 // Prod name 5
-			byte(0x01),   // CID09 // Prod Revision
-			byte(0x12),   // CID10 // Prod Serial 1
-			byte(0x34),   // CID11 // Prod Serial 2
-			byte(0x56),   // CID12 // Prod Serial 3
-			byte(0x78),   // CID13 // Prod Serial 4
-			byte(0x00),   // CID14 // reserved / Y1
-			byte(0xE6),   // CID15 // Y2 / M
-			byte(0x01)}); // CID16 // CRC / not used
+			uint8_t(0xAA),   // CID01 // manuf ID
+			uint8_t('o' ),   // CID02 // OEM/App ID 1
+			uint8_t('p' ),   // CID03 // OEM/App ID 2
+			uint8_t('e' ),   // CID04 // Prod name 1
+			uint8_t('n' ),   // CID05 // Prod name 2
+			uint8_t('M' ),   // CID06 // Prod name 3
+			uint8_t('S' ),   // CID07 // Prod name 4
+			uint8_t('X' ),   // CID08 // Prod name 5
+			uint8_t(0x01),   // CID09 // Prod Revision
+			uint8_t(0x12),   // CID10 // Prod Serial 1
+			uint8_t(0x34),   // CID11 // Prod Serial 2
+			uint8_t(0x56),   // CID12 // Prod Serial 3
+			uint8_t(0x78),   // CID13 // Prod Serial 4
+			uint8_t(0x00),   // CID14 // reserved / Y1
+			uint8_t(0xE6),   // CID15 // Y2 / M
+			uint8_t(0x01)}); // CID16 // CRC / not used
 		break;
 	case 12: // STOP TRANSMISSION
 		responseQueue.push_back(R1_IDLE); // R1 (OK)
@@ -310,10 +310,10 @@ void SdCard::executeCommand()
 	case 58: // READ_OCR
 		responseQueue.push_back({
 			R1_BUSY,// R1 (OK) (ignored on MegaSD, checked in FUZIX)
-			byte(0x40),   // OCR Reg part 1 (SDHC: CCS=1)
-			byte(0x00),   // OCR Reg part 2
-			byte(0x00),   // OCR Reg part 3
-			byte(0x00)}); // OCR Reg part 4
+			uint8_t(0x40),   // OCR Reg part 1 (SDHC: CCS=1)
+			uint8_t(0x00),   // OCR Reg part 2
+			uint8_t(0x00),   // OCR Reg part 3
+			uint8_t(0x00)}); // OCR Reg part 4
 		break;
 
 	default:

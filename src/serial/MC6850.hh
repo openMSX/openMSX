@@ -1,13 +1,16 @@
 #ifndef MC6850_HH
 #define MC6850_HH
 
-#include "DynamicClock.hh"
-#include "IRQHelper.hh"
 #include "MidiInConnector.hh"
 #include "MidiOutConnector.hh"
+
+#include "DynamicClock.hh"
+#include "IRQHelper.hh"
 #include "Schedulable.hh"
-#include "openmsx.hh"
+
 #include "outer.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -19,12 +22,12 @@ public:
 	MC6850(const std::string& name, MSXMotherBoard& motherBoard, unsigned clockFreq);
 	void reset(EmuTime::param time);
 
-	[[nodiscard]] byte readStatusReg() const;
-	[[nodiscard]] byte peekStatusReg() const;
-	[[nodiscard]] byte readDataReg();
-	[[nodiscard]] byte peekDataReg() const;
-	void writeControlReg(byte value, EmuTime::param time);
-	void writeDataReg   (byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t readStatusReg() const;
+	[[nodiscard]] uint8_t peekStatusReg() const;
+	[[nodiscard]] uint8_t readDataReg();
+	[[nodiscard]] uint8_t peekDataReg() const;
+	void writeControlReg(uint8_t value, EmuTime::param time);
+	void writeDataReg   (uint8_t value, EmuTime::param time);
 
         template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -38,7 +41,7 @@ private:
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 
 	// Schedulable
 	struct SyncRecv final : Schedulable {
@@ -70,12 +73,12 @@ private:
 	bool rxReady;
 	bool txShiftRegValid; //<! True iff txShiftReg contains a valid value
 	bool pendingOVRN;     //<! Overrun detected but not yet reported.
-	byte rxDataReg;       //<! Byte received from MIDI in connector.
-	byte txDataReg = 0;   //<! Next to-be-sent byte.
-	byte txShiftReg = 0;  //<! Byte currently being sent.
-	byte controlReg;
-	byte statusReg;
-	byte charLen;         //<! #start- + #data- + #parity- + #stop-bits
+	uint8_t rxDataReg;       //<! Byte received from MIDI in connector.
+	uint8_t txDataReg = 0;   //<! Next to-be-sent byte.
+	uint8_t txShiftReg = 0;  //<! Byte currently being sent.
+	uint8_t controlReg;
+	uint8_t statusReg;
+	uint8_t charLen;         //<! #start- + #data- + #parity- + #stop-bits
 
 	MidiOutConnector outConnector;
 };

@@ -4,8 +4,9 @@
 #include "Clock.hh"
 #include "Schedulable.hh"
 #include "TrackedRam.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -21,9 +22,9 @@ public:
 	void clearRam();
 	void reset(EmuTime::param time);
 	[[nodiscard]] bool isMuted() const;
-	void writeReg(byte rg, byte data, EmuTime::param time);
-	[[nodiscard]] byte readReg(byte rg, EmuTime::param time);
-	[[nodiscard]] byte peekReg(byte rg, EmuTime::param time) const;
+	void writeReg(uint8_t rg, uint8_t data, EmuTime::param time);
+	[[nodiscard]] uint8_t readReg(uint8_t rg, EmuTime::param time);
+	[[nodiscard]] uint8_t peekReg(uint8_t rg, EmuTime::param time) const;
 	[[nodiscard]] int calcSample();
 	void sync(EmuTime::param time);
 	void resetStatus();
@@ -41,7 +42,7 @@ private:
 		int diff;
 		int nextLeveling;
 		int sampleStep;
-		byte adpcm_data;
+		uint8_t adpcm_data;
 	};
 
 	// Schedulable
@@ -51,12 +52,12 @@ private:
 	void restart(PlayData& pd) const;
 
 	[[nodiscard]] bool isPlaying() const;
-	void writeData(byte data);
-	[[nodiscard]] byte peekReg(byte rg) const;
-	[[nodiscard]] byte readData();
-	[[nodiscard]] byte peekData() const;
-	void writeMemory(unsigned memPtr, byte value);
-	[[nodiscard]] byte readMemory(unsigned memPtr) const;
+	void writeData(uint8_t data);
+	[[nodiscard]] uint8_t peekReg(uint8_t rg) const;
+	[[nodiscard]] uint8_t readData();
+	[[nodiscard]] uint8_t peekData() const;
+	void writeMemory(unsigned memPtr, uint8_t value);
+	[[nodiscard]] uint8_t readMemory(unsigned memPtr) const;
 	[[nodiscard]] int calcSample(bool doEmu);
 
 private:
@@ -78,8 +79,8 @@ private:
 	int volumeWStep;
 	int readDelay;
 	int delta;
-	byte reg7;
-	byte reg15;
+	uint8_t reg7;
+	uint8_t reg15;
 	bool romBank;
 };
 SERIALIZE_CLASS_VERSION(Y8950Adpcm, 2);

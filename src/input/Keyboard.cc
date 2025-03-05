@@ -15,7 +15,6 @@
 #include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "UnicodeKeymap.hh"
-#include "openmsx.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
@@ -34,6 +33,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstdio>
 #include <cassert>
 #include <cstdarg>
@@ -984,14 +984,6 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		// Once that is done, debug(...) can pass the c_str() version of that string
 		// to ad_printf(...) so that I don't have to make an explicit ad_printf(...)
 		// invocation for each debug(...) invocation
-		ad_printf("Key pressed, unicode: 0x%04x (%s), keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
-		      keyEvent.getUnicode(),
-		      codepointToUtf8(keyEvent.getUnicode()).c_str(),
-		      keyEvent.getKeyCode(),
-		      SDL_GetKeyName(keyEvent.getKeyCode()),
-		      keyEvent.getScanCode(),
-		      SDL_GetScancodeName(keyEvent.getScanCode()),
-		      key.toString().c_str());
 		debug("Key pressed, unicode: 0x%04x (%s), keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getUnicode(),
 		      codepointToUtf8(keyEvent.getUnicode()).c_str(),
@@ -1001,12 +993,6 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      SDL_GetScancodeName(keyEvent.getScanCode()),
 		      key.toString().c_str());
 	} else {
-		ad_printf("Key released, keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
-		      keyEvent.getKeyCode(),
-		      SDL_GetKeyName(keyEvent.getKeyCode()),
-		      keyEvent.getScanCode(),
-		      SDL_GetScancodeName(keyEvent.getScanCode()),
-		      key.toString().c_str());
 		debug("Key released, keyCode: 0x%05x (%s), scanCode: 0x%03x (%s), keyName: %s\n",
 		      keyEvent.getKeyCode(),
 		      SDL_GetKeyName(keyEvent.getKeyCode()),

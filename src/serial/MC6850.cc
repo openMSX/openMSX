@@ -87,22 +87,22 @@ void MC6850::reset(EmuTime::param time)
 	setDataFormat();
 }
 
-byte MC6850::readStatusReg() const
+uint8_t MC6850::readStatusReg() const
 {
 	return peekStatusReg();
 }
 
-byte MC6850::peekStatusReg() const
+uint8_t MC6850::peekStatusReg() const
 {
-	byte result = statusReg;
+	uint8_t result = statusReg;
 	if (rxIRQ.getState() || txIRQ.getState()) result |= STAT_IRQ;
 	return result;
 }
 
-byte MC6850::readDataReg()
+uint8_t MC6850::readDataReg()
 {
-	byte result = peekDataReg();
-	statusReg &= byte(~(STAT_RDRF | STAT_OVRN));
+	uint8_t result = peekDataReg();
+	statusReg &= uint8_t(~(STAT_RDRF | STAT_OVRN));
 	if (pendingOVRN) {
 		pendingOVRN = false;
 		statusReg |= STAT_OVRN;
@@ -111,14 +111,14 @@ byte MC6850::readDataReg()
 	return result;
 }
 
-byte MC6850::peekDataReg() const
+uint8_t MC6850::peekDataReg() const
 {
 	return rxDataReg;
 }
 
-void MC6850::writeControlReg(byte value, EmuTime::param time)
+void MC6850::writeControlReg(uint8_t value, EmuTime::param time)
 {
-	byte diff = value ^ controlReg;
+	uint8_t diff = value ^ controlReg;
 	if (diff & CR_CDS) {
 		if ((value & CR_CDS) == CR_MR) {
 			reset(time);
@@ -160,7 +160,7 @@ void MC6850::setDataFormat()
 		(controlReg & CR_WS1) ? Parity::ODD : Parity::EVEN);
 
 	// start-bits, data-bits, parity-bits, stop-bits
-	static constexpr std::array<byte, 8> len = {
+	static constexpr std::array<uint8_t, 8> len = {
 		1 + 7 + 1 + 2,
 		1 + 7 + 1 + 2,
 		1 + 7 + 1 + 1,
@@ -173,12 +173,12 @@ void MC6850::setDataFormat()
 	charLen = len[(controlReg & CR_WS) >> 2];
 }
 
-void MC6850::writeDataReg(byte value, EmuTime::param time)
+void MC6850::writeDataReg(uint8_t value, EmuTime::param time)
 {
 	if ((controlReg & CR_CDS) == CR_MR) return;
 
 	txDataReg = value;
-	statusReg &= byte(~STAT_TDRE);
+	statusReg &= uint8_t(~STAT_TDRE);
 	txIRQ.reset();
 
 	if (syncTrans.pendingSyncPoint()) {
@@ -223,7 +223,7 @@ void MC6850::execTrans(EmuTime::param time)
 }
 
 // MidiInConnector sends a new character.
-void MC6850::recvByte(byte value, EmuTime::param time)
+void MC6850::recvByte(uint8_t value, EmuTime::param time)
 {
 	assert(acceptsData() && ready());
 

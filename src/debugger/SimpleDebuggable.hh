@@ -15,10 +15,10 @@ public:
 	[[nodiscard]] unsigned getSize() const final;
 	[[nodiscard]] std::string_view getDescription() const final;
 
-	[[nodiscard]] byte read(unsigned address) override;
-	[[nodiscard]] virtual byte read(unsigned address, EmuTime::param time);
-	void write(unsigned address, byte value) override;
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t read(unsigned address) override;
+	[[nodiscard]] virtual uint8_t read(unsigned address, EmuTime::param time);
+	void write(unsigned address, uint8_t value) override;
+	virtual void write(unsigned address, uint8_t value, EmuTime::param time);
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }

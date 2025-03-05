@@ -2,12 +2,12 @@
 
 namespace openmsx {
 
-void DummyY8950KeyboardDevice::write(byte /*data*/, EmuTime::param /*time*/)
+void DummyY8950KeyboardDevice::write(uint8_t /*data*/, EmuTime::param /*time*/)
 {
 	// ignore data
 }
 
-byte DummyY8950KeyboardDevice::read(EmuTime::param /*time*/)
+uint8_t DummyY8950KeyboardDevice::read(EmuTime::param /*time*/)
 {
 	return 255;
 }

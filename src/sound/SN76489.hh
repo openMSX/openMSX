@@ -33,7 +33,7 @@ public:
 	void generateChannels(std::span<float*> buffers, unsigned num) override;
 
 	void reset(EmuTime::param time);
-	void write(byte value, EmuTime::param time);
+	void write(uint8_t value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -82,8 +82,8 @@ private:
 	  */
 	void initNoise();
 
-	[[nodiscard]] word peekRegister(unsigned reg, EmuTime::param time) const;
-	void writeRegister(unsigned reg, word value, EmuTime::param time);
+	[[nodiscard]] uint16_t peekRegister(unsigned reg, EmuTime::param time) const;
+	void writeRegister(unsigned reg, uint16_t value, EmuTime::param time);
 	template<bool NOISE> void synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator);
 
@@ -93,26 +93,26 @@ private:
 	/** Register bank. The tone period registers (0, 2, 4) are 12 bits wide,
 	  * all other registers are 4 bits wide.
 	  */
-	std::array<word, 8> regs;
+	std::array<uint16_t, 8> regs;
 
 	/** The last register written to (0-7).
 	  */
-	byte registerLatch;
+	uint8_t registerLatch;
 
 	/** Frequency counter for each channel.
 	  * These count down and when they reach zero, the output flips and the
 	  * counter is re-loaded with the value of the period register.
 	  */
-	std::array<word, 4> counters;
+	std::array<uint16_t, 4> counters;
 
 	/** Output flip-flop state (0 or 1) for each channel.
 	  */
-	std::array<byte, 4> outputs;
+	std::array<uint8_t, 4> outputs;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime::param time) override;
 	} debuggable;
 };
 

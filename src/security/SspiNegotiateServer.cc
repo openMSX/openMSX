@@ -2,8 +2,10 @@
 
 #include "SspiNegotiateServer.hh"
 #include "MSXException.hh"
+
 #include "one_of.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 

@@ -146,23 +146,23 @@ void SN76489::reset(EmuTime::param time)
 	initState();
 }
 
-void SN76489::write(byte value, EmuTime::param time)
+void SN76489::write(uint8_t value, EmuTime::param time)
 {
 	if (value & 0x80) {
 		registerLatch = (value & 0x70) >> 4;
 	}
 	const auto& reg = regs[registerLatch];
 
-	auto data = [&]() -> word {
+	auto data = [&]() -> uint16_t {
 		switch (registerLatch) {
 		case 0:
 		case 2:
 		case 4:
 			// Tone period.
 			if (value & 0x80) {
-				return word((reg & 0x3F0) | ((value & 0x0F) << 0));
+				return uint16_t((reg & 0x3F0) | ((value & 0x0F) << 0));
 			}  else {
-				return word((reg & 0x00F) | ((value & 0x3F) << 4));
+				return uint16_t((reg & 0x00F) | ((value & 0x3F) << 4));
 			}
 		case 6:
 			// Noise control.
@@ -183,14 +183,14 @@ void SN76489::write(byte value, EmuTime::param time)
 	writeRegister(registerLatch, data, time);
 }
 
-word SN76489::peekRegister(unsigned reg, EmuTime::param /*time*/) const
+uint16_t SN76489::peekRegister(unsigned reg, EmuTime::param /*time*/) const
 {
 	// Note: None of the register values will change unless a register is
 	//       written, so we don't need to sync here.
 	return regs[reg];
 }
 
-void SN76489::writeRegister(unsigned reg, word value, EmuTime::param time)
+void SN76489::writeRegister(unsigned reg, uint16_t value, EmuTime::param time)
 {
 	if (reg == 6 || regs[reg] != value) {
 		updateStream(time);
@@ -282,7 +282,7 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 
 	if (!NOISE || generator == 3) {
 		outputs[generator] = output;
-		counters[generator] = narrow_cast<word>(counter);
+		counters[generator] = narrow_cast<uint16_t>(counter);
 	}
 }
 
@@ -332,17 +332,17 @@ INSTANTIATE_SERIALIZE_METHODS(SN76489);
 // The frequency registers are 10 bits wide, so we have to split them over
 // two debuggable entries.
 static constexpr std::array SN76489_DEBUG_MAP = {
-	std::array<byte, 2>{0, 0},
-	std::array<byte, 2>{0, 1},
-	std::array<byte, 2>{1, 0},
-	std::array<byte, 2>{2, 0},
-	std::array<byte, 2>{2, 1},
-	std::array<byte, 2>{3, 0},
-	std::array<byte, 2>{4, 0},
-	std::array<byte, 2>{4, 1},
-	std::array<byte, 2>{5, 0},
-	std::array<byte, 2>{6, 0},
-	std::array<byte, 2>{7, 0},
+	std::array<uint8_t, 2>{0, 0},
+	std::array<uint8_t, 2>{0, 1},
+	std::array<uint8_t, 2>{1, 0},
+	std::array<uint8_t, 2>{2, 0},
+	std::array<uint8_t, 2>{2, 1},
+	std::array<uint8_t, 2>{3, 0},
+	std::array<uint8_t, 2>{4, 0},
+	std::array<uint8_t, 2>{4, 1},
+	std::array<uint8_t, 2>{5, 0},
+	std::array<uint8_t, 2>{6, 0},
+	std::array<uint8_t, 2>{7, 0},
 };
 
 SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
@@ -352,29 +352,29 @@ SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string&
 {
 }
 
-byte SN76489::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto [reg, hi] = SN76489_DEBUG_MAP[address];
 
 	const auto& sn76489 = OUTER(SN76489, debuggable);
-	word data = sn76489.peekRegister(reg, time);
-	return hi ? narrow_cast<byte>(data >> 4)
-	          : narrow_cast<byte>(data & 0xF);
+	uint16_t data = sn76489.peekRegister(reg, time);
+	return hi ? narrow_cast<uint8_t>(data >> 4)
+	          : narrow_cast<uint8_t>(data & 0xF);
 }
 
-void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void SN76489::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto reg = SN76489_DEBUG_MAP[address][0];
 	auto hi  = SN76489_DEBUG_MAP[address][1];
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
-	auto data = [&]() -> word {
+	auto data = [&]() -> uint16_t {
 		if (reg == one_of(0, 2, 4)) {
-			word d = sn76489.peekRegister(reg, time);
+			uint16_t d = sn76489.peekRegister(reg, time);
 			if (hi) {
-				return word(((value & 0x3F) << 4) | (d & 0x0F));
+				return uint16_t(((value & 0x3F) << 4) | (d & 0x0F));
 			} else {
-				return word((d & 0x3F0) | (value & 0x0F));
+				return uint16_t((d & 0x3F0) | (value & 0x0F));
 			}
 		} else {
 			return value & 0x0F;

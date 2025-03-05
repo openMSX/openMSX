@@ -22,19 +22,19 @@ void MSXFacMidiInterface::reset(EmuTime::param time)
 	i8251.reset(time);
 }
 
-byte MSXFacMidiInterface::readIO(word port, EmuTime::param time)
+uint8_t MSXFacMidiInterface::readIO(uint16_t port, EmuTime::param time)
 {
 	// 0 -> UART data   register
 	// 1 -> UART status register
 	return i8251.readIO(port & 1, time);
 }
 
-byte MSXFacMidiInterface::peekIO(word port, EmuTime::param time) const
+uint8_t MSXFacMidiInterface::peekIO(uint16_t port, EmuTime::param time) const
 {
 	return i8251.peekIO(port & 1, time);
 }
 
-void MSXFacMidiInterface::writeIO(word port, byte value, EmuTime::param time)
+void MSXFacMidiInterface::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	// 0 -> UART data    register
 	// 1 -> UART command register
@@ -83,7 +83,7 @@ void MSXFacMidiInterface::Interface::setParityBit(bool enable, Parity parity)
 	midi.outConnector.setParityBit(enable, parity);
 }
 
-void MSXFacMidiInterface::Interface::recvByte(byte value, EmuTime::param time)
+void MSXFacMidiInterface::Interface::recvByte(uint8_t value, EmuTime::param time)
 {
 	auto& midi = OUTER(MSXFacMidiInterface, interface);
 	midi.outConnector.recvByte(value, time);
@@ -123,7 +123,7 @@ void MSXFacMidiInterface::setParityBit(bool enable, Parity parity)
 	i8251.setParityBit(enable, parity);
 }
 
-void MSXFacMidiInterface::recvByte(byte value, EmuTime::param time)
+void MSXFacMidiInterface::recvByte(uint8_t value, EmuTime::param time)
 {
 	i8251.recvByte(value, time);
 }

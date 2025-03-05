@@ -32,14 +32,14 @@ void MSXModem::reset(EmuTime::param /*time*/)
 	selectedNCUreg = 0; // TODO: verify
 }
 
-void MSXModem::writeMem(word address, byte value, EmuTime::param /*time*/)
+void MSXModem::writeMem(uint16_t address, uint8_t value, EmuTime::param /*time*/)
 {
 	if (address == 0x7FC0) {
 		//   b2-b0 = ROM segment (4000H-5FFFH)
 		//   b3    = off hook
 		//   b4    = connect to modem
 		//   b5    = speaker
-		if (byte newBank = value & 0b111; bank != newBank) {
+		if (uint8_t newBank = value & 0b111; bank != newBank) {
 			bank = newBank;
 			invalidateDeviceRCache();
 			//std::cerr << "Changed bank to " << int(bank) << "\n";
@@ -65,7 +65,7 @@ void MSXModem::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MSXModem::getWriteCacheLine(word address)
+uint8_t* MSXModem::getWriteCacheLine(uint16_t address)
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if (address == (0x7F40 & CacheLine::HIGH)) return nullptr;
@@ -76,12 +76,12 @@ byte* MSXModem::getWriteCacheLine(word address)
 	return unmappedWrite.data();
 }
 
-byte MSXModem::readMem(word address, EmuTime::param time)
+uint8_t MSXModem::readMem(uint16_t address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
 
-byte MSXModem::peekMem(word address, EmuTime::param /*time*/) const
+uint8_t MSXModem::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	if (address == 0x7FC0) {
 		//  b0    = line polarity
@@ -108,7 +108,7 @@ byte MSXModem::peekMem(word address, EmuTime::param /*time*/) const
 		//   not used
 		// NCU register 3, read
 		//   receiver data
-		static constexpr std::array<byte, 4> ncuRegsRead = {0x00, 0x08, 0x00, 0x00}; // set "empty transmitter" so software starts up...
+		static constexpr std::array<uint8_t, 4> ncuRegsRead = {0x00, 0x08, 0x00, 0x00}; // set "empty transmitter" so software starts up...
 		//std::cerr << "Reading from NCU reg " << int(selectedNCUreg & 0b11) << "\n";
 		return ncuRegsRead[selectedNCUreg & 0b11];
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
@@ -120,7 +120,7 @@ byte MSXModem::peekMem(word address, EmuTime::param /*time*/) const
 	}
 }
 
-const byte* MSXModem::getReadCacheLine(word address) const
+const uint8_t* MSXModem::getReadCacheLine(uint16_t address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if (address == (0x7F00 & CacheLine::HIGH)) return nullptr;

@@ -12,8 +12,8 @@
 namespace openmsx {
 
 // Documented in MSX-Datapack Vol. 3, section 4 (MSX-MIDI), from page 634
-static constexpr byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
-static constexpr byte DISABLED_VALUE      = 0x80; // b7 = EN
+static constexpr uint8_t LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
+static constexpr uint8_t DISABLED_VALUE      = 0x80; // b7 = EN
 
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -74,7 +74,7 @@ void MSXMidi::reset(EmuTime::param time)
 	i8251.reset(time);
 }
 
-byte MSXMidi::readIO(word port, EmuTime::param time)
+uint8_t MSXMidi::readIO(uint16_t port, EmuTime::param time)
 {
 	// If not enabled then no ports should have been registered.
 	assert(isEnabled);
@@ -98,7 +98,7 @@ byte MSXMidi::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MSXMidi::peekIO(word port, EmuTime::param time) const
+uint8_t MSXMidi::peekIO(uint16_t port, EmuTime::param time) const
 {
 	// If not enabled then no ports should have been registered.
 	assert(isEnabled);
@@ -122,7 +122,7 @@ byte MSXMidi::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
+void MSXMidi::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	if (isExternalMSXMIDI && ((port & 0xFF) == 0xE2)) {
 		// control register
@@ -151,7 +151,7 @@ void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void MSXMidi::registerIOports(byte value)
+void MSXMidi::registerIOports(uint8_t value)
 {
 	assert(isExternalMSXMIDI);
 	bool newIsEnabled = (value & DISABLED_VALUE) == 0;
@@ -294,7 +294,7 @@ void MSXMidi::Interface::setParityBit(bool enable, Parity parity)
 	midi.outConnector.setParityBit(enable, parity);
 }
 
-void MSXMidi::Interface::recvByte(byte value, EmuTime::param time)
+void MSXMidi::Interface::recvByte(uint8_t value, EmuTime::param time)
 {
 	auto& midi = OUTER(MSXMidi, interface);
 	midi.outConnector.recvByte(value, time);
@@ -375,7 +375,7 @@ void MSXMidi::setParityBit(bool enable, Parity parity)
 	i8251.setParityBit(enable, parity);
 }
 
-void MSXMidi::recvByte(byte value, EmuTime::param time)
+void MSXMidi::recvByte(uint8_t value, EmuTime::param time)
 {
 	i8251.recvByte(value, time);
 }

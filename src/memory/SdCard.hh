@@ -1,7 +1,6 @@
 #ifndef SDCARD_HH
 #define SDCARD_HH
 
-#include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
 
@@ -20,7 +19,7 @@ public:
 	explicit SdCard(const DeviceConfig& config);
 	~SdCard();
 
-	byte transfer(byte value, bool cs);
+	uint8_t transfer(uint8_t value, bool cs);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -36,18 +35,18 @@ public:
 
 private:
 	void executeCommand();
-	[[nodiscard]] byte readCurrentByteFromCurrentSector();
+	[[nodiscard]] uint8_t readCurrentByteFromCurrentSector();
 
 private:
 	const std::unique_ptr<HD> hd; // can be nullptr
 
-	std::array<byte, 6> cmdBuf;
+	std::array<uint8_t, 6> cmdBuf;
 	SectorBuffer sectorBuf;
 	unsigned cmdIdx = 0;
 
-	cb_queue<byte> responseQueue;
+	cb_queue<uint8_t> responseQueue;
 
-	byte transferDelayCounter = 0;
+	uint8_t transferDelayCounter = 0;
 	Mode mode = Mode::COMMAND;
 	unsigned currentSector = 0;
 	int currentByteInSector = 0;

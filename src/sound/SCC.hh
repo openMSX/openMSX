@@ -5,7 +5,6 @@
 
 #include "SimpleDebuggable.hh"
 #include "Clock.hh"
-#include "openmsx.hh"
 
 #include <array>
 #include <cstdint>

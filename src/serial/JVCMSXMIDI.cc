@@ -31,7 +31,7 @@ void JVCMSXMIDI::reset(EmuTime::param time)
 	mc6850.reset(time);
 }
 
-byte JVCMSXMIDI::readIO(word port, EmuTime::param /*time*/)
+uint8_t JVCMSXMIDI::readIO(uint16_t port, EmuTime::param /*time*/)
 {
 	switch (port & 0x7) {
 	case 0:
@@ -44,7 +44,7 @@ byte JVCMSXMIDI::readIO(word port, EmuTime::param /*time*/)
 	return 0xFF;
 }
 
-byte JVCMSXMIDI::peekIO(word port, EmuTime::param /*time*/) const
+uint8_t JVCMSXMIDI::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x7) {
 	case 0:
@@ -57,7 +57,7 @@ byte JVCMSXMIDI::peekIO(word port, EmuTime::param /*time*/) const
 	return 0xFF;
 }
 
-void JVCMSXMIDI::writeIO(word port, byte value, EmuTime::param time)
+void JVCMSXMIDI::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	switch (port & 0x7) {
 	case 2:

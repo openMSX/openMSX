@@ -18,7 +18,7 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(
 {
 }
 
-void Y8950KeyboardConnector::write(byte newData, EmuTime::param time)
+void Y8950KeyboardConnector::write(uint8_t newData, EmuTime::param time)
 {
 	if (newData != data) {
 		data = newData;
@@ -26,12 +26,12 @@ void Y8950KeyboardConnector::write(byte newData, EmuTime::param time)
 	}
 }
 
-byte Y8950KeyboardConnector::read(EmuTime::param time) const
+uint8_t Y8950KeyboardConnector::read(EmuTime::param time) const
 {
 	return getPluggedKeyb().read(time);
 }
 
-byte Y8950KeyboardConnector::peek(EmuTime::param time) const
+uint8_t Y8950KeyboardConnector::peek(EmuTime::param time) const
 {
 	// TODO implement proper peek
 	return read(time);

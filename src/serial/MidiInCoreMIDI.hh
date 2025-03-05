@@ -5,10 +5,11 @@
 
 #include "MidiInDevice.hh"
 #include "EventListener.hh"
-#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
 #include <CoreMIDI/MIDIServices.h>
+
+#include <cstdint>
 #include <mutex>
 
 namespace openmsx {

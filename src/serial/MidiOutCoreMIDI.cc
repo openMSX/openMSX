@@ -1,14 +1,16 @@
 #if defined(__APPLE__)
 
 #include "MidiOutCoreMIDI.hh"
+
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
-#include "openmsx.hh"
 #include "StringOp.hh"
 
 #include <mach/mach_time.h>
+
 #include <cassert>
+#include <cstdint>
 #include <memory>
 
 

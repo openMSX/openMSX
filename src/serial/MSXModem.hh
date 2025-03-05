@@ -24,11 +24,11 @@ public:
 	explicit MSXModem(DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) override;
-	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime::param time) const override;
+	[[nodiscard]] uint8_t* getWriteCacheLine(uint16_t address) override;
+	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -37,7 +37,7 @@ private:
 	Rom rom;
 	SRAM sram;
 	uint8_t bank;
-	byte selectedNCUreg;
+	uint8_t selectedNCUreg;
 };
 
 } // namespace openmsx

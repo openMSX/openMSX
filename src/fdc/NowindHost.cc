@@ -49,13 +49,13 @@ NowindHost::NowindHost(const Drives& drives_)
 
 NowindHost::~NowindHost() = default;
 
-byte NowindHost::peek() const
+uint8_t NowindHost::peek() const
 {
 	return isDataAvailable() ? hostToMsxFifo.front() : 0xFF;
 }
 
 // receive:  msx <- pc
-byte NowindHost::read()
+uint8_t NowindHost::read()
 {
 	return isDataAvailable() ? hostToMsxFifo.pop_front() : 0xFF;
 }
@@ -67,7 +67,7 @@ bool NowindHost::isDataAvailable() const
 
 
 // send:  msx -> pc
-void NowindHost::write(byte data, unsigned time)
+void NowindHost::write(uint8_t data, unsigned time)
 {
 	using enum State;
 	unsigned duration = time - lastTime;
@@ -121,7 +121,7 @@ void NowindHost::write(byte data, unsigned time)
 	case IMAGE:
 		assert(recvCount < 40);
 		extraData[recvCount] = data;
-		if (data == one_of(byte(0), byte(':')) ||
+		if (data == one_of(uint8_t(0), uint8_t(':')) ||
 		    (++recvCount == 40)) {
 			const auto* eData = std::bit_cast<const char*>(extraData.data());
 			callImage(std::string(eData, recvCount));
@@ -152,7 +152,7 @@ void NowindHost::msxReset()
 
 SectorAccessibleDisk* NowindHost::getDisk() const
 {
-	byte num = cmdData[7]; // reg_a
+	uint8_t num = cmdData[7]; // reg_a
 	if (num >= drives.size()) {
 		return nullptr;
 	}
@@ -163,7 +163,7 @@ void NowindHost::executeCommand()
 {
 	using enum State;
 	assert(recvCount == 9);
-	byte cmd = cmdData[8];
+	uint8_t cmd = cmdData[8];
 	switch (cmd) {
 	//case 0x0D: BDOS_0DH_DiskReset();
 	//case 0x0F: BDOS_0FH_OpenFile();
@@ -198,7 +198,7 @@ void NowindHost::executeCommand()
 			state = SYNC1;
 			return;
 		}
-		if (byte reg_f = cmdData[6]; reg_f & 1) { // carry flag
+		if (uint8_t reg_f = cmdData[6]; reg_f & 1) { // carry flag
 			diskWriteInit(*disk);
 		} else {
 			diskReadInit(*disk);
@@ -232,14 +232,14 @@ void NowindHost::executeCommand()
 }
 
 // send:  pc -> msx
-void NowindHost::send(byte value)
+void NowindHost::send(uint8_t value)
 {
 	hostToMsxFifo.push_back(value);
 }
-void NowindHost::send16(word value)
+void NowindHost::send16(uint16_t value)
 {
-	hostToMsxFifo.push_back(narrow_cast<byte>(value & 255));
-	hostToMsxFifo.push_back(narrow_cast<byte>(value >> 8));
+	hostToMsxFifo.push_back(narrow_cast<uint8_t>(value & 255));
+	hostToMsxFifo.push_back(narrow_cast<uint8_t>(value >> 8));
 }
 
 void NowindHost::purge()
@@ -263,7 +263,7 @@ void NowindHost::DSKCHG()
 	}
 
 	sendHeader();
-	byte num = cmdData[7]; // reg_a
+	uint8_t num = cmdData[7]; // reg_a
 	assert(num < drives.size());
 	if (drives[num]->diskChanged()) {
 		send(255); // changed
@@ -286,9 +286,9 @@ void NowindHost::DSKCHG()
 void NowindHost::DRIVES()
 {
 	// at least one drive (MSX-DOS1 cannot handle 0 drives)
-	byte numberOfDrives = std::max<byte>(1, byte(drives.size()));
+	uint8_t numberOfDrives = std::max<uint8_t>(1, uint8_t(drives.size()));
 
-	byte reg_a = cmdData[7];
+	uint8_t reg_a = cmdData[7];
 	sendHeader();
 	send(getEnablePhantomDrives() ? 0x02 : 0);
 	send(reg_a | (getAllowOtherDiskRoms() ? 0 : 0x80));
@@ -297,7 +297,7 @@ void NowindHost::DRIVES()
 	romDisk = 255; // no rom disk
 	for (auto [i, drv] : enumerate(drives)) {
 		if (drv->isRomDisk()) {
-			romDisk = byte(i);
+			romDisk = uint8_t(i);
 			break;
 		}
 	}
@@ -323,14 +323,14 @@ void NowindHost::setDateMSX()
 
 unsigned NowindHost::getSectorAmount() const
 {
-	byte reg_b = cmdData[1];
+	uint8_t reg_b = cmdData[1];
 	return reg_b;
 }
 unsigned NowindHost::getStartSector() const
 {
-	byte reg_c = cmdData[0];
-	byte reg_e = cmdData[2];
-	byte reg_d = cmdData[3];
+	uint8_t reg_c = cmdData[0];
+	uint8_t reg_e = cmdData[2];
+	uint8_t reg_d = cmdData[3];
 	unsigned startSector = reg_e + (reg_d * 256);
 	if (reg_c < 0x80) {
 		// FAT16 read/write sector
@@ -340,8 +340,8 @@ unsigned NowindHost::getStartSector() const
 }
 unsigned NowindHost::getStartAddress() const
 {
-	byte reg_l = cmdData[4];
-	byte reg_h = cmdData[5];
+	uint8_t reg_l = cmdData[4];
+	uint8_t reg_h = cmdData[5];
 	return reg_h * 256 + reg_l;
 }
 unsigned NowindHost::getCurrentAddress() const
@@ -411,8 +411,8 @@ void NowindHost::doDiskRead2()
 {
 	// disk rom sends back the last two bytes read
 	assert(recvCount == 2);
-	byte tail1 = extraData[0];
-	byte tail2 = extraData[1];
+	uint8_t tail1 = extraData[0];
+	uint8_t tail2 = extraData[1];
 	if ((tail1 == 0xAF) && (tail2 == 0x07)) {
 		transferred += transferSize;
 		retryCount = 0;
@@ -542,8 +542,8 @@ void NowindHost::doDiskWrite2()
 	auto src = subspan(extraData, 1, transferSize);
 	copy_to_range(src, dst);
 
-	byte seq1 = extraData[0];
-	byte seq2 = extraData[transferSize + 1];
+	uint8_t seq1 = extraData[0];
+	uint8_t seq2 = extraData[transferSize + 1];
 	if ((seq1 == 0xaa) && (seq2 == 0xaa)) {
 		// good block received
 		transferred += transferSize;
@@ -565,12 +565,12 @@ void NowindHost::doDiskWrite2()
 }
 
 
-word NowindHost::getFCB() const
+uint16_t NowindHost::getFCB() const
 {
 	// note: same code as getStartAddress(), merge???
-	byte reg_l = cmdData[4];
-	byte reg_h = cmdData[5];
-	return word(reg_h * 256 + reg_l);
+	uint8_t reg_l = cmdData[4];
+	uint8_t reg_h = cmdData[5];
+	return uint16_t(reg_h * 256 + reg_l);
 }
 
 std::string NowindHost::extractName(int begin, int end) const
@@ -630,8 +630,8 @@ void NowindHost::deviceOpen()
 	devices[dev].fcb = fcb;
 
 	sendHeader();
-	byte errorCode = 0;
-	byte openMode = cmdData[2]; // reg_e
+	uint8_t errorCode = 0;
+	uint8_t openMode = cmdData[2]; // reg_e
 	switch (openMode) {
 	case 1: // read-only mode
 		devices[dev].fs->open(filename.c_str(), std::ios::in  | std::ios::binary);
@@ -761,7 +761,7 @@ static constexpr std::string_view stripQuotes(std::string_view str)
 
 void NowindHost::callImage(const std::string& filename)
 {
-	byte num = cmdData[7]; // reg_a
+	uint8_t num = cmdData[7]; // reg_a
 	if (num >= drives.size()) {
 		// invalid drive number
 		return;
@@ -795,7 +795,7 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	             "cmdData",       cmdData,
 	             "extraData",     extraData);
 
-	// for backwards compatibility, serialize buffer as a vector<byte>
+	// for backwards compatibility, serialize buffer as a vector<uint8_t>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
 	std::span<uint8_t> buf{buffer.data()->raw.data(), bufSize};
 	auto tmp = to_vector(buf);

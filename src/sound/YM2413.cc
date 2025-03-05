@@ -22,13 +22,13 @@ YM2413::Debuggable::Debuggable(
 {
 }
 
-byte YM2413::Debuggable::read(unsigned address)
+uint8_t YM2413::Debuggable::read(unsigned address)
 {
 	const auto& ym2413 = OUTER(YM2413, debuggable);
 	return ym2413.core->peekReg(narrow<uint8_t>(address));
 }
 
-void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void YM2413::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
 {
 	auto& ym2413 = OUTER(YM2413, debuggable);
 	ym2413.pokeReg(narrow<uint8_t>(address), value, time);
@@ -83,7 +83,7 @@ void YM2413::reset(EmuTime::param time)
 	core->reset();
 }
 
-void YM2413::writePort(bool port, byte value, EmuTime::param time)
+void YM2413::writePort(bool port, uint8_t value, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -96,7 +96,7 @@ void YM2413::writePort(bool port, byte value, EmuTime::param time)
 	core->writePort(port, value, offset);
 }
 
-void YM2413::pokeReg(byte reg, byte value, EmuTime::param time)
+void YM2413::pokeReg(uint8_t reg, uint8_t value, EmuTime::param time)
 {
 	updateStream(time);
 	core->pokeReg(reg, value);

@@ -3,7 +3,6 @@
 
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
-#include "openmsx.hh"
 
 #include <array>
 #include <cstdint>
@@ -31,15 +30,15 @@ public:
 	[[nodiscard]] bool isDataAvailable() const;
 
 	// read one byte of response-data from the host (msx <- pc)
-	byte read();
+	uint8_t read();
 
 	// like read(), but without side effects (doesn't consume the data)
-	[[nodiscard]] byte peek() const;
+	[[nodiscard]] uint8_t peek() const;
 
 	// Write one byte of command-data to the host   (msx -> pc)
 	// Time parameter is in milliseconds. Emulators can pass emulation
 	// time, USB-host can pass real time.
-	void write(byte data, unsigned time);
+	void write(uint8_t data, unsigned time);
 
 	void setAllowOtherDiskRoms(bool allow) { allowOtherDiskRoms = allow; }
 	[[nodiscard]] bool getAllowOtherDiskRoms() const { return allowOtherDiskRoms; }
@@ -67,8 +66,8 @@ private:
 	[[nodiscard]] SectorAccessibleDisk* getDisk() const;
 	void executeCommand();
 
-	void send(byte value);
-	void send16(word value);
+	void send(uint8_t value);
+	void send16(uint16_t value);
 	void sendHeader();
 	void purge();
 
@@ -93,7 +92,7 @@ private:
 	void doDiskWrite1();
 	void doDiskWrite2();
 
-	[[nodiscard]] word getFCB() const;
+	[[nodiscard]] uint16_t getFCB() const;
 	[[nodiscard]] std::string extractName(int begin, int end) const;
 	unsigned readHelper1(unsigned dev, std::span<char, 256> buffer);
 	void readHelper2(std::span<const char> buffer);
@@ -111,11 +110,11 @@ private:
 
 	const Drives& drives;
 
-	cb_queue<byte> hostToMsxFifo;
+	cb_queue<uint8_t> hostToMsxFifo;
 
 	struct Device {
 		std::optional<std::fstream> fs; // not in use when fs == nullopt
-		word fcb;
+		uint16_t fcb;
 	};
 	std::array<Device, MAX_DEVICES> devices;
 
@@ -127,10 +126,10 @@ private:
 	unsigned transferred;    // progress within disk read/write
 	unsigned retryCount;     // only used for disk read
 	unsigned transferSize;   // size of current chunk
-	std::array<byte, 9> cmdData; // reg_[cbedlhfa] + cmd
-	std::array<byte, 240 + 2> extraData; // extra data for disk read/write
+	std::array<uint8_t, 9> cmdData; // reg_[cbedlhfa] + cmd
+	std::array<uint8_t, 240 + 2> extraData; // extra data for disk read/write
 
-	byte romDisk = 255;      // index of rom disk (255 = no rom disk)
+	uint8_t romDisk = 255;      // index of rom disk (255 = no rom disk)
 	bool allowOtherDiskRoms = false;
 	bool enablePhantomDrives = true;
 };
