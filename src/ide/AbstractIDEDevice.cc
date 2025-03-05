@@ -20,7 +20,7 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	std::ranges::fill(buffer, 0);
 }
 
-byte AbstractIDEDevice::diagnostic() const
+uint8_t AbstractIDEDevice::diagnostic() const
 {
 	// The Execute Device Diagnostic command is executed by both devices in
 	// parallel. Fortunately, returning 0x01 is valid in all cases:
@@ -61,7 +61,7 @@ void AbstractIDEDevice::reset(EmuTime::param /*time*/)
 	setTransferWrite(false);
 }
 
-byte AbstractIDEDevice::readReg(nibble reg, EmuTime::param /*time*/)
+uint8_t AbstractIDEDevice::readReg(uint4_t reg, EmuTime::param /*time*/)
 {
 	switch (reg) {
 	case 1: // error register
@@ -104,7 +104,7 @@ byte AbstractIDEDevice::readReg(nibble reg, EmuTime::param /*time*/)
 }
 
 void AbstractIDEDevice::writeReg(
-	nibble reg, byte value, EmuTime::param /*time*/
+	uint4_t reg, uint8_t value, EmuTime::param /*time*/
 	)
 {
 	switch (reg) {
@@ -157,15 +157,15 @@ void AbstractIDEDevice::writeReg(
 	}
 }
 
-word AbstractIDEDevice::readData(EmuTime::param /*time*/)
+uint16_t AbstractIDEDevice::readData(EmuTime::param /*time*/)
 {
 	if (!transferRead) {
 		// no read in progress
 		return 0x7F7F;
 	}
 	assert((transferIdx + 1) < sizeof(buffer));
-	auto result = word((buffer[transferIdx + 0] << 0) +
-	                   (buffer[transferIdx + 1] << 8));
+	auto result = uint16_t((buffer[transferIdx + 0] << 0) +
+	                       (buffer[transferIdx + 1] << 8));
 	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
@@ -191,15 +191,15 @@ void AbstractIDEDevice::readNextBlock()
 	transferCount -= bufferLeft;
 }
 
-void AbstractIDEDevice::writeData(word value, EmuTime::param /*time*/)
+void AbstractIDEDevice::writeData(uint16_t value, EmuTime::param /*time*/)
 {
 	if (!transferWrite) {
 		// no write in progress
 		return;
 	}
 	assert((transferIdx + 1) < sizeof(buffer));
-	buffer[transferIdx + 0] = narrow_cast<byte>(value & 0xFF);
-	buffer[transferIdx + 1] = narrow_cast<byte>(value >> 8);
+	buffer[transferIdx + 0] = narrow_cast<uint8_t>(value & 0xFF);
+	buffer[transferIdx + 1] = narrow_cast<uint8_t>(value >> 8);
 	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
@@ -225,7 +225,7 @@ void AbstractIDEDevice::writeNextBlock()
 	transferCount -= bufferLeft;
 }
 
-void AbstractIDEDevice::setError(byte error)
+void AbstractIDEDevice::setError(uint8_t error)
 {
 	errorReg = error;
 	if (error) {
@@ -249,7 +249,7 @@ unsigned AbstractIDEDevice::getNumSectors() const
 	return (sectorCountReg == 0) ? 256 : sectorCountReg;
 }
 
-void AbstractIDEDevice::setInterruptReason(byte value)
+void AbstractIDEDevice::setInterruptReason(uint8_t value)
 {
 	sectorCountReg = value;
 }
@@ -261,8 +261,8 @@ unsigned AbstractIDEDevice::getByteCount() const
 
 void AbstractIDEDevice::setByteCount(unsigned count)
 {
-	cylinderLowReg  = narrow_cast<byte>(count & 0xFF);
-	cylinderHighReg = narrow_cast<byte>(count >> 8);
+	cylinderLowReg  = narrow_cast<uint8_t>(count & 0xFF);
+	cylinderHighReg = narrow_cast<uint8_t>(count >> 8);
 }
 
 void AbstractIDEDevice::setSectorNumber(unsigned lba)
@@ -277,7 +277,7 @@ void AbstractIDEDevice::readEnd()
 {
 }
 
-void AbstractIDEDevice::executeCommand(byte cmd)
+void AbstractIDEDevice::executeCommand(uint8_t cmd)
 {
 	switch (cmd) {
 	case 0x08: // Device Reset
@@ -362,7 +362,7 @@ void AbstractIDEDevice::startReadTransfer()
 	setTransferRead(true);
 }
 
-void AbstractIDEDevice::abortReadTransfer(byte error)
+void AbstractIDEDevice::abortReadTransfer(uint8_t error)
 {
 	setError(error | ABORT);
 	setTransferRead(false);
@@ -376,7 +376,7 @@ void AbstractIDEDevice::startWriteTransfer(unsigned count)
 	writeNextBlock();
 }
 
-void AbstractIDEDevice::abortWriteTransfer(byte error)
+void AbstractIDEDevice::abortWriteTransfer(uint8_t error)
 {
 	setError(error | ABORT);
 	setTransferWrite(false);
@@ -411,7 +411,7 @@ void AbstractIDEDevice::setTransferWrite(bool status)
   *   If the string is longer  than the buffer, it is truncated.
   *   If the string is shorter than the buffer, it is padded with spaces.
   */
-static void writeIdentifyString(std::span<byte> dst, std::string s)
+static void writeIdentifyString(std::span<uint8_t> dst, std::string s)
 {
 	assert((dst.size() % 2) == 0);
 	s.resize(dst.size(), ' ');

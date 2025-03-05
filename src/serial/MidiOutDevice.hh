@@ -24,7 +24,7 @@ public:
 	[[nodiscard]] std::string_view getClass() const final;
 
 	// SerialDataInterface (part)
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;

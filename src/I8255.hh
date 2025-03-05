@@ -9,7 +9,8 @@
 
 #include "EmuTime.hh"
 #include "TclCallback.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -24,47 +25,47 @@ public:
 
 	// CPU side
 	void reset(EmuTime::param time);
-	[[nodiscard]] byte read(byte port, EmuTime::param time);
-	[[nodiscard]] byte peek(byte port, EmuTime::param time) const;
-	void write(byte port, byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t read(uint8_t port, EmuTime::param time);
+	[[nodiscard]] uint8_t peek(uint8_t port, EmuTime::param time) const;
+	void write(uint8_t port, uint8_t value, EmuTime::param time);
 
 	// Peripheral side, pull-interface
 	// (the I8255Interface class implements the push-interface)
-	byte getPortA() const;
-	byte getPortB() const;
-	byte getPortC() const;
+	uint8_t getPortA() const;
+	uint8_t getPortB() const;
+	uint8_t getPortC() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] byte readPortA(EmuTime::param time);
-	[[nodiscard]] byte readPortB(EmuTime::param time);
-	[[nodiscard]] byte readPortC(EmuTime::param time);
-	[[nodiscard]] byte readControlPort(EmuTime::param time) const;
-	[[nodiscard]] byte peekPortA(EmuTime::param time) const;
-	[[nodiscard]] byte peekPortB(EmuTime::param time) const;
-	[[nodiscard]] byte peekPortC(EmuTime::param time) const;
-	void writePortA(byte value, EmuTime::param time);
-	void writePortB(byte value, EmuTime::param time);
-	void writePortC(byte value, EmuTime::param time);
-	void writeControlPort(byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t readPortA(EmuTime::param time);
+	[[nodiscard]] uint8_t readPortB(EmuTime::param time);
+	[[nodiscard]] uint8_t readPortC(EmuTime::param time);
+	[[nodiscard]] uint8_t readControlPort(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekPortA(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekPortB(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekPortC(EmuTime::param time) const;
+	void writePortA(uint8_t value, EmuTime::param time);
+	void writePortB(uint8_t value, EmuTime::param time);
+	void writePortC(uint8_t value, EmuTime::param time);
+	void writeControlPort(uint8_t value, EmuTime::param time);
 
-	[[nodiscard]] byte readC0(EmuTime::param time);
-	[[nodiscard]] byte readC1(EmuTime::param time);
-	[[nodiscard]] byte peekC0(EmuTime::param time) const;
-	[[nodiscard]] byte peekC1(EmuTime::param time) const;
-	void outputPortA(byte value, EmuTime::param time);
-	void outputPortB(byte value, EmuTime::param time);
-	void outputPortC(byte value, EmuTime::param time);
+	[[nodiscard]] uint8_t readC0(EmuTime::param time);
+	[[nodiscard]] uint8_t readC1(EmuTime::param time);
+	[[nodiscard]] uint8_t peekC0(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekC1(EmuTime::param time) const;
+	void outputPortA(uint8_t value, EmuTime::param time);
+	void outputPortB(uint8_t value, EmuTime::param time);
+	void outputPortC(uint8_t value, EmuTime::param time);
 
 private:
 	I8255Interface& interface;
 
-	byte control;
-	byte latchPortA;
-	byte latchPortB;
-	byte latchPortC;
+	uint8_t control;
+	uint8_t latchPortA;
+	uint8_t latchPortB;
+	uint8_t latchPortC;
 
 	TclCallback ppiModeCallback;
 };

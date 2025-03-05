@@ -88,7 +88,7 @@ void IDEHD::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 	}
 }
 
-void IDEHD::executeCommand(byte cmd)
+void IDEHD::executeCommand(uint8_t cmd)
 {
 	if (0x10 <= cmd && cmd < 0x20) {
 		// Recalibrate

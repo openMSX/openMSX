@@ -45,7 +45,7 @@ void MidiOutConnector::setParityBit(bool enable, Parity parity)
 	getPluggedMidiOutDev().setParityBit(enable, parity);
 }
 
-void MidiOutConnector::recvByte(byte value, EmuTime::param time)
+void MidiOutConnector::recvByte(uint8_t value, EmuTime::param time)
 {
 	getPluggedMidiOutDev().recvByte(value, time);
 }

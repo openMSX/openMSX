@@ -3,7 +3,6 @@
 
 #include "FileContext.hh"
 #include "XMLElement.hh"
-#include "openmsx.hh"
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
 
@@ -67,7 +66,7 @@ public:
 	  * Returns the slot selection: two bits per page for the slot to be
 	  * selected in that page, like MSX port 0xA8.
 	  */
-	[[nodiscard]] byte parseSlotMap() const;
+	[[nodiscard]] uint8_t parseSlotMap() const;
 
 	void parseSlots();
 	void createDevices();

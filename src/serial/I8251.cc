@@ -5,43 +5,43 @@
 
 namespace openmsx {
 
-static constexpr byte STAT_TXRDY   = 0x01;
-static constexpr byte STAT_RXRDY   = 0x02;
-static constexpr byte STAT_TXEMPTY = 0x04;
-static constexpr byte STAT_PE      = 0x08;
-static constexpr byte STAT_OE      = 0x10;
-static constexpr byte STAT_FE      = 0x20;
-static constexpr byte STAT_SYN_BRK = 0x40;
-static constexpr byte STAT_DSR     = 0x80;
+static constexpr uint8_t STAT_TXRDY   = 0x01;
+static constexpr uint8_t STAT_RXRDY   = 0x02;
+static constexpr uint8_t STAT_TXEMPTY = 0x04;
+static constexpr uint8_t STAT_PE      = 0x08;
+static constexpr uint8_t STAT_OE      = 0x10;
+static constexpr uint8_t STAT_FE      = 0x20;
+static constexpr uint8_t STAT_SYN_BRK = 0x40;
+static constexpr uint8_t STAT_DSR     = 0x80;
 
-static constexpr byte MODE_BAUDRATE    = 0x03;
-static constexpr byte MODE_SYNCHRONOUS = 0x00;
-static constexpr byte MODE_RATE1       = 0x01;
-static constexpr byte MODE_RATE16      = 0x02;
-static constexpr byte MODE_RATE64      = 0x03;
-static constexpr byte MODE_WORD_LENGTH  = 0x0C;
-static constexpr byte MODE_5BIT        = 0x00;
-static constexpr byte MODE_6BIT        = 0x04;
-static constexpr byte MODE_7BIT        = 0x08;
-static constexpr byte MODE_8BIT        = 0x0C;
-static constexpr byte MODE_PARITY_EVEN = 0x10;
-static constexpr byte MODE_PARITY_ODD  = 0x00;
-static constexpr byte MODE_PARITEVEN   = 0x20;
-static constexpr byte MODE_STOP_BITS   = 0xC0;
-static constexpr byte MODE_STOP_INV    = 0x00;
-static constexpr byte MODE_STOP_1      = 0x40;
-static constexpr byte MODE_STOP_15     = 0x80;
-static constexpr byte MODE_STOP_2      = 0xC0;
-static constexpr byte MODE_SINGLE_SYNC = 0x80;
+static constexpr uint8_t MODE_BAUDRATE    = 0x03;
+static constexpr uint8_t MODE_SYNCHRONOUS = 0x00;
+static constexpr uint8_t MODE_RATE1       = 0x01;
+static constexpr uint8_t MODE_RATE16      = 0x02;
+static constexpr uint8_t MODE_RATE64      = 0x03;
+static constexpr uint8_t MODE_WORD_LENGTH  = 0x0C;
+static constexpr uint8_t MODE_5BIT        = 0x00;
+static constexpr uint8_t MODE_6BIT        = 0x04;
+static constexpr uint8_t MODE_7BIT        = 0x08;
+static constexpr uint8_t MODE_8BIT        = 0x0C;
+static constexpr uint8_t MODE_PARITY_EVEN = 0x10;
+static constexpr uint8_t MODE_PARITY_ODD  = 0x00;
+static constexpr uint8_t MODE_PARITEVEN   = 0x20;
+static constexpr uint8_t MODE_STOP_BITS   = 0xC0;
+static constexpr uint8_t MODE_STOP_INV    = 0x00;
+static constexpr uint8_t MODE_STOP_1      = 0x40;
+static constexpr uint8_t MODE_STOP_15     = 0x80;
+static constexpr uint8_t MODE_STOP_2      = 0xC0;
+static constexpr uint8_t MODE_SINGLE_SYNC = 0x80;
 
-static constexpr byte CMD_TXEN    = 0x01;
-static constexpr byte CMD_DTR     = 0x02;
-static constexpr byte CMD_RXE     = 0x04;
-static constexpr byte CMD_SBRK    = 0x08;
-static constexpr byte CMD_RST_ERR = 0x10;
-static constexpr byte CMD_RTS     = 0x20;
-static constexpr byte CMD_RESET   = 0x40;
-static constexpr byte CMD_HUNT    = 0x80;
+static constexpr uint8_t CMD_TXEN    = 0x01;
+static constexpr uint8_t CMD_DTR     = 0x02;
+static constexpr uint8_t CMD_RXE     = 0x04;
+static constexpr uint8_t CMD_SBRK    = 0x08;
+static constexpr uint8_t CMD_RST_ERR = 0x10;
+static constexpr uint8_t CMD_RTS     = 0x20;
+static constexpr uint8_t CMD_RESET   = 0x40;
+static constexpr uint8_t CMD_HUNT    = 0x80;
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interface_, EmuTime::param time)
@@ -74,7 +74,7 @@ void I8251::reset(EmuTime::param time)
 	cmdPhase = CmdPhase::MODE;
 }
 
-byte I8251::readIO(word port, EmuTime::param time)
+uint8_t I8251::readIO(uint16_t port, EmuTime::param time)
 {
 	switch (port & 1) {
 		case 0:  return readTrans(time);
@@ -83,7 +83,7 @@ byte I8251::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte I8251::peekIO(word port, EmuTime::param /*time*/) const
+uint8_t I8251::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 1) {
 		case 0:  return recvBuf;
@@ -93,7 +93,7 @@ byte I8251::peekIO(word port, EmuTime::param /*time*/) const
 }
 
 
-void I8251::writeIO(word port, byte value, EmuTime::param time)
+void I8251::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	switch (port & 1) {
 	case 0:
@@ -138,7 +138,7 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void I8251::setMode(byte newMode)
+void I8251::setMode(uint8_t newMode)
 {
 	mode = newMode;
 
@@ -185,9 +185,9 @@ void I8251::setMode(byte newMode)
 	               unsigned(stopBits)) * baudrate) / 2;
 }
 
-void I8251::writeCommand(byte value, EmuTime::param time)
+void I8251::writeCommand(uint8_t value, EmuTime::param time)
 {
-	byte oldCommand = command;
+	uint8_t oldCommand = command;
 	command = value;
 
 	// CMD_RESET, CMD_TXEN, CMD_RXE  handled in other routines
@@ -225,23 +225,23 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 	}
 }
 
-byte I8251::readStatus(EmuTime::param time)
+uint8_t I8251::readStatus(EmuTime::param time)
 {
-	byte result = status;
+	uint8_t result = status;
 	if (interface.getDSR(time)) {
 		result |= STAT_DSR;
 	}
 	return result;
 }
 
-byte I8251::readTrans(EmuTime::param time)
+uint8_t I8251::readTrans(EmuTime::param time)
 {
 	status &= ~STAT_RXRDY;
 	interface.setRxRDY(false, time);
 	return recvBuf;
 }
 
-void I8251::writeTrans(byte value, EmuTime::param time)
+void I8251::writeTrans(uint8_t value, EmuTime::param time)
 {
 	if (!(command & CMD_TXEN)) {
 		return;
@@ -261,7 +261,7 @@ void I8251::setParityBit(bool enable, Parity parity)
 	recvParityBit = parity;
 }
 
-void I8251::recvByte(byte value, EmuTime::param time)
+void I8251::recvByte(uint8_t value, EmuTime::param time)
 {
 	// TODO STAT_PE / STAT_FE / STAT_SYN_BRK
 	assert(recvReady && (command & CMD_RXE));
@@ -284,7 +284,7 @@ bool I8251::isRecvEnabled() const
 	return (command & CMD_RXE) != 0;
 }
 
-void I8251::send(byte value, EmuTime::param time)
+void I8251::send(uint8_t value, EmuTime::param time)
 {
 	status &= ~STAT_TXEMPTY;
 	sendByte = value;

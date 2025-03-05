@@ -12,32 +12,32 @@ namespace openmsx {
 // TODO  ALARM is not implemented        (not connected on MSX)
 // TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
-static constexpr nibble MODE_REG  = 13;
-static constexpr nibble TEST_REG  = 14;
-static constexpr nibble RESET_REG = 15;
+static constexpr uint4_t MODE_REG  = 13;
+static constexpr uint4_t TEST_REG  = 14;
+static constexpr uint4_t RESET_REG = 15;
 
-static constexpr nibble TIME_BLOCK  = 0;
-static constexpr nibble ALARM_BLOCK = 1;
+static constexpr uint4_t TIME_BLOCK  = 0;
+static constexpr uint4_t ALARM_BLOCK = 1;
 
-static constexpr nibble MODE_BLOK_SELECT  = 0x3;
-static constexpr nibble MODE_ALARM_ENABLE = 0x4;
-static constexpr nibble MODE_TIMER_ENABLE = 0x8;
+static constexpr uint4_t MODE_BLOK_SELECT  = 0x3;
+static constexpr uint4_t MODE_ALARM_ENABLE = 0x4;
+static constexpr uint4_t MODE_TIMER_ENABLE = 0x8;
 
-static constexpr nibble TEST_SECONDS = 0x1;
-static constexpr nibble TEST_MINUTES = 0x2;
-static constexpr nibble TEST_DAYS    = 0x4;
-static constexpr nibble TEST_YEARS   = 0x8;
+static constexpr uint4_t TEST_SECONDS = 0x1;
+static constexpr uint4_t TEST_MINUTES = 0x2;
+static constexpr uint4_t TEST_DAYS    = 0x4;
+static constexpr uint4_t TEST_YEARS   = 0x8;
 
-static constexpr nibble RESET_ALARM    = 0x1;
-static constexpr nibble RESET_FRACTION = 0x2;
+static constexpr uint4_t RESET_ALARM    = 0x1;
+static constexpr uint4_t RESET_FRACTION = 0x2;
 
 
 // 0-bits are ignored on writing and return 0 on reading
 static constexpr std::array mask = {
-	std::array<nibble, 13>{0xf, 0x7, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0xf, 0x1, 0xf, 0xf},
-	std::array<nibble, 13>{0x0, 0x0, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0x0, 0x1, 0x3, 0x0},
-	std::array<nibble, 13>{0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
-	std::array<nibble, 13>{0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
+	std::array<uint4_t, 13>{0xf, 0x7, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0xf, 0x1, 0xf, 0xf},
+	std::array<uint4_t, 13>{0x0, 0x0, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0x0, 0x1, 0x3, 0x0},
+	std::array<uint4_t, 13>{0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
+	std::array<uint4_t, 13>{0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},
 };
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
@@ -65,7 +65,7 @@ void RP5C01::reset(EmuTime::param time)
 	updateTimeRegs(time);
 }
 
-nibble RP5C01::readPort(nibble port, EmuTime::param time)
+uint4_t RP5C01::readPort(uint4_t port, EmuTime::param time)
 {
 	switch (port) {
 	case MODE_REG:
@@ -82,7 +82,7 @@ nibble RP5C01::readPort(nibble port, EmuTime::param time)
 	return peekPort(port);
 }
 
-nibble RP5C01::peekPort(nibble port) const
+uint4_t RP5C01::peekPort(uint4_t port) const
 {
 	assert(port <= 0x0f);
 	switch (port) {
@@ -94,12 +94,12 @@ nibble RP5C01::peekPort(nibble port) const
 		return 0x0f; // TODO check this
 	default:
 		unsigned block = modeReg & MODE_BLOK_SELECT;
-		nibble tmp = regs[block * 13 + port];
+		uint4_t tmp = regs[block * 13 + port];
 		return tmp & mask[block][port];
 	}
 }
 
-void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
+void RP5C01::writePort(uint4_t port, uint4_t value, EmuTime::param time)
 {
 	assert (port <= 0x0f);
 	switch (port) {
@@ -173,20 +173,20 @@ void RP5C01::time2Regs()
 		if (hours >= 12) hours_ = (hours - 12) + 20;
 	}
 
-	regs.write(TIME_BLOCK  * 13 +  0, narrow<byte>( seconds   % 10));
-	regs.write(TIME_BLOCK  * 13 +  1, narrow<byte>( seconds   / 10));
-	regs.write(TIME_BLOCK  * 13 +  2, narrow<byte>( minutes   % 10));
-	regs.write(TIME_BLOCK  * 13 +  3, narrow<byte>( minutes   / 10));
-	regs.write(TIME_BLOCK  * 13 +  4, narrow<byte>( hours_    % 10));
-	regs.write(TIME_BLOCK  * 13 +  5, narrow<byte>( hours_    / 10));
-	regs.write(TIME_BLOCK  * 13 +  6, narrow<byte>( dayWeek));
-	regs.write(TIME_BLOCK  * 13 +  7, narrow<byte>((days+1)   % 10)); // 0-30 -> 1-31
-	regs.write(TIME_BLOCK  * 13 +  8, narrow<byte>((days+1)   / 10)); // 0-11 -> 1-12
-	regs.write(TIME_BLOCK  * 13 +  9, narrow<byte>((months+1) % 10));
-	regs.write(TIME_BLOCK  * 13 + 10, narrow<byte>((months+1) / 10));
-	regs.write(TIME_BLOCK  * 13 + 11, narrow<byte>( years     % 10));
-	regs.write(TIME_BLOCK  * 13 + 12, narrow<byte>( years     / 10));
-	regs.write(ALARM_BLOCK * 13 + 11, narrow<byte>( leapYear));
+	regs.write(TIME_BLOCK  * 13 +  0, narrow<uint8_t>( seconds   % 10));
+	regs.write(TIME_BLOCK  * 13 +  1, narrow<uint8_t>( seconds   / 10));
+	regs.write(TIME_BLOCK  * 13 +  2, narrow<uint8_t>( minutes   % 10));
+	regs.write(TIME_BLOCK  * 13 +  3, narrow<uint8_t>( minutes   / 10));
+	regs.write(TIME_BLOCK  * 13 +  4, narrow<uint8_t>( hours_    % 10));
+	regs.write(TIME_BLOCK  * 13 +  5, narrow<uint8_t>( hours_    / 10));
+	regs.write(TIME_BLOCK  * 13 +  6, narrow<uint8_t>( dayWeek));
+	regs.write(TIME_BLOCK  * 13 +  7, narrow<uint8_t>((days+1)   % 10)); // 0-30 -> 1-31
+	regs.write(TIME_BLOCK  * 13 +  8, narrow<uint8_t>((days+1)   / 10)); // 0-11 -> 1-12
+	regs.write(TIME_BLOCK  * 13 +  9, narrow<uint8_t>((months+1) % 10));
+	regs.write(TIME_BLOCK  * 13 + 10, narrow<uint8_t>((months+1) / 10));
+	regs.write(TIME_BLOCK  * 13 + 11, narrow<uint8_t>( years     % 10));
+	regs.write(TIME_BLOCK  * 13 + 12, narrow<uint8_t>( years     / 10));
+	regs.write(ALARM_BLOCK * 13 + 11, narrow<uint8_t>( leapYear));
 }
 
 static constexpr int daysInMonth(int month, unsigned leapYear)

@@ -21,7 +21,7 @@ void DummyRS232Device::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
-void DummyRS232Device::recvByte(byte /*value*/, EmuTime::param /*time*/)
+void DummyRS232Device::recvByte(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 	// ignore
 }

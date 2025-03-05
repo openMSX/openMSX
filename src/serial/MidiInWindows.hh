@@ -68,7 +68,7 @@ private:
 	std::mutex threadIdMutex;
 	std::condition_variable threadIdCond;
 	DWORD threadId;
-	cb_queue<byte> queue;
+	cb_queue<uint8_t> queue;
 	std::mutex queueMutex;
 	std::string name;
 	std::string desc;

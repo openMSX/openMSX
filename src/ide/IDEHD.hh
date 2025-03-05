@@ -29,7 +29,7 @@ private:
 	void fillIdentifyBlock (AlignedBuffer& buffer) override;
 	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
-	void executeCommand(byte cmd) override;
+	void executeCommand(uint8_t cmd) override;
 
 private:
 	DiskManipulator& diskManipulator;

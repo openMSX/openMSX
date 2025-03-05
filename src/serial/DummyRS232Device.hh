@@ -14,7 +14,7 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// SerialDataInterface (part)
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 };
 
 } // namespace openmsx

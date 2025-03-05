@@ -41,7 +41,7 @@ std::string_view MidiOutLogger::getDescription() const
 	       "'midi-out-logfilename' setting.";
 }
 
-void MidiOutLogger::recvByte(byte value, EmuTime::param /*time*/)
+void MidiOutLogger::recvByte(uint8_t value, EmuTime::param /*time*/)
 {
 	if (file.is_open()) {
 		file.put(narrow_cast<char>(value));

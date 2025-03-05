@@ -57,7 +57,7 @@ void MidiOutDevice::clearBuffer()
 	isSysEx = false;
 }
 
-void MidiOutDevice::recvByte(byte value, EmuTime::param time)
+void MidiOutDevice::recvByte(uint8_t value, EmuTime::param time)
 {
 	if (value & 0x80) { // status byte
 		if (value == MIDI_MSG_SYSEX_END) {

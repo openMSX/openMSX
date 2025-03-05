@@ -52,7 +52,7 @@ void YM2148::reset()
 }
 
 // MidiInConnector sends a new character.
-void YM2148::recvByte(byte value, EmuTime::param time)
+void YM2148::recvByte(uint8_t value, EmuTime::param time)
 {
 	assert(acceptsData() && ready());
 
@@ -110,40 +110,40 @@ void YM2148::setParityBit(bool /*enable*/, Parity /*parity*/)
 }
 
 // MSX program reads the status register.
-byte YM2148::readStatus(EmuTime::param /*time*/) const
+uint8_t YM2148::readStatus(EmuTime::param /*time*/) const
 {
 	return status;
 }
-byte YM2148::peekStatus(EmuTime::param /*time*/) const
+uint8_t YM2148::peekStatus(EmuTime::param /*time*/) const
 {
 	return status;
 }
 
 // MSX programs reads the data register.
-byte YM2148::readData(EmuTime::param /*time*/)
+uint8_t YM2148::readData(EmuTime::param /*time*/)
 {
-	status &= byte(~STAT_RXRDY);
+	status &= uint8_t(~STAT_RXRDY);
 	rxIRQ.reset(); // no need to check CMD_RXIE
 	return rxBuffer;
 }
-byte YM2148::peekData(EmuTime::param /*time*/) const
+uint8_t YM2148::peekData(EmuTime::param /*time*/) const
 {
 	return rxBuffer;
 }
 
 // MSX program writes the command register.
-void YM2148::writeCommand(byte value)
+void YM2148::writeCommand(uint8_t value)
 {
 	if (value & CMD_IR) {
 		reset();
 		return; // do not process any other commands
 	}
 	if (value & CMD_ER) {
-		status &= byte(~(STAT_OE | STAT_FE));
+		status &= uint8_t(~(STAT_OE | STAT_FE));
 		return;
 	}
 
-	byte diff = commandReg ^ value;
+	uint8_t diff = commandReg ^ value;
 	commandReg = value;
 
 	if (diff & CMD_RXEN) {
@@ -154,7 +154,7 @@ void YM2148::writeCommand(byte value)
 			// enabled -> disabled
 			rxReady = false;
 			syncRecv.removeSyncPoint();
-			status &= byte(~STAT_RXRDY); // IRQ is handled below
+			status &= uint8_t(~STAT_RXRDY); // IRQ is handled below
 		}
 	}
 	if (diff & CMD_TXEN) {
@@ -164,7 +164,7 @@ void YM2148::writeCommand(byte value)
 			// TODO transmitter is ready at this point, does this immediately trigger an IRQ (when IRQs are enabled)?
 		} else {
 			// enabled -> disabled
-			status &= byte(~STAT_TXRDY); // IRQ handled below
+			status &= uint8_t(~STAT_TXRDY); // IRQ handled below
 			syncTrans.removeSyncPoint();
 		}
 	}
@@ -175,7 +175,7 @@ void YM2148::writeCommand(byte value)
 }
 
 // MSX program writes the data register.
-void YM2148::writeData(byte value, EmuTime::param time)
+void YM2148::writeData(uint8_t value, EmuTime::param time)
 {
 	if (!(commandReg & CMD_TXEN)) return;
 
@@ -183,7 +183,7 @@ void YM2148::writeData(byte value, EmuTime::param time)
 		// We're still sending the previous character, only buffer
 		// this one. Don't accept any further characters.
 		txBuffer2 = value;
-		status &= byte(~STAT_TXRDY);
+		status &= uint8_t(~STAT_TXRDY);
 		txIRQ.reset();
 	} else {
 		// Immediately start sending this character. We're still
@@ -193,7 +193,7 @@ void YM2148::writeData(byte value, EmuTime::param time)
 }
 
 // Start sending a character. It takes a while before it's finished sending.
-void YM2148::send(byte value, EmuTime::param time)
+void YM2148::send(uint8_t value, EmuTime::param time)
 {
 	txBuffer1 = value;
 	syncTrans.setSyncPoint(time + CHAR_DURATION);

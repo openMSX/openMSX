@@ -16,6 +16,8 @@
 
 namespace openmsx {
 
+using uint4_t = uint8_t;
+
 class SRAM;
 
 class MSXS1985 final : public MSXDevice, public MSXSwitchedDevice
@@ -28,19 +30,19 @@ public:
 	void reset(EmuTime::param time) override;
 
 	// MSXSwitchedDevice
-	[[nodiscard]] byte readSwitchedIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekSwitchedIO(word port, EmuTime::param time) const override;
-	void writeSwitchedIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readSwitchedIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekSwitchedIO(uint16_t port, EmuTime::param time) const override;
+	void writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	std::unique_ptr<SRAM> sram;
-	nibble address;
-	byte color1;
-	byte color2;
-	byte pattern;
+	uint4_t address;
+	uint8_t color1;
+	uint8_t color2;
+	uint8_t pattern;
 };
 SERIALIZE_CLASS_VERSION(MSXS1985, 2);
 

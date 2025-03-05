@@ -2,7 +2,8 @@
 #define AY8910PERIPHERY_HH
 
 #include "EmuTime.hh"
-#include "openmsx.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -22,20 +23,20 @@ public:
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	[[nodiscard]] virtual byte readA(EmuTime::param time);
+	[[nodiscard]] virtual uint8_t readA(EmuTime::param time);
 
 	/** Similar to readA, but reads port B. */
-	[[nodiscard]] virtual byte readB(EmuTime::param time);
+	[[nodiscard]] virtual uint8_t readB(EmuTime::param time);
 
 	/** Writes to the peripheral on port A.
 	  * @param value The value to write.
 	  * @param time The moment in time the value is written.
 	  *   On subsequent calls, the time will always be increasing.
 	  */
-	virtual void writeA(byte value, EmuTime::param time);
+	virtual void writeA(uint8_t value, EmuTime::param time);
 
 	/** Similar to writeA, but writes port B. */
-	virtual void writeB(byte value, EmuTime::param time);
+	virtual void writeB(uint8_t value, EmuTime::param time);
 
 protected:
 	AY8910Periphery() = default;

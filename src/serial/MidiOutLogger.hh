@@ -3,6 +3,7 @@
 
 #include "MidiOutDevice.hh"
 #include "FilenameSetting.hh"
+
 #include <fstream>
 
 namespace openmsx {
@@ -21,7 +22,7 @@ public:
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	// SerialDataInterface (part)
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

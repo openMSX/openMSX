@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-static constexpr byte ID = 0x08;
+static constexpr uint8_t ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -43,10 +43,10 @@ void MSXMatsushita::init()
 	auto& cpuInterface = getCPUInterface();
 	bool error = false;
 	for (auto i : xrange(2)) {
-		error |= !cpuInterface.replace_IO_In (byte(0x98 + i), vdp, this);
+		error |= !cpuInterface.replace_IO_In (uint8_t(0x98 + i), vdp, this);
 	}
 	for (auto i : xrange(4)) {
-		error |= !cpuInterface.replace_IO_Out(byte(0x98 + i), vdp, this);
+		error |= !cpuInterface.replace_IO_Out(uint8_t(0x98 + i), vdp, this);
 	}
 	if (error) {
 		unwrap();
@@ -67,10 +67,10 @@ void MSXMatsushita::unwrap()
 	// Unwrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
 	for (auto i : xrange(2)) {
-		cpuInterface.replace_IO_In (byte(0x98 + i), this, vdp);
+		cpuInterface.replace_IO_In (uint8_t(0x98 + i), this, vdp);
 	}
 	for (auto i : xrange(4)) {
-		cpuInterface.replace_IO_Out(byte(0x98 + i), this, vdp);
+		cpuInterface.replace_IO_Out(uint8_t(0x98 + i), this, vdp);
 	}
 }
 
@@ -82,13 +82,13 @@ void MSXMatsushita::reset(EmuTime::param /*time*/)
 	address = 0;
 }
 
-byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
+uint8_t MSXMatsushita::readSwitchedIO(uint16_t port, EmuTime::param time)
 {
 	// TODO: Port 7 and 8 can be read as well.
-	byte result = peekSwitchedIO(port, time);
+	uint8_t result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
 	case 3:
-		pattern = byte((pattern << 2) | (pattern >> 6));
+		pattern = uint8_t((pattern << 2) | (pattern >> 6));
 		break;
 	case 9:
 		address = (address + 1) & 0x1FFF;
@@ -97,13 +97,13 @@ byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)
 	return result;
 }
 
-byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
+uint8_t MSXMatsushita::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x0F) {
 	case 0:
-		return byte(~ID);
+		return uint8_t(~ID);
 	case 1: {
-		byte result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
+		uint8_t result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
 		// bit 0: turbo status, 0=on
 		if (turboEnabled) {
 			result &= ~0x01;
@@ -115,8 +115,8 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		return result;
 	}
 	case 3:
-		return byte((((pattern & 0x80) ? color2 : color1) << 4) |
-		            (((pattern & 0x40) ? color2 : color1) << 0));
+		return uint8_t((((pattern & 0x80) ? color2 : color1) << 4) |
+		               (((pattern & 0x40) ? color2 : color1) << 0));
 	case 9:
 		if (address < 0x800 && sram) {
 			return (*sram)[address];
@@ -128,7 +128,7 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time*/)
+void MSXMatsushita::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param /*time*/)
 {
 	switch (port & 0x0F) {
 	case 1:
@@ -160,7 +160,7 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 		break;
 	case 8:
 		// set address (high)
-		address = word((address & 0x00FF) | ((value & 0x1F) << 8));
+		address = uint16_t((address & 0x00FF) | ((value & 0x1F) << 8));
 		break;
 	case 9:
 		// write sram
@@ -172,20 +172,20 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 	}
 }
 
-byte MSXMatsushita::readIO(word port, EmuTime::param time)
+uint8_t MSXMatsushita::readIO(uint16_t port, EmuTime::param time)
 {
 	// TODO also delay on read?
 	assert(vdp);
 	return vdp->readIO(port, time);
 }
 
-byte MSXMatsushita::peekIO(word port, EmuTime::param time) const
+uint8_t MSXMatsushita::peekIO(uint16_t port, EmuTime::param time) const
 {
 	assert(vdp);
 	return vdp->peekIO(port, time);
 }
 
-void MSXMatsushita::writeIO(word port, byte value, EmuTime::param time)
+void MSXMatsushita::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	assert(vdp);
 	delay(time);

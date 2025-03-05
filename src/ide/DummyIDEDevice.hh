@@ -9,10 +9,10 @@ class DummyIDEDevice final : public IDEDevice
 {
 public:
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] word readData(EmuTime::param time) override;
-	[[nodiscard]] byte readReg(nibble reg, EmuTime::param time) override;
-	void writeData(word value, EmuTime::param time) override;
-	void writeReg(nibble reg, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint16_t readData(EmuTime::param time) override;
+	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime::param time) override;
+	void writeData(uint16_t value, EmuTime::param time) override;
+	void writeReg(uint4_t reg, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

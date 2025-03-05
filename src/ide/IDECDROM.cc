@@ -135,7 +135,7 @@ void IDECDROM::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 	executePacketCommand(buf);
 }
 
-void IDECDROM::executeCommand(byte cmd)
+void IDECDROM::executeCommand(uint8_t cmd)
 {
 	switch (cmd) {
 	case 0xA0: // Packet Command (ATAPI)
@@ -154,7 +154,7 @@ void IDECDROM::executeCommand(byte cmd)
 			setError(0);
 		} else {
 			// na WP MC na MCR ABRT NM obs
-			byte err = 0;
+			uint8_t err = 0;
 			if (file.is_open()) {
 				err |= 0x40; // WP (write protected)
 			} else {
@@ -236,9 +236,9 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 			buf[i] = 0x00;
 		}
 		buf[ 0] = 0xF0;
-		buf[ 2] = narrow_cast<byte>((senseKey >> 16) & 0xFF); // sense key
-		buf[12] = narrow_cast<byte>((senseKey >>  8) & 0xFF); // ASC
-		buf[13] = narrow_cast<byte>((senseKey >>  0) & 0xFF); // ASQ
+		buf[ 2] = narrow_cast<uint8_t>((senseKey >> 16) & 0xFF); // sense key
+		buf[12] = narrow_cast<uint8_t>((senseKey >>  8) & 0xFF); // ASC
+		buf[13] = narrow_cast<uint8_t>((senseKey >>  0) & 0xFF); // ASQ
 		buf[ 7] = byteCount - 7;
 		senseKey = 0;
 		break;

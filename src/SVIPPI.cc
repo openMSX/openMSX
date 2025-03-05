@@ -96,17 +96,17 @@ void SVIPPI::reset(EmuTime::param time)
 	click.reset(time);
 }
 
-byte SVIPPI::readIO(word port, EmuTime::param time)
+uint8_t SVIPPI::readIO(uint16_t port, EmuTime::param time)
 {
 	return i8255.read(port & 0x03, time);
 }
 
-byte SVIPPI::peekIO(word port, EmuTime::param time) const
+uint8_t SVIPPI::peekIO(uint16_t port, EmuTime::param time) const
 {
 	return i8255.peek(port & 0x03, time);
 }
 
-void SVIPPI::writeIO(word port, byte value, EmuTime::param time)
+void SVIPPI::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 {
 	i8255.write(port & 0x03, value, time);
 }
@@ -114,55 +114,55 @@ void SVIPPI::writeIO(word port, byte value, EmuTime::param time)
 
 // I8255Interface
 
-byte SVIPPI::readA(EmuTime::param time)
+uint8_t SVIPPI::readA(EmuTime::param time)
 {
-	byte triggers = ((ports[0]->read(time) & 0x10) ? 0x10 : 0) |
-	                ((ports[1]->read(time) & 0x10) ? 0x20 : 0);
+	uint8_t triggers = ((ports[0]->read(time) & 0x10) ? 0x10 : 0) |
+	                   ((ports[1]->read(time) & 0x10) ? 0x20 : 0);
 
-	//byte cassetteReady = cassettePort.Ready() ? 0 : 0x40;
-	byte cassetteReady = 0; // ready
+	//uint8_t cassetteReady = cassettePort.Ready() ? 0 : 0x40;
+	uint8_t cassetteReady = 0; // ready
 
-	byte cassetteInput = cassettePort.cassetteIn(time) ? 0x80 : 0x00;
+	uint8_t cassetteInput = cassettePort.cassetteIn(time) ? 0x80 : 0x00;
 
 	return triggers | cassetteReady | cassetteInput;
 }
-byte SVIPPI::peekA(EmuTime::param /*time*/) const
+uint8_t SVIPPI::peekA(EmuTime::param /*time*/) const
 {
 	return 0; // TODO
 }
-void SVIPPI::writeA(byte /*value*/, EmuTime::param /*time*/)
+void SVIPPI::writeA(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 }
 
-byte SVIPPI::readB(EmuTime::param time)
+uint8_t SVIPPI::readB(EmuTime::param time)
 {
 	return peekB(time);
 }
-byte SVIPPI::peekB(EmuTime::param /*time*/) const
+uint8_t SVIPPI::peekB(EmuTime::param /*time*/) const
 {
 	return keyboard.getKeys()[selectedRow];
 }
-void SVIPPI::writeB(byte /*value*/, EmuTime::param /*time*/)
+void SVIPPI::writeB(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 }
 
-nibble SVIPPI::readC1(EmuTime::param time)
+uint4_t SVIPPI::readC1(EmuTime::param time)
 {
 	return peekC1(time);
 }
-nibble SVIPPI::peekC1(EmuTime::param /*time*/) const
+uint4_t SVIPPI::peekC1(EmuTime::param /*time*/) const
 {
 	return 15; // TODO check this
 }
-nibble SVIPPI::readC0(EmuTime::param time)
+uint4_t SVIPPI::readC0(EmuTime::param time)
 {
 	return peekC0(time);
 }
-nibble SVIPPI::peekC0(EmuTime::param /*time*/) const
+uint4_t SVIPPI::peekC0(EmuTime::param /*time*/) const
 {
 	return selectedRow;
 }
-void SVIPPI::writeC1(nibble value, EmuTime::param time)
+void SVIPPI::writeC1(uint4_t value, EmuTime::param time)
 {
 	if ((prevBits ^ value) & 1) {
 		cassettePort.setMotor((value & 1) == 0, time); // 0=0n, 1=Off
@@ -178,7 +178,7 @@ void SVIPPI::writeC1(nibble value, EmuTime::param time)
 	}
 	prevBits = value;
 }
-void SVIPPI::writeC0(nibble value, EmuTime::param /*time*/)
+void SVIPPI::writeC0(uint4_t value, EmuTime::param /*time*/)
 {
 	selectedRow = value;
 }
@@ -190,11 +190,11 @@ void SVIPPI::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("i8255", i8255);
 
 	// merge prevBits and selectedRow into one byte
-	auto portC = byte((prevBits << 4) | (selectedRow << 0));
+	auto portC = uint8_t((prevBits << 4) | (selectedRow << 0));
 	ar.serialize("portC", portC);
 	if constexpr (Archive::IS_LOADER) {
 		selectedRow = (portC >> 0) & 0xF;
-		nibble bits = (portC >> 4) & 0xF;
+		uint4_t bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());
 	}
 	ar.serialize("keyboard", keyboard);

@@ -1,5 +1,7 @@
 #include "HexDump.hh"
+
 #include "narrow.hh"
+
 #include "strCat.hh"
 #include "xrange.hh"
 #include <algorithm>

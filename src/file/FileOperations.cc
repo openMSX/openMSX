@@ -20,7 +20,6 @@
 #endif // ifdef _WIN32_ ... else ...
 
 #include "narrow.hh"
-#include "openmsx.hh" // for ad_printf
 
 #include "systemfuncs.hh"
 

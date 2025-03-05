@@ -21,27 +21,27 @@ public:
 	explicit SVIPPI(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// I8255Interface
-	[[nodiscard]] byte readA(EmuTime::param time) override;
-	[[nodiscard]] byte readB(EmuTime::param time) override;
-	[[nodiscard]] nibble readC0(EmuTime::param time) override;
-	[[nodiscard]] nibble readC1(EmuTime::param time) override;
-	[[nodiscard]] byte peekA(EmuTime::param time) const override;
-	[[nodiscard]] byte peekB(EmuTime::param time) const override;
-	[[nodiscard]] nibble peekC0(EmuTime::param time) const override;
-	[[nodiscard]] nibble peekC1(EmuTime::param time) const override;
-	void writeA(byte value, EmuTime::param time) override;
-	void writeB(byte value, EmuTime::param time) override;
-	void writeC0(nibble value, EmuTime::param time) override;
-	void writeC1(nibble value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readA (EmuTime::param time) override;
+	[[nodiscard]] uint8_t readB (EmuTime::param time) override;
+	[[nodiscard]] uint4_t readC0(EmuTime::param time) override;
+	[[nodiscard]] uint4_t readC1(EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekA (EmuTime::param time) const override;
+	[[nodiscard]] uint8_t peekB (EmuTime::param time) const override;
+	[[nodiscard]] uint4_t peekC0(EmuTime::param time) const override;
+	[[nodiscard]] uint4_t peekC1(EmuTime::param time) const override;
+	void writeA (uint8_t value, EmuTime::param time) override;
+	void writeB (uint8_t value, EmuTime::param time) override;
+	void writeC0(uint4_t value, EmuTime::param time) override;
+	void writeC1(uint4_t value, EmuTime::param time) override;
 
 private:
 	CassettePortInterface& cassettePort;
@@ -49,8 +49,8 @@ private:
 	KeyClick click;
 	Keyboard keyboard;
 	std::array<JoystickPortIf*, 2> ports;
-	nibble prevBits = 15;
-	nibble selectedRow = 0;
+	uint4_t prevBits = 15;
+	uint4_t selectedRow = 0;
 };
 
 } // namespace openmsx

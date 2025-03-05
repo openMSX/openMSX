@@ -5,8 +5,9 @@
 #include "MidiInConnector.hh"
 #include "MidiOutConnector.hh"
 #include "Schedulable.hh"
-#include "openmsx.hh"
 #include "outer.hh"
+
+#include <cstdint>
 
 namespace openmsx {
 
@@ -19,12 +20,12 @@ public:
 	YM2148(const std::string& name, MSXMotherBoard& motherBoard);
 	void reset();
 
-	void writeCommand(byte value);
-	void writeData(byte value, EmuTime::param time);
-	[[nodiscard]] byte readStatus(EmuTime::param time) const;
-	[[nodiscard]] byte readData(EmuTime::param time);
-	[[nodiscard]] byte peekStatus(EmuTime::param time) const;
-	[[nodiscard]] byte peekData(EmuTime::param time) const;
+	void writeCommand(uint8_t value);
+	void writeData(uint8_t value, EmuTime::param time);
+	[[nodiscard]] uint8_t readStatus(EmuTime::param time) const;
+	[[nodiscard]] uint8_t readData(EmuTime::param time);
+	[[nodiscard]] uint8_t peekStatus(EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekData(EmuTime::param time) const;
 
 	[[nodiscard]] bool pendingIRQ() const;
 
@@ -38,7 +39,7 @@ private:
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime::param time) override;
 
 	// Schedulable
 	struct SyncRecv final : Schedulable {
@@ -60,16 +61,16 @@ private:
 	void execRecv (EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
-	void send(byte value, EmuTime::param time);
+	void send(uint8_t value, EmuTime::param time);
 
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;
 	bool rxReady;
-	byte rxBuffer;      //<! Byte received from MIDI in connector.
-	byte txBuffer1 = 0; //<! The byte currently being send.
-	byte txBuffer2 = 0; //<! The next to-be-send byte.
-	byte status;
-	byte commandReg;
+	uint8_t rxBuffer;      //<! Byte received from MIDI in connector.
+	uint8_t txBuffer1 = 0; //<! The byte currently being send.
+	uint8_t txBuffer2 = 0; //<! The next to-be-send byte.
+	uint8_t status;
+	uint8_t commandReg;
 
 	MidiOutConnector outConnector;
 };

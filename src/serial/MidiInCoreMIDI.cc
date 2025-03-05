@@ -133,7 +133,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 		return;
 	}
 
-	byte data;
+	uint8_t data;
 	{
 		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;
@@ -257,7 +257,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 		return;
 	}
 
-	byte data;
+	uint8_t data;
 	{
 		std::scoped_lock lock(mutex);
 		if (queue.empty()) return;

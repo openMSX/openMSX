@@ -15,26 +15,26 @@ class AbstractIDEDevice : public IDEDevice
 public:
 	void reset(EmuTime::param time) override;
 
-	[[nodiscard]] word readData(EmuTime::param time) override;
-	[[nodiscard]] byte readReg(nibble reg, EmuTime::param time) override;
+	[[nodiscard]] uint16_t readData(EmuTime::param time) override;
+	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime::param time) override;
 
-	void writeData(word value, EmuTime::param time) override;
-	void writeReg(nibble reg, byte value, EmuTime::param time) override;
+	void writeData(uint16_t value, EmuTime::param time) override;
+	void writeReg(uint4_t reg, uint8_t value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 protected:
 	// Bit flags for the status register:
-	static constexpr byte DRDY = 0x40;
-	static constexpr byte DSC = 0x10;
-	static constexpr byte DRQ = 0x08;
-	static constexpr byte ERR = 0x01;
+	static constexpr uint8_t DRDY = 0x40;
+	static constexpr uint8_t DSC = 0x10;
+	static constexpr uint8_t DRQ = 0x08;
+	static constexpr uint8_t ERR = 0x01;
 
 	// Bit flags for the error register:
-	static constexpr byte UNC = 0x40;
-	static constexpr byte IDNF = 0x10;
-	static constexpr byte ABORT = 0x04;
+	static constexpr uint8_t UNC = 0x40;
+	static constexpr uint8_t IDNF = 0x10;
+	static constexpr uint8_t ABORT = 0x04;
 
 	explicit AbstractIDEDevice(MSXMotherBoard& motherBoard);
 	~AbstractIDEDevice() override = default;
@@ -84,12 +84,12 @@ protected:
 	  * Override this to implement additional commands and make sure you call
 	  * the superclass implementation for all commands that you don't handle.
 	  */
-	virtual void executeCommand(byte cmd);
+	virtual void executeCommand(uint8_t cmd);
 
 	/** Indicates an error: sets error register, error flag, aborts transfers.
 	  * @param error Value to be written to the error register.
 	  */
-	void setError(byte error);
+	void setError(uint8_t error);
 
 	/** Creates an LBA sector address from the contents of the sectorNumReg,
 	  * cylinderLowReg, cylinderHighReg and devHeadReg registers.
@@ -104,7 +104,7 @@ protected:
 	  * This is the same as register as sector count, but serves a different
 	  * purpose.
 	  */
-	void setInterruptReason(byte value);
+	void setInterruptReason(uint8_t value);
 
 	/** Reads the byte count limit of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.
@@ -140,7 +140,7 @@ protected:
 
 	/** Aborts the read transfer in progress.
 	  */
-	void abortReadTransfer(byte error);
+	void abortReadTransfer(uint8_t error);
 
 	/** Indicates the start of a write data transfer.
 	  * @param count Total number of bytes to transfer.
@@ -149,12 +149,12 @@ protected:
 
 	/** Aborts the write transfer in progress.
 	  */
-	void abortWriteTransfer(byte error);
+	void abortWriteTransfer(uint8_t error);
 
-	[[nodiscard]] byte getFeatureReg() const { return featureReg; }
-	void setLBALow (byte value) { sectorNumReg    = value; }
-	void setLBAMid (byte value) { cylinderLowReg  = value; }
-	void setLBAHigh(byte value) { cylinderHighReg = value; }
+	[[nodiscard]] uint8_t getFeatureReg() const { return featureReg; }
+	void setLBALow (uint8_t value) { sectorNumReg    = value; }
+	void setLBAMid (uint8_t value) { cylinderLowReg  = value; }
+	void setLBAHigh(uint8_t value) { cylinderHighReg = value; }
 
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
@@ -162,7 +162,7 @@ private:
 	/** Perform diagnostic and return result.
 	  * Actually, just return success, because we don't emulate faulty hardware.
 	  */
-	[[nodiscard]] byte diagnostic() const;
+	[[nodiscard]] uint8_t diagnostic() const;
 
 	/** Puts special values in the sector address, sector count and device
 	  * registers to identify the type of device.
@@ -223,14 +223,14 @@ private:
 	unsigned transferCount = 0;
 
 	// ATA registers:
-	byte errorReg;
-	byte sectorCountReg;
-	byte sectorNumReg;
-	byte cylinderLowReg;
-	byte cylinderHighReg;
-	byte devHeadReg;
-	byte statusReg;
-	byte featureReg;
+	uint8_t errorReg;
+	uint8_t sectorCountReg;
+	uint8_t sectorNumReg;
+	uint8_t cylinderLowReg;
+	uint8_t cylinderHighReg;
+	uint8_t devHeadReg;
+	uint8_t statusReg;
+	uint8_t featureReg;
 
 	bool transferRead = false;
 	bool transferWrite = false;

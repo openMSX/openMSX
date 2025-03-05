@@ -2,7 +2,6 @@
 #define SERIALDATAINTERFACE_HH
 
 #include "EmuTime.hh"
-#include "openmsx.hh"
 
 #include <cstdint>
 
@@ -24,7 +23,7 @@ public:
 	virtual void setDataBits(DataBits bits) = 0;
 	virtual void setStopBits(StopBits bits) = 0;
 	virtual void setParityBit(bool enable, Parity parity) = 0;
-	virtual void recvByte(byte value, EmuTime::param time) = 0;
+	virtual void recvByte(uint8_t value, EmuTime::param time) = 0;
 
 protected:
 	~SerialDataInterface() = default;

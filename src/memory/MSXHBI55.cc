@@ -112,19 +112,19 @@ byte MSXHBI55::peekB(EmuTime::param /*time*/) const
 {
 	return 255; // TODO check this
 }
-nibble MSXHBI55::readC0(EmuTime::param time)
+uint4_t MSXHBI55::readC0(EmuTime::param time)
 {
 	return peekC0(time);
 }
-nibble MSXHBI55::peekC0(EmuTime::param /*time*/) const
+uint4_t MSXHBI55::peekC0(EmuTime::param /*time*/) const
 {
 	return readStuff() & 0x0F;
 }
-nibble MSXHBI55::readC1(EmuTime::param time)
+uint4_t MSXHBI55::readC1(EmuTime::param time)
 {
 	return peekC1(time);
 }
-nibble MSXHBI55::peekC1(EmuTime::param /*time*/) const
+uint4_t MSXHBI55::peekC1(EmuTime::param /*time*/) const
 {
 	return readStuff() >> 4;
 }
@@ -137,12 +137,12 @@ void MSXHBI55::writeB(byte /*value*/, EmuTime::param /*time*/)
 {
 	writeStuff();
 }
-void MSXHBI55::writeC0(nibble value, EmuTime::param /*time*/)
+void MSXHBI55::writeC0(uint4_t value, EmuTime::param /*time*/)
 {
 	lastC = (lastC & 0xf0) | value; // hack
 	writeStuff();
 }
-void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
+void MSXHBI55::writeC1(uint4_t value, EmuTime::param /*time*/)
 {
 	lastC = byte((lastC & 0x0f) | (value << 4)); // hack
 	writeStuff();

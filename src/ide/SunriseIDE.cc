@@ -38,7 +38,7 @@ void SunriseIDE::reset(EmuTime::param time)
 	device[1]->reset(time);
 }
 
-byte SunriseIDE::readMem(word address, EmuTime::param time)
+uint8_t SunriseIDE::readMem(uint16_t address, EmuTime::param time)
 {
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
@@ -60,7 +60,7 @@ byte SunriseIDE::readMem(word address, EmuTime::param time)
 	return 0xFF;
 }
 
-const byte* SunriseIDE::getReadCacheLine(word start) const
+const uint8_t* SunriseIDE::getReadCacheLine(uint16_t start) const
 {
 	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00)) {
 		return nullptr;
@@ -74,7 +74,7 @@ const byte* SunriseIDE::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
+void SunriseIDE::writeMem(uint16_t address, uint8_t value, EmuTime::param time)
 {
 	if ((address & 0xBF04) == 0x0104) {
 		// control register
@@ -98,16 +98,16 @@ void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
 	// all other writes ignored
 }
 
-byte SunriseIDE::getBank() const
+uint8_t SunriseIDE::getBank() const
 {
-	byte bank = Math::reverseByte(control & 0xF8);
+	uint8_t bank = Math::reverseByte(control & 0xF8);
 	if (bank >= (rom.size() / 0x4000)) {
-		bank &= narrow_cast<byte>((rom.size() / 0x4000) - 1);
+		bank &= narrow_cast<uint8_t>((rom.size() / 0x4000) - 1);
 	}
 	return bank;
 }
 
-void SunriseIDE::writeControl(byte value)
+void SunriseIDE::writeControl(uint8_t value)
 {
 	control = value;
 	if (ideRegsEnabled != (control & 1)) {
@@ -125,22 +125,22 @@ void SunriseIDE::writeControl(byte value)
 	}
 }
 
-byte SunriseIDE::readDataLow(EmuTime::param time)
+uint8_t SunriseIDE::readDataLow(EmuTime::param time)
 {
-	word temp = readData(time);
-	readLatch = narrow_cast<byte>(temp >> 8);
-	return narrow_cast<byte>(temp & 0xFF);
+	uint16_t temp = readData(time);
+	readLatch = narrow_cast<uint8_t>(temp >> 8);
+	return narrow_cast<uint8_t>(temp & 0xFF);
 }
-byte SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
+uint8_t SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
 {
 	return readLatch;
 }
-word SunriseIDE::readData(EmuTime::param time)
+uint16_t SunriseIDE::readData(EmuTime::param time)
 {
 	return device[selectedDevice]->readData(time);
 }
 
-byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
+uint8_t SunriseIDE::readReg(uint4_t reg, EmuTime::param time)
 {
 	if (reg == 14) {
 		// alternate status register
@@ -156,9 +156,9 @@ byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 		}
 	} else {
 		if (reg == 0) {
-			return narrow_cast<byte>(readData(time) & 0xFF);
+			return narrow_cast<uint8_t>(readData(time) & 0xFF);
 		} else {
-			byte result = device[selectedDevice]->readReg(reg, time);
+			uint8_t result = device[selectedDevice]->readReg(reg, time);
 			if (reg == 6) {
 				result &= 0xEF;
 				result |= selectedDevice ? 0x10 : 0x00;
@@ -168,21 +168,21 @@ byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 	}
 }
 
-void SunriseIDE::writeDataLow(byte value)
+void SunriseIDE::writeDataLow(uint8_t value)
 {
 	writeLatch = value;
 }
-void SunriseIDE::writeDataHigh(byte value, EmuTime::param time)
+void SunriseIDE::writeDataHigh(uint8_t value, EmuTime::param time)
 {
-	auto temp = word((value << 8) | writeLatch);
+	auto temp = uint16_t((value << 8) | writeLatch);
 	writeData(temp, time);
 }
-void SunriseIDE::writeData(word value, EmuTime::param time)
+void SunriseIDE::writeData(uint16_t value, EmuTime::param time)
 {
 	device[selectedDevice]->writeData(value, time);
 }
 
-void SunriseIDE::writeReg(nibble reg, byte value, EmuTime::param time)
+void SunriseIDE::writeReg(uint4_t reg, uint8_t value, EmuTime::param time)
 {
 	if (softReset) {
 		if ((reg == 14) && !(value & 0x04)) {
@@ -192,7 +192,7 @@ void SunriseIDE::writeReg(nibble reg, byte value, EmuTime::param time)
 		// ignore all other writes
 	} else {
 		if (reg == 0) {
-			writeData(narrow_cast<word>((value << 8) | value), time);
+			writeData(narrow_cast<uint16_t>((value << 8) | value), time);
 		} else {
 			if ((reg == 14) && (value & 0x04)) {
 				// set SRST

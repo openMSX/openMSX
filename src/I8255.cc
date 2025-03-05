@@ -1,6 +1,8 @@
 #include "I8255.hh"
+
 #include "I8255Interface.hh"
 #include "serialize.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -39,7 +41,7 @@ void I8255::reset(EmuTime::param time)
 	                            DIRECTION_C0 | DIRECTION_C1, time); // all input
 }
 
-byte I8255::read(byte port, EmuTime::param time)
+uint8_t I8255::read(uint8_t port, EmuTime::param time)
 {
 	switch (port) {
 	case 0:
@@ -55,7 +57,7 @@ byte I8255::read(byte port, EmuTime::param time)
 	}
 }
 
-byte I8255::peek(byte port, EmuTime::param time) const
+uint8_t I8255::peek(uint8_t port, EmuTime::param time) const
 {
 	switch (port) {
 	case 0:
@@ -71,7 +73,7 @@ byte I8255::peek(byte port, EmuTime::param time) const
 	}
 }
 
-void I8255::write(byte port, byte value, EmuTime::param time)
+void I8255::write(uint8_t port, uint8_t value, EmuTime::param time)
 {
 	switch (port) {
 	case 0:
@@ -91,7 +93,7 @@ void I8255::write(byte port, byte value, EmuTime::param time)
 	}
 }
 
-byte I8255::readPortA(EmuTime::param time)
+uint8_t I8255::readPortA(EmuTime::param time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -109,7 +111,7 @@ byte I8255::readPortA(EmuTime::param time)
 	}
 }
 
-byte I8255::peekPortA(EmuTime::param time) const
+uint8_t I8255::peekPortA(EmuTime::param time) const
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -125,7 +127,7 @@ byte I8255::peekPortA(EmuTime::param time) const
 	}
 }
 
-byte I8255::readPortB(EmuTime::param time)
+uint8_t I8255::readPortB(EmuTime::param time)
 {
 	switch (control & MODE_B) {
 	case MODEB_0:
@@ -142,7 +144,7 @@ byte I8255::readPortB(EmuTime::param time)
 	}
 }
 
-byte I8255::peekPortB(EmuTime::param time) const
+uint8_t I8255::peekPortB(EmuTime::param time) const
 {
 	switch (control & MODE_B) {
 	case MODEB_0:
@@ -157,9 +159,9 @@ byte I8255::peekPortB(EmuTime::param time) const
 	}
 }
 
-byte I8255::readPortC(EmuTime::param time)
+uint8_t I8255::readPortC(EmuTime::param time)
 {
-	byte tmp = readC1(time) | readC0(time);
+	uint8_t tmp = readC1(time) | readC0(time);
 	switch (control & MODE_A) {
 	case MODEA_0:
 		// do nothing
@@ -180,32 +182,32 @@ byte I8255::readPortC(EmuTime::param time)
 	return tmp;
 }
 
-byte I8255::peekPortC(EmuTime::param time) const
+uint8_t I8255::peekPortC(EmuTime::param time) const
 {
 	return peekC1(time) | peekC0(time);
 }
 
-byte I8255::readC1(EmuTime::param time)
+uint8_t I8255::readC1(EmuTime::param time)
 {
 	if (control & DIRECTION_C1) {
 		// input
-		return byte(interface.readC1(time) << 4); // input not latched
+		return uint8_t(interface.readC1(time) << 4); // input not latched
 	} else {
 		// output
 		return latchPortC & 0xf0;		// output is latched
 	}
 }
 
-byte I8255::peekC1(EmuTime::param time) const
+uint8_t I8255::peekC1(EmuTime::param time) const
 {
 	if (control & DIRECTION_C1) {
-		return byte(interface.peekC1(time) << 4); // input not latched
+		return uint8_t(interface.peekC1(time) << 4); // input not latched
 	} else {
 		return latchPortC & 0xf0;		// output is latched
 	}
 }
 
-byte I8255::readC0(EmuTime::param time)
+uint8_t I8255::readC0(EmuTime::param time)
 {
 	if (control & DIRECTION_C0) {
 		// input
@@ -216,7 +218,7 @@ byte I8255::readC0(EmuTime::param time)
 	}
 }
 
-byte I8255::peekC0(EmuTime::param time) const
+uint8_t I8255::peekC0(EmuTime::param time) const
 {
 	if (control & DIRECTION_C0) {
 		return interface.peekC0(time);		// input not latched
@@ -225,12 +227,12 @@ byte I8255::peekC0(EmuTime::param time) const
 	}
 }
 
-byte I8255::readControlPort(EmuTime::param /*time*/) const
+uint8_t I8255::readControlPort(EmuTime::param /*time*/) const
 {
 	return control;
 }
 
-void I8255::writePortA(byte value, EmuTime::param time)
+void I8255::writePortA(uint8_t value, EmuTime::param time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -244,7 +246,7 @@ void I8255::writePortA(byte value, EmuTime::param time)
 	outputPortA(value, time);
 }
 
-void I8255::writePortB(byte value, EmuTime::param time)
+void I8255::writePortB(uint8_t value, EmuTime::param time)
 {
 	switch (control & MODE_B) {
 	case MODEB_0:
@@ -257,7 +259,7 @@ void I8255::writePortB(byte value, EmuTime::param time)
 	outputPortB(value, time);
 }
 
-void I8255::writePortC(byte value, EmuTime::param time)
+void I8255::writePortC(uint8_t value, EmuTime::param time)
 {
 	switch (control & MODE_A) {
 	case MODEA_0:
@@ -279,7 +281,7 @@ void I8255::writePortC(byte value, EmuTime::param time)
 	outputPortC(value, time);
 }
 
-void I8255::outputPortA(byte value, EmuTime::param time)
+void I8255::outputPortA(uint8_t value, EmuTime::param time)
 {
 	latchPortA = value;
 	if (!(control & DIRECTION_A)) {
@@ -288,7 +290,7 @@ void I8255::outputPortA(byte value, EmuTime::param time)
 	}
 }
 
-void I8255::outputPortB(byte value, EmuTime::param time)
+void I8255::outputPortB(uint8_t value, EmuTime::param time)
 {
 	latchPortB = value;
 	if (!(control & DIRECTION_B)) {
@@ -297,7 +299,7 @@ void I8255::outputPortB(byte value, EmuTime::param time)
 	}
 }
 
-void I8255::outputPortC(byte value, EmuTime::param time)
+void I8255::outputPortC(uint8_t value, EmuTime::param time)
 {
 	latchPortC = value;
 	if (!(control & DIRECTION_C1)) {
@@ -310,7 +312,7 @@ void I8255::outputPortC(byte value, EmuTime::param time)
 	}
 }
 
-void I8255::writeControlPort(byte value, EmuTime::param time)
+void I8255::writeControlPort(uint8_t value, EmuTime::param time)
 {
 	if (value & SET_MODE) {
 		// set new control mode
@@ -327,7 +329,7 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 		outputPortC(latchPortC, time);
 	} else {
 		// (re)set bit of port C
-		auto bitmask = byte(1 << ((value & BIT_NR) >> 1));
+		auto bitmask = uint8_t(1 << ((value & BIT_NR) >> 1));
 		if (value & SET_RESET) {
 			// set
 			latchPortC |= bitmask;
@@ -360,9 +362,9 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 
 // Returns the value that's current being output on port A.
 // Or a floating value if port A is actually programmed as input.
-byte I8255::getPortA() const
+uint8_t I8255::getPortA() const
 {
-	byte result = latchPortA;
+	uint8_t result = latchPortA;
 	if (control & DIRECTION_A) {
 		// actually set as input -> return floating value
 		result = 255; // real floating value not yet supported
@@ -370,9 +372,9 @@ byte I8255::getPortA() const
 	return result;
 }
 
-byte I8255::getPortB() const
+uint8_t I8255::getPortB() const
 {
-	byte result = latchPortB;
+	uint8_t result = latchPortB;
 	if (control & DIRECTION_B) {
 		// actually set as input -> return floating value
 		result = 255; // real floating value not yet supported
@@ -380,9 +382,9 @@ byte I8255::getPortB() const
 	return result;
 }
 
-byte I8255::getPortC() const
+uint8_t I8255::getPortC() const
 {
-	byte result = latchPortC;
+	uint8_t result = latchPortC;
 	if (control & DIRECTION_C0) {
 		// actually set as input -> return floating value
 		result |= 0x0f; // real floating value not yet supported

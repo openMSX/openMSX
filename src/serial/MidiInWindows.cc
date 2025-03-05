@@ -181,7 +181,7 @@ void MidiInWindows::signal(EmuTime::param time)
 	}
 	if (!conn->ready()) return;
 
-	byte data;
+	uint8_t data;
 	{
 		std::scoped_lock lock(queueMutex);
 		if (queue.empty()) return;

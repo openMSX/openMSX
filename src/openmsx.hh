@@ -19,9 +19,6 @@
   */
 namespace openmsx {
 
-/** 4 bit integer */
-using nibble = uint8_t;
-
 /** 8 bit unsigned integer */
 using byte = uint8_t;
 

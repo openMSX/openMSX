@@ -56,7 +56,7 @@ private:
 private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	cb_queue<byte> queue;
+	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
 
 	MIDIClientRef client;
@@ -100,7 +100,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	cb_queue<byte> queue;
+	cb_queue<uint8_t> queue;
 	std::mutex mutex; // to protect queue
 
 	MIDIClientRef client;

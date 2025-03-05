@@ -351,9 +351,9 @@ void HardwareConfig::parseSlots()
 	}
 }
 
-byte HardwareConfig::parseSlotMap() const
+uint8_t HardwareConfig::parseSlotMap() const
 {
-	byte initialPrimarySlots = 0;
+	uint8_t initialPrimarySlots = 0;
 	if (const auto* slotMap = getConfig().findChild("slotmap")) {
 		for (const auto* child : slotMap->getChildren("map")) {
 			int page = child->getAttributeValueAsInt("page", -1);
@@ -365,8 +365,8 @@ byte HardwareConfig::parseSlotMap() const
 				throw MSXException("Invalid or missing slot in slotmap entry");
 			}
 			unsigned offset = page * 2;
-			initialPrimarySlots &= byte(~(3 << offset));
-			initialPrimarySlots |= byte(slot << offset);
+			initialPrimarySlots &= uint8_t(~(3 << offset));
+			initialPrimarySlots |= uint8_t(slot << offset);
 		}
 	}
 	return initialPrimarySlots;

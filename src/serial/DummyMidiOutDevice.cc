@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-void DummyMidiOutDevice::recvByte(byte /*value*/, EmuTime::param /*time*/)
+void DummyMidiOutDevice::recvByte(uint8_t /*value*/, EmuTime::param /*time*/)
 {
 	// ignore
 }

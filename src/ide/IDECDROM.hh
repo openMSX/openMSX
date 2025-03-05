@@ -60,16 +60,16 @@ protected:
 	[[nodiscard]] unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
 	void readEnd() override;
 	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
-	void executeCommand(byte cmd) override;
+	void executeCommand(uint8_t cmd) override;
 
 private:
 	// Flags for the interrupt reason register:
 	/** Bus release: 0 = normal, 1 = bus release */
-	static constexpr byte REL = 0x04;
+	static constexpr uint8_t REL = 0x04;
 	/** I/O direction: 0 = host->device, 1 = device->host */
-	static constexpr byte I_O = 0x02;
+	static constexpr uint8_t I_O = 0x02;
 	/** Command/data: 0 = data, 1 = command */
-	static constexpr byte C_D = 0x01;
+	static constexpr uint8_t C_D = 0x01;
 
 	/** Indicates the start of a read data transfer performed in packets.
 	  * @param count Total number of bytes to transfer.

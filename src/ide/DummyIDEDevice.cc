@@ -8,22 +8,22 @@ void DummyIDEDevice::reset(EmuTime::param /*time*/)
 	// do nothing
 }
 
-word DummyIDEDevice::readData(EmuTime::param /*time*/)
+uint16_t DummyIDEDevice::readData(EmuTime::param /*time*/)
 {
 	return 0x7F7F;
 }
 
-byte DummyIDEDevice::readReg(nibble /*reg*/, EmuTime::param /*time*/)
+uint8_t DummyIDEDevice::readReg(uint4_t /*reg*/, EmuTime::param /*time*/)
 {
 	return 0x7F;
 }
 
-void DummyIDEDevice::writeData(word /*value*/, EmuTime::param /*time*/)
+void DummyIDEDevice::writeData(uint16_t /*value*/, EmuTime::param /*time*/)
 {
 	// do nothing
 }
 
-void DummyIDEDevice::writeReg(nibble /*reg*/, byte /*value*/,
+void DummyIDEDevice::writeReg(uint4_t /*reg*/, uint8_t /*value*/,
                               EmuTime::param /*time*/)
 {
 	// do nothing
