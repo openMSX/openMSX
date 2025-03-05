@@ -35,8 +35,8 @@ public:
 		DiskContainer* drive;
 		std::unique_ptr<DiskPartition> partition; // will often be the full disk
 	};
-	[[nodiscard]] DiskContainer* getDrive(std::string_view driveName) const;
-	[[nodiscard]] std::optional<DriveAndPartition> getDriveAndDisk(std::string_view driveName) const;
+	[[nodiscard]] DiskContainer* getDrive(std::string_view fullName) const;
+	[[nodiscard]] std::optional<DriveAndPartition> getDriveAndDisk(std::string_view fullName) const;
 	void create(const std::string& filename_, MSXBootSectorType bootType, const std::vector<unsigned>& sizes) const;
 
 private:

@@ -96,8 +96,8 @@ private:
 		void watchPointList(std::span<const TclObject> tokens, TclObject& result);
 		void conditionList (std::span<const TclObject> tokens, TclObject& result);
 		void parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObject> tokens);
-		void parseCreateWatchPoint(WatchPoint& bp, std::span<const TclObject> tokens);
-		void parseCreateCondition (DebugCondition& bp, std::span<const TclObject> tokens);
+		void parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObject> tokens);
+		void parseCreateCondition (DebugCondition& cond, std::span<const TclObject> tokens);
 		void breakPointCreate(std::span<const TclObject> tokens, TclObject& result);
 		void watchPointCreate(std::span<const TclObject> tokens, TclObject& result);
 		void conditionCreate (std::span<const TclObject> tokens, TclObject& result);

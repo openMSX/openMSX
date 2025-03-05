@@ -85,8 +85,8 @@ private:
 	[[nodiscard]] unsigned clusterToSector(FAT::Cluster cluster) const;
 	[[nodiscard]] FAT::Cluster sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
-	[[nodiscard]] FAT::FatCluster readFAT(FAT::Cluster index) const;
-	void writeFAT(FAT::Cluster index, FAT::FatCluster value);
+	[[nodiscard]] FAT::FatCluster readFAT(FAT::Cluster cluster) const;
+	void writeFAT(FAT::Cluster cluster, FAT::FatCluster value);
 	[[nodiscard]] FAT::Cluster findFirstFreeCluster();
 	[[nodiscard]] unsigned countFreeClusters() const;
 	[[nodiscard]] unsigned findUsableIndexInSector(unsigned sector);

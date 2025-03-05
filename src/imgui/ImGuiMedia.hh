@@ -112,7 +112,7 @@ public:
 	bool resetOnCartChanges = true;
 
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
-	static bool selectMapperType(const char* label, RomType& item);
+	static bool selectMapperType(const char* label, RomType& romType);
 
 	static std::string diskFilter();
 
@@ -122,14 +122,14 @@ private:
 	                 function_ref<std::string()> createFilter, zstring_view current,
 	                 function_ref<std::string(const std::string&)> displayFunc = std::identity{},
 	                 const std::function<void()>& createNewCallback = {});
-	bool selectDirectory(ItemGroup& info, const std::string& title, zstring_view current,
+	bool selectDirectory(ItemGroup& group, const std::string& title, zstring_view current,
 	                     const std::function<void()>& createNewCallback);
 	bool selectPatches(MediaItem& item, int& patchIndex);
 	bool insertMediaButton(std::string_view mediaName, const ItemGroup& group, bool* showWindow);
 	TclObject showDiskInfo(std::string_view mediaName, DiskMediaInfo& info);
 	TclObject showCartridgeInfo(std::string_view mediaName, CartridgeMediaInfo& info, int slot);
 	void diskMenu(int i);
-	void cartridgeMenu(int i);
+	void cartridgeMenu(int cartNum);
 	void cassetteMenu(CassettePlayer& cassettePlayer);
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 
