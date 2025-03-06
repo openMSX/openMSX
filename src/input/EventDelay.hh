@@ -6,7 +6,9 @@
 #include "EmuTime.hh"
 #include "Event.hh"
 #include "FloatSetting.hh"
+
 #include "build-info.hh"
+
 #include <vector>
 #include <deque>
 #include <cstdint>

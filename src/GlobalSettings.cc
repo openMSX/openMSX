@@ -3,10 +3,6 @@
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
 
-#include "build-info.hh"
-
-#include <SDL.h>
-
 namespace openmsx {
 
 GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)

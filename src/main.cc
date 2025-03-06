@@ -8,18 +8,14 @@
 #include "Display.hh"
 #include "EnumSetting.hh"
 #include "EventDistributor.hh"
-#include "FileContext.hh"
 #include "MSXException.hh"
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "Thread.hh"
 
-#include "Date.hh"
 #include "one_of.hh"
 #include "random.hh"
 #include "setenv.hh" // setenv() for windows
-
-#include "build-info.hh"
 
 #include <iostream>
 #include <exception>

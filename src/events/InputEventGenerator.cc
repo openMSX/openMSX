@@ -12,9 +12,6 @@
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
 
-#include "build-info.hh"
-
-#include <memory>
 #include <utility>
 
 namespace openmsx {
