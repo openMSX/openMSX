@@ -1,24 +1,9 @@
 # Since we are now supporting specific platforms we need a
 # solution to support key bindings for multiple devices.
 
-variable is_dingux [string match dingux "[openmsx_info platform]"]
-
 # cycle_machine
 bind_default CTRL+PAGEUP cycle_machine
 bind_default CTRL+PAGEDOWN cycle_back_machine
-
-# pause
-if {$is_dingux} {
-	# Power slider lock position.
-	bind_default "keyb PAUSE" "set pause on"
-	bind_default "keyb PAUSE,release" "set pause off"
-}
-
-# osd_widgets
-if {$is_dingux} {
-	bind_default TAB -repeat "volume_control -2"
-	bind_default BACKSPACE -repeat "volume_control +2"
-}
 
 # reverse
 #  note: you can't use bindings with modifiers like SHIFT, because they

@@ -1,7 +1,5 @@
 namespace eval osd_menu {
 
-variable is_dingux [string match dingux "[openmsx_info platform]"]
-
 variable menu_z 3
 
 proc get_optional {dict_name key default} {
@@ -400,8 +398,6 @@ proc menu_mouse_motion {} {
 }
 
 proc do_menu_open {top_menu} {
-	variable is_dingux
-
 	# close console, because the menu interferes with it
 	set ::console off
 
@@ -425,13 +421,8 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "mouse button3 up"   {osd_menu::menu_close_top}
 	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
 	bind -layer osd_menu "mouse wheel" -event {osd_menu::menu_mouse_wheel}
-	if {$is_dingux} {
-		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
-		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
-	} else {
-		bind -layer osd_menu "OSDcontrol A PRESS" {osd_menu::menu_action A }
-		bind -layer osd_menu "OSDcontrol B PRESS" {osd_menu::menu_action B }
-	}
+	bind -layer osd_menu "OSDcontrol A PRESS" {osd_menu::menu_action A }
+	bind -layer osd_menu "OSDcontrol B PRESS" {osd_menu::menu_action B }
 	bind -layer osd_menu "CTRL+UP"      {osd_menu::select_menu_idx 0}
 	bind -layer osd_menu "CTRL+LEFT"    {osd_menu::select_menu_idx 0}
 	bind -layer osd_menu "keyb HOME"    {osd_menu::select_menu_idx 0}

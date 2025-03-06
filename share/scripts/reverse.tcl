@@ -1,10 +1,9 @@
 namespace eval reverse {
 
-variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable is_android [string match android "[openmsx_info platform]"]
 
 variable default_auto_enable_reverse
-if {$is_dingux || $is_android} {
+if {$is_android} {
 	set default_auto_enable_reverse "false"
 } else {
 	set default_auto_enable_reverse "true"

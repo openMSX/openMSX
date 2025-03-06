@@ -124,9 +124,7 @@ proc file_completion {args} {
 
 # Replaces characters that are invalid in file names on the host OS or
 # file system by underscores.
-if {$::tcl_platform(platform) eq "windows"
-		|| [string match *-dingux* $::tcl_platform(osVersion)]} {
-	# Dingux is Linux, but runs on VFAT.
+if {$::tcl_platform(platform) eq "windows"} {
 	variable _filename_clean_disallowed {[\x00-\x1f\x7f/\\?*:|"<>+\[\]]}
 } else {
 	# UNIX does allow 0x01-0x1f and 0x7f, but we consider them undesirable.
