@@ -29,13 +29,6 @@ class MMapFunction(SystemFunction):
 			yield '<sys/types.h>'
 		yield '<sys/mman.h>'
 
-class NftwFunction(SystemFunction):
-	name = 'nftw'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<ftw.h>'
-
 # Build a list of system functions using introspection.
 systemFunctions = [
 	obj

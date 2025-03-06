@@ -21,12 +21,6 @@
 
 #include "narrow.hh"
 
-#include "systemfuncs.hh"
-
-#if HAVE_NFTW
-#include <ftw.h>
-#endif
-
 #if defined(PATH_MAX)
 #define MAXPATHLEN PATH_MAX
 #elif defined(MAX_PATH)
@@ -52,12 +46,13 @@
 
 #include <algorithm>
 #include <array>
-#include <sstream>
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
-#include <stdexcept>
-#include <cassert>
+#include <filesystem>
 #include <iterator>
+#include <sstream>
+#include <stdexcept>
 
 #ifndef _MSC_VER
 #include <dirent.h>
@@ -184,58 +179,23 @@ int rmdir(zstring_view path)
 #endif
 }
 
-#ifdef _WIN32
+namespace fs = std::filesystem;
+
+static fs::path makeFsPath(zstring_view path)
+{
+	#ifdef _WIN32
+	    return {utf8to16(path)};
+	#else
+	    return {path.view()};
+	#endif
+}
+
 int deleteRecursive(zstring_view path)
 {
-	std::wstring pathW = utf8to16(path);
-
-	SHFILEOPSTRUCTW rmdirFileOp;
-	rmdirFileOp.hwnd = nullptr;
-	rmdirFileOp.wFunc = FO_DELETE;
-	rmdirFileOp.pFrom = pathW.c_str();
-	rmdirFileOp.pTo = nullptr;
-	rmdirFileOp.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
-	rmdirFileOp.fAnyOperationsAborted = FALSE;
-	rmdirFileOp.hNameMappings = nullptr;
-	rmdirFileOp.lpszProgressTitle = nullptr;
-
-	return SHFileOperationW(&rmdirFileOp);
+	std::error_code ec;
+	fs::remove_all(makeFsPath(path), ec);
+	return ec ? -1 : 0;
 }
-#elif HAVE_NFTW
-static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
-                              int /*typeflag*/, struct FTW* /*ftwbuf*/)
-{
-	return remove(fpath);
-}
-int deleteRecursive(zstring_view path)
-{
-	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
-}
-#else
-// This is a platform independent version of deleteRecursive() (it builds on
-// top of helper routines that _are_ platform specific). Though I still prefer
-// the two platform specific deleteRecursive() routines above because they are
-// likely more optimized and likely contain less bugs than this version (e.g.
-// we're walking over the entries in a directory while simultaneously deleting
-// entries in that same directory. Although this seems to work fine, I'm not
-// 100% sure our ReadDir 'emulation code' for windows covers all corner cases.
-// While the windows version above very likely does handle everything).
-int deleteRecursive(const std::string& path)
-{
-	if (isDirectory(path)) {
-		{
-			ReadDir dir(path);
-			while (dirent* d = dir.getEntry()) {
-				int err = deleteRecursive(d->d_name);
-				if (err) return err;
-			}
-		}
-		return rmdir(path);
-	} else {
-		return unlink(path);
-	}
-}
-#endif
 
 FILE_t openFile(zstring_view filename, zstring_view mode)
 {

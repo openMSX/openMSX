@@ -116,10 +116,6 @@ conf_systemfuncs.set10(
     'HAVE_MMAP',
     compiler.has_function('mmap', prefix: mmap_prefix)
 )
-conf_systemfuncs.set10(
-    'HAVE_NFTW',
-    compiler.has_function('nftw', prefix: '#include <ftw.h>')
-)
 hdr_systemfuncs = configure_file(
     output: 'systemfuncs.hh',
     configuration: conf_systemfuncs
