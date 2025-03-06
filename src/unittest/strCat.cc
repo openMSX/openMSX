@@ -47,8 +47,8 @@ TEST_CASE("strCat")
 		CHECK(strCat(uc) == "222");
 		CHECK(strCat(m) == "-31");
 		CHECK(strCat(i) == "123456");
-		CHECK(strCat(f) == "6.28");
-		CHECK(strCat(d) == "-1.234");
+		CHECK(strCat(f) == "6.280000");
+		CHECK(strCat(d) == "-1.234000");
 		CHECK(strCat(t) == "--|a|--");
 		CHECK(strCat(hex_string<8>(i)) == "0001e240");
 		CHECK(strCat(hex_string<4>(i)) == "e240");
