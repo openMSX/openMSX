@@ -19,7 +19,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, insta
 	targetCPU = getCPU(cpuName)
 
 	# TODO: Add support for device-specific configuration.
-	platformDingux = targetPlatform == 'dingux'
 	platformPandora = targetPlatform == 'pandora'
 	platformAndroid = targetPlatform == 'android'
 
@@ -28,9 +27,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, insta
 	maxScaleFactor = 4
 
 	# Platform overrides.
-	if platformDingux:
-		maxScaleFactor = 1
-	elif platformAndroid:
+	if platformAndroid:
 		# At the moment, libSDL android crashes when trying to dynamically change the scale factor
 		# TODO: debug why it crashes and then change the maxScaleFactor parameter here
 		# so that people with a powerful enough android device can use a higher scale factor
@@ -60,7 +57,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, insta
 	yield '#endif'
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
-	yield '#define PLATFORM_DINGUX %d' % platformDingux
 	yield '#define PLATFORM_ANDROID %d' % platformAndroid
 	yield '#define MIN_SCALE_FACTOR %d' % minScaleFactor
 	yield '#define MAX_SCALE_FACTOR %d' % maxScaleFactor
