@@ -120,10 +120,6 @@ conf_systemfuncs.set10(
     'HAVE_NFTW',
     compiler.has_function('nftw', prefix: '#include <ftw.h>')
 )
-conf_systemfuncs.set10(
-    'HAVE_POSIX_MEMALIGN',
-    compiler.has_function('posix_memalign', prefix: '#include <stdlib.h>')
-)
 hdr_systemfuncs = configure_file(
     output: 'systemfuncs.hh',
     configuration: conf_systemfuncs

@@ -1,15 +1,16 @@
 #include "MemoryOps.hh"
 
-#include "systemfuncs.hh"
-
 #include "endian.hh"
-#include "stl.hh"
 
 #include <algorithm>
 #include <bit>
 #include <cassert>
 #include <cstdlib>
-#include <new> // for std::bad_alloc
+#include <new>
+
+#ifdef _WIN32
+    #include <malloc.h>  // _aligned_malloc, _aligned_free
+#endif
 
 namespace openmsx::MemoryOps {
 
@@ -36,95 +37,27 @@ void fill_2(std::span<uint32_t> out, uint32_t val0, uint32_t val1)
 }
 
 
-/** Aligned memory (de)allocation
- */
-
-// Helper class to keep track of aligned/unaligned pointer pairs
-class AllocMap
-{
-public:
-	AllocMap(const AllocMap&) = delete;
-	AllocMap(AllocMap&&) = delete;
-	AllocMap& operator=(const AllocMap&) = delete;
-	AllocMap& operator=(AllocMap&&) = delete;
-
-	static AllocMap& instance() {
-		static AllocMap oneInstance;
-		return oneInstance;
-	}
-
-	void insert(void* aligned, void* unaligned) {
-		if (!aligned) return;
-		assert(!contains(allocMap, aligned, &Entry::aligned));
-		allocMap.push_back({.aligned = aligned, .unaligned = unaligned});
-	}
-
-	void* remove(void* aligned) {
-		if (!aligned) return nullptr;
-		// LIFO order is more likely than FIFO -> search backwards
-		auto it = rfind_unguarded(allocMap, aligned, &Entry::aligned);
-		// return the associated unaligned value
-		void* unaligned = it->unaligned;
-		move_pop_back(allocMap, it);
-		return unaligned;
-	}
-
-private:
-	AllocMap() = default;
-	~AllocMap() {
-		assert(allocMap.empty());
-	}
-
-	// typically contains 5-10 items, so (unsorted) vector is fine
-	struct Entry {
-		void* aligned;
-		void* unaligned;
-	};
-	std::vector<Entry> allocMap;
-};
-
 void* mallocAligned(size_t alignment, size_t size)
 {
 	assert("must be a power of 2" && std::has_single_bit(alignment));
 	assert(alignment >= sizeof(void*));
-#if HAVE_POSIX_MEMALIGN
-	void* aligned = nullptr;
-	if (posix_memalign(&aligned, alignment, size)) {
-		throw std::bad_alloc();
-	}
-	#if defined DEBUG
-	AllocMap::instance().insert(aligned, aligned);
-	#endif
-	return aligned;
-#elif defined _MSC_VER
+#ifdef _WIN32
 	void* result = _aligned_malloc(size, alignment);
+#else
+	// Ensure size is a multiple of alignment for std::aligned_alloc()
+	size = (size + alignment - 1) & ~(alignment - 1);
+	void* result = std::aligned_alloc(alignment, size);
+#endif
 	if (!result && size) throw std::bad_alloc();
 	return result;
-#else
-	auto t = alignment - 1;
-	void* unaligned = malloc(size + t);
-	if (!unaligned) {
-		throw std::bad_alloc();
-	}
-	auto aligned = std::bit_cast<void*>(
-		(std::bit_cast<uintptr_t>(unaligned) + t) & ~t);
-	AllocMap::instance().insert(aligned, unaligned);
-	return aligned;
-#endif
 }
 
 void freeAligned(void* aligned)
 {
-#if HAVE_POSIX_MEMALIGN
-	#if defined DEBUG
-	AllocMap::instance().remove(aligned);
-	#endif
-	free(aligned);
-#elif defined _MSC_VER
-	return _aligned_free(aligned);
+#ifdef _WIN32
+	_aligned_free(aligned);
 #else
-	void* unaligned = AllocMap::instance().remove(aligned);
-	free(unaligned);
+	std::free(aligned);
 #endif
 }
 
