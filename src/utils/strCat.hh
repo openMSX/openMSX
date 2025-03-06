@@ -141,9 +141,6 @@ private:
 	std::string s;
 };
 
-#if 0
-// Dingux doesn't have std::to_string() ???
-
 // Helper for types which are printed via std::to_string(),
 // e.g. floating point types.
 template<typename T>
@@ -154,7 +151,6 @@ struct ConcatToString : ConcatViaString
 	{
 	}
 };
-#endif
 
 // The default (slow) implementation uses 'operator<<(ostream&, T)'
 template<typename T>
@@ -579,12 +575,8 @@ template<typename T>
 	return ConcatIntegral<unsigned long long>(l);
 }
 
-#if 0
 // Converting float->string via std::to_string() might be faster than via
-// std::stringstream. Though the former doesn't seem to work on Dingux??
-//
-// But for openMSX this isn't critical, so we can live with the default
-// (slower?) version.
+// std::stringstream.
 
 [[nodiscard]] inline auto makeConcatUnit(float f)
 {
@@ -600,7 +592,6 @@ template<typename T>
 {
 	return ConcatToString<long double>(d);
 }
-#endif
 
 template<HexCase Case, std::integral T>
 [[nodiscard]] inline auto makeConcatUnit(const ConcatVariableWidthHexIntegral<Case, T>& t)
