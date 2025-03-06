@@ -41,20 +41,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir, insta
 	yield '#ifndef BUILD_INFO_HH'
 	yield '#define BUILD_INFO_HH'
 	yield ''
-	# Use a macro i.s.o. a boolean to prevent compilation errors on inline asm.
-	# Assembly doesn't appear to work with MINGW64... TODO: find out why
-	yield '#ifdef __MINGW64__'
-	yield '#define ASM_X86 0'
-	yield '#define ASM_X86 0'
-	yield '#define ASM_X86_32 0'
-	yield '#define ASM_X86_64 0'
-	yield '#else'
-	# A compiler will typically only understand the instruction set that it
-	# generates code for.
-	yield '#define ASM_X86 %d' % (targetCPU is X86 or targetCPU is X86_64)
-	yield '#define ASM_X86_32 %d' % (targetCPU is X86)
-	yield '#define ASM_X86_64 %d' % (targetCPU is X86_64)
-	yield '#endif'
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_ANDROID %d' % platformAndroid
