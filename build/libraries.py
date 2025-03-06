@@ -52,12 +52,6 @@ class Library(object):
 		scriptName = cls.configScriptName
 		if scriptName is None:
 			return None
-		elif platform == 'dingux' and cls.isSystemLibrary(platform):
-			# TODO: A generic mechanism for locating config scripts in SDKs.
-			#       Note that distroRoot is for non-system libs only.
-			#       Trying a path relative to the compiler location would
-			#       probably work well.
-			return '/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/%s' % scriptName
 		elif distroRoot is None:
 			return scriptName
 		else:
@@ -165,7 +159,7 @@ class FreeType(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
@@ -288,7 +282,7 @@ class LibPNG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 class OGG(Library):
 	libName = 'ogg'
@@ -298,7 +292,7 @@ class OGG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 class SDL2(Library):
 	libName = 'SDL2'
@@ -310,7 +304,7 @@ class SDL2(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -328,7 +322,7 @@ class SDL2_ttf(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -537,7 +531,7 @@ class Theora(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 class Vorbis(Library):
 	libName = 'vorbis'
@@ -548,7 +542,7 @@ class Vorbis(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 class ZLib(Library):
 	libName = 'z'
@@ -558,7 +552,7 @@ class ZLib(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return False
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):

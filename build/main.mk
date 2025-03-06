@@ -576,10 +576,6 @@ ifeq ($(OPENMSX_TARGET_OS),darwin)
 # target to create an app folder but no DMG.
 include build/package-darwin/app.mk
 else
-ifeq ($(OPENMSX_TARGET_OS),dingux)
-# ZIP file package for Dingux.
-include build/package-dingux/opk.mk
-else
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
 OPENMSX_INSTALL?=$(INSTALL_BASE)
@@ -588,7 +584,6 @@ INSTALL_BINARY_DIR?=$(OPENMSX_INSTALL)/bin
 INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
 INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
 INSTALL_VERBOSE?=true
-endif
 endif
 
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=openMSX
-Comment=MSX emulator
-Type=Application
-Exec=bin/openmsx-start.sh
-Icon=openMSX-logo-32
-Categories=emulators;
-MimeType=application/x-msx-rom;application/x-raw-disk-image;application/zip;application/gzip;
-X-OD-Manual=manual.man.txt

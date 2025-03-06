@@ -56,7 +56,7 @@ endif
 endif
 endif
 
-ifneq ($(filter android dingux,$(OPENMSX_TARGET_OS)),)
+ifneq ($(filter android,$(OPENMSX_TARGET_OS)),)
 TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
