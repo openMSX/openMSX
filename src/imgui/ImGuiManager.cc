@@ -54,7 +54,7 @@
 #include <CustomFont.ii> // icons for ImGuiFileDialog
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdl3.h>
 #include <imgui_internal.h>
 
 #include <SDL3/SDL.h>
@@ -390,7 +390,7 @@ bool ImGuiManager::signalEvent(const Event& event)
 			return false;
 		}
 		const SDL_Event& sdlEvent = evt->getSdlEvent();
-		ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+		ImGui_ImplSDL3_ProcessEvent(&sdlEvent);
 		if ((io.WantCaptureMouse &&
 		     sdlEvent.type == one_of(SDL_MOUSEMOTION, SDL_MOUSEWHEEL,
 		                             SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP)) ||
