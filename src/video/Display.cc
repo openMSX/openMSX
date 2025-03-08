@@ -170,13 +170,13 @@ bool Display::signalEvent(const Event& event)
 		},
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
-			if (evt.event == SDL_WINDOWEVENT_EXPOSED) {
+			if (evt.event == SDL_EVENT_WINDOW_EXPOSED) {
 				// Don't render too often, and certainly not when the screen
 				// will anyway soon be rendered.
 				repaintDelayed(100 * 1000); // 10fps
 			}
 			if (PLATFORM_ANDROID && e.isMainWindow() &&
-			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+			    evt.event == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 				// On Android, the rendering must be frozen when the app is sent to
 				// the background, because Android takes away all graphics resources
 				// from the app. It simply destroys the entire graphics context.
@@ -192,7 +192,7 @@ bool Display::signalEvent(const Event& event)
 				// -When gaining the focus, this repaint does nothing as
 				//  the renderFrozen flag is still false
 				repaint();
-				bool lost = evt.event == SDL_WINDOWEVENT_FOCUS_LOST;
+				bool lost = evt.event == SDL_EVENT_WINDOW_FOCUS_LOST;
 				renderFrozen = lost;
 			}
 		},

@@ -14,12 +14,12 @@ namespace openmsx {
 [[nodiscard]] static constexpr uint16_t normalizeKeyMod(uint16_t m)
 {
 	// when either left or right modifier is pressed, add the other one as well
-	if (m & KMOD_SHIFT) m |= KMOD_SHIFT;
-	if (m & KMOD_CTRL)  m |= KMOD_CTRL;
-	if (m & KMOD_ALT)   m |= KMOD_ALT;
-	if (m & KMOD_GUI)   m |= KMOD_GUI;
-	// ignore stuff like: KMOD_NUM, KMOD_CAPS, KMOD_SCROLL
-	m &= (KMOD_SHIFT | KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE);
+	if (m & SDL_KMOD_SHIFT) m |= SDL_KMOD_SHIFT;
+	if (m & SDL_KMOD_CTRL)  m |= SDL_KMOD_CTRL;
+	if (m & SDL_KMOD_ALT)   m |= SDL_KMOD_ALT;
+	if (m & SDL_KMOD_GUI)   m |= SDL_KMOD_GUI;
+	// ignore stuff like: SDL_KMOD_NUM, SDL_KMOD_CAPS, SDL_KMOD_SCROLL
+	m &= (SDL_KMOD_SHIFT | SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI | SDL_KMOD_MODE);
 	return m;
 }
 
@@ -174,9 +174,9 @@ TclObject toTclList(const Event& event)
 		},
 		[](const WindowEvent& e_) {
 			const auto& e = e_.getSdlWindowEvent();
-			if (e.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+			if (e.event == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 				return makeTclList("focus", true);
-			} else if (e.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+			} else if (e.event == SDL_EVENT_WINDOW_FOCUS_LOST) {
 				return makeTclList("focus", false);
 			}
 			return makeTclList(); // other events don't need a textual representation (yet)

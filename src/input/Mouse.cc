@@ -108,7 +108,7 @@ zstring_view Mouse::getDescription() const
 
 void Mouse::plugHelper(Connector& /*connector*/, EmuTime time)
 {
-	if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+	if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
 	} else {

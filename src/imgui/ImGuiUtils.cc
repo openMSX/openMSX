@@ -285,10 +285,10 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 		if (const auto* keyDown = std::get_if<KeyDownEvent>(&info.event)) {
 			std::string result;
 			auto modifiers = keyDown->getModifiers();
-			if (modifiers & KMOD_CTRL)  strAppend(result, "CTRL+");
-			if (modifiers & KMOD_SHIFT) strAppend(result, "SHIFT+");
-			if (modifiers & KMOD_ALT)   strAppend(result, "ALT+");
-			if (modifiers & KMOD_GUI)   strAppend(result, "GUI+");
+			if (modifiers & SDL_KMOD_CTRL)  strAppend(result, "CTRL+");
+			if (modifiers & SDL_KMOD_SHIFT) strAppend(result, "SHIFT+");
+			if (modifiers & SDL_KMOD_ALT)   strAppend(result, "ALT+");
+			if (modifiers & SDL_KMOD_GUI)   strAppend(result, "GUI+");
 			strAppend(result, SDL_GetKeyName(keyDown->getKeyCode()));
 			return result;
 		}

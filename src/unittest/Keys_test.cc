@@ -34,10 +34,10 @@ static void test(const std::string& name1, SDLKey code1, bool canonical)
 
 TEST_CASE("Keys")
 {
-	test("P", SDLKey::createDown(SDLK_p), true);
-	test("p", SDLKey::createDown(SDLK_p), false);
+	test("P", SDLKey::createDown(SDLK_P), true);
+	test("p", SDLKey::createDown(SDLK_P), false);
 	test("1", SDLKey::createDown(SDLK_1), true);
-	test("z", SDLKey::createDown(SDLK_z), false);
+	test("z", SDLKey::createDown(SDLK_Z), false);
 	test("AT", SDLKey::createDown(SDLK_AT), false);
 	test("@", SDLKey::createDown(SDLK_AT), true);
 	test("Hash", SDLKey::createDown(SDLK_HASH), false);
@@ -59,11 +59,11 @@ TEST_CASE("Keys")
 	test("RCTRL", SDLKey::createDown(SDLK_RCTRL), false);
 	test("Right Ctrl", SDLKey::createDown(SDLK_RCTRL), true);
 
-	test("P+SHIFT", SDLKey::create(SDLK_p, true, KMOD_SHIFT), true);
-	test("q,shift", SDLKey::create(SDLK_q, true, KMOD_SHIFT), false);
-	test("R/shift", SDLKey::create(SDLK_r, true, KMOD_SHIFT), false);
-	test("ctrl+c", SDLKey::create(SDLK_c, true, KMOD_CTRL), false);
-	test("ALT/E", SDLKey::create(SDLK_e, true, KMOD_ALT), false);
-	test("E+ALT", SDLKey::create(SDLK_e, true, KMOD_ALT), true);
+	test("P+SHIFT", SDLKey::create(SDLK_P, true, SDL_KMOD_SHIFT), true);
+	test("q,shift", SDLKey::create(SDLK_Q, true, SDL_KMOD_SHIFT), false);
+	test("R/shift", SDLKey::create(SDLK_R, true, SDL_KMOD_SHIFT), false);
+	test("ctrl+c", SDLKey::create(SDLK_C, true, SDL_KMOD_CTRL), false);
+	test("ALT/E", SDLKey::create(SDLK_E, true, SDL_KMOD_ALT), false);
+	test("E+ALT", SDLKey::create(SDLK_E, true, SDL_KMOD_ALT), true);
 	test("5,release", SDLKey::create(SDLK_5, false), false);
 }

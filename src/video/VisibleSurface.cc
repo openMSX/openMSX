@@ -166,7 +166,7 @@ VisibleSurface::~VisibleSurface()
 	ImGui_ImplSDL3_Shutdown();
 
 	gl::context.reset();
-	SDL_GL_DeleteContext(glContext);
+	SDL_GL_DestroyContext(glContext);
 
 	// store last known position for when we recreate it
 	// the window gets recreated when changing renderers, for instance.
@@ -208,18 +208,18 @@ void VisibleSurface::setWindowPosition(gl::ivec2 pos)
 void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 {
 	if (getDisplay().getRenderSettings().getFullScreen()) {
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 #ifdef __APPLE__
 	// See VisibleSurface::setViewPort() for why only macos (for now).
-	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
 	assert(!window);
-	auto pos = display.retrieveWindowPosition();
+	// TODO: Is position still relevant?
+	//auto pos = display.retrieveWindowPosition();
 	window.reset(SDL_CreateWindow(
 			getDisplay().getWindowTitle().c_str(),
-			pos.x, pos.y,
 			size.x, size.y,
 			flags));
 	if (!window) {
@@ -229,8 +229,9 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 
 	updateWindowTitle();
 
+	// TODO: Is there an SDL3 equivalent for this?
 	// prefer linear filtering (instead of nearest neighbour)
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	// set icon
 	if constexpr (OPENMSX_SET_WINDOW_ICON) {
@@ -245,20 +246,21 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 				e.getMessage());
 #endif
 			PixelOperations pixelOps;
-			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
-				const_cast<char*>(openMSX_icon.pixel_data),
+			iconSurf.reset(SDL_CreateSurfaceFrom(
 				narrow<int>(openMSX_icon.width),
 				narrow<int>(openMSX_icon.height),
-				narrow<int>(openMSX_icon.bytes_per_pixel * 8),
-				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width),
-				pixelOps.getRmask(),
-				pixelOps.getGmask(),
-				pixelOps.getBmask(),
-				pixelOps.getAmask()));
+				SDL_GetPixelFormatForMasks(
+					narrow<int>(narrow<int>(openMSX_icon.bytes_per_pixel * 8)),
+					pixelOps.getRmask(),
+					pixelOps.getGmask(),
+					pixelOps.getBmask(),
+					pixelOps.getAmask()),
+				const_cast<char*>(openMSX_icon.pixel_data),
+				narrow<int>(openMSX_icon.bytes_per_pixel * openMSX_icon.width)));
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), true, 0);
+		SDL_SetSurfaceColorKey(iconSurf.get(), true, 0);
 		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 }
@@ -320,8 +322,7 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 		return true;
 	}
 
-	if (SDL_SetWindowFullscreen(window.get(),
-			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
+	if (!SDL_SetWindowFullscreen(window.get(), fullscreen)) {
 		return false; // error, try re-creating the window
 	}
 	fullScreenUpdated(fullscreen);
@@ -409,7 +410,7 @@ void VisibleSurface::VSyncObserver::update(const Setting& setting) noexcept
 	// vsync is enabled, we attempt adaptive vsync.
 	int interval = syncSetting.getBoolean() ? -1 : 0;
 
-	if ((SDL_GL_SetSwapInterval(interval) < 0) && (interval == -1)) {
+	if (!SDL_GL_SetSwapInterval(interval) && interval == -1) {
 		// "Adaptive vsync" is not supported by all drivers. SDL
 		// documentation suggests to fallback to "regular vsync" in
 		// that case.
@@ -435,7 +436,7 @@ void VisibleSurface::setViewPort(gl::ivec2 logicalSize, bool fullScreen)
 #endif
 		(void)fullScreen;
 		int w, h;
-		SDL_GL_GetDrawableSize(window.get(), &w, &h);
+		SDL_GetWindowSizeInPixels(window.get(), &w, &h);
 		return gl::ivec2(w, h);
 	}();
 

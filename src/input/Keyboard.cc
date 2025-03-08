@@ -233,41 +233,41 @@ static constexpr auto getMSXMapping()
 		M{P{0x16}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
 		M{P{0x17}, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
 
-		M{P{0x20}, K{SDLK_QUOTE},       S{SDL_SCANCODE_APOSTROPHE}},
-		M{P{0x21}, K{SDLK_BACKQUOTE},   S{SDL_SCANCODE_GRAVE}},
+		M{P{0x20}, K{SDLK_APOSTROPHE},  S{SDL_SCANCODE_APOSTROPHE}},
+		M{P{0x21}, K{SDLK_GRAVE},       S{SDL_SCANCODE_GRAVE}},
 		M{P{0x22}, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
 		M{P{0x23}, K{SDLK_PERIOD},      S{SDL_SCANCODE_PERIOD}},
 		M{P{0x24}, K{SDLK_SLASH},       S{SDL_SCANCODE_SLASH}},
 		M{P{0x25}, K{SDLK_RCTRL},       S{SDL_SCANCODE_RCTRL, SDL_SCANCODE_NONUSBACKSLASH}}, // Acc / BACKSLASH on Japanese keyboard
-		M{P{0x26}, K{SDLK_a},           S{SDL_SCANCODE_A}},
-		M{P{0x27}, K{SDLK_b},           S{SDL_SCANCODE_B}},
+		M{P{0x26}, K{SDLK_A},           S{SDL_SCANCODE_A}},
+		M{P{0x27}, K{SDLK_B},           S{SDL_SCANCODE_B}},
 
-		M{P{0x30}, K{SDLK_c},           S{SDL_SCANCODE_C}},
-		M{P{0x31}, K{SDLK_d},           S{SDL_SCANCODE_D}},
-		M{P{0x32}, K{SDLK_e},           S{SDL_SCANCODE_E}},
-		M{P{0x33}, K{SDLK_f},           S{SDL_SCANCODE_F}},
-		M{P{0x34}, K{SDLK_g},           S{SDL_SCANCODE_G}},
-		M{P{0x35}, K{SDLK_h},           S{SDL_SCANCODE_H}},
-		M{P{0x36}, K{SDLK_i},           S{SDL_SCANCODE_I}},
-		M{P{0x37}, K{SDLK_j},           S{SDL_SCANCODE_J}},
+		M{P{0x30}, K{SDLK_C},           S{SDL_SCANCODE_C}},
+		M{P{0x31}, K{SDLK_D},           S{SDL_SCANCODE_D}},
+		M{P{0x32}, K{SDLK_E},           S{SDL_SCANCODE_E}},
+		M{P{0x33}, K{SDLK_F},           S{SDL_SCANCODE_F}},
+		M{P{0x34}, K{SDLK_G},           S{SDL_SCANCODE_G}},
+		M{P{0x35}, K{SDLK_H},           S{SDL_SCANCODE_H}},
+		M{P{0x36}, K{SDLK_I},           S{SDL_SCANCODE_I}},
+		M{P{0x37}, K{SDLK_J},           S{SDL_SCANCODE_J}},
 
-		M{P{0x40}, K{SDLK_k},           S{SDL_SCANCODE_K}},
-		M{P{0x41}, K{SDLK_l},           S{SDL_SCANCODE_L}},
-		M{P{0x42}, K{SDLK_m},           S{SDL_SCANCODE_M}},
-		M{P{0x43}, K{SDLK_n},           S{SDL_SCANCODE_N}},
-		M{P{0x44}, K{SDLK_o},           S{SDL_SCANCODE_O}},
-		M{P{0x45}, K{SDLK_p},           S{SDL_SCANCODE_P}},
-		M{P{0x46}, K{SDLK_q},           S{SDL_SCANCODE_Q}},
-		M{P{0x47}, K{SDLK_r},           S{SDL_SCANCODE_R}},
+		M{P{0x40}, K{SDLK_K},           S{SDL_SCANCODE_K}},
+		M{P{0x41}, K{SDLK_L},           S{SDL_SCANCODE_L}},
+		M{P{0x42}, K{SDLK_M},           S{SDL_SCANCODE_M}},
+		M{P{0x43}, K{SDLK_N},           S{SDL_SCANCODE_N}},
+		M{P{0x44}, K{SDLK_O},           S{SDL_SCANCODE_O}},
+		M{P{0x45}, K{SDLK_P},           S{SDL_SCANCODE_P}},
+		M{P{0x46}, K{SDLK_Q},           S{SDL_SCANCODE_Q}},
+		M{P{0x47}, K{SDLK_R},           S{SDL_SCANCODE_R}},
 
-		M{P{0x50}, K{SDLK_s},           S{SDL_SCANCODE_S}},
-		M{P{0x51}, K{SDLK_t},           S{SDL_SCANCODE_T}},
-		M{P{0x52}, K{SDLK_u},           S{SDL_SCANCODE_U}},
-		M{P{0x53}, K{SDLK_v},           S{SDL_SCANCODE_V}},
-		M{P{0x54}, K{SDLK_w},           S{SDL_SCANCODE_W}},
-		M{P{0x55}, K{SDLK_x},           S{SDL_SCANCODE_X}},
-		M{P{0x56}, K{SDLK_y},           S{SDL_SCANCODE_Y}},
-		M{P{0x57}, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+		M{P{0x50}, K{SDLK_S},           S{SDL_SCANCODE_S}},
+		M{P{0x51}, K{SDLK_T},           S{SDL_SCANCODE_T}},
+		M{P{0x52}, K{SDLK_U},           S{SDL_SCANCODE_U}},
+		M{P{0x53}, K{SDLK_V},           S{SDL_SCANCODE_V}},
+		M{P{0x54}, K{SDLK_W},           S{SDL_SCANCODE_W}},
+		M{P{0x55}, K{SDLK_X},           S{SDL_SCANCODE_X}},
+		M{P{0x56}, K{SDLK_Y},           S{SDL_SCANCODE_Y}},
+		M{P{0x57}, K{SDLK_Z},           S{SDL_SCANCODE_Z}},
 
 		M{P{0x60}, K{SDLK_LSHIFT, SDLK_RSHIFT}, S{SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}},
 		M{P{0x61}, K{SDLK_LCTRL},       S{SDL_SCANCODE_LCTRL}},
@@ -355,42 +355,42 @@ static constexpr auto getSVIMapping()
 		M{P{0x10}, K{SDLK_8},           S{SDL_SCANCODE_8}},
 		M{P{0x11}, K{SDLK_9},           S{SDL_SCANCODE_9}},
 		M{P{0x12}, K{SDLK_SEMICOLON},   S{SDL_SCANCODE_SEMICOLON}},
-		M{P{0x13}, K{SDLK_QUOTE},       S{SDL_SCANCODE_APOSTROPHE}},
+		M{P{0x13}, K{SDLK_APOSTROPHE},  S{SDL_SCANCODE_APOSTROPHE}},
 		M{P{0x14}, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
 		M{P{0x15}, K{SDLK_EQUALS},      S{SDL_SCANCODE_EQUALS}},
 		M{P{0x16}, K{SDLK_PERIOD},      S{SDL_SCANCODE_PERIOD}},
 		M{P{0x17}, K{SDLK_SLASH},       S{SDL_SCANCODE_SLASH}},
 
 		M{P{0x20}, K{SDLK_MINUS},       S{SDL_SCANCODE_MINUS}},
-		M{P{0x21}, K{SDLK_a},           S{SDL_SCANCODE_A}},
-		M{P{0x22}, K{SDLK_b},           S{SDL_SCANCODE_B}},
-		M{P{0x23}, K{SDLK_c},           S{SDL_SCANCODE_C}},
-		M{P{0x24}, K{SDLK_d},           S{SDL_SCANCODE_D}},
-		M{P{0x25}, K{SDLK_e},           S{SDL_SCANCODE_E}},
-		M{P{0x26}, K{SDLK_f},           S{SDL_SCANCODE_F}},
-		M{P{0x27}, K{SDLK_g},           S{SDL_SCANCODE_G}},
+		M{P{0x21}, K{SDLK_A},           S{SDL_SCANCODE_A}},
+		M{P{0x22}, K{SDLK_B},           S{SDL_SCANCODE_B}},
+		M{P{0x23}, K{SDLK_C},           S{SDL_SCANCODE_C}},
+		M{P{0x24}, K{SDLK_D},           S{SDL_SCANCODE_D}},
+		M{P{0x25}, K{SDLK_E},           S{SDL_SCANCODE_E}},
+		M{P{0x26}, K{SDLK_F},           S{SDL_SCANCODE_F}},
+		M{P{0x27}, K{SDLK_G},           S{SDL_SCANCODE_G}},
 
-		M{P{0x30}, K{SDLK_h},           S{SDL_SCANCODE_H}},
-		M{P{0x31}, K{SDLK_i},           S{SDL_SCANCODE_I}},
-		M{P{0x32}, K{SDLK_j},           S{SDL_SCANCODE_J}},
-		M{P{0x33}, K{SDLK_k},           S{SDL_SCANCODE_K}},
-		M{P{0x34}, K{SDLK_l},           S{SDL_SCANCODE_L}},
-		M{P{0x35}, K{SDLK_m},           S{SDL_SCANCODE_M}},
-		M{P{0x36}, K{SDLK_n},           S{SDL_SCANCODE_N}},
-		M{P{0x37}, K{SDLK_o},           S{SDL_SCANCODE_O}},
+		M{P{0x30}, K{SDLK_H},           S{SDL_SCANCODE_H}},
+		M{P{0x31}, K{SDLK_I},           S{SDL_SCANCODE_I}},
+		M{P{0x32}, K{SDLK_J},           S{SDL_SCANCODE_J}},
+		M{P{0x33}, K{SDLK_K},           S{SDL_SCANCODE_K}},
+		M{P{0x34}, K{SDLK_L},           S{SDL_SCANCODE_L}},
+		M{P{0x35}, K{SDLK_M},           S{SDL_SCANCODE_M}},
+		M{P{0x36}, K{SDLK_N},           S{SDL_SCANCODE_N}},
+		M{P{0x37}, K{SDLK_O},           S{SDL_SCANCODE_O}},
 
-		M{P{0x40}, K{SDLK_p},           S{SDL_SCANCODE_P}},
-		M{P{0x41}, K{SDLK_q},           S{SDL_SCANCODE_Q}},
-		M{P{0x42}, K{SDLK_r},           S{SDL_SCANCODE_R}},
-		M{P{0x43}, K{SDLK_s},           S{SDL_SCANCODE_S}},
-		M{P{0x44}, K{SDLK_t},           S{SDL_SCANCODE_T}},
-		M{P{0x45}, K{SDLK_u},           S{SDL_SCANCODE_U}},
-		M{P{0x46}, K{SDLK_v},           S{SDL_SCANCODE_V}},
-		M{P{0x47}, K{SDLK_w},           S{SDL_SCANCODE_W}},
+		M{P{0x40}, K{SDLK_P},           S{SDL_SCANCODE_P}},
+		M{P{0x41}, K{SDLK_Q},           S{SDL_SCANCODE_Q}},
+		M{P{0x42}, K{SDLK_R},           S{SDL_SCANCODE_R}},
+		M{P{0x43}, K{SDLK_S},           S{SDL_SCANCODE_S}},
+		M{P{0x44}, K{SDLK_T},           S{SDL_SCANCODE_T}},
+		M{P{0x45}, K{SDLK_U},           S{SDL_SCANCODE_U}},
+		M{P{0x46}, K{SDLK_V},           S{SDL_SCANCODE_V}},
+		M{P{0x47}, K{SDLK_W},           S{SDL_SCANCODE_W}},
 
-		M{P{0x50}, K{SDLK_x},           S{SDL_SCANCODE_X}},
-		M{P{0x51}, K{SDLK_y},           S{SDL_SCANCODE_Y}},
-		M{P{0x52}, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+		M{P{0x50}, K{SDLK_X},           S{SDL_SCANCODE_X}},
+		M{P{0x51}, K{SDLK_Y},           S{SDL_SCANCODE_Y}},
+		M{P{0x52}, K{SDLK_Z},           S{SDL_SCANCODE_Z}},
 		M{P{0x53}, K{SDLK_LEFTBRACKET}, S{SDL_SCANCODE_LEFTBRACKET}},
 		M{P{0x54}, K{SDLK_BACKSLASH},   S{SDL_SCANCODE_BACKSLASH}},
 		M{P{0x55}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
@@ -476,10 +476,10 @@ static constexpr auto getCvJoyMapping()
 		M{P{0x07}, K{SDLK_RSHIFT,         SDLK_RALT,         SDLK_LALT},
 		           S{SDL_SCANCODE_RSHIFT, SDL_SCANCODE_RALT, SDL_SCANCODE_LALT}},
 
-		M{P{0x10}, K{SDLK_w},       S{SDL_SCANCODE_W}},
-		M{P{0x11}, K{SDLK_d},       S{SDL_SCANCODE_D}},
-		M{P{0x12}, K{SDLK_s},       S{SDL_SCANCODE_S}},
-		M{P{0x13}, K{SDLK_a},       S{SDL_SCANCODE_A}},
+		M{P{0x10}, K{SDLK_W},       S{SDL_SCANCODE_W}},
+		M{P{0x11}, K{SDLK_D},       S{SDL_SCANCODE_D}},
+		M{P{0x12}, K{SDLK_S},       S{SDL_SCANCODE_S}},
+		M{P{0x13}, K{SDLK_A},       S{SDL_SCANCODE_A}},
 		M{P{0x16}, K{SDLK_LCTRL},   S{SDL_SCANCODE_LCTRL}},
 		M{P{0x17}, K{SDLK_LSHIFT},  S{SDL_SCANCODE_LSHIFT}},
 
@@ -499,19 +499,19 @@ static constexpr auto getCvJoyMapping()
 		M{P{0x33}, K{SDLK_EQUALS,         SDLK_KP_DIVIDE,         SDLK_KP_PLUS},
 		           S{SDL_SCANCODE_EQUALS, SDL_SCANCODE_KP_DIVIDE, SDL_SCANCODE_KP_PLUS}},// #
 
-		M{P{0x40}, K{SDLK_u},       S{SDL_SCANCODE_U}}, // 0
-		M{P{0x41}, K{SDLK_v},       S{SDL_SCANCODE_V}}, // 1
-		M{P{0x42}, K{SDLK_b},       S{SDL_SCANCODE_B}}, // 2
-		M{P{0x43}, K{SDLK_n},       S{SDL_SCANCODE_N}}, // 3
-		M{P{0x44}, K{SDLK_f},       S{SDL_SCANCODE_F}}, // 4
-		M{P{0x45}, K{SDLK_g},       S{SDL_SCANCODE_G}}, // 5
-		M{P{0x46}, K{SDLK_h},       S{SDL_SCANCODE_H}}, // 6
-		M{P{0x47}, K{SDLK_r},       S{SDL_SCANCODE_R}}, // 7
+		M{P{0x40}, K{SDLK_U},       S{SDL_SCANCODE_U}}, // 0
+		M{P{0x41}, K{SDLK_V},       S{SDL_SCANCODE_V}}, // 1
+		M{P{0x42}, K{SDLK_B},       S{SDL_SCANCODE_B}}, // 2
+		M{P{0x43}, K{SDLK_N},       S{SDL_SCANCODE_N}}, // 3
+		M{P{0x44}, K{SDLK_F},       S{SDL_SCANCODE_F}}, // 4
+		M{P{0x45}, K{SDLK_G},       S{SDL_SCANCODE_G}}, // 5
+		M{P{0x46}, K{SDLK_H},       S{SDL_SCANCODE_H}}, // 6
+		M{P{0x47}, K{SDLK_R},       S{SDL_SCANCODE_R}}, // 7
 
-		M{P{0x50}, K{SDLK_t},       S{SDL_SCANCODE_T}}, // 8
-		M{P{0x51}, K{SDLK_y},       S{SDL_SCANCODE_Y}}, // 9
-		M{P{0x52}, K{SDLK_j},       S{SDL_SCANCODE_J}}, // *
-		M{P{0x53}, K{SDLK_m},       S{SDL_SCANCODE_M}}, // #
+		M{P{0x50}, K{SDLK_T},       S{SDL_SCANCODE_T}}, // 8
+		M{P{0x51}, K{SDLK_Y},       S{SDL_SCANCODE_Y}}, // 9
+		M{P{0x52}, K{SDLK_J},       S{SDL_SCANCODE_J}}, // *
+		M{P{0x53}, K{SDLK_M},       S{SDL_SCANCODE_M}}, // #
 	};
 	return mapping;
 }
@@ -548,53 +548,53 @@ static constexpr auto getSegaMapping()
 	std::array mapping = {
 		M{P{0x00}, K{SDLK_1,         SDLK_KP_1},
 		           S{SDL_SCANCODE_1, SDL_SCANCODE_KP_1}},
-		M{P{0x01}, K{SDLK_q},           S{SDL_SCANCODE_Q}},
-		M{P{0x02}, K{SDLK_a},           S{SDL_SCANCODE_A}},
-		M{P{0x03}, K{SDLK_z},           S{SDL_SCANCODE_Z}},
+		M{P{0x01}, K{SDLK_Q},           S{SDL_SCANCODE_Q}},
+		M{P{0x02}, K{SDLK_A},           S{SDL_SCANCODE_A}},
+		M{P{0x03}, K{SDLK_Z},           S{SDL_SCANCODE_Z}},
 		M{P{0x04}, K{SDLK_RALT},        S{SDL_SCANCODE_RALT}},  // eng
 		M{P{0x05}, K{SDLK_COMMA},       S{SDL_SCANCODE_COMMA}},
-		M{P{0x06}, K{SDLK_k},           S{SDL_SCANCODE_K}},
-		M{P{0x07}, K{SDLK_i},           S{SDL_SCANCODE_I}},
+		M{P{0x06}, K{SDLK_K},           S{SDL_SCANCODE_K}},
+		M{P{0x07}, K{SDLK_I},           S{SDL_SCANCODE_I}},
 
 		M{P{0x10}, K{SDLK_2,         SDLK_KP_2},
 		          S{SDL_SCANCODE_2, SDL_SCANCODE_KP_2}},
-		M{P{0x11}, K{SDLK_w},           S{SDL_SCANCODE_W}},
-		M{P{0x12}, K{SDLK_s},           S{SDL_SCANCODE_S}},
-		M{P{0x13}, K{SDLK_x},           S{SDL_SCANCODE_X}},
+		M{P{0x11}, K{SDLK_W},           S{SDL_SCANCODE_W}},
+		M{P{0x12}, K{SDLK_S},           S{SDL_SCANCODE_S}},
+		M{P{0x13}, K{SDLK_X},           S{SDL_SCANCODE_X}},
 		M{P{0x14}, K{SDLK_SPACE},       S{SDL_SCANCODE_SPACE}},
 		M{P{0x15}, K{SDLK_PERIOD,         SDLK_KP_PERIOD},
 		           S{SDL_SCANCODE_PERIOD, SDL_SCANCODE_KP_PERIOD}},
-		M{P{0x16}, K{SDLK_l},           S{SDL_SCANCODE_L}},
-		M{P{0x17}, K{SDLK_o},           S{SDL_SCANCODE_O}},
+		M{P{0x16}, K{SDLK_L},           S{SDL_SCANCODE_L}},
+		M{P{0x17}, K{SDLK_O},           S{SDL_SCANCODE_O}},
 
 		M{P{0x20}, K{SDLK_3,         SDLK_KP_3},
 		           S{SDL_SCANCODE_3, SDL_SCANCODE_KP_3}},
-		M{P{0x21}, K{SDLK_e},           S{SDL_SCANCODE_E}},
-		M{P{0x22}, K{SDLK_d},           S{SDL_SCANCODE_D}},
-		M{P{0x23}, K{SDLK_c},           S{SDL_SCANCODE_C}},
+		M{P{0x21}, K{SDLK_E},           S{SDL_SCANCODE_E}},
+		M{P{0x22}, K{SDLK_D},           S{SDL_SCANCODE_D}},
+		M{P{0x23}, K{SDLK_C},           S{SDL_SCANCODE_C}},
 		M{P{0x24}, K{SDLK_HOME},        S{SDL_SCANCODE_HOME}},
 		M{P{0x25}, K{SDLK_SLASH,         SDLK_KP_DIVIDE},
 		           S{SDL_SCANCODE_SLASH, SDL_SCANCODE_KP_DIVIDE}},
 		M{P{0x26}, K{SDLK_SEMICOLON,         SDLK_KP_PLUS},
 		           S{SDL_SCANCODE_SEMICOLON, SDL_SCANCODE_KP_PLUS}},
-		M{P{0x27}, K{SDLK_p},           S{SDL_SCANCODE_P}},
+		M{P{0x27}, K{SDLK_P},           S{SDL_SCANCODE_P}},
 
 		M{P{0x30}, K{SDLK_4,         SDLK_KP_4},
 		           S{SDL_SCANCODE_4, SDL_SCANCODE_KP_4}},
-		M{P{0x31}, K{SDLK_r},           S{SDL_SCANCODE_R}},
-		M{P{0x32}, K{SDLK_f},           S{SDL_SCANCODE_F}},
-		M{P{0x33}, K{SDLK_v},           S{SDL_SCANCODE_V}},
+		M{P{0x31}, K{SDLK_R},           S{SDL_SCANCODE_R}},
+		M{P{0x32}, K{SDLK_F},           S{SDL_SCANCODE_F}},
+		M{P{0x33}, K{SDLK_V},           S{SDL_SCANCODE_V}},
 		M{P{0x34}, K{SDLK_INSERT},      S{SDL_SCANCODE_INSERT}},
 		M{P{0x35}, K{SDLK_F7},          S{SDL_SCANCODE_F7}},         // pi
-		M{P{0x36}, K{SDLK_QUOTE,              SDLK_KP_MULTIPLY},
+		M{P{0x36}, K{SDLK_APOSTROPHE,         SDLK_KP_MULTIPLY},
 		           S{SDL_SCANCODE_APOSTROPHE, SDL_SCANCODE_KP_MULTIPLY}}, // :
-		M{P{0x37}, K{SDLK_BACKQUOTE},   S{SDL_SCANCODE_GRAVE}},      // @
+		M{P{0x37}, K{SDLK_GRAVE},       S{SDL_SCANCODE_GRAVE}},      // @
 
 		M{P{0x40}, K{SDLK_5,         SDLK_KP_5},
 		           S{SDL_SCANCODE_5, SDL_SCANCODE_KP_5}},
-		M{P{0x41}, K{SDLK_t},           S{SDL_SCANCODE_T}},
-		M{P{0x42}, K{SDLK_g},           S{SDL_SCANCODE_G}},
-		M{P{0x43}, K{SDLK_b},           S{SDL_SCANCODE_B}},
+		M{P{0x41}, K{SDLK_T},           S{SDL_SCANCODE_T}},
+		M{P{0x42}, K{SDLK_G},           S{SDL_SCANCODE_G}},
+		M{P{0x43}, K{SDLK_B},           S{SDL_SCANCODE_B}},
 		// nothing on 0x44
 		M{P{0x45}, K{SDLK_DOWN},        S{SDL_SCANCODE_DOWN}},
 		M{P{0x46}, K{SDLK_RIGHTBRACKET},S{SDL_SCANCODE_RIGHTBRACKET}},
@@ -602,9 +602,9 @@ static constexpr auto getSegaMapping()
 
 		M{P{0x50}, K{SDLK_6,         SDLK_KP_6},
 		           S{SDL_SCANCODE_6, SDL_SCANCODE_KP_6}},
-		M{P{0x51}, K{SDLK_y},           S{SDL_SCANCODE_Y}},
-		M{P{0x52}, K{SDLK_h},           S{SDL_SCANCODE_H}},
-		M{P{0x53}, K{SDLK_n},           S{SDL_SCANCODE_N}},
+		M{P{0x51}, K{SDLK_Y},           S{SDL_SCANCODE_Y}},
+		M{P{0x52}, K{SDLK_H},           S{SDL_SCANCODE_H}},
+		M{P{0x53}, K{SDLK_N},           S{SDL_SCANCODE_N}},
 		// nothing on 0x54
 		M{P{0x55}, K{SDLK_LEFT},        S{SDL_SCANCODE_LEFT}},
 		M{P{0x56}, K{SDLK_RETURN,         SDLK_KP_ENTER},
@@ -613,9 +613,9 @@ static constexpr auto getSegaMapping()
 
 		M{P{0x60}, K{SDLK_7,         SDLK_KP_7},
 		           S{SDL_SCANCODE_7, SDL_SCANCODE_KP_7}},
-		M{P{0x61}, K{SDLK_u},           S{SDL_SCANCODE_U}},
-		M{P{0x62}, K{SDLK_j},           S{SDL_SCANCODE_J}},
-		M{P{0x63}, K{SDLK_m},           S{SDL_SCANCODE_M}},
+		M{P{0x61}, K{SDLK_U},           S{SDL_SCANCODE_U}},
+		M{P{0x62}, K{SDLK_J},           S{SDL_SCANCODE_J}},
+		M{P{0x63}, K{SDLK_M},           S{SDL_SCANCODE_M}},
 		// nothing on 0x64
 		M{P{0x65}, K{SDLK_RIGHT},       S{SDL_SCANCODE_RIGHT}},
 		M{P{0x66}, K{SDLK_UP},          S{SDL_SCANCODE_UP}},
@@ -1198,14 +1198,14 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 	}
 #ifdef __APPLE__
 	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
-	if ((key.sym.mod & KMOD_GUI) &&
+	if ((key.sym.mod & SDL_KMOD_GUI) &&
 	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||
-	     (!positional && (keyCode == SDLK_i)))) {
+	     (!positional && (keyCode == SDLK_I)))) {
 		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
 		keyCode = SDLK_INSERT;
 		key.sym.sym = SDLK_INSERT;
 		key.sym.scancode = SDL_SCANCODE_INSERT;
-		key.sym.mod &= ~KMOD_GUI;
+		key.sym.mod &= ~SDL_KMOD_GUI;
 		key.sym.unused = 0; // unicode
 	}
 #endif
@@ -1269,7 +1269,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// Perform direct SDL matrix to MSX matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if (!(key.sym.mod & KMOD_MODE)) {
+			if (!(key.sym.mod & SDL_KMOD_MODE)) {
 				processSdlKey(time, key);
 			}
 			return false;
@@ -1287,7 +1287,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// It was a special key, perform matrix to matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if (!(key.sym.mod & KMOD_MODE)) {
+			if (!(key.sym.mod & SDL_KMOD_MODE)) {
 				processSdlKey(time, key);
 			}
 		} else {
@@ -1938,7 +1938,7 @@ bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 			[&](const WindowEvent& e) {
 				if (e.isMainWindow()) {
 					const auto& evt = e.getSdlWindowEvent();
-					if (evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+					if (evt.event == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 						alignCapsLock(time);
 					}
 				}
@@ -1986,7 +1986,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime time)
  */
 void Keyboard::CapsLockAligner::alignCapsLock(EmuTime time)
 {
-	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
+	bool hostCapsLockOn = ((SDL_GetModState() & SDL_KMOD_CAPS) != 0);
 	auto& keyboard = OUTER(Keyboard, capsLockAligner);
 	if (bool(keyboard.locksOn & KeyInfo::CAPS_MASK) != hostCapsLockOn) {
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");

@@ -42,11 +42,11 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 	static constexpr std::array unsortedMap = {
 		// Old openMSX name, SDL-key-code, new SDL2 name
 		M{"EXCLAIM",     SDLK_EXCLAIM},     // !
-		M{"QUOTEDBL",    SDLK_QUOTEDBL},    // "
+		M{"QUOTEDBL",    SDLK_DBLAPOSTROPHE}, // "
 		M{"HASH",        SDLK_HASH},        // #
 		M{"DOLLAR",      SDLK_DOLLAR},      // $
 		M{"AMPERSAND",   SDLK_AMPERSAND},   // &
-		M{"QUOTE",       SDLK_QUOTE},       // '
+		M{"QUOTE",       SDLK_APOSTROPHE},  // '
 		M{"LEFTPAREN",   SDLK_LEFTPAREN},   // (
 		M{"RIGHTPAREN",  SDLK_RIGHTPAREN},  // )
 		M{"ASTERISK",    SDLK_ASTERISK},    // *
@@ -67,7 +67,7 @@ static SDL_Keycode getKeyFromOldOpenmsxName(std::string_view name)
 		M{"RIGHTBRACKET",SDLK_RIGHTBRACKET},// ]
 		M{"CARET",       SDLK_CARET},       // ^
 		M{"UNDERSCORE",  SDLK_UNDERSCORE},  // _
-		M{"BACKQUOTE",   SDLK_BACKQUOTE},   // `
+		M{"BACKQUOTE",   SDLK_GRAVE},       // `
 		M{"PRINT",       SDLK_PRINTSCREEN}, // PrintScreen
 		M{"SCROLLOCK",   SDLK_SCROLLLOCK},  // ScrollLock   backwards compat for typo
 		M{"KP_DIVIDE",   SDLK_KP_DIVIDE},   // Keypad /
@@ -163,7 +163,7 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 	SDLKey result = {};
 	result.sym.scancode = SDL_SCANCODE_UNKNOWN;
 	result.sym.sym = SDLK_UNKNOWN;
-	result.sym.mod = KMOD_NONE;
+	result.sym.mod = SDL_KMOD_NONE;
 	result.sym.unused = 0; // unicode
 	result.down = true;
 
@@ -190,16 +190,16 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 
 		StringOp::casecmp cmp;
 		if (cmp(part, "SHIFT")) {
-			result.sym.mod |= KMOD_SHIFT;
+			result.sym.mod |= SDL_KMOD_SHIFT;
 		} else if (cmp(part, "CTRL")) {
-			result.sym.mod |= KMOD_CTRL;
+			result.sym.mod |= SDL_KMOD_CTRL;
 		} else if (cmp(part, "ALT")) {
-			result.sym.mod |= KMOD_ALT;
+			result.sym.mod |= SDL_KMOD_ALT;
 		} else if (cmp(part, "GUI") ||
 		           cmp(part, "META")) { // bw-compat
-			result.sym.mod |= KMOD_GUI;
+			result.sym.mod |= SDL_KMOD_GUI;
 		} else if (cmp(part, "MODE")) {
-			result.sym.mod |= KMOD_MODE;
+			result.sym.mod |= SDL_KMOD_MODE;
 
 		} else if (cmp(part, "PRESS")) {
 			result.down = true;
@@ -233,19 +233,19 @@ std::string SDLKey::toString(SDL_Keycode code)
 std::string SDLKey::toString() const
 {
 	std::string result = toString(sym.sym);
-	if (sym.mod & KMOD_CTRL) {
+	if (sym.mod & SDL_KMOD_CTRL) {
 		result += "+CTRL";
 	}
-	if (sym.mod & KMOD_SHIFT) {
+	if (sym.mod & SDL_KMOD_SHIFT) {
 		result += "+SHIFT";
 	}
-	if (sym.mod & KMOD_ALT) {
+	if (sym.mod & SDL_KMOD_ALT) {
 		result += "+ALT";
 	}
-	if (sym.mod & KMOD_GUI) {
+	if (sym.mod & SDL_KMOD_GUI) {
 		result += "+GUI";
 	}
-	if (sym.mod & KMOD_MODE) {
+	if (sym.mod & SDL_KMOD_MODE) {
 		result += "+MODE";
 	}
 	if (!down) {

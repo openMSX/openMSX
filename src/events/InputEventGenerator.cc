@@ -52,7 +52,7 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 	// Heuristic to emulate the old SDL1 behavior:
 	//
 	// SDL1 had a unicode field on each KEYDOWN event. In SDL2 that
-	// information is moved to the (new) SDL_TEXTINPUT events.
+	// information is moved to the (new) SDL_EVENT_TEXT_INPUT events.
 	//
 	// Though our MSX keyboard emulation code needs to relate KEYDOWN
 	// events with the associated unicode. We try to mimic this by the
@@ -73,7 +73,7 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 	// - on Mac the timestamps mostly did not match
 	// So we removed this constraint.
 	//
-	// We also split SDL_TEXTINPUT events into (possibly) multiple KEYDOWN
+	// We also split SDL_EVENT_TEXT_INPUT events into (possibly) multiple KEYDOWN
 	// events because a single event type makes it easier to handle higher
 	// priority listeners that can block the event for lower priority
 	// listener (console > hotkey > msx).
@@ -95,12 +95,12 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 	while (getNextEvent()) {
 		// Ignore SDL_USEREVENT, used to wake SDL_WaitEventTimeout from other
 		// threads (see Reactor::enterMainLoop).
-		if (curr->type == SDL_USEREVENT) {
+		if (curr->type == SDL_EVENT_USER) {
 			continue;
 		}
 		if (pending) {
 			pending = false;
-			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
+			if ((prev->type == SDL_EVENT_KEY_DOWN) && (curr->type == SDL_EVENT_TEXT_INPUT)) {
 				const char* utf8 = curr->text.text;
 				auto unicode = utf8::unchecked::next(utf8);
 				handleKeyDown(prev->key, unicode);
@@ -113,7 +113,7 @@ void InputEventGenerator::poll(std::optional<int> timeoutMs)
 				handle(*prev);
 			}
 		}
-		if (curr->type == SDL_KEYDOWN) {
+		if (curr->type == SDL_EVENT_KEY_DOWN) {
 			pending = true;
 			std::swap(curr, prev);
 		} else {
@@ -293,7 +293,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 
 	std::optional<Event> event;
 	switch (evt.type) {
-	case SDL_KEYUP:
+	case SDL_EVENT_KEY_UP:
 		// Virtual joystick of SDL Android port does not have joystick
 		// buttons. It has however up to 6 virtual buttons that can be
 		// mapped to SDL keyboard events. Two of these virtual buttons
@@ -320,20 +320,20 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
 		}
 		break;
-	case SDL_KEYDOWN:
+	case SDL_EVENT_KEY_DOWN:
 		handleKeyDown(evt.key, 0);
 		break;
 
-	case SDL_MOUSEBUTTONUP:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
 		event = MouseButtonUpEvent(evt);
 		break;
-	case SDL_MOUSEBUTTONDOWN:
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		event = MouseButtonDownEvent(evt);
 		break;
-	case SDL_MOUSEWHEEL:
+	case SDL_EVENT_MOUSE_WHEEL:
 		event = MouseWheelEvent(evt);
 		break;
-	case SDL_MOUSEMOTION:
+	case SDL_EVENT_MOUSE_MOTION:
 		event = MouseMotionEvent(evt);
 		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowGrab(window)) {
 			int w, h;
@@ -358,21 +358,21 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
 		}
 		break;
-	case SDL_JOYBUTTONUP:
+	case SDL_EVENT_JOYSTICK_BUTTON_UP:
 		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonUpEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, false);
 		}
 		break;
-	case SDL_JOYBUTTONDOWN:
+	case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
 		if (joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickButtonDownEvent(evt);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				evt.jbutton.button, true);
 		}
 		break;
-	case SDL_JOYAXISMOTION: {
+	case SDL_EVENT_JOYSTICK_AXIS_MOTION: {
 		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			const auto* setting = joystickManager.getJoyDeadZoneSetting(*joyId);
 			assert(setting);
@@ -387,29 +387,29 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		}
 		break;
 	}
-	case SDL_JOYHATMOTION:
+	case SDL_EVENT_JOYSTICK_HAT_MOTION:
 		if (auto joyId = joystickManager.translateSdlInstanceId(evt)) {
 			event = JoystickHatEvent(evt);
 			triggerOsdControlEventsFromJoystickHat(evt.jhat.value);
 		}
 		break;
 
-	case SDL_JOYDEVICEADDED:
+	case SDL_EVENT_JOYSTICK_ADDED:
 		joystickManager.add(evt.jdevice.which);
 		break;
 
-	case SDL_JOYDEVICEREMOVED:
+	case SDL_EVENT_JOYSTICK_REMOVED:
 		joystickManager.remove(evt.jdevice.which);
 		break;
 
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 		splitText(evt.text.timestamp, evt.text.text);
 		event = TextEvent(evt);
 		break;
 
 	case SDL_WINDOWEVENT:
 		switch (evt.window.event) {
-		case SDL_WINDOWEVENT_CLOSE:
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			if (WindowEvent::isMainWindow(evt.window.windowID)) {
 				event = quitOnce();
 				break;
@@ -421,13 +421,13 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		}
 		break;
 
-	case SDL_DROPFILE:
+	case SDL_EVENT_DROP_FILE:
 		event = FileDropEvent(
 			FileOperations::getConventionalPath(evt.drop.file));
 		SDL_free(evt.drop.file);
 		break;
 
-	case SDL_QUIT:
+	case SDL_EVENT_QUIT:
 		event = quitOnce();
 		break;
 
@@ -459,18 +459,18 @@ bool InputEventGenerator::signalEvent(const Event& event)
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
 			if (e.isMainWindow() &&
-			    evt.event == one_of(SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WINDOWEVENT_FOCUS_LOST)) {
+			    evt.event == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 				switch (escapeGrabState) {
 					case ESCAPE_GRAB_WAIT_CMD:
 						// nothing
 						break;
 					case ESCAPE_GRAB_WAIT_LOST:
-						if (evt.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+						if (evt.event == SDL_EVENT_WINDOW_FOCUS_LOST) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
 						}
 						break;
 					case ESCAPE_GRAB_WAIT_GAIN:
-						if (evt.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+						if (evt.event == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 						}
 						setGrabInput(true);

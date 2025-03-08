@@ -52,7 +52,7 @@ public:
 		// HACK: repurposed 'unused' field as 'unicode' field
 		return evt.key.keysym.unused;
 	}
-	[[nodiscard]] SDLKey getKey() const { return {.sym = evt.key.keysym, .down = evt.type == SDL_KEYDOWN}; }
+	[[nodiscard]] SDLKey getKey() const { return {.sym = evt.key.keysym, .down = evt.type == SDL_EVENT_KEY_DOWN}; }
 };
 
 class KeyUpEvent final : public KeyEvent
@@ -60,12 +60,12 @@ class KeyUpEvent final : public KeyEvent
 public:
 	using KeyEvent::KeyEvent;
 
-	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+	[[nodiscard]] static KeyUpEvent create(SDL_Keycode code, SDL_Keymod mod = SDL_KMOD_NONE) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
 
-		e.type = SDL_KEYUP;
+		e.type = SDL_EVENT_KEY_UP;
 		e.timestamp = SDL_GetTicks();
 		e.state = SDL_RELEASED;
 		e.keysym.sym = code;
@@ -79,12 +79,12 @@ class KeyDownEvent final : public KeyEvent
 public:
 	using KeyEvent::KeyEvent;
 
-	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = KMOD_NONE) {
+	[[nodiscard]] static KeyDownEvent create(SDL_Keycode code, SDL_Keymod mod = SDL_KMOD_NONE) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
 
-		e.type = SDL_KEYDOWN;
+		e.type = SDL_EVENT_KEY_DOWN;
 		e.timestamp = SDL_GetTicks();
 		e.state = SDL_PRESSED;
 		e.keysym.sym = code;
@@ -96,11 +96,11 @@ public:
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
 
-		e.type = SDL_KEYDOWN;
+		e.type = SDL_EVENT_KEY_DOWN;
 		e.timestamp = timestamp;
 		e.state = SDL_PRESSED;
 		e.keysym.sym = SDLK_UNKNOWN;
-		e.keysym.mod = KMOD_NONE;
+		e.keysym.mod = SDL_KMOD_NONE;
 		e.keysym.unused = unicode;
 		return KeyDownEvent(evt);
 	}
