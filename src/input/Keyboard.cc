@@ -1006,7 +1006,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 	// Process dead keys.
 	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
 		for (auto n : xrange(3)) {
-			if (key.sym.sym == keyboardSettings.getDeadKeyHostKey(n)) {
+			if (key.keycode == keyboardSettings.getDeadKeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadKey = unicodeKeymap.getDeadKey(n);
 				if (deadKey.isValid()) {
 					updateKeyMatrix(time, down, deadKey.pos);
@@ -1016,16 +1016,16 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		}
 	}
 
-	if (key.sym.sym == SDLK_CAPSLOCK) {
+	if (key.keycode == SDLK_CAPSLOCK) {
 		processCapslockEvent(time, down);
 		return false;
-	} else if (key.sym.sym == keyboardSettings.getCodeKanaHostKey()) {
+	} else if (key.keycode == keyboardSettings.getCodeKanaHostKey()) {
 		processCodeKanaChange(time, down);
 		return false;
-	} else if (key.sym.sym == SDLK_LALT) {
+	} else if (key.keycode == SDLK_LALT) {
 		processGraphChange(time, down);
 		return false;
-	} else if (key.sym.sym == SDLK_KP_ENTER) {
+	} else if (key.keycode == SDLK_KP_ENTER) {
 		processKeypadEnterKey(time, down);
 		return false;
 	} else {
@@ -1122,17 +1122,17 @@ void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 	};
 
 	if (keyboardSettings.getMappingMode() == KeyboardSettings::MappingMode::POSITIONAL) {
-		if ((key.sym.sym == SDLK_RIGHTBRACKET) && (key.sym.scancode == SDL_SCANCODE_BACKSLASH))
+		if ((key.keycode == SDLK_RIGHTBRACKET) && (key.scancode == SDL_SCANCODE_BACKSLASH))
 		{
 			// host: Japanese keyboard "]" -> position as -> US keyboard "GRAVE"
 			if (const auto* mapping = binary_find(scanCodeTab, SDL_SCANCODE_GRAVE, {}, &ScanCodeMsxMapping::hostScanCode)) {
 				process(mapping->msx);
 			}
-		} else if (const auto* mapping = binary_find(scanCodeTab, key.sym.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
+		} else if (const auto* mapping = binary_find(scanCodeTab, key.scancode, {}, &ScanCodeMsxMapping::hostScanCode)) {
 			process(mapping->msx);
 		}
 	} else {
-		if (const auto* mapping = binary_find(keyCodeTab, key.sym.sym, {}, &KeyCodeMsxMapping::hostKeyCode)) {
+		if (const auto* mapping = binary_find(keyCodeTab, key.keycode, {}, &KeyCodeMsxMapping::hostKeyCode)) {
 			process(mapping->msx);
 		}
 	}
@@ -1203,7 +1203,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 	     (!positional && (keyCode == SDLK_I)))) {
 		// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
 		keyCode = SDLK_INSERT;
-		key.sym.sym = SDLK_INSERT;
+		key.keycode = SDLK_INSERT;
 		key.sym.scancode = SDL_SCANCODE_INSERT;
 		key.sym.mod &= ~SDL_KMOD_GUI;
 		key.sym.unused = 0; // unicode
@@ -1269,7 +1269,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// Perform direct SDL matrix to MSX matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if (!(key.sym.mod & SDL_KMOD_MODE)) {
+			if (!(key.mod & SDL_KMOD_MODE)) {
 				processSdlKey(time, key);
 			}
 			return false;
@@ -1287,7 +1287,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 			// It was a special key, perform matrix to matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
-			if (!(key.sym.mod & SDL_KMOD_MODE)) {
+			if (!(key.mod & SDL_KMOD_MODE)) {
 				processSdlKey(time, key);
 			}
 		} else {
@@ -1938,7 +1938,7 @@ bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 			[&](const WindowEvent& e) {
 				if (e.isMainWindow()) {
 					const auto& evt = e.getSdlWindowEvent();
-					if (evt.event == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
+					if (evt.type == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 						alignCapsLock(time);
 					}
 				}
@@ -2109,7 +2109,9 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 		ar.serialize("lastUnicodeForKeycode", lastUnicodeForKeycode);
 		lastUnicodeForScancode.clear();
 		for (const auto& [keyCode, unicode] : lastUnicodeForKeycode) {
-			auto scanCode = SDL_GetScancodeFromKey(keyCode);
+			// TODO: SDL3 can provide the expected modifiers as well,
+			//       could that help make the mapping more accurate?
+			auto scanCode = SDL_GetScancodeFromKey(keyCode, nullptr);
 			lastUnicodeForScancode.emplace_back(scanCode, unicode);
 		}
 	} else {

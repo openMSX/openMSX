@@ -208,7 +208,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(unsigne
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(SDLKey key, bool repeat)
 {
 	unsigned buttonMask = [&] {
-		switch (key.sym.sym) {
+		switch (key.keycode) {
 		using enum OsdControlEvent::Button;
 		case SDLK_LEFT:   return 1 << std::to_underlying(LEFT);
 		case SDLK_RIGHT:  return 1 << std::to_underlying(RIGHT);
@@ -258,10 +258,10 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		memcpy(&evt.key, &key, sizeof(key));
-		evt.key.keysym.mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
-		evt.key.keysym.unused = unicode;
+		evt.key.mod = normalizeModifier(key.key, key.mod);
+		evt.key.reserved = unicode;
 		Event event = KeyDownEvent(evt);
-		triggerOsdControlEventsFromKeyEvent({.sym = key.keysym, .down = true}, key.repeat);
+		triggerOsdControlEventsFromKeyEvent(SDLKey::createDown(key.key), key.repeat);
 		eventDistributor.distributeEvent(std::move(event));
 	}
 }
@@ -313,11 +313,11 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			SDL_Event e;
 			e.key = SDL_KeyboardEvent{};
 			memcpy(&e.key, &evt.key, sizeof(evt.key));
-			e.key.keysym.mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
+			e.key.mod = normalizeModifier(evt.key.key, evt.key.mod);
 			event = KeyUpEvent(e);
 			bool down = false;
 			bool repeat = false;
-			triggerOsdControlEventsFromKeyEvent({.sym = e.key.keysym, .down = down}, repeat);
+			triggerOsdControlEventsFromKeyEvent(SDLKey::create(e.key.key, down), repeat);
 		}
 		break;
 	case SDL_EVENT_KEY_DOWN:
@@ -335,10 +335,10 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 	case SDL_EVENT_MOUSE_MOTION:
 		event = MouseMotionEvent(evt);
-		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowGrab(window)) {
+		if (auto* window = SDL_GL_GetCurrentWindow(); SDL_GetWindowMouseGrab(window)) {
 			int w, h;
 			SDL_GetWindowSize(window, &w, &h);
-			int x, y;
+			float x, y;
 			SDL_GetMouseState(&x, &y);
 			// There seems to be a bug in Windows in which the mouse can be locked on the right edge
 			// only when moving fast to the right (not so fast actually) when grabbing is enabled
@@ -352,9 +352,9 @@ void InputEventGenerator::handle(SDL_Event& evt)
 			// The value of 10 below is a heuristic value which seems to balance all factors
 			// such as font size and the overall size of gui elements
 			// and the speed of crossing virtual barriers
-			static constexpr int MARGIN = 10;
-			int xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
-			int yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
+			static constexpr float MARGIN = 10;
+			float xn = std::clamp(x, MARGIN, w - 1 - MARGIN);
+			float yn = std::clamp(y, MARGIN, h - 1 - MARGIN);
 			if (xn != x || yn != y) SDL_WarpMouseInWindow(window, xn, yn);
 		}
 		break;
@@ -407,24 +407,21 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		event = TextEvent(evt);
 		break;
 
-	case SDL_WINDOWEVENT:
-		switch (evt.window.event) {
-		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-			if (WindowEvent::isMainWindow(evt.window.windowID)) {
-				event = quitOnce();
-				break;
-			}
-			[[fallthrough]];
-		default:
-			event = WindowEvent(evt);
+	case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+		if (WindowEvent::isMainWindow(evt.window.windowID)) {
+			event = quitOnce();
 			break;
 		}
+		[[fallthrough]];
+	case SDL_EVENT_WINDOW_FOCUS_GAINED:
+	case SDL_EVENT_WINDOW_FOCUS_LOST:
+	case SDL_EVENT_WINDOW_EXPOSED:
+		event = WindowEvent(evt);
 		break;
 
 	case SDL_EVENT_DROP_FILE:
 		event = FileDropEvent(
-			FileOperations::getConventionalPath(evt.drop.file));
-		SDL_free(evt.drop.file);
+			FileOperations::getConventionalPath(evt.drop.data));
 		break;
 
 	case SDL_EVENT_QUIT:
@@ -459,18 +456,18 @@ bool InputEventGenerator::signalEvent(const Event& event)
 		[&](const WindowEvent& e) {
 			const auto& evt = e.getSdlWindowEvent();
 			if (e.isMainWindow() &&
-			    evt.event == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
+			    evt.type == one_of(SDL_EVENT_WINDOW_FOCUS_GAINED, SDL_EVENT_WINDOW_FOCUS_LOST)) {
 				switch (escapeGrabState) {
 					case ESCAPE_GRAB_WAIT_CMD:
 						// nothing
 						break;
 					case ESCAPE_GRAB_WAIT_LOST:
-						if (evt.event == SDL_EVENT_WINDOW_FOCUS_LOST) {
+						if (evt.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
 						}
 						break;
 					case ESCAPE_GRAB_WAIT_GAIN:
-						if (evt.event == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+						if (evt.type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 							escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 						}
 						setGrabInput(true);
@@ -490,7 +487,7 @@ bool InputEventGenerator::signalEvent(const Event& event)
 
 void InputEventGenerator::setGrabInput(bool grab) const
 {
-	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab);
+	SDL_SetWindowMouseGrab(SDL_GL_GetCurrentWindow(), grab);
 }
 
 
