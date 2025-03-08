@@ -141,17 +141,19 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 
 void SDLVideoSystem::showCursor(bool show)
 {
-	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+	// TODO: Is it worth checking for errors?
 	if (show) {
+		SDL_ShowCursor();
 		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 	} else {
+		SDL_HideCursor();
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	}
 }
 
 bool SDLVideoSystem::getCursorEnabled()
 {
-	return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
+	return SDL_CursorVisible();
 }
 
 std::string SDLVideoSystem::getClipboardText()
