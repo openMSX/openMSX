@@ -320,7 +320,7 @@ void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
 template<typename T, typename... Tail>
 void append(std::vector<T>& v, Tail&&... tail)
 {
-	auto extra = detail::sum_of_sizes(std::forward<Tail>(tail)...);
+	auto extra = detail::sum_of_sizes(tail...);
 	auto current = v.size();
 	if (auto required = current + extra;
 	    v.capacity() < required) {
