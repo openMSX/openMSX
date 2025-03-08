@@ -163,12 +163,6 @@ struct SDLFreeFormat {
 using SDLAllocFormatPtr = std::unique_ptr<SDL_PixelFormat, SDLFreeFormat>;
 
 
-struct SDLFreeWav {
-	void operator()(Uint8* w) const { SDL_FreeWAV(w); }
-};
-using SDLWavPtr = std::unique_ptr<Uint8, SDLFreeWav>;
-
-
 template<Uint32 FLAGS>
 class SDLSubSystemInitializer
 {
