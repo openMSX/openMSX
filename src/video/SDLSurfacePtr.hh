@@ -46,11 +46,12 @@ public:
 		unsigned pitch = width * (depth >> 3);
 		unsigned size = height * pitch;
 		buffer.resize(size);
-		surface = SDL_CreateRGBSurfaceFrom(
-			buffer.data(),
+		surface = SDL_CreateSurfaceFrom(
 			narrow<int>(width), narrow<int>(height),
-			narrow<int>(depth), narrow<int>(pitch),
-			rMask, gMask, bMask, aMask);
+			SDL_GetPixelFormatForMasks(narrow<int>(depth), rMask, gMask, bMask, aMask),
+			buffer.data(),
+			narrow<int>(pitch));
+
 		if (!surface) throw std::bad_alloc();
 	}
 
@@ -172,7 +173,7 @@ public:
 	SDLSubSystemInitializer() {
 		// SDL internally ref-counts sub-system initialization, so we
 		// don't need to worry about it here.
-		if (SDL_InitSubSystem(FLAGS) < 0) {
+		if (!SDL_InitSubSystem(FLAGS)) {
 			throw openmsx::InitException(
 				"SDL init failed (", FLAGS, "): ", SDL_GetError());
 		}
