@@ -160,12 +160,6 @@ struct SDLDestroyWindow {
 using SDLWindowPtr = std::unique_ptr<SDL_Window, SDLDestroyWindow>;
 
 
-struct SDLFreeFormat {
-	void operator()(SDL_PixelFormat* p) const { SDL_FreeFormat(p); }
-};
-using SDLAllocFormatPtr = std::unique_ptr<SDL_PixelFormat, SDLFreeFormat>;
-
-
 template<Uint32 FLAGS>
 class SDLSubSystemInitializer
 {
