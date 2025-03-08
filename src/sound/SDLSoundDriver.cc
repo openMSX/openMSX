@@ -32,7 +32,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	desired.userdata = this;
 
 	SDL_AudioSpec obtained;
-	deviceID = SDL_OpenAudioDevice(nullptr, SDL_FALSE, &desired, &obtained,
+	deviceID = SDL_OpenAudioDevice(nullptr, false, &desired, &obtained,
 	                               SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
 	if (!deviceID) {
 		throw MSXException("Unable to open SDL audio: ", SDL_GetError());
