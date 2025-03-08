@@ -258,7 +258,7 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
+		SDL_SetColorKey(iconSurf.get(), true, 0);
 		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 }

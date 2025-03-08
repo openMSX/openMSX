@@ -490,7 +490,7 @@ bool InputEventGenerator::signalEvent(const Event& event)
 
 void InputEventGenerator::setGrabInput(bool grab) const
 {
-	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab ? SDL_TRUE : SDL_FALSE);
+	SDL_SetWindowGrab(SDL_GL_GetCurrentWindow(), grab);
 }
 
 
