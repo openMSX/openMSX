@@ -17,7 +17,7 @@ JoystickManager::JoystickManager(CommandController& commandController_)
 	// these also get send for the initial joysticks.
 
 	// joysticks generate events
-	SDL_JoystickEventState(SDL_ENABLE); // is this needed?
+	SDL_SetJoystickEventsEnabled(true); // is this needed?
 }
 
 JoystickManager::~JoystickManager()

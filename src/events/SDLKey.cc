@@ -160,12 +160,7 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 	// like:
 	//     ++CTRL    ,+SHIFT   Keypad /,Release    Shift++
 
-	SDLKey result = {};
-	result.sym.scancode = SDL_SCANCODE_UNKNOWN;
-	result.sym.sym = SDLK_UNKNOWN;
-	result.sym.mod = SDL_KMOD_NONE;
-	result.sym.unused = 0; // unicode
-	result.down = true;
+	SDLKey result = SDLKey::create(SDLK_UNKNOWN, true);
 
 	while (!name.empty()) {
 		std::string_view part = [&] {
@@ -190,16 +185,16 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 
 		StringOp::casecmp cmp;
 		if (cmp(part, "SHIFT")) {
-			result.sym.mod |= SDL_KMOD_SHIFT;
+			result.mod |= SDL_KMOD_SHIFT;
 		} else if (cmp(part, "CTRL")) {
-			result.sym.mod |= SDL_KMOD_CTRL;
+			result.mod |= SDL_KMOD_CTRL;
 		} else if (cmp(part, "ALT")) {
-			result.sym.mod |= SDL_KMOD_ALT;
+			result.mod |= SDL_KMOD_ALT;
 		} else if (cmp(part, "GUI") ||
 		           cmp(part, "META")) { // bw-compat
-			result.sym.mod |= SDL_KMOD_GUI;
+			result.mod |= SDL_KMOD_GUI;
 		} else if (cmp(part, "MODE")) {
-			result.sym.mod |= SDL_KMOD_MODE;
+			result.mod |= SDL_KMOD_MODE;
 
 		} else if (cmp(part, "PRESS")) {
 			result.down = true;
@@ -207,17 +202,17 @@ std::optional<SDLKey> SDLKey::fromString(std::string_view name)
 			result.down = false;
 
 		} else {
-			if (result.sym.sym != SDLK_UNKNOWN) {
+			if (result.keycode != SDLK_UNKNOWN) {
 				// more than one non-modifier component is not allowed
 				return {};
 			}
-			result.sym.sym = keycodeFromString(std::string(part));
-			if (result.sym.sym == SDLK_UNKNOWN) {
+			result.keycode = keycodeFromString(std::string(part));
+			if (result.keycode == SDLK_UNKNOWN) {
 				return {};
 			}
 		}
 	}
-	if (result.sym.sym == SDLK_UNKNOWN) {
+	if (result.keycode == SDLK_UNKNOWN) {
 		return {};
 	}
 	return result;
@@ -232,20 +227,20 @@ std::string SDLKey::toString(SDL_Keycode code)
 
 std::string SDLKey::toString() const
 {
-	std::string result = toString(sym.sym);
-	if (sym.mod & SDL_KMOD_CTRL) {
+	std::string result = toString(keycode);
+	if (mod & SDL_KMOD_CTRL) {
 		result += "+CTRL";
 	}
-	if (sym.mod & SDL_KMOD_SHIFT) {
+	if (mod & SDL_KMOD_SHIFT) {
 		result += "+SHIFT";
 	}
-	if (sym.mod & SDL_KMOD_ALT) {
+	if (mod & SDL_KMOD_ALT) {
 		result += "+ALT";
 	}
-	if (sym.mod & SDL_KMOD_GUI) {
+	if (mod & SDL_KMOD_GUI) {
 		result += "+GUI";
 	}
-	if (sym.mod & SDL_KMOD_MODE) {
+	if (mod & SDL_KMOD_MODE) {
 		result += "+MODE";
 	}
 	if (!down) {

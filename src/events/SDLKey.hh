@@ -13,19 +13,16 @@
 namespace openmsx {
 
 // The combination of:
-//   SDL_Keysym: to indicate a specific key (key+scancode) and modifiers
-//   bool:       to indicate up/down
+//   SDL_Keycode: to indicate a specific key (key+scancode) and modifiers
+//   bool:        to indicate up/down
 struct SDLKey {
-	SDL_Keysym sym;
+	SDL_Scancode scancode;
+	SDL_Keycode keycode;
+	SDL_Keymod mod;
 	bool down; // down=press / up=release
 
-	[[nodiscard]] static SDLKey create(SDL_Keycode code, bool down, uint16_t mod = 0) {
-		SDL_Keysym sym;
-		sym.scancode = SDL_SCANCODE_UNKNOWN;
-		sym.sym = code;
-		sym.mod = mod;
-		sym.unused = 0; // unicode
-		return {.sym = sym, .down = down};
+	[[nodiscard]] static SDLKey create(SDL_Keycode keycode, bool down, SDL_Keymod mod = SDL_KMOD_NONE) {
+		return {.scancode = SDL_SCANCODE_UNKNOWN, .keycode = keycode, .mod = mod, .down = down};
 	}
 
 	[[nodiscard]] static SDLKey createDown(SDL_Keycode code) {

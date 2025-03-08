@@ -45,14 +45,15 @@ public:
 	using SdlEvent::SdlEvent;
 
 	[[nodiscard]] bool         getRepeat()    const { return evt.key.repeat; }
-	[[nodiscard]] SDL_Keycode  getKeyCode()   const { return evt.key.keysym.sym; }
-	[[nodiscard]] SDL_Scancode getScanCode()  const { return evt.key.keysym.scancode; }
-	[[nodiscard]] uint16_t     getModifiers() const { return evt.key.keysym.mod; }
+	[[nodiscard]] SDL_Keycode  getKeyCode()   const { return evt.key.key; }
+	[[nodiscard]] SDL_Scancode getScanCode()  const { return evt.key.scancode; }
+	[[nodiscard]] uint16_t     getModifiers() const { return evt.key.mod; }
 	[[nodiscard]] uint32_t     getUnicode()   const {
-		// HACK: repurposed 'unused' field as 'unicode' field
-		return evt.key.keysym.unused;
+		// HACK: repurposed 'reserved' field as 'unicode' field
+		// TODO: Is this hack still needed?
+		return evt.key.reserved;
 	}
-	[[nodiscard]] SDLKey getKey() const { return {.sym = evt.key.keysym, .down = evt.type == SDL_EVENT_KEY_DOWN}; }
+	[[nodiscard]] SDLKey getKey() const { return SDLKey::create(evt.key.key, evt.type == SDL_EVENT_KEY_DOWN); }
 };
 
 class KeyUpEvent final : public KeyEvent
@@ -67,9 +68,9 @@ public:
 
 		e.type = SDL_EVENT_KEY_UP;
 		e.timestamp = SDL_GetTicks();
-		e.state = SDL_RELEASED;
-		e.keysym.sym = code;
-		e.keysym.mod = mod;
+		e.down = false;
+		e.key = code;
+		e.mod = mod;
 		return KeyUpEvent(evt);
 	}
 };
@@ -86,9 +87,9 @@ public:
 
 		e.type = SDL_EVENT_KEY_DOWN;
 		e.timestamp = SDL_GetTicks();
-		e.state = SDL_PRESSED;
-		e.keysym.sym = code;
-		e.keysym.mod = mod;
+		e.down = true;
+		e.key = code;
+		e.mod = mod;
 		return KeyDownEvent(evt);
 	}
 	[[nodiscard]] static KeyDownEvent create(uint32_t timestamp, unsigned unicode) {
@@ -98,10 +99,10 @@ public:
 
 		e.type = SDL_EVENT_KEY_DOWN;
 		e.timestamp = timestamp;
-		e.state = SDL_PRESSED;
-		e.keysym.sym = SDLK_UNKNOWN;
-		e.keysym.mod = SDL_KMOD_NONE;
-		e.keysym.unused = unicode;
+		e.down = true;
+		e.key = SDLK_UNKNOWN;
+		e.mod = SDL_KMOD_NONE;
+		e.reserved = unicode;
 		return KeyDownEvent(evt);
 	}
 };
