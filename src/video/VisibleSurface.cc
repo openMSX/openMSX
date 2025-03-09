@@ -209,6 +209,8 @@ void VisibleSurface::createSurface(gl::ivec2 size, unsigned flags)
 	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
 
+	flags |= SDL_WINDOW_RESIZABLE;
+
 	assert(!window);
 	auto pos = display.retrieveWindowPosition();
 	window.reset(SDL_CreateWindow(
@@ -324,7 +326,11 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 
 void VisibleSurface::resize()
 {
-	auto size = display.getWindowSize();
+	resize(display.getWindowSize());
+}
+
+void VisibleSurface::resize(gl::ivec2 size)
+{
 	SDL_SetWindowSize(window.get(), size.x, size.y);
 
 	bool fullScreen = display.getRenderSettings().getFullScreen();

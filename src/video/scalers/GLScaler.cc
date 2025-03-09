@@ -47,18 +47,19 @@ void GLScaler::setup(bool superImpose)
 
 void GLScaler::execute(
 	const ColorTexture& src, const ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned logSrcHeight, bool textureFromZero)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize,
+	bool textureFromZero)
 {
 	auto srcStartYF = narrow<float>(srcStartY);
 	auto srcEndYF = narrow<float>(srcEndY);
-	auto dstStartYF = narrow<float>(dstStartY);
-	auto dstEndYF = narrow<float>(dstEndY);
-	auto dstWidthF = narrow<float>(dstWidth);
-	auto srcWidthF = narrow<float>(srcWidth);
+	auto dstWidthF = narrow<float>(dstSize.x);
+	auto srcWidthF = narrow<float>(srcSize.x);
 	auto srcHeightF = narrow<float>(src.getHeight());
-	auto logSrcHeightF = narrow<float>(logSrcHeight);
+	auto logSrcHeightF = narrow<float>(srcSize.y);
+
+	auto ratio = float(dstSize.y) / float(srcSize.y);
+	auto dstStartYF = float(srcStartY) * ratio;
+	auto dstEndYF   = float(srcEndY  ) * ratio;
 
 	if (superImpose) {
 		glActiveTexture(GL_TEXTURE1);

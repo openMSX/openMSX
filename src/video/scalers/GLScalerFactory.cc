@@ -1,4 +1,5 @@
 #include "GLScalerFactory.hh"
+#include "GLAreaScaler.hh"
 #include "GLSimpleScaler.hh"
 #include "GLRGBScaler.hh"
 #include "GLScaleNxScaler.hh"
@@ -17,6 +18,8 @@ std::unique_ptr<GLScaler> createScaler(
 	GLScaler& fallback = gl::context->getFallbackScaler();
 	switch (renderSettings.getScaleAlgorithm()) {
 	using enum RenderSettings::ScaleAlgorithm;
+	case AREA:
+		return std::make_unique<GLAreaScaler>();
 	case SIMPLE:
 		return std::make_unique<GLSimpleScaler>(renderSettings, fallback);
 	case RGBTRIPLET:

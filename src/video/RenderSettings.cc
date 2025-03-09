@@ -21,6 +21,7 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	using enum ScaleAlgorithm;
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = {
+		{"area",       AREA},
 		{"simple",     SIMPLE},
 		{"ScaleNx",    SCALE},
 		{"hq",         HQ},

@@ -1,27 +1,27 @@
-#ifndef GLTVSCALER_HH
-#define GLTVSCALER_HH
+#ifndef GLAREASCALER_HH
+#define GLAREASCALER_HH
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+
 #include <array>
 
 namespace openmsx {
 
-class RenderSettings;
-
-class GLTVScaler final : public GLScaler
+class GLAreaScaler final : public GLScaler
 {
 public:
-	explicit GLTVScaler(RenderSettings& renderSettings);
+	explicit GLAreaScaler();
 
 	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize) override;
 
 private:
-	RenderSettings& renderSettings;
-	std::array<GLint, 2> unifMinScanline;
-	std::array<GLint, 2> unifSizeVariance;
+	std::array<GLint, 2> unifTexelCount;
+	std::array<GLint, 2> unifPixelCount;
+	std::array<GLint, 2> unifTexelSize;
+	std::array<GLint, 2> unifPixelSize;
 };
 
 } // namespace openmsx

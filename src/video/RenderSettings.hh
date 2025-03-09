@@ -38,7 +38,7 @@ public:
 	/** Scaler algorithm
 	  */
 	enum class ScaleAlgorithm : uint8_t {
-		SIMPLE, SCALE, HQ, RGBTRIPLET, TV,
+		SIMPLE, SCALE, HQ, RGBTRIPLET, TV, AREA,
 		NO
 	};
 

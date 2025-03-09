@@ -138,6 +138,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					};
 					using enum RenderSettings::ScaleAlgorithm;
 					static constexpr std::array algoEnables = {
+						AlgoEnable{.algo = AREA,       .hasScanline = false, .hasBlur = false},
 						AlgoEnable{.algo = SIMPLE,     .hasScanline = true,  .hasBlur = true },
 						AlgoEnable{.algo = SCALE,      .hasScanline = false, .hasBlur = false},
 						AlgoEnable{.algo = HQ,         .hasScanline = false, .hasBlur = false},
