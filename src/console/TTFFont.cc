@@ -76,8 +76,8 @@ private:
 
 SDLTTF::SDLTTF()
 {
-	if (TTF_Init() < 0) {
-		throw FatalError("Couldn't initialize SDL_ttf: ", TTF_GetError());
+	if (!TTF_Init()) {
+		throw FatalError("Couldn't initialize SDL_ttf: ", SDL_GetError());
 	}
 }
 
@@ -118,9 +118,17 @@ TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize, int faceInde
 	SDLTTF::instance(); // init library
 	FontInfo info;
 	info.file = LocalFileReference(filename);
-	auto* result = TTF_OpenFontIndex(info.file.getFilename().c_str(), ptSize, faceIndex);
+
+	SDL_PropertiesID props = SDL_CreateProperties();
+	SDL_SetStringProperty(props, TTF_PROP_FONT_CREATE_FILENAME_STRING,
+	                      info.file.getFilename().c_str());
+	SDL_SetFloatProperty(props, TTF_PROP_FONT_CREATE_SIZE_FLOAT, float(ptSize));
+	SDL_SetNumberProperty(props, TTF_PROP_FONT_CREATE_FACE_NUMBER, faceIndex);
+	auto* result = TTF_OpenFontWithProperties(props);
+	SDL_DestroyProperties(props);
+
 	if (!result) {
-		throw MSXException(TTF_GetError());
+		throw MSXException(SDL_GetError());
 	}
 	info.font = result;
 	info.name = filename;
@@ -176,10 +184,10 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 		// copy to an extra SDL_Surface
 		assert(!text.empty());
 		SDLSurfacePtr surface(
-			TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
-			                       text.c_str(), color));
+			TTF_RenderText_Blended(static_cast<TTF_Font*>(font),
+			                       text.c_str(), 0, color));
 		if (!surface) {
-			throw MSXException(TTF_GetError());
+			throw MSXException(SDL_GetError());
 		}
 		return surface;
 	}
@@ -205,8 +213,8 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 	auto height = (numLines - 1) * lineSkip + lineHeight;
 
 	// Create destination surface (initial surface is fully transparent)
-	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
+	SDLSurfacePtr destination(SDL_CreateSurface(width, height,
+		    SDL_GetPixelFormatForMasks(32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)));
 	if (!destination) {
 		throw MSXException("Couldn't allocate surface for multiline text.");
 	}
@@ -222,11 +230,11 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 			// simply skip such lines
 			continue;
 		}
-		SDLSurfacePtr surf(TTF_RenderUTF8_Blended(
+		SDLSurfacePtr surf(TTF_RenderText_Blended(
 			static_cast<TTF_Font*>(font),
-			std::string(line).c_str(), color));
+			std::string(line).c_str(), 0, color));
 		if (!surf) {
-			throw MSXException(TTF_GetError());
+			throw MSXException(SDL_GetError());
 		}
 
 		// Copy line to destination surface
@@ -241,21 +249,21 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 
 int TTFFont::getHeight() const
 {
-	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
+	return TTF_GetFontLineSkip(static_cast<TTF_Font*>(font));
 }
 
 bool TTFFont::isFixedWidth() const
 {
-	return TTF_FontFaceIsFixedWidth(static_cast<TTF_Font*>(font)) != 0;
+	return TTF_FontIsFixedWidth(static_cast<TTF_Font*>(font));
 }
 
 int TTFFont::getWidth() const
 {
 	int advance;
-	if (TTF_GlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),
-	                     nullptr /*minx*/, nullptr /*maxx*/,
-	                     nullptr /*miny*/, nullptr /*maxy*/,
-	                     &advance)) {
+	if (TTF_GetGlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),
+	                        nullptr /*minx*/, nullptr /*maxx*/,
+	                        nullptr /*miny*/, nullptr /*maxy*/,
+	                        &advance)) {
 		// error?
 		return 10; //fallback-width
 	}
@@ -265,9 +273,9 @@ int TTFFont::getWidth() const
 gl::ivec2 TTFFont::getSize(zstring_view text) const
 {
 	int width, height;
-	if (TTF_SizeUTF8(static_cast<TTF_Font*>(font), text.c_str(),
-	                 &width, &height)) {
-		throw MSXException(TTF_GetError());
+	if (TTF_GetStringSize(static_cast<TTF_Font*>(font), text.c_str(), 0,
+	                      &width, &height)) {
+		throw MSXException(SDL_GetError());
 	}
 	return {width, height};
 }
