@@ -45,10 +45,7 @@ static void initializeSDL()
 {
 	int flags = 0;
 	flags |= SDL_INIT_JOYSTICK;
-#ifndef NDEBUG
-	flags |= SDL_INIT_NOPARACHUTE;
-#endif
-	if (SDL_Init(flags) < 0) {
+	if (!SDL_Init(flags)) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
 
@@ -124,7 +121,7 @@ static int main(int argc, char **argv)
 		exitCode = 1;
 	}
 	// Clean up.
-	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
+	if (SDL_WasInit(0)) {
 		SDL_Quit();
 	}
 
