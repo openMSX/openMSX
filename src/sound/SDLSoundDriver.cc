@@ -20,49 +20,48 @@
 namespace openmsx {
 
 SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
-                               unsigned wantedFreq, unsigned wantedSamples)
+                               unsigned wantedFreq, unsigned /*wantedSamples*/)
 	: reactor(reactor_)
 {
 	SDL_AudioSpec desired;
 	desired.freq     = narrow<int>(wantedFreq);
-	desired.samples  = narrow<Uint16>(std::bit_ceil(wantedSamples));
 	desired.channels = 2; // stereo
 	desired.format   = SDL_AUDIO_F32;
-	desired.callback = audioCallbackHelper; // must be a static method
-	desired.userdata = this;
 
-	SDL_AudioSpec obtained;
-	deviceID = SDL_OpenAudioDevice(nullptr, false, &desired, &obtained,
-	                               SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
-	if (!deviceID) {
+	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, audioCallbackHelper, this);
+	if (!stream) {
 		throw MSXException("Unable to open SDL audio: ", SDL_GetError());
 	}
 
-	frequency = obtained.freq;
-	fragmentSize = obtained.samples;
 
-	mixBuffer.resize(3 * (obtained.size / sizeof(StereoFloat)) + 1);
+	// TODO: Can it happen with SDL3 that our obtained spec differs from the desired spec?
+	SDL_AudioSpec obtained;
+	SDL_GetAudioStreamFormat(stream, &obtained, nullptr);
+	frequency = obtained.freq;
+	fragmentSize = 1024; // TODO: We should probably rethink the whole audio driver.
+
+	mixBuffer.resize(3 * fragmentSize);
 	reInit();
 }
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	SDL_CloseAudioDevice(deviceID);
+	SDL_DestroyAudioStream(stream);
 }
 
 void SDLSoundDriver::reInit()
 {
-	SDL_LockAudioDevice(deviceID);
+	SDL_LockAudioStream(stream);
 	readIdx  = 0;
 	writeIdx = 0;
-	SDL_UnlockAudioDevice(deviceID);
+	SDL_UnlockAudioStream(stream);
 }
 
 void SDLSoundDriver::mute()
 {
 	if (!muted) {
 		muted = true;
-		SDL_PauseAudioDevice(deviceID, 1);
+		SDL_PauseAudioStreamDevice(stream);
 	}
 }
 
@@ -71,7 +70,7 @@ void SDLSoundDriver::unmute()
 	if (muted) {
 		muted = false;
 		reInit();
-		SDL_PauseAudioDevice(deviceID, 0);
+		SDL_ResumeAudioStreamDevice(stream);
 	}
 }
 
@@ -85,12 +84,13 @@ unsigned SDLSoundDriver::getSamples() const
 	return fragmentSize;
 }
 
-void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
+void SDLSoundDriver::audioCallbackHelper(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount)
 {
+	#if 0
 	assert((len & 7) == 0); // stereo, 32 bit float
 	static_cast<SDLSoundDriver*>(userdata)->
-		audioCallback(std::span{std::bit_cast<StereoFloat*>(strm),
-		                        len / (2 * sizeof(float))});
+		audioCallback(stream, len / (2 * sizeof(float))});
+	#endif
 }
 
 unsigned SDLSoundDriver::getBufferFilled() const
@@ -112,8 +112,9 @@ unsigned SDLSoundDriver::getBufferFree() const
 	return result;
 }
 
-void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
+void SDLSoundDriver::audioCallback(/*std::span<StereoFloat> stream*/)
 {
+	#if 0
 	auto len = stream.size();
 
 	size_t available = getBufferFilled();
@@ -133,20 +134,21 @@ void SDLSoundDriver::audioCallback(std::span<StereoFloat> stream)
 		// buffer underrun
 		std::ranges::fill(subspan(stream, available, missing), StereoFloat{});
 	}
+	#endif
 }
 
 void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 {
-	SDL_LockAudioDevice(deviceID);
+	SDL_LockAudioStream(stream);
 	unsigned free = getBufferFree();
 	if (buffer.size() > free) {
 		auto* board = reactor.getMotherBoard();
 		if (board && !board->getMSXMixer().isSynchronousMode() && // when not recording
 		    reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
 			do {
-				SDL_UnlockAudioDevice(deviceID);
+				SDL_UnlockAudioStream(stream);
 				Timer::sleep(5000); // 5ms
-				SDL_LockAudioDevice(deviceID);
+				SDL_LockAudioStream(stream);
 				board->getRealTime().resync();
 				free = getBufferFree();
 			} while (buffer.size() > free);
@@ -167,7 +169,7 @@ void SDLSoundDriver::uploadBuffer(std::span<const StereoFloat> buffer)
 		writeIdx = narrow<unsigned>(len2);
 	}
 
-	SDL_UnlockAudioDevice(deviceID);
+	SDL_UnlockAudioStream(stream);
 }
 
 } // namespace openmsx

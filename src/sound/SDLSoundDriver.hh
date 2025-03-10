@@ -35,12 +35,12 @@ private:
 	void reInit();
 	[[nodiscard]] unsigned getBufferFilled() const;
 	[[nodiscard]] unsigned getBufferFree() const;
-	static void audioCallbackHelper(void* userdata, uint8_t* strm, int len);
-	void audioCallback(std::span<StereoFloat> stream);
+	static void audioCallbackHelper(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
+	void audioCallback();
 
 private:
 	Reactor& reactor;
-	SDL_AudioDeviceID deviceID;
+	SDL_AudioStream* stream;
 	MemBuffer<StereoFloat> mixBuffer;
 	unsigned frequency;
 	unsigned fragmentSize;
