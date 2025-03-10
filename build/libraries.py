@@ -158,10 +158,6 @@ class FreeType(Library):
 	function = 'FT_Open_Face'
 
 	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
-
-	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
 			if distroRoot == '/usr/local':
@@ -280,19 +276,11 @@ class LibPNG(Library):
 	function = 'png_write_image'
 	dependsOn = ('ZLIB', )
 
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
-
 class OGG(Library):
 	libName = 'ogg'
 	makeName = 'OGG'
 	header = '<ogg/ogg.h>'
 	function = 'ogg_stream_init'
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
 
 class SDL2(Library):
 	libName = 'SDL2'
@@ -301,10 +289,6 @@ class SDL2(Library):
 	configScriptName = 'sdl2-config'
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -319,10 +303,6 @@ class SDL2_ttf(Library):
 	header = '<SDL_ttf.h>'
 	function = 'TTF_OpenFont'
 	dependsOn = ('SDL2', 'FREETYPE')
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -529,10 +509,6 @@ class Theora(Library):
 	function = 'th_decode_ycbcr_out'
 	dependsOn = ('OGG', )
 
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
-
 class Vorbis(Library):
 	libName = 'vorbis'
 	makeName = 'VORBIS'
@@ -540,19 +516,11 @@ class Vorbis(Library):
 	function = 'vorbis_synthesis_pcmout'
 	dependsOn = ('OGG', )
 
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
-
 class ZLib(Library):
 	libName = 'z'
 	makeName = 'ZLIB'
 	header = '<zlib.h>'
 	function = 'inflate'
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return False
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
