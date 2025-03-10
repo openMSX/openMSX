@@ -80,6 +80,9 @@ void Mixer::reloadDriver()
 	// for some reason.
 
 	driver = std::make_unique<NullSoundDriver>();
+	// TODO: SDLSoundDriver doesn't consume its buffers yet and will freeze
+	//       emulation, so don't use it.
+	return;
 
 	try {
 		switch (soundDriverSetting.getEnum()) {
