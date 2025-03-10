@@ -510,10 +510,12 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 	return (min <= x) && (x <= max);
 }
 
+namespace {
 struct Rectangle {
 	gl::vec2 topLeft;
 	gl::vec2 bottomRight;
 };
+}
 [[nodiscard]] static bool insideRectangle(gl::vec2 mouse, Rectangle r)
 {
 	return between(mouse.x, r.topLeft.x, r.bottomRight.x) &&

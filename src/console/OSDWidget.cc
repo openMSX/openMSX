@@ -22,7 +22,7 @@ using namespace gl;
 namespace openmsx {
 
 // intersect two rectangles
-struct Rectangle { int x, y, w, h; };
+namespace { struct Rectangle { int x, y, w, h; }; }
 static constexpr Rectangle intersect(const Rectangle& a, const Rectangle& b)
 {
 	int x1 = std::max<int>(a.x, b.x);
