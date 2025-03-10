@@ -130,11 +130,11 @@ void EventDelay::sync(EmuTime curEmu)
 #endif
 		scheduledEvents.push_back(e);
 		const auto& sdlEvent = get_event<SdlEvent>(e);
-		uint32_t eventSdlTime = sdlEvent.getCommonSdlEvent().timestamp;
-		uint32_t sdlNow = SDL_GetTicks();
-		auto sdlOffset = int32_t(sdlNow - eventSdlTime);
+		uint64_t eventSdlTime = sdlEvent.getCommonSdlEvent().timestamp;
+		uint64_t sdlNow = SDL_GetTicksNS();
+		auto sdlOffset = int64_t(sdlNow - eventSdlTime);
 		assert(sdlOffset >= 0);
-		auto offset = 1000 * int64_t(sdlOffset); // ms -> us
+		auto offset = sdlOffset / 1000; // ns -> us
 		EmuDuration emuOffset = EmuDuration::sec(factor * narrow_cast<double>(offset));
 		auto schedTime = (emuOffset < extraDelay)
 		               ? time - emuOffset

@@ -67,7 +67,7 @@ public:
 		auto& e = evt.key;
 
 		e.type = SDL_EVENT_KEY_UP;
-		e.timestamp = SDL_GetTicks();
+		e.timestamp = SDL_GetTicksNS();
 		e.down = false;
 		e.key = code;
 		e.mod = mod;
@@ -86,13 +86,13 @@ public:
 		auto& e = evt.key;
 
 		e.type = SDL_EVENT_KEY_DOWN;
-		e.timestamp = SDL_GetTicks();
+		e.timestamp = SDL_GetTicksNS();
 		e.down = true;
 		e.key = code;
 		e.mod = mod;
 		return KeyDownEvent(evt);
 	}
-	[[nodiscard]] static KeyDownEvent create(uint32_t timestamp, unsigned unicode) {
+	[[nodiscard]] static KeyDownEvent create_for_unicode(uint64_t timestamp, unsigned unicode) {
 		SDL_Event evt;
 		evt.key = SDL_KeyboardEvent{};
 		auto& e = evt.key;
