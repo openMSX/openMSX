@@ -453,7 +453,7 @@ void ImGuiConsole::update(const Setting& /*setting*/) noexcept
 		// * You press F10 again to close the console
 		// * At this point the focus should go back to the main openMSX
 		//   window (so that MSX input works).
-		SDL_SetWindowInputFocus(SDL_GetWindowFromID(WindowEvent::getMainWindowId()));
+		SDL_RaiseWindow(SDL_GetWindowFromID(WindowEvent::getMainWindowId()));
 		ImGui::SetWindowFocus(nullptr);
 	}
 }
