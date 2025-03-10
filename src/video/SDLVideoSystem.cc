@@ -129,7 +129,7 @@ void SDLVideoSystem::updateWindowTitle()
 	screen->updateWindowTitle();
 }
 
-std::optional<gl::ivec2> SDLVideoSystem::getMouseCoord()
+std::optional<gl::vec2> SDLVideoSystem::getMouseCoord()
 {
 	return screen->getMouseCoord();
 }

@@ -18,7 +18,7 @@ public:
 		LaserdiscPlayer& ld) override;
 #endif
 	void flush() override;
-	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() override;
+	[[nodiscard]] std::optional<gl::vec2> getMouseCoord() override;
 	[[nodiscard]] OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
 	[[nodiscard]] bool getCursorEnabled() override;

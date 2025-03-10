@@ -344,13 +344,13 @@ void VisibleSurface::updateWindowTitle()
 	SDL_SetWindowTitle(window.get(), getDisplay().getWindowTitle().c_str());
 }
 
-std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
+std::optional<gl::vec2> VisibleSurface::getMouseCoord() const
 {
 	if (SDL_GetMouseFocus() != window.get()) return {};
 
-	int mouseX, mouseY;
+	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
-	return gl::ivec2{mouseX, mouseY};
+	return gl::vec2{mouseX, mouseY};
 }
 
 

@@ -47,7 +47,7 @@ public:
 	static void saveScreenshotGL(const OutputSurface& output,
 	                             const std::string& filename);
 
-	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() const;
+	[[nodiscard]] std::optional<gl::vec2> getMouseCoord() const;
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
