@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - WIP-keyboard-stuff
+      - sdl3
   pull_request:
     branches:
       - master
