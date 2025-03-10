@@ -266,13 +266,13 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 	}
 }
 
-void InputEventGenerator::splitText(uint32_t timestamp, const char* utf8)
+void InputEventGenerator::splitText(uint64_t timestamp, const char* utf8)
 {
 	while (true) {
 		auto unicode = utf8::unchecked::next(utf8);
 		if (unicode == 0) return;
 		eventDistributor.distributeEvent(
-			KeyDownEvent::create(timestamp, unicode));
+			KeyDownEvent::create_for_unicode(timestamp, unicode));
 	}
 }
 

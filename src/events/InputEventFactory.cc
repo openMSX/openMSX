@@ -24,7 +24,7 @@ namespace openmsx::InputEventFactory {
 	evt.key = SDL_KeyboardEvent{};
 	auto& e = evt.key;
 
-	e.timestamp = SDL_GetTicks();
+	e.timestamp = SDL_GetTicksNS();
 	e.key = key->keycode;
 	e.reserved = unicode;
 	if (key->down) {
@@ -95,7 +95,7 @@ namespace openmsx::InputEventFactory {
 				auto& e = evt.motion;
 
 				e.type = SDL_EVENT_MOUSE_MOTION;
-				e.timestamp = SDL_GetTicks();
+				e.timestamp = SDL_GetTicksNS();
 				e.x = absX;
 				e.y = absY;
 				e.xrel = str.getListIndex(interp, 2).getInt(interp);
@@ -113,7 +113,7 @@ namespace openmsx::InputEventFactory {
 					evt.button = SDL_MouseButtonEvent{};
 					auto& e = evt.button;
 
-					e.timestamp = SDL_GetTicks();
+					e.timestamp = SDL_GetTicksNS();
 					e.button = narrow<uint8_t>(*button);
 					if (upDown(str.getListIndex(interp, 2).getString())) {
 						e.type = SDL_EVENT_MOUSE_BUTTON_UP;
@@ -137,7 +137,7 @@ namespace openmsx::InputEventFactory {
 				auto& e = evt.wheel;
 
 				e.type = SDL_EVENT_MOUSE_WHEEL;
-				e.timestamp = SDL_GetTicks();
+				e.timestamp = SDL_GetTicksNS();
 				e.direction = SDL_MOUSEWHEEL_NORMAL;
 				e.x = narrow_cast<float>(e.x);
 				e.y = narrow_cast<float>(e.y);
@@ -214,7 +214,7 @@ namespace openmsx::InputEventFactory {
 						evt.jbutton = SDL_JoyButtonEvent{};
 						auto& e = evt.jbutton;
 
-						e.timestamp = SDL_GetTicks();
+						e.timestamp = SDL_GetTicksNS();
 						e.which = joystick;
 						e.button = narrow_cast<uint8_t>(*button);
 						if (upDown(comp2.getString())) {
@@ -234,7 +234,7 @@ namespace openmsx::InputEventFactory {
 						auto& e = evt.jaxis;
 
 						e.type = SDL_EVENT_JOYSTICK_AXIS_MOTION;
-						e.timestamp = SDL_GetTicks();
+						e.timestamp = SDL_GetTicksNS();
 						e.which = joystick;
 						e.axis = narrow_cast<uint8_t>(*axis);
 						e.value = narrow_cast<int16_t>(str.getListIndex(interp, 2).getInt(interp));
@@ -262,7 +262,7 @@ namespace openmsx::InputEventFactory {
 						auto& e = evt.jhat;
 
 						e.type = SDL_EVENT_JOYSTICK_HAT_MOTION;
-						e.timestamp = SDL_GetTicks();
+						e.timestamp = SDL_GetTicksNS();
 						e.which = joystick;
 						e.hat = narrow_cast<uint8_t>(*hat);
 						e.value = narrow_cast<uint8_t>(value);
@@ -286,7 +286,7 @@ namespace openmsx::InputEventFactory {
 	evt.window = SDL_WindowEvent{};
 	auto& e = evt.window;
 
-	e.timestamp = SDL_GetTicks();
+	e.timestamp = SDL_GetTicksNS();
 	e.windowID = WindowEvent::getMainWindowId();
 	e.type = gained ? SDL_EVENT_WINDOW_FOCUS_GAINED : SDL_EVENT_WINDOW_FOCUS_LOST;
 	return WindowEvent(evt);
