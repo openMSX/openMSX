@@ -22,7 +22,7 @@ runs:
     - name: Install extra Linux prerequisites for native/dynamic build (e.g. for unittesting)
       if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
-      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
+      run: sudo apt-get install libsdl3-dev libpng-dev tcl-dev libglew-dev libsdl3-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
       shell: bash
