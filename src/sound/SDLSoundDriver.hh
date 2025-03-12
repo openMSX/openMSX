@@ -32,19 +32,13 @@ public:
 	void uploadBuffer(std::span<const StereoFloat> buffer) override;
 
 private:
-	void reInit();
-	[[nodiscard]] unsigned getBufferFilled() const;
-	[[nodiscard]] unsigned getBufferFree() const;
-	static void audioCallbackHelper(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
-	void audioCallback();
+	[[nodiscard]] unsigned getSamplesQueued() const;
 
 private:
 	Reactor& reactor;
 	SDL_AudioStream* stream;
-	MemBuffer<StereoFloat> mixBuffer;
 	unsigned frequency;
 	unsigned fragmentSize;
-	unsigned readIdx = 0, writeIdx = 0;
 	bool muted = true;
 	[[no_unique_address]] SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
 };
