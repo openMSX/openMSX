@@ -139,8 +139,8 @@ namespace openmsx::InputEventFactory {
 				e.type = SDL_EVENT_MOUSE_WHEEL;
 				e.timestamp = SDL_GetTicksNS();
 				e.direction = SDL_MOUSEWHEEL_NORMAL;
-				e.x = narrow_cast<float>(e.x);
-				e.y = narrow_cast<float>(e.y);
+				e.x = str.getListIndex(interp, 2).getFloat(interp);
+				e.y = str.getListIndex(interp, 3).getFloat(interp);
 				return MouseWheelEvent(evt);
 			}
 		}
