@@ -682,7 +682,7 @@ void LaserdiscPlayer::autoRun()
 
 	auto *player = motherBoard.getCassettePort().getCassettePlayer();
 
-	if (player->getTapeLength(EmuTime::dummy()) > 0) {
+	if (player && player->getTapeLength(EmuTime::dummy()) > 0) {
 		// Murder Mystery laserdisc has no program encoded on the
 		// right audio channel, but provides a seperate cassette.
 		// So if a cassette and laserdisc is present, do not autoload
