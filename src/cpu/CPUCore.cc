@@ -254,10 +254,7 @@ static constexpr Table initTables()
 		uint8_t sFlag = i & S_FLAG;
 		uint8_t xFlag = i & X_FLAG;
 		uint8_t yFlag = i & Y_FLAG;
-		uint8_t vFlag = V_FLAG;
-		for (int v = 128; v != 0; v >>= 1) {
-			if (i & v) vFlag ^= V_FLAG;
-		}
+		uint8_t vFlag = std::popcount(i) % 2 ? 0 : V_FLAG;
 		table.ZS   [i] = zFlag | sFlag;
 		table.ZSXY [i] = zFlag | sFlag | xFlag | yFlag;
 		table.ZSP  [i] = zFlag | sFlag |                 vFlag;
