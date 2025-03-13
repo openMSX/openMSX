@@ -7,6 +7,7 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "CassettePort.hh"
+#include "CassettePlayer.hh"
 #include "MSXCliComm.hh"
 #include "Display.hh"
 #include "GlobalSettings.hh"
@@ -676,6 +677,16 @@ void LaserdiscPlayer::autoRun()
 	if (!autoRunSetting.getBoolean()) return;
 	if (motherBoard.getReverseManager().isReplaying()) {
 		// See comments in CassettePlayer::autoRun()
+		return;
+	}
+
+	auto *player = motherBoard.getCassettePort().getCassettePlayer();
+
+	if (player->getTapeLength(EmuTime::dummy()) > 0) {
+		// Murder Mystery laserdisc has no program encoded on the
+		// right audio channel, but provides a seperate cassette.
+		// So if a cassette and laserdisc is present, do not autoload
+		// the laserdisc but autoload the laserdisc instead.
 		return;
 	}
 
