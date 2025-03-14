@@ -812,7 +812,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 					speed = 0.0f;
 					prevBoardTime = EmuTime::zero();
 				}
-				ImGui::RightAlignText(strCat(std::round(speed), '%'), "10000%");
+				ImGui::RightAlignText(strCat(std::lrint(speed), '%'), "10000%");
 				simpleToolTip("emulation speed");
 				ImGui::Separator();
 			}
