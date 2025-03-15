@@ -105,10 +105,6 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	/** Returns the maximum width for lines [y..y+step).
-	  */
-	[[nodiscard]] static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
-
 	void initBuffers();
 	void createRegions();
 	void uploadFrame();
@@ -197,22 +193,13 @@ private:
 	gl::ColorTexture superImposeTex;
 
 	struct Region {
-		Region(unsigned srcStartY_, unsigned srcEndY_,
-		       unsigned dstStartY_, unsigned dstEndY_,
-		       unsigned lineWidth_)
-			: srcStartY(srcStartY_)
-			, srcEndY(srcEndY_)
-			, dstStartY(dstStartY_)
-			, dstEndY(dstEndY_)
-			, lineWidth(lineWidth_) {}
+		Region(unsigned srcStartY_, unsigned srcEndY_, unsigned lineWidth_)
+			: srcStartY(srcStartY_), srcEndY(srcEndY_), lineWidth(lineWidth_) {}
 		unsigned srcStartY;
 		unsigned srcEndY;
-		unsigned dstStartY;
-		unsigned dstEndY;
 		unsigned lineWidth;
 	};
 	std::vector<Region> regions;
-	unsigned regionsDstHeight = 0; // 'regions' were calculated for this output height (relevant when changing scale_factor when paused)
 
 	unsigned frameCounter = 0;
 

@@ -6,7 +6,9 @@
 #include "GLHQScaler.hh"
 #include "GLContext.hh"
 #include "RenderSettings.hh"
+
 #include "unreachable.hh"
+
 #include <memory>
 
 namespace openmsx::GLScalerFactory {

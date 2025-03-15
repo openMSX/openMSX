@@ -10,21 +10,13 @@ GLScaleNxScaler::GLScaleNxScaler(GLScaler& fallback_)
 
 void GLScaleNxScaler::scaleImage(
 	gl::ColorTexture& src, gl::ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned logSrcHeight)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
-	if ((srcWidth % 320) == 0) {
+	if ((srcSize.x % 320) == 0) {
 		setup(superImpose != nullptr);
-		execute(src, superImpose,
-		        srcStartY, srcEndY, srcWidth,
-		        dstStartY, dstEndY, dstWidth,
-		        logSrcHeight);
+		execute(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	} else {
-		fallback.scaleImage(src, superImpose,
-		                    srcStartY, srcEndY, srcWidth,
-		                    dstStartY, dstEndY, dstWidth,
-		                    logSrcHeight);
+		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	}
 }
 

@@ -18,15 +18,13 @@ GLRGBScaler::GLRGBScaler(
 
 void GLRGBScaler::scaleImage(
 	gl::ColorTexture& src, gl::ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned logSrcHeight)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
 	int i = superImpose ? 1 : 0;
 
 	GLfloat blur = narrow<float>(renderSettings.getBlurFactor()) * (1.0f / 256.0f);
 	GLfloat scanline = narrow<float>(renderSettings.getScanlineFactor()) * (1.0f / 255.0f);
-	unsigned yScale = (dstEndY - dstStartY) / (srcEndY - srcStartY);
+	unsigned yScale = dstSize.y / srcSize.y;
 	if (yScale == 0) {
 		// less lines in destination than in source
 		// (factor=1 / interlace) --> disable scanlines
@@ -35,12 +33,12 @@ void GLRGBScaler::scaleImage(
 	}
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
 		setup(superImpose != nullptr);
-		if (srcWidth != 1) {
+		if (srcSize.x != 1) {
 			// workaround for ATI cards
 			src.setInterpolation(true);
 		} else {
 			// treat border as 256-pixel wide display area
-			srcWidth = 320;
+			srcSize.x = 320;
 		}
 		auto yScaleF = narrow<float>(yScale);
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScaleF + 1.0f) / (2.0f * yScaleF));
@@ -51,16 +49,10 @@ void GLRGBScaler::scaleImage(
 		            (1.0f - scanline) * 2.0f * c2, // scan_b_c2
 		            scanline * c2,                 // scan_c_c2
 		            (c1 - c2) / c2);               // scan_c1_2_2
-		execute(src, superImpose,
-		        srcStartY, srcEndY, srcWidth,
-		        dstStartY, dstEndY, dstWidth,
-		        logSrcHeight);
+		execute(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 		src.setInterpolation(false);
 	} else {
-		fallback.scaleImage(src, superImpose,
-		                    srcStartY, srcEndY, srcWidth,
-		                    dstStartY, dstEndY, dstWidth,
-		                    logSrcHeight);
+		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	}
 }
 

@@ -12,9 +12,7 @@ public:
 
 	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-		unsigned logSrcHeight) override;
+		unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize) override;
 
 private:
 	GLScaler& fallback;

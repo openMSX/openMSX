@@ -85,13 +85,11 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_, unsigned maxWidth_, unsigned maxHeig
 
 void GLHQScaler::scaleImage(
 	gl::ColorTexture& src, gl::ColorTexture* superImpose,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	unsigned logSrcHeight)
+	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
-	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY); // 1 - 4
+	unsigned factorY = dstSize.y / srcSize.y; // 1 - 4
 
-	if ((factorY >= 2) && ((srcWidth % 320) == 0)) {
+	if ((factorY >= 2) && ((srcSize.x % 320) == 0)) {
 		assert(src.getHeight() == 2 * 240);
 		setup(superImpose != nullptr);
 		glActiveTexture(GL_TEXTURE4);
@@ -107,15 +105,9 @@ void GLHQScaler::scaleImage(
 		            float(src.getWidth()) / float(maxWidth),
 		            float(src.getHeight()) / float(maxHeight));
 
-		execute(src, superImpose,
-		        srcStartY, srcEndY, srcWidth,
-		        dstStartY, dstEndY, dstWidth,
-		        logSrcHeight);
+		execute(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	} else {
-		fallback.scaleImage(src, superImpose,
-		                    srcStartY, srcEndY, srcWidth,
-		                    dstStartY, dstEndY, dstWidth,
-		                    logSrcHeight);
+		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	}
 }
 

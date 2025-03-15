@@ -119,12 +119,6 @@ CliComm& PostProcessor::getCliComm()
 	return display.getCliComm();
 }
 
-unsigned PostProcessor::getLineWidth(
-	FrameSource* frame, unsigned y, unsigned step)
-{
-	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
-}
-
 void PostProcessor::executeUntil(EmuTime::param /*time*/)
 {
 	// insert fake end of frame event
@@ -177,39 +171,23 @@ void PostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getLogicalHeight();
-	regionsDstHeight = dstHeight;
-
-	unsigned g = std::gcd(srcHeight, dstHeight);
-	unsigned srcStep = srcHeight / g;
-	unsigned dstStep = dstHeight / g;
 
 	// TODO: Store all MSX lines in RawFrame and only scale the ones that fit
 	//       on the PC screen, as a preparation for resizable output window.
 	unsigned srcStartY = 0;
-	unsigned dstStartY = 0;
-	while (dstStartY < dstHeight) {
-		// Currently this is true because the source frame height
-		// is always >= dstHeight/(dstStep/srcStep).
-		assert(srcStartY < srcHeight);
-
+	while (srcStartY < srcHeight) {
 		// get region with equal lineWidth
-		unsigned lineWidth = getLineWidth(paintFrame, srcStartY, srcStep);
-		unsigned srcEndY = srcStartY + srcStep;
-		unsigned dstEndY = dstStartY + dstStep;
-		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
-		       (getLineWidth(paintFrame, srcEndY, srcStep) == lineWidth)) {
-			srcEndY += srcStep;
-			dstEndY += dstStep;
+		unsigned lineWidth = paintFrame->getLineWidth(srcStartY);
+		unsigned srcEndY = srcStartY + 1;
+		while ((srcEndY < srcHeight) &&
+		       (paintFrame->getLineWidth(srcEndY) == lineWidth)) {
+			++srcEndY;
 		}
 
-		regions.emplace_back(srcStartY, srcEndY,
-		                     dstStartY, dstEndY,
-		                     lineWidth);
+		regions.emplace_back(srcStartY, srcEndY, lineWidth);
 
 		// next region
 		srcStartY = srcEndY;
-		dstStartY = dstEndY;
 	}
 }
 
@@ -237,8 +215,8 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		}
 	}
 
-	auto size = screen.getLogicalSize();
-	bool needReUpload = size.y != int(regionsDstHeight);
+	auto dstSize = screen.getLogicalSize();
+	bool needReUpload = false;
 
 	// New scaler algorithm selected?
 	if (auto algo = renderSettings.getScaleAlgorithm();
@@ -261,17 +239,17 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
-	glViewport(0, 0, size.x, size.y);
+	glViewport(0, 0, dstSize.x, dstSize.y);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	auto& renderedFrame = renderedFrames[frameCounter & 1];
-	if (renderedFrame.size != size) {
+	if (renderedFrame.size != dstSize) {
 		renderedFrame.tex.bind();
 		renderedFrame.tex.setInterpolation(true);
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB,            // internal format
-			     size.x,            // width
-			     size.y,            // height
+			     dstSize.x,         // width
+			     dstSize.y,         // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -282,15 +260,15 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	auto prevFbo = FrameBufferObject::getCurrent();
 	renderedFrame.fbo.activate();
 
+	int srcHeight = paintFrame->getHeight();
 	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
 		auto* superImpose = superImposeVideoFrame
 		                  ? &superImposeTex : nullptr;
+		ivec2 srcSize{int(r.lineWidth), srcHeight};
 		currScaler->scaleImage(
 			it->tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth, // src
-			r.dstStartY, r.dstEndY, size.x,   // dst
-			paintFrame->getHeight()); // dst
+			r.srcStartY, r.srcEndY, srcSize, dstSize);// src
 	}
 
 	drawNoise();
