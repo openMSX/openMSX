@@ -46,6 +46,7 @@ public:
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
+	void resize(gl::ivec2 size);
 
 	/** When a complete frame is finished, call this method.
 	  * It will 'actually' display it. E.g. when using double buffering
