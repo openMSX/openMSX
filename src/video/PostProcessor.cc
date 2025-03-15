@@ -268,7 +268,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		ivec2 srcSize{int(r.lineWidth), srcHeight};
 		currScaler->scaleImage(
 			it->tex, superImpose,
-			r.srcStartY, r.srcEndY, srcSize, dstSize);// src
+			r.srcStartY, r.srcEndY, srcSize, dstSize);
 	}
 
 	drawNoise();

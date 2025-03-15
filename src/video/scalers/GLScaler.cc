@@ -37,12 +37,13 @@ void GLScaler::uploadBlock(
 {
 }
 
-void GLScaler::setup(bool superImpose)
+void GLScaler::setup(bool superImpose, gl::ivec2 dstSize)
 {
 	int i = superImpose ? 1 : 0;
 	program[i].activate();
 
-	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, gl::context->pixelMvp.data());
+	auto M = ortho(dstSize.x, dstSize.y);
+	glUniformMatrix4fv(unifMvpMatrix[i], 1, GL_FALSE, M.data());
 }
 
 void GLScaler::execute(

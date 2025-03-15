@@ -23,7 +23,7 @@ public:
 	  * Must be called once per frame before calling scaleImage() (possibly
 	  * multiple times).
 	  */
-	void setup(bool superImpose);
+	void setup(bool superImpose, gl::ivec2 dstSize);
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.

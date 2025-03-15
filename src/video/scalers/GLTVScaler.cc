@@ -18,7 +18,7 @@ void GLTVScaler::scaleImage(
 	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
-	setup(superImpose != nullptr);
+	setup(superImpose != nullptr, dstSize);
 	int i = superImpose ? 1 : 0;
 	// These are experimentally established functions that look good.
 	// By design, both are 0 for scanline 0.

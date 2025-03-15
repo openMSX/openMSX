@@ -13,7 +13,7 @@ void GLScaleNxScaler::scaleImage(
 	unsigned srcStartY, unsigned srcEndY, gl::ivec2 srcSize, gl::ivec2 dstSize)
 {
 	if ((srcSize.x % 320) == 0) {
-		setup(superImpose != nullptr);
+		setup(superImpose != nullptr, dstSize);
 		execute(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
 	} else {
 		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcSize, dstSize);
