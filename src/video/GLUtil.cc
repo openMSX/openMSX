@@ -105,35 +105,19 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
 	glGenFramebuffers(1, &bufferId);
-	push();
+	auto prev = getCurrent();
+	activate();
 	glFramebufferTexture2D(GL_FRAMEBUFFER,
 	                       GL_COLOR_ATTACHMENT0,
 	                       GL_TEXTURE_2D, texture.textureId, 0);
 	bool success = glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
 	               GL_FRAMEBUFFER_COMPLETE;
-	pop();
+	activate(prev);
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
 			"framebuffer objects is too limited.");
 	}
-}
-
-FrameBufferObject::~FrameBufferObject()
-{
-	pop();
-	glDeleteFramebuffers(1, &bufferId);
-}
-
-void FrameBufferObject::push()
-{
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousId);
-	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
-}
-
-void FrameBufferObject::pop()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, GLuint(previousId));
 }
 
 

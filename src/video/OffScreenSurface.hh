@@ -13,6 +13,7 @@ class OffScreenSurface final : public OutputSurface
 {
 public:
 	explicit OffScreenSurface(const OutputSurface& output);
+	~OffScreenSurface();
 
 private:
 	// OutputSurface
@@ -21,6 +22,7 @@ private:
 private:
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;
+	GLuint prevFbo = 0;
 };
 
 } // namespace openmsx

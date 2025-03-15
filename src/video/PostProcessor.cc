@@ -278,7 +278,9 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 			     nullptr);          // data
 		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
 	}
-	renderedFrame.fbo.push();
+
+	auto prevFbo = FrameBufferObject::getCurrent();
+	renderedFrame.fbo.activate();
 
 	for (const auto& r : regions) {
 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
@@ -294,7 +296,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	drawNoise();
 	drawGlow(glow);
 
-	renderedFrame.fbo.pop();
+	FrameBufferObject::activate(prevFbo);
 	renderedFrame.tex.bind();
 	auto [x, y] = screen.getViewOffset();
 	auto [w, h] = screen.getViewSize();
