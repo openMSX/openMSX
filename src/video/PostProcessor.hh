@@ -111,6 +111,9 @@ private:
 	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
 	                 unsigned lineWidth);
 
+	void initAreaScaler();
+	void rescaleArea(gl::ivec2 srcSize, gl::ivec2 dstSize);
+
 	void preCalcNoise(float factor);
 	void drawNoise() const;
 	void drawGlow(int glow);
@@ -177,6 +180,21 @@ private:
 		gl::FrameBufferObject fbo;
 	};
 	std::array<StoredFrame, 2> renderedFrames;
+
+	// area rescaler
+	struct Area {
+		StoredFrame frame;
+		gl::ShaderProgram program;
+		GLint unifMvpMatrix;
+		GLint unifTexelCount;
+		GLint unifPixelCount;
+		GLint unifTexelSize;
+		GLint unifPixelSize;
+		GLint unifHalfTexelSize;
+		GLint unifHalfPixelSize;
+		gl::BufferObject posBuffer;
+		gl::BufferObject texBuffer;
+	} area;
 
 	// Noise effect:
 	gl::Texture noiseTextureA{true, true}; // interpolate + wrap

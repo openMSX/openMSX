@@ -72,6 +72,8 @@ PostProcessor::PostProcessor(
 	preCalcNoise(renderSettings.getNoise());
 	initBuffers();
 
+	initAreaScaler();
+
 	VertexShader   vertexShader  ("monitor3D.vert");
 	FragmentShader fragmentShader("monitor3D.frag");
 	monitor3DProg.attach(vertexShader);
@@ -239,37 +241,57 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
-	glViewport(0, 0, dstSize.x, dstSize.y);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	auto scaleDstSize = currScaler->getOutputScaleSize(dstSize);
+
+	auto createFBO = [](StoredFrame& frame, gl::ivec2 size) {
+		if (frame.size == size) return;
+		frame.size = size;
+
+		frame.tex.bind();
+		frame.tex.setInterpolation(true); // TODO
+		glTexImage2D(GL_TEXTURE_2D,// target
+ 			0,                 // level
+ 			GL_RGB,            // internal format
+			size.x,            // width
+			size.y,            // height
+ 			0,                 // border
+ 			GL_RGB,            // format
+ 			GL_UNSIGNED_BYTE,  // type
+ 			nullptr);          // data
+		frame.fbo = FrameBufferObject(frame.tex);
+	};
+
 	auto& renderedFrame = renderedFrames[frameCounter & 1];
-	if (renderedFrame.size != dstSize) {
-		renderedFrame.tex.bind();
-		renderedFrame.tex.setInterpolation(true);
-		glTexImage2D(GL_TEXTURE_2D,     // target
-			     0,                 // level
-			     GL_RGB,            // internal format
-			     dstSize.x,         // width
-			     dstSize.y,         // height
-			     0,                 // border
-			     GL_RGB,            // format
-			     GL_UNSIGNED_BYTE,  // type
-			     nullptr);          // data
-		renderedFrame.fbo = FrameBufferObject(renderedFrame.tex);
-	}
+	createFBO(renderedFrame, dstSize);
 
 	auto prevFbo = FrameBufferObject::getCurrent();
-	renderedFrame.fbo.activate();
-
-	int srcHeight = paintFrame->getHeight();
-	for (const auto& r : regions) {
-		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
-		auto* superImpose = superImposeVideoFrame
-		                  ? &superImposeTex : nullptr;
-		ivec2 srcSize{int(r.lineWidth), srcHeight};
-		currScaler->scaleImage(
-			it->tex, superImpose,
-			r.srcStartY, r.srcEndY, srcSize, dstSize);
+	if (scaleDstSize != dstSize) {
+		createFBO(area.frame, scaleDstSize);
+		area.frame.fbo.activate();
+	} else {
+		// we can directly scale to the desired size
+		renderedFrame.fbo.activate();
 	}
+
+	glViewport(0, 0, scaleDstSize.x, scaleDstSize.y);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	auto srcHeight = int(paintFrame->getHeight());
+ 	for (const auto& r : regions) {
+ 		auto it = find_unguarded(textures, r.lineWidth, &TextureData::width);
+ 		auto* superImpose = superImposeVideoFrame
+ 		                  ? &superImposeTex : nullptr;
+		ivec2 srcSize{int(r.lineWidth), srcHeight};
+ 		currScaler->scaleImage(
+ 			it->tex, superImpose,
+			r.srcStartY, r.srcEndY, srcSize, scaleDstSize);
+	}
+
+	if (scaleDstSize != dstSize) {
+		renderedFrame.fbo.activate();
+		glViewport(0, 0, dstSize.x, dstSize.y);
+		rescaleArea(scaleDstSize, dstSize);
+ 	}
 
 	drawNoise();
 	drawGlow(glow);
@@ -537,6 +559,76 @@ void PostProcessor::uploadBlock(
 	if (currScaler) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
 	}
+}
+
+void PostProcessor::initAreaScaler()
+{
+	auto& program = area.program;
+	VertexShader   vertexShader  ("rescale.vert");
+	FragmentShader fragmentShader("rescale.frag");
+	program.attach(vertexShader);
+	program.attach(fragmentShader);
+	program.bindAttribLocation(0, "a_position");
+	program.bindAttribLocation(1, "a_texCoord");
+	program.link();
+	program.activate();
+	glUniform1i(program.getUniformLocation("tex"), 0);
+	area.unifMvpMatrix     = program.getUniformLocation("u_mvpMatrix");
+	area.unifTexelCount    = program.getUniformLocation("texelCount");
+	area.unifPixelCount    = program.getUniformLocation("pixelCount");
+	area.unifTexelSize     = program.getUniformLocation("texelSize");
+	area.unifPixelSize     = program.getUniformLocation("pixelSize");
+	area.unifHalfTexelSize = program.getUniformLocation("halfTexelSize");
+	area.unifHalfPixelSize = program.getUniformLocation("halfPixelSize");
+}
+
+void PostProcessor::rescaleArea(gl::ivec2 srcSize, gl::ivec2 dstSize)
+{
+	area.program.activate();
+
+	area.frame.tex.bind();
+	area.frame.tex.setInterpolation(false);
+
+	auto M = ortho(dstSize.x, dstSize.y);
+	glUniformMatrix4fv(area.unifMvpMatrix, 1, GL_FALSE, M.data());
+	gl::vec2 texelCount(srcSize);
+	glUniform2f(area.unifTexelCount, texelCount.x, texelCount.y);
+	gl::vec2 pixelCount(dstSize);
+	glUniform2f(area.unifPixelCount, pixelCount.x, pixelCount.y);
+	gl::vec2 texelSize = 1.0f / texelCount;
+	glUniform2f(area.unifTexelSize, texelSize.x, texelSize.y);
+	gl::vec2 pixelSize = 1.0f / pixelCount;
+	glUniform2f(area.unifPixelSize, pixelSize.x, pixelSize.y);
+	gl::vec2 halfTexelSize = 0.5f * texelSize;
+	glUniform2f(area.unifHalfTexelSize, halfTexelSize.x, halfTexelSize.y);
+	gl::vec2 halfPixelSize = 0.5f * pixelSize;
+	glUniform2f(area.unifHalfPixelSize, halfPixelSize.x, halfPixelSize.y);
+
+	std::array pos = {
+		vec2(        0.0f, pixelCount.y),
+		vec2(pixelCount.x, pixelCount.y),
+		vec2(pixelCount.x, 0.0f),
+		vec2(        0.0f, 0.0f),
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, area.posBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos.data(), GL_STREAM_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	std::array tex = { // TODO in the future integrate horizontal stretch
+		vec2(0, 0), vec2(1, 0), vec2(1, 1), vec2(0, 1),
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, area.texBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex.data(), GL_STREAM_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void PostProcessor::drawGlow(int glow)

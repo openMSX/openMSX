@@ -43,6 +43,8 @@ public:
 		unsigned srcStartY, unsigned srcEndY,
 		unsigned lineWidth, FrameSource& paintFrame);
 
+	[[nodiscard]] virtual gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const = 0;
+
 protected:
 	explicit GLScaler(const std::string& progName);
 

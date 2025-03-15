@@ -20,6 +20,13 @@ public:
 		unsigned srcStartY, unsigned srcEndY,
 		unsigned lineWidth, FrameSource& paintFrame) override;
 
+	[[nodiscard]] gl::ivec2 getOutputScaleSize(gl::ivec2 dstScreenSize) const override {
+		int factor = (dstScreenSize.y <= 480) ? 2
+		           : (dstScreenSize.y <= 720) ? 3
+		                                      : 4;
+		return gl::ivec2{320, 240} * factor;
+	}
+
 private:
 	GLScaler& fallback;
 	gl::Texture edgeTexture;
