@@ -9,6 +9,8 @@ namespace openmsx {
 PhilipsFDC::PhilipsFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
+	// ROM only visible in 0x4000-0x7FFF by default
+	parseRomVisibility(config, 0x4000, 0x4000);
 	reset(getCurrentTime());
 }
 
@@ -110,12 +112,7 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 		return value;
 	}
 	default:
-		if ((0x4000 <= address) && (address < 0x8000)) {
-			// ROM only visible in 0x4000-0x7FFF
-			return MSXFDC::peekMem(address, time);
-		} else {
-			return 255;
-		}
+		return MSXFDC::peekMem(address, time);
 	}
 }
 
@@ -125,11 +122,8 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 	// else normal ROM behaviour
 	if ((start & 0x3FF8 & CacheLine::HIGH) == (0x3FF8 & CacheLine::HIGH)) {
 		return nullptr;
-	} else if ((0x4000 <= start) && (start < 0x8000)) {
-		// ROM visible in 0x4000-0x7FFF
-		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead.data();
+		return MSXFDC::getReadCacheLine(start);
 	}
 }
 

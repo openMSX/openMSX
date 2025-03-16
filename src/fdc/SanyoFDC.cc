@@ -15,6 +15,8 @@ namespace openmsx {
 SanyoFDC::SanyoFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
+	// ROM only visible in 0x0000-0x7FFF by default (not verified!)
+	parseRomVisibility(config, 0x0000, 0x8000);
 }
 
 byte SanyoFDC::readMem(word address, EmuTime::param time)
@@ -71,13 +73,7 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 		return value;
 	}
 	default:
-		if (address < 0x8000) {
-			// ROM only visible in 0x0000-0x7FFF (not verified!)
-			return MSXFDC::peekMem(address, time);
-		} else {
-			return 255;
-		}
-		break;
+		return MSXFDC::peekMem(address, time);
 	}
 }
 
@@ -86,11 +82,8 @@ const byte* SanyoFDC::getReadCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown
 		return nullptr;
-	} else if (start < 0x8000) {
-		// ROM at 0x0000-0x7FFF (this is a guess, not checked!)
-		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead.data();
+		return MSXFDC::getReadCacheLine(start);
 	}
 }
 

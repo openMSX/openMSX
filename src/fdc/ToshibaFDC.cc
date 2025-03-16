@@ -14,6 +14,9 @@ namespace openmsx {
 ToshibaFDC::ToshibaFDC(DeviceConfig& config)
 	: WD2793BasedFDC(config)
 {
+	// ROM only visible in 0x4000-0x7FFF by default
+	parseRomVisibility(config, 0x4000, 0x4000);
+
 }
 
 byte ToshibaFDC::readMem(word address, EmuTime::param time)
@@ -69,12 +72,7 @@ byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 		return value;
 	}
 	default:
-		if (0x4000 <= address && address < 0x8000) {
-			// ROM only visible in 0x4000-0x7FFF.
-			return MSXFDC::peekMem(address, time);
-		} else {
-			return 0xFF;
-		}
+		return MSXFDC::peekMem(address, time);
 	}
 }
 
@@ -83,11 +81,8 @@ const byte* ToshibaFDC::getReadCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0x7FF0 & CacheLine::HIGH)) {
 		// FDC at 0x7FF0-0x7FF7
 		return nullptr;
-	} else if (0x4000 <= start && start < 0x8000) {
-		// ROM at 0x4000-0x7FFF
-		return MSXFDC::getReadCacheLine(start);
 	} else {
-		return unmappedRead.data();
+		return MSXFDC::getReadCacheLine(start);
 	}
 }
 
