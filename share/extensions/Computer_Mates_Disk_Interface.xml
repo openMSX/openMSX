@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<msxconfig>
+  <info>
+    <name>Disk Interface</name>
+    <manufacturer>Computer Mates</manufacturer>
+    <code></code>
+    <release_year></release_year>
+    <description>External Double Sided Double Density 3.5" disk interface with drive.</description>
+    <type>external disk drive</type>
+  </info>
+
+  <!--
+   Registers shown on
+   3F80, 3F88, 3F90, 3F98, 3FA0, 3FA8, 3FB0, 3FB8
+   7F80, 7F88, 7F90, 7F98, 7FA0, 7FA8, 7FB0, 7FB8
+   BF80, BF88, BF90, BF98, BFA0, BFA8, BFB0, BFB8
+   FF80, FF88, FF90, FF98, FFA0, FFA8, FFB0, FFB8
+
+   NYYRIKKI said:
+
+   This seems to be more like copy of SVI-738 disk controller although I think
+   side select is a bit different. This seems to be normal, not mirrored 16kB
+   disk ROM. Control registers them self are mirrored meaning that A3, A4, A5,
+   A14 and A15 signals are ignored. BIOS it self uses controller from
+   #7FB8-#7FBF.
+
+   Format options are:
+   1 - 1 side
+   2 - 2 sides
+   3 - 1 side, double track
+   4 - 2 sides, double track
+
+   Quite interestingly it seems to write the original format option
+   information inside OEM name on the disk boot sector.
+  -->
+
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Computer Mates Disk Interface diskROM/FDC">
+          <connectionstyle>National</connectionstyle>
+          <mem base="0x0000" size="0x10000"/> <!-- Verified: register mirroring on all pages! -->
+          <rom>
+            <sha1>06d44926ab82ac697a939c0f2a1a7642b5f68dce</sha1> <!-- dump without registers, original by Scarlettkitten -->
+            <filename>computer_mates_disk_interface.rom</filename>
+          </rom>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
+          <drives>1</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

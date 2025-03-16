@@ -29,8 +29,13 @@ protected:
 	                bool needROM = true,
 	                DiskDrive::TrackMode trackMode = DiskDrive::TrackMode::NORMAL);
 
+	void parseRomVisibility(DeviceConfig& config, unsigned defaultBase, unsigned defaultSize);
+
 protected:
 	std::optional<Rom> rom;
+	uint16_t romVisibilityStart = 0;
+	uint16_t romVisibilityLast = 0xFFFF; // so, inclusive
+
 	std::array<std::unique_ptr<DiskDrive>, 4> drives;
 };
 
