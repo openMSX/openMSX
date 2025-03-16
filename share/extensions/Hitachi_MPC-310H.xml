@@ -16,6 +16,7 @@
         <WD2793 id="Hitachi MPC-310H diskROM/FDC">
           <connectionstyle>Philips</connectionstyle>
           <mem base="0x4000" size="0x4000"/>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>4880977a441ee6ee8bf089fdc1a54f028f00a15e</sha1> <!-- dump contains text: Copyrite 24,Mar,1986 bySoftware Technical Center inTochigi works HITACHI Ltd.-->
             <filename>mpc-310h.rom</filename>

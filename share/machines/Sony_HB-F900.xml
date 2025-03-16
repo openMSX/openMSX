@@ -99,9 +99,7 @@
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Sony</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
-          <!-- The 2nd released version of this machine uses another disk rom:
-    <parameter name="filename">hb-f900_disk2.rom</parameter>
-    -->
+          <!-- The 2nd released version of this machine uses another disk rom -->
           <drives>2</drives>
           <rom>
             <filename>hb-f900_disk.rom</filename>

@@ -17,6 +17,7 @@
           <connectionstyle>Philips</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <mem base="0x4000" size="0x8000"/> <!-- registers on page 1 and 2 -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
             <filename>hbd-f1.rom</filename>

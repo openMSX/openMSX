@@ -15,6 +15,7 @@
         <WD2793 id="Spectravideo SVI-707 diskROM/FDC">
           <connectionstyle>Spectravideo</connectionstyle>
           <mem base="0x0000" size="0x10000"/> <!-- ROM only in page 1, registers in all pages -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom id="msxdos">
             <sha1>a337c9aede83cf684339f61a80468e73af31ebeb</sha1>
             <filename>svi-707_disk.rom</filename>

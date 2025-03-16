@@ -106,6 +106,7 @@
             <sha1>959060445e92eb980ddd9df3ef9cfefcae2de1d0</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
       </secondary>
 

@@ -97,6 +97,7 @@
             <sha1>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
       </secondary>
 

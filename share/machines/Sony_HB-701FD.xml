@@ -81,6 +81,7 @@
             <sha1>be86a0c2004142f2e8b7d65bf03733cc3d041ec1</sha1>
           </rom>
           <mem base="0x0000" size="0x10000"/> <!-- FDC regs mirrored on all pages -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
       </secondary>
 

@@ -113,6 +113,7 @@
             <filename>phc-77_disk.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/> <!-- no mirroring -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
         <ROM id="MSX Sub ROM">
           <rom>

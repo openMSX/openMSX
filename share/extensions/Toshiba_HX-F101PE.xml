@@ -15,6 +15,7 @@
         <WD2793 id="Toshiba HX-F101PE diskROM/FDC">
           <connectionstyle>Toshiba</connectionstyle>
           <mem base="0x4000" size="0x4000"/> <!-- No mirroring at all. -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <singlesided/>
           <rom>
             <sha1>b88c507720a0617a27141c329755de1a48b89deb</sha1> <!-- marked as TSDFDD00104Apr85 -->

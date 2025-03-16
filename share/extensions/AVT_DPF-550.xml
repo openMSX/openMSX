@@ -16,6 +16,7 @@
           <connectionstyle>AVT</connectionstyle>
           <io base="0xD0" num="6"/>
           <mem base="0x4000" size="0x4000"/>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>633ad62599361bbb8ba6803cdcfaa14c54521c43</sha1> <!-- Confirmed by mohai -->
             <filename>avt_dpf-550_disk.rom</filename>

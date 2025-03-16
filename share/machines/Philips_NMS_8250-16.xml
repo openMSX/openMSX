@@ -63,6 +63,7 @@
           <!-- Verified on a real 8250 and 8280: FDC registers are visible
                in all 4 pages, rom only in page 1. This is handled internally
                in the WD2793 device -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
             <filename>nms8250_disk.rom</filename>

@@ -113,6 +113,7 @@ http://bilgisayarlarim.com/Philips/VG-8235 (with serial FF00 632042694):
             <sha1>1ee2abc68a81ae7e39548985021b6532f31171b2</sha1> <!-- marked NMS 2.2, ends with 0x00/0xFF checkerboard pattern, FDC regs removed. Found in both machines from Peter and Meits -->
           </rom>
           <mem base="0x4000" size="0x8000"/> <!-- Verified on real MSX: mirroring in page 2 -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
       </secondary>
 

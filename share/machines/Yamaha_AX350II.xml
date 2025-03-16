@@ -145,6 +145,7 @@
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>358e69f427390041b5aa28018550a88f996bddb6</sha1> <!-- on dhau's machine; same on Alexandre's (but different register values) -->
             <filename>ax350ii_disk.rom</filename>

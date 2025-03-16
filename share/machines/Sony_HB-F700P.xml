@@ -97,6 +97,7 @@
             <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This is a fast diskROM, which is also in Meits' machine, certainly not original -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
       </secondary>
 

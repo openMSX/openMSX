@@ -154,6 +154,7 @@
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/> <!-- Registers appear also on BF80-BFBF -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>a953bef071b603d6280bdf7ab6249c2e6f1a4cd8</sha1>
             <filename>ax500_disk.rom</filename>

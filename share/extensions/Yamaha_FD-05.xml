@@ -18,6 +18,7 @@
         <WD2793 id="Yamaha FD-051 diskROM/FDC">
           <connectionstyle>Sony</connectionstyle>
           <mem base="0x0000" size="0x10000"/> <!-- Verified by Max Iwamoto that the registers are mirrored on all pages -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <rom>
             <sha1>4b08a057e5863ade179dcf8bc9377e90940e6d61</sha1>
             <filename>FD-051.BIN</filename>

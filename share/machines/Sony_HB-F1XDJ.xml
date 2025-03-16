@@ -171,6 +171,7 @@
            <sha1>c9500da2151881ea40b005f383b8602450129bf3</sha1> <!-- same as previous, but with different FDC registers -->
           </rom>
           <mem base="0x4000" size="0x4000"/> <!-- verified: no mirroring -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
      </secondary>
 

@@ -102,6 +102,7 @@
 	    <sha1>b43a4be5c754f68dc3ee64eee29d64f30fac2aff</sha1> <!-- these two dumps are the same, except for the FDC registers -->
             <sha1>0f5798850d11b316a4254b222ca08cc4ad6d4da2</sha1>
           </rom>
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
           <mem base="0x4000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
         </WD2793>
       </secondary>
