@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HB-F1XV</code>
     <release_year>1989</release_year>
-    <description>The last Sony MSX. Same as HB-F1XDJ, but with upgraded BIOS, kanji driver and disk basic.</description>
+    <description>The last Sony MSX. Technically the same as HB-F1XDJ, although some revisions may have different versions of the ROM.</description>
     <type>MSX2+</type>
     <region>jp</region>
   </info>
@@ -90,7 +90,7 @@
         </rom>
         <rom>
           <filename>hb-f1xv_basic-bios2p.rom</filename>
-          <sha1>174c9254f09d99361ff7607630248ff9d7d8d4d6</sha1>
+          <sha1>174c9254f09d99361ff7607630248ff9d7d8d4d6</sha1> <!-- Note: different than EPROM dump -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -149,7 +149,7 @@
           </rom>
           <rom>
             <filename>hb-f1xv_kanjibasic.rom</filename>
-            <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1>
+            <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1> <!-- Note: different than EPROM dump -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </ROM>
@@ -167,7 +167,7 @@
           </rom>
           <rom>
            <filename>hb-f1xv_disk.rom</filename>
-           <sha1>5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</sha1>
+           <sha1>5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</sha1> <!-- Note: different than EPROM dump -->
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </WD2793>
