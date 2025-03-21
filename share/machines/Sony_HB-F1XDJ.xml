@@ -11,6 +11,8 @@
     <region>jp</region>
   </info>
 
+<!-- serialnumber Meits's machine: 214047 -->
+
   <RenShaTurbo>
     <min_ints>47</min_ints>
     <max_ints>221</max_ints>
@@ -90,7 +92,7 @@
         </rom>
         <rom>
           <filename>hb-f1xdj_basic-bios2p.rom</filename>
-          <sha1>e2fbd56e42da637609d23ae9df9efd1b4241b18a</sha1> <!-- confirmed by Luc's machine -->
+          <sha1>e2fbd56e42da637609d23ae9df9efd1b4241b18a</sha1> <!-- confirmed by Luc's and Meits's machine -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -137,7 +139,7 @@
           </rom>
           <rom>
             <filename>hb-f1xdj_msx2sub.rom</filename>
-            <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1> <!-- confirmed by Luc's machine -->
+            <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1> <!-- confirmed by Luc's and Meits's machine -->
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
@@ -149,7 +151,7 @@
           </rom>
           <rom>
             <filename>hb-f1xdj_kanjibasic.rom</filename>
-            <sha1>1ef3956f7f918873fb9b031339bba45d1e5e5878</sha1> <!-- confirmed by Luc's machine -->
+            <sha1>1ef3956f7f918873fb9b031339bba45d1e5e5878</sha1> <!-- confirmed by Luc's and Meits's machine -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </ROM>
@@ -167,8 +169,8 @@
           </rom>
           <rom>
            <filename>hb-f1xdj_disk.rom</filename>
-           <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
-           <sha1>c9500da2151881ea40b005f383b8602450129bf3</sha1> <!-- same as previous, but with different FDC registers -->
+           <sha1>c1bb307a570ab833e3bfcc4a58a4f4e12dc1df0f</sha1> <!-- From Meits's machine, blanked registers, contains string SNYJX206; same as GoodMSX -->
+           <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1> <!-- contains string SNYJX205, blanked registers -->
           </rom>
           <mem base="0x4000" size="0x4000"/> <!-- verified: no mirroring -->
           <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->

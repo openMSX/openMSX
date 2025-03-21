@@ -11,6 +11,8 @@
     <region>jp</region>
   </info>
 
+<!-- serialnumber Meits's machine: 225891 -->
+
   <RenShaTurbo>
     <min_ints>47</min_ints>
     <max_ints>221</max_ints>
@@ -90,7 +92,7 @@
         </rom>
         <rom>
           <filename>hb-f1xv_basic-bios2p.rom</filename>
-          <sha1>174c9254f09d99361ff7607630248ff9d7d8d4d6</sha1> <!-- Note: different than EPROM dump -->
+          <sha1>174c9254f09d99361ff7607630248ff9d7d8d4d6</sha1> <!-- Note: different than EPROM dump and XDJ dump by Luc, but confirmed on Meits's machine. Different revision? -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -137,7 +139,7 @@
           </rom>
           <rom>
             <filename>hb-f1xv_msx2sub.rom</filename>
-            <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1> <!-- same as XDJ -->
+            <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1> <!-- same as XDJ, confirmed by Meits's machine  -->
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
@@ -149,7 +151,7 @@
           </rom>
           <rom>
             <filename>hb-f1xv_kanjibasic.rom</filename>
-            <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1> <!-- Note: different than EPROM dump -->
+            <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1> <!-- Note: different than EPROM dump, but confirmed on Meits's machine -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </ROM>
@@ -167,9 +169,10 @@
           </rom>
           <rom>
            <filename>hb-f1xv_disk.rom</filename>
-           <sha1>5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</sha1> <!-- Note: different than EPROM dump -->
+           <sha1>5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</sha1> <!-- Note: different than EPROM dump, but confirmed by Meits's machine, blanked registers, contains string SNYJX207 -->
           </rom>
-          <mem base="0x4000" size="0x4000"/>
+          <mem base="0x4000" size="0x4000"/> <!-- verified: no mirroring -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
         </WD2793>
      </secondary>
 
