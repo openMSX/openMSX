@@ -335,6 +335,11 @@ void MSXDevice::registerPorts()
 		}
 	}
 	// .. and only then register the ports. This filters possible overlaps.
+	doRegisterPorts();
+}
+
+void MSXDevice::doRegisterPorts()
+{
 	inPorts.foreachSetBit([&](auto port) {
 		getCPUInterface().register_IO_In(narrow_cast<byte>(port), this);
 	});

@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Programmable Device</name>
+    <manufacturer>PVM</manufacturer>
+    <code/>
+    <release_year>2025</release_year>
+    <description>Virtual device to read and write to specific hardware ports.</description>
+    <type>debug tool</type>
+  </info>
+  <devices>
+    <ProgrammableDevice id="Programmable Device">
+    </ProgrammableDevice>
+  </devices>
+</msxconfig>

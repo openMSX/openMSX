@@ -332,10 +332,11 @@ private:
 	void registerSlots();
 	void unregisterSlots();
 
+protected:
 	void registerPorts();
+	void doRegisterPorts();
 	void unregisterPorts();
 
-protected:
 	mutable std::string deviceName; // MSXMultiXxxDevice has a dynamic (lazy) name
 
 	[[nodiscard]] byte getPrimarySlot() const {
@@ -343,6 +344,9 @@ protected:
 		assert((0 <= ps) && (ps <= 3));
 		return narrow_cast<byte>(ps);
 	}
+
+	IterableBitSet<256> inPorts;
+	IterableBitSet<256> outPorts;
 
 private:
 	struct BaseSize {
@@ -352,8 +356,6 @@ private:
 	};
 	using MemRegions = std::vector<BaseSize>;
 	MemRegions memRegions;
-	IterableBitSet<256> inPorts;
-	IterableBitSet<256> outPorts;
 
 	DeviceConfig deviceConfig;
 

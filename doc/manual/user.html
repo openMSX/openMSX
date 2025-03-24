@@ -130,6 +130,12 @@
 					<li><a class="internal" href="#debugdevicemode2">9.4.4 Multi Byte Mode</a></li>
 				</ol>
 			</li>
+			<li><a class="internal" href="#programmabledevice">9.5 Programmable Device</a>
+				<ol class="toc">
+					<li><a class="internal" href="#programmabledeviceenable">9.5.1 Enabling the Programmable Device</a></li>
+					<li><a class="internal" href="#programmabledeviceports">9.5.2 Device Ports and callbacks</a></li>
+				</ol>
+			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">10. Contact Info</a></li>
@@ -2489,6 +2495,84 @@ output, all we need to do is change <code>xx</code> for <code>$23</code>:
 In this special case, the space in between the data is left out. Any special
 character like carriage return, linefeed, beep or tab will be printed as you
 would expect.
+</p>
+
+<h3><a id="programmabledevice">9.5 Programmable Device</a></h3>
+
+<p>
+This chapter describes briefly the built-in programmable device, a resource that could prove useful for driver or hardware developers writing and debugging software on openMSX instead of a real MSX. The programmable device is a virtual MSX device that can be connected on the fly to a user-defined list of I/O ports. It can be used to create a two-way communication between the virtual computer and the host operating system by using the high-level Tcl language that openMSX provides. It goes without saying that you must know how to use the Tcl language to use this feature.
+</p>
+<p>
+Note that this is not intended to be used as a drop-in replacement for resource-intensive hardware like VDPs. Tcl is overall a very slow language, but a programmable device opens up possibilities for using openMSX as a development tool that were not possible before.
+</p>
+
+<h4><a id="programmabledeviceenable">9.5.1 Enabling the Programmable Device</a></h4>
+
+<p>
+To enable the programmable device, insert the <code>programmabledevice</code>
+extension. To do this when starting openMSX, simply add
+<code>-ext programmabledevice</code> to the openMSX command line. If openMSX is
+already running, you can use the
+<code><a class="external" href="commands.html#ext">ext</a></code> console command.
+</p>
+
+<h4><a id="programmabledeviceports">9.5.2 Device Ports and callbacks</a></h4>
+
+<p>
+Device ports are a list of I/O ports connected between the guest computer and the
+Tcl environment. This means that anything a Z80 assembly program sends through
+one of these I/O ports using an OUT instruction automatically calls an "output
+callback" (a Tcl procedure) to receive the data on the Tcl side. You must declare
+your own output callback, otherwise the programmable device will do nothing when
+it receives a byte. Your callback must receive two 8-bit parameters (port and
+value) and it shouldn't return anything.
+</p>
+<p>
+Alternatively, anything a Z80 assembly program reads from one of these I/O ports
+using an IN instruction automatically calls an "input callback" on the Tcl side
+to send the data that will be consumed. You also must declare your own input
+callback, otherwise the programmable device will send 0xFF automatically instead
+of something useful. An input callback receives only a port number as parameter,
+but it must return an 8-bit value back.
+</p>
+<p>
+The third kind of callback you can create is the "reset callback". This one
+receives and returns nothing, but it can be useful for setting back an initial
+state when the MSX reboots.
+</p>
+<p>
+You can check the four environment variables that Programmable Device uses with
+the <a class="external" href="commands.html#help">help</a> command, but briefly:
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+ports} {6 7}
+</div>
+<p>
+tracks I/O ports 6 e 7.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+reset callback} "my_reset_proc"
+</div>
+<p>
+connects the reset event with your previously declared "my_reset_proc" callback.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+output callback} "my_output_proc"
+</div>
+<p>
+connects the "OUT instruction" event with your previously declared
+"my_output_proc" callback.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+input callback} "my_input_proc"
+</div>
+<p>
+connects the "IN instruction" event with your previously declared
+"my_input_proc" callback.
 </p>
 
 <h2><a id="contact">10. Contact Info</a></h2>
