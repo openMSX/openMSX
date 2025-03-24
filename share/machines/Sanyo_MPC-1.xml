@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sanyo</manufacturer>
+    <code>MPC-1/Wavy1</code>
+    <release_year>1985</release_year>
+    <description>Basic 16kB Japanese MSX1 machine.</description>
+    <type>MSX</type>
+    <region>jp</region>
+  </info>
+
+  <!-- This config is based on Peter Hanraets's machine with serial number 10721069
+
+       Z80 scf: 01ED29ED01FC29FC (standard)
+       Z80 cpl: 3AFF12D7 (standard)
+       Z80 out (c),0: FF (turboR)
+       PSG pin 6/7 quirk: C (YES)
+       PSGmask: AY8910
+
+       mobo on msx.org shows:
+       PSG: GI AY-3-8910
+       CPU: T7775 MSX-ENGINE
+       VDP: T6950
+       PPI: in T7775?
+       printer port
+       2 normal slots
+
+       TODO: SWIOSCAN says: ID=135 found
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <T7775 id="T7775" />
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>T6950NTSC</version>
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="4" type="IO"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mpc1_basic-bios1.rom</filename>
+          <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+      <RAM id="Main RAM">
+        <initialContent encoding="hex">FF00</initialContent>
+        <mem base="0xC000" size="0x4000"/>
+      </RAM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+  </devices>
+
+</msxconfig>
