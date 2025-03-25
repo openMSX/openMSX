@@ -79,7 +79,7 @@ jobs:
       if: ${{ matrix.xcode_version }}
       run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
     - name: Preparations for signing binaries on Darwin builds
-      if: ${{ matrix.os == 'darwin' && env.BUILD_CERTIFICATE_BASE64 }}
+      if: ${{ matrix.os == 'darwin' && secrets.BUILD_CERTIFICATE_BASE64 }}
       uses: ./.github/actions/prepare-sign
       env:
         BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
