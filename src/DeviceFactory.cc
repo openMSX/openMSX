@@ -43,6 +43,7 @@
 #include "PanasonicRam.hh"
 #include "MSXRTC.hh"
 #include "PasswordCart.hh"
+#include "ProgrammableDevice.hh"
 #include "RomFactory.hh"
 #include "MSXPrinterPort.hh"
 #include "SVIPrinterPort.hh"
@@ -279,6 +280,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = make_unique<MSXPac>(conf);
 	} else if (type == "HBI55") {
 		result = make_unique<MSXHBI55>(conf);
+	} else if (type == "ProgrammableDevice") {
+		result = make_unique<ProgrammableDevice>(conf);
 	} else if (type == "DebugDevice") {
 		result = make_unique<DebugDevice>(conf);
 	} else if (type == "V9990") {
