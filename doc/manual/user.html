@@ -130,6 +130,12 @@
 					<li><a class="internal" href="#debugdevicemode2">9.4.4 Multi Byte Mode</a></li>
 				</ol>
 			</li>
+			<li><a class="internal" href="#programmabledevice">9.5 Programmable Device</a>
+				<ol class="toc">
+					<li><a class="internal" href="#programmabledeviceenable">9.5.1 Enabling the Programmable Device</a></li>
+					<li><a class="internal" href="#programmabledeviceports">9.5.2 Device Ports and callbacks</a></li>
+				</ol>
+			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">10. Contact Info</a></li>
@@ -349,7 +355,7 @@ It also supports copy/paste. Some other controls may be less obvious: </p>
 <p>
 You can reset your MSX with the console command <code><a class="external"
 href="commands.html#reset">reset</a></code> and exit openMSX with the command
-<code><a class="external" href="commands.html#exit">exit</a></code>. As 
+<code><a class="external" href="commands.html#exit">exit</a></code>. As
 explained in the previous chapter, you can change machines with the <code><a
 class="external" href="commands.html#machine">machine</a></code> command and
 you can insert extensions with the <code><a class="external"
@@ -425,8 +431,8 @@ or from the GUI at <span class="menu-reference">Main menu bar &rarr; Settings
 &rarr; Speed &rarr; Go full speed when loading</span>. It
 runs openMSX at maximum speed whenever it thinks that the MSX is loading. The
 drawbacks: it might detect a bit too late that the MSX isn't loading anymore,
-so sometimes the first notes of music played right after loading might be 
-fast. Also, when loading openMSX will use all available CPU power to get 
+so sometimes the first notes of music played right after loading might be
+fast. Also, when loading openMSX will use all available CPU power to get
 maximum speed; the feature has no influence on the state of the MSX, of course.
 </p>
 
@@ -640,7 +646,7 @@ As an example of a layout, we created one with a debugger focus. The image below
 <img src="debugger-layout.png" width="935" height="610" alt="Example debugger focused layout.">
 </p>
 
-<!-- 
+<!--
 TODO: extend this section and add screenshots.
 Missing topics are possibly: messages (log/configuration), the Simple Note Widget and possibly Drag and Drop.
 -->
@@ -670,7 +676,7 @@ into the main openMSX window, openMSX will try to handle it accordingly.
 <h3><a id="roms">5.1 Running ROM software</a></h3>
 
 <p>
-In the GUI you can choose which ROM software you want to run by selecting a 
+In the GUI you can choose which ROM software you want to run by selecting a
 Cartridge Slot from the <span
 class="menu-reference">Main menu bar &rarr; Media</span> menu. This will open a
 window where you can tell openMSX exactly what you want to put in the slot,
@@ -845,7 +851,7 @@ you are doing.
 </p>
 <p>
 Note that MSX disks only have a limited capacity, typically 720kB. If the
-host directory contains more data, then some host files will be ignored and 
+host directory contains more data, then some host files will be ignored and
 they will not appear in the virtual disk image.
 </p>
 
@@ -1217,7 +1223,7 @@ be used for the first and second SD card.
 </p>
 
 <p>
-Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB in 
+Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB in
 size. You can change these defaults by editing the extension file in
 <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and
 managing the SD cards, please refer to its manual and tools on the Flash part
@@ -1504,7 +1510,7 @@ the console with <code><a class="external" href="commands.html#plugunplug">plug<
 <h3><a id="trackball">6.5 Trackball</a></h3>
 
 <p>
-Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to have identical hardware 
+Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to have identical hardware
 and are also emulated by openMSX, again using the mouse to control it. In MSX
 software, the trackball is mostly supported in port B only. Using the console
 you can use therefore <code><a class="external"
@@ -1568,7 +1574,7 @@ Known games that can use this Magic Key are:
 <h3><a id="ninjatap">6.8 Ninja Tap</a></h3>
 
 <p>
-The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber and 
+The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber and
 sold in Japan by PCCM. This adapter allows to use up to 4 joysticks by port.
 Plug it via the GUI or with the console using <code><a class="external"
 href="commands.html#plugunplug">plug</a> joyporta ninjatap</code>.
@@ -2191,7 +2197,7 @@ A feature of emulators which is particularly useful is saving the state of the
 emulated machine to a file, in order to load it again later and continue
 exactly where you left off when saving. Not only useful for games, but also for
 debugging or testing. For openMSX we designed this feature in such a way
-that it is trying really hard to be future proof. So, you 
+that it is trying really hard to be future proof. So, you
 don't have to be afraid to upgrade to a new version of openMSX: your save
 states will remain usable!
 </p>
@@ -2489,6 +2495,101 @@ output, all we need to do is change <code>xx</code> for <code>$23</code>:
 In this special case, the space in between the data is left out. Any special
 character like carriage return, linefeed, beep or tab will be printed as you
 would expect.
+</p>
+
+<h3><a id="programmabledevice">9.5 Programmable Device</a></h3>
+
+<p>
+This chapter describes briefly the built-in programmable device, a resource that
+could prove useful for driver or hardware developers writing and debugging
+software on openMSX instead of a real MSX. The programmable device is a virtual
+MSX device that can be connected on the fly to a user-defined list of I/O ports.
+It can be used to create a two-way communication between the virtual computer
+and the host operating system by using the high-level Tcl language that openMSX
+provides. It goes without saying that you must know how to use the Tcl language
+to use this feature.
+</p>
+<p>
+Note that this is not intended to be used as a drop-in replacement for
+resource-intensive hardware like VDPs. Tcl is overall a very slow language, but
+a programmable device opens up possibilities for using openMSX as a development
+tool that were not possible before.
+</p>
+<p>
+Note there's some overlap between this device and the <code><a class="external"
+href="commands.html#debug">debug watchpoint add read_io/write_io</a></code>
+command. Both can be used to make Tcl react to I/O read/write operations. This
+device is more suited for completely new functionality. The debug command is
+more suited to intercept communication with existing MSX devices.
+</p>
+
+<h4><a id="programmabledeviceenable">9.5.1 Enabling the Programmable Device</a></h4>
+
+<p>
+To enable the programmable device, insert the <code>programmabledevice</code>
+extension. To do this when starting openMSX, simply add
+<code>-ext programmabledevice</code> to the openMSX command line. If openMSX is
+already running, you can use the
+<code><a class="external" href="commands.html#ext">ext</a></code> console command.
+</p>
+
+<h4><a id="programmabledeviceports">9.5.2 Device Ports and callbacks</a></h4>
+
+<p>
+Device ports are a list of I/O ports connected between the guest computer and
+the Tcl environment. This means that anything a Z80 assembly program sends to
+one of these I/O ports using an OUT instruction automatically calls an "output
+callback" (a Tcl procedure) to receive the data on the Tcl side. You must
+declare your own output callback, otherwise the programmable device will do
+nothing when it receives a byte. Your callback must have two parameters: port
+and value (2 8-bit values) the return value from this callback is ignored.
+</p>
+<p>
+Alternatively, anything a Z80 assembly program reads from one of these I/O ports
+using an IN instruction automatically calls an "input callback" on the Tcl side.
+That callback produces the value that will be received by the Z80. You also must
+declare your own input callback, otherwise the programmable device will return
+0xFF. An input callback receives a (8-bit) port number as the only parameter,
+and it must return an 8-bit value.
+</p>
+<p>
+The third kind of callback you can create is the "reset callback". This one has
+no parameters and the return value is ignored. It can be useful for setting back
+an initial state when the MSX reboots.
+</p>
+<p>
+You can check the 4 settings that Programmable Device uses with the <a
+class="external" href="commands.html#help">help</a> command, but briefly:
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+ports} {6 7}
+</div>
+<p>
+tracks I/O ports 6 and 7.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+reset callback} "my_reset_proc"
+</div>
+<p>
+connects the reset event with your previously declared "my_reset_proc" callback.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+output callback} "my_output_proc"
+</div>
+<p>
+connects the "OUT instruction" event with your previously declared
+"my_output_proc" callback.
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#set">set</a> {Programmable Device
+input callback} "my_input_proc"
+</div>
+<p>
+connects the "IN instruction" event with your previously declared
+"my_input_proc" callback.
 </p>
 
 <h2><a id="contact">10. Contact Info</a></h2>
