@@ -845,6 +845,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortLogger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PrinterPortSimpl.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\ProgrammableDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Reactor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RealTime.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RenShaTurbo.cc" />
@@ -1617,6 +1618,7 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\PrinterPortDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\PrinterPortLogger.hh" />
     <None Include="$(OpenMSXSrcDir)\PrinterPortSimpl.hh" />
+    <None Include="$(OpenMSXSrcDir)\ProgrammableDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\Reactor.hh" />
     <None Include="$(OpenMSXSrcDir)\RealTime.hh" />
     <None Include="$(OpenMSXSrcDir)\RenShaTurbo.hh" />
