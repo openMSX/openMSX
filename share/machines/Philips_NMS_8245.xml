@@ -148,8 +148,8 @@
           </rom>
           <rom>
             <filename>nms8245_disk.rom</filename>
-            <sha1>b484c8fa4549b79cff976001ac4beb19abf7cfb5</sha1> <!-- marked NMS 8245 1.06, so this is probably the same as the 1.06 EPROM (with modified registers) -->
-            <sha1>c3f3ca454d66a0bc791f1d4b60e6857b44eb8755</sha1> <!-- marked NMS 8250 1.08, so this is probably the same as the 1.08 EPROM (with modified registers) -->
+            <sha1>58ba1887e8fd21c912b6859cae6514bd874ffcca</sha1> <!-- marked NMS 8245 1.06, so this is probably the same as the 1.06 EPROM (with cleaned registers) -->
+            <sha1>6acd4261795b6ce5f6a5ea432610d1d1d1d8b091</sha1> <!-- marked NMS 8250 1.08, so this is probably the same as the 1.08 EPROM (with cleaned registers) -->
           </rom>
         </WD2793>
       </secondary>
