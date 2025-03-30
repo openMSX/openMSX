@@ -89,7 +89,7 @@ jobs:
         os: ${{ matrix.os }}
     - name: Perform the actual build
       env: 
-        CODE_SIGN_IDENTITY: ${{ secrets.BUILD_CERTIFICATE_BASE64 && '748867M822' }}
+        CODE_SIGN_IDENTITY: 748867M822
       # Directory name only
       uses: ./.github/actions/build
       with:
