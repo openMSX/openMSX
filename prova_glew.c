@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 int main() {
-  if (glewInit() != GLEW_OK) {
+  GLenum err = glewInit();
+  if (err != GLEW_OK) {
     fprintf(stderr, "GLEW initialization failed!\n");
     fprintf(stderr, "GLEW initialization failed: %s\n", glewGetErrorString(err));
     return 1;
