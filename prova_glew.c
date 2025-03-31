@@ -1,14 +1,15 @@
 // Amb l'última actualització ha deixat d'anar l'openMSX i diu error de glew. Analitzem-ho amb aquest programa
-#include <GL/glew2.h>
+#include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
   // Print GLEW version
   printf("GLEW version: %s\n", glewGetString(GLEW_VERSION));
+  printf("GL version: %s\n", glGetString(GL_VERSION));
   
   // Check if GLEW2 is available
-  if (glewIsSupported("GLEW_VERSION_2_0")) {
+  if (glewIsSupported("GL_VERSION_2_0")) {
     printf("GLEW 2.0 is supported\n");
   } else {
     printf("GLEW 2.0 is not supported\n");
