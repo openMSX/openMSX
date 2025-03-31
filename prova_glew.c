@@ -11,7 +11,10 @@ int main() {
     return -1;
   }
   
-  // Create a windowed mode window and its OpenGL context
+  // Set OpenGL version hints before creating window
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Make window invisible
   GLFWwindow* window = glfwCreateWindow(640, 480, "OpenGL Test", NULL, NULL);
   if (!window) {
@@ -23,12 +26,21 @@ int main() {
   // Make the window's context current
   glfwMakeContextCurrent(window);
   
-  // Initialize GLEW
+  // Initialize GLEW with experimental flag
+  glewExperimental = GL_TRUE; // Needed for core profile
   GLenum err = glewInit();
   if (err != GLEW_OK) {
     fprintf(stderr, "GLEW initialization failed: %s\n", glewGetErrorString(err));
-    glfwTerminate();
-    return -1;
+    // Continue anyway to print diagnostic information
+    printf("Continuing despite GLEW initialization failure...\n");
+  } else {
+    printf("GLEW initialized successfully!\n");
+  }
+  
+  // Clear any error that might have been set by glewInit
+  GLenum glErr = glGetError();
+  if (glErr != GL_NO_ERROR) {
+    printf("OpenGL error after GLEW init: 0x%x (this is often normal)\n", glErr);
   }
   
   // Print GLEW version
@@ -40,8 +52,6 @@ int main() {
   } else {
     printf("GLEW 2.0 is not supported\n");
   }
-  
-  printf("GLEW initialized successfully!\n");
   
   // Basic OpenGL check
   const GLubyte* glVersion = glGetString(GL_VERSION);
