@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "glew_utils.h"
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT);
@@ -26,22 +27,11 @@ int main(int argc, char** argv) {
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
   
-  // Initialize GLEW
-  glewExperimental = GL_TRUE;
-  GLenum err = glewInit();
-  if (err != GLEW_OK) {
-    fprintf(stderr, "GLEW initialization failed: %s\n", glewGetErrorString(err));
-    fprintf(stderr, "Error code: %d\n", err);
-    // Continue anyway - on some systems GLEW reports an error but still works
-  } else {
-    printf("GLEW initialized successfully!\n");
-  }
-  
-  // Clear any error that might have been set by glewInit
-  // This is important as glewInit() often generates an OpenGL error that should be cleared
-  GLenum clearErr;
-  while ((clearErr = glGetError()) != GL_NO_ERROR) {
-    printf("Clearing OpenGL error: 0x%x\n", clearErr);
+  // Initialize GLEW using our utility function
+  bool glewUsable = initGlewGracefully(true);
+  if (!glewUsable) {
+    fprintf(stderr, "GLEW is not usable, cannot continue\n");
+    return -1;
   }
   
   // Clear any error that might have been set by glewInit

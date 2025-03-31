@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "glew_utils.h"
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT);
@@ -24,17 +25,8 @@ int main(int argc, char** argv) {
   // Try alternative GLEW initialization approach
   printf("Attempting alternative GLEW initialization...\n");
   
-  // Method 1: Initialize with glewContextInit
-  glewExperimental = GL_TRUE;
-  GLenum err = glewInit();
-  if (err != GLEW_OK) {
-    printf("Standard glewInit failed: %s (code %d)\n", glewGetErrorString(err), err);
-  } else {
-    printf("Standard glewInit succeeded\n");
-  }
-  
-  // Clear any errors from glewInit
-  while (glGetError() != GL_NO_ERROR) {}
+  // Use our utility function to initialize GLEW
+  bool glewUsable = initGlewGracefully(true);
   
   // Test if we can use GLEW-provided function pointers despite the error
   printf("\nTesting GLEW function availability:\n");
