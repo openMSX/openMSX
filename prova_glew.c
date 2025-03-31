@@ -41,9 +41,9 @@ int main() {
   }
   
   // Clear any error that might have been set by glewInit
-  GLenum glErr = glGetError();
-  if (glErr != GL_NO_ERROR) {
-    printf("OpenGL error after GLEW init: 0x%x (this is often normal)\n", glErr);
+  // This is important as glewInit() often generates an OpenGL error that should be cleared
+  while (glGetError() != GL_NO_ERROR) {
+    // Clear all errors
   }
   
   // Print GLEW version

@@ -27,8 +27,15 @@ int main(int argc, char** argv) {
   GLenum err = glewInit();
   if (err != GLEW_OK) {
     fprintf(stderr, "GLEW initialization failed: %s\n", glewGetErrorString(err));
+    // Continue anyway - on some systems GLEW reports an error but still works
   } else {
     printf("GLEW initialized successfully!\n");
+  }
+  
+  // Clear any error that might have been set by glewInit
+  // This is important as glewInit() often generates an OpenGL error that should be cleared
+  while (glGetError() != GL_NO_ERROR) {
+    // Clear all errors
   }
   
   // Clear any error that might have been set by glewInit
