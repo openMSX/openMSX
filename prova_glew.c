@@ -29,11 +29,16 @@ int main() {
   // Print OpenGL version before GLEW init
   printf("Pre-GLEW OpenGL version: %s\n", glGetString(GL_VERSION));
   
+  // Force a complete OpenGL context before GLEW init
+  glClear(GL_COLOR_BUFFER_BIT);
+  glfwSwapBuffers(window);
+  
   // Initialize GLEW with experimental flag
   glewExperimental = GL_TRUE; // Needed for core profile
   GLenum err = glewInit();
   if (err != GLEW_OK) {
     fprintf(stderr, "GLEW initialization failed: %s\n", glewGetErrorString(err));
+    fprintf(stderr, "Error code: %d\n", err);
     // Continue anyway to print diagnostic information
     printf("Continuing despite GLEW initialization failure...\n");
   } else {
@@ -42,8 +47,9 @@ int main() {
   
   // Clear any error that might have been set by glewInit
   // This is important as glewInit() often generates an OpenGL error that should be cleared
-  while (glGetError() != GL_NO_ERROR) {
-    // Clear all errors
+  GLenum clearErr;
+  while ((clearErr = glGetError()) != GL_NO_ERROR) {
+    printf("Clearing OpenGL error: 0x%x\n", clearErr);
   }
   
   // Print GLEW version
