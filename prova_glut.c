@@ -19,6 +19,9 @@ int main(int argc, char** argv) {
   // Register display callback
   glutDisplayFunc(display);
   
+  // Print OpenGL version before GLEW init
+  printf("Pre-GLEW OpenGL version: %s\n", glGetString(GL_VERSION));
+  
   // Initialize GLEW
   glewExperimental = GL_TRUE;
   GLenum err = glewInit();

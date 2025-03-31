@@ -14,7 +14,7 @@ int main() {
   // Set OpenGL version hints before creating window
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // Use compatibility profile
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Make window invisible
   GLFWwindow* window = glfwCreateWindow(640, 480, "OpenGL Test", NULL, NULL);
   if (!window) {
@@ -25,6 +25,9 @@ int main() {
   
   // Make the window's context current
   glfwMakeContextCurrent(window);
+  
+  // Print OpenGL version before GLEW init
+  printf("Pre-GLEW OpenGL version: %s\n", glGetString(GL_VERSION));
   
   // Initialize GLEW with experimental flag
   glewExperimental = GL_TRUE; // Needed for core profile
