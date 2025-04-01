@@ -118,18 +118,23 @@ VisibleSurface::VisibleSurface(
 	// so I believe it would cause less confusion to do the same here.
 	glewExperimental = GL_TRUE;
 
-	// Initialise GLEW library.
-	// GLEW fails to initialise on Wayland because it has no GLX, since the
-	// one provided by the distros was built to use GLX instead of EGL. We
-	// ignore the GLEW_ERROR_NO_GLX_DISPLAY error with this temporary fix
-	// until it is fixed by GLEW upstream and released by major distros.
-	// See https://github.com/nigels-com/glew/issues/172
-	if (GLenum glew_error = glewInit();
-	    glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
-		throw InitException(
-			"Failed to init GLEW: ",
-			std::bit_cast<const char*>(glewGetErrorString(glew_error)));
+	// Initialize GLEW library with graceful error handling
+	// GLEW may fail with various errors (like GLEW_ERROR_NO_GLX_DISPLAY on Wayland)
+	// but many OpenGL functions can still work correctly
+	GLenum glew_error = glewInit();
+	if (glew_error != GLEW_OK) {
+		// Log the error but continue execution
+		cliComm.printWarning(
+			"GLEW initialization reported error: ", 
+			std::bit_cast<const char*>(glewGetErrorString(glew_error)),
+			" (code ", std::to_string(glew_error), ")");
+		
+		// Clear any OpenGL error that might have been set by glewInit
+		// This is a known issue with some GLEW versions
+		glGetError();
 	}
+	
+	// Test if we can use OpenGL 2.1 features despite initialization errors
 	if (!GLEW_VERSION_2_1) {
 		throw InitException(
 			"Need at least OpenGL version " VERSION_STRING);
