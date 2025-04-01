@@ -132,6 +132,15 @@ VisibleSurface::VisibleSurface(
 		// Clear any OpenGL error that might have been set by glewInit
 		// This is a known issue with some GLEW versions
 		glGetError();
+		
+		// Test specific OpenGL features despite initialization error
+		cliComm.printInfo("Testing OpenGL feature support:");
+		cliComm.printInfo("GL_ARB_vertex_buffer_object: ", 
+			glewIsSupported("GL_ARB_vertex_buffer_object") ? "YES" : "NO");
+		cliComm.printInfo("GL_VERSION_2_0: ", 
+			glewIsSupported("GL_VERSION_2_0") ? "YES" : "NO");
+		cliComm.printInfo("GL_VERSION_2_1: ", 
+			glewIsSupported("GL_VERSION_2_1") ? "YES" : "NO");
 	}
 	
 	// Test if we can use OpenGL 2.1 features despite initialization errors
