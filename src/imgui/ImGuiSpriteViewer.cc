@@ -125,7 +125,8 @@ static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int s
 		auto attrib = att[addr + 3];
 		auto color = attrib & 0x0f;
 		float v2 = float(size * (rr + 1)) * (1.0f / 64.0f);
-		ImGui::Image(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2}, getColor(color));
+		ImGui::ImageWithBg(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2},
+		                   {}, getColor(color));
 	} else {
 		int colorBase = getSpriteColorAddr(sprite, mode);
 		gl::vec2 pos = ImGui::GetCursorPos();
@@ -134,7 +135,8 @@ static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int s
 			auto color = attrib & 0x0f;
 			ImGui::SetCursorPos({pos.x, pos.y + zoom * float(y)});
 			float v2 = v1 + (1.0f / 64.0f);
-			ImGui::Image(patternTex, zoom * gl::vec2{float(size), 1.0f}, {u1, v1}, {u2, v2}, getColor(color));
+			ImGui::ImageWithBg(patternTex, zoom * gl::vec2{float(size), 1.0f}, {u1, v1}, {u2, v2},
+			                   {}, getColor(color));
 			v1 = v2;
 		}
 	}

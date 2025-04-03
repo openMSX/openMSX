@@ -208,8 +208,9 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 			const auto& ic = state ? icon.on : icon.off;
 			if (alpha > 0.0f && ic.tex.get()) {
 				ImGui::SetCursorPos(cursor);
-				ImGui::Image(ic.tex.getImGui(), gl::vec2(ic.size),
-				             {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, alpha});
+				ImGui::ImageWithBg(ic.tex.getImGui(), gl::vec2(ic.size),
+				                   {0.0f, 0.0f}, {1.0f, 1.0f},
+				                   {}, {1.0f, 1.0f, 1.0f, alpha});
 			}
 
 			// draw outline
