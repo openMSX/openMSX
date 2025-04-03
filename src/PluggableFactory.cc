@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "JoyMega.hh"
+#include "JoyHandle.hh"
 #include "ArkanoidPad.hh"
 #include "InputEventGenerator.hh"
 #include "JoyTap.hh"
@@ -82,6 +83,12 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(std::make_unique<JoyMega>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, joystickManager, 2)); // joymega2
+	controller.registerPluggable(std::make_unique<JoyHandle>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 1)); // joyhandle1
+	controller.registerPluggable(std::make_unique<JoyHandle>(
+		commandController, msxEventDistributor,
+		stateChangeDistributor, joystickManager, 2)); // joyhandle2
 
 	// Dongles
 	controller.registerPluggable(std::make_unique<SETetrisDongle>());
