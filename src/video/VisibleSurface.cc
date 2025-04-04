@@ -122,7 +122,7 @@ VisibleSurface::VisibleSurface(
 	// GLEW may fail with various errors (like GLEW_ERROR_NO_GLX_DISPLAY on Wayland)
 	// but many OpenGL functions can still work correctly
 	GLenum glew_error = glewInit();
-	if (glew_error != GLEW_OK) {
+	if (glew_error == GLEW_ERROR_NO_GL_VERSION) {
 		// Log the error but continue execution
 		cliComm.printWarning(
 			"GLEW initialization reported error: ", 
@@ -147,6 +147,8 @@ VisibleSurface::VisibleSurface(
       throw InitException(
                           "Need at least OpenGL version " VERSION_STRING);
     }
+  } else {
+    throw InitException("Glew init failed " + glewGetErrorString(glewError));
   }
 	
 	gl::context.emplace();
