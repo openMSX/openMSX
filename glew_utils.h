@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 // Initialize GLEW and handle the "Missing GL version" error gracefully
 // Returns true if GLEW is usable (even if glewInit reports an error)
