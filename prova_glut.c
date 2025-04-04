@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "glew_utils.h"
 
 void display() {
