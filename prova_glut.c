@@ -27,17 +27,28 @@ int main(int argc, char** argv) {
   glClear(GL_COLOR_BUFFER_BIT);
   glutSwapBuffers();
   
-  // Initialize GLEW using our utility function
-  bool glewUsable = initGlewGracefully(true);
-  if (!glewUsable) {
-    fprintf(stderr, "GLEW is not usable, cannot continue\n");
+  // Initialize GLEW directly
+  glewExperimental = GL_TRUE;
+  GLenum glewError = glewInit();
+  if (glewError != GLEW_OK) {
+    fprintf(stderr, "GLEW initialization error: %s (code %d)\n", 
+            glewGetErrorString(glewError), glewError);
     return -1;
   }
+  printf("GLEW initialization successful\n");
   
   // Clear any error that might have been set by glewInit
   GLenum glErr = glGetError();
   if (glErr != GL_NO_ERROR) {
     printf("OpenGL error after GLEW init: 0x%x (this is often normal)\n", glErr);
+  }
+  
+  // Also try using our utility function for comparison
+  bool glewUsable = initGlewGracefully(true);
+  if (!glewUsable) {
+    fprintf(stderr, "initGlewGracefully reports GLEW is not usable\n");
+  } else {
+    printf("initGlewGracefully reports GLEW is usable\n");
   }
   
   // Print OpenGL and GLEW information
