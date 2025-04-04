@@ -141,13 +141,14 @@ VisibleSurface::VisibleSurface(
 			glewIsSupported("GL_VERSION_2_0") ? "YES" : "NO");
 		cliComm.printInfo("GL_VERSION_2_1: ", 
 			glewIsSupported("GL_VERSION_2_1") ? "YES" : "NO");
-	}
+
+    // Test if we can use OpenGL 2.1 features despite initialization errors
+    if (!GLEW_VERSION_2_1) {
+      throw InitException(
+                          "Need at least OpenGL version " VERSION_STRING);
+    }
+  }
 	
-	// Test if we can use OpenGL 2.1 features despite initialization errors
-	if (!GLEW_VERSION_2_1) {
-		throw InitException(
-			"Need at least OpenGL version " VERSION_STRING);
-	}
 	gl::context.emplace();
 
 	bool fullScreen = renderSettings.getFullScreen();
