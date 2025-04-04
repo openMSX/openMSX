@@ -147,8 +147,8 @@ VisibleSurface::VisibleSurface(
       throw InitException(
                           "Need at least OpenGL version " VERSION_STRING);
     }
-  } else {
-    throw InitException("Glew init failed " + glewGetErrorString(glewError));
+  } else if (glew_error != GLEW_OK) {
+    throw InitException("Glew init failed: " + std::string(std::bit_cast<const char*>(glewGetErrorString(glew_error))));
   }
 	
 	gl::context.emplace();
