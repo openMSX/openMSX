@@ -350,6 +350,7 @@ std::string AfterCommand::help(std::span<const TclObject> /*tokens*/) const
 	       "after break <command>               execute a command after a breakpoint is reached\n"
 	       "after boot <command>                execute a command after a (re)boot\n"
 	       "after machine_switch <command>      execute a command after a switch to a new machine\n"
+	       "after quit <command>                execute a command after a quit event\n"
 	       "after info                          list all postponed commands\n"
 	       "after cancel <id>                   cancel the postponed command with given id\n";
 }
@@ -360,7 +361,7 @@ void AfterCommand::tabCompletion(std::vector<std::string>& tokens) const
 		using namespace std::literals;
 		static constexpr std::array cmds = {
 			"time"sv, "realtime"sv, "idle"sv, "frame"sv, "break"sv, "boot"sv,
-			"machine_switch"sv, "info"sv, "cancel"sv,
+			"machine_switch"sv, "quit"sv, "info"sv, "cancel"sv,
 		};
 		completeString(tokens, cmds);
 	}
