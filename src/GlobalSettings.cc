@@ -13,6 +13,9 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	        "turn power on/off", false, Setting::Save::NO)
 	, autoSaveSetting(commandController, "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true)
+	, exitCallBackSetting(commandController, "exit_callback",
+		"Tcl proc to call automatically when openMSX exits", "",
+		Setting::Save::YES)
 	, umrCallBackSetting(commandController, "umr_callback",
 		"Tcl proc to call when an UMR is detected", {})
 	, invalidPsgDirectionsSetting(commandController,
@@ -37,6 +40,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 GlobalSettings::~GlobalSettings()
 {
 	getPowerSetting().detach(*this);
+	exitCallBackSetting.execute();
 	commandController.getSettingsConfig().setSaveSettings(
 		autoSaveSetting.getBoolean());
 }

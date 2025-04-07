@@ -7,6 +7,7 @@
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
 #include "SpeedManager.hh"
+#include "TclCallback.hh"
 #include "ThrottleManager.hh"
 #include "ResampledSoundDevice.hh"
 #include <memory>
@@ -35,6 +36,9 @@ public:
 	}
 	[[nodiscard]] BooleanSetting& getAutoSaveSetting() {
 		return autoSaveSetting;
+	}
+	[[nodiscard]] TclCallback& getExitCallBackSetting() {
+		return exitCallBackSetting;
 	}
 	[[nodiscard]] StringSetting& getUMRCallBackSetting() {
 		return umrCallBackSetting;
@@ -65,6 +69,7 @@ private:
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
+	TclCallback    exitCallBackSetting;
 	StringSetting  umrCallBackSetting;
 	StringSetting  invalidPsgDirectionsSetting;
 	StringSetting  invalidPpiModeSetting;
