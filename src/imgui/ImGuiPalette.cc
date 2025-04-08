@@ -153,12 +153,13 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 				im::Table("grid", 4, [&]{
 					im::ID_for_range(16, [&](int i) {
 						if (ImGui::TableNextColumn()) {
-							if (i == selectedColor) {
-								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32(ImGuiCol_HeaderActive));
-							}
-							if (coloredButton("", paletteRGB[i], {44.0f, 30.0f})) {
-								selectedColor = i;
-							}
+							im::StyleColor(i == selectedColor, ImGuiCol_Border, ImGui::GetColorU32(ImGuiCol_HeaderActive), [&]{
+								ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, i == selectedColor ? 3.0f : 1.0f);
+								if (coloredButton("", paletteRGB[i], {44.0f, 30.0f})) {
+									selectedColor = i;
+								}
+								ImGui::PopStyleVar();
+							});
 						}
 					});
 				});
