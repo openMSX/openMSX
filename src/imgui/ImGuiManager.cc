@@ -839,6 +839,10 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 				if (auto result = execute(TclObject("guess_title"))) {
 					ImGui::TextUnformatted(result->getString());
 					simpleToolTip("the (probably) currently running software");
+					if (auto mapperResult = execute(TclObject("dict get [openmsx_info romtype [dict get [machine_info device [guess_rom_device]] \"mappertype\"]] description"))) {
+						ImGui::TextUnformatted(strCat(" (", mapperResult->getString(), ")"));
+						simpleToolTip("the mapper type of the running ROM software");
+					};
 				}
 			}
 
