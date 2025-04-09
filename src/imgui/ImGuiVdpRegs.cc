@@ -278,6 +278,10 @@ static constexpr auto regFunctions = std::array{
 	R{{S{6, 0x3F}}, "sprite pattern table address", [](uint32_t v) {
 		return tmpStrCat("sprite pattern table:   0x", hex_string<5>(v << 11), '\n');
 	  }},
+	R{{S{2, 0}}, "", [](uint32_t) {
+		auto addr = g_vdp->getVramPointer();
+		return tmpStrCat("hidden internal VRAM pointer: 0x", hex_string<4>(addr), '\n');
+	}},
 	R{{S{2, 0}}, "", &spacing},
 
 	// Color registers
