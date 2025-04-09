@@ -610,7 +610,15 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 				auto colorRegs = tms99x8 ? make_span(colorRegs1) : make_span(colorRegs2);
 				drawSection(colorRegs, registerValues, *vdp, time);
 			});
-			if (!tms99x8) {
+			if (tms99x8) {
+				im::TreeNode("Access registers", &openAccess, [&]{
+					auto addr = vdp->getVramPointer();
+					auto s = tmpStrCat("full address: ", hex_string<4>(addr), '\n');
+					im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
+						ImGui::TextUnformatted(s);
+					});
+				});
+			} else {
 				im::TreeNode("Display registers", &openDisplay, [&]{
 					static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
 					drawSection(displayRegs, registerValues, *vdp, time);
