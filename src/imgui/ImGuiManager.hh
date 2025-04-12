@@ -93,6 +93,7 @@ public:
 	[[nodiscard]] gl::ivec2 retrieveWindowPosition() const { return windowPos; }
 
 	void configStatusBarVisibilityItems();
+	void tclHelper(const TclObject& command);
 
 private:
 	void initializeImGui();

@@ -41,12 +41,14 @@ public:
 	[[nodiscard]] zstring_view iniName() const override { return "debugger"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadStart() override;
+	void loadEnd() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
 	void signalBreak();
 	void signalContinue();
+	void signalQuit();
 	void setGotoTarget(uint16_t target);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
 	                    ImGuiDisassembly* disassembly);
@@ -92,6 +94,12 @@ private:
 	bool showFlags = false;
 	bool showXYFlags = false;
 	int flagsLayout = 1;
+	std::string breakpointFile;
+	bool loadOnStartup = false;
+	bool saveOnExit = false;
+
+        std::string confirmText;
+        std::function<void()> confirmAction;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"showControl",     &ImGuiDebugger::showControl},
@@ -102,7 +110,10 @@ private:
 		PersistentElement{"showXYFlags",     &ImGuiDebugger::showXYFlags},
 		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2},
 		PersistentElement{"showChanges",     &ImGuiDebugger::showChanges},
-		PersistentElement{"changesColor",    &ImGuiDebugger::changesColor}
+		PersistentElement{"changesColor",    &ImGuiDebugger::changesColor},
+		PersistentElement{"breakpointFile",  &ImGuiDebugger::breakpointFile},
+		PersistentElement{"loadOnStartup",   &ImGuiDebugger::loadOnStartup},
+		PersistentElement{"saveOnExit",      &ImGuiDebugger::saveOnExit},
 
 		// manually handle "showDebuggable.xxx"
 	};
