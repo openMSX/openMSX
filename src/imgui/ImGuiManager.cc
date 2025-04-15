@@ -228,7 +228,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	using enum EventType;
 	for (auto type : {MOUSE_BUTTON_UP, MOUSE_BUTTON_DOWN, MOUSE_MOTION, MOUSE_WHEEL,
 	                  KEY_UP, KEY_DOWN, TEXT,
-	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK, CONTINUE, MACHINE_LOADED}) {
+	                  WINDOW, FILE_DROP, IMGUI_DELAYED_ACTION, BREAK, CONTINUE, MACHINE_LOADED, QUIT}) {
 		eventDistributor.registerEventListener(type, *this, EventDistributor::Priority::IMGUI);
 	}
 
@@ -397,6 +397,9 @@ bool ImGuiManager::signalEvent(const Event& event)
 		}
 	} else {
 		switch (getType(event)) {
+		case EventType::QUIT:
+			debugger->signalQuit();
+			break;
 		case EventType::IMGUI_DELAYED_ACTION: {
 			for (auto& action : delayedActionQueue) {
 				std::invoke(action);

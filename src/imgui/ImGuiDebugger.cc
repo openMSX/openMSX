@@ -16,6 +16,7 @@
 
 #include "Debuggable.hh"
 #include "Debugger.hh"
+#include "FileContext.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
@@ -24,18 +25,22 @@
 #include "RomBlockDebuggable.hh"
 #include "RomInfo.hh"
 
+#include "foreach_file.hh"
 #include "narrow.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <algorithm>
 
 using namespace std::literals;
 
 namespace openmsx {
+
+static constexpr std::string_view BREAKPOINT_DIR = "breakpoints";
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
@@ -105,6 +110,11 @@ void ImGuiDebugger::signalContinue()
 	showChangesFrameCounter = 10;
 }
 
+void ImGuiDebugger::signalQuit()
+{
+	if (saveOnExit) loadSaveBreakpoints(SAVE);
+}
+
 template<typename T>
 static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
 {
@@ -149,6 +159,11 @@ void ImGuiDebugger::loadStart()
 	hexEditors.clear();
 }
 
+void ImGuiDebugger::loadEnd()
+{
+	if (loadOnStartup) loadSaveBreakpoints(LOAD);
+}
+
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 {
 	static constexpr std::string_view hexEditorPrefix = "hexEditor.";
@@ -186,6 +201,8 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
+	bool openConfirmPopup = false;
+
 	auto createHexEditor = [&](const std::string& name) {
 		// prefer to reuse a previously closed editor
 		auto [b, e] = std::ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
@@ -221,7 +238,62 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		}
 		ImGui::Separator();
-		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints->show);
+		auto getBreakpointFiles = [] {
+			std::vector<std::string> names;
+			for (auto context = userDataFileContext(BREAKPOINT_DIR);
+			     const auto& path : context.getPaths()) {
+				foreach_file(path, [&](const std::string& fullName) {
+					names.emplace_back(fullName);
+				});
+			}
+			std::ranges::sort(names, StringOp::caseless{});
+			return names;
+		};
+		im::Menu("Breakpoints", [&]{
+			auto listFiles = [&](const std::vector<std::string>& names) {
+				std::optional<std::string> selectedFile;
+				im::ListBox("##select-bp", [&]{
+					for (const auto& name : names) {
+						auto displayName = FileOperations::getFilename(name.c_str());
+						if (ImGui::Selectable(displayName.data())) { // TODO replace data() with c_str()
+							selectedFile = name;
+						}
+						im::PopupContextItem([&]{
+							if (ImGui::MenuItem("delete")) {
+								confirmText = strCat("Delete breakpoint file: ", name);
+								confirmAction = [name]{ FileOperations::unlink(name); };
+								openConfirmPopup = true;
+							}
+						});
+					}
+				});
+				return selectedFile;
+			};
+			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show);
+			im::Menu("Save to file", [&]{
+				ImGui::TextUnformatted("Enter name:"sv);
+				ImGui::InputText("##save-bps-name", &breakpointFile);
+				ImGui::SameLine();
+				im::Disabled(breakpointFile.empty(), [&]{
+					if (ImGui::Button("Save as")) {
+						loadSaveBreakpoints(SAVE);
+						ImGui::CloseCurrentPopup();
+					}
+				});
+			});
+			im::Menu("Load from file", [&]{
+				ImGui::TextUnformatted("Select breakpoint file"sv);
+				auto names = getBreakpointFiles();
+				if (auto selectedFile = listFiles(names)) {
+					breakpointFile = *selectedFile;
+					loadSaveBreakpoints(LOAD);
+					ImGui::CloseCurrentPopup();
+				}
+			});
+			ImGui::Separator();
+			ImGui::MenuItem("Save on exit", nullptr, &saveOnExit);
+			ImGui::MenuItem("Load on startup", nullptr, &loadOnStartup);
+		});
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
 		ImGui::Separator();
@@ -248,7 +320,39 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 	});
+
+	const auto* confirmTitle = "Confirm##debugger";
+	if (openConfirmPopup) {
+		ImGui::OpenPopup(confirmTitle);
+	}
+	im::PopupModal(confirmTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::TextUnformatted(confirmText);
+
+		bool close = false;
+		if (ImGui::Button("Ok")) {
+			confirmAction();
+			close = true;
+		}
+		ImGui::SameLine();
+		close |= ImGui::Button("Cancel");
+		if (close) {
+			ImGui::CloseCurrentPopup();
+			confirmAction = {};
+		}
+	});
 }
+
+void ImGuiDebugger::loadSaveBreakpoints(LoadSave loadSave)
+{
+	if (breakpointFile.empty()) return;
+	try {
+		manager.execute(makeTclList(loadSave == LOAD ? "load_breakpoints" : "save_breakpoints",
+		                            breakpointFile));
+	} catch (MSXException& e) {
+		manager.getCliComm().printWarning(e.getMessage());
+	}
+}
+
 
 void ImGuiDebugger::setGotoTarget(uint16_t target)
 {
