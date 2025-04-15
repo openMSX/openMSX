@@ -254,8 +254,8 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				std::optional<std::string> selectedFile;
 				im::ListBox("##select-bp", [&]{
 					for (const auto& name : names) {
-						auto displayName = FileOperations::getFilename(name.c_str());
-						if (ImGui::Selectable(displayName.data())) { // TODO replace data() with c_str()
+						auto displayName = FileOperations::getFilename(name);
+						if (ImGui::Selectable(displayName.c_str())) {
 							selectedFile = name;
 						}
 						im::PopupContextItem([&]{
