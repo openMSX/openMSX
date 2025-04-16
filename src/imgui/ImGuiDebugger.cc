@@ -112,7 +112,7 @@ void ImGuiDebugger::signalContinue()
 
 void ImGuiDebugger::signalQuit()
 {
-	if (saveOnExit) loadSaveBreakpoints(SAVE);
+	if (reloadBreakpoints) loadSaveBreakpoints(SAVE);
 }
 
 template<typename T>
@@ -161,7 +161,7 @@ void ImGuiDebugger::loadStart()
 
 void ImGuiDebugger::loadEnd()
 {
-	if (loadOnStartup) loadSaveBreakpoints(LOAD);
+	if (reloadBreakpoints) loadSaveBreakpoints(LOAD);
 }
 
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
@@ -291,8 +291,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 			ImGui::Separator();
-			ImGui::MenuItem("Save on exit", nullptr, &saveOnExit);
-			ImGui::MenuItem("Load on startup", nullptr, &loadOnStartup);
+			ImGui::MenuItem("Reload on startup", nullptr, &reloadBreakpoints);
 		});
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
