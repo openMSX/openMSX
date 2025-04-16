@@ -243,7 +243,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			for (auto context = userDataFileContext(BREAKPOINT_DIR);
 			     const auto& path : context.getPaths()) {
 				foreach_file(path, [&](const std::string& fullName) {
-					names.emplace_back(fullName);
+					if (fullName.ends_with(".breakpoints")) {
+						names.emplace_back(fullName);
+					}
 				});
 			}
 			std::ranges::sort(names, StringOp::caseless{});
@@ -254,7 +256,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				std::optional<std::string> selectedFile;
 				im::ListBox("##select-bp", [&]{
 					for (const auto& name : names) {
-						auto displayName = FileOperations::getFilename(name);
+						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
 						if (ImGui::Selectable(displayName.c_str())) {
 							selectedFile = name;
 						}
