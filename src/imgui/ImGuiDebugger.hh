@@ -98,25 +98,23 @@ private:
 	bool showXYFlags = false;
 	int flagsLayout = 1;
 	std::string breakpointFile;
-	bool loadOnStartup = false;
-	bool saveOnExit = false;
+	bool reloadBreakpoints = false;
 
         std::string confirmText;
         std::function<void()> confirmAction;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"showControl",     &ImGuiDebugger::showControl},
-		PersistentElement{"showRegisters",   &ImGuiDebugger::showRegisters},
-		PersistentElement{"showSlots",       &ImGuiDebugger::showSlots},
-		PersistentElement{"showStack",       &ImGuiDebugger::showStack},
-		PersistentElement{"showFlags",       &ImGuiDebugger::showFlags},
-		PersistentElement{"showXYFlags",     &ImGuiDebugger::showXYFlags},
-		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2},
-		PersistentElement{"showChanges",     &ImGuiDebugger::showChanges},
-		PersistentElement{"changesColor",    &ImGuiDebugger::changesColor},
-		PersistentElement{"breakpointFile",  &ImGuiDebugger::breakpointFile},
-		PersistentElement{"loadOnStartup",   &ImGuiDebugger::loadOnStartup},
-		PersistentElement{"saveOnExit",      &ImGuiDebugger::saveOnExit},
+		PersistentElement{"showControl",       &ImGuiDebugger::showControl},
+		PersistentElement{"showRegisters",     &ImGuiDebugger::showRegisters},
+		PersistentElement{"showSlots",         &ImGuiDebugger::showSlots},
+		PersistentElement{"showStack",         &ImGuiDebugger::showStack},
+		PersistentElement{"showFlags",         &ImGuiDebugger::showFlags},
+		PersistentElement{"showXYFlags",       &ImGuiDebugger::showXYFlags},
+		PersistentElementMax{"flagsLayout",    &ImGuiDebugger::flagsLayout, 2},
+		PersistentElement{"showChanges",       &ImGuiDebugger::showChanges},
+		PersistentElement{"changesColor",      &ImGuiDebugger::changesColor},
+		PersistentElement{"breakpointFile",    &ImGuiDebugger::breakpointFile},
+		PersistentElement{"reloadBreakpoints", &ImGuiDebugger::reloadBreakpoints},
 
 		// manually handle "showDebuggable.xxx"
 	};
