@@ -243,7 +243,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			foreach_file(FileOperations::join(openmsx::FileOperations::getUserOpenMSXDir(), "breakpoints"),
 				[&](const std::string& fullName) {
 					if (fullName.ends_with(".breakpoints")) {
-						names.emplace_back(fullName);
+						names.emplace_back(FileOperations::stripExtension(FileOperations::getFilename(fullName)));
 					}
 				});
 			std::ranges::sort(names, StringOp::caseless{});
@@ -255,8 +255,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 				im::ListBox("##select-bp", [&]{
 					for (const auto& [id, name] : enumerate(names)) {
 						im::ID(id, [&]{
-							if (auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
-							    ImGui::Selectable(displayName.c_str())) {
+							if (ImGui::Selectable(name.c_str())) {
 								selectedFile = name;
 							}
 						});
