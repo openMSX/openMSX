@@ -310,25 +310,23 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("GUI", [&]{
 			auto getExistingLayouts = [] {
 				std::vector<std::string> names;
-				for (auto context = userDataFileContext("layouts");
-				     const auto& path : context.getPaths()) {
-					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
+				foreach_file(FileOperations::join(openmsx::FileOperations::getUserOpenMSXDir(), "layouts"),
+					[&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(".ini")) {
 							names.emplace_back(fullName);
 						}
 					});
-				}
 				std::ranges::sort(names, StringOp::caseless{});
 				return names;
 			};
 			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
 				std::optional<std::pair<std::string, std::string>> selectedLayout;
 				im::ListBox("##select-layout", [&]{
-					for (const auto& name : names) {
+					for (const auto& [id, name] : enumerate(names)) {
 						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
-						if (ImGui::Selectable(displayName.c_str())) {
-							selectedLayout = std::pair{name, displayName};
-						}
+						im::ID(id, [&]{
+							if (ImGui::Selectable(displayName.c_str())) selectedLayout = std::pair{name, displayName};
+						});
 						im::PopupContextItem([&]{
 							if (ImGui::MenuItem("delete")) {
 								confirmText = strCat("Delete layout: ", displayName);
