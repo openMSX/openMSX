@@ -63,6 +63,7 @@ inline void RightAlignText(std::string_view text, std::string_view maxWidthText)
 namespace openmsx {
 
 class BooleanSetting;
+class Debuggable;
 class FloatSetting;
 class HotKey;
 class IntegerSetting;
@@ -307,6 +308,11 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 
 std::string getKeyChordName(ImGuiKeyChord keyChord);
 std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
+
+[[nodiscard]] std::string formatToString(function_ref<uint8_t(unsigned)>, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp);
+
+[[nodiscard]] std::string rawToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end);
 
 // Read from VRAM-table, including mirroring behavior
 //  shared between ImGuiCharacter, ImGuiSpriteViewer
