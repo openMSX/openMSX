@@ -137,47 +137,6 @@ void DebuggableEditor::paint(MSXMotherBoard* motherBoard)
 	});
 }
 
-
-[[nodiscard]] static std::string formatToString(
-	Debuggable& debuggable, unsigned begin, unsigned end,
-	std::string_view prefix, unsigned columns, std::string_view suffix,
-	std::string_view formatStr, Interpreter& interp)
-{
-	std::string result;
-	unsigned col = 0;
-	for (unsigned addr = begin; addr <= end; ++addr) {
-		if (col == 0) strAppend(result, prefix);
-
-		auto val = debuggable.read(addr);
-		auto cmd = makeTclList("format", formatStr, val);
-		auto formatted = cmd.executeCommand(interp); // may throw
-		strAppend(result, formatted.getString());
-
-		if (++col == columns) {
-			col = 0;
-			strAppend(result, suffix, '\n');
-		} else if (addr != end) {
-			strAppend(result, ", ");
-		}
-	}
-	if (col != 0) {
-		strAppend(result, suffix, '\n');
-	}
-	return result;
-}
-
-[[nodiscard]] static std::string rawToString(
-	Debuggable& debuggable, unsigned begin, unsigned end)
-{
-	std::string result;
-	result.reserve(end - begin + 1);
-	for (unsigned addr = begin; addr <= end; ++addr) {
-		auto val = debuggable.read(addr);
-		result += static_cast<char>(val);
-	}
-	return result;
-}
-
 void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 {
 	auto& interp = manager.getInterpreter();
@@ -336,12 +295,12 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 			  (exportDestination != OUTPUT_FILE || !exportFilename.empty());
 		im::Disabled(!ok, [&]{
 			if (ImGui::Button("Export")) {
+				auto fetch = [&](unsigned address) { return debuggable.read(address); };
 				try {
 					auto output = (exportFormatted == EXPORT_FORMATTED)
-						? formatToString(
-							debuggable, *begin, *end, exportPrefix, exportColumns,
-							exportSuffix, formatStr, interp)
-						: rawToString(debuggable, *begin, *end);
+						? formatToString(fetch, *begin, *end, exportPrefix, exportColumns, exportSuffix,
+								formatStr, interp)
+						: rawToString(fetch, *begin, *end);
 					if (exportDestination == OUTPUT_CLIPBOARD) {
 						manager.getReactor().getDisplay().getVideoSystem().setClipboardText(output);
 					} else {
