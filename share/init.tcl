@@ -197,8 +197,8 @@ namespace eval openmsx {
 
 # Source all .tcl files in user and system scripts directory. Prefer
 # the version in the user directory in case a script exists in both
-set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
-set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
+set user_scripts [glob -dir $::env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
+set system_scripts [glob -dir $::env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
 set profile_list [list]
 foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 	# Skip scripts that start with a '_' character. (By convention) those

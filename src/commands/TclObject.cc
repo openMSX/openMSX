@@ -140,14 +140,14 @@ std::optional<double> TclObject::getOptionalDouble() const
 
 zstring_view TclObject::getString() const
 {
-	int length;
+	long int length;
 	const char* buf = Tcl_GetStringFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
 
 std::span<const uint8_t> TclObject::getBinary() const
 {
-	int length;
+	long int length;
 	const auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
@@ -155,7 +155,7 @@ std::span<const uint8_t> TclObject::getBinary() const
 unsigned TclObject::getListLength(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;
-	int result;
+	long int result;
 	if (Tcl_ListObjLength(interp, obj, &result) != TCL_OK) {
 		throwException(interp);
 	}
@@ -163,7 +163,7 @@ unsigned TclObject::getListLength(Interpreter& interp_) const
 }
 unsigned TclObject::getListLengthUnchecked() const
 {
-	int result;
+	long int result;
 	if (Tcl_ListObjLength(nullptr, obj, &result) != TCL_OK) {
 		return 0; // error
 	}
