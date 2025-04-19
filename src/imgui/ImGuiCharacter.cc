@@ -412,6 +412,22 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
 			}
 		};
+		auto formatBinaryData = [&](uint16_t address) {
+			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, "%02X", manager.getInterpreter());
+		};
+		auto copyPatternColorPopup = [&](uint8_t pattern) {
+			if (ImGui::BeginPopupContextWindow("PatternCopyPopup")) {
+				if (ImGui::MenuItem("copy pattern and color data to clipboard")) {
+					auto patData = formatBinaryData(patTable.getAddress(8 * pattern));
+					auto colData = mode == one_of(SCR1, SCR2, SCR4)
+						? formatBinaryData(colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)))
+						: "";
+					ImGui::SetClipboardText(tmpStrCat("Pattern Data\n", patData,
+						(colData.empty() ? "" : "Color Data\n"), colData).c_str());
+				}
+				ImGui::EndPopup();
+			}
+		};
 
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -427,8 +443,8 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					if (hovered) {
 						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						auto pat = gridPos.x + 32 * gridPos.y;
-						printPatternNr(pat);
+						currentPattern = gridPos.x + 32 * gridPos.y; // store last selected pattern before popup
+						printPatternNr(currentPattern);
 						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
 						auto uv2 = uv1 + recipPatTexChars;
 						auto pos2 = ImGui::GetCursorPos();
@@ -438,10 +454,11 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							ImGui::Image(gridTex.getImGui(),
 								zoomCharSize, {}, charSize);
 						}
-						printPatternColorAddress(pat);
+						printPatternColorAddress(currentPattern);
 					} else {
 						ImGui::Dummy(zoomCharSize);
 					}
+					copyPatternColorPopup(currentPattern);
 				});
 				if (grid) {
 					ImGui::SetCursorPos(pos1);
