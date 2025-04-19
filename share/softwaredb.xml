@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1744475857">
+<softwaredb timestamp="1745106174">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4624,6 +4624,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><megarom><type>ASCII16</type><hash>d34818399bcdfecca7232d2ea11946fbe24c8920</hash><remark>Spanish Translation by José Luis Salguero</remark></megarom></dump>
 	<dump><megarom><type>ASCII16</type><hash>4046f9d478a4d027bbb53a1094a255746f2b7c84</hash><remark>English Translation</remark></megarom></dump>
 	<dump><megarom><type>Konami</type><hash>e76a9490bb4ad620104f2a2d16fcdcce2f93543f</hash><remark>[a]</remark></megarom></dump>
+	<dump><megarom><type>ASCII16</type><hash>c811d07f7c9a4911759b745c5e4bc0e1685cbe84</hash><remark>English by Novalia Spirit - Fixes by BiFi</remark></megarom></dump>
 </software>
 <software>
 	<title>Gomok Narabe - Omo Go</title>
@@ -6003,6 +6004,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1987</year>
 	<country>ES</country>
 	<dump><rom><hash>912433d680fd52bf91e9b926a98bb081ffdeb1dc</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>0021c0dfdfbac3af6759eb63df1415f3497d3981</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Jagur</title>
@@ -7772,6 +7774,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><megarom><type>Konami</type><hash>fcc7a5dca8d0f6dc0d64f67cd78b3e2f721c2cb0</hash></megarom></dump>
 	<dump><megarom><type>Konami</type><hash>b3b0963ef4f1d7dff1cbca85141f1e990175b070</hash></megarom></dump>
 	<dump><megarom><type>Konami</type><hash>0d48ad875021178af5e3cd66bad4d1e3bf16a1c4</hash></megarom></dump>
+	<dump><megarom><type>Konami</type><hash>111e73b545c7893f69b270be847e22103eb5fd30</hash><remark>1.995</remark></megarom></dump>
 </software>
 <software>
 	<title>Metal Gear 2 - Solid Snake</title>
@@ -7819,6 +7822,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><megarom><type>KonamiSCC</type><hash>b65cd6d9b26ec10e57e6a0117e21074dd3bb4f05</hash></megarom></dump>
 	<dump><megarom><type>KonamiSCC</type><hash>4c98fef02840e7c39051fc21ee0dbffc9e27f98d</hash></megarom></dump>
 	<dump><megarom><type>KonamiSCC</type><hash>e0323ae074b37d081df149ffb716718cd283321c</hash></megarom></dump>
+	<dump><megarom><type>KonamiSCC</type><hash>644ee67d4e32060354f4f858cc6da7749f2adf1c</hash><remark>English v1.4 + Turbo Fix v1.1</remark></megarom></dump>
 </software>
 <software>
 	<title>Metal Gear 2 - Solid Snake (Demo)</title>
@@ -9941,6 +9945,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>60a1311c35af95b03e624f0af2e4c0a090392a86</hash><remark>Enhanced by Bitcaffe Nenefranz theNestruo and Taylor</remark></rom></dump>
 	<dump><rom><type>Mirrored</type><hash>0e63032a21ea4e42b67df98a24c2c30c6d88c319</hash></rom></dump>
 	<dump><rom><type>Mirrored</type><hash>2542bf6d2aba9a16fada61235200969c9388fd12</hash><remark>Enhanced</remark></rom></dump>
+	<dump><rom><type>Mirrored</type><hash>4f1f4080b9f1c04a076c7d8cc7b43887c0984866</hash><remark>Enhanced Plus</remark></rom></dump>
 </software>
 <software>
 	<title>Pyro-Man</title>
@@ -10791,6 +10796,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>JP</country>
 	<dump><rom><hash>033f5c35c5ddce6cef8b53faac2edd85047e5805</hash></rom></dump>
+	<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>aa45362b4ea7c7274e4988966bd08e114e56d04a</hash><remark>a1</remark></rom></dump>
 </software>
 <software>
 	<title>Sea Horse</title>
@@ -11399,7 +11405,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2008</year>
 	<country>ES</country>
 	<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fe39af5eb457bba8c5b96b5b500120cfc05c265e</hash></megarom></dump>
-	<dump><rom><type>page2</type><hash>d6abd5932dd9be57341058497ca6a25956fa6c9d</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>d6abd5932dd9be57341058497ca6a25956fa6c9d</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Space Trouble</title>
@@ -21831,6 +21837,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1983</year>
 	<country>JP</country>
 	<dump><rom><type>page2</type><hash>57851440420ac87dc52b5a84aecffba7bcac7305</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>942ebbf2a88da10779e59c63bc9c99b82329bee4</hash><remark>Sound fix by gdx</remark></rom></dump>
 </software>
 <software>
 	<title>Arcomage</title>
@@ -26945,7 +26952,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Colmena</title>
 	<system>MSX</system>
 	<company>Jose Javier Franco Benitez</company>
-	<year></year>
+	<year>1985</year>
 	<country>ES</country>
 	<dump><rom><type>page2</type><hash>e80bad3f99bd19516d2b921f03914ed888547bb9</hash></rom></dump>
 	<dump><rom><type>page2</type><hash>ebd05dbd32ec9324eccb421f98e30801df9bc497</hash></rom></dump>
@@ -27101,7 +27108,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2023</year>
 	<country>AU</country>
 	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>bfa04a14c4db5c6ec2bf7d5bd419ecd30c67e8f6</hash><remark>Tech Demo</remark></megarom></dump>
-	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>9a797ace6e731f90abde03debfe2baf8890afafa</hash></megarom></dump>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>9a797ace6e731f90abde03debfe2baf8890afafa</hash><remark>Tech Demo</remark></megarom></dump>
+	<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>a13d9bdc76e3a1da396ad64ea27b97b21d909441</hash><remark>Tech Demo  v1.02</remark></megarom></dump>
 </software>
 <software>
 	<title>Tetris</title>
@@ -28250,7 +28258,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>NL</country>
 	<dump><rom><type>page2</type><hash>f9181fd0a57e4791db3f6881374bc051fa653af6</hash><remark>MSX Computer Magazine Nr 1</remark></rom></dump>
-	<dump><rom><type>page2</type><hash>40b23382ddca6135f0eea13071e3289eb834ce1c</hash><remark>MSX Computer Magazine Nr 1</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>40b23382ddca6135f0eea13071e3289eb834ce1c</hash></rom></dump>
 </software>
 <software>
 	<title>MSX Hot Numbers</title>
@@ -28565,6 +28573,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>NL</country>
 	<dump><rom><type>page2</type><hash>6dab05a2d310fb49bd89915d6785aa75c8e23454</hash><remark>English Translated by MSX Nostalgia</remark></rom></dump>
 	<dump><rom><type>page2</type><hash>d7c882136b6c73121e6712d95d816b0b12d350d0</hash><remark>Orginal Dutch Text Adventure</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>5dcb494baa18a687fa8c6ee32177cbdc83b25128</hash></rom></dump>
 </software>
 <software>
 	<title>Shrines of Enigma</title>
@@ -28692,7 +28701,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Eletron</title>
 	<system>MSX</system>
 	<company>Jose Javier Franco Benitez</company>
-	<year></year>
+	<year>1985</year>
 	<country>ES</country>
 	<dump><rom><type>page2</type><hash>0057e7b2ebe311f7c60bb77230deb47f7dc4d1ac</hash></rom></dump>
 </software>
@@ -28703,7 +28712,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>BE</country>
 	<dump><rom><type>page2</type><hash>819da2950827d1e91794ddd66af45b07a6fac85f</hash></rom></dump>
-	<dump><rom><type>page2</type><hash>3e8d8166e09ac607c448ecafef20c36b0340acc6</hash><remark>Side J</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>3e8d8166e09ac607c448ecafef20c36b0340acc6</hash></rom></dump>
 </software>
 <software>
 	<title>Police Dogs</title>
@@ -28980,7 +28989,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jos'b</company>
 	<year>2006</year>
 	<country>ES</country>
-	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>66db64f18a6ebf25ed7abc3723ec1b7da7ffaa56</hash></rom></dump>
+	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>66db64f18a6ebf25ed7abc3723ec1b7da7ffaa56</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Gruta Mortal</title>
@@ -28988,7 +28997,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jose Vicente Rosell</company>
 	<year>1987</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>b41cc3b284de3d5ea5e78c25ca7fc9330758230e</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>b41cc3b284de3d5ea5e78c25ca7fc9330758230e</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>1Kpong</title>
@@ -29032,7 +29041,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>G.W.J. van der Pol</company>
 	<year>1987</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>dff0bd03cae606096c2fc76e0d1bf45372fe4867</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>dff0bd03cae606096c2fc76e0d1bf45372fe4867</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Gas Oil</title>
@@ -29040,7 +29049,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Juanjo Marcos</company>
 	<year>1987</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>692253d44fd28187ec89835d29c56551a20130bf</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>692253d44fd28187ec89835d29c56551a20130bf</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Snoopy</title>
@@ -29048,7 +29057,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Tom Verheyen</company>
 	<year>1987</year>
 	<country>BE</country>
-	<dump><rom><type>page2</type><hash>669e6e72b2e485b157081ccdd748504c582acc21</hash><remark>MCM</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>669e6e72b2e485b157081ccdd748504c582acc21</hash></rom></dump>
 </software>
 <software>
 	<title>Tom et Cherie</title>
@@ -29065,7 +29074,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jose Javier Franco Benitez</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>54bb42f8b2bd4213cf0525d4a9abfb782f9df51b</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>54bb42f8b2bd4213cf0525d4a9abfb782f9df51b</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Baloon Punch</title>
@@ -29248,7 +29257,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Juan Carlos Jurado</company>
 	<year>2019</year>
 	<country>ES</country>
-	<dump><original value="true">Author</original><rom><type>page2</type><hash>2af2cfad2db6c6eed1ff75406570ac7cddaeaea6</hash><remark>MSX-BASIC 15th Anniversary Contest</remark></rom></dump>
+	<dump><original value="true">Author</original><rom><type>page2</type><hash>2af2cfad2db6c6eed1ff75406570ac7cddaeaea6</hash></rom></dump>
 </software>
 <software>
 	<title>BC's Quest For Tires II - Grog's Revenge</title>
@@ -29289,7 +29298,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>MSX Gids</company>
 	<year>1986</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>03e1381ae3bdea2d1b8f8922611709c1ae528c28</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>03e1381ae3bdea2d1b8f8922611709c1ae528c28</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Tunnels &amp; Trolls</title>
@@ -29337,7 +29346,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Frederic Markus</company>
 	<year>1985</year>
 	<country>FR</country>
-	<dump><rom><type>page2</type><hash>2edb7e981701def8b749104af82ae3fdc1fcfde8</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>2edb7e981701def8b749104af82ae3fdc1fcfde8</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>3D Night City Designer</title>
@@ -29345,7 +29354,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Troll Soft</company>
 	<year>2011</year>
 	<country>AR</country>
-	<dump><rom><type>page2</type><hash>2cc48928eac2447f95e6f975ae704a53fabf4275</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>2cc48928eac2447f95e6f975ae704a53fabf4275</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Illusion City</title>
@@ -29426,7 +29435,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>La Cucaracha - Music Demo</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><megarom><type>8kB</type><hash>53bbbcb945294c5c5eb5eb419d393dd8b9fdaf4b</hash></megarom></dump>
@@ -29447,7 +29456,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Real Fun Replayer 3 - with songs</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><megarom><type>KonamiSCC</type><hash>1deb7773f6278f7302682284bfbe8d33ff701b2d</hash><remark>rf3rep56_2</remark></megarom></dump>
@@ -29500,7 +29509,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Nyan Cat</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><rom><type>Mirrored</type><hash>3192fb57a2213a6d0a9b7a77347bee539577da74</hash><remark>sg2msx</remark></rom></dump>
@@ -29589,10 +29598,10 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Starman</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
-	<dump><rom><type>page2</type><hash>7d917544a7db317f3024609b0aca12a584702506</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>7d917544a7db317f3024609b0aca12a584702506</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Amazing Bumpman</title>
@@ -29708,7 +29717,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>NL</country>
 	<dump><megarom><type>KonamiSCC</type><hash>50df8f66f1f8b6a2d8b6b5c5a71586d3a96027c4</hash><remark>Radio Amateur Magazine 58</remark></megarom></dump>
-	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>cb4323ba67d06695f1a34ca6ca52f1784f7837e5</hash></rom></dump>
+	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>cb4323ba67d06695f1a34ca6ca52f1784f7837e5</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Quatre</title>
@@ -29815,7 +29824,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Felipe Chacón</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>6a1d7bfbf7b6591431a3e5905cdc62571f953aec</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>6a1d7bfbf7b6591431a3e5905cdc62571f953aec</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Sipper</title>
@@ -29823,7 +29832,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jose Delgado</company>
 	<year>1986</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>5fd0665cd7dc582756ad7e9e269d6bfabce79a8b</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>5fd0665cd7dc582756ad7e9e269d6bfabce79a8b</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>o.v.n.i.</title>
@@ -29831,7 +29840,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Maria Teresa Guillen</company>
 	<year>1987</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>7e8b9f3976b94670783e7b1bf40377af0e91dd12</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>7e8b9f3976b94670783e7b1bf40377af0e91dd12</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Cold Blood</title>
@@ -29847,7 +29856,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Cyrille Danes</company>
 	<year>1984</year>
 	<country>FR</country>
-	<dump><rom><type>page2</type><hash>1d5e76342f0e3696423055828116c2d196e5a030</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>1d5e76342f0e3696423055828116c2d196e5a030</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Combat Aero-Naval</title>
@@ -29855,7 +29864,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Michel Ladegaillerie</company>
 	<year>1985</year>
 	<country>FR</country>
-	<dump><rom><type>page2</type><hash>b3abff8174180984fd7dc6ab8867ef2bd975bc84</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>b3abff8174180984fd7dc6ab8867ef2bd975bc84</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Poker 5</title>
@@ -29863,7 +29872,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Joseph Paumier</company>
 	<year>1985</year>
 	<country>FR</country>
-	<dump><rom><type>page2</type><hash>8c611226b1c9ccd3499e9e2c1b93429601fd3022</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>8c611226b1c9ccd3499e9e2c1b93429601fd3022</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Sky Fighter</title>
@@ -29877,7 +29886,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Game Arts Logo Test</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><rom><type>Mirrored</type><hash>8c4676300e5632cb49b718f96e0b6f0b4b3576ca</hash></rom></dump>
@@ -29893,7 +29902,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Italio Disco</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><rom><type>Mirrored</type><hash>41df4eb122de6046405928802f08d30db28c6858</hash></rom></dump>
@@ -29901,7 +29910,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Navidad</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>81f6544d3fbbc13a077769cf939509e5d7994175</hash></rom></dump>
@@ -29975,7 +29984,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>rcars</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><original value="false">BAD Dump</original><megarom><type>8kB</type><hash>cb88bb2de9de5c47c5a2964ec8a97d8a1b3163b1</hash></megarom></dump>
@@ -29983,7 +29992,7 @@ The softwaredb.xml file contains information about rom mapper types
 <software>
 	<title>Unknown ROMs that don't work</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
 	<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>f8af211311b0f62fb411cde580e46900a285a107</hash><remark>basebac</remark></rom></dump>
@@ -30009,7 +30018,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Eduard Playa Gonzalez</company>
 	<year>1986</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>fc59907f11c5cfb6a0a7dd9322103aa86fbb0c68</hash><remark>MSX Extra 18</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>fc59907f11c5cfb6a0a7dd9322103aa86fbb0c68</hash></rom></dump>
 </software>
 <software>
 	<title>El Comebichos</title>
@@ -30017,7 +30026,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>MSX Club Magazine Spain</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>fb50e26675a5a9d49151977d69fdf72adb748307</hash><remark>Magazine 03-04</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>fb50e26675a5a9d49151977d69fdf72adb748307</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>c1c19e48a441156c8c6de37c9738097d033e22e2</hash></rom></dump>
 </software>
 <software>
 	<title>SBANKY</title>
@@ -30025,15 +30035,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Enrique I Graciano</company>
 	<year>1986</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>ee45cf65263a8b378925fde8f08340d76a3e7a29</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>ee45cf65263a8b378925fde8f08340d76a3e7a29</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Sum-Up</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
-	<dump><rom><type>page2</type><hash>9aa28b99b8068d1ffe5bc83ac9a2bf57f2e2f108</hash><remark>Dutch Game - Partially German</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>9aa28b99b8068d1ffe5bc83ac9a2bf57f2e2f108</hash></rom></dump>
 </software>
 <software>
 	<title>Zahlen Verschieben</title>
@@ -30041,7 +30051,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jan Kostwinder</company>
 	<year>1985</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>4f5347b4cedea5b3112024ca732240af844dc752</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>4f5347b4cedea5b3112024ca732240af844dc752</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Ahorcado</title>
@@ -30049,7 +30059,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jose R. Garcia Espineira</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>5e40f1423004def308ffb7193d6e0daf5e7ee964</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>5e40f1423004def308ffb7193d6e0daf5e7ee964</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Mastermind</title>
@@ -30057,7 +30067,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Jose R. Garcia Espineira</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>4d0be0db8214693b912f50cbc3375a2b1c215802</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>4d0be0db8214693b912f50cbc3375a2b1c215802</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Snow</title>
@@ -30065,7 +30075,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Frieve</company>
 	<year></year>
 	<country>JP</country>
-	<dump><rom><type>page2</type><hash>d9266b8729133da6c4e9bc067fd56eaf039d7919</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>d9266b8729133da6c4e9bc067fd56eaf039d7919</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Star Wars</title>
@@ -30073,7 +30083,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Michel Jansen</company>
 	<year>1986</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>a3c7077a4ecdd72daf8b2b68547362a6c4e8658a</hash><remark>MSX Gids</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>a3c7077a4ecdd72daf8b2b68547362a6c4e8658a</hash></rom></dump>
 </software>
 <software>
 	<title>Sky</title>
@@ -30081,7 +30091,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Frieve</company>
 	<year></year>
 	<country>JP</country>
-	<dump><rom><type>page2</type><hash>e63a2abd8b423e1c30e4017c625b24ef821562c6</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>e63a2abd8b423e1c30e4017c625b24ef821562c6</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Memory-Spel</title>
@@ -30089,7 +30099,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Corneel de Bont</company>
 	<year>1985</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>462921048c85c5e56cf23c8037a5991e5eddef1f</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>462921048c85c5e56cf23c8037a5991e5eddef1f</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Ijsfabriek</title>
@@ -30097,7 +30107,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>H. Kloosterman</company>
 	<year>1986</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>288b2e9e259e88df2a75586b46e1d1d28d16a001</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>288b2e9e259e88df2a75586b46e1d1d28d16a001</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Gokmachine</title>
@@ -30105,7 +30115,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>MSX Computer Magazine</company>
 	<year>1985</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>9262674750ded2be675dbfecf353f39cb3e84780</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>9262674750ded2be675dbfecf353f39cb3e84780</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>UFO</title>
@@ -30113,7 +30123,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>J. Stalwerk</company>
 	<year>1985</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>a063b05de41db1af0c5162fde7750c49cd9fd7cd</hash><remark>MSX Magazine 3</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>a063b05de41db1af0c5162fde7750c49cd9fd7cd</hash></rom></dump>
 </software>
 <software>
 	<title>Lancering</title>
@@ -30121,15 +30131,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>W. Vliegenthart</company>
 	<year>1985</year>
 	<country>NL</country>
-	<dump><rom><type>page2</type><hash>9871040618c0e02e0e99a9bac8d466dea35fe73d</hash><remark>Made on 23-9-85</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>9871040618c0e02e0e99a9bac8d466dea35fe73d</hash></rom></dump>
 </software>
 <software>
 	<title>Le Carre</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
-	<dump><rom><type>page2</type><hash>133ae1eaac5f6e497e813ee72581098470e69b62</hash><remark>French</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>133ae1eaac5f6e497e813ee72581098470e69b62</hash></rom></dump>
 </software>
 <software>
 	<title>Laby Man</title>
@@ -30137,7 +30147,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Renan Jegouzo</company>
 	<year>1985</year>
 	<country>FR</country>
-	<dump><rom><type>page2</type><hash>85d04a385da0a80e24de3a2bc5bf9c1b728b9eb7</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>85d04a385da0a80e24de3a2bc5bf9c1b728b9eb7</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Catmania</title>
@@ -30145,7 +30155,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Unknown</company>
 	<year></year>
 	<country>JP</country>
-	<dump><rom><type>page2</type><hash>2791f14333226b035b9430df4f9ee65974c47676</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>2791f14333226b035b9430df4f9ee65974c47676</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Brisca</title>
@@ -30153,7 +30163,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Stars</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>1409525dfea4729ccb49e652aee3d685a7389155</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>1409525dfea4729ccb49e652aee3d685a7389155</hash><remark>BASIC2ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Nox Falcon</title>
@@ -30161,15 +30171,523 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Domingo G. Diaz</company>
 	<year>1985</year>
 	<country>ES</country>
-	<dump><rom><type>page2</type><hash>af5eb9167f696123e87d5f4015f8e4ce2636c917</hash><remark>/MSX Club 6</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>af5eb9167f696123e87d5f4015f8e4ce2636c917</hash></rom></dump>
 </software>
 <software>
-	<title>Farolas</title>
+	<title>Lampjes-Farolas</title>
 	<system>MSX</system>
-	<company>- Please Select A company</company>
+	<company>J. Saul</company>
+	<year></year>
+	<country>NL</country>
+	<dump><rom><type>page2</type><hash>0db1e8414d746ea5fdb5ce91765d18fb4698c84f</hash><remark>BASIC2ROM</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>56fc7bf2929db3265f2baa3940907bd82b55d36f</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Sharp Hotbit HB-8000 Demo</title>
+	<system>MSX</system>
+	<company>Sharp</company>
+	<year>1985</year>
+	<country>JP</country>
+	<dump><rom><type>page2</type><hash>c1af87d32eb5816c1d4fec436154f19df327df04</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El oro de Alíbabá</title>
+	<system>MSX</system>
+	<company>MSX Club Magazine Spain</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>4bb21565bf144305c822a8736ffe6a8616be7457</hash></rom></dump>
+</software>
+<software>
+	<title>D.D.T</title>
+	<system>MSX</system>
+	<company>Jose Ignacio Torrecilla Puente</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>d4acd9eb45fe36628d3bead4d66ffff1b31af1c5</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Automatic Sounds DJ</title>
+	<system>MSX</system>
+	<company>Troll Soft</company>
+	<year>2012</year>
+	<country>AR</country>
+	<dump><rom><type>page2</type><hash>94793f07b8b8dbb88eee95b939b0035c81996e61</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Mouse Trap!</title>
+	<system>MSX</system>
+	<company>Frank Templeman</company>
+	<year>1985</year>
+	<country>NL</country>
+	<dump><rom><type>page2</type><hash>560927dfe94ec017d2a2d6e5ccd236c14c833fbb</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Figuur Rekenen</title>
+	<system>MSX</system>
+	<company>Unknown</company>
 	<year></year>
 	<country></country>
-	<dump><rom><type>page2</type><hash>0db1e8414d746ea5fdb5ce91765d18fb4698c84f</hash></rom></dump>
+	<dump><rom><type>page2</type><hash>070ab42228ec7a9647987ecec780e36b16e89dc1</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>France</title>
+	<system>MSX</system>
+	<company>Stephane Gillot</company>
+	<year>1984</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>edc9cee6e317cb617e5ebe18de18a3e233ed6f7a</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Mystery Tower</title>
+	<system>MSX</system>
+	<company>Michel Jansen</company>
+	<year>1987</year>
+	<country>NL</country>
+	<dump><rom><type>page2</type><hash>28184c9562def27ba6b759574b14210a851cb5bb</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Bowling</title>
+	<system>MSX</system>
+	<company>Drack Soft Catalunya</company>
+	<year>1989</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>60fa48469029f2339fd3287e10f2ddd3aa0f4468</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Boufy</title>
+	<system>MSX</system>
+	<company>Renan Jegouzo</company>
+	<year>1985</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>809f9d476df6f360678749efacaebb75d0b8637f</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Autos</title>
+	<system>MSX</system>
+	<company>Alonso</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>9273c24f547cd81fbdd4c4e4a2390b322044f57d</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Jet Monster</title>
+	<system>MSX</system>
+	<company>MSX Club Magazine Spain</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>7edfd7718e52d1828dc80521747f498109ddb49d</hash></rom></dump>
+</software>
+<software>
+	<title>Key-Force</title>
+	<system>MSX</system>
+	<company>Christian Cordova</company>
+	<year>1988</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>47b6343b49767e7c7657295c7b65bcceb70425d7</hash></rom></dump>
+</software>
+<software>
+	<title>Gallery</title>
+	<system>MSX</system>
+	<company>Vincent &amp; Daniel Marzin</company>
+	<year>1985</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>5b28fd1d9768284de8beefc406c08c02edc61af2</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Blocus</title>
+	<system>MSX</system>
+	<company>Stehane Cayla</company>
+	<year>1985</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>5fd558fc90647359c7c63e8da4d976258548b3ef</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Europa</title>
+	<system>MSX</system>
+	<company>Jesus P. Barroso</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>72ed121b6fdae88b428cfc9f25a900027135bc22</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Braystoke</title>
+	<system>MSX</system>
+	<company>Álex Serrano</company>
+	<year>1987</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>387acd07cdb7e87f96137c9a9ae9978c746b7f63</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Mars Landing</title>
+	<system>MSX</system>
+	<company>Roland Morla</company>
+	<year>1985</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>a8d71fe6b5ecbcac03cda8291fc9b6338a8be544</hash></rom></dump>
+</software>
+<software>
+	<title>Faeton</title>
+	<system>MSX</system>
+	<company>Jose Javier Franco Benitez</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>057616c96c56f6caa0dda46a3ca9ea6c5a7765e4</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>La Mansion</title>
+	<system>MSX</system>
+	<company>Toni Ratllan</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>c62129ca9aa42a03aad06a619827bb96845f4f6d</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Pechanko</title>
+	<system>MSX</system>
+	<company>Pampuu</company>
+	<year>1986</year>
+	<country>JP</country>
+	<dump><rom><type>page2</type><hash>8aa0990cb9afcbc0045f9588181f93cad130d6ee</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Anti Triangulo</title>
+	<system>MSX</system>
+	<company>Joss Ace Software</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>b165351a1a1e753f4262febc10260f45bb19b0ae</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El Rey Del Castillo</title>
+	<system>MSX</system>
+	<company>Fradesoft</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>a3680bd3d9cb5839bdeb387bcbcea923667adb3a</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>D-Start</title>
+	<genmsxid>5682</genmsxid>
+	<system>MSX</system>
+	<company>Philips Germany</company>
+	<year>1984</year>
+	<country>DE</country>
+	<dump><rom><type>page2</type><hash>5d66a60e4f6b5a9d2959782802aae130d6654e65</hash></rom></dump>
+</software>
+<software>
+	<title>Sense Of Pitch Training (Onkan Training)</title>
+	<system>MSX</system>
+	<company>Rittor Music / MCS</company>
+	<year>1984</year>
+	<country>JP</country>
+	<dump><rom><type>page2</type><hash>02f2576cc9e110c5b1b363a08b047c23108634e5</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Sub Battle</title>
+	<system>MSX</system>
+	<company>Julio Cesar Aldariz</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>98675b1c342df4f595dfbaeee1724f0a24acc4dd</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El Nucleon</title>
+	<system>MSX</system>
+	<company>Gonzalo Torre</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>bbd0595562cf4acfc7c4073b3d7b92efff39d140</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Trogloditas</title>
+	<system>MSX</system>
+	<company>Kotai</company>
+	<year>1989</year>
+	<country>ES</country>
+	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>78c09d5a2e89d6fc449bd323748f2939ab9086bf</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>La Torre de Angel</title>
+	<system>MSX</system>
+	<company>M-Ozo</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>46f2dc80ffa5a7c902e2a6774e45108a8dfbd7f2</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Palillos</title>
+	<system>MSX</system>
+	<company>Jose Maria Barroso Tamayo</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>8cb57a9682cac827e6671c5548a2333bf8e74b28</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Genio</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year></year>
+	<country></country>
+	<dump><rom><type>page2</type><hash>7d01b279ac8f50a2d1715d469a50d2f681775f3a</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El sabiondo III</title>
+	<system>MSX</system>
+	<company>P. Cerrillo</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>4116e22c070900d0dcf8222ca2fa8984b73e2bfa</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Codigo Morse</title>
+	<system>MSX</system>
+	<company>MSX Club Magazine Spain</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>e8bf8b088fc1542f4d5d3ef69bf049d4cca93e21</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Pizarra</title>
+	<system>MSX</system>
+	<company>Joss Ace Software</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>d9ab1d13ad7fba3d21b75b3e66a621954064382f</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Vissen</title>
+	<system>MSX</system>
+	<company>MSX Computer Magazine</company>
+	<year>1986</year>
+	<country>NL</country>
+	<dump><rom><type>page2</type><hash>d8f6c29f9b5778370ceb50373d5aaa6e09c37848</hash></rom></dump>
+</software>
+<software>
+	<title>El Patibulo</title>
+	<system>MSX</system>
+	<company>Joss Ace Software</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>54728938f2840e8da40edc7b3c613e2faca6fcbc</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Aguila Espacial</title>
+	<system>MSX</system>
+	<company>Belarmino Fernandez Villaronga</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>27de0b578877d7da892d5686e3caa89628704d5f</hash><remark>BASIC2ROM</remark></rom></dump>
+	<dump><rom><type>page2</type><hash>d297fa2d1ed0d01e26737492d2a26098d39d941d</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Las Cuatro En Raya</title>
+	<system>MSX</system>
+	<company>Editorial Cometa</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>1dc8d72a61c534a82b4efa1f3cde88c79ce815a1</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Curva de Dragon</title>
+	<system>MSX</system>
+	<company>MSX-Extra</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>5d465aa329fa0c35403c4674e164c7347000779d</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Life Game</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year></year>
+	<country></country>
+	<dump><rom><type>page2</type><hash>c559bdcd095f50c970a69846bc6bb5a9e3aa7bd0</hash></rom></dump>
+</software>
+<software>
+	<title>Galaxy Trek  Adventure Nr 1</title>
+	<system>MSX</system>
+	<company>Howard F. Batie</company>
+	<year>1983</year>
+	<country>US</country>
+	<dump><rom><type>page2</type><hash>603671573cf9e434ae79551bc98bbf368208eb93</hash></rom></dump>
+</software>
+<software>
+	<title>La Armada Invencible</title>
+	<system>MSX</system>
+	<company>Editorial Cometa</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>6f469e7e27107a9e1ac52ef9e701c39f13ac08a3</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Rescue Operation</title>
+	<system>MSX</system>
+	<company>Wouter de Monye</company>
+	<year>1986</year>
+	<country>NL</country>
+	<dump><rom><type>page2</type><hash>982da6fad07048b84febf6158704beda3194e6b9</hash></rom></dump>
+</software>
+<software>
+	<title>Coffre Fort</title>
+	<system>MSX</system>
+	<company>Martine Clayron</company>
+	<year>1983</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>6be4dd3f10acd80e7eb3eecca0fe368596d0f6c8</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>La Rana Sideral</title>
+	<system>MSX</system>
+	<company>Osymer Godoy Rivero</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>4cce7dbc3faeff02bcf41ff98f1036fda9c9f643</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Acoso en Nicaragua</title>
+	<system>MSX</system>
+	<company>Juan Antonio Castillo Rivas</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>3df8cef71e63f0cd2258804344a11f1f1cab390b</hash></rom></dump>
+</software>
+<software>
+	<title>Aritmo</title>
+	<genmsxid>3249</genmsxid>
+	<system>MSX</system>
+	<company>DIMensionNEW</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>d3daf45ba0c5559e1d30d9b8b0e5ff6b0007f475</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Casino</title>
+	<system>MSX</system>
+	<company>Maxine Tanguy</company>
+	<year>1983</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>533081ea1d387dec505f51c33f353e9596d63342</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Siete y Media</title>
+	<system>MSX</system>
+	<company>Jose Angel Cruz Mateos</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>508a5468edc8db567248fd5c1a4c54f233aec9cf</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Caracol</title>
+	<system>MSX</system>
+	<company>Sant Boi</company>
+	<year></year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>ce82d3467dc092d123184fcdfd51f79eee0958c4</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>alunizaje</title>
+	<system>MSX</system>
+	<company>Ignacio Jose Ferriz</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>84b46499e72992401b88c20a9908cfe6b6b76fdd</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Karate Night</title>
+	<system>MSX</system>
+	<company>Dario Garcia</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><original value="false">BAD Dump</original><rom><type>page2</type><hash>9e1e1f841b2cf6a1fae416c034553180e5d4deae</hash></rom></dump>
+</software>
+<software>
+	<title>El Halcon Callejero</title>
+	<system>MSX</system>
+	<company>Juan Manuel Navas</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>5e2e064a0994df9ea5f1394bd334cf4c3761ab2c</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El Senor De Los Anillos</title>
+	<system>MSX</system>
+	<company>Manuel Ropero Lopez</company>
+	<year>1986</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>3a155dc3af2bb1badf40d761a141459406f32631</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Morpion 10x10</title>
+	<system>MSX</system>
+	<company>Cyrille Danes</company>
+	<year>1984</year>
+	<country>FR</country>
+	<dump><rom><type>page2</type><hash>13b08e3242c6ea5d3cee1238795b9c0e57818604</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>El Rodillo Chiflado</title>
+	<system>MSX</system>
+	<company>Viceira MSX Granada</company>
+	<year>1985</year>
+	<country>ES</country>
+	<dump><rom><type>page2</type><hash>cbb4a158a7389674589bd6fddf208313729c671c</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Captura en Pluton</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year>1985</year>
+	<country></country>
+	<dump><rom><type>page2</type><hash>d91fcec8eee3f678aa1278f52483adbbc8f2a279</hash><remark>BASIC2ROM</remark></rom></dump>
+</software>
+<software>
+	<title>Cortador</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year></year>
+	<country></country>
+	<dump><rom><type>Mirrored</type><hash>354fd3d8689e7b41c4d85eb16d72db0bb9cefae0</hash><remark>wip</remark></rom></dump>
+</software>
+<software>
+	<title>Blitza</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year></year>
+	<country></country>
+	<dump><rom><type>Mirrored</type><hash>a7738ae222ca87706b8fc8f56e5c7f2a240a31d6</hash><remark>WIP</remark></rom></dump>
+</software>
+<software>
+	<title>Tetrinet</title>
+	<system>MSX</system>
+	<company>RicBit</company>
+	<year>2011</year>
+	<country>BR</country>
+	<dump><original value="false">BAD Dump</original><rom><type>Mirrored</type><hash>10c6bda1d0b3bc4978511e2cebe9e10daeade5ec</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Engine Test</title>
+	<system>MSX</system>
+	<company>Siudym</company>
+	<year></year>
+	<country>PL</country>
+	<dump><original value="false">BAD Dump</original><megarom><type>KonamiSCC</type><hash>2feeb57cf2b875207998a85f3ddfbba3b3b16675</hash></megarom></dump>
+</software>
+<software>
+	<title>Super Mario 3</title>
+	<system>MSX</system>
+	<company>Retrocanada76</company>
+	<year>2011</year>
+	<country>CA</country>
+	<dump><megarom><type>KonamiSCC</type><hash>2bc333c69bd5fe4587857ef3b9dd8aeefaa0382d</hash><remark>Prototype</remark></megarom></dump>
+</software>
+<software>
+	<title>Robot Wars</title>
+	<system>MSX</system>
+	<company>The Bytebusters/Eaglesoft</company>
+	<year>1986</year>
+	<country>NL</country>
+	<dump><rom><type>Mirrored</type><hash>df2dc0b7bae4df24aabe496626a874b31c3a8d30</hash><remark>MSX1 Only - Possible Sound Corruption</remark></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file: 7834 - Created on Sat Apr 12 2025 - 16:37:43 -->
+<!-- Roms in this XML file: 7909 - Created on Sat Apr 19 2025 - 23:43:01 -->
