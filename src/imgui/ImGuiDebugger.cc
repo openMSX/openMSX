@@ -243,7 +243,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			foreach_file(FileOperations::join(openmsx::FileOperations::getUserOpenMSXDir(), "breakpoints"),
 				[&](const std::string& fullName) {
 					if (fullName.ends_with(".breakpoints")) {
-						names.emplace_back(FileOperations::stripExtension(FileOperations::getFilename(fullName)));
+						names.emplace_back(FileOperations::stem(fullName));
 					}
 				});
 			std::ranges::sort(names, StringOp::caseless{});

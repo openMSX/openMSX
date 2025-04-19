@@ -181,11 +181,6 @@ void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 	});
 }
 
-static std::string_view stem(std::string_view fullName)
-{
-	return FileOperations::stripExtension(FileOperations::getFilename(fullName));
-}
-
 bool ImGuiTools::screenshotNameExists() const
 {
 	auto filename = FileOperations::parseCommandFileArgument(
@@ -219,7 +214,7 @@ void ImGuiTools::nextScreenshotName()
 			}
 		}
 	}
-	screenshotName = stem(FileOperations::getNextNumberedFileName(
+	screenshotName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 		Display::SCREENSHOT_DIR, prefix, Display::SCREENSHOT_EXTENSION, true));
 }
 

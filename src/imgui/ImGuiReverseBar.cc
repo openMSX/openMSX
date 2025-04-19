@@ -44,10 +44,6 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool openConfirmPopup = false;
 
-	auto stem = [&](std::string_view fullName) {
-		return FileOperations::stripExtension(FileOperations::getFilename(fullName));
-	};
-
 	im::Menu("Save state", motherBoard != nullptr, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 
@@ -236,7 +232,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				if (auto result = manager.execute(makeTclList("guess_title", "savestate"))) {
 					saveStateName = result->getString();
 					if (exists()) {
-						saveStateName = stem(FileOperations::getNextNumberedFileName(
+						saveStateName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 							STATE_DIR, result->getString(), STATE_EXTENSION, true));
 					}
 				}
@@ -311,7 +307,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
 					saveReplayName = result->getString();
 					if (exists()) {
-						saveReplayName = stem(FileOperations::getNextNumberedFileName(
+						saveReplayName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 							ReverseManager::REPLAY_DIR, result->getString(), ReverseManager::REPLAY_EXTENSION, true));
 					}
 				}

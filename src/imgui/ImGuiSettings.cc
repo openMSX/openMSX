@@ -323,7 +323,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				std::optional<std::pair<std::string, std::string>> selectedLayout;
 				im::ListBox("##select-layout", [&]{
 					for (const auto& [id, name] : enumerate(names)) {
-						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
+						auto displayName = std::string(FileOperations::stem(name));
 						im::ID(id, [&]{
 							if (ImGui::Selectable(displayName.c_str())) selectedLayout = std::pair{name, displayName};
 						});
