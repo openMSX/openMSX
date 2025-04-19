@@ -140,6 +140,17 @@ namespace openmsx::FileOperations {
 	 */
 	[[nodiscard]] std::string_view stripExtension(std::string_view path);
 
+	/**
+	 * Return the stem of the path, i.e. the filename without extension.
+	 * This is equivalent to stripExtension(getFilename(path)), but more
+	 * efficient: only does a single pass.
+	 * @param path The pathname
+	 * @result The stem of the path. This excludes the '.'.
+	 *         If path doesn't have an extension portion the result
+	 *         is the filename.
+	 */
+	 [[nodiscard]] std::string_view stem(std::string_view path);
+
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
 	 * absolute path, that path is returned ('part1' is ignored). If
