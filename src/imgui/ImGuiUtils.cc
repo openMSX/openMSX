@@ -5,6 +5,7 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "HotKey.hh"
+#include "ImGuiManager.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -24,6 +25,37 @@ void HelpMarker(std::string_view desc, float spacing)
 	ImGui::SameLine(0.0f, spacing);
 	ImGui::TextDisabled("(?)");
 	simpleToolTip(desc);
+}
+
+void ConfirmDialog::execute()
+{
+	if (doOpen) {
+		doOpen = false;
+		ImGui::OpenPopup(title);
+	}
+	im::PopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::TextUnformatted(text);
+
+		bool close = false;
+		if (ImGui::Button("Ok")) {
+			action();
+			close = true;
+		}
+		ImGui::SameLine();
+		close |= ImGui::Button("Cancel");
+		if (close) {
+			ImGui::CloseCurrentPopup();
+			action = {};
+		}
+	});
+}
+
+void ConfirmDialogTclCommand::open(std::string text_, TclObject cmd_)
+{
+	ConfirmDialog::open(
+		std::move(text_),
+		[manager = this->manager, cmd = std::move(cmd_)] { manager->executeDelayed(cmd); }
+	);
 }
 
 std::string GetSettingDescription::operator()(const Setting& setting) const

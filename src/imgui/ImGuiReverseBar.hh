@@ -3,19 +3,19 @@
 
 #include "ImGuiAdjust.hh"
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
 
 #include "GLUtil.hh"
-#include "TclObject.hh"
 
+#include <ctime>
 #include <string>
-#include <filesystem>
 
 namespace openmsx {
 
 class ImGuiReverseBar final : public ImGuiPart
 {
 public:
-	using ImGuiPart::ImGuiPart;
+	explicit ImGuiReverseBar(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "reverse bar"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -47,8 +47,7 @@ private:
 	bool saveStateOpen = false;
 	bool saveReplayOpen = false;
 
-	TclObject confirmCmd;
-	std::string confirmText;
+	ConfirmDialogTclCommand confirmDialog;
 
 	bool reverseHideTitle = true;
 	bool reverseFadeOut = true;

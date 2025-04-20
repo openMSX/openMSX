@@ -31,6 +31,12 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiTools::ImGuiTools(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, confirmDialog(manager_, "Confirm##Tools")
+{
+}
+
 void ImGuiTools::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -159,26 +165,7 @@ void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showRecord) paintRecord();
 	paintNotes();
 
-	const auto* popupTitle = "Confirm##Tools";
-	if (openConfirmPopup) {
-		openConfirmPopup = false;
-		ImGui::OpenPopup(popupTitle);
-	}
-	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			manager.executeDelayed(confirmCmd);
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmCmd = TclObject();
-		}
-	});
+	confirmDialog.execute();
 }
 
 bool ImGuiTools::screenshotNameExists() const
@@ -255,27 +242,28 @@ void ImGuiTools::paintScreenshot()
 		ImGui::InputText("##name", &screenshotName);
 		ImGui::SameLine();
 		if (ImGui::Button("Create")) {
-			confirmCmd = makeTclList("screenshot", screenshotName);
+			auto cmd = makeTclList("screenshot", screenshotName);
 			if (screenshotType == static_cast<int>(SsType::RENDERED)) {
 				if (screenshotWithOsd) {
-					confirmCmd.addListElement("-with-osd");
+					cmd.addListElement("-with-osd");
 				}
 			} else {
-				confirmCmd.addListElement("-raw");
+				cmd.addListElement("-raw");
 				if (screenshotSize == static_cast<int>(SsSize::S_640)) {
-					confirmCmd.addListElement("-doublesize");
+					cmd.addListElement("-doublesize");
 				}
 			}
 			if (screenshotHideSprites) {
-				confirmCmd.addListElement("-no-sprites");
+				cmd.addListElement("-no-sprites");
 			}
 
 			if (screenshotNameExists()) {
-				openConfirmPopup = true;
-				confirmText = strCat("Overwrite screenshot with name '", screenshotName, "'?");
+				confirmDialog.open(
+					strCat("Overwrite screenshot with name '", screenshotName, "'?"),
+					cmd);
 				// note: don't auto generate next name
 			} else {
-				manager.executeDelayed(confirmCmd,
+				manager.executeDelayed(cmd,
 				                       [&](const TclObject&) { nextScreenshotName(); });
 			}
 		}
@@ -347,36 +335,37 @@ void ImGuiTools::paintRecord()
 			ImGui::InputText("##name", &recordName);
 			ImGui::SameLine();
 			if (!recording && ImGui::Button("Start")) {
-				confirmCmd = makeTclList("record", "start");
+				auto cmd = makeTclList("record", "start");
 				if (!recordName.empty()) {
-					confirmCmd.addListElement(recordName);
+					cmd.addListElement(recordName);
 				}
 				if (recordSource == static_cast<int>(Source::AUDIO)) {
-					confirmCmd.addListElement("-audioonly");
+					cmd.addListElement("-audioonly");
 				} else if (recordSource == static_cast<int>(Source::VIDEO)) {
-					confirmCmd.addListElement("-videoonly");
+					cmd.addListElement("-videoonly");
 				}
 				if (recordSource != static_cast<int>(Source::VIDEO)) {
 					if (recordAudio == static_cast<int>(Audio::MONO)) {
-						confirmCmd.addListElement("-mono");
+						cmd.addListElement("-mono");
 					} else if (recordAudio == static_cast<int>(Audio::STEREO)) {
-						confirmCmd.addListElement("-stereo");
+						cmd.addListElement("-stereo");
 					}
 				}
 				if (recordSource != static_cast<int>(Source::AUDIO)) {
 					if (recordVideoSize == static_cast<int>(VideoSize::V_640)) {
-						confirmCmd.addListElement("-doublesize");
+						cmd.addListElement("-doublesize");
 					} else if (recordVideoSize == static_cast<int>(VideoSize::V_960)) {
-						confirmCmd.addListElement("-triplesize");
+						cmd.addListElement("-triplesize");
 					}
 				}
 
 				if (FileOperations::exists(getRecordFilename())) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite recording with name '", recordName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite recording with name '", recordName, "'?"),
+						cmd);
 					// note: don't auto generate next name
 				} else {
-					manager.executeDelayed(confirmCmd);
+					manager.executeDelayed(cmd);
 				}
 			}
 		});

@@ -57,6 +57,12 @@ using namespace std::literals;
 
 namespace openmsx {
 
+ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, confirmDialog("Confirm##settings")
+{
+}
+
 ImGuiSettings::~ImGuiSettings()
 {
 	deinitListener();
@@ -117,8 +123,6 @@ void ImGuiSettings::setStyle() const
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openConfirmPopup = false;
-
 	im::Menu("Settings", [&]{
 		auto& reactor = manager.getReactor();
 		auto& globalSettings = reactor.getGlobalSettings();
@@ -329,9 +333,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 						});
 						im::PopupContextItem([&]{
 							if (ImGui::MenuItem("delete")) {
-								confirmText = strCat("Delete layout: ", displayName);
-								confirmAction = [name]{ FileOperations::unlink(name); };
-								openConfirmPopup = true;
+								confirmDialog.open(
+									strCat("Delete layout: ", displayName),
+									[name]{ FileOperations::unlink(name); });
 							}
 						});
 					}
@@ -356,14 +360,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 
 						auto filename = FileOperations::parseCommandFileArgument(
 							saveLayoutName, "layouts", "", ".ini");
+						auto action = [filename]{ ImGui::SaveIniSettingsToDisk(filename.c_str()); };
 						if (FileOperations::exists(filename)) {
-							confirmText = strCat("Overwrite layout: ", saveLayoutName);
-							confirmAction = [filename]{
-								ImGui::SaveIniSettingsToDisk(filename.c_str());
-							};
-							openConfirmPopup = true;
+							confirmDialog.open(
+								strCat("Overwrite layout: ", saveLayoutName),
+								action);
 						} else {
-							ImGui::SaveIniSettingsToDisk(filename.c_str());
+							action();
 						}
 					}
 				});
@@ -438,25 +441,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		});
 	});
 
-	const auto* confirmTitle = "Confirm##settings";
-	if (openConfirmPopup) {
-		ImGui::OpenPopup(confirmTitle);
-	}
-	im::PopupModal(confirmTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			confirmAction();
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmAction = {};
-		}
-	});
+	confirmDialog.execute();
 }
 
 ////// joystick stuff

@@ -2,15 +2,14 @@
 #define IMGUI_TOOLS_HH
 
 #include "ImGuiPart.hh"
-
-#include "TclObject.hh"
+#include "ImGuiUtils.hh"
 
 namespace openmsx {
 
 class ImGuiTools final : public ImGuiPart
 {
 public:
-	using ImGuiPart::ImGuiPart;
+	explicit ImGuiTools(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "tools"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -56,9 +55,7 @@ private:
 	enum class VideoSize : int { V_320, V_640, V_960, NUM };
 	int recordVideoSize = static_cast<int>(VideoSize::V_320);
 
-	TclObject confirmCmd;
-	std::string confirmText;
-	bool openConfirmPopup = false;
+	ConfirmDialogTclCommand confirmDialog;
 
 	std::vector<Note> notes;
 

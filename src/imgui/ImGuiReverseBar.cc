@@ -17,13 +17,20 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
+#include <filesystem>
+
 using namespace std::literals;
 
 namespace openmsx {
 
-
 static constexpr std::string_view STATE_EXTENSION = ".oms";
 static constexpr std::string_view STATE_DIR = "savestates";
+
+ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, confirmDialog(manager_, "Confirm##reverse")
+{
+}
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
@@ -42,8 +49,6 @@ void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openConfirmPopup = false;
-
 	im::Menu("Save state", motherBoard != nullptr, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 
@@ -192,9 +197,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 									}
 									im::PopupContextItem([&]{
 										if (ImGui::MenuItem("delete")) {
-											confirmCmd = makeTclList("delete_savestate", name);
-											confirmText = strCat("Delete savestate '", name, "'?");
-											openConfirmPopup = true;
+											confirmDialog.open(
+												strCat("Delete savestate '", name, "'?"),
+												makeTclList("delete_savestate", name));
 										}
 									});
 								}
@@ -242,12 +247,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
-				confirmCmd = makeTclList("savestate", saveStateName);
+				auto cmd = makeTclList("savestate", saveStateName);
 				if (exists()) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite save state with name '", saveStateName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite save state with name '", saveStateName, "'?"),
+						cmd);
 				} else {
-					manager.executeDelayed(confirmCmd,
+					manager.executeDelayed(cmd,
 						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("State saved to ", result.getString())); },
 						[&] (const std::string& error) { manager.getCliComm().printError(error); }
 						);
@@ -283,9 +289,9 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 							simpleToolTip(displayName);
 							im::PopupContextItem([&]{
 								if (ImGui::MenuItem("delete")) {
-									confirmCmd = makeTclList("file", "delete", fullName);
-									confirmText = strCat("Delete replay '", displayName, "'?");
-									openConfirmPopup = true;
+									confirmDialog.open(
+										strCat("Delete replay '", displayName, "'?"),
+										makeTclList("file", "delete", fullName));
 								}
 							});
 						}
@@ -318,12 +324,13 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
 
-				confirmCmd = makeTclList("reverse", "savereplay", saveReplayName);
+				auto cmd = makeTclList("reverse", "savereplay", saveReplayName);
 				if (exists()) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite replay with name '", saveReplayName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite replay with name '", saveReplayName, "'?"),
+						cmd);
 				} else {
-					manager.executeDelayed(confirmCmd,
+					manager.executeDelayed(cmd,
 						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("Replay saved to ", result.getString())); },
 						[&] (const std::string& error) { manager.getCliComm().printError(error); }
 						);
@@ -351,25 +358,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		});
 	});
 
-	const auto popupTitle = "Confirm##reverse";
-	if (openConfirmPopup) {
-		ImGui::OpenPopup(popupTitle);
-	}
-	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			manager.executeDelayed(confirmCmd);
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmCmd = TclObject();
-		}
-	});
+	confirmDialog.execute();
 }
 
 void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)

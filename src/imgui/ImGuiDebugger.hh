@@ -2,6 +2,7 @@
 #define IMGUI_DEBUGGER_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
 
 #include "CPURegs.hh"
 #include "EmuTime.hh"
@@ -100,8 +101,7 @@ private:
 	std::string breakpointFile;
 	bool reloadBreakpoints = false;
 
-        std::string confirmText;
-        std::function<void()> confirmAction;
+	ConfirmDialog confirmDialog;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"showControl",       &ImGuiDebugger::showControl},

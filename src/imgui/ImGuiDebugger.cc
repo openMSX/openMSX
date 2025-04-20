@@ -44,6 +44,7 @@ static constexpr std::string_view BREAKPOINT_DIR = "breakpoints";
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
+	, confirmDialog("Confirm##debugger")
 {
 }
 
@@ -201,8 +202,6 @@ void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openConfirmPopup = false;
-
 	auto createHexEditor = [&](const std::string& name) {
 		// prefer to reuse a previously closed editor
 		auto [b, e] = std::ranges::equal_range(hexEditors, name, {}, &DebuggableEditor::getDebuggableName);
@@ -261,9 +260,9 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 						});
 						im::PopupContextItem([&]{
 							if (ImGui::MenuItem("delete")) {
-								confirmText = strCat("Delete breakpoint file: ", name);
-								confirmAction = [name]{ FileOperations::unlink(name); };
-								openConfirmPopup = true;
+								confirmDialog.open(
+									strCat("Delete breakpoint file: ", name),
+									[name]{ FileOperations::unlink(name); });
 							}
 						});
 					}
@@ -321,25 +320,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		});
 	});
 
-	const auto* confirmTitle = "Confirm##debugger";
-	if (openConfirmPopup) {
-		ImGui::OpenPopup(confirmTitle);
-	}
-	im::PopupModal(confirmTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			confirmAction();
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmAction = {};
-		}
-	});
+	confirmDialog.execute();
 }
 
 void ImGuiDebugger::loadSaveBreakpoints(LoadSave loadSave)

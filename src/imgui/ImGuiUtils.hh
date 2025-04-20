@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -65,6 +66,7 @@ namespace openmsx {
 class BooleanSetting;
 class FloatSetting;
 class HotKey;
+class ImGuiManager;
 class IntegerSetting;
 class Setting;
 class VideoSourceSetting;
@@ -145,6 +147,36 @@ inline void centerNextWindowOverCurrent()
 	auto windowCenter = windowPos + center * windowSize;
 	ImGui::SetNextWindowPos(windowCenter, ImGuiCond_Appearing, center);
 }
+
+class ConfirmDialog {
+public:
+	explicit ConfirmDialog(const char* title_) : title(title_) {}
+
+	void open(std::string text_, std::function<void()> action_) {
+		text = std::move(text_);
+		action = std::move(action_);
+		doOpen = true;
+	}
+
+	void execute();
+
+private:
+	const char* title;
+	std::string text;
+	std::function<void()> action;
+	bool doOpen = false;
+};
+
+class ConfirmDialogTclCommand : public ConfirmDialog {
+public:
+	ConfirmDialogTclCommand(ImGuiManager& manager_, const char* title_)
+		: ConfirmDialog(title_), manager(&manager_) {}
+
+	void open(std::string text_, TclObject cmd_);
+
+private:
+	ImGuiManager* manager;
+};
 
 struct GetSettingDescription {
 	std::string operator()(const Setting& setting) const;

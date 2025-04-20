@@ -2,6 +2,7 @@
 #define IMGUI_SETTINGS_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
 
 #include "Shortcuts.hh"
 
@@ -17,7 +18,7 @@ namespace openmsx {
 class ImGuiSettings final : public ImGuiPart, private EventListener
 {
 public:
-	using ImGuiPart::ImGuiPart;
+	explicit ImGuiSettings(ImGuiManager& manager);
 	~ImGuiSettings();
 
 	[[nodiscard]] zstring_view iniName() const override { return "settings"; }
@@ -55,8 +56,7 @@ private:
 	int selectedStyle = -1; // no style loaded yet
 	std::string saveLayoutName;
 
-	std::string confirmText;
-	std::function<void()> confirmAction;
+	ConfirmDialog confirmDialog;
 
 	std::vector<std::string> availableFonts;
 
