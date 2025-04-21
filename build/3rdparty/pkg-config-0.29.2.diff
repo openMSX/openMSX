@@ -1,0 +1,20 @@
+--- pkg-config-0.29.2-orig/glib/glib/goption.c	2016-04-12 00:39:26.000000000 +0300
++++ pkg-config-0.29.2/glib/glib/goption.c	2025-04-22 01:20:52.436090405 +0300
+@@ -166,7 +166,7 @@ typedef struct
+   gpointer arg_data;
+   union
+   {
+-    gboolean bool;
++    gboolean bool2;
+     gint integer;
+     gchar *str;
+     gchar **array;
+@@ -1600,7 +1600,7 @@ free_changes_list (GOptionContext *conte
+           switch (change->arg_type)
+             {
+             case G_OPTION_ARG_NONE:
+-              *(gboolean *)change->arg_data = change->prev.bool;
++              *(gboolean *)change->arg_data = change->prev.bool2;
+               break;
+             case G_OPTION_ARG_INT:
+               *(gint *)change->arg_data = change->prev.integer;
