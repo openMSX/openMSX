@@ -239,7 +239,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		auto getBreakpointFiles = [] {
 			std::vector<std::string> names;
-			foreach_file(FileOperations::join(FileOperations::getUserOpenMSXDir(), BREAKPOINT_DIR),
+			foreach_file(FileOperations::getUserOpenMSXDir(BREAKPOINT_DIR),
 				[&](const std::string& fullName) {
 					if (fullName.ends_with(".breakpoints")) {
 						names.emplace_back(fullName);

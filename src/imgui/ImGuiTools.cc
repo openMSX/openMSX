@@ -269,7 +269,7 @@ void ImGuiTools::paintScreenshot()
 		}
 		ImGui::Separator();
 		if (ImGui::Button("Open screenshots folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', Display::SCREENSHOT_DIR).c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(Display::SCREENSHOT_DIR)).c_str());
 		}
 
 	});
@@ -376,7 +376,7 @@ void ImGuiTools::paintRecord()
 		if (ImGui::Button("Open recordings folder...")) {
 			bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
 			std::string_view directory = recordVideo ? AviRecorder::VIDEO_DIR : AviRecorder::AUDIO_DIR;
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', directory).c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(directory)).c_str());
 		}
 	});
 }

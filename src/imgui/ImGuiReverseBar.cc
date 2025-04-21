@@ -261,7 +261,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::MenuItem("Open savestates folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', STATE_DIR).c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(STATE_DIR)).c_str());
 		}
 
 		ImGui::Separator();
@@ -338,7 +338,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::MenuItem("Open replays folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', ReverseManager::REPLAY_DIR).c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(ReverseManager::REPLAY_DIR)).c_str());
 		}
 		im::Menu("Reverse/replay settings", [&]{
 			if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {

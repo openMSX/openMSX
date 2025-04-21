@@ -314,7 +314,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		im::Menu("GUI", [&]{
 			auto getExistingLayouts = [] {
 				std::vector<std::string> names;
-				foreach_file(FileOperations::join(openmsx::FileOperations::getUserOpenMSXDir(), "layouts"),
+				foreach_file(FileOperations::getUserOpenMSXDir("layouts"),
 					[&](const std::string& fullName, std::string_view name) {
 						if (name.ends_with(".ini")) {
 							names.emplace_back(fullName);

@@ -235,6 +235,7 @@ namespace openmsx::FileOperations {
 	 * Default value is "~/.openMSX" (UNIX) or "~/openMSX" (win)
 	 */
 	[[nodiscard]] const std::string& getUserOpenMSXDir();
+	[[nodiscard]] std::string getUserOpenMSXDir(std::string_view subdir);
 
 	/**
 	 * Get the openMSX data dir in the user's home directory.

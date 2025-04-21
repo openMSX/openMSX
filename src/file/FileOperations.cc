@@ -411,13 +411,18 @@ const string& getUserOpenMSXDir()
 	return OPENMSX_DIR;
 }
 
+std::string getUserOpenMSXDir(std::string_view subdir)
+{
+	return join(getUserOpenMSXDir(), subdir);
+}
+
 const string& getUserDataDir()
 {
 	static std::optional<string> result;
 	if (!result) {
 		const char* const NAME = "OPENMSX_USER_DATA";
 		const char* value = getenv(NAME);
-		result = value ? value : getUserOpenMSXDir() + "/share";
+		result = value ? value : getUserOpenMSXDir("share");
 	}
 	return *result;
 }
@@ -606,7 +611,7 @@ string getNextNumberedFileName(
 
 	unsigned max_num = 0;
 
-	string dirName = join(getUserOpenMSXDir(), directory);
+	string dirName = getUserOpenMSXDir(directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
@@ -638,9 +643,9 @@ string parseCommandFileArgument(
 	string filename(argument);
 	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
-		string dir = strCat(getUserOpenMSXDir(), '/', directory);
+		string dir = getUserOpenMSXDir(directory);
 		mkdirp(dir);
-		filename = strCat(dir, '/', filename);
+		filename = join(dir, filename);
 	} else {
 		filename = expandTilde(std::move(filename));
 	}
