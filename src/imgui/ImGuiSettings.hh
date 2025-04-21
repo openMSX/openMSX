@@ -1,6 +1,7 @@
 #ifndef IMGUI_SETTINGS_HH
 #define IMGUI_SETTINGS_HH
 
+#include "FileListWidget.hh"
 #include "ImGuiPart.hh"
 #include "ImGuiUtils.hh"
 
@@ -8,7 +9,6 @@
 
 #include "EventListener.hh"
 
-#include <functional>
 #include <span>
 #include <string>
 #include <vector>
@@ -56,7 +56,9 @@ private:
 	int selectedStyle = -1; // no style loaded yet
 	std::string saveLayoutName;
 
-	ConfirmDialog confirmDialog;
+	FileListWidget saveLayout;
+	FileListWidget loadLayout;
+	ConfirmDialog confirmOverwrite;
 
 	std::vector<std::string> availableFonts;
 

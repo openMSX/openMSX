@@ -59,8 +59,44 @@ namespace openmsx {
 
 ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
-	, confirmDialog("Confirm##settings")
+	, saveLayout("layout", ".ini", "layouts")
+	, loadLayout("layout", ".ini", "layouts")
+	, confirmOverwrite("Confirm##overwrite-layout")
 {
+	saveLayout.drawAction = [&]{
+		saveLayout.drawTable();
+		ImGui::TextUnformatted("Enter name:"sv);
+		ImGui::InputText("##save-layout-name", &saveLayoutName);
+		ImGui::SameLine();
+		im::Disabled(saveLayoutName.empty(), [&]{
+			if (ImGui::Button("Save as")) {
+				(void)manager.getReactor().getDisplay().getWindowPosition(); // to save up-to-date window position
+
+				auto filename = FileOperations::parseCommandFileArgument(
+					saveLayoutName, "layouts", "", ".ini");
+				auto action = [filename]{
+					ImGui::SaveIniSettingsToDisk(filename.c_str());
+					ImGui::CloseCurrentPopup();
+				};
+				if (FileOperations::exists(filename)) {
+					confirmOverwrite.open(
+						strCat("Overwrite layout: ", saveLayoutName),
+						action);
+				} else {
+					action();
+				}
+			}
+		});
+		confirmOverwrite.execute();
+	};
+	saveLayout.selectAction = [&](const FileListWidget::Entry& entry) {
+		saveLayoutName = entry.displayName;
+	};
+
+	loadLayout.selectAction = [&](const FileListWidget::Entry& entry) {
+		manager.loadIniFile = entry.fullName;
+		ImGui::CloseCurrentPopup();
+	};
 }
 
 ImGuiSettings::~ImGuiSettings()
@@ -312,74 +348,8 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
-			auto getExistingLayouts = [] {
-				std::vector<std::string> names;
-				foreach_file(FileOperations::getUserOpenMSXDir("layouts"),
-					[&](const std::string& fullName, std::string_view name) {
-						if (name.ends_with(".ini")) {
-							names.emplace_back(fullName);
-						}
-					});
-				std::ranges::sort(names, StringOp::caseless{});
-				return names;
-			};
-			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
-				std::optional<std::pair<std::string, std::string>> selectedLayout;
-				im::ListBox("##select-layout", [&]{
-					for (const auto& [id, name] : enumerate(names)) {
-						auto displayName = std::string(FileOperations::stem(name));
-						im::ID(id, [&]{
-							if (ImGui::Selectable(displayName.c_str())) selectedLayout = std::pair{name, displayName};
-						});
-						im::PopupContextItem([&]{
-							if (ImGui::MenuItem("delete")) {
-								confirmDialog.open(
-									strCat("Delete layout: ", displayName),
-									[name]{ FileOperations::unlink(name); });
-							}
-						});
-					}
-				});
-				return selectedLayout;
-			};
-			im::Menu("Save layout", [&]{
-				if (auto names = getExistingLayouts(); !names.empty()) {
-					ImGui::TextUnformatted("Existing layouts"sv);
-					if (auto selectedLayout = listExistingLayouts(names)) {
-						const auto& [name, displayName] = *selectedLayout;
-						saveLayoutName = displayName;
-					}
-				}
-				ImGui::TextUnformatted("Enter name:"sv);
-				ImGui::InputText("##save-layout-name", &saveLayoutName);
-				ImGui::SameLine();
-				im::Disabled(saveLayoutName.empty(), [&]{
-					if (ImGui::Button("Save as")) {
-						(void)reactor.getDisplay().getWindowPosition(); // to save up-to-date window position
-						ImGui::CloseCurrentPopup();
-
-						auto filename = FileOperations::parseCommandFileArgument(
-							saveLayoutName, "layouts", "", ".ini");
-						auto action = [filename]{ ImGui::SaveIniSettingsToDisk(filename.c_str()); };
-						if (FileOperations::exists(filename)) {
-							confirmDialog.open(
-								strCat("Overwrite layout: ", saveLayoutName),
-								action);
-						} else {
-							action();
-						}
-					}
-				});
-			});
-			im::Menu("Restore layout", [&]{
-				ImGui::TextUnformatted("Select layout"sv);
-				auto names = getExistingLayouts();
-				if (auto selectedLayout = listExistingLayouts(names)) {
-					const auto& [name, displayName] = *selectedLayout;
-					manager.loadIniFile = name;
-					ImGui::CloseCurrentPopup();
-				}
-			});
+			saveLayout.menu("Save layout");
+			loadLayout.menu("Restore layout");
 			ImGui::Separator();
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
@@ -440,8 +410,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 	});
-
-	confirmDialog.execute();
 }
 
 ////// joystick stuff
