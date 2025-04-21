@@ -473,6 +473,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\BeerIDE.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\FileListWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiBreakPoints.cc" />
@@ -1058,6 +1059,7 @@
     <None Include="$(OpenMSXSrcDir)\ide\BeerIDE.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\FileListWidget.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiBitmapViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiBreakPoints.hh" />

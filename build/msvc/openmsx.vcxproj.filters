@@ -534,6 +534,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\FileListWidget.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2035,6 +2038,9 @@
       <Filter>ide</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\DebuggableEditor.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\FileListWidget.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiAdjust.hh">

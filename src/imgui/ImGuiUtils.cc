@@ -31,9 +31,9 @@ void ConfirmDialog::execute()
 {
 	if (doOpen) {
 		doOpen = false;
-		ImGui::OpenPopup(title);
+		ImGui::OpenPopup(title.c_str());
 	}
-	im::PopupModal(title, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+	im::PopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
 		ImGui::TextUnformatted(text);
 
 		bool close = false;
