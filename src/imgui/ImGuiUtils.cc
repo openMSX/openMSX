@@ -367,4 +367,44 @@ void setColors(int style)
 	imColors[size_t(KEY_NOT_ACTIVE)] = 0x80'00'00'00;
 }
 
+std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp)
+{
+	std::string result;
+	unsigned col = 0;
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		if (col == 0) strAppend(result, prefix);
+
+		auto val = fetch(addr);
+		auto cmd = makeTclList("format", formatStr, val);
+		auto formatted = cmd.executeCommand(interp); // may throw
+		strAppend(result, formatted.getString());
+
+		if (++col == columns) {
+			col = 0;
+			strAppend(result, suffix, '\n');
+		} else if (addr != end) {
+			strAppend(result, ", ");
+		}
+	}
+
+	if (col != 0) {
+		strAppend(result, suffix, '\n');
+	}
+	return result;
+}
+
+[[nodiscard]] std::string rawToString(
+	function_ref<uint8_t(unsigned)> fetch,
+	unsigned begin, unsigned end)
+{
+	std::string result;
+	result.reserve(end - begin + 1);
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		auto val = fetch(addr);
+		result += static_cast<char>(val);
+	}
+	return result;
+}
+
 } // namespace openmsx
