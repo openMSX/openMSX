@@ -239,10 +239,10 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		auto getBreakpointFiles = [] {
 			std::vector<std::string> names;
-			foreach_file(FileOperations::join(openmsx::FileOperations::getUserOpenMSXDir(), "breakpoints"),
+			foreach_file(FileOperations::join(FileOperations::getUserOpenMSXDir(), BREAKPOINT_DIR),
 				[&](const std::string& fullName) {
 					if (fullName.ends_with(".breakpoints")) {
-						names.emplace_back(FileOperations::stem(fullName));
+						names.emplace_back(fullName);
 					}
 				});
 			std::ranges::sort(names, StringOp::caseless{});
@@ -252,7 +252,8 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			auto listFiles = [&](const std::vector<std::string>& names) {
 				std::optional<std::string> selectedFile;
 				im::ListBox("##select-bp", [&]{
-					for (const auto& [id, name] : enumerate(names)) {
+					for (const auto& [id, fullName] : enumerate(names)) {
+						auto name = std::string(FileOperations::stem(fullName));
 						im::ID(id, [&]{
 							if (ImGui::Selectable(name.c_str())) {
 								selectedFile = name;
@@ -262,7 +263,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 							if (ImGui::MenuItem("delete")) {
 								confirmDialog.open(
 									strCat("Delete breakpoint file: ", name),
-									[name]{ FileOperations::unlink(name); });
+									[=]{ FileOperations::unlink(fullName); });
 							}
 						});
 					}
