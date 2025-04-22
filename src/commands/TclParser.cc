@@ -5,6 +5,8 @@
 #include "one_of.hh"
 #include "strCat.hh"
 
+#include <tcl.h>
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -98,7 +100,7 @@ void TclParser::parse(std::string parseStr, int offset, ParseType type)
 		bool allowComplete = ((offset + parseStr.size()) >= colors.size()) &&
 		                     (retryCount < 10);
 		Tcl_Obj* resObj = Tcl_GetObjResult(interp);
-		int resLen;
+		Tcl_Size resLen;
 		const char* resStr = Tcl_GetStringFromObj(resObj, &resLen);
 		std::string_view error(resStr, resLen);
 

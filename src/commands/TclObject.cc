@@ -3,6 +3,8 @@
 #include "CommandException.hh"
 #include "narrow.hh"
 
+#include <tcl.h>
+
 namespace openmsx {
 
 [[noreturn]] static void throwException(Tcl_Interp* interp)
@@ -140,14 +142,14 @@ std::optional<double> TclObject::getOptionalDouble() const
 
 zstring_view TclObject::getString() const
 {
-	int length;
+	Tcl_Size length;
 	const char* buf = Tcl_GetStringFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
 
 std::span<const uint8_t> TclObject::getBinary() const
 {
-	int length;
+	Tcl_Size length;
 	const auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
 	return {buf, size_t(length)};
 }
@@ -155,7 +157,7 @@ std::span<const uint8_t> TclObject::getBinary() const
 unsigned TclObject::getListLength(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;
-	int result;
+	Tcl_Size result;
 	if (Tcl_ListObjLength(interp, obj, &result) != TCL_OK) {
 		throwException(interp);
 	}
@@ -163,7 +165,7 @@ unsigned TclObject::getListLength(Interpreter& interp_) const
 }
 unsigned TclObject::getListLengthUnchecked() const
 {
-	int result;
+	Tcl_Size result;
 	if (Tcl_ListObjLength(nullptr, obj, &result) != TCL_OK) {
 		return 0; // error
 	}
