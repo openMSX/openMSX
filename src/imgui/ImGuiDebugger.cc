@@ -16,7 +16,6 @@
 
 #include "Debuggable.hh"
 #include "Debugger.hh"
-#include "FileContext.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMemoryMapperBase.hh"
@@ -25,7 +24,6 @@
 #include "RomBlockDebuggable.hh"
 #include "RomInfo.hh"
 
-#include "foreach_file.hh"
 #include "narrow.hh"
 #include "stl.hh"
 #include "strCat.hh"
@@ -44,8 +42,30 @@ static constexpr std::string_view BREAKPOINT_DIR = "breakpoints";
 
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
-	, confirmDialog("Confirm##debugger")
+	, saveBreakpoints("breakpoint", ".breakpoints", BREAKPOINT_DIR)
+	, loadBreakpoints("breakpoint", ".breakpoints", BREAKPOINT_DIR)
 {
+	saveBreakpoints.drawAction = [&]{
+		saveBreakpoints.drawTable();
+		ImGui::TextUnformatted("Enter name:"sv);
+		ImGui::InputText("##save-layout-name", &breakpointFile);
+		ImGui::SameLine();
+		im::Disabled(breakpointFile.empty(), [&]{
+			if (ImGui::Button("Save as")) {
+				loadSaveBreakpoints(SAVE);
+				ImGui::CloseCurrentPopup();
+			}
+		});
+	};
+	saveBreakpoints.selectAction = [&](const FileListWidget::Entry& entry) {
+		breakpointFile = entry.displayName;
+	};
+
+	loadBreakpoints.selectAction = [&](const FileListWidget::Entry& entry) {
+		breakpointFile = entry.displayName;
+		loadSaveBreakpoints(LOAD);
+		ImGui::CloseCurrentPopup();
+	};
 }
 
 ImGuiDebugger::~ImGuiDebugger() = default;
@@ -237,60 +257,10 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		}
 		ImGui::Separator();
-		auto getBreakpointFiles = [] {
-			std::vector<std::string> names;
-			foreach_file(FileOperations::getUserOpenMSXDir(BREAKPOINT_DIR),
-				[&](const std::string& fullName) {
-					if (fullName.ends_with(".breakpoints")) {
-						names.emplace_back(fullName);
-					}
-				});
-			std::ranges::sort(names, StringOp::caseless{});
-			return names;
-		};
 		im::Menu("Breakpoints", [&]{
-			auto listFiles = [&](const std::vector<std::string>& names) {
-				std::optional<std::string> selectedFile;
-				im::ListBox("##select-bp", [&]{
-					for (const auto& [id, fullName] : enumerate(names)) {
-						auto name = std::string(FileOperations::stem(fullName));
-						im::ID(id, [&]{
-							if (ImGui::Selectable(name.c_str())) {
-								selectedFile = name;
-							}
-						});
-						im::PopupContextItem([&]{
-							if (ImGui::MenuItem("delete")) {
-								confirmDialog.open(
-									strCat("Delete breakpoint file: ", name),
-									[=]{ FileOperations::unlink(fullName); });
-							}
-						});
-					}
-				});
-				return selectedFile;
-			};
 			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show);
-			im::Menu("Save to file", [&]{
-				ImGui::TextUnformatted("Enter name:"sv);
-				ImGui::InputText("##save-bps-name", &breakpointFile);
-				ImGui::SameLine();
-				im::Disabled(breakpointFile.empty(), [&]{
-					if (ImGui::Button("Save as")) {
-						loadSaveBreakpoints(SAVE);
-						ImGui::CloseCurrentPopup();
-					}
-				});
-			});
-			im::Menu("Load from file", [&]{
-				ImGui::TextUnformatted("Select breakpoint file"sv);
-				auto names = getBreakpointFiles();
-				if (auto selectedFile = listFiles(names)) {
-					breakpointFile = *selectedFile;
-					loadSaveBreakpoints(LOAD);
-					ImGui::CloseCurrentPopup();
-				}
-			});
+			saveBreakpoints.menu("Save to file");
+			loadBreakpoints.menu("Load from file");
 			ImGui::Separator();
 			ImGui::MenuItem("Reload on startup", nullptr, &reloadBreakpoints);
 		});
@@ -320,8 +290,6 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		});
 	});
-
-	confirmDialog.execute();
 }
 
 void ImGuiDebugger::loadSaveBreakpoints(LoadSave loadSave)
