@@ -95,11 +95,11 @@ void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 	std::array<std::vector<BooleanInput>, 6> newBindings;
 
 	auto& interp = commandController.getInterpreter();
-	unsigned n = newValue.getListLength(interp);
+	auto n = newValue.getListLength(interp);
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
-	for (unsigned i = 0; i < n; i += 2) {
+	for (decltype(n) i = 0; i < n; i += 2) {
 		static constexpr std::array<std::string_view, 6> keys = {
 			// order is important!
 			"UP", "DOWN", "LEFT", "RIGHT", "A", "B"

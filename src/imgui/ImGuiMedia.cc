@@ -1606,7 +1606,7 @@ void ImGuiMedia::addRecent(const TclObject& cmd)
 
 	MediaItem item;
 	item.name = cmd.getListIndexUnchecked(2).getString();
-	unsigned i = 3;
+	decltype(n) i = 3;
 	while (i < n) {
 		auto option = cmd.getListIndexUnchecked(i);
 		++i;

@@ -994,8 +994,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			TclObject key(keyNames[popupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			auto remove = unsigned(-1);
-			unsigned counter = 0;
+			auto remove = size_t(-1);
+			size_t counter = 0;
 			for (const auto& b : bindingList) {
 				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
@@ -1003,7 +1003,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				simpleToolTip(toGuiString(*parseBooleanInput(b), joystickManager));
 				++counter;
 			}
-			if (remove != unsigned(-1)) {
+			if (remove != size_t(-1)) {
 				bindingList.removeListIndex(interp, remove);
 				bindings.setDictValue(interp, key, bindingList);
 				setting->setValue(bindings);

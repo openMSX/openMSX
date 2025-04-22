@@ -102,13 +102,13 @@ FilePoolCore::Directories FilePool::getDirectories() const
 			bool hasPath = false;
 			dir.types = FileType::NONE;
 			TclObject line = all.getListIndex(interp, i);
-			unsigned numItems = line.getListLength(interp);
+			auto numItems = line.getListLength(interp);
 			if (numItems & 1) {
 				throw CommandException(
 					"Expected a list with an even number "
 					"of elements, but got ", line.getString());
 			}
-			for (unsigned j = 0; j < numItems; j += 2) {
+			for (decltype(numItems) j = 0; j < numItems; j += 2) {
 				std::string_view name  = line.getListIndex(interp, j + 0).getString();
 				TclObject value = line.getListIndex(interp, j + 1);
 				if (name == "-path") {

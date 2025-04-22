@@ -85,8 +85,7 @@ std::vector<ImGuiDiskManipulator::FileInfo> ImGuiDiskManipulator::dirMSX(DrivePa
 	}
 
 	auto dir = stuff.tar->dirRaw();
-	auto num = dir.size();
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(dir.size())) {
 		auto entry = dir.getListIndexUnchecked(i);
 		FileInfo info;
 		info.attrib = MSXDirEntry::AttribValue(uint8_t(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0)));

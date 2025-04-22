@@ -953,8 +953,7 @@ std::string MSXtar::dir()
 {
 	std::string result;
 	auto list = dirRaw();
-	auto num = list.size();
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(list.size())) {
 		auto entry = list.getListIndexUnchecked(i);
 		auto filename = std::string(entry.getListIndexUnchecked(0).getString());
 		auto attrib = DiskImageUtils::formatAttrib(MSXDirEntry::AttribValue(uint8_t(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0))));

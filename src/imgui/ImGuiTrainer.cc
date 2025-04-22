@@ -133,7 +133,7 @@ void ImGuiTrainer::paint(MSXMotherBoard* /*motherBoard*/)
 		auto cmd = makeTclList("trainer", activeGame);
 		for (auto i : xrange(activeList.size())) {
 			if (activeList.getListIndexUnchecked(i).getOptionalBool().value_or(false) == none) {
-				cmd.addListElement(i + 1);
+				cmd.addListElement(narrow<int>(i + 1));
 			}
 		}
 		manager.execute(cmd);

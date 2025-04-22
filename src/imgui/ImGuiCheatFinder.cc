@@ -117,7 +117,7 @@ void ImGuiCheatFinder::paint(MSXMotherBoard* /*motherBoard*/)
 	if (!searchExpr.empty()) {
 		auto result = manager.execute(makeTclList("cheat_finder::search", searchExpr)).value_or(TclObject{});
 		searchResults = to_vector(std::views::transform(xrange(result.size()), [&](size_t i) {
-			auto line = result.getListIndexUnchecked(narrow<unsigned>(i));
+			auto line = result.getListIndexUnchecked(i);
 			auto addr     = line.getListIndexUnchecked(0).getOptionalInt().value_or(0);
 			auto oldValue = line.getListIndexUnchecked(1).getOptionalInt().value_or(0);
 			auto newValue = line.getListIndexUnchecked(2).getOptionalInt().value_or(0);
