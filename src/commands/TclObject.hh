@@ -1,12 +1,12 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
+#include "tcl.hh"
+
 #include "narrow.hh"
 #include "small_buffer.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
-
-#include <tcl.h>
 
 #include <algorithm>
 #include <cassert>
