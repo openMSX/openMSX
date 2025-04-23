@@ -55,6 +55,7 @@ class RealTime;
 class RemoveExtCmd;
 class RenShaTurbo;
 class ResetCmd;
+class StoreSetupCmd;
 class ReverseManager;
 class SettingObserver;
 class Scheduler;
@@ -313,6 +314,7 @@ private:
 	std::unique_ptr<ListExtCmd>   listExtCommand;
 	std::unique_ptr<ExtCmd>       extCommand;
 	std::unique_ptr<RemoveExtCmd> removeExtCommand;
+	std::unique_ptr<StoreSetupCmd> storeSetupCommand;
 	std::unique_ptr<MachineNameInfo> machineNameInfo;
 	std::unique_ptr<MachineTypeInfo> machineTypeInfo;
 	std::unique_ptr<MachineExtensionInfo> machineExtensionInfo;
