@@ -36,7 +36,7 @@ static std::vector<Trace> traces; // sorted on id
 static uintptr_t traceCount = 0;
 
 
-static int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
+static int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/, int /*flags*/)
 {
 	return 0;
 }
@@ -55,8 +55,8 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 }
 Tcl_ChannelType Interpreter::channelType = {
 	"openMSX console",	 // Type name
-	nullptr,		 // Always non-blocking
-	dummyClose,		 // Close proc
+	TCL_CHANNEL_VERSION_5,
+	nullptr,		 // Close proc
 	dummyInput,		 // Input proc
 	Interpreter::outputProc, // Output proc
 	nullptr,		 // Seek proc
@@ -64,7 +64,7 @@ Tcl_ChannelType Interpreter::channelType = {
 	nullptr,		 // Get option proc
 	dummyWatch,		 // Watch for events on console
 	dummyGetHandle,		 // Get a handle from the device
-	nullptr,		 // Tcl_DriverClose2Proc
+	dummyClose,		 // Tcl_DriverClose2Proc
 	nullptr,		 // Tcl_DriverBlockModeProc
 	nullptr,		 // Tcl_DriverFlushProc
 	nullptr,		 // Tcl_DriverHandlerProc
