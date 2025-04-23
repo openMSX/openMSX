@@ -328,14 +328,11 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		auto copySpriteDataPopup = [&](std::string text, function_ref<std::string()> supplier) {
-			bool popup = ImGui::BeginPopupContextWindow("CopySpriteDataPopup");
-			if (popup) {
+			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
 				if (ImGui::MenuItem(text.c_str())) {
 					ImGui::SetClipboardText(supplier().c_str());
 				}
-				ImGui::EndPopup();
-			}
-			return popup;
+			});
 		};
 		auto formatClipboardData = [&](uint16_t address, size_t size) {
 			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, "%02X", manager.getInterpreter());

@@ -419,8 +419,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return gridPosition.x + 32 * gridPosition.y;
 		};
 		auto copyPatternColorPopup = [&]() {
-			bool popup = ImGui::BeginPopupContextWindow("PatternCopyPopup");
-			if (popup) {
+			return im::PopupContextWindow("PatternCopyPopup", [&]{
 				bool hasColorData = mode == one_of(SCR1, SCR2);
 				auto caption = hasColorData
 					? "Copy pattern and color data to clipboard"
@@ -434,9 +433,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					}
 					ImGui::SetClipboardText(text.c_str());
 				}
-				ImGui::EndPopup();
-			}
-			return popup;
+			});
 		};
 		auto drawGrid = [&]() {
 			auto pat = getPatternFromGrid();
