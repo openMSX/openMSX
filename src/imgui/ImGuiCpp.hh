@@ -60,20 +60,22 @@
 namespace im {
 
 // im::Window(): wrapper around ImGui::Begin() / ImGui::End()
-inline void Window(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline bool Window(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::Begin(name, p_open, flags)) {
+	bool open = ImGui::Begin(name, p_open, flags);
+	if (open) {
 		next();
 	}
 	ImGui::End();
+	return open;
 }
-inline void Window(const char* name, bool* p_open, std::invocable<> auto next)
+inline bool Window(const char* name, bool* p_open, std::invocable<> auto next)
 {
-	Window(name, p_open, 0, next);
+	return Window(name, p_open, 0, next);
 }
-inline void Window(const char* name, std::invocable<> auto next)
+inline bool Window(const char* name, std::invocable<> auto next)
 {
-	Window(name, nullptr, 0, next);
+	return Window(name, nullptr, 0, next);
 }
 
 struct WindowStatus {
@@ -82,9 +84,10 @@ struct WindowStatus {
 	                       //         gets automatically reset when done
 	void raise() { do_raise = open = true; }
 };
-inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline bool Window(const char* name, WindowStatus& status, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::Begin(name, &status.open, flags)) {
+	bool open = ImGui::Begin(name, &status.open, flags);
+	if (open) {
 		if (status.do_raise) {
 			status.do_raise = false;
 			if (!ImGui::IsWindowAppearing()) { // otherwise crash, viewport not yet initialized???
@@ -100,31 +103,34 @@ inline void Window(const char* name, WindowStatus& status, ImGuiWindowFlags flag
 		next();
 	}
 	ImGui::End();
+	return open;
 }
-inline void Window(const char* name, WindowStatus& status, std::invocable<> auto next)
+inline bool Window(const char* name, WindowStatus& status, std::invocable<> auto next)
 {
-	Window(name, status, 0, next);
+	return Window(name, status, 0, next);
 }
 
 // im::Child(): wrapper around ImGui::BeginChild() / ImGui::EndChild()
-inline void Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags, std::invocable<> auto next)
+inline bool Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, ImGuiWindowFlags window_flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginChild(str_id, size, child_flags, window_flags)) {
+	bool open = ImGui::BeginChild(str_id, size, child_flags, window_flags);
+	if (open) {
 		next();
 	}
 	ImGui::EndChild();
+	return open;
 }
-inline void Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, std::invocable<> auto next)
+inline bool Child(const char* str_id, const ImVec2& size, ImGuiChildFlags child_flags, std::invocable<> auto next)
 {
-	Child(str_id, size, child_flags, 0, next);
+	return Child(str_id, size, child_flags, 0, next);
 }
-inline void Child(const char* str_id, const ImVec2& size, std::invocable<> auto next)
+inline bool Child(const char* str_id, const ImVec2& size, std::invocable<> auto next)
 {
-	Child(str_id, size, 0, 0, next);
+	return Child(str_id, size, 0, 0, next);
 }
-inline void Child(const char* str_id, std::invocable<> auto next)
+inline bool Child(const char* str_id, std::invocable<> auto next)
 {
-	Child(str_id, {}, 0, 0, next);
+	return Child(str_id, {}, 0, 0, next);
 }
 
 // im::Font(): wrapper around ImGui::PushFont() / ImGui::PopFont()
@@ -286,16 +292,18 @@ inline void ID_for_range(std::integral auto count, std::invocable<int> auto next
 }
 
 // im::Combo(): wrapper around ImGui::BeginCombo() / ImGui::EndCombo()
-inline void Combo(const char* label, const char* preview_value, ImGuiComboFlags flags, std::invocable<> auto next)
+inline bool Combo(const char* label, const char* preview_value, ImGuiComboFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginCombo(label, preview_value, flags)) {
+	bool open = ImGui::BeginCombo(label, preview_value, flags);
+	if (open) {
 		next();
 		ImGui::EndCombo();
 	}
+	return open;
 }
-inline void Combo(const char* label, const char* preview_value, std::invocable<> auto next)
+inline bool Combo(const char* label, const char* preview_value, std::invocable<> auto next)
 {
-	Combo(label, preview_value, 0, next);
+	return Combo(label, preview_value, 0, next);
 }
 
 // im::TreeNode(): wrapper around ImGui::TreeNodeEx() / ImGui::TreePop()
@@ -325,34 +333,40 @@ inline void TreeNode(const char* label, bool* p_open, std::invocable<> auto next
 }
 
 // im::ListBox(): wrapper around ImGui::BeginListBox() / ImGui::EndListBox()
-inline void ListBox(const char* label, const ImVec2& size, std::invocable<> auto next)
+inline bool ListBox(const char* label, const ImVec2& size, std::invocable<> auto next)
 {
-	if (ImGui::BeginListBox(label, size)) {
+	bool open = ImGui::BeginListBox(label, size);
+	if (open) {
 		next();
 		ImGui::EndListBox();
 	}
+	return open;
 }
-inline void ListBox(const char* label, std::invocable<> auto next)
+inline bool ListBox(const char* label, std::invocable<> auto next)
 {
-	ListBox(label, {}, next);
+	return ListBox(label, {}, next);
 }
 
 // im::MainMenuBar(): wrapper around ImGui::BeginMenuBar() / ImGui::EndMenuBar()
-inline void MenuBar(std::invocable<> auto next)
+inline bool MenuBar(std::invocable<> auto next)
 {
-	if (ImGui::BeginMenuBar()) {
+	bool open = ImGui::BeginMenuBar();
+	if (open) {
 		next();
 		ImGui::EndMenuBar();
 	}
+	return open;
 }
 
 // im::MainMenuBar(): wrapper around ImGui::BeginMainMenuBar() / ImGui::EndMainMenuBar()
-inline void MainMenuBar(std::invocable<> auto next)
+inline bool MainMenuBar(std::invocable<> auto next)
 {
-	if (ImGui::BeginMainMenuBar()) {
+	bool open = ImGui::BeginMainMenuBar();
+	if (open) {
 		next();
 		ImGui::EndMainMenuBar();
 	}
+	return open;
 }
 
 // im::Menu(): wrapper around ImGui::BeginMenu() / ImGui::EndMenu()
@@ -371,135 +385,153 @@ inline bool Menu(const char* label, std::invocable<> auto next)
 }
 
 // im::Tooltip(): wrapper around ImGui::BeginTooltip() / ImGui::EndTooltip()
-inline void Tooltip(std::invocable<> auto next)
+inline bool Tooltip(std::invocable<> auto next)
 {
-	if (ImGui::BeginTooltip()) {
+	bool open = ImGui::BeginTooltip();
+	if (open) {
 		next();
 		ImGui::EndTooltip();
 	}
+	return open;
 }
 // im::Tooltip(): wrapper around ImGui::BeginItemTooltip() / ImGui::EndTooltip()
-inline void ItemTooltip(std::invocable<> auto next)
+inline bool ItemTooltip(std::invocable<> auto next)
 {
-	if (ImGui::BeginItemTooltip()) {
+	bool open = ImGui::BeginItemTooltip();
+	if (open) {
 		next();
 		ImGui::EndTooltip();
 	}
+	return open;
 }
 
 // im::Popup(): wrapper around ImGui::BeginPopup() / ImGui::EndPopup()
-inline void Popup(const char* str_id, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline bool Popup(const char* str_id, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginPopup(str_id, flags)) {
+	bool open = ImGui::BeginPopup(str_id, flags);
+	if (open) {
 		next();
 		ImGui::EndPopup();
 	}
+	return open;
 }
-inline void Popup(const char* str_id, std::invocable<> auto next)
+inline bool Popup(const char* str_id, std::invocable<> auto next)
 {
-	Popup(str_id, 0, next);
+	return Popup(str_id, 0, next);
 }
 
 // im::PopupModal(): wrapper around ImGui::BeginPopupModal() / ImGui::EndPopup()
-inline void PopupModal(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
+inline bool PopupModal(const char* name, bool* p_open, ImGuiWindowFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginPopupModal(name, p_open, flags)) {
+	bool open = ImGui::BeginPopupModal(name, p_open, flags);
+	if (open) {
 		next();
 		ImGui::EndPopup();
 	}
+	return open;
 }
-inline void PopupModal(const char* name, bool* p_open, std::invocable<> auto next)
+inline bool PopupModal(const char* name, bool* p_open, std::invocable<> auto next)
 {
-	PopupModal(name, p_open, 0, next);
+	return PopupModal(name, p_open, 0, next);
 }
-inline void PopupModal(const char* name, std::invocable<> auto next)
+inline bool PopupModal(const char* name, std::invocable<> auto next)
 {
-	PopupModal(name, nullptr, 0, next);
+	return PopupModal(name, nullptr, 0, next);
 }
 
 // im::PopupContextItem(): wrapper around ImGui::BeginPopupContextItem() / ImGui::EndPopup()
-inline void PopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags, std::invocable<> auto next)
+inline bool PopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginPopupContextItem(str_id, popup_flags)) {
+	bool open = ImGui::BeginPopupContextItem(str_id, popup_flags);
+	if (open) {
 		next();
 		ImGui::EndPopup();
 	}
+	return open;
 }
-inline void PopupContextItem(const char* str_id, std::invocable<> auto next)
+inline bool PopupContextItem(const char* str_id, std::invocable<> auto next)
 {
-	PopupContextItem(str_id, ImGuiPopupFlags_MouseButtonRight, next);
+	return PopupContextItem(str_id, ImGuiPopupFlags_MouseButtonRight, next);
 }
-inline void PopupContextItem(std::invocable<> auto next)
+inline bool PopupContextItem(std::invocable<> auto next)
 {
-	PopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight, next);
+	return PopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight, next);
 }
 
 // im::PopupContextWindow(): wrapper around ImGui::BeginPopupContextWindow() / ImGui::EndPopup()
-inline void PopupContextWindow(const char* str_id, ImGuiPopupFlags popup_flags, std::invocable<> auto next)
+inline bool PopupContextWindow(const char* str_id, ImGuiPopupFlags popup_flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginPopupContextWindow(str_id, popup_flags)) {
+	bool open = ImGui::BeginPopupContextWindow(str_id, popup_flags);
+	if (open) {
 		next();
 		ImGui::EndPopup();
 	}
+	return open;
 }
-inline void PopupContextWindow(const char* str_id, std::invocable<> auto next)
+inline bool PopupContextWindow(const char* str_id, std::invocable<> auto next)
 {
-	PopupContextWindow(str_id, 1, next);
+	return PopupContextWindow(str_id, 1, next);
 }
-inline void PopupContextWindow(std::invocable<> auto next)
+inline bool PopupContextWindow(std::invocable<> auto next)
 {
-	PopupContextWindow(nullptr, 1, next);
+	return PopupContextWindow(nullptr, 1, next);
 }
 
 // im::Table(): wrapper around ImGui::BeginTable() / ImGui::EndTable()
-inline void Table(const char* str_id, int column, ImGuiTableFlags flags, const ImVec2& outer_size, float inner_width, std::invocable<> auto next)
+inline bool Table(const char* str_id, int column, ImGuiTableFlags flags, const ImVec2& outer_size, float inner_width, std::invocable<> auto next)
 {
-	if (ImGui::BeginTable(str_id, column, flags, outer_size, inner_width)) {
+	bool open = ImGui::BeginTable(str_id, column, flags, outer_size, inner_width);
+	if (open) {
 		next();
 		ImGui::EndTable();
 	}
+	return open;
 }
-inline void Table(const char* str_id, int column, ImGuiTableFlags flags, const ImVec2& outer_size, std::invocable<> auto next)
+inline bool Table(const char* str_id, int column, ImGuiTableFlags flags, const ImVec2& outer_size, std::invocable<> auto next)
 {
-	Table(str_id, column, flags, outer_size, 0.0f, next);
+	return Table(str_id, column, flags, outer_size, 0.0f, next);
 }
-inline void Table(const char* str_id, int column, ImGuiTableFlags flags, std::invocable<> auto next)
+inline bool Table(const char* str_id, int column, ImGuiTableFlags flags, std::invocable<> auto next)
 {
-	Table(str_id, column, flags, {}, 0.0f, next);
+	return Table(str_id, column, flags, {}, 0.0f, next);
 }
-inline void Table(const char* str_id, int column, std::invocable<> auto next)
+inline bool Table(const char* str_id, int column, std::invocable<> auto next)
 {
-	Table(str_id, column, 0, {}, 0.0f, next);
+	return Table(str_id, column, 0, {}, 0.0f, next);
 }
 
 // im::TabBar(): wrapper around ImGui::BeginTabBar() / ImGui::EndTabBar()
-inline void TabBar(const char* str_id, ImGuiTabBarFlags flags, std::invocable<> auto next)
+inline bool TabBar(const char* str_id, ImGuiTabBarFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginTabBar(str_id, flags)) {
+	bool open = ImGui::BeginTabBar(str_id, flags);
+	if (open) {
 		next();
 		ImGui::EndTabBar();
 	}
+	return open;
 }
-inline void TabBar(const char* str_id, std::invocable<> auto next)
+inline bool TabBar(const char* str_id, std::invocable<> auto next)
 {
-	TabBar(str_id, 0, next);
+	return TabBar(str_id, 0, next);
 }
 
 // im::TabItem(): wrapper around ImGui::BeginTabItem() / ImGui::EndTabItem()
-inline void TabItem(const char* label, bool* p_open, ImGuiTabItemFlags flags, std::invocable<> auto next)
+inline bool TabItem(const char* label, bool* p_open, ImGuiTabItemFlags flags, std::invocable<> auto next)
 {
-	if (ImGui::BeginTabItem(label, p_open, flags)) {
+	bool open = ImGui::BeginTabItem(label, p_open, flags);
+	if (open) {
 		next();
 		ImGui::EndTabItem();
 	}
+	return open;
 }
-inline void TabItem(const char* label, bool* p_open, std::invocable<> auto next)
+inline bool TabItem(const char* label, bool* p_open, std::invocable<> auto next)
 {
-	TabItem(label, p_open, 0, next);
+	return TabItem(label, p_open, 0, next);
 }
-inline void TabItem(const char* label, std::invocable<> auto next)
+inline bool TabItem(const char* label, std::invocable<> auto next)
 {
-	TabItem(label, nullptr, 0, next);
+	return TabItem(label, nullptr, 0, next);
 }
 
 // im::Disabled(): wrapper around ImGui::BeginDisabled() / ImGui::EndDisabled()
