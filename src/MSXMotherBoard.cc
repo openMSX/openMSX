@@ -28,6 +28,7 @@
 #include "MSXMixer.hh"
 #include "Observer.hh"
 #include "PanasonicMemory.hh"
+#include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "Reactor.hh"
 #include "RealTime.hh"
@@ -110,6 +111,17 @@ public:
 	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
 	void execute(std::span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
+	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+class StoreSetupCmd final : public Command
+{
+public:
+	explicit StoreSetupCmd(MSXMotherBoard& motherBoard);
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<string>& tokens) const override;
 private:
@@ -247,6 +259,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	listExtCommand = make_unique<ListExtCmd>(*this);
 	extCommand = make_unique<ExtCmd>(*this, "ext");
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
+	storeSetupCommand = make_unique<StoreSetupCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	machineTypeInfo = make_unique<MachineTypeInfo>(*this);
 	machineExtensionInfo = make_unique<MachineExtensionInfo>(*this);
@@ -949,6 +962,79 @@ void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 			motherBoard.getExtensions(),
 			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
+}
+
+// StoreSetupCmd
+
+StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
+	: Command(motherBoard_.getCommandController(), "store_setup")
+	, motherBoard(motherBoard_)
+{
+}
+
+void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 2, Prefix{1}, "filename");
+	const auto& filename = tokens[1].getString();
+
+	// TODO: make level and parts of levels to be saved configurable (via command arguments?)
+
+	// level 1: create new board based on current board of this machine
+	auto newBoard = motherBoard.getReactor().createEmptyMotherBoard();
+	newBoard->loadMachine(std::string(motherBoard.getMachineName()));
+
+	// suppress any messages from this temporary board
+	newBoard->getMSXCliComm().setSuppressMessages(true);
+
+	// level 2: add the extensions of the current board to the new board
+	for (auto& extension: motherBoard.getExtensions()) {
+		if (extension->getType() == HardwareConfig::Type::EXTENSION) {
+			const auto& slotManager = motherBoard.getSlotManager();
+			auto& configName = extension->getConfigName();
+			auto slot = slotManager.findSlotWith(*extension);
+			const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
+			// TODO: a bit weird that we need to convert the slot
+			// spec into a string and then parse it again deep down
+			// in loadExtension...
+			auto extConfig = newBoard->loadExtension(configName, slotSpec);
+			newBoard->insertExtension(configName, std::move(extConfig));
+		}
+	}
+
+	// level 3: add the pluggables of the current board to the new board
+	auto& newBoardPluggingController = newBoard->getPluggingController();
+	for (const auto* connector: motherBoard.getPluggingController().getConnectors()) {
+		const auto& plugged = connector->getPlugged();
+		const auto& pluggedName = plugged.getName();
+		if (!pluggedName.empty()) {
+			const auto& connectorName = connector->getName();
+			if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
+				if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
+					newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
+				}
+			}
+		}
+	}
+
+	// level 4: add the inserted media of the current board to the new board
+	// TODO
+
+
+	XmlOutputArchive out(filename);
+	out.serialize("machine", newBoard);
+	out.close();
+	result = filename;
+}
+
+string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return
+		"store_setup <filename>  Save setup based on this machine to indicated file.";
+}
+
+void StoreSetupCmd::tabCompletion(std::vector<string>& /*tokens*/) const
+{
+	// TODO (anything useful we can add?)
 }
 
 
