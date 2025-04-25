@@ -58,10 +58,10 @@ class EPOXY(DownloadablePackage):
 	niceName = 'EPOXY'
 	sourceName = 'libepoxy'
 	version = '1.5.10'
-	fileLength = 807896
+	fileLength = 223528
 	checksums = {
 		'sha256':
-			'4c94995398a6ebf691600dda2e9685a0cac261414175c2adf4645cdfab42a5d5',
+			'072cda4b59dd098bba8c2363a6247299db1fa89411dc221c8b81b8ee8192e623',
 		}
 
 	@classmethod
