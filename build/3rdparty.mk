@@ -263,9 +263,11 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Configure epoxy
 $(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted \
-  $(call installdeps,PKG_CONFIG)
+  $(call installdeps,PKG_CONFIG) \
+  build/run-ninja.mk
 	mkdir -p $(@D)
 	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY)
+	cp build/run-ninja.mk $@
 
 # Configure Tcl.
 # Note: Tcl 8.6 includes some bundled extensions. We don't want these and there
