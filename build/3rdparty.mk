@@ -266,7 +266,9 @@ $(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
   $(call installdeps,PKG_CONFIG) \
   build/run-ninja.mk
 	mkdir -p $(@D)
-	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY)
+	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY) \
+		--prefix $(PWD)/$(INSTALL_DIR) \
+		--libdir lib
 	cp build/run-ninja.mk $@
 
 # Configure Tcl.
