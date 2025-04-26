@@ -262,7 +262,8 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 
 # Configure epoxy
 $(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted
+  $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted \
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
 	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY)
 
