@@ -30,7 +30,7 @@ runs:
     - name: Install macOS prerequisites
       if: ${{ contains(inputs.os, 'darwin') }}
       shell: bash
-      run: brew install meson ninja
+      run: brew install meson
     - name: Add NDK to PATH
       if: ${{ contains(inputs.os, 'android') }}
       shell: bash
