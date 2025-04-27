@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glew", "glew.vcxproj", "{E78E1412-E9F8-475B-9504-72031C8FBAEA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libepoxy", "libepoxy.vcxproj", "{E78E1412-E9F8-475B-9504-72031C8FBAEA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "freetype.vcxproj", "{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}"
 EndProject
