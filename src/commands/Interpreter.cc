@@ -56,7 +56,7 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 Tcl_ChannelType Interpreter::channelType = {
 	"openMSX console",	 // Type name
 	TCL_CHANNEL_VERSION_5,
-	nullptr,		 // Close proc
+	TCL_CLOSE2PROC,		 // Close proc (compatible with Tcl 8.6.13; 8.6.16 can have nullptr here)
 	dummyInput,		 // Input proc
 	Interpreter::outputProc, // Output proc
 	nullptr,		 // Seek proc
