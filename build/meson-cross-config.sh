@@ -53,6 +53,10 @@ ranlib = '${RANLIB}'
 strip = '${STRIP}'
 pkg-config = '${PKG_CONFIG}'
 
+[properties]
+c_args = '${_CFLAGS}'
+c_link_args = '${_LDFLAGS}'
+
 [host_machine]
 system = '${SYSTEM}'
 cpu_family = '${CPU}'
