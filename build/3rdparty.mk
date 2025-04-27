@@ -260,13 +260,18 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
 #       itself. If we mess with it, the build breaks.
 
+$(BUILD_DIR)/$(PACKAGE_EPOXY)/cross-defs.txt: build/meson-cross-config.sh
+	mkdir -p $(@D)
+	$< > $@
+
 # Configure epoxy
 $(BUILD_DIR)/$(PACKAGE_EPOXY)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_EPOXY)/.extracted \
+  $(BUILD_DIR)/$(PACKAGE_EPOXY)/cross-defs.txt \
   $(call installdeps,PKG_CONFIG) \
   build/run-ninja.mk
-	mkdir -p $(@D)
 	meson setup $(BUILD_DIR)/$(PACKAGE_EPOXY) $(SOURCE_DIR)/$(PACKAGE_EPOXY) \
+		--cross-file $(@D)/cross-defs.txt \
 		--prefix $(PWD)/$(INSTALL_DIR) \
 		--libdir lib \
 		--default-library static
