@@ -1,0 +1,16 @@
+openmsx_sources(
+    SOURCES
+        Command.cc
+        CommandException.cc
+        Completer.cc
+        GlobalCommandController.cc
+        InfoCommand.cc
+        InfoTopic.cc
+        Interpreter.cc
+        MSXCommandController.cc
+        ProxyCommand.cc
+        TclArgParser.cc
+        TclCallback.cc
+        TclObject.cc
+        TclParser.cc
+)

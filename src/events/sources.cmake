@@ -1,0 +1,21 @@
+openmsx_sources(
+    SOURCES
+        AdhocCliCommParser.cc
+        AfterCommand.cc
+        BooleanInput.cc
+        CliComm.cc
+        CliConnection.cc
+        CliServer.cc
+        Event.cc
+        EventDistributor.cc
+        GlobalCliComm.cc
+        HotKey.cc
+        InputEventFactory.cc
+        InputEventGenerator.cc
+        MSXCliComm.cc
+        MessageCommand.cc
+        SDLKey.cc
+        Socket.cc
+        StdioMessages.cc
+        TclCallbackMessages.cc
+)

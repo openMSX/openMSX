@@ -1,0 +1,21 @@
+openmsx_sources(
+    SOURCES
+        AbstractIDEDevice.cc
+        BeerIDE.cc
+        CDImageCLI.cc
+        DummyIDEDevice.cc
+        DummySCSIDevice.cc
+        GoudaSCSI.cc
+        HD.cc
+        HDCommand.cc
+        HDImageCLI.cc
+        IDECDROM.cc
+        IDEDeviceFactory.cc
+        IDEHD.cc
+        MB89352.cc
+        MegaSCSI.cc
+        SCSIHD.cc
+        SCSILS120.cc
+        SunriseIDE.cc
+        WD33C93.cc
+)

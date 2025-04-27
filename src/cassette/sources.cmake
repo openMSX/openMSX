@@ -1,0 +1,14 @@
+openmsx_sources(
+    SOURCES
+        CasImage.cc
+        CassetteDevice.cc
+        CassetteImage.cc
+        CassettePlayer.cc
+        CassettePlayerCLI.cc
+        CassettePlayerCommand.cc
+        CassettePort.cc
+        DummyCassetteDevice.cc
+        TsxImage.cc
+        TsxParser.cc
+        WavImage.cc
+)

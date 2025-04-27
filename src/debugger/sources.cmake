@@ -1,0 +1,9 @@
+openmsx_sources(
+    SOURCES
+        SimpleDebuggable.cc
+        Debugger.cc
+        SymbolManager.cc
+        Probe.cc
+        ProbeBreakPoint.cc
+        DasmTables.cc
+)

@@ -1,0 +1,13 @@
+openmsx_sources(
+    SOURCES
+        imgui.cc
+        imgui_demo.cc
+        imgui_draw.cc
+        imgui_impl_opengl3.cc
+        imgui_impl_sdl2.cc
+        imgui_stdlib.cc
+        imgui_tables.cc
+        imgui_widgets.cc
+    SUBDIRS
+        misc
+)

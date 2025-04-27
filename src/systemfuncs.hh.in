@@ -1,0 +1,7 @@
+#ifndef SYSTEMFUNCS_HH
+#define SYSTEMFUNCS_HH
+
+#cmakedefine01 HAVE_FTRUNCATE
+#cmakedefine01 HAVE_MMAP
+
+#endif

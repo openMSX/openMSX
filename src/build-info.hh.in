@@ -1,0 +1,19 @@
+#ifndef BUILD_INFO_HH
+#define BUILD_INFO_HH
+
+#define PLATFORM_ANDROID 0
+#define MIN_SCALE_FACTOR 2
+#define MAX_SCALE_FACTOR 4
+
+namespace openmsx {
+
+static const bool OPENMSX_SET_WINDOW_ICON = @OPENMSX_SET_WINDOW_ICON@;
+static const char* const DATADIR = "@DATADIR@";
+static const char* const DOCDIR = "@DOCDIR@";
+static const char* const BUILD_FLAVOUR = "@BUILD_FLAVOUR@";
+static const char* const TARGET_PLATFORM = "@TARGET_PLATFORM@";
+static const char* const TARGET_CPU = "@TARGET_CPU@";
+
+} // namespace openmsx
+
+#endif // BUILD_INFO_HH

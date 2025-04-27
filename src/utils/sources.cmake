@@ -1,0 +1,19 @@
+openmsx_sources(
+    SOURCES
+        Base64.cc
+        Date.cc
+        DeltaBlock.cc
+        DivModBySame.cc
+        HexDump.cc
+        MemoryOps.cc
+        Poller.cc
+        SerializeBuffer.cc
+        StringOp.cc
+        TigerTree.cc
+        lz4.cc
+        sha1.cc
+        tiger.cc
+        utf8_checked.cc
+        win32-arggen.cc
+        win32-dirent.cc
+)

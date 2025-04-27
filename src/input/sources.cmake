@@ -1,0 +1,29 @@
+openmsx_sources(
+    SOURCES
+        ArkanoidPad.cc
+        CircuitDesignerRDDongle.cc
+        ColecoJoystickIO.cc
+        DummyJoystick.cc
+        EventDelay.cc
+        JoyMega.cc
+        JoyTap.cc
+        JoystickDevice.cc
+        JoystickManager.cc
+        JoystickPort.cc
+        Keyboard.cc
+        KeyboardSettings.cc
+        MSXEventDistributor.cc
+        MSXJoystick.cc
+        MagicKey.cc
+        Mouse.cc
+        MsxChar2Unicode.cc
+        NinjaTap.cc
+        Paddle.cc
+        RecordedCommand.cc
+        SETetrisDongle.cc
+        SG1000JoystickIO.cc
+        StateChangeDistributor.cc
+        Touchpad.cc
+        Trackball.cc
+        UnicodeKeymap.cc
+)

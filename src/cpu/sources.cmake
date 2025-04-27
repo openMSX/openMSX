@@ -1,0 +1,15 @@
+openmsx_sources(
+    SOURCES
+        CPUCore.cc
+        VDPIODelay.cc
+        MSXCPU.cc
+        Dasm.cc
+        IRQHelper.cc
+        MSXMultiMemDevice.cc
+        CPURegs.cc
+        WatchPoint.cc
+        CPUClock.cc
+        MSXCPUInterface.cc
+        MSXMultiDevice.cc
+        MSXMultiIODevice.cc
+)

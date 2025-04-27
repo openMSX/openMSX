@@ -1,0 +1,13 @@
+#ifndef COMPONENTS_HH
+#define COMPONENTS_HH
+
+#cmakedefine01 COMPONENT_ALSAMIDI
+#cmakedefine01 COMPONENT_LASERDISC
+
+namespace openmsx {
+
+static const char* const BUILD_COMPONENTS = "@COMPONENTS_LIST@";
+
+}
+
+#endif

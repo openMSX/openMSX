@@ -1,0 +1,12 @@
+openmsx_sources(
+    SOURCES
+        OSDTopWidget.cc
+        OSDRectangle.cc
+        TTFFont.cc
+        OSDText.cc
+        OSDImageBasedWidget.cc
+        OSDGUILayer.cc
+        OSDWidget.cc
+        OSDGUI.cc
+        ConsoleLine.cc
+)

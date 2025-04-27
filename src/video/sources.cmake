@@ -1,0 +1,51 @@
+openmsx_sources(
+    SOURCES
+        VisibleSurface.cc
+        AviRecorder.cc
+        Layer.cc
+        Icon.cc
+        VDPCmdEngine.cc
+        GLSnow.cc
+        SpriteChecker.cc
+        VideoSystem.cc
+        VideoLayer.cc
+        CharacterConverter.cc
+        DoubledFrame.cc
+        VDPVRAM.cc
+        DummyRenderer.cc
+        SDLVideoSystem.cc
+        GLUtil.cc
+        AviWriter.cc
+        GLContext.cc
+        VDPAccessSlots.cc
+        DummyVideoSystem.cc
+        ADVram.cc
+        OutputSurface.cc
+        Display.cc
+        GLImage.cc
+        BitmapConverter.cc
+        ZMBVEncoder.cc
+        DeinterlacedFrame.cc
+        PostProcessor.cc
+        RendererFactory.cc
+        RenderSettings.cc
+        Deflicker.cc
+        VDP.cc
+        SuperImposedFrame.cc
+        FrameSource.cc
+        PNG.cc
+        PixelRenderer.cc
+        SDLRasterizer.cc
+        RawFrame.cc
+        OffScreenSurface.cc
+    SUBDIRS
+        scalers
+        v9990
+)
+
+if (COMPONENT_LASERDISC)
+    openmsx_sources(
+        SUBDIRS
+            ld
+    )
+endif()

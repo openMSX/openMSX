@@ -1,0 +1,16 @@
+openmsx_sources(
+    SOURCES
+        BooleanSetting.cc
+        EnumSetting.cc
+        FilenameSetting.cc
+        FloatSetting.cc
+        IntegerSetting.cc
+        KeyCodeSetting.cc
+        ProxySetting.cc
+        ReadOnlySetting.cc
+        Setting.cc
+        SettingsManager.cc
+        StringSetting.cc
+        UserSettings.cc
+        VideoSourceSetting.cc
+)

@@ -1,0 +1,11 @@
+openmsx_sources(
+    SOURCES
+        GLTVScaler.cc
+        GLScaleNxScaler.cc
+        GLScaler.cc
+        GLScalerFactory.cc
+        GLRGBScaler.cc
+        GLDefaultScaler.cc
+        GLHQScaler.cc
+        GLSimpleScaler.cc
+)

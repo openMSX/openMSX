@@ -1,0 +1,38 @@
+openmsx_sources(
+    SOURCES
+        ClockPin.cc
+        DummyMidiInDevice.cc
+        DummyMidiOutDevice.cc
+        DummyRS232Device.cc
+        I8251.cc
+        I8254.cc
+        JVCMSXMIDI.cc
+        MC6850.cc
+        MSXFacMidiInterface.cc
+        MSXMidi.cc
+        MSXModem.cc
+        MSXRS232.cc
+        MidiInConnector.cc
+        MidiInCoreMIDI.cc
+        MidiInDevice.cc
+        MidiInReader.cc
+        MidiInWindows.cc
+        MidiOutConnector.cc
+        MidiOutCoreMIDI.cc
+        MidiOutDevice.cc
+        MidiOutLogger.cc
+        MidiOutWindows.cc
+        Midi_w32.cc
+        MusicModuleMIDI.cc
+        RS232Connector.cc
+        RS232Device.cc
+        RS232Net.cc
+        RS232Tester.cc
+        YM2148.cc
+)
+if (COMPONENT_ALSAMIDI)
+    openmsx_sources(
+        SOURCES
+            MidiSessionALSA.cc
+    )
+endif()

@@ -1,0 +1,17 @@
+openmsx_sources(
+    SOURCES
+        CompressedFileAdapter.cc
+        File.cc
+        FileBase.cc
+        FileContext.cc
+        FileOperations.cc
+        FilePool.cc
+        FilePoolCore.cc
+        Filename.cc
+        GZFileAdapter.cc
+        LocalFile.cc
+        LocalFileReference.cc
+        PreCacheFile.cc
+        ZipFileAdapter.cc
+        ZlibInflate.cc
+)

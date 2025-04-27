@@ -1,0 +1,5 @@
+#include "git_version.ii"
+const bool Version::RELEASE = @OPENMSX_RELEASE_BOOL@;
+const char* const Version::VERSION = "@PROJECT_VERSION@";
+const char* const Version::REVISION = GIT_VERSION;
+const char* const Version::COPYRIGHT = "Copyright 2001-@OPENMSX_RELEASE_YEAR@";

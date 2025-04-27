@@ -1,0 +1,12 @@
+openmsx_sources(
+    SOURCES
+        V9990VRAM.cc
+        V9990.cc
+        V9990DummyRenderer.cc
+        Video9000.cc
+        V9990CmdEngine.cc
+        V9990PxConverter.cc
+        V9990SDLRasterizer.cc
+        V9990PixelRenderer.cc
+        V9990BitmapConverter.cc
+)
