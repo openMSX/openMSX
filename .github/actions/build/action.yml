@@ -61,6 +61,24 @@ runs:
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
+    - name: Determine version and redistributable paths and names (before building)
+      shell: bash
+      id: openmsx
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
+        if [ "${{ inputs.os }}" = "darwin" ]; then
+          HAS_SINGLE_FILE_OUTPUT=true
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
+        else
+          HAS_SINGLE_FILE_OUTPUT=false
+        fi
+        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
+        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
+        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
+        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
       shell: bash
@@ -91,24 +109,6 @@ runs:
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
-    - name: Determine version and redistributable paths and names
-      shell: bash
-      id: openmsx
-      run: |
-        OPENMSX_VERSION=`python3 build/version.py`
-        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
-        if [ "${{ inputs.os }}" = "darwin" ]; then
-          HAS_SINGLE_FILE_OUTPUT=true
-          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
-        else
-          HAS_SINGLE_FILE_OUTPUT=false
-        fi
-        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
-        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
-        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
-        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
-        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
-        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
@@ -132,7 +132,7 @@ runs:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' && failure() }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip
