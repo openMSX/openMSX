@@ -117,9 +117,8 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 							if (board) {
 								auto configName = board->getMachineName();
 								auto* info = findMachineInfo(configName);
-								assert(info);
 								auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
-								return strCat(info->displayName, " (", formatTime(time), ')');
+								return strCat(info ? info->displayName : configName, " (", formatTime(time), ')');
 							} else {
 								return std::string(name);
 							}
@@ -141,11 +140,16 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			auto configName = motherBoard->getMachineName();
 			auto* info = findMachineInfo(configName);
-			assert(info);
-			std::string display = strCat("Current machine: ", info->displayName);
-			im::TreeNode(display.c_str(), [&]{
-				printConfigInfo(*info);
-			});
+			if (info) {
+				std::string display = strCat("Current machine: ", info->displayName);
+				im::TreeNode(display.c_str(), [&]{
+					printConfigInfo(*info);
+				});
+			} else {
+				// machine config is gone... fallback: just show configName
+
+				ImGui::TextUnformatted(strCat("Current machine: ", configName, " (can't load this machine config to show more info)"));
+			}
 			if (newMachineConfig.empty()) newMachineConfig = configName;
 			if (auto& defaultMachine = reactor.getMachineSetting();
 			    defaultMachine.getString() != configName) {
@@ -484,6 +488,12 @@ ImGuiMachine::MachineInfo* ImGuiMachine::findMachineInfo(std::string_view config
 {
 	auto& allMachines = getAllMachines();
 	auto it = std::ranges::find(allMachines, config, &MachineInfo::configName);
+	if (it == allMachines.end()) {
+		// perhaps something changed, let's refresh the cache and try again
+		machineInfo.clear();
+		allMachines = getAllMachines();
+		it = std::ranges::find(allMachines, config, &MachineInfo::configName);
+	}
 	return (it != allMachines.end()) ? std::to_address(it) : nullptr;
 }
 
