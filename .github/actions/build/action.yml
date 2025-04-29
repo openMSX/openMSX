@@ -46,6 +46,10 @@ runs:
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v2
+    - name: Meson and ninja for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: pip install meson ninja
+      shell: bash
     - name: Cache 3rdparty libs
       id: cache-3rdparty
       uses: actions/cache@v4
@@ -58,6 +62,18 @@ runs:
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
+    - name: Configure Meson for libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson setup derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10 derived/3rdparty/src/libepoxy-1.5.10 -Dbuildtype=release -Ddefault_library=static --prefix=`pwd`/derived/x64-VC-Release/3rdparty/install -Dtests=false --backend vs
+      shell: bash
+    - name: Compile libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson compile -C derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10
+      shell: bash
+    - name: Install libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson install -C derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10
+      shell: bash
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
