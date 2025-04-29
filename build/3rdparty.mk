@@ -163,12 +163,9 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PKG_CONFIG)/.extracted
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
-		--with-internal-glib \
-		--disable-host-tool \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		CFLAGS="-Wno-error=int-conversion" \
 		CC= LD= AR= RANLIB= STRIP=
 
 # Configure SDL2.
