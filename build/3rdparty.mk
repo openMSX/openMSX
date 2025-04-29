@@ -83,7 +83,8 @@ TARGET_TRIPLE:=$(TARGET_TRIPLE)eabi
 endif
 endif
 
-export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
+export PACKAGE_PKG_CONFIG=pkgconf-2.4.3
+export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkgconf
 
 # Ask the compiler for the names and locations of other toolchain components.
 # This works with GCC and Clang at least, so it should be pretty safe.
