@@ -64,7 +64,7 @@ runs:
       run: python build/thirdparty_download.py windows
     - name: Configure Meson for libepoxy for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
-      run: meson setup derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10 derived/3rdparty/src/libepoxy-1.5.10 -Dbuildtype=release -Ddefault_library=static --prefix=`pwd`/derived/x64-VC-Release/3rdparty/install -Dtests=false --backend vs
+      run: meson setup derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10 derived/3rdparty/src/libepoxy-1.5.10 -Dbuildtype=release -Ddefault_library=static --prefix=`pwd`/derived/x64-VC-Release/3rdparty/install -Dc_args='-DEPOXY_PUBLIC=extern' -Dtests=false --backend vs
       shell: bash
     - name: Compile libepoxy for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
