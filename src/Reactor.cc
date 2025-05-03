@@ -163,6 +163,17 @@ private:
 	Reactor& reactor;
 };
 
+class SetupCommand final : public Command
+{
+public:
+	SetupCommand(CommandController& commandController, Reactor& reactor);
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+private:
+	Reactor& reactor;
+};
+
 class GetClipboardCommand final : public Command
 {
 public:
@@ -264,6 +275,8 @@ void Reactor::init()
 	storeMachineCommand = make_unique<StoreMachineCommand>(
 		*globalCommandController, *this);
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
+		*globalCommandController, *this);
+	setupCommand = make_unique<SetupCommand>(
 		*globalCommandController, *this);
 	getClipboardCommand = make_unique<GetClipboardCommand>(
 		*globalCommandController, *this);
@@ -1033,6 +1046,40 @@ string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	completeFileName(tokens, userFileContext());
+}
+
+
+// class SetupCommand
+
+SetupCommand::SetupCommand(CommandController& commandController_,
+                               Reactor& reactor_)
+	: Command(commandController_, "setup")
+	, reactor(reactor_)
+{
+}
+
+void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 2, Prefix{1}, "filename");
+	try {
+		reactor.switchMachineFromSetup(string(tokens[1].getString()));
+	} catch (MSXException& e) {
+		throw CommandException("Switching to setup failed: ",
+				       e.getMessage());
+	}
+
+	// Always return machineID (of current or of new machine).
+	result = reactor.getMachineID();
+}
+
+string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "Switch to a different MSX setup.";
+}
+
+void SetupCommand::tabCompletion(vector<string>& /*tokens*/) const
+{
+	// TODO: similar to replays, select from a fixed list of files
 }
 
 
