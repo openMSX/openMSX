@@ -41,6 +41,7 @@ class InfoCommand;
 class InputEventGenerator;
 class Interpreter;
 class ListMachinesCommand;
+class SetupCommand;
 class MSXMotherBoard;
 class MachineCommand;
 class MessageCommand;
@@ -182,6 +183,7 @@ private:
 	std::unique_ptr<ActivateMachineCommand> activateMachineCommand;
 	std::unique_ptr<StoreMachineCommand> storeMachineCommand;
 	std::unique_ptr<RestoreMachineCommand> restoreMachineCommand;
+	std::unique_ptr<SetupCommand> setupCommand;
 	std::unique_ptr<GetClipboardCommand> getClipboardCommand;
 	std::unique_ptr<SetClipboardCommand> setClipboardCommand;
 	std::unique_ptr<AviRecorder> aviRecordCommand;
@@ -222,6 +224,7 @@ private:
 	friend class ActivateMachineCommand;
 	friend class StoreMachineCommand;
 	friend class RestoreMachineCommand;
+	friend class SetupCommand;
 };
 
 } // namespace openmsx
