@@ -93,7 +93,7 @@ public:
 	[[nodiscard]] Mixer& getMixer();
 	[[nodiscard]] DiskFactory& getDiskFactory() { return *diskFactory; }
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
-	[[nodiscard]] EnumSetting<int>& getMachineSetting() { return *machineSetting; }
+	[[nodiscard]] EnumSetting<int>& getDefaultMachineSetting() { return *defaultMachineSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 	[[nodiscard]] const HotKey& getHotKey() const;
@@ -103,6 +103,7 @@ public:
 	[[nodiscard]] RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
+	void switchMachineFromSetup(const std::string& filename);
 	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
 	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);
@@ -132,7 +133,7 @@ public:
 			[](auto& b) -> std::string_view { return b->getMachineID(); });
 	}
 private:
-	void createMachineSetting();
+	void createDefaultMachineAndSetupSettings();
 	void switchBoard(Board newBoard);
 	void deleteBoard(Board board);
 
@@ -166,7 +167,7 @@ private:
 	std::unique_ptr<DiskChanger> virtualDrive;
 	std::unique_ptr<FilePool> filePool;
 
-	std::unique_ptr<EnumSetting<int>> machineSetting;
+	std::unique_ptr<EnumSetting<int>> defaultMachineSetting;
 	std::unique_ptr<UserSettings> userSettings;
 	std::unique_ptr<RomDatabase> softwareDatabase; // lazy initialized
 

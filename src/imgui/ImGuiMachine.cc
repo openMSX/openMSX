@@ -151,7 +151,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 				ImGui::TextUnformatted(strCat("Current machine: ", configName, " (can't load this machine config to show more info)"));
 			}
 			if (newMachineConfig.empty()) newMachineConfig = configName;
-			if (auto& defaultMachine = reactor.getMachineSetting();
+			if (auto& defaultMachine = reactor.getDefaultMachineSetting();
 			    defaultMachine.getString() != configName) {
 				if (ImGui::Button("Make this the default machine")) {
 					defaultMachine.setValue(TclObject(configName));
