@@ -281,7 +281,7 @@ void Reactor::init()
 	tclCallbackMessages = make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
-	createMachineSetting();
+	createDefaultMachineAndSetupSettings();
 
 	getGlobalSettings().getPauseSetting().attach(*this);
 
@@ -392,7 +392,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 }
 
 
-void Reactor::createMachineSetting()
+void Reactor::createDefaultMachineAndSetupSettings()
 {
 	auto names = getHwConfigs("machines");
 	EnumSetting<int>::Map machines; // int's are unique dummy values
@@ -400,9 +400,9 @@ void Reactor::createMachineSetting()
 	int count = 1;
 	append(machines, std::views::transform(names,
 		[&](auto& name) { return EnumSettingBase::MapEntry(std::move(name), count++); }));
-	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
+	machines.emplace_back("C-BIOS_MSX2+", 0); // initial default machine
 
-	machineSetting = make_unique<EnumSetting<int>>(
+	defaultMachineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, std::move(machines));
@@ -472,6 +472,41 @@ void Reactor::switchMachine(const string& machine)
 	//       motherboard must be considered as not created at all.
 	auto newBoard = createEmptyMotherBoard();
 	newBoard->loadMachine(machine);
+	boards.push_back(newBoard);
+
+	auto oldBoard = activeBoard;
+	switchBoard(newBoard);
+	deleteBoard(oldBoard);
+}
+
+void Reactor::switchMachineFromSetup(const string& filename)
+{
+	if (!display) {
+		display = make_unique<Display>(*this);
+		// TODO: Currently it is not possible to move this call into the
+		//       constructor of Display because the call to createVideoSystem()
+		//       indirectly calls Reactor.getDisplay().
+		display->createVideoSystem();
+	}
+
+	// create new machine
+	// load state into machine
+	// switch to new machine
+	// delete old active machine
+
+	assert(Thread::isMainThread());
+	auto newBoard = createEmptyMotherBoard();
+
+	try {
+		XmlInputArchive in(filename);
+		in.serialize("machine", *newBoard);
+	} catch (XMLException& e) {
+		throw CommandException("Cannot load setup, bad file format: ",
+				       e.getMessage());
+	} catch (MSXException& e) {
+		throw CommandException("Cannot load setup: ", e.getMessage());
+	}
+
 	boards.push_back(newBoard);
 
 	auto oldBoard = activeBoard;
