@@ -67,6 +67,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
+	registerOption("-setup",      setupOption,   PHASE_LOAD_MACHINE);
 
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
@@ -209,7 +210,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
 				const auto& machine =
-					reactor.getMachineSetting().getString();
+					reactor.getDefaultMachineSetting().getString();
 				try {
 					reactor.switchMachine(string(machine));
 				} catch (MSXException& e) {
@@ -218,7 +219,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					auto fallbackMachine = std::string(
-						reactor.getMachineSetting().getDefaultValue().getString());
+						reactor.getDefaultMachineSetting().getDefaultValue().getString());
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {
@@ -494,6 +495,29 @@ string_view CommandLineParser::VersionOption::optionHelp() const
 }
 
 
+// Setup option
+
+void CommandLineParser::SetupOption::parseOption(
+	const string& option, std::span<string>& cmdLine)
+{
+	auto& parser = OUTER(CommandLineParser, setupOption);
+	if (parser.haveConfig) {
+		throw FatalError("Only one -setup or -machine option allowed");
+	}
+	try {
+		const auto filename = getArgument(option, cmdLine);
+		parser.reactor.switchMachineFromSetup(filename);
+	} catch (MSXException& e) {
+		throw FatalError(std::move(e).getMessage());
+	}
+	parser.haveConfig = true;
+}
+
+string_view CommandLineParser::SetupOption::optionHelp() const
+{
+	return "Use setup file specified in argument";
+}
+
 // Machine option
 
 void CommandLineParser::MachineOption::parseOption(
@@ -501,7 +525,7 @@ void CommandLineParser::MachineOption::parseOption(
 {
 	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
-		throw FatalError("Only one machine option allowed");
+		throw FatalError("Only one -setup or -machine option allowed");
 	}
 	try {
 		parser.reactor.switchMachine(getArgument(option, cmdLine));
@@ -524,7 +548,7 @@ void CommandLineParser::SettingOption::parseOption(
 {
 	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
-		throw FatalError("Only one setting option allowed");
+		throw FatalError("Only one -setting option allowed");
 	}
 	try {
 		auto& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
