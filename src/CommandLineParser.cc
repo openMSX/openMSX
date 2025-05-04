@@ -23,6 +23,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "xxhash.hh"
+#include "foreach_file.hh"
 
 #include "build-info.hh"
 
@@ -504,8 +505,23 @@ void CommandLineParser::SetupOption::parseOption(
 	if (parser.haveConfig) {
 		throw FatalError("Only one -setup or -machine option allowed");
 	}
+
+	// resolve the filename
+	auto context = userDataFileContext(Reactor::SETUP_DIR);
+	const auto fileNameArg = getArgument(option, cmdLine);
+	std::string filename;
 	try {
-		const auto filename = getArgument(option, cmdLine);
+		// Try filename as typed by user.
+		filename = context.resolve(fileNameArg);
+	} catch (MSXException& /*e1*/) { try {
+		// Not found, try adding the normal extension
+		filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
+	} catch (MSXException& e2) {
+		// Show error message that includes the default extension.
+		throw e2;
+	}}
+
+	try {
 		parser.reactor.switchMachineFromSetup(filename);
 	} catch (MSXException& e) {
 		throw FatalError(std::move(e).getMessage());
@@ -593,6 +609,23 @@ void CommandLineParser::BashOption::parseOption(
 
 	if (last == "-machine") {
 		for (const auto& s : Reactor::getHwConfigs("machines")) {
+			cout << s << '\n';
+		}
+	} else if (last == "-setup") {
+		// TODO: remove duplication from FileListWidget::scanDirectory
+		std::string_view directory = Reactor::SETUP_DIR;
+		std::string_view extension = Reactor::SETUP_EXTENSION;
+		std::vector<std::string> entries;
+		for (auto context = userDataFileContext(directory);
+		     const auto& path : context.getPaths()) {
+			foreach_file(path, [&](const std::string& /*fullName*/, std::string_view name) {
+				if (name.ends_with(extension)) {
+					name.remove_suffix(extension.size());
+					entries.emplace_back(std::string(name));
+				}
+			});
+		}
+		for (const auto& s : entries) {
 			cout << s << '\n';
 		}
 	} else if (last.starts_with("-ext")) {

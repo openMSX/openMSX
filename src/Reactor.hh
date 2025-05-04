@@ -74,6 +74,10 @@ extern int exitCode;
 class Reactor final : private Observer<Setting>, private EventListener
 {
 public:
+	static constexpr std::string_view SETUP_DIR = "setups";
+	static constexpr std::string_view SETUP_EXTENSION = ".oms";
+
+public:
 	Reactor();
 	void init();
 	~Reactor();
