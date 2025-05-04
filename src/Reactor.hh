@@ -2,6 +2,7 @@
 #define REACTOR_HH
 
 #include "EnumSetting.hh"
+#include "StringSetting.hh"
 #include "EventListener.hh"
 #include "Observer.hh"
 
@@ -99,6 +100,7 @@ public:
 	[[nodiscard]] DiskFactory& getDiskFactory() { return *diskFactory; }
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	[[nodiscard]] EnumSetting<int>& getDefaultMachineSetting() { return *defaultMachineSetting; }
+	[[nodiscard]] StringSetting& getDefaultSetupSetting() { return *defaultSetupSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 	[[nodiscard]] const HotKey& getHotKey() const;
@@ -173,6 +175,7 @@ private:
 	std::unique_ptr<FilePool> filePool;
 
 	std::unique_ptr<EnumSetting<int>> defaultMachineSetting;
+	std::unique_ptr<StringSetting> defaultSetupSetting;
 	std::unique_ptr<UserSettings> userSettings;
 	std::unique_ptr<RomDatabase> softwareDatabase; // lazy initialized
 
