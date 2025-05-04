@@ -121,7 +121,7 @@ byte MSXMapperIO::Debuggable::read(unsigned address)
 void MSXMapperIO::Debuggable::readBlock(unsigned start, std::span<byte> output)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	copy_to_range(std::span{mapperIO.registers}.subspan(start), output);
+	copy_to_range(std::span{mapperIO.registers}.subspan(start, output.size()), output);
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value,

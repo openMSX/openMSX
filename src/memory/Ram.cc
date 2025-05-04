@@ -98,7 +98,7 @@ uint8_t RamDebuggable::read(unsigned address)
 
 void RamDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
-	copy_to_range(std::span{ram}.subspan(start), output);
+	copy_to_range(std::span{ram}.subspan(start, output.size()), output);
 }
 
 void RamDebuggable::write(unsigned address, uint8_t value)

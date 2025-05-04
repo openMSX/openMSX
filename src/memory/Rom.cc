@@ -415,7 +415,7 @@ uint8_t RomDebuggable::read(unsigned address)
 
 void RomDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
-	copy_to_range(std::span{*rom}.subspan(start), output);
+	copy_to_range(std::span{*rom}.subspan(start, output.size()), output);
 }
 
 void RomDebuggable::write(unsigned /*address*/, uint8_t /*value*/)
