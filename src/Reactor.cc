@@ -417,8 +417,14 @@ void Reactor::createDefaultMachineAndSetupSettings()
 
 	defaultMachineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
-		"default machine (takes effect next time openMSX is started)",
+		"default machine (takes effect next time openMSX is started) - if no default setup is configured",
 		0, std::move(machines));
+
+	// TODO: add tabCompletion for this setting, so that it's easy to set with an existing setup file?
+	defaultSetupSetting = make_unique<StringSetting>(
+		*globalCommandController, "default_setup",
+		"default setup (takes effect next time openMSX is started)",
+		"");
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
