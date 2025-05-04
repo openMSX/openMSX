@@ -1061,8 +1061,25 @@ SetupCommand::SetupCommand(CommandController& commandController_,
 void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, 2, Prefix{1}, "filename");
+
+	// resolve the filename
+	auto context = userDataFileContext(Reactor::SETUP_DIR);
+	std::string fileNameArg(tokens[1].getString());
+	std::string filename;
 	try {
-		reactor.switchMachineFromSetup(string(tokens[1].getString()));
+		// Try filename as typed by user.
+		filename = context.resolve(fileNameArg);
+	} catch (MSXException& /*e1*/) { try {
+		// Not found, try adding the normal extension
+		filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
+	} catch (MSXException& e2) {
+		// Show error message that includes the default extension.
+		throw e2;
+	}}
+
+	// switch to this setup
+	try {
+		reactor.switchMachineFromSetup(filename);
 	} catch (MSXException& e) {
 		throw CommandException("Switching to setup failed: ",
 				       e.getMessage());
@@ -1077,9 +1094,9 @@ string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
 	return "Switch to a different MSX setup.";
 }
 
-void SetupCommand::tabCompletion(vector<string>& /*tokens*/) const
+void SetupCommand::tabCompletion(vector<string>& tokens) const
 {
-	// TODO: similar to replays, select from a fixed list of files
+	completeFileName(tokens, userDataFileContext(Reactor::SETUP_DIR));
 }
 
 

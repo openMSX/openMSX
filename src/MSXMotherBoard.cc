@@ -11,6 +11,7 @@
 #include "EventDelay.hh"
 #include "EventDistributor.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "GlobalCliComm.hh"
 #include "GlobalSettings.hh"
 #include "HardwareConfig.hh"
@@ -974,8 +975,15 @@ StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
 
 void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
-	checkNumArgs(tokens, 2, Prefix{1}, "filename");
-	const auto& filename = tokens[1].getString();
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
+
+	std::string_view filenameArg;
+	if (tokens.size() == 2) {
+		filenameArg = tokens[1].getString();
+	}
+
+	auto filename = FileOperations::parseCommandFileArgument(
+		filenameArg, Reactor::SETUP_DIR, motherBoard.getMachineName(), Reactor::SETUP_EXTENSION);
 
 	// TODO: make level and parts of levels to be saved configurable (via command arguments?)
 
@@ -1032,9 +1040,9 @@ string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
 		"store_setup <filename>  Save setup based on this machine to indicated file.";
 }
 
-void StoreSetupCmd::tabCompletion(std::vector<string>& /*tokens*/) const
+void StoreSetupCmd::tabCompletion(std::vector<string>& tokens) const
 {
-	// TODO (anything useful we can add?)
+	completeFileName(tokens, userDataFileContext(Reactor::SETUP_DIR));
 }
 
 
