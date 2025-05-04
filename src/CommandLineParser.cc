@@ -209,25 +209,60 @@ void CommandLineParser::parse(std::span<char*> argv)
 			break;
 		case PHASE_DEFAULT_MACHINE: {
 			if (!haveConfig) {
-				// load default config file in case the user didn't specify one
-				const auto& machine =
-					reactor.getDefaultMachineSetting().getString();
-				try {
-					reactor.switchMachine(string(machine));
-				} catch (MSXException& e) {
-					reactor.getCliComm().printInfo(
-						"Failed to initialize default machine: ",
-						e.getMessage());
-					// Default machine is broken; fall back to C-BIOS config.
-					auto fallbackMachine = std::string(
-						reactor.getDefaultMachineSetting().getDefaultValue().getString());
-					reactor.getCliComm().printInfo(
-						"Using fallback machine: ", fallbackMachine);
+				// load default setup in case the user didn't specify one
+				const auto& defaultSetup =
+					reactor.getDefaultSetupSetting().getString();
+				if (!defaultSetup.empty()) {
+					auto context = userDataFileContext(Reactor::SETUP_DIR);
+					std::string filename;
 					try {
-						reactor.switchMachine(fallbackMachine);
-					} catch (MSXException& e2) {
-						// Fallback machine failed as well; we're out of options.
-						throw FatalError(std::move(e2).getMessage());
+						// Try filename as typed by user in setting
+						filename = context.resolve(defaultSetup);
+					} catch (MSXException&) {
+						// Not found, try adding the normal extension
+						try {
+							filename = context.resolve(tmpStrCat(
+								defaultSetup, Reactor::SETUP_EXTENSION));
+						} catch (MSXException& e) {
+							reactor.getCliComm().printInfo(
+								"Failed to load default setup: ",
+								e.getMessage());
+
+						}
+					}
+					if (!filename.empty()) {
+						try {
+							reactor.switchMachineFromSetup(filename);
+							haveConfig = true;
+						} catch (MSXException& e) {
+							reactor.getCliComm().printInfo(
+								"Failed to activate default setup: ",
+								e.getMessage());
+						}
+					}
+				}
+				if (!haveConfig) {
+					// load default machine config file in case the user
+					// didn't specify one and loading the default setup failed
+					const auto& defaultMachine =
+						reactor.getDefaultMachineSetting().getString();
+					try {
+						reactor.switchMachine(string(defaultMachine));
+					} catch (MSXException& e) {
+						reactor.getCliComm().printInfo(
+							"Failed to initialize default machine: ",
+							e.getMessage());
+						// Default machine is broken; fall back to C-BIOS config.
+						auto fallbackMachine = std::string(
+							reactor.getDefaultMachineSetting().getDefaultValue().getString());
+						reactor.getCliComm().printInfo(
+							"Using fallback machine: ", fallbackMachine);
+						try {
+							reactor.switchMachine(fallbackMachine);
+						} catch (MSXException& e2) {
+							// Fallback machine failed as well; we're out of options.
+							throw FatalError(std::move(e2).getMessage());
+						}
 					}
 				}
 				haveConfig = true;
