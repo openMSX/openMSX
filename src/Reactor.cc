@@ -386,6 +386,27 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	return result;
 }
 
+vector<string> Reactor::getSetups()
+{
+	vector<string> result;
+	std::string_view extension = Reactor::SETUP_EXTENSION;
+	for (auto context = userDataFileContext(SETUP_DIR);
+	     const auto& path : context.getPaths()) {
+		foreach_file(path, [&](const std::string& /*fullName*/, std::string_view name) {
+			if (name.ends_with(extension)) {
+				name.remove_suffix(extension.size());
+				result.emplace_back(name);
+			}
+		});
+	}
+	// remove duplicates
+	// (probably not necessary for now, but let's keep it in)
+	std::ranges::sort(result);
+	auto u = std::ranges::unique(result);
+	result.erase(u.begin(), u.end());
+	return result;
+}
+
 const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 {
 	// TODO cleanup this code. It should be easier to get a hold of the
@@ -1102,7 +1123,7 @@ string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
 
 void SetupCommand::tabCompletion(vector<string>& tokens) const
 {
-	completeFileName(tokens, userDataFileContext(Reactor::SETUP_DIR));
+	completeString(tokens, Reactor::getSetups());
 }
 
 

@@ -114,6 +114,7 @@ public:
 	[[nodiscard]] MSXMotherBoard* getMotherBoard() const;
 
 	[[nodiscard]] static std::vector<std::string> getHwConfigs(std::string_view type);
+	[[nodiscard]] static std::vector<std::string> getSetups();
 
 	[[nodiscard]] const MsxChar2Unicode& getMsxChar2Unicode() const;
 
