@@ -1042,7 +1042,7 @@ string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
 
 void StoreSetupCmd::tabCompletion(std::vector<string>& tokens) const
 {
-	completeFileName(tokens, userDataFileContext(Reactor::SETUP_DIR));
+	completeString(tokens, Reactor::getSetups());
 }
 
 
