@@ -389,6 +389,53 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	return machineName;
 }
 
+void MSXMotherBoard::storeAsSetup(const string& filename)
+{
+	// level 1: create new board based on current board of this machine
+	auto newBoard = reactor.createEmptyMotherBoard();
+	newBoard->loadMachine(machineName);
+
+	// suppress any messages from this temporary board
+	newBoard->getMSXCliComm().setSuppressMessages(true);
+
+	// level 2: add the extensions of the current board to the new board
+	for (auto& extension: extensions) {
+		if (extension->getType() == HardwareConfig::Type::EXTENSION) {
+			auto& configName = extension->getConfigName();
+			auto slot = slotManager->findSlotWith(*extension);
+			const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
+			// TODO: a bit weird that we need to convert the slot
+			// spec into a string and then parse it again deep down
+			// in loadExtension...
+			auto extConfig = newBoard->loadExtension(configName, slotSpec);
+			newBoard->insertExtension(configName, std::move(extConfig));
+		}
+	}
+
+	// level 3: add the pluggables of the current board to the new board
+	auto& newBoardPluggingController = newBoard->getPluggingController();
+	for (const auto* connector: getPluggingController().getConnectors()) {
+		const auto& plugged = connector->getPlugged();
+		const auto& pluggedName = plugged.getName();
+		if (!pluggedName.empty()) {
+			const auto& connectorName = connector->getName();
+			if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
+				if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
+					newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
+				}
+			}
+		}
+	}
+
+	// level 4: add the inserted media of the current board to the new board
+	// TODO
+
+
+	XmlOutputArchive out(filename);
+	out.serialize("machine", newBoard);
+	out.close();
+}
+
 std::unique_ptr<HardwareConfig> MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotName)
 {
 	try {
@@ -986,51 +1033,8 @@ void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result
 		filenameArg, Reactor::SETUP_DIR, motherBoard.getMachineName(), Reactor::SETUP_EXTENSION);
 
 	// TODO: make level and parts of levels to be saved configurable (via command arguments?)
+	motherBoard.storeAsSetup(filename);
 
-	// level 1: create new board based on current board of this machine
-	auto newBoard = motherBoard.getReactor().createEmptyMotherBoard();
-	newBoard->loadMachine(std::string(motherBoard.getMachineName()));
-
-	// suppress any messages from this temporary board
-	newBoard->getMSXCliComm().setSuppressMessages(true);
-
-	// level 2: add the extensions of the current board to the new board
-	for (auto& extension: motherBoard.getExtensions()) {
-		if (extension->getType() == HardwareConfig::Type::EXTENSION) {
-			const auto& slotManager = motherBoard.getSlotManager();
-			auto& configName = extension->getConfigName();
-			auto slot = slotManager.findSlotWith(*extension);
-			const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
-			// TODO: a bit weird that we need to convert the slot
-			// spec into a string and then parse it again deep down
-			// in loadExtension...
-			auto extConfig = newBoard->loadExtension(configName, slotSpec);
-			newBoard->insertExtension(configName, std::move(extConfig));
-		}
-	}
-
-	// level 3: add the pluggables of the current board to the new board
-	auto& newBoardPluggingController = newBoard->getPluggingController();
-	for (const auto* connector: motherBoard.getPluggingController().getConnectors()) {
-		const auto& plugged = connector->getPlugged();
-		const auto& pluggedName = plugged.getName();
-		if (!pluggedName.empty()) {
-			const auto& connectorName = connector->getName();
-			if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
-				if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
-					newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
-				}
-			}
-		}
-	}
-
-	// level 4: add the inserted media of the current board to the new board
-	// TODO
-
-
-	XmlOutputArchive out(filename);
-	out.serialize("machine", newBoard);
-	out.close();
 	result = filename;
 }
 
