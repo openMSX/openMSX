@@ -647,19 +647,7 @@ void CommandLineParser::BashOption::parseOption(
 			cout << s << '\n';
 		}
 	} else if (last == "-setup") {
-		// TODO: remove duplication from FileListWidget::scanDirectory
-		std::string_view directory = Reactor::SETUP_DIR;
-		std::string_view extension = Reactor::SETUP_EXTENSION;
-		std::vector<std::string> entries;
-		for (auto context = userDataFileContext(directory);
-		     const auto& path : context.getPaths()) {
-			foreach_file(path, [&](const std::string& /*fullName*/, std::string_view name) {
-				if (name.ends_with(extension)) {
-					name.remove_suffix(extension.size());
-					entries.emplace_back(std::string(name));
-				}
-			});
-		}
+		std::vector<std::string> entries = Reactor::getSetups();
 		for (const auto& s : entries) {
 			cout << s << '\n';
 		}
