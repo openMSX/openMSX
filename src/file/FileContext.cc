@@ -6,6 +6,7 @@
 #include "stl.hh"
 #include <cassert>
 #include <utility>
+#include "join.hh"
 
 using std::string;
 using std::string_view;
@@ -68,7 +69,8 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 		}
 	}
 	// not found in any path
-	throw FileException(filename, " not found in this context");
+	throw FileException("Couldn't find ", filename, " in ", (pathList.size() == 1 ? "" : "any of: "),
+		join(std::views::transform(pathList, [](const auto& p) { return FileOperations::getAbsolutePath(p); }), ", "));
 }
 
 FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
