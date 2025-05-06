@@ -216,19 +216,12 @@ void CommandLineParser::parse(std::span<char*> argv)
 					auto context = userDataFileContext(Reactor::SETUP_DIR);
 					std::string filename;
 					try {
-						// Try filename as typed by user in setting
-						filename = context.resolve(defaultSetup);
-					} catch (MSXException&) {
-						// Not found, try adding the normal extension
-						try {
-							filename = context.resolve(tmpStrCat(
-								defaultSetup, Reactor::SETUP_EXTENSION));
-						} catch (MSXException& e) {
-							reactor.getCliComm().printInfo(
-								"Failed to load default setup: ",
-								e.getMessage());
-
-						}
+						// Setups are specified without extension
+						filename = context.resolve(tmpStrCat(
+							defaultSetup, Reactor::SETUP_EXTENSION));
+					} catch (MSXException& e) {
+						reactor.getCliComm().printInfo(
+							"Failed to load default setup: ", e.getMessage());
 					}
 					if (!filename.empty()) {
 						try {
@@ -544,17 +537,7 @@ void CommandLineParser::SetupOption::parseOption(
 	// resolve the filename
 	auto context = userDataFileContext(Reactor::SETUP_DIR);
 	const auto fileNameArg = getArgument(option, cmdLine);
-	std::string filename;
-	try {
-		// Try filename as typed by user.
-		filename = context.resolve(fileNameArg);
-	} catch (MSXException& /*e1*/) { try {
-		// Not found, try adding the normal extension
-		filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
-	} catch (MSXException& e2) {
-		// Show error message that includes the default extension.
-		throw e2;
-	}}
+	const std::string filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
 
 	try {
 		parser.reactor.switchMachineFromSetup(filename);
