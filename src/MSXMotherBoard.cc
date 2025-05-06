@@ -127,6 +127,7 @@ public:
 	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
+	const std::map<std::string, MSXMotherBoard::SetupDepth> depthOptionMap;
 };
 
 class MachineNameInfo final : public InfoTopic
@@ -389,49 +390,67 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	return machineName;
 }
 
-void MSXMotherBoard::storeAsSetup(const string& filename)
+void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 {
+	// level 0: don't do anything. Added as convenience.
+	if (depth == SetupDepth::NONE) return;
+
+	XmlOutputArchive out(filename);
+
+	if (depth == SetupDepth::COMPLETE_STATE) {
+		// level 5: just save state to given file
+		out.serialize("machine", this);
+		out.close();
+		return;
+	}
+
 	// level 1: create new board based on current board of this machine
 	auto newBoard = reactor.createEmptyMotherBoard();
 	newBoard->loadMachine(machineName);
 
-	// suppress any messages from this temporary board
-	newBoard->getMSXCliComm().setSuppressMessages(true);
+	if (depth >= SetupDepth::WITH_EXTENSIONS) {
+		// level 2: add the extensions of the current board to the new board
 
-	// level 2: add the extensions of the current board to the new board
-	for (auto& extension: extensions) {
-		if (extension->getType() == HardwareConfig::Type::EXTENSION) {
-			auto& configName = extension->getConfigName();
-			auto slot = slotManager->findSlotWith(*extension);
-			const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
-			// TODO: a bit weird that we need to convert the slot
-			// spec into a string and then parse it again deep down
-			// in loadExtension...
-			auto extConfig = newBoard->loadExtension(configName, slotSpec);
-			newBoard->insertExtension(configName, std::move(extConfig));
+		// suppress any messages from this temporary board
+		newBoard->getMSXCliComm().setSuppressMessages(true);
+
+		for (auto& extension: extensions) {
+			if (extension->getType() == HardwareConfig::Type::EXTENSION) {
+				auto& configName = extension->getConfigName();
+				auto slot = slotManager->findSlotWith(*extension);
+				const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
+				// TODO: a bit weird that we need to convert the slot
+				// spec into a string and then parse it again deep down
+				// in loadExtension...
+				auto extConfig = newBoard->loadExtension(configName, slotSpec);
+				newBoard->insertExtension(configName, std::move(extConfig));
+			}
 		}
 	}
 
-	// level 3: add the pluggables of the current board to the new board
-	auto& newBoardPluggingController = newBoard->getPluggingController();
-	for (const auto* connector: getPluggingController().getConnectors()) {
-		const auto& plugged = connector->getPlugged();
-		const auto& pluggedName = plugged.getName();
-		if (!pluggedName.empty()) {
-			const auto& connectorName = connector->getName();
-			if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
-				if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
-					newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
+	if (depth >= SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES) {
+		// level 3: add the pluggables of the current board to the new board
+		auto& newBoardPluggingController = newBoard->getPluggingController();
+		for (const auto* connector: getPluggingController().getConnectors()) {
+			const auto& plugged = connector->getPlugged();
+			const auto& pluggedName = plugged.getName();
+			if (!pluggedName.empty()) {
+				const auto& connectorName = connector->getName();
+				if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
+					if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
+						newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
+					}
 				}
 			}
 		}
 	}
 
-	// level 4: add the inserted media of the current board to the new board
-	// TODO
+	if (depth >= SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA) {
+		// level 4: add the inserted media of the current board to the new board
+		// TODO: pass all media slots and insert the media there. Set tape to the same index...
+	}
 
 
-	XmlOutputArchive out(filename);
 	out.serialize("machine", newBoard);
 	out.close();
 }
@@ -1017,23 +1036,39 @@ void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "store_setup")
 	, motherBoard(motherBoard_)
+	, depthOptionMap({
+		{ "none", MSXMotherBoard::SetupDepth::NONE },
+		{ "machine_only", MSXMotherBoard::SetupDepth::MACHINE_ONLY },
+		{ "with_extensions", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS },
+		{ "with_extensions_and_pluggables", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES },
+		{ "with_extensions_and_pluggables_and_media", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA },
+		{ "complete_state", MSXMotherBoard::SetupDepth::COMPLETE_STATE }
+	})
 {
 }
 
 void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
-	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
+	checkNumArgs(tokens, Between{2, 3}, Prefix{1}, "depth ?filename?");
+
+	std::string depthArg = std::string(tokens[1].getString());
+	auto depthIt = depthOptionMap.find(depthArg);
+	if (depthIt == depthOptionMap.end()) {
+		throw CommandException("Unknown depth argument: ", depthArg);
+	}
+
+	if (depthIt->second == MSXMotherBoard::SetupDepth::NONE) return;
 
 	std::string_view filenameArg;
-	if (tokens.size() == 2) {
-		filenameArg = tokens[1].getString();
+	if (tokens.size() == 3) {
+		filenameArg = tokens[2].getString();
 	}
 
 	auto filename = FileOperations::parseCommandFileArgument(
 		filenameArg, Reactor::SETUP_DIR, motherBoard.getMachineName(), Reactor::SETUP_EXTENSION);
 
-	// TODO: make level and parts of levels to be saved configurable (via command arguments?)
-	motherBoard.storeAsSetup(filename);
+	// TODO: make parts of levels to be saved configurable?
+	motherBoard.storeAsSetup(filename, depthIt->second);
 
 	result = filename;
 }
@@ -1041,12 +1076,16 @@ void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result
 string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return
-		"store_setup <filename>  Save setup based on this machine to indicated file.";
+		"store_setup <depth> [filename]  Save setup based on this machine with given depth to indicated file.";
 }
 
 void StoreSetupCmd::tabCompletion(std::vector<string>& tokens) const
 {
-	completeString(tokens, Reactor::getSetups());
+	if (tokens.size() == 2) {
+		completeString(tokens, std::views::keys(depthOptionMap));
+	} else if (tokens.size() == 3) {
+		completeString(tokens, Reactor::getSetups());
+	}
 }
 
 
