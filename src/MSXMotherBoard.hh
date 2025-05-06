@@ -134,7 +134,10 @@ public:
 	[[nodiscard]] bool hasToshibaEngine() const;
 
 	std::string loadMachine(const std::string& machine);
-	void storeAsSetup(const std::string& filename);
+
+	enum class SetupDepth : uint8_t { NONE, MACHINE_ONLY, WITH_EXTENSIONS,
+		WITH_EXTENSIONS_AND_PLUGGABLES, WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA, COMPLETE_STATE };
+	void storeAsSetup(const std::string& filename, SetupDepth depth);
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	[[nodiscard]] const Extensions& getExtensions() const { return extensions; }
