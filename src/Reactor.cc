@@ -399,11 +399,6 @@ vector<string> Reactor::getSetups()
 			}
 		});
 	}
-	// remove duplicates
-	// (probably not necessary for now, but let's keep it in)
-	std::ranges::sort(result);
-	auto u = std::ranges::unique(result);
-	result.erase(u.begin(), u.end());
 	return result;
 }
 
@@ -1092,17 +1087,8 @@ void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 	// resolve the filename
 	auto context = userDataFileContext(Reactor::SETUP_DIR);
 	std::string fileNameArg(tokens[1].getString());
-	std::string filename;
-	try {
-		// Try filename as typed by user.
-		filename = context.resolve(fileNameArg);
-	} catch (MSXException& /*e1*/) { try {
-		// Not found, try adding the normal extension
-		filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
-	} catch (MSXException& e2) {
-		// Show error message that includes the default extension.
-		throw e2;
-	}}
+	// Assume the user left out the extension, so add the normal extension
+	auto filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
 
 	// switch to this setup
 	try {
