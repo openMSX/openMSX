@@ -2,6 +2,8 @@
 #define IMGUI_MACHINE_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
+#include "FileListWidget.hh"
 
 #include "circular_buffer.hh"
 
@@ -21,7 +23,7 @@ public:
 	};
 
 public:
-	using ImGuiPart::ImGuiPart;
+	explicit ImGuiMachine(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "machine"; }
 	void save(ImGuiTextBuffer& buf) override;
@@ -51,6 +53,10 @@ private:
 	static constexpr size_t HISTORY_SIZE = 8;
 	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
 
+	bool saveSetupOpen = false;
+	std::string saveSetupName;
+	FileListWidget setupFileList;
+	ConfirmDialog confirmDialog;
 };
 
 } // namespace openmsx
