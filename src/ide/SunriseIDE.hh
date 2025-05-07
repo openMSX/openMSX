@@ -52,8 +52,8 @@ private:
 	Rom rom;
 	std::array<std::unique_ptr<IDEDevice>, 2> device;
 	std::span<const uint8_t, 0x4000> internalBank;
-	uint8_t readLatch;
-	uint8_t writeLatch;
+	uint8_t readLatch = 0;
+	uint8_t writeLatch = 0;
 	uint8_t selectedDevice;
 	uint8_t control;
 	bool ideRegsEnabled = false;
