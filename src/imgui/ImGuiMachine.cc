@@ -32,6 +32,16 @@ using namespace std::literals;
 
 namespace openmsx {
 
+ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, setupFileList("setup", Reactor::SETUP_EXTENSION, Reactor::SETUP_DIR)
+	, confirmDialog("Confirm##setup")
+{
+	setupFileList.selectAction = [&](const FileListWidget::Entry& entry) {
+		manager.executeDelayed(makeTclList("setup", entry.displayName));
+	};
+}
+
 void ImGuiMachine::save(ImGuiTextBuffer& buf)
 {
 	for (const auto& item : recentMachines) {
@@ -53,6 +63,56 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		const auto& hotKey = reactor.getHotKey();
 
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+
+		if (motherBoard) {
+			ImGui::Separator();
+
+			setupFileList.menu("Load setup ...");
+			saveSetupOpen = im::Menu("Save setup ...", true, [&]{
+				auto exists = [&]{
+					auto filename = FileOperations::parseCommandFileArgument(
+						saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+					return FileOperations::exists(filename);
+				};
+				if (!saveSetupOpen) {
+					// on each re-open of this menu, create a suggestion for a name
+					saveSetupName = motherBoard->getMachineName();
+					if (exists()) {
+						saveSetupName = FileOperations::stem(FileOperations::getNextNumberedFileName(
+							Reactor::SETUP_DIR, motherBoard->getMachineName(), Reactor::SETUP_EXTENSION, true));
+					}
+				}
+				ImGui::TextUnformatted("Enter name:"sv);
+				ImGui::InputText("##save-setup-name", &saveSetupName);
+				ImGui::SameLine();
+				if (ImGui::Button("Create")) {
+					ImGui::CloseCurrentPopup();
+
+					auto action = [manager = &manager, saveSetupName = saveSetupName] {
+						if (auto motherBoard_ = manager->getReactor().getMotherBoard()) {
+							// pass full filename
+							auto filename = FileOperations::parseCommandFileArgument(
+								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+							motherBoard_->storeAsSetup(filename,
+								MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES);
+						}
+					};
+					auto delayedAction = [manager = &manager, action] {
+						manager->executeDelayed(action);
+					};
+					if (exists()) {
+						confirmDialog.open(
+							strCat("Overwrite setup with name '", saveSetupName, "'?"),
+							delayedAction);
+					} else {
+						delayedAction();
+						manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
+					}
+				}
+			});
+		}
+
+		ImGui::Separator();
 
 		if (motherBoard) {
 			const auto& controller = motherBoard->getMSXCommandController();
@@ -83,6 +143,8 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		ImGui::MenuItem("Test MSX hardware ...", nullptr, &showTestHardware);
 	});
+
+	confirmDialog.execute();
 }
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
