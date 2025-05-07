@@ -14,7 +14,7 @@ public:
 	// Most methods simply delegate to the internal 'ram' object.
 	TrackedRam(const DeviceConfig& config, const std::string& name,
 	           static_string_view description, size_t size)
-		: ram(config, name, description, size) {}
+		: ram(config, name, description, size, &writeSinceLastReverseSnapshot) {}
 
 	TrackedRam(const XMLElement& xml, size_t size)
 		: ram(xml, size) {}

@@ -496,7 +496,7 @@ uint8_t V9990::RegDebug::read(unsigned address)
 void V9990::RegDebug::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
-	copy_to_range(std::span{v9990.regs}.subspan(start), output);
+	copy_to_range(std::span{v9990.regs}.subspan(start, output.size()), output);
 }
 
 void V9990::RegDebug::write(unsigned address, uint8_t value, EmuTime::param time)
@@ -525,7 +525,7 @@ uint8_t V9990::PalDebug::read(unsigned address)
 void V9990::PalDebug::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
-	copy_to_range(std::span{v9990.palette}.subspan(start), output);
+	copy_to_range(std::span{v9990.palette}.subspan(start, output.size()), output);
 }
 
 void V9990::PalDebug::write(unsigned address, uint8_t value, EmuTime::param time)

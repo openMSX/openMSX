@@ -19,12 +19,13 @@ class RamDebuggable final : public SimpleDebuggable
 {
 public:
 	RamDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
-	              static_string_view description, Ram& ram);
+	              static_string_view description, Ram& ram, bool* debugWrite);
 	uint8_t read(unsigned address) override;
 	void write(unsigned address, uint8_t value) override;
 	void readBlock(unsigned start, std::span<uint8_t> output) override;
 private:
 	Ram& ram;
+	bool* debugWrite;
 };
 
 class Ram
@@ -32,7 +33,7 @@ class Ram
 public:
 	/** Create Ram object with an associated debuggable. */
 	Ram(const DeviceConfig& config, const std::string& name,
-	    static_string_view description, size_t size);
+	    static_string_view description, size_t size, bool* debugWrite = nullptr);
 
 	/** Create Ram object without debuggable. */
 	Ram(const XMLElement& xml, size_t size);
@@ -61,6 +62,7 @@ private:
 	const XMLElement& xml;
 	MemBuffer<uint8_t> ram;
 	const std::optional<RamDebuggable> debuggable; // can be nullopt
+	bool dummyDebugWrite = false;
 };
 
 } // namespace openmsx

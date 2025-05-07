@@ -204,6 +204,10 @@ bool ReverseManager::isViewOnlyMode() const
 {
 	return motherBoard.getStateChangeDistributor().isViewOnlyMode();
 }
+void ReverseManager::setViewOnlyMode(bool value)
+{
+	motherBoard.getStateChangeDistributor().setViewOnlyMode(value);
+}
 double ReverseManager::getBegin() const
 {
 	EmuTime b(isCollecting() ? begin(history.chunks)->second.time

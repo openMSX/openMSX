@@ -240,7 +240,10 @@ static std::array<char, 11> hostToMsxName(string hostName)
 	std::array<char, 8 + 3> result;
 	std::ranges::fill(result, ' ');
 	copy_to_range(subspan(file, 0, std::min<size_t>(8, file.size())), subspan<8>(result, 0));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
 	copy_to_range(subspan(ext,  0, std::min<size_t>(3, ext .size())), subspan<3>(result, 8));
+#pragma GCC diagnostic pop
 	std::ranges::replace(result, '.', '_');
 	return result;
 }

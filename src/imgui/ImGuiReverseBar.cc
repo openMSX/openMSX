@@ -218,7 +218,7 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showReverseBar) return;
 	if (!motherBoard) return;
-	const auto& reverseManager = motherBoard->getReverseManager();
+	auto& reverseManager = motherBoard->getReverseManager();
 	if (!reverseManager.isCollecting()) return;
 
 	const auto& style = ImGui::GetStyle();
@@ -344,6 +344,10 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 					ImGui::Checkbox("Allow move", &reverseAllowMove);
 				});
 			});
+			bool isViewOnlyMode = reverseManager.isViewOnlyMode();
+			if (ImGui::Checkbox("View only mode", &isViewOnlyMode)) {
+				reverseManager.setViewOnlyMode(isViewOnlyMode);
+			}
 		});
 
 		if (reverseHideTitle && ImGui::IsWindowFocused()) {

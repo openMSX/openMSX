@@ -64,6 +64,7 @@ public:
 
 	[[nodiscard]] bool isCollecting() const { return collecting; }
 	[[nodiscard]] bool isViewOnlyMode() const;
+	void setViewOnlyMode(bool value);
 	[[nodiscard]] double getBegin() const;
 	[[nodiscard]] double getEnd() const;
 	[[nodiscard]] double getCurrent() const;
