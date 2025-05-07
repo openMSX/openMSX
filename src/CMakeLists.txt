@@ -15,6 +15,14 @@ set(OPENMSX_SOURCES "")
 set(OPENMSX_INCLUDE_DIRS "")
 set(OPENMSX_DEFINES "")
 
+# Set msvc specific #defines
+if (MSVC)
+    list(APPEND OPENMSX_DEFINES
+        __SSE__ __SSE2__ WIN32 _WIN64 __x86_64 WIN32_LEAN_AND_MEAN UNICODE _UNICODE SECURITY_WIN32 NDEBUG _CONSOLE _USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_DEPRECATE NOMINMAX
+    )
+        # GLEW_STATIC STATIC_BUILD
+endif()
+
 # Generate components.hh
 message(STATUS "Generating components.hh")
 set (COMPONENTS_LIST "")
@@ -125,21 +133,39 @@ target_include_directories(openmsx PRIVATE ${OPENMSX_INCLUDE_DIRS})
 target_compile_features(openmsx PRIVATE cxx_std_23)
 enable_warnings(openmsx)
 
+if (MSVC)
+    set_target_properties(openmsx PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+    target_link_libraries(openmsx PRIVATE Secur32)
+endif()
+
+# Prefer XXXConfig.cmake over FindXXX.cmake (pick conan packages over system packages)
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
+
 # Add library dependencies
-set(EXTERNAL_LIBS
-    ALSA ALSA::ALSA
+set(EXTERNAL_LIBS "")
+if (COMPONENT_ALSAMIDI)
+    list(APPEND EXTERNAL_LIBS ALSA ALSA::ALSA)
+endif()
+
+if (MSVC)
+    list(APPEND EXTERNAL_LIBS SDL2 SDL2::SDL2main)
+else()
+    list(APPEND EXTERNAL_LIBS SDL2 SDL2::SDL2)
+endif()
+
+list(APPEND EXTERNAL_LIBS
     Freetype Freetype::Freetype
     OpenGL OpenGL::GL
     GLEW GLEW::GLEW
     PNG PNG::PNG
     Ogg Ogg::ogg
-    SDL2 SDL2::SDL2|SDL2::SDL2main
     SDL2_ttf SDL2_ttf::SDL2_ttf|sdl_ttf::sdl_ttf
     TCL tcl::tcl
     THEORA theora::dec|theora::theora
     Vorbis Vorbis::vorbis|vorbis::vorbis
     ZLIB ZLIB::ZLIB
 )
+
 find_and_check_external_libraries(openmsx ${EXTERNAL_LIBS})
 
 # Schedule generating git_version.ii during build

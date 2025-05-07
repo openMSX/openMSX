@@ -1,22 +1,22 @@
 # Add warning flags to a target
 function(enable_warnings target)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    if (MSVC)
+        target_compile_options(${target} PRIVATE /W3)
+    else()
         target_compile_options(${target} PRIVATE
             -Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros
             -Wmissing-declarations -Wshadow -Wno-sign-conversion
         )
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(${target} PRIVATE /W4)
     endif()
 endfunction()
 
 # Enable debug symbols for the given target.
 function(enable_debug_symbols target)
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        target_compile_options(${target} PRIVATE -g)
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (MSVC)
         target_compile_options(${target} PRIVATE /Zi)
         target_link_options(${target} PRIVATE /DEBUG)
+    else()
+        target_compile_options(${target} PRIVATE -g)
     endif()
 endfunction()
 
