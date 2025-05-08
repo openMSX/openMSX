@@ -55,6 +55,7 @@ class RealTime;
 class RemoveExtCmd;
 class RenShaTurbo;
 class ResetCmd;
+class StoreSetupCmd;
 class ReverseManager;
 class SettingObserver;
 class Scheduler;
@@ -133,6 +134,10 @@ public:
 	[[nodiscard]] bool hasToshibaEngine() const;
 
 	std::string loadMachine(const std::string& machine);
+
+	enum class SetupDepth : uint8_t { NONE, MACHINE_ONLY, WITH_EXTENSIONS,
+		WITH_EXTENSIONS_AND_PLUGGABLES, WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA, COMPLETE_STATE };
+	void storeAsSetup(const std::string& filename, SetupDepth depth);
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	[[nodiscard]] const Extensions& getExtensions() const { return extensions; }
@@ -313,6 +318,7 @@ private:
 	std::unique_ptr<ListExtCmd>   listExtCommand;
 	std::unique_ptr<ExtCmd>       extCommand;
 	std::unique_ptr<RemoveExtCmd> removeExtCommand;
+	std::unique_ptr<StoreSetupCmd> storeSetupCommand;
 	std::unique_ptr<MachineNameInfo> machineNameInfo;
 	std::unique_ptr<MachineTypeInfo> machineTypeInfo;
 	std::unique_ptr<MachineExtensionInfo> machineExtensionInfo;

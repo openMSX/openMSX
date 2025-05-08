@@ -163,6 +163,17 @@ private:
 	Reactor& reactor;
 };
 
+class SetupCommand final : public Command
+{
+public:
+	SetupCommand(CommandController& commandController, Reactor& reactor);
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+private:
+	Reactor& reactor;
+};
+
 class GetClipboardCommand final : public Command
 {
 public:
@@ -265,6 +276,8 @@ void Reactor::init()
 		*globalCommandController, *this);
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
+	setupCommand = make_unique<SetupCommand>(
+		*globalCommandController, *this);
 	getClipboardCommand = make_unique<GetClipboardCommand>(
 		*globalCommandController, *this);
 	setClipboardCommand = make_unique<SetClipboardCommand>(
@@ -281,7 +294,7 @@ void Reactor::init()
 	tclCallbackMessages = make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
-	createMachineSetting();
+	createDefaultMachineAndSetupSettings();
 
 	getGlobalSettings().getPauseSetting().attach(*this);
 
@@ -373,6 +386,22 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	return result;
 }
 
+vector<string> Reactor::getSetups()
+{
+	vector<string> result;
+	std::string_view extension = Reactor::SETUP_EXTENSION;
+	for (auto context = userDataFileContext(SETUP_DIR);
+	     const auto& path : context.getPaths()) {
+		foreach_file(path, [&](const std::string& /*fullName*/, std::string_view name) {
+			if (name.ends_with(extension)) {
+				name.remove_suffix(extension.size());
+				result.emplace_back(std::string(name));
+			}
+		});
+	}
+	return result;
+}
+
 const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 {
 	// TODO cleanup this code. It should be easier to get a hold of the
@@ -392,7 +421,7 @@ const MsxChar2Unicode& Reactor::getMsxChar2Unicode() const
 }
 
 
-void Reactor::createMachineSetting()
+void Reactor::createDefaultMachineAndSetupSettings()
 {
 	auto names = getHwConfigs("machines");
 	EnumSetting<int>::Map machines; // int's are unique dummy values
@@ -400,12 +429,18 @@ void Reactor::createMachineSetting()
 	int count = 1;
 	append(machines, std::views::transform(names,
 		[&](auto& name) { return EnumSettingBase::MapEntry(std::move(name), count++); }));
-	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
+	machines.emplace_back("C-BIOS_MSX2+", 0); // initial default machine
 
-	machineSetting = make_unique<EnumSetting<int>>(
+	defaultMachineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
-		"default machine (takes effect next time openMSX is started)",
+		"default machine (takes effect next time openMSX is started) - if no default setup is configured",
 		0, std::move(machines));
+
+	// TODO: add tabCompletion for this setting, so that it's easy to set with an existing setup file?
+	defaultSetupSetting = make_unique<StringSetting>(
+		*globalCommandController, "default_setup",
+		"default setup (takes effect next time openMSX is started)",
+		"");
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
@@ -472,6 +507,41 @@ void Reactor::switchMachine(const string& machine)
 	//       motherboard must be considered as not created at all.
 	auto newBoard = createEmptyMotherBoard();
 	newBoard->loadMachine(machine);
+	boards.push_back(newBoard);
+
+	auto oldBoard = activeBoard;
+	switchBoard(newBoard);
+	deleteBoard(oldBoard);
+}
+
+void Reactor::switchMachineFromSetup(const string& filename)
+{
+	if (!display) {
+		display = make_unique<Display>(*this);
+		// TODO: Currently it is not possible to move this call into the
+		//       constructor of Display because the call to createVideoSystem()
+		//       indirectly calls Reactor.getDisplay().
+		display->createVideoSystem();
+	}
+
+	// create new machine
+	// load state into machine
+	// switch to new machine
+	// delete old active machine
+
+	assert(Thread::isMainThread());
+	auto newBoard = createEmptyMotherBoard();
+
+	try {
+		XmlInputArchive in(filename);
+		in.serialize("machine", *newBoard);
+	} catch (XMLException& e) {
+		throw CommandException("Cannot load setup, bad file format: ",
+				       e.getMessage());
+	} catch (MSXException& e) {
+		throw CommandException("Cannot load setup: ", e.getMessage());
+	}
+
 	boards.push_back(newBoard);
 
 	auto oldBoard = activeBoard;
@@ -998,6 +1068,48 @@ string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	completeFileName(tokens, userFileContext());
+}
+
+
+// class SetupCommand
+
+SetupCommand::SetupCommand(CommandController& commandController_,
+                               Reactor& reactor_)
+	: Command(commandController_, "setup")
+	, reactor(reactor_)
+{
+}
+
+void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 2, Prefix{1}, "filename");
+
+	// resolve the filename
+	auto context = userDataFileContext(Reactor::SETUP_DIR);
+	std::string fileNameArg(tokens[1].getString());
+	// Assume the user left out the extension, so add the normal extension
+	auto filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
+
+	// switch to this setup
+	try {
+		reactor.switchMachineFromSetup(filename);
+	} catch (MSXException& e) {
+		throw CommandException("Switching to setup failed: ",
+				       e.getMessage());
+	}
+
+	// Always return machineID (of current or of new machine).
+	result = reactor.getMachineID();
+}
+
+string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
+{
+	return "Switch to a different MSX setup.";
+}
+
+void SetupCommand::tabCompletion(vector<string>& tokens) const
+{
+	completeString(tokens, Reactor::getSetups());
 }
 
 
