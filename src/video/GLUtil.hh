@@ -1,14 +1,7 @@
 #ifndef GLUTIL_HH
 #define GLUTIL_HH
 
-// Include GLEW headers.
-#include <GL/glew.h>
-// Include OpenGL headers.
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include <epoxy/gl.h>
 
 #include "MemBuffer.hh"
 

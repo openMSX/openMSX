@@ -105,35 +105,10 @@ VisibleSurface::VisibleSurface(
 	ImGui_ImplSDL2_InitForOpenGL(window.get(), glContext);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	// From the glew documentation:
-	//   GLEW obtains information on the supported extensions from the
-	//   graphics driver. Experimental or pre-release drivers, however,
-	//   might not report every available extension through the standard
-	//   mechanism, in which case GLEW will report it unsupported. To
-	//   circumvent this situation, the glewExperimental global switch can
-	//   be turned on by setting it to GL_TRUE before calling glewInit(),
-	//   which ensures that all extensions with valid entry points will be
-	//   exposed.
-	// The 'glewinfo' utility also sets this flag before reporting results,
-	// so I believe it would cause less confusion to do the same here.
-	glewExperimental = GL_TRUE;
+	if (epoxy_gl_version() < 21) {
+		throw InitException("Need at least OpenGL version " VERSION_STRING);
+	}
 
-	// Initialise GLEW library.
-	// GLEW fails to initialise on Wayland because it has no GLX, since the
-	// one provided by the distros was built to use GLX instead of EGL. We
-	// ignore the GLEW_ERROR_NO_GLX_DISPLAY error with this temporary fix
-	// until it is fixed by GLEW upstream and released by major distros.
-	// See https://github.com/nigels-com/glew/issues/172
-	if (GLenum glew_error = glewInit();
-	    glew_error != GLEW_OK && glew_error != GLEW_ERROR_NO_GLX_DISPLAY) {
-		throw InitException(
-			"Failed to init GLEW: ",
-			std::bit_cast<const char*>(glewGetErrorString(glew_error)));
-	}
-	if (!GLEW_VERSION_2_1) {
-		throw InitException(
-			"Need at least OpenGL version " VERSION_STRING);
-	}
 	gl::context.emplace();
 
 	bool fullScreen = renderSettings.getFullScreen();

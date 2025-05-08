@@ -18,15 +18,19 @@ runs:
     - name: Install Linux prerequisites
       if: ${{ inputs.os == 'linux' }}
       shell: bash
-      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev
+      run: sudo apt-get update && sudo apt-get install libgl-dev libglu1-mesa-dev libasound2-dev libxext-dev meson libegl-dev
     - name: Install extra Linux prerequisites for native/dynamic build (e.g. for unittesting)
       if: ${{ inputs.os == 'linux' && (inputs.flavour == 'unittest' || inputs.flavour == 'super-opt' || inputs.flavour == 'debug')}}
       shell: bash
-      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libglew-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
+      run: sudo apt-get install libsdl2-dev libpng-dev tcl-dev libepoxy-dev libsdl2-ttf-dev libvorbis-dev libtheora-dev libogg-dev libao-dev libfreetype6-dev
     - name: Install Windows prerequisites
       if: ${{ contains(inputs.os, 'mingw') }}
       shell: bash
-      run: sudo apt-get install mingw-w64 gcc make tcl
+      run: sudo apt-get install mingw-w64 gcc make tcl meson
+    - name: Install macOS prerequisites
+      if: ${{ contains(inputs.os, 'darwin') }}
+      shell: bash
+      run: brew install meson
     - name: Add NDK to PATH
       if: ${{ contains(inputs.os, 'android') }}
       shell: bash
@@ -42,6 +46,10 @@ runs:
     - name: Add MSBuild to PATH for Windows VC build
       if: ${{ inputs.os == 'windows-vc' }}
       uses: microsoft/setup-msbuild@v2
+    - name: Meson and ninja for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: pip install meson ninja
+      shell: bash
     - name: Cache 3rdparty libs
       id: cache-3rdparty
       uses: actions/cache@v4
@@ -54,9 +62,39 @@ runs:
       if: ${{ inputs.os == 'windows-vc' && steps.cache-3rdparty.outputs.cache-hit != 'true' }}
       shell: pwsh
       run: python build/thirdparty_download.py windows
+    - name: Configure Meson for libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson setup derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10 derived/3rdparty/src/libepoxy-1.5.10 -Dbuildtype=release -Ddefault_library=static --prefix=`pwd`/derived/x64-VC-Release/3rdparty/install -Dc_args='-DEPOXY_PUBLIC=extern' -Dtests=false --backend vs
+      shell: bash
+    - name: Compile libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson compile -C derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10
+      shell: bash
+    - name: Install libepoxy for Windows VC build
+      if: ${{ inputs.os == 'windows-vc' }}
+      run: meson install -C derived/x64-VC-Release/3rdparty/build/libepoxy-1.5.10
+      shell: bash
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
+    - name: Determine version and redistributable paths and names (before building)
+      shell: bash
+      id: openmsx
+      run: |
+        OPENMSX_VERSION=`python3 build/version.py`
+        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
+        if [ "${{ inputs.os }}" = "darwin" ]; then
+          HAS_SINGLE_FILE_OUTPUT=true
+          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
+        else
+          HAS_SINGLE_FILE_OUTPUT=false
+        fi
+        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
+        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
+        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
+        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
+        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
+        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Make
       if: ${{ inputs.os != 'windows-vc' }}
       shell: bash
@@ -87,24 +125,6 @@ runs:
       if: ${{ inputs.os == 'windows-vc' }}
       shell: pwsh
       run: cmd /c "build\\package-windows\\package.cmd" x64 release NOCATAPULT ZIPONLY
-    - name: Determine version and redistributable paths and names
-      shell: bash
-      id: openmsx
-      run: |
-        OPENMSX_VERSION=`python3 build/version.py`
-        DERIVED_PATH=derived/${{ inputs.cpu }}-${{ inputs.os }}-${{ inputs.flavour }}-3rd
-        if [ "${{ inputs.os }}" = "darwin" ]; then
-          HAS_SINGLE_FILE_OUTPUT=true
-          SINGLE_OUTPUT_FILE=openmsx-${OPENMSX_VERSION}-mac-${{ inputs.cpu }}-bin.dmg
-        else
-          HAS_SINGLE_FILE_OUTPUT=false
-        fi
-        echo "version=$OPENMSX_VERSION" >> $GITHUB_OUTPUT
-        echo "derived_path=$DERIVED_PATH" >> $GITHUB_OUTPUT
-        echo "single_output_file=$SINGLE_OUTPUT_FILE" >> $GITHUB_OUTPUT
-        echo "target_file=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-bin" >> $GITHUB_OUTPUT
-        echo "target_file_pdb=openmsx-$OPENMSX_VERSION-${{ inputs.os }}-${{ inputs.cpu }}-pdb" >> $GITHUB_OUTPUT
-        echo "single_file=$HAS_SINGLE_FILE_OUTPUT" >> $GITHUB_OUTPUT
     - name: Run unittests
       if: ${{ inputs.flavour == 'unittest' }}
       shell: bash
@@ -128,7 +148,7 @@ runs:
         name: ${{ steps.openmsx.outputs.single_output_file }}
         path: ${{ steps.openmsx.outputs.derived_path }}/${{ steps.openmsx.outputs.single_output_file }}
     - name: Upload probe logging zip
-      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' }}
+      if: ${{ inputs.os != 'windows-vc' && inputs.flavour != 'unittest' && inputs.flavour != 'super-opt' && inputs.flavour != 'debug' && failure() }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.openmsx.outputs.target_file }}-proberesults.zip

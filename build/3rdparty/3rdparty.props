@@ -13,7 +13,7 @@
     <OpenMSXOutDir>$(BuildDir)\install</OpenMSXOutDir>
     <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
     <LibNameFreeType>freetype-2.13.3</LibNameFreeType>
-    <LibNameGlew>glew-2.2.0</LibNameGlew>
+    <LibNameEpoxy>libepoxy-1.5.10</LibNameEpoxy>
     <LibNameLibPng>libpng-1.6.44</LibNameLibPng>
     <LibNameOgg>libogg-1.3.5</LibNameOgg>
     <LibNameSDL>SDL2-2.30.7</LibNameSDL>
@@ -76,8 +76,8 @@
       <Value>$(LibNameFreeType)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
-    <BuildMacro Include="LibNameGlew">
-      <Value>$(LibNameGlew)</Value>
+    <BuildMacro Include="LibNameEpoxy">
+      <Value>$(LibNameEpoxy)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="LibNameLibPng">
