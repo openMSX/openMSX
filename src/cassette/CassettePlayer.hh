@@ -27,7 +27,7 @@ class HardwareConfig;
 class Wav8Writer;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
-                           , public MediaInfoProvider
+                           , public MediaProvider
 {
 public:
 	static constexpr std::string_view TAPE_RECORDING_DIR = "taperecordings";
@@ -54,6 +54,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

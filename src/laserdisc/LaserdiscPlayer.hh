@@ -30,7 +30,7 @@ class RawFrame;
 class LaserdiscPlayer final : public ResampledSoundDevice
                             , private EventListener
                             , private VideoSystemChangeListener
-                            , public MediaInfoProvider
+                            , public MediaProvider
 {
 public:
 	LaserdiscPlayer(HardwareConfig& hwConf, PioneerLDControl& ldControl);
@@ -53,6 +53,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	enum class RemoteState : uint8_t {
 		IDLE,

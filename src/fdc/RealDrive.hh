@@ -16,7 +16,7 @@ namespace openmsx {
 
 /** This class implements a real drive, single or double sided.
  */
-class RealDrive final : public DiskDrive, public MediaInfoProvider
+class RealDrive final : public DiskDrive, public MediaProvider
 {
 public:
 	static constexpr unsigned MAX_DRIVES = 26; // a-z
@@ -56,6 +56,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
