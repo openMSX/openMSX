@@ -168,24 +168,12 @@ class MachineMediaInfo final : public InfoTopic
 {
 public:
 	explicit MachineMediaInfo(MSXMotherBoard& motherBoard);
-	~MachineMediaInfo() {
-		assert(providers.empty());
-	}
 	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) const override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<string>& tokens) const override;
-	void registerProvider(std::string_view name, MediaInfoProvider& provider);
-	void unregisterProvider(MediaInfoProvider& provider);
 private:
-	struct ProviderInfo {
-		ProviderInfo(std::string_view n, MediaInfoProvider* p)
-			: name(n), provider(p) {} // clang-15 workaround
-		std::string_view name;
-		MediaInfoProvider* provider;
-	};
-	// There will only be a handful of providers, use an unsorted vector.
-	std::vector<ProviderInfo> providers;
+	MSXMotherBoard& motherBoard;
 };
 
 class DeviceInfo final : public InfoTopic
@@ -407,6 +395,7 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 	// level 1: create new board based on current board of this machine
 	auto newBoard = reactor.createEmptyMotherBoard();
 	newBoard->loadMachine(machineName);
+	auto newTime = newBoard->getCurrentTime();
 
 	if (depth >= SetupDepth::WITH_EXTENSIONS) {
 		// level 2: add the extensions of the current board to the new board
@@ -438,7 +427,7 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 				const auto& connectorName = connector->getName();
 				if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
 					if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
-						newBoardConnector->plug(*newBoardPluggable, EmuTime::dummy());
+						newBoardConnector->plug(*newBoardPluggable, newTime);
 					}
 				}
 			}
@@ -447,9 +436,14 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 
 	if (depth >= SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA) {
 		// level 4: add the inserted media of the current board to the new board
-		// TODO: pass all media slots and insert the media there. Set tape to the same index...
+		for (const auto& oldMedia : getMediaProviders()) {
+			if (auto* newMediaProvider = newBoard->findMediaProvider(oldMedia.name)) {
+				TclObject info;
+				oldMedia.provider->getMediaInfo(info);
+				newMediaProvider->setMedia(info, newTime);
+			}
+		}
 	}
-
 
 	out.serialize("machine", newBoard);
 	out.close();
@@ -822,14 +816,23 @@ void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
-void MSXMotherBoard::registerMediaInfo(std::string_view name, MediaInfoProvider& provider)
+void MSXMotherBoard::registerMediaProvider(std::string_view name, MediaProvider& provider)
 {
-	machineMediaInfo->registerProvider(name, provider);
+	assert(!contains(mediaProviders, name, &MediaProviderInfo::name));
+	assert(!contains(mediaProviders, &provider, &MediaProviderInfo::provider));
+	mediaProviders.emplace_back(name, &provider);
 }
 
-void MSXMotherBoard::unregisterMediaInfo(MediaInfoProvider& provider)
+void MSXMotherBoard::unregisterMediaProvider(MediaProvider& provider)
 {
-	machineMediaInfo->unregisterProvider(provider);
+	move_pop_back(mediaProviders,
+	              rfind_unguarded(mediaProviders, &provider, &MediaProviderInfo::provider));
+}
+
+MediaProvider* MSXMotherBoard::findMediaProvider(std::string_view name) const
+{
+	auto it = std::ranges::find(mediaProviders, name, &MediaProviderInfo::name);
+	return (it != mediaProviders.end()) ? it->provider : nullptr;
 }
 
 
@@ -1186,6 +1189,7 @@ void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 
 MachineMediaInfo::MachineMediaInfo(MSXMotherBoard& motherBoard_)
 	: InfoTopic(motherBoard_.getMachineInfoCommand(), "media")
+	, motherBoard(motherBoard_)
 {
 }
 
@@ -1193,12 +1197,13 @@ void MachineMediaInfo::execute(std::span<const TclObject> tokens,
                               TclObject& result) const
 {
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?media-slot-name?");
+	const auto& providers = motherBoard.getMediaProviders();
 	if (tokens.size() == 2) {
 		result.addListElements(
-			std::views::transform(providers, &ProviderInfo::name));
+			std::views::transform(providers, &MediaProviderInfo::name));
 	} else if (tokens.size() == 3) {
 		auto name = tokens[2].getString();
-		if (auto it = std::ranges::find(providers, name, &ProviderInfo::name);
+		if (auto it = std::ranges::find(providers, name, &MediaProviderInfo::name);
 		    it != providers.end()) {
 			it->provider->getMediaInfo(result);
 		} else {
@@ -1216,21 +1221,8 @@ void MachineMediaInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		completeString(tokens, std::views::transform(
-			providers, &ProviderInfo::name));
+			motherBoard.getMediaProviders(), &MediaProviderInfo::name));
 	}
-}
-
-void MachineMediaInfo::registerProvider(std::string_view name, MediaInfoProvider& provider)
-{
-	assert(!contains(providers, name, &ProviderInfo::name));
-	assert(!contains(providers, &provider, &ProviderInfo::provider));
-	providers.emplace_back(name, &provider);
-}
-
-void MachineMediaInfo::unregisterProvider(MediaInfoProvider& provider)
-{
-	move_pop_back(providers,
-	              rfind_unguarded(providers, &provider, &ProviderInfo::provider));
 }
 
 // DeviceInfo

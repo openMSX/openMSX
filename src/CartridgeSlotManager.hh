@@ -80,7 +80,10 @@ public:
 	}
 
 private:
+	[[nodiscard]] const HardwareConfig* getExtensionConfig(std::string_view cartName) const;
 	[[nodiscard]] unsigned getSlot(int ps, int ss) const;
+	std::string insertCartridge(std::string_view cartName, std::string_view romName, std::span<const TclObject> options);
+	void removeCartridge(std::string_view cartName);
 
 private:
 	MSXMotherBoard& motherBoard;
@@ -94,10 +97,9 @@ private:
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
+		[[nodiscard]] CartridgeSlotManager& getManager() { return manager; }
 	private:
-		[[nodiscard]] const HardwareConfig* getExtensionConfig(std::string_view cartName) const;
 		CartridgeSlotManager& manager;
-		CliComm& cliComm;
 	} cartCmd;
 
 	struct CartridgeSlotInfo final : InfoTopic {
@@ -107,11 +109,12 @@ private:
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	} extSlotInfo;
 
-	struct Slot : public MediaInfoProvider {
+	struct Slot : public MediaProvider {
 		~Slot();
 
 		// MediaInfoProvider
 		void getMediaInfo(TclObject& result) override;
+		void setMedia(const TclObject& info, EmuTime::param time) override;
 
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;
