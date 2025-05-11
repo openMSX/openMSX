@@ -73,13 +73,13 @@ HD::HD(const DeviceConfig& config)
 		*this,
 		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
-	motherBoard.registerMediaInfo(name, *this);
+	motherBoard.registerMediaProvider(name, *this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "add");
 }
 
 HD::~HD()
 {
-	motherBoard.unregisterMediaInfo(*this);
+	motherBoard.unregisterMediaProvider(*this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, name, "remove");
 
 	unsigned id = name[2] - 'a';
@@ -91,6 +91,14 @@ void HD::getMediaInfo(TclObject& result)
 {
 	result.addDictKeyValues("target", getImageName().getResolved(),
 	                        "readonly", isWriteProtected());
+}
+
+void HD::setMedia(const TclObject& info, EmuTime::param /*time*/)
+{
+	auto target = info.getOptionalDictValue(TclObject("target"));
+	if (!target) return;
+
+	switchImage(Filename(target->getString()));
 }
 
 void HD::switchImage(const Filename& newFilename)

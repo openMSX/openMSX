@@ -18,7 +18,7 @@ namespace openmsx {
 class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
-         , public TTData, public MediaInfoProvider
+         , public TTData, public MediaProvider
 {
 public:
 	static constexpr unsigned MAX_HD = 26;
@@ -37,6 +37,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
