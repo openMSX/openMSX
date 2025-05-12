@@ -23,7 +23,7 @@ namespace openmsx {
 void HelpMarker(std::string_view desc, float spacing)
 {
 	ImGui::SameLine(0.0f, spacing);
-	ImGui::TextDisabled("(?)");
+	ImGui::TextDisabledUnformatted("(?)");
 	simpleToolTip(desc);
 }
 
@@ -73,7 +73,7 @@ static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
 		ImGui::StrCat("Default value: ", defaultString);
 		if (defaultString.empty()) {
 			ImGui::SameLine();
-			ImGui::TextDisabled("<empty>");
+			ImGui::TextDisabledUnformatted("<empty>");
 		}
 		if (ImGui::Button("Restore default")) {
 			try {
@@ -106,7 +106,7 @@ bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, 
 	auto shortCut = getShortCutForCommand(hotKey, strCat("toggle ", setting.getBaseName()));
 	auto spacing = std::max(0.0f, ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(shortCut).x);
 	ImGui::SameLine(0.0f, spacing);
-	ImGui::TextDisabled("%s", shortCut.c_str());
+	ImGui::TextDisabledUnformatted(shortCut);
 
 	return changed;
 }

@@ -880,7 +880,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 					});
 					ImGui::SameLine();
 					if (numBindings == 0) {
-						ImGui::TextDisabled("no bindings");
+						ImGui::TextDisabledUnformatted("no bindings");
 					} else {
 						size_t lastBindingIndex = numBindings - 1;
 						size_t bindingIndex = 0;

@@ -511,7 +511,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			simpleToolTip([&]{ return displayNameForSlotContent(slotManager, i); });
 		}
 		if (!anySlot) {
-			ImGui::TextDisabled("No cartridge slots present");
+			ImGui::TextDisabledUnformatted("No cartridge slots present");
 		}
 		endGroup();
 
@@ -592,7 +592,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			simpleToolTip([&] { return displayNameForDriveContent(i); });
 		}
 		if (!anyDrive) {
-			ImGui::TextDisabled("No disk drives present");
+			ImGui::TextDisabledUnformatted("No disk drives present");
 		}
 		endGroup();
 
@@ -605,7 +605,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				return current.empty() ? "Empty" : current;
 			});
 		} else {
-			ImGui::TextDisabled("No cassette port present");
+			ImGui::TextDisabledUnformatted("No cassette port present");
 		}
 		endGroup();
 

@@ -36,6 +36,13 @@ inline void TextUnformatted(std::string_view str)
 	ImGui::TextUnformatted(begin, end);
 }
 
+inline void TextDisabledUnformatted(std::string_view str)
+{
+	im::StyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled), [&]{
+		ImGui::TextUnformatted(str);
+	});
+}
+
 inline auto CalcTextSize(std::string_view str)
 {
 	return ImGui::CalcTextSize(str.data(), str.data() + str.size());
