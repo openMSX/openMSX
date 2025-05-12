@@ -38,6 +38,7 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
+	void showSetupOverview(MSXMotherBoard& motherBoard);
 
 public:
 	bool showSelectMachine = false;
