@@ -1,6 +1,7 @@
 #include "FileListWidget.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiUtils.hh"
 
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -50,14 +51,16 @@ FileListWidget::FileListWidget(
 	deleteAction = [](const Entry& entry) { FileOperations::unlink(entry.fullName); };
 }
 
-void FileListWidget::menu(const char* text)
+bool FileListWidget::menu(const char* text)
 {
 	menuOpen = im::Menu(text, [&]{ draw(); });
+	return menuOpen;
 }
 
-void FileListWidget::menu(const char* text, bool enabled)
+bool FileListWidget::menu(const char* text, bool enabled)
 {
 	menuOpen = im::Menu(text, enabled, [&]{ draw(); });
+	return menuOpen;
 }
 
 void FileListWidget::draw()
@@ -143,9 +146,16 @@ void FileListWidget::drawTable()
 
 		for (const auto& entry : entries) {
 			if (ImGui::TableNextColumn()) {
-				if (ImGui::Selectable(entry.displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
-					selectAction(entry);
-				}
+				imColor color = displayColor ? displayColor(entry) : imColor::TEXT;
+				im::StyleColor(ImGuiCol_Text, getColor(color), [&]{
+					if (ImGui::Selectable(entry.displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | (doubleClickAction ? ImGuiSelectableFlags_AllowDoubleClick : 0))) {
+						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+							doubleClickAction(entry);
+						} else {
+							singleClickAction(entry);
+						}
+					}
+				});
 				if (hoverAction && ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
 					hoverAction(entry);
 				}

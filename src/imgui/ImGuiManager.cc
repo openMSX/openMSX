@@ -399,6 +399,7 @@ bool ImGuiManager::signalEvent(const Event& event)
 		switch (getType(event)) {
 		case EventType::QUIT:
 			debugger->signalQuit();
+			machine->signalQuit();
 			break;
 		case EventType::IMGUI_DELAYED_ACTION: {
 			for (auto& action : delayedActionQueue) {
