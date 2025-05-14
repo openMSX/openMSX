@@ -46,8 +46,79 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 	, setupFileList("setup", Reactor::SETUP_EXTENSION, Reactor::SETUP_DIR)
 	, confirmDialog("Confirm##setup")
 {
-	setupFileList.selectAction = [&](const FileListWidget::Entry& entry) {
-		manager.executeDelayed(makeTclList("setup", entry.displayName));
+
+	setupFileList.drawAction = [&] {
+		im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
+			if (ImGui::TableNextColumn()) {
+				setupFileList.drawTable();
+			}
+			if (ImGui::TableNextColumn()) {
+				if (previewSetup.motherBoard) {
+					showSetupOverview(*previewSetup.motherBoard);
+					ImGui::Separator();
+					if (ImGui::Button("Run!")) {
+						manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+							try {
+								manager.getReactor().switchMachineFromSetup(previewSetup.fullName);
+							} catch (MSXException& e) {
+								// this will be very rare, don't bother showing the error
+								previewSetup.lastExceptionMessage = e.getMessage();
+							}
+						});
+					}
+				} else {
+					if (previewSetup.lastExceptionMessage.empty()) {
+						ImGui::TextUnformatted("Nothing to preview...");
+					} else {
+						im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+							ImGui::StrCat("Setup ", previewSetup.displayName, " cannot be loaded:");
+							ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+						});
+					}
+				}
+			}
+		});
+	};
+
+	setupFileList.displayColor = [&](const FileListWidget::Entry& entry) {
+		return !previewSetup.lastExceptionMessage.empty() && previewSetup.fullName == entry.fullName ? imColor::ERROR : imColor::TEXT;
+	};
+
+	setupFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		if (previewSetup.fullName == entry.fullName) return;
+
+		// record entry names, but (so far) without loaded motherboard
+		// this prevents that when loading failed, we don't continue retrying
+		previewSetup.fullName = entry.fullName;
+		previewSetup.displayName = entry.displayName;
+		// but we shouldn't reset the motherBoard yet during painting...
+
+		manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+			try {
+				// already reset, so that it's also gone in case of an exception
+				previewSetup.motherBoard.reset();
+				previewSetup.lastExceptionMessage.clear();
+				auto newBoard = manager.getReactor().createEmptyMotherBoard();
+				XmlInputArchive in(previewSetup.fullName);
+				in.serialize("machine", *newBoard);
+				previewSetup.motherBoard = newBoard;
+			} catch (MSXException& e) {
+				previewSetup.lastExceptionMessage = e.getMessage();
+			}
+		});
+	};
+
+	setupFileList.doubleClickAction = [&](const FileListWidget::Entry& entry) {
+		// only execute if there was no error when previewing this entry (if we did)
+		if (entry.fullName == previewSetup.fullName && !previewSetup.lastExceptionMessage.empty()) return;
+		manager.executeDelayed([&entry = entry, &manager = manager] {
+			try {
+				manager.getReactor().switchMachineFromSetup(entry.fullName);
+			} catch (MSXException& e) {
+				// this will be very rare, don't bother showing the error
+			}
+
+		});
 	};
 }
 
@@ -67,6 +138,7 @@ void ImGuiMachine::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
+	bool loadSetupOpen = false;
 	im::Menu("Machine", [&]{
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
@@ -76,7 +148,8 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			ImGui::Separator();
 
-			setupFileList.menu("Load setup ...");
+			loadSetupOpen = setupFileList.menu("Load setup ...");
+
 			saveSetupOpen = im::Menu("Save setup ...", true, [&]{
 				auto exists = [&]{
 					auto filename = FileOperations::parseCommandFileArgument(
@@ -159,6 +232,17 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 	});
 
 	confirmDialog.execute();
+
+	if (!loadSetupOpen && previewSetup.motherBoard) {
+		manager.executeDelayed([this] {
+			previewSetup.motherBoard.reset();
+		});
+	}
+}
+
+void ImGuiMachine::signalQuit()
+{
+	previewSetup.motherBoard.reset();
 }
 
 void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
