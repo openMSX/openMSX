@@ -353,10 +353,13 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
 			}
 		}
 	});
-	im::TreeNode("Run time state", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-		auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
-		ImGui::StrCat("Machine time: ", formatTime(time));
-	});
+	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
+	if (time > 0) {
+		// this is only useful if the time is not 0
+		im::TreeNode("Run time state", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			ImGui::StrCat("Machine time: ", formatTime(time));
+		});
+	}
 }
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
