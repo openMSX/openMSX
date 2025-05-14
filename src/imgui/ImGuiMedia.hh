@@ -55,9 +55,12 @@ public:
 	std::vector<ExtensionInfo>& getAllExtensions();
 	void resetExtensionInfo();
 	ExtensionInfo* findExtensionInfo(std::string_view config);
+	void extensionTooltip(ExtensionInfo& info);
 	[[nodiscard]] const std::string& getTestResult(ExtensionInfo& info);
 
 	void addRecent(const TclObject& cmd);
+
+	static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType);
 
 public:
 	enum class SelectDiskType : int {
@@ -134,7 +137,6 @@ private:
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 
 	void printExtensionInfo(ExtensionInfo& info);
-	void extensionTooltip(ExtensionInfo& info);
 	bool drawExtensionFilter();
 
 private:

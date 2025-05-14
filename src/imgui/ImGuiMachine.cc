@@ -1,6 +1,7 @@
 #include "ImGuiMachine.hh"
 
 #include "CustomFont.h"
+#include "ImGuiConnector.hh"
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 #include "ImGuiMedia.hh"
@@ -11,10 +12,12 @@
 #include "Debuggable.hh"
 #include "Debugger.hh"
 #include "GlobalSettings.hh"
+#include "HardwareConfig.hh"
 #include "MSXCommandController.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "RealDrive.hh"
+#include "RomInfo.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 
@@ -29,8 +32,78 @@
 
 using namespace std::literals;
 
+constexpr static std::string_view EMPTY = "(empty)";
+
+static void showMachineWithoutInfo(const std::string_view configName)
+{
+	ImGui::StrCat("Current machine: ", configName, " (can't load this machine config to show more info)");
+}
 
 namespace openmsx {
+
+ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, setupFileList("setup", Reactor::SETUP_EXTENSION, Reactor::SETUP_DIR)
+	, confirmDialog("Confirm##setup")
+{
+
+	setupFileList.drawAction = [&] {
+		im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
+			if (ImGui::TableNextColumn()) {
+				setupFileList.drawTable();
+			}
+			if (ImGui::TableNextColumn()) {
+				if (previewSetup.motherBoard) {
+					showSetupOverview(*previewSetup.motherBoard);
+					ImGui::Separator();
+					if (ImGui::Button("Run!")) {
+						manager.executeDelayed(makeTclList("setup", previewSetup.displayName));
+					}
+				} else {
+					if (previewSetup.lastExceptionMessage.empty()) {
+						ImGui::TextUnformatted("Nothing to preview...");
+					} else {
+						im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+							ImGui::TextUnformatted(tmpStrCat("Error loading setup ", previewSetup.displayName, " for preview:"));
+							ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+						});
+					}
+				}
+			}
+		});
+	};
+
+	setupFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		if (previewSetup.fullName == entry.fullName) return;
+
+		// record entry names, but (so far) without loaded motherboard
+		// this prevents that when loading failed, we don't continue retrying
+		previewSetup.fullName = entry.fullName;
+		previewSetup.displayName = entry.displayName;
+		// but we shouldn't reset the motherBoard yet during painting...
+
+		manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+			try {
+				// already reset, so that it's also gone in case of an exception
+				previewSetup.motherBoard.reset();
+				previewSetup.lastExceptionMessage.clear();
+				auto newBoard = manager.getReactor().createEmptyMotherBoard();
+				XmlInputArchive in(previewSetup.fullName);
+				in.serialize("machine", *newBoard);
+				previewSetup.motherBoard = newBoard;
+			} catch (MSXException& e) {
+				previewSetup.lastExceptionMessage = e.getMessage();
+			}
+		});
+	};
+
+	setupFileList.doubleClickAction = [&](const FileListWidget::Entry& entry) {
+		manager.executeDelayed(makeTclList("setup", entry.displayName));
+	};
+
+	setupFileList.selectAction = [&](const FileListWidget::Entry& /*entry*/) {
+	};
+}
 
 void ImGuiMachine::save(ImGuiTextBuffer& buf)
 {
@@ -48,11 +121,68 @@ void ImGuiMachine::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
+	bool loadSetupOpen = false;
 	im::Menu("Machine", [&]{
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
 
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+
+		if (motherBoard) {
+			ImGui::Separator();
+
+			loadSetupOpen = setupFileList.menu("Load setup ...");
+
+			saveSetupOpen = im::Menu("Save setup ...", true, [&]{
+				auto exists = [&]{
+					auto filename = FileOperations::parseCommandFileArgument(
+						saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+					return FileOperations::exists(filename);
+				};
+				if (!saveSetupOpen) {
+					// on each re-open of this menu, create a suggestion for a name
+					saveSetupName = motherBoard->getMachineName();
+					if (exists()) {
+						saveSetupName = FileOperations::stem(FileOperations::getNextNumberedFileName(
+							Reactor::SETUP_DIR, motherBoard->getMachineName(), Reactor::SETUP_EXTENSION, true));
+					}
+				}
+				ImGui::TextUnformatted("Enter name:"sv);
+				ImGui::InputText("##save-setup-name", &saveSetupName);
+				ImGui::SameLine();
+				if (ImGui::Button("Create")) {
+					ImGui::CloseCurrentPopup();
+
+					auto action = [manager = &manager, saveSetupName = saveSetupName] {
+						if (auto motherBoard_ = manager->getReactor().getMotherBoard()) {
+							// pass full filename
+							auto filename = FileOperations::parseCommandFileArgument(
+								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
+							motherBoard_->storeAsSetup(filename,
+								MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES);
+						}
+					};
+					auto delayedAction = [manager = &manager, action] {
+						manager->executeDelayed(action);
+					};
+					if (exists()) {
+						confirmDialog.open(
+							strCat("Overwrite setup with name '", saveSetupName, "'?"),
+							delayedAction);
+					} else {
+						delayedAction();
+						manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
+					}
+				}
+			});
+
+			im::Menu("Current setup overview", true, [&]{
+				showSetupOverview(*motherBoard);
+				// TODO: move save setup here, by adding "Save as..."?
+			});
+		}
+
+		ImGui::Separator();
 
 		if (motherBoard) {
 			const auto& controller = motherBoard->getMSXCommandController();
@@ -83,6 +213,136 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 		ImGui::MenuItem("Test MSX hardware ...", nullptr, &showTestHardware);
 	});
+
+	confirmDialog.execute();
+
+	if (!loadSetupOpen && previewSetup.motherBoard) {
+		manager.executeDelayed([this] {
+			previewSetup.motherBoard.reset();
+		});
+	}
+}
+
+void ImGuiMachine::signalQuit()
+{
+	previewSetup.motherBoard.reset();
+}
+
+void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
+{
+	auto configName = motherBoard.getMachineName();
+	if (auto* info = findMachineInfo(configName)) {
+		ImGui::TextUnformatted(info->displayName);
+		im::TreeNode("Machine details", [&]{
+			// alternatively, put this info in a tooltip instead of a collapsed TreeNode
+			printConfigInfo(*info);
+		});
+	} else {
+		// machine config is gone... fallback: just show configName
+		showMachineWithoutInfo(configName);
+	}
+	im::TreeNode("Extensions", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		const auto& slotManager = motherBoard.getSlotManager();
+		bool anySlot = false;
+		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+			if (!slotManager.slotExists(i)) continue;
+			anySlot = true;
+			ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), "): ");
+			ImGui::SameLine();
+			if (const auto* config = slotManager.getConfigForSlot(i)) {
+				if (config->getType() == HardwareConfig::Type::EXTENSION) {
+					ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
+					if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+						manager.media->extensionTooltip(*extInfo);
+					}
+				} else {
+					ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
+				}
+			} else {
+				ImGui::TextUnformatted(EMPTY);
+			}
+		}
+		if (!anySlot) {
+			ImGui::TextDisabledUnformatted("No cartridge slots present");
+		}
+		// still, there could be I/O port only extensions present.
+		for (const auto& ext : motherBoard.getExtensions()) {
+			if (!slotManager.findSlotWith(*ext)) {
+				ImGui::StrCat("I/O only: ", manager.media->displayNameForExtension(ext->getConfigName()));
+				if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
+					manager.media->extensionTooltip(*extInfo);
+				}
+			}
+		}
+	});
+	im::TreeNode("Plugged into connectors", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		manager.connector->showPluggables(motherBoard.getPluggingController(), true);
+	});
+	im::TreeNode("Inserted media", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		for (const auto& media : motherBoard.getMediaProviders()) {
+			TclObject info;
+			media.provider->getMediaInfo(info);
+			if (auto target = info.getOptionalDictValue(TclObject("target"))) {
+				bool isEmpty = target->getString().empty();
+				auto targetStr = isEmpty ? EMPTY : target->getString();
+
+				auto formatMediaName = [](std::string_view name) {
+					constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+						{"cart", "Cartridge Slot"},
+						{"disk", "Disk Drive"    },
+						{"hd"  , "Hard Disk"     },
+						{"cd"  , "CDROM Drive"   },
+						{"ls"  , "LS120 Drive"   },
+					});
+					for (auto [s, l] : multiSlotMediaDeviceTab) {
+						if (name.starts_with(s)) {
+							return strCat(l, ' ', char('A' + (name.back() - 'a')));
+						}
+					}
+					constexpr auto singleSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+						{"cassetteplayer", "Tape Deck"       },
+						{"laserdisc"     , "LaserDisc Player"},
+					});
+					for (auto [s, l] : singleSlotMediaDeviceTab) {
+						if (name == s) return std::string(l);
+					}
+					// fallback in case we add stuff and forget to update the tables (no need to crash on this)
+					return std::string(name);
+				};
+
+				if (media.name.starts_with("cart")) {
+					unsigned num = media.name[4] - 'a';
+					const auto& slotManager = motherBoard.getSlotManager();
+					ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), "): ");
+					ImGui::SameLine();
+					auto type = info.getOptionalDictValue(TclObject("type"));
+					if (type && type->getString() == "extension") {
+						ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+					} else {
+						ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
+						if (!isEmpty) {
+							im::ItemTooltip([&]{
+								RomType romType = RomType::UNKNOWN;
+								if (auto mapper = info.getOptionalDictValue(TclObject("mappertype"))) {
+									romType = RomInfo::nameToRomType(mapper->getString());
+								}
+								ImGuiMedia::printRomInfo(manager, info, targetStr, romType);
+							});
+						}
+					}
+				} else {
+					ImGui::StrCat(formatMediaName(media.name), ": ", targetStr); // leftClip?!?
+				}
+			}
+		}
+	});
+	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
+	if (time > 0) {
+		// this is only useful if the time is not 0
+		im::TreeNode("Run time state", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			ImGui::StrCat("Machine time: ", formatTime(time));
+		});
+	}
 }
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
@@ -147,11 +407,10 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 				});
 			} else {
 				// machine config is gone... fallback: just show configName
-
-				ImGui::TextUnformatted(strCat("Current machine: ", configName, " (can't load this machine config to show more info)"));
+				showMachineWithoutInfo(configName);
 			}
 			if (newMachineConfig.empty()) newMachineConfig = configName;
-			if (auto& defaultMachine = reactor.getMachineSetting();
+			if (auto& defaultMachine = reactor.getDefaultMachineSetting();
 			    defaultMachine.getString() != configName) {
 				if (ImGui::Button("Make this the default machine")) {
 					defaultMachine.setValue(TclObject(configName));

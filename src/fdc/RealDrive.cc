@@ -58,7 +58,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, driveName, "add");
 	changer.emplace(motherBoard, driveName, true, doubleSizedDrive,
 	                [this]() { invalidateTrack(); });
-	motherBoard.registerMediaInfo(changer->getDriveName(), *this);
+	motherBoard.registerMediaProvider(changer->getDriveName(), *this);
 }
 
 RealDrive::~RealDrive()
@@ -70,7 +70,7 @@ RealDrive::~RealDrive()
 	}
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
-	motherBoard.unregisterMediaInfo(*this);
+	motherBoard.unregisterMediaProvider(*this);
 
 	const auto& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, driveName, "remove");
@@ -107,6 +107,28 @@ void RealDrive::getMediaInfo(TclObject& result)
 		}));
 		result.addDictKeyValue("patches", patches);
 	}
+}
+
+void RealDrive::setMedia(const TclObject& info, EmuTime::param /*time*/)
+{
+	std::vector<TclObject> args;
+	args.emplace_back(changer->getDriveName());
+
+	auto target = info.getOptionalDictValue(TclObject("target"));
+	if (!target) return;
+	if (auto trgt = target->getString(); trgt.empty()) {
+		args.emplace_back("eject");
+	} else {
+		args.emplace_back(*target);
+	}
+
+	if (auto patches = info.getOptionalDictValue(TclObject("patches"))) {
+		for (auto i : xrange(patches->size())) {
+			args.push_back(patches->getListIndexUnchecked(i));
+		}
+	}
+
+	changer->sendChangeDiskEvent(args);
 }
 
 bool RealDrive::isDiskInserted() const
