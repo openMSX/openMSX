@@ -31,6 +31,8 @@ public:
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	void signalQuit();
+
 private:
 	void paintSelectMachine(const MSXMotherBoard* motherBoard);
 	void paintTestHardware();
@@ -54,6 +56,12 @@ private:
 	static constexpr size_t HISTORY_SIZE = 8;
 	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
 
+	struct PreviewSetup {
+		std::string displayName;
+		std::string fullName;
+		std::string lastExceptionMessage;
+		std::shared_ptr<MSXMotherBoard> motherBoard;
+	} previewSetup;
 	bool saveSetupOpen = false;
 	std::string saveSetupName;
 	FileListWidget setupFileList;

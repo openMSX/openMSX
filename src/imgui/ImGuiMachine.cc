@@ -46,8 +46,62 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 	, setupFileList("setup", Reactor::SETUP_EXTENSION, Reactor::SETUP_DIR)
 	, confirmDialog("Confirm##setup")
 {
-	setupFileList.selectAction = [&](const FileListWidget::Entry& entry) {
+
+	setupFileList.drawAction = [&] {
+		im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
+			if (ImGui::TableNextColumn()) {
+				setupFileList.drawTable();
+			}
+			if (ImGui::TableNextColumn()) {
+				if (previewSetup.motherBoard) {
+					showSetupOverview(*previewSetup.motherBoard);
+					ImGui::Separator();
+					if (ImGui::Button("Run!")) {
+						manager.executeDelayed(makeTclList("setup", previewSetup.displayName));
+					}
+				} else {
+					if (previewSetup.lastExceptionMessage.empty()) {
+						ImGui::TextUnformatted("Nothing to preview...");
+					} else {
+						im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+							ImGui::TextUnformatted(tmpStrCat("Error loading setup ", previewSetup.displayName, " for preview:"));
+							ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+						});
+					}
+				}
+			}
+		});
+	};
+
+	setupFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		if (previewSetup.fullName == entry.fullName) return;
+
+		// record entry names, but (so far) without loaded motherboard
+		// this prevents that when loading failed, we don't continue retrying
+		previewSetup.fullName = entry.fullName;
+		previewSetup.displayName = entry.displayName;
+		// but we shouldn't reset the motherBoard yet during painting...
+
+		manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+			try {
+				// already reset, so that it's also gone in case of an exception
+				previewSetup.motherBoard.reset();
+				previewSetup.lastExceptionMessage.clear();
+				auto newBoard = manager.getReactor().createEmptyMotherBoard();
+				XmlInputArchive in(previewSetup.fullName);
+				in.serialize("machine", *newBoard);
+				previewSetup.motherBoard = newBoard;
+			} catch (MSXException& e) {
+				previewSetup.lastExceptionMessage = e.getMessage();
+			}
+		});
+	};
+
+	setupFileList.doubleClickAction = [&](const FileListWidget::Entry& entry) {
 		manager.executeDelayed(makeTclList("setup", entry.displayName));
+	};
+
+	setupFileList.selectAction = [&](const FileListWidget::Entry& /*entry*/) {
 	};
 }
 
@@ -67,6 +121,7 @@ void ImGuiMachine::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
+	bool loadSetupOpen = false;
 	im::Menu("Machine", [&]{
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
@@ -76,7 +131,8 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			ImGui::Separator();
 
-			setupFileList.menu("Load setup ...");
+			loadSetupOpen = setupFileList.menu("Load setup ...");
+
 			saveSetupOpen = im::Menu("Save setup ...", true, [&]{
 				auto exists = [&]{
 					auto filename = FileOperations::parseCommandFileArgument(
@@ -159,6 +215,17 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 	});
 
 	confirmDialog.execute();
+
+	if (!loadSetupOpen && previewSetup.motherBoard) {
+		manager.executeDelayed([this] {
+			previewSetup.motherBoard.reset();
+		});
+	}
+}
+
+void ImGuiMachine::signalQuit()
+{
+	previewSetup.motherBoard.reset();
 }
 
 void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
