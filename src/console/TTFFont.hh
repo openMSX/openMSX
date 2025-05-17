@@ -73,7 +73,7 @@ public:
 
 	/** Return the size in pixels of the text if it would be rendered.
 	 */
-	[[nodiscard]] gl::ivec2 getSize(zstring_view text) const;
+	[[nodiscard]] gl::ivec2 getSize(std::string_view text) const;
 
 private:
 	void* font = nullptr;  // TTF_Font*

@@ -185,7 +185,7 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 		assert(!text.empty());
 		SDLSurfacePtr surface(
 			TTF_RenderText_Blended(static_cast<TTF_Font*>(font),
-			                       text.c_str(), 0, color));
+			                       text.data(), text.size(), color));
 		if (!surface) {
 			throw MSXException(SDL_GetError());
 		}
@@ -197,7 +197,7 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 	int lineHeight = 0; // initialize to avoid warning
 	int numLines = 1;
 	while (true) {
-		auto [w, h] = getSize(std::string(current_line));
+		auto [w, h] = getSize(current_line);
 		width = std::max(width, w);
 		lineHeight = h;
 		if (lines_it == lines_end) break;
@@ -232,7 +232,7 @@ SDLSurfacePtr TTFFont::render(std::string text, uint8_t r, uint8_t g, uint8_t b)
 		}
 		SDLSurfacePtr surf(TTF_RenderText_Blended(
 			static_cast<TTF_Font*>(font),
-			std::string(line).c_str(), 0, color));
+			line.data(), line.size(), color));
 		if (!surf) {
 			throw MSXException(SDL_GetError());
 		}
@@ -270,10 +270,10 @@ int TTFFont::getWidth() const
 	return advance;
 }
 
-gl::ivec2 TTFFont::getSize(zstring_view text) const
+gl::ivec2 TTFFont::getSize(std::string_view text) const
 {
 	int width, height;
-	if (!TTF_GetStringSize(static_cast<TTF_Font*>(font), text.c_str(), 0,
+	if (!TTF_GetStringSize(static_cast<TTF_Font*>(font), text.data(), text.size(),
 	                      &width, &height)) {
 		throw MSXException(SDL_GetError());
 	}
