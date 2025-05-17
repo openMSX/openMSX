@@ -273,7 +273,7 @@ int TTFFont::getWidth() const
 gl::ivec2 TTFFont::getSize(zstring_view text) const
 {
 	int width, height;
-	if (TTF_GetStringSize(static_cast<TTF_Font*>(font), text.c_str(), 0,
+	if (!TTF_GetStringSize(static_cast<TTF_Font*>(font), text.c_str(), 0,
 	                      &width, &height)) {
 		throw MSXException(SDL_GetError());
 	}
