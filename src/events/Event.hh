@@ -53,7 +53,14 @@ public:
 		// TODO: Is this hack still needed?
 		return evt.key.reserved;
 	}
-	[[nodiscard]] SDLKey getKey() const { return SDLKey::create(evt.key.key, evt.type == SDL_EVENT_KEY_DOWN); }
+	[[nodiscard]] SDLKey getKey() const {
+		return {
+			.scancode = getScanCode(),
+			.keycode = getKeyCode(),
+			.mod = getModifiers(),
+			.down = evt.type == SDL_EVENT_KEY_DOWN
+		};
+	}
 };
 
 class KeyUpEvent final : public KeyEvent
