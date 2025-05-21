@@ -397,7 +397,7 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 	newBoard->loadMachine(machineName);
 	auto newTime = newBoard->getCurrentTime();
 
-	if (depth >= SetupDepth::WITH_EXTENSIONS) {
+	if (depth >= SetupDepth::EXTENSIONS) {
 		// level 2: add the extensions of the current board to the new board
 
 		// suppress any messages from this temporary board
@@ -417,8 +417,8 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 		}
 	}
 
-	if (depth >= SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES) {
-		// level 3: add the pluggables of the current board to the new board
+	if (depth >= SetupDepth::CONNECTORS) {
+		// level 3: add the connectors/pluggables of the current board to the new board
 		auto& newBoardPluggingController = newBoard->getPluggingController();
 		for (const auto* connector: getPluggingController().getConnectors()) {
 			const auto& plugged = connector->getPlugged();
@@ -434,7 +434,7 @@ void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
 		}
 	}
 
-	if (depth >= SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA) {
+	if (depth >= SetupDepth::MEDIA) {
 		// level 4: add the inserted media of the current board to the new board
 		for (const auto& oldMedia : getMediaProviders()) {
 			if (auto* newMediaProvider = newBoard->findMediaProvider(oldMedia.name)) {
@@ -1040,11 +1040,11 @@ StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "store_setup")
 	, motherBoard(motherBoard_)
 	, depthOptionMap({
-		{ "none", MSXMotherBoard::SetupDepth::NONE },
-		{ "machine_only", MSXMotherBoard::SetupDepth::MACHINE_ONLY },
-		{ "with_extensions", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS },
-		{ "with_extensions_and_pluggables", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES },
-		{ "with_extensions_and_pluggables_and_media", MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA },
+		{ "none"          , MSXMotherBoard::SetupDepth::NONE           },
+		{ "machine"       , MSXMotherBoard::SetupDepth::MACHINE        },
+		{ "extensions"    , MSXMotherBoard::SetupDepth::EXTENSIONS     },
+		{ "connectors"    , MSXMotherBoard::SetupDepth::CONNECTORS     },
+		{ "media"         , MSXMotherBoard::SetupDepth::MEDIA          },
 		{ "complete_state", MSXMotherBoard::SetupDepth::COMPLETE_STATE }
 	})
 {

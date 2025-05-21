@@ -41,6 +41,16 @@ static void showMachineWithoutInfo(const std::string_view configName)
 
 namespace openmsx {
 
+static constexpr array_with_enum_index<MSXMotherBoard::SetupDepth, zstring_view> depthNodeNames = {
+	"", // NONE
+	"Machine",
+	"Extensions",
+	"Connectors",
+	"Media",
+	"Run time state"
+};
+
+
 ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
 	, setupFileList("setup", Reactor::SETUP_EXTENSION, Reactor::SETUP_DIR)
@@ -150,7 +160,41 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 			loadSetupOpen = setupFileList.menu("Load setup ...");
 
-			saveSetupOpen = im::Menu("Save setup ...", true, [&]{
+			saveSetupOpen = im::Menu("Save current setup as ...", true, [&]{
+				ImGui::TextUnformatted("Save current setup:");
+
+				using enum MSXMotherBoard::SetupDepth;
+
+				static constexpr array_with_enum_index<MSXMotherBoard::SetupDepth, zstring_view> helpText = {
+					zstring_view(""), // NONE
+					"Only the machine itself, without anything in it.",
+					"The machine with all plugged in extensions.",
+					"The machine, with all plugged in extensions and all things that are plugged into the connectors.",
+					"The machine, with all plugged in extensions and all things that are plugged into the connectors and also all inserted media.",
+					"The full state of the machine, with everything that's in it at the current time."
+				};
+
+				auto depthNodeNameForCombo = [&](MSXMotherBoard::SetupDepth depth){
+					return tmpStrCat(depth == MACHINE ? "" : "+ ", depthNodeNames[depth]).c_str();
+				};
+
+				im::Combo("Select level", depthNodeNameForCombo(saveSetupDepth), [&]{
+					static const auto indent = ImGui::CalcTextSize("m").x;
+					//for (const auto& d : { MACHINE, EXTENSIONS, CONNECTORS, MEDIA, COMPLETE_STATE }) {
+					for (auto d_ = static_cast<uint8_t>(MACHINE); d_ < static_cast<uint8_t>(NUM); ++d_) {
+						const auto d = static_cast<MSXMotherBoard::SetupDepth>(d_);
+						if (d != MACHINE) {
+							ImGui::Indent(indent);
+						}
+						if (ImGui::Selectable(depthNodeNameForCombo(d))) {
+							saveSetupDepth = d;
+						}
+						simpleToolTip(helpText[d]);
+					}
+				});
+				HelpMarker("Select the level to include in the setup that will be saved. "
+					"All levels above the one you selected will also be included.");
+
 				auto exists = [&]{
 					auto filename = FileOperations::parseCommandFileArgument(
 						saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
@@ -164,19 +208,17 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 							Reactor::SETUP_DIR, motherBoard->getMachineName(), Reactor::SETUP_EXTENSION, true));
 					}
 				}
-				ImGui::TextUnformatted("Enter name:"sv);
 				ImGui::InputText("##save-setup-name", &saveSetupName);
 				ImGui::SameLine();
-				if (ImGui::Button("Create")) {
+				if (ImGui::Button("Save")) {
 					ImGui::CloseCurrentPopup();
 
-					auto action = [manager = &manager, saveSetupName = saveSetupName] {
+					auto action = [manager = &manager, saveSetupName = saveSetupName, saveSetupDepth = saveSetupDepth] {
 						if (auto motherBoard_ = manager->getReactor().getMotherBoard()) {
 							// pass full filename
 							auto filename = FileOperations::parseCommandFileArgument(
 								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
-							motherBoard_->storeAsSetup(filename,
-								MSXMotherBoard::SetupDepth::WITH_EXTENSIONS_AND_PLUGGABLES);
+							motherBoard_->storeAsSetup(filename, saveSetupDepth);
 						}
 					};
 					auto delayedAction = [manager = &manager, action] {
@@ -191,11 +233,12 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 						manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
 					}
 				}
+				ImGui::Separator();
+				showSetupOverview(*motherBoard, true);
 			});
 
-			im::Menu("Current setup overview", true, [&]{
+			im::Menu("Current setup", true, [&]{
 				showSetupOverview(*motherBoard);
-				// TODO: move save setup here, by adding "Save as..."?
 			});
 		}
 
@@ -245,12 +288,16 @@ void ImGuiMachine::signalQuit()
 	previewSetup.motherBoard.reset();
 }
 
-void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
+void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 {
+	using enum MSXMotherBoard::SetupDepth;
+
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
-		ImGui::TextUnformatted(info->displayName);
-		im::TreeNode("Machine details", [&]{
+		if (!saveMode) {
+			ImGui::TextUnformatted(info->displayName);
+		}
+		im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
 			// alternatively, put this info in a tooltip instead of a collapsed TreeNode
 			printConfigInfo(*info);
 		});
@@ -258,106 +305,115 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard)
 		// machine config is gone... fallback: just show configName
 		showMachineWithoutInfo(configName);
 	}
-	im::TreeNode("Extensions", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-		const auto& slotManager = motherBoard.getSlotManager();
-		bool anySlot = false;
-		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
-			if (!slotManager.slotExists(i)) continue;
-			anySlot = true;
-			ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), "): ");
-			ImGui::SameLine();
-			if (const auto* config = slotManager.getConfigForSlot(i)) {
-				if (config->getType() == HardwareConfig::Type::EXTENSION) {
-					ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
-					if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+
+	im::StyleColor(saveMode && saveSetupDepth < EXTENSIONS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			const auto& slotManager = motherBoard.getSlotManager();
+			bool anySlot = false;
+			for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+				if (!slotManager.slotExists(i)) continue;
+				anySlot = true;
+				ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), "): ");
+				ImGui::SameLine();
+				if (const auto* config = slotManager.getConfigForSlot(i)) {
+					if (config->getType() == HardwareConfig::Type::EXTENSION) {
+						ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
+						if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+							manager.media->extensionTooltip(*extInfo);
+						}
+					} else {
+						ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
+					}
+				} else {
+					ImGui::TextUnformatted(EMPTY);
+				}
+			}
+			if (!anySlot) {
+				ImGui::TextDisabledUnformatted("No cartridge slots present");
+			}
+			// still, there could be I/O port only extensions present.
+			for (const auto& ext : motherBoard.getExtensions()) {
+				if (!slotManager.findSlotWith(*ext)) {
+					ImGui::StrCat("I/O only: ", manager.media->displayNameForExtension(ext->getConfigName()));
+					if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
 						manager.media->extensionTooltip(*extInfo);
 					}
-				} else {
-					ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
-				}
-			} else {
-				ImGui::TextUnformatted(EMPTY);
-			}
-		}
-		if (!anySlot) {
-			ImGui::TextDisabledUnformatted("No cartridge slots present");
-		}
-		// still, there could be I/O port only extensions present.
-		for (const auto& ext : motherBoard.getExtensions()) {
-			if (!slotManager.findSlotWith(*ext)) {
-				ImGui::StrCat("I/O only: ", manager.media->displayNameForExtension(ext->getConfigName()));
-				if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
-					manager.media->extensionTooltip(*extInfo);
 				}
 			}
-		}
+		});
 	});
-	im::TreeNode("Plugged into connectors", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-		manager.connector->showPluggables(motherBoard.getPluggingController(), true);
+	im::StyleColor(saveMode && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			manager.connector->showPluggables(motherBoard.getPluggingController(), true);
+		});
 	});
-	im::TreeNode("Inserted media", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-		for (const auto& media : motherBoard.getMediaProviders()) {
-			TclObject info;
-			media.provider->getMediaInfo(info);
-			if (auto target = info.getOptionalDictValue(TclObject("target"))) {
-				bool isEmpty = target->getString().empty();
-				auto targetStr = isEmpty ? EMPTY : target->getString();
+	im::StyleColor(saveMode && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[MEDIA].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+			for (const auto& media : motherBoard.getMediaProviders()) {
+				TclObject info;
+				media.provider->getMediaInfo(info);
+				if (auto target = info.getOptionalDictValue(TclObject("target"))) {
+					bool isEmpty = target->getString().empty();
+					auto targetStr = isEmpty ? EMPTY : target->getString();
 
-				auto formatMediaName = [](std::string_view name) {
-					constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
-						{"cart", "Cartridge Slot"},
-						{"disk", "Disk Drive"    },
-						{"hd"  , "Hard Disk"     },
-						{"cd"  , "CDROM Drive"   },
-						{"ls"  , "LS120 Drive"   },
-					});
-					for (auto [s, l] : multiSlotMediaDeviceTab) {
-						if (name.starts_with(s)) {
-							return strCat(l, ' ', char('A' + (name.back() - 'a')));
+					auto formatMediaName = [](std::string_view name) {
+						constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+							{"cart", "Cartridge Slot"},
+							{"disk", "Disk Drive"    },
+							{"hd"  , "Hard Disk"     },
+							{"cd"  , "CDROM Drive"   },
+							{"ls"  , "LS120 Drive"   },
+						});
+						for (auto [s, l] : multiSlotMediaDeviceTab) {
+							if (name.starts_with(s)) {
+								return strCat(l, ' ', char('A' + (name.back() - 'a')));
+							}
 						}
-					}
-					constexpr auto singleSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
-						{"cassetteplayer" , "Tape Deck"       },
-						{"laserdiscplayer", "LaserDisc Player"},
-					});
-					for (auto [s, l] : singleSlotMediaDeviceTab) {
-						if (name == s) return std::string(l);
-					}
-					// fallback in case we add stuff and forget to update the tables (no need to crash on this)
-					return std::string(name);
-				};
+						constexpr auto singleSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+							{"cassetteplayer" , "Tape Deck"       },
+							{"laserdiscplayer", "LaserDisc Player"},
+						});
+						for (auto [s, l] : singleSlotMediaDeviceTab) {
+							if (name == s) return std::string(l);
+						}
+						// fallback in case we add stuff and forget to update the tables (no need to crash on this)
+						return std::string(name);
+					};
 
-				if (media.name.starts_with("cart")) {
-					unsigned num = media.name[4] - 'a';
-					const auto& slotManager = motherBoard.getSlotManager();
-					ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), "): ");
-					ImGui::SameLine();
-					auto type = info.getOptionalDictValue(TclObject("type"));
-					if (type && type->getString() == "extension") {
-						ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+					if (media.name.starts_with("cart")) {
+						unsigned num = media.name[4] - 'a';
+						const auto& slotManager = motherBoard.getSlotManager();
+						ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), "): ");
+						ImGui::SameLine();
+						auto type = info.getOptionalDictValue(TclObject("type"));
+						if (type && type->getString() == "extension") {
+							ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+						} else {
+							ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
+							if (!isEmpty) {
+								im::ItemTooltip([&]{
+									RomType romType = RomType::UNKNOWN;
+									if (auto mapper = info.getOptionalDictValue(TclObject("mappertype"))) {
+										romType = RomInfo::nameToRomType(mapper->getString());
+									}
+									ImGuiMedia::printRomInfo(manager, info, targetStr, romType);
+								});
+							}
+						}
 					} else {
-						ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
-						if (!isEmpty) {
-							im::ItemTooltip([&]{
-								RomType romType = RomType::UNKNOWN;
-								if (auto mapper = info.getOptionalDictValue(TclObject("mappertype"))) {
-									romType = RomInfo::nameToRomType(mapper->getString());
-								}
-								ImGuiMedia::printRomInfo(manager, info, targetStr, romType);
-							});
-						}
+						ImGui::StrCat(formatMediaName(media.name), ": ", targetStr); // leftClip?!?
 					}
-				} else {
-					ImGui::StrCat(formatMediaName(media.name), ": ", targetStr); // leftClip?!?
 				}
 			}
-		}
+		});
 	});
 	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
 	if (time > 0) {
 		// this is only useful if the time is not 0
-		im::TreeNode("Run time state", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			ImGui::StrCat("Machine time: ", formatTime(time));
+		im::StyleColor(saveMode && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+			im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+				ImGui::StrCat("Machine time: ", formatTime(time));
+			});
 		});
 	}
 }
