@@ -146,8 +146,10 @@ public:
 
 	std::string loadMachine(const std::string& machine);
 
-	enum class SetupDepth : uint8_t { NONE, MACHINE_ONLY, WITH_EXTENSIONS,
-		WITH_EXTENSIONS_AND_PLUGGABLES, WITH_EXTENSIONS_AND_PLUGGABLES_AND_MEDIA, COMPLETE_STATE };
+	// the order must be kept as it is, it's from shallow to deep
+	enum class SetupDepth : uint8_t { NONE, MACHINE, EXTENSIONS,
+		CONNECTORS, MEDIA, COMPLETE_STATE,
+		NUM /* must be last, for being able to use array_from_enum_index */};
 	void storeAsSetup(const std::string& filename, SetupDepth depth);
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;

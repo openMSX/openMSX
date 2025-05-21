@@ -4,6 +4,7 @@
 #include "ImGuiPart.hh"
 #include "ImGuiUtils.hh"
 #include "FileListWidget.hh"
+#include "MSXMotherBoard.hh"
 
 #include "circular_buffer.hh"
 
@@ -40,7 +41,7 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
-	void showSetupOverview(MSXMotherBoard& motherBoard);
+	void showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode = false);
 
 public:
 	bool showSelectMachine = false;
@@ -66,6 +67,7 @@ private:
 	std::string saveSetupName;
 	FileListWidget setupFileList;
 	ConfirmDialog confirmDialog;
+	MSXMotherBoard::SetupDepth saveSetupDepth = MSXMotherBoard::SetupDepth::CONNECTORS;
 };
 
 } // namespace openmsx
