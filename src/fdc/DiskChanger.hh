@@ -100,6 +100,8 @@ private:
 	const bool doubleSidedDrive; // for DirAsDSK
 
 	bool diskChangedFlag;
+
+	friend class RealDrive;
 };
 SERIALIZE_CLASS_VERSION(DiskChanger, 2);
 

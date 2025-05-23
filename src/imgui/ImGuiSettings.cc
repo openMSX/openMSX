@@ -89,11 +89,11 @@ ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 		});
 		confirmOverwrite.execute();
 	};
-	saveLayout.selectAction = [&](const FileListWidget::Entry& entry) {
+	saveLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {
 		saveLayoutName = entry.displayName;
 	};
 
-	loadLayout.selectAction = [&](const FileListWidget::Entry& entry) {
+	loadLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {
 		manager.loadIniFile = entry.fullName;
 		ImGui::CloseCurrentPopup();
 	};

@@ -2,6 +2,9 @@
 #define IMGUI_MACHINE_HH
 
 #include "ImGuiPart.hh"
+#include "ImGuiUtils.hh"
+#include "FileListWidget.hh"
+#include "MSXMotherBoard.hh"
 
 #include "circular_buffer.hh"
 
@@ -21,13 +24,15 @@ public:
 	};
 
 public:
-	using ImGuiPart::ImGuiPart;
+	explicit ImGuiMachine(ImGuiManager& manager);
 
 	[[nodiscard]] zstring_view iniName() const override { return "machine"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
+
+	void signalQuit();
 
 private:
 	void paintSelectMachine(const MSXMotherBoard* motherBoard);
@@ -36,6 +41,7 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
+	void showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode = false);
 
 public:
 	bool showSelectMachine = false;
@@ -51,6 +57,17 @@ private:
 	static constexpr size_t HISTORY_SIZE = 8;
 	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
 
+	struct PreviewSetup {
+		std::string displayName;
+		std::string fullName;
+		std::string lastExceptionMessage;
+		std::shared_ptr<MSXMotherBoard> motherBoard;
+	} previewSetup;
+	bool saveSetupOpen = false;
+	std::string saveSetupName;
+	FileListWidget setupFileList;
+	ConfirmDialog confirmDialog;
+	MSXMotherBoard::SetupDepth saveSetupDepth = MSXMotherBoard::SetupDepth::CONNECTORS;
 };
 
 } // namespace openmsx

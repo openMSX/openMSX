@@ -28,7 +28,7 @@ private:
 	IDECDROM& cd;
 };
 
-class IDECDROM final : public AbstractIDEDevice, public MediaInfoProvider
+class IDECDROM final : public AbstractIDEDevice, public MediaProvider
 {
 public:
 	static constexpr unsigned MAX_CD = 26;
@@ -48,6 +48,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

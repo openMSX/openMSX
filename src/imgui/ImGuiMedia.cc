@@ -1112,7 +1112,7 @@ void ImGuiMedia::printDatabase(const RomInfo& romInfo, const char* buf)
 	printRow("Remark", romInfo.getRemark(buf));
 }
 
-static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType)
+void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType)
 {
 	im::Table("##extension-info", 2, [&]{
 		ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);

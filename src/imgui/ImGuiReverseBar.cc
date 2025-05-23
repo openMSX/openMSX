@@ -26,7 +26,7 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 	, replayFileList("replay", ReverseManager::REPLAY_EXTENSION, ReverseManager::REPLAY_DIR)
 	, confirmDialog(manager_, "Confirm##reverse")
 {
-	replayFileList.selectAction = [&](const FileListWidget::Entry& entry) {
+	replayFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
 		manager.executeDelayed(makeTclList("reverse", "loadreplay", entry.fullName));
 	};
 
@@ -50,10 +50,11 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 			}
 		});
 	};
-	saveStateFileList.selectAction = [&](const FileListWidget::Entry& entry) {
+	saveStateFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
 		manager.executeDelayed(makeTclList("loadstate", entry.displayName));
 	};
 	saveStateFileList.hoverAction = [&](const FileListWidget::Entry& entry) {
+		simpleToolTip(entry.displayName);
 		if (previewImage.name == entry.fullName) return;
 
 		// record name, but (so far) without image

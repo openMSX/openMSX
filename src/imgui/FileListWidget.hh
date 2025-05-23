@@ -13,8 +13,10 @@ namespace openmsx {
 class FileListWidget {
 public:
 	FileListWidget(std::string_view fileType_, std::string_view extension_, std::string_view directory_);
-	void menu(const char* text);
-	void menu(const char* text, bool enabled);
+	// returns whether the menu is open
+	bool menu(const char* text);
+	// returns whether the menu is open
+	bool menu(const char* text, bool enabled);
 	void drawTable();
 
 public:
@@ -26,10 +28,15 @@ public:
 		std::time_t ftime;
 	};
 
+	//shows tooltip with display name of entry (for long names)
+	void defaultHoverAction(const Entry& entry);
+
 	std::function<void()> drawAction; // default (only) calls drawTable()
-	std::function<void(const Entry&)> selectAction; // MUST be overwritten
-	std::function<void(const Entry&)> hoverAction; // default: nothing
+	std::function<void(const Entry&)> singleClickAction; // MUST be overwritten
+	std::function<void(const Entry&)> hoverAction; // default calls defaultHoverAction
+	std::function<void(const Entry&)> doubleClickAction; // default: nothing
 	std::function<void(const Entry&)> deleteAction; // default calls FileOperations::unlink(entry.fullName);
+	std::function<imColor(const Entry&)> displayColor; // default: normal color
 
 private:
 	void draw();
