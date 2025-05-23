@@ -201,13 +201,17 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				};
 				if (!saveSetupOpen) {
 					// on each re-open of this menu, create a suggestion for a name
-					saveSetupName = motherBoard->getMachineName();
+					auto configName = motherBoard->getMachineName();
+					auto* info = findMachineInfo(configName);
+					auto initialSaveSetupName = info ? info->displayName : configName;
+					saveSetupName = initialSaveSetupName;
 					if (exists()) {
 						saveSetupName = FileOperations::stem(FileOperations::getNextNumberedFileName(
-							Reactor::SETUP_DIR, motherBoard->getMachineName(), Reactor::SETUP_EXTENSION, true));
+							Reactor::SETUP_DIR, initialSaveSetupName, Reactor::SETUP_EXTENSION, true));
 					}
 				}
 				ImGui::InputText("##save-setup-name", &saveSetupName);
+				simpleToolTip(saveSetupName);
 				ImGui::SameLine();
 				if (ImGui::Button("Save")) {
 					ImGui::CloseCurrentPopup();
