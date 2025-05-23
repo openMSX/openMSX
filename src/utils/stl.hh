@@ -254,11 +254,18 @@ namespace detail {
 // Example:
 //   auto v1 = to_vector(std::views::drop(my_list, 3));
 //   auto v2 = to_vector<Base*>(getDerivedPtrs());
-template<typename T = void, std::ranges::common_range Range>
-[[nodiscard]] auto to_vector(Range&& range)
-	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
+template<typename T = void, std::ranges::common_range Range,
+         typename V = std::conditional_t<std::is_void_v<T>, std::ranges::range_value_t<Range>, T>>
+[[nodiscard]] std::vector<V> to_vector(Range&& range)
 {
-	return {std::begin(range), std::end(range)};
+#if defined __cpp_lib_ranges_to_container
+	return std::ranges::to<std::vector<V>>(std::forward<Range>(range));
+#elif defined __cpp_lib_containers_ranges
+	return {std::from_range, std::forward<Range>(range)};
+#else
+	// Cross fingers and hope the range's iterators meet Cpp17InputIterator requirements...
+	return {std::ranges::begin(range), std::ranges::end(range)};
+#endif
 }
 
 // Optimized version for r-value input and no type conversion.
