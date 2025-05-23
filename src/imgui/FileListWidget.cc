@@ -48,6 +48,7 @@ FileListWidget::FileListWidget(
 {
 	// setup default actions
 	drawAction = [&] { drawTable(); };
+	hoverAction = [this](const Entry& entry) { defaultHoverAction(entry); };
 	deleteAction = [](const Entry& entry) { FileOperations::unlink(entry.fullName); };
 }
 
@@ -67,6 +68,11 @@ void FileListWidget::draw()
 {
 	if (!menuOpen) scanDirectory(); // only re-scan on transition from closed -> open
 	drawAction(); // calls drawTable() (and possibly does more)
+}
+
+void FileListWidget::defaultHoverAction(const Entry& entry)
+{
+	simpleToolTip(entry.displayName);
 }
 
 [[nodiscard]] static time_t fileTimeToTimeT(std::filesystem::file_time_type fileTime)

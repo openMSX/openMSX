@@ -28,9 +28,12 @@ public:
 		std::time_t ftime;
 	};
 
+	//shows tooltip with display name of entry (for long names)
+	void defaultHoverAction(const Entry& entry);
+
 	std::function<void()> drawAction; // default (only) calls drawTable()
 	std::function<void(const Entry&)> singleClickAction; // MUST be overwritten
-	std::function<void(const Entry&)> hoverAction; // default: nothing
+	std::function<void(const Entry&)> hoverAction; // default calls defaultHoverAction
 	std::function<void(const Entry&)> doubleClickAction; // default: nothing
 	std::function<void(const Entry&)> deleteAction; // default calls FileOperations::unlink(entry.fullName);
 	std::function<imColor(const Entry&)> displayColor; // default: normal color
