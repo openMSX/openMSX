@@ -58,33 +58,32 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 {
 
 	setupFileList.drawAction = [&] {
-		im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
-			if (ImGui::TableNextColumn()) {
-				setupFileList.drawTable();
-			}
-			if (ImGui::TableNextColumn()) {
-				if (previewSetup.motherBoard) {
-					showSetupOverview(*previewSetup.motherBoard);
-					ImGui::Separator();
-					if (ImGui::Button("Run!")) {
-						manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
-							try {
-								manager.getReactor().switchMachineFromSetup(previewSetup.fullName);
-							} catch (MSXException& e) {
-								// this will be very rare, don't bother showing the error
-								previewSetup.lastExceptionMessage = e.getMessage();
-							}
-						});
-					}
+		im::Group([&]{
+			setupFileList.drawTable();
+		});
+		ImGui::SameLine();
+		im::Group([&]{
+			if (previewSetup.motherBoard) {
+				showSetupOverview(*previewSetup.motherBoard);
+				ImGui::Separator();
+				if (ImGui::Button("Run!")) {
+					manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+						try {
+							manager.getReactor().switchMachineFromSetup(previewSetup.fullName);
+						} catch (MSXException& e) {
+							// this will be very rare, don't bother showing the error
+							previewSetup.lastExceptionMessage = e.getMessage();
+						}
+					});
+				}
+			} else {
+				if (previewSetup.lastExceptionMessage.empty()) {
+					ImGui::TextUnformatted("Nothing to preview...");
 				} else {
-					if (previewSetup.lastExceptionMessage.empty()) {
-						ImGui::TextUnformatted("Nothing to preview...");
-					} else {
-						im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-							ImGui::StrCat("Setup ", previewSetup.displayName, " cannot be loaded:");
-							ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
-						});
-					}
+					im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+						ImGui::StrCat("Setup ", previewSetup.displayName, " cannot be loaded:");
+						ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+					});
 				}
 			}
 		});
@@ -310,36 +309,46 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			const auto& slotManager = motherBoard.getSlotManager();
 			bool anySlot = false;
-			for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
-				if (!slotManager.slotExists(i)) continue;
-				anySlot = true;
-				ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), "): ");
-				ImGui::SameLine();
-				if (const auto* config = slotManager.getConfigForSlot(i)) {
-					if (config->getType() == HardwareConfig::Type::EXTENSION) {
-						ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
-						if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
-							manager.media->extensionTooltip(*extInfo);
+			im::Table("##ExtTable", 2, [&]{
+				for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
+					if (!slotManager.slotExists(i)) continue;
+					anySlot = true;
+					if (ImGui::TableNextColumn()) {
+						ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), ")");
+					}
+					if (ImGui::TableNextColumn()) {
+						if (const auto* config = slotManager.getConfigForSlot(i)) {
+							if (config->getType() == HardwareConfig::Type::EXTENSION) {
+								ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
+								if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+									manager.media->extensionTooltip(*extInfo);
+								}
+							} else {
+								ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
+							}
+						} else {
+							ImGui::TextUnformatted(EMPTY);
 						}
-					} else {
-						ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
-					}
-				} else {
-					ImGui::TextUnformatted(EMPTY);
-				}
-			}
-			if (!anySlot) {
-				ImGui::TextDisabledUnformatted("No cartridge slots present");
-			}
-			// still, there could be I/O port only extensions present.
-			for (const auto& ext : motherBoard.getExtensions()) {
-				if (!slotManager.findSlotWith(*ext)) {
-					ImGui::StrCat("I/O only: ", manager.media->displayNameForExtension(ext->getConfigName()));
-					if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
-						manager.media->extensionTooltip(*extInfo);
 					}
 				}
-			}
+				if (!anySlot) {
+					ImGui::TextDisabledUnformatted("No cartridge slots present");
+				}
+				// still, there could be I/O port only extensions present.
+				for (const auto& ext : motherBoard.getExtensions()) {
+					if (!slotManager.findSlotWith(*ext)) {
+						if (ImGui::TableNextColumn()) {
+							ImGui::TextUnformatted("I/O only");
+						}
+						if (ImGui::TableNextColumn()) {
+							ImGui::TextUnformatted(manager.media->displayNameForExtension(ext->getConfigName()));
+							if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
+								manager.media->extensionTooltip(*extInfo);
+							}
+						};
+					}
+				}
+			});
 		});
 	});
 	im::StyleColor(saveMode && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
@@ -349,62 +358,72 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 	});
 	im::StyleColor(saveMode && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 		im::TreeNode(depthNodeNames[MEDIA].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
-			for (const auto& media : motherBoard.getMediaProviders()) {
-				TclObject info;
-				media.provider->getMediaInfo(info);
-				if (auto target = info.getOptionalDictValue(TclObject("target"))) {
-					bool isEmpty = target->getString().empty();
-					auto targetStr = isEmpty ? EMPTY : target->getString();
+			im::Table("##MediaTable", 2, [&]{
+				for (const auto& media : motherBoard.getMediaProviders()) {
+					TclObject info;
+					media.provider->getMediaInfo(info);
+					if (auto target = info.getOptionalDictValue(TclObject("target"))) {
+						bool isEmpty = target->getString().empty();
+						auto targetStr = isEmpty ? EMPTY : target->getString();
 
-					auto formatMediaName = [](std::string_view name) {
-						constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
-							{"cart", "Cartridge Slot"},
-							{"disk", "Disk Drive"    },
-							{"hd"  , "Hard Disk"     },
-							{"cd"  , "CDROM Drive"   },
-							{"ls"  , "LS120 Drive"   },
-						});
-						for (auto [s, l] : multiSlotMediaDeviceTab) {
-							if (name.starts_with(s)) {
-								return strCat(l, ' ', char('A' + (name.back() - 'a')));
+						auto formatMediaName = [](std::string_view name) {
+							constexpr auto multiSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+								{"cart", "Cartridge Slot"},
+								{"disk", "Disk Drive"    },
+								{"hd"  , "Hard Disk"     },
+								{"cd"  , "CDROM Drive"   },
+								{"ls"  , "LS120 Drive"   },
+							});
+							for (auto [s, l] : multiSlotMediaDeviceTab) {
+								if (name.starts_with(s)) {
+									return strCat(l, ' ', char('A' + (name.back() - 'a')));
+								}
 							}
-						}
-						constexpr auto singleSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
-							{"cassetteplayer" , "Tape Deck"       },
-							{"laserdiscplayer", "LaserDisc Player"},
-						});
-						for (auto [s, l] : singleSlotMediaDeviceTab) {
-							if (name == s) return std::string(l);
-						}
-						// fallback in case we add stuff and forget to update the tables (no need to crash on this)
-						return std::string(name);
-					};
+							constexpr auto singleSlotMediaDeviceTab = std::to_array<std::pair<std::string_view, std::string_view>>({
+								{"cassetteplayer" , "Tape Deck"       },
+								{"laserdiscplayer", "LaserDisc Player"},
+							});
+							for (auto [s, l] : singleSlotMediaDeviceTab) {
+								if (name == s) return std::string(l);
+							}
+							// fallback in case we add stuff and forget to update the tables (no need to crash on this)
+							return std::string(name);
+						};
 
-					if (media.name.starts_with("cart")) {
-						unsigned num = media.name[4] - 'a';
-						const auto& slotManager = motherBoard.getSlotManager();
-						ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), "): ");
-						ImGui::SameLine();
-						auto type = info.getOptionalDictValue(TclObject("type"));
-						if (type && type->getString() == "extension") {
-							ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
-						} else {
-							ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
-							if (!isEmpty) {
-								im::ItemTooltip([&]{
-									RomType romType = RomType::UNKNOWN;
-									if (auto mapper = info.getOptionalDictValue(TclObject("mappertype"))) {
-										romType = RomInfo::nameToRomType(mapper->getString());
+						if (media.name.starts_with("cart")) {
+							unsigned num = media.name[4] - 'a';
+							const auto& slotManager = motherBoard.getSlotManager();
+							if (ImGui::TableNextColumn()) {
+								ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), ")");
+							}
+							if (ImGui::TableNextColumn()) {
+								auto type = info.getOptionalDictValue(TclObject("type"));
+								if (type && type->getString() == "extension") {
+									ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+								} else {
+									ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
+									if (!isEmpty) {
+										im::ItemTooltip([&]{
+											RomType romType = RomType::UNKNOWN;
+											if (auto mapper = info.getOptionalDictValue(TclObject("mappertype"))) {
+												romType = RomInfo::nameToRomType(mapper->getString());
+											}
+											ImGuiMedia::printRomInfo(manager, info, targetStr, romType);
+										});
 									}
-									ImGuiMedia::printRomInfo(manager, info, targetStr, romType);
-								});
+								}
+							}
+						} else {
+							if (ImGui::TableNextColumn()) {
+								ImGui::TextUnformatted(formatMediaName(media.name));
+							}
+							if (ImGui::TableNextColumn()) {
+								ImGui::TextUnformatted(targetStr); // leftClip?!?
 							}
 						}
-					} else {
-						ImGui::StrCat(formatMediaName(media.name), ": ", targetStr); // leftClip?!?
 					}
 				}
-			}
+			});
 		});
 	});
 	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
