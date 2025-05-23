@@ -54,6 +54,7 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 		manager.executeDelayed(makeTclList("loadstate", entry.displayName));
 	};
 	saveStateFileList.hoverAction = [&](const FileListWidget::Entry& entry) {
+		simpleToolTip(entry.displayName);
 		if (previewImage.name == entry.fullName) return;
 
 		// record name, but (so far) without image
