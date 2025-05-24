@@ -67,21 +67,34 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 				showSetupOverview(*previewSetup.motherBoard);
 				ImGui::Separator();
 				if (ImGui::Button("Run!")) {
-					manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
+					manager.executeDelayed([this] {
 						try {
-							manager.getReactor().switchMachineFromSetup(previewSetup.fullName);
+							auto& reactor = manager.getReactor();
+							reactor.switchMachineFromSetup(previewSetup.fullName);
+							if (setSetupAsDefault) {
+								reactor.getDefaultSetupSetting().setString(previewSetup.name);
+							}
 						} catch (MSXException& e) {
 							// this will be very rare, don't bother showing the error
 							previewSetup.lastExceptionMessage = e.getMessage();
 						}
 					});
 				}
+
+				ImGui::SameLine();
+				if (manager.getReactor().getDefaultSetupSetting().getString() == previewSetup.name) {
+					ImGui::TextUnformatted("(Will also run at start-up)");
+					simpleToolTip("This is the default setup: it will be run when starting up openMSX if no other setup is specified.");
+				} else {
+					ImGui::Checkbox("Also run at start-up", &setSetupAsDefault);
+					simpleToolTip("Check this to set as default setup: run this setup also when starting up openMSX if no other setup is specified.");
+				}
 			} else {
 				if (previewSetup.lastExceptionMessage.empty()) {
 					ImGui::TextUnformatted("Nothing to preview...");
 				} else {
 					im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-						ImGui::StrCat("Setup ", previewSetup.displayName, " cannot be loaded:");
+						ImGui::StrCat("Setup ", previewSetup.name, " cannot be loaded:");
 						ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
 					});
 				}
@@ -99,7 +112,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 		// record entry names, but (so far) without loaded motherboard
 		// this prevents that when loading failed, we don't continue retrying
 		previewSetup.fullName = entry.fullName;
-		previewSetup.displayName = entry.displayName;
+		previewSetup.name = entry.getDefaultDisplayName();
 		// but we shouldn't reset the motherBoard yet during painting...
 
 		manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
@@ -128,6 +141,21 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 			}
 
 		});
+	};
+
+	setupFileList.displayName = [&](const FileListWidget::Entry& entry) {
+		auto defaultDisplayName = entry.getDefaultDisplayName();
+		bool isDefault = manager.getReactor().getDefaultSetupSetting().getString() == defaultDisplayName;
+		return strCat(defaultDisplayName, isDefault ? " [default]" : "");
+	};
+
+	setupFileList.deleteAction = [&](const FileListWidget::Entry& entry) {
+		setupFileList.defaultDeleteAction(entry);
+		auto& defaultSetting = manager.getReactor().getDefaultSetupSetting();
+		if (defaultSetting.getString() == previewSetup.name) {
+			// user just deleted the default. Let's clear it then as well, to avoid an error next startup.
+			defaultSetting.setString("");
+		}
 	};
 }
 
@@ -234,8 +262,14 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					} else {
 						delayedAction();
 						manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
+						if (setSetupAsDefault) {
+							manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+						}
+						setSetupAsDefault = false;
 					}
 				}
+				ImGui::Checkbox("Set as default", &setSetupAsDefault);
+				simpleToolTip("Check this to set the setup you are saving as default setup: load this setup when starting up openMSX if no other setup is specified.");
 				ImGui::Separator();
 				showSetupOverview(*motherBoard, true);
 			});

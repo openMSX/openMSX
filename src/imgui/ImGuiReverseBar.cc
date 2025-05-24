@@ -51,10 +51,10 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 		});
 	};
 	saveStateFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
-		manager.executeDelayed(makeTclList("loadstate", entry.displayName));
+		manager.executeDelayed(makeTclList("loadstate", entry.getDefaultDisplayName()));
 	};
 	saveStateFileList.hoverAction = [&](const FileListWidget::Entry& entry) {
-		simpleToolTip(entry.displayName);
+		saveStateFileList.defaultHoverAction(entry);
 		if (previewImage.name == entry.fullName) return;
 
 		// record name, but (so far) without image
@@ -75,7 +75,7 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 		}
 	};
 	saveStateFileList.deleteAction = [&](const FileListWidget::Entry& entry) {
-		manager.execute(makeTclList("delete_savestate", entry.displayName));
+		manager.execute(makeTclList("delete_savestate", entry.getDefaultDisplayName()));
 	};
 }
 
