@@ -456,7 +456,8 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 								ImGui::TextUnformatted(formatMediaName(media.name));
 							}
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(targetStr); // leftClip?!?
+								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								simpleToolTip(targetStr);
 							}
 						}
 					}
