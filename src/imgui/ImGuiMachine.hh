@@ -58,12 +58,13 @@ private:
 	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
 
 	struct PreviewSetup {
-		std::string displayName;
+		std::string name;
 		std::string fullName;
 		std::string lastExceptionMessage;
 		std::shared_ptr<MSXMotherBoard> motherBoard;
 	} previewSetup;
 	bool saveSetupOpen = false;
+	bool setSetupAsDefault = false;
 	std::string saveSetupName;
 	FileListWidget setupFileList;
 	ConfirmDialog confirmDialog;

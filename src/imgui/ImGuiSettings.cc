@@ -90,7 +90,7 @@ ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
 		confirmOverwrite.execute();
 	};
 	saveLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {
-		saveLayoutName = entry.displayName;
+		saveLayoutName = entry.getDefaultDisplayName();
 	};
 
 	loadLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {

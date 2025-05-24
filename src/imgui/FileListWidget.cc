@@ -49,7 +49,8 @@ FileListWidget::FileListWidget(
 	// setup default actions
 	drawAction = [&] { drawTable(); };
 	hoverAction = [this](const Entry& entry) { defaultHoverAction(entry); };
-	deleteAction = [](const Entry& entry) { FileOperations::unlink(entry.fullName); };
+	deleteAction = [](const Entry& entry) { defaultDeleteAction(entry); };
+	displayName = [](const Entry& entry) { return std::string(entry.getDefaultDisplayName()); };
 }
 
 bool FileListWidget::menu(const char* text)
@@ -72,7 +73,16 @@ void FileListWidget::draw()
 
 void FileListWidget::defaultHoverAction(const Entry& entry)
 {
-	simpleToolTip(entry.displayName);
+	simpleToolTip(displayName(entry));
+}
+
+std::string_view FileListWidget::Entry::getDefaultDisplayName() const
+{
+	return FileOperations::stem(fullName);
+}
+
+void FileListWidget::defaultDeleteAction(const Entry& entry) {
+	FileOperations::unlink(entry.fullName);
 }
 
 [[nodiscard]] static time_t fileTimeToTimeT(std::filesystem::file_time_type fileTime)
@@ -95,11 +105,10 @@ void FileListWidget::scanDirectory()
 	entries.clear();
 	for (auto context = userDataFileContext(directory);
 	     const auto& path : context.getPaths()) {
-		foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-			if (name.ends_with(extension)) {
-				name.remove_suffix(extension.size());
+		foreach_file(path, [&](const std::string& fullName, std::string_view fileName) {
+			if (fileName.ends_with(extension)) {
 				std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-				entries.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
+				entries.emplace_back(fullName, fileTimeToTimeT(ftime));
 			}
 		});
 	}
@@ -140,7 +149,7 @@ void FileListWidget::drawTable()
 
 			switch (sortSpecs->Specs->ColumnIndex) {
 			case 0: // name
-				sortUpDown_String(entries, sortSpecs, &FileListWidget::Entry::displayName);
+				sortUpDown_String(entries, sortSpecs, &FileListWidget::Entry::getDefaultDisplayName);
 				break;
 			case 1: // time
 				sortUpDown_T(entries, sortSpecs, &FileListWidget::Entry::ftime);
@@ -154,7 +163,7 @@ void FileListWidget::drawTable()
 			if (ImGui::TableNextColumn()) {
 				imColor color = displayColor ? displayColor(entry) : imColor::TEXT;
 				im::StyleColor(ImGuiCol_Text, getColor(color), [&]{
-					if (ImGui::Selectable(entry.displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | (doubleClickAction ? ImGuiSelectableFlags_AllowDoubleClick : 0))) {
+					if (ImGui::Selectable(displayName(entry).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | (doubleClickAction ? ImGuiSelectableFlags_AllowDoubleClick : 0))) {
 						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 							doubleClickAction(entry);
 						} else {
@@ -169,7 +178,7 @@ void FileListWidget::drawTable()
 					im::PopupContextItem([&]{
 						if (ImGui::MenuItem("delete")) {
 							confirmDelete.open(
-								strCat("Delete ", fileType, " file '", entry.displayName, "'?"),
+								strCat("Delete ", fileType, " file '", entry.getDefaultDisplayName(), "'?"),
 								[entry, this]{
 									deleteAction(entry);
 									scanDirectory();

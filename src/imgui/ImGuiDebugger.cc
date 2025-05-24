@@ -58,11 +58,11 @@ ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 		});
 	};
 	saveBreakpoints.singleClickAction = [&](const FileListWidget::Entry& entry) {
-		breakpointFile = entry.displayName;
+		breakpointFile = entry.getDefaultDisplayName();
 	};
 
 	loadBreakpoints.singleClickAction = [&](const FileListWidget::Entry& entry) {
-		breakpointFile = entry.displayName;
+		breakpointFile = entry.getDefaultDisplayName();
 		loadSaveBreakpoints(LOAD);
 		ImGui::CloseCurrentPopup();
 	};
