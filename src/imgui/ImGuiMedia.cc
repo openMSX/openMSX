@@ -40,8 +40,6 @@
 #include <sstream>
 #include <utility>
 
-using namespace std::literals;
-
 namespace openmsx {
 
 void ImGuiMedia::save(ImGuiTextBuffer& buf)
@@ -784,27 +782,13 @@ static void printPatches(const TclObject& patches)
 	}
 }
 
-static std::string leftClip(std::string_view s, float maxWidth)
-{
-	auto fullWidth = ImGui::CalcTextSize(s).x;
-	if (fullWidth <= maxWidth) return std::string(s);
-
-	maxWidth -= ImGui::CalcTextSize("..."sv).x;
-	if (maxWidth <= 0.0f) return "...";
-
-	auto len = s.size();
-	auto num = *std::ranges::lower_bound(std::views::iota(size_t(0), len), maxWidth, {},
-		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
-	return strCat("...", s.substr(len - num));
-}
-
 bool ImGuiMedia::selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width) const
 {
 	bool interacted = false;
 	ImGui::SetNextItemWidth(-width);
 	const auto& style = ImGui::GetStyle();
 	auto textWidth = ImGui::GetContentRegionAvail().x - (3.0f * style.FramePadding.x + ImGui::GetFrameHeight() + width);
-	auto preview = leftClip(displayFunc(group.edit.name), textWidth);
+	auto preview = ImGui::leftClip(displayFunc(group.edit.name), textWidth);
 	im::Combo("##recent", preview.c_str(), [&]{
 		int count = 0;
 		for (const auto& item : group.recent) {
@@ -933,7 +917,7 @@ bool ImGuiMedia::selectPatches(MediaItem& item, int& patchIndex)
 			im::ListBox("##", [&]{
 				int count = 0;
 				for (const auto& patch : item.ipsPatches) {
-					auto preview = leftClip(patch, ImGui::GetContentRegionAvail().x);
+					auto preview = ImGui::leftClip(patch, ImGui::GetContentRegionAvail().x);
 					if (ImGui::Selectable(strCat(preview, "##", count).c_str(), count == patchIndex)) {
 						interacted = true;
 						patchIndex = count;
@@ -1042,7 +1026,7 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 			if (auto target = cmdResult->getOptionalDictValue(TclObject("target"))) {
 				currentTarget = *target;
 				ImGui::SameLine();
-				ImGui::TextUnformatted(leftClip(currentTarget.getString(),
+				ImGui::TextUnformatted(ImGui::leftClip(currentTarget.getString(),
 				                       ImGui::GetContentRegionAvail().x));
 			}
 			std::string statusLine;
@@ -1122,7 +1106,7 @@ void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic
 			ImGui::TextUnformatted("Filename"sv);
 		}
 		if (ImGui::TableNextColumn()) {
-			ImGui::TextUnformatted(leftClip(filename, ImGui::GetContentRegionAvail().x));
+			ImGui::TextUnformatted(ImGui::leftClip(filename, ImGui::GetContentRegionAvail().x));
 		}
 
 		const auto& database = manager.getReactor().getSoftwareDatabase();
@@ -1423,7 +1407,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			} else {
 				ImGui::TextUnformatted("Tape image:"sv);
 				ImGui::SameLine();
-				ImGui::TextUnformatted(leftClip(current, ImGui::GetContentRegionAvail().x));
+				ImGui::TextUnformatted(ImGui::leftClip(current, ImGui::GetContentRegionAvail().x));
 			}
 		});
 		im::Disabled(current.empty(), [&]{
