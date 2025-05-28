@@ -68,7 +68,7 @@ private:
 	std::string saveSetupName;
 	FileListWidget setupFileList;
 	ConfirmDialog confirmDialog;
-	MSXMotherBoard::SetupDepth saveSetupDepth = MSXMotherBoard::SetupDepth::CONNECTORS;
+	SetupDepth saveSetupDepth = SetupDepth::CONNECTORS;
 };
 
 } // namespace openmsx

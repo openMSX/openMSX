@@ -41,7 +41,7 @@ static void showMachineWithoutInfo(const std::string_view configName)
 
 namespace openmsx {
 
-static constexpr array_with_enum_index<MSXMotherBoard::SetupDepth, zstring_view> depthNodeNames = {
+static constexpr array_with_enum_index<SetupDepth, zstring_view> depthNodeNames = {
 	"", // NONE
 	"Machine",
 	"Extensions",
@@ -190,9 +190,9 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			saveSetupOpen = im::Menu("Save current setup as ...", true, [&]{
 				ImGui::TextUnformatted("Save current setup:");
 
-				using enum MSXMotherBoard::SetupDepth;
+				using enum SetupDepth;
 
-				static constexpr array_with_enum_index<MSXMotherBoard::SetupDepth, zstring_view> helpText = {
+				static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
 					zstring_view(""), // NONE
 					"Only the machine itself, without anything in it.",
 					"The machine with all plugged in extensions.",
@@ -201,7 +201,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					"The full state of the machine, with everything that's in it at the current time."
 				};
 
-				auto depthNodeNameForCombo = [&](MSXMotherBoard::SetupDepth depth){
+				auto depthNodeNameForCombo = [&](SetupDepth depth){
 					return tmpStrCat(depth == MACHINE ? "" : "+ ", depthNodeNames[depth]).c_str();
 				};
 
@@ -209,7 +209,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					static const auto indent = ImGui::CalcTextSize("m").x;
 					//for (const auto& d : { MACHINE, EXTENSIONS, CONNECTORS, MEDIA, COMPLETE_STATE }) {
 					for (auto d_ = static_cast<uint8_t>(MACHINE); d_ < static_cast<uint8_t>(NUM); ++d_) {
-						const auto d = static_cast<MSXMotherBoard::SetupDepth>(d_);
+						const auto d = static_cast<SetupDepth>(d_);
 						if (d != MACHINE) {
 							ImGui::Indent(indent);
 						}
@@ -327,7 +327,7 @@ void ImGuiMachine::signalQuit()
 
 void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 {
-	using enum MSXMotherBoard::SetupDepth;
+	using enum SetupDepth;
 
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {

@@ -91,6 +91,10 @@ struct MediaProviderInfo {
 	MediaProvider* provider;
 };
 
+// the order must be kept as it is, it's from shallow to deep
+enum class SetupDepth : uint8_t { NONE, MACHINE, EXTENSIONS,
+	CONNECTORS, MEDIA, COMPLETE_STATE,
+	NUM /* must be last, for being able to use array_from_enum_index */};
 
 class MSXMotherBoard final
 {
@@ -146,10 +150,6 @@ public:
 
 	std::string loadMachine(const std::string& machine);
 
-	// the order must be kept as it is, it's from shallow to deep
-	enum class SetupDepth : uint8_t { NONE, MACHINE, EXTENSIONS,
-		CONNECTORS, MEDIA, COMPLETE_STATE,
-		NUM /* must be last, for being able to use array_from_enum_index */};
 	void storeAsSetup(const std::string& filename, SetupDepth depth);
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
