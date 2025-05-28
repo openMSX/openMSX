@@ -64,6 +64,10 @@ using std::vector;
 
 namespace openmsx {
 
+static constexpr std::string_view DEFAULT_SETUP_NAME = "last_used";
+
+using enum SetupDepth;
+
 // global variable to communicate the exit-code from the 'exit' command to main()
 int exitCode = 0;
 
@@ -296,6 +300,22 @@ void Reactor::init()
 
 	createDefaultMachineAndSetupSettings();
 
+	saveSetupAtExitNameSetting = std::make_unique<StringSetting>(
+		*globalCommandController, "save_setup_at_exit_name",
+		"Setup name to use for saving at openMSX exit, if configured.", DEFAULT_SETUP_NAME);
+
+	saveSetupAtExitDepthSetting = std::make_unique<EnumSetting<SetupDepth>>(
+		*globalCommandController, "save_setup_at_exit_depth",
+		"Setup depth to use for saving at openMSX exit.",
+		NONE,
+		EnumSetting<SetupDepth>::Map{
+			{"none"          , NONE          },
+			{"machine"       , MACHINE       },
+			{"extensions"    , EXTENSIONS    },
+			{"connectors"    , CONNECTORS    },
+			{"media"         , MEDIA         },
+			{"complete_state", COMPLETE_STATE}});
+
 	getGlobalSettings().getPauseSetting().attach(*this);
 
 	eventDistributor->registerEventListener(EventType::QUIT, *this);
@@ -437,7 +457,7 @@ void Reactor::createDefaultMachineAndSetupSettings()
 	defaultSetupSetting = make_unique<StringSetting>(
 		*globalCommandController, "default_setup",
 		"default setup (takes effect next time openMSX is started)",
-		"");
+		DEFAULT_SETUP_NAME);
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
@@ -731,6 +751,23 @@ bool Reactor::signalEvent(const Event& event)
 {
 	std::visit(overloaded{
 		[&](const QuitEvent& /*e*/) {
+			// check whether we should store the current setup
+			if (auto* board = getMotherBoard()) {
+				auto depth = saveSetupAtExitDepthSetting->getEnum();
+				auto name = saveSetupAtExitNameSetting->getString();
+				if (depth != NONE && !name.empty()) {
+					auto filename = FileOperations::parseCommandFileArgument(
+						name, Reactor::SETUP_DIR, "",
+						Reactor::SETUP_EXTENSION);
+					try {
+						board->storeAsSetup(filename, depth);
+					} catch (MSXException& e) {
+						getGlobalCliComm().printWarning(strCat("Couldn't save setup to ",
+						filename, " at exit: ", e.getMessage()));
+					}
+				}
+			}
+
 			enterMainLoop();
 			running = false;
 		},

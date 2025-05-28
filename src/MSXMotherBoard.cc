@@ -127,7 +127,7 @@ public:
 	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
-	const std::map<std::string, MSXMotherBoard::SetupDepth> depthOptionMap;
+	const std::map<std::string, SetupDepth> depthOptionMap;
 };
 
 class MachineNameInfo final : public InfoTopic
@@ -1040,12 +1040,12 @@ StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "store_setup")
 	, motherBoard(motherBoard_)
 	, depthOptionMap({
-		{ "none"          , MSXMotherBoard::SetupDepth::NONE           },
-		{ "machine"       , MSXMotherBoard::SetupDepth::MACHINE        },
-		{ "extensions"    , MSXMotherBoard::SetupDepth::EXTENSIONS     },
-		{ "connectors"    , MSXMotherBoard::SetupDepth::CONNECTORS     },
-		{ "media"         , MSXMotherBoard::SetupDepth::MEDIA          },
-		{ "complete_state", MSXMotherBoard::SetupDepth::COMPLETE_STATE }
+		{ "none"          , SetupDepth::NONE           },
+		{ "machine"       , SetupDepth::MACHINE        },
+		{ "extensions"    , SetupDepth::EXTENSIONS     },
+		{ "connectors"    , SetupDepth::CONNECTORS     },
+		{ "media"         , SetupDepth::MEDIA          },
+		{ "complete_state", SetupDepth::COMPLETE_STATE }
 	})
 {
 }
@@ -1060,7 +1060,7 @@ void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result
 		throw CommandException("Unknown depth argument: ", depthArg);
 	}
 
-	if (depthIt->second == MSXMotherBoard::SetupDepth::NONE) return;
+	if (depthIt->second == SetupDepth::NONE) return;
 
 	std::string_view filenameArg;
 	if (tokens.size() == 3) {

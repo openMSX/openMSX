@@ -64,6 +64,8 @@ class UserSettings;
 
 extern int exitCode;
 
+enum class SetupDepth : uint8_t;
+
 /**
  * Contains the main loop of openMSX.
  * openMSX is almost single threaded: the main thread does most of the work,
@@ -101,6 +103,8 @@ public:
 	[[nodiscard]] DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	[[nodiscard]] EnumSetting<int>& getDefaultMachineSetting() { return *defaultMachineSetting; }
 	[[nodiscard]] StringSetting& getDefaultSetupSetting() { return *defaultSetupSetting; }
+	[[nodiscard]] StringSetting& getSaveSetupAtExitNameSetting() { return *saveSetupAtExitNameSetting; }
+	[[nodiscard]] EnumSetting<SetupDepth>& getSaveSetupAtExitDepthSetting() { return *saveSetupAtExitDepthSetting; }
 	[[nodiscard]] FilePool& getFilePool() { return *filePool; }
 	[[nodiscard]] ImGuiManager& getImGuiManager() { return *imGuiManager; }
 	[[nodiscard]] const HotKey& getHotKey() const;
@@ -177,6 +181,8 @@ private:
 
 	std::unique_ptr<EnumSetting<int>> defaultMachineSetting;
 	std::unique_ptr<StringSetting> defaultSetupSetting;
+	std::unique_ptr<StringSetting> saveSetupAtExitNameSetting;
+	std::unique_ptr<EnumSetting<SetupDepth>> saveSetupAtExitDepthSetting;
 	std::unique_ptr<UserSettings> userSettings;
 	std::unique_ptr<RomDatabase> softwareDatabase; // lazy initialized
 
