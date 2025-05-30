@@ -79,6 +79,7 @@ private:
 
 private:
 	unsigned osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
+	bool sendQuit = false; // only send QuitEvent once
 
 	// only for Android
 	static inline bool androidButtonA = false;
