@@ -734,12 +734,12 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 		ImGui::TextUnformatted("Address");
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(2.0f * style.FramePadding.x + ImGui::CalcTextSize("Expression").x + ImGui::GetFrameHeight());
-		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0")) {
+		if (ImGui::Combo("##mode", &addrMode, "Cursor\0Expression\0Link BC\0Link DE\0Link HL\0Link IX\0Link IY\0")) {
 			dataEditingTakeFocus = true;
 			forceScroll = true;
 			if (addrMode >=2) {
 				static constexpr std::array linkExpr = {
-					"[reg bc]", "[reg de]", "[reg hl]"
+					"[reg bc]", "[reg de]", "[reg hl]", "[reg ix]", "[reg iy]"
 				};
 				addrExpr = linkExpr[addrMode - 2];
 				addrMode = EXPRESSION;
