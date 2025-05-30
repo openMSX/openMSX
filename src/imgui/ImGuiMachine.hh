@@ -41,7 +41,10 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
-	void showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode = false);
+	enum class ViewMode { VIEW, SAVE, NO_CONTROLS };
+	void showSetupOverview(MSXMotherBoard& motherBoard, ViewMode = ViewMode::VIEW);
+	void loadPreviewSetup();
+	void showNonExistingPreview();
 
 public:
 	bool showSelectMachine = false;
@@ -69,6 +72,9 @@ private:
 	FileListWidget setupFileList;
 	ConfirmDialog confirmDialog;
 	SetupDepth saveSetupDepth = SetupDepth::CONNECTORS;
+	std::string previousDefaultSetup;
+	bool setupSettingsOpen = false;
+	std::vector<std::string> setups;
 };
 
 } // namespace openmsx

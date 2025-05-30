@@ -11,6 +11,7 @@
 #include "CartridgeSlotManager.hh"
 #include "Debuggable.hh"
 #include "Debugger.hh"
+#include "FileException.hh"
 #include "GlobalSettings.hh"
 #include "HardwareConfig.hh"
 #include "MSXCommandController.hh"
@@ -42,7 +43,7 @@ static void showMachineWithoutInfo(const std::string_view configName)
 namespace openmsx {
 
 static constexpr array_with_enum_index<SetupDepth, zstring_view> depthNodeNames = {
-	"", // NONE
+	"None",
 	"Machine",
 	"Extensions",
 	"Connectors",
@@ -90,14 +91,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 					simpleToolTip("Check this to set as default setup: run this setup also when starting up openMSX if no other setup is specified.");
 				}
 			} else {
-				if (previewSetup.lastExceptionMessage.empty()) {
-					ImGui::TextUnformatted("Nothing to preview...");
-				} else {
-					im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-						ImGui::StrCat("Setup ", previewSetup.name, " cannot be loaded:");
-						ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
-					});
-				}
+				showNonExistingPreview();
 			}
 		});
 	};
@@ -115,19 +109,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 		previewSetup.name = entry.getDefaultDisplayName();
 		// but we shouldn't reset the motherBoard yet during painting...
 
-		manager.executeDelayed([&previewSetup = previewSetup, &manager = manager] {
-			try {
-				// already reset, so that it's also gone in case of an exception
-				previewSetup.motherBoard.reset();
-				previewSetup.lastExceptionMessage.clear();
-				auto newBoard = manager.getReactor().createEmptyMotherBoard();
-				XmlInputArchive in(previewSetup.fullName);
-				in.serialize("machine", *newBoard);
-				previewSetup.motherBoard = newBoard;
-			} catch (MSXException& e) {
-				previewSetup.lastExceptionMessage = e.getMessage();
-			}
-		});
+		loadPreviewSetup();
 	};
 
 	setupFileList.doubleClickAction = [&](const FileListWidget::Entry& entry) {
@@ -177,10 +159,46 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 {
 	bool loadSetupOpen = false;
 	im::Menu("Machine", [&]{
+		using enum SetupDepth;
+
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
 
 		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+
+		auto showSetupLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) -> SetupDepth {
+
+			static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
+				"Do not save.",
+				"Only the machine itself, without anything in it.",
+				"The machine with all plugged in extensions.",
+				"The machine, with all plugged in extensions and all things that are plugged into the connectors.",
+				"The machine, with all plugged in extensions and all things that are plugged into the connectors and also all inserted media.",
+				"The full state of the machine, with everything that's in it at the current time."
+			};
+
+			auto depthNodeNameForCombo = [&](SetupDepth depth){
+				return tmpStrCat(depth == one_of(NONE, MACHINE) ? "" : "+ ", depthNodeNames[depth]).c_str();
+			};
+
+			SetupDepth selectedDepth = currentDepth;
+			im::Combo(displayText.c_str(), depthNodeNameForCombo(currentDepth), [&]{
+				const auto indent = ImGui::CalcTextSize("m").x;
+				for (auto d_ : xrange(std::to_underlying(includeNone ? NONE : MACHINE), std::to_underlying(NUM))) {
+					const auto d = static_cast<SetupDepth>(d_);
+					if (d != one_of(NONE, MACHINE)) {
+						ImGui::Indent(indent);
+					}
+					if (ImGui::Selectable(depthNodeNameForCombo(d))) {
+						selectedDepth = d;
+					}
+					simpleToolTip(helpText[d]);
+				}
+			});
+			HelpMarker("Select the level to include in the setup that will be saved. "
+				"All levels above the one you selected will also be included.");
+			return selectedDepth;
+		};
 
 		if (motherBoard) {
 			ImGui::Separator();
@@ -190,37 +208,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			saveSetupOpen = im::Menu("Save current setup as ...", true, [&]{
 				ImGui::TextUnformatted("Save current setup:");
 
-				using enum SetupDepth;
-
-				static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
-					zstring_view(""), // NONE
-					"Only the machine itself, without anything in it.",
-					"The machine with all plugged in extensions.",
-					"The machine, with all plugged in extensions and all things that are plugged into the connectors.",
-					"The machine, with all plugged in extensions and all things that are plugged into the connectors and also all inserted media.",
-					"The full state of the machine, with everything that's in it at the current time."
-				};
-
-				auto depthNodeNameForCombo = [&](SetupDepth depth){
-					return tmpStrCat(depth == MACHINE ? "" : "+ ", depthNodeNames[depth]).c_str();
-				};
-
-				im::Combo("Select level", depthNodeNameForCombo(saveSetupDepth), [&]{
-					static const auto indent = ImGui::CalcTextSize("m").x;
-					//for (const auto& d : { MACHINE, EXTENSIONS, CONNECTORS, MEDIA, COMPLETE_STATE }) {
-					for (auto d_ = static_cast<uint8_t>(MACHINE); d_ < static_cast<uint8_t>(NUM); ++d_) {
-						const auto d = static_cast<SetupDepth>(d_);
-						if (d != MACHINE) {
-							ImGui::Indent(indent);
-						}
-						if (ImGui::Selectable(depthNodeNameForCombo(d))) {
-							saveSetupDepth = d;
-						}
-						simpleToolTip(helpText[d]);
-					}
-				});
-				HelpMarker("Select the level to include in the setup that will be saved. "
-					"All levels above the one you selected will also be included.");
+				saveSetupDepth = showSetupLevelSelector("Select level", false, saveSetupDepth);
 
 				auto exists = [&]{
 					auto filename = FileOperations::parseCommandFileArgument(
@@ -271,13 +259,123 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("Set as default", &setSetupAsDefault);
 				simpleToolTip("Check this to set the setup you are saving as default setup: load this setup when starting up openMSX if no other setup is specified.");
 				ImGui::Separator();
-				showSetupOverview(*motherBoard, true);
+				showSetupOverview(*motherBoard, ViewMode::SAVE);
 			});
 
 			im::Menu("Current setup", true, [&]{
 				showSetupOverview(*motherBoard);
 			});
 		}
+
+		setupSettingsOpen = im::Menu("Setup settings", true, [&]{
+			auto currentSaveAtExitName = manager.getReactor().getSaveSetupAtExitNameSetting().getString();
+			auto& defaultSetupSetting = reactor.getDefaultSetupSetting();
+			bool startMachine = defaultSetupSetting.getString().empty();
+			if (!setupSettingsOpen) {
+				setups = Reactor::getSetups();
+				// make sure previousDefaultSetup is initialized properly
+				if (defaultSetupSetting.getString().empty()) {
+					previousDefaultSetup = setups.empty() ? currentSaveAtExitName : setups.front();
+				} else {
+					previousDefaultSetup = defaultSetupSetting.getString();
+				}
+			}
+			ImGui::TextUnformatted("When openMSX starts:");
+			if (ImGui::RadioButton("Load a machine", startMachine)) {
+				previousDefaultSetup = defaultSetupSetting.getValue().getString();
+				defaultSetupSetting.setValue(TclObject());
+			}
+			HelpMarker("Select this option to load the specified machine when openMSX starts up, instead of a setup.");
+			im::DisabledIndent(!startMachine, [&] {
+				auto& allMachines = getAllMachines();
+				auto currentDefault = reactor.getDefaultMachineSetting().getString();
+				auto currentDefaultDisplay = [&] {
+					if (auto* info = findMachineInfo(currentDefault)) {
+						return info->displayName;
+					}
+					return std::string(currentDefault);
+				}();
+				im::Combo("##defaultMachine", currentDefaultDisplay.c_str(), [&]{
+					for (auto& info: allMachines) {
+						bool ok = getTestResult(info).empty();
+						im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+							if (ImGui::Selectable(info.displayName.c_str())) {
+								reactor.getDefaultMachineSetting().setValue(TclObject(info.configName));
+								// clear the default setup setting to avoid loading that at startup
+								defaultSetupSetting.setValue(TclObject());
+							}
+							if (info.configName == currentDefault && ImGui::IsWindowAppearing()) ImGui::SetScrollHereY();
+							if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+								im::ItemTooltip([&]{
+									printConfigInfo(info);
+								});
+							}
+						});
+					}
+				});
+			});
+			if (ImGui::RadioButton("Load a setup", !startMachine)) {
+				defaultSetupSetting.setValue(TclObject(previousDefaultSetup));
+			}
+
+			HelpMarker("Select this option to load the specified setup when openMSX starts up. "
+				"Note that in case the setup cannot be loaded, the machine shown at the other "
+				"option will be loaded after all.");
+			im::DisabledIndent(startMachine, [&] {
+				auto currentDefault = startMachine ? previousDefaultSetup : defaultSetupSetting.getString();
+				auto showSetup = [&](zstring_view setup) {
+					if (ImGui::Selectable(setup.c_str())) {
+						defaultSetupSetting.setValue(TclObject(setup));
+					}
+					if (setup == currentDefault && ImGui::IsWindowAppearing()) ImGui::SetScrollHereY();
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+						if (previewSetup.name != setup) {
+							try {
+								previewSetup.fullName = userDataFileContext(Reactor::SETUP_DIR).resolve(tmpStrCat(setup, Reactor::SETUP_EXTENSION));
+								loadPreviewSetup();
+							} catch (FileException&) {
+								manager.executeDelayed([this] {
+									previewSetup.motherBoard.reset();
+								});
+							}
+						}
+						im::ItemTooltip([&]{
+							if (previewSetup.motherBoard) {
+								showSetupOverview(*previewSetup.motherBoard, ViewMode::NO_CONTROLS);
+							} else {
+								showNonExistingPreview();
+							}
+						});
+					}
+				};
+
+				im::Combo("##defaultSetup", currentDefault.c_str(), [&]{
+					for (auto& setup: setups) {
+						showSetup(setup);
+					}
+					if (!contains(setups, currentSaveAtExitName)) {
+						showSetup(currentSaveAtExitName);
+					}
+				});
+			});
+			ImGui::Separator();
+			ImGui::TextUnformatted("When openMSX exits:");
+			im::Indent([&] {
+				ImGui::TextUnformatted("Save setup level");
+				auto& depthSetting = manager.getReactor().getSaveSetupAtExitDepthSetting();
+				auto currentDepth = depthSetting.getEnum();
+				auto newDepth = showSetupLevelSelector("##empty", true, currentDepth);
+				im::Disabled(currentDepth == NONE, [&] {
+					ImGui::TextUnformatted("as");
+					InputText("##save-setup-name", manager.getReactor().getSaveSetupAtExitNameSetting());
+					HelpMarker("The setup name given here will be used when saving the setup at exit. "
+						"Select 'None' for the level to not save the current setup at exit.");
+				});
+				if (newDepth != currentDepth) {
+					depthSetting.setEnum(newDepth);
+				}
+			});
+		});
 
 		ImGui::Separator();
 
@@ -313,7 +411,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 	confirmDialog.execute();
 
-	if (!loadSetupOpen && previewSetup.motherBoard) {
+	if (!loadSetupOpen && !setupSettingsOpen && previewSetup.motherBoard) {
 		manager.executeDelayed([this] {
 			previewSetup.motherBoard.reset();
 		});
@@ -325,26 +423,61 @@ void ImGuiMachine::signalQuit()
 	previewSetup.motherBoard.reset();
 }
 
-void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
+void ImGuiMachine::loadPreviewSetup()
+{
+	manager.executeDelayed([this] {
+		try {
+			// already reset, so that it's also gone in case of an exception
+			previewSetup.motherBoard.reset();
+			previewSetup.lastExceptionMessage.clear();
+			auto newBoard = manager.getReactor().createEmptyMotherBoard();
+			XmlInputArchive in(previewSetup.fullName);
+			in.serialize("machine", *newBoard);
+			previewSetup.motherBoard = newBoard;
+		} catch (MSXException& e) {
+			previewSetup.lastExceptionMessage = e.getMessage();
+		}
+	});
+}
+
+void ImGuiMachine::showNonExistingPreview()
+{
+	if (previewSetup.lastExceptionMessage.empty()) {
+		ImGui::TextUnformatted("Nothing to preview...");
+	} else {
+		im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+			ImGui::StrCat("Setup ", previewSetup.name, " cannot be loaded:");
+			ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+		});
+	}
+}
+
+void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewMode)
 {
 	using enum SetupDepth;
 
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
-		if (!saveMode) {
+		if (viewMode != ViewMode::SAVE) {
 			ImGui::TextUnformatted(info->displayName);
 		}
-		im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
-			// alternatively, put this info in a tooltip instead of a collapsed TreeNode
-			printConfigInfo(*info);
-		});
+		if (viewMode != ViewMode::NO_CONTROLS) {
+			im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
+				// alternatively, put this info in a tooltip instead of a collapsed TreeNode
+				printConfigInfo(*info);
+				});
+		}
 	} else {
 		// machine config is gone... fallback: just show configName
 		showMachineWithoutInfo(configName);
 	}
 
-	im::StyleColor(saveMode && saveSetupDepth < EXTENSIONS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+	const ImGuiTreeNodeFlags flags = viewMode == ViewMode::VIEW ? ImGuiTreeNodeFlags_DefaultOpen :
+					viewMode == ViewMode::NO_CONTROLS ? (ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet) :
+					ImGuiTreeNodeFlags_None;
+
+	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < EXTENSIONS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), flags, [&]{
 			const auto& slotManager = motherBoard.getSlotManager();
 			bool anySlot = false;
 			im::Table("##ExtTable", 2, [&]{
@@ -389,13 +522,13 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 			});
 		});
 	});
-	im::StyleColor(saveMode && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), flags, [&]{
 			manager.connector->showPluggables(motherBoard.getPluggingController(), true);
 		});
 	});
-	im::StyleColor(saveMode && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[MEDIA].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+		im::TreeNode(depthNodeNames[MEDIA].c_str(), flags, [&]{
 			im::Table("##MediaTable", 2, [&]{
 				for (const auto& media : motherBoard.getMediaProviders()) {
 					TclObject info;
@@ -468,8 +601,8 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, bool saveMode)
 	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
 	if (time > 0) {
 		// this is only useful if the time is not 0
-		im::StyleColor(saveMode && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-			im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), saveMode ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_DefaultOpen, [&]{
+		im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+			im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), flags, [&]{
 				ImGui::StrCat("Machine time: ", formatTime(time));
 			});
 		});
