@@ -215,8 +215,8 @@ std::string fromCFString(CFStringRef str)
 		str, range, kCFStringEncodingUTF8, '?', false, nullptr, len, &usedBufLen);
 	small_buffer<UInt8, 128> buffer(uninitialized_tag{}, usedBufLen);
 	CFStringGetBytes(
-		str, range, kCFStringEncodingUTF8, '?', false, buffer, len, &usedBufLen);
-	return std::string(reinterpret_cast<const char*>(buffer), usedBufLen);
+		str, range, kCFStringEncodingUTF8, '?', false, buffer.data(), len, &usedBufLen);
+	return std::string(reinterpret_cast<const char*>(buffer.data()), usedBufLen);
 }
 
 #endif
