@@ -2,6 +2,7 @@
 
 #include "MSXException.hh"
 
+#include "small_buffer.hh"
 #include "stl.hh"
 
 #include <bit>
@@ -212,7 +213,7 @@ std::string fromCFString(CFStringRef str)
 	CFIndex usedBufLen = 0;
 	CFStringGetBytes(
 		str, range, kCFStringEncodingUTF8, '?', false, nullptr, len, &usedBufLen);
-	UInt8 buffer[usedBufLen];
+	small_buffer<UInt8, 128> buffer(uninitialized_tag{}, usedBufLen);
 	CFStringGetBytes(
 		str, range, kCFStringEncodingUTF8, '?', false, buffer, len, &usedBufLen);
 	return std::string(reinterpret_cast<const char*>(buffer), usedBufLen);
