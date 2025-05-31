@@ -337,6 +337,16 @@ void VisibleSurface::updateWindowTitle()
 	SDL_SetWindowTitle(window.get(), getDisplay().getWindowTitle().c_str());
 }
 
+std::optional<gl::ivec2> VisibleSurface::getMouseCoord() const
+{
+	if (SDL_GetMouseFocus() != window.get()) return {};
+
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	return gl::ivec2{mouseX, mouseY};
+}
+
+
 void VisibleSurface::saveScreenshot(const std::string& filename)
 {
 	saveScreenshotGL(*this, filename);

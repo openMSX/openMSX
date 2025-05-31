@@ -6,7 +6,9 @@
 #include "OutputSurface.hh"
 #include "RTSchedulable.hh"
 #include "SDLSurfacePtr.hh"
+
 #include <memory>
+#include <optional>
 
 namespace openmsx {
 
@@ -43,6 +45,7 @@ public:
 	static void saveScreenshotGL(const OutputSurface& output,
 	                             const std::string& filename);
 
+	[[nodiscard]] std::optional<gl::ivec2> getMouseCoord() const;
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 	void resize();
