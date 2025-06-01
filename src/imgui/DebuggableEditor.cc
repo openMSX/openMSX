@@ -817,7 +817,7 @@ void DebuggableEditor::drawContents(const Sizes& s, Debuggable& debuggable, unsi
 			debugger->configureChangesMenu();
 		});
 		ImGui::Separator();
-		if (ImGui::MenuItem("Export ...")) {
+		if (ImGui::MenuItem("Export...")) {
 			showExportWindow = true;
 		}
 	});

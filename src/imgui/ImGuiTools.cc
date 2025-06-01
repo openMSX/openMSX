@@ -98,7 +98,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard->show);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show);
-		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages->logWindow.open);
+		ImGui::MenuItem("Show message log", nullptr, &manager.messages->logWindow.open);
 		ImGui::Separator();
 
 		std::string_view copyCommand = "copy_screen_to_clipboard";
@@ -111,7 +111,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Paste clipboard into MSX", pasteShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
-		if (ImGui::MenuItem("Simple notes widget ...")) {
+		if (ImGui::MenuItem("Simple notes widget...")) {
 			if (auto it = std::ranges::find(notes, false, &Note::show);
 			    it != notes.end()) {
 				// reopen a closed note
@@ -126,20 +126,20 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		im::Menu("Capture", [&]{
-			ImGui::MenuItem("Screenshot ...", nullptr, &showScreenshot);
-			ImGui::MenuItem("Audio/Video ...", nullptr, &showRecord);
+			ImGui::MenuItem("Screenshot...", nullptr, &showScreenshot);
+			ImGui::MenuItem("Audio/Video...", nullptr, &showRecord);
 		});
 		ImGui::Separator();
 
-		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator->show);
+		ImGui::MenuItem("Disk Manipulator", nullptr, &manager.diskManipulator->show);
 		ImGui::Separator();
 
-		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer->show);
-		ImGui::MenuItem("Cheat Finder ...", nullptr, &manager.cheatFinder->show);
+		ImGui::MenuItem("Trainer Selector", nullptr, &manager.trainer->show);
+		ImGui::MenuItem("Cheat Finder", nullptr, &manager.cheatFinder->show);
 		ImGui::Separator();
 
-		ImGui::MenuItem("SCC viewer ...", nullptr, &manager.sccViewer->show);
-		ImGui::MenuItem("Audio channel viewer ...", nullptr, &manager.waveViewer->show);
+		ImGui::MenuItem("SCC viewer", nullptr, &manager.sccViewer->show);
+		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{
@@ -268,7 +268,7 @@ void ImGuiTools::paintScreenshot()
 			}
 		}
 		ImGui::Separator();
-		if (ImGui::Button("Open screenshots folder...")) {
+		if (ImGui::Button("Open screenshots folder")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(Display::SCREENSHOT_DIR)).c_str());
 		}
 
@@ -373,7 +373,7 @@ void ImGuiTools::paintRecord()
 			manager.executeDelayed(makeTclList("record", "stop"));
 		}
 		ImGui::Separator();
-		if (ImGui::Button("Open recordings folder...")) {
+		if (ImGui::Button("Open recordings folder")) {
 			bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
 			std::string_view directory = recordVideo ? AviRecorder::VIDEO_DIR : AviRecorder::AUDIO_DIR;
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(directory)).c_str());

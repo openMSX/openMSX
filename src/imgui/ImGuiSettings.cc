@@ -345,7 +345,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
 			}
-			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
+			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
 			saveLayout.menu("Save layout");
@@ -364,9 +364,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					setStyle();
 				}
 			});
-			ImGui::MenuItem("Select font...", nullptr, &showFont);
-			ImGui::MenuItem("Edit shortcuts...", nullptr, &showShortcut);
-			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
+			ImGui::MenuItem("Select font", nullptr, &showFont);
+			ImGui::MenuItem("Edit shortcuts", nullptr, &showShortcut);
+			ImGui::MenuItem("Configure OSD icons", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
 				ImGui::Checkbox("Show", &manager.statusBarVisible);
@@ -374,7 +374,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					manager.configStatusBarVisibilityItems();
 				});
 			});
-			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages->configureWindow.open);
+			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{

@@ -168,7 +168,7 @@ void ImGuiOsdIcons::paint(MSXMotherBoard* /*motherBoard*/)
 		                      float(rows   ) * maxIconSize.y + float(rows    - 1) * style.ItemSpacing.y));
 		if (allowMove) {
 			im::PopupContextItem("icons context menu", [&]{
-				if (ImGui::MenuItem("Configure icons ...")) {
+				if (ImGui::MenuItem("Configure icons")) {
 					showConfigureIcons = true;
 				}
 			});
@@ -345,7 +345,7 @@ void ImGuiOsdIcons::paintConfigureIcons()
 								}
 							});
 						} else {
-							ImGui::Button("Select ...");
+							ImGui::Button("Select...");
 						}
 						if (ImGui::IsItemClicked()) {
 							manager.openFile->selectFile(

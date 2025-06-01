@@ -111,8 +111,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		saveStateFileList.menu("Load state ...");
-		saveStateOpen = im::Menu("Save state ...", [&]{
+		saveStateFileList.menu("Load state");
+		saveStateOpen = im::Menu("Save state", [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
 					saveStateName, STATE_DIR, "", STATE_EXTENSION);
@@ -146,7 +146,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
-		if (ImGui::MenuItem("Open savestates folder...")) {
+		if (ImGui::MenuItem("Open savestates folder")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(STATE_DIR)).c_str());
 		}
 
@@ -155,8 +155,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		replayFileList.menu("Load replay ...", reverseEnabled);
-		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{
+		replayFileList.menu("Load replay", reverseEnabled);
+		saveReplayOpen = im::Menu("Save replay", reverseEnabled, [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
 					saveReplayName, ReverseManager::REPLAY_DIR, "", ReverseManager::REPLAY_EXTENSION);
@@ -191,7 +191,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
-		if (ImGui::MenuItem("Open replays folder...")) {
+		if (ImGui::MenuItem("Open replays folder")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(ReverseManager::REPLAY_DIR)).c_str());
 		}
 		im::Menu("Reverse/replay settings", [&]{
