@@ -239,7 +239,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
 		ImGui::MenuItem("Tool bar", nullptr, &showControl);
-		if (ImGui::MenuItem("Disassembly ...")) {
+		if (ImGui::MenuItem("Disassembly")) {
 			openOrCreate(manager, disassemblyViewers);
 		}
 		ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
@@ -267,13 +267,13 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
 		ImGui::Separator();
-		if (ImGui::MenuItem("VDP bitmap viewer ...")) {
+		if (ImGui::MenuItem("VDP bitmap viewer")) {
 			openOrCreate(manager, bitmapViewers);
 		}
-		if (ImGui::MenuItem("VDP tile viewer ...")) {
+		if (ImGui::MenuItem("VDP tile viewer")) {
 			openOrCreate(manager, tileViewers);
 		}
-		if (ImGui::MenuItem("VDP sprite viewer ...")) {
+		if (ImGui::MenuItem("VDP sprite viewer")) {
 			openOrCreate(manager, spriteViewers);
 		}
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
@@ -284,7 +284,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
 			std::ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
-				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
+				if (ImGui::Selectable(strCat(name).c_str())) {
 					createHexEditor(name);
 				}
 			}

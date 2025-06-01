@@ -156,7 +156,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		auto& reactor = manager.getReactor();
 		const auto& hotKey = reactor.getHotKey();
 
-		ImGui::MenuItem("Select MSX machine ...", nullptr, &showSelectMachine);
+		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
 
 		auto showSetupLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) -> SetupDepth {
 
@@ -195,9 +195,9 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			ImGui::Separator();
 
-			loadSetupOpen = setupFileList.menu("Load setup ...");
+			loadSetupOpen = setupFileList.menu("Load setup");
 
-			saveSetupOpen = im::Menu("Save current setup as ...", true, [&]{
+			saveSetupOpen = im::Menu("Save setup", true, [&]{
 				ImGui::TextUnformatted("Save current setup:");
 
 				saveSetupDepth = showSetupLevelSelector("Select level", false, saveSetupDepth);
@@ -398,7 +398,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		}
 
 		ImGui::Separator();
-		ImGui::MenuItem("Test MSX hardware ...", nullptr, &showTestHardware);
+		ImGui::MenuItem("Test MSX hardware", nullptr, &showTestHardware);
 	});
 
 	confirmDialog.execute();
@@ -697,7 +697,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 			if (recentMachines.empty()) {
 				ImGui::TextUnformatted("(none)"sv);
 			} else {
-				im::Combo("##recent", "Switch to recently used machine...", [&]{
+				im::Combo("##recent", "Switch to recently used machine:", [&]{
 					for (const auto& item : recentMachines) {
 						if (auto* info = findMachineInfo(item)) {
 							showMachine(*info, false);
@@ -893,10 +893,10 @@ void ImGuiMachine::paintTestHardware()
 		// one higher? (But then the button doesn't browse to where it
 		// promises to browse to and that may be confusing, e.g. if
 		// people put their system roms there...
-		if (ImGui::Button("Open user system ROMs folder...")) {
+		if (ImGui::Button("Open user system ROMs folder")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getUserDataDir(), "/systemroms").c_str());
 		}
-		if (ImGui::Button("Open system wide system ROMs folder...")) {
+		if (ImGui::Button("Open system wide system ROMs folder")) {
 			SDL_OpenURL(strCat("file://", FileOperations::getSystemDataDir(), "/systemroms").c_str());
 		}
 	});

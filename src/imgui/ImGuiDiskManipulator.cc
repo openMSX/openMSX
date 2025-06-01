@@ -240,7 +240,7 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
 				if (ImGui::Selectable("Delete")) {
 					result = Delete{file.filename};
 				}
-				if (ImGui::Selectable("Rename ...")) {
+				if (ImGui::Selectable("Rename...")) {
 					result = Rename{file.filename};
 				}
 			});
