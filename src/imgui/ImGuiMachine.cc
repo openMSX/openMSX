@@ -61,13 +61,8 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 	setupFileList.drawAction = [&] {
 		im::Group([&]{
 			setupFileList.drawTable();
-		});
-		ImGui::SameLine();
-		im::Group([&]{
-			if (previewSetup.motherBoard) {
-				showSetupOverview(*previewSetup.motherBoard);
-				ImGui::Separator();
-				if (ImGui::Button("Run!")) {
+			im::Disabled(previewSetup.fullName.empty(), [&] {
+				if (ImGui::Button("Load")) {
 					manager.executeDelayed([this] {
 						try {
 							auto& reactor = manager.getReactor();
@@ -80,16 +75,13 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 							previewSetup.lastExceptionMessage = e.getMessage();
 						}
 					});
-				}
-
-				ImGui::SameLine();
-				if (manager.getReactor().getDefaultSetupSetting().getString() == previewSetup.name) {
-					ImGui::TextUnformatted("(Will also run at start-up)");
-					simpleToolTip("This is the default setup: it will be run when starting up openMSX if no other setup is specified.");
-				} else {
-					ImGui::Checkbox("Also run at start-up", &setSetupAsDefault);
-					simpleToolTip("Check this to set as default setup: run this setup also when starting up openMSX if no other setup is specified.");
-				}
+				}		
+			});
+		});
+		ImGui::SameLine();
+		im::Group([&]{
+			if (previewSetup.motherBoard) {
+				showSetupOverview(*previewSetup.motherBoard);
 			} else {
 				showNonExistingPreview();
 			}
