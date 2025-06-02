@@ -698,16 +698,17 @@ void LaserdiscPlayer::autoRun()
 		// Murder Mystery laserdisc has no program encoded on the
 		// right audio channel, but provides a seperate cassette.
 		// So if a cassette and laserdisc is present, do not autoload
-		// the laserdisc but autoload the laserdisc instead.
+		// the laserdisc but autoload the tape instead.
 		return;
 	}
 
-	string var = "::auto_run_ld_counter";
+	auto machineID = motherBoard.getMachineID();
+	string var = strCat(machineID, "::auto_run_ld_counter");
 	string command = strCat(
 		"if ![info exists ", var, "] { set ", var, " 0 }\n"
 		"incr ", var, "\n"
-		"after time 2 \"if $", var, "==\\$", var, " { "
-		"type_via_keyboard 1CALLLD\\\\r }\"");
+		"after time 2 \"if $", var, "==\\$", var, " { ",
+		machineID, "::type_via_keyboard 1CALLLD\\\\r }\"");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
