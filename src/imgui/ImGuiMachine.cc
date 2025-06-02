@@ -964,13 +964,22 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 	bool ok = test.empty();
 	if (ok) {
 		im::Table("##machine-info", 2, ImGuiTableFlags_SizingFixedFit, [&]{
+			float maxValueWidth = 0.0f;
+			for (const auto& [desc, value] : info.configInfo) {
+				maxValueWidth = std::max(maxValueWidth, ImGui::CalcTextSize(value).x);
+			}
+			auto width = std::min(ImGui::GetFontSize() * 20.0f, maxValueWidth);
+
+			ImGui::TableSetupColumn("dummy");
+			ImGui::TableSetupColumn("dummy", ImGuiTableColumnFlags_WidthFixed, width);
+
 			for (const auto& [desc, value_] : info.configInfo) {
 				const auto& value = value_; // clang workaround
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted(desc);
 				}
 				if (ImGui::TableNextColumn()) {
-					im::TextWrapPos(ImGui::GetFontSize() * 28.0f, [&] {
+					im::TextWrapPos(0.0f, [&] {
 						ImGui::TextUnformatted(value);
 					});
 				}
