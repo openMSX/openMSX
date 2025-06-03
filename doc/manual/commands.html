@@ -60,10 +60,12 @@
         <li><a class="internal" href="#savestate">savestate / loadstate / list_savestates / delete_savestate</a></li>
         <li><a class="internal" href="#screenshot">screenshot</a></li>
         <li><a class="internal" href="#set">set</a></li>
+        <li><a class="internal" href="#setup">setup</a></li>
         <li><a class="internal" href="#slotmap">slotmap</a></li>
         <li><a class="internal" href="#slotselect">slotselect</a></li>
         <li><a class="internal" href="#soundlog">soundlog</a></li>
         <li><a class="internal" href="#store_machine">store_machine / restore_machine</a></li>
+        <li><a class="internal" href="#store_setup">store_setup</a></li>
         <li><a class="internal" href="#test_machine">test_machine</a></li>
         <li><a class="internal" href="#toggle">toggle</a></li>
         <li><a class="internal" href="#trainer">trainer</a></li>
@@ -94,6 +96,7 @@
         <li><a class="internal" href="#cputrace">cputrace</a></li>
         <li><a class="internal" href="#debugoutput">Debug Device output</a></li>
         <li><a class="internal" href="#default_machine">default_machine</a></li>
+        <li><a class="internal" href="#default_setup">default_setup</a></li>
         <li><a class="internal" href="#deflicker">deflicker</a></li>
         <li><a class="internal" href="#deinterlace">deinterlace</a></li>
         <li><a class="internal" href="#DirAsDSKmode">DirAsDSKmode</a></li>
@@ -157,6 +160,8 @@
         <li><a class="internal" href="#rtcmode">rtcmode</a></li>
         <li><a class="internal" href="#samples">samples</a></li>
         <li><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></li>
+        <li><a class="internal" href="#save_setup_at_exit_name">save_setup_at_exit_name</a></li>
+        <li><a class="internal" href="#save_setup_at_exit_depth">save_setup_at_exit_depth</a></li>
         <li><a class="internal" href="#scale_algorithm">scale_algorithm</a></li>
         <li><a class="internal" href="#scale_factor">scale_factor</a></li>
         <li><a class="internal" href="#scanline">scanline</a></li>
@@ -1967,6 +1972,26 @@
     <code>set deinterlace on</code><br />
   </div>
 
+  <h3><a id="setup">setup</a></h3>
+
+  <p>Switch to a previously saved setup.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>setup &lt;setup name&gt;</code></td>
+
+      <td>Switch to the specified setup, which you have saved before with the GUI or the <code><a class="internal" href="#store_setup">store_setup</a></code> command. Also returns the handle of the new machine.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: The machine handle is mostly used by external applications controlling openMSX (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). For interactive use you can omit the machine handle to have the commands operate on the current machine.
+  </div>
+
   <h3><a id="slotmap">slotmap</a></h3>
 
   <p>Shows what devices are inserted into which slots. The related command <code><a class="internal" href="#iomap">iomap</a></code> shows a similar overview, but for I/O mapped devices.</p>
@@ -2074,11 +2099,39 @@
     Note: These commands are pretty low level. The <code><a class="internal" href="#savestate">savestate</a></code> and <code><a class="internal" href="#savestate">loadstate</a></code> scripts are built on top of this and are much more convenient to use.
   </div>
 
+  <h3><a id="store_setup">store_setup</a></h3>
+
+  <p>Store the current setup in a file.</p>
+
+  <table>
+    <tr>
+      <td><code>store_setup [depth] &lt;filename&gt;</code></td>
+      <td>Save the setup with the given depth to specified file</td>
+    </tr>
+  </table>
+
+  <p>If the filename isn't specified, openMSX creates a unique one for you, based on the name of the machine. The depth argument is mandatory and must be one of the following.</p>
+
+  <dl>
+    <dt><code>machine</code></dt>
+    <dd>Save only the machine. This isn't too useful... but you can use it to give your favourite machine your own setup name</dd>
+    <dt><code>extensions</code></dt>
+    <dd>Save the machine with all plugged in extensions</dd>
+    <dt><code>connectors</code></dt>
+    <dd>As previous, but also include plugged in equipment in its connectors</dd>
+    <dt><code>media</code></dt>
+    <dd>As previous, but also include inserted media in its media slots</dd>
+    <dt><code>complete_state</code></dt>
+    <dd>As previous, but also include the run time state. This is basically identical to a savestate</dd>
+  </dl>
+
+  <p>Storing the current setup can also be done with the GUI via <span class="menu-reference">Main menu bar
+&rarr; Machine &rarr; Save setup</span>.</p>
 
   <h3><a id="test_machine">test_machine / test_all_machines / test_all_extensions</a></h3>
 
   <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>. This is an alternative to using the equivalent option in the GUI <span class="menu-reference">Main menu bar
-&rarr; Machine &rarr; Test MSX hardware...</span></p>
+&rarr; Machine &rarr; Test MSX hardware</span></p>
 
   <div class="subsectiontitle">
     usage:
@@ -2495,7 +2548,7 @@
       <td>Show a graphical view of the SCC chip(s) of the system, showing
           waveforms and volume per channel. In the future, this will be fully
           replaced by <span class="menu-reference">Main menu bar &rarr; Tools
-          &rarr; SCC viewer ...</span>.
+          &rarr; SCC viewer</span>.
       </td>
     </tr>
     <tr>
@@ -2993,7 +3046,10 @@
 
   <h3><a id="default_machine">default_machine</a></h3>
 
-  <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option. This is a typical setting that should be saved, see also <a class="internal" href="#save_settings"><code>save_settings</code></a>.</p>
+  <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option and without the <code>-setup</code> option and the <code><a class="internal" href="#default_setup">default_setup</a></code> setting is empty or pointing to a non-existing setup. This is a typical setting that should be saved, see also <a class="internal" href="#save_settings"><code>save_settings</code></a>.</p>
+
+  <p>In the GUI, under <span class="menu-reference">Main menu bar &rarr; Machine
+  &rarr; Setup settings</span> you can also configure what openMSX must do at startup, configuring this setting there.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3012,6 +3068,35 @@
       <td>Use the turboR GT the next time openMSX is started</td>
     </tr>
   </table>
+
+  <h3><a id="default_setup">default_setup</a></h3>
+
+  <p>Selects the default setup. openMSX uses this setup when it is started without the <code>-setup</code> or <code>-machine</code> option. By default, this setting is empty, because no setups are shipped with openMSX: they have to be created by users, after which this setting can be set to automatically start that setup that got saved earlier. If it is indeed empty or pointing to a non-existing setup, the value for the <code><a class="internal" href="#default_machine">default_machine</a></code> setting is used to determine what to start.</p>
+
+  <p>In the GUI, under <span class="menu-reference">Main menu bar &rarr; Machine
+  &rarr; Setup settings</span> you can also configure what openMSX must do at startup, configuring this setting there.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set default_setup</code></td>
+
+      <td>Shows current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set default_setup mymsx</code></td>
+
+      <td>Use the <code>mymsx</code> setup the next time openMSX is started without specifying setup or machine</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    If you set this setting to the same value as the <code><a class="internal" href="#save_setup_at_exit_name">save_setup_at_exit_name</a></code> setting and have the <code><a class="internal" href="#save_setup_at_exit_depth">save_setup_at_exit_depth</a></code> setting set to another depth than <code>none</code> , openMSX will automatically continue with the last setup when being started up again (and no other machine or setup is specified).
+  </div>
 
   <h3><a id="DirAsDSKmode">DirAsDSKmode</a></h3>
 
@@ -4866,6 +4951,68 @@
       <td>Disable auto save</td>
     </tr>
   </table>
+
+  <h3><a id="save_setup_at_exit_name">save_setup_at_exit_name</a></h3>
+
+  <p>Specify the setup name to use when automatically saving the setup when exiting openMSX is active. See also the <code><a class="internal" href="#save_setup_at_exit_depth">save_setup_at_exit_depth</a></code> setting.</p>
+
+  <p>In the GUI, under <span class="menu-reference">Main menu bar &rarr; Machine
+  &rarr; Setup settings</span> you can also configure what openMSX must do at startup, configuring this setting there.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set save_setup_at_exit_name</code></td>
+
+      <td>Show current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set save_setup_at_exit_name last_used</code></td>
+
+      <td>Set the setup name to be used for auto-save at exit to <code>last_used</code></td>
+    </tr>
+
+  </table>
+
+  <h3><a id="save_setup_at_exit_depth">save_setup_at_exit_depth</a></h3>
+
+  <p>Specify the depth to use when automatically saving the setup when exiting openMSX. If the depth is set to <code>none</code> (which is the default), the auto-save is not active, but otherwise the setup will be saved under the name specified by the <code><a class="internal" href="#save_setup_at_exit_name">save_setup_at_exit_name</a></code> setting. See also the <code><a class="internal" href="#store_setup">store_setup</a></code> command to find out about other depths that can be specified.</p>
+
+  <p>In the GUI, under <span class="menu-reference">Main menu bar &rarr; Machine
+  &rarr; Setup settings</span> you can also configure what openMSX must do at startup, configuring this setting there.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set save_setup_at_exit_depth</code></td>
+
+      <td>Show current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set save_setup_at_exit_depth extensions</code></td>
+
+      <td>When openMSX exits, the current setup is saved including all extensions in the machine.</td>
+    </tr>
+
+    <tr>
+      <td><code>set save_setup_at_exit_depth complete_state</code></td>
+
+      <td>When openMSX exits, the complete state is saved into the setup.</td>
+    </tr>
+
+  </table>
+
+  <div class="note">
+    If you enable this auto save of the setup and use the same name as for the <code><a class="internal" href="#default_setup">default_setup</a></code> setting, openMSX will automatically continue with the last setup when being started up again (and no other machine or setup is specified).
+  </div>
 
   <h3><a id="scale_algorithm">scale_algorithm</a></h3>
 
