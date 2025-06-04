@@ -113,7 +113,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 		}
 	}
 
-	auto romSize = rom ? rom->size() : 0;
+	const size_t romSize = rom ? rom->size() : 0;
 	size_t offset = 0;
 	for (Sector& sector : sectors) {
 		if (sector.writeAddress != -1) { // don't use isWritable() here
@@ -125,7 +125,7 @@ AmdFlash::AmdFlash(const std::string& name, const ValidatedChip& validatedChip,
 					std::ranges::fill(ramBlock, 0xFF);
 				} else if (offset + sector.size >= romSize) {
 					// partial overlap
-					auto last = romSize - offset;
+					const size_t last = romSize - offset;
 					const uint8_t* romPtr = &(*rom)[offset];
 					copy_to_range(std::span{romPtr, last}, ramBlock);
 					std::ranges::fill(ramBlock.subspan(last), 0xFF);
@@ -714,9 +714,9 @@ bool AmdFlash::partialMatch(std::span<const uint8_t> dataSeq) const
 	(void)addrSeq; (void)cmdAddr; // suppress (invalid) gcc warning
 
 	assert(dataSeq.size() <= 5);
-	return std::ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](auto i) {
+	return std::ranges::all_of(xrange(std::min(dataSeq.size(), cmd.size())), [&](const size_t i) {
 		// convert byte address to native address
-		auto addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[i].addr >> 1 : cmd[i].addr;
+		const size_t addr = (chip.geometry.deviceInterface == DeviceInterface::x8x16) ? cmd[i].addr >> 1 : cmd[i].addr;
 		return ((addr & 0x7FF) == cmdAddr[addrSeq[i]]) &&
 		       (cmd[i].value == dataSeq[i]);
 	});
