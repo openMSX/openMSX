@@ -237,7 +237,7 @@ void CassettePlayer::setTapePos(EmuTime::param time, double newPos)
 	assert(getState() != State::RECORD);
 	sync(time);
 	auto pos = std::clamp(newPos, 0.0, getTapeLength(time));
-	tapePos = EmuTime::zero() + EmuDuration(pos);
+	tapePos = EmuTime::zero() + EmuDuration::sec(pos);
 	wind(time);
 }
 

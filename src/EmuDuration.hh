@@ -35,9 +35,8 @@ public:
 
 	// constructors
 	constexpr EmuDuration() = default;
-	constexpr explicit EmuDuration(uint64_t n) : time(n) {}
-	constexpr explicit EmuDuration(double duration)
-		: time(uint64_t(duration * MAIN_FREQ + 0.5)) {}
+	template<std::unsigned_integral I>
+	constexpr explicit EmuDuration(I n) : time(n) {}
 
 	template<std::integral I>
 	static constexpr EmuDuration sec(I x)

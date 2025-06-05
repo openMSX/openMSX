@@ -61,7 +61,7 @@ double RealTime::getRealDuration(EmuTime::param time1, EmuTime::param time2) con
 
 EmuDuration RealTime::getEmuDuration(double realDur) const
 {
-	return EmuDuration(realDur * speedManager.getSpeed());
+	return EmuDuration::sec(realDur * speedManager.getSpeed());
 }
 
 bool RealTime::timeLeft(uint64_t us, EmuTime::param time) const

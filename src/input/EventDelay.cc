@@ -69,7 +69,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	prevEmu = curEmu;
 
 	double factor = emuDuration.toDouble() / narrow_cast<double>(realDuration);
-	EmuDuration extraDelay(delaySetting.getDouble());
+	EmuDuration extraDelay = EmuDuration::sec(delaySetting.getDouble());
 
 #if PLATFORM_ANDROID
 	// The virtual keyboard on Android sends a key press and the
@@ -135,7 +135,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 		auto sdlOffset = int32_t(sdlNow - eventSdlTime);
 		assert(sdlOffset >= 0);
 		auto offset = 1000 * int64_t(sdlOffset); // ms -> us
-		EmuDuration emuOffset(factor * narrow_cast<double>(offset));
+		EmuDuration emuOffset = EmuDuration::sec(factor * narrow_cast<double>(offset));
 		auto schedTime = (emuOffset < extraDelay)
 		               ? time - emuOffset
 		               : curEmu;

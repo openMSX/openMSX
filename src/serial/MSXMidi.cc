@@ -26,8 +26,8 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, i8251(getScheduler(), interface, getCurrentTime())
 	, i8254(getScheduler(), &cntr0, nullptr, &cntr2, getCurrentTime())
 {
-	EmuDuration total(1.0 / 4e6); // 4MHz
-	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period
+	EmuDuration total = EmuDuration::hz(4e6); // 4MHz
+	EmuDuration hi    = EmuDuration::hz(8e6); // 8MHz half clock period
 	EmuTime::param time = getCurrentTime();
 	i8254.getClockPin(0).setPeriodicState(total, hi, time);
 	i8254.getClockPin(1).setState(false, time);

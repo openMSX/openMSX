@@ -616,7 +616,7 @@ void MSXMixer::unmute()
 void MSXMixer::reInit()
 {
 	prevTime.reset(getCurrentTime());
-	prevTime.setPeriod(EmuDuration(getEffectiveSpeed() / double(hostSampleRate)));
+	prevTime.setPeriod(EmuDuration::sec(getEffectiveSpeed() / double(hostSampleRate)));
 	reschedule();
 }
 void MSXMixer::reschedule()

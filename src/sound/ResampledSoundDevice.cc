@@ -59,7 +59,7 @@ void ResampledSoundDevice::createResampler()
 {
 	const DynamicClock& hostClock = getHostSampleClock();
 	EmuDuration outputPeriod = hostClock.getPeriod();
-	EmuDuration inputPeriod(getEffectiveSpeed() / double(getInputRate()));
+	EmuDuration inputPeriod = EmuDuration::sec(getEffectiveSpeed() / double(getInputRate()));
 	emuClock.reset(hostClock.getTime());
 	emuClock.setPeriod(inputPeriod);
 
