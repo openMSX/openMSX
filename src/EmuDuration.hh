@@ -35,38 +35,27 @@ public:
 
 	// constructors
 	constexpr EmuDuration() = default;
-	template<std::unsigned_integral I>
-	constexpr explicit EmuDuration(I n) : time(n) {}
+	constexpr explicit EmuDuration(std::unsigned_integral auto n) : time(n) {}
 
-	template<std::integral I>
-	static constexpr EmuDuration sec(I x)
+	static constexpr EmuDuration sec(std::integral auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ)); }
-	template<std::floating_point F>
-	static constexpr EmuDuration sec(F x)
+	static constexpr EmuDuration sec(std::floating_point auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ + 0.5)); }
-	template<std::integral I>
-	static constexpr EmuDuration msec(I x)
+	static constexpr EmuDuration msec(std::integral auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000)); }
-	template<std::floating_point F>
-	static constexpr EmuDuration msec(F x)
+	static constexpr EmuDuration msec(std::floating_point auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e3 + 0.5)); }
-	template<std::integral I>
-	static constexpr EmuDuration usec(I x)
+	static constexpr EmuDuration usec(std::integral auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000)); }
-	template<std::floating_point F>
-	static constexpr EmuDuration usec(F x)
+	static constexpr EmuDuration usec(std::floating_point auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e6 + 0.5)); }
-	template<std::integral I>
-	static constexpr EmuDuration nsec(I x)
+	static constexpr EmuDuration nsec(std::integral auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000000)); }
-	template<std::floating_point F>
-	static constexpr EmuDuration nsec(F x)
+	static constexpr EmuDuration nsec(std::floating_point auto x)
 		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e9 + 0.5)); }
-	template<std::integral I>
-	static constexpr EmuDuration hz(I x)
+	static constexpr EmuDuration hz(std::integral auto x)
 		{ return EmuDuration(uint64_t(MAIN_FREQ / x)); }
-	template<std::floating_point F>
-	static constexpr EmuDuration hz(F x)
+	static constexpr EmuDuration hz(std::floating_point auto x)
 		{ return EmuDuration(uint64_t(MAIN_FREQ / x + 0.5)); }
 
 	// conversions
