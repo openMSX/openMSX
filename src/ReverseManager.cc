@@ -40,11 +40,11 @@ static constexpr double SNAPSHOT_PERIOD = 1.0;
 // Max number of snapshots in a replay file
 static constexpr unsigned MAX_NOF_SNAPSHOTS = 10;
 
-// Min distance between snapshots in replay file (in seconds)
-static constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
+// Min distance between snapshots in replay file
+static constexpr auto MIN_PARTITION_LENGTH = EmuDuration::sec(60.0);
 
-// Max distance of one before last snapshot before the end time in replay file (in seconds)
-static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
+// Max distance of one before last snapshot before the end time in replay file
+static constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration::sec(30.0);
 
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an
@@ -284,14 +284,14 @@ void ReverseManager::goBack(std::span<const TclObject> tokens)
 	EmuTime now = getCurrentTime();
 	EmuTime target(EmuTime::dummy());
 	if (t >= 0) {
-		EmuDuration d(t);
+		EmuDuration d = EmuDuration::sec(t);
 		if (d < (now - EmuTime::zero())) {
 			target = now - d;
 		} else {
 			target = EmuTime::zero();
 		}
 	} else {
-		target = now + EmuDuration(-t);
+		target = now + EmuDuration::sec(-t);
 	}
 	goTo(target, noVideo);
 }
@@ -301,7 +301,7 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 	auto& interp = motherBoard.getReactor().getInterpreter();
 	auto [noVideo, t] = parseGoTo(interp, tokens);
 
-	EmuTime target = EmuTime::zero() + EmuDuration(t);
+	EmuTime target = EmuTime::zero() + EmuDuration::sec(t);
 	goTo(target, noVideo);
 }
 
@@ -358,7 +358,7 @@ void ReverseManager::goTo(
 		// time. This is quite complex to get and the difference between
 		// 2 PAL and 2 NTSC frames isn't that big.
 		static constexpr double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
-		EmuDuration preDelta(noVideo ? 0.0 : dur2frames);
+		EmuDuration preDelta = EmuDuration::sec(noVideo ? 0.0 : dur2frames);
 		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
 		                  ? targetTime - preDelta
 		                  : firstTime;
@@ -394,7 +394,7 @@ void ReverseManager::goTo(
 		if (sameTimeLine &&
 		    (currentTime <= preTarget) &&
 		    ((snapshotTime <= currentTime) ||
-		     ((preTarget - currentTime) < EmuDuration(1.0)))) {
+		     ((preTarget - currentTime) < EmuDuration::sec(1.0)))) {
 			newBoard = &motherBoard; // use current board
 			// suppress messages just in case, as we're later going
 			// to fast forward to the right time
@@ -455,7 +455,7 @@ void ReverseManager::goTo(
 			auto nextSnapshotTarget = std::min(
 				preTarget,
 				lastSnapshotTarget + std::max(
-					EmuDuration(SNAPSHOT_PERIOD),
+					EmuDuration::sec(SNAPSHOT_PERIOD),
 					(preTarget - lastSnapshotTarget) / 2
 					));
 			auto nextTarget = std::min(nextSnapshotTarget, currentTimeNewBoard + EmuDuration::sec(1));
@@ -703,7 +703,7 @@ void ReverseManager::loadReplay(
 	} else if (*where == "savetime") {
 		destination = replay.currentTime;
 	} else {
-		destination += EmuDuration(where->getDouble(interp));
+		destination += EmuDuration::sec(where->getDouble(interp));
 	}
 
 	// OK, we are going to be actually changing states now
@@ -945,7 +945,7 @@ void ReverseManager::dropOldSnapshots(unsigned count)
 
 void ReverseManager::schedule(EmuTime::param time)
 {
-	syncNewSnapshot.setSyncPoint(time + EmuDuration(SNAPSHOT_PERIOD));
+	syncNewSnapshot.setSyncPoint(time + EmuDuration::sec(SNAPSHOT_PERIOD));
 }
 
 

@@ -35,18 +35,39 @@ public:
 
 	// constructors
 	constexpr EmuDuration() = default;
-	constexpr explicit EmuDuration(uint64_t n) : time(n) {}
-	constexpr explicit EmuDuration(double duration)
-		: time(uint64_t(duration * MAIN_FREQ + 0.5)) {}
+	template<std::unsigned_integral I>
+	constexpr explicit EmuDuration(I n) : time(n) {}
 
-	static constexpr EmuDuration sec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ); }
-	static constexpr EmuDuration msec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ / 1000); }
-	static constexpr EmuDuration usec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ / 1000000); }
-	static constexpr EmuDuration hz(unsigned x)
-		{ return EmuDuration(MAIN_FREQ / x); }
+	template<std::integral I>
+	static constexpr EmuDuration sec(I x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ)); }
+	template<std::floating_point F>
+	static constexpr EmuDuration sec(F x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ + 0.5)); }
+	template<std::integral I>
+	static constexpr EmuDuration msec(I x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000)); }
+	template<std::floating_point F>
+	static constexpr EmuDuration msec(F x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e3 + 0.5)); }
+	template<std::integral I>
+	static constexpr EmuDuration usec(I x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000)); }
+	template<std::floating_point F>
+	static constexpr EmuDuration usec(F x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e6 + 0.5)); }
+	template<std::integral I>
+	static constexpr EmuDuration nsec(I x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000000)); }
+	template<std::floating_point F>
+	static constexpr EmuDuration nsec(F x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e9 + 0.5)); }
+	template<std::integral I>
+	static constexpr EmuDuration hz(I x)
+		{ return EmuDuration(uint64_t(MAIN_FREQ / x)); }
+	template<std::floating_point F>
+	static constexpr EmuDuration hz(F x)
+		{ return EmuDuration(uint64_t(MAIN_FREQ / x + 0.5)); }
 
 	// conversions
 	[[nodiscard]] constexpr double toDouble() const { return double(time) * RECIP_MAIN_FREQ; }

@@ -501,7 +501,7 @@ double AfterTimedCmd::getTime() const
 void AfterTimedCmd::reschedule()
 {
 	removeSyncPoint();
-	setSyncPoint(getCurrentTime() + EmuDuration(time));
+	setSyncPoint(getCurrentTime() + EmuDuration::sec(time));
 }
 
 void AfterTimedCmd::executeUntil(EmuTime::param /*time*/)
