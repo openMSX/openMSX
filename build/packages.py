@@ -185,14 +185,14 @@ class Vorbis(DownloadablePackage):
 		return 'VORBIS'
 
 class ZLib(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/libpng'
+	downloadURL = 'https://zlib.net/fossils/'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.2.11'
-	fileLength = 607698
+	version = '1.3.1'
+	fileLength = 1512791
 	checksums = {
 		'sha256':
-			'c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1',
+			'9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23',
 		}
 
 # Build a dictionary of packages using introspection.
