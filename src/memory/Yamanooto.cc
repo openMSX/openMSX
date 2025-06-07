@@ -156,7 +156,7 @@ byte Yamanooto::peekMem(word address, EmuTime::param time) const
 	if (isSCCAccess(address)) {
 		return scc.peekMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	}
-	return ((configReg & ROMDIS) == 0) ? flash.peek(getFlashAddr(address))
+	return ((configReg & ROMDIS) == 0) ? flash.peek(getFlashAddr(address), time)
 	                                   : 0xFF; // access to flash ROM disabled
 }
 
@@ -172,7 +172,7 @@ byte Yamanooto::readMem(word address, EmuTime::param time)
 	if (isSCCAccess(address)) {
 		return scc.readMem(narrow_cast<uint8_t>(address & 0xFF), time);
 	}
-	return ((configReg & ROMDIS) == 0) ? flash.read(getFlashAddr(address))
+	return ((configReg & ROMDIS) == 0) ? flash.read(getFlashAddr(address), time)
 	                                   : 0xFF; // access to flash ROM disabled
 }
 
@@ -231,7 +231,7 @@ void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
 	if (enableReg & WREN) {
 		// write to flash rom
 		if (!(configReg & ROMDIS)) { // disabled?
-			flash.write(getFlashAddr(address), value);
+			flash.write(getFlashAddr(address), value, time);
 			invalidateDeviceRCache(); // needed ?
 		}
 	} else {

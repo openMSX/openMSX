@@ -16,19 +16,19 @@ void RomMatraInk::reset(EmuTime::param /*time*/)
 	flash.reset();
 }
 
-byte RomMatraInk::peekMem(word address, EmuTime::param /*time*/) const
+byte RomMatraInk::peekMem(word address, EmuTime::param time) const
 {
-	return flash.peek(address);
+	return flash.peek(address, time);
 }
 
-byte RomMatraInk::readMem(word address, EmuTime::param /*time*/)
+byte RomMatraInk::readMem(word address, EmuTime::param time)
 {
-	return flash.read(address);
+	return flash.read(address, time);
 }
 
-void RomMatraInk::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMatraInk::writeMem(word address, byte value, EmuTime::param time)
 {
-	flash.write(address + 0x10000, value);
+	flash.write(address + 0x10000, value, time);
 }
 
 const byte* RomMatraInk::getReadCacheLine(word address) const

@@ -3,8 +3,13 @@
 
 #include "serialize_meta.hh"
 
+#include "EmuDuration.hh"
+#include "EmuTime.hh"
+#include "MemBuffer.hh"
+#include "Schedulable.hh"
 #include "cstd.hh"
 #include "narrow.hh"
+#include "outer.hh"
 #include "power_of_two.hh"
 #include "static_vector.hh"
 
@@ -83,15 +88,36 @@ public:
 		}
 	};
 
-	struct Program {
-		bool fastCommand : 1 = false;
-		bool bufferCommand : 1 = false;
-		bool shortAbortReset : 1 = false;
-		power_of_two<size_t> pageSize = 1;
+	struct Erase {
+		bool suspend : 1 = false;                          // erase suspend support
+		EmuDuration duration = EmuDuration::zero();        // per 64K sector
+		EmuDuration timerDuration = EmuDuration{0.00005};  // to accept additional sector erase commands
+		EmuDuration minimumDuration = EmuDuration{0.0001}; // when all sectors protected
+		EmuDuration suspendDuration = EmuDuration::zero(); // time to suspend (max)
 
 		constexpr void validate() const {
-			assert(!fastCommand || pageSize > 1);
-			assert(!bufferCommand || pageSize > 1);
+			assert(duration > EmuDuration::zero());
+			assert(!suspend || suspendDuration > EmuDuration::zero());
+		}
+	};
+
+	struct Program {
+		bool shortAbortReset : 1 = false; // permit short program abort reset command
+		bool bitRaiseError   : 1 = true;  // raising bit from 0 to 1 causes DQ5 error
+		bool suspend         : 1 = false; // program suspend support
+		bool enhancedSuspend : 1 = false; // enhanced program suspend / resume commands
+		power_of_two<size_t> fastPageSize = 1;   // >1 enables fast program commands
+		power_of_two<size_t> bufferPageSize = 1; // >1 enables buffer program command
+		EmuDuration duration = EmuDuration::zero();        // per command (incl. fast program)
+		EmuDuration bufferDuration = EmuDuration::zero();  // additional time per additional byte
+		EmuDuration suspendDuration = EmuDuration::zero(); // time to suspend
+
+		constexpr void validate() const {
+			assert(fastPageSize <= bufferPageSize);
+			assert(duration > EmuDuration::zero());
+			assert(bufferPageSize == 1 || bufferDuration > EmuDuration::zero());
+			assert(!enhancedSuspend || suspend);
+			assert(!suspend || suspendDuration > EmuDuration::zero());
 		}
 	};
 
@@ -144,14 +170,18 @@ public:
 			uint8_t programSuspend = 0;
 		} primaryAlgorithm = {};
 
-		constexpr void validate() const {
+		constexpr void validate(const Erase& erase, const Program& program) const {
+			(void)erase, (void)program;
 			assert(!command || primaryAlgorithm.version.major == 1);
+			assert(!command || erase.suspend == (primaryAlgorithm.eraseSuspend > 0));
+			assert(!command || program.suspend == (primaryAlgorithm.programSuspend > 0));
 		}
 	};
 
 	struct Misc {
-		bool statusCommand : 1 = false;
-		bool continuityCommand : 1 = false;
+		bool statusCommand       : 1 = false; // enables status command
+		bool continuityCommand   : 1 = false; // enables continuity check command
+		bool readyPin            : 1 = false; // device has ready / not busy pin (RY/BY#)
 
 		constexpr void validate() const {
 			assert(!continuityCommand || statusCommand);
@@ -161,6 +191,7 @@ public:
 	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
+		Erase erase = {};
 		Program program = {};
 		CFI cfi = {};
 		Misc misc = {};
@@ -168,8 +199,9 @@ public:
 		constexpr void validate() const {
 			autoSelect.validate();
 			geometry.validate();
+			erase.validate();
 			program.validate();
-			cfi.validate();
+			cfi.validate(erase, program);
 			misc.validate();
 		}
 	};
@@ -212,11 +244,12 @@ public:
 	 * Numonix/Micron M29W640FB/M29W640GB.)
 	 */
 	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
+	bool getReadyPin() const;
 
 	[[nodiscard]] power_of_two<size_t> size() const { return chip.geometry.size; }
-	[[nodiscard]] uint8_t read(size_t address);
-	[[nodiscard]] uint8_t peek(size_t address) const;
-	void write(size_t address, uint8_t value);
+	[[nodiscard]] uint8_t read(size_t address, EmuTime::param time);
+	[[nodiscard]] uint8_t peek(size_t address, EmuTime::param time) const;
+	void write(size_t address, uint8_t value, EmuTime::param time);
 	[[nodiscard]] const uint8_t* getReadCacheLine(size_t address) const;
 
 	template<typename Archive>
@@ -233,17 +266,46 @@ public:
 		void serialize(Archive& ar, unsigned version);
 	};
 
-	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, PRGERR };
+	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, ERROR, ERASE_SECTOR, ERASE_CHIP, PROGRAM };
+
+	struct Status {
+		// operation status
+		bool dataPolling    = false; // DQ7
+		bool busyToggle     = false; // DQ6
+		bool error          = false; // DQ5
+		bool dq4            = false; // DQ4
+		bool eraseTimer     = false; // DQ3
+		bool eraseToggle    = false; // DQ2
+		bool abort          = false; // DQ1
+		bool dq0            = false; // DQ0
+
+		// status register
+		bool ready          = true;  // SR(7)
+		bool eraseSuspend   = false; // SR(6)
+		bool eraseStatus    = false; // SR(5)
+		bool programStatus  = false; // SR(4)
+		bool bufferAbort    = false; // SR(3)
+		bool programSuspend = false; // SR(2)
+		bool sectorLock     = false; // SR(1)
+		bool continuity     = false; // SR(0)
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	};
 
 	struct Sector {
-		size_t address;
-		power_of_two<size_t> size;
-		bool writeProtect;
+		size_t address = 0;
+		power_of_two<size_t> size = 1;
+		bool writeProtect = false;
+		std::optional<bool> erasePending = {};
 		ptrdiff_t writeAddress = -1;
 		const uint8_t* readAddress = nullptr;
 
 		std::weak_ordering operator<=>(const Sector& sector) const { return address <=> sector.address; }
 		bool operator==(const Sector& sector) const { return address == sector.address; }
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 	};
 
 private:
@@ -257,6 +319,9 @@ private:
 	[[nodiscard]] bool isWritable(const Sector& sector) const;
 
 	void softReset();
+	void clearStatus();
+	uint8_t getOperationStatus() const;
+	uint8_t getStatusRegister() const;
 	void setState(State newState);
 
 	[[nodiscard]] uint16_t peekAutoSelect(size_t address, uint16_t undefined = 0xFFFF) const;
@@ -270,14 +335,24 @@ private:
 	[[nodiscard]] bool checkCommandStatusRead();
 	[[nodiscard]] bool checkCommandStatusClear();
 	[[nodiscard]] bool checkCommandContinuityCheck();
-	[[nodiscard]] bool checkCommandEraseSector();
-	[[nodiscard]] bool checkCommandEraseChip();
-	[[nodiscard]] bool checkCommandProgram();
-	[[nodiscard]] bool checkCommandDoubleByteProgram();
-	[[nodiscard]] bool checkCommandQuadrupleByteProgram();
-	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq);
-	[[nodiscard]] bool checkCommandBufferProgram();
+	[[nodiscard]] bool checkCommandEraseSector(EmuTime::param time);
+	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime::param time);
+	[[nodiscard]] bool checkCommandEraseChip(EmuTime::param time);
+	[[nodiscard]] bool checkCommandSuspend(EmuTime::param time);
+	[[nodiscard]] bool checkCommandResume(EmuTime::param time);
+	[[nodiscard]] bool checkCommandProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandDoubleByteProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandQuadrupleByteProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq, EmuTime::param time);
+	[[nodiscard]] bool checkCommandBufferProgram(EmuTime::param time);
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
+
+	void scheduleEraseAlgorithm(EmuTime::param time);
+	void scheduleProgramAlgorithm(EmuTime::param time);
+	void execAlgorithm(EmuTime::param time);
+	void execEraseAlgorithm(EmuTime::param time);
+	void execProgramAlgorithm(EmuTime::param time);
+	void execSuspend(EmuTime::param time);
 
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
@@ -285,10 +360,33 @@ private:
 	std::vector<Sector> sectors;
 	std::vector<AddressValue> cmd;
 	State state = State::IDLE;
-	uint8_t status = 0x80;
+	Status status;
+	bool programBuffered = false;
+	size_t programAddress = 0;
+	std::vector<std::optional<uint8_t>> programBuffer;
 	bool vppWpPinLow = false; // true = protection on
+
+	// Schedulable
+	struct SyncAlgorithm final : Schedulable {
+		friend class AmdFlash;
+		explicit SyncAlgorithm(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& outer = OUTER(AmdFlash, syncAlgorithm);
+			outer.execAlgorithm(time);
+		}
+	} syncAlgorithm;
+
+	struct SyncSuspend final : Schedulable {
+		friend class AmdFlash;
+		explicit SyncSuspend(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& outer = OUTER(AmdFlash, syncSuspend);
+			outer.execSuspend(time);
+		}
+	} syncSuspend;
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 3);
+SERIALIZE_CLASS_VERSION(AmdFlash::Status, 1);
 
 namespace AmdFlashChip
 {
@@ -304,6 +402,8 @@ namespace AmdFlashChip
 				{.count = 8, .size = 0x10000},
 			},
 		},
+		.erase{.suspend = true, .duration = EmuDuration{1.0}, .suspendDuration = EmuDuration{0.00002}},
+		.program{.duration = EmuDuration{0.000007}},
 	}};
 
 	// AMD AM29F016D
@@ -314,6 +414,8 @@ namespace AmdFlashChip
 				{.count = 32, .size = 0x10000},
 			},
 		},
+		.erase{.suspend = true, .duration = EmuDuration{1.0}, .suspendDuration = EmuDuration{0.00002}},
+		.program{.duration = EmuDuration{0.000007}},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -336,6 +438,7 @@ namespace AmdFlashChip
 				.bootBlockFlag = 0
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Microchip SST39SF010  (128kB, 32 x 4kB sectors)
@@ -346,6 +449,8 @@ namespace AmdFlashChip
 				{.count = 32, .size = 0x1000},
 			},
 		},
+		.erase{.duration = EmuDuration{0.025}},
+		.program{.duration = EmuDuration{0.00002}},
 	}};
 
 	// Numonyx M29W800DB
@@ -359,6 +464,8 @@ namespace AmdFlashChip
 				{.count = 15, .size = 0x10000},
 			},
 		},
+		.erase{.suspend = true, .duration = EmuDuration{0.8}, .suspendDuration = EmuDuration{0.000025}},
+		.program{.duration = EmuDuration{0.00001}},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -379,6 +486,7 @@ namespace AmdFlashChip
 				.pageMode = 0,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Micron M29W640GB
@@ -390,7 +498,11 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.program{.fastCommand = true, .bufferCommand = true, .shortAbortReset = true, .pageSize = 32},
+		.erase{.suspend = true, .duration = EmuDuration{0.5}, .suspendDuration = EmuDuration{0.000004}},
+		.program{
+			.shortAbortReset = true, .bitRaiseError = true, .suspend = true, .fastPageSize = 8, .bufferPageSize = 32,
+			.duration = EmuDuration{0.00001}, .bufferDuration = EmuDuration{0.000005}, .suspendDuration = EmuDuration{0.000004}
+		},
 		.cfi{
 			.command = true, .withManufacturerDevice = true, .commandMask = 0x7FF, .readMask = 0xFF,
 			.systemInterface{
@@ -414,6 +526,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Infineon / Cypress / Spansion S29GL064N90TFI04
@@ -425,7 +538,11 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 1
 		},
-		.program{.bufferCommand = true, .pageSize = 32},
+		.erase{.suspend = true, .duration = EmuDuration{0.5}, .suspendDuration = EmuDuration{0.00002}},
+		.program{
+			.suspend = true, .bufferPageSize = 32,
+			.duration = EmuDuration{0.00006}, .bufferDuration = EmuDuration{0.0000075}, .suspendDuration = EmuDuration{0.00002}
+		},
 		.cfi{
 			.command = true,
 			.systemInterface{
@@ -449,6 +566,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
+		.misc{.readyPin = true},
 	}};
 
 	// Infineon / Cypress / Spansion S29GL064S70TFI040
@@ -460,7 +578,11 @@ namespace AmdFlashChip
 				{.count = 127, .size = 0x10000},
 			}, 2
 		},
-		.program{.bufferCommand = true, .pageSize = 256},
+		.erase{.suspend = true, .duration = EmuDuration{0.3}, .suspendDuration = EmuDuration{0.00003}},
+		.program{
+			.shortAbortReset = false, .bitRaiseError = false, .suspend = true, .enhancedSuspend = true, .bufferPageSize = 256,
+			.duration = EmuDuration{0.00015}, .bufferDuration = EmuDuration{0.000001}, .suspendDuration = EmuDuration{0.0000235}
+		},
 		.cfi{
 			.command = true, .withAutoSelect = true, .exitCommand = true, .commandMask = 0xFF, .readMask = 0x7F,
 			.systemInterface{
@@ -483,7 +605,7 @@ namespace AmdFlashChip
 				.programSuspend = 1,
 			},
 		},
-		.misc{.statusCommand = true, .continuityCommand = true},
+		.misc{.statusCommand = true, .continuityCommand = true, .readyPin = true},
 	}};
 }
 

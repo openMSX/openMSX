@@ -290,7 +290,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddr(addr);
 		assert(flashAddr != unsigned(-1));
-		return flash.peek(flashAddr);
+		return flash.peek(flashAddr, time);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -317,7 +317,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddr(addr);
 		assert(flashAddr != unsigned(-1));
-		return flash.read(flashAddr);
+		return flash.read(flashAddr, time);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -480,7 +480,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	if (((configReg & 0xC0) == 0x40) ||
 	    ((0x4000 <= addr) && (addr < 0xC000))) {
 		assert(flashAddr != unsigned(-1));
-		flash.write(flashAddr, value);
+		flash.write(flashAddr, value, time);
 	}
 }
 

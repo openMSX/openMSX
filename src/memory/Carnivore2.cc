@@ -179,7 +179,7 @@ byte Carnivore2::readMem(word address, EmuTime::param time)
 		case MultiMapper:  return readMultiMapperSlot(address, time);
 		case IDE:          return readIDESlot(address, time);
 		case MemoryMapper: return readMemoryMapperSlot(address);
-		case FmPac:        return readFmPacSlot(address);
+		case FmPac:        return readFmPacSlot(address, time);
 		default:           return 0xff;
 	}
 }
@@ -194,7 +194,7 @@ byte Carnivore2::peekMem(word address, EmuTime::param time) const
 		case MultiMapper:  return peekMultiMapperSlot(address, time);
 		case IDE:          return peekIDESlot(address, time);
 		case MemoryMapper: return peekMemoryMapperSlot(address);
-		case FmPac:        return peekFmPacSlot(address);
+		case FmPac:        return peekFmPacSlot(address, time);
 		default:           return 0xff;
 	}
 }
@@ -242,7 +242,7 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 		return shadowConfigRegs[address];
 	} else {
 		switch (address) {
-			case 0x04: return flash.peek(getDirectFlashAddr());
+			case 0x04: return flash.peek(getDirectFlashAddr(), time);
 			case 0x1f: return configRegs[0x00]; // mirror 'CardMDR' register
 			case 0x23: return byte(configRegs[address] |
 					       byte(eeprom.read_DO(time)));
@@ -258,7 +258,7 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 {
 	address &= 0x3f;
 	if (address == 0x04) {
-		return flash.read(getDirectFlashAddr());
+		return flash.read(getDirectFlashAddr(), time);
 	} else {
 		return peekConfigRegister(address, time);
 	}
@@ -347,7 +347,7 @@ void Carnivore2::writeConfigRegister(word address, byte value, EmuTime::param ti
 	} else {
 		switch (address) {
 			case 0x03: configRegs[address] = value & 0x7f; break;
-			case 0x04: flash.write(getDirectFlashAddr(), value); break;
+			case 0x04: flash.write(getDirectFlashAddr(), value, time); break;
 			case 0x1f: configRegs[0x00] = value; break; // mirror 'CardMDR' register
 			case 0x20: configRegs[address] = value & 0x07; break;
 			case 0x22: writeSndLVL(value, time); break;
@@ -434,7 +434,7 @@ byte Carnivore2::readMultiMapperSlot(word address, EmuTime::param time)
 	if (mult & 0x20) {
 		return ram[addr & 0x1fffff]; // 2MB
 	} else {
-		return flash.read(addr);
+		return flash.read(addr, time);
 	}
 }
 
@@ -450,7 +450,7 @@ byte Carnivore2::peekMultiMapperSlot(word address, EmuTime::param time) const
 	if (mult & 0x20) {
 		return ram[addr & 0x1fffff]; // 2MB
 	} else {
-		return flash.peek(addr);
+		return flash.peek(addr, time);
 	}
 }
 
@@ -482,7 +482,7 @@ void Carnivore2::writeMultiMapperSlot(word address, byte value, EmuTime::param t
 		if (mult & 0x20) {
 			ram[addr & 0x1fffff] = value; // 2MB
 		} else {
-			flash.write(addr, value);
+			flash.write(addr, value, time);
 		}
 	}
 
@@ -525,13 +525,13 @@ byte Carnivore2::readIDESlot(word address, EmuTime::param time)
 		if (readBIOSfromRAM()) {
 			return ram[addr];
 		} else {
-			return flash.read(addr);
+			return flash.read(addr, time);
 		}
 	}
 	return 0xff;
 }
 
-byte Carnivore2::peekIDESlot(word address, EmuTime::param /*time*/) const
+byte Carnivore2::peekIDESlot(word address, EmuTime::param time) const
 {
 	if (ideRegsEnabled() && ((address & 0xfe00) == 0x7c00)) {
 		// 0x7c00-0x7dff   IDE data register
@@ -547,7 +547,7 @@ byte Carnivore2::peekIDESlot(word address, EmuTime::param /*time*/) const
 		if (readBIOSfromRAM()) {
 			return ram[addr];
 		} else {
-			return flash.peek(addr);
+			return flash.peek(addr, time);
 		}
 	}
 	return 0xff;
@@ -694,7 +694,7 @@ void Carnivore2::writeMemoryMapperSlot(word address, byte value)
 	}
 }
 
-byte Carnivore2::readFmPacSlot(word address)
+byte Carnivore2::readFmPacSlot(word address, EmuTime::param time)
 {
 	if (address == 0x7ff6) {
 		return fmPacEnable; // enable
@@ -716,14 +716,14 @@ byte Carnivore2::readFmPacSlot(word address)
 			if (readBIOSfromRAM()) {
 				return ram[addr];
 			} else {
-				return flash.read(addr);
+				return flash.read(addr, time);
 			}
 		}
 	}
 	return 0xff;
 }
 
-byte Carnivore2::peekFmPacSlot(word address) const
+byte Carnivore2::peekFmPacSlot(word address, EmuTime::param time) const
 {
 	if (address == 0x7ff6) {
 		return fmPacEnable; // enable
@@ -745,7 +745,7 @@ byte Carnivore2::peekFmPacSlot(word address) const
 			if (readBIOSfromRAM()) {
 				return ram[addr];
 			} else {
-				return flash.peek(addr);
+				return flash.peek(addr, time);
 			}
 		}
 	}
