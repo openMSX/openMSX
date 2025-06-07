@@ -108,8 +108,8 @@ jobs:
       with:
         os: ${{ matrix.os }}
     - name: Perform build on extracted tarball
-      env: 
-        CODE_SIGN_IDENTITY: 748867M822
+      env:
+        CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY }}
       # Directory name only
       uses: ./.github/actions/build
       with:
