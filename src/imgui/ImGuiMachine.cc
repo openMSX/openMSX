@@ -158,7 +158,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
 
-		auto showSetupLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) -> SetupDepth {
+		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) -> SetupDepth {
 
 			static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
 				"Do not save.",
@@ -187,7 +187,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 					simpleToolTip(helpText[d]);
 				}
 			});
-			HelpMarker("Select the level to include in the setup that will be saved. "
+			HelpMarker("Select the depth level of what to include in the setup that will be saved. "
 				"All levels above the one you selected will also be included.");
 			return selectedDepth;
 		};
@@ -200,7 +200,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			saveSetupOpen = im::Menu("Save setup", true, [&]{
 				ImGui::TextUnformatted("Save current setup:");
 
-				saveSetupDepth = showSetupLevelSelector("Select level", false, saveSetupDepth);
+				saveSetupDepth = showSetupDepthLevelSelector("Select depth level", false, saveSetupDepth);
 
 				auto exists = [&]{
 					auto filename = FileOperations::parseCommandFileArgument(
@@ -353,15 +353,15 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::Separator();
 			ImGui::TextUnformatted("When openMSX exits:");
 			im::Indent([&] {
-				ImGui::TextUnformatted("Save setup level");
+				ImGui::TextUnformatted("Save setup depth level");
 				auto& depthSetting = manager.getReactor().getSaveSetupAtExitDepthSetting();
 				auto currentDepth = depthSetting.getEnum();
-				auto newDepth = showSetupLevelSelector("##empty", true, currentDepth);
+				auto newDepth = showSetupDepthLevelSelector("##empty", true, currentDepth);
 				im::Disabled(currentDepth == NONE, [&] {
 					ImGui::TextUnformatted("as");
 					InputText("##save-setup-name", manager.getReactor().getSaveSetupAtExitNameSetting());
 					HelpMarker("The setup name given here will be used when saving the setup at exit. "
-						"Select 'None' for the level to not save the current setup at exit.");
+						"Select 'None' for the depth level to not save the current setup at exit.");
 				});
 				if (newDepth != currentDepth) {
 					depthSetting.setEnum(newDepth);
