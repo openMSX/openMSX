@@ -412,7 +412,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
 			}
 		};
-		auto formatBinaryData = [&](uint16_t address) {
+		auto formatBinaryData = [&](unsigned address) {
 			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, "%02X", manager.getInterpreter());
 		};
 		auto getPatternFromGrid = [&]() {

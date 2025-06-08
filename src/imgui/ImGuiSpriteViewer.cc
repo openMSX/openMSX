@@ -334,7 +334,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				}
 			});
 		};
-		auto formatClipboardData = [&](uint16_t address, size_t size) {
+		auto formatClipboardData = [&](unsigned address, unsigned size) {
 			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, "%02X", manager.getInterpreter());
 		};
 
