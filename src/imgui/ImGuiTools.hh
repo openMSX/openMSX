@@ -42,8 +42,8 @@ private:
 	std::string screenshotName;
 	enum class SsType : int { RENDERED, MSX, NUM };
 	int screenshotType = static_cast<int>(SsType::RENDERED);
-	enum class SsSize : int { S_320, S_640, NUM };
-	int screenshotSize = static_cast<int>(SsSize::S_320);
+	enum class SsSize : int { S_320, S_640, AUTO, NUM }; // keep order for bw compat of persisted element
+	int screenshotSize = static_cast<int>(SsSize::AUTO);
 	bool screenshotWithOsd = false;
 	bool screenshotHideSprites = false;
 

@@ -207,7 +207,7 @@ void ImGuiTools::nextScreenshotName()
 
 void ImGuiTools::paintScreenshot()
 {
-	ImGui::SetNextWindowSize(gl::vec2{24, 17} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{24, 19} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	im::Window("Capture screenshot", &showScreenshot, [&]{
 		if (ImGui::IsWindowAppearing()) {
 			// on each re-open of this window, create a suggestion for a name
@@ -223,6 +223,8 @@ void ImGuiTools::paintScreenshot()
 			ImGui::RadioButton("Raw MSX image", &screenshotType, static_cast<int>(SsType::MSX));
 			HelpMarker("The raw unscaled MSX image, without any rendering effects");
 			im::DisabledIndent(screenshotType != static_cast<int>(SsType::MSX), [&]{
+				ImGui::RadioButton("auto", &screenshotSize, static_cast<int>(SsSize::AUTO));
+				HelpMarker("One of the other sizes is selected based on the current MSX screen mode, e.g. for a 512 x 212 mode, the 640 x 480 option will be used");
 				ImGui::RadioButton("320 x 240", &screenshotSize, static_cast<int>(SsSize::S_320));
 				ImGui::RadioButton("640 x 480", &screenshotSize, static_cast<int>(SsSize::S_640));
 			});
@@ -249,9 +251,10 @@ void ImGuiTools::paintScreenshot()
 				}
 			} else {
 				cmd.addListElement("-raw");
-				if (screenshotSize == static_cast<int>(SsSize::S_640)) {
-					cmd.addListElement("-doublesize");
-				}
+				cmd.addListElement("-size");
+				cmd.addListElement(screenshotSize == static_cast<int>(SsSize::S_640) ? "640"
+						: screenshotSize == static_cast<int>(SsSize::S_320) ? "320"
+						: "auto");
 			}
 			if (screenshotHideSprites) {
 				cmd.addListElement("-no-sprites");
