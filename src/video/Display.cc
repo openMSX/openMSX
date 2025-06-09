@@ -30,6 +30,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+#include "join.hh"
 
 #include "build-info.hh"
 
@@ -429,11 +430,13 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 	bool rawShot = false;
 	bool doubleSize = false;
 	bool withOsd = false;
+	std::string size;
 	std::array info = {
 		valueArg("-prefix", prefix),
 		flagArg("-raw", rawShot),
-		flagArg("-doublesize", doubleSize),
-		flagArg("-with-osd", withOsd)
+		flagArg("-doublesize", doubleSize), // bwcompat, alias for -size 640
+		flagArg("-with-osd", withOsd),
+		valueArg("-size", size)
 	};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
@@ -445,6 +448,28 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 	if (rawShot && withOsd) {
 		throw CommandException("-with-osd cannot be used in "
 		                       "combination with -raw");
+	}
+	if (!size.empty()) {
+		if (!rawShot) {
+			throw CommandException("-size option can only be used in "
+			                       "combination with -raw");
+		}
+		static constexpr std::array<std::string_view, 3> validSizes = { "auto", "320", "640" };
+		if (!contains(validSizes, size)) {
+			throw CommandException(strCat("-size option must specify one of: ", join(validSizes, ", ")));
+		}
+		if (doubleSize) {
+			throw CommandException("Only specify either -size or -doublesize");
+		}
+	}
+
+	// backwards compatiblity
+	if (doubleSize) {
+		size = "640";
+	}
+	// default size for raw
+	if (rawShot && size.empty()) {
+		size = "auto";
 	}
 
 	std::string_view fname;
@@ -476,7 +501,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 			throw CommandException(
 				"Current renderer doesn't support taking screenshots.");
 		}
-		unsigned height = doubleSize ? 480 : 240;
+		std::optional<unsigned> height = size == "auto" ? std::nullopt : size == "640" ? std::optional(480) : std::optional(240);
 		try {
 			videoLayer->takeRawScreenShot(height, filename);
 		} catch (MSXException& e) {
