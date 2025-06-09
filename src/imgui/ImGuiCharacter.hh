@@ -63,6 +63,7 @@ private:
 	int manualNamBase = 0;
 	int manualRows = 0;
 	int manualColor0 = 16;
+	gl::vecN<2, int> gridPosition;
 
 	gl::Texture patternTex{gl::Null{}}; // TODO also deallocate when needed
 	gl::Texture gridTex   {gl::Null{}};

@@ -18,8 +18,8 @@
 // Typically objects of this type are used as local variables. Not as member
 // variables of a larger class.
 
-// If you're sure the run-time will _always_ be <= BUF_SIZE, then it may be
-// better to use 'inplace_uninitialized_buffer'.
+// If you're sure the run-time size will _always_ be <= BUF_SIZE, then it may be
+// better to use 'inplace_buffer'.
 
 template<typename T, size_t BUF_SIZE>
 class small_buffer

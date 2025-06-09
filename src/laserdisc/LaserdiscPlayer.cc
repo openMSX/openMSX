@@ -138,7 +138,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
 
-	motherBoard.registerMediaInfo(getLaserDiscPlayerName(), *this);
+	motherBoard.registerMediaProvider(getLaserDiscPlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "add");
 }
 
@@ -148,7 +148,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.getDisplay().detach(*this);
 	reactor.getEventDistributor().unregisterEventListener(EventType::BOOT, *this);
-	motherBoard.unregisterMediaInfo(*this);
+	motherBoard.unregisterMediaProvider(*this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "remove");
 }
 
@@ -169,6 +169,18 @@ void LaserdiscPlayer::getMediaInfo(TclObject& result)
 {
 	result.addDictKeyValues("target", getImageName().getResolved(),
 	                        "state", getStateString());
+}
+
+void LaserdiscPlayer::setMedia(const TclObject& info, EmuTime::param time)
+{
+	auto target = info.getOptionalDictValue(TclObject("target"));
+	if (!target) return;
+
+	if (auto trgt = target->getString(); trgt.empty()) {
+		eject(time);
+	} else {
+		setImageName(std::string(trgt), time);
+	}
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
@@ -686,16 +698,17 @@ void LaserdiscPlayer::autoRun()
 		// Murder Mystery laserdisc has no program encoded on the
 		// right audio channel, but provides a seperate cassette.
 		// So if a cassette and laserdisc is present, do not autoload
-		// the laserdisc but autoload the laserdisc instead.
+		// the laserdisc but autoload the tape instead.
 		return;
 	}
 
-	string var = "::auto_run_ld_counter";
+	auto machineID = motherBoard.getMachineID();
+	string var = strCat(machineID, "::auto_run_ld_counter");
 	string command = strCat(
 		"if ![info exists ", var, "] { set ", var, " 0 }\n"
 		"incr ", var, "\n"
-		"after time 2 \"if $", var, "==\\$", var, " { "
-		"type_via_keyboard 1CALLLD\\\\r }\"");
+		"after time 2 \"if $", var, "==\\$", var, " { ",
+		machineID, "::type_via_keyboard 1CALLLD\\\\r }\"");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {

@@ -97,7 +97,7 @@ CassettePlayer::CassettePlayer(HardwareConfig& hwConf)
 	}();
 	registerSound(DeviceConfig(hwConf, *xml));
 
-	motherBoard.registerMediaInfo(getCassettePlayerName(), *this);
+	motherBoard.registerMediaProvider(getCassettePlayerName(), *this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getCassettePlayerName(), "add");
 
 	removeTape(EmuTime::zero());
@@ -109,7 +109,7 @@ CassettePlayer::~CassettePlayer()
 	if (auto* c = getConnector()) {
 		c->unplug(getCurrentTime());
 	}
-	motherBoard.unregisterMediaInfo(*this);
+	motherBoard.unregisterMediaProvider(*this);
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getCassettePlayerName(), "remove");
 }
 
@@ -120,6 +120,19 @@ void CassettePlayer::getMediaInfo(TclObject& result)
 	                        "position", getTapePos(getCurrentTime()),
 	                        "length", getTapeLength(getCurrentTime()),
 	                        "motorcontrol", motorControl);
+}
+
+void CassettePlayer::setMedia(const TclObject& info, EmuTime::param time)
+{
+	// This restores the tape. It does not restore the position in the tape 
+	// or the state of the cassetteplayer.
+	auto target = info.getOptionalDictValue(TclObject("target"));
+	if (!target) return;
+	if (auto trgt = target->getString(); trgt.empty()) {
+		removeTape(time);
+	} else {
+		playTape(Filename(trgt), time);
+	}
 }
 
 void CassettePlayer::autoRun()
@@ -237,7 +250,7 @@ void CassettePlayer::setTapePos(EmuTime::param time, double newPos)
 	assert(getState() != State::RECORD);
 	sync(time);
 	auto pos = std::clamp(newPos, 0.0, getTapeLength(time));
-	tapePos = EmuTime::zero() + EmuDuration(pos);
+	tapePos = EmuTime::zero() + EmuDuration::sec(pos);
 	wind(time);
 }
 

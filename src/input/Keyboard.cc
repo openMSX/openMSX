@@ -2033,7 +2033,7 @@ uint8_t Keyboard::KeybDebuggable::read(unsigned address)
 void Keyboard::KeybDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
 	const auto& keyboard = OUTER(Keyboard, keybDebuggable);
-	copy_to_range(keyboard.getKeys().subspan(start), output);
+	copy_to_range(keyboard.getKeys().subspan(start, output.size()), output);
 }
 
 void Keyboard::KeybDebuggable::write(unsigned /*address*/, uint8_t /*value*/)

@@ -125,7 +125,8 @@ static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int s
 		auto attrib = att[addr + 3];
 		auto color = attrib & 0x0f;
 		float v2 = float(size * (rr + 1)) * (1.0f / 64.0f);
-		ImGui::Image(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2}, getColor(color));
+		ImGui::ImageWithBg(patternTex, zoom * gl::vec2{float(size)}, {u1, v1}, {u2, v2},
+		                   {}, getColor(color));
 	} else {
 		int colorBase = getSpriteColorAddr(sprite, mode);
 		gl::vec2 pos = ImGui::GetCursorPos();
@@ -134,7 +135,8 @@ static void renderSpriteAttrib(const VramTable& att, int sprite, int mode, int s
 			auto color = attrib & 0x0f;
 			ImGui::SetCursorPos({pos.x, pos.y + zoom * float(y)});
 			float v2 = v1 + (1.0f / 64.0f);
-			ImGui::Image(patternTex, zoom * gl::vec2{float(size), 1.0f}, {u1, v1}, {u2, v2}, getColor(color));
+			ImGui::ImageWithBg(patternTex, zoom * gl::vec2{float(size), 1.0f}, {u1, v1}, {u2, v2},
+			                   {}, getColor(color));
 			v1 = v2;
 		}
 	}
@@ -325,6 +327,17 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 
+		auto copySpriteDataPopup = [&](std::string text, function_ref<std::string()> supplier) {
+			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
+				if (ImGui::MenuItem(text.c_str())) {
+					ImGui::SetClipboardText(supplier().c_str());
+				}
+			});
+		};
+		auto formatClipboardData = [&](unsigned address, unsigned size) {
+			return formatToString([&](unsigned addr) { return vram[addr]; }, address, address + size - 1, {}, 1, {}, "%02X", manager.getInterpreter());
+		};
+
 		int mode = manMode ? manualMode : vdpMode;
 		int size = manSize ? manualSize : vdpSize;
 		int mag  = manMag ? manualMag  : vdpMag;
@@ -396,28 +409,32 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
 			             GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		}
-
 		im::TreeNode("Sprite patterns", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto fullSize = gl::vec2(256, 64) * float(zm);
 			im::Child("##pattern", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				auto pos1 = ImGui::GetCursorPos();
 				gl::vec2 scrnPos = ImGui::GetCursorScreenPos();
 				ImGui::Image(patternTex.getImGui(), fullSize);
+				gl::vec2 zoomPatSize{float(size * zm)};
 				bool hovered = ImGui::IsItemHovered() && (mode != 0);
+				if (hovered) {
+					gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
+				}
 				ImGui::SameLine();
 				im::Group([&]{
-					gl::vec2 zoomPatSize{float(size * zm)};
-					if (hovered) {
-						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
-						auto pattern = (size == 16) ? ((16 * gridPos.y) + gridPos.x) * 4
-						                            : ((32 * gridPos.y) + gridPos.x) * 1;
+					auto pattern = (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
+												: ((32 * gridPosition.y) + gridPosition.x) * 1;
+					bool popup = copySpriteDataPopup("Copy pattern data to clipboard", [&]() {
+						return formatClipboardData(patTable.getAddress(8 * pattern), size == 16 ? 32 : 8);
+					});
+					if (hovered || popup) {
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 						ImGui::StrCat("pattern: ", pattern);
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 						ImGui::StrCat("address: 0x", hex_string<5>(patTable.getAddress(8 * pattern)));
 						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!
 						auto recipPatTex = recip((size == 16) ? gl::vec2{16, 4} : gl::vec2{32, 8});
-						auto uv1 = gl::vec2(gridPos) * recipPatTex;
+						auto uv1 = gl::vec2(gridPosition) * recipPatTex;
 						auto uv2 = uv1 + recipPatTex;
 						auto pos2 = ImGui::GetCursorPos();
 						int z = (size == 16) ? 3 : 6;
@@ -482,13 +499,17 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 					} else {
 						ImGui::Dummy(fullSize);
 					}
+					gl::vec2 zoomPatSize{float(size * zm)};
 					bool hovered = ImGui::IsItemHovered();
 					if (hovered) {
-						gl::vec2 zoomPatSize{float(size * zm)};
-						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
-						auto sprite = 8 * gridPos.y + gridPos.x;
-						int addr = getSpriteAttrAddr(sprite, mode);
-
+						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zoomPatSize);
+					}
+					auto sprite = 8 * gridPosition.y + gridPosition.x;
+					auto addr = getSpriteAttrAddr(sprite, mode);
+					bool popup = (mode == 2) && copySpriteDataPopup("Copy color data to clipboard", [&]{
+						return formatClipboardData(attTable.getAddress(getSpriteColorAddr(sprite, mode)), size);
+					});
+					if (hovered || popup) {
 						ImGui::SameLine();
 						im::Group([&]{
 							ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 1); // HACK !!

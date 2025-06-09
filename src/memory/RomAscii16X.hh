@@ -3,7 +3,7 @@
 
 #include "MSXRom.hh"
 #include "AmdFlash.hh"
-#include "SimpleDebuggable.hh"
+#include "RomBlockDebuggable.hh"
 #include <array>
 
 namespace openmsx {
@@ -26,10 +26,10 @@ public:
 private:
 	[[nodiscard]] unsigned getFlashAddr(word addr) const;
 
-	struct Debuggable final : SimpleDebuggable {
-		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
+	struct Debuggable final : RomBlockDebuggableBase {
+		explicit Debuggable(const RomAscii16X& device)
+			: RomBlockDebuggableBase(device) {}
+		[[nodiscard]] unsigned readExt(unsigned address) override;
 	} debuggable;
 
 	AmdFlash flash;

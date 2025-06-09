@@ -21,7 +21,7 @@ namespace openmsx {
 
 RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, debuggable(getMotherBoard(), getName())
+	, debuggable(*this)
 	, flash(rom, AmdFlashChip::S29GL064S70TFI040, {}, config)
 {
 }
@@ -73,31 +73,10 @@ byte* RomAscii16X::getWriteCacheLine(word /* addr */)
 	return nullptr; // not cacheable
 }
 
-RomAscii16X::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
-                                    const std::string& name_)
-	: SimpleDebuggable(motherBoard_, name_ + " regs", "ASCII16-X bank registers", 4)
-{
-}
-
-byte RomAscii16X::Debuggable::read(unsigned address)
+unsigned RomAscii16X::Debuggable::readExt(unsigned address)
 {
 	auto& outer = OUTER(RomAscii16X, debuggable);
-	word bank = outer.bankRegs[(address >> 1) & 1];
-	return narrow<byte>(address & 1 ? bank >> 8 : bank & 0xFF);
-}
-
-void RomAscii16X::Debuggable::write(unsigned address, byte value,
-                                    EmuTime::param /* time */)
-{
-	auto& outer = OUTER(RomAscii16X, debuggable);
-	word& bank = outer.bankRegs[(address >> 1) & 1];
-	if (address & 1) {
-		bank = (bank & 0x00FF) | narrow<word>((value << 8) & 0x0F00);
-	} else {
-		bank = (bank & 0x0F00) | value;
-	}
-
-	outer.invalidateDeviceRCache();
+	return outer.bankRegs[((address >> 14) & 1) ^ 1];
 }
 
 template<typename Archive>

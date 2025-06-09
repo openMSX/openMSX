@@ -1,13 +1,13 @@
 #ifndef TCLPARSER_HH
 #define TCLPARSER_HH
 
+#include "tcl.hh"
+
 #include <cstdint>
 #include <span>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <tcl.h>
 
 #define DEBUG_TCLPARSER 0
 

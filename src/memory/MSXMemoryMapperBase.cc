@@ -126,7 +126,7 @@ byte MSXMemoryMapperBase::Debuggable::read(unsigned address)
 void MSXMemoryMapperBase::Debuggable::readBlock(unsigned start, std::span<byte> output)
 {
 	auto& mapper = OUTER(MSXMemoryMapperBase, debuggable);
-	copy_to_range(std::span{mapper.registers}.subspan(start), output);
+	copy_to_range(std::span{mapper.registers}.subspan(start, output.size()), output);
 }
 
 void MSXMemoryMapperBase::Debuggable::write(unsigned address, byte value)

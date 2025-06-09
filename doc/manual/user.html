@@ -20,6 +20,7 @@
 			<li><a class="internal" href="#newver">1.1 New Versions of This Document</a></li>
 			<li><a class="internal" href="#purpose">1.2 Purpose</a></li>
 			<li><a class="internal" href="#history">1.3 Revision History</a></li>
+			<li><a class="internal" href="#terms">1.4 Important Terms</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#starting">2. Starting the Emulator</a>
@@ -192,6 +193,35 @@ For the revision history, please refer to the <a class="external"
 href="https://github.com/openMSX/openMSX/commits/master/doc/manual/user.html">commit log</a>.
 </p>
 
+<h3><a id="terms">1.4 Important Terms</a></h3>
+
+<p>
+First some terms. Users of real MSX computers will probably not find it hard to understand these, but we'll explain what we mean with them to make sure the terms used in openMSX are clear for everyone.
+<p>
+
+<dl>
+<dt>Machine</dt>
+<dd>With a machine we denote a single instance of a particular MSX computer. The bare computer, with a manufacturer name and a type name, just as they were sold.</dd>
+<dd>In case you're not too familiar with MSX: it's a standard, and many manufacturers created several MSX compatible computer models. openMSX tries to emulate them all and you can choose which particular brand and model you want to emulate.</dd>
+<dt>Extensions</dt>
+<dd>All standard MSX computers have cartridge slots in which extension cartridges can be plugged into. They can be anything, like external disk drives, sound cartridges, serial interfaces, video cards, and multi-cartridges like the Carnivore 2 or the MegaFlashROM SCC+ SD.</dd>
+<dd>Technically, a game (ROM) cartridge you put in a cartridge slot is also a form of an extension. See also below under Media.</dd>
+<dd>For technical reasons, some extension cartridges in openMSX do not take up a cartridge slot ("I/O only extensions").</dd>
+<dt>Connectors</dt>
+<dd>The bare MSX machine has connectors to which equipment can be plugged of which the plug matches the connector (called "pluggables" here and there).</dd>
+<dd>Examples are printers, joysticks, mice, dongles, MIDI equipment, ...</dd>
+<dd>openMSX does not allow you to plug in equipment in the wrong connector type.</dd>
+<dd>Some equipment is automatically plugged in for your convenience, e.g. the Tape Deck if your machine has a cassette connector.</dd>
+<dt>Media</dt>
+<dd>These are containers with software on them. For example: ROM cartridges, floppy disks and cassette tapes.</dd>
+<dd>Depending on the MSX machine you are using, different media can be inserted. If the machine you are emulating does not have a disk drive, you cannot insert a floppy disk (image) into the machine. However, like in the real world, if you first insert an external disk drive extension into one of the cartridge slots of the machine, you can insert a floppy disk into the disk drive you just connected to the MSX.</dd>
+<dd>Media are always represented by an "image" of their content, which is just a file containing the relevant data of the media. So, a ROM cartridge is represented by a ROM file (which is just the data from the ROM chips), floppy disks by disk image files, cassette tapes with tape image files, etc. This manual may use also these "image" terms to refer to media.</dd>
+<dt>Setups</dt>
+<dd>A setup is the combination of a bare MSX machine, with its plugged in extensions, plugged in equipment via the machine's connectors and the media in the available media slots.</dd>
+<dd>When creating a new setup, you can specify up to what depth level the setup must be saved: either just the machine, or including the extensions, or also including the plugged in equipment or even including the inserted media.</dd>
+<dd>The setups feature allows you like in the real world to turn off your setup and use it quickly again later.</dd>
+</dl>
+
 <h2><a id="starting">2. Starting the Emulator</a></h2>
 
 <p>
@@ -203,9 +233,15 @@ In this chapter we will tell you how to select MSX machines and how to use exten
 <p>
 If you start openMSX without any command line parameters, you will get the
 default machine, which is stored in the <code><a class="external"
-href="commands.html#default_machine">default_machine</a></code> setting, see
-the <a class="external" href="setup.html#settings">Setup Guide</a>. If you did
+href="commands.html#default_machine">default_machine</a></code> setting. If you did
 not change the default machine, the C-BIOS MSX2+ machine will be started.
+</p>
+
+<p>
+However, if you created a setup earlier and marked it as the default setup (via the <code><a class="external"
+href="commands.html#default_setup">default_setup</a></code> setting), that setup
+will be loaded instead. This can be useful to always start up with your favourite
+setup.
 </p>
 
 <p>
@@ -239,8 +275,18 @@ The C-BIOS machines come with ROMs installed; for other machines you will have
 to install system ROMs yourself, see the <a class="external"
 href="setup.html#systemroms">Setup Guide</a> for details.
 You can always use  <span class="menu-reference">Main menu bar &rarr; Machine
-&rarr; Test MSX hardware...</span> to verify which system ROMs have been (correctly)
+&rarr; Test MSX hardware</span> to verify which system ROMs have been (correctly)
 installed.
+</p>
+
+<p>
+If you have saved a setup earlier (using the GUI via <span class="menu-reference">Main menu bar
+&rarr; Machine &rarr; Save setup</span> or the <code><a class="external"
+href="commands.html#store_setup">store_setup</a></code> command) you can also use the GUI via <span class="menu-reference">Main menu
+bar &rarr; Machine &rarr; Load setup</span> to go from that setup. But also
+here you can use the command line (via the <code>-setup</code> command line
+option) or the console (via the <code><a class="external"
+href="commands.html#setup">setup</a></code> command).
 </p>
 
 <h3><a id="extensions">2.2 Extensions</a></h3>
@@ -546,6 +592,7 @@ The Main menu bar contains the following top level menus:
 <dl>
 <dt>Machine</dt>
 <dd>Selecting the different machines (computer models)</dd>
+<dd>Saving and loading of setups, i.e. machines including whatever the user put into it.</dd>
 <dd>Triggering machine reset and enable or disable power</dd>
 <dt>Media</dt>
 <dd>Inserting and removing media: ROM or extension cartridges, disks, cassette
@@ -603,7 +650,7 @@ state &rarr; Reverse/replay settings &rarr; Show reverse bar</span>.</dd>
 <dd>Appear in the lower left corner by default.</dd>
 <dd>Most icons fade out by default (so typically nothing would be visible).</dd>
 <dd>Can be configured via <span class="menu-reference">Main menu bar &rarr;
-Settings &rarr; Misc &rarr; Configure OSD icons...</span>.</dd>
+Settings &rarr; Misc &rarr; Configure OSD icons</span>.</dd>
 <dd>Similar to the reverse bar: (un)select "Hide title" and/or "Allow move",
 and drag the icons to a new location, possibly outside the main openMSX window,
 possibly docked to another window.</dd>
@@ -1451,7 +1498,7 @@ extra functionality. For instance, almost all Konami games use F1 to pause
 the game. You can assign this extra functionality to your joystick by using the
 <code><a class="external" href="commands.html#bind">bind</a></code> command. As
 an example here is how to map button 4 of the first joystick to the F1-key,
-button 5 to F2,...
+button 5 to F2, ...
 </p>
 <div class="commandline">
   bind "joy1 button4 down" "keymatrixdown 6 0x20"<br/>
@@ -2284,11 +2331,11 @@ If you want to save a very compact recording of what you did, or want to have
 the possibility to start off in the middle of a recording, you can save your
 complete replay to a file with <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Save
-replay...</span> or the <code><a class="external"
+replay</span> or the <code><a class="external"
 href="commands.html#reverse">reverse savereplay</a></code> command. They can
 also be loaded of course, with <span
 class="menu-reference">Main menu bar &rarr; Save state &rarr; Load
-replay...</span> or <code><a class="external"
+replay</span> or <code><a class="external"
 href="commands.html#reverse">reverse loadreplay</a></code>.
 </p>
 
@@ -2296,7 +2343,7 @@ href="commands.html#reverse">reverse loadreplay</a></code>.
 
 <p>
 openMSX includes a game trainer system. You start with it by using the GUI
-menu: <span class="menu-reference">Main menu bar &rarr; Tools &rarr; Trainer Selector...</span> This will open a window in which you
+menu: <span class="menu-reference">Main menu bar &rarr; Tools &rarr; Trainer Selector</span> This will open a window in which you
 must first select the game you want to use a trainer for from the list of
 supported games. When a game is selected, you see the list of cheats displayed
 for the game, where you can also toggle the different cheats you want to
@@ -2360,7 +2407,7 @@ console command.
 
 <p>
 You can use the <code><a class="external"
-href="commands.html#debugoutput">debugoutput</a></code> setting to specify the
+href="commands.html#debugoutput">Debug Device output</a></code> setting to specify the
 file name to write the debug output to.
 </p>
 

@@ -1,12 +1,12 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
+#include "tcl.hh"
+
 #include "narrow.hh"
 #include "small_buffer.hh"
 #include "xxhash.hh"
 #include "zstring_view.hh"
-
-#include <tcl.h>
 
 #include <algorithm>
 #include <cassert>
@@ -35,7 +35,7 @@ class TclObject
 		using iterator_category = std::bidirectional_iterator_tag;
 
 		iterator() : obj(nullptr), i(0) {}
-		iterator(const TclObject& obj_, unsigned i_)
+		iterator(const TclObject& obj_, size_t i_)
 			: obj(&obj_), i(i_) {}
 
 		[[nodiscard]] bool operator==(const iterator& other) const {
@@ -67,7 +67,7 @@ class TclObject
 		}
 	private:
 		const TclObject* obj;
-		unsigned i;
+		size_t i;
 	};
 	static_assert(std::bidirectional_iterator<iterator>);
 
@@ -158,10 +158,10 @@ public:
 	[[nodiscard]] float  getFloat (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;
 	[[nodiscard]] std::span<const uint8_t> getBinary() const;
-	[[nodiscard]] unsigned getListLength(Interpreter& interp) const;
-	[[nodiscard]] TclObject getListIndex(Interpreter& interp, unsigned index) const;
-	[[nodiscard]] TclObject getListIndexUnchecked(unsigned index) const;
-	void removeListIndex(Interpreter& interp, unsigned index);
+	[[nodiscard]] size_t getListLength(Interpreter& interp) const;
+	[[nodiscard]] TclObject getListIndex(Interpreter& interp, size_t index) const;
+	[[nodiscard]] TclObject getListIndexUnchecked(size_t index) const;
+	void removeListIndex(Interpreter& interp, size_t index);
 	void setDictValue(Interpreter& interp, const TclObject& key, const TclObject& value);
 	[[nodiscard]] TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 	template<typename Key>
@@ -176,7 +176,7 @@ public:
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
-	[[nodiscard]] unsigned size() const { return getListLengthUnchecked(); }
+	[[nodiscard]] size_t size() const { return getListLengthUnchecked(); }
 	[[nodiscard]] bool empty() const { return size() == 0; }
 	[[nodiscard]] iterator begin() const { return {*this, 0}; }
 	[[nodiscard]] iterator end()   const { return {*this, size()}; }
@@ -280,7 +280,7 @@ private:
 	void addListElementsImpl(int objc, Tcl_Obj* const* objv);
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
 	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
-	[[nodiscard]] unsigned getListLengthUnchecked() const;
+	[[nodiscard]] size_t getListLengthUnchecked() const;
 
 private:
 	Tcl_Obj* obj;

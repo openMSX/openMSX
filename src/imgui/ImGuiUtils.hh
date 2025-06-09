@@ -15,10 +15,13 @@
 
 #include <algorithm>
 #include <concepts>
+#include <functional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <utility>
+
+using namespace std::literals;
 
 namespace ImGui {
 
@@ -35,9 +38,30 @@ inline void TextUnformatted(std::string_view str)
 	ImGui::TextUnformatted(begin, end);
 }
 
+inline void TextDisabledUnformatted(std::string_view str)
+{
+	im::StyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled), [&]{
+		ImGui::TextUnformatted(str);
+	});
+}
+
 inline auto CalcTextSize(std::string_view str)
 {
 	return ImGui::CalcTextSize(str.data(), str.data() + str.size());
+}
+
+inline std::string leftClip(std::string_view s, float maxWidth)
+{
+	auto fullWidth = ImGui::CalcTextSize(s).x;
+	if (fullWidth <= maxWidth) return std::string(s);
+
+	maxWidth -= ImGui::CalcTextSize("..."sv).x;
+	if (maxWidth <= 0.0f) return "...";
+
+	auto len = s.size();
+	auto num = *std::ranges::lower_bound(std::views::iota(size_t(0), len), maxWidth, {},
+		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
+	return strCat("...", s.substr(len - num));
 }
 
 template<typename... Ts>
@@ -65,6 +89,7 @@ namespace openmsx {
 class BooleanSetting;
 class FloatSetting;
 class HotKey;
+class ImGuiManager;
 class IntegerSetting;
 class Setting;
 class VideoSourceSetting;
@@ -145,6 +170,36 @@ inline void centerNextWindowOverCurrent()
 	auto windowCenter = windowPos + center * windowSize;
 	ImGui::SetNextWindowPos(windowCenter, ImGuiCond_Appearing, center);
 }
+
+class ConfirmDialog {
+public:
+	explicit ConfirmDialog(std::string title_) : title(std::move(title_)) {}
+
+	void open(std::string text_, std::function<void()> action_) {
+		text = std::move(text_);
+		action = std::move(action_);
+		doOpen = true;
+	}
+
+	void execute();
+
+private:
+	std::string title;
+	std::string text;
+	std::function<void()> action;
+	bool doOpen = false;
+};
+
+class ConfirmDialogTclCommand : public ConfirmDialog {
+public:
+	ConfirmDialogTclCommand(ImGuiManager& manager_, std::string title_)
+		: ConfirmDialog(std::move(title_)), manager(&manager_) {}
+
+	void open(std::string text_, TclObject cmd_);
+
+private:
+	ImGuiManager* manager;
+};
 
 struct GetSettingDescription {
 	std::string operator()(const Setting& setting) const;
@@ -307,6 +362,11 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 
 std::string getKeyChordName(ImGuiKeyChord keyChord);
 std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
+
+[[nodiscard]] std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp);
+
+[[nodiscard]] std::string rawToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end);
 
 // Read from VRAM-table, including mirroring behavior
 //  shared between ImGuiCharacter, ImGuiSpriteViewer

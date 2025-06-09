@@ -152,6 +152,12 @@ In general, the XML files that describe the hardware configuration are called
 "hardware configuration XML files".
 </p>
 
+<p>
+If you want to be able to run a combination of a machine and plugged in extensions at a later time, you can store this combination as a setup with the GUI via <span class="menu-reference">Main menu bar
+&rarr; Machine &rarr; Save setup</span> or the <code><a class="external"
+href="commands.html#store_setup">store_setup</a></code> command.
+</p>
+
 <h2><a id="systemroms">3. System ROMs</a></h2>
 
 <p>
@@ -202,8 +208,9 @@ openMSX contains several machine configurations using C-BIOS.
 The machine <code>C-BIOS_MSX1</code> is an MSX1 with 64 kB RAM.
 The machine <code>C-BIOS_MSX2</code> is an MSX2 with 512 kB RAM and 128 kB VRAM.
 The machine <code>C-BIOS_MSX2+</code> is an MSX2+ with 512 kB RAM, 128 kB VRAM and MSX-MUSIC.
-The latter is the default machine for openMSX after installation,
-so if you change nothing to the openMSX configuration,
+The latter is the <a class="external"
+href="commands.html#default_machine">default machine</a> for openMSX after
+installation, so if you change nothing to the openMSX configuration,
 then <code>C-BIOS_MSX2+</code> is the machine that will be booted. The
 mentioned machines have a US English (international) keyboard layout and
 character set and run at 60Hz (like NTSC) interrupt frequency. Since C-BIOS
@@ -308,7 +315,7 @@ installation directory of openMSX, which is also platform dependent:
 
 <p> The quickest way to see where openMSX is searching for system ROMs on your
 installation is via the GUI under <span class="menu-reference">Main menu bar
-&rarr; Machine &rarr; Test MSX hardware...</span>. At the bottom of this dialog
+&rarr; Machine &rarr; Test MSX hardware</span>. At the bottom of this dialog
 you can find buttons to quickly open a (native) file browser on the locations
 where the ROMs are searched for, both for the user folder and the system wide
 folder. The main function of this window is to verify whether your system ROMs
@@ -360,11 +367,11 @@ wrong place, or you put it in a large ZIP file with multiple files). </p>
 <p> The quickest way to see which machine and extensions work (i.e.: openMSX
 can find the required system ROMs the configuration is referring to) is by
 using the GUI under <span class="menu-reference">Main menu bar &rarr; Machine
-&rarr; Test MSX hardware...</span>. It will quickly check all machines and
+&rarr; Test MSX hardware</span>. It will quickly check all machines and
 extensions and will show which are working and which are not, and which error
 occurred when trying to use it.  Besides this, when selecting to run a machine
 using the GUI under <span class="menu-reference">Main menu bar &rarr; Machine
-&rarr; Select MSX machine ...</span>, you can also see which are working and
+&rarr; Select MSX machine...</span>, you can also see which are working and
 which not and why. Likewise for extensions via <span
 class="menu-reference">Main menu bar &rarr; Media &rarr; Extensions &rarr;
 Insert</span> for instance. </p>

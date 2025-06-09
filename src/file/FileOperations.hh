@@ -105,6 +105,13 @@ namespace openmsx::FileOperations {
 	 * @result The file portion
 	 */
 	[[nodiscard]] std::string_view getFilename(std::string_view path);
+	[[nodiscard]] inline zstring_view getFilename(zstring_view path) {
+		auto v = getFilename(path.view());
+		return {v.data(), v.size()};
+	}
+	[[nodiscard]] inline zstring_view getFilename(const std::string& path) {
+		return getFilename(zstring_view(path));
+	}
 
 	/**
 	 * Returns the directory portion of a path.
@@ -132,6 +139,17 @@ namespace openmsx::FileOperations {
 	 *         remains unchanged.
 	 */
 	[[nodiscard]] std::string_view stripExtension(std::string_view path);
+
+	/**
+	 * Return the stem of the path, i.e. the filename without extension.
+	 * This is equivalent to stripExtension(getFilename(path)), but more
+	 * efficient: only does a single pass.
+	 * @param path The pathname
+	 * @result The stem of the path. This excludes the '.'.
+	 *         If path doesn't have an extension portion the result
+	 *         is the filename.
+	 */
+	 [[nodiscard]] std::string_view stem(std::string_view path);
 
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
@@ -217,6 +235,7 @@ namespace openmsx::FileOperations {
 	 * Default value is "~/.openMSX" (UNIX) or "~/openMSX" (win)
 	 */
 	[[nodiscard]] const std::string& getUserOpenMSXDir();
+	[[nodiscard]] std::string getUserOpenMSXDir(std::string_view subdir);
 
 	/**
 	 * Get the openMSX data dir in the user's home directory.

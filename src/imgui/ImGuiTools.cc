@@ -31,6 +31,12 @@ namespace openmsx {
 
 using namespace std::literals;
 
+ImGuiTools::ImGuiTools(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, confirmDialog(manager_, "Confirm##Tools")
+{
+}
+
 void ImGuiTools::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -92,7 +98,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::MenuItem("Show virtual keyboard", nullptr, &manager.keyboard->show);
 		auto consoleShortCut = getShortCutForCommand(hotKey, "toggle console");
 		ImGui::MenuItem("Show console", consoleShortCut.c_str(), &manager.console->show);
-		ImGui::MenuItem("Show message log ...", nullptr, &manager.messages->logWindow.open);
+		ImGui::MenuItem("Show message log", nullptr, &manager.messages->logWindow.open);
 		ImGui::Separator();
 
 		std::string_view copyCommand = "copy_screen_to_clipboard";
@@ -105,7 +111,7 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("Paste clipboard into MSX", pasteShortCut.c_str(), nullptr, motherBoard != nullptr)) {
 			manager.executeDelayed(TclObject(pasteCommand));
 		}
-		if (ImGui::MenuItem("Simple notes widget ...")) {
+		if (ImGui::MenuItem("Simple notes widget...")) {
 			if (auto it = std::ranges::find(notes, false, &Note::show);
 			    it != notes.end()) {
 				// reopen a closed note
@@ -120,20 +126,20 @@ void ImGuiTools::showMenu(MSXMotherBoard* motherBoard)
 		ImGui::Separator();
 
 		im::Menu("Capture", [&]{
-			ImGui::MenuItem("Screenshot ...", nullptr, &showScreenshot);
-			ImGui::MenuItem("Audio/Video ...", nullptr, &showRecord);
+			ImGui::MenuItem("Screenshot...", nullptr, &showScreenshot);
+			ImGui::MenuItem("Audio/Video...", nullptr, &showRecord);
 		});
 		ImGui::Separator();
 
-		ImGui::MenuItem("Disk Manipulator ...", nullptr, &manager.diskManipulator->show);
+		ImGui::MenuItem("Disk Manipulator", nullptr, &manager.diskManipulator->show);
 		ImGui::Separator();
 
-		ImGui::MenuItem("Trainer Selector ...", nullptr, &manager.trainer->show);
-		ImGui::MenuItem("Cheat Finder ...", nullptr, &manager.cheatFinder->show);
+		ImGui::MenuItem("Trainer Selector", nullptr, &manager.trainer->show);
+		ImGui::MenuItem("Cheat Finder", nullptr, &manager.cheatFinder->show);
 		ImGui::Separator();
 
-		ImGui::MenuItem("SCC viewer ...", nullptr, &manager.sccViewer->show);
-		ImGui::MenuItem("Audio channel viewer ...", nullptr, &manager.waveViewer->show);
+		ImGui::MenuItem("SCC viewer", nullptr, &manager.sccViewer->show);
+		ImGui::MenuItem("Audio channel viewer", nullptr, &manager.waveViewer->show);
 		ImGui::Separator();
 
 		im::Menu("Toys", [&]{
@@ -159,31 +165,7 @@ void ImGuiTools::paint(MSXMotherBoard* /*motherBoard*/)
 	if (showRecord) paintRecord();
 	paintNotes();
 
-	const auto* popupTitle = "Confirm##Tools";
-	if (openConfirmPopup) {
-		openConfirmPopup = false;
-		ImGui::OpenPopup(popupTitle);
-	}
-	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			manager.executeDelayed(confirmCmd);
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmCmd = TclObject();
-		}
-	});
-}
-
-static std::string_view stem(std::string_view fullName)
-{
-	return FileOperations::stripExtension(FileOperations::getFilename(fullName));
+	confirmDialog.execute();
 }
 
 bool ImGuiTools::screenshotNameExists() const
@@ -219,7 +201,7 @@ void ImGuiTools::nextScreenshotName()
 			}
 		}
 	}
-	screenshotName = stem(FileOperations::getNextNumberedFileName(
+	screenshotName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 		Display::SCREENSHOT_DIR, prefix, Display::SCREENSHOT_EXTENSION, true));
 }
 
@@ -260,33 +242,34 @@ void ImGuiTools::paintScreenshot()
 		ImGui::InputText("##name", &screenshotName);
 		ImGui::SameLine();
 		if (ImGui::Button("Create")) {
-			confirmCmd = makeTclList("screenshot", screenshotName);
+			auto cmd = makeTclList("screenshot", screenshotName);
 			if (screenshotType == static_cast<int>(SsType::RENDERED)) {
 				if (screenshotWithOsd) {
-					confirmCmd.addListElement("-with-osd");
+					cmd.addListElement("-with-osd");
 				}
 			} else {
-				confirmCmd.addListElement("-raw");
+				cmd.addListElement("-raw");
 				if (screenshotSize == static_cast<int>(SsSize::S_640)) {
-					confirmCmd.addListElement("-doublesize");
+					cmd.addListElement("-doublesize");
 				}
 			}
 			if (screenshotHideSprites) {
-				confirmCmd.addListElement("-no-sprites");
+				cmd.addListElement("-no-sprites");
 			}
 
 			if (screenshotNameExists()) {
-				openConfirmPopup = true;
-				confirmText = strCat("Overwrite screenshot with name '", screenshotName, "'?");
+				confirmDialog.open(
+					strCat("Overwrite screenshot with name '", screenshotName, "'?"),
+					cmd);
 				// note: don't auto generate next name
 			} else {
-				manager.executeDelayed(confirmCmd,
+				manager.executeDelayed(cmd,
 				                       [&](const TclObject&) { nextScreenshotName(); });
 			}
 		}
 		ImGui::Separator();
-		if (ImGui::Button("Open screenshots folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', Display::SCREENSHOT_DIR).c_str());
+		if (ImGui::Button("Open screenshots folder")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(Display::SCREENSHOT_DIR)).c_str());
 		}
 
 	});
@@ -352,36 +335,37 @@ void ImGuiTools::paintRecord()
 			ImGui::InputText("##name", &recordName);
 			ImGui::SameLine();
 			if (!recording && ImGui::Button("Start")) {
-				confirmCmd = makeTclList("record", "start");
+				auto cmd = makeTclList("record", "start");
 				if (!recordName.empty()) {
-					confirmCmd.addListElement(recordName);
+					cmd.addListElement(recordName);
 				}
 				if (recordSource == static_cast<int>(Source::AUDIO)) {
-					confirmCmd.addListElement("-audioonly");
+					cmd.addListElement("-audioonly");
 				} else if (recordSource == static_cast<int>(Source::VIDEO)) {
-					confirmCmd.addListElement("-videoonly");
+					cmd.addListElement("-videoonly");
 				}
 				if (recordSource != static_cast<int>(Source::VIDEO)) {
 					if (recordAudio == static_cast<int>(Audio::MONO)) {
-						confirmCmd.addListElement("-mono");
+						cmd.addListElement("-mono");
 					} else if (recordAudio == static_cast<int>(Audio::STEREO)) {
-						confirmCmd.addListElement("-stereo");
+						cmd.addListElement("-stereo");
 					}
 				}
 				if (recordSource != static_cast<int>(Source::AUDIO)) {
 					if (recordVideoSize == static_cast<int>(VideoSize::V_640)) {
-						confirmCmd.addListElement("-doublesize");
+						cmd.addListElement("-doublesize");
 					} else if (recordVideoSize == static_cast<int>(VideoSize::V_960)) {
-						confirmCmd.addListElement("-triplesize");
+						cmd.addListElement("-triplesize");
 					}
 				}
 
 				if (FileOperations::exists(getRecordFilename())) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite recording with name '", recordName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite recording with name '", recordName, "'?"),
+						cmd);
 					// note: don't auto generate next name
 				} else {
-					manager.executeDelayed(confirmCmd);
+					manager.executeDelayed(cmd);
 				}
 			}
 		});
@@ -389,10 +373,10 @@ void ImGuiTools::paintRecord()
 			manager.executeDelayed(makeTclList("record", "stop"));
 		}
 		ImGui::Separator();
-		if (ImGui::Button("Open recordings folder...")) {
+		if (ImGui::Button("Open recordings folder")) {
 			bool recordVideo = recordSource != static_cast<int>(Source::AUDIO);
 			std::string_view directory = recordVideo ? AviRecorder::VIDEO_DIR : AviRecorder::AUDIO_DIR;
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', directory).c_str());
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(directory)).c_str());
 		}
 	});
 }

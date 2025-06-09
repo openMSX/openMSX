@@ -42,7 +42,7 @@ private:
 };
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
-                      , public DiskContainer, public MediaInfoProvider
+                      , public DiskContainer, public MediaProvider
 {
 public:
 	SCSILS120(const DeviceConfig& targetConfig,
@@ -55,6 +55,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
+	void setMedia(const TclObject& info, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -30,9 +30,9 @@ void DummyVideoSystem::flush()
 {
 }
 
-gl::ivec2 DummyVideoSystem::getMouseCoord()
+std::optional<gl::ivec2> DummyVideoSystem::getMouseCoord()
 {
-	return {0, 0};
+	return {};
 }
 
 OutputSurface* DummyVideoSystem::getOutputSurface()

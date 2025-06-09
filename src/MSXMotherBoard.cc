@@ -11,6 +11,7 @@
 #include "EventDelay.hh"
 #include "EventDistributor.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "GlobalCliComm.hh"
 #include "GlobalSettings.hh"
 #include "HardwareConfig.hh"
@@ -28,6 +29,7 @@
 #include "MSXMixer.hh"
 #include "Observer.hh"
 #include "PanasonicMemory.hh"
+#include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "Reactor.hh"
 #include "RealTime.hh"
@@ -116,6 +118,18 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class StoreSetupCmd final : public Command
+{
+public:
+	explicit StoreSetupCmd(MSXMotherBoard& motherBoard);
+	void execute(std::span<const TclObject> tokens, TclObject& result) override;
+	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<string>& tokens) const override;
+private:
+	MSXMotherBoard& motherBoard;
+	const std::map<std::string, SetupDepth> depthOptionMap;
+};
+
 class MachineNameInfo final : public InfoTopic
 {
 public:
@@ -154,24 +168,12 @@ class MachineMediaInfo final : public InfoTopic
 {
 public:
 	explicit MachineMediaInfo(MSXMotherBoard& motherBoard);
-	~MachineMediaInfo() {
-		assert(providers.empty());
-	}
 	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) const override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<string>& tokens) const override;
-	void registerProvider(std::string_view name, MediaInfoProvider& provider);
-	void unregisterProvider(MediaInfoProvider& provider);
 private:
-	struct ProviderInfo {
-		ProviderInfo(std::string_view n, MediaInfoProvider* p)
-			: name(n), provider(p) {} // clang-15 workaround
-		std::string_view name;
-		MediaInfoProvider* provider;
-	};
-	// There will only be a handful of providers, use an unsorted vector.
-	std::vector<ProviderInfo> providers;
+	MSXMotherBoard& motherBoard;
 };
 
 class DeviceInfo final : public InfoTopic
@@ -247,6 +249,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	listExtCommand = make_unique<ListExtCmd>(*this);
 	extCommand = make_unique<ExtCmd>(*this, "ext");
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
+	storeSetupCommand = make_unique<StoreSetupCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	machineTypeInfo = make_unique<MachineTypeInfo>(*this);
 	machineExtensionInfo = make_unique<MachineExtensionInfo>(*this);
@@ -373,6 +376,77 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	}
 	machineName = machine;
 	return machineName;
+}
+
+void MSXMotherBoard::storeAsSetup(const string& filename, SetupDepth depth)
+{
+	// level 0: don't do anything. Added as convenience.
+	if (depth == SetupDepth::NONE) return;
+
+	XmlOutputArchive out(filename);
+
+	if (depth == SetupDepth::COMPLETE_STATE) {
+		// level 5: just save state to given file
+		out.serialize("machine", this);
+		out.close();
+		return;
+	}
+
+	// level 1: create new board based on current board of this machine
+	auto newBoard = reactor.createEmptyMotherBoard();
+	newBoard->loadMachine(machineName);
+	auto newTime = newBoard->getCurrentTime();
+
+	if (depth >= SetupDepth::EXTENSIONS) {
+		// level 2: add the extensions of the current board to the new board
+
+		// suppress any messages from this temporary board
+		newBoard->getMSXCliComm().setSuppressMessages(true);
+
+		for (auto& extension: extensions) {
+			if (extension->getType() == HardwareConfig::Type::EXTENSION) {
+				auto& configName = extension->getConfigName();
+				auto slot = slotManager->findSlotWith(*extension);
+				const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
+				// TODO: a bit weird that we need to convert the slot
+				// spec into a string and then parse it again deep down
+				// in loadExtension...
+				auto extConfig = newBoard->loadExtension(configName, slotSpec);
+				newBoard->insertExtension(configName, std::move(extConfig));
+			}
+		}
+	}
+
+	if (depth >= SetupDepth::CONNECTORS) {
+		// level 3: add the connectors/pluggables of the current board to the new board
+		auto& newBoardPluggingController = newBoard->getPluggingController();
+		for (const auto* connector: getPluggingController().getConnectors()) {
+			const auto& plugged = connector->getPlugged();
+			const auto& pluggedName = plugged.getName();
+			if (!pluggedName.empty()) {
+				const auto& connectorName = connector->getName();
+				if (auto* newBoardConnector = newBoardPluggingController.findConnector(connectorName)) {
+					if (auto* newBoardPluggable = newBoardPluggingController.findPluggable(pluggedName)) {
+						newBoardConnector->plug(*newBoardPluggable, newTime);
+					}
+				}
+			}
+		}
+	}
+
+	if (depth >= SetupDepth::MEDIA) {
+		// level 4: add the inserted media of the current board to the new board
+		for (const auto& oldMedia : getMediaProviders()) {
+			if (auto* newMediaProvider = newBoard->findMediaProvider(oldMedia.name)) {
+				TclObject info;
+				oldMedia.provider->getMediaInfo(info);
+				newMediaProvider->setMedia(info, newTime);
+			}
+		}
+	}
+
+	out.serialize("machine", newBoard);
+	out.close();
 }
 
 std::unique_ptr<HardwareConfig> MSXMotherBoard::loadExtension(std::string_view name, std::string_view slotName)
@@ -742,14 +816,23 @@ void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
-void MSXMotherBoard::registerMediaInfo(std::string_view name, MediaInfoProvider& provider)
+void MSXMotherBoard::registerMediaProvider(std::string_view name, MediaProvider& provider)
 {
-	machineMediaInfo->registerProvider(name, provider);
+	assert(!contains(mediaProviders, name, &MediaProviderInfo::name));
+	assert(!contains(mediaProviders, &provider, &MediaProviderInfo::provider));
+	mediaProviders.emplace_back(name, &provider);
 }
 
-void MSXMotherBoard::unregisterMediaInfo(MediaInfoProvider& provider)
+void MSXMotherBoard::unregisterMediaProvider(MediaProvider& provider)
 {
-	machineMediaInfo->unregisterProvider(provider);
+	move_pop_back(mediaProviders,
+	              rfind_unguarded(mediaProviders, &provider, &MediaProviderInfo::provider));
+}
+
+MediaProvider* MSXMotherBoard::findMediaProvider(std::string_view name) const
+{
+	auto it = std::ranges::find(mediaProviders, name, &MediaProviderInfo::name);
+	return (it != mediaProviders.end()) ? it->provider : nullptr;
 }
 
 
@@ -951,6 +1034,63 @@ void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 	}
 }
 
+// StoreSetupCmd
+
+StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
+	: Command(motherBoard_.getCommandController(), "store_setup")
+	, motherBoard(motherBoard_)
+	, depthOptionMap({
+		{ "none"          , SetupDepth::NONE           },
+		{ "machine"       , SetupDepth::MACHINE        },
+		{ "extensions"    , SetupDepth::EXTENSIONS     },
+		{ "connectors"    , SetupDepth::CONNECTORS     },
+		{ "media"         , SetupDepth::MEDIA          },
+		{ "complete_state", SetupDepth::COMPLETE_STATE }
+	})
+{
+}
+
+void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, Between{2, 3}, Prefix{1}, "depth ?filename?");
+
+	std::string depthArg = std::string(tokens[1].getString());
+	auto depthIt = depthOptionMap.find(depthArg);
+	if (depthIt == depthOptionMap.end()) {
+		throw CommandException("Unknown depth argument: ", depthArg);
+	}
+
+	if (depthIt->second == SetupDepth::NONE) return;
+
+	std::string_view filenameArg;
+	if (tokens.size() == 3) {
+		filenameArg = tokens[2].getString();
+	}
+
+	auto filename = FileOperations::parseCommandFileArgument(
+		filenameArg, Reactor::SETUP_DIR, motherBoard.getMachineName(), Reactor::SETUP_EXTENSION);
+
+	// TODO: make parts of levels to be saved configurable?
+	motherBoard.storeAsSetup(filename, depthIt->second);
+
+	result = filename;
+}
+
+string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
+{
+	return
+		"store_setup <depth> [filename]  Save setup based on this machine with given depth to indicated file.";
+}
+
+void StoreSetupCmd::tabCompletion(std::vector<string>& tokens) const
+{
+	if (tokens.size() == 2) {
+		completeString(tokens, std::views::keys(depthOptionMap));
+	} else if (tokens.size() == 3) {
+		completeString(tokens, Reactor::getSetups());
+	}
+}
+
 
 // MachineNameInfo
 
@@ -1049,6 +1189,7 @@ void MachineExtensionInfo::tabCompletion(std::vector<string>& tokens) const
 
 MachineMediaInfo::MachineMediaInfo(MSXMotherBoard& motherBoard_)
 	: InfoTopic(motherBoard_.getMachineInfoCommand(), "media")
+	, motherBoard(motherBoard_)
 {
 }
 
@@ -1056,12 +1197,13 @@ void MachineMediaInfo::execute(std::span<const TclObject> tokens,
                               TclObject& result) const
 {
 	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?media-slot-name?");
+	const auto& providers = motherBoard.getMediaProviders();
 	if (tokens.size() == 2) {
 		result.addListElements(
-			std::views::transform(providers, &ProviderInfo::name));
+			std::views::transform(providers, &MediaProviderInfo::name));
 	} else if (tokens.size() == 3) {
 		auto name = tokens[2].getString();
-		if (auto it = std::ranges::find(providers, name, &ProviderInfo::name);
+		if (auto it = std::ranges::find(providers, name, &MediaProviderInfo::name);
 		    it != providers.end()) {
 			it->provider->getMediaInfo(result);
 		} else {
@@ -1079,21 +1221,8 @@ void MachineMediaInfo::tabCompletion(std::vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		completeString(tokens, std::views::transform(
-			providers, &ProviderInfo::name));
+			motherBoard.getMediaProviders(), &MediaProviderInfo::name));
 	}
-}
-
-void MachineMediaInfo::registerProvider(std::string_view name, MediaInfoProvider& provider)
-{
-	assert(!contains(providers, name, &ProviderInfo::name));
-	assert(!contains(providers, &provider, &ProviderInfo::provider));
-	providers.emplace_back(name, &provider);
-}
-
-void MachineMediaInfo::unregisterProvider(MediaInfoProvider& provider)
-{
-	move_pop_back(providers,
-	              rfind_unguarded(providers, &provider, &ProviderInfo::provider));
 }
 
 // DeviceInfo

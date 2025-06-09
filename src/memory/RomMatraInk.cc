@@ -6,7 +6,7 @@ namespace openmsx {
 
 RomMatraInk::RomMatraInk(DeviceConfig& config, Rom&& rom_)
         : MSXRom(config, std::move(rom_))
-        , flash(rom, AmdFlashChip::AM29F040, {}, config)
+        , flash(rom, AmdFlashChip::AM29F040B, {}, config)
 {
 	reset(EmuTime::dummy());
 }

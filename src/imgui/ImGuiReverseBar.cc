@@ -2,17 +2,13 @@
 
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
-#include "ImGuiUtils.hh"
 
-#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "GLImage.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
-
-#include "foreach_file.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
@@ -21,9 +17,67 @@ using namespace std::literals;
 
 namespace openmsx {
 
-
 static constexpr std::string_view STATE_EXTENSION = ".oms";
 static constexpr std::string_view STATE_DIR = "savestates";
+
+ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, saveStateFileList("savestate"sv, STATE_EXTENSION, STATE_DIR)
+	, replayFileList("replay", ReverseManager::REPLAY_EXTENSION, ReverseManager::REPLAY_DIR)
+	, confirmDialog(manager_, "Confirm##reverse")
+{
+	replayFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		manager.executeDelayed(makeTclList("reverse", "loadreplay", entry.fullName));
+	};
+
+	saveStateFileList.drawAction = [&] {
+		im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
+			if (ImGui::TableNextColumn()) {
+				saveStateFileList.drawTable();
+			}
+			if (ImGui::TableNextColumn()) {
+				gl::vec2 size(320, 240);
+				if (previewImage.texture.get()) {
+					ImGui::Image(previewImage.texture.getImGui(), size);
+				} else {
+					gl::vec2 pos = ImGui::GetCursorPos();
+					ImGui::Dummy(size);
+					auto text = "No preview available..."sv;
+					gl::vec2 textSize = ImGui::CalcTextSize(text);
+					ImGui::SetCursorPos(pos + 0.5f*(size - textSize));
+					ImGui::TextUnformatted(text);
+				}
+			}
+		});
+	};
+	saveStateFileList.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		manager.executeDelayed(makeTclList("loadstate", entry.getDefaultDisplayName()));
+	};
+	saveStateFileList.hoverAction = [&](const FileListWidget::Entry& entry) {
+		saveStateFileList.defaultHoverAction(entry);
+		if (previewImage.name == entry.fullName) return;
+
+		// record name, but (so far) without image
+		// this prevents that on a missing image, we don't continue retrying
+		previewImage.name = entry.fullName;
+		previewImage.texture = gl::Texture(gl::Null{});
+
+		auto shortFullName = std::string_view(previewImage.name);
+		shortFullName.remove_suffix(STATE_EXTENSION.size());
+		std::string pngFile = strCat(shortFullName, ".png");
+		if (FileOperations::exists(pngFile)) {
+			try {
+				gl::ivec2 dummy;
+				previewImage.texture = loadTexture(pngFile, dummy);
+			} catch (...) {
+				// ignore
+			}
+		}
+	};
+	saveStateFileList.deleteAction = [&](const FileListWidget::Entry& entry) {
+		manager.execute(makeTclList("delete_savestate", entry.getDefaultDisplayName()));
+	};
+}
 
 void ImGuiReverseBar::save(ImGuiTextBuffer& buf)
 {
@@ -42,12 +96,6 @@ void ImGuiReverseBar::loadLine(std::string_view name, zstring_view value)
 
 void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openConfirmPopup = false;
-
-	auto stem = [&](std::string_view fullName) {
-		return FileOperations::stripExtension(FileOperations::getFilename(fullName));
-	};
-
 	im::Menu("Save state", motherBoard != nullptr, [&]{
 		const auto& hotKey = manager.getReactor().getHotKey();
 
@@ -63,169 +111,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		ImGui::Separator();
 
-		auto formatFileTimeFull = [](std::time_t fileTime) {
-			// Convert time_t to local time (broken-down time in the local time zone)
-			std::tm* local_time = std::localtime(&fileTime);
-
-			// Get the local time in human-readable format
-			std::stringstream ss;
-			ss << std::put_time(local_time, "%F %T");
-			return ss.str();
-		};
-
-		auto formatFileAbbreviated = [](std::time_t fileTime) {
-			// Convert time_t to local time (broken-down time in the local time zone)
-			std::tm local_time = *std::localtime(&fileTime);
-
-			std::time_t t_now = std::time(nullptr); // get time now
-			std::tm now = *std::localtime(&t_now);
-
-			const std::string format = ((now.tm_mday == local_time.tm_mday) &&
-						    (now.tm_mon  == local_time.tm_mon ) &&
-						    (now.tm_year == local_time.tm_year)) ? "%T" : "%F";
-
-			// Get the local time in human-readable format
-			std::stringstream ss;
-			ss << std::put_time(&local_time, format.c_str());
-			return ss.str();
-		};
-
-		auto scanDirectory = [](std::string_view dir, std::string_view extension, Info& info) {
-			// As we still want to support gcc-11 (and not require 13 yet), we have to use this method
-			// as workaround instead of using more modern std::chrono and std::format stuff in all time
-			// calculations and formatting.
-			auto fileTimeToTimeT = [](std::filesystem::file_time_type fileTime) {
-				// Convert file_time_type to system_clock::time_point (the standard clock since epoch)
-				auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-						fileTime - std::filesystem::file_time_type::clock::now() +
-						std::chrono::system_clock::now());
-
-				// Convert system_clock::time_point to time_t (time since Unix epoch in seconds)
-				return std::chrono::system_clock::to_time_t(sctp);
-			};
-
-			// on each re-open of this menu, we recreate the list of entries
-			info.entries.clear();
-			info.entriesChanged = true;
-			for (auto context = userDataFileContext(dir);
-			     const auto& path : context.getPaths()) {
-				foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-					if (name.ends_with(extension)) {
-						name.remove_suffix(extension.size());
-						std::filesystem::file_time_type ftime = std::filesystem::last_write_time(fullName);
-						info.entries.emplace_back(fullName, std::string(name), fileTimeToTimeT(ftime));
-					}
-				});
-			}
-		};
-
-		int selectionTableFlags = ImGuiTableFlags_RowBg |
-			ImGuiTableFlags_BordersV |
-			ImGuiTableFlags_BordersOuter |
-			ImGuiTableFlags_Resizable |
-			ImGuiTableFlags_Sortable |
-			ImGuiTableFlags_Hideable |
-			ImGuiTableFlags_Reorderable |
-			ImGuiTableFlags_ContextMenuInBody |
-			ImGuiTableFlags_ScrollY |
-			ImGuiTableFlags_SizingStretchProp;
-
-		auto setAndSortColumns = [](bool& namesChanged, std::vector<Info::Entry>& names) {
-			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-			ImGui::TableSetupColumn("Name");
-			ImGui::TableSetupColumn("Date/time", ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortDescending | ImGuiTableColumnFlags_WidthFixed);
-			ImGui::TableHeadersRow();
-			// check sort order
-			auto* sortSpecs = ImGui::TableGetSortSpecs();
-			if (sortSpecs->SpecsDirty || namesChanged) {
-				sortSpecs->SpecsDirty = false;
-				namesChanged = false;
-				assert(sortSpecs->SpecsCount == 1);
-				assert(sortSpecs->Specs);
-				assert(sortSpecs->Specs->SortOrder == 0);
-
-				switch (sortSpecs->Specs->ColumnIndex) {
-				case 0: // name
-					sortUpDown_String(names, sortSpecs, &Info::Entry::displayName);
-					break;
-				case 1: // time
-					sortUpDown_T(names, sortSpecs, &Info::Entry::ftime);
-					break;
-				default:
-					UNREACHABLE;
-				}
-			}
-		};
-
-		saveStateInfo.submenuOpen = im::Menu("Load state ...", [&]{
-			if (!saveStateInfo.submenuOpen) {
-				scanDirectory(STATE_DIR, STATE_EXTENSION, saveStateInfo);
-			}
-			if (saveStateInfo.entries.empty()) {
-				ImGui::TextUnformatted("No save states found"sv);
-			} else {
-				im::Table("table", 2, ImGuiTableFlags_BordersInnerV, [&]{
-					if (ImGui::TableNextColumn()) {
-						im::Table("##select-savestate", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
-							setAndSortColumns(saveStateInfo.entriesChanged, saveStateInfo.entries);
-							for (const auto& [fullName, name_, ftime_] : saveStateInfo.entries) {
-								auto ftime = ftime_; // pre-clang-16 workaround
-								const auto& name = name_; // clang workaround
-								if (ImGui::TableNextColumn()) {
-									if (ImGui::Selectable(name.c_str())) {
-										manager.executeDelayed(makeTclList("loadstate", name));
-									}
-									simpleToolTip(name);
-									if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort) &&
-									    (previewImage.name != name)) {
-										// record name, but (so far) without image
-										// this prevents that on a missing image, we don't continue retrying
-										previewImage.name = std::string(name);
-										previewImage.texture = gl::Texture(gl::Null{});
-										std::string_view shortFullName = fullName;
-										shortFullName.remove_suffix(STATE_EXTENSION.size());
-										std::string filename = strCat(shortFullName, ".png");
-										if (FileOperations::exists(filename)) {
-											try {
-												gl::ivec2 dummy;
-												previewImage.texture = loadTexture(filename, dummy);
-											} catch (...) {
-												// ignore
-											}
-										}
-									}
-									im::PopupContextItem([&]{
-										if (ImGui::MenuItem("delete")) {
-											confirmCmd = makeTclList("delete_savestate", name);
-											confirmText = strCat("Delete savestate '", name, "'?");
-											openConfirmPopup = true;
-										}
-									});
-								}
-								if (ImGui::TableNextColumn()) {
-									ImGui::TextUnformatted(formatFileAbbreviated(ftime));
-									simpleToolTip([&] { return formatFileTimeFull(ftime); });
-								}
-							}
-						});
-					}
-					if (ImGui::TableNextColumn()) {
-						gl::vec2 size(320, 240);
-						if (previewImage.texture.get()) {
-							ImGui::Image(previewImage.texture.getImGui(), size);
-						} else {
-							gl::vec2 pos = ImGui::GetCursorPos();
-							ImGui::Dummy(size);
-							auto text = "No preview available..."sv;
-							gl::vec2 textSize = ImGui::CalcTextSize(text);
-							ImGui::SetCursorPos(pos + 0.5f*(size - textSize));
-							ImGui::TextUnformatted(text);
-						}
-					}
-				});
-			}
-		});
-		saveStateOpen = im::Menu("Save state ...", [&]{
+		saveStateFileList.menu("Load state");
+		saveStateOpen = im::Menu("Save state", [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
 					saveStateName, STATE_DIR, "", STATE_EXTENSION);
@@ -236,7 +123,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				if (auto result = manager.execute(makeTclList("guess_title", "savestate"))) {
 					saveStateName = result->getString();
 					if (exists()) {
-						saveStateName = stem(FileOperations::getNextNumberedFileName(
+						saveStateName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 							STATE_DIR, result->getString(), STATE_EXTENSION, true));
 					}
 				}
@@ -246,20 +133,21 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			ImGui::SameLine();
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
-				confirmCmd = makeTclList("savestate", saveStateName);
+				auto cmd = makeTclList("savestate", saveStateName);
 				if (exists()) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite save state with name '", saveStateName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite save state with name '", saveStateName, "'?"),
+						cmd);
 				} else {
-					manager.executeDelayed(confirmCmd,
+					manager.executeDelayed(cmd,
 						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("State saved to ", result.getString())); },
 						[&] (const std::string& error) { manager.getCliComm().printError(error); }
 						);
 				}
 			}
 		});
-		if (ImGui::MenuItem("Open savestates folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', STATE_DIR).c_str());
+		if (ImGui::MenuItem("Open savestates folder")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(STATE_DIR)).c_str());
 		}
 
 		ImGui::Separator();
@@ -267,40 +155,8 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		const auto& reverseManager = motherBoard->getReverseManager();
 		bool reverseEnabled = reverseManager.isCollecting();
 
-		replayInfo.submenuOpen = im::Menu("Load replay ...", reverseEnabled, [&]{
-			if (!replayInfo.submenuOpen) {
-				scanDirectory(ReverseManager::REPLAY_DIR, ReverseManager::REPLAY_EXTENSION, replayInfo);
-			}
-			if (replayInfo.entries.empty()) {
-				ImGui::TextUnformatted("No replays found"sv);
-			} else {
-				im::Table("##select-replay", 2, selectionTableFlags, ImVec2(ImGui::GetFontSize() * 25.0f, 240.0f), [&]{
-					setAndSortColumns(replayInfo.entriesChanged, replayInfo.entries);
-					for (const auto& [fullName_, displayName_, ftime_] : replayInfo.entries) {
-						auto ftime = ftime_; // pre-clang-16 workaround
-						const auto& fullName = fullName_; // clang workaround
-						if (ImGui::TableNextColumn()) {
-							const auto& displayName = displayName_; // clang workaround
-							if (ImGui::Selectable(displayName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
-								manager.executeDelayed(makeTclList("reverse", "loadreplay", fullName));
-							}
-							simpleToolTip(displayName);
-							im::PopupContextItem([&]{
-								if (ImGui::MenuItem("delete")) {
-									confirmCmd = makeTclList("file", "delete", fullName);
-									confirmText = strCat("Delete replay '", displayName, "'?");
-									openConfirmPopup = true;
-								}
-							});
-						}
-						if (ImGui::TableNextColumn()) {
-							ImGui::TextUnformatted(formatFileAbbreviated(ftime));
-							simpleToolTip([&] { return formatFileTimeFull(ftime); });
-						}
-				}});
-			}
-		});
-		saveReplayOpen = im::Menu("Save replay ...", reverseEnabled, [&]{
+		replayFileList.menu("Load replay", reverseEnabled);
+		saveReplayOpen = im::Menu("Save replay", reverseEnabled, [&]{
 			auto exists = [&]{
 				auto filename = FileOperations::parseCommandFileArgument(
 					saveReplayName, ReverseManager::REPLAY_DIR, "", ReverseManager::REPLAY_EXTENSION);
@@ -311,7 +167,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 				if (auto result = manager.execute(makeTclList("guess_title", "replay"))) {
 					saveReplayName = result->getString();
 					if (exists()) {
-						saveReplayName = stem(FileOperations::getNextNumberedFileName(
+						saveReplayName = FileOperations::stem(FileOperations::getNextNumberedFileName(
 							ReverseManager::REPLAY_DIR, result->getString(), ReverseManager::REPLAY_EXTENSION, true));
 					}
 				}
@@ -322,20 +178,21 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 			if (ImGui::Button("Create")) {
 				ImGui::CloseCurrentPopup();
 
-				confirmCmd = makeTclList("reverse", "savereplay", saveReplayName);
+				auto cmd = makeTclList("reverse", "savereplay", saveReplayName);
 				if (exists()) {
-					openConfirmPopup = true;
-					confirmText = strCat("Overwrite replay with name '", saveReplayName, "'?");
+					confirmDialog.open(
+						strCat("Overwrite replay with name '", saveReplayName, "'?"),
+						cmd);
 				} else {
-					manager.executeDelayed(confirmCmd,
+					manager.executeDelayed(cmd,
 						[&] (const TclObject& result) { manager.getCliComm().printInfo(strCat("Replay saved to ", result.getString())); },
 						[&] (const std::string& error) { manager.getCliComm().printError(error); }
 						);
 				}
 			}
 		});
-		if (ImGui::MenuItem("Open replays folder...")) {
-			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(), '/', ReverseManager::REPLAY_DIR).c_str());
+		if (ImGui::MenuItem("Open replays folder")) {
+			SDL_OpenURL(strCat("file://", FileOperations::getUserOpenMSXDir(ReverseManager::REPLAY_DIR)).c_str());
 		}
 		im::Menu("Reverse/replay settings", [&]{
 			if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
@@ -355,32 +212,14 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		});
 	});
 
-	const auto popupTitle = "Confirm##reverse";
-	if (openConfirmPopup) {
-		ImGui::OpenPopup(popupTitle);
-	}
-	im::PopupModal(popupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			manager.executeDelayed(confirmCmd);
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmCmd = TclObject();
-		}
-	});
+	confirmDialog.execute();
 }
 
 void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 {
 	if (!showReverseBar) return;
 	if (!motherBoard) return;
-	const auto& reverseManager = motherBoard->getReverseManager();
+	auto& reverseManager = motherBoard->getReverseManager();
 	if (!reverseManager.isCollecting()) return;
 
 	const auto& style = ImGui::GetStyle();
@@ -506,6 +345,10 @@ void ImGuiReverseBar::paint(MSXMotherBoard* motherBoard)
 					ImGui::Checkbox("Allow move", &reverseAllowMove);
 				});
 			});
+			bool isViewOnlyMode = reverseManager.isViewOnlyMode();
+			if (ImGui::Checkbox("View only mode", &isViewOnlyMode)) {
+				reverseManager.setViewOnlyMode(isViewOnlyMode);
+			}
 		});
 
 		if (reverseHideTitle && ImGui::IsWindowFocused()) {

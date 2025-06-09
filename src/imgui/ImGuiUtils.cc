@@ -5,6 +5,7 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "HotKey.hh"
+#include "ImGuiManager.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VideoSourceSetting.hh"
@@ -22,8 +23,39 @@ namespace openmsx {
 void HelpMarker(std::string_view desc, float spacing)
 {
 	ImGui::SameLine(0.0f, spacing);
-	ImGui::TextDisabled("(?)");
+	ImGui::TextDisabledUnformatted("(?)");
 	simpleToolTip(desc);
+}
+
+void ConfirmDialog::execute()
+{
+	if (doOpen) {
+		doOpen = false;
+		ImGui::OpenPopup(title.c_str());
+	}
+	im::PopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
+		ImGui::TextUnformatted(text);
+
+		bool close = false;
+		if (ImGui::Button("Ok")) {
+			action();
+			close = true;
+		}
+		ImGui::SameLine();
+		close |= ImGui::Button("Cancel");
+		if (close) {
+			ImGui::CloseCurrentPopup();
+			action = {};
+		}
+	});
+}
+
+void ConfirmDialogTclCommand::open(std::string text_, TclObject cmd_)
+{
+	ConfirmDialog::open(
+		std::move(text_),
+		[manager = this->manager, cmd = std::move(cmd_)] { manager->executeDelayed(cmd); }
+	);
 }
 
 std::string GetSettingDescription::operator()(const Setting& setting) const
@@ -41,7 +73,7 @@ static void settingStuff(Setting& setting, GetTooltip getTooltip = {})
 		ImGui::StrCat("Default value: ", defaultString);
 		if (defaultString.empty()) {
 			ImGui::SameLine();
-			ImGui::TextDisabled("<empty>");
+			ImGui::TextDisabledUnformatted("<empty>");
 		}
 		if (ImGui::Button("Restore default")) {
 			try {
@@ -74,7 +106,7 @@ bool Checkbox(const HotKey& hotKey, const char* label, BooleanSetting& setting, 
 	auto shortCut = getShortCutForCommand(hotKey, strCat("toggle ", setting.getBaseName()));
 	auto spacing = std::max(0.0f, ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(shortCut).x);
 	ImGui::SameLine(0.0f, spacing);
-	ImGui::TextDisabled("%s", shortCut.c_str());
+	ImGui::TextDisabledUnformatted(shortCut);
 
 	return changed;
 }
@@ -333,6 +365,46 @@ void setColors(int style)
 
 	imColors[size_t(KEY_ACTIVE    )] = 0xff'10'40'ff;
 	imColors[size_t(KEY_NOT_ACTIVE)] = 0x80'00'00'00;
+}
+
+std::string formatToString(function_ref<uint8_t(unsigned)> fetch, unsigned begin, unsigned end, std::string_view prefix,
+	unsigned columns, std::string_view suffix, std::string_view formatStr, Interpreter& interp)
+{
+	std::string result;
+	unsigned col = 0;
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		if (col == 0) strAppend(result, prefix);
+
+		auto val = fetch(addr);
+		auto cmd = makeTclList("format", formatStr, val);
+		auto formatted = cmd.executeCommand(interp); // may throw
+		strAppend(result, formatted.getString());
+
+		if (++col == columns) {
+			col = 0;
+			strAppend(result, suffix, '\n');
+		} else if (addr != end) {
+			strAppend(result, ", ");
+		}
+	}
+
+	if (col != 0) {
+		strAppend(result, suffix, '\n');
+	}
+	return result;
+}
+
+[[nodiscard]] std::string rawToString(
+	function_ref<uint8_t(unsigned)> fetch,
+	unsigned begin, unsigned end)
+{
+	std::string result;
+	result.reserve(end - begin + 1);
+	for (unsigned addr = begin; addr <= end; ++addr) {
+		auto val = fetch(addr);
+		result += static_cast<char>(val);
+	}
+	return result;
 }
 
 } // namespace openmsx

@@ -11,6 +11,8 @@
 
 #include <imgui.h>
 
+using namespace std::literals;
+
 namespace openmsx {
 
 [[nodiscard]] static std::string pluggableToGuiString(std::string_view pluggable)
@@ -33,17 +35,31 @@ namespace openmsx {
 void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Connectors", motherBoard != nullptr, [&]{
-		im::Table("table", 2, [&]{
-			const auto& pluggingController = motherBoard->getPluggingController();
-			const auto& pluggables = pluggingController.getPluggables();
-			for (const auto* connector : pluggingController.getConnectors()) {
-				if (ImGui::TableNextColumn()) { // connector
-					ImGui::TextUnformatted(connector->getDescription());
-				}
-				if (ImGui::TableNextColumn()) { // pluggable
+		showPluggables(motherBoard->getPluggingController(), false);
+	});
+}
+
+void ImGuiConnector::showPluggables(PluggingController& pluggingController, bool viewOnly)
+{
+	im::Table("table", 2, [&]{
+		const auto& pluggables = pluggingController.getPluggables();
+		for (const auto* connector : pluggingController.getConnectors()) {
+			if (ImGui::TableNextColumn()) { // connector
+				ImGui::TextUnformatted(connector->getDescription());
+			}
+			if (ImGui::TableNextColumn()) { // pluggable
+				const auto& currentPluggable = connector->getPlugged();
+				if (viewOnly) {
+					auto plugName = currentPluggable.getName();
+					if (plugName.empty()) {
+						ImGui::TextUnformatted("(empty)"sv);
+					} else {
+						ImGui::TextUnformatted(pluggableToGuiString(plugName));
+						simpleToolTip(currentPluggable.getDescription());
+					}
+				} else {
 					const auto& connectorName = connector->getName();
 					auto connectorClass = connector->getClass();
-					const auto& currentPluggable = connector->getPlugged();
 					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
 					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(currentPluggable.getName()).c_str(), [&]{
 						if (!currentPluggable.getName().empty()) {
@@ -70,8 +86,9 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 					}
 				}
 			}
-		});
+		}
 	});
 }
+
 
 } // namespace openmsx

@@ -166,8 +166,8 @@ private:
 		bool eg_timer_carry = false;
 	};
 	struct Write {
-		uint8_t port;
-		uint8_t value;
+		uint8_t port = 0;
+		uint8_t value = 0;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);

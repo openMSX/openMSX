@@ -48,8 +48,8 @@ MSXRS232::MSXRS232(DeviceConfig& config)
 		throw MSXException("RS232C only supports 8kB or 16kB ROMs.");
 	}
 
-	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
-	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
+	EmuDuration total = EmuDuration::hz(1.8432e6); // 1.8432MHz
+	EmuDuration hi    = EmuDuration::hz(3.6864e6); //   half clock period
 	EmuTime::param time = getCurrentTime();
 	i8254.getClockPin(0).setPeriodicState(total, hi, time);
 	i8254.getClockPin(1).setPeriodicState(total, hi, time);

@@ -263,6 +263,27 @@ string_view stripExtension(string_view path)
 	return path;
 }
 
+std::string_view stem(std::string_view path)
+{
+	auto pos1 = path.find_last_of("/.");
+	if (pos1 == std::string_view::npos) {
+		return path; // No '/' or '.'
+	}
+	if (path[pos1] != '.') {
+		// filename without extension
+		return path.substr(pos1 + 1);
+	}
+	if (pos1 == 0) { // (the only) '.' is at the start
+		return {};
+	}
+
+	auto pos2 = path.find_last_of('/', pos1 - 1);
+	if (pos2 == std::string_view::npos) {
+		return path.substr(0, pos1);
+	}
+	return path.substr(pos2 + 1, pos1 - pos2 - 1);
+}
+
 string join(string_view part1, string_view part2)
 {
 	if (part1.empty() || isAbsolutePath(part2)) {
@@ -390,13 +411,18 @@ const string& getUserOpenMSXDir()
 	return OPENMSX_DIR;
 }
 
+std::string getUserOpenMSXDir(std::string_view subdir)
+{
+	return join(getUserOpenMSXDir(), subdir);
+}
+
 const string& getUserDataDir()
 {
 	static std::optional<string> result;
 	if (!result) {
 		const char* const NAME = "OPENMSX_USER_DATA";
 		const char* value = getenv(NAME);
-		result = value ? value : getUserOpenMSXDir() + "/share";
+		result = value ? value : getUserOpenMSXDir("share");
 	}
 	return *result;
 }
@@ -585,7 +611,7 @@ string getNextNumberedFileName(
 
 	unsigned max_num = 0;
 
-	string dirName = join(getUserOpenMSXDir(), directory);
+	string dirName = getUserOpenMSXDir(directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
@@ -617,9 +643,9 @@ string parseCommandFileArgument(
 	string filename(argument);
 	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
-		string dir = strCat(getUserOpenMSXDir(), '/', directory);
+		string dir = getUserOpenMSXDir(directory);
 		mkdirp(dir);
-		filename = strCat(dir, '/', filename);
+		filename = join(dir, filename);
 	} else {
 		filename = expandTilde(std::move(filename));
 	}

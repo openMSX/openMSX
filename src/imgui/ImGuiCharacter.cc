@@ -412,6 +412,43 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				printAddressRange8("Color", colTable.getAddress((mode == SCR1) ? (pattern / 8) : (8 * pattern)));
 			}
 		};
+		auto formatBinaryData = [&](unsigned address) {
+			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, "%02X", manager.getInterpreter());
+		};
+		auto getPatternFromGrid = [&]() {
+			return gridPosition.x + 32 * gridPosition.y;
+		};
+		auto copyPatternColorPopup = [&]() {
+			return im::PopupContextWindow("PatternCopyPopup", [&]{
+				bool hasColorData = mode == one_of(SCR1, SCR2);
+				auto caption = hasColorData
+					? "Copy pattern and color data to clipboard"
+					: "Copy pattern data to clipboard";
+				if (ImGui::MenuItem(caption)) {
+					auto pattern = getPatternFromGrid();
+					auto text = strCat("Pattern data\n", formatBinaryData(patTable.getAddress(8 * pattern)));
+					if (hasColorData) {
+						auto cp = (mode == SCR1) ? (pattern / 8) : (8 * pattern);
+						strAppend(text, "Color data\n", formatBinaryData(colTable.getAddress(cp)));
+					}
+					ImGui::SetClipboardText(text.c_str());
+				}
+			});
+		};
+		auto drawGrid = [&]() {
+			auto pat = getPatternFromGrid();
+			printPatternNr(pat);
+			auto uv1 = gl::vec2(gridPosition) * recipPatTexChars;
+			auto uv2 = uv1 + recipPatTexChars;
+			auto pos2 = ImGui::GetCursorPos();
+			ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
+			if (grid) {
+				ImGui::SetCursorPos(pos2);
+				ImGui::Image(gridTex.getImGui(),
+					zoomCharSize, {}, charSize);
+			}
+			printPatternColorAddress(pat);
+		};
 
 		ImGui::Separator();
 		im::TreeNode("Pattern Table", ImGuiTreeNodeFlags_DefaultOpen, [&]{
@@ -425,20 +462,12 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				bool hovered = ImGui::IsItemHovered() && (mode != OTHER);
 				ImGui::SameLine();
 				im::Group([&]{
-					if (hovered) {
-						auto gridPos = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
-						auto pat = gridPos.x + 32 * gridPos.y;
-						printPatternNr(pat);
-						auto uv1 = gl::vec2(gridPos) * recipPatTexChars;
-						auto uv2 = uv1 + recipPatTexChars;
-						auto pos2 = ImGui::GetCursorPos();
-						ImGui::Image(patternTex.getImGui(), zoomCharSize, uv1, uv2);
-						if (grid) {
-							ImGui::SetCursorPos(pos2);
-							ImGui::Image(gridTex.getImGui(),
-								zoomCharSize, {}, charSize);
-						}
-						printPatternColorAddress(pat);
+					if (copyPatternColorPopup()) {
+						drawGrid();
+					} else if (hovered) {
+						// store last selected position before popup
+						gridPosition = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / charZoom);
+						drawGrid();
 					} else {
 						ImGui::Dummy(zoomCharSize);
 					}

@@ -23,6 +23,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "xxhash.hh"
+#include "foreach_file.hh"
 
 #include "build-info.hh"
 
@@ -67,6 +68,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
+	registerOption("-setup",      setupOption,   PHASE_LOAD_MACHINE);
 
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
@@ -207,25 +209,53 @@ void CommandLineParser::parse(std::span<char*> argv)
 			break;
 		case PHASE_DEFAULT_MACHINE: {
 			if (!haveConfig) {
-				// load default config file in case the user didn't specify one
-				const auto& machine =
-					reactor.getMachineSetting().getString();
-				try {
-					reactor.switchMachine(string(machine));
-				} catch (MSXException& e) {
-					reactor.getCliComm().printInfo(
-						"Failed to initialize default machine: ",
-						e.getMessage());
-					// Default machine is broken; fall back to C-BIOS config.
-					auto fallbackMachine = std::string(
-						reactor.getMachineSetting().getDefaultValue().getString());
-					reactor.getCliComm().printInfo(
-						"Using fallback machine: ", fallbackMachine);
+				// load default setup in case the user didn't specify one
+				const auto& defaultSetup =
+					reactor.getDefaultSetupSetting().getString();
+				if (!defaultSetup.empty()) {
+					auto context = userDataFileContext(Reactor::SETUP_DIR);
+					std::string filename;
 					try {
-						reactor.switchMachine(fallbackMachine);
-					} catch (MSXException& e2) {
-						// Fallback machine failed as well; we're out of options.
-						throw FatalError(std::move(e2).getMessage());
+						// Setups are specified without extension
+						filename = context.resolve(tmpStrCat(
+							defaultSetup, Reactor::SETUP_EXTENSION));
+					} catch (MSXException& e) {
+						reactor.getCliComm().printInfo(
+							"Failed to load default setup: ", e.getMessage());
+					}
+					if (!filename.empty()) {
+						try {
+							reactor.switchMachineFromSetup(filename);
+							haveConfig = true;
+						} catch (MSXException& e) {
+							reactor.getCliComm().printInfo(
+								"Failed to activate default setup: ",
+								e.getMessage());
+						}
+					}
+				}
+				if (!haveConfig) {
+					// load default machine config file in case the user
+					// didn't specify one and loading the default setup failed
+					const auto& defaultMachine =
+						reactor.getDefaultMachineSetting().getString();
+					try {
+						reactor.switchMachine(string(defaultMachine));
+					} catch (MSXException& e) {
+						reactor.getCliComm().printInfo(
+							"Failed to initialize default machine: ",
+							e.getMessage());
+						// Default machine is broken; fall back to C-BIOS config.
+						auto fallbackMachine = std::string(
+							reactor.getDefaultMachineSetting().getDefaultValue().getString());
+						reactor.getCliComm().printInfo(
+							"Using fallback machine: ", fallbackMachine);
+						try {
+							reactor.switchMachine(fallbackMachine);
+						} catch (MSXException& e2) {
+							// Fallback machine failed as well; we're out of options.
+							throw FatalError(std::move(e2).getMessage());
+						}
 					}
 				}
 				haveConfig = true;
@@ -494,6 +524,34 @@ string_view CommandLineParser::VersionOption::optionHelp() const
 }
 
 
+// Setup option
+
+void CommandLineParser::SetupOption::parseOption(
+	const string& option, std::span<string>& cmdLine)
+{
+	auto& parser = OUTER(CommandLineParser, setupOption);
+	if (parser.haveConfig) {
+		throw FatalError("Only one -setup or -machine option allowed");
+	}
+
+	// resolve the filename
+	auto context = userDataFileContext(Reactor::SETUP_DIR);
+	const auto fileNameArg = getArgument(option, cmdLine);
+	const std::string filename = context.resolve(tmpStrCat(fileNameArg, Reactor::SETUP_EXTENSION));
+
+	try {
+		parser.reactor.switchMachineFromSetup(filename);
+	} catch (MSXException& e) {
+		throw FatalError(std::move(e).getMessage());
+	}
+	parser.haveConfig = true;
+}
+
+string_view CommandLineParser::SetupOption::optionHelp() const
+{
+	return "Use setup file specified in argument";
+}
+
 // Machine option
 
 void CommandLineParser::MachineOption::parseOption(
@@ -501,7 +559,7 @@ void CommandLineParser::MachineOption::parseOption(
 {
 	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
-		throw FatalError("Only one machine option allowed");
+		throw FatalError("Only one -setup or -machine option allowed");
 	}
 	try {
 		parser.reactor.switchMachine(getArgument(option, cmdLine));
@@ -524,7 +582,7 @@ void CommandLineParser::SettingOption::parseOption(
 {
 	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
-		throw FatalError("Only one setting option allowed");
+		throw FatalError("Only one -setting option allowed");
 	}
 	try {
 		auto& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
@@ -569,6 +627,11 @@ void CommandLineParser::BashOption::parseOption(
 
 	if (last == "-machine") {
 		for (const auto& s : Reactor::getHwConfigs("machines")) {
+			cout << s << '\n';
+		}
+	} else if (last == "-setup") {
+		std::vector<std::string> entries = Reactor::getSetups();
+		for (const auto& s : entries) {
 			cout << s << '\n';
 		}
 	} else if (last.starts_with("-ext")) {

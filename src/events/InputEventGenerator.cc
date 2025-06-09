@@ -266,6 +266,19 @@ void InputEventGenerator::splitText(uint32_t timestamp, const char* utf8)
 
 void InputEventGenerator::handle(SDL_Event& evt)
 {
+	// This is different between e.g. KDE and GNOME (and probably others)
+	// Sometimes SDL sends both:
+	// * SDL_QUIT and
+	// * SDL_WINDOWEVENT_CLOSE-for-the-main-window.
+	// Sometimes only one of these events. For both events openMSX should
+	// exit, but we should only react to the first of these events, not
+	// both.
+	auto quitOnce = [&]() -> std::optional<Event> {
+		if (sendQuit) return {};
+		sendQuit = true;
+		return QuitEvent();
+	};
+
 	std::optional<Event> event;
 	switch (evt.type) {
 	case SDL_KEYUP:
@@ -386,7 +399,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		switch (evt.window.event) {
 		case SDL_WINDOWEVENT_CLOSE:
 			if (WindowEvent::isMainWindow(evt.window.windowID)) {
-				event = QuitEvent();
+				event = quitOnce();
 				break;
 			}
 			[[fallthrough]];
@@ -403,7 +416,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 		break;
 
 	case SDL_QUIT:
-		event = QuitEvent();
+		event = quitOnce();
 		break;
 
 	default:

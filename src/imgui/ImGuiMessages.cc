@@ -152,7 +152,7 @@ bool ImGuiMessages::paintButtons()
 	ImGui::SetCursorPosX(40.0f);
 	bool close = ImGui::Button("Ok");
 	ImGui::SameLine(0.0f, 30.0f);
-	if (ImGui::SmallButton("Configure...")) {
+	if (ImGui::SmallButton("Configure")) {
 		close = true;
 		configureWindow.raise();
 	}
@@ -322,11 +322,11 @@ void ImGuiMessages::paintLog()
 		ImGui::SameLine(0.0f, 30.0f);
 		ImGui::TextUnformatted(ICON_IGFD_FILTER);
 		ImGui::SameLine();
-		auto size = ImGui::CalcTextSize("Configure..."sv).x + 30.0f + style.WindowPadding.x;
+		auto size = ImGui::CalcTextSize("Configure"sv).x + 30.0f + style.WindowPadding.x;
 		ImGui::SetNextItemWidth(-size);
 		ImGui::InputTextWithHint("##filter", "enter filter terms", &filterLog);
 		ImGui::SameLine(0.0f, 30.0f);
-		if (ImGui::SmallButton("Configure...")) {
+		if (ImGui::SmallButton("Configure")) {
 			configureWindow.raise();
 		}
 	});

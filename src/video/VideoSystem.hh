@@ -63,9 +63,10 @@ public:
 	  */
 	virtual void updateWindowTitle();
 
-	/** Returns the current mouse pointer coordinates.
+	/** Returns the current mouse pointer coordinates in the main window.
+	  * Returns std::nullopt when the main window does not have focus.
 	  */
-	[[nodiscard]] virtual gl::ivec2 getMouseCoord() = 0;
+	[[nodiscard]] virtual std::optional<gl::ivec2> getMouseCoord() = 0;
 
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;

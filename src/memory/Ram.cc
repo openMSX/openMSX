@@ -18,11 +18,11 @@
 namespace openmsx {
 
 Ram::Ram(const DeviceConfig& config, const std::string& name,
-         static_string_view description, size_t size)
+         static_string_view description, size_t size, bool* debugWrite)
 	: xml(*config.getXML())
 	, ram(size)
 	, debuggable(std::in_place,
-		config.getMotherBoard(), name, description, *this)
+		config.getMotherBoard(), name, description, *this, debugWrite ? debugWrite : &dummyDebugWrite)
 {
 	clear();
 }
@@ -85,9 +85,10 @@ const std::string& Ram::getName() const
 
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
                              const std::string& name_,
-                             static_string_view description_, Ram& ram_)
+                             static_string_view description_, Ram& ram_, bool* debugWrite_)
 	: SimpleDebuggable(motherBoard_, name_, description_, narrow<unsigned>(ram_.size()))
 	, ram(ram_)
+	, debugWrite(debugWrite_)
 {
 }
 
@@ -98,12 +99,13 @@ uint8_t RamDebuggable::read(unsigned address)
 
 void RamDebuggable::readBlock(unsigned start, std::span<uint8_t> output)
 {
-	copy_to_range(std::span{ram}.subspan(start), output);
+	copy_to_range(std::span{ram}.subspan(start, output.size()), output);
 }
 
 void RamDebuggable::write(unsigned address, uint8_t value)
 {
 	ram[address] = value;
+	*debugWrite = true; // for TrackedRam
 }
 
 

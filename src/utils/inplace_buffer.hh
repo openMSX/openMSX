@@ -23,7 +23,7 @@
 // uninitialized.
 
 // If you're unsure about the upper-bound for the size, or if that upper-bound
-// is only rarely needed, then consider using 'small_uninitialized_buffer'.
+// is only rarely needed, then consider using 'small_buffer'.
 
 template<typename T, size_t BUF_SIZE>
 class inplace_buffer

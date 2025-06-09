@@ -52,7 +52,7 @@ private:
 
 	std::vector<MSXMemoryMapperInterface*> mappers;
 
-	std::array<byte, 4> registers; // (copy of) the mapper register state
+	std::array<byte, 4> registers = {}; // (copy of) the mapper register state
 	byte mask; // bitmask: 1-bit -> take mapper register, 0-bit -> take baseValue
 	byte baseValue = 0xff;
 	Mode mode = Mode::EXTERNAL; // use the internal or the external mapper state

@@ -11,6 +11,14 @@
     <region>jp</region>
   </info>
 
+  <!-- some info from 
+       http://hanihanisayoko.seesaa.net/article/469217400.html
+       https://hanihanisayoko.up.seesaa.net/image/DSC03539.jpg
+       VDP: TMS9918ANL
+       PSG: GI AY-3-8910
+       PPI: NEC D8255AC-5
+    -->
+
   <CassettePort/>
 
   <devices>
@@ -28,12 +36,13 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version>
+      <version>TMS9918A</version>
       <io base="0x98" num="2"/>
     </VDP>
 
     <PSG id="PSG">
       <keyboardlayout>50on</keyboardlayout>
+      <type>AY8910</type>
       <sound>
         <volume>21000</volume>
       </sound>

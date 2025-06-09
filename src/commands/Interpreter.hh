@@ -3,8 +3,10 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
+#include "tcl.hh"
+
 #include "zstring_view.hh"
-#include <tcl.h>
+
 #include <span>
 #include <string_view>
 #include <string>

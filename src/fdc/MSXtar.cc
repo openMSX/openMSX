@@ -505,8 +505,11 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	transform_in_place(extS,  toFileNameChar);
 
 	// add correct number of spaces
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
 	copy_to_range(fileS, subspan<8>(result, 0));
 	copy_to_range(extS,  subspan<3>(result, 8));
+#pragma GCC diagnostic pop
 	return result;
 }
 
@@ -953,8 +956,7 @@ std::string MSXtar::dir()
 {
 	std::string result;
 	auto list = dirRaw();
-	auto num = list.size();
-	for (unsigned i = 0; i < num; ++i) {
+	for (auto i : xrange(list.size())) {
 		auto entry = list.getListIndexUnchecked(i);
 		auto filename = std::string(entry.getListIndexUnchecked(0).getString());
 		auto attrib = DiskImageUtils::formatAttrib(MSXDirEntry::AttribValue(uint8_t(entry.getListIndexUnchecked(1).getOptionalInt().value_or(0))));

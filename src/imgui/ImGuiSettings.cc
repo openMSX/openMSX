@@ -57,6 +57,48 @@ using namespace std::literals;
 
 namespace openmsx {
 
+ImGuiSettings::ImGuiSettings(ImGuiManager& manager_)
+	: ImGuiPart(manager_)
+	, saveLayout("layout", ".ini", "layouts")
+	, loadLayout("layout", ".ini", "layouts")
+	, confirmOverwrite("Confirm##overwrite-layout")
+{
+	saveLayout.drawAction = [&]{
+		saveLayout.drawTable();
+		ImGui::TextUnformatted("Enter name:"sv);
+		ImGui::InputText("##save-layout-name", &saveLayoutName);
+		ImGui::SameLine();
+		im::Disabled(saveLayoutName.empty(), [&]{
+			if (ImGui::Button("Save as")) {
+				(void)manager.getReactor().getDisplay().getWindowPosition(); // to save up-to-date window position
+
+				auto filename = FileOperations::parseCommandFileArgument(
+					saveLayoutName, "layouts", "", ".ini");
+				auto action = [filename]{
+					ImGui::SaveIniSettingsToDisk(filename.c_str());
+					ImGui::CloseCurrentPopup();
+				};
+				if (FileOperations::exists(filename)) {
+					confirmOverwrite.open(
+						strCat("Overwrite layout: ", saveLayoutName),
+						action);
+				} else {
+					action();
+				}
+			}
+		});
+		confirmOverwrite.execute();
+	};
+	saveLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		saveLayoutName = entry.getDefaultDisplayName();
+	};
+
+	loadLayout.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		manager.loadIniFile = entry.fullName;
+		ImGui::CloseCurrentPopup();
+	};
+}
+
 ImGuiSettings::~ImGuiSettings()
 {
 	deinitListener();
@@ -117,8 +159,6 @@ void ImGuiSettings::setStyle() const
 
 void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 {
-	bool openConfirmPopup = false;
-
 	im::Menu("Settings", [&]{
 		auto& reactor = manager.getReactor();
 		auto& globalSettings = reactor.getGlobalSettings();
@@ -305,80 +345,11 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					ComboBox("Keyboard mapping mode", *mappingModeSetting, kbdModeToolTips);
 				}
 			}
-			ImGui::MenuItem("Configure MSX joysticks...", nullptr, &showConfigureJoystick);
+			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick);
 		});
 		im::Menu("GUI", [&]{
-			auto getExistingLayouts = [] {
-				std::vector<std::string> names;
-				for (auto context = userDataFileContext("layouts");
-				     const auto& path : context.getPaths()) {
-					foreach_file(path, [&](const std::string& fullName, std::string_view name) {
-						if (name.ends_with(".ini")) {
-							names.emplace_back(fullName);
-						}
-					});
-				}
-				std::ranges::sort(names, StringOp::caseless{});
-				return names;
-			};
-			auto listExistingLayouts = [&](const std::vector<std::string>& names) {
-				std::optional<std::pair<std::string, std::string>> selectedLayout;
-				im::ListBox("##select-layout", [&]{
-					for (const auto& name : names) {
-						auto displayName = std::string(FileOperations::stripExtension(FileOperations::getFilename(name)));
-						if (ImGui::Selectable(displayName.c_str())) {
-							selectedLayout = std::pair{name, displayName};
-						}
-						im::PopupContextItem([&]{
-							if (ImGui::MenuItem("delete")) {
-								confirmText = strCat("Delete layout: ", displayName);
-								confirmAction = [name]{ FileOperations::unlink(name); };
-								openConfirmPopup = true;
-							}
-						});
-					}
-				});
-				return selectedLayout;
-			};
-			im::Menu("Save layout", [&]{
-				if (auto names = getExistingLayouts(); !names.empty()) {
-					ImGui::TextUnformatted("Existing layouts"sv);
-					if (auto selectedLayout = listExistingLayouts(names)) {
-						const auto& [name, displayName] = *selectedLayout;
-						saveLayoutName = displayName;
-					}
-				}
-				ImGui::TextUnformatted("Enter name:"sv);
-				ImGui::InputText("##save-layout-name", &saveLayoutName);
-				ImGui::SameLine();
-				im::Disabled(saveLayoutName.empty(), [&]{
-					if (ImGui::Button("Save as")) {
-						(void)reactor.getDisplay().getWindowPosition(); // to save up-to-date window position
-						ImGui::CloseCurrentPopup();
-
-						auto filename = FileOperations::parseCommandFileArgument(
-							saveLayoutName, "layouts", "", ".ini");
-						if (FileOperations::exists(filename)) {
-							confirmText = strCat("Overwrite layout: ", saveLayoutName);
-							confirmAction = [filename]{
-								ImGui::SaveIniSettingsToDisk(filename.c_str());
-							};
-							openConfirmPopup = true;
-						} else {
-							ImGui::SaveIniSettingsToDisk(filename.c_str());
-						}
-					}
-				});
-			});
-			im::Menu("Restore layout", [&]{
-				ImGui::TextUnformatted("Select layout"sv);
-				auto names = getExistingLayouts();
-				if (auto selectedLayout = listExistingLayouts(names)) {
-					const auto& [name, displayName] = *selectedLayout;
-					manager.loadIniFile = name;
-					ImGui::CloseCurrentPopup();
-				}
-			});
+			saveLayout.menu("Save layout");
+			loadLayout.menu("Restore layout");
 			ImGui::Separator();
 			im::Menu("Select style", [&]{
 				std::optional<int> newStyle;
@@ -393,9 +364,9 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					setStyle();
 				}
 			});
-			ImGui::MenuItem("Select font...", nullptr, &showFont);
-			ImGui::MenuItem("Edit shortcuts...", nullptr, &showShortcut);
-			ImGui::MenuItem("Configure OSD icons...", nullptr, &manager.osdIcons->showConfigureIcons);
+			ImGui::MenuItem("Select font", nullptr, &showFont);
+			ImGui::MenuItem("Edit shortcuts", nullptr, &showShortcut);
+			ImGui::MenuItem("Configure OSD icons", nullptr, &manager.osdIcons->showConfigureIcons);
 			ImGui::MenuItem("Fade out menu bar", nullptr, &manager.menuFade);
 			im::Menu("Status bar", [&]{
 				ImGui::Checkbox("Show", &manager.statusBarVisible);
@@ -403,7 +374,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 					manager.configStatusBarVisibilityItems();
 				});
 			});
-			ImGui::MenuItem("Configure messages...", nullptr, &manager.messages->configureWindow.open);
+			ImGui::MenuItem("Configure messages", nullptr, &manager.messages->configureWindow.open);
 		});
 		ImGui::Separator();
 		im::Menu("Advanced", [&]{
@@ -438,26 +409,6 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 		});
-	});
-
-	const auto* confirmTitle = "Confirm##settings";
-	if (openConfirmPopup) {
-		ImGui::OpenPopup(confirmTitle);
-	}
-	im::PopupModal(confirmTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize, [&]{
-		ImGui::TextUnformatted(confirmText);
-
-		bool close = false;
-		if (ImGui::Button("Ok")) {
-			confirmAction();
-			close = true;
-		}
-		ImGui::SameLine();
-		close |= ImGui::Button("Cancel");
-		if (close) {
-			ImGui::CloseCurrentPopup();
-			confirmAction = {};
-		}
 	});
 }
 
@@ -929,7 +880,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 					});
 					ImGui::SameLine();
 					if (numBindings == 0) {
-						ImGui::TextDisabled("no bindings");
+						ImGui::TextDisabledUnformatted("no bindings");
 					} else {
 						size_t lastBindingIndex = numBindings - 1;
 						size_t bindingIndex = 0;
@@ -1043,8 +994,8 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			TclObject key(keyNames[popupForKey]);
 			TclObject bindingList = bindings.getDictValue(interp, key);
 
-			auto remove = unsigned(-1);
-			unsigned counter = 0;
+			auto remove = size_t(-1);
+			size_t counter = 0;
 			for (const auto& b : bindingList) {
 				if (ImGui::Selectable(b.c_str())) {
 					remove = counter;
@@ -1052,7 +1003,7 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				simpleToolTip(toGuiString(*parseBooleanInput(b), joystickManager));
 				++counter;
 			}
-			if (remove != unsigned(-1)) {
+			if (remove != size_t(-1)) {
 				bindingList.removeListIndex(interp, remove);
 				bindings.setDictValue(interp, key, bindingList);
 				setting->setValue(bindings);

@@ -1,6 +1,7 @@
 #ifndef IMGUI_DEBUGGER_HH
 #define IMGUI_DEBUGGER_HH
 
+#include "FileListWidget.hh"
 #include "ImGuiPart.hh"
 
 #include "CPURegs.hh"
@@ -41,12 +42,14 @@ public:
 	[[nodiscard]] zstring_view iniName() const override { return "debugger"; }
 	void save(ImGuiTextBuffer& buf) override;
 	void loadStart() override;
+	void loadEnd() override;
 	void loadLine(std::string_view name, zstring_view value) override;
 	void showMenu(MSXMotherBoard* motherBoard) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
 	void signalBreak();
 	void signalContinue();
+	void signalQuit();
 	void setGotoTarget(uint16_t target);
 	void checkShortcuts(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard,
 	                    ImGuiDisassembly* disassembly);
@@ -71,6 +74,9 @@ private:
 	void actionStepOut();
 	void actionStepBack();
 
+	enum LoadSave { LOAD, SAVE };
+	void loadSaveBreakpoints(LoadSave loadSave);
+
 private:
 	std::vector<std::unique_ptr<ImGuiDisassembly>> disassemblyViewers;
 	std::vector<std::unique_ptr<ImGuiBitmapViewer>> bitmapViewers;
@@ -92,17 +98,24 @@ private:
 	bool showFlags = false;
 	bool showXYFlags = false;
 	int flagsLayout = 1;
+	std::string breakpointFile;
+	bool reloadBreakpoints = false;
+
+	FileListWidget saveBreakpoints;
+	FileListWidget loadBreakpoints;
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"showControl",     &ImGuiDebugger::showControl},
-		PersistentElement{"showRegisters",   &ImGuiDebugger::showRegisters},
-		PersistentElement{"showSlots",       &ImGuiDebugger::showSlots},
-		PersistentElement{"showStack",       &ImGuiDebugger::showStack},
-		PersistentElement{"showFlags",       &ImGuiDebugger::showFlags},
-		PersistentElement{"showXYFlags",     &ImGuiDebugger::showXYFlags},
-		PersistentElementMax{"flagsLayout",  &ImGuiDebugger::flagsLayout, 2},
-		PersistentElement{"showChanges",     &ImGuiDebugger::showChanges},
-		PersistentElement{"changesColor",    &ImGuiDebugger::changesColor}
+		PersistentElement{"showControl",       &ImGuiDebugger::showControl},
+		PersistentElement{"showRegisters",     &ImGuiDebugger::showRegisters},
+		PersistentElement{"showSlots",         &ImGuiDebugger::showSlots},
+		PersistentElement{"showStack",         &ImGuiDebugger::showStack},
+		PersistentElement{"showFlags",         &ImGuiDebugger::showFlags},
+		PersistentElement{"showXYFlags",       &ImGuiDebugger::showXYFlags},
+		PersistentElementMax{"flagsLayout",    &ImGuiDebugger::flagsLayout, 2},
+		PersistentElement{"showChanges",       &ImGuiDebugger::showChanges},
+		PersistentElement{"changesColor",      &ImGuiDebugger::changesColor},
+		PersistentElement{"breakpointFile",    &ImGuiDebugger::breakpointFile},
+		PersistentElement{"reloadBreakpoints", &ImGuiDebugger::reloadBreakpoints},
 
 		// manually handle "showDebuggable.xxx"
 	};

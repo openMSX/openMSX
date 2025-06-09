@@ -5,6 +5,7 @@
 #include "ConfigException.hh"
 #include "CacheLine.hh"
 #include "enumerate.hh"
+#include "narrow.hh"
 #include "serialize.hh"
 #include <array>
 #include <memory>
@@ -87,10 +88,11 @@ void MSXFDC::parseRomVisibility(DeviceConfig& config, unsigned defaultBase, unsi
 	if (base & CacheLine::LOW) throw ConfigException("rom_visibility base must be a multiple of 0x100.");
 	if (size & CacheLine::LOW) throw ConfigException("rom_visibility size must be a multiple of 0x100.");
 	if (base >= 0x10000) throw ConfigException("rom_visibility base must be between 0 and 0xFFFF.");
-	if (size > 0x10000) throw ConfigException("rom_visibility size must be between 0 and 0x10000.");
+	if (size < 1 || size > 0x10000) throw ConfigException("rom_visibility size must be between 1 and 0x10000.");
+	if (base + size > 0x10000) throw ConfigException("rom_visibility base + size must be between 1 and 0x10000.");
 
-	romVisibilityStart = base;
-	romVisibilityLast = base + size - 1;
+	romVisibilityStart = narrow_cast<uint16_t>(base);
+	romVisibilityLast = narrow_cast<uint16_t>(base + size - 1);
 }
 
 

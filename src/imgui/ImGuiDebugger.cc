@@ -30,6 +30,7 @@
 #include "StringOp.hh"
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <algorithm>
 
@@ -37,9 +38,34 @@ using namespace std::literals;
 
 namespace openmsx {
 
+static constexpr std::string_view BREAKPOINT_DIR = "breakpoints";
+
 ImGuiDebugger::ImGuiDebugger(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
+	, saveBreakpoints("breakpoint", ".breakpoints", BREAKPOINT_DIR)
+	, loadBreakpoints("breakpoint", ".breakpoints", BREAKPOINT_DIR)
 {
+	saveBreakpoints.drawAction = [&]{
+		saveBreakpoints.drawTable();
+		ImGui::TextUnformatted("Enter name:"sv);
+		ImGui::InputText("##save-layout-name", &breakpointFile);
+		ImGui::SameLine();
+		im::Disabled(breakpointFile.empty(), [&]{
+			if (ImGui::Button("Save as")) {
+				loadSaveBreakpoints(SAVE);
+				ImGui::CloseCurrentPopup();
+			}
+		});
+	};
+	saveBreakpoints.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		breakpointFile = entry.getDefaultDisplayName();
+	};
+
+	loadBreakpoints.singleClickAction = [&](const FileListWidget::Entry& entry) {
+		breakpointFile = entry.getDefaultDisplayName();
+		loadSaveBreakpoints(LOAD);
+		ImGui::CloseCurrentPopup();
+	};
 }
 
 ImGuiDebugger::~ImGuiDebugger() = default;
@@ -105,6 +131,11 @@ void ImGuiDebugger::signalContinue()
 	showChangesFrameCounter = 10;
 }
 
+void ImGuiDebugger::signalQuit()
+{
+	if (reloadBreakpoints) loadSaveBreakpoints(SAVE);
+}
+
 template<typename T>
 static void openOrCreate(ImGuiManager& manager, std::vector<std::unique_ptr<T>>& viewers)
 {
@@ -147,6 +178,11 @@ void ImGuiDebugger::loadStart()
 	tileViewers.clear();
 	spriteViewers.clear();
 	hexEditors.clear();
+}
+
+void ImGuiDebugger::loadEnd()
+{
+	if (reloadBreakpoints) loadSaveBreakpoints(LOAD);
 }
 
 void ImGuiDebugger::loadLine(std::string_view name, zstring_view value)
@@ -203,7 +239,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 
 	im::Menu("Debugger", motherBoard != nullptr, [&]{
 		ImGui::MenuItem("Tool bar", nullptr, &showControl);
-		if (ImGui::MenuItem("Disassembly ...")) {
+		if (ImGui::MenuItem("Disassembly")) {
 			openOrCreate(manager, disassemblyViewers);
 		}
 		ImGui::MenuItem("CPU registers", nullptr, &showRegisters);
@@ -221,17 +257,23 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			}
 		}
 		ImGui::Separator();
-		ImGui::MenuItem("Breakpoints", nullptr, &manager.breakPoints->show);
+		im::Menu("Breakpoints", [&]{
+			ImGui::MenuItem("Editor", nullptr, &manager.breakPoints->show);
+			saveBreakpoints.menu("Save to file");
+			loadBreakpoints.menu("Load from file");
+			ImGui::Separator();
+			ImGui::MenuItem("Reload on startup", nullptr, &reloadBreakpoints);
+		});
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
 		ImGui::Separator();
-		if (ImGui::MenuItem("VDP bitmap viewer ...")) {
+		if (ImGui::MenuItem("VDP bitmap viewer")) {
 			openOrCreate(manager, bitmapViewers);
 		}
-		if (ImGui::MenuItem("VDP tile viewer ...")) {
+		if (ImGui::MenuItem("VDP tile viewer")) {
 			openOrCreate(manager, tileViewers);
 		}
-		if (ImGui::MenuItem("VDP sprite viewer ...")) {
+		if (ImGui::MenuItem("VDP sprite viewer")) {
 			openOrCreate(manager, spriteViewers);
 		}
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
@@ -242,13 +284,25 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 			auto debuggables = to_vector<std::pair<std::string, Debuggable*>>(debugger.getDebuggables());
 			std::ranges::sort(debuggables, StringOp::caseless{}, [](const auto& p) { return p.first; }); // sort on name
 			for (const auto& [name, debuggable] : debuggables) {
-				if (ImGui::Selectable(strCat(name, " ...").c_str())) {
+				if (ImGui::Selectable(strCat(name).c_str())) {
 					createHexEditor(name);
 				}
 			}
 		});
 	});
 }
+
+void ImGuiDebugger::loadSaveBreakpoints(LoadSave loadSave)
+{
+	if (breakpointFile.empty()) return;
+	try {
+		manager.execute(makeTclList(loadSave == LOAD ? "load_breakpoints" : "save_breakpoints",
+		                            breakpointFile));
+	} catch (MSXException& e) {
+		manager.getCliComm().printWarning(e.getMessage());
+	}
+}
+
 
 void ImGuiDebugger::setGotoTarget(uint16_t target)
 {

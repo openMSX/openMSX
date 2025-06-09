@@ -14,16 +14,17 @@ public:
 	ScopedAssign& operator=(const ScopedAssign&) = delete;
 	ScopedAssign& operator=(ScopedAssign&&) = delete;
 
-	[[nodiscard]] ScopedAssign(T& var_, T newValue)
-		: var(var_)
+	template<typename T2 = T>
+	[[nodiscard]] ScopedAssign(T& var_, T2&& newValue)
+		: var(var_), oldValue(std::exchange(var, std::forward<T2>(newValue)))
 	{
-		oldValue = var;
-		var = std::move(newValue);
 	}
+
 	~ScopedAssign()
 	{
 		var = std::move(oldValue);
 	}
+
 private:
 	T& var;
 	T oldValue;

@@ -615,11 +615,16 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 					static constexpr auto displayRegs = std::to_array<uint8_t>({18, 19, 23});
 					drawSection(displayRegs, registerValues, *vdp, time);
 				});
-				im::TreeNode("Access registers", &openAccess, [&]{
+			}
+			im::TreeNode("Access registers", &openAccess, [&]{
+				if (tms99x8) {
+					ImGui::StrCat("VRAM access address: 0x",
+					              hex_string<4>(vdp->getVramPointer()), '\n');
+				} else {
 					static constexpr auto accessRegs = std::to_array<uint8_t>({14, 15, 16, 17});
 					drawSection(accessRegs, registerValues, *vdp, time);
-				});
-			}
+				}
+			});
 			if (v9958) {
 				im::TreeNode("V9958 registers", &openV9958, [&]{
 					static constexpr auto v9958Regs = std::to_array<uint8_t>({25, 26, 27});

@@ -35,18 +35,28 @@ public:
 
 	// constructors
 	constexpr EmuDuration() = default;
-	constexpr explicit EmuDuration(uint64_t n) : time(n) {}
-	constexpr explicit EmuDuration(double duration)
-		: time(uint64_t(duration * MAIN_FREQ + 0.5)) {}
+	constexpr explicit EmuDuration(std::unsigned_integral auto n) : time(n) {}
 
-	static constexpr EmuDuration sec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ); }
-	static constexpr EmuDuration msec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ / 1000); }
-	static constexpr EmuDuration usec(unsigned x)
-		{ return EmuDuration(x * MAIN_FREQ / 1000000); }
-	static constexpr EmuDuration hz(unsigned x)
-		{ return EmuDuration(MAIN_FREQ / x); }
+	static constexpr EmuDuration sec(std::integral auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ)); }
+	static constexpr EmuDuration sec(std::floating_point auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ + 0.5)); }
+	static constexpr EmuDuration msec(std::integral auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000)); }
+	static constexpr EmuDuration msec(std::floating_point auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e3 + 0.5)); }
+	static constexpr EmuDuration usec(std::integral auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000)); }
+	static constexpr EmuDuration usec(std::floating_point auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e6 + 0.5)); }
+	static constexpr EmuDuration nsec(std::integral auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1000000000)); }
+	static constexpr EmuDuration nsec(std::floating_point auto x)
+		{ return EmuDuration(uint64_t(x * MAIN_FREQ / 1e9 + 0.5)); }
+	static constexpr EmuDuration hz(std::integral auto x)
+		{ return EmuDuration(uint64_t(MAIN_FREQ / x)); }
+	static constexpr EmuDuration hz(std::floating_point auto x)
+		{ return EmuDuration(uint64_t(MAIN_FREQ / x + 0.5)); }
 
 	// conversions
 	[[nodiscard]] constexpr double toDouble() const { return double(time) * RECIP_MAIN_FREQ; }

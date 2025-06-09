@@ -1,0 +1,121 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Philips</manufacturer>
+    <code>NMS 8245/19</code>
+    <release_year>1986</release_year>
+    <description>European MSX2 with 128kB RAM and double sided disk drive. Version with French keyboard.</description>
+    <type>MSX2</type>
+    <region>fr</region>
+  </info>
+
+  <!-- Assuming it's the same as the international Philips NMS 8245/00, but
+       then with French ROMs and keyboard.
+
+       Based on the ROM dumps of the machines from Jipe, see
+       https://msx.org/forum/msx-talk/emulation/roms-du-nms8245-fr
+  -->
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="8"/> <!-- S-3527 mirrors -->
+      <keyboard_type>fr</keyboard_type>
+      <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>V9938</version>
+      <vram>128</vram>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
+    </PSG>
+
+    <RTC id="Real time clock">
+      <sramname>nms_8245_19.cmos</sramname>
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="8" type="IO"/> <!-- S-3527 mirrors -->
+      <status_readable_on_all_ports>true</status_readable_on_all_ports> <!-- S-3527 property -->
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>nms8245_19_basic-bios2.rom</filename>
+          <sha1>b034764e6a8978db60b1d652917f5e24a66a7925</sha1> <!-- based on 1.06 ROM set by Jipe -->
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>nms8245_19_msx2sub.rom</filename>
+            <sha1>fd4bcc81a8160a1dea06036c5f79d200f948f4d6</sha1> <!-- based on 1.06 ROM set -->
+          </rom>
+          <mem base="0x0000" size="0x4000"/> <!-- Note: NO mirroring at all! -->
+        </ROM>
+      </secondary>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <size>128</size>
+          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent> <!-- (chr(0) + chr(255)) * 128 + (chr(255)+ chr(0)) * 128), also seen is 00FF -->
+          <mem base="0x0000" size="0x10000"/>
+        </MemoryMapper>
+      </secondary>
+
+      <secondary slot="3">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
+          <mem base="0x4000" size="0x8000"/>
+          <!-- Verified on real 8245: rom only visible in page1, FDC registers
+               in both page 1 and 2. This is different from a 8250! -->
+          <rom_visibility base="0x4000" size="0x4000"/> <!-- ROM only visible in page 1 -->
+          <drives>1</drives>
+          <rom>
+            <filename>nms8245_19_disk.rom</filename>
+            <sha1>48f92795133fec19c555bbb95c9696a56f7a585b</sha1> <!-- marked NMS 8245 1.06, so this is probably the same as the 1.06 EPROM (registers are cleared) -->
+          </rom>
+        </WD2793>
+      </secondary>
+
+    </primary>
+
+  </devices>
+
+</msxconfig>

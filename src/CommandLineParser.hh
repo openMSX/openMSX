@@ -134,6 +134,11 @@ private:
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} machineOption;
 
+	struct SetupOption final : CLIOption {
+		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
+		[[nodiscard]] std::string_view optionHelp() const override;
+	} setupOption;
+
 	struct SettingOption final : CLIOption {
 		void parseOption(const std::string& option, std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;

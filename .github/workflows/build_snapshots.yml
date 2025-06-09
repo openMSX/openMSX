@@ -79,7 +79,8 @@ jobs:
       if: ${{ matrix.xcode_version }}
       run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version }}.app/Contents/Developer
     - name: Preparations for signing binaries on Darwin builds
-      if: ${{ matrix.os == 'darwin' }}
+      # Don't fail build for pull requests if vars and secrets are not defined.
+      if: ${{ matrix.os == 'darwin' && vars.CODE_SIGN_IDENTITY }}
       uses: ./.github/actions/prepare-sign
       env:
         BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -88,8 +89,8 @@ jobs:
       with:
         os: ${{ matrix.os }}
     - name: Perform the actual build
-      env: 
-        CODE_SIGN_IDENTITY: ${{ secrets.BUILD_CERTIFICATE_BASE64 && '748867M822' }}
+      env:
+        CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY }}
       # Directory name only
       uses: ./.github/actions/build
       with:

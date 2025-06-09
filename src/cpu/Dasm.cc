@@ -81,7 +81,8 @@ unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
 			i += 1;
 			break;
 		case 'Y':
-			strAppend(dest, r, sign(opcode[2]), '#', hex_string<2>(abs(opcode[2])));
+			strAppend(dest, '(', r, sign(opcode[2]), '#',
+			     hex_string<2>(abs(opcode[2])), ')');
 			break;
 		case 'I':
 			dest += r;
