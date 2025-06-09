@@ -34,7 +34,7 @@ public:
 		SST = 0xBF,
 	};
 
-	struct AutoSelect final {
+	struct AutoSelect {
 		ManufacturerID manufacturer;
 		static_vector<uint8_t, 2> device; // single-byte or double-byte (0x7E prefix)
 		uint16_t extraCode = 0x0000;      // code at 3rd index
@@ -55,12 +55,12 @@ public:
 		x8x16 = 0x0002,
 	};
 
-	struct Region final {
+	struct Region {
 		size_t count = 0;
 		power_of_two<size_t> size = 1;
 	};
 
-	struct Geometry final {
+	struct Geometry {
 		constexpr Geometry(DeviceInterface deviceInterface_, std::initializer_list<Region> regions_,
 			int writeProtectPinRange_ = 0)
 			: deviceInterface(deviceInterface_)
@@ -83,7 +83,7 @@ public:
 		}
 	};
 
-	struct Program final {
+	struct Program {
 		bool fastCommand : 1 = false;
 		bool bufferCommand : 1 = false;
 		bool shortAbortReset : 1 = false;
@@ -95,35 +95,35 @@ public:
 		}
 	};
 
-	struct CFI final {
+	struct CFI {
 		bool command : 1 = false;
 		bool withManufacturerDevice : 1 = false; // < 0x10 contains mfr / device
 		bool withAutoSelect : 1 = false;         // < 0x10 contains autoselect
 		bool exitCommand : 1 = false;            // also exit by writing 0xFF
 		size_t commandMask = 0xFF;               // command address mask
 		size_t readMask = 0x7F;                  // read address mask
-		struct SystemInterface final {
-			struct Supply final {
+		struct SystemInterface {
+			struct Supply {
 				uint8_t minVcc = 0;
 				uint8_t maxVcc = 0;
 				uint8_t minVpp = 0;
 				uint8_t maxVpp = 0;
 			} supply = {};
-			struct TypicalTimeout final {
+			struct TypicalTimeout {
 				power_of_two<unsigned> singleProgram = 1;
 				power_of_two<unsigned> multiProgram = 1;
 				power_of_two<unsigned> sectorErase = 1;
 				power_of_two<unsigned> chipErase = 1;
 			} typTimeout = {};
-			struct MaxTimeoutMultiplier final {
+			struct MaxTimeoutMultiplier {
 				power_of_two<unsigned> singleProgram = 1;
 				power_of_two<unsigned> multiProgram = 1;
 				power_of_two<unsigned> sectorErase = 1;
 				power_of_two<unsigned> chipErase = 1;
 			} maxTimeoutMult = {};
 		} systemInterface = {};
-		struct PrimaryAlgorithm final {
-			struct Version final {
+		struct PrimaryAlgorithm {
+			struct Version {
 				uint8_t major = 0;
 				uint8_t minor = 0;
 			} version = {};
@@ -136,7 +136,7 @@ public:
 			uint8_t simultaneousOperation = 0;
 			uint8_t burstMode = 0;
 			uint8_t pageMode = 0;
-			struct Supply final {
+			struct Supply {
 				uint8_t minAcc = 0;
 				uint8_t maxAcc = 0;
 			} supply = {};
@@ -149,7 +149,7 @@ public:
 		}
 	};
 
-	struct Misc final {
+	struct Misc {
 		bool statusCommand : 1 = false;
 		bool continuityCommand : 1 = false;
 
@@ -158,7 +158,7 @@ public:
 		}
 	};
 
-	struct Chip final {
+	struct Chip {
 		AutoSelect autoSelect;
 		Geometry geometry;
 		Program program = {};
@@ -174,7 +174,7 @@ public:
 		}
 	};
 
-	struct ValidatedChip final {
+	struct ValidatedChip {
 		constexpr ValidatedChip(const Chip& chip_) : chip(chip_) {
 			chip.validate();
 		}
@@ -223,7 +223,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 //private:
-	struct AddressValue final {
+	struct AddressValue {
 		size_t addr;
 		uint8_t value;
 
@@ -235,7 +235,7 @@ public:
 
 	enum class State : uint8_t { IDLE, IDENT, CFI, STATUS, PRGERR };
 
-	struct Sector final {
+	struct Sector {
 		size_t address;
 		power_of_two<size_t> size;
 		bool writeProtect;
