@@ -94,7 +94,7 @@ public:
 	[[nodiscard]] FrameSource* getPaintFrame() const { return paintFrame; }
 
 	// VideoLayer
-	void takeRawScreenShot(unsigned height, const std::string& filename) override;
+	void takeRawScreenShot(std::optional<unsigned> height, const std::string& filename) override;
 
 	[[nodiscard]] CliComm& getCliComm();
 

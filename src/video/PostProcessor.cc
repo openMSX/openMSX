@@ -159,16 +159,23 @@ static void getScaledFrame(const FrameSource& paintFrame,
 	}
 }
 
-void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filename)
+void PostProcessor::takeRawScreenShot(std::optional<unsigned> desiredHeight, const std::string& filename)
 {
 	if (!paintFrame) {
 		throw CommandException("TODO");
 	}
 
-	inplace_buffer<const FrameSource::Pixel*, 480> lines(uninitialized_tag{}, height2);
+	const unsigned targetHeight = desiredHeight ? *desiredHeight : [this] {
+		auto maxLineWidth = getLineWidth(paintFrame, 0, paintFrame->getHeight());
+		if (maxLineWidth == 320) return 240;
+		// in all other cases (there could be other than 640), we go for 640x480
+		return 480;
+	}();
+
+	inplace_buffer<const FrameSource::Pixel*, 480> lines(uninitialized_tag{}, targetHeight);
 	WorkBuffer workBuffer;
 	getScaledFrame(*paintFrame, lines, workBuffer);
-	unsigned width = (height2 == 240) ? 320 : 640;
+	unsigned width = (targetHeight == 240) ? 320 : 640;
 	PNG::saveRGBA(width, lines, filename);
 }
 

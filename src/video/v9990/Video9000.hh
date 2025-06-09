@@ -39,7 +39,7 @@ private:
 
 	// VideoLayer
 	void paint(OutputSurface& output) override;
-	void takeRawScreenShot(unsigned height, const std::string& filename) override;
+	void takeRawScreenShot(std::optional<unsigned> height, const std::string& filename) override;
 
 	// EventListener
 	bool signalEvent(const Event& event) override;

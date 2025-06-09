@@ -116,7 +116,7 @@ void Video9000::paint(OutputSurface& output)
 	activeLayer->paint(output);
 }
 
-void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
+void Video9000::takeRawScreenShot(std::optional<unsigned> height, const std::string& filename)
 {
 	auto* layer = dynamic_cast<VideoLayer*>(activeLayer);
 	if (!layer) {
