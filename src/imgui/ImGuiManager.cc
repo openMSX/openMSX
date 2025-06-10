@@ -27,6 +27,8 @@
 #include "ImGuiWatchExpr.hh"
 #include "ImGuiWaveViewer.hh"
 
+#include "ImGuiJapaneseGryph.hh"
+
 #include "CartridgeSlotManager.hh"
 #include "CommandException.hh"
 #include "Display.hh"
@@ -74,26 +76,34 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
 			file.read(ttfData);
 
-			static const std::array<ImWchar, 2*6 + 1> ranges = {
-				0x0020, 0x00FF, // Basic Latin + Latin Supplement
-				0x0370, 0x03FF, // Greek and Coptic
-				0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
-				//0x0E00, 0x0E7F, // Thai
-				//0x2000, 0x206F, // General Punctuation
-				//0x2DE0, 0x2DFF, // Cyrillic Extended-A
-				0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
-				0x3131, 0x3163, // Korean alphabets
-				0x31F0, 0x31FF, // Katakana Phonetic Extensions
-				//0x4e00, 0x9FAF, // CJK Ideograms
-				//0xA640, 0xA69F, // Cyrillic Extended-B
-				//0xAC00, 0xD7A3, // Korean characters
-				//0xFF00, 0xFFEF, // Half-width characters
-				0
-			};
-			return io.Fonts->AddFontFromMemoryTTF(
-				ttfData.data(), // transfer ownership of 'ttfData' buffer
-				narrow<int>(ttfData.size()), narrow<float>(fontSize),
-				nullptr, ranges.data());
+			if (fontJapanese.getBoolean()) {
+				return io.Fonts->AddFontFromMemoryTTF(
+					ttfData.data(), // transfer ownership of 'ttfData' buffer
+					narrow<int>(ttfData.size()), narrow<float>(fontSize),
+					nullptr, imgui_glyphRangesJapanese);
+			}
+			else {
+				static const std::array<ImWchar, 2 * 6 + 1> ranges = {
+					0x0020, 0x00FF, // Basic Latin + Latin Supplement
+					0x0370, 0x03FF, // Greek and Coptic
+					0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+					//0x0E00, 0x0E7F, // Thai
+					//0x2000, 0x206F, // General Punctuation
+					//0x2DE0, 0x2DFF, // Cyrillic Extended-A
+					0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
+					0x3131, 0x3163, // Korean alphabets
+					0x31F0, 0x31FF, // Katakana Phonetic Extensions
+					//0x4e00, 0x9FAF, // CJK Ideograms
+					//0xA640, 0xA69F, // Cyrillic Extended-B
+					//0xAC00, 0xD7A3, // Korean characters
+					//0xFF00, 0xFFEF, // Half-width characters
+					0
+				};
+				return io.Fonts->AddFontFromMemoryTTF(
+					ttfData.data(), // transfer ownership of 'ttfData' buffer
+					narrow<int>(ttfData.size()), narrow<float>(fontSize),
+					nullptr, ranges.data());
+			}
 		} catch (MSXException& e) {
 			getCliComm().printWarning("Couldn't load font: ", filename, ": ", e.getMessage(),
 						". Reverted to builtin font");
@@ -162,6 +172,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
 	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
+	, fontJapanese(reactor.getCommandController(), "gui_font_japanese_gryph", "Use Japanese gryph in GUI", true)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	parts.push_back(this);
@@ -236,6 +247,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoFilename.attach(*this);
 	fontPropSize.attach(*this);
 	fontMonoSize.attach(*this);
+	fontJapanese.attach(*this);
 }
 
 ImGuiManager::~ImGuiManager()
@@ -244,6 +256,7 @@ ImGuiManager::~ImGuiManager()
 	fontPropSize.detach(*this);
 	fontMonoFilename.detach(*this);
 	fontPropFilename.detach(*this);
+	fontJapanese.detach(*this);
 
 	auto& eventDistributor = reactor.getEventDistributor();
 	using enum EventType;

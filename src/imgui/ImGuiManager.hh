@@ -9,6 +9,7 @@
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 #include "Reactor.hh"
 #include "RomTypes.hh"
 #include "TclObject.hh"
@@ -133,6 +134,7 @@ public:
 	FilenameSetting fontMonoFilename;
 	IntegerSetting fontPropSize;
 	IntegerSetting fontMonoSize;
+	BooleanSetting fontJapanese;
 	ImFont* fontProp = nullptr;
 	ImFont* fontMono = nullptr;
 
