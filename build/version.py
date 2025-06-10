@@ -30,7 +30,7 @@ releaseFlag = False
 # Release year for copyright message. Make sure to update it when releasing.
 # (Or just when a new year arrives?)
 # Automatically taking current year doesn't seem to be correct.
-releaseYear = '2024'
+releaseYear = '2025'
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)
