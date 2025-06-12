@@ -177,9 +177,10 @@ def replaceEvents(inp, out, inputEvents):
 		# IDs must be unique for the entire document. We look for the highest
 		# in-use ID and generate new IDs counting up from there.
 		baseID = max(
-			int(elem.attrib['id'])
+			int(id_val)
 			for elem in doc.iterfind('.//*[@id]')
-			) + 1
+			if (id_val := elem.attrib['id']).isdecimal()
+		) + 1
 
 		def createEvent(i, time):
 			itemElem = SubElement(eventsElem, 'item',
