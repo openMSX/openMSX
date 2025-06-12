@@ -3,7 +3,6 @@
 from collections import defaultdict
 from datetime import datetime
 from gzip import GzipFile
-from io import TextIOWrapper
 from sys import stderr
 from xml.etree.ElementTree import SubElement, parse as parseXML
 
