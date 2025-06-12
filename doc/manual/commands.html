@@ -1897,7 +1897,7 @@
   <table>
     <tr>
       <td>
-        <code>screenshot [-with-osd] [-raw [-doublesize]] [-no-sprites] [-prefix &lt;prefix&gt;] [&lt;filename&gt;]</code>
+        <code>screenshot [-with-osd] [-raw [-size &lt;width&gt;]] [-no-sprites] [-prefix &lt;prefix&gt;] [&lt;filename&gt;]</code>
       </td>
     </tr>
   </table>
@@ -1924,7 +1924,15 @@
       <td>Create screenshot of the raw MSX screen only (so no icons or console and no scaling)</td>
     </tr>
     <tr>
-      <td><code>screenshot -raw -doublesize</code></td>
+      <td><code>screenshot -raw -size auto</code></td>
+      <td>Create screenshot of the raw MSX screen only, with resolution dependent on the displayed MSX screen mode</td>
+    </tr>
+    <tr>
+      <td><code>screenshot -raw -size 320</code></td>
+      <td>Create screenshot of the raw MSX screen only, with resolution 320&times;240</td>
+    </tr>
+    <tr>
+      <td><code>screenshot -raw -size 640</code></td>
       <td>Create screenshot of the raw MSX screen only, with resolution 640&times;480</td>
     </tr>
     <tr>
