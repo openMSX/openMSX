@@ -365,7 +365,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		}
 
 		std::string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
-		if (oldChecksum != newChecksum) {
+		if (oldChecksum != newChecksum && scheduler && scheduler->getCurrentTime() != EmuTime::zero()) {
 			controller.getCliComm().printWarning(
 				"The content of the disk image ",
 				diskName.getResolved(),

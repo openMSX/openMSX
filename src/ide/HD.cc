@@ -293,7 +293,7 @@ void HD::serialize(Archive& ar, unsigned version)
 		}
 
 		if constexpr (Archive::IS_LOADER) {
-			if (mismatch) {
+			if (mismatch && motherBoard.getCurrentTime() != EmuTime::zero()) {
 				motherBoard.getMSXCliComm().printWarning(
 					"The content of the hard disk ",
 					tmp.getResolved(),
