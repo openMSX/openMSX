@@ -67,9 +67,6 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 						try {
 							auto& reactor = manager.getReactor();
 							reactor.switchMachineFromSetup(previewSetup.fullName);
-							if (setSetupAsDefault) {
-								reactor.getDefaultSetupSetting().setString(previewSetup.name);
-							}
 						} catch (MSXException& e) {
 							// this will be very rare, don't bother showing the error
 							previewSetup.lastExceptionMessage = e.getMessage();
@@ -224,12 +221,17 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				if (ImGui::Button("Save")) {
 					ImGui::CloseCurrentPopup();
 
-					auto action = [manager = &manager, saveSetupName = saveSetupName, saveSetupDepth = saveSetupDepth] {
-						if (auto motherBoard_ = manager->getReactor().getMotherBoard()) {
+					auto action = [this, motherBoard] {
+						if (motherBoard) {
 							// pass full filename
 							auto filename = FileOperations::parseCommandFileArgument(
 								saveSetupName, Reactor::SETUP_DIR, "", Reactor::SETUP_EXTENSION);
-							motherBoard_->storeAsSetup(filename, saveSetupDepth);
+							motherBoard->storeAsSetup(filename, saveSetupDepth);
+							manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
+							if (setSetupAsDefault) {
+								manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
+							}
+							setSetupAsDefault = false;
 						}
 					};
 					auto delayedAction = [manager = &manager, action] {
@@ -241,11 +243,6 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 							delayedAction);
 					} else {
 						delayedAction();
-						manager.getCliComm().printInfo(strCat("Setup saved to ", saveSetupName));
-						if (setSetupAsDefault) {
-							manager.getReactor().getDefaultSetupSetting().setString(saveSetupName);
-						}
-						setSetupAsDefault = false;
 					}
 				}
 				ImGui::Checkbox("Set as default", &setSetupAsDefault);
