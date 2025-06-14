@@ -79,6 +79,12 @@ RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 		auto& cpuInterface = getCPUInterface();
 		cpuInterface.register_IO_Out_range(0x10, 2, this);
 		cpuInterface.register_IO_In(0x12, this);
+
+		if (type == RomType::HAMARAJANIGHT) {
+			// this cartridge seems to have a much louder PSG than normal
+			// TODO: find out if it's the same for Manbow 2 2nd release
+			psg->setSoftwareVolume(5.0f, getCurrentTime());
+		}
 	}
 }
 
