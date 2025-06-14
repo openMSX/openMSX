@@ -159,10 +159,12 @@ void FileListWidget::drawTable()
 			}
 		}
 
+		std::cerr << "Begin loop over entries ------------------------------------------------- " <<  std::endl;
 		for (const auto& entry : entries) {
 			if (ImGui::TableNextColumn()) {
 				imColor color = displayColor ? displayColor(entry) : imColor::TEXT;
 				im::StyleColor(ImGuiCol_Text, getColor(color), [&]{
+					std::cerr << "Name column: text " << displayName(entry) << std::endl;
 					if (ImGui::Selectable(displayName(entry).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap | (doubleClickAction ? ImGuiSelectableFlags_AllowDoubleClick : 0))) {
 						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
 							doubleClickAction(entry);
@@ -190,8 +192,11 @@ void FileListWidget::drawTable()
 			if (ImGui::TableNextColumn()) {
 				ImGui::TextUnformatted(formatFileAbbreviated(entry.ftime));
 				simpleToolTip([&] { return formatFileTimeFull(entry.ftime); });
+				std::cerr << "Date/time column: text " << formatFileAbbreviated(entry.ftime) << ", tooltip: " << formatFileTimeFull(entry.ftime) <<  std::endl;
 			}
-	}});
+		}
+		std::cerr << "End loop over entries ------------------------------------------------- " <<  std::endl;
+	});
 	confirmDelete.execute();
 }
 
