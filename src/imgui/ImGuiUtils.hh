@@ -155,8 +155,8 @@ inline bool ButtonWithCenteredGlyph(ImWchar glyph, gl::vec2 maxGlyphSize)
 
 	return ButtonWithCustomRendering(label.data(), buttonSize, [&](gl::vec2 center, ImDrawList* drawList) {
 		auto* font = ImGui::GetFont();
-		auto texId = font->ContainerAtlas->TexID;
-		const auto* g = font->FindGlyph(glyph);
+		auto texId = font->ContainerAtlas->TexRef;
+		const auto* g = font->GetFontBaked(ImGui::GetFontSize())->FindGlyph(glyph);
 		auto halfSize = gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0} * 0.5f;
 		drawList->AddImage(texId, center - halfSize, center + halfSize, {g->U0, g->V0}, {g->U1, g->V1});
 	});

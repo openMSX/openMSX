@@ -263,7 +263,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ gl::vec2 drawPos = topLeft + gl::vec2(style.FramePadding);
 		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
 		/**/ auto* drawList = ImGui::GetWindowDrawList();
-		/**/ auto charWidth = ImGui::GetFont()->GetCharAdvance('A'); // assumes fixed-width font
+		/**/ auto charWidth = font->GetFontBaked(fontSize)->GetCharAdvance('A'); // assumes fixed-width font
 		/**/ if (ImGui::IsItemActive()) {
 		/**/	auto id = ImGui::GetID("##Input");
 		/**/	if (const auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!

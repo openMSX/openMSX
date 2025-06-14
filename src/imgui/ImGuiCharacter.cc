@@ -521,7 +521,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 					auto rowsCeil = int(ceilf(rows));
 					auto numChars = rowsCeil * columns;
 					drawList->PushClipRect(scrnPos, scrnPos + hostSize, true);
-					drawList->PushTextureID(patternTex.getImGui());
+					drawList->PushTexture(patternTex.getImGui());
 					drawList->PrimReserve(6 * numChars, 4 * numChars);
 					for (auto row : xrange(rowsCeil)) {
 						for (auto column : xrange(columns)) {
@@ -532,9 +532,9 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 							drawList->PrimRectUV(p1, p2, uv1, uv2, 0xffffffff);
 						}
 					}
-					drawList->PopTextureID();
+					drawList->PopTexture();
 					if (nameTableOverlay) {
-						drawList->PushTextureID(smallHexDigits.getImGui());
+						drawList->PushTexture(smallHexDigits.getImGui());
 						drawList->PrimReserve(12 * numChars, 8 * numChars);
 						static constexpr gl::vec2 digitSize{5.0f, 8.0f};
 						static constexpr float texDigitWidth = 1.0f / 16.0f;
@@ -551,7 +551,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 								drawList->PrimRectUV(p2, p2 + digitSize, uv2, uv2 + texDigitSize, 0xffffffff);
 							}
 						}
-						drawList->PopTextureID();
+						drawList->PopTexture();
 					}
 					drawList->PopClipRect();
 				}

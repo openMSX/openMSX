@@ -136,13 +136,13 @@ inline bool Child(const char* str_id, std::invocable<> auto next)
 // im::Font(): wrapper around ImGui::PushFont() / ImGui::PopFont()
 inline void Font(ImFont* font, std::invocable<> auto next)
 {
-	ImGui::PushFont(font);
+	ImGui::PushFont(font, font->LegacySize);
 	next();
 	ImGui::PopFont();
 }
 // Same functionality as im::Font(), but different usage (sometimes one sometimes the other is easier).
 struct ScopedFont {
-	explicit ScopedFont(ImFont* font) { ImGui::PushFont(font); }
+	explicit ScopedFont(ImFont* font) { ImGui::PushFont(font, font->LegacySize); }
 	~ScopedFont() { ImGui::PopFont(); }
 
 	ScopedFont(const ScopedFont&) = delete;
