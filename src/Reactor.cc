@@ -457,7 +457,7 @@ void Reactor::createDefaultMachineAndSetupSettings()
 	defaultSetupSetting = make_unique<StringSetting>(
 		*globalCommandController, "default_setup",
 		"default setup (takes effect next time openMSX is started)",
-		DEFAULT_SETUP_NAME);
+		"");
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
