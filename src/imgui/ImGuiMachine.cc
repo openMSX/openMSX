@@ -167,18 +167,18 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			};
 
 			auto depthNodeNameForCombo = [&](SetupDepth depth){
-				return tmpStrCat(depth == one_of(NONE, MACHINE) ? "" : "+ ", depthNodeNames[depth]).c_str();
+				return tmpStrCat(depth == one_of(NONE, MACHINE) ? "" : "+ ", depthNodeNames[depth]);
 			};
 
 			SetupDepth selectedDepth = currentDepth;
-			im::Combo(displayText.c_str(), depthNodeNameForCombo(currentDepth), [&]{
+			im::Combo(displayText.c_str(), depthNodeNameForCombo(currentDepth).c_str(), [&]{
 				const auto indent = ImGui::CalcTextSize("m").x;
 				for (auto d_ : xrange(std::to_underlying(includeNone ? NONE : MACHINE), std::to_underlying(NUM))) {
 					const auto d = static_cast<SetupDepth>(d_);
 					if (d != one_of(NONE, MACHINE)) {
 						ImGui::Indent(indent);
 					}
-					if (ImGui::Selectable(depthNodeNameForCombo(d))) {
+					if (ImGui::Selectable(depthNodeNameForCombo(d).c_str())) {
 						selectedDepth = d;
 					}
 					simpleToolTip(helpText[d]);
