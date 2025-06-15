@@ -20,6 +20,19 @@
 #include <string_view>
 #include <vector>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef NOGDI
+#define NOGDI
+#endif
+
+#include <windows.h>
+#include <imm.h>
+#endif // _WIN32
+
 namespace openmsx {
 
 class MSXMotherBoard;
@@ -215,6 +228,24 @@ private:
 		} state = IDLE;
 	} capsLockAligner;
 
+	class ImeManager final : private EventListener {
+	public:
+		ImeManager(EventDistributor& eventDistributor);
+		~ImeManager();
+
+	private:
+		// EventListener
+		bool signalEvent(const Event& event) override;
+
+	private:
+		EventDistributor& eventDistributor;
+
+	#if defined(_WIN32)
+		HIMC hImc;
+	#endif
+
+	} imeManager;
+
 	KeyboardSettings keyboardSettings;
 
 	class MsxKeyEventQueue final : public Schedulable {
@@ -261,6 +292,13 @@ private:
 	std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> hostKeyMatrix;
 	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable std::array<uint8_t, KeyMatrixPosition::NUM_ROWS> keyMatrix;
+
+#define USE_KEYPRESSCNT 1 // Test introduction. Refactoring required
+#if USE_KEYPRESSCNT
+	/** keyboard matrix press counter for multi key bind. */
+	std::array<std::array<int8_t, KeyMatrixPosition::NUM_COLS>, KeyMatrixPosition::NUM_ROWS> cntKeyMatrix;
+#endif //USE_KEYPRESSCNT
+
 
 	uint8_t msxModifiers = 0xff;
 
