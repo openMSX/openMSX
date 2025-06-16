@@ -215,7 +215,7 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 		ranges::iota(regs, byte(0));
 	}
 
-	sccMode = 0;
+	sccModeReg = 0;
 	ranges::iota(sccBanks, byte(0));
 	scc.reset(time);
 
@@ -227,14 +227,14 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	invalidateDeviceRCache(); // flush all to be sure
 }
 
-MegaFlashRomSCCPlus::SCCEnable MegaFlashRomSCCPlus::getSCCEnable() const
+MegaFlashRomSCCPlus::SCCMode MegaFlashRomSCCPlus::getSCCMode() const
 {
-	if ((sccMode & 0x20) && (sccBanks[3] & 0x80)) {
-		return EN_SCCPLUS;
-	} else if ((!(sccMode & 0x20)) && ((sccBanks[2] & 0x3F) == 0x3F)) {
-		return EN_SCC;
+	if ((sccModeReg & 0x20) && (sccBanks[3] & 0x80)) {
+		return SCCMode::SCCPLUS;
+	} else if ((!(sccModeReg & 0x20)) && ((sccBanks[2] & 0x3F) == 0x3F)) {
+		return SCCMode::SCC;
 	} else {
-		return EN_NONE;
+		return SCCMode::NONE;
 	}
 }
 
@@ -278,9 +278,9 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 	}
 
 	if ((configReg & 0xE0) == 0x00) {
-		SCCEnable enable = getSCCEnable();
-		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+		auto mode = getSCCMode();
+		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 			return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 		}
 	}
@@ -305,9 +305,9 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 	}
 
 	if ((configReg & 0xE0) == 0x00) {
-		SCCEnable enable = getSCCEnable();
-		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+		auto mode = getSCCMode();
+		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 			return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
 		}
 	}
@@ -333,9 +333,9 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 	}
 
 	if ((configReg & 0xE0) == 0x00) {
-		SCCEnable enable = getSCCEnable();
-		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+		auto mode = getSCCMode();
+		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 			return nullptr;
 		}
 	}
@@ -378,19 +378,19 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	if ((configReg & 0xE0) == 0x00) {
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
-			sccMode = value;
+			sccModeReg = value;
 			scc.setMode((value & 0x20) ? SCC::Mode::Plus
 			                           : SCC::Mode::Compatible);
 			invalidateDeviceRCache(0x9800, 0x800);
 			invalidateDeviceRCache(0xB800, 0x800);
 		}
-		SCCEnable enable = getSCCEnable();
-		bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
-		                     ((sccMode & 0x10) == 0x10);
-		bool isRamSegment3 = ((sccMode & 0x10) == 0x10);
-		if (((enable == EN_SCC)     && !isRamSegment2 &&
+		auto mode = getSCCMode();
+		bool isRamSegment2 = ((sccModeReg & 0x24) == 0x24) ||
+		                     ((sccModeReg & 0x10) == 0x10);
+		bool isRamSegment3 = ((sccModeReg & 0x10) == 0x10);
+		if (((mode == SCCMode::SCC)     && !isRamSegment2 &&
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
-		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
+		    ((mode == SCCMode::SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc.writeMem(narrow_cast<uint8_t>(addr & 0xFF), value, time);
 			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
@@ -516,7 +516,7 @@ void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 	             "subslotReg", subslotReg,
 	             "bankRegs",   bankRegs,
 	             "psgLatch",   psgLatch,
-	             "sccMode",    sccMode,
+	             "sccMode",    sccModeReg,
 	             "sccBanks",   sccBanks);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlus);

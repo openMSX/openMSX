@@ -33,8 +33,8 @@ public:
 private:
 	[[nodiscard]] byte readMem2(word addr, EmuTime::param time);
 
-	enum SCCEnable : uint8_t { EN_NONE, EN_SCC, EN_SCCPLUS };
-	[[nodiscard]] SCCEnable getSCCEnable() const;
+	enum class SCCMode { NONE, SCC, SCCPLUS };
+	[[nodiscard]] SCCMode getSCCMode() const;
 
 	[[nodiscard]] unsigned getSubslot(unsigned address) const;
 	[[nodiscard]] unsigned getFlashAddr(unsigned addr) const;
@@ -49,7 +49,7 @@ private:
 	byte subslotReg;
 	std::array<std::array<byte, 4>, 4> bankRegs;
 	byte psgLatch;
-	byte sccMode;
+	byte sccModeReg;
 	std::array<byte, 4> sccBanks;
 };
 
