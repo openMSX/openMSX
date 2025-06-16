@@ -62,15 +62,22 @@ Main features:
 [REGISTERS]
 
  -#7FFE or #7FFF = CONFIGURATION REGISTER:
-    7 mapper mode 1: \ %00 = SCC,  %01 = 64K
+    7 mapper mode 1: \ %00 = Konami/Konami-SCC,  %01 = 64K
     6 mapper mode 0: / %10 = ASC8, %11 = ASC16
-    5 mapper mode  :   Select Konami mapper (0 = SCC, 1 = normal)
+    5 mapper mode  :   Select Konami mapper (0 = SCC, 1 = normal) [1]
     4 Enable subslot mode and register #FFFF (1 = Enable, 0 = Disable)
     3 Disable #4000-#5FFF mapper in Konami mode (0 = Enable, 1 = Disable)
     2 Disable configuration register (1 = Disabled)
     1 Disable mapper registers (0 = Enable, 1 = Disable)
     0 Enable 512K mapper limit in SCC mapper or 256K limit in Konami mapper
 (1 = Enable, 0 = Disable)
+
+[1] bit 5 only changes the address range of the mapper (Konami or Konami SCC)
+but the SCC is always available.  This is done for the subslot mode because all
+subslots share the same mapper type. So to make Konami combinations (i.e.:
+Konami ROM with Konami SCC ROM) a "common mapper" is needed and the SCC must be
+available. So I made a "Konami mapper" with SCC.  In fact, all Konami and
+Konami SCC ROMs should work with "Konami" mapper.
 
 
 --------------------------------------------------------------------------------
@@ -270,6 +277,13 @@ unsigned MegaFlashRomSCCPlus::getFlashAddr(unsigned addr) const
 	return ((0x40000 * subslot) + tmp) & 0xFFFFF; // wrap at 1MB
 }
 
+bool MegaFlashRomSCCPlus::isSCCAccessEnabled() const
+{
+	// In both Konami and Konami SCC mappers the SCC is available (see note
+	// above)
+	return (configReg & 0xE0) == one_of(0x00, 0x20);
+}
+
 byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 {
 	if ((configReg & 0x10) && (addr == 0xFFFF)) {
@@ -277,7 +291,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 		return subslotReg ^ 0xFF;
 	}
 
-	if ((configReg & 0xE0) == 0x00) {
+	if (isSCCAccessEnabled()) {
 		auto mode = getSCCMode();
 		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
@@ -304,7 +318,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 		return subslotReg ^ 0xFF;
 	}
 
-	if ((configReg & 0xE0) == 0x00) {
+	if (isSCCAccessEnabled()) {
 		auto mode = getSCCMode();
 		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
@@ -332,7 +346,7 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 		return nullptr;
 	}
 
-	if ((configReg & 0xE0) == 0x00) {
+	if (isSCCAccessEnabled()) {
 		auto mode = getSCCMode();
 		if (((mode == SCCMode::SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((mode == SCCMode::SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
@@ -375,7 +389,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		invalidateDeviceRCache(); // flush all to be sure
 	}
 
-	if ((configReg & 0xE0) == 0x00) {
+	if (isSCCAccessEnabled()) {
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
 			sccModeReg = value;

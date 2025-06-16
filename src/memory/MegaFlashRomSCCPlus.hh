@@ -38,6 +38,7 @@ private:
 
 	[[nodiscard]] unsigned getSubslot(unsigned address) const;
 	[[nodiscard]] unsigned getFlashAddr(unsigned addr) const;
+	[[nodiscard]] bool isSCCAccessEnabled() const;
 
 private:
 	SCC scc;
