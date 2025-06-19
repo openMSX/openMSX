@@ -449,6 +449,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
 			byte mask = (configReg & 0x01) ? 0x1F : 0x7F;
 			bankRegs[subslot][page8kB] = value & mask;
+			sccBanks[page8kB] = value;
 			invalidateDeviceRCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			break;
 		}
