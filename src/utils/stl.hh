@@ -401,15 +401,15 @@ constexpr auto concatArray(const std::array<T, X>& x,
 
 
 // lookup in std::map
-template<typename Key, typename Value, typename Key2>
-[[nodiscard]] const Value* lookup(const std::map<Key, Value>& m, const Key2& k)
+template<typename Key, typename Value, typename Comp, typename Key2>
+[[nodiscard]] const Value* lookup(const std::map<Key, Value, Comp>& m, const Key2& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;
 }
 
-template<typename Key, typename Value, typename Key2>
-[[nodiscard]] Value* lookup(std::map<Key, Value>& m, const Key2& k)
+template<typename Key, typename Value, typename Comp, typename Key2>
+[[nodiscard]] Value* lookup(std::map<Key, Value, Comp>& m, const Key2& k)
 {
 	auto it = m.find(k);
 	return (it != m.end()) ? &it->second : nullptr;

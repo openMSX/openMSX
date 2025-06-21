@@ -127,7 +127,6 @@ public:
 	void tabCompletion(std::vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
-	const std::map<std::string, SetupDepth> depthOptionMap;
 };
 
 class MachineNameInfo final : public InfoTopic
@@ -1036,17 +1035,18 @@ void RemoveExtCmd::tabCompletion(std::vector<string>& tokens) const
 
 // StoreSetupCmd
 
+static const std::map<std::string_view, SetupDepth, std::less<>> depthOptionMap = {
+	{"none"          , SetupDepth::NONE          },
+	{"machine"       , SetupDepth::MACHINE       },
+	{"extensions"    , SetupDepth::EXTENSIONS    },
+	{"connectors"    , SetupDepth::CONNECTORS    },
+	{"media"         , SetupDepth::MEDIA         },
+	{"complete_state", SetupDepth::COMPLETE_STATE},
+};
+
 StoreSetupCmd::StoreSetupCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "store_setup")
 	, motherBoard(motherBoard_)
-	, depthOptionMap({
-		{ "none"          , SetupDepth::NONE           },
-		{ "machine"       , SetupDepth::MACHINE        },
-		{ "extensions"    , SetupDepth::EXTENSIONS     },
-		{ "connectors"    , SetupDepth::CONNECTORS     },
-		{ "media"         , SetupDepth::MEDIA          },
-		{ "complete_state", SetupDepth::COMPLETE_STATE }
-	})
 {
 }
 
@@ -1054,13 +1054,13 @@ void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result
 {
 	checkNumArgs(tokens, Between{2, 3}, Prefix{1}, "depth ?filename?");
 
-	std::string depthArg = std::string(tokens[1].getString());
-	auto depthIt = depthOptionMap.find(depthArg);
-	if (depthIt == depthOptionMap.end()) {
+	auto depthArg = tokens[1].getString();
+	const auto* depth = lookup(depthOptionMap, depthArg);
+	if (!depth) {
 		throw CommandException("Unknown depth argument: ", depthArg);
 	}
 
-	if (depthIt->second == SetupDepth::NONE) return;
+	if (*depth == SetupDepth::NONE) return;
 
 	std::string_view filenameArg;
 	if (tokens.size() == 3) {
@@ -1071,7 +1071,7 @@ void StoreSetupCmd::execute(std::span<const TclObject> tokens, TclObject& result
 		filenameArg, Reactor::SETUP_DIR, motherBoard.getMachineName(), Reactor::SETUP_EXTENSION);
 
 	// TODO: make parts of levels to be saved configurable?
-	motherBoard.storeAsSetup(filename, depthIt->second);
+	motherBoard.storeAsSetup(filename, *depth);
 
 	result = filename;
 }
