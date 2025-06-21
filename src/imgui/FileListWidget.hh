@@ -32,7 +32,7 @@ public:
 	// calls FileOperations::unlink(entry.fullName);
 	static void defaultDeleteAction(const Entry& entry);
 	// shows tooltip with display name of entry (for long names)
-	void defaultHoverAction(const Entry& entry);
+	void defaultHoverAction(const Entry& entry) const;
 	// returns the given filename without its extension
 
 	std::function<void()> drawAction; // default (only) calls drawTable()

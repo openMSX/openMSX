@@ -71,7 +71,7 @@ void FileListWidget::draw()
 	drawAction(); // calls drawTable() (and possibly does more)
 }
 
-void FileListWidget::defaultHoverAction(const Entry& entry)
+void FileListWidget::defaultHoverAction(const Entry& entry) const
 {
 	simpleToolTip(displayName(entry));
 }
