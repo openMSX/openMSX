@@ -49,16 +49,12 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 	switch (address) {
 	case 0x7FF8:
 		return controller.peekStatusReg(time);
-		break;
 	case 0x7FF9:
 		return controller.peekTrackReg(time);
-		break;
 	case 0x7FFA:
 		return controller.peekSectorReg(time);
-		break;
 	case 0x7FFB:
 		return controller.peekDataReg(time);
-		break;
 	case 0x7FFC:
 	case 0x7FFD:
 	case 0x7FFE:
