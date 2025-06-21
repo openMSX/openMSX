@@ -107,7 +107,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 		manager.executeDelayed([&entry = entry, &manager = manager] {
 			try {
 				manager.getReactor().switchMachineFromSetup(entry.fullName);
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				// this will be very rare, don't bother showing the error
 			}
 
