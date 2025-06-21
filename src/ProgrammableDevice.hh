@@ -12,7 +12,7 @@ class ProgrammableDevice final : public MSXDevice
 {
 public:
 	explicit ProgrammableDevice(const DeviceConfig& config);
-	~ProgrammableDevice();
+	~ProgrammableDevice() override;
 
 	void writeIO(word port, byte value, EmuTime::param time) override;
 	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
