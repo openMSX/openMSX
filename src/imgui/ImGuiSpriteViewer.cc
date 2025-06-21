@@ -327,7 +327,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		});
 		ImGui::Separator();
 
-		auto copySpriteDataPopup = [&](std::string text, function_ref<std::string()> supplier) {
+		auto copySpriteDataPopup = [&](zstring_view text, function_ref<std::string()> supplier) {
 			return im::PopupContextWindow("CopySpriteDataPopup", [&]{
 				if (ImGui::MenuItem(text.c_str())) {
 					ImGui::SetClipboardText(supplier().c_str());
