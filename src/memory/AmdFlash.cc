@@ -811,7 +811,7 @@ bool AmdFlash::checkCommandSuspend(EmuTime::param time)
 		}
 	} else if (state == State::PROGRAM) {
 		if (chip.program.suspend) {
-			if ((cmd[0].value == 0xB0 || (chip.program.enhancedSuspend && cmd[0].value == 0x51))) {
+			if (cmd[0].value == 0xB0 || (chip.program.enhancedSuspend && cmd[0].value == 0x51)) {
 				if (!syncSuspend.pendingSyncPoint()) {
 					syncOperation.removeSyncPoint();
 					syncSuspend.setSyncPoint(time + chip.program.suspendDuration);
@@ -844,7 +844,7 @@ void AmdFlash::execSuspend(EmuTime::param /*time*/)
 bool AmdFlash::checkCommandResume(EmuTime::param time)
 {
 	if (statusRegister.programSuspend) {
-		if ((cmd[0].value == 0x30 || (chip.program.enhancedSuspend && cmd[0].value == 0x50))) {
+		if (cmd[0].value == 0x30 || (chip.program.enhancedSuspend && cmd[0].value == 0x50)) {
 			statusRegister.ready = false;
 			statusRegister.programSuspend = false;
 			setState(State::PROGRAM);
