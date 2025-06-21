@@ -155,8 +155,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 
 		ImGui::MenuItem("Select MSX machine...", nullptr, &showSelectMachine);
 
-		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) -> SetupDepth {
-
+		auto showSetupDepthLevelSelector = [&](const std::string& displayText, const bool includeNone, SetupDepth currentDepth) {
 			static constexpr array_with_enum_index<SetupDepth, zstring_view> helpText = {
 				"Do not save.",
 				"Only the machine itself, without anything in it.",
@@ -166,7 +165,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				"The full state of the machine, with everything that's in it at the current time."
 			};
 
-			auto depthNodeNameForCombo = [&](SetupDepth depth){
+			auto depthNodeNameForCombo = [&](SetupDepth depth) {
 				return tmpStrCat(depth == one_of(NONE, MACHINE) ? "" : "+ ", depthNodeNames[depth]);
 			};
 
