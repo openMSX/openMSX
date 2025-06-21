@@ -1249,8 +1249,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		// value (it always returns the value 0). But we must know
 		// the unicode value in order to be able to perform the correct
 		// key-combination-release in the MSX
-		auto it = std::ranges::lower_bound(lastUnicodeForScancode, scanCode, {}, &std::pair<int32_t, uint32_t>::first);
-		if ((it != lastUnicodeForScancode.end()) && (it->first == scanCode)) {
+		if (auto it = std::ranges::lower_bound(lastUnicodeForScancode, scanCode, {}, &std::pair<int32_t, uint32_t>::first);
+		    (it != lastUnicodeForScancode.end()) && (it->first == scanCode)) {
 			// after a while we can overwrite existing elements, and
 			// then we stop growing/reallocating this vector
 			it->second = unicode;

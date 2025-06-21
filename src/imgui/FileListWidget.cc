@@ -139,8 +139,8 @@ void FileListWidget::drawTable()
 		ImGui::TableHeadersRow();
 
 		// check sort order
-		auto* sortSpecs = ImGui::TableGetSortSpecs();
-		if (sortSpecs->SpecsDirty || needSort) {
+		if (auto* sortSpecs = ImGui::TableGetSortSpecs();
+		    sortSpecs->SpecsDirty || needSort) {
 			sortSpecs->SpecsDirty = false;
 			needSort = false;
 			assert(sortSpecs->SpecsCount == 1);
