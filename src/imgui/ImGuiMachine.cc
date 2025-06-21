@@ -542,7 +542,7 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 								{"cassetteplayer" , "Tape Deck"       },
 								{"laserdiscplayer", "LaserDisc Player"},
 							});
-							for (auto [s, l] : singleSlotMediaDeviceTab) {
+							for (const auto& [s, l] : singleSlotMediaDeviceTab) {
 								if (name == s) return std::string(l);
 							}
 							// fallback in case we add stuff and forget to update the tables (no need to crash on this)
