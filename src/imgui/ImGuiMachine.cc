@@ -505,7 +505,7 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
 								manager.media->extensionTooltip(*extInfo);
 							}
-						};
+						}
 					}
 				}
 			});
