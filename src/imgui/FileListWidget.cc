@@ -15,7 +15,7 @@ namespace openmsx {
 static std::string formatFileTimeFull(std::time_t fileTime)
 {
 	// Convert time_t to local time (broken-down time in the local time zone)
-	std::tm* local_time = std::localtime(&fileTime);
+	const std::tm* local_time = std::localtime(&fileTime);
 
 	// Get the local time in human-readable format
 	std::stringstream ss;

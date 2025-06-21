@@ -72,7 +72,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 							previewSetup.lastExceptionMessage = e.getMessage();
 						}
 					});
-				}		
+				}
 			});
 		});
 		ImGui::SameLine();
@@ -207,7 +207,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				if (!saveSetupOpen) {
 					// on each re-open of this menu, create a suggestion for a name
 					auto configName = motherBoard->getMachineName();
-					auto* info = findMachineInfo(configName);
+					const auto* info = findMachineInfo(configName);
 					auto initialSaveSetupName = info ? info->displayName : configName;
 					saveSetupName = initialSaveSetupName;
 					if (exists()) {
@@ -279,7 +279,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				auto& allMachines = getAllMachines();
 				auto currentDefault = reactor.getDefaultMachineSetting().getString();
 				auto currentDefaultDisplay = [&] {
-					if (auto* info = findMachineInfo(currentDefault)) {
+					if (const auto* info = findMachineInfo(currentDefault)) {
 						return info->displayName;
 					}
 					return std::string(currentDefault);
@@ -629,7 +629,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 						std::string display = [&]{
 							if (board) {
 								auto configName = board->getMachineName();
-								auto* info = findMachineInfo(configName);
+								const auto* info = findMachineInfo(configName);
 								auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
 								return strCat(info ? info->displayName : configName, " (", formatTime(time), ')');
 							} else {
