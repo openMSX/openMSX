@@ -376,33 +376,34 @@ bool ImGuiManager::signalEvent(const Event& event)
 		}
 	} else {
 		switch (getType(event)) {
-		case EventType::QUIT:
+		using enum EventType;
+		case QUIT:
 			debugger->signalQuit();
 			machine->signalQuit();
 			break;
-		case EventType::IMGUI_DELAYED_ACTION: {
+		case IMGUI_DELAYED_ACTION: {
 			for (auto& action : delayedActionQueue) {
 				std::invoke(action);
 			}
 			delayedActionQueue.clear();
 			break;
 		}
-		case EventType::FILE_DROP: {
+		case FILE_DROP: {
 			const auto& fde = get_event<FileDropEvent>(event);
 			droppedFile = fde.getFileName();
 			handleDropped = true;
 			break;
 		}
-		case EventType::MACHINE_LOADED:
+		case MACHINE_LOADED:
 			// Triggers when a new machine gets activated, e.g.:
 			// * after a 'step_back' (or any click in the reverse bar).
 			// * after a machine instance switch
 			// (For now) this triggers the same behavior as BREAK: scroll debugger to PC
 			[[fallthrough]];
-		case EventType::BREAK:
+		case BREAK:
 			debugger->signalBreak();
 			break;
-		case EventType::CONTINUE:
+		case CONTINUE:
 			debugger->signalContinue();
 			break;
 		default:

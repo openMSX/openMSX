@@ -236,12 +236,13 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 
 MegaFlashRomSCCPlus::SCCMode MegaFlashRomSCCPlus::getSCCMode() const
 {
+	using enum SCCMode;
 	if ((sccModeReg & 0x20) && (sccBanks[3] & 0x80)) {
-		return SCCMode::SCCPLUS;
+		return SCCPLUS;
 	} else if ((!(sccModeReg & 0x20)) && ((sccBanks[2] & 0x3F) == 0x3F)) {
-		return SCCMode::SCC;
+		return SCC;
 	} else {
-		return SCCMode::NONE;
+		return NONE;
 	}
 }
 
