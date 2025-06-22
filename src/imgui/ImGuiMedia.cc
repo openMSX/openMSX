@@ -249,6 +249,11 @@ static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displa
 	return result;
 }
 
+static std::string romTypeToolTipText(const zstring_view name)
+{
+	return strCat("In the console and commandline known as: ", name);
+}
+
 std::vector<ImGuiMedia::ExtensionInfo>& ImGuiMedia::getAllExtensions()
 {
 	if (extensionInfo.empty()) {
@@ -880,7 +885,7 @@ bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 	bool interacted = false;
 	bool isAutoDetect = romType == RomType::UNKNOWN;
 	constexpr const char* autoStr = "auto detect";
-	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::romTypeToName(romType));
+	std::string current = isAutoDetect ? autoStr : std::string(RomInfo::getDescription(romType));
 	im::Combo(label, current.c_str(), [&]{
 		if (ImGui::Selectable(autoStr, isAutoDetect)) {
 			interacted = true;
@@ -889,11 +894,11 @@ bool ImGuiMedia::selectMapperType(const char* label, RomType& romType)
 		int count = 0;
 		for (const auto& romInfo : RomInfo::getRomTypeInfo()) {
 			bool selected = romType == static_cast<RomType>(count);
-			if (ImGui::Selectable(romInfo.name.c_str(), selected)) {
+			if (ImGui::Selectable(std::string(romInfo.description).c_str(), selected)) {
 				interacted = true;
 				romType = static_cast<RomType>(count);
 			}
-			simpleToolTip(romInfo.description);
+			simpleToolTip(romTypeToolTipText(romInfo.name));
 			++count;
 		}
 	});
@@ -1127,11 +1132,13 @@ void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic
 			ImGuiMedia::printDatabase(*romInfo, database.getBufferStart());
 		}
 
-		std::string mapperStr{RomInfo::romTypeToName(romType)};
+		std::string mapperStr{RomInfo::getDescription(romType)};
+		std::string mapperTypeStr = romTypeToolTipText(RomInfo::romTypeToName(romType));
 		if (romInfo) {
 			if (auto dbType = romInfo->getRomType();
 			dbType != RomType::UNKNOWN && dbType != romType) {
-				strAppend(mapperStr, " (database: ", RomInfo::romTypeToName(dbType), ')');
+				strAppend(mapperStr, " (database: ", RomInfo::getDescription(dbType), ')');
+				strAppend(mapperTypeStr, " (and the database mapper type as: ", RomInfo::romTypeToName(dbType), ')');
 			}
 		}
 		if (ImGui::TableNextColumn()) {
@@ -1139,6 +1146,7 @@ void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic
 		}
 		if (ImGui::TableNextColumn()) {
 			ImGui::TextUnformatted(mapperStr);
+			simpleToolTip(mapperTypeStr);
 		}
 	});
 }
