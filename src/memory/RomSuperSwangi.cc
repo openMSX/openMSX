@@ -18,14 +18,14 @@ void RomSuperSwangi::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomSuperSwangi::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomSuperSwangi::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0x8000) {
 		setRom(2, value >> 1);
 	}
 }
 
-byte* RomSuperSwangi::getWriteCacheLine(word address)
+byte* RomSuperSwangi::getWriteCacheLine(uint16_t address)
 {
 	if (address == (0x8000 & CacheLine::HIGH)) return nullptr;
 	return unmappedWrite.data();

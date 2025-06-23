@@ -29,19 +29,19 @@ void RomArc::reset(EmuTime::param /*time*/)
 	offset = 0x00;
 }
 
-void RomArc::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
+void RomArc::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
 {
 	if (value == 0x35) {
 		++offset;
 	}
 }
 
-byte RomArc::readIO(word port, EmuTime::param time)
+byte RomArc::readIO(uint16_t port, EmuTime::param time)
 {
 	return RomArc::peekIO(port, time);
 }
 
-byte RomArc::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte RomArc::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 {
 	return ((offset & 0x03) == 0x03) ? 0xda : 0xff;
 }

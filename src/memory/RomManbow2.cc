@@ -132,7 +132,7 @@ void RomManbow2::setRom(unsigned region, byte block)
 	invalidateDeviceRCache(0x4000 + region * 0x2000, 0x2000);
 }
 
-byte RomManbow2::peekMem(word address, EmuTime::param time) const
+byte RomManbow2::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->peekMem(narrow_cast<uint8_t>(address & 0xFF), time);
@@ -145,7 +145,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-byte RomManbow2::readMem(word address, EmuTime::param time)
+byte RomManbow2::readMem(uint16_t address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMem(narrow_cast<uint8_t>(address & 0xFF), time);
@@ -158,7 +158,7 @@ byte RomManbow2::readMem(word address, EmuTime::param time)
 	}
 }
 
-const byte* RomManbow2::getReadCacheLine(word address) const
+const byte* RomManbow2::getReadCacheLine(uint16_t address) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return nullptr;
@@ -171,7 +171,7 @@ const byte* RomManbow2::getReadCacheLine(word address) const
 	}
 }
 
-void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
+void RomManbow2::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
@@ -196,7 +196,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* RomManbow2::getWriteCacheLine(word address)
+byte* RomManbow2::getWriteCacheLine(uint16_t address)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;
@@ -205,19 +205,19 @@ byte* RomManbow2::getWriteCacheLine(word address)
 	}
 }
 
-byte RomManbow2::readIO(word port, EmuTime::param time)
+byte RomManbow2::readIO(uint16_t port, EmuTime::param time)
 {
 	assert((port & 0xFF) == 0x12); (void)port;
 	return psg->readRegister(psgLatch, time);
 }
 
-byte RomManbow2::peekIO(word port, EmuTime::param time) const
+byte RomManbow2::peekIO(uint16_t port, EmuTime::param time) const
 {
 	assert((port & 0xFF) == 0x12); (void)port;
 	return psg->peekRegister(psgLatch, time);
 }
 
-void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
+void RomManbow2::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if ((port & 0xFF) == 0x10) {
 		psgLatch = value & 0x0F;

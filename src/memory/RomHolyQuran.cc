@@ -25,7 +25,7 @@ void RomHolyQuran::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomHolyQuran::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomHolyQuran::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {
@@ -34,7 +34,7 @@ void RomHolyQuran::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomHolyQuran::getWriteCacheLine(word address)
+byte* RomHolyQuran::getWriteCacheLine(uint16_t address)
 {
 	if ((0x5000 <= address) && (address < 0x6000)) {
 		return nullptr;

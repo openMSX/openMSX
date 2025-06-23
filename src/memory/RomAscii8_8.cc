@@ -50,7 +50,7 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 	sramEnabled = 0;
 }
 
-byte RomAscii8_8::readMem(word address, EmuTime::param time)
+byte RomAscii8_8::readMem(uint16_t address, EmuTime::param time)
 {
 	auto bank = narrow<byte>(address / BANK_SIZE);
 	if ((1 << bank) & sramEnabled) {
@@ -63,7 +63,7 @@ byte RomAscii8_8::readMem(word address, EmuTime::param time)
 	}
 }
 
-const byte* RomAscii8_8::getReadCacheLine(word address) const
+const byte* RomAscii8_8::getReadCacheLine(uint16_t address) const
 {
 	auto bank = narrow<byte>(address / BANK_SIZE);
 	if ((1 << bank) & sramEnabled) {
@@ -76,7 +76,7 @@ const byte* RomAscii8_8::getReadCacheLine(word address) const
 	}
 }
 
-void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomAscii8_8::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
@@ -104,7 +104,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii8_8::getWriteCacheLine(word address)
+byte* RomAscii8_8::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching

@@ -66,7 +66,7 @@ void RomGameMaster2::reset(EmuTime::param /*time*/)
 	sramEnabled = false;
 }
 
-void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomGameMaster2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {
@@ -94,7 +94,7 @@ void RomGameMaster2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomGameMaster2::getWriteCacheLine(word address)
+byte* RomGameMaster2::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {

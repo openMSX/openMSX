@@ -23,7 +23,7 @@ void RomMSXWrite::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomMSXWrite::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMSXWrite::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
 	    (address == one_of(0x6FFF, 0x7FFF))) {
@@ -32,7 +32,7 @@ void RomMSXWrite::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomMSXWrite::getWriteCacheLine(word address)
+byte* RomMSXWrite::getWriteCacheLine(uint16_t address)
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
 	    (address == one_of(0x6FFF & CacheLine::HIGH, 0x7FFF & CacheLine::HIGH))) {

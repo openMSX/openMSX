@@ -57,7 +57,7 @@ void MSXMapperIO::unregisterMapper(MSXMemoryMapperInterface* mapper)
 	mappers.erase(rfind_unguarded(mappers, mapper));
 }
 
-byte MSXMapperIO::readIO(word port, EmuTime::param time)
+byte MSXMapperIO::readIO(uint16_t port, EmuTime::param time)
 {
 	byte value = [&] {
 		if (mode == Mode::EXTERNAL) {
@@ -73,7 +73,7 @@ byte MSXMapperIO::readIO(word port, EmuTime::param time)
 	return (value & mask) | (baseValue & ~mask);
 }
 
-byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
+byte MSXMapperIO::peekIO(uint16_t port, EmuTime::param time) const
 {
 	byte value = [&] {
 		if (mode == Mode::EXTERNAL) {
@@ -89,7 +89,7 @@ byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 	return (value & mask) | (baseValue & ~mask);
 }
 
-void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
+void MSXMapperIO::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	registers[port & 3] = value;
 
@@ -128,7 +128,7 @@ void MSXMapperIO::Debuggable::write(unsigned address, byte value,
                                     EmuTime::param time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	mapperIO.writeIO(narrow_cast<word>(address), value, time);
+	mapperIO.writeIO(narrow_cast<uint16_t>(address), value, time);
 }
 
 
@@ -141,7 +141,7 @@ void MSXMapperIO::serialize(Archive& ar, unsigned version)
 		assert(Archive::IS_LOADER);
 		ar.serialize("registers", registers);
 		for (auto [page, reg] : enumerate(registers)) {
-			writeIO(word(page), reg, EmuTime::dummy());
+			writeIO(uint16_t(page), reg, EmuTime::dummy());
 		}
 	}
 	if (ar.versionAtLeast(version, 3)) {

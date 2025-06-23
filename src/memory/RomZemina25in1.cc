@@ -32,7 +32,7 @@ void RomZemina25in1::reset(EmuTime::param time)
 	writeMem(0, 0x3F, time);
 }
 
-void RomZemina25in1::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomZemina25in1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0x0000) {
 		setRom(0, 0x3F);
@@ -46,7 +46,7 @@ void RomZemina25in1::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomZemina25in1::getWriteCacheLine(word address)
+byte* RomZemina25in1::getWriteCacheLine(uint16_t address)
 {
 	if (address == (0x0000 & CacheLine::HIGH)) {
 		return nullptr;

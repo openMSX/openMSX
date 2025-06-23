@@ -19,9 +19,9 @@ public:
 	static constexpr unsigned BANK_MASK = BANK_SIZE - 1;
 
 	[[nodiscard]] unsigned getBaseSizeAlignment() const override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

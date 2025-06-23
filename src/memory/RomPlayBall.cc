@@ -26,7 +26,7 @@ void RomPlayBall::reset(EmuTime::param /*time*/)
 	samplePlayer.reset();
 }
 
-byte RomPlayBall::peekMem(word address, EmuTime::param time) const
+byte RomPlayBall::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if (address == 0xBFFF) {
 		return samplePlayer.isPlaying() ? 0xFE : 0xFF;
@@ -35,12 +35,12 @@ byte RomPlayBall::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-byte RomPlayBall::readMem(word address, EmuTime::param time)
+byte RomPlayBall::readMem(uint16_t address, EmuTime::param time)
 {
 	return RomPlayBall::peekMem(address, time);
 }
 
-const byte* RomPlayBall::getReadCacheLine(word address) const
+const byte* RomPlayBall::getReadCacheLine(uint16_t address) const
 {
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;
@@ -49,7 +49,7 @@ const byte* RomPlayBall::getReadCacheLine(word address) const
 	}
 }
 
-void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomPlayBall::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0xBFFF) {
 		if ((value <= 14) && !samplePlayer.isPlaying()) {
@@ -58,7 +58,7 @@ void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomPlayBall::getWriteCacheLine(word address)
+byte* RomPlayBall::getWriteCacheLine(uint16_t address)
 {
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;

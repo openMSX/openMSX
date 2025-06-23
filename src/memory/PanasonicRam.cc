@@ -12,7 +12,7 @@ PanasonicRam::PanasonicRam(const DeviceConfig& config)
 	panasonicMemory.registerRam(checkedRam.getUncheckedRam());
 }
 
-void PanasonicRam::writeMem(word address, byte value, EmuTime::param /*time*/)
+void PanasonicRam::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	unsigned addr = calcAddress(address);
 	if (panasonicMemory.isWritable(addr)) {
@@ -20,7 +20,7 @@ void PanasonicRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* PanasonicRam::getWriteCacheLine(word start)
+byte* PanasonicRam::getWriteCacheLine(uint16_t start)
 {
 	unsigned addr = calcAddress(start);
 	if (panasonicMemory.isWritable(addr)) {
@@ -30,7 +30,7 @@ byte* PanasonicRam::getWriteCacheLine(word start)
 	}
 }
 
-void PanasonicRam::writeIO(word port, byte value, EmuTime::param time)
+void PanasonicRam::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	MSXMemoryMapperBase::writeIOImpl(port, value, time);
 	byte page = port & 3;

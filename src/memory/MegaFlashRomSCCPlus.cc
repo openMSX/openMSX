@@ -285,7 +285,7 @@ bool MegaFlashRomSCCPlus::isSCCAccessEnabled() const
 	return (configReg & 0xE0) == one_of(0x00, 0x20);
 }
 
-byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
+byte MegaFlashRomSCCPlus::peekMem(uint16_t addr, EmuTime::param time) const
 {
 	if ((configReg & 0x10) && (addr == 0xFFFF)) {
 		// read subslot register
@@ -312,7 +312,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 	}
 }
 
-byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
+byte MegaFlashRomSCCPlus::readMem(uint16_t addr, EmuTime::param time)
 {
 	if ((configReg & 0x10) && (addr == 0xFFFF)) {
 		// read subslot register
@@ -339,7 +339,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 	}
 }
 
-const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
+const byte* MegaFlashRomSCCPlus::getReadCacheLine(uint16_t addr) const
 {
 	if ((configReg & 0x10) &&
 	    ((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
@@ -364,7 +364,7 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 	}
 }
 
-void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
+void MegaFlashRomSCCPlus::writeMem(uint16_t addr, byte value, EmuTime::param time)
 {
 	// address is calculated before writes to other regions take effect
 	unsigned flashAddr = getFlashAddr(addr);
@@ -500,13 +500,13 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/)
+byte* MegaFlashRomSCCPlus::getWriteCacheLine(uint16_t /*addr*/)
 {
 	return nullptr;
 }
 
 
-void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
+void MegaFlashRomSCCPlus::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if ((port & 0xFF) == 0x10) {
 		psgLatch = value & 0x0F;

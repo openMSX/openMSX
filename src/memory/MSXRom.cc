@@ -11,12 +11,12 @@ MSXRom::MSXRom(const DeviceConfig& config, Rom&& rom_)
 {
 }
 
-void MSXRom::writeMem(word /*address*/, byte /*value*/, EmuTime::param /*time*/)
+void MSXRom::writeMem(uint16_t /*address*/, byte /*value*/, EmuTime::param /*time*/)
 {
 	// nothing
 }
 
-byte* MSXRom::getWriteCacheLine(word /*address*/)
+byte* MSXRom::getWriteCacheLine(uint16_t /*address*/)
 {
 	return unmappedWrite.data();
 }

@@ -38,7 +38,7 @@ void RomZemina90in1::reset(EmuTime::param time)
 	writeIO(0x77, 0, time);
 }
 
-void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
+void RomZemina90in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {
@@ -66,7 +66,7 @@ void RomZemina90in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomZemina90in1::getWriteCacheLine(word /*address*/)
+byte* RomZemina90in1::getWriteCacheLine(uint16_t /*address*/)
 {
 	return unmappedWrite.data();
 }

@@ -18,7 +18,7 @@ void RomMitsubishiMLTS2::reset(EmuTime::param /*time*/)
 	setRom(2, 0);
 }
 
-void RomMitsubishiMLTS2::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMitsubishiMLTS2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	// TODO What are these 4 registers? Are there any more?
 	//      Is there any mirroring going on?
@@ -38,12 +38,12 @@ void RomMitsubishiMLTS2::writeMem(word address, byte value, EmuTime::param /*tim
 	}
 }
 
-byte RomMitsubishiMLTS2::readMem(word address, EmuTime::param time)
+byte RomMitsubishiMLTS2::readMem(uint16_t address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
 
-byte RomMitsubishiMLTS2::peekMem(word address, EmuTime::param time) const
+byte RomMitsubishiMLTS2::peekMem(uint16_t address, EmuTime::param time) const
 {
 	// TODO What are these 4 registers? Are there any more?
 	//      Is there any mirroring going on?
@@ -63,7 +63,7 @@ byte RomMitsubishiMLTS2::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* RomMitsubishiMLTS2::getReadCacheLine(word address) const
+const byte* RomMitsubishiMLTS2::getReadCacheLine(uint16_t address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if ((0x6000 <= address) && (address < 0x8000)) {
@@ -72,7 +72,7 @@ const byte* RomMitsubishiMLTS2::getReadCacheLine(word address) const
 	return Rom8kBBlocks::getReadCacheLine(address);
 }
 
-byte* RomMitsubishiMLTS2::getWriteCacheLine(word address)
+byte* RomMitsubishiMLTS2::getWriteCacheLine(uint16_t address)
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) return nullptr;
 	if ((0x6000 <= address) && (address < 0x8000)) {

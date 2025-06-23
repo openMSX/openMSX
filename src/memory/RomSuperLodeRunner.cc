@@ -19,7 +19,7 @@ void RomSuperLodeRunner::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomSuperLodeRunner::globalWrite(word address, byte value, EmuTime::param /*time*/)
+void RomSuperLodeRunner::globalWrite(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	assert(address == 0);
 	(void)address;

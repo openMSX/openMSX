@@ -83,7 +83,7 @@ unsigned ReproCartridgeV1::getFlashAddr(unsigned addr) const
 }
 
 // Note: implementation (mostly) copied from KUC
-bool ReproCartridgeV1::isSCCAccess(word addr) const
+bool ReproCartridgeV1::isSCCAccess(uint16_t addr) const
 {
 	if (sccMode & 0x10) return false;
 
@@ -104,7 +104,7 @@ bool ReproCartridgeV1::isSCCAccess(word addr) const
 	}
 }
 
-byte ReproCartridgeV1::readMem(word addr, EmuTime::param time)
+byte ReproCartridgeV1::readMem(uint16_t addr, EmuTime::param time)
 {
 	if (isSCCAccess(addr)) {
 		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -116,7 +116,7 @@ byte ReproCartridgeV1::readMem(word addr, EmuTime::param time)
 		: 0xFF; // unmapped read
 }
 
-byte ReproCartridgeV1::peekMem(word addr, EmuTime::param time) const
+byte ReproCartridgeV1::peekMem(uint16_t addr, EmuTime::param time) const
 {
 	if (isSCCAccess(addr)) {
 		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -128,7 +128,7 @@ byte ReproCartridgeV1::peekMem(word addr, EmuTime::param time) const
 		: 0xFF; // unmapped read
 }
 
-const byte* ReproCartridgeV1::getReadCacheLine(word addr) const
+const byte* ReproCartridgeV1::getReadCacheLine(uint16_t addr) const
 {
 	if (isSCCAccess(addr)) return nullptr;
 
@@ -138,7 +138,7 @@ const byte* ReproCartridgeV1::getReadCacheLine(word addr) const
 		: unmappedRead.data();
 }
 
-void ReproCartridgeV1::writeMem(word addr, byte value, EmuTime::param time)
+void ReproCartridgeV1::writeMem(uint16_t addr, byte value, EmuTime::param time)
 {
 	unsigned page8kB = (addr >> 13) - 2;
 	if (page8kB >= 4) return; // outside [0x4000, 0xBFFF]
@@ -188,14 +188,14 @@ void ReproCartridgeV1::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* ReproCartridgeV1::getWriteCacheLine(word addr)
+byte* ReproCartridgeV1::getWriteCacheLine(uint16_t addr)
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable
 	       : unmappedWrite.data();
 }
 
-void ReproCartridgeV1::writeIO(word port, byte value, EmuTime::param time)
+void ReproCartridgeV1::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0xFF)
 	{

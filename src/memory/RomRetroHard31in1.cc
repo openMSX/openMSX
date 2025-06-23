@@ -27,7 +27,7 @@ void RomRetroHard31in1::reset(EmuTime::param time)
 	writeIO(0x94, 0, time);
 }
 
-void RomRetroHard31in1::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
+void RomRetroHard31in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
 {
 	byte page = 2 * (value & 0x1F);
 	// note: we use a mirrored configuration here on purpose.
@@ -38,7 +38,7 @@ void RomRetroHard31in1::writeIO(word /*port*/, byte value, EmuTime::param /*time
 	setRom(3, page + 0);
 }
 
-byte* RomRetroHard31in1::getWriteCacheLine(word /*address*/)
+byte* RomRetroHard31in1::getWriteCacheLine(uint16_t /*address*/)
 {
 	return unmappedWrite.data();
 }

@@ -27,7 +27,7 @@ void RomNational::reset(EmuTime::param /*time*/)
 	sramAddr = 0; // TODO check this
 }
 
-byte RomNational::peekMem(word address, EmuTime::param time) const
+byte RomNational::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
 		// TODO check mirrored
@@ -42,7 +42,7 @@ byte RomNational::peekMem(word address, EmuTime::param time) const
 	return Rom16kBBlocks::peekMem(address, time);
 }
 
-byte RomNational::readMem(word address, EmuTime::param time)
+byte RomNational::readMem(uint16_t address, EmuTime::param time)
 {
 	byte result = RomNational::peekMem(address, time);
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
@@ -51,7 +51,7 @@ byte RomNational::readMem(word address, EmuTime::param time)
 	return result;
 }
 
-const byte* RomNational::getReadCacheLine(word address) const
+const byte* RomNational::getReadCacheLine(uint16_t address) const
 {
 	if ((0x3FF0 & CacheLine::HIGH) == (address & 0x3FFF)) {
 		return nullptr;
@@ -60,7 +60,7 @@ const byte* RomNational::getReadCacheLine(word address) const
 	}
 }
 
-void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomNational::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	// TODO bank switch address mirrored?
 	if (address == 0x6000) {
@@ -99,7 +99,7 @@ void RomNational::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomNational::getWriteCacheLine(word address)
+byte* RomNational::getWriteCacheLine(uint16_t address)
 {
 	if (address == one_of(0x6000 & CacheLine::HIGH,
 	                      0x6400 & CacheLine::HIGH,

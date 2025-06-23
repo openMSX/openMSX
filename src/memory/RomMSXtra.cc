@@ -13,7 +13,7 @@ RomMSXtra::RomMSXtra(const DeviceConfig& config, Rom&& rom_)
 	}
 }
 
-byte RomMSXtra::readMem(word address, EmuTime::param /*time*/)
+byte RomMSXtra::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		return rom[address & 0x1fff];
@@ -24,7 +24,7 @@ byte RomMSXtra::readMem(word address, EmuTime::param /*time*/)
 	}
 }
 
-const byte* RomMSXtra::getReadCacheLine(word address) const
+const byte* RomMSXtra::getReadCacheLine(uint16_t address) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		return &rom[address & 0x1fff];
@@ -37,14 +37,14 @@ const byte* RomMSXtra::getReadCacheLine(word address) const
 
 // default peekMem() implementation is OK
 
-void RomMSXtra::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMSXtra::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		ram[address & 0x07ff] = value;
 	}
 }
 
-byte* RomMSXtra::getWriteCacheLine(word address)
+byte* RomMSXtra::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return &ram[address & 0x07ff];

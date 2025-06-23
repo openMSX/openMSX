@@ -58,7 +58,7 @@ void RomKonami::reset(EmuTime::param /*time*/)
 	}
 }
 
-void RomKonami::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomKonami::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	// Note: [0x4000..0x6000) is fixed at segment 0.
 	if (0x6000 <= address && address < 0xC000) {
@@ -66,7 +66,7 @@ void RomKonami::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomKonami::getWriteCacheLine(word address)
+byte* RomKonami::getWriteCacheLine(uint16_t address)
 {
 	return (0x6000 <= address && address < 0xC000) ? nullptr : unmappedWrite.data();
 }

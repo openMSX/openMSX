@@ -40,27 +40,27 @@ unsigned MSXRam::translate(unsigned address) const
 	return address;
 }
 
-byte MSXRam::peekMem(word address, EmuTime::param /*time*/) const
+byte MSXRam::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	return checkedRam->peek(translate(address));
 }
 
-byte MSXRam::readMem(word address, EmuTime::param /*time*/)
+byte MSXRam::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	return checkedRam->read(translate(address));
 }
 
-void MSXRam::writeMem(word address, byte value, EmuTime::param /*time*/)
+void MSXRam::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	checkedRam->write(translate(address), value);
 }
 
-const byte* MSXRam::getReadCacheLine(word start) const
+const byte* MSXRam::getReadCacheLine(uint16_t start) const
 {
 	return checkedRam->getReadCacheLine(translate(start));
 }
 
-byte* MSXRam::getWriteCacheLine(word start)
+byte* MSXRam::getWriteCacheLine(uint16_t start)
 {
 	return checkedRam->getWriteCacheLine(translate(start));
 }

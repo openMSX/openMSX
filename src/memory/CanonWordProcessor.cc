@@ -44,12 +44,12 @@ void CanonWordProcessor::reset(EmuTime::param time)
 	writeMem(0xbfff, 0xff, time);
 }
 
-byte CanonWordProcessor::readMem(word address, EmuTime::param time)
+byte CanonWordProcessor::readMem(uint16_t address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
 
-byte CanonWordProcessor::peekMem(word address, EmuTime::param /*time*/) const
+byte CanonWordProcessor::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	if ((0xbff8 <= address) && (address <= 0xbfff)) {
 		return 0xc0; // select area, does NOT read from ROM
@@ -61,7 +61,7 @@ byte CanonWordProcessor::peekMem(word address, EmuTime::param /*time*/) const
 	}
 }
 
-const byte* CanonWordProcessor::getReadCacheLine(word start) const
+const byte* CanonWordProcessor::getReadCacheLine(uint16_t start) const
 {
 	if ((start & CacheLine::HIGH) == (0xbfff & CacheLine::HIGH)) {
 		return nullptr; // select register
@@ -70,7 +70,7 @@ const byte* CanonWordProcessor::getReadCacheLine(word start) const
 	}
 }
 
-const byte* CanonWordProcessor::readHelper(word address) const
+const byte* CanonWordProcessor::readHelper(uint16_t address) const
 {
 	if ((0x4000 <= address) && (address <= 0x7fff)) {
 		auto chip = (select & 0b00'111'000) >> 3;
@@ -93,7 +93,7 @@ const byte* CanonWordProcessor::readHelper(word address) const
 	}
 }
 
-void CanonWordProcessor::writeMem(word address, byte value, EmuTime::param /*time*/)
+void CanonWordProcessor::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0xbff8 <= address) && (address <= 0xbfff)) {
 		select = ~value; // invert !!
@@ -101,7 +101,7 @@ void CanonWordProcessor::writeMem(word address, byte value, EmuTime::param /*tim
 	}
 }
 
-byte* CanonWordProcessor::getWriteCacheLine(word /*start*/)
+byte* CanonWordProcessor::getWriteCacheLine(uint16_t /*start*/)
 {
 	return nullptr;
 }

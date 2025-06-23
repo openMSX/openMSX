@@ -34,7 +34,7 @@ void RomMatraCompilation::reset(EmuTime::param /*time*/)
 	blockOffset = 2;
 }
 
-void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMatraCompilation::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0xBA00) {
 		// write of block offset
@@ -51,7 +51,7 @@ void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*ti
 	}
 }
 
-byte* RomMatraCompilation::getWriteCacheLine(word address)
+byte* RomMatraCompilation::getWriteCacheLine(uint16_t address)
 {
 	if ((0x5000 <= address) && (address < 0xC000)) {
 		return nullptr;

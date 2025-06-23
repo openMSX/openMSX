@@ -51,18 +51,18 @@ void MSXMemoryMapperBase::reset(EmuTime::param /*time*/)
 	std::ranges::fill(registers, 0);
 }
 
-byte MSXMemoryMapperBase::readIO(word port, EmuTime::param time)
+byte MSXMemoryMapperBase::readIO(uint16_t port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXMemoryMapperBase::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXMemoryMapperBase::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
 	return registers[port & 0x03] | byte(~(std::bit_ceil(numSegments) - 1));
 }
 
-void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*time*/)
+void MSXMemoryMapperBase::writeIOImpl(uint16_t port, byte value, EmuTime::param /*time*/)
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
 	registers[port & 3] = value & byte(std::bit_ceil(numSegments) - 1);
@@ -77,32 +77,32 @@ unsigned MSXMemoryMapperBase::segmentOffset(byte page) const
 	return segment * 0x4000;
 }
 
-unsigned MSXMemoryMapperBase::calcAddress(word address) const
+unsigned MSXMemoryMapperBase::calcAddress(uint16_t address) const
 {
 	return segmentOffset(narrow<byte>(address / 0x4000)) | (address & 0x3fff);
 }
 
-byte MSXMemoryMapperBase::peekMem(word address, EmuTime::param /*time*/) const
+byte MSXMemoryMapperBase::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	return checkedRam.peek(calcAddress(address));
 }
 
-byte MSXMemoryMapperBase::readMem(word address, EmuTime::param /*time*/)
+byte MSXMemoryMapperBase::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	return checkedRam.read(calcAddress(address));
 }
 
-void MSXMemoryMapperBase::writeMem(word address, byte value, EmuTime::param /*time*/)
+void MSXMemoryMapperBase::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	checkedRam.write(calcAddress(address), value);
 }
 
-const byte* MSXMemoryMapperBase::getReadCacheLine(word start) const
+const byte* MSXMemoryMapperBase::getReadCacheLine(uint16_t start) const
 {
 	return checkedRam.getReadCacheLine(calcAddress(start));
 }
 
-byte* MSXMemoryMapperBase::getWriteCacheLine(word start)
+byte* MSXMemoryMapperBase::getWriteCacheLine(uint16_t start)
 {
 	return checkedRam.getWriteCacheLine(calcAddress(start));
 }
@@ -132,7 +132,7 @@ void MSXMemoryMapperBase::Debuggable::readBlock(unsigned start, std::span<byte> 
 void MSXMemoryMapperBase::Debuggable::write(unsigned address, byte value)
 {
 	auto& mapper = OUTER(MSXMemoryMapperBase, debuggable);
-	mapper.writeIO(narrow<word>(address), value, EmuTime::dummy());
+	mapper.writeIO(narrow<uint16_t>(address), value, EmuTime::dummy());
 }
 
 

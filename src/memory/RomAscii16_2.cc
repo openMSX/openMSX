@@ -36,7 +36,7 @@ void RomAscii16_2::reset(EmuTime::param time)
 	RomAscii16kB::reset(time);
 }
 
-byte RomAscii16_2::readMem(word address, EmuTime::param time)
+byte RomAscii16_2::readMem(uint16_t address, EmuTime::param time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
 		return (*sram)[address & (sram->size() - 1)];
@@ -45,7 +45,7 @@ byte RomAscii16_2::readMem(word address, EmuTime::param time)
 	}
 }
 
-const byte* RomAscii16_2::getReadCacheLine(word address) const
+const byte* RomAscii16_2::getReadCacheLine(uint16_t address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
 		return &(*sram)[address & (sram->size() - 1)];
@@ -54,7 +54,7 @@ const byte* RomAscii16_2::getReadCacheLine(word address) const
 	}
 }
 
-void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomAscii16_2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		// bank switch
@@ -76,7 +76,7 @@ void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii16_2::getWriteCacheLine(word address)
+byte* RomAscii16_2::getWriteCacheLine(uint16_t address)
 {
 	if ((1 << (address >> 14)) & sramEnabled & 0x04) {
 		// write sram

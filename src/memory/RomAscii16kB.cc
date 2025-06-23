@@ -27,7 +27,7 @@ void RomAscii16kB::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomAscii16kB::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomAscii16kB::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		byte region = ((address >> 12) & 1) + 1;
@@ -35,7 +35,7 @@ void RomAscii16kB::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomAscii16kB::getWriteCacheLine(word address)
+byte* RomAscii16kB::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		return nullptr;

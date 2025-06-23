@@ -27,19 +27,19 @@ public:
 
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
-	[[nodiscard]] byte* getWriteCacheLine(word start) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
+	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
 	[[nodiscard]] unsigned getBaseSizeAlignment() const override;
 
 	// Subclasses _must_ override this method and
 	//  - call MSXMemoryMapperBase::writeIOImpl()
 	//  - handle CPU cacheline stuff (e.g. invalidate)
-	void writeIO(word port, byte value, EmuTime::param time) override = 0;
+	void writeIO(uint16_t port, byte value, EmuTime::param time) override = 0;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -49,10 +49,10 @@ protected:
 	  * @param address Index in Z80 address space.
 	  * @return Index in RAM address space.
 	  */
-	[[nodiscard]] unsigned calcAddress(word address) const;
+	[[nodiscard]] unsigned calcAddress(uint16_t address) const;
 	[[nodiscard]] unsigned segmentOffset(byte page) const;
 
-	void writeIOImpl(word port, byte value, EmuTime::param time);
+	void writeIOImpl(uint16_t port, byte value, EmuTime::param time);
 
 	CheckedRam checkedRam;
 	std::array<byte, 4> registers;

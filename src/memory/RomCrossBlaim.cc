@@ -31,7 +31,7 @@ void RomCrossBlaim::reset(EmuTime::param time)
 	writeMem(0, 0, time);
 }
 
-void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time*/)
+void RomCrossBlaim::writeMem(uint16_t /*address*/, byte value, EmuTime::param /*time*/)
 {
 	switch (value & 3) {
 		case 0:
@@ -56,7 +56,7 @@ void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time
 	}
 }
 
-byte* RomCrossBlaim::getWriteCacheLine(word /*address*/)
+byte* RomCrossBlaim::getWriteCacheLine(uint16_t /*address*/)
 {
 	return nullptr;
 }

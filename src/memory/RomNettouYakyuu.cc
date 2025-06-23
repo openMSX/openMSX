@@ -75,7 +75,7 @@ void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 	samplePlayer.reset();
 }
 
-void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomNettouYakyuu::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((address < 0x4000) || (0xC000 <= address)) return;
 
@@ -113,7 +113,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 	samplePlayer.repeat(value & 0xF);
 }
 
-byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/)
+byte* RomNettouYakyuu::getWriteCacheLine(uint16_t /*address*/)
 {
 	return nullptr;
 }

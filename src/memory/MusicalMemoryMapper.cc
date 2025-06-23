@@ -35,7 +35,7 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 	sn76489.reset(time);
 }
 
-byte MusicalMemoryMapper::readIO(word port, EmuTime::param time)
+byte MusicalMemoryMapper::readIO(uint16_t port, EmuTime::param time)
 {
 	if (controlReg & PORT_ACCESS_DISABLED) {
 		return 0xFF;
@@ -44,7 +44,7 @@ byte MusicalMemoryMapper::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MusicalMemoryMapper::peekIO(word port, EmuTime::param time) const
+byte MusicalMemoryMapper::peekIO(uint16_t port, EmuTime::param time) const
 {
 	if (controlReg & PORT_ACCESS_DISABLED) {
 		return 0xFF;
@@ -53,7 +53,7 @@ byte MusicalMemoryMapper::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MusicalMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
+void MusicalMemoryMapper::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if ((port & 0xFC) == 0xFC) {
 		// Mapper port.
@@ -77,7 +77,7 @@ void MusicalMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-bool MusicalMemoryMapper::registerAccessAt(word address) const
+bool MusicalMemoryMapper::registerAccessAt(uint16_t address) const
 {
 	if (controlReg & MEM_ACCESS_ENABLED) {
 		if (controlReg & PORT_ACCESS_DISABLED) {
@@ -97,7 +97,7 @@ bool MusicalMemoryMapper::registerAccessAt(word address) const
 	}
 }
 
-int MusicalMemoryMapper::readReg(word address) const
+int MusicalMemoryMapper::readReg(uint16_t address) const
 {
 	if (registerAccessAt(address)) {
 		switch (address & 0xFF) {
@@ -127,12 +127,12 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 		// Invalidate pages for which register access changes.
 		byte regAccessBefore = 0;
 		for (auto page : xrange(4)) {
-			regAccessBefore |= byte(registerAccessAt(narrow_cast<word>(0x4000 * page)) << page);
+			regAccessBefore |= byte(registerAccessAt(narrow_cast<uint16_t>(0x4000 * page)) << page);
 		}
 		controlReg = value;
 		byte regAccessAfter = 0;
 		for (auto page : xrange(4)) {
-			regAccessAfter |= byte(registerAccessAt(narrow_cast<word>(0x4000 * page)) << page);
+			regAccessAfter |= byte(registerAccessAt(narrow_cast<uint16_t>(0x4000 * page)) << page);
 		}
 		invalidate |= regAccessBefore ^ regAccessAfter;
 
@@ -144,19 +144,19 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 	}
 }
 
-byte MusicalMemoryMapper::peekMem(word address, EmuTime::param time) const
+byte MusicalMemoryMapper::peekMem(uint16_t address, EmuTime::param time) const
 {
 	int reg = readReg(address);
 	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::peekMem(address, time);
 }
 
-byte MusicalMemoryMapper::readMem(word address, EmuTime::param time)
+byte MusicalMemoryMapper::readMem(uint16_t address, EmuTime::param time)
 {
 	int reg = readReg(address);
 	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::readMem(address, time);
 }
 
-void MusicalMemoryMapper::writeMem(word address, byte value, EmuTime::param time)
+void MusicalMemoryMapper::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	if (registerAccessAt(address)) {
 		switch (address & 0xFF) {
@@ -182,7 +182,7 @@ void MusicalMemoryMapper::writeMem(word address, byte value, EmuTime::param time
 	}
 }
 
-const byte* MusicalMemoryMapper::getReadCacheLine(word start) const
+const byte* MusicalMemoryMapper::getReadCacheLine(uint16_t start) const
 {
 	if (controlReg & MEM_ACCESS_ENABLED) {
 		if (0x4000 <= start && start < 0xC000) {
@@ -192,7 +192,7 @@ const byte* MusicalMemoryMapper::getReadCacheLine(word start) const
 	return MSXMemoryMapperBase::getReadCacheLine(start);
 }
 
-byte* MusicalMemoryMapper::getWriteCacheLine(word start)
+byte* MusicalMemoryMapper::getWriteCacheLine(uint16_t start)
 {
 	if (controlReg & MEM_ACCESS_ENABLED) {
 		if (0x4000 <= start && start < 0xC000) {

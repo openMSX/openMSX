@@ -20,7 +20,7 @@ void RomNeo8::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomNeo8::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomNeo8::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	unsigned bbb = (address >> 11) & 0b111;
 	if (bbb < 2) return;
@@ -33,7 +33,7 @@ void RomNeo8::writeMem(word address, byte value, EmuTime::param /*time*/)
 	setRom(region, blockReg[region]);
 }
 
-byte* RomNeo8::getWriteCacheLine(word address)
+byte* RomNeo8::getWriteCacheLine(uint16_t address)
 {
 	unsigned bbb = (address >> 11) & 0b111;
 	return (bbb < 2) ? unmappedWrite.data() : nullptr;

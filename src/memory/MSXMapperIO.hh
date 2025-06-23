@@ -13,9 +13,9 @@ namespace openmsx {
 
 struct MSXMemoryMapperInterface
 {
-	[[nodiscard]] virtual byte readIO(word port, EmuTime::param time) = 0;
-	[[nodiscard]] virtual byte peekIO(word port, EmuTime::param time) const = 0;
-	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
+	[[nodiscard]] virtual byte readIO(uint16_t port, EmuTime::param time) = 0;
+	[[nodiscard]] virtual byte peekIO(uint16_t port, EmuTime::param time) const = 0;
+	virtual void writeIO(uint16_t port, byte value, EmuTime::param time) = 0;
 	[[nodiscard]] virtual byte getSelectedSegment(byte page) const = 0;
 protected:
 	~MSXMemoryMapperInterface() = default;
@@ -32,9 +32,9 @@ public:
 
 	void setMode(Mode mode, byte mask, byte baseValue);
 
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
 
 	void registerMapper(MSXMemoryMapperInterface* mapper);
 	void unregisterMapper(MSXMemoryMapperInterface* mapper);

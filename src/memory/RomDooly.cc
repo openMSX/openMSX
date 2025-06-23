@@ -23,7 +23,7 @@ void RomDooly::reset(EmuTime::param /*time*/)
 	conversion = 0;
 }
 
-byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
+byte RomDooly::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
 		byte value = rom[address - 0x4000];
@@ -59,12 +59,12 @@ byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
 	return 0xff;
 }
 
-byte RomDooly::readMem(word address, EmuTime::param time)
+byte RomDooly::readMem(uint16_t address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
 
-void RomDooly::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomDooly::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	// TODO: To what region does the real cartridge react?
 	// * Using the full region [0x4000,0xc000) interferes with the
@@ -79,7 +79,7 @@ void RomDooly::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomDooly::getWriteCacheLine(word address)
+byte* RomDooly::getWriteCacheLine(uint16_t address)
 {
 	if (((0x4000 & CacheLine::HIGH) <= address) && (address < (0xc000 & CacheLine::HIGH))) {
 		return nullptr;

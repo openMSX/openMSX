@@ -24,13 +24,13 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] const byte* getReadCacheLine(word address) const override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
+	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
-	void writeIO(word port, byte value, EmuTime::param time) override;
+	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -50,19 +50,19 @@ private:
 	byte subslotReg;
 
 	// subslot 0
-	[[nodiscard]] byte readMemSubSlot0(word address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot0(word address, EmuTime::param time) const;
-	[[nodiscard]] const byte* getReadCacheLineSubSlot0(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot0(word address);
-	void writeMemSubSlot0(word address, byte value, EmuTime::param time);
+	[[nodiscard]] byte readMemSubSlot0(uint16_t address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot0(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot0(uint16_t address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot0(uint16_t address);
+	void writeMemSubSlot0(uint16_t address, byte value, EmuTime::param time);
 
 	// subslot 1
 	// mega flash rom scc+
-	[[nodiscard]] byte readMemSubSlot1(word address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot1(word address, EmuTime::param time) const;
-	[[nodiscard]] const byte* getReadCacheLineSubSlot1(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot1(word address);
-	void writeMemSubSlot1(word address, byte value, EmuTime::param time);
+	[[nodiscard]] byte readMemSubSlot1(uint16_t address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot1(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot1(uint16_t address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot1(uint16_t address);
+	void writeMemSubSlot1(uint16_t address, byte value, EmuTime::param time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot1(unsigned addr) const;
 
 	SCC scc;
@@ -94,14 +94,14 @@ private:
 
 	// subslot 2
 	// 512k memory mapper
-	[[nodiscard]] byte readMemSubSlot2(word address);
-	[[nodiscard]] byte peekMemSubSlot2(word address) const;
-	[[nodiscard]] const byte* getReadCacheLineSubSlot2(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot2(word address);
-	void writeMemSubSlot2(word address, byte value);
+	[[nodiscard]] byte readMemSubSlot2(uint16_t address);
+	[[nodiscard]] byte peekMemSubSlot2(uint16_t address) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot2(uint16_t address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot2(uint16_t address);
+	void writeMemSubSlot2(uint16_t address, byte value);
 
-	[[nodiscard]] unsigned calcMemMapperAddress(word address) const;
-	[[nodiscard]] unsigned calcAddress(word address) const;
+	[[nodiscard]] unsigned calcMemMapperAddress(uint16_t address) const;
+	[[nodiscard]] unsigned calcAddress(uint16_t address) const;
 
 	class MapperIO final : public MSXMapperIOClient {
 	public:
@@ -111,9 +111,9 @@ private:
 		{
 		}
 
-		[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-		[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-		void writeIO(word port, byte value, EmuTime::param time) override;
+		[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
+		[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+		void writeIO(uint16_t port, byte value, EmuTime::param time) override;
 		[[nodiscard]] byte getSelectedSegment(byte page) const override;
 
 	private:
@@ -124,11 +124,11 @@ private:
 	std::array<byte, 4> memMapperRegs;
 
 	// subslot 3
-	[[nodiscard]] byte readMemSubSlot3(word address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot3(word address, EmuTime::param time) const;
-	[[nodiscard]] const byte* getReadCacheLineSubSlot3(word address) const;
-	[[nodiscard]] byte* getWriteCacheLineSubSlot3(word address);
-	void writeMemSubSlot3(word address, byte value, EmuTime::param time);
+	[[nodiscard]] byte readMemSubSlot3(uint16_t address, EmuTime::param time);
+	[[nodiscard]] byte peekMemSubSlot3(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] const byte* getReadCacheLineSubSlot3(uint16_t address) const;
+	[[nodiscard]] byte* getWriteCacheLineSubSlot3(uint16_t address);
+	void writeMemSubSlot3(uint16_t address, byte value, EmuTime::param time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot3(unsigned addr) const;
 
 	std::array<byte, 4> bankRegsSubSlot3;

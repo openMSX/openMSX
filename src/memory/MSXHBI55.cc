@@ -78,17 +78,17 @@ void MSXHBI55::reset(EmuTime::param time)
 	i8255.reset(time);
 }
 
-byte MSXHBI55::readIO(word port, EmuTime::param time)
+byte MSXHBI55::readIO(uint16_t port, EmuTime::param time)
 {
 	return i8255.read(port & 0x03, time);
 }
 
-byte MSXHBI55::peekIO(word port, EmuTime::param time) const
+byte MSXHBI55::peekIO(uint16_t port, EmuTime::param time) const
 {
 	return i8255.peek(port & 0x03, time);
 }
 
-void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
+void MSXHBI55::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	i8255.write(port & 0x03, value, time);
 }

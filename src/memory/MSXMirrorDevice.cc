@@ -22,27 +22,27 @@ MSXMirrorDevice::MSXMirrorDevice(const DeviceConfig& config)
 {
 }
 
-byte MSXMirrorDevice::peekMem(word address, EmuTime::param time) const
+byte MSXMirrorDevice::peekMem(uint16_t address, EmuTime::param time) const
 {
 	return interface.peekSlottedMem(addressHigh | address, time);
 }
 
-byte MSXMirrorDevice::readMem(word address, EmuTime::param time)
+byte MSXMirrorDevice::readMem(uint16_t address, EmuTime::param time)
 {
 	return interface.readSlottedMem(addressHigh | address, time);
 }
 
-void MSXMirrorDevice::writeMem(word address, byte value, EmuTime::param time)
+void MSXMirrorDevice::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	interface.writeSlottedMem(addressHigh | address, value, time);
 }
 
-const byte* MSXMirrorDevice::getReadCacheLine(word /*start*/) const
+const byte* MSXMirrorDevice::getReadCacheLine(uint16_t /*start*/) const
 {
 	return nullptr;
 }
 
-byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/)
+byte* MSXMirrorDevice::getWriteCacheLine(uint16_t /*start*/)
 {
 	return nullptr;
 }

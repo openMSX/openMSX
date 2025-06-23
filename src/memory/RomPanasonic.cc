@@ -55,7 +55,7 @@ void RomPanasonic::reset(EmuTime::param /*time*/)
 	invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
-byte RomPanasonic::peekMem(word address, EmuTime::param time) const
+byte RomPanasonic::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
 		// read mapper state (lower 8 bit)
@@ -78,12 +78,12 @@ byte RomPanasonic::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-byte RomPanasonic::readMem(word address, EmuTime::param time)
+byte RomPanasonic::readMem(uint16_t address, EmuTime::param time)
 {
 	return RomPanasonic::peekMem(address, time);
 }
 
-const byte* RomPanasonic::getReadCacheLine(word address) const
+const byte* RomPanasonic::getReadCacheLine(uint16_t address) const
 {
 	if ((0x7FF0 & CacheLine::HIGH) == address) {
 		// TODO check mirrored
@@ -93,7 +93,7 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 	}
 }
 
-void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomPanasonic::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state (lower 8 bits)
@@ -133,7 +133,7 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomPanasonic::getWriteCacheLine(word address)
+byte* RomPanasonic::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// mapper select (low/high), control

@@ -10,8 +10,8 @@ namespace openmsx {
 class MSXRom : public MSXDevice
 {
 public:
-	void writeMem(word address, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte* getWriteCacheLine(word address) override;
+	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 

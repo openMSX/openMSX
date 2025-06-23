@@ -35,7 +35,7 @@ void RomKonamiKeyboardMaster::reset(EmuTime::param /*time*/)
 	vlm5030.reset();
 }
 
-void RomKonamiKeyboardMaster::writeIO(word port, byte value, EmuTime::param time)
+void RomKonamiKeyboardMaster::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0xFF) {
 	case 0x00:
@@ -49,12 +49,12 @@ void RomKonamiKeyboardMaster::writeIO(word port, byte value, EmuTime::param time
 	}
 }
 
-byte RomKonamiKeyboardMaster::readIO(word port, EmuTime::param time)
+byte RomKonamiKeyboardMaster::readIO(uint16_t port, EmuTime::param time)
 {
 	return RomKonamiKeyboardMaster::peekIO(port, time);
 }
 
-byte RomKonamiKeyboardMaster::peekIO(word port, EmuTime::param time) const
+byte RomKonamiKeyboardMaster::peekIO(uint16_t port, EmuTime::param time) const
 {
 	switch (port & 0xFF) {
 	case 0x00:

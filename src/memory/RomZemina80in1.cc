@@ -30,14 +30,14 @@ void RomZemina80in1::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomZemina80in1::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomZemina80in1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x4004)) {
 		setRom(2 + (address - 0x4000), value);
 	}
 }
 
-byte* RomZemina80in1::getWriteCacheLine(word address)
+byte* RomZemina80in1::getWriteCacheLine(uint16_t address)
 {
 	if (address == (0x4000 & CacheLine::HIGH)) {
 		return nullptr;

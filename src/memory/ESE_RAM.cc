@@ -57,18 +57,18 @@ void ESE_RAM::reset(EmuTime::param /*time*/)
 	}
 }
 
-byte ESE_RAM::readMem(word address, EmuTime::param /*time*/)
+byte ESE_RAM::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
-		word addr = address & 0x1FFF;
+		uint16_t addr = address & 0x1FFF;
 		return sram[8192 * mapped[page] + addr];
 	} else {
 		return 0xFF;
 	}
 }
 
-const byte* ESE_RAM::getReadCacheLine(word address) const
+const byte* ESE_RAM::getReadCacheLine(uint16_t address) const
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
@@ -79,7 +79,7 @@ const byte* ESE_RAM::getReadCacheLine(word address) const
 	}
 }
 
-void ESE_RAM::writeMem(word address, byte value, EmuTime::param /*time*/)
+void ESE_RAM::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3);
@@ -93,7 +93,7 @@ void ESE_RAM::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* ESE_RAM::getWriteCacheLine(word address)
+byte* ESE_RAM::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

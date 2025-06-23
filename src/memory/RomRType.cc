@@ -27,7 +27,7 @@ void RomRType::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomRType::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomRType::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		value &= (value & 0x10) ? 0x17 : 0x1F;
@@ -35,7 +35,7 @@ void RomRType::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomRType::getWriteCacheLine(word address)
+byte* RomRType::getWriteCacheLine(uint16_t address)
 {
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		return nullptr;

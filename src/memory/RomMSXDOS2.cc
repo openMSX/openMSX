@@ -27,7 +27,7 @@ void RomMSXDOS2::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomMSXDOS2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	switch (range) {
 	case 0x00:
@@ -45,7 +45,7 @@ void RomMSXDOS2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	setRom(1, value);
 }
 
-byte* RomMSXDOS2::getWriteCacheLine(word address)
+byte* RomMSXDOS2::getWriteCacheLine(uint16_t address)
 {
 	switch (range) {
 	case 0x00:

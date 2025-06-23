@@ -16,20 +16,20 @@
 
 namespace openmsx {
 
-static constexpr word ENAR = 0x7FFF;
-static constexpr byte REGEN  = 0x01;
-static constexpr byte WREN   = 0x10;
-static constexpr word OFFR = 0x7FFE;
-static constexpr word CFGR = 0x7FFD;
-static constexpr byte MDIS   = 0x01;
-static constexpr byte ECHO   = 0x02;
-static constexpr byte ROMDIS = 0x04;
-static constexpr byte K4     = 0x08;
-static constexpr byte SUBOFF = 0x30;
+static constexpr uint16_t ENAR = 0x7FFF;
+static constexpr uint8_t  REGEN  = 0x01;
+static constexpr uint8_t  WREN   = 0x10;
+static constexpr uint16_t OFFR = 0x7FFE;
+static constexpr uint16_t CFGR = 0x7FFD;
+static constexpr uint8_t  MDIS   = 0x01;
+static constexpr uint8_t  ECHO   = 0x02;
+static constexpr uint8_t  ROMDIS = 0x04;
+static constexpr uint8_t  K4     = 0x08;
+static constexpr uint8_t  SUBOFF = 0x30;
 // undocumented stuff
-static constexpr byte FPGA_EN   = 0x40; // write: 1 -> enable communication with FPGA commands ???
-static constexpr byte FPGA_WAIT = 0x80; // read: ready signal ??? (1 = ready)
-static constexpr word FPGA_REG  = 0x7FFC; // bi-direction 8-bit communication channel
+static constexpr uint8_t  FPGA_EN   = 0x40; // write: 1 -> enable communication with FPGA commands ???
+static constexpr uint8_t  FPGA_WAIT = 0x80; // read: ready signal ??? (1 = ready)
+static constexpr uint16_t FPGA_REG  = 0x7FFC; // bi-direction 8-bit communication channel
 
 Yamanooto::Yamanooto(DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
@@ -99,7 +99,7 @@ void Yamanooto::writeConfigReg(byte value)
 	configReg = value;
 }
 
-bool Yamanooto::isSCCAccess(word address) const
+bool Yamanooto::isSCCAccess(uint16_t address) const
 {
 	if (configReg & K4) return false; // Konami4 doesn't have SCC
 
@@ -120,7 +120,7 @@ unsigned Yamanooto::getFlashAddr(unsigned addr) const
 	return (bank << 13) | (addr & 0x1FFF);
 }
 
-[[nodiscard]] static word mirror(word address)
+[[nodiscard]] static uint16_t mirror(uint16_t address)
 {
 	if (address < 0x4000 || 0xC000 <= address) {
 		// mirror 0x4000 <-> 0xc000   /   0x8000 <-> 0x0000
@@ -134,7 +134,7 @@ static constexpr std::array<byte, 4 + 1> FPGA_ID = {
 	0xFF, // idle
 	0x1F, 0x23, 0x00, 0x00, // TODO check last 2
 };
-byte Yamanooto::peekMem(word address, EmuTime::param time) const
+byte Yamanooto::peekMem(uint16_t address, EmuTime::param time) const
 {
 	address = mirror(address);
 
@@ -160,7 +160,7 @@ byte Yamanooto::peekMem(word address, EmuTime::param time) const
 	                                   : 0xFF; // access to flash ROM disabled
 }
 
-byte Yamanooto::readMem(word address, EmuTime::param time)
+byte Yamanooto::readMem(uint16_t address, EmuTime::param time)
 {
 	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR && (enableReg & REGEN)) {
@@ -176,7 +176,7 @@ byte Yamanooto::readMem(word address, EmuTime::param time)
 	                                   : 0xFF; // access to flash ROM disabled
 }
 
-const byte* Yamanooto::getReadCacheLine(word address) const
+const byte* Yamanooto::getReadCacheLine(uint16_t address) const
 {
 	if (((address & CacheLine::HIGH) == (ENAR & CacheLine::HIGH)) && (enableReg & REGEN)) {
 		return nullptr; // Yamanooto registers, non-cacheable
@@ -187,7 +187,7 @@ const byte* Yamanooto::getReadCacheLine(word address) const
 	                                   : unmappedRead.data(); // access to flash ROM disabled
 }
 
-void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
+void Yamanooto::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR) {
@@ -274,23 +274,23 @@ void Yamanooto::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* Yamanooto::getWriteCacheLine(word /*address*/)
+byte* Yamanooto::getWriteCacheLine(uint16_t /*address*/)
 {
 	return nullptr;
 }
 
-byte Yamanooto::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte Yamanooto::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 {
 	return 0xff;
 }
 
-byte Yamanooto::readIO(word /*port*/, EmuTime::param /*time*/)
+byte Yamanooto::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
 {
 	// PSG is not readable
 	return 0xff; // should never be called
 }
 
-void Yamanooto::writeIO(word port, byte value, EmuTime::param time)
+void Yamanooto::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if (port & 1) { // 0x11 or 0xA1
 		psg.writeRegister(psgLatch, value, time);
@@ -323,7 +323,7 @@ REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");
 unsigned Yamanooto::Blocks::readExt(unsigned address)
 {
 	const auto& dev = OUTER(Yamanooto, romBlockDebug);
-	address = mirror(narrow<word>(address));
+	address = mirror(narrow<uint16_t>(address));
 	unsigned page8kB = (address >> 13) - 2;
 	return dev.bankRegs[page8kB];
 }

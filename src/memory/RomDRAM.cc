@@ -22,12 +22,12 @@ RomDRAM::RomDRAM(const DeviceConfig& config, Rom&& rom_)
 	(void)panasonicMemory.getRomBlock(baseAddr);
 }
 
-byte RomDRAM::readMem(word address, EmuTime::param /*time*/)
+byte RomDRAM::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	return *RomDRAM::getReadCacheLine(address);
 }
 
-const byte* RomDRAM::getReadCacheLine(word address) const
+const byte* RomDRAM::getReadCacheLine(uint16_t address) const
 {
 	unsigned addr = address + baseAddr;
 	return &panasonicMemory.getRomBlock(addr >> 13)[addr & 0x1FFF];

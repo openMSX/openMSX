@@ -26,7 +26,7 @@ void RomHarryFox::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomHarryFox::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomHarryFox::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if        ((0x6000 <= address) && (address < 0x7000)) {
 		setRom(1, 2 * (value & 1) + 0);
@@ -35,7 +35,7 @@ void RomHarryFox::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* RomHarryFox::getWriteCacheLine(word address)
+byte* RomHarryFox::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

@@ -77,7 +77,7 @@ unsigned KonamiUltimateCollection::getFlashAddr(unsigned addr) const
 	return ((mapperReg & 0xC0) << (21 - 6)) | (bank << 13) | (addr & 0x1FFF);
 }
 
-bool KonamiUltimateCollection::isSCCAccess(word addr) const
+bool KonamiUltimateCollection::isSCCAccess(uint16_t addr) const
 {
 	if (sccMode & 0x10) return false;
 
@@ -98,7 +98,7 @@ bool KonamiUltimateCollection::isSCCAccess(word addr) const
 	}
 }
 
-byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
+byte KonamiUltimateCollection::readMem(uint16_t addr, EmuTime::param time)
 {
 	if (isSCCAccess(addr)) {
 		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -110,7 +110,7 @@ byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
 		: 0xFF; // unmapped read
 }
 
-byte KonamiUltimateCollection::peekMem(word addr, EmuTime::param time) const
+byte KonamiUltimateCollection::peekMem(uint16_t addr, EmuTime::param time) const
 {
 	if (isSCCAccess(addr)) {
 		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -122,7 +122,7 @@ byte KonamiUltimateCollection::peekMem(word addr, EmuTime::param time) const
 		: 0xFF; // unmapped read
 }
 
-const byte* KonamiUltimateCollection::getReadCacheLine(word addr) const
+const byte* KonamiUltimateCollection::getReadCacheLine(uint16_t addr) const
 {
 	if (isSCCAccess(addr)) return nullptr;
 
@@ -132,7 +132,7 @@ const byte* KonamiUltimateCollection::getReadCacheLine(word addr) const
 		: unmappedRead.data();
 }
 
-void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param time)
+void KonamiUltimateCollection::writeMem(uint16_t addr, byte value, EmuTime::param time)
 {
 	unsigned page8kB = (addr >> 13) - 2;
 	if (page8kB >= 4) return; // outside [0x4000, 0xBFFF]
@@ -209,7 +209,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 	}
 }
 
-byte* KonamiUltimateCollection::getWriteCacheLine(word addr)
+byte* KonamiUltimateCollection::getWriteCacheLine(uint16_t addr)
 {
 	return ((0x4000 <= addr) && (addr < 0xC000))
 	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable

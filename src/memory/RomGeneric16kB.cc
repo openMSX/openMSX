@@ -17,12 +17,12 @@ void RomGeneric16kB::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomGeneric16kB::writeMem(word address, byte value, EmuTime::param /*time*/)
+void RomGeneric16kB::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	setRom(address >> 14, value);
 }
 
-byte* RomGeneric16kB::getWriteCacheLine(word address)
+byte* RomGeneric16kB::getWriteCacheLine(uint16_t address)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		return nullptr;
