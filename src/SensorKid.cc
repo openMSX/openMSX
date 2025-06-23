@@ -33,7 +33,7 @@ void SensorKid::reset(EmuTime::param /*time*/)
 	mb4052_count = 0; // keep track of which bit we're reading
 }
 
-void SensorKid::writeIO(word port, byte value, EmuTime::param /*time*/)
+void SensorKid::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
 {
 	if ((port & 1) != 0) return;
 
@@ -62,7 +62,7 @@ void SensorKid::writeIO(word port, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte SensorKid::readIO(word port, EmuTime::param /* time */)
+byte SensorKid::readIO(uint16_t port, EmuTime::param /* time */)
 {
 	if ((port & 1) == 0) {
 		// port 0

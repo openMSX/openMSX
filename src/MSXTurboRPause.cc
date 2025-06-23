@@ -32,17 +32,17 @@ void MSXTurboRPause::reset(EmuTime::param time)
 	writeIO(0, 0, time);
 }
 
-byte MSXTurboRPause::readIO(word port, EmuTime::param time)
+byte MSXTurboRPause::readIO(uint16_t port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte MSXTurboRPause::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 {
 	return pauseSetting.getBoolean() ? 1 : 0;
 }
 
-void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
+void MSXTurboRPause::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
 {
 	status = value;
 	if (bool newTurboLed = (status & 0x80) != 0;

@@ -32,12 +32,12 @@ void MSXTurboRPCM::reset(EmuTime::param time)
 	hardwareMute(false);
 }
 
-byte MSXTurboRPCM::readIO(word port, EmuTime::param time)
+byte MSXTurboRPCM::readIO(uint16_t port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
+byte MSXTurboRPCM::peekIO(uint16_t port, EmuTime::param time) const
 {
 	switch (port & 0x01) {
 	case 0:
@@ -63,7 +63,7 @@ byte MSXTurboRPCM::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
+void MSXTurboRPCM::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x01) {
 	case 0:

@@ -10,9 +10,9 @@ class MSXVictorHC9xSystemControl final : public MSXDevice
 public:
 	explicit MSXVictorHC9xSystemControl(const DeviceConfig& config);
 
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	void writeMem(word address, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
 	[[nodiscard]] bool allowUnaligned() const override;
 
 	template<typename Archive>

@@ -17,7 +17,6 @@
 namespace openmsx {
 
 using byte = uint8_t;  // TODO over time deprecate and remove these
-using word = uint16_t;
 
 class XMLElement;
 class MSXMotherBoard;
@@ -123,14 +122,14 @@ public:
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
 	 */
-	[[nodiscard]] virtual byte readIO(word port, EmuTime::param time);
+	[[nodiscard]] virtual byte readIO(uint16_t port, EmuTime::param time);
 
 	/**
 	 * Write a byte to a given IO port at a certain time to this
 	 * device.
 	 * The default implementation ignores the write (does nothing)
 	 */
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	virtual void writeIO(uint16_t port, byte value, EmuTime::param time);
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
@@ -140,7 +139,7 @@ public:
 	 * by a debugger.
 	 * The default implementation just returns 0xFF.
 	 */
-	[[nodiscard]] virtual byte peekIO(word port, EmuTime::param time) const;
+	[[nodiscard]] virtual byte peekIO(uint16_t port, EmuTime::param time) const;
 
 
 	// Memory
@@ -150,14 +149,14 @@ public:
 	 * device.
 	 * The default implementation returns 255.
 	 */
-	[[nodiscard]] virtual byte readMem(word address, EmuTime::param time);
+	[[nodiscard]] virtual byte readMem(uint16_t address, EmuTime::param time);
 
 	/**
 	 * Write a given byte to a given location at a certain time
 	 * to this device.
 	 * The default implementation ignores the write (does nothing).
 	 */
-	virtual void writeMem(word address, byte value, EmuTime::param time);
+	virtual void writeMem(uint16_t address, byte value, EmuTime::param time);
 
 	/**
 	 * Test that the memory in the interval [start, start +
@@ -170,7 +169,7 @@ public:
 	 * The default implementation always returns a null pointer.
 	 * The start of the interval is CacheLine::SIZE aligned.
 	 */
-	[[nodiscard]] virtual const byte* getReadCacheLine(word start) const;
+	[[nodiscard]] virtual const byte* getReadCacheLine(uint16_t start) const;
 
 	/**
 	 * Test that the memory in the interval [start, start +
@@ -183,7 +182,7 @@ public:
 	 * The default implementation always returns a null pointer.
 	 * The start of the interval is CacheLine::SIZE aligned.
 	 */
-	[[nodiscard]] virtual byte* getWriteCacheLine(word start);
+	[[nodiscard]] virtual byte* getWriteCacheLine(uint16_t start);
 
 	/**
 	 * Read a byte from a given memory location. Reading memory
@@ -197,7 +196,7 @@ public:
 	 * cacheable you cannot read it by default, Override this
 	 * method if you want to improve this behaviour.
 	 */
-	[[nodiscard]] virtual byte peekMem(word address, EmuTime::param time) const;
+	[[nodiscard]] virtual byte peekMem(uint16_t address, EmuTime::param time) const;
 
 	/** Global writes.
 	  * Some devices violate the MSX standard by ignoring the SLOT-SELECT
@@ -207,13 +206,13 @@ public:
 	  * You need to register each address for which you want this method
 	  * to be triggered.
 	  */
-	virtual void globalWrite(word address, byte value, EmuTime::param time);
+	virtual void globalWrite(uint16_t address, byte value, EmuTime::param time);
 
 	/** Global reads. Similar to globalWrite() but then for reads.
 	  * 'Carnivore2' is an example of a device that monitors the MSX bus
 	  * for reads in any slot.
 	  */
-	virtual void globalRead(word address, EmuTime::param time);
+	virtual void globalRead(uint16_t address, EmuTime::param time);
 
 	/** Calls MSXCPUInterface::invalidateXXCache() for the specific (part
 	  * of) the slot that this device is located in.

@@ -18,22 +18,22 @@ public:
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(word port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(word port, EmuTime::param time) const override;
-	void writeIO(word port, byte value, EmuTime::param time) override;
-	byte readMem(word addr, EmuTime::param time) override;
-	byte peekMem(word addr, EmuTime::param time) const override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) override;
-	void writeMem(word addr, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	byte readMem(uint16_t addr, EmuTime::param time) override;
+	byte peekMem(uint16_t addr, EmuTime::param time) const override;
+	const byte* getReadCacheLine(uint16_t start) const override;
+	byte* getWriteCacheLine(uint16_t start) override;
+	void writeMem(uint16_t addr, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void setRegCfg(byte value);
-	std::optional<size_t> getSramAddr(word addr) const;
-	unsigned getFlashAddr(word addr) const;
+	std::optional<size_t> getSramAddr(uint16_t addr) const;
+	unsigned getFlashAddr(uint16_t addr) const;
 
 	void setupMemPtrs(
 		bool mode0,

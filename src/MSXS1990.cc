@@ -23,12 +23,12 @@ void MSXS1990::reset(EmuTime::param /*time*/)
 	setCPUStatus(96);
 }
 
-byte MSXS1990::readIO(word port, EmuTime::param time)
+byte MSXS1990::readIO(uint16_t port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXS1990::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXS1990::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x01) {
 	case 0:
@@ -40,7 +40,7 @@ byte MSXS1990::peekIO(word port, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXS1990::writeIO(word port, byte value, EmuTime::param /*time*/)
+void MSXS1990::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
 {
 	switch (port & 0x01) {
 	case 0:

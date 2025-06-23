@@ -17,13 +17,13 @@ void MSXHiResTimer::reset(EmuTime::param time)
 	latchedValue = 0;
 }
 
-void MSXHiResTimer::writeIO(word /*port*/, byte /*value*/, EmuTime::param time)
+void MSXHiResTimer::writeIO(uint16_t /*port*/, byte /*value*/, EmuTime::param time)
 {
 	// write to any port will reset the counter
 	reference.advance(time);
 }
 
-byte MSXHiResTimer::readIO(word port, EmuTime::param time)
+byte MSXHiResTimer::readIO(uint16_t port, EmuTime::param time)
 {
 	if ((port & 3) == 0) {
 		// reading port 0 will latch the current counter value
@@ -34,7 +34,7 @@ byte MSXHiResTimer::readIO(word port, EmuTime::param time)
 	return narrow_cast<byte>(latchedValue >> (8 * (port & 3)));
 }
 
-byte MSXHiResTimer::peekIO(word port, EmuTime::param time) const
+byte MSXHiResTimer::peekIO(uint16_t port, EmuTime::param time) const
 {
 	unsigned tmp = (port & 3) ? latchedValue : reference.getTicksTill(time);
 	return narrow_cast<byte>(tmp >> (8 * (port & 3)));

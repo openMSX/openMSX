@@ -15,7 +15,7 @@ void SNPSG::reset(EmuTime::param time)
 	sn76489.reset(time);
 }
 
-void SNPSG::writeIO(word /*port*/, byte value, EmuTime::param time)
+void SNPSG::writeIO(uint16_t /*port*/, byte value, EmuTime::param time)
 {
 	// The chip has only a single port.
 	sn76489.write(value, time);

@@ -81,11 +81,11 @@ void MegaSCSI::reset(EmuTime::param /*time*/)
 	mb89352.reset(true);
 }
 
-byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
+byte MegaSCSI::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 0x2000) - 2;
-		word addr = address & 0x1FFF;
+		uint16_t addr = address & 0x1FFF;
 		if (mapped[page] == SPC) {
 			// SPC read
 			if (addr < 0x1000) {
@@ -102,7 +102,7 @@ byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 	}
 }
 
-byte MegaSCSI::peekMem(word address, EmuTime::param /*time*/) const
+byte MegaSCSI::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	if (const byte* cacheline = MegaSCSI::getReadCacheLine(address)) {
 		return *cacheline;
@@ -116,7 +116,7 @@ byte MegaSCSI::peekMem(word address, EmuTime::param /*time*/) const
 	}
 }
 
-const byte* MegaSCSI::getReadCacheLine(word address) const
+const byte* MegaSCSI::getReadCacheLine(uint16_t address) const
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 0x2000) - 2;
@@ -131,7 +131,7 @@ const byte* MegaSCSI::getReadCacheLine(word address) const
 	}
 }
 
-void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
+void MegaSCSI::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3);
@@ -151,7 +151,7 @@ void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte* MegaSCSI::getWriteCacheLine(word address)
+byte* MegaSCSI::getWriteCacheLine(uint16_t address)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return nullptr;

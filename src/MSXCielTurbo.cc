@@ -13,21 +13,21 @@ MSXCielTurbo::MSXCielTurbo(const DeviceConfig& config)
 
 void MSXCielTurbo::reset(EmuTime::param time)
 {
-	word port = 0; // dummy
+	uint16_t port = 0; // dummy
 	writeIO(port, 0, time);
 }
 
-byte MSXCielTurbo::readIO(word /*port*/, EmuTime::param /*time*/)
+byte MSXCielTurbo::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
 {
 	return lastValue;
 }
 
-byte MSXCielTurbo::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte MSXCielTurbo::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 {
 	return lastValue;
 }
 
-void MSXCielTurbo::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
+void MSXCielTurbo::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
 {
 	lastValue = value;
 	bool enabled = (value & 0x80) != 0;
@@ -44,7 +44,7 @@ void MSXCielTurbo::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("value", lastValue);
 	if constexpr (!Archive::IS_LOADER) {
-		word port = 0; // dummy
+		uint16_t port = 0; // dummy
 		writeIO(port, lastValue, EmuTime::dummy());
 	}
 }

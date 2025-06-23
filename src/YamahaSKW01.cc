@@ -117,12 +117,12 @@ void YamahaSKW01::reset(EmuTime::param time)
 	if (printerPort) printerPort->reset(time);
 }
 
-byte YamahaSKW01::readMem(word address, EmuTime::param time)
+byte YamahaSKW01::readMem(uint16_t address, EmuTime::param time)
 {
 	return peekMem(address, time);
 }
 
-byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
+byte YamahaSKW01::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if (address == one_of(0x7FC0, 0x7FC2, 0x7FC4, 0x7FC6)) {
 		return 0x01; // for now, always READY to read
@@ -150,7 +150,7 @@ byte YamahaSKW01::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-void YamahaSKW01::writeMem(word address, byte value, EmuTime::param time)
+void YamahaSKW01::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	if (0x7FC0 <= address && address <= 0x7FC7) {
 		unsigned group = (address - 0x7FC0) / 2;
@@ -176,7 +176,7 @@ void YamahaSKW01::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-const byte* YamahaSKW01::getReadCacheLine(word start) const
+const byte* YamahaSKW01::getReadCacheLine(uint16_t start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FC0 & CacheLine::HIGH)) {
 		// 0x7FC0-0x7FCF memory mapped registers
@@ -188,7 +188,7 @@ const byte* YamahaSKW01::getReadCacheLine(word start) const
 	}
 }
 
-byte* YamahaSKW01::getWriteCacheLine(word start)
+byte* YamahaSKW01::getWriteCacheLine(uint16_t start)
 {
 	if ((start & CacheLine::HIGH) == (0x7FC0 & CacheLine::HIGH)) {
 		// 0x7FC0-0x7FCF memory mapped registers

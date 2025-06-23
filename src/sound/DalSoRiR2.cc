@@ -135,22 +135,22 @@ void DalSoRiR2::setRegCfg(byte value)
 	ymf278b.setupMemoryPointers(); // ENA_S0 might have changed
 }
 
-byte DalSoRiR2::readIO(word port, EmuTime::param time)
+byte DalSoRiR2::readIO(uint16_t port, EmuTime::param time)
 {
 	return ymf278b.readIO(port, time);
 }
 
-byte DalSoRiR2::peekIO(word port, EmuTime::param time) const
+byte DalSoRiR2::peekIO(uint16_t port, EmuTime::param time) const
 {
 	return ymf278b.peekIO(port, time);
 }
 
-void DalSoRiR2::writeIO(word port, byte value, EmuTime::param time)
+void DalSoRiR2::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	ymf278b.writeIO(port, value, time);
 }
 
-std::optional<size_t> DalSoRiR2::getSramAddr(word addr) const
+std::optional<size_t> DalSoRiR2::getSramAddr(uint16_t addr) const
 {
 	auto get = [&](byte frame) -> size_t {
 		return (addr & 0x0FFF) + (frame & REG_FRAME_SEGMENT_MASK) * 0x1000;
@@ -170,7 +170,7 @@ std::optional<size_t> DalSoRiR2::getSramAddr(word addr) const
 	}
 }
 
-unsigned DalSoRiR2::getFlashAddr(word addr) const
+unsigned DalSoRiR2::getFlashAddr(uint16_t addr) const
 {
 	auto page = addr >> 14;
 	auto bank = regBank[page] & REG_BANK_SEGMENT_MASK;
@@ -178,7 +178,7 @@ unsigned DalSoRiR2::getFlashAddr(word addr) const
 	return 0x4000 * bank + offset;
 }
 
-byte DalSoRiR2::readMem(word addr, EmuTime::param time)
+byte DalSoRiR2::readMem(uint16_t addr, EmuTime::param time)
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
@@ -188,7 +188,7 @@ byte DalSoRiR2::readMem(word addr, EmuTime::param time)
 	return 0xFF;
 }
 
-byte DalSoRiR2::peekMem(word addr, EmuTime::param time) const
+byte DalSoRiR2::peekMem(uint16_t addr, EmuTime::param time) const
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
@@ -198,7 +198,7 @@ byte DalSoRiR2::peekMem(word addr, EmuTime::param time) const
 	return 0xFF;
 }
 
-const byte* DalSoRiR2::getReadCacheLine(word start) const
+const byte* DalSoRiR2::getReadCacheLine(uint16_t start) const
 {
 	if (auto r = getSramAddr(start)) {
 		return &sram[*r];
@@ -208,7 +208,7 @@ const byte* DalSoRiR2::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param time)
+void DalSoRiR2::writeMem(uint16_t addr, byte value, EmuTime::param time)
 {
 	if (auto r = getSramAddr(addr)) {
 		sram[*r] = value;
@@ -227,7 +227,7 @@ void DalSoRiR2::writeMem(word addr, byte value, EmuTime::param time)
 	}
 }
 
-byte* DalSoRiR2::getWriteCacheLine(word start)
+byte* DalSoRiR2::getWriteCacheLine(uint16_t start)
 {
 	if (auto r = getSramAddr(start)) {
 		return &sram[*r];

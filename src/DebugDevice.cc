@@ -30,7 +30,7 @@ void DebugDevice::reset(EmuTime::param /*time*/)
 	modeParameter = 0;
 }
 
-void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
+void DebugDevice::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if (const auto& newName = fileNameSetting.getString();
 	    newName != fileNameString) {

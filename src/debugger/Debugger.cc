@@ -186,13 +186,13 @@ Interpreter& Debugger::getInterpreter()
 
 // class Debugger::Cmd
 
-static word getAddress(Interpreter& interp, const TclObject& token)
+static uint16_t getAddress(Interpreter& interp, const TclObject& token)
 {
 	unsigned addr = token.getInt(interp);
 	if (addr >= 0x10000) {
 		throw CommandException("Invalid address");
 	}
-	return narrow_cast<word>(addr);
+	return narrow_cast<uint16_t>(addr);
 }
 
 Debugger::Cmd::Cmd(CommandController& commandController_,
@@ -345,8 +345,8 @@ static constexpr void toHex(byte x, std::span<char, 3> buf)
 
 void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const
 {
-	word address = (tokens.size() < 3) ? debugger().cpu->getRegisters().getPC()
-	                                   : word(tokens[2].getInt(getInterpreter()));
+	uint16_t address = (tokens.size() < 3) ? debugger().cpu->getRegisters().getPC()
+	                                       : uint16_t(tokens[2].getInt(getInterpreter()));
 	std::array<byte, 4> outBuf;
 	std::string dasmOutput;
 	unsigned len = dasm(debugger().motherBoard.getCPUInterface(), address, outBuf, dasmOutput, time);
@@ -369,7 +369,7 @@ void Debugger::Cmd::disasmBlob(std::span<const TclObject> tokens, TclObject& res
 	}
 	std::string dasmOutput;
 	unsigned addr = tokens[3].getInt(getInterpreter());
-	dasm(bin.subspan(0, *len), word(addr), dasmOutput,
+	dasm(bin.subspan(0, *len), uint16_t(addr), dasmOutput,
 		[&](std::string& out, uint16_t a) {
 			zstring_view cmdRes;
 			if (tokens.size() > 4) {
@@ -721,7 +721,7 @@ void Debugger::Cmd::removeBreakPoint(
 		throw CommandException("No such breakpoint: ", tmp);
 	} else {
 		// remove by addr, only works for unconditional bp
-		word addr = getAddress(getInterpreter(), tokens[2]);
+		uint16_t addr = getAddress(getInterpreter(), tokens[2]);
 		auto it = std::ranges::find_if(breakPoints, [&](auto& bp) {
 			return (bp.getAddress() == addr) &&
 			       bp.getCondition().getString().empty();

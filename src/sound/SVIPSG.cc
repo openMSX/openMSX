@@ -70,17 +70,17 @@ void SVIPSG::powerDown(EmuTime::param /*time*/)
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, false);
 }
 
-byte SVIPSG::readIO(word /*port*/, EmuTime::param time)
+byte SVIPSG::readIO(uint16_t /*port*/, EmuTime::param time)
 {
 	return ay8910.readRegister(registerLatch, time);
 }
 
-byte SVIPSG::peekIO(word /*port*/, EmuTime::param time) const
+byte SVIPSG::peekIO(uint16_t /*port*/, EmuTime::param time) const
 {
 	return ay8910.peekRegister(registerLatch, time);
 }
 
-void SVIPSG::writeIO(word port, byte value, EmuTime::param time)
+void SVIPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x07) {
 	case 0:

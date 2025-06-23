@@ -70,7 +70,7 @@ void PioneerLDControl::reset(EmuTime::param time)
 	if (laserdisc) laserdisc->setMuting(muteL, muteR, time);
 }
 
-byte PioneerLDControl::readMem(word address, EmuTime::param time)
+byte PioneerLDControl::readMem(uint16_t address, EmuTime::param time)
 {
 	byte val = PioneerLDControl::peekMem(address, time);
 	if (address == 0x7fff) {
@@ -80,7 +80,7 @@ byte PioneerLDControl::readMem(word address, EmuTime::param time)
 	return val;
 }
 
-byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
+byte PioneerLDControl::peekMem(uint16_t address, EmuTime::param time) const
 {
 	byte val = 0xff;
 
@@ -104,7 +104,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 	return val;
 }
 
-const byte* PioneerLDControl::getReadCacheLine(word address) const
+const byte* PioneerLDControl::getReadCacheLine(uint16_t address) const
 {
 	if ((address & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;
@@ -115,7 +115,7 @@ const byte* PioneerLDControl::getReadCacheLine(word address) const
 	}
 }
 
-void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
+void PioneerLDControl::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	if (address == 0x7fff) {
 		// superimpose
@@ -136,7 +136,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* PioneerLDControl::getWriteCacheLine(word address)
+byte* PioneerLDControl::getWriteCacheLine(uint16_t address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;

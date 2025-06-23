@@ -29,7 +29,7 @@ void MSXKanji::reset(EmuTime::param /*time*/)
 	adr2 = 0x20000; // TODO check this
 }
 
-void MSXKanji::writeIO(word port, byte value, EmuTime::param /*time*/)
+void MSXKanji::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -47,7 +47,7 @@ void MSXKanji::writeIO(word port, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte MSXKanji::readIO(word port, EmuTime::param time)
+byte MSXKanji::readIO(uint16_t port, EmuTime::param time)
 {
 	byte result = peekIO(port, time);
 	switch (port & 0x03) {
@@ -66,7 +66,7 @@ byte MSXKanji::readIO(word port, EmuTime::param time)
 	return result;
 }
 
-byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXKanji::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	byte result = 0xff;
 	switch (port & 0x03) {

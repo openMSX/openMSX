@@ -12,7 +12,7 @@ namespace openmsx {
 [[nodiscard]] static IterableBitSet<256> parseAllPorts(const Setting& setting)
 {
 	Interpreter& interp = setting.getInterpreter();
-	TclObject portList = setting.getValue();
+	const auto& portList = setting.getValue();
 	IterableBitSet<256> ports;
 
 	for (auto n : xrange(portList.getListLength(interp))) {
@@ -74,12 +74,12 @@ void ProgrammableDevice::update(const Setting& setting) noexcept
 	}
 }
 
-void ProgrammableDevice::writeIO(word port, byte value, EmuTime::param /*time*/)
+void ProgrammableDevice::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
 {
 	outCallback.execute(port & 0xff, value);
 }
 
-byte ProgrammableDevice::readIO(word port, EmuTime::param /*time*/)
+byte ProgrammableDevice::readIO(uint16_t port, EmuTime::param /*time*/)
 {
 	try {
 		auto obj = inCallback.execute(port & 0xff);

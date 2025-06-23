@@ -14,7 +14,7 @@ void MSXE6Timer::reset(EmuTime::param time)
 	reference.reset(time);
 }
 
-void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, EmuTime::param time)
+void MSXE6Timer::writeIO(uint16_t /*port*/, byte /*value*/, EmuTime::param time)
 {
 	/*
 	The Clock class rounds down time to its clock resolution.
@@ -34,12 +34,12 @@ void MSXE6Timer::writeIO(word /*port*/, byte /*value*/, EmuTime::param time)
 	reference.advance(time);
 }
 
-byte MSXE6Timer::readIO(word port, EmuTime::param time)
+byte MSXE6Timer::readIO(uint16_t port, EmuTime::param time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXE6Timer::peekIO(word port, EmuTime::param time) const
+byte MSXE6Timer::peekIO(uint16_t port, EmuTime::param time) const
 {
 	auto counter = reference.getTicksTill(time);
 	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);

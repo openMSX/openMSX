@@ -17,7 +17,7 @@ void GoudaSCSI::reset(EmuTime::param /*time*/)
 	wd33c93.reset(true);
 }
 
-byte GoudaSCSI::readIO(word port, EmuTime::param /*time*/)
+byte GoudaSCSI::readIO(uint16_t port, EmuTime::param /*time*/)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -31,7 +31,7 @@ byte GoudaSCSI::readIO(word port, EmuTime::param /*time*/)
 	}
 }
 
-byte GoudaSCSI::peekIO(word port, EmuTime::param /*time*/) const
+byte GoudaSCSI::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x03) {
 	case 0:
@@ -45,7 +45,7 @@ byte GoudaSCSI::peekIO(word port, EmuTime::param /*time*/) const
 	}
 }
 
-void GoudaSCSI::writeIO(word port, byte value, EmuTime::param time)
+void GoudaSCSI::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -62,12 +62,12 @@ void GoudaSCSI::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-byte GoudaSCSI::readMem(word address, EmuTime::param /*time*/)
+byte GoudaSCSI::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	return *GoudaSCSI::getReadCacheLine(address);
 }
 
-const byte* GoudaSCSI::getReadCacheLine(word start) const
+const byte* GoudaSCSI::getReadCacheLine(uint16_t start) const
 {
 	return &rom[start & (rom.size() - 1)];
 }

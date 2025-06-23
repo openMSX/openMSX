@@ -57,7 +57,7 @@ void MSXPSG::powerDown(EmuTime::param /*time*/)
 	getLedStatus().setLed(LedStatus::KANA, false);
 }
 
-byte MSXPSG::readIO(word port, EmuTime::param time)
+byte MSXPSG::readIO(uint16_t port, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 2:
@@ -68,12 +68,12 @@ byte MSXPSG::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MSXPSG::peekIO(word /*port*/, EmuTime::param time) const
+byte MSXPSG::peekIO(uint16_t /*port*/, EmuTime::param time) const
 {
 	return ay8910.peekRegister(registerLatch, time);
 }
 
-void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
+void MSXPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:

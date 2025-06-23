@@ -19,7 +19,7 @@ void MSXOPL3Cartridge::reset(EmuTime::param time)
 	opl3latch = 0;
 }
 
-byte MSXOPL3Cartridge::readIO(word port, EmuTime::param /*time*/)
+byte MSXOPL3Cartridge::readIO(uint16_t port, EmuTime::param /*time*/)
 {
 	// FM part  0xC4-0xC7 (in MoonSound)
 	switch (port & 0x03) {
@@ -34,7 +34,7 @@ byte MSXOPL3Cartridge::readIO(word port, EmuTime::param /*time*/)
 	}
 }
 
-byte MSXOPL3Cartridge::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXOPL3Cartridge::peekIO(uint16_t port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x03) {
 		case 0: // read status
@@ -48,7 +48,7 @@ byte MSXOPL3Cartridge::peekIO(word port, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXOPL3Cartridge::writeIO(word port, byte value, EmuTime::param time)
+void MSXOPL3Cartridge::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 		case 0: // select register bank 0

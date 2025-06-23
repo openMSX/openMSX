@@ -51,7 +51,7 @@ void MSXAudio::reset(EmuTime::param time)
 	registerLatch = 0; // TODO check
 }
 
-byte MSXAudio::readIO(word port, EmuTime::param time)
+byte MSXAudio::readIO(uint16_t port, EmuTime::param time)
 {
 	if ((port & 0xE8) == 0x08) {
 		// read DAC
@@ -62,7 +62,7 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MSXAudio::peekIO(word port, EmuTime::param time) const
+byte MSXAudio::peekIO(uint16_t port, EmuTime::param time) const
 {
 	if ((port & 0xE8) == 0x08) {
 		// read DAC
@@ -73,7 +73,7 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
+void MSXAudio::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	if ((port & 0xE8) == 0x08) {
 		dacValue = value;
@@ -90,23 +90,23 @@ void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-byte MSXAudio::readMem(word address, EmuTime::param time)
+byte MSXAudio::readMem(uint16_t address, EmuTime::param time)
 {
 	return periphery->readMem(address, time);
 }
-byte MSXAudio::peekMem(word address, EmuTime::param time) const
+byte MSXAudio::peekMem(uint16_t address, EmuTime::param time) const
 {
 	return periphery->peekMem(address, time);
 }
-void MSXAudio::writeMem(word address, byte value, EmuTime::param time)
+void MSXAudio::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	periphery->writeMem(address, value, time);
 }
-const byte* MSXAudio::getReadCacheLine(word start) const
+const byte* MSXAudio::getReadCacheLine(uint16_t start) const
 {
 	return periphery->getReadCacheLine(start);
 }
-byte* MSXAudio::getWriteCacheLine(word start)
+byte* MSXAudio::getWriteCacheLine(uint16_t start)
 {
 	return periphery->getWriteCacheLine(start);
 }

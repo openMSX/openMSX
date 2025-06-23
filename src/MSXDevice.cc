@@ -406,45 +406,45 @@ unsigned MSXDevice::getBaseSizeAlignment() const
 }
 
 
-byte MSXDevice::readIO(word /*port*/, EmuTime::param /*time*/)
+byte MSXDevice::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
 {
 	// read from unmapped IO
 	return 0xFF;
 }
 
-void MSXDevice::writeIO(word /*port*/, byte /*value*/, EmuTime::param /*time*/)
+void MSXDevice::writeIO(uint16_t /*port*/, byte /*value*/, EmuTime::param /*time*/)
 {
 	// write to unmapped IO, do nothing
 }
 
-byte MSXDevice::peekIO(word /*port*/, EmuTime::param /*time*/) const
+byte MSXDevice::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 {
 	return 0xFF;
 }
 
 
-byte MSXDevice::readMem(word /*address*/, EmuTime::param /*time*/)
+byte MSXDevice::readMem(uint16_t /*address*/, EmuTime::param /*time*/)
 {
 	// read from unmapped memory
 	return 0xFF;
 }
 
-const byte* MSXDevice::getReadCacheLine(word /*start*/) const
+const byte* MSXDevice::getReadCacheLine(uint16_t /*start*/) const
 {
 	return nullptr; // uncacheable
 }
 
-void MSXDevice::writeMem(word /*address*/, byte /*value*/,
+void MSXDevice::writeMem(uint16_t /*address*/, byte /*value*/,
                          EmuTime::param /*time*/)
 {
 	// write to unmapped memory, do nothing
 }
 
-byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
+byte MSXDevice::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
-	word base = address & CacheLine::HIGH;
+	uint16_t base = address & CacheLine::HIGH;
 	if (const byte* cache = getReadCacheLine(base)) {
-		word offset = address & CacheLine::LOW;
+		uint16_t offset = address & CacheLine::LOW;
 		return cache[offset];
 	} else {
 		// peek not supported for this device
@@ -452,18 +452,18 @@ byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
+void MSXDevice::globalWrite(uint16_t /*address*/, byte /*value*/,
                             EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }
 
-void MSXDevice::globalRead(word /*address*/, EmuTime::param /*time*/)
+void MSXDevice::globalRead(uint16_t /*address*/, EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }
 
-byte* MSXDevice::getWriteCacheLine(word /*start*/)
+byte* MSXDevice::getWriteCacheLine(uint16_t /*start*/)
 {
 	return nullptr; // uncacheable
 }
@@ -488,7 +488,7 @@ void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
 			unsigned clipEnd   = std::min(end, baseEnd);
 			if (clipStart < clipEnd) { // non-empty
 				unsigned clipSize = clipEnd - clipStart;
-				action(narrow<word>(clipStart), clipSize, args..., ps, ss2);
+				action(narrow<uint16_t>(clipStart), clipSize, args..., ps, ss2);
 			}
 
 			base += bsize;
