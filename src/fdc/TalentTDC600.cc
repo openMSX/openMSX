@@ -19,7 +19,7 @@ void TalentTDC600::reset(EmuTime::param time)
 	controller.reset(time);
 }
 
-byte TalentTDC600::readMem(word address, EmuTime::param time)
+byte TalentTDC600::readMem(uint16_t address, EmuTime::param time)
 {
 	if (0x4000 <= address && address < 0x8000) {
 		return MSXFDC::readMem(address, time);
@@ -35,7 +35,7 @@ byte TalentTDC600::readMem(word address, EmuTime::param time)
 	return 0xff;
 }
 
-byte TalentTDC600::peekMem(word address, EmuTime::param time) const
+byte TalentTDC600::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if (0x4000 <= address && address < 0x8000) {
 		return MSXFDC::peekMem(address, time);
@@ -51,7 +51,7 @@ byte TalentTDC600::peekMem(word address, EmuTime::param time) const
 	return 0xff;
 }
 
-const byte* TalentTDC600::getReadCacheLine(word start) const
+const byte* TalentTDC600::getReadCacheLine(uint16_t start) const
 {
 	if (0x4000 <= start && start < 0x8000) {
 		return MSXFDC::getReadCacheLine(start);
@@ -63,7 +63,7 @@ const byte* TalentTDC600::getReadCacheLine(word start) const
 	return unmappedRead.data();
 }
 
-void TalentTDC600::writeMem(word address, byte value, EmuTime::param time)
+void TalentTDC600::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	address &= 0x7fff;
 	if (address < 0x1000) {
@@ -75,7 +75,7 @@ void TalentTDC600::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* TalentTDC600::getWriteCacheLine(word address)
+byte* TalentTDC600::getWriteCacheLine(uint16_t address)
 {
 	address &= 0x7fff;
 	if (address < 0x2000) {

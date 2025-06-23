@@ -10,7 +10,7 @@ MicrosolFDC::MicrosolFDC(DeviceConfig& config)
 {
 }
 
-byte MicrosolFDC::readIO(word port, EmuTime::param time)
+byte MicrosolFDC::readIO(uint16_t port, EmuTime::param time)
 {
 	switch (port & 0x07) {
 	case 0:
@@ -32,7 +32,7 @@ byte MicrosolFDC::readIO(word port, EmuTime::param time)
 	}
 }
 
-byte MicrosolFDC::peekIO(word port, EmuTime::param time) const
+byte MicrosolFDC::peekIO(uint16_t port, EmuTime::param time) const
 {
 	switch (port & 0x07) {
 	case 0:
@@ -54,7 +54,7 @@ byte MicrosolFDC::peekIO(word port, EmuTime::param time) const
 	}
 }
 
-void MicrosolFDC::writeIO(word port, byte value, EmuTime::param time)
+void MicrosolFDC::writeIO(uint16_t port, byte value, EmuTime::param time)
 {
 	switch (port & 0x07) {
 	case 0:

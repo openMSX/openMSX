@@ -50,7 +50,7 @@ void VictorFDC::reset(EmuTime::param time)
 	writeMem(0x7FFC, DRIVE_DISABLE, time);
 }
 
-byte VictorFDC::readMem(word address, EmuTime::param time)
+byte VictorFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -73,7 +73,7 @@ byte VictorFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte VictorFDC::peekMem(word address, EmuTime::param time) const
+byte VictorFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address) {
 	case 0x7FF8:
@@ -96,7 +96,7 @@ byte VictorFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* VictorFDC::getReadCacheLine(word start) const
+const byte* VictorFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC
@@ -106,7 +106,7 @@ const byte* VictorFDC::getReadCacheLine(word start) const
 	}
 }
 
-void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
+void VictorFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -136,7 +136,7 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* VictorFDC::getWriteCacheLine(word address)
+byte* VictorFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC

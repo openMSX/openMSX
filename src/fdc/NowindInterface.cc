@@ -67,7 +67,7 @@ void NowindInterface::reset(EmuTime::param /*time*/)
 	//flash.reset();
 }
 
-byte NowindInterface::peekMem(word address, EmuTime::param time) const
+byte NowindInterface::peekMem(uint16_t address, EmuTime::param time) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -80,7 +80,7 @@ byte NowindInterface::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-byte NowindInterface::readMem(word address, EmuTime::param time)
+byte NowindInterface::readMem(uint16_t address, EmuTime::param time)
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -93,7 +93,7 @@ byte NowindInterface::readMem(word address, EmuTime::param time)
 	}
 }
 
-const byte* NowindInterface::getReadCacheLine(word address) const
+const byte* NowindInterface::getReadCacheLine(uint16_t address) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -107,7 +107,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 	}
 }
 
-void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
+void NowindInterface::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	if (address < 0x4000) {
 		flash.write(bank * 0x4000 + address, value, time);
@@ -124,7 +124,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* NowindInterface::getWriteCacheLine(word address)
+byte* NowindInterface::getWriteCacheLine(uint16_t address)
 {
 	if (address < 0xC000) {
 		// not cacheable

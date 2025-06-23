@@ -57,7 +57,7 @@ void YamahaFDC::reset(EmuTime::param time)
 	writeMem(0x7FE0, 0x00, time);
 }
 
-byte YamahaFDC::readMem(word address, EmuTime::param time)
+byte YamahaFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
@@ -87,7 +87,7 @@ byte YamahaFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte YamahaFDC::peekMem(word address, EmuTime::param time) const
+byte YamahaFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
@@ -120,7 +120,7 @@ byte YamahaFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* YamahaFDC::getReadCacheLine(word start) const
+const byte* YamahaFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FC0 & CacheLine::HIGH)) {
 		// FDC at 0x7FC0-0x7FFF  or  0xBFC0-0xBFFF
@@ -132,7 +132,7 @@ const byte* YamahaFDC::getReadCacheLine(word start) const
 	}
 }
 
-void YamahaFDC::writeMem(word address, byte value, EmuTime::param time)
+void YamahaFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3fff) {
 	case 0x3FC0:
@@ -174,7 +174,7 @@ void YamahaFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* YamahaFDC::getWriteCacheLine(word address)
+byte* YamahaFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FC0 & CacheLine::HIGH)) {
 		// FDC at 0x7FC0-0x7FFF  or  0xBFC0-0xBFFF

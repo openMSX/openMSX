@@ -19,7 +19,7 @@ SanyoFDC::SanyoFDC(DeviceConfig& config)
 	parseRomVisibility(config, 0x0000, 0x8000);
 }
 
-byte SanyoFDC::readMem(word address, EmuTime::param time)
+byte SanyoFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -44,7 +44,7 @@ byte SanyoFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte SanyoFDC::peekMem(word address, EmuTime::param time) const
+byte SanyoFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address) {
 	case 0x7FF8:
@@ -73,7 +73,7 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* SanyoFDC::getReadCacheLine(word start) const
+const byte* SanyoFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown
@@ -83,7 +83,7 @@ const byte* SanyoFDC::getReadCacheLine(word start) const
 	}
 }
 
-void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
+void SanyoFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -120,7 +120,7 @@ void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* SanyoFDC::getWriteCacheLine(word address)
+byte* SanyoFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown

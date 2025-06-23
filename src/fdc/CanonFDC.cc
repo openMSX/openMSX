@@ -32,7 +32,7 @@ void CanonFDC::reset(EmuTime::param time)
 	writeMem(0x3FFC, 0, time);
 }
 
-byte CanonFDC::readMem(word address, EmuTime::param time)
+byte CanonFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -58,7 +58,7 @@ byte CanonFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte CanonFDC::peekMem(word address, EmuTime::param time) const
+byte CanonFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -81,7 +81,7 @@ byte CanonFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* CanonFDC::getReadCacheLine(word start) const
+const byte* CanonFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC and 0xBFF8-0xBFFC
@@ -91,7 +91,7 @@ const byte* CanonFDC::getReadCacheLine(word start) const
 	}
 }
 
-void CanonFDC::writeMem(word address, byte value, EmuTime::param time)
+void CanonFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -123,7 +123,7 @@ void CanonFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* CanonFDC::getWriteCacheLine(word address)
+byte* CanonFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;

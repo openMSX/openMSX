@@ -15,9 +15,9 @@ class MSXFDC : public MSXDevice
 {
 public:
 	void powerDown(EmuTime::param time) override;
-	[[nodiscard]] byte readMem(word address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(word address, EmuTime::param time) const override;
-	[[nodiscard]] const byte* getReadCacheLine(word start) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 

@@ -36,7 +36,7 @@ void SpectravideoFDC::reset(EmuTime::param /*time*/)
 	invalidateDeviceRCache(0x4000, 0x4000);
 }
 
-byte SpectravideoFDC::readMem(word address, EmuTime::param time)
+byte SpectravideoFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
@@ -68,7 +68,7 @@ byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
+byte SpectravideoFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
@@ -102,7 +102,7 @@ byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* SpectravideoFDC::getReadCacheLine(word start) const
+const byte* SpectravideoFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBF, and mirrored in other pages
@@ -118,7 +118,7 @@ const byte* SpectravideoFDC::getReadCacheLine(word start) const
 	}
 }
 
-void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
+void SpectravideoFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
@@ -154,7 +154,7 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* SpectravideoFDC::getWriteCacheLine(word address)
+byte* SpectravideoFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBF - mirrored

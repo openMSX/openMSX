@@ -19,7 +19,7 @@ ToshibaFDC::ToshibaFDC(DeviceConfig& config)
 
 }
 
-byte ToshibaFDC::readMem(word address, EmuTime::param time)
+byte ToshibaFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF0:
@@ -43,7 +43,7 @@ byte ToshibaFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
+byte ToshibaFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	switch (address) { // checked on real HW: no mirroring
 	case 0x7FF0:
@@ -76,7 +76,7 @@ byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* ToshibaFDC::getReadCacheLine(word start) const
+const byte* ToshibaFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FF0 & CacheLine::HIGH)) {
 		// FDC at 0x7FF0-0x7FF7
@@ -86,7 +86,7 @@ const byte* ToshibaFDC::getReadCacheLine(word start) const
 	}
 }
 
-void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
+void ToshibaFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF0:
@@ -122,7 +122,7 @@ void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* ToshibaFDC::getWriteCacheLine(word address)
+byte* ToshibaFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & CacheLine::HIGH) == (0x7FF0 & CacheLine::HIGH)) {
 		return nullptr;

@@ -50,17 +50,17 @@ void MSXFDC::powerDown(EmuTime::param time)
 	}
 }
 
-byte MSXFDC::readMem(word address, EmuTime::param /*time*/)
+byte MSXFDC::readMem(uint16_t address, EmuTime::param /*time*/)
 {
 	return *MSXFDC::getReadCacheLine(address);
 }
 
-byte MSXFDC::peekMem(word address, EmuTime::param /*time*/) const
+byte MSXFDC::peekMem(uint16_t address, EmuTime::param /*time*/) const
 {
 	return *MSXFDC::getReadCacheLine(address);
 }
 
-const byte* MSXFDC::getReadCacheLine(word start) const
+const byte* MSXFDC::getReadCacheLine(uint16_t start) const
 {
 	assert(rom);
 	if (romVisibilityStart <= start && start <= romVisibilityLast) {

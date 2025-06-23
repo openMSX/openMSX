@@ -13,7 +13,7 @@ NationalFDC::NationalFDC(DeviceConfig& config)
 	parseRomVisibility(config, 0x0000, 0x8000);
 }
 
-byte NationalFDC::readMem(word address, EmuTime::param time)
+byte NationalFDC::readMem(uint16_t address, EmuTime::param time)
 {
 	switch (address & 0x3FC7) {
 	case 0x3F80:
@@ -38,7 +38,7 @@ byte NationalFDC::readMem(word address, EmuTime::param time)
 	}
 }
 
-byte NationalFDC::peekMem(word address, EmuTime::param time) const
+byte NationalFDC::peekMem(uint16_t address, EmuTime::param time) const
 {
 	// According to atarulum:
 	//  7FBC        is mirrored in 7FBC - 7FBF
@@ -70,7 +70,7 @@ byte NationalFDC::peekMem(word address, EmuTime::param time) const
 	}
 }
 
-const byte* NationalFDC::getReadCacheLine(word start) const
+const byte* NationalFDC::getReadCacheLine(uint16_t start) const
 {
 	if ((start & 0x3FC0 & CacheLine::HIGH) == (0x3F80 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
@@ -80,7 +80,7 @@ const byte* NationalFDC::getReadCacheLine(word start) const
 	}
 }
 
-void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
+void NationalFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3FC7) {
 	case 0x3F80:
@@ -117,7 +117,7 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* NationalFDC::getWriteCacheLine(word address)
+byte* NationalFDC::getWriteCacheLine(uint16_t address)
 {
 	if ((address & 0x3FC0) == (0x3F80 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
