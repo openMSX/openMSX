@@ -32,7 +32,7 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 				case TsxParser::FileType::BASIC:  return CassetteImage::BASIC;
 				default:                          return CassetteImage::UNKNOWN;
 				}
-			}());
+			}(), filename);
 		}
 
 		// Print embedded messages

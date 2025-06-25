@@ -10,6 +10,8 @@
 
 namespace openmsx {
 
+class Filename;
+
 class CassetteImage
 {
 public:
@@ -36,7 +38,9 @@ public:
 
 protected:
 	CassetteImage() = default;
-	void setFirstFileType(FileType type) { firstFileType = type; }
+	// Please make sure this method is called from the constructor of each
+	// subclass! (And only from there.)
+	void setFirstFileType(FileType type, const Filename& fileName);
 	void setSha1Sum(const Sha1Sum& sha1sum);
 
 private:

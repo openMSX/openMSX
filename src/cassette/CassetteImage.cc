@@ -1,4 +1,6 @@
 #include "CassetteImage.hh"
+#include "FileOperations.hh"
+#include "Filename.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -13,6 +15,32 @@ std::string CassetteImage::getFirstFileTypeAsString() const
 		return "BASIC";
 	} else {
 		return "unknown";
+	}
+}
+
+void CassetteImage::setFirstFileType(FileType type, const Filename& fileName) {
+	if (type == UNKNOWN) {
+		// see if there is a hint in the filename
+		auto file = fileName.getResolved();
+		auto fileStem = FileOperations::stem(file);
+
+		auto containsInstructionAndCAS = [&](std::string_view instruction) {
+			auto pos = fileStem.find(instruction);
+			if (pos == std::string_view::npos) return false;
+			return fileStem.find("CAS", pos + instruction.size()) != std::string_view::npos;
+		};
+
+		if (containsInstructionAndCAS("BLOAD")) {
+			firstFileType = BINARY;
+		} else if (fileStem.contains("CLOAD")) {
+			// note: probably better to first check on CLOAD and then on RUN. Some filenames
+			// contain hints like CLOAD + RUN.
+			firstFileType = BASIC;
+		} else if (containsInstructionAndCAS("RUN")) {
+			firstFileType = ASCII;
+		}
+	} else {
+		firstFileType = type;
 	}
 }
 
