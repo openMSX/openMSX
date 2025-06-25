@@ -142,7 +142,7 @@ void DiskChanger::execute(std::span<const TclObject> tokens)
 	}
 }
 
-void DiskChanger::stopReplay(EmuTime::param /*time*/) noexcept
+void DiskChanger::stopReplay(EmuTime /*time*/) noexcept
 {
 	// nothing
 }

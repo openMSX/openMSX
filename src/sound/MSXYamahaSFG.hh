@@ -14,11 +14,11 @@ class MSXYamahaSFG final : public MSXDevice
 public:
 	explicit MSXYamahaSFG(DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
 	[[nodiscard]] byte readIRQVector() override;
 
@@ -26,8 +26,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void writeRegisterPort(byte value, EmuTime::param time);
-	void writeDataPort(byte value, EmuTime::param time);
+	void writeRegisterPort(byte value, EmuTime time);
+	void writeDataPort(byte value, EmuTime time);
 
 private:
 	Rom rom;

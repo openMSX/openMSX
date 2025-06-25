@@ -52,10 +52,10 @@ public:
 	}
 
 	[[nodiscard]] bool isReplaying() const;
-	void stopReplay(EmuTime::param time) noexcept;
+	void stopReplay(EmuTime time) noexcept;
 
 	template<typename T, typename... Args>
-	StateChange& record(EmuTime::param time, Args&& ...args) {
+	StateChange& record(EmuTime time, Args&& ...args) {
 		assert(!isReplaying());
 		++replayIndex;
 		history.events.push_back(std::make_unique<T>(time, std::forward<Args>(args)...));
@@ -91,7 +91,7 @@ private:
 	struct ReverseHistory {
 		void swap(ReverseHistory& other) noexcept;
 		void clear();
-		[[nodiscard]] unsigned getNextSeqNum(EmuTime::param time) const;
+		[[nodiscard]] unsigned getNextSeqNum(EmuTime time) const;
 
 		Chunks chunks;
 		Events events;
@@ -109,16 +109,16 @@ private:
 	void loadReplay(Interpreter& interp,
 	                std::span<const TclObject> tokens, TclObject& result);
 
-	void signalStopReplay(EmuTime::param time);
-	[[nodiscard]] EmuTime::param getEndTime(const ReverseHistory& history) const;
-	void goTo(EmuTime::param targetTime, bool noVideo);
-	void goTo(EmuTime::param targetTime, bool noVideo,
+	void signalStopReplay(EmuTime time);
+	[[nodiscard]] EmuTime getEndTime(const ReverseHistory& history) const;
+	void goTo(EmuTime targetTime, bool noVideo);
+	void goTo(EmuTime targetTime, bool noVideo,
 	          ReverseHistory& history, bool sameTimeLine);
 	void transferHistory(ReverseHistory& oldHistory,
 	                     unsigned oldEventCount);
 	void transferState(MSXMotherBoard& newBoard);
-	void takeSnapshot(EmuTime::param time);
-	void schedule(EmuTime::param time);
+	void takeSnapshot(EmuTime time);
+	void schedule(EmuTime time);
 	void replayNextEvent();
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
@@ -126,7 +126,7 @@ private:
 	struct SyncNewSnapshot final : Schedulable {
 		friend class ReverseManager;
 		explicit SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param /*time*/) override {
+		void executeUntil(EmuTime /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncNewSnapshot);
 			rm.execNewSnapshot();
 		}
@@ -134,7 +134,7 @@ private:
 	struct SyncInputEvent final : Schedulable {
 		friend class ReverseManager;
 		explicit SyncInputEvent(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param /*time*/) override {
+		void executeUntil(EmuTime /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncInputEvent);
 			rm.execInputEvent();
 		}
@@ -142,7 +142,7 @@ private:
 
 	void execNewSnapshot();
 	void execInputEvent();
-	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
+	[[nodiscard]] EmuTime getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
 
 	// EventListener
 	bool signalEvent(const Event& event) override;

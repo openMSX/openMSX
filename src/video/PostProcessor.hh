@@ -54,7 +54,7 @@ public:
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
 	[[nodiscard]] std::unique_ptr<RawFrame> rotateFrames(
-		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
+		std::unique_ptr<RawFrame> finishedFrame, EmuTime time);
 
 	/** Set the Video frame on which to superimpose the 'normal' output of
 	  * this PostProcessor. Superimpose is done (preferably) after the
@@ -103,7 +103,7 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
 	/** Returns the maximum width for lines [y..y+step).
 	  */

@@ -35,12 +35,12 @@ bool DummyDrive::getSide() const
 	return false;
 }
 
-void DummyDrive::step(bool /*direction*/, EmuTime::param /*time*/)
+void DummyDrive::step(bool /*direction*/, EmuTime /*time*/)
 {
 	// ignore
 }
 
-void DummyDrive::setMotor(bool /*status*/, EmuTime::param /*time*/)
+void DummyDrive::setMotor(bool /*status*/, EmuTime /*time*/)
 {
 	// ignore
 }
@@ -50,12 +50,12 @@ bool DummyDrive::getMotor() const
 	return false;
 }
 
-bool DummyDrive::indexPulse(EmuTime::param /*time*/)
+bool DummyDrive::indexPulse(EmuTime /*time*/)
 {
 	return false;
 }
 
-EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param /*time*/, int /*count*/)
+EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime /*time*/, int /*count*/)
 {
 	return EmuTime::infinity();
 }
@@ -75,7 +75,7 @@ uint8_t DummyDrive::readTrackByte(int /*idx*/)
 	throw DriveEmptyException("No drive selected");
 }
 
-EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack::Sector& /*sector*/)
+EmuTime DummyDrive::getNextSector(EmuTime /*time*/, RawTrack::Sector& /*sector*/)
 {
 	return EmuTime::infinity();
 }

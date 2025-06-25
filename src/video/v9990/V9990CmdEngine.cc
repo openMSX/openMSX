@@ -703,7 +703,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
+V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime time_,
                                RenderSettings& settings_)
 	: settings(settings_), vdp(vdp_), vram(vdp.getVRAM()), engineTime(time_)
 {
@@ -732,7 +732,7 @@ V9990CmdEngine::~V9990CmdEngine()
 	settings.getCmdTimingSetting().detach(*this);
 }
 
-void V9990CmdEngine::reset(EmuTime::param /*time*/)
+void V9990CmdEngine::reset(EmuTime /*time*/)
 {
 	CMD = 0;
 	status = 0;
@@ -740,7 +740,7 @@ void V9990CmdEngine::reset(EmuTime::param /*time*/)
 	endAfterRead = false;
 }
 
-void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime::param time)
+void V9990CmdEngine::setCmdReg(uint8_t reg, uint8_t value, EmuTime time)
 {
 	sync(time);
 	switch(reg - 32) {
@@ -954,31 +954,31 @@ void V9990CmdEngine::update(const Setting& setting) noexcept
 }
 
 // STOP
-void V9990CmdEngine::startSTOP(EmuTime::param time)
+void V9990CmdEngine::startSTOP(EmuTime time)
 {
 	cmdReady(time);
 }
 
-void V9990CmdEngine::executeSTOP(EmuTime::param /*limit*/)
+void V9990CmdEngine::executeSTOP(EmuTime /*limit*/)
 {
 	UNREACHABLE;
 }
 
 // LMMC
-void V9990CmdEngine::startLMMC(EmuTime::param /*time*/)
+void V9990CmdEngine::startLMMC(EmuTime /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 	status |= TR;
 }
-void V9990CmdEngine::startLMMC16(EmuTime::param time)
+void V9990CmdEngine::startLMMC16(EmuTime time)
 {
 	bitsLeft = 1;
 	startLMMC(time);
 }
 
 template<>
-void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
+void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
@@ -1008,7 +1008,7 @@ void V9990CmdEngine::executeLMMC<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeLMMC(EmuTime::param limit)
+void V9990CmdEngine::executeLMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
@@ -1035,7 +1035,7 @@ void V9990CmdEngine::executeLMMC(EmuTime::param limit)
 }
 
 // LMMV
-void V9990CmdEngine::startLMMV(EmuTime::param time)
+void V9990CmdEngine::startLMMV(EmuTime time)
 {
 	engineTime = time;
 	ANX = getWrappedNX();
@@ -1043,7 +1043,7 @@ void V9990CmdEngine::startLMMV(EmuTime::param time)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeLMMV(EmuTime::param limit)
+void V9990CmdEngine::executeLMMV(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
@@ -1071,21 +1071,21 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 }
 
 // LMCM
-void V9990CmdEngine::startLMCM(EmuTime::param /*time*/)
+void V9990CmdEngine::startLMCM(EmuTime /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 	status &= ~TR;
 	endAfterRead = false;
 }
-void V9990CmdEngine::startLMCM16(EmuTime::param time)
+void V9990CmdEngine::startLMCM16(EmuTime time)
 {
 	bitsLeft = 0;
 	startLMCM(time);
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
+void V9990CmdEngine::executeLMCM(EmuTime /*limit*/)
 {
 	if (!(status & TR)) {
 		status |= TR;
@@ -1128,7 +1128,7 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 }
 
 // LMMM
-void V9990CmdEngine::startLMMM(EmuTime::param time)
+void V9990CmdEngine::startLMMM(EmuTime time)
 {
 	engineTime = time;
 	ANX = getWrappedNX();
@@ -1136,7 +1136,7 @@ void V9990CmdEngine::startLMMM(EmuTime::param time)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeLMMM(EmuTime::param limit)
+void V9990CmdEngine::executeLMMM(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
@@ -1169,7 +1169,7 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 }
 
 // CMMC
-void V9990CmdEngine::startCMMC(EmuTime::param /*time*/)
+void V9990CmdEngine::startCMMC(EmuTime /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
@@ -1177,7 +1177,7 @@ void V9990CmdEngine::startCMMC(EmuTime::param /*time*/)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeCMMC(EmuTime::param limit)
+void V9990CmdEngine::executeCMMC(EmuTime limit)
 {
 	if (!(status & TR)) {
 		status |= TR;
@@ -1210,19 +1210,19 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 }
 
 // CMMK
-void V9990CmdEngine::startCMMK(EmuTime::param time)
+void V9990CmdEngine::startCMMK(EmuTime time)
 {
 	std::cout << "V9990: CMMK not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 
-void V9990CmdEngine::executeCMMK(EmuTime::param /*limit*/)
+void V9990CmdEngine::executeCMMK(EmuTime /*limit*/)
 {
 	UNREACHABLE;
 }
 
 // CMMM
-void V9990CmdEngine::startCMMM(EmuTime::param time)
+void V9990CmdEngine::startCMMM(EmuTime time)
 {
 	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
@@ -1232,7 +1232,7 @@ void V9990CmdEngine::startCMMM(EmuTime::param time)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeCMMM(EmuTime::param limit)
+void V9990CmdEngine::executeCMMM(EmuTime limit)
 {
 	// TODO can be optimized a lot
 
@@ -1269,7 +1269,7 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 }
 
 // BMXL
-void V9990CmdEngine::startBMXL(EmuTime::param time)
+void V9990CmdEngine::startBMXL(EmuTime time)
 {
 	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
@@ -1278,7 +1278,7 @@ void V9990CmdEngine::startBMXL(EmuTime::param time)
 }
 
 template<>
-void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
+void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	// timing value is times 2, because it does 2 bytes per iteration:
 	auto delta = getTiming(*this, BMXL_TIMING) * 2;
@@ -1308,7 +1308,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeBMXL(EmuTime::param limit)
+void V9990CmdEngine::executeBMXL(EmuTime limit)
 {
 	auto delta = getTiming(*this, BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
@@ -1338,7 +1338,7 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 }
 
 // BMLX
-void V9990CmdEngine::startBMLX(EmuTime::param time)
+void V9990CmdEngine::startBMLX(EmuTime time)
 {
 	engineTime = time;
 	dstAddress = (DX & 0xFF) + ((DY & 0x7FF) << 8);
@@ -1347,7 +1347,7 @@ void V9990CmdEngine::startBMLX(EmuTime::param time)
 }
 
 template<>
-void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
+void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	// TODO test corner cases, timing
 	auto delta = getTiming(*this, BMLX_TIMING);
@@ -1374,7 +1374,7 @@ void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	}
 }
 template<typename Mode>
-void V9990CmdEngine::executeBMLX(EmuTime::param limit)
+void V9990CmdEngine::executeBMLX(EmuTime limit)
 {
 	// TODO test corner cases, timing
 	auto delta = getTiming(*this, BMLX_TIMING);
@@ -1406,7 +1406,7 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 }
 
 // BMLL
-void V9990CmdEngine::startBMLL(EmuTime::param time)
+void V9990CmdEngine::startBMLL(EmuTime time)
 {
 	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
@@ -1416,7 +1416,7 @@ void V9990CmdEngine::startBMLL(EmuTime::param time)
 		nbBytes = 0x80000;
 	}
 }
-void V9990CmdEngine::startBMLL16(EmuTime::param time)
+void V9990CmdEngine::startBMLL16(EmuTime time)
 {
 	startBMLL(time);
 	// TODO is this correct???
@@ -1427,7 +1427,7 @@ void V9990CmdEngine::startBMLL16(EmuTime::param time)
 }
 
 template<>
-void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
+void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime limit)
 {
 	// TODO DIX DIY?
 	// timing value is times 2, because it does 2 bytes per iteration:
@@ -1455,7 +1455,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeBMLL(EmuTime::param limit)
+void V9990CmdEngine::executeBMLL(EmuTime limit)
 {
 	// TODO DIX DIY?
 	auto delta = getTiming(*this, BMLL_TIMING);
@@ -1480,7 +1480,7 @@ void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 }
 
 // LINE
-void V9990CmdEngine::startLINE(EmuTime::param time)
+void V9990CmdEngine::startLINE(EmuTime time)
 {
 	engineTime = time;
 	ASX = uint16_t((NX - 1) / 2);
@@ -1489,7 +1489,7 @@ void V9990CmdEngine::startLINE(EmuTime::param time)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeLINE(EmuTime::param limit)
+void V9990CmdEngine::executeLINE(EmuTime limit)
 {
 	auto delta = getTiming(*this, LINE_TIMING);
 	unsigned width = vdp.getImageWidth();
@@ -1538,14 +1538,14 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 }
 
 // SRCH
-void V9990CmdEngine::startSRCH(EmuTime::param time)
+void V9990CmdEngine::startSRCH(EmuTime time)
 {
 	engineTime = time;
 	ASX = SX;
 }
 
 template<typename Mode>
-void V9990CmdEngine::executeSRCH(EmuTime::param limit)
+void V9990CmdEngine::executeSRCH(EmuTime limit)
 {
 	using Type = typename Mode::Type;
 	auto delta = getTiming(*this, SRCH_TIMING);
@@ -1590,7 +1590,7 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 
 // POINT
 template<typename Mode>
-void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
+void V9990CmdEngine::startPOINT(EmuTime /*time*/)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
@@ -1610,7 +1610,7 @@ void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
 }
 
 template<typename Mode>
-void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
+void V9990CmdEngine::executePOINT(EmuTime /*limit*/)
 {
 	if (status & TR) return;
 
@@ -1622,7 +1622,7 @@ void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
 
 // PSET
 template<typename Mode>
-void V9990CmdEngine::startPSET(EmuTime::param time)
+void V9990CmdEngine::startPSET(EmuTime time)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto lut = Mode::getLogOpLUT(LOG);
@@ -1633,19 +1633,19 @@ void V9990CmdEngine::startPSET(EmuTime::param time)
 	cmdReady(time);
 }
 
-void V9990CmdEngine::executePSET(EmuTime::param /*limit*/)
+void V9990CmdEngine::executePSET(EmuTime /*limit*/)
 {
 	UNREACHABLE;
 }
 
 // ADVN
-void V9990CmdEngine::startADVN(EmuTime::param time)
+void V9990CmdEngine::startADVN(EmuTime time)
 {
 	std::cout << "V9990: ADVN not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 
-void V9990CmdEngine::executeADVN(EmuTime::param /*limit*/)
+void V9990CmdEngine::executeADVN(EmuTime /*limit*/)
 {
 	UNREACHABLE;
 }
@@ -1653,7 +1653,7 @@ void V9990CmdEngine::executeADVN(EmuTime::param /*limit*/)
 // ====================================================================
 // CmdEngine methods
 
-void V9990CmdEngine::sync2(EmuTime::param time)
+void V9990CmdEngine::sync2(EmuTime time)
 {
 	switch (cmdMode | (CMD >> 4)) {
 		case 0x00: case 0x10: case 0x20: case 0x30: case 0x40: case 0x50:
@@ -1756,14 +1756,14 @@ void V9990CmdEngine::sync2(EmuTime::param time)
 	}
 }
 
-void V9990CmdEngine::setCmdData(uint8_t value, EmuTime::param time)
+void V9990CmdEngine::setCmdData(uint8_t value, EmuTime time)
 {
 	sync(time);
 	data = value;
 	status &= ~TR;
 }
 
-uint8_t V9990CmdEngine::getCmdData(EmuTime::param time)
+uint8_t V9990CmdEngine::getCmdData(EmuTime time)
 {
 	sync(time);
 
@@ -1779,13 +1779,13 @@ uint8_t V9990CmdEngine::getCmdData(EmuTime::param time)
 	return value;
 }
 
-uint8_t V9990CmdEngine::peekCmdData(EmuTime::param time) const
+uint8_t V9990CmdEngine::peekCmdData(EmuTime time) const
 {
 	const_cast<V9990CmdEngine*>(this)->sync(time);
 	return (status & TR) ? data : 0xFF;
 }
 
-void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
+void V9990CmdEngine::cmdReady(EmuTime /*time*/)
 {
 	CMD = 0; // for deserialize
 	status &= ~(CE | TR);

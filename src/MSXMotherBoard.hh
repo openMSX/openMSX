@@ -77,7 +77,7 @@ public:
 
 	/** Insert media, based on the result from a previous getMediaInfo() call.
 	 */
-	virtual void setMedia(const TclObject& info, EmuTime::param time) = 0;
+	virtual void setMedia(const TclObject& info, EmuTime time) = 0;
 
 protected:
 	MediaProvider() = default;
@@ -118,7 +118,7 @@ public:
 
 	/** Run emulation until a certain time in fast forward mode.
 	 */
-	void fastForward(EmuTime::param time, bool fast);
+	void fastForward(EmuTime time, bool fast);
 
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();
@@ -190,7 +190,7 @@ public:
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	[[nodiscard]] EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime getCurrentTime() const;
 
 	/** All MSXDevices should be registered by the MotherBoard.
 	 */
@@ -360,7 +360,7 @@ class ExtCmd final : public RecordedCommand
 public:
 	ExtCmd(MSXMotherBoard& motherBoard, std::string commandName);
 	void execute(std::span<const TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
+	             EmuTime time) override;
 	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:

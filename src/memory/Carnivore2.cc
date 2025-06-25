@@ -55,7 +55,7 @@ Carnivore2::~Carnivore2()
 	getCPUInterface().unregister_IO_InOut(idControlPort(), this);
 }
 
-void Carnivore2::powerUp(EmuTime::param time)
+void Carnivore2::powerUp(EmuTime time)
 {
 	writeSndLVL(0x1b, time);
 	writePSGCtrl(0x1b, time);
@@ -64,7 +64,7 @@ void Carnivore2::powerUp(EmuTime::param time)
 	reset(time);
 }
 
-void Carnivore2::reset(EmuTime::param time)
+void Carnivore2::reset(EmuTime time)
 {
 	subSlotReg = 0;
 	port3C = 0;
@@ -123,7 +123,7 @@ void Carnivore2::reset(EmuTime::param time)
 	PF0_RV = 0;
 }
 
-void Carnivore2::globalRead(uint16_t address, EmuTime::param /*time*/)
+void Carnivore2::globalRead(uint16_t address, EmuTime /*time*/)
 {
 	if (!delayedConfig()) return;
 
@@ -169,7 +169,7 @@ Carnivore2::SubDevice Carnivore2::getSubDevice(uint16_t address) const
 	}
 }
 
-byte Carnivore2::readMem(uint16_t address, EmuTime::param time)
+byte Carnivore2::readMem(uint16_t address, EmuTime time)
 {
 	if (slotExpanded() && (address == 0xffff)) {
 		return subSlotReg ^ 0xff;
@@ -184,7 +184,7 @@ byte Carnivore2::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte Carnivore2::peekMem(uint16_t address, EmuTime::param time) const
+byte Carnivore2::peekMem(uint16_t address, EmuTime time) const
 {
 	if (slotExpanded() && (address == 0xffff)) {
 		return subSlotReg ^ 0xff;
@@ -199,7 +199,7 @@ byte Carnivore2::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-void Carnivore2::writeMem(uint16_t address, byte value, EmuTime::param time)
+void Carnivore2::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	if (slotExpanded() && (address == 0xffff)) {
 		subSlotReg = value;
@@ -233,7 +233,7 @@ unsigned Carnivore2::getDirectFlashAddr() const
 	       (configRegs[0x03] << 16);  // already masked to 7 bits
 }
 
-byte Carnivore2::peekConfigRegister(uint16_t address, EmuTime::param time) const
+byte Carnivore2::peekConfigRegister(uint16_t address, EmuTime time) const
 {
 	address &= 0x3f;
 	if ((0x05 <= address) && (address <= 0x1e)) {
@@ -254,7 +254,7 @@ byte Carnivore2::peekConfigRegister(uint16_t address, EmuTime::param time) const
 	}
 }
 
-byte Carnivore2::readConfigRegister(uint16_t address, EmuTime::param time)
+byte Carnivore2::readConfigRegister(uint16_t address, EmuTime time)
 {
 	address &= 0x3f;
 	if (address == 0x04) {
@@ -270,14 +270,14 @@ static constexpr float volumeLevel(byte volume)
 	return narrow<float>(tab[volume & 7]) * (1.0f / 16.0f);
 }
 
-void Carnivore2::writeSndLVL(byte value, EmuTime::param time)
+void Carnivore2::writeSndLVL(byte value, EmuTime time)
 {
 	configRegs[0x22] = value;
 	ym2413.setSoftwareVolume(volumeLevel(value >> 3), time);
 	scc   .setSoftwareVolume(volumeLevel(value >> 0), time);
 }
 
-void Carnivore2::writeCfgEEPR(byte value, EmuTime::param time)
+void Carnivore2::writeCfgEEPR(byte value, EmuTime time)
 {
 	configRegs[0x23] = value & 0x0e;
 	eeprom.write_DI (value & 2, time);
@@ -285,7 +285,7 @@ void Carnivore2::writeCfgEEPR(byte value, EmuTime::param time)
 	eeprom.write_CS (value & 8, time);
 }
 
-void Carnivore2::writePSGCtrl(byte value, EmuTime::param time)
+void Carnivore2::writePSGCtrl(byte value, EmuTime time)
 {
 	// TODO: PPI clicker
 	if ((value ^ configRegs[0x24]) & 0x80) {   // enable changed
@@ -334,7 +334,7 @@ void Carnivore2::writePFXN(byte value)
 	return seen == 0b1111;
 }
 
-void Carnivore2::writeConfigRegister(uint16_t address, byte value, EmuTime::param time)
+void Carnivore2::writeConfigRegister(uint16_t address, byte value, EmuTime time)
 {
 	address &= 0x3f;
 	if ((0x05 <= address) && (address <= 0x1e)) {
@@ -419,7 +419,7 @@ bool Carnivore2::sccAccess(uint16_t address) const
 	}
 }
 
-byte Carnivore2::readMultiMapperSlot(uint16_t address, EmuTime::param time)
+byte Carnivore2::readMultiMapperSlot(uint16_t address, EmuTime time)
 {
 	if (isConfigReg(address)) {
 		return readConfigRegister(address, time);
@@ -438,7 +438,7 @@ byte Carnivore2::readMultiMapperSlot(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte Carnivore2::peekMultiMapperSlot(uint16_t address, EmuTime::param time) const
+byte Carnivore2::peekMultiMapperSlot(uint16_t address, EmuTime time) const
 {
 	if (isConfigReg(address)) {
 		return peekConfigRegister(address, time);
@@ -454,7 +454,7 @@ byte Carnivore2::peekMultiMapperSlot(uint16_t address, EmuTime::param time) cons
 	}
 }
 
-void Carnivore2::writeMultiMapperSlot(uint16_t address, byte value, EmuTime::param time)
+void Carnivore2::writeMultiMapperSlot(uint16_t address, byte value, EmuTime time)
 {
 	if (isConfigReg(address)) {
 		// this blocks writes to switch-region and bank-region
@@ -500,7 +500,7 @@ void Carnivore2::writeMultiMapperSlot(uint16_t address, byte value, EmuTime::par
 	}
 }
 
-byte Carnivore2::readIDESlot(uint16_t address, EmuTime::param time)
+byte Carnivore2::readIDESlot(uint16_t address, EmuTime time)
 {
 	// TODO mirroring is different from SunriseIDE
 	if (ideRegsEnabled() && ((address & 0xfe00) == 0x7c00)) {
@@ -531,7 +531,7 @@ byte Carnivore2::readIDESlot(uint16_t address, EmuTime::param time)
 	return 0xff;
 }
 
-byte Carnivore2::peekIDESlot(uint16_t address, EmuTime::param time) const
+byte Carnivore2::peekIDESlot(uint16_t address, EmuTime time) const
 {
 	if (ideRegsEnabled() && ((address & 0xfe00) == 0x7c00)) {
 		// 0x7c00-0x7dff   IDE data register
@@ -553,7 +553,7 @@ byte Carnivore2::peekIDESlot(uint16_t address, EmuTime::param time) const
 	return 0xff;
 }
 
-void Carnivore2::writeIDESlot(uint16_t address, byte value, EmuTime::param time)
+void Carnivore2::writeIDESlot(uint16_t address, byte value, EmuTime time)
 {
 	// TODO mirroring is different from SunriseIDE
 	if (address == 0x4104) {
@@ -578,17 +578,17 @@ void Carnivore2::writeIDESlot(uint16_t address, byte value, EmuTime::param time)
 	}
 }
 
-uint16_t Carnivore2::ideReadData(EmuTime::param time)
+uint16_t Carnivore2::ideReadData(EmuTime time)
 {
 	return ideDevices[ideSelectedDevice]->readData(time);
 }
 
-void Carnivore2::ideWriteData(uint16_t value, EmuTime::param time)
+void Carnivore2::ideWriteData(uint16_t value, EmuTime time)
 {
 	ideDevices[ideSelectedDevice]->writeData(value, time);
 }
 
-byte Carnivore2::ideReadReg(byte reg, EmuTime::param time)
+byte Carnivore2::ideReadReg(byte reg, EmuTime time)
 {
 	if (reg == 14) reg = 7; // alternate status register
 
@@ -611,7 +611,7 @@ byte Carnivore2::ideReadReg(byte reg, EmuTime::param time)
 	}
 }
 
-void Carnivore2::ideWriteReg(byte reg, byte value, EmuTime::param time)
+void Carnivore2::ideWriteReg(byte reg, byte value, EmuTime time)
 {
 	if (ideSoftReset) {
 		if ((reg == 14) && !(value & 0x04)) {
@@ -694,7 +694,7 @@ void Carnivore2::writeMemoryMapperSlot(uint16_t address, byte value)
 	}
 }
 
-byte Carnivore2::readFmPacSlot(uint16_t address, EmuTime::param time)
+byte Carnivore2::readFmPacSlot(uint16_t address, EmuTime time)
 {
 	if (address == 0x7ff6) {
 		return fmPacEnable; // enable
@@ -723,7 +723,7 @@ byte Carnivore2::readFmPacSlot(uint16_t address, EmuTime::param time)
 	return 0xff;
 }
 
-byte Carnivore2::peekFmPacSlot(uint16_t address, EmuTime::param time) const
+byte Carnivore2::peekFmPacSlot(uint16_t address, EmuTime time) const
 {
 	if (address == 0x7ff6) {
 		return fmPacEnable; // enable
@@ -752,7 +752,7 @@ byte Carnivore2::peekFmPacSlot(uint16_t address, EmuTime::param time) const
 	return 0xff;
 }
 
-void Carnivore2::writeFmPacSlot(uint16_t address, byte value, EmuTime::param time)
+void Carnivore2::writeFmPacSlot(uint16_t address, byte value, EmuTime time)
 {
 	if ((0x4000 <= address) && (address < 0x5ffe)) {
 		if (fmPacSramEnabled()) {
@@ -771,12 +771,12 @@ void Carnivore2::writeFmPacSlot(uint16_t address, byte value, EmuTime::param tim
 	}
 }
 
-byte Carnivore2::readIO(uint16_t port, EmuTime::param time)
+byte Carnivore2::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte Carnivore2::peekIO(uint16_t port, EmuTime::param /*time*/) const
+byte Carnivore2::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	// reading ports 0x3c, 0x7c, 0x7d has no effect
 	if (memMapReadEnabled() && ((port & 0xfc) == 0xfc)) {
@@ -792,7 +792,7 @@ byte Carnivore2::peekIO(uint16_t port, EmuTime::param /*time*/) const
 	return 0xff;
 }
 
-void Carnivore2::writeIO(uint16_t port, byte value, EmuTime::param time)
+void Carnivore2::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	// note: we only get writes to either PSG ports if they're enabled/configured
 	if (((port & 0xff) == 0xa0) || ((port & 0xff) == 0x10)) {

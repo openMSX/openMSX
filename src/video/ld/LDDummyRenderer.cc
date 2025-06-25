@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-void LDDummyRenderer::frameStart(EmuTime::param /*time*/)
+void LDDummyRenderer::frameStart(EmuTime /*time*/)
 {
 }
 

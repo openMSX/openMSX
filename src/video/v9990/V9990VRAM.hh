@@ -25,14 +25,14 @@ public:
 	  * @param vdp The V9990 vdp this VRAM belongs to
 	  * @param time  Moment in time to create the VRAM
 	  */
-	V9990VRAM(V9990& vdp, EmuTime::param time);
+	V9990VRAM(V9990& vdp, EmuTime time);
 
 	void clear();
 
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronize VRAM to
 	  */
-	void sync(EmuTime::param time) {
+	void sync(EmuTime time) {
 		cmdEngine->sync(time);
 	}
 
@@ -80,8 +80,8 @@ public:
 		data.write(address, value);
 	}
 
-	[[nodiscard]] uint8_t readVRAMCPU(unsigned address, EmuTime::param time);
-	void writeVRAMCPU(unsigned address, uint8_t val, EmuTime::param time);
+	[[nodiscard]] uint8_t readVRAMCPU(unsigned address, EmuTime time);
+	void writeVRAMCPU(unsigned address, uint8_t val, EmuTime time);
 
 	void setCmdEngine(V9990CmdEngine& cmdEngine_) { cmdEngine = &cmdEngine_; }
 

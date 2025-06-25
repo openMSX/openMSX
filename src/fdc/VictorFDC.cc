@@ -41,7 +41,7 @@ VictorFDC::VictorFDC(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void VictorFDC::reset(EmuTime::param time)
+void VictorFDC::reset(EmuTime time)
 {
 	WD2793BasedFDC::reset(time);
 	// initialize in such way that drives are disabled
@@ -50,7 +50,7 @@ void VictorFDC::reset(EmuTime::param time)
 	writeMem(0x7FFC, DRIVE_DISABLE, time);
 }
 
-byte VictorFDC::readMem(uint16_t address, EmuTime::param time)
+byte VictorFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -73,7 +73,7 @@ byte VictorFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte VictorFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte VictorFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	switch (address) {
 	case 0x7FF8:
@@ -106,7 +106,7 @@ const byte* VictorFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void VictorFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void VictorFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address) {
 	case 0x7FF8:

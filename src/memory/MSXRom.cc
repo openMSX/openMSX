@@ -11,7 +11,7 @@ MSXRom::MSXRom(const DeviceConfig& config, Rom&& rom_)
 {
 }
 
-void MSXRom::writeMem(uint16_t /*address*/, byte /*value*/, EmuTime::param /*time*/)
+void MSXRom::writeMem(uint16_t /*address*/, byte /*value*/, EmuTime /*time*/)
 {
 	// nothing
 }

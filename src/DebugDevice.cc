@@ -24,13 +24,13 @@ DebugDevice::DebugDevice(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void DebugDevice::reset(EmuTime::param /*time*/)
+void DebugDevice::reset(EmuTime /*time*/)
 {
 	mode = OFF;
 	modeParameter = 0;
 }
 
-void DebugDevice::writeIO(uint16_t port, byte value, EmuTime::param time)
+void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	if (const auto& newName = fileNameSetting.getString();
 	    newName != fileNameString) {
@@ -75,7 +75,7 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime::param time)
 	}
 }
 
-void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
+void DebugDevice::outputSingleByte(byte value, EmuTime time)
 {
 	if (modeParameter & 0x01) {
 		displayByte(value, HEX);

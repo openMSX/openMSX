@@ -41,12 +41,12 @@ MSXS1985::~MSXS1985()
 	getMotherBoard().destroyMapperIO();
 }
 
-void MSXS1985::reset(EmuTime::param /*time*/)
+void MSXS1985::reset(EmuTime /*time*/)
 {
 	color1 = color2 = pattern = address = 0; // TODO check this
 }
 
-uint8_t MSXS1985::readSwitchedIO(uint16_t port, EmuTime::param time)
+uint8_t MSXS1985::readSwitchedIO(uint16_t port, EmuTime time)
 {
 	uint8_t result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
@@ -57,7 +57,7 @@ uint8_t MSXS1985::readSwitchedIO(uint16_t port, EmuTime::param time)
 	return result;
 }
 
-uint8_t MSXS1985::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
+uint8_t MSXS1985::peekSwitchedIO(uint16_t port, EmuTime /*time*/) const
 {
 	switch (port & 0x0F) {
 	case 0:
@@ -71,7 +71,7 @@ uint8_t MSXS1985::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXS1985::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param /*time*/)
+void MSXS1985::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 {
 	switch (port & 0x0F) {
 	case 1:

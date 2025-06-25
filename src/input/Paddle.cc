@@ -13,7 +13,7 @@ class PaddleState final : public StateChange
 {
 public:
 	PaddleState() = default; // for serialize
-	PaddleState(EmuTime::param time_, int delta_)
+	PaddleState(EmuTime time_, int delta_)
 		: StateChange(time_), delta(delta_) {}
 	[[nodiscard]] int getDelta() const { return delta; }
 
@@ -54,20 +54,20 @@ std::string_view Paddle::getDescription() const
 	return "MSX Paddle";
 }
 
-void Paddle::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void Paddle::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 }
 
-void Paddle::unplugHelper(EmuTime::param /*time*/)
+void Paddle::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
 
 // JoystickDevice
-uint8_t Paddle::read(EmuTime::param time)
+uint8_t Paddle::read(EmuTime time)
 {
 	// The loop in the BIOS routine that reads the paddle status takes
 	// 41 Z80 cycles per iteration.
@@ -79,7 +79,7 @@ uint8_t Paddle::read(EmuTime::param time)
 	return output ? 0x3F : 0x3E; // pin1 (up)
 }
 
-void Paddle::write(uint8_t value, EmuTime::param time)
+void Paddle::write(uint8_t value, EmuTime time)
 {
 	uint8_t diff = lastInput ^ value;
 	lastInput = value;
@@ -90,7 +90,7 @@ void Paddle::write(uint8_t value, EmuTime::param time)
 
 // MSXEventListener
 void Paddle::signalMSXEvent(const Event& event,
-                            EmuTime::param time) noexcept
+                            EmuTime time) noexcept
 {
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
@@ -112,7 +112,7 @@ void Paddle::signalStateChange(const StateChange& event)
 	analogValue = narrow_cast<uint8_t>(std::clamp(analogValue + ps->getDelta(), 0, 255));
 }
 
-void Paddle::stopReplay(EmuTime::param /*time*/) noexcept
+void Paddle::stopReplay(EmuTime /*time*/) noexcept
 {
 }
 

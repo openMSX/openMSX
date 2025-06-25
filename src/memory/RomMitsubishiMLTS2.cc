@@ -13,12 +13,12 @@ RomMitsubishiMLTS2::RomMitsubishiMLTS2(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMitsubishiMLTS2::reset(EmuTime::param /*time*/)
+void RomMitsubishiMLTS2::reset(EmuTime /*time*/)
 {
 	setRom(2, 0);
 }
 
-void RomMitsubishiMLTS2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomMitsubishiMLTS2::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// TODO What are these 4 registers? Are there any more?
 	//      Is there any mirroring going on?
@@ -38,12 +38,12 @@ void RomMitsubishiMLTS2::writeMem(uint16_t address, byte value, EmuTime::param /
 	}
 }
 
-byte RomMitsubishiMLTS2::readMem(uint16_t address, EmuTime::param time)
+byte RomMitsubishiMLTS2::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-byte RomMitsubishiMLTS2::peekMem(uint16_t address, EmuTime::param time) const
+byte RomMitsubishiMLTS2::peekMem(uint16_t address, EmuTime time) const
 {
 	// TODO What are these 4 registers? Are there any more?
 	//      Is there any mirroring going on?

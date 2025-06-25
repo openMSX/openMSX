@@ -16,17 +16,17 @@ public:
 	ReproCartridgeV2(DeviceConfig& config, Rom&& rom);
 	~ReproCartridgeV2() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
-	void setVolume(EmuTime::param time, byte value);
+	void setVolume(EmuTime time, byte value);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -12,7 +12,7 @@ DriveMultiplexer::DriveMultiplexer(std::span<std::unique_ptr<DiskDrive>, 4> drv)
 	drive[Drive::NONE] = &dummyDrive;
 }
 
-void DriveMultiplexer::selectDrive(Drive num, EmuTime::param time)
+void DriveMultiplexer::selectDrive(Drive num, EmuTime time)
 {
 	if (selected != num) {
 		drive[selected]->setMotor(false, time);
@@ -53,7 +53,7 @@ bool DriveMultiplexer::getSide() const
 	return side;
 }
 
-void DriveMultiplexer::step(bool direction, EmuTime::param time)
+void DriveMultiplexer::step(bool direction, EmuTime time)
 {
 	drive[selected]->step(direction, time);
 }
@@ -63,7 +63,7 @@ bool DriveMultiplexer::isTrack00() const
 	return drive[selected]->isTrack00();
 }
 
-void DriveMultiplexer::setMotor(bool status, EmuTime::param time)
+void DriveMultiplexer::setMotor(bool status, EmuTime time)
 {
 	motor = status;
 	drive[selected]->setMotor(status, time);
@@ -74,12 +74,12 @@ bool DriveMultiplexer::getMotor() const
 	return motor;
 }
 
-bool DriveMultiplexer::indexPulse(EmuTime::param time)
+bool DriveMultiplexer::indexPulse(EmuTime time)
 {
 	return drive[selected]->indexPulse(time);
 }
 
-EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time, int count)
+EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime time, int count)
 {
 	return drive[selected]->getTimeTillIndexPulse(time, count);
 }
@@ -99,7 +99,7 @@ uint8_t DriveMultiplexer::readTrackByte(int idx)
 	return drive[selected]->readTrackByte(idx);
 }
 
-EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
+EmuTime DriveMultiplexer::getNextSector(EmuTime time, RawTrack::Sector& sector)
 {
 	return drive[selected]->getNextSector(time, sector);
 }

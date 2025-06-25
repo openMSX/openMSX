@@ -20,12 +20,12 @@ SG1000JoystickIO::SG1000JoystickIO(const DeviceConfig& config)
 	}
 }
 
-byte SG1000JoystickIO::readIO(uint16_t port, EmuTime::param time)
+byte SG1000JoystickIO::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte SG1000JoystickIO::peekIO(uint16_t port, EmuTime::param time) const
+byte SG1000JoystickIO::peekIO(uint16_t port, EmuTime time) const
 {
 	// Joystick hardware cannot detect when it's being read, so using the
 	// read() method for peeking should be safe.

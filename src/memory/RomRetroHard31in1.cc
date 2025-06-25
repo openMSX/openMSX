@@ -22,12 +22,12 @@ RomRetroHard31in1::~RomRetroHard31in1()
 	getCPUInterface().unregister_IO_Out(0x94, this);
 }
 
-void RomRetroHard31in1::reset(EmuTime::param time)
+void RomRetroHard31in1::reset(EmuTime time)
 {
 	writeIO(0x94, 0, time);
 }
 
-void RomRetroHard31in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void RomRetroHard31in1::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	byte page = 2 * (value & 0x1F);
 	// note: we use a mirrored configuration here on purpose.

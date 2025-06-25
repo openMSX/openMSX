@@ -39,17 +39,17 @@ CanonWordProcessor::CanonWordProcessor(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void CanonWordProcessor::reset(EmuTime::param time)
+void CanonWordProcessor::reset(EmuTime time)
 {
 	writeMem(0xbfff, 0xff, time);
 }
 
-byte CanonWordProcessor::readMem(uint16_t address, EmuTime::param time)
+byte CanonWordProcessor::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-byte CanonWordProcessor::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte CanonWordProcessor::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if ((0xbff8 <= address) && (address <= 0xbfff)) {
 		return 0xc0; // select area, does NOT read from ROM
@@ -93,7 +93,7 @@ const byte* CanonWordProcessor::readHelper(uint16_t address) const
 	}
 }
 
-void CanonWordProcessor::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void CanonWordProcessor::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0xbff8 <= address) && (address <= 0xbfff)) {
 		select = ~value; // invert !!

@@ -25,27 +25,27 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void createTrackballStateChange(EmuTime::param time,
+	void createTrackballStateChange(EmuTime time,
 		int deltaX, int deltaY, uint8_t press, uint8_t release);
 
-	void syncCurrentWithTarget(EmuTime::param time);
+	void syncCurrentWithTarget(EmuTime time);
 
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 
 	// JoystickDevice
-	[[nodiscard]] uint8_t read(EmuTime::param time) override;
-	void write(uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime time) override;
+	void write(uint8_t value, EmuTime time) override;
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
-	                    EmuTime::param time) noexcept override;
+	                    EmuTime time) noexcept override;
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;
-	void stopReplay(EmuTime::param time) noexcept override;
+	void stopReplay(EmuTime time) noexcept override;
 
 private:
 	MSXEventDistributor& eventDistributor;

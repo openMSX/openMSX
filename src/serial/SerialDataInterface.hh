@@ -23,7 +23,7 @@ public:
 	virtual void setDataBits(DataBits bits) = 0;
 	virtual void setStopBits(StopBits bits) = 0;
 	virtual void setParityBit(bool enable, Parity parity) = 0;
-	virtual void recvByte(uint8_t value, EmuTime::param time) = 0;
+	virtual void recvByte(uint8_t value, EmuTime time) = 0;
 
 protected:
 	~SerialDataInterface() = default;

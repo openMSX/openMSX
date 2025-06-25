@@ -91,13 +91,13 @@ void DalSoRiR2::setupMemPtrs(
 	}
 }
 
-void DalSoRiR2::powerUp(EmuTime::param time)
+void DalSoRiR2::powerUp(EmuTime time)
 {
 	ymf278b.powerUp(time);
 	reset(time);
 }
 
-void DalSoRiR2::reset(EmuTime::param time)
+void DalSoRiR2::reset(EmuTime time)
 {
 	ymf278b.reset(time);
 	flash.reset();
@@ -135,17 +135,17 @@ void DalSoRiR2::setRegCfg(byte value)
 	ymf278b.setupMemoryPointers(); // ENA_S0 might have changed
 }
 
-byte DalSoRiR2::readIO(uint16_t port, EmuTime::param time)
+byte DalSoRiR2::readIO(uint16_t port, EmuTime time)
 {
 	return ymf278b.readIO(port, time);
 }
 
-byte DalSoRiR2::peekIO(uint16_t port, EmuTime::param time) const
+byte DalSoRiR2::peekIO(uint16_t port, EmuTime time) const
 {
 	return ymf278b.peekIO(port, time);
 }
 
-void DalSoRiR2::writeIO(uint16_t port, byte value, EmuTime::param time)
+void DalSoRiR2::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	ymf278b.writeIO(port, value, time);
 }
@@ -178,7 +178,7 @@ unsigned DalSoRiR2::getFlashAddr(uint16_t addr) const
 	return 0x4000 * bank + offset;
 }
 
-byte DalSoRiR2::readMem(uint16_t addr, EmuTime::param time)
+byte DalSoRiR2::readMem(uint16_t addr, EmuTime time)
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
@@ -188,7 +188,7 @@ byte DalSoRiR2::readMem(uint16_t addr, EmuTime::param time)
 	return 0xFF;
 }
 
-byte DalSoRiR2::peekMem(uint16_t addr, EmuTime::param time) const
+byte DalSoRiR2::peekMem(uint16_t addr, EmuTime time) const
 {
 	if (auto r = getSramAddr(addr)) {
 		return sram[*r];
@@ -208,7 +208,7 @@ const byte* DalSoRiR2::getReadCacheLine(uint16_t start) const
 	return unmappedRead.data();
 }
 
-void DalSoRiR2::writeMem(uint16_t addr, byte value, EmuTime::param time)
+void DalSoRiR2::writeMem(uint16_t addr, byte value, EmuTime time)
 {
 	if (auto r = getSramAddr(addr)) {
 		sram[*r] = value;

@@ -82,7 +82,7 @@ void MSXCPU::setInterface(MSXCPUInterface* interface_)
 	if (r800) r800->setInterface(interface);
 }
 
-void MSXCPU::doReset(EmuTime::param time)
+void MSXCPU::doReset(EmuTime time)
 {
 	          z80 ->doReset(time);
 	if (r800) r800->doReset(time);
@@ -137,13 +137,13 @@ void MSXCPU::exitCPULoopAsync()
 	          : r800->exitCPULoopAsync();
 }
 
-EmuTime::param MSXCPU::getCurrentTime() const
+EmuTime MSXCPU::getCurrentTime() const
 {
 	return z80Active ? z80 ->getCurrentTime()
 	                 : r800->getCurrentTime();
 }
 
-void MSXCPU::setNextSyncPoint(EmuTime::param time)
+void MSXCPU::setNextSyncPoint(EmuTime time)
 {
 	z80Active ? z80 ->setNextSyncPoint(time)
 	          : r800->setNextSyncPoint(time);
@@ -321,19 +321,19 @@ void MSXCPU::setZ80Freq(unsigned freq)
 	z80->setFreq(freq);
 }
 
-void MSXCPU::wait(EmuTime::param time)
+void MSXCPU::wait(EmuTime time)
 {
 	z80Active ? z80 ->wait(time)
 	          : r800->wait(time);
 }
 
-EmuTime MSXCPU::waitCyclesZ80(EmuTime::param time, unsigned cycles)
+EmuTime MSXCPU::waitCyclesZ80(EmuTime time, unsigned cycles)
 {
 	return z80Active ? z80 ->waitCycles(time, cycles)
 	                 : time;
 }
 
-EmuTime MSXCPU::waitCyclesR800(EmuTime::param time, unsigned cycles)
+EmuTime MSXCPU::waitCyclesR800(EmuTime time, unsigned cycles)
 {
 	return z80Active ? time
 	                 : r800->waitCycles(time, cycles);

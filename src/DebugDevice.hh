@@ -14,8 +14,8 @@ class DebugDevice final : public MSXDevice
 public:
 	explicit DebugDevice(const DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -26,7 +26,7 @@ public:
 private:
 	enum DisplayType : uint8_t {HEX, BIN, DEC, ASC};
 
-	void outputSingleByte(byte value, EmuTime::param time);
+	void outputSingleByte(byte value, EmuTime time);
 	void outputMultiByte(byte value);
 	void displayByte(byte value, DisplayType type);
 	void openOutput(std::string_view name);

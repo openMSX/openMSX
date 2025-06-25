@@ -26,7 +26,7 @@ void appendAddrAsHex(std::string& output, uint16_t addr);
 std::optional<unsigned> instructionLength(std::span<const uint8_t> bin);
 
 std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t addr,
-                                    std::span<uint8_t, 4> buffer, EmuTime::param time);
+                                    std::span<uint8_t, 4> buffer, EmuTime time);
 
 /** Disassemble
   * @param opcode Buffer containing the machine language instruction
@@ -50,7 +50,7 @@ unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
   * @return Length of the disassembled opcode in bytes
   */
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
-              std::string& dest, EmuTime::param time,
+              std::string& dest, EmuTime time,
               function_ref<void(std::string&, uint16_t)> appendAddr = &appendAddrAsHex);
 
 /** This is only an _heuristic_ to display instructions in a debugger disassembly
@@ -72,7 +72,7 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
   * address.
   */
 uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
-                             EmuTime::param time);
+                             EmuTime time);
 
 /** Get the start address of the 'n'th instruction before the instruction
   * containing the byte at the given address 'addr'.
@@ -83,7 +83,7 @@ uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
   * returned.
   */
 uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
-                             EmuTime::param time, int n);
+                             EmuTime time, int n);
 
 } // namespace openmsx
 

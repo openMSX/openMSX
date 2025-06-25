@@ -18,7 +18,7 @@ RomPadial8kB::RomPadial8kB(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomPadial8kB::reset(EmuTime::param /*time*/)
+void RomPadial8kB::reset(EmuTime /*time*/)
 {
 	setRom(0, 0);
 	setRom(1, 0);

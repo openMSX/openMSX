@@ -46,7 +46,7 @@ LaserdiscPlayer::Command::Command(
 }
 
 void LaserdiscPlayer::Command::execute(
-	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime time)
 {
 	auto& laserdiscPlayer = OUTER(LaserdiscPlayer, laserdiscCommand);
 	if (tokens.size() == 1) {
@@ -171,7 +171,7 @@ void LaserdiscPlayer::getMediaInfo(TclObject& result)
 	                        "state", getStateString());
 }
 
-void LaserdiscPlayer::setMedia(const TclObject& info, EmuTime::param time)
+void LaserdiscPlayer::setMedia(const TclObject& info, EmuTime time)
 {
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;
@@ -183,7 +183,7 @@ void LaserdiscPlayer::setMedia(const TclObject& info, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
+void LaserdiscPlayer::scheduleDisplayStart(EmuTime time)
 {
 	Clock<60000, 1001> frameClock(time);
 	// The video is 29.97Hz, however we need to do vblank processing
@@ -203,7 +203,7 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 // the CU-700. This is much like the CU-CLD106 which is described
 // here: http://lirc.sourceforge.net/remotes/pioneer/CU-CLD106
 // The codes and protocol are exactly the same.
-void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
+void LaserdiscPlayer::extControl(bool bit, EmuTime time)
 {
 	if (remoteLastBit == bit) return;
 	remoteLastBit = bit;
@@ -296,7 +296,7 @@ const RawFrame* LaserdiscPlayer::getRawFrame() const
 	return renderer->getRawFrame();
 }
 
-void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
+void LaserdiscPlayer::setAck(EmuTime time, int wait)
 {
 	// activate ACK for 'wait' milliseconds
 	syncAck.removeSyncPoint();
@@ -304,7 +304,7 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	ack = true;
 }
 
-void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
+void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime time)
 {
 #ifdef DEBUG
 	string f;
@@ -519,7 +519,7 @@ void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::execSyncAck(EmuTime::param time)
+void LaserdiscPlayer::execSyncAck(EmuTime time)
 {
 	updateStream(time);
 
@@ -531,7 +531,7 @@ void LaserdiscPlayer::execSyncAck(EmuTime::param time)
 	seeking = false;
 }
 
-void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
+void LaserdiscPlayer::execSyncFrame(EmuTime time, bool odd)
 {
 	updateStream(time);
 
@@ -615,7 +615,7 @@ void LaserdiscPlayer::setFrameStep()
 	}
 }
 
-void LaserdiscPlayer::nextFrame(EmuTime::param time)
+void LaserdiscPlayer::nextFrame(EmuTime time)
 {
 	using enum PlayerState;
 	if (waitFrame && waitFrame == currentFrame) {
@@ -662,7 +662,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
+void LaserdiscPlayer::setImageName(string newImage, EmuTime time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
@@ -797,21 +797,21 @@ float LaserdiscPlayer::getAmplificationFactorImpl() const
 }
 
 bool LaserdiscPlayer::updateBuffer(size_t length, float* buffer,
-                                   EmuTime::param time)
+                                   EmuTime time)
 {
 	bool result = ResampledSoundDevice::updateBuffer(length, buffer, time);
 	start = time; // current end-time is next start-time
 	return result;
 }
 
-void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)
+void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime time)
 {
 	updateStream(time);
 	muteLeft = left;
 	muteRight = right;
 }
 
-void LaserdiscPlayer::play(EmuTime::param time)
+void LaserdiscPlayer::play(EmuTime time)
 {
 	if (!video) return;
 
@@ -855,7 +855,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 	playerState = PLAYING;
 }
 
-size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
+size_t LaserdiscPlayer::getCurrentSample(EmuTime time)
 {
 	switch(playerState) {
 	case PlayerState::PAUSED:
@@ -866,7 +866,7 @@ size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::pause(EmuTime::param time)
+void LaserdiscPlayer::pause(EmuTime time)
 {
 	using enum PlayerState;
 	if (playerState == STOPPED) return;
@@ -885,7 +885,7 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 	setAck(time, 46);
 }
 
-void LaserdiscPlayer::stop(EmuTime::param time)
+void LaserdiscPlayer::stop(EmuTime time)
 {
 	if (playerState == PlayerState::STOPPED) return;
 
@@ -893,7 +893,7 @@ void LaserdiscPlayer::stop(EmuTime::param time)
 	playerState = PlayerState::STOPPED;
 }
 
-void LaserdiscPlayer::eject(EmuTime::param time)
+void LaserdiscPlayer::eject(EmuTime time)
 {
 	stop(time);
 	oggImage = {};
@@ -936,7 +936,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	}
 }
 
-void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
+void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime time)
 {
 	if ((playerState == PlayerState::STOPPED) || !video) return;
 
@@ -975,7 +975,7 @@ void LaserdiscPlayer::seekFrame(size_t toFrame, EmuTime::param time)
 	setAck(time, seekTime);
 }
 
-void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
+void LaserdiscPlayer::seekChapter(int chapter, EmuTime time)
 {
 	if ((playerState == PlayerState::STOPPED) || !video) return;
 
@@ -984,7 +984,7 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 	seekFrame(frameNo, time);
 }
 
-int16_t LaserdiscPlayer::readSample(EmuTime::param time)
+int16_t LaserdiscPlayer::readSample(EmuTime time)
 {
 	// Here we should return the value of the sample on the
 	// right audio channel, ignoring muting (this is done in the MSX)
@@ -1004,7 +1004,7 @@ int16_t LaserdiscPlayer::readSample(EmuTime::param time)
 	return 0;
 }
 
-bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime::param time)
+bool LaserdiscPlayer::isVideoOutputAvailable(EmuTime time)
 {
 	updateStream(time);
 

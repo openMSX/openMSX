@@ -21,11 +21,11 @@ public:
 	void reset();
 
 	void writeCommand(uint8_t value);
-	void writeData(uint8_t value, EmuTime::param time);
-	[[nodiscard]] uint8_t readStatus(EmuTime::param time) const;
-	[[nodiscard]] uint8_t readData(EmuTime::param time);
-	[[nodiscard]] uint8_t peekStatus(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekData(EmuTime::param time) const;
+	void writeData(uint8_t value, EmuTime time);
+	[[nodiscard]] uint8_t readStatus(EmuTime time) const;
+	[[nodiscard]] uint8_t readData(EmuTime time);
+	[[nodiscard]] uint8_t peekStatus(EmuTime time) const;
+	[[nodiscard]] uint8_t peekData(EmuTime time) const;
 
 	[[nodiscard]] bool pendingIRQ() const;
 
@@ -39,13 +39,13 @@ private:
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(uint8_t value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime time) override;
 
 	// Schedulable
 	struct SyncRecv final : Schedulable {
 		friend class YM2148;
 		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& ym2148 = OUTER(YM2148, syncRecv);
 			ym2148.execRecv(time);
 		}
@@ -53,15 +53,15 @@ private:
 	struct SyncTrans final : Schedulable {
 		friend class YM2148;
 		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& ym2148 = OUTER(YM2148, syncTrans);
 			ym2148.execTrans(time);
 		}
 	} syncTrans;
-	void execRecv (EmuTime::param time);
-	void execTrans(EmuTime::param time);
+	void execRecv (EmuTime time);
+	void execTrans(EmuTime time);
 
-	void send(uint8_t value, EmuTime::param time);
+	void send(uint8_t value, EmuTime time);
 
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;

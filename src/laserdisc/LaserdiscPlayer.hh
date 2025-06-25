@@ -37,12 +37,12 @@ public:
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
-	[[nodiscard]] int16_t readSample(EmuTime::param time);
+	[[nodiscard]] int16_t readSample(EmuTime time);
 
 	// Called from PioneerLDControl
-	void setMuting(bool left, bool right, EmuTime::param time);
-	[[nodiscard]] bool extAck(EmuTime::param /*time*/) const { return ack; }
-	void extControl(bool bit, EmuTime::param time);
+	void setMuting(bool left, bool right, EmuTime time);
+	[[nodiscard]] bool extAck(EmuTime /*time*/) const { return ack; }
+	void extControl(bool bit, EmuTime time);
 	[[nodiscard]] const RawFrame* getRawFrame() const;
 
 	template<typename Archive>
@@ -53,7 +53,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
-	void setMedia(const TclObject& info, EmuTime::param time) override;
+	void setMedia(const TclObject& info, EmuTime time) override;
 
 	enum class RemoteState : uint8_t {
 		IDLE,
@@ -90,43 +90,43 @@ public:
 	};
 private:
 	std::string getStateString() const;
-	void setImageName(std::string newImage, EmuTime::param time);
+	void setImageName(std::string newImage, EmuTime time);
 	[[nodiscard]] const Filename& getImageName() const { return oggImage; }
 	void autoRun();
 
 	/** Laserdisc player commands
 	  */
-	void play(EmuTime::param time);
-	void pause(EmuTime::param time);
-	void stop(EmuTime::param time);
-	void eject(EmuTime::param time);
-	void seekFrame(size_t frame, EmuTime::param time);
+	void play(EmuTime time);
+	void pause(EmuTime time);
+	void stop(EmuTime time);
+	void eject(EmuTime time);
+	void seekFrame(size_t frame, EmuTime time);
 	void stepFrame(bool forwards);
-	void seekChapter(int chapter, EmuTime::param time);
+	void seekChapter(int chapter, EmuTime time);
 
 	// Control from MSX
 
 	/** Is video output being generated?
 	  */
-	void scheduleDisplayStart(EmuTime::param time);
-	[[nodiscard]] bool isVideoOutputAvailable(EmuTime::param time);
-	void remoteButtonNEC(uint8_t code, EmuTime::param time);
+	void scheduleDisplayStart(EmuTime time);
+	[[nodiscard]] bool isVideoOutputAvailable(EmuTime time);
+	void remoteButtonNEC(uint8_t code, EmuTime time);
 	void submitRemote(RemoteProtocol protocol, uint8_t code);
-	void setAck(EmuTime::param time, int wait);
-	[[nodiscard]] size_t getCurrentSample(EmuTime::param time);
+	void setAck(EmuTime time, int wait);
+	[[nodiscard]] size_t getCurrentSample(EmuTime time);
 	void createRenderer();
 
 	// SoundDevice
 	void generateChannels(std::span<float*> buffers, unsigned num) override;
 	bool updateBuffer(size_t length, float* buffer,
-	                  EmuTime::param time) override;
+	                  EmuTime time) override;
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 
 	// Schedulable
 	struct SyncAck final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncAck(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncAck);
 			player.execSyncAck(time);
 		}
@@ -134,7 +134,7 @@ private:
 	struct SyncOdd final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncOdd(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncOdd);
 			player.execSyncFrame(time, true);
 		}
@@ -142,15 +142,15 @@ private:
 	struct SyncEven final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncEven(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncEven);
 			player.execSyncFrame(time, false);
 		}
 	} syncEven;
 
-	void execSyncAck(EmuTime::param time);
-	void execSyncFrame(EmuTime::param time, bool odd);
-	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
+	void execSyncAck(EmuTime time);
+	void execSyncFrame(EmuTime time, bool odd);
+	[[nodiscard]] EmuTime getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
 	bool signalEvent(const Event& event) override;
@@ -167,7 +167,7 @@ private:
 		        StateChangeDistributor& stateChangeDistributor,
 		        Scheduler& scheduler);
 		void execute(std::span<const TclObject> tokens, TclObject& result,
-			     EmuTime::param time) override;
+			     EmuTime time) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} laserdiscCommand;
@@ -176,7 +176,7 @@ private:
 	Filename oggImage;
 	std::unique_ptr<LDRenderer> renderer;
 
-	void nextFrame(EmuTime::param time);
+	void nextFrame(EmuTime time);
 	void setFrameStep();
 	size_t currentFrame;
 	int frameStep;

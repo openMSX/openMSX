@@ -130,7 +130,7 @@ void SCSILS120::getMediaInfo(TclObject& result)
 	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
 }
 
-void SCSILS120::setMedia(const TclObject& info, EmuTime::param /*time*/)
+void SCSILS120::setMedia(const TclObject& info, EmuTime /*time*/)
 {
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;
@@ -775,7 +775,7 @@ LSXCommand::LSXCommand(CommandController& commandController_,
 }
 
 void LSXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
-                         EmuTime::param /*time*/)
+                         EmuTime /*time*/)
 {
 	if (tokens.size() == 1) {
 		const auto& file = ls.file;

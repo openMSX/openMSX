@@ -30,12 +30,12 @@ public:
 	  * connector.
 	  * @throws PlugException
 	  */
-	void plug(Connector& connector, EmuTime::param time);
+	void plug(Connector& connector, EmuTime time);
 
 	/** This method is called when this pluggable is removed from a
 	  * connector.
 	  */
-	void unplug(EmuTime::param time);
+	void unplug(EmuTime time);
 
 	/** Get the connector this Pluggable is plugged into. Returns nullptr
 	  * if this Pluggable is not plugged.
@@ -50,9 +50,9 @@ public:
 
 protected:
 	Pluggable();
-	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;
+	virtual void plugHelper(Connector& newConnector, EmuTime time) = 0;
 	/* implementations of unplugHelper() may not throw exceptions. */
-	virtual void unplugHelper(EmuTime::param time) = 0;
+	virtual void unplugHelper(EmuTime time) = 0;
 
 	friend class Connector; // for de-serialization
 	void setConnector(Connector* conn) { connector = conn; }

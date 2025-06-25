@@ -78,21 +78,21 @@ public:
 	explicit VDP(const DeviceConfig& config);
 	~VDP() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 	[[nodiscard]] std::string_view getVersionString() const;
 
 	[[nodiscard]] uint8_t peekRegister(unsigned address) const;
-	[[nodiscard]] uint8_t peekStatusReg(uint8_t reg, EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekStatusReg(uint8_t reg, EmuTime time) const;
 
 	/** VDP control register has changed, work out the consequences.
 	  */
-	void changeRegister(uint8_t reg, uint8_t val, EmuTime::param time);
+	void changeRegister(uint8_t reg, uint8_t val, EmuTime time);
 
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
@@ -289,7 +289,7 @@ public:
 	  *   bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  * @param time Moment in time palette change occurs.
 	  */
-	void setPalette(unsigned index, uint16_t grb, EmuTime::param time);
+	void setPalette(unsigned index, uint16_t grb, EmuTime time);
 
 	/** Is the display enabled?
 	  * Both the regular border and forced blanking by clearing
@@ -521,11 +521,11 @@ public:
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
 	  * a given time and the start of this frame.
 	  */
-	[[nodiscard]] int getTicksThisFrame(EmuTime::param time) const {
+	[[nodiscard]] int getTicksThisFrame(EmuTime time) const {
 		return narrow<int>(frameStartTime.getTicksTill_fast(time));
 	}
 
-	[[nodiscard]] EmuTime::param getFrameStartTime() const {
+	[[nodiscard]] EmuTime getFrameStartTime() const {
 		return frameStartTime.getTime();
 	}
 
@@ -576,7 +576,7 @@ public:
 	  * @param time Timestamp to check.
 	  * @return True iff the timestamp is inside the current frame.
 	  */
-	[[nodiscard]] bool isInsideFrame(EmuTime::param time) const {
+	[[nodiscard]] bool isInsideFrame(EmuTime time) const {
 		return time >= frameStartTime.getTime() &&
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
@@ -669,7 +669,7 @@ public:
 
 	/** Get the earliest access slot that is at least 'delta' cycles in
 	  * the future. */
-	[[nodiscard]] EmuTime getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const;
+	[[nodiscard]] EmuTime getAccessSlot(EmuTime time, VDPAccessSlots::Delta delta) const;
 
 	/** Same as getAccessSlot(), but it can be _much_ faster for repeated
 	  * calls, e.g. in the implementation of VDP commands. However it does
@@ -681,7 +681,7 @@ public:
 	  * to construct a new calculator).
 	  */
 	[[nodiscard]] VDPAccessSlots::Calculator getAccessSlotCalculator(
-		EmuTime::param time, EmuTime::param limit) const;
+		EmuTime time, EmuTime limit) const;
 
 	/** Only used when there are commandExecuting-probe listeners.
 	 *
@@ -729,7 +729,7 @@ public:
 	 * Vertically: lines in the top border have negative coordinates, lines
 	 * in the bottom border have coordinates bigger or equal to 192 or 212.
 	 */
-	[[nodiscard]] gl::ivec2 getMSXPos(EmuTime::param time) const {
+	[[nodiscard]] gl::ivec2 getMSXPos(EmuTime time) const {
 		auto ticks = getTicksThisFrame(time);
 		return {((ticks % VDP::TICKS_PER_LINE) - getLeftSprites()) / 2,
 		         (ticks / VDP::TICKS_PER_LINE) - getLineZero()};
@@ -807,7 +807,7 @@ private:
 
 	struct SyncVSync final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncVSync);
 			vdp.execVSync(time);
 		}
@@ -815,7 +815,7 @@ private:
 
 	struct SyncDisplayStart final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncDisplayStart);
 			vdp.execDisplayStart(time);
 		}
@@ -823,7 +823,7 @@ private:
 
 	struct SyncVScan final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncVScan);
 			vdp.execVScan(time);
 		}
@@ -831,7 +831,7 @@ private:
 
 	struct SyncHScan final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param /*time*/) override {
+		void executeUntil(EmuTime /*time*/) override {
 			auto& vdp = OUTER(VDP, syncHScan);
 			vdp.execHScan();
 		}
@@ -839,7 +839,7 @@ private:
 
 	struct SyncHorAdjust final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncHorAdjust);
 			vdp.execHorAdjust(time);
 		}
@@ -847,7 +847,7 @@ private:
 
 	struct SyncSetMode final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncSetMode);
 			vdp.execSetMode(time);
 		}
@@ -855,7 +855,7 @@ private:
 
 	struct SyncSetBlank final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncSetBlank);
 			vdp.execSetBlank(time);
 		}
@@ -863,7 +863,7 @@ private:
 
 	struct SyncSetSprites final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncSetSprites);
 			vdp.execSetSprites(time);
 		}
@@ -871,7 +871,7 @@ private:
 
 	struct SyncCpuVramAccess final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncCpuVramAccess);
 			vdp.execCpuVramAccess(time);
 		}
@@ -879,22 +879,22 @@ private:
 
 	struct SyncCmdDone final : public SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& vdp = OUTER(VDP, syncCmdDone);
 			vdp.execSyncCmdDone(time);
 		}
 	} syncCmdDone;
 
-	void execVSync(EmuTime::param time);
-	void execDisplayStart(EmuTime::param time);
-	void execVScan(EmuTime::param time);
+	void execVSync(EmuTime time);
+	void execDisplayStart(EmuTime time);
+	void execVScan(EmuTime time);
 	void execHScan();
-	void execHorAdjust(EmuTime::param time);
-	void execSetMode(EmuTime::param time);
-	void execSetBlank(EmuTime::param time);
-	void execSetSprites(EmuTime::param time);
-	void execCpuVramAccess(EmuTime::param time);
-	void execSyncCmdDone(EmuTime::param time);
+	void execHorAdjust(EmuTime time);
+	void execSetMode(EmuTime time);
+	void execSetBlank(EmuTime time);
+	void execSetSprites(EmuTime time);
+	void execCpuVramAccess(EmuTime time);
+	void execSyncCmdDone(EmuTime time);
 
 	/** Returns the amount of vertical set-adjust 0..15.
 	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
@@ -941,12 +941,12 @@ private:
 	  * in this method the new base masks are distributed to the VDP
 	  * subsystems.
 	  */
-	void resetMasks(EmuTime::param time);
+	void resetMasks(EmuTime time);
 
 	/** Start a new frame.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	void frameStart(EmuTime::param time);
+	void frameStart(EmuTime time);
 
 	/** Schedules a DISPLAY_START sync point.
 	  * Also removes a pending DISPLAY_START sync, if any.
@@ -955,41 +955,41 @@ private:
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the DISPLAY_START sync time!
 	  */
-	void scheduleDisplayStart(EmuTime::param time);
+	void scheduleDisplayStart(EmuTime time);
 
 	/** Schedules a VSCAN sync point.
 	  * Also removes a pending VSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the VSCAN sync time!
 	  */
-	void scheduleVScan(EmuTime::param time);
+	void scheduleVScan(EmuTime time);
 
 	/** Schedules a HSCAN sync point.
 	  * Also removes a pending HSCAN sync, if any.
 	  * @param time The moment in emulated time this call takes place.
 	  *   Note: time is not the HSCAN sync time!
 	  */
-	void scheduleHScan(EmuTime::param time);
+	void scheduleHScan(EmuTime time);
 
 	/** Byte is written to VRAM by the CPU.
 	  */
-	void vramWrite(uint8_t value, EmuTime::param time);
+	void vramWrite(uint8_t value, EmuTime time);
 
 	/** Byte is read from VRAM by the CPU.
 	  */
-	[[nodiscard]] uint8_t vramRead(EmuTime::param time);
+	[[nodiscard]] uint8_t vramRead(EmuTime time);
 
 	/** Helper methods for CPU-VRAM access. */
-	void scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime::param time);
-	void executeCpuVramAccess(EmuTime::param time);
+	void scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime time);
+	void executeCpuVramAccess(EmuTime time);
 
 	/** Read the contents of a status register
 	  */
-	[[nodiscard]] uint8_t readStatusReg(uint8_t reg, EmuTime::param time);
+	[[nodiscard]] uint8_t readStatusReg(uint8_t reg, EmuTime time);
 
 	/** Schedule a sync point at the start of the next line.
 	  */
-	void syncAtNextLine(SyncBase& type, EmuTime::param time) const;
+	void syncAtNextLine(SyncBase& type, EmuTime time) const;
 
 	/** Create a new renderer.
 	  */
@@ -998,32 +998,32 @@ private:
 	/** Name base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateNameBase(EmuTime::param time);
+	void updateNameBase(EmuTime time);
 
 	/** Color base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updateColorBase(EmuTime::param time);
+	void updateColorBase(EmuTime time);
 
 	/** Pattern base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */
-	void updatePatternBase(EmuTime::param time);
+	void updatePatternBase(EmuTime time);
 
 	/** Sprite attribute base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpriteAttributeBase(EmuTime::param time);
+	void updateSpriteAttributeBase(EmuTime time);
 
 	/** Sprite pattern base mask has changed.
 	  * Inform the SpriteChecker and the VRAM.
 	  */
-	void updateSpritePatternBase(EmuTime::param time);
+	void updateSpritePatternBase(EmuTime time);
 
 	/** Display mode has changed.
 	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time);
+	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime time);
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;
@@ -1036,24 +1036,24 @@ private:
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const VDP& vdp);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} vdpRegDebug;
 
 	struct StatusRegDebug final : SimpleDebuggable {
 		explicit StatusRegDebug(const VDP& vdp);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 	} vdpStatusRegDebug;
 
 	struct PaletteDebug final : SimpleDebuggable {
 		explicit PaletteDebug(const VDP& vdp);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} vdpPaletteDebug;
 
 	struct VRAMPointerDebug final : SimpleDebuggable {
 		explicit VRAMPointerDebug(const VDP& vdp);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} vramPointerDebug;
 
 	struct RegisterLatchStatusDebug final : SimpleDebuggable {

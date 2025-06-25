@@ -24,7 +24,7 @@ std::string_view AudioInputConnector::getClass() const
 	return "Audio Input Port";
 }
 
-int16_t AudioInputConnector::readSample(EmuTime::param time) const
+int16_t AudioInputConnector::readSample(EmuTime time) const
 {
 	return getPluggedAudioDev().readSample(time);
 }

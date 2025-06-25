@@ -81,7 +81,7 @@ private:
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
-	                    EmuTime::param time) noexcept override;
+	                    EmuTime time) noexcept override;
 
 	GlobalCommandController& globalCommandController;
 	Reactor& reactor;

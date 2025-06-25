@@ -55,7 +55,7 @@ protected:
 		      AfterCommand& afterCommand,
 		      TclObject command, double time);
 private:
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 	void schedulerDeleted() override;
 
 	double time; // Zero when expired, otherwise the original duration (to
@@ -504,7 +504,7 @@ void AfterTimedCmd::reschedule()
 	setSyncPoint(getCurrentTime() + EmuDuration::sec(time));
 }
 
-void AfterTimedCmd::executeUntil(EmuTime::param /*time*/)
+void AfterTimedCmd::executeUntil(EmuTime /*time*/)
 {
 	time = 0.0; // execute on next event
 	afterCommand.eventDistributor.distributeEvent(AfterTimedEvent());

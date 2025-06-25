@@ -139,7 +139,7 @@ public:
 	/**
 	 * This reads a byte from the currently selected device
 	 */
-	uint8_t readMem(uint16_t address, EmuTime::param time) {
+	uint8_t readMem(uint16_t address, EmuTime time) {
 		tick(CacheLineCounters::SlowRead);
 		if (disallowReadCache[address >> CacheLine::BITS]) [[unlikely]] {
 			return readMemSlow(address, time);
@@ -150,7 +150,7 @@ public:
 	/**
 	 * This writes a byte to the currently selected device
 	 */
-	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) {
+	void writeMem(uint16_t address, uint8_t value, EmuTime time) {
 		tick(CacheLineCounters::SlowWrite);
 		if (disallowWriteCache[address >> CacheLine::BITS]) [[unlikely]] {
 			writeMemSlow(address, value, time);
@@ -163,7 +163,7 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	uint8_t readIO(uint16_t port, EmuTime::param time) {
+	uint8_t readIO(uint16_t port, EmuTime time) {
 		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
@@ -171,7 +171,7 @@ public:
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) {
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) {
 		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
@@ -241,11 +241,11 @@ public:
 	 * Peek memory location
 	 * @see MSXDevice::peekMem()
 	 */
-	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekSlottedMem(unsigned address, EmuTime::param time) const;
-	uint8_t readSlottedMem(unsigned address, EmuTime::param time);
+	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime time) const;
+	[[nodiscard]] uint8_t peekSlottedMem(unsigned address, EmuTime time) const;
+	uint8_t readSlottedMem(unsigned address, EmuTime time);
 	void writeSlottedMem(unsigned address, uint8_t value,
-	                     EmuTime::param time);
+	                     EmuTime time);
 
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
@@ -330,8 +330,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	uint8_t readMemSlow(uint16_t address, EmuTime::param time);
-	void writeMemSlow(uint16_t address, uint8_t value, EmuTime::param time);
+	uint8_t readMemSlow(uint16_t address, EmuTime time);
+	void writeMemSlow(uint16_t address, uint8_t value, EmuTime time);
 
 	MSXDevice*& getDevicePtr(uint8_t port, bool isIn);
 
@@ -355,20 +355,20 @@ private:
 
 	struct MemoryDebug final : SimpleDebuggable {
 		explicit MemoryDebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} memoryDebug;
 
 	struct SlottedMemoryDebug final : SimpleDebuggable {
 		explicit SlottedMemoryDebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} slottedMemoryDebug;
 
 	struct IODebug final : SimpleDebuggable {
 		explicit IODebug(MSXMotherBoard& motherBoard);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} ioDebug;
 
 	struct SlotInfo final : InfoTopic {

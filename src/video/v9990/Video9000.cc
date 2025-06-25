@@ -49,12 +49,12 @@ Video9000::~Video9000()
 	getReactor().getDisplay().detach(*this);
 }
 
-void Video9000::reset(EmuTime::param time)
+void Video9000::reset(EmuTime time)
 {
 	Video9000::writeIO(0x6f, 0x10, time);
 }
 
-void Video9000::writeIO(uint16_t /*port*/, uint8_t newValue, EmuTime::param /*time*/)
+void Video9000::writeIO(uint16_t /*port*/, uint8_t newValue, EmuTime /*time*/)
 {
 	if (newValue == value) return;
 	value = newValue;

@@ -42,8 +42,8 @@ class Calculator
 {
 public:
 	/** This shouldn't be called directly, instead use getCalculator(). */
-	Calculator(EmuTime::param frame, EmuTime::param time,
-	           EmuTime::param limit_, std::span<const uint8_t, NUM_DELTAS * TICKS> tab_)
+	Calculator(EmuTime frame, EmuTime time,
+	           EmuTime limit_, std::span<const uint8_t, NUM_DELTAS * TICKS> tab_)
 		: ref(frame), tab(tab_)
 	{
 		assert(frame <= time);
@@ -92,13 +92,13 @@ private:
 /** Return the time of the next available access slot that is at least 'delta'
   * cycles later than 'time'. The start of the current 'frame' is needed for
   * reference. */
-[[nodiscard]] EmuTime getAccessSlot(EmuTime::param frame, EmuTime::param time, Delta delta,
+[[nodiscard]] EmuTime getAccessSlot(EmuTime frame, EmuTime time, Delta delta,
                       const VDP& vdp);
 
 /** When many calls to getAccessSlot() are needed, it's more efficient to
   * instead use this function. */
 [[nodiscard]] Calculator getCalculator(
-	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
+	EmuTime frame, EmuTime time, EmuTime limit,
 	const VDP& vdp);
 
 } // namespace openmsx::VDPAccessSlots

@@ -14,7 +14,7 @@ public:
 	unsigned getFreq() const { return clock.getFreq(); }
 
 protected:
-	CPUClock(EmuTime::param time, Scheduler& scheduler);
+	CPUClock(EmuTime time, Scheduler& scheduler);
 
 // benchmarking showed a slowdown of ~3% on AMD64
 // when using the following code:
@@ -33,15 +33,15 @@ protected:
 #endif
 
 	// These are similar to the corresponding methods in DynamicClock.
-	[[nodiscard]] EmuTime::param getTime() const { sync(); return clock.getTime(); }
+	[[nodiscard]] EmuTime getTime() const { sync(); return clock.getTime(); }
 	[[nodiscard]] EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
 	[[nodiscard]] EmuTime getTimeFast(int cc) const {
 		return clock.getFastAdd(limit - remaining + cc);
 	}
-	void setTime(EmuTime::param time) { sync(); clock.reset(time); }
+	void setTime(EmuTime time) { sync(); clock.reset(time); }
 	void setFreq(unsigned freq) { sync(); disableLimit(); clock.setFreq(freq); }
-	void advanceTime(EmuTime::param time);
-	[[nodiscard]] EmuTime calcTime(EmuTime::param time, unsigned ticks) const {
+	void advanceTime(EmuTime time);
+	[[nodiscard]] EmuTime calcTime(EmuTime time, unsigned ticks) const {
 		return clock.add(time, ticks);
 	}
 
@@ -50,7 +50,7 @@ protected:
 	  * so that it equal or bigger than 'time'. Returns the number of times
 	  * 'hltStates' needed to be added.
 	  */
-	unsigned advanceHalt(unsigned hltStates, EmuTime::param time) {
+	unsigned advanceHalt(unsigned hltStates, EmuTime time) {
 		sync();
 		unsigned ticks = clock.getTicksTillUp(time);
 		unsigned halts = (ticks + hltStates - 1) / hltStates; // round up
@@ -90,7 +90,7 @@ protected:
 	// enough. This is implemented by simply regularly exiting the loop
 	// (outside the inner loop, the real exit condition should be tested).
 
-	void setLimit(EmuTime::param time) {
+	void setLimit(EmuTime time) {
 		if (limitEnabled) {
 			sync();
 			assert(remaining == limit);

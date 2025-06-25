@@ -56,14 +56,14 @@ class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
 	        const BooleanSetting& traceSetting,
-	        TclCallback& diHaltCallback, EmuTime::param time);
+	        TclCallback& diHaltCallback, EmuTime time);
 
 	void setInterface(MSXCPUInterface* interface_) { interface = interface_; }
 
 	/**
 	 * Reset the CPU.
 	 */
-	void doReset(EmuTime::param time);
+	void doReset(EmuTime time);
 
 	void execute(bool fastForward);
 
@@ -79,11 +79,11 @@ public:
 	  */
 	void exitCPULoopAsync();
 
-	void warp(EmuTime::param time);
-	[[nodiscard]] EmuTime::param getCurrentTime() const;
-	void wait(EmuTime::param time);
-	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
-	void setNextSyncPoint(EmuTime::param time);
+	void warp(EmuTime time);
+	[[nodiscard]] EmuTime getCurrentTime() const;
+	void wait(EmuTime time);
+	EmuTime waitCycles(EmuTime time, unsigned cycles);
+	void setNextSyncPoint(EmuTime time);
 	[[nodiscard]] CacheLines getCacheLines() {
 		return {.read = readCacheLine, .write = writeCacheLine};
 	}

@@ -18,7 +18,7 @@ public:
 	  *               relative to window base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateVRAM(unsigned offset, EmuTime::param time) = 0;
+	virtual void updateVRAM(unsigned offset, EmuTime time) = 0;
 
 	/** Informs the observer that the entire VRAM window will change.
 	  * This update is sent just before the change,
@@ -33,7 +33,7 @@ public:
 	  *     is enabled, because no reads are allowed from disabled windows.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateWindow(bool enabled, EmuTime::param time) = 0;
+	virtual void updateWindow(bool enabled, EmuTime time) = 0;
 
 protected:
 	~VRAMObserver() = default;

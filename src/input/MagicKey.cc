@@ -15,22 +15,22 @@ std::string_view MagicKey::getDescription() const
 	return "Dongle used by some Japanese games to enable cheat mode";
 }
 
-void MagicKey::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void MagicKey::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 }
 
-void MagicKey::unplugHelper(EmuTime::param /*time*/)
+void MagicKey::unplugHelper(EmuTime /*time*/)
 {
 }
 
 
 // JoystickDevice
-uint8_t MagicKey::read(EmuTime::param /*time*/)
+uint8_t MagicKey::read(EmuTime /*time*/)
 {
 	return JOY_BUTTONB | JOY_BUTTONA | JOY_RIGHT | JOY_LEFT;
 }
 
-void MagicKey::write(uint8_t /*value*/, EmuTime::param /*time*/)
+void MagicKey::write(uint8_t /*value*/, EmuTime /*time*/)
 {
 }
 

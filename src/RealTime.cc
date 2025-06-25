@@ -54,7 +54,7 @@ RealTime::~RealTime()
 	speedManager.detach(*this);
 }
 
-double RealTime::getRealDuration(EmuTime::param time1, EmuTime::param time2) const
+double RealTime::getRealDuration(EmuTime time1, EmuTime time2) const
 {
 	return (time2 - time1).toDouble() / speedManager.getSpeed();
 }
@@ -64,7 +64,7 @@ EmuDuration RealTime::getEmuDuration(double realDur) const
 	return EmuDuration::sec(realDur * speedManager.getSpeed());
 }
 
-bool RealTime::timeLeft(uint64_t us, EmuTime::param time) const
+bool RealTime::timeLeft(uint64_t us, EmuTime time) const
 {
 	auto realDuration = static_cast<uint64_t>(
 		getRealDuration(emuTime, time) * 1000000ULL);
@@ -73,7 +73,7 @@ bool RealTime::timeLeft(uint64_t us, EmuTime::param time) const
 	           (idealRealTime + realDuration + ALLOWED_LAG);
 }
 
-void RealTime::sync(EmuTime::param time, bool allowSleep)
+void RealTime::sync(EmuTime time, bool allowSleep)
 {
 	if (allowSleep) {
 		removeSyncPoint();
@@ -84,7 +84,7 @@ void RealTime::sync(EmuTime::param time, bool allowSleep)
 	}
 }
 
-void RealTime::internalSync(EmuTime::param time, bool allowSleep)
+void RealTime::internalSync(EmuTime time, bool allowSleep)
 {
 	if (throttleManager.isThrottled()) {
 		auto realDuration = static_cast<uint64_t>(
@@ -115,7 +115,7 @@ void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 	emuTime = time;
 }
 
-void RealTime::executeUntil(EmuTime::param time)
+void RealTime::executeUntil(EmuTime time)
 {
 	internalSync(time, true);
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));

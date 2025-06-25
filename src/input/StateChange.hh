@@ -21,7 +21,7 @@ class StateChange
 public:
 	virtual ~StateChange() = default; // must be polymorphic
 
-	[[nodiscard]] EmuTime::param getTime() const
+	[[nodiscard]] EmuTime getTime() const
 	{
 		return time;
 	}
@@ -34,7 +34,7 @@ public:
 
 protected:
 	StateChange() : time(EmuTime::zero()) {} // for serialize
-	explicit StateChange(EmuTime::param time_)
+	explicit StateChange(EmuTime time_)
 		: time(time_)
 	{
 	}

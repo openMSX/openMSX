@@ -17,17 +17,17 @@ public:
 	Yamanooto(DeviceConfig& config, Rom&& rom);
 	~Yamanooto() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
-	byte peekIO(uint16_t port, EmuTime::param time) const override;
-	byte readIO(uint16_t port, EmuTime::param time) override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	byte peekIO(uint16_t port, EmuTime time) const override;
+	byte readIO(uint16_t port, EmuTime time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

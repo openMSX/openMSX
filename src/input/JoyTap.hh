@@ -27,18 +27,18 @@ public:
 	// Pluggable
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 
 	// JoystickDevice
-	[[nodiscard]] uint8_t read(EmuTime::param time) override;
-	void write(uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(EmuTime time) override;
+	void write(uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	void createPorts(std::string_view description, EmuTime::param time);
+	void createPorts(std::string_view description, EmuTime time);
 
 protected:
 	std::array<std::optional<JoystickPort>, 4> slaves;

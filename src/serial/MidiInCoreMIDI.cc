@@ -60,7 +60,7 @@ MidiInCoreMIDI::~MidiInCoreMIDI()
 			EventType::MIDI_IN_COREMIDI, *this);
 }
 
-void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(
@@ -78,7 +78,7 @@ void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*
 	MIDIPortConnectSource(port, endpoint, nullptr);
 }
 
-void MidiInCoreMIDI::unplugHelper(EmuTime::param /*time*/)
+void MidiInCoreMIDI::unplugHelper(EmuTime /*time*/)
 {
 	// Dispose of the client; this automatically disposes of the port as well.
 	if (OSStatus status = MIDIClientDispose(client)) {
@@ -121,7 +121,7 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
 }
 
 // MidiInDevice
-void MidiInCoreMIDI::signal(EmuTime::param time)
+void MidiInCoreMIDI::signal(EmuTime time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
@@ -182,7 +182,7 @@ MidiInCoreMIDIVirtual::~MidiInCoreMIDIVirtual()
 }
 
 void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
-                                       EmuTime::param /*time*/)
+                                       EmuTime /*time*/)
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"),
@@ -198,7 +198,7 @@ void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 	}
 }
 
-void MidiInCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
+void MidiInCoreMIDIVirtual::unplugHelper(EmuTime /*time*/)
 {
 	if (OSStatus status = MIDIEndpointDispose(endpoint)) {
 		fprintf(stderr, "Failed to dispose of MIDI port (%d)\n", int(status));
@@ -245,7 +245,7 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
 }
 
 // MidiInDevice
-void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
+void MidiInCoreMIDIVirtual::signal(EmuTime time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {

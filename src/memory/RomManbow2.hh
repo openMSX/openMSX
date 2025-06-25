@@ -20,17 +20,17 @@ public:
 	RomManbow2(DeviceConfig& config, Rom&& rom, RomType type);
 	~RomManbow2() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -51,7 +51,7 @@ RomGameMaster2::RomGameMaster2(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomGameMaster2::reset(EmuTime::param /*time*/)
+void RomGameMaster2::reset(EmuTime /*time*/)
 {
 	for (auto i : xrange(4)) {
 		setUnmapped(i);
@@ -66,7 +66,7 @@ void RomGameMaster2::reset(EmuTime::param /*time*/)
 	sramEnabled = false;
 }
 
-void RomGameMaster2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomGameMaster2::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0xB000)) {
 		if (!(address & 0x1000)) {

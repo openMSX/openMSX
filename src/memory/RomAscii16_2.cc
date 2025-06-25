@@ -30,13 +30,13 @@ RomAscii16_2::RomAscii16_2(const DeviceConfig& config, Rom&& rom_, SubType subTy
 	reset(EmuTime::dummy());
 }
 
-void RomAscii16_2::reset(EmuTime::param time)
+void RomAscii16_2::reset(EmuTime time)
 {
 	sramEnabled = 0;
 	RomAscii16kB::reset(time);
 }
 
-byte RomAscii16_2::readMem(uint16_t address, EmuTime::param time)
+byte RomAscii16_2::readMem(uint16_t address, EmuTime time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
 		return (*sram)[address & (sram->size() - 1)];
@@ -54,7 +54,7 @@ const byte* RomAscii16_2::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomAscii16_2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomAscii16_2::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) {
 		// bank switch

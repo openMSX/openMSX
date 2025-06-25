@@ -38,7 +38,7 @@ void ResampledSoundDevice::setOutputRate(unsigned /*hostSampleRate*/, double /*s
 }
 
 bool ResampledSoundDevice::updateBuffer(size_t length, float* buffer,
-                                        EmuTime::param time)
+                                        EmuTime time)
 {
 	return algo->generateOutput(buffer, length, time);
 }

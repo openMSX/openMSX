@@ -50,14 +50,14 @@ ESE_RAM::ESE_RAM(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void ESE_RAM::reset(EmuTime::param /*time*/)
+void ESE_RAM::reset(EmuTime /*time*/)
 {
 	for (auto i : xrange(4)) {
 		setSRAM(i, 0);
 	}
 }
 
-byte ESE_RAM::readMem(uint16_t address, EmuTime::param /*time*/)
+byte ESE_RAM::readMem(uint16_t address, EmuTime /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
@@ -79,7 +79,7 @@ const byte* ESE_RAM::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void ESE_RAM::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void ESE_RAM::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3);

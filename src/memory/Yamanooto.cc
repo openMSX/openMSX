@@ -60,13 +60,13 @@ Yamanooto::~Yamanooto()
 	getCPUInterface().unregister_IO_Out_range(0x10, 2, this);
 }
 
-void Yamanooto::powerUp(EmuTime::param time)
+void Yamanooto::powerUp(EmuTime time)
 {
 	scc.powerUp(time);
 	reset(time);
 }
 
-void Yamanooto::reset(EmuTime::param time)
+void Yamanooto::reset(EmuTime time)
 {
 	// TODO is offsetReg changed by reset?
 	// TODO are all bits in configReg set to zero?   (also bit 0,1)
@@ -134,7 +134,7 @@ static constexpr std::array<byte, 4 + 1> FPGA_ID = {
 	0xFF, // idle
 	0x1F, 0x23, 0x00, 0x00, // TODO check last 2
 };
-byte Yamanooto::peekMem(uint16_t address, EmuTime::param time) const
+byte Yamanooto::peekMem(uint16_t address, EmuTime time) const
 {
 	address = mirror(address);
 
@@ -160,7 +160,7 @@ byte Yamanooto::peekMem(uint16_t address, EmuTime::param time) const
 	                                   : 0xFF; // access to flash ROM disabled
 }
 
-byte Yamanooto::readMem(uint16_t address, EmuTime::param time)
+byte Yamanooto::readMem(uint16_t address, EmuTime time)
 {
 	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR && (enableReg & REGEN)) {
@@ -187,7 +187,7 @@ const byte* Yamanooto::getReadCacheLine(uint16_t address) const
 	                                   : unmappedRead.data(); // access to flash ROM disabled
 }
 
-void Yamanooto::writeMem(uint16_t address, byte value, EmuTime::param time)
+void Yamanooto::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	// 0x7ffc-0x7fff  (NOT mirrored)
 	if (FPGA_REG <= address && address <= ENAR) {
@@ -279,18 +279,18 @@ byte* Yamanooto::getWriteCacheLine(uint16_t /*address*/)
 	return nullptr;
 }
 
-byte Yamanooto::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte Yamanooto::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	return 0xff;
 }
 
-byte Yamanooto::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
+byte Yamanooto::readIO(uint16_t /*port*/, EmuTime /*time*/)
 {
 	// PSG is not readable
 	return 0xff; // should never be called
 }
 
-void Yamanooto::writeIO(uint16_t port, byte value, EmuTime::param time)
+void Yamanooto::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	if (port & 1) { // 0x11 or 0xA1
 		psg.writeRegister(psgLatch, value, time);

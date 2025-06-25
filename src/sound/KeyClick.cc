@@ -7,12 +7,12 @@ KeyClick::KeyClick(const DeviceConfig& config)
 {
 }
 
-void KeyClick::reset(EmuTime::param time)
+void KeyClick::reset(EmuTime time)
 {
 	setClick(false, time);
 }
 
-void KeyClick::setClick(bool newStatus, EmuTime::param time)
+void KeyClick::setClick(bool newStatus, EmuTime time)
 {
 	if (newStatus != status) {
 		status = newStatus;

@@ -43,19 +43,19 @@ MSXFDC::MSXFDC(DeviceConfig& config, const std::string& romId, bool needROM,
 	}
 }
 
-void MSXFDC::powerDown(EmuTime::param time)
+void MSXFDC::powerDown(EmuTime time)
 {
 	for (const auto& drive : drives) {
 		drive->setMotor(false, time);
 	}
 }
 
-byte MSXFDC::readMem(uint16_t address, EmuTime::param /*time*/)
+byte MSXFDC::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return *MSXFDC::getReadCacheLine(address);
 }
 
-byte MSXFDC::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte MSXFDC::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	return *MSXFDC::getReadCacheLine(address);
 }

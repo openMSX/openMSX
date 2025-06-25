@@ -99,7 +99,7 @@ V9990::V9990(const DeviceConfig& config)
 	setVerticalTiming();
 
 	// Initialise rendering system
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	createRenderer(time);
 
 	powerUp(time);
@@ -120,13 +120,13 @@ PostProcessor* V9990::getPostProcessor() const
 // MSXDevice
 // -------------------------------------------------------------------------
 
-void V9990::powerUp(EmuTime::param time)
+void V9990::powerUp(EmuTime time)
 {
 	vram.clear();
 	reset(time);
 }
 
-void V9990::reset(EmuTime::param time)
+void V9990::reset(EmuTime time)
 {
 	syncVSync       .removeSyncPoint();
 	syncDisplayStart.removeSyncPoint();
@@ -162,7 +162,7 @@ void V9990::reset(EmuTime::param time)
 	frameStart(time);
 }
 
-uint8_t V9990::readIO(uint16_t port, EmuTime::param time)
+uint8_t V9990::readIO(uint16_t port, EmuTime time)
 {
 	port &= 0x0F;
 
@@ -223,7 +223,7 @@ uint8_t V9990::readIO(uint16_t port, EmuTime::param time)
 	return result;
 }
 
-uint8_t V9990::peekIO(uint16_t port, EmuTime::param time) const
+uint8_t V9990::peekIO(uint16_t port, EmuTime time) const
 {
 	switch (port & 0x0F) {
 	case VRAM_DATA: {
@@ -276,7 +276,7 @@ uint8_t V9990::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void V9990::writeIO(uint16_t port, uint8_t val, EmuTime::param time)
+void V9990::writeIO(uint16_t port, uint8_t val, EmuTime time)
 {
 	port &= 0x0F;
 	switch (port) {
@@ -408,14 +408,14 @@ void V9990::writeIO(uint16_t port, uint8_t val, EmuTime::param time)
 // Schedulable
 // -------------------------------------------------------------------------
 
-void V9990::execVSync(EmuTime::param time)
+void V9990::execVSync(EmuTime time)
 {
 	// Transition from one frame to the next
 	renderer->frameEnd(time);
 	frameStart(time);
 }
 
-void V9990::execDisplayStart(EmuTime::param time)
+void V9990::execDisplayStart(EmuTime time)
 {
 	if (displayEnabled) {
 		renderer->updateDisplayEnabled(true, time);
@@ -423,7 +423,7 @@ void V9990::execDisplayStart(EmuTime::param time)
 	isDisplayArea = true;
 }
 
-void V9990::execVScan(EmuTime::param time)
+void V9990::execVScan(EmuTime time)
 {
 	if (isDisplayEnabled()) {
 		renderer->updateDisplayEnabled(false, time);
@@ -437,7 +437,7 @@ void V9990::execHScan()
 	raiseIRQ(HOR_IRQ);
 }
 
-void V9990::execSetMode(EmuTime::param time)
+void V9990::execSetMode(EmuTime time)
 {
 	auto newMode = calcDisplayMode();
 	renderer->setDisplayMode(newMode, time);
@@ -445,13 +445,13 @@ void V9990::execSetMode(EmuTime::param time)
 	setDisplayMode(newMode);
 }
 
-void V9990::execCheckCmdEnd(EmuTime::param time)
+void V9990::execCheckCmdEnd(EmuTime time)
 {
 	cmdEngine.sync(time);
 	scheduleCmdEnd(time); // in case of underestimation
 }
 
-void V9990::scheduleCmdEnd(EmuTime::param time)
+void V9990::scheduleCmdEnd(EmuTime time)
 {
 	if (regs[INTERRUPT_0] & 4) {
 		auto next = cmdEngine.estimateCmdEnd();
@@ -472,7 +472,7 @@ void V9990::preVideoSystemChange() noexcept
 
 void V9990::postVideoSystemChange() noexcept
 {
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }
@@ -499,7 +499,7 @@ void V9990::RegDebug::readBlock(unsigned start, std::span<uint8_t> output)
 	copy_to_range(std::span{v9990.regs}.subspan(start, output.size()), output);
 }
 
-void V9990::RegDebug::write(unsigned address, uint8_t value, EmuTime::param time)
+void V9990::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	v9990.writeRegister(narrow<uint8_t>(address), value, time);
@@ -528,7 +528,7 @@ void V9990::PalDebug::readBlock(unsigned start, std::span<uint8_t> output)
 	copy_to_range(std::span{v9990.palette}.subspan(start, output.size()), output);
 }
 
-void V9990::PalDebug::write(unsigned address, uint8_t value, EmuTime::param time)
+void V9990::PalDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	v9990.writePaletteRegister(narrow<uint8_t>(address), value, time);
@@ -553,7 +553,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 	// TODO check
 }
 
-uint8_t V9990::readRegister(uint8_t reg, EmuTime::param time) const
+uint8_t V9990::readRegister(uint8_t reg, EmuTime time) const
 {
 	// TODO sync(time) (if needed at all)
 	if (systemReset) return 255; // verified on real MSX
@@ -574,7 +574,7 @@ uint8_t V9990::readRegister(uint8_t reg, EmuTime::param time) const
 	}
 }
 
-void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time) const
+void V9990::syncAtNextLine(SyncBase& type, EmuTime time) const
 {
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
@@ -582,7 +582,7 @@ void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time) const
 	type.setSyncPoint(nextTime);
 }
 
-void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime::param time)
+void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime time)
 {
 	// Found this table by writing 0xFF to a register and reading
 	// back the value (only works for read/write registers)
@@ -679,7 +679,7 @@ void V9990::writeRegister(uint8_t reg, uint8_t val, EmuTime::param time)
 	}
 }
 
-void V9990::writePaletteRegister(uint8_t reg, uint8_t val, EmuTime::param time)
+void V9990::writePaletteRegister(uint8_t reg, uint8_t val, EmuTime time)
 {
 	switch (reg & 3) {
 		case 0: val &= 0x9F; break;
@@ -707,14 +707,14 @@ V9990::GetPaletteResult V9990::getPalette(int index) const
 	return {.r = r, .g = g, .b = b, .ys = ys};
 }
 
-void V9990::createRenderer(EmuTime::param time)
+void V9990::createRenderer(EmuTime time)
 {
 	assert(!renderer);
 	renderer = RendererFactory::createV9990Renderer(*this, display);
 	renderer->reset(time);
 }
 
-void V9990::frameStart(EmuTime::param time)
+void V9990::frameStart(EmuTime time)
 {
 	// Update setings that are fixed at the start of a frame
 	displayEnabled = (regs[CONTROL]       & 0x80) != 0;
@@ -858,7 +858,7 @@ void V9990::setDisplayMode(V9990DisplayMode newMode)
 	setHorizontalTiming();
 }
 
-void V9990::scheduleHscan(EmuTime::param time)
+void V9990::scheduleHscan(EmuTime time)
 {
 	// remove pending HSCAN, if any
 	if (hScanSyncTime > time) {

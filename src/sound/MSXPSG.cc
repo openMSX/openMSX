@@ -46,18 +46,18 @@ MSXPSG::~MSXPSG()
 	powerDown(EmuTime::dummy());
 }
 
-void MSXPSG::reset(EmuTime::param time)
+void MSXPSG::reset(EmuTime time)
 {
 	registerLatch = 0;
 	ay8910.reset(time);
 }
 
-void MSXPSG::powerDown(EmuTime::param /*time*/)
+void MSXPSG::powerDown(EmuTime /*time*/)
 {
 	getLedStatus().setLed(LedStatus::KANA, false);
 }
 
-byte MSXPSG::readIO(uint16_t port, EmuTime::param time)
+byte MSXPSG::readIO(uint16_t port, EmuTime time)
 {
 	switch (port & 0x03) {
 	case 2:
@@ -68,12 +68,12 @@ byte MSXPSG::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-byte MSXPSG::peekIO(uint16_t /*port*/, EmuTime::param time) const
+byte MSXPSG::peekIO(uint16_t /*port*/, EmuTime time) const
 {
 	return ay8910.peekRegister(registerLatch, time);
 }
 
-void MSXPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXPSG::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0x03) {
 	case 0:
@@ -87,7 +87,7 @@ void MSXPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
 
 
 // AY8910Periphery
-byte MSXPSG::readA(EmuTime::param time)
+byte MSXPSG::readA(EmuTime time)
 {
 	byte joystick = ports[selectedPort]->read(time) |
 	                ((renShaTurbo.getSignal(time)) ? 0x10 : 0x00);
@@ -106,7 +106,7 @@ byte MSXPSG::readA(EmuTime::param time)
 	return joystick | keyLayout | cassetteInput;
 }
 
-void MSXPSG::writeB(byte value, EmuTime::param time)
+void MSXPSG::writeB(byte value, EmuTime time)
 {
 	byte val0 =  (value & 0x03)       | ((value & 0x10) >> 2);
 	byte val1 = ((value & 0x0C) >> 2) | ((value & 0x20) >> 3);

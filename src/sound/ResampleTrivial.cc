@@ -10,7 +10,7 @@ ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
 }
 
 bool ResampleTrivial::generateOutputImpl(float* dataOut, size_t num,
-                                         EmuTime::param /*time*/)
+                                         EmuTime /*time*/)
 {
 	getEmuClock() += num;
 	return input.generateInput(dataOut, num);

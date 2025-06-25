@@ -21,7 +21,7 @@ RomAscii8kB::RomAscii8kB(const DeviceConfig& config, Rom&& rom_)
 	RomAscii8kB::reset(EmuTime::dummy());
 }
 
-void RomAscii8kB::reset(EmuTime::param /*time*/)
+void RomAscii8kB::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -32,7 +32,7 @@ void RomAscii8kB::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomAscii8kB::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomAscii8kB::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3) + 2;

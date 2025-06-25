@@ -12,13 +12,13 @@ class GoudaSCSI final : public MSXDevice
 public:
 	explicit GoudaSCSI(DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

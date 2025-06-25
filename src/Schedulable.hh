@@ -42,7 +42,7 @@ public:
 	 * When the previously registered syncPoint is reached, this
 	 * method gets called.
 	 */
-	virtual void executeUntil(EmuTime::param time) = 0;
+	virtual void executeUntil(EmuTime time) = 0;
 
 	/**
 	 * Just before the the Scheduler is deleted, it calls this method of
@@ -61,7 +61,7 @@ public:
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */
-	[[nodiscard]] EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime getCurrentTime() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -93,7 +93,7 @@ protected:
 	explicit Schedulable(Scheduler& scheduler);
 	~Schedulable();
 
-	void setSyncPoint(EmuTime::param timestamp);
+	void setSyncPoint(EmuTime timestamp);
 	bool removeSyncPoint();
 	void removeSyncPoints();
 	[[nodiscard]] bool pendingSyncPoint() const;

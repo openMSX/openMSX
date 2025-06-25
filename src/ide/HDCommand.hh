@@ -21,7 +21,7 @@ public:
 	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler, HD& hd, const BooleanSetting& powerSetting);
 	void execute(std::span<const TclObject> tokens,
-	             TclObject& result, EmuTime::param time) override;
+	             TclObject& result, EmuTime time) override;
 	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;

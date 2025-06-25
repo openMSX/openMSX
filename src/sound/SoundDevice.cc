@@ -132,17 +132,17 @@ void SoundDevice::unregisterSound()
 	mixer.unregisterSound(*this);
 }
 
-void SoundDevice::updateStream(EmuTime::param time)
+void SoundDevice::updateStream(EmuTime time)
 {
 	mixer.updateStream(time);
 }
 
-void SoundDevice::setSoftwareVolume(float volume, EmuTime::param time)
+void SoundDevice::setSoftwareVolume(float volume, EmuTime time)
 {
 	setSoftwareVolume(volume, volume, time);
 }
 
-void SoundDevice::setSoftwareVolume(float left, float right, EmuTime::param time)
+void SoundDevice::setSoftwareVolume(float left, float right, EmuTime time)
 {
 	updateStream(time);
 	softwareVolumeLeft  = left;

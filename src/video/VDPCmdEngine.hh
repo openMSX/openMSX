@@ -38,23 +38,23 @@ public:
 	/** Reinitialize Renderer state.
 	  * @param time The moment in time the reset occurs.
 	  */
-	void reset(EmuTime::param time);
+	void reset(EmuTime time);
 
 	/** Synchronizes the command engine with the VDP.
 	  * Ideally this would be a private method, but the current
 	  * design doesn't allow that.
 	  * @param time The moment in emulated time to sync to.
 	  */
-	void sync(EmuTime::param time) {
+	void sync(EmuTime time) {
 		if (CMD) sync2(time);
 	}
-	void sync2(EmuTime::param time);
+	void sync2(EmuTime time);
 
 	/** Steal a VRAM access slot from the CmdEngine.
 	 * Used when the CPU reads/writes VRAM.
 	 * @param time The moment in time the CPU read/write is performed.
 	 */
-	void stealAccessSlot(EmuTime::param time) {
+	void stealAccessSlot(EmuTime time) {
 		if (CMD && engineTime <= time) {
 			// take the next available slot
 			engineTime = getNextAccessSlot(time, VDPAccessSlots::Delta::D1);
@@ -68,7 +68,7 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	[[nodiscard]] uint8_t getStatus(EmuTime::param time) {
+	[[nodiscard]] uint8_t getStatus(EmuTime time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
@@ -80,7 +80,7 @@ public:
 	  * @param time The moment in emulated time this read occurs.
 	  * @return Color value of the pixel.
 	  */
-	[[nodiscard]] uint8_t readColor(EmuTime::param time) {
+	[[nodiscard]] uint8_t readColor(EmuTime time) {
 		sync(time);
 		return COL;
 	}
@@ -99,7 +99,7 @@ public:
           * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
-	[[nodiscard]] unsigned getBorderX(EmuTime::param time) {
+	[[nodiscard]] unsigned getBorderX(EmuTime time) {
 		sync(time);
 		return ASX;
 	}
@@ -109,7 +109,7 @@ public:
 	  * @param value The new value for the specified register.
 	  * @param time The moment in emulated time this write occurs.
 	  */
-	void setCmdReg(uint8_t index, uint8_t value, EmuTime::param time);
+	void setCmdReg(uint8_t index, uint8_t value, EmuTime time);
 
 	/** Read the content of a command register. This method is meant to
 	  * be used by the debugger, there is no strict guarantee that the
@@ -124,10 +124,10 @@ public:
 	  * @param cmdBit Are VDP commands allowed in non-bitmap mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time);
+	void updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime time);
 
 	// For debugging only
-	bool commandInProgress(EmuTime::param time) {
+	bool commandInProgress(EmuTime time) {
 		sync(time);
 		return status & 1;
 	}
@@ -153,61 +153,61 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void executeCommand(EmuTime::param time);
+	void executeCommand(EmuTime time);
 
-	void setStatusChangeTime(EmuTime::param t);
+	void setStatusChangeTime(EmuTime t);
 	void calcFinishTime(unsigned NX, unsigned NY, unsigned ticksPerPixel);
 
-	                        void startAbrt(EmuTime::param time);
-	                        void startPoint(EmuTime::param time);
-	                        void startPset(EmuTime::param time);
-	                        void startSrch(EmuTime::param time);
-	                        void startLine(EmuTime::param time);
-	template<typename Mode> void startLmmv(EmuTime::param time);
-	template<typename Mode> void startLmmm(EmuTime::param time);
-	template<typename Mode> void startLmcm(EmuTime::param time);
-	template<typename Mode> void startLmmc(EmuTime::param time);
-	template<typename Mode> void startHmmv(EmuTime::param time);
-	template<typename Mode> void startHmmm(EmuTime::param time);
-	template<typename Mode> void startYmmm(EmuTime::param time);
-	template<typename Mode> void startHmmc(EmuTime::param time);
+	                        void startAbrt(EmuTime time);
+	                        void startPoint(EmuTime time);
+	                        void startPset(EmuTime time);
+	                        void startSrch(EmuTime time);
+	                        void startLine(EmuTime time);
+	template<typename Mode> void startLmmv(EmuTime time);
+	template<typename Mode> void startLmmm(EmuTime time);
+	template<typename Mode> void startLmcm(EmuTime time);
+	template<typename Mode> void startLmmc(EmuTime time);
+	template<typename Mode> void startHmmv(EmuTime time);
+	template<typename Mode> void startHmmm(EmuTime time);
+	template<typename Mode> void startYmmm(EmuTime time);
+	template<typename Mode> void startHmmc(EmuTime time);
 
-	template<typename Mode>                 void executePoint(EmuTime::param limit);
-	template<typename Mode, typename LogOp> void executePset(EmuTime::param limit);
-	template<typename Mode>                 void executeSrch(EmuTime::param limit);
-	template<typename Mode, typename LogOp> void executeLine(EmuTime::param limit);
-	template<typename Mode, typename LogOp> void executeLmmv(EmuTime::param limit);
-	template<typename Mode, typename LogOp> void executeLmmm(EmuTime::param limit);
-	template<typename Mode>                 void executeLmcm(EmuTime::param limit);
-	template<typename Mode, typename LogOp> void executeLmmc(EmuTime::param limit);
-	template<typename Mode>                 void executeHmmv(EmuTime::param limit);
-	template<typename Mode>                 void executeHmmm(EmuTime::param limit);
-	template<typename Mode>                 void executeYmmm(EmuTime::param limit);
-	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
+	template<typename Mode>                 void executePoint(EmuTime limit);
+	template<typename Mode, typename LogOp> void executePset(EmuTime limit);
+	template<typename Mode>                 void executeSrch(EmuTime limit);
+	template<typename Mode, typename LogOp> void executeLine(EmuTime limit);
+	template<typename Mode, typename LogOp> void executeLmmv(EmuTime limit);
+	template<typename Mode, typename LogOp> void executeLmmm(EmuTime limit);
+	template<typename Mode>                 void executeLmcm(EmuTime limit);
+	template<typename Mode, typename LogOp> void executeLmmc(EmuTime limit);
+	template<typename Mode>                 void executeHmmv(EmuTime limit);
+	template<typename Mode>                 void executeHmmm(EmuTime limit);
+	template<typename Mode>                 void executeYmmm(EmuTime limit);
+	template<typename Mode>                 void executeHmmc(EmuTime limit);
 
 	// Advance to the next access slot at or past the given time.
-	EmuTime getNextAccessSlot(EmuTime::param time) const {
+	EmuTime getNextAccessSlot(EmuTime time) const {
 		return vdp.getAccessSlot(time, VDPAccessSlots::Delta::D0);
 	}
-	void nextAccessSlot(EmuTime::param time) {
+	void nextAccessSlot(EmuTime time) {
 		engineTime = getNextAccessSlot(time);
 	}
 	// Advance to the next access slot that is at least 'delta' cycles past
 	// the current one.
-	EmuTime getNextAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const {
+	EmuTime getNextAccessSlot(EmuTime time, VDPAccessSlots::Delta delta) const {
 		return vdp.getAccessSlot(time, delta);
 	}
 	void nextAccessSlot(VDPAccessSlots::Delta delta) {
 		engineTime = getNextAccessSlot(engineTime, delta);
 	}
 	VDPAccessSlots::Calculator getSlotCalculator(
-			EmuTime::param limit) const {
+			EmuTime limit) const {
 		return vdp.getAccessSlotCalculator(engineTime, limit);
 	}
 
 	/** Finished executing graphical operation.
 	  */
-	void commandDone(EmuTime::param time);
+	void commandDone(EmuTime time);
 
 	/** Report the VDP command specified in the registers.
 	  */

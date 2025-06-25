@@ -83,7 +83,7 @@ private:
 
 	// StateChangeListener
 	void signalStateChange(const StateChange& event) override;
-	void stopReplay(EmuTime::param time) noexcept override;
+	void stopReplay(EmuTime time) noexcept override;
 
 private:
 	Reactor& reactor;

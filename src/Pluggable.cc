@@ -16,7 +16,7 @@ std::string_view Pluggable::getName() const
 	return "";
 }
 
-void Pluggable::plug(Connector& newConnector, EmuTime::param time)
+void Pluggable::plug(Connector& newConnector, EmuTime time)
 {
 	assert(getClass() == newConnector.getClass());
 
@@ -28,7 +28,7 @@ void Pluggable::plug(Connector& newConnector, EmuTime::param time)
 	setConnector(&newConnector);
 }
 
-void Pluggable::unplug(EmuTime::param time)
+void Pluggable::unplug(EmuTime time)
 {
 	try {
 		unplugHelper(time);

@@ -57,7 +57,7 @@ NowindInterface::~NowindInterface()
 	(*nowindsInUse)[i] = false;
 }
 
-void NowindInterface::reset(EmuTime::param /*time*/)
+void NowindInterface::reset(EmuTime /*time*/)
 {
 	// version 1 didn't change the bank number
 	// version 2 (produced by Sunrise) does reset the bank number
@@ -67,7 +67,7 @@ void NowindInterface::reset(EmuTime::param /*time*/)
 	//flash.reset();
 }
 
-byte NowindInterface::peekMem(uint16_t address, EmuTime::param time) const
+byte NowindInterface::peekMem(uint16_t address, EmuTime time) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -80,7 +80,7 @@ byte NowindInterface::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-byte NowindInterface::readMem(uint16_t address, EmuTime::param time)
+byte NowindInterface::readMem(uint16_t address, EmuTime time)
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
@@ -107,7 +107,7 @@ const byte* NowindInterface::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void NowindInterface::writeMem(uint16_t address, byte value, EmuTime::param time)
+void NowindInterface::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	if (address < 0x4000) {
 		flash.write(bank * 0x4000 + address, value, time);

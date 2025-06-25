@@ -14,14 +14,14 @@ PhilipsFDC::PhilipsFDC(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void PhilipsFDC::reset(EmuTime::param time)
+void PhilipsFDC::reset(EmuTime time)
 {
 	WD2793BasedFDC::reset(time);
 	writeMem(0x3FFC, 0x00, time);
 	writeMem(0x3FFD, 0x00, time);
 }
 
-byte PhilipsFDC::readMem(uint16_t address, EmuTime::param time)
+byte PhilipsFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -58,7 +58,7 @@ byte PhilipsFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte PhilipsFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte PhilipsFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	// FDC registers are mirrored in
 	//   0x3FF8-0x3FFF
@@ -127,7 +127,7 @@ const byte* PhilipsFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void PhilipsFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void PhilipsFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:

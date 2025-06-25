@@ -35,30 +35,30 @@ public:
 	// Renderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	void reInit() override;
-	void frameStart(EmuTime::param time) override;
-	void frameEnd(EmuTime::param time) override;
-	void updateHorizontalScrollLow(uint8_t scroll, EmuTime::param time) override;
-	void updateHorizontalScrollHigh(uint8_t scroll, EmuTime::param time) override;
-	void updateBorderMask(bool masked, EmuTime::param time) override;
-	void updateMultiPage(bool multiPage, EmuTime::param time) override;
-	void updateTransparency(bool enabled, EmuTime::param time) override;
-	void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time) override;
-	void updateForegroundColor(uint8_t color, EmuTime::param time) override;
-	void updateBackgroundColor(uint8_t color, EmuTime::param time) override;
-	void updateBlinkForegroundColor(uint8_t color, EmuTime::param time) override;
-	void updateBlinkBackgroundColor(uint8_t color, EmuTime::param time) override;
-	void updateBlinkState(bool enabled, EmuTime::param time) override;
-	void updatePalette(unsigned index, int grb, EmuTime::param time) override;
-	void updateVerticalScroll(int scroll, EmuTime::param time) override;
-	void updateHorizontalAdjust(int adjust, EmuTime::param time) override;
-	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;
-	void updateDisplayMode(DisplayMode mode, EmuTime::param time) override;
-	void updateNameBase(unsigned addr, EmuTime::param time) override;
-	void updatePatternBase(unsigned addr, EmuTime::param time) override;
-	void updateColorBase(unsigned addr, EmuTime::param time) override;
-	void updateSpritesEnabled(bool enabled, EmuTime::param time) override;
-	void updateVRAM(unsigned offset, EmuTime::param time) override;
-	void updateWindow(bool enabled, EmuTime::param time) override;
+	void frameStart(EmuTime time) override;
+	void frameEnd(EmuTime time) override;
+	void updateHorizontalScrollLow(uint8_t scroll, EmuTime time) override;
+	void updateHorizontalScrollHigh(uint8_t scroll, EmuTime time) override;
+	void updateBorderMask(bool masked, EmuTime time) override;
+	void updateMultiPage(bool multiPage, EmuTime time) override;
+	void updateTransparency(bool enabled, EmuTime time) override;
+	void updateSuperimposing(const RawFrame* videoSource, EmuTime time) override;
+	void updateForegroundColor(uint8_t color, EmuTime time) override;
+	void updateBackgroundColor(uint8_t color, EmuTime time) override;
+	void updateBlinkForegroundColor(uint8_t color, EmuTime time) override;
+	void updateBlinkBackgroundColor(uint8_t color, EmuTime time) override;
+	void updateBlinkState(bool enabled, EmuTime time) override;
+	void updatePalette(unsigned index, int grb, EmuTime time) override;
+	void updateVerticalScroll(int scroll, EmuTime time) override;
+	void updateHorizontalAdjust(int adjust, EmuTime time) override;
+	void updateDisplayEnabled(bool enabled, EmuTime time) override;
+	void updateDisplayMode(DisplayMode mode, EmuTime time) override;
+	void updateNameBase(unsigned addr, EmuTime time) override;
+	void updatePatternBase(unsigned addr, EmuTime time) override;
+	void updateColorBase(unsigned addr, EmuTime time) override;
+	void updateSpritesEnabled(bool enabled, EmuTime time) override;
+	void updateVRAM(unsigned offset, EmuTime time) override;
+	void updateWindow(bool enabled, EmuTime time) override;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
@@ -85,14 +85,14 @@ private:
 		int startX, int startY, int endX, int endY,
 		int clipL, int clipR, DrawType drawType);
 
-	[[nodiscard]] bool checkSync(unsigned offset, EmuTime::param time) const;
+	[[nodiscard]] bool checkSync(unsigned offset, EmuTime time) const;
 
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
 	  * @param force When screen accuracy is used,
 	  *     rendering is only performed if this parameter is true.
 	  */
-	void sync(EmuTime::param time, bool force = false);
+	void sync(EmuTime time, bool force = false);
 
 	/** Render lines until specified moment in time.
 	  * Unlike sync(), this method does not sync with VDPVRAM.
@@ -100,7 +100,7 @@ private:
 	  * from the current time to the specified time.
 	  * @param time Moment in emulated time to render lines until.
 	  */
-	void renderUntil(EmuTime::param time);
+	void renderUntil(EmuTime time);
 
 private:
 	/** The VDP of which the video output is being rendered.

@@ -12,11 +12,11 @@ class ROMHunterMk2 final : public MSXRom
 public:
 	ROMHunterMk2(const DeviceConfig& config, Rom&& rom);
 
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
 	template<typename Archive>

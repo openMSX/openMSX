@@ -28,7 +28,7 @@ class TouchpadState final : public StateChange
 {
 public:
 	TouchpadState() = default; // for serialize
-	TouchpadState(EmuTime::param time_,
+	TouchpadState(EmuTime time_,
 	              uint8_t x_, uint8_t y_, bool touch_, bool button_)
 		: StateChange(time_)
 		, x(x_), y(y_), touch(touch_), button(button_) {}
@@ -119,13 +119,13 @@ std::string_view Touchpad::getDescription() const
 	return "MSX Touchpad";
 }
 
-void Touchpad::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void Touchpad::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 }
 
-void Touchpad::unplugHelper(EmuTime::param /*time*/)
+void Touchpad::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
@@ -140,7 +140,7 @@ static constexpr uint8_t SCK    = JoystickDevice::WR_PIN6;
 static constexpr uint8_t SI     = JoystickDevice::WR_PIN7;
 static constexpr uint8_t CS     = JoystickDevice::WR_PIN8;
 
-uint8_t Touchpad::read(EmuTime::param time)
+uint8_t Touchpad::read(EmuTime time)
 {
 	uint8_t result = SENSE | BUTTON; // 1-bit means not pressed
 	if (touch)  result &= ~SENSE;
@@ -160,7 +160,7 @@ uint8_t Touchpad::read(EmuTime::param time)
 	return result | 0x30;
 }
 
-void Touchpad::write(uint8_t value, EmuTime::param time)
+void Touchpad::write(uint8_t value, EmuTime time)
 {
 	uint8_t diff = last ^ value;
 	last = value;
@@ -197,7 +197,7 @@ ivec2 Touchpad::transformCoords(ivec2 xy)
 
 // MSXEventListener
 void Touchpad::signalMSXEvent(const Event& event,
-                              EmuTime::param time) noexcept
+                              EmuTime time) noexcept
 {
 	ivec2 pos = hostPos;
 	auto b = hostButtons;
@@ -248,7 +248,7 @@ void Touchpad::signalMSXEvent(const Event& event,
 }
 
 void Touchpad::createTouchpadStateChange(
-	EmuTime::param time, uint8_t x_, uint8_t y_, bool touch_, bool button_)
+	EmuTime time, uint8_t x_, uint8_t y_, bool touch_, bool button_)
 {
 	stateChangeDistributor.distributeNew<TouchpadState>(
 		time, x_, y_, touch_, button_);
@@ -265,7 +265,7 @@ void Touchpad::signalStateChange(const StateChange& event)
 	}
 }
 
-void Touchpad::stopReplay(EmuTime::param time) noexcept
+void Touchpad::stopReplay(EmuTime time) noexcept
 {
 	// TODO Get actual mouse state. Is it worth the trouble?
 	if (x || y || touch || button) {

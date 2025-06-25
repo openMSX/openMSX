@@ -26,12 +26,12 @@ RomCrossBlaim::RomCrossBlaim(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomCrossBlaim::reset(EmuTime::param time)
+void RomCrossBlaim::reset(EmuTime time)
 {
 	writeMem(0, 0, time);
 }
 
-void RomCrossBlaim::writeMem(uint16_t /*address*/, byte value, EmuTime::param /*time*/)
+void RomCrossBlaim::writeMem(uint16_t /*address*/, byte value, EmuTime /*time*/)
 {
 	switch (value & 3) {
 		case 0:

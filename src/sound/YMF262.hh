@@ -34,15 +34,15 @@ public:
 	       bool isYMF278);
 	~YMF262();
 
-	void reset(EmuTime::param time);
-	void writeReg   (unsigned r, uint8_t v, EmuTime::param time);
-	void writeReg512(unsigned r, uint8_t v, EmuTime::param time);
+	void reset(EmuTime time);
+	void writeReg   (unsigned r, uint8_t v, EmuTime time);
+	void writeReg512(unsigned r, uint8_t v, EmuTime time);
 	[[nodiscard]] uint8_t readReg(unsigned reg) const;
 	[[nodiscard]] uint8_t peekReg(unsigned reg) const;
 	[[nodiscard]] uint8_t readStatus();
 	[[nodiscard]] uint8_t peekStatus() const;
 
-	void setMixLevel(uint8_t x, EmuTime::param time);
+	void setMixLevel(uint8_t x, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -157,7 +157,7 @@ private:
 
 	void callback(uint8_t flag) override;
 
-	void writeRegDirect(unsigned r, uint8_t v, EmuTime::param time);
+	void writeRegDirect(unsigned r, uint8_t v, EmuTime time);
 	void init_tables();
 	void setStatus(uint8_t flag);
 	void resetStatus(uint8_t flag);
@@ -182,7 +182,7 @@ private:
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 
 	// Bitmask for register 0x04

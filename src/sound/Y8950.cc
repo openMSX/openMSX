@@ -484,7 +484,7 @@ void Y8950::Channel::keyOff(KeyPart part)
 static constexpr auto INPUT_RATE = unsigned(cstd::round(Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
-             unsigned sampleRam, EmuTime::param time, MSXAudio& audio)
+             unsigned sampleRam, EmuTime time, MSXAudio& audio)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
@@ -557,7 +557,7 @@ void Y8950::clearRam()
 }
 
 // Reset whole of opl except patch data.
-void Y8950::reset(EmuTime::param time)
+void Y8950::reset(EmuTime time)
 {
 	for (auto& c : ch) c.reset();
 
@@ -781,7 +781,7 @@ float Y8950::getAmplificationFactorImpl() const
 	return 1.0f / (1 << DB2LIN_AMP_BITS);
 }
 
-void Y8950::setEnabled(bool enabled_, EmuTime::param time)
+void Y8950::setEnabled(bool enabled_, EmuTime time)
 {
 	updateStream(time);
 	enabled = enabled_;
@@ -904,7 +904,7 @@ void Y8950::generateChannels(std::span<float*> bufs, unsigned num)
 // I/O Ctrl
 //
 
-void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
+void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 {
 	static constexpr std::array<int, 32> sTbl = {
 		 0,  2,  4,  1,  3,  5, -1, -1,
@@ -1143,7 +1143,7 @@ void Y8950::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
 	}
 }
 
-uint8_t Y8950::readReg(uint8_t rg, EmuTime::param time)
+uint8_t Y8950::readReg(uint8_t rg, EmuTime time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1158,7 +1158,7 @@ uint8_t Y8950::readReg(uint8_t rg, EmuTime::param time)
 	}
 }
 
-uint8_t Y8950::peekReg(uint8_t rg, EmuTime::param time) const
+uint8_t Y8950::peekReg(uint8_t rg, EmuTime time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
@@ -1181,12 +1181,12 @@ uint8_t Y8950::peekReg(uint8_t rg, EmuTime::param time) const
 	}
 }
 
-uint8_t Y8950::readStatus(EmuTime::param time) const
+uint8_t Y8950::readStatus(EmuTime time) const
 {
 	return peekStatus(time);
 }
 
-uint8_t Y8950::peekStatus(EmuTime::param time) const
+uint8_t Y8950::peekStatus(EmuTime time) const
 {
 	const_cast<Y8950Adpcm&>(adpcm).sync(time);
 	return (status & (0x87 | statusMask)) | 0x06; // bit 1 and 2 are always 1
@@ -1339,7 +1339,7 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 		};
 
 		update_key_status();
-		EmuTime::param time = motherBoard.getCurrentTime();
+		EmuTime time = motherBoard.getCurrentTime();
 		for (auto r : rewriteRegs) {
 			writeReg(r, reg[r], time);
 		}
@@ -1355,13 +1355,13 @@ Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 {
 }
 
-uint8_t Y8950::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t Y8950::Debuggable::read(unsigned address, EmuTime time)
 {
 	const auto& y8950 = OUTER(Y8950, debuggable);
 	return y8950.peekReg(narrow<uint8_t>(address), time);
 }
 
-void Y8950::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
+void Y8950::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& y8950 = OUTER(Y8950, debuggable);
 	y8950.writeReg(narrow<uint8_t>(address), value, time);

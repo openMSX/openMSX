@@ -1031,7 +1031,7 @@ uint8_t YMF262::peekReg(unsigned r) const
 	return reg[r];
 }
 
-void YMF262::writeReg(unsigned r, uint8_t v, EmuTime::param time)
+void YMF262::writeReg(unsigned r, uint8_t v, EmuTime time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05
@@ -1039,12 +1039,12 @@ void YMF262::writeReg(unsigned r, uint8_t v, EmuTime::param time)
 	}
 	writeReg512(r, v, time);
 }
-void YMF262::writeReg512(unsigned r, uint8_t v, EmuTime::param time)
+void YMF262::writeReg512(unsigned r, uint8_t v, EmuTime time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	writeRegDirect(r, v, time);
 }
-void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
+void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime time)
 {
 	reg[r] = v;
 
@@ -1393,7 +1393,7 @@ void YMF262::writeRegDirect(unsigned r, uint8_t v, EmuTime::param time)
 }
 
 
-void YMF262::reset(EmuTime::param time)
+void YMF262::reset(EmuTime time)
 {
 	eg_cnt = 0;
 
@@ -1497,7 +1497,7 @@ bool YMF262::checkMuteHelper() const
 	return true;
 }
 
-void YMF262::setMixLevel(uint8_t x, EmuTime::param time)
+void YMF262::setMixLevel(uint8_t x, EmuTime time)
 {
 	// Only present on YMF278
 	// see mix_level[] and vol_factor() in YMF278.cc
@@ -1688,7 +1688,7 @@ void YMF262::serialize(Archive& a, unsigned version)
 
 	// TODO restore more state by rewriting register values
 	//   this handles pan
-	EmuTime::param time = timer1->getCurrentTime();
+	EmuTime time = timer1->getCurrentTime();
 	for (auto i : xrange(0xC0, 0xC9)) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
@@ -1713,7 +1713,7 @@ uint8_t YMF262::Debuggable::read(unsigned address)
 	return ymf262.peekReg(address);
 }
 
-void YMF262::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
+void YMF262::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& ymf262 = OUTER(YMF262, debuggable);
 	ymf262.writeReg512(address, value, time);

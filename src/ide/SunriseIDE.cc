@@ -24,13 +24,13 @@ SunriseIDE::SunriseIDE(DeviceConfig& config)
 
 SunriseIDE::~SunriseIDE() = default;
 
-void SunriseIDE::powerUp(EmuTime::param time)
+void SunriseIDE::powerUp(EmuTime time)
 {
 	writeControl(0xFF);
 	reset(time);
 }
 
-void SunriseIDE::reset(EmuTime::param time)
+void SunriseIDE::reset(EmuTime time)
 {
 	selectedDevice = 0;
 	softReset = false;
@@ -38,7 +38,7 @@ void SunriseIDE::reset(EmuTime::param time)
 	device[1]->reset(time);
 }
 
-uint8_t SunriseIDE::readMem(uint16_t address, EmuTime::param time)
+uint8_t SunriseIDE::readMem(uint16_t address, EmuTime time)
 {
 	if (ideRegsEnabled && ((address & 0x3E00) == 0x3C00)) {
 		// 0x7C00 - 0x7DFF   ide data register
@@ -74,7 +74,7 @@ const uint8_t* SunriseIDE::getReadCacheLine(uint16_t start) const
 	return unmappedRead.data();
 }
 
-void SunriseIDE::writeMem(uint16_t address, uint8_t value, EmuTime::param time)
+void SunriseIDE::writeMem(uint16_t address, uint8_t value, EmuTime time)
 {
 	if ((address & 0xBF04) == 0x0104) {
 		// control register
@@ -125,22 +125,22 @@ void SunriseIDE::writeControl(uint8_t value)
 	}
 }
 
-uint8_t SunriseIDE::readDataLow(EmuTime::param time)
+uint8_t SunriseIDE::readDataLow(EmuTime time)
 {
 	uint16_t temp = readData(time);
 	readLatch = narrow_cast<uint8_t>(temp >> 8);
 	return narrow_cast<uint8_t>(temp & 0xFF);
 }
-uint8_t SunriseIDE::readDataHigh(EmuTime::param /*time*/) const
+uint8_t SunriseIDE::readDataHigh(EmuTime /*time*/) const
 {
 	return readLatch;
 }
-uint16_t SunriseIDE::readData(EmuTime::param time)
+uint16_t SunriseIDE::readData(EmuTime time)
 {
 	return device[selectedDevice]->readData(time);
 }
 
-uint8_t SunriseIDE::readReg(uint4_t reg, EmuTime::param time)
+uint8_t SunriseIDE::readReg(uint4_t reg, EmuTime time)
 {
 	if (reg == 14) {
 		// alternate status register
@@ -172,17 +172,17 @@ void SunriseIDE::writeDataLow(uint8_t value)
 {
 	writeLatch = value;
 }
-void SunriseIDE::writeDataHigh(uint8_t value, EmuTime::param time)
+void SunriseIDE::writeDataHigh(uint8_t value, EmuTime time)
 {
 	auto temp = uint16_t((value << 8) | writeLatch);
 	writeData(temp, time);
 }
-void SunriseIDE::writeData(uint16_t value, EmuTime::param time)
+void SunriseIDE::writeData(uint16_t value, EmuTime time)
 {
 	device[selectedDevice]->writeData(value, time);
 }
 
-void SunriseIDE::writeReg(uint4_t reg, uint8_t value, EmuTime::param time)
+void SunriseIDE::writeReg(uint4_t reg, uint8_t value, EmuTime time)
 {
 	if (softReset) {
 		if ((reg == 14) && !(value & 0x04)) {

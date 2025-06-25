@@ -68,18 +68,18 @@ public:
 	  * @param time TODO
 	  */
 	SpriteChecker(VDP& vdp, RenderSettings& renderSettings,
-	              EmuTime::param time);
+	              EmuTime time);
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.
 	  */
-	void reset(EmuTime::param time);
+	void reset(EmuTime time);
 
 	/** Update sprite checking to specified time.
 	  * This includes a VRAM sync.
 	  * @param time The moment in emulated time to update to.
 	  */
-	void sync(EmuTime::param time) {
+	void sync(EmuTime time) {
 		if (!updateSpritesMethod) {
 			// Optimization: skip vram sync and sprite checks
 			// in sprite mode 0.
@@ -113,7 +113,7 @@ public:
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, EmuTime::param time) {
+	void updateDisplayMode(DisplayMode mode, EmuTime time) {
 		sync(time);
 		setDisplayMode(mode);
 
@@ -134,7 +134,7 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayEnabled(bool enabled, EmuTime::param time) {
+	void updateDisplayEnabled(bool enabled, EmuTime time) {
 		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -144,7 +144,7 @@ public:
 	  * @param enabled The new sprite enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateSpritesEnabled(bool enabled, EmuTime::param time) {
+	void updateSpritesEnabled(bool enabled, EmuTime time) {
 		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
@@ -156,7 +156,7 @@ public:
 	  *   Bit 1 is size: 0 = 8x8, 1 = 16x16.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateSpriteSizeMag(uint8_t sizeMag, EmuTime::param time) {
+	void updateSpriteSizeMag(uint8_t sizeMag, EmuTime time) {
 		(void)sizeMag;
 		sync(time);
 		// TODO: Precalc something?
@@ -166,7 +166,7 @@ public:
 	  * @param tp The new transparency value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateTransparency(bool tp, EmuTime::param time) {
+	void updateTransparency(bool tp, EmuTime time) {
 		(void)tp;
 		sync(time);
 	}
@@ -175,7 +175,7 @@ public:
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateVerticalScroll(int scroll, EmuTime::param time) {
+	void updateVerticalScroll(int scroll, EmuTime time) {
 		(void)scroll;
 		sync(time);
 		// TODO: Precalc something?
@@ -186,7 +186,7 @@ public:
 	  * It is not allowed to call this method in a spriteless display mode.
 	  * @param time The moment in emulated time to update to.
 	  */
-	void checkUntil(EmuTime::param time) {
+	void checkUntil(EmuTime time) {
 		// TODO:
 		// Currently the sprite checking is done atomically at the end of
 		// the display line. In reality, sprite checking is probably done
@@ -202,14 +202,14 @@ public:
 
 	/** Get X coordinate of sprite collision.
 	  */
-	[[nodiscard]] int getCollisionX(EmuTime::param time) {
+	[[nodiscard]] int getCollisionX(EmuTime time) {
 		sync(time);
 		return collisionX;
 	}
 
 	/** Get Y coordinate of sprite collision.
 	  */
-	[[nodiscard]] int getCollisionY(EmuTime::param time) {
+	[[nodiscard]] int getCollisionY(EmuTime time) {
 		sync(time);
 		return collisionY;
 	}
@@ -225,7 +225,7 @@ public:
 	/** Signals the start of a new frame.
 	  * @param time Moment in emulated time the new frame starts.
 	  */
-	void frameStart(EmuTime::param time) {
+	void frameStart(EmuTime time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
 		std::ranges::fill(spriteCount, 0);
@@ -235,7 +235,7 @@ public:
 	/** Signals the end of the current frame.
 	  * @param time Moment in emulated time the current frame ends.
 	  */
-	void frameEnd(EmuTime::param time) {
+	void frameEnd(EmuTime time) {
 		sync(time);
 	}
 
@@ -266,11 +266,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned /*offset*/, EmuTime::param time) override {
+	void updateVRAM(unsigned /*offset*/, EmuTime time) override {
 		checkUntil(time);
 	}
 
-	void updateWindow(bool /*enabled*/, EmuTime::param time) override {
+	void updateWindow(bool /*enabled*/, EmuTime time) override {
 		sync(time);
 	}
 

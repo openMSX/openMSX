@@ -11,9 +11,9 @@ class SensorKid final : public MSXDevice
 public:
 	explicit SensorKid(const DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

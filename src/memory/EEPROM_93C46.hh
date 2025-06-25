@@ -27,10 +27,10 @@ public:
 
 	void reset();
 
-	[[nodiscard]] bool read_DO(EmuTime::param time) const;
-	void write_CS (bool value, EmuTime::param time);
-	void write_CLK(bool value, EmuTime::param time);
-	void write_DI (bool value, EmuTime::param time);
+	[[nodiscard]] bool read_DO(EmuTime time) const;
+	void write_CS (bool value, EmuTime time);
+	void write_CLK(bool value, EmuTime time);
+	void write_DI (bool value, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -42,14 +42,14 @@ public:
 
 private:
 	[[nodiscard]] uint8_t read(unsigned addr) const;
-	void write(unsigned addr, uint8_t value, EmuTime::param time);
-	void writeAll(uint8_t value, EmuTime::param time);
-	void erase(unsigned addr, EmuTime::param time);
-	void eraseAll(EmuTime::param time);
+	void write(unsigned addr, uint8_t value, EmuTime time);
+	void writeAll(uint8_t value, EmuTime time);
+	void erase(unsigned addr, EmuTime time);
+	void eraseAll(EmuTime time);
 
-	[[nodiscard]] bool ready(EmuTime::param time) const;
-	void clockEvent(EmuTime::param time);
-	void execute_command(EmuTime::param time);
+	[[nodiscard]] bool ready(EmuTime time) const;
+	void clockEvent(EmuTime time);
+	void execute_command(EmuTime time);
 
 public: // for serialize
 	enum class State : uint8_t {

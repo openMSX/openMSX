@@ -17,15 +17,15 @@ public:
 	enum class Mode : uint8_t {Real, Compatible, Plus};
 
 	SCC(const std::string& name, const DeviceConfig& config,
-	    EmuTime::param time, Mode mode = Mode::Real);
+	    EmuTime time, Mode mode = Mode::Real);
 	~SCC();
 
 	// interaction with realCartridge
-	void powerUp(EmuTime::param time);
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t readMem(uint8_t address,EmuTime::param time);
-	[[nodiscard]] uint8_t peekMem(uint8_t address,EmuTime::param time) const;
-	void writeMem(uint8_t address, uint8_t value, EmuTime::param time);
+	void powerUp(EmuTime time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t readMem(uint8_t address,EmuTime time);
+	[[nodiscard]] uint8_t peekMem(uint8_t address,EmuTime time) const;
+	void writeMem(uint8_t address, uint8_t value, EmuTime time);
 	void setMode(Mode newMode);
 
 	// public getters for classes interested to show SCC data
@@ -39,11 +39,11 @@ private:
 	[[nodiscard]] float getAmplificationFactorImpl() const override;
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address, EmuTime::param time) const;
+	[[nodiscard]] uint8_t readWave(unsigned channel, unsigned address, EmuTime time) const;
 	void writeWave(unsigned channel, unsigned address, uint8_t value);
-	void setDeformReg(uint8_t value, EmuTime::param time);
+	void setDeformReg(uint8_t value, EmuTime time);
 	void setDeformRegHelper(uint8_t value);
-	void setFreqVol(unsigned address, uint8_t value, EmuTime::param time);
+	void setFreqVol(unsigned address, uint8_t value, EmuTime time);
 	[[nodiscard]] uint8_t getFreqVol(unsigned address) const;
 
 private:
@@ -51,8 +51,8 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 
 	Clock<CLOCK_FREQ> deformTimer;

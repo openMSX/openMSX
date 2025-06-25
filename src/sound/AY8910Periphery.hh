@@ -23,20 +23,20 @@ public:
 	  *   On subsequent calls, the time will always be increasing.
 	  * @return the value read; unconnected bits should be 1
 	  */
-	[[nodiscard]] virtual uint8_t readA(EmuTime::param time);
+	[[nodiscard]] virtual uint8_t readA(EmuTime time);
 
 	/** Similar to readA, but reads port B. */
-	[[nodiscard]] virtual uint8_t readB(EmuTime::param time);
+	[[nodiscard]] virtual uint8_t readB(EmuTime time);
 
 	/** Writes to the peripheral on port A.
 	  * @param value The value to write.
 	  * @param time The moment in time the value is written.
 	  *   On subsequent calls, the time will always be increasing.
 	  */
-	virtual void writeA(uint8_t value, EmuTime::param time);
+	virtual void writeA(uint8_t value, EmuTime time);
 
 	/** Similar to writeA, but writes port B. */
-	virtual void writeB(uint8_t value, EmuTime::param time);
+	virtual void writeB(uint8_t value, EmuTime time);
 
 protected:
 	AY8910Periphery() = default;

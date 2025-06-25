@@ -9,7 +9,7 @@ class DummyDevice final : public MSXDevice
 {
 public:
 	explicit DummyDevice(const DeviceConfig& config);
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 	void getNameList(TclObject& result) const override;
 };
 

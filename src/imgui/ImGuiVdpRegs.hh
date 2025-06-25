@@ -25,7 +25,7 @@ public:
 
 private:
 	void drawSection(std::span<const uint8_t> showRegisters, std::span<const uint8_t> regValues,
-	                 VDP& vdp, EmuTime::param time);
+	                 VDP& vdp, EmuTime time);
 
 public:
 	bool show = false;

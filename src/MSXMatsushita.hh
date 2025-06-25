@@ -26,22 +26,22 @@ public:
 	~MSXMatsushita() override;
 
 	// MSXDevice
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	// MSXSwitchedDevice
-	[[nodiscard]] uint8_t readSwitchedIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekSwitchedIO(uint16_t port, EmuTime::param time) const override;
-	void writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readSwitchedIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekSwitchedIO(uint16_t port, EmuTime time) const override;
+	void writeSwitchedIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void unwrap();
-	void delay(EmuTime::param time);
+	void delay(EmuTime time);
 
 private:
 	MSXCPU& cpu;

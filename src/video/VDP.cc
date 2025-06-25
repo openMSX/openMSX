@@ -188,7 +188,7 @@ VDP::VDP(const DeviceConfig& config)
 	resetInit(); // must be done early to avoid UMRs
 
 	// Video RAM.
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram", 0));
 	if (vramSize != one_of(16u, 64u, 128u, 192u)) {
@@ -304,7 +304,7 @@ void VDP::resetInit()
 	palette = V9938_PALETTE;
 }
 
-void VDP::resetMasks(EmuTime::param time)
+void VDP::resetMasks(EmuTime time)
 {
 	updateNameBase(time);
 	updateColorBase(time);
@@ -316,13 +316,13 @@ void VDP::resetMasks(EmuTime::param time)
 	//vram->bitmapWindow.setMask(~(~0u << 17), ~0u << 17, time);
 }
 
-void VDP::powerUp(EmuTime::param time)
+void VDP::powerUp(EmuTime time)
 {
 	vram->clear();
 	reset(time);
 }
 
-void VDP::reset(EmuTime::param time)
+void VDP::reset(EmuTime time)
 {
 	syncVSync        .removeSyncPoint();
 	syncDisplayStart .removeSyncPoint();
@@ -352,7 +352,7 @@ void VDP::reset(EmuTime::param time)
 	assert(frameCount == 0);
 }
 
-void VDP::execVSync(EmuTime::param time)
+void VDP::execVSync(EmuTime time)
 {
 	// This frame is finished.
 	// Inform VDP subcomponents.
@@ -374,7 +374,7 @@ void VDP::execVSync(EmuTime::param time)
 	frameStart(time);
 }
 
-void VDP::execDisplayStart(EmuTime::param time)
+void VDP::execDisplayStart(EmuTime time)
 {
 	// Display area starts here, unless we're doing overscan and it
 	// was already active.
@@ -386,7 +386,7 @@ void VDP::execDisplayStart(EmuTime::param time)
 	}
 }
 
-void VDP::execVScan(EmuTime::param time)
+void VDP::execVScan(EmuTime time)
 {
 	// VSCAN is the end of display.
 	// This will generate a VBLANK IRQ. Typically MSX software will
@@ -414,7 +414,7 @@ void VDP::execHScan()
 	}
 }
 
-void VDP::execHorAdjust(EmuTime::param time)
+void VDP::execHorAdjust(EmuTime time)
 {
 	int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
 	if (controlRegs[25] & 0x08) {
@@ -424,7 +424,7 @@ void VDP::execHorAdjust(EmuTime::param time)
 	horizontalAdjust = newHorAdjust;
 }
 
-void VDP::execSetMode(EmuTime::param time)
+void VDP::execSetMode(EmuTime time)
 {
 	updateDisplayMode(
 		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
@@ -432,7 +432,7 @@ void VDP::execSetMode(EmuTime::param time)
 		time);
 }
 
-void VDP::execSetBlank(EmuTime::param time)
+void VDP::execSetBlank(EmuTime time)
 {
 	bool newDisplayEnabled = (controlRegs[1] & 0x40) != 0;
 	if (isDisplayArea) {
@@ -441,21 +441,21 @@ void VDP::execSetBlank(EmuTime::param time)
 	displayEnabled = newDisplayEnabled;
 }
 
-void VDP::execSetSprites(EmuTime::param time)
+void VDP::execSetSprites(EmuTime time)
 {
 	bool newSpriteEnabled = (controlRegs[8] & 0x02) == 0;
 	vram->updateSpritesEnabled(newSpriteEnabled, time);
 	spriteEnabled = newSpriteEnabled;
 }
 
-void VDP::execCpuVramAccess(EmuTime::param time)
+void VDP::execCpuVramAccess(EmuTime time)
 {
 	assert(!allowTooFastAccess);
 	pendingCpuAccess = false;
 	executeCpuVramAccess(time);
 }
 
-void VDP::execSyncCmdDone(EmuTime::param time)
+void VDP::execSyncCmdDone(EmuTime time)
 {
 	cmdEngine->sync(time);
 }
@@ -463,7 +463,7 @@ void VDP::execSyncCmdDone(EmuTime::param time)
 // TODO: This approach assumes that an overscan-like approach can be used
 //       skip display start, so that the border is rendered instead.
 //       This makes sense, but it has not been tested on real MSX yet.
-void VDP::scheduleDisplayStart(EmuTime::param time)
+void VDP::scheduleDisplayStart(EmuTime time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
@@ -496,7 +496,7 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 	scheduleVScan(time);
 }
 
-void VDP::scheduleVScan(EmuTime::param time)
+void VDP::scheduleVScan(EmuTime time)
 {
 	// Remove pending VSCAN sync point, if any.
 	if (vScanSyncTime > time) {
@@ -515,7 +515,7 @@ void VDP::scheduleVScan(EmuTime::param time)
 	}
 }
 
-void VDP::scheduleHScan(EmuTime::param time)
+void VDP::scheduleHScan(EmuTime time)
 {
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
@@ -581,7 +581,7 @@ void VDP::scheduleHScan(EmuTime::param time)
 //       frame when their callback occurs.
 //       But I'm not sure how to handle the PAL/NTSC setting (which also
 //       influences the frequency at which E/O toggles).
-void VDP::frameStart(EmuTime::param time)
+void VDP::frameStart(EmuTime time)
 {
 	++frameCount;
 
@@ -642,7 +642,7 @@ void VDP::frameStart(EmuTime::param time)
 
 // The I/O functions.
 
-void VDP::writeIO(uint16_t port, uint8_t value, EmuTime::param time_)
+void VDP::writeIO(uint16_t port, uint8_t value, EmuTime time_)
 {
 	EmuTime time = time_;
 	// This is the (fixed) delay from
@@ -759,7 +759,7 @@ uint8_t VDP::peekRegister(unsigned address) const
 	}
 }
 
-void VDP::setPalette(unsigned index, uint16_t grb, EmuTime::param time)
+void VDP::setPalette(unsigned index, uint16_t grb, EmuTime time)
 {
 	if (palette[index] != grb) {
 		renderer->updatePalette(index, grb, time);
@@ -767,12 +767,12 @@ void VDP::setPalette(unsigned index, uint16_t grb, EmuTime::param time)
 	}
 }
 
-void VDP::vramWrite(uint8_t value, EmuTime::param time)
+void VDP::vramWrite(uint8_t value, EmuTime time)
 {
 	scheduleCpuVramAccess(false, value, time);
 }
 
-uint8_t VDP::vramRead(EmuTime::param time)
+uint8_t VDP::vramRead(EmuTime time)
 {
 	// Return the result from a previous read. In case
 	// allowTooFastAccess==true, the call to scheduleCpuVramAccess()
@@ -784,7 +784,7 @@ uint8_t VDP::vramRead(EmuTime::param time)
 	return result;
 }
 
-void VDP::scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime::param time)
+void VDP::scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime time)
 {
 	// Tested on real V9938: 'cpuVramData' is shared between read and write.
 	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
@@ -846,7 +846,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, uint8_t write, EmuTime::param time)
 	}
 }
 
-void VDP::executeCpuVramAccess(EmuTime::param time)
+void VDP::executeCpuVramAccess(EmuTime time)
 {
 	int addr = (controlRegs[14] << 14) | vramPointer;
 	if (displayMode.isPlanar()) {
@@ -887,20 +887,20 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 	}
 }
 
-EmuTime VDP::getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const
+EmuTime VDP::getAccessSlot(EmuTime time, VDPAccessSlots::Delta delta) const
 {
 	return VDPAccessSlots::getAccessSlot(
 		getFrameStartTime(), time, delta, *this);
 }
 
 VDPAccessSlots::Calculator VDP::getAccessSlotCalculator(
-	EmuTime::param time, EmuTime::param limit) const
+	EmuTime time, EmuTime limit) const
 {
 	return VDPAccessSlots::getCalculator(
 		getFrameStartTime(), time, limit, *this);
 }
 
-uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime::param time) const
+uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 {
 	switch (reg) {
 	case 0:
@@ -958,7 +958,7 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime::param time) const
 	}
 }
 
-uint8_t VDP::readStatusReg(uint8_t reg, EmuTime::param time)
+uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 {
 	uint8_t ret = peekStatusReg(reg, time);
 	switch (reg) {
@@ -982,7 +982,7 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime::param time)
 	return ret;
 }
 
-uint8_t VDP::readIO(uint16_t port, EmuTime::param time_)
+uint8_t VDP::readIO(uint16_t port, EmuTime time_)
 {
 	// See comment in writeIO().
 	EmuTime time = time_;
@@ -1008,13 +1008,13 @@ uint8_t VDP::readIO(uint16_t port, EmuTime::param time_)
 	}
 }
 
-uint8_t VDP::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+uint8_t VDP::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	// TODO not implemented
 	return 0xFF;
 }
 
-void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime::param time)
+void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime time)
 {
 	if (reg >= 32) {
 		// MXC belongs to CPU interface;
@@ -1254,7 +1254,7 @@ void VDP::changeRegister(uint8_t reg, uint8_t val, EmuTime::param time)
 	}
 }
 
-void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time) const
+void VDP::syncAtNextLine(SyncBase& type, EmuTime time) const
 {
 	// The processing of a new line starts in the middle of the left erase,
 	// ~144 cycles after the sync signal. Adjust affects it. See issue #1310.
@@ -1265,7 +1265,7 @@ void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time) const
 	type.setSyncPoint(nextTime);
 }
 
-void VDP::updateNameBase(EmuTime::param time)
+void VDP::updateNameBase(EmuTime time)
 {
 	unsigned base = (controlRegs[2] << 10) | ~(~0u << 10);
 	// TODO:
@@ -1293,7 +1293,7 @@ void VDP::updateNameBase(EmuTime::param time)
 	vram->nameTable.setMask(base, indexMask, time);
 }
 
-void VDP::updateColorBase(EmuTime::param time)
+void VDP::updateColorBase(EmuTime time)
 {
 	unsigned base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(~0u << 6);
 	renderer->updateColorBase(base, time);
@@ -1317,7 +1317,7 @@ void VDP::updateColorBase(EmuTime::param time)
 	}
 }
 
-void VDP::updatePatternBase(EmuTime::param time)
+void VDP::updatePatternBase(EmuTime time)
 {
 	unsigned base = (controlRegs[4] << 11) | ~(~0u << 11);
 	renderer->updatePatternBase(base, time);
@@ -1351,7 +1351,7 @@ void VDP::updatePatternBase(EmuTime::param time)
 	}
 }
 
-void VDP::updateSpriteAttributeBase(EmuTime::param time)
+void VDP::updateSpriteAttributeBase(EmuTime time)
 {
 	int mode = displayMode.getSpriteMode(isMSX1VDP());
 	if (mode == 0) {
@@ -1367,7 +1367,7 @@ void VDP::updateSpriteAttributeBase(EmuTime::param time)
 	vram->spriteAttribTable.setMask(baseMask, indexMask, time);
 }
 
-void VDP::updateSpritePatternBase(EmuTime::param time)
+void VDP::updateSpritePatternBase(EmuTime time)
 {
 	if (displayMode.getSpriteMode(isMSX1VDP()) == 0) {
 		vram->spritePatternTable.disable(time);
@@ -1382,7 +1382,7 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
 
-void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
+void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime time)
 {
 	// Synchronize subsystems.
 	vram->updateDisplayMode(newMode, cmdBit, time);
@@ -1609,7 +1609,7 @@ uint8_t VDP::RegDebug::read(unsigned address)
 	return vdp.peekRegister(address);
 }
 
-void VDP::RegDebug::write(unsigned address, uint8_t value, EmuTime::param time)
+void VDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vdp = OUTER(VDP, vdpRegDebug);
 	// Ignore writes to registers >= 8 on MSX1. An alternative is to only
@@ -1629,7 +1629,7 @@ VDP::StatusRegDebug::StatusRegDebug(const VDP& vdp_)
 {
 }
 
-uint8_t VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
+uint8_t VDP::StatusRegDebug::read(unsigned address, EmuTime time)
 {
 	const auto& vdp = OUTER(VDP, vdpStatusRegDebug);
 	return vdp.peekStatusReg(narrow<uint8_t>(address), time);
@@ -1652,7 +1652,7 @@ uint8_t VDP::PaletteDebug::read(unsigned address)
 	                     : narrow_cast<uint8_t>(grb & 0xff);
 }
 
-void VDP::PaletteDebug::write(unsigned address, uint8_t value, EmuTime::param time)
+void VDP::PaletteDebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vdp = OUTER(VDP, vdpPaletteDebug);
 	// Ignore writes on MSX1. An alternative could be to not expose the
@@ -1688,7 +1688,7 @@ uint8_t VDP::VRAMPointerDebug::read(unsigned address)
 	}
 }
 
-void VDP::VRAMPointerDebug::write(unsigned address, uint8_t value, EmuTime::param /*time*/)
+void VDP::VRAMPointerDebug::write(unsigned address, uint8_t value, EmuTime /*time*/)
 {
 	auto& vdp = OUTER(VDP, vramPointerDebug);
 	int& ptr = vdp.vramPointer;

@@ -21,7 +21,7 @@ SG1000Pause::~SG1000Pause()
 	getMotherBoard().getMSXEventDistributor().unregisterEventListener(*this);
 }
 
-void SG1000Pause::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
+void SG1000Pause::signalMSXEvent(const Event& event, EmuTime time) noexcept
 {
 	visit(overloaded{
 		[&](const KeyDownEvent& keyEvent) {
@@ -33,7 +33,7 @@ void SG1000Pause::signalMSXEvent(const Event& event, EmuTime::param time) noexce
 	}, event);
 }
 
-void SG1000Pause::executeUntil(EmuTime::param /*time*/)
+void SG1000Pause::executeUntil(EmuTime /*time*/)
 {
 	// We raise and then immediately lower the NMI request. This still triggers
 	// an interrupt, since our CPU core remembers the edge.

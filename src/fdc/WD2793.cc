@@ -47,7 +47,7 @@ static constexpr auto IDLE = EmuDuration::sec(3);
  * signal yet).
  */
 WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, MSXCliComm& cliComm_,
-               EmuTime::param time, bool isWD1770_)
+               EmuTime time, bool isWD1770_)
 	: Schedulable(scheduler_)
 	, drive(drive_)
 	, cliComm(cliComm_)
@@ -57,7 +57,7 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, MSXCliComm& cliComm_,
 	reset(time);
 }
 
-void WD2793::reset(EmuTime::param time)
+void WD2793::reset(EmuTime time)
 {
 	removeSyncPoint();
 	fsmState = FSM::NONE;
@@ -76,12 +76,12 @@ void WD2793::reset(EmuTime::param time)
 	setCommandReg(0x03, time);
 }
 
-bool WD2793::getDTRQ(EmuTime::param time) const
+bool WD2793::getDTRQ(EmuTime time) const
 {
 	return peekDTRQ(time);
 }
 
-bool WD2793::peekDTRQ(EmuTime::param time) const
+bool WD2793::peekDTRQ(EmuTime time) const
 {
 	return time >= drqTime.getTime();
 }
@@ -91,12 +91,12 @@ void WD2793::setDrqRate(unsigned trackLength)
 	drqTime.setFreq(trackLength * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
-bool WD2793::getIRQ(EmuTime::param time) const
+bool WD2793::getIRQ(EmuTime time) const
 {
 	return peekIRQ(time);
 }
 
-bool WD2793::peekIRQ(EmuTime::param time) const
+bool WD2793::peekIRQ(EmuTime time) const
 {
 	return immediateIRQ || (irqTime <= time);
 }
@@ -108,7 +108,7 @@ bool WD2793::isReady() const
 	return drive.isDiskInserted() || isWD1770;
 }
 
-void WD2793::setCommandReg(uint8_t value, EmuTime::param time)
+void WD2793::setCommandReg(uint8_t value, EmuTime time)
 {
 	if (((commandReg & 0xE0) == 0xA0) || // write sector
 	    ((commandReg & 0xF0) == 0xF0)) { // write track
@@ -156,7 +156,7 @@ void WD2793::setCommandReg(uint8_t value, EmuTime::param time)
 	}
 }
 
-uint8_t WD2793::getStatusReg(EmuTime::param time)
+uint8_t WD2793::getStatusReg(EmuTime time)
 {
 	if (((commandReg & 0x80) == 0) || ((commandReg & 0xF0) == 0xD0)) {
 		// Type I or type IV command
@@ -196,43 +196,43 @@ uint8_t WD2793::getStatusReg(EmuTime::param time)
 	return statusReg;
 }
 
-uint8_t WD2793::peekStatusReg(EmuTime::param time) const
+uint8_t WD2793::peekStatusReg(EmuTime time) const
 {
 	// TODO implement proper peek?
 	return const_cast<WD2793*>(this)->getStatusReg(time);
 }
 
-void WD2793::setTrackReg(uint8_t value, EmuTime::param /*time*/)
+void WD2793::setTrackReg(uint8_t value, EmuTime /*time*/)
 {
 	trackReg = value;
 }
 
-uint8_t WD2793::getTrackReg(EmuTime::param time) const
+uint8_t WD2793::getTrackReg(EmuTime time) const
 {
 	return peekTrackReg(time);
 }
 
-uint8_t WD2793::peekTrackReg(EmuTime::param /*time*/) const
+uint8_t WD2793::peekTrackReg(EmuTime /*time*/) const
 {
 	return trackReg;
 }
 
-void WD2793::setSectorReg(uint8_t value, EmuTime::param /*time*/)
+void WD2793::setSectorReg(uint8_t value, EmuTime /*time*/)
 {
 	sectorReg = value;
 }
 
-uint8_t WD2793::getSectorReg(EmuTime::param time) const
+uint8_t WD2793::getSectorReg(EmuTime time) const
 {
 	return peekSectorReg(time);
 }
 
-uint8_t WD2793::peekSectorReg(EmuTime::param /*time*/) const
+uint8_t WD2793::peekSectorReg(EmuTime /*time*/) const
 {
 	return sectorReg;
 }
 
-void WD2793::setDataReg(uint8_t value, EmuTime::param time)
+void WD2793::setDataReg(uint8_t value, EmuTime time)
 {
 	dataReg = value;
 
@@ -246,7 +246,7 @@ void WD2793::setDataReg(uint8_t value, EmuTime::param time)
 	}
 }
 
-uint8_t WD2793::getDataReg(EmuTime::param time)
+uint8_t WD2793::getDataReg(EmuTime time)
 {
 	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address
@@ -311,7 +311,7 @@ uint8_t WD2793::getDataReg(EmuTime::param time)
 	return dataReg;
 }
 
-uint8_t WD2793::peekDataReg(EmuTime::param time) const
+uint8_t WD2793::peekDataReg(EmuTime time) const
 {
 	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address
@@ -324,14 +324,14 @@ uint8_t WD2793::peekDataReg(EmuTime::param time) const
 }
 
 
-void WD2793::schedule(FSM state, EmuTime::param time)
+void WD2793::schedule(FSM state, EmuTime time)
 {
 	assert(!pendingSyncPoint());
 	fsmState = state;
 	setSyncPoint(time);
 }
 
-void WD2793::executeUntil(EmuTime::param time)
+void WD2793::executeUntil(EmuTime time)
 {
 	using enum FSM;
 	FSM state = fsmState;
@@ -417,7 +417,7 @@ void WD2793::executeUntil(EmuTime::param time)
 	}
 }
 
-void WD2793::startType1Cmd(EmuTime::param time)
+void WD2793::startType1Cmd(EmuTime time)
 {
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
@@ -462,7 +462,7 @@ void WD2793::startType1Cmd(EmuTime::param time)
 	}
 }
 
-void WD2793::seek(EmuTime::param time)
+void WD2793::seek(EmuTime time)
 {
 	if (trackReg == dataReg) {
 		endType1Cmd(time);
@@ -472,7 +472,7 @@ void WD2793::seek(EmuTime::param time)
 	}
 }
 
-void WD2793::step(EmuTime::param time)
+void WD2793::step(EmuTime time)
 {
 	static constexpr std::array<EmuDuration, 4> timePerStep = {
 		// in case a 1MHz clock is used (as in MSX)
@@ -499,7 +499,7 @@ void WD2793::step(EmuTime::param time)
 	}
 }
 
-void WD2793::seekNext(EmuTime::param time)
+void WD2793::seekNext(EmuTime time)
 {
 	if ((commandReg & 0xE0) == 0x00) {
 		// Restore or seek
@@ -509,7 +509,7 @@ void WD2793::seekNext(EmuTime::param time)
 	}
 }
 
-void WD2793::endType1Cmd(EmuTime::param time)
+void WD2793::endType1Cmd(EmuTime time)
 {
 	if (commandReg & V_FLAG) {
 		// verify sequence
@@ -519,7 +519,7 @@ void WD2793::endType1Cmd(EmuTime::param time)
 }
 
 
-void WD2793::startType2Cmd(EmuTime::param time)
+void WD2793::startType2Cmd(EmuTime time)
 {
 	statusReg &= ~(LOST_DATA   | RECORD_NOT_FOUND |
 	               RECORD_TYPE | WRITE_PROTECTED);
@@ -541,7 +541,7 @@ void WD2793::startType2Cmd(EmuTime::param time)
 	}
 }
 
-void WD2793::type2Loaded(EmuTime::param time)
+void WD2793::type2Loaded(EmuTime time)
 {
 	if (((commandReg & 0xE0) == 0xA0) && (drive.isWriteProtected())) {
 		// write command and write protected
@@ -554,7 +554,7 @@ void WD2793::type2Loaded(EmuTime::param time)
 	type2Search(time);
 }
 
-void WD2793::type2Search(EmuTime::param time)
+void WD2793::type2Search(EmuTime time)
 {
 	assert(time < pulse5);
 	// Locate (next) sector on disk.
@@ -579,7 +579,7 @@ void WD2793::type2Search(EmuTime::param time)
 	}
 }
 
-void WD2793::type2Rotated(EmuTime::param time)
+void WD2793::type2Rotated(EmuTime time)
 {
 	// The CRC status bit should only toggle after the disk has rotated
 	if (sectorInfo.addrCrcErr) {
@@ -615,13 +615,13 @@ void WD2793::type2Rotated(EmuTime::param time)
 	}
 }
 
-void WD2793::type2NotFound(EmuTime::param time)
+void WD2793::type2NotFound(EmuTime time)
 {
 	statusReg |= RECORD_NOT_FOUND;
 	endCmd(time);
 }
 
-void WD2793::startReadSector(EmuTime::param time)
+void WD2793::startReadSector(EmuTime time)
 {
 	if (sectorInfo.deleted) {
 		crc.init({0xA1, 0xA1, 0xA1, 0xF8});
@@ -643,7 +643,7 @@ void WD2793::startReadSector(EmuTime::param time)
 	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
 }
 
-void WD2793::startWriteSector(EmuTime::param time)
+void WD2793::startWriteSector(EmuTime time)
 {
 	// At the current moment in time, the 'FE' byte in the address mark
 	// is located under the drive head (because the DMK format points to
@@ -671,7 +671,7 @@ void WD2793::startWriteSector(EmuTime::param time)
 	schedule(FSM::CHECK_WRITE, drqTime + 8);
 }
 
-void WD2793::checkStartWrite(EmuTime::param time)
+void WD2793::checkStartWrite(EmuTime time)
 {
 	// By now the CPU should already have written the first byte, otherwise
 	// the write sector command doesn't even start.
@@ -700,7 +700,7 @@ void WD2793::checkStartWrite(EmuTime::param time)
 	dataAvailable = 16; // 12+4 bytes pre-data
 }
 
-void WD2793::preWriteSector(EmuTime::param time)
+void WD2793::preWriteSector(EmuTime time)
 {
 	try {
 		--dataAvailable;
@@ -739,7 +739,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 	}
 }
 
-void WD2793::writeSectorData(EmuTime::param time)
+void WD2793::writeSectorData(EmuTime time)
 {
 	try {
 		// Write data byte
@@ -781,7 +781,7 @@ void WD2793::writeSectorData(EmuTime::param time)
 	}
 }
 
-void WD2793::postWriteSector(EmuTime::param time)
+void WD2793::postWriteSector(EmuTime time)
 {
 	try {
 		--dataAvailable;
@@ -817,7 +817,7 @@ void WD2793::postWriteSector(EmuTime::param time)
 }
 
 
-void WD2793::startType3Cmd(EmuTime::param time)
+void WD2793::startType3Cmd(EmuTime time)
 {
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
@@ -842,7 +842,7 @@ void WD2793::startType3Cmd(EmuTime::param time)
 	}
 }
 
-void WD2793::type3Loaded(EmuTime::param time)
+void WD2793::type3Loaded(EmuTime time)
 {
 	// TODO TG43 update
 	if (((commandReg & 0xF0) == 0xF0) && (drive.isWriteProtected())) {
@@ -888,7 +888,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 	schedule(FSM::TYPE3_ROTATED, next);
 }
 
-void WD2793::type3Rotated(EmuTime::param time)
+void WD2793::type3Rotated(EmuTime time)
 {
 	switch (commandReg & 0xF0) {
 	case 0xC0: // read Address
@@ -903,13 +903,13 @@ void WD2793::type3Rotated(EmuTime::param time)
 	}
 }
 
-void WD2793::readAddressCmd(EmuTime::param time)
+void WD2793::readAddressCmd(EmuTime time)
 {
 	drqTime.reset(time);
 	drqTime += 1; // (first) byte can be read in a moment
 }
 
-void WD2793::readTrackCmd(EmuTime::param time)
+void WD2793::readTrackCmd(EmuTime time)
 {
 	try {
 		unsigned trackLength = drive.getTrackLength();
@@ -930,7 +930,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 	}
 }
 
-void WD2793::startWriteTrack(EmuTime::param time)
+void WD2793::startWriteTrack(EmuTime time)
 {
 	// By now the CPU should already have written the first byte, otherwise
 	// the write track command doesn't even start.
@@ -957,7 +957,7 @@ void WD2793::startWriteTrack(EmuTime::param time)
 	}
 }
 
-void WD2793::writeTrackData(EmuTime::param time)
+void WD2793::writeTrackData(EmuTime time)
 {
 	try {
 		bool prevA1 = lastWasA1;
@@ -1032,7 +1032,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 	}
 }
 
-void WD2793::startType4Cmd(EmuTime::param time)
+void WD2793::startType4Cmd(EmuTime time)
 {
 	// Force interrupt
 	uint8_t flags = commandReg & 0x0F;
@@ -1059,7 +1059,7 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	statusReg &= ~BUSY; // reset status on Busy
 }
 
-void WD2793::endCmd(EmuTime::param time)
+void WD2793::endCmd(EmuTime time)
 {
 	if ((hldTime <= time) && (time < (hldTime + IDLE))) {
 		// HLD was active, start timeout period

@@ -122,7 +122,7 @@ void CassettePlayer::getMediaInfo(TclObject& result)
 	                        "motorcontrol", motorControl);
 }
 
-void CassettePlayer::setMedia(const TclObject& info, EmuTime::param time)
+void CassettePlayer::setMedia(const TclObject& info, EmuTime time)
 {
 	// This restores the tape. It does not restore the position in the tape
 	// or the state of the cassetteplayer.
@@ -234,7 +234,7 @@ bool CassettePlayer::isRolling() const
 	return (getState() != State::STOP) && (motor || !motorControl);
 }
 
-double CassettePlayer::getTapePos(EmuTime::param time)
+double CassettePlayer::getTapePos(EmuTime time)
 {
 	sync(time);
 	if (getState() == State::RECORD) {
@@ -245,7 +245,7 @@ double CassettePlayer::getTapePos(EmuTime::param time)
 	}
 }
 
-void CassettePlayer::setTapePos(EmuTime::param time, double newPos)
+void CassettePlayer::setTapePos(EmuTime time, double newPos)
 {
 	assert(getState() != State::RECORD);
 	sync(time);
@@ -254,7 +254,7 @@ void CassettePlayer::setTapePos(EmuTime::param time, double newPos)
 	wind(time);
 }
 
-double CassettePlayer::getTapeLength(EmuTime::param time)
+double CassettePlayer::getTapeLength(EmuTime time)
 {
 	if (playImage) {
 		return (playImage->getEndTime() - EmuTime::zero()).toDouble();
@@ -293,7 +293,7 @@ void CassettePlayer::checkInvariants() const
 }
 
 void CassettePlayer::setState(State newState, const Filename& newImage,
-                              EmuTime::param time)
+                              EmuTime time)
 {
 	sync(time);
 
@@ -338,7 +338,7 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 	checkInvariants();
 }
 
-void CassettePlayer::updateLoadingState(EmuTime::param time)
+void CassettePlayer::updateLoadingState(EmuTime time)
 {
 	assert(prevSyncTime == time); // sync() must be called
 	// TODO also set loadingIndicator for RECORD?
@@ -358,7 +358,7 @@ void CassettePlayer::setImageName(const Filename& newImage)
 		CliComm::UpdateType::MEDIA, "cassetteplayer", casImage.getResolved());
 }
 
-void CassettePlayer::insertTape(const Filename& filename, EmuTime::param time)
+void CassettePlayer::insertTape(const Filename& filename, EmuTime time)
 {
 	if (!filename.empty()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
@@ -422,7 +422,7 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime::param time)
 	setImageName(filename);
 }
 
-void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
+void CassettePlayer::playTape(const Filename& filename, EmuTime time)
 {
 	// Temporally go to STOP state:
 	// RECORD: First close the recorded image. Otherwise it goes wrong
@@ -434,7 +434,7 @@ void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 	rewind(time); // sets PLAY mode
 }
 
-void CassettePlayer::rewind(EmuTime::param time)
+void CassettePlayer::rewind(EmuTime time)
 {
 	sync(time); // before tapePos changes
 	assert(getState() != State::RECORD);
@@ -444,7 +444,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 	autoRun();
 }
 
-void CassettePlayer::wind(EmuTime::param time)
+void CassettePlayer::wind(EmuTime time)
 {
 	if (getImageName().empty()) {
 		// no image inserted, do nothing
@@ -456,7 +456,7 @@ void CassettePlayer::wind(EmuTime::param time)
 	updateLoadingState(time);
 }
 
-void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
+void CassettePlayer::recordTape(const Filename& filename, EmuTime time)
 {
 	removeTape(time); // flush (possible) previous recording
 	recordImage = std::make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
@@ -464,7 +464,7 @@ void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 	setState(State::RECORD, filename, time);
 }
 
-void CassettePlayer::removeTape(EmuTime::param time)
+void CassettePlayer::removeTape(EmuTime time)
 {
 	// first stop with tape still inserted
 	setState(State::STOP, getImageName(), time);
@@ -474,7 +474,7 @@ void CassettePlayer::removeTape(EmuTime::param time)
 	setImageName({});
 }
 
-void CassettePlayer::setMotor(bool status, EmuTime::param time)
+void CassettePlayer::setMotor(bool status, EmuTime time)
 {
 	if (status != motor) {
 		sync(time);
@@ -483,7 +483,7 @@ void CassettePlayer::setMotor(bool status, EmuTime::param time)
 	}
 }
 
-void CassettePlayer::setMotorControl(bool status, EmuTime::param time)
+void CassettePlayer::setMotorControl(bool status, EmuTime time)
 {
 	if (status != motorControl) {
 		sync(time);
@@ -492,7 +492,7 @@ void CassettePlayer::setMotorControl(bool status, EmuTime::param time)
 	}
 }
 
-int16_t CassettePlayer::readSample(EmuTime::param time)
+int16_t CassettePlayer::readSample(EmuTime time)
 {
 	if (getState() == State::PLAY) {
 		// playing
@@ -504,13 +504,13 @@ int16_t CassettePlayer::readSample(EmuTime::param time)
 	}
 }
 
-void CassettePlayer::setSignal(bool output, EmuTime::param time)
+void CassettePlayer::setSignal(bool output, EmuTime time)
 {
 	sync(time);
 	lastOutput = output;
 }
 
-void CassettePlayer::sync(EmuTime::param time)
+void CassettePlayer::sync(EmuTime time)
 {
 	EmuDuration duration = time - prevSyncTime;
 	prevSyncTime = time;
@@ -520,7 +520,7 @@ void CassettePlayer::sync(EmuTime::param time)
 }
 
 void CassettePlayer::updateTapePosition(
-	EmuDuration duration, EmuTime::param time)
+	EmuDuration duration, EmuTime time)
 {
 	if (!isRolling() || (getState() != State::PLAY)) return;
 
@@ -612,13 +612,13 @@ std::string_view CassettePlayer::getDescription() const
 	return DESCRIPTION;
 }
 
-void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)
+void CassettePlayer::plugHelper(Connector& conn, EmuTime time)
 {
 	sync(time);
 	lastOutput = checked_cast<CassettePort&>(conn).lastOut();
 }
 
-void CassettePlayer::unplugHelper(EmuTime::param time)
+void CassettePlayer::unplugHelper(EmuTime time)
 {
 	// note: may not throw exceptions
 	setState(State::STOP, getImageName(), time); // keep current image
@@ -643,7 +643,7 @@ float CassettePlayer::getAmplificationFactorImpl() const
 	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
 }
 
-void CassettePlayer::execEndOfTape(EmuTime::param time)
+void CassettePlayer::execEndOfTape(EmuTime time)
 {
 	// tape ended
 	sync(time);
@@ -656,7 +656,7 @@ void CassettePlayer::execEndOfTape(EmuTime::param time)
 	setState(State::STOP, getImageName(), time); // keep current image
 }
 
-void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
+void CassettePlayer::execSyncAudioEmu(EmuTime time)
 {
 	if (getState() == State::PLAY) {
 		updateStream(time);

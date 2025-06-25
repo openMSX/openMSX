@@ -74,12 +74,12 @@ void ProgrammableDevice::update(const Setting& setting) noexcept
 	}
 }
 
-void ProgrammableDevice::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
+void ProgrammableDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
 	outCallback.execute(port & 0xff, value);
 }
 
-byte ProgrammableDevice::readIO(uint16_t port, EmuTime::param /*time*/)
+byte ProgrammableDevice::readIO(uint16_t port, EmuTime /*time*/)
 {
 	try {
 		auto obj = inCallback.execute(port & 0xff);
@@ -97,7 +97,7 @@ byte ProgrammableDevice::readIO(uint16_t port, EmuTime::param /*time*/)
 	}
 }
 
-void ProgrammableDevice::reset(EmuTime::param /*time*/)
+void ProgrammableDevice::reset(EmuTime /*time*/)
 {
 	resetCallback.execute();
 }

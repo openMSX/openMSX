@@ -20,9 +20,9 @@ public:
 	// AudioInputDevice
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
-	[[nodiscard]] int16_t readSample(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
+	[[nodiscard]] int16_t readSample(EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

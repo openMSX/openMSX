@@ -78,13 +78,13 @@ ReproCartridgeV2::~ReproCartridgeV2()
 	}
 }
 
-void ReproCartridgeV2::powerUp(EmuTime::param time)
+void ReproCartridgeV2::powerUp(EmuTime time)
 {
 	scc.powerUp(time);
 	reset(time);
 }
 
-void ReproCartridgeV2::reset(EmuTime::param time)
+void ReproCartridgeV2::reset(EmuTime time)
 {
 	flashRomWriteEnabled = false;
 	mainBankReg = 0;
@@ -135,7 +135,7 @@ bool ReproCartridgeV2::isSCCAccess(uint16_t addr) const
 	}
 }
 
-byte ReproCartridgeV2::readMem(uint16_t addr, EmuTime::param time)
+byte ReproCartridgeV2::readMem(uint16_t addr, EmuTime time)
 {
 	if (isSCCAccess(addr)) {
 		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -147,7 +147,7 @@ byte ReproCartridgeV2::readMem(uint16_t addr, EmuTime::param time)
 		: 0xFF; // unmapped read
 }
 
-byte ReproCartridgeV2::peekMem(uint16_t addr, EmuTime::param time) const
+byte ReproCartridgeV2::peekMem(uint16_t addr, EmuTime time) const
 {
 	if (isSCCAccess(addr)) {
 		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -169,7 +169,7 @@ const byte* ReproCartridgeV2::getReadCacheLine(uint16_t addr) const
 		: unmappedRead.data();
 }
 
-void ReproCartridgeV2::writeMem(uint16_t addr, byte value, EmuTime::param time)
+void ReproCartridgeV2::writeMem(uint16_t addr, byte value, EmuTime time)
 {
 	unsigned page8kB = (addr >> 13) - 2;
 	if (page8kB >= 4) return; // outside [0x4000, 0xBFFF]
@@ -277,7 +277,7 @@ byte* ReproCartridgeV2::getWriteCacheLine(uint16_t addr)
 	       : unmappedWrite.data();
 }
 
-void ReproCartridgeV2::writeIO(uint16_t port, byte value, EmuTime::param time)
+void ReproCartridgeV2::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0xFF)
 	{
@@ -304,7 +304,7 @@ void ReproCartridgeV2::writeIO(uint16_t port, byte value, EmuTime::param time)
 	}
 }
 
-void ReproCartridgeV2::setVolume(EmuTime::param time, byte value)
+void ReproCartridgeV2::setVolume(EmuTime time, byte value)
 {
 	// store (mostly for the save/loadstate feature)
 	volumeReg = value;

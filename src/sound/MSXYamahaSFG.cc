@@ -21,7 +21,7 @@ MSXYamahaSFG::MSXYamahaSFG(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void MSXYamahaSFG::reset(EmuTime::param time)
+void MSXYamahaSFG::reset(EmuTime time)
 {
 	ym2151.reset(time);
 	ym2148.reset();
@@ -30,7 +30,7 @@ void MSXYamahaSFG::reset(EmuTime::param time)
 	irqVector2148 = 255; // TODO check
 }
 
-void MSXYamahaSFG::writeMem(uint16_t address, byte value, EmuTime::param time)
+void MSXYamahaSFG::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	uint16_t maskedAddress = address & 0x3FFF;
 	switch (maskedAddress) {
@@ -73,17 +73,17 @@ byte MSXYamahaSFG::readIRQVector()
 	return ym2148.pendingIRQ() ? irqVector2148 : irqVector;
 }
 
-void MSXYamahaSFG::writeRegisterPort(byte value, EmuTime::param /*time*/)
+void MSXYamahaSFG::writeRegisterPort(byte value, EmuTime /*time*/)
 {
 	registerLatch = value;
 }
 
-void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
+void MSXYamahaSFG::writeDataPort(byte value, EmuTime time)
 {
 	ym2151.writeReg(registerLatch, value, time);
 }
 
-byte MSXYamahaSFG::readMem(uint16_t address, EmuTime::param time)
+byte MSXYamahaSFG::readMem(uint16_t address, EmuTime time)
 {
 	uint16_t maskedAddress = address & 0x3FFF;
 	if (maskedAddress < 0x3FF0 || maskedAddress >= 0x3FF8) {
@@ -102,7 +102,7 @@ byte MSXYamahaSFG::readMem(uint16_t address, EmuTime::param time)
 	return 0xFF;
 }
 
-byte MSXYamahaSFG::peekMem(uint16_t address, EmuTime::param time) const
+byte MSXYamahaSFG::peekMem(uint16_t address, EmuTime time) const
 {
 	uint16_t maskedAddress = address & 0x3FFF;
 	if (maskedAddress < 0x3FF0 || maskedAddress >= 0x3FF8) {

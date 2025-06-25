@@ -38,24 +38,24 @@ public:
 
 	/** Create a new clock, which starts ticking at the given time.
 	  */
-	constexpr explicit Clock(EmuTime::param e)
+	constexpr explicit Clock(EmuTime e)
 		: lastTick(e) { }
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
-	[[nodiscard]] constexpr EmuTime::param getTime() const { return lastTick; }
+	[[nodiscard]] constexpr EmuTime getTime() const { return lastTick; }
 
 	/** Checks whether this clock's last tick is or is not before the
 	  * given time stamp.
 	  */
-	[[nodiscard]] constexpr bool before(EmuTime::param e) const {
+	[[nodiscard]] constexpr bool before(EmuTime e) const {
 		return lastTick.time < e.time;
 	}
 
 	/** Calculate the number of ticks for this clock until the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	[[nodiscard]] constexpr unsigned getTicksTill(EmuTime::param e) const {
+	[[nodiscard]] constexpr unsigned getTicksTill(EmuTime e) const {
 		assert(e.time >= lastTick.time);
 		uint64_t result = (e.time - lastTick.time) / MASTER_TICKS;
 #ifdef DEBUG
@@ -67,7 +67,7 @@ public:
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.
 	  */
-	[[nodiscard]] constexpr unsigned getTicksTill_fast(EmuTime::param e) const {
+	[[nodiscard]] constexpr unsigned getTicksTill_fast(EmuTime e) const {
 		assert(e.time >= lastTick.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
@@ -76,7 +76,7 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	[[nodiscard]] constexpr uint64_t getTicksTillUp(EmuTime::param e) const {
+	[[nodiscard]] constexpr uint64_t getTicksTillUp(EmuTime e) const {
 		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time + MASTER_TICKS - 1) / MASTER_TICKS;
 	}
@@ -100,7 +100,7 @@ public:
 
 	/** Reset the clock to start ticking at the given time.
 	  */
-	constexpr void reset(EmuTime::param e) {
+	constexpr void reset(EmuTime e) {
 		lastTick.time = e.time;
 	}
 
@@ -108,14 +108,14 @@ public:
 	  * the given time.
 	  * It is not allowed to advance a clock to a time in the past.
 	  */
-	constexpr void advance(EmuTime::param e) {
+	constexpr void advance(EmuTime e) {
 		assert(lastTick.time <= e.time);
 		lastTick.time = e.time - ((e.time - lastTick.time) % MASTER_TICKS);
 	}
 	/** Same as above, only faster, Though the time interval may not
 	  * be too large.
 	  */
-	constexpr void advance_fast(EmuTime::param e) {
+	constexpr void advance_fast(EmuTime e) {
 		assert(lastTick.time <= e.time);
 		DivModByConst<MASTER_TICKS32> dm;
 		lastTick.time = e.time - dm.mod(e.time - lastTick.time);

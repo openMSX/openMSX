@@ -18,7 +18,7 @@ RomHarryFox::RomHarryFox(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomHarryFox::reset(EmuTime::param /*time*/)
+void RomHarryFox::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -26,7 +26,7 @@ void RomHarryFox::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomHarryFox::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomHarryFox::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if        ((0x6000 <= address) && (address < 0x7000)) {
 		setRom(1, 2 * (value & 1) + 0);

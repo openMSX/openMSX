@@ -39,32 +39,32 @@ void RS232Device::setParityBit(bool /*enable*/, Parity /*parity*/)
 // effective value.
 
 
-std::optional<bool> RS232Device::getCTS(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getCTS(EmuTime /*time*/) const
 {
 	return {};
 }
 
-std::optional<bool> RS232Device::getDSR(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getDSR(EmuTime /*time*/) const
 {
 	return {};
 }
 
-std::optional<bool> RS232Device::getDCD(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getDCD(EmuTime /*time*/) const
 {
 	return {};
 }
 
-std::optional<bool> RS232Device::getRI(EmuTime::param /*time*/) const
+std::optional<bool> RS232Device::getRI(EmuTime /*time*/) const
 {
 	return {};
 }
 
-void RS232Device::setDTR(bool /*status*/, EmuTime::param /*time*/)
+void RS232Device::setDTR(bool /*status*/, EmuTime /*time*/)
 {
 	// ignore
 }
 
-void RS232Device::setRTS(bool /*status*/, EmuTime::param /*time*/)
+void RS232Device::setRTS(bool /*status*/, EmuTime /*time*/)
 {
 	// ignore
 }

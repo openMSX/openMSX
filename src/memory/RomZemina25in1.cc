@@ -27,12 +27,12 @@ RomZemina25in1::RomZemina25in1(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomZemina25in1::reset(EmuTime::param time)
+void RomZemina25in1::reset(EmuTime time)
 {
 	writeMem(0, 0x3F, time);
 }
 
-void RomZemina25in1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomZemina25in1::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0x0000) {
 		setRom(0, 0x3F);

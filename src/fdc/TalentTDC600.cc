@@ -14,12 +14,12 @@ TalentTDC600::TalentTDC600(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void TalentTDC600::reset(EmuTime::param time)
+void TalentTDC600::reset(EmuTime time)
 {
 	controller.reset(time);
 }
 
-byte TalentTDC600::readMem(uint16_t address, EmuTime::param time)
+byte TalentTDC600::readMem(uint16_t address, EmuTime time)
 {
 	if (0x4000 <= address && address < 0x8000) {
 		return MSXFDC::readMem(address, time);
@@ -35,7 +35,7 @@ byte TalentTDC600::readMem(uint16_t address, EmuTime::param time)
 	return 0xff;
 }
 
-byte TalentTDC600::peekMem(uint16_t address, EmuTime::param time) const
+byte TalentTDC600::peekMem(uint16_t address, EmuTime time) const
 {
 	if (0x4000 <= address && address < 0x8000) {
 		return MSXFDC::peekMem(address, time);
@@ -63,7 +63,7 @@ const byte* TalentTDC600::getReadCacheLine(uint16_t start) const
 	return unmappedRead.data();
 }
 
-void TalentTDC600::writeMem(uint16_t address, byte value, EmuTime::param time)
+void TalentTDC600::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	address &= 0x7fff;
 	if (address < 0x1000) {

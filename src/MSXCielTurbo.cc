@@ -11,23 +11,23 @@ MSXCielTurbo::MSXCielTurbo(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXCielTurbo::reset(EmuTime::param time)
+void MSXCielTurbo::reset(EmuTime time)
 {
 	uint16_t port = 0; // dummy
 	writeIO(port, 0, time);
 }
 
-byte MSXCielTurbo::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
+byte MSXCielTurbo::readIO(uint16_t /*port*/, EmuTime /*time*/)
 {
 	return lastValue;
 }
 
-byte MSXCielTurbo::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte MSXCielTurbo::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	return lastValue;
 }
 
-void MSXCielTurbo::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void MSXCielTurbo::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	lastValue = value;
 	bool enabled = (value & 0x80) != 0;

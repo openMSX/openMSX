@@ -63,7 +63,7 @@ MSXMegaRam::MSXMegaRam(DeviceConfig& config)
 
 MSXMegaRam::~MSXMegaRam() = default;
 
-void MSXMegaRam::powerUp(EmuTime::param time)
+void MSXMegaRam::powerUp(EmuTime time)
 {
 	for (auto i : xrange(byte(4))) {
 		setBank(i, 0);
@@ -73,13 +73,13 @@ void MSXMegaRam::powerUp(EmuTime::param time)
 	reset(time);
 }
 
-void MSXMegaRam::reset(EmuTime::param /*time*/)
+void MSXMegaRam::reset(EmuTime /*time*/)
 {
 	// selected banks nor writeMode does change after reset
 	romMode = rom != nullptr; // select rom mode if there is a rom
 }
 
-byte MSXMegaRam::readMem(uint16_t address, EmuTime::param /*time*/)
+byte MSXMegaRam::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return *MSXMegaRam::getReadCacheLine(address);
 }
@@ -98,7 +98,7 @@ const byte* MSXMegaRam::getReadCacheLine(uint16_t address) const
 	     : unmappedRead.data();
 }
 
-void MSXMegaRam::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void MSXMegaRam::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (byte* tmp = getWriteCacheLine(address)) {
 		*tmp = value;
@@ -121,7 +121,7 @@ byte* MSXMegaRam::getWriteCacheLine(uint16_t address)
 	}
 }
 
-byte MSXMegaRam::readIO(uint16_t port, EmuTime::param /*time*/)
+byte MSXMegaRam::readIO(uint16_t port, EmuTime /*time*/)
 {
 	switch (port & 1) {
 		case 0:
@@ -137,12 +137,12 @@ byte MSXMegaRam::readIO(uint16_t port, EmuTime::param /*time*/)
 	return 0xFF; // return value doesn't matter
 }
 
-byte MSXMegaRam::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte MSXMegaRam::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	return 0xFF;
 }
 
-void MSXMegaRam::writeIO(uint16_t port, byte /*value*/, EmuTime::param /*time*/)
+void MSXMegaRam::writeIO(uint16_t port, byte /*value*/, EmuTime /*time*/)
 {
 	switch (port & 1) {
 		case 0:

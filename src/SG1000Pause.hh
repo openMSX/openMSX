@@ -24,10 +24,10 @@ public:
 private:
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
-	                    EmuTime::param time) noexcept override;
+	                    EmuTime time) noexcept override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 };
 
 } // namespace openmsx

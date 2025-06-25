@@ -15,23 +15,23 @@ class YMF278B
 {
 public:
 	YMF278B(const std::string& name, size_t ramSize, DeviceConfig& config,
-	        YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime::param time);
+	        YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime time);
 
-	void powerUp(EmuTime::param time);
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time);
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time);
+	void powerUp(EmuTime time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time);
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time);
 	void setupMemoryPointers();
 
-	void serialize_bw_compat(XmlInputArchive& ar, unsigned version, EmuTime::param time);
+	void serialize_bw_compat(XmlInputArchive& ar, unsigned version, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	[[nodiscard]] bool getNew2() const;
-	[[nodiscard]] uint8_t readYMF278Status(EmuTime::param time) const;
+	[[nodiscard]] uint8_t readYMF278Status(EmuTime time) const;
 
 private:
 	YMF262 ymf262;

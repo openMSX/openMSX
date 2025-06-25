@@ -91,14 +91,14 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	powerUp(getCurrentTime());
 }
 
-void MSXSCCPlusCart::powerUp(EmuTime::param time)
+void MSXSCCPlusCart::powerUp(EmuTime time)
 {
 	scc.powerUp(time);
 	ram.clear();
 	reset(time);
 }
 
-void MSXSCCPlusCart::reset(EmuTime::param time)
+void MSXSCCPlusCart::reset(EmuTime time)
 {
 	setModeRegister(0);
 	setMapper(0, 0);
@@ -109,7 +109,7 @@ void MSXSCCPlusCart::reset(EmuTime::param time)
 }
 
 
-byte MSXSCCPlusCart::readMem(uint16_t addr, EmuTime::param time)
+byte MSXSCCPlusCart::readMem(uint16_t addr, EmuTime time)
 {
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
@@ -119,7 +119,7 @@ byte MSXSCCPlusCart::readMem(uint16_t addr, EmuTime::param time)
 	}
 }
 
-byte MSXSCCPlusCart::peekMem(uint16_t addr, EmuTime::param time) const
+byte MSXSCCPlusCart::peekMem(uint16_t addr, EmuTime time) const
 {
 	// modeRegister can not be read!
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
@@ -153,7 +153,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(uint16_t start) const
 }
 
 
-void MSXSCCPlusCart::writeMem(uint16_t address, byte value, EmuTime::param time)
+void MSXSCCPlusCart::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	if ((address < 0x4000) || (0xC000 <= address)) {
 		// outside memory range

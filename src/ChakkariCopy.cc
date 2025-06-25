@@ -107,12 +107,12 @@ ChakkariCopy::~ChakkariCopy()
 	modeSetting.detach(*this);
 }
 
-void ChakkariCopy::reset(EmuTime::param time)
+void ChakkariCopy::reset(EmuTime time)
 {
 	writeIO(0, 0xFF, time);
 }
 
-void ChakkariCopy::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void ChakkariCopy::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	byte diff = reg ^ value;
 	reg = value;
@@ -133,12 +133,12 @@ void ChakkariCopy::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*
 	}
 }
 
-byte ChakkariCopy::readIO(uint16_t port, EmuTime::param time)
+byte ChakkariCopy::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte ChakkariCopy::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte ChakkariCopy::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	byte retVal = 0xFF;
 	if (copyButtonPressedSetting .getBoolean()) retVal &= ~0x01;
@@ -146,12 +146,12 @@ byte ChakkariCopy::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
 	return retVal;
 }
 
-byte ChakkariCopy::readMem(uint16_t address, EmuTime::param time)
+byte ChakkariCopy::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-byte ChakkariCopy::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte ChakkariCopy::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	return *getReadCacheLine(address);
 }
@@ -180,7 +180,7 @@ const byte* ChakkariCopy::getReadCacheLine(uint16_t address) const
 	return unmappedRead.data();
 }
 
-void ChakkariCopy::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void ChakkariCopy::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	*getWriteCacheLine(address) = value;
 }

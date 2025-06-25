@@ -25,7 +25,7 @@ public:
 	  * the VDP, such as PAL/NTSC timing.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	virtual void frameStart(EmuTime::param time) = 0;
+	virtual void frameStart(EmuTime time) = 0;
 
 	/** Signals the end of a frame.
 	  */

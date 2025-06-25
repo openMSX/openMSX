@@ -10,7 +10,7 @@ RomSuperSwangi::RomSuperSwangi(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomSuperSwangi::reset(EmuTime::param /*time*/)
+void RomSuperSwangi::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -18,7 +18,7 @@ void RomSuperSwangi::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomSuperSwangi::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomSuperSwangi::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0x8000) {
 		setRom(2, value >> 1);

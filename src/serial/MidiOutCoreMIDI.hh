@@ -21,7 +21,7 @@ protected:
 
 private:
 	void recvMessage(
-			const std::vector<uint8_t>& message, EmuTime::param time) override;
+			const std::vector<uint8_t>& message, EmuTime time) override;
 };
 
 /** Sends MIDI events to an existing CoreMIDI destination.
@@ -37,8 +37,8 @@ public:
 	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
@@ -67,8 +67,8 @@ public:
 	explicit MidiOutCoreMIDIVirtual();
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 

@@ -34,7 +34,7 @@ public:
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
 	void execute(std::span<const TclObject> tokens,
-	             TclObject& result, EmuTime::param time) override;
+	             TclObject& result, EmuTime time) override;
 	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
@@ -55,7 +55,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
-	void setMedia(const TclObject& info, EmuTime::param time) override;
+	void setMedia(const TclObject& info, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

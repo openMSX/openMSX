@@ -26,7 +26,7 @@ RomAscii16X::RomAscii16X(DeviceConfig& config, Rom&& rom_)
 {
 }
 
-void RomAscii16X::reset(EmuTime::param /* time */)
+void RomAscii16X::reset(EmuTime /* time */)
 {
 	ranges::iota(bankRegs, uint16_t(0));
 
@@ -41,12 +41,12 @@ unsigned RomAscii16X::getFlashAddr(uint16_t addr) const
 	return (bank << 14) | (addr & 0x3FFF);
 }
 
-byte RomAscii16X::readMem(uint16_t addr, EmuTime::param time)
+byte RomAscii16X::readMem(uint16_t addr, EmuTime time)
 {
 	return flash.read(getFlashAddr(addr), time);
 }
 
-byte RomAscii16X::peekMem(uint16_t addr, EmuTime::param time) const
+byte RomAscii16X::peekMem(uint16_t addr, EmuTime time) const
 {
 	return flash.peek(getFlashAddr(addr), time);
 }
@@ -56,7 +56,7 @@ const byte* RomAscii16X::getReadCacheLine(uint16_t addr) const
 	return flash.getReadCacheLine(getFlashAddr(addr));
 }
 
-void RomAscii16X::writeMem(uint16_t addr, byte value, EmuTime::param time)
+void RomAscii16X::writeMem(uint16_t addr, byte value, EmuTime time)
 {
 	flash.write(getFlashAddr(addr), value, time);
 

@@ -20,7 +20,7 @@ BeerIDE::BeerIDE(DeviceConfig& config)
 
 BeerIDE::~BeerIDE() = default;
 
-void BeerIDE::reset(EmuTime::param time)
+void BeerIDE::reset(EmuTime time)
 {
 	controlReg = 0;
 	dataReg = 0;
@@ -28,7 +28,7 @@ void BeerIDE::reset(EmuTime::param time)
 	i8255.reset(time);
 }
 
-uint8_t BeerIDE::readMem(uint16_t address, EmuTime::param /*time*/)
+uint8_t BeerIDE::readMem(uint16_t address, EmuTime /*time*/)
 {
 	if (0x4000 <= address && address < 0x8000) {
 		return rom[address & 0x3FFF];
@@ -44,76 +44,76 @@ const uint8_t* BeerIDE::getReadCacheLine(uint16_t start) const
 	return unmappedRead.data();
 }
 
-uint8_t BeerIDE::readIO(uint16_t port, EmuTime::param time)
+uint8_t BeerIDE::readIO(uint16_t port, EmuTime time)
 {
 	return i8255.read(port & 0x03, time);
 }
 
-uint8_t BeerIDE::peekIO(uint16_t port, EmuTime::param time) const
+uint8_t BeerIDE::peekIO(uint16_t port, EmuTime time) const
 {
 	return i8255.peek(port & 0x03, time);
 }
 
-void BeerIDE::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void BeerIDE::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	i8255.write(port & 0x03, value, time);
 }
 
 // I8255Interface
 
-uint8_t BeerIDE::readA(EmuTime::param time)
+uint8_t BeerIDE::readA(EmuTime time)
 {
 	return peekA(time);
 }
-uint8_t BeerIDE::peekA(EmuTime::param /*time*/) const
+uint8_t BeerIDE::peekA(EmuTime /*time*/) const
 {
 	return narrow_cast<uint8_t>(dataReg & 0xFF);
 }
-void BeerIDE::writeA(uint8_t value, EmuTime::param /*time*/)
+void BeerIDE::writeA(uint8_t value, EmuTime /*time*/)
 {
 	dataReg &= 0xFF00;
 	dataReg |= value;
 }
 
-uint8_t BeerIDE::readB(EmuTime::param time)
+uint8_t BeerIDE::readB(EmuTime time)
 {
 	return peekB(time);
 }
-uint8_t BeerIDE::peekB(EmuTime::param /*time*/) const
+uint8_t BeerIDE::peekB(EmuTime /*time*/) const
 {
 	return narrow_cast<uint8_t>(dataReg >> 8);
 }
-void BeerIDE::writeB(uint8_t value, EmuTime::param /*time*/)
+void BeerIDE::writeB(uint8_t value, EmuTime /*time*/)
 {
 	dataReg &= 0x00FF;
 	dataReg |= (value << 8);
 }
 
-uint4_t BeerIDE::readC1(EmuTime::param time)
+uint4_t BeerIDE::readC1(EmuTime time)
 {
 	return peekC1(time);
 }
-uint4_t BeerIDE::peekC1(EmuTime::param /*time*/) const
+uint4_t BeerIDE::peekC1(EmuTime /*time*/) const
 {
 	return 0; // TODO check this
 }
-uint4_t BeerIDE::readC0(EmuTime::param time)
+uint4_t BeerIDE::readC0(EmuTime time)
 {
 	return peekC0(time);
 }
-uint4_t BeerIDE::peekC0(EmuTime::param /*time*/) const
+uint4_t BeerIDE::peekC0(EmuTime /*time*/) const
 {
 	return 0; // TODO check this
 }
-void BeerIDE::writeC1(uint4_t value, EmuTime::param time)
+void BeerIDE::writeC1(uint4_t value, EmuTime time)
 {
 	changeControl(uint8_t((controlReg & 0x0F) | (value << 4)), time);
 }
-void BeerIDE::writeC0(uint4_t value, EmuTime::param time)
+void BeerIDE::writeC0(uint4_t value, EmuTime time)
 {
 	changeControl((controlReg & 0xF0) | value, time);
 }
-void BeerIDE::changeControl(uint8_t value, EmuTime::param time)
+void BeerIDE::changeControl(uint8_t value, EmuTime time)
 {
 	uint8_t diff = controlReg ^ value;
 	controlReg = value;

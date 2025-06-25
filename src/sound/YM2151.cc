@@ -649,7 +649,7 @@ void YM2151::refreshEG(std::span<YM2151Operator, 4> op)
 	op[3].eg_sel_rr  = eg_rate_select[op[3].rr  + v];
 }
 
-void YM2151::writeReg(uint8_t r, uint8_t v, EmuTime::param time)
+void YM2151::writeReg(uint8_t r, uint8_t v, EmuTime time)
 {
 	updateStream(time);
 
@@ -873,7 +873,7 @@ void YM2151::writeReg(uint8_t r, uint8_t v, EmuTime::param time)
 static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
 
 YM2151::YM2151(const std::string& name_, static_string_view desc,
-               const DeviceConfig& config, EmuTime::param time, Variant variant_)
+               const DeviceConfig& config, EmuTime time, Variant variant_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
@@ -925,7 +925,7 @@ bool YM2151::checkMuteHelper()
 	return std::ranges::all_of(oper, [](auto& op) { return op.state == EG_OFF; });
 }
 
-void YM2151::reset(EmuTime::param time)
+void YM2151::reset(EmuTime time)
 {
 	// initialize hardware registers
 	for (auto& op : oper) {
@@ -1636,7 +1636,7 @@ void YM2151::serialize(Archive& a, unsigned /*version*/)
 
 	if constexpr (Archive::IS_LOADER) {
 		// TODO restore more state from registers
-		EmuTime::param time = timer1->getCurrentTime();
+		EmuTime time = timer1->getCurrentTime();
 		for (auto r : xrange(uint8_t(0x20), uint8_t(0x28))) {
 			writeReg(r , regs[r], time);
 		}

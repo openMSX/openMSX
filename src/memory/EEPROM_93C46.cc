@@ -29,7 +29,7 @@ uint8_t EEPROM_93C46::read(unsigned addr) const
 	return sram[addr];
 }
 
-void EEPROM_93C46::write(unsigned addr, uint8_t value, EmuTime::param time)
+void EEPROM_93C46::write(unsigned addr, uint8_t value, EmuTime time)
 {
 	// The ST M93C46 datasheet documents that erase before write is not
 	// needed.
@@ -37,7 +37,7 @@ void EEPROM_93C46::write(unsigned addr, uint8_t value, EmuTime::param time)
 	completionTime = time + EmuDuration::usec(1750);
 }
 
-void EEPROM_93C46::writeAll(uint8_t value, EmuTime::param time)
+void EEPROM_93C46::writeAll(uint8_t value, EmuTime time)
 {
 	sram.memset(0, value, NUM_ADDRESSES);
 	//for (auto addr : xrange(NUM_ADDRESSES)) {
@@ -46,24 +46,24 @@ void EEPROM_93C46::writeAll(uint8_t value, EmuTime::param time)
 	completionTime = time + EmuDuration::usec(8000);
 }
 
-void EEPROM_93C46::erase(unsigned addr, EmuTime::param time)
+void EEPROM_93C46::erase(unsigned addr, EmuTime time)
 {
 	sram.write(addr, 255);
 	completionTime = time + EmuDuration::usec(1000);
 }
 
-void EEPROM_93C46::eraseAll(EmuTime::param time)
+void EEPROM_93C46::eraseAll(EmuTime time)
 {
 	sram.memset(0, 255, NUM_ADDRESSES);
 	completionTime = time + EmuDuration::usec(8000);
 }
 
-bool EEPROM_93C46::ready(EmuTime::param time) const
+bool EEPROM_93C46::ready(EmuTime time) const
 {
 	return time >= completionTime;
 }
 
-bool EEPROM_93C46::read_DO(EmuTime::param time) const
+bool EEPROM_93C46::read_DO(EmuTime time) const
 {
 	if (state == State::READING_DATA) {
 		return shiftRegister & (1 << (SHIFT_REG_BITS - 1));
@@ -74,7 +74,7 @@ bool EEPROM_93C46::read_DO(EmuTime::param time) const
 	}
 }
 
-void EEPROM_93C46::write_CS(bool value, EmuTime::param time)
+void EEPROM_93C46::write_CS(bool value, EmuTime time)
 {
 	if (pinCS == value) return;
 	pinCS = value;
@@ -89,7 +89,7 @@ void EEPROM_93C46::write_CS(bool value, EmuTime::param time)
 	}
 }
 
-void EEPROM_93C46::write_CLK(bool value, EmuTime::param time)
+void EEPROM_93C46::write_CLK(bool value, EmuTime time)
 {
 	if (pinCLK == value) return;
 	pinCLK = value;
@@ -99,12 +99,12 @@ void EEPROM_93C46::write_CLK(bool value, EmuTime::param time)
 	}
 }
 
-void EEPROM_93C46::write_DI(bool value, EmuTime::param /*time*/)
+void EEPROM_93C46::write_DI(bool value, EmuTime /*time*/)
 {
 	pinDI = value;
 }
 
-void EEPROM_93C46::clockEvent(EmuTime::param time)
+void EEPROM_93C46::clockEvent(EmuTime time)
 {
 	switch (state) {
 	using enum State;
@@ -168,7 +168,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 	}
 }
 
-void EEPROM_93C46::execute_command(EmuTime::param time)
+void EEPROM_93C46::execute_command(EmuTime time)
 {
 	bits = 0;
 	address = shiftRegister & ADDRESS_MASK;

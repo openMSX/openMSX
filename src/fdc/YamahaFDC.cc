@@ -51,13 +51,13 @@ YamahaFDC::YamahaFDC(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void YamahaFDC::reset(EmuTime::param time)
+void YamahaFDC::reset(EmuTime time)
 {
 	WD2793BasedFDC::reset(time);
 	writeMem(0x7FE0, 0x00, time);
 }
 
-byte YamahaFDC::readMem(uint16_t address, EmuTime::param time)
+byte YamahaFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
@@ -87,7 +87,7 @@ byte YamahaFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte YamahaFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte YamahaFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FC0:
@@ -132,7 +132,7 @@ const byte* YamahaFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void YamahaFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void YamahaFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address & 0x3fff) {
 	case 0x3FC0:

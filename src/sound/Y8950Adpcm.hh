@@ -20,13 +20,13 @@ public:
 	           const std::string& name, unsigned sampleRam);
 
 	void clearRam();
-	void reset(EmuTime::param time);
+	void reset(EmuTime time);
 	[[nodiscard]] bool isMuted() const;
-	void writeReg(uint8_t rg, uint8_t data, EmuTime::param time);
-	[[nodiscard]] uint8_t readReg(uint8_t rg, EmuTime::param time);
-	[[nodiscard]] uint8_t peekReg(uint8_t rg, EmuTime::param time) const;
+	void writeReg(uint8_t rg, uint8_t data, EmuTime time);
+	[[nodiscard]] uint8_t readReg(uint8_t rg, EmuTime time);
+	[[nodiscard]] uint8_t peekReg(uint8_t rg, EmuTime time) const;
 	[[nodiscard]] int calcSample();
-	void sync(EmuTime::param time);
+	void sync(EmuTime time);
 	void resetStatus();
 
 	template<typename Archive>
@@ -46,7 +46,7 @@ private:
 	};
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
 	void schedule();
 	void restart(PlayData& pd) const;

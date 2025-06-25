@@ -14,12 +14,12 @@ PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
 {
 }
 
-bool PrinterPortLogger::getStatus(EmuTime::param /*time*/)
+bool PrinterPortLogger::getStatus(EmuTime /*time*/)
 {
 	return false; // false = low = ready
 }
 
-void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
+void PrinterPortLogger::setStrobe(bool strobe, EmuTime /*time*/)
 {
 	if (file.is_open() && !strobe && prevStrobe) {
 		// falling edge
@@ -30,13 +30,13 @@ void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
 	prevStrobe = strobe;
 }
 
-void PrinterPortLogger::writeData(uint8_t data, EmuTime::param /*time*/)
+void PrinterPortLogger::writeData(uint8_t data, EmuTime /*time*/)
 {
 	toPrint = data;
 }
 
 void PrinterPortLogger::plugHelper(
-		Connector& /*connector*/, EmuTime::param /*time*/)
+		Connector& /*connector*/, EmuTime /*time*/)
 {
 	try {
 		file = File(userFileContext().resolve(logFilenameSetting.getString()),
@@ -47,7 +47,7 @@ void PrinterPortLogger::plugHelper(
 	}
 }
 
-void PrinterPortLogger::unplugHelper(EmuTime::param /*time*/)
+void PrinterPortLogger::unplugHelper(EmuTime /*time*/)
 {
 	file.close();
 }

@@ -31,7 +31,7 @@ SVIFDC::SVIFDC(DeviceConfig& config)
 {
 }
 
-byte SVIFDC::readIO(uint16_t port, EmuTime::param time)
+byte SVIFDC::readIO(uint16_t port, EmuTime time)
 {
 	switch (port & 0x07) {
 	case 0:
@@ -49,7 +49,7 @@ byte SVIFDC::readIO(uint16_t port, EmuTime::param time)
 	return 255;
 }
 
-byte SVIFDC::peekIO(uint16_t port, EmuTime::param time) const
+byte SVIFDC::peekIO(uint16_t port, EmuTime time) const
 {
 	switch (port & 0x07) {
 	case 0:
@@ -67,7 +67,7 @@ byte SVIFDC::peekIO(uint16_t port, EmuTime::param time) const
 	return 255;
 }
 
-void SVIFDC::writeIO(uint16_t port, byte value, EmuTime::param time)
+void SVIFDC::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0x0F) {
 	case 0:

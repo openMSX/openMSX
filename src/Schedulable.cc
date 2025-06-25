@@ -20,7 +20,7 @@ void Schedulable::schedulerDeleted()
 	          << "\" failed to unregister.\n";
 }
 
-void Schedulable::setSyncPoint(EmuTime::param timestamp)
+void Schedulable::setSyncPoint(EmuTime timestamp)
 {
 	scheduler.setSyncPoint(timestamp, *this);
 }
@@ -46,7 +46,7 @@ bool Schedulable::pendingSyncPoint(EmuTime& result) const
 	return scheduler.pendingSyncPoint(*this, result);
 }
 
-EmuTime::param Schedulable::getCurrentTime() const
+EmuTime Schedulable::getCurrentTime() const
 {
 	return scheduler.getCurrentTime();
 }

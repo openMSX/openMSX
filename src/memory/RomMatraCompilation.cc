@@ -21,7 +21,7 @@ RomMatraCompilation::RomMatraCompilation(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMatraCompilation::reset(EmuTime::param /*time*/)
+void RomMatraCompilation::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -34,7 +34,7 @@ void RomMatraCompilation::reset(EmuTime::param /*time*/)
 	blockOffset = 2;
 }
 
-void RomMatraCompilation::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomMatraCompilation::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0xBA00) {
 		// write of block offset

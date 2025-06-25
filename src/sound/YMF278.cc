@@ -488,7 +488,7 @@ static constexpr int vol_factor(int x, unsigned envVol)
 	return (x * ((0x8000 * vol_mul) >> vol_shift)) >> 15;
 }
 
-void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
+void YMF278::setMixLevel(uint8_t x, EmuTime time)
 {
 	static constexpr std::array<float, 8> level = {
 		(1.00f / 1), //   0dB
@@ -578,13 +578,13 @@ void YMF278::keyOnHelper(YMF278::Slot& slot) const
 	slot.pos = 0;
 }
 
-void YMF278::writeReg(uint8_t reg, uint8_t data, EmuTime::param time)
+void YMF278::writeReg(uint8_t reg, uint8_t data, EmuTime time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	writeRegDirect(reg, data, time);
 }
 
-void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time)
+void YMF278::writeRegDirect(uint8_t reg, uint8_t data, EmuTime time)
 {
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
@@ -826,7 +826,7 @@ void YMF278::clearRam()
 	ram.clear(0);
 }
 
-void YMF278::reset(EmuTime::param time)
+void YMF278::reset(EmuTime time)
 {
 	updateStream(time);
 
@@ -1048,7 +1048,7 @@ uint8_t YMF278::DebugRegisters::read(unsigned address)
 	return ymf278.peekReg(narrow<uint8_t>(address));
 }
 
-void YMF278::DebugRegisters::write(unsigned address, uint8_t value, EmuTime::param time)
+void YMF278::DebugRegisters::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& ymf278 = OUTER(YMF278, debugRegisters);
 	ymf278.writeReg(narrow<uint8_t>(address), value, time);

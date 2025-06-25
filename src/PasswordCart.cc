@@ -21,24 +21,24 @@ PasswordCart::PasswordCart(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void PasswordCart::reset(EmuTime::param /*time*/)
+void PasswordCart::reset(EmuTime /*time*/)
 {
 	pointer = 3;
 }
 
-void PasswordCart::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void PasswordCart::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	pointer = (value == 0) ? 0 : 3;
 }
 
-byte PasswordCart::readIO(uint16_t port, EmuTime::param time)
+byte PasswordCart::readIO(uint16_t port, EmuTime time)
 {
 	byte result = peekIO(port, time);
 	pointer = byte(std::min(3, pointer + 1));
 	return result;
 }
 
-byte PasswordCart::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte PasswordCart::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	switch (pointer) {
 	case 0:

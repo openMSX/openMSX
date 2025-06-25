@@ -30,7 +30,7 @@ class ArkanoidState final : public StateChange
 {
 public:
 	ArkanoidState() = default; // for serialize
-	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
+	ArkanoidState(EmuTime time_, int delta_, bool press_, bool release_)
 		: StateChange(time_)
 		, delta(delta_), press(press_), release(release_) {}
 	[[nodiscard]] int  getDelta()   const { return delta; }
@@ -77,25 +77,25 @@ std::string_view ArkanoidPad::getDescription() const
 	return "Arkanoid pad";
 }
 
-void ArkanoidPad::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void ArkanoidPad::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 }
 
-void ArkanoidPad::unplugHelper(EmuTime::param /*time*/)
+void ArkanoidPad::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
 }
 
 // JoystickDevice
-uint8_t ArkanoidPad::read(EmuTime::param /*time*/)
+uint8_t ArkanoidPad::read(EmuTime /*time*/)
 {
 	return buttonStatus | ((shiftReg & 0x100) >> 8);
 }
 
-void ArkanoidPad::write(uint8_t value, EmuTime::param /*time*/)
+void ArkanoidPad::write(uint8_t value, EmuTime /*time*/)
 {
 	uint8_t diff = lastValue ^ value;
 	lastValue = value;
@@ -112,7 +112,7 @@ void ArkanoidPad::write(uint8_t value, EmuTime::param /*time*/)
 
 // MSXEventListener
 void ArkanoidPad::signalMSXEvent(const Event& event,
-                                 EmuTime::param time) noexcept
+                                 EmuTime time) noexcept
 {
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
@@ -154,7 +154,7 @@ void ArkanoidPad::signalStateChange(const StateChange& event)
 	if (as->getRelease()) buttonStatus |=  2;
 }
 
-void ArkanoidPad::stopReplay(EmuTime::param time) noexcept
+void ArkanoidPad::stopReplay(EmuTime time) noexcept
 {
 	// TODO Get actual mouse button(s) state. Is it worth the trouble?
 	int delta = POS_CENTER - dialPos;

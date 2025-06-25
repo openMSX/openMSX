@@ -38,15 +38,15 @@ public:
 	~CassettePlayer() override;
 
 	// CassetteDevice
-	void setMotor(bool status, EmuTime::param time) override;
-	int16_t readSample(EmuTime::param time) override;
-	void setSignal(bool output, EmuTime::param time) override;
+	void setMotor(bool status, EmuTime time) override;
+	int16_t readSample(EmuTime time) override;
+	void setSignal(bool output, EmuTime time) override;
 
 	// Pluggable
 	std::string_view getName() const override;
 	std::string_view getDescription() const override;
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 
 	// SoundDevice
 	void generateChannels(std::span<float*> buffers, unsigned num) override;
@@ -54,7 +54,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
-	void setMedia(const TclObject& info, EmuTime::param time) override;
+	void setMedia(const TclObject& info, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -68,47 +68,47 @@ public:
 
 	/** Returns the position of the tape, in seconds from the
 	  * beginning of the tape. */
-	double getTapePos(EmuTime::param time);
+	double getTapePos(EmuTime time);
 
 	/** Returns the length of the tape in seconds.
 	  * When no tape is inserted, this returns 0. While recording this
 	  * returns the current position (so while recording, tape length grows
 	  * continuously). */
-	double getTapeLength(EmuTime::param time);
+	double getTapeLength(EmuTime time);
 
 	friend class CassettePlayerCommand;
 
 private:
 	[[nodiscard]] std::string getStateString() const;
 	void setState(State newState, const Filename& newImage,
-	              EmuTime::param time);
+	              EmuTime time);
 	void setImageName(const Filename& newImage);
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.
 	 */
-	void playTape(const Filename& filename, EmuTime::param time);
-	void insertTape(const Filename& filename, EmuTime::param time);
+	void playTape(const Filename& filename, EmuTime time);
+	void insertTape(const Filename& filename, EmuTime time);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
-	void removeTape(EmuTime::param time);
+	void removeTape(EmuTime time);
 
 	/** Goes to RECORD mode using the given filename as a new tape
 	  * image. Finishes any old recording session.
 	  */
-	void recordTape(const Filename& filename, EmuTime::param time);
+	void recordTape(const Filename& filename, EmuTime time);
 
 	/** Rewinds the tape. Also sets PLAY mode, because you can't record
 	  * over an existing tape. (And it won't be useful to implement that
 	  * anyway.)
 	  */
-	void rewind(EmuTime::param time);
-	void wind(EmuTime::param time);
+	void rewind(EmuTime time);
+	void wind(EmuTime time);
 
 	/** Enable or disable motor control.
 	 */
-	void setMotorControl(bool status, EmuTime::param time);
+	void setMotorControl(bool status, EmuTime time);
 
 	/** True when the tape is rolling: not in STOP mode, AND [ motorControl
 	  * is disabled OR motor is on ].
@@ -119,14 +119,14 @@ private:
 	  * be called to update the end-of-tape syncPoint and the loading
 	  * indicator.
 	  */
-	void updateLoadingState(EmuTime::param time);
+	void updateLoadingState(EmuTime time);
 
 	/** Set the position of the tape, in seconds from the
 	  * beginning of the tape. Clipped to [0, tape-length]. */
-	void setTapePos(EmuTime::param time, double newPos);
+	void setTapePos(EmuTime time, double newPos);
 
-	void sync(EmuTime::param time);
-	void updateTapePosition(EmuDuration duration, EmuTime::param time);
+	void sync(EmuTime time);
+	void updateTapePosition(EmuDuration duration, EmuTime time);
 	void generateRecordOutput(EmuDuration duration);
 
 	void fillBuf(size_t length, double x);
@@ -137,7 +137,7 @@ private:
 	struct SyncEndOfTape final : Schedulable {
 		friend class CassettePlayer;
 		explicit SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& cp = OUTER(CassettePlayer, syncEndOfTape);
 			cp.execEndOfTape(time);
 		}
@@ -145,15 +145,15 @@ private:
 	struct SyncAudioEmu final : Schedulable {
 		friend class CassettePlayer;
 		explicit SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& cp = OUTER(CassettePlayer, syncAudioEmu);
 			cp.execSyncAudioEmu(time);
 		}
 	} syncAudioEmu;
 
-	void execEndOfTape(EmuTime::param time);
-	void execSyncAudioEmu(EmuTime::param time);
-	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
+	void execEndOfTape(EmuTime time);
+	void execSyncAudioEmu(EmuTime time);
+	EmuTime getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
 	std::array<uint8_t, 1024> buf;
 

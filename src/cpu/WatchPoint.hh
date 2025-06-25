@@ -30,9 +30,9 @@ public:
 private:
 	// MSXDevice
 	[[nodiscard]] const std::string& getName() const override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 private:
 	WatchPoint& wp;

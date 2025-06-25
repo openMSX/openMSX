@@ -25,7 +25,7 @@ public:
 	* Sets the cassette motor relay
 	*  false = off   true = on
 	*/
-	virtual void setMotor(bool status, EmuTime::param time) = 0;
+	virtual void setMotor(bool status, EmuTime time) = 0;
 
 	/**
 	* Writes one bit to the cassette port.
@@ -34,7 +34,7 @@ public:
 	*   taken to the cassette DIN socket as the MIC signal. All
 	*   cassette tone generation is performed in software.
 	*/
-	virtual void cassetteOut(bool output, EmuTime::param time) = 0;
+	virtual void cassetteOut(bool output, EmuTime time) = 0;
 
 	/**
 	 * last bit written to CasOut.
@@ -50,7 +50,7 @@ public:
 	*   to clean the edges and to convert to digital levels,
 	*   but is otherwise unprocessed.
 	*/
-	virtual bool cassetteIn(EmuTime::param time) = 0;
+	virtual bool cassetteIn(EmuTime time) = 0;
 
 #if COMPONENT_LASERDISC
 	/**
@@ -71,9 +71,9 @@ class CassettePort final : public CassettePortInterface, public Connector
 public:
 	explicit CassettePort(HardwareConfig& hwConf);
 	~CassettePort() override;
-	void setMotor(bool status, EmuTime::param time) override;
-	void cassetteOut(bool output, EmuTime::param time) override;
-	bool cassetteIn(EmuTime::param time) override;
+	void setMotor(bool status, EmuTime time) override;
+	void cassetteOut(bool output, EmuTime time) override;
+	bool cassetteIn(EmuTime time) override;
 #if COMPONENT_LASERDISC
 	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
@@ -106,9 +106,9 @@ class DummyCassettePort final : public CassettePortInterface
 {
 public:
 	explicit DummyCassettePort(MSXMotherBoard& motherBoard);
-	void setMotor(bool status, EmuTime::param time) override;
-	void cassetteOut(bool output, EmuTime::param time) override;
-	bool cassetteIn(EmuTime::param time) override;
+	void setMotor(bool status, EmuTime time) override;
+	void cassetteOut(bool output, EmuTime time) override;
+	bool cassetteIn(EmuTime time) override;
 #if COMPONENT_LASERDISC
 	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
 #endif

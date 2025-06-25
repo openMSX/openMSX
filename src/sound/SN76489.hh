@@ -32,8 +32,8 @@ public:
 	// ResampledSoundDevice
 	void generateChannels(std::span<float*> buffers, unsigned num) override;
 
-	void reset(EmuTime::param time);
-	void write(uint8_t value, EmuTime::param time);
+	void reset(EmuTime time);
+	void write(uint8_t value, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -82,8 +82,8 @@ private:
 	  */
 	void initNoise();
 
-	[[nodiscard]] uint16_t peekRegister(unsigned reg, EmuTime::param time) const;
-	void writeRegister(unsigned reg, uint16_t value, EmuTime::param time);
+	[[nodiscard]] uint16_t peekRegister(unsigned reg, EmuTime time) const;
+	void writeRegister(unsigned reg, uint16_t value, EmuTime time);
 	template<bool NOISE> void synthesizeChannel(
 		float*& buffer, unsigned num, unsigned generator);
 
@@ -111,8 +111,8 @@ private:
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 };
 

@@ -13,7 +13,7 @@ NationalFDC::NationalFDC(DeviceConfig& config)
 	parseRomVisibility(config, 0x0000, 0x8000);
 }
 
-byte NationalFDC::readMem(uint16_t address, EmuTime::param time)
+byte NationalFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address & 0x3FC7) {
 	case 0x3F80:
@@ -38,7 +38,7 @@ byte NationalFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte NationalFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte NationalFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	// According to atarulum:
 	//  7FBC        is mirrored in 7FBC - 7FBF
@@ -80,7 +80,7 @@ const byte* NationalFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void NationalFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void NationalFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address & 0x3FC7) {
 	case 0x3F80:

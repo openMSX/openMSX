@@ -39,7 +39,7 @@ public:
 	  * Requires CPU is not in the middle of an instruction,
 	  * so exitCPULoop was called and execute() method returned.
 	 */
-	void doReset(EmuTime::param time);
+	void doReset(EmuTime time);
 
 	/** Switch between Z80/R800. */
 	void setActiveCPU(Type cpu);
@@ -140,11 +140,11 @@ public:
 	  * continuously (just like during HALT). Used by turbor hw pause. */
 	void setPaused(bool paused);
 
-	void setNextSyncPoint(EmuTime::param time);
+	void setNextSyncPoint(EmuTime time);
 
-	void wait(EmuTime::param time);
-	EmuTime waitCyclesZ80(EmuTime::param time, unsigned cycles);
-	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
+	void wait(EmuTime time);
+	EmuTime waitCyclesZ80(EmuTime time, unsigned cycles);
+	EmuTime waitCyclesR800(EmuTime time, unsigned cycles);
 
 	[[nodiscard]] CPURegs& getRegisters();
 
@@ -166,7 +166,7 @@ private:
 	  * still to be scheduled sync points). Use Scheduler::getCurrentTime()
 	  * instead.
 	  * TODO is this comment still true? */
-	EmuTime::param getCurrentTime() const;
+	EmuTime getCurrentTime() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

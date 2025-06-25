@@ -22,7 +22,7 @@ RomDRAM::RomDRAM(const DeviceConfig& config, Rom&& rom_)
 	(void)panasonicMemory.getRomBlock(baseAddr);
 }
 
-byte RomDRAM::readMem(uint16_t address, EmuTime::param /*time*/)
+byte RomDRAM::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return *RomDRAM::getReadCacheLine(address);
 }

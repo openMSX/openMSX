@@ -20,7 +20,7 @@ public:
 	TsxImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);
 
 	// CassetteImage
-	[[nodiscard]] int16_t getSampleAt(EmuTime::param time) const override;
+	[[nodiscard]] int16_t getSampleAt(EmuTime time) const override;
 	[[nodiscard]] EmuTime getEndTime() const override;
 	[[nodiscard]] unsigned getFrequency() const override;
 	void fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const override;

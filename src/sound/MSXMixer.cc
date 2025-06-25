@@ -149,7 +149,7 @@ double MSXMixer::getEffectiveSpeed() const
 	return synchronousCounter ? 1.0 : speedManager.getSpeed();
 }
 
-void MSXMixer::updateStream(EmuTime::param time)
+void MSXMixer::updateStream(EmuTime time)
 {
 	unsigned count = prevTime.getTicksTill(time);
 	assert(count <= 8192);
@@ -426,7 +426,7 @@ static bool approxEqual(float x, float y)
 	return std::abs(x - y) < threshold;
 }
 
-void MSXMixer::generate(std::span<StereoFloat> output, EmuTime::param time)
+void MSXMixer::generate(std::span<StereoFloat> output, EmuTime time)
 {
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
@@ -778,7 +778,7 @@ void MSXMixer::updateSoftwareVolume(SoundDevice& device)
 	updateVolumeParams(*it);
 }
 
-void MSXMixer::executeUntil(EmuTime::param time)
+void MSXMixer::executeUntil(EmuTime time)
 {
 	updateStream(time);
 	reschedule2();

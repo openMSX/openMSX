@@ -16,16 +16,16 @@ public:
 	explicit DalSoRiR2(DeviceConfig& config);
 	~DalSoRiR2() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
-	byte readMem(uint16_t addr, EmuTime::param time) override;
-	byte peekMem(uint16_t addr, EmuTime::param time) const override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
+	byte readMem(uint16_t addr, EmuTime time) override;
+	byte peekMem(uint16_t addr, EmuTime time) const override;
 	const byte* getReadCacheLine(uint16_t start) const override;
 	byte* getWriteCacheLine(uint16_t start) override;
-	void writeMem(uint16_t addr, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t addr, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

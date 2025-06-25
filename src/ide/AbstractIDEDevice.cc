@@ -51,7 +51,7 @@ void AbstractIDEDevice::createSignature(bool preserveDevice)
 	}
 }
 
-void AbstractIDEDevice::reset(EmuTime::param /*time*/)
+void AbstractIDEDevice::reset(EmuTime /*time*/)
 {
 	errorReg = diagnostic();
 	statusReg = DRDY | DSC;
@@ -61,7 +61,7 @@ void AbstractIDEDevice::reset(EmuTime::param /*time*/)
 	setTransferWrite(false);
 }
 
-uint8_t AbstractIDEDevice::readReg(uint4_t reg, EmuTime::param /*time*/)
+uint8_t AbstractIDEDevice::readReg(uint4_t reg, EmuTime /*time*/)
 {
 	switch (reg) {
 	case 1: // error register
@@ -104,7 +104,7 @@ uint8_t AbstractIDEDevice::readReg(uint4_t reg, EmuTime::param /*time*/)
 }
 
 void AbstractIDEDevice::writeReg(
-	uint4_t reg, uint8_t value, EmuTime::param /*time*/
+	uint4_t reg, uint8_t value, EmuTime /*time*/
 	)
 {
 	switch (reg) {
@@ -157,7 +157,7 @@ void AbstractIDEDevice::writeReg(
 	}
 }
 
-uint16_t AbstractIDEDevice::readData(EmuTime::param /*time*/)
+uint16_t AbstractIDEDevice::readData(EmuTime /*time*/)
 {
 	if (!transferRead) {
 		// no read in progress
@@ -191,7 +191,7 @@ void AbstractIDEDevice::readNextBlock()
 	transferCount -= bufferLeft;
 }
 
-void AbstractIDEDevice::writeData(uint16_t value, EmuTime::param /*time*/)
+void AbstractIDEDevice::writeData(uint16_t value, EmuTime /*time*/)
 {
 	if (!transferWrite) {
 		// no write in progress

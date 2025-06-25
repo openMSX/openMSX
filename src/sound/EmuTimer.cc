@@ -71,7 +71,7 @@ void EmuTimer::setValue(int value)
 	count = maxVal - value;
 }
 
-void EmuTimer::setStart(bool start, EmuTime::param time)
+void EmuTimer::setStart(bool start, EmuTime time)
 {
 	if (start != counting) {
 		counting = start;
@@ -83,7 +83,7 @@ void EmuTimer::setStart(bool start, EmuTime::param time)
 	}
 }
 
-void EmuTimer::schedule(EmuTime::param time)
+void EmuTimer::schedule(EmuTime time)
 {
 	clock.reset(time);
 	clock += count;
@@ -95,7 +95,7 @@ void EmuTimer::unschedule()
 	removeSyncPoint();
 }
 
-void EmuTimer::executeUntil(EmuTime::param time)
+void EmuTimer::executeUntil(EmuTime time)
 {
 	cb.callback(flag);
 	schedule(time);

@@ -15,7 +15,7 @@ RomMSXWrite::RomMSXWrite(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMSXWrite::reset(EmuTime::param /*time*/)
+void RomMSXWrite::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -23,7 +23,7 @@ void RomMSXWrite::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomMSXWrite::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomMSXWrite::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (((0x6000 <= address) && (address < 0x7800) && !(address & 0x0800)) ||
 	    (address == one_of(0x6FFF, 0x7FFF))) {

@@ -20,7 +20,7 @@ PostProcessor* LDSDLRasterizer::getPostProcessor() const
 	return postProcessor.get();
 }
 
-void LDSDLRasterizer::frameStart(EmuTime::param time)
+void LDSDLRasterizer::frameStart(EmuTime time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 }

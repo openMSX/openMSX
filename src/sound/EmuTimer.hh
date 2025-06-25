@@ -42,14 +42,14 @@ public:
 		Scheduler& scheduler, EmuTimerCallback& cb);
 
 	void setValue(int value);
-	void setStart(bool start, EmuTime::param time);
+	void setStart(bool start, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void executeUntil(EmuTime::param time) override;
-	void schedule(EmuTime::param time);
+	void executeUntil(EmuTime time) override;
+	void schedule(EmuTime time);
 	void unschedule();
 
 private:

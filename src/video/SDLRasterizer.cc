@@ -163,7 +163,7 @@ void SDLRasterizer::setSuperimposeVideoFrame(const RawFrame* videoSource)
 	                   videoSource, vdp.getBackgroundColor());
 }
 
-void SDLRasterizer::frameStart(EmuTime::param time)
+void SDLRasterizer::frameStart(EmuTime time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(

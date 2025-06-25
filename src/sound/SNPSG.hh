@@ -14,8 +14,8 @@ class SNPSG final : public MSXDevice
 public:
 	explicit SNPSG(const DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -51,14 +51,14 @@ void RomKonami::bankSwitch(unsigned page, unsigned block)
 	}
 }
 
-void RomKonami::reset(EmuTime::param /*time*/)
+void RomKonami::reset(EmuTime /*time*/)
 {
 	for (auto i : xrange(2, 6)) {
 		bankSwitch(i, i - 2);
 	}
 }
 
-void RomKonami::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomKonami::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// Note: [0x4000..0x6000) is fixed at segment 0.
 	if (0x6000 <= address && address < 0xC000) {

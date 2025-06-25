@@ -247,9 +247,9 @@ public:
 	bool getReadyPin() const;
 
 	[[nodiscard]] power_of_two<size_t> size() const { return chip.geometry.size; }
-	[[nodiscard]] uint8_t read(size_t address, EmuTime::param time);
-	[[nodiscard]] uint8_t peek(size_t address, EmuTime::param time) const;
-	void write(size_t address, uint8_t value, EmuTime::param time);
+	[[nodiscard]] uint8_t read(size_t address, EmuTime time);
+	[[nodiscard]] uint8_t peek(size_t address, EmuTime time) const;
+	void write(size_t address, uint8_t value, EmuTime time);
 	[[nodiscard]] const uint8_t* getReadCacheLine(size_t address) const;
 
 	template<typename Archive>
@@ -305,24 +305,24 @@ private:
 	[[nodiscard]] bool checkCommandStatusRead();
 	[[nodiscard]] bool checkCommandStatusClear();
 	[[nodiscard]] bool checkCommandContinuityCheck();
-	[[nodiscard]] bool checkCommandEraseSector(EmuTime::param time);
-	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime::param time);
-	[[nodiscard]] bool checkCommandEraseChip(EmuTime::param time);
-	[[nodiscard]] bool checkCommandSuspend(EmuTime::param time);
-	[[nodiscard]] bool checkCommandResume(EmuTime::param time);
-	[[nodiscard]] bool checkCommandProgram(EmuTime::param time);
-	[[nodiscard]] bool checkCommandDoubleByteProgram(EmuTime::param time);
-	[[nodiscard]] bool checkCommandQuadrupleByteProgram(EmuTime::param time);
-	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq, EmuTime::param time);
-	[[nodiscard]] bool checkCommandBufferProgram(EmuTime::param time);
+	[[nodiscard]] bool checkCommandEraseSector(EmuTime time);
+	[[nodiscard]] bool checkCommandEraseAdditionalSector(EmuTime time);
+	[[nodiscard]] bool checkCommandEraseChip(EmuTime time);
+	[[nodiscard]] bool checkCommandSuspend(EmuTime time);
+	[[nodiscard]] bool checkCommandResume(EmuTime time);
+	[[nodiscard]] bool checkCommandProgram(EmuTime time);
+	[[nodiscard]] bool checkCommandDoubleByteProgram(EmuTime time);
+	[[nodiscard]] bool checkCommandQuadrupleByteProgram(EmuTime time);
+	[[nodiscard]] bool checkCommandProgramHelper(size_t numBytes, std::span<const uint8_t> cmdSeq, EmuTime time);
+	[[nodiscard]] bool checkCommandBufferProgram(EmuTime time);
 	[[nodiscard]] bool partialMatch(std::span<const uint8_t> dataSeq) const;
 
-	void scheduleEraseOperation(EmuTime::param time);
-	void scheduleProgramOperation(EmuTime::param time);
-	void execOperation(EmuTime::param time);
-	void execEraseOperation(EmuTime::param time);
-	void execProgramOperation(EmuTime::param time);
-	void execSuspend(EmuTime::param time);
+	void scheduleEraseOperation(EmuTime time);
+	void scheduleProgramOperation(EmuTime time);
+	void execOperation(EmuTime time);
+	void execEraseOperation(EmuTime time);
+	void execProgramOperation(EmuTime time);
+	void execSuspend(EmuTime time);
 
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<SRAM> ram;
@@ -383,7 +383,7 @@ private:
 	struct SyncOperation : Schedulable {
 		friend class AmdFlash;
 		explicit SyncOperation(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& outer = OUTER(AmdFlash, syncOperation);
 			outer.execOperation(time);
 		}
@@ -392,7 +392,7 @@ private:
 	struct SyncSuspend : Schedulable {
 		friend class AmdFlash;
 		explicit SyncSuspend(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& outer = OUTER(AmdFlash, syncSuspend);
 			outer.execSuspend(time);
 		}

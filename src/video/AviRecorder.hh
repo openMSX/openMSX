@@ -35,7 +35,7 @@ public:
 	~AviRecorder();
 
 	void addWave(std::span<const StereoFloat> data);
-	void addImage(const FrameSource* frame, EmuTime::param time);
+	void addImage(const FrameSource* frame, EmuTime time);
 	void stop();
 	[[nodiscard]] unsigned getFrameHeight() const;
 	[[nodiscard]] bool isRecording() const;

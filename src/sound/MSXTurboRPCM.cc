@@ -22,7 +22,7 @@ MSXTurboRPCM::~MSXTurboRPCM()
 	hardwareMute(false);
 }
 
-void MSXTurboRPCM::reset(EmuTime::param time)
+void MSXTurboRPCM::reset(EmuTime time)
 {
 	reference.reset(time);
 	status = 0;
@@ -32,12 +32,12 @@ void MSXTurboRPCM::reset(EmuTime::param time)
 	hardwareMute(false);
 }
 
-byte MSXTurboRPCM::readIO(uint16_t port, EmuTime::param time)
+byte MSXTurboRPCM::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPCM::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXTurboRPCM::peekIO(uint16_t port, EmuTime time) const
 {
 	switch (port & 0x01) {
 	case 0:
@@ -63,7 +63,7 @@ byte MSXTurboRPCM::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void MSXTurboRPCM::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXTurboRPCM::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0x01) {
 	case 0:
@@ -104,14 +104,14 @@ void MSXTurboRPCM::writeIO(uint16_t port, byte value, EmuTime::param time)
 	}
 }
 
-byte MSXTurboRPCM::getSample(EmuTime::param time) const
+byte MSXTurboRPCM::getSample(EmuTime time) const
 {
 	return (status & 0x04)
 		? narrow<byte>((connector.readSample(time) / 256) + 0x80)
 		: 0x80; // TODO check
 }
 
-bool MSXTurboRPCM::getComp(EmuTime::param time) const
+bool MSXTurboRPCM::getComp(EmuTime time) const
 {
 	// TODO also when D/A ??
 	byte sample = (status & 0x10) ? hold : getSample(time);

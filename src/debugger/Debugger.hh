@@ -69,7 +69,7 @@ private:
 		    Scheduler& scheduler);
 		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
 		void execute(std::span<const TclObject> tokens,
-			     TclObject& result, EmuTime::param time) override;
+			     TclObject& result, EmuTime time) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
@@ -84,7 +84,7 @@ private:
 		void readBlock(std::span<const TclObject> tokens, TclObject& result);
 		void write(std::span<const TclObject> tokens, TclObject& result);
 		void writeBlock(std::span<const TclObject> tokens, TclObject& result);
-		void disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const;
+		void disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime time) const;
 		void disasmBlob(std::span<const TclObject> tokens, TclObject& result) const;
 		void breakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void watchPoint(std::span<const TclObject> tokens, TclObject& result);

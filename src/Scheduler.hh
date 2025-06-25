@@ -14,10 +14,10 @@ class SynchronizationPoint
 {
 public:
 	SynchronizationPoint() = default;
-	SynchronizationPoint(EmuTime::param time, Schedulable* dev)
+	SynchronizationPoint(EmuTime time, Schedulable* dev)
 		: timeStamp(time), device(dev) {}
-	[[nodiscard]] EmuTime::param getTime() const { return timeStamp; }
-	void setTime(EmuTime::param time) { timeStamp = time; }
+	[[nodiscard]] EmuTime getTime() const { return timeStamp; }
+	void setTime(EmuTime time) { timeStamp = time; }
 	[[nodiscard]] Schedulable* getDevice() const { return device; }
 
 	template<typename Archive>
@@ -45,12 +45,12 @@ public:
 	/**
 	 * Get the current scheduler time.
 	 */
-	[[nodiscard]] EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime getCurrentTime() const;
 
 	/**
 	 * TODO
 	 */
-	[[nodiscard]] EmuTime::param getNext() const
+	[[nodiscard]] EmuTime getNext() const
 	{
 		return queue.front().getTime();
 	}
@@ -58,7 +58,7 @@ public:
 	/**
 	 * Schedule till a certain moment in time.
 	 */
-	void schedule(EmuTime::param limit)
+	void schedule(EmuTime limit)
 	{
 		if (EmuTime next = getNext(); limit >= next) [[unlikely]] {
 			scheduleHelper(limit, next); // slow path not inlined
@@ -81,7 +81,7 @@ private: // -> intended for Schedulable
 	 * time.
 	 * A device may register several syncPoints.
 	 */
-	void setSyncPoint(EmuTime::param timestamp, Schedulable& device);
+	void setSyncPoint(EmuTime timestamp, Schedulable& device);
 
 	[[nodiscard]] SyncPoints getSyncPoints(const Schedulable& device) const;
 
@@ -104,7 +104,7 @@ private: // -> intended for Schedulable
 	[[nodiscard]] bool pendingSyncPoint(const Schedulable& device, EmuTime& result) const;
 
 private:
-	void scheduleHelper(EmuTime::param limit, EmuTime next);
+	void scheduleHelper(EmuTime limit, EmuTime next);
 
 private:
 	/** Vector used as heap, not a priority queue because that

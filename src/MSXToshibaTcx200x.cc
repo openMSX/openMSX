@@ -29,7 +29,7 @@ MSXToshibaTcx200x::MSXToshibaTcx200x(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXToshibaTcx200x::reset(EmuTime::param time)
+void MSXToshibaTcx200x::reset(EmuTime time)
 {
 	copyButtonPressed.setBoolean(false);
 	writeMem(0x7FFF, 0, time);
@@ -46,7 +46,7 @@ byte MSXToshibaTcx200x::getSelectedSegment() const
 	return controlReg & 0b0000'0011;
 }
 
-byte MSXToshibaTcx200x::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte MSXToshibaTcx200x::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if (address == 0x7FFF) {
 		return byte(controlReg | ((copyButtonPressed.getBoolean() ? 0 : 1) << 7));
@@ -64,12 +64,12 @@ byte MSXToshibaTcx200x::peekMem(uint16_t address, EmuTime::param /*time*/) const
 	}
 }
 
-byte MSXToshibaTcx200x::readMem(uint16_t address, EmuTime::param time)
+byte MSXToshibaTcx200x::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-void MSXToshibaTcx200x::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void MSXToshibaTcx200x::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0x7FFF) {
 		controlReg = value & 0b0110'0011; // TODO which bits can be read back?

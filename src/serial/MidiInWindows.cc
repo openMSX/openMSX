@@ -52,7 +52,7 @@ MidiInWindows::~MidiInWindows()
 }
 
 // Pluggable
-void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
+void MidiInWindows::plugHelper(Connector& connector_, EmuTime /*time*/)
 {
 	auto& midiConnector = static_cast<MidiInConnector&>(connector_);
 	midiConnector.setDataBits(SerialDataInterface::DataBits::D8); // 8 data bits
@@ -77,7 +77,7 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	}
 }
 
-void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
+void MidiInWindows::unplugHelper(EmuTime /*time*/)
 {
 	assert(devIdx != unsigned(-1));
 	w32_midiInClose(devIdx);
@@ -171,7 +171,7 @@ void MidiInWindows::run()
 }
 
 // MidiInDevice
-void MidiInWindows::signal(EmuTime::param time)
+void MidiInWindows::signal(EmuTime time)
 {
 	auto* conn = static_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {

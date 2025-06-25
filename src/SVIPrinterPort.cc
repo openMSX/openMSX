@@ -21,24 +21,24 @@ SVIPrinterPort::SVIPrinterPort(const DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void SVIPrinterPort::reset(EmuTime::param time)
+void SVIPrinterPort::reset(EmuTime time)
 {
 	writeData(0, time);    // TODO check this
 	setStrobe(true, time); // TODO check this
 }
 
-uint8_t SVIPrinterPort::readIO(uint16_t port, EmuTime::param time)
+uint8_t SVIPrinterPort::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-uint8_t SVIPrinterPort::peekIO(uint16_t /*port*/, EmuTime::param time) const
+uint8_t SVIPrinterPort::peekIO(uint16_t /*port*/, EmuTime time) const
 {
 	// bit 1 = status / other bits always 1
 	return getPluggedPrintDev().getStatus(time) ? 0xFF : 0xFE;
 }
 
-void SVIPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void SVIPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	switch (port & 0x01) {
 	case 0:
@@ -52,14 +52,14 @@ void SVIPrinterPort::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
 	}
 }
 
-void SVIPrinterPort::setStrobe(bool newStrobe, EmuTime::param time)
+void SVIPrinterPort::setStrobe(bool newStrobe, EmuTime time)
 {
 	if (newStrobe != strobe) {
 		strobe = newStrobe;
 		getPluggedPrintDev().setStrobe(strobe, time);
 	}
 }
-void SVIPrinterPort::writeData(uint8_t newData, EmuTime::param time)
+void SVIPrinterPort::writeData(uint8_t newData, EmuTime time)
 {
 	if (newData != data) {
 		data = newData;
@@ -77,7 +77,7 @@ std::string_view SVIPrinterPort::getClass() const
 	return "Printer Port";
 }
 
-void SVIPrinterPort::plug(Pluggable& dev, EmuTime::param time)
+void SVIPrinterPort::plug(Pluggable& dev, EmuTime time)
 {
 	Connector::plug(dev, time);
 	getPluggedPrintDev().writeData(data, time);

@@ -54,14 +54,14 @@ public:
 	 *                  true  = in.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void step(bool direction, EmuTime::param time) = 0;
+	virtual void step(bool direction, EmuTime time) = 0;
 
 	/** Set motor on/off
 	 * @param status false = off,
 	 *               true  = on.
 	 * @param time The moment in emulated time this action takes place.
 	 */
-	virtual void setMotor(bool status, EmuTime::param time) = 0;
+	virtual void setMotor(bool status, EmuTime time) = 0;
 
 	/** Returns the previously set motor status.
 	 */
@@ -70,7 +70,7 @@ public:
 	/** Gets the state of the index pulse.
 	 * @param time The moment in emulated time to get the pulse state for.
 	 */
-	[[nodiscard]] virtual bool indexPulse(EmuTime::param time) = 0;
+	[[nodiscard]] virtual bool indexPulse(EmuTime time) = 0;
 
 	/** Return the time till the start of the next index pulse
 	 * When there is no disk in the drive or when the disk is not spinning,
@@ -78,12 +78,12 @@ public:
 	 * @param time The current time
 	 * @param count Number of required index pulses.
 	 */
-	[[nodiscard]] virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count = 1) = 0;
+	[[nodiscard]] virtual EmuTime getTimeTillIndexPulse(EmuTime time, int count = 1) = 0;
 
 	[[nodiscard]] virtual unsigned getTrackLength() = 0;
 	virtual void writeTrackByte(int idx, uint8_t val, bool addIdam = false) = 0;
 	[[nodiscard]] virtual uint8_t readTrackByte(int idx) = 0;
-	virtual EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) = 0;
+	virtual EmuTime getNextSector(EmuTime time, RawTrack::Sector& sector) = 0;
 	virtual void flushTrack() = 0;
 
 	/** Is disk changed?
@@ -113,15 +113,15 @@ public:
 	[[nodiscard]] bool isTrack00() const override;
 	void setSide(bool side) override;
 	[[nodiscard]] bool getSide() const override;
-	void step(bool direction, EmuTime::param time) override;
-	void setMotor(bool status, EmuTime::param time) override;
+	void step(bool direction, EmuTime time) override;
+	void setMotor(bool status, EmuTime time) override;
 	[[nodiscard]] bool getMotor() const override;
-	[[nodiscard]] bool indexPulse(EmuTime::param time) override;
-	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
+	[[nodiscard]] bool indexPulse(EmuTime time) override;
+	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime time, int count) override;
 	[[nodiscard]] unsigned getTrackLength() override;
 	void writeTrackByte(int idx, uint8_t val, bool addIdam) override;
 	[[nodiscard]] uint8_t readTrackByte(int idx) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	EmuTime getNextSector(EmuTime time, RawTrack::Sector& sector) override;
 	void flushTrack() override;
 	bool diskChanged() override;
 	[[nodiscard]] bool peekDiskChanged() const override;

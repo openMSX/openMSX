@@ -41,11 +41,11 @@ public:
 	~V9990() override;
 
 	// MSXDevice interface:
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -122,7 +122,7 @@ public:
 	  * @param  time Point in emulated time.
 	  * @return      Number of UC ticks.
 	  */
-	[[nodiscard]] int getUCTicksThisFrame(EmuTime::param time) const {
+	[[nodiscard]] int getUCTicksThisFrame(EmuTime time) const {
 		return narrow<int>(frameStartTime.getTicksTill_fast(time));
 	}
 
@@ -376,7 +376,7 @@ private:
 
 	struct SyncVSync final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& v9990 = OUTER(V9990, syncVSync);
 			v9990.execVSync(time);
 		}
@@ -384,7 +384,7 @@ private:
 
 	struct SyncDisplayStart final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& v9990 = OUTER(V9990, syncDisplayStart);
 			v9990.execDisplayStart(time);
 		}
@@ -392,7 +392,7 @@ private:
 
 	struct SyncVScan final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& v9990 = OUTER(V9990, syncVScan);
 			v9990.execVScan(time);
 		}
@@ -400,7 +400,7 @@ private:
 
 	struct SyncHScan final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param /*time*/) override {
+		void executeUntil(EmuTime /*time*/) override {
 			auto& v9990 = OUTER(V9990, syncHScan);
 			v9990.execHScan();
 		}
@@ -408,7 +408,7 @@ private:
 
 	struct SyncSetMode final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& v9990 = OUTER(V9990, syncSetMode);
 			v9990.execSetMode(time);
 		}
@@ -416,18 +416,18 @@ private:
 
 	struct SyncCmdEnd final : SyncBase {
 		using SyncBase::SyncBase;
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& v9990 = OUTER(V9990, syncCmdEnd);
 			v9990.execCheckCmdEnd(time);
 		}
 	} syncCmdEnd;
 
-	void execVSync(EmuTime::param time);
-	void execDisplayStart(EmuTime::param time);
-	void execVScan(EmuTime::param time);
+	void execVSync(EmuTime time);
+	void execDisplayStart(EmuTime time);
+	void execVScan(EmuTime time);
 	void execHScan();
-	void execSetMode(EmuTime::param time);
-	void execCheckCmdEnd(EmuTime::param time);
+	void execSetMode(EmuTime time);
+	void execCheckCmdEnd(EmuTime time);
 
 	// --- types ------------------------------------------------------
 
@@ -522,14 +522,14 @@ private:
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const V9990& v9990);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} v9990RegDebug;
 
 	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(const V9990& v9990);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 		void readBlock(unsigned start, std::span<uint8_t> output) override;
 	} v9990PalDebug;
 
@@ -660,35 +660,35 @@ private:
 	  * @param time  Moment in emulated time to read register
 	  * @returns     Register value
 	  */
-	[[nodiscard]] uint8_t readRegister(uint8_t reg, EmuTime::param time) const;
+	[[nodiscard]] uint8_t readRegister(uint8_t reg, EmuTime time) const;
 
 	/** Write V9990 register value
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writeRegister(uint8_t reg, uint8_t val, EmuTime::param time);
+	void writeRegister(uint8_t reg, uint8_t val, EmuTime time);
 
 	/** Write V9990 palette register
 	  * @param reg   Register to write to
 	  * @param val   Value to write
 	  * @param time  Moment in emulated time to write register
 	  */
-	void writePaletteRegister(uint8_t reg, uint8_t val, EmuTime::param time);
+	void writePaletteRegister(uint8_t reg, uint8_t val, EmuTime time);
 
 	/** Schedule a sync point at the start of the next line
 	 */
-	void syncAtNextLine(SyncBase& type, EmuTime::param time) const;
+	void syncAtNextLine(SyncBase& type, EmuTime time) const;
 
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer
 	  */
-	void createRenderer(EmuTime::param time);
+	void createRenderer(EmuTime time);
 
 	/** Start a new frame.
 	  * @param time  Moment in emulated time to start the frame
 	  */
-	void frameStart(EmuTime::param time);
+	void frameStart(EmuTime time);
 
 	/** Raise an IRQ
 	  * @param irqType  Type of IRQ
@@ -704,11 +704,11 @@ private:
 	  * @param time The current time
 	  * @result Timestamp for next hor irq
 	  */
-	void scheduleHscan(EmuTime::param time);
+	void scheduleHscan(EmuTime time);
 
 	/** Estimate when the current (if any) command will finish.
 	 */
-	void scheduleCmdEnd(EmuTime::param time);
+	void scheduleCmdEnd(EmuTime time);
 };
 SERIALIZE_CLASS_VERSION(V9990, 5);
 

@@ -13,7 +13,7 @@ public:
 	DACSound8U(std::string_view name, static_string_view desc,
 	           const DeviceConfig& config);
 
-	void writeDAC(uint8_t value, EmuTime::param time);
+	void writeDAC(uint8_t value, EmuTime time);
 };
 
 } // namespace openmsx

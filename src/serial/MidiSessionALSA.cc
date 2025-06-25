@@ -32,14 +32,14 @@ public:
 	~MidiOutALSA() override;
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(
-			const std::vector<uint8_t>& message, EmuTime::param time) override;
+			const std::vector<uint8_t>& message, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -77,12 +77,12 @@ MidiOutALSA::~MidiOutALSA()
 	}
 }
 
-void MidiOutALSA::plugHelper(Connector& /*connector_*/, EmuTime::param /*time*/)
+void MidiOutALSA::plugHelper(Connector& /*connector_*/, EmuTime /*time*/)
 {
 	connect();
 }
 
-void MidiOutALSA::unplugHelper(EmuTime::param /*time*/)
+void MidiOutALSA::unplugHelper(EmuTime /*time*/)
 {
 	disconnect();
 }
@@ -130,7 +130,7 @@ std::string_view MidiOutALSA::getDescription() const
 }
 
 void MidiOutALSA::recvMessage(
-		const std::vector<uint8_t>& message, EmuTime::param /*time*/)
+		const std::vector<uint8_t>& message, EmuTime /*time*/)
 {
 	snd_seq_event_t ev;
 	snd_seq_ev_clear(&ev);
@@ -183,13 +183,13 @@ public:
 	~MidiInALSA() override;
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	// MidiInDevice
-	void signal(EmuTime::param time) override;
+	void signal(EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -246,7 +246,7 @@ MidiInALSA::~MidiInALSA()
 	eventDistributor.unregisterEventListener(EventType::MIDI_IN_ALSA, *this);
 }
 
-void MidiInALSA::plugHelper(Connector& connector_, EmuTime::param /*time*/)
+void MidiInALSA::plugHelper(Connector& connector_, EmuTime /*time*/)
 {
 	auto& midiConnector = checked_cast<MidiInConnector&>(connector_);
 	midiConnector.setDataBits(SerialDataInterface::DataBits::D8); // 8 data bits
@@ -258,7 +258,7 @@ void MidiInALSA::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	connect();
 }
 
-void MidiInALSA::unplugHelper(EmuTime::param /*time*/)
+void MidiInALSA::unplugHelper(EmuTime /*time*/)
 {
 	if (connected) {
 		disconnect();
@@ -349,7 +349,7 @@ void MidiInALSA::run()
 	}
 }
 
-void MidiInALSA::signal(EmuTime::param time)
+void MidiInALSA::signal(EmuTime time)
 {
 	auto* conn = checked_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {

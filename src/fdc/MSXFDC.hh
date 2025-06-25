@@ -14,9 +14,9 @@ namespace openmsx {
 class MSXFDC : public MSXDevice
 {
 public:
-	void powerDown(EmuTime::param time) override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	void powerDown(EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;

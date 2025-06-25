@@ -151,7 +151,7 @@ static std::optional<RS232Net::NetworkSocketAddress> parseNetworkAddress(std::st
 }
 
 // Pluggable
-void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
+void RS232Net::plugHelper(Connector& connector_, EmuTime /*time*/)
 {
 	auto address = rs232NetAddressSetting.getString();
 	auto socketAddress = parseNetworkAddress(address);
@@ -180,7 +180,7 @@ void RS232Net::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	thread = std::thread([this]() { run(); });
 }
 
-void RS232Net::unplugHelper(EmuTime::param /*time*/)
+void RS232Net::unplugHelper(EmuTime /*time*/)
 {
 	// close socket
 	if (sockfd != OPENMSX_INVALID_SOCKET) {
@@ -262,7 +262,7 @@ void RS232Net::run()
 }
 
 // input
-void RS232Net::signal(EmuTime::param time)
+void RS232Net::signal(EmuTime time)
 {
 	auto* conn = checked_cast<RS232Connector*>(getConnector());
 
@@ -293,7 +293,7 @@ bool RS232Net::signalEvent(const Event& /*event*/)
 }
 
 // output
-void RS232Net::recvByte(uint8_t value_, EmuTime::param /*time*/)
+void RS232Net::recvByte(uint8_t value_, EmuTime /*time*/)
 {
 	if (sockfd == OPENMSX_INVALID_SOCKET) return;
 
@@ -308,27 +308,27 @@ void RS232Net::recvByte(uint8_t value_, EmuTime::param /*time*/)
 
 // Control lines
 
-std::optional<bool> RS232Net::getDSR(EmuTime::param /*time*/) const
+std::optional<bool> RS232Net::getDSR(EmuTime /*time*/) const
 {
 	return true; // Needed to set this line in the correct state for a plugged device
 }
 
-std::optional<bool> RS232Net::getCTS(EmuTime::param /*time*/) const
+std::optional<bool> RS232Net::getCTS(EmuTime /*time*/) const
 {
 	return true; // TODO: Implement when IP232 adds support for CTS
 }
 
-std::optional<bool> RS232Net::getDCD(EmuTime::param /*time*/) const
+std::optional<bool> RS232Net::getDCD(EmuTime /*time*/) const
 {
 	return DCD;
 }
 
-std::optional<bool> RS232Net::getRI(EmuTime::param /*time*/) const
+std::optional<bool> RS232Net::getRI(EmuTime /*time*/) const
 {
 	return RI;
 }
 
-void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
+void RS232Net::setDTR(bool status, EmuTime /*time*/)
 {
 	if (DTR == status) return;
 	DTR = status;
@@ -340,7 +340,7 @@ void RS232Net::setDTR(bool status, EmuTime::param /*time*/)
 	}
 }
 
-void RS232Net::setRTS(bool status, EmuTime::param /*time*/)
+void RS232Net::setRTS(bool status, EmuTime /*time*/)
 {
 	if (RTS == status) return;
 	RTS = status;

@@ -15,8 +15,8 @@ class SG1000JoystickIO final : public MSXDevice
 public:
 	explicit SG1000JoystickIO(const DeviceConfig& config);
 
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

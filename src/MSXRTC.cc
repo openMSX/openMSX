@@ -12,7 +12,7 @@ MSXRTC::MSXRTC(const DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void MSXRTC::reset(EmuTime::param time)
+void MSXRTC::reset(EmuTime time)
 {
 	// TODO verify on real hardware .. how?
 	//  - registerLatch set to zero or some other value?
@@ -21,17 +21,17 @@ void MSXRTC::reset(EmuTime::param time)
 	rp5c01.reset(time);
 }
 
-uint8_t MSXRTC::readIO(uint16_t port, EmuTime::param time)
+uint8_t MSXRTC::readIO(uint16_t port, EmuTime time)
 {
 	return port & 0x01 ? rp5c01.readPort(registerLatch, time) | 0xF0 : 0xFF;
 }
 
-uint8_t MSXRTC::peekIO(uint16_t port, EmuTime::param /*time*/) const
+uint8_t MSXRTC::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	return port & 0x01 ? rp5c01.peekPort(registerLatch) | 0xF0 : 0xFF;
 }
 
-void MSXRTC::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void MSXRTC::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	switch (port & 0x01) {
 	case 0:

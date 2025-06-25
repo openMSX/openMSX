@@ -93,27 +93,27 @@ MSXMoonSound::MSXMoonSound(DeviceConfig& config)
 {
 }
 
-void MSXMoonSound::powerUp(EmuTime::param time)
+void MSXMoonSound::powerUp(EmuTime time)
 {
 	ymf278b.powerUp(time);
 }
 
-void MSXMoonSound::reset(EmuTime::param time)
+void MSXMoonSound::reset(EmuTime time)
 {
 	ymf278b.reset(time);
 }
 
-byte MSXMoonSound::readIO(uint16_t port, EmuTime::param time)
+byte MSXMoonSound::readIO(uint16_t port, EmuTime time)
 {
 	return ymf278b.readIO(port, time);
 }
 
-byte MSXMoonSound::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXMoonSound::peekIO(uint16_t port, EmuTime time) const
 {
 	return ymf278b.peekIO(port, time);
 }
 
-void MSXMoonSound::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXMoonSound::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	ymf278b.writeIO(port, value, time);
 }

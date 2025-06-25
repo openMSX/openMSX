@@ -44,7 +44,7 @@ public:
 	[[nodiscard]] bool isActive() override;
 	void reset() override;
 	void frameStart() override;
-	void frameEnd(EmuTime::param time) override;
+	void frameEnd(EmuTime time) override;
 	void setDisplayMode(V9990DisplayMode displayMode) override;
 	void setColorMode(V9990ColorMode colorMode) override;
 	void setPalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys) override;

@@ -36,7 +36,7 @@ ROMHunterMk2::ROMHunterMk2(const DeviceConfig& config, Rom&& rom_)
 	reset(getCurrentTime());
 }
 
-void ROMHunterMk2::reset(EmuTime::param /*time*/)
+void ROMHunterMk2::reset(EmuTime /*time*/)
 {
 	configReg = 0;
 	std::ranges::fill(bankRegs, 0);
@@ -66,17 +66,17 @@ const byte* ROMHunterMk2::getReadCacheLine(uint16_t addr) const
 	}
 }
 
-byte ROMHunterMk2::peekMem(uint16_t addr, EmuTime::param /*time*/) const
+byte ROMHunterMk2::peekMem(uint16_t addr, EmuTime /*time*/) const
 {
 	return *getReadCacheLine(addr);
 }
 
-byte ROMHunterMk2::readMem(uint16_t addr, EmuTime::param time)
+byte ROMHunterMk2::readMem(uint16_t addr, EmuTime time)
 {
 	return peekMem(addr, time); // reads have no side effects
 }
 
-void ROMHunterMk2::writeMem(uint16_t addr, byte value, EmuTime::param /*time*/)
+void ROMHunterMk2::writeMem(uint16_t addr, byte value, EmuTime /*time*/)
 {
 	// config register at address 0x3FFF
 	if (addr == 0x3FFF) {

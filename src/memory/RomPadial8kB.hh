@@ -10,7 +10,7 @@ class RomPadial8kB final : public RomAscii8kB
 public:
 	RomPadial8kB(const DeviceConfig& config, Rom&& rom);
 
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 };
 
 } // namespace openmsx

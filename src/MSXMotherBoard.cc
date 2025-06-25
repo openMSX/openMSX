@@ -79,7 +79,7 @@ class ResetCmd final : public RecordedCommand
 public:
 	explicit ResetCmd(MSXMotherBoard& motherBoard);
 	void execute(std::span<const TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
+	             EmuTime time) override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -111,7 +111,7 @@ class RemoveExtCmd final : public RecordedCommand
 public:
 	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
 	void execute(std::span<const TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
+	             EmuTime time) override;
 	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
 	void tabCompletion(std::vector<string>& tokens) const override;
 private:
@@ -191,9 +191,9 @@ class FastForwardHelper final : private Schedulable
 {
 public:
 	explicit FastForwardHelper(MSXMotherBoard& motherBoard);
-	void setTarget(EmuTime::param targetTime);
+	void setTarget(EmuTime targetTime);
 private:
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 	MSXMotherBoard& motherBoard;
 };
 
@@ -201,7 +201,7 @@ class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
 	explicit JoyPortDebuggable(MSXMotherBoard& motherBoard);
-	[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 	void write(unsigned address, uint8_t value) override;
 };
 
@@ -613,7 +613,7 @@ InfoCommand& MSXMotherBoard::getMachineInfoCommand()
 	return msxCommandController->getMachineInfoCommand();
 }
 
-EmuTime::param MSXMotherBoard::getCurrentTime() const
+EmuTime MSXMotherBoard::getCurrentTime() const
 {
 	return scheduler->getCurrentTime();
 }
@@ -629,7 +629,7 @@ bool MSXMotherBoard::execute()
 	return true;
 }
 
-void MSXMotherBoard::fastForward(EmuTime::param time, bool fast)
+void MSXMotherBoard::fastForward(EmuTime time, bool fast)
 {
 	assert(powered);
 	assert(getMachineConfig());
@@ -679,7 +679,7 @@ void MSXMotherBoard::doReset()
 	if (!powered) return;
 	assert(getMachineConfig());
 
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	getCPUInterface().reset();
 	for (auto& d : availableDevices) {
 		d->reset(time);
@@ -715,7 +715,7 @@ void MSXMotherBoard::powerUp()
 	//       it separately here.
 	getLedStatus().setLed(LedStatus::POWER, true);
 
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	getCPUInterface().reset();
 	for (auto& d : availableDevices) {
 		d->powerUp(time);
@@ -741,7 +741,7 @@ void MSXMotherBoard::powerDown()
 
 	msxMixer->mute();
 
-	EmuTime::param time = getCurrentTime();
+	EmuTime time = getCurrentTime();
 	for (auto& d : availableDevices) {
 		d->powerDown(time);
 	}
@@ -862,7 +862,7 @@ ResetCmd::ResetCmd(MSXMotherBoard& motherBoard_)
 }
 
 void ResetCmd::execute(std::span<const TclObject> /*tokens*/, TclObject& /*result*/,
-                       EmuTime::param /*time*/)
+                       EmuTime /*time*/)
 {
 	motherBoard.doReset();
 }
@@ -956,7 +956,7 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, std::string commandName_)
 }
 
 void ExtCmd::execute(std::span<const TclObject> tokens, TclObject& result,
-                     EmuTime::param /*time*/)
+                     EmuTime /*time*/)
 {
 	checkNumArgs(tokens, Between{2, 3}, "extension");
 	if (tokens.size() == 3 && tokens[1].getString() != "insert") {
@@ -1003,7 +1003,7 @@ RemoveExtCmd::RemoveExtCmd(MSXMotherBoard& motherBoard_)
 }
 
 void RemoveExtCmd::execute(std::span<const TclObject> tokens, TclObject& /*result*/,
-                           EmuTime::param /*time*/)
+                           EmuTime /*time*/)
 {
 	checkNumArgs(tokens, 2, "extension");
 	std::string_view extName = tokens[1].getString();
@@ -1279,12 +1279,12 @@ FastForwardHelper::FastForwardHelper(MSXMotherBoard& motherBoard_)
 {
 }
 
-void FastForwardHelper::setTarget(EmuTime::param targetTime)
+void FastForwardHelper::setTarget(EmuTime targetTime)
 {
 	setSyncPoint(targetTime);
 }
 
-void FastForwardHelper::executeUntil(EmuTime::param /*time*/)
+void FastForwardHelper::executeUntil(EmuTime /*time*/)
 {
 	motherBoard.exitCPULoopSync();
 }
@@ -1297,7 +1297,7 @@ JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard_)
 {
 }
 
-uint8_t JoyPortDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t JoyPortDebuggable::read(unsigned address, EmuTime time)
 {
 	return getMotherBoard().getJoystickPort(address).read(time);
 }

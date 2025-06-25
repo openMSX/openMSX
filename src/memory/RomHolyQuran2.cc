@@ -47,13 +47,13 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomHolyQuran2::reset(EmuTime::param /*time*/)
+void RomHolyQuran2::reset(EmuTime /*time*/)
 {
 	std::ranges::fill(bank, &rom[0]);
 	decrypt = false;
 }
 
-byte RomHolyQuran2::readMem(uint16_t address, EmuTime::param time)
+byte RomHolyQuran2::readMem(uint16_t address, EmuTime time)
 {
 	byte result = RomHolyQuran2::peekMem(address, time);
 	if (!decrypt) [[unlikely]] {
@@ -65,7 +65,7 @@ byte RomHolyQuran2::readMem(uint16_t address, EmuTime::param time)
 	return result;
 }
 
-byte RomHolyQuran2::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte RomHolyQuran2::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
 		unsigned b = (address - 0x4000) >> 13;
@@ -76,7 +76,7 @@ byte RomHolyQuran2::peekMem(uint16_t address, EmuTime::param /*time*/) const
 	}
 }
 
-void RomHolyQuran2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomHolyQuran2::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {

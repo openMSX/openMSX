@@ -45,7 +45,7 @@ protected:
 	// SoundDevice
 	void setOutputRate(unsigned hostSampleRate, double speed) override;
 	bool updateBuffer(size_t length, float* buffer,
-	                  EmuTime::param time) override;
+	                  EmuTime time) override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

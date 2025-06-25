@@ -20,11 +20,11 @@ public:
 	explicit SunriseIDE(DeviceConfig& config);
 	~SunriseIDE() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
-	void writeMem(uint16_t address, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime time) override;
+	void writeMem(uint16_t address, uint8_t value, EmuTime time) override;
 	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t start) const override;
 
 	template<typename Archive>
@@ -34,14 +34,14 @@ private:
 	[[nodiscard]] uint8_t getBank() const;
 	void writeControl(uint8_t value);
 
-	[[nodiscard]] uint8_t readDataLow(EmuTime::param time);
-	[[nodiscard]] uint8_t readDataHigh(EmuTime::param time) const;
-	[[nodiscard]] uint16_t readData(EmuTime::param time);
-	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime::param time);
+	[[nodiscard]] uint8_t readDataLow(EmuTime time);
+	[[nodiscard]] uint8_t readDataHigh(EmuTime time) const;
+	[[nodiscard]] uint16_t readData(EmuTime time);
+	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime time);
 	void writeDataLow(uint8_t value);
-	void writeDataHigh(uint8_t value, EmuTime::param time);
-	void writeData(uint16_t value, EmuTime::param time);
-	void writeReg(uint4_t reg, uint8_t value, EmuTime::param time);
+	void writeDataHigh(uint8_t value, EmuTime time);
+	void writeData(uint16_t value, EmuTime time);
+	void writeReg(uint4_t reg, uint8_t value, EmuTime time);
 
 private:
 	struct Blocks final : RomBlockDebuggableBase {

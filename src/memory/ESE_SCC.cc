@@ -84,13 +84,13 @@ ESE_SCC::ESE_SCC(DeviceConfig& config, bool withSCSI)
 	ranges::iota(mapper, byte(0));
 }
 
-void ESE_SCC::powerUp(EmuTime::param time)
+void ESE_SCC::powerUp(EmuTime time)
 {
 	scc.powerUp(time);
 	reset(time);
 }
 
-void ESE_SCC::reset(EmuTime::param time)
+void ESE_SCC::reset(EmuTime time)
 {
 	setMapperHigh(0);
 	for (auto i : xrange(byte(4))) {
@@ -146,7 +146,7 @@ void ESE_SCC::setMapperHigh(byte value)
 	}
 }
 
-byte ESE_SCC::readMem(uint16_t address, EmuTime::param time)
+byte ESE_SCC::readMem(uint16_t address, EmuTime time)
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC
@@ -166,7 +166,7 @@ byte ESE_SCC::readMem(uint16_t address, EmuTime::param time)
 	return sram[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
-byte ESE_SCC::peekMem(uint16_t address, EmuTime::param time) const
+byte ESE_SCC::peekMem(uint16_t address, EmuTime time) const
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC
@@ -201,7 +201,7 @@ const byte* ESE_SCC::getReadCacheLine(uint16_t address) const
 	return &sram[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
-void ESE_SCC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void ESE_SCC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	unsigned page = address / 0x2000 - 2;
 	// SPC Write

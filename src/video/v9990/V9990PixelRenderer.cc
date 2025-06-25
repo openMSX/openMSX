@@ -48,7 +48,7 @@ PostProcessor* V9990PixelRenderer::getPostProcessor() const
 	return rasterizer->getPostProcessor();
 }
 
-void V9990PixelRenderer::reset(EmuTime::param time)
+void V9990PixelRenderer::reset(EmuTime time)
 {
 	displayEnabled = vdp.isDisplayEnabled();
 	setDisplayMode(vdp.getDisplayMode(), time);
@@ -57,7 +57,7 @@ void V9990PixelRenderer::reset(EmuTime::param time)
 	rasterizer->reset();
 }
 
-void V9990PixelRenderer::frameStart(EmuTime::param time)
+void V9990PixelRenderer::frameStart(EmuTime time)
 {
 	if (!rasterizer->isActive()) {
 		frameSkipCounter = 999;
@@ -101,7 +101,7 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 	rasterizer->frameStart();
 }
 
-void V9990PixelRenderer::frameEnd(EmuTime::param time)
+void V9990PixelRenderer::frameEnd(EmuTime time)
 {
 	bool skipEvent = !drawFrame;
 	if (drawFrame) {
@@ -134,7 +134,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	}
 }
 
-void V9990PixelRenderer::sync(EmuTime::param time, bool force)
+void V9990PixelRenderer::sync(EmuTime time, bool force)
 {
 	if (!drawFrame) return;
 
@@ -144,7 +144,7 @@ void V9990PixelRenderer::sync(EmuTime::param time, bool force)
 	}
 }
 
-void V9990PixelRenderer::renderUntil(EmuTime::param time)
+void V9990PixelRenderer::renderUntil(EmuTime time)
 {
 	// Translate time to pixel position
 	int limitTicks = vdp.getUCTicksThisFrame(time);
@@ -246,20 +246,20 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	}
 }
 
-void V9990PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime::param time)
+void V9990PixelRenderer::updateDisplayEnabled(bool enabled, EmuTime time)
 {
 	sync(time, true);
 	displayEnabled = enabled;
 }
 
-void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, EmuTime::param time)
+void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, EmuTime time)
 {
 	sync(time);
 	rasterizer->setDisplayMode(mode);
 }
 
 void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
-                                       EmuTime::param time)
+                                       EmuTime time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -269,32 +269,32 @@ void V9990PixelRenderer::updatePalette(int index, uint8_t r, uint8_t g, uint8_t 
 	}
 	rasterizer->setPalette(index, r, g, b, ys);
 }
-void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime::param time)
+void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime time)
 {
 	sync(time);
 	rasterizer->setSuperimpose(enabled);
 }
-void V9990PixelRenderer::setColorMode(V9990ColorMode mode, EmuTime::param time)
+void V9990PixelRenderer::setColorMode(V9990ColorMode mode, EmuTime time)
 {
 	sync(time);
 	rasterizer->setColorMode(mode);
 }
 
-void V9990PixelRenderer::updateBackgroundColor(int /*index*/, EmuTime::param time)
+void V9990PixelRenderer::updateBackgroundColor(int /*index*/, EmuTime time)
 {
 	sync(time);
 }
 
-void V9990PixelRenderer::updateScrollAX(EmuTime::param time)
+void V9990PixelRenderer::updateScrollAX(EmuTime time)
 {
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollBX(EmuTime::param time)
+void V9990PixelRenderer::updateScrollBX(EmuTime time)
 {
 	// TODO only in P1 mode
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollAYLow(EmuTime::param time)
+void V9990PixelRenderer::updateScrollAYLow(EmuTime time)
 {
 	if (displayEnabled) {
 		sync(time);
@@ -303,7 +303,7 @@ void V9990PixelRenderer::updateScrollAYLow(EmuTime::param time)
 		verticalOffsetA = lastY;
 	}
 }
-void V9990PixelRenderer::updateScrollBYLow(EmuTime::param time)
+void V9990PixelRenderer::updateScrollBYLow(EmuTime time)
 {
 	// TODO only in P1 mode
 	if (displayEnabled) {

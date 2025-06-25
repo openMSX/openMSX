@@ -12,7 +12,7 @@ class ResampleTrivial final : public ResampleAlgo
 public:
 	explicit ResampleTrivial(ResampledSoundDevice& input);
 	bool generateOutputImpl(float* dataOut, size_t num,
-	                        EmuTime::param time) override;
+	                        EmuTime time) override;
 };
 
 } // namespace openmsx

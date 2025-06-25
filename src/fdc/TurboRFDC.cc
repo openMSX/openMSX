@@ -59,13 +59,13 @@ TurboRFDC::TurboRFDC(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void TurboRFDC::reset(EmuTime::param time)
+void TurboRFDC::reset(EmuTime time)
 {
 	setBank(0);
 	controller.reset(time);
 }
 
-byte TurboRFDC::readMem(uint16_t address, EmuTime::param time_)
+byte TurboRFDC::readMem(uint16_t address, EmuTime time_)
 {
 	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {
@@ -99,7 +99,7 @@ byte TurboRFDC::readMem(uint16_t address, EmuTime::param time_)
 }
 
 
-byte TurboRFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte TurboRFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// note: this implementation requires that the handled
@@ -162,7 +162,7 @@ const byte* TurboRFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void TurboRFDC::writeMem(uint16_t address, byte value, EmuTime::param time_)
+void TurboRFDC::writeMem(uint16_t address, byte value, EmuTime time_)
 {
 	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {

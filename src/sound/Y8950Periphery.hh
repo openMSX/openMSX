@@ -29,7 +29,7 @@ public:
 	  *               parameter is set are meaningful.
 	  * @param time The moment in time the write occurs
 	  */
-	virtual void write(uint4_t outputs, uint4_t values, EmuTime::param time) = 0;
+	virtual void write(uint4_t outputs, uint4_t values, EmuTime time) = 0;
 
 	/** Read from (some of) the pins
 	  * Some of the pins might be programmed as output, but this method
@@ -37,14 +37,14 @@ public:
 	  * as-if they were all programmed as input.
 	  * @param time The moment in time the read occurs
 	  */
-	[[nodiscard]] virtual uint4_t read(EmuTime::param time) = 0;
+	[[nodiscard]] virtual uint4_t read(EmuTime time) = 0;
 
 	/** SP-OFF bit (bit 3 in Y8950 register 7) */
-	virtual void setSPOFF(bool value, EmuTime::param time);
+	virtual void setSPOFF(bool value, EmuTime time);
 
-	[[nodiscard]] virtual uint8_t readMem(uint16_t address, EmuTime::param time);
-	[[nodiscard]] virtual uint8_t peekMem(uint16_t address, EmuTime::param time) const;
-	virtual void writeMem(uint16_t address, uint8_t value, EmuTime::param time);
+	[[nodiscard]] virtual uint8_t readMem(uint16_t address, EmuTime time);
+	[[nodiscard]] virtual uint8_t peekMem(uint16_t address, EmuTime time) const;
+	virtual void writeMem(uint16_t address, uint8_t value, EmuTime time);
 	[[nodiscard]] virtual const uint8_t* getReadCacheLine(uint16_t start) const;
 	[[nodiscard]] virtual uint8_t* getWriteCacheLine(uint16_t start);
 };

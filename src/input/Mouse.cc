@@ -30,7 +30,7 @@ class MouseState final : public StateChange
 {
 public:
 	MouseState() = default; // for serialize
-	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
+	MouseState(EmuTime time_, int deltaX_, int deltaY_,
 	           uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
@@ -101,7 +101,7 @@ std::string_view Mouse::getDescription() const
 	return "MSX mouse";
 }
 
-void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
+void Mouse::plugHelper(Connector& /*connector*/, EmuTime time)
 {
 	if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
 		// left mouse button pressed, joystick emulation mode
@@ -120,7 +120,7 @@ void Mouse::plugHelper2()
 	stateChangeDistributor.registerListener(*this);
 }
 
-void Mouse::unplugHelper(EmuTime::param /*time*/)
+void Mouse::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
@@ -128,7 +128,7 @@ void Mouse::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-uint8_t Mouse::read(EmuTime::param /*time*/)
+uint8_t Mouse::read(EmuTime /*time*/)
 {
 	if (mouseMode) {
 		switch (phase) {
@@ -198,7 +198,7 @@ void Mouse::emulateJoystick()
 	}
 }
 
-void Mouse::write(uint8_t value, EmuTime::param time)
+void Mouse::write(uint8_t value, EmuTime time)
 {
 	if (mouseMode) {
 		// TODO figure out the exact timeout value. Is there even such
@@ -272,7 +272,7 @@ void Mouse::write(uint8_t value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
+void Mouse::signalMSXEvent(const Event& event, EmuTime time) noexcept
 {
 	visit(overloaded{
 		[&](const MouseMotionEvent& e) {
@@ -321,7 +321,7 @@ void Mouse::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
 }
 
 void Mouse::createMouseStateChange(
-	EmuTime::param time, int deltaX, int deltaY, uint8_t press, uint8_t release)
+	EmuTime time, int deltaX, int deltaY, uint8_t press, uint8_t release)
 {
 	stateChangeDistributor.distributeNew<MouseState>(
 		time, deltaX, deltaY, press, release);
@@ -339,7 +339,7 @@ void Mouse::signalStateChange(const StateChange& event)
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
-void Mouse::stopReplay(EmuTime::param time) noexcept
+void Mouse::stopReplay(EmuTime time) noexcept
 {
 	// TODO read actual host mouse button state
 	int dx = 0 - curXRel;

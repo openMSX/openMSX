@@ -41,7 +41,7 @@ static constexpr std::array mask = {
 };
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
-               EmuTime::param time, const std::string& name)
+               EmuTime time, const std::string& name)
 	: regs(regs_)
 	, modeSetting(
 		commandController,
@@ -57,7 +57,7 @@ RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
 	reset(time);
 }
 
-void RP5C01::reset(EmuTime::param time)
+void RP5C01::reset(EmuTime time)
 {
 	modeReg = MODE_TIMER_ENABLE;
 	testReg = 0;
@@ -65,7 +65,7 @@ void RP5C01::reset(EmuTime::param time)
 	updateTimeRegs(time);
 }
 
-uint4_t RP5C01::readPort(uint4_t port, EmuTime::param time)
+uint4_t RP5C01::readPort(uint4_t port, EmuTime time)
 {
 	switch (port) {
 	case MODE_REG:
@@ -99,7 +99,7 @@ uint4_t RP5C01::peekPort(uint4_t port) const
 	}
 }
 
-void RP5C01::writePort(uint4_t port, uint4_t value, EmuTime::param time)
+void RP5C01::writePort(uint4_t port, uint4_t value, EmuTime time)
 {
 	assert (port <= 0x0f);
 	switch (port) {
@@ -199,7 +199,7 @@ static constexpr int daysInMonth(int month, unsigned leapYear)
 	return ((month == 1) && (leapYear == 0)) ? 29 : daysInMonths[month];
 }
 
-void RP5C01::updateTimeRegs(EmuTime::param time)
+void RP5C01::updateTimeRegs(EmuTime time)
 {
 	if (modeSetting.getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation

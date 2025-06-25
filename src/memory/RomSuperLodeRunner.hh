@@ -13,8 +13,8 @@ class RomSuperLodeRunner final
 public:
 	RomSuperLodeRunner(const DeviceConfig& config, Rom&& rom);
 
-	void reset(EmuTime::param time) override;
-	void globalWrite(uint16_t address, byte value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void globalWrite(uint16_t address, byte value, EmuTime time) override;
 };
 
 } // namespace openmsx

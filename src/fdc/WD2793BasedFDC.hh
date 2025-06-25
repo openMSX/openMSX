@@ -11,7 +11,7 @@ namespace openmsx {
 class WD2793BasedFDC : public MSXFDC
 {
 public:
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

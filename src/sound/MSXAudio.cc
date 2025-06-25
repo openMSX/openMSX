@@ -38,20 +38,20 @@ Y8950Periphery& MSXAudio::createPeriphery(const std::string& soundDeviceName)
 	return *periphery;
 }
 
-void MSXAudio::powerUp(EmuTime::param time)
+void MSXAudio::powerUp(EmuTime time)
 {
 	y8950.clearRam();
 	reset(time);
 }
 
-void MSXAudio::reset(EmuTime::param time)
+void MSXAudio::reset(EmuTime time)
 {
 	y8950.reset(time);
 	periphery->reset();
 	registerLatch = 0; // TODO check
 }
 
-byte MSXAudio::readIO(uint16_t port, EmuTime::param time)
+byte MSXAudio::readIO(uint16_t port, EmuTime time)
 {
 	if ((port & 0xE8) == 0x08) {
 		// read DAC
@@ -62,7 +62,7 @@ byte MSXAudio::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-byte MSXAudio::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXAudio::peekIO(uint16_t port, EmuTime time) const
 {
 	if ((port & 0xE8) == 0x08) {
 		// read DAC
@@ -73,7 +73,7 @@ byte MSXAudio::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void MSXAudio::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXAudio::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	if ((port & 0xE8) == 0x08) {
 		dacValue = value;
@@ -90,15 +90,15 @@ void MSXAudio::writeIO(uint16_t port, byte value, EmuTime::param time)
 	}
 }
 
-byte MSXAudio::readMem(uint16_t address, EmuTime::param time)
+byte MSXAudio::readMem(uint16_t address, EmuTime time)
 {
 	return periphery->readMem(address, time);
 }
-byte MSXAudio::peekMem(uint16_t address, EmuTime::param time) const
+byte MSXAudio::peekMem(uint16_t address, EmuTime time) const
 {
 	return periphery->peekMem(address, time);
 }
-void MSXAudio::writeMem(uint16_t address, byte value, EmuTime::param time)
+void MSXAudio::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	periphery->writeMem(address, value, time);
 }
@@ -111,7 +111,7 @@ byte* MSXAudio::getWriteCacheLine(uint16_t start)
 	return periphery->getWriteCacheLine(start);
 }
 
-void MSXAudio::enableDAC(bool enable, EmuTime::param time)
+void MSXAudio::enableDAC(bool enable, EmuTime time)
 {
 	if ((dacEnabled != enable) && dac) {
 		dacEnabled = enable;

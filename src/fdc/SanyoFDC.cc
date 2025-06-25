@@ -19,7 +19,7 @@ SanyoFDC::SanyoFDC(DeviceConfig& config)
 	parseRomVisibility(config, 0x0000, 0x8000);
 }
 
-byte SanyoFDC::readMem(uint16_t address, EmuTime::param time)
+byte SanyoFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address) {
 	case 0x7FF8:
@@ -44,7 +44,7 @@ byte SanyoFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte SanyoFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte SanyoFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	switch (address) {
 	case 0x7FF8:
@@ -83,7 +83,7 @@ const byte* SanyoFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void SanyoFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void SanyoFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address) {
 	case 0x7FF8:

@@ -16,17 +16,17 @@ public:
 	explicit MSXTurboRPCM(const DeviceConfig& config);
 	~MSXTurboRPCM() override;
 
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] byte getSample(EmuTime::param time) const;
-	[[nodiscard]] bool getComp(EmuTime::param time) const;
+	[[nodiscard]] byte getSample(EmuTime time) const;
+	[[nodiscard]] bool getComp(EmuTime time) const;
 	void hardwareMute(bool mute);
 
 private:

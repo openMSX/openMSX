@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-void DummyRS232Device::signal(EmuTime::param /*time*/)
+void DummyRS232Device::signal(EmuTime /*time*/)
 {
 	// ignore
 }
@@ -13,15 +13,15 @@ std::string_view DummyRS232Device::getDescription() const
 }
 
 void DummyRS232Device::plugHelper(Connector& /*connector*/,
-                                  EmuTime::param /*time*/)
+                                  EmuTime /*time*/)
 {
 }
 
-void DummyRS232Device::unplugHelper(EmuTime::param /*time*/)
+void DummyRS232Device::unplugHelper(EmuTime /*time*/)
 {
 }
 
-void DummyRS232Device::recvByte(uint8_t /*value*/, EmuTime::param /*time*/)
+void DummyRS232Device::recvByte(uint8_t /*value*/, EmuTime /*time*/)
 {
 	// ignore
 }

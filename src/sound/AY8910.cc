@@ -478,7 +478,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 // AY8910 main class:
 
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
-               const DeviceConfig& config, EmuTime::param time)
+               const DeviceConfig& config, EmuTime time)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, NATIVE_FREQ_INT, false)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
@@ -522,7 +522,7 @@ AY8910::~AY8910()
 	unregisterSound();
 }
 
-void AY8910::reset(EmuTime::param time)
+void AY8910::reset(EmuTime time)
 {
 	// Reset generators and envelope.
 	for (auto& t : tone) t.reset();
@@ -535,7 +535,7 @@ void AY8910::reset(EmuTime::param time)
 }
 
 
-uint8_t AY8910::readRegister(unsigned reg, EmuTime::param time)
+uint8_t AY8910::readRegister(unsigned reg, EmuTime time)
 {
 	if (reg >= 16) return 255;
 	switch (reg) {
@@ -560,7 +560,7 @@ uint8_t AY8910::readRegister(unsigned reg, EmuTime::param time)
 	                : regs[reg];
 }
 
-uint8_t AY8910::peekRegister(unsigned reg, EmuTime::param time) const
+uint8_t AY8910::peekRegister(unsigned reg, EmuTime time) const
 {
 	if (reg >= 16) return 255;
 	switch (reg) {
@@ -579,7 +579,7 @@ uint8_t AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 }
 
 
-void AY8910::writeRegister(unsigned reg, uint8_t value, EmuTime::param time)
+void AY8910::writeRegister(unsigned reg, uint8_t value, EmuTime time)
 {
 	if (reg >= 16) return;
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
@@ -588,7 +588,7 @@ void AY8910::writeRegister(unsigned reg, uint8_t value, EmuTime::param time)
 	}
 	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime::param time)
+void AY8910::wrtReg(unsigned reg, uint8_t value, EmuTime time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
@@ -997,13 +997,13 @@ AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& 
 {
 }
 
-uint8_t AY8910::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t AY8910::Debuggable::read(unsigned address, EmuTime time)
 {
 	auto& ay8910 = OUTER(AY8910, debuggable);
 	return ay8910.readRegister(address, time);
 }
 
-void AY8910::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
+void AY8910::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& ay8910 = OUTER(AY8910, debuggable);
 	ay8910.writeRegister(address, value, time);

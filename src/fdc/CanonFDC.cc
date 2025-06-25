@@ -26,13 +26,13 @@ CanonFDC::CanonFDC(DeviceConfig& config)
 {
 }
 
-void CanonFDC::reset(EmuTime::param time)
+void CanonFDC::reset(EmuTime time)
 {
 	WD2793BasedFDC::reset(time);
 	writeMem(0x3FFC, 0, time);
 }
 
-byte CanonFDC::readMem(uint16_t address, EmuTime::param time)
+byte CanonFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -58,7 +58,7 @@ byte CanonFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte CanonFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte CanonFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
@@ -91,7 +91,7 @@ const byte* CanonFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void CanonFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void CanonFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:

@@ -18,30 +18,30 @@ class WD2793 final : public Schedulable
 {
 public:
 	WD2793(Scheduler& scheduler, DiskDrive& drive, MSXCliComm& cliComm,
-	       EmuTime::param time, bool isWD1770);
+	       EmuTime time, bool isWD1770);
 
-	void reset(EmuTime::param time);
+	void reset(EmuTime time);
 
-	[[nodiscard]] uint8_t getStatusReg(EmuTime::param time);
-	[[nodiscard]] uint8_t getTrackReg (EmuTime::param time) const;
-	[[nodiscard]] uint8_t getSectorReg(EmuTime::param time) const;
-	[[nodiscard]] uint8_t getDataReg  (EmuTime::param time);
+	[[nodiscard]] uint8_t getStatusReg(EmuTime time);
+	[[nodiscard]] uint8_t getTrackReg (EmuTime time) const;
+	[[nodiscard]] uint8_t getSectorReg(EmuTime time) const;
+	[[nodiscard]] uint8_t getDataReg  (EmuTime time);
 
-	[[nodiscard]] uint8_t peekStatusReg(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekTrackReg (EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekSectorReg(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekDataReg  (EmuTime::param time) const;
+	[[nodiscard]] uint8_t peekStatusReg(EmuTime time) const;
+	[[nodiscard]] uint8_t peekTrackReg (EmuTime time) const;
+	[[nodiscard]] uint8_t peekSectorReg(EmuTime time) const;
+	[[nodiscard]] uint8_t peekDataReg  (EmuTime time) const;
 
-	void setCommandReg(uint8_t value, EmuTime::param time);
-	void setTrackReg  (uint8_t value, EmuTime::param time);
-	void setSectorReg (uint8_t value, EmuTime::param time);
-	void setDataReg   (uint8_t value, EmuTime::param time);
+	void setCommandReg(uint8_t value, EmuTime time);
+	void setTrackReg  (uint8_t value, EmuTime time);
+	void setSectorReg (uint8_t value, EmuTime time);
+	void setDataReg   (uint8_t value, EmuTime time);
 
-	[[nodiscard]] bool getIRQ (EmuTime::param time) const;
-	[[nodiscard]] bool getDTRQ(EmuTime::param time) const;
+	[[nodiscard]] bool getIRQ (EmuTime time) const;
+	[[nodiscard]] bool getDTRQ(EmuTime time) const;
 
-	[[nodiscard]] bool peekIRQ (EmuTime::param time) const;
-	[[nodiscard]] bool peekDTRQ(EmuTime::param time) const;
+	[[nodiscard]] bool peekIRQ (EmuTime time) const;
+	[[nodiscard]] bool peekDTRQ(EmuTime time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -65,43 +65,43 @@ public:
 	};
 
 private:
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
-	void startType1Cmd(EmuTime::param time);
+	void startType1Cmd(EmuTime time);
 
-	void seek(EmuTime::param time);
-	void step(EmuTime::param time);
-	void seekNext(EmuTime::param time);
-	void endType1Cmd(EmuTime::param time);
+	void seek(EmuTime time);
+	void step(EmuTime time);
+	void seekNext(EmuTime time);
+	void endType1Cmd(EmuTime time);
 
-	void startType2Cmd   (EmuTime::param time);
-	void type2Loaded     (EmuTime::param time);
-	void type2Search     (EmuTime::param time);
-	void type2NotFound   (EmuTime::param time);
-	void type2Rotated    (EmuTime::param time);
-	void startReadSector (EmuTime::param time);
-	void startWriteSector(EmuTime::param time);
-	void checkStartWrite (EmuTime::param time);
-	void preWriteSector  (EmuTime::param time);
-	void writeSectorData (EmuTime::param time);
-	void postWriteSector (EmuTime::param time);
+	void startType2Cmd   (EmuTime time);
+	void type2Loaded     (EmuTime time);
+	void type2Search     (EmuTime time);
+	void type2NotFound   (EmuTime time);
+	void type2Rotated    (EmuTime time);
+	void startReadSector (EmuTime time);
+	void startWriteSector(EmuTime time);
+	void checkStartWrite (EmuTime time);
+	void preWriteSector  (EmuTime time);
+	void writeSectorData (EmuTime time);
+	void postWriteSector (EmuTime time);
 
-	void startType3Cmd   (EmuTime::param time);
-	void type3Loaded     (EmuTime::param time);
-	void type3Rotated    (EmuTime::param time);
-	void readAddressCmd  (EmuTime::param time);
-	void readTrackCmd    (EmuTime::param time);
-	void startWriteTrack (EmuTime::param time);
-	void writeTrackData  (EmuTime::param time);
+	void startType3Cmd   (EmuTime time);
+	void type3Loaded     (EmuTime time);
+	void type3Rotated    (EmuTime time);
+	void readAddressCmd  (EmuTime time);
+	void readTrackCmd    (EmuTime time);
+	void startWriteTrack (EmuTime time);
+	void writeTrackData  (EmuTime time);
 
-	void startType4Cmd(EmuTime::param time);
+	void startType4Cmd(EmuTime time);
 
-	void endCmd(EmuTime::param time);
+	void endCmd(EmuTime time);
 
 	void setDrqRate(unsigned trackLength);
 	[[nodiscard]] bool isReady() const;
 
-	void schedule(FSM state, EmuTime::param time);
+	void schedule(FSM state, EmuTime time);
 
 private:
 	DiskDrive& drive;

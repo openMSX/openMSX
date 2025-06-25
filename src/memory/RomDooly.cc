@@ -18,12 +18,12 @@ RomDooly::RomDooly(const DeviceConfig& config, Rom&& rom_)
 	}
 }
 
-void RomDooly::reset(EmuTime::param /*time*/)
+void RomDooly::reset(EmuTime /*time*/)
 {
 	conversion = 0;
 }
 
-byte RomDooly::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte RomDooly::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
 		byte value = rom[address - 0x4000];
@@ -59,12 +59,12 @@ byte RomDooly::peekMem(uint16_t address, EmuTime::param /*time*/) const
 	return 0xff;
 }
 
-byte RomDooly::readMem(uint16_t address, EmuTime::param time)
+byte RomDooly::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-void RomDooly::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomDooly::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// TODO: To what region does the real cartridge react?
 	// * Using the full region [0x4000,0xc000) interferes with the

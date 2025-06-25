@@ -21,12 +21,12 @@ MSXKanji12::MSXKanji12(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXKanji12::reset(EmuTime::param /*time*/)
+void MSXKanji12::reset(EmuTime /*time*/)
 {
 	address = 0; // TODO check this
 }
 
-byte MSXKanji12::readSwitchedIO(uint16_t port, EmuTime::param time)
+byte MSXKanji12::readSwitchedIO(uint16_t port, EmuTime time)
 {
 	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
@@ -37,7 +37,7 @@ byte MSXKanji12::readSwitchedIO(uint16_t port, EmuTime::param time)
 	return result;
 }
 
-byte MSXKanji12::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
+byte MSXKanji12::peekSwitchedIO(uint16_t port, EmuTime /*time*/) const
 {
 	switch (port & 0x0F) {
 		case 0:
@@ -55,7 +55,7 @@ byte MSXKanji12::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
 	}
 }
 
-void MSXKanji12::writeSwitchedIO(uint16_t port, byte value, EmuTime::param /*time*/)
+void MSXKanji12::writeSwitchedIO(uint16_t port, byte value, EmuTime /*time*/)
 {
 	switch (port & 0x0F) {
 		case 2:

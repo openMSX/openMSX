@@ -20,15 +20,15 @@ class ClockPinListener;
 class Counter {
 public:
 	Counter(Scheduler& scheduler, ClockPinListener* listener,
-		EmuTime::param time);
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t readIO(EmuTime::param time);
-	[[nodiscard]] uint8_t peekIO(EmuTime::param time) const;
-	void writeIO(uint8_t value, EmuTime::param time);
-	void setGateStatus(bool status, EmuTime::param time);
-	void writeControlWord(uint8_t value, EmuTime::param time);
-	void latchStatus(EmuTime::param time);
-	void latchCounter(EmuTime::param time);
+		EmuTime time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t readIO(EmuTime time);
+	[[nodiscard]] uint8_t peekIO(EmuTime time) const;
+	void writeIO(uint8_t value, EmuTime time);
+	void setGateStatus(bool status, EmuTime time);
+	void writeControlWord(uint8_t value, EmuTime time);
+	void latchStatus(EmuTime time);
+	void latchCounter(EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -52,8 +52,8 @@ private:
 	static constexpr uint8_t CNTR_M2_  = 0x0C;
 	static constexpr uint8_t CNTR_M3_  = 0x0E;
 
-	void writeLoad(uint16_t value, EmuTime::param time);
-	void advance(EmuTime::param time);
+	void writeLoad(uint16_t value, EmuTime time);
+	void advance(EmuTime time);
 
 private:
 	ClockPin clock;
@@ -77,14 +77,14 @@ class I8254
 public:
 	I8254(Scheduler& scheduler, ClockPinListener* output0,
 	      ClockPinListener* output1, ClockPinListener* output2,
-	      EmuTime::param time);
+	      EmuTime time);
 
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time);
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time);
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time);
 
-	void setGate(unsigned cntr, bool status, EmuTime::param time);
+	void setGate(unsigned cntr, bool status, EmuTime time);
 	[[nodiscard]] ClockPin& getClockPin(unsigned cntr);
 	[[nodiscard]] ClockPin& getOutputPin(unsigned cntr);
 
@@ -92,7 +92,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void readBackHelper(uint8_t value, unsigned cntr, EmuTime::param time);
+	void readBackHelper(uint8_t value, unsigned cntr, EmuTime time);
 
 private:
 	std::array<Counter, 3> counter;

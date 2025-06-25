@@ -21,16 +21,16 @@ class TC8566AF final : public Schedulable
 {
 public:
 	TC8566AF(Scheduler& scheduler, std::span<std::unique_ptr<DiskDrive>, 4>, MSXCliComm& cliComm,
-	         EmuTime::param time);
+	         EmuTime time);
 
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t peekDataPort(EmuTime::param time) const;
-	uint8_t readDataPort(EmuTime::param time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t peekDataPort(EmuTime time) const;
+	uint8_t readDataPort(EmuTime time);
 	[[nodiscard]] uint8_t peekStatus() const;
-	uint8_t readStatus(EmuTime::param time);
-	void writeControlReg0(uint8_t value, EmuTime::param time);
-	void writeControlReg1(uint8_t value, EmuTime::param time);
-	void writeDataPort(uint8_t value, EmuTime::param time);
+	uint8_t readStatus(EmuTime time);
+	void writeControlReg0(uint8_t value, EmuTime time);
+	void writeControlReg1(uint8_t value, EmuTime time);
+	void writeDataPort(uint8_t value, EmuTime time);
 	bool diskChanged(unsigned driveNum);
 	[[nodiscard]] bool peekDiskChanged(unsigned driveNum) const;
 
@@ -70,29 +70,29 @@ public:
 
 private:
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
-	[[nodiscard]] uint8_t executionPhasePeek(EmuTime::param time) const;
-	uint8_t executionPhaseRead(EmuTime::param time);
+	[[nodiscard]] uint8_t executionPhasePeek(EmuTime time) const;
+	uint8_t executionPhaseRead(EmuTime time);
 	[[nodiscard]] uint8_t resultsPhasePeek() const;
-	uint8_t resultsPhaseRead(EmuTime::param time);
-	void idlePhaseWrite(uint8_t value, EmuTime::param time);
+	uint8_t resultsPhaseRead(EmuTime time);
+	void idlePhaseWrite(uint8_t value, EmuTime time);
 	void commandPhase1(uint8_t value);
-	void commandPhaseWrite(uint8_t value, EmuTime::param time);
+	void commandPhaseWrite(uint8_t value, EmuTime time);
 	void doSeek(int n);
-	void executionPhaseWrite(uint8_t value, EmuTime::param time);
+	void executionPhaseWrite(uint8_t value, EmuTime time);
 	void resultPhase(bool readId = false);
-	void endCommand(EmuTime::param time);
+	void endCommand(EmuTime time);
 
-	[[nodiscard]] bool isHeadLoaded(EmuTime::param time) const;
+	[[nodiscard]] bool isHeadLoaded(EmuTime time) const;
 	[[nodiscard]] EmuDuration getHeadLoadDelay() const;
 	[[nodiscard]] EmuDuration getHeadUnloadDelay() const;
 	[[nodiscard]] EmuDuration getSeekDelay() const;
 
-	[[nodiscard]] EmuTime locateSector(EmuTime::param time, bool readId);
-	void startReadWriteSector(EmuTime::param time);
+	[[nodiscard]] EmuTime locateSector(EmuTime time, bool readId);
+	void startReadWriteSector(EmuTime time);
 	void writeSector();
-	void initTrackHeader(EmuTime::param time);
+	void initTrackHeader(EmuTime time);
 	void formatSector();
 	void setDrqRate(unsigned trackLength);
 

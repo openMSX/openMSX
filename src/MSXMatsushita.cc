@@ -74,7 +74,7 @@ void MSXMatsushita::unwrap()
 	}
 }
 
-void MSXMatsushita::reset(EmuTime::param /*time*/)
+void MSXMatsushita::reset(EmuTime /*time*/)
 {
 	// TODO check this
 	color1 = color2 = 0;
@@ -82,7 +82,7 @@ void MSXMatsushita::reset(EmuTime::param /*time*/)
 	address = 0;
 }
 
-uint8_t MSXMatsushita::readSwitchedIO(uint16_t port, EmuTime::param time)
+uint8_t MSXMatsushita::readSwitchedIO(uint16_t port, EmuTime time)
 {
 	// TODO: Port 7 and 8 can be read as well.
 	uint8_t result = peekSwitchedIO(port, time);
@@ -97,7 +97,7 @@ uint8_t MSXMatsushita::readSwitchedIO(uint16_t port, EmuTime::param time)
 	return result;
 }
 
-uint8_t MSXMatsushita::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) const
+uint8_t MSXMatsushita::peekSwitchedIO(uint16_t port, EmuTime /*time*/) const
 {
 	switch (port & 0x0F) {
 	case 0:
@@ -128,7 +128,7 @@ uint8_t MSXMatsushita::peekSwitchedIO(uint16_t port, EmuTime::param /*time*/) co
 	}
 }
 
-void MSXMatsushita::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param /*time*/)
+void MSXMatsushita::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime /*time*/)
 {
 	switch (port & 0x0F) {
 	case 1:
@@ -172,27 +172,27 @@ void MSXMatsushita::writeSwitchedIO(uint16_t port, uint8_t value, EmuTime::param
 	}
 }
 
-uint8_t MSXMatsushita::readIO(uint16_t port, EmuTime::param time)
+uint8_t MSXMatsushita::readIO(uint16_t port, EmuTime time)
 {
 	// TODO also delay on read?
 	assert(vdp);
 	return vdp->readIO(port, time);
 }
 
-uint8_t MSXMatsushita::peekIO(uint16_t port, EmuTime::param time) const
+uint8_t MSXMatsushita::peekIO(uint16_t port, EmuTime time) const
 {
 	assert(vdp);
 	return vdp->peekIO(port, time);
 }
 
-void MSXMatsushita::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void MSXMatsushita::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	assert(vdp);
 	delay(time);
 	vdp->writeIO(port, value, lastTime.getTime());
 }
 
-void MSXMatsushita::delay(EmuTime::param time)
+void MSXMatsushita::delay(EmuTime time)
 {
 	if (turboAvailable && turboEnabled) {
 		lastTime += 46; // 8us, like in S1990

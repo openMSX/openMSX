@@ -13,13 +13,13 @@ class MSXMotherBoard;
 class AbstractIDEDevice : public IDEDevice
 {
 public:
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] uint16_t readData(EmuTime::param time) override;
-	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime::param time) override;
+	[[nodiscard]] uint16_t readData(EmuTime time) override;
+	[[nodiscard]] uint8_t readReg(uint4_t reg, EmuTime time) override;
 
-	void writeData(uint16_t value, EmuTime::param time) override;
-	void writeReg(uint4_t reg, uint8_t value, EmuTime::param time) override;
+	void writeData(uint16_t value, EmuTime time) override;
+	void writeReg(uint4_t reg, uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -48,12 +48,12 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 	devices[id] = nullptr;
 }
 
-void MSXDeviceSwitch::reset(EmuTime::param /*time*/)
+void MSXDeviceSwitch::reset(EmuTime /*time*/)
 {
 	selected = 0;
 }
 
-byte MSXDeviceSwitch::readIO(uint16_t port, EmuTime::param time)
+byte MSXDeviceSwitch::readIO(uint16_t port, EmuTime time)
 {
 	if (devices[selected]) {
 		return devices[selected]->readSwitchedIO(port, time);
@@ -62,7 +62,7 @@ byte MSXDeviceSwitch::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-byte MSXDeviceSwitch::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXDeviceSwitch::peekIO(uint16_t port, EmuTime time) const
 {
 	if (devices[selected]) {
 		return devices[selected]->peekSwitchedIO(port, time);
@@ -71,7 +71,7 @@ byte MSXDeviceSwitch::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void MSXDeviceSwitch::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXDeviceSwitch::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	if ((port & 0x0F) == 0x00) {
 		selected = value;

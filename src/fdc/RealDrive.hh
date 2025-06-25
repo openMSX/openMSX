@@ -36,16 +36,16 @@ public:
 	[[nodiscard]] bool isTrack00() const override;
 	void setSide(bool side) override;
 	[[nodiscard]] bool getSide() const override;
-	void step(bool direction, EmuTime::param time) override;
-	void setMotor(bool status, EmuTime::param time) override;
+	void step(bool direction, EmuTime time) override;
+	void setMotor(bool status, EmuTime time) override;
 	[[nodiscard]] bool getMotor() const override;
-	[[nodiscard]] bool indexPulse(EmuTime::param time) override;
-	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
+	[[nodiscard]] bool indexPulse(EmuTime time) override;
+	[[nodiscard]] EmuTime getTimeTillIndexPulse(EmuTime time, int count) override;
 
 	[[nodiscard]] unsigned getTrackLength() override;
 	void writeTrackByte(int idx, uint8_t val, bool addIdam) override;
 	[[nodiscard]] uint8_t readTrackByte(int idx) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	EmuTime getNextSector(EmuTime time, RawTrack::Sector& sector) override;
 	void flushTrack() override;
 	bool diskChanged() override;
 	[[nodiscard]] bool peekDiskChanged() const override;
@@ -56,7 +56,7 @@ public:
 
 	// MediaInfoProvider
 	void getMediaInfo(TclObject& result) override;
-	void setMedia(const TclObject& info, EmuTime::param time) override;
+	void setMedia(const TclObject& info, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -65,7 +65,7 @@ private:
 	struct SyncLoadingTimeout final : Schedulable {
 		friend class RealDrive;
 		explicit SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param /*time*/) override {
+		void executeUntil(EmuTime /*time*/) override {
 			auto& drive = OUTER(RealDrive, syncLoadingTimeout);
 			drive.execLoadingTimeout();
 		}
@@ -74,19 +74,19 @@ private:
 	struct SyncMotorTimeout final : Schedulable {
 		friend class RealDrive;
 		explicit SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& drive = OUTER(RealDrive, syncMotorTimeout);
 			drive.execMotorTimeout(time);
 		}
 	} syncMotorTimeout;
 
 	void execLoadingTimeout();
-	void execMotorTimeout(EmuTime::param time);
-	[[nodiscard]] EmuTime::param getCurrentTime() const { return syncLoadingTimeout.getCurrentTime(); }
+	void execMotorTimeout(EmuTime time);
+	[[nodiscard]] EmuTime getCurrentTime() const { return syncLoadingTimeout.getCurrentTime(); }
 
-	void doSetMotor(bool status, EmuTime::param time);
-	void setLoading(EmuTime::param time);
-	[[nodiscard]] unsigned getCurrentAngle(EmuTime::param time) const;
+	void doSetMotor(bool status, EmuTime time);
+	void setLoading(EmuTime time);
+	[[nodiscard]] unsigned getCurrentAngle(EmuTime time) const;
 
 	[[nodiscard]] unsigned getMaxTrack() const;
 	[[nodiscard]] std::optional<unsigned> getDiskReadTrack() const;

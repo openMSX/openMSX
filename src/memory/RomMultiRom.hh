@@ -12,7 +12,7 @@ class RomMultiRom final : public Rom16kBBlocks
 public:
 	RomMultiRom(const DeviceConfig& config, Rom&& rom);
 
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

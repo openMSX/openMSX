@@ -10,7 +10,7 @@ RomGeneric8kB::RomGeneric8kB(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomGeneric8kB::reset(EmuTime::param /*time*/)
+void RomGeneric8kB::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -21,7 +21,7 @@ void RomGeneric8kB::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomGeneric8kB::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomGeneric8kB::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	setRom(address >> 13, value);
 }

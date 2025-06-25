@@ -109,7 +109,7 @@ void RealDrive::getMediaInfo(TclObject& result)
 	}
 }
 
-void RealDrive::setMedia(const TclObject& info, EmuTime::param /*time*/)
+void RealDrive::setMedia(const TclObject& info, EmuTime /*time*/)
 {
 	std::vector<TclObject> args;
 	args.emplace_back(changer->getDriveName());
@@ -229,7 +229,7 @@ std::optional<unsigned> RealDrive::getDiskWriteTrack() const
 	}
 }
 
-void RealDrive::step(bool direction, EmuTime::param time)
+void RealDrive::step(bool direction, EmuTime time)
 {
 	invalidateTrack();
 
@@ -260,7 +260,7 @@ bool RealDrive::isTrack00() const
 	return headPos == 0;
 }
 
-void RealDrive::setMotor(bool status, EmuTime::param time)
+void RealDrive::setMotor(bool status, EmuTime time)
 {
 	// If status = true, motor is immediately turned on. If status = false,
 	// the motor is only turned off after some (configurable) amount of
@@ -323,7 +323,7 @@ bool RealDrive::getMotor() const
 	return motorStatus;
 }
 
-unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
+unsigned RealDrive::getCurrentAngle(EmuTime time) const
 {
 	if (motorStatus) {
 		// rotating, take passed time into account
@@ -335,7 +335,7 @@ unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 	}
 }
 
-void RealDrive::doSetMotor(bool status, EmuTime::param time)
+void RealDrive::doSetMotor(bool status, EmuTime time)
 {
 	if (!status) {
 		invalidateTrack(); // flush and ignore further writes
@@ -351,7 +351,7 @@ void RealDrive::doSetMotor(bool status, EmuTime::param time)
 	motherBoard.getLedStatus().setLed(LedStatus::FDD, status);
 }
 
-void RealDrive::setLoading(EmuTime::param time)
+void RealDrive::setLoading(EmuTime time)
 {
 	assert(motorStatus);
 	loadingIndicator.update(true);
@@ -368,12 +368,12 @@ void RealDrive::execLoadingTimeout()
 	loadingIndicator.update(false);
 }
 
-void RealDrive::execMotorTimeout(EmuTime::param time)
+void RealDrive::execMotorTimeout(EmuTime time)
 {
 	doSetMotor(false, time);
 }
 
-bool RealDrive::indexPulse(EmuTime::param time)
+bool RealDrive::indexPulse(EmuTime time)
 {
 	// Tested on real NMS8250:
 	//  Only when there's a disk inserted and when the motor is spinning
@@ -384,7 +384,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 	return getCurrentAngle(time) < INDEX_DURATION;
 }
 
-EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
+EmuTime RealDrive::getTimeTillIndexPulse(EmuTime time, int count)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
 		return EmuTime::infinity();
@@ -450,7 +450,7 @@ static constexpr unsigned divUp(unsigned a, unsigned b)
 {
 	return (a + b - 1) / b;
 }
-EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
+EmuTime RealDrive::getNextSector(EmuTime time, RawTrack::Sector& sector)
 {
 	getTrack();
 	unsigned currentAngle = getCurrentAngle(time);

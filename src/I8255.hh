@@ -20,14 +20,14 @@ class StringSetting;
 class I8255
 {
 public:
-	I8255(I8255Interface& interface, EmuTime::param time,
+	I8255(I8255Interface& interface, EmuTime time,
 	      StringSetting& invalidPpiModeSetting);
 
 	// CPU side
-	void reset(EmuTime::param time);
-	[[nodiscard]] uint8_t read(uint8_t port, EmuTime::param time);
-	[[nodiscard]] uint8_t peek(uint8_t port, EmuTime::param time) const;
-	void write(uint8_t port, uint8_t value, EmuTime::param time);
+	void reset(EmuTime time);
+	[[nodiscard]] uint8_t read(uint8_t port, EmuTime time);
+	[[nodiscard]] uint8_t peek(uint8_t port, EmuTime time) const;
+	void write(uint8_t port, uint8_t value, EmuTime time);
 
 	// Peripheral side, pull-interface
 	// (the I8255Interface class implements the push-interface)
@@ -39,25 +39,25 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	[[nodiscard]] uint8_t readPortA(EmuTime::param time);
-	[[nodiscard]] uint8_t readPortB(EmuTime::param time);
-	[[nodiscard]] uint8_t readPortC(EmuTime::param time);
-	[[nodiscard]] uint8_t readControlPort(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekPortA(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekPortB(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekPortC(EmuTime::param time) const;
-	void writePortA(uint8_t value, EmuTime::param time);
-	void writePortB(uint8_t value, EmuTime::param time);
-	void writePortC(uint8_t value, EmuTime::param time);
-	void writeControlPort(uint8_t value, EmuTime::param time);
+	[[nodiscard]] uint8_t readPortA(EmuTime time);
+	[[nodiscard]] uint8_t readPortB(EmuTime time);
+	[[nodiscard]] uint8_t readPortC(EmuTime time);
+	[[nodiscard]] uint8_t readControlPort(EmuTime time) const;
+	[[nodiscard]] uint8_t peekPortA(EmuTime time) const;
+	[[nodiscard]] uint8_t peekPortB(EmuTime time) const;
+	[[nodiscard]] uint8_t peekPortC(EmuTime time) const;
+	void writePortA(uint8_t value, EmuTime time);
+	void writePortB(uint8_t value, EmuTime time);
+	void writePortC(uint8_t value, EmuTime time);
+	void writeControlPort(uint8_t value, EmuTime time);
 
-	[[nodiscard]] uint8_t readC0(EmuTime::param time);
-	[[nodiscard]] uint8_t readC1(EmuTime::param time);
-	[[nodiscard]] uint8_t peekC0(EmuTime::param time) const;
-	[[nodiscard]] uint8_t peekC1(EmuTime::param time) const;
-	void outputPortA(uint8_t value, EmuTime::param time);
-	void outputPortB(uint8_t value, EmuTime::param time);
-	void outputPortC(uint8_t value, EmuTime::param time);
+	[[nodiscard]] uint8_t readC0(EmuTime time);
+	[[nodiscard]] uint8_t readC1(EmuTime time);
+	[[nodiscard]] uint8_t peekC0(EmuTime time) const;
+	[[nodiscard]] uint8_t peekC1(EmuTime time) const;
+	void outputPortA(uint8_t value, EmuTime time);
+	void outputPortB(uint8_t value, EmuTime time);
+	void outputPortC(uint8_t value, EmuTime time);
 
 private:
 	I8255Interface& interface;

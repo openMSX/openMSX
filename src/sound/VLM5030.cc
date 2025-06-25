@@ -410,7 +410,7 @@ void VLM5030::reset()
 }
 
 // get BSY pin level
-bool VLM5030::getBSY(EmuTime::param time) const
+bool VLM5030::getBSY(EmuTime time) const
 {
 	const_cast<VLM5030*>(this)->updateStream(time);
 	return pin_BSY;
@@ -422,7 +422,7 @@ void VLM5030::writeData(uint8_t data)
 	latch_data = data;
 }
 
-void VLM5030::writeControl(uint8_t data, EmuTime::param time)
+void VLM5030::writeControl(uint8_t data, EmuTime time)
 {
 	updateStream(time);
 	setRST((data & 0x01) != 0);

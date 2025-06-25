@@ -293,7 +293,7 @@ struct CondTrue { bool operator()(uint8_t /*f*/) const { return true; } };
 template<typename T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const std::string& name,
 		const BooleanSetting& traceSetting_,
-		TclCallback& diHaltCallback_, EmuTime::param time)
+		TclCallback& diHaltCallback_, EmuTime time)
 	: CPURegs(T::IS_R800)
 	, T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
@@ -326,18 +326,18 @@ template<typename T> CPUCore<T>::CPUCore(
 	doReset(time);
 }
 
-template<typename T> void CPUCore<T>::warp(EmuTime::param time)
+template<typename T> void CPUCore<T>::warp(EmuTime time)
 {
 	assert(T::getTimeFast() <= time);
 	T::setTime(time);
 }
 
-template<typename T> EmuTime::param CPUCore<T>::getCurrentTime() const
+template<typename T> EmuTime CPUCore<T>::getCurrentTime() const
 {
 	return T::getTime();
 }
 
-template<typename T> void CPUCore<T>::doReset(EmuTime::param time)
+template<typename T> void CPUCore<T>::doReset(EmuTime time)
 {
 	// AF and SP are 0xFFFF
 	// PC, R, IFF1, IFF2, HALT and IM are 0x0
@@ -482,14 +482,14 @@ template<typename T> bool CPUCore<T>::isM1Cycle(unsigned address) const
 	return address == getPC();
 }
 
-template<typename T> void CPUCore<T>::wait(EmuTime::param time)
+template<typename T> void CPUCore<T>::wait(EmuTime time)
 {
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
 	T::advanceTime(time);
 }
 
-template<typename T> EmuTime CPUCore<T>::waitCycles(EmuTime::param time, unsigned cycles)
+template<typename T> EmuTime CPUCore<T>::waitCycles(EmuTime time, unsigned cycles)
 {
 	T::add(cycles);
 	EmuTime time2 = T::calcTime(time, cycles);
@@ -499,7 +499,7 @@ template<typename T> EmuTime CPUCore<T>::waitCycles(EmuTime::param time, unsigne
 	return time2;
 }
 
-template<typename T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
+template<typename T> void CPUCore<T>::setNextSyncPoint(EmuTime time)
 {
 	T::setLimit(time);
 }

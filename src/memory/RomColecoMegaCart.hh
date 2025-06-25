@@ -10,8 +10,8 @@ class RomColecoMegaCart final : public Rom16kBBlocks
 public:
 	RomColecoMegaCart(const DeviceConfig& config, Rom&& rom);
 
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 };
 

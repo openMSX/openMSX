@@ -18,15 +18,15 @@ public:
 	YamahaSKW01PrinterPort(PluggingController& pluggingController, const std::string& name);
 
 	// printer port functionality
-	void reset(EmuTime::param time);
-	[[nodiscard]] bool getStatus(EmuTime::param time) const;
-	void setStrobe(bool newStrobe, EmuTime::param time);
-	void writeData(uint8_t newData, EmuTime::param time);
+	void reset(EmuTime time);
+	[[nodiscard]] bool getStatus(EmuTime time) const;
+	void setStrobe(bool newStrobe, EmuTime time);
+	void writeData(uint8_t newData, EmuTime time);
 
 	// Connector
 	[[nodiscard]] std::string_view getDescription() const override;
 	[[nodiscard]] std::string_view getClass() const override;
-	void plug(Pluggable& dev, EmuTime::param time) override;
+	void plug(Pluggable& dev, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -46,11 +46,11 @@ public:
 	explicit YamahaSKW01(DeviceConfig& config);
 
 	// MSXDevice
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
 

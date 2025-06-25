@@ -14,7 +14,7 @@ RomMultiRom::RomMultiRom(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMultiRom::reset(EmuTime::param /*time*/)
+void RomMultiRom::reset(EmuTime /*time*/)
 {
 	++counter &= 7;
 	for (auto i : xrange(4)) {

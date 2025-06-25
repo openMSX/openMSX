@@ -18,7 +18,7 @@ public:
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
 	virtual void signalMSXEvent(const Event& event,
-	                            EmuTime::param time) noexcept = 0;
+	                            EmuTime time) noexcept = 0;
 
 protected:
 	MSXEventListener() = default;

@@ -26,14 +26,14 @@ SensorKid::SensorKid(const DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void SensorKid::reset(EmuTime::param /*time*/)
+void SensorKid::reset(EmuTime /*time*/)
 {
 	prev = 255; // previously written value to port 0
 	mb4052_ana = 0; // the analog value that's currently being read
 	mb4052_count = 0; // keep track of which bit we're reading
 }
 
-void SensorKid::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
+void SensorKid::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
 	if ((port & 1) != 0) return;
 
@@ -62,7 +62,7 @@ void SensorKid::writeIO(uint16_t port, byte value, EmuTime::param /*time*/)
 	}
 }
 
-byte SensorKid::readIO(uint16_t port, EmuTime::param /* time */)
+byte SensorKid::readIO(uint16_t port, EmuTime /* time */)
 {
 	if ((port & 1) == 0) {
 		// port 0

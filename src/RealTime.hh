@@ -32,7 +32,7 @@ public:
 
 	/** Convert EmuTime to RealTime.
 	  */
-	[[nodiscard]] double getRealDuration(EmuTime::param time1, EmuTime::param time2) const;
+	[[nodiscard]] double getRealDuration(EmuTime time1, EmuTime time2) const;
 
 	/** Convert RealTime to EmuTime.
 	  */
@@ -43,7 +43,7 @@ public:
 	  * @param us Real time duration is micro seconds.
 	  * @param time Point in emulated time.
 	  */
-	[[nodiscard]] bool timeLeft(uint64_t us, EmuTime::param time) const;
+	[[nodiscard]] bool timeLeft(uint64_t us, EmuTime time) const;
 
 	void resync();
 
@@ -56,10 +56,10 @@ private:
 	  * @param allowSleep Is this method allowed to sleep, typically the
 	  *                   result of a previous call to timeLeft() is passed.
 	  */
-	void sync(EmuTime::param time, bool allowSleep);
+	void sync(EmuTime time, bool allowSleep);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
 	// EventListener
 	bool signalEvent(const Event& event) override;
@@ -71,7 +71,7 @@ private:
 	// Observer<ThrottleManager>
 	void update(const ThrottleManager& throttleManager) noexcept override;
 
-	void internalSync(EmuTime::param time, bool allowSleep);
+	void internalSync(EmuTime time, bool allowSleep);
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;

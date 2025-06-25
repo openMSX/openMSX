@@ -38,15 +38,15 @@ public:
 	       SetupMemPtrFunc setupMemPtrs_);
 	~YMF278();
 	void clearRam();
-	void reset(EmuTime::param time);
-	void writeReg(uint8_t reg, uint8_t data, EmuTime::param time);
+	void reset(EmuTime time);
+	void writeReg(uint8_t reg, uint8_t data, EmuTime time);
 	[[nodiscard]] uint8_t readReg(uint8_t reg);
 	[[nodiscard]] uint8_t peekReg(uint8_t reg) const;
 
 	[[nodiscard]] uint8_t readMem(unsigned address) const;
 	void writeMem(unsigned address, uint8_t value);
 
-	void setMixLevel(uint8_t x, EmuTime::param time);
+	void setMixLevel(uint8_t x, EmuTime time);
 
 	void setupMemoryPointers();
 
@@ -108,7 +108,7 @@ private:
 	// SoundDevice
 	void generateChannels(std::span<float*> bufs, unsigned num) override;
 
-	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime::param time);
+	void writeRegDirect(uint8_t reg, uint8_t data, EmuTime time);
 	[[nodiscard]] unsigned getRamAddress(unsigned addr) const;
 	[[nodiscard]] int16_t getSample(const Slot& slot, uint16_t pos) const;
 	[[nodiscard]] static uint16_t nextPos(const Slot& slot, uint16_t pos, uint16_t increment);
@@ -121,7 +121,7 @@ private:
 	struct DebugRegisters final : SimpleDebuggable {
 		DebugRegisters(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debugRegisters;
 
 	struct DebugMemory final : SimpleDebuggable {

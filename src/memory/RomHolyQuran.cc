@@ -14,7 +14,7 @@ RomHolyQuran::RomHolyQuran(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomHolyQuran::reset(EmuTime::param /*time*/)
+void RomHolyQuran::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -25,7 +25,7 @@ void RomHolyQuran::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomHolyQuran::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomHolyQuran::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {

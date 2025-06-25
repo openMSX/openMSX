@@ -52,34 +52,34 @@ public:
 	explicit BeerIDE(DeviceConfig& config);
 	~BeerIDE() override;
 
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const uint8_t* getReadCacheLine(uint16_t start) const override;
 
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void changeControl(uint8_t value, EmuTime::param time);
+	void changeControl(uint8_t value, EmuTime time);
 
 	// I8255Interface
-	[[nodiscard]] uint8_t readA (EmuTime::param time) override;
-	[[nodiscard]] uint8_t readB (EmuTime::param time) override;
-	[[nodiscard]] uint4_t readC0(EmuTime::param time) override;
-	[[nodiscard]] uint4_t readC1(EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekA (EmuTime::param time) const override;
-	[[nodiscard]] uint8_t peekB (EmuTime::param time) const override;
-	[[nodiscard]] uint4_t peekC0(EmuTime::param time) const override;
-	[[nodiscard]] uint4_t peekC1(EmuTime::param time) const override;
-	void writeA (uint8_t value, EmuTime::param time) override;
-	void writeB (uint8_t value, EmuTime::param time) override;
-	void writeC0(uint4_t value, EmuTime::param time) override;
-	void writeC1(uint4_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readA (EmuTime time) override;
+	[[nodiscard]] uint8_t readB (EmuTime time) override;
+	[[nodiscard]] uint4_t readC0(EmuTime time) override;
+	[[nodiscard]] uint4_t readC1(EmuTime time) override;
+	[[nodiscard]] uint8_t peekA (EmuTime time) const override;
+	[[nodiscard]] uint8_t peekB (EmuTime time) const override;
+	[[nodiscard]] uint4_t peekC0(EmuTime time) const override;
+	[[nodiscard]] uint4_t peekC1(EmuTime time) const override;
+	void writeA (uint8_t value, EmuTime time) override;
+	void writeB (uint8_t value, EmuTime time) override;
+	void writeC0(uint4_t value, EmuTime time) override;
+	void writeC1(uint4_t value, EmuTime time) override;
 
 private:
 	I8255 i8255;

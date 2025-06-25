@@ -46,14 +46,14 @@ public:
 	 * The default implementation is ok.
 	 * @throw PlugException
 	 */
-	virtual void plug(Pluggable& device, EmuTime::param time);
+	virtual void plug(Pluggable& device, EmuTime time);
 
 	/**
 	 * This unplugs the currently inserted Pluggable from this Connector.
 	 * It is replaced by the dummy Pluggable provided by the concrete
 	 * Connector subclass.
 	 */
-	virtual void unplug(EmuTime::param time);
+	virtual void unplug(EmuTime time);
 
 	/**
 	 * Returns the Pluggable currently plugged in.

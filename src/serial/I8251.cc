@@ -44,7 +44,7 @@ static constexpr uint8_t CMD_RESET   = 0x40;
 static constexpr uint8_t CMD_HUNT    = 0x80;
 
 
-I8251::I8251(Scheduler& scheduler, I8251Interface& interface_, EmuTime::param time)
+I8251::I8251(Scheduler& scheduler, I8251Interface& interface_, EmuTime time)
 	: syncRecv (scheduler)
 	, syncTrans(scheduler)
 	, interface(interface_), clock(scheduler)
@@ -52,7 +52,7 @@ I8251::I8251(Scheduler& scheduler, I8251Interface& interface_, EmuTime::param ti
 	reset(time);
 }
 
-void I8251::reset(EmuTime::param time)
+void I8251::reset(EmuTime time)
 {
 	// initialize these to avoid UMR on savestate
 	//   TODO investigate correct initial state after reset
@@ -74,7 +74,7 @@ void I8251::reset(EmuTime::param time)
 	cmdPhase = CmdPhase::MODE;
 }
 
-uint8_t I8251::readIO(uint16_t port, EmuTime::param time)
+uint8_t I8251::readIO(uint16_t port, EmuTime time)
 {
 	switch (port & 1) {
 		case 0:  return readTrans(time);
@@ -83,7 +83,7 @@ uint8_t I8251::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-uint8_t I8251::peekIO(uint16_t port, EmuTime::param /*time*/) const
+uint8_t I8251::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	switch (port & 1) {
 		case 0:  return recvBuf;
@@ -93,7 +93,7 @@ uint8_t I8251::peekIO(uint16_t port, EmuTime::param /*time*/) const
 }
 
 
-void I8251::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void I8251::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	switch (port & 1) {
 	case 0:
@@ -185,7 +185,7 @@ void I8251::setMode(uint8_t newMode)
 	               unsigned(stopBits)) * baudrate) / 2;
 }
 
-void I8251::writeCommand(uint8_t value, EmuTime::param time)
+void I8251::writeCommand(uint8_t value, EmuTime time)
 {
 	uint8_t oldCommand = command;
 	command = value;
@@ -225,7 +225,7 @@ void I8251::writeCommand(uint8_t value, EmuTime::param time)
 	}
 }
 
-uint8_t I8251::readStatus(EmuTime::param time)
+uint8_t I8251::readStatus(EmuTime time)
 {
 	uint8_t result = status;
 	if (interface.getDSR(time)) {
@@ -234,14 +234,14 @@ uint8_t I8251::readStatus(EmuTime::param time)
 	return result;
 }
 
-uint8_t I8251::readTrans(EmuTime::param time)
+uint8_t I8251::readTrans(EmuTime time)
 {
 	status &= ~STAT_RXRDY;
 	interface.setRxRDY(false, time);
 	return recvBuf;
 }
 
-void I8251::writeTrans(uint8_t value, EmuTime::param time)
+void I8251::writeTrans(uint8_t value, EmuTime time)
 {
 	if (!(command & CMD_TXEN)) {
 		return;
@@ -261,7 +261,7 @@ void I8251::setParityBit(bool enable, Parity parity)
 	recvParityBit = parity;
 }
 
-void I8251::recvByte(uint8_t value, EmuTime::param time)
+void I8251::recvByte(uint8_t value, EmuTime time)
 {
 	// TODO STAT_PE / STAT_FE / STAT_SYN_BRK
 	assert(recvReady && (command & CMD_RXE));
@@ -284,7 +284,7 @@ bool I8251::isRecvEnabled() const
 	return (command & CMD_RXE) != 0;
 }
 
-void I8251::send(uint8_t value, EmuTime::param time)
+void I8251::send(uint8_t value, EmuTime time)
 {
 	status &= ~STAT_TXEMPTY;
 	sendByte = value;
@@ -294,14 +294,14 @@ void I8251::send(uint8_t value, EmuTime::param time)
 	}
 }
 
-void I8251::execRecv(EmuTime::param time)
+void I8251::execRecv(EmuTime time)
 {
 	assert(command & CMD_RXE);
 	recvReady = true;
 	interface.signal(time);
 }
 
-void I8251::execTrans(EmuTime::param time)
+void I8251::execTrans(EmuTime time)
 {
 	assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));
 

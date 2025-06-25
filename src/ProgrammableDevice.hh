@@ -14,9 +14,9 @@ public:
 	explicit ProgrammableDevice(const DeviceConfig& config);
 	~ProgrammableDevice() override;
 
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	void reset(EmuTime time) override;
 
 private:
 	void update(const Setting& setting) noexcept override;

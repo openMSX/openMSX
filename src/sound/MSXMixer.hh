@@ -82,7 +82,7 @@ public:
 	 * Use this method to force an 'early' call to all
 	 * updateBuffer() methods.
 	 */
-	void updateStream(EmuTime::param time);
+	void updateStream(EmuTime time);
 
 	/**
 	 * Used by SoundDevice::setSoftwareVolume()
@@ -147,10 +147,10 @@ private:
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(std::span<StereoFloat> output, EmuTime::param time);
+	void generate(std::span<StereoFloat> output, EmuTime time);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;

@@ -74,7 +74,7 @@ void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 	}
 }
 
-void CartridgeSlotManager::Slot::setMedia(const TclObject& info, EmuTime::param /*time*/)
+void CartridgeSlotManager::Slot::setMedia(const TclObject& info, EmuTime /*time*/)
 {
 	assert(cartCommand);
 	const auto& cartName = cartCommand->getName();
@@ -400,7 +400,7 @@ const HardwareConfig* CartridgeSlotManager::getExtensionConfig(
 }
 
 void CartridgeSlotManager::CartCmd::execute(
-	std::span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime /*time*/)
 {
 	std::string_view cartName = tokens[0].getString();
 

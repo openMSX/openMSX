@@ -25,17 +25,17 @@ std::string_view NinjaTap::getDescription() const
 }
 
 
-void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param time)
+void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime time)
 {
 	createPorts("Ninja Tap port", time);
 }
 
-uint8_t NinjaTap::read(EmuTime::param /*time*/)
+uint8_t NinjaTap::read(EmuTime /*time*/)
 {
 	return status;
 }
 
-void NinjaTap::write(uint8_t value, EmuTime::param time)
+void NinjaTap::write(uint8_t value, EmuTime time)
 {
 	// bit 0 -> pin 6
 	// bit 1 -> pin 7

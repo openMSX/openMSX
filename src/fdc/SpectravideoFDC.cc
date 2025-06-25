@@ -30,13 +30,13 @@ SpectravideoFDC::SpectravideoFDC(DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void SpectravideoFDC::reset(EmuTime::param /*time*/)
+void SpectravideoFDC::reset(EmuTime /*time*/)
 {
 	cpmRomEnabled = true;
 	invalidateDeviceRCache(0x4000, 0x4000);
 }
 
-byte SpectravideoFDC::readMem(uint16_t address, EmuTime::param time)
+byte SpectravideoFDC::readMem(uint16_t address, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
@@ -68,7 +68,7 @@ byte SpectravideoFDC::readMem(uint16_t address, EmuTime::param time)
 	}
 }
 
-byte SpectravideoFDC::peekMem(uint16_t address, EmuTime::param time) const
+byte SpectravideoFDC::peekMem(uint16_t address, EmuTime time) const
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:
@@ -118,7 +118,7 @@ const byte* SpectravideoFDC::getReadCacheLine(uint16_t start) const
 	}
 }
 
-void SpectravideoFDC::writeMem(uint16_t address, byte value, EmuTime::param time)
+void SpectravideoFDC::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FB8:

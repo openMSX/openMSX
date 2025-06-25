@@ -44,23 +44,23 @@ public:
 	~RS232Net() override;
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] std::string_view getName() const override;
 	[[nodiscard]] std::string_view getDescription() const override;
 
 	// input
-	void signal(EmuTime::param time) override;
+	void signal(EmuTime time) override;
 
 	// output
-	void recvByte(uint8_t value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime time) override;
 
-	[[nodiscard]] std::optional<bool> getDSR(EmuTime::param time) const override;
-	[[nodiscard]] std::optional<bool> getCTS(EmuTime::param time) const override;
-	[[nodiscard]] std::optional<bool> getDCD(EmuTime::param time) const override;
-	[[nodiscard]] std::optional<bool> getRI(EmuTime::param time) const override;
-	void setDTR(bool status, EmuTime::param time) override;
-	void setRTS(bool status, EmuTime::param time) override;
+	[[nodiscard]] std::optional<bool> getDSR(EmuTime time) const override;
+	[[nodiscard]] std::optional<bool> getCTS(EmuTime time) const override;
+	[[nodiscard]] std::optional<bool> getDCD(EmuTime time) const override;
+	[[nodiscard]] std::optional<bool> getRI(EmuTime time) const override;
+	void setDTR(bool status, EmuTime time) override;
+	void setRTS(bool status, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

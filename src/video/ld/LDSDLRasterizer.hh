@@ -20,7 +20,7 @@ public:
 
 	// Rasterizer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
-	void frameStart(EmuTime::param time) override;
+	void frameStart(EmuTime time) override;
 	void drawBlank(int r, int g, int b) override;
 	[[nodiscard]] RawFrame* getRawFrame() override;
 

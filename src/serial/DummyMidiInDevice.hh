@@ -8,10 +8,10 @@ namespace openmsx {
 class DummyMidiInDevice final : public MidiInDevice
 {
 public:
-	void signal(EmuTime::param time) override;
+	void signal(EmuTime time) override;
 	[[nodiscard]] std::string_view getDescription() const override;
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 };
 
 } // namespace openmsx

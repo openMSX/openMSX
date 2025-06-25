@@ -40,11 +40,11 @@ public:
 
 private:
 	unsigned disassemble(
-		const MSXCPUInterface& cpuInterface, unsigned addr, unsigned pc, EmuTime::param time,
+		const MSXCPUInterface& cpuInterface, unsigned addr, unsigned pc, EmuTime time,
 		std::span<uint8_t, 4> opcodes, std::string& mnemonic,
 		std::optional<uint16_t>& mnemonicAddr, std::span<const Symbol* const>& mnemonicLabels);
 	void disassembleToClipboard(
-		const MSXCPUInterface& cpuInterface, unsigned pc, EmuTime::param time,
+		const MSXCPUInterface& cpuInterface, unsigned pc, EmuTime time,
 		unsigned minAddr, unsigned maxAddr);
 
 public:

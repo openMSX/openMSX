@@ -23,7 +23,7 @@ HDCommand::HDCommand(CommandController& commandController_,
 }
 
 void HDCommand::execute(std::span<const TclObject> tokens, TclObject& result,
-                        EmuTime::param /*time*/)
+                        EmuTime /*time*/)
 {
 	if (tokens.size() == 1) {
 		result.addListElement(tmpStrCat(hd.getName(), ':'),

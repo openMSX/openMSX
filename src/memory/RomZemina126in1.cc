@@ -17,7 +17,7 @@ RomZemina126in1::RomZemina126in1(
 	reset(EmuTime::dummy());
 }
 
-void RomZemina126in1::reset(EmuTime::param /*time*/)
+void RomZemina126in1::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -25,7 +25,7 @@ void RomZemina126in1::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomZemina126in1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomZemina126in1::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0x4000) {
 		setRom(1, value);

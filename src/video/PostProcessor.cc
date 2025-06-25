@@ -125,7 +125,7 @@ unsigned PostProcessor::getLineWidth(
 	return max_value(xrange(step), [&](auto i) { return frame->getLineWidth(y + i); });
 }
 
-void PostProcessor::executeUntil(EmuTime::param /*time*/)
+void PostProcessor::executeUntil(EmuTime /*time*/)
 {
 	// insert fake end of frame event
 	eventDistributor.distributeEvent(FinishFrameEvent(
@@ -343,7 +343,7 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 }
 
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
-	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
+	std::unique_ptr<RawFrame> finishedFrame, EmuTime time)
 {
 	if (renderSettings.getInterleaveBlackFrame()) {
 		auto delta = time - lastRotate; // time between last two calls

@@ -39,7 +39,7 @@ static constexpr auto MEM_WRITE_DELAY = MasterClock::duration(28);
 static constexpr auto LOAD_DELAY = MasterClock::duration(10000);
 
 YMF278B::YMF278B(const std::string& name, size_t ramSize, DeviceConfig& config,
-                 YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime::param time)
+                 YMF278::SetupMemPtrFunc setupMemPtrs, EmuTime time)
 	: ymf262(name + " FM", config, true)
 	, ymf278(name + " wave", ramSize, config, std::move(setupMemPtrs))
 	, ymf278LoadTime(time)
@@ -48,13 +48,13 @@ YMF278B::YMF278B(const std::string& name, size_t ramSize, DeviceConfig& config,
 	powerUp(time);
 }
 
-void YMF278B::powerUp(EmuTime::param time)
+void YMF278B::powerUp(EmuTime time)
 {
 	ymf278.clearRam();
 	reset(time);
 }
 
-void YMF278B::reset(EmuTime::param time)
+void YMF278B::reset(EmuTime time)
 {
 	ymf262.reset(time);
 	ymf278.reset(time);
@@ -66,7 +66,7 @@ void YMF278B::reset(EmuTime::param time)
 	ymf278LoadTime = time;
 }
 
-uint8_t YMF278B::readIO(uint16_t port, EmuTime::param time)
+uint8_t YMF278B::readIO(uint16_t port, EmuTime time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -108,7 +108,7 @@ uint8_t YMF278B::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-uint8_t YMF278B::peekIO(uint16_t port, EmuTime::param time) const
+uint8_t YMF278B::peekIO(uint16_t port, EmuTime time) const
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -135,7 +135,7 @@ uint8_t YMF278B::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void YMF278B::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void YMF278B::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
@@ -203,7 +203,7 @@ bool YMF278B::getNew2() const
 	return (ymf262.peekReg(0x105) & 0x02) != 0;
 }
 
-uint8_t YMF278B::readYMF278Status(EmuTime::param time) const
+uint8_t YMF278B::readYMF278Status(EmuTime time) const
 {
 	uint8_t result = 0;
 	if (time < ymf278BusyTime) result |= 0x01;
@@ -221,7 +221,7 @@ void YMF278B::setupMemoryPointers()
 // version 2: added alreadyReadID
 // version 3: moved loadTime and busyTime from YMF278 to here
 //            removed alreadyReadID
-void YMF278B::serialize_bw_compat(XmlInputArchive& ar, unsigned version, EmuTime::param time)
+void YMF278B::serialize_bw_compat(XmlInputArchive& ar, unsigned version, EmuTime time)
 {
 	ar.serialize("ymf262",    ymf262,
 	             "ymf278",    ymf278,

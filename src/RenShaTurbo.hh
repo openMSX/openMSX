@@ -27,7 +27,7 @@ public:
 	  * @result When auto-fire is on, result will alternate between true
 	  *         and false. When auto-fire if off result is false.
 	  */
-	[[nodiscard]] bool getSignal(EmuTime::param time);
+	[[nodiscard]] bool getSignal(EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

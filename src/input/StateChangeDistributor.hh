@@ -51,7 +51,7 @@ public:
 	 * that together can construct a 'StateChange' subclass 'T'.
 	 */
 	template<typename T, typename... Args>
-	void distributeNew(EmuTime::param time, Args&& ...args) {
+	void distributeNew(EmuTime time, Args&& ...args) {
 		if (recorder) {
 			if (isReplaying()) {
 				if (viewOnlyMode || blockNewEventsDuringReplay) return;
@@ -77,7 +77,7 @@ public:
 	 * It's OK to call this method when replay was already stopped, in that
 	 * case this call has no effect.
 	 */
-	void stopReplay(EmuTime::param time);
+	void stopReplay(EmuTime time);
 
 	/**
 	 * Set viewOnlyMode. Call this if you don't want distributeNew events

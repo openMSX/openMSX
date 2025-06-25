@@ -118,7 +118,7 @@ class EndLogEvent final : public StateChange
 {
 public:
 	EndLogEvent() = default; // for serialize
-	explicit EndLogEvent(EmuTime::param time_)
+	explicit EndLogEvent(EmuTime time_)
 		: StateChange(time_)
 	{
 	}
@@ -186,7 +186,7 @@ void ReverseManager::stop()
 	assert(!isReplaying());
 }
 
-EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
+EmuTime ReverseManager::getEndTime(const ReverseHistory& hist) const
 {
 	if (!hist.events.empty()) {
 		if (const auto* ev = dynamic_cast<const EndLogEvent*>(
@@ -305,7 +305,7 @@ void ReverseManager::goTo(std::span<const TclObject> tokens)
 	goTo(target, noVideo);
 }
 
-void ReverseManager::goTo(EmuTime::param target, bool noVideo)
+void ReverseManager::goTo(EmuTime target, bool noVideo)
 {
 	if (!isCollecting()) {
 		throw CommandException(
@@ -329,7 +329,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, float fr
 }
 
 void ReverseManager::goTo(
-	EmuTime::param target, bool noVideo, ReverseHistory& hist,
+	EmuTime target, bool noVideo, ReverseHistory& hist,
 	bool sameTimeLine)
 {
 	auto& mixer = motherBoard.getMSXMixer();
@@ -850,7 +850,7 @@ bool ReverseManager::signalEvent(const Event& event)
 	return false;
 }
 
-unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) const
+unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime time) const
 {
 	if (chunks.empty()) {
 		return 0;
@@ -860,7 +860,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	return narrow<unsigned>(lrint(duration / SNAPSHOT_PERIOD));
 }
 
-void ReverseManager::takeSnapshot(EmuTime::param time)
+void ReverseManager::takeSnapshot(EmuTime time)
 {
 	// (possibly) drop old snapshots
 	// TODO does snapshot pruning still happen correctly (often enough)
@@ -890,7 +890,7 @@ void ReverseManager::replayNextEvent()
 	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
 }
 
-void ReverseManager::signalStopReplay(EmuTime::param time)
+void ReverseManager::signalStopReplay(EmuTime time)
 {
 	motherBoard.getStateChangeDistributor().stopReplay(time);
 	// this is needed to prevent a reRecordCount increase
@@ -898,7 +898,7 @@ void ReverseManager::signalStopReplay(EmuTime::param time)
 	reRecordCount--;
 }
 
-void ReverseManager::stopReplay(EmuTime::param time) noexcept
+void ReverseManager::stopReplay(EmuTime time) noexcept
 {
 	if (isReplaying()) {
 		// if we're replaying, stop it and erase remainder of event log
@@ -943,7 +943,7 @@ void ReverseManager::dropOldSnapshots(unsigned count)
 	}
 }
 
-void ReverseManager::schedule(EmuTime::param time)
+void ReverseManager::schedule(EmuTime time)
 {
 	syncNewSnapshot.setSyncPoint(time + EmuDuration::sec(SNAPSHOT_PERIOD));
 }

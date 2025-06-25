@@ -70,7 +70,7 @@ MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned c
 }
 
 // (Re-)initialize chip to default values (Tx and Rx disabled)
-void MC6850::reset(EmuTime::param time)
+void MC6850::reset(EmuTime time)
 {
 	syncRecv .removeSyncPoint();
 	syncTrans.removeSyncPoint();
@@ -116,7 +116,7 @@ uint8_t MC6850::peekDataReg() const
 	return rxDataReg;
 }
 
-void MC6850::writeControlReg(uint8_t value, EmuTime::param time)
+void MC6850::writeControlReg(uint8_t value, EmuTime time)
 {
 	uint8_t diff = value ^ controlReg;
 	if (diff & CR_CDS) {
@@ -173,7 +173,7 @@ void MC6850::setDataFormat()
 	charLen = len[(controlReg & CR_WS) >> 2];
 }
 
-void MC6850::writeDataReg(uint8_t value, EmuTime::param time)
+void MC6850::writeDataReg(uint8_t value, EmuTime time)
 {
 	if ((controlReg & CR_CDS) == CR_MR) return;
 
@@ -196,7 +196,7 @@ void MC6850::writeDataReg(uint8_t value, EmuTime::param time)
 
 // Triggered between transmitted characters, including before the first and
 // after the last character.
-void MC6850::execTrans(EmuTime::param time)
+void MC6850::execTrans(EmuTime time)
 {
 	assert(txClock.getTime() == time);
 	assert((controlReg & CR_CDS) != CR_MR);
@@ -223,7 +223,7 @@ void MC6850::execTrans(EmuTime::param time)
 }
 
 // MidiInConnector sends a new character.
-void MC6850::recvByte(uint8_t value, EmuTime::param time)
+void MC6850::recvByte(uint8_t value, EmuTime time)
 {
 	assert(acceptsData() && ready());
 
@@ -252,7 +252,7 @@ void MC6850::recvByte(uint8_t value, EmuTime::param time)
 }
 
 // Triggered when we're ready to receive the next character.
-void MC6850::execRecv(EmuTime::param time)
+void MC6850::execRecv(EmuTime time)
 {
 	assert(acceptsData());
 	assert(!rxReady);

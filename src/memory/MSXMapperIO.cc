@@ -57,7 +57,7 @@ void MSXMapperIO::unregisterMapper(MSXMemoryMapperInterface* mapper)
 	mappers.erase(rfind_unguarded(mappers, mapper));
 }
 
-byte MSXMapperIO::readIO(uint16_t port, EmuTime::param time)
+byte MSXMapperIO::readIO(uint16_t port, EmuTime time)
 {
 	byte value = [&] {
 		if (mode == Mode::EXTERNAL) {
@@ -73,7 +73,7 @@ byte MSXMapperIO::readIO(uint16_t port, EmuTime::param time)
 	return (value & mask) | (baseValue & ~mask);
 }
 
-byte MSXMapperIO::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXMapperIO::peekIO(uint16_t port, EmuTime time) const
 {
 	byte value = [&] {
 		if (mode == Mode::EXTERNAL) {
@@ -89,7 +89,7 @@ byte MSXMapperIO::peekIO(uint16_t port, EmuTime::param time) const
 	return (value & mask) | (baseValue & ~mask);
 }
 
-void MSXMapperIO::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXMapperIO::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	registers[port & 3] = value;
 
@@ -125,7 +125,7 @@ void MSXMapperIO::Debuggable::readBlock(unsigned start, std::span<byte> output)
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value,
-                                    EmuTime::param time)
+                                    EmuTime time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
 	mapperIO.writeIO(narrow_cast<uint16_t>(address), value, time);

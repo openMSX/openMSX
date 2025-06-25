@@ -57,7 +57,7 @@ void MidiOutDevice::clearBuffer()
 	isSysEx = false;
 }
 
-void MidiOutDevice::recvByte(uint8_t value, EmuTime::param time)
+void MidiOutDevice::recvByte(uint8_t value, EmuTime time)
 {
 	if (value & 0x80) { // status byte
 		if (value == MIDI_MSG_SYSEX_END) {
@@ -117,7 +117,7 @@ void MidiOutDevice::recvByte(uint8_t value, EmuTime::param time)
 }
 
 void MidiOutDevice::recvMessage(
-		const std::vector<uint8_t>& /*message*/, EmuTime::param /*time*/)
+		const std::vector<uint8_t>& /*message*/, EmuTime /*time*/)
 {
 	UNREACHABLE;
 }

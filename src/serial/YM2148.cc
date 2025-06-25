@@ -52,7 +52,7 @@ void YM2148::reset()
 }
 
 // MidiInConnector sends a new character.
-void YM2148::recvByte(uint8_t value, EmuTime::param time)
+void YM2148::recvByte(uint8_t value, EmuTime time)
 {
 	assert(acceptsData() && ready());
 
@@ -74,7 +74,7 @@ void YM2148::recvByte(uint8_t value, EmuTime::param time)
 }
 
 // Triggered when we're ready to receive the next character.
-void YM2148::execRecv(EmuTime::param time)
+void YM2148::execRecv(EmuTime time)
 {
 	assert(commandReg & CMD_RXEN);
 	assert(!rxReady);
@@ -110,23 +110,23 @@ void YM2148::setParityBit(bool /*enable*/, Parity /*parity*/)
 }
 
 // MSX program reads the status register.
-uint8_t YM2148::readStatus(EmuTime::param /*time*/) const
+uint8_t YM2148::readStatus(EmuTime /*time*/) const
 {
 	return status;
 }
-uint8_t YM2148::peekStatus(EmuTime::param /*time*/) const
+uint8_t YM2148::peekStatus(EmuTime /*time*/) const
 {
 	return status;
 }
 
 // MSX programs reads the data register.
-uint8_t YM2148::readData(EmuTime::param /*time*/)
+uint8_t YM2148::readData(EmuTime /*time*/)
 {
 	status &= uint8_t(~STAT_RXRDY);
 	rxIRQ.reset(); // no need to check CMD_RXIE
 	return rxBuffer;
 }
-uint8_t YM2148::peekData(EmuTime::param /*time*/) const
+uint8_t YM2148::peekData(EmuTime /*time*/) const
 {
 	return rxBuffer;
 }
@@ -175,7 +175,7 @@ void YM2148::writeCommand(uint8_t value)
 }
 
 // MSX program writes the data register.
-void YM2148::writeData(uint8_t value, EmuTime::param time)
+void YM2148::writeData(uint8_t value, EmuTime time)
 {
 	if (!(commandReg & CMD_TXEN)) return;
 
@@ -193,14 +193,14 @@ void YM2148::writeData(uint8_t value, EmuTime::param time)
 }
 
 // Start sending a character. It takes a while before it's finished sending.
-void YM2148::send(uint8_t value, EmuTime::param time)
+void YM2148::send(uint8_t value, EmuTime time)
 {
 	txBuffer1 = value;
 	syncTrans.setSyncPoint(time + CHAR_DURATION);
 }
 
 // Triggered when a character has finished sending.
-void YM2148::execTrans(EmuTime::param time)
+void YM2148::execTrans(EmuTime time)
 {
 	assert(commandReg & CMD_TXEN);
 

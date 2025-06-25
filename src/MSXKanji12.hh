@@ -13,12 +13,12 @@ public:
 	explicit MSXKanji12(DeviceConfig& config);
 
 	// MSXDevice
-	void reset(EmuTime::param time) override;
+	void reset(EmuTime time) override;
 
 	// MSXSwitchedDevice
-	[[nodiscard]] byte readSwitchedIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekSwitchedIO(uint16_t port, EmuTime::param time) const override;
-	void writeSwitchedIO(uint16_t port, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readSwitchedIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekSwitchedIO(uint16_t port, EmuTime time) const override;
+	void writeSwitchedIO(uint16_t port, byte value, EmuTime time) override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 

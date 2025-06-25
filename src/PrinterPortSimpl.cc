@@ -14,17 +14,17 @@ PrinterPortSimpl::PrinterPortSimpl(HardwareConfig& hwConf_)
 {
 }
 
-bool PrinterPortSimpl::getStatus(EmuTime::param /*time*/)
+bool PrinterPortSimpl::getStatus(EmuTime /*time*/)
 {
 	return true; // TODO check
 }
 
-void PrinterPortSimpl::setStrobe(bool /*strobe*/, EmuTime::param /*time*/)
+void PrinterPortSimpl::setStrobe(bool /*strobe*/, EmuTime /*time*/)
 {
 	// ignore strobe // TODO check
 }
 
-void PrinterPortSimpl::writeData(uint8_t data, EmuTime::param time)
+void PrinterPortSimpl::writeData(uint8_t data, EmuTime time)
 {
 	assert(dac);
 	dac->writeDAC(data, time);
@@ -42,12 +42,12 @@ void PrinterPortSimpl::createDAC()
 	dac.emplace("simpl", DESCRIPTION, DeviceConfig(hwConf, *xml));
 }
 
-void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	createDAC();
 }
 
-void PrinterPortSimpl::unplugHelper(EmuTime::param /*time*/)
+void PrinterPortSimpl::unplugHelper(EmuTime /*time*/)
 {
 	dac.reset();
 }

@@ -156,7 +156,7 @@ Interpreter& MSXCommandController::getInterpreter()
 }
 
 void MSXCommandController::signalMSXEvent(
-	const Event& event, EmuTime::param /*time*/) noexcept
+	const Event& event, EmuTime /*time*/) noexcept
 {
 	if (getType(event) != EventType::MACHINE_ACTIVATED) return;
 

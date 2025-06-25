@@ -21,9 +21,9 @@ public:
 	// MSXDevice
 	[[nodiscard]] const std::string& getName() const override;
 	void getNameList(TclObject& result) const override;
-	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	[[nodiscard]] uint8_t readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] uint8_t peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 private:
 	Devices devices; // ordered to get predictable readIO() conflict resolution

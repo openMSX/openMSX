@@ -145,7 +145,7 @@ static constexpr unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, uint8_
 
 
 template<typename LogOp> static void psetFast(
-	EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned addr,
 	uint8_t color, uint8_t mask, LogOp op)
 {
 	uint8_t src = vram.cmdWriteWindow.readNP(addr);
@@ -167,7 +167,7 @@ struct Graphic4Mode
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static uint8_t point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime time, VDPVRAM& vram,
 		unsigned x, unsigned addr, uint8_t src, uint8_t color, LogOp op);
 	static uint8_t duplicate(uint8_t color);
 };
@@ -191,7 +191,7 @@ inline uint8_t Graphic4Mode::point(
 
 template<typename LogOp>
 inline void Graphic4Mode::pset(
-	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned x, unsigned addr,
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 1) << 2);
@@ -219,7 +219,7 @@ struct Graphic5Mode
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static uint8_t point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime time, VDPVRAM& vram,
 		unsigned x, unsigned addr, uint8_t src, uint8_t color, LogOp op);
 	static uint8_t duplicate(uint8_t color);
 };
@@ -243,7 +243,7 @@ inline uint8_t Graphic5Mode::point(
 
 template<typename LogOp>
 inline void Graphic5Mode::pset(
-	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned x, unsigned addr,
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 3) << 1);
@@ -273,7 +273,7 @@ struct Graphic6Mode
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static uint8_t point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime time, VDPVRAM& vram,
 		unsigned x, unsigned addr, uint8_t src, uint8_t color, LogOp op);
 	static uint8_t duplicate(uint8_t color);
 };
@@ -297,7 +297,7 @@ inline uint8_t Graphic6Mode::point(
 
 template<typename LogOp>
 inline void Graphic6Mode::pset(
-	EmuTime::param time, VDPVRAM& vram, unsigned x, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned x, unsigned addr,
 	uint8_t src, uint8_t color, LogOp op)
 {
 	auto sh = uint8_t(((~x) & 1) << 2);
@@ -325,7 +325,7 @@ struct Graphic7Mode
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static uint8_t point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime time, VDPVRAM& vram,
 		unsigned x, unsigned addr, uint8_t src, uint8_t color, LogOp op);
 	static uint8_t duplicate(uint8_t color);
 };
@@ -348,7 +348,7 @@ inline uint8_t Graphic7Mode::point(
 
 template<typename LogOp>
 inline void Graphic7Mode::pset(
-	EmuTime::param time, VDPVRAM& vram, unsigned /*x*/, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned /*x*/, unsigned addr,
 	uint8_t src, uint8_t color, LogOp op)
 {
 	op(time, vram, addr, src, color, 0);
@@ -375,7 +375,7 @@ struct NonBitmapMode
 	static unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static uint8_t point(const VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
-	static void pset(EmuTime::param time, VDPVRAM& vram,
+	static void pset(EmuTime time, VDPVRAM& vram,
 		unsigned x, unsigned addr, uint8_t src, uint8_t color, LogOp op);
 	static uint8_t duplicate(uint8_t color);
 };
@@ -398,7 +398,7 @@ inline uint8_t NonBitmapMode::point(
 
 template<typename LogOp>
 inline void NonBitmapMode::pset(
-	EmuTime::param time, VDPVRAM& vram, unsigned /*x*/, unsigned addr,
+	EmuTime time, VDPVRAM& vram, unsigned /*x*/, unsigned addr,
 	uint8_t src, uint8_t color, LogOp op)
 {
 	op(time, vram, addr, src, color, 0);
@@ -655,7 +655,7 @@ struct IncrShift7
 // Logical operations:
 
 struct DummyOp {
-	void operator()(EmuTime::param /*time*/, VDPVRAM& /*vram*/, unsigned /*addr*/,
+	void operator()(EmuTime /*time*/, VDPVRAM& /*vram*/, unsigned /*addr*/,
 	                uint8_t /*src*/, uint8_t /*color*/, uint8_t /*mask*/) const
 	{
 		// Undefined logical operations do nothing.
@@ -663,7 +663,7 @@ struct DummyOp {
 };
 
 struct ImpOp {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t mask) const
 	{
 		vram.cmdWrite(addr, (src & mask) | color, time);
@@ -671,7 +671,7 @@ struct ImpOp {
 };
 
 struct AndOp {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t mask) const
 	{
 		vram.cmdWrite(addr, src & (color | mask), time);
@@ -679,7 +679,7 @@ struct AndOp {
 };
 
 struct OrOp {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t /*mask*/) const
 	{
 		vram.cmdWrite(addr, src | color, time);
@@ -687,7 +687,7 @@ struct OrOp {
 };
 
 struct XorOp {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t /*mask*/) const
 	{
 		vram.cmdWrite(addr, src ^ color, time);
@@ -695,7 +695,7 @@ struct XorOp {
 };
 
 struct NotOp {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t mask) const
 	{
 		vram.cmdWrite(addr, (src & mask) | ~(color | mask), time);
@@ -704,7 +704,7 @@ struct NotOp {
 
 template<typename Op>
 struct TransparentOp : Op {
-	void operator()(EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	void operator()(EmuTime time, VDPVRAM& vram, unsigned addr,
 	                uint8_t src, uint8_t color, uint8_t mask) const
 	{
 		// TODO does this skip the write or re-write the original value
@@ -722,7 +722,7 @@ using TNotOp = TransparentOp<NotOp>;
 
 // Commands
 
-void VDPCmdEngine::setStatusChangeTime(EmuTime::param t)
+void VDPCmdEngine::setStatusChangeTime(EmuTime t)
 {
 	statusChangeTime = t;
 	if ((t != EmuTime::infinity()) && executingProbe.anyObservers()) {
@@ -748,14 +748,14 @@ void VDPCmdEngine::calcFinishTime(unsigned nx, unsigned ny, unsigned ticksPerPix
 
 /** Abort
   */
-void VDPCmdEngine::startAbrt(EmuTime::param time)
+void VDPCmdEngine::startAbrt(EmuTime time)
 {
 	commandDone(time);
 }
 
 /** Point
   */
-void VDPCmdEngine::startPoint(EmuTime::param time)
+void VDPCmdEngine::startPoint(EmuTime time)
 {
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
@@ -764,7 +764,7 @@ void VDPCmdEngine::startPoint(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executePoint(EmuTime::param limit)
+void VDPCmdEngine::executePoint(EmuTime limit)
 {
 	if (engineTime >= limit) [[unlikely]] return;
 
@@ -779,7 +779,7 @@ void VDPCmdEngine::executePoint(EmuTime::param limit)
 
 /** Pset
   */
-void VDPCmdEngine::startPset(EmuTime::param time)
+void VDPCmdEngine::startPset(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -789,7 +789,7 @@ void VDPCmdEngine::startPset(EmuTime::param time)
 }
 
 template<typename Mode, typename LogOp>
-void VDPCmdEngine::executePset(EmuTime::param limit)
+void VDPCmdEngine::executePset(EmuTime limit)
 {
 	bool dstExt = (ARG & MXD) != 0;
 	bool doPset = !dstExt || hasExtendedVRAM;
@@ -818,7 +818,7 @@ void VDPCmdEngine::executePset(EmuTime::param limit)
 
 /** Search a dot.
   */
-void VDPCmdEngine::startSrch(EmuTime::param time)
+void VDPCmdEngine::startSrch(EmuTime time)
 {
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
@@ -828,7 +828,7 @@ void VDPCmdEngine::startSrch(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeSrch(EmuTime::param limit)
+void VDPCmdEngine::executeSrch(EmuTime limit)
 {
 	uint8_t CL = COL & Mode::COLOR_MASK;
 	int TX = (ARG & DIX) ? -1 : 1;
@@ -866,7 +866,7 @@ void VDPCmdEngine::executeSrch(EmuTime::param limit)
 
 /** Draw a line.
   */
-void VDPCmdEngine::startLine(EmuTime::param time)
+void VDPCmdEngine::startLine(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -880,7 +880,7 @@ void VDPCmdEngine::startLine(EmuTime::param time)
 }
 
 template<typename Mode, typename LogOp>
-void VDPCmdEngine::executeLine(EmuTime::param limit)
+void VDPCmdEngine::executeLine(EmuTime limit)
 {
 	// See doc/line-speed.txt for some background info on the timing.
 	uint8_t CL = COL & Mode::COLOR_MASK;
@@ -955,7 +955,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 /** Logical move VDP -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startLmmv(EmuTime::param time)
+void VDPCmdEngine::startLmmv(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -970,7 +970,7 @@ void VDPCmdEngine::startLmmv(EmuTime::param time)
 }
 
 template<typename Mode, typename LogOp>
-void VDPCmdEngine::executeLmmv(EmuTime::param limit)
+void VDPCmdEngine::executeLmmv(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_1_pixel<Mode>(DX, NX, ARG);
@@ -1079,7 +1079,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 /** Logical move VRAM -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startLmmm(EmuTime::param time)
+void VDPCmdEngine::startLmmm(EmuTime time)
 {
 	vram.cmdReadWindow .setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1095,7 +1095,7 @@ void VDPCmdEngine::startLmmm(EmuTime::param time)
 }
 
 template<typename Mode, typename LogOp>
-void VDPCmdEngine::executeLmmm(EmuTime::param limit)
+void VDPCmdEngine::executeLmmm(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_2_pixel<Mode>(SX, DX, NX, ARG);
@@ -1228,7 +1228,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 /** Logical move VRAM -> CPU.
   */
 template<typename Mode>
-void VDPCmdEngine::startLmcm(EmuTime::param time)
+void VDPCmdEngine::startLmcm(EmuTime time)
 {
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
@@ -1243,7 +1243,7 @@ void VDPCmdEngine::startLmcm(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeLmcm(EmuTime::param limit)
+void VDPCmdEngine::executeLmcm(EmuTime limit)
 {
 	if (!transfer) return;
 	if (engineTime >= limit) [[unlikely]] return;
@@ -1279,7 +1279,7 @@ void VDPCmdEngine::executeLmcm(EmuTime::param limit)
 /** Logical move CPU -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startLmmc(EmuTime::param time)
+void VDPCmdEngine::startLmmc(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1295,7 +1295,7 @@ void VDPCmdEngine::startLmmc(EmuTime::param time)
 }
 
 template<typename Mode, typename LogOp>
-void VDPCmdEngine::executeLmmc(EmuTime::param limit)
+void VDPCmdEngine::executeLmmc(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_1_pixel<Mode>(DX, NX, ARG);
@@ -1340,7 +1340,7 @@ void VDPCmdEngine::executeLmmc(EmuTime::param limit)
 /** High-speed move VDP -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startHmmv(EmuTime::param time)
+void VDPCmdEngine::startHmmv(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1354,7 +1354,7 @@ void VDPCmdEngine::startHmmv(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeHmmv(EmuTime::param limit)
+void VDPCmdEngine::executeHmmv(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_1_byte<Mode>(DX, NX, ARG);
@@ -1444,7 +1444,7 @@ void VDPCmdEngine::executeHmmv(EmuTime::param limit)
 /** High-speed move VRAM -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startHmmm(EmuTime::param time)
+void VDPCmdEngine::startHmmm(EmuTime time)
 {
 	vram.cmdReadWindow .setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1460,7 +1460,7 @@ void VDPCmdEngine::startHmmm(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeHmmm(EmuTime::param limit)
+void VDPCmdEngine::executeHmmm(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_2_byte<Mode>(SX, DX, NX, ARG);
@@ -1580,7 +1580,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 /** High-speed move VRAM -> VRAM (Y direction only).
   */
 template<typename Mode>
-void VDPCmdEngine::startYmmm(EmuTime::param time)
+void VDPCmdEngine::startYmmm(EmuTime time)
 {
 	vram.cmdReadWindow .setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1596,7 +1596,7 @@ void VDPCmdEngine::startYmmm(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeYmmm(EmuTime::param limit)
+void VDPCmdEngine::executeYmmm(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_1_byte<Mode>(DX, 512, ARG);
@@ -1708,7 +1708,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 /** High-speed move CPU -> VRAM.
   */
 template<typename Mode>
-void VDPCmdEngine::startHmmc(EmuTime::param time)
+void VDPCmdEngine::startHmmc(EmuTime time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
@@ -1723,7 +1723,7 @@ void VDPCmdEngine::startHmmc(EmuTime::param time)
 }
 
 template<typename Mode>
-void VDPCmdEngine::executeHmmc(EmuTime::param limit)
+void VDPCmdEngine::executeHmmc(EmuTime limit)
 {
 	NY &= 1023;
 	unsigned tmpNX = clipNX_1_byte<Mode>(DX, NX, ARG);
@@ -1782,7 +1782,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 {
 }
 
-void VDPCmdEngine::reset(EmuTime::param time)
+void VDPCmdEngine::reset(EmuTime time)
 {
 	for (int i = 14; i >= 0; --i) { // start with ABORT
 		setCmdReg(uint8_t(i), 0, time);
@@ -1793,7 +1793,7 @@ void VDPCmdEngine::reset(EmuTime::param time)
 	updateDisplayMode(vdp.getDisplayMode(), vdp.getCmdBit(), time);
 }
 
-void VDPCmdEngine::setCmdReg(uint8_t index, uint8_t value, EmuTime::param time)
+void VDPCmdEngine::setCmdReg(uint8_t index, uint8_t value, EmuTime time)
 {
 	sync(time);
 	if (CMD && (index != 12)) {
@@ -1886,7 +1886,7 @@ uint8_t VDPCmdEngine::peekCmdReg(uint8_t index) const
 	}
 }
 
-void VDPCmdEngine::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
+void VDPCmdEngine::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime time)
 {
 	int newScrMode = [&] {
 		switch (mode.getBase()) {
@@ -1924,7 +1924,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::par
 	}
 }
 
-void VDPCmdEngine::executeCommand(EmuTime::param time)
+void VDPCmdEngine::executeCommand(EmuTime time)
 {
 	// V9938 ops only work in SCREEN 5-8.
 	// V9958 ops work in non SCREEN 5-8 when CMD bit is set
@@ -2015,7 +2015,7 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 	}
 }
 
-void VDPCmdEngine::sync2(EmuTime::param time)
+void VDPCmdEngine::sync2(EmuTime time)
 {
 	switch ((scrMode << 8) | CMD) {
 	case 0x000: case 0x100: case 0x200: case 0x300: case 0x400:
@@ -2594,7 +2594,7 @@ void VDPCmdEngine::reportVdpCommand() const
 		<<  ',' << ((ARG & DIY) ? -int(NY) : int(NY)) << "]\n";
 }
 
-void VDPCmdEngine::commandDone(EmuTime::param time)
+void VDPCmdEngine::commandDone(EmuTime time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= 0xFE; // reset CE

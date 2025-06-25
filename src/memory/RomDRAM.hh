@@ -12,7 +12,7 @@ class RomDRAM final : public MSXRom
 public:
 	RomDRAM(const DeviceConfig& config, Rom&& rom);
 
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
 
 private:

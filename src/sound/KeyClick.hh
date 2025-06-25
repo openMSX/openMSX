@@ -13,8 +13,8 @@ class KeyClick
 public:
 	explicit KeyClick(const DeviceConfig& config);
 
-	void reset(EmuTime::param time);
-	void setClick(bool status, EmuTime::param time);
+	void reset(EmuTime time);
+	void setClick(bool status, EmuTime time);
 
 private:
 	DACSound8U dac;

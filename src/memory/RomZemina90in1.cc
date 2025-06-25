@@ -29,7 +29,7 @@ RomZemina90in1::~RomZemina90in1()
 	getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
-void RomZemina90in1::reset(EmuTime::param time)
+void RomZemina90in1::reset(EmuTime time)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -38,7 +38,7 @@ void RomZemina90in1::reset(EmuTime::param time)
 	writeIO(0x77, 0, time);
 }
 
-void RomZemina90in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void RomZemina90in1::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {

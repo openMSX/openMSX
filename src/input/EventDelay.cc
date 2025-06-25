@@ -60,7 +60,7 @@ bool EventDelay::signalEvent(const Event& event)
 	return false;
 }
 
-void EventDelay::sync(EmuTime::param curEmu)
+void EventDelay::sync(EmuTime curEmu)
 {
 	auto curRealTime = Timer::getTime();
 	auto realDuration = curRealTime - prevReal;
@@ -149,7 +149,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 #endif
 }
 
-void EventDelay::executeUntil(EmuTime::param time)
+void EventDelay::executeUntil(EmuTime time)
 {
 	try {
 		auto event = std::move(scheduledEvents.front());

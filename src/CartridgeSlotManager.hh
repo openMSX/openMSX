@@ -93,7 +93,7 @@ private:
 		CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
 			std::string_view commandName);
 		void execute(std::span<const TclObject> tokens, TclObject& result,
-			     EmuTime::param time) override;
+			     EmuTime time) override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		[[nodiscard]] bool needRecord(std::span<const TclObject> tokens) const override;
@@ -114,7 +114,7 @@ private:
 
 		// MediaInfoProvider
 		void getMediaInfo(TclObject& result) override;
-		void setMedia(const TclObject& info, EmuTime::param time) override;
+		void setMedia(const TclObject& info, EmuTime time) override;
 
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;

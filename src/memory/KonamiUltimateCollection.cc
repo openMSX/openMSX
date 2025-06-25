@@ -49,13 +49,13 @@ KonamiUltimateCollection::KonamiUltimateCollection(DeviceConfig& config, Rom&& r
 	powerUp(getCurrentTime());
 }
 
-void KonamiUltimateCollection::powerUp(EmuTime::param time)
+void KonamiUltimateCollection::powerUp(EmuTime time)
 {
 	scc.powerUp(time);
 	reset(time);
 }
 
-void KonamiUltimateCollection::reset(EmuTime::param time)
+void KonamiUltimateCollection::reset(EmuTime time)
 {
 	mapperReg = 0;
 	offsetReg = 0;
@@ -98,7 +98,7 @@ bool KonamiUltimateCollection::isSCCAccess(uint16_t addr) const
 	}
 }
 
-byte KonamiUltimateCollection::readMem(uint16_t addr, EmuTime::param time)
+byte KonamiUltimateCollection::readMem(uint16_t addr, EmuTime time)
 {
 	if (isSCCAccess(addr)) {
 		return scc.readMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -110,7 +110,7 @@ byte KonamiUltimateCollection::readMem(uint16_t addr, EmuTime::param time)
 		: 0xFF; // unmapped read
 }
 
-byte KonamiUltimateCollection::peekMem(uint16_t addr, EmuTime::param time) const
+byte KonamiUltimateCollection::peekMem(uint16_t addr, EmuTime time) const
 {
 	if (isSCCAccess(addr)) {
 		return scc.peekMem(narrow_cast<uint8_t>(addr & 0xFF), time);
@@ -132,7 +132,7 @@ const byte* KonamiUltimateCollection::getReadCacheLine(uint16_t addr) const
 		: unmappedRead.data();
 }
 
-void KonamiUltimateCollection::writeMem(uint16_t addr, byte value, EmuTime::param time)
+void KonamiUltimateCollection::writeMem(uint16_t addr, byte value, EmuTime time)
 {
 	unsigned page8kB = (addr >> 13) - 2;
 	if (page8kB >= 4) return; // outside [0x4000, 0xBFFF]

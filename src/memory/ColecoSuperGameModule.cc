@@ -47,7 +47,7 @@ static constexpr unsigned translateMainRamAddress(unsigned address)
 	return address & (MAIN_RAM_SIZE - 1);
 }
 
-void ColecoSuperGameModule::reset(EmuTime::param time)
+void ColecoSuperGameModule::reset(EmuTime time)
 {
 	ramEnabled = false;
 	ramAtBiosEnabled = false;
@@ -56,7 +56,7 @@ void ColecoSuperGameModule::reset(EmuTime::param time)
 	invalidateDeviceRWCache(); // flush all to be sure
 }
 
-byte ColecoSuperGameModule::readIO(uint16_t port, EmuTime::param time)
+byte ColecoSuperGameModule::readIO(uint16_t port, EmuTime time)
 {
 	if ((port & 0xFF) == 0x52) {
 		return psg.readRegister(psgLatch, time);
@@ -64,7 +64,7 @@ byte ColecoSuperGameModule::readIO(uint16_t port, EmuTime::param time)
 	return 0xFF;
 }
 
-byte ColecoSuperGameModule::peekIO(uint16_t port, EmuTime::param time) const
+byte ColecoSuperGameModule::peekIO(uint16_t port, EmuTime time) const
 {
 	if ((port & 0xFF) == 0x52) {
 		return psg.peekRegister(psgLatch, time);
@@ -72,7 +72,7 @@ byte ColecoSuperGameModule::peekIO(uint16_t port, EmuTime::param time) const
 	return 0xFF;
 }
 
-void ColecoSuperGameModule::writeIO(uint16_t port, byte value, EmuTime::param time)
+void ColecoSuperGameModule::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0xFF) {
 		case 0x50: // PSG address (latch?)
@@ -95,7 +95,7 @@ void ColecoSuperGameModule::writeIO(uint16_t port, byte value, EmuTime::param ti
 	}
 }
 
-byte ColecoSuperGameModule::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte ColecoSuperGameModule::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if (address < BIOS_ROM_SIZE) {
 		return ramAtBiosEnabled ? sgmRam.peek(address) : biosRom[address];
@@ -109,7 +109,7 @@ byte ColecoSuperGameModule::peekMem(uint16_t address, EmuTime::param /*time*/) c
 	return 0xFF;
 }
 
-byte ColecoSuperGameModule::readMem(uint16_t address, EmuTime::param /*time*/)
+byte ColecoSuperGameModule::readMem(uint16_t address, EmuTime /*time*/)
 {
 	if (address < BIOS_ROM_SIZE) {
 		return ramAtBiosEnabled ? sgmRam.read(address) : biosRom[address];
@@ -123,7 +123,7 @@ byte ColecoSuperGameModule::readMem(uint16_t address, EmuTime::param /*time*/)
 	return 0xFF;
 }
 
-void ColecoSuperGameModule::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void ColecoSuperGameModule::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address < BIOS_ROM_SIZE) {
 		if (ramAtBiosEnabled) {

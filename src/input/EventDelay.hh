@@ -34,7 +34,7 @@ public:
 	           ReverseManager& reverseManager);
 	~EventDelay();
 
-	void sync(EmuTime::param curEmu);
+	void sync(EmuTime curEmu);
 	void flush();
 
 private:
@@ -42,7 +42,7 @@ private:
 	bool signalEvent(const Event& event) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time) override;
+	void executeUntil(EmuTime time) override;
 
 private:
 	EventDistributor& eventDistributor;

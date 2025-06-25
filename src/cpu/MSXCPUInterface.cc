@@ -187,7 +187,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 	}
 }
 
-uint8_t MSXCPUInterface::readMemSlow(uint16_t address, EmuTime::param time)
+uint8_t MSXCPUInterface::readMemSlow(uint16_t address, EmuTime time)
 {
 	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
@@ -213,7 +213,7 @@ uint8_t MSXCPUInterface::readMemSlow(uint16_t address, EmuTime::param time)
 	}
 }
 
-void MSXCPUInterface::writeMemSlow(uint16_t address, uint8_t value, EmuTime::param time)
+void MSXCPUInterface::writeMemSlow(uint16_t address, uint8_t value, EmuTime time)
 {
 	tick(CacheLineCounters::DisallowCacheWrite);
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) [[unlikely]] {
@@ -764,7 +764,7 @@ void MSXCPUInterface::setSubSlot(uint8_t primSlot, uint8_t value)
 	}
 }
 
-uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime::param time) const
+uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime time) const
 {
 	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
@@ -773,7 +773,7 @@ uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) const
+uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime time) const
 {
 	uint8_t primSlot = (address & 0xC0000) >> 18;
 	uint8_t subSlot = (address & 0x30000) >> 16;
@@ -790,7 +790,7 @@ uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime::param time) c
 	}
 }
 
-uint8_t MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::readSlottedMem(unsigned address, EmuTime time)
 {
 	uint8_t primSlot = (address & 0xC0000) >> 18;
 	uint8_t subSlot = (address & 0x30000) >> 16;
@@ -808,7 +808,7 @@ uint8_t MSXCPUInterface::readSlottedMem(unsigned address, EmuTime::param time)
 }
 
 void MSXCPUInterface::writeSlottedMem(unsigned address, uint8_t value,
-                                      EmuTime::param time)
+                                      EmuTime time)
 {
 	uint8_t primSlot = (address & 0xC0000) >> 18;
 	uint8_t subSlot = (address & 0x30000) >> 16;
@@ -1102,14 +1102,14 @@ MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard_)
 {
 }
 
-uint8_t MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime time)
 {
 	const auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	return interface.peekMem(narrow<uint16_t>(address), time);
 }
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, uint8_t value,
-                                         EmuTime::param time)
+                                         EmuTime time)
 {
 	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	interface.writeMem(narrow<uint16_t>(address), value, time);
@@ -1125,14 +1125,14 @@ MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 {
 }
 
-uint8_t MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime time)
 {
 	const auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	return interface.peekSlottedMem(address, time);
 }
 
 void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, uint8_t value,
-                                                EmuTime::param time)
+                                                EmuTime time)
 {
 	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	interface.writeSlottedMem(address, value, time);
@@ -1245,13 +1245,13 @@ MSXCPUInterface::IODebug::IODebug(MSXMotherBoard& motherBoard_)
 {
 }
 
-uint8_t MSXCPUInterface::IODebug::read(unsigned address, EmuTime::param time)
+uint8_t MSXCPUInterface::IODebug::read(unsigned address, EmuTime time)
 {
 	auto& interface = OUTER(MSXCPUInterface, ioDebug);
 	return interface.IO_In[address & 0xFF]->peekIO(narrow<uint16_t>(address), time);
 }
 
-void MSXCPUInterface::IODebug::write(unsigned address, uint8_t value, EmuTime::param time)
+void MSXCPUInterface::IODebug::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& interface = OUTER(MSXCPUInterface, ioDebug);
 	interface.writeIO(uint16_t(address), value, time);

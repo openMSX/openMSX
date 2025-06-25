@@ -13,7 +13,7 @@ WD2793BasedFDC::WD2793BasedFDC(DeviceConfig& config, const std::string& romId,
 {
 }
 
-void WD2793BasedFDC::reset(EmuTime::param time)
+void WD2793BasedFDC::reset(EmuTime time)
 {
 	controller.reset(time);
 }

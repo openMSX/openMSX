@@ -28,7 +28,7 @@ void MSXRam::init()
 	checkedRam.emplace(getDeviceConfig2(), getName(), "ram", size);
 }
 
-void MSXRam::powerUp(EmuTime::param /*time*/)
+void MSXRam::powerUp(EmuTime /*time*/)
 {
 	checkedRam->clear();
 }
@@ -40,17 +40,17 @@ unsigned MSXRam::translate(unsigned address) const
 	return address;
 }
 
-byte MSXRam::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte MSXRam::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	return checkedRam->peek(translate(address));
 }
 
-byte MSXRam::readMem(uint16_t address, EmuTime::param /*time*/)
+byte MSXRam::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return checkedRam->read(translate(address));
 }
 
-void MSXRam::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void MSXRam::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	checkedRam->write(translate(address), value);
 }

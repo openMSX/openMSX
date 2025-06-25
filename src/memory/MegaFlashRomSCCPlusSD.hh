@@ -22,15 +22,15 @@ public:
 	explicit MegaFlashRomSCCPlusSD(DeviceConfig& config);
 	~MegaFlashRomSCCPlusSD() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t address) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t address) override;
 
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -45,24 +45,24 @@ private:
 	/**
 	 * Writes to flash only if it was not write protected.
 	 */
-	void writeToFlash(unsigned addr, byte value, EmuTime::param time);
+	void writeToFlash(unsigned addr, byte value, EmuTime time);
 	AmdFlash flash;
 	byte subslotReg;
 
 	// subslot 0
-	[[nodiscard]] byte readMemSubSlot0(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot0(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] byte readMemSubSlot0(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekMemSubSlot0(uint16_t address, EmuTime time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot0(uint16_t address) const;
 	[[nodiscard]] byte* getWriteCacheLineSubSlot0(uint16_t address);
-	void writeMemSubSlot0(uint16_t address, byte value, EmuTime::param time);
+	void writeMemSubSlot0(uint16_t address, byte value, EmuTime time);
 
 	// subslot 1
 	// mega flash rom scc+
-	[[nodiscard]] byte readMemSubSlot1(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot1(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] byte readMemSubSlot1(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekMemSubSlot1(uint16_t address, EmuTime time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot1(uint16_t address) const;
 	[[nodiscard]] byte* getWriteCacheLineSubSlot1(uint16_t address);
-	void writeMemSubSlot1(uint16_t address, byte value, EmuTime::param time);
+	void writeMemSubSlot1(uint16_t address, byte value, EmuTime time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot1(unsigned addr) const;
 
 	SCC scc;
@@ -111,9 +111,9 @@ private:
 		{
 		}
 
-		[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-		[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-		void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+		[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+		[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+		void writeIO(uint16_t port, byte value, EmuTime time) override;
 		[[nodiscard]] byte getSelectedSegment(byte page) const override;
 
 	private:
@@ -124,11 +124,11 @@ private:
 	std::array<byte, 4> memMapperRegs;
 
 	// subslot 3
-	[[nodiscard]] byte readMemSubSlot3(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekMemSubSlot3(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] byte readMemSubSlot3(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekMemSubSlot3(uint16_t address, EmuTime time) const;
 	[[nodiscard]] const byte* getReadCacheLineSubSlot3(uint16_t address) const;
 	[[nodiscard]] byte* getWriteCacheLineSubSlot3(uint16_t address);
-	void writeMemSubSlot3(uint16_t address, byte value, EmuTime::param time);
+	void writeMemSubSlot3(uint16_t address, byte value, EmuTime time);
 	[[nodiscard]] unsigned getFlashAddrSubSlot3(unsigned addr) const;
 
 	std::array<byte, 4> bankRegsSubSlot3;

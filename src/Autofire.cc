@@ -22,7 +22,7 @@ class AutofireStateChange final : public StateChange
 {
 public:
 	AutofireStateChange() = default; // for serialize
-	AutofireStateChange(EmuTime::param time_, Autofire::ID id_, int value_)
+	AutofireStateChange(EmuTime time_, Autofire::ID id_, int value_)
 		: StateChange(time_)
 		, id(id_), value(value_) {}
 	[[nodiscard]] auto getId() const { return id; }
@@ -71,7 +71,7 @@ Autofire::~Autofire()
 	stateChangeDistributor.unregisterListener(*this);
 }
 
-void Autofire::setSpeed(EmuTime::param time)
+void Autofire::setSpeed(EmuTime time)
 {
 	stateChangeDistributor.distributeNew<AutofireStateChange>(
 		time, id, speedSetting.getInt());
@@ -103,12 +103,12 @@ void Autofire::signalStateChange(const StateChange& event)
 	setClock(as->getValue());
 }
 
-void Autofire::stopReplay(EmuTime::param time) noexcept
+void Autofire::stopReplay(EmuTime time) noexcept
 {
 	setSpeed(time); // re-sync with current value of the setting
 }
 
-bool Autofire::getSignal(EmuTime::param time) const
+bool Autofire::getSignal(EmuTime time) const
 {
 	return (clock.getPeriod() == EmuDuration::zero())
 		? false // special value: disabled

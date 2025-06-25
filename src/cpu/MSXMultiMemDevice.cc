@@ -97,17 +97,17 @@ MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
 	return searchRange(address).device;
 }
 
-uint8_t MSXMultiMemDevice::readMem(uint16_t address, EmuTime::param time)
+uint8_t MSXMultiMemDevice::readMem(uint16_t address, EmuTime time)
 {
 	return searchDevice(address)->readMem(address, time);
 }
 
-uint8_t MSXMultiMemDevice::peekMem(uint16_t address, EmuTime::param time) const
+uint8_t MSXMultiMemDevice::peekMem(uint16_t address, EmuTime time) const
 {
 	return searchDevice(address)->peekMem(address, time);
 }
 
-void MSXMultiMemDevice::writeMem(uint16_t address, uint8_t value, EmuTime::param time)
+void MSXMultiMemDevice::writeMem(uint16_t address, uint8_t value, EmuTime time)
 {
 	searchDevice(address)->writeMem(address, value, time);
 }

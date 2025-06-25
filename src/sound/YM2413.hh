@@ -19,9 +19,9 @@ public:
 	YM2413(const std::string& name, const DeviceConfig& config);
 	~YM2413();
 
-	void reset(EmuTime::param time);
-	void writePort(bool port, uint8_t value, EmuTime::param time);
-	void pokeReg(uint8_t reg, uint8_t value, EmuTime::param time);
+	void reset(EmuTime time);
+	void writePort(bool port, uint8_t value, EmuTime time);
+	void pokeReg(uint8_t reg, uint8_t value, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -38,7 +38,7 @@ private:
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		[[nodiscard]] uint8_t read(unsigned address) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 };
 

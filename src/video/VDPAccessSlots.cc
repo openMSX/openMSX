@@ -226,7 +226,7 @@ static constexpr ZeroTable  tabBroken;
 }
 
 EmuTime getAccessSlot(
-	EmuTime::param frame_, EmuTime::param time, Delta delta,
+	EmuTime frame_, EmuTime time, Delta delta,
 	const VDP& vdp)
 {
 	VDP::VDPClock frame(frame_);
@@ -236,7 +236,7 @@ EmuTime getAccessSlot(
 }
 
 Calculator getCalculator(
-	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
+	EmuTime frame, EmuTime time, EmuTime limit,
 	const VDP& vdp)
 {
 	auto tab = getTab(vdp);

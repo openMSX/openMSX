@@ -65,7 +65,7 @@ public:
 	 * This method is called on reset.
 	 * Default implementation does nothing.
 	 */
-	virtual void reset(EmuTime::param time);
+	virtual void reset(EmuTime time);
 
 	/**
 	 * Gets IRQ vector used in IM2. This method only exists to support
@@ -82,14 +82,14 @@ public:
 	 * that need to turn off LEDs need to reimplement this method.
 	 * @param time The moment in time the power down occurs.
 	 */
-	virtual void powerDown(EmuTime::param time);
+	virtual void powerDown(EmuTime time);
 
 	/**
 	 * This method is called when MSX is powered up. The default
 	 * implementation calls reset(), this is usually ok.
 	 * @param time The moment in time the power up occurs.
 	 */
-	virtual void powerUp(EmuTime::param time);
+	virtual void powerUp(EmuTime time);
 
 	/**
 	 * Returns a human-readable name for this device.
@@ -122,14 +122,14 @@ public:
 	 * Read a byte from an IO port at a certain time from this device.
 	 * The default implementation returns 255.
 	 */
-	[[nodiscard]] virtual byte readIO(uint16_t port, EmuTime::param time);
+	[[nodiscard]] virtual byte readIO(uint16_t port, EmuTime time);
 
 	/**
 	 * Write a byte to a given IO port at a certain time to this
 	 * device.
 	 * The default implementation ignores the write (does nothing)
 	 */
-	virtual void writeIO(uint16_t port, byte value, EmuTime::param time);
+	virtual void writeIO(uint16_t port, byte value, EmuTime time);
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
@@ -139,7 +139,7 @@ public:
 	 * by a debugger.
 	 * The default implementation just returns 0xFF.
 	 */
-	[[nodiscard]] virtual byte peekIO(uint16_t port, EmuTime::param time) const;
+	[[nodiscard]] virtual byte peekIO(uint16_t port, EmuTime time) const;
 
 
 	// Memory
@@ -149,14 +149,14 @@ public:
 	 * device.
 	 * The default implementation returns 255.
 	 */
-	[[nodiscard]] virtual byte readMem(uint16_t address, EmuTime::param time);
+	[[nodiscard]] virtual byte readMem(uint16_t address, EmuTime time);
 
 	/**
 	 * Write a given byte to a given location at a certain time
 	 * to this device.
 	 * The default implementation ignores the write (does nothing).
 	 */
-	virtual void writeMem(uint16_t address, byte value, EmuTime::param time);
+	virtual void writeMem(uint16_t address, byte value, EmuTime time);
 
 	/**
 	 * Test that the memory in the interval [start, start +
@@ -196,7 +196,7 @@ public:
 	 * cacheable you cannot read it by default, Override this
 	 * method if you want to improve this behaviour.
 	 */
-	[[nodiscard]] virtual byte peekMem(uint16_t address, EmuTime::param time) const;
+	[[nodiscard]] virtual byte peekMem(uint16_t address, EmuTime time) const;
 
 	/** Global writes.
 	  * Some devices violate the MSX standard by ignoring the SLOT-SELECT
@@ -206,13 +206,13 @@ public:
 	  * You need to register each address for which you want this method
 	  * to be triggered.
 	  */
-	virtual void globalWrite(uint16_t address, byte value, EmuTime::param time);
+	virtual void globalWrite(uint16_t address, byte value, EmuTime time);
 
 	/** Global reads. Similar to globalWrite() but then for reads.
 	  * 'Carnivore2' is an example of a device that monitors the MSX bus
 	  * for reads in any slot.
 	  */
-	virtual void globalRead(uint16_t address, EmuTime::param time);
+	virtual void globalRead(uint16_t address, EmuTime time);
 
 	/** Calls MSXCPUInterface::invalidateXXCache() for the specific (part
 	  * of) the slot that this device is located in.
@@ -257,7 +257,7 @@ public:
 	[[nodiscard]] const Devices& getReferences() const;
 
 	// convenience functions, these delegate to MSXMotherBoard
-	[[nodiscard]] EmuTime::param getCurrentTime() const;
+	[[nodiscard]] EmuTime getCurrentTime() const;
 	[[nodiscard]] MSXCPU& getCPU() const;
 	[[nodiscard]] MSXCPUInterface& getCPUInterface() const;
 	[[nodiscard]] Scheduler& getScheduler() const;

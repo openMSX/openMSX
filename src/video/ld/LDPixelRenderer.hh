@@ -22,7 +22,7 @@ public:
 	~LDPixelRenderer() override;
 
 	// Renderer interface:
-	void frameStart(EmuTime::param time) override;
+	void frameStart(EmuTime time) override;
 	void frameEnd() override;
 	void drawBlank(int r, int g, int b) override;
 	[[nodiscard]] RawFrame* getRawFrame() override;

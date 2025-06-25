@@ -44,7 +44,7 @@ public:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
 	[[nodiscard]] bool isActive() override;
 	void reset() override;
-	void frameStart(EmuTime::param time) override;
+	void frameStart(EmuTime time) override;
 	void frameEnd() override;
 	void setDisplayMode(DisplayMode mode) override;
 	void setPalette(unsigned index, int grb) override;

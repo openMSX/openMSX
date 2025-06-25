@@ -86,7 +86,7 @@ void V9990SDLRasterizer::frameStart()
 	                (verTiming.display - SCREEN_HEIGHT) / 2;
 }
 
-void V9990SDLRasterizer::frameEnd(EmuTime::param time)
+void V9990SDLRasterizer::frameEnd(EmuTime time)
 {
 	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 	workFrame->init(

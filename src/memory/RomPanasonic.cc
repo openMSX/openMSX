@@ -45,7 +45,7 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomPanasonic::reset(EmuTime::param /*time*/)
+void RomPanasonic::reset(EmuTime /*time*/)
 {
 	control = 0;
 	std::ranges::fill(bankSelect, 0);
@@ -55,7 +55,7 @@ void RomPanasonic::reset(EmuTime::param /*time*/)
 	invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
-byte RomPanasonic::peekMem(uint16_t address, EmuTime::param time) const
+byte RomPanasonic::peekMem(uint16_t address, EmuTime time) const
 {
 	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
 		// read mapper state (lower 8 bit)
@@ -78,7 +78,7 @@ byte RomPanasonic::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-byte RomPanasonic::readMem(uint16_t address, EmuTime::param time)
+byte RomPanasonic::readMem(uint16_t address, EmuTime time)
 {
 	return RomPanasonic::peekMem(address, time);
 }
@@ -93,7 +93,7 @@ const byte* RomPanasonic::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomPanasonic::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomPanasonic::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state (lower 8 bits)

@@ -69,12 +69,12 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 	}
 }
 
-void RomFSA1FM1::reset(EmuTime::param /*time*/)
+void RomFSA1FM1::reset(EmuTime /*time*/)
 {
 	// initial rom bank is undefined
 }
 
-byte RomFSA1FM1::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte RomFSA1FM1::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
@@ -98,7 +98,7 @@ byte RomFSA1FM1::peekMem(uint16_t address, EmuTime::param /*time*/) const
 	}
 }
 
-byte RomFSA1FM1::readMem(uint16_t address, EmuTime::param time)
+byte RomFSA1FM1::readMem(uint16_t address, EmuTime time)
 {
 	return RomFSA1FM1::peekMem(address, time);
 }
@@ -120,7 +120,7 @@ const byte* RomFSA1FM1::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomFSA1FM1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomFSA1FM1::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	// TODO 0x7FC0 - 0x7FCF is modem IO area
 
@@ -166,7 +166,7 @@ RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomFSA1FM2::reset(EmuTime::param /*time*/)
+void RomFSA1FM2::reset(EmuTime /*time*/)
 {
 	control = 0;
 	for (auto region : xrange(6)) {
@@ -178,7 +178,7 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-byte RomFSA1FM2::peekMem(uint16_t address, EmuTime::param time) const
+byte RomFSA1FM2::peekMem(uint16_t address, EmuTime time) const
 {
 	if (0xC000 <= address) {
 		return 0xFF;
@@ -194,7 +194,7 @@ byte RomFSA1FM2::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-byte RomFSA1FM2::readMem(uint16_t address, EmuTime::param time)
+byte RomFSA1FM2::readMem(uint16_t address, EmuTime time)
 {
 	return RomFSA1FM2::peekMem(address, time);
 }
@@ -215,7 +215,7 @@ const byte* RomFSA1FM2::getReadCacheLine(uint16_t address) const
 }
 
 void RomFSA1FM2::writeMem(uint16_t address, byte value,
-                          EmuTime::param /*time*/)
+                          EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		// set mapper state

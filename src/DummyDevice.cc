@@ -8,7 +8,7 @@ DummyDevice::DummyDevice(const DeviceConfig& config)
 {
 }
 
-void DummyDevice::reset(EmuTime::param /*time*/)
+void DummyDevice::reset(EmuTime /*time*/)
 {
 	UNREACHABLE;
 }

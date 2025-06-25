@@ -113,13 +113,13 @@ RomAlAlamiah30in1::~RomAlAlamiah30in1()
 	getCPUInterface().unregister_IO_InOut_range(0x00, 8, this);
 }
 
-void RomAlAlamiah30in1::reset(EmuTime::param time)
+void RomAlAlamiah30in1::reset(EmuTime time)
 {
 	mapperLocked = false;
 	writeIO(0, 0, time);
 }
 
-void RomAlAlamiah30in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void RomAlAlamiah30in1::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	if (!mapperLocked) {
 		// setRom works with 16kB pages as we're using Rom16kBBlocks,
@@ -134,7 +134,7 @@ void RomAlAlamiah30in1::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*
 	mapperLocked = mapperLocked || ((value & 0b10'0000) != 0);
 }
 
-byte RomAlAlamiah30in1::readIO(uint16_t port, EmuTime::param time)
+byte RomAlAlamiah30in1::readIO(uint16_t port, EmuTime time)
 {
 	// as the cartridge doesn't look at the WR signal, assume a write
 	// of 0xFF (as if there are pull-up resistors on the bus).

@@ -32,24 +32,24 @@ public:
 
 	// V9990Renderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
-	void reset(EmuTime::param time) override;
-	void frameStart(EmuTime::param time) override;
-	void frameEnd(EmuTime::param time) override;
-	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;
-	void setDisplayMode(V9990DisplayMode mode, EmuTime::param time) override;
-	void setColorMode(V9990ColorMode mode, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void frameStart(EmuTime time) override;
+	void frameEnd(EmuTime time) override;
+	void updateDisplayEnabled(bool enabled, EmuTime time) override;
+	void setDisplayMode(V9990DisplayMode mode, EmuTime time) override;
+	void setColorMode(V9990ColorMode mode, EmuTime time) override;
 	void updatePalette(int index, uint8_t r, uint8_t g, uint8_t b, bool ys,
-	                   EmuTime::param time) override;
-	void updateSuperimposing(bool enabled, EmuTime::param time) override;
-	void updateBackgroundColor(int index, EmuTime::param time) override;
-	void updateScrollAX(EmuTime::param time) override;
-	void updateScrollBX(EmuTime::param time) override;
-	void updateScrollAYLow(EmuTime::param time) override;
-	void updateScrollBYLow(EmuTime::param time) override;
+	                   EmuTime time) override;
+	void updateSuperimposing(bool enabled, EmuTime time) override;
+	void updateBackgroundColor(int index, EmuTime time) override;
+	void updateScrollAX(EmuTime time) override;
+	void updateScrollBX(EmuTime time) override;
+	void updateScrollAYLow(EmuTime time) override;
+	void updateScrollBYLow(EmuTime time) override;
 
 private:
-	void sync(EmuTime::param time, bool force = false);
-	void renderUntil(EmuTime::param time) override;
+	void sync(EmuTime time, bool force = false);
+	void renderUntil(EmuTime time) override;
 
 	/** Type of drawing to do.
 	  */

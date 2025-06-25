@@ -20,7 +20,7 @@ CassettePlayerCommand::CassettePlayerCommand(
 }
 
 void CassettePlayerCommand::execute(
-	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime time)
 {
 	if (!cassettePlayer) {
 		throw CommandException("There is no cassetteplayer available.");

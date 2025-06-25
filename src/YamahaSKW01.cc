@@ -28,18 +28,18 @@ YamahaSKW01PrinterPort::YamahaSKW01PrinterPort(PluggingController& pluggingContr
 	reset(EmuTime::dummy());
 }
 
-void YamahaSKW01PrinterPort::reset(EmuTime::param time)
+void YamahaSKW01PrinterPort::reset(EmuTime time)
 {
 	writeData(0, time);    // TODO check this, see MSXPrinterPort
 	setStrobe(true, time); // TODO check this, see MSXPrinterPort
 }
 
-bool YamahaSKW01PrinterPort::getStatus(EmuTime::param time) const
+bool YamahaSKW01PrinterPort::getStatus(EmuTime time) const
 {
 	return getPluggedPrintDev().getStatus(time);
 }
 
-void YamahaSKW01PrinterPort::setStrobe(bool newStrobe, EmuTime::param time)
+void YamahaSKW01PrinterPort::setStrobe(bool newStrobe, EmuTime time)
 {
 	if (newStrobe != strobe) {
 		strobe = newStrobe;
@@ -47,7 +47,7 @@ void YamahaSKW01PrinterPort::setStrobe(bool newStrobe, EmuTime::param time)
 	}
 }
 
-void YamahaSKW01PrinterPort::writeData(uint8_t newData, EmuTime::param time)
+void YamahaSKW01PrinterPort::writeData(uint8_t newData, EmuTime time)
 {
 	if (newData != data) {
 		data = newData;
@@ -65,7 +65,7 @@ std::string_view YamahaSKW01PrinterPort::getClass() const
 	return "Printer Port";
 }
 
-void YamahaSKW01PrinterPort::plug(Pluggable& dev, EmuTime::param time)
+void YamahaSKW01PrinterPort::plug(Pluggable& dev, EmuTime time)
 {
 	Connector::plug(dev, time);
 	getPluggedPrintDev().writeData(data, time);
@@ -109,7 +109,7 @@ YamahaSKW01::YamahaSKW01(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void YamahaSKW01::reset(EmuTime::param time)
+void YamahaSKW01::reset(EmuTime time)
 {
 	fontAddress = {0, 0, 0, 0};
 	dataAddress = 0;
@@ -117,12 +117,12 @@ void YamahaSKW01::reset(EmuTime::param time)
 	if (printerPort) printerPort->reset(time);
 }
 
-byte YamahaSKW01::readMem(uint16_t address, EmuTime::param time)
+byte YamahaSKW01::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-byte YamahaSKW01::peekMem(uint16_t address, EmuTime::param time) const
+byte YamahaSKW01::peekMem(uint16_t address, EmuTime time) const
 {
 	if (address == one_of(0x7FC0, 0x7FC2, 0x7FC4, 0x7FC6)) {
 		return 0x01; // for now, always READY to read
@@ -150,7 +150,7 @@ byte YamahaSKW01::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-void YamahaSKW01::writeMem(uint16_t address, byte value, EmuTime::param time)
+void YamahaSKW01::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	if (0x7FC0 <= address && address <= 0x7FC7) {
 		unsigned group = (address - 0x7FC0) / 2;

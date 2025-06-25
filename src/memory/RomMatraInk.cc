@@ -11,22 +11,22 @@ RomMatraInk::RomMatraInk(DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMatraInk::reset(EmuTime::param /*time*/)
+void RomMatraInk::reset(EmuTime /*time*/)
 {
 	flash.reset();
 }
 
-byte RomMatraInk::peekMem(uint16_t address, EmuTime::param time) const
+byte RomMatraInk::peekMem(uint16_t address, EmuTime time) const
 {
 	return flash.peek(address, time);
 }
 
-byte RomMatraInk::readMem(uint16_t address, EmuTime::param time)
+byte RomMatraInk::readMem(uint16_t address, EmuTime time)
 {
 	return flash.read(address, time);
 }
 
-void RomMatraInk::writeMem(uint16_t address, byte value, EmuTime::param time)
+void RomMatraInk::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	flash.write(address + 0x10000, value, time);
 }

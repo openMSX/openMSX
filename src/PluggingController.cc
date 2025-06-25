@@ -82,7 +82,7 @@ PluggingController::PlugCmd::PlugCmd(
 }
 
 void PluggingController::PlugCmd::execute(
-	std::span<const TclObject> tokens, TclObject& result_, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result_, EmuTime time)
 {
 	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?connector? ?pluggable?");
 	string result;
@@ -169,7 +169,7 @@ PluggingController::UnplugCmd::UnplugCmd(
 }
 
 void PluggingController::UnplugCmd::execute(
-	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime time)
 {
 	checkNumArgs(tokens, 2, "connector");
 	auto& pluggingController = OUTER(PluggingController, unplugCmd);
@@ -228,7 +228,7 @@ CliComm& PluggingController::getCliComm()
 	return motherBoard.getMSXCliComm();
 }
 
-EmuTime::param PluggingController::getCurrentTime() const
+EmuTime PluggingController::getCurrentTime() const
 {
 	return motherBoard.getCurrentTime();
 }

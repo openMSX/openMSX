@@ -16,7 +16,7 @@ public:
 	enum FileType : uint8_t { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() = default;
-	[[nodiscard]] virtual int16_t getSampleAt(EmuTime::param time) const = 0;
+	[[nodiscard]] virtual int16_t getSampleAt(EmuTime time) const = 0;
 	[[nodiscard]] virtual EmuTime getEndTime() const = 0;
 	[[nodiscard]] virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, std::span<float*, 1> bufs, unsigned num) const = 0;

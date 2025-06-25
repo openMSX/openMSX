@@ -27,10 +27,10 @@ public:
 	void writeData(uint8_t data);
 
 	/** set RST / VCU / ST pins */
-	void writeControl(uint8_t data, EmuTime::param time);
+	void writeControl(uint8_t data, EmuTime time);
 
 	/** get BSY pin level */
-	[[nodiscard]] bool getBSY(EmuTime::param time) const;
+	[[nodiscard]] bool getBSY(EmuTime time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

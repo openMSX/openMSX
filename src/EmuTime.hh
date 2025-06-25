@@ -2,31 +2,19 @@
 #define EMUTIME_HH
 
 #include "EmuDuration.hh"
+
 #include "serialize.hh"
+
 #include <iosfwd>
 #include <cassert>
 #include <limits>
 
 namespace openmsx {
 
-// EmuTime is only a very small class (one 64-bit member). On 64-bit CPUs
-// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
-// is cheaper.
-template<typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
-template<typename T> struct EmuTime_param_impl<T, true> { // pass by reference
-	using param = const T&;
-	static param dummy() { static constexpr auto e = T::zero(); return e; }
-};
-template<typename T> struct EmuTime_param_impl<T, false> { // pass by value
-	using param = T;
-	static param dummy() { return T(); }
-};
-
 class EmuTime
 {
 public:
-	using param = EmuTime_param_impl<EmuTime>::param;
-	static param dummy() { return EmuTime_param_impl<EmuTime>::dummy(); }
+	static EmuTime dummy() { return {}; }
 
 	// Note: default copy constructor and assignment operator are ok.
 
@@ -74,8 +62,7 @@ private:
 	uint64_t time;
 
 	// friends
-	friend EmuTime_param_impl<EmuTime>;
-	friend std::ostream& operator<<(std::ostream& os, EmuTime::param time);
+	friend std::ostream& operator<<(std::ostream& os, EmuTime time);
 	friend class DynamicClock;
 	template<unsigned, unsigned> friend class Clock;
 };

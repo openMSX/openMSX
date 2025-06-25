@@ -26,11 +26,11 @@ public:
 public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
 

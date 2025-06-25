@@ -40,12 +40,12 @@ RomRamFile::RomRamFile(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomRamFile::reset(EmuTime::param /*time*/)
+void RomRamFile::reset(EmuTime /*time*/)
 {
 	shiftValue = 0;
 }
 
-byte RomRamFile::readMem(uint16_t address, EmuTime::param /*time*/)
+byte RomRamFile::readMem(uint16_t address, EmuTime /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		byte result = rom[address & 0x1fff];
@@ -61,7 +61,7 @@ byte RomRamFile::readMem(uint16_t address, EmuTime::param /*time*/)
 	}
 }
 
-byte RomRamFile::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte RomRamFile::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		return rom[address & 0x1fff];
@@ -84,7 +84,7 @@ const byte* RomRamFile::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomRamFile::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomRamFile::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x8000 <= address) && (address < 0xC000) &&
 	    ((shiftValue & 0x31) == 0x11)) {

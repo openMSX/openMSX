@@ -26,7 +26,7 @@ FraelSwitchableROM::FraelSwitchableROM(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void FraelSwitchableROM::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void FraelSwitchableROM::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	bool newValue = value & 0x80;
 	if (newValue != firmwareSelected) {
@@ -35,13 +35,13 @@ void FraelSwitchableROM::writeIO(uint16_t /*port*/, byte value, EmuTime::param /
 	}
 }
 
-void FraelSwitchableROM::reset(EmuTime::param /*time*/)
+void FraelSwitchableROM::reset(EmuTime /*time*/)
 {
 	firmwareSelected = false;
 	invalidateDeviceRCache();
 }
 
-byte FraelSwitchableROM::readMem(uint16_t address, EmuTime::param /*time*/)
+byte FraelSwitchableROM::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return *getReadCacheLine(address);
 }

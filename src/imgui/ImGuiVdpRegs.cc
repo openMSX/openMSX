@@ -450,7 +450,7 @@ static int lookupFunction(uint8_t reg, uint8_t mask)
 }
 
 void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span<const uint8_t> regValues,
-                               VDP& vdp, EmuTime::param time)
+                               VDP& vdp, EmuTime time)
 {
 	ImGui::SameLine();
 	HelpMarker("Click to toggle bits, or edit the hex-field.\n"

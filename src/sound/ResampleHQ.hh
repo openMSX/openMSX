@@ -27,7 +27,7 @@ public:
 	~ResampleHQ() override;
 
 	bool generateOutputImpl(float* dataOut, size_t num,
-	                        EmuTime::param time) override;
+	                        EmuTime time) override;
 
 private:
 	void calcOutput(float pos, float* output);

@@ -38,31 +38,31 @@ unsigned MSXMemoryMapperBase::getBaseSizeAlignment() const
 	return 0x4000;
 }
 
-void MSXMemoryMapperBase::powerUp(EmuTime::param time)
+void MSXMemoryMapperBase::powerUp(EmuTime time)
 {
 	checkedRam.clear();
 	reset(time);
 }
 
-void MSXMemoryMapperBase::reset(EmuTime::param /*time*/)
+void MSXMemoryMapperBase::reset(EmuTime /*time*/)
 {
 	// Most mappers initialize to segment 0 for all pages.
 	// On MSX2 and higher, the BIOS will select segments 3..0 for pages 0..3.
 	std::ranges::fill(registers, 0);
 }
 
-byte MSXMemoryMapperBase::readIO(uint16_t port, EmuTime::param time)
+byte MSXMemoryMapperBase::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXMemoryMapperBase::peekIO(uint16_t port, EmuTime::param /*time*/) const
+byte MSXMemoryMapperBase::peekIO(uint16_t port, EmuTime /*time*/) const
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
 	return registers[port & 0x03] | byte(~(std::bit_ceil(numSegments) - 1));
 }
 
-void MSXMemoryMapperBase::writeIOImpl(uint16_t port, byte value, EmuTime::param /*time*/)
+void MSXMemoryMapperBase::writeIOImpl(uint16_t port, byte value, EmuTime /*time*/)
 {
 	auto numSegments = narrow<unsigned>(checkedRam.size() / 0x4000);
 	registers[port & 3] = value & byte(std::bit_ceil(numSegments) - 1);
@@ -82,17 +82,17 @@ unsigned MSXMemoryMapperBase::calcAddress(uint16_t address) const
 	return segmentOffset(narrow<byte>(address / 0x4000)) | (address & 0x3fff);
 }
 
-byte MSXMemoryMapperBase::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte MSXMemoryMapperBase::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	return checkedRam.peek(calcAddress(address));
 }
 
-byte MSXMemoryMapperBase::readMem(uint16_t address, EmuTime::param /*time*/)
+byte MSXMemoryMapperBase::readMem(uint16_t address, EmuTime /*time*/)
 {
 	return checkedRam.read(calcAddress(address));
 }
 
-void MSXMemoryMapperBase::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void MSXMemoryMapperBase::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	checkedRam.write(calcAddress(address), value);
 }

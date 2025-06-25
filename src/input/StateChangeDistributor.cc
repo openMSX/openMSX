@@ -60,7 +60,7 @@ void StateChangeDistributor::distribute(const StateChange& event) const
 	}
 }
 
-void StateChangeDistributor::stopReplay(EmuTime::param time)
+void StateChangeDistributor::stopReplay(EmuTime time)
 {
 	if (!isReplaying()) return;
 

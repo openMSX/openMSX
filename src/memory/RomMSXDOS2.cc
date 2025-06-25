@@ -19,7 +19,7 @@ RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomMSXDOS2::reset(EmuTime::param /*time*/)
+void RomMSXDOS2::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -27,7 +27,7 @@ void RomMSXDOS2::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomMSXDOS2::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomMSXDOS2::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	switch (range) {
 	case 0x00:

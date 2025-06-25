@@ -16,9 +16,9 @@ public:
 	[[nodiscard]] std::string_view getDescription() const final;
 
 	[[nodiscard]] uint8_t read(unsigned address) override;
-	[[nodiscard]] virtual uint8_t read(unsigned address, EmuTime::param time);
+	[[nodiscard]] virtual uint8_t read(unsigned address, EmuTime time);
 	void write(unsigned address, uint8_t value) override;
-	virtual void write(unsigned address, uint8_t value, EmuTime::param time);
+	virtual void write(unsigned address, uint8_t value, EmuTime time);
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() const { return motherBoard; }

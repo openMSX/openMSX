@@ -24,7 +24,7 @@ class JoyMegaState final : public StateChange
 {
 public:
 	JoyMegaState() = default; // for serialize
-	JoyMegaState(EmuTime::param time_, uint8_t id_,
+	JoyMegaState(EmuTime time_, uint8_t id_,
 	             unsigned press_, unsigned release_)
 		: StateChange(time_)
 		, press(press_), release(release_), id(id_) {}
@@ -152,7 +152,7 @@ std::string_view JoyMega::getDescription() const
 	return description;
 }
 
-void JoyMega::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void JoyMega::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	plugHelper2();
 	status = 0xfff;
@@ -168,7 +168,7 @@ void JoyMega::plugHelper2()
 	stateChangeDistributor.registerListener(*this);
 }
 
-void JoyMega::unplugHelper(EmuTime::param /*time*/)
+void JoyMega::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
@@ -176,7 +176,7 @@ void JoyMega::unplugHelper(EmuTime::param /*time*/)
 
 
 // JoystickDevice
-uint8_t JoyMega::read(EmuTime::param time)
+uint8_t JoyMega::read(EmuTime time)
 {
 	// See http://segaretro.org/Control_Pad_(Mega_Drive)
 	// and http://frs.badcoffee.info/hardware/joymega-en.html
@@ -206,7 +206,7 @@ uint8_t JoyMega::read(EmuTime::param time)
 	}
 }
 
-void JoyMega::write(uint8_t value, EmuTime::param time)
+void JoyMega::write(uint8_t value, EmuTime time)
 {
 	checkTime(time);
 	lastTime = time;
@@ -216,7 +216,7 @@ void JoyMega::write(uint8_t value, EmuTime::param time)
 	assert(((value >> 2) & 1) == (cycle & 1));
 }
 
-void JoyMega::checkTime(EmuTime::param time)
+void JoyMega::checkTime(EmuTime time)
 {
 	if ((time - lastTime) > EmuDuration::usec(1500)) {
 		// longer than 1.5ms since last write -> reset cycle
@@ -225,7 +225,7 @@ void JoyMega::checkTime(EmuTime::param time)
 }
 
 // MSXEventListener
-void JoyMega::signalMSXEvent(const Event& event, EmuTime::param time) noexcept
+void JoyMega::signalMSXEvent(const Event& event, EmuTime time) noexcept
 {
 	unsigned press = 0;
 	unsigned release = 0;
@@ -258,7 +258,7 @@ void JoyMega::signalStateChange(const StateChange& event)
 	status = (status & ~js->getPress()) | js->getRelease();
 }
 
-void JoyMega::stopReplay(EmuTime::param time) noexcept
+void JoyMega::stopReplay(EmuTime time) noexcept
 {
 	unsigned newStatus = 0xfff;
 	if (newStatus != status) {

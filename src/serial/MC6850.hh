@@ -20,14 +20,14 @@ class MC6850 final : public MidiInConnector
 {
 public:
 	MC6850(const std::string& name, MSXMotherBoard& motherBoard, unsigned clockFreq);
-	void reset(EmuTime::param time);
+	void reset(EmuTime time);
 
 	[[nodiscard]] uint8_t readStatusReg() const;
 	[[nodiscard]] uint8_t peekStatusReg() const;
 	[[nodiscard]] uint8_t readDataReg();
 	[[nodiscard]] uint8_t peekDataReg() const;
-	void writeControlReg(uint8_t value, EmuTime::param time);
-	void writeDataReg   (uint8_t value, EmuTime::param time);
+	void writeControlReg(uint8_t value, EmuTime time);
+	void writeDataReg   (uint8_t value, EmuTime time);
 
         template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -41,13 +41,13 @@ private:
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(uint8_t value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime time) override;
 
 	// Schedulable
 	struct SyncRecv final : Schedulable {
 		friend class MC6850;
 		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& mc6850 = OUTER(MC6850, syncRecv);
 			mc6850.execRecv(time);
 		}
@@ -55,13 +55,13 @@ private:
 	struct SyncTrans final : Schedulable {
 		friend class MC6850;
 		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
-		void executeUntil(EmuTime::param time) override {
+		void executeUntil(EmuTime time) override {
 			auto& mc6850 = OUTER(MC6850, syncTrans);
 			mc6850.execTrans(time);
 		}
 	} syncTrans;
-	void execRecv (EmuTime::param time);
-	void execTrans(EmuTime::param time);
+	void execRecv (EmuTime time);
+	void execTrans(EmuTime time);
 
 	// External clock, divided by 1, 16 or 64.
 	// Transmitted bits are synced to this clock

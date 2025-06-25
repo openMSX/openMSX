@@ -23,7 +23,7 @@ class MSXJoyState final : public StateChange
 {
 public:
 	MSXJoyState() = default; // for serialize
-	MSXJoyState(EmuTime::param time_, uint8_t id_,
+	MSXJoyState(EmuTime time_, uint8_t id_,
 	            uint8_t press_, uint8_t release_)
 		: StateChange(time_), id(id_)
 		, press(press_), release(release_) {}
@@ -142,13 +142,13 @@ std::string_view MSXJoystick::getDescription() const
 	return description;
 }
 
-void MSXJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void MSXJoystick::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	eventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
 }
 
-void MSXJoystick::unplugHelper(EmuTime::param /*time*/)
+void MSXJoystick::unplugHelper(EmuTime /*time*/)
 {
 	stateChangeDistributor.unregisterListener(*this);
 	eventDistributor.unregisterEventListener(*this);
@@ -156,12 +156,12 @@ void MSXJoystick::unplugHelper(EmuTime::param /*time*/)
 
 
 // MSXJoystickDevice
-uint8_t MSXJoystick::read(EmuTime::param /*time*/)
+uint8_t MSXJoystick::read(EmuTime /*time*/)
 {
 	return pin8 ? 0x3F : status;
 }
 
-void MSXJoystick::write(uint8_t value, EmuTime::param /*time*/)
+void MSXJoystick::write(uint8_t value, EmuTime /*time*/)
 {
 	pin8 = (value & 0x04) != 0;
 }
@@ -169,7 +169,7 @@ void MSXJoystick::write(uint8_t value, EmuTime::param /*time*/)
 
 // MSXEventListener
 void MSXJoystick::signalMSXEvent(const Event& event,
-                                 EmuTime::param time) noexcept
+                                 EmuTime time) noexcept
 {
 	uint8_t press = 0;
 	uint8_t release = 0;
@@ -202,7 +202,7 @@ void MSXJoystick::signalStateChange(const StateChange& event)
 	status = (status & ~kjs->getPress()) | kjs->getRelease();
 }
 
-void MSXJoystick::stopReplay(EmuTime::param time) noexcept
+void MSXJoystick::stopReplay(EmuTime time) noexcept
 {
 	uint8_t newStatus = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	                    JOY_BUTTONA | JOY_BUTTONB;

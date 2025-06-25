@@ -64,7 +64,7 @@ private:
 
 	void drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& motherBoard);
 	void drawSlots(MSXCPUInterface& cpuInterface, Debugger& debugger);
-	void drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime::param time);
+	void drawStack(const CPURegs& regs, const MSXCPUInterface& cpuInterface, EmuTime time);
 	void drawRegisters(CPURegs& regs);
 	void drawFlags(CPURegs& regs);
 

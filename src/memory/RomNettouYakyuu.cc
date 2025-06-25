@@ -60,7 +60,7 @@ RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomNettouYakyuu::reset(EmuTime::param /*time*/)
+void RomNettouYakyuu::reset(EmuTime /*time*/)
 {
 	// ASCII8 behaviour
 	setUnmapped(0);
@@ -75,7 +75,7 @@ void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 	samplePlayer.reset();
 }
 
-void RomNettouYakyuu::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomNettouYakyuu::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((address < 0x4000) || (0xC000 <= address)) return;
 

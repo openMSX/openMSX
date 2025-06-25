@@ -21,7 +21,7 @@ protected:
 	static constexpr unsigned HALT_STATES = 4 + WAIT_CYCLES; // HALT + M1
 	static constexpr bool IS_R800 = false;
 
-	Z80TYPE(EmuTime::param time, Scheduler& scheduler_)
+	Z80TYPE(EmuTime time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
 	{
 	}

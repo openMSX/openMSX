@@ -26,13 +26,13 @@ MSXModem::MSXModem(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXModem::reset(EmuTime::param /*time*/)
+void MSXModem::reset(EmuTime /*time*/)
 {
 	bank = 0; // TODO: verify
 	selectedNCUreg = 0; // TODO: verify
 }
 
-void MSXModem::writeMem(uint16_t address, uint8_t value, EmuTime::param /*time*/)
+void MSXModem::writeMem(uint16_t address, uint8_t value, EmuTime /*time*/)
 {
 	if (address == 0x7FC0) {
 		//   b2-b0 = ROM segment (4000H-5FFFH)
@@ -76,12 +76,12 @@ uint8_t* MSXModem::getWriteCacheLine(uint16_t address)
 	return unmappedWrite.data();
 }
 
-uint8_t MSXModem::readMem(uint16_t address, EmuTime::param time)
+uint8_t MSXModem::readMem(uint16_t address, EmuTime time)
 {
 	return peekMem(address, time);
 }
 
-uint8_t MSXModem::peekMem(uint16_t address, EmuTime::param /*time*/) const
+uint8_t MSXModem::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	if (address == 0x7FC0) {
 		//  b0    = line polarity

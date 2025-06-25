@@ -18,7 +18,7 @@ MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 {
 }
 
-void MusicalMemoryMapper::reset(EmuTime::param time)
+void MusicalMemoryMapper::reset(EmuTime time)
 {
 	controlReg = 0x00;
 
@@ -35,7 +35,7 @@ void MusicalMemoryMapper::reset(EmuTime::param time)
 	sn76489.reset(time);
 }
 
-byte MusicalMemoryMapper::readIO(uint16_t port, EmuTime::param time)
+byte MusicalMemoryMapper::readIO(uint16_t port, EmuTime time)
 {
 	if (controlReg & PORT_ACCESS_DISABLED) {
 		return 0xFF;
@@ -44,7 +44,7 @@ byte MusicalMemoryMapper::readIO(uint16_t port, EmuTime::param time)
 	}
 }
 
-byte MusicalMemoryMapper::peekIO(uint16_t port, EmuTime::param time) const
+byte MusicalMemoryMapper::peekIO(uint16_t port, EmuTime time) const
 {
 	if (controlReg & PORT_ACCESS_DISABLED) {
 		return 0xFF;
@@ -53,7 +53,7 @@ byte MusicalMemoryMapper::peekIO(uint16_t port, EmuTime::param time) const
 	}
 }
 
-void MusicalMemoryMapper::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MusicalMemoryMapper::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	if ((port & 0xFC) == 0xFC) {
 		// Mapper port.
@@ -144,19 +144,19 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 	}
 }
 
-byte MusicalMemoryMapper::peekMem(uint16_t address, EmuTime::param time) const
+byte MusicalMemoryMapper::peekMem(uint16_t address, EmuTime time) const
 {
 	int reg = readReg(address);
 	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::peekMem(address, time);
 }
 
-byte MusicalMemoryMapper::readMem(uint16_t address, EmuTime::param time)
+byte MusicalMemoryMapper::readMem(uint16_t address, EmuTime time)
 {
 	int reg = readReg(address);
 	return reg >= 0 ? narrow<byte>(reg) : MSXMemoryMapperBase::readMem(address, time);
 }
 
-void MusicalMemoryMapper::writeMem(uint16_t address, byte value, EmuTime::param time)
+void MusicalMemoryMapper::writeMem(uint16_t address, byte value, EmuTime time)
 {
 	if (registerAccessAt(address)) {
 		switch (address & 0xFF) {

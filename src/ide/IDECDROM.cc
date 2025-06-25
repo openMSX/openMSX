@@ -75,7 +75,7 @@ void IDECDROM::getMediaInfo(TclObject& result)
 	result.addDictKeyValue("target", file.is_open() ? file.getURL() : std::string_view{});
 }
 
-void IDECDROM::setMedia(const TclObject& info, EmuTime::param /*time*/)
+void IDECDROM::setMedia(const TclObject& info, EmuTime /*time*/)
 {
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;
@@ -347,7 +347,7 @@ CDXCommand::CDXCommand(CommandController& commandController_,
 }
 
 void CDXCommand::execute(std::span<const TclObject> tokens, TclObject& result,
-                         EmuTime::param /*time*/)
+                         EmuTime /*time*/)
 {
 	if (tokens.size() == 1) {
 		const auto& file = cd.file;

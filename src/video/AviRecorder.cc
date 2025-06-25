@@ -174,7 +174,7 @@ void AviRecorder::addWave(std::span<const StereoFloat> data)
 	}
 }
 
-void AviRecorder::addImage(const FrameSource* frame, EmuTime::param time)
+void AviRecorder::addImage(const FrameSource* frame, EmuTime time)
 {
 	assert(!wavWriter);
 	if (duration != EmuDuration::infinity()) {

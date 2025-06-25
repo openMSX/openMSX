@@ -47,7 +47,7 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 	setSha1Sum(filePool.getSha1Sum(file));
 }
 
-int16_t TsxImage::getSampleAt(EmuTime::param time) const
+int16_t TsxImage::getSampleAt(EmuTime time) const
 {
 	static const Clock<TsxParser::OUTPUT_FREQUENCY> zero(EmuTime::zero());
 	unsigned pos = zero.getTicksTill(time);

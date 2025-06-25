@@ -45,7 +45,7 @@ RomHalnote::RomHalnote(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomHalnote::reset(EmuTime::param /*time*/)
+void RomHalnote::reset(EmuTime /*time*/)
 {
 	subBanks[0] = subBanks[1] = 0;
 	sramEnabled = false;
@@ -71,13 +71,13 @@ const byte* RomHalnote::getReadCacheLine(uint16_t address) const
 		return Rom8kBBlocks::getReadCacheLine(address);
 	}
 }
-byte RomHalnote::readMem(uint16_t address, EmuTime::param /*time*/)
+byte RomHalnote::readMem(uint16_t address, EmuTime /*time*/)
 {
 	// all reads are cacheable, reuse that implementation
 	return *RomHalnote::getReadCacheLine(address);
 }
 
-void RomHalnote::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomHalnote::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address < 0x4000) {
 		// SRAM region

@@ -37,56 +37,56 @@ public:
 	  * the VDP, such as PAL/NTSC timing.
 	  * @param time The moment in emulated time the frame starts.
 	  */
-	virtual void frameStart(EmuTime::param time) = 0;
+	virtual void frameStart(EmuTime time) = 0;
 
 	/** Signals the end of a frame.
 	  * @param time The moment in emulated time the frame ends.
 	  *   Note: this is the same time stamp as the start of the next frame.
 	  */
-	virtual void frameEnd(EmuTime::param time) = 0;
+	virtual void frameEnd(EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP transparency enable/disable change.
 	  * @param enabled The new transparency state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateTransparency(bool enabled, EmuTime::param time) = 0;
+	virtual void updateTransparency(bool enabled, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP superimposing change.
 	  * @param videoSource Video that should be superimposed, nullptr if none.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateSuperimposing(const RawFrame* videoSource,
-	                                 EmuTime::param time) = 0;
+	                                 EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP foreground color change.
 	  * @param color The new foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateForegroundColor(uint8_t color, EmuTime::param time) = 0;
+	virtual void updateForegroundColor(uint8_t color, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP background color change.
 	  * @param color The new background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBackgroundColor(uint8_t color, EmuTime::param time) = 0;
+	virtual void updateBackgroundColor(uint8_t color, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP blink foreground color change.
 	  * @param color The new blink foreground color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkForegroundColor(uint8_t color, EmuTime::param time) = 0;
+	virtual void updateBlinkForegroundColor(uint8_t color, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP blink background color change.
 	  * @param color The new blink background color.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkBackgroundColor(uint8_t color, EmuTime::param time) = 0;
+	virtual void updateBlinkBackgroundColor(uint8_t color, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP blinking state change.
 	  * @param enabled The new blink state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBlinkState(bool enabled, EmuTime::param time) = 0;
+	virtual void updateBlinkState(bool enabled, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP palette change.
 	  * @param index The index [0..15] in the palette that changes.
@@ -95,41 +95,41 @@ public:
 	  *   all other bits are zero.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePalette(unsigned index, int grb, EmuTime::param time) = 0;
+	virtual void updatePalette(unsigned index, int grb, EmuTime time) = 0;
 
 	/** Informs the renderer of a vertical scroll change.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateVerticalScroll(int scroll, EmuTime::param time) = 0;
+	virtual void updateVerticalScroll(int scroll, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the lower scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollLow(uint8_t scroll, EmuTime::param time) = 0;
+	virtual void updateHorizontalScrollLow(uint8_t scroll, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the higher scroll value has changed.
 	  * @param scroll The new scroll value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalScrollHigh(uint8_t scroll, EmuTime::param time) = 0;
+	virtual void updateHorizontalScrollHigh(uint8_t scroll, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the border mask has been enabled/disabled.
 	  * @param masked true iff enabled.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateBorderMask(bool masked, EmuTime::param time) = 0;
+	virtual void updateBorderMask(bool masked, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal scroll change:
 	  * the multi page setting has changed.
 	  * @param multiPage The new multi page flag.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateMultiPage(bool multiPage, EmuTime::param time) = 0;
+	virtual void updateMultiPage(bool multiPage, EmuTime time) = 0;
 
 	/** Informs the renderer of a horizontal adjust change.
 	  * Note that there is no similar method for vertical adjust updates,
@@ -138,7 +138,7 @@ public:
 	  * @param adjust The new adjust value.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateHorizontalAdjust(int adjust, EmuTime::param time) = 0;
+	virtual void updateHorizontalAdjust(int adjust, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP display enabled change.
 	  * Both the regular border start/end and forced blanking by clearing
@@ -146,37 +146,37 @@ public:
 	  * @param enabled The new display enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayEnabled(bool enabled, EmuTime::param time) = 0;
+	virtual void updateDisplayEnabled(bool enabled, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP display mode change.
 	  * @param mode The new display mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateDisplayMode(DisplayMode mode, EmuTime::param time) = 0;
+	virtual void updateDisplayMode(DisplayMode mode, EmuTime time) = 0;
 
 	/** Informs the renderer of a name table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateNameBase(unsigned addr, EmuTime::param time) = 0;
+	virtual void updateNameBase(unsigned addr, EmuTime time) = 0;
 
 	/** Informs the renderer of a pattern table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updatePatternBase(unsigned addr, EmuTime::param time) = 0;
+	virtual void updatePatternBase(unsigned addr, EmuTime time) = 0;
 
 	/** Informs the renderer of a color table base address change.
 	  * @param addr The new base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateColorBase(unsigned addr, EmuTime::param time) = 0;
+	virtual void updateColorBase(unsigned addr, EmuTime time) = 0;
 
 	/** Informs the renderer of a VDP sprites enabled change.
 	  * @param enabled The new sprites enabled state.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	virtual void updateSpritesEnabled(bool enabled, EmuTime::param time) = 0;
+	virtual void updateSpritesEnabled(bool enabled, EmuTime time) = 0;
 
 	/** Sprite palette in Graphic 7 mode.
           * See page 98 of the V9938 data book.

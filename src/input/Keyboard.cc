@@ -69,7 +69,7 @@ class KeyMatrixState final : public StateChange
 {
 public:
 	KeyMatrixState() = default; // for serialize
-	KeyMatrixState(EmuTime::param time_, uint8_t row_, uint8_t press_, uint8_t release_)
+	KeyMatrixState(EmuTime time_, uint8_t row_, uint8_t press_, uint8_t release_)
 		: StateChange(time_)
 		, row(row_), press(press_), release(release_)
 	{
@@ -849,7 +849,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	}
 }
 
-void Keyboard::setFocus(bool newFocus, EmuTime::param time)
+void Keyboard::setFocus(bool newFocus, EmuTime time)
 {
 	if (newFocus == focus) return;
 	focus = newFocus;
@@ -863,7 +863,7 @@ void Keyboard::setFocus(bool newFocus, EmuTime::param time)
  *  EventType::KEY_UP
  */
 void Keyboard::signalMSXEvent(const Event& event,
-                              EmuTime::param time) noexcept
+                              EmuTime time) noexcept
 {
 	if (getType(event) == one_of(EventType::KEY_DOWN, EventType::KEY_UP)) {
 		const auto& keyEvent = get_event<KeyEvent>(event);
@@ -886,12 +886,12 @@ void Keyboard::signalStateChange(const StateChange& event)
 	keysChanged = true; // do ghosting at next getKeys()
 }
 
-void Keyboard::stopReplay(EmuTime::param time) noexcept
+void Keyboard::stopReplay(EmuTime time) noexcept
 {
 	syncHostKeyMatrix(time);
 }
 
-void Keyboard::syncHostKeyMatrix(EmuTime::param time)
+void Keyboard::syncHostKeyMatrix(EmuTime time)
 {
 	for (auto [row, hkm] : enumerate(hostKeyMatrix)) {
 		changeKeyMatrixEvent(time, uint8_t(row), hkm);
@@ -908,7 +908,7 @@ uint8_t Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 	     & unicodeKeymap.getRelevantMods(keyInfo);
 }
 
-void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
+void Keyboard::pressKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
 {
 	if (!pos.isValid()) {
 		// No such key.
@@ -924,7 +924,7 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
 }
 
-void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
+void Keyboard::releaseKeyMatrixEvent(EmuTime time, KeyMatrixPosition pos)
 {
 	if (!pos.isValid()) {
 		// No such key.
@@ -943,7 +943,7 @@ void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] | release);
 }
 
-void Keyboard::changeKeyMatrixEvent(EmuTime::param time, uint8_t row, uint8_t newValue)
+void Keyboard::changeKeyMatrixEvent(EmuTime time, uint8_t row, uint8_t newValue)
 {
 	if (!focus) newValue = 0xff;
 
@@ -962,7 +962,7 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, uint8_t row, uint8_t ne
 /*
  * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
-bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
+bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
@@ -1042,7 +1042,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
  * It presses or releases the key in the MSX keyboard matrix
  * and changes the kana-lock state in case of a press
  */
-void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
+void Keyboard::processCodeKanaChange(EmuTime time, bool down)
 {
 	if (down) {
 		locksOn ^= KeyInfo::CODE_MASK;
@@ -1055,7 +1055,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
  * It presses or releases the key in the MSX keyboard matrix
  * and changes the graph-lock state in case of a press
  */
-void Keyboard::processGraphChange(EmuTime::param time, bool down)
+void Keyboard::processGraphChange(EmuTime time, bool down)
 {
 	if (down) {
 		locksOn ^= KeyInfo::GRAPH_MASK;
@@ -1068,7 +1068,7 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
  * It presses or releases the key in the MSX keyboard matrix
  * and changes the capslock state in case of a press
  */
-void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
+void Keyboard::processCapslockEvent(EmuTime time, bool down)
 {
 	if (SANE_CAPSLOCK_BEHAVIOR) {
 		debug("Changing CAPS lock state according to SDL request\n");
@@ -1084,13 +1084,13 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 	}
 }
 
-void Keyboard::executeUntil(EmuTime::param time)
+void Keyboard::executeUntil(EmuTime time)
 {
 	debug("Releasing CAPS lock\n");
 	updateKeyMatrix(time, false, modifierPos[KeyInfo::Modifier::CAPS]);
 }
 
-void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
+void Keyboard::processKeypadEnterKey(EmuTime time, bool down)
 {
 	if (!hasKeypad && !keyboardSettings.getAlwaysEnableKeypad()) {
 		// User entered on host keypad but this MSX model does not have one
@@ -1109,7 +1109,7 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
  * be unambiguously derived from a unicode character;
  *  Map the SDL key to an equivalent MSX key press/release event
  */
-void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
+void Keyboard::processSdlKey(EmuTime time, SDLKey key)
 {
 	auto process = [&](KeyMatrixPosition pos) {
 		assert(pos.isValid());
@@ -1140,7 +1140,7 @@ void Keyboard::processSdlKey(EmuTime::param time, SDLKey key)
 /*
  * Update the MSX keyboard matrix
  */
-void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos)
+void Keyboard::updateKeyMatrix(EmuTime time, bool down, KeyMatrixPosition pos)
 {
 	if (!pos.isValid()) {
 		// No such key.
@@ -1176,7 +1176,7 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
  *  be pressed to generate the equivalent character on the MSX
  * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
-bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent)
+bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent)
 {
 	auto mode = keyboardSettings.getMappingMode();
 
@@ -1354,7 +1354,7 @@ void Keyboard::processCmd(Interpreter& interp, std::span<const TclObject> tokens
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
 bool Keyboard::pressUnicodeByUser(
-		EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
+		EmuTime time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
 		bool down)
 {
 	bool insertCodeKanaRelease = false;
@@ -1573,7 +1573,7 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 }
 
 void Keyboard::KeyMatrixUpCmd::execute(
-	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
@@ -1597,7 +1597,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 }
 
 void Keyboard::KeyMatrixDownCmd::execute(std::span<const TclObject> tokens,
-                                         TclObject& /*result*/, EmuTime::param /*time*/)
+                                         TclObject& /*result*/, EmuTime /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
@@ -1620,7 +1620,7 @@ Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
 }
 
 void Keyboard::MsxKeyEventQueue::process_asap(
-	EmuTime::param time, const Event& event)
+	EmuTime time, const Event& event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -1635,7 +1635,7 @@ void Keyboard::MsxKeyEventQueue::clear()
 	removeSyncPoint();
 }
 
-void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
+void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime time)
 {
 	// Get oldest event from the queue and process it
 	const Event& event = eventQueue.front();
@@ -1677,7 +1677,7 @@ Keyboard::KeyInserter::KeyInserter(
 }
 
 void Keyboard::KeyInserter::execute(
-	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	std::span<const TclObject> tokens, TclObject& /*result*/, EmuTime /*time*/)
 {
 	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? ?-cancel? text");
 
@@ -1732,7 +1732,7 @@ void Keyboard::KeyInserter::type(std::string_view str)
 	text_utf8.append(str.data(), str.size());
 }
 
-void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
+void Keyboard::KeyInserter::executeUntil(EmuTime time)
 {
 	auto& keyboard = OUTER(Keyboard, keyTypeCmd);
 	if (lockKeysMask != 0) {
@@ -1786,7 +1786,7 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 	}
 }
 
-void Keyboard::KeyInserter::reschedule(EmuTime::param time)
+void Keyboard::KeyInserter::reschedule(EmuTime time)
 {
 	setSyncPoint(time + EmuDuration::hz(typingFrequency));
 }
@@ -1932,7 +1932,7 @@ bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 	}
 
 	if (state == IDLE) {
-		EmuTime::param time = getCurrentTime();
+		EmuTime time = getCurrentTime();
 		std::visit(overloaded{
 			[&](const WindowEvent& e) {
 				if (e.isMainWindow()) {
@@ -1952,7 +1952,7 @@ bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 	return false;
 }
 
-void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
+void Keyboard::CapsLockAligner::executeUntil(EmuTime time)
 {
 	switch (state) {
 		case MUST_ALIGN_CAPSLOCK:
@@ -1980,7 +1980,7 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
  * TODO: Find a solution for the above problem. For example by monitoring
  *       the MSX caps-lock LED state.
  */
-void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
+void Keyboard::CapsLockAligner::alignCapsLock(EmuTime time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 	auto& keyboard = OUTER(Keyboard, capsLockAligner);

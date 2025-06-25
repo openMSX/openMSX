@@ -83,8 +83,8 @@ public:
 	  *
 	  * This method allows to change that per-chip volume.
 	  */
-	void setSoftwareVolume(float volume, EmuTime::param time);
-	void setSoftwareVolume(float left, float right, EmuTime::param time);
+	void setSoftwareVolume(float volume, EmuTime time);
+	void setSoftwareVolume(float left, float right, EmuTime time);
 
 	void recordChannel(unsigned channel, const Filename& filename);
 	void muteChannel  (unsigned channel, bool muted);
@@ -170,7 +170,7 @@ protected:
 	void unregisterSound();
 
 	/** @see Mixer::updateStream */
-	void updateStream(EmuTime::param time);
+	void updateStream(EmuTime time);
 
 	void setInputRate(unsigned sampleRate) { inputSampleRate = sampleRate; }
 	[[nodiscard]] unsigned getInputRate() const { return inputSampleRate; }
@@ -202,7 +202,7 @@ public: // Will be called by Mixer:
 	  * buffer has enough space to hold them.
 	  */
 	[[nodiscard]] virtual bool updateBuffer(size_t length, float* buffer,
-	                                        EmuTime::param time) = 0;
+	                                        EmuTime time) = 0;
 
 protected:
 	/** Adds a number of samples that all have the same value.

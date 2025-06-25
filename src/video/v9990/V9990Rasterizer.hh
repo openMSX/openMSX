@@ -38,7 +38,7 @@ public:
 
 	/** Indicates the end of the current frame.
 	  */
-	virtual void frameEnd(EmuTime::param time) = 0;
+	virtual void frameEnd(EmuTime time) = 0;
 
 	/** The display mode determines the screens geometry and how V9990
 	  * pixels are mapped to pixels on screen.

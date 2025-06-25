@@ -37,7 +37,7 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	reset(EmuTime::dummy());
 }
 
-void RomAscii8_8::reset(EmuTime::param /*time*/)
+void RomAscii8_8::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -50,7 +50,7 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 	sramEnabled = 0;
 }
 
-byte RomAscii8_8::readMem(uint16_t address, EmuTime::param time)
+byte RomAscii8_8::readMem(uint16_t address, EmuTime time)
 {
 	auto bank = narrow<byte>(address / BANK_SIZE);
 	if ((1 << bank) & sramEnabled) {
@@ -76,7 +76,7 @@ const byte* RomAscii8_8::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomAscii8_8::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomAscii8_8::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching

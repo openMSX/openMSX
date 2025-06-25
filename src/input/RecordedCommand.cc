@@ -81,7 +81,7 @@ void RecordedCommand::signalStateChange(const StateChange& event)
 	}
 }
 
-void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
+void RecordedCommand::stopReplay(EmuTime /*time*/) noexcept
 {
 	// nothing
 }
@@ -89,7 +89,7 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/) noexcept
 
 // class MSXCommandEvent
 
-MSXCommandEvent::MSXCommandEvent(EmuTime::param time_, std::span<const TclObject> tokens_)
+MSXCommandEvent::MSXCommandEvent(EmuTime time_, std::span<const TclObject> tokens_)
 	: StateChange(time_)
 	, tokens(dynarray<TclObject>::construct_from_range_tag{}, tokens_)
 {

@@ -21,7 +21,7 @@ LDPixelRenderer::LDPixelRenderer(LaserdiscPlayer& ld, Display& display)
 
 LDPixelRenderer::~LDPixelRenderer() = default;
 
-void LDPixelRenderer::frameStart(EmuTime::param time)
+void LDPixelRenderer::frameStart(EmuTime time)
 {
 	rasterizer->frameStart(time);
 }

@@ -17,7 +17,7 @@ public:
 	ResampleBlip(ResampledSoundDevice& input, const DynamicClock& hostClock);
 
 	bool generateOutputImpl(float* dataOut, size_t num,
-	                        EmuTime::param time) override;
+	                        EmuTime time) override;
 
 private:
 	std::array<BlipBuffer, CHANNELS> blip;

@@ -26,15 +26,15 @@ DummyCassettePort::DummyCassettePort(MSXMotherBoard& motherBoard)
 {
 }
 
-void DummyCassettePort::setMotor(bool /*status*/, EmuTime::param /*time*/)
+void DummyCassettePort::setMotor(bool /*status*/, EmuTime /*time*/)
 {
 	// do nothing
 }
-void DummyCassettePort::cassetteOut(bool /*output*/, EmuTime::param /*time*/)
+void DummyCassettePort::cassetteOut(bool /*output*/, EmuTime /*time*/)
 {
 	// do nothing
 }
-bool DummyCassettePort::cassetteIn(EmuTime::param /*time*/)
+bool DummyCassettePort::cassetteIn(EmuTime /*time*/)
 {
 	return false;
 }
@@ -68,14 +68,14 @@ CassettePort::~CassettePort()
 }
 
 
-void CassettePort::setMotor(bool status, EmuTime::param time)
+void CassettePort::setMotor(bool status, EmuTime time)
 {
 	// TODO make 'click' sound
 	motorControl = status;
 	getPluggedCasDev().setMotor(status, time);
 }
 
-void CassettePort::cassetteOut(bool output, EmuTime::param time)
+void CassettePort::cassetteOut(bool output, EmuTime time)
 {
 	lastOutput = output;
 	// leave everything to the pluggable
@@ -87,7 +87,7 @@ bool CassettePort::lastOut() const
 	return lastOutput;
 }
 
-bool CassettePort::cassetteIn(EmuTime::param time)
+bool CassettePort::cassetteIn(EmuTime time)
 {
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal

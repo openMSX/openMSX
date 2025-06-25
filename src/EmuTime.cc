@@ -3,7 +3,7 @@
 
 namespace openmsx {
 
-std::ostream& operator<<(std::ostream& os, EmuTime::param time)
+std::ostream& operator<<(std::ostream& os, EmuTime time)
 {
 	os << time.time;
 	return os;

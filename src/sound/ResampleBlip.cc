@@ -30,7 +30,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 
 template<unsigned CHANNELS>
 bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, size_t hostNum,
-                                                EmuTime::param time)
+                                                EmuTime time)
 {
 	auto& emuClk = getEmuClock();
 	if (unsigned emuNum = emuClk.getTicksTill(time); emuNum > 0) {

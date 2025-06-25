@@ -23,8 +23,8 @@ public:
 
 	// MSXDevice
 	void init() override;
-	void reset(EmuTime::param time) override;
-	void writeIO(uint16_t port, uint8_t value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void writeIO(uint16_t port, uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

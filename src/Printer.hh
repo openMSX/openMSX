@@ -29,13 +29,13 @@ class PrinterCore : public PrinterPortDevice
 {
 public:
 	// PrinterPortDevice
-	[[nodiscard]] bool getStatus(EmuTime::param time) override;
-	void setStrobe(bool strobe, EmuTime::param time) override;
-	void writeData(uint8_t data, EmuTime::param time) override;
+	[[nodiscard]] bool getStatus(EmuTime time) override;
+	void setStrobe(bool strobe, EmuTime time) override;
+	void writeData(uint8_t data, EmuTime time) override;
 
 	// Pluggable
-	void plugHelper(Connector& connector, EmuTime::param time) override;
-	void unplugHelper(EmuTime::param time) override;
+	void plugHelper(Connector& connector, EmuTime time) override;
+	void unplugHelper(EmuTime time) override;
 
 protected:
 	PrinterCore() = default;

@@ -140,13 +140,13 @@ void SN76489::initNoise()
 	noiseShifter.initState(pattern, period);
 }
 
-void SN76489::reset(EmuTime::param time)
+void SN76489::reset(EmuTime time)
 {
 	updateStream(time);
 	initState();
 }
 
-void SN76489::write(uint8_t value, EmuTime::param time)
+void SN76489::write(uint8_t value, EmuTime time)
 {
 	if (value & 0x80) {
 		registerLatch = (value & 0x70) >> 4;
@@ -183,14 +183,14 @@ void SN76489::write(uint8_t value, EmuTime::param time)
 	writeRegister(registerLatch, data, time);
 }
 
-uint16_t SN76489::peekRegister(unsigned reg, EmuTime::param /*time*/) const
+uint16_t SN76489::peekRegister(unsigned reg, EmuTime /*time*/) const
 {
 	// Note: None of the register values will change unless a register is
 	//       written, so we don't need to sync here.
 	return regs[reg];
 }
 
-void SN76489::writeRegister(unsigned reg, uint16_t value, EmuTime::param time)
+void SN76489::writeRegister(unsigned reg, uint16_t value, EmuTime time)
 {
 	if (reg == 6 || regs[reg] != value) {
 		updateStream(time);
@@ -352,7 +352,7 @@ SN76489::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string&
 {
 }
 
-uint8_t SN76489::Debuggable::read(unsigned address, EmuTime::param time)
+uint8_t SN76489::Debuggable::read(unsigned address, EmuTime time)
 {
 	auto [reg, hi] = SN76489_DEBUG_MAP[address];
 
@@ -362,7 +362,7 @@ uint8_t SN76489::Debuggable::read(unsigned address, EmuTime::param time)
 	          : narrow_cast<uint8_t>(data & 0xF);
 }
 
-void SN76489::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
+void SN76489::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto reg = SN76489_DEBUG_MAP[address][0];
 	auto hi  = SN76489_DEBUG_MAP[address][1];

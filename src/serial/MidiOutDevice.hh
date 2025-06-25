@@ -24,7 +24,7 @@ public:
 	[[nodiscard]] std::string_view getClass() const final;
 
 	// SerialDataInterface (part)
-	void recvByte(uint8_t value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime time) override;
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
@@ -41,7 +41,7 @@ protected:
 	  * instead, in which case this method will not be called.
 	  */
 	virtual void recvMessage(
-		const std::vector<uint8_t>& message, EmuTime::param time);
+		const std::vector<uint8_t>& message, EmuTime time);
 
 private:
 	std::vector<uint8_t> buffer;

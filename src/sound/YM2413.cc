@@ -28,7 +28,7 @@ uint8_t YM2413::Debuggable::read(unsigned address)
 	return ym2413.core->peekReg(narrow<uint8_t>(address));
 }
 
-void YM2413::Debuggable::write(unsigned address, uint8_t value, EmuTime::param time)
+void YM2413::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 {
 	auto& ym2413 = OUTER(YM2413, debuggable);
 	ym2413.pokeReg(narrow<uint8_t>(address), value, time);
@@ -77,13 +77,13 @@ YM2413::~YM2413()
 	unregisterSound();
 }
 
-void YM2413::reset(EmuTime::param time)
+void YM2413::reset(EmuTime time)
 {
 	updateStream(time);
 	core->reset();
 }
 
-void YM2413::writePort(bool port, uint8_t value, EmuTime::param time)
+void YM2413::writePort(bool port, uint8_t value, EmuTime time)
 {
 	updateStream(time);
 
@@ -96,7 +96,7 @@ void YM2413::writePort(bool port, uint8_t value, EmuTime::param time)
 	core->writePort(port, value, offset);
 }
 
-void YM2413::pokeReg(uint8_t reg, uint8_t value, EmuTime::param time)
+void YM2413::pokeReg(uint8_t reg, uint8_t value, EmuTime time)
 {
 	updateStream(time);
 	core->pokeReg(reg, value);

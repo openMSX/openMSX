@@ -19,7 +19,7 @@ RomZemina80in1::RomZemina80in1(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomZemina80in1::reset(EmuTime::param /*time*/)
+void RomZemina80in1::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setUnmapped(1);
@@ -30,7 +30,7 @@ void RomZemina80in1::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomZemina80in1::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomZemina80in1::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x4004)) {
 		setRom(2 + (address - 0x4000), value);

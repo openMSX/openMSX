@@ -108,7 +108,7 @@ unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
 }
 
 std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t addr,
-                                    std::span<uint8_t, 4> buffer, EmuTime::param time)
+                                    std::span<uint8_t, 4> buffer, EmuTime time)
 {
 	uint16_t idx = 0;
 	buffer[idx++] = interface.peekMem(addr, time);
@@ -125,7 +125,7 @@ std::span<uint8_t> fetchInstruction(const MSXCPUInterface& interface, uint16_t a
 }
 
 unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 4> buf,
-              std::string& dest, EmuTime::param time,
+              std::string& dest, EmuTime time,
               function_ref<void(std::string&, uint16_t)> appendAddr)
 {
 	auto opcodes = fetchInstruction(interface, pc, buf, time);
@@ -134,7 +134,7 @@ unsigned dasm(const MSXCPUInterface& interface, uint16_t pc, std::span<uint8_t, 
 }
 
 static unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
-                                  EmuTime::param time)
+                                  EmuTime time)
 {
 	auto op0 = interface.peekMem(pc, time);
 	auto t = instr_len_tab[op0];
@@ -148,7 +148,7 @@ static unsigned instructionLength(const MSXCPUInterface& interface, uint16_t pc,
 // sure a boundary. Though this is not (yet) necessarily the largest address
 // with this property.
 // In addition return the length of the instruction at the resulting address.
-static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterface& interface, uint16_t addr, EmuTime::param time)
+static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterface& interface, uint16_t addr, EmuTime time)
 {
 	if (addr < 3) {
 		// address 0 (the top) is a boundary
@@ -182,7 +182,7 @@ static std::pair<uint16_t, unsigned> findGuaranteedBoundary(const MSXCPUInterfac
 }
 
 static std::pair<uint16_t, unsigned> instructionBoundaryAndLength(
-	const MSXCPUInterface& interface, uint16_t addr, EmuTime::param time)
+	const MSXCPUInterface& interface, uint16_t addr, EmuTime time)
 {
 	// scan backwards for a guaranteed boundary
 	auto [candidate, len] = findGuaranteedBoundary(interface, addr, time);
@@ -195,14 +195,14 @@ static std::pair<uint16_t, unsigned> instructionBoundaryAndLength(
 }
 
 uint16_t instructionBoundary(const MSXCPUInterface& interface, uint16_t addr,
-                             EmuTime::param time)
+                             EmuTime time)
 {
 	auto [result, len] = instructionBoundaryAndLength(interface, addr, time);
 	return result;
 }
 
 uint16_t nInstructionsBefore(const MSXCPUInterface& interface, uint16_t addr,
-                             EmuTime::param time, int n)
+                             EmuTime time, int n)
 {
 	auto start = uint16_t(std::max(0, int(addr - 4 * n))); // for sure small enough
 	auto [tmp, len] = instructionBoundaryAndLength(interface, start, time);

@@ -36,24 +36,24 @@ MSXDevice*& VDPIODelay::getOutDevicePtr(uint8_t port)
 	return outDevices[port - 0x98];
 }
 
-uint8_t VDPIODelay::readIO(uint16_t port, EmuTime::param time)
+uint8_t VDPIODelay::readIO(uint16_t port, EmuTime time)
 {
 	delay(time);
 	return getInDevicePtr(uint8_t(port))->readIO(uint8_t(port), lastTime.getTime());
 }
 
-uint8_t VDPIODelay::peekIO(uint16_t port, EmuTime::param time) const
+uint8_t VDPIODelay::peekIO(uint16_t port, EmuTime time) const
 {
 	return getInDevice(uint8_t(port)).peekIO(uint8_t(port), time);
 }
 
-void VDPIODelay::writeIO(uint16_t port, uint8_t value, EmuTime::param time)
+void VDPIODelay::writeIO(uint16_t port, uint8_t value, EmuTime time)
 {
 	delay(time);
 	getOutDevicePtr(uint8_t(port))->writeIO(uint8_t(port), value, lastTime.getTime());
 }
 
-void VDPIODelay::delay(EmuTime::param time)
+void VDPIODelay::delay(EmuTime time)
 {
 	if (cpu.isR800Active()) {
 		// Number of cycles based on measurements on real HW.

@@ -52,14 +52,14 @@ unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 	     : address;
 }
 
-uint8_t VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
 	return vram.cpuRead(transform(address), time);
 }
 
 void VDPVRAM::LogicalVRAMDebuggable::write(
-	unsigned address, uint8_t value, EmuTime::param time)
+	unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
 	vram.cpuWrite(transform(address), value, time);
@@ -77,14 +77,14 @@ VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
 {
 }
 
-uint8_t VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+uint8_t VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	return vram.cpuRead(address, time);
 }
 
 void VDPVRAM::PhysicalVRAMDebuggable::write(
-	unsigned address, uint8_t value, EmuTime::param time)
+	unsigned address, uint8_t value, EmuTime time)
 {
 	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	vram.cpuWrite(address, value, time);
@@ -103,7 +103,7 @@ static constexpr unsigned bufferSize(unsigned size)
 	return std::max(0x20000u, size);
 }
 
-VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
+VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime time)
 	: vdp(vdp_)
 	, data(*vdp_.getDeviceConfig2().getXML(), bufferSize(size))
 	, logicalVRAMDebug (vdp)
@@ -141,7 +141,7 @@ void VDPVRAM::clear()
 	}
 }
 
-void VDPVRAM::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
+void VDPVRAM::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime time)
 {
 	assert(vdp.isInsideFrame(time));
 	cmdEngine->updateDisplayMode(mode, cmdBit, time);
@@ -149,7 +149,7 @@ void VDPVRAM::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param ti
 	spriteChecker->updateDisplayMode(mode, time);
 }
 
-void VDPVRAM::updateDisplayEnabled(bool enabled, EmuTime::param time)
+void VDPVRAM::updateDisplayEnabled(bool enabled, EmuTime time)
 {
 	assert(vdp.isInsideFrame(time));
 	cmdEngine->sync(time);
@@ -157,7 +157,7 @@ void VDPVRAM::updateDisplayEnabled(bool enabled, EmuTime::param time)
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
-void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
+void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime time)
 {
 	assert(vdp.isInsideFrame(time));
 	cmdEngine->sync(time);
@@ -165,7 +165,7 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
-void VDPVRAM::setSizeMask(EmuTime::param time)
+void VDPVRAM::setSizeMask(EmuTime time)
 {
 	unsigned newSizeMask = (
 		  vrMode
@@ -195,7 +195,7 @@ static constexpr unsigned swapAddr(unsigned x)
 	//        only 15 bits of the input are used
 	return 1 | ((x & 0x007F) << 1) | ((x & 0x7FC0) << 2);
 }
-void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
+void VDPVRAM::updateVRMode(bool newVRmode, EmuTime time)
 {
 	if (vrMode == newVRmode) {
 		// The swapping below may only happen when the mode is
@@ -218,7 +218,7 @@ void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
 	}
 }
 
-void VDPVRAM::setRenderer(Renderer* newRenderer, EmuTime::param time)
+void VDPVRAM::setRenderer(Renderer* newRenderer, EmuTime time)
 {
 	renderer = newRenderer;
 

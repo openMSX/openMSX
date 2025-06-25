@@ -24,7 +24,7 @@ public:
 	void setDataBits(DataBits bits) override;
 	void setStopBits(StopBits bits) override;
 	void setParityBit(bool enable, Parity parity) override;
-	void recvByte(uint8_t value, EmuTime::param time) override;
+	void recvByte(uint8_t value, EmuTime time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

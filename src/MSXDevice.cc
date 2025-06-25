@@ -124,7 +124,7 @@ const MSXDevice::Devices& MSXDevice::getReferences() const
 	return references;
 }
 
-EmuTime::param MSXDevice::getCurrentTime() const
+EmuTime MSXDevice::getCurrentTime() const
 {
 	return getMotherBoard().getCurrentTime();
 }
@@ -359,7 +359,7 @@ void MSXDevice::unregisterPorts()
 }
 
 
-void MSXDevice::reset(EmuTime::param /*time*/)
+void MSXDevice::reset(EmuTime /*time*/)
 {
 	// nothing
 }
@@ -369,12 +369,12 @@ byte MSXDevice::readIRQVector()
 	return 0xFF;
 }
 
-void MSXDevice::powerDown(EmuTime::param /*time*/)
+void MSXDevice::powerDown(EmuTime /*time*/)
 {
 	// nothing
 }
 
-void MSXDevice::powerUp(EmuTime::param time)
+void MSXDevice::powerUp(EmuTime time)
 {
 	reset(time);
 }
@@ -406,24 +406,24 @@ unsigned MSXDevice::getBaseSizeAlignment() const
 }
 
 
-byte MSXDevice::readIO(uint16_t /*port*/, EmuTime::param /*time*/)
+byte MSXDevice::readIO(uint16_t /*port*/, EmuTime /*time*/)
 {
 	// read from unmapped IO
 	return 0xFF;
 }
 
-void MSXDevice::writeIO(uint16_t /*port*/, byte /*value*/, EmuTime::param /*time*/)
+void MSXDevice::writeIO(uint16_t /*port*/, byte /*value*/, EmuTime /*time*/)
 {
 	// write to unmapped IO, do nothing
 }
 
-byte MSXDevice::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte MSXDevice::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	return 0xFF;
 }
 
 
-byte MSXDevice::readMem(uint16_t /*address*/, EmuTime::param /*time*/)
+byte MSXDevice::readMem(uint16_t /*address*/, EmuTime /*time*/)
 {
 	// read from unmapped memory
 	return 0xFF;
@@ -435,12 +435,12 @@ const byte* MSXDevice::getReadCacheLine(uint16_t /*start*/) const
 }
 
 void MSXDevice::writeMem(uint16_t /*address*/, byte /*value*/,
-                         EmuTime::param /*time*/)
+                         EmuTime /*time*/)
 {
 	// write to unmapped memory, do nothing
 }
 
-byte MSXDevice::peekMem(uint16_t address, EmuTime::param /*time*/) const
+byte MSXDevice::peekMem(uint16_t address, EmuTime /*time*/) const
 {
 	uint16_t base = address & CacheLine::HIGH;
 	if (const byte* cache = getReadCacheLine(base)) {
@@ -453,12 +453,12 @@ byte MSXDevice::peekMem(uint16_t address, EmuTime::param /*time*/) const
 }
 
 void MSXDevice::globalWrite(uint16_t /*address*/, byte /*value*/,
-                            EmuTime::param /*time*/)
+                            EmuTime /*time*/)
 {
 	UNREACHABLE;
 }
 
-void MSXDevice::globalRead(uint16_t /*address*/, EmuTime::param /*time*/)
+void MSXDevice::globalRead(uint16_t /*address*/, EmuTime /*time*/)
 {
 	UNREACHABLE;
 }

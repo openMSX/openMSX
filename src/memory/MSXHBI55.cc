@@ -72,23 +72,23 @@ MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-void MSXHBI55::reset(EmuTime::param time)
+void MSXHBI55::reset(EmuTime time)
 {
 	lastC = 255; // hack
 	i8255.reset(time);
 }
 
-byte MSXHBI55::readIO(uint16_t port, EmuTime::param time)
+byte MSXHBI55::readIO(uint16_t port, EmuTime time)
 {
 	return i8255.read(port & 0x03, time);
 }
 
-byte MSXHBI55::peekIO(uint16_t port, EmuTime::param time) const
+byte MSXHBI55::peekIO(uint16_t port, EmuTime time) const
 {
 	return i8255.peek(port & 0x03, time);
 }
 
-void MSXHBI55::writeIO(uint16_t port, byte value, EmuTime::param time)
+void MSXHBI55::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	i8255.write(port & 0x03, value, time);
 }
@@ -96,53 +96,53 @@ void MSXHBI55::writeIO(uint16_t port, byte value, EmuTime::param time)
 
 // I8255Interface
 
-byte MSXHBI55::readA(EmuTime::param time)
+byte MSXHBI55::readA(EmuTime time)
 {
 	return peekA(time);
 }
-byte MSXHBI55::peekA(EmuTime::param /*time*/) const
+byte MSXHBI55::peekA(EmuTime /*time*/) const
 {
 	return 255; // TODO check this
 }
-byte MSXHBI55::readB(EmuTime::param time)
+byte MSXHBI55::readB(EmuTime time)
 {
 	return peekB(time);
 }
-byte MSXHBI55::peekB(EmuTime::param /*time*/) const
+byte MSXHBI55::peekB(EmuTime /*time*/) const
 {
 	return 255; // TODO check this
 }
-uint4_t MSXHBI55::readC0(EmuTime::param time)
+uint4_t MSXHBI55::readC0(EmuTime time)
 {
 	return peekC0(time);
 }
-uint4_t MSXHBI55::peekC0(EmuTime::param /*time*/) const
+uint4_t MSXHBI55::peekC0(EmuTime /*time*/) const
 {
 	return readStuff() & 0x0F;
 }
-uint4_t MSXHBI55::readC1(EmuTime::param time)
+uint4_t MSXHBI55::readC1(EmuTime time)
 {
 	return peekC1(time);
 }
-uint4_t MSXHBI55::peekC1(EmuTime::param /*time*/) const
+uint4_t MSXHBI55::peekC1(EmuTime /*time*/) const
 {
 	return readStuff() >> 4;
 }
 
-void MSXHBI55::writeA(byte /*value*/, EmuTime::param /*time*/)
+void MSXHBI55::writeA(byte /*value*/, EmuTime /*time*/)
 {
 	writeStuff();
 }
-void MSXHBI55::writeB(byte /*value*/, EmuTime::param /*time*/)
+void MSXHBI55::writeB(byte /*value*/, EmuTime /*time*/)
 {
 	writeStuff();
 }
-void MSXHBI55::writeC0(uint4_t value, EmuTime::param /*time*/)
+void MSXHBI55::writeC0(uint4_t value, EmuTime /*time*/)
 {
 	lastC = (lastC & 0xf0) | value; // hack
 	writeStuff();
 }
-void MSXHBI55::writeC1(uint4_t value, EmuTime::param /*time*/)
+void MSXHBI55::writeC1(uint4_t value, EmuTime /*time*/)
 {
 	lastC = byte((lastC & 0x0f) | (value << 4)); // hack
 	writeStuff();

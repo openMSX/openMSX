@@ -21,12 +21,12 @@ RomPlayBall::RomPlayBall(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomPlayBall::reset(EmuTime::param /*time*/)
+void RomPlayBall::reset(EmuTime /*time*/)
 {
 	samplePlayer.reset();
 }
 
-byte RomPlayBall::peekMem(uint16_t address, EmuTime::param time) const
+byte RomPlayBall::peekMem(uint16_t address, EmuTime time) const
 {
 	if (address == 0xBFFF) {
 		return samplePlayer.isPlaying() ? 0xFE : 0xFF;
@@ -35,7 +35,7 @@ byte RomPlayBall::peekMem(uint16_t address, EmuTime::param time) const
 	}
 }
 
-byte RomPlayBall::readMem(uint16_t address, EmuTime::param time)
+byte RomPlayBall::readMem(uint16_t address, EmuTime time)
 {
 	return RomPlayBall::peekMem(address, time);
 }
@@ -49,7 +49,7 @@ const byte* RomPlayBall::getReadCacheLine(uint16_t address) const
 	}
 }
 
-void RomPlayBall::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomPlayBall::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if (address == 0xBFFF) {
 		if ((value <= 14) && !samplePlayer.isPlaying()) {

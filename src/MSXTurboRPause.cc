@@ -21,28 +21,28 @@ MSXTurboRPause::~MSXTurboRPause()
 	pauseSetting.detach(*this);
 }
 
-void MSXTurboRPause::powerDown(EmuTime::param time)
+void MSXTurboRPause::powerDown(EmuTime time)
 {
 	writeIO(0, 0, time); // send LED OFF events (if needed)
 }
 
-void MSXTurboRPause::reset(EmuTime::param time)
+void MSXTurboRPause::reset(EmuTime time)
 {
 	pauseSetting.setBoolean(false);
 	writeIO(0, 0, time);
 }
 
-byte MSXTurboRPause::readIO(uint16_t port, EmuTime::param time)
+byte MSXTurboRPause::readIO(uint16_t port, EmuTime time)
 {
 	return peekIO(port, time);
 }
 
-byte MSXTurboRPause::peekIO(uint16_t /*port*/, EmuTime::param /*time*/) const
+byte MSXTurboRPause::peekIO(uint16_t /*port*/, EmuTime /*time*/) const
 {
 	return pauseSetting.getBoolean() ? 1 : 0;
 }
 
-void MSXTurboRPause::writeIO(uint16_t /*port*/, byte value, EmuTime::param /*time*/)
+void MSXTurboRPause::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 {
 	status = value;
 	if (bool newTurboLed = (status & 0x80) != 0;

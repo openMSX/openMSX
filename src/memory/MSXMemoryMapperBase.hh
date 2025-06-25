@@ -25,21 +25,21 @@ public:
 		return narrow<unsigned>(checkedRam.size() / 0x4000);
 	}
 
-	void reset(EmuTime::param time) override;
-	void powerUp(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void reset(EmuTime time) override;
+	void powerUp(EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
 	[[nodiscard]] unsigned getBaseSizeAlignment() const override;
 
 	// Subclasses _must_ override this method and
 	//  - call MSXMemoryMapperBase::writeIOImpl()
 	//  - handle CPU cacheline stuff (e.g. invalidate)
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override = 0;
+	void writeIO(uint16_t port, byte value, EmuTime time) override = 0;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -52,7 +52,7 @@ protected:
 	[[nodiscard]] unsigned calcAddress(uint16_t address) const;
 	[[nodiscard]] unsigned segmentOffset(byte page) const;
 
-	void writeIOImpl(uint16_t port, byte value, EmuTime::param time);
+	void writeIOImpl(uint16_t port, byte value, EmuTime time);
 
 	CheckedRam checkedRam;
 	std::array<byte, 4> registers;

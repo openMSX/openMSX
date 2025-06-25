@@ -296,7 +296,7 @@ CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 {
 }
 
-int16_t CasImage::getSampleAt(EmuTime::param time) const
+int16_t CasImage::getSampleAt(EmuTime time) const
 {
 	EmuDuration d = time - EmuTime::zero();
 	unsigned pos = d.getTicksAt(data.frequency);

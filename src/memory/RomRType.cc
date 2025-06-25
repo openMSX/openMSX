@@ -19,7 +19,7 @@ RomRType::RomRType(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomRType::reset(EmuTime::param /*time*/)
+void RomRType::reset(EmuTime /*time*/)
 {
 	setUnmapped(0);
 	setRom(1, 0x17);
@@ -27,7 +27,7 @@ void RomRType::reset(EmuTime::param /*time*/)
 	setUnmapped(3);
 }
 
-void RomRType::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomRType::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x8000)) {
 		value &= (value & 0x10) ? 0x17 : 0x1F;

@@ -21,7 +21,7 @@ TODO:
 namespace openmsx {
 
 SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings,
-                             EmuTime::param time)
+                             EmuTime time)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, limitSpritesSetting(renderSettings.getLimitSpritesSetting())
 	, frameStartTime(time)
@@ -30,7 +30,7 @@ SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings,
 	vram.spritePatternTable.setObserver(this);
 }
 
-void SpriteChecker::reset(EmuTime::param time)
+void SpriteChecker::reset(EmuTime time)
 {
 	vdp.setSpriteStatus(0); // TODO 0x00 or 0x1F  (blueMSX has 0x1F)
 	collisionX = 0;

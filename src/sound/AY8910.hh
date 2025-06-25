@@ -22,13 +22,13 @@ class AY8910 final : public ResampledSoundDevice
 {
 public:
 	AY8910(const std::string& name, AY8910Periphery& periphery,
-	       const DeviceConfig& config, EmuTime::param time);
+	       const DeviceConfig& config, EmuTime time);
 	~AY8910();
 
-	[[nodiscard]] uint8_t readRegister(unsigned reg, EmuTime::param time);
-	[[nodiscard]] uint8_t peekRegister(unsigned reg, EmuTime::param time) const;
-	void writeRegister(unsigned reg, uint8_t value, EmuTime::param time);
-	void reset(EmuTime::param time);
+	[[nodiscard]] uint8_t readRegister(unsigned reg, EmuTime time);
+	[[nodiscard]] uint8_t peekRegister(unsigned reg, EmuTime time) const;
+	void writeRegister(unsigned reg, uint8_t value, EmuTime time);
+	void reset(EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -168,15 +168,15 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) noexcept override;
 
-	void wrtReg(unsigned reg, uint8_t value, EmuTime::param time);
+	void wrtReg(unsigned reg, uint8_t value, EmuTime time);
 
 private:
 	AY8910Periphery& periphery;
 
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		[[nodiscard]] uint8_t read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, uint8_t value, EmuTime::param time) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} debuggable;
 
 	FloatSetting vibratoPercent;

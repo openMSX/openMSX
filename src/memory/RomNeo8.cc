@@ -10,7 +10,7 @@ RomNeo8::RomNeo8(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomNeo8::reset(EmuTime::param /*time*/)
+void RomNeo8::reset(EmuTime /*time*/)
 {
 	for (auto i : xrange(6)) {
 		setRom(i, 0);
@@ -20,7 +20,7 @@ void RomNeo8::reset(EmuTime::param /*time*/)
 	setUnmapped(7);
 }
 
-void RomNeo8::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void RomNeo8::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	unsigned bbb = (address >> 11) & 0b111;
 	if (bbb < 2) return;

@@ -214,7 +214,7 @@ bool Debugger::Cmd::needRecord(std::span<const TclObject> tokens) const
 }
 
 void Debugger::Cmd::execute(
-	std::span<const TclObject> tokens, TclObject& result, EmuTime::param time)
+	std::span<const TclObject> tokens, TclObject& result, EmuTime time)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	executeSubCommand(tokens[1].getString(),
@@ -343,7 +343,7 @@ static constexpr void toHex(byte x, std::span<char, 3> buf)
 	buf[1] = toHex(x & 15);
 }
 
-void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime::param time) const
+void Debugger::Cmd::disasm(std::span<const TclObject> tokens, TclObject& result, EmuTime time) const
 {
 	uint16_t address = (tokens.size() < 3) ? debugger().cpu->getRegisters().getPC()
 	                                       : uint16_t(tokens[2].getInt(getInterpreter()));

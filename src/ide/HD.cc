@@ -93,7 +93,7 @@ void HD::getMediaInfo(TclObject& result)
 	                        "readonly", isWriteProtected());
 }
 
-void HD::setMedia(const TclObject& info, EmuTime::param /*time*/)
+void HD::setMedia(const TclObject& info, EmuTime /*time*/)
 {
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;

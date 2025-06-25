@@ -30,7 +30,7 @@ MidiOutWindows::~MidiOutWindows()
 	//w32_midiOutClean(); // TODO
 }
 
-void MidiOutWindows::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void MidiOutWindows::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
 {
 	devIdx = w32_midiOutOpen(name.c_str());
 	if (devIdx == unsigned(-1)) {
@@ -38,7 +38,7 @@ void MidiOutWindows::plugHelper(Connector& /*connector*/, EmuTime::param /*time*
 	}
 }
 
-void MidiOutWindows::unplugHelper(EmuTime::param /*time*/)
+void MidiOutWindows::unplugHelper(EmuTime /*time*/)
 {
 	if (devIdx != unsigned(-1)) {
 		w32_midiOutClose(devIdx);
@@ -56,7 +56,7 @@ std::string_view MidiOutWindows::getDescription() const
 	return desc;
 }
 
-void MidiOutWindows::recvMessage(const std::vector<uint8_t>& message, EmuTime::param /*time*/)
+void MidiOutWindows::recvMessage(const std::vector<uint8_t>& message, EmuTime /*time*/)
 {
 	if (devIdx != unsigned(-1)) {
 		w32_midiOutMsg(message.size(), message.data(), devIdx);

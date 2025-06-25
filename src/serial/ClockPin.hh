@@ -12,8 +12,8 @@ class ClockPin;
 class ClockPinListener
 {
 public:
-	virtual void signal(ClockPin& pin, EmuTime::param time) = 0;
-	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time) = 0;
+	virtual void signal(ClockPin& pin, EmuTime time) = 0;
+	virtual void signalPosEdge(ClockPin& pin, EmuTime time) = 0;
 
 protected:
 	~ClockPinListener() = default;
@@ -25,28 +25,28 @@ public:
 	explicit ClockPin(Scheduler& scheduler, ClockPinListener* listener = nullptr);
 
 	// input side
-	void setState(bool status, EmuTime::param time);
+	void setState(bool status, EmuTime time);
 	void setPeriodicState(EmuDuration total,
-	                      EmuDuration hi, EmuTime::param time);
+	                      EmuDuration hi, EmuTime time);
 
 	// output side
-	[[nodiscard]] bool getState(EmuTime::param time) const;
+	[[nodiscard]] bool getState(EmuTime time) const;
 	[[nodiscard]] bool isPeriodic() const { return periodic; }
 	[[nodiscard]] EmuDuration getTotalDuration() const;
 	[[nodiscard]] EmuDuration getHighDuration() const;
-	[[nodiscard]] unsigned getTicksBetween(EmuTime::param begin,
-	                                       EmuTime::param end) const;
+	[[nodiscard]] unsigned getTicksBetween(EmuTime begin,
+	                                       EmuTime end) const;
 
 	// control
-	void generateEdgeSignals(bool wanted, EmuTime::param time);
+	void generateEdgeSignals(bool wanted, EmuTime time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void unschedule();
-	void schedule(EmuTime::param time);
-	void executeUntil(EmuTime::param time) override;
+	void schedule(EmuTime time);
+	void executeUntil(EmuTime time) override;
 
 private:
 	ClockPinListener* const listener;

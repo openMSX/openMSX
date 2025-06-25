@@ -32,7 +32,7 @@ Scheduler::~Scheduler()
 	assert(queue.empty());
 }
 
-void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
+void Scheduler::setSyncPoint(EmuTime time, Schedulable& device)
 {
 	assert(Thread::isMainThread());
 	assert(time >= scheduleTime);
@@ -82,13 +82,13 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
 	return false;
 }
 
-EmuTime::param Scheduler::getCurrentTime() const
+EmuTime Scheduler::getCurrentTime() const
 {
 	assert(Thread::isMainThread());
 	return scheduleTime;
 }
 
-void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
+void Scheduler::scheduleHelper(EmuTime limit, EmuTime next)
 {
 	assert(!scheduleInProgress);
 	scheduleInProgress = true;

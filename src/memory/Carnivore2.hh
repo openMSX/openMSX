@@ -30,17 +30,17 @@ public:
 	explicit Carnivore2(DeviceConfig& config);
 	~Carnivore2() override;
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
 
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
-	void globalRead(uint16_t address, EmuTime::param time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
+	void globalRead(uint16_t address, EmuTime time) override;
 
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
 	[[nodiscard]] byte getSelectedSegment(byte page) const override;
 
 	template<typename Archive>
@@ -49,14 +49,14 @@ public:
 private:
 	// config regs
 	[[nodiscard]] unsigned getDirectFlashAddr() const;
-	[[nodiscard]] byte peekConfigRegister(uint16_t address, EmuTime::param time) const;
-	[[nodiscard]] byte readConfigRegister(uint16_t address, EmuTime::param time);
-	void writeSndLVL(byte value, EmuTime::param time);
-	void writeCfgEEPR(byte value, EmuTime::param time);
-	void writePSGCtrl(byte value, EmuTime::param time);
+	[[nodiscard]] byte peekConfigRegister(uint16_t address, EmuTime time) const;
+	[[nodiscard]] byte readConfigRegister(uint16_t address, EmuTime time);
+	void writeSndLVL(byte value, EmuTime time);
+	void writeCfgEEPR(byte value, EmuTime time);
+	void writePSGCtrl(byte value, EmuTime time);
 	void writePSGAlt(byte value);
 	void writePFXN(byte value);
-	void writeConfigRegister(uint16_t address, byte value, EmuTime::param time);
+	void writeConfigRegister(uint16_t address, byte value, EmuTime time);
 
 	[[nodiscard]] bool sccEnabled()        const { return configRegs[0x00] & 0x10; }
 	[[nodiscard]] bool delayedConfig()     const { return configRegs[0x00] & 0x08; }
@@ -84,18 +84,18 @@ private:
 	[[nodiscard]] bool isConfigReg(uint16_t address) const;
 	[[nodiscard]] std::pair<unsigned, byte> decodeMultiMapper(uint16_t address) const;
 	[[nodiscard]] bool sccAccess(uint16_t address) const;
-	[[nodiscard]] byte readMultiMapperSlot(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekMultiMapperSlot(uint16_t address, EmuTime::param time) const;
-	void writeMultiMapperSlot(uint16_t address, byte value, EmuTime::param time);
+	[[nodiscard]] byte readMultiMapperSlot(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekMultiMapperSlot(uint16_t address, EmuTime time) const;
+	void writeMultiMapperSlot(uint16_t address, byte value, EmuTime time);
 
 	// IDE
-	[[nodiscard]] byte readIDESlot(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekIDESlot(uint16_t address, EmuTime::param time) const;
-	void writeIDESlot(uint16_t address, byte value, EmuTime::param time);
-	[[nodiscard]] uint16_t ideReadData(EmuTime::param time);
-	void ideWriteData(uint16_t value, EmuTime::param time);
-	[[nodiscard]] byte ideReadReg(byte reg, EmuTime::param time);
-	void ideWriteReg(byte reg, byte value, EmuTime::param time);
+	[[nodiscard]] byte readIDESlot(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekIDESlot(uint16_t address, EmuTime time) const;
+	void writeIDESlot(uint16_t address, byte value, EmuTime time);
+	[[nodiscard]] uint16_t ideReadData(EmuTime time);
+	void ideWriteData(uint16_t value, EmuTime time);
+	[[nodiscard]] byte ideReadReg(byte reg, EmuTime time);
+	void ideWriteReg(byte reg, byte value, EmuTime time);
 	[[nodiscard]] bool ideRegsEnabled() const { return ideControlReg & 0x01; }
 	[[nodiscard]] byte ideBank() const { return Math::reverseByte(ideControlReg & 0xe0); }
 
@@ -108,9 +108,9 @@ private:
 	void writeMemoryMapperSlot(uint16_t address, byte value);
 
 	// fm-pac
-	[[nodiscard]] byte readFmPacSlot(uint16_t address, EmuTime::param time);
-	[[nodiscard]] byte peekFmPacSlot(uint16_t address, EmuTime::param time) const;
-	void writeFmPacSlot(uint16_t address, byte value, EmuTime::param time);
+	[[nodiscard]] byte readFmPacSlot(uint16_t address, EmuTime time);
+	[[nodiscard]] byte peekFmPacSlot(uint16_t address, EmuTime time) const;
+	void writeFmPacSlot(uint16_t address, byte value, EmuTime time);
 	[[nodiscard]] bool fmPacPortEnabled1() const { return fmPacEnable & 0x01; }
 	[[nodiscard]] bool fmPacSramEnabled() const {
 		return (fmPac5ffe == 0x4d) && (fmPac5fff == 0x69);

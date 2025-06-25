@@ -71,7 +71,7 @@ private:
 
 	// MSXEventListener
 	void signalMSXEvent(const Event& event,
-	                    EmuTime::param time) noexcept override;
+	                    EmuTime time) noexcept override;
 
 private:
 	/** This layer belongs to a specific machine. */

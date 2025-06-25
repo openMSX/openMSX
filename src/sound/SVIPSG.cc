@@ -59,28 +59,28 @@ SVIPSG::~SVIPSG()
 	powerDown(EmuTime::dummy());
 }
 
-void SVIPSG::reset(EmuTime::param time)
+void SVIPSG::reset(EmuTime time)
 {
 	registerLatch = 0;
 	ay8910.reset(time);
 }
 
-void SVIPSG::powerDown(EmuTime::param /*time*/)
+void SVIPSG::powerDown(EmuTime /*time*/)
 {
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, false);
 }
 
-byte SVIPSG::readIO(uint16_t /*port*/, EmuTime::param time)
+byte SVIPSG::readIO(uint16_t /*port*/, EmuTime time)
 {
 	return ay8910.readRegister(registerLatch, time);
 }
 
-byte SVIPSG::peekIO(uint16_t /*port*/, EmuTime::param time) const
+byte SVIPSG::peekIO(uint16_t /*port*/, EmuTime time) const
 {
 	return ay8910.peekRegister(registerLatch, time);
 }
 
-void SVIPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
+void SVIPSG::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0x07) {
 	case 0:
@@ -94,13 +94,13 @@ void SVIPSG::writeIO(uint16_t port, byte value, EmuTime::param time)
 
 // AY8910Periphery
 
-byte SVIPSG::readA(EmuTime::param time)
+byte SVIPSG::readA(EmuTime time)
 {
 	return byte(((ports[1]->read(time) & 0x0F) << 4) |
 	            ((ports[0]->read(time) & 0x0F) << 0));
 }
 
-void SVIPSG::writeB(byte value, EmuTime::param /*time*/)
+void SVIPSG::writeB(byte value, EmuTime /*time*/)
 {
 	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 0x20) != 0);
 

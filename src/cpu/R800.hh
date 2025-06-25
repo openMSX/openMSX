@@ -39,7 +39,7 @@ protected:
 	static constexpr unsigned HALT_STATES = 1; // TODO check this
 	static constexpr bool IS_R800 = true;
 
-	R800TYPE(EmuTime::param time, Scheduler& scheduler_)
+	R800TYPE(EmuTime time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
 		, lastRefreshTime(time)
 	{
@@ -141,7 +141,7 @@ protected:
 			R800RefreshSlow(time, R); // slow-path not inline
 		}
 	}
-	NEVER_INLINE void R800RefreshSlow(EmuTime::param time, CPURegs& R)
+	NEVER_INLINE void R800RefreshSlow(EmuTime time, CPURegs& R)
 	{
 		do {
 			lastRefreshTime += 210;
@@ -152,7 +152,7 @@ protected:
 		R.incR(1);
 	}
 
-	void setTime(EmuTime::param time)
+	void setTime(EmuTime time)
 	{
 		// Base class implementation.
 		CPUClock::setTime(time);

@@ -29,7 +29,7 @@ public:
 	 * the user triggers a replay, we always start from a snapshot, so
 	 * we create 'fresh' objects).
 	 */
-	virtual void stopReplay(EmuTime::param time) noexcept = 0;
+	virtual void stopReplay(EmuTime time) noexcept = 0;
 
 protected:
 	StateChangeListener() = default;

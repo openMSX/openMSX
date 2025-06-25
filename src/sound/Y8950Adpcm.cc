@@ -65,7 +65,7 @@ void Y8950Adpcm::clearRam()
 	ram.clear(0xFF);
 }
 
-void Y8950Adpcm::reset(EmuTime::param time)
+void Y8950Adpcm::reset(EmuTime time)
 {
 	removeSyncPoint();
 
@@ -108,7 +108,7 @@ void Y8950Adpcm::restart(PlayData& pd) const
 	pd.adpcm_data = 0; // dummy, avoid UMR in serialize
 }
 
-void Y8950Adpcm::sync(EmuTime::param time)
+void Y8950Adpcm::sync(EmuTime time)
 {
 	if (isPlaying()) { // optimization, also correct without this test
 		unsigned ticks = clock.getTicksTill(time);
@@ -143,7 +143,7 @@ void Y8950Adpcm::schedule()
 	}
 }
 
-void Y8950Adpcm::executeUntil(EmuTime::param time)
+void Y8950Adpcm::executeUntil(EmuTime time)
 {
 	assert(isPlaying());
 	sync(time); // should set STATUS_EOS
@@ -153,7 +153,7 @@ void Y8950Adpcm::executeUntil(EmuTime::param time)
 	}
 }
 
-void Y8950Adpcm::writeReg(uint8_t rg, uint8_t data, EmuTime::param time)
+void Y8950Adpcm::writeReg(uint8_t rg, uint8_t data, EmuTime time)
 {
 	sync(time); // TODO only when needed
 	switch (rg) {
@@ -303,7 +303,7 @@ void Y8950Adpcm::writeData(uint8_t data)
 	}
 }
 
-uint8_t Y8950Adpcm::readReg(uint8_t rg, EmuTime::param time)
+uint8_t Y8950Adpcm::readReg(uint8_t rg, EmuTime time)
 {
 	sync(time); // TODO only when needed
 	uint8_t result = (rg == 0x0F)
@@ -312,7 +312,7 @@ uint8_t Y8950Adpcm::readReg(uint8_t rg, EmuTime::param time)
 	return result;
 }
 
-uint8_t Y8950Adpcm::peekReg(uint8_t rg, EmuTime::param time) const
+uint8_t Y8950Adpcm::peekReg(uint8_t rg, EmuTime time) const
 {
 	const_cast<Y8950Adpcm*>(this)->sync(time); // TODO only when needed
 	return peekReg(rg);

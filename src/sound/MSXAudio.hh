@@ -22,14 +22,14 @@ public:
 	  */
 	[[nodiscard]] Y8950Periphery& createPeriphery(const std::string& soundDeviceName);
 
-	void powerUp(EmuTime::param time) override;
-	void reset(EmuTime::param time) override;
-	[[nodiscard]] byte readIO(uint16_t port, EmuTime::param time) override;
-	[[nodiscard]] byte peekIO(uint16_t port, EmuTime::param time) const override;
-	void writeIO(uint16_t port, byte value, EmuTime::param time) override;
-	[[nodiscard]] byte readMem(uint16_t address, EmuTime::param time) override;
-	[[nodiscard]] byte peekMem(uint16_t address, EmuTime::param time) const override;
-	void writeMem(uint16_t address, byte value, EmuTime::param time) override;
+	void powerUp(EmuTime time) override;
+	void reset(EmuTime time) override;
+	[[nodiscard]] byte readIO(uint16_t port, EmuTime time) override;
+	[[nodiscard]] byte peekIO(uint16_t port, EmuTime time) const override;
+	void writeIO(uint16_t port, byte value, EmuTime time) override;
+	[[nodiscard]] byte readMem(uint16_t address, EmuTime time) override;
+	[[nodiscard]] byte peekMem(uint16_t address, EmuTime time) const override;
+	void writeMem(uint16_t address, byte value, EmuTime time) override;
 	[[nodiscard]] const byte* getReadCacheLine(uint16_t start) const override;
 	[[nodiscard]] byte* getWriteCacheLine(uint16_t start) override;
 
@@ -37,7 +37,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void enableDAC(bool enable, EmuTime::param time);
+	void enableDAC(bool enable, EmuTime time);
 
 private:
 	std::unique_ptr<Y8950Periphery> periphery; // polymorphic

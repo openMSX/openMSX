@@ -12,12 +12,12 @@ MSXBunsetsu::MSXBunsetsu(DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXBunsetsu::reset(EmuTime::param /*time*/)
+void MSXBunsetsu::reset(EmuTime /*time*/)
 {
 	jisyoAddress = 0;
 }
 
-byte MSXBunsetsu::readMem(uint16_t address, EmuTime::param /*time*/)
+byte MSXBunsetsu::readMem(uint16_t address, EmuTime /*time*/)
 {
 	if (address == 0xBFFF) {
 		byte result = jisyoRom[jisyoAddress];
@@ -30,7 +30,7 @@ byte MSXBunsetsu::readMem(uint16_t address, EmuTime::param /*time*/)
 	}
 }
 
-void MSXBunsetsu::writeMem(uint16_t address, byte value, EmuTime::param /*time*/)
+void MSXBunsetsu::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 {
 	switch (address) {
 	case 0xBFFC:
