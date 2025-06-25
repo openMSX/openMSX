@@ -107,13 +107,14 @@ void WavImageCache::release(const WavData* wav)
 }
 
 
-// Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 {
 	const auto& entry = WavImageCache::instance().get(filename, filePool);
 	wav = &entry.wav;
 	setSha1Sum(entry.sum);
 	clock.setFreq(wav->getFreq());
+	// Note: type detection not implemented yet for WAV images
+	setFirstFileType(FileType::UNKNOWN, filename);
 }
 
 WavImage::~WavImage()

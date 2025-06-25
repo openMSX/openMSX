@@ -283,7 +283,7 @@ CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliC
 			return MSX_CAS::convert(cas, filename.getOriginal(), cliComm, fileType);
 		}
 	}();
-	setFirstFileType(fileType);
+	setFirstFileType(fileType, filename);
 
 	// conversion successful, now calc sha1sum
 	setSha1Sum(filePool.getSha1Sum(file));
