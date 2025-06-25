@@ -24,7 +24,7 @@ public:
 	static std::shared_ptr<DrivesInUse> getDrivesInUse(MSXMotherBoard& motherBoard);
 
 public:
-	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
+	RealDrive(MSXMotherBoard& motherBoard, EmuDuration motorTimeout,
 	          bool signalsNeedMotorOn, bool doubleSided,
 	          DiskDrive::TrackMode trackMode);
 	~RealDrive() override;

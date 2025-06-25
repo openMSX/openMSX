@@ -27,7 +27,7 @@ std::shared_ptr<RealDrive::DrivesInUse> RealDrive::getDrivesInUse(MSXMotherBoard
 	return motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
 }
 
-RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
+RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided,
                      DiskDrive::TrackMode trackMode_)
 	: syncLoadingTimeout(motherBoard_.getScheduler())

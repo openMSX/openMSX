@@ -126,8 +126,8 @@ private:
 	void setTapePos(EmuTime::param time, double newPos);
 
 	void sync(EmuTime::param time);
-	void updateTapePosition(EmuDuration::param duration, EmuTime::param time);
-	void generateRecordOutput(EmuDuration::param duration);
+	void updateTapePosition(EmuDuration duration, EmuTime::param time);
+	void generateRecordOutput(EmuDuration duration);
 
 	void fillBuf(size_t length, double x);
 	void flushOutput();

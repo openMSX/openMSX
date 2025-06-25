@@ -42,9 +42,9 @@ public:
 	[[nodiscard]] constexpr EmuTime operator-(const EmuDuration& r) const
 		{ assert(time >= r.time);
 		  return EmuTime(time - r.time); }
-	constexpr EmuTime& operator+=(EmuDuration::param d)
+	constexpr EmuTime& operator+=(EmuDuration d)
 		{ time += d.time; return *this; }
-	constexpr EmuTime& operator-=(EmuDuration::param d)
+	constexpr EmuTime& operator-=(EmuDuration d)
 		{ assert(time >= d.time);
 		  time -= d.time; return *this; }
 	[[nodiscard]] constexpr friend EmuDuration operator-(const EmuTime& l, const EmuTime& r)

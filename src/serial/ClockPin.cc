@@ -30,8 +30,8 @@ void ClockPin::setState(bool newStatus, EmuTime::param time)
 	}
 }
 
-void ClockPin::setPeriodicState(EmuDuration::param total,
-	EmuDuration::param hi, EmuTime::param time)
+void ClockPin::setPeriodicState(EmuDuration total,
+	EmuDuration hi, EmuTime::param time)
 {
 	referenceTime = time;
 	totalDur = total;
@@ -61,13 +61,13 @@ bool ClockPin::getState(EmuTime::param time) const
 	}
 }
 
-EmuDuration::param ClockPin::getTotalDuration() const
+EmuDuration ClockPin::getTotalDuration() const
 {
 	assert(periodic);
 	return totalDur;
 }
 
-EmuDuration::param ClockPin::getHighDuration() const
+EmuDuration ClockPin::getHighDuration() const
 {
 	assert(periodic);
 	return hiDur;

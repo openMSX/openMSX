@@ -21,15 +21,6 @@ inline constexpr double RECIP_MAIN_FREQ = 1.0 / MAIN_FREQ;
 class EmuDuration
 {
 public:
-	// This is only a very small class (one 64-bit member). On 64-bit CPUs
-	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
-	// is cheaper.
-#ifdef __x86_64
-	using param = EmuDuration;
-#else
-	using param = const EmuDuration&;
-#endif
-
 	// friends
 	friend class EmuTime;
 
@@ -85,14 +76,14 @@ public:
 #endif
 		return unsigned(result);
 	}
-	[[nodiscard]] constexpr unsigned divUp(EmuDuration::param d) const {
+	[[nodiscard]] constexpr unsigned divUp(EmuDuration d) const {
 		uint64_t result = (time + d.time - 1) / d.time;
 #ifdef DEBUG
 		assert(result == unsigned(result));
 #endif
 		return unsigned(result);
 	}
-	[[nodiscard]] constexpr double div(EmuDuration::param d) const
+	[[nodiscard]] constexpr double div(EmuDuration d) const
 		{ return narrow_cast<double>(time) / narrow_cast<double>(d.time); }
 
 	constexpr EmuDuration& operator*=(unsigned fact)

@@ -351,7 +351,7 @@ void Counter::setGateStatus(bool newStatus, EmuTime::param time)
 			if (gate) {
 				if (clock.isPeriodic()) {
 					counter = counterLoad;
-					EmuDuration::param high = clock.getTotalDuration();
+					EmuDuration high = clock.getTotalDuration();
 					EmuDuration total = high * counter;
 					output.setPeriodicState(total, high, time);
 				} else {

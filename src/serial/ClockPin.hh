@@ -26,14 +26,14 @@ public:
 
 	// input side
 	void setState(bool status, EmuTime::param time);
-	void setPeriodicState(EmuDuration::param total,
-	                      EmuDuration::param hi, EmuTime::param time);
+	void setPeriodicState(EmuDuration total,
+	                      EmuDuration hi, EmuTime::param time);
 
 	// output side
 	[[nodiscard]] bool getState(EmuTime::param time) const;
 	[[nodiscard]] bool isPeriodic() const { return periodic; }
-	[[nodiscard]] EmuDuration::param getTotalDuration() const;
-	[[nodiscard]] EmuDuration::param getHighDuration() const;
+	[[nodiscard]] EmuDuration getTotalDuration() const;
+	[[nodiscard]] EmuDuration getHighDuration() const;
 	[[nodiscard]] unsigned getTicksBetween(EmuTime::param begin,
 	                                       EmuTime::param end) const;
 

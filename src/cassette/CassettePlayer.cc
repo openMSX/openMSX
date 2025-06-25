@@ -124,7 +124,7 @@ void CassettePlayer::getMediaInfo(TclObject& result)
 
 void CassettePlayer::setMedia(const TclObject& info, EmuTime::param time)
 {
-	// This restores the tape. It does not restore the position in the tape 
+	// This restores the tape. It does not restore the position in the tape
 	// or the state of the cassetteplayer.
 	auto target = info.getOptionalDictValue(TclObject("target"));
 	if (!target) return;
@@ -520,7 +520,7 @@ void CassettePlayer::sync(EmuTime::param time)
 }
 
 void CassettePlayer::updateTapePosition(
-	EmuDuration::param duration, EmuTime::param time)
+	EmuDuration duration, EmuTime::param time)
 {
 	if (!isRolling() || (getState() != State::PLAY)) return;
 
@@ -535,7 +535,7 @@ void CassettePlayer::updateTapePosition(
 	}
 }
 
-void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
+void CassettePlayer::generateRecordOutput(EmuDuration duration)
 {
 	if (!recordImage || !isRolling()) return;
 
