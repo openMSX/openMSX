@@ -25,7 +25,7 @@
 	<li><a class="internal" href="#use">Using openMSX</a>:
 	<ul class="toc">
 		<li><a class="internal" href="#easyuse">Is openMSX easy to use?</a></li>
-		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
+		<li><a class="internal" href="#c-bios">All I get is "No cartridge found." What's wrong?</a></li>
 		<li><a class="internal" href="#nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></li>
 		<li><a class="internal" href="#rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
@@ -244,6 +244,24 @@ machine and run that one.
 <p>Note that the current version of C-BIOS can only run cartridges and does not
 support disk or tape usage. More information can be found in the <a
 class="external" href="setup.html#cbios">Setup Guide</a>.
+</p>
+
+<p>As C-BIOS does not contain an implementation of MSX-BASIC at the moment, ROM cartridges that rely on MSX-BASIC also do not work on a C-BIOS machine and C-BIOS will report "Cannot execute a BASIC ROM":</p>
+
+<p class="image">
+<img src="cannotexecuteabasicrom.png" width="640" height="480" alt="Cannot execute a BASIC ROM.">
+</p>
+
+<p>And there are also ROM cartridges that are actual conversion from disk images and these usually also rely on MSX-BASIC, and they usually stop with this screen:</p>
+
+<p class="image">
+<img src="callednonexistingbasic.png" width="640" height="480" alt="Called non-existing BASIC.">
+</p>
+
+<p>
+In these cases, the only solution is to <a class="internal"
+href="setup.html#installrom">install real MSX system ROMs</a> for a particular
+machine and run that one.
 </p>
 
 <h3><a id="nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></h3>
