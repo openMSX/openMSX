@@ -399,7 +399,7 @@ void ImGuiMsxMusicViewer::paintInstrument(ChipState& cs, HoverList& newHoverList
 				8, 9, 10, 10, 12, 12, 15, 15,
 			};
 			int m = multipliers[v];
-			auto text = v ? tmpStrCat(m, 'x') : TemporaryString("0.5x");
+			auto text = v ? strCat(m, 'x') : "0.5x";
 			std::array<float, plotResolution> data;
 			auto f = m ? 2 * m : 1;
 			for (auto i : xrange(plotResolution)) {
