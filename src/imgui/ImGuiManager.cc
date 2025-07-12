@@ -12,6 +12,7 @@
 #include "ImGuiMachine.hh"
 #include "ImGuiMedia.hh"
 #include "ImGuiMessages.hh"
+#include "ImGuiMsxMusicViewer.hh"
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiPalette.hh"
@@ -165,6 +166,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	trainer = std::make_unique<ImGuiTrainer>(*this);
 	cheatFinder = std::make_unique<ImGuiCheatFinder>(*this);
 	sccViewer = std::make_unique<ImGuiSCCViewer>(*this);
+	msxMusicViewer = std::make_unique<ImGuiMsxMusicViewer>(*this);
 	waveViewer = std::make_unique<ImGuiWaveViewer>(*this);
 	diskManipulator = std::make_unique<ImGuiDiskManipulator>(*this);
 	soundChip = std::make_unique<ImGuiSoundChip>(*this);

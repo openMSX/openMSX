@@ -40,6 +40,7 @@ class ImGuiKeyboard;
 class ImGuiMachine;
 class ImGuiMedia;
 class ImGuiMessages;
+class ImGuiMsxMusicViewer;
 class ImGuiOpenFile;
 class ImGuiOsdIcons;
 class ImGuiPalette;
@@ -152,6 +153,7 @@ public:
 	std::unique_ptr<ImGuiTools> tools;
 	std::unique_ptr<ImGuiTrainer> trainer;
 	std::unique_ptr<ImGuiSCCViewer> sccViewer;
+	std::unique_ptr<ImGuiMsxMusicViewer> msxMusicViewer;
 	std::unique_ptr<ImGuiWaveViewer> waveViewer;
 	std::unique_ptr<ImGuiCheatFinder> cheatFinder;
 	std::unique_ptr<ImGuiDiskManipulator> diskManipulator;

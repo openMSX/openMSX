@@ -25,7 +25,7 @@ YM2413::Debuggable::Debuggable(
 uint8_t YM2413::Debuggable::read(unsigned address)
 {
 	const auto& ym2413 = OUTER(YM2413, debuggable);
-	return ym2413.core->peekReg(narrow<uint8_t>(address));
+	return ym2413.core->peekRegs()[address];
 }
 
 void YM2413::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
@@ -100,6 +100,11 @@ void YM2413::pokeReg(uint8_t reg, uint8_t value, EmuTime time)
 {
 	updateStream(time);
 	core->pokeReg(reg, value);
+}
+
+std::span<const uint8_t, 64> YM2413::peekRegs() const
+{
+	return core->peekRegs();
 }
 
 void YM2413::setOutputRate(unsigned hostSampleRate, double speed)

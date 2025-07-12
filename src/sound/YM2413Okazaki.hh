@@ -149,7 +149,7 @@ public:
 	void reset() override;
 	void writePort(bool port, uint8_t value, int offset) override;
 	void pokeReg(uint8_t reg, uint8_t data) override;
-	[[nodiscard]] uint8_t peekReg(uint8_t reg) const override;
+	[[nodiscard]] std::span<const uint8_t, 64>peekRegs() const override;
 	void generateChannels(std::span<float*, 9 + 5> bufs, unsigned num) override;
 	[[nodiscard]] float getAmplificationFactor() const override;
 

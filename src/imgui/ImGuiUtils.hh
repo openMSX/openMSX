@@ -5,6 +5,7 @@
 
 #include "Reactor.hh"
 
+#include "fast_log2.hh"
 #include "function_ref.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
@@ -71,15 +72,19 @@ void StrCat(Ts&& ...ts)
 	TextUnformatted(std::string_view(s));
 }
 
-inline void RightAlignText(std::string_view text, std::string_view maxWidthText)
+inline void RightAlignText(std::string_view text, float maxWidth)
 {
-	auto maxWidth = ImGui::CalcTextSize(maxWidthText).x;
 	auto actualWidth = ImGui::CalcTextSize(text).x;
 	if (auto spacing = maxWidth - actualWidth; spacing > 0.0f) {
 		auto pos = ImGui::GetCursorPosX();
 		ImGui::SetCursorPosX(pos + spacing);
 	}
 	ImGui::TextUnformatted(text);
+}
+
+inline void RightAlignText(std::string_view text, std::string_view maxWidthText)
+{
+	RightAlignText(text, ImGui::CalcTextSize(maxWidthText).x);
 }
 
 } // namespace ImGui
@@ -398,6 +403,20 @@ private:
 	unsigned indexMask = 0;
 	bool planar = false;
 };
+
+inline std::string freq2note(float freq)
+{
+	static constexpr auto a4_freq = 440.0f;
+	static constexpr std::array<std::string_view, 12> names = {
+		"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+	};
+
+	auto n = int(std::lround(12.0f * fast_log2(freq / a4_freq))) + 9 + 4 * 12;
+	if (n < 0) return ""; // these are below 20Hz, so inaudible
+	auto note = n % 12;
+	auto octave = n / 12;
+	return strCat(names[note], octave);
+}
 
 enum class imColor : uint8_t {
 	TRANSPARENT,

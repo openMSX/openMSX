@@ -588,6 +588,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMsxMusicViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2095,6 +2098,9 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMsxMusicViewer.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.hh">

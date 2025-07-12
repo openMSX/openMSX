@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string>
 
 namespace openmsx {
@@ -22,6 +23,7 @@ public:
 	void reset(EmuTime time);
 	void writePort(bool port, uint8_t value, EmuTime time);
 	void pokeReg(uint8_t reg, uint8_t value, EmuTime time);
+	[[nodiscard]] std::span<const uint8_t, 64> peekRegs() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

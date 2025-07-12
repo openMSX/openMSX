@@ -80,7 +80,7 @@ public:
 	 * register hasn't been written to since the last reset() call.
 	 * Reading registers has no influence on the generated sound.
 	 */
-	[[nodiscard]] virtual uint8_t peekReg(uint8_t reg) const = 0;
+	[[nodiscard]] virtual std::span<const uint8_t, 64> peekRegs() const = 0;
 
 	/** Generate the sound output.
 	 * @param bufs Pointers to output buffers.

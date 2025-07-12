@@ -90,9 +90,9 @@ void YM2413::pokeReg(uint8_t /*reg*/, uint8_t /*value*/)
 	// not supported
 }
 
-uint8_t YM2413::peekReg(uint8_t reg) const
+std::span<const uint8_t, 64> YM2413::peekRegs() const
 {
-	return regs[reg & 63];
+	return regs;
 }
 
 float YM2413::getAmplificationFactor() const

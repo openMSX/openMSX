@@ -1585,9 +1585,9 @@ void YM2413::writeReg(uint8_t r, uint8_t data)
 	}
 }
 
-uint8_t YM2413::peekReg(uint8_t r) const
+std::span<const uint8_t, 64> YM2413::peekRegs() const
 {
-	return reg[r];
+	return reg;
 }
 
 } // namespace YM2413Okazaki

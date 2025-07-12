@@ -491,6 +491,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiMsxMusicViewer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.cc" />
@@ -1078,6 +1079,7 @@
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiManager.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMessages.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMedia.hh" />
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiMsxMusicViewer.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiOpenFile.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiOsdIcons.hh" />
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiPalette.hh" />
