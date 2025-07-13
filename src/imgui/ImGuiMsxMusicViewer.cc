@@ -101,6 +101,22 @@ static constexpr std::array<zstring_view, 16> instrNames = {
 	"Electric Guitar",
 };
 
+static void drawVolume(uint32_t v)
+{
+	ImGui::RightAlignText(tmpStrCat('-', v * 3), "-15"); // show '0' as '-0'
+	ImGui::SameLine();
+	auto size = gl::vec2{19.0f, ImGui::GetFontSize()};
+	auto outerTL = ImGui::GetCursorScreenPos();
+	auto outerBR = outerTL + size;
+	auto innerTL = outerTL + gl::vec2{2.0f, 2.0f};
+	auto innerBR = gl::vec2{innerTL.x + float(15 - v), outerBR.y - 2.0f};
+	auto color = getColor(imColor::TEXT);
+	ImDrawList* drawList = ImGui::GetWindowDrawList();
+	drawList->AddRect(outerTL, outerBR, color);
+	drawList->AddRectFilled(innerTL, innerBR, color);
+	ImGui::Dummy(size);
+}
+
 void ImGuiMsxMusicViewer::paintMelodicChannel(ChipState& cs, HoverList& newHoverList, std::span<const uint8_t, 64> regs, int ch)
 {
 	auto r10 = uint8_t(ch + 0x10);
@@ -141,9 +157,7 @@ void ImGuiMsxMusicViewer::paintMelodicChannel(ChipState& cs, HoverList& newHover
 	drawCell(cs, newHoverList, regs, freqH, [&](uint32_t) { // note
 		ImGui::TextUnformatted(freq2note(freq));
 	});
-	drawCell(cs, newHoverList, regs, {r30, 0x0f}, [&](uint32_t v) { // volume
-		ImGui::StrCat('-', v * 3); // show '0' as '-0'
-	});
+	drawCell(cs, newHoverList, regs, {r30, 0x0f}, drawVolume);
 	drawCell(cs, newHoverList, regs, {r30, 0xf0}, [&](uint32_t v) { // instrument
 		ImGui::StrCat('(', hex_string<1>(v), ") ", instrNames[v]);
 	});
@@ -190,9 +204,7 @@ void ImGuiMsxMusicViewer::paintRhythmChannel(ChipState& cs, HoverList& newHoverL
 		else if (ch == 3) return Hover{0x37, 0xf0}; // hi-hat
 		else              return Hover{0x38, 0xf0}; // tom
 	}();
-	drawCell(cs, newHoverList, regs, volH, [&](uint32_t v) { // volume
-		ImGui::StrCat('-', v * 3); // show '0' as '-0'
-	});
+	drawCell(cs, newHoverList, regs, volH, drawVolume);
 }
 
 void ImGuiMsxMusicViewer::paintChannels(ChipState& cs, HoverList& newHoverList, std::span<const uint8_t, 64> regs)
