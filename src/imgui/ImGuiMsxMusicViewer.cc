@@ -110,7 +110,7 @@ static void drawVolume(uint32_t v)
 	auto outerBR = outerTL + size;
 	auto innerTL = outerTL + gl::vec2{2.0f, 2.0f};
 	auto innerBR = gl::vec2{innerTL.x + float(15 - v), outerBR.y - 2.0f};
-	auto color = getColor(imColor::TEXT);
+	auto color = ImGui::GetColorU32(ImGuiCol_Text);
 	ImDrawList* drawList = ImGui::GetWindowDrawList();
 	drawList->AddRect(outerTL, outerBR, color);
 	drawList->AddRectFilled(innerTL, innerBR, color);
