@@ -36,14 +36,14 @@ jobs:
             cpu: x86_64
             os: mingw-w64
             flavour: opt
-          - image: macos-14
-            xcode_version: 15.4
+          - image: macos-15
+            xcode_version: 16.4
             name: MacOS
             cpu: x86_64
             os: darwin
             flavour: opt
-          - image: macos-14
-            xcode_version: 15.4
+          - image: macos-15
+            xcode_version: 16.4
             name: MacOS
             cpu: aarch64
             os: darwin
