@@ -15,14 +15,12 @@ namespace openmsx {
 
 class CommandController;
 class EventDistributor;
-class GlobalSettings;
 
 class InputEventGenerator final : private EventListener
 {
 public:
 	InputEventGenerator(CommandController& commandController,
-	                    EventDistributor& eventDistributor,
-	                    GlobalSettings& globalSettings);
+	                    EventDistributor& eventDistributor);
 	InputEventGenerator(const InputEventGenerator&) = delete;
 	InputEventGenerator(InputEventGenerator&&) = delete;
 	InputEventGenerator& operator=(const InputEventGenerator&) = delete;
@@ -53,7 +51,6 @@ private:
 	bool signalEvent(const Event& event) override;
 
 	EventDistributor& eventDistributor;
-	GlobalSettings& globalSettings;
 	JoystickManager joystickManager;
 	BooleanSetting grabInput;
 

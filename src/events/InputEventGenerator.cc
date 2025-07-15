@@ -17,10 +17,8 @@
 namespace openmsx {
 
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
-                                         EventDistributor& eventDistributor_,
-                                         GlobalSettings& globalSettings_)
+                                         EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, globalSettings(globalSettings_)
 	, joystickManager(commandController)
 	, grabInput(
 		commandController, "grabinput",

@@ -246,7 +246,7 @@ void Reactor::init()
 	globalSettings = make_unique<GlobalSettings>(
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
-		*globalCommandController, *eventDistributor, *globalSettings);
+		*globalCommandController, *eventDistributor);
 	symbolManager = make_unique<SymbolManager>(
 		*globalCommandController);
 	imGuiManager = make_unique<ImGuiManager>(*this);
