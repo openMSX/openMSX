@@ -792,8 +792,9 @@ bool Reactor::signalEvent(const Event& event)
 			}
 #endif
 		},
-		[](const EventBase /*e*/) {
-			UNREACHABLE; // we didn't subscribe to this event...
+		[](const EventBase& /*e*/) {
+			// clang-20 workaround: 'UNREACHABLE' is correct, but increases compile time from 11s to 680s
+			//UNREACHABLE; // we didn't subscribe to this event...
 		}
 	}, event);
 	return false;
