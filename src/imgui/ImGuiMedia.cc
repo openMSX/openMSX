@@ -394,8 +394,7 @@ void ImGuiMedia::printExtensionInfo(ExtensionInfo& info)
 			ImGui::TableSetupColumn("description", ImGuiTableColumnFlags_WidthFixed);
 			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-			for (const auto& [desc, value_] : info.configInfo) {
-				const auto& value = value_; // clang workaround
+			for (const auto& [desc, value] : info.configInfo) {
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted(desc);
 				}

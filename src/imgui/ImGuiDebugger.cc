@@ -720,7 +720,7 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 {
 	if (!showFlags) return;
 	im::Window("CPU flags", &showFlags, [&]{
-		auto [sizeH1_, sizeH2_, sizeV_] = [&]{
+		auto [sizeH1, sizeH2, sizeV] = [&]{
 			im::ScopedFont sf(manager.fontMono);
 			return std::tuple{
 				ImGui::CalcTextSize("NC"sv),
@@ -728,8 +728,6 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 				ImGui::CalcTextSize("C 0 (NC)"sv)
 			};
 		}();
-		// clang workaround
-		auto sizeH1 = sizeH1_; auto sizeH2 = sizeH2_; auto sizeV = sizeV_;
 
 		if (!cpuRegsSnapshot && needSnapshot()) {
 			cpuRegsSnapshot = regs;

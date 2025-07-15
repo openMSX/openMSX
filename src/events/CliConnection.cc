@@ -338,8 +338,7 @@ void SocketConnection::output(std::string_view message_)
 		// yet send). Ignore log and update messages for now.
 		return;
 	}
-	// std::span message = message_; // error with clang-15/libc++
-	std::span message{message_.begin(), message_.end()};
+	std::span message = message_;
 	while (!message.empty()) {
 		ptrdiff_t bytesSend;
 		{

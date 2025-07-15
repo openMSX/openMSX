@@ -605,8 +605,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			}
 		});
 		if (ImGui::IsItemHovered() && (mode != OTHER)) {
-			auto [x_, y_] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
-			auto x = x_; auto y = y_; // clang workaround
+			auto [x, y] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / zm);
 			if ((0 <= x) && (x < width) && (0 <= y) && (y < height)) {
 				auto dec3 = [&](int d) {
 					im::ScopedFont sf(manager.fontMono);

@@ -738,7 +738,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 			}
 
 			if (statusBarItemVisibilityScreenModeInfo) {
-				auto [modeStr, extendedStr_] = [&] { // TODO: remove duplication with VDP debugger code
+				auto [modeStr, extendedStr] = [&] { // TODO: remove duplication with VDP debugger code
 					if (!motherBoard) return std::pair{"-", ""};
 					const auto* vdp = dynamic_cast<const VDP*>(motherBoard->findDevice("VDP"));
 					if (!vdp) return std::pair{"-", ""};
@@ -759,7 +759,6 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 						? (mode.getByte() & DisplayMode::YAE) ? std::pair{"11", "GRAPHIC 7 (YJK/YAE mode)"} : std::pair{"12", "GRAPHIC 7 (YJK mode)"}
 						: std::pair{"8", "GRAPHIC 7"};
 				}();
-				const auto* extendedStr = extendedStr_; // pre-clang-16 workaround
 				ImGui::RightAlignText(modeStr, "0 (80)");
 				simpleToolTip([&]{
 					std::string result = "screen mode as used in MSX-BASIC";

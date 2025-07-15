@@ -127,7 +127,7 @@ static void printMessages(const circular_buffer<ImGuiMessages::Message>& message
 {
 	im::TextWrapPos(ImGui::GetFontSize() * 50.0f, [&]{
 		for (const auto& message : messages) {
-			auto [color, prefix_] = [&]() -> std::pair<ImU32, std::string_view> {
+			auto [color, prefix] = [&]() -> std::pair<ImU32, std::string_view> {
 				switch (message.level) {
 					case LOGLEVEL_ERROR: return {getColor(imColor::ERROR),   "Error:"};
 					case WARNING:        return {getColor(imColor::WARNING), "Warning:"};
@@ -135,7 +135,6 @@ static void printMessages(const circular_buffer<ImGuiMessages::Message>& message
 					default: assert(false);       return {getColor(imColor::TEXT),    "Unknown:"};
 				}
 			}();
-			auto prefix = prefix_; // clang workaround
 			if (std::invoke(filter, prefix, message.text)) {
 				im::StyleColor(ImGuiCol_Text, color, [&]{
 					ImGui::TextUnformatted(prefix);

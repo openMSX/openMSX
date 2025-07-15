@@ -969,8 +969,7 @@ bool ImGuiMachine::printConfigInfo(MachineInfo& info)
 			ImGui::TableSetupColumn("dummy");
 			ImGui::TableSetupColumn("dummy", ImGuiTableColumnFlags_WidthFixed, width);
 
-			for (const auto& [desc, value_] : info.configInfo) {
-				const auto& value = value_; // clang workaround
+			for (const auto& [desc, value] : info.configInfo) {
 				if (ImGui::TableNextColumn()) {
 					ImGui::TextUnformatted(desc);
 				}

@@ -75,9 +75,8 @@ public:
 	void saveShortcuts(XmlStream& xml) const
 	{
 		xml.with_tag("shortcuts", [&]{
-			for (auto [id_, shortcut_] : enumerate(shortcuts)) {
+			for (auto [id_, shortcut] : enumerate(shortcuts)) {
 				auto id = static_cast<ID>(id_);
-				const auto& shortcut = shortcut_; // clang-15 workaround
 				if (shortcut == getDefaultShortcut(id)) continue;
 				xml.with_tag("shortcut", [&]{
 					xml.attribute("key", getKeyChordName(shortcut.keyChord));

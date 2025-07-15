@@ -204,9 +204,7 @@ void SettingsConfig::saveSetting(std::string filename)
 	XMLOutputStream xml(writer);
 	xml.with_tag("settings", [&]{
 		xml.with_tag("settings", [&]{
-			for (const auto& [name_, value_] : settingValues) {
-				const auto& name = name_;    // clang-15 workaround
-				const auto& value = value_;  // fixed in clang-16
+			for (const auto& [name, value] : settingValues) {
 				xml.with_tag("setting", [&]{
 					xml.attribute("id", name);
 					xml.data(value);
