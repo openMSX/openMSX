@@ -505,11 +505,15 @@ FileName MSXtar::hostToMSXFileName(string_view hostName) const
 	transform_in_place(extS,  toFileNameChar);
 
 	// add correct number of spaces
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
 	copy_to_range(fileS, subspan<8>(result, 0));
 	copy_to_range(extS,  subspan<3>(result, 8));
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 	return result;
 }
 
