@@ -28,9 +28,6 @@ class ImGuiSymbols final : public ImGuiPart, private SymbolObserver
 {
 public:
 	struct FileInfo {
-		FileInfo(std::string f, std::string e, SymbolFile::Type t, std::optional<int> s)
-			: filename(std::move(f)), error(std::move(e)), type(t), slot(s) {} // clang-15 workaround
-
 		std::string filename;
 		std::string error;
 		SymbolFile::Type type;

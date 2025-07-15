@@ -85,8 +85,6 @@ protected:
 };
 
 struct MediaProviderInfo {
-	MediaProviderInfo(std::string_view n, MediaProvider* p)
-		: name(n), provider(p) {} // clang-15 workaround
 	std::string_view name;
 	MediaProvider* provider;
 };

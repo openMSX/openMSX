@@ -381,11 +381,8 @@ void ImGuiSymbols::notifySymbolsChanged()
 	symbols.clear();
 	for (const auto& [fileIdx, file] : enumerate(symbolManager.getFiles())) {
 		for (auto symbolIdx : xrange(file.symbols.size())) {
-			//symbols.emplace_back(narrow<unsigned>(fileIdx),
-			//                     narrow<unsigned>(symbolIdx));
-			// clang workaround
-			symbols.push_back(SymbolRef{.fileIdx = narrow<unsigned>(fileIdx),
-			                            .symbolIdx = narrow<unsigned>(symbolIdx)});
+			symbols.emplace_back(narrow<unsigned>(fileIdx),
+			                     narrow<unsigned>(symbolIdx));
 		}
 	}
 

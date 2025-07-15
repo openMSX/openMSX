@@ -40,10 +40,6 @@ class FilePoolCore
 {
 public:
 	struct Dir {
-		Dir() = default;
-		Dir(std::string_view p, FileType t)
-			: path(p), types(t) {} // clang-15 workaround
-
 		std::string_view path;
 		FileType types;
 	};

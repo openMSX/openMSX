@@ -35,10 +35,6 @@ private:
 	SymbolManager& symbolManager;
 
 	struct WatchExpr {
-		// added constructors: workaround clang-14 bug(?)
-		WatchExpr() = default;
-		WatchExpr(std::string d, std::string e, TclObject f)
-			: description(std::move(d)), exprStr(std::move(e)), format(std::move(f)) {}
 		std::string description;
 		std::string exprStr;
 		std::optional<TclObject> expression; // cache, generate from 'expression'

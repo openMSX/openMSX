@@ -159,9 +159,6 @@ private:
 	                 const std::type_info& typeInfo);
 
 	struct Entry {
-		Entry(std::type_index i, SaveFunction s)
-			: index(i), saver(std::move(s)) {} // clang-15 workaround
-
 		std::type_index index;
 		SaveFunction saver;
 	};

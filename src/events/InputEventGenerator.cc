@@ -468,7 +468,10 @@ bool InputEventGenerator::signalEvent(const Event& event)
 				}
 			}
 		},
-		[](const EventBase&) { UNREACHABLE; }
+		[](const EventBase&) {
+			// correct but causes excessive clang compile-time
+			// UNREACHABLE;
+		}
 	}, event);
 	return false;
 }

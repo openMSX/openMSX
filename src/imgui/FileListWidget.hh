@@ -21,8 +21,6 @@ public:
 
 public:
 	struct Entry {
-		Entry(std::string f, std::time_t t) // workaround, needed for clang, not gcc or msvc
-			: fullName(std::move(f)), ftime(t) {} // fixed in clang-16
 		std::string fullName;
 		std::time_t ftime;
 		// this just returns the file name without path and extension

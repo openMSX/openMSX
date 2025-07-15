@@ -20,9 +20,6 @@ public:
 
 private:
 	struct Chunk {
-		Chunk(size_t s, std::vector<uint8_t>&& c)
-			: startAddress(s), content(std::move(c)) {} // clang-15 workaround
-
 		size_t startAddress;
 		std::vector<uint8_t> content;
 

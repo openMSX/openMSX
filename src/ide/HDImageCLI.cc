@@ -11,9 +11,6 @@ namespace openmsx {
 
 namespace {
 	struct IdImage {
-		IdImage(int i, std::string m)
-			: id(i), image(std::move(m)) {} // clang-15 workaround
-
 		int id;
 		std::string image;
 	};

@@ -100,10 +100,6 @@ private:
 		ColorSequence{ /*dummy*/ } // progress
 	};
 	struct OsdMessage {
-		// clang workaround:
-		OsdMessage(std::string te, float ti, CliComm::LogLevel l)
-			: text(std::move(te)), time(ti), level(l) {}
-
 		std::string text;
 		float time;
 		CliComm::LogLevel level;

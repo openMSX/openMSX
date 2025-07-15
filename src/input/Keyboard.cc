@@ -1946,7 +1946,10 @@ bool Keyboard::CapsLockAligner::signalEvent(const Event& event)
 				state = MUST_ALIGN_CAPSLOCK;
 				setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
 			},
-			[](const EventBase&) { UNREACHABLE; }
+			[](const EventBase&) {
+				// correct but causes excessive clang compile-time
+				// UNREACHABLE;
+			}
 		}, event);
 	}
 	return false;
