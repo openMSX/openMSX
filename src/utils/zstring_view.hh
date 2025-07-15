@@ -145,55 +145,17 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 [[nodiscard]] constexpr auto begin(const zstring_view& x) { return x.begin(); }
 [[nodiscard]] constexpr auto end  (const zstring_view& x) { return x.end();   }
 
-// !!! Workaround clang-15, libc++ bug !!! (fixed in clang-16)
-// These should be 4x operator<=> instead of 4x operator<, <=, >=, >
-[[nodiscard]] constexpr auto operator<(const zstring_view& x, const zstring_view& y) {
+[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const zstring_view& y) {
 	return std::string_view(x) < std::string_view(y);
 }
-[[nodiscard]] inline auto operator<(const zstring_view& x, const std::string& y) {
+[[nodiscard]] inline auto operator<=>(const zstring_view& x, const std::string& y) {
 	return std::string_view(x) < std::string_view(y);
 }
-[[nodiscard]] constexpr auto operator<(const zstring_view& x, const std::string_view& y) {
+[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const std::string_view& y) {
 	return std::string_view(x) < y;
 }
-[[nodiscard]] constexpr auto operator<(const zstring_view& x, const char* y) {
+[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const char* y) {
 	return std::string_view(x) < std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator<=(const zstring_view& x, const zstring_view& y) {
-	return std::string_view(x) <= std::string_view(y);
-}
-[[nodiscard]] inline auto operator<=(const zstring_view& x, const std::string& y) {
-	return std::string_view(x) <= std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator<=(const zstring_view& x, const std::string_view& y) {
-	return std::string_view(x) <= y;
-}
-[[nodiscard]] constexpr auto operator<=(const zstring_view& x, const char* y) {
-	return std::string_view(x) <= std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator>(const zstring_view& x, const zstring_view& y) {
-	return std::string_view(x) > std::string_view(y);
-}
-[[nodiscard]] inline auto operator>(const zstring_view& x, const std::string& y) {
-	return std::string_view(x) > std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator>(const zstring_view& x, const std::string_view& y) {
-	return std::string_view(x) > y;
-}
-[[nodiscard]] constexpr auto operator>(const zstring_view& x, const char* y) {
-	return std::string_view(x) > std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator>=(const zstring_view& x, const zstring_view& y) {
-	return std::string_view(x) >= std::string_view(y);
-}
-[[nodiscard]] inline auto operator>=(const zstring_view& x, const std::string& y) {
-	return std::string_view(x) >= std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator>=(const zstring_view& x, const std::string_view& y) {
-	return std::string_view(x) >= y;
-}
-[[nodiscard]] constexpr auto operator>=(const zstring_view& x, const char* y) {
-	return std::string_view(x) >= std::string_view(y);
 }
 
 #endif

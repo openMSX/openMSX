@@ -210,11 +210,8 @@ private:
 
 	[[nodiscard]] constexpr friend auto operator<=>(const uint128& a, const uint128& b)
 	{
-		// Doesn't work yet with clang-13 libc++
-		//return std::tuple(high64(a), low64(a)) <=>
-		//       std::tuple(high64(b), low64(b));
-		if (auto cmp = high64(a) <=> high64(b); cmp != 0) return cmp;
-		return low64(a) <=> low64(b);
+		return std::tuple(high64(a), low64(a)) <=>
+		       std::tuple(high64(b), low64(b));
 	}
 
 	[[nodiscard]] friend constexpr uint64_t low64(const uint128& a)
