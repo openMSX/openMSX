@@ -122,6 +122,18 @@ public:
 	[[nodiscard]] constexpr friend bool operator==(const zstring_view& x, const char* y) {
 		return std::string_view(x) == std::string_view(y);
 	}
+	[[nodiscard]] constexpr friend auto operator<=>(const zstring_view& x, const zstring_view& y) {
+		return std::string_view(x) <=> std::string_view(y);
+	}
+	[[nodiscard]] friend auto operator<=>(const zstring_view& x, const std::string& y) {
+		return std::string_view(x) <=> std::string_view(y);
+	}
+	[[nodiscard]] constexpr friend auto operator<=>(const zstring_view& x, const std::string_view& y) {
+		return std::string_view(x) <=> y;
+	}
+	[[nodiscard]] constexpr friend auto operator<=>(const zstring_view& x, const char* y) {
+		return std::string_view(x) <=> std::string_view(y);
+	}
 
 	friend std::ostream& operator<<(std::ostream& os, const zstring_view& str)
 	{
@@ -144,18 +156,5 @@ static_assert(std::is_trivially_move_assignable_v<zstring_view>);
 
 [[nodiscard]] constexpr auto begin(const zstring_view& x) { return x.begin(); }
 [[nodiscard]] constexpr auto end  (const zstring_view& x) { return x.end();   }
-
-[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const zstring_view& y) {
-	return std::string_view(x) < std::string_view(y);
-}
-[[nodiscard]] inline auto operator<=>(const zstring_view& x, const std::string& y) {
-	return std::string_view(x) < std::string_view(y);
-}
-[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const std::string_view& y) {
-	return std::string_view(x) < y;
-}
-[[nodiscard]] constexpr auto operator<=>(const zstring_view& x, const char* y) {
-	return std::string_view(x) < std::string_view(y);
-}
 
 #endif
