@@ -122,8 +122,7 @@ void SRAM::save() const
 			auto length = strlen(header);
 			file.write(std::span{header, length});
 		}
-		//file.write(std::span{ram}); // TODO error with clang-15/libc++
-		file.write(std::span{ram.begin(), ram.end()});
+		file.write(std::span{ram});
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't save SRAM ", filename,

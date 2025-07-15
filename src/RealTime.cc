@@ -140,7 +140,8 @@ bool RealTime::signalEvent(const Event& event)
 			sync(getCurrentTime(), true);
 		},
 		[&](const EventBase /*e*/) {
-			UNREACHABLE;
+			// correct but causes excessive clang compile-time
+			// UNREACHABLE;
 		}
 	}, event);
 	return false;

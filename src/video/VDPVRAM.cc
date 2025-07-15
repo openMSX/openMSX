@@ -295,8 +295,7 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 			              subspan<64>(tmp, addr8));
 		}
 	}
-	//copy_to_range(tmp, std::span{data}); // TODO error with clang-15/libc++
-	copy_to_range(tmp, std::span{data.begin(), data.end()});
+	copy_to_range(tmp, std::span{data});
 }
 
 

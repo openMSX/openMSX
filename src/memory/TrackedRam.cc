@@ -10,8 +10,7 @@ void TrackedRam::serialize(Archive& ar, unsigned /*version*/)
 	//  This allows to change from Ram to TrackedRam without having to
 	//  increase the class serialization version (of the user).
 	bool diff = writeSinceLastReverseSnapshot || !ar.isReverseSnapshot();
-	//ar.serialize_blob("ram", std::span{ram}, diff); // TODO error with clang-15/libc++
-	ar.serialize_blob("ram", std::span{ram.begin(), ram.end()}, diff);
+	ar.serialize_blob("ram", std::span{ram}, diff);
 	if (ar.isReverseSnapshot()) writeSinceLastReverseSnapshot = false;
 }
 INSTANTIATE_SERIALIZE_METHODS(TrackedRam);

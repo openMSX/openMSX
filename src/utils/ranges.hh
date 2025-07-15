@@ -111,36 +111,16 @@ template<std::ranges::forward_range Range, typename T, typename Compare = std::l
 // span. These are not part of the c++ ranges namespace, but often these results
 // are then further used in range algorithms, that's why I placed them in this
 // header.
-
-template<std::ranges::range Range>
-constexpr auto make_span(Range&& range)
-{
-#ifndef _LIBCPP_VERSION
-	// C++20 version, works with gcc/visual studio
-	// Simple enough that we don't actually need this helper function.
-	return std::span(range);
-#else
-	// Unfortunately we do need a workaround for clang/libc++, version 14 and 15
-	// return std::span(std::begin(range), std::end(range));
-
-	// Further workaround for Xcode-14, clang-13
-	// Don't always use this workaround, because '&*begin()' is actually
-	// undefined behavior when the range is empty. It works fine in
-	// practice, except when using a DEBUG-STL version.
-	return std::span(&*std::begin(range), std::size(range));
-#endif
-}
-
 template<std::ranges::range Range>
 [[nodiscard]] constexpr auto subspan(Range&& range, size_t offset, size_t count = std::dynamic_extent)
 {
-	return make_span(std::forward<Range>(range)).subspan(offset, count);
+	return std::span(std::forward<Range>(range)).subspan(offset, count);
 }
 
 template<size_t Count, std::ranges::range Range>
 [[nodiscard]] constexpr auto subspan(Range&& range, size_t offset = 0)
 {
-	return make_span(std::forward<Range>(range)).subspan(offset).template first<Count>();
+	return std::span(std::forward<Range>(range)).subspan(offset).template first<Count>();
 }
 
 template<typename T, size_t Size>

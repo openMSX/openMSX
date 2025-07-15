@@ -85,8 +85,7 @@ using enum RomType;
 	if (size == 0) {
 		return NORMAL;
 	}
-	//std::span data = rom; // TODO error with clang-13/libc++
-	std::span data{std::to_address(rom.begin()), size};
+	std::span data = rom;
 
 	if (const size_t signatureOffset = 16, signatureSize = 8; size >= (signatureOffset + signatureSize)) {
 		auto signature = std::string_view(std::bit_cast<const char*>(data.data()) + signatureOffset, signatureSize);

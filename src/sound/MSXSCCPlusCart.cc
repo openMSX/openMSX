@@ -288,8 +288,7 @@ void MSXSCCPlusCart::checkEnable()
 template<typename Archive>
 void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 {
-	//ar.serialize_blob("ram", std::span{ram}); // TODO error with clang-15/libc++
-	ar.serialize_blob("ram", std::span{ram.begin(), ram.end()});
+	ar.serialize_blob("ram", std::span{ram});
 	ar.serialize("scc",    scc,
 	             "mapper", mapper,
 	             "mode",   modeRegister);
