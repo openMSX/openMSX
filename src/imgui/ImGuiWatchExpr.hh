@@ -35,6 +35,12 @@ private:
 	SymbolManager& symbolManager;
 
 	struct WatchExpr {
+		WatchExpr() = default;
+		WatchExpr(std::string description_, std::string exprStr_, TclObject format_)
+			: description(std::move(description_))
+			, exprStr(std::move(exprStr_)) // leave 'expression' empty
+			, format(std::move(format_)) {}
+
 		std::string description;
 		std::string exprStr;
 		std::optional<TclObject> expression; // cache, generate from 'expression'
