@@ -73,8 +73,9 @@ void ImGuiWatchExpr::paint(MSXMotherBoard* /*motherBoard*/)
 				| ImGuiTableFlags_SizingStretchProp
 				| ImGuiTableFlags_SortTristate
 				| ImGuiTableFlags_ScrollY;
-			im::Table("table", 4, flags, [&]{
+			im::Table("table", 5, flags, [&]{
 				ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+				ImGui::TableSetupColumn("id", ImGuiTableColumnFlags_DefaultHide);
 				ImGui::TableSetupColumn("description");
 				ImGui::TableSetupColumn("expression");
 				ImGui::TableSetupColumn("format");
@@ -228,6 +229,9 @@ void ImGuiWatchExpr::drawRow(int row)
 	const auto& display = exprVal ? (formatted ? formatted->getString() : exprVal->getString())
 	                              : exprVal.error();
 
+	if (ImGui::TableNextColumn()) { // id
+		ImGui::TextUnformatted(watch.getIdStr());
+	}
 	if (ImGui::TableNextColumn()) { // description
 		auto pos = ImGui::GetCursorPos();
 		const auto& style = ImGui::GetStyle();
@@ -294,13 +298,16 @@ void ImGuiWatchExpr::checkSort()
 	assert(sortSpecs->Specs->SortOrder == 0);
 
 	switch (sortSpecs->Specs->ColumnIndex) {
-	case 0: // description
+	case 0: // id
+		sortUpDown_T(watches, sortSpecs, &WatchExpr::id);
+		break;
+	case 1: // description
 		sortUpDown_String(watches, sortSpecs, &WatchExpr::description);
 		break;
-	case 1: // expression
+	case 2: // expression
 		sortUpDown_String(watches, sortSpecs, [](const auto& item) { return item.exprStr; });
 		break;
-	case 2: // format
+	case 3: // format
 		sortUpDown_String(watches, sortSpecs, [](const auto& item) { return item.format.getString(); });
 		break;
 	default:

@@ -35,16 +35,24 @@ private:
 	SymbolManager& symbolManager;
 
 	struct WatchExpr {
-		WatchExpr() = default;
+		static constexpr std::string_view prefix = "we#";
+
+		WatchExpr() : id(++lastId) {}
 		WatchExpr(std::string description_, std::string exprStr_, TclObject format_)
-			: description(std::move(description_))
+			: id(++lastId)
+			, description(std::move(description_))
 			, exprStr(std::move(exprStr_)) // leave 'expression' empty
 			, format(std::move(format_)) {}
 
+		[[nodiscard]] std::string getIdStr() const { return strCat(prefix, id); }
+
+		unsigned id = 0;
 		std::string description;
 		std::string exprStr;
 		std::optional<TclObject> expression; // cache, generate from 'expression'
 		TclObject format;
+
+		static inline unsigned lastId = 0;
 	};
 	std::vector<WatchExpr> watches;
 
