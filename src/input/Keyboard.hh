@@ -20,6 +20,15 @@
 #include <string_view>
 #include <vector>
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <windows.h>
+#include <imm.h>
+#endif // _WIN32
+
 namespace openmsx {
 
 class MSXMotherBoard;
@@ -214,6 +223,24 @@ private:
 			MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
 		} state = IDLE;
 	} capsLockAligner;
+
+	class ImeManager final : private EventListener {
+	public:
+		ImeManager(EventDistributor& eventDistributor);
+		~ImeManager();
+
+	private:
+		// EventListener
+		bool signalEvent(const Event& event) override;
+
+	private:
+		EventDistributor& eventDistributor;
+
+	#if defined(_WIN32)
+		HIMC hImc;
+	#endif
+
+	} imeManager;
 
 	KeyboardSettings keyboardSettings;
 
