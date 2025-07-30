@@ -100,8 +100,6 @@
 #include "PioneerLDControl.hh"
 #endif
 
-using std::make_unique;
-
 namespace openmsx {
 
 [[nodiscard]] static std::unique_ptr<MSXDevice> createWD2793BasedFDC(DeviceConfig& conf)
@@ -118,25 +116,25 @@ namespace openmsx {
 		type = styleEl->getData();
 	}
 	if (type == one_of("Philips", "Sony")) {
-		return make_unique<PhilipsFDC>(conf);
+		return std::make_unique<PhilipsFDC>(conf);
 	} else if (type == "Microsol") {
-		return make_unique<MicrosolFDC>(conf);
+		return std::make_unique<MicrosolFDC>(conf);
 	} else if (type == "AVT") {
-		return make_unique<AVTFDC>(conf);
+		return std::make_unique<AVTFDC>(conf);
 	} else if (type == "National") {
-		return make_unique<NationalFDC>(conf);
+		return std::make_unique<NationalFDC>(conf);
 	} else if (type == "Sanyo") {
-		return make_unique<SanyoFDC>(conf);
+		return std::make_unique<SanyoFDC>(conf);
 	} else if (type == "Toshiba") {
-		return make_unique<ToshibaFDC>(conf);
+		return std::make_unique<ToshibaFDC>(conf);
 	} else if (type == "Canon") {
-		return make_unique<CanonFDC>(conf);
+		return std::make_unique<CanonFDC>(conf);
 	} else if (type == "Spectravideo") {
-		return make_unique<SpectravideoFDC>(conf);
+		return std::make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
-		return make_unique<VictorFDC>(conf);
+		return std::make_unique<VictorFDC>(conf);
 	} else if (type == "Yamaha") {
-		return make_unique<YamahaFDC>(conf);
+		return std::make_unique<YamahaFDC>(conf);
 	}
 	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
@@ -146,85 +144,85 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 	std::unique_ptr<MSXDevice> result;
 	const auto& type = conf.getXML()->getName();
 	if (type == "PPI") {
-		result = make_unique<MSXPPI>(conf);
+		result = std::make_unique<MSXPPI>(conf);
 	} else if (type == "SVIPPI") {
-		result = make_unique<SVIPPI>(conf);
+		result = std::make_unique<SVIPPI>(conf);
 	} else if (type == "RAM") {
-		result = make_unique<MSXRam>(conf);
+		result = std::make_unique<MSXRam>(conf);
 	} else if (type == "VDP") {
-		result = make_unique<VDP>(conf);
+		result = std::make_unique<VDP>(conf);
 	} else if (type == "E6Timer") {
-		result = make_unique<MSXE6Timer>(conf);
+		result = std::make_unique<MSXE6Timer>(conf);
 	} else if (type == "HiResTimer") {
-		result = make_unique<MSXHiResTimer>(conf);
+		result = std::make_unique<MSXHiResTimer>(conf);
 	} else if (type == one_of("ResetStatusRegister", "F4Device")) {
-		result = make_unique<MSXResetStatusRegister>(conf);
+		result = std::make_unique<MSXResetStatusRegister>(conf);
 	} else if (type == "TurboRPause") {
-		result = make_unique<MSXTurboRPause>(conf);
+		result = std::make_unique<MSXTurboRPause>(conf);
 	} else if (type == "TurboRPCM") {
-		result = make_unique<MSXTurboRPCM>(conf);
+		result = std::make_unique<MSXTurboRPCM>(conf);
 	} else if (type == "S1985") {
-		result = make_unique<MSXS1985>(conf);
+		result = std::make_unique<MSXS1985>(conf);
 	} else if (type == "S1990") {
-		result = make_unique<MSXS1990>(conf);
+		result = std::make_unique<MSXS1990>(conf);
 	} else if (type == "ColecoJoystick") {
-		result = make_unique<ColecoJoystickIO>(conf);
+		result = std::make_unique<ColecoJoystickIO>(conf);
 	} else if (type == "SuperGameModule") {
-		result = make_unique<ColecoSuperGameModule>(conf);
+		result = std::make_unique<ColecoSuperGameModule>(conf);
 	} else if (type == "SG1000Joystick") {
-		result = make_unique<SG1000JoystickIO>(conf);
+		result = std::make_unique<SG1000JoystickIO>(conf);
 	} else if (type == "SG1000Pause") {
-		result = make_unique<SG1000Pause>(conf);
+		result = std::make_unique<SG1000Pause>(conf);
 	} else if (type == "SC3000PPI") {
-		result = make_unique<SC3000PPI>(conf);
+		result = std::make_unique<SC3000PPI>(conf);
 	} else if (type == "PSG") {
-		result = make_unique<MSXPSG>(conf);
+		result = std::make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
-		result = make_unique<SVIPSG>(conf);
+		result = std::make_unique<SVIPSG>(conf);
 	} else if (type == "SNPSG") {
-		result = make_unique<SNPSG>(conf);
+		result = std::make_unique<SNPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
-		result = make_unique<MSXMusic>(conf);
+		result = std::make_unique<MSXMusic>(conf);
 	} else if (type == "MSX-MUSIC-WX") {
-		result = make_unique<MSXMusicWX>(conf);
+		result = std::make_unique<MSXMusicWX>(conf);
 	} else if (type == "FMPAC") {
-		result = make_unique<MSXFmPac>(conf);
+		result = std::make_unique<MSXFmPac>(conf);
 	} else if (type == "MSX-AUDIO") {
-		result = make_unique<MSXAudio>(conf);
+		result = std::make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
-		result = make_unique<MusicModuleMIDI>(conf);
+		result = std::make_unique<MusicModuleMIDI>(conf);
 	} else if (type == "JVCMSXMIDI") {
-		result = make_unique<JVCMSXMIDI>(conf);
+		result = std::make_unique<JVCMSXMIDI>(conf);
 	} else if (type == "FACMIDIInterface") {
-		result = make_unique<MSXFacMidiInterface>(conf);
+		result = std::make_unique<MSXFacMidiInterface>(conf);
 	} else if (type == "YamahaSFG") {
-		result = make_unique<MSXYamahaSFG>(conf);
+		result = std::make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
-		result = make_unique<MSXMoonSound>(conf);
+		result = std::make_unique<MSXMoonSound>(conf);
 	} else if (type == "DalSoRiR2") {
-		result = make_unique<DalSoRiR2>(conf);
+		result = std::make_unique<DalSoRiR2>(conf);
 	} else if (type == "OPL3Cartridge") {
-		result = make_unique<MSXOPL3Cartridge>(conf);
+		result = std::make_unique<MSXOPL3Cartridge>(conf);
 	} else if (type == "Kanji") {
-		result = make_unique<MSXKanji>(conf);
+		result = std::make_unique<MSXKanji>(conf);
 	} else if (type == "Bunsetsu") {
-		result = make_unique<MSXBunsetsu>(conf);
+		result = std::make_unique<MSXBunsetsu>(conf);
 	} else if (type == "MemoryMapper") {
-		result = make_unique<MSXMemoryMapper>(conf);
+		result = std::make_unique<MSXMemoryMapper>(conf);
 	} else if (type == "PanasonicRAM") {
-		result = make_unique<PanasonicRam>(conf);
+		result = std::make_unique<PanasonicRam>(conf);
 	} else if (type == "RTC") {
-		result = make_unique<MSXRTC>(conf);
+		result = std::make_unique<MSXRTC>(conf);
 	} else if (type == "PasswordCart") {
-		result = make_unique<PasswordCart>(conf);
+		result = std::make_unique<PasswordCart>(conf);
 	} else if (type == "ROM") {
 		result = RomFactory::create(conf);
 	} else if (type == "PrinterPort") {
-		result = make_unique<MSXPrinterPort>(conf);
+		result = std::make_unique<MSXPrinterPort>(conf);
 	} else if (type == "SVIPrinterPort") {
-		result = make_unique<SVIPrinterPort>(conf);
+		result = std::make_unique<SVIPrinterPort>(conf);
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
-		result = make_unique<MSXSCCPlusCart>(conf);
+		result = std::make_unique<MSXSCCPlusCart>(conf);
 	} else if (type == one_of("WD2793", "WD1770")) {
 		result = createWD2793BasedFDC(conf);
 	} else if (type == "Microsol") {
@@ -232,90 +230,90 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 			"Microsol as FDC type is deprecated, please update "
 			"your config file to use WD2793 with connectionstyle "
 			"Microsol!");
-		result = make_unique<MicrosolFDC>(conf);
+		result = std::make_unique<MicrosolFDC>(conf);
 	} else if (type == "MB8877A") {
 		conf.getCliComm().printWarning(
 			"MB8877A as FDC type is deprecated, please update your "
 			"config file to use WD2793 with connectionstyle National!");
-		result = make_unique<NationalFDC>(conf);
+		result = std::make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
-		result = make_unique<TurboRFDC>(conf);
+		result = std::make_unique<TurboRFDC>(conf);
 	} else if (type == "TDC600") {
-		result = make_unique<TalentTDC600>(conf);
+		result = std::make_unique<TalentTDC600>(conf);
 	} else if (type == "ToshibaTCX-200x") {
-		result = make_unique<MSXToshibaTcx200x>(conf);
+		result = std::make_unique<MSXToshibaTcx200x>(conf);
 	} else if (type == "SVIFDC") {
-		result = make_unique<SVIFDC>(conf);
+		result = std::make_unique<SVIFDC>(conf);
 	} else if (type == "BeerIDE") {
-		result = make_unique<BeerIDE>(conf);
+		result = std::make_unique<BeerIDE>(conf);
 	} else if (type == "SunriseIDE") {
-		result = make_unique<SunriseIDE>(conf);
+		result = std::make_unique<SunriseIDE>(conf);
 	} else if (type == "GoudaSCSI") {
-		result = make_unique<GoudaSCSI>(conf);
+		result = std::make_unique<GoudaSCSI>(conf);
 	} else if (type == "MegaSCSI") {
-		result = make_unique<MegaSCSI>(conf);
+		result = std::make_unique<MegaSCSI>(conf);
 	} else if (type == "ESERAM") {
-		result = make_unique<ESE_RAM>(conf);
+		result = std::make_unique<ESE_RAM>(conf);
 	} else if (type == "WaveSCSI") {
-		result = make_unique<ESE_SCC>(conf, true);
+		result = std::make_unique<ESE_SCC>(conf, true);
 	} else if (type == "ESESCC") {
-		result = make_unique<ESE_SCC>(conf, false);
+		result = std::make_unique<ESE_SCC>(conf, false);
 	} else if (type == "Matsushita") {
-		result = make_unique<MSXMatsushita>(conf);
+		result = std::make_unique<MSXMatsushita>(conf);
 	} else if (type == "VictorHC9xSystemControl") {
-		result = make_unique<MSXVictorHC9xSystemControl>(conf);
+		result = std::make_unique<MSXVictorHC9xSystemControl>(conf);
 	} else if (type == "CielTurbo") {
-		result = make_unique<MSXCielTurbo>(conf);
+		result = std::make_unique<MSXCielTurbo>(conf);
 	} else if (type == "Kanji12") {
-		result = make_unique<MSXKanji12>(conf);
+		result = std::make_unique<MSXKanji12>(conf);
 	} else if (type == "MSX-MIDI") {
-		result = make_unique<MSXMidi>(conf);
+		result = std::make_unique<MSXMidi>(conf);
 	} else if (type == "MSX-Modem") {
-		result = make_unique<MSXModem>(conf);
+		result = std::make_unique<MSXModem>(conf);
 	} else if (type == "MSX-RS232") {
-		result = make_unique<MSXRS232>(conf);
+		result = std::make_unique<MSXRS232>(conf);
 	} else if (type == "MegaRam") {
-		result = make_unique<MSXMegaRam>(conf);
+		result = std::make_unique<MSXMegaRam>(conf);
 	} else if (type == "PAC") {
-		result = make_unique<MSXPac>(conf);
+		result = std::make_unique<MSXPac>(conf);
 	} else if (type == "HBI55") {
-		result = make_unique<MSXHBI55>(conf);
+		result = std::make_unique<MSXHBI55>(conf);
 	} else if (type == "ProgrammableDevice") {
-		result = make_unique<ProgrammableDevice>(conf);
+		result = std::make_unique<ProgrammableDevice>(conf);
 	} else if (type == "DebugDevice") {
-		result = make_unique<DebugDevice>(conf);
+		result = std::make_unique<DebugDevice>(conf);
 	} else if (type == "V9990") {
-		result = make_unique<V9990>(conf);
+		result = std::make_unique<V9990>(conf);
 	} else if (type == "Video9000") {
-		result = make_unique<Video9000>(conf);
+		result = std::make_unique<Video9000>(conf);
 	} else if (type == "ADVram") {
-		result = make_unique<ADVram>(conf);
+		result = std::make_unique<ADVram>(conf);
 	} else if (type == "PioneerLDControl") {
 #if COMPONENT_LASERDISC
-		result = make_unique<PioneerLDControl>(conf);
+		result = std::make_unique<PioneerLDControl>(conf);
 #else
 		throw MSXException("Laserdisc component not compiled in");
 #endif
 	} else if (type == "Nowind") {
-		result = make_unique<NowindInterface>(conf);
+		result = std::make_unique<NowindInterface>(conf);
 	} else if (type == "Mirror") {
-		result = make_unique<MSXMirrorDevice>(conf);
+		result = std::make_unique<MSXMirrorDevice>(conf);
 	} else if (type == "SensorKid") {
-		result = make_unique<SensorKid>(conf);
+		result = std::make_unique<SensorKid>(conf);
 	} else if (type == "FraelSwitchableROM") {
-		result = make_unique<FraelSwitchableROM>(conf);
+		result = std::make_unique<FraelSwitchableROM>(conf);
 	} else if (type == "ChakkariCopy") {
-		result = make_unique<ChakkariCopy>(conf);
+		result = std::make_unique<ChakkariCopy>(conf);
 	} else if (type == "CanonWordProcessor") {
-		result = make_unique<CanonWordProcessor>(conf);
+		result = std::make_unique<CanonWordProcessor>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
-		result = make_unique<MegaFlashRomSCCPlusSD>(conf);
+		result = std::make_unique<MegaFlashRomSCCPlusSD>(conf);
 	} else if (type == "MusicalMemoryMapper") {
-		result = make_unique<MusicalMemoryMapper>(conf);
+		result = std::make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "Carnivore2") {
-		result = make_unique<Carnivore2>(conf);
+		result = std::make_unique<Carnivore2>(conf);
 	} else if (type == "YamahaSKW01") {
-		result = make_unique<YamahaSKW01>(conf);
+		result = std::make_unique<YamahaSKW01>(conf);
 	} else if (type == one_of("T7775", "T7937", "T9763", "T9769")) {
 		// Ignore for now. We might want to create a real device for it later.
 	} else {
@@ -337,26 +335,26 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 std::unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(HardwareConfig& hwConf)
 {
 	static XMLElement& xml(createConfig("Dummy", ""));
-	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
+	return std::make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(HardwareConfig& hwConf)
 {
 	static XMLElement& xml(createConfig("DeviceSwitch", "DeviceSwitch"));
-	return make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
+	return std::make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(HardwareConfig& hwConf)
 {
 	static XMLElement& xml(createConfig("MapperIO", "MapperIO"));
-	return make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
+	return std::make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
 std::unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement& xml(createConfig("VDPIODelay", "VDPIODelay"));
-	return make_unique<VDPIODelay>(DeviceConfig(hwConf, xml), cpuInterface);
+	return std::make_unique<VDPIODelay>(DeviceConfig(hwConf, xml), cpuInterface);
 }
 
 } // namespace openmsx

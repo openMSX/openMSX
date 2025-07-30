@@ -62,9 +62,6 @@
 #include "SDL_system.h" // for GetExternalStorage stuff
 #endif
 
-using std::string;
-using std::string_view;
-
 #ifdef _WIN32
 using namespace utf8;
 #endif
@@ -76,27 +73,27 @@ bool needsTildeExpansion(std::string_view path)
 	return !path.empty() && (path[0] == '~');
 }
 
-string expandTilde(string path)
+std::string expandTilde(std::string path)
 {
 	if (!needsTildeExpansion(path)) {
 		return path;
 	}
 	auto pos = path.find_first_of('/');
-	string_view user = ((path.size() == 1) || (pos == 1))
-	                ? string_view{}
-	                : string_view(path).substr(1, (pos == string::npos) ? pos : pos - 1);
-	string result = getUserHomeDir(user);
+	std::string_view user = ((path.size() == 1) || (pos == 1))
+	                ? std::string_view{}
+	                : std::string_view(path).substr(1, (pos == std::string::npos) ? pos : pos - 1);
+	std::string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
 		return path;
 	}
-	if (pos == string_view::npos) {
+	if (pos == std::string_view::npos) {
 		return result;
 	}
 	if (result.back() != '/') {
 		result += '/';
 	}
-	string_view last = string_view(path).substr(pos + 1);
+	std::string_view last = std::string_view(path).substr(pos + 1);
 	result.append(last.data(), last.size());
 	return result;
 }
@@ -108,7 +105,7 @@ void mkdir(zstring_view path, mode_t mode)
 	if ((path == "/") || path.ends_with(':') || path.ends_with(":/")) {
 		return;
 	}
-	int result = _wmkdir(utf8to16(getNativePath(string(path))).c_str());
+	int result = _wmkdir(utf8to16(getNativePath(std::string(path))).c_str());
 #else
 	int result = ::mkdir(path.c_str(), mode);
 #endif
@@ -117,7 +114,7 @@ void mkdir(zstring_view path, mode_t mode)
 	}
 }
 
-static bool isUNCPath(string_view path)
+static bool isUNCPath(std::string_view path)
 {
 #ifdef _WIN32
 	return path.starts_with("//") || path.starts_with("\\\\");
@@ -127,7 +124,7 @@ static bool isUNCPath(string_view path)
 #endif
 }
 
-void mkdirp(string path)
+void mkdirp(std::string path)
 {
 	if (path.empty()) {
 		return;
@@ -146,7 +143,7 @@ void mkdirp(string path)
 	// Relative paths are fine, since each segment in the path is significant.
 	int skip = isUNCPath(path) ? 2 :
 		   isAbsolutePath(path) ? 1 : 0;
-	string::size_type pos = 0;
+	std::string::size_type pos = 0;
 	do {
 		pos = path.find_first_of('/', pos + 1);
 		if (skip) {
@@ -154,7 +151,7 @@ void mkdirp(string path)
 			continue;
 		}
 		mkdir(path.substr(0, pos), 0755);
-	} while (pos != string::npos);
+	} while (pos != std::string::npos);
 
 	if (!isDirectory(path)) {
 		throw FileException("Error creating dir ", path);
@@ -230,34 +227,34 @@ void openOfStream(std::ofstream& stream, zstring_view filename,
 #endif
 }
 
-string_view getFilename(string_view path)
+std::string_view getFilename(std::string_view path)
 {
-	if (auto pos = path.rfind('/'); pos != string_view::npos) {
+	if (auto pos = path.rfind('/'); pos != std::string_view::npos) {
 		return path.substr(pos + 1);
 	}
 	return path;
 }
 
-string_view getDirName(string_view path)
+std::string_view getDirName(std::string_view path)
 {
-	if (auto pos = path.rfind('/'); pos != string_view::npos) {
+	if (auto pos = path.rfind('/'); pos != std::string_view::npos) {
 		return path.substr(0, pos + 1);
 	}
 	return {};
 }
 
-string_view getExtension(string_view path)
+std::string_view getExtension(std::string_view path)
 {
-	string_view filename = getFilename(path);
-	if (auto pos = filename.rfind('.'); pos != string_view::npos) {
+	std::string_view filename = getFilename(path);
+	if (auto pos = filename.rfind('.'); pos != std::string_view::npos) {
 		return filename.substr(pos);
 	}
 	return {};
 }
 
-string_view stripExtension(string_view path)
+std::string_view stripExtension(std::string_view path)
 {
-	if (auto pos = path.rfind('.'); pos != string_view::npos) {
+	if (auto pos = path.rfind('.'); pos != std::string_view::npos) {
 		return path.substr(0, pos);
 	}
 	return path;
@@ -284,42 +281,42 @@ std::string_view stem(std::string_view path)
 	return path.substr(pos2 + 1, pos1 - pos2 - 1);
 }
 
-string join(string_view part1, string_view part2)
+std::string join(std::string_view part1, std::string_view part2)
 {
 	if (part1.empty() || isAbsolutePath(part2)) {
-		return string(part2);
+		return std::string(part2);
 	}
 	if (part1.back() == '/') {
 		return strCat(part1, part2);
 	}
 	return strCat(part1, '/', part2);
 }
-string join(string_view part1, string_view part2, string_view part3)
+std::string join(std::string_view part1, std::string_view part2, std::string_view part3)
 {
 	return join(part1, join(part2, part3));
 }
 
-string join(string_view part1, string_view part2,
-            string_view part3, string_view part4)
+std::string join(std::string_view part1, std::string_view part2,
+            std::string_view part3, std::string_view part4)
 {
 	return join(part1, join(part2, join(part3, part4)));
 }
 
 #ifdef _WIN32
-string getNativePath(string path)
+std::string getNativePath(std::string path)
 {
 	std::ranges::replace(path, '/', '\\');
 	return path;
 }
 
-string getConventionalPath(string path)
+std::string getConventionalPath(std::string path)
 {
 	std::ranges::replace(path, '\\', '/');
 	return path;
 }
 #endif
 
-string getCurrentWorkingDirectory()
+std::string getCurrentWorkingDirectory()
 {
 #ifdef _WIN32
 	std::array<wchar_t, MAXPATHLEN> bufW;
@@ -338,17 +335,17 @@ string getCurrentWorkingDirectory()
 #endif
 }
 
-string getAbsolutePath(string_view path)
+std::string getAbsolutePath(std::string_view path)
 {
 	// In rare cases getCurrentWorkingDirectory() can throw,
 	// so only call it when really necessary.
 	if (isAbsolutePath(path)) {
-		return string(path);
+		return std::string(path);
 	}
 	return join(getCurrentWorkingDirectory(), path);
 }
 
-bool isAbsolutePath(string_view path)
+bool isAbsolutePath(std::string_view path)
 {
 	if (isUNCPath(path)) return true;
 #ifdef _WIN32
@@ -362,7 +359,7 @@ bool isAbsolutePath(string_view path)
 	return !path.empty() && (path[0] == '/');
 }
 
-string getUserHomeDir(string_view username)
+std::string getUserHomeDir(std::string_view username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
@@ -383,18 +380,18 @@ string getUserHomeDir(string_view username)
 			pw = getpwuid(getuid());
 		}
 	} else {
-		pw = getpwnam(string(username).c_str());
+		pw = getpwnam(std::string(username).c_str());
 	}
 	if (pw) {
 		dir = pw->pw_dir;
 	}
-	return dir ? dir : string{};
+	return dir ? dir : std::string{};
 #endif
 }
 
-const string& getUserOpenMSXDir()
+const std::string& getUserOpenMSXDir()
 {
-	static const string OPENMSX_DIR = []() -> string {
+	static const std::string OPENMSX_DIR = []() -> std::string {
 		if (const char* home = getenv("OPENMSX_HOME")) {
 			return home;
 		}
@@ -416,9 +413,9 @@ std::string getUserOpenMSXDir(std::string_view subdir)
 	return join(getUserOpenMSXDir(), subdir);
 }
 
-const string& getUserDataDir()
+const std::string& getUserDataDir()
 {
-	static std::optional<string> result;
+	static std::optional<std::string> result;
 	if (!result) {
 		const char* const NAME = "OPENMSX_USER_DATA";
 		const char* value = getenv(NAME);
@@ -427,10 +424,10 @@ const string& getUserDataDir()
 	return *result;
 }
 
-const string& getSystemDataDir()
+const std::string& getSystemDataDir()
 {
-	static std::optional<string> result;
-	if (!result) result = []() -> string {
+	static std::optional<std::string> result;
+	if (!result) result = []() -> std::string {
 		if (const char* value = getenv("OPENMSX_SYSTEM_DATA")) {
 			return value;
 		}
@@ -443,9 +440,9 @@ const string& getSystemDataDir()
 				GetLastError());
 		}
 
-		string filename = utf16to8(bufW.data());
+		std::string filename = utf16to8(bufW.data());
 		auto pos = filename.find_last_of('\\');
-		if (pos == string::npos) {
+		if (pos == std::string::npos) {
 			throw FatalError("openMSX is not in directory!?");
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/share";
@@ -461,10 +458,10 @@ const string& getSystemDataDir()
 	return *result;
 }
 
-const string& getSystemDocDir()
+const std::string& getSystemDocDir()
 {
-	static std::optional<string> result;
-	if (!result) result = []() -> string {
+	static std::optional<std::string> result;
+	if (!result) result = []() -> std::string {
 #ifdef _WIN32
 		std::array<wchar_t, MAXPATHLEN + 1> bufW;
 		if (int res = GetModuleFileNameW(nullptr, bufW.data(), DWORD(bufW.size()));
@@ -474,9 +471,9 @@ const string& getSystemDocDir()
 				GetLastError());
 		}
 
-		string filename = utf16to8(bufW.data());
+		std::string filename = utf16to8(bufW.data());
 		auto pos = filename.find_last_of('\\');
-		if (pos == string::npos) {
+		if (pos == std::string::npos) {
 			throw FatalError("openMSX is not in directory!?");
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/doc";
@@ -501,9 +498,9 @@ static bool driveExists(char driveLetter)
 #endif
 
 #ifdef _WIN32
-string expandCurrentDirFromDrive(string path)
+std::string expandCurrentDirFromDrive(std::string path)
 {
-	string result = path;
+	std::string result = path;
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
 		// get current directory for this drive
@@ -536,7 +533,7 @@ std::optional<Stat> getStat(zstring_view filename)
 	std::string filename2(filename);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
-	if (auto pos = filename2.find_last_not_of('/'); pos != string::npos) {
+	if (auto pos = filename2.find_last_not_of('/'); pos != std::string::npos) {
 		filename2.resize(pos + 1);
 	} else {
 		// string was either empty or a (sequence of) '/' character(s)
@@ -583,12 +580,12 @@ bool exists(zstring_view filename)
 	return static_cast<bool>(getStat(filename));
 }
 
-static unsigned getNextNum(const dirent* d, string_view prefix, string_view extension,
+static unsigned getNextNum(const dirent* d, std::string_view prefix, std::string_view extension,
                            unsigned nofDigits)
 {
 	auto extensionLen = extension.size();
 	auto prefixLen = prefix.size();
-	string_view name(d->d_name);
+	std::string_view name(d->d_name);
 
 	if ((name.size() != (prefixLen + nofDigits + extensionLen)) ||
 	    (!name.starts_with(prefix)) ||
@@ -598,8 +595,8 @@ static unsigned getNextNum(const dirent* d, string_view prefix, string_view exte
 	return StringOp::stringToBase<10, unsigned>(name.substr(prefixLen, nofDigits)).value_or(0);
 }
 
-string getNextNumberedFileName(
-	string_view directory, string_view prefix, string_view extension, bool addSeparator)
+std::string getNextNumberedFileName(
+	std::string_view directory, std::string_view prefix, std::string_view extension, bool addSeparator)
 {
 	std::string newPrefix;
 	if (addSeparator) {
@@ -611,7 +608,7 @@ string getNextNumberedFileName(
 
 	unsigned max_num = 0;
 
-	string dirName = getUserOpenMSXDir(directory);
+	std::string dirName = getUserOpenMSXDir(directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
@@ -631,19 +628,19 @@ string getNextNumberedFileName(
 	return os.str();
 }
 
-string parseCommandFileArgument(
-	string_view argument, string_view directory,
-	string_view prefix,   string_view extension)
+std::string parseCommandFileArgument(
+	std::string_view argument, std::string_view directory,
+	std::string_view prefix,   std::string_view extension)
 {
 	if (argument.empty()) {
 		// directory is also created when needed
 		return getNextNumberedFileName(directory, prefix, extension);
 	}
 
-	string filename(argument);
+	std::string filename(argument);
 	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
-		string dir = getUserOpenMSXDir(directory);
+		std::string dir = getUserOpenMSXDir(directory);
 		mkdirp(dir);
 		filename = join(dir, filename);
 	} else {
@@ -660,7 +657,7 @@ string parseCommandFileArgument(
 	return filename;
 }
 
-string getTempDir()
+std::string getTempDir()
 {
 #ifdef _WIN32
 	if (DWORD len = GetTempPathW(0, nullptr)) {
@@ -676,7 +673,7 @@ string getTempDir()
 	}
 	throw FatalError("GetTempPathW failed: ", GetLastError());
 #elif PLATFORM_ANDROID
-	string result = getSystemDataDir() + "/tmp";
+	std::string result = getSystemDataDir() + "/tmp";
 	return result;
 #else
 	const char* result = nullptr;

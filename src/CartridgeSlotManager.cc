@@ -20,8 +20,6 @@
 #include <cassert>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 // CartridgeSlotManager::Slot
@@ -415,7 +413,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		// query name of cartridge
 		const auto* extConf = manager.getExtensionConfig(cartName);
 		result.addListElement(tmpStrCat(cartName, ':'),
-		                      extConf ? extConf->getName() : string{});
+		                      extConf ? extConf->getName() : std::string{});
 		if (!extConf) {
 			TclObject options = makeTclList("empty");
 			result.addListElement(options);
@@ -444,7 +442,7 @@ void CartridgeSlotManager::CartCmd::execute(
 	}
 }
 
-string CartridgeSlotManager::CartCmd::help(std::span<const TclObject> tokens) const
+std::string CartridgeSlotManager::CartCmd::help(std::span<const TclObject> tokens) const
 {
 	auto cart = tokens[0].getString();
 	return strCat(
@@ -457,7 +455,7 @@ string CartridgeSlotManager::CartCmd::help(std::span<const TclObject> tokens) co
 		"-romtype <romtype> : specify the ROM mapper type\n");
 }
 
-void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<string>& tokens) const
+void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
@@ -488,7 +486,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	switch (tokens.size()) {
 	case 2: {
 		// return list of slots
-		string slot = "slotX";
+		std::string slot = "slotX";
 		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!manager.slots[i].exists()) continue;
 			slot[4] = char('a' + i);
@@ -526,7 +524,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	}
 }
 
-string CartridgeSlotManager::CartridgeSlotInfo::help(
+std::string CartridgeSlotManager::CartridgeSlotInfo::help(
 	std::span<const TclObject> /*tokens*/) const
 {
 	return "Without argument: show list of available external slots.\n"

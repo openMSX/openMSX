@@ -33,8 +33,6 @@
 #include <algorithm>
 #include <cstring>
 
-using std::string;
-
 namespace openmsx {
 
 // Medium type (value like LS-120)

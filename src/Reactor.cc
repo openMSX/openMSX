@@ -57,11 +57,6 @@
 #include <memory>
 #include <ranges>
 
-using std::make_unique;
-using std::string;
-using std::string_view;
-using std::vector;
-
 namespace openmsx {
 
 static constexpr std::string_view DEFAULT_SETUP_NAME = "last_used";
@@ -76,7 +71,7 @@ class ExitCommand final : public Command
 public:
 	ExitCommand(CommandController& commandController, EventDistributor& distributor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	EventDistributor& distributor;
 };
@@ -86,8 +81,8 @@ class MachineCommand final : public Command
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -97,8 +92,8 @@ class TestMachineCommand final : public Command
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -108,7 +103,7 @@ class CreateMachineCommand final : public Command
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -118,8 +113,8 @@ class DeleteMachineCommand final : public Command
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -129,7 +124,7 @@ class ListMachinesCommand final : public Command
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -139,8 +134,8 @@ class ActivateMachineCommand final : public Command
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -150,8 +145,8 @@ class StoreMachineCommand final : public Command
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -161,8 +156,8 @@ class RestoreMachineCommand final : public Command
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -172,8 +167,8 @@ class SetupCommand final : public Command
 public:
 	SetupCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -183,7 +178,7 @@ class GetClipboardCommand final : public Command
 public:
 	GetClipboardCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -193,7 +188,7 @@ class SetClipboardCommand final : public Command
 public:
 	SetClipboardCommand(CommandController& commandController, Reactor& reactor);
 	void execute(std::span<const TclObject> tokens, TclObject& result) override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -201,13 +196,13 @@ private:
 class ConfigInfo final : public InfoTopic
 {
 public:
-	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
+	ConfigInfo(InfoCommand& openMSXInfoCommand, const std::string& configName);
 	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 private:
-	const string configName;
+	const std::string configName;
 };
 
 class RealTimeInfo final : public InfoTopic
@@ -216,7 +211,7 @@ public:
 	explicit RealTimeInfo(InfoCommand& openMSXInfoCommand);
 	void execute(std::span<const TclObject> tokens,
 	             TclObject& result) const override;
-	[[nodiscard]] string help(std::span<const TclObject> tokens) const override;
+	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
 private:
 	const uint64_t reference;
 };
@@ -237,65 +232,65 @@ Reactor::Reactor() = default;
 
 void Reactor::init()
 {
-	shortcuts = make_unique<Shortcuts>();
-	rtScheduler = make_unique<RTScheduler>();
-	eventDistributor = make_unique<EventDistributor>(*this);
-	globalCliComm = make_unique<GlobalCliComm>();
-	globalCommandController = make_unique<GlobalCommandController>(
+	shortcuts = std::make_unique<Shortcuts>();
+	rtScheduler = std::make_unique<RTScheduler>();
+	eventDistributor = std::make_unique<EventDistributor>(*this);
+	globalCliComm = std::make_unique<GlobalCliComm>();
+	globalCommandController = std::make_unique<GlobalCommandController>(
 		*eventDistributor, *globalCliComm, *this);
-	globalSettings = make_unique<GlobalSettings>(
+	globalSettings = std::make_unique<GlobalSettings>(
 		*globalCommandController);
-	inputEventGenerator = make_unique<InputEventGenerator>(
+	inputEventGenerator = std::make_unique<InputEventGenerator>(
 		*globalCommandController, *eventDistributor);
-	symbolManager = make_unique<SymbolManager>(
+	symbolManager = std::make_unique<SymbolManager>(
 		*globalCommandController);
-	imGuiManager = make_unique<ImGuiManager>(*this);
-	diskFactory = make_unique<DiskFactory>(*this);
-	diskManipulator = make_unique<DiskManipulator>(
+	imGuiManager = std::make_unique<ImGuiManager>(*this);
+	diskFactory = std::make_unique<DiskFactory>(*this);
+	diskManipulator = std::make_unique<DiskManipulator>(
 		*globalCommandController, *this);
-	virtualDrive = make_unique<DiskChanger>(
+	virtualDrive = std::make_unique<DiskChanger>(
 		*this, "virtual_drive");
-	filePool = make_unique<FilePool>(*globalCommandController, *this);
-	userSettings = make_unique<UserSettings>(
+	filePool = std::make_unique<FilePool>(*globalCommandController, *this);
+	userSettings = std::make_unique<UserSettings>(
 		*globalCommandController);
-	afterCommand = make_unique<AfterCommand>(
+	afterCommand = std::make_unique<AfterCommand>(
 		*this, *eventDistributor, *globalCommandController);
-	exitCommand = make_unique<ExitCommand>(
+	exitCommand = std::make_unique<ExitCommand>(
 		*globalCommandController, *eventDistributor);
-	messageCommand = make_unique<MessageCommand>(
+	messageCommand = std::make_unique<MessageCommand>(
 		*globalCommandController);
-	machineCommand = make_unique<MachineCommand>(
+	machineCommand = std::make_unique<MachineCommand>(
 		*globalCommandController, *this);
-	testMachineCommand = make_unique<TestMachineCommand>(
+	testMachineCommand = std::make_unique<TestMachineCommand>(
 		*globalCommandController, *this);
-	createMachineCommand = make_unique<CreateMachineCommand>(
+	createMachineCommand = std::make_unique<CreateMachineCommand>(
 		*globalCommandController, *this);
-	deleteMachineCommand = make_unique<DeleteMachineCommand>(
+	deleteMachineCommand = std::make_unique<DeleteMachineCommand>(
 		*globalCommandController, *this);
-	listMachinesCommand = make_unique<ListMachinesCommand>(
+	listMachinesCommand = std::make_unique<ListMachinesCommand>(
 		*globalCommandController, *this);
-	activateMachineCommand = make_unique<ActivateMachineCommand>(
+	activateMachineCommand = std::make_unique<ActivateMachineCommand>(
 		*globalCommandController, *this);
-	storeMachineCommand = make_unique<StoreMachineCommand>(
+	storeMachineCommand = std::make_unique<StoreMachineCommand>(
 		*globalCommandController, *this);
-	restoreMachineCommand = make_unique<RestoreMachineCommand>(
+	restoreMachineCommand = std::make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
-	setupCommand = make_unique<SetupCommand>(
+	setupCommand = std::make_unique<SetupCommand>(
 		*globalCommandController, *this);
-	getClipboardCommand = make_unique<GetClipboardCommand>(
+	getClipboardCommand = std::make_unique<GetClipboardCommand>(
 		*globalCommandController, *this);
-	setClipboardCommand = make_unique<SetClipboardCommand>(
+	setClipboardCommand = std::make_unique<SetClipboardCommand>(
 		*globalCommandController, *this);
-	aviRecordCommand = make_unique<AviRecorder>(*this);
-	extensionInfo = make_unique<ConfigInfo>(
+	aviRecordCommand = std::make_unique<AviRecorder>(*this);
+	extensionInfo = std::make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "extensions");
-	machineInfo   = make_unique<ConfigInfo>(
+	machineInfo   = std::make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "machines");
-	realTimeInfo = make_unique<RealTimeInfo>(
+	realTimeInfo = std::make_unique<RealTimeInfo>(
 		getOpenMSXInfoCommand());
-	softwareInfoTopic = make_unique<SoftwareInfoTopic>(
+	softwareInfoTopic = std::make_unique<SoftwareInfoTopic>(
 		getOpenMSXInfoCommand(), *this);
-	tclCallbackMessages = make_unique<TclCallbackMessages>(
+	tclCallbackMessages = std::make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
 	createDefaultMachineAndSetupSettings();
@@ -341,7 +336,7 @@ Reactor::~Reactor()
 Mixer& Reactor::getMixer()
 {
 	if (!mixer) {
-		mixer = make_unique<Mixer>(*this, *globalCommandController);
+		mixer = std::make_unique<Mixer>(*this, *globalCommandController);
 	}
 	return *mixer;
 }
@@ -349,7 +344,7 @@ Mixer& Reactor::getMixer()
 RomDatabase& Reactor::getSoftwareDatabase()
 {
 	if (!softwareDatabase) {
-		softwareDatabase = make_unique<RomDatabase>(*globalCliComm);
+		softwareDatabase = std::make_unique<RomDatabase>(*globalCliComm);
 	}
 	return *softwareDatabase;
 }
@@ -379,9 +374,9 @@ const HotKey& Reactor::getHotKey() const
 	return globalCommandController->getHotKey();
 }
 
-vector<string> Reactor::getHwConfigs(string_view type)
+std::vector<std::string> Reactor::getHwConfigs(std::string_view type)
 {
-	vector<string> result;
+	std::vector<std::string> result;
 	for (const auto& p : systemFileContext().getPaths()) {
 		auto fileAction = [&](const std::string& /*path*/, std::string_view name) {
 			if (name.ends_with(".xml")) {
@@ -406,9 +401,9 @@ vector<string> Reactor::getHwConfigs(string_view type)
 	return result;
 }
 
-vector<string> Reactor::getSetups()
+std::vector<std::string> Reactor::getSetups()
 {
-	vector<string> result;
+	std::vector<std::string> result;
 	std::string_view extension = Reactor::SETUP_EXTENSION;
 	foreach_file(FileOperations::getUserOpenMSXDir(SETUP_DIR), [&](const std::string& /*fullName*/, std::string_view name) {
 		if (name.ends_with(extension)) {
@@ -448,13 +443,13 @@ void Reactor::createDefaultMachineAndSetupSettings()
 		[&](auto& name) { return EnumSettingBase::MapEntry(std::move(name), count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // initial default machine
 
-	defaultMachineSetting = make_unique<EnumSetting<int>>(
+	defaultMachineSetting = std::make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
 		"default machine (takes effect next time openMSX is started) - if no default setup is configured",
 		0, std::move(machines));
 
 	// TODO: add tabCompletion for this setting, so that it's easy to set with an existing setup file?
-	defaultSetupSetting = make_unique<StringSetting>(
+	defaultSetupSetting = std::make_unique<StringSetting>(
 		*globalCommandController, "default_setup",
 		"default setup (takes effect next time openMSX is started)",
 		"");
@@ -466,12 +461,12 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 	return activeBoard.get();
 }
 
-string_view Reactor::getMachineID() const
+std::string_view Reactor::getMachineID() const
 {
-	return activeBoard ? activeBoard->getMachineID() : string_view{};
+	return activeBoard ? activeBoard->getMachineID() : std::string_view{};
 }
 
-Reactor::Board Reactor::getMachine(string_view machineID) const
+Reactor::Board Reactor::getMachine(std::string_view machineID) const
 {
 	if (auto it = std::ranges::find(boards, machineID, &MSXMotherBoard::getMachineID);
 	    it != boards.end()) {
@@ -505,10 +500,10 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard)
 	move_pop_back(boards, it);
 }
 
-void Reactor::switchMachine(const string& machine)
+void Reactor::switchMachine(const std::string& machine)
 {
 	if (!display) {
-		display = make_unique<Display>(*this);
+		display = std::make_unique<Display>(*this);
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().
@@ -531,10 +526,10 @@ void Reactor::switchMachine(const string& machine)
 	deleteBoard(oldBoard);
 }
 
-void Reactor::switchMachineFromSetup(const string& filename)
+void Reactor::switchMachineFromSetup(const std::string& filename)
 {
 	if (!display) {
-		display = make_unique<Display>(*this);
+		display = std::make_unique<Display>(*this);
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().
@@ -824,7 +819,7 @@ void ExitCommand::execute(std::span<const TclObject> tokens, TclObject& /*result
 	distributor.distributeEvent(QuitEvent());
 }
 
-string ExitCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string ExitCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Use this command to stop the emulator.\n"
 	       "Optionally you can pass an exit-code.\n";
@@ -849,7 +844,7 @@ void MachineCommand::execute(std::span<const TclObject> tokens, TclObject& resul
 		break;
 	case 2:
 		try {
-			reactor.switchMachine(string(tokens[1].getString()));
+			reactor.switchMachine(std::string(tokens[1].getString()));
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
@@ -860,12 +855,12 @@ void MachineCommand::execute(std::span<const TclObject> tokens, TclObject& resul
 	result = reactor.getMachineID();
 }
 
-string MachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string MachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Switch to a different MSX machine.";
 }
 
-void MachineCommand::tabCompletion(vector<string>& tokens) const
+void MachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
@@ -886,20 +881,20 @@ void TestMachineCommand::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
-		mb.loadMachine(string(tokens[1].getString()));
+		mb.loadMachine(std::string(tokens[1].getString()));
 	} catch (MSXException& e) {
 		result = e.getMessage(); // error
 	}
 }
 
-string TestMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string TestMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Test the configuration for the given machine. "
 	       "Returns an error message explaining why the configuration is "
 	       "invalid or an empty string in case of success.";
 }
 
-void TestMachineCommand::tabCompletion(vector<string>& tokens) const
+void TestMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
@@ -922,7 +917,7 @@ void CreateMachineCommand::execute(std::span<const TclObject> tokens, TclObject&
 	reactor.boards.push_back(std::move(newBoard));
 }
 
-string CreateMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string CreateMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Creates a new (empty) MSX machine. Returns the ID for the new "
 	       "machine.\n"
@@ -951,12 +946,12 @@ void DeleteMachineCommand::execute(std::span<const TclObject> tokens,
 	reactor.deleteBoard(reactor.getMachine(tokens[1].getString()));
 }
 
-string DeleteMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string DeleteMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Deletes the given MSX machine.";
 }
 
-void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
+void DeleteMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, reactor.getMachineIDs());
 }
@@ -977,7 +972,7 @@ void ListMachinesCommand::execute(std::span<const TclObject> /*tokens*/,
 	result.addListElements(reactor.getMachineIDs());
 }
 
-string ListMachinesCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string ListMachinesCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns a list of all machine IDs.";
 }
@@ -1006,14 +1001,14 @@ void ActivateMachineCommand::execute(std::span<const TclObject> tokens,
 	result = reactor.getMachineID();
 }
 
-string ActivateMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string ActivateMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Make another machine the active msx machine.\n"
 	       "Or when invoked without arguments, query the ID of the "
 	       "active msx machine.";
 }
 
-void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
+void ActivateMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, reactor.getMachineIDs());
 }
@@ -1042,7 +1037,7 @@ void StoreMachineCommand::execute(std::span<const TclObject> tokens, TclObject& 
 	result = filename;
 }
 
-string StoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string StoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return
 		"store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
@@ -1050,7 +1045,7 @@ string StoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 		"This is a low-level command, the 'savestate' script is easier to use.";
 }
 
-void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
+void StoreMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, reactor.getMachineIDs());
 }
@@ -1071,7 +1066,7 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 	checkNumArgs(tokens, 2, Prefix{1}, "filename");
 	auto newBoard = reactor.createEmptyMotherBoard();
 
-	const auto filename = FileOperations::expandTilde(string(tokens[1].getString()));
+	const auto filename = FileOperations::expandTilde(std::string(tokens[1].getString()));
 
 	try {
 		XmlInputArchive in(filename);
@@ -1092,7 +1087,7 @@ void RestoreMachineCommand::execute(std::span<const TclObject> tokens,
 	reactor.boards.push_back(std::move(newBoard));
 }
 
-string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "restore_machine                       Load state from last saved state in default directory\n"
 	       "restore_machine <filename>            Load state from indicated file\n"
@@ -1100,7 +1095,7 @@ string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) const
 	       "This is a low-level command, the 'loadstate' script is easier to use.";
 }
 
-void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
+void RestoreMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeFileName(tokens, userFileContext());
 }
@@ -1137,12 +1132,12 @@ void SetupCommand::execute(std::span<const TclObject> tokens, TclObject& result)
 	result = reactor.getMachineID();
 }
 
-string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Switch to a different MSX setup.";
 }
 
-void SetupCommand::tabCompletion(vector<string>& tokens) const
+void SetupCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, Reactor::getSetups());
 }
@@ -1165,7 +1160,7 @@ void GetClipboardCommand::execute(std::span<const TclObject> tokens, TclObject& 
 	result = reactor.getDisplay().getVideoSystem().getClipboardText();
 }
 
-string GetClipboardCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string GetClipboardCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the (text) content of the clipboard as a string.";
 }
@@ -1186,7 +1181,7 @@ void SetClipboardCommand::execute(std::span<const TclObject> tokens, TclObject& 
 	reactor.getDisplay().getVideoSystem().setClipboardText(tokens[1].getString());
 }
 
-string SetClipboardCommand::help(std::span<const TclObject> /*tokens*/) const
+std::string SetClipboardCommand::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Send the given string to the clipboard.";
 }
@@ -1195,7 +1190,7 @@ string SetClipboardCommand::help(std::span<const TclObject> /*tokens*/) const
 // class ConfigInfo
 
 ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
-	               const string& configName_)
+	               const std::string& configName_)
 	: InfoTopic(openMSXInfoCommand, configName_)
 	, configName(configName_)
 {
@@ -1231,13 +1226,13 @@ void ConfigInfo::execute(std::span<const TclObject> tokens, TclObject& result) c
 	}
 }
 
-string ConfigInfo::help(std::span<const TclObject> /*tokens*/) const
+std::string ConfigInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return strCat("Shows a list of available ", configName, ", "
 	              "or get meta information about the selected item.\n");
 }
 
-void ConfigInfo::tabCompletion(vector<string>& tokens) const
+void ConfigInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
 	completeString(tokens, Reactor::getHwConfigs(configName));
 }
@@ -1258,7 +1253,7 @@ void RealTimeInfo::execute(std::span<const TclObject> /*tokens*/,
 	result = narrow_cast<double>(delta) * (1.0 / 1000000.0);
 }
 
-string RealTimeInfo::help(std::span<const TclObject> /*tokens*/) const
+std::string RealTimeInfo::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the time in seconds since openMSX was started.";
 }
@@ -1300,7 +1295,7 @@ void SoftwareInfoTopic::execute(
 	                        "genmsxid",         romInfo->getGenMSXid());
 }
 
-string SoftwareInfoTopic::help(std::span<const TclObject> /*tokens*/) const
+std::string SoftwareInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns information about the software "
 	       "given its sha1sum, in a paired list.";

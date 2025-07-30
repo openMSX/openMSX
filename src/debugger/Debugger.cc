@@ -31,9 +31,6 @@
 #include <memory>
 #include <ranges>
 
-using std::string;
-using std::string_view;
-
 namespace openmsx {
 
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
@@ -50,26 +47,26 @@ Debugger::~Debugger()
 	assert(debuggables.empty());
 }
 
-void Debugger::registerDebuggable(string name, Debuggable& debuggable)
+void Debugger::registerDebuggable(std::string name, Debuggable& debuggable)
 {
 	assert(!debuggables.contains(name));
 	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
-void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
+void Debugger::unregisterDebuggable(std::string_view name, Debuggable& debuggable)
 {
 	assert(debuggables.contains(name));
 	assert(debuggables[name] == &debuggable); (void)debuggable;
 	debuggables.erase(name);
 }
 
-Debuggable* Debugger::findDebuggable(string_view name)
+Debuggable* Debugger::findDebuggable(std::string_view name)
 {
 	auto* v = lookup(debuggables, name);
 	return v ? *v : nullptr;
 }
 
-Debuggable& Debugger::getDebuggable(string_view name)
+Debuggable& Debugger::getDebuggable(std::string_view name)
 {
 	Debuggable* result = findDebuggable(name);
 	if (!result) {
@@ -90,13 +87,13 @@ void Debugger::unregisterProbe(ProbeBase& probe)
 	probes.erase(probe.getName());
 }
 
-ProbeBase* Debugger::findProbe(string_view name)
+ProbeBase* Debugger::findProbe(std::string_view name)
 {
 	auto it = probes.find(name);
 	return (it != std::end(probes)) ? *it : nullptr;
 }
 
-ProbeBase& Debugger::getProbe(string_view name)
+ProbeBase& Debugger::getProbe(std::string_view name)
 {
 	auto* result = findProbe(name);
 	if (!result) {
@@ -117,7 +114,7 @@ std::string Debugger::insertProbeBreakPoint(
 	return result;
 }
 
-void Debugger::removeProbeBreakPoint(string_view name)
+void Debugger::removeProbeBreakPoint(std::string_view name)
 {
 	if (name.starts_with(ProbeBreakPoint::prefix)) {
 		// remove by id
@@ -708,7 +705,7 @@ void Debugger::Cmd::removeBreakPoint(
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	auto& breakPoints = MSXCPUInterface::getBreakPoints();
 
-	string_view tmp = tokens[2].getString();
+	std::string_view tmp = tokens[2].getString();
 	if (tmp.starts_with(BreakPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(BreakPoint::prefix.size()))) {
@@ -736,7 +733,7 @@ void Debugger::Cmd::removeBreakPoint(
 
 void Debugger::Cmd::listBreakPoints(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	string res;
+	std::string res;
 	for (const auto& bp : MSXCPUInterface::getBreakPoints()) {
 		TclObject line = makeTclList(
 			bp.getIdStr(), bp.getAddressString(),
@@ -786,7 +783,7 @@ void Debugger::Cmd::removeWatchPoint(
 	std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 3, "id");
-	string_view tmp = tokens[2].getString();
+	std::string_view tmp = tokens[2].getString();
 	if (tmp.starts_with(WatchPoint::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(WatchPoint::prefix.size()))) {
@@ -805,7 +802,7 @@ void Debugger::Cmd::removeWatchPoint(
 void Debugger::Cmd::listWatchPoints(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
-	string res;
+	std::string res;
 	const auto& interface = debugger().motherBoard.getCPUInterface();
 	for (const auto& wp : interface.getWatchPoints()) {
 		auto address = makeTclList(wp->getBeginAddressString());
@@ -857,7 +854,7 @@ void Debugger::Cmd::removeCondition(
 {
 	checkNumArgs(tokens, 3, "id");
 
-	string_view tmp = tokens[2].getString();
+	std::string_view tmp = tokens[2].getString();
 	if (tmp.starts_with(DebugCondition::prefix)) {
 		// remove by id
 		if (auto id = StringOp::stringToBase<10, unsigned>(tmp.substr(DebugCondition::prefix.size()))) {
@@ -875,7 +872,7 @@ void Debugger::Cmd::removeCondition(
 
 void Debugger::Cmd::listConditions(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	string res;
+	std::string res;
 	for (const auto& c : MSXCPUInterface::getConditions()) {
 		TclObject line = makeTclList(c.getIdStr(),
 		                             c.getCondition(),
@@ -953,7 +950,7 @@ void Debugger::Cmd::probeRemoveBreakPoint(
 void Debugger::Cmd::probeListBreakPoints(
 	std::span<const TclObject> /*tokens*/, TclObject& result)
 {
-	string res;
+	std::string res;
 	for (const auto& p : debugger().probeBreakPoints) {
 		TclObject line = makeTclList(p->getIdStr(),
 		                             p->getProbe().getName(),
@@ -1046,7 +1043,7 @@ void Debugger::Cmd::symbolsLookup(std::span<const TclObject> tokens, TclObject& 
 	}
 }
 
-string Debugger::Cmd::help(std::span<const TclObject> tokens) const
+std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
 	auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"
@@ -1459,26 +1456,26 @@ string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 	}
 }
 
-std::vector<string> Debugger::Cmd::getBreakPointIds() const
+std::vector<std::string> Debugger::Cmd::getBreakPointIds() const
 {
 	return to_vector(std::views::transform(
 		MSXCPUInterface::getBreakPoints(),
 		[](auto& bp) { return bp.getIdStr(); }));
 }
-std::vector<string> Debugger::Cmd::getWatchPointIds() const
+std::vector<std::string> Debugger::Cmd::getWatchPointIds() const
 {
 	return to_vector(std::views::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
 		[](auto& w) { return w->getIdStr(); }));
 }
-std::vector<string> Debugger::Cmd::getConditionIds() const
+std::vector<std::string> Debugger::Cmd::getConditionIds() const
 {
 	return to_vector(std::views::transform(
 		MSXCPUInterface::getConditions(),
 		[](auto& c) { return c.getIdStr(); }));
 }
 
-void Debugger::Cmd::tabCompletion(std::vector<string>& tokens) const
+void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array singleArgCmds = {

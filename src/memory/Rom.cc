@@ -28,8 +28,6 @@
 #include <algorithm>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
 
 class RomDebuggable final : public Debuggable
@@ -54,12 +52,12 @@ private:
 };
 
 
-Rom::Rom(string name_, static_string_view description_,
+Rom::Rom(std::string name_, static_string_view description_,
          DeviceConfig& config, std::string_view id /*= {}*/)
 	: name(std::move(name_)), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
-	string errors;
+	std::string errors;
 	for (auto* c : config.getXML()->getChildren("rom")) {
 		if (c->getAttributeValue("id", {}) == id) {
 			try {
@@ -76,7 +74,7 @@ Rom::Rom(string name_, static_string_view description_,
 	}
 	if (errors.empty()) {
 		// No matching <rom> tag.
-		string err = "Missing <rom> tag";
+		std::string err = "Missing <rom> tag";
 		if (!id.empty()) {
 			strAppend(err, " with id=\"", id, '"');
 		}
@@ -167,7 +165,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 		}
 		// .. still no file, then error
 		if (!file.is_open()) {
-			string error = strCat("Couldn't find ROM file for \"", name, '"');
+			std::string error = strCat("Couldn't find ROM file for \"", name, '"');
 			if (!std::ranges::empty(filenames)) {
 				strAppend(error, ' ', (*std::ranges::begin(filenames))->getData());
 			}
@@ -277,7 +275,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 	auto& debugger = motherBoard.getDebugger();
 	if (!rom.empty() && debugger.findDebuggable(name)) {
 		unsigned n = 0;
-		string tmp;
+		std::string tmp;
 		do {
 			tmp = strCat(name, " (", ++n, ')');
 		} while (debugger.findDebuggable(tmp));

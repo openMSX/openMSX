@@ -21,8 +21,6 @@
 #include <ranges>
 #include <string_view>
 
-using std::string_view;
-
 namespace openmsx {
 
 using UnknownTypes = hash_map<std::string, unsigned, XXHasher>;
@@ -47,7 +45,7 @@ public:
 	void stop();
 	void doctype(zstring_view txt);
 
-	[[nodiscard]] string_view getSystemID() const { return systemID; }
+	[[nodiscard]] std::string_view getSystemID() const { return systemID; }
 
 private:
 	[[nodiscard]] String32 cIndex(zstring_view str) const;
@@ -88,12 +86,12 @@ private:
 	CliComm& cliComm;
 	char* bufStart;
 
-	string_view systemID;
-	string_view type;
-	string_view startVal;
+	std::string_view systemID;
+	std::string_view type;
+	std::string_view startVal;
 
 	std::vector<Dump> dumps;
-	string_view system;
+	std::string_view system;
 	String32 title = {};
 	String32 company = {};
 	String32 year = {};
@@ -122,7 +120,7 @@ void DBParser::start(zstring_view tag)
 		throw MSXException("Expected <softwaredb> as root tag.");
 	case SOFTWAREDB:
 		if (small_compare<"software">(tag)) {
-			system = string_view();
+			system = std::string_view();
 			toString32(bufStart, bufStart, title);
 			toString32(bufStart, bufStart, company);
 			toString32(bufStart, bufStart, year);
@@ -194,8 +192,8 @@ void DBParser::start(zstring_view tag)
 			break;
 		case 'm':
 			if (small_compare<"megarom">(tag)) {
-				type = string_view();
-				startVal = string_view();
+				type = std::string_view();
+				startVal = std::string_view();
 				state = ROM;
 				return;
 			}
@@ -204,7 +202,7 @@ void DBParser::start(zstring_view tag)
 			tag.remove_prefix(1);
 			if (small_compare<"om">(tag)) {
 				type = "Mirrored";
-				startVal = string_view();
+				startVal = std::string_view();
 				state = ROM;
 				return;
 			}
@@ -459,7 +457,7 @@ void DBParser::addAllEntries()
 	swap(result, db);
 }
 
-static const char* parseStart(string_view s)
+static const char* parseStart(std::string_view s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
 	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
@@ -500,19 +498,19 @@ void DBParser::stop()
 		state = DUMP;
 		break;
 	case ROM: {
-		string_view t = type;
+		std::string_view t = type;
 		std::array<char, 8 + 4> buf;
 		if (small_compare<"Mirrored">(t)) {
 			if (const char* s = parseStart(startVal)) {
 				copy_to_range(t,                      subspan<8>(buf, 0));
 				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 8));
-				t = string_view(buf.data(), 8 + 4);
+				t = std::string_view(buf.data(), 8 + 4);
 			}
 		} else if (small_compare<"Normal">(t)) {
 			if (const char* s = parseStart(startVal)) {
 				copy_to_range(t,                      subspan<6>(buf, 0));
 				copy_to_range(std::string_view(s, 4), subspan<4>(buf, 6));
-				t = string_view(buf.data(), 6 + 4);
+				t = std::string_view(buf.data(), 6 + 4);
 			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);
@@ -544,10 +542,10 @@ void DBParser::stop()
 void DBParser::doctype(zstring_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM \"");
-	if (pos1 == string_view::npos) return;
+	if (pos1 == std::string_view::npos) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find('"');
-	if (pos2 == string_view::npos) return;
+	if (pos2 == std::string_view::npos) return;
 	systemID = t.substr(0, pos2);
 }
 

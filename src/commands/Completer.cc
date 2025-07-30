@@ -18,14 +18,10 @@
 #include <array>
 #include <memory>
 
-using std::vector;
-using std::string;
-using std::string_view;
-
 namespace openmsx {
 
-static bool formatHelper(std::span<const string_view> input, size_t columnLimit,
-                         vector<string>& result)
+static bool formatHelper(std::span<const std::string_view> input, size_t columnLimit,
+                         std::vector<std::string>& result)
 {
 	size_t column = 0;
 	auto it = begin(input);
@@ -44,11 +40,11 @@ static bool formatHelper(std::span<const string_view> input, size_t columnLimit,
 	return true;
 }
 
-static vector<string> format(std::span<const string_view> input, size_t columnLimit)
+static std::vector<std::string> format(std::span<const std::string_view> input, size_t columnLimit)
 {
-	vector<string> result;
+	std::vector<std::string> result;
 	for (auto lines : xrange(1u, input.size())) {
-		result.assign(lines, string());
+		result.assign(lines, std::string());
 		if (formatHelper(input, columnLimit, result)) {
 			return result;
 		}
@@ -57,12 +53,12 @@ static vector<string> format(std::span<const string_view> input, size_t columnLi
 	return result;
 }
 
-vector<string> Completer::formatListInColumns(std::span<const string_view> input)
+std::vector<std::string> Completer::formatListInColumns(std::span<const std::string_view> input)
 {
 	return format(input, output->getOutputColumns() - 1);
 }
 
-bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
+bool Completer::equalHead(std::string_view s1, std::string_view s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
 	if (caseSensitive) {
@@ -72,7 +68,7 @@ bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 	}
 }
 
-bool Completer::completeImpl(string& str, vector<string_view> matches,
+bool Completer::completeImpl(std::string& str, std::vector<std::string_view> matches,
                              bool caseSensitive)
 {
 	assert(std::ranges::all_of(matches, [&](auto& m) {
@@ -109,7 +105,7 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 		auto b = begin(*it);
 		auto e = b + str.size();
 		utf8::unchecked::next(e); // one more utf8 char
-		string_view string2(std::to_address(b), e - b);
+		std::string_view string2(std::to_address(b), e - b);
 		for (/**/; it != end(matches); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
@@ -129,22 +125,22 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	return false;
 }
 
-void Completer::completeFileName(vector<string>& tokens,
+void Completer::completeFileName(std::vector<std::string>& tokens,
                                  const FileContext& context)
 {
-	completeFileNameImpl(tokens, context, vector<string_view>());
+	completeFileNameImpl(tokens, context, std::vector<std::string_view>());
 }
 
-void Completer::completeFileNameImpl(vector<string>& tokens,
+void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
                                      const FileContext& context,
-                                     vector<string_view> matches)
+                                     std::vector<std::string_view> matches)
 {
-	string& filename = tokens.back();
+	std::string& filename = tokens.back();
 	filename = FileOperations::expandTilde(std::move(filename));
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
-	string_view dirname1 = FileOperations::getDirName(filename);
+	std::string_view dirname1 = FileOperations::getDirName(filename);
 
-	std::span<const string> paths;
+	std::span<const std::string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
 		static const std::array<std::string, 1> EMPTY = {""};
 		paths = EMPTY;
@@ -152,7 +148,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 		paths = context.getPaths();
 	}
 
-	vector<string> filenames;
+	std::vector<std::string> filenames;
 	for (const auto& p : paths) {
 		auto pLen = p.size();
 		if (!p.empty() && (p.back() != '/')) ++pLen;
@@ -163,7 +159,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 				filenames.push_back(nm);
 			}
 		};
-		auto dirAction = [&](string& path) {
+		auto dirAction = [&](std::string& path) {
 			path += '/';
 			fileAction(path);
 			path.pop_back();

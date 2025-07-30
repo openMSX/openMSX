@@ -38,8 +38,6 @@
 #include <array>
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 Display::Display(Reactor& reactor_)
@@ -204,9 +202,9 @@ bool Display::signalEvent(const Event& event)
 	return false;
 }
 
-string Display::getWindowTitle()
+std::string Display::getWindowTitle()
 {
-	string title = Version::full();
+	std::string title = Version::full();
 	if (!Version::RELEASE) {
 		strAppend(title, " [", BUILD_FLAVOUR, ']');
 	}
@@ -292,7 +290,7 @@ void Display::doRendererSwitch()
 			success = true;
 		} catch (MSXException& e) {
 			auto& rendererSetting = renderSettings.getRendererSetting();
-			string errorMsg = strCat(
+			std::string errorMsg = strCat(
 				"Couldn't activate renderer ",
 				rendererSetting.getString(),
 				": ", e.getMessage());
@@ -483,7 +481,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 	default:
 		throw SyntaxError();
 	}
-	string filename = FileOperations::parseCommandFileArgument(
+	std::string filename = FileOperations::parseCommandFileArgument(
 		fname, SCREENSHOT_DIR, prefix, SCREENSHOT_EXTENSION);
 
 	if (!rawShot) {
@@ -513,7 +511,7 @@ void Display::ScreenShotCmd::execute(std::span<const TclObject> tokens, TclObjec
 	result = filename;
 }
 
-string Display::ScreenShotCmd::help(std::span<const TclObject> /*tokens*/) const
+std::string Display::ScreenShotCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "This is a low-level internal command, you probably want to use 'screenshot' instead.";
 }
@@ -533,7 +531,7 @@ void Display::FpsInfoTopic::execute(std::span<const TclObject> /*tokens*/,
 	result = display.getFps();
 }
 
-string Display::FpsInfoTopic::help(std::span<const TclObject> /*tokens*/) const
+std::string Display::FpsInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

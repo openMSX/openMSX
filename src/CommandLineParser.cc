@@ -33,10 +33,6 @@
 #include <memory>
 #include <ranges>
 
-using std::cout;
-using std::string;
-using std::string_view;
-
 namespace openmsx {
 
 // class CommandLineParser
@@ -84,14 +80,14 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	std::span<const string_view> extensions, CLIFileType& cliFileType)
+	std::span<const std::string_view> extensions, CLIFileType& cliFileType)
 {
 	append(fileTypes, std::views::transform(extensions,
 		[&](auto& ext) { return FileTypeData{ext, &cliFileType}; }));
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, std::span<string>& cmdLine, ParsePhase phase)
+	const std::string& arg, std::span<std::string>& cmdLine, ParsePhase phase)
 {
 	if (auto o = binary_find(options, arg, {}, &OptionData::name)) {
 		// parse option
@@ -107,7 +103,7 @@ bool CommandLineParser::parseOption(
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, std::span<string>& cmdLine)
+bool CommandLineParser::parseFileName(const std::string& arg, std::span<std::string>& cmdLine)
 {
 	if (auto* handler = getFileTypeHandlerForFileName(arg)) {
 		try {
@@ -121,10 +117,10 @@ bool CommandLineParser::parseFileName(const string& arg, std::span<string>& cmdL
 	return false;
 }
 
-CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filename) const
+CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(std::string_view filename) const
 {
-	auto inner = [&](string_view arg) -> CLIFileType* {
-		string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
+	auto inner = [&](std::string_view arg) -> CLIFileType* {
+		std::string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
 		if (extension.size() <= 1) {
 			return nullptr; // no extension -> no handler
 		}
@@ -159,8 +155,8 @@ void CommandLineParser::parse(std::span<char*> argv)
 	auto cmdLineBuf = to_vector(std::views::transform(std::views::drop(argv, 1), [](const char* a) {
 		return FileOperations::getConventionalPath(a);
 	}));
-	std::span<string> cmdLine(cmdLineBuf);
-	std::vector<string> backupCmdLine;
+	std::span<std::string> cmdLine(cmdLineBuf);
+	std::vector<std::string> backupCmdLine;
 
 	for (ParsePhase phase = PHASE_BEFORE_INIT;
 	     (phase <= PHASE_LAST) && (parseStatus != EXIT);
@@ -186,7 +182,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 				// Load default settings file in case the user
 				// didn't specify one.
 				const auto& context = systemFileContext();
-				string filename = "settings.xml";
+				std::string filename = "settings.xml";
 				try {
 					settingsConfig.loadSetting(context, filename);
 				} catch (XMLException& e) {
@@ -240,7 +236,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 					const auto& defaultMachine =
 						reactor.getDefaultMachineSetting().getString();
 					try {
-						reactor.switchMachine(string(defaultMachine));
+						reactor.switchMachine(std::string(defaultMachine));
 					} catch (MSXException& e) {
 						reactor.getCliComm().printInfo(
 							"Failed to initialize default machine: ",
@@ -265,7 +261,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 		default:
 			// iterate over all arguments
 			while (!cmdLine.empty()) {
-				string arg = std::move(cmdLine.front());
+				std::string arg = std::move(cmdLine.front());
 				cmdLine = cmdLine.subspan(1);
 				// first try options
 				if (!parseOption(arg, cmdLine, phase)) {
@@ -325,7 +321,7 @@ Interpreter& CommandLineParser::getInterpreter() const
 // Control option
 
 void CommandLineParser::ControlOption::parseOption(
-	const string& option, std::span<string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
 	auto [type, arguments] = StringOp::splitOnFirst(fullType, ':');
@@ -351,7 +347,7 @@ void CommandLineParser::ControlOption::parseOption(
 	parser.parseStatus = CommandLineParser::CONTROL;
 }
 
-string_view CommandLineParser::ControlOption::optionHelp() const
+std::string_view CommandLineParser::ControlOption::optionHelp() const
 {
 	return "Enable external control of openMSX process";
 }
@@ -360,28 +356,28 @@ string_view CommandLineParser::ControlOption::optionHelp() const
 // Script option
 
 void CommandLineParser::ScriptOption::parseOption(
-	const string& option, std::span<string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_view CommandLineParser::ScriptOption::optionHelp() const
+std::string_view CommandLineParser::ScriptOption::optionHelp() const
 {
 	return "Run extra startup script";
 }
 
 void CommandLineParser::ScriptOption::parseFileType(
-	const string& filename, std::span<std::string>& /*cmdLine*/)
+	const std::string& filename, std::span<std::string>& /*cmdLine*/)
 {
 	scripts.push_back(filename);
 }
 
-string_view CommandLineParser::ScriptOption::fileTypeHelp() const
+std::string_view CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
 }
 
-string_view CommandLineParser::ScriptOption::fileTypeCategoryName() const
+std::string_view CommandLineParser::ScriptOption::fileTypeCategoryName() const
 {
 	return "script";
 }
@@ -402,10 +398,10 @@ std::string_view CommandLineParser::CommandOption::optionHelp() const
 
 // Help option
 
-static string formatSet(std::span<const string_view> inputSet, string::size_type columns)
+static std::string formatSet(std::span<const std::string_view> inputSet, std::string::size_type columns)
 {
-	string outString;
-	string::size_type totalLength = 0; // ignore the starting spaces for now
+	std::string outString;
+	std::string::size_type totalLength = 0; // ignore the starting spaces for now
 	for (const auto& temp : inputSet) {
 		if (totalLength == 0) {
 			// first element ?
@@ -428,16 +424,16 @@ static string formatSet(std::span<const string_view> inputSet, string::size_type
 	return outString;
 }
 
-static string formatHelpText(string_view helpText,
-	                     unsigned maxLength, unsigned indent)
+static std::string formatHelpText(std::string_view helpText,
+                                  unsigned maxLength, unsigned indent)
 {
-	string outText;
-	string_view::size_type index = 0;
+	std::string outText;
+	std::string_view::size_type index = 0;
 	while (helpText.substr(index).size() > maxLength) {
 		auto pos = helpText.substr(index, maxLength).rfind(' ');
-		if (pos == string_view::npos) {
+		if (pos == std::string_view::npos) {
 			pos = helpText.substr(maxLength).find(' ');
-			if (pos == string_view::npos) {
+			if (pos == std::string_view::npos) {
 				pos = helpText.substr(index).size();
 			}
 		}
@@ -450,7 +446,7 @@ static string formatHelpText(string_view helpText,
 }
 
 // items grouped per common help-text
-using GroupedItems = hash_map<string_view, std::vector<string_view>, XXHasher>;
+using GroupedItems = hash_map<std::string_view, std::vector<std::string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
 	auto printSet = to_vector(std::views::transform(itemMap, [](auto& p) {
@@ -459,7 +455,7 @@ static void printItemMap(const GroupedItems& itemMap)
 	}));
 	std::ranges::sort(printSet);
 	for (const auto& s : printSet) {
-		cout << s << '\n';
+		std::cout << s << '\n';
 	}
 }
 
@@ -467,17 +463,17 @@ static void printItemMap(const GroupedItems& itemMap)
 // class HelpOption
 
 void CommandLineParser::HelpOption::parseOption(
-	const string& /*option*/, std::span<string>& /*cmdLine*/)
+	const std::string& /*option*/, std::span<std::string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, helpOption);
 	const auto& fullVersion = Version::full();
-	cout << fullVersion << '\n'
-	     << string(fullVersion.size(), '=') << "\n"
-	        "\n"
-	        "usage: openmsx [arguments]\n"
-	        "  an argument is either an option or a filename\n"
-	        "\n"
-	        "  this is the list of supported options:\n";
+	std::cout << fullVersion << '\n'
+	          << std::string(fullVersion.size(), '=') << "\n"
+	             "\n"
+	             "usage: openmsx [arguments]\n"
+	             "  an argument is either an option or a filename\n"
+	             "\n"
+	             "  this is the list of supported options:\n";
 
 	GroupedItems itemMap;
 	for (const auto& option : parser.options) {
@@ -488,8 +484,8 @@ void CommandLineParser::HelpOption::parseOption(
 	}
 	printItemMap(itemMap);
 
-	cout << "\n"
-	        "  this is the list of supported file types:\n";
+	std::cout << "\n"
+	             "  this is the list of supported file types:\n";
 
 	itemMap.clear();
 	for (const auto& [extension, fileType] : parser.fileTypes) {
@@ -500,7 +496,7 @@ void CommandLineParser::HelpOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_view CommandLineParser::HelpOption::optionHelp() const
+std::string_view CommandLineParser::HelpOption::optionHelp() const
 {
 	return "Shows this text";
 }
@@ -509,16 +505,16 @@ string_view CommandLineParser::HelpOption::optionHelp() const
 // class VersionOption
 
 void CommandLineParser::VersionOption::parseOption(
-	const string& /*option*/, std::span<string>& /*cmdLine*/)
+	const std::string& /*option*/, std::span<std::string>& /*cmdLine*/)
 {
-	cout << Version::full() << "\n"
-	        "flavour: " << BUILD_FLAVOUR << "\n"
-	        "components: " << BUILD_COMPONENTS << '\n';
+	std::cout << Version::full() << "\n"
+	             "flavour: " << BUILD_FLAVOUR << "\n"
+	             "components: " << BUILD_COMPONENTS << '\n';
 	auto& parser = OUTER(CommandLineParser, versionOption);
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_view CommandLineParser::VersionOption::optionHelp() const
+std::string_view CommandLineParser::VersionOption::optionHelp() const
 {
 	return "Prints openMSX version and exits";
 }
@@ -527,7 +523,7 @@ string_view CommandLineParser::VersionOption::optionHelp() const
 // Setup option
 
 void CommandLineParser::SetupOption::parseOption(
-	const string& option, std::span<string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, setupOption);
 	if (parser.haveConfig) {
@@ -547,7 +543,7 @@ void CommandLineParser::SetupOption::parseOption(
 	parser.haveConfig = true;
 }
 
-string_view CommandLineParser::SetupOption::optionHelp() const
+std::string_view CommandLineParser::SetupOption::optionHelp() const
 {
 	return "Use setup file specified in argument";
 }
@@ -555,7 +551,7 @@ string_view CommandLineParser::SetupOption::optionHelp() const
 // Machine option
 
 void CommandLineParser::MachineOption::parseOption(
-	const string& option, std::span<string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
@@ -569,7 +565,7 @@ void CommandLineParser::MachineOption::parseOption(
 	parser.haveConfig = true;
 }
 
-string_view CommandLineParser::MachineOption::optionHelp() const
+std::string_view CommandLineParser::MachineOption::optionHelp() const
 {
 	return "Use machine specified in argument";
 }
@@ -578,7 +574,7 @@ string_view CommandLineParser::MachineOption::optionHelp() const
 // class SettingOption
 
 void CommandLineParser::SettingOption::parseOption(
-	const string& option, std::span<string>& cmdLine)
+	const std::string& option, std::span<std::string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
@@ -596,7 +592,7 @@ void CommandLineParser::SettingOption::parseOption(
 	}
 }
 
-string_view CommandLineParser::SettingOption::optionHelp() const
+std::string_view CommandLineParser::SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
 }
@@ -605,13 +601,13 @@ string_view CommandLineParser::SettingOption::optionHelp() const
 // class TestConfigOption
 
 void CommandLineParser::TestConfigOption::parseOption(
-	const string& /*option*/, std::span<string>& /*cmdLine*/)
+	const std::string& /*option*/, std::span<std::string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, testConfigOption);
 	parser.parseStatus = CommandLineParser::TEST;
 }
 
-string_view CommandLineParser::TestConfigOption::optionHelp() const
+std::string_view CommandLineParser::TestConfigOption::optionHelp() const
 {
 	return "Test if the specified config works and exit";
 }
@@ -619,38 +615,38 @@ string_view CommandLineParser::TestConfigOption::optionHelp() const
 // class BashOption
 
 void CommandLineParser::BashOption::parseOption(
-	const string& /*option*/, std::span<string>& cmdLine)
+	const std::string& /*option*/, std::span<std::string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
-	string_view last = cmdLine.empty() ? string_view{} : cmdLine.front();
+	std::string_view last = cmdLine.empty() ? std::string_view{} : cmdLine.front();
 	cmdLine = cmdLine.subspan(0, 0); // eat all remaining parameters
 
 	if (last == "-machine") {
 		for (const auto& s : Reactor::getHwConfigs("machines")) {
-			cout << s << '\n';
+			std::cout << s << '\n';
 		}
 	} else if (last == "-setup") {
 		std::vector<std::string> entries = Reactor::getSetups();
 		for (const auto& s : entries) {
-			cout << s << '\n';
+			std::cout << s << '\n';
 		}
 	} else if (last.starts_with("-ext")) {
 		for (const auto& s : Reactor::getHwConfigs("extensions")) {
-			cout << s << '\n';
+			std::cout << s << '\n';
 		}
 	} else if (last == "-romtype") {
 		for (const auto& s : RomInfo::getAllRomTypes()) {
-			cout << s << '\n';
+			std::cout << s << '\n';
 		}
 	} else {
 		for (const auto& option : parser.options) {
-			cout << option.name << '\n';
+			std::cout << option.name << '\n';
 		}
 	}
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_view CommandLineParser::BashOption::optionHelp() const
+std::string_view CommandLineParser::BashOption::optionHelp() const
 {
 	return {}; // don't include this option in --help
 }
@@ -679,7 +675,7 @@ void CommandLineParser::FileTypeCategoryInfoTopic::execute(
 	}
 }
 
-string CommandLineParser::FileTypeCategoryInfoTopic::help(std::span<const TclObject> /*tokens*/) const
+std::string CommandLineParser::FileTypeCategoryInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "Returns the file type category for the given file.";
 }

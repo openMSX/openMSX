@@ -8,12 +8,9 @@
 #include <bit>
 #include <cstdlib>
 
-using std::string;
-using std::string_view;
-
 namespace StringOp {
 
-bool stringToBool(string_view str)
+bool stringToBool(std::string_view str)
 {
 	if (str == "1") return true;
 	if ((str.size() == 4) && (strncasecmp(str.data(), "true", 4) == 0))
@@ -30,105 +27,105 @@ std::string toLower(std::string_view str)
 	return result;
 }
 
-void trimRight(string& str, const char* chars)
+void trimRight(std::string& str, const char* chars)
 {
-	if (auto pos = str.find_last_not_of(chars); pos != string::npos) {
+	if (auto pos = str.find_last_not_of(chars); pos != std::string::npos) {
 		str.erase(pos + 1);
 	} else {
 		str.clear();
 	}
 }
-void trimRight(string& str, char chars)
+void trimRight(std::string& str, char chars)
 {
-	if (auto pos = str.find_last_not_of(chars); pos != string::npos) {
+	if (auto pos = str.find_last_not_of(chars); pos != std::string::npos) {
 		str.erase(pos + 1);
 	} else {
 		str.clear();
 	}
 }
-void trimRight(string_view& str, string_view chars)
+void trimRight(std::string_view& str, std::string_view chars)
 {
 	while (!str.empty() && chars.contains(str.back())) {
 		str.remove_suffix(1);
 	}
 }
-void trimRight(string_view& str, char chars)
+void trimRight(std::string_view& str, char chars)
 {
 	while (!str.empty() && (str.back() == chars)) {
 		str.remove_suffix(1);
 	}
 }
 
-void trimLeft(string& str, const char* chars)
+void trimLeft(std::string& str, const char* chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
-void trimLeft(string& str, char chars)
+void trimLeft(std::string& str, char chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
-void trimLeft(string_view& str, string_view chars)
+void trimLeft(std::string_view& str, std::string_view chars)
 {
 	while (!str.empty() && chars.contains(str.front())) {
 		str.remove_prefix(1);
 	}
 }
-void trimLeft(string_view& str, char chars)
+void trimLeft(std::string_view& str, char chars)
 {
 	while (!str.empty() && (str.front() == chars)) {
 		str.remove_prefix(1);
 	}
 }
 
-void trim(string_view& str, string_view chars)
+void trim(std::string_view& str, std::string_view chars)
 {
 	trimRight(str, chars);
 	trimLeft (str, chars);
 }
 
-void trim(string_view& str, char chars)
+void trim(std::string_view& str, char chars)
 {
 	trimRight(str, chars);
 	trimLeft (str, chars);
 }
 
-std::pair<string_view, string_view> splitOnFirst(string_view str, string_view chars)
+std::pair<std::string_view, std::string_view> splitOnFirst(std::string_view str, std::string_view chars)
 {
-	if (auto pos = str.find_first_of(chars); pos == string_view::npos) {
-		return {str, string_view{}};
+	if (auto pos = str.find_first_of(chars); pos == std::string_view::npos) {
+		return {str, std::string_view{}};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
-std::pair<string_view, string_view> splitOnFirst(string_view str, char chars)
+std::pair<std::string_view, std::string_view> splitOnFirst(std::string_view str, char chars)
 {
-	if (auto pos = str.find_first_of(chars); pos == string_view::npos) {
-		return {str, string_view{}};
-	} else {
-		return {str.substr(0, pos), str.substr(pos + 1)};
-	}
-}
-
-std::pair<string_view, string_view> splitOnLast(string_view str, string_view chars)
-{
-	if (auto pos = str.find_last_of(chars); pos == string_view::npos) {
-		return {string_view{}, str};
-	} else {
-		return {str.substr(0, pos), str.substr(pos + 1)};
-	}
-}
-std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
-{
-	if (auto pos = str.find_last_of(chars); pos == string_view::npos) {
-		return {string_view{}, str};
+	if (auto pos = str.find_first_of(chars); pos == std::string_view::npos) {
+		return {str, std::string_view{}};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
 
-//std::vector<string_view> split(string_view str, char chars)
+std::pair<std::string_view, std::string_view> splitOnLast(std::string_view str, std::string_view chars)
+{
+	if (auto pos = str.find_last_of(chars); pos == std::string_view::npos) {
+		return {std::string_view{}, str};
+	} else {
+		return {str.substr(0, pos), str.substr(pos + 1)};
+	}
+}
+std::pair<std::string_view, std::string_view> splitOnLast(std::string_view str, char chars)
+{
+	if (auto pos = str.find_last_of(chars); pos == std::string_view::npos) {
+		return {std::string_view{}, str};
+	} else {
+		return {str.substr(0, pos), str.substr(pos + 1)};
+	}
+}
+
+//std::vector<std::string_view> split(std::string_view str, char chars)
 //{
-//	std::vector<string_view> result;
+//	std::vector<std::string_view> result;
 //	while (!str.empty()) {
 //		auto [first, last] = splitOnFirst(str, chars);
 //		result.push_back(first);
@@ -137,7 +134,7 @@ std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 //	return result;
 //}
 
-static unsigned parseNumber(string_view str)
+static unsigned parseNumber(std::string_view str)
 {
 	trim(str, " \t");
 	auto r = stringToBase<10, unsigned>(str);
@@ -155,14 +152,14 @@ static void checkRange(unsigned x, unsigned min, unsigned max)
 		"], but got: ", x);
 }
 
-static void parseRange2(string_view str, IterableBitSet<64>& result,
+static void parseRange2(std::string_view str, IterableBitSet<64>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
 	trimRight(str, " \t");
 	if (str.empty()) return;
 
-	if (auto pos = str.find('-'); pos == string_view::npos) {
+	if (auto pos = str.find('-'); pos == std::string_view::npos) {
 		auto x = parseNumber(str);
 		checkRange(x, min, max);
 		result.set(x);
@@ -178,7 +175,7 @@ static void parseRange2(string_view str, IterableBitSet<64>& result,
 	}
 }
 
-IterableBitSet<64> parseRange(string_view str, unsigned min, unsigned max)
+IterableBitSet<64> parseRange(std::string_view str, unsigned min, unsigned max)
 {
 	assert(min <= max);
 	assert(max < 64);
@@ -186,11 +183,11 @@ IterableBitSet<64> parseRange(string_view str, unsigned min, unsigned max)
 	IterableBitSet<64> result;
 	while (true) {
 		auto next = str.find(',');
-		string_view sub = (next == string_view::npos)
+		std::string_view sub = (next == std::string_view::npos)
 		               ? str
 		               : str.substr(0, next++);
 		parseRange2(sub, result, min, max);
-		if (next == string_view::npos) break;
+		if (next == std::string_view::npos) break;
 		str = str.substr(next);
 	}
 	return result;

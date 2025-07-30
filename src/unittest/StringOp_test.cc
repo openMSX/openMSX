@@ -4,52 +4,50 @@
 #include <type_traits>
 
 using namespace StringOp;
-using std::string;
-using std::string_view;
 
-static void checkTrimRight(const string& s, char c, const string& expected)
+static void checkTrimRight(const std::string& s, char c, const std::string& expected)
 {
-	string test = s;
+	std::string test = s;
 	trimRight(test, c);
 	CHECK(test == expected);
 
-	string_view ref = s;
+	std::string_view ref = s;
 	trimRight(ref, c);
 	CHECK(ref == expected);
 }
-static void checkTrimRight(const string& s, const char* chars, const string& expected)
+static void checkTrimRight(const std::string& s, const char* chars, const std::string& expected)
 {
-	string test = s;
+	std::string test = s;
 	trimRight(test, chars);
 	CHECK(test == expected);
 
-	string_view ref = s;
+	std::string_view ref = s;
 	trimRight(ref, chars);
 	CHECK(ref == expected);
 }
 
-static void checkTrimLeft(const string& s, char c, const string& expected)
+static void checkTrimLeft(const std::string& s, char c, const std::string& expected)
 {
-	string test = s;
+	std::string test = s;
 	trimLeft(test, c);
 	CHECK(test == expected);
 
-	string_view ref = s;
+	std::string_view ref = s;
 	trimLeft(ref, c);
 	CHECK(ref == expected);
 }
-static void checkTrimLeft(const string& s, const char* chars, const string& expected)
+static void checkTrimLeft(const std::string& s, const char* chars, const std::string& expected)
 {
-	string test = s;
+	std::string test = s;
 	trimLeft(test, chars);
 	CHECK(test == expected);
 
-	string_view ref = s;
+	std::string_view ref = s;
 	trimLeft(ref, chars);
 	CHECK(ref == expected);
 }
 
-static void checkSplitOnFirst(const string& s, const string& first, const string& last)
+static void checkSplitOnFirst(const std::string& s, const std::string& first, const std::string& last)
 {
 	auto [f1, l1] = splitOnFirst(s, '-');
 	auto [f2, l2] = splitOnFirst(s, " -+");
@@ -63,7 +61,7 @@ static void checkSplitOnFirst(const string& s, const string& first, const string
 	CHECK(l2 == last);
 }
 
-static void checkSplitOnLast(const string& s, const string& first, const string& last)
+static void checkSplitOnLast(const std::string& s, const std::string& first, const std::string& last)
 {
 	auto [f1, l1] = splitOnLast(s, '-');
 	auto [f2, l2] = splitOnLast(s, " -+");
@@ -78,18 +76,18 @@ static void checkSplitOnLast(const string& s, const string& first, const string&
 }
 
 template<StringOp::EmptyParts keepOrRemove, typename Separators>
-static void checkSplit(Separators separators, const string& s, const std::vector<string_view>& expected)
+static void checkSplit(Separators separators, const std::string& s, const std::vector<std::string_view>& expected)
 {
 	//CHECK(split(s, '-') == expected);
 
-	std::vector<string_view> result;
+	std::vector<std::string_view> result;
 	for (const auto& ss : StringOp::split_view<keepOrRemove>(s, separators)) {
 		result.push_back(ss);
 	}
 	CHECK(result == expected);
 }
 
-static void checkParseRange(const string& s, const std::vector<unsigned>& expected)
+static void checkParseRange(const std::string& s, const std::vector<unsigned>& expected)
 {
 	auto parsed = parseRange(s, 0, 63);
 	std::vector<unsigned> result;
@@ -231,7 +229,7 @@ TEST_CASE("StringOp")
 		CHECK(toLower("foo") == "foo");
 		CHECK(toLower("FOO") == "foo");
 		CHECK(toLower("fOo") == "foo");
-		CHECK(toLower(string("FoO")) == "foo");
+		CHECK(toLower(std::string("FoO")) == "foo");
 	}*/
 	SECTION("trimRight") {
 		checkTrimRight("", ' ', "");

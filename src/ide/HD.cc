@@ -19,8 +19,6 @@
 
 namespace openmsx {
 
-using std::string;
-
 std::shared_ptr<HD::HDInUse> HD::getDrivesInUse(MSXMotherBoard& motherBoard)
 {
 	return motherBoard.getSharedStuff<HDInUse>("hdInUse");
@@ -46,7 +44,7 @@ HD::HD(const DeviceConfig& config)
 	// (resolved) filename. For user-specified hd images (command line or
 	// via hda command) savestate will try to re-resolve the filename.
 	auto mode = File::OpenMode::NORMAL;
-	if (string cliImage = HDImageCLI::getImageForId(id);
+	if (std::string cliImage = HDImageCLI::getImageForId(id);
 	    cliImage.empty()) {
 		const auto& original = config.getChildData("filename");
 		filename = Filename(config.getFileContext().resolveCreate(original));
@@ -262,13 +260,13 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger;
+			std::string oldTiger;
 			if constexpr (!Archive::IS_LOADER) {
 				oldTiger = getTigerTreeHash();
 			}
 			ar.serialize("tthsum", oldTiger);
 			if constexpr (Archive::IS_LOADER) {
-				string newTiger = getTigerTreeHash();
+				std::string newTiger = getTigerTreeHash();
 				mismatch = oldTiger != newTiger;
 			}
 		} else {
@@ -278,8 +276,8 @@ void HD::serialize(Archive& ar, unsigned version)
 			if constexpr (!Archive::IS_LOADER) {
 				oldChecksum = getSha1Sum(filePool);
 			}
-			string oldChecksumStr = oldChecksum.empty()
-					      ? string{}
+			std::string oldChecksumStr = oldChecksum.empty()
+					      ? std::string{}
 					      : oldChecksum.toString();
 			ar.serialize("checksum", oldChecksumStr);
 			oldChecksum = oldChecksumStr.empty()

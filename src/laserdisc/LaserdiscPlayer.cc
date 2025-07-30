@@ -1,4 +1,5 @@
 #include "LaserdiscPlayer.hh"
+
 #include "CommandException.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
@@ -17,15 +18,15 @@
 #include "PioneerLDControl.hh"
 #include "LDRenderer.hh"
 #include "RendererFactory.hh"
+
 #include "Math.hh"
 #include "narrow.hh"
 #include "one_of.hh"
+
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
-
-using std::string;
 
 namespace openmsx {
 
@@ -62,7 +63,7 @@ void LaserdiscPlayer::Command::execute(
 		checkNumArgs(tokens, 3, "filename");
 		try {
 			result = "Changing laserdisc.";
-			laserdiscPlayer.setImageName(string(tokens[2].getString()), time);
+			laserdiscPlayer.setImageName(std::string(tokens[2].getString()), time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
 		}
@@ -71,7 +72,7 @@ void LaserdiscPlayer::Command::execute(
 	}
 }
 
-string LaserdiscPlayer::Command::help(std::span<const TclObject> tokens) const
+std::string LaserdiscPlayer::Command::help(std::span<const TclObject> tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
@@ -87,7 +88,7 @@ string LaserdiscPlayer::Command::help(std::span<const TclObject> tokens) const
 	       ": eject the laserdisc\n";
 }
 
-void LaserdiscPlayer::Command::tabCompletion(std::vector<string>& tokens) const
+void LaserdiscPlayer::Command::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		using namespace std::literals;
@@ -131,7 +132,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 
 	static XMLElement* xml = [] {
 		auto& doc = XMLDocument::getStaticDocument();
-		auto* result = doc.allocateElement(string(getLaserDiscPlayerName()).c_str());
+		auto* result = doc.allocateElement(std::string(getLaserDiscPlayerName()).c_str());
 		result->setFirstChild(doc.allocateElement("sound"))
 		      ->setFirstChild(doc.allocateElement("volume", "30000"));
 		return result;
@@ -152,7 +153,7 @@ LaserdiscPlayer::~LaserdiscPlayer()
 	motherBoard.getMSXCliComm().update(CliComm::UpdateType::HARDWARE, getLaserDiscPlayerName(), "remove");
 }
 
-string LaserdiscPlayer::getStateString() const
+std::string LaserdiscPlayer::getStateString() const
 {
 	switch (playerState) {
 		using enum PlayerState;
@@ -307,7 +308,7 @@ void LaserdiscPlayer::setAck(EmuTime time, int wait)
 void LaserdiscPlayer::remoteButtonNEC(uint8_t code, EmuTime time)
 {
 #ifdef DEBUG
-	string f;
+	std::string f;
 	switch (code) {
 	case 0x47: f = "C+"; break;	// Increase playing speed
 	case 0x46: f = "C-"; break;	// Decrease playing speed
@@ -662,7 +663,7 @@ void LaserdiscPlayer::nextFrame(EmuTime time)
 	}
 }
 
-void LaserdiscPlayer::setImageName(string newImage, EmuTime time)
+void LaserdiscPlayer::setImageName(std::string newImage, EmuTime time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
@@ -703,8 +704,8 @@ void LaserdiscPlayer::autoRun()
 	}
 
 	auto machineID = motherBoard.getMachineID();
-	string var = strCat(machineID, "::auto_run_ld_counter");
-	string command = strCat(
+	std::string var = strCat(machineID, "::auto_run_ld_counter");
+	std::string command = strCat(
 		"if ![info exists ", var, "] { set ", var, " 0 }\n"
 		"incr ", var, "\n"
 		"after time 2 \"if $", var, "==\\$", var, " { ",
