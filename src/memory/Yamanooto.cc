@@ -311,7 +311,6 @@ void Yamanooto::serialize(Archive& ar, unsigned /*version*/)
 		"offsetReg", offsetReg,
 		"configReg", configReg,
 		"sccMode", sccMode,
-		"sccMode", sccMode,
 		"psgLatch", psgLatch,
 		"fpgaFsm", fpgaFsm
 	);
