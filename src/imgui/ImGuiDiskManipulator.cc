@@ -232,7 +232,7 @@ ImGuiDiskManipulator::Action ImGuiDiskManipulator::drawTable(
 				ImGui::OpenPopup("table-context");
 			}
 			im::Popup("table-context", [&]{
-				ImGui::TextUnformatted(file.isDirectory ? "Directory:" : "File:");
+				ImGui::TextUnformatted(file.isDirectory ? "Directory:"sv : "File:"sv);
 				ImGui::SameLine();
 				ImGui::TextUnformatted(file.filename);
 				ImGui::Separator();

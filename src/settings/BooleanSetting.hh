@@ -5,6 +5,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 class BooleanSetting final : public Setting
 {
 public:
@@ -21,7 +23,7 @@ public:
 
 private:
 	[[nodiscard]] static std::string_view toString(bool b) {
-		 return b ? "true" : "false";
+		 return b ? "true"sv : "false"sv;
 	}
 };
 

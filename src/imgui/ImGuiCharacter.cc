@@ -167,7 +167,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manBlink, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Blink: ", vdpBlink ? "enabled" : "disabled");
+					ImGui::StrCat("Blink: ", vdpBlink ? "enabled"sv : "disabled"sv);
 				});
 				im::Disabled(manPat, [&]{
 					ImGui::AlignTextToFramePadding();
@@ -183,7 +183,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manRows, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible rows: ", (vdpLines == 192) ? "24" : "26.5");
+					ImGui::StrCat("Visible rows: ", (vdpLines == 192) ? "24"sv : "26.5"sv);
 				});
 				im::Disabled(manColor0, [&]{
 					ImGui::AlignTextToFramePadding();
@@ -421,7 +421,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		auto copyPatternColorPopup = [&]() {
 			return im::PopupContextWindow("PatternCopyPopup", [&]{
 				bool hasColorData = mode == one_of(SCR1, SCR2);
-				auto caption = hasColorData
+				const char* caption = hasColorData
 					? "Copy pattern and color data to clipboard"
 					: "Copy pattern data to clipboard";
 				if (ImGui::MenuItem(caption)) {

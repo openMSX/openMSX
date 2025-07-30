@@ -28,6 +28,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
 	, recordCommand(reactor.getCommandController())
@@ -295,7 +297,7 @@ bool AviRecorder::isRecording() const
 
 void AviRecorder::status(std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.addDictKeyValue("status", isRecording() ? "recording" : "idle");
+	result.addDictKeyValue("status", isRecording() ? "recording"sv : "idle"sv);
 }
 
 // class AviRecorder::Cmd

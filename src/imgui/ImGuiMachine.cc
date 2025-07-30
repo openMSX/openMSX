@@ -117,7 +117,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 	setupFileList.displayName = [&](const FileListWidget::Entry& entry) {
 		auto defaultDisplayName = entry.getDefaultDisplayName();
 		bool isDefault = manager.getReactor().getDefaultSetupSetting().getString() == defaultDisplayName;
-		return strCat(defaultDisplayName, isDefault ? " [default]" : "");
+		return strCat(defaultDisplayName, isDefault ? " [default]"sv : ""sv);
 	};
 
 	setupFileList.deleteAction = [&](const FileListWidget::Entry& entry) {
@@ -166,7 +166,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			};
 
 			auto depthNodeNameForCombo = [&](SetupDepth depth) {
-				return tmpStrCat(depth == one_of(NONE, MACHINE) ? "" : "+ ", depthNodeNames[depth]);
+				return tmpStrCat(depth == one_of(NONE, MACHINE) ? ""sv : "+ "sv, depthNodeNames[depth]);
 			};
 
 			SetupDepth selectedDepth = currentDepth;

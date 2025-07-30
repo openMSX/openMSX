@@ -21,6 +21,7 @@
 //   results in multiple matches.
 
 #include "CassettePlayer.hh"
+
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
@@ -44,18 +45,20 @@
 #include "TclObject.hh"
 #include "DynamicClock.hh"
 #include "EmuDuration.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <cassert>
 #include <memory>
 
-using std::string;
-
 namespace openmsx {
+
+using namespace std::literals;
 
 // TODO: this description is not entirely accurate, but it is used
 // as an identifier for this audio device in e.g. Catapult. We should
@@ -151,9 +154,9 @@ void CassettePlayer::autoRun()
 		return;
 	}
 	bool is_SVI = motherBoard.getMachineType() == "SVI"; // assume all other are 'MSX*' (might not be correct for 'Coleco')
-	string H_READ = is_SVI ? "0xFE8E" : "0xFF07"; // Hook for Ready
-	string H_MAIN = is_SVI ? "0xFE94" : "0xFF0C"; // Hook for Main Loop
-	string instr1, instr2;
+	std::string_view H_READ = is_SVI ? "0xFE8E"sv : "0xFF07"sv; // Hook for Ready
+	std::string_view H_MAIN = is_SVI ? "0xFE94"sv : "0xFF0C"sv; // Hook for Main Loop
+	std::string_view instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
 			instr1 = R"({RUN\"CAS:\"\r})";
@@ -170,7 +173,7 @@ void CassettePlayer::autoRun()
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
-	string command = strCat(
+	std::string command = strCat(
 		"namespace eval ::openmsx {\n"
 		"  variable auto_run_bp\n"
 
@@ -213,7 +216,7 @@ void CassettePlayer::autoRun()
 	}
 }
 
-string CassettePlayer::getStateString() const
+std::string CassettePlayer::getStateString() const
 {
 	switch (getState()) {
 		using enum State;
@@ -362,14 +365,14 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime time)
 {
 	if (!filename.empty()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
-		string msgWav, msgCas, msgTsx;
+		std::string msgWav, msgCas, msgTsx;
 		std::unique_ptr<CassetteImage> newImage;
 		if (!newImage) {
 			try {
 				// first try WAV
 				newImage = std::make_unique<WavImage>(filename, filePool);
 			} catch (MSXException& e) {
-				msgWav = e.getMessage();
+				msgWav = std::move(e).getMessage();
 			}
 		}
 		if (!newImage) {
@@ -378,7 +381,7 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime time)
 				newImage = std::make_unique<CasImage>(filename, filePool,
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e) {
-				msgCas = e.getMessage();
+				msgCas = std::move(e).getMessage();
 			}
 		}
 		if (!newImage) {
@@ -388,7 +391,7 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime time)
 					filename, filePool,
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e) {
-				msgTsx = e.getMessage();
+				msgTsx = std::move(e).getMessage();
 			}
 		}
 		if (!newImage) {
@@ -694,8 +697,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		}
 	}
 	if (ar.versionAtLeast(version, 2)) {
-		string oldChecksumStr = oldChecksum.empty()
-		                      ? string{}
+		std::string oldChecksumStr = oldChecksum.empty()
+		                      ? std::string{}
 		                      : oldChecksum.toString();
 		ar.serialize("checksum", oldChecksumStr);
 		oldChecksum = oldChecksumStr.empty()

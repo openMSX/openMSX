@@ -254,9 +254,9 @@ void ImGuiTools::paintScreenshot()
 			} else {
 				cmd.addListElement("-raw");
 				cmd.addListElement("-size");
-				cmd.addListElement(screenshotSize == static_cast<int>(SsSize::S_640) ? "640"
-						: screenshotSize == static_cast<int>(SsSize::S_320) ? "320"
-						: "auto");
+				cmd.addListElement(screenshotSize == static_cast<int>(SsSize::S_640) ? "640"sv
+						: screenshotSize == static_cast<int>(SsSize::S_320) ? "320"sv
+						: "auto"sv);
 			}
 			if (screenshotHideSprites) {
 				cmd.addListElement("-no-sprites");

@@ -31,6 +31,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 // class CliConnection
 
 CliConnection::CliConnection(CommandController& commandController_,
@@ -105,7 +107,7 @@ void CliConnection::execute(const std::string& command)
 
 static TemporaryString reply(std::string_view message, bool status)
 {
-	return tmpStrCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
+	return tmpStrCat("<reply result=\"", (status ? "ok"sv : "nok"sv), "\">",
 	                 XMLEscape(message), "</reply>\n");
 }
 

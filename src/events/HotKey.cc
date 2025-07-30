@@ -20,8 +20,6 @@
 #include <cassert>
 #include <ranges>
 
-using std::string;
-
 // This file implements all Tcl key bindings. These are the 'classical' hotkeys
 // (e.g. F12 to (un)mute sound) and the more recent input layers. The idea
 // behind an input layer is something like an OSD widget that (temporarily)
@@ -30,6 +28,8 @@ using std::string;
 // However the classical hotkeys or the openMSX console still receive input.
 
 namespace openmsx {
+
+using namespace std::literals;
 
 static constexpr bool META_HOT_KEYS =
 #ifdef __APPLE__
@@ -246,17 +246,17 @@ void HotKey::unbindDefault(const Event& event)
 	erase(defaultMap, event);
 }
 
-void HotKey::bindLayer(HotKeyInfo&& info, const string& layer)
+void HotKey::bindLayer(HotKeyInfo&& info, const std::string& layer)
 {
 	insert(layerMap[layer], std::move(info));
 }
 
-void HotKey::unbindLayer(const Event& event, const string& layer)
+void HotKey::unbindLayer(const Event& event, const std::string& layer)
 {
 	erase(layerMap[layer], event);
 }
 
-void HotKey::unbindFullLayer(const string& layer)
+void HotKey::unbindFullLayer(const std::string& layer)
 {
 	layerMap.erase(layer);
 }
@@ -409,7 +409,7 @@ void HotKey::stopRepeat()
 
 static constexpr std::string_view getBindCmdName(bool defaultCmd)
 {
-	return defaultCmd ? "bind_default" : "bind";
+	return defaultCmd ? "bind_default"sv : "bind"sv;
 }
 
 HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
@@ -420,18 +420,18 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 {
 }
 
-static string formatBinding(const HotKey::HotKeyInfo& info)
+static std::string formatBinding(const HotKey::HotKeyInfo& info)
 {
 	return strCat(toString(info.event),
-	              (info.msx ? " [msx]" : ""),
-	              (info.repeat ? " [repeat]" : ""),
-	              (info.passEvent ? " [event]" : ""),
+	              (info.msx ? " [msx]"sv : ""sv),
+	              (info.repeat ? " [repeat]"sv : ""sv),
+	              (info.passEvent ? " [event]"sv : ""sv),
 	              ":  ", info.command, '\n');
 }
 
 void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& result)
 {
-	string layer;
+	std::string layer;
 	bool layers = false;
 	bool repeat = false;
 	bool passEvent = false;
@@ -467,7 +467,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	switch (arguments.size()) {
 	case 0: {
 		// show all bounded keys (for this layer)
-		string r;
+		std::string r;
 		for (const auto& p : cMap) {
 			r += formatBinding(p);
 		}
@@ -486,7 +486,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	}
 	default: {
 		// make a new binding
-		string command(arguments[1].getString());
+		std::string command(arguments[1].getString());
 		for (const auto& arg : std::views::drop(arguments, 2)) {
 			strAppend(command, ' ', arg.getString());
 		}
@@ -504,7 +504,7 @@ void HotKey::BindCmd::execute(std::span<const TclObject> tokens, TclObject& resu
 	}
 	}
 }
-string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
+std::string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getBindCmdName(defaultCmd);
 	return strCat(
@@ -525,7 +525,7 @@ string HotKey::BindCmd::help(std::span<const TclObject> /*tokens*/) const
 
 static constexpr std::string_view getUnbindCmdName(bool defaultCmd)
 {
-	return defaultCmd ? "unbind_default" : "unbind";
+	return defaultCmd ? "unbind_default"sv : "unbind"sv;
 }
 
 HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
@@ -538,7 +538,7 @@ HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
 
 void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
-	string layer;
+	std::string layer;
 	std::array info = {valueArg("-layer", layer)};
 	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan<1>(), info);
 	if (defaultCmd && !layer.empty()) {
@@ -568,7 +568,7 @@ void HotKey::UnbindCmd::execute(std::span<const TclObject> tokens, TclObject& /*
 		}
 	}
 }
-string HotKey::UnbindCmd::help(std::span<const TclObject> /*tokens*/) const
+std::string HotKey::UnbindCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	auto cmd = getUnbindCmdName(defaultCmd);
 	return strCat(
@@ -594,7 +594,7 @@ void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& 
 	auto& hotKey = OUTER(HotKey, activateCmd);
 	switch (args.size()) {
 	case 0: {
-		string r;
+		std::string r;
 		for (const auto& layerInfo : std::views::reverse(hotKey.activeLayers)) {
 			r += layerInfo.layer;
 			if (layerInfo.blocking) {
@@ -607,7 +607,7 @@ void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& 
 	}
 	case 1: {
 		std::string_view layer = args[0].getString();
-		hotKey.activateLayer(string(layer), blocking);
+		hotKey.activateLayer(std::string(layer), blocking);
 		break;
 	}
 	default:
@@ -615,7 +615,7 @@ void HotKey::ActivateCmd::execute(std::span<const TclObject> tokens, TclObject& 
 	}
 }
 
-string HotKey::ActivateCmd::help(std::span<const TclObject> /*tokens*/) const
+std::string HotKey::ActivateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "activate_input_layer                         "
 	       ": show list of active layers (most recent on top)\n"
@@ -638,7 +638,7 @@ void HotKey::DeactivateCmd::execute(std::span<const TclObject> tokens, TclObject
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 
-string HotKey::DeactivateCmd::help(std::span<const TclObject> /*tokens*/) const
+std::string HotKey::DeactivateCmd::help(std::span<const TclObject> /*tokens*/) const
 {
 	return "deactivate_input_layer <layername> : deactivate the given input layer";
 }

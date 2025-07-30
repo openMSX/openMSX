@@ -81,6 +81,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 ChakkariCopy::ChakkariCopy(DeviceConfig& config)
 	: MSXDevice(config)
 	, biosRam(config, getName() + " BIOS RAM", "Chakkari Copy BIOS RAM", 0x4000)
@@ -119,11 +121,11 @@ void ChakkariCopy::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 
 	if (diff & 0x01) {
 		getCliComm().printInfo(getName(), " COPY LED ",
-			(((value & 1) == 0x01) ? "OFF" : "ON"));
+			(((value & 1) == 0x01) ? "OFF"sv : "ON"sv));
 	}
 	if (diff & 0x02) {
 		getCliComm().printInfo(getName(), " PAUSE LED ",
-			(((value & 2) == 0x02) ? "OFF" : "ON"));
+			(((value & 2) == 0x02) ? "OFF"sv : "ON"sv));
 	}
 	if (diff & 0x04) {
 		if (modeSetting.getEnum() == COPY) {

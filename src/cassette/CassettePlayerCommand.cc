@@ -4,9 +4,9 @@
 #include "StateChangeDistributor.hh"
 #include "Scheduler.hh"
 
-using std::string;
-
 namespace openmsx {
+
+using namespace std::literals;
 
 CassettePlayerCommand::CassettePlayerCommand(
 		CassettePlayer* cassettePlayer_,
@@ -48,8 +48,8 @@ void CassettePlayerCommand::execute(
 
 	} else if (tokens[1] == "new") {
 		std::string_view prefix = "openmsx";
-		string filename = FileOperations::parseCommandFileArgument(
-			(tokens.size() == 3) ? tokens[2].getString() : string{},
+		std::string filename = FileOperations::parseCommandFileArgument(
+			(tokens.size() == 3) ? tokens[2].getString() : std::string{},
 			CassettePlayer::TAPE_RECORDING_DIR, prefix, CassettePlayer::TAPE_RECORDING_EXTENSION);
 		cassettePlayer->recordTape(Filename(filename), time);
 		result = tmpStrCat(
@@ -85,7 +85,7 @@ void CassettePlayerCommand::execute(
 
 	} else if (tokens[1] == "motorcontrol") {
 		result = tmpStrCat("Motor control is ",
-		                (cassettePlayer->motorControl ? "on" : "off"));
+		                (cassettePlayer->motorControl ? "on"sv : "off"sv));
 
 	} else if (tokens[1] == "record") {
 			result = "TODO: implement this... (sorry)";
@@ -105,10 +105,10 @@ void CassettePlayerCommand::execute(
 		cassettePlayer->removeTape(time);
 
 	} else if (tokens[1] == "rewind") {
-		string r = stopRecording() ? "First stopping recording... " : "";
+		bool stopped = stopRecording();
 		cassettePlayer->rewind(time);
-		r += "Tape rewound";
-		result = r;
+		result = strCat((stopped ? "First stopping recording... "sv : ""sv),
+		                "Tape rewound"sv);
 
 	} else if (tokens[1] == "getpos") {
 		result = cassettePlayer->getTapePos(time);
@@ -130,9 +130,9 @@ void CassettePlayerCommand::execute(
 	//}
 }
 
-string CassettePlayerCommand::help(std::span<const TclObject> tokens) const
+std::string CassettePlayerCommand::help(std::span<const TclObject> tokens) const
 {
-	string helpText;
+	std::string helpText;
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "eject") {
 			helpText =
@@ -214,7 +214,7 @@ string CassettePlayerCommand::help(std::span<const TclObject> tokens) const
 	return helpText;
 }
 
-void CassettePlayerCommand::tabCompletion(std::vector<string>& tokens) const
+void CassettePlayerCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	if (tokens.size() == 2) {

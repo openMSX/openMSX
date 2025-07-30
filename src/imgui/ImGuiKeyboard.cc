@@ -17,6 +17,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void ImGuiKeyboard::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -171,7 +173,7 @@ void ImGuiKeyboard::paint(MSXMotherBoard* motherBoard)
 				manager.execute(makeTclList("keymatrixup", row, mask));
 			}
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-				manager.execute(makeTclList((active ? "keymatrixup" : "keymatrixdown"),
+				manager.execute(makeTclList((active ? "keymatrixup"sv : "keymatrixdown"sv),
 							row, mask));
 			}
 		});

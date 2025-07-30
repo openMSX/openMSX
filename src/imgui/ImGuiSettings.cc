@@ -446,7 +446,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 		[&](const BooleanJoystickAxis& a) {
 			return strCat(joystickManager.getDisplayName(a.getJoystick()),
 			              " stick axis ", a.getAxis(), ", ",
-			              (a.getDirection() == BooleanJoystickAxis::Direction::POS ? "positive" : "negative"), " direction");
+			              (a.getDirection() == BooleanJoystickAxis::Direction::POS ? "positive"sv : "negative"sv), " direction");
 		}
 	}, input);
 }

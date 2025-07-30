@@ -635,7 +635,7 @@ void VDP::frameStart(EmuTime time)
 		<< ", frameEnd = " << (frameStartTime + getTicksPerFrame())
 		<< ", hscan = " << hScanSyncTime
 		<< ", displayStart = " << displayStart
-		<< ", timing: " << (palTiming ? "PAL" : "NTSC")
+		<< ", timing: " << (palTiming ? "PAL"sv : "NTSC"sv)
 		<< "\n";
 	*/
 }

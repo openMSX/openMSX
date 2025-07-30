@@ -42,6 +42,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void ImGuiMedia::save(ImGuiTextBuffer& buf)
 {
 	savePersistent(buf, *this, persistentElements);
@@ -244,7 +246,7 @@ static std::string display(const ImGuiMedia::MediaItem& item, DisplayFunc displa
 		strAppend(result, " (", RomInfo::romTypeToName(item.romType), ')');
 	}
 	if (auto n = item.ipsPatches.size()) {
-		strAppend(result, " (+", n, " patch", (n == 1 ? "" : "es"), ')');
+		strAppend(result, " (+", n, " patch", (n == 1 ? ""sv : "es"sv), ')');
 	}
 	return result;
 }
@@ -1047,7 +1049,7 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 				}
 			}
 			if (auto doubleSided = cmdResult->getOptionalDictValue(TclObject("doublesided"))) {
-				add(doubleSided->getOptionalBool().value_or(true) ? "double-sided" : "single-sided");
+				add(doubleSided->getOptionalBool().value_or(true) ? "double-sided"sv : "single-sided"sv);
 			}
 			if (auto size = cmdResult->getOptionalDictValue(TclObject("size"))) {
 				add(tmpStrCat(size->getOptionalInt().value_or(0) / 1024, "kB"));
@@ -1516,7 +1518,7 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			bool enabled = cassettePlayer.isMotorControlEnabled();
 			bool changed = ImGui::Checkbox("Motor control enabled", &enabled);
 			if (changed) {
-				manager.execute(makeTclList("cassetteplayer", "motorcontrol", enabled ? "on" : "off"));
+				manager.execute(makeTclList("cassetteplayer", "motorcontrol", enabled ? "on"sv : "off"sv));
 			}
 			simpleToolTip("Enable or disable motor control. Disable in some rare cases where you don't want the motor of the player to be controlled by the MSX, e.g. for CD-Sequential.");
 

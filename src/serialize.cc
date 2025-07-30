@@ -21,15 +21,14 @@
 #include <iostream>
 #include <limits>
 
-using std::string;
-using std::string_view;
-
 namespace openmsx {
+
+using namespace std::literals;
 
 template<typename Derived>
 void ArchiveBase<Derived>::attribute(const char* name, const char* value)
 {
-	string valueStr(value);
+	std::string valueStr(value);
 	self().attribute(name, valueStr);
 }
 template class ArchiveBase<MemOutputArchive>;
@@ -79,8 +78,8 @@ template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
 	const char* tag, std::span<const uint8_t> data, bool /*diff*/)
 {
-	string encoding;
-	string tmp;
+	std::string encoding;
+	std::string tmp;
 	if (false) {
 		// useful for debugging
 		encoding = "hex";
@@ -104,7 +103,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 	}
 	this->self().beginTag(tag);
 	this->self().attribute("encoding", encoding);
-	Saver<string> saver;
+	Saver<std::string> saver;
 	saver(this->self(), tmp, false);
 	this->self().endTag(tag);
 }
@@ -139,10 +138,10 @@ void InputArchiveBase<Derived>::serialize_blob(
 	const char* tag, std::span<uint8_t> data, bool /*diff*/)
 {
 	this->self().beginTag(tag);
-	string encoding;
+	std::string encoding;
 	this->self().attribute("encoding", encoding);
 
-	string_view tmp = this->self().loadStr();
+	std::string_view tmp = this->self().loadStr();
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
@@ -193,7 +192,7 @@ void MemInputArchive::load(std::string& s)
 	}
 }
 
-string_view MemInputArchive::loadStr()
+std::string_view MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
@@ -336,7 +335,7 @@ void XmlOutputArchive::save(std::string_view str)
 }
 void XmlOutputArchive::save(bool b)
 {
-	writer.data(b ? "true" : "false");
+	writer.data(b ? "true"sv : "false"sv);
 }
 void XmlOutputArchive::save(unsigned char b)
 {
@@ -387,21 +386,21 @@ void XmlOutputArchive::endTag(const char* tag)
 
 ////
 
-XmlInputArchive::XmlInputArchive(const string& filename)
+XmlInputArchive::XmlInputArchive(const std::string& filename)
 {
 	xmlDoc.load(filename, "openmsx-serialize.dtd");
 	auto* root = xmlDoc.getRoot();
 	elems.emplace_back(root, root->getFirstChild());
 }
 
-string_view XmlInputArchive::loadStr() const
+std::string_view XmlInputArchive::loadStr() const
 {
 	if (currentElement()->hasChildren()) {
 		throw XMLException("No child tags expected for primitive type");
 	}
 	return currentElement()->getData();
 }
-void XmlInputArchive::load(string& t) const
+void XmlInputArchive::load(std::string& t) const
 {
 	t = loadStr();
 }
@@ -414,7 +413,7 @@ void XmlInputArchive::loadChar(char& c) const
 }
 void XmlInputArchive::load(bool& b) const
 {
-	string_view s = loadStr();
+	std::string_view s = loadStr();
 	if (s == one_of("true", "1")) {
 		b = true;
 	} else if (s == one_of("false", "0")) {
@@ -437,7 +436,7 @@ void XmlInputArchive::load(bool& b) const
 // This routine is only used to parse strings we've written ourselves (and the
 // savestate/replay XML files are not meant to be manually edited). So the
 // above limitations don't really matter. And we can use the speed gain.
-template<std::integral T> static inline void fastAtoi(string_view str, T& t)
+template<std::integral T> static inline void fastAtoi(std::string_view str, T& t)
 {
 	t = 0;
 	bool neg = false;
@@ -466,12 +465,12 @@ template<std::integral T> static inline void fastAtoi(string_view str, T& t)
 }
 void XmlInputArchive::load(int& i) const
 {
-	string_view str = loadStr();
+	std::string_view str = loadStr();
 	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u) const
 {
-	string_view str = loadStr();
+	std::string_view str = loadStr();
 	try {
 		fastAtoi(str, u);
 	} catch (XMLException&) {
@@ -486,7 +485,7 @@ void XmlInputArchive::load(unsigned& u) const
 }
 void XmlInputArchive::load(unsigned long long& ull) const
 {
-	string_view str = loadStr();
+	std::string_view str = loadStr();
 	fastAtoi(str, ull);
 }
 void XmlInputArchive::load(unsigned char& b) const
@@ -512,7 +511,7 @@ void XmlInputArchive::beginTag(const char* tag)
 {
 	auto* child = currentElement()->findChild(tag, elems.back().second);
 	if (!child) {
-		string path;
+		std::string path;
 		for (const auto& [e, _] : elems) {
 			strAppend(path, e->getName(), '/');
 		}
@@ -532,7 +531,7 @@ void XmlInputArchive::endTag(const char* tag)
 	elems.pop_back();
 }
 
-void XmlInputArchive::attribute(const char* name, string& t) const
+void XmlInputArchive::attribute(const char* name, std::string& t) const
 {
 	const auto* attr = currentElement()->findAttribute(name);
 	if (!attr) {

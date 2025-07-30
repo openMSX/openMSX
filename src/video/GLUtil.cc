@@ -13,6 +13,8 @@
 
 using namespace openmsx;
 
+using namespace std::literals;
+
 namespace gl {
 
 void checkGLError(std::string_view prefix)
@@ -187,7 +189,7 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		std::string infoLog(infoLogLength - 1, '\0');
 		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog.data());
-		std::cerr << (ok ? "Warning" : "Error") << "(s) compiling shader \""
+		std::cerr << (ok ? "Warning"sv : "Error"sv) << "(s) compiling shader \""
 		          << filename << "\":\n"
 			  << (infoLogLength > 1 ? infoLog.data() : "(no details available)\n");
 	}
@@ -296,7 +298,7 @@ void ShaderProgram::validate() const
 	std::string infoLog(infoLogLength - 1, '\0');
 	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog.data());
 	std::cout << "Validate "
-	          << ((validateStatus == GL_TRUE) ? "OK" : "FAIL")
+	          << ((validateStatus == GL_TRUE) ? "OK"sv : "FAIL"sv)
 	          << ": " << infoLog.data() << '\n';
 }
 

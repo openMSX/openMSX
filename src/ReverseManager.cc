@@ -34,6 +34,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 // Time between two snapshots (in seconds)
 static constexpr double SNAPSHOT_PERIOD = 1.0;
 
@@ -227,9 +229,9 @@ double ReverseManager::getCurrent() const
 
 void ReverseManager::status(TclObject& result) const
 {
-	result.addDictKeyValue("status", !isCollecting() ? "disabled"
-	                               : isReplaying()   ? "replaying"
-	                                                 : "enabled");
+	result.addDictKeyValue("status", !isCollecting() ? "disabled"sv
+	                               : isReplaying()   ? "replaying"sv
+	                                                 : "enabled"sv);
 	result.addDictKeyValue("begin", getBegin());
 	result.addDictKeyValue("end", getEnd());
 	result.addDictKeyValue("current", getCurrent());

@@ -14,6 +14,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 [[nodiscard]] static std::string_view getLedName(LedStatus::Led led)
 {
 	static constexpr std::array<std::string_view, LedStatus::NUM_LEDS> names = {
@@ -66,7 +68,7 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led) noexcept
 {
-	std::string_view str = ledValue[led] ? "on": "off";
+	std::string_view str = ledValue[led] ? "on"sv : "off"sv;
 	ledStatus[led].setReadOnlyValue(TclObject(str));
 	msxCliComm.updateFiltered(CliComm::UpdateType::LED, getLedName(led), str);
 }

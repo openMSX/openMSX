@@ -268,10 +268,10 @@ void DebuggableEditor::drawExport(const Sizes& s, Debuggable& debuggable)
 				HelpMarker("format string passed to the Tcl 'format' command");
 			});
 		});
-		std::string formatStr = (exportFormat == FORMAT_BIN) ? "0b%08b"
-		                      : (exportFormat == FORMAT_DEC) ? "%3d"
-		                      : (exportFormat == FORMAT_HEX) ? "0x%02X"
-		                      : exportCustomFormat;
+		std::string_view formatStr = (exportFormat == FORMAT_BIN) ? "0b%08b"sv
+		                           : (exportFormat == FORMAT_DEC) ? "%3d"sv
+		                           : (exportFormat == FORMAT_HEX) ? "0x%02X"sv
+		                           : exportCustomFormat;
 
 		ImGui::SeparatorText("Output");
 

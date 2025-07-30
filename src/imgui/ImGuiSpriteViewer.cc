@@ -231,7 +231,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				});
 				im::Disabled(manLines, [&]{
 					ImGui::AlignTextToFramePadding();
-					ImGui::StrCat("Visible lines: ", (vdpLines == 192) ? "192" : "212");
+					ImGui::StrCat("Visible lines: ", (vdpLines == 192) ? "192"sv : "212"sv);
 				});
 			});
 			ImGui::SameLine();
@@ -533,7 +533,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 							ImGui::StrCat("pattern: ", attTable[addr + 2]);
 							if (mode == 1) {
 								auto c = attTable[addr + 3];
-								ImGui::StrCat("color: ", c & 15, (c & 80 ? " (EC)" : ""));
+								ImGui::StrCat("color: ", c & 15, (c & 80 ? " (EC)"sv : ""sv));
 							} else {
 								int colorBase = getSpriteColorAddr(sprite, mode);
 								im::StyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1), [&]{ // Tighten spacing

@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 
 #include "foreach_file.hh"
+#include "zstring_view.hh"
 
 #include <filesystem>
 
@@ -31,9 +32,9 @@ static std::string formatFileAbbreviated(std::time_t fileTime)
 	std::time_t t_now = std::time(nullptr); // get time now
 	std::tm now = *std::localtime(&t_now);
 
-	const std::string format = ((now.tm_mday == local_time.tm_mday) &&
-					(now.tm_mon  == local_time.tm_mon ) &&
-					(now.tm_year == local_time.tm_year)) ? "%T" : "%F";
+	auto format = ((now.tm_mday == local_time.tm_mday) &&
+	               (now.tm_mon  == local_time.tm_mon ) &&
+	               (now.tm_year == local_time.tm_year)) ? zstring_view("%T") : zstring_view("%F");
 
 	// Get the local time in human-readable format
 	std::stringstream ss;

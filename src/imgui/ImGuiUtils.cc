@@ -20,6 +20,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 void HelpMarker(std::string_view desc, float spacing)
 {
 	ImGui::SameLine(0.0f, spacing);
@@ -295,7 +297,7 @@ std::string getShortCutForCommand(const HotKey& hotkey, std::string_view command
 
 [[nodiscard]] static std::string_view superName()
 {
-	return ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+" : "Super+";
+	return ImGui::GetIO().ConfigMacOSXBehaviors ? "Cmd+"sv : "Super+"sv;
 }
 
 std::string getKeyChordName(ImGuiKeyChord keyChord)
@@ -304,10 +306,10 @@ std::string getKeyChordName(ImGuiKeyChord keyChord)
 	const auto* name = SDL_GetKeyName(keyCode);
 	if (!name || (*name == '\0')) return "None";
 	return strCat(
-		(keyChord & ImGuiMod_Ctrl  ? "Ctrl+"  : ""),
-		(keyChord & ImGuiMod_Shift ? "Shift+" : ""),
-		(keyChord & ImGuiMod_Alt   ? "Alt+"   : ""),
-		(keyChord & ImGuiMod_Super ? superName() : ""),
+		(keyChord & ImGuiMod_Ctrl  ? "Ctrl+"sv  : ""sv),
+		(keyChord & ImGuiMod_Shift ? "Shift+"sv : ""sv),
+		(keyChord & ImGuiMod_Alt   ? "Alt+"sv   : ""sv),
+		(keyChord & ImGuiMod_Super ? superName() : ""sv),
 		name);
 }
 

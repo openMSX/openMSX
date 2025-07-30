@@ -196,7 +196,7 @@ void ImGuiReverseBar::showMenu(MSXMotherBoard* motherBoard)
 		}
 		im::Menu("Reverse/replay settings", [&]{
 			if (ImGui::MenuItem("Enable reverse/replay", nullptr, &reverseEnabled)) {
-				manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start" : "stop"));
+				manager.executeDelayed(makeTclList("reverse", reverseEnabled ? "start"sv : "stop"sv));
 			}
 			simpleToolTip("Enable/disable reverse/replay right now, for the currently running machine");
 			if (auto* autoEnableReverseSetting = dynamic_cast<BooleanSetting*>(manager.getReactor().getGlobalCommandController().getSettingsManager().findSetting("auto_enable_reverse"))) {
