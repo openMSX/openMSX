@@ -237,6 +237,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		bool manualLines  = overrideAll || overrideLines;
 		bool manualColor0 = overrideAll || overrideColor0;
 		im::Group([&]{
+			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("VDP settings");
 			im::Disabled(manualMode, [&]{
 				ImGui::AlignTextToFramePadding();
@@ -274,7 +275,9 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 						ImGui::Combo("##Screen mode", &bitmapScrnMode, "screen 5\000screen 6\000screen 7\000screen 8\000screen 11\000screen 12\000");
 					});
 					im::Disabled(!manualPage, [&]{
-						int numPages = bitmapScrnMode <= SCR6 ? 4 : 2; // TODO extended VRAM
+						// note: 'mode', not 'bitmapScrnMode'
+						int mode = manualMode ? bitmapScrnMode : vdpMode;
+						int numPages = mode <= SCR6 ? 4 : 2; // TODO extended VRAM
 						if (bitmapPage >= numPages) bitmapPage = numPages - 1;
 						if (bitmapPage < 0) bitmapPage = numPages;
 						ImGui::Combo("##Display page", &bitmapPage, numPages == 2 ? "0\0001\000All\000" : "0\0001\0002\0003\000All\000");
