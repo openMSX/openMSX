@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-static constexpr const char* const filename = "firmwareswitch";
+static constexpr std::string_view filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)

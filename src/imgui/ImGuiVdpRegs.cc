@@ -27,10 +27,10 @@ void ImGuiVdpRegs::loadLine(std::string_view name, zstring_view value)
 	loadOnePersistent(name, value, *this, persistentElements);
 }
 
-static const char* modeName(uint32_t v)
+static zstring_view modeName(uint32_t v)
 {
 	// NOTE: bits M1 and M2 are swapped!!
-	static constexpr std::array<const char*, 32> modeNames = {
+	static constexpr std::array<zstring_view, 32> modeNames = {
 		"Graphic 1 (screen 1)", // 0
 		"Multicolor (screen 3)", // 2
 		"Text 1 (screen 0, width 40)", // 1
@@ -78,7 +78,7 @@ static const char* modeName(uint32_t v)
 using Bits = std::array<const char*, 8>;
 struct RegisterDescription {
 	Bits bits;
-	const char* name;
+	std::string_view name;
 };
 using RD = RegisterDescription;
 static constexpr auto registerDescriptions = std::array{

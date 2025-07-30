@@ -78,7 +78,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 }
 
 void CommandLineParser::registerOption(
-	const char* str, CLIOption& cliOption, ParsePhase phase, unsigned length)
+	std::string_view str, CLIOption& cliOption, ParsePhase phase, unsigned length)
 {
 	options.emplace_back(str, &cliOption, phase, length);
 }

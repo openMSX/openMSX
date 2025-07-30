@@ -400,12 +400,12 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 			maxIconSize = max(maxIconSize, gl::vec2{g->X1 - g->X0, g->Y1 - g->Y0});
 		}
 
-		auto ButtonGlyph = [&](const char* id, ImWchar glyph, Shortcuts::ID sid) {
+		auto ButtonGlyph = [&](std::string_view id, ImWchar glyph, Shortcuts::ID sid) {
 			bool result = ButtonWithCenteredGlyph(glyph, maxIconSize);
 			simpleToolTip([&]() -> std::string {
 				const auto& shortcuts = manager.getShortcuts();
 				const auto& shortcut = shortcuts.getShortcut(sid);
-				if (shortcut.keyChord == ImGuiKey_None) return id;
+				if (shortcut.keyChord == ImGuiKey_None) return std::string(id);
 				return strCat(id, " (", getKeyChordName(shortcut.keyChord), ')');
 			});
 			return result;
@@ -738,7 +738,7 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 		auto f = regs.getF();
 		auto oldF = drawChanges ? cpuRegsSnapshot->getF() : f;
 
-		auto draw = [&](const char* name, uint8_t bit, const char* val0 = nullptr, const char* val1 = nullptr) {
+		auto draw = [&](std::string_view name, uint8_t bit, std::string_view val0 = {}, std::string_view val1 = {}) {
 			std::string s;
 			ImVec2 sz;
 			bool val = f & bit;
@@ -746,7 +746,7 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 
 			if (flagsLayout == 0) {
 				// horizontal
-				if (val0) {
+				if (!val0.empty()) {
 					s = val ? val1 : val0;
 					sz = sizeH1;
 				} else {
@@ -756,7 +756,7 @@ void ImGuiDebugger::drawFlags(CPURegs& regs)
 			} else {
 				// vertical
 				s = strCat(name, ' ', val ? '1' : '0');
-				if (val0) {
+				if (!val0.empty()) {
 					strAppend(s, " (", val ? val1 : val0, ')');
 				}
 				sz = sizeV;

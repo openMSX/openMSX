@@ -431,7 +431,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 					",TIMP",",TAND",",TOR",",TXOR",",TNOT","","",""
 				};
 				const char* logOp = logOps[cmdReg & 15];
-				auto printRect = [](const char* s, std::optional<static_vector<Rect, 2>>& r) {
+				auto printRect = [](std::string_view s, std::optional<static_vector<Rect, 2>>& r) {
 					assert(r);
 					ImGui::TextUnformatted(s);
 					ImGui::SameLine(0.0f, 0.0f);
@@ -441,7 +441,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 						r->back().p2.x,
 						r->back().p2.y);
 				};
-				auto printSrcDstRect = [&](const char* c) {
+				auto printSrcDstRect = [&](std::string_view c) {
 					printRect(c, srcRect);
 					ImGui::SameLine(0.0f, 0.0f);
 					printRect(" TO ", dstRect);

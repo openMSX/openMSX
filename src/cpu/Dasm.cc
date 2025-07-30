@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+using namespace std::literals;
+
 static constexpr char sign(uint8_t a)
 {
 	return (a & 128) ? '-' : '+';
@@ -38,7 +40,7 @@ std::optional<unsigned> instructionLength(std::span<const uint8_t> bin)
 unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
               function_ref<void(std::string&, uint16_t)> appendAddr)
 {
-	const char* r = nullptr;
+	std::string_view r;
 
 	auto [s, i] = [&]() -> std::pair<const char*, unsigned> {
 		switch (opcode[0]) {
@@ -48,7 +50,7 @@ unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
 				return {mnemonic_ed[opcode[1]], 2};
 			case 0xDD:
 			case 0xFD:
-				r = (opcode[0] == 0xDD) ? "ix" : "iy";
+				r = (opcode[0] == 0xDD) ? "ix"sv : "iy"sv;
 				if (opcode[1] != 0xCB) {
 					return {mnemonic_xx[opcode[1]], 2};
 				} else {

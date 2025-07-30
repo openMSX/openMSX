@@ -107,13 +107,13 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
 template<typename T> struct serialize_as_enum : std::false_type {};
 
 template<typename T> struct enum_string {
-	const char* str;
+	std::string_view str;
 	T e;
 };
 [[noreturn]] void enumError(std::string_view str);
 
 template<typename T>
-inline std::string toString(std::initializer_list<enum_string<T>> list, T t_)
+inline std::string_view toString(std::initializer_list<enum_string<T>> list, T t_)
 {
 	for (auto& [str, t] : list) {
 		if (t == t_) return str;
