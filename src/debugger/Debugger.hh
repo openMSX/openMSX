@@ -4,6 +4,7 @@
 #include "Probe.hh"
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
+#include "ImGuiWatchExpr.hh"
 
 #include "hash_map.hh"
 #include "outer.hh"
@@ -50,6 +51,7 @@ public:
 
 	[[nodiscard]] MSXMotherBoard& getMotherBoard() { return motherBoard; }
 	[[nodiscard]] Interpreter& getInterpreter();
+	[[nodiscard]] std::vector<ImGuiWatchExpr::WatchExpr>& getWatchExprs() const;
 
 private:
 	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);
@@ -88,30 +90,38 @@ private:
 		void disasmBlob(std::span<const TclObject> tokens, TclObject& result) const;
 		void breakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void watchPoint(std::span<const TclObject> tokens, TclObject& result);
+		void watchExpr(std::span<const TclObject> tokens, TclObject& result);
 		void condition (std::span<const TclObject> tokens, TclObject& result);
 		[[nodiscard]] BreakPoint* lookupBreakPoint(std::string_view str);
 		[[nodiscard]] std::shared_ptr<WatchPoint> lookupWatchPoint(std::string_view str);
+		[[nodiscard]] ImGuiWatchExpr::WatchExpr* lookupWatchExpr(std::string_view str);
 		[[nodiscard]] DebugCondition* lookupCondition(std::string_view str);
 		void breakPointList(std::span<const TclObject> tokens, TclObject& result);
 		void watchPointList(std::span<const TclObject> tokens, TclObject& result);
+		void watchExprList(std::span<const TclObject> /*tokens*/, TclObject& result);
 		void conditionList (std::span<const TclObject> tokens, TclObject& result);
 		void parseCreateBreakPoint(BreakPoint& bp, std::span<const TclObject> tokens);
 		void parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObject> tokens);
+		void parseCreateWatchExpr(ImGuiWatchExpr::WatchExpr& we, std::span<const TclObject> tokens);
 		void parseCreateCondition (DebugCondition& cond, std::span<const TclObject> tokens);
 		void breakPointCreate(std::span<const TclObject> tokens, TclObject& result);
 		void watchPointCreate(std::span<const TclObject> tokens, TclObject& result);
+		void watchExprCreate(std::span<const TclObject> tokens, TclObject& result);
 		void conditionCreate (std::span<const TclObject> tokens, TclObject& result);
 		void breakPointConfigure(std::span<const TclObject> tokens, TclObject& result);
 		void watchPointConfigure(std::span<const TclObject> tokens, TclObject& result);
+		void watchExprConfigure(std::span<const TclObject> tokens, TclObject& result);
 		void conditionConfigure (std::span<const TclObject> tokens, TclObject& result);
 		void breakPointRemove(std::span<const TclObject> tokens, TclObject& result);
 		void watchPointRemove(std::span<const TclObject> tokens, TclObject& result);
+		void watchExprRemove(std::span<const TclObject> tokens, TclObject& result);
 		void conditionRemove (std::span<const TclObject> tokens, TclObject& result);
 		void setBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void removeBreakPoint(std::span<const TclObject> tokens, TclObject& result);
 		void listBreakPoints(std::span<const TclObject> tokens, TclObject& result) const;
 		[[nodiscard]] std::vector<std::string> getBreakPointIds() const;
 		[[nodiscard]] std::vector<std::string> getWatchPointIds() const;
+		[[nodiscard]] std::vector<std::string> getWatchExprIds() const;
 		[[nodiscard]] std::vector<std::string> getConditionIds() const;
 		void setWatchPoint(std::span<const TclObject> tokens, TclObject& result);
 		void removeWatchPoint(std::span<const TclObject> tokens, TclObject& result);

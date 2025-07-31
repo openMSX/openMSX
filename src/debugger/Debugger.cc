@@ -181,6 +181,11 @@ Interpreter& Debugger::getInterpreter()
 	return motherBoard.getReactor().getInterpreter();
 }
 
+std::vector<ImGuiWatchExpr::WatchExpr>& Debugger::getWatchExprs() const
+{
+	return motherBoard.getReactor().getImGuiManager().watchExpr->getWatchExprs();
+}
+
 // class Debugger::Cmd
 
 static uint16_t getAddress(Interpreter& interp, const TclObject& token)
@@ -233,6 +238,7 @@ void Debugger::Cmd::execute(
 		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
 		"list_bp",           [&]{ listBreakPoints(tokens, result); },
 		"watchpoint",        [&]{ watchPoint(tokens, result); },
+		"watchexpr",         [&]{ watchExpr(tokens, result); },
 		"set_watchpoint",    [&]{ setWatchPoint(tokens, result); },
 		"remove_watchpoint", [&]{ removeWatchPoint(tokens, result); },
 		"list_watchpoints",  [&]{ listWatchPoints(tokens, result); },
@@ -404,6 +410,16 @@ void Debugger::Cmd::watchPoint(std::span<const TclObject> tokens, TclObject& res
 		"remove",    [&]{ watchPointRemove(tokens, result); });
 }
 
+void Debugger::Cmd::watchExpr(std::span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[2].getString(),
+		"list",      [&]{ watchExprList(tokens, result); },
+		"create",    [&]{ watchExprCreate(tokens, result); },
+		"configure", [&]{ watchExprConfigure(tokens, result); },
+		"remove",    [&]{ watchExprRemove(tokens, result); });
+}
+
 void Debugger::Cmd::condition(std::span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
@@ -439,6 +455,22 @@ std::shared_ptr<WatchPoint> Debugger::Cmd::lookupWatchPoint(std::string_view str
 		}
 	}
 	return {};
+}
+
+static auto findWatchExpr(std::vector<ImGuiWatchExpr::WatchExpr>& watchExprs, std::string_view str)
+{
+	if (!str.starts_with(ImGuiWatchExpr::WatchExpr::prefix)) return std::end(watchExprs);
+	if (auto id = StringOp::stringToBase<10, unsigned>(str.substr(ImGuiWatchExpr::WatchExpr::prefix.size()))) {
+		return std::ranges::find(watchExprs, id, &ImGuiWatchExpr::WatchExpr::getId);
+	}
+	return std::end(watchExprs);
+}
+
+ImGuiWatchExpr::WatchExpr* Debugger::Cmd::lookupWatchExpr(std::string_view str)
+{
+	auto& watchExprs = debugger().getWatchExprs();
+	auto it = findWatchExpr(watchExprs, str);
+	return (it != std::end(watchExprs)) ? std::to_address(it) : nullptr;
 }
 
 DebugCondition* Debugger::Cmd::lookupCondition(std::string_view str)
@@ -489,6 +521,17 @@ void Debugger::Cmd::watchPointList(std::span<const TclObject> /*tokens*/, TclObj
 			TclObject("-enabled"), wp->isEnabled(),
 			TclObject("-once"), wp->onlyOnce());
 		result.addDictKeyValue(wp->getIdStr(), std::move(dict));
+	}
+}
+
+void Debugger::Cmd::watchExprList(std::span<const TclObject> /*tokens*/, TclObject& result)
+{
+	for (const auto& we : debugger().getWatchExprs()) {
+		TclObject dict = makeTclDict(
+			TclObject("-description"), we.getDescription(),
+			TclObject("-expression"), we.getExpression(),
+			TclObject("-format"), we.getFormat());
+		result.addDictKeyValue(we.getIdStr(), std::move(dict));
 	}
 }
 
@@ -553,6 +596,23 @@ void Debugger::Cmd::parseCreateWatchPoint(WatchPoint& wp, std::span<const TclObj
 	if (!arguments.empty()) throw SyntaxError();
 }
 
+void Debugger::Cmd::parseCreateWatchExpr(ImGuiWatchExpr::WatchExpr& we, std::span<const TclObject> tokens)
+{
+	std::array info = {
+		funcArg("-description", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			we.setDescription(arg);
+		}),
+		funcArg("-expression", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			we.setExpression(arg);
+		}),
+		funcArg("-format", [&](Interpreter& /*interp*/, const TclObject& arg) {
+			we.setFormat(arg);
+		}),
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens, info);
+	if (!arguments.empty()) throw SyntaxError();
+}
+
 void Debugger::Cmd::parseCreateCondition(DebugCondition& cond, std::span<const TclObject> tokens)
 {
 	std::array info = {
@@ -589,6 +649,14 @@ void Debugger::Cmd::watchPointCreate(std::span<const TclObject> tokens, TclObjec
 	debugger().motherBoard.getCPUInterface().setWatchPoint(std::move(wp));
 }
 
+void Debugger::Cmd::watchExprCreate(std::span<const TclObject> tokens, TclObject& result)
+{
+	ImGuiWatchExpr::WatchExpr we;
+	parseCreateWatchExpr(we, tokens.subspan(3));
+	result = we.getIdStr();
+	debugger().getWatchExprs().push_back(std::move(we));
+}
+
 void Debugger::Cmd::conditionCreate(std::span<const TclObject> tokens, TclObject& result)
 {
 	DebugCondition cond;
@@ -615,10 +683,21 @@ void Debugger::Cmd::watchPointConfigure(std::span<const TclObject> tokens, TclOb
 	auto id = tokens[3].getString();
 	auto wp = lookupWatchPoint(id);
 	if (!wp) {
-		throw CommandException("No such breakpoint: ", id);
+		throw CommandException("No such watchpoint: ", id);
 	}
 	auto ch = debugger().motherBoard.getCPUInterface().getScopedChangeWatchpoint(wp);
 	parseCreateWatchPoint(*wp, tokens.subspan(4));
+}
+
+void Debugger::Cmd::watchExprConfigure(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, AtLeast{4}, "id ?arg ...?");
+	auto id = tokens[3].getString();
+	auto* we = lookupWatchExpr(id);
+	if (!we) {
+		throw CommandException("No such watchexpr: ", id);
+	}
+	parseCreateWatchExpr(*we, tokens.subspan(4));
 }
 
 void Debugger::Cmd::conditionConfigure(std::span<const TclObject> tokens, TclObject& /*result*/)
@@ -637,7 +716,7 @@ void Debugger::Cmd::breakPointRemove(std::span<const TclObject> tokens, TclObjec
 {
 	checkNumArgs(tokens, 4, "id");
 	auto id = tokens[3].getString();
-	auto* bp = lookupBreakPoint(tokens[3].getString());
+	auto* bp = lookupBreakPoint(id);
 	if (!bp) {
 		throw CommandException("No such breakpoint: ", id);
 	}
@@ -648,18 +727,32 @@ void Debugger::Cmd::watchPointRemove(std::span<const TclObject> tokens, TclObjec
 {
 	checkNumArgs(tokens, 4, "id");
 	auto id = tokens[3].getString();
-	auto wp = lookupWatchPoint(tokens[3].getString());
+	auto wp = lookupWatchPoint(id);
 	if (!wp) {
 		throw CommandException("No such watchpoint: ", id);
 	}
 	debugger().motherBoard.getCPUInterface().removeWatchPoint(wp);
 }
 
+void Debugger::Cmd::watchExprRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 4, "id");
+	auto id = tokens[3].getString();
+
+	auto& watchExprs = debugger().getWatchExprs();
+	auto it = findWatchExpr(watchExprs, id);
+	if (it == std::end(watchExprs)) {
+		throw CommandException("No such watchexpr: ", id);
+	}
+
+	watchExprs.erase(it);
+}
+
 void Debugger::Cmd::conditionRemove(std::span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 4, "id");
 	auto id = tokens[3].getString();
-	auto* cond = lookupCondition(tokens[3].getString());
+	auto* cond = lookupCondition(id);
 	if (!cond) {
 		throw CommandException("No such condition: ", id);
 	}
@@ -1045,7 +1138,7 @@ void Debugger::Cmd::symbolsLookup(std::span<const TclObject> tokens, TclObject& 
 
 std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 {
-	auto generalHelp =
+	constexpr auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list              returns a list of all debuggables\n"
@@ -1057,6 +1150,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    write_block       write a whole block at once\n"
 		"    breakpoint        breakpoint related subcommands\n"
 		"    watchpoint        watchpoint related subcommands\n"
+		"    watchexpr         watch expression related subcommands\n"
 		"    condition         debug condition related subcommands\n"
 		"    probe             probe related subcommands\n"
 		"    cont              continue execution after break\n"
@@ -1069,17 +1163,17 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
 
-	auto listHelp =
+	constexpr auto listHelp =
 		"debug list\n"
 		"  Returns a list with the names of all 'debuggables'.\n"
 		"  These names are used in other debug subcommands.\n";
-	auto descHelp =
+	constexpr auto descHelp =
 		"debug desc <name>\n"
 		"  Returns a description for the debuggable with given name.\n";
-	auto sizeHelp =
+	constexpr auto sizeHelp =
 		"debug size <name>\n"
 		"  Returns the size (in bytes) of the debuggable with given name.\n";
-	auto readHelp =
+	constexpr auto readHelp =
 		"debug read <name> <addr>\n"
 		"  Read a byte at offset <addr> from the given debuggable.\n"
 		"  The offset must be smaller than the value returned from the "
@@ -1088,12 +1182,12 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"some of the debug reads much more convenient (e.g. reading from "
 		"Z80 or VDP registers). See the Console Command Reference for more "
 		"details about these.\n";
-	auto writeHelp =
+	constexpr auto writeHelp =
 		"debug write <name> <addr> <val>\n"
 		"  Write a byte to the given debuggable at a certain offset.\n"
 		"  The offset must be smaller than the value returned from the "
 		"'size' subcommand\n";
-	auto readBlockHelp =
+	constexpr auto readBlockHelp =
 		"debug read_block <name> <addr> <size>\n"
 		"  Read a whole block at once. This is equivalent with repeated "
 		"invocations of the 'read' subcommand, but using this subcommand "
@@ -1101,7 +1195,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  The block is specified as size/offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
-	auto writeBlockHelp =
+	constexpr auto writeBlockHelp =
 		"debug write_block <name> <addr> <values>\n"
 		"  Write a whole block at once. This is equivalent with repeated "
 		"invocations of the 'write' subcommand, but using this subcommand "
@@ -1110,7 +1204,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  The block has a size and an offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
-	auto breakPointHelp =
+	constexpr auto breakPointHelp =
 		"debug breakpoint <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list      list all active breakpoints\n"
@@ -1118,7 +1212,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    configure configure an existing breakpoint\n"
 		"    remove    remove an existing breakpoint\n"
 		"  Type 'help debug breakpoint <subcommand>' for help about a specific subcommand.\n";
-	auto watchPointHelp =
+	constexpr auto watchPointHelp =
 		"debug watchpoint <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list      list all active watchpoints\n"
@@ -1126,7 +1220,15 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    configure configure an existing watchpoint\n"
 		"    remove    remove an existing watchpoint\n"
 		"  Type 'help debug watchpoint <subcommand>' for help about a specific subcommand.\n";
-	auto conditionHelp =
+	constexpr auto watchExprHelp =
+		"debug watchexpr <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    list      list all active watch expressions\n"
+		"    create    create a new watch expression\n"
+		"    configure configure an existing watch expression\n"
+		"    remove    remove an existing watch expression\n"
+		"  Type 'help debug watchexpr <subcommand>' for help about a specific subcommand.\n";
+	constexpr auto conditionHelp =
 		"debug condition <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list      list all active debug conditions\n"
@@ -1134,25 +1236,31 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    configure configure an existing debug condition\n"
 		"    remove    remove an existing debug condition\n"
 		"  Type 'help debug condition <subcommand>' for help about a specific subcommand.\n";
-	auto breakPointListHelp =
+	constexpr auto breakPointListHelp =
 		"debug breakpoint list\n"
 		"  Lists all breakpoints. The result is a Tcl dict (<key>/<value>-pairs), where\n"
 		"  * <key> is the breakpoint ID\n"
 		"  * <value> is another Tcl dict containing the properties of the breakpoint.\n"
 		"            See 'help debug breakpoint create' for a description of these properties.\n";
-	auto watchPointListHelp =
+	constexpr auto watchPointListHelp =
 		"debug watchpoint list\n"
 		"  Lists all watchpoints. The result is a Tcl dict (<key>/<value>-pairs), where\n"
 		"  * <key> is the watchpoint ID\n"
 		"  * <value> is another Tcl dict containing the properties of the watchpoint.\n"
 		"            See 'help debug watchpoint create' for a description of these properties.\n";
-	auto conditionListHelp =
+	constexpr auto watchExprListHelp =
+		"debug watchexpr list\n"
+		"  Lists all watch expressions. The result is a Tcl dict (<key>/<value>-pairs), where\n"
+		"  * <key> is the watchexpr ID\n"
+		"  * <value> is another Tcl dict containing the properties of the watch expression.\n"
+		"            See 'help debug watchexpr create' for a description of these properties.\n";
+	constexpr auto conditionListHelp =
 		"debug condition list\n"
 		"  Lists all debug conditions. The result is a Tcl dict (<key>/<value>-pairs), where\n"
 		"  * <key> is the debug condition ID\n"
 		"  * <value> is another Tcl dict containing the properties of the debug condition.\n"
 		"            See 'help debug condition create' for a description of these properties.\n";
-	auto breakPointCreateHelp =
+	constexpr auto breakPointCreateHelp =
 		"debug breakpoint create [<property-name> <property-value>]...\n"
 		"  Create a new breakpoint with given properties. The following properties are supported:\n"
 		"  -address    the address where the breakpoint should trigger\n"
@@ -1160,7 +1268,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  -command    a Tcl command that should be executed when the breakpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this breakpoint\n"
 		"  -once       if 'true' the breakpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
-	auto watchPointCreateHelp =
+	constexpr auto watchPointCreateHelp =
 		"debug watchpoint create [<property-name> <property-value>]...\n"
 		"  Create a new watchpoint with given properties. The following properties are supported:\n"
 		"  -type       one of 'read_io', 'write_io', 'read_mem', 'write_mem'\n"
@@ -1169,35 +1277,50 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"  -command    a Tcl command that should be executed when the watchpoint triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this watchpoint\n"
 		"  -once       if 'true' the watchpoint is automatically removed after it triggered (default = 'false', meaning recurring)\n";
-	auto conditionCreateHelp =
+	constexpr auto watchExprCreateHelp =
+		"debug watchexpr create [<property-name> <property-value>]...\n"
+		"  Create a new watch expression with given properties. The following properties are supported:\n"
+		"  -description  (optional) description for the expression\n"
+		"  -expression   the actual Tcl expression\n"
+		"  -format       (optional) format specifier\n"
+		"Note: watch expressions are mostly a GUI feature, hover the help-marker (?) "
+		"in the GUI (menu bar > Debugger > Watch expression) to get a more detailed explanation.\n";
+	constexpr auto conditionCreateHelp =
 		"debug condition create [<property-name> <property-value>]...\n"
 		"  Create a new debug condition with given properties. The following properties are supported:\n"
 		"  -condition  a Tcl expression that must evaluate to true for the debug condition to trigger (default = no condition)\n"
 		"  -command    a Tcl command that should be executed when the debug condition triggers (default = 'debug break')\n"
 		"  -enabled    set to false to (temporarily) disable this condition\n"
 		"  -once       if 'true' the debug condition is automatically removed after it triggered (default = 'false', meaning recurring)\n";
-	auto breakPointConfigureHelp =
+	constexpr auto breakPointConfigureHelp =
 		"debug breakpoint configure <id> [<property-name> <property-value>]...\n"
 		"  Change one or more properties of an existing breakpoint.\n"
 		"  See 'help debug breakpoint create' for a description of the properties.\n";
-	auto watchPointConfigureHelp =
+	constexpr auto watchPointConfigureHelp =
 		"debug watchpoint configure <id> [<property-name> <property-value>]...\n"
 		"  Change one or more properties of an existing watchpoint.\n"
 		"  See 'help debug watchpoint create' for a description of the properties.\n";
-	auto conditionConfigureHelp =
+	constexpr auto watchExprConfigureHelp =
+		"debug watchexpr configure <id> [<property-name> <property-value>]...\n"
+		"  Change one or more properties of an existing watch expression.\n"
+		"  See 'help debug watchexpr create' for a description of the properties.\n";
+	constexpr auto conditionConfigureHelp =
 		"debug condition configure <id> [<property-name> <property-value>]...\n"
 		"  Change one or more properties of an existing debug condition.\n"
 		"  See 'help debug condition create' for a description of the properties.\n";
-	auto breakPointRemoveHelp =
+	constexpr auto breakPointRemoveHelp =
 		"debug breakpoint remove <id>\n"
 		"  Remove the breakpoint with given ID.\n";
-	auto watchPointRemoveHelp =
+	constexpr auto watchPointRemoveHelp =
 		"debug watchpoint remove <id>\n"
 		"  Remove the watchpoint with given ID.\n";
-	auto conditionRemoveHelp =
+	constexpr auto watchExprRemoveHelp =
+		"debug watchexpr remove <id>\n"
+		"  Remove the watch expression with given ID.\n";
+	constexpr auto conditionRemoveHelp =
 		"debug condition remove <id>\n"
 		"  Remove the debug condition with given ID.\n";
-	auto setBpHelp =
+	constexpr auto setBpHelp =
 		"[deprecated] replaced by: 'debug breakpoint create <args>...'\n"
 		"\n"
 		"debug set_bp [-once] <addr> [<cond>] [<cmd>]\n"
@@ -1219,13 +1342,13 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"By default this command is 'debug break'.\n"
 		"  The result of this command is a breakpoint ID. This ID can "
 		"later be used to remove this breakpoint again.\n";
-	auto removeBpHelp =
+	constexpr auto removeBpHelp =
 		"[deprecated] replaced by: 'debug breakpoint remove <id>'\n"
 		"\n"
 		"debug remove_bp <id>\n"
 		"  Remove the breakpoint with given ID again. You can use the "
 		"'list_bp' subcommand to see all valid IDs.\n";
-	auto listBpHelp =
+	constexpr auto listBpHelp =
 		"[deprecated] replaced by: 'debug breakpoint list'\n"
 		"\n"
 		"debug list_bp\n"
@@ -1234,7 +1357,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"second one has the address. The third has the condition "
 		"(default condition is empty). And the last column contains "
 		"the command that will be executed (default is 'debug break').\n";
-	auto setWatchPointHelp =
+	constexpr auto setWatchPointHelp =
 		"[deprecated] replaced by: 'debug watchpoint create <args>...'\n"
 		"\n"
 		"debug set_watchpoint [-once] <type> <region> [<cond>] [<cmd>]\n"
@@ -1259,20 +1382,20 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"Examples:\n"
 		"  debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
 		"  debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
-	auto removeWatchPointHelp =
+	constexpr auto removeWatchPointHelp =
 		"[deprecated] replaced by: 'debug watchpoint remove <id>'\n"
 		"\n"
 		"debug remove_watchpoint <id>\n"
 		"  Remove the watchpoint with given ID again. You can use the "
 		"'list_watchpoints' subcommand to see all valid IDs.\n";
-	auto listWatchPointsHelp =
+	constexpr auto listWatchPointsHelp =
 		"[deprecated] replaced by: 'debug watchpoint list'\n"
 		"\n"
 		"debug list_watchpoints\n"
 		"  Lists all active watchpoints. The result is similar to the "
 		"'list_bp' subcommand, but there is an extra column (2nd column) "
 		"that contains the type of the watchpoint.\n";
-	auto setCondHelp =
+	constexpr auto setCondHelp =
 		"[deprecated] replaced by: 'debug condition create <args>...'\n"
 		"\n"
 		"debug set_condition [-once] <cond> [<cmd>]\n"
@@ -1284,20 +1407,20 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"simulation speed (when you're debugging this is usually not "
 		"a problem).\n"
 		"  See 'help debug set_bp' for more details.\n";
-	auto removeCondHelp =
+	constexpr auto removeCondHelp =
 		"[deprecated] replaced by: 'debug condition remove <id>'\n"
 		"\n"
 		"debug remove_condition <id>\n"
 		"  Remove the condition with given ID again. You can use the "
 		"'list_conditions' subcommand to see all valid IDs.\n";
-	auto listCondHelp =
+	constexpr auto listCondHelp =
 		"[deprecated] replaced by: 'debug condition list'\n"
 		"\n"
 		"debug list_conditions\n"
 		"  Lists all active conditions. The result is similar to the "
 		"'list_bp' subcommand, but without the 2nd column that would "
 		"show the address.\n";
-	auto probeHelp =
+	constexpr auto probeHelp =
 		"debug probe <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    list                                     returns a list of all probes\n"
@@ -1306,22 +1429,22 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    set_bp <probe> [-once] [<cond>] [<cmd>]  set a breakpoint on the given probe\n"
 		"    remove_bp <id>                           remove the given breakpoint\n"
 		"    list_bp                                  returns a list of breakpoints that are set on probes\n";
-	auto contHelp =
+	constexpr auto contHelp =
 		"debug cont\n"
 		"  Continue execution after CPU was breaked.\n";
-	auto stepHelp =
+	constexpr auto stepHelp =
 		"debug step\n"
 		"  Execute one instruction. This command is only meaningful in "
 		"break mode.\n";
-	auto breakHelp =
+	constexpr auto breakHelp =
 		"debug break\n"
 		"  Immediately break CPU execution. When CPU was already breaked "
 		"this command has no effect.\n";
-	auto breakedHelp =
+	constexpr auto breakedHelp =
 		"debug breaked\n"
 		"  Query the CPU breaked status. Returns '1' when CPU was "
 		"breaked, '0' otherwise.\n";
-	auto disasmHelp =
+	constexpr auto disasmHelp =
 		"debug disasm <addr>\n"
 		"  Disassemble the instruction at the given address. The result "
 		"is a Tcl list. The first element in the list contains a textual "
@@ -1331,7 +1454,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"instruction).\n"
 		"  Note that openMSX comes with a 'disasm' Tcl script that is much "
 		"more convenient to use than this subcommand.";
-	auto disasmBlobHelp =
+	constexpr auto disasmBlobHelp =
 		"debug disasm_blob <value> <addr> [<function>]\n"
 		"  This is a more generic version of the disasm subcommand, but it "
 		"works on a Tcl binary string (see Tcl manual) to disassemble a "
@@ -1340,7 +1463,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"called with an address as parameter and may return a symbol name "
 		"that replaces that address if a symbol that matches the address "
 		"is found.\n";
-	auto symbolsHelp =
+	constexpr auto symbolsHelp =
 		"debug symbols <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
 		"    types                     returns a list of symbol file types\n"
@@ -1353,7 +1476,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"           and/or with an optionally given value\n"
 		"  Note: an easier syntax to lookup a symbol value based on the name is:\n"
 		"        $sym(<name>)\n";
-	auto unknownHelp =
+	constexpr auto unknownHelp =
 		"Unknown subcommand, use 'help debug' to see a list of valid "
 		"subcommands.\n";
 
@@ -1402,6 +1525,20 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 			return watchPointRemoveHelp;
 		} else {
 			return watchPointHelp;
+		}
+	} else if (tokens[1] == "watchexpr") {
+		if (size == 2) {
+			return watchExprHelp;
+		} else if (tokens[2] == "list") {
+			return watchExprListHelp;
+		} else if (tokens[2] == "create") {
+			return watchExprCreateHelp;
+		} else if (tokens[2] == "configure") {
+			return watchExprConfigureHelp;
+		} else if (tokens[2] == "remove") {
+			return watchExprRemoveHelp;
+		} else {
+			return watchExprHelp;
 		}
 	} else if (tokens[1] == "condition") {
 		if (size == 2) {
@@ -1460,19 +1597,25 @@ std::vector<std::string> Debugger::Cmd::getBreakPointIds() const
 {
 	return to_vector(std::views::transform(
 		MSXCPUInterface::getBreakPoints(),
-		[](auto& bp) { return bp.getIdStr(); }));
+		[](const auto& bp) { return bp.getIdStr(); }));
 }
 std::vector<std::string> Debugger::Cmd::getWatchPointIds() const
 {
 	return to_vector(std::views::transform(
 		debugger().motherBoard.getCPUInterface().getWatchPoints(),
-		[](auto& w) { return w->getIdStr(); }));
+		[](const auto& w) { return w->getIdStr(); }));
+}
+std::vector<std::string> Debugger::Cmd::getWatchExprIds() const
+{
+	return to_vector(std::views::transform(
+		debugger().getWatchExprs(),
+		[](const auto& w) { return w.getIdStr(); }));
 }
 std::vector<std::string> Debugger::Cmd::getConditionIds() const
 {
 	return to_vector(std::views::transform(
 		MSXCPUInterface::getConditions(),
-		[](auto& c) { return c.getIdStr(); }));
+		[](const auto& c) { return c.getIdStr(); }));
 }
 
 void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
@@ -1489,7 +1632,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 	static constexpr std::array otherCmds = {
 		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
 		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
-		"probe"sv, "symbols"sv, "breakpoint"sv, "watchpoint"sv, "condition"sv,
+		"probe"sv, "symbols"sv, "breakpoint"sv, "watchpoint"sv, "watchexpr"sv, "condition"sv,
 	};
 	static constexpr std::array types = {
 		"read_io"sv, "write_io"sv, "read_mem"sv, "write_mem"sv,
@@ -1505,7 +1648,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
 				completeString(tokens, std::views::keys(debugger().debuggables));
-			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv, "condition"sv)) {
+			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv, "watchexpr"sv, "condition"sv)) {
 				static constexpr std::array subCmds = {
 					"list"sv, "create"sv,
 					"configure"sv, "remove"sv,
@@ -1566,6 +1709,16 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 					};
 					completeString(tokens, properties);
 				}
+			}
+		} else if (tokens[1] == "watchexpr") {
+			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
+				completeString(tokens, getWatchExprIds());
+			} else if (((size >= 4) && (tokens[2] == "create")) ||
+			           ((size >= 5) && (tokens[2] == "configure"))) {
+				static constexpr std::array properties = {
+					"-description"sv, "-expression"sv, "-format"sv,
+				};
+				completeString(tokens, properties);
 			}
 		} else if (tokens[1] == "condition") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
