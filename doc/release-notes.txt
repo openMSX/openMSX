@@ -1,61 +1,15 @@
-Release Notes for openMSX 20.0 (2024-09-22)
+Release Notes for openMSX 21.0 (2025-0x-xx)
 ===========================================
 
-This is a major release, in which we introduce the new Graphical User
-Interface, replacing the OSD menu. A faster and more powerful debugger is now
-included in openMSX itself. Configuration for MSX joystick/JoyMega has been
-improved drastically using the new GUI.
-As of now, a system with OpenGL 2 support is required to run openMSX.
+This release has many improvements on the new GUI introduced in openMSX 20.0
+(especially the debugger) and several other smaller features. It also
+introduces the "setups" concept, which enables you to define an MSX setup (e.g.
+a Philips VG 8020 with an external diskdrive and a joystick, datarecorder and
+printer connected). These can be created and loaded and automatically started
+up with and also saved automatically at exit.
 
-
-The GUI
-^^^^^^^
-We already had two separate GUI applications:
-- openMSX Catapult, a tool to control common functionality of openMSX, in a
-  limited way.
-- openMSX Debugger, a great and helpful tool, but never officially released and
-  packaged.
-Keeping the GUI separate from the emulation core seemed like a good idea at
-first. Keeping the state of both applications in sync turned out to be a hard
-problem, however. Functions that seemed easy, were in fact very hard to
-implement in this structure.
-In this release we integrated the GUI directly in openMSX itself. All
-information is now guaranteed in sync and updated real-time (which would have
-been very hard in the old structure).
-As this is the first release with the new GUI, not everything will be perfect
-straight away. Feedback or help to improve things further will be highly
-appreciated. The Catapult and openMSX Debugger applications remain available
-for the time being. We will (try to) keep them working, but they won't receive
-any new development anymore - from us anyway. When keeping them working becomes
-too much of a burden, we will abandon these applications altogether.
-
-Joystick emulation
-^^^^^^^^^^^^^^^^^^
-Another big change is the joystick emulation. There are now fixed joystick and
-JoyMega (MegaDrive controller) pluggables (2 for each), which can also be
-configured via the GUI and also support keyboard inputs, so they also replace
-the old keyjoystick devices. This gives optimal flexibility for configuring how
-you want to control MSX controllers.
-On top of that, it is now possible to plug and unplug host controllers at
-run-time.
-
-Rendering
-^^^^^^^^^
-Rendering has also undergone a big change. We removed the "SDL" renderer, as
-the GUI requires an accelerated backend, for which we use OpenGL 2, which was
-already required for the (already default and now only) SDLGL-PP renderer.
-We also removed 1x scaling, so the minimum is now 2x. Video recording and
-screenshots on the 320x240 resolution are still possible, though. All of this
-allowed us to simplify the code a lot, making it easier to add new features and
-maintain the code.
-
-Other important changes
-^^^^^^^^^^^^^^^^^^^^^^^
-As for any custom key bindings you might have: we renamed some keys to match the SDL
-library names instead of inventing our own. Old names are still recognized, but
-be careful if you also run older openMSX versions, as openMSX will use the new
-names and the old openMSX will not recognize them. Examples are: PRINT ->
-PrintScreen, META -> GUI.
+Furthermore, the flash chip emulation has become a lot more accurate, thanks to
+Laurens Holst.
 
 Special thanks to all the contributors of this release who are not in the core
 team! Keep these pull requests coming!
@@ -63,161 +17,164 @@ team! Keep these pull requests coming!
 Here's the list with all highlights and details:
 
 MSX device support:
-- OPL4: fixed detail in YMF262 register mirroring
-- turboR PCM:
-  - fixed sample frequency to 15700Hz (not 15750Hz as found in some
-    documentation)
-  - implement sample buffer (bit 0 on port 0xA5) to improve sound quality
-- flash ROMs: added a lot of accuracy to its emulation
-- WD2793 and TC8566AF FDC's: fixed several details
-- Konami mapper: added missing mirroring
-- improvements on I8254 mode 3 used in some RS-232C interfaces
-- added support for the concept 16-bit NEO mappers, which may be used by
-  someone in the future. If this doesn't happen, support will be dropped again
-- added support for the ASCII16-X mapper which will be used by some upcoming
-  games
-- fixed mapper of Mitsubishi ML-TS2 modem software
-- added support for Circuit Designer RD dongle (thanks Sandy Pleyte!)
+- allow to set the position of the tape in a tape image in the tape deck
+- fixed Spectravideo SVI-707 boot to basic
+- updated MegaFlashROM SCC+ SD bank registers to 9-bit (was also updated in the
+  real hardware)
+- added emulation of DalSoRi R2, which has 4MB of sample RAM and a flash ROM
+- added emulation of the Yamanooto mapper (without HOME/DEL boot keys)
+- fixed missing VDP I/O delay of T9769 on OUT instructions
+- fixed the border sizes on MSX1
+- V9990:
+  - fixed timing of the IEHM flag
+  - fixed the timing of the LINE command
+- AMD flash chip emulation:
+  - changed AM29F040 to B variant and AM29F016 to D variant, these are the only
+    chips that are actually available and these have extra features
+  - correct CFI command addres mark to 11 bits
+  - fixed: auto select sector protect flag requires A6 to be low
+  - fixed: S29GL064S returns 0xFFFF when accessing auto select through CFI
+  - implemented ready/busy# pin
+  - base status dataPolling on value written by CPU
+  - mask fast program address to page size
+  - check sector of buffer program data’s address: the PA (program address)
+    must lie within the SA (sector address)
+  - implemented erase and program timing
+  - implemented error on bit raise during program
+  - added support for erase and program suspend/resume
+- fixed the PSG volume for the Hamaraja Night mapper
+- fixed the MegaFlashROM SCC+ to always allow SCC access in any Konami mode
 - added new machines/extensions, thanks to:
-  - Peter Hanraets and Arjen Zeilemaker: Hitachi MPF-310H
-  - Peter Hanraets: Hitachi MB-H70
-  - bsittler: USA version of Yamaha CX5M
-  - Takamichi Suzukawa: National CF-SM003
-  - Tristan Zondag: German Spectravideo SVI-738
-  - Oliver Klink: French Canon V-20
-  - Patrick: Yeno DPC-64
-  - DamnedAngel: Hitachi MB-H21
-  - Peter Hanraets, Takamichi Suzukawa, Arjen Zeilemaker and Benoit Delvaux:
-    Sony HB-T600
-  - Others: Philips VU-0040, General Paxon PCT-55, Sanyo MPC-64, OPL3 Cartridge
-    with Moonsound compatible port mapping
+  - Peter Hanraets: Sanyo MPC-1
+  - Jipe: French Philips VG 8235 and Philips NMS 8245
+  - Jungsi: German Philips VG 8235/02
+  - Others: Computer Mates Disk Interface, Spanish Philips NMS 8245
+- updated machine/extension configurations of:
+  - Sony HB-F1XDJ, Sony HB-F1XV, National CF-2000
 
 New or improved emulator features:
-- removed SDL renderer
-- added new GUI:
-  - main menu bar with these menu items:
-    - Machine
-      - Select MSX machine
-      - Firmware switch
-      - Pause emulator
-      - Reset MSX
-      - Power on/off
-      - Test MSX hardware (much faster than in Catapult)
-    - Media
-      - Cartridge slots with ROM cartridges or extensions
-      - Disk drives
-      - Tape deck
-      - Hard disk
-      - CD-ROM
-      - Laserdisc
-    - Connectors
-      - joystick ports, printer ports, MIDI ports, etc.
-    - Save state
-      - Load/Save state
-      - Load/Save replay
-      - Reverse/replay settings
-    - Tools
-      - Virtual keyboard
-      - Copy/paste
-      - Capture audio/video/screenshot
-      - Disk Manipulator
-      - Trainer
-      - Cheat Finder
-      - SCC viewer
-      - Audio channel viewer
-      - OSD Toys
-    - Settings
-      - Video
-      - Sound
-      - Speed
-      - Input
-        - Configure MSX joysticks
-      - GUI
-        - Configure GUI shortcuts
-      - Misc
-        - Configure OSD icons, show status bar, ...
-    - Debugger
-      - Toolbar
-      - Disassembly view
-      - CPU registers
-      - CPU flags
-      - Slots
-      - Stack
-      - Breakpoints
-      - Symbol Manager
-      - Watch expressions
-      - Bitmap viewer
-      - Tile viewer
-      - Sprite viewer
-      - VDP register viewer
-      - Palette
-      - Hex editor
-    - Help
-      - Links to manuals
-      - About
-  - Reverse bar
-  - OSD icons
-  - Status bar
-  - Console
-  - Messages
-  - Drag and drop
-  - Shortcuts
-  - Separate pop-out windows
-  - Windows can be docked on other windows or in a tab widget
-  - 3 styles: Dark (default), Light, Classic
-  - configurable font and font size. Default: DejaVu
-- OSD menu:
-  - removed in favour of new GUI
-- only warn once for unsupported size in Konami mappers
-- suppress warning messages during reversing
-- fully configurable MSX controller mapping for joysticks (msxjoystick1/2
-  pluggables) and JoyMega devices (joymega1/2 pluggables) - see above
-- low level debugger (scripting):
-  - added support for symbol management
-- allow to set a breakpoint (or any Tcl callback) when the VDP dot clock
-  direction is written "wrongly"
-- added VGM recording for OPL3
-- added minimal support for unplugging and replugging host controllers
-- added support for RS232Net: connect MSX RS-232C interfaces to the local
-  network
-- removed several OSD scripts which have been replaced by the GUI, sometimes
-  almost 1 to 1:
-  - reverse bar
-  - tile viewer
-  - sprite viewer
-  - palette editor
-  - VDP register viewer
-  - tabbed machine view
-  - display_message
-  - quit menu
-  - OSD keyboard
-  - load_icons
-- removed support for savestates with .xml.gz extension
-- do not save SRAM to file if unmodified
-- added support to run openMSX fully in headless mode
-- allow to specify the device name of IDE devices in their config XML file
-- base the Boosted MSX2 EN on the Philips NMS 8245 instead of 8250
-- fixed crash when multiple debug-devices were used at once
-- fixed possible crash on specific combination of watchpoints and replay
-- fixed possible crash on no longer supported savestates:
-  - we try to keep old savestates working. Nevertheless occasionally we do
-    remove stuff. Loading an old savestate which contains such stuff used to
-    crash, now we give a clean error message.
-- fixes for load_settings command
+- GUI:
+  - throttle GUI messages to avoid hangups if too many are generated
+  - added tape motor control to the Tape Deck window
+  - show savestates and replays ordered on time (newest first) and display
+    their date/time
+  - improve individual channel settings window (table headers, layout)
+  - add recent items for machine selector
+  - the OSD icon (LEDs, etc.) window can now be resized to use multiple rows
+  - you can now also reset the MSX after removing a cartridge/extension from
+    the Cartridge Slot window
+  - improve menu bar behaviour in full screen mode on Windows
+  - fixed underscore not properly visible in console text
+  - make items shown in status bar configurable
+  - show the mapper type in the status bar (if applicable)
+  - move items from the "Settings -> Misc" menu into the "Settings -> GUI" menu
+  - do not show an info message about a screenshot when saving states to avoid
+    confusion
+  - fixed slowness in cheat finder
+  - remember open/close status of chips in the audio channel viewer
+  - when changing harddisk image, ask user to confirm the power cycle
+  - allow to change view only mode with a new context menu on the reverse bar
+  - make ellipsis usage in the menus consistent and according to guidelines
+  - added MSX-MUSIC viewer window that shows live all details of the chip
+- Debugger (including its GUI):
+  - highlight known symbols in memory hex view
+  - added support for loading symbol files generated by WLA-DX and Z80ASM from
+    Z88DK
+  - added context menu with 'Show in Disassembly' entry to addresses in
+    breakpoints window.
+  - added tile data info in the tile-viewer as hover pop-up
+  - fixed crash in debuggable editor when clicking in the datatype dropdown
+    list in the data-preview pane
+  - take sprite magnification into account for bounding box display in sprite
+    viewer
+  - allow to open multiple bitmap/tile/sprite and disassembly viewers
+  - show the display page number in the bitmap viewer instead of a 0-1023 range
+    Y-coordinate
+  - added visualization of VDP block commands in the bitmap viewer
+  - extend segment number debug view to larger than 8-bit, for now only used
+    for KonamiUltimateCollection, Yamanooto and ASCII16-X mappers
+  - added "debug breakpoint" subcommand for listing, creating, configuring and
+    removing breakpoints and similarly a "debug watchpoint" and "debug
+    condition" subcommand
+  - allow to enable and disable existing breakpoints/watchpoints/conditions,
+    without internally removing/re-adding them
+  - use the palette matching the used VDP in the palette viewers
+  - fixed HOME/END keys in debuggable editors
+  - don't take keyboard focus in debuggable editor (it stole the focus when
+    starting up with one still open)
+  - added the missing "copy code view" function: you can copy code from the
+    disaassembly view to the clipboard, like in the external debugger
+  - added raster beam view also to the character viewer
+  - added hover with sprite pattern, attribute and color-attribute addresses to
+    the sprite viewer
+  - added export function for all debuggable editors (to clipboard or file)
+  - highlight changes in register/flag/debuggable editor/slot views - this was
+    still missing compared to the separate debugger
+  - improved keyboard naviation on the disassembly window
+  - added breakpoint session management
+  - added a context menu to the character viewer to copy pattern and color data
+    to the clipboard
+  - added a context menu to the sprite viewer to copy pattern data to the
+    clipboard
+  - fixed disassembly syntax of "DD CB" instructions: parentheses were missing
+  - fixed a crash when doing a debug write to "tracked" RAM
+  - add Link IX / IY present options in debuggable editor
+  - fixed crash when user selects page 3 of screen 8 in a specific way
+  - added 'debug watchexpr' command
+- do not persist freq_lock setting to avoid experiments to "overclock" a
+  machine to spill over to use on other machines
+- do not automatically rewind a tape when resetting the MSX and only perform
+  auto run at the start of the tape
+- allow speed settings smaller than 1 (change to float value). Note: this
+  breaks updates from openMSX to the Catapult speed slider and this will not be
+  fixed (as we have stopped updating Catapult).
+- added support for 512-pixel wide modes in the 'hq' and 'ScaleNx' scalers (was
+  not supported before on the SDLGL-PP renderer)
+- fixed pointer_hide_delay setting that got broken in 20.0
+- added support for TSX tape images
+- added a basic game shuffler Tcl script
+- fixed changing scale factor when openMSX is paused
+- fixed incorrect resetting of the machine time when resetting the machine
+- fixed several Space Manbow trainers
+- several small improvements for Japanese keyboards in POSITIONAL mode
+- fixed key up detection in CHARACTER mode (when the keycode is not provided)
+- enhanced the keyboard tracing, with the hope that it helps to fix keyboard
+  issues in an upcoming release
+- added a Tcl script that replaces sdcdb (SDCC debugger)
+- when both a LaserDisc and a cassette tape are present, auto run the cassette
+  tape. Use case: Mystery Disc
+- added a programmable device that directly connects to Tcl scripts
+- if a file is not found, show where openMSX was looking for it
+- added setups concept: support on console, command line, GUI. Also obsoletes
+  setting the default machine in the machine selector
+- fixed "osd info -mousecoord" when main-window doesn't have focus (this is
+  used in several OSD scripts)
+- allow raw screenshots to be saved with "auto" size
+- auto run cassettes: make use of the tape loading instruction given in the
+  filename, if it can't be derived from the contents (WAV files typically)
+- removed 'hqlite' scaler, as it doesn't add any value over 'hq'
+- removed 'fast' resampler, as the quality is very low and the better ones are
+  fine in terms of speed on contemporary hardware
+- removed OSD based raster beam viewer (use the bitmap/character viewer
+  instead)
+- removed OSD based FPS indicator (use the status bar instead)
+- removed OSD info panel (use the status bar instead)
+- removed OSD VU meters (use the audio channel viewer instead)
+- removed deprecated -msxonly flag in the screenshot command
 
 Build system, packaging, documentation:
-- added support for loongarch
-- required GNU compiler is now at least g++-11
-- required clang compiler is at least clang++-16
+- required GNU compiler is now at least g++-12
+- required clang compiler is at least clang++-17
 - required Visual Studio Compiler is at least 2022
-- on macOS, at least Xcode 15.4 is required
+- on macOS, at least Xcode 16.4 is required
 - Android build is totally broken, and will require a lot of effort and help to
   get back up, which is not planned by us.
-- 3rd party updates of SDL (2.30.1), SDL2_ttf (2.22.0), GLEW (2.2.0)
-- added patch to add aarch64 support to libtheora 3rdparty build
-- fixed link error in libvorbis for Xcode 15 on macOS
-- avoid pkg-config build error with Clang 15 on macOS
+- Dingux support was removed
+- 3rd party updates of SDL (2.30.7), Tcl (8.6.15), libPNG (1.6.44), FreeType
+  (2.13.3), zlib (1.3.1), Dear ImGui (1.92.0)
+- allow building against Tcl 9
 - quite a large update of the manual (mostly to include the new GUI)
+- added standalone xsa2dsk tool
 
 ...and of course the usual various bug fixes and performance improvements.
 
