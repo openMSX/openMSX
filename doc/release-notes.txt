@@ -45,7 +45,7 @@ MSX device support:
 - fixed the PSG volume for the Hamaraja Night mapper
 - fixed the MegaFlashROM SCC+ to always allow SCC access in any Konami mode
 - added new machines/extensions, thanks to:
-  - Peter Hanraets: Sanyo MPC-1
+  - Peter Hanraets: Sanyo MPC-1, Sanyo MPC-11
   - Jipe: French Philips VG 8235 and Philips NMS 8245
   - Jungsi: German Philips VG 8235/02
   - Others: Computer Mates Disk Interface, Spanish Philips NMS 8245

@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Sanyo</manufacturer>
+    <code>MPC-11/Wavy11</code>
+    <release_year>1984</release_year>
+    <description>A high end Japanese MSX1 with 32kB RAM, digitizer and superimposer (not emulated) and light pen controller (not emulated).</description>
+    <type>MSX</type>
+    <region>jp</region>
+  </info>
+
+  <!-- 
+    ident:
+    - Z80: scf 01C501ED01D401FC (NEC)
+           cpl (standard)
+           out (c),0: 0 (MSX)
+    - PSG: pin 6/7 quirk: YES
+      PSGmask: YM2149 like
+    No switched I/O ports
+    missing: light pen controller
+             digitizer
+             superimposer
+  -->
+
+  <CassettePort/>
+
+  <devices>
+
+    <PPI id="ppi">
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <io base="0xA8" num="4"/>
+      <keyboard_type>jp_ansi</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <version>TMS9928A</version>
+      <saturation>100</saturation> <!-- TMS9x2x and RGB output -->
+      <io base="0x98" num="2"/>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>AY8910</type>
+      <keyboardlayout>50on</keyboardlayout>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+      <io base="0xA0" num="4" type="IO"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
+    </PSG>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+    <primary slot="0">
+      <ROM id="MSX BIOS with BASIC ROM">
+        <rom>
+          <filename>mpc-11_basic-bios1.rom</filename>
+          <sha1>20218b02c893f30369d1fb4b66b6f37ffce83ed6</sha1> <!-- ROM dump by Peter Hanraets -->
+        </rom>
+        <mem base="0x0000" size="0x8000"/>
+      </ROM>
+        <RAM id="Main RAM">
+          <mem base="0x8000" size="0x8000"/>
+        </RAM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="2"/>
+
+  </devices>
+
+</msxconfig>
