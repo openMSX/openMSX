@@ -4,9 +4,9 @@ Release Notes for openMSX 21.0 (2025-0x-xx)
 This release has many improvements on the new GUI introduced in openMSX 20.0
 (especially the debugger) and several other smaller features. It also
 introduces the "setups" concept, which enables you to define an MSX setup (e.g.
-a Philips VG 8020 with an external diskdrive and a joystick, datarecorder and
-printer connected). These can be created and loaded and automatically started
-up with and also saved automatically at exit.
+a Philips VG 8020 with an external disk drive and a joystick, data recorder and
+printer connected). These can be created and loaded and automatically started up
+with and also saved automatically at exit.
 
 Furthermore, the flash chip emulation has become a lot more accurate, thanks to
 Laurens Holst.
@@ -23,7 +23,7 @@ MSX device support:
   real hardware)
 - added emulation of DalSoRi R2, which has 4MB of sample RAM and a flash ROM
 - added emulation of the Yamanooto mapper (without HOME/DEL boot keys)
-- fixed missing VDP I/O delay of T9769 on OUT instructions
+- fixed missing VDP I/O delay of T9769 on IN instructions
 - fixed the border sizes on MSX1
 - V9990:
   - fixed timing of the IEHM flag
@@ -31,7 +31,7 @@ MSX device support:
 - AMD flash chip emulation:
   - changed AM29F040 to B variant and AM29F016 to D variant, these are the only
     chips that are actually available and these have extra features
-  - correct CFI command addres mark to 11 bits
+  - correct CFI command address mark to 11 bits
   - fixed: auto select sector protect flag requires A6 to be low
   - fixed: S29GL064S returns 0xFFFF when accessing auto select through CFI
   - implemented ready/busy# pin
@@ -63,7 +63,7 @@ New or improved emulator features:
   - the OSD icon (LEDs, etc.) window can now be resized to use multiple rows
   - you can now also reset the MSX after removing a cartridge/extension from
     the Cartridge Slot window
-  - improve menu bar behaviour in full screen mode on Windows
+  - improve menu bar behavior in full screen mode on Windows
   - fixed underscore not properly visible in console text
   - make items shown in status bar configurable
   - show the mapper type in the status bar (if applicable)
@@ -72,7 +72,7 @@ New or improved emulator features:
     confusion
   - fixed slowness in cheat finder
   - remember open/close status of chips in the audio channel viewer
-  - when changing harddisk image, ask user to confirm the power cycle
+  - when changing hard disk image, ask user to confirm the power cycle
   - allow to change view only mode with a new context menu on the reverse bar
   - make ellipsis usage in the menus consistent and according to guidelines
   - added MSX-MUSIC viewer window that shows live all details of the chip
@@ -103,14 +103,14 @@ New or improved emulator features:
   - don't take keyboard focus in debuggable editor (it stole the focus when
     starting up with one still open)
   - added the missing "copy code view" function: you can copy code from the
-    disaassembly view to the clipboard, like in the external debugger
+    disassembly view to the clipboard, like in the external debugger
   - added raster beam view also to the character viewer
   - added hover with sprite pattern, attribute and color-attribute addresses to
     the sprite viewer
   - added export function for all debuggable editors (to clipboard or file)
   - highlight changes in register/flag/debuggable editor/slot views - this was
     still missing compared to the separate debugger
-  - improved keyboard naviation on the disassembly window
+  - improved keyboard navigation on the disassembly window
   - added breakpoint session management
   - added a context menu to the character viewer to copy pattern and color data
     to the clipboard
