@@ -1,4 +1,4 @@
-// dear imgui, v1.92.0 WIP
+// dear imgui, v1.92.2 WIP
 // (headers)
 
 // Help:
@@ -28,8 +28,8 @@
 
 // Library Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals, e.g. '#if IMGUI_VERSION_NUM >= 12345')
-#define IMGUI_VERSION       "1.92.0 WIP"
-#define IMGUI_VERSION_NUM   19199
+#define IMGUI_VERSION       "1.92.2 WIP"
+#define IMGUI_VERSION_NUM   19213
 #define IMGUI_HAS_TABLE             // Added BeginTable() - from IMGUI_VERSION_NUM >= 18000
 #define IMGUI_HAS_TEXTURES          // Added ImGuiBackendFlags_RendererHasTextures - from IMGUI_VERSION_NUM >= 19198
 #define IMGUI_HAS_VIEWPORT          // In 'docking' WIP branch.
@@ -322,7 +322,7 @@ IM_MSVC_RUNTIME_CHECKS_RESTORE
 // - When a Rendered Backend creates a texture, it store its native identifier into a ImTextureID value.
 //   (e.g. Used by DX11 backend to a `ID3D11ShaderResourceView*`; Used by OpenGL backends to store `GLuint`;
 //         Used by SDLGPU backend to store a `SDL_GPUTextureSamplerBinding*`, etc.).
-// - User may submit their own textures to e.g. ImGui::Image() function by passing the same type.
+// - User may submit their own textures to e.g. ImGui::Image() function by passing this value.
 // - During the rendering loop, the Renderer Backend retrieve the ImTextureID, which stored inside a
 //   ImTextureRef, which is stored inside a ImDrawCmd.
 // - Compile-time type configuration:
@@ -332,7 +332,7 @@ IM_MSVC_RUNTIME_CHECKS_RESTORE
 //     constructors if you like. You will need to implement ==/!= operators.
 // History:
 // - In v1.91.4 (2024/10/08): the default type for ImTextureID was changed from 'void*' to 'ImU64'. This allowed backends requirig 64-bit worth of data to build on 32-bit architectures. Use intermediary intptr_t cast and read FAQ if you have casting warnings.
-// - In v1.92.0 (2025/XX/XX): added ImTextureRef which carry either a ImTextureID either a pointer to internal texture atlas. All user facing functions taking ImTextureID changed to ImTextureRef
+// - In v1.92.0 (2025/06/11): added ImTextureRef which carry either a ImTextureID either a pointer to internal texture atlas. All user facing functions taking ImTextureID changed to ImTextureRef
 #ifndef ImTextureID
 typedef ImU64 ImTextureID;      // Default: store up to 64-bits (any pointer or integer). A majority of backends are ok with that.
 #endif
@@ -342,15 +342,17 @@ typedef ImU64 ImTextureID;      // Default: store up to 64-bits (any pointer or 
 #define ImTextureID_Invalid     ((ImTextureID)0)
 #endif
 
-// ImTextureRef = higher-level identifier for a texture.
+// ImTextureRef = higher-level identifier for a texture. Store a ImTextureID _or_ a ImTextureData*.
 // The identifier is valid even before the texture has been uploaded to the GPU/graphics system.
 // This is what gets passed to functions such as `ImGui::Image()`, `ImDrawList::AddImage()`.
 // This is what gets stored in draw commands (`ImDrawCmd`) to identify a texture during rendering.
 // - When a texture is created by user code (e.g. custom images), we directly stores the low-level ImTextureID.
+//   Because of this, when displaying your own texture you are likely to ever only manage ImTextureID values on your side.
 // - When a texture is created by the backend, we stores a ImTextureData* which becomes an indirection
 //   to extract the ImTextureID value during rendering, after texture upload has happened.
-// - There is no constructor to create a ImTextureID from a ImTextureData* as we don't expect this
-//   to be useful to the end-user, and it would be erroneously called by many legacy code.
+// - To create a ImTextureRef from a ImTextureData you can use ImTextureData::GetTexRef().
+//   We intentionally do not provide an ImTextureRef constructor for this: we don't expect this
+//   to be frequently useful to the end-user, and it would be erroneously called by many legacy code.
 // - If you want to bind the current atlas when using custom rectangle, you can use io.Fonts->TexRef.
 // - Binding generators for languages such as C (which don't have constructors), should provide a helper, e.g.
 //      inline ImTextureRef ImTextureRefFromID(ImTextureID tex_id) { ImTextureRef tex_ref = { ._TexData = NULL, .TexID = tex_id }; return tex_ref; }
@@ -501,20 +503,26 @@ namespace ImGui
     IMGUI_API void          SetScrollFromPosY(float local_y, float center_y_ratio = 0.5f);  // adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position.
 
     // Parameters stacks (font)
+    //  - PushFont(font, 0.0f)                       // Change font and keep current size
+    //  - PushFont(NULL, 20.0f)                      // Keep font and change current size
+    //  - PushFont(font, 20.0f)                      // Change font and set size to 20.0f
+    //  - PushFont(font, style.FontSizeBase * 2.0f)  // Change font and set size to be twice bigger than current size.
+    //  - PushFont(font, font->LegacySize)           // Change font and set size to size passed to AddFontXXX() function. Same as pre-1.92 behavior.
     // *IMPORTANT* before 1.92, fonts had a single size. They can now be dynamically be adjusted.
-    // - Before 1.92: PushFont() always used font default size.
-    // -  Since 1.92: PushFont() preserve the current shared font size.
-    // - To use old behavior (single size font, size specified in AddFontXXX() call:
-    //   - Use 'PushFont(font, font->LegacySize)' at call site
-    //   - Or set 'ImFontConfig::Flags |= ImFontFlags_DefaultToLegacySize' before calling AddFont(), and then 'PushFont(font)' will use this size.
-    // - External scale factors are applied over the provided value.
-    // *IMPORTANT* If you want to scale an existing font size:
-    //   - OK: PushFontSize(style.FontSizeBase * factor) (= value before external scale factors applied).
-    //   - KO: PushFontSize(GetFontSize() * factor)      (= value after external scale factors applied. external scale factors are style.FontScaleMain + per-viewport scales.).
-    IMGUI_API void          PushFont(ImFont* font, float font_size_base = -1);              // use NULL as a shortcut to push default font. Use <0.0f to keep current font size.
+    //  - In 1.92 we have REMOVED the single parameter version of PushFont() because it seems like the easiest way to provide an error-proof transition.
+    //  - PushFont(font) before 1.92 = PushFont(font, font->LegacySize) after 1.92          // Use default font size as passed to AddFontXXX() function.
+    // *IMPORTANT* global scale factors are applied over the provided size.
+    //  - Global scale factors are: 'style.FontScaleMain', 'style.FontScaleDpi' and maybe more.
+    // -  If you want to apply a factor to the _current_ font size:
+    //  - CORRECT:   PushFont(NULL, style.FontSizeBase)         // use current unscaled size    == does nothing
+    //  - CORRECT:   PushFont(NULL, style.FontSizeBase * 2.0f)  // use current unscaled size x2 == make text twice bigger
+    //  - INCORRECT: PushFont(NULL, GetFontSize())              // INCORRECT! using size after global factors already applied == GLOBAL SCALING FACTORS WILL APPLY TWICE!
+    //  - INCORRECT: PushFont(NULL, GetFontSize() * 2.0f)       // INCORRECT! using size after global factors already applied == GLOBAL SCALING FACTORS WILL APPLY TWICE!
+    IMGUI_API void          PushFont(ImFont* font, float font_size_base_unscaled);          // Use NULL as a shortcut to keep current font. Use 0.0f to keep current size.
     IMGUI_API void          PopFont();
-    IMGUI_API void          PushFontSize(float font_size_base);
-    IMGUI_API void          PopFontSize();
+    IMGUI_API ImFont*       GetFont();                                                      // get current font
+    IMGUI_API float         GetFontSize();                                                  // get current scaled font size (= height in pixels). AFTER global scale factors applied. *IMPORTANT* DO NOT PASS THIS VALUE TO PushFont()! Use ImGui::GetStyle().FontSizeBase to get value before global scale factors.
+    IMGUI_API ImFontBaked*  GetFontBaked();                                                 // get current font bound at current size // == GetFont()->GetFontBaked(GetFontSize())
 
     // Parameters stacks (shared)
     IMGUI_API void          PushStyleColor(ImGuiCol idx, ImU32 col);                        // modify a style color. always use this if you modify the style after NewFrame().
@@ -538,10 +546,7 @@ namespace ImGui
 
     // Style read access
     // - Use the ShowStyleEditor() function to interactively see/edit the colors.
-    IMGUI_API ImFont*       GetFont();                                                      // get current font
-    IMGUI_API float         GetFontSize();                                                  // get current font size (= height in pixels) of current font with external scale factors applied. Use ImGui::GetStyle().FontSizeBase to get value before external scale factors.
     IMGUI_API ImVec2        GetFontTexUvWhitePixel();                                       // get UV coordinate for a white pixel, useful to draw custom shapes via the ImDrawList API
-    IMGUI_API ImFontBaked*  GetFontBaked();                                                 // get current font bound at current size // == GetFont()->GetFontBaked(GetFontSize())
     IMGUI_API ImU32         GetColorU32(ImGuiCol idx, float alpha_mul = 1.0f);              // retrieve given style color with style alpha applied and optional extra alpha multiplier, packed as a 32-bit value suitable for ImDrawList
     IMGUI_API ImU32         GetColorU32(const ImVec4& col);                                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for ImDrawList
     IMGUI_API ImU32         GetColorU32(ImU32 col, float alpha_mul = 1.0f);                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for ImDrawList
@@ -919,7 +924,7 @@ namespace ImGui
     IMGUI_API ImGuiTableSortSpecs*  TableGetSortSpecs();                        // get latest sort specs for the table (NULL if not sorting).  Lifetime: don't hold on this pointer over multiple frames or past any subsequent call to BeginTable().
     IMGUI_API int                   TableGetColumnCount();                      // return number of columns (value passed to BeginTable)
     IMGUI_API int                   TableGetColumnIndex();                      // return current column index.
-    IMGUI_API int                   TableGetRowIndex();                         // return current row index.
+    IMGUI_API int                   TableGetRowIndex();                         // return current row index (header rows are accounted for)
     IMGUI_API const char*           TableGetColumnName(int column_n = -1);      // return "" if column didn't have a name declared by TableSetupColumn(). Pass -1 to use current column.
     IMGUI_API ImGuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
     IMGUI_API void                  TableSetColumnEnabled(int column_n, bool v);// change user accessible enabled/disabled state of a column. Set to false to hide the column. User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with ImGuiTableFlags_ContextMenuInBody)
@@ -1404,10 +1409,17 @@ enum ImGuiTabBarFlags_
     ImGuiTabBarFlags_NoTabListScrollingButtons      = 1 << 4,   // Disable scrolling buttons (apply when fitting policy is ImGuiTabBarFlags_FittingPolicyScroll)
     ImGuiTabBarFlags_NoTooltip                      = 1 << 5,   // Disable tooltips when hovering a tab
     ImGuiTabBarFlags_DrawSelectedOverline           = 1 << 6,   // Draw selected overline markers over selected tab
-    ImGuiTabBarFlags_FittingPolicyResizeDown        = 1 << 7,   // Resize tabs when they don't fit
-    ImGuiTabBarFlags_FittingPolicyScroll            = 1 << 8,   // Add scroll buttons when tabs don't fit
-    ImGuiTabBarFlags_FittingPolicyMask_             = ImGuiTabBarFlags_FittingPolicyResizeDown | ImGuiTabBarFlags_FittingPolicyScroll,
-    ImGuiTabBarFlags_FittingPolicyDefault_          = ImGuiTabBarFlags_FittingPolicyResizeDown,
+
+    // Fitting/Resize policy
+    ImGuiTabBarFlags_FittingPolicyMixed             = 1 << 7,   // Shrink down tabs when they don't fit, until width is style.TabMinWidthShrink, then enable scrolling buttons.
+    ImGuiTabBarFlags_FittingPolicyShrink            = 1 << 8,   // Shrink down tabs when they don't fit
+    ImGuiTabBarFlags_FittingPolicyScroll            = 1 << 9,   // Enable scrolling buttons when tabs don't fit
+    ImGuiTabBarFlags_FittingPolicyMask_             = ImGuiTabBarFlags_FittingPolicyMixed | ImGuiTabBarFlags_FittingPolicyShrink | ImGuiTabBarFlags_FittingPolicyScroll,
+    ImGuiTabBarFlags_FittingPolicyDefault_          = ImGuiTabBarFlags_FittingPolicyMixed,
+
+#ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+    ImGuiTabBarFlags_FittingPolicyResizeDown        = ImGuiTabBarFlags_FittingPolicyShrink, // Renamed in 1.92.2
+#endif
 };
 
 // Flags for ImGui::BeginTabItem()
@@ -1757,7 +1769,7 @@ enum ImGuiBackendFlags_
     ImGuiBackendFlags_HasMouseCursors       = 1 << 1,   // Backend Platform supports honoring GetMouseCursor() value to change the OS cursor shape.
     ImGuiBackendFlags_HasSetMousePos        = 1 << 2,   // Backend Platform supports io.WantSetMousePos requests to reposition the OS mouse position (only used if io.ConfigNavMoveSetMousePos is set).
     ImGuiBackendFlags_RendererHasVtxOffset  = 1 << 3,   // Backend Renderer supports ImDrawCmd::VtxOffset. This enables output of large meshes (64K+ vertices) while still using 16-bit indices.
-    ImGuiBackendFlags_RendererHasTextures   = 1 << 4,   // Backend Renderer supports ImTextureData requests to create/update/destroy textures. This enables incremental texture updates and texture reloads.
+    ImGuiBackendFlags_RendererHasTextures   = 1 << 4,   // Backend Renderer supports ImTextureData requests to create/update/destroy textures. This enables incremental texture updates and texture reloads. See https://github.com/ocornut/imgui/blob/master/docs/BACKENDS.md for instructions on how to upgrade your custom backend.
 
     // [BETA] Viewports
     ImGuiBackendFlags_PlatformHasViewports  = 1 << 10,  // Backend Platform supports multiple viewports.
@@ -1874,6 +1886,8 @@ enum ImGuiStyleVar_
     ImGuiStyleVar_ImageBorderSize,          // float     ImageBorderSize
     ImGuiStyleVar_TabRounding,              // float     TabRounding
     ImGuiStyleVar_TabBorderSize,            // float     TabBorderSize
+    ImGuiStyleVar_TabMinWidthBase,          // float     TabMinWidthBase
+    ImGuiStyleVar_TabMinWidthShrink,        // float     TabMinWidthShrink
     ImGuiStyleVar_TabBarBorderSize,         // float     TabBarBorderSize
     ImGuiStyleVar_TabBarOverlineSize,       // float     TabBarOverlineSize
     ImGuiStyleVar_TableAngledHeadersAngle,  // float     TableAngledHeadersAngle
@@ -2304,10 +2318,11 @@ IM_MSVC_RUNTIME_CHECKS_RESTORE
 
 struct ImGuiStyle
 {
-    // ImGui::GetFontSize() == FontSizeBase * (FontScaleMain * FontScaleDpi * other_scaling_factors)
-    float       FontSizeBase;               // Current base font size before external scaling factors are applied. Use PushFont()/PushFontSize() to modify. Use ImGui::GetFontSize() to obtain scaled value.
-    float       FontScaleMain;              // Main scale factor. May be set by application once, or exposed to end-user.
-    float       FontScaleDpi;               // Additional scale factor from viewport/monitor contents scale. When io.ConfigDpiScaleFonts is enabled, this is automatically overwritten when changing monitor DPI.
+    // Font scaling
+    // - recap: ImGui::GetFontSize() == FontSizeBase * (FontScaleMain * FontScaleDpi * other_scaling_factors)
+    float       FontSizeBase;               // Current base font size before external global factors are applied. Use PushFont(NULL, size) to modify. Use ImGui::GetFontSize() to obtain scaled value.
+    float       FontScaleMain;              // Main global scale factor. May be set by application once, or exposed to end-user.
+    float       FontScaleDpi;               // Additional global scale factor from viewport/monitor contents scale. When io.ConfigDpiScaleFonts is enabled, this is automatically overwritten when changing monitor DPI.
 
     float       Alpha;                      // Global alpha applies to everything in Dear ImGui.
     float       DisabledAlpha;              // Additional alpha multiplier applied by BeginDisabled(). Multiply over current value of Alpha.
@@ -2339,6 +2354,8 @@ struct ImGuiStyle
     float       ImageBorderSize;            // Thickness of border around Image() calls.
     float       TabRounding;                // Radius of upper corners of a tab. Set to 0.0f to have rectangular tabs.
     float       TabBorderSize;              // Thickness of border around tabs.
+    float       TabMinWidthBase;            // Minimum tab width, to make tabs larger than their contents. TabBar buttons are not affected.
+    float       TabMinWidthShrink;          // Minimum tab width after shrinking, when using ImGuiTabBarFlags_FittingPolicyMixed policy.
     float       TabCloseButtonMinWidthSelected;     // -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width.
     float       TabCloseButtonMinWidthUnselected;   // -1: always visible. 0.0f: visible when hovered. >0.0f: visible when hovered if minimum width. FLT_MAX: never show close button when unselected.
     float       TabBarBorderSize;           // Thickness of tab-bar separator, which takes on the tab active color to denote focus.
@@ -2605,10 +2622,10 @@ struct ImGuiIO
     float       MouseWheelH;                        // Mouse wheel Horizontal. >0 scrolls Left, <0 scrolls Right. Most users don't have a mouse with a horizontal wheel, may not be filled by all backends.
     ImGuiMouseSource MouseSource;                   // Mouse actual input peripheral (Mouse/TouchScreen/Pen).
     ImGuiID     MouseHoveredViewport;               // (Optional) Modify using io.AddMouseViewportEvent(). With multi-viewports: viewport the OS mouse is hovering. If possible _IGNORING_ viewports with the ImGuiViewportFlags_NoInputs flag is much better (few backends can handle that). Set io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport if you can provide this info. If you don't imgui will infer the value using the rectangles and last focused time of the viewports it knows about (ignoring other OS windows).
-    bool        KeyCtrl;                            // Keyboard modifier down: Control
+    bool        KeyCtrl;                            // Keyboard modifier down: Ctrl (non-macOS), Cmd (macOS)
     bool        KeyShift;                           // Keyboard modifier down: Shift
     bool        KeyAlt;                             // Keyboard modifier down: Alt
-    bool        KeySuper;                           // Keyboard modifier down: Cmd/Super/Windows
+    bool        KeySuper;                           // Keyboard modifier down: Windows/Super (non-macOS), Ctrl (macOS)
 
     // Other state maintained from data above + IO function calls
     ImGuiKeyChord KeyMods;                          // Key mods flags (any of ImGuiMod_Ctrl/ImGuiMod_Shift/ImGuiMod_Alt/ImGuiMod_Super flags, same as io.KeyCtrl/KeyShift/KeyAlt/KeySuper but merged into flags. Read-only, updated by NewFrame()
@@ -3445,8 +3462,8 @@ struct ImDrawList
 
     // Obsolete names
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
-    IMGUI_API void  PushTextureID(ImTextureRef tex_ref) { PushTexture(tex_ref); }   // RENAMED in 1.92.x
-    IMGUI_API void  PopTextureID()                      { PopTexture(); }           // RENAMED in 1.92.x
+    inline    void  PushTextureID(ImTextureRef tex_ref) { PushTexture(tex_ref); }   // RENAMED in 1.92.x
+    inline    void  PopTextureID()                      { PopTexture(); }           // RENAMED in 1.92.x
 #endif
     //inline  void  AddEllipse(const ImVec2& center, float radius_x, float radius_y, ImU32 col, float rot = 0.0f, int num_segments = 0, float thickness = 1.0f) { AddEllipse(center, ImVec2(radius_x, radius_y), col, rot, num_segments, thickness); } // OBSOLETED in 1.90.5 (Mar 2024)
     //inline  void  AddEllipseFilled(const ImVec2& center, float radius_x, float radius_y, ImU32 col, float rot = 0.0f, int num_segments = 0) { AddEllipseFilled(center, ImVec2(radius_x, radius_y), col, rot, num_segments); }                        // OBSOLETED in 1.90.5 (Mar 2024)
@@ -3475,7 +3492,7 @@ struct ImDrawList
 struct ImDrawData
 {
     bool                Valid;              // Only valid after Render() is called and before the next NewFrame() is called.
-    int                 CmdListsCount;      // Number of ImDrawList* to render. (== CmdLists.Size). Exists for legacy reason.
+    int                 CmdListsCount;      // == CmdLists.Size. (OBSOLETE: exists for legacy reasons). Number of ImDrawList* to render.
     int                 TotalIdxCount;      // For convenience, sum of all ImDrawList's IdxBuffer.Size
     int                 TotalVtxCount;      // For convenience, sum of all ImDrawList's VtxBuffer.Size
     ImVector<ImDrawList*> CmdLists;         // Array of ImDrawList* to render. The ImDrawLists are owned by ImGuiContext and only pointed to from here.
@@ -3500,6 +3517,8 @@ struct ImDrawData
 // They are defined above in this header file. Read their description to the difference between ImTextureRef and ImTextureID.
 // FOR ALL OTHER ImTextureXXXX TYPES: ONLY CORE LIBRARY AND RENDERER BACKENDS NEED TO KNOW AND CARE ABOUT THEM.
 //-----------------------------------------------------------------------------
+
+#undef Status // X11 headers are leaking this.
 
 // We intentionally support a limited amount of texture formats to limit burden on CPU-side code and extension.
 // Most standard backends only support RGBA32 but we provide a single channel option for low-resource/embedded systems.
@@ -3538,7 +3557,7 @@ struct ImTextureRect
 struct ImTextureData
 {
     //------------------------------------------ core / backend ---------------------------------------
-    int                 UniqueID;               // w    -   // Sequential index to facilitate identifying a texture when debugging/printing. Unique per atlas.
+    int                 UniqueID;               // w    -   // [DEBUG] Sequential index to facilitate identifying a texture when debugging/printing. Unique per atlas.
     ImTextureStatus     Status;                 // rw   rw  // ImTextureStatus_OK/_WantCreate/_WantUpdates/_WantDestroy. Always use SetStatus() to modify!
     void*               BackendUserData;        // -    rw  // Convenience storage for backend. Some backends may have enough with TexID.
     ImTextureID         TexID;                  // r    w   // Backend-specific texture identifier. Always use SetTexID() to modify! The identifier will stored in ImDrawCmd::GetTexID() and passed to backend's RenderDrawData function.
@@ -3556,7 +3575,7 @@ struct ImTextureData
     bool                WantDestroyNextFrame;   // rw   -   // [Internal] Queued to set ImTextureStatus_WantDestroy next frame. May still be used in the current frame.
 
     // Functions
-    ImTextureData()     { memset(this, 0, sizeof(*this)); }
+    ImTextureData()     { memset(this, 0, sizeof(*this)); Status = ImTextureStatus_Destroyed; TexID = ImTextureID_Invalid; }
     ~ImTextureData()    { DestroyPixels(); }
     IMGUI_API void      Create(ImTextureFormat format, int w, int h);
     IMGUI_API void      DestroyPixels();
@@ -3589,27 +3608,27 @@ struct ImFontConfig
     bool            MergeMode;              // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     bool            PixelSnapH;             // false    // Align every glyph AdvanceX to pixel boundaries. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     bool            PixelSnapV;             // true     // Align Scaled GlyphOffset.y to pixel boundaries.
-    ImS8            FontNo;                 // 0        // Index of font within TTF/OTF file
     ImS8            OversampleH;            // 0 (2)    // Rasterize at higher quality for sub-pixel positioning. 0 == auto == 1 or 2 depending on size. Note the difference between 2 and 3 is minimal. You can reduce this to 1 for large glyphs save memory. Read https://github.com/nothings/stb/blob/master/tests/oversample/README.md for details.
     ImS8            OversampleV;            // 0 (1)    // Rasterize at higher quality for sub-pixel positioning. 0 == auto == 1. This is not really useful as we don't use sub-pixel positions on the Y axis.
+    ImWchar         EllipsisChar;           // 0        // Explicitly specify Unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
     float           SizePixels;             //          // Size in pixels for rasterizer (more or less maps to the resulting font height).
     const ImWchar*  GlyphRanges;            // NULL     // *LEGACY* THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE. Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list).
-    const ImWchar*  GlyphExcludeRanges;     // NULL     // Pointer to a VERY SHORT user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). This is very close to GlyphRanges[] but designed to exclude ranges from a font source, when merging fonts with overlapping glyphs. Use "Input Glyphs Overlap Detection Tool" to find about your overlapping ranges.
+    const ImWchar*  GlyphExcludeRanges;     // NULL     // Pointer to a small user-provided list of Unicode ranges (2 value per range, values are inclusive, zero-terminated list). This is very close to GlyphRanges[] but designed to exclude ranges from a font source, when merging fonts with overlapping glyphs. Use "Input Glyphs Overlap Detection Tool" to find about your overlapping ranges.
     //ImVec2        GlyphExtraSpacing;      // 0, 0     // (REMOVED AT IT SEEMS LARGELY OBSOLETE. PLEASE REPORT IF YOU WERE USING THIS). Extra spacing (in pixels) between glyphs when rendered: essentially add to glyph->AdvanceX. Only X axis is supported for now.
     ImVec2          GlyphOffset;            // 0, 0     // Offset (in pixels) all glyphs from this font input. Absolute value for default size, other sizes will scale this value.
     float           GlyphMinAdvanceX;       // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font. Absolute value for default size, other sizes will scale this value.
     float           GlyphMaxAdvanceX;       // FLT_MAX  // Maximum AdvanceX for glyphs
     float           GlyphExtraAdvanceX;     // 0        // Extra spacing (in pixels) between glyphs. Please contact us if you are using this. // FIXME-NEWATLAS: Intentionally unscaled
+    ImU32           FontNo;                 // 0        // Index of font within TTF/OTF file
     unsigned int    FontLoaderFlags;        // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
     //unsigned int  FontBuilderFlags;       // --       // [Renamed in 1.92] Ue FontLoaderFlags.
     float           RasterizerMultiply;     // 1.0f     // Linearly brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable. This is a silly thing we may remove in the future.
     float           RasterizerDensity;      // 1.0f     // [LEGACY: this only makes sense when ImGuiBackendFlags_RendererHasTextures is not supported] DPI scale multiplier for rasterization. Not altering other font metrics: makes it easy to swap between e.g. a 100% and a 400% fonts for a zooming display, or handle Retina screen. IMPORTANT: If you change this it is expected that you increase/decrease font scale roughly to the inverse of this, otherwise quality may look lowered.
-    ImWchar         EllipsisChar;           // 0        // Explicitly specify Unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
 
     // [Internal]
     ImFontFlags     Flags;                  // Font flags (don't use just yet, will be exposed in upcoming 1.92.X updates)
     ImFont*         DstFont;                // Target font (as we merging fonts, multiple ImFontConfig may target the same font)
-    const ImFontLoader* FontLoader;         // Custom font backend for this source (other use one stored in ImFontAtlas)
+    const ImFontLoader* FontLoader;         // Custom font backend for this source (default source is the one stored in ImFontAtlas)
     void*           FontLoaderData;         // Font loader opaque storage (per font config)
 
     IMGUI_API ImFontConfig();
@@ -3706,6 +3725,7 @@ struct ImFontAtlas
 
     IMGUI_API void              Clear();                    // Clear everything (input fonts, output glyphs/textures)
     IMGUI_API void              CompactCache();             // Compact cached glyphs and texture.
+    IMGUI_API void              SetFontLoader(const ImFontLoader* font_loader); // Change font loader at runtime.
 
     // As we are transitioning toward a new font system, we expect to obsolete those soon:
     IMGUI_API void              ClearInputData();           // [OBSOLETE] Clear input data (all ImFontConfig structures including sizes, TTF data, glyph ranges, etc.) = all the data used to build the texture and fonts.
@@ -3814,7 +3834,7 @@ struct ImFontAtlas
     int                         FontNextUniqueID;   // Next value to be stored in ImFont->FontID
     ImVector<ImDrawListSharedData*> DrawListSharedDatas; // List of users for this atlas. Typically one per Dear ImGui context.
     ImFontAtlasBuilder*         Builder;            // Opaque interface to our data that doesn't need to be public and may be discarded when rebuilding.
-    const ImFontLoader*         FontLoader;         // Font loader opaque interface (default to stb_truetype, can be changed to use FreeType by defining IMGUI_ENABLE_FREETYPE). Don't set directly!
+    const ImFontLoader*         FontLoader;         // Font loader opaque interface (default to use FreeType when IMGUI_ENABLE_FREETYPE is defined, otherwise default to use stb_truetype). Use SetFontLoader() to change this at runtime.
     const char*                 FontLoaderName;     // Font loader name (for display e.g. in About box) == FontLoader->Name
     void*                       FontLoaderData;     // Font backend opaque storage
     unsigned int                FontLoaderFlags;    // Shared flags (for all fonts) for font loader. THIS IS BUILD IMPLEMENTATION DEPENDENT (e.g. Per-font override is also available in ImFontConfig).
@@ -3857,9 +3877,10 @@ struct ImFontBaked
     float                       Ascent, Descent;    // 4+4   // out // Ascent: distance from top to bottom of e.g. 'A' [0..FontSize] (unscaled)
     unsigned int                MetricsTotalSurface:26;// 3  // out // Total surface in pixels to get an idea of the font rasterization/texture cost (not exact, we approximate the cost of padding between glyphs)
     unsigned int                WantDestroy:1;         // 0  //     // Queued for destroy
-    unsigned int                LockLoadingFallback:1; // 0  //     //
-    int                         LastUsedFrame;      // 4     //     // Record of that time this was bounds
-    ImGuiID                     BakedId;            // 4     //
+    unsigned int                LoadNoFallback:1;      // 0  //     // Disable loading fallback in lower-level calls.
+    unsigned int                LoadNoRenderOnLayout:1;// 0  //     // Enable a two-steps mode where CalcTextSize() calls will load AdvanceX *without* rendering/packing glyphs. Only advantagous if you know that the glyph is unlikely to actually be rendered, otherwise it is slower because we'd do one query on the first CalcTextSize and one query on the first Draw.
+    int                         LastUsedFrame;         // 4  //     // Record of that time this was bounds
+    ImGuiID                     BakedId;            // 4     //     // Unique ID for this baked storage
     ImFont*                     ContainerFont;      // 4-8   // in  // Parent font
     void*                       FontLoaderDatas;    // 4-8   //     // Font loader opaque storage (per baked font * sources): single contiguous buffer allocated by imgui, passed to loader.
 
@@ -3877,7 +3898,6 @@ struct ImFontBaked
 enum ImFontFlags_
 {
     ImFontFlags_None                    = 0,
-    ImFontFlags_DefaultToLegacySize     = 1 << 0,   // Legacy compatibility: make PushFont() calls without explicit size use font->LegacySize instead of current font size.
     ImFontFlags_NoLoadError             = 1 << 1,   // Disable throwing an error/assert when calling AddFontXXX() with missing file/data. Calling code is expected to check AddFontXXX() return value.
     ImFontFlags_NoLoadGlyphs            = 1 << 2,   // [Internal] Disable loading new glyphs.
     ImFontFlags_LockBakedSizes          = 1 << 3,   // [Internal] Disable loading new baked sizes, disable garbage collecting current ones. e.g. if you want to lock a font to a single size. Important: if you use this to preload given sizes, consider the possibility of multiple font density used on Retina display.
@@ -4208,7 +4228,8 @@ struct ImGuiPlatformImeData
 namespace ImGui
 {
     // OBSOLETED in 1.92.0 (from June 2025)
-    IMGUI_API void      SetWindowFontScale(float scale);                        // Set font scale factor for current window. Prefer using PushFontSize(style.FontSizeBase * factor) or use style.FontScaleMain to scale all windows.
+    static inline void  PushFont(ImFont* font)                                  { PushFont(font, font ? font->LegacySize : 0.0f); }
+    IMGUI_API void      SetWindowFontScale(float scale);                        // Set font scale factor for current window. Prefer using PushFont(NULL, style.FontSizeBase * factor) or use style.FontScaleMain to scale all windows.
     // OBSOLETED in 1.91.9 (from February 2025)
     IMGUI_API void      Image(ImTextureRef tex_ref, const ImVec2& image_size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col); // <-- 'border_col' was removed in favor of ImGuiCol_ImageBorder. If you use 'tint_col', use ImageWithBg() instead.
     // OBSOLETED in 1.91.0 (from July 2024)

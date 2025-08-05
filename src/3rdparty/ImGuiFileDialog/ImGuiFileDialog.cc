@@ -3870,7 +3870,7 @@ void IGFD::FileDialog::m_BeginFileColorIconStyle(std::shared_ptr<FileInfos> vFil
     vOutStr += " " + vFileInfos->fileNameExt;
 
     if (vOutShowColor) ImGui::PushStyleColor(ImGuiCol_Text, vFileInfos->fileStyle->color);
-    if (*vOutFont) ImGui::PushFont(*vOutFont);
+    if (*vOutFont) ImGui::PushFont(*vOutFont, (*vOutFont)->LegacySize);
 }
 
 void IGFD::FileDialog::m_EndFileColorIconStyle(const bool& vShowColor, ImFont* vFont) {
