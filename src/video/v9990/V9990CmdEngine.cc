@@ -336,10 +336,10 @@ inline void V9990CmdEngine::V9990P1::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & shiftMask(x);
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -348,11 +348,11 @@ inline void V9990CmdEngine::V9990P1::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -404,10 +404,10 @@ inline void V9990CmdEngine::V9990P2::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & shiftMask(x);
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -417,11 +417,11 @@ inline void V9990CmdEngine::V9990P2::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -472,10 +472,10 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & shiftMask(x);
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -485,11 +485,11 @@ inline void V9990CmdEngine::V9990Bpp2::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -540,10 +540,10 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & shiftMask(x);
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -553,11 +553,11 @@ inline void V9990CmdEngine::V9990Bpp4::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
 	uint8_t result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
@@ -607,10 +607,10 @@ inline void V9990CmdEngine::V9990Bpp8::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint8_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -619,11 +619,11 @@ inline void V9990CmdEngine::V9990Bpp8::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t color, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t /*op*/)
 {
-	unsigned addr = addressOf(x, y, pitch);
-	uint8_t srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
-	uint8_t dstColor = vram.readVRAMDirect(addr);
-	uint8_t newColor = logOp(lut, srcColor, dstColor);
-	uint8_t mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
+	auto addr = addressOf(x, y, pitch);
+	auto srcColor = narrow_cast<uint8_t>((addr & 0x40000) ? (color >> 8) : (color & 0xFF));
+	auto dstColor = vram.readVRAMDirect(addr);
+	auto newColor = logOp(lut, srcColor, dstColor);
+	auto mask1 = narrow_cast<uint8_t>((addr & 0x40000) ? (mask >> 8) : (mask & 0xFF));
 	uint8_t result = (dstColor & ~mask1) | (newColor & mask1);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -678,10 +678,10 @@ inline void V9990CmdEngine::V9990Bpp16::pset(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op)
 {
-	unsigned addr = addressOf(x, y, pitch);
+	auto addr = addressOf(x, y, pitch);
 	auto dstColor = uint16_t(vram.readVRAMDirect(addr + 0x00000) +
 	                         vram.readVRAMDirect(addr + 0x40000) * 256);
-	uint16_t newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
+	auto newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	uint16_t result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, narrow_cast<uint8_t>(result & 0xFF));
 	vram.writeVRAMDirect(addr + 0x40000, narrow_cast<uint8_t>(result >> 8));
@@ -691,10 +691,10 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 	V9990VRAM& vram, unsigned x, unsigned y, unsigned pitch,
 	uint16_t srcColor, uint16_t mask, std::span<const uint8_t, 256 * 256> lut, uint8_t op)
 {
-	unsigned addr = addressOf(x, y, pitch);
+	auto addr = addressOf(x, y, pitch);
 	auto dstColor = uint16_t(vram.readVRAMDirect(addr + 0x00000) +
 	                         vram.readVRAMDirect(addr + 0x40000) * 256);
-	uint16_t newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
+	auto newColor = logOp(lut, srcColor, dstColor, (op & 0x10) != 0);
 	uint16_t result = (dstColor & ~mask) | (newColor & mask);
 	vram.writeVRAMDirect(addr + 0x00000, narrow_cast<uint8_t>(result & 0xFF));
 	vram.writeVRAMDirect(addr + 0x40000, narrow_cast<uint8_t>(result >> 8));
@@ -1463,11 +1463,11 @@ void V9990CmdEngine::executeBMLL(EmuTime limit)
 	while (engineTime < limit) {
 		engineTime += delta;
 		// VRAM always mapped as in Bx modes
-		uint8_t srcColor = vram.readVRAMBx(srcAddress);
-		unsigned addr = V9990VRAM::transformBx(dstAddress);
-		uint8_t dstColor = vram.readVRAMDirect(addr);
-		uint8_t newColor = Mode::logOp(lut, srcColor, dstColor);
-		uint8_t mask = narrow_cast<uint8_t>((addr & 0x40000) ? (WM >> 8) : (WM & 0xFF));
+		auto srcColor = vram.readVRAMBx(srcAddress);
+		auto addr = V9990VRAM::transformBx(dstAddress);
+		auto dstColor = vram.readVRAMDirect(addr);
+		auto newColor = Mode::logOp(lut, srcColor, dstColor);
+		auto mask = narrow_cast<uint8_t>((addr & 0x40000) ? (WM >> 8) : (WM & 0xFF));
 		uint8_t result = (dstColor & ~mask) | (newColor & mask);
 		vram.writeVRAMDirect(addr, result);
 		srcAddress = (srcAddress + 1) & 0x7FFFF;

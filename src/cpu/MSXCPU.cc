@@ -165,8 +165,8 @@ void MSXCPU::updateVisiblePage(uint8_t page, uint8_t primarySlot, uint8_t second
 	assert(primarySlot < 4);
 	assert(secondarySlot < 4);
 
-	uint8_t from = slots[page];
-	uint8_t to = narrow<uint8_t>(4 * primarySlot + secondarySlot);
+	auto from = slots[page];
+	auto to = narrow<uint8_t>(4 * primarySlot + secondarySlot);
 	slots[page] = to;
 
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();

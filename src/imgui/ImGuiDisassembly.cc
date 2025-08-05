@@ -438,7 +438,7 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 							};
 
 							auto slot = getCurrentSlot(cpuInterface, debugger, addr16);
-							uint8_t psSs = (slot.ss.value_or(0) << 2) + slot.ps;
+							auto psSs = uint8_t((slot.ss.value_or(0) << 2) + slot.ps);
 							auto addrLabels = symbolManager.lookupValue(addr16);
 							for (const Symbol* symbol: addrLabels) {
 								// skip symbols with any mismatch
