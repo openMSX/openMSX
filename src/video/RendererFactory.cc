@@ -1,5 +1,4 @@
 #include "RendererFactory.hh"
-#include "RenderSettings.hh"
 #include "Reactor.hh"
 #include "Display.hh"
 #include "unreachable.hh"
@@ -26,7 +25,7 @@ namespace openmsx::RendererFactory {
 std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
 	Display& display = reactor.getDisplay();
-	switch (display.getRenderSettings().getRenderer()) {
+	switch (display.getRenderer()) {
 		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<DummyVideoSystem>();
 		case RenderSettings::RendererID::SDLGL_PP:
@@ -38,7 +37,7 @@ std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 
 std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer()) {
+	switch (display.getRenderer()) {
 		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<DummyRenderer>();
 		case RenderSettings::RendererID::SDLGL_PP:
@@ -50,7 +49,7 @@ std::unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 
 std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer()) {
+	switch (display.getRenderer()) {
 		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<V9990DummyRenderer>();
 		case RenderSettings::RendererID::SDLGL_PP:
@@ -63,7 +62,7 @@ std::unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 #if COMPONENT_LASERDISC
 std::unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer()) {
+	switch (display.getRenderer()) {
 		case RenderSettings::RendererID::DUMMY:
 			return std::make_unique<LDDummyRenderer>();
 		case RenderSettings::RendererID::SDLGL_PP:

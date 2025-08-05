@@ -84,9 +84,8 @@ void Display::createVideoSystem()
 	assert(!videoSystem);
 	assert(currentRenderer == RenderSettings::RendererID::UNINITIALIZED);
 	assert(!switchInProgress);
-	currentRenderer = renderSettings.getRenderer();
 	switchInProgress = true;
-	doRendererSwitch();
+	doRendererSwitch(renderSettings.getRenderer());
 }
 
 VideoSystem& Display::getVideoSystem()
@@ -163,8 +162,8 @@ bool Display::signalEvent(const Event& event)
 				reactor.getEventDistributor().distributeEvent(FrameDrawnEvent());
 			}
 		},
-		[&](const SwitchRendererEvent& /*e*/) {
-			doRendererSwitch(); // might throw
+		[&](const SwitchRendererEvent& e) {
+			doRendererSwitch(e.getRenderer()); // might throw
 		},
 		[&](const MachineLoadedEvent& /*e*/) {
 			videoSystem->updateWindowTitle();
@@ -270,23 +269,22 @@ void Display::checkRendererSwitch()
 	}
 	auto newRenderer = renderSettings.getRenderer();
 	if (newRenderer != currentRenderer) {
-		currentRenderer = newRenderer;
 		// don't do the actual switching in the Tcl callback
 		// it seems creating and destroying Settings (= Tcl vars)
 		// causes problems???
 		switchInProgress = true;
-		reactor.getEventDistributor().distributeEvent(SwitchRendererEvent());
+		reactor.getEventDistributor().distributeEvent(SwitchRendererEvent(newRenderer));
 	}
 }
 
-void Display::doRendererSwitch()
+void Display::doRendererSwitch(RenderSettings::RendererID newRenderer)
 {
 	assert(switchInProgress);
 
 	bool success = false;
 	while (!success) {
 		try {
-			doRendererSwitch2();
+			doRendererSwitch2(newRenderer);
 			success = true;
 		} catch (MSXException& e) {
 			auto& rendererSetting = renderSettings.getRendererSetting();
@@ -312,13 +310,14 @@ void Display::doRendererSwitch()
 	switchInProgress = false;
 }
 
-void Display::doRendererSwitch2()
+void Display::doRendererSwitch2(RenderSettings::RendererID newRenderer)
 {
 	for (auto& l : listeners) {
 		l->preVideoSystemChange();
 	}
 
 	resetVideoSystem();
+	currentRenderer = newRenderer;
 	videoSystem = RendererFactory::createVideoSystem(reactor);
 
 	for (auto& l : listeners) {

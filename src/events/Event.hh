@@ -2,6 +2,7 @@
 #define EVENT_HH
 
 #include "JoystickId.hh"
+#include "RenderSettings.hh"
 #include "SDLKey.hh"
 #include "StringStorage.hh"
 #include "TclObject.hh"
@@ -361,6 +362,16 @@ private:
 	bool active;
 };
 
+class SwitchRendererEvent final : public EventBase {
+public:
+	explicit SwitchRendererEvent(RenderSettings::RendererID id_)
+		: id(id_) {}
+	[[nodiscard]] auto getRenderer() const { return id; }
+
+private:
+	RenderSettings::RendererID id;
+
+};
 
 // Events that don't need additional data
 class SimpleEvent : public EventBase {};
@@ -376,7 +387,6 @@ class FrameDrawnEvent            final : public SimpleEvent {};
 
 class BreakEvent                 final : public SimpleEvent {};
 class ContinueEvent              final : public SimpleEvent {};
-class SwitchRendererEvent        final : public SimpleEvent {};
 
 /** Used to schedule 'taking reverse snapshots' between Z80 instructions. */
 class TakeReverseSnapshotEvent   final : public SimpleEvent {};

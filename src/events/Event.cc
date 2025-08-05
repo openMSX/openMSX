@@ -199,6 +199,9 @@ TclObject toTclList(const Event& event)
 		},
 		[](const ImGuiActiveEvent& e) {
 			return makeTclList("imgui", e.getActive());
+		},
+		[](const SwitchRendererEvent& e) {
+			return makeTclList("renderer", std::to_underlying(e.getRenderer()));
 		}
 	}, event);
 }

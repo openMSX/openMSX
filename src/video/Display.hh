@@ -44,6 +44,7 @@ public:
 
 	[[nodiscard]] CliComm& getCliComm() const;
 	[[nodiscard]] RenderSettings& getRenderSettings() { return renderSettings; }
+	[[nodiscard]] auto getRenderer() const { return currentRenderer; }
 	[[nodiscard]] OSDGUI& getOSDGUI() { return osdGui; }
 
 	/** Redraw the display.
@@ -94,8 +95,8 @@ private:
 	void update(const Setting& setting) noexcept override;
 
 	void checkRendererSwitch();
-	void doRendererSwitch();
-	void doRendererSwitch2();
+	void doRendererSwitch(RenderSettings::RendererID newRenderer);
+	void doRendererSwitch2(RenderSettings::RendererID newRenderer);
 
 	/** Find front most opaque layer.
 	  */
