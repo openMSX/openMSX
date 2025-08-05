@@ -15,7 +15,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
 	          "selects the video source to display on the screen",
 	          TclObject("none"), Save::NO)
 {
-	sources = { { "none", 0 } };
+	sources = { {.name = "none", .id = 0} };
 
 	setChecker([this](const TclObject& newValue) {
 		checkSetValue(newValue.getString()); // may throw

@@ -62,7 +62,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 				copy_to_range(*it, subspan(tmp, it->startAddress - start));
 			}
 			copy_to_range(v, subspan(tmp, offset - start));
-			*b = Chunk{start, std::move(tmp)};
+			*b = Chunk{.startAddress = start, .content = std::move(tmp)};
 			result.erase(b + 1, e);
 		} else {
 			// add new region

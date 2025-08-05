@@ -454,7 +454,7 @@ void ImGuiMessages::log(CliComm::LogLevel level, std::string_view text, float fr
 	}
 
 	auto now = Timer::getTime();
-	Message message{level, std::string(text), now};
+	Message message{.level = level, .text = std::string(text), .timestamp = now};
 
 	if (popupAction[level] == MODAL_POPUP) {
 		if (modalMessages.full()) modalMessages.pop_back();

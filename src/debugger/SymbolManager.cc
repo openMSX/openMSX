@@ -154,8 +154,8 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	if (label.ends_with(':')) label.remove_suffix(1);
 	if (label.empty()) return {};
 
-	auto tmp{value > 0xFFFF ? std::optional<uint16_t>(static_cast<uint16_t>(value >> 16)) : std::nullopt};
-	return Symbol{std::string(label), static_cast<uint16_t>(value), {}, tmp};
+	auto seg{value > 0xFFFF ? std::optional<uint16_t>(static_cast<uint16_t>(value >> 16)) : std::nullopt};
+	return Symbol{.name = std::string(label), .value = static_cast<uint16_t>(value), .slot = {}, .segment = seg};
 }
 
 [[nodiscard]] std::optional<Symbol> SymbolManager::checkLabelAndValue(std::string_view label, std::string_view value)
