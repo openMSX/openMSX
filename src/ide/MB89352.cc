@@ -498,7 +498,7 @@ void MB89352::writeRegister(uint8_t reg, uint8_t value)
 				break;
 			}
 			bool err = false;
-			int x = regs[REG_BDID] & regs[REG_TEMPWR];
+			unsigned x = regs[REG_BDID] & regs[REG_TEMPWR];
 			if (phase == BUS_FREE && x && x != regs[REG_TEMPWR]) {
 				x = regs[REG_TEMPWR] & ~regs[REG_BDID];
 				assert(x != 0); // because of the check 2 lines above

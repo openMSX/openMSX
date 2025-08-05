@@ -39,7 +39,7 @@ static_assert(narrow<int>(allShortcutInfo.size()) == std::to_underlying(Shortcut
 
 static constexpr auto defaultShortcuts = []{
 	array_with_enum_index<Shortcuts::ID, Shortcuts::Shortcut> result = {};
-	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (auto i : xrange(std::to_underlying(Shortcuts::ID::NUM))) {
 		const auto& all = allShortcutInfo[i];
 		auto id = static_cast<Shortcuts::ID>(i);
 		assert(all.id == id); // verify that rows are in-order
@@ -51,7 +51,7 @@ static constexpr auto defaultShortcuts = []{
 
 static constexpr auto shortcutRepeats = []{
 	array_with_enum_index<Shortcuts::ID, bool> result = {};
-	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (auto i : xrange(std::to_underlying(Shortcuts::ID::NUM))) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].repeat;
 	}
@@ -60,7 +60,7 @@ static constexpr auto shortcutRepeats = []{
 
 static constexpr auto shortcutNames = []{
 	array_with_enum_index<Shortcuts::ID, zstring_view> result = {};
-	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (auto i : xrange(std::to_underlying(Shortcuts::ID::NUM))) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].name;
 	}
@@ -69,7 +69,7 @@ static constexpr auto shortcutNames = []{
 
 static constexpr auto shortcutDescriptions = []{
 	array_with_enum_index<Shortcuts::ID, zstring_view> result = {};
-	for (int i = 0; i < std::to_underlying(Shortcuts::ID::NUM); ++i) {
+	for (auto i : xrange(std::to_underlying(Shortcuts::ID::NUM))) {
 		auto id = static_cast<Shortcuts::ID>(i);
 		result[id] = allShortcutInfo[i].description;
 	}

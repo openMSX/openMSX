@@ -211,7 +211,7 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const uint8_t* rData, uin
 	assert((start & CacheLine::LOW) == 0);
 	assert((size  & CacheLine::LOW) == 0);
 
-	int slot = 4 * ps + ss;
+	unsigned slot = 4 * ps + ss;
 	unsigned page = start >> 14;
 	assert(((start + size - 1) >> 14) == page); // all in same page
 	if constexpr (SUB_START && READ)  rData -= start;
