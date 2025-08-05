@@ -401,7 +401,7 @@ void MSXMotherBoard::storeAsSetup(const std::string& filename, SetupDepth depth)
 
 		for (auto& extension: extensions) {
 			if (extension->getType() == HardwareConfig::Type::EXTENSION) {
-				auto& configName = extension->getConfigName();
+				const auto& configName = extension->getConfigName();
 				auto slot = slotManager->findSlotWith(*extension);
 				const std::string slotSpec = slot ? std::string(1, char('a' + *slot)) : "any";
 				// TODO: a bit weird that we need to convert the slot

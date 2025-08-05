@@ -883,7 +883,7 @@ void YMF278::writeMem(unsigned address, uint8_t value)
 {
 	address &= 0x3F'FFFF;
 	if (auto chunk = memPtrs[address >> 17].asOptional()) { // mapped?
-		auto* ptr = chunk->data() + (address & 0x1'ffff);
+		const auto* ptr = chunk->data() + (address & 0x1'ffff);
 		if ((&ram[0] <= ptr) && (ptr < (&ram[0] + ram.size()))) { // points to RAM?
 			// this assumes all RAM is emulated via a single contiguous memory block
 			auto ramOffset = ptr - &ram[0];
