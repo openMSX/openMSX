@@ -21,7 +21,7 @@ std::string CassetteImage::getFirstFileTypeAsString() const
 void CassetteImage::setFirstFileType(FileType type, const Filename& fileName) {
 	if (type == UNKNOWN) {
 		// see if there is a hint in the filename
-		auto file = fileName.getResolved();
+		const auto& file = fileName.getResolved();
 		auto fileStem = FileOperations::stem(file);
 
 		auto containsInstructionAndCAS = [&](std::string_view instruction) {
