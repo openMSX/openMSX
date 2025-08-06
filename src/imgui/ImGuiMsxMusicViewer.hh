@@ -69,7 +69,7 @@ public:
 	bool show = false;
 
 private:
-	std::map<std::string, ChipState> chips;
+	std::map<std::string, ChipState, std::less<>> chips;
 };
 
 } // namespace openmsx
