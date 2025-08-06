@@ -146,7 +146,7 @@ private:
 template<typename T>
 struct ConcatToString : ConcatViaString
 {
-	ConcatToString(T t)
+	explicit ConcatToString(T t)
 		: ConcatViaString(std::to_string(t))
 	{
 	}

@@ -302,7 +302,7 @@ public:
 	// arguments are delegated to the monotonic allocator constructor.
 	template<typename T, typename ...Args>
 		requires(!std::same_as<XMLDocument, std::remove_cvref_t<T>>) // don't block copy-constructor
-	XMLDocument(T&& t, Args&& ...args)
+	explicit XMLDocument(T&& t, Args&& ...args)
 		: allocator(std::forward<T>(t), std::forward<Args>(args)...) {}
 
 	// Load/parse an xml file. Requires that the document is still empty.

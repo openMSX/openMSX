@@ -61,7 +61,7 @@ public:
 		return *this;
 	}
 
-	operator T2() const {
+	explicit(false) operator T2() const {
 		return (value >> POS) & Mask;
 	}
 

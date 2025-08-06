@@ -33,7 +33,7 @@ private:
 	};
 	struct Hovers {
 		Hovers() = default;
-		Hovers(Hover h) : h1(h) {}
+		explicit(false) Hovers(Hover h) : h1(h) {}
 		Hovers(int r, uint8_t m) : h1(r, m) {}
 		Hovers(int r1, uint8_t m1, int r2, uint8_t m2) : h1(r1, m1), h2(r2, m2) {}
 

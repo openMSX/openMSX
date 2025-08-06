@@ -40,7 +40,7 @@ class SimpleHashSet
 {
 	using Value = decltype(InvalidValue);
 public:
-	SimpleHashSet(Hasher hasher_ = {}, Equality equality_ = {})
+	explicit SimpleHashSet(Hasher hasher_ = {}, Equality equality_ = {})
 		: hasher(hasher_), equality(equality_)
 	{
 	}

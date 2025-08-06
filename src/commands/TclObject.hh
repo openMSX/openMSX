@@ -80,13 +80,13 @@ public:
 
 	struct MakeListTag {};
 	template<typename... Args>
-	TclObject(MakeListTag, Args&&... args) {
+	explicit TclObject(MakeListTag, Args&&... args) {
 		init(newList({newObj(std::forward<Args>(args))...}));
 	}
 
 	struct MakeDictTag {};
 	template<typename... Args>
-	TclObject(MakeDictTag, Args&&... args) {
+	explicit TclObject(MakeDictTag, Args&&... args) {
 		init(Tcl_NewDictObj());
 		addDictKeyValues(std::forward<Args>(args)...);
 	}

@@ -377,7 +377,7 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name);
 //  shared between ImGuiCharacter, ImGuiSpriteViewer
 class VramTable {
 public:
-	VramTable(std::span<const uint8_t> vram_, bool planar_ = false)
+	explicit VramTable(std::span<const uint8_t> vram_, bool planar_ = false)
 		: vram(vram_), planar(planar_) {}
 
 	void setRegister(unsigned value, unsigned extraLsbBits) {
