@@ -32,12 +32,12 @@ private:
 	CommandLineParser& cmdLineParser;
 
 	struct IpsOption final : CLIOption {
-		void parseOption(const std::string& option,
+		[[noreturn]] void parseOption(const std::string& option,
 		                 std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} ipsOption;
 	struct RomTypeOption final : CLIOption {
-		void parseOption(const std::string& option,
+		[[noreturn]] void parseOption(const std::string& option,
 		                 std::span<std::string>& cmdLine) override;
 		[[nodiscard]] std::string_view optionHelp() const override;
 	} romTypeOption;
