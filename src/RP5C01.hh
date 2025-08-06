@@ -22,7 +22,7 @@ class SRAM;
 class RP5C01
 {
 public:
-	enum RTCMode : uint8_t { EMUTIME, REALTIME };
+	enum class RTCMode : uint8_t { EMUTIME, REALTIME };
 
 	RP5C01(CommandController& commandController, SRAM& regs,
 	       EmuTime time, const std::string& name);

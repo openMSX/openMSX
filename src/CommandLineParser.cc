@@ -51,20 +51,20 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, hdImageCLI(*this)
 	, cdImageCLI(*this)
 {
-	registerOption("-h",          helpOption,    PHASE_BEFORE_INIT, 1);
-	registerOption("--help",      helpOption,    PHASE_BEFORE_INIT, 1);
-	registerOption("-v",          versionOption, PHASE_BEFORE_INIT, 1);
-	registerOption("--version",   versionOption, PHASE_BEFORE_INIT, 1);
-	registerOption("-bash",       bashOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("-h",          helpOption,    Phase::BEFORE_INIT, 1);
+	registerOption("--help",      helpOption,    Phase::BEFORE_INIT, 1);
+	registerOption("-v",          versionOption, Phase::BEFORE_INIT, 1);
+	registerOption("--version",   versionOption, Phase::BEFORE_INIT, 1);
+	registerOption("-bash",       bashOption,    Phase::BEFORE_INIT, 1);
 
-	registerOption("-setting",    settingOption, PHASE_BEFORE_SETTINGS);
-	registerOption("-control",    controlOption, PHASE_BEFORE_SETTINGS, 1);
-	registerOption("-script",     scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
-	registerOption("-command",    commandOption, PHASE_BEFORE_SETTINGS, 1); // same phase as -script
-	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-setting",    settingOption, Phase::BEFORE_SETTINGS);
+	registerOption("-control",    controlOption, Phase::BEFORE_SETTINGS, 1);
+	registerOption("-script",     scriptOption,  Phase::BEFORE_SETTINGS, 1); // correct phase?
+	registerOption("-command",    commandOption, Phase::BEFORE_SETTINGS, 1); // same phase as -script
+	registerOption("-testconfig", testConfigOption, Phase::BEFORE_SETTINGS, 1);
 
-	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
-	registerOption("-setup",      setupOption,   PHASE_LOAD_MACHINE);
+	registerOption("-machine",    machineOption, Phase::LOAD_MACHINE);
+	registerOption("-setup",      setupOption,   Phase::LOAD_MACHINE);
 
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
@@ -74,7 +74,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 }
 
 void CommandLineParser::registerOption(
-	std::string_view str, CLIOption& cliOption, ParsePhase phase, unsigned length)
+	std::string_view str, CLIOption& cliOption, Phase phase, unsigned length)
 {
 	options.emplace_back(str, &cliOption, phase, length);
 }
@@ -87,7 +87,7 @@ void CommandLineParser::registerFileType(
 }
 
 bool CommandLineParser::parseOption(
-	const std::string& arg, std::span<std::string>& cmdLine, ParsePhase phase)
+	const std::string& arg, std::span<std::string>& cmdLine, Phase phase)
 {
 	if (auto o = binary_find(options, arg, {}, &OptionData::name)) {
 		// parse option
@@ -150,7 +150,7 @@ CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(std::string_view f
 
 void CommandLineParser::parse(std::span<char*> argv)
 {
-	parseStatus = RUN;
+	parseStatus = Status::RUN;
 
 	auto cmdLineBuf = to_vector(std::views::transform(std::views::drop(argv, 1), [](const char* a) {
 		return FileOperations::getConventionalPath(a);
@@ -158,19 +158,19 @@ void CommandLineParser::parse(std::span<char*> argv)
 	std::span<std::string> cmdLine(cmdLineBuf);
 	std::vector<std::string> backupCmdLine;
 
-	for (ParsePhase phase = PHASE_BEFORE_INIT;
-	     (phase <= PHASE_LAST) && (parseStatus != EXIT);
-	     phase = static_cast<ParsePhase>(phase + 1)) {
+	for (Phase phase = Phase::BEFORE_INIT;
+	     (phase <= Phase::LAST) && (parseStatus != Status::EXIT);
+	     phase = static_cast<Phase>(std::to_underlying(phase) + 1)) {
 		switch (phase) {
-		case PHASE_INIT:
+		case Phase::INIT:
 			reactor.init();
 			fileTypeCategoryInfo.emplace(
 				reactor.getOpenMSXInfoCommand(), *this);
 			getInterpreter().init(argv[0]);
 			break;
-		case PHASE_LOAD_SETTINGS:
+		case Phase::LOAD_SETTINGS:
 			// after -control and -setting has been parsed
-			if (parseStatus != CONTROL) {
+			if (parseStatus != Status::CONTROL) {
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
 				auto& cliComm = reactor.getGlobalCliComm();
@@ -203,7 +203,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 				settingsConfig.setSaveFilename(context, filename);
 			}
 			break;
-		case PHASE_DEFAULT_MACHINE: {
+		case Phase::DEFAULT_MACHINE: {
 			if (!haveConfig) {
 				// load default setup in case the user didn't specify one
 				const auto& defaultSetup =
@@ -266,7 +266,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 				// first try options
 				if (!parseOption(arg, cmdLine, phase)) {
 					// next try the registered filetypes (xml)
-					if ((phase != PHASE_LAST) ||
+					if ((phase != Phase::LAST) ||
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
@@ -289,16 +289,16 @@ void CommandLineParser::parse(std::span<char*> argv)
 	for (const auto& option : options) {
 		option.option->parseDone();
 	}
-	if (!cmdLine.empty() && (parseStatus != EXIT)) {
+	if (!cmdLine.empty() && (parseStatus != Status::EXIT)) {
 		throw FatalError(
 			"Error parsing command line: ", cmdLine.front(), "\n"
 			"Use \"openmsx -h\" to see a list of available options");
 	}
 }
 
-CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
+CommandLineParser::Status CommandLineParser::getParseStatus() const
 {
-	assert(parseStatus != UNPARSED);
+	assert(parseStatus != Status::UNPARSED);
 	return parseStatus;
 }
 
@@ -344,7 +344,7 @@ void CommandLineParser::ControlOption::parseOption(
 	}
 	cliComm.addListener(std::move(connection));
 
-	parser.parseStatus = CommandLineParser::CONTROL;
+	parser.parseStatus = CommandLineParser::Status::CONTROL;
 }
 
 std::string_view CommandLineParser::ControlOption::optionHelp() const
@@ -493,7 +493,7 @@ void CommandLineParser::HelpOption::parseOption(
 	}
 	printItemMap(itemMap);
 
-	parser.parseStatus = CommandLineParser::EXIT;
+	parser.parseStatus = CommandLineParser::Status::EXIT;
 }
 
 std::string_view CommandLineParser::HelpOption::optionHelp() const
@@ -511,7 +511,7 @@ void CommandLineParser::VersionOption::parseOption(
 	             "flavour: " << BUILD_FLAVOUR << "\n"
 	             "components: " << BUILD_COMPONENTS << '\n';
 	auto& parser = OUTER(CommandLineParser, versionOption);
-	parser.parseStatus = CommandLineParser::EXIT;
+	parser.parseStatus = CommandLineParser::Status::EXIT;
 }
 
 std::string_view CommandLineParser::VersionOption::optionHelp() const
@@ -604,7 +604,7 @@ void CommandLineParser::TestConfigOption::parseOption(
 	const std::string& /*option*/, std::span<std::string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, testConfigOption);
-	parser.parseStatus = CommandLineParser::TEST;
+	parser.parseStatus = CommandLineParser::Status::TEST;
 }
 
 std::string_view CommandLineParser::TestConfigOption::optionHelp() const
@@ -643,7 +643,7 @@ void CommandLineParser::BashOption::parseOption(
 			std::cout << option.name << '\n';
 		}
 	}
-	parser.parseStatus = CommandLineParser::EXIT;
+	parser.parseStatus = CommandLineParser::Status::EXIT;
 }
 
 std::string_view CommandLineParser::BashOption::optionHelp() const

@@ -20,7 +20,7 @@ static std::vector<IdImage> images;
 HDImageCLI::HDImageCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
-	parser.registerOption("-hda", *this, CommandLineParser::PHASE_BEFORE_MACHINE);
+	parser.registerOption("-hda", *this, CommandLineParser::Phase::BEFORE_MACHINE);
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 

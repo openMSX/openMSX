@@ -14,7 +14,7 @@ namespace openmsx {
 class ChakkariCopy final : public MSXDevice, private Observer<Setting>
 {
 public:
-	enum Mode : uint8_t { COPY, RAM };
+	enum class Mode : uint8_t { COPY, RAM };
 
 	explicit ChakkariCopy(DeviceConfig& config);
 	~ChakkariCopy() override;

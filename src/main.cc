@@ -80,15 +80,15 @@ static int main(int argc, char **argv)
 #endif
 		CommandLineParser parser(reactor);
 		parser.parse(args);
-		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
+		auto parseStatus = parser.getParseStatus();
 
-		if (parseStatus != one_of(CommandLineParser::EXIT, CommandLineParser::TEST)) {
+		if (parseStatus != one_of(CommandLineParser::Status::EXIT, CommandLineParser::Status::TEST)) {
 			reactor.runStartupScripts(parser);
 
 			auto& display = reactor.getDisplay();
 			auto& render = display.getRenderSettings().getRendererSetting();
 			if ((render.getEnum() == RenderSettings::RendererID::UNINITIALIZED) &&
-			    (parseStatus != CommandLineParser::CONTROL)) {
+			    (parseStatus != CommandLineParser::Status::CONTROL)) {
 				render.setValue(render.getDefaultValue());
 				// Switching renderer requires events, handle
 				// these events before continuing with the rest
@@ -103,7 +103,7 @@ static int main(int argc, char **argv)
 			                    reactor.getEventDistributor(),
 			                    reactor.getGlobalCliComm());
 
-			if (parser.getParseStatus() == CommandLineParser::RUN) {
+			if (parser.getParseStatus() == CommandLineParser::Status::RUN) {
 				reactor.powerOn();
 			}
 			display.repaint();

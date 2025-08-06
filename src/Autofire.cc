@@ -13,7 +13,7 @@ namespace openmsx {
 static std::string_view nameForId(Autofire::ID id)
 {
 	switch (id) {
-		case Autofire::RENSHATURBO: return "renshaturbo";
+		case Autofire::ID::RENSHATURBO: return "renshaturbo";
 		default: return "unknown-autofire";
 	}
 }
@@ -35,9 +35,9 @@ public:
 		ar.serialize("name",    name,
 		             "value",   value);
 		if constexpr (Archive::IS_LOADER) {
-			id = (name == nameForId(Autofire::RENSHATURBO))
-			   ? Autofire::RENSHATURBO
-			   : Autofire::UNKNOWN;
+			id = (name == nameForId(Autofire::ID::RENSHATURBO))
+			   ? Autofire::ID::RENSHATURBO
+			   : Autofire::ID::UNKNOWN;
 		}
 	}
 

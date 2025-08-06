@@ -27,10 +27,10 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 		if (auto type = parser.getFirstFileType()) {
 			setFirstFileType([&] {
 				switch (*type) {
-				case TsxParser::FileType::ASCII:  return CassetteImage::ASCII;
-				case TsxParser::FileType::BINARY: return CassetteImage::BINARY;
-				case TsxParser::FileType::BASIC:  return CassetteImage::BASIC;
-				default:                          return CassetteImage::UNKNOWN;
+				case TsxParser::FileType::ASCII:  return CassetteImage::FileType::ASCII;
+				case TsxParser::FileType::BINARY: return CassetteImage::FileType::BINARY;
+				case TsxParser::FileType::BASIC:  return CassetteImage::FileType::BASIC;
+				default:                          return CassetteImage::FileType::UNKNOWN;
 				}
 			}(), filename);
 		}

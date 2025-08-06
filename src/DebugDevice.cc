@@ -26,7 +26,7 @@ DebugDevice::DebugDevice(const DeviceConfig& config)
 
 void DebugDevice::reset(EmuTime /*time*/)
 {
-	mode = OFF;
+	mode = Mode::OFF;
 	modeParameter = 0;
 }
 
@@ -41,14 +41,14 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 	case 0:
 		switch ((value & 0x30) >> 4) {
 		case 0:
-			mode = OFF;
+			mode = Mode::OFF;
 			break;
 		case 1:
-			mode = SINGLEBYTE;
+			mode = Mode::SINGLEBYTE;
 			modeParameter = value & 0x0F;
 			break;
 		case 2:
-			mode = MULTIBYTE;
+			mode = Mode::MULTIBYTE;
 			modeParameter = value & 0x03;
 			break;
 		case 3:
@@ -60,12 +60,12 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 		break;
 	case 1:
 		switch (mode) {
-		case OFF:
+		case Mode::OFF:
 			break;
-		case SINGLEBYTE:
+		case Mode::SINGLEBYTE:
 			outputSingleByte(value, time);
 			break;
-		case MULTIBYTE:
+		case Mode::MULTIBYTE:
 			outputMultiByte(value);
 			break;
 		default:
@@ -78,24 +78,24 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 void DebugDevice::outputSingleByte(byte value, EmuTime time)
 {
 	if (modeParameter & 0x01) {
-		displayByte(value, HEX);
+		displayByte(value, DisplayType::HEX);
 	}
 	if (modeParameter & 0x02) {
-		displayByte(value, BIN);
+		displayByte(value, DisplayType::BIN);
 	}
 	if (modeParameter & 0x04) {
-		displayByte(value, DEC);
+		displayByte(value, DisplayType::DEC);
 	}
 	if (modeParameter & 0x08) {
 		(*outputStrm) << '\'';
 		byte tmp = ((value >= ' ') && (value != 127)) ? value : '.';
-		displayByte(tmp, ASC);
+		displayByte(tmp, DisplayType::ASC);
 		(*outputStrm) << "' ";
 	}
 	Clock<3579545> zero(EmuTime::zero());
 	(*outputStrm) << "emutime: " << std::dec << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
-		displayByte(value, ASC); // do special effects
+		displayByte(value, DisplayType::ASC); // do special effects
 	}
 	(*outputStrm) << '\n' << std::flush;
 }
@@ -104,11 +104,11 @@ void DebugDevice::outputMultiByte(byte value)
 {
 	DisplayType dispType = [&] {
 		switch (modeParameter) {
-			case 0:  return HEX;
-			case 1:  return BIN;
-			case 2:  return DEC;
+			case 0:  return DisplayType::HEX;
+			case 1:  return DisplayType::BIN;
+			case 2:  return DisplayType::DEC;
 			case 3:
-			default: return ASC;
+			default: return DisplayType::ASC;
 		}
 	}();
 	displayByte(value, dispType);
@@ -117,24 +117,24 @@ void DebugDevice::outputMultiByte(byte value)
 void DebugDevice::displayByte(byte value, DisplayType type)
 {
 	switch (type) {
-	case HEX:
+	case DisplayType::HEX:
 		(*outputStrm) << std::hex << std::setw(2)
 		              << std::setfill('0')
 		              << int(value) << "h " << std::flush;
 		break;
-	case BIN: {
+	case DisplayType::BIN: {
 		for (byte mask = 0x80; mask; mask >>= 1) {
 			(*outputStrm) << ((value & mask) ? '1' : '0');
 		}
 		(*outputStrm) << "b " << std::flush;
 		break;
 	}
-	case DEC:
+	case DisplayType::DEC:
 		(*outputStrm) << std::dec << std::setw(3)
 		              << std::setfill('0')
 		              << int(value) << ' ' << std::flush;
 		break;
-	case ASC:
+	case DisplayType::ASC:
 		(*outputStrm).put(narrow_cast<char>(value));
 		(*outputStrm) << std::flush;
 		break;
@@ -156,13 +156,13 @@ void DebugDevice::openOutput(std::string_view name)
 	}
 }
 
-static constexpr std::initializer_list<enum_string<DebugDevice::DebugMode>> debugModeInfo = {
-	{ "OFF",        DebugDevice::OFF },
-	{ "SINGLEBYTE", DebugDevice::SINGLEBYTE },
-	{ "MULTIBYTE",  DebugDevice::MULTIBYTE },
-	{ "ASCII",      DebugDevice::ASCII }
+static constexpr std::initializer_list<enum_string<DebugDevice::Mode>> debugModeInfo = {
+	{ "OFF",        DebugDevice::Mode::OFF },
+	{ "SINGLEBYTE", DebugDevice::Mode::SINGLEBYTE },
+	{ "MULTIBYTE",  DebugDevice::Mode::MULTIBYTE },
+	{ "ASCII",      DebugDevice::Mode::ASCII }
 };
-SERIALIZE_ENUM(DebugDevice::DebugMode, debugModeInfo);
+SERIALIZE_ENUM(DebugDevice::Mode, debugModeInfo);
 
 template<typename Archive>
 void DebugDevice::serialize(Archive& ar, unsigned /*version*/)

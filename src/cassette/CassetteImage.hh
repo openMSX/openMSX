@@ -15,7 +15,7 @@ class Filename;
 class CassetteImage
 {
 public:
-	enum FileType : uint8_t { ASCII, BINARY, BASIC, UNKNOWN };
+	enum class FileType : uint8_t { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() = default;
 	[[nodiscard]] virtual int16_t getSampleAt(EmuTime time) const = 0;
@@ -44,7 +44,7 @@ protected:
 	void setSha1Sum(const Sha1Sum& sha1sum);
 
 private:
-	FileType firstFileType = UNKNOWN;
+	FileType firstFileType = FileType::UNKNOWN;
 	Sha1Sum sha1sum;
 };
 

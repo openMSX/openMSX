@@ -1326,7 +1326,7 @@ void ImagePrinterEpson::processEscSequence()
 			fontInfo.useRam = false;
 			noHighEscapeCodes = false;
 			alternateChar = false;
-			countryCode = CC_USA;
+			countryCode = CountryCode::USA;
 			break;
 		case 'A': // Sets Line Spacing to n/72 inch
 			lineFeed = parseNumber(1, 1) & 127;
@@ -1387,8 +1387,8 @@ void ImagePrinterEpson::processEscSequence()
 		}
 		case 'R': // Select International Character Set
 			countryCode = static_cast<CountryCode>(parseNumber(1, 1));
-			if (countryCode > CC_JAPAN) {
-				countryCode = CC_USA;
+			if (countryCode > CountryCode::JAPAN) {
+				countryCode = CountryCode::USA;
 			}
 			break;
 		case 'S': { // Turn Script Mode ON
@@ -1470,19 +1470,20 @@ void ImagePrinterEpson::processCharacter(uint8_t data)
 	}
 
 	// Convert international characters
+	auto cc = std::to_underlying(countryCode);
 	switch (data & 0x7f) {
-		case 35:  data = (data & 0x80) | intlChar35 [countryCode]; break;
-		case 36:  data = (data & 0x80) | intlChar36 [countryCode]; break;
-		case 64:  data = (data & 0x80) | intlChar64 [countryCode]; break;
-		case 91:  data = (data & 0x80) | intlChar91 [countryCode]; break;
-		case 92:  data = (data & 0x80) | intlChar92 [countryCode]; break;
-		case 93:  data = (data & 0x80) | intlChar93 [countryCode]; break;
-		case 94:  data = (data & 0x80) | intlChar94 [countryCode]; break;
-		case 96:  data = (data & 0x80) | intlChar96 [countryCode]; break;
-		case 123: data = (data & 0x80) | intlChar123[countryCode]; break;
-		case 124: data = (data & 0x80) | intlChar124[countryCode]; break;
-		case 125: data = (data & 0x80) | intlChar125[countryCode]; break;
-		case 126: data = (data & 0x80) | intlChar126[countryCode]; break;
+		case 35:  data = (data & 0x80) | intlChar35 [cc]; break;
+		case 36:  data = (data & 0x80) | intlChar36 [cc]; break;
+		case 64:  data = (data & 0x80) | intlChar64 [cc]; break;
+		case 91:  data = (data & 0x80) | intlChar91 [cc]; break;
+		case 92:  data = (data & 0x80) | intlChar92 [cc]; break;
+		case 93:  data = (data & 0x80) | intlChar93 [cc]; break;
+		case 94:  data = (data & 0x80) | intlChar94 [cc]; break;
+		case 96:  data = (data & 0x80) | intlChar96 [cc]; break;
+		case 123: data = (data & 0x80) | intlChar123[cc]; break;
+		case 124: data = (data & 0x80) | intlChar124[cc]; break;
+		case 125: data = (data & 0x80) | intlChar125[cc]; break;
+		case 126: data = (data & 0x80) | intlChar126[cc]; break;
 	}
 
 	if (data >= 32) {

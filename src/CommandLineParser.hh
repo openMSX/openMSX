@@ -37,25 +37,25 @@ class Interpreter;
 class CommandLineParser
 {
 public:
-	enum ParseStatus : uint8_t { UNPARSED, RUN, CONTROL, TEST, EXIT };
-	enum ParsePhase : uint8_t {
-		PHASE_BEFORE_INIT,       // --help, --version, -bash
-		PHASE_INIT,              // calls Reactor::init()
-		PHASE_BEFORE_SETTINGS,   // -setting, ...
-		PHASE_LOAD_SETTINGS,     // loads settings.xml
-		PHASE_BEFORE_MACHINE,    // before -machine
-		PHASE_LOAD_MACHINE,      // -machine
-		PHASE_DEFAULT_MACHINE,   // default machine
-		PHASE_LAST,              // all the rest
+	enum class Status : uint8_t { UNPARSED, RUN, CONTROL, TEST, EXIT };
+	enum class Phase : uint8_t {
+		BEFORE_INIT,       // --help, --version, -bash
+		INIT,              // calls Reactor::init()
+		BEFORE_SETTINGS,   // -setting, ...
+		LOAD_SETTINGS,     // loads settings.xml
+		BEFORE_MACHINE,    // before -machine
+		LOAD_MACHINE,      // -machine
+		DEFAULT_MACHINE,   // default machine
+		LAST,              // all the rest
 	};
 
 	explicit CommandLineParser(Reactor& reactor);
 	void registerOption(std::string_view str, CLIOption& cliOption,
-		ParsePhase phase = PHASE_LAST, unsigned length = 2);
+		Phase phase = Phase::LAST, unsigned length = 2);
 	void registerFileType(std::span<const std::string_view> extensions,
 	                      CLIFileType& cliFileType);
 	void parse(std::span<char*> argv);
-	[[nodiscard]] ParseStatus getParseStatus() const;
+	[[nodiscard]] Status getParseStatus() const;
 
 	[[nodiscard]] const auto& getStartupScripts() const {
 		return scriptOption.scripts;
@@ -72,7 +72,7 @@ private:
 	struct OptionData {
 		std::string_view name;
 		CLIOption* option;
-		ParsePhase phase;
+		Phase phase;
 		unsigned length; // length in parameters
 	};
 	struct FileTypeData {
@@ -84,7 +84,7 @@ private:
 	                   std::span<std::string>& cmdLine);
 	[[nodiscard]] CLIFileType* getFileTypeHandlerForFileName(std::string_view filename) const;
 	[[nodiscard]] bool parseOption(const std::string& arg,
-	                 std::span<std::string>& cmdLine, ParsePhase phase);
+	                 std::span<std::string>& cmdLine, Phase phase);
 	void createMachineSetting();
 
 private:
@@ -171,7 +171,7 @@ private:
 	DiskImageCLI diskImageCLI;
 	HDImageCLI hdImageCLI;
 	CDImageCLI cdImageCLI;
-	ParseStatus parseStatus = UNPARSED;
+	Status parseStatus = Status::UNPARSED;
 	bool haveConfig = false;
 	bool haveSettings = false;
 };

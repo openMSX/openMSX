@@ -16,7 +16,7 @@ RenShaTurbo::RenShaTurbo(MSXMotherBoard& motherBoard,
 				"1 <= min_ints <= max_ints <= 6000.");
 		}
 		autofire.emplace(motherBoard, min_ints, max_ints,
-		                 Autofire::RENSHATURBO);
+		                 Autofire::ID::RENSHATURBO);
 	}
 }
 

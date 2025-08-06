@@ -21,10 +21,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// public for serialization
-	enum DebugMode : uint8_t {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
+	enum class Mode : uint8_t {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 
 private:
-	enum DisplayType : uint8_t {HEX, BIN, DEC, ASC};
+	enum class DisplayType : uint8_t {HEX, BIN, DEC, ASC};
 
 	void outputSingleByte(byte value, EmuTime time);
 	void outputMultiByte(byte value);
@@ -36,7 +36,7 @@ private:
 	std::ostream* outputStrm;
 	std::ofstream debugOut;
 	std::string fileNameString;
-	DebugMode mode;
+	Mode mode;
 	byte modeParameter;
 };
 

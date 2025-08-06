@@ -150,18 +150,18 @@ static CasImage::Data convert(std::span<const uint8_t> cas, const std::string& f
 				// determine file type
 				auto type = [&] {
 					if (compare(&cas[pos], ASCII_HEADER)) {
-						return CassetteImage::ASCII;
+						return CassetteImage::FileType::ASCII;
 					} else if (compare(&cas[pos], BINARY_HEADER)) {
-						return CassetteImage::BINARY;
+						return CassetteImage::FileType::BINARY;
 					} else if (compare(&cas[pos], BASIC_HEADER)) {
-						return CassetteImage::BASIC;
+						return CassetteImage::FileType::BASIC;
 					} else {
-						return CassetteImage::UNKNOWN;
+						return CassetteImage::FileType::UNKNOWN;
 					}
 				}();
 				if (firstFile) firstFileType = type;
 				switch (type) {
-					case CassetteImage::ASCII:
+					case CassetteImage::FileType::ASCII:
 						writeData(wave, cas, pos);
 						do {
 							pos += CAS_HEADER.size();
@@ -171,8 +171,8 @@ static CasImage::Data convert(std::span<const uint8_t> cas, const std::string& f
 							if (eof) break;
 						} while ((pos + CAS_HEADER.size()) <= cas.size());
 						break;
-					case CassetteImage::BINARY:
-					case CassetteImage::BASIC:
+					case CassetteImage::FileType::BINARY:
+					case CassetteImage::FileType::BASIC:
 						writeData(wave, cas, pos);
 						writeSilence(wave, SHORT_SILENCE);
 						writeHeader(wave, SHORT_HEADER);
@@ -248,11 +248,11 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 
 	if (cas.size() >= (header.size() + ASCII_HEADER.size())) {
 		if (compare(&cas[header.size()], ASCII_HEADER)) {
-			firstFileType = CassetteImage::ASCII;
+			firstFileType = CassetteImage::FileType::ASCII;
 		} else if (compare(&cas[header.size()], BINARY_HEADER)) {
-			firstFileType = CassetteImage::BINARY;
+			firstFileType = CassetteImage::FileType::BINARY;
 		} else if (compare(&cas[header.size()], BASIC_HEADER)) {
-			firstFileType = CassetteImage::BASIC;
+			firstFileType = CassetteImage::FileType::BASIC;
 		}
 	}
 
@@ -274,7 +274,7 @@ CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliC
 	File file(filename);
 	auto cas = file.mmap();
 
-	auto fileType = CassetteImage::UNKNOWN;
+	auto fileType = CassetteImage::FileType::UNKNOWN;
 	auto result = [&] {
 		if ((cas.size() >= SVI_CAS::header.size()) &&
 		    (compare(cas.data(), SVI_CAS::header))) {

@@ -26,7 +26,7 @@ class StateChangeDistributor;
 class Autofire final : private Observer<Setting>, private StateChangeListener
 {
 public:
-	enum ID : uint8_t { RENSHATURBO, UNKNOWN };
+	enum class ID : uint8_t { RENSHATURBO, UNKNOWN };
 
 public:
 	Autofire(MSXMotherBoard& motherBoard,

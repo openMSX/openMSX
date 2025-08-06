@@ -96,9 +96,9 @@ ChakkariCopy::ChakkariCopy(DeviceConfig& config)
 		"controls the COPY button state", false, Setting::Save::NO)
 	, modeSetting(getCommandController(), getName() + " mode",
 		"Sets mode of the cartridge: in COPY mode you can hardcopy MSX1 screens, "
-		"in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::COPY,
+		"in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::Mode::COPY,
 		EnumSetting<ChakkariCopy::Mode>::Map{
-			{"COPY", ChakkariCopy::COPY}, {"RAM", ChakkariCopy::RAM}})
+			{"COPY", ChakkariCopy::Mode::COPY}, {"RAM", ChakkariCopy::Mode::RAM}})
 {
 	reset(getCurrentTime());
 	modeSetting.attach(*this);
@@ -128,7 +128,7 @@ void ChakkariCopy::writeIO(uint16_t /*port*/, byte value, EmuTime /*time*/)
 			(((value & 2) == 0x02) ? "OFF"sv : "ON"sv));
 	}
 	if (diff & 0x04) {
-		if (modeSetting.getEnum() == COPY) {
+		if (modeSetting.getEnum() == Mode::COPY) {
 			// page 0 toggles writable/read-only
 			invalidateDeviceRWCache(0x0000, 0x4000);
 		}
@@ -160,7 +160,7 @@ byte ChakkariCopy::peekMem(uint16_t address, EmuTime /*time*/) const
 
 const byte* ChakkariCopy::getReadCacheLine(uint16_t address) const
 {
-	if (modeSetting.getEnum() == COPY) {
+	if (modeSetting.getEnum() == Mode::COPY) {
 		// page 0
 		if (address < 0x4000) {
 			return &biosRam[address];
@@ -189,7 +189,7 @@ void ChakkariCopy::writeMem(uint16_t address, byte value, EmuTime /*time*/)
 
 byte* ChakkariCopy::getWriteCacheLine(uint16_t address)
 {
-	if (modeSetting.getEnum() == COPY) {
+	if (modeSetting.getEnum() == Mode::COPY) {
 		// page 0
 		if ((address < 0x4000) && ((reg & 0x04) == 0)) {
 			return &biosRam[address & 0x3FFF];

@@ -47,10 +47,10 @@ RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
 		commandController,
 		((name == "Real time clock") ? std::string_view("rtcmode") // bw-compat
 		                             : tmpStrCat(name + " mode")),
-		"Real Time Clock mode", RP5C01::EMUTIME,
+		"Real Time Clock mode", RP5C01::RTCMode::EMUTIME,
 		EnumSetting<RP5C01::RTCMode>::Map{
-			{"EmuTime",  RP5C01::EMUTIME},
-			{"RealTime", RP5C01::REALTIME}})
+			{"EmuTime",  RP5C01::RTCMode::EMUTIME},
+			{"RealTime", RP5C01::RTCMode::REALTIME}})
 	, reference(time)
 {
 	initializeTime();
@@ -201,7 +201,7 @@ static constexpr int daysInMonth(int month, unsigned leapYear)
 
 void RP5C01::updateTimeRegs(EmuTime time)
 {
-	if (modeSetting.getEnum() == EMUTIME) {
+	if (modeSetting.getEnum() == RTCMode::EMUTIME) {
 		// sync with EmuTime, perfect emulation
 		auto elapsed = reference.getTicksTill(time);
 		reference.advance(time);

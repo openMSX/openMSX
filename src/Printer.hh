@@ -99,18 +99,18 @@ protected:
 	unsigned ramLoadOffset = 0;
 	unsigned ramLoadEnd = 0;
 	unsigned lines;
-	enum CountryCode : uint8_t {
-		CC_USA              = 0,
-		CC_FRANCE           = 1,
-		CC_GERMANY          = 2,
-		CC_UNITED_KINGDOM   = 3,
-		CC_DENMARK          = 4,
-		CC_SWEDEN           = 5,
-		CC_ITALY            = 6,
-		CC_SPAIN            = 7,
-		CC_JAPAN            = 8
+	enum class CountryCode : uint8_t {
+		USA              = 0,
+		FRANCE           = 1,
+		GERMANY          = 2,
+		UNITED_KINGDOM   = 3,
+		DENMARK          = 4,
+		SWEDEN           = 5,
+		ITALY            = 6,
+		SPAIN            = 7,
+		JAPAN            = 8
 	};
-	CountryCode countryCode = CC_USA;
+	CountryCode countryCode = CountryCode::USA;
 
 	static constexpr int MAX_ESC_CMDSIZE = 8;
 	std::array<uint8_t, MAX_ESC_CMDSIZE> abEscSeq;
