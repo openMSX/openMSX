@@ -203,10 +203,9 @@ void NowindCommand::execute(std::span<const TclObject> tokens, TclObject& result
 				interface.basename, unsigned(tmpDrives.size()),
 				interface.getMotherBoard());
 			changeDrives = true;
-			if (!image.empty()) {
-				if (drive->insertDisk(FileOperations::expandTilde(std::string(image)))) {
-					error = strCat("Invalid disk image: ", image);
-				}
+			if (!image.empty() &&
+			    drive->insertDisk(FileOperations::expandTilde(std::string(image)))) {
+				error = strCat("Invalid disk image: ", image);
 			}
 			tmpDrives.push_back(std::move(drive));
 		}
