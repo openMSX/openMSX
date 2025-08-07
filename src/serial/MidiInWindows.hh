@@ -14,9 +14,10 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#include <condition_variable>
 #include <cstdint>
+#include <latch>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace openmsx {
@@ -63,11 +64,9 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	std::thread thread;
-	std::mutex devIdxMutex;
-	std::condition_variable devIdxCond;
+	std::optional<std::latch> threadIdLatch;
+	std::optional<std::latch> devIdxLatch;
 	unsigned devIdx = unsigned(-1);
-	std::mutex threadIdMutex;
-	std::condition_variable threadIdCond;
 	DWORD threadId;
 	cb_queue<uint8_t> queue;
 	std::mutex queueMutex;
