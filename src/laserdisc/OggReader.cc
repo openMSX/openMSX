@@ -410,7 +410,7 @@ size_t OggReader::frameNo(const ogg_packet* packet) const
 		return size_t(-1);
 	}
 
-	size_t intra = packet->granulepos & ((size_t(1) << granuleShift) - 1);
+	size_t intra = packet->granulepos & ((1uz << granuleShift) - 1);
 	size_t key = packet->granulepos >> granuleShift;
 	return key + intra;
 }
@@ -639,7 +639,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		}
 
 		// Sanity check, should not happen
-		if (frameList.size() > (size_t(2) << granuleShift)) {
+		if (frameList.size() > (2uz << granuleShift)) {
 			// We've got more than twice as many frames
 			// as the maximum distance between key frames.
 			cli.printWarning("Cannot find frame ", frameno);

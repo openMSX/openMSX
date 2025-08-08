@@ -12,7 +12,7 @@ extern const std::array<const char*, 256> mnemonic_ed;
 extern const std::array<const char*, 256> mnemonic_xx;
 extern const std::array<const char*, 256> mnemonic_main;
 
-extern const std::array<uint8_t, std::size_t(3) * 256> instr_len_tab;
+extern const std::array<uint8_t, 3uz * 256> instr_len_tab;
 
 } // namespace openmsx
 

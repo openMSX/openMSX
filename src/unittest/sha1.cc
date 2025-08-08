@@ -146,37 +146,37 @@ TEST_CASE("sha1: finalize")
 	const char* in = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 	                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 	SECTION("0") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), size_t(0)});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 0uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "da39a3ee5e6b4b0d3255bfef95601890afd80709");
 	}
 	SECTION("25") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 25});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 25uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "44f4647e1542a79d7d68ceb7f75d1dbf77fdebfc");
 	}
 	SECTION("55") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 55});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 55uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "c1c8bbdc22796e28c0e15163d20899b65621d65a");
 	}
 	SECTION("56") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 56});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 56uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "c2db330f6083854c99d4b5bfb6e8f29f201be699");
 	}
 	SECTION("60") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 60});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 60uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "13d956033d9af449bfe2c4ef78c17c20469c4bf1");
 	}
 	SECTION("63") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 63});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 63uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "03f09f5b158a7a8cdad920bddc29b81c18a551f5");
 	}
 	SECTION("64") {
-		sha1.update({std::bit_cast<const uint8_t*>(in), 64});
+		sha1.update({std::bit_cast<const uint8_t*>(in), 64uz});
 		auto sum = sha1.digest();
 		CHECK(sum.toString() == "0098ba824b5c16427bd7a1122a5a442a25ec644d");
 	}

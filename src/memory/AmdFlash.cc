@@ -173,7 +173,7 @@ bool AmdFlash::isWritable(const Sector& sector) const
 {
 	if (vppWpPinLow) {
 		const auto range = chip.geometry.writeProtectPinRange;
-		if ((range > 0 && sector <= sectors[range - size_t(1)]) ||
+		if ((range > 0 && sector <= sectors[range - 1uz]) ||
 		    (range < 0 && sector >= sectors[range + chip.geometry.sectorCount])) {
 			return false;
 		}

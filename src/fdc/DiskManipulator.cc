@@ -263,7 +263,7 @@ static size_t parseSectorSize(zstring_view tok) {
 	// TODO: MSXtar must be altered and this temp fix must be set to
 	// the real smallest dsk possible (= boot sector + minimal fat +
 	// minimal dir + minimal data clusters)
-	return std::max(sectors, size_t(720));
+	return std::max(sectors, 720uz);
 }
 
 void DiskManipulator::execute(std::span<const TclObject> tokens, TclObject& result)

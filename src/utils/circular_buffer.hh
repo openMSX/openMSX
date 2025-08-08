@@ -381,7 +381,7 @@ public:
 private:
 	void checkGrow() {
 		if (buf.full()) {
-			buf.set_capacity(std::max(size_t(4), buf.capacity() * 2));
+			buf.set_capacity(std::max(4uz, buf.capacity() * 2));
 		}
 	}
 

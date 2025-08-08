@@ -60,7 +60,7 @@ inline std::string leftClip(std::string_view s, float maxWidth)
 	if (maxWidth <= 0.0f) return "...";
 
 	auto len = s.size();
-	auto num = *std::ranges::lower_bound(std::views::iota(size_t(0), len), maxWidth, {},
+	auto num = *std::ranges::lower_bound(std::views::iota(0uz, len), maxWidth, {},
 		[&](size_t n) { return ImGui::CalcTextSize(s.substr(len - n)).x; });
 	return strCat("...", s.substr(len - num));
 }

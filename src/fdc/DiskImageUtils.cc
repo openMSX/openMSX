@@ -202,7 +202,7 @@ static SetBootSectorResult setBootSector(
 		fat16 = true;
 
 		// <= 128 MB: 4, <= 256 MB: 8, ..., <= 4 GB: 128
-		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 16, size_t(4), size_t(128)));
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 16, 4uz, 128uz));
 
 		// Calculate fat size based on cluster count estimate
 		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
@@ -225,7 +225,7 @@ static SetBootSectorResult setBootSector(
 		nbHiddenSectors = 0;
 
 		// <= 2 MB: 1, <= 4 MB: 2, ..., <= 32 MB: 16
-		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 12, size_t(1), size_t(16)));
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 12, 1uz, 16uz));
 
 		// Partitions <= 16 MB are defined to have at most 3 sectors per FAT,
 		// so that they can boot DOS 1. This limits the cluster count to 1022.
@@ -257,7 +257,7 @@ static SetBootSectorResult setBootSector(
 		nbHiddenSectors = 0;
 
 		// <= 1 MB: 2, <= 2 MB: 4, ..., <= 32 MB: 64
-		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 10, size_t(2), size_t(64)));
+		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 10, 2uz, 64uz));
 
 		// Calculate fat size based on cluster count estimate
 		unsigned fatStart = nbReservedSectors + nbDirEntry / DIR_ENTRIES_PER_SECTOR;
@@ -285,7 +285,7 @@ static SetBootSectorResult setBootSector(
 		// for a 32MB disk or greater the sectors would be >= 65536
 		// since MSX use 16 bits for this, in case of sectors = 65536
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
-		nbSectors = std::min(nbSectors, size_t(65535)); // this is the max size for fat12 :-)
+		nbSectors = std::min(nbSectors, 65535uz); // this is the max size for fat12 :-)
 	} else if (nbSectors > 16388) {
 		// using the same layout as used by Jon in IDEFDISK v 3.1
 		// 16388 < nbSectors <= 32732

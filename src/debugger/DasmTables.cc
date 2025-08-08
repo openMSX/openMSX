@@ -199,7 +199,7 @@ const std::array<const char*, 256> mnemonic_main =
 
 static constexpr uint8_t D = 8; // DD or FD
 static constexpr uint8_t E = 4; // ED
-const std::array<uint8_t, std::size_t(3) * 256> instr_len_tab = {
+const std::array<uint8_t, 3uz * 256> instr_len_tab = {
 	// main
 	1, 3, 1, 1, 1, 1, 2, 1,  1, 1, 1, 1, 1, 1, 2, 1, // 00
 	2, 3, 1, 1, 1, 1, 2, 1,  2, 1, 1, 1, 1, 1, 2, 1, // 10
