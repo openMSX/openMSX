@@ -660,21 +660,24 @@ std::string parseCommandFileArgument(
 std::string getTempDir()
 {
 #ifdef _WIN32
-	if (DWORD len = GetTempPathW(0, nullptr)) {
-		std::wstring bufW(len, L'\0'); // TODO use c++23 resize_and_overwrite()
-		if (int len2 = GetTempPathW(len, bufW.data())) {
-			bufW.resize(len2);
-			// Strip last backslash
-			if (bufW.ends_with(L'\\')) {
-				bufW.pop_back();
-			}
-			return utf16to8(bufW);
-		}
+	// Get required buffer size including null terminator.
+	auto lenWithNull = GetTempPathW(0, nullptr);
+	if (lenWithNull == 0) {
+		throw FatalError("GetTempPathW failed: ", GetLastError());
 	}
-	throw FatalError("GetTempPathW failed: ", GetLastError());
+
+	std::wstring s;
+	// Allocate space for characters only (without null terminator)
+	s.resize_and_overwrite(lenWithNull - 1, [&](wchar_t* buf, size_t) -> size_t {
+		// Returns length excluding the null terminator.
+		return GetTempPathW(lenWithNull, buf);
+	});
+
+	if ((s.size() > 1) && s.ends_with(L'\\')) s.pop_back();
+
+	return utf16to8(s);
 #elif PLATFORM_ANDROID
-	std::string result = getSystemDataDir() + "/tmp";
-	return result;
+	return getSystemDataDir() + "/tmp";
 #else
 	const char* result = nullptr;
 	if (!result) result = getenv("TMPDIR");
