@@ -675,7 +675,7 @@ template<typename TP> struct PointerLoader
 		}();
 
 		using T = typename serialize_as_pointer<TP>::type;
-		T* tp = [&]() -> T* {
+		T* tp = [&] -> T* {
 			if (id == 0) {
 				return nullptr;
 			} else {

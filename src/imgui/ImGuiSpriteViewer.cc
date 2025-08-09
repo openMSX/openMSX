@@ -424,7 +424,7 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 				im::Group([&]{
 					auto pattern = (size == 16) ? ((16 * gridPosition.y) + gridPosition.x) * 4
 												: ((32 * gridPosition.y) + gridPosition.x) * 1;
-					bool popup = copySpriteDataPopup("Copy pattern data to clipboard", [&]() {
+					bool popup = copySpriteDataPopup("Copy pattern data to clipboard", [&] {
 						return formatClipboardData(patTable.getAddress(8 * pattern), size == 16 ? 32 : 8);
 					});
 					if (hovered || popup) {

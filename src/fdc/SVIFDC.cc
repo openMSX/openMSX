@@ -87,7 +87,7 @@ void SVIFDC::writeIO(uint16_t port, byte value, EmuTime time)
 		// bit 1:  drive select B
 		// bit 2:  motor on drive A
 		// bit 3:  motor on drive B
-		auto [drive, motor] = [&]() -> std::pair<DriveMultiplexer::Drive, bool> {
+		auto [drive, motor] = [&] -> std::pair<DriveMultiplexer::Drive, bool> {
 			switch (value & 0x03) {
 			case 1:
 				return {DriveMultiplexer::Drive::A, value & 0x04};

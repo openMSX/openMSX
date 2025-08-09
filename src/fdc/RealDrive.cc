@@ -82,7 +82,7 @@ RealDrive::~RealDrive()
 
 void RealDrive::getMediaInfo(TclObject& result)
 {
-	auto typeStr = [&]() -> std::string_view {
+	auto typeStr = [&] -> std::string_view {
 		if (dynamic_cast<DummyDisk*>(&(changer->getDisk()))) {
 			return "empty";
 		} else if (dynamic_cast<DirAsDSK*>(&(changer->getDisk()))) {

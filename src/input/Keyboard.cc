@@ -1808,7 +1808,7 @@ void Keyboard::Msxcode2UnicodeCmd::execute(std::span<const TclObject> tokens, Tc
 	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
 
 	auto msx = tokens[1].getBinary();
-	auto fallback = [&]() -> std::function<uint32_t(uint8_t)> {
+	auto fallback = [&] -> std::function<uint32_t(uint8_t)> {
 		if (tokens.size() < 3) {
 			// If no fallback is given use space as replacement character
 			return [](uint8_t) { return uint32_t(' '); };
@@ -1858,7 +1858,7 @@ void Keyboard::Unicode2MsxcodeCmd::execute(std::span<const TclObject> tokens, Tc
 	const auto& msxChars = keyboard.unicodeKeymap.getMsxChars();
 
 	const auto& unicode = tokens[1].getString();
-	auto fallback = [&]() -> std::function<uint8_t(uint32_t)> {
+	auto fallback = [&] -> std::function<uint8_t(uint32_t)> {
 		if (tokens.size() < 3) {
 			// If no fallback is given use space as replacement character
 			return [](uint32_t) { return uint8_t(' '); };

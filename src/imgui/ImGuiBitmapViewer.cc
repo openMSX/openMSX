@@ -649,7 +649,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 				}
 
 				auto value = vram.getData()[physAddr];
-				auto color = [&]() -> uint8_t {
+				auto color = [&] -> uint8_t {
 					switch (mode) {
 					case SCR5: case SCR7:
 						return (value >> (4 * (1 - (x & 1)))) & 0x0f;

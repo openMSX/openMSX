@@ -335,7 +335,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		gl::vec2 zm{float(zx), float(zy)};
 
 		// Render the patterns to a texture, we need this both to display the name-table and the pattern-table
-		auto patternTexSize = [&]() -> gl::ivec2 {
+		auto patternTexSize = [&] -> gl::ivec2 {
 			if (mode == TEXT40) return {192,  64}; // 8 rows of 32 characters, each 6x8 pixels
 			if (mode == TEXT80) return {192, 128}; // 8 rows of 32 characters, each 6x8 pixels, x2 for blink
 			if (mode == SCR1) return {256,  64}; // 8 rows of 32 characters, each 8x8 pixels
@@ -343,14 +343,14 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			if (mode == SCR3) return { 64,  64}; // 8 rows of 32 characters, each 2x2 pixels, all this 4 times
 			return {1, 1}; // OTHER -> dummy
 		}();
-		auto patternTexChars = [&]() -> gl::vec2 {
+		auto patternTexChars = [&] -> gl::vec2 {
 			if (mode == SCR3) return {32.0f, 32.0f};
 			if (mode == SCR2) return {32.0f, lines == 192 ? 24.0f : 32.0f};
 			if (mode == TEXT80) return {32.0f, 16.0f};
 			return {32.0f, 8.0f};
 		}();
 		auto recipPatTexChars = recip(patternTexChars);
-		auto patternDisplaySize = [&]() -> gl::ivec2 {
+		auto patternDisplaySize = [&] -> gl::ivec2 {
 			if (mode == TEXT40) return {192,  64};
 			if (mode == TEXT80) return {192, 128};
 			if (mode == SCR2) return {256, lines == 192 ? 192 : 256};
@@ -415,10 +415,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		auto formatBinaryData = [&](unsigned address) {
 			return formatToString([&](unsigned addr){ return vram[addr]; }, address, address + 7, {}, 1, {}, "%02X", manager.getInterpreter());
 		};
-		auto getPatternFromGrid = [&]() {
+		auto getPatternFromGrid = [&] {
 			return gridPosition.x + 32 * gridPosition.y;
 		};
-		auto copyPatternColorPopup = [&]() {
+		auto copyPatternColorPopup = [&] {
 			return im::PopupContextWindow("PatternCopyPopup", [&]{
 				bool hasColorData = mode == one_of(SCR1, SCR2);
 				const char* caption = hasColorData
@@ -435,7 +435,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				}
 			});
 		};
-		auto drawGrid = [&]() {
+		auto drawGrid = [&] {
 			auto pat = getPatternFromGrid();
 			printPatternNr(pat);
 			auto uv1 = gl::vec2(gridPosition) * recipPatTexChars;
@@ -496,7 +496,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				auto* drawList = ImGui::GetWindowDrawList();
 
 				auto getPattern = [&](unsigned column, unsigned row) {
-					auto block = [&]() -> unsigned {
+					auto block = [&] -> unsigned {
 						if (mode == TEXT80 && blink) {
 							auto colPat = colTable[10 * row + (column / 8)];
 							return (colPat & (0x80 >> (column % 8))) ? 1 : 0;

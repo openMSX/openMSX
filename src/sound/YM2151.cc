@@ -1373,7 +1373,7 @@ void YM2151::advance()
 	unsigned i = lfo_phase;
 	// calculate LFO AM and PM waveform value (all verified on real chip,
 	// except for noise algorithm which is impossible to analyze)
-	auto [a, p] = [&]() -> std::pair<int, int> {
+	auto [a, p] = [&] -> std::pair<int, int> {
 		switch (lfo_wsel) {
 		case 0:
 			// saw

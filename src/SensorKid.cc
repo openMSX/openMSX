@@ -70,7 +70,7 @@ byte SensorKid::readIO(uint16_t port, EmuTime /* time */)
 		//  for 12,11,1,0 we return 1
 		//  for 10        we return 0
 		//  for 9..2      we return one of the analog bits
-		byte result = [&]  {
+		byte result = [&] {
 			if (mb4052_count == 10) {
 				return byte(0);
 			} else if ((mb4052_count < 10) && (mb4052_count > 1)) {

@@ -100,7 +100,7 @@ std::array<uint32_t, 16> ImGuiPalette::getPalette(const VDP* vdp) const
 			result[i] = ImColor(r, g, b);
 		}
 	} else {
-		auto rgb = [&]() -> std::span<const uint16_t, 16> {
+		auto rgb = [&] -> std::span<const uint16_t, 16> {
 			if (whichPalette == PALETTE_CUSTOM) {
 				return customPalette;
 			} else if (whichPalette == PALETTE_VDP && vdp && !vdp->isMSX1VDP()) {
@@ -131,7 +131,7 @@ void ImGuiPalette::paint(MSXMotherBoard* motherBoard)
 		std::array<uint16_t, 16> paletteCopy; // uninitialized
 		bool disabled = (whichPalette == PALETTE_FIXED) ||
 				((whichPalette == PALETTE_VDP) && (!vdp || vdp->isMSX1VDP()));
-		auto palette = [&]() -> std::span<uint16_t, 16> {
+		auto palette = [&] -> std::span<uint16_t, 16> {
 			if (disabled) {
 				copy_to_range(fixedPalette, paletteCopy);
 				return paletteCopy;

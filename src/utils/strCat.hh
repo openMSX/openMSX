@@ -164,7 +164,7 @@ template<typename T>
 struct ConcatUnit : ConcatViaString
 {
 	explicit ConcatUnit(const T& t)
-		: ConcatViaString([&](){
+		: ConcatViaString([&]{
 			std::ostringstream os;
 			os << t;
 			return os.str();

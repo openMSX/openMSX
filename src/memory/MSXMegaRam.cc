@@ -37,7 +37,7 @@ namespace openmsx {
 [[nodiscard]] static unsigned getNumBlocks(const DeviceConfig& config)
 {
 	int size = config.getChildDataAsInt("size", 0); // size in kB
-	if (const auto* err = [&]() -> const char* {
+	if (const auto* err = [&] -> const char* {
 		if (size < 0)         return "Cannot be negative.";
 		if (size > (8 * 256)) return "Cannot be larger than 2048.";
 		if ((size % 8) != 0)  return "Must be a multiple of 8.";

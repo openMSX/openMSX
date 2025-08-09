@@ -190,7 +190,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 	constexpr uint32_t ch = CH_OFFSET[CYCLES];
 
 	auto ksl = uint32_t(p_ksl[ch]) >> patch1.ksl_t[mcsel];
-	auto tl2 = [&]() -> uint32_t {
+	auto tl2 = [&] -> uint32_t {
 		if ((rm_for_cycle(CYCLES) == one_of(RmNum::hh, RmNum::tom)) && use_rm_patches) {
 			return inst[ch] << (2 + 1);
 		} else if /*constexpr*/ (mcsel == 1) { // constexpr triggers compile error on visual studio
@@ -285,7 +285,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE bool YM2413::envelopeGenerate1()
 	    = (state != attack && prev2_eg_off && !prev2_eg_dokon) ? 0x7f
 	    : ((prev2_rate >= 60) && prev2_eg_dokon)                        ? 0x00
 	                                                                    : level;
-	auto step = [&]() -> int {
+	auto step = [&] -> int {
 		switch (state) {
 		case attack:
 			if (prev2_eg_kon && (level != 0)) [[likely]] {
@@ -320,7 +320,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 	eg_off[CYCLES & 1] = new_eg_off;
 
 	auto sk = sk_on[CH_OFFSET[CYCLES]];
-	bool new_eg_kon = [&]() {
+	bool new_eg_kon = [&] {
 		bool result = sk & 1;
 		if (is_rm_cycle(CYCLES) && use_rm_patches) {
 			switch (rm_for_cycle(CYCLES)) {
@@ -359,7 +359,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		eg_dokon[CYCLES] = false;
 	}
 
-	auto rate4 = [&]() {
+	auto rate4 = [&] {
 		if (!new_eg_kon && !(sk & 2) && mcsel == 1 && !patch1.et[mcsel]) {
 			return 7 * 4;
 		}
@@ -376,7 +376,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 		   : /*(state_rate == release) ?*/ ((sk & 2) ? (5 * 4) : patch1.rr4[mcsel]);
 	}();
 
-	eg_rate[CYCLES & 1] = narrow_cast<uint8_t>([&]() {
+	eg_rate[CYCLES & 1] = narrow_cast<uint8_t>([&] {
 		if (rate4 == 0) return 0;
 		auto tmp = rate4 + (p_ksr_freq[ch] >> patch1.ksr_t[mcsel]);
 		return (tmp < 0x40) ? tmp
@@ -628,7 +628,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::doOperator(std::span<float*
 	            : (((CYCLES + 2) / 3) & 1);
 	constexpr bool is_next_mod3 = ((CYCLES + 2) / 3) & 1; // approximate: will 'ismod3' possibly be true next step
 
-	auto output = [&]() -> int32_t {
+	auto output = [&] -> int32_t {
 		if (eg_silent) return 0;
 		auto prev2_phase = op_phase[(CYCLES - 2) & 1];
 		auto quarter = narrow_cast<uint8_t>((prev2_phase & 0x100) ? ~prev2_phase : prev2_phase);
@@ -669,7 +669,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t YM2413::getPhas
 	}
 
 	if (rhythm & 0x20) {
-		auto rm_bit = [&]() {
+		auto rm_bit = [&] {
 			bool rm_hh_bit2 = (rm_hh_bits >> (2 - 2)) & 1;
 			bool rm_hh_bit3 = (rm_hh_bits >> (3 - 2)) & 1;
 			bool rm_hh_bit7 = (rm_hh_bits >> (7 - 2)) & 1;
@@ -679,7 +679,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t YM2413::getPhas
 			     | (rm_hh_bit3 ^ rm_tc_bit5)
 			     | (rm_tc_bit3 ^ rm_tc_bit5);
 		};
-		auto noise_bit = [&]() {
+		auto noise_bit = [&] {
 			// see comments in doRhythm()
 			return (rm_noise >> (TEST_MODE ? 0 : (CYCLES + 1))) & 1;
 		};
@@ -706,7 +706,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::phaseCalcIncrement(cons
 	constexpr uint32_t mcsel = ((CYCLES + 1) / 3) & 1;
 	constexpr uint32_t ch = CH_OFFSET[CYCLES];
 
-	uint32_t incr = [&]() {
+	uint32_t incr = [&] {
 		// Apply vibrato?
 		if (patch1.vib[mcsel]) {
 			// note: _must_ be '/ 256' rather than '>> 8' because of

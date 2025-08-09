@@ -262,7 +262,7 @@ static void paintSpectrum(std::span<const float> buf, float factor, const SoundD
 	// actually plot the result
 	plotHistogram(magnitude, 0.0f, range, size);
 
-	simpleToolTip([&]() -> std::string {
+	simpleToolTip([&] -> std::string {
 		auto scrnPosX = ImGui::GetCursorScreenPos().x + style.FramePadding.x;
 		auto mouseX = (ImGui::GetIO().MousePos.x - scrnPosX) / graphWidth;
 		if ((mouseX <= 0.0f) || (mouseX >= 1.0f)) return {};

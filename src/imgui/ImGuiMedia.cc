@@ -196,7 +196,7 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 
 static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
 {
-	auto formatExtensions = [&]() -> std::string {
+	auto formatExtensions = [&] -> std::string {
 		if (extensions.size() <= 3) {
 			return join(std::views::transform(extensions,
 			                [](const auto& ext) { return strCat("*.", ext); }),
@@ -604,7 +604,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		elementInGroup();
 		if (auto* player = motherBoard->getCassettePort().getCassettePlayer()) {
 			ImGui::MenuItem("Tape Deck", nullptr, &cassetteMediaInfo.show);
-			simpleToolTip([&]() -> std::string {
+			simpleToolTip([&] -> std::string {
 				auto current = player->getImageName().getResolved();
 				return current.empty() ? "Empty" : current;
 			});
@@ -1116,7 +1116,7 @@ void ImGuiMedia::printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic
 		}
 
 		const auto& database = manager.getReactor().getSoftwareDatabase();
-		const auto* romInfo = [&]() -> const RomInfo* {
+		const auto* romInfo = [&] -> const RomInfo* {
 			if (auto actual = mediaTopic.getOptionalDictValue(TclObject("actualSHA1"))) {
 				if (const auto* info = database.fetchRomInfo(Sha1Sum(actual->getString()))) {
 					return info;

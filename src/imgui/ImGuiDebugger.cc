@@ -402,7 +402,7 @@ void ImGuiDebugger::drawControl(MSXCPUInterface& cpuInterface, MSXMotherBoard& m
 
 		auto ButtonGlyph = [&](std::string_view id, ImWchar glyph, Shortcuts::ID sid) {
 			bool result = ButtonWithCenteredGlyph(glyph, maxIconSize);
-			simpleToolTip([&]() -> std::string {
+			simpleToolTip([&] -> std::string {
 				const auto& shortcuts = manager.getShortcuts();
 				const auto& shortcut = shortcuts.getShortcut(sid);
 				if (shortcut.keyChord == ImGuiKey_None) return std::string(id);

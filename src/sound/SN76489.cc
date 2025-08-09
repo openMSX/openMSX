@@ -153,7 +153,7 @@ void SN76489::write(uint8_t value, EmuTime time)
 	}
 	const auto& reg = regs[registerLatch];
 
-	auto data = [&]() -> uint16_t {
+	auto data = [&] -> uint16_t {
 		switch (registerLatch) {
 		case 0:
 		case 2:
@@ -368,7 +368,7 @@ void SN76489::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 	auto hi  = SN76489_DEBUG_MAP[address][1];
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
-	auto data = [&]() -> uint16_t {
+	auto data = [&] -> uint16_t {
 		if (reg == one_of(0, 2, 4)) {
 			uint16_t d = sn76489.peekRegister(reg, time);
 			if (hi) {

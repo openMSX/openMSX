@@ -127,7 +127,7 @@ static void printMessages(const circular_buffer<ImGuiMessages::Message>& message
 {
 	im::TextWrapPos(ImGui::GetFontSize() * 50.0f, [&]{
 		for (const auto& message : messages) {
-			auto [color, prefix] = [&]() -> std::pair<ImU32, std::string_view> {
+			auto [color, prefix] = [&] -> std::pair<ImU32, std::string_view> {
 				switch (message.level) {
 					case LOGLEVEL_ERROR: return {getColor(imColor::ERROR),   "Error:"};
 					case WARNING:        return {getColor(imColor::WARNING), "Warning:"};

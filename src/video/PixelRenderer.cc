@@ -551,7 +551,7 @@ void PixelRenderer::renderUntil(EmuTime time)
 	// Translate from time to pixel position.
 	int limitTicks = vdp.getTicksThisFrame(time);
 	assert(limitTicks <= vdp.getTicksPerFrame());
-	auto [limitX, limitY] = [&]() -> std::pair<int, int> {
+	auto [limitX, limitY] = [&] -> std::pair<int, int> {
 		switch (accuracy) {
 		case RenderSettings::Accuracy::PIXEL: {
 			return {limitTicks % VDP::TICKS_PER_LINE,

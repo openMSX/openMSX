@@ -42,7 +42,7 @@ unsigned dasm(std::span<const uint8_t> opcode, uint16_t pc, std::string& dest,
 {
 	std::string_view r;
 
-	auto [s, i] = [&]() -> std::pair<const char*, unsigned> {
+	auto [s, i] = [&] -> std::pair<const char*, unsigned> {
 		switch (opcode[0]) {
 			case 0xCB:
 				return {mnemonic_cb[opcode[1]], 2};

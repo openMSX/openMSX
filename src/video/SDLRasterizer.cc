@@ -476,7 +476,7 @@ void SDLRasterizer::drawDisplay(
 	// Note that it is possible for pageBorder to be to the left of displayX,
 	// in that case only the second page should be drawn.
 	int pageBorder = displayX + displayWidth;
-	auto [scrollPage1, scrollPage2] = [&]() -> std::pair<int, int> {
+	auto [scrollPage1, scrollPage2] = [&] -> std::pair<int, int> {
 		if (vdp.isMultiPageScrolling()) {
 			int p1 = vdp.getHorizontalScrollHigh() >> 5;
 			int p2 = p1 ^ 1;

@@ -841,7 +841,7 @@ void VDPCmdEngine::executeSrch(EmuTime limit)
 	auto calculator = getSlotCalculator(limit);
 
 	while (!calculator.limitReached()) {
-		auto p = [&] () -> uint8_t {
+		auto p = [&] -> uint8_t {
 			if (doPoint) [[likely]] {
 				return Mode::point(vram, ASX, SY, srcExt);
 			} else {
@@ -1159,7 +1159,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		bool doPset  = !dstExt || hasExtendedVRAM;
 		while (engineTime < limit) {
 			if (doPset) [[likely]] {
-				auto p = [&] () -> uint8_t {
+				auto p = [&] -> uint8_t {
 					if (doPoint) [[likely]] {
 						return Mode::point(vram, ASX, SY, srcExt);
 					} else {
@@ -1517,7 +1517,7 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 		bool doPset  = !dstExt || hasExtendedVRAM;
 		while (engineTime < limit) {
 			if (doPset) [[likely]] {
-				auto p = [&] () -> uint8_t {
+				auto p = [&] -> uint8_t {
 					if (doPoint) [[likely]] {
 						return vram.cmdReadWindow.readNP(Mode::addressOf(ASX, SY, srcExt));
 					} else {

@@ -14,7 +14,7 @@ namespace openmsx {
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
-	, rom([&]() -> std::optional<Rom> {
+	, rom([&] -> std::optional<Rom> {
 		auto* elem = motherBoard.getMachineConfig()->
 				getConfig().findChild("PanasonicRom");
 		if (!elem) return std::nullopt;

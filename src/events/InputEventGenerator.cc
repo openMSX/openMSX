@@ -271,7 +271,7 @@ void InputEventGenerator::handle(SDL_Event& evt)
 	// Sometimes only one of these events. For both events openMSX should
 	// exit, but we should only react to the first of these events, not
 	// both.
-	auto quitOnce = [&]() -> std::optional<Event> {
+	auto quitOnce = [&] -> std::optional<Event> {
 		if (sendQuit) return {};
 		sendQuit = true;
 		return QuitEvent();

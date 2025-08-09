@@ -318,7 +318,7 @@ std::optional<ImGuiKeyChord> parseKeyChord(std::string_view name)
 	if (name == "None") return ImGuiKey_None;
 
 	// Similar to "StringOp::splitOnLast(name, '+')", but includes the last '+'
-	auto [modifiers, key] = [&]() -> std::pair<std::string_view, std::string_view> {
+	auto [modifiers, key] = [&] -> std::pair<std::string_view, std::string_view> {
 		if (auto pos = name.find_last_of('+'); pos == std::string_view::npos) {
 			return {std::string_view{}, name};
 		} else {

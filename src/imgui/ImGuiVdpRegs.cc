@@ -464,7 +464,7 @@ void ImGuiVdpRegs::drawSection(std::span<const uint8_t> showRegisters, std::span
 		//   developers until something better gets implemented.
 		auto mouse_pos = ImGui::GetMousePos();
 		const auto* table = ImGui::GetCurrentTable();
-		auto isCellHovered = [&]() {
+		auto isCellHovered = [&] {
 			return ImGui::TableGetCellBgRect(table, table->CurrentColumn).Contains(mouse_pos);
 		};
 
