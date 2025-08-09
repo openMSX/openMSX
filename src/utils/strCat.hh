@@ -21,6 +21,7 @@
 // No push/pop because the warnings come from template instantiations inside this header itself.
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
 // strCat and strAppend()
