@@ -9,6 +9,9 @@ TEST_CASE("escape_newline")
 			auto d = escape_newline::decode(e);
 			CHECK(e.size() >= d.size());
 			CHECK(d == s);
+
+			escape_newline::decode_inplace(e);
+			CHECK(e == s);
 		};
 		test("");
 		test("bla");
@@ -25,6 +28,9 @@ TEST_CASE("escape_newline")
 
 		// Single backslash at the end -> gets dropped.
 		CHECK(escape_newline::decode("bla\\") == "bla");
+		std::string s = "bla\\";
+		escape_newline::decode_inplace(s);
+		CHECK(s == "bla");
 
 		// Normally only "\\" or "\n" should occur, all other "\<x>" are
 		// in principle invalid, but we decode them as 'x'
