@@ -17,6 +17,12 @@
 #include <tuple>
 #include <utility>
 
+// Suppress false positive -Wstringop-overflow warnings in GCC for template instantiations in this header.
+// No push/pop because the warnings come from template instantiations inside this header itself.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+
 // strCat and strAppend()
 //
 // Inspired by google's absl::StrCat (similar interface, different implementation).
@@ -674,12 +680,12 @@ template<typename... Ts>
 
 	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto size = strCatImpl::calcTotalSize(t);
-	// Ideally we want an uninitialized string with given size, but that's not
-	// yet possible. Though see the following proposal (for c++20):
-	//   www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1072r0.html
-	std::string result(size, ' ');
-	char* dst = result.data();
-	strCatImpl::copyUnits(dst, t);
+
+	std::string result;
+	result.resize_and_overwrite(size, [&](char* dst, size_t sz) {
+		strCatImpl::copyUnits(dst, t);
+		return sz;
+	});
 	return result;
 }
 
@@ -750,9 +756,12 @@ void strAppend(std::string& result, Ts&& ...ts)
 	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto extraSize = strCatImpl::calcTotalSize(t);
 	auto oldSize = result.size();
-	result.append(extraSize, ' '); // see note in strCat() about uninitialized string
-	char* dst = &result[oldSize];
-	strCatImpl::copyUnits(dst, t);
+
+	result.resize_and_overwrite(oldSize + extraSize, [&](char* p, size_t sz) {
+		// p[0..oldSize-1] still/already contains old content
+		strCatImpl::copyUnits(&p[oldSize], t);
+		return sz;
+	});
 }
 
 // Degenerate case
