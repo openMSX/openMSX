@@ -7,19 +7,22 @@ namespace openmsx {
 
 std::string CassetteImage::getFirstFileTypeAsString() const
 {
-	if (firstFileType == FileType::ASCII) {
+	using enum FileType;
+	if (firstFileType == ASCII) {
 		return "ASCII";
-	} else if (firstFileType == FileType::BINARY) {
+	} else if (firstFileType == BINARY) {
 		return "binary";
-	} else if (firstFileType == FileType::BASIC) {
+	} else if (firstFileType == BASIC) {
 		return "BASIC";
 	} else {
 		return "unknown";
 	}
 }
 
-void CassetteImage::setFirstFileType(FileType type, const Filename& fileName) {
-	if (type == FileType::UNKNOWN) {
+void CassetteImage::setFirstFileType(FileType type, const Filename& fileName)
+{
+	using enum FileType;
+	if (type == UNKNOWN) {
 		// see if there is a hint in the filename
 		const auto& file = fileName.getResolved();
 		auto fileStem = FileOperations::stem(file);
@@ -31,13 +34,13 @@ void CassetteImage::setFirstFileType(FileType type, const Filename& fileName) {
 		};
 
 		if (containsInstructionAndCAS("BLOAD")) {
-			firstFileType = FileType::BINARY;
+			firstFileType = BINARY;
 		} else if (fileStem.contains("CLOAD")) {
 			// note: probably better to first check on CLOAD and then on RUN. Some filenames
 			// contain hints like CLOAD + RUN.
-			firstFileType = FileType::BASIC;
+			firstFileType = BASIC;
 		} else if (containsInstructionAndCAS("RUN")) {
-			firstFileType = FileType::ASCII;
+			firstFileType = ASCII;
 		}
 	} else {
 		firstFileType = type;

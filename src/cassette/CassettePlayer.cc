@@ -149,8 +149,9 @@ void CassettePlayer::autoRun()
 	}
 
 	// try to automatically run the tape, if that's set
-	CassetteImage::FileType type = playImage->getFirstFileType();
-	if (!autoRunSetting.getBoolean() || type == CassetteImage::FileType::UNKNOWN) {
+	using enum CassetteImage::FileType;
+	auto type = playImage->getFirstFileType();
+	if (!autoRunSetting.getBoolean() || type == UNKNOWN) {
 		return;
 	}
 	bool is_SVI = motherBoard.getMachineType() == "SVI"; // assume all other are 'MSX*' (might not be correct for 'Coleco')
@@ -158,13 +159,13 @@ void CassettePlayer::autoRun()
 	std::string_view H_MAIN = is_SVI ? "0xFE94"sv : "0xFF0C"sv; // Hook for Main Loop
 	std::string_view instr1, instr2;
 	switch (type) {
-		case CassetteImage::FileType::ASCII:
+		case ASCII:
 			instr1 = R"({RUN\"CAS:\"\r})";
 			break;
-		case CassetteImage::FileType::BINARY:
+		case BINARY:
 			instr1 = R"({BLOAD\"CAS:\",R\r})";
 			break;
-		case CassetteImage::FileType::BASIC:
+		case BASIC:
 			// Note that CLOAD:RUN won't work: BASIC ignores stuff
 			// after the CLOAD command. That's why it's split in two.
 			instr1 = "{CLOAD\\r}";

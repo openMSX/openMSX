@@ -51,20 +51,21 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, hdImageCLI(*this)
 	, cdImageCLI(*this)
 {
-	registerOption("-h",          helpOption,    Phase::BEFORE_INIT, 1);
-	registerOption("--help",      helpOption,    Phase::BEFORE_INIT, 1);
-	registerOption("-v",          versionOption, Phase::BEFORE_INIT, 1);
-	registerOption("--version",   versionOption, Phase::BEFORE_INIT, 1);
-	registerOption("-bash",       bashOption,    Phase::BEFORE_INIT, 1);
+	using enum Phase;
+	registerOption("-h",          helpOption,    BEFORE_INIT, 1);
+	registerOption("--help",      helpOption,    BEFORE_INIT, 1);
+	registerOption("-v",          versionOption, BEFORE_INIT, 1);
+	registerOption("--version",   versionOption, BEFORE_INIT, 1);
+	registerOption("-bash",       bashOption,    BEFORE_INIT, 1);
 
-	registerOption("-setting",    settingOption, Phase::BEFORE_SETTINGS);
-	registerOption("-control",    controlOption, Phase::BEFORE_SETTINGS, 1);
-	registerOption("-script",     scriptOption,  Phase::BEFORE_SETTINGS, 1); // correct phase?
-	registerOption("-command",    commandOption, Phase::BEFORE_SETTINGS, 1); // same phase as -script
-	registerOption("-testconfig", testConfigOption, Phase::BEFORE_SETTINGS, 1);
+	registerOption("-setting",    settingOption, BEFORE_SETTINGS);
+	registerOption("-control",    controlOption, BEFORE_SETTINGS, 1);
+	registerOption("-script",     scriptOption,  BEFORE_SETTINGS, 1); // correct phase?
+	registerOption("-command",    commandOption, BEFORE_SETTINGS, 1); // same phase as -script
+	registerOption("-testconfig", testConfigOption, BEFORE_SETTINGS, 1);
 
-	registerOption("-machine",    machineOption, Phase::LOAD_MACHINE);
-	registerOption("-setup",      setupOption,   Phase::LOAD_MACHINE);
+	registerOption("-machine",    machineOption, LOAD_MACHINE);
+	registerOption("-setup",      setupOption,   LOAD_MACHINE);
 
 	registerFileType(std::array<std::string_view, 1>{"tcl"}, scriptOption);
 
@@ -158,17 +159,18 @@ void CommandLineParser::parse(std::span<char*> argv)
 	std::span<std::string> cmdLine(cmdLineBuf);
 	std::vector<std::string> backupCmdLine;
 
-	for (Phase phase = Phase::BEFORE_INIT;
-	     (phase <= Phase::LAST) && (parseStatus != Status::EXIT);
+	using enum Phase;
+	for (Phase phase = BEFORE_INIT;
+	     (phase <= LAST) && (parseStatus != Status::EXIT);
 	     phase = static_cast<Phase>(std::to_underlying(phase) + 1)) {
 		switch (phase) {
-		case Phase::INIT:
+		case INIT:
 			reactor.init();
 			fileTypeCategoryInfo.emplace(
 				reactor.getOpenMSXInfoCommand(), *this);
 			getInterpreter().init(argv[0]);
 			break;
-		case Phase::LOAD_SETTINGS:
+		case LOAD_SETTINGS:
 			// after -control and -setting has been parsed
 			if (parseStatus != Status::CONTROL) {
 				// if there already is a XML-StdioConnection, we
@@ -203,7 +205,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 				settingsConfig.setSaveFilename(context, filename);
 			}
 			break;
-		case Phase::DEFAULT_MACHINE: {
+		case DEFAULT_MACHINE: {
 			if (!haveConfig) {
 				// load default setup in case the user didn't specify one
 				const auto& defaultSetup =
@@ -266,7 +268,7 @@ void CommandLineParser::parse(std::span<char*> argv)
 				// first try options
 				if (!parseOption(arg, cmdLine, phase)) {
 					// next try the registered filetypes (xml)
-					if ((phase != Phase::LAST) ||
+					if ((phase != LAST) ||
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);

@@ -35,9 +35,8 @@ public:
 		ar.serialize("name",    name,
 		             "value",   value);
 		if constexpr (Archive::IS_LOADER) {
-			id = (name == nameForId(Autofire::ID::RENSHATURBO))
-			   ? Autofire::ID::RENSHATURBO
-			   : Autofire::ID::UNKNOWN;
+			using enum Autofire::ID;
+			id = (name == nameForId(RENSHATURBO)) ? RENSHATURBO : UNKNOWN;
 		}
 	}
 

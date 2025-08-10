@@ -148,20 +148,21 @@ static CasImage::Data convert(std::span<const uint8_t> cas, const std::string& f
 			writeHeader(wave, LONG_HEADER);
 			if ((pos + ASCII_HEADER.size()) <= cas.size()) {
 				// determine file type
+				using enum CassetteImage::FileType;
 				auto type = [&] {
 					if (compare(&cas[pos], ASCII_HEADER)) {
-						return CassetteImage::FileType::ASCII;
+						return ASCII;
 					} else if (compare(&cas[pos], BINARY_HEADER)) {
-						return CassetteImage::FileType::BINARY;
+						return BINARY;
 					} else if (compare(&cas[pos], BASIC_HEADER)) {
-						return CassetteImage::FileType::BASIC;
+						return BASIC;
 					} else {
-						return CassetteImage::FileType::UNKNOWN;
+						return UNKNOWN;
 					}
 				}();
 				if (firstFile) firstFileType = type;
 				switch (type) {
-					case CassetteImage::FileType::ASCII:
+					case ASCII:
 						writeData(wave, cas, pos);
 						do {
 							pos += CAS_HEADER.size();
@@ -171,8 +172,8 @@ static CasImage::Data convert(std::span<const uint8_t> cas, const std::string& f
 							if (eof) break;
 						} while ((pos + CAS_HEADER.size()) <= cas.size());
 						break;
-					case CassetteImage::FileType::BINARY:
-					case CassetteImage::FileType::BASIC:
+					case BINARY:
+					case BASIC:
 						writeData(wave, cas, pos);
 						writeSilence(wave, SHORT_SILENCE);
 						writeHeader(wave, SHORT_HEADER);
@@ -247,12 +248,13 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 	data.frequency = 4800;
 
 	if (cas.size() >= (header.size() + ASCII_HEADER.size())) {
+		using enum CassetteImage::FileType;
 		if (compare(&cas[header.size()], ASCII_HEADER)) {
-			firstFileType = CassetteImage::FileType::ASCII;
+			firstFileType = ASCII;
 		} else if (compare(&cas[header.size()], BINARY_HEADER)) {
-			firstFileType = CassetteImage::FileType::BINARY;
+			firstFileType = BINARY;
 		} else if (compare(&cas[header.size()], BASIC_HEADER)) {
-			firstFileType = CassetteImage::FileType::BASIC;
+			firstFileType = BASIC;
 		}
 	}
 

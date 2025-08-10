@@ -37,18 +37,19 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 		openOutput(newName);
 	}
 
+	using enum Mode;
 	switch (port & 0x01) {
 	case 0:
 		switch ((value & 0x30) >> 4) {
 		case 0:
-			mode = Mode::OFF;
+			mode = OFF;
 			break;
 		case 1:
-			mode = Mode::SINGLEBYTE;
+			mode = SINGLEBYTE;
 			modeParameter = value & 0x0F;
 			break;
 		case 2:
-			mode = Mode::MULTIBYTE;
+			mode = MULTIBYTE;
 			modeParameter = value & 0x03;
 			break;
 		case 3:
@@ -60,12 +61,12 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 		break;
 	case 1:
 		switch (mode) {
-		case Mode::OFF:
+		case OFF:
 			break;
-		case Mode::SINGLEBYTE:
+		case SINGLEBYTE:
 			outputSingleByte(value, time);
 			break;
-		case Mode::MULTIBYTE:
+		case MULTIBYTE:
 			outputMultiByte(value);
 			break;
 		default:
@@ -77,38 +78,40 @@ void DebugDevice::writeIO(uint16_t port, byte value, EmuTime time)
 
 void DebugDevice::outputSingleByte(byte value, EmuTime time)
 {
+	using enum DisplayType;
 	if (modeParameter & 0x01) {
-		displayByte(value, DisplayType::HEX);
+		displayByte(value, HEX);
 	}
 	if (modeParameter & 0x02) {
-		displayByte(value, DisplayType::BIN);
+		displayByte(value, BIN);
 	}
 	if (modeParameter & 0x04) {
-		displayByte(value, DisplayType::DEC);
+		displayByte(value, DEC);
 	}
 	if (modeParameter & 0x08) {
 		(*outputStrm) << '\'';
 		byte tmp = ((value >= ' ') && (value != 127)) ? value : '.';
-		displayByte(tmp, DisplayType::ASC);
+		displayByte(tmp, ASC);
 		(*outputStrm) << "' ";
 	}
 	Clock<3579545> zero(EmuTime::zero());
 	(*outputStrm) << "emutime: " << std::dec << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
-		displayByte(value, DisplayType::ASC); // do special effects
+		displayByte(value, ASC); // do special effects
 	}
 	(*outputStrm) << '\n' << std::flush;
 }
 
 void DebugDevice::outputMultiByte(byte value)
 {
-	DisplayType dispType = [&] {
+	auto dispType = [&] {
 		switch (modeParameter) {
-			case 0:  return DisplayType::HEX;
-			case 1:  return DisplayType::BIN;
-			case 2:  return DisplayType::DEC;
+			using enum DisplayType;
+			case 0:  return HEX;
+			case 1:  return BIN;
+			case 2:  return DEC;
 			case 3:
-			default: return DisplayType::ASC;
+			default: return ASC;
 		}
 	}();
 	displayByte(value, dispType);
@@ -117,24 +120,25 @@ void DebugDevice::outputMultiByte(byte value)
 void DebugDevice::displayByte(byte value, DisplayType type)
 {
 	switch (type) {
-	case DisplayType::HEX:
+	using enum DisplayType;
+	case HEX:
 		(*outputStrm) << std::hex << std::setw(2)
 		              << std::setfill('0')
 		              << int(value) << "h " << std::flush;
 		break;
-	case DisplayType::BIN: {
+	case BIN: {
 		for (byte mask = 0x80; mask; mask >>= 1) {
 			(*outputStrm) << ((value & mask) ? '1' : '0');
 		}
 		(*outputStrm) << "b " << std::flush;
 		break;
 	}
-	case DisplayType::DEC:
+	case DEC:
 		(*outputStrm) << std::dec << std::setw(3)
 		              << std::setfill('0')
 		              << int(value) << ' ' << std::flush;
 		break;
-	case DisplayType::ASC:
+	case ASC:
 		(*outputStrm).put(narrow_cast<char>(value));
 		(*outputStrm) << std::flush;
 		break;
