@@ -82,6 +82,16 @@ proc palette {} {
 	format_table 16 4 "%x:%s" "  " getcolor
 }
 
+set_help_text vdpvramaddress "Gives the current VDP VRAM pointer"
+proc vdpvramaddress {} {
+    return [expr ([expr ([debug read "VDP regs" 14] << 14)] | [expr (([debug read "VRAM pointer" 1] & 63) << 8)] | [debug read "VRAM pointer" 0])]
+}
+
+set_help_text vdpstatus "Shortcut for ready the VDP status registers"
+proc vdpstatus {reg} {
+    debug read "VDP status regs" $reg
+}
+
 proc val2bin val {
 	set binRep [binary format c $val]
 	binary scan $binRep B* binStr
@@ -162,6 +172,8 @@ namespace export v9990regs
 namespace export vpeek
 namespace export vpoke
 namespace export palette
+namespace export vdpvramaddress
+namespace export vdpstatus
 namespace export get_frame_duration
 
 } ;# namespace vdp
