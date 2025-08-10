@@ -1,7 +1,7 @@
 #ifndef LOCALFILE_HH
 #define LOCALFILE_HH
 
-#if defined _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 #include "File.hh"
@@ -46,7 +46,7 @@ private:
 #if HAVE_MMAP
 	uint8_t* mmem = nullptr;
 #endif
-#if defined _WIN32
+#ifdef _WIN32
 	uint8_t* mmem = nullptr;
 	HANDLE hMmap = nullptr;
 #endif

@@ -21,9 +21,9 @@
 
 #include "narrow.hh"
 
-#if defined(PATH_MAX)
+#ifdef PATH_MAX
 #define MAXPATHLEN PATH_MAX
-#elif defined(MAX_PATH)
+#elifdef MAX_PATH
 #define MAXPATHLEN MAX_PATH
 #else
 #define MAXPATHLEN 4096
@@ -210,7 +210,7 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 
 void openOfStream(std::ofstream& stream, zstring_view filename)
 {
-#if defined _WIN32
+#ifdef _WIN32
 	stream.open(utf8to16(filename).c_str());
 #else
 	stream.open(filename.c_str());
@@ -220,7 +220,7 @@ void openOfStream(std::ofstream& stream, zstring_view filename)
 void openOfStream(std::ofstream& stream, zstring_view filename,
                   std::ios_base::openmode mode)
 {
-#if defined _WIN32
+#ifdef _WIN32
 	stream.open(utf8to16(filename).c_str(), mode);
 #else
 	stream.open(filename.c_str(), mode);
@@ -446,7 +446,7 @@ const std::string& getSystemDataDir()
 			throw FatalError("openMSX is not in directory!?");
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/share";
-#elif defined(__APPLE__)
+#elifdef __APPLE__
 		return findResourceDir("share");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system");
@@ -477,7 +477,7 @@ const std::string& getSystemDocDir()
 			throw FatalError("openMSX is not in directory!?");
 		}
 		return getConventionalPath(filename.substr(0, pos)) + "/doc";
-#elif defined(__APPLE__)
+#elifdef __APPLE__
 		return findResourceDir("doc");
 #elif PLATFORM_ANDROID
 		return getAbsolutePath("openmsx_system"); // TODO: currently no docs are installed on Android

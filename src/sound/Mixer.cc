@@ -17,7 +17,7 @@
 
 namespace openmsx {
 
-#if defined(_WIN32)
+#ifdef _WIN32
 static constexpr int defaultSamples = 2048;
 #else
 static constexpr int defaultSamples = 1024;

@@ -1195,7 +1195,7 @@ bool Keyboard::processKeyEvent(EmuTime time, bool down, const KeyEvent& keyEvent
 		// Ignore the keypress/release
 		return false;
 	}
-#if defined(__APPLE__)
+#ifdef __APPLE__
 	bool positional = mode == KeyboardSettings::MappingMode::POSITIONAL;
 	if ((key.sym.mod & KMOD_GUI) &&
 	    (( positional && (keyEvent.getScanCode() == SDL_SCANCODE_I)) ||

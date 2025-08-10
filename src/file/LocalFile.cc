@@ -5,7 +5,7 @@
 #if HAVE_MMAP
 #include <sys/mman.h>
 #endif
-#if defined _WIN32
+#ifdef _WIN32
 #include <io.h>
 #include <iostream>
 #endif
@@ -109,7 +109,7 @@ void LocalFile::write(std::span<const uint8_t> buffer)
 	}
 }
 
-#if defined _WIN32
+#ifdef _WIN32
 std::span<const uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
@@ -200,7 +200,7 @@ void LocalFile::munmap()
 
 size_t LocalFile::getSize()
 {
-#if defined _WIN32
+#ifdef _WIN32
 	// Normal fstat compiles but doesn't seem to be working the same
 	// as on POSIX, regarding size support.
 	struct _stat64 st;
@@ -223,7 +223,7 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-#if defined _WIN32
+#ifdef _WIN32
 	int ret = _fseeki64(file.get(), pos, SEEK_SET);
 #else
 	int ret = fseek(file.get(), narrow_cast<long>(pos), SEEK_SET);
@@ -270,7 +270,7 @@ bool LocalFile::isReadOnly() const
 
 time_t LocalFile::getModificationDate()
 {
-#if defined _WIN32
+#ifdef _WIN32
 	// Normal fstat compiles but doesn't seem to be working the same
 	// as on POSIX, regarding size support.
 	struct _stat64 st;

@@ -1,16 +1,20 @@
-#if defined(_WIN32)
+#ifdef _WIN32
+
 #include "MidiInWindows.hh"
+
+#include "EventDistributor.hh"
 #include "MidiInConnector.hh"
+#include "Midi_w32.hh"
 #include "PluggingController.hh"
 #include "PlugException.hh"
-#include "EventDistributor.hh"
 #include "Scheduler.hh"
+
 #include "one_of.hh"
 #include "serialize.hh"
 #include "xrange.hh"
+
 #include <cstring>
 #include <cerrno>
-#include "Midi_w32.hh"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

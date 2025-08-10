@@ -258,9 +258,9 @@ template<typename T = void, std::ranges::common_range Range,
          typename V = std::conditional_t<std::is_void_v<T>, std::ranges::range_value_t<Range>, T>>
 [[nodiscard]] std::vector<V> to_vector(Range&& range)
 {
-#if defined __cpp_lib_ranges_to_container
+#ifdef __cpp_lib_ranges_to_container
 	return std::ranges::to<std::vector<V>>(std::forward<Range>(range));
-#elif defined __cpp_lib_containers_ranges
+#elifdef __cpp_lib_containers_ranges
 	return {std::from_range, std::forward<Range>(range)};
 #else
 	// Cross fingers and hope the range's iterators meet Cpp17InputIterator requirements...

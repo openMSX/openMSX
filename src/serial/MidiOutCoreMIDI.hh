@@ -1,7 +1,7 @@
 #ifndef MIDIOUTCOREMIDI_HH
 #define MIDIOUTCOREMIDI_HH
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 
 #include "MidiOutDevice.hh"
 #include <CoreMIDI/MIDIServices.h>

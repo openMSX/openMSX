@@ -540,7 +540,7 @@ void PostProcessor::uploadBlock(
 		}
 	}
 	pbo.unmap();
-#if defined(__APPLE__)
+#ifdef __APPLE__
 	// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
 	// on texture data replacements that are 1 pixel wide and start on a
 	// line number that is a non-zero multiple of 16.

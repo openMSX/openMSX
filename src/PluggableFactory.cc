@@ -29,7 +29,7 @@
 #include "MidiInWindows.hh"
 #include "MidiOutWindows.hh"
 #endif
-#if defined(__APPLE__)
+#ifdef __APPLE__
 #include "MidiInCoreMIDI.hh"
 #include "MidiOutCoreMIDI.hh"
 #endif
@@ -107,18 +107,18 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController));
 
 	// MIDI:
-#if !defined(_WIN32)
+#ifndef _WIN32
 	// Devices and pipes are not usable as files on Windows, and MidiInReader
 	// reads all data as soon as it becomes available, so this pluggable is
 	// not useful on Windows.
 	controller.registerPluggable(std::make_unique<MidiInReader>(
 		eventDistributor, scheduler, commandController));
 #endif
-#if defined(_WIN32)
+#ifdef _WIN32
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
 #endif
-#if defined(__APPLE__)
+#ifdef __APPLE__
 	controller.registerPluggable(std::make_unique<MidiInCoreMIDIVirtual>(
 		eventDistributor, scheduler));
 	MidiInCoreMIDI::registerAll(eventDistributor, scheduler, controller);

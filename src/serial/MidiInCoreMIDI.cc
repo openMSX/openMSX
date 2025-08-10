@@ -1,4 +1,4 @@
-#if defined(__APPLE__)
+#ifdef __APPLE__
 
 #include "MidiInCoreMIDI.hh"
 #include "MidiInConnector.hh"

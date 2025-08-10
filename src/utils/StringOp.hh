@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <utility>
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -185,7 +185,7 @@ namespace StringOp
 		        ).empty();
 	}
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 	[[nodiscard]] std::string fromCFString(CFStringRef str);
 #endif
 

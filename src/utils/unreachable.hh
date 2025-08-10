@@ -3,7 +3,7 @@
 
 #include <utility>
 
-#if defined(NDEBUG)
+#ifdef NDEBUG
   #define UNREACHABLE std::unreachable()
 
 #else

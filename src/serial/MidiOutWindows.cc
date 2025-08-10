@@ -1,11 +1,14 @@
-#if defined(_WIN32)
+#ifdef _WIN32
+
+#include "MidiOutWindows.hh"
 
 #include "Midi_w32.hh"
-#include "MidiOutWindows.hh"
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
+
 #include "xrange.hh"
+
 #include <memory>
 
 namespace openmsx {

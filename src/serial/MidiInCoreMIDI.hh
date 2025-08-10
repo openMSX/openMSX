@@ -1,7 +1,7 @@
 #ifndef MIDIINCOREMIDI_HH
 #define MIDIINCOREMIDI_HH
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 
 #include "MidiInDevice.hh"
 #include "EventListener.hh"

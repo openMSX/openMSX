@@ -193,7 +193,7 @@ IterableBitSet<64> parseRange(std::string_view str, unsigned min, unsigned max)
 	return result;
 }
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 
 std::string fromCFString(CFStringRef str)
 {
