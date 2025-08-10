@@ -27,7 +27,7 @@ namespace escape_newline {
 [[nodiscard]] inline std::string decode(std::string_view input)
 {
 	std::string result;
-	result.resize_and_overwrite(input.size(), [&](char* buf, size_t) -> size_t {
+	result.resize_and_overwrite(input.size(), [&](char* buf, size_t) {
 		size_t out = 0;
 		for (size_t i = 0; i < input.size(); ++i) {
 			char c = input[i];
