@@ -63,6 +63,11 @@ ReproCartridgeV2::ReproCartridgeV2(DeviceConfig& config, Rom&& rom_)
 	, psg0xA0("ReproCartV2 PSG@0xA0", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 {
+	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934
+	// note: this is a theoretical value. The actual relative volume should be measured!
+	psg0x10.setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
+	psg0xA0.setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
+
 	powerUp(getCurrentTime());
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x10, 0x11, 0x31, 0x33, 0xA0, 0xA1}) {

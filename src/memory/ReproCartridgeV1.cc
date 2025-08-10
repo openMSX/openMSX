@@ -36,6 +36,10 @@ ReproCartridgeV1::ReproCartridgeV1(
 	, psg("ReproCartV1 PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 {
+	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934
+	// note: this is a theoretical value. The actual relative volume should be measured!
+	psg.setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
+
 	powerUp(getCurrentTime());
 	auto& cpuInterface = getCPUInterface();
 	for (auto port : {0x10, 0x11, 0x13}) {

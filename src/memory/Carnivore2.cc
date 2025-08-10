@@ -36,6 +36,10 @@ Carnivore2::Carnivore2(DeviceConfig& config)
               getCurrentTime())
 	, ym2413(getName() + " ym2413", config)
 {
+	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934
+	// note: this is a theoretical value. The actual relative volume should be measured!
+	psg.setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
+
 	ideDevices[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
 	ideDevices[1] = IDEDeviceFactory::create(

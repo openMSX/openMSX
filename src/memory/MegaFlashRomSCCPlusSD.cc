@@ -276,6 +276,10 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(DeviceConfig& config)
 		: nullptr)
 	, mapperIO(checkedRam ? std::make_unique<MapperIO>(*this) : nullptr) // handles ports 0xfc-0xff
 {
+	// adjust PSG volume, see details in https://github.com/openMSX/openMSX/issues/1934
+	// note: this is a theoretical value. The actual relative volume should be measured!
+	psg.setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
+
 	powerUp(getCurrentTime());
 	getCPUInterface().register_IO_Out_range(0x10, 2, this);
 

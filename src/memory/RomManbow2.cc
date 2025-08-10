@@ -84,6 +84,12 @@ RomManbow2::RomManbow2(DeviceConfig& config, Rom&& rom_, RomType type)
 			// this cartridge seems to have a much louder PSG than normal
 			// TODO: find out if it's the same for Manbow 2 2nd release
 			psg->setSoftwareVolume(5.0f, getCurrentTime());
+		} else {
+			// adjust PSG volume, see details in
+			// https://github.com/openMSX/openMSX/issues/1934
+			// note: this is a theoretical value. The actual
+			// relative volume should be measured!
+			psg->setSoftwareVolume(21000.0f/9000.0f, getCurrentTime());
 		}
 	}
 }
