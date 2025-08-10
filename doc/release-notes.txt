@@ -42,7 +42,9 @@ MSX device support:
   - implemented erase and program timing
   - implemented error on bit raise during program
   - added support for erase and program suspend/resume
-- fixed the PSG volume for the Hamaraja Night mapper
+- fixed the (relative) PSG volume for the Hamaraja Night mapper and improved
+  (?) it for all other mappers/devices that include a PSG and another sound
+  device
 - fixed the MegaFlashROM SCC+ to always allow SCC access in any Konami mode
 - added new machines/extensions, thanks to:
   - Peter Hanraets: Sanyo MPC-1, Sanyo MPC-11
