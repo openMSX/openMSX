@@ -87,7 +87,7 @@ proc vdpvramaddress {} {
     return [expr ([expr ([debug read "VDP regs" 14] << 14)] | [expr (([debug read "VRAM pointer" 1] & 63) << 8)] | [debug read "VRAM pointer" 0])]
 }
 
-set_help_text vdpstatus "Shortcut for ready the VDP status registers"
+set_help_text vdpstatus "Shortcut for reading the VDP status registers"
 proc vdpstatus {reg} {
     debug read "VDP status regs" $reg
 }
