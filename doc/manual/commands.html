@@ -593,12 +593,11 @@
 
   <p><code>debug &lt;subcommand&gt; [&lt;extra arguments&gt;]</code></p>
 
-  <p>where 'extra arguments' are specific for each subcommand. Below is a list of all subcommands:</p>
+  <p>where 'extra arguments' are specific for each subcommand. Below is a list of the most common subcommands (deprecated commands are not listed):</p>
 
   <table>
     <tr>
       <td><code>debug list</code></td>
-
       <td>Return a list of all debuggables.<br />
       A debuggable is (part of) the state of an MSX device that can be accessed
       via these debug commands.<br />
@@ -613,184 +612,86 @@
 
     <tr>
       <td><code>debug desc &lt;name&gt;</code></td>
-
       <td>Return a description of this debuggable</td>
     </tr>
 
     <tr>
       <td><code>debug size &lt;name&gt;</code></td>
-
       <td>Return the size of this debuggable</td>
     </tr>
 
     <tr>
       <td><code>debug read &lt;name&gt; &lt;addr&gt;</code></td>
-
       <td>Read a byte from a debuggable</td>
     </tr>
 
     <tr>
       <td><code>debug write &lt;name&gt; &lt;addr&gt; &lt;val&gt;</code></td>
-
       <td>Write a byte to a debuggable</td>
     </tr>
 
     <tr>
       <td><code>debug read_block &lt;name&gt; &lt;addr&gt; &lt;size&gt;</code></td>
-
       <td>Read a whole block at once</td>
     </tr>
 
     <tr>
       <td><code>debug write_block &lt;name&gt; &lt;addr&gt; &lt;values&gt;</code></td>
-
       <td>Write a whole block at once</td>
     </tr>
 
     <tr>
-      <td><code>debug probe &lt;subcommand&gt;</code></td>
-      <td>See below.</td>
-    </tr>
-
-    <tr>
       <td><code>debug break</code></td>
-
       <td>Break CPU at current position</td>
     </tr>
 
     <tr>
       <td><code>debug breaked</code></td>
-
       <td>Query CPU break status</td>
     </tr>
 
     <tr>
       <td><code>debug cont</code></td>
-
       <td>Continue execution after break</td>
     </tr>
 
     <tr>
       <td><code>debug step</code></td>
-
       <td>Execute one instruction</td>
     </tr>
 
     <tr>
-      <td><code>debug list_bp</code></td>
-
-      <td>List the active breakpoints</td>
+      <td><code>debug breakpoint &lt;subcommand&gt;</code></td>
+      <td>Breakpoint related commands. Type <code>help debug breakpoint</code> for more details.</td>
     </tr>
 
     <tr>
-      <td><code>debug set_bp [-once] &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
-
-      <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
-      the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
-      evaluates to true then the command is executed. The condition can be any Tcl expression and the command can be
-      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.
-      If the <code>-once</code> flag is passed, the breakpoint is automatically removed after it triggered.
-      In other words: it will only trigger once.</td>
+      <td><code>debug watchpoint &lt;subcommand&gt;</code></td>
+      <td>Watchpoint related commands. Type <code>help debug watchpoint</code> for more details.</td>
     </tr>
 
     <tr>
-      <td><code>debug remove_bp &lt;id&gt;</code></td>
-
-      <td>Remove a certain breakpoint</td>
+      <td><code>debug watchexpr &lt;subcommand&gt;</code></td>
+      <td>Watch expression related commands. Type <code>help debug watchexpr</code> for more details.</td>
     </tr>
 
     <tr>
-      <td><code>debug list_watchpoints</code></td>
-
-      <td>List all defined watchpoints</td>
+      <td><code>debug condition &lt;subcommand&gt;</code></td>
+      <td>Condition related commands. Type <code>help debug condition</code> for more details.</td>
     </tr>
 
     <tr>
-      <td><code>debug set_watchpoint [-once] &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
-
-      <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or I/O region,
-      the condition is evaluated. If the condition evaluated to true, the command is executed. The -once flag, the condition and the
-      command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
-      address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
-      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
-    </tr>
-
-    <tr>
-      <td><code>debug remove_watchpoint &lt;id&gt;</code></td>
-
-      <td>Remove a certain watchpoint</td>
-    </tr>
-
-    <tr>
-      <td><code>debug list_conditions</code></td>
-
-      <td>List the active conditions</td>
-    </tr>
-
-    <tr>
-      <td><code>debug set_condition [-once] &lt;cond&gt; [&lt;cmd&gt;]</code></td>
-
-      <td>Set a new debugger condition. Conditions are like breakpoints, but not
-          tied to a specific address. Simulation is much slower when conditions
-          are used (though generally while debugging this is not a problem).</td>
-    </tr>
-
-    <tr>
-      <td><code>debug remove_condition &lt;id&gt;</code></td>
-
-      <td>Remove a certain condition</td>
+      <td><code>debug probe &lt;subcommand&gt;</code></td>
+      <td>Probe related commands. Type <code>help debug probe</code> for more details.</td>
     </tr>
 
     <tr>
       <td><code>debug disasm [&lt;addr&gt;]</code></td>
-
       <td>Disassemble instructions at PC or given address</td>
     </tr>
   </table>
 
-  <p>The probe subcommand again has subcommands:</p>
-  <table>
-    <tr>
-      <td><code>debug probe list</code></td>
-      <td>Returns a list of all probes.</td>
-    </tr>
-    <tr>
-      <td><code>debug probe desc &lt;probe&gt;</code></td>
-      <td>Returns a description of this probe.</td>
-    </tr>
-    <tr>
-      <td><code>debug probe read &lt;probe&gt;</code></td>
-      <td>Returns the current value of a probe. But note that not all probes have a value</td>
-    </tr>
-    <tr>
-      <td><code>debug probe set_bp [-once] &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
-      <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
-    </tr>
-    <tr>
-      <td><code>debug probe remove_bp &lt;id&gt;</code></td>
-      <td>Remove the given breakpoint.</td>
-    </tr>
-    <tr>
-      <td><code>debug probe list_bp</code></td>
-      <td>List the active breakpoints set on probes.</td>
-    </tr>
-  </table>
-
-  <p>At first sight 'probes' and 'debuggables' are very similar. Though there are some important differences and that's why probes and debuggables use different subcommands:</p>
-  <table>
-    <tr>
-      <td>A debuggable is an array of bytes.</td>
-      <td>A probe is a single value and can have any type.</td>
-    </tr>
-    <tr>
-      <td>A debuggable is readable and (usually) writable.</td>
-      <td>A probe is always read-only.</td>
-    </tr>
-    <tr>
-      <td>It's not possible to set breakpoints on a debuggable.</td>
-      <td>You can set breakpoints on a probe (and sometimes this is the only purpose of a probe).</td>
-    </tr>
-  </table>
+  <p>This command is much better documented in openMSX itself. Type <code>help debug</code> or <code>help debug &lt;subcommand&gt;</code> for more detailed help.</p>
 
   <p>Many examples of usage of the debug command can be found in the scripts that come with openMSX (in the <code>share/scripts</code> directory). We also list a few here.
   </p>
@@ -802,18 +703,18 @@
   <div class="examples">
     <ul>
       <li>break (only!) after 0 is written to 0x8000):<br/>
-         <code>debug set_watchpoint write_mem 0x8000 {[debug read "memory" 0x8000] ==
+         <code>debug watchpoint create write_mem 0x8000 {[debug read "memory" 0x8000] ==
 0x00}</code></li>
       <li>break on address 0xF37D, but only when Z80 register C has the value 0x2F:<br/>
-         <code>debug set_bp 0xF37D {[reg C] == 0x2F}</code></li>
+         <code>debug breakpoint create 0xF37D {[reg C] == 0x2F}</code></li>
       <li>break when CPU reads from any addresses between 0xFBE5 and 0xFBEF:<br/>
-         <code>debug set_watchpoint read_mem {0xFBE5 0xFBEF}</code></li>
+         <code>debug watchpoint create read_mem {0xFBE5 0xFBEF}</code></li>
       <li>break after a write was done to I/O port 0x99, but only when Z80 register A has a value of 0x81:<br/>
-         <code>debug set_watchpoint write_io 0x99 {[reg A] == 0x81}</code></li>
+         <code>debug watchpoint create write_io 0x99 {[reg A] == 0x81}</code></li>
       <li>break as soon as there is a pending Z80 IRQ (even when in DI mode):<br/>
          <code>debug probe set_bp z80.pendingIRQ</code></li>
       <li>break when register HL has the value 1234:<br/>
-         <code>debug set_condition {[reg hl] == 1234}</code></li>
+         <code>debug condition create {[reg hl] == 1234}</code></li>
     </ul>
   </div>
 
