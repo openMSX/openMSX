@@ -375,30 +375,21 @@ template<typename T, typename... Tail>
 }
 
 
-// Concatenate two std::arrays (at compile time).
-template<typename T, size_t X, size_t Y>
-constexpr auto concatArray(const std::array<T, X>& x, const std::array<T, Y>& y)
+template<typename T, size_t... Sizes>
+constexpr auto concatArray(const std::array<T, Sizes>&... arrays)
 {
-	std::array<T, X + Y> result = {};
-	// c++20:  std::ranges::copy(x, &result[0]);
-	// c++20:  std::ranges::copy(y, &result[X]);
-	for (size_t i = 0; i < X; ++i) result[0 + i] = x[i];
-	for (size_t i = 0; i < Y; ++i) result[X + i] = y[i];
-	return result;
-}
-// TODO implement in a generic way for any number of arrays
-template<typename T, size_t X, size_t Y, size_t Z>
-constexpr auto concatArray(const std::array<T, X>& x,
-                           const std::array<T, Y>& y,
-                           const std::array<T, Z>& z)
-{
-	std::array<T, X + Y + Z> result = {};
-	for (size_t i = 0; i < X; ++i) result[        i] = x[i];
-	for (size_t i = 0; i < Y; ++i) result[X     + i] = y[i];
-	for (size_t i = 0; i < Z; ++i) result[X + Y + i] = z[i];
-	return result;
-}
+	constexpr size_t totalSize = (0 + ... + Sizes);
+	std::array<T, totalSize> result = {};
 
+	size_t offset = 0;
+	auto copy_array = [&]<size_t N>(const std::array<T, N>& arr) {
+		for (size_t i = 0; i < N; ++i) result[offset + i] = arr[i];
+		offset += N;
+	};
+
+	(copy_array(arrays), ...);
+	return result;
+}
 
 // lookup in std::map
 template<typename Key, typename Value, typename Comp, typename Key2>
