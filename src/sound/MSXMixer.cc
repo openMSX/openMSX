@@ -19,6 +19,7 @@
 #include "aligned.hh"
 #include "enumerate.hh"
 #include "inplace_buffer.hh"
+#include "Math.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -428,6 +429,8 @@ static bool approxEqual(float x, float y)
 
 void MSXMixer::generate(std::span<StereoFloat> output, EmuTime time)
 {
+	Math::DenormalGuard noDenormals; // flush denormals to zero in this scope
+
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
 	// ends up relatively high (top 5) in a profile run.

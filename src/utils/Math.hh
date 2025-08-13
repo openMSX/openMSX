@@ -201,6 +201,52 @@ constexpr int mod_floor(int dividend, int divisor) {
     return div_mod_floor(dividend, divisor).remainder;
 }
 
+/**
+ * RAII utility to temporarily disable denormal floating-point handling.
+ *
+ * Denormal numbers (very small values near zero) can cause 10-100x performance
+ * degradation on x86/x64 CPUs. This guard flushes denormals to zero within its
+ * scope, trading slight accuracy loss for significant speedup in floating-point
+ * intensive code.
+ *
+ * Only active on x86/x64 platforms with SSE support. No-op on other architectures.
+ *
+ * Usage: DenormalGuard guard; // at start of performance-critical scope
+ */
+class DenormalGuard {
+private:
+#ifdef __SSE__
+    // MXCSR bit positions
+    static constexpr int DAZ_BIT = 6;   // Denormals-Are-Zero
+    static constexpr int FTZ_BIT = 15;  // Flush-To-Zero
+
+    uint32_t saved_mxcsr;
+#endif
+
+public:
+    [[nodiscard]] DenormalGuard() {
+#ifdef __SSE__
+        // Read current MXCSR
+        asm volatile("stmxcsr %0" : "=m"(saved_mxcsr));
+
+        // Modify and write back
+        auto new_mxcsr = saved_mxcsr | (1u << DAZ_BIT) | (1u << FTZ_BIT);
+        asm volatile("ldmxcsr %0" : : "m"(new_mxcsr));
+#endif
+    }
+
+    ~DenormalGuard() {
+#ifdef __SSE__
+        asm volatile("ldmxcsr %0" : : "m"(saved_mxcsr));
+#endif
+    }
+
+    DenormalGuard(const DenormalGuard&) = delete;
+    DenormalGuard& operator=(const DenormalGuard&) = delete;
+    DenormalGuard(DenormalGuard&&) = delete;
+    DenormalGuard& operator=(DenormalGuard&&) = delete;
+};
+
 } // namespace Math
 
 #endif // MATH_HH
