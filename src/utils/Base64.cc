@@ -47,44 +47,45 @@ std::string encode(std::span<const uint8_t> input)
 	constexpr int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
 	auto outSize = ((input.size() + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
-	std::string ret(outSize, 0); // too big
-
-	size_t out = 0;
-	while (!input.empty()) {
-		if (out) ret[out++] = '\n';
-		auto n = std::min<size_t>(IN_CHUNKS, input.size());
-		for (/**/; n >= 3; n -= 3) {
-			ret[out++] = encode(uint8_t( (input[0] & 0xfc) >> 2));
-			ret[out++] = encode(uint8_t(((input[0] & 0x03) << 4) +
-			                            ((input[1] & 0xf0) >> 4)));
-			ret[out++] = encode(uint8_t(((input[1] & 0x0f) << 2) +
-			                            ((input[2] & 0xc0) >> 6)));
-			ret[out++] = encode(uint8_t( (input[2] & 0x3f) >> 0));
-			input = input.subspan(3);
-		}
-		if (n) {
-			std::array<uint8_t, 3> buf3 = {0, 0, 0};
-			copy_to_range(input.subspan(0, n), buf3);
-			input = input.subspan(n);
-
-			std::array<uint8_t, 4> buf4;
-			buf4[0] = uint8_t( (buf3[0] & 0xfc) >> 2);
-			buf4[1] = uint8_t(((buf3[0] & 0x03) << 4) +
-			                  ((buf3[1] & 0xf0) >> 4));
-			buf4[2] = uint8_t(((buf3[1] & 0x0f) << 2) +
-			                  ((buf3[2] & 0xc0) >> 6));
-			buf4[3] = uint8_t( (buf3[2] & 0x3f) >> 0);
-			for (auto j : xrange(n + 1)) {
-				ret[out++] = encode(buf4[j]);
+	std::string ret;
+	ret.resize_and_overwrite(outSize, [&](char* buf, size_t) {
+		size_t out = 0;
+		while (!input.empty()) {
+			if (out) buf[out++] = '\n';
+			auto n = std::min<size_t>(IN_CHUNKS, input.size());
+			for (/**/; n >= 3; n -= 3) {
+				buf[out++] = encode(uint8_t( (input[0] & 0xfc) >> 2));
+				buf[out++] = encode(uint8_t(((input[0] & 0x03) << 4) +
+							((input[1] & 0xf0) >> 4)));
+				buf[out++] = encode(uint8_t(((input[1] & 0x0f) << 2) +
+							((input[2] & 0xc0) >> 6)));
+				buf[out++] = encode(uint8_t( (input[2] & 0x3f) >> 0));
+				input = input.subspan(3);
 			}
-			for (/**/; n < 3; ++n) {
-				ret[out++] = '=';
+			if (n) {
+				std::array<uint8_t, 3> buf3 = {0, 0, 0};
+				copy_to_range(input.subspan(0, n), buf3);
+				input = input.subspan(n);
+
+				std::array<uint8_t, 4> buf4;
+				buf4[0] = uint8_t( (buf3[0] & 0xfc) >> 2);
+				buf4[1] = uint8_t(((buf3[0] & 0x03) << 4) +
+						((buf3[1] & 0xf0) >> 4));
+				buf4[2] = uint8_t(((buf3[1] & 0x0f) << 2) +
+						((buf3[2] & 0xc0) >> 6));
+				buf4[3] = uint8_t( (buf3[2] & 0x3f) >> 0);
+				for (auto j : xrange(n + 1)) {
+					buf[out++] = encode(buf4[j]);
+				}
+				for (/**/; n < 3; ++n) {
+					buf[out++] = '=';
+				}
 			}
 		}
-	}
 
-	assert(outSize >= out);
-	ret.resize(out); // shrink to correct size
+		assert(outSize >= out);
+		return out; // shrink to correct size
+	});
 	return ret;
 }
 
