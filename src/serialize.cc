@@ -186,10 +186,12 @@ void MemInputArchive::load(std::string& s)
 {
 	size_t length;
 	load(length);
-	s.resize(length);
-	if (length) {
-		buffer.read(s.data(), length);
-	}
+	s.resize_and_overwrite(length, [&](char* dst, size_t n) {
+		if (n) {
+			buffer.read(dst, n);
+		}
+		return n;
+	});
 }
 
 std::string_view MemInputArchive::loadStr()
