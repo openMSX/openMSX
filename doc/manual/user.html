@@ -137,6 +137,7 @@
 					<li><a class="internal" href="#programmabledeviceports">9.5.2 Device Ports and callbacks</a></li>
 				</ol>
 			</li>
+			<li><a class="internal" href="#sdcdb">9.6 SDCC Debugger</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">10. Contact Info</a></li>
@@ -2638,6 +2639,18 @@ input callback} "my_input_proc"
 connects the "IN instruction" event with your previously declared
 "my_input_proc" callback.
 </p>
+
+<h3><a id="sdcdb">9.6 SDCC Debugger</a></h3>
+
+<p>
+openMSX includes the SDCC Debugger called sdcdb, a Tcl script that mimics GDB (GNU Debugger) and allows you to inspect programs compiled with the Small Device C Compiler (SDCC) from the console. You just need to compile your SDCC code with the <code>-debug</code> flag to create a CDB file with symbols and their respective addresses and then call <code>sdcdb open &lt;directory&gt;</code> where the CDB file and source code are. Now you can inspect the program while it executes. For instance, to create a breakpoint at file <code>main.c</code>, line 155 from your source code, you can type:
+</p>
+
+<div class="commandline">
+    sdcdb break main.c:155
+</div>
+
+<p>A SDCDB breakpoint is a regular breakpoint and it can be listed with the <code>debug breakpoint list</code> command. When a breakpoint is triggered, you can inspect the source code around it with command <code>sdcdb info</code>. There are two commands that executes code step by step. The first is <code>sdcdb step</code>, which executes C code line by line and goes inside function calls. It is equivalent to the <code>step_in</code> command from the console. The second is <code>sdcdb next</code>, which executes C code line by line but doesn't go inside function calls. It is equivalent to the <code>step_over</code> command from the console. The useful <code>sdcdb laddress &lt;address&gt;</code> will display source code under the given memory address since sdcdb is aware of the program's source code, like GDB. You can type <code>help sdcdb</code> for more details or check out the comments in <code>sdcdb.tcl</code> script for more examples.</p>
 
 <h2><a id="contact">10. Contact Info</a></h2>
 
