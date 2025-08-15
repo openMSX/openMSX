@@ -10,7 +10,7 @@
 
 #include "SectorBasedDisk.hh"
 
-#include <vector>
+#include "MemBuffer.hh"
 
 namespace openmsx {
 
@@ -28,7 +28,7 @@ private:
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	[[nodiscard]] bool isWriteProtectedImpl() const override;
 
-	std::vector<SectorBuffer> data;
+	MemBuffer<SectorBuffer> data;
 };
 
 } // namespace openmsx

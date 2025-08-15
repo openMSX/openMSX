@@ -3,10 +3,11 @@
 
 #include "DiskImageUtils.hh"
 
+#include "MemBuffer.hh"
+
 #include <array>
 #include <cstdint>
 #include <span>
-#include <vector>
 
 namespace openmsx {
 
@@ -14,7 +15,7 @@ class XSAExtractor
 {
 public:
 	explicit XSAExtractor(std::span<const uint8_t> file);
-	std::vector<SectorBuffer> extractData() &&;
+	MemBuffer<SectorBuffer> extractData() &&;
 
 private:
 	static constexpr int MAX_STR_LEN = 254;
@@ -38,7 +39,7 @@ private:
 
 private:
 	std::span<const uint8_t> file; // the not-yet-consumed part of the file
-	std::vector<SectorBuffer> output;
+	MemBuffer<SectorBuffer> output;
 
 	int updHufCnt;
 	std::array<int, TBL_SIZE + 1> cpDist;

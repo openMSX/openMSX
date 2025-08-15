@@ -20,7 +20,7 @@ XSAExtractor::XSAExtractor(std::span<const uint8_t> file_)
 	unLz77();
 }
 
-std::vector<SectorBuffer> XSAExtractor::extractData() &&
+MemBuffer<SectorBuffer> XSAExtractor::extractData() &&
 {
 	// destroys internal outBuf, but that's ok
 	return std::move(output);
