@@ -124,8 +124,8 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	std::vector<KeyCodeMsxMapping> keyCodeTab;
-	std::vector<ScanCodeMsxMapping> scanCodeTab;
+	std::span<const KeyCodeMsxMapping> keyCodeTab;
+	std::span<const ScanCodeMsxMapping> scanCodeTab;
 
 	const array_with_enum_index<UnicodeKeymap::KeyInfo::Modifier, KeyMatrixPosition>& modifierPos;
 
