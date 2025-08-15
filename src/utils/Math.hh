@@ -215,7 +215,7 @@ constexpr int mod_floor(int dividend, int divisor) {
  */
 class DenormalGuard {
 private:
-#ifdef __SSE__
+#if (defined(__SSE__) && (defined(__GNUC__) || defined(__clang__)))
     // MXCSR bit positions
     static constexpr int DAZ_BIT = 6;   // Denormals-Are-Zero
     static constexpr int FTZ_BIT = 15;  // Flush-To-Zero
@@ -225,7 +225,7 @@ private:
 
 public:
     [[nodiscard]] DenormalGuard() {
-#ifdef __SSE__
+#if (defined(__SSE__) && (defined(__GNUC__) || defined(__clang__)))
         // Read current MXCSR
         asm volatile("stmxcsr %0" : "=m"(saved_mxcsr));
 
@@ -236,7 +236,7 @@ public:
     }
 
     ~DenormalGuard() {
-#ifdef __SSE__
+#if (defined(__SSE__) && (defined(__GNUC__) || defined(__clang__)))
         asm volatile("ldmxcsr %0" : : "m"(saved_mxcsr));
 #endif
     }
