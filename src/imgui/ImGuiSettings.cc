@@ -21,6 +21,7 @@
 #include "InputEventGenerator.hh"
 #include "IntegerSetting.hh"
 #include "JoyMega.hh"
+#include "JoyHandle.hh"
 #include "KeyCodeSetting.hh"
 #include "KeyboardSettings.hh"
 #include "Mixer.hh"
@@ -418,14 +419,16 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 [[nodiscard]] static std::string settingName(unsigned joystick)
 {
 	return (joystick < 2) ? strCat("msxjoystick", joystick + 1, "_config")
-	                      : strCat("joymega", joystick - 1, "_config");
+	     : (joystick < 4) ? strCat("joymega",     joystick - 1, "_config")
+						  : strCat("joyhandle",   joystick - 3, "_config");
 }
 
 // joystick is 0..3
 [[nodiscard]] static std::string joystickToGuiString(unsigned joystick)
 {
-	return (joystick < 2) ? strCat("MSX joystick ", joystick + 1)
-	                      : strCat("JoyMega controller ", joystick - 1);
+	return (joystick < 2) ? strCat("MSX joystick ",       joystick + 1)
+		 : (joystick < 4) ? strCat("JoyMega controller ", joystick - 1)
+	                      : strCat("Panasonic FS-JH1 ",   joystick - 3);
 }
 
 [[nodiscard]] static std::string toGuiString(const BooleanInput& input, const JoystickManager& joystickManager)
@@ -796,13 +799,79 @@ static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
 
 } // namespace joymega
 
+namespace joyhandle {
+
+enum {UP, DOWN, LEFT, RIGHT, TRIG_A, TRIG_B, WHEEL_LEFT, WHEEL_RIGHT, NUM_BUTTONS};
+
+static constexpr std::array<zstring_view, NUM_BUTTONS> buttonNames = {
+	"Up", "Down", "Left", "Right", "A", "B", "Wheel left", "Wheel right" // show in the GUI
+};
+static constexpr std::array<zstring_view, NUM_BUTTONS> keyNames = {
+	"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "WHEEL_LEFT", "WHEEL_RIGHT" // keys in Tcl dict
+};
+
+// TODO just copied from msxjoystick
+// Customize joystick look
+static constexpr auto boundingBox = gl::vec2{300.0f, 100.0f};
+static constexpr auto radius = 20.0f;
+static constexpr auto corner = 10.0f;
+static constexpr auto centerA = gl::vec2{200.0f, 50.0f};
+static constexpr auto centerB = gl::vec2{260.0f, 50.0f};
+static constexpr auto centerDPad = gl::vec2{50.0f, 50.0f};
+static constexpr auto sizeDPad = 30.0f;
+
+[[nodiscard]] static std::vector<uint8_t> buttonsHovered(gl::vec2 mouse)
+{
+	// TODO just copied from msxjoystick
+
+	std::vector<uint8_t> result(NUM_BUTTONS); // false
+	auto mouseDPad = (mouse - centerDPad) * (1.0f / sizeDPad);
+	if (insideRectangle(mouseDPad, Rectangle{{-1, -1}, {1, 1}}) &&
+		(between(mouseDPad.x, -fractionDPad, fractionDPad) ||
+		between(mouseDPad.y, -fractionDPad, fractionDPad))) { // mouse over d-pad
+		bool t1 = mouseDPad.x <  mouseDPad.y;
+		bool t2 = mouseDPad.x < -mouseDPad.y;
+		result[UP]    = !t1 &&  t2;
+		result[DOWN]  =  t1 && !t2;
+		result[LEFT]  =  t1 &&  t2;
+		result[RIGHT] = !t1 && !t2;
+	}
+	result[TRIG_A] = insideCircle(mouse, centerA, radius);
+	result[TRIG_B] = insideCircle(mouse, centerB, radius);
+	result[WHEEL_LEFT] = 0;
+	result[WHEEL_RIGHT] = 0;
+	return result;
+}
+
+static void draw(gl::vec2 scrnPos, std::span<uint8_t> hovered, int hoveredRow)
+{
+	// TODO just copied from msxjoystick
+
+	auto* drawList = ImGui::GetWindowDrawList();
+
+	auto color = getColor(imColor::TEXT);
+	drawList->AddRect(scrnPos, scrnPos + boundingBox, color, corner, 0, thickness);
+
+	drawDPad(scrnPos + centerDPad, sizeDPad, subspan<4>(hovered), hoveredRow);
+
+	auto scrnCenterA = scrnPos + centerA;
+	drawFilledCircle(scrnCenterA, radius, hovered[TRIG_A] || (hoveredRow == TRIG_A));
+	drawLetterA(scrnCenterA);
+
+	auto scrnCenterB = scrnPos + centerB;
+	drawFilledCircle(scrnCenterB, radius, hovered[TRIG_B] || (hoveredRow == TRIG_B));
+	drawLetterB(scrnCenterB);
+}
+
+} // namespace joyhandle
+
 void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 {
 	ImGui::SetNextWindowSize(gl::vec2{316, 323}, ImGuiCond_FirstUseEver);
 	im::Window("Configure MSX joysticks", &showConfigureJoystick, [&]{
 		ImGui::SetNextItemWidth(13.0f * ImGui::GetFontSize());
 		im::Combo("Select joystick", joystickToGuiString(joystick).c_str(), [&]{
-			for (const auto& j : xrange(4)) {
+			for (const auto& j : xrange(6)) {
 				if (ImGui::Selectable(joystickToGuiString(j).c_str())) {
 					joystick = j;
 				}
@@ -820,15 +889,18 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 		gl::vec2 mouse = gl::vec2(ImGui::GetIO().MousePos) - scrnPos;
 
 		// Check if buttons are hovered
-		bool msxOrMega = joystick < 2;
-		auto hovered = msxOrMega ? msxjoystick::buttonsHovered(mouse)
-		                         : joymega    ::buttonsHovered(mouse);
+		// bool msxOrMega = joystick < 2;
+		auto hovered = joystick < 2 ? msxjoystick::buttonsHovered(mouse)
+		             : joystick < 4 ? joymega    ::buttonsHovered(mouse)
+									: joyhandle  ::buttonsHovered(mouse);
 		const auto numButtons = hovered.size();
 		using SP = std::span<const zstring_view>;
-		auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
-		                          : SP{joymega    ::keyNames};
-		auto buttonNames = msxOrMega ? SP{msxjoystick::buttonNames}
-		                             : SP{joymega    ::buttonNames};
+		auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
+		              : joystick < 4 ? SP{joymega    ::keyNames}
+		                             : SP{joyhandle  ::keyNames};
+		auto buttonNames = joystick < 2 ? SP{msxjoystick::buttonNames}
+		                 : joystick < 4 ? SP{joymega    ::buttonNames}
+		                                : SP{joyhandle  ::buttonNames};
 
 		// Any joystick button clicked?
 		std::optional<int> addAction;
@@ -839,7 +911,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			}
 		}
 
-		ImGui::Dummy(msxOrMega ? msxjoystick::boundingBox : joymega::boundingBox); // reserve space for joystick drawing
+		ImGui::Dummy(joystick < 2 ? msxjoystick::boundingBox // reserve space for joystick drawing
+		           : joystick < 4 ? joymega    ::boundingBox
+					              : joyhandle  ::boundingBox);
 
 		// Draw table
 		int hoveredRow = -1;
@@ -898,8 +972,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 				}
 			});
 		});
-		msxOrMega ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
-		          : joymega    ::draw(scrnPos, hovered, hoveredRow);
+		  joystick < 2 ? msxjoystick::draw(scrnPos, hovered, hoveredRow)
+		: joystick < 4 ? joymega    ::draw(scrnPos, hovered, hoveredRow)
+		               : joyhandle  ::draw(scrnPos, hovered, hoveredRow);
 
 		if (ImGui::Button("Default bindings...")) {
 			ImGui::OpenPopup("bindings");
@@ -941,9 +1016,9 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 			for (auto joyId : joystickManager.getConnectedJoysticks()) {
 				im::Menu(joystickManager.getDisplayName(joyId).c_str(), [&]{
 					addOrSet([&]{
-						return msxOrMega
-							? MSXJoystick::getDefaultConfig(joyId, joystickManager)
-							: JoyMega::getDefaultConfig(joyId, joystickManager);
+						return joystick < 2 ? MSXJoystick::getDefaultConfig(joyId, joystickManager)
+						     : joystick < 4 ? JoyMega::getDefaultConfig(joyId, joystickManager)
+							                : JoyHandle::getDefaultConfig(joyId, joystickManager);
 					});
 				});
 			}
@@ -1241,10 +1316,11 @@ std::span<const std::string> ImGuiSettings::getAvailableFonts()
 
 bool ImGuiSettings::signalEvent(const Event& event)
 {
-	bool msxOrMega = joystick < 2;
+	// bool msxOrMega = joystick < 2;
 	using SP = std::span<const zstring_view>;
-	auto keyNames = msxOrMega ? SP{msxjoystick::keyNames}
-	                          : SP{joymega    ::keyNames};
+	auto keyNames = joystick < 2 ? SP{msxjoystick::keyNames}
+	              : joystick < 4 ? SP{joymega    ::keyNames}
+				                 : SP{joyhandle  ::keyNames};
 	if (const auto numButtons = keyNames.size(); popupForKey >= numButtons) {
 		deinitListener();
 		return false; // don't block

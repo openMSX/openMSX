@@ -517,6 +517,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyTap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoyHandle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Keyboard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXJoystick.cc" />
