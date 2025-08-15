@@ -1861,8 +1861,9 @@ void VDPCmdEngine::setCmdReg(uint8_t index, uint8_t value, EmuTime time)
 	}
 }
 
-uint8_t VDPCmdEngine::peekCmdReg(uint8_t index) const
+uint8_t VDPCmdEngine::peekCmdReg(uint8_t index, EmuTime time)
 {
+	sync(time);
 	switch (index) {
 	case 0x00: return narrow_cast<uint8_t>(SX & 0xFF);
 	case 0x01: return narrow_cast<uint8_t>(SX >> 8);

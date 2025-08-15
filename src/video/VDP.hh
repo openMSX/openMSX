@@ -87,7 +87,7 @@ public:
 	void getExtraDeviceInfo(TclObject& result) const override;
 	[[nodiscard]] std::string_view getVersionString() const;
 
-	[[nodiscard]] uint8_t peekRegister(unsigned address) const;
+	[[nodiscard]] uint8_t peekRegister(unsigned address, EmuTime time) const;
 	[[nodiscard]] uint8_t peekStatusReg(uint8_t reg, EmuTime time) const;
 
 	/** VDP control register has changed, work out the consequences.
@@ -1035,7 +1035,7 @@ private:
 
 	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(const VDP& vdp);
-		[[nodiscard]] uint8_t read(unsigned address) override;
+		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} vdpRegDebug;
 

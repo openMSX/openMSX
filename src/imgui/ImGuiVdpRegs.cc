@@ -581,7 +581,7 @@ void ImGuiVdpRegs::paint(MSXMotherBoard* motherBoard)
 
 		g_vdp = vdp;
 		for (auto reg : xrange(64)) {
-			registerValues[reg] = vdp->peekRegister(reg);
+			registerValues[reg] = vdp->peekRegister(reg, time);
 		}
 		for (auto reg : xrange(uint8_t(10))) {
 			registerValues[reg + 64] = vdp->peekStatusReg(reg, time);

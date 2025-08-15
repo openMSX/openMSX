@@ -748,12 +748,12 @@ void VDP::getExtraDeviceInfo(TclObject& result) const
 	result.addDictKeyValues("version", getVersionString());
 }
 
-uint8_t VDP::peekRegister(unsigned address) const
+uint8_t VDP::peekRegister(unsigned address, EmuTime time) const
 {
 	if (address < 0x20) {
 		return controlRegs[address];
 	} else if (address < 0x2F) {
-		return cmdEngine->peekCmdReg(narrow<uint8_t>(address - 0x20));
+		return cmdEngine->peekCmdReg(narrow<uint8_t>(address - 0x20), time);
 	} else {
 		return 0xFF;
 	}
@@ -1603,10 +1603,10 @@ VDP::RegDebug::RegDebug(const VDP& vdp_)
 {
 }
 
-uint8_t VDP::RegDebug::read(unsigned address)
+uint8_t VDP::RegDebug::read(unsigned address, EmuTime time)
 {
 	const auto& vdp = OUTER(VDP, vdpRegDebug);
-	return vdp.peekRegister(address);
+	return vdp.peekRegister(address, time);
 }
 
 void VDP::RegDebug::write(unsigned address, uint8_t value, EmuTime time)

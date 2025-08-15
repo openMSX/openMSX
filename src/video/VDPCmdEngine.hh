@@ -117,7 +117,7 @@ public:
 	  * time (IOW this method does not sync the complete CmdEngine)
 	  * @param index The register [0..14] to read from.
 	  */
-	[[nodiscard]] uint8_t peekCmdReg(uint8_t index) const;
+	[[nodiscard]] uint8_t peekCmdReg(uint8_t index, EmuTime time);
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
