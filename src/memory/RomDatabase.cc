@@ -169,7 +169,7 @@ void DBParser::start(zstring_view tag)
 			break;
 		case 'd':
 			if (small_compare<"dump">(tag)) {
-				dumps.resize(dumps.size() + 1);
+				dumps.emplace_back();
 				dumps.back().type = RomType::UNKNOWN;
 				dumps.back().origValue = false;
 				toString32(bufStart, bufStart, dumps.back().remark);
