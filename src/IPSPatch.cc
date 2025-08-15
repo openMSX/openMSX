@@ -31,13 +31,14 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 		std::array<uint8_t, 2> lenBuf;
 		ipsFile.read(lenBuf);
 		size_t length = 0x100 * lenBuf[0] + lenBuf[1];
-		std::vector<uint8_t> v;
+		MemBuffer<uint8_t> v;
 		if (length == 0) {
 			// RLE encoded
 			std::array<uint8_t, 3> rleBuf;
 			ipsFile.read(rleBuf);
 			length = 0x100 * rleBuf[0] + rleBuf[1];
-			v.resize(length, rleBuf[2]);
+			v.resize(length);
+			std::ranges::fill(v, rleBuf[2]);
 		} else {
 			// patch bytes
 			v.resize(length);
@@ -57,7 +58,7 @@ std::vector<IPSPatch::Chunk> IPSPatch::parseChunks() const
 			auto stop  = std::max(offset + length, e->stopAddress());
 			auto length2 = stop - start;
 			++e;
-			std::vector<uint8_t> tmp(length2);
+			MemBuffer<uint8_t> tmp(length2);
 			for (auto it : xrange(b, e)) {
 				copy_to_range(*it, subspan(tmp, it->startAddress - start));
 			}

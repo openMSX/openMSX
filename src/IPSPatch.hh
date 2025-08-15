@@ -2,7 +2,10 @@
 #define IPSPATCH_HH
 
 #include "PatchInterface.hh"
+
 #include "Filename.hh"
+#include "MemBuffer.hh"
+
 #include <vector>
 #include <memory>
 
@@ -21,7 +24,7 @@ public:
 private:
 	struct Chunk {
 		size_t startAddress;
-		std::vector<uint8_t> content;
+		MemBuffer<uint8_t> content;
 
 		[[nodiscard]] size_t size() const { return content.size(); }
 		[[nodiscard]] size_t stopAddress() const { return startAddress + size(); }
