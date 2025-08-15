@@ -473,11 +473,6 @@ public:
 		this->self().endTag(tag);
 	}
 
-	// Default implementation is to base64-encode the blob and serialize
-	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, std::span<const uint8_t> data,
-	                    bool diff = true);
-
 	template<typename T> void serialize(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
@@ -570,8 +565,6 @@ public:
 	{
 		doSerialize(tag, t, std::tuple<Args...>(args...));
 	}
-	void serialize_blob(const char* tag, std::span<uint8_t> data,
-	                    bool diff = true);
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
@@ -884,6 +877,9 @@ public:
 		this->self().serialize(std::forward<Args>(args)...);
 	}
 
+	void serialize_blob(const char* tag, std::span<const uint8_t> data,
+	                    bool diff = true);
+
 	auto& getXMLOutputStream() { return writer; }
 
 //internal:
@@ -949,6 +945,9 @@ public:
 		is >> t;
 	}
 	[[nodiscard]] std::string_view loadStr() const;
+
+	void serialize_blob(const char* tag, std::span<uint8_t> data,
+	                    bool diff = true);
 
 	void skipSection(bool /*skip*/) const { /*nothing*/ }
 

@@ -74,40 +74,6 @@ unsigned OutputArchiveBase2::getID2(
 }
 
 
-template<typename Derived>
-void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, std::span<const uint8_t> data, bool /*diff*/)
-{
-	std::string encoding;
-	std::string tmp;
-	if (false) {
-		// useful for debugging
-		encoding = "hex";
-		tmp = HexDump::encode(data);
-	} else if (false) {
-		encoding = "base64";
-		tmp = Base64::encode(data);
-	} else {
-		encoding = "gz-base64";
-		// TODO check for overflow?
-		auto len = data.size();
-		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
-		MemBuffer<uint8_t> buf(dstLen);
-		if (compress2(buf.data(), &dstLen,
-		              std::bit_cast<const Bytef*>(data.data()),
-		              uLong(len), 9)
-		    != Z_OK) {
-			throw MSXException("Error while compressing blob.");
-		}
-		tmp = Base64::encode(buf.first(dstLen));
-	}
-	this->self().beginTag(tag);
-	this->self().attribute("encoding", encoding);
-	Saver<std::string> saver;
-	saver(this->self(), tmp, false);
-	this->self().endTag(tag);
-}
-
 template class OutputArchiveBase<MemOutputArchive>;
 template class OutputArchiveBase<XmlOutputArchive>;
 
@@ -131,40 +97,6 @@ unsigned InputArchiveBase2::getId(const void* ptr) const
 		if (pt == ptr) return id;
 	}
 	return 0;
-}
-
-template<typename Derived>
-void InputArchiveBase<Derived>::serialize_blob(
-	const char* tag, std::span<uint8_t> data, bool /*diff*/)
-{
-	this->self().beginTag(tag);
-	std::string encoding;
-	this->self().attribute("encoding", encoding);
-
-	std::string_view tmp = this->self().loadStr();
-	this->self().endTag(tag);
-
-	if (encoding == "gz-base64") {
-		auto buf = Base64::decode(tmp);
-		auto dstLen = uLongf(data.size()); // TODO check for overflow?
-		if ((uncompress(std::bit_cast<Bytef*>(data.data()), &dstLen,
-		                std::bit_cast<const Bytef*>(buf.data()), uLong(buf.size()))
-		     != Z_OK) ||
-		    (dstLen != data.size())) {
-			throw MSXException("Error while decompressing blob.");
-		}
-	} else if (encoding == one_of("hex", "base64")) {
-		bool ok = (encoding == "hex")
-		        ? HexDump::decode_inplace(tmp, data)
-		        : Base64 ::decode_inplace(tmp, data);
-		if (!ok) {
-			throw XMLException(
-				"Length of decoded blob different from "
-				"expected value (", data.size(), ')');
-		}
-	} else {
-		throw XMLException("Unsupported encoding \"", encoding, "\" for blob");
-	}
 }
 
 template class InputArchiveBase<MemInputArchive>;
@@ -386,6 +318,38 @@ void XmlOutputArchive::endTag(const char* tag)
 	writer.end(tag);
 }
 
+void XmlOutputArchive::serialize_blob(
+	const char* tag, std::span<const uint8_t> data, bool /*diff*/)
+{
+	std::string_view encoding;
+	std::string tmp;
+	if (false) {
+		// useful for debugging
+		encoding = "hex";
+		tmp = HexDump::encode(data);
+	} else if (false) {
+		encoding = "base64";
+		tmp = Base64::encode(data);
+	} else {
+		encoding = "gz-base64";
+		// TODO check for overflow?
+		auto len = data.size();
+		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
+		MemBuffer<uint8_t> buf(dstLen);
+		if (compress2(buf.data(), &dstLen,
+		              std::bit_cast<const Bytef*>(data.data()),
+		              uLong(len), 9)
+		    != Z_OK) {
+			throw MSXException("Error while compressing blob.");
+		}
+		tmp = Base64::encode(buf.first(dstLen));
+	}
+	writer.begin(tag);
+	writer.attribute("encoding", encoding);
+	writer.dataRaw(tmp);
+	writer.end(tag);
+}
+
 ////
 
 XmlInputArchive::XmlInputArchive(const std::string& filename)
@@ -556,6 +520,39 @@ bool XmlInputArchive::hasAttribute(const char* name) const
 int XmlInputArchive::countChildren() const
 {
 	return int(currentElement()->numChildren());
+}
+
+void XmlInputArchive::serialize_blob(
+	const char* tag, std::span<uint8_t> data, bool /*diff*/)
+{
+	this->self().beginTag(tag);
+	std::string encoding;
+	this->self().attribute("encoding", encoding);
+
+	std::string_view tmp = this->self().loadStr();
+	this->self().endTag(tag);
+
+	if (encoding == "gz-base64") {
+		auto buf = Base64::decode(tmp);
+		auto dstLen = uLongf(data.size()); // TODO check for overflow?
+		if ((uncompress(std::bit_cast<Bytef*>(data.data()), &dstLen,
+		                std::bit_cast<const Bytef*>(buf.data()), uLong(buf.size()))
+		     != Z_OK) ||
+		    (dstLen != data.size())) {
+			throw MSXException("Error while decompressing blob.");
+		}
+	} else if (encoding == one_of("hex", "base64")) {
+		bool ok = (encoding == "hex")
+		        ? HexDump::decode_inplace(tmp, data)
+		        : Base64 ::decode_inplace(tmp, data);
+		if (!ok) {
+			throw XMLException(
+				"Length of decoded blob different from "
+				"expected value (", data.size(), ')');
+		}
+	} else {
+		throw XMLException("Unsupported encoding \"", encoding, "\" for blob");
+	}
 }
 
 } // namespace openmsx
