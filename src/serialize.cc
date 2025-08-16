@@ -118,11 +118,12 @@ void MemInputArchive::load(std::string& s)
 {
 	size_t length;
 	load(length);
-	s.resize_and_overwrite(length, [&](char* dst, size_t n) {
-		if (n) {
-			buffer.read(dst, n);
+	s.resize_and_overwrite(length, [&](char* dst, size_t /*n*/) {
+		//assert(length == n); <-- not true with gcc-12 (bug)
+		if (length) {
+			buffer.read(dst, length);
 		}
-		return n;
+		return length;
 	});
 }
 

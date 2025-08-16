@@ -683,9 +683,11 @@ template<typename... Ts>
 	auto size = strCatImpl::calcTotalSize(t);
 
 	std::string result;
-	result.resize_and_overwrite(size, [&](char* dst, size_t sz) {
+	result.resize_and_overwrite(size, [&](char* dst, size_t /*sz*/) {
+		//assert(sz == size) <-- not true with gcc-12 (bug)
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=104222
 		strCatImpl::copyUnits(dst, t);
-		return sz;
+		return size;
 	});
 	return result;
 }
@@ -758,10 +760,12 @@ void strAppend(std::string& result, Ts&& ...ts)
 	auto extraSize = strCatImpl::calcTotalSize(t);
 	auto oldSize = result.size();
 
-	result.resize_and_overwrite(oldSize + extraSize, [&](char* p, size_t sz) {
+	auto newSize = oldSize + extraSize;
+	result.resize_and_overwrite(newSize, [&](char* p, size_t /*sz*/) {
+		//assert(sz == newSize); // see above (gcc-12 bug)
 		// p[0..oldSize-1] still/already contains old content
 		strCatImpl::copyUnits(&p[oldSize], t);
-		return sz;
+		return newSize;
 	});
 }
 
