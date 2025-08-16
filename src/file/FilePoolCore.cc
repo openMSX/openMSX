@@ -276,7 +276,7 @@ Sha1Sum FilePoolCore::calcSha1sum(File& file) const
 	// information. We take a fixed step size for an efficient calculation.
 	constexpr size_t STEP_SIZE = 1024 * 1024; // 1MB
 
-	auto data = file.mmap();
+	auto data = file.mmap<const uint8_t>();
 
 	SHA1 sha1;
 	size_t size = data.size();

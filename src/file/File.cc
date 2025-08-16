@@ -103,16 +103,6 @@ void File::write(std::span<const uint8_t> buffer)
 	file->write(buffer);
 }
 
-std::span<const uint8_t> File::mmap()
-{
-	return file->mmap();
-}
-
-void File::munmap()
-{
-	file->munmap();
-}
-
 size_t File::getSize()
 {
 	return file->getSize();

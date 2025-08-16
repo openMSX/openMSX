@@ -2,28 +2,26 @@
 
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
+#include "MappedFile.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"
-
-#include "systemfuncs.hh"
 
 #include "unistdp.hh"
 #include <sys/stat.h>
 #include <sys/types.h>
 #if HAVE_MMAP
-#include <sys/mman.h>
+  #include <sys/mman.h>
 #endif
 #ifdef _WIN32
-#include <io.h>
-#include <iostream>
+  #include <io.h>
+  #include <iostream>
+  #include <windows.h>
 #endif
 
-#include <bit>
 #include <cassert>
 #include <cerrno>
 #include <cstring> // for strchr, strerror
-#include <memory>
 
 namespace openmsx {
 
@@ -82,11 +80,6 @@ LocalFile::LocalFile(std::string filename_, const char* mode)
 	(void)getSize(); // query filesize, but ignore result
 }
 
-LocalFile::~LocalFile()
-{
-	munmap();
-}
-
 void LocalFile::preCacheFile()
 {
 	cache.emplace(FileOperations::getNativePath(filename));
@@ -113,94 +106,10 @@ void LocalFile::write(std::span<const uint8_t> buffer)
 	}
 }
 
-#ifdef _WIN32
-std::span<const uint8_t> LocalFile::mmap()
+MappedFileImpl LocalFile::mmap(bool is_const)
 {
-	size_t size = getSize();
-	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
-
-	if (!mmem) {
-		int fd = _fileno(file.get());
-		if (fd == -1) {
-			throw FileException("_fileno failed");
-		}
-		auto hFile = reinterpret_cast<HANDLE>(_get_osfhandle(fd)); // No need to close
-		if (hFile == INVALID_HANDLE_VALUE) {
-			throw FileException("_get_osfhandle failed");
-		}
-		assert(!hMmap);
-		hMmap = CreateFileMapping(hFile, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
-		if (!hMmap) {
-			throw FileException(
-				"CreateFileMapping failed: ", GetLastError());
-		}
-		mmem = static_cast<uint8_t*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
-		if (!mmem) {
-			DWORD gle = GetLastError();
-			CloseHandle(hMmap);
-			hMmap = nullptr;
-			throw FileException("MapViewOfFile failed: ", gle);
-		}
-	}
-	return {mmem, size};
+	return {*this, is_const};
 }
-
-void LocalFile::munmap()
-{
-	if (mmem) {
-		// TODO: make this a valid failure path
-		// When pages are dirty, UnmapViewOfFile is a save operation,
-		// and that can fail. However, munmap is called from
-		// the destructor, for which there is no expectation
-		// that it will fail. So this area needs some work.
-		// It is NOT an option to throw an exception (not even
-		// FatalError).
-		if (!UnmapViewOfFile(mmem)) {
-			std::cerr << "UnmapViewOfFile failed: "
-			          << GetLastError()
-			          << '\n';
-		}
-		mmem = nullptr;
-	}
-	if (hMmap) {
-		CloseHandle(hMmap);
-		hMmap = nullptr;
-	}
-}
-
-#elif HAVE_MMAP
-std::span<const uint8_t> LocalFile::mmap()
-{
-	size_t size = getSize();
-	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
-
-	if (!mmem) {
-		mmem = static_cast<uint8_t*>(
-		          ::mmap(nullptr, size, PROT_READ | PROT_WRITE,
-		                 MAP_PRIVATE, fileno(file.get()), 0));
-		// MAP_FAILED is #define'd using an old-style cast, we
-		// have to redefine it ourselves to avoid a warning
-		auto* MY_MAP_FAILED = std::bit_cast<void*>(intptr_t(-1));
-		if (mmem == MY_MAP_FAILED) {
-			throw FileException("Error mmapping file");
-		}
-	}
-	return {mmem, size};
-}
-
-void LocalFile::munmap()
-{
-	if (mmem) {
-		try {
-			::munmap(mmem, getSize());
-		} catch (FileException&) {
-			// In theory getSize() could throw. Does that ever
-			// happen in practice?
-		}
-		mmem = nullptr;
-	}
-}
-#endif
 
 size_t LocalFile::getSize()
 {

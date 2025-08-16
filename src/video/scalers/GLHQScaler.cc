@@ -55,7 +55,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_, unsigned maxWidth_, unsigned maxHeig
 	for (auto i : xrange(3)) {
 		int n = i + 2;
 		offsetsName[10] = narrow<char>('0' + n);
-		File offsetsFile(context.resolve(offsetsName));
+		auto offsets = File(context.resolve(offsetsName)).mmap<const uint8_t>();
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
@@ -65,10 +65,10 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_, unsigned maxWidth_, unsigned maxHeig
 		             0,                   // border
 		             GL_RGBA,             // format
 		             GL_UNSIGNED_BYTE,    // type
-		             offsetsFile.mmap().data());// data
+		             offsets.data());     // data
 
 		weightsName[10] = narrow<char>('0' + n);
-		File weightsFile(context.resolve(weightsName));
+		auto weights = File(context.resolve(weightsName)).mmap<const uint8_t>();
 		weightTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
@@ -78,7 +78,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_, unsigned maxWidth_, unsigned maxHeig
 		             0,                   // border
 		             GL_RGB,              // format
 		             GL_UNSIGNED_BYTE,    // type
-		             weightsFile.mmap().data());// data
+		             weights.data());     // data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }

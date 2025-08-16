@@ -391,9 +391,8 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 
 [[nodiscard]] SymbolFile SymbolManager::loadSymbolFile(const std::string& filename, SymbolFile::Type type, std::optional<uint8_t> slot)
 {
-	File file(filename);
-	auto buf = file.mmap();
-	std::string_view buffer(std::bit_cast<const char*>(buf.data()), buf.size());
+	auto buf = File(filename).mmap<const char>();
+	std::string_view buffer(buf.data(), buf.size());
 
 	using enum SymbolFile::Type;
 	if (type == AUTO_DETECT) {

@@ -1,6 +1,7 @@
 #include "ZipFileAdapter.hh"
 
 #include "FileException.hh"
+#include "MappedFile.hh"
 #include "ZlibInflate.hh"
 
 namespace openmsx {
@@ -12,7 +13,8 @@ ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_)
 
 void ZipFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
-	ZlibInflate zlib(f.mmap());
+	auto mmap = MappedFile<const uint8_t>(f.mmap(true));
+	ZlibInflate zlib(mmap);
 
 	if (zlib.get32LE() != 0x04034B50) {
 		throw FileException("Invalid ZIP file");

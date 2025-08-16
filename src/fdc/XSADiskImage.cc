@@ -10,7 +10,8 @@ namespace openmsx {
 XSADiskImage::XSADiskImage(const Filename& filename, File& file)
 	: SectorBasedDisk(DiskName(filename))
 {
-	XSAExtractor extractor(file.mmap());
+	auto mmap = file.mmap<const uint8_t>();
+	XSAExtractor extractor(mmap);
 	data = std::move(extractor).extractData();
 	setNbSectors(data.size());
 }

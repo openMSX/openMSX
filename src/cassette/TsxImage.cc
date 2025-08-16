@@ -21,7 +21,7 @@ TsxImage::TsxImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 {
 	File file(filename);
 	try {
-		TsxParser parser(file.mmap());
+		TsxParser parser(file.mmap<const uint8_t>());
 
 		// Move the parsed waveform here
 		output = std::move(parser.stealOutput());

@@ -2,6 +2,7 @@
 #define ROM_HH
 
 #include "File.hh"
+
 #include "MemBuffer.hh"
 #include "sha1.hh"
 #include "static_string_view.hh"
@@ -9,6 +10,7 @@
 #include <cassert>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -62,6 +64,7 @@ private:
 	MemBuffer<uint8_t> extendedRom;
 
 	File file; // can be a closed file
+	std::optional<MappedFile<const uint8_t>> mmap;
 
 	mutable Sha1Sum originalSha1;
 	mutable Sha1Sum actualSha1;

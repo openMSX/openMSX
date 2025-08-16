@@ -20,8 +20,7 @@ public:
 
 	void read(std::span<uint8_t> buffer) final;
 	void write(std::span<const uint8_t> buffer) final;
-	[[nodiscard]] std::span<const uint8_t> mmap() final;
-	void munmap() final;
+	[[nodiscard]] MappedFileImpl mmap(bool is_const) final;
 	[[nodiscard]] size_t getSize() final;
 	void seek(size_t pos) final;
 	[[nodiscard]] size_t getPos() final;

@@ -1,6 +1,9 @@
 #ifndef FILE_HH
 #define FILE_HH
 
+#include "FileBase.hh"
+#include "MappedFile.hh"
+
 #include <bit>
 #include <cstdint>
 #include <ctime>
@@ -8,11 +11,11 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 namespace openmsx {
 
 class Filename;
-class FileBase;
 
 class File
 {
@@ -92,14 +95,18 @@ public:
 	}
 
 	/** Map file in memory.
-	 * @result Pointer/size to/of memory block.
-	 * @throws FileException
+	 *
+	 * This returns a RAII object of type MappedFile<T>. And that makes the
+	 * data available as a std::span<T>.
+	 *
+	 * T can be 'const' or 'non-const', prefer 'const' when possible.
+	 * For a 'non-const T', changes to the buffer are not propagated back to
+	 * the file (IOW it's a private, non-shared mapping).
 	 */
-	[[nodiscard]] std::span<const uint8_t> mmap();
-
-	/** Unmap file from memory.
-	 */
-	void munmap();
+	template<typename T>
+	[[nodiscard]] MappedFile<T> mmap() {
+		return MappedFile<T>(file->mmap(std::is_const_v<T>));
+	}
 
 	/** Returns the size of this file
 	 * @result The size of this file

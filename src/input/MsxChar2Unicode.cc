@@ -28,9 +28,8 @@ MsxChar2Unicode::MsxChar2Unicode(std::string_view mappingName)
 		throw MSXException("Couldn't find MSX character mapping file that was specified in unicodemap: ", mappingName, " (", e.getMessage(), ")");
 	}
 	try {
-		File file(filename);
-		auto buf = file.mmap();
-		parseVid(std::string_view(std::bit_cast<const char*>(buf.data()), buf.size()));
+		auto buf = File(filename).mmap<const char>();
+		parseVid(std::string_view(buf.data(), buf.size()));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load MSX character mapping file that was specified in unicodemap: ", filename);
 	} catch (MSXException& e) {

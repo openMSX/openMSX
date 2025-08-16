@@ -9,27 +9,6 @@
 
 namespace openmsx {
 
-std::span<const uint8_t> FileBase::mmap()
-{
-	auto size = getSize();
-	if (mmapBuf.empty()) {
-		auto pos = getPos();
-		seek(0);
-
-		MemBuffer<uint8_t> tmpBuf(size);
-		read(std::span{tmpBuf});
-		std::swap(mmapBuf, tmpBuf);
-
-		seek(pos);
-	}
-	return std::span{mmapBuf};
-}
-
-void FileBase::munmap()
-{
-	mmapBuf.clear();
-}
-
 void FileBase::truncate(size_t newSize)
 {
 	auto oldSize = getSize();

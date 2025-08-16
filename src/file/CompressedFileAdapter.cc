@@ -1,6 +1,7 @@
 #include "CompressedFileAdapter.hh"
 
 #include "FileException.hh"
+#include "MappedFile.hh"
 
 #include "hash_set.hh"
 #include "ranges.hh"
@@ -73,15 +74,10 @@ void CompressedFileAdapter::write(std::span<const uint8_t> /*buffer*/)
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-std::span<const uint8_t> CompressedFileAdapter::mmap()
+MappedFileImpl CompressedFileAdapter::mmap(bool is_const)
 {
 	decompress();
-	return std::span{decompressed->buf};
-}
-
-void CompressedFileAdapter::munmap()
-{
-	// nothing
+	return {std::span{decompressed->buf}, is_const};
 }
 
 size_t CompressedFileAdapter::getSize()

@@ -187,8 +187,8 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 				"supported.");
 		}
 		try {
-			auto mmap = file.mmap();
-			rom = mmap;
+			mmap = file.mmap<const uint8_t>();
+			rom = *mmap;
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: ", file.getURL());
 		}
@@ -330,6 +330,7 @@ Rom::Rom(Rom&& r) noexcept
 	: rom          (r.rom)
 	, extendedRom  (std::move(r.extendedRom))
 	, file         (std::move(r.file))
+	, mmap         (std::move(r.mmap))
 	, originalSha1 (r.originalSha1)
 	, actualSha1   (r.actualSha1)
 	, name         (std::move(r.name))

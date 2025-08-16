@@ -158,8 +158,8 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 		source += "#version 110\n";
 	}
 	source += header;
-	File file(systemFileContext().resolve(tmpStrCat("shaders/", filename)));
-	auto mmap = file.mmap();
+	auto mmap = File(systemFileContext().resolve(tmpStrCat("shaders/", filename)))
+	           .mmap<const char>();
 	source.append(std::bit_cast<const char*>(mmap.data()), mmap.size());
 
 	// Allocate shader handle.

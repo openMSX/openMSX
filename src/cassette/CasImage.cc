@@ -274,10 +274,11 @@ static CasImage::Data convert(std::span<const uint8_t> cas, CassetteImage::FileT
 CasImage::Data CasImage::init(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	File file(filename);
-	auto cas = file.mmap();
+	auto cas = file.mmap<const uint8_t>();
 
 	auto fileType = CassetteImage::FileType::UNKNOWN;
 	auto result = [&] {
+		// TODO c++23 std::ranges::starts_with()
 		if ((cas.size() >= SVI_CAS::header.size()) &&
 		    (compare(cas.data(), SVI_CAS::header))) {
 			return SVI_CAS::convert(cas, fileType);

@@ -66,7 +66,7 @@ template<typename Filter>
 inline WavData::WavData(File file, Filter filter)
 {
 	// Read and check header
-	auto raw = file.mmap();
+	auto raw = file.mmap<const uint8_t>();
 	struct WavHeader {
 		std::array<char, 4> riffID;
 		Endian::L32 riffSize;

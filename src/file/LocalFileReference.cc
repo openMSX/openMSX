@@ -82,7 +82,7 @@ void LocalFileReference::init(File& file)
 	}
 
 	// write temp file
-	auto mmap = file.mmap();
+	auto mmap = file.mmap<const char>();
 	if (fwrite(mmap.data(), 1, mmap.size(), fp.get()) != mmap.size()) {
 		throw FileException("Couldn't write temp file");
 	}

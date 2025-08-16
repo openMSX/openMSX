@@ -89,10 +89,8 @@ UnicodeKeymap::UnicodeKeymap(std::string_view keyboardType)
 	auto filename = systemFileContext().resolve(
 		tmpStrCat("unicodemaps/unicodemap.", keyboardType));
 	try {
-		File file(filename);
-		auto buf = file.mmap();
-		parseUnicodeKeyMapFile(
-			std::string_view(std::bit_cast<const char*>(buf.data()), buf.size()));
+		auto buf = File(filename).mmap<const char>();
+		parseUnicodeKeyMapFile(std::string_view(buf.data(), buf.size())); // TODO c++23
 		// TODO in the future we'll require the presence of
 		//      "MSX-Video-Characterset" in the keyboard information
 		//      file, then we don't need this fallback.
