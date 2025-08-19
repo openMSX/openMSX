@@ -611,6 +611,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRType.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperLodeRunner.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSynthesizer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomWonderKid.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina126in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina25in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.cc" />
@@ -1204,6 +1205,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperLodeRunner.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSynthesizer.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomTypes.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomWonderKid.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina126in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina25in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.hh" />
