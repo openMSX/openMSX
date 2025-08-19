@@ -20,8 +20,8 @@ bool approxEq(const vecN<N, T>& x, const vecN<N, T>&y)
 
 TEST_CASE("gl_vec: rsqrt")
 {
-	CHECK(rsqrt(16.0f) == 0.25f);
-	CHECK(rsqrt(16.0 ) == 0.25 );
+	CHECK(gl::rsqrt(16.0f) == 0.25f);
+	CHECK(gl::rsqrt(16.0 ) == 0.25 );
 }
 
 TEST_CASE("gl_vec: radians, degrees")

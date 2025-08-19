@@ -511,7 +511,7 @@ template<int N, typename T>
 template<int N, typename T>
 [[nodiscard]] inline vecN<N, T> normalize(const vecN<N, T>& x)
 {
-	return x * rsqrt(length2(x));
+	return x * gl::rsqrt(length2(x));
 }
 
 // cross product (only defined for vectors of length 3)
