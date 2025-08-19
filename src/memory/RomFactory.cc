@@ -39,6 +39,7 @@
 #include "RomZemina80in1.hh"
 #include "RomZemina90in1.hh"
 #include "RomZemina126in1.hh"
+#include "RomWonderKid.hh"
 #include "RomHolyQuran.hh"
 #include "RomHolyQuran2.hh"
 #include "RomFSA1FM.hh"
@@ -374,6 +375,8 @@ std::unique_ptr<MSXDevice> create(DeviceConfig& config)
 		return std::make_unique<RomRamFile>(config, std::move(rom));
 	case COLECOMEGACART:
 		return std::make_unique<RomColecoMegaCart>(config, std::move(rom));
+	case WONDERKID:
+		return std::make_unique<RomWonderKid>(config, std::move(rom));
 	case NUM: case UNKNOWN: break; // no actual rom types
 	}
 	throw MSXException("Unknown ROM type");
