@@ -5,14 +5,14 @@ This release has many improvements on the new GUI introduced in openMSX 20.0
 (especially the debugger) and several other smaller features. It also
 introduces the "setups" concept, which enables you to define an MSX setup (e.g.
 a Philips VG 8020 with an external disk drive and a joystick, data recorder and
-printer connected). These can be created and loaded and automatically started up
-with and also saved automatically at exit.
+printer connected). These can be created, loaded, and automatically started.
+They can also be saved automatically when you exit.
 
-Furthermore, the flash chip emulation has become a lot more accurate, thanks to
+Furthermore, flash chip emulation has become a lot more accurate, thanks to
 Laurens Holst.
 
 Special thanks to all the contributors of this release who are not in the core
-team! Keep these pull requests coming!
+team! Keep those pull requests coming!
 
 Here's the list with all highlights and details:
 
@@ -60,14 +60,14 @@ New or improved emulator features:
 - GUI:
   - throttle GUI messages to avoid hangups if too many are generated
   - added tape motor control to the Tape Deck window
-  - show savestates and replays ordered on time (newest first) and display
+  - show savestates and replays ordered by time (newest first) and display
     their date/time
   - improve individual channel settings window (table headers, layout)
   - add recent items for machine selector
   - the OSD icon (LEDs, etc.) window can now be resized to use multiple rows
   - you can now also reset the MSX after removing a cartridge/extension from
     the Cartridge Slot window
-  - improve menu bar behavior in full screen mode on Windows
+  - improve menu bar behaviour in full screen mode on Windows
   - fixed underscore not properly visible in console text
   - make items shown in status bar configurable
   - show the mapper type in the status bar (if applicable)
@@ -79,7 +79,7 @@ New or improved emulator features:
   - when changing hard disk image, ask user to confirm the power cycle
   - allow to change view only mode with a new context menu on the reverse bar
   - make ellipsis usage in the menus consistent and according to guidelines
-  - added MSX-MUSIC viewer window that shows live all details of the chip
+  - added MSX-MUSIC viewer window that shows all details of the chip live
   - better support for non-Western fonts: all glyphs in a font are now
     available to the user interface
 - Debugger (including its GUI):
@@ -100,8 +100,8 @@ New or improved emulator features:
   - extend segment number debug view to larger than 8-bit, for now only used
     for KonamiUltimateCollection, Yamanooto and ASCII16-X mappers
   - added "debug breakpoint" subcommand for listing, creating, configuring and
-    removing breakpoints and similarly a "debug watchpoint" and "debug
-    condition" subcommand
+    removing breakpoints and similarly "debug watchpoint" and "debug
+    condition" subcommands
   - allow to enable and disable existing breakpoints/watchpoints/conditions,
     without internally removing/re-adding them
   - use the palette matching the used VDP in the palette viewers
@@ -124,7 +124,7 @@ New or improved emulator features:
     clipboard
   - fixed disassembly syntax of "DD CB" instructions: parentheses were missing
   - fixed a crash when doing a debug write to "tracked" RAM
-  - add Link IX / IY present options in debuggable editor
+  - added Link IX / IY preset options in debuggable editor
   - fixed crash when user selects page 3 of screen 8 in a specific way
   - added 'debug watchexpr' command
 - do not persist freq_lock setting to avoid experiments to "overclock" a
@@ -185,7 +185,7 @@ Build system, packaging, documentation:
 ...and of course the usual various bug fixes and performance improvements.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
-Make sure you read this if you haven't used openMSX before, but also to learn
+Make sure to read this if you haven't used openMSX before, but also to learn
 more about the new and changed features.
 
 CPU and graphics performance varies a lot, depending on the openMSX settings
@@ -205,7 +205,8 @@ openMSX Home Page:
 Project page on GitHub:
   https://github.com/openMSX
 Contact options:
-- Talk to us on #openmsx on libera.chat.
+- Talk to us on #openmsx on libera.chat or via Discord using the invite
+  https://discord.gg/JV56gzh2qG.
 - Use the forum on https://www.msx.org/forum/semi-msx-talk/openmsx
 - File a ticket on https://github.com/openMSX/openMSX/issues
 
