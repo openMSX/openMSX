@@ -21,8 +21,10 @@ MSX device support:
 - fixed Spectravideo SVI-707 boot to basic
 - updated MegaFlashROM SCC+ SD bank registers to 9-bit (was also updated in the
   real hardware)
-- added emulation of DalSoRi R2, which has 4MB of sample RAM and a flash ROM
+- added emulation of DalSoRi R2 (OPL4 cartridge), which has 4MB of sample RAM
+  and a flash ROM
 - added emulation of the Yamanooto mapper (without HOME/DEL boot keys)
+- added emulation of the Wonder Kid mapper
 - fixed missing VDP I/O delay of T9769 on IN instructions
 - fixed the border sizes on MSX1
 - V9990:
