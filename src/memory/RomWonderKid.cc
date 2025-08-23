@@ -38,7 +38,7 @@ void RomWonderKid::reset(EmuTime /*time*/)
 {
 	setRom(0, 0); // fixed
 	setRom(1, 0); // fixed
-	setRom(2, 0); // TODO: check if this is the correct initial value
+	setRom(2, 2); // actually confirmed by Omar
 	setUnmapped(3);
 }
 
