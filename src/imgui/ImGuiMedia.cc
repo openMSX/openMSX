@@ -532,12 +532,37 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				drawExtensionFilter();
 
 				auto& allExtensions = getAllExtensions();
+
+				// "filteredExtensions": start with all "allExtensions" indices. Then (in several steps)
+				// remove those indices that should not be shown.
 				auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+
+				bool anyNonWorking = [&]{
+					// This test is approximate, it classifies an extension as
+					// "working" for as long as we didn't try to parse the
+					// config file yet (so when the test result is not yet
+					// present in the cache).
+					auto testNonWorking = [](const ExtensionInfo& info) {
+						return info.testResult // already tested
+					   && !info.testResult->empty(); // and non-working
+					};
+					if (hideNonWorking) {
+						// filter the non-working machines
+						std::erase_if(filteredExtensions, [&](auto idx) {
+							return testNonWorking(allExtensions[idx]);
+						});
+						return filteredExtensions.size() != allExtensions.size();
+					} else {
+						// only check if there is at least one non-working
+						return std::ranges::any_of(allExtensions, testNonWorking);
+					}
+				}();
+
 				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
 				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
 
 				float width = 40.0f * ImGui::GetFontSize();
-				float height = 10.25f * ImGui::GetTextLineHeightWithSpacing();
+				float height = (10.25f + (anyNonWorking ? 1 : 0)) * ImGui::GetTextLineHeightWithSpacing();
 				im::ListBox("##list", {width, height}, [&]{
 					im::ListClipper(filteredExtensions.size(), [&](int i) {
 						auto& ext = allExtensions[filteredExtensions[i]];
@@ -552,6 +577,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						});
 					});
 				});
+				if (anyNonWorking) {
+					ImGui::Checkbox("Hide non-working extensions", &hideNonWorking);
+					HelpMarker("When non-working extensions are hidden, you can still use 'Machine > Test MSX hardware' to see more details about (non-)working extensions, instead of hovering the cursor on the red item.");
+				}
 			});
 
 			showRecent(std::string(mediaName), group,

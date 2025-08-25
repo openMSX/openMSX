@@ -132,6 +132,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 
 void ImGuiMachine::save(ImGuiTextBuffer& buf)
 {
+	savePersistent(buf, *this, persistentElements);
 	for (const auto& item : recentMachines) {
 		buf.appendf("machine.recent=%s\n", item.c_str());
 	}
@@ -139,7 +140,9 @@ void ImGuiMachine::save(ImGuiTextBuffer& buf)
 
 void ImGuiMachine::loadLine(std::string_view name, zstring_view value)
 {
-	if (name == "machine.recent") {
+	if (loadOnePersistent(name, value, *this, persistentElements)) {
+		// already handled
+	} else if (name == "machine.recent") {
 		recentMachines.push_back(value);
 	}
 }
@@ -724,7 +727,31 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 					"Then refine the search by appending '<space>st' to find the 'Panasonic FS-A1ST' machine.");
 		});
 
+		// "filteredMachines": start with all "allMachines" indices. Then (in several steps)
+		// remove those indices that should not be shown.
 		auto filteredMachines = to_vector(xrange(allMachines.size()));
+
+		bool anyNonWorking = [&]{
+			// This test is approximate, it classifies a machine as
+			// "working" for as long as we didn't try to parse the
+			// machine config file yet (so when the test result is
+			// not yet present in the cache).
+			auto testNonWorking = [](const MachineInfo& info) {
+				return info.testResult // already tested
+				   && !info.testResult->empty(); // and non-working
+			};
+			if (hideNonWorking) {
+				// filter the non-working machines
+				std::erase_if(filteredMachines, [&](auto idx) {
+					return testNonWorking(allMachines[idx]);
+				});
+				return filteredMachines.size() != allMachines.size();
+			} else {
+				// only check if there is at least one non-working
+				return std::ranges::any_of(allMachines, testNonWorking);
+			}
+		}();
+
 		applyComboFilter("Type",   filterType,   allMachines, filteredMachines);
 		applyComboFilter("Region", filterRegion, allMachines, filteredMachines);
 		applyDisplayNameFilter(filterString, allMachines, filteredMachines);
@@ -734,13 +761,19 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 		bool inFilteredList = it != filteredMachines.end();
 		int selectedIdx = inFilteredList ? narrow<int>(*it) : -1;
 
-		im::ListBox("##list", {-FLT_MIN, -ImGui::GetFrameHeightWithSpacing()}, [&]{
+		auto bottomSpacing = (anyNonWorking ? 2 : 1) * ImGui::GetFrameHeightWithSpacing();
+		im::ListBox("##list", {-FLT_MIN, -bottomSpacing}, [&]{
 			im::ListClipper(filteredMachines.size(), selectedIdx, [&](int i) {
 				auto idx = filteredMachines[i];
 				auto& info = allMachines[idx];
 				showMachine(info, true);
 			});
 		});
+
+		if (anyNonWorking) {
+			ImGui::Checkbox("Hide non-working machines", &hideNonWorking);
+			HelpMarker("When non-working machines are hidden, you can still use 'Machine > Test MSX hardware' to see more details about (non-)working machines, instead of hovering the cursor on the red item.");
+		}
 
 		bool ok = [&]{
 			if (!inFilteredList) return false;

@@ -151,12 +151,14 @@ private:
 	std::string filterType;
 	std::string filterString;
 	bool filterOpen = false;
+	bool hideNonWorking = false;
 	std::function<void(void)> switchHdAction;
 
 	std::vector<ExtensionInfo> extensionInfo;
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"resetOnCartChanges", &ImGuiMedia::resetOnCartChanges},
+		PersistentElement{"hideNonWorkingExtensions", &ImGuiMedia::hideNonWorking},
 		// most media stuff is handled elsewhere
 	};
 };

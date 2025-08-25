@@ -56,6 +56,7 @@ private:
 	std::string filterType;
 	std::string filterRegion;
 	std::string filterString;
+	bool hideNonWorking = false;
 
 	static constexpr size_t HISTORY_SIZE = 8;
 	circular_buffer<std::string> recentMachines{HISTORY_SIZE};
@@ -75,6 +76,11 @@ private:
 	std::string previousDefaultSetup;
 	bool setupSettingsOpen = false;
 	std::vector<std::string> setups;
+
+	static constexpr auto persistentElements = std::tuple{
+		PersistentElement{"hideNonWorkingMachines", &ImGuiMachine::hideNonWorking},
+		// manually handle "recentMachines"
+	};
 };
 
 } // namespace openmsx
