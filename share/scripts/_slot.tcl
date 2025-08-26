@@ -13,7 +13,42 @@ This proc is typically used as a helper for a larger proc.
          Second element is the secondary slot (0-3) or 'X'
          in case this slot was not expanded
 }
+# Please note that for a Superexpanded SVI-328 we use hardcoded names of these
+# memory devices from the configuration file... Maybe that's acceptable as
+# we're never going to add more variations?
+proc get_selected_primary_slot_svi {page} {
+	set ps_reg [debug read "PSG regs" 15]
+
+	if {$ps_reg == 0} {
+		return 0
+	}
+	if {($page & 2) == 0} {
+		if       {([machine_info slot 3 0 0] eq [list "Expanded RAM bank 31, 32"]) && (($ps_reg &  8) == 0)} {
+			return 3
+		} elseif {([machine_info slot 2 0 0] eq [list "Main RAM bank 21"        ]) && (($ps_reg &  2) == 0)} {
+			return 2
+		} elseif {($ps_reg & 1) == 0} {
+			return 1
+		} else {
+			return 0
+		}
+	} else {
+		if       {([machine_info slot 3 0 0] eq [list "Expanded RAM bank 31, 32"]) && (($ps_reg & 16) == 0)} {
+			return 3
+		} elseif {([machine_info slot 2 0 2] eq [list "Expanded RAM bank 22"    ]) && (($ps_reg &  4) == 0)} {
+			return 2
+		} elseif {($ps_reg & 1) == 0 && ($ps_reg & 0xC0) < 0xC0} {
+			return 1
+		} else {
+			return 0
+		}
+	}
+}
+
 proc get_selected_slot {page} {
+	if {[machine_info type] eq "SVI"} {
+		return [list [get_selected_primary_slot_svi $page] "X"]
+	}
 	set ps_reg [debug read "ioports" 0xA8]
 	set ps [expr {($ps_reg >> (2 * $page)) & 0x03}]
 	if {[machine_info "issubslotted" $ps]} {
