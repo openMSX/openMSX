@@ -329,8 +329,11 @@ std::optional<TclObject> ImGuiManager::execute(TclObject command)
 
 void ImGuiManager::executeDelayed(std::function<void()> action)
 {
+	bool wasEmpty = delayedActionQueue.empty();
 	delayedActionQueue.push_back(std::move(action));
-	reactor.getEventDistributor().distributeEvent(ImGuiDelayedActionEvent());
+	if (wasEmpty) {
+		reactor.getEventDistributor().distributeEvent(ImGuiDelayedActionEvent());
+	}
 }
 
 void ImGuiManager::executeDelayed(TclObject command,
@@ -384,10 +387,16 @@ bool ImGuiManager::signalEvent(const Event& event)
 			machine->signalQuit();
 			break;
 		case IMGUI_DELAYED_ACTION: {
-			for (auto& action : delayedActionQueue) {
-				std::invoke(action);
+			while (!delayedActionQueue.empty()) {
+				std::swap(delayedActionQueue, delayedActionQueue2);
+				assert(delayedActionQueue.empty());
+				for (auto& action : delayedActionQueue2) {
+					std::invoke(action);
+				}
+				delayedActionQueue2.clear();
 			}
-			delayedActionQueue.clear();
+			// while invoking the delayed actions, more such actions
+			// may have been queued, handle those as well via this outer loop
 			break;
 		}
 		case FILE_DROP: {

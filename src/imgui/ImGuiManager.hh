@@ -177,6 +177,7 @@ public:
 
 private:
 	std::vector<std::function<void()>> delayedActionQueue;
+	std::vector<std::function<void()>> delayedActionQueue2;
 	float menuAlpha = 1.0f;
 
 	std::string droppedFile;
