@@ -1095,7 +1095,6 @@ TclObject ImGuiMedia::showDiskInfo(std::string_view mediaName, DiskMediaInfo& in
 		edit.name = currentTarget.getString();
 		edit.ipsPatches = to_vector<std::string>(currentPatches);
 	}
-	ImGui::Separator();
 	return currentTarget;
 }
 
@@ -1204,6 +1203,7 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 	auto currentPatches = getPatches(*cmdResult);
 
 	bool copyCurrent = ImGui::SmallButton("Current cartridge");
+	HelpMarker("Press to copy current cartridge to 'Select new cartridge' section.");
 	const auto& slotManager = manager.getReactor().getMotherBoard()->getSlotManager();
 	ImGui::SameLine();
 	ImGui::TextUnformatted(tmpStrCat("(slot ", slotManager.getPsSsString(slot), ')'));
@@ -1234,7 +1234,6 @@ TclObject ImGuiMedia::showCartridgeInfo(std::string_view mediaName, CartridgeMed
 		edit.ipsPatches = to_vector<std::string>(currentPatches);
 		edit.romType = currentRomType;
 	}
-	ImGui::Separator();
 	return currentTarget;
 }
 
@@ -1248,62 +1247,63 @@ void ImGuiMedia::diskMenu(int i)
 		auto current = showDiskInfo(mediaName, info);
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 			using enum SelectDiskType;
-			ImGui::TextUnformatted("Select new disk"sv);
-
-			ImGui::RadioButton("disk image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
-			im::VisuallyDisabled(info.select != IMAGE, [&]{
-				im::Indent([&]{
-					auto& group = info.groups[IMAGE];
-					auto createNew = [&]{
-						manager.openFile->selectNewFile(
-							"Select name for new blank disk image",
-							"Disk images (*.dsk){.dsk}",
-							[&](const auto& fn) {
-								group.edit.name = fn;
-								auto& diskManipulator = manager.getReactor().getDiskManipulator();
-								try {
-									diskManipulator.create(fn, MSXBootSectorType::DOS2, {1440});
-								} catch (MSXException& e) {
-									manager.printError("Couldn't create new disk image: ", e.getMessage());
-								}
-							},
-							current.getString());
-					};
-					bool interacted = selectImage(
-						group, strCat("Select disk image for ", displayName), &diskFilter,
-						current.getString(), std::identity{}, createNew);
-					interacted |= selectPatches(group.edit, group.patchIndex);
-					if (interacted) info.select = IMAGE;
+			ImGui::SeparatorText("Select new disk:");
+			im::Indent([&] {
+				ImGui::RadioButton("disk image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
+				im::VisuallyDisabled(info.select != IMAGE, [&]{
+					im::Indent([&]{
+						auto& group = info.groups[IMAGE];
+						auto createNew = [&]{
+							manager.openFile->selectNewFile(
+								"Select name for new blank disk image",
+								"Disk images (*.dsk){.dsk}",
+								[&](const auto& fn) {
+									group.edit.name = fn;
+									auto& diskManipulator = manager.getReactor().getDiskManipulator();
+									try {
+										diskManipulator.create(fn, MSXBootSectorType::DOS2, {1440});
+									} catch (MSXException& e) {
+										manager.printError("Couldn't create new disk image: ", e.getMessage());
+									}
+								},
+								current.getString());
+						};
+						bool interacted = selectImage(
+							group, strCat("Select disk image for ", displayName), &diskFilter,
+							current.getString(), std::identity{}, createNew);
+						interacted |= selectPatches(group.edit, group.patchIndex);
+						if (interacted) info.select = IMAGE;
+					});
 				});
-			});
-			ImGui::RadioButton("dir as disk", std::bit_cast<int*>(&info.select), std::to_underlying(DIR_AS_DISK));
-			im::VisuallyDisabled(info.select != DIR_AS_DISK, [&]{
-				im::Indent([&]{
-					auto& group = info.groups[DIR_AS_DISK];
-					auto createNew = [&]{
-						manager.openFile->selectNewFile(
-							"Select name for new empty directory",
-							"",
-							[&](const auto& fn) {
-								group.edit.name = fn;
-								try {
-									FileOperations::mkdirp(fn);
-								} catch (MSXException& e) {
-									manager.printError("Couldn't create directory: ", e.getMessage());
-								}
-							},
-							current.getString());
-					};
-					bool interacted = selectDirectory(
-						group, strCat("Select directory for ", displayName),
-						current.getString(), createNew);
-					if (interacted) info.select = DIR_AS_DISK;
+				ImGui::RadioButton("dir as disk", std::bit_cast<int*>(&info.select), std::to_underlying(DIR_AS_DISK));
+				im::VisuallyDisabled(info.select != DIR_AS_DISK, [&]{
+					im::Indent([&]{
+						auto& group = info.groups[DIR_AS_DISK];
+						auto createNew = [&]{
+							manager.openFile->selectNewFile(
+								"Select name for new empty directory",
+								"",
+								[&](const auto& fn) {
+									group.edit.name = fn;
+									try {
+										FileOperations::mkdirp(fn);
+									} catch (MSXException& e) {
+										manager.printError("Couldn't create directory: ", e.getMessage());
+									}
+								},
+								current.getString());
+						};
+						bool interacted = selectDirectory(
+							group, strCat("Select directory for ", displayName),
+							current.getString(), createNew);
+						if (interacted) info.select = DIR_AS_DISK;
+					});
 				});
+				ImGui::RadioButton("RAM disk", std::bit_cast<int*>(&info.select), std::to_underlying(RAMDISK));
+				if (!current.empty()) {
+					ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
+				}
 			});
-			ImGui::RadioButton("RAM disk", std::bit_cast<int*>(&info.select), std::to_underlying(RAMDISK));
-			if (!current.empty()) {
-				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
-			}
 		});
 		insertMediaButton(mediaName, info.groups[info.select], &info.show);
 	});
@@ -1321,78 +1321,80 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 
 		auto current = showCartridgeInfo(cartName, info, cartNum);
 
-		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
-			ImGui::TextUnformatted("Select new cartridge:"sv);
+		ImGui::SeparatorText("Select new cartridge:");
+		im::Indent([&] {
+			im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
 
-			ImGui::RadioButton("ROM image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
-			im::VisuallyDisabled(info.select != IMAGE, [&]{
-				im::Indent([&]{
-					auto& group = info.groups[IMAGE];
-					auto& item = group.edit;
-					bool interacted = selectImage(
-						group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
-						//[&](const std::string& filename) { return displayNameForRom(filename); }); // not needed?
-					const auto& style = ImGui::GetStyle();
-					ImGui::SetNextItemWidth(-(ImGui::CalcTextSize("mapper-type").x + style.ItemInnerSpacing.x));
-					interacted |= selectMapperType("mapper-type", item.romType);
-					interacted |= selectPatches(item, group.patchIndex);
-					if (interacted) info.select = IMAGE;
+				ImGui::RadioButton("ROM image", std::bit_cast<int*>(&info.select), std::to_underlying(IMAGE));
+				im::VisuallyDisabled(info.select != IMAGE, [&]{
+					im::Indent([&]{
+						auto& group = info.groups[IMAGE];
+						auto& item = group.edit;
+						bool interacted = selectImage(
+							group, strCat("Select ROM image for ", displayName), &romFilter, current.getString());
+							//[&](const std::string& filename) { return displayNameForRom(filename); }); // not needed?
+						const auto& style = ImGui::GetStyle();
+						ImGui::SetNextItemWidth(-(ImGui::CalcTextSize("mapper-type").x + style.ItemInnerSpacing.x));
+						interacted |= selectMapperType("mapper-type", item.romType);
+						interacted |= selectPatches(item, group.patchIndex);
+						if (interacted) info.select = IMAGE;
+					});
 				});
-			});
-			ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), std::to_underlying(EXTENSION));
-			im::VisuallyDisabled(info.select != EXTENSION, [&]{
-				im::Indent([&]{
-					auto& allExtensions = getAllExtensions();
-					auto& group = info.groups[EXTENSION];
-					auto& item = group.edit;
+				ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), std::to_underlying(EXTENSION));
+				im::VisuallyDisabled(info.select != EXTENSION, [&]{
+					im::Indent([&]{
+						auto& allExtensions = getAllExtensions();
+						auto& group = info.groups[EXTENSION];
+						auto& item = group.edit;
 
-					bool interacted = drawExtensionFilter();
+						bool interacted = drawExtensionFilter();
 
-					auto drawExtensions = [&]{
-						auto filteredExtensions = to_vector(xrange(allExtensions.size()));
-						applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
-						applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
+						auto drawExtensions = [&]{
+							auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+							applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
+							applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
 
-						im::ListClipper(filteredExtensions.size(), [&](int i) {
-							auto& ext = allExtensions[filteredExtensions[i]];
-							bool ok = getTestResult(ext).empty();
-							im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-								if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
-									interacted = true;
-									item.name = ext.configName;
-								}
-								if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-									insertMedia(extName, group.edit); // Apply
-								}
-								extensionTooltip(ext);
+							im::ListClipper(filteredExtensions.size(), [&](int i) {
+								auto& ext = allExtensions[filteredExtensions[i]];
+								bool ok = getTestResult(ext).empty();
+								im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+									if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
+										interacted = true;
+										item.name = ext.configName;
+									}
+									if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+										insertMedia(extName, group.edit); // Apply
+									}
+									extensionTooltip(ext);
+								});
 							});
-						});
-					};
-					if (filterOpen) {
-						im::ListBox("##list", [&]{
-							drawExtensions();
-						});
-					} else {
-						im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
-							drawExtensions();
-						});
-					}
+						};
+						if (filterOpen) {
+							im::ListBox("##list", [&]{
+								drawExtensions();
+							});
+						} else {
+							im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
+								drawExtensions();
+							});
+						}
 
-					interacted |= ImGui::IsItemActive();
-					if (interacted) info.select = EXTENSION;
+						interacted |= ImGui::IsItemActive();
+						if (interacted) info.select = EXTENSION;
+					});
 				});
+				if (!current.empty()) {
+					ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
+				}
+				ImGui::Checkbox("Reset MSX on changes", &resetOnCartChanges);
 			});
-			if (!current.empty()) {
-				ImGui::RadioButton("Eject", std::bit_cast<int*>(&info.select), std::to_underlying(EMPTY));
+			if (insertMediaButton(info.select == EXTENSION ? extName : cartName,
+					      info.groups[info.select], &info.show)) {
+				if (resetOnCartChanges) {
+					manager.executeDelayed(TclObject("reset"));
+				}
 			}
-			ImGui::Checkbox("Reset MSX on changes", &resetOnCartChanges);
 		});
-		if (insertMediaButton(info.select == EXTENSION ? extName : cartName,
-		                      info.groups[info.select], &info.show)) {
-			if (resetOnCartChanges) {
-				manager.executeDelayed(TclObject("reset"));
-			}
-		}
 	});
 }
 
@@ -1429,11 +1431,19 @@ static void RenderRecord(gl::vec2 center, ImDrawList* drawList)
 	float radius = 0.4f * ImGui::GetTextLineHeight();
 	drawList->AddCircleFilled(center, radius, getColor(imColor::TEXT));
 }
-
+static void RenderEject(gl::vec2 center, ImDrawList* drawList)
+{
+	float half = 0.4f * ImGui::GetTextLineHeight();
+	auto p1 = center + gl::vec2(0.0f, -half);
+	auto p2 = center + gl::vec2(-half, 0.5 * half);
+	auto p3 = center + gl::vec2(half, 0.5 * half);
+	drawList->AddTriangleFilled(p1, p2, p3, getColor(imColor::TEXT));
+	drawList->AddRectFilled(p2 + gl::vec2(-0.1 * half, 0.4 * half), p3 + gl::vec2(0.1 * half, half), getColor(imColor::TEXT));
+}
 
 void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 {
-	ImGui::SetNextWindowSize(gl::vec2{29, 21} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(gl::vec2{30, 21} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 	auto& info = cassetteMediaInfo;
 	auto& group = info.group;
 	im::Window("Tape Deck", &info.show, [&]{
@@ -1448,29 +1458,11 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 				ImGui::TextUnformatted(ImGui::leftClip(current, ImGui::GetContentRegionAvail().x));
 			}
 		});
-		im::Disabled(current.empty(), [&]{
-			if (ImGui::Button("Eject")) {
-				manager.executeDelayed(makeTclList("cassetteplayer", "eject"));
-			}
-		});
-		ImGui::Separator();
 
-		ImGui::TextUnformatted("Controls"sv);
+		ImGui::SeparatorText("Controls");
 		im::Indent([&]{
 			auto status = cassettePlayer.getState();
 			auto size = ImGui::GetFrameHeightWithSpacing();
-			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, status == CassettePlayer::State::PLAY, RenderPlay)) {
-				manager.executeDelayed(makeTclList("cassetteplayer", "play"));
-			}
-			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Rewind", {2.0f * size, size}, false, RenderRewind)) {
-				manager.executeDelayed(makeTclList("cassetteplayer", "rewind"));
-			}
-			ImGui::SameLine();
-			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, status == CassettePlayer::State::STOP, RenderStop)) {
-				// nothing, this button only exists to indicate stop-state
-			}
-			ImGui::SameLine();
 			if (ButtonWithCustomRendering("##Record", {2.0f * size, size}, status == CassettePlayer::State::RECORD, RenderRecord)) {
 				manager.openFile->selectNewFile(
 					"Select new wav file for record",
@@ -1485,6 +1477,27 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 					},
 					current);
 			}
+			simpleToolTip("Set to record mode");
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Play", {2.0f * size, size}, status == CassettePlayer::State::PLAY, RenderPlay)) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "play"));
+			}
+			simpleToolTip("Set to play mode");
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Rewind", {2.0f * size, size}, false, RenderRewind)) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "rewind"));
+			}
+			simpleToolTip("Rewind tape");
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Stop", {2.0f * size, size}, status == CassettePlayer::State::STOP, RenderStop)) {
+				// nothing, this button only exists to indicate stop-state
+			}
+			simpleToolTip("Indicates STOP status");
+			ImGui::SameLine();
+			if (ButtonWithCustomRendering("##Eject", {2.0f * size, size}, false, RenderEject)) {
+				manager.executeDelayed(makeTclList("cassetteplayer", "eject"));
+			}
+			simpleToolTip("Eject tape");
 
 			const auto& style = ImGui::GetStyle();
 			ImGui::SameLine(0.0f, 3.0f * style.ItemSpacing.x);
@@ -1552,10 +1565,9 @@ void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)
 			simpleToolTip("Enable or disable motor control. Disable in some rare cases where you don't want the motor of the player to be controlled by the MSX, e.g. for CD-Sequential.");
 
 		});
-		ImGui::Separator();
 
 		im::Child("select", {0, -ImGui::GetFrameHeightWithSpacing()}, [&]{
-			ImGui::TextUnformatted("Select new tape:"sv);
+			ImGui::SeparatorText("Select new tape:");
 			im::Indent([&]{
 				selectImage(group, "Select tape image", &cassetteFilter, current);
 			});
