@@ -43,7 +43,11 @@
 			<li><a class="internal" href="#guioverview">4.1 Overview</a></li>
 			<li><a class="internal" href="#guimainmenu">4.2 Main menu bar</a></li>
 			<li><a class="internal" href="#guiother">4.3 Other default GUI elements</a></li>
-			<li><a class="internal" href="#guiadvanced">4.4 Advanced topics</a></li>
+			<li><a class="internal" href="#guiadvanced">4.4 Advanced topics</a>
+				<ol class="toc">
+					<li><a class="internal" href="#guiadvanced_tips">4.4.1 Some tips and tricks</a></li>
+				</ol>
+			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#media">5. Running MSX Software and Using Media</a>
@@ -693,6 +697,43 @@ As an example of a layout, we created one with a debugger focus. The image below
 <p class="image">
 <img src="debugger-layout.png" width="935" height="610" alt="Example debugger focused layout.">
 </p>
+
+<h3><a id="guiadvanced_tips">4.4.1 Some tips and tricks</a></h3>
+
+<p>
+Docking windows can be done in two main ways. Both start by dragging a window
+over another one. If you do that a popup will appear with 5 sections (middle,
+east, west, north, south).
+</p>
+<ul>
+  <li>If you drop the window in the middle, then you dock both windows into a tab-bar. This is useful if you don't need to see both windows at once (and when both have approx the same size). As an alternative you can also drag two title bars onto each other.</li>
+  <li>If you drop on one of the 4 directions, the window will split in two (horizontally/vertically) and the two windows are shown next to each other. (The two sections can be resized via dragging the divider line).</li>
+</ul>
+<p>
+In both cases the windows are now grouped, they will move together and minimize together.
+</p>
+
+<p>
+The debugger features can require a lot of screen space. Showing everything at
+once won't be possible (unless maybe if you have a 4K monitor). To accomodate
+for this, we do try to pay attention to making all openMSX windows compact.
+</p>
+<p>
+Here are some tips focused on that:</p>
+<ul>
+  <li>Create groups of windows (via docking) that you always use together. Then you can minimize/restore such groups.</li>
+  <li>You'll soon be familiar with the different debug windows, and then a title like "CPU flags" isn't very useful anymore. You can hide the title via the window menu (the downwards triangle in the top-left corner of a (docked) window). This does save some space.</li>
+  <li>Use tab-bars for windows that you don't (often) need together. For example (depending on your use case) you may not need the console together with the memory view, then dock these two in a tab-bar instead of next to each other. Similar for the bitmap and tile viewer, you'll not often need these together, Or just close those windows you don't currently/often need.</li>
+  <li>Some (sub)windows have a configurable layout. E.g. right click in the "CPU flags" window, then in the context window choose between horizontal/vertical layout. Depending on how you arrange your other windows, one of these two layouts may fit better. Or hide the undocumented XY flags, you don't often need these.</li>
+  <li>In many tables you can hide columns that you don't (currently) need. For example in the "Disassembly" window right-click on the table header, then you can e.g. hide the "opcode" column to save some space. (In most tables you can also drag the columns into a different order).  On the other hand, some columns are hidden by default, like the "Action" and "Once" column in the "Breakpoints" window, unhide these if you need them.</li>
+  <li>Some windows have collapsible sections. For example the "Tile viewer", once you've chosen the correct settings, you can collapse the "Settings" section to make more room for the "Pattern Table" and "Name Table" sections. And maybe you don't always need to see both these tables? Same for the "Sprite viewer", "VDP register", etc.</li>
+</ul>
+
+Tips if you stil end up to have many (overlapping) windows:
+<ul>
+  <li>You can sometimes more easily navigate between them via CTRL-TAB. This also works for docked windows. And you can also use this to bring window to the front.</li>
+  <li>If you want to move them around without accidentally docking them, then grab the window on some empty region (rather than the title bar) to move them.</li>
+</ul>
 
 <!--
 TODO: extend this section and add screenshots.
