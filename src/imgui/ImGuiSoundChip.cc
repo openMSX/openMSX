@@ -74,60 +74,63 @@ void ImGuiSoundChip::showChipSettings(MSXMotherBoard& motherBoard)
 	};
 
 	im::Window("Sound chip settings", &showSoundChipSettings, [&]{
-		const auto& msxMixer = motherBoard.getMSXMixer();
-		const auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
-		im::Table("table", narrow<int>(infos.size()), ImGuiTableFlags_ScrollX, [&]{
-			for (const auto& info : infos) {
+		int tableFlags = ImGuiTableFlags_RowBg |
+		                 ImGuiTableFlags_BordersV |
+		                 ImGuiTableFlags_BordersOuter |
+		                 ImGuiTableFlags_Reorderable |
+		                 ImGuiTableFlags_Hideable |
+		                 ImGuiTableFlags_NoHostExtendX;
+		im::Table("table", 4, tableFlags, [&]{
+			ImGui::TableSetupColumn("Device",   ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Volume",   ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed, 10.0f * ImGui::GetFontSize());
+			ImGui::TableSetupColumn("Balance",  ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed,  6.0f * ImGui::GetFontSize());
+			ImGui::TableSetupColumn("Channels", ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_WidthFixed,  5.0f * ImGui::GetFontSize());
+			ImGui::TableHeadersRow();
+
+			const auto& msxMixer = motherBoard.getMSXMixer();
+			const auto& infos = msxMixer.getDeviceInfos(); // TODO sort on name
+			im::ID_for_range(infos.size(), [&](int i) {
+				const auto& info = infos[i];
 				if (ImGui::TableNextColumn()) {
 					const auto& device = *info.device;
 					ImGui::TextUnformatted(device.getName());
 					simpleToolTip(device.getDescription());
 				}
-			}
-			for (const auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
 					auto& volumeSetting = *info.volumeSetting;
 					int volume = volumeSetting.getInt();
 					int min = volumeSetting.getMinValue();
 					int max = volumeSetting.getMaxValue();
-					ImGui::TextUnformatted("volume"sv);
-					std::string id = "##volume-" + info.device->getName();
-					if (ImGui::VSliderInt(id.c_str(), ImVec2(18, 120), &volume, min, max)) {
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					if (ImGui::SliderInt("##volume", &volume, min, max)) {
 						volumeSetting.setInt(volume);
 					}
 					restoreDefaultPopup("Set default", volumeSetting);
 				}
-			}
-			for (const auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
 					auto& balanceSetting = *info.balanceSetting;
 					int balance = balanceSetting.getInt();
 					int min = balanceSetting.getMinValue();
 					int max = balanceSetting.getMaxValue();
-					ImGui::TextUnformatted("balance"sv);
-					std::string id = "##balance-" + info.device->getName();
-					if (ImGui::SliderInt(id.c_str(), &balance, min, max)) {
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					if (ImGui::SliderInt("##balance", &balance, min, max)) {
 						balanceSetting.setInt(balance);
 					}
 					restoreDefaultPopup("Set center", balanceSetting);
 				}
-			}
-			for (const auto& info : infos) {
 				if (ImGui::TableNextColumn()) {
 					bool special = anySpecialChannelSettings(info);
 					if (special) {
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, getColor(imColor::YELLOW));
 					}
-					im::StyleColor(special, ImGuiCol_Text, getColor(imColor::BLACK), []{
-						ImGui::TextUnformatted("channels"sv);
-					});
 					const auto& name = info.device->getName();
-					std::string id = "##channels-" + name;
 					auto [it, inserted] = channels.try_emplace(name, false);
 					auto& enabled = it->second;
-					ImGui::Checkbox(id.c_str(), &enabled);
+					im::Indent([&]{
+						ImGui::Checkbox("##channels", &enabled);
+					});
 				}
-			}
+			});
 		});
 	});
 }
