@@ -617,10 +617,12 @@ void YMF262::advance()
 	unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 
 	++eg_cnt;
-	for (auto& ch : channel) {
+	for (auto i : xrange(channel.size())) {
+		auto& ch = channel[i];
+		auto& ch2 = isExtended(i) ? getFirstOfPair(i) : ch;
 		for (auto& op : ch.slot) {
 			op.advanceEnvelopeGenerator(eg_cnt);
-			op.advancePhaseGenerator(ch, lfo_pm);
+			op.advancePhaseGenerator(ch2, lfo_pm);
 		}
 	}
 
