@@ -32,6 +32,11 @@ public:
 	static constexpr uint8_t EQ  = 0x02;
 	static constexpr uint8_t MAJ = 0x01;
 
+	// bits in status register S#2
+	static constexpr uint8_t TR = 1 << 7;
+	static constexpr uint8_t BD = 1 << 4;
+	static constexpr uint8_t CE = 1 << 0;
+
 public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);
 
@@ -88,7 +93,7 @@ public:
 		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
 		// TODO: What happens on non-transfer commands?
-		if (!CMD) status &= 0x7F;
+		if (!CMD) status &= ~TR;
 		transfer = true;
 	}
 
@@ -129,7 +134,7 @@ public:
 	// For debugging only
 	bool commandInProgress(EmuTime time) {
 		sync(time);
-		return status & 1;
+		return status & CE;
 	}
 	/** Get the register-values for the last executed (or still in progress)
 	 * command. For debugging purposes only.
@@ -143,8 +148,8 @@ public:
 	  * executing command. For debugging purposes only.
 	  */
 	auto getInprogressPosition() const {
-		return (status & 1) ? std::tuple{int(ASX), int(SY), int(ADX), int(DY)}
-		                    : std::tuple{-1, -1, -1, -1};
+		return (status & CE) ? std::tuple{int(ASX), int(SY), int(ADX), int(DY)}
+		                     : std::tuple{-1, -1, -1, -1};
 	}
 
 	/** Interface for logical operations.

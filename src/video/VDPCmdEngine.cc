@@ -849,13 +849,13 @@ void VDPCmdEngine::executeSrch(EmuTime limit)
 			}
 		}();
 		if ((p == CL) ^ AEQ) {
-			status |= 0x10; // border detected
+			status |= BD; // border detected
 			commandDone(calculator.getTime());
 			break;
 		}
 		ASX += TX;
 		if (ASX & Mode::PIXELS_PER_LINE) {
-			status &= 0xEF; // border not detected
+			status &= ~BD; // border not detected
 			commandDone(calculator.getTime());
 			break;
 		}
@@ -1237,7 +1237,7 @@ void VDPCmdEngine::startLmcm(EmuTime time)
 	ASX = SX;
 	ANX = tmpNX;
 	transfer = true;
-	status |= 0x80;
+	status |= TR;
 	nextAccessSlot(time);
 	setStatusChangeTime(EmuTime::zero());
 }
@@ -1290,7 +1290,7 @@ void VDPCmdEngine::startLmmc(EmuTime time)
 	setStatusChangeTime(EmuTime::zero());
 	// do not set 'transfer = true', this fixes bug#1014
 	// Baltak Rampage: characters in greetings part are one pixel offset
-	status |= 0x80;
+	status |= TR;
 	nextAccessSlot(time);
 }
 
@@ -1718,7 +1718,7 @@ void VDPCmdEngine::startHmmc(EmuTime time)
 	ANX = tmpNX;
 	setStatusChangeTime(EmuTime::zero());
 	// do not set 'transfer = true', see startLmmc()
-	status |= 0x80;
+	status |= TR;
 	nextAccessSlot(time);
 }
 
@@ -1846,7 +1846,7 @@ void VDPCmdEngine::setCmdReg(uint8_t index, uint8_t value, EmuTime time)
 		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
 		// TODO: What happens on non-transfer commands?
-		if (!CMD) status &= 0x7F;
+		if (!CMD) status &= ~TR;
 		transfer = true;
 		break;
 	case 0x0D: // argument
@@ -1945,7 +1945,7 @@ void VDPCmdEngine::executeCommand(EmuTime time)
 	}
 
 	// Start command.
-	status |= 0x01;
+	status |= CE;
 	executingProbe = true;
 
 	switch ((scrMode << 4) | (CMD >> 4)) {
@@ -2598,7 +2598,7 @@ void VDPCmdEngine::reportVdpCommand() const
 void VDPCmdEngine::commandDone(EmuTime time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
-	status &= 0xFE; // reset CE
+	status &= ~CE;
 	executingProbe = false;
 	CMD = 0;
 	setStatusChangeTime(EmuTime::infinity());
