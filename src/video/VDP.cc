@@ -937,7 +937,7 @@ uint8_t VDP::peekStatusReg(uint8_t reg, EmuTime time) const
 		return statusReg2
 			| (getHR(ticksThisFrame) ? 0x20 : 0x00)
 			| (vr ? 0x40 : 0x00)
-			| cmdEngine->getStatus(time);
+			| cmdEngine->peekStatus2(time);
 	}
 	case 3:
 		return uint8_t(spriteChecker->getCollisionX(time));
@@ -971,6 +971,9 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 		if (controlRegs[0] & 0x10) { // line int enabled
 			irqHorizontal.reset();
 		}
+		break;
+	case 2:
+		cmdEngine->resetStatus2();
 		break;
 	case 5:
 		spriteChecker->resetCollision();

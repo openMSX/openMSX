@@ -73,11 +73,15 @@ public:
 	  * Bit 4 (BD) is set when the boundary color is detected.
 	  * Bit 0 (CE) is set when a command is in progress.
 	  */
-	[[nodiscard]] uint8_t getStatus(EmuTime time) {
+	[[nodiscard]] uint8_t peekStatus2(EmuTime time) {
 		if (time >= statusChangeTime) {
 			sync(time);
 		}
 		return status;
+	}
+	// Should be called after peekStatus2() for all non-debug reads.
+	void resetStatus2() {
+		status &= ~BD;
 	}
 
 	/** Use this method to transfer pixel(s) from VDP to CPU.
