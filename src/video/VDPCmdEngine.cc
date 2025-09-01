@@ -922,6 +922,14 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 				ASX += NX;
 				DY += TY;
 				delta = Delta::D120; // 88 + 32
+				// Advancing above the top border stops the command, but
+				// advancing below the bottom border wraps to the top.
+				// Same for the block commands, but those handle it via
+				// clipNY_1() and clipNY_2().
+				if ((TY < 0) && (int(DY) < 0)) {
+					commandDone(calculator.getTime());
+					break;
+				}
 			}
 			ASX -= NY;
 			ASX &= 1023; // mask to 10 bits range
@@ -929,6 +937,10 @@ loop:		if (calculator.limitReached()) [[unlikely]] { phase = 0; break; }
 			// Y-Axis is major direction.
 			// confirmed on real HW: DY += TY happens before end-test
 			DY += TY;
+			if ((TY < 0) && (int(DY) < 0)) { // see comment above
+				commandDone(calculator.getTime());
+				break;
+			}
 			if (ASX < NY) {
 				ASX += NX;
 				ADX += TX;
