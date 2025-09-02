@@ -200,6 +200,6 @@ void MSXPiDevice::serverThread()
     std::cout << "[MSXPi] Server thread exiting\n";
 }
 
-REGISTER_POLYMORPHIC_INITIALIZER(MSXDevice, MSXPiDeviceSimple, "MSXPiDeviceSimple");
+REGISTER_MSXDEVICE(MSXPiDeviceSimple, "MSXPiDeviceSimple");
 
 } // namespace openmsx
