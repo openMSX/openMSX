@@ -79,8 +79,8 @@ public:
 		}
 		return status;
 	}
-	// Should be called after peekStatus2() for all non-debug reads.
-	void resetStatus2() {
+	// should be called after reading S#9
+	void resetBD() {
 		status &= ~BD;
 	}
 

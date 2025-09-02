@@ -972,14 +972,14 @@ uint8_t VDP::readStatusReg(uint8_t reg, EmuTime time)
 			irqHorizontal.reset();
 		}
 		break;
-	case 2:
-		cmdEngine->resetStatus2();
-		break;
 	case 5:
 		spriteChecker->resetCollision();
 		break;
 	case 7:
 		cmdEngine->resetColor();
+		break;
+	case 9:
+		cmdEngine->resetBD();
 		break;
 	}
 	return ret;

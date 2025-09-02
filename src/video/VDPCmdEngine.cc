@@ -855,7 +855,7 @@ void VDPCmdEngine::executeSrch(EmuTime limit)
 		}
 		ASX += TX;
 		if (ASX & Mode::PIXELS_PER_LINE) {
-			status &= ~BD; // border not detected
+			// this does NOT reset the BD flag!
 			commandDone(calculator.getTime());
 			break;
 		}
