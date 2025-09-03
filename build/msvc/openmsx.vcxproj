@@ -876,7 +876,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SVIPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\MSXPi\MSXPiDevice.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXPiDevice.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\3rdparty\ImGuiFileDialog/CustomFont.h" />
@@ -1662,7 +1662,7 @@ popd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(OpenMSXSrcDir)\sound\fake_windows.h" />
-	<ClInclude Include="$(OpenMSXSrcDir)\MSXPi\MSXPiDevice.hh" />
+    <ClInclude Include="$(OpenMSXSrcDir)\MSXPiDevice.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
