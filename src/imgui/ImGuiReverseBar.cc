@@ -76,6 +76,7 @@ ImGuiReverseBar::ImGuiReverseBar(ImGuiManager& manager_)
 	};
 	saveStateFileList.deleteAction = [&](const FileListWidget::Entry& entry) {
 		manager.execute(makeTclList("delete_savestate", entry.getDefaultDisplayName()));
+		previewImage.texture = gl::Texture(gl::Null{});
 	};
 }
 
