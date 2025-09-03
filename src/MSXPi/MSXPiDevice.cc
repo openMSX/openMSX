@@ -1,5 +1,3 @@
-#pragma once
-
 #include "MSXPiDevice.hh"
 #include <arpa/inet.h>
 #include <unistd.h>

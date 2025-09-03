@@ -1,0 +1,21 @@
+MSXPi Quick Start
+=================
+
+MSXPi is a hardware and software solution that allows MSX
+computers to control and use Raspberry Pi resources. The interface
+exposes I/O ports for the MSX computer, which allows exchange of
+data with the Raspberry Pi using a custom protocol. Many resources are
+implemented, such as access to network drives, internet, disk images,
+and access to the Raspberry Pi itself to execute commands.
+
+The MSXPiDevice for openMSX implements the same functionality of the
+physical MSXPi without the need of a Raspberry Pi - instead, relies
+on a Python msxpi-server code running on the same coomputer where
+openMSX is hosted.
+
+To use the extension, add msxpibios.rom (get it from MSXPi github,
+link below) and add to openMSX/systemroms/extensions/ and attach MSXPi
+extension when starting openMSX.
+
+For MSXPi resources, code and documentation, head to the official
+MSXPi project on github: https://github.com/costarc/MSXPi
