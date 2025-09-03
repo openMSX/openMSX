@@ -10,7 +10,7 @@ MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
 {
     running = true;
     worker = std::thread(&MSXPiDevice::serverThread, this);
-    std::cout << "[MSXPi] Device initialized\n";
+    // std::cout << "[MSXPi] Device initialized\n";
 
 }
 
@@ -19,7 +19,7 @@ MSXPiDevice::~MSXPiDevice()
     running = false;
     if (worker.joinable()) worker.join();
     if (sockfd >= 0) close(sockfd);
-    std::cout << "[MSXPi] Device destroyed\n";
+    // std::cout << "[MSXPi] Device destroyed\n";
 }
 
 void MSXPiDevice::reset(EmuTime /*time*/)
@@ -28,12 +28,12 @@ void MSXPiDevice::reset(EmuTime /*time*/)
     rxQueue = std::queue<byte>();
     txQueue = std::queue<byte>();
     readRequested = false;
-    std::cout << "[MSXPi] Device reset\n";
+    // std::cout << "[MSXPi] Device reset\n";
 }
 
 byte MSXPiDevice::readIO(uint16_t port, EmuTime /*time*/)
 {
-	std::cout << "[MSXPi] readIO triggered on port 0x" << std::hex << port << "\n";
+	// std::cout << "[MSXPi] readIO triggered on port 0x" << std::hex << port << "\n";
     std::lock_guard<std::mutex> lock(mtx);
     switch (port & 0xFF) {
         case 0x56: // STATUS
@@ -46,7 +46,7 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime /*time*/)
             } else {
                 status = 0x00; // Online, no data
             }
-            std::cout << "[MSXPi] Read STATUS: " << int(status) << "\n";
+            // std::cout << "[MSXPi] Read STATUS: " << int(status) << "\n";
             return status;
         }
 
@@ -56,10 +56,10 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime /*time*/)
                 byte val = rxQueue.front();
                 rxQueue.pop();
                 readRequested = false;
-                std::cout << "[MSXPi] Read DATA: 0x" << std::hex << int(val) << "\n";
+                // std::cout << "[MSXPi] Read DATA: 0x" << std::hex << int(val) << "\n";
                 return val;
             } else {
-                std::cout << "[MSXPi] Read DATA: Empty Queue\n";
+                // std::cout << "[MSXPi] Read DATA: Empty Queue\n";
                 return 0xFF; // No data ready
             }
         }
@@ -71,11 +71,11 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime /*time*/)
 
 void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
-	std::cout << "[MSXPi] writeIO triggered on port 0x" << std::hex << port << "\n";
+	// std::cout << "[MSXPi] writeIO triggered on port 0x" << std::hex << port << "\n";
     switch (port & 0xFF) {
         case 0x56: // CONTROL
             if (serverAvailable) {
-                std::cout << "[MSXPi] Write CONTROL (0x56): prepare next byte for DATA\n";
+                // std::cout << "[MSXPi] Write CONTROL (0x56): prepare next byte for DATA\n";
 				std::lock_guard<std::mutex> lock(mtx);
 				//if (!readRequested && !rxQueue.empty()) {
 				//	// Only flush if a read wasn't already requested
@@ -83,7 +83,7 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 				//}
 				readRequested = true;
             } else {
-                std::cout << "[MSXPi] Write CONTROL (0x56) ignored, server not connected\n";
+                // std::cout << "[MSXPi] Write CONTROL (0x56) ignored, server not connected\n";
             }
             break;
 
@@ -91,10 +91,10 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
             if (serverAvailable && sockfd >= 0) {
                 std::lock_guard<std::mutex> lock(mtx);
                 txQueue.push(value);
-                std::cout << "[MSXPi] Write DATA (0x5A): 0x" << std::hex << int(value)
-                          << " queued for sending to Python server\n";
+                // std::cout << "[MSXPi] Write DATA (0x5A): 0x" << std::hex << int(value)
+                //         << " queued for sending to Python server\n";
             } else {
-                std::cout << "[MSXPi] Write DATA (0x5A) ignored, server not connected\n";
+                // std::cout << "[MSXPi] Write DATA (0x5A) ignored, server not connected\n";
             }
             break;
 
@@ -105,7 +105,7 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 
 byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 {
-	std::cout << "[MSXPi] peekIO triggered on port 0x" << std::hex << port << "\n";
+	// std::cout << "[MSXPi] peekIO triggered on port 0x" << std::hex << port << "\n";
     std::lock_guard<std::mutex> lock(mtx);
 
     switch (port & 0xFF) {
@@ -142,12 +142,12 @@ void MSXPiDevice::serverThread()
 
             if (connect(sockfd, (sockaddr*)&addr, sizeof(addr)) == 0) {
                 serverAvailable = true;
-                std::cout << "[MSXPi] Python server connected at " << serverIP << ":" << serverPort << "\n";
+                // std::cout << "[MSXPi] Python server connected at " << serverIP << ":" << serverPort << "\n";
             } else {
                 close(sockfd);
                 sockfd = -1;
                 serverAvailable = false;
-                std::cout << "[MSXPi] Failed to connect, retrying...\n";
+                // std::cout << "[MSXPi] Failed to connect, retrying...\n";
                 sleep(1);
                 continue;
             }
@@ -163,13 +163,13 @@ void MSXPiDevice::serverThread()
             }
             ssize_t sent = send(sockfd, &val, 1, 0);
             if (sent <= 0) {
-                std::cout << "[MSXPi] Connection lost while sending\n";
+                // std::cout << "[MSXPi] Connection lost while sending\n";
                 close(sockfd);
                 sockfd = -1;
                 serverAvailable = false;
                 break;
             }
-            std::cout << "[MSXPi] Sent byte 0x" << std::hex << int(val) << " to Python server\n";
+            // std::cout << "[MSXPi] Sent byte 0x" << std::hex << int(val) << " to Python server\n";
         }
 
         // Receive data from Python server
@@ -179,12 +179,12 @@ void MSXPiDevice::serverThread()
             std::lock_guard<std::mutex> lock(mtx);
             for (ssize_t i = 0; i < rec; i++) {
                 rxQueue.push(buf[i]);
-                std::cout << "[MSXPi] Received byte 0x" << std::hex << int(buf[i]) << " from Python server\n";
+                // std::cout << "[MSXPi] Received byte 0x" << std::hex << int(buf[i]) << " from Python server\n";
             }
         }
 
         if (rec == 0) {
-            std::cout << "[MSXPi] Python server closed connection\n";
+            // std::cout << "[MSXPi] Python server closed connection\n";
             close(sockfd);
             sockfd = -1;
             serverAvailable = false;
@@ -195,7 +195,7 @@ void MSXPiDevice::serverThread()
 
     if (sockfd >= 0) close(sockfd);
     serverAvailable = false;
-    std::cout << "[MSXPi] Server thread exiting\n";
+    // std::cout << "[MSXPi] Server thread exiting\n";
 }
 
 REGISTER_MSXDEVICE(MSXPiDevice, "MSXPiDevice");
