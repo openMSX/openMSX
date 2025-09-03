@@ -1,5 +1,3 @@
-#pragma once
-
 #include "MSXPiDevice.hh"
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -200,6 +198,6 @@ void MSXPiDevice::serverThread()
     std::cout << "[MSXPi] Server thread exiting\n";
 }
 
-REGISTER_MSXDEVICE(MSXPiDeviceSimple, "MSXPiDeviceSimple");
+REGISTER_MSXDEVICE(MSXPiDevice, "MSXPiDevice");
 
 } // namespace openmsx

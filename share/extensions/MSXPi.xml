@@ -3,10 +3,10 @@
 <msxconfig>
   <info>
     <name>MSXPi</name>
-    <manufacturer>https://github.com/costarc/MSXPi</manufacturer>
+    <manufacturer>MSXPi (https://github.com/costarc/MSXPi)</manufacturer>
     <code/>
     <release_year/>
-    <description>MSXPi Simulator, an extension that implements the MSXPi interface in the openMSX.</description>
+    <description>MSXPi is an extension for openMSX that emulates the MSXPi hardware interface, enabling an MSX computer to interact with modern systems. Unlike the physical version, the emulated interface does not require a Raspberry Pi — it communicates with a Python-based server component that provides access to web resources, files, REST APIs, and other external services.</description>
     <type>pluggable</type>
   </info>
   <devices>
@@ -15,7 +15,7 @@
         <MSXPiDevice id="MSXPi">
           <io base="0x56" num="8"/>
         </MSXPiDevice>
-		<ROM id="MSXPi BIOS">
+        <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>5141771ce879b8f32f868bfacf0ac233475d8ff8</sha1>

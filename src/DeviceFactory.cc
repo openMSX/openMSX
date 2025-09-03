@@ -86,11 +86,7 @@
 #include "MSXMirrorDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
-<<<<<<< HEAD
 #include "MSXPiDevice.hh"
-=======
-#include "MSXPiDeviceSimple.hh"
->>>>>>> c63dfc036 (Move REGISTER_POLYMORPHIC_INITIALIZER to cc file to avoid double registration)
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
 #include "SensorKid.hh"
