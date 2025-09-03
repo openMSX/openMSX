@@ -167,7 +167,7 @@ void MSXPiDevice::serverThread()
             addr.sin_port = htons(serverPort);
             inet_pton(AF_INET, serverIP.c_str(), &addr.sin_addr);
 
-            std::cout << "[MSXPi] Attempting to connect to " << serverIP << ":" << serverPort << "...\n";
+            // std::cout << "[MSXPi] Attempting to connect to " << serverIP << ":" << serverPort << "...\n";
             if (connect(sockfd, (sockaddr*)&addr, sizeof(addr)) == 0) {
                 serverAvailable = true;
                 // std::cout << "[MSXPi] Connected to MSXPi Server server\n";
