@@ -86,7 +86,7 @@
 #include "MSXMirrorDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
-#include "MSXPi/MSXPiDevice.hh"
+#include "MSXPiDevice.hh"
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
 #include "SensorKid.hh"
