@@ -134,10 +134,13 @@ void MSXPiDevice::readLoop()
 			continue;
 		}
 		std::lock_guard lock(mtx);
-		// TODO we may want to set an upper limit on the queue size
 		for (ssize_t i = 0; i < n; ++i) {
-			rxQueue.push_back(buf[i]);
-		}
+			if (rxQueue.size() < MAX_QUEUE_SIZE) {
+				rxQueue.push_back(buf[i]);
+			} else {
+				break; // skip this byte
+			}
+		}		
 	}
 }
 
