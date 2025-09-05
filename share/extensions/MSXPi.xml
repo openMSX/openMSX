@@ -13,7 +13,8 @@
     <primary slot="any">
       <secondary slot="any">
         <MSXPiDevice id="MSXPi">
-          <io base="0x56" num="8"/>
+          <io base="0x56" num="1"/>
+          <io base="0x5A" num="1"/>
         </MSXPiDevice>
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
