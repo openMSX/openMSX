@@ -13,10 +13,64 @@ physical MSXPi without the need of a Raspberry Pi - instead, relies
 on a Python msxpi-server code running on the same coomputer where 
 openMSX is hosted.
 
-To use the extension, add msxpibios.rom (get it from MSXPi github,
-link below) and add to openMSX/systemroms/extensions/ and attach MSXPi
-extension when starting openMSX.
+You can try the extension following steps below. Bear in mind that
+the server-side component "msxpi-server.py" was developed and
+extensively tested on the physical MSXPi with a real Raspberry Pi.
+At this time, may commands will not work properly on the openMSX
+due to platform differences when running the server, but these will
+be ported as time allows and other developers step in to contribute.
 
-For MSXPi resources, code and documentation, head to the official
-MSXPi project on github: https://github.com/costarc/MSXPi
+Once you have openMSX with the MSXPi already compiled in the code:
+
+1. Download the MSXPi server "msxpi-server.py" from:
+   https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src/
+   
+   and copy to any folder where you can have access from a command line.
+   
+   
+2. Start msxpi-server.py - the server can be started before or after
+   openMSX, that does not matter.
+   
+   python3 mspxi-server.py
+   
+   
+3. Download "msxpibios.rom" (BIOS with BASIC CALL commands) from:
+   https://github.com/costarc/MSXPi/tree/master/software/target/
+   
+  and copy to your \openMSX\share\systemroms\extensions\
+  
+
+4. Download "MSXPi.xml" from:
+   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/extensions/
+   
+   and copy to your \openMSX\share\extensions\
+
+5. Create a folder named "diska" (will be used later as Drive A: in openMSX).
+   You must copy the MSX-DOS files to this folder:
+      MSXDOS.SYS
+	  COMMAND.COM
+
+6. Download the MSXPi commands you want to test from:
+   https://github.com/costarc/MSXPi/tree/master/software/target/
+   
+   Suggestion to start with:
+    - chatgpt.com (but you need an OpenAI key to use it)
+    - prun.com
+	- pcd.com
+	- pdir.com
+	- BASIC/weather.bas
+	- BASIC/irc.bas
+	
+   and copy them to "diska" folder.
+
+7. Start openMSX loading the MSXPi extension. I am using the FS-A1WSX but
+   you can use your favorite MSX instead:
+
+   openmsx -machine Panasonic_FS-A1WSX -ext MSXPi -diska diska
+
+ 
+   
+      
+
+
 

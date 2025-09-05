@@ -1,7 +1,9 @@
 #include "MSXPiDevice.hh"
 
 #include "Timer.hh"
+#include "xrange.hh"
 
+#include <algorithm>
 #include <array>
 
 namespace openmsx {
@@ -14,6 +16,7 @@ MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
 
 MSXPiDevice::~MSXPiDevice()
 {
+	// std::cout << "[MSXPi] MSXPiDevice" << std::endl;
 	shouldStop = true;
 	close();
 	if (thread.joinable()) {
@@ -32,6 +35,7 @@ void MSXPiDevice::close()
 
 void MSXPiDevice::reset(EmuTime /*time*/)
 {
+	// std::cout << "[MSXPi] reset" << std::endl;
 	std::lock_guard lock(mtx);
 	rxQueue.clear();
 	readRequested = false;
@@ -39,6 +43,7 @@ void MSXPiDevice::reset(EmuTime /*time*/)
 
 byte MSXPiDevice::readIO(uint16_t port, EmuTime time)
 {
+	// std::cout << "[MSXPi] readIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
 		return peekIO(port, time);
@@ -58,6 +63,7 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime time)
 
 byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 {
+	// std::cout << "[MSXPi] peekIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
 		if (sock == OPENMSX_INVALID_SOCKET) {
@@ -83,6 +89,7 @@ byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 
 void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
+	// std::cout << "[MSXPi] writeIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // control
 		if (sock != OPENMSX_INVALID_SOCKET) {
@@ -103,6 +110,7 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 void MSXPiDevice::readLoop()
 {
 	while (!shouldStop) {
+		// std::cout << "[MSXPi] readLoop" << std::endl;
 		if (sock == OPENMSX_INVALID_SOCKET) {
 			sock = socket(AF_INET, SOCK_STREAM, 0);
 			if (sock == OPENMSX_INVALID_SOCKET) {
@@ -134,13 +142,11 @@ void MSXPiDevice::readLoop()
 			continue;
 		}
 		std::lock_guard lock(mtx);
-		for (ssize_t i = 0; i < n; ++i) {
-			if (rxQueue.size() < MAX_QUEUE_SIZE) {
-				rxQueue.push_back(buf[i]);
-			} else {
-				break; // skip this byte
-			}
-		}		
+		// skip excess bytes
+		static constexpr size_t MAX_QUEUE_SIZE = 16 * 1024;
+		for (auto i : xrange(std::min<size_t>(n, MAX_QUEUE_SIZE - rxQueue.size()))) {
+			rxQueue.push_back(buf[i]);
+		}
 	}
 }
 

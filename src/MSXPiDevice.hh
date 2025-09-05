@@ -25,7 +25,7 @@ public:
 	byte readIO(uint16_t port, EmuTime time) override;
 	byte peekIO(uint16_t port, EmuTime time) const override;
 	void writeIO(uint16_t port, byte value, EmuTime time) override;
-	
+
 private:
 	void close();
 	void readLoop();
@@ -43,7 +43,6 @@ private:
 
 	// MSXPi logic
 	bool readRequested = false;
-	static constexpr size_t MAX_QUEUE_SIZE = 16 * 1024;
 };
 
 } // namespace openmsx
