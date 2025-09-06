@@ -22,55 +22,86 @@ be ported as time allows and other developers step in to contribute.
 
 Once you have openMSX with the MSXPi already compiled in the code:
 
-1. Download the MSXPi server "msxpi-server.py" from:
-   https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src/
-   
-   and copy to any folder where you can have access from a command line.
-   
-   
-2. Start msxpi-server.py - the server can be started before or after
-   openMSX, that does not matter.
-   
-   python3 mspxi-server.py
-   
-   
-3. Download "msxpibios.rom" (BIOS with BASIC CALL commands) from:
-   https://github.com/costarc/MSXPi/tree/master/software/target/
-   
-  and copy to your \openMSX\share\systemroms\extensions\
-  
+Using MSXPi Extension for openMSX
+=================================
 
-4. Download "MSXPi.xml" from:
-   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/extensions/
+You will need Python3 to use this extension. Install before trying the MSXPi
+commands.
+You will also have to download several files needed by MSXPi - follow the 
+instrcutions to get started.
+
+1. Install an openMSX package that was compiled with the extension, or compile 
+   yourself. These instructions doees does not cover compilation of openMSX.
    
-   and copy to your \openMSX\share\extensions\
-
-5. Create a folder named "diska" (will be used later as Drive A: in openMSX).
-   You must copy the MSX-DOS files to this folder:
-      MSXDOS.SYS
-	  COMMAND.COM
-
-6. Download the MSXPi commands you want to test from:
-   https://github.com/costarc/MSXPi/tree/master/software/target/
+2. Download msxpi-server.py (server component that runs on Python) from:
+   https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src
    
-   Suggestion to start with:
-    - chatgpt.com (but you need an OpenAI key to use it)
-    - prun.com
-	- pcd.com
-	- pdir.com
-	- BASIC/weather.bas
-	- BASIC/irc.bas
-	
-   and copy them to "diska" folder.
+   I recommend to run the server from command line, where you can keep an eye
+   in the debug messages in the console. The server can be started before or
+   after openMSX.
+   
+   python3 msxpi-server.py
+   
+3. Download msxpibios.rom from:
+   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/systemroms/extensions
+   
+   Copy to you openMSX/share/systemroms/extensions/ folder.
+   
+4. Download the matching MSXPi.xml from:
+   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/extensions
+   
+   copy to you openMSX/share/extensions/ folder.
 
-7. Start openMSX loading the MSXPi extension. I am using the FS-A1WSX but
-   you can use your favorite MSX instead:
-
-   openmsx -machine Panasonic_FS-A1WSX -ext MSXPi -diska diska
-
+5. Use a DIR as DISK with openMSX to facilitate the tests.
+   Create a directory named FloppyA
+   Copy MSXDOS.SYS and COMMAND.COM to FloppyA
+   Make sure openMSX can boot into MSX-DOS using this folder as a drive:
+   
+   openmsx -machine Panasonic_FS-A1WSX -diska FloppyA
+   
+6. Dowload the MSXPi commands you want to test from:
+   https://github.com/costarc/MSXPi/tree/master/software/target
+   
+   Many commands will not work (yet) with openMSX because they were originally 
+   developed to work on Raspberry Pi. In time, most (if not all) commands
+   will be ported to abstract the platform and run everywhere. If you can develop
+   in python, help port them (thanks).
+   
+   For now, I suggest you start with:
+   
+   chatgpt.com (you will need an OpenAI to use it)
+   prun.com
+   pcd.com
+   pdir.com
+   pver.com
+   pset.com
+   
+   Copy all these commands to you FloppyA
  
+7. Start openMSX loading the MSXPi extension:
+
+   openmsx -machine Panasonic_FS-A1WSX -diska FloppyA -ext MSXPi
    
-      
+8. Try some commands - type exactly as shown:
 
-
-
+   pver
+   pcd
+   pdir
+   pcd /
+   pdir
+   pset
+   pcd R1:
+   pcd
+   pdir
+   pcd R2:
+   pdir
+   prun dir
+   chatgpt Tell me funny fact about MSX Computers.
+   
+   Note: As I mentioned before, some commands will not behave nicely
+   because they were developed for Raspberry Pi (Linux). 
+   Some work is needed on the msxpi-server side to make the commands
+   work on Python running on a host that is not Linux.
+   
+9. Read the MSXPi dociumentation for more detailed information:
+   https://github.com/costarc/MSXPi/tree/master/documents
