@@ -1,7 +1,8 @@
 #include "MSXPiDevice.hh"
 
 #include "Timer.hh"
-
+#include "xrange.hh"
+#include <algorithm>
 #include <array>
 
 namespace openmsx {
@@ -134,13 +135,10 @@ void MSXPiDevice::readLoop()
 			continue;
 		}
 		std::lock_guard lock(mtx);
-		for (ssize_t i = 0; i < n; ++i) {
-			if (rxQueue.size() < MAX_QUEUE_SIZE) {
-				rxQueue.push_back(buf[i]);
-			} else {
-				break; // skip this byte
-			}
-		}		
+		static constexpr size_t MAX_QUEUE_SIZE = 16 * 1024;
+		for (auto i : xrange(std::min<size_t>(n, MAX_QUEUE_SIZE - rxQueue.size()))) {
+			rxQueue.push_back(buf[i]);
+		}
 	}
 }
 

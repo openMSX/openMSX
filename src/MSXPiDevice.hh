@@ -43,7 +43,7 @@ private:
 
 	// MSXPi logic
 	bool readRequested = false;
-	static constexpr size_t MAX_QUEUE_SIZE = 16 * 1024;
+
 };
 
 } // namespace openmsx
