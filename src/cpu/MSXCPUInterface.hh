@@ -243,6 +243,7 @@ public:
 	 */
 	[[nodiscard]] uint8_t peekMem(uint16_t address, EmuTime time) const;
 	[[nodiscard]] uint8_t peekSlottedMem(unsigned address, EmuTime time) const;
+	void peekSlottedMemBlock(unsigned address, std::span<uint8_t> output, EmuTime time) const;
 	uint8_t readSlottedMem(unsigned address, EmuTime time);
 	void writeSlottedMem(unsigned address, uint8_t value,
 	                     EmuTime time);
@@ -362,6 +363,7 @@ private:
 	struct SlottedMemoryDebug final : SimpleDebuggable {
 		explicit SlottedMemoryDebug(MSXMotherBoard& motherBoard);
 		[[nodiscard]] uint8_t read(unsigned address, EmuTime time) override;
+		void readBlock(unsigned start, std::span<uint8_t> output) override;
 		void write(unsigned address, uint8_t value, EmuTime time) override;
 	} slottedMemoryDebug;
 
