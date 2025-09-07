@@ -23,7 +23,7 @@ Arquitecture of the physical Interface:
 │    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
 │ (Z80 I/O)  │   0x56  │   (CPLD + SPI bridge)  │  GPIO   │ (Python GPIO API)  │
 └────────────┘   0x5A  └────────────────────────┘         └────────────────────┘
-												 
+                                                 
 Arquitecture of the MSXPi extension for openMSX: 
 ┌────────────┐         ┌────────────────────────┐         ┌────────────────────┐
 │    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
