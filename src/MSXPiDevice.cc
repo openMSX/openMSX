@@ -16,7 +16,6 @@ MSXPiDevice::MSXPiDevice(const DeviceConfig& config)
 
 MSXPiDevice::~MSXPiDevice()
 {
-	// std::cout << "[MSXPi] MSXPiDevice" << std::endl;
 	shouldStop = true;
 	close();
 	if (thread.joinable()) {
@@ -35,7 +34,6 @@ void MSXPiDevice::close()
 
 void MSXPiDevice::reset(EmuTime /*time*/)
 {
-	// std::cout << "[MSXPi] reset" << std::endl;
 	std::lock_guard lock(mtx);
 	rxQueue.clear();
 	readRequested = false;
@@ -43,7 +41,6 @@ void MSXPiDevice::reset(EmuTime /*time*/)
 
 byte MSXPiDevice::readIO(uint16_t port, EmuTime time)
 {
-	// std::cout << "[MSXPi] readIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
 	case 0x57: // Version
@@ -65,7 +62,6 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime time)
 
 byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 {
-	// std::cout << "[MSXPi] peekIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
 		std::cout << "[MSXPi] peekIO Status Check" << std::endl;
@@ -96,11 +92,9 @@ byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 
 void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 {
-	// std::cout << "[MSXPi] writeIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // control
 		if (value == 0xFF) {
-			//std::cout << "[MSXPi] writeIO: Reset received on port=0x" << std::hex << (port & 0xff) << std::endl;
 			reset(openmsx::EmuTime::dummy());
 		}
 		if (sock != OPENMSX_INVALID_SOCKET) {
