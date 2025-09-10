@@ -773,19 +773,60 @@ uint8_t MSXCPUInterface::peekMem(uint16_t address, EmuTime time) const
 	}
 }
 
+// Similar to peekSlottedMem(), but can read a whole block at once
+void MSXCPUInterface::peekSlottedMemBlock(unsigned address, std::span<uint8_t> output, EmuTime time) const
+{
+	auto getCacheLine = [&]() -> const uint8_t* {
+		uint8_t primSlot = (address & 0xC0000) >> 18;
+		bool exp = isExpanded(primSlot);
+		uint16_t offset = (address & (0xFFFF & CacheLine::HIGH)); // includes page
+		if ((offset == (0xFFFF & CacheLine::HIGH)) && exp) {
+			return nullptr;
+		} else {
+			uint8_t subSlot = exp ? ((address & 0x30000) >> 16) : 0;
+			uint8_t page = (address & 0x0C000) >> 14;
+			return slotLayout[primSlot][subSlot][page]->getReadCacheLine(offset);
+		}
+	};
+	auto processChunk = [&](size_t start, size_t n) {
+		assert(start < CacheLine::SIZE);
+		assert((start + n) <= CacheLine::SIZE);
+
+		if (const auto* line = getCacheLine()) {
+			copy_to_range(std::span{line + start, n}, output);
+		} else {
+			for (auto i : xrange(n)) {
+				output[i] = peekSlottedMem(address + i, time);
+			}
+		}
+		output = output.subspan(n);
+		address += n;
+	};
+
+	if (auto l = address & CacheLine::LOW) { // start not aligned on cacheline boundary
+		auto n = std::min<size_t>(output.size(), CacheLine::SIZE - l);
+		processChunk(l, n);
+	}
+	while (output.size() >= CacheLine::SIZE) { // full cachelines
+		processChunk(0, CacheLine::SIZE);
+	}
+	if (auto n = output.size()) { // trailing partial cache line
+		processChunk(0, n);
+	}
+	assert(output.empty()); // fully processed
+}
+
 uint8_t MSXCPUInterface::peekSlottedMem(unsigned address, EmuTime time) const
 {
 	uint8_t primSlot = (address & 0xC0000) >> 18;
-	uint8_t subSlot = (address & 0x30000) >> 16;
-	uint8_t page = (address & 0x0C000) >> 14;
+	bool exp = isExpanded(primSlot);
 	uint16_t offset = (address & 0xFFFF); // includes page
-	if (!isExpanded(primSlot)) {
-		subSlot = 0;
-	}
 
-	if ((offset == 0xFFFF) && isExpanded(primSlot)) {
+	if ((offset == 0xFFFF) && exp) {
 		return 0xFF ^ subSlotRegister[primSlot];
 	} else {
+		uint8_t subSlot = exp ? ((address & 0x30000) >> 16) : 0;
+		uint8_t page = (address & 0x0C000) >> 14;
 		return slotLayout[primSlot][subSlot][page]->peekMem(offset, time);
 	}
 }
@@ -1123,6 +1164,19 @@ MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 	: SimpleDebuggable(motherBoard_, "slotted memory",
 	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
 {
+}
+
+void MSXCPUInterface::SlottedMemoryDebug::readBlock(unsigned start, std::span<uint8_t> output)
+{
+	const auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
+	interface.peekSlottedMemBlock(start, output, getMotherBoard().getCurrentTime());
+
+#ifdef DEBUG
+	auto time = getMotherBoard().getCurrentTime();
+	for (auto i : xrange(output.size())) {
+		assert(output[i] == read(start + i, time));
+	}
+#endif
 }
 
 uint8_t MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime time)
