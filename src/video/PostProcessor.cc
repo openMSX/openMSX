@@ -305,7 +305,13 @@ void PostProcessor::paint(OutputSurface& /*output*/)
 	renderedFrame.tex.bind();
 	auto [x, y] = screen.getViewOffset();
 	auto [w, h] = screen.getViewSize();
-	glViewport(x, y, w, h);
+
+	bool isFullStretching = renderSettings.getFullscreenHorizontalStretch() && display.isFullScreen();
+
+	if (isFullStretching)
+		glViewport(0, y, display.getDisplayWidth(), h);
+	else
+		glViewport(x, y, w, h);
 
 	if (deform == RenderSettings::DisplayDeform::_3D) {
 		drawMonitor3D();

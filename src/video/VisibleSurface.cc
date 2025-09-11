@@ -318,6 +318,7 @@ bool VisibleSurface::setFullScreen(bool fullscreen)
 			fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) != 0) {
 		return false; // error, try re-creating the window
 	}
+	display.setFullScreen(fullscreen);
 	fullScreenUpdated(fullscreen);
 	return true; // success
 }
