@@ -147,6 +147,7 @@ private:
 
 	Probe<int> IRQStatus;
 	Probe<void> IRQAccept;
+	Probe<void> m1Cycle;
 
 	// dynamic freq
 	BooleanSetting freqLocked;

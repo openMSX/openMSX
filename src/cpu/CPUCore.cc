@@ -308,6 +308,9 @@ template<typename T> CPUCore<T>::CPUCore(
 	            "This probe is only useful to set a breakpoint on (the value "
 		    "return by read is meaningless). The breakpoint gets triggered "
 		    "right after the CPU accepted an IRQ.")
+	, m1Cycle(motherboard.getDebugger(), name + ".m1Cycle",
+	            "This probe is used for debugging instruction fetch cycle ("
+	            "M1 cycle).")
 	, freqLocked(
 		motherboard.getCommandController(), tmpStrCat(name, "_freq_locked"),
 	        "real (locked) or custom (unlocked) CPU frequency",
@@ -608,6 +611,7 @@ template<typename T> template<unsigned PC_OFFSET> ALWAYS_INLINE uint8_t CPUCore<
 	// deviation. Apart from that functional aspect it also turns out to be
 	// faster to only update PC once per instruction instead of after each
 	// fetch.
+	if (this->isM1Cycle(getPC())) m1Cycle.signal();
 	unsigned address = narrow_cast<uint16_t>(getPC() + PC_OFFSET);
 	return RDMEM_impl<false, false>(address, cc);
 }
