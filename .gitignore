@@ -13,5 +13,7 @@ core
 *.VC.db
 *.VC.VC.opendb
 .vscode/
+.vs/
+*.vcxproj.user
 __pycache__/
 .DS_Store
