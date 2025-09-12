@@ -253,36 +253,6 @@ float Display::getFps() const
 	return 1000000.0f * NUM_FRAME_DURATIONS / narrow_cast<float>(frameDurationSum);
 }
 
-void Display::setFullScreen(bool flag) {
-	fullscreen = flag;
-}
-
-int Display::getDisplayWidth()
-{
-	static int cachedWidth = -1;
-	if (cachedWidth != -1) return cachedWidth;
-
-	SDL_DisplayMode displayMode;
-	if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0)
-		return -1; // error
-
-	cachedWidth = displayMode.w;
-	return cachedWidth;
-}
-
-int Display::getDisplayHeight()
-{
-	static int cachedHeight = -1;
-	if (cachedHeight != -1) return cachedHeight;
-
-	SDL_DisplayMode displayMode;
-	if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0)
-		return -1; // error
-
-	cachedHeight = displayMode.h;
-	return cachedHeight;
-}
-
 void Display::update(const Setting& setting) noexcept
 {
 	assert(&setting == &renderSettings.getRendererSetting()); (void)setting;

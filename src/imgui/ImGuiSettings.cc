@@ -212,7 +212,7 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 			im::TreeNode("Shape", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-				Checkbox(hotKey, "Fullscreen Horizontal Stretch", renderSettings.getFullscreenHorizontalStretchSetting());
+				Checkbox(hotKey, "Full Stretch", renderSettings.getFullStretchSetting());
 				SliderFloat("Horizontal stretch", renderSettings.getHorizontalStretchSetting(), "%.0f");
 				ComboBox("Display deformation", renderSettings.getDisplayDeformSetting());
 			});

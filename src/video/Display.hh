@@ -62,12 +62,6 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	bool isFullScreen() const { return fullscreen; };
-	void setFullScreen(bool flag);
-
-	int getDisplayWidth();
-	int getDisplayHeight();
-
 	[[nodiscard]] Layer* findActiveLayer() const;
 	[[nodiscard]] const Layers& getAllLayers() const { return layers; }
 
@@ -143,8 +137,6 @@ private:
 
 	bool renderFrozen = false;
 	bool switchInProgress = false;
-
-	bool fullscreen = false;
 };
 
 } // namespace openmsx

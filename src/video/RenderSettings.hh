@@ -160,8 +160,8 @@ public:
 	/** VSync [on, off]. */
 	[[nodiscard]] BooleanSetting& getVSyncSetting() { return vSyncSetting; }
 
-	[[nodiscard]] BooleanSetting& getFullscreenHorizontalStretchSetting() { return fullscreenHorizontalStretchSetting; }
-	[[nodiscard]] bool getFullscreenHorizontalStretch() const { return fullscreenHorizontalStretchSetting.getBoolean(); }
+	[[nodiscard]] BooleanSetting& getFullStretchSetting() { return fullStretchSetting; }
+	[[nodiscard]] bool getFullStretch() const { return fullStretchSetting.getBoolean(); }
 
 	/** Amount of horizontal stretch.
 	  * This number represents the amount of MSX pixels (normal width) that
@@ -245,7 +245,7 @@ private:
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
 	BooleanSetting interleaveBlackFrameSetting;
-	BooleanSetting fullscreenHorizontalStretchSetting;
+	BooleanSetting fullStretchSetting;
 
 	float brightness;
 	float contrast;
