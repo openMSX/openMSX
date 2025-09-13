@@ -13,13 +13,14 @@
     <primary slot="any">
       <secondary slot="any">
         <MSXPiDevice id="MSXPi">
-          <io base="0x56" num="2"/>
+          <io base="0x56" num="1"/>
+          <io base="0x57" num="1"/>
+          <io base="0x5A" num="1"/>
         </MSXPiDevice>
         <ROM id="MSXPi BIOS">
           <mem base="0x4000" size="0x4000"/>
           <rom>
-            <sha1>5141771ce879b8f32f868bfacf0ac233475d8ff8</sha1>
-            <sha1>d08ef5c09ff35a88f7e026a654edaa7f044260ca</sha1>
+            <sha1>be90b05395ccd5435e3eace188d3858a1b99d56a</sha1>
             <filename>msxpibios.rom</filename>
           </rom>
         </ROM>

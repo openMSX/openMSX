@@ -46,8 +46,10 @@ byte MSXPiDevice::readIO(uint16_t port, EmuTime time)
 	// std::cout << "[MSXPi] readIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
+	case 0x57: // Version
 		return peekIO(port, time);
 	case 0x5A: // data
+		std::cout << "[MSXPi] readIO Data Read" << std::endl;
 		if (readRequested) {
 			readRequested = false;
 			std::lock_guard lock(mtx);
@@ -66,6 +68,7 @@ byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 	// std::cout << "[MSXPi] peekIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // status
+		std::cout << "[MSXPi] peekIO Status Check" << std::endl;
 		if (sock == OPENMSX_INVALID_SOCKET) {
 			return 0x01; // server not available
 		}
@@ -74,7 +77,11 @@ byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 			if (!rxQueue.empty()) return 0x02;
 		}
 		return 0x00;
+	case 0x57: // Version
+		std::cout << "[MSXPi] peekIO Version Check" << std::endl;
+		return 0xFE;
 	case 0x5A: // data
+		std::cout << "[MSXPi] peekIO Data Read" << std::endl;
 		if (readRequested) {
 			std::lock_guard lock(mtx);
 			if (!rxQueue.empty()) {
@@ -92,6 +99,10 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
 	// std::cout << "[MSXPi] writeIO: port=0x" << std::hex << port & 0xff << std::endl;
 	switch (port & 0xff) {
 	case 0x56: // control
+		if (value == 0xFF) {
+			//std::cout << "[MSXPi] writeIO: Reset received on port=0x" << std::hex << (port & 0xff) << std::endl;
+			reset(openmsx::EmuTime::dummy());
+		}
 		if (sock != OPENMSX_INVALID_SOCKET) {
 			readRequested = true;
 		}
