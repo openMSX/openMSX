@@ -87,6 +87,7 @@
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
+#include "MSXPiDevice.hh"
 #include "VDPIODelay.hh"
 #include "SensorKid.hh"
 #include "YamahaSKW01.hh"
@@ -95,7 +96,7 @@
 #include "components.hh"
 #include "one_of.hh"
 #include <memory>
-
+ 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif
@@ -316,6 +317,8 @@ std::unique_ptr<MSXDevice> DeviceFactory::create(DeviceConfig& conf)
 		result = std::make_unique<YamahaSKW01>(conf);
 	} else if (type == one_of("T7775", "T7937", "T9763", "T9769")) {
 		// Ignore for now. We might want to create a real device for it later.
+	} else if (type == "MSXPiDevice") {
+		result = std::make_unique<MSXPiDevice>(conf);
 	} else {
 		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");
