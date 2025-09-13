@@ -1,6 +1,5 @@
-MSXPi Quick Start
-=================
-
+Using MSXPi Extension for openMSX
+=================================
 MSXPi is a hardware and software solution that allows MSX
 computers to control and use Raspberry Pi resources. The interface
 exposes I/O ports for the MSX computer, which allows exchange of
@@ -10,12 +9,135 @@ and access to the Raspberry Pi itself to execute commands.
 
 The MSXPiDevice for openMSX implements the same functionality of the
 physical MSXPi without the need of a Raspberry Pi - instead, relies
-on a Python msxpi-server code running on the same coomputer where
+on a Python msxpi-server code running on the same computer where
 openMSX is hosted.
 
-To use the extension, add msxpibios.rom (get it from MSXPi github,
-link below) and add to openMSX/systemroms/extensions/ and attach MSXPi
-extension when starting openMSX.
+For detailed information about the MSXPi project and the hardwaare interface,
+go to: https://github.com/costarc/MSXPi/tree/master/software
 
-For MSXPi resources, code and documentation, head to the official
-MSXPi project on github: https://github.com/costarc/MSXPi
+This README is for the openMSX extension that reproduces the behaviour of
+the physical interface.
+
+Arquitecture of the physical Interface:
+┌────────────┐         ┌────────────────────────┐         ┌────────────────────┐
+│    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
+│ (Z80 I/O)  │   0x56  │   (CPLD + SPI bridge)  │  GPIO   │ (Python GPIO API)  │
+└────────────┘   0x5A  └────────────────────────┘         └────────────────────┘
+
+Arquitecture of the MSXPi extension for openMSX:
+┌────────────┐         ┌────────────────────────┐         ┌────────────────────┐
+│    MSX     │  <--->  │     MSXPi Interface    │  <--->  │   msxpi-server     │
+│ (Z80 I/O)  │  0x56   │ MSXPiDevice + socket)  │  Socket │(Python socket API) │
+└────────────┘  0x5A   └────────────────────────┘         └────────────────────┘
+
+Now that you know everything you need (not really!) to start with MSXPi, prepare
+the environment.
+
+To use this extension, you will need Python3 installed in your computer.
+IDLE will work with MSXPi in Windows - it can be downloaded and installed
+from Microsoft App store. MSXPi will also work in other platforms - it
+works better on Linux, since it is the native environment it was designed
+for initially.
+At this time, some commands will work on Windows, many won't - but they
+are being ported and pushed to MSXPi repository, so I recommend to keep
+refreshing your local copy frequently.
+
+There are a lot of Python modules that are not standard in Python, and will
+require you to install before running MSXPi. When you run msxpi-server, it
+will complain about missing modules - use that information to install them.
+For exmaple, to install module "fs":
+
+Go to Windows command line and type:
+
+   python -m pip install fs
+
+Repeat for all modules that are not already installed.
+
+You will also have to download several files needed by MSXPi - follow the
+instructions below to get started.
+
+Steps to Setup and Try MSXPi in openMSX
+=======================================
+
+1. Install an openMSX package that was compiled with the extension, or compile
+   yourself.
+
+2. Download msxpi-server.py (the server component that runs in Python) from:
+   https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src
+
+   Run from IDLE console, or from command line:
+
+   python msxpi-server.py
+
+3. Download msxpibios.rom from:
+   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/systemroms/extensions
+
+   Copy to you openMSX/share/systemroms/extensions/ folder.
+
+4. Download the matching MSXPi.xml from:
+   https://github.com/costarc/MSXPi/tree/master/software/openMSX/share/extensions
+
+   copy to you openMSX/share/extensions/ folder.
+
+5. Use a DIR as DISK with openMSX to facilitate the tests.
+   Create a directory named FloppyA
+   Copy MSXDOS.SYS and COMMAND.COM to FloppyA
+   Make sure openMSX can boot into MSX-DOS using this folder as a drive:
+
+   openmsx -machine Panasonic_FS-A1WSX -diska FloppyA
+
+6. Dowload the MSXPi commands you want to test from:
+   https://github.com/costarc/MSXPi/tree/master/software/target
+
+   Many commands will not work (yet) with openMSX because they were originally
+   developed to work on Raspberry Pi. In time, most (if not all) commands
+   will be ported to abstract the platform and run everywhere. If you can develop
+   in python, help port them (thanks).
+
+   For now, I suggest you start with:
+
+   chatgpt.com (you will need an OpenAI to use it)
+   prun.com
+   pcd.com
+   pdir.com
+   pver.com
+   pset.com
+
+   Copy all these commands to you FloppyA
+
+7. Start openMSX loading the MSXPi extension:
+
+   openmsx -machine Panasonic_FS-A1WSX -diska FloppyA -ext MSXPi
+
+8. Try some commands - type exactly as shown:
+
+   pver
+   pcd
+   pdir
+   pcd /
+   pdir
+   pset
+   pcd R1:
+   pcd
+   pdir
+   pcd R2:
+   pdir
+   prun dir
+   chatgpt Tell me funny fact about MSX Computers.
+
+   Note: As I mentioned before, some commands will not behave nicely
+   because they were developed for Raspberry Pi (Linux).
+   Some work is needed on the msxpi-server side to make the commands
+   work on Python running on a host that is not Linux.
+
+9. Create a local /home/pi/msxpi/msxpi.ini
+   This file is used to persist some MSXPi configuration. Create this
+   folder in your computer (under Windows the path is C:\home\pi\msxpi)
+   and save this file inside it:
+   https://github.com/costarc/MSXPi/tree/master/software/Server/Shell/msxpi.ini
+
+   If you have an OpenAI key, update this file with it so you can use the
+   chatgpt.com command.
+
+10. Read the MSXPi dociumentation for more detailed information:
+   https://github.com/costarc/MSXPi/tree/master/documents
