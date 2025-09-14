@@ -43,6 +43,7 @@ private:
 
 	// MSXPi logic
 	bool readRequested = false;
+
 };
 
 } // namespace openmsx

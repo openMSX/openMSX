@@ -21,6 +21,7 @@
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>be90b05395ccd5435e3eace188d3858a1b99d56a</sha1>
+			<sha1>1b36118b5f436e42d653f0ec8b23f67aa33de858</sha1>
             <filename>msxpibios.rom</filename>
           </rom>
         </ROM>
