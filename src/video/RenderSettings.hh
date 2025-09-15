@@ -242,11 +242,11 @@ private:
 	EnumSetting<bool> tooFastAccessSetting;
 	EnumSetting<DisplayDeform> displayDeformSetting;
 	BooleanSetting vSyncSetting;
+	BooleanSetting fullStretchSetting;
 	FloatSetting horizontalStretchSetting;
 	FloatSetting pointerHideDelaySetting;
 	BooleanSetting interleaveBlackFrameSetting;
-	BooleanSetting fullStretchSetting;
-
+	
 	float brightness;
 	float contrast;
 
