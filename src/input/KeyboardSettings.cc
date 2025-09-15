@@ -70,6 +70,10 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true)
+	, disableIME(commandController,
+		"kbd_disable_IME",
+		"disable IME, avoid keyboard input problems in Kanji mode",
+		true)
 {
 }
 
