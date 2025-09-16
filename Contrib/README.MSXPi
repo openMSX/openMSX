@@ -69,8 +69,15 @@ Steps to Setup and Try MSXPi in openMSX
    
    Always use the latest release.
    
-2. Download msxpi-server.py (the server component that runs in Python) from:
+2. Download msxpi-server.py from:
+
    https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src
+
+
+   Note: the msxpi-server component has some commands that requires elevation of privileges
+   in the Raspberry Pi platform using "sudo". These commands apply only to Raspberry Pi
+   and will return a message "Command not supported on this platform" for all non-raspberry
+   pi hosts.
    
    Run from IDLE console, or from command line:
    
@@ -93,7 +100,7 @@ Steps to Setup and Try MSXPi in openMSX
    
    openmsx -machine Panasonic_FS-A1WSX -diska FloppyA
    
-6. Dowload the MSXPi commands you want to test from:
+6. Download the MSXPi commands you want to test from:
    https://github.com/costarc/MSXPi/tree/master/software/target
    
    Some commands will not work (yet) with openMSX because they were originally 
@@ -103,7 +110,7 @@ Steps to Setup and Try MSXPi in openMSX
    
    For now, I suggest you start with:
    
-   chatgpt.com (you will need an OpenAI to use it)
+   chatgpt.com (you will need an OpenAI key to use it)
    prun.com
    pcd.com
    pdir.com
@@ -134,16 +141,16 @@ Steps to Setup and Try MSXPi in openMSX
    chatgpt Tell me funny fact about MSX Computers.
    ploadr /z zaxxon.lzh
    
-   Note 1: Read the Users guide to learn more about these commands. it can be 
-   download here: https://github.com/costarc/MSXPi/tree/master/documents
+   Note 1: Read the Users Guide to learn more about these commands. It can be 
+   downloaded here: https://github.com/costarc/MSXPi/tree/master/documents
    
    Note 2: As I mentioned before, some commands will not behave nicely
    because they were developed for Raspberry Pi (Linux). 
-   Some work is needed on the msxpi-server side to make the commands
-   work on Python running on a host that is not Linux.
+   Some work is needed on the msxpi-server side to make those commands
+   work on Python running in a host that is not Linux.
 
 9. Create a local /home/pi/msxpi/msxpi.ini
-   This file is used to persist some MSXPi configuration. Create this
+   This file is used to persist some MSXPi configuration. Create the
    folder in your computer (under Windows the path is C:\home\pi\msxpi)
    and save this file inside it:
    https://github.com/costarc/MSXPi/tree/master/software/Server/Shell/msxpi.ini
