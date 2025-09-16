@@ -1001,12 +1001,6 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		      key.toString().c_str());
 	}
 
-	// To work around a Japanese keyboard Kanji mode bug. (Multi-character
-	// input makes a keydown event without keyrelease message.)
-	if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
-		return false;
-	}
-
 	// Process dead keys.
 	if (mode == KeyboardSettings::MappingMode::CHARACTER) {
 		for (auto n : xrange(3)) {
@@ -1033,6 +1027,11 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime time)
 		processKeypadEnterKey(time, down);
 		return false;
 	} else {
+		// To work around a Japanese keyboard Kanji mode bug. (Multi-character
+		// input makes a keydown event without keyrelease message.)
+		if (keyEvent.getScanCode() == SDL_SCANCODE_UNKNOWN) {
+			return false;
+		}
 		return processKeyEvent(time, down, keyEvent);
 	}
 }
