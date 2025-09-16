@@ -84,12 +84,12 @@ byte MSXPiDevice::peekIO(uint16_t port, EmuTime /*time*/) const
 	}
 }
 
-void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime /*time*/)
+void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime time)
 {
 	switch (port & 0xff) {
 	case 0x56: // control
 		if (value == 0xFF) {
-			reset(openmsx::EmuTime::dummy());
+			reset(time);
 		}
 		if (sock != OPENMSX_INVALID_SOCKET) {
 			readRequested = true;
