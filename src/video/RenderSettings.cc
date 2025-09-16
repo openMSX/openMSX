@@ -147,6 +147,9 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		" (typically 60Hz) differs from MSX framerate (50 or 60Hz).\n",
 		true)
 
+	, fullStretchSetting(commandController,
+		"full_stretch", "Stretch the image to fill the entire screen in fullscreen mode", false)
+
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives
 	// better performance
