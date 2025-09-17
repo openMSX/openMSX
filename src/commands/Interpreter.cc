@@ -76,6 +76,7 @@ Tcl_ChannelType Interpreter::channelType = {
 void Interpreter::init(const char* programName) const
 {
 	Tcl_FindExecutable(programName);
+	Tcl_SetSystemEncoding(interp, "utf-8"); // already the default on Linux, but not on Windows?
 }
 
 Interpreter::Interpreter()
