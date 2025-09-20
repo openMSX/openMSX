@@ -81,8 +81,8 @@ If you just want to use openMSX, there is likely <a class="external" href="faq.h
 </ul>
 
 <p>
-If you only want to follow the latest developments, there is also a chance that
-automatic builds have been performed for your platform. Links to such
+If you only want to follow the latest developments, chances are an
+automatic build has been performed for your platform. Links to such
 development builds can be found on the <a class="external"
 href="http://openmsx.org/">openMSX website</a>, at the bottom of the Download
 box.
@@ -225,7 +225,7 @@ openMSX depends on the following libraries:
 
 <h4>GCC / clang</h4>
 <p>
-You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or macOS with MacPorts, Homebrew or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain macOS or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
+You can install the required libraries system-wide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. System-wide is recommended if you run a modular operating system (such as Linux, BSD or macOS with MacPorts, Homebrew or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain macOS or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
 </p>
 <h5>Debian and Ubuntu Linux</h5>
 <p>
@@ -238,7 +238,7 @@ sudo apt-get build-dep openmsx
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
 </p>
 <p>
-Typical dependending packages are: <code>libsdl2-ttf-dev</code> <code>libogg-dev</code>  <code>tcl-dev</code>  <code>libogg-dev</code>  <code>libpng-dev</code>  <code>libtheora-dev</code>  <code>libvorbis-dev</code>  <code>libsdl2-dev</code>  <code>libglew-dev</code>. The complete list for Debian (which will be very very similar) is <a class="external" href="https://packages.debian.org/source/sid/openmsx">here</a>.
+Typical depending packages are: <code>libsdl2-ttf-dev</code> <code>libogg-dev</code>  <code>tcl-dev</code>  <code>libpng-dev</code>  <code>libtheora-dev</code>  <code>libvorbis-dev</code>  <code>libsdl2-dev</code>  <code>libglew-dev</code>. The complete list for Debian (which will be very very similar) is <a class="external" href="https://packages.debian.org/source/sid/openmsx">here</a>.
 </p>
 
 <h5>Other Linux</h5>
@@ -259,7 +259,7 @@ If you want to do things manually, you can get the libraries from
 <a class="external" href="http://www.macports.org/">MacPorts</a>,
 <a class="external" href="http://brew.sh/">Homebrew</a>
 or
-<a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports). The manual approach is not regularly tested by the openMSX developers; unless you enjoy tinkering with builds we suggest you use the stand-alone binary approach instead.
+<a class="external" href="http://www.finkproject.org/">Fink</a>. These tools provide access to a large collection of software packages or ports. You can use them to install those packages (or ports). The manual approach is not regularly tested by the openMSX developers; unless you enjoy tinkering with builds we suggest you use the stand-alone binary approach instead.
 </p>
 
 <h4>Visual C++</h4>
@@ -555,7 +555,7 @@ sudo make install
 <h5>macOS</h5>
 
 <p>
-On macOS, the build creates an application folder. You can "install" this simply by copying this folder to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs lacking those libraries.
+On macOS, the build creates an application folder. You can "install" this simply by copying this folder to a different location. The application folder will depend on system-wide installed libraries, so it will not work on Macs lacking those libraries.
 </p>
 <p>
 You can run openMSX from the application folder with the following command:
