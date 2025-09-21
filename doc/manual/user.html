@@ -27,7 +27,7 @@
 		<ol class="toc">
 			<li><a class="internal" href="#machines">2.1 Machines</a></li>
 			<li><a class="internal" href="#extensions">2.2 Extensions</a></li>
-			<li><a class="internal" href="#otheroptions">2.3 Other Command Line Options</a></li>
+			<li><a class="internal" href="#otheroptions">2.3 Other Command-line Options</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#controlling">3. The Console and Settings</a>
@@ -168,8 +168,8 @@ You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is not completed yet, which means that most things work but not all
-features are implemented yet.
+openMSX is not complete yet, which means that most things work but not all
+features have been implemented yet.
 Many emulation features are implemented, but not all of them are represented
 yet in the built-in Graphical User Interface. To get the most out of openMSX,
 we have written this guide.
@@ -218,12 +218,12 @@ First some terms. Users of real MSX computers will probably not find it hard to 
 <dd>openMSX does not allow you to plug in equipment in the wrong connector type.</dd>
 <dd>Some equipment is automatically plugged in for your convenience, e.g. the Tape Deck if your machine has a cassette connector.</dd>
 <dt>Media</dt>
-<dd>These are containers with software on them. For example: ROM cartridges, floppy disks and cassette tapes.</dd>
+<dd>These are containers with software on them. For example: ROM cartridges, floppy disks, and cassette tapes.</dd>
 <dd>Depending on the MSX machine you are using, different media can be inserted. If the machine you are emulating does not have a disk drive, you cannot insert a floppy disk (image) into the machine. However, like in the real world, if you first insert an external disk drive extension into one of the cartridge slots of the machine, you can insert a floppy disk into the disk drive you just connected to the MSX.</dd>
 <dd>Media are always represented by an "image" of their content, which is just a file containing the relevant data of the media. So, a ROM cartridge is represented by a ROM file (which is just the data from the ROM chips), floppy disks by disk image files, cassette tapes with tape image files, etc. This manual may use also these "image" terms to refer to media.</dd>
 <dt>Setups</dt>
-<dd>A setup is the combination of a bare MSX machine, with its plugged in extensions, plugged in equipment via the machine's connectors and the media in the available media slots.</dd>
-<dd>When creating a new setup, you can specify up to what depth level the setup must be saved: either just the machine, or including the extensions, or also including the plugged in equipment or even including the inserted media.</dd>
+<dd>A setup is the combination of a bare MSX machine, with its plugged-in extensions, plugged-in equipment via the machine's connectors and the media in the available media slots.</dd>
+<dd>When creating a new setup, you can specify up to what depth level the setup must be saved: either just the machine, or including the extensions, or also including the plugged-in equipment or even including the inserted media.</dd>
 <dd>The setups feature allows you like in the real world to turn off your setup and use it quickly again later.</dd>
 </dl>
 
@@ -236,7 +236,7 @@ In this chapter we will tell you how to select MSX machines and how to use exten
 <h3><a id="machines">2.1 Machines</a></h3>
 
 <p>
-If you start openMSX without any command line parameters, you will get the
+If you start openMSX without any command-line parameters, you will get the
 default machine, which is stored in the <code><a class="external"
 href="commands.html#default_machine">default_machine</a></code> setting. If you did
 not change the default machine, the C-BIOS MSX2+ machine will be started.
@@ -298,7 +298,7 @@ href="commands.html#setup">setup</a></code> command).
 
 <p>
 Extensions are simply MSX cartridges (extensions to the MSX system) that you
-can plug into the emulated MSX. openMSX ships with a lot of predefined
+can plug into the emulated MSX. openMSX ships with many predefined
 extensions. Note that many of them require firmware ROMs (called system ROMs);
 see the <a class="external" href="setup.html#systemroms">Setup Guide</a> for
 details.
@@ -337,10 +337,10 @@ mbstereo</code> gives you the MoonBlaster stereo effect: FMPAC on the left
 speaker and MSX-AUDIO on the right speaker.
 </p>
 
-<h3><a id="otheroptions">2.3 Other Command Line Options</a></h3>
+<h3><a id="otheroptions">2.3 Other Command-line Options</a></h3>
 
 <p>
-Some of the most used command line options will be discussed later in this manual.
+Some of the most used command-line options will be discussed later in this manual.
 For a complete list of them, type the following command:
 </p>
 <div class="commandline">openmsx -h</div>
@@ -350,7 +350,7 @@ For a complete list of them, type the following command:
 <h3><a id="console">3.1 Console Introduction</a></h3>
 
 <p>
-Most functionality can nowadays be controlled via the built in GUI, using the
+Most functionality can now be controlled via the built-in GUI, using the
 main menu bar as a starting point. This will be sufficient for most users.
 Originally, this GUI wasn't available and most functionality had to be
 controlled differently. This way of control is still available (and will remain
@@ -464,7 +464,7 @@ certain parts of a demo for example (speed up). The GUI has this setting under
 </p>
 
 <p>
-Some MSX machines like the Panasonic FS-A1GT have built in software (called
+Some MSX machines like the Panasonic FS-A1GT have built-in software (called
 firmware) which can be switched on and off via a switch on the machine itself.
 In openMSX the internal software is switched off by default, but you can switch
 it on with the following setting: <code>set <a class="external"
@@ -491,7 +491,7 @@ maximum speed; the feature has no influence on the state of the MSX, of course.
 You can save all your current settings with the <code><a class="external"
 href="commands.html#save_settings">save_settings</a></code> command. At start
 up, alternative settings files can be loaded by using the <code>-setting</code>
-command line option. You can also use the <code><a class="external"
+command-line option. You can also use the <code><a class="external"
 href="commands.html#load_settings">load_settings</a></code> command to load
 settings at run time. Settings that are not mentioned in the saved settings
 file that you are loading will be untouched. <a class="external"
@@ -751,10 +751,10 @@ Media</span> menu.
 <p>
 For all supported media files, there is a list of filename extensions that are
 recognized by openMSX. If you run openMSX from the command line, adding a file
-name (with path if necessary) as a command line option, openMSX will insert the
+name (with path if necessary) as a command-line option, openMSX will insert the
 file as the proper type of media. The list of supported extensions for each
 media type can be easily retrieved with <code>-h</code> option on the command
-line. For some media, examples of command line usage are given below.
+line. For some media, examples of command-line usage are given below.
 </p>
 
 <p>
@@ -835,7 +835,7 @@ powerful.
 <h4><a id="diskimages">5.2.1 Using Disk Images</a></h4>
 
 <p>
-Of course this can only be done if the running machine has one or more disk
+Of course, this can only be done if the running machine has one or more disk
 drives. From the GUI, simply select the Disk Drive you want to change the disk
 image for. This will open a Disk Drive window where you can specify what must
 be in the drive: a disk image (select a disk image file, or create a new disk
@@ -1065,7 +1065,7 @@ the MegaFlashROM SCC+ SD, the Carnivore 2, and the Beer IDE interfaces. Not all 
 </p>
 
 <p>
-The extensions that enable this have a built in mass storage (harddisk, SD card, etc.) configuration, in the
+The extensions that enable this have a built-in mass storage (harddisk, SD card, etc.) configuration, in the
 form of a 100MB disk image. This is the default size: if the harddisk
 image is not present, a file is created with this size. The image will end up
 in your openMSX user
@@ -1080,7 +1080,7 @@ they were real interfaces with a blank harddisk connected. How they should be in
 depends on the type. We advise you read the manuals, the sections
 below give some hints. The <code><a class="external"
 href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, as it
-supports hard disk images with both Sunrise IDE and Nextor compatible partition
+supports harddisk images with both Sunrise IDE and Nextor compatible partition
 table formats.
 </p>
 
@@ -1107,7 +1107,7 @@ setting).
 </p>
 
 <p>
-To specify the harddisk image to be used on the command line, use the applicable command line option, e.g. for Sunrise IDE:
+To specify the harddisk image to be used on the command line, use the applicable command-line option, e.g. for Sunrise IDE:
 </p>
 <div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
 <p>
@@ -1152,7 +1152,7 @@ on the MSX Resource Center forum that may give you valuable hints.
 You can sidestep these procedures by using the <code><a class="external"
 href="diskmanipulator.html">diskmanipulator</a></code> to create an initial hd
 image complete with any desired files and subdirectories. For
-instance to create a hard disk with 3 partitions of 32 megabyte on it, and have
+instance to create a harddisk with 3 partitions of 32 megabyte on it, and have
 each partition filled with files and subdirectories, proceed as follows:
 </p>
 <p>
@@ -1171,7 +1171,7 @@ set <a class="external" href="commands.html#power">power</a> on
 <p>
 As announced above, there is (limited) support for CD-ROM with the 'ide'
 extension. You can insert an ISO image in that virtual CD-ROM player with the
-<code>-cda</code> command line option and change it at run time with the
+<code>-cda</code> command-line option and change it at run time with the
 <code><a class="external" href="commands.html#cd">cda</a></code> console
 command, all similar to the aforementioned <code><a class="external"
 href="commands.html#hd">hda</a></code> and <code><a class="external"
@@ -1190,9 +1190,9 @@ experimental.
 </p>
 
 <p>
-Usage is identical to using the Sunrise hard disk interface: you can use the
+Usage is identical to using the Sunrise harddisk interface: you can use the
 GUI, the <a class="external" href="commands.html#hd">hda</a> command and the
-matching command line parameter <code>-hda</code> to control which image will
+matching command-line parameter <code>-hda</code> to control which image will
 be used.
 </p>
 
@@ -1207,7 +1207,7 @@ the firmware to use by editing the extension file in
 
 <p>
 With the 1.9RC1 firmware, you can use <code><a class="external"
-href="diskmanipulator.html">diskmanipulator</a></code> to create a hard disk
+href="diskmanipulator.html">diskmanipulator</a></code> to create a harddisk
 image and import from and export to them. To get started, partition the default
 drive with <code>diskmanipulator partition hda -dos1 32M 32M 32M 32M</code>.
 Then import MSX-DOS system files onto the first partition using
@@ -1235,7 +1235,7 @@ more experimental) LS-120 device (basically a harddisk like media that can be
 changed/ejected when the power is on) on target ID 2.
 </p>
 
-<p>Specifying or changing hard disk images works the same as with IDE, see above.</p>
+<p>Specifying or changing harddisk images works the same as with IDE, see above.</p>
 
 <p>
 To change the disk image of the LS-120 device, use the <code>lsa</code> (LS
@@ -1304,9 +1304,9 @@ SCC+ SD, because on a real device you may also need to do this.
 </p>
 
 <p>
-Once you achieved this, usage is again identical to using the Sunrise hard disk
+Once you achieved this, usage is again identical to using the Sunrise harddisk
 interface, so in the console you can use the <a class="external"
-href="commands.html#hd">hda/hdb</a> commands and the matching command line
+href="commands.html#hd">hda/hdb</a> commands and the matching command-line
 parameters <code>-hda</code> and <code>-hdb</code> to control which image will
 be used for the first and second SD card.
 </p>
@@ -1482,7 +1482,7 @@ emulating a Spanish MSX computer.
 </p>
 
 <p>
-There are facilities to make this as smooth as possible,
+There are features to make this as smooth as possible,
 so that you can use your own keyboard for any kind of MSX with as little
 surprises as possible. The trick is the new character-based <a class="external"
 href="commands.html#kbd_mapping_mode">mapping mode</a>, which tries to convert
@@ -1664,7 +1664,7 @@ Known games that can use this Magic Key are:
 
 <p>
 The Ninja Tap (忍者タップ) is an adapter designed by Knight's chamber and
-sold in Japan by PCCM. This adapter allows to use up to 4 joysticks by port.
+sold in Japan by PCCM. This adapter allows you to use up to 4 joysticks per port.
 Plug it via the GUI or with the console using <code><a class="external"
 href="commands.html#plugunplug">plug</a> joyporta ninjatap</code>.
 </p>

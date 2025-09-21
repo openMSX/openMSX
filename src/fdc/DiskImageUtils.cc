@@ -179,7 +179,7 @@ static SetBootSectorResult setBootSector(
 	// .. and fill-in image-size dependent parameters ..
 	// these are the same for most formats
 	uint8_t nbReservedSectors = 1;
-	uint8_t nbHiddenSectors = 1;
+	uint8_t nbHiddenSectors = 0;
 	uint32_t vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?;
 
 	// all these are set below (but initialize here to avoid warning)
@@ -198,7 +198,6 @@ static SetBootSectorResult setBootSector(
 		nbFats = 2;
 		nbDirEntry = 512;
 		descriptor = 0xF0;
-		nbHiddenSectors = 0;
 		fat16 = true;
 
 		// <= 128 MB: 4, <= 256 MB: 8, ..., <= 4 GB: 128
@@ -222,7 +221,6 @@ static SetBootSectorResult setBootSector(
 		nbFats = 2;
 		nbDirEntry = 112;
 		descriptor = 0xF0;
-		nbHiddenSectors = 0;
 
 		// <= 2 MB: 1, <= 4 MB: 2, ..., <= 32 MB: 16
 		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 12, 1uz, 16uz));
@@ -254,7 +252,6 @@ static SetBootSectorResult setBootSector(
 		nbFats = 2;
 		nbDirEntry = 112;
 		descriptor = 0xF0;
-		nbHiddenSectors = 0;
 
 		// <= 1 MB: 2, <= 2 MB: 4, ..., <= 32 MB: 64
 		nbSectorsPerCluster = narrow<uint8_t>(std::clamp(std::bit_ceil(nbSectors) >> 10, 2uz, 64uz));
@@ -281,7 +278,6 @@ static SetBootSectorResult setBootSector(
 		nbSectorsPerCluster = 16;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
-		nbHiddenSectors = 16;	// override default from above
 		// for a 32MB disk or greater the sectors would be >= 65536
 		// since MSX use 16 bits for this, in case of sectors = 65536
 		// the truncated word will be 0 -> formatted as 320 Kb disk!
