@@ -347,6 +347,13 @@ void ImGuiSettings::showMenu(MSXMotherBoard* motherBoard)
 				}
 			}
 			ImGui::MenuItem("Configure MSX joysticks", nullptr, &showConfigureJoystick);
+			auto& grabInputSetting = reactor.getInputEventGenerator().getGrabInput();
+			bool grabInput = grabInputSetting.getBoolean();
+			if (auto shortCut = getShortCutForCommand(hotKey, "toggle grabinput");
+				ImGui::MenuItem("Grab input", shortCut.c_str(), &grabInput)) {
+				grabInputSetting.setBoolean(grabInput);
+			}
+			simpleToolTip("Enable this to help you keep the mouse cursor in the MSX window, e.g. when using drawing programs with mouse in windowed mode.");
 		});
 		im::Menu("GUI", [&]{
 			saveLayout.menu("Save layout");
