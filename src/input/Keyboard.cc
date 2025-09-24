@@ -854,7 +854,9 @@ void Keyboard::setFocus(bool newFocus, EmuTime time)
 	if (newFocus == focus) return;
 	focus = newFocus;
 
-	syncHostKeyMatrix(time); // release all keys on lost focus
+	if (!stateChangeDistributor.isReplaying()) {
+		syncHostKeyMatrix(time); // release all keys on lost focus
+	}
 }
 
 /* Received an MSX event
