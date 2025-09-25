@@ -90,6 +90,7 @@ void MSXPiDevice::writeIO(uint16_t port, byte value, EmuTime time)
 	case 0x56: // control
 		if (value == 0xFF) {
 			reset(time);
+			break;
 		}
 		if (sock != OPENMSX_INVALID_SOCKET) {
 			readRequested = true;
