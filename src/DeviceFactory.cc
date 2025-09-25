@@ -96,7 +96,7 @@
 #include "components.hh"
 #include "one_of.hh"
 #include <memory>
- 
+
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif
