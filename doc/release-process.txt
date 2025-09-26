@@ -126,9 +126,17 @@ Announce:
   mailinglists (at least one packager uses it to get a trigger)
 
 Finally:
-- Update web site to point to new downloads.
-- On the openMSX home page, update the lists "features of current release"
-  and "features in development".
+- Update the web site:
+  - in the htdocs repo:
+    - Point to new downloads.
+    - Update the list "features of current release"
+    - When done, commit and push
+  - Make sure you have a clone of the openMSX.github.io repo as well, and go to
+    it. This repo contains the web site as it is live (so not the sources)
+  - Run the update.sh script, which will update the files based on the
+    htdocs/openMSX and wxcatapult repos and converts the php to html
+  - Review the changes and commit and push to publish them immediately on the
+    site.
 - Set releaseFlag to False in build/version.py
 - Update libraries in the 3rd party build system to latest versions, so
   that next release will profit from this and you won't forget it. Just
