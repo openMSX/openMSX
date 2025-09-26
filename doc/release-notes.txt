@@ -1,4 +1,4 @@
-Release Notes for openMSX 21.0 (2025-09-xx)
+Release Notes for openMSX 21.0 (2025-09-26)
 ===========================================
 
 This release has many improvements on the new GUI introduced in openMSX 20.0
