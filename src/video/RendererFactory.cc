@@ -1,24 +1,23 @@
 #include "RendererFactory.hh"
-#include "Reactor.hh"
+
 #include "Display.hh"
-#include "unreachable.hh"
-#include <memory>
-
-// Video systems:
-#include "components.hh"
-#include "DummyVideoSystem.hh"
-#include "SDLVideoSystem.hh"
-
-// Renderers:
 #include "DummyRenderer.hh"
+#include "DummyVideoSystem.hh"
 #include "PixelRenderer.hh"
+#include "SDLVideoSystem.hh"
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
+#include "Reactor.hh"
+#include "unreachable.hh"
+
+#include "components.hh"
 #if COMPONENT_LASERDISC
 #include "LDDummyRenderer.hh"
 #include "LDPixelRenderer.hh"
 #endif
+
+#include <memory>
 
 namespace openmsx::RendererFactory {
 

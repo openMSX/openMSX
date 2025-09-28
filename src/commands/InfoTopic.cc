@@ -1,4 +1,5 @@
 #include "InfoTopic.hh"
+
 #include "InfoCommand.hh"
 
 namespace openmsx {

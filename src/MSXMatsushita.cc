@@ -1,11 +1,13 @@
 #include "MSXMatsushita.hh"
+
 #include "MSXCPU.hh"
-#include "SRAM.hh"
-#include "VDP.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+#include "SRAM.hh"
+#include "VDP.hh"
 #include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

@@ -1,6 +1,6 @@
 #include "RomSuperSwangi.hh"
+
 #include "CacheLine.hh"
-#include "serialize.hh"
 
 namespace openmsx {
 

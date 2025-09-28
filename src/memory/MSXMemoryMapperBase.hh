@@ -1,11 +1,14 @@
 #ifndef MSXMEMORYMAPPERBASE_HH
 #define MSXMEMORYMAPPERBASE_HH
 
+#include "CheckedRam.hh"
+
 #include "MSXDevice.hh"
 #include "MSXMapperIO.hh"
-#include "CheckedRam.hh"
 #include "SimpleDebuggable.hh"
+
 #include "narrow.hh"
+
 #include <array>
 
 namespace openmsx {

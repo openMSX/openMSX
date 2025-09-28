@@ -1,14 +1,17 @@
 #ifndef MSXCOMMANDCONTROLLER_HH
 #define MSXCOMMANDCONTROLLER_HH
 
-#include "CommandController.hh"
 #include "Command.hh"
+#include "CommandController.hh"
 #include "InfoCommand.hh"
-#include "MSXEventListener.hh"
+
 #include "MSXCliComm.hh"
+#include "MSXEventListener.hh"
+
 #include "TemporaryString.hh"
 #include "hash_set.hh"
 #include "xxhash.hh"
+
 #include <memory>
 
 namespace openmsx {

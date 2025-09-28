@@ -1,5 +1,7 @@
 #include "RamDSKDiskImage.hh"
+
 #include "DiskImageUtils.hh"
+
 #include "ranges.hh"
 
 namespace openmsx {

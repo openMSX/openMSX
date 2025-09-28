@@ -1,8 +1,8 @@
 #include "PrinterPortSimpl.hh"
+
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include <memory>
 
 namespace openmsx {
 

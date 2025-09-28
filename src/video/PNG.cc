@@ -1,8 +1,9 @@
 #include "PNG.hh"
 
+#include "PixelOperations.hh"
+
 #include "File.hh"
 #include "MSXException.hh"
-#include "PixelOperations.hh"
 #include "Version.hh"
 
 #include "cstdiop.hh"
@@ -11,14 +12,14 @@
 #include "one_of.hh"
 #include "small_buffer.hh"
 
-#include <png.h>
 #include <SDL.h>
+#include <png.h>
 
 #include <array>
 #include <bit>
 #include <cassert>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <iostream>
 #include <limits>

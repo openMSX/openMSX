@@ -1,8 +1,8 @@
 #ifndef MSXHIRESTIMER_HH
 #define MSXHIRESTIMER_HH
 
-#include "MSXDevice.hh"
 #include "Clock.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

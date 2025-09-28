@@ -1,10 +1,13 @@
 #include "SunriseIDE.hh"
-#include "IDEDeviceFactory.hh"
+
 #include "IDEDevice.hh"
+#include "IDEDeviceFactory.hh"
+
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "serialize.hh"
 
 namespace openmsx {
 

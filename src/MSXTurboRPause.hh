@@ -8,8 +8,9 @@
 #ifndef TURBORPAUSE_HH
 #define TURBORPAUSE_HH
 
-#include "MSXDevice.hh"
 #include "BooleanSetting.hh"
+#include "MSXDevice.hh"
+
 #include "Observer.hh"
 
 namespace openmsx {

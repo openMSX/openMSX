@@ -1,8 +1,11 @@
 #include "CompressedFileAdapter.hh"
+
 #include "FileException.hh"
+
 #include "hash_set.hh"
 #include "ranges.hh"
 #include "xxhash.hh"
+
 #include <cstring>
 
 namespace openmsx {

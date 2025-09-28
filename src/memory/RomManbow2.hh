@@ -1,11 +1,13 @@
 #ifndef ROMMANBOW2_HH
 #define ROMMANBOW2_HH
 
-#include "MSXRom.hh"
-#include "RomTypes.hh"
 #include "AmdFlash.hh"
+#include "MSXRom.hh"
 #include "RomBlockDebuggable.hh"
+#include "RomTypes.hh"
+
 #include "serialize_meta.hh"
+
 #include <array>
 #include <memory>
 

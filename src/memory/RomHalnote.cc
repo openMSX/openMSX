@@ -24,12 +24,16 @@
  */
 
 #include "RomHalnote.hh"
-#include "CacheLine.hh"
+
 #include "SRAM.hh"
+
+#include "CacheLine.hh"
 #include "MSXException.hh"
-#include "one_of.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 #include "xrange.hh"
+
 #include <memory>
 
 namespace openmsx {

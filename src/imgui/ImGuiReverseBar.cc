@@ -3,12 +3,12 @@
 #include "ImGuiCpp.hh"
 #include "ImGuiManager.hh"
 
+#include "CliComm.hh"
 #include "FileOperations.hh"
 #include "GLImage.hh"
+#include "GlobalCommandController.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
-#include "GlobalCommandController.hh"
-#include "CliComm.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>

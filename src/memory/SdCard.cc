@@ -1,12 +1,15 @@
 #include "SdCard.hh"
+
 #include "DeviceConfig.hh"
 #include "HD.hh"
 #include "MSXException.hh"
-#include "unreachable.hh"
-#include "endian.hh"
-#include "narrow.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+
+#include "endian.hh"
+#include "narrow.hh"
+#include "unreachable.hh"
+
 #include <memory>
 
 // TODO:

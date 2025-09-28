@@ -1,12 +1,13 @@
 #ifndef MSXMIDI_HH
 #define MSXMIDI_HH
 
-#include "MSXDevice.hh"
-#include "IRQHelper.hh"
-#include "MidiInConnector.hh"
-#include "MidiOutConnector.hh"
 #include "I8251.hh"
 #include "I8254.hh"
+#include "MidiInConnector.hh"
+#include "MidiOutConnector.hh"
+
+#include "IRQHelper.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

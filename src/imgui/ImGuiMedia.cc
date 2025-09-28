@@ -13,8 +13,8 @@
 #include "DiskImageUtils.hh"
 #include "DiskManipulator.hh"
 #include "FilePool.hh"
-#include "HardwareConfig.hh"
 #include "HD.hh"
+#include "HardwareConfig.hh"
 #include "IDECDROM.hh"
 #include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
@@ -24,9 +24,9 @@
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 
+#include "StringOp.hh"
 #include "join.hh"
 #include "one_of.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 
 #include <CustomFont.h>

@@ -1,7 +1,7 @@
 #include "LedStatus.hh"
 
-#include "MSXCliComm.hh"
 #include "CommandController.hh"
+#include "MSXCliComm.hh"
 #include "Timer.hh"
 
 #include "stl.hh"

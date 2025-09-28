@@ -2,6 +2,7 @@
 #define RAM_HH
 
 #include "SimpleDebuggable.hh"
+
 #include "MemBuffer.hh"
 #include "static_string_view.hh"
 

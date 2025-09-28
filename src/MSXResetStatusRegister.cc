@@ -1,4 +1,5 @@
 #include "MSXResetStatusRegister.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

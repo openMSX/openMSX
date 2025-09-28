@@ -5,8 +5,8 @@
 #include <bit>
 #include <cassert>
 #include <concepts>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace openmsx {

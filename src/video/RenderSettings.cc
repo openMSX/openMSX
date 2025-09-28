@@ -10,8 +10,8 @@
 #include "build-info.hh"
 
 #include <algorithm>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 using namespace gl;
 

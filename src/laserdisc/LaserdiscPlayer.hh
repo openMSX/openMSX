@@ -1,18 +1,19 @@
 #ifndef LASERDISCPLAYER_HH
 #define LASERDISCPLAYER_HH
 
-#include "ResampledSoundDevice.hh"
-#include "MSXMotherBoard.hh"
-#include "BooleanSetting.hh"
-#include "RecordedCommand.hh"
-#include "EmuTime.hh"
-#include "Schedulable.hh"
-#include "DynamicClock.hh"
-#include "Filename.hh"
 #include "OggReader.hh"
-#include "VideoSystemChangeListener.hh"
+
+#include "BooleanSetting.hh"
+#include "DynamicClock.hh"
+#include "EmuTime.hh"
 #include "EventListener.hh"
+#include "Filename.hh"
+#include "MSXMotherBoard.hh"
+#include "RecordedCommand.hh"
+#include "ResampledSoundDevice.hh"
+#include "Schedulable.hh"
 #include "ThrottleManager.hh"
+#include "VideoSystemChangeListener.hh"
 
 #include "outer.hh"
 

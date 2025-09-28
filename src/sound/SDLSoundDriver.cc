@@ -1,13 +1,14 @@
 #include "SDLSoundDriver.hh"
 
-#include "Mixer.hh"
-#include "Reactor.hh"
 #include "MSXMixer.hh"
-#include "MSXMotherBoard.hh"
-#include "RealTime.hh"
+#include "Mixer.hh"
+
 #include "GlobalSettings.hh"
-#include "ThrottleManager.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "RealTime.hh"
+#include "ThrottleManager.hh"
 #include "Timer.hh"
 
 #include "narrow.hh"

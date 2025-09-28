@@ -1,9 +1,10 @@
 #include "Connector.hh"
+
+#include "CliComm.hh"
 #include "PlugException.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "serialize.hh"
-#include "CliComm.hh"
 
 namespace openmsx {
 

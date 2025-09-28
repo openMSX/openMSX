@@ -1,8 +1,8 @@
 #include "EnumSetting.hh"
 
-#include "TclObject.hh"
-#include "Completer.hh"
 #include "CommandException.hh"
+#include "Completer.hh"
+#include "TclObject.hh"
 
 #include "StringOp.hh"
 #include "ranges.hh"

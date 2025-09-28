@@ -1,7 +1,9 @@
 #include "Command.hh"
+
 #include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
+
 #include "checked_cast.hh"
 
 namespace openmsx {

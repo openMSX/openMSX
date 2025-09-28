@@ -1,4 +1,5 @@
 #include "ImGuiOpenFile.hh"
+
 #include "ImGuiManager.hh"
 
 #include "FilePool.hh"
@@ -8,8 +9,8 @@
 #include "FileOperations.hh"
 #include "one_of.hh"
 
-#include <imgui.h>
 #include <ImGuiFileDialog.h>
+#include <imgui.h>
 
 namespace openmsx {
 

@@ -1,9 +1,12 @@
 #include "VDPIODelay.hh"
+
+#include "DummyDevice.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "DummyDevice.hh"
 #include "serialize.hh"
+
 #include "xrange.hh"
+
 #include <cassert>
 
 namespace openmsx {

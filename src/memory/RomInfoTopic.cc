@@ -1,7 +1,8 @@
 #include "RomInfoTopic.hh"
+
+#include "CommandException.hh"
 #include "RomInfo.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
 
 namespace openmsx {
 

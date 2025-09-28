@@ -1,8 +1,8 @@
 #include "LDSDLRasterizer.hh"
-#include "RawFrame.hh"
-#include "PostProcessor.hh"
+
 #include "PixelOperations.hh"
-#include <cstdint>
+#include "PostProcessor.hh"
+#include "RawFrame.hh"
 
 namespace openmsx {
 

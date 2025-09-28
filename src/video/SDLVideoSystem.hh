@@ -2,10 +2,14 @@
 #define SDLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
-#include "EventListener.hh"
-#include "Observer.hh"
 #include "gl_vec.hh"
+
+#include "EventListener.hh"
+
+#include "Observer.hh"
+
 #include "components.hh"
+
 #include <memory>
 
 namespace openmsx {

@@ -1,29 +1,30 @@
 #include "PluggableFactory.hh"
 
-#include "PluggingController.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
-#include "JoyMega.hh"
 #include "ArkanoidPad.hh"
-#include "InputEventGenerator.hh"
-#include "JoyTap.hh"
-#include "NinjaTap.hh"
-#include "SETetrisDongle.hh"
 #include "CircuitDesignerRDDongle.hh"
-#include "MagicKey.hh"
+#include "InputEventGenerator.hh"
+#include "JoyMega.hh"
+#include "JoyTap.hh"
 #include "MSXJoystick.hh"
+#include "MSXMotherBoard.hh"
+#include "MagicKey.hh"
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
+#include "NinjaTap.hh"
 #include "Paddle.hh"
-#include "Trackball.hh"
-#include "Touchpad.hh"
+#include "PluggingController.hh"
+#include "Printer.hh"
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
-#include "Printer.hh"
-#include "RS232Tester.hh"
 #include "RS232Net.hh"
+#include "RS232Tester.hh"
+#include "Reactor.hh"
+#include "SETetrisDongle.hh"
+#include "Touchpad.hh"
+#include "Trackball.hh"
 #include "WavAudioInput.hh"
+
 #include "components.hh"
 #if	defined(_WIN32)
 #include "MidiInWindows.hh"
@@ -36,6 +37,7 @@
 #if COMPONENT_ALSAMIDI
 #include "MidiSessionALSA.hh"
 #endif
+
 #include <memory>
 
 namespace openmsx {

@@ -1,5 +1,7 @@
 #include "CLIOption.hh"
+
 #include "MSXException.hh"
+
 #include <utility>
 
 namespace openmsx {

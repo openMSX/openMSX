@@ -1,9 +1,8 @@
 #include "MSXModem.hh"
-#include "CacheLine.hh"
-#include "serialize.hh"
-#include "MSXException.hh"
 
-#include <iostream>
+#include "CacheLine.hh"
+#include "MSXException.hh"
+#include "serialize.hh"
 
 // See also
 // https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/modem100/t600/t600-0.mac

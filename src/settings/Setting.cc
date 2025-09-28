@@ -1,11 +1,13 @@
 #include "Setting.hh"
+
+#include "CliComm.hh"
 #include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
+#include "MSXException.hh"
 #include "SettingsConfig.hh"
 #include "TclObject.hh"
-#include "CliComm.hh"
-#include "MSXException.hh"
+
 #include "checked_cast.hh"
 
 namespace openmsx {

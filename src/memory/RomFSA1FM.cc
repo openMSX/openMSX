@@ -33,14 +33,18 @@
 //                0x84-0x87 0x8C-0x8F  contain (same) 8kB RAM
 
 #include "RomFSA1FM.hh"
-#include "CacheLine.hh"
+
 #include "SRAM.hh"
-#include "MSXMotherBoard.hh"
+
+#include "CacheLine.hh"
 #include "MSXException.hh"
-#include "one_of.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 #include "strCat.hh"
 #include "xrange.hh"
+
 #include <memory>
 
 namespace openmsx {

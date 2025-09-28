@@ -1,7 +1,9 @@
 #include "catch.hpp"
-#include "EmuTime.hh"
 #include "EEPROM_93C46.hh"
+
+#include "EmuTime.hh"
 #include "XMLElement.hh"
+
 #include "xrange.hh"
 
 using namespace openmsx;

@@ -1,6 +1,8 @@
 #include "MSXHiResTimer.hh"
-#include "narrow.hh"
+
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

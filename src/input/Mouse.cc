@@ -1,14 +1,19 @@
 #include "Mouse.hh"
-#include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
+
 #include "Event.hh"
+#include "MSXEventDistributor.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
+
 #include "Clock.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "unreachable.hh"
+
 #include "Math.hh"
+#include "unreachable.hh"
+
 #include <SDL.h>
+
 #include <algorithm>
 
 namespace openmsx {

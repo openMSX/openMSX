@@ -1,8 +1,11 @@
 #include "ADVram.hh"
+
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+
 #include "MSXException.hh"
 #include "serialize.hh"
+
 #include <algorithm>
 
 namespace openmsx {

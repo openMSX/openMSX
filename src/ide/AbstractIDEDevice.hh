@@ -2,9 +2,10 @@
 #define ABSTRACTIDEDEVICE_HH
 
 #include "IDEDevice.hh"
-#include "AlignedBuffer.hh"
+
 #include "serialize_meta.hh"
-#include <string>
+
+#include "AlignedBuffer.hh"
 
 namespace openmsx {
 

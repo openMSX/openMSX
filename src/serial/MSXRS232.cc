@@ -1,11 +1,12 @@
 #include "MSXRS232.hh"
 
 #include "RS232Device.hh"
+
+#include "BooleanSetting.hh"
 #include "CacheLine.hh"
+#include "MSXException.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "BooleanSetting.hh"
-#include "MSXException.hh"
 #include "serialize.hh"
 
 #include "one_of.hh"

@@ -1,5 +1,4 @@
 #include "OutputSurface.hh"
-#include "endian.hh"
 
 namespace openmsx {
 

@@ -1,17 +1,15 @@
 #include "MSXMapperIO.hh"
 
-#include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 
 #include "StringOp.hh"
 #include "enumerate.hh"
 #include "outer.hh"
 #include "stl.hh"
-
-#include <algorithm>
 
 namespace openmsx {
 

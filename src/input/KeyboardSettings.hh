@@ -1,9 +1,9 @@
 #ifndef KEYBOARDSETTINGS_HH
 #define KEYBOARDSETTINGS_HH
 
-#include "SDLKey.hh"
-#include "EnumSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
+#include "SDLKey.hh"
 
 #include <array>
 #include <cassert>

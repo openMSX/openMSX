@@ -3,20 +3,20 @@
 
 #include "RS232Device.hh"
 
-#include "EventListener.hh"
-#include "StringSetting.hh"
 #include "BooleanSetting.hh"
+#include "EventListener.hh"
 #include "Socket.hh"
+#include "StringSetting.hh"
 
 #include "Poller.hh"
 #include "circular_buffer.hh"
 
 #include <atomic>
+#include <cstdint>
 #include <mutex>
 #include <optional>
 #include <span>
 #include <thread>
-#include <cstdint>
 
 namespace openmsx {
 

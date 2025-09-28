@@ -160,14 +160,15 @@
 
 #include "CPUCore.hh"
 
-#include "MSXCPUInterface.hh"
-#include "Scheduler.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
-#include "TclCallback.hh"
 #include "Dasm.hh"
-#include "Z80.hh"
+#include "MSXCPUInterface.hh"
 #include "R800.hh"
+#include "Z80.hh"
+
+#include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "Scheduler.hh"
+#include "TclCallback.hh"
 #include "Thread.hh"
 
 #include "endian.hh"

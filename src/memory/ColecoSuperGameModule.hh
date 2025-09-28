@@ -1,10 +1,11 @@
 #ifndef COLECOSUPERGAMEMODULE_HH
 #define COLECOSUPERGAMEMODULE_HH
 
-#include "MSXDevice.hh"
-#include "AY8910.hh"
-#include "Rom.hh"
 #include "CheckedRam.hh"
+#include "Rom.hh"
+
+#include "AY8910.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

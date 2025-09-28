@@ -2,8 +2,8 @@
 #define WAVDATA_HH
 
 #include "File.hh"
-#include "MemBuffer.hh"
 #include "MSXException.hh"
+#include "MemBuffer.hh"
 
 #include "endian.hh"
 #include "one_of.hh"

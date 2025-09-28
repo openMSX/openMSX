@@ -1,6 +1,8 @@
 #include "DACSound8U.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+
 #include "narrow.hh"
 
 namespace openmsx {

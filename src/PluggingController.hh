@@ -1,9 +1,10 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
-#include "RecordedCommand.hh"
-#include "InfoTopic.hh"
 #include "EmuTime.hh"
+#include "InfoTopic.hh"
+#include "RecordedCommand.hh"
+
 #include <memory>
 #include <string_view>
 #include <vector>

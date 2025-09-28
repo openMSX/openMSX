@@ -5,9 +5,9 @@
 #include "inline.hh"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
-#include <cassert>
 #include <span>
 #include <tuple>
 

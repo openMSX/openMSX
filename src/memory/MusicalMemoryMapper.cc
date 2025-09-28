@@ -1,7 +1,9 @@
 #include "MusicalMemoryMapper.hh"
+
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "serialize.hh"
 #include "xrange.hh"
 
 namespace openmsx {

@@ -6,13 +6,13 @@
 #include "V9990ModeEnum.hh"
 #include "V9990VRAM.hh"
 
+#include "Clock.hh"
+#include "IRQHelper.hh"
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
+#include "SimpleDebuggable.hh"
 #include "TclCallback.hh"
 #include "VideoSystemChangeListener.hh"
-#include "IRQHelper.hh"
-#include "SimpleDebuggable.hh"
-#include "Clock.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"
@@ -23,7 +23,6 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <optional>
 
 namespace openmsx {
 

@@ -2,10 +2,11 @@
 
 #include "Interpreter.hh"
 #include "InterpreterOutput.hh"
+#include "TclObject.hh"
+
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "foreach_file.hh"
-#include "TclObject.hh"
 
 #include "ranges.hh"
 #include "stl.hh"

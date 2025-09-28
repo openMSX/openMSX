@@ -2,6 +2,7 @@
 #define OSDGUI_HH
 
 #include "OSDTopWidget.hh"
+
 #include "Command.hh"
 
 #include <memory>

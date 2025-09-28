@@ -1,9 +1,12 @@
 #include "DummyVideoSystem.hh"
+
+#include "LDRasterizer.hh"
 #include "Rasterizer.hh"
 #include "V9990Rasterizer.hh"
-#include "LDRasterizer.hh"
-#include "components.hh"
+
 #include "unreachable.hh"
+
+#include "components.hh"
 
 namespace openmsx {
 

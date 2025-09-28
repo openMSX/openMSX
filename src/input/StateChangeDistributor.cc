@@ -1,7 +1,7 @@
 #include "StateChangeDistributor.hh"
 
-#include "StateChangeListener.hh"
 #include "StateChange.hh"
+#include "StateChangeListener.hh"
 
 #include "stl.hh"
 

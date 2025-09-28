@@ -1,8 +1,11 @@
 #include "ReproCartridgeV1.hh"
+
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
+
 #include <array>
 
 

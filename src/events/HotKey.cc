@@ -1,14 +1,15 @@
 #include "HotKey.hh"
 
-#include "InputEventFactory.hh"
-#include "GlobalCommandController.hh"
-#include "CommandException.hh"
-#include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "Event.hh"
+#include "EventDistributor.hh"
+#include "InputEventFactory.hh"
+
+#include "CommandException.hh"
+#include "GlobalCommandController.hh"
+#include "SettingsConfig.hh"
 #include "TclArgParser.hh"
 #include "TclObject.hh"
-#include "SettingsConfig.hh"
 
 #include "one_of.hh"
 #include "outer.hh"

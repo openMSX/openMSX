@@ -1,10 +1,11 @@
 #include "RomPanasonic.hh"
 
 #include "PanasonicMemory.hh"
-#include "MSXMotherBoard.hh"
-#include "DeviceConfig.hh"
 #include "SRAM.hh"
+
 #include "CacheLine.hh"
+#include "DeviceConfig.hh"
+#include "MSXMotherBoard.hh"
 
 #include "one_of.hh"
 #include "serialize.hh"

@@ -10,8 +10,8 @@
 #ifndef MSXE6TIMER_HH
 #define MSXE6TIMER_HH
 
-#include "MSXDevice.hh"
 #include "Clock.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

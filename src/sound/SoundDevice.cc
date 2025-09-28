@@ -1,13 +1,14 @@
 #include "SoundDevice.hh"
 
 #include "MSXMixer.hh"
-#include "DeviceConfig.hh"
 #include "Mixer.hh"
-#include "XMLElement.hh"
-#include "Filename.hh"
-#include "StringOp.hh"
-#include "MSXException.hh"
 
+#include "DeviceConfig.hh"
+#include "Filename.hh"
+#include "MSXException.hh"
+#include "XMLElement.hh"
+
+#include "StringOp.hh"
 #include "inplace_buffer.hh"
 #include "narrow.hh"
 #include "one_of.hh"

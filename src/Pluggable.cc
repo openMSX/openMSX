@@ -1,7 +1,10 @@
 #include "Pluggable.hh"
-#include "PlugException.hh"
+
 #include "Connector.hh"
+#include "PlugException.hh"
+
 #include "unreachable.hh"
+
 #include <cassert>
 
 namespace openmsx {

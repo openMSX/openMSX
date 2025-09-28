@@ -1,7 +1,9 @@
 #include "VictorFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "serialize.hh"
 
 // This implementation is documented in the HC-95 service manual:

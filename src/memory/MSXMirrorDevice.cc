@@ -1,4 +1,5 @@
 #include "MSXMirrorDevice.hh"
+
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
 #include "serialize.hh"

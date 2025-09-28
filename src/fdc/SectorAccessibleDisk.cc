@@ -1,9 +1,9 @@
 #include "SectorAccessibleDisk.hh"
 
+#include "DiskExceptions.hh"
 #include "DiskImageUtils.hh"
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"
-#include "DiskExceptions.hh"
 
 #include "enumerate.hh"
 #include "sha1.hh"

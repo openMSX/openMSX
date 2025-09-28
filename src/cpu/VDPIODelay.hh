@@ -1,8 +1,9 @@
 #ifndef VDPIODELAY_HH
 #define VDPIODELAY_HH
 
-#include "MSXDevice.hh"
 #include "Clock.hh"
+#include "MSXDevice.hh"
+
 #include <array>
 
 namespace openmsx {

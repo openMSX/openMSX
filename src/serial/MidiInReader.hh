@@ -4,11 +4,11 @@
 #include "MidiInDevice.hh"
 
 #include "EventListener.hh"
-#include "FilenameSetting.hh"
 #include "FileOperations.hh"
+#include "FilenameSetting.hh"
 
-#include "circular_buffer.hh"
 #include "Poller.hh"
+#include "circular_buffer.hh"
 
 #include <cstdint>
 #include <mutex>

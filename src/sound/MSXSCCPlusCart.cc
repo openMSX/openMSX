@@ -3,11 +3,11 @@
 
 #include "MSXSCCPlusCart.hh"
 
+#include "CacheLine.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
-#include "CacheLine.hh"
 
 #include "enumerate.hh"
 #include "narrow.hh"

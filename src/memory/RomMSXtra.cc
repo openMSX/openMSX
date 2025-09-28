@@ -1,5 +1,7 @@
 #include "RomMSXtra.hh"
+
 #include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

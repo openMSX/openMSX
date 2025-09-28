@@ -1,5 +1,7 @@
 #include "GoudaSCSI.hh"
+
 #include "serialize.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {

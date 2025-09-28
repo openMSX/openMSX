@@ -1,6 +1,8 @@
 #include "catch.hpp"
 #include "circular_buffer.hh"
+
 #include "xrange.hh"
+
 #include <memory>
 #include <vector>
 

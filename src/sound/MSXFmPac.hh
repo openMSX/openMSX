@@ -2,8 +2,9 @@
 #define MSXFMPAC_HH
 
 #include "MSXMusic.hh"
-#include "SRAM.hh"
+
 #include "RomBlockDebuggable.hh"
+#include "SRAM.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {

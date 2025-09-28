@@ -1,10 +1,11 @@
 #ifndef MSXFACMIDIINTERFACE_HH
 #define MSXFACMIDIINTERFACE_HH
 
-#include "MSXDevice.hh"
 #include "MidiInConnector.hh"
 #include "MidiOutConnector.hh"
+
 #include "I8251.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

@@ -1,8 +1,8 @@
 #include "Debugger.hh"
 
 #include "BreakPoint.hh"
-#include "CommandException.hh"
 #include "CPURegs.hh"
+#include "CommandException.hh"
 #include "Dasm.hh"
 #include "DebugCondition.hh"
 #include "Debuggable.hh"

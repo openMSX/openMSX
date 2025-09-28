@@ -1,14 +1,15 @@
 #include "MSXCommandController.hh"
 
 #include "GlobalCommandController.hh"
-#include "Reactor.hh"
-#include "MSXEventDistributor.hh"
-#include "MSXMotherBoard.hh"
-#include "SettingsManager.hh"
 #include "Interpreter.hh"
-#include "Setting.hh"
+
 #include "Event.hh"
+#include "MSXEventDistributor.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "Setting.hh"
+#include "SettingsManager.hh"
 
 #include "TemporaryString.hh"
 #include "stl.hh"

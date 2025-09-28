@@ -1,8 +1,8 @@
 #include "File.hh"
 
 #include "Filename.hh"
-#include "LocalFile.hh"
 #include "GZFileAdapter.hh"
+#include "LocalFile.hh"
 #include "ZipFileAdapter.hh"
 
 #include "checked_cast.hh"

@@ -1,7 +1,7 @@
 #include "BlipBuffer.hh"
 
-#include "cstd.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "xrange.hh"

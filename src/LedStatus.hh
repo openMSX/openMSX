@@ -1,8 +1,8 @@
 #ifndef LEDSTATUS_HH
 #define LEDSTATUS_HH
 
-#include "ReadOnlySetting.hh"
 #include "RTSchedulable.hh"
+#include "ReadOnlySetting.hh"
 
 #include <array>
 #include <cstdint>

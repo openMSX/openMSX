@@ -1,16 +1,16 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
+#include "CDImageCLI.hh"
 #include "CLIOption.hh"
-#include "MSXRomCLI.hh"
-#include "CliExtension.hh"
-#include "ReplayCLI.hh"
-#include "SaveStateCLI.hh"
 #include "CassettePlayerCLI.hh"
+#include "CliExtension.hh"
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
-#include "CDImageCLI.hh"
 #include "InfoTopic.hh"
+#include "MSXRomCLI.hh"
+#include "ReplayCLI.hh"
+#include "SaveStateCLI.hh"
 
 #include "components.hh"
 

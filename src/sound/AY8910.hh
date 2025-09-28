@@ -2,6 +2,7 @@
 #define AY8910_HH
 
 #include "ResampledSoundDevice.hh"
+
 #include "FloatSetting.hh"
 #include "SimpleDebuggable.hh"
 #include "TclCallback.hh"

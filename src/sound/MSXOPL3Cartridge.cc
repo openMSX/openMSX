@@ -1,5 +1,7 @@
 #include "MSXOPL3Cartridge.hh"
+
 #include "serialize.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {

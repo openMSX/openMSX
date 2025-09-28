@@ -1,10 +1,11 @@
 #ifndef SDLRASTERIZER_HH
 #define SDLRASTERIZER_HH
 
-#include "Rasterizer.hh"
 #include "BitmapConverter.hh"
 #include "CharacterConverter.hh"
+#include "Rasterizer.hh"
 #include "SpriteConverter.hh"
+
 #include "Observer.hh"
 
 #include <array>

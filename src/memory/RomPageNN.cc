@@ -1,5 +1,5 @@
 #include "RomPageNN.hh"
-#include "serialize.hh"
+
 #include "unreachable.hh"
 #include "xrange.hh"
 

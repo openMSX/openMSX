@@ -1,6 +1,8 @@
 #include "RomMatraCompilation.hh"
-#include "one_of.hh"
+
 #include "serialize.hh"
+
+#include "one_of.hh"
 #include "xrange.hh"
 
 // This is basically a generic 8kB mapper (Konami like, but without fixed page

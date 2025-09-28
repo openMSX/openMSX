@@ -3,8 +3,8 @@
 
 #include "ResampledSoundDevice.hh"
 
-#include "SimpleDebuggable.hh"
 #include "Clock.hh"
+#include "SimpleDebuggable.hh"
 
 #include <array>
 #include <cstdint>

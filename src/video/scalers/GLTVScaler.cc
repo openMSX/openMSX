@@ -1,4 +1,5 @@
 #include "GLTVScaler.hh"
+
 #include "RenderSettings.hh"
 
 namespace openmsx {

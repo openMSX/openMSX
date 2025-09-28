@@ -1,8 +1,9 @@
 #include "RomMSXDOS2.hh"
+
 #include "CacheLine.hh"
 #include "MSXException.hh"
+
 #include "one_of.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
 
 namespace openmsx {

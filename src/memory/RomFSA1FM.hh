@@ -3,7 +3,9 @@
 
 #include "MSXRom.hh"
 #include "RomBlocks.hh"
+
 #include "FirmwareSwitch.hh"
+
 #include <array>
 
 namespace openmsx {

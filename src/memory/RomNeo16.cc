@@ -1,5 +1,7 @@
 #include "RomNeo16.hh"
+
 #include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

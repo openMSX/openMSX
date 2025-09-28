@@ -1,8 +1,9 @@
 #ifndef JVCMSXMIDI_HH
 #define JVCMSXMIDI_HH
 
-#include "MSXDevice.hh"
 #include "MC6850.hh"
+
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

@@ -1,6 +1,8 @@
 #include "KeyboardSettings.hh"
+
 #include "stl.hh"
 #include "strCat.hh"
+
 #include <array>
 
 namespace openmsx {

@@ -17,12 +17,12 @@
 
 #include "Math.hh"
 #include "StringOp.hh"
-#include "serialize.hh"
 #include "cstd.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
+#include "serialize.hh"
 #include "xrange.hh"
 
 #include <algorithm>

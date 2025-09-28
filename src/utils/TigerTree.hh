@@ -28,10 +28,10 @@
 #ifndef TIGERTREE_HH
 #define TIGERTREE_HH
 
-#include <string>
 #include <cstdint>
 #include <ctime>
 #include <functional>
+#include <string>
 
 namespace openmsx {
 

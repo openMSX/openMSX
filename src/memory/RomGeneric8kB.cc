@@ -1,5 +1,5 @@
 #include "RomGeneric8kB.hh"
-#include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

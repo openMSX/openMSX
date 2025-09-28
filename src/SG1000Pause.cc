@@ -1,10 +1,10 @@
 #include "SG1000Pause.hh"
+
 #include "Event.hh"
-#include "SDLKey.hh"
 #include "MSXCPU.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
-#include "checked_cast.hh"
+#include "SDLKey.hh"
 #include "serialize.hh"
 
 namespace openmsx {

@@ -2,8 +2,10 @@
 #define DYNAMICCLOCK_HH
 
 #include "EmuTime.hh"
+
 #include "DivModBySame.hh"
 #include "narrow.hh"
+
 #include <cassert>
 
 namespace openmsx {

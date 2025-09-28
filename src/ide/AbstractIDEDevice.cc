@@ -1,7 +1,7 @@
 #include "AbstractIDEDevice.hh"
 
-#include "MSXMotherBoard.hh"
 #include "LedStatus.hh"
+#include "MSXMotherBoard.hh"
 #include "Version.hh"
 
 #include "narrow.hh"

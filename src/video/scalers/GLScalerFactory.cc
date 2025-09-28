@@ -1,12 +1,15 @@
 #include "GLScalerFactory.hh"
-#include "GLSimpleScaler.hh"
+
+#include "GLContext.hh"
+#include "GLHQScaler.hh"
 #include "GLRGBScaler.hh"
 #include "GLScaleNxScaler.hh"
+#include "GLSimpleScaler.hh"
 #include "GLTVScaler.hh"
-#include "GLHQScaler.hh"
-#include "GLContext.hh"
 #include "RenderSettings.hh"
+
 #include "unreachable.hh"
+
 #include <memory>
 
 namespace openmsx::GLScalerFactory {

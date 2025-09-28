@@ -1,16 +1,19 @@
 #include "SDLRasterizer.hh"
+
+#include "Display.hh"
+#include "OutputSurface.hh"
+#include "PostProcessor.hh"
+#include "RawFrame.hh"
+#include "RenderSettings.hh"
+#include "Renderer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "RawFrame.hh"
-#include "Display.hh"
-#include "Renderer.hh"
-#include "RenderSettings.hh"
-#include "PostProcessor.hh"
+
 #include "MemoryOps.hh"
-#include "OutputSurface.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <array>
 #include <cassert>

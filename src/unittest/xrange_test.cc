@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <type_traits>
 #include <vector>

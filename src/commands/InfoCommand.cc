@@ -1,7 +1,7 @@
 #include "InfoCommand.hh"
 
-#include "TclObject.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
 
 #include <cassert>
 #include <iostream>

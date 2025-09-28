@@ -1,12 +1,13 @@
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 
-#include "InfoTopic.hh"
-#include "SimpleDebuggable.hh"
-#include "Observer.hh"
-#include "BooleanSetting.hh"
 #include "CacheLine.hh"
+
+#include "BooleanSetting.hh"
 #include "EmuTime.hh"
+#include "InfoTopic.hh"
+#include "Observer.hh"
+#include "SimpleDebuggable.hh"
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 

@@ -2,6 +2,7 @@
 #define ROMSYNTHESIZER_HH
 
 #include "RomBlocks.hh"
+
 #include "DACSound8U.hh"
 
 namespace openmsx {

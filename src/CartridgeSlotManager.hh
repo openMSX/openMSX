@@ -1,11 +1,11 @@
 #ifndef CARTRIDGESLOTMANAGER_HH
 #define CARTRIDGESLOTMANAGER_HH
 
-#include "RecordedCommand.hh"
-#include "MSXMotherBoard.hh"
 #include "InfoTopic.hh"
-
+#include "MSXMotherBoard.hh"
+#include "RecordedCommand.hh"
 #include "TclObject.hh"
+
 #include "narrow.hh"
 #include "strCat.hh"
 

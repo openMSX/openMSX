@@ -1,7 +1,9 @@
 #include "catch.hpp"
 #include "WavData.hh"
+
 #include "MemoryBufferFile.hh"
 #include "MSXException.hh"
+
 #include "xrange.hh"
 
 using namespace openmsx;

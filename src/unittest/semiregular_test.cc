@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "semiregular.hh"
-#include <memory>
 
+#include <memory>
 
 // Mockup for an transform-iterator containing a transformation function (e.g.
 // a lambda).

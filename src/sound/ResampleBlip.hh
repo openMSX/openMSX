@@ -1,8 +1,9 @@
 #ifndef RESAMPLEBLIP_HH
 #define RESAMPLEBLIP_HH
 
-#include "ResampleAlgo.hh"
 #include "BlipBuffer.hh"
+#include "ResampleAlgo.hh"
+
 #include <array>
 
 namespace openmsx {

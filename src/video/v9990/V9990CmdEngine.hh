@@ -1,9 +1,10 @@
 #ifndef V9990CMDENGINE_HH
 #define V9990CMDENGINE_HH
 
-#include "Observer.hh"
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
+
+#include "Observer.hh"
 
 #include <cstdint>
 

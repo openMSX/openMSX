@@ -2,7 +2,9 @@
 #define PRINTERPORTSIMPLE_HH
 
 #include "PrinterPortDevice.hh"
+
 #include "DACSound8U.hh"
+
 #include <optional>
 
 namespace openmsx {

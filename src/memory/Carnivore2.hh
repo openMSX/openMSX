@@ -1,17 +1,19 @@
 #ifndef CARNIVORE2_HH
 #define CARNIVORE2_HH
 
-#include "MSXDevice.hh"
-#include "MSXMapperIO.hh"
-#include "MSXCPUInterface.hh"
 #include "AmdFlash.hh"
 #include "EEPROM_93C46.hh"
-#include "Math.hh"
+#include "MSXMapperIO.hh"
 #include "Ram.hh"
-#include "SCC.hh"
+
 #include "AY8910.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXDevice.hh"
+#include "SCC.hh"
 #include "YM2413.hh"
 #include "serialize_meta.hh"
+
+#include "Math.hh"
 
 #include <array>
 #include <cstdint>

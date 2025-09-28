@@ -1,25 +1,26 @@
 #include "VisibleSurface.hh"
 
+#include "Display.hh"
+#include "GLContext.hh"
+#include "GLSnow.hh"
+#include "GLUtil.hh"
+#include "OffScreenSurface.hh"
+#include "RenderSettings.hh"
+#include "VideoSystem.hh"
+
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
-#include "Display.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "FloatSetting.hh"
-#include "GLContext.hh"
-#include "GLSnow.hh"
-#include "GLUtil.hh"
 #include "Icon.hh"
 #include "ImGuiLayer.hh"
 #include "InitException.hh"
 #include "InputEventGenerator.hh"
 #include "MemBuffer.hh"
-#include "OffScreenSurface.hh"
 #include "OSDGUILayer.hh"
 #include "PNG.hh"
-#include "RenderSettings.hh"
-#include "VideoSystem.hh"
 
 #include "narrow.hh"
 #include "outer.hh"
@@ -28,8 +29,8 @@
 #include "build-info.hh"
 
 #include <imgui.h>
-#include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl2.h>
 
 #include <bit>
 #include <cassert>

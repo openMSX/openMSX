@@ -1,9 +1,10 @@
 #ifndef SPEEDMANAGER_HH
 #define SPEEDMANAGER_HH
 
-#include "Subject.hh"
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
+
+#include "Subject.hh"
 
 namespace openmsx {
 

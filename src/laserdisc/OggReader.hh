@@ -7,8 +7,8 @@
 #include "narrow.hh"
 
 #include <ogg/ogg.h>
-#include <vorbis/codec.h>
 #include <theora/theoradec.h>
+#include <vorbis/codec.h>
 
 #include <array>
 #include <cstdint>

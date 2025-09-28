@@ -1,4 +1,5 @@
 #include "ColecoSuperGameModule.hh"
+
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"

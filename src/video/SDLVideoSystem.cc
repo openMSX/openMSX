@@ -1,23 +1,28 @@
 #include "SDLVideoSystem.hh"
-#include "SDLRasterizer.hh"
-#include "VisibleSurface.hh"
-#include "PostProcessor.hh"
-#include "V9990SDLRasterizer.hh"
-#include "Reactor.hh"
+
 #include "Display.hh"
+#include "PostProcessor.hh"
 #include "RenderSettings.hh"
-#include "IntegerSetting.hh"
-#include "EventDistributor.hh"
-#include "VDP.hh"
+#include "SDLRasterizer.hh"
 #include "V9990.hh"
-#include "imgui.h"
+#include "V9990SDLRasterizer.hh"
+#include "VDP.hh"
+#include "VisibleSurface.hh"
+
+#include "EventDistributor.hh"
+#include "IntegerSetting.hh"
+#include "Reactor.hh"
+
 #include "unreachable.hh"
+
+#include "imgui.h"
+
 #include <memory>
 
 #include "components.hh"
 #if COMPONENT_LASERDISC
-#include "LaserdiscPlayer.hh"
 #include "LDSDLRasterizer.hh"
+#include "LaserdiscPlayer.hh"
 #endif
 
 namespace openmsx {

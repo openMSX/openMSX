@@ -1,8 +1,8 @@
 #include "Scheduler.hh"
 
+#include "MSXCPU.hh"
 #include "Schedulable.hh"
 #include "Thread.hh"
-#include "MSXCPU.hh"
 
 #include "serialize.hh"
 #include "stl.hh"

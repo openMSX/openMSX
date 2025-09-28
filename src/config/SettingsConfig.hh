@@ -1,8 +1,8 @@
 #ifndef SETTINGSCONFIG_HH
 #define SETTINGSCONFIG_HH
 
-#include "SettingsManager.hh"
 #include "Command.hh"
+#include "SettingsManager.hh"
 
 #include "hash_map.hh"
 #include "xxhash.hh"

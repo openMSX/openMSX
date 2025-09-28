@@ -1,9 +1,11 @@
 #ifndef COMMAND_HH
 #define COMMAND_HH
 
-#include "Completer.hh"
-#include "strCat.hh"
 #include "CommandException.hh"
+#include "Completer.hh"
+
+#include "strCat.hh"
+
 #include <cassert>
 #include <span>
 #include <string_view>

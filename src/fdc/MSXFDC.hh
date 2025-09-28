@@ -1,9 +1,11 @@
 #ifndef MSXFDC_HH
 #define MSXFDC_HH
 
-#include "MSXDevice.hh"
 #include "DiskDrive.hh"
+
+#include "MSXDevice.hh"
 #include "Rom.hh"
+
 #include <array>
 #include <memory>
 #include <optional>

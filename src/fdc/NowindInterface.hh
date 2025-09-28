@@ -1,15 +1,16 @@
 #ifndef NOWINDINTERFACE_HH
 #define NOWINDINTERFACE_HH
 
-#include "MSXDevice.hh"
 #include "NowindCommand.hh"
 #include "NowindHost.hh"
-#include "Rom.hh"
+
 #include "AmdFlash.hh"
+#include "MSXDevice.hh"
+#include "Rom.hh"
+
 #include <bitset>
 #include <optional>
 #include <string>
-#include <vector>
 
 namespace openmsx {
 

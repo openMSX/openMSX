@@ -1,13 +1,14 @@
 #ifndef OBJECTPOOL_HH
 #define OBJECTPOOL_HH
 
+#include "narrow.hh"
+#include "unreachable.hh"
+#include "xrange.hh"
+
 #include <array>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include "narrow.hh"
-#include "unreachable.hh"
-#include "xrange.hh"
 
 // ObjectPool
 //

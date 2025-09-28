@@ -1,9 +1,11 @@
 #ifndef ESE_RAM_HH
 #define ESE_RAM_HH
 
-#include "MSXDevice.hh"
-#include "SRAM.hh"
 #include "RomBlockDebuggable.hh"
+#include "SRAM.hh"
+
+#include "MSXDevice.hh"
+
 #include <array>
 
 namespace openmsx {

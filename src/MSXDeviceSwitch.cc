@@ -1,8 +1,8 @@
 #include "MSXDeviceSwitch.hh"
 
-#include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
+#include "MSXSwitchedDevice.hh"
 
 #include "serialize.hh"
 

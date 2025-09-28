@@ -1,12 +1,15 @@
 #include "V9990BitmapConverter.hh"
-#include "V9990VRAM.hh"
+
 #include "V9990.hh"
-#include "unreachable.hh"
+#include "V9990VRAM.hh"
+
 #include "narrow.hh"
+#include "unreachable.hh"
+
 #include <array>
 #include <cassert>
-#include <cstdint>
 #include <concepts>
+#include <cstdint>
 
 namespace openmsx {
 

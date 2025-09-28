@@ -2,8 +2,9 @@
 #define REACTOR_HH
 
 #include "EnumSetting.hh"
-#include "StringSetting.hh"
 #include "EventListener.hh"
+#include "StringSetting.hh"
+
 #include "Observer.hh"
 
 #include <cassert>

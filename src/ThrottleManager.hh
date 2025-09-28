@@ -1,8 +1,9 @@
 #ifndef THROTTLEMANAGER_HH
 #define THROTTLEMANAGER_HH
 
-#include "Subject.hh"
 #include "BooleanSetting.hh"
+
+#include "Subject.hh"
 
 namespace openmsx {
 

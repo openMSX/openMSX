@@ -1,9 +1,11 @@
 #ifndef TCLCALLBACK_HH
 #define TCLCALLBACK_HH
 
-#include "static_string_view.hh"
 #include "StringSetting.hh"
 #include "TclObject.hh"
+
+#include "static_string_view.hh"
+
 #include <optional>
 #include <string_view>
 

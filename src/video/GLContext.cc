@@ -1,7 +1,8 @@
 #include "GLContext.hh"
+
 #include "GLDefaultScaler.hh"
 #include "gl_transform.hh"
-#include "narrow.hh"
+
 #include <memory>
 
 namespace gl {

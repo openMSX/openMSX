@@ -1,6 +1,8 @@
 #include "Filename.hh"
+
 #include "MSXException.hh"
 #include "serialize.hh"
+
 #include <cassert>
 
 namespace openmsx {

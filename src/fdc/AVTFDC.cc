@@ -1,6 +1,8 @@
 #include "AVTFDC.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

@@ -1,8 +1,8 @@
 #include "DiskImageUtils.hh"
 
-#include "DiskPartition.hh"
-#include "CommandException.hh"
 #include "BootBlocks.hh"
+#include "CommandException.hh"
+#include "DiskPartition.hh"
 
 #include "endian.hh"
 #include "enumerate.hh"

@@ -1,4 +1,5 @@
 #include "DummyRenderer.hh"
+
 #include "DisplayMode.hh"
 
 namespace openmsx {

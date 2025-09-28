@@ -1,15 +1,18 @@
 #ifndef SDLSURFACEPTR_HH
 #define SDLSURFACEPTR_HH
 
-#include "MemBuffer.hh"
 #include "InitException.hh"
+
+#include "MemBuffer.hh"
 #include "narrow.hh"
+
 #include <SDL.h>
+
 #include <algorithm>
-#include <memory>
-#include <new>
 #include <cassert>
 #include <cstdlib>
+#include <memory>
+#include <new>
 
 /** Wrapper around a SDL_Surface.
  *

@@ -3,11 +3,12 @@
 #ifndef SVIPPI_HH
 #define SVIPPI_HH
 
-#include "MSXDevice.hh"
-#include "I8255Interface.hh"
 #include "I8255.hh"
-#include "Keyboard.hh"
+#include "I8255Interface.hh"
 #include "KeyClick.hh"
+#include "Keyboard.hh"
+#include "MSXDevice.hh"
+
 #include <array>
 
 namespace openmsx {

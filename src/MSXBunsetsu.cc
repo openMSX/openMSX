@@ -1,4 +1,5 @@
 #include "MSXBunsetsu.hh"
+
 #include "CacheLine.hh"
 #include "serialize.hh"
 

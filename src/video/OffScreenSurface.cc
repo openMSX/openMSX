@@ -1,6 +1,7 @@
 #include "OffScreenSurface.hh"
-#include "VisibleSurface.hh"
+
 #include "GLUtil.hh"
+#include "VisibleSurface.hh"
 
 namespace openmsx {
 

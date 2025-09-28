@@ -1,6 +1,6 @@
 #include "SNPSG.hh"
+
 #include "serialize.hh"
-#include <memory>
 
 namespace openmsx {
 

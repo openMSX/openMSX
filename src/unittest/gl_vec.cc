@@ -1,6 +1,8 @@
 #include "catch.hpp"
 #include "gl_vec.hh"
+
 #include "Math.hh"
+
 #include <concepts>
 
 using namespace gl;

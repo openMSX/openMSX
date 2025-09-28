@@ -3,11 +3,11 @@
 #include "Event.hh"
 #include "SDLKey.hh"
 
+#include "StringOp.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
 
 #include <tuple>
 #include <utility>

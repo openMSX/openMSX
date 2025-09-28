@@ -1,5 +1,5 @@
 #include "RomSuperLodeRunner.hh"
-#include "serialize.hh"
+
 #include <cassert>
 
 namespace openmsx {

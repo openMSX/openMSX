@@ -1,9 +1,9 @@
 #ifndef CHAKKARICOPY_HH
 #define CHAKKARICOPY_HH
 
-#include "MSXDevice.hh"
-#include "EnumSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
+#include "MSXDevice.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 

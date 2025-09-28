@@ -1,9 +1,9 @@
 #ifndef V9990SDLRASTERIZER_HH
 #define V9990SDLRASTERIZER_HH
 
-#include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
 #include "V9990PxConverter.hh"
+#include "V9990Rasterizer.hh"
 
 #include "Observer.hh"
 

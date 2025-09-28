@@ -1,11 +1,15 @@
 #include "NowindInterface.hh"
+
 #include "DiskChanger.hh"
+
 #include "Clock.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "narrow.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+
+#include "narrow.hh"
+
 #include <cassert>
 #include <functional>
 #include <memory>

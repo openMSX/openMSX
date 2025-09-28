@@ -1,19 +1,20 @@
 #ifndef VDP_HH
 #define VDP_HH
 
+#include "DisplayMode.hh"
+#include "VideoSystemChangeListener.hh"
+#include "gl_vec.hh"
+
+#include "Clock.hh"
+#include "EnumSetting.hh"
+#include "IRQHelper.hh"
+#include "InfoTopic.hh"
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
-#include "VideoSystemChangeListener.hh"
 #include "SimpleDebuggable.hh"
 #include "TclCallback.hh"
-#include "InfoTopic.hh"
-#include "IRQHelper.hh"
-#include "Clock.hh"
-#include "DisplayMode.hh"
-#include "EnumSetting.hh"
 
 #include "Observer.hh"
-#include "gl_vec.hh"
 #include "narrow.hh"
 #include "outer.hh"
 

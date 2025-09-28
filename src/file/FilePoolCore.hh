@@ -3,8 +3,8 @@
 
 #include "FileOperations.hh"
 
-#include "ObjectPool.hh"
 #include "MemBuffer.hh"
+#include "ObjectPool.hh"
 #include "SimpleHashSet.hh"
 #include "sha1.hh"
 #include "xxhash.hh"

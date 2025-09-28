@@ -1,9 +1,13 @@
 #include "RomNational.hh"
-#include "CacheLine.hh"
+
 #include "SRAM.hh"
-#include "one_of.hh"
+
+#include "CacheLine.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 #include "xrange.hh"
+
 #include <memory>
 
 namespace openmsx {

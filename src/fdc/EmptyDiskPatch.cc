@@ -1,5 +1,7 @@
 #include "EmptyDiskPatch.hh"
+
 #include "SectorAccessibleDisk.hh"
+
 #include <cassert>
 
 namespace openmsx {

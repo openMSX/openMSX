@@ -1,8 +1,8 @@
 #include "GLImage.hh"
 
 #include "GLContext.hh"
-#include "SDLSurfacePtr.hh"
 #include "PNG.hh"
+#include "SDLSurfacePtr.hh"
 
 #include "MSXException.hh"
 

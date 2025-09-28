@@ -1,11 +1,12 @@
 #include "OSDImageBasedWidget.hh"
 
-#include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
+#include "OSDTopWidget.hh"
+
+#include "CommandException.hh"
 #include "Display.hh"
 #include "GLImage.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
 #include "Timer.hh"
 
 #include "narrow.hh"

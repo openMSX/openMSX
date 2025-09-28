@@ -1,10 +1,13 @@
 #include "MSXPrinterPort.hh"
+
 #include "DummyPrinterPortDevice.hh"
+#include "serialize.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
+
 #include <cstdint>
 #include <memory>
 

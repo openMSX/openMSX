@@ -1,8 +1,9 @@
 #ifndef ROMBLOCKDEBUGGABLE_HH
 #define ROMBLOCKDEBUGGABLE_HH
 
-#include "SimpleDebuggable.hh"
 #include "MSXDevice.hh"
+#include "SimpleDebuggable.hh"
+
 #include <span>
 #include <string>
 

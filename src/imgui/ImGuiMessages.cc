@@ -9,11 +9,11 @@
 #include "PixelOperations.hh"
 #include "Reactor.hh"
 
-#include "stl.hh"
 #include "Timer.hh"
+#include "stl.hh"
 
-#include <imgui_stdlib.h>
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <algorithm>
 #include <cassert>

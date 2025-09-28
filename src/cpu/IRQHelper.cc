@@ -1,7 +1,9 @@
 #include "IRQHelper.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
+
 #include "one_of.hh"
 #include "unreachable.hh"
 

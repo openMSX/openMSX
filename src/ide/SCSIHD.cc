@@ -20,16 +20,19 @@
  */
 
 #include "SCSIHD.hh"
-#include "FileOperations.hh"
-#include "MSXException.hh"
-#include "LedStatus.hh"
-#include "MSXMotherBoard.hh"
+
 #include "DeviceConfig.hh"
+#include "FileOperations.hh"
+#include "LedStatus.hh"
+#include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "serialize.hh"
+
 #include "endian.hh"
 #include "narrow.hh"
 #include "one_of.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <algorithm>
 #include <cstring>
 

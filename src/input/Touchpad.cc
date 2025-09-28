@@ -6,18 +6,22 @@
 // made this effort possible.
 
 #include "Touchpad.hh"
+
 #include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
-#include "Event.hh"
 #include "StateChange.hh"
-#include "Display.hh"
-#include "OutputSurface.hh"
+#include "StateChangeDistributor.hh"
+
+#include "Clock.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "Clock.hh"
+#include "Display.hh"
+#include "Event.hh"
+#include "OutputSurface.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+
 #include "xrange.hh"
+
 #include <iostream>
 
 using namespace gl;

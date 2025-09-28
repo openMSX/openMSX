@@ -1,10 +1,12 @@
 #include "JoyTap.hh"
+
 #include "PluggingController.hh"
-#include "enumerate.hh"
 #include "serialize.hh"
+
+#include "enumerate.hh"
 #include "strCat.hh"
+
 #include <array>
-#include <memory>
 
 namespace openmsx {
 

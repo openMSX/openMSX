@@ -3,8 +3,10 @@
 
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
-#include "DivModByConst.hh"
 #include "serialize.hh"
+
+#include "DivModByConst.hh"
+
 #include <cassert>
 
 namespace openmsx {

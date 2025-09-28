@@ -1,7 +1,7 @@
 #include "serialize_meta.hh"
 
-#include "serialize.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 #include "ranges.hh"
 #include "stl.hh"

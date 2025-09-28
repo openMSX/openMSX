@@ -1,9 +1,10 @@
 #include "ProxySetting.hh"
+
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
-#include "Reactor.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 
 namespace openmsx {
 

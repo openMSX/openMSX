@@ -1,6 +1,8 @@
 #include "PanasonicRam.hh"
-#include "MSXMotherBoard.hh"
+
 #include "PanasonicMemory.hh"
+
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 
 namespace openmsx {

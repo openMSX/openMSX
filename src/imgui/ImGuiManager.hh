@@ -14,8 +14,8 @@
 #include "TclObject.hh"
 
 #include "Observer.hh"
-#include "strCat.hh"
 #include "StringReplacer.hh"
+#include "strCat.hh"
 
 #include <algorithm>
 #include <functional>

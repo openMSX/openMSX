@@ -1,10 +1,11 @@
 #ifndef YAMAHASKW01_HH
 #define YAMAHASKW01_HH
 
-#include "MSXDevice.hh"
 #include "Connector.hh"
-#include "SRAM.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
+
 #include <array>
 #include <optional>
 

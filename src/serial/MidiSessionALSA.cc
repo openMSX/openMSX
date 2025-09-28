@@ -1,17 +1,21 @@
 #include "MidiSessionALSA.hh"
-#include "CliComm.hh"
-#include "MidiOutDevice.hh"
-#include "MidiInDevice.hh"
+
 #include "MidiInConnector.hh"
-#include "EventListener.hh"
+#include "MidiInDevice.hh"
+#include "MidiOutDevice.hh"
+
+#include "CliComm.hh"
 #include "EventDistributor.hh"
+#include "EventListener.hh"
 #include "PlugException.hh"
 #include "PluggingController.hh"
 #include "Scheduler.hh"
-#include "narrow.hh"
 #include "serialize.hh"
-#include "circular_buffer.hh"
+
 #include "checked_cast.hh"
+#include "circular_buffer.hh"
+#include "narrow.hh"
+
 #include <iostream>
 #include <memory>
 #include <thread>

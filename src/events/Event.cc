@@ -1,9 +1,11 @@
 #include "Event.hh"
+
 #include "stl.hh"
 #include "strCat.hh"
 
-#include <tuple>
 #include <SDL.h>
+
+#include <tuple>
 
 using namespace std::literals;
 

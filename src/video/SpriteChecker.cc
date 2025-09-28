@@ -11,6 +11,7 @@ TODO:
 #include "SpriteChecker.hh"
 
 #include "RenderSettings.hh"
+
 #include "BooleanSetting.hh"
 #include "serialize.hh"
 

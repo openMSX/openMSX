@@ -1,4 +1,5 @@
 #include "MusicModuleMIDI.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

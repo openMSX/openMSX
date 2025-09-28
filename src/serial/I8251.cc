@@ -1,6 +1,9 @@
 #include "I8251.hh"
+
 #include "serialize.hh"
+
 #include "unreachable.hh"
+
 #include <cassert>
 
 namespace openmsx {

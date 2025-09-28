@@ -1,8 +1,8 @@
 #ifndef ROMMITSUBISHIMLTS2_HH
 #define ROMMITSUBISHIMLTS2_HH
 
-#include "RomBlocks.hh"
 #include "Ram.hh"
+#include "RomBlocks.hh"
 
 // PLEASE NOTE!
 //

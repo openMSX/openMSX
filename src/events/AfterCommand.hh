@@ -1,9 +1,10 @@
 #ifndef AFTERCOMMAND_HH
 #define AFTERCOMMAND_HH
 
-#include "Command.hh"
-#include "EventListener.hh"
 #include "Event.hh"
+#include "EventListener.hh"
+
+#include "Command.hh"
 
 #include <concepts>
 #include <vector>

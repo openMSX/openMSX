@@ -1,16 +1,17 @@
 #ifndef GLOBALSETTINGS_HH
 #define GLOBALSETTINGS_HH
 
-#include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
-#include "StringSetting.hh"
-#include "SpeedManager.hh"
-#include "ThrottleManager.hh"
 #include "ResampledSoundDevice.hh"
+#include "SpeedManager.hh"
+#include "StringSetting.hh"
+#include "ThrottleManager.hh"
+
+#include "Observer.hh"
+
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 

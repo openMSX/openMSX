@@ -2,6 +2,7 @@
 #define KEYCODESETTING_HH
 
 #include "Setting.hh"
+
 #include "SDLKey.hh"
 
 namespace openmsx {

@@ -1,8 +1,12 @@
 #include "AudioInputConnector.hh"
-#include "DummyAudioInputDevice.hh"
+
 #include "AudioInputDevice.hh"
-#include "checked_cast.hh"
+#include "DummyAudioInputDevice.hh"
+
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <memory>
 
 namespace openmsx {

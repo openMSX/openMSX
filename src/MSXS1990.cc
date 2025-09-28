@@ -1,10 +1,12 @@
 #include "MSXS1990.hh"
+
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
+#include "serialize.hh"
+
 #include "narrow.hh"
 #include "outer.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
 
 namespace openmsx {

@@ -1,3 +1,21 @@
+#include "MSXtar.hh"
+
+#include "SectorAccessibleDisk.hh"
+
+#include "FileOperations.hh"
+#include "MSXException.hh"
+#include "MsxChar2Unicode.hh"
+#include "foreach_file.hh"
+
+#include "File.hh"
+#include "StringOp.hh"
+#include "narrow.hh"
+#include "one_of.hh"
+#include "ranges.hh"
+#include "stl.hh"
+#include "strCat.hh"
+#include "xrange.hh"
+
 // Note: For Mac OS X 10.3 <ctime> must be included before <utime.h>.
 #include <ctime>
 #ifndef _MSC_VER
@@ -6,28 +24,11 @@
 #include <sys/utime.h>
 #endif
 
-#include "MSXtar.hh"
-
-#include "SectorAccessibleDisk.hh"
-#include "FileOperations.hh"
-#include "foreach_file.hh"
-#include "MSXException.hh"
-#include "MsxChar2Unicode.hh"
-
-#include "StringOp.hh"
-#include "strCat.hh"
-#include "File.hh"
-#include "narrow.hh"
-#include "one_of.hh"
-#include "ranges.hh"
-#include "stl.hh"
-#include "xrange.hh"
-
 #include <algorithm>
 #include <bit>
-#include <cstring>
 #include <cassert>
 #include <cctype>
+#include <cstring>
 
 namespace openmsx {
 

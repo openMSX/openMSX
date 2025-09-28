@@ -1,15 +1,16 @@
 #ifndef VIDEOLAYER_HH
 #define VIDEOLAYER_HH
 
-#include "VideoSourceSetting.hh"
 #include "Layer.hh"
 
-#include "Observer.hh"
 #include "MSXEventListener.hh"
+#include "VideoSourceSetting.hh"
+
+#include "Observer.hh"
 
 #include <cstdint>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace openmsx {
 

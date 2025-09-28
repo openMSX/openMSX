@@ -19,8 +19,9 @@
 //   http://d4.princess.ne.jp/msx/other/ec700/index.htm
 
 #include "CanonWordProcessor.hh"
-#include "MSXException.hh"
+
 #include "CacheLine.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {

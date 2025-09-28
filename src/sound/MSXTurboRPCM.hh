@@ -1,10 +1,11 @@
 #ifndef MSXTURBORPCM_HH
 #define MSXTURBORPCM_HH
 
-#include "MSXDevice.hh"
 #include "AudioInputConnector.hh"
 #include "DACSound8U.hh"
+
 #include "Clock.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

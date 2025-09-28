@@ -1,11 +1,13 @@
 #include "MSXPSG.hh"
-#include "LedStatus.hh"
+
 #include "CassettePort.hh"
-#include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
+#include "LedStatus.hh"
+#include "MSXMotherBoard.hh"
 #include "RenShaTurbo.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
+
+#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "stl.hh"
 

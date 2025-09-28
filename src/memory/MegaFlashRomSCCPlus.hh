@@ -1,10 +1,11 @@
 #ifndef MEGAFLASHROMSCCPLUS_HH
 #define MEGAFLASHROMSCCPLUS_HH
 
-#include "MSXRom.hh"
-#include "SCC.hh"
-#include "AY8910.hh"
 #include "AmdFlash.hh"
+#include "MSXRom.hh"
+
+#include "AY8910.hh"
+#include "SCC.hh"
 
 #include <array>
 #include <cstdint>

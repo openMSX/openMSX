@@ -1,4 +1,5 @@
 #include "FraelSwitchableROM.hh"
+
 #include "serialize.hh"
 
 /*

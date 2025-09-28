@@ -1,4 +1,5 @@
 #include "DummyIDEDevice.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

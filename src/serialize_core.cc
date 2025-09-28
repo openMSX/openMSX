@@ -1,6 +1,7 @@
 #include "serialize_core.hh"
-#include "serialize.hh"
+
 #include "MSXException.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

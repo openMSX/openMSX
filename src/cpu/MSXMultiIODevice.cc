@@ -1,7 +1,10 @@
 #include "MSXMultiIODevice.hh"
+
 #include "MSXException.hh"
 #include "TclObject.hh"
+
 #include "stl.hh"
+
 #include <cassert>
 
 namespace openmsx {

@@ -1,14 +1,15 @@
 #include "Interpreter.hh"
 
 #include "Command.hh"
-#include "TclObject.hh"
 #include "CommandException.hh"
+#include "InterpreterOutput.hh"
 #include "MSXCommandController.hh"
+#include "TclObject.hh"
+
+#include "FileOperations.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Setting.hh"
-#include "InterpreterOutput.hh"
-#include "MSXCPUInterface.hh"
-#include "FileOperations.hh"
 
 #include "narrow.hh"
 #include "ranges.hh"

@@ -1,4 +1,5 @@
 #include "KeyCodeSetting.hh"
+
 #include "CommandException.hh"
 
 namespace openmsx {

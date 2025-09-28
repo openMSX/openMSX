@@ -1,8 +1,7 @@
 #include "RomMitsubishiMLTS2.hh"
+
 #include "CacheLine.hh"
 #include "serialize.hh"
-
-#include <iostream>
 
 namespace openmsx {
 

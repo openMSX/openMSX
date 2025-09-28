@@ -12,12 +12,14 @@
  */
 
 #include "TurboRFDC.hh"
-#include "MSXCPU.hh"
+
 #include "CacheLine.hh"
-#include "Rom.hh"
+#include "MSXCPU.hh"
 #include "MSXException.hh"
-#include "narrow.hh"
+#include "Rom.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

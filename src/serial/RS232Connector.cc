@@ -1,8 +1,12 @@
 #include "RS232Connector.hh"
-#include "RS232Device.hh"
+
 #include "DummyRS232Device.hh"
-#include "checked_cast.hh"
+#include "RS232Device.hh"
+
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <memory>
 
 namespace openmsx {

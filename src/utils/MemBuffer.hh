@@ -4,9 +4,9 @@
 #include "MemoryOps.hh"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdlib>
-#include <cassert>
 #include <new>      // for bad_alloc
 #include <span>
 #include <type_traits>

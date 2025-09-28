@@ -1,8 +1,8 @@
 #ifndef MSXS1990_HH
 #define MSXS1990_HH
 
-#include "MSXDevice.hh"
 #include "FirmwareSwitch.hh"
+#include "MSXDevice.hh"
 #include "SimpleDebuggable.hh"
 
 namespace openmsx {

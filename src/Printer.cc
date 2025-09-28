@@ -1,11 +1,11 @@
 #include "Printer.hh"
 
-#include "PNG.hh"
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "PNG.hh"
 #include "serialize.hh"
 
 #include "Math.hh"

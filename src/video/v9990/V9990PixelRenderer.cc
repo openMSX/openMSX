@@ -1,23 +1,28 @@
 #include "V9990PixelRenderer.hh"
+
 #include "V9990.hh"
-#include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990Rasterizer.hh"
-#include "PostProcessor.hh"
+#include "V9990VRAM.hh"
+
 #include "Display.hh"
+#include "PostProcessor.hh"
+#include "RenderSettings.hh"
 #include "VideoSystem.hh"
-#include "VideoSourceSetting.hh"
+
 #include "Event.hh"
-#include "RealTime.hh"
-#include "Timer.hh"
 #include "EventDistributor.hh"
+#include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "RenderSettings.hh"
-#include "IntegerSetting.hh"
+#include "RealTime.hh"
+#include "Timer.hh"
+#include "VideoSourceSetting.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
+
 #include <cassert>
 
 namespace openmsx {

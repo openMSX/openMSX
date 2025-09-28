@@ -1,11 +1,11 @@
 #ifndef MSXMATSUSHITA_HH
 #define MSXMATSUSHITA_HH
 
+#include "Clock.hh"
 #include "EmuTime.hh"
+#include "FirmwareSwitch.hh"
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
-#include "FirmwareSwitch.hh"
-#include "Clock.hh"
 #include "serialize_meta.hh"
 
 #include <cstdint>

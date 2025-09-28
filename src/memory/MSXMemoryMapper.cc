@@ -1,4 +1,5 @@
 #include "MSXMemoryMapper.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

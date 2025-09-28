@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "BooleanInput.hh"
 
-#include "SDL.h"
+#include <SDL.h>
 
 using namespace openmsx;
 

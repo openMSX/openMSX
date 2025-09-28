@@ -1,8 +1,9 @@
 #ifndef SDCARD_HH
 #define SDCARD_HH
 
-#include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
+
+#include "circular_buffer.hh"
 
 #include <array>
 #include <cstdint>

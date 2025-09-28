@@ -1,4 +1,5 @@
 #include "StdioMessages.hh"
+
 #include <iostream>
 
 namespace openmsx {

@@ -1,10 +1,12 @@
 #ifndef MEGASCSI_HH
 #define MEGASCSI_HH
 
-#include "MSXDevice.hh"
 #include "MB89352.hh"
-#include "SRAM.hh"
+
+#include "MSXDevice.hh"
 #include "RomBlockDebuggable.hh"
+#include "SRAM.hh"
+
 #include <array>
 
 namespace openmsx {

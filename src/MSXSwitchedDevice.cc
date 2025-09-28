@@ -1,4 +1,5 @@
 #include "MSXSwitchedDevice.hh"
+
 #include "MSXDeviceSwitch.hh"
 #include "MSXMotherBoard.hh"
 

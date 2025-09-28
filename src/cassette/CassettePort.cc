@@ -1,16 +1,21 @@
 #include "CassettePort.hh"
+
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
+#include "DummyCassetteDevice.hh"
+
+#include "HardwareConfig.hh"
+#include "MSXMotherBoard.hh"
+#include "PluggingController.hh"
+#include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include "components.hh"
 #if COMPONENT_LASERDISC
 #include "LaserdiscPlayer.hh"
 #endif
-#include "DummyCassetteDevice.hh"
-#include "HardwareConfig.hh"
-#include "MSXMotherBoard.hh"
-#include "PluggingController.hh"
-#include "checked_cast.hh"
-#include "serialize.hh"
+
 #include <memory>
 
 namespace openmsx {

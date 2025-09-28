@@ -2,8 +2,9 @@
 #define YM2413_HH
 
 #include "ResampledSoundDevice.hh"
-#include "SimpleDebuggable.hh"
+
 #include "EmuTime.hh"
+#include "SimpleDebuggable.hh"
 
 #include <cstdint>
 #include <memory>

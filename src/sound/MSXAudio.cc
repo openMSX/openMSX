@@ -1,8 +1,12 @@
 #include "MSXAudio.hh"
-#include "Y8950Periphery.hh"
+
 #include "DACSound8U.hh"
-#include "StringOp.hh"
+#include "Y8950Periphery.hh"
+
 #include "serialize.hh"
+
+#include "StringOp.hh"
+
 #include <memory>
 
 namespace openmsx {

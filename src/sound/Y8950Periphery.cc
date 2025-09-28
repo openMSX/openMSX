@@ -1,17 +1,21 @@
 #include "Y8950Periphery.hh"
-#include "Y8950.hh"
+
 #include "MSXAudio.hh"
+#include "Y8950.hh"
+
+#include "BooleanSetting.hh"
+#include "CacheLine.hh"
+#include "DeviceConfig.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXDevice.hh"
-#include "CacheLine.hh"
+#include "MSXException.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "BooleanSetting.hh"
-#include "MSXException.hh"
-#include "StringOp.hh"
-#include "DeviceConfig.hh"
 #include "serialize.hh"
+
+#include "StringOp.hh"
+
 #include <memory>
 #include <string>
 

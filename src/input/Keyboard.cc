@@ -33,10 +33,10 @@
 
 #include <algorithm>
 #include <array>
-#include <cstdint>
-#include <cstdio>
 #include <cassert>
 #include <cstdarg>
+#include <cstdint>
+#include <cstdio>
 #include <functional>
 #include <ranges>
 #include <type_traits>

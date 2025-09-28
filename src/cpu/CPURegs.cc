@@ -1,4 +1,5 @@
 #include "CPURegs.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

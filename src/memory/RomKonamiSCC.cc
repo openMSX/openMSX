@@ -12,11 +12,12 @@
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 #include "RomKonamiSCC.hh"
+
 #include "CacheLine.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
-#include "sha1.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

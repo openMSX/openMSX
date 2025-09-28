@@ -1,9 +1,12 @@
 #include "BeerIDE.hh"
-#include "IDEDeviceFactory.hh"
+
 #include "IDEDevice.hh"
+#include "IDEDeviceFactory.hh"
+
 #include "GlobalSettings.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

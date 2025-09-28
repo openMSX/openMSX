@@ -1,21 +1,21 @@
 #ifndef REVERSEMANGER_HH
 #define REVERSEMANGER_HH
 
-#include "Schedulable.hh"
-#include "EventListener.hh"
 #include "Command.hh"
 #include "EmuTime.hh"
+#include "EventListener.hh"
+#include "Schedulable.hh"
 
-#include "MemBuffer.hh"
 #include "DeltaBlock.hh"
+#include "MemBuffer.hh"
 #include "outer.hh"
 
 #include <cstdint>
 #include <deque>
-#include <span>
 #include <map>
 #include <memory>
 #include <ranges>
+#include <span>
 #include <string_view>
 #include <vector>
 

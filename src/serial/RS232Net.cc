@@ -2,21 +2,22 @@
 
 #include "RS232Connector.hh"
 
-#include "PlugException.hh"
 #include "EventDistributor.hh"
+#include "PlugException.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
 
-#include "checked_cast.hh"
 #include "StringOp.hh"
+#include "checked_cast.hh"
 
 #include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
+
 #ifndef _WIN32
-#include <netdb.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/tcp.h>
 #endif
 

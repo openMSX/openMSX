@@ -1,7 +1,10 @@
 #include "MSXRam.hh"
+
 #include "XMLElement.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
+
 #include <cassert>
 
 namespace openmsx {

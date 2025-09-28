@@ -5,8 +5,8 @@
 
 #include "serialize.hh"
 
-#include <iosfwd>
 #include <cassert>
+#include <iosfwd>
 #include <limits>
 
 namespace openmsx {

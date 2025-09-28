@@ -23,11 +23,11 @@
 #include "JoyMega.hh"
 #include "KeyCodeSetting.hh"
 #include "KeyboardSettings.hh"
-#include "Mixer.hh"
 #include "MSXCPU.hh"
 #include "MSXCommandController.hh"
 #include "MSXJoystick.hh"
 #include "MSXMotherBoard.hh"
+#include "Mixer.hh"
 #include "ProxySetting.hh"
 #include "R800.hh"
 #include "Reactor.hh"
@@ -38,10 +38,10 @@
 #include "VideoSourceSetting.hh"
 #include "Z80.hh"
 
+#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "foreach_file.hh"
 #include "narrow.hh"
-#include "StringOp.hh"
 #include "zstring_view.hh"
 
 #include <imgui.h>

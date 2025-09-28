@@ -1,8 +1,9 @@
 #ifndef RASTERIZER_HH
 #define RASTERIZER_HH
 
-#include "EmuTime.hh"
 #include "DisplayMode.hh"
+
+#include "EmuTime.hh"
 
 namespace openmsx {
 

@@ -3,13 +3,16 @@
 //   Under GPL License
 
 #include "TsxImage.hh"
+
 #include "TsxParser.hh"
+
+#include "CliComm.hh"
+#include "Clock.hh"
 #include "File.hh"
 #include "FilePool.hh"
 #include "Filename.hh"
-#include "CliComm.hh"
-#include "Clock.hh"
 #include "MSXException.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

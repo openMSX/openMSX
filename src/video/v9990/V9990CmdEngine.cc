@@ -1,14 +1,15 @@
 #include "V9990CmdEngine.hh"
 
 #include "V9990.hh"
-#include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
-#include "MSXMotherBoard.hh"
-#include "RenderSettings.hh"
+#include "V9990VRAM.hh"
+
 #include "BooleanSetting.hh"
-#include "EnumSetting.hh"
-#include "MemBuffer.hh"
 #include "Clock.hh"
+#include "EnumSetting.hh"
+#include "MSXMotherBoard.hh"
+#include "MemBuffer.hh"
+#include "RenderSettings.hh"
 #include "serialize.hh"
 
 #include "checked_cast.hh"

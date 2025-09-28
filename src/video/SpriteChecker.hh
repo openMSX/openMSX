@@ -1,11 +1,10 @@
 #ifndef SPRITECHECKER_HH
 #define SPRITECHECKER_HH
 
+#include "DisplayMode.hh"
 #include "VDP.hh"
-
 #include "VDPVRAM.hh"
 #include "VRAMObserver.hh"
-#include "DisplayMode.hh"
 
 #include "narrow.hh"
 #include "ranges.hh"

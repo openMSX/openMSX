@@ -6,17 +6,17 @@
 #include "DebugCondition.hh"
 #include "WatchPoint.hh"
 
-#include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "MSXDevice.hh"
 #include "ProfileCounters.hh"
+#include "SimpleDebuggable.hh"
 
 #include "narrow.hh"
 
 #include <array>
-#include <cstdint>
 #include <bitset>
 #include <concepts>
+#include <cstdint>
 #include <memory>
 #include <vector>
 

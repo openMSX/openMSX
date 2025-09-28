@@ -1,6 +1,8 @@
 #include "catch.hpp"
 #include "StringOp.hh"
+
 #include "narrow.hh"
+
 #include <type_traits>
 
 using namespace StringOp;

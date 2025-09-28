@@ -1,7 +1,9 @@
 #include "MSXRom.hh"
+
 #include "RomInfo.hh"
-#include "XMLElement.hh"
+
 #include "TclObject.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

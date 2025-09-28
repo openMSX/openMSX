@@ -1,7 +1,9 @@
 #include "SanyoFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "serialize.hh"
 
 // Note: although this implementation seems to work (e.g. for the Sanyo

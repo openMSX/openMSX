@@ -1,7 +1,9 @@
 #include "ToshibaFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "serialize.hh"
 
 // Based on studying the code in the Toshiba disk ROM.

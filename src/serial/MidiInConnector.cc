@@ -1,8 +1,12 @@
 #include "MidiInConnector.hh"
-#include "MidiInDevice.hh"
+
 #include "DummyMidiInDevice.hh"
-#include "checked_cast.hh"
+#include "MidiInDevice.hh"
+
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <memory>
 
 namespace openmsx {

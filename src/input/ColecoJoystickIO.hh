@@ -1,8 +1,10 @@
 #ifndef COLECOJOYSTICKIO_HH
 #define COLECOJOYSTICKIO_HH
 
-#include "MSXDevice.hh"
 #include "Keyboard.hh"
+
+#include "MSXDevice.hh"
+
 #include <array>
 
 namespace openmsx {

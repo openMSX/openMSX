@@ -2,6 +2,7 @@
 #define ROMMAJUTSUSHI_HH
 
 #include "RomKonami.hh"
+
 #include "DACSound8U.hh"
 
 namespace openmsx {

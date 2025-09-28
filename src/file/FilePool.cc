@@ -1,15 +1,19 @@
 #include "FilePool.hh"
+
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "TclObject.hh"
+
+#include "CliComm.hh"
 #include "CommandException.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
-#include "CliComm.hh"
 #include "Reactor.hh"
+#include "TclObject.hh"
+
 #include "outer.hh"
 #include "xrange.hh"
+
 #include <memory>
 
 namespace openmsx {

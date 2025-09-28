@@ -1,4 +1,5 @@
 #include "JVCMSXMIDI.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

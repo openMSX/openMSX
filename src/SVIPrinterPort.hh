@@ -1,8 +1,9 @@
 #ifndef SVIPRINTERPORT_HH
 #define SVIPRINTERPORT_HH
 
-#include "MSXDevice.hh"
 #include "Connector.hh"
+#include "MSXDevice.hh"
+
 #include <cstdint>
 
 namespace openmsx {

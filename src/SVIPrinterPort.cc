@@ -1,8 +1,12 @@
 #include "SVIPrinterPort.hh"
+
 #include "DummyPrinterPortDevice.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include "unreachable.hh"
+
 #include <memory>
 
 // Centronics interface

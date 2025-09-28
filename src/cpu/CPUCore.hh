@@ -3,10 +3,11 @@
 
 #include "CPURegs.hh"
 #include "CacheLine.hh"
-#include "Probe.hh"
-#include "EmuTime.hh"
+
 #include "BooleanSetting.hh"
+#include "EmuTime.hh"
 #include "IntegerSetting.hh"
+#include "Probe.hh"
 #include "serialize_meta.hh"
 
 #include <array>

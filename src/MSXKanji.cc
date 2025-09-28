@@ -1,8 +1,10 @@
 #include "MSXKanji.hh"
+
 #include "MSXException.hh"
 #include "TclObject.hh"
-#include "one_of.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 
 namespace openmsx {
 

@@ -1,5 +1,7 @@
 #include "GLSimpleScaler.hh"
+
 #include "RenderSettings.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
 

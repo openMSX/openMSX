@@ -1,9 +1,13 @@
 #include "GlobalCliComm.hh"
-#include "CliListener.hh"
+
 #include "CliConnection.hh"
+#include "CliListener.hh"
+
 #include "Thread.hh"
+
 #include "ScopedAssign.hh"
 #include "stl.hh"
+
 #include <cassert>
 #include <iostream>
 #include <utility>

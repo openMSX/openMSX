@@ -1,10 +1,13 @@
 #include "I8254.hh"
+
 #include "EmuTime.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "one_of.hh"
-#include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+
 #include <cassert>
 
 namespace openmsx {

@@ -1,9 +1,9 @@
 #include "RecordedCommand.hh"
 
-#include "StateChangeDistributor.hh"
-#include "TclObject.hh"
 #include "Scheduler.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
+#include "TclObject.hh"
 
 #include "ScopedAssign.hh"
 #include "dynarray.hh"

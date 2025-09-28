@@ -1,8 +1,8 @@
 #ifndef ROMMATRAINK_HH
 #define ROMMATRAINK_HH
 
-#include "MSXRom.hh"
 #include "AmdFlash.hh"
+#include "MSXRom.hh"
 
 namespace openmsx {
 

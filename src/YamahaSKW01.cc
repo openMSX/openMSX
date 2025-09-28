@@ -1,9 +1,11 @@
 #include "YamahaSKW01.hh"
-#include "DummyPrinterPortDevice.hh"
+
 #include "CacheLine.hh"
+#include "DummyPrinterPortDevice.hh"
 #include "MSXException.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
+
+#include "checked_cast.hh"
 
 // Implementation based on reverse-engineering of 'acet'/'uniabis', see:
 //   https://www.msx.org/forum/msx-talk/hardware/trying-to-dump-yamaha-skw-01

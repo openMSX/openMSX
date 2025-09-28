@@ -1,4 +1,5 @@
 #include "TclCallbackMessages.hh"
+
 #include "GlobalCliComm.hh"
 
 namespace openmsx {

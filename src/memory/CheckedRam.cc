@@ -1,11 +1,14 @@
 #include "CheckedRam.hh"
-#include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
+
 #include "DeviceConfig.hh"
 #include "GlobalSettings.hh"
+#include "MSXCPU.hh"
+#include "MSXMotherBoard.hh"
 #include "StringSetting.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <cassert>
 
 namespace openmsx {

@@ -1,4 +1,5 @@
 #include "DeinterlacedFrame.hh"
+
 #include <cassert>
 
 namespace openmsx {

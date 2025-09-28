@@ -1,9 +1,13 @@
 #include "JoystickPort.hh"
-#include "JoystickDevice.hh"
+
 #include "DummyJoystick.hh"
+#include "JoystickDevice.hh"
+
 #include "PluggingController.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <memory>
 
 namespace openmsx {

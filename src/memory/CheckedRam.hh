@@ -2,8 +2,10 @@
 #define CHECKEDRAM_HH
 
 #include "Ram.hh"
-#include "TclCallback.hh"
+
 #include "CacheLine.hh"
+#include "TclCallback.hh"
+
 #include "Observer.hh"
 
 #include <bitset>

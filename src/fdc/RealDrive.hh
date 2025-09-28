@@ -1,14 +1,17 @@
 #ifndef REALDRIVE_HH
 #define REALDRIVE_HH
 
-#include "DiskDrive.hh"
 #include "DiskChanger.hh"
+#include "DiskDrive.hh"
+
 #include "Clock.hh"
+#include "MSXMotherBoard.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
-#include "MSXMotherBoard.hh"
-#include "outer.hh"
 #include "serialize_meta.hh"
+
+#include "outer.hh"
+
 #include <bitset>
 #include <optional>
 

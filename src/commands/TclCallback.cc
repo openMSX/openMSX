@@ -1,10 +1,14 @@
 #include "TclCallback.hh"
+
 #include "CommandController.hh"
-#include "CliComm.hh"
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
+
+#include "CliComm.hh"
 #include "Reactor.hh"
+
 #include "checked_cast.hh"
+
 #include <iostream>
 #include <memory>
 

@@ -1,7 +1,10 @@
 #include "MSXFacMidiInterface.hh"
+
 #include "MidiInDevice.hh"
-#include "outer.hh"
+
 #include "serialize.hh"
+
+#include "outer.hh"
 
 namespace openmsx {
 

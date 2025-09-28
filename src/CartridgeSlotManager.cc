@@ -1,13 +1,13 @@
 #include "CartridgeSlotManager.hh"
 
-#include "HardwareConfig.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
-#include "TclObject.hh"
-#include "MSXException.hh"
+#include "HardwareConfig.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXRom.hh"
 #include "MSXCliComm.hh"
+#include "MSXException.hh"
+#include "MSXRom.hh"
+#include "TclObject.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"

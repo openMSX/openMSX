@@ -1,10 +1,13 @@
 #include "MSXS1985.hh"
+
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+
 #include <array>
 #include <memory>
 

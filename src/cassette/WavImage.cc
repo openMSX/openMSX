@@ -1,8 +1,8 @@
 #include "WavImage.hh"
 
 #include "File.hh"
-#include "Filename.hh"
 #include "FilePool.hh"
+#include "Filename.hh"
 
 #include "Math.hh"
 #include "narrow.hh"

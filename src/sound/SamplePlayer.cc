@@ -1,11 +1,14 @@
 #include "SamplePlayer.hh"
+
 #include "DeviceConfig.hh"
-#include "MSXCliComm.hh"
 #include "FileContext.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 #include "xrange.hh"
+
 #include <cassert>
 #include <memory>
 

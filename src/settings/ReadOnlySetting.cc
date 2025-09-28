@@ -1,4 +1,5 @@
 #include "ReadOnlySetting.hh"
+
 #include "MSXException.hh"
 
 namespace openmsx {

@@ -1,4 +1,5 @@
 #include "TrackedRam.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

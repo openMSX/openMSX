@@ -1,15 +1,18 @@
 #include "YM2413.hh"
-#include "YM2413Okazaki.hh"
+
 #include "YM2413Burczynski.hh"
 #include "YM2413NukeYKT.hh"
+#include "YM2413Okazaki.hh"
 #include "YM2413OriginalNukeYKT.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+
 #include "cstd.hh"
 #include "narrow.hh"
 #include "outer.hh"
-#include <cmath>
+
 #include <memory>
 
 namespace openmsx {

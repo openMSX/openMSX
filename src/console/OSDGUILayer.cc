@@ -1,4 +1,5 @@
 #include "OSDGUILayer.hh"
+
 #include "OSDGUI.hh"
 #include "OSDTopWidget.hh"
 

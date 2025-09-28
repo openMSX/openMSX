@@ -4,10 +4,11 @@
 #include "PatchInterface.hh"
 
 #include "Filename.hh"
+
 #include "MemBuffer.hh"
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 

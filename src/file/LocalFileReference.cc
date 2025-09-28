@@ -1,14 +1,14 @@
 #include "LocalFileReference.hh"
 
 #include "File.hh"
-#include "Filename.hh"
-#include "FileOperations.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
+#include "Filename.hh"
 
 #include "build-info.hh"
 
-#include <cstdio>
 #include <cassert>
+#include <cstdio>
 
 namespace openmsx {
 

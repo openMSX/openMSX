@@ -2,6 +2,7 @@
 #define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
+
 #include "FilenameSetting.hh"
 
 #include <fstream>

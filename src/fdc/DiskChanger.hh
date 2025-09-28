@@ -2,9 +2,11 @@
 #define DISKCHANGER_HH
 
 #include "DiskContainer.hh"
-#include "StateChangeListener.hh"
+
 #include "RecordedCommand.hh"
+#include "StateChangeListener.hh"
 #include "serialize_meta.hh"
+
 #include <functional>
 #include <memory>
 #include <optional>

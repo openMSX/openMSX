@@ -2,6 +2,7 @@
 #define KEYMAPPINGS_HH
 
 #include <imgui.h>
+
 #include <SDL.h>
 
 #include <algorithm>

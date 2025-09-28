@@ -1,8 +1,11 @@
 #include "RP5C01.hh"
+
 #include "SRAM.hh"
+#include "serialize.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
-#include "serialize.hh"
+
 #include <array>
 #include <cassert>
 #include <ctime>

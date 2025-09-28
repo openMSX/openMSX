@@ -1,5 +1,7 @@
 #include "GLRGBScaler.hh"
+
 #include "RenderSettings.hh"
+
 #include "narrow.hh"
 
 namespace openmsx {

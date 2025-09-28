@@ -1,13 +1,17 @@
 #include "PanasonicMemory.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
+
 #include "Ram.hh"
 #include "Rom.hh"
+
 #include "DeviceConfig.hh"
 #include "HardwareConfig.hh"
-#include "XMLElement.hh"
+#include "MSXCPU.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+#include "XMLElement.hh"
+
 #include "narrow.hh"
+
 #include <memory>
 
 namespace openmsx {

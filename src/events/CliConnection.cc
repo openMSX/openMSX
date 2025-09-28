@@ -7,14 +7,15 @@
 
 #include "CliConnection.hh"
 
-#include "EventDistributor.hh"
 #include "Event.hh"
+#include "EventDistributor.hh"
+
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "TemporaryString.hh"
 #include "XMLEscape.hh"
 
+#include "TemporaryString.hh"
 #include "cstdiop.hh"
 #include "ranges.hh"
 #include "unistdp.hh"

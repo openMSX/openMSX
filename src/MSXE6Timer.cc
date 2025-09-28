@@ -1,4 +1,5 @@
 #include "MSXE6Timer.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

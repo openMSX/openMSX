@@ -1,7 +1,16 @@
+#include "LocalFile.hh"
+
+#include "FileException.hh"
+#include "FileNotFoundException.hh"
+
+#include "narrow.hh"
+#include "one_of.hh"
+
 #include "systemfuncs.hh"
+
 #include "unistdp.hh"
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #if HAVE_MMAP
 #include <sys/mman.h>
 #endif
@@ -9,16 +18,11 @@
 #include <io.h>
 #include <iostream>
 #endif
-#include "LocalFile.hh"
-#include "FileException.hh"
-#include "FileNotFoundException.hh"
-#include "narrow.hh"
-#include "one_of.hh"
 
 #include <bit>
-#include <cstring> // for strchr, strerror
-#include <cerrno>
 #include <cassert>
+#include <cerrno>
+#include <cstring> // for strchr, strerror
 #include <memory>
 
 namespace openmsx {

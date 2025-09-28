@@ -1,12 +1,16 @@
 #include "MSXMidi.hh"
+
 #include "MidiInDevice.hh"
+
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
+
 #include "narrow.hh"
 #include "outer.hh"
-#include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <cassert>
 
 namespace openmsx {

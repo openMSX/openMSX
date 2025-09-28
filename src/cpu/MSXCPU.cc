@@ -5,10 +5,10 @@
 #include "R800.hh"
 #include "Z80.hh"
 
-#include "MSXMotherBoard.hh"
 #include "Debugger.hh"
-#include "Scheduler.hh"
 #include "IntegerSetting.hh"
+#include "MSXMotherBoard.hh"
+#include "Scheduler.hh"
 #include "TclObject.hh"
 #include "serialize.hh"
 

@@ -1,4 +1,5 @@
 #include "VideoSystem.hh"
+
 #include "MSXException.hh"
 
 namespace openmsx {

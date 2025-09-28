@@ -4,8 +4,9 @@
 #ifndef MSXSCCPLUSCART_HH
 #define MSXSCCPLUSCART_HH
 
-#include "MSXDevice.hh"
 #include "SCC.hh"
+
+#include "MSXDevice.hh"
 #include "Ram.hh"
 #include "RomBlockDebuggable.hh"
 

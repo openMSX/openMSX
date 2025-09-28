@@ -1,14 +1,18 @@
 #include "MidiInReader.hh"
+
 #include "MidiInConnector.hh"
-#include "PlugException.hh"
+
 #include "EventDistributor.hh"
-#include "Scheduler.hh"
 #include "FileOperations.hh"
-#include "checked_cast.hh"
+#include "PlugException.hh"
+#include "Scheduler.hh"
 #include "serialize.hh"
+
+#include "checked_cast.hh"
+
 #include <array>
-#include <cstdio>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 
 namespace openmsx {

@@ -4,9 +4,9 @@
 #include "PixelOperations.hh"
 #include "gl_vec.hh"
 
-#include <string>
 #include <cassert>
 #include <cstdint>
+#include <string>
 
 namespace openmsx {
 

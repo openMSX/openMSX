@@ -1,4 +1,5 @@
 #include "RTSchedulable.hh"
+
 #include "RTScheduler.hh"
 
 namespace openmsx {

@@ -17,12 +17,13 @@
 #include "random.hh"
 #include "setenv.hh" // setenv() for windows
 
-#include <iostream>
-#include <exception>
-#include <ctime>
+#include <SDL.h>
+
 #include <cstdio>
 #include <cstdlib>
-#include <SDL.h>
+#include <ctime>
+#include <exception>
+#include <iostream>
 #ifdef _WIN32
 #include "win32-arggen.hh"
 #endif

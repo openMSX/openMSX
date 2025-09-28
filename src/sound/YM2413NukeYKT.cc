@@ -27,13 +27,13 @@
 
 #include "YM2413NukeYKT.hh"
 
-#include "serialize.hh"
+#include "Math.hh"
 #include "cstd.hh"
 #include "enumerate.hh"
-#include "Math.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
+#include "serialize.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 

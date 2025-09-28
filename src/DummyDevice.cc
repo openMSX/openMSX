@@ -1,4 +1,5 @@
 #include "DummyDevice.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {

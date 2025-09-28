@@ -3,10 +3,11 @@
 
 #include "hash_map.hh"
 #include "xxhash.hh"
+
 #include <memory>
 #include <tuple>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 #include <utility>
 #include <vector>
 

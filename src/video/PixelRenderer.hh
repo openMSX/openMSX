@@ -1,9 +1,10 @@
 #ifndef PIXELRENDERER_HH
 #define PIXELRENDERER_HH
 
-#include "Renderer.hh"
-#include "Observer.hh"
 #include "RenderSettings.hh"
+#include "Renderer.hh"
+
+#include "Observer.hh"
 
 #include <cstdint>
 #include <memory>

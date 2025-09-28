@@ -1,9 +1,9 @@
 #include "TigerTree.hh"
 
-#include "tiger.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "ScopedAssign.hh"
+#include "tiger.hh"
 
 #include <cassert>
 #include <map>

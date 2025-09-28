@@ -1,7 +1,8 @@
 #include "FileContext.hh"
 
-#include "FileOperations.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
+
 #include "serialize.hh"
 #include "serialize_stl.hh"
 

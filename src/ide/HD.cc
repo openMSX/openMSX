@@ -1,18 +1,21 @@
 #include "HD.hh"
+
+#include "DeviceConfig.hh"
+#include "Display.hh"
 #include "FileContext.hh"
 #include "FilePool.hh"
-#include "DeviceConfig.hh"
-#include "MSXCliComm.hh"
+#include "GlobalSettings.hh"
 #include "HDImageCLI.hh"
+#include "MSXCliComm.hh"
+#include "MSXException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "Display.hh"
-#include "GlobalSettings.hh"
-#include "MSXException.hh"
 #include "Timer.hh"
+
 #include "narrow.hh"
 #include "serialize.hh"
 #include "tiger.hh"
+
 #include <array>
 #include <cassert>
 #include <memory>

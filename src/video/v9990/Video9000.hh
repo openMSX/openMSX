@@ -1,10 +1,11 @@
 #ifndef VIDEO9000_HH
 #define VIDEO9000_HH
 
-#include "MSXDevice.hh"
-#include "VideoSystemChangeListener.hh"
 #include "VideoLayer.hh"
+#include "VideoSystemChangeListener.hh"
+
 #include "EventListener.hh"
+#include "MSXDevice.hh"
 
 namespace openmsx {
 

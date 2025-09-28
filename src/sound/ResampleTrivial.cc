@@ -1,6 +1,6 @@
 #include "ResampleTrivial.hh"
+
 #include "ResampledSoundDevice.hh"
-#include <cassert>
 
 namespace openmsx {
 

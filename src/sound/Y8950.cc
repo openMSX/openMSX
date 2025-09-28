@@ -6,8 +6,9 @@
 
 #include "Y8950.hh"
 
-#include "Y8950Periphery.hh"
 #include "MSXAudio.hh"
+#include "Y8950Periphery.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 

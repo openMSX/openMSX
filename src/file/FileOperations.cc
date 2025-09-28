@@ -1,3 +1,26 @@
+#include "FileOperations.hh"
+
+#include "FileException.hh"
+#include "ReadDir.hh"
+
+#include "StringOp.hh"
+#include "narrow.hh"
+#include "one_of.hh"
+#include "strCat.hh"
+#include "unistdp.hh"
+
+#include "build-info.hh"
+
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cerrno>
+#include <cstdlib>
+#include <filesystem>
+#include <iterator>
+#include <sstream>
+#include <stdexcept>
+
 #ifdef	_WIN32
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0500	// For SHGetSpecialFolderPathW with MinGW
@@ -13,13 +36,11 @@
 #include <cstring>
 #include <algorithm>
 #else // ifdef _WIN32_ ...
-#include <sys/types.h>
-#include <pwd.h>
 #include <climits>
+#include <pwd.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif // ifdef _WIN32_ ... else ...
-
-#include "narrow.hh"
 
 #ifdef PATH_MAX
 #define MAXPATHLEN PATH_MAX
@@ -29,30 +50,9 @@
 #define MAXPATHLEN 4096
 #endif
 
-
 #ifdef __APPLE__
 #include "FileOperationsMac.hh"
 #endif
-
-#include "ReadDir.hh"
-#include "FileOperations.hh"
-#include "FileException.hh"
-#include "StringOp.hh"
-#include "unistdp.hh"
-#include "one_of.hh"
-#include "strCat.hh"
-
-#include "build-info.hh"
-
-#include <algorithm>
-#include <array>
-#include <cassert>
-#include <cerrno>
-#include <cstdlib>
-#include <filesystem>
-#include <iterator>
-#include <sstream>
-#include <stdexcept>
 
 #ifndef _MSC_VER
 #include <dirent.h>

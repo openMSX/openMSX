@@ -1,6 +1,7 @@
 #include "MSXCielTurbo.hh"
-#include "MSXCPU.hh"
+
 #include "LedStatus.hh"
+#include "MSXCPU.hh"
 #include "serialize.hh"
 
 namespace openmsx {

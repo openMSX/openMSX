@@ -1,4 +1,5 @@
 #include "CPUClock.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

@@ -1,6 +1,8 @@
 #include "CassetteImage.hh"
+
 #include "FileOperations.hh"
 #include "Filename.hh"
+
 #include <cassert>
 
 namespace openmsx {

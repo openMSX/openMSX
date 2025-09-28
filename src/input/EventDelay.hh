@@ -1,17 +1,17 @@
 #ifndef EVENTDELAY_HH
 #define EVENTDELAY_HH
 
-#include "EventListener.hh"
-#include "Schedulable.hh"
 #include "EmuTime.hh"
 #include "Event.hh"
+#include "EventListener.hh"
 #include "FloatSetting.hh"
+#include "Schedulable.hh"
 
 #include "build-info.hh"
 
-#include <vector>
-#include <deque>
 #include <cstdint>
+#include <deque>
+#include <vector>
 
 namespace openmsx {
 

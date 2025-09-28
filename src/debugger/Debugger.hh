@@ -2,17 +2,18 @@
 #define DEBUGGER_HH
 
 #include "Probe.hh"
+
+#include "ImGuiWatchExpr.hh"
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
-#include "ImGuiWatchExpr.hh"
 
 #include "hash_map.hh"
 #include "outer.hh"
 #include "xxhash.hh"
 
+#include <memory>
 #include <string_view>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 

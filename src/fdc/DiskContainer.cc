@@ -1,4 +1,5 @@
 #include "DiskContainer.hh"
+
 #include "NowindRomDisk.hh"
 
 namespace openmsx {

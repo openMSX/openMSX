@@ -1,7 +1,10 @@
 #include "SectorBasedDisk.hh"
+
 #include "MSXException.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <cassert>
 
 namespace openmsx {

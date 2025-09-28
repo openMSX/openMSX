@@ -1,5 +1,7 @@
 #include "Schedulable.hh"
+
 #include "Scheduler.hh"
+
 #include <iostream>
 
 namespace openmsx {

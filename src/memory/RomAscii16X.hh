@@ -1,9 +1,10 @@
 #ifndef ROMASCII16X_HH
 #define ROMASCII16X_HH
 
-#include "MSXRom.hh"
 #include "AmdFlash.hh"
+#include "MSXRom.hh"
 #include "RomBlockDebuggable.hh"
+
 #include <array>
 
 namespace openmsx {

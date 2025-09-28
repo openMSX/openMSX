@@ -1,11 +1,15 @@
 #include "Trackball.hh"
-#include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
+
 #include "Event.hh"
+#include "MSXEventDistributor.hh"
 #include "StateChange.hh"
-#include "narrow.hh"
+#include "StateChangeDistributor.hh"
+
 #include "serialize.hh"
 #include "serialize_meta.hh"
+
+#include "narrow.hh"
+
 #include <algorithm>
 
 // * Implementation based on information we received from 'n_n'.

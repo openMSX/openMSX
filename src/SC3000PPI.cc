@@ -1,12 +1,14 @@
 #include "SC3000PPI.hh"
+
+#include "CassettePort.hh"
+#include "GlobalSettings.hh"
+#include "JoystickPort.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "CassettePort.hh"
-#include "JoystickPort.hh"
 #include "XMLElement.hh"
-#include "GlobalSettings.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

@@ -1,8 +1,8 @@
 #include "ResampledSoundDevice.hh"
 
-#include "ResampleTrivial.hh"
-#include "ResampleHQ.hh"
 #include "ResampleBlip.hh"
+#include "ResampleHQ.hh"
+#include "ResampleTrivial.hh"
 
 #include "EnumSetting.hh"
 #include "GlobalSettings.hh"

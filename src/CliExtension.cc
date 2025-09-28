@@ -1,8 +1,10 @@
 #include "CliExtension.hh"
+
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
+
 #include <cassert>
 
 namespace openmsx {

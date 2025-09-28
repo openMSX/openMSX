@@ -1,22 +1,22 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
+#include "DACSound16S.hh"
+#include "ResampledSoundDevice.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
-#include "ResampledSoundDevice.hh"
-#include "DACSound16S.hh"
 
-#include "SimpleDebuggable.hh"
-#include "IRQHelper.hh"
-#include "EmuTimer.hh"
 #include "EmuTime.hh"
+#include "EmuTimer.hh"
 #include "FixedPoint.hh"
+#include "IRQHelper.hh"
+#include "SimpleDebuggable.hh"
 
 #include <array>
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <string>
-#include <memory>
 
 namespace openmsx {
 

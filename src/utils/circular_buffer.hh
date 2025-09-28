@@ -14,10 +14,10 @@
 #define CIRCULAR_BUFFER_HH
 
 #include <algorithm>
-#include <iterator>
-#include <utility>
 #include <cstddef>
 #include <cstdlib>
+#include <iterator>
+#include <utility>
 
 /** Random access iterator for circular_buffer. */
 template<typename BUF, typename T> class cb_iterator

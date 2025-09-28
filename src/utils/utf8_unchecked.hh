@@ -31,8 +31,10 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
+
 #include "narrow.hh"
 #include "xrange.hh"
+
 #include <string_view>
 
 namespace utf8::unchecked {

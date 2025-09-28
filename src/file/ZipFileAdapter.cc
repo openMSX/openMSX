@@ -1,6 +1,7 @@
 #include "ZipFileAdapter.hh"
-#include "ZlibInflate.hh"
+
 #include "FileException.hh"
+#include "ZlibInflate.hh"
 
 namespace openmsx {
 

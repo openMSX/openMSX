@@ -1,18 +1,19 @@
 #include "ImGuiUtils.hh"
 
 #include "ImGuiCpp.hh"
+#include "ImGuiManager.hh"
+#include "KeyMappings.hh"
 
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "HotKey.hh"
-#include "ImGuiManager.hh"
-#include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "HotKey.hh"
+#include "IntegerSetting.hh"
 #include "VideoSourceSetting.hh"
-#include "KeyMappings.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
+
 #include <SDL.h>
 
 #include <algorithm>

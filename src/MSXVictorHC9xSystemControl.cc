@@ -1,5 +1,7 @@
 #include "MSXVictorHC9xSystemControl.hh"
+
 #include "serialize.hh"
+
 #include <cassert>
 
 // This implementation is documented in the HC-95 service manual:

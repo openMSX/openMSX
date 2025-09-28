@@ -1,9 +1,10 @@
 #ifndef MSXPRINTERPORT_HH
 #define MSXPRINTERPORT_HH
 
-#include "MSXDevice.hh"
 #include "Connector.hh"
+#include "MSXDevice.hh"
 #include "SimpleDebuggable.hh"
+
 #include <cstdint>
 
 namespace openmsx {

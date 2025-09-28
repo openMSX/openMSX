@@ -7,8 +7,8 @@
  *    item 93: Avoid using static_cast on pointers
  */
 
-#include <type_traits>
 #include <cassert>
+#include <type_traits>
 
 template<typename TO, typename FROM>
 [[nodiscard]] constexpr TO checked_cast(FROM* from)

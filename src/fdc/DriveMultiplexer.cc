@@ -1,4 +1,5 @@
 #include "DriveMultiplexer.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

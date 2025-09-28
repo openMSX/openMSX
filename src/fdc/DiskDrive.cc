@@ -1,4 +1,5 @@
 #include "DiskDrive.hh"
+
 #include "DiskExceptions.hh"
 
 namespace openmsx {

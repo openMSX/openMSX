@@ -34,16 +34,16 @@
 #ifndef YM2151_HH
 #define YM2151_HH
 
-#include "ResampledSoundDevice.hh"
 #include "EmuTimer.hh"
+#include "ResampledSoundDevice.hh"
 
 #include "EmuTime.hh"
 #include "IRQHelper.hh"
 
 #include <array>
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 

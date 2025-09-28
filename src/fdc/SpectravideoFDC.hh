@@ -2,6 +2,7 @@
 #define SPECTRAVIDEOFDC_HH
 
 #include "WD2793BasedFDC.hh"
+
 #include "Rom.hh"
 
 namespace openmsx {

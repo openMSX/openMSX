@@ -1,9 +1,11 @@
 #include "DACSound16S.hh"
+
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "DynamicClock.hh"
-#include "narrow.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

@@ -1,9 +1,10 @@
 #include "PioneerLDControl.hh"
+
 #include "CacheLine.hh"
-#include "serialize.hh"
-#include "MSXPPI.hh"
 #include "MSXException.hh"
+#include "MSXPPI.hh"
 #include "VDP.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

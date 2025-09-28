@@ -1,8 +1,10 @@
 #include "MSXTurboRPCM.hh"
-#include "MSXMotherBoard.hh"
+
 #include "MSXMixer.hh"
-#include "narrow.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 #include "unreachable.hh"
 
 namespace openmsx {

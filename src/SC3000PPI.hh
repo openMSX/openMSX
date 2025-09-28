@@ -1,10 +1,10 @@
 #ifndef SC3000PPI_HH
 #define SC3000PPI_HH
 
-#include "MSXDevice.hh"
-#include "I8255Interface.hh"
 #include "I8255.hh"
+#include "I8255Interface.hh"
 #include "Keyboard.hh"
+#include "MSXDevice.hh"
 
 #include <array>
 

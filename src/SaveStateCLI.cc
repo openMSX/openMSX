@@ -1,6 +1,8 @@
 #include "SaveStateCLI.hh"
+
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
+
 #include <array>
 
 namespace openmsx {

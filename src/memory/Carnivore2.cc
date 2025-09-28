@@ -3,8 +3,8 @@
 #include "DummyAY8910Periphery.hh"
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
-#include "MSXCliComm.hh"
 #include "MSXCPU.hh"
+#include "MSXCliComm.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"

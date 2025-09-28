@@ -2,7 +2,9 @@
 #define NOWINDCOMMAND_HH
 
 #include "NowindHost.hh"
+
 #include "Command.hh"
+
 #include <memory>
 
 namespace openmsx {

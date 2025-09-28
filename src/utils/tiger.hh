@@ -16,9 +16,9 @@
 #define TIGER_HH
 
 #include <array>
-#include <string>
 #include <cstdint>
 #include <span>
+#include <string>
 
 namespace openmsx {
 

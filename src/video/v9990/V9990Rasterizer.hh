@@ -2,6 +2,7 @@
 #define V9990RASTERIZER_HH
 
 #include "V9990ModeEnum.hh"
+
 #include "EmuTime.hh"
 
 #include <cstdint>

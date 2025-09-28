@@ -1,10 +1,13 @@
 #include "OSDRectangle.hh"
+
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "GLImage.hh"
 #include "TclObject.hh"
+
 #include "stl.hh"
+
 #include <cassert>
 #include <cmath>
 #include <cstdint>

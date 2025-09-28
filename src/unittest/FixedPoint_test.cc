@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "FixedPoint.hh"
+
 #include "narrow.hh"
 
 using namespace openmsx;

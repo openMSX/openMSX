@@ -33,9 +33,10 @@ DEALINGS IN THE SOFTWARE.
 
 #include "narrow.hh"
 #include "one_of.hh"
+
 #include <array>
-#include <iterator>
 #include <cstdint>
+#include <iterator>
 
 namespace utf8 {
 

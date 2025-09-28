@@ -1,7 +1,9 @@
 #include "NationalFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "serialize.hh"
 
 namespace openmsx {

@@ -1,8 +1,8 @@
 #ifndef MUSICMODULEMIDI_HH
 #define MUSICMODULEMIDI_HH
 
-#include "MSXDevice.hh"
 #include "MC6850.hh"
+#include "MSXDevice.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {

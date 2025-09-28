@@ -1,8 +1,11 @@
 #include "catch.hpp"
 #include "MemoryBufferFile.hh"
+
 #include "File.hh"
+
 #include "ranges.hh"
 #include "xrange.hh"
+
 #include <array>
 
 using namespace openmsx;

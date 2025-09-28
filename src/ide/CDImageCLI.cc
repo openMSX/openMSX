@@ -1,8 +1,9 @@
 #include "CDImageCLI.hh"
+
 #include "CommandLineParser.hh"
 #include "Interpreter.hh"
-#include "TclObject.hh"
 #include "MSXException.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 

@@ -1,11 +1,12 @@
 #ifndef MEGAFLASHROMSCCPLUSSD_HH
 #define MEGAFLASHROMSCCPLUSSD_HH
 
-#include "MSXDevice.hh"
-#include "MSXMapperIO.hh"
 #include "AmdFlash.hh"
-#include "SCC.hh"
+#include "MSXMapperIO.hh"
+
 #include "AY8910.hh"
+#include "MSXDevice.hh"
+#include "SCC.hh"
 
 #include <array>
 #include <cstdint>

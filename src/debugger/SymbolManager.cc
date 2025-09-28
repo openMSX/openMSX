@@ -5,10 +5,10 @@
 #include "Interpreter.hh"
 #include "TclObject.hh"
 
+#include "StringOp.hh"
 #include "narrow.hh"
 #include "static_vector.hh"
 #include "stl.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 
 #include <algorithm>

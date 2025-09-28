@@ -1,24 +1,25 @@
 #include "NowindCommand.hh"
 
-#include "NowindRomDisk.hh"
-#include "NowindInterface.hh"
-#include "DiskChanger.hh"
 #include "DSKDiskImage.hh"
+#include "DiskChanger.hh"
 #include "DiskPartition.hh"
-#include "FileContext.hh"
-#include "StringOp.hh"
-#include "FileOperations.hh"
+#include "NowindInterface.hh"
+#include "NowindRomDisk.hh"
+
 #include "CommandException.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
 #include "TclObject.hh"
 
+#include "StringOp.hh"
 #include "enumerate.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
 
 #include <array>
 #include <cassert>
-#include <span>
 #include <memory>
+#include <span>
 
 namespace openmsx {
 

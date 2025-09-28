@@ -1,4 +1,5 @@
 #include "EmuTime.hh"
+
 #include <iostream>
 
 namespace openmsx {

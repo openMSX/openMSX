@@ -2,8 +2,8 @@
 
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
-#include "SCC.hh"
 #include "MSXCPUInterface.hh"
+#include "SCC.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"
@@ -51,7 +51,6 @@ namespace openmsx {
 			return writeProtectSectors;  // only 128kB writable
 		}
 	case MEGAFLASHROMSCC:
-		return {};  // fully writeable
 	case RBSC_FLASH_KONAMI_SCC:
 		return {};  // fully writeable
 	default:

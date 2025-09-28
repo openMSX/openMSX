@@ -1,9 +1,10 @@
 #ifndef WD2793BASEDFDC_HH
 #define WD2793BASEDFDC_HH
 
-#include "MSXFDC.hh"
 #include "DriveMultiplexer.hh"
+#include "MSXFDC.hh"
 #include "WD2793.hh"
+
 #include <string>
 
 namespace openmsx {

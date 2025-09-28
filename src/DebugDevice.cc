@@ -8,8 +8,8 @@
 #include "narrow.hh"
 #include "strCat.hh"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 namespace openmsx {
 

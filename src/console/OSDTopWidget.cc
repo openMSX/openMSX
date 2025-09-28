@@ -1,7 +1,8 @@
 #include "OSDTopWidget.hh"
-#include "OutputSurface.hh"
-#include "Display.hh"
+
 #include "CliComm.hh"
+#include "Display.hh"
+#include "OutputSurface.hh"
 
 namespace openmsx {
 

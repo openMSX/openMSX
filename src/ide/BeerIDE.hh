@@ -35,11 +35,11 @@ PC6    HWR    23 /IOWR
 PC7    HRD    25 /IORD
 */
 
-
-#include "MSXDevice.hh"
-#include "I8255Interface.hh"
 #include "I8255.hh"
+#include "I8255Interface.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
+
 #include <memory>
 
 namespace openmsx {

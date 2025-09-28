@@ -2,10 +2,11 @@
 #define TC8566AF_HH
 
 #include "DynamicClock.hh"
-#include "CRC16.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+
+#include "CRC16.hh"
 
 #include <array>
 #include <cstdint>

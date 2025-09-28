@@ -1,4 +1,5 @@
 #include "Version.hh"
+
 #include "strCat.hh"
 
 namespace openmsx {

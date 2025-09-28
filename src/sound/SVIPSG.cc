@@ -1,9 +1,11 @@
 #include "SVIPSG.hh"
+
+#include "JoystickPort.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
-#include "JoystickPort.hh"
 #include "serialize.hh"
+
 #include "stl.hh"
 
 //        Slot 0    Slot 1    Slot 2    Slot 3

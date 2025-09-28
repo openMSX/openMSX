@@ -1,10 +1,12 @@
 #ifndef REPROCARTRIDGEV1_HH
 #define REPROCARTRIDGEV1_HH
 
-#include "MSXRom.hh"
 #include "AmdFlash.hh"
-#include "SCC.hh"
+#include "MSXRom.hh"
+
 #include "AY8910.hh"
+#include "SCC.hh"
+
 #include <array>
 
 namespace openmsx {

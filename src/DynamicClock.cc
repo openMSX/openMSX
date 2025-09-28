@@ -1,5 +1,7 @@
 #include "DynamicClock.hh"
+
 #include "serialize.hh"
+
 #include <cassert>
 
 namespace openmsx {

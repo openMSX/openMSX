@@ -1,14 +1,18 @@
 #include "MegaFlashRomSCCPlusSD.hh"
-#include "DummyAY8910Periphery.hh"
-#include "MSXCPUInterface.hh"
-#include "CacheLine.hh"
+
 #include "CheckedRam.hh"
 #include "SdCard.hh"
+
+#include "CacheLine.hh"
+#include "DummyAY8910Periphery.hh"
+#include "MSXCPUInterface.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
 #include "ranges.hh"
-#include "serialize.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <memory>
 

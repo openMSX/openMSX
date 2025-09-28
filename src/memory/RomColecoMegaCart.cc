@@ -1,7 +1,9 @@
 #include "RomColecoMegaCart.hh"
-#include "serialize.hh"
-#include "MSXException.hh"
+
 #include "CacheLine.hh"
+#include "MSXException.hh"
+#include "serialize.hh"
+
 #include "one_of.hh"
 
 // information source:

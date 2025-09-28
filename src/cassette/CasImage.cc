@@ -1,9 +1,9 @@
 #include "CasImage.hh"
 
+#include "CliComm.hh"
 #include "File.hh"
 #include "FilePool.hh"
 #include "Filename.hh"
-#include "CliComm.hh"
 #include "MSXException.hh"
 
 #include "narrow.hh"

@@ -1,8 +1,8 @@
 #include "Ram.hh"
 
 #include "DeviceConfig.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
+#include "XMLElement.hh"
 
 #include "Base64.hh"
 #include "HexDump.hh"

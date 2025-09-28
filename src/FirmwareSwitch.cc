@@ -1,8 +1,10 @@
 #include "FirmwareSwitch.hh"
-#include "MSXCliComm.hh"
-#include "FileContext.hh"
+
 #include "File.hh"
+#include "FileContext.hh"
 #include "FileException.hh"
+#include "MSXCliComm.hh"
+
 #include <array>
 #include <cstdint>
 

@@ -7,8 +7,8 @@
 #include "SettingsManager.hh"
 #include "StringSetting.hh"
 
-#include "GlobalCommandController.hh"
 #include "CommandException.hh"
+#include "GlobalCommandController.hh"
 #include "TclObject.hh"
 
 #include "checked_cast.hh"

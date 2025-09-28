@@ -1,8 +1,8 @@
 #ifndef EMUTIMER_HH
 #define EMUTIMER_HH
 
-#include "Schedulable.hh"
 #include "DynamicClock.hh"
+#include "Schedulable.hh"
 
 #include <cstdint>
 #include <memory>

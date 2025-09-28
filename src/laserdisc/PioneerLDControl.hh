@@ -2,10 +2,12 @@
 #define PIONEERLDCONTROL_HH
 
 #include "LaserdiscPlayer.hh"
-#include "MSXDevice.hh"
+
 #include "Clock.hh"
 #include "IRQHelper.hh"
+#include "MSXDevice.hh"
 #include "Rom.hh"
+
 #include <optional>
 
 namespace openmsx {

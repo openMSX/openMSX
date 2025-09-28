@@ -1,6 +1,6 @@
 #include "DoubledFrame.hh"
+
 #include "narrow.hh"
-#include <cstdint>
 
 namespace openmsx {
 

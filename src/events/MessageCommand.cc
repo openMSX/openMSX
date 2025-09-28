@@ -1,7 +1,10 @@
 #include "MessageCommand.hh"
-#include "CommandException.hh"
+
 #include "CliComm.hh"
+
+#include "CommandException.hh"
 #include "TclObject.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

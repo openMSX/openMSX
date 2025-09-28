@@ -1,11 +1,14 @@
 #include "YamahaFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
+#include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "MSXException.hh"
 #include "Rom.hh"
-#include "WD2793.hh"
-#include "one_of.hh"
 #include "serialize.hh"
+
+#include "one_of.hh"
 
 // This is derived by disassembly of the Yamaha FD-03 disk rom
 //   https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/diskdrvs/fd-03/

@@ -1,12 +1,16 @@
 #include "MSXFDC.hh"
+
 #include "RealDrive.hh"
-#include "XMLElement.hh"
-#include "MSXException.hh"
-#include "ConfigException.hh"
+
 #include "CacheLine.hh"
+#include "ConfigException.hh"
+#include "MSXException.hh"
+#include "XMLElement.hh"
+#include "serialize.hh"
+
 #include "enumerate.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+
 #include <array>
 #include <memory>
 

@@ -1,5 +1,7 @@
 #include "DivModBySame.hh"
+
 #include "uint128.hh"
+
 #include <bit>
 
 namespace openmsx {

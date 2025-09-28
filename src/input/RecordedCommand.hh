@@ -2,10 +2,11 @@
 #define RECORDEDCOMMAND_HH
 
 #include "Command.hh"
-#include "StateChangeListener.hh"
-#include "StateChange.hh"
-#include "TclObject.hh"
 #include "EmuTime.hh"
+#include "StateChange.hh"
+#include "StateChangeListener.hh"
+#include "TclObject.hh"
+
 #include "dynarray.hh"
 
 namespace openmsx {

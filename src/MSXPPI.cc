@@ -1,11 +1,12 @@
 #include "MSXPPI.hh"
+
+#include "CassettePort.hh"
+#include "GlobalSettings.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "CassettePort.hh"
 #include "RenShaTurbo.hh"
-#include "GlobalSettings.hh"
 #include "serialize.hh"
 
 namespace openmsx {

@@ -1,10 +1,11 @@
 #include "EventDistributor.hh"
 
 #include "EventListener.hh"
-#include "Reactor.hh"
-#include "RTScheduler.hh"
-#include "Interpreter.hh"
 #include "InputEventGenerator.hh"
+
+#include "Interpreter.hh"
+#include "RTScheduler.hh"
+#include "Reactor.hh"
 #include "Thread.hh"
 
 #include "stl.hh"

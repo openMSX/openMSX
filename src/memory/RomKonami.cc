@@ -10,9 +10,11 @@
 // other address in a page switches that page as well)
 
 #include "RomKonami.hh"
-#include "MSXMotherBoard.hh"
+
 #include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
 #include "xrange.hh"
 
 namespace openmsx {

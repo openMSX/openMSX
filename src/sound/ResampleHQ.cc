@@ -25,9 +25,9 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <cassert>
 #include <iterator>
 #include <vector>
 #ifdef __SSE2__

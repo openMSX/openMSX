@@ -1,6 +1,7 @@
 #include "WavWriter.hh"
 
 #include "Mixer.hh"
+
 #include "MSXException.hh"
 
 #include "Math.hh"

@@ -1,7 +1,9 @@
 #include "MSXMusic.hh"
+
 #include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+
 #include <bit>
 
 namespace openmsx {

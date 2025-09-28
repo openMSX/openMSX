@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "narrow.hh"
+
 #include <cstdint>
 #include <type_traits>
 

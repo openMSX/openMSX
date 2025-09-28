@@ -21,8 +21,8 @@
 #include "SymbolManager.hh"
 #include "VideoSystem.hh"
 
-#include "narrow.hh"
 #include "join.hh"
+#include "narrow.hh"
 #include "strCat.hh"
 
 #include <imgui.h>

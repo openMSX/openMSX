@@ -3,9 +3,11 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
+
 #include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
+
 #include <array>
 #include <cassert>
 #include <initializer_list>

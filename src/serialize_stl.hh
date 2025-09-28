@@ -2,8 +2,10 @@
 #define SERIALIZE_STL_HH
 
 #include "serialize_core.hh"
+
 #include "circular_buffer.hh"
 #include "static_vector.hh"
+
 #include <deque>
 #include <iterator>
 #include <vector>

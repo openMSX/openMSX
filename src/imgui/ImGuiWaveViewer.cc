@@ -7,9 +7,9 @@
 #include "SoundDevice.hh"
 
 #include "FFTReal.hh"
-#include "hammingWindow.hh"
 #include "fast_log2.hh"
 #include "halfband.hh"
+#include "hammingWindow.hh"
 #include "narrow.hh"
 #include "ranges.hh"
 #include "view.hh"

@@ -1,6 +1,8 @@
 #include "TclObject.hh"
-#include "Interpreter.hh"
+
 #include "CommandException.hh"
+#include "Interpreter.hh"
+
 #include "narrow.hh"
 
 namespace openmsx {

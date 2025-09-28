@@ -1,5 +1,7 @@
 #include "Disk.hh"
+
 #include "DiskExceptions.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 

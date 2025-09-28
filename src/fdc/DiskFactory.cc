@@ -1,15 +1,19 @@
 #include "DiskFactory.hh"
-#include "Reactor.hh"
-#include "File.hh"
-#include "FileContext.hh"
-#include "DSKDiskImage.hh"
-#include "XSADiskImage.hh"
+
 #include "DMKDiskImage.hh"
-#include "RamDSKDiskImage.hh"
+#include "DSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
+#include "RamDSKDiskImage.hh"
+#include "XSADiskImage.hh"
+
+#include "File.hh"
+#include "FileContext.hh"
 #include "MSXException.hh"
+#include "Reactor.hh"
+
 #include "StringOp.hh"
+
 #include <memory>
 
 namespace openmsx {

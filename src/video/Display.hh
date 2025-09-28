@@ -2,16 +2,19 @@
 #define DISPLAY_HH
 
 #include "RenderSettings.hh"
+
 #include "Command.hh"
+#include "EventListener.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
-#include "EventListener.hh"
 #include "RTSchedulable.hh"
-#include "Observer.hh"
+
 #include "CircularBuffer.hh"
+#include "Observer.hh"
+
+#include <cstdint>
 #include <memory>
 #include <vector>
-#include <cstdint>
 
 namespace openmsx {
 

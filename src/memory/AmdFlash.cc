@@ -2,11 +2,12 @@
 
 #include "Rom.hh"
 #include "SRAM.hh"
-#include "MSXMotherBoard.hh"
+
 #include "MSXCPU.hh"
-#include "MSXDevice.hh"
 #include "MSXCliComm.hh"
+#include "MSXDevice.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 
 #include "narrow.hh"
 #include "one_of.hh"

@@ -1,7 +1,7 @@
 #include "GlobalSettings.hh"
 
-#include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
+#include "SettingsConfig.hh"
 
 namespace openmsx {
 

@@ -1,4 +1,5 @@
 #include "DummySCSIDevice.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

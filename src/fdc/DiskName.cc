@@ -1,4 +1,5 @@
 #include "DiskName.hh"
+
 #include "serialize.hh"
 
 namespace openmsx {

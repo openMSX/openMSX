@@ -1,10 +1,11 @@
 #ifndef MSXYAMAHASFG_HH
 #define MSXYAMAHASFG_HH
 
-#include "MSXDevice.hh"
 #include "YM2151.hh"
-#include "YM2148.hh"
+
+#include "MSXDevice.hh"
 #include "Rom.hh"
+#include "YM2148.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {

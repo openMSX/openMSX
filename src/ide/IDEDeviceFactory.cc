@@ -1,9 +1,12 @@
 #include "IDEDeviceFactory.hh"
+
 #include "DummyIDEDevice.hh"
-#include "IDEHD.hh"
 #include "IDECDROM.hh"
+#include "IDEHD.hh"
+
 #include "DeviceConfig.hh"
 #include "MSXException.hh"
+
 #include <memory>
 
 namespace openmsx::IDEDeviceFactory {

@@ -42,6 +42,7 @@
 
 #include "FileOperations.hh"
 #include "foreach_file.hh"
+
 #include "Thread.hh"
 #include "Timer.hh"
 
@@ -49,6 +50,7 @@
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+
 #include "build-info.hh"
 
 #include <algorithm>

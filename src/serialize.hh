@@ -1,18 +1,21 @@
 #ifndef SERIALIZE_HH
 #define SERIALIZE_HH
 
-#include "serialize_core.hh"
 #include "SerializeBuffer.hh"
-#include "StringOp.hh"
 #include "XMLElement.hh"
 #include "XMLOutputStream.hh"
+#include "serialize_core.hh"
+
 #include "MemBuffer.hh"
+#include "StringOp.hh"
 #include "hash_map.hh"
 #include "inline.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
 #include "zstring_view.hh"
+
 #include <zlib.h>
+
 #include <array>
 #include <cassert>
 #include <memory>
@@ -20,8 +23,8 @@
 #include <span>
 #include <sstream>
 #include <string>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 #include <vector>
 
 namespace openmsx {

@@ -2,9 +2,9 @@
 
 #include "Display.hh"
 #include "GLContext.hh"
-
 #include "gl_mat.hh"
 #include "gl_vec.hh"
+
 #include "random.hh"
 
 #include <algorithm>

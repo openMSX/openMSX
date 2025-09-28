@@ -1,8 +1,9 @@
 #ifndef DISK_HH
 #define DISK_HH
 
-#include "SectorAccessibleDisk.hh"
 #include "DiskName.hh"
+#include "SectorAccessibleDisk.hh"
+
 #include <cstdint>
 
 namespace openmsx {

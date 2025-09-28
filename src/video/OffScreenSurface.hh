@@ -1,8 +1,8 @@
 #ifndef OFFSCREENSURFACE_HH
 #define OFFSCREENSURFACE_HH
 
-#include "OutputSurface.hh"
 #include "GLUtil.hh"
+#include "OutputSurface.hh"
 
 namespace openmsx {
 

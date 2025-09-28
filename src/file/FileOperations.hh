@@ -2,8 +2,8 @@
 #define FILEOPERATIONS_HH
 
 #include "Date.hh"
-#include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
+#include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "zstring_view.hh"
 
 #include <fstream>

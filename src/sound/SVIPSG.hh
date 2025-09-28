@@ -1,9 +1,11 @@
 #ifndef SVIPSG_HH
 #define SVIPSG_HH
 
-#include "MSXDevice.hh"
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
+
+#include "MSXDevice.hh"
+
 #include <array>
 
 namespace openmsx {

@@ -1,8 +1,8 @@
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 
-#include "Probe.hh"
 #include "MSXMotherBoard.hh"
+#include "Probe.hh"
 #include "serialize.hh"
 
 #include <cstdint>

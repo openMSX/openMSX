@@ -1,10 +1,12 @@
 #ifndef MSXPSG_HH
 #define MSXPSG_HH
 
-#include "MSXDevice.hh"
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
+
+#include "MSXDevice.hh"
 #include "serialize_meta.hh"
+
 #include <array>
 
 namespace openmsx {

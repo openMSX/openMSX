@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "XMLOutputStream.hh"
+
 #include <sstream>
 
 // Write to a 'stringstream' instead of a file.

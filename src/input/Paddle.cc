@@ -1,10 +1,13 @@
 #include "Paddle.hh"
+
 #include "MSXEventDistributor.hh"
-#include "StateChangeDistributor.hh"
-#include "Event.hh"
 #include "StateChange.hh"
+#include "StateChangeDistributor.hh"
+
+#include "Event.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+
 #include <algorithm>
 
 namespace openmsx {

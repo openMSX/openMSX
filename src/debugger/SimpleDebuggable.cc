@@ -1,6 +1,9 @@
 #include "SimpleDebuggable.hh"
-#include "MSXMotherBoard.hh"
+
 #include "Debugger.hh"
+
+#include "MSXMotherBoard.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {

@@ -1,4 +1,5 @@
 #include "CanonFDC.hh"
+
 #include "CacheLine.hh"
 #include "serialize.hh"
 

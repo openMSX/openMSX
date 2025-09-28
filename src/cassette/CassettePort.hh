@@ -1,9 +1,11 @@
 #ifndef CASSETTEPORT_HH
 #define CASSETTEPORT_HH
 
-#include "Connector.hh"
 #include "CassettePlayerCommand.hh"
+
+#include "Connector.hh"
 #include "serialize_meta.hh"
+
 #include "components.hh"
 
 namespace openmsx {

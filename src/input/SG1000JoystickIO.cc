@@ -1,8 +1,11 @@
 #include "SG1000JoystickIO.hh"
-#include "MSXMotherBoard.hh"
+
 #include "JoystickPort.hh"
-#include "narrow.hh"
+
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 

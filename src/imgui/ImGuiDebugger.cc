@@ -24,10 +24,10 @@
 #include "RomBlockDebuggable.hh"
 #include "RomInfo.hh"
 
+#include "StringOp.hh"
 #include "narrow.hh"
 #include "stl.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>

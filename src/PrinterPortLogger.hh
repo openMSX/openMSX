@@ -1,9 +1,9 @@
 #ifndef MSXPRINTERPORTLOGGER_HH
 #define MSXPRINTERPORTLOGGER_HH
 
-#include "PrinterPortDevice.hh"
-#include "FilenameSetting.hh"
 #include "File.hh"
+#include "FilenameSetting.hh"
+#include "PrinterPortDevice.hh"
 
 namespace openmsx {
 

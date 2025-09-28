@@ -1,10 +1,11 @@
 #ifndef REPROCARTRIDGEV2_HH
 #define REPROCARTRIDGEV2_HH
 
-#include "MSXRom.hh"
 #include "AmdFlash.hh"
-#include "SCC.hh"
+#include "MSXRom.hh"
+
 #include "AY8910.hh"
+#include "SCC.hh"
 
 #include <array>
 

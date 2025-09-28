@@ -1,10 +1,11 @@
 #include "OggReader.hh"
 
-#include "MSXException.hh"
 #include "yuv2rgb.hh"
-#include "CliComm.hh"
-#include "MemoryOps.hh"
 
+#include "CliComm.hh"
+#include "MSXException.hh"
+
+#include "MemoryOps.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "ranges.hh"
@@ -12,8 +13,8 @@
 #include "xrange.hh"
 
 #include <algorithm>
-#include <cstdlib> // for atoi
 #include <cctype> // for isspace
+#include <cstdlib> // for atoi
 #include <memory>
 #include <ranges>
 

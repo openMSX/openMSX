@@ -1,8 +1,9 @@
 #ifndef GLSNOW_HH
 #define GLSNOW_HH
 
-#include "Layer.hh"
 #include "GLUtil.hh"
+#include "Layer.hh"
+
 #include <array>
 
 namespace openmsx {

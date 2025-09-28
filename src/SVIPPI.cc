@@ -1,9 +1,10 @@
 #include "SVIPPI.hh"
+
+#include "CassettePort.hh"
+#include "GlobalSettings.hh"
+#include "JoystickPort.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "CassettePort.hh"
-#include "JoystickPort.hh"
-#include "GlobalSettings.hh"
 #include "serialize.hh"
 
 // Keyboard Matrix

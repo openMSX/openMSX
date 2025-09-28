@@ -1,8 +1,8 @@
 #ifndef DUMMYRENDERER_HH
 #define DUMMYRENDERER_HH
 
-#include "Renderer.hh"
 #include "Layer.hh"
+#include "Renderer.hh"
 
 namespace openmsx {
 

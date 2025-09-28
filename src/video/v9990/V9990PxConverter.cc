@@ -7,9 +7,9 @@
 #include "narrow.hh"
 #include "ranges.hh"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
-#include <algorithm>
 #include <cstdint>
 #include <optional>
 

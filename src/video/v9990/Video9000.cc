@@ -1,14 +1,16 @@
 #include "Video9000.hh"
-#include "VDP.hh"
-#include "V9990.hh"
-#include "Reactor.hh"
+
 #include "Display.hh"
 #include "PostProcessor.hh"
-#include "EventDistributor.hh"
-#include "Event.hh"
-#include "MSXMotherBoard.hh"
-#include "VideoSourceSetting.hh"
+#include "V9990.hh"
+#include "VDP.hh"
+
 #include "CommandException.hh"
+#include "Event.hh"
+#include "EventDistributor.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "VideoSourceSetting.hh"
 #include "serialize.hh"
 
 namespace openmsx {

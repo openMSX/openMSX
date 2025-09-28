@@ -1,10 +1,13 @@
 #include "HDCommand.hh"
+
 #include "HD.hh"
+
+#include "BooleanSetting.hh"
+#include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandException.hh"
-#include "BooleanSetting.hh"
 #include "TclObject.hh"
+
 #include <array>
 
 namespace openmsx {

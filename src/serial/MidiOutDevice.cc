@@ -1,6 +1,6 @@
 #include "MidiOutDevice.hh"
-#include "unreachable.hh"
 
+#include "unreachable.hh"
 
 namespace openmsx {
 

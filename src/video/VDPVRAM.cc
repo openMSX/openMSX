@@ -1,7 +1,7 @@
 #include "VDPVRAM.hh"
 
-#include "SpriteChecker.hh"
 #include "Renderer.hh"
+#include "SpriteChecker.hh"
 
 #include "outer.hh"
 #include "ranges.hh"

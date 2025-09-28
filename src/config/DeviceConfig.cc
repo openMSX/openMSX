@@ -1,6 +1,8 @@
 #include "DeviceConfig.hh"
-#include "XMLElement.hh"
+
 #include "HardwareConfig.hh"
+#include "XMLElement.hh"
+
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 

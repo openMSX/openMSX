@@ -1,7 +1,9 @@
 #include "SpectravideoFDC.hh"
-#include "CacheLine.hh"
+
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+
+#include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 

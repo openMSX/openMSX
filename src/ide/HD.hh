@@ -1,17 +1,20 @@
 #ifndef HD_HH
 #define HD_HH
 
+#include "HDCommand.hh"
+
 #include "DiskContainer.hh"
 #include "File.hh"
 #include "Filename.hh"
-#include "HDCommand.hh"
-#include "SectorAccessibleDisk.hh"
 #include "MSXMotherBoard.hh"
-#include "TigerTree.hh"
+#include "SectorAccessibleDisk.hh"
 #include "serialize_meta.hh"
+
+#include "TigerTree.hh"
+
 #include <bitset>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace openmsx {
 

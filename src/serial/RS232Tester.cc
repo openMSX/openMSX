@@ -1,12 +1,16 @@
 #include "RS232Tester.hh"
+
 #include "RS232Connector.hh"
-#include "PlugException.hh"
+
 #include "EventDistributor.hh"
-#include "Scheduler.hh"
 #include "FileOperations.hh"
+#include "PlugException.hh"
+#include "Scheduler.hh"
+#include "serialize.hh"
+
 #include "checked_cast.hh"
 #include "narrow.hh"
-#include "serialize.hh"
+
 #include <array>
 
 namespace openmsx {

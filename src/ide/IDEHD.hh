@@ -1,8 +1,8 @@
 #ifndef IDEHD_HH
 #define IDEHD_HH
 
-#include "HD.hh"
 #include "AbstractIDEDevice.hh"
+#include "HD.hh"
 
 namespace openmsx {
 

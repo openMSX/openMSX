@@ -2,8 +2,8 @@
 #define MSXRTC_HH
 
 #include "MSXDevice.hh"
-#include "SRAM.hh"
 #include "RP5C01.hh"
+#include "SRAM.hh"
 
 namespace openmsx {
 

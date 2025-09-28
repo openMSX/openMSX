@@ -1,6 +1,7 @@
 #include "RenShaTurbo.hh"
-#include "XMLElement.hh"
+
 #include "MSXException.hh"
+#include "XMLElement.hh"
 
 namespace openmsx {
 

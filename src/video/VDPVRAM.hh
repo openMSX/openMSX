@@ -1,11 +1,13 @@
 #ifndef VDPVRAM_HH
 #define VDPVRAM_HH
 
-#include "VRAMObserver.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
-#include "SimpleDebuggable.hh"
+#include "VRAMObserver.hh"
+
 #include "Ram.hh"
+#include "SimpleDebuggable.hh"
+
 #include "Math.hh"
 
 #include <cassert>

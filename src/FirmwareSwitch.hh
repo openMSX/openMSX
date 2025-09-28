@@ -1,8 +1,8 @@
 #ifndef FRONTSWITCH_HH
 #define FRONTSWITCH_HH
 
-#include "DeviceConfig.hh"
 #include "BooleanSetting.hh"
+#include "DeviceConfig.hh"
 
 namespace openmsx {
 

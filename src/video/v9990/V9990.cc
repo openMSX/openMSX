@@ -1,9 +1,9 @@
 #include "V9990.hh"
 
 #include "Display.hh"
+#include "Reactor.hh"
 #include "RendererFactory.hh"
 #include "V9990Renderer.hh"
-#include "Reactor.hh"
 
 #include "narrow.hh"
 #include "serialize.hh"

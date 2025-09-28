@@ -1,7 +1,9 @@
 #include "MSXCliComm.hh"
+
 #include "GlobalCliComm.hh"
-#include "MSXMotherBoard.hh"
+
 #include "MSXCommandController.hh"
+#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 

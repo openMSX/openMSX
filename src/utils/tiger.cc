@@ -1,7 +1,9 @@
 #include "tiger.hh"
+
+#include "ScopedAssign.hh"
 #include "endian.hh"
 #include "ranges.hh"
-#include "ScopedAssign.hh"
+
 #include <array>
 #include <bit>
 #include <cassert>

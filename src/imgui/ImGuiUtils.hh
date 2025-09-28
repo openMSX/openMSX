@@ -5,11 +5,11 @@
 
 #include "Reactor.hh"
 
+#include "StringOp.hh"
+#include "circular_buffer.hh"
 #include "fast_log2.hh"
 #include "function_ref.hh"
 #include "strCat.hh"
-#include "StringOp.hh"
-#include "circular_buffer.hh"
 
 #include <imgui.h>
 #include <imgui_internal.h> // ImTextCharToUtf8

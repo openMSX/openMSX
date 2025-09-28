@@ -2,15 +2,15 @@
 #define CASSETTEPLAYER_HH
 
 #include "CassetteDevice.hh"
-
-#include "ResampledSoundDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "CassettePlayerCommand.hh"
+
+#include "BooleanSetting.hh"
+#include "EmuTime.hh"
+#include "Filename.hh"
+#include "MSXMotherBoard.hh"
+#include "ResampledSoundDevice.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
-#include "Filename.hh"
-#include "EmuTime.hh"
-#include "BooleanSetting.hh"
 
 #include "outer.hh"
 #include "serialize_meta.hh"

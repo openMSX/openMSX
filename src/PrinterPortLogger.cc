@@ -1,7 +1,8 @@
 #include "PrinterPortLogger.hh"
-#include "PlugException.hh"
+
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "PlugException.hh"
 #include "serialize.hh"
 
 namespace openmsx {

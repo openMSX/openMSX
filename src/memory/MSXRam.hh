@@ -1,8 +1,10 @@
 #ifndef MSXRAM_HH
 #define MSXRAM_HH
 
-#include "MSXDevice.hh"
 #include "CheckedRam.hh"
+
+#include "MSXDevice.hh"
+
 #include <optional>
 
 namespace openmsx {

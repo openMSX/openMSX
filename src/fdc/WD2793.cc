@@ -1,13 +1,16 @@
 #include "WD2793.hh"
+
 #include "DiskDrive.hh"
-#include "MSXCliComm.hh"
+
 #include "Clock.hh"
+#include "MSXCliComm.hh"
 #include "MSXException.hh"
-#include "narrow.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 #include "unreachable.hh"
+
 #include <array>
-#include <iostream>
 
 namespace openmsx {
 

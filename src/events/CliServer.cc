@@ -17,9 +17,9 @@
 #include <fstream>
 #include <ctime>
 #else
+#include <fcntl.h>
 #include <pwd.h>
 #include <unistd.h>
-#include <fcntl.h>
 #endif
 
 namespace openmsx {

@@ -1,8 +1,8 @@
 #ifndef PROBE_HH
 #define PROBE_HH
 
-#include "static_string_view.hh"
 #include "Subject.hh"
+#include "static_string_view.hh"
 #include "strCat.hh"
 
 #include <string>

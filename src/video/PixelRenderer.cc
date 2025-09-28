@@ -4,28 +4,32 @@ TODO:
 */
 
 #include "PixelRenderer.hh"
-#include "Rasterizer.hh"
-#include "PostProcessor.hh"
+
 #include "Display.hh"
-#include "VideoSystem.hh"
+#include "PostProcessor.hh"
+#include "Rasterizer.hh"
 #include "RenderSettings.hh"
-#include "VideoSourceSetting.hh"
-#include "IntegerSetting.hh"
+#include "SpriteChecker.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "SpriteChecker.hh"
-#include "EventDistributor.hh"
+#include "VideoSourceSetting.hh"
+#include "VideoSystem.hh"
+
 #include "Event.hh"
+#include "EventDistributor.hh"
+#include "GlobalSettings.hh"
+#include "IntegerSetting.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "RealTime.hh"
 #include "SpeedManager.hh"
 #include "ThrottleManager.hh"
-#include "GlobalSettings.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "Timer.hh"
+
 #include "narrow.hh"
 #include "one_of.hh"
 #include "unreachable.hh"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>

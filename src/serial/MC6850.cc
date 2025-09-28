@@ -1,8 +1,11 @@
 #include "MC6850.hh"
+
 #include "MidiInDevice.hh"
-#include "MSXMotherBoard.hh"
+
 #include "EmuTime.hh"
+#include "MSXMotherBoard.hh"
 #include "serialize.hh"
+
 #include <array>
 
 namespace openmsx {

@@ -1,10 +1,12 @@
 #ifndef ESE_SCC_HH
 #define ESE_SCC_HH
 
-#include "MSXDevice.hh"
-#include "SRAM.hh"
-#include "SCC.hh"
 #include "RomBlockDebuggable.hh"
+#include "SRAM.hh"
+
+#include "MSXDevice.hh"
+#include "SCC.hh"
+
 #include <array>
 
 namespace openmsx {

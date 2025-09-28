@@ -1,6 +1,7 @@
 #include "ClockPin.hh"
-#include "narrow.hh"
+
 #include "serialize.hh"
+
 #include <cassert>
 
 namespace openmsx {

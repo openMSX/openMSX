@@ -1,21 +1,23 @@
 #include "serialize.hh"
 
-#include "Base64.hh"
-#include "HexDump.hh"
-#include "XMLElement.hh"
-#include "XMLException.hh"
-#include "DeltaBlock.hh"
-#include "MemBuffer.hh"
 #include "FileOperations.hh"
 #include "Version.hh"
+#include "XMLElement.hh"
+#include "XMLException.hh"
+
+#include "Base64.hh"
 #include "Date.hh"
+#include "DeltaBlock.hh"
+#include "HexDump.hh"
+#include "MemBuffer.hh"
 #include "narrow.hh"
 #include "one_of.hh"
 #include "stl.hh"
+
 #include "build-info.hh"
 
-#include <bit>
 #include "cstdiop.hh" // for dup()
+#include <bit>
 #include <cstdint>
 #include <cstring>
 #include <iostream>

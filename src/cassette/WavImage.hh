@@ -2,8 +2,10 @@
 #define WAVIMAGE_HH
 
 #include "CassetteImage.hh"
-#include "WavData.hh"
+
 #include "DynamicClock.hh"
+#include "WavData.hh"
+
 #include <cstdint>
 
 namespace openmsx {

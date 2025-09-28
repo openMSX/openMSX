@@ -2,7 +2,9 @@
 // http://map.grauw.nl/resources/midi/ym2148.php
 
 #include "YM2148.hh"
+
 #include "MidiInDevice.hh"
+
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
 

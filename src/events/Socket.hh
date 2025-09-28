@@ -6,11 +6,11 @@
 #include <string>
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <netinet/in.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
 #include <unistd.h>
 #else
 #include <winsock2.h>

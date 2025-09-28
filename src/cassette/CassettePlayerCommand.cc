@@ -1,8 +1,10 @@
 #include "CassettePlayerCommand.hh"
+
 #include "CassettePlayer.hh"
+
 #include "CommandController.hh"
-#include "StateChangeDistributor.hh"
 #include "Scheduler.hh"
+#include "StateChangeDistributor.hh"
 
 namespace openmsx {
 

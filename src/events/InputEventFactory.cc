@@ -1,10 +1,14 @@
 #include "InputEventFactory.hh"
+
 #include "Event.hh"
-#include "CommandException.hh"
 #include "SDLKey.hh"
-#include "StringOp.hh"
+
+#include "CommandException.hh"
 #include "TclObject.hh"
+
+#include "StringOp.hh"
 #include "one_of.hh"
+
 #include <SDL.h>
 
 namespace openmsx::InputEventFactory {

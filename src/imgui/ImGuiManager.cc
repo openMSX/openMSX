@@ -48,11 +48,11 @@
 #include "stl.hh"
 #include "strCat.hh"
 
+#include <CustomFont.ii> // icons for ImGuiFileDialog
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_internal.h>
-#include <CustomFont.ii> // icons for ImGuiFileDialog
 
 #include <SDL.h>
 

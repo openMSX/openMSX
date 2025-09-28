@@ -7,8 +7,8 @@
 #include <condition_variable>
 #include <cstdint>
 #include <mutex>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace openmsx {
 

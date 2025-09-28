@@ -1,17 +1,16 @@
 #include "RomWonderKid.hh"
-#include "serialize.hh"
 
 // Mapper reverse engineered by Omar Cornut.
 // Based on the Wonder Kid game for Game Gear, that is fully MSX compatible.
 //
 // Only 1 register works and reacts to the whole $8000..BFFF address range
-// 
+//
 // reg $0000 mem $0000..$3fff -- return page 0
 // reg $0001 mem $0000..$3fff -- "
-// 
+//
 // reg $4000 mem $4000..$7fff -- return page 0
 // reg $7fff mem $4000..$7fff -- "
-// 
+//
 // reg $7fff mem $8000..$bfff --
 // reg $8000 mem $8000..$bfff ok
 // reg $8001 mem $8000..$bfff ok

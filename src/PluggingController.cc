@@ -1,13 +1,13 @@
 #include "PluggingController.hh"
 
-#include "PlugException.hh"
+#include "CommandException.hh"
 #include "Connector.hh"
+#include "MSXCliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "PlugException.hh"
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
 #include "TclObject.hh"
-#include "CommandException.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
 
 #include "outer.hh"
 

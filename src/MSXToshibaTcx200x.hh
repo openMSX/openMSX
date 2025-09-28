@@ -1,10 +1,10 @@
 #ifndef MSXTOSHIBATCX200X_HH
 #define MSXTOSHIBATCX200X_HH
 
+#include "BooleanSetting.hh"
 #include "MSXDevice.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
-#include "BooleanSetting.hh"
 
 namespace openmsx {
 

@@ -1,10 +1,11 @@
 #include "V9990SDLRasterizer.hh"
 
 #include "V9990.hh"
-#include "RawFrame.hh"
-#include "PostProcessor.hh"
+
 #include "Display.hh"
 #include "OutputSurface.hh"
+#include "PostProcessor.hh"
+#include "RawFrame.hh"
 #include "RenderSettings.hh"
 
 #include "enumerate.hh"

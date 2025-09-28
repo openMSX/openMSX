@@ -2,8 +2,10 @@
 #define YM2413OKAZAKI_HH
 
 #include "YM2413Core.hh"
-#include "FixedPoint.hh"
+
 #include "serialize_meta.hh"
+
+#include "FixedPoint.hh"
 
 #include <array>
 #include <cstdint>

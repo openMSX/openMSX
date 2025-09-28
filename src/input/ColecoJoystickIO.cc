@@ -1,10 +1,13 @@
 #include "ColecoJoystickIO.hh"
+
+#include "JoystickPort.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "JoystickPort.hh"
+#include "serialize.hh"
+
 #include "Math.hh"
 #include "enumerate.hh"
-#include "serialize.hh"
+
 #include <array>
 
 namespace openmsx {

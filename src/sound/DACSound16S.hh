@@ -3,8 +3,9 @@
 #ifndef DACSOUND16S_HH
 #define DACSOUND16S_HH
 
-#include "SoundDevice.hh"
 #include "BlipBuffer.hh"
+#include "SoundDevice.hh"
+
 #include <cstdint>
 
 namespace openmsx {

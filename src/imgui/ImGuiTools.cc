@@ -16,10 +16,11 @@
 #include "AviRecorder.hh"
 #include "Display.hh"
 
+#include "FileOperations.hh"
+
+#include "StringOp.hh"
 #include "enumerate.hh"
 #include "escape_newline.hh"
-#include "FileOperations.hh"
-#include "StringOp.hh"
 
 #include <imgui.h>
 #include <imgui_stdlib.h>

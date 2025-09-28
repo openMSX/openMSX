@@ -1,8 +1,8 @@
 #ifndef DEBUGDEVICE_HH
 #define DEBUGDEVICE_HH
 
-#include "MSXDevice.hh"
 #include "FilenameSetting.hh"
+#include "MSXDevice.hh"
 
 #include <cstdint>
 #include <fstream>

@@ -18,8 +18,8 @@
 #include <bit>
 #include <cassert>
 #include <cctype>
-#include <cstdio>
 #include <cstdarg>
+#include <cstdio>
 #include <ctime>
 #include <fstream>
 #include <memory>

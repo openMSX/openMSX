@@ -2,6 +2,7 @@
 #define ROMSUPERLODERUNNER_HH
 
 #include "RomBlocks.hh"
+
 #include "MSXCPUInterface.hh"
 
 namespace openmsx {

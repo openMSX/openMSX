@@ -1,6 +1,8 @@
 #include "RomKonamiKeyboardMaster.hh"
+
 #include "MSXCPUInterface.hh"
 #include "serialize.hh"
+
 #include "unreachable.hh"
 
 namespace openmsx {

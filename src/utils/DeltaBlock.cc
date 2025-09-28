@@ -1,7 +1,7 @@
 #include "DeltaBlock.hh"
 
-#include "ranges.hh"
 #include "lz4.hh"
+#include "ranges.hh"
 
 #include <algorithm>
 #include <bit>

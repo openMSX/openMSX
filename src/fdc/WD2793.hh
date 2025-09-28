@@ -1,12 +1,14 @@
 #ifndef WD2793_HH
 #define WD2793_HH
 
-#include "EmuTime.hh"
 #include "RawTrack.hh"
+
 #include "DynamicClock.hh"
+#include "EmuTime.hh"
 #include "Schedulable.hh"
-#include "CRC16.hh"
 #include "serialize_meta.hh"
+
+#include "CRC16.hh"
 
 namespace openmsx {
 

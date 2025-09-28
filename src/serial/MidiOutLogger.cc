@@ -1,8 +1,10 @@
 #include "MidiOutLogger.hh"
-#include "PlugException.hh"
+
 #include "FileOperations.hh"
-#include "narrow.hh"
+#include "PlugException.hh"
 #include "serialize.hh"
+
+#include "narrow.hh"
 
 namespace openmsx {
 
