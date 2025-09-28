@@ -1430,7 +1430,7 @@
 
   <h3><a id="osd">osd</a></h3>
 
-  <p>openMSX has the possibility to show OSD (on screen display) elements. For example, the LEDs and the fps-indicator are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
+  <p>openMSX has the possibility to show OSD (on screen display) elements. For example, the game overlays and TAS tools are implemented via OSD elements. This command allows to create new OSD elements, configure existing elements or delete elements.</p>
 
   <p>This command is only useful if you plan to adjust or enhance the openMSX OSD, or create your own OSD widgets.</p>
 
@@ -4676,12 +4676,6 @@
       <td><code>set resampler</code></td>
 
       <td>Shows the currently active resampler</td>
-    </tr>
-
-    <tr>
-      <td><code>set resampler fast</code></td>
-
-      <td>Sets a fast, but low quality resampler. This uses simple linear interpolation, which can result in very audible aliasing effects in some cases. Although this is a relatively low quality algorithm, it's the algorithm that was used in pre-0.6.3 openMSX versions (and most other MSX emulators).</td>
     </tr>
 
     <tr>
