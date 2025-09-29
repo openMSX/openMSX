@@ -299,10 +299,6 @@ public:
 	Shader& operator=(const Shader&) = delete;
 	Shader& operator=(Shader&&) = delete;
 
-	/** Returns true iff this shader is loaded and compiled without errors.
-	  */
-	[[nodiscard]] bool isOK() const;
-
 protected:
 	/** Instantiates a shader.
 	  * @param type The shader type: GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
@@ -368,22 +364,12 @@ public:
 	ShaderProgram& operator=(ShaderProgram&&) = delete;
 
 	/** Create handler and allocate underlying openGL object. */
-	ShaderProgram() { allocate(); }
-
-	/** Create null handler (don't yet allocate a openGL object). */
-	explicit ShaderProgram(Null) : handle(0) {}
+	ShaderProgram();
 
 	/** Destroy handler object (release the underlying openGL object). */
-	~ShaderProgram() { reset(); }
-
-	/** Allocate a shader program handle. */
-	void allocate();
-
-	/** Release the shader program handle. */
-	void reset();
+	~ShaderProgram();
 
 	/** Returns the underlying openGL handler id.
-	  * 0 iff no openGL program is allocated.
 	  */
 	[[nodiscard]] GLuint get() const { return handle; }
 

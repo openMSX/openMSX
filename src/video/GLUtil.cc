@@ -174,7 +174,11 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 
 	// Compile shader and print any errors and warnings.
 	glCompileShader(handle);
-	const bool ok = isOK();
+
+	GLint compileStatus = GL_FALSE;
+	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
+	bool ok = compileStatus == GL_TRUE;
+
 	GLint infoLogLength = 0;
 	glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
@@ -197,37 +201,24 @@ Shader::~Shader()
 	glDeleteShader(handle); // ok to delete '0'
 }
 
-bool Shader::isOK() const
-{
-	if (handle == 0) return false;
-	GLint compileStatus = GL_FALSE;
-	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
-	return compileStatus == GL_TRUE;
-}
-
 
 // class ShaderProgram
 
-void ShaderProgram::allocate()
+ShaderProgram::ShaderProgram()
+	: handle(glCreateProgram())
 {
-	handle = glCreateProgram();
 	if (handle == 0) {
 		throw MSXException("Failed to allocate program");
 	}
 }
 
-void ShaderProgram::reset()
+ShaderProgram::~ShaderProgram()
 {
-	// ok to delete '0', but see comment in Texture::reset()
-	if (handle) {
-		glDeleteProgram(handle);
-		handle = 0;
-	}
+	glDeleteProgram(handle);
 }
 
 bool ShaderProgram::isOK() const
 {
-	if (handle == 0) return false;
 	GLint linkStatus = GL_FALSE;
 	glGetProgramiv(handle, GL_LINK_STATUS, &linkStatus);
 	return linkStatus == GL_TRUE;
@@ -235,24 +226,15 @@ bool ShaderProgram::isOK() const
 
 void ShaderProgram::attach(const Shader& shader)
 {
-	// Sanity check on this program.
-	if (handle == 0) return;
-
-	// Sanity check on the shader.
-	if (!shader.isOK()) return;
-
-	// Attach it.
 	glAttachShader(handle, shader.handle);
 }
 
 void ShaderProgram::link()
 {
-	// Sanity check on this program.
-	if (handle == 0) return;
-
 	// Link the program and print any errors and warnings.
 	glLinkProgram(handle);
 	const bool ok = isOK();
+
 	GLint infoLogLength = 0;
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1

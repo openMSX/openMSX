@@ -14,7 +14,6 @@ Context::Context()
 {
 	VertexShader   texVertexShader  ("texture.vert");
 	FragmentShader texFragmentShader("texture.frag");
-	progTex.allocate();
 	progTex.attach(texVertexShader);
 	progTex.attach(texFragmentShader);
 	progTex.bindAttribLocation(0, "a_position");
@@ -27,7 +26,6 @@ Context::Context()
 
 	VertexShader   fillVertexShader  ("fill.vert");
 	FragmentShader fillFragmentShader("fill.frag");
-	progFill.allocate();
 	progFill.attach(fillVertexShader);
 	progFill.attach(fillFragmentShader);
 	progFill.bindAttribLocation(0, "a_position");
