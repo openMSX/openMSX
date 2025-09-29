@@ -437,8 +437,10 @@ void ImGuiMachine::showNonExistingPreview()
 		ImGui::TextUnformatted("Nothing to preview...");
 	} else {
 		im::StyleColor(ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-			ImGui::StrCat("Setup ", previewSetup.name, " cannot be loaded:");
-			ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+			im::TextWrapPos(ImGui::GetFontSize() * 50.0f, [&] {
+				ImGui::StrCat("Setup ", previewSetup.name, " cannot be loaded:");
+				ImGui::TextUnformatted(previewSetup.lastExceptionMessage);
+			});
 		});
 	}
 }
