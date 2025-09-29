@@ -74,7 +74,7 @@ Steps to Setup and Try MSXPi in openMSX
    https://github.com/costarc/MSXPi/tree/master/software/Server/Python/src
 
 
-   Note: the msxpi-server component has some commands that requires elevation of privileges
+   Note: the msxpi-server component has some commands that require elevation of privileges
    in the Raspberry Pi platform using "sudo". These commands apply only to Raspberry Pi
    and will return a message "Command not supported on this platform" for all non-raspberry
    pi hosts.
