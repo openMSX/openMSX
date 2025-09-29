@@ -158,22 +158,14 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 		source += "#version 110\n";
 	}
 	source += header;
-	try {
-		File file(systemFileContext().resolve(tmpStrCat("shaders/", filename)));
-		auto mmap = file.mmap();
-		source.append(std::bit_cast<const char*>(mmap.data()),
-		              mmap.size());
-	} catch (FileException& e) {
-		std::cerr << "Cannot find shader: " << e.getMessage() << '\n';
-		handle = 0;
-		return;
-	}
+	File file(systemFileContext().resolve(tmpStrCat("shaders/", filename)));
+	auto mmap = file.mmap();
+	source.append(std::bit_cast<const char*>(mmap.data()), mmap.size());
 
 	// Allocate shader handle.
 	handle = glCreateShader(type);
 	if (handle == 0) {
-		std::cerr << "Failed to allocate shader\n";
-		return;
+		throw MSXException("Failed to allocate shader");
 	}
 
 	// Set shader source.
@@ -189,9 +181,14 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		std::string infoLog(infoLogLength - 1, '\0');
 		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog.data());
-		std::cerr << (ok ? "Warning"sv : "Error"sv) << "(s) compiling shader \""
-		          << filename << "\":\n"
-			  << (infoLogLength > 1 ? infoLog.data() : "(no details available)\n");
+		auto message = strCat((ok ? "Warning"sv : "Error"sv),
+			"(s) compiling shader \"", filename, "\":\n",
+			(infoLogLength > 1 ? infoLog.data() : "(no details available)\n"));
+		if (ok) {
+			std::cerr << message;
+		} else {
+			throw MSXException(message);
+		}
 	}
 }
 
@@ -215,7 +212,7 @@ void ShaderProgram::allocate()
 {
 	handle = glCreateProgram();
 	if (handle == 0) {
-		std::cerr << "Failed to allocate program\n";
+		throw MSXException("Failed to allocate program");
 	}
 }
 
@@ -262,9 +259,13 @@ void ShaderProgram::link()
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		std::string infoLog(infoLogLength - 1, '\0');
 		glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog.data());
-		fprintf(stderr, "%s(s) linking shader program:\n%s\n",
-			ok ? "Warning" : "Error",
-			infoLogLength > 1 ? infoLog.data() : "(no details available)\n");
+		auto message = strCat((ok ? "Warning" : "Error"), "(s) linking shader program:\n",
+			(infoLogLength > 1 ? infoLog.data() : "(no details available)\n"));
+		if (ok) {
+			std::cerr << message;
+		} else {
+			throw MSXException(message);
+		}
 	}
 }
 
