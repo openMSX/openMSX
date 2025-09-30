@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <shellapi.h>
+#include <share.h>
 #include <io.h>
 #include <direct.h>
 #include <ctype.h>
@@ -201,8 +202,8 @@ FILE_t openFile(zstring_view filename, zstring_view mode)
 	// in binary mode.
 	assert(mode.contains('b'));
 #ifdef _WIN32
-	return FILE_t(_wfopen(utf8to16(filename).c_str(),
-	                      utf8to16(mode).c_str()));
+	return FILE_t(_wfsopen(utf8to16(filename).c_str(),
+	                      utf8to16(mode).c_str(), _SH_DENYNO)); // no sharing restrictions
 #else
 	return FILE_t(fopen(filename.c_str(), mode.c_str()));
 #endif

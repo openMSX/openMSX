@@ -129,12 +129,12 @@ std::span<const uint8_t> LocalFile::mmap()
 			throw FileException("_get_osfhandle failed");
 		}
 		assert(!hMmap);
-		hMmap = CreateFileMapping(hFile, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
+		hMmap = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
 		if (!hMmap) {
 			throw FileException(
 				"CreateFileMapping failed: ", GetLastError());
 		}
-		mmem = static_cast<uint8_t*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
+		mmem = static_cast<uint8_t*>(MapViewOfFile(hMmap, FILE_MAP_READ, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
