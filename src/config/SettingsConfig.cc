@@ -96,17 +96,14 @@ void SettingsConfig::loadSetting(const FileContext& context, std::string_view fi
 {
 	std::string resolved = context.resolve(filename);
 
-	MemBuffer<char> buf;
-	try {
-		File file(resolved);
-		auto size = file.getSize();
-		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
-		file.read(buf.first(size));
-		buf[size] = 0;
-	} catch (FileException& e) {
-		throw MSXException("Failed to read settings file '", filename,
-		                   "': ", e.getMessage());
-	}
+	auto buf = [&] {
+		try {
+			return File(resolved).mmap<char>(rapidsax::EXTRA_BUFFER_SPACE);
+		} catch (FileException& e) {
+			throw MSXException("Failed to read settings file '", filename,
+			                   "': ", e.getMessage());
+		}
+	}();
 	SettingsParser parser;
 	rapidsax::parse<0>(parser, buf.data());
 	if (parser.systemID != "settings.dtd") {

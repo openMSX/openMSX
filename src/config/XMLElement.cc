@@ -356,11 +356,7 @@ void XMLDocument::load(const std::string& filename, std::string_view systemID)
 	assert(!root);
 
 	try {
-		File file(filename);
-		auto size = file.getSize();
-		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
-		file.read(buf.first(size));
-		buf[size] = 0;
+		buf = File(filename).mmap<char>(rapidsax::EXTRA_BUFFER_SPACE);
 	} catch (FileException& e) {
 		throw XMLException(filename, ": failed to read: ", e.getMessage());
 	}

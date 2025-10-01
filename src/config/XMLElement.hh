@@ -1,7 +1,8 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
-#include "MemBuffer.hh"
+#include "MappedFile.hh"
+
 #include "monotonic_allocator.hh"
 #include "serialize_meta.hh"
 
@@ -347,7 +348,7 @@ private:
 
 private:
 	XMLElement* root = nullptr;
-	MemBuffer<char> buf;
+	MappedFile<char> buf;
 	// part of c++17, but not yet implemented in libc++
 	//    std::pmr::monotonic_buffer_resource allocator;
 	monotonic_allocator allocator;
