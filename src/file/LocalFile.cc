@@ -106,9 +106,9 @@ void LocalFile::write(std::span<const uint8_t> buffer)
 	}
 }
 
-MappedFileImpl LocalFile::mmap(bool is_const)
+MappedFileImpl LocalFile::mmap(size_t extra, bool is_const)
 {
-	return {*this, is_const};
+	return {*this, extra, is_const};
 }
 
 size_t LocalFile::getSize()

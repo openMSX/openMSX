@@ -13,7 +13,7 @@ ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_)
 
 void ZipFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
-	auto mmap = MappedFile<const uint8_t>(f.mmap(true));
+	auto mmap = MappedFile<const uint8_t>(f.mmap(0, true));
 	ZlibInflate zlib(mmap);
 
 	if (zlib.get32LE() != 0x04034B50) {

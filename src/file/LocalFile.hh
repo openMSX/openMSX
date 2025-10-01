@@ -21,7 +21,7 @@ public:
 
 	void read(std::span<uint8_t> buffer) override;
 	void write(std::span<const uint8_t> buffer) override;
-	[[nodiscard]] MappedFileImpl mmap(bool is_const) override;
+	[[nodiscard]] MappedFileImpl mmap(size_t extra, bool is_const) override;
 	[[nodiscard]] size_t getSize() override;
 	void seek(size_t pos) override;
 	[[nodiscard]] size_t getPos() override;

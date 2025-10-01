@@ -30,6 +30,8 @@ public:
 	MappedFileImpl(const MappedFileImpl&) = delete;
 	MappedFileImpl& operator=(const MappedFileImpl&) = delete;
 
+	MappedFileImpl() = default;
+
 	MappedFileImpl(MappedFileImpl&& other) noexcept {
 		move_from(std::move(other));
 	}
@@ -42,10 +44,10 @@ public:
 	}
 
 	// A LocalFile can use mmap() (if supported by the OS).
-	MappedFileImpl(LocalFile& file, bool is_const);
+	MappedFileImpl(LocalFile& file, size_t extra, bool is_const);
 
 	// For a non-LocalFile (e.g. a compressed file), we can't use mmap().
-	MappedFileImpl(std::span<const uint8_t> buf, bool is_const);
+	MappedFileImpl(std::span<const uint8_t> buf, size_t extra, bool is_const);
 
 	~MappedFileImpl() { release(); }
 
@@ -65,6 +67,9 @@ private:
 
 	void release() noexcept;
 
+	void mapFile(LocalFile& file, bool is_const);
+	void unmapFile(void* p, size_t size);
+
 private:
 	void* ptr = nullptr;
 	size_t sz = 0;
@@ -82,6 +87,7 @@ template<typename T> class MappedFile
 	static_assert(alignof(T) <= 4096, "Mapped type alignment must not exceed typical page size");
 
 public:
+	MappedFile() = default;
 	MappedFile(MappedFileImpl&& impl_) : impl(std::move(impl_)) {}
 
 	[[nodiscard]] T* data() const { return static_cast<T*>(impl.data()); }

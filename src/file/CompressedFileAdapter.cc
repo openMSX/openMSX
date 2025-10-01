@@ -74,10 +74,10 @@ void CompressedFileAdapter::write(std::span<const uint8_t> /*buffer*/)
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-MappedFileImpl CompressedFileAdapter::mmap(bool is_const)
+MappedFileImpl CompressedFileAdapter::mmap(size_t extra, bool is_const)
 {
 	decompress();
-	return {std::span{decompressed->buf}, is_const};
+	return {std::span{decompressed->buf}, extra, is_const};
 }
 
 size_t CompressedFileAdapter::getSize()

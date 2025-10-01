@@ -18,7 +18,7 @@ public:
 
 	virtual void read(std::span<uint8_t> buffer) = 0;
 	virtual void write(std::span<const uint8_t> buffer) = 0;
-	[[nodiscard]] virtual MappedFileImpl mmap(bool is_const) = 0;
+	[[nodiscard]] virtual MappedFileImpl mmap(size_t extra, bool is_const) = 0;
 	[[nodiscard]] virtual size_t getSize() = 0;
 	virtual void seek(size_t pos) = 0;
 	[[nodiscard]] virtual size_t getPos() = 0;

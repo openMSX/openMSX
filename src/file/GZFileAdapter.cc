@@ -56,7 +56,7 @@ GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
 
 void GZFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
-	auto mmap = MappedFile<const uint8_t>(f.mmap(true));
+	auto mmap = MappedFile<const uint8_t>(f.mmap(0, true));
 	ZlibInflate zlib(mmap);
 	if (!skipHeader(zlib, d.originalName)) {
 		throw FileException("Not a gzip header");

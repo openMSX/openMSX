@@ -102,10 +102,17 @@ public:
 	 * T can be 'const' or 'non-const', prefer 'const' when possible.
 	 * For a 'non-const T', changes to the buffer are not propagated back to
 	 * the file (IOW it's a private, non-shared mapping).
+	 *
+	 * Optionally the requested buffer can have some 'extra' elements at the
+	 * end. Initially the memory holding those extra elements is filled with
+	 * zeros. This can be useful if e.g. you want to append a zero-
+	 * terminator after the file. Often this implementation can do that
+	 * without extra cost (so no need to allocate a buffer, read the file
+	 * and add some zeros).
 	 */
 	template<typename T>
-	[[nodiscard]] MappedFile<T> mmap() {
-		return MappedFile<T>(file->mmap(std::is_const_v<T>));
+	[[nodiscard]] MappedFile<T> mmap(size_t extra = 0) {
+		return MappedFile<T>(file->mmap(extra * sizeof(T), std::is_const_v<T>));
 	}
 
 	/** Returns the size of this file
