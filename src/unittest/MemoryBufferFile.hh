@@ -15,15 +15,16 @@ public:
 
 	void read(std::span<uint8_t> dst) override;
 	void write(std::span<const uint8_t> src) override;
+	[[nodiscard]] MappedFileImpl mmap(size_t extra, bool is_const) override;
 
-	size_t getSize() override;
+	[[nodiscard]] size_t getSize() override;
 	void seek(size_t newPos) override;
-	size_t getPos() override;
+	[[nodiscard]] size_t getPos() override;
 	void flush() override;
 
-	const std::string& getURL() const override;
-	bool isReadOnly() const override;
-	time_t getModificationDate() override;
+	[[nodiscard]] const std::string& getURL() const override;
+	[[nodiscard]] bool isReadOnly() const override;
+	[[nodiscard]] time_t getModificationDate() override;
 
 private:
 	std::span<const uint8_t> buffer;

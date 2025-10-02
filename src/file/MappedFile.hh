@@ -6,6 +6,10 @@
 #include <type_traits>
 #include <utility>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 namespace openmsx {
 
 class LocalFile;
@@ -59,7 +63,7 @@ private:
 		ptr = std::exchange(other.ptr, nullptr);
 		sz = std::exchange(other.sz, 0);
 	#ifdef _WIN32
-		mappingHandle std::exchange(other.mappingHandle, nullptr);
+		mappingHandle = std::exchange(other.mappingHandle, nullptr);
 	#endif
 		alloc = std::exchange(other.alloc, false);
 		mapped = std::exchange(other.mapped, false);

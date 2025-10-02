@@ -20,6 +20,11 @@ void MemoryBufferFile::write(std::span<const uint8_t> /*src*/)
 	throw FileException("Writing to MemoryBufferFile not supported");
 }
 
+MappedFileImpl MemoryBufferFile::mmap(size_t extra, bool is_const)
+{
+	return {buffer, extra, is_const};
+}
+
 size_t MemoryBufferFile::getSize()
 {
 	return buffer.size();
