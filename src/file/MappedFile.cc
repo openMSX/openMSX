@@ -4,7 +4,7 @@
 #include "LocalFile.hh"
 
 #ifdef _WIN32
-#  include <Windows.h>
+#  include <windows.h>
 #  include <io.h>  // _get_osfhandle
 #else
 #  include <sys/mman.h>
