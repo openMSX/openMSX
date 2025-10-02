@@ -468,6 +468,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFileReference.cc">
       <Filter>file</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\file\MappedFile.cc">
+      <Filter>file</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\file\PreCacheFile.cc">
       <Filter>file</Filter>
     </ClCompile>
@@ -1969,6 +1972,9 @@
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\LocalFileReference.hh">
+      <Filter>file</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\file\MappedFile.hh">
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\PreCacheFile.hh">
