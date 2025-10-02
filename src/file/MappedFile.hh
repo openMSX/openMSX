@@ -7,7 +7,7 @@
 #include <utility>
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 namespace openmsx {
