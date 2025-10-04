@@ -50,6 +50,13 @@ void OSDText::setProperty(
 			fontFile = val;
 			invalidateRecursive();
 		}
+	} else if (propName == "-fontfaceindex") {
+		int val = value.getInt(interp);
+		if (val < 0) {
+			throw CommandException("Not a valid value for -fontfaceindex, "
+			                       "should be >= 0: ", val);
+		}
+		fontFaceIndex = val;
 	} else if (propName == "-size") {
 		int size2 = value.getInt(interp);
 		if (size != size2) {
@@ -98,6 +105,8 @@ void OSDText::getProperty(std::string_view propName, TclObject& result) const
 		result = text;
 	} else if (propName == "-font") {
 		result = fontFile;
+	} else if (propName == "-fontfaceindex") {
+		result = fontFaceIndex;
 	} else if (propName == "-size") {
 		result = size;
 	} else if (propName == "-wrap") {
@@ -155,7 +164,7 @@ std::unique_ptr<GLImage> OSDText::create(OutputSurface& output)
 	if (font.empty()) {
 		try {
 			font = TTFFont(systemFileContext().resolve(fontFile),
-			               size * scale);
+			               size * scale, fontFaceIndex);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: ", e.getMessage());
 		}

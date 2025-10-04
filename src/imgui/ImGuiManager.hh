@@ -4,6 +4,7 @@
 #include "ImGuiPartInterface.hh"
 #include "ImGuiUtils.hh"
 #include "Shortcuts.hh"
+#include "freetype_utils.hh"
 
 #include "EmuTime.hh"
 #include "EventListener.hh"
@@ -95,9 +96,16 @@ public:
 
 	void configStatusBarVisibilityItems();
 
+	std::string getFontDisplayName(const std::span<const uint8_t>& fontData, long faceIndex,
+	                               std::string_view fontFile)
+	{
+		return openmsx::getFontDisplayName(freeTypeLibrary, fontData, faceIndex, fontFile);
+	}
+
 private:
 	void initializeImGui();
-	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize);
+	[[nodiscard]] std::tuple<ImFont*, std::string> addFont(
+		zstring_view filename, int fontSize, int faceIndex);
 	void loadFont();
 	void reloadFont();
 	void drawStatusBar(MSXMotherBoard* motherBoard);
@@ -130,12 +138,17 @@ private:
 	bool removeParts = false;
 
 public:
+	FreeTypeLibrary freeTypeLibrary;
 	FilenameSetting fontPropFilename;
 	FilenameSetting fontMonoFilename;
+	IntegerSetting fontPropIndex;
+	IntegerSetting fontMonoIndex;
 	IntegerSetting fontPropSize;
 	IntegerSetting fontMonoSize;
 	ImFont* fontProp = nullptr;
 	ImFont* fontMono = nullptr;
+	std::string fontPropName; // calculated via getFontDisplayName()
+	std::string fontMonoName;
 
 	std::unique_ptr<ImGuiMachine> machine;
 	std::unique_ptr<ImGuiDebugger> debugger;

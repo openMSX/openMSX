@@ -1030,18 +1030,18 @@ void ImGuiSettings::paintJoystick(MSXMotherBoard& motherBoard)
 void ImGuiSettings::paintFont()
 {
 	im::Window("Select font", &showFont, [&]{
-		auto selectFilename = [&](FilenameSetting& setting, float width) {
-			auto display = [](std::string_view name) {
-				if (name.ends_with(".gz" )) name.remove_suffix(3);
-				if (name.ends_with(".ttf")) name.remove_suffix(4);
-				return std::string(name);
-			};
-			auto current = setting.getString();
+		auto selectFilename = [&](FilenameSetting& fileSetting, IntegerSetting& faceSetting, zstring_view name, float width) {
+			auto currentFile = fileSetting.getString();
+			auto currentFace = faceSetting.getInt();
+
 			ImGui::SetNextItemWidth(width);
-			im::Combo(tmpStrCat("##", setting.getBaseName()).c_str(), display(current).c_str(), [&]{
+			im::Combo(tmpStrCat("##", fileSetting.getBaseName()).c_str(), name.c_str(), [&]{
 				for (const auto& font : getAvailableFonts()) {
-					if (ImGui::Selectable(display(font).c_str(), current == font)) {
-						setting.setString(font);
+					bool isSelected = currentFile == font.filename &&
+					                  currentFace == font.faceIndex;
+					if (ImGui::Selectable(font.displayName.c_str(), isSelected)) {
+						fileSetting.setString(font.filename);
+						faceSetting.setInt(font.faceIndex);
 					}
 				}
 			});
@@ -1065,7 +1065,7 @@ void ImGuiSettings::paintFont()
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Normal");
 		ImGui::SameLine(pos);
-		selectFilename(manager.fontPropFilename, width);
+		selectFilename(manager.fontPropFilename, manager.fontPropIndex, manager.fontPropName, width);
 		ImGui::SameLine();
 		selectSize(manager.fontPropSize);
 		HelpMarker("You can install more fonts by copying .ttf file(s) to your \"<openmsx>/share/skins\" directory.");
@@ -1074,7 +1074,7 @@ void ImGuiSettings::paintFont()
 		ImGui::TextUnformatted("Monospace");
 		ImGui::SameLine(pos);
 		im::Font(manager.fontMono, [&]{
-			selectFilename(manager.fontMonoFilename, width);
+			selectFilename(manager.fontMonoFilename, manager.fontMonoIndex, manager.fontMonoName, width);
 		});
 		ImGui::SameLine();
 		selectSize(manager.fontMonoSize);
@@ -1228,21 +1228,41 @@ void ImGuiSettings::paint(MSXMotherBoard* motherBoard)
 	if (showShortcut) paintShortcut();
 }
 
-std::span<const std::string> ImGuiSettings::getAvailableFonts()
+std::span<const ImGuiSettings::FontInfo> ImGuiSettings::getAvailableFonts()
 {
 	if (availableFonts.empty()) {
-		for (const auto& context = systemFileContext();
-		     const auto& path : context.getPaths()) {
+		// collect font files
+		std::vector<std::string> files;
+		const auto& context = systemFileContext();
+		for (const auto& path : context.getPaths()) {
 			foreach_file(FileOperations::join(path, "skins"), [&](const std::string& /*fullName*/, std::string_view name) {
-				if (name.ends_with(".ttf.gz") || name.ends_with(".ttf")) {
-					availableFonts.emplace_back(name);
+				auto nameGz = name.ends_with(".gz") ? name.substr(0, name.size() - 3) : name;
+				if (nameGz.ends_with(".ttf") || nameGz.ends_with(".ttc") || nameGz.ends_with(".otf")) {
+					files.emplace_back(name);
 				}
 			});
 		}
 		// sort and remove duplicates
-		std::ranges::sort(availableFonts);
-		auto u = std::ranges::unique(availableFonts);
-		availableFonts.erase(u.begin(), u.end());
+		std::ranges::sort(files);
+		auto u = std::ranges::unique(files);
+		files.erase(u.begin(), u.end());
+
+		// create FontInfo objects
+		for (const auto& file : files) {
+			try {
+				auto resolved = context.resolve(FileOperations::join("skins", file));
+				auto fontData = File(resolved).mmap<uint8_t>();
+				for (auto i : xrange(getNumFaces(manager.freeTypeLibrary, fontData))) {
+					FontInfo info;
+					info.filename = file;
+					info.displayName = manager.getFontDisplayName(fontData, i, file);
+					info.faceIndex = narrow<int>(i);
+					availableFonts.emplace_back(std::move(info));
+				}
+			} catch (MSXException&) {
+				// ignore invalid font files
+			}
+		}
 	}
 	return availableFonts;
 }

@@ -25,11 +25,12 @@ public:
 	TTFFont() = default;
 
 	/** Construct new TTFFont object.
-	  * @param filename Filename of font (.fft file, possibly (g)zipped).
+	  * @param filename Filename of font (.ttf/.ttc/.otf, possibly (g)zipped).
 	  * @param ptSize Point size (based on 72DPI) to load font as.
+	  * @param faceIndex The face number when filename points .ttc font.
 	  * post-condition: !empty()
 	  */
-	TTFFont(const std::string& filename, int ptSize);
+	TTFFont(const std::string& filename, int ptSize, int faceIndex);
 
 	/** Move construct. */
 	TTFFont(TTFFont&& other) noexcept

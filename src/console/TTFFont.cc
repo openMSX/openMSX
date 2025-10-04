@@ -39,7 +39,7 @@ public:
 	TTFFontPool& operator=(TTFFontPool&&) = delete;
 
 	static TTFFontPool& instance();
-	TTF_Font* get(const std::string& filename, int ptSize);
+	TTF_Font* get(const std::string& filename, int ptSize, int faceIndex);
 	void release(TTF_Font* font);
 
 private:
@@ -66,6 +66,7 @@ private:
 		std::string name;
 		int size;
 		int count;
+		int faceIndex;
 	};
 	std::vector<FontInfo> pool;
 };
@@ -105,10 +106,10 @@ TTFFontPool& TTFFontPool::instance()
 	return oneInstance;
 }
 
-TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize)
+TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize, int faceIndex)
 {
-	if (auto it = std::ranges::find(pool, std::tuple(filename, ptSize),
-	        [](auto& info) { return std::tuple(info.name, info.size); });
+	if (auto it = std::ranges::find(pool, std::tuple(filename, ptSize, faceIndex),
+	        [](auto& info) { return std::tuple(info.name, info.size, info.faceIndex); });
 	    it != end(pool)) {
 		++it->count;
 		return it->font;
@@ -117,7 +118,7 @@ TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize)
 	SDLTTF::instance(); // init library
 	FontInfo info;
 	info.file = LocalFileReference(filename);
-	auto* result = TTF_OpenFont(info.file.getFilename().c_str(), ptSize);
+	auto* result = TTF_OpenFontIndex(info.file.getFilename().c_str(), ptSize, faceIndex);
 	if (!result) {
 		throw MSXException(TTF_GetError());
 	}
@@ -125,6 +126,7 @@ TTF_Font* TTFFontPool::get(const std::string& filename, int ptSize)
 	info.name = filename;
 	info.size = ptSize;
 	info.count = 1;
+	info.faceIndex = faceIndex;
 	pool.push_back(std::move(info));
 	return result;
 }
@@ -142,8 +144,8 @@ void TTFFontPool::release(TTF_Font* font)
 
 // class TTFFont
 
-TTFFont::TTFFont(const std::string& filename, int ptSize)
-	: font(TTFFontPool::instance().get(filename, ptSize))
+TTFFont::TTFFont(const std::string& filename, int ptSize, int faceIndex)
+	: font(TTFFontPool::instance().get(filename, ptSize, faceIndex))
 {
 }
 

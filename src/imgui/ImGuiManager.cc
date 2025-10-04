@@ -62,7 +62,7 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
+std::tuple<ImFont*, std::string> ImGuiManager::addFont(zstring_view filename, int fontSize, int faceIndex)
 {
 	auto& io = ImGui::GetIO();
 	if (!filename.empty()) {
@@ -75,16 +75,24 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
 			file.read(ttfData);
 
-			return io.Fonts->AddFontFromMemoryTTF(
+			std::string name = getFontDisplayName(ttfData, faceIndex, filename);
+
+			ImFontConfig fontConfig;
+			fontConfig.FontNo = faceIndex;
+			auto* result = io.Fonts->AddFontFromMemoryTTF(
 				ttfData.data(), // transfer ownership of 'ttfData' buffer
 				narrow<int>(ttfData.size()), narrow<float>(fontSize),
-				nullptr, nullptr);
+				&fontConfig, nullptr);
+			if (!result) {
+				throw MSXException("parse error, possibly invalid faceIndex");
+			}
+			return {result, name};
 		} catch (MSXException& e) {
 			getCliComm().printWarning("Couldn't load font: ", filename, ": ", e.getMessage(),
 						". Reverted to builtin font");
 		}
 	}
-	return io.Fonts->AddFontDefault(); // embedded "ProggyClean.ttf", size 13
+	return {io.Fonts->AddFontDefault(), "(default)"}; // embedded "ProggyClean.ttf", size 13
 }
 
 void ImGuiManager::loadFont()
@@ -92,7 +100,7 @@ void ImGuiManager::loadFont()
 	ImGuiIO& io = ImGui::GetIO();
 
 	assert(fontProp == nullptr);
-	fontProp = addFont(fontPropFilename.getString(), fontPropSize.getInt());
+	std::tie(fontProp, fontPropName) = addFont(fontPropFilename.getString(), fontPropSize.getInt(), fontPropIndex.getInt());
 
 	//// load icon font file (CustomFont.cpp), only in the default font
 	static constexpr std::array<ImWchar, 3> icons_ranges = {ICON_MIN_IGFD, ICON_MAX_IGFD, 0};
@@ -102,7 +110,7 @@ void ImGuiManager::loadFont()
 	ImGuiDebugger::loadIcons();
 
 	assert(fontMono == nullptr);
-	fontMono = addFont(fontMonoFilename.getString(), fontMonoSize.getInt());
+	std::tie(fontMono, fontMonoName) = addFont(fontMonoFilename.getString(), fontMonoSize.getInt(), fontMonoIndex.getInt());
 }
 
 void ImGuiManager::reloadFont()
@@ -140,6 +148,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	: reactor(reactor_)
 	, fontPropFilename(reactor.getCommandController(), "gui_font_default_filename", "TTF font filename for the default GUI font", "DejaVuSans.ttf.gz")
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
+	, fontPropIndex(reactor.getCommandController(), "gui_font_default_index", "Variation index for the default GUI font, ttc only.", 0, 0, 100)
+	, fontMonoIndex(reactor.getCommandController(), "gui_font_mono_index", "Variation index for the monospaced GUI font. ttc only.", 0, 0, 100)
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
 	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
@@ -217,6 +227,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoFilename.attach(*this);
 	fontPropSize.attach(*this);
 	fontMonoSize.attach(*this);
+	fontPropIndex.attach(*this);
+	fontMonoIndex.attach(*this);
 }
 
 ImGuiManager::~ImGuiManager()
@@ -225,6 +237,8 @@ ImGuiManager::~ImGuiManager()
 	fontPropSize.detach(*this);
 	fontMonoFilename.detach(*this);
 	fontPropFilename.detach(*this);
+	fontPropIndex.detach(*this);
+	fontMonoIndex.detach(*this);
 
 	auto& eventDistributor = reactor.getEventDistributor();
 	using enum EventType;
