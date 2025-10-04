@@ -500,20 +500,36 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 					if (!slotManager.slotExists(i)) continue;
 					anySlot = true;
 					if (ImGui::TableNextColumn()) {
-						ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), ")");
+						ImGui::StrCat("Cartridge Slot ", char('A' + i), " (", slotManager.getPsSsString(i), ")");
 					}
 					if (ImGui::TableNextColumn()) {
-						if (const auto* config = slotManager.getConfigForSlot(i)) {
-							if (config->getType() == HardwareConfig::Type::EXTENSION) {
-								ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
-								if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
-									manager.media->extensionTooltip(*extInfo);
+						const auto* config = slotManager.getConfigForSlot(i);
+						if (viewMode == ViewMode::EDIT) {
+							const std::string currentConfigName = config ?
+								(config->getType() == HardwareConfig::Type::EXTENSION ? manager.media->displayNameForExtension(config->getConfigName()) :
+								manager.media->displayNameForRom(std::string(config->getRomFilename()), true)) :
+								std::string(EMPTY);
+							im::Menu(strCat(currentConfigName, "##", i).c_str(), [&]{
+								manager.media->showExtensionSelector(i, currentConfigName);
+								if (config) {
+									if (ImGui::Button("Remove")) {
+										manager.executeDelayed(makeTclList("remove_extension", config->getName()));
+									}
+								}
+							});
+						} else {
+							if (config) {
+								if (config->getType() == HardwareConfig::Type::EXTENSION) {
+									ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
+									if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+										manager.media->extensionTooltip(*extInfo);
+									}
+								} else {
+									ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
 								}
 							} else {
-								ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
+								ImGui::TextUnformatted(EMPTY);
 							}
-						} else {
-							ImGui::TextUnformatted(EMPTY);
 						}
 					}
 				}
@@ -527,7 +543,16 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							ImGui::TextUnformatted("I/O only");
 						}
 						if (ImGui::TableNextColumn()) {
-							ImGui::TextUnformatted(manager.media->displayNameForExtension(ext->getConfigName()));
+							auto displayName = manager.media->displayNameForExtension(ext->getConfigName());
+							if (viewMode == ViewMode::EDIT) {
+								im::Menu(displayName.c_str(), [&] {
+									if (ImGui::Button("Remove")) {
+										manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
+									}
+								});
+							} else {
+								ImGui::TextUnformatted(displayName);
+							}
 							if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
 								manager.media->extensionTooltip(*extInfo);
 							}

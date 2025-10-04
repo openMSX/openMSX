@@ -423,13 +423,13 @@ void ImGuiMedia::extensionTooltip(ExtensionInfo& info)
 	});
 }
 
-bool ImGuiMedia::drawExtensionFilter()
+bool ImGuiMedia::drawExtensionFilter(std::string& filterType, std::string& filterString, bool& filterOpen, int id)
 {
 	std::string filterDisplay = "filter";
 	if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
 	if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
 	if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
-	strAppend(filterDisplay, "###filter");
+	strAppend(filterDisplay, "###filter", id);
 	bool newFilterOpen = filterOpen;
 	im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
 		displayFilterCombo(filterType, "Type", getAllExtensions());
@@ -529,7 +529,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				HelpMarker("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. "
 				           "These can only be removed via the 'Media > Extensions > Remove' menu. "
 				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
-				drawExtensionFilter();
+				drawExtensionFilter(genericFilterType, genericFilterString, genericFilterOpen);
 
 				auto& allExtensions = getAllExtensions();
 
@@ -558,8 +558,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					}
 				}();
 
-				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
-				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
+				applyComboFilter("Type", genericFilterType, allExtensions, filteredExtensions);
+				applyDisplayNameFilter(genericFilterString, allExtensions, filteredExtensions);
 
 				float width = 40.0f * ImGui::GetFontSize();
 				float height = (10.25f + (anyNonWorking ? 1 : 0)) * ImGui::GetTextLineHeightWithSpacing();
@@ -1343,43 +1343,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 				ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), std::to_underlying(EXTENSION));
 				im::VisuallyDisabled(info.select != EXTENSION, [&]{
 					im::Indent([&]{
-						auto& allExtensions = getAllExtensions();
-						auto& group = info.groups[EXTENSION];
-						auto& item = group.edit;
-
-						bool interacted = drawExtensionFilter();
-
-						auto drawExtensions = [&]{
-							auto filteredExtensions = to_vector(xrange(allExtensions.size()));
-							applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
-							applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
-
-							im::ListClipper(filteredExtensions.size(), [&](int i) {
-								auto& ext = allExtensions[filteredExtensions[i]];
-								bool ok = getTestResult(ext).empty();
-								im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-									if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
-										interacted = true;
-										item.name = ext.configName;
-									}
-									if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-										insertMedia(extName, group.edit); // Apply
-									}
-									extensionTooltip(ext);
-								});
-							});
-						};
-						if (filterOpen) {
-							im::ListBox("##list", [&]{
-								drawExtensions();
-							});
-						} else {
-							im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
-								drawExtensions();
-							});
-						}
-
-						interacted |= ImGui::IsItemActive();
+						bool interacted = showExtensionSelector(cartNum);
 						if (interacted) info.select = EXTENSION;
 					});
 				});
@@ -1396,6 +1360,54 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 			}
 		});
 	});
+}
+
+bool ImGuiMedia::showExtensionSelector(int cartNum, std::optional<std::string> itemToShowAsSelected)
+{
+	auto& info = cartridgeMediaInfo[cartNum];
+	using enum SelectCartridgeType;
+	auto& allExtensions = getAllExtensions();
+	auto& group = info.groups[EXTENSION];
+	auto& item = group.edit;
+
+	bool interacted = drawExtensionFilter(info.filterType, info.filterString, info.filterOpen, cartNum);
+
+	auto drawExtensions = [&]{
+		auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+		applyComboFilter("Type", info.filterType, allExtensions, filteredExtensions);
+		applyDisplayNameFilter(info.filterString, allExtensions, filteredExtensions);
+
+		im::ListClipper(filteredExtensions.size(), [&](int i) {
+			auto& ext = allExtensions[filteredExtensions[i]];
+			bool ok = getTestResult(ext).empty();
+			im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				auto extName = strCat("ext", char('a' + cartNum));
+				if (ImGui::Selectable(ext.displayName.c_str(), item.name == (itemToShowAsSelected ? *itemToShowAsSelected : ext.configName))) {
+					interacted = true;
+					item.name = ext.configName;
+					if (itemToShowAsSelected.has_value()) {
+						insertMedia(extName, group.edit); // Apply
+					}
+				}
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					insertMedia(extName, group.edit); // Apply
+				}
+				extensionTooltip(ext);
+			});
+		});
+	};
+	if (info.filterOpen) {
+		im::ListBox(strCat("##list", cartNum).c_str(), [&]{
+			drawExtensions();
+		});
+	} else {
+		im::Combo(strCat("##extension", cartNum).c_str(), displayNameForExtension(itemToShowAsSelected ? *itemToShowAsSelected : item.name).c_str(), ImGuiComboFlags_WidthFitPreview, [&]{
+			drawExtensions();
+		});
+	}
+
+	interacted |= ImGui::IsItemActive();
+	return interacted;
 }
 
 static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
