@@ -97,7 +97,7 @@ public:
 
 private:
 	void initializeImGui();
-	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize);
+	[[nodiscard]] ImFont* addFont(zstring_view filename, int fontSize, long fontIndex);
 	void loadFont();
 	void reloadFont();
 	void drawStatusBar(MSXMotherBoard* motherBoard);
@@ -136,6 +136,8 @@ public:
 	IntegerSetting fontMonoSize;
 	ImFont* fontProp = nullptr;
 	ImFont* fontMono = nullptr;
+	IntegerSetting fontPropIndex;
+	IntegerSetting fontMonoIndex;
 
 	std::unique_ptr<ImGuiMachine> machine;
 	std::unique_ptr<ImGuiDebugger> debugger;
