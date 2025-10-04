@@ -42,7 +42,7 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
-	enum class ViewMode { VIEW, SAVE, NO_CONTROLS };
+	enum class ViewMode { VIEW, SAVE, NO_CONTROLS, EDIT };
 	void showSetupOverview(MSXMotherBoard& motherBoard, ViewMode = ViewMode::VIEW);
 	void loadPreviewSetup();
 	void showNonExistingPreview();
