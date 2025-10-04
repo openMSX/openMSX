@@ -35,11 +35,36 @@ namespace openmsx {
 void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Connectors", motherBoard != nullptr, [&]{
-		showPluggables(motherBoard->getPluggingController(), false);
+		showPluggables(motherBoard->getPluggingController(), Mode::COMBO);
 	});
 }
 
-void ImGuiConnector::showPluggables(PluggingController& pluggingController, bool viewOnly)
+void ImGuiConnector::paintPluggableSelectables(const Connector& connector, const std::vector<std::unique_ptr<Pluggable>>& pluggables)
+{
+	const auto& currentPluggable = connector.getPlugged();
+	const auto& connectorName = connector.getName();
+	if (!currentPluggable.getName().empty()) {
+		if (ImGui::Selectable("[unplug]")) {
+			manager.executeDelayed(makeTclList("unplug", connectorName));
+		}
+	}
+	auto connectorClass = connector.getClass();
+	for (const auto& plug : pluggables) {
+		if (plug->getClass() != connectorClass) continue;
+		auto plugName = plug->getName();
+		bool selected = plug.get() == &currentPluggable;
+		int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
+		if (ImGui::Selectable(pluggableToGuiString(plugName).c_str(), selected, flags)) {
+			manager.executeDelayed(makeTclList("plug", connectorName, plugName));
+		}
+		simpleToolTip(plug->getDescription());
+		if (selected) {
+			ImGui::SetItemDefaultFocus();
+		}
+	}
+}
+
+void ImGuiConnector::showPluggables(PluggingController& pluggingController, Mode mode)
 {
 	im::Table("table", 2, [&]{
 		const auto& pluggables = pluggingController.getPluggables();
@@ -49,41 +74,28 @@ void ImGuiConnector::showPluggables(PluggingController& pluggingController, bool
 			}
 			if (ImGui::TableNextColumn()) { // pluggable
 				const auto& currentPluggable = connector->getPlugged();
-				if (viewOnly) {
-					auto plugName = currentPluggable.getName();
-					if (plugName.empty()) {
-						ImGui::TextUnformatted("(empty)"sv);
-					} else {
-						ImGui::TextUnformatted(pluggableToGuiString(plugName));
-						simpleToolTip(currentPluggable.getDescription());
-					}
-				} else {
-					const auto& connectorName = connector->getName();
-					auto connectorClass = connector->getClass();
-					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
-					im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(currentPluggable.getName()).c_str(), [&]{
-						if (!currentPluggable.getName().empty()) {
-							if (ImGui::Selectable("[unplug]")) {
-								manager.executeDelayed(makeTclList("unplug", connectorName));
-							}
-						}
-						for (const auto& plug : pluggables) {
-							if (plug->getClass() != connectorClass) continue;
-							auto plugName = plug->getName();
-							bool selected = plug.get() == &currentPluggable;
-							int flags = !selected && plug->getConnector() ? ImGuiSelectableFlags_Disabled : 0; // plugged in another connector
-							if (ImGui::Selectable(pluggableToGuiString(plugName).c_str(), selected, flags)) {
-								manager.executeDelayed(makeTclList("plug", connectorName, plugName));
-							}
-							simpleToolTip(plug->getDescription());
-							if (selected) {
-								ImGui::SetItemDefaultFocus();
-							}
-						}
-					});
-					if (const auto& desc = currentPluggable.getDescription(); !desc.empty()) {
-						simpleToolTip(desc);
-					}
+				const auto& plugName = currentPluggable.getName();
+				const auto& connectorName = connector->getName();
+				using enum ImGuiConnector::Mode;
+				switch (mode) {
+					case VIEW:
+						ImGui::TextUnformatted(plugName.empty() ? "(empty)"sv : pluggableToGuiString(plugName));
+						break;
+					case COMBO:
+						ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
+						im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(plugName).c_str(), [&]{
+							paintPluggableSelectables(*connector, pluggables);
+						});
+						break;
+					case SUBMENU:
+						im::Menu(pluggableToGuiString(plugName.empty() ? tmpStrCat("(empty)", "##", connectorName).c_str() : plugName).c_str(), [&] {
+							paintPluggableSelectables(*connector, pluggables);
+						});
+						break;
+					default: UNREACHABLE;
+				}
+				if (const auto& desc = currentPluggable.getDescription(); !desc.empty() && mode != SUBMENU) {
+					simpleToolTip(desc);
 				}
 			}
 		}

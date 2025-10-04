@@ -254,7 +254,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			});
 
 			im::Menu("Current setup", true, [&]{
-				showSetupOverview(*motherBoard);
+				showSetupOverview(*motherBoard, ViewMode::EDIT);
 			});
 		}
 
@@ -465,7 +465,7 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 		showMachineWithoutInfo(configName);
 	}
 
-	const ImGuiTreeNodeFlags flags = viewMode == ViewMode::VIEW ? ImGuiTreeNodeFlags_DefaultOpen :
+	const ImGuiTreeNodeFlags flags = (viewMode == ViewMode::VIEW || viewMode == ViewMode::EDIT) ? ImGuiTreeNodeFlags_DefaultOpen :
 					viewMode == ViewMode::NO_CONTROLS ? (ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet) :
 					ImGuiTreeNodeFlags_None;
 
@@ -517,7 +517,8 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 	});
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), flags, [&]{
-			manager.connector->showPluggables(motherBoard.getPluggingController(), true);
+			using enum ImGuiConnector::Mode;
+			manager.connector->showPluggables(motherBoard.getPluggingController(), viewMode == ViewMode::EDIT ? SUBMENU : VIEW);
 		});
 	});
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
