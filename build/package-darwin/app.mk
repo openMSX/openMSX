@@ -30,6 +30,20 @@ bindist: app codesign $(DESTDIR)/$(BINDIST_README) $(DESTDIR)/$(BINDIST_LICENSE)
 		-volname openMSX \
 		-imagekey zlib-level=9 \
 		-ov $(BINDIST_PACKAGE)
+	@if [ -z "$(CODE_SIGN_IDENTITY)" ]; then \
+		echo "  Skipping code sign, CODE_SIGN_IDENTITY not set."; \
+	else \
+		echo "  Signing the disk image..."; \
+		codesign --force --verify --verbose --sign "$(CODE_SIGN_IDENTITY)" "$(BINDIST_PACKAGE)"; \
+	fi
+	@if [ -z "$(NOTARY_PROFILE)" ]; then \
+		echo "  Skipping notarization, NOTARY_PROFILE not set."; \
+	else \
+		echo "  Notarizing the disk image..."; \
+		xcrun notarytool submit "$(BINDIST_PACKAGE)" --keychain-profile "$(NOTARY_PROFILE)" --wait; \
+		xcrun stapler staple "$(BINDIST_PACKAGE)"; \
+		xcrun stapler validate "$(BINDIST_PACKAGE)"; \
+	fi
 
 $(DESTDIR)/$(APP_PLIST): $(DESTDIR)/$(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Writing meta-info..."

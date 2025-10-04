@@ -1,0 +1,16 @@
+name: Prepare for notarizing a Darwin build
+description: "Prepare for notarizing a Darwin build"
+inputs:
+  os:
+    required: true
+    description: "The OS to build for"
+
+runs:
+  using: "composite"
+  steps:
+  - name: Create 
+    if: inputs.os == 'darwin'
+    shell: bash
+    run: |
+      echo "$NOTARY_API_KEY" > AuthKey_$NOTARY_API_KEY_ID.p8
+      xcrun notarytool store-credentials "$NOTARY_PROFILE" --key "AuthKey_$NOTARY_API_KEY_ID.p8" --key-id "$NOTARY_API_KEY_ID" --issuer "$NOTARY_API_ISSUER"

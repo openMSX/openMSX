@@ -88,9 +88,21 @@ jobs:
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       with:
         os: ${{ matrix.os }}
+    - name: Preparations for notarizing binaries on Darwin builds
+      # Don't fail build for pull requests if vars and secrets are not defined.
+      if: ${{ matrix.os == 'darwin' && vars.NOTARY_PROFILE }}
+      uses: ./.github/actions/prepare-notarize
+      env:
+        NOTARY_API_KEY: ${{ secrets.NOTARY_API_KEY }}
+        NOTARY_API_KEY_ID: ${{ vars.NOTARY_API_KEY_ID }}
+        NOTARY_API_ISSUER: ${{ vars.NOTARY_API_ISSUER }}
+        NOTARY_PROFILE: ${{ vars.NOTARY_PROFILE }}
+      with:
+        os: ${{ matrix.os }}
     - name: Perform the actual build
       env:
         CODE_SIGN_IDENTITY: ${{ vars.CODE_SIGN_IDENTITY }}
+        NOTARY_PROFILE: ${{ vars.NOTARY_PROFILE }}
       # Directory name only
       uses: ./.github/actions/build
       with:
