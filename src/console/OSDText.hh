@@ -20,7 +20,7 @@ private:
 		return concatArray(
 			imageBasedProperties,
 			std::array{
-				"-text"sv, "-font"sv, "-size"sv,
+				"-text"sv, "-font"sv, "-fontfaceindex"sv, "-size"sv,
 				"-wrap"sv, "-wrapw"sv, "-wraprelw"sv,
 			});
 	}();
@@ -58,6 +58,7 @@ private:
 	std::string fontFile;
 	TTFFont font;
 	int size = 12;
+	int fontFaceIndex = 0;
 	WrapMode wrapMode = NONE;
 	float wrapw = 0.0f, wraprelw = 1.0f;
 

@@ -1033,6 +1033,9 @@ void ImGuiSettings::paintFont()
 		auto selectFilename = [&](FilenameSetting& setting, float width) {
 			auto display = [](std::string_view name) {
 				if (name.ends_with(".gz" )) name.remove_suffix(3);
+				// The next line might be fixed. Because:
+				// 1) .ttc and .otf files can be loaded
+				// 2) The extension of font files may be upper case.
 				if (name.ends_with(".ttf")) name.remove_suffix(4);
 				return std::string(name);
 			};
@@ -1058,6 +1061,18 @@ void ImGuiSettings::paintFont()
 				}
 			});
 		};
+		auto selectIndex = [](IntegerSetting& setting) {
+			auto display = [](int s) { return strCat(s); };
+			auto current = setting.getInt();
+			ImGui::SetNextItemWidth(4.0f * ImGui::GetFontSize());
+			im::Combo(tmpStrCat("##", setting.getBaseName()).c_str(), display(current).c_str(), [&] {
+				for (int faceIndex : {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+					if (ImGui::Selectable(display(faceIndex).c_str(), current == faceIndex)) {
+						setting.setInt(faceIndex);
+					}
+				}
+			});
+		};
 
 		auto pos = ImGui::CalcTextSize("Monospace").x + 2.0f * ImGui::GetStyle().ItemSpacing.x;
 		auto width = 12.0f * ImGui::GetFontSize(); // filename ComboBox (boxes are drawn with different font, but we want same width)
@@ -1068,6 +1083,10 @@ void ImGuiSettings::paintFont()
 		selectFilename(manager.fontPropFilename, width);
 		ImGui::SameLine();
 		selectSize(manager.fontPropSize);
+		ImGui::SameLine();
+		ImGui::TextUnformatted("pt / #");
+		ImGui::SameLine();
+		selectIndex(manager.fontPropIndex);
 		HelpMarker("You can install more fonts by copying .ttf file(s) to your \"<openmsx>/share/skins\" directory.");
 
 		ImGui::AlignTextToFramePadding();
@@ -1078,6 +1097,10 @@ void ImGuiSettings::paintFont()
 		});
 		ImGui::SameLine();
 		selectSize(manager.fontMonoSize);
+		ImGui::SameLine();
+		ImGui::TextUnformatted("pt / #");
+		ImGui::SameLine();
+		selectIndex(manager.fontMonoIndex);
 		HelpMarker("Some GUI elements (e.g. the console) require a monospaced font.");
 	});
 }

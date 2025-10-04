@@ -62,7 +62,7 @@ namespace openmsx {
 
 using namespace std::literals;
 
-ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
+ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize, long fontIndex)
 {
 	auto& io = ImGui::GetIO();
 	if (!filename.empty()) {
@@ -74,7 +74,25 @@ ImFont* ImGuiManager::addFont(zstring_view filename, int fontSize)
 			auto ttfData = std::span(
 				static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
 			file.read(ttfData);
-
+			if (fontIndex) {
+				ImFontConfig fontConfig;
+				fontConfig.FontNo = fontIndex;
+				auto result = io.Fonts->AddFontFromMemoryTTF(
+					ttfData.data(), // transfer ownership of 'ttfData' buffer
+					narrow<int>(ttfData.size()), narrow<float>(fontSize),
+					&fontConfig, nullptr);
+				// If variation index is not valid, result would be nullptr.
+				// Otherwise, just return result.
+				if (result) { return result; }
+				std::string errorMsg = "Variation number of the font(";
+				strAppend(errorMsg, fontIndex, ") seems invalid : ", filename);
+				getCliComm().printWarning(errorMsg);
+				// reload ttfData.
+				ttfData = std::span(
+					static_cast<uint8_t*>(ImGui::MemAlloc(fileSize)), fileSize);
+				file.seek(0);
+				file.read(ttfData);
+			}
 			return io.Fonts->AddFontFromMemoryTTF(
 				ttfData.data(), // transfer ownership of 'ttfData' buffer
 				narrow<int>(ttfData.size()), narrow<float>(fontSize),
@@ -92,7 +110,7 @@ void ImGuiManager::loadFont()
 	ImGuiIO& io = ImGui::GetIO();
 
 	assert(fontProp == nullptr);
-	fontProp = addFont(fontPropFilename.getString(), fontPropSize.getInt());
+	fontProp = addFont(fontPropFilename.getString(), fontPropSize.getInt(), fontPropIndex.getInt());
 
 	//// load icon font file (CustomFont.cpp), only in the default font
 	static constexpr std::array<ImWchar, 3> icons_ranges = {ICON_MIN_IGFD, ICON_MAX_IGFD, 0};
@@ -102,7 +120,7 @@ void ImGuiManager::loadFont()
 	ImGuiDebugger::loadIcons();
 
 	assert(fontMono == nullptr);
-	fontMono = addFont(fontMonoFilename.getString(), fontMonoSize.getInt());
+	fontMono = addFont(fontMonoFilename.getString(), fontMonoSize.getInt(), fontMonoIndex.getInt());
 }
 
 void ImGuiManager::reloadFont()
@@ -142,6 +160,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	, fontMonoFilename(reactor.getCommandController(), "gui_font_mono_filename", "TTF font filename for the monospaced GUI font", "DejaVuSansMono.ttf.gz")
 	, fontPropSize(reactor.getCommandController(), "gui_font_default_size", "size for the default GUI font", 13, 9, 72)
 	, fontMonoSize(reactor.getCommandController(), "gui_font_mono_size", "size for the monospaced GUI font", 13, 9, 72)
+	, fontPropIndex(reactor.getCommandController(), "gui_font_default_index", "Variation index for the default GUI font, ttc only.", 0, 0, 100)
+	, fontMonoIndex(reactor.getCommandController(), "gui_font_mono_index", "Variation index for the monospaced GUI font. ttc only.", 0, 0, 100)
 	, windowPos{SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED}
 {
 	parts.push_back(this);
@@ -217,6 +237,8 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	fontMonoFilename.attach(*this);
 	fontPropSize.attach(*this);
 	fontMonoSize.attach(*this);
+	fontPropIndex.attach(*this);
+	fontMonoIndex.attach(*this);
 }
 
 ImGuiManager::~ImGuiManager()
@@ -225,6 +247,8 @@ ImGuiManager::~ImGuiManager()
 	fontPropSize.detach(*this);
 	fontMonoFilename.detach(*this);
 	fontPropFilename.detach(*this);
+	fontPropIndex.detach(*this);
+	fontMonoIndex.detach(*this);
 
 	auto& eventDistributor = reactor.getEventDistributor();
 	using enum EventType;
