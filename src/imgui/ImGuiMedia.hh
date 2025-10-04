@@ -96,6 +96,9 @@ public:
 		array_with_enum_index<SelectCartridgeType, ItemGroup> groups;
 		SelectCartridgeType select = SelectCartridgeType::IMAGE;
 		bool show = false;
+		bool filterOpen = false;
+		std::string filterType;
+		std::string filterString;
 	};
 	struct DiskMediaInfo {
 		DiskMediaInfo() {
@@ -113,6 +116,8 @@ public:
 
 public:
 	bool resetOnCartChanges = true;
+
+	bool showExtensionSelector(int cartNum, std::optional<std::string> itemToShowAsSelected = std::nullopt);
 
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
 	static bool selectMapperType(const char* label, RomType& romType);
@@ -137,7 +142,7 @@ private:
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 
 	void printExtensionInfo(ExtensionInfo& info);
-	bool drawExtensionFilter();
+	bool drawExtensionFilter(std::string& filterType, std::string& filterString, bool& theFilterOpen, int id = 0);
 
 private:
 	std::array<DiskMediaInfo, RealDrive::MAX_DRIVES> diskMediaInfo;
@@ -148,9 +153,10 @@ private:
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;
 
-	std::string filterType;
-	std::string filterString;
-	bool filterOpen = false;
+	// for the generic extension selector (slot independent)
+	std::string genericFilterType;
+	std::string genericFilterString;
+	bool genericFilterOpen = false;
 	bool hideNonWorking = false;
 	std::function<void(void)> switchHdAction;
 
