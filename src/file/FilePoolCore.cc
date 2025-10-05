@@ -171,8 +171,11 @@ void FilePoolCore::readSha1sums()
 	assert(sha1Index.empty());
 	assert(fileMem.empty());
 
-	fileMem = File(fileCache).mmap<char>(1);
-	fileMem.back() = '\n'; // ensure there's always a '\n' at the end
+	File file(fileCache);
+	auto size = file.getSize();
+	fileMem.resize(size + 1);
+	file.read(fileMem.first(size));
+	fileMem[size] = '\n'; // ensure there's always a '\n' at the end
 
 	// Process each line.
 	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").

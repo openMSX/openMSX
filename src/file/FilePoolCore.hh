@@ -2,8 +2,8 @@
 #define FILEPOOLCORE_HH
 
 #include "FileOperations.hh"
-#include "MappedFile.hh"
 
+#include "MemBuffer.hh"
 #include "ObjectPool.hh"
 #include "SimpleHashSet.hh"
 #include "sha1.hh"
@@ -160,7 +160,7 @@ private:
 	std::function<Directories()> getDirectories;
 	std::function<void(std::string_view, float)> reportProgress;
 
-	MappedFile<char> fileMem; // content of initial .filecache
+	MemBuffer<char> fileMem; // content of initial .filecache
 	std::vector<std::string> stringBuffer; // owns strings that are not in 'fileMem'
 
 	Pool pool; // the actual entries
