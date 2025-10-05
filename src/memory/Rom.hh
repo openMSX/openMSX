@@ -64,7 +64,7 @@ private:
 	MemBuffer<uint8_t> extendedRom;
 
 	File file; // can be a closed file
-	std::optional<MappedFile<const uint8_t>> mmap;
+	std::optional<MappedFile<uint8_t>> mmap; // non-const to allow patching
 
 	mutable Sha1Sum originalSha1;
 	mutable Sha1Sum actualSha1;

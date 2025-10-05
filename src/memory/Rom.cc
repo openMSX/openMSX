@@ -187,7 +187,7 @@ void Rom::init(MSXMotherBoard& motherBoard, XMLElement& config,
 				"supported.");
 		}
 		try {
-			mmap = file.mmap<const uint8_t>();
+			mmap = file.mmap<uint8_t>();
 			rom = *mmap;
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: ", file.getURL());
