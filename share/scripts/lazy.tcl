@@ -82,3 +82,4 @@ register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
 register_lazy "_vdp_busy.tcl" toggle_vdp_busy
 register_lazy "_vdrive.tcl" vdrive
 register_lazy "_vgmrecorder.tcl" {vgm_rec vgm_rec_next vgm_rec_end}
+register_lazy "_tcl_bridge.tcl" tcl_bridge
