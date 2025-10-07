@@ -21,6 +21,7 @@
 #
 #   res_real_len:  +8 (input,  2 bytes): actual length of the result
 #   status:       +10 (input,  1 byte ): success (0) or failure (1)
+#   res_modifier: +11 (input,  1 byte ): binary (0) or text (1)
 #
 # Only the first 4 fields need to be filled in by the MSX program, the last 2
 # fields are filled in by the 'tcl_bridge' (see below).
@@ -99,9 +100,13 @@ proc execute_command {base} {
     set res_max_len  [peek16 [expr {$base + 6}]]
     set res_real_len [expr {$base + 8}]
     set status       [expr {$base + 10}]
+    set res_modifier [peek8 [expr {$base + 11}]]
     set cmd [debug read_block memory $cmd_addr $cmd_len]
     # execute command
     set response [catch {set output [eval $cmd]} output]
+    if {$res_modifier != 0} {
+        set output [string map [list "\n" "\r\n"] $output]
+    }
     # write command result and output data
     debug write_block memory $res_real_len [binary format s [min [string length $output] 0xFFFF]]
     debug write_block memory $res_addr [string range $output 0 [min [string length $output] $res_max_len]-1]]
