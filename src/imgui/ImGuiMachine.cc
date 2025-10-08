@@ -453,7 +453,13 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
 		if (viewMode != ViewMode::SAVE) {
-			ImGui::TextUnformatted(info->displayName);
+			if (viewMode == ViewMode::EDIT) {
+				if (ImGui::Selectable(info->displayName.c_str())) {
+					showSelectMachine = true;
+				}
+			} else {
+				ImGui::TextUnformatted(info->displayName);
+			}
 		}
 		if (viewMode != ViewMode::NO_CONTROLS) {
 			im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
