@@ -124,6 +124,8 @@ public:
 
 	static std::string diskFilter();
 
+	void showMediaWindow(std::string_view mediaName);
+
 private:
 	bool selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width) const;
 	bool selectImage(ItemGroup& group, const std::string& title,
