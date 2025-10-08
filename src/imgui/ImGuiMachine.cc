@@ -454,13 +454,33 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
 		if (viewMode != ViewMode::SAVE) {
-			ImGui::TextUnformatted(info->displayName);
+			if (viewMode == ViewMode::EDIT) {
+				im::TreeNode("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+					im::Table("##MachineTable", 2, [&]{
+						if (ImGui::TableNextColumn()) {
+							ImGui::TextUnformatted("Brand and model");
+						}
+						if (ImGui::TableNextColumn()) {
+							if (ImGui::Selectable(info->displayName.c_str())) {
+								showSelectMachine = true;
+							}
+						}
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+							im::ItemTooltip([&]{
+								printConfigInfo(*info);
+							});
+						}
+					});
+				});
+			} else {
+				ImGui::TextUnformatted(info->displayName);
+			}
 		}
-		if (viewMode != ViewMode::NO_CONTROLS) {
+		if (viewMode != ViewMode::NO_CONTROLS && viewMode != ViewMode::EDIT) {
 			im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
 				// alternatively, put this info in a tooltip instead of a collapsed TreeNode
 				printConfigInfo(*info);
-				});
+			});
 		}
 	} else {
 		// machine config is gone... fallback: just show configName
