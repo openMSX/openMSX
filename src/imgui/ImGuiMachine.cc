@@ -589,13 +589,29 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 						if (media.name.starts_with("cart")) {
 							unsigned num = media.name[4] - 'a';
 							const auto& slotManager = motherBoard.getSlotManager();
+							auto type = info.getOptionalDictValue(TclObject("type"));
 							if (ImGui::TableNextColumn()) {
-								ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), ")");
+								if (!(type && type->getString() == "extension") && viewMode == ViewMode::EDIT) {
+									if (ImGui::Selectable(strCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), ")").c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
+										manager.media->showMediaWindow(media.name);
+									}
+								} else {
+									ImGui::StrCat(formatMediaName(media.name), " (", slotManager.getPsSsString(num), ")");
+								}
 							}
 							if (ImGui::TableNextColumn()) {
-								auto type = info.getOptionalDictValue(TclObject("type"));
 								if (type && type->getString() == "extension") {
-									ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+									auto displayName = manager.media->displayNameForExtension(targetStr);
+									if (viewMode == ViewMode::EDIT) {
+										im::Menu(strCat(displayName, "##", num).c_str(), [&] {
+											if (ImGui::Button("Remove")) {
+												const auto* config = slotManager.getConfigForSlot(num);
+												manager.executeDelayed(makeTclList("remove_extension", config->getName()));
+											}
+										});
+									} else {
+										ImGui::TextDisabledUnformatted(displayName);
+									}
 								} else {
 									ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
 									if (!isEmpty) {
@@ -611,7 +627,13 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							}
 						} else {
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(formatMediaName(media.name));
+								if (viewMode == ViewMode::EDIT) {
+									if (ImGui::Selectable(formatMediaName(media.name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
+										manager.media->showMediaWindow(media.name);
+									}
+								} else {
+									ImGui::TextUnformatted(formatMediaName(media.name));
+								}
 							}
 							if (ImGui::TableNextColumn()) {
 								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
