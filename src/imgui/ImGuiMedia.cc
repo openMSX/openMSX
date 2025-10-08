@@ -194,6 +194,28 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+void ImGuiMedia::showMediaWindow(std::string_view mediaName)
+{
+		auto getIndex = [&] (std::string_view prefix) {
+			if ((mediaName.size() > prefix.size()) && mediaName.starts_with(prefix)) {
+				char c = mediaName[prefix.size()];
+				return c - 'a';
+			}
+			return -1;
+		};
+
+		if (auto diskIndex = getIndex("disk"); diskIndex >= 0) {
+			diskMediaInfo[diskIndex].show = true;
+		} else if (auto cartIndex = getIndex("cart"); cartIndex >= 0) {
+			cartridgeMediaInfo[cartIndex].show = true;
+	//	} else if (auto index = getIndex("hd")) {
+	//	} else if (auto index = getIndex("cd")) {
+		} else if (mediaName.starts_with("cassette")) {
+			cassetteMediaInfo.show = true;
+	//	} else if (mediaName.starts_with("laserdisc")) {
+		}
+}
+
 static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
 {
 	auto formatExtensions = [&] -> std::string {

@@ -552,9 +552,9 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 								});
 							} else {
 								ImGui::TextUnformatted(displayName);
-							}
-							if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
-								manager.media->extensionTooltip(*extInfo);
+								if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
+									manager.media->extensionTooltip(*extInfo);
+								}
 							}
 						}
 					}
@@ -611,9 +611,21 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							if (ImGui::TableNextColumn()) {
 								auto type = info.getOptionalDictValue(TclObject("type"));
 								if (type && type->getString() == "extension") {
-									ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+									auto displayName = manager.media->displayNameForExtension(targetStr);
+									if (viewMode == ViewMode::EDIT) {
+										im::Menu(strCat(displayName, "##", num).c_str(), [&] {
+											if (ImGui::Button("Remove")) {
+												const auto* config = slotManager.getConfigForSlot(num);
+												manager.executeDelayed(makeTclList("remove_extension", config->getName()));
+											}
+										});
+									} else {
+										ImGui::TextDisabledUnformatted(displayName);
+									}
 								} else {
-									ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
+									if (ImGui::Selectable(strCat(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true), "##", media.name).c_str(), false)) {
+										manager.media->showMediaWindow(media.name);
+									}
 									if (!isEmpty) {
 										im::ItemTooltip([&]{
 											RomType romType = RomType::UNKNOWN;
@@ -627,10 +639,16 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							}
 						} else {
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(formatMediaName(media.name));
+									ImGui::TextUnformatted(formatMediaName(media.name));
 							}
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								if (viewMode == ViewMode::EDIT) {
+									if (ImGui::Selectable(strCat(FileOperations::getFilename(targetStr), "##", media.name).c_str(), false)) {
+										manager.media->showMediaWindow(media.name);
+									}
+								} else {
+									ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								}
 								simpleToolTip(targetStr);
 							}
 						}
