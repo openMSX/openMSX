@@ -95,28 +95,23 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	auto u = std::ranges::unique(matches);
 	matches.erase(u.begin(), u.end());
 
+	auto minsize_of_matches = std::ranges::min(
+		matches, [](auto& l, auto& r) { return l.size() < r.size(); }).size();
+
 	bool expanded = false;
-	while (true) {
+	while (str.size() < minsize_of_matches) {
 		auto it = begin(matches);
-		if (str.size() == it->size()) {
-			// match is as long as first word
-			goto out; // TODO rewrite this
-		}
-		// expand with one char and check all strings
 		auto b = begin(*it);
 		auto e = b + str.size();
-		utf8::unchecked::next(e); // one more utf8 char
-		std::string_view string2(std::to_address(b), e - b);
-		for (/**/; it != end(matches); ++it) {
-			if (!equalHead(string2, *it, caseSensitive)) {
-				goto out; // TODO rewrite this
-			}
-		}
-		// no conflict found
-		str = string2;
+		utf8::unchecked::next(e);
+		std::string_view test_str(b, e);
+		if (!std::ranges::all_of(matches,
+			[&](auto& val) {
+				return equalHead(test_str, val, caseSensitive);
+			})) { break; }
+		str = test_str;
 		expanded = true;
 	}
-	out:
 	if (!expanded && output) {
 		// print all possibilities
 		for (const auto& line : formatListInColumns(matches)) {
