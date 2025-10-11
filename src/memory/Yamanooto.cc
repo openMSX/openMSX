@@ -7,6 +7,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include "view.hh"
 
 #include <cassert>
 
@@ -76,6 +77,7 @@ void Yamanooto::reset(EmuTime time)
 	fpgaFsm = 0;
 
 	ranges::iota(bankRegs, uint16_t(0));
+	ranges::iota(rawBanks, uint8_t(0));
 	sccMode = 0;
 	scc.reset(time);
 
@@ -103,12 +105,14 @@ bool Yamanooto::isSCCAccess(uint16_t address) const
 {
 	if (configReg & K4) return false; // Konami4 doesn't have SCC
 
+	// This uses the raw bank registers (not adjusted with offset register),
+	//   see: https://github.com/openMSX/openMSX/issues/1992
 	if (sccMode & 0x20) {
 		// SCC+   range: 0xB800..0xBFFF,  excluding 0xBFFE-0xBFFF
-		return  (bankRegs[3] & 0x80)          && (0xB800 <= address) && (address < 0xBFFE);
+		return  (rawBanks[3] & 0x80)          && (0xB800 <= address) && (address < 0xBFFE);
 	} else {
 		// SCC    range: 0x9800..0x9FFF
-		return ((bankRegs[2] & 0x3F) == 0x3F) && (0x9800 <= address) && (address < 0xA000);
+		return ((rawBanks[2] & 0x3F) == 0x3F) && (0x9800 <= address) && (address < 0xA000);
 	}
 }
 
@@ -246,6 +250,7 @@ void Yamanooto::writeMem(uint16_t address, byte value, EmuTime time)
 				// bank 0 is NOT switchable, but it keeps the
 				// value it had before activating K4 mode
 				bankRegs[page8kB] = (value + offset) & 0x3FF;
+				rawBanks[page8kB] = value;
 				invalidateCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
 		} else {
@@ -259,6 +264,7 @@ void Yamanooto::writeMem(uint16_t address, byte value, EmuTime time)
 				// [0x5000,0x57FF] [0x7000,0x77FF]
 				// [0x9000,0x97FF] [0xB000,0xB7FF]
 				bankRegs[page8kB] = (value + offset) & 0x3FF;
+				rawBanks[page8kB] = value;
 				invalidateCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
 
@@ -299,8 +305,10 @@ void Yamanooto::writeIO(uint16_t port, byte value, EmuTime time)
 	}
 }
 
+// version 1: initial version
+// version 2: added 'rawBanks'
 template<typename Archive>
-void Yamanooto::serialize(Archive& ar, unsigned /*version*/)
+void Yamanooto::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize(
 		"flash", flash,
@@ -314,6 +322,15 @@ void Yamanooto::serialize(Archive& ar, unsigned /*version*/)
 		"psgLatch", psgLatch,
 		"fpgaFsm", fpgaFsm
 	);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("rawBanks", rawBanks);
+	} else {
+		// Could be wrong, but the best we can do?
+		auto offset = (offsetReg << 2) | ((configReg & SUBOFF) >> 4);
+		for (auto [b, r] : view::zip(bankRegs, rawBanks)) {
+			r = uint8_t(b - offset);
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Yamanooto);
 REGISTER_MSXDEVICE(Yamanooto, "Yamanooto");

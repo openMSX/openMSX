@@ -48,6 +48,7 @@ private:
 	SCC scc;
 	AY8910 psg;
 	std::array<uint16_t, 4> bankRegs = {}; // need 10 bits per entry (not 8)
+	std::array<uint8_t, 4> rawBanks = {}; // not adjusted with offset
 	byte enableReg = 0;
 	byte offsetReg = 0;
 	byte configReg = 0;
@@ -55,6 +56,7 @@ private:
 	byte psgLatch = 0;
 	byte fpgaFsm = 0; // hack, just enough to read ID
 };
+SERIALIZE_CLASS_VERSION(Yamanooto, 2);
 
 } // namespace openmsx
 
