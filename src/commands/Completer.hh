@@ -3,6 +3,7 @@
 
 #include "inline.hh"
 
+#include <algorithm>
 #include <concepts>
 #include <ranges>
 #include <span>
@@ -40,10 +41,6 @@ public:
 
 	[[nodiscard]] virtual Interpreter& getInterpreter() const = 0;
 
-	template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
-	static void completeString(std::vector<std::string>& tokens,
-	                           Iterator begin, Sentinel end,
-	                           bool caseSensitive = true);
 	template<std::ranges::forward_range Range>
 	static void completeString(std::vector<std::string>& tokens,
 	                           Range&& possibleValues,
@@ -84,9 +81,6 @@ protected:
 
 private:
 	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
-	template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
-	static std::vector<std::string_view> filter(
-		std::string_view str, Iterator begin, Sentinel end, bool caseSensitive);
 	template<std::ranges::forward_range Range>
 	static std::vector<std::string_view> filter(
 		std::string_view str, Range&& range, bool caseSensitive);
@@ -100,25 +94,15 @@ private:
 	static inline InterpreterOutput* output = nullptr;
 };
 
-
-template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
-NEVER_INLINE std::vector<std::string_view> Completer::filter(
-	std::string_view str, Iterator begin, Sentinel end, bool caseSensitive)
-{
-	std::vector<std::string_view> result;
-	for (auto it = begin; it != end; ++it) {
-		if (equalHead(str, *it, caseSensitive)) {
-			result.push_back(*it);
-		}
-	}
-	return result;
-}
-
 template<std::ranges::forward_range Range>
-inline std::vector<std::string_view> Completer::filter(
+std::vector<std::string_view> Completer::filter(
 	std::string_view str, Range&& range, bool caseSensitive)
 {
-	return filter(str, std::ranges::begin(range), std::ranges::end(range), caseSensitive);
+	std::vector<std::string_view> result;
+	std::ranges::copy_if(std::forward<Range>(range),
+	                     std::back_inserter(result),
+	                     [&](auto value) { return equalHead(str, value, caseSensitive); });
+	return result;
 }
 
 template<std::ranges::forward_range Range>
@@ -130,20 +114,6 @@ void Completer::completeString(
 	auto& str = tokens.back();
 	if (completeImpl(str,
 	                 filter(str, std::forward<Range>(possibleValues), caseSensitive),
-	                 caseSensitive)) {
-		tokens.emplace_back();
-	}
-}
-
-template<std::forward_iterator Iterator, std::sentinel_for<Iterator> Sentinel>
-void Completer::completeString(
-	std::vector<std::string>& tokens,
-	Iterator begin, Sentinel end,
-	bool caseSensitive)
-{
-	auto& str = tokens.back();
-	if (completeImpl(str,
-	                 filter(str, begin, end, caseSensitive),
 	                 caseSensitive)) {
 		tokens.emplace_back();
 	}
