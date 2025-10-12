@@ -358,9 +358,10 @@ std::string DiskManipulator::help(std::span<const TclObject> tokens) const
 	    "By default already existing entries are not overwritten, unless the -overwrite option is used.";
 	  } else if (tokens[1] == "export") {
 	  helpText =
-	    "diskmanipulator export <disk name> <host directory>\n"
-	    "Extract all files and subdirs from the MSX subdirectory specified with the chdir command\n"
-	    "from <disk name> to the host OS in <host directory>.\n";
+	    "diskmanipulator export <disk name> <host directory> [<file|subdir>...]\n"
+	    "Extract <file> and <subdir> from the MSX subdirectory specified with the chdir command\n"
+	    "from <disk name> to the host OS in <host directory>. If file or subdir is not specified,\n"
+            "all the files and subdirectories in the current directory will be exported.";
 	  } else if (tokens[1] == "savedsk") {
 	  helpText =
 	    "diskmanipulator savedsk <disk name> <dskfilename>\n"
