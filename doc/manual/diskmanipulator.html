@@ -160,16 +160,17 @@
   </div>
 
   <p><code>diskmanipulator export &lt;disk name&gt; &lt;host
-  directory&gt;</code></p>
+  directory&gt; [&lt;file|subdir&gt;...]</code></p>
 
   <div class="subsectiontitle">
     explanation:
   </div>
 
-  <p>This will export the files and subdirectories from the disk
+  <p>This will export the <code>&lt;file&gt;</code> or <code>&lt;subdir&gt;</code> from the disk
   inserted in <code>&lt;disk name&gt;</code> to the <code>&lt;host directory&gt;</code> on
-  your host OS. The subdirectory that will be exported from the MSX
-  disk image is selected by the <code><a class="internal" href="#chdir">chdir</a></code> command.</p>
+  your host OS from the subdirectory selected by the <code><a class="internal" href="#chdir">chdir</a></code>
+  command. If no <code>&lt;file&gt;</code> or <code>&lt;subdir&gt;</code> is specified, the whole
+  contents of the subdirectory are exported.</p>
 
   <h3><a id="format">format</a></h3>
 
