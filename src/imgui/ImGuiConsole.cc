@@ -305,8 +305,8 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 	switch (data->EventFlag) {
 	case ImGuiInputTextFlags_CallbackCompletion: {
 		std::string_view oldLine{data->Buf, narrow<size_t>(data->BufTextLen)};
-		std::string_view front = utf8::unchecked::substr(oldLine, 0, data->CursorPos);
-		std::string_view back  = utf8::unchecked::substr(oldLine, data->CursorPos);
+		std::string_view front{ data->Buf, narrow<size_t>(data->CursorPos) };
+		std::string_view back{ data->Buf + data->CursorPos, data->Buf + data->BufTextLen };
 
 		auto& commandController = manager.getReactor().getGlobalCommandController();
 		std::string newFront = commandController.tabCompletion(front);
