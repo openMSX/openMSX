@@ -96,7 +96,7 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	matches.erase(u.begin(), u.end());
 
 	auto minsize_of_matches = std::ranges::min(
-		matches, [](auto& l, auto& r) { return l.size() < r.size(); }).size();
+		matches, {}, &std::string_view::size).size();
 
 	bool expanded = false;
 	while (str.size() < minsize_of_matches) {
