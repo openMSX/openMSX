@@ -14,6 +14,7 @@
 
 #include "ScopedAssign.hh"
 #include "join.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "xrange.hh"
@@ -405,16 +406,16 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			try {
 				TclObject list = command.executeCommand(interpreter);
 				bool sensitive = true;
+				auto begin = list.begin();
 				auto end = list.end();
-				if (!list.empty()) {
-					if (*--end == "false") {
-						sensitive = false;
-					} else if (*end != "true") {
-						++end;
+				if (begin != end) {
+					if (auto back = end[-1]; back == one_of("true", "false")) {
+						--end;
+						sensitive = back == "true";
 					}
 				}
 				Completer::completeString(
-					tokens, std::ranges::subrange(list.begin(), end), sensitive);
+					tokens, std::ranges::subrange(begin, end), sensitive);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "

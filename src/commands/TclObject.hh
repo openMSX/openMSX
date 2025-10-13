@@ -47,6 +47,10 @@ class TclObject
 			return obj->getListIndexUnchecked(i).getString();
 		}
 
+		[[nodiscard]] zstring_view operator[](int o) const {
+			return obj->getListIndexUnchecked(i + o).getString();
+		}
+
 		iterator& operator++() {
 			++i;
 			return *this;
