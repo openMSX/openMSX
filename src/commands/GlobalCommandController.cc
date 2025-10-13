@@ -403,20 +403,18 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			TclObject command = makeTclList("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
-				TclObject org_list = command.executeCommand(interpreter);
-				std::vector<zstring_view> list;
-				std::ranges::copy(org_list, std::back_inserter(list));
+				TclObject list = command.executeCommand(interpreter);
 				bool sensitive = true;
+				auto end = list.end();
 				if (!list.empty()) {
-					auto back = list.back();
-					if (back == "false") {
-						list.pop_back();
+					if (*--end == "false") {
 						sensitive = false;
-					} else if (back == "true") {
-						list.pop_back();
+					} else if (*end != "true") {
+						++end;
 					}
 				}
-				Completer::completeString(tokens, list, sensitive);
+				Completer::completeString(
+					tokens, std::ranges::subrange(list.begin(), end), sensitive);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "

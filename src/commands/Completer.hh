@@ -101,7 +101,7 @@ std::vector<std::string_view> Completer::filter(
 	std::vector<std::string_view> result;
 	std::ranges::copy_if(std::forward<Range>(range),
 	                     std::back_inserter(result),
-	                     [&](auto value) { return equalHead(str, value, caseSensitive); });
+	                     [&](const auto& value) { return equalHead(str, value, caseSensitive); });
 	return result;
 }
 
