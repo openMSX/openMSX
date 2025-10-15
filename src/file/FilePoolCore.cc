@@ -461,9 +461,8 @@ std::pair<FilePoolCore::Index, FilePoolCore::Entry*> FilePoolCore::findInDatabas
 Sha1Sum FilePoolCore::getSha1Sum(File& file)
 {
 	auto time = file.getModificationDate();
-	const std::string& filename = file.getURL();
 
-	auto [idx, entry] = findInDatabase(filename);
+	auto [idx, entry] = findInDatabase(file.getURL());
 	if ((idx != Index(-1)) && (entry->getTime() == time)) {
 		// in database and modification time matches,
 		// assume sha1sum also matches
@@ -474,7 +473,7 @@ Sha1Sum FilePoolCore::getSha1Sum(File& file)
 	auto sum = calcSha1sum(file);
 	if (idx == Index(-1)) {
 		// was not yet in database, insert new entry
-		insert(sum, time, filename);
+		insert(sum, time, file.getURL()); // note: cannot reuse the above getURL()
 	} else {
 		// was already in database, but with wrong timestamp (and sha1sum)
 		entry->setTime(time);

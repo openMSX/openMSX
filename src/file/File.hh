@@ -145,6 +145,9 @@ public:
 	void flush();
 
 	/** Returns the URL of this file object.
+	 * Note: this returns a reference which may get invalidated by other
+	 * calls. For example: decompressing the internal buffer inside a
+	 * CompressedFileAdapter.
 	 * @throws FileException
 	 */
 	[[nodiscard]] const std::string& getURL() const;
