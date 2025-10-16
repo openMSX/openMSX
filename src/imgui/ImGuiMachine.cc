@@ -194,6 +194,8 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 		if (motherBoard) {
 			ImGui::Separator();
 
+			ImGui::MenuItem("Quick setup editor", nullptr, &showQuickSetupEditor);
+
 			loadSetupOpen = setupFileList.menu("Load setup");
 
 			saveSetupOpen = im::Menu("Save setup", true, [&]{
@@ -254,7 +256,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			});
 
 			im::Menu("Current setup", true, [&]{
-				showSetupOverview(*motherBoard, ViewMode::EDIT);
+				showSetupOverview(*motherBoard, ViewMode::VIEW);
 			});
 		}
 
@@ -611,8 +613,13 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	if (showTestHardware) {
 		paintTestHardware();
 	}
+	if (showQuickSetupEditor) {
+	        ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
+		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
+			showSetupOverview(*motherBoard, ViewMode::EDIT);
+		});
+	}
 }
-
 
 void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 {
