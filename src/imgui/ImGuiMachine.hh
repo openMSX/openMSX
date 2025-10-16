@@ -50,6 +50,7 @@ private:
 public:
 	bool showSelectMachine = false;
 	bool showTestHardware = false;
+	bool showQuickSetupEditor = true;
 
 private:
 	std::vector<MachineInfo> machineInfo; // sorted on displayName
