@@ -254,8 +254,9 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			});
 
 			im::Menu("Current setup", true, [&]{
-				showSetupOverview(*motherBoard, ViewMode::EDIT);
+				showSetupOverview(*motherBoard, ViewMode::VIEW);
 			});
+			ImGui::MenuItem("Quick setup editor", nullptr, &showQuickSetupEditor);
 		}
 
 		setupSettingsOpen = im::Menu("Setup settings", true, [&]{
@@ -609,6 +610,13 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	}
 	if (showTestHardware) {
 		paintTestHardware();
+	}
+	if (showQuickSetupEditor) {
+		ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
+		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
+			showSetupOverview(*motherBoard, ViewMode::EDIT);
+		});
+		ImGui::PopItemFlag();
 	}
 }
 
