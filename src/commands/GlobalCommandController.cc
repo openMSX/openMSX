@@ -25,6 +25,7 @@
 #include <cassert>
 #include <memory>
 #include <ranges>
+#include <regex>
 
 namespace openmsx {
 
@@ -405,21 +406,46 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			command.addListElements(tokens);
 			try {
 				TclObject list = command.executeCommand(interpreter);
-				bool sensitive = true;
+				Completer::SubParams sp;
 				auto begin = list.begin();
 				auto end = list.end();
-				if (begin != end) {
-					if (auto back = end[-1]; back == one_of("true", "false")) {
-						--end;
-						sensitive = back == "true";
+				for (/**/; begin != end; ++begin) {
+					if (*begin == one_of("---case", "---nocase")) {
+						sp.caseSensitive = *begin == "---case";
+					}
+					else if (*begin == one_of("---sort", "---nosort")) {
+						sp.doSort = *begin == "---sort";
+					}
+					else if (*begin == "---goable") {
+						if (++begin == end) {
+							sp.goableRegex = "";
+							break;
+						}
+						sp.goableRegex = *begin;
+					}
+					else if (*begin == "---commonprefix") {
+						if (++begin == end) {
+							sp.commonPrefix = "";
+							break;
+						}
+						sp.commonPrefix = *begin;
+					}
+					else {
+						if (*begin == "---") { ++begin; }
+						// The rest are original completion candidates.
+						break;
 					}
 				}
 				Completer::completeString(
-					tokens, std::ranges::subrange(begin, end), sensitive);
+					tokens, std::ranges::subrange(begin, end), sp);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
 					"proc: ", e.getMessage());
+			} catch (std::regex_error& e) {
+				cliComm.printWarning(
+					"Regular expression error detected: ",
+					e.what());
 			}
 		}
 	}

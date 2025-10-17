@@ -41,10 +41,22 @@ public:
 
 	[[nodiscard]] virtual Interpreter& getInterpreter() const = 0;
 
+	struct SubParams {
+		bool caseSensitive;
+		bool doSort;
+		std::string commonPrefix;
+		std::string goableRegex;
+
+		SubParams(bool caseSensitive_ = true) :
+			caseSensitive(caseSensitive_), doSort(true)
+		{
+		}
+	};
+
 	template<std::ranges::forward_range Range>
 	static void completeString(std::vector<std::string>& tokens,
 	                           Range&& possibleValues,
-	                           bool caseSensitive = true);
+	                           const SubParams& subParameters = SubParams());
 	template<std::ranges::forward_range Range>
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context,
@@ -83,25 +95,32 @@ private:
 	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
 	template<std::ranges::forward_range Range>
 	static std::vector<std::string_view> filter(
-		std::string_view str, Range&& range, bool caseSensitive);
-	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
-	                         bool caseSensitive);
+	    std::string_view str, Range&& range, const SubParams& subParameters);
+	static bool completeImpl(std::string& str,
+	                         std::vector<std::string_view> matches,
+	                         const SubParams& subParameters);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
 	                                 const FileContext& context,
 	                                 std::vector<std::string_view> matches);
-
+	static bool isGoable(const std::string& str, const SubParams& subParameters);
 	const std::string theName;
 	static inline InterpreterOutput* output = nullptr;
 };
 
 template<std::ranges::forward_range Range>
 std::vector<std::string_view> Completer::filter(
-	std::string_view str, Range&& range, bool caseSensitive)
+	std::string_view str, Range&& range, const Completer::SubParams& subParameters)
 {
+	bool sensitive = subParameters.caseSensitive;
+	const auto& prefix = subParameters.commonPrefix;
 	std::vector<std::string_view> result;
+	if (!equalHead(prefix, str, sensitive)) {
+		return result;
+	}
+	str = str.substr(prefix.size());
 	std::ranges::copy_if(std::forward<Range>(range),
 	                     std::back_inserter(result),
-	                     [&](const auto& value) { return equalHead(str, value, caseSensitive); });
+	                     [&](const auto& value) { return equalHead(str, value, sensitive); });
 	return result;
 }
 
@@ -109,13 +128,18 @@ template<std::ranges::forward_range Range>
 void Completer::completeString(
 	std::vector<std::string>& tokens,
 	Range&& possibleValues,
-	bool caseSensitive)
+	const Completer::SubParams& subParameters)
 {
 	auto& str = tokens.back();
 	if (completeImpl(str,
-	                 filter(str, std::forward<Range>(possibleValues), caseSensitive),
-	                 caseSensitive)) {
-		tokens.emplace_back();
+	                 filter(str,
+	                        std::forward<Range>(possibleValues),
+	                        subParameters),
+	                 subParameters))
+	{
+		if (isGoable(tokens.back(), subParameters)) {
+			tokens.emplace_back();
+		}
 	}
 }
 

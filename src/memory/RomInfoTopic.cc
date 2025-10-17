@@ -41,7 +41,8 @@ std::string RomInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 void RomInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, RomInfo::getAllRomTypes(), false);
+		completeString(tokens, RomInfo::getAllRomTypes(),
+		               Completer::SubParams(false));
 	}
 }
 

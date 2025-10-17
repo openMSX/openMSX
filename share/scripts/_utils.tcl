@@ -109,16 +109,48 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
-# provides.... file completion. Currently has a small issue: it adds a space at
-# after a /, which you need to erase to continue completing
+# Provides file completion.
 proc file_completion {args} {
-	set result [list]
-	foreach i [glob -nocomplain -path [lindex $args end] *] {
-		if {[file isdirectory $i]} {
-			append i /
+	set dirs [list]
+	set files [list]
+	set last_arg [lindex $args end]
+	set ends_with_separator [expr {[string index $last_arg end] eq "/"}]
+	set is_exists [file exists $last_arg]
+	set is_dir [file isdirectory $last_arg]
+	if {$ends_with_separator} {
+		set common_prefix $last_arg
+		if {![file isdirectory $last_arg]} {
+			puts "The path seems not be a directory."
+			set common_prefix [file dirname $last_arg]
 		}
-		lappend result $i
+	} else {
+		# If $last_arg is empty, next $common_prefix will be "."
+		set common_prefix [file dirname $last_arg]
 	}
+	if {[string index $common_prefix end] ne "/" && $common_prefix ne "."} {
+		set common_prefix $common_prefix/
+	}
+	set cut_from [string length $common_prefix]
+	if {$last_arg eq ""} {
+		set common_prefix ""
+		set last_arg ./
+		set cut_from 0
+	}
+	foreach i [glob -nocomplain -path $last_arg *] {
+		set fixed_i [string range $i $cut_from end]
+		if {[file isdirectory $i]} {
+			lappend dirs $fixed_i/
+		} else {
+			lappend files $fixed_i
+		}
+	}
+	set result [list ---goable .*\[^/\]$ ---nosort ---nocase]
+	if {$common_prefix ne ""} {
+		lappend result ---commonprefix $common_prefix
+	}
+	set dirs [lsort -dictionary $dirs]
+	set files [lsort -dictionary $files]
+	lappend result {*}$dirs {*}$files
 	return $result
 }
 

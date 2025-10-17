@@ -153,11 +153,11 @@ proc tabcompletion {args} {
 	lazy_handler $command
 	set result ""
 	if {[info exists tabcompletion_proc_sensitive($command)]} {
-		set result [namespace eval :: $tabcompletion_proc_sensitive($command) $args]
-		lappend result true
+		set result ---case
+		lappend result {*}[namespace eval :: $tabcompletion_proc_sensitive($command) $args]
 	} elseif {[info exists tabcompletion_proc_insensitive($command)]} {
-		set result [namespace eval :: $tabcompletion_proc_insensitive($command) $args]
-		lappend result false
+		set result ---nocase
+		lappend result {*}[namespace eval :: $tabcompletion_proc_insensitive($command) $args]
 	}
 	return $result
 }

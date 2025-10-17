@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <array>
 #include <memory>
+#include <regex>
 
 namespace openmsx {
 
@@ -69,11 +70,17 @@ bool Completer::equalHead(std::string_view s1, std::string_view s2, bool caseSen
 	}
 }
 
-bool Completer::completeImpl(std::string& str, std::vector<std::string_view> matches,
-                             bool caseSensitive)
+bool Completer::completeImpl(std::string& strRef, std::vector<std::string_view> matches,
+                             const Completer::SubParams& subParameters)
 {
+	const auto& prefix = subParameters.commonPrefix;
+	std::string_view str = "";
+	if (prefix.size() < strRef.size()) {
+		str = std::string_view(strRef.begin() + prefix.size(), strRef.end());
+	}
+
 	assert(std::ranges::all_of(matches, [&](auto& m) {
-		return equalHead(str, m, caseSensitive);
+		return equalHead(str, m, subParameters.caseSensitive);
 	}));
 
 	if (matches.empty()) {
@@ -82,7 +89,7 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	}
 	if (matches.size() == 1) {
 		// only one match
-		str = matches.front();
+		strRef = prefix + std::string(matches.front());
 		return true;
 	}
 
@@ -91,7 +98,9 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	std::ranges::sort(matches);
+	if (subParameters.doSort) {
+		std::ranges::sort(matches);
+	}
 	auto u = std::ranges::unique(matches);
 	matches.erase(u.begin(), u.end());
 
@@ -104,14 +113,15 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 		auto b = begin(*it);
 		auto e = b + str.size();
 		utf8::unchecked::next(e);
-		std::string_view test_str(b, e);
+		std::string_view testStr(b, e);
 		if (!std::ranges::all_of(matches,
 			[&](auto& val) {
-				return equalHead(test_str, val, caseSensitive);
+				return equalHead(testStr, val, subParameters.caseSensitive);
 			})) { break; }
-		str = test_str;
+		str = testStr;
 		expanded = true;
 	}
+	strRef = prefix + std::string(str);
 	if (!expanded && output) {
 		// print all possibilities
 		for (const auto& line : formatListInColumns(matches)) {
@@ -165,11 +175,25 @@ void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
 			fileAction, dirAction);
 	}
 	append(matches, filenames);
-	bool t = completeImpl(filename, matches, true);
+	bool t = completeImpl(filename, matches, SubParams());
 	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token
 		tokens.emplace_back();
 	}
+}
+
+/*
+ * Currently, std::regex_error is caught at
+ * GlobalCommandController::tabCompletion().
+ *
+ * If you want to use SubParams elsewhere,
+ * you need to catch the error there, too.
+ */
+bool Completer::isGoable(const std::string& str, const Completer::SubParams& subParameters)
+{
+	if (!subParameters.goableRegex.size()) { return true; }
+	std::regex regexInst(subParameters.goableRegex);
+	return std::regex_match(str, regexInst);
 }
 
 void Completer::checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, const char* errMessage) const

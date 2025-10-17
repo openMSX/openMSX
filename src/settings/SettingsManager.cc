@@ -192,7 +192,8 @@ void SettingsManager::SetCompleter::tabCompletion(std::vector<std::string>& toke
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		completeString(tokens, manager.getTabSettingNames(), false); // case insensitive
+		completeString(tokens, manager.getTabSettingNames(),
+		               Completer::SubParams(false));
 		break;
 	}
 	case 3:
