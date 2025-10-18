@@ -87,7 +87,7 @@ bool Completer::completeImpl(std::string& strRef, std::vector<std::string_view> 
 		// no matching values
 		return false;
 	}
-	if (matches.size() == 1) {
+	if (matches.size() == 1 && subParameters.appendable) {
 		// only one match
 		strRef = prefix + std::string(matches.front());
 		return true;
@@ -108,21 +108,25 @@ bool Completer::completeImpl(std::string& strRef, std::vector<std::string_view> 
 		matches, {}, &std::string_view::size).size();
 
 	bool expanded = false;
-	while (str.size() < minsize_of_matches) {
-		auto it = begin(matches);
-		auto b = begin(*it);
-		auto e = b + str.size();
-		utf8::unchecked::next(e);
-		std::string_view testStr(b, e);
-		if (!std::ranges::all_of(matches,
-			[&](auto& val) {
-				return equalHead(testStr, val, subParameters.caseSensitive);
-			})) { break; }
-		str = testStr;
-		expanded = true;
+	if (subParameters.appendable) {
+		while (str.size() < minsize_of_matches) {
+			auto it = begin(matches);
+			auto b = begin(*it);
+			auto e = b + str.size();
+			utf8::unchecked::next(e);
+			std::string_view testStr(b, e);
+			if (!std::ranges::all_of(matches,
+				[&](auto& val) {
+					return equalHead(testStr, val, subParameters.caseSensitive);
+				})) {
+				break;
+			}
+			str = testStr;
+			expanded = true;
+		}
 	}
 	strRef = prefix + std::string(str);
-	if (!expanded && output) {
+	if ((!expanded || subParameters.appendable) && output) {
 		// print all possibilities
 		for (const auto& line : formatListInColumns(matches)) {
 			output->output(line);

@@ -42,13 +42,14 @@ public:
 	[[nodiscard]] virtual Interpreter& getInterpreter() const = 0;
 
 	struct SubParams {
-		bool caseSensitive;
-		bool doSort;
 		std::string commonPrefix;
 		std::string goableRegex;
+		bool caseSensitive;
+		bool doSort;
+		bool appendable;
 
 		SubParams(bool caseSensitive_ = true) :
-			caseSensitive(caseSensitive_), doSort(true)
+			caseSensitive(caseSensitive_), doSort(true), appendable(true)
 		{
 		}
 	};

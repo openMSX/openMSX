@@ -407,14 +407,28 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			try {
 				TclObject list = command.executeCommand(interpreter);
 				Completer::SubParams sp;
+				bool done = false;
 				auto begin = list.begin();
 				auto end = list.end();
 				for (/**/; begin != end; ++begin) {
-					if (*begin == one_of("---case", "---nocase")) {
+					if (*begin == "---donewith") {
+						done = true;
+						tokens.back() = ++begin != end ? *begin : "";
+						tokens.emplace_back();
+						break;
+					}
+					else if (*begin == "---rewritewith") {
+						tokens.back() = ++begin != end ? *begin : "";
+						if (begin == end) { break; }
+					}
+					else if (*begin == one_of("---case", "---nocase")) {
 						sp.caseSensitive = *begin == "---case";
 					}
 					else if (*begin == one_of("---sort", "---nosort")) {
 						sp.doSort = *begin == "---sort";
+					}
+					else if (*begin == one_of("---appendable", "---noappendable")) {
+						sp.appendable = *begin == "---appendable";
 					}
 					else if (*begin == "---goable") {
 						if (++begin == end) {
@@ -436,8 +450,10 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 						break;
 					}
 				}
-				Completer::completeString(
-					tokens, std::ranges::subrange(begin, end), sp);
+				if (!done) {
+					Completer::completeString(
+						tokens, std::ranges::subrange(begin, end), sp);
+				}
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "

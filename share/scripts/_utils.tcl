@@ -111,16 +111,53 @@ proc clip {min max val} {
 
 # Provides file completion.
 proc file_completion {args} {
+	lassign [file_complete_common {*}$args] sub_params dirs files
+	return [list {*}$sub_params --- {*}$dirs {*}$files]
+}
+
+# Provides file completion, but last component should be typed by number.
+proc file_completion_by_number {args} {
+	set last_arg [lindex $args end]
+	set ends_with_separator [expr {[string index $last_arg end] eq "/"}]
+	if {!$ends_with_separator && [regexp ^\\d+$ [file tail $last_arg] num]} {
+		set dname [file dirname $last_arg]
+		if {[string index $dname end] ne "/"} { set dname $dname/ }
+		set modified_args [lreplace $args end end $dname]
+		lassign [file_complete_common {*}$modified_args] sub_params dirs files
+		set entries [list {*}$dirs {*}$files]
+		set subcom ""
+		if {$num < [llength $dirs]} {
+			set subcom "---rewritewith"
+		} elseif {$num < [llength $entries]} {
+			set subcom "---donewith"
+		}
+		if {$subcom ne ""} {
+			return [list {*}$sub_params $subcom "$dname[lindex $entries $num]"]
+		}
+	}
+	if {[string length $last_arg]} {
+		puts "Give last component by number after: $last_arg"
+	}
+	lassign [file_complete_common {*}$args] sub_params dirs files 
+	set entries ""
+	set cnt 0
+	foreach i [list {*}$dirs {*}$files] {
+		lappend entries ${cnt}:$i
+		incr cnt
+	}
+	return [list {*}$sub_params ---noappendable --- {*}$entries]
+}
+
+proc file_complete_common {args} {
 	set dirs [list]
 	set files [list]
 	set last_arg [lindex $args end]
 	set ends_with_separator [expr {[string index $last_arg end] eq "/"}]
 	set is_exists [file exists $last_arg]
-	set is_dir [file isdirectory $last_arg]
 	if {$ends_with_separator} {
 		set common_prefix $last_arg
 		if {![file isdirectory $last_arg]} {
-			puts "The path seems not be a directory."
+			puts "The path seems not be a directory: $last_arg"
 			set common_prefix [file dirname $last_arg]
 		}
 	} else {
@@ -144,14 +181,13 @@ proc file_completion {args} {
 			lappend files $fixed_i
 		}
 	}
-	set result [list ---goable .*\[^/\]$ ---nosort ---nocase]
+	set sub_params [list ---goable .*\[^/\]$ ---nosort ---nocase]
 	if {$common_prefix ne ""} {
-		lappend result ---commonprefix $common_prefix
+		lappend sub_params ---commonprefix $common_prefix
 	}
 	set dirs [lsort -dictionary $dirs]
 	set files [lsort -dictionary $files]
-	lappend result {*}$dirs {*}$files
-	return $result
+	return [list $sub_params $dirs $files]
 }
 
 # Replaces characters that are invalid in file names on the host OS or
@@ -197,6 +233,7 @@ namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip
 namespace export file_completion
+namespace export file_completion_by_number
 namespace export filename_clean
 namespace export get_next_numbered_filename
 
