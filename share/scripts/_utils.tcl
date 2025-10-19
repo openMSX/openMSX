@@ -136,7 +136,8 @@ proc file_completion_by_number {args} {
 		}
 	}
 	if {[string length $last_arg]} {
-		puts "Give last component by number after: $last_arg"
+		set last_component [file tail $last_arg]
+		puts "Give last component by number instead of '$last_component'"
 	}
 	lassign [file_complete_common {*}$args] sub_params dirs files 
 	set entries ""
