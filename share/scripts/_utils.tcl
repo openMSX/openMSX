@@ -109,17 +109,132 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
-# provides.... file completion. Currently has a small issue: it adds a space at
-# after a /, which you need to erase to continue completing
+# Provides file completion.
 proc file_completion {args} {
-	set result [list]
-	foreach i [glob -nocomplain -path [lindex $args end] *] {
-		if {[file isdirectory $i]} {
-			append i /
+	set my_arg [lindex $args end]
+	lassign [gather_directory_contents $my_arg] \
+		dirstr tail dir_candidates file_candidates
+	set entries [list {*}$dir_candidates {*}$file_candidates]
+	set result $entries
+	if {[string length $tail]} {
+		set result ""
+		foreach e $entries {
+			if {![string first $tail $e]} { lappend result $e }
 		}
-		lappend result $i
 	}
+	if {![llength $result]} {
+		puts "No file matches: $my_arg"
+		return [list ---rewrite $my_arg]
+	} elseif {1 == [llength $result]} {
+		return [make_rewrite_or_done $dirstr$result]
+	}
+	set result_text ""
+	foreach e $result { append result_text "$e  " }
+	puts $result_text
+	set pos [string length $tail]
+	while {true} {
+		set c [string index [lindex $result 0] $pos]
+		if {$c eq ""} { break }
+		foreach e $result {
+			if {[string index $e $pos] ne $c} {
+				set pos -1
+				break
+			}
+		}
+		if {$pos == -1} { break }
+		append my_arg $c
+		incr pos
+	}
+	return [list ---rewrite $my_arg]
+}
+
+# Another file completion.
+proc file_completion_by_number {args} {
+	set my_arg [lindex $args end]
+	lassign [gather_directory_contents $my_arg] \
+		dirstr tail dir_candidates file_candidates
+	set result [list {*}$dir_candidates {*}$file_candidates]
+	if {![llength $result]} {
+		puts "No file matches: $my_arg"
+		return [list ---rewrite $my_arg]
+	} elseif {1 == [llength $result]} {
+		set tail 0
+	}
+	if {![string is integer $tail]} {
+		puts "Give the number for last component of the path."
+		puts [make_numbered_list_str $result]
+		return [list ---rewrite $dirstr]
+	} elseif {$tail < 0 || [llength $result] <= $tail} {
+		puts "Give the number from 0 to [expr {[llength $result]-1}]"
+		puts [make_numbered_list_str $result]
+		return [list ---rewrite $dirstr]
+	}
+	set p "$dirstr[lindex $result $tail]"
+	set r [make_rewrite_or_done $p]
+	if {![string first $r "---rewrite"]} {
+		lassign [gather_directory_contents $p] \
+			dmy1 dmy1 new_dir_candidates new_file_candidates
+		set new_result [list {*}$new_dir_candidates {*}$new_file_candidates]
+		puts [make_numbered_list_str $new_result]
+	}
+	return $r
+}
+
+proc make_numbered_list_str {entries} {
+	set cnt 0
+	set result ""
+	foreach e $entries { set result "$result$cnt:$e  "; incr cnt }
 	return $result
+}
+
+proc make_rewrite_or_done {path} {
+	set is_dir [file isdirectory $path]
+	return [list [expr {$is_dir ? "---rewrite": "---done"}] $path]
+}
+
+proc gather_directory_contents {path} {
+	lassign [split_dir_and_tail $path] dirstr tail
+	set dir_candidates ""
+	set file_candidates ""
+	foreach i [glob -nocomplain -path $dirstr *] {
+		set tail_i [string range $i [string length $dirstr] end]
+		if {[file isdirectory $i]} {
+			lappend dir_candidates $tail_i/
+		} else {
+			lappend file_candidates $tail_i
+		}
+	}
+	set dir_candidates [lsort -dictionary $dir_candidates]
+	set file_candidates [lsort -dictionary $file_candidates]
+	return [list $dirstr $tail $dir_candidates $file_candidates]
+}
+
+#
+# Return [list <dirname> <tail>] from given path.
+# <dirname> never be empty string and always ends with "/".
+# When given path ends with "/" and the path is directory,
+# <tail> is always empty string. If not, the tail won't be
+# empty string and not ends with "/".
+#
+proc split_dir_and_tail {path} {
+	if {$path eq "" || $path eq "." } { set $path ./ }
+	if {$path eq ".."} { set $path ../ }
+	set dirstr ""
+	set splitted [file split $path]
+	foreach e [lrange $splitted 0 end-1] {
+		append dirstr $e
+		if {[string index $e end] ne "/"} { append dirstr / }
+	}
+	set tail [lindex $splitted end]        ; # only few case ends with "/".
+	if {[string index $path end] eq "/"} { ; # so check with $path, not $tail.
+		if {[file isdirectory $path]} {
+			set dirstr $path
+			set tail ""
+		} else {
+			set tail [string range $tail 0 end-1]
+		}
+	}
+	return [list $dirstr $tail]
 }
 
 # Replaces characters that are invalid in file names on the host OS or
@@ -165,6 +280,7 @@ namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip
 namespace export file_completion
+namespace export file_completion_by_number
 namespace export filename_clean
 namespace export get_next_numbered_filename
 
