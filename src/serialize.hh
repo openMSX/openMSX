@@ -984,7 +984,7 @@ public:
 		std::istringstream is(str);
 		is >> t;
 	}
-	template<typename T> void attribute(const char* name, T& t)
+	template<typename T> void attribute(const char* name, T& t) const
 	{
 		attributeImpl(name, t);
 	}
