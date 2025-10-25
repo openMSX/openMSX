@@ -489,11 +489,13 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 								ImGui::TextUnformatted(mnemonic);
 							});
 							if (mnemonicAddr) {
+								ImGui::SetCursorPos(pos);
+								bool click = ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize});
+								if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+									nextGotoTarget = *mnemonicAddr;
+								}
 								if (!mnemonicLabels.empty()) {
-									ImGui::SetCursorPos(pos);
-									if (ImGui::InvisibleButton("##mnemonicButton", {-FLT_MIN, textSize})) {
-										++cycleLabelsCounter;
-									}
+									if (click) ++cycleLabelsCounter;
 									simpleToolTip([&]{
 										auto tip = strCat('#', hex_string<4>(*mnemonicAddr));
 										if (mnemonicLabels.size() > 1) {
@@ -502,9 +504,6 @@ void ImGuiDisassembly::paint(MSXMotherBoard* motherBoard)
 										}
 										return tip;
 									});
-								}
-								if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-									nextGotoTarget = *mnemonicAddr;
 								}
 							}
 						}
