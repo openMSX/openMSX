@@ -282,7 +282,7 @@ void DiskCommand::tabCompletion(std::vector<std::string>& tokens) const
 		static constexpr std::array extra = {
 			"eject"sv, "ramdsk"sv, "insert"sv,
 		};
-		completeFileName(tokens, userFileContext(), extra);
+		completeFileName(commandController, tokens, userFileContext(), extra);
 	}
 }
 

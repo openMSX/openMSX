@@ -355,7 +355,7 @@ void AviRecorder::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 			"-doublesize"sv, "-triplesize"sv,
 			"-mono"sv, "-stereo"sv,
 		};
-		completeFileName(tokens, userFileContext(), options);
+		completeFileName(commandController, tokens, userFileContext(), options);
 	}
 }
 

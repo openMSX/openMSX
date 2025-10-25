@@ -455,7 +455,7 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 		completeString(tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		completeFileName(tokens, userFileContext());
+		completeFileName(commandController, tokens, userFileContext());
 
 	} else if (tokens.size() == 3) {
 		std::vector<std::string> names;
@@ -493,7 +493,7 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 	} else if (tokens.size() >= 4) {
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
 			static constexpr std::array extra = {"-overwrite"sv};
-			completeFileName(tokens, userFileContext(),
+			completeFileName(commandController, tokens, userFileContext(),
 				(tokens[1] == "import") ? extra : std::span<const std::string_view>{});
 		} else if (tokens[1] == one_of("create", "partition", "format")) {
 			static constexpr std::array cmds = {

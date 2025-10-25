@@ -1,4 +1,7 @@
+#include "CliComm.hh"
 #include "Completer.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
 
 #include "Interpreter.hh"
 #include "InterpreterOutput.hh"
@@ -121,54 +124,76 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	return false;
 }
 
-void Completer::completeFileName(std::vector<std::string>& tokens,
+void Completer::completeFileName(CommandController& controller,
+                                 std::vector<std::string>& tokens,
                                  const FileContext& context)
 {
-	completeFileNameImpl(tokens, context, std::vector<std::string_view>());
+	completeFileNameImpl(controller, tokens, context, std::vector<std::string_view>());
 }
 
-void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
+/**
+ *
+ * throws: CommandException when failed to calling Tcl code.
+ */
+void Completer::doTabCompletion(TclObject& command,
+                                Interpreter& interpreter,
+                                std::vector<std::string>& tokens)
+{
+	command.addListElements(tokens);
+	TclObject list = command.executeCommand(interpreter);
+	bool sensitive = true;
+	bool doneOrRewrite = false;
+	auto begin = list.begin();
+	auto end = list.end();
+	for (/**/; begin != end; ++begin) {
+		if (*begin == one_of("---case", "---nocase")) {
+			sensitive = *begin == "---case";
+		}
+		else if (*begin == one_of("---done", "---rewrite")) {
+			bool done = *begin == "---done";
+			if (++begin != end) {
+				tokens.back() = std::string(*begin);
+			}
+			if (done) { tokens.emplace_back(); }
+			doneOrRewrite = true;
+			break;
+		}
+		else {
+			if (*begin == "---") { ++begin; }
+			break;
+		}
+	}
+	if (!doneOrRewrite) {
+		Completer::completeString(
+			tokens, std::ranges::subrange(begin, end), sensitive);
+	}
+}
+
+void Completer::completeFileNameImpl(CommandController& controller,
+                                     std::vector<std::string>& tokens,
                                      const FileContext& context,
                                      std::vector<std::string_view> matches)
 {
 	std::string& filename = tokens.back();
 	filename = FileOperations::expandTilde(std::move(filename));
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
-	std::string_view dirname1 = FileOperations::getDirName(filename);
 
-	std::span<const std::string> paths;
-	if (FileOperations::isAbsolutePath(filename)) {
-		static const std::array<std::string, 1> EMPTY = {""};
-		paths = EMPTY;
-	} else {
-		paths = context.getPaths();
+	TclObject command = makeTclList("utils::filetabcompletion");
+	command.addListElement(output->getOutputColumns());
+	TclObject targetPaths = makeTclList();
+	for (const auto& p : context.getPaths()) { targetPaths.addListElement(p); }
+	TclObject extras = makeTclList();
+	extras.addListElements(matches);
+	command.addListElement(targetPaths);
+	command.addListElement(extras);
+	try {
+		doTabCompletion(command, controller.getInterpreter(), tokens);
 	}
-
-	std::vector<std::string> filenames;
-	for (const auto& p : paths) {
-		auto pLen = p.size();
-		if (!p.empty() && (p.back() != '/')) ++pLen;
-		auto fileAction = [&](std::string_view path) {
-			const auto& nm = FileOperations::getConventionalPath(
-				std::string(path.substr(pLen)));
-			if (equalHead(filename, nm, true)) {
-				filenames.push_back(nm);
-			}
-		};
-		auto dirAction = [&](std::string& path) {
-			path += '/';
-			fileAction(path);
-			path.pop_back();
-		};
-		foreach_file_and_directory(
-			FileOperations::join(p, dirname1),
-			fileAction, dirAction);
-	}
-	append(matches, filenames);
-	bool t = completeImpl(filename, matches, true);
-	if (t && !filename.empty() && (filename.back() != '/')) {
-		// completed filename, start new token
-		tokens.emplace_back();
+	catch (CommandException& e) {
+		CliComm& cliComm = controller.getCliComm();
+		cliComm.printWarning(
+			"Error while executing tab-completion "
+			"proc for file: ", e.getMessage());
 	}
 }
 

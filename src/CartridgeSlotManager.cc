@@ -459,7 +459,7 @@ void CartridgeSlotManager::CartCmd::tabCompletion(std::vector<std::string>& toke
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
-	completeFileName(tokens, userFileContext(),
+	completeFileName(commandController, tokens, userFileContext(),
 	                 (tokens.size() < 3) ? extra : std::span<const std::string_view>{});
 
 }

@@ -1099,7 +1099,7 @@ std::string RestoreMachineCommand::help(std::span<const TclObject> /*tokens*/) c
 
 void RestoreMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeFileName(tokens, userFileContext());
+	completeFileName(commandController, tokens, userFileContext());
 }
 
 

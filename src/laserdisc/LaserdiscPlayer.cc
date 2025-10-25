@@ -95,7 +95,7 @@ void LaserdiscPlayer::Command::tabCompletion(std::vector<std::string>& tokens) c
 		static constexpr std::array extra = {"eject"sv, "insert"sv};
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
-		completeFileName(tokens, userFileContext());
+		completeFileName(commandController, tokens, userFileContext());
 	}
 }
 

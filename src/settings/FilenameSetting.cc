@@ -22,7 +22,7 @@ std::string_view FilenameSetting::getTypeString() const
 
 void FilenameSetting::tabCompletion(std::vector<std::string>& tokens) const
 {
-	Completer::completeFileName(tokens, systemFileContext());
+	Completer::completeFileName(commandController, tokens, systemFileContext());
 }
 
 } // namespace openmsx

@@ -402,35 +402,8 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 			(*v)->tabCompletion(tokens);
 		} else {
 			TclObject command = makeTclList("openmsx::tabcompletion");
-			command.addListElements(tokens);
 			try {
-				TclObject list = command.executeCommand(interpreter);
-				bool sensitive = true;
-				bool doneOrRewrite = false;
-				auto begin = list.begin();
-				auto end = list.end();
-				for (/**/; begin != end; ++begin) {
-					if (*begin == one_of("---case", "---nocase")) {
-						sensitive = *begin == "---case";
-					}
-					else if (*begin == one_of("---done", "---rewrite")) {
-						bool done = *begin == "---done";
-						if (++begin != end) {
-							tokens.back() = std::string(*begin);
-						}
-						if (done) { tokens.emplace_back(); }
-						doneOrRewrite = true;
-						break;
-					}
-					else {
-						if (*begin == "---") { ++begin; }
-						break;
-					}
-				}
-				if (!doneOrRewrite) {
-					Completer::completeString(
-						tokens, std::ranges::subrange(begin, end), sensitive);
-				}
+				Completer::doTabCompletion(command, getInterpreter(), tokens);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
