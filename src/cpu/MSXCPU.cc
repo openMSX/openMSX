@@ -151,7 +151,14 @@ void MSXCPU::setNextSyncPoint(EmuTime time)
 
 void MSXCPU::invalidateMemCacheSlot()
 {
-	std::ranges::fill(slots, 0);
+	if (interface) {
+		for (auto i : xrange(4)) {
+			slots[i] = 4 * interface->getPrimarySlot(i)
+			             + interface->getSecondarySlot(i);
+		}
+	} else {
+		std::ranges::fill(slots, 0);
+	}
 
 	// nullptr: means not a valid entry and not yet attempted to fill this entry
 	for (auto i : xrange(16)) {
