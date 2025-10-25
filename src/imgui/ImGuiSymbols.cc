@@ -169,7 +169,7 @@ static void checkSort(const SymbolManager& manager, std::vector<SymbolRef>& symb
 
 void ImGuiSymbols::drawContext(MSXMotherBoard* motherBoard, const SymbolRef& sym)
 {
-	if (ImGui::MenuItem("Show in Disassembly", nullptr, nullptr, motherBoard != nullptr)) {
+	if (ImGui::MenuItem("Show in Disassembly", "double-click", nullptr, motherBoard != nullptr)) {
 		manager.debugger->setGotoTarget(sym.value(symbolManager));
 	}
 	if (ImGui::MenuItem("Set breakpoint", nullptr, nullptr, motherBoard != nullptr)) {
@@ -222,12 +222,20 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 			if (FILTER_FILE && (sym.file(symbolManager) != file)) continue;
 
 			if (ImGui::TableNextColumn()) { // name
-				im::ScopedFont sf(manager.fontMono);
 				const auto& symName = sym.name(symbolManager);
-				ImGui::Selectable(symName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap);
 				auto symNameMenu = strCat("symbol-manager##", symName);
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-					ImGui::OpenPopup(symNameMenu.c_str());
+				{
+					im::ScopedFont sf(manager.fontMono);
+					if (ImGui::Selectable(symName.c_str(), false,
+							ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap |
+							ImGuiSelectableFlags_AllowDoubleClick)) {
+						if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+							manager.debugger->setGotoTarget(sym.value(symbolManager));
+						}
+					}
+					if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+						ImGui::OpenPopup(symNameMenu.c_str());
+					}
 				}
 				im::Popup(symNameMenu.c_str(), [&]{ drawContext(motherBoard, sym); });
 			}
