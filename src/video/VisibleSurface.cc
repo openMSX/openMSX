@@ -1,6 +1,7 @@
 #include "VisibleSurface.hh"
 
 #include "Display.hh"
+#include "GlobalSettings.hh"
 #include "GLContext.hh"
 #include "GLSnow.hh"
 #include "GLUtil.hh"
@@ -45,19 +46,22 @@ VisibleSurface::VisibleSurface(
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm_,
-		VideoSystem& videoSystem_)
+		VideoSystem& videoSystem_,
+		BooleanSetting& pauseSetting_)
 	: RTSchedulable(rtScheduler_)
 	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
 	, cliComm(cliComm_)
 	, videoSystem(videoSystem_)
+	, pauseSetting(pauseSetting_)
 {
 	auto& renderSettings = display.getRenderSettings();
 
 	inputEventGenerator.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelaySetting().attach(*this);
 	renderSettings.getFullScreenSetting().attach(*this);
+	pauseSetting.attach(*this);
 
 	for (auto type : {EventType::MOUSE_MOTION,
 	                  EventType::MOUSE_BUTTON_DOWN,
@@ -181,6 +185,7 @@ VisibleSurface::~VisibleSurface()
 	inputEventGenerator.getGrabInput().detach(*this);
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
+	pauseSetting.detach(*this);
 }
 
 std::optional<gl::ivec2> VisibleSurface::getWindowPosition() const
@@ -283,7 +288,7 @@ void VisibleSurface::updateCursor()
 {
 	cancelRT();
 	const auto& renderSettings = display.getRenderSettings();
-	grab = !guiActive &&
+	grab = !guiActive && !pauseSetting.getBoolean() &&
 	       (renderSettings.getFullScreen() ||
 	        inputEventGenerator.getGrabInput().getBoolean());
 	if (grab) {

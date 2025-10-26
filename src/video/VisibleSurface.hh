@@ -23,6 +23,7 @@ class OSDGUI;
 class Reactor;
 class Setting;
 class VideoSystem;
+class BooleanSetting;
 
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
@@ -36,7 +37,8 @@ public:
 	               EventDistributor& eventDistributor,
 	               InputEventGenerator& inputEventGenerator,
 	               CliComm& cliComm,
-	               VideoSystem& videoSystem);
+	               VideoSystem& videoSystem,
+		       BooleanSetting& pauseSetting);
 	~VisibleSurface() override;
 
 	[[nodiscard]] CliComm& getCliComm() const { return cliComm; }
@@ -96,6 +98,7 @@ private:
 	InputEventGenerator& inputEventGenerator;
 	CliComm& cliComm;
 	VideoSystem& videoSystem;
+	BooleanSetting& pauseSetting;
 
 	struct VSyncObserver : openmsx::Observer<Setting> {
 		void update(const Setting& setting) noexcept override;

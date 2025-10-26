@@ -1,6 +1,7 @@
 #include "SDLVideoSystem.hh"
 
 #include "Display.hh"
+#include "GlobalSettings.hh"
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "SDLRasterizer.hh"
@@ -36,7 +37,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_)
 		display,
 		reactor.getRTScheduler(), reactor.getEventDistributor(),
 		reactor.getInputEventGenerator(), reactor.getCliComm(),
-		*this);
+		*this, reactor.getGlobalSettings().getPauseSetting());
 
 	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
