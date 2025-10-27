@@ -178,7 +178,7 @@ void Completer::completeFileNameImpl(CommandController& controller,
 	filename = FileOperations::expandTilde(std::move(filename));
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
 
-	TclObject command = makeTclList("utils::filetabcompletion");
+	TclObject command = makeTclList("file_completion::filetabcompletion");
 	command.addListElement(output->getOutputColumns());
 	TclObject targetPaths = makeTclList();
 	for (const auto& p : context.getPaths()) { targetPaths.addListElement(p); }
