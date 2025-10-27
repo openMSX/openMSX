@@ -62,6 +62,8 @@ public:
 
 	static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType);
 
+	void paintLaserDiscMenuContent(const TclObject& currentImage);
+
 public:
 	enum class SelectDiskType : int {
 		IMAGE, DIR_AS_DISK, RAMDISK, EMPTY,
@@ -142,6 +144,11 @@ private:
 	void cartridgeMenu(int cartNum);
 	void cassetteMenu(CassettePlayer& cassettePlayer);
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
+	void paintCurrent(const TclObject& current, std::string_view type);
+	void paintRecent(const std::string& mediaName, ItemGroup& group,
+		function_ref<std::string(const std::string&)> displayFunc = std::identity{},
+		const std::function<void(const std::string&)>& toolTip = {},
+		std::function<void()>* actionToSet = nullptr);
 
 	void printExtensionInfo(ExtensionInfo& info);
 	bool drawExtensionFilter(std::string& filterType, std::string& filterString, bool& theFilterOpen, int id = 0);
