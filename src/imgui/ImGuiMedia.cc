@@ -466,6 +466,45 @@ bool ImGuiMedia::drawExtensionFilter(std::string& filterType, std::string& filte
 	return changed;
 }
 
+void ImGuiMedia::paintCurrent(const TclObject& current, std::string_view type)
+{
+	if (auto str = current.getString(); str.empty()) {
+		ImGui::StrCat("Current: no ", type, " inserted");
+	} else {
+		ImGui::StrCat("Current: ", current.getString());
+	}
+	ImGui::Separator();
+}
+
+void ImGuiMedia::paintRecent(const std::string& mediaName, ItemGroup& group,
+		                      function_ref<std::string(const std::string&)> displayFunc,
+		                      const std::function<void(const std::string&)>& toolTip,
+				      std::function<void()>* actionToSet)
+{
+	if (group.recent.empty()) return;
+	im::Indent([&] {
+		im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
+			int count = 0;
+			for (const auto& item : group.recent) {
+				auto d = strCat(display(item, displayFunc), "##", count++);
+				if (ImGui::MenuItem(d.c_str())) {
+					bool delayed = actionToSet == nullptr;
+					auto action = [this, &group, item, mediaName, delayed] {
+						group.edit = item;
+						insertMedia(mediaName, group.edit, delayed);
+					};
+					if (actionToSet) {
+						*actionToSet = action;
+					} else {
+						action();
+					}
+				}
+				if (toolTip) toolTip(item.name);
+			}
+		});
+	});
+}
+
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 {
 	im::Menu("Media", motherBoard != nullptr, [&]{
@@ -483,44 +522,6 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::Separator();
 			}
 			status = ITEM;
-		};
-
-		auto showCurrent = [&](const TclObject& current, std::string_view type) {
-			if (current.empty()) {
-				ImGui::StrCat("Current: no ", type, " inserted");
-			} else {
-				ImGui::StrCat("Current: ", current.getString());
-			}
-			ImGui::Separator();
-		};
-
-		auto showRecent = [&](const std::string& mediaName, ItemGroup& group,
-		                      function_ref<std::string(const std::string&)> displayFunc = std::identity{},
-		                      const std::function<void(const std::string&)>& toolTip = {},
-				      std::function<void()>* actionToSet = nullptr) {
-			if (!group.recent.empty()) {
-				im::Indent([&] {
-					im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
-						int count = 0;
-						for (const auto& item : group.recent) {
-							auto d = strCat(display(item, displayFunc), "##", count++);
-							if (ImGui::MenuItem(d.c_str())) {
-								bool delayed = actionToSet == nullptr;
-								auto action = [this, &group, item, mediaName, delayed] {
-									group.edit = item;
-									insertMedia(mediaName, group.edit, delayed);
-								};
-								if (actionToSet) {
-									*actionToSet = action;
-								} else {
-									action();
-								}
-							}
-							if (toolTip) toolTip(item.name);
-						}
-					});
-				});
-			}
 		};
 
 		// cartA / extX
@@ -605,7 +606,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 
-			showRecent(std::string(mediaName), group,
+			paintRecent(std::string(mediaName), group,
 				[this](const std::string& config) { // displayFunc
 					return displayNameForExtension(config);
 				},
@@ -677,7 +678,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				auto& group = hdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "hard disk");
+					paintCurrent(currentImage, "hard disk");
 					if (ImGui::MenuItem("Select hard disk image...")) {
 						manager.openFile->selectFile(
 							"Select image for " + displayName,
@@ -695,7 +696,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 						HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
 						           "so a power cycle is required.");
 					}
-					showRecent(hdName, group, std::identity{}, {}, &switchHdAction);
+					paintRecent(hdName, group, std::identity{}, {}, &switchHdAction);
 				});
 			}
 		}
@@ -713,7 +714,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				auto& group = cdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
 					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "CDROM");
+					paintCurrent(currentImage, "CDROM");
 					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
 						manager.executeDelayed(makeTclList(cdName, "eject"));
 					}
@@ -727,7 +728,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 							},
 							currentImage.getString());
 					}
-					showRecent(cdName, group);
+					paintRecent(cdName, group);
 				});
 			}
 		}
@@ -737,22 +738,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		if (auto cmdResult = manager.execute(TclObject("laserdiscplayer"))) {
 			elementInGroup();
 			im::Menu("LaserDisc Player", [&]{
-				auto currentImage = cmdResult->getListIndex(interp, 1);
-				showCurrent(currentImage, "laserdisc");
-				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-					manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
-				}
-				if (ImGui::MenuItem("Insert LaserDisc image...")) {
-					manager.openFile->selectFile(
-						"Select LaserDisc image",
-						buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
-						[this](const auto& fn) {
-							laserdiscMediaInfo.edit.name = fn;
-							this->insertMedia("laserdiscplayer", laserdiscMediaInfo.edit);
-						},
-						currentImage.getString());
-				}
-				showRecent("laserdiscplayer", laserdiscMediaInfo);
+				paintLaserDiscMenuContent(cmdResult->getListIndex(interp, 1));
 			});
 		}
 		endGroup();
@@ -793,6 +779,25 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			switchHdAction = {};
 		}
 	}
+}
+
+void ImGuiMedia::paintLaserDiscMenuContent(const TclObject& currentImage)
+{
+	paintCurrent(currentImage, "laserdisc");
+	if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
+	}
+	if (ImGui::MenuItem("Insert LaserDisc image...")) {
+		manager.openFile->selectFile(
+				"Select LaserDisc image",
+				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
+				[this](const auto& fn) {
+				laserdiscMediaInfo.edit.name = fn;
+				this->insertMedia("laserdiscplayer", laserdiscMediaInfo.edit);
+				},
+				currentImage.getString());
+	}
+	paintRecent("laserdiscplayer", laserdiscMediaInfo);
 }
 
 void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
