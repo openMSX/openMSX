@@ -625,7 +625,7 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 									}
 								}
 							}
-						} else {
+						} else if (media.name.starts_with("disk") || media.name.starts_with("cassette") || viewMode != ViewMode::EDIT) {
 							if (ImGui::TableNextColumn()) {
 								if (viewMode == ViewMode::EDIT) {
 									if (ImGui::Selectable(formatMediaName(media.name).c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap)) {
@@ -637,6 +637,18 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							}
 							if (ImGui::TableNextColumn()) {
 								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								simpleToolTip(targetStr);
+							}
+						}
+						// all next cases are the EDIT mode of the media which are not cart, disk or cassette....
+						else if (media.name.starts_with("laserdisc")) {
+							if (ImGui::TableNextColumn()) {
+								ImGui::TextUnformatted(formatMediaName(media.name));
+							}
+							if (ImGui::TableNextColumn()) {
+								im::Menu(std::string(FileOperations::getFilename(targetStr)).c_str(), [&]{
+									manager.media->paintLaserDiscMenuContent(*target);
+								});
 								simpleToolTip(targetStr);
 							}
 						}
