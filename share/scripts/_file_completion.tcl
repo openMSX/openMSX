@@ -104,7 +104,7 @@ proc filter_and_update_in_file_competion { \
 		set result [lindex $result 0] ; # {any text} to "any text". Required.
 		return [make_rewrite_or_done $dirstr$result $possible_parents]
 	}
-	show_possibilities $console_width $result
+	show_possibilities result $console_width 
 	set pos [string length $tail]
 	while {true} {
 		set c [string index [lindex $result 0] $pos]
@@ -146,7 +146,7 @@ proc update_in_number_mode_file_completion { \
 	}
 	puts "Please type comma and number as the last component."
 	puts "ex1) ,1   ex2) some/path/,4   ex3) /from/root/,7"
-	show_possibilities $console_width $result
+	show_possibilities result $console_width
 	return [list ---rewrite $our_arg,]
 }
 
@@ -242,51 +242,85 @@ proc split_dir_and_tail {path {last_separator_is_ignorable true}} {
 	return [list $dirstr $tail]
 }
 
-proc show_possibilities {console_width result} {
-	foreach l [format_to_columns $result $console_width] {
+proc show_possibilities {result_name console_width} {
+	upvar $result_name result
+	foreach l [format_to_columns result $console_width] {
 		puts $l
 	}
 }
 
 #
-# Clone procedure of C++ 'openmsx::format_helper' in
+# Same purpose procedure of C++ 'openmsx::format_helper' in
 # 'src/commands/Completer.cc'.
 #
-proc format_helper {input column_limit result_name} {
-	upvar $result_name result
-	set len_i [llength $input]
-	set len_r [llength $result]
+proc format_helper {lines max_column stops_name lengths_name} {
+	upvar $stops_name stops
+	upvar $lengths_name i_lengths
+	set len_i [llength $i_lengths]
 	set column 0
-	set it 0
+	set bi 0
+	set ei [expr {$bi + $lines - 1}]
+	set stops ""
 	while {true} {
-		set max_column $column
-		for {set i 0} {$it < $len_i && $i < $len_r} {incr i; incr it} {
-			set cur_size [get_mono_width_in_sequence $result $i]
-			set spaces [string repeat " " [expr {$column - $cur_size}]]
-			lset result $i "[lindex $result $i]$spaces[lindex $input $it]"
-			set l [get_mono_width_in_sequence $result $i]
-			if {$max_column < $l} { set max_column $l }
-			if {$max_column > $column_limit} { return false }
-		}
-		set column [expr {$max_column + 2}]
-		if {!($it < $len_i)} { break }
+		set widest [lindex \
+			[lsort -integer [lrange $i_lengths $bi $ei]] end]
+		if {$max_column < $column + $widest} { return false }
+		incr bi $lines
+		if {$len_i <= $bi} { return true }
+		incr ei $lines
+		incr column $widest
+		incr column 2
+		lappend stops $column
 	}
-	return true
 }
 
 #
 # Clone procedure of C++ 'openmsx::format' in 'src/commands/Completer.cc'.
 #
-proc format_to_columns {input column_limit} {
-	incr column_list -1
-	set result ""
-	for {set lines 1} {$lines < [llength $input]} {incr lines} {
-		set result [lrepeat $lines ""]
-		if {[format_helper $input $column_limit result]} {
-			return $result
+proc format_to_columns {input_name max_column} {
+	upvar $input_name input
+	incr max_column -1
+	set i_lengths ""
+	foreach e $input { lappend i_lengths [get_mono_width e] }
+	set i_size [llength $input]
+	set stops ""
+	set min_l 1
+	set max_l $i_size
+	set lines $i_size
+	while {$min_l < $max_l} {
+		set lines [expr {int(($min_l + $max_l) / 2)}]
+		set try_stops ""
+		if {[format_helper $lines $max_column try_stops i_lengths]} {
+			set max_l $lines
+			set stops $try_stops
+		} else {
+			set min_l [expr {$lines + 1}]
+			set lines $min_l
 		}
 	}
-	return $input
+	set result [lrange $input 0 [expr {$lines - 1}]]
+	set ii_l 0
+	set ii $lines
+	set col_l 0
+	foreach col $stops {
+		set diff_col [expr {$col - $col_l}]
+		for {set ln_i 0} {$ln_i < $lines && $ii < $i_size} {
+			incr ln_i; incr ii; incr ii_l} \
+		{
+			set ws_s [expr {$diff_col - [lindex $i_lengths $ii_l]}]
+			set ws [string repeat " " $ws_s]
+			lset result $ln_i "[lindex $result $ln_i]$ws[lindex $input $ii]"
+		}
+		set col_l $col
+	}
+	return $result
+}
+
+proc get_mono_width {s_name} {
+	upvar $s_name s
+	variable monospace_width_proc
+	# use [list $s] to support when $s have white spaces.
+	return [eval $monospace_width_proc [list $s]]
 }
 
 variable monospace_width_proc [namespace code monospace_width_proc_default]
@@ -314,13 +348,6 @@ proc set_monospace_width_proc {proc} {
 			set monospace_width_proc $proc
 		}
 	}
-}
-
-proc get_mono_width_in_sequence {str_seqs idx} {
-	variable monospace_width_proc
-	# Because [lindex ...] will make empty string, include it by [list ...].
-	# Note that "[lindex ...]" is NOT the solution with this case.
-	return [eval $monospace_width_proc [list [lindex $str_seqs $idx]]]
 }
 
 #
