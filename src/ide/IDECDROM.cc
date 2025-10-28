@@ -398,7 +398,7 @@ void CDXCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"eject"sv, "insert"sv};
-	completeFileName(tokens, userFileContext(), extra);
+	completeFileName(commandController, tokens, userFileContext(), extra);
 }
 
 

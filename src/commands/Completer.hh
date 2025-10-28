@@ -13,6 +13,7 @@
 
 namespace openmsx {
 
+class CommandController;
 class FileContext;
 class Interpreter;
 class InterpreterOutput;
@@ -46,11 +47,16 @@ public:
 	                           Range&& possibleValues,
 	                           bool caseSensitive = true);
 	template<std::ranges::forward_range Range>
-	static void completeFileName(std::vector<std::string>& tokens,
+	static void completeFileName(CommandController& controller,
+	                             std::vector<std::string>& tokens,
 	                             const FileContext& context,
 	                             const Range& extra);
-	static void completeFileName(std::vector<std::string>& tokens,
+	static void completeFileName(CommandController& controller,
+	                             std::vector<std::string>& tokens,
 	                             const FileContext& context);
+	static void doTabCompletion(TclObject& command,
+	                            Interpreter& interpreter,
+	                            std::vector<std::string>& tokens);
 
 	static std::vector<std::string> formatListInColumns(
 		std::span<const std::string_view> input);
@@ -86,7 +92,8 @@ private:
 		std::string_view str, Range&& range, bool caseSensitive);
 	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
 	                         bool caseSensitive);
-	static void completeFileNameImpl(std::vector<std::string>& tokens,
+	static void completeFileNameImpl(CommandController& controller,
+	                                 std::vector<std::string>& tokens,
 	                                 const FileContext& context,
 	                                 std::vector<std::string_view> matches);
 
@@ -121,11 +128,12 @@ void Completer::completeString(
 
 template<std::ranges::forward_range Range>
 void Completer::completeFileName(
+	CommandController& controller,
 	std::vector<std::string>& tokens,
 	const FileContext& context,
 	const Range& extra)
 {
-	completeFileNameImpl(tokens, context, filter(tokens.back(), extra, true));
+	completeFileNameImpl(controller, tokens, context, filter(tokens.back(), extra, true));
 }
 
 } // namespace openmsx

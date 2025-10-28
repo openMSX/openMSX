@@ -109,17 +109,11 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
-# provides.... file completion. Currently has a small issue: it adds a space at
-# after a /, which you need to erase to continue completing
+# Provides tab completion for file, intend to use the 2nd argment
+# of 'set_tabcompletion_proc' procedure.
+# Placed here for compatibility. See _file_completion.tcl.
 proc file_completion {args} {
-	set result [list]
-	foreach i [glob -nocomplain -path [lindex $args end] *] {
-		if {[file isdirectory $i]} {
-			append i /
-		}
-		lappend result $i
-	}
-	return $result
+	return [::filetabcompletion 80 {} {} {*}$args]
 }
 
 # Replaces characters that are invalid in file names on the host OS or
@@ -165,8 +159,10 @@ namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip
 namespace export file_completion
+namespace export file_completion_by_number
 namespace export filename_clean
 namespace export get_next_numbered_filename
+namespace export set_monospace_width_proc
 
 } ;# namespace utils
 

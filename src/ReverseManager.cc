@@ -1016,7 +1016,7 @@ void ReverseManager::ReverseCmd::tabCompletion(std::vector<std::string>& tokens)
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == one_of("loadreplay", "savereplay")) {
 			static constexpr std::array cmds = {"-goto"sv, "-viewonly"sv};
-			completeFileName(tokens, userDataFileContext(REPLAY_DIR),
+			completeFileName(commandController, tokens, userDataFileContext(REPLAY_DIR),
 				(tokens[1] == "loadreplay") ? cmds : std::span<const std::string_view>{});
 		} else if (tokens[1] == "viewonlymode") {
 			static constexpr std::array options = {"true"sv, "false"sv};
