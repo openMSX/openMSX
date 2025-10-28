@@ -62,7 +62,9 @@ public:
 
 	static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType);
 
-	void paintLaserDiscMenuContent(const TclObject& currentImage);
+	void paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
+	void paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
+	void paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard);
 
 public:
 	enum class SelectDiskType : int {

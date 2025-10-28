@@ -653,13 +653,21 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							}
 						}
 						// all next cases are the EDIT mode of the media which are not cart, disk or cassette....
-						else if (media.name.starts_with("laserdisc")) {
+						else {
+							auto formattedMediaName = formatMediaName(media.name);
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(formatMediaName(media.name));
+								ImGui::TextUnformatted(formattedMediaName);
 							}
 							if (ImGui::TableNextColumn()) {
-								im::Menu(std::string(FileOperations::getFilename(targetStr)).c_str(), [&]{
-									manager.media->paintLaserDiscMenuContent(*target);
+								im::Menu(strCat(FileOperations::getFilename(targetStr), "##", media.name).c_str(), [&]{
+									if (media.name.starts_with("laserdisc")) {
+										manager.media->paintLaserDiscMenuContent(media.name, formattedMediaName, *target);
+									} else if (media.name.starts_with("hd")) {
+										manager.media->paintHardDiskMenuContent(media.name, formattedMediaName, *target, motherBoard);
+									} else if (media.name.starts_with("cd")) {
+										manager.media->paintCDROMMenuContent(media.name, formattedMediaName, *target);
+									}
+
 								});
 							}
 						}

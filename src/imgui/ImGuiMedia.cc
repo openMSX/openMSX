@@ -675,28 +675,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto displayName = strCat("Hard Disk ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(hdName))) {
 				elementInGroup();
-				auto& group = hdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					paintCurrent(currentImage, "hard disk");
-					if (ImGui::MenuItem("Select hard disk image...")) {
-						manager.openFile->selectFile(
-							"Select image for " + displayName,
-							hdFilter(),
-							[this, &group, hdName](const auto& fn) {
-								switchHdAction = [this, &group, hdName, fn] {
-									group.edit.name = fn;
-									bool delayed = false;
-									this->insertMedia(hdName, group.edit, delayed);
-								};
-							},
-							currentImage.getString());
-					}
-					if (motherBoard->isPowered()) {
-						HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
-						           "so a power cycle is required.");
-					}
-					paintRecent(hdName, group, std::identity{}, {}, &switchHdAction);
+					paintHardDiskMenuContent(hdName, displayName, cmdResult->getListIndex(interp, 1), *motherBoard);
 				});
 			}
 		}
@@ -704,41 +684,27 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// cdX
 		auto cdInUse = IDECDROM::getDrivesInUse(*motherBoard);
-		std::string cdName = "cdX";
 		for (auto i : xrange(IDECDROM::MAX_CD)) {
 			if (!(*cdInUse)[i]) continue;
+			std::string cdName = "cdX";
 			cdName.back() = char('a' + i);
 			auto displayName = strCat("CDROM Drive ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(cdName))) {
 				elementInGroup();
-				auto& group = cdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					paintCurrent(currentImage, "CDROM");
-					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-						manager.executeDelayed(makeTclList(cdName, "eject"));
-					}
-					if (ImGui::MenuItem("Insert CDROM image...")) {
-						manager.openFile->selectFile(
-							"Select CDROM image for " + displayName,
-							cdFilter(),
-							[this, &group, cdName](const auto& fn) {
-								group.edit.name = fn;
-								this->insertMedia(cdName, group.edit);
-							},
-							currentImage.getString());
-					}
-					paintRecent(cdName, group);
+					paintCDROMMenuContent(cdName, displayName, cmdResult->getListIndex(interp, 1));
 				});
 			}
 		}
 		endGroup();
 
 		// laserdisc
-		if (auto cmdResult = manager.execute(TclObject("laserdiscplayer"))) {
+		constexpr static std::string mediaSlotName = "laserdiscplayer";
+		if (auto cmdResult = manager.execute(TclObject(mediaSlotName))) {
 			elementInGroup();
-			im::Menu("LaserDisc Player", [&]{
-				paintLaserDiscMenuContent(cmdResult->getListIndex(interp, 1));
+			const static std::string displayName = "LaserDisc Player";
+			im::Menu(displayName.c_str(), [&]{
+				paintLaserDiscMenuContent(mediaSlotName, displayName, cmdResult->getListIndex(interp, 1));
 			});
 		}
 		endGroup();
@@ -781,23 +747,67 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 	}
 }
 
-void ImGuiMedia::paintLaserDiscMenuContent(const TclObject& currentImage)
+void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard)
+{
+	paintCurrent(currentImage, "hard disk");
+	auto& group = hdMediaInfo[mediaSlotName.back() - 'a'];
+	if (ImGui::MenuItem("Select hard disk image...")) {
+		manager.openFile->selectFile(
+			"Select image for " + slotDisplayName,
+			hdFilter(),
+			[this, &group, mediaSlotName](const auto& fn) {
+				switchHdAction = [this, &group, mediaSlotName, fn] {
+					group.edit.name = fn;
+					bool delayed = false;
+					this->insertMedia(mediaSlotName, group.edit, delayed);
+				};
+			},
+			currentImage.getString());
+	}
+	if (motherBoard.isPowered()) {
+		HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
+			   "so a power cycle is required.");
+	}
+	paintRecent(std::string(mediaSlotName), group, std::identity{}, {}, &switchHdAction);
+}
+
+void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
+{
+	paintCurrent(currentImage, "CDROM");
+	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList(mediaSlotName, "eject"));
+	}
+	auto& group = cdMediaInfo[mediaSlotName.back() - 'a'];
+	if (ImGui::MenuItem("Insert CDROM image...")) {
+		manager.openFile->selectFile(
+			"Select CDROM image for " + slotDisplayName,
+			cdFilter(),
+			[this, &group, mediaSlotName](const auto& fn) {
+				group.edit.name = fn;
+				this->insertMedia(mediaSlotName, group.edit);
+			},
+			currentImage.getString());
+	}
+	paintRecent(std::string(mediaSlotName), group);
+}
+
+void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
 {
 	paintCurrent(currentImage, "laserdisc");
-	if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-		manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
+	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList(mediaSlotName, "eject"));
 	}
 	if (ImGui::MenuItem("Insert LaserDisc image...")) {
 		manager.openFile->selectFile(
-				"Select LaserDisc image",
+				"Select LaserDisc image for " + slotDisplayName,
 				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
-				[this](const auto& fn) {
+				[this, mediaSlotName](const auto& fn) {
 				laserdiscMediaInfo.edit.name = fn;
-				this->insertMedia("laserdiscplayer", laserdiscMediaInfo.edit);
+				this->insertMedia(mediaSlotName, laserdiscMediaInfo.edit);
 				},
 				currentImage.getString());
 	}
-	paintRecent("laserdiscplayer", laserdiscMediaInfo);
+	paintRecent(std::string(mediaSlotName), laserdiscMediaInfo);
 }
 
 void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
