@@ -230,7 +230,7 @@ void CassettePlayerCommand::tabCompletion(std::vector<std::string>& tokens) cons
 		completeFileName(commandController, tokens, userFileContext());
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
 		static constexpr std::array extra = {"on"sv, "off"sv};
-		completeString(tokens, extra);
+		completeString(commandController, tokens, extra);
 	}
 }
 

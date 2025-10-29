@@ -452,7 +452,7 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 			"partition"sv, "format"sv, "chdir"sv, "mkdir"sv, "delete"sv,
 			"rename"sv
 		};
-		completeString(tokens, cmds);
+		completeString(commandController, tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		completeFileName(commandController, tokens, userFileContext());
@@ -488,7 +488,7 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 				}
 			}
 		}
-		completeString(tokens, names);
+		completeString(commandController, tokens, names);
 
 	} else if (tokens.size() >= 4) {
 		if (tokens[1] == one_of("savedsk", "import", "export")) {
@@ -499,7 +499,7 @@ void DiskManipulator::tabCompletion(std::vector<std::string>& tokens) const
 			static constexpr std::array cmds = {
 				"360"sv, "720"sv, "32M"sv, "-dos1"sv, "-dos2"sv, "-nextor"sv,
 			};
-			completeString(tokens, cmds);
+			completeString(commandController, tokens, cmds);
 		}
 	}
 }

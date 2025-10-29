@@ -2,8 +2,7 @@
 namespace eval openmsx {
 
 variable init_tcl_executed false
-variable tabcompletion_proc_sensitive
-variable tabcompletion_proc_insensitive
+variable tabcompletion_proc_dict
 variable help_text
 variable help_proc
 variable lazy [dict create]
@@ -146,31 +145,36 @@ set_help_text set_help_proc \
 
 # internal proc to make tabcompletion available to Tcl procs
 proc tabcompletion {args} {
-	variable tabcompletion_proc_sensitive
-	variable tabcompletion_proc_insensitive
-
+	variable tabcompletion_proc_dict
 	set command [lindex $args 0]
 	lazy_handler $command
-	set result ""
-	if {[info exists tabcompletion_proc_sensitive($command)]} {
-		set result [namespace eval :: $tabcompletion_proc_sensitive($command) $args]
-	} elseif {[info exists tabcompletion_proc_insensitive($command)]} {
-		set result ---nocase
-		lappend result {*}[namespace eval :: $tabcompletion_proc_insensitive($command) $args]
+	if {![dict exists $tabcompletion_proc_dict $command]} { return }
+	lassign [dict get $tabcompletion_proc_dict $command] case_sensitive proc
+	switch $case_sensitive {
+		true - false {
+			set entries [namespace eval :: $proc $args]
+			set entries [tc_sort_by_cpp $case_sensitive {*}$entries]
+			return [generic_tab_completion $case_sensitive $entries {*}$args]
+		}
+		self {
+			return [namespace eval :: $proc $args]
+		}
 	}
-	return $result
+	return
 }
+
 proc set_tabcompletion_proc {command proc {case_sensitive true}} {
-	variable tabcompletion_proc_sensitive
-	variable tabcompletion_proc_insensitive
-	if {$case_sensitive} {
-		set tabcompletion_proc_sensitive($command) $proc
-	} else {
-		set tabcompletion_proc_insensitive($command) $proc
-	}
+	variable tabcompletion_proc_dict
+	dict set tabcompletion_proc_dict $command [list $case_sensitive $proc]
 }
+
 set_help_text set_tabcompletion_proc \
-{Provide a way to do tab-completion for a certain Tcl proc. For details look at the numerous examples in the share/scripts directory. This is normally only used in Tcl scripts.}
+{Provide a way to do tab-completion for a certain Tcl proc. For details look at the numerous examples in the share/scripts directory. This is normally only used in Tcl scripts.
+
+The 3rd paratmeter 'case_sensitive' can be one of 'true', 'false' and 'self'.
+If you want to use full functionality tab completion, try 'self' with your 'proc'.
+In your procedure, you may and may not use 'generic_tab_completion' or 'file_tab_completion' procedures defined in 'share/scripts/_tab_completion.tcl'.
+}
 
 set_help_text data_file \
 "Resolve data file. First try user directory, if the file doesn't exist

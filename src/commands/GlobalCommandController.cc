@@ -374,7 +374,7 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 		}
 		// get current (typed) namespace
 		auto p1 = cmd.rfind("::");
-		std::string_view ns = (p1 == std::string_view::npos) ? cmd : cmd.substr(0, p1 + 2);
+		std::string_view ns = (p1 == std::string_view::npos) ? "" : cmd.substr(0, p1 + 2);
 
 		// build a list of all command strings
 		TclObject names = interpreter.getCommandNames();
@@ -383,17 +383,15 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 		for (std::string_view n1 : names) {
 			// remove leading ::
 			if (n1.starts_with("::")) n1.remove_prefix(2);
-			// initial namespace part must match
+			// current (typed) namespace part must match
 			if (!n1.starts_with(ns)) continue;
-			// the part following the initial namespace
-			std::string_view n2 = n1.substr(ns.size());
 			// only keep upto the next namespace portion,
-			auto p2 = n2.find("::");
-			auto n3 = (p2 == std::string_view::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
+			auto p2 = n1.find("::", ns.size());
+			auto n3 = (p2 == std::string_view::npos) ? n1 : n1.substr(0, p2 + 2);
 			// don't care about adding the same string multiple times
 			names2.push_back(strCat(leadingNs, n3));
 		}
-		Completer::completeString(tokens, names2);
+		Completer::completeString(*this, tokens, names2);
 	} else {
 		std::string_view cmd = tokens.front();
 		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
@@ -403,7 +401,7 @@ void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
 		} else {
 			TclObject command = makeTclList("openmsx::tabcompletion");
 			try {
-				Completer::doTabCompletion(command, getInterpreter(), tokens);
+				Completer::doTabCompletion(*this, command, tokens);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
@@ -434,8 +432,7 @@ void GlobalCommandController::HelpCmd::execute(
 			std::views::keys(controller.commandCompleters),
 			getInterpreter().execute("openmsx::all_command_names_with_help"));
 		std::erase_if(cmds, [](const auto& c) { return c.contains("::"); });
-		std::ranges::sort(cmds);
-		for (auto& line : formatListInColumns(cmds)) {
+		for (auto& line : formatListInColumns(controller, cmds)) {
 			strAppend(text, line, '\n');
 		}
 		result = text;
@@ -547,11 +544,11 @@ void GlobalCommandController::UpdateCmd::tabCompletion(std::vector<std::string>&
 	case 2: {
 		using namespace std::literals;
 		static constexpr std::array ops = {"enable"sv, "disable"sv};
-		completeString(tokens, ops);
+		completeString(commandController, tokens, ops);
 		break;
 	}
 	case 3:
-		completeString(tokens, CliComm::getUpdateStrings());
+		completeString(commandController, tokens, CliComm::getUpdateStrings());
 		break;
 	}
 }

@@ -96,7 +96,7 @@ void VideoSourceSetting::additionalInfo(TclObject& result) const
 
 void VideoSourceSetting::tabCompletion(std::vector<std::string>& tokens) const
 {
-	Completer::completeString(tokens, getPossibleValues(),
+	Completer::completeString(commandController, tokens, getPossibleValues(),
 	                          false); // case insensitive
 }
 

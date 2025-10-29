@@ -113,7 +113,7 @@ proc clip {min max val} {
 # of 'set_tabcompletion_proc' procedure.
 # Placed here for compatibility. See _file_completion.tcl.
 proc file_completion {args} {
-	return [::filetabcompletion 80 {} {} {*}$args]
+	return [::file_tab_completion true {} {} {*}$args]
 }
 
 # Replaces characters that are invalid in file names on the host OS or
@@ -159,10 +159,8 @@ namespace export get_ordered_machine_list
 namespace export get_random_number
 namespace export clip
 namespace export file_completion
-namespace export file_completion_by_number
 namespace export filename_clean
 namespace export get_next_numbered_filename
-namespace export set_monospace_width_proc
 
 } ;# namespace utils
 

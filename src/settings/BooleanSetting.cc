@@ -33,7 +33,8 @@ void BooleanSetting::tabCompletion(std::vector<std::string>& tokens) const
 		"true"sv,  "on"sv,  "yes"sv,
 		"false"sv, "off"sv, "no"sv,
 	};
-	Completer::completeString(tokens, values, false); // case insensitive
+	Completer::completeString(commandController, tokens, values,
+	                          false); // case insensitive
 }
 
 

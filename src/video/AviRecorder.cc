@@ -348,7 +348,7 @@ void AviRecorder::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 		static constexpr std::array cmds = {
 			"start"sv, "stop"sv, "toggle"sv, "status"sv,
 		};
-		completeString(tokens, cmds);
+		completeString(commandController, tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
 		static constexpr std::array options = {
 			"-prefix"sv, "-videoonly"sv, "-audioonly"sv,

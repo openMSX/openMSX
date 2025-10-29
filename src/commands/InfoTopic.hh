@@ -51,7 +51,6 @@ protected:
 	InfoTopic(InfoCommand& infoCommand, const std::string& name);
 	~InfoTopic();
 
-private:
 	InfoCommand& infoCommand;
 };
 

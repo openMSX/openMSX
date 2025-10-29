@@ -864,7 +864,7 @@ std::string MachineCommand::help(std::span<const TclObject> /*tokens*/) const
 
 void MachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getHwConfigs("machines"));
+	completeString(commandController, tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -898,7 +898,7 @@ std::string TestMachineCommand::help(std::span<const TclObject> /*tokens*/) cons
 
 void TestMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getHwConfigs("machines"));
+	completeString(commandController, tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -955,7 +955,7 @@ std::string DeleteMachineCommand::help(std::span<const TclObject> /*tokens*/) co
 
 void DeleteMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, reactor.getMachineIDs());
+	completeString(commandController, tokens, reactor.getMachineIDs());
 }
 
 
@@ -1012,7 +1012,7 @@ std::string ActivateMachineCommand::help(std::span<const TclObject> /*tokens*/) 
 
 void ActivateMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, reactor.getMachineIDs());
+	completeString(commandController, tokens, reactor.getMachineIDs());
 }
 
 
@@ -1049,7 +1049,7 @@ std::string StoreMachineCommand::help(std::span<const TclObject> /*tokens*/) con
 
 void StoreMachineCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, reactor.getMachineIDs());
+	completeString(commandController, tokens, reactor.getMachineIDs());
 }
 
 
@@ -1141,7 +1141,7 @@ std::string SetupCommand::help(std::span<const TclObject> /*tokens*/) const
 
 void SetupCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getSetups());
+	completeString(commandController, tokens, Reactor::getSetups());
 }
 
 
@@ -1236,7 +1236,7 @@ std::string ConfigInfo::help(std::span<const TclObject> /*tokens*/) const
 
 void ConfigInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getHwConfigs(configName));
+	completeString(infoCommand.getCommandController(), tokens, Reactor::getHwConfigs(configName));
 }
 
 

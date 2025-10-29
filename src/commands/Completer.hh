@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <concepts>
 #include <ranges>
+#include <set>
 #include <span>
 #include <string>
 #include <string_view>
@@ -43,22 +44,24 @@ public:
 	[[nodiscard]] virtual Interpreter& getInterpreter() const = 0;
 
 	template<std::ranges::forward_range Range>
-	static void completeString(std::vector<std::string>& tokens,
+	static void completeString(CommandController& controller, 
+	                           std::vector<std::string>& tokens,
 	                           Range&& possibleValues,
 	                           bool caseSensitive = true);
 	template<std::ranges::forward_range Range>
 	static void completeFileName(CommandController& controller,
 	                             std::vector<std::string>& tokens,
 	                             const FileContext& context,
-	                             const Range& extra);
+	                             Range&& extras);
 	static void completeFileName(CommandController& controller,
 	                             std::vector<std::string>& tokens,
 	                             const FileContext& context);
-	static void doTabCompletion(TclObject& command,
-	                            Interpreter& interpreter,
+	static void doTabCompletion(CommandController& controller, 
+	                            TclObject& command,
 	                            std::vector<std::string>& tokens);
 
 	static std::vector<std::string> formatListInColumns(
+		CommandController& controller,
 		std::span<const std::string_view> input);
 
 	// helper functions to check the number of arguments
@@ -86,44 +89,28 @@ protected:
 	~Completer() = default;
 
 private:
-	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
-	template<std::ranges::forward_range Range>
-	static std::vector<std::string_view> filter(
-		std::string_view str, Range&& range, bool caseSensitive);
-	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
+	static void completeImpl(CommandController& controller,
+	                         std::vector<std::string>& tokens,
+	                         std::set<std::string_view> possibles,
 	                         bool caseSensitive);
 	static void completeFileNameImpl(CommandController& controller,
 	                                 std::vector<std::string>& tokens,
 	                                 const FileContext& context,
-	                                 std::vector<std::string_view> matches);
+	                                 std::set<std::string_view> extras);
 
 	const std::string theName;
 	static inline InterpreterOutput* output = nullptr;
 };
 
 template<std::ranges::forward_range Range>
-std::vector<std::string_view> Completer::filter(
-	std::string_view str, Range&& range, bool caseSensitive)
-{
-	std::vector<std::string_view> result;
-	std::ranges::copy_if(std::forward<Range>(range),
-	                     std::back_inserter(result),
-	                     [&](const auto& value) { return equalHead(str, value, caseSensitive); });
-	return result;
-}
-
-template<std::ranges::forward_range Range>
 void Completer::completeString(
+	CommandController& controller,
 	std::vector<std::string>& tokens,
-	Range&& possibleValues,
+	Range&& possibles,
 	bool caseSensitive)
 {
-	auto& str = tokens.back();
-	if (completeImpl(str,
-	                 filter(str, std::forward<Range>(possibleValues), caseSensitive),
-	                 caseSensitive)) {
-		tokens.emplace_back();
-	}
+	std::set<std::string_view> possiblesSet(possibles.begin(), possibles.end());
+	completeImpl(controller, tokens, possiblesSet, caseSensitive);
 }
 
 template<std::ranges::forward_range Range>
@@ -131,9 +118,10 @@ void Completer::completeFileName(
 	CommandController& controller,
 	std::vector<std::string>& tokens,
 	const FileContext& context,
-	const Range& extra)
+	Range&& extras)
 {
-	completeFileNameImpl(controller, tokens, context, filter(tokens.back(), extra, true));
+	std::set<std::string_view> extrasSet(extras.begin(), extras.end());
+	completeFileNameImpl(controller, tokens, context, extrasSet);
 }
 
 } // namespace openmsx

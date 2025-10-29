@@ -918,7 +918,7 @@ std::string LoadMachineCmd::help(std::span<const TclObject> /*tokens*/) const
 
 void LoadMachineCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getHwConfigs("machines"));
+	completeString(commandController, tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -985,7 +985,7 @@ std::string ExtCmd::help(std::span<const TclObject> /*tokens*/) const
 
 void ExtCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeString(tokens, Reactor::getHwConfigs("extensions"));
+	completeString(commandController, tokens, Reactor::getHwConfigs("extensions"));
 }
 
 
@@ -1024,7 +1024,7 @@ std::string RemoveExtCmd::help(std::span<const TclObject> /*tokens*/) const
 void RemoveExtCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeString(tokens, std::views::transform(
+		completeString(commandController, tokens, std::views::transform(
 			motherBoard.getExtensions(),
 			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
@@ -1082,9 +1082,9 @@ std::string StoreSetupCmd::help(std::span<const TclObject> /*tokens*/) const
 void StoreSetupCmd::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeString(tokens, std::views::keys(depthOptionMap));
+		completeString(commandController, tokens, std::views::keys(depthOptionMap));
 	} else if (tokens.size() == 3) {
-		completeString(tokens, Reactor::getSetups());
+		completeString(commandController, tokens, Reactor::getSetups());
 	}
 }
 
@@ -1175,7 +1175,7 @@ std::string MachineExtensionInfo::help(std::span<const TclObject> /*tokens*/) co
 void MachineExtensionInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, std::views::transform(
+		completeString(infoCommand.getCommandController(), tokens, std::views::transform(
 			motherBoard.getExtensions(),
 			[](auto& e) -> std::string_view { return e->getName(); }));
 	}
@@ -1217,7 +1217,7 @@ std::string MachineMediaInfo::help(std::span<const TclObject> /*tokens*/) const
 void MachineMediaInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, std::views::transform(
+		completeString(infoCommand.getCommandController(), tokens, std::views::transform(
 			motherBoard.getMediaProviders(), &MediaProviderInfo::name));
 	}
 }
@@ -1261,7 +1261,7 @@ std::string DeviceInfo::help(std::span<const TclObject> /*tokens*/) const
 void DeviceInfo::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, std::views::transform(
+		completeString(infoCommand.getCommandController(), tokens, std::views::transform(
 			motherBoard.availableDevices,
 			[](auto& d) -> std::string_view { return d->getName(); }));
 	}

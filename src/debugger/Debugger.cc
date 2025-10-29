@@ -1639,7 +1639,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 	};
 	switch (auto size = tokens.size(); size) {
 	case 2: {
-		completeString(tokens, concatArray(singleArgCmds, debuggableArgCmds, otherCmds));
+		completeString(commandController, tokens, concatArray(singleArgCmds, debuggableArgCmds, otherCmds));
 		break;
 	}
 	case 3:
@@ -1647,88 +1647,88 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 			// this command takes (an) argument(s)
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
-				completeString(tokens, std::views::keys(debugger().debuggables));
+				completeString(commandController, tokens, std::views::keys(debugger().debuggables));
 			} else if (tokens[1] == one_of("breakpoint"sv, "watchpoint"sv, "watchexpr"sv, "condition"sv)) {
 				static constexpr std::array subCmds = {
 					"list"sv, "create"sv,
 					"configure"sv, "remove"sv,
 				};
-				completeString(tokens, subCmds);
+				completeString(commandController, tokens, subCmds);
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
-				completeString(tokens, getBreakPointIds());
+				completeString(commandController, tokens, getBreakPointIds());
 			} else if (tokens[1] == "remove_watchpoint") {
 				// this one takes a wp id
-				completeString(tokens, getWatchPointIds());
+				completeString(commandController, tokens, getWatchPointIds());
 			} else if (tokens[1] == "remove_condition") {
 				// this one takes a cond id
-				completeString(tokens, getConditionIds());
+				completeString(commandController, tokens, getConditionIds());
 			} else if (tokens[1] == "set_watchpoint") {
-				completeString(tokens, types);
+				completeString(commandController, tokens, types);
 			} else if (tokens[1] == "probe") {
 				static constexpr std::array subCmds = {
 					"list"sv, "desc"sv, "read"sv, "set_bp"sv,
 					"remove_bp"sv, "list_bp"sv,
 				};
-				completeString(tokens, subCmds);
+				completeString(commandController, tokens, subCmds);
 			} else if (tokens[1] == "symbols") {
 				static constexpr std::array subCmds = {
 					"types"sv, "load"sv, "remove"sv,
 					"files"sv, "lookup"sv,
 				};
-				completeString(tokens, subCmds);
+				completeString(commandController, tokens, subCmds);
 			}
 		}
 		break;
 	default:
 		if ((size == 4) && (tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
-			completeString(tokens, std::views::transform(
+			completeString(commandController, tokens, std::views::transform(
 				debugger().probes,
 				[](auto* p) -> std::string_view { return p->getName(); }));
 		} else if (tokens[1] == "breakpoint") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
-				completeString(tokens, getBreakPointIds());
+				completeString(commandController, tokens, getBreakPointIds());
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				static constexpr std::array properties = {
 					"-address"sv, "-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 				};
-				completeString(tokens, properties);
+				completeString(commandController, tokens, properties);
 			}
 		} else if (tokens[1] == "watchpoint") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
-				completeString(tokens, getWatchPointIds());
+				completeString(commandController, tokens, getWatchPointIds());
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				if (tokens[size - 2] == "-type") {
-					completeString(tokens, types);
+					completeString(commandController, tokens, types);
 				} else {
 					static constexpr std::array properties = {
 						"-type"sv, "-address"sv, "-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 					};
-					completeString(tokens, properties);
+					completeString(commandController, tokens, properties);
 				}
 			}
 		} else if (tokens[1] == "watchexpr") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
-				completeString(tokens, getWatchExprIds());
+				completeString(commandController, tokens, getWatchExprIds());
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				static constexpr std::array properties = {
 					"-description"sv, "-expression"sv, "-format"sv,
 				};
-				completeString(tokens, properties);
+				completeString(commandController, tokens, properties);
 			}
 		} else if (tokens[1] == "condition") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
-				completeString(tokens, getConditionIds());
+				completeString(commandController, tokens, getConditionIds());
 			} else if (((size >= 4) && (tokens[2] == "create")) ||
 			           ((size >= 5) && (tokens[2] == "configure"))) {
 				static constexpr std::array properties = {
 					"-command"sv, "-condition"sv, "-enabled"sv, "-once"sv,
 				};
-				completeString(tokens, properties);
+				completeString(commandController, tokens, properties);
 			}
 		}
 		break;

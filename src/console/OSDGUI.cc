@@ -256,13 +256,13 @@ void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 		static constexpr std::array cmds = {
 			"create"sv, "destroy"sv, "info"sv, "exists"sv, "configure"sv
 		};
-		completeString(tokens, cmds);
+		completeString(commandController, tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		static constexpr std::array types = {"rectangle"sv, "text"sv};
-		completeString(tokens, types);
+		completeString(commandController, tokens, types);
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {
-		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
+		completeString(commandController, tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
 			auto properties = [&] {
@@ -276,7 +276,7 @@ void OSDGUI::OSDCommand::tabCompletion(std::vector<std::string>& tokens) const
 					return std::span<const std::string_view>{};
 				}
 			}();
-			completeString(tokens, properties);
+			completeString(commandController, tokens, properties);
 		} catch (MSXException&) {
 			// ignore
 		}

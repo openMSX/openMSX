@@ -363,7 +363,7 @@ void AfterCommand::tabCompletion(std::vector<std::string>& tokens) const
 			"time"sv, "realtime"sv, "idle"sv, "frame"sv, "break"sv, "boot"sv,
 			"machine_switch"sv, "quit"sv, "info"sv, "cancel"sv,
 		};
-		completeString(tokens, cmds);
+		completeString(commandController, tokens, cmds);
 	}
 	// TODO : make more complete
 }

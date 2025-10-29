@@ -52,7 +52,7 @@ std::string MessageCommand::help(std::span<const TclObject> /*tokens*/) const
 void MessageCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, CliComm::getLevelStrings());
+		completeString(commandController, tokens, CliComm::getLevelStrings());
 	}
 }
 

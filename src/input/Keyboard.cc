@@ -1717,7 +1717,7 @@ void Keyboard::KeyInserter::tabCompletion(std::vector<std::string>& tokens) cons
 {
 	using namespace std::literals;
 	static constexpr std::array options = {"-release"sv, "-freq"sv};
-	completeString(tokens, options);
+	completeString(commandController, tokens, options);
 }
 
 void Keyboard::KeyInserter::type(std::string_view str)
