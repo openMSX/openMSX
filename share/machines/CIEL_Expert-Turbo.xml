@@ -136,8 +136,6 @@
         </MemoryMapper>
     </primary>
 
-    <primary external="true" slot="2"/>
-
   </devices>
 
 </msxconfig>
