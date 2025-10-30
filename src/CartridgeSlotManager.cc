@@ -40,6 +40,16 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 	return config && (config != allowed);
 }
 
+void CartridgeSlotManager::Slot::setConfig(const HardwareConfig* cfg)
+{
+	config = cfg;
+	if (cfg && cfg->getType() == HardwareConfig::Type::MACHINE) {
+		throw MSXException("Invalid external slot specification "
+		                   "for ps=", ps, " ss=", ss);
+	}
+}
+
+
 void CartridgeSlotManager::Slot::getMediaInfo(TclObject& result)
 {
 	if (config) {
@@ -251,7 +261,7 @@ int CartridgeSlotManager::allocateSpecificPrimarySlot(unsigned slot, const Hardw
 		throw MSXException("slot-", char('a' + slot), " is not a primary slot.");
 	}
 	assert(slots[slot].useCount == 0);
-	slots[slot].config = &hwConfig;
+	slots[slot].setConfig(&hwConfig);
 	slots[slot].useCount = 1;
 	return slots[slot].ps;
 }
@@ -281,7 +291,7 @@ int CartridgeSlotManager::allocateAnyPrimarySlot(const HardwareConfig& hwConfig)
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
 			assert(slots[slot].useCount == 0);
-			slots[slot].config = &hwConfig;
+			slots[slot].setConfig(&hwConfig);
 			slots[slot].useCount = 1;
 			return slots[slot].ps;
 		}
@@ -295,7 +305,7 @@ void CartridgeSlotManager::freePrimarySlot(
 	auto slot = getSlot(ps, -1);
 	assert(slots[slot].config == &hwConfig); (void)hwConfig;
 	assert(slots[slot].useCount == 1);
-	slots[slot].config = nullptr;
+	slots[slot].setConfig(nullptr);
 	slots[slot].useCount = 0;
 }
 
@@ -305,8 +315,9 @@ void CartridgeSlotManager::allocateSlot(
 	for (auto slot : xrange(MAX_SLOTS)) {
 		if (!slots[slot].exists()) continue;
 		if ((slots[slot].ps == ps) && (slots[slot].ss == ss)) {
-			if (slots[slot].useCount == 0) {
-				slots[slot].config = &hwConfig;
+			++slots[slot].useCount;
+			if (slots[slot].useCount == 1) {
+				slots[slot].setConfig(&hwConfig);
 			} else {
 				if (slots[slot].config != &hwConfig) {
 					throw MSXException(
@@ -315,7 +326,6 @@ void CartridgeSlotManager::allocateSlot(
 						slots[slot].config->getName());
 				}
 			}
-			++slots[slot].useCount;
 		}
 	}
 	// Slot not found, was not an external slot. No problem.
@@ -331,7 +341,7 @@ void CartridgeSlotManager::freeSlot(
 			assert(slots[slot].useCount > 0);
 			--slots[slot].useCount;
 			if (slots[slot].useCount == 0) {
-				slots[slot].config = nullptr;
+				slots[slot].setConfig(nullptr);
 			}
 			return;
 		}

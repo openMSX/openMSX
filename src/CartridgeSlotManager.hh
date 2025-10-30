@@ -118,6 +118,7 @@ private:
 
 		[[nodiscard]] bool exists() const;
 		[[nodiscard]] bool used(const HardwareConfig* allowed = nullptr) const;
+		void setConfig(const HardwareConfig* cfg);
 
 		std::optional<CartCmd> cartCommand;
 		std::optional<ExtCmd> extCommand;
