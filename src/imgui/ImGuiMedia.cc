@@ -194,6 +194,28 @@ void ImGuiMedia::loadLine(std::string_view name, zstring_view value)
 	}
 }
 
+void ImGuiMedia::showMediaWindow(std::string_view mediaName)
+{
+		auto getIndex = [&] (std::string_view prefix) {
+			if ((mediaName.size() >= (prefix.size() + 1)) && mediaName.starts_with(prefix)) {
+				char c = mediaName[prefix.size()];
+				return c - 'a';
+			}
+			return -1;
+		};
+
+		if (auto diskIndex = getIndex("disk"); diskIndex >= 0) {
+			diskMediaInfo[diskIndex].show = true;
+		} else if (auto cartIndex = getIndex("cart"); cartIndex >= 0) {
+			cartridgeMediaInfo[cartIndex].show = true;
+	//	} else if (auto index = getIndex("hd")) {
+	//	} else if (auto index = getIndex("cd")) {
+		} else if (mediaName.starts_with("cassette")) {
+			cassetteMediaInfo.show = true;
+	//	} else if (mediaName.starts_with("laserdisc")) {
+		}
+}
+
 static std::string buildFilter(std::string_view description, std::span<const std::string_view> extensions)
 {
 	auto formatExtensions = [&] -> std::string {
@@ -423,13 +445,13 @@ void ImGuiMedia::extensionTooltip(ExtensionInfo& info)
 	});
 }
 
-bool ImGuiMedia::drawExtensionFilter()
+bool ImGuiMedia::drawExtensionFilter(std::string& filterType, std::string& filterString, bool& filterOpen, int id)
 {
 	std::string filterDisplay = "filter";
 	if (!filterType.empty() || !filterString.empty()) strAppend(filterDisplay, ':');
 	if (!filterType.empty()) strAppend(filterDisplay, ' ', filterType);
 	if (!filterString.empty()) strAppend(filterDisplay, ' ', filterString);
-	strAppend(filterDisplay, "###filter");
+	strAppend(filterDisplay, "###filter", id);
 	bool newFilterOpen = filterOpen;
 	im::TreeNode(filterDisplay.c_str(), &newFilterOpen, [&]{
 		displayFilterCombo(filterType, "Type", getAllExtensions());
@@ -442,6 +464,46 @@ bool ImGuiMedia::drawExtensionFilter()
 	bool changed = filterOpen != newFilterOpen;
 	filterOpen = newFilterOpen;
 	return changed;
+}
+
+void ImGuiMedia::paintCurrent(const TclObject& current, std::string_view type)
+{
+	if (current.empty()) {
+		ImGui::StrCat("Current: no ", type, " inserted");
+	} else {
+		ImGui::StrCat("Current: ", current.getString());
+	}
+	ImGui::Separator();
+}
+
+void ImGuiMedia::paintRecent(const std::string& mediaName, ItemGroup& group,
+		                      function_ref<std::string(const std::string&)> displayFunc,
+		                      const std::function<void(const std::string&)>& toolTip,
+				      std::function<void()>* actionToSet)
+{
+	if (!group.recent.empty()) {
+		im::Indent([&] {
+			im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
+				int count = 0;
+				for (const auto& item : group.recent) {
+					auto d = strCat(display(item, displayFunc), "##", count++);
+					if (ImGui::MenuItem(d.c_str())) {
+						bool delayed = actionToSet == nullptr;
+						auto action = [this, &group, item, mediaName, delayed] {
+							group.edit = item;
+							insertMedia(mediaName, group.edit, delayed);
+						};
+						if (actionToSet) {
+							*actionToSet = action;
+						} else {
+							action();
+						}
+					}
+					if (toolTip) toolTip(item.name);
+				}
+			});
+		});
+	}
 }
 
 void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
@@ -461,44 +523,6 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::Separator();
 			}
 			status = ITEM;
-		};
-
-		auto showCurrent = [&](const TclObject& current, std::string_view type) {
-			if (current.empty()) {
-				ImGui::StrCat("Current: no ", type, " inserted");
-			} else {
-				ImGui::StrCat("Current: ", current.getString());
-			}
-			ImGui::Separator();
-		};
-
-		auto showRecent = [&](const std::string& mediaName, ItemGroup& group,
-		                      function_ref<std::string(const std::string&)> displayFunc = std::identity{},
-		                      const std::function<void(const std::string&)>& toolTip = {},
-				      std::function<void()>* actionToSet = nullptr) {
-			if (!group.recent.empty()) {
-				im::Indent([&] {
-					im::Menu(strCat("Recent##", mediaName).c_str(), [&]{
-						int count = 0;
-						for (const auto& item : group.recent) {
-							auto d = strCat(display(item, displayFunc), "##", count++);
-							if (ImGui::MenuItem(d.c_str())) {
-								bool delayed = actionToSet == nullptr;
-								auto action = [this, &group, item, mediaName, delayed] {
-									group.edit = item;
-									insertMedia(mediaName, group.edit, delayed);
-								};
-								if (actionToSet) {
-									*actionToSet = action;
-								} else {
-									action();
-								}
-							}
-							if (toolTip) toolTip(item.name);
-						}
-					});
-				});
-			}
 		};
 
 		// cartA / extX
@@ -529,7 +553,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				HelpMarker("Note that some extensions are I/O only and will not occupy any cartridge slot when inserted. "
 				           "These can only be removed via the 'Media > Extensions > Remove' menu. "
 				           "To insert (non I/O-only) extensions in a specific slot, use the 'Media > Cartridge Slot' menu.");
-				drawExtensionFilter();
+				drawExtensionFilter(genericFilterType, genericFilterString, genericFilterOpen);
 
 				auto& allExtensions = getAllExtensions();
 
@@ -558,8 +582,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 					}
 				}();
 
-				applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
-				applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
+				applyComboFilter("Type", genericFilterType, allExtensions, filteredExtensions);
+				applyDisplayNameFilter(genericFilterString, allExtensions, filteredExtensions);
 
 				float width = 40.0f * ImGui::GetFontSize();
 				float height = (10.25f + (anyNonWorking ? 1 : 0)) * ImGui::GetTextLineHeightWithSpacing();
@@ -583,7 +607,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 				}
 			});
 
-			showRecent(std::string(mediaName), group,
+			paintRecent(std::string(mediaName), group,
 				[this](const std::string& config) { // displayFunc
 					return displayNameForExtension(config);
 				},
@@ -652,28 +676,8 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			auto displayName = strCat("Hard Disk ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(hdName))) {
 				elementInGroup();
-				auto& group = hdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "hard disk");
-					if (ImGui::MenuItem("Select hard disk image...")) {
-						manager.openFile->selectFile(
-							"Select image for " + displayName,
-							hdFilter(),
-							[this, &group, hdName](const auto& fn) {
-								switchHdAction = [this, &group, hdName, fn] {
-									group.edit.name = fn;
-									bool delayed = false;
-									this->insertMedia(hdName, group.edit, delayed);
-								};
-							},
-							currentImage.getString());
-					}
-					if (motherBoard->isPowered()) {
-						HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
-						           "so a power cycle is required.");
-					}
-					showRecent(hdName, group, std::identity{}, {}, &switchHdAction);
+					paintHardDiskMenuContent(hdName, displayName, cmdResult->getListIndex(interp, 1), *motherBoard);
 				});
 			}
 		}
@@ -681,56 +685,27 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 
 		// cdX
 		auto cdInUse = IDECDROM::getDrivesInUse(*motherBoard);
-		std::string cdName = "cdX";
 		for (auto i : xrange(IDECDROM::MAX_CD)) {
 			if (!(*cdInUse)[i]) continue;
+			std::string cdName = "cdX";
 			cdName.back() = char('a' + i);
 			auto displayName = strCat("CDROM Drive ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(cdName))) {
 				elementInGroup();
-				auto& group = cdMediaInfo[i];
 				im::Menu(displayName.c_str(), [&]{
-					auto currentImage = cmdResult->getListIndex(interp, 1);
-					showCurrent(currentImage, "CDROM");
-					if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
-						manager.executeDelayed(makeTclList(cdName, "eject"));
-					}
-					if (ImGui::MenuItem("Insert CDROM image...")) {
-						manager.openFile->selectFile(
-							"Select CDROM image for " + displayName,
-							cdFilter(),
-							[this, &group, cdName](const auto& fn) {
-								group.edit.name = fn;
-								this->insertMedia(cdName, group.edit);
-							},
-							currentImage.getString());
-					}
-					showRecent(cdName, group);
+					paintCDROMMenuContent(cdName, displayName, cmdResult->getListIndex(interp, 1));
 				});
 			}
 		}
 		endGroup();
 
 		// laserdisc
-		if (auto cmdResult = manager.execute(TclObject("laserdiscplayer"))) {
+		constexpr static std::string mediaSlotName = "laserdiscplayer";
+		if (auto cmdResult = manager.execute(TclObject(mediaSlotName))) {
 			elementInGroup();
-			im::Menu("LaserDisc Player", [&]{
-				auto currentImage = cmdResult->getListIndex(interp, 1);
-				showCurrent(currentImage, "laserdisc");
-				if (ImGui::MenuItem("eject", nullptr, false, !currentImage.empty())) {
-					manager.executeDelayed(makeTclList("laserdiscplayer", "eject"));
-				}
-				if (ImGui::MenuItem("Insert LaserDisc image...")) {
-					manager.openFile->selectFile(
-						"Select LaserDisc image",
-						buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
-						[this](const auto& fn) {
-							laserdiscMediaInfo.edit.name = fn;
-							this->insertMedia("laserdiscplayer", laserdiscMediaInfo.edit);
-						},
-						currentImage.getString());
-				}
-				showRecent("laserdiscplayer", laserdiscMediaInfo);
+			const static std::string displayName = "LaserDisc Player";
+			im::Menu(displayName.c_str(), [&]{
+				paintLaserDiscMenuContent(mediaSlotName, displayName, cmdResult->getListIndex(interp, 1));
 			});
 		}
 		endGroup();
@@ -771,6 +746,69 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 			switchHdAction = {};
 		}
 	}
+}
+
+void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard)
+{
+	paintCurrent(currentImage, "hard disk");
+	auto& group = hdMediaInfo[mediaSlotName.back() - 'a'];
+	if (ImGui::MenuItem("Select hard disk image...")) {
+		manager.openFile->selectFile(
+			"Select image for " + slotDisplayName,
+			hdFilter(),
+			[this, &group, mediaSlotName](const auto& fn) {
+				switchHdAction = [this, &group, mediaSlotName, fn] {
+					group.edit.name = fn;
+					bool delayed = false;
+					this->insertMedia(mediaSlotName, group.edit, delayed);
+				};
+			},
+			currentImage.getString());
+	}
+	if (motherBoard.isPowered()) {
+		HelpMarker("Hard disk image cannot be switched while the MSX is powered on, "
+			   "so a power cycle is required.");
+	}
+	paintRecent(std::string(mediaSlotName), group, std::identity{}, {}, &switchHdAction);
+}
+
+void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
+{
+	paintCurrent(currentImage, "CDROM");
+	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList(mediaSlotName, "eject"));
+	}
+	auto& group = cdMediaInfo[mediaSlotName.back() - 'a'];
+	if (ImGui::MenuItem("Insert CDROM image...")) {
+		manager.openFile->selectFile(
+			"Select CDROM image for " + slotDisplayName,
+			cdFilter(),
+			[this, &group, mediaSlotName](const auto& fn) {
+				group.edit.name = fn;
+				this->insertMedia(mediaSlotName, group.edit);
+			},
+			currentImage.getString());
+	}
+	paintRecent(std::string(mediaSlotName), group);
+}
+
+void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
+{
+	paintCurrent(currentImage, "laserdisc");
+	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
+		manager.executeDelayed(makeTclList(mediaSlotName, "eject"));
+	}
+	if (ImGui::MenuItem("Insert LaserDisc image...")) {
+		manager.openFile->selectFile(
+				"Select LaserDisc image for " + slotDisplayName,
+				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
+				[this, mediaSlotName](const auto& fn) {
+				laserdiscMediaInfo.edit.name = fn;
+				this->insertMedia(mediaSlotName, laserdiscMediaInfo.edit);
+				},
+				currentImage.getString());
+	}
+	paintRecent(std::string(mediaSlotName), laserdiscMediaInfo);
 }
 
 void ImGuiMedia::paint(MSXMotherBoard* motherBoard)
@@ -1343,43 +1381,7 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 				ImGui::RadioButton("extension", std::bit_cast<int*>(&info.select), std::to_underlying(EXTENSION));
 				im::VisuallyDisabled(info.select != EXTENSION, [&]{
 					im::Indent([&]{
-						auto& allExtensions = getAllExtensions();
-						auto& group = info.groups[EXTENSION];
-						auto& item = group.edit;
-
-						bool interacted = drawExtensionFilter();
-
-						auto drawExtensions = [&]{
-							auto filteredExtensions = to_vector(xrange(allExtensions.size()));
-							applyComboFilter("Type", filterType, allExtensions, filteredExtensions);
-							applyDisplayNameFilter(filterString, allExtensions, filteredExtensions);
-
-							im::ListClipper(filteredExtensions.size(), [&](int i) {
-								auto& ext = allExtensions[filteredExtensions[i]];
-								bool ok = getTestResult(ext).empty();
-								im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
-									if (ImGui::Selectable(ext.displayName.c_str(), item.name == ext.configName)) {
-										interacted = true;
-										item.name = ext.configName;
-									}
-									if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-										insertMedia(extName, group.edit); // Apply
-									}
-									extensionTooltip(ext);
-								});
-							});
-						};
-						if (filterOpen) {
-							im::ListBox("##list", [&]{
-								drawExtensions();
-							});
-						} else {
-							im::Combo("##extension", displayNameForExtension(item.name).c_str(), [&]{
-								drawExtensions();
-							});
-						}
-
-						interacted |= ImGui::IsItemActive();
+						bool interacted = showExtensionSelector(cartNum);
 						if (interacted) info.select = EXTENSION;
 					});
 				});
@@ -1396,6 +1398,54 @@ void ImGuiMedia::cartridgeMenu(int cartNum)
 			}
 		});
 	});
+}
+
+bool ImGuiMedia::showExtensionSelector(int cartNum, std::optional<std::string> itemToShowAsSelected)
+{
+	auto& info = cartridgeMediaInfo[cartNum];
+	using enum SelectCartridgeType;
+	auto& allExtensions = getAllExtensions();
+	auto& group = info.groups[EXTENSION];
+	auto& item = group.edit;
+
+	bool interacted = drawExtensionFilter(info.filterType, info.filterString, info.filterOpen, cartNum);
+
+	auto drawExtensions = [&]{
+		auto filteredExtensions = to_vector(xrange(allExtensions.size()));
+		applyComboFilter("Type", info.filterType, allExtensions, filteredExtensions);
+		applyDisplayNameFilter(info.filterString, allExtensions, filteredExtensions);
+
+		im::ListClipper(filteredExtensions.size(), [&](int i) {
+			auto& ext = allExtensions[filteredExtensions[i]];
+			bool ok = getTestResult(ext).empty();
+			im::StyleColor(!ok, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+				auto extName = strCat("ext", char('a' + cartNum));
+				if (ImGui::Selectable(ext.displayName.c_str(), item.name == (itemToShowAsSelected ? *itemToShowAsSelected : ext.configName))) {
+					interacted = true;
+					item.name = ext.configName;
+					if (itemToShowAsSelected.has_value()) {
+						insertMedia(extName, group.edit); // Apply
+					}
+				}
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					insertMedia(extName, group.edit); // Apply
+				}
+				extensionTooltip(ext);
+			});
+		});
+	};
+	if (info.filterOpen) {
+		im::ListBox(strCat("##list", cartNum).c_str(), [&]{
+			drawExtensions();
+		});
+	} else {
+		im::Combo(strCat("##extension", cartNum).c_str(), displayNameForExtension(itemToShowAsSelected ? *itemToShowAsSelected : item.name).c_str(), ImGuiComboFlags_WidthFitPreview, [&]{
+			drawExtensions();
+		});
+	}
+
+	interacted |= ImGui::IsItemActive();
+	return interacted;
 }
 
 static void RenderPlay(gl::vec2 center, ImDrawList* drawList)
