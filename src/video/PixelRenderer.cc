@@ -148,6 +148,17 @@ PostProcessor* PixelRenderer::getPostProcessor() const
 	return rasterizer->getPostProcessor();
 }
 
+const RawFrame* PixelRenderer::getWorkingFrame(EmuTime time)
+{
+	sync(time, true);
+	return rasterizer->getWorkingFrame();
+}
+
+const RawFrame* PixelRenderer::getLastFrame() const
+{
+	return rasterizer->getLastFrame();
+}
+
 void PixelRenderer::reInit()
 {
 	// Don't draw before frameStart() is called.

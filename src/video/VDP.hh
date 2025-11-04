@@ -739,6 +739,12 @@ public:
 	// for debugging only
 	VDPCmdEngine& getCmdEngine() { return *cmdEngine; }
 
+	/** The frame that is currently being drawn, could be nullptr. */
+	[[nodiscard]] const RawFrame* getWorkingFrame(EmuTime time);
+
+	/** The last completed frame, could be nullptr. */
+	[[nodiscard]] const RawFrame* getLastFrame() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

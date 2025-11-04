@@ -15,6 +15,8 @@ public:
 
 	// Renderer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] const RawFrame* getWorkingFrame(EmuTime time) override;
+	[[nodiscard]] const RawFrame* getLastFrame() const override;
 	void reInit() override;
 	void frameStart(EmuTime time) override;
 	void frameEnd(EmuTime time) override;

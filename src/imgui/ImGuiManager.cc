@@ -16,6 +16,7 @@
 #include "ImGuiOpenFile.hh"
 #include "ImGuiOsdIcons.hh"
 #include "ImGuiPalette.hh"
+#include "ImGuiRasterViewer.hh"
 #include "ImGuiReverseBar.hh"
 #include "ImGuiSCCViewer.hh"
 #include "ImGuiSettings.hh"
@@ -171,6 +172,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	watchExpr = std::make_unique<ImGuiWatchExpr>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
+	rasterViewer = std::make_unique<ImGuiRasterViewer>(*this);
 	osdIcons = std::make_unique<ImGuiOsdIcons>(*this);
 	openFile = std::make_unique<ImGuiOpenFile>(*this);
 	trainer = std::make_unique<ImGuiTrainer>(*this);

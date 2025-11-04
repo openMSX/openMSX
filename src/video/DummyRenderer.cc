@@ -8,6 +8,14 @@ PostProcessor* DummyRenderer::getPostProcessor() const {
 	return nullptr;
 }
 
+const RawFrame* DummyRenderer::getWorkingFrame(EmuTime /*time*/) {
+	return nullptr;
+}
+
+const RawFrame* DummyRenderer::getLastFrame() const {
+	return nullptr;
+}
+
 void DummyRenderer::reInit() {
 }
 

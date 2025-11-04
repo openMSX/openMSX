@@ -43,6 +43,8 @@ public:
 
 	// Rasterizer interface:
 	[[nodiscard]] PostProcessor* getPostProcessor() const override;
+	[[nodiscard]] const RawFrame* getWorkingFrame() const override;
+	[[nodiscard]] const RawFrame* getLastFrame() const override;
 	[[nodiscard]] bool isActive() override;
 	void reset() override;
 	void frameStart(EmuTime time) override;

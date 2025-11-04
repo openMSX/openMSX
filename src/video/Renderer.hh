@@ -28,6 +28,10 @@ public:
 	/** See VDP::getPostProcessor. */
 	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
+	/** See VDP::getWorkingFrame() and VDP::getLastFrame() */
+	[[nodiscard]] virtual const RawFrame* getWorkingFrame(EmuTime time) = 0;
+	[[nodiscard]] virtual const RawFrame* getLastFrame() const = 0;
+
 	/** Reinitialize Renderer state.
 	  */
 	virtual void reInit() = 0;

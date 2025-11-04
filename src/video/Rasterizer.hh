@@ -18,6 +18,10 @@ public:
 	/** See VDP::getPostProcessor(). */
 	[[nodiscard]] virtual PostProcessor* getPostProcessor() const = 0;
 
+	/** See VDP::getWorkingFrame() and VDP::getLastFrame() */
+	[[nodiscard]] virtual const RawFrame* getWorkingFrame() const = 0;
+	[[nodiscard]] virtual const RawFrame* getLastFrame() const = 0;
+
 	/** Will the output of this Rasterizer be displayed?
 	  * There is no point in producing a frame that will not be displayed.
 	  * TODO: Is querying the next pipeline step the best way to solve this,

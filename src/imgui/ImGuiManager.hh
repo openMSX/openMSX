@@ -45,6 +45,7 @@ class ImGuiMsxMusicViewer;
 class ImGuiOpenFile;
 class ImGuiOsdIcons;
 class ImGuiPalette;
+class ImGuiRasterViewer;
 class ImGuiReverseBar;
 class ImGuiSCCViewer;
 class ImGuiSettings;
@@ -157,6 +158,7 @@ public:
 	std::unique_ptr<ImGuiWatchExpr> watchExpr;
 	std::unique_ptr<ImGuiVdpRegs> vdpRegs;
 	std::unique_ptr<ImGuiPalette> palette;
+	std::unique_ptr<ImGuiRasterViewer> rasterViewer;
 	std::unique_ptr<ImGuiReverseBar> reverseBar;
 	std::unique_ptr<ImGuiHelp> help;
 	std::unique_ptr<ImGuiOsdIcons> osdIcons;

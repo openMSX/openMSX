@@ -93,6 +93,12 @@ public:
 	  */
 	[[nodiscard]] FrameSource* getPaintFrame() const { return paintFrame; }
 
+	/** Get the last (finished) raw frame, could be nullptr.
+	  */
+	[[nodiscard]] RawFrame* getLastRawFrame() const {
+		return lastFramesCount > 0 ? lastFrames[0].get() : nullptr;
+	}
+
 	// VideoLayer
 	void takeRawScreenShot(std::optional<unsigned> height, const std::string& filename) override;
 

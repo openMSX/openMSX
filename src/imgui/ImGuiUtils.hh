@@ -87,6 +87,34 @@ inline void RightAlignText(std::string_view text, std::string_view maxWidthText)
 	RightAlignText(text, ImGui::CalcTextSize(maxWidthText).x);
 }
 
+inline void AddImageRectMultiColor(ImDrawList* draw_list, ImTextureRef tex_id,
+                                   const ImVec2& p_min, const ImVec2& p_max,
+                                   const ImVec2& uv_min, const ImVec2& uv_max,
+                                   ImU32 col_tl, ImU32 col_tr, ImU32 col_br,
+                                   ImU32 col_bl)
+{
+	const bool push_texture_id = tex_id != draw_list->_CmdHeader.TexRef;
+	if (push_texture_id) draw_list->PushTexture(tex_id);
+
+	ImDrawIdx idx = draw_list->_VtxCurrentIdx;
+	draw_list->PrimReserve(6, 4);
+
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 0));
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 1));
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 2));
+
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 0));
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 2));
+	draw_list->PrimWriteIdx(ImDrawIdx(idx + 3));
+
+	draw_list->PrimWriteVtx(p_min,                    uv_min,                     col_tl);
+	draw_list->PrimWriteVtx(ImVec2(p_max.x, p_min.y), ImVec2(uv_max.x, uv_min.y), col_tr);
+	draw_list->PrimWriteVtx(p_max,                    uv_max,                     col_br);
+	draw_list->PrimWriteVtx(ImVec2(p_min.x, p_max.y), ImVec2(uv_min.x, uv_max.y), col_bl);
+
+	if (push_texture_id) draw_list->PopTexture();
+}
+
 } // namespace ImGui
 
 namespace openmsx {

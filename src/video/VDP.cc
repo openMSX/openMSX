@@ -1598,6 +1598,16 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 	return tmsPalette;
 }
 
+const RawFrame* VDP::getWorkingFrame(EmuTime time)
+{
+	return renderer->getWorkingFrame(time);
+}
+
+const RawFrame* VDP::getLastFrame() const
+{
+	return renderer->getLastFrame();
+}
+
 // RegDebug
 
 VDP::RegDebug::RegDebug(const VDP& vdp_)
