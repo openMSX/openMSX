@@ -109,9 +109,10 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
-# Provides tab completion for file, intend to use the 2nd argment
-# of 'set_tabcompletion_proc' procedure.
-# Placed here for compatibility. See _file_completion.tcl.
+# Provides tab completion for file, intended to use the 2nd argument
+# of 'set_tabcompletion_proc' procedure. Also please set 'self' to the
+# 3rd parameter (Even if not, backward compatibility code works currently).
+# Placed here for compatibility. See `share/scripts/_tab_completion.tcl`.
 proc file_completion {args} {
 	return [::file_tab_completion true {} {} {*}$args]
 }

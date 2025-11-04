@@ -40,6 +40,9 @@ struct NoCaseCompare {
 	}
 };
 
+/// Q: Why is this callback necessary?
+/// A: Tcl cannot sort in the order defined by the locale.
+///    https://wiki.tcl-lang.org/page/lsort#ae700b29c398fa05555ccec915e58adc9e497c914ecd2ca2d14a638446a0ff19
 class SortUnderCppCommand : public Command {
 public:
 	SortUnderCppCommand(CommandController& c)
@@ -55,15 +58,17 @@ public:
 			result.addListElements(sorted);
 		}
 		else {
-			// When using 'std::set' like above/below, "AA", "aa", "Aa" and
+			// When using 'std::set' like below, "AA", "aa", "Aa" and
 			// "aA" will be unified. Original code doesn't want to do that.
 			//
 			// std::set<zstring_view, NoCaseCompare> sorted;
 			// for (const auto& e : strs) { sorted.insert(e.getString()); }
 			//
+			std::set<zstring_view> uniqued;
+			for (const auto& e : strs) { uniqued.insert(e.getString()); }
 			std::vector<zstring_view> sorted;
-			for (const auto& e : strs) { sorted.push_back(e.getString()); }
-			std::sort(sorted.begin(), sorted.end(), NoCaseCompare());
+			std::ranges::copy(uniqued, std::back_inserter(sorted));
+			std::ranges::sort(sorted, NoCaseCompare());
 			result.addListElements(sorted);
 		}
 	}

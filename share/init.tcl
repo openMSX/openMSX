@@ -164,6 +164,13 @@ proc tabcompletion {args} {
 }
 
 proc set_tabcompletion_proc {command proc {case_sensitive true}} {
+	# $proc possibly be accessible later and not now.
+	set dummy [catch {
+		if {[namespace origin $proc] eq "::utils::file_completion"}	{
+			set case_sensitive self
+		}
+	}
+	]
 	variable tabcompletion_proc_dict
 	dict set tabcompletion_proc_dict $command [list $case_sensitive $proc]
 }
