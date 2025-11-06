@@ -129,6 +129,9 @@ public:
 
 	void output(std::string_view message) override;
 
+	// Closed from the client side.
+	[[nodiscard]] bool isClosed();
+
 private:
 	void close() override;
 	void run() override;

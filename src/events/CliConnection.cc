@@ -377,4 +377,10 @@ void SocketConnection::close()
 	closeSocket();
 }
 
+bool SocketConnection::isClosed()
+{
+	std::scoped_lock lock(sdMutex);
+	return sd == OPENMSX_INVALID_SOCKET;
+}
+
 } // namespace openmsx
