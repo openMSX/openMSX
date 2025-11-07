@@ -13,6 +13,7 @@
 #include "Version.hh"
 
 #include "ScopedAssign.hh"
+#include "function_ref.hh"
 #include "join.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -317,14 +318,14 @@ void GlobalCommandController::source(const std::string& script)
 	}
 }
 
-std::string GlobalCommandController::tabCompletion(std::string_view command)
+static std::string tabCompletionImpl(std::string_view command, Interpreter& interp, function_ref<void(std::vector<std::string>&)> action)
 {
 	// split on 'active' command (the command that should actually be
 	// completed). Some examples:
 	//    if {[debug rea<tab> <-- should complete the 'debug' command
 	//                              instead of the 'if' command
 	//    bind F6 { cycl<tab> <-- should complete 'cycle' instead of 'bind'
-	TclParser parser = interpreter.parse(command);
+	TclParser parser = interp.parse(command);
 	int last = parser.getLast();
 	std::string_view pre  = command.substr(0, last);
 	std::string_view post = command.substr(last);
@@ -338,7 +339,7 @@ std::string GlobalCommandController::tabCompletion(std::string_view command)
 	// complete last token
 	auto tokens = removeEscaping(originalTokens, true);
 	auto oldNum = tokens.size();
-	tabCompletion(tokens);
+	action(tokens);
 	auto newNum = tokens.size();
 	bool tokenFinished = oldNum != newNum;
 
@@ -356,6 +357,22 @@ std::string GlobalCommandController::tabCompletion(std::string_view command)
 
 	// rebuild command string
 	return strCat(pre, join(originalTokens, ' '));
+}
+
+std::string GlobalCommandController::tabCompletion(std::string_view command)
+{
+	return tabCompletionImpl(command, interpreter, [&](std::vector<std::string>& tokens) {
+		tabCompletion(tokens);
+	});
+}
+
+std::string GlobalCommandController::tabCompletionReplace(std::string_view command, std::string_view replacement)
+{
+	return tabCompletionImpl(command, interpreter, [&](std::vector<std::string>& tokens) {
+		assert(!tokens.empty());
+		tokens.back() = replacement;
+		tokens.emplace_back();
+	});
 }
 
 void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)

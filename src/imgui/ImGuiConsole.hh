@@ -10,6 +10,7 @@
 
 #include "Observer.hh"
 #include "circular_buffer.hh"
+#include "function_ref.hh"
 
 #include <string>
 
@@ -38,14 +39,18 @@ private:
 	void newLineConsole(ConsoleLine line);
 	static int textEditCallbackStub(ImGuiInputTextCallbackData* data);
 	int textEditCallback(ImGuiInputTextCallbackData* data);
+	void tabEdit(ImGuiInputTextCallbackData* data, function_ref<std::string(std::string_view)> action);
 	void colorize(std::string_view line);
 	void putHistory(std::string command);
 	void saveHistory();
 	void loadHistory();
 
+	void computeCompletionColumns(float availableWidth);
+
 	// InterpreterOutput
 	void output(std::string_view text) override;
 	[[nodiscard]] unsigned getOutputColumns() const override;
+	void setCompletions(std::span<const std::string_view> completions) override;
 
 	// Observer
 	void update(const Setting& setting) noexcept override;
@@ -64,6 +69,14 @@ private:
 	std::string prompt;
 	std::string inputBuf;
 	ConsoleLine coloredInputBuf;
+
+	std::vector<ImWchar> replayInput;
+	std::vector<std::string> completions;
+	std::vector<float> colWidths;
+	std::string completionReplacement;
+	gl::vec2 popupSize;
+	int completionIndex = -1;
+	bool completionPopupOpen = false;
 
 	unsigned columns = 80; // gets recalculated
 	bool scrollToBottom = false;
