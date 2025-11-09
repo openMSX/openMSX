@@ -263,7 +263,6 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ gl::vec2 drawPos = topLeft + gl::vec2(style.FramePadding);
 		/**/ ImVec4 clipRect = gl::vec4(topLeft, bottomRight);
 		/**/ auto* drawList = ImGui::GetWindowDrawList();
-		/**/ auto charWidth = font->GetFontBaked(fontSize)->GetCharAdvance('A'); // assumes fixed-width font
 		/**/ if (ImGui::IsItemActive()) {
 		/**/	auto id = ImGui::GetID("##Input");
 		/**/	if (const auto* state = ImGui::GetInputTextState(id)) { // Internal API !!!
@@ -272,8 +271,9 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/		// redraw cursor (it was drawn transparent before)
 		/**/		bool cursorIsVisible = (state->CursorAnim <= 0.0f) || ImFmod(state->CursorAnim, 1.20f) <= 0.80f;
 		/**/		if (cursorIsVisible) {
-		/**/			// This assumes a single line and fixed-width font
-		/**/			gl::vec2 cursorOffset(float(state->GetCursorPos()) * charWidth, 0.0f);
+		/**/			// This assumes a single line
+		/**/			auto strToCursor = zstring_view(coloredInputBuf.str()).substr(0, state->GetCursorPos());
+		/**/			gl::vec2 cursorOffset(ImGui::CalcTextSize(strToCursor).x, 0.0f);
 		/**/			gl::vec2 cursorScreenPos = ImTrunc(drawPos + cursorOffset);
 		/**/			ImRect cursorScreenRect(cursorScreenPos.x, cursorScreenPos.y - 0.5f, cursorScreenPos.x + 1.0f, cursorScreenPos.y + fontSize - 1.5f);
 		/**/			if (cursorScreenRect.Overlaps(clipRect)) {
@@ -288,8 +288,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/ 	const char* begin = text.data();
 		/**/ 	const char* end = begin + text.size();
 		/**/ 	drawList->AddText(font, fontSize, drawPos, rgba, begin, end, 0.0f, &clipRect);
-		/**/    // avoid ImGui::CalcTextSize(): it's off-by-one for sizes >= 256 pixels
-		/**/    drawPos.x += charWidth * float(utf8::unchecked::distance(begin, end));
+		/**/    drawPos.x += ImGui::CalcTextSize(text).x;
 		/**/ }
 	});
 }
