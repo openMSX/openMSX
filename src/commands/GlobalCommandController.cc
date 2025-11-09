@@ -318,14 +318,14 @@ void GlobalCommandController::source(const std::string& script)
 	}
 }
 
-static std::string tabCompletionImpl(std::string_view command, Interpreter& interp, function_ref<void(std::vector<std::string>&)> action)
+static std::string tabCompletionImpl(std::string_view command, Interpreter& interpreter, function_ref<void(std::vector<std::string>&)> action)
 {
 	// split on 'active' command (the command that should actually be
 	// completed). Some examples:
 	//    if {[debug rea<tab> <-- should complete the 'debug' command
 	//                              instead of the 'if' command
 	//    bind F6 { cycl<tab> <-- should complete 'cycle' instead of 'bind'
-	TclParser parser = interp.parse(command);
+	TclParser parser = interpreter.parse(command);
 	int last = parser.getLast();
 	std::string_view pre  = command.substr(0, last);
 	std::string_view post = command.substr(last);

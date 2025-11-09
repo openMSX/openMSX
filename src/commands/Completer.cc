@@ -114,10 +114,6 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	}
 	if (!expanded && output) {
 		output->setCompletions(matches);
-		// print all possibilities
-		/*for (const auto& line : formatListInColumns(matches)) {
-			output->output(line);
-		}*/
 	}
 	return false;
 }

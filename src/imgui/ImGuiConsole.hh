@@ -34,6 +34,13 @@ public:
 public:
 	bool show = false;
 
+	struct CompletionPopupLayout {
+		std::vector<float> columnWidths = {};
+		gl::vec2 size = {};
+		bool needXScrollBar = false;
+		bool needYScrollBar = false;
+	};
+
 private:
 	void print(std::string_view text, imColor color = imColor::TEXT);
 	void newLineConsole(ConsoleLine line);
@@ -44,8 +51,6 @@ private:
 	void putHistory(std::string command);
 	void saveHistory();
 	void loadHistory();
-
-	void computeCompletionColumns(float availableWidth);
 
 	// InterpreterOutput
 	void output(std::string_view text) override;
@@ -70,18 +75,21 @@ private:
 	std::string inputBuf;
 	ConsoleLine coloredInputBuf;
 
-	std::vector<ImWchar> replayInput;
-	std::vector<std::string> completions;
-	std::vector<float> colWidths;
-	std::string completionReplacement;
-	gl::vec2 popupSize;
-	int completionIndex = -1;
-	bool completionPopupOpen = false;
-
 	unsigned columns = 80; // gets recalculated
 	bool scrollToBottom = false;
 	bool wasShown = false;
 	bool wrap = true;
+
+	// completion popup variables
+	// -- these are needed while popup is open
+	std::vector<std::string> completions;
+	CompletionPopupLayout popupLayout;
+	int completionIndex = -1;
+	// -- these are only needed between 2 frames
+	std::vector<ImWchar> replayInput; // replay input typed in popup in text field
+	std::string completionReplacement; // apply the selection from popup in text field
+	float textCursorScrnPosX = 0.0f; // last drawn text cursor X position
+	bool completionPopupOpen = false; // was popup open in last frame
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"show", &ImGuiConsole::show},
