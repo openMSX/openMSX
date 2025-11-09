@@ -498,6 +498,13 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		assert(ctxt);
 		context = *ctxt;
 	}
+	ar.serialize("name", name);
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("type", type);
+	} else {
+		assert(Archive::IS_LOADER);
+		type = name == "rom" ? HardwareConfig::Type::ROM : HardwareConfig::Type::EXTENSION;
+	}
 	if constexpr (Archive::IS_LOADER) {
 		if (!motherBoard.getMachineConfig()) {
 			// must be done before parseSlots()
@@ -511,13 +518,6 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 	// only (polymorphically) initialize devices, they are already created
 	for (auto& d : devices) {
 		ar.serializePolymorphic("device", *d);
-	}
-	ar.serialize("name", name);
-	if (ar.versionAtLeast(version, 5)) {
-		ar.serialize("type", type);
-	} else {
-		assert(Archive::IS_LOADER);
-		type = name == "rom" ? HardwareConfig::Type::ROM : HardwareConfig::Type::EXTENSION;
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(HardwareConfig);
