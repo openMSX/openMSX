@@ -308,6 +308,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 				io.ClearInputKeys();
 			} else if (io.InputQueueCharacters.Size != 0) {
 				replayInput.assign(io.InputQueueCharacters.begin(), io.InputQueueCharacters.end());
+			} else if (ImGui::IsKeyPressed(ImGuiKey_Backspace)) {
+				replayBackspace = true;
 			} else if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
 				if (io.KeyShift) {
 					completionIndex = (completionIndex == 0) ? (N - 1) : (completionIndex - 1);
@@ -366,7 +368,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					});
 				});
 			});
-			if (!completionReplacement.text.empty() || !replayInput.empty()) {
+			if (!completionReplacement.text.empty() || !replayInput.empty() || replayBackspace) {
 				close();
 			}
 		});
@@ -505,22 +507,28 @@ int ImGuiConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
 	return console->textEditCallback(data);
 }
 
+void ImGuiConsole::doEdit(ImGuiInputTextCallbackData* data)
+{
+	historyBackupLine.assign(data->Buf, narrow<size_t>(data->BufTextLen));
+	historyPos = -1;
+	colorize(historyBackupLine);
+}
+
 void ImGuiConsole::tabEdit(ImGuiInputTextCallbackData* data, function_ref<std::string(std::string_view)> action)
 {
 	std::string_view oldLine{data->Buf, narrow<size_t>(data->BufTextLen)};
 	auto front = oldLine.substr(0, data->CursorPos);
 	auto back  = oldLine.substr(data->CursorPos);
 
-	std::string newFront = action(front);
-	auto newPos = narrow<int>(newFront.size());
-	historyBackupLine = strCat(std::move(newFront), back);
-	historyPos = -1;
+	std::string newStr = action(front);
+	auto newPos = narrow<int>(newStr.size());
+	newStr += back;
 
 	data->DeleteChars(0, data->BufTextLen);
-	data->InsertChars(0, historyBackupLine.c_str());
+	data->InsertChars(0, newStr.c_str());
 	data->CursorPos = newPos;
 
-	colorize(historyBackupLine);
+	doEdit(data);
 }
 
 int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
@@ -552,9 +560,7 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 		}
 	}
 	if (data->EventFlag & ImGuiInputTextFlags_CallbackEdit) {
-		historyBackupLine.assign(data->Buf, narrow<size_t>(data->BufTextLen));
-		historyPos = -1;
-		colorize(historyBackupLine);
+		doEdit(data);
 	}
 	if (data->EventFlag & ImGuiInputTextFlags_CallbackAlways) {
 		if (!completionReplacement.text.empty()) {
@@ -564,6 +570,14 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 				return commandController.tabCompletionReplace(front, completionReplacement);
 			});
 			completionReplacement.text.clear();
+		}
+		if (replayBackspace) {
+			// completion popup was closed with backspace, simulate that
+			replayBackspace = false;
+			if (data->CursorPos > 0) {
+				data->DeleteChars(data->CursorPos - 1, 1);
+				doEdit(data);
+			}
 		}
 	}
 	return 0;

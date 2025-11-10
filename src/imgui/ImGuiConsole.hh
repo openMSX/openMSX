@@ -47,6 +47,7 @@ private:
 	void newLineConsole(ConsoleLine line);
 	static int textEditCallbackStub(ImGuiInputTextCallbackData* data);
 	int textEditCallback(ImGuiInputTextCallbackData* data);
+	void doEdit(ImGuiInputTextCallbackData* data);
 	void tabEdit(ImGuiInputTextCallbackData* data, function_ref<std::string(std::string_view)> action);
 	void colorize(std::string_view line);
 	void putHistory(std::string command);
@@ -90,6 +91,7 @@ private:
 	std::vector<ImWchar> replayInput; // replay input typed in popup in text field
 	CompletionCandidate completionReplacement; // apply the selection from popup in text field
 	float textCursorScrnPosX = 0.0f; // last drawn text cursor X position
+	bool replayBackspace = false; // whether to replay a backspace in text field
 	bool completionPopupOpen = false; // was popup open in last frame
 
 	static constexpr auto persistentElements = std::tuple{
