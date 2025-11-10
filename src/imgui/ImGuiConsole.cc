@@ -119,7 +119,7 @@ static void drawLine(const ConsoleLine& line)
 }
 
 static ImGuiConsole::CompletionPopupLayout calcPopupLayout(
-	gl::vec2 maxSize, std::span<const std::string> completions)
+	gl::vec2 maxSize, std::span<const CompletionCandidate> completions)
 {
 	const auto& style = ImGui::GetStyle();
 	auto itemHeight = ImGui::GetTextLineHeight() + 2 * style.CellPadding.y;
@@ -130,10 +130,10 @@ static ImGuiConsole::CompletionPopupLayout calcPopupLayout(
 	auto N = narrow<int>(completions.size());
 	auto padding = 2.0f * style.CellPadding.x;
 	auto itemWidths = to_vector(std::views::transform(completions, [&](const auto& c){
-		return ImGui::CalcTextSize(c.c_str()).x + padding;
+		return ImGui::CalcTextSize(c.display().c_str()).x + padding;
 	}));
 	auto effectiveMaxWidth = maxSize.x - (N > fitRows ? style.ScrollbarSize : 0.0f);
-	auto maxItemWidth = *std::ranges::max_element(itemWidths);
+	auto maxItemWidth = std::ranges::max(itemWidths);
 	if (maxItemWidth > effectiveMaxWidth) {
 		// even a single column is too wide
 		auto height = float(N) * itemHeight;
@@ -165,7 +165,7 @@ static ImGuiConsole::CompletionPopupLayout calcPopupLayout(
 			int from = c * rows;
 			int to   = std::min(from + rows, N);
 			assert(from < to);
-			float w = *std::ranges::max_element(subspan(itemWidths, from, to - from));
+			float w = std::ranges::max(subspan(itemWidths, from, to - from));
 			width += w;
 			colWidths.push_back(w);
 		}
@@ -357,7 +357,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 								int i = c * R + r;
 								if (i >= N) break;
 								bool selected = i == completionIndex;
-								if (ImGui::Selectable(completions[i].c_str(), selected)) {
+								if (ImGui::Selectable(completions[i].display().c_str(), selected)) {
 									completionReplacement = completions[i];
 								}
 								if (selected && doCenter) ImGui::SetScrollHereY(0.5f);
@@ -366,7 +366,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					});
 				});
 			});
-			if (!completionReplacement.empty() || !replayInput.empty()) {
+			if (!completionReplacement.text.empty() || !replayInput.empty()) {
 				close();
 			}
 		});
@@ -557,13 +557,13 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 		colorize(historyBackupLine);
 	}
 	if (data->EventFlag & ImGuiInputTextFlags_CallbackAlways) {
-		if (!completionReplacement.empty()) {
+		if (!completionReplacement.text.empty()) {
 			// completion popup made a selection, use that
 			auto& commandController = manager.getReactor().getGlobalCommandController();
 			tabEdit(data, [&](std::string_view front) {
 				return commandController.tabCompletionReplace(front, completionReplacement);
 			});
-			completionReplacement.clear();
+			completionReplacement.text.clear();
 		}
 	}
 	return 0;
@@ -651,10 +651,10 @@ unsigned ImGuiConsole::getOutputColumns() const
 	return columns;
 }
 
-void ImGuiConsole::setCompletions(std::span<const std::string_view> completions_)
+void ImGuiConsole::setCompletions(std::vector<CompletionCandidate> completions_)
 {
 	assert(!completions_.empty());
-	completions = to_vector<std::string>(completions_);
+	completions = std::move(completions_);
 }
 
 void ImGuiConsole::update(const Setting& /*setting*/) noexcept

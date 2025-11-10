@@ -366,12 +366,14 @@ std::string GlobalCommandController::tabCompletion(std::string_view command)
 	});
 }
 
-std::string GlobalCommandController::tabCompletionReplace(std::string_view command, std::string_view replacement)
+std::string GlobalCommandController::tabCompletionReplace(std::string_view command, const CompletionCandidate& replacement)
 {
 	return tabCompletionImpl(command, interpreter, [&](std::vector<std::string>& tokens) {
 		assert(!tokens.empty());
-		tokens.back() = replacement;
-		tokens.emplace_back();
+		tokens.back() = replacement.text;
+		if (!replacement.partial) {
+			tokens.emplace_back();
+		}
 	});
 }
 

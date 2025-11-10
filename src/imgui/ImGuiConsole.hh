@@ -5,6 +5,7 @@
 #include "ImGuiUtils.hh"
 
 #include "BooleanSetting.hh"
+#include "CompletionCandidate.hh"
 #include "ConsoleLine.hh"
 #include "InterpreterOutput.hh"
 
@@ -55,7 +56,7 @@ private:
 	// InterpreterOutput
 	void output(std::string_view text) override;
 	[[nodiscard]] unsigned getOutputColumns() const override;
-	void setCompletions(std::span<const std::string_view> completions) override;
+	void setCompletions(std::vector<CompletionCandidate> completions) override;
 
 	// Observer
 	void update(const Setting& setting) noexcept override;
@@ -82,12 +83,12 @@ private:
 
 	// completion popup variables
 	// -- these are needed while popup is open
-	std::vector<std::string> completions;
+	std::vector<CompletionCandidate> completions;
 	CompletionPopupLayout popupLayout;
 	int completionIndex = -1;
 	// -- these are only needed between 2 frames
 	std::vector<ImWchar> replayInput; // replay input typed in popup in text field
-	std::string completionReplacement; // apply the selection from popup in text field
+	CompletionCandidate completionReplacement; // apply the selection from popup in text field
 	float textCursorScrnPosX = 0.0f; // last drawn text cursor X position
 	bool completionPopupOpen = false; // was popup open in last frame
 

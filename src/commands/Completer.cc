@@ -59,31 +59,33 @@ std::vector<std::string> Completer::formatListInColumns(std::span<const std::str
 	return format(input, output->getOutputColumns() - 1);
 }
 
-bool Completer::equalHead(std::string_view s1, std::string_view s2, bool caseSensitive)
+bool Completer::equalHead(std::string_view s, const CompletionCandidate& c)
 {
-	if (s2.size() < s1.size()) return false;
-	if (caseSensitive) {
-		return std::ranges::equal(s1, subspan(s2, 0, s1.size()));
+	if (c.text.size() < s.size()) return false;
+	if (c.caseSensitive) {
+		return std::ranges::equal(s, subspan(c.text, 0, s.size()));
 	} else {
-		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
+		return strncasecmp(s.data(), c.text.data(), s.size()) == 0;
 	}
 }
 
-bool Completer::completeImpl(std::string& str, std::vector<std::string_view> matches,
-                             bool caseSensitive)
+void Completer::completeImpl(std::vector<std::string>& tokens, std::vector<CompletionCandidate> matches)
 {
-	assert(std::ranges::all_of(matches, [&](auto& m) {
-		return equalHead(str, m, caseSensitive);
-	}));
+	auto& str = tokens.back();
+	assert(std::ranges::all_of(matches, [&](auto& m) { return equalHead(str, m); }));
 
 	if (matches.empty()) {
 		// no matching values
-		return false;
+		return;
 	}
 	if (matches.size() == 1) {
 		// only one match
-		str = matches.front();
-		return true;
+		auto& m = matches.front();
+		str = m.text;
+		if (!m.partial) {
+			tokens.emplace_back();
+		}
+		return;
 	}
 
 	// Sort and remove duplicates.
@@ -91,42 +93,34 @@ bool Completer::completeImpl(std::string& str, std::vector<std::string_view> mat
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	std::ranges::sort(matches);
-	auto u = std::ranges::unique(matches);
+	std::ranges::sort(matches, {}, &CompletionCandidate::text);
+	auto u = std::ranges::unique(matches, {}, &CompletionCandidate::text);
 	matches.erase(u.begin(), u.end());
 
 	auto minsize_of_matches = std::ranges::min(
-		matches, {}, &std::string_view::size).size();
+		matches, {}, [](const auto& m) { return m.text.size(); }).text.size();
 
 	bool expanded = false;
 	while (str.size() < minsize_of_matches) {
 		auto it = begin(matches);
-		auto b = begin(*it);
+		auto b = begin(it->text);
 		auto e = b + str.size();
 		utf8::unchecked::next(e);
 		std::string_view test_str(b, e);
-		if (!std::ranges::all_of(matches,
-			[&](auto& val) {
-				return equalHead(test_str, val, caseSensitive);
-			})) { break; }
+		if (!std::ranges::all_of(matches, [&](auto& val) { return equalHead(test_str, val); })) {
+			break;
+		}
 		str = test_str;
 		expanded = true;
 	}
 	if (!expanded && output) {
 		output->setCompletions(matches);
 	}
-	return false;
-}
-
-void Completer::completeFileName(std::vector<std::string>& tokens,
-                                 const FileContext& context)
-{
-	completeFileNameImpl(tokens, context, std::vector<std::string_view>());
 }
 
 void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
                                      const FileContext& context,
-                                     std::vector<std::string_view> matches)
+                                     std::vector<CompletionCandidate> matches)
 {
 	std::string& filename = tokens.back();
 	filename = FileOperations::expandTilde(std::move(filename));
@@ -141,32 +135,33 @@ void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
 		paths = context.getPaths();
 	}
 
-	std::vector<std::string> filenames;
 	for (const auto& p : paths) {
 		auto pLen = p.size();
 		if (!p.empty() && (p.back() != '/')) ++pLen;
-		auto fileAction = [&](std::string_view path) {
+
+		auto fileAction = [&](std::string_view path, bool isDir = false) {
 			const auto& nm = FileOperations::getConventionalPath(
 				std::string(path.substr(pLen)));
-			if (equalHead(filename, nm, true)) {
-				filenames.push_back(nm);
+			CompletionCandidate c = {.text = nm};
+			if (isDir) c.text += '/';
+			if (equalHead(filename, c)) {
+				c.display_ = FileOperations::getFilename(nm);
+				if (isDir) {
+					c.display_ += '/';
+					c.partial = true;
+				}
+				matches.push_back(std::move(c));
 			}
 		};
 		auto dirAction = [&](std::string& path) {
-			path += '/';
-			fileAction(path);
-			path.pop_back();
+			fileAction(path, true);
 		};
+
 		foreach_file_and_directory(
 			FileOperations::join(p, dirname1),
 			fileAction, dirAction);
 	}
-	append(matches, filenames);
-	bool t = completeImpl(filename, matches, true);
-	if (t && !filename.empty() && (filename.back() != '/')) {
-		// completed filename, start new token
-		tokens.emplace_back();
-	}
+	completeImpl(tokens, std::move(matches));
 }
 
 void Completer::checkNumArgs(std::span<const TclObject> tokens, unsigned exactly, const char* errMessage) const
