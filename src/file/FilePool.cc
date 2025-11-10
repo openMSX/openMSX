@@ -187,7 +187,7 @@ std::string FilePool::Sha1SumCommand::help(std::span<const TclObject> /*tokens*/
 
 void FilePool::Sha1SumCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
-	completeFileName(tokens, userFileContext());
+	completeFileName(commandController, tokens, userFileContext());
 }
 
 } // namespace openmsx

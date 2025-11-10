@@ -1,7 +1,6 @@
 #include "EnumSetting.hh"
 
 #include "CommandException.hh"
-#include "Completer.hh"
 #include "TclObject.hh"
 
 #include "StringOp.hh"
@@ -37,12 +36,6 @@ void EnumSettingBase::additionalInfoBase(TclObject& result) const
 	TclObject valueList;
 	valueList.addListElements(getPossibleValues());
 	result.addListElement(valueList);
-}
-
-void EnumSettingBase::tabCompletionBase(std::vector<std::string>& tokens) const
-{
-	Completer::completeString(tokens, getPossibleValues(),
-	                          false); // case insensitive
 }
 
 } // namespace openmsx

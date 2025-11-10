@@ -1,4 +1,8 @@
+#include "CliComm.hh"
 #include "Completer.hh"
+#include "Command.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
 
 #include "Interpreter.hh"
 #include "InterpreterOutput.hh"
@@ -8,167 +12,184 @@
 #include "FileOperations.hh"
 #include "foreach_file.hh"
 
-#include "ranges.hh"
 #include "stl.hh"
 #include "strCat.hh"
 #include "stringsp.hh"
-#include "utf8_unchecked.hh"
-#include "xrange.hh"
-
 #include <algorithm>
-#include <array>
-#include <memory>
 
 namespace openmsx {
 
-static bool formatHelper(std::span<const std::string_view> input, size_t columnLimit,
-                         std::vector<std::string>& result)
-{
-	size_t column = 0;
-	auto it = begin(input);
-	do {
-		size_t maxColumn = column;
-		for (size_t i = 0; (i < result.size()) && (it != end(input));
-		     ++i, ++it) {
-			auto curSize = utf8::unchecked::size(result[i]);
-			strAppend(result[i], spaces(column - curSize), *it);
-			maxColumn = std::max(maxColumn,
-			                     utf8::unchecked::size(result[i]));
-			if (maxColumn > columnLimit) return false;
-		}
-		column = maxColumn + 2;
-	} while (it != end(input));
-	return true;
-}
+class GetConsoleWidthCommand : public Command {
+public:
+	GetConsoleWidthCommand(CommandController& c, int width_)
+		: width(width_), Command(c, "tc_get_console_width") { }
+	void execute(std::span<const TclObject>, TclObject& result) {
+		result.addListElement(width);
+	}
+	std::string help(std::span<const TclObject>) const {
+		return "Temporary command only enable during tab completion.";
+	}
+private:
+	int width;
+};
 
-static std::vector<std::string> format(std::span<const std::string_view> input, size_t columnLimit)
-{
-	std::vector<std::string> result;
-	for (auto lines : xrange(1u, input.size())) {
-		result.assign(lines, std::string());
-		if (formatHelper(input, columnLimit, result)) {
-			return result;
+struct NoCaseCompare {
+	bool operator()(zstring_view left, zstring_view right) const {
+		auto size = std::min(left.size(), right.size());
+		return strncasecmp(left.c_str(), right.c_str(), size) < 0;
+	}
+};
+
+/// Q: Why is this callback necessary?
+/// A: Tcl cannot sort in the order defined by the locale.
+///    https://wiki.tcl-lang.org/page/lsort#ae700b29c398fa05555ccec915e58adc9e497c914ecd2ca2d14a638446a0ff19
+class SortUnderCppCommand : public Command {
+public:
+	SortUnderCppCommand(CommandController& c)
+		: Command(c, "tc_sort_by_cpp"), interp(c.getInterpreter())
+	{ }
+	void execute(std::span<const TclObject> tokens, TclObject& result) {
+		if (tokens.size() < 2) { return; }
+		bool caseSensitive = tokens[1].getBoolean(interp);
+		std::span<const TclObject> strs = tokens.subspan(2);
+		if (caseSensitive) {
+			std::set<zstring_view> sorted;
+			for (const auto& e : strs) { sorted.insert(e.getString()); }
+			result.addListElements(sorted);
+		}
+		else {
+			// When using 'std::set' like below, "AA", "aa", "Aa" and
+			// "aA" will be unified. Original code doesn't want to do that.
+			//
+			// std::set<zstring_view, NoCaseCompare> sorted;
+			// for (const auto& e : strs) { sorted.insert(e.getString()); }
+			//
+			std::set<zstring_view> uniqued;
+			for (const auto& e : strs) { uniqued.insert(e.getString()); }
+			std::vector<zstring_view> sorted;
+			std::ranges::copy(uniqued, std::back_inserter(sorted));
+			std::ranges::sort(sorted, NoCaseCompare());
+			result.addListElements(sorted);
 		}
 	}
-	append(result, input);
+	std::string help(std::span<const TclObject>) const {
+		return "Temporary command only enable during tab completion, "
+		       "to support the lack of Tcl's 'lsort' functionality.";
+	}
+private:
+	Interpreter& interp;
+};
+
+// Only called from 'GlobalCommandController.cc',
+// only when 'help' is invoked without arguments.
+std::vector<std::string> Completer::formatListInColumns(
+	CommandController& controller, std::span<const std::string_view> input)
+{
+	std::set<std::string_view> unique_set(input.begin(), input.end());
+
+	TclObject command = makeTclList("format_to_columns_from_cpp");
+	TclObject entries = makeTclList();
+	entries.addListElements(unique_set);
+	command.addListElement(entries);
+	std::vector<std::string> result;
+	GetConsoleWidthCommand gtwc(controller, output->getOutputColumns());
+	SortUnderCppCommand succ(controller);
+	try {
+		TclObject list = command.executeCommand(controller.getInterpreter());
+		for (const auto& element : list) { result.push_back(std::string(element)); }
+	}
+	catch (CommandException& e) {
+		CliComm& cliComm = controller.getCliComm();
+		cliComm.printWarning(
+			"Error while executing format_to_columns_from_cpp proc: ",
+			e.getMessage());
+	}
 	return result;
 }
 
-std::vector<std::string> Completer::formatListInColumns(std::span<const std::string_view> input)
-{
-	return format(input, output->getOutputColumns() - 1);
-}
-
-bool Completer::equalHead(std::string_view s1, std::string_view s2, bool caseSensitive)
-{
-	if (s2.size() < s1.size()) return false;
-	if (caseSensitive) {
-		return std::ranges::equal(s1, subspan(s2, 0, s1.size()));
-	} else {
-		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
-	}
-}
-
-bool Completer::completeImpl(std::string& str, std::vector<std::string_view> matches,
+void Completer::completeImpl(CommandController& controller,
+                             std::vector<std::string>& tokens,
+	                         std::set<std::string_view> possibleValues,
                              bool caseSensitive)
 {
-	assert(std::ranges::all_of(matches, [&](auto& m) {
-		return equalHead(str, m, caseSensitive);
-	}));
-
-	if (matches.empty()) {
-		// no matching values
-		return false;
+	TclObject command = makeTclList("generic_tab_completion");
+	command.addListElement(caseSensitive);
+	TclObject possibleValuesObj = makeTclList();
+	possibleValuesObj.addListElements(possibleValues);
+	command.addListElement(possibleValuesObj);
+	try {
+		doTabCompletion(controller, command, tokens);
 	}
-	if (matches.size() == 1) {
-		// only one match
-		str = matches.front();
-		return true;
+	catch (CommandException& e) {
+		CliComm& cliComm = controller.getCliComm();
+		cliComm.printWarning(
+			"Error while executing tab_completion proc: ",
+			e.getMessage());
 	}
+}
 
-	// Sort and remove duplicates.
-	//  For efficiency it's best if the list doesn't contain duplicates to
-	//  start with. Though sometimes this is hard to avoid. E.g. when doing
-	//  filename completion + some extra allowed strings and one of these
-	//  extra strings is the same as one of the filenames.
-	std::ranges::sort(matches);
-	auto u = std::ranges::unique(matches);
-	matches.erase(u.begin(), u.end());
-
-	auto minsize_of_matches = std::ranges::min(
-		matches, {}, &std::string_view::size).size();
-
-	bool expanded = false;
-	while (str.size() < minsize_of_matches) {
-		auto it = begin(matches);
-		auto b = begin(*it);
-		auto e = b + str.size();
-		utf8::unchecked::next(e);
-		std::string_view test_str(b, e);
-		if (!std::ranges::all_of(matches,
-			[&](auto& val) {
-				return equalHead(test_str, val, caseSensitive);
-			})) { break; }
-		str = test_str;
-		expanded = true;
-	}
-	if (!expanded && output) {
-		// print all possibilities
-		for (const auto& line : formatListInColumns(matches)) {
-			output->output(line);
+/**
+ *
+ * throws: CommandException when failed to calling Tcl code.
+ */
+void Completer::doTabCompletion(CommandController& controller, 
+                                TclObject& command,
+                                std::vector<std::string>& tokens)
+{
+	command.addListElements(tokens);
+	GetConsoleWidthCommand gtwc(controller, output->getOutputColumns());
+	SortUnderCppCommand succ(controller);
+	TclObject list = command.executeCommand(controller.getInterpreter());
+	auto begin = list.begin();
+	auto end = list.end();
+	for (/**/; begin != end; ++begin) {
+		if (*begin == one_of("---done", "---cont")) {
+			bool done = *begin == "---done";
+			if (++begin != end) {
+				tokens.back() = std::string(*begin);
+			}
+			if (done) { tokens.emplace_back(); }
+			break;
+		}
+		else {
+			if (*begin == "---") { ++begin; }
+			break;
 		}
 	}
-	return false;
 }
 
-void Completer::completeFileName(std::vector<std::string>& tokens,
-                                 const FileContext& context)
+void Completer::completeFileName(CommandController& controller,
+	std::vector<std::string>& tokens,
+	const FileContext& context)
 {
-	completeFileNameImpl(tokens, context, std::vector<std::string_view>());
+	completeFileNameImpl(controller, tokens, context, std::set<std::string_view>());
 }
 
-void Completer::completeFileNameImpl(std::vector<std::string>& tokens,
+void Completer::completeFileNameImpl(CommandController& controller,
+                                     std::vector<std::string>& tokens,
                                      const FileContext& context,
-                                     std::vector<std::string_view> matches)
+                                     std::set<std::string_view> extras)
 {
 	std::string& filename = tokens.back();
 	filename = FileOperations::expandTilde(std::move(filename));
 	filename = FileOperations::expandCurrentDirFromDrive(std::move(filename));
-	std::string_view dirname1 = FileOperations::getDirName(filename);
 
-	std::span<const std::string> paths;
-	if (FileOperations::isAbsolutePath(filename)) {
-		static const std::array<std::string, 1> EMPTY = {""};
-		paths = EMPTY;
-	} else {
-		paths = context.getPaths();
+	TclObject command = makeTclList("file_tab_completion");
+	command.addListElement(true); // case sensitive
+	TclObject targetPaths = makeTclList();
+	for (const auto& p : context.getPaths()) { targetPaths.addListElement(p); }
+	TclObject extrasObj = makeTclList();
+	extrasObj.addListElements(extras);
+	command.addListElement(targetPaths);
+	command.addListElement(extrasObj);
+	try {
+		doTabCompletion(controller, command, tokens);
 	}
-
-	std::vector<std::string> filenames;
-	for (const auto& p : paths) {
-		auto pLen = p.size();
-		if (!p.empty() && (p.back() != '/')) ++pLen;
-		auto fileAction = [&](std::string_view path) {
-			const auto& nm = FileOperations::getConventionalPath(
-				std::string(path.substr(pLen)));
-			if (equalHead(filename, nm, true)) {
-				filenames.push_back(nm);
-			}
-		};
-		auto dirAction = [&](std::string& path) {
-			path += '/';
-			fileAction(path);
-			path.pop_back();
-		};
-		foreach_file_and_directory(
-			FileOperations::join(p, dirname1),
-			fileAction, dirAction);
-	}
-	append(matches, filenames);
-	bool t = completeImpl(filename, matches, true);
-	if (t && !filename.empty() && (filename.back() != '/')) {
-		// completed filename, start new token
-		tokens.emplace_back();
+	catch (CommandException& e) {
+		CliComm& cliComm = controller.getCliComm();
+		cliComm.printWarning(
+			"Error while executing file_tab_completion proc:",
+			e.getMessage());
 	}
 }
 

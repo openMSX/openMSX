@@ -341,7 +341,7 @@ void NowindCommand::tabCompletion(std::vector<std::string>& tokens) const
 		"-i"sv, "--image"sv,
 		"-m"sv, "--hdimage"sv,
 	};
-	completeFileName(tokens, userFileContext(), extra);
+	completeFileName(commandController, tokens, userFileContext(), extra);
 }
 
 } // namespace openmsx

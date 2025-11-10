@@ -37,7 +37,6 @@ protected:
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
 	[[nodiscard]] CliComm& getCliComm() const;
 
-private:
 	CommandController& commandController;
 };
 

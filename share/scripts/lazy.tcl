@@ -56,6 +56,9 @@ register_lazy "_soundchip_utils.tcl" {
 	get_num_channels get_volume_expr get_frequency_expr}
 register_lazy "_soundlog.tcl" soundlog
 register_lazy "_stack.tcl" stack
+register_lazy "_tab_completion.tcl" {
+	format_to_columns_from_cpp generic_tab_completion file_tab_completion
+	set_monospace_width_proc get_mono_width_types}
 register_lazy "_tas_tools.tcl" {
 	toggle_frame_counter prev_frame next_frame start_of_frame
 	advance_frame reverse_frame toggle_cursors ram_watch

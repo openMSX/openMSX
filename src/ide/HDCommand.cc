@@ -77,7 +77,7 @@ void HDCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	using namespace std::literals;
 	static constexpr std::array extra = {"insert"sv};
-	completeFileName(tokens, userFileContext(),
+	completeFileName(commandController, tokens, userFileContext(),
 		(tokens.size() < 3) ? extra : std::span<const std::string_view>{});
 
 }

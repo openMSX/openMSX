@@ -160,7 +160,7 @@ void SettingsManager::SettingInfo::tabCompletion(std::vector<std::string>& token
 	if (tokens.size() == 3) {
 		// complete setting name
 		const auto& manager = OUTER(SettingsManager, settingInfo);
-		completeString(tokens, manager.getTabSettingNames());
+		completeString(infoCommand.getCommandController(), tokens, manager.getTabSettingNames());
 	}
 }
 
@@ -192,7 +192,7 @@ void SettingsManager::SetCompleter::tabCompletion(std::vector<std::string>& toke
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		completeString(tokens, manager.getTabSettingNames(), false); // case insensitive
+		completeString(commandController, tokens, manager.getTabSettingNames(), false); // case insensitive
 		break;
 	}
 	case 3:
@@ -224,7 +224,7 @@ void SettingsManager::SettingCompleter::tabCompletion(std::vector<std::string>& 
 {
 	if (tokens.size() == 2) {
 		// complete setting name
-		completeString(tokens, manager.getTabSettingNames());
+		completeString(commandController, tokens, manager.getTabSettingNames());
 	}
 }
 

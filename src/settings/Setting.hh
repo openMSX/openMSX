@@ -170,12 +170,13 @@ protected:
 	void init();
 	void notifyPropertyChange() const;
 
+	CommandController& commandController;
+
 private:
 	[[nodiscard]] GlobalCommandController& getGlobalCommandController() const;
 	void notify() const;
 
 private:
-	CommandController& commandController;
 	const static_string_view description;
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?

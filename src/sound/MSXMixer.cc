@@ -850,7 +850,7 @@ std::string MSXMixer::SoundDeviceInfoTopic::help(std::span<const TclObject> /*to
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, std::views::transform(
+		completeString(infoCommand.getCommandController(), tokens, std::views::transform(
 			OUTER(MSXMixer, soundDeviceInfo).infos,
 			[](auto& info) -> std::string_view { return info.device->getName(); }));
 	}

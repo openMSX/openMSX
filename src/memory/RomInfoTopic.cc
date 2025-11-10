@@ -1,6 +1,7 @@
 #include "RomInfoTopic.hh"
 
 #include "CommandException.hh"
+#include "InfoCommand.hh"
 #include "RomInfo.hh"
 #include "TclObject.hh"
 
@@ -41,7 +42,8 @@ std::string RomInfoTopic::help(std::span<const TclObject> /*tokens*/) const
 void RomInfoTopic::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		completeString(tokens, RomInfo::getAllRomTypes(), false);
+		completeString(infoCommand.getCommandController(), tokens, RomInfo::getAllRomTypes(),
+		               false);
 	}
 }
 

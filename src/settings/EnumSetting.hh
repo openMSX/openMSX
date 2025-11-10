@@ -1,6 +1,7 @@
 #ifndef ENUMSETTING_HH
 #define ENUMSETTING_HH
 
+#include "Completer.hh"
 #include "Setting.hh"
 
 #include <concepts>
@@ -39,7 +40,6 @@ public:
 	}
 
 	void additionalInfoBase(TclObject& result) const;
-	void tabCompletionBase(std::vector<std::string>& tokens) const;
 
 private:
 	Map baseMap;
@@ -106,7 +106,8 @@ void EnumSetting<T>::additionalInfo(TclObject& result) const
 template<EnumSettingValue T>
 void EnumSetting<T>::tabCompletion(std::vector<std::string>& tokens) const
 {
-	tabCompletionBase(tokens);
+	Completer::completeString(commandController, tokens, getPossibleValues(),
+	                          false); // case insensitive
 }
 
 template<EnumSettingValue T>

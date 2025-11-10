@@ -250,7 +250,7 @@ std::string SettingsConfig::SaveSettingsCommand::help(std::span<const TclObject>
 void SettingsConfig::SaveSettingsCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens, systemFileContext());
+		completeFileName(commandController, tokens, systemFileContext());
 	}
 }
 
@@ -279,7 +279,7 @@ std::string SettingsConfig::LoadSettingsCommand::help(std::span<const TclObject>
 void SettingsConfig::LoadSettingsCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens, systemFileContext());
+		completeFileName(commandController, tokens, systemFileContext());
 	}
 }
 

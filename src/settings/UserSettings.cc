@@ -259,14 +259,14 @@ void UserSettings::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 		static constexpr std::array cmds = {
 			"create"sv, "destroy"sv, "info"sv,
 		};
-		completeString(tokens, cmds);
+		completeString(commandController, tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		static constexpr std::array types = {
 			"string"sv, "boolean"sv, "integer"sv, "float"sv, "enum"sv
 		};
-		completeString(tokens, types);
+		completeString(commandController, tokens, types);
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {
-		completeString(tokens, getSettingNames());
+		completeString(commandController, tokens, getSettingNames());
 	}
 }
 
