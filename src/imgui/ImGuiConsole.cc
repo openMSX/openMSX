@@ -224,8 +224,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		gl::vec2 scrollRegionPos;
 		im::Child("ScrollingRegion", ImVec2(0, -footerHeightToReserve), 0,
 		          ImGuiWindowFlags_HorizontalScrollbar, [&]{
-			scrollRegionSize = ImGui::GetContentRegionAvail();
-			scrollRegionPos = ImGui::GetCursorScreenPos();
+			scrollRegionSize = ImGui::GetWindowSize();
+			scrollRegionPos = ImGui::GetWindowPos();
 			im::PopupContextWindow([&]{
 				if (ImGui::Selectable("Clear")) {
 					lines.clear();
