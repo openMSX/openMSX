@@ -306,10 +306,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 				// select completion
 				completionReplacement = completions[completionIndex];
 				io.ClearInputKeys();
-				close();
 			} else if (io.InputQueueCharacters.Size != 0) {
 				replayInput.assign(io.InputQueueCharacters.begin(), io.InputQueueCharacters.end());
-				close();
 			} else if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
 				if (io.KeyShift) {
 					completionIndex = (completionIndex == 0) ? (N - 1) : (completionIndex - 1);
@@ -361,7 +359,6 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 								bool selected = i == completionIndex;
 								if (ImGui::Selectable(completions[i].c_str(), selected)) {
 									completionReplacement = completions[i];
-									close();
 								}
 								if (selected && doCenter) ImGui::SetScrollHereY(0.5f);
 							}
@@ -369,6 +366,9 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					});
 				});
 			});
+			if (!completionReplacement.empty() || !replayInput.empty()) {
+				close();
+			}
 		});
 		if (!openNow && completionPopupOpen) {
 			// just closed popup  (by some ImGui action, e.g. click outside)
