@@ -470,7 +470,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFile.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\LocalFileReference.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\MappedFile.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\file\PreCacheFile.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZipFileAdapter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZlibInflate.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\AbstractIDEDevice.cc" />
@@ -1058,7 +1057,6 @@
     <None Include="$(OpenMSXSrcDir)\file\LocalFile.hh" />
     <None Include="$(OpenMSXSrcDir)\file\LocalFileReference.hh" />
     <None Include="$(OpenMSXSrcDir)\file\MappedFile.hh" />
-    <None Include="$(OpenMSXSrcDir)\file\PreCacheFile.hh" />
     <None Include="$(OpenMSXSrcDir)\file\ReadDir.hh" />
     <None Include="$(OpenMSXSrcDir)\file\ZipFileAdapter.hh" />
     <None Include="$(OpenMSXSrcDir)\file\ZlibInflate.hh" />

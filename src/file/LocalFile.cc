@@ -10,6 +10,9 @@
 #include "unistdp.hh"
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifdef __unix__
+#include <fcntl.h>
+#endif
 #if HAVE_MMAP
   #include <sys/mman.h>
 #endif
@@ -82,7 +85,11 @@ LocalFile::LocalFile(std::string filename_, const char* mode)
 
 void LocalFile::preCacheFile()
 {
-	cache.emplace(FileOperations::getNativePath(filename));
+#ifdef __unix__
+	// Prefetch first 1 MB (POSIX_FADV_WILLNEED is a non-blocking hint)
+	off_t prefetch_size = 1024 * 1024;
+	posix_fadvise(fileno(file.get()), 0, prefetch_size, POSIX_FADV_WILLNEED);
+#endif
 }
 
 void LocalFile::read(std::span<uint8_t> buffer)

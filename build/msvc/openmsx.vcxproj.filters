@@ -471,9 +471,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\file\MappedFile.cc">
       <Filter>file</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\file\PreCacheFile.cc">
-      <Filter>file</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\file\ZipFileAdapter.cc">
       <Filter>file</Filter>
     </ClCompile>
@@ -1978,9 +1975,6 @@
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\MappedFile.hh">
-      <Filter>file</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\file\PreCacheFile.hh">
       <Filter>file</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\file\ReadDir.hh">

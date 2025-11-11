@@ -4,12 +4,10 @@
 #include "File.hh"
 #include "FileBase.hh"
 #include "FileOperations.hh"
-#include "PreCacheFile.hh"
 
 #include "systemfuncs.hh"
 
 #include <cstdio>
-#include <optional>
 
 namespace openmsx {
 
@@ -41,7 +39,6 @@ public:
 private:
 	std::string filename;
 	FileOperations::FILE_t file;
-	std::optional<PreCacheFile> cache;
 	bool readOnly = false;
 };
 
