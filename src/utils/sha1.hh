@@ -1,6 +1,7 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
+#include "strCat.hh"
 #include "xrange.hh"
 
 #include <array>
@@ -36,7 +37,13 @@ public:
 	 * @throws MSXException if chars are not 0-9, a-f, A-F
 	 */
 	void parse40(std::span<const char, 40> str);
-	[[nodiscard]] std::string toString() const;
+
+	void toBuffer(std::span<char, 40> buf) const;
+	[[nodiscard]] std::string toString() const {
+		std::string result(40, '\0');
+		toBuffer(std::span<char, 40>(result.data(), 40));
+		return result;
+	}
 
 	// Test or set 'null' value.
 	[[nodiscard]] bool empty() const;
@@ -45,7 +52,9 @@ public:
 	[[nodiscard]] constexpr auto operator<=>(const Sha1Sum&) const = default;
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
-		os << sum.toString();
+		std::array<char, 40> buf;
+		sum.toBuffer(buf);
+		os.write(buf.data(), 40);
 		return os;
 	}
 
@@ -90,5 +99,22 @@ private:
 };
 
 } // namespace openmsx
+
+// For efficient strCat() (without Sha1Sum::toString())
+template<> struct strCatImpl::ConcatUnit<openmsx::Sha1Sum>
+{
+	explicit ConcatUnit(openmsx::Sha1Sum sum_)
+		: sum(sum_) {}
+
+	[[nodiscard]] size_t size() const { return 40; }
+
+	[[nodiscard]] char* copy(char* dst) const {
+		sum.toBuffer(std::span<char, 40>(dst, 40));
+		return dst + 40;
+	}
+
+private:
+	openmsx::Sha1Sum sum;
+};
 
 #endif

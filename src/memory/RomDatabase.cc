@@ -414,7 +414,7 @@ void DBParser::addAllEntries()
 		if (it1->sha1 == it2->sha1) {
 			cliComm.printWarning(
 				"duplicate softwaredb entry SHA1: ",
-				it2->sha1.toString());
+				it2->sha1);
 		} else {
 			++it1;
 			*it1 = std::move(*it2);

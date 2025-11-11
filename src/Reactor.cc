@@ -1282,7 +1282,7 @@ void SoftwareInfoTopic::execute(
 	if (!romInfo) {
 		// no match found
 		throw CommandException(
-			"Software with sha1sum ", sha1sum.toString(), " not found");
+			"Software with sha1sum ", sha1sum, " not found");
 	}
 
 	const char* bufStart = romDatabase.getBufferStart();

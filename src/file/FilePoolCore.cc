@@ -230,7 +230,7 @@ void FilePoolCore::writeSha1sums()
 	}
 	for (auto idx : sha1Index) {
 		const auto& entry = pool[idx];
-		file << entry.sum.toString() << "  ";
+		file << entry.sum << "  ";
 		if (entry.timeStr) {
 			file << entry.timeStr;
 		} else {
@@ -257,7 +257,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 			result = scanDirectory(sha1sum, FileOperations::expandTilde(std::string(path)), path, progress);
 			if (result.is_open()) {
 				if (progress.printed) {
-					reportProgress(tmpStrCat("Found file with sha1sum ", sha1sum.toString()), 1.0f);
+					reportProgress(tmpStrCat("Found file with sha1sum ", sha1sum), 1.0f);
 				}
 				return result;
 			}
@@ -265,7 +265,7 @@ File FilePoolCore::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	}
 
 	if (progress.printed) {
-		reportProgress(tmpStrCat("Did not find file with sha1sum ", sha1sum.toString()), 1.0f);
+		reportProgress(tmpStrCat("Did not find file with sha1sum ", sha1sum), 1.0f);
 	}
 	return result; // not found
 }
@@ -395,7 +395,7 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const std::string& filename,
 		progress.lastTime = now;
 		progress.printed = true;
 		reportProgress(tmpStrCat(
-		        "Searching for file with sha1sum ", sha1sum.toString(),
+		        "Searching for file with sha1sum ", sha1sum,
 		        "...\nIndexing filepool ", poolPath, ": [",
 		        progress.amountScanned, "]: ",
 		        std::string_view(filename).substr(poolPath.size())),

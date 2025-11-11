@@ -232,16 +232,14 @@ void Sha1Sum::parse40(std::span<const char, 40> str)
 {
 	return narrow<char>((x < 10) ? (x + '0') : (x - 10 + 'a'));
 }
-std::string Sha1Sum::toString() const
+void Sha1Sum::toBuffer(std::span<char, 40> buf) const
 {
-	std::array<char, 40> buf;
 	size_t i = 0;
 	for (const auto& ai : a) {
 		for (int j = 28; j >= 0; j -= 4) {
 			buf[i++] = digit((ai >> j) & 0xf);
 		}
 	}
-	return {buf.data(), buf.size()};
 }
 
 bool Sha1Sum::empty() const
