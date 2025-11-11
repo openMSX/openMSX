@@ -1,7 +1,7 @@
 #ifndef COMPLETER_HH
 #define COMPLETER_HH
 
-#include "inline.hh"
+#include "CompletionCandidate.hh"
 
 #include <algorithm>
 #include <concepts>
@@ -45,12 +45,10 @@ public:
 	static void completeString(std::vector<std::string>& tokens,
 	                           Range&& possibleValues,
 	                           bool caseSensitive = true);
-	template<std::ranges::forward_range Range>
+	template<std::ranges::forward_range Range = std::vector<CompletionCandidate>>
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context,
-	                             const Range& extra);
-	static void completeFileName(std::vector<std::string>& tokens,
-	                             const FileContext& context);
+	                             const Range& extra = {});
 
 	static std::vector<std::string> formatListInColumns(
 		std::span<const std::string_view> input);
@@ -80,28 +78,39 @@ protected:
 	~Completer() = default;
 
 private:
-	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
+	static bool equalHead(std::string_view s, const CompletionCandidate& c);
 	template<std::ranges::forward_range Range>
-	static std::vector<std::string_view> filter(
-		std::string_view str, Range&& range, bool caseSensitive);
-	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
-	                         bool caseSensitive);
+	static std::vector<CompletionCandidate> filter(
+		std::string_view str, Range&& range, bool caseSensitive = true);
+	static void completeImpl(std::vector<std::string>& tokens, std::vector<CompletionCandidate> matches);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
 	                                 const FileContext& context,
-	                                 std::vector<std::string_view> matches);
+	                                 std::vector<CompletionCandidate> matches);
 
 	const std::string theName;
 	static inline InterpreterOutput* output = nullptr;
 };
 
 template<std::ranges::forward_range Range>
-std::vector<std::string_view> Completer::filter(
+std::vector<CompletionCandidate> Completer::filter(
 	std::string_view str, Range&& range, bool caseSensitive)
 {
-	std::vector<std::string_view> result;
-	std::ranges::copy_if(std::forward<Range>(range),
-	                     std::back_inserter(result),
-	                     [&](const auto& value) { return equalHead(str, value, caseSensitive); });
+	struct MakeCompletionCandidate {
+		CompletionCandidate operator()(std::string_view s, bool caseSensitive) const {
+			return {.text = std::string(s), .caseSensitive = caseSensitive};
+		}
+		CompletionCandidate operator()(CompletionCandidate c, bool /*caseSensitive*/) const {
+			return c;
+		}
+	} make;
+
+	std::vector<CompletionCandidate> result;
+	for (auto&& value : range) {
+		CompletionCandidate c = make(std::forward<decltype(value)>(value), caseSensitive);
+		if (equalHead(str, c)) {
+			result.push_back(std::move(c));
+		}
+	}
 	return result;
 }
 
@@ -111,12 +120,8 @@ void Completer::completeString(
 	Range&& possibleValues,
 	bool caseSensitive)
 {
-	auto& str = tokens.back();
-	if (completeImpl(str,
-	                 filter(str, std::forward<Range>(possibleValues), caseSensitive),
-	                 caseSensitive)) {
-		tokens.emplace_back();
-	}
+	completeImpl(tokens,
+	             filter(tokens.back(), std::forward<Range>(possibleValues), caseSensitive));
 }
 
 template<std::ranges::forward_range Range>
@@ -125,7 +130,7 @@ void Completer::completeFileName(
 	const FileContext& context,
 	const Range& extra)
 {
-	completeFileNameImpl(tokens, context, filter(tokens.back(), extra, true));
+	completeFileNameImpl(tokens, context, filter(tokens.back(), extra));
 }
 
 } // namespace openmsx

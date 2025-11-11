@@ -84,6 +84,8 @@ public:
 	 * Complete the given command.
 	 */
 	[[nodiscard]] std::string tabCompletion(std::string_view command);
+	[[nodiscard]] std::string tabCompletionReplace(
+		std::string_view command, const CompletionCandidate& replacement);
 
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are

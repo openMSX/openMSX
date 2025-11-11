@@ -118,8 +118,93 @@ static void drawLine(const ConsoleLine& line)
 	}
 }
 
+static ImGuiConsole::CompletionPopupLayout calcPopupLayout(
+	gl::vec2 maxSize, std::span<const CompletionCandidate> completions)
+{
+	const auto& style = ImGui::GetStyle();
+	auto itemHeight = ImGui::GetTextLineHeight() + 2 * style.CellPadding.y;
+	auto fitRows = int(maxSize.y / itemHeight);
+
+	// measure item widths
+	assert(!completions.empty());
+	auto N = narrow<int>(completions.size());
+	auto padding = 2.0f * style.CellPadding.x;
+	auto itemWidths = to_vector(std::views::transform(completions, [&](const auto& c){
+		return ImGui::CalcTextSize(c.display().c_str()).x + padding;
+	}));
+	auto effectiveMaxWidth = maxSize.x - (N > fitRows ? style.ScrollbarSize : 0.0f);
+	auto maxItemWidth = std::ranges::max(itemWidths);
+	if (maxItemWidth > effectiveMaxWidth) {
+		// even a single column is too wide
+		auto height = float(N) * itemHeight;
+		return {.columnWidths = {maxItemWidth},
+			.size{maxSize.x, std::min(height, maxSize.y)},
+			.needXScrollBar = true, .needYScrollBar = height > maxSize.y};
+	}
+
+	// Iterator over column-numbers 1..N, calculate layout and remember the 'best' one.
+	// The best one is:
+	// * doesn't need scroll bars
+	// * not too wide, not too narrow, prefer closer to square
+	ImGuiConsole::CompletionPopupLayout bestLayout{.needYScrollBar = true};
+	float bestRatio = 0.0f; // worst ratio
+	for (int cols = 1; cols <= N; ++cols) {
+		int rows = (N + cols - 1) / cols;
+		// E.g. when you place 9 items in 7 columns, column-major fill-order,
+		// you'll end up with 2 rows and 4 fully filled, 1 partially filled
+		// and 3 empty columns. So effectively only 5 columns instead of 7.
+		int c2 = (N + rows - 1) / rows; // actual number of columns
+		assert(1 <= c2);
+		assert(c2 <= cols);
+		if (c2 != cols) continue; // already tested
+
+		std::vector<float> colWidths;
+		colWidths.reserve(cols);
+		float width = 0.0f;
+		for (int c = 0; c < cols; ++c) {
+			int from = c * rows;
+			int to   = std::min(from + rows, N);
+			assert(from < to);
+			float w = std::ranges::max(subspan(itemWidths, from, to - from));
+			width += w;
+			colWidths.push_back(w);
+		}
+		effectiveMaxWidth = maxSize.x - (rows > fitRows ? style.ScrollbarSize : 0.0f);
+		if (width > effectiveMaxWidth) {
+			// Heuristic: if this is too wide, then using more
+			// columns will also be too wide. Mathematically that's
+			// not always true.
+			break;
+		}
+
+		auto height = float(rows) * itemHeight;
+		auto layout = ImGuiConsole::CompletionPopupLayout{
+			.columnWidths = std::move(colWidths),
+			.size{width, std::min(height, maxSize.y)},
+			.needXScrollBar = false, .needYScrollBar = height > maxSize.y};
+		auto ratio = width < height ? width / height : height / width; // 0..1
+		if ((bestLayout.needYScrollBar && !layout.needYScrollBar) || // no scrollbar is always better
+		    (ratio > bestRatio)) { // ratio closer to 1.0
+			bestLayout = std::move(layout);
+			bestRatio = ratio;
+		}
+	}
+	assert(bestRatio != 0.0f);
+	return bestLayout;
+}
+
 void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 {
+	if (!replayInput.empty()) {
+		// completion popup was closed with text input, replay that for
+		// the text input line.
+		auto& io = ImGui::GetIO();
+		for (auto ch : replayInput) {
+			io.AddInputCharacter(ch);
+		}
+		replayInput.clear();
+	}
+
 	bool reclaimFocus = show && !wasShown; // window appears
 	wasShown = show;
 	if (!show) return;
@@ -135,8 +220,12 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 
 		bool scrollUp   = ImGui::Shortcut(ImGuiKey_PageUp);
 		bool scrollDown = ImGui::Shortcut(ImGuiKey_PageDown);
+		gl::vec2 scrollRegionSize; // remember size/pos for completion popup
+		gl::vec2 scrollRegionPos;
 		im::Child("ScrollingRegion", ImVec2(0, -footerHeightToReserve), 0,
 		          ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			scrollRegionSize = ImGui::GetWindowSize();
+			scrollRegionPos = ImGui::GetWindowPos();
 			im::PopupContextWindow([&]{
 				if (ImGui::Selectable("Clear")) {
 					lines.clear();
@@ -173,6 +262,123 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		});
 		ImGui::Separator();
 
+		// tab-completion popup
+		bool doCenter = false;
+		if (!completions.empty() && !completionPopupOpen) {
+			// just opened popup
+			ImGui::OpenPopup("MessagePopup");
+			completionIndex = 0;
+			doCenter = true;
+
+			popupLayout = calcPopupLayout(scrollRegionSize * 0.95f, completions);
+			popupLayout.size += 2.0f * (gl::vec2(style.WindowPadding) + gl::vec2(style.WindowBorderSize));
+
+			// Screen-space coordinates of the scroll region
+			auto scrollMin = scrollRegionPos;
+			auto scrollMax = scrollMin + scrollRegionSize;
+			// Desired horizontal position: center above text cursor
+			float x = std::clamp(textCursorScrnPosX - 0.5f * popupLayout.size.x,
+			                     scrollMin.x, scrollMax.x - popupLayout.size.x);
+			// Align to the bottom of scroll region
+			float y = scrollMax.y - popupLayout.size.y;
+			ImGui::SetNextWindowPos(gl::vec2{x, y});
+		}
+		auto closeCleanup = [&] {
+			completions.clear();
+			completionPopupOpen = false;
+		};
+		auto close = [&]{
+			closeCleanup();
+			ImGui::CloseCurrentPopup();
+		};
+
+		ImGui::SetNextWindowSize(popupLayout.size);
+		int wFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+		bool openNow = im::Popup("MessagePopup", wFlags, [&]{
+			completionPopupOpen = true;
+			auto N = narrow<int>(completions.size());
+			auto C = narrow<int>(popupLayout.columnWidths.size());
+			auto R = (N + C - 1) / C;
+
+			auto& io = ImGui::GetIO();
+			if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter) ||
+			    ImGui::IsKeyPressed(ImGuiKey_Space)) {
+				// select completion
+				completionReplacement = completions[completionIndex];
+				io.ClearInputKeys();
+			} else if (io.InputQueueCharacters.Size != 0) {
+				replayInput.assign(io.InputQueueCharacters.begin(), io.InputQueueCharacters.end());
+			} else if (ImGui::IsKeyPressed(ImGuiKey_Backspace)) {
+				replayBackspace = true;
+			} else if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
+				if (io.KeyShift) {
+					completionIndex = (completionIndex == 0) ? (N - 1) : (completionIndex - 1);
+				} else {
+					completionIndex = (completionIndex == (N - 1)) ? 0 : (completionIndex + 1);
+				}
+				doCenter = true;
+			} else {
+				bool up    = ImGui::IsKeyPressed(ImGuiKey_UpArrow);
+				bool down  = ImGui::IsKeyPressed(ImGuiKey_DownArrow);
+				bool left  = ImGui::IsKeyPressed(ImGuiKey_LeftArrow);
+				bool right = ImGui::IsKeyPressed(ImGuiKey_RightArrow);
+				if (up || down || left || right) {
+					int c = completionIndex / R;
+					int r = completionIndex % R;
+					int lastR = N - (C - 1) * R;
+					int nr = (c == (C - 1)) ? lastR : R;
+					int nc = (r >= lastR) ? (C - 1) : C;
+
+					if (up) {
+						r = (r > 0) ? (r - 1) : (nr - 1);
+					} else if (down) {
+						r = (r < (nr - 1)) ? (r + 1) : 0;
+					} else if (left) {
+						c = (c > 0) ? (c - 1) : (nc - 1);
+					} else if (right) {
+						c = (c < (nc - 1)) ? (c + 1) : 0;
+					}
+
+					completionIndex = c * R + r;
+					assert(completionIndex < N);
+					doCenter = true;
+				}
+			}
+			im::Child("list", {}, [&]{
+				int tFlags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoHostExtendX
+				          | (popupLayout.needXScrollBar ? ImGuiTableFlags_ScrollX : 0)
+				          | (popupLayout.needYScrollBar ? ImGuiTableFlags_ScrollY : 0);
+				im::Table("completionTable", C, tFlags, [&]{
+					for (const auto& w : popupLayout.columnWidths) {
+						ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, w);
+					}
+					int currentRow = completionIndex % R;
+					im::ListClipper(R, currentRow, [&](int r) {
+						for (int c = 0; c < C; ++c) {
+							if (ImGui::TableNextColumn()) {
+								int i = c * R + r;
+								if (i >= N) break;
+								bool selected = i == completionIndex;
+								if (ImGui::Selectable(completions[i].display().c_str(), selected)) {
+									completionReplacement = completions[i];
+								}
+								if (selected && doCenter) ImGui::SetScrollHereY(0.5f);
+							}
+						}
+					});
+				});
+			});
+			if (!completionReplacement.text.empty() || !replayInput.empty() || replayBackspace) {
+				close();
+			}
+		});
+		if (!openNow && completionPopupOpen) {
+			// just closed popup  (by some ImGui action, e.g. click outside)
+			closeCleanup();
+			// Clear ESC key state so InputText doesn't see it as pressed
+			ImGui::GetIO().ClearInputKeys();
+		}
+
 		// Command-line
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(prompt);
@@ -187,7 +393,8 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 					ImGuiInputTextFlags_EscapeClearsAll |
 					ImGuiInputTextFlags_CallbackEdit |
 					ImGuiInputTextFlags_CallbackCompletion |
-					ImGuiInputTextFlags_CallbackHistory;
+					ImGuiInputTextFlags_CallbackHistory |
+					ImGuiInputTextFlags_CallbackAlways;
 		bool enter = false;
 		im::StyleColor(ImGuiCol_Text, 0x00000000, [&]{ // transparent, see HACK below
 			enter = ImGui::InputTextWithHint("##Input", "enter command", &inputBuf, flags, &textEditCallbackStub, this);
@@ -275,6 +482,7 @@ void ImGuiConsole::paint(MSXMotherBoard* /*motherBoard*/)
 		/**/			auto strToCursor = zstring_view(coloredInputBuf.str()).substr(0, state->GetCursorPos());
 		/**/			gl::vec2 cursorOffset(ImGui::CalcTextSize(strToCursor).x, 0.0f);
 		/**/			gl::vec2 cursorScreenPos = ImTrunc(drawPos + cursorOffset);
+		/**/			textCursorScrnPosX = cursorScreenPos.x; // remember for completion popup
 		/**/			ImRect cursorScreenRect(cursorScreenPos.x, cursorScreenPos.y - 0.5f, cursorScreenPos.x + 1.0f, cursorScreenPos.y + fontSize - 1.5f);
 		/**/			if (cursorScreenRect.Overlaps(clipRect)) {
 		/**/				drawList->AddLine(cursorScreenRect.Min, cursorScreenRect.GetBL(), getColor(imColor::TEXT));
@@ -299,28 +507,39 @@ int ImGuiConsole::textEditCallbackStub(ImGuiInputTextCallbackData* data)
 	return console->textEditCallback(data);
 }
 
+void ImGuiConsole::doEdit(ImGuiInputTextCallbackData* data)
+{
+	historyBackupLine.assign(data->Buf, narrow<size_t>(data->BufTextLen));
+	historyPos = -1;
+	colorize(historyBackupLine);
+}
+
+void ImGuiConsole::tabEdit(ImGuiInputTextCallbackData* data, function_ref<std::string(std::string_view)> action)
+{
+	std::string_view oldLine{data->Buf, narrow<size_t>(data->BufTextLen)};
+	auto front = oldLine.substr(0, data->CursorPos);
+	auto back  = oldLine.substr(data->CursorPos);
+
+	std::string newStr = action(front);
+	auto newPos = narrow<int>(newStr.size());
+	newStr += back;
+
+	data->DeleteChars(0, data->BufTextLen);
+	data->InsertChars(0, newStr.c_str());
+	data->CursorPos = newPos;
+
+	doEdit(data);
+}
+
 int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 {
-	switch (data->EventFlag) {
-	case ImGuiInputTextFlags_CallbackCompletion: {
-		std::string_view oldLine{data->Buf, narrow<size_t>(data->BufTextLen)};
-		auto front = oldLine.substr(0, data->CursorPos);
-		auto back  = oldLine.substr(data->CursorPos);
-
+	if (data->EventFlag & ImGuiInputTextFlags_CallbackCompletion) {
 		auto& commandController = manager.getReactor().getGlobalCommandController();
-		std::string newFront = commandController.tabCompletion(front);
-		auto newPos = narrow<int>(newFront.size());
-		historyBackupLine = strCat(std::move(newFront), back);
-		historyPos = -1;
-
-		data->DeleteChars(0, data->BufTextLen);
-		data->InsertChars(0, historyBackupLine.c_str());
-		data->CursorPos = newPos;
-
-		colorize(historyBackupLine);
-		break;
+		tabEdit(data, [&](std::string_view front) {
+			return commandController.tabCompletion(front);
+		});
 	}
-	case ImGuiInputTextFlags_CallbackHistory: {
+	if (data->EventFlag & ImGuiInputTextFlags_CallbackHistory) {
 		bool match = false;
 		if (data->EventKey == ImGuiKey_UpArrow) {
 			while (!match && (historyPos < narrow<int>(history.size() - 1))) {
@@ -339,14 +558,27 @@ int ImGuiConsole::textEditCallback(ImGuiInputTextCallbackData* data)
 			data->InsertChars(0, historyStr.c_str());
 			colorize(std::string_view{data->Buf, narrow<size_t>(data->BufTextLen)});
 		}
-		break;
 	}
-	case ImGuiInputTextFlags_CallbackEdit: {
-		historyBackupLine.assign(data->Buf, narrow<size_t>(data->BufTextLen));
-		historyPos = -1;
-		colorize(historyBackupLine);
-		break;
+	if (data->EventFlag & ImGuiInputTextFlags_CallbackEdit) {
+		doEdit(data);
 	}
+	if (data->EventFlag & ImGuiInputTextFlags_CallbackAlways) {
+		if (!completionReplacement.text.empty()) {
+			// completion popup made a selection, use that
+			auto& commandController = manager.getReactor().getGlobalCommandController();
+			tabEdit(data, [&](std::string_view front) {
+				return commandController.tabCompletionReplace(front, completionReplacement);
+			});
+			completionReplacement.text.clear();
+		}
+		if (replayBackspace) {
+			// completion popup was closed with backspace, simulate that
+			replayBackspace = false;
+			if (data->CursorPos > 0) {
+				data->DeleteChars(data->CursorPos - 1, 1);
+				doEdit(data);
+			}
+		}
 	}
 	return 0;
 }
@@ -431,6 +663,12 @@ void ImGuiConsole::output(std::string_view text)
 unsigned ImGuiConsole::getOutputColumns() const
 {
 	return columns;
+}
+
+void ImGuiConsole::setCompletions(std::vector<CompletionCandidate> completions_)
+{
+	assert(!completions_.empty());
+	completions = std::move(completions_);
 }
 
 void ImGuiConsole::update(const Setting& /*setting*/) noexcept

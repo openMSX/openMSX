@@ -13,6 +13,7 @@
 #include "Version.hh"
 
 #include "ScopedAssign.hh"
+#include "function_ref.hh"
 #include "join.hh"
 #include "one_of.hh"
 #include "outer.hh"
@@ -317,7 +318,7 @@ void GlobalCommandController::source(const std::string& script)
 	}
 }
 
-std::string GlobalCommandController::tabCompletion(std::string_view command)
+static std::string tabCompletionImpl(std::string_view command, Interpreter& interpreter, function_ref<void(std::vector<std::string>&)> action)
 {
 	// split on 'active' command (the command that should actually be
 	// completed). Some examples:
@@ -338,7 +339,7 @@ std::string GlobalCommandController::tabCompletion(std::string_view command)
 	// complete last token
 	auto tokens = removeEscaping(originalTokens, true);
 	auto oldNum = tokens.size();
-	tabCompletion(tokens);
+	action(tokens);
 	auto newNum = tokens.size();
 	bool tokenFinished = oldNum != newNum;
 
@@ -356,6 +357,24 @@ std::string GlobalCommandController::tabCompletion(std::string_view command)
 
 	// rebuild command string
 	return strCat(pre, join(originalTokens, ' '));
+}
+
+std::string GlobalCommandController::tabCompletion(std::string_view command)
+{
+	return tabCompletionImpl(command, interpreter, [&](std::vector<std::string>& tokens) {
+		tabCompletion(tokens);
+	});
+}
+
+std::string GlobalCommandController::tabCompletionReplace(std::string_view command, const CompletionCandidate& replacement)
+{
+	return tabCompletionImpl(command, interpreter, [&](std::vector<std::string>& tokens) {
+		assert(!tokens.empty());
+		tokens.back() = replacement.text;
+		if (!replacement.partial) {
+			tokens.emplace_back();
+		}
+	});
 }
 
 void GlobalCommandController::tabCompletion(std::vector<std::string>& tokens)
