@@ -676,14 +676,17 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 			});
 		});
 	});
-	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
-	if (time > 0) {
-		// this is only useful if the time is not 0
-		im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-			im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), flags, [&]{
-				ImGui::StrCat("Machine time: ", formatTime(time));
+
+	if (viewMode != ViewMode::EDIT) {
+		auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
+		if (time > 0) {
+			// this is only useful if the time is not 0
+			im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+				im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), flags, [&]{
+					ImGui::StrCat("Machine time: ", formatTime(time));
+				});
 			});
-		});
+		}
 	}
 }
 
