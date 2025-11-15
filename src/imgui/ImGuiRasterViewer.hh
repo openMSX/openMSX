@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class VDP;
+
 class ImGuiRasterViewer final : public ImGuiPart
 {
 public:
@@ -19,19 +21,38 @@ public:
 	void paint(MSXMotherBoard* motherBoard) override;
 
 private:
+	void paintSettings();
+	void paintDisplay(VDP* vdp);
 	void initPixelBuffer(size_t lines);
 
 public:
-	bool show = true; // TODO false
+	bool show = false;
+
+private:
+	// settings
+	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
+	gl::vec4 beamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
+	gl::vec4 fadeOutColor{0.0f, 0.0f, 0.0f, 0.75f}; // RGBA
+	int zoomSelect = 0;
+	bool showGrid = true;
+	bool showBeam = true;
+	bool showFadeOut = true;
 
 	MemBuffer<uint32_t> pixelBuffer;
 	gl::Texture viewTex{gl::Null{}};
-	//gl::Texture gridTex{gl::Null{}};
+	gl::Texture gridTex320{gl::Null{}};
+	gl::Texture gridTex640{gl::Null{}};
 	gl::Texture checkerTex{gl::Null{}};
 
-private:
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement   {"show",           &ImGuiRasterViewer::show},
+		PersistentElement{"show",         &ImGuiRasterViewer::show},
+		PersistentElement{"zoom",         &ImGuiRasterViewer::zoomSelect},
+		PersistentElement{"grid",         &ImGuiRasterViewer::showGrid},
+		PersistentElement{"beam",         &ImGuiRasterViewer::showBeam},
+		PersistentElement{"fadeOut",      &ImGuiRasterViewer::showFadeOut},
+		PersistentElement{"gridColor",    &ImGuiRasterViewer::gridColor},
+		PersistentElement{"beamColor",    &ImGuiRasterViewer::beamColor},
+		PersistentElement{"fadeOutColor", &ImGuiRasterViewer::fadeOutColor},
 	};
 };
 

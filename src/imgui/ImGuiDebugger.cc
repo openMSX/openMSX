@@ -277,7 +277,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		if (ImGui::MenuItem("VDP sprite viewer")) {
 			openOrCreate(manager, spriteViewers);
 		}
-		ImGui::MenuItem("Raster viewer", nullptr, &manager.rasterViewer->show);
+		ImGui::MenuItem("Raster beam viewer", nullptr, &manager.rasterViewer->show);
 		ImGui::MenuItem("VDP register viewer", nullptr, &manager.vdpRegs->show);
 		ImGui::MenuItem("Palette editor", nullptr, &manager.palette->window.open);
 		ImGui::Separator();

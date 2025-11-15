@@ -240,6 +240,38 @@ template<std::ranges::input_range Range, typename Proj = std::identity>
 	return init;
 }
 
+template<std::ranges::forward_range R,
+         std::invocable<std::size_t, size_t, std::ranges::range_value_t<R> const&> Func>
+void foreach_run(R&& r, Func&& func)
+{
+	auto it = std::ranges::begin(r);
+	auto end = std::ranges::end(r);
+	if (it == end) return;
+
+	size_t index = 0;
+
+	// first run
+	size_t run_start = 0;
+	size_t run_length = 1;
+	auto run_value = *it;
+	for (++it, ++index; it != end; ++it, ++index) {
+		if (*it == run_value) {
+			// extend current run
+			++run_length;
+		} else {
+			// emit finished run
+			std::invoke(func, run_start, run_length, run_value);
+			// start new run
+			run_start = index;
+			run_value = *it;
+			run_length = 1;
+		}
+	}
+	// emit final run
+	std::invoke(func, run_start, run_length, run_value);
+}
+
+
 // to_vector
 namespace detail {
 	template<typename T, typename Iterator>
