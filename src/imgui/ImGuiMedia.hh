@@ -62,6 +62,10 @@ public:
 
 	static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType);
 
+	void paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
+	void paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
+	void paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard);
+
 public:
 	enum class SelectDiskType : int {
 		IMAGE, DIR_AS_DISK, RAMDISK, EMPTY,
@@ -96,6 +100,9 @@ public:
 		array_with_enum_index<SelectCartridgeType, ItemGroup> groups;
 		SelectCartridgeType select = SelectCartridgeType::IMAGE;
 		bool show = false;
+		bool filterOpen = false;
+		std::string filterType;
+		std::string filterString;
 	};
 	struct DiskMediaInfo {
 		DiskMediaInfo() {
@@ -114,10 +121,14 @@ public:
 public:
 	bool resetOnCartChanges = true;
 
+	bool showExtensionSelector(int cartNum, std::optional<std::string> itemToShowAsSelected = std::nullopt);
+
 	static void printDatabase(const RomInfo& romInfo, const char* buf);
 	static bool selectMapperType(const char* label, RomType& romType);
 
 	static std::string diskFilter();
+
+	void showMediaWindow(std::string_view mediaName);
 
 private:
 	bool selectRecent(ItemGroup& group, function_ref<std::string(const std::string&)> displayFunc, float width) const;
@@ -135,9 +146,14 @@ private:
 	void cartridgeMenu(int cartNum);
 	void cassetteMenu(CassettePlayer& cassettePlayer);
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
+	void paintCurrent(const TclObject& current, std::string_view type);
+	void paintRecent(const std::string& mediaName, ItemGroup& group,
+		function_ref<std::string(const std::string&)> displayFunc = std::identity{},
+		const std::function<void(const std::string&)>& toolTip = {},
+		std::function<void()>* actionToSet = nullptr);
 
 	void printExtensionInfo(ExtensionInfo& info);
-	bool drawExtensionFilter();
+	bool drawExtensionFilter(std::string& filterType, std::string& filterString, bool& theFilterOpen, int id = 0);
 
 private:
 	std::array<DiskMediaInfo, RealDrive::MAX_DRIVES> diskMediaInfo;
@@ -148,9 +164,10 @@ private:
 	std::array<ItemGroup, IDECDROM::MAX_CD> cdMediaInfo;
 	ItemGroup laserdiscMediaInfo;
 
-	std::string filterType;
-	std::string filterString;
-	bool filterOpen = false;
+	// for the generic extension selector (slot independent)
+	std::string genericFilterType;
+	std::string genericFilterString;
+	bool genericFilterOpen = false;
 	bool hideNonWorking = false;
 	std::function<void(void)> switchHdAction;
 

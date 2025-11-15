@@ -42,14 +42,20 @@ private:
 	[[nodiscard]] MachineInfo* findMachineInfo(std::string_view config);
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
-	enum class ViewMode { VIEW, SAVE, NO_CONTROLS };
+	enum class ViewMode { VIEW, SAVE, NO_CONTROLS, EDIT };
 	void showSetupOverview(MSXMotherBoard& motherBoard, ViewMode = ViewMode::VIEW);
+	void showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode);
+	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
 	void loadPreviewSetup();
 	void showNonExistingPreview();
 
 public:
 	bool showSelectMachine = false;
 	bool showTestHardware = false;
+	bool showQuickSetupEditor = true;
 
 private:
 	std::vector<MachineInfo> machineInfo; // sorted on displayName

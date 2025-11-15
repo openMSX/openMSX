@@ -6,6 +6,8 @@
 namespace openmsx {
 
 class PluggingController;
+class Connector;
+class Pluggable;
 
 class ImGuiConnector final : public ImGuiPart
 {
@@ -14,7 +16,14 @@ public:
 
 	void showMenu(MSXMotherBoard* motherBoard) override;
 
-	void showPluggables(PluggingController& pluggingController, bool viewOnly);
+	enum class Mode {
+		COMBO,
+		VIEW,
+		SUBMENU
+	};
+	void showPluggables(PluggingController& pluggingController, Mode mode);
+private:
+	void paintPluggableSelectables(const Connector& connector, const std::vector<std::unique_ptr<Pluggable>>& pluggables);
 };
 
 } // namespace openmsx

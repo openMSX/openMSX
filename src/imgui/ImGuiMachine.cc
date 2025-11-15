@@ -254,8 +254,9 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 			});
 
 			im::Menu("Current setup", true, [&]{
-				showSetupOverview(*motherBoard);
+				showSetupOverview(*motherBoard, ViewMode::VIEW);
 			});
+			ImGui::MenuItem("Quick setup editor", nullptr, &showQuickSetupEditor);
 		}
 
 		setupSettingsOpen = im::Menu("Setup settings", true, [&]{
@@ -447,27 +448,65 @@ void ImGuiMachine::showNonExistingPreview()
 
 void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewMode)
 {
+	showSetupOverviewMachine(motherBoard, viewMode);
+
+	const ImGuiTreeNodeFlags flags = (viewMode == ViewMode::VIEW || viewMode == ViewMode::EDIT) ? ImGuiTreeNodeFlags_DefaultOpen :
+					viewMode == ViewMode::NO_CONTROLS ? (ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet) :
+					ImGuiTreeNodeFlags_None;
+
+	showSetupOverviewExtensions(motherBoard, viewMode, flags);
+
+	showSetupOverviewConnectors(motherBoard, viewMode, flags);
+	
+	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	
+	showSetupOverviewState(motherBoard, viewMode, flags);
+}
+
+void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode)
+{
 	using enum SetupDepth;
 
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
 		if (viewMode != ViewMode::SAVE) {
-			ImGui::TextUnformatted(info->displayName);
+			if (viewMode == ViewMode::EDIT) {
+				im::TreeNode("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&]{
+					im::Table("##MachineTable", 2, [&]{
+						if (ImGui::TableNextColumn()) {
+							ImGui::TextUnformatted("Brand and model");
+						}
+						if (ImGui::TableNextColumn()) {
+							if (ImGui::Selectable(info->displayName.c_str())) {
+								showSelectMachine = true;
+							}
+						}
+						if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+							im::ItemTooltip([&]{
+								printConfigInfo(*info);
+							});
+						}
+					});
+				});
+			} else {
+				ImGui::TextUnformatted(info->displayName);
+			}
 		}
-		if (viewMode != ViewMode::NO_CONTROLS) {
+		if (viewMode != ViewMode::NO_CONTROLS && viewMode != ViewMode::EDIT) {
 			im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
 				// alternatively, put this info in a tooltip instead of a collapsed TreeNode
 				printConfigInfo(*info);
-				});
+			});
 		}
 	} else {
 		// machine config is gone... fallback: just show configName
 		showMachineWithoutInfo(configName);
 	}
+}
 
-	const ImGuiTreeNodeFlags flags = viewMode == ViewMode::VIEW ? ImGuiTreeNodeFlags_DefaultOpen :
-					viewMode == ViewMode::NO_CONTROLS ? (ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet) :
-					ImGuiTreeNodeFlags_None;
+void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+{
+	using enum SetupDepth;
 
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < EXTENSIONS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), flags, [&]{
@@ -478,20 +517,36 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 					if (!slotManager.slotExists(i)) continue;
 					anySlot = true;
 					if (ImGui::TableNextColumn()) {
-						ImGui::StrCat("Slot ", char('A' + i), " (", slotManager.getPsSsString(i), ")");
+						ImGui::StrCat("Cartridge Slot ", char('A' + i), " (", slotManager.getPsSsString(i), ")");
 					}
 					if (ImGui::TableNextColumn()) {
-						if (const auto* config = slotManager.getConfigForSlot(i)) {
-							if (config->getType() == HardwareConfig::Type::EXTENSION) {
-								ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
-								if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
-									manager.media->extensionTooltip(*extInfo);
+						const auto* config = slotManager.getConfigForSlot(i);
+						if (viewMode == ViewMode::EDIT) {
+							const std::string currentConfigName = config ?
+								(config->getType() == HardwareConfig::Type::EXTENSION ? manager.media->displayNameForExtension(config->getConfigName()) :
+								manager.media->displayNameForRom(std::string(config->getRomFilename()), true)) :
+								std::string(EMPTY);
+							im::Menu(strCat(currentConfigName, "##", i).c_str(), [&]{
+								manager.media->showExtensionSelector(i, currentConfigName);
+								if (config) {
+									if (ImGui::Button("Remove")) {
+										manager.executeDelayed(makeTclList("remove_extension", config->getName()));
+									}
+								}
+							});
+						} else {
+							if (config) {
+								if (config->getType() == HardwareConfig::Type::EXTENSION) {
+									ImGui::TextUnformatted(manager.media->displayNameForExtension(config->getConfigName()));
+									if (auto* extInfo = manager.media->findExtensionInfo(config->getConfigName())) {
+										manager.media->extensionTooltip(*extInfo);
+									}
+								} else {
+									ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
 								}
 							} else {
-								ImGui::TextDisabledUnformatted(manager.media->displayNameForRom(std::string(config->getRomFilename()), true));
+								ImGui::TextUnformatted(EMPTY);
 							}
-						} else {
-							ImGui::TextUnformatted(EMPTY);
 						}
 					}
 				}
@@ -505,9 +560,18 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							ImGui::TextUnformatted("I/O only");
 						}
 						if (ImGui::TableNextColumn()) {
-							ImGui::TextUnformatted(manager.media->displayNameForExtension(ext->getConfigName()));
-							if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
-								manager.media->extensionTooltip(*extInfo);
+							auto displayName = manager.media->displayNameForExtension(ext->getConfigName());
+							if (viewMode == ViewMode::EDIT) {
+								im::Menu(displayName.c_str(), [&] {
+									if (ImGui::Button("Remove")) {
+										manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
+									}
+								});
+							} else {
+								ImGui::TextUnformatted(displayName);
+								if (auto* extInfo = manager.media->findExtensionInfo(ext->getConfigName())) {
+									manager.media->extensionTooltip(*extInfo);
+								}
 							}
 						}
 					}
@@ -515,11 +579,24 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 			});
 		});
 	});
+}
+
+void ImGuiMachine::showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+{
+	using enum SetupDepth;
+
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), flags, [&]{
-			manager.connector->showPluggables(motherBoard.getPluggingController(), true);
+			using enum ImGuiConnector::Mode;
+			manager.connector->showPluggables(motherBoard.getPluggingController(), viewMode == ViewMode::EDIT ? SUBMENU : VIEW);
 		});
 	});
+}
+
+void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+{
+	using enum SetupDepth;
+
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
 		im::TreeNode(depthNodeNames[MEDIA].c_str(), flags, [&]{
 			im::Table("##MediaTable", 2, [&]{
@@ -563,9 +640,21 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 							if (ImGui::TableNextColumn()) {
 								auto type = info.getOptionalDictValue(TclObject("type"));
 								if (type && type->getString() == "extension") {
-									ImGui::TextDisabledUnformatted(manager.media->displayNameForExtension(targetStr));
+									auto displayName = manager.media->displayNameForExtension(targetStr);
+									if (viewMode == ViewMode::EDIT) {
+										im::Menu(strCat(displayName, "##", num).c_str(), [&] {
+											if (ImGui::Button("Remove")) {
+												const auto* config = slotManager.getConfigForSlot(num);
+												manager.executeDelayed(makeTclList("remove_extension", config->getName()));
+											}
+										});
+									} else {
+										ImGui::TextDisabledUnformatted(displayName);
+									}
 								} else {
-									ImGui::TextUnformatted(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true));
+									if (ImGui::Selectable(strCat(isEmpty ? EMPTY : manager.media->displayNameForRom(std::string(targetStr), true), "##", media.name).c_str(), false)) {
+										manager.media->showMediaWindow(media.name);
+									}
 									if (!isEmpty) {
 										im::ItemTooltip([&]{
 											RomType romType = RomType::UNKNOWN;
@@ -577,13 +666,38 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 									}
 								}
 							}
-						} else {
+						} else if (media.name.starts_with("disk") || media.name.starts_with("cassette") || viewMode != ViewMode::EDIT) {
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(formatMediaName(media.name));
+									ImGui::TextUnformatted(formatMediaName(media.name));
 							}
 							if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								if (viewMode == ViewMode::EDIT) {
+									if (ImGui::Selectable(strCat(FileOperations::getFilename(targetStr), "##", media.name).c_str(), false)) {
+										manager.media->showMediaWindow(media.name);
+									}
+								} else {
+									ImGui::TextUnformatted(FileOperations::getFilename(targetStr));
+								}
 								simpleToolTip(targetStr);
+							}
+						}
+						// all next cases are the EDIT mode of the media which are not cart, disk or cassette....
+						else {
+							auto formattedMediaName = formatMediaName(media.name);
+							if (ImGui::TableNextColumn()) {
+								ImGui::TextUnformatted(formattedMediaName);
+							}
+							if (ImGui::TableNextColumn()) {
+								im::Menu(strCat(FileOperations::getFilename(targetStr), "##", media.name).c_str(), [&]{
+									if (media.name.starts_with("laserdisc")) {
+										manager.media->paintLaserDiscMenuContent(media.name, formattedMediaName, *target);
+									} else if (media.name.starts_with("hd")) {
+										manager.media->paintHardDiskMenuContent(media.name, formattedMediaName, *target, motherBoard);
+									} else if (media.name.starts_with("cd")) {
+										manager.media->paintCDROMMenuContent(media.name, formattedMediaName, *target);
+									}
+
+								});
 							}
 						}
 					}
@@ -591,16 +705,25 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 			});
 		});
 	});
-	auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
-	if (time > 0) {
-		// this is only useful if the time is not 0
-		im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-			im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), flags, [&]{
-				ImGui::StrCat("Machine time: ", formatTime(time));
+}
+
+void ImGuiMachine::showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+{
+	using enum SetupDepth;
+
+	if (viewMode != ViewMode::EDIT) {
+		auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
+		if (time > 0) {
+			// this is only useful if the time is not 0
+			im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < COMPLETE_STATE, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
+				im::TreeNode(depthNodeNames[COMPLETE_STATE].c_str(), flags, [&]{
+					ImGui::StrCat("Machine time: ", formatTime(time));
+				});
 			});
-		});
+		}
 	}
 }
+
 
 void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 {
@@ -609,6 +732,11 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	}
 	if (showTestHardware) {
 		paintTestHardware();
+	}
+	if (showQuickSetupEditor) {
+		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
+			showSetupOverview(*motherBoard, ViewMode::EDIT);
+		});
 	}
 }
 
