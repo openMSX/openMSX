@@ -253,8 +253,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 				std::array<Pixel, VISIBLE_PIXELS_PER_LINE> right;
 				auto wl = copyLine(*work, openMsxLine, left);
 				auto wr = copyLine(*last, openMsxLine, right);
-				assert(wl == wr);
-				setWidth(i, wl);
+				setWidth(i, std::max(wl, wr));
 
 				int xx = (x - (100 + 102)) / 2;
 				if (wl <= 320) xx &= ~1; // round down to even
