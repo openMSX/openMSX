@@ -43,14 +43,14 @@ namespace openmsx {
 //   https://reviews.llvm.org/D86936
 // As a workaround we do hardcode the (type and) size here:
 //static constexpr std::array coeffs = {
-static constexpr std::array<float, 2464> coeffs = {
+static constexpr std::array<float, 2463 + 1> coeffs = {
 	#include "ResampleCoeffs.ii"
 };
 
 using FilterIndex = FixedPoint<16>;
 
 static constexpr int INDEX_INC = 128;
-static constexpr int COEFF_LEN = int(std::size(coeffs));
+static constexpr int COEFF_LEN = int(std::size(coeffs) - 1);
 static constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
 static constexpr size_t TAB_LEN      = ResampleHQ<1>::TAB_LEN;
 static constexpr size_t HALF_TAB_LEN = ResampleHQ<1>::HALF_TAB_LEN;
