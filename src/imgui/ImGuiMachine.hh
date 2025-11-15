@@ -44,6 +44,11 @@ private:
 	bool printConfigInfo(MachineInfo& info);
 	enum class ViewMode { VIEW, SAVE, NO_CONTROLS, EDIT };
 	void showSetupOverview(MSXMotherBoard& motherBoard, ViewMode = ViewMode::VIEW);
+	void showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode);
+	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
 	void loadPreviewSetup();
 	void showNonExistingPreview();
 
