@@ -78,7 +78,7 @@ ImGuiMachine::ImGuiMachine(ImGuiManager& manager_)
 		ImGui::SameLine();
 		im::Group([&]{
 			if (previewSetup.motherBoard) {
-				showSetupOverview(*previewSetup.motherBoard);
+				showSetupOverviewView(*previewSetup.motherBoard);
 			} else {
 				showNonExistingPreview();
 			}
@@ -252,11 +252,11 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 				ImGui::Checkbox("Set as default", &setSetupAsDefault);
 				simpleToolTip("Check this to set the setup you are saving as default setup: load this setup when starting up openMSX if no other setup is specified.");
 				ImGui::Separator();
-				showSetupOverview(*motherBoard, ViewMode::SAVE);
+				showSetupOverviewSave(*motherBoard);
 			});
 
 			im::Menu("Current setup", true, [&]{
-				showSetupOverview(*motherBoard, ViewMode::VIEW);
+				showSetupOverviewView(*motherBoard);
 			});
 		}
 
@@ -334,7 +334,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 						}
 						im::ItemTooltip([&]{
 							if (previewSetup.motherBoard) {
-								showSetupOverview(*previewSetup.motherBoard, ViewMode::NO_CONTROLS);
+								showSetupOverviewNoControls(*previewSetup.motherBoard);
 							} else {
 								showNonExistingPreview();
 							}
@@ -447,20 +447,44 @@ void ImGuiMachine::showNonExistingPreview()
 	}
 }
 
-void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewMode)
+void ImGuiMachine::showSetupOverviewView(MSXMotherBoard& motherBoard)
 {
+	auto viewMode = ViewMode::VIEW;
+	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 	showSetupOverviewMachine(motherBoard, viewMode);
-
-	const ImGuiTreeNodeFlags flags = (viewMode == ViewMode::VIEW || viewMode == ViewMode::EDIT) ? ImGuiTreeNodeFlags_DefaultOpen :
-					viewMode == ViewMode::NO_CONTROLS ? (ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet) :
-					ImGuiTreeNodeFlags_None;
-
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
-
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
-
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
-
+	showSetupOverviewState(motherBoard, viewMode, flags);
+}
+void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
+{
+	auto viewMode = ViewMode::SAVE;
+	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_None;
+	showSetupOverviewMachine(motherBoard, viewMode);
+	showSetupOverviewExtensions(motherBoard, viewMode, flags);
+	showSetupOverviewConnectors(motherBoard, viewMode, flags);
+	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	showSetupOverviewState(motherBoard, viewMode, flags);
+}
+void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
+{
+	auto viewMode = ViewMode::NO_CONTROLS;
+	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet;
+	showSetupOverviewMachine(motherBoard, viewMode);
+	showSetupOverviewExtensions(motherBoard, viewMode, flags);
+	showSetupOverviewConnectors(motherBoard, viewMode, flags);
+	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	showSetupOverviewState(motherBoard, viewMode, flags);
+}
+void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
+{
+	auto viewMode = ViewMode::EDIT;
+	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+	showSetupOverviewMachine(motherBoard, viewMode);
+	showSetupOverviewExtensions(motherBoard, viewMode, flags);
+	showSetupOverviewConnectors(motherBoard, viewMode, flags);
+	showSetupOverviewMedia(motherBoard, viewMode, flags);
 	showSetupOverviewState(motherBoard, viewMode, flags);
 }
 
@@ -743,7 +767,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 	if (showQuickSetupEditor) {
 	        ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
 		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
-			showSetupOverview(*motherBoard, ViewMode::EDIT);
+			showSetupOverviewEdit(*motherBoard);
 		});
 	}
 }

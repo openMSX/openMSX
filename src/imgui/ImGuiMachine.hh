@@ -43,7 +43,10 @@ private:
 	[[nodiscard]] const std::string& getTestResult(MachineInfo& info);
 	bool printConfigInfo(MachineInfo& info);
 	enum class ViewMode { VIEW, SAVE, NO_CONTROLS, EDIT };
-	void showSetupOverview(MSXMotherBoard& motherBoard, ViewMode = ViewMode::VIEW);
+	void showSetupOverviewView(MSXMotherBoard& motherBoard);
+	void showSetupOverviewSave(MSXMotherBoard& motherBoard);
+	void showSetupOverviewNoControls(MSXMotherBoard& motherBoard);
+	void showSetupOverviewEdit(MSXMotherBoard& motherBoard);
 	void showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode);
 	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
 	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
