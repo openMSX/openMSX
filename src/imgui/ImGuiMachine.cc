@@ -458,9 +458,9 @@ void ImGuiMachine::showSetupOverview(MSXMotherBoard& motherBoard, ViewMode viewM
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
-	
+
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
-	
+
 	showSetupOverviewState(motherBoard, viewMode, flags);
 }
 
@@ -472,8 +472,10 @@ void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMod
 	if (auto* info = findMachineInfo(configName)) {
 		if (viewMode != ViewMode::SAVE) {
 			if (viewMode == ViewMode::EDIT) {
-				im::TreeNode("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&]{
-					im::Table("##MachineTable", 2, [&]{
+				im::TreeNodeWithoutID("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&] {
+					im::Table("##shared-table", 2, [&] {
+						ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+						ImGui::TableSetupColumn("Value");
 						if (ImGui::TableNextColumn()) {
 							ImGui::TextUnformatted("Brand and model");
 						}
@@ -510,10 +512,12 @@ void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, View
 	using enum SetupDepth;
 
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < EXTENSIONS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[EXTENSIONS].c_str(), flags, [&]{
+		im::TreeNodeWithoutID(depthNodeNames[EXTENSIONS].c_str(), flags, [&]{
 			const auto& slotManager = motherBoard.getSlotManager();
 			bool anySlot = false;
-			im::Table("##ExtTable", 2, [&]{
+			im::Table("##shared-table", 2, [&]{
+				ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("Value");
 				for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 					if (!slotManager.slotExists(i)) continue;
 					anySlot = true;
@@ -587,7 +591,7 @@ void ImGuiMachine::showSetupOverviewConnectors(MSXMotherBoard& motherBoard, View
 	using enum SetupDepth;
 
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < CONNECTORS, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[CONNECTORS].c_str(), flags, [&]{
+		im::TreeNodeWithoutID(depthNodeNames[CONNECTORS].c_str(), flags, [&]{
 			using enum ImGuiConnector::Mode;
 			manager.connector->showPluggables(motherBoard.getPluggingController(), viewMode == ViewMode::EDIT ? SUBMENU : VIEW);
 		});
@@ -599,8 +603,10 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode 
 	using enum SetupDepth;
 
 	im::StyleColor(viewMode == ViewMode::SAVE && saveSetupDepth < MEDIA, ImGuiCol_Text, getColor(imColor::TEXT_DISABLED), [&]{
-		im::TreeNode(depthNodeNames[MEDIA].c_str(), flags, [&]{
-			im::Table("##MediaTable", 2, [&]{
+		im::TreeNodeWithoutID(depthNodeNames[MEDIA].c_str(), flags, [&]{
+			im::Table("##shared-table", 2, [&]{
+				ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("Value");
 				for (const auto& media : motherBoard.getMediaProviders()) {
 					TclObject info;
 					media.provider->getMediaInfo(info);
