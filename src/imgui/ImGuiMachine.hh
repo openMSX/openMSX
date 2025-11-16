@@ -49,10 +49,10 @@ private:
 	void showSetupOverviewEdit(MSXMotherBoard& motherBoard);
 	void showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode);
 	void showSetupOverviewMachineEdit(MSXMotherBoard& motherBoard);
-	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
-	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
-	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
-	void showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags);
+	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
+	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
+	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
+	void showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
 	void loadPreviewSetup();
 	void showNonExistingPreview();
 
