@@ -37,12 +37,12 @@ uint8_t Y8950KeyboardConnector::peek(EmuTime time) const
 	return read(time);
 }
 
-std::string_view Y8950KeyboardConnector::getDescription() const
+zstring_view Y8950KeyboardConnector::getDescription() const
 {
 	return "MSX-AUDIO keyboard connector";
 }
 
-std::string_view Y8950KeyboardConnector::getClass() const
+zstring_view Y8950KeyboardConnector::getClass() const
 {
 	return "Y8950 Keyboard Port";
 }

@@ -28,7 +28,7 @@ public:
 	 */
 	virtual void write(uint8_t value, EmuTime time) = 0;
 
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] zstring_view getClass() const final;
 
 	/* Missing pin descriptions
 	 * pin 5 : +5V

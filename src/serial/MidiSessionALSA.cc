@@ -38,8 +38,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(
@@ -123,12 +123,12 @@ void MidiOutALSA::disconnect()
 	connected = false;
 }
 
-std::string_view MidiOutALSA::getName() const
+zstring_view MidiOutALSA::getName() const
 {
 	return name;
 }
 
-std::string_view MidiOutALSA::getDescription() const
+zstring_view MidiOutALSA::getDescription() const
 {
 	return desc;
 }
@@ -189,8 +189,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime time) override;
@@ -384,12 +384,12 @@ bool MidiInALSA::signalEvent(const Event& /*event*/)
 	return false;
 }
 
-std::string_view MidiInALSA::getName() const
+zstring_view MidiInALSA::getName() const
 {
 	return name;
 }
 
-std::string_view MidiInALSA::getDescription() const
+zstring_view MidiInALSA::getDescription() const
 {
 	return desc;
 }

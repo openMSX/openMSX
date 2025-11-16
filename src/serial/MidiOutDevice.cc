@@ -46,7 +46,7 @@ static constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
 	}
 }
 
-std::string_view MidiOutDevice::getClass() const
+zstring_view MidiOutDevice::getClass() const
 {
 	return "midi out";
 }

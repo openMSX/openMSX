@@ -3,8 +3,10 @@
 
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
+
+#include "zstring_view.hh"
+
 #include <memory>
-#include <string_view>
 
 namespace openmsx {
 
@@ -33,13 +35,13 @@ public:
 	/**
 	 * Get a description for this connector
 	 */
-	[[nodiscard]] virtual std::string_view getDescription() const = 0;
+	[[nodiscard]] virtual zstring_view getDescription() const = 0;
 
 	/**
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.
 	 */
-	[[nodiscard]] virtual std::string_view getClass() const = 0;
+	[[nodiscard]] virtual zstring_view getClass() const = 0;
 
 	/**
 	 * This plugs a Pluggable in this Connector.

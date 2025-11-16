@@ -7,7 +7,7 @@ void DummyMidiInDevice::signal(EmuTime /*time*/)
 	// ignore
 }
 
-std::string_view DummyMidiInDevice::getDescription() const
+zstring_view DummyMidiInDevice::getDescription() const
 {
 	return {};
 }

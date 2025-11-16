@@ -15,7 +15,7 @@ using namespace std::literals;
 
 namespace openmsx {
 
-[[nodiscard]] static std::string pluggableToGuiString(std::string_view pluggable)
+[[nodiscard]] static zstring_view pluggableToGuiString(zstring_view pluggable)
 {
 	if (pluggable == "msxjoystick1")       return "MSX joystick 1";
 	if (pluggable == "msxjoystick2")       return "MSX joystick 2";
@@ -29,7 +29,7 @@ namespace openmsx {
 	if (pluggable == "epson-printer")      return "Epson printer";
 	if (pluggable == "tetris2-protection") return "Tetris II SE dongle";
 	if (pluggable == "circuit-designer-rd-dongle") return "Circuit Designer RD dongle";
-	return std::string(pluggable);
+	return pluggable;
 }
 
 void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
@@ -39,7 +39,7 @@ void ImGuiConnector::showMenu(MSXMotherBoard* motherBoard)
 	});
 }
 
-void ImGuiConnector::paintPluggableSelectables(const Connector& connector, const std::vector<std::unique_ptr<Pluggable>>& pluggables)
+void ImGuiConnector::paintPluggableSelectables(PluggingController& controller, const Connector& connector)
 {
 	const auto& currentPluggable = connector.getPlugged();
 	const auto& connectorName = connector.getName();
@@ -49,7 +49,7 @@ void ImGuiConnector::paintPluggableSelectables(const Connector& connector, const
 		}
 	}
 	auto connectorClass = connector.getClass();
-	for (const auto& plug : pluggables) {
+	for (const auto& plug : controller.getPluggables()) {
 		if (plug->getClass() != connectorClass) continue;
 		auto plugName = plug->getName();
 		bool selected = plug.get() == &currentPluggable;
@@ -64,13 +64,12 @@ void ImGuiConnector::paintPluggableSelectables(const Connector& connector, const
 	}
 }
 
-void ImGuiConnector::showPluggables(PluggingController& pluggingController, Mode mode)
+void ImGuiConnector::showPluggables(PluggingController& controller, Mode mode)
 {
 	im::Table("##shared-table", 2, [&]{
 		ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
 		ImGui::TableSetupColumn("Value");
-		const auto& pluggables = pluggingController.getPluggables();
-		for (const auto* connector : pluggingController.getConnectors()) {
+		for (const auto* connector : controller.getConnectors()) {
 			if (ImGui::TableNextColumn()) { // connector
 				ImGui::TextUnformatted(connector->getDescription());
 			}
@@ -86,18 +85,18 @@ void ImGuiConnector::showPluggables(PluggingController& pluggingController, Mode
 					case COMBO:
 						ImGui::SetNextItemWidth(ImGui::GetFontSize() * 12.0f);
 						im::Combo(tmpStrCat("##", connectorName).c_str(), pluggableToGuiString(plugName).c_str(), [&]{
-							paintPluggableSelectables(*connector, pluggables);
+							paintPluggableSelectables(controller, *connector);
 						});
 						break;
 					case SUBMENU:
 						im::Menu(pluggableToGuiString(plugName.empty() ? tmpStrCat("(empty)", "##", connectorName).c_str() : plugName).c_str(), [&] {
-							paintPluggableSelectables(*connector, pluggables);
+							paintPluggableSelectables(controller, *connector);
 						});
 						break;
 					default: UNREACHABLE;
 				}
-				if (const auto& desc = currentPluggable.getDescription(); !desc.empty() && mode != SUBMENU) {
-					simpleToolTip(desc);
+				if (mode != SUBMENU) {
+					simpleToolTip(currentPluggable.getDescription());
 				}
 			}
 		}

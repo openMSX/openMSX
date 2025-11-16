@@ -61,12 +61,12 @@ void MidiInReader::unplugHelper(EmuTime /*time*/)
 	file.reset();
 }
 
-std::string_view MidiInReader::getName() const
+zstring_view MidiInReader::getName() const
 {
 	return "midi-in-reader";
 }
 
-std::string_view MidiInReader::getDescription() const
+zstring_view MidiInReader::getDescription() const
 {
 	return "MIDI in file reader. Sends data from an input file to the "
 	       "MIDI port it is connected to. The filename is set with "

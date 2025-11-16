@@ -78,12 +78,12 @@ void RS232Tester::unplugHelper(EmuTime /*time*/)
 	inFile.reset();
 }
 
-std::string_view RS232Tester::getName() const
+zstring_view RS232Tester::getName() const
 {
 	return "rs232-tester";
 }
 
-std::string_view RS232Tester::getDescription() const
+zstring_view RS232Tester::getDescription() const
 {
 	return	"RS232 tester pluggable. Reads all data from file specified "
 		"with the 'rs-232-inputfilename' setting. Writes all data "

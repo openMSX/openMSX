@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-std::string_view AudioInputDevice::getClass() const
+zstring_view AudioInputDevice::getClass() const
 {
 	return "Audio Input Port";
 }

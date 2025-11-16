@@ -160,8 +160,8 @@ public:
 	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -183,8 +183,8 @@ public:
 	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

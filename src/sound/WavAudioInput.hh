@@ -18,8 +18,8 @@ public:
 	~WavAudioInput() override;
 
 	// AudioInputDevice
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] int16_t readSample(EmuTime time) override;

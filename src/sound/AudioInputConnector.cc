@@ -18,12 +18,12 @@ AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_
 {
 }
 
-std::string_view AudioInputConnector::getDescription() const
+zstring_view AudioInputConnector::getDescription() const
 {
 	return "Audio input connector";
 }
 
-std::string_view AudioInputConnector::getClass() const
+zstring_view AudioInputConnector::getClass() const
 {
 	return "Audio Input Port";
 }

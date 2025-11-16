@@ -128,7 +128,7 @@ void MSXJoystick::checkJoystickConfig(const TclObject& newValue)
 }
 
 // Pluggable
-std::string_view MSXJoystick::getName() const
+zstring_view MSXJoystick::getName() const
 {
 	switch (id) {
 		case 1: return "msxjoystick1";
@@ -137,7 +137,7 @@ std::string_view MSXJoystick::getName() const
 	}
 }
 
-std::string_view MSXJoystick::getDescription() const
+zstring_view MSXJoystick::getDescription() const
 {
 	return description;
 }

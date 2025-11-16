@@ -6,12 +6,12 @@
 namespace openmsx {
 
 // Pluggable
-std::string_view SETetrisDongle::getName() const
+zstring_view SETetrisDongle::getName() const
 {
 	return "tetris2-protection";
 }
 
-std::string_view SETetrisDongle::getDescription() const
+zstring_view SETetrisDongle::getDescription() const
 {
 	return "Tetris II Special Edition dongle";
 }

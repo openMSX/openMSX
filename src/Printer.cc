@@ -596,12 +596,12 @@ ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
 	resetEmulatedPrinter();
 }
 
-std::string_view ImagePrinterMSX::getName() const
+zstring_view ImagePrinterMSX::getName() const
 {
 	return "msx-printer";
 }
 
-std::string_view ImagePrinterMSX::getDescription() const
+zstring_view ImagePrinterMSX::getDescription() const
 {
 	// TODO which printer type
 	return "Emulate MSX printer, prints to image.";
@@ -1134,12 +1134,12 @@ ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard_)
 	resetEmulatedPrinter();
 }
 
-std::string_view ImagePrinterEpson::getName() const
+zstring_view ImagePrinterEpson::getName() const
 {
 	return "epson-printer";
 }
 
-std::string_view ImagePrinterEpson::getDescription() const
+zstring_view ImagePrinterEpson::getDescription() const
 {
 	return "Emulate Epson FX80 printer, prints to image.";
 }

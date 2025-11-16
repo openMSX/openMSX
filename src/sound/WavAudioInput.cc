@@ -28,12 +28,12 @@ void WavAudioInput::loadWave()
 		audioInputFilenameSetting.getString())));
 }
 
-std::string_view WavAudioInput::getName() const
+zstring_view WavAudioInput::getName() const
 {
 	return "wavinput";
 }
 
-std::string_view WavAudioInput::getDescription() const
+zstring_view WavAudioInput::getDescription() const
 {
 	return "Read .wav files. Can for example be used as input for "
 	       "samplers.";

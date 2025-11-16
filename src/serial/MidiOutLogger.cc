@@ -31,12 +31,12 @@ void MidiOutLogger::unplugHelper(EmuTime /*time*/)
 	file.close();
 }
 
-std::string_view MidiOutLogger::getName() const
+zstring_view MidiOutLogger::getName() const
 {
 	return "midi-out-logger";
 }
 
-std::string_view MidiOutLogger::getDescription() const
+zstring_view MidiOutLogger::getDescription() const
 {
 	return "Midi output logger. Log all data that is sent to this "
 	       "pluggable to a file. The filename is set with the "

@@ -19,7 +19,7 @@ NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
 	std::ranges::fill(buf, 0xFF);
 }
 
-std::string_view NinjaTap::getDescription() const
+zstring_view NinjaTap::getDescription() const
 {
 	return "MSX Ninja Tap device";
 }

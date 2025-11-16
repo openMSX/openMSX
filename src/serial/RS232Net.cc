@@ -200,12 +200,12 @@ void RS232Net::unplugHelper(EmuTime /*time*/)
 	poller.reset();
 }
 
-std::string_view RS232Net::getName() const
+zstring_view RS232Net::getName() const
 {
 	return "rs232-net";
 }
 
-std::string_view RS232Net::getDescription() const
+zstring_view RS232Net::getDescription() const
 {
 	return "RS232 Network pluggable. Connects the RS232 port to IP:PORT, "
 	       "selected with the 'rs232-net-address' setting.";

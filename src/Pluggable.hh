@@ -2,7 +2,8 @@
 #define PLUGGABLE_HH
 
 #include "EmuTime.hh"
-#include <string_view>
+
+#include "zstring_view.hh"
 
 namespace openmsx {
 
@@ -15,16 +16,16 @@ public:
 
 	/** Name used to identify this pluggable.
 	  */
-	[[nodiscard]] virtual std::string_view getName() const;
+	[[nodiscard]] virtual zstring_view getName() const;
 
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.
 	  */
-	[[nodiscard]] virtual std::string_view getClass() const = 0;
+	[[nodiscard]] virtual zstring_view getClass() const = 0;
 
 	/** Description for this pluggable.
 	  */
-	[[nodiscard]] virtual std::string_view getDescription() const = 0;
+	[[nodiscard]] virtual zstring_view getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
 	  * connector.

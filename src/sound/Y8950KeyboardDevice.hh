@@ -29,7 +29,7 @@ public:
 	[[nodiscard]] virtual uint8_t read(EmuTime time) = 0;
 
 	// pluggable
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] zstring_view getClass() const final;
 };
 
 } // namespace openmsx

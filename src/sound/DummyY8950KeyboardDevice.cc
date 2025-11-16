@@ -12,7 +12,7 @@ uint8_t DummyY8950KeyboardDevice::read(EmuTime /*time*/)
 	return 255;
 }
 
-std::string_view DummyY8950KeyboardDevice::getDescription() const
+zstring_view DummyY8950KeyboardDevice::getDescription() const
 {
 	return {};
 }

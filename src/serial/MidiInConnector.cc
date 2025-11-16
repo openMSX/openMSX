@@ -19,12 +19,12 @@ MidiInConnector::MidiInConnector(PluggingController& pluggingController_,
 {
 }
 
-std::string_view MidiInConnector::getDescription() const
+zstring_view MidiInConnector::getDescription() const
 {
 	return description;
 }
 
-std::string_view MidiInConnector::getClass() const
+zstring_view MidiInConnector::getClass() const
 {
 	return "midi in";
 }

@@ -7,7 +7,7 @@ void DummyRS232Device::signal(EmuTime /*time*/)
 	// ignore
 }
 
-std::string_view DummyRS232Device::getDescription() const
+zstring_view DummyRS232Device::getDescription() const
 {
 	return {};
 }

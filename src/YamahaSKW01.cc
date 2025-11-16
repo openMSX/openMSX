@@ -57,12 +57,12 @@ void YamahaSKW01PrinterPort::writeData(uint8_t newData, EmuTime time)
 	}
 }
 
-std::string_view YamahaSKW01PrinterPort::getDescription() const
+zstring_view YamahaSKW01PrinterPort::getDescription() const
 {
 	return "Yamaha SKW-01 printer port";
 }
 
-std::string_view YamahaSKW01PrinterPort::getClass() const
+zstring_view YamahaSKW01PrinterPort::getClass() const
 {
 	return "Printer Port";
 }

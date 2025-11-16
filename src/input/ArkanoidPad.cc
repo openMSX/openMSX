@@ -67,12 +67,12 @@ ArkanoidPad::~ArkanoidPad()
 
 
 // Pluggable
-std::string_view ArkanoidPad::getName() const
+zstring_view ArkanoidPad::getName() const
 {
 	return "arkanoidpad";
 }
 
-std::string_view ArkanoidPad::getDescription() const
+zstring_view ArkanoidPad::getDescription() const
 {
 	return "Arkanoid pad";
 }

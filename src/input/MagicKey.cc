@@ -6,12 +6,12 @@
 namespace openmsx {
 
 // Pluggable
-std::string_view MagicKey::getName() const
+zstring_view MagicKey::getName() const
 {
 	return "magic-key";
 }
 
-std::string_view MagicKey::getDescription() const
+zstring_view MagicKey::getDescription() const
 {
 	return "Dongle used by some Japanese games to enable cheat mode";
 }

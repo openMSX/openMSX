@@ -27,12 +27,12 @@ void JoyTap::createPorts(std::string_view description, EmuTime time)
 	}
 }
 
-std::string_view JoyTap::getDescription() const
+zstring_view JoyTap::getDescription() const
 {
 	return "MSX Joy Tap device";
 }
 
-std::string_view JoyTap::getName() const
+zstring_view JoyTap::getName() const
 {
 	return name;
 }

@@ -47,12 +47,12 @@ Paddle::~Paddle()
 
 
 // Pluggable
-std::string_view Paddle::getName() const
+zstring_view Paddle::getName() const
 {
 	return "paddle";
 }
 
-std::string_view Paddle::getDescription() const
+zstring_view Paddle::getDescription() const
 {
 	return "MSX Paddle";
 }

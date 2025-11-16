@@ -15,8 +15,8 @@ public:
 	[[nodiscard]] RS232Device& getPluggedRS232Dev() const;
 
 	// Connector
-	[[nodiscard]] std::string_view getDescription() const final;
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] zstring_view getDescription() const final;
+	[[nodiscard]] zstring_view getClass() const final;
 
 	// input (SerialDataInterface)
 	void setDataBits(DataBits bits) override = 0;

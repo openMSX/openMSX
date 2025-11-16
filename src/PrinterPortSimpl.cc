@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-static constexpr static_string_view DESCRIPTION =
+static constexpr zstring_view DESCRIPTION =
 	"Play samples via your printer port.";
 
 PrinterPortSimpl::PrinterPortSimpl(HardwareConfig& hwConf_)
@@ -39,7 +39,9 @@ void PrinterPortSimpl::createDAC()
 		      ->setFirstChild(doc.allocateElement("volume", "12000"));
 		return result;
 	}();
-	dac.emplace("simpl", DESCRIPTION, DeviceConfig(hwConf, *xml));
+	dac.emplace("simpl",
+	            static_string_view{static_string_view::lifetime_ok_tag{}, DESCRIPTION},
+	            DeviceConfig(hwConf, *xml));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime /*time*/)
@@ -52,12 +54,12 @@ void PrinterPortSimpl::unplugHelper(EmuTime /*time*/)
 	dac.reset();
 }
 
-std::string_view PrinterPortSimpl::getName() const
+zstring_view PrinterPortSimpl::getName() const
 {
 	return "simpl";
 }
 
-std::string_view PrinterPortSimpl::getDescription() const
+zstring_view PrinterPortSimpl::getDescription() const
 {
 	return DESCRIPTION;
 }

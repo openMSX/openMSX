@@ -33,8 +33,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 	[[nodiscard]] std::optional<bool> getDSR(EmuTime time) const override;
 	[[nodiscard]] std::optional<bool> getCTS(EmuTime time) const override;
 

@@ -25,12 +25,12 @@
 namespace openmsx {
 
 // Pluggable
-std::string_view CircuitDesignerRDDongle::getName() const
+zstring_view CircuitDesignerRDDongle::getName() const
 {
 	return "circuit-designer-rd-dongle";
 }
 
-std::string_view CircuitDesignerRDDongle::getDescription() const
+zstring_view CircuitDesignerRDDongle::getDescription() const
 {
 	return "Circuit Designer RD dongle";
 }

@@ -15,8 +15,8 @@ public:
 	[[nodiscard]] MidiInDevice& getPluggedMidiInDev() const;
 
 	// Connector
-	[[nodiscard]] std::string_view getDescription() const final;
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] zstring_view getDescription() const final;
+	[[nodiscard]] zstring_view getClass() const final;
 
 	[[nodiscard]] virtual bool ready() = 0;
 	[[nodiscard]] virtual bool acceptsData() = 0;

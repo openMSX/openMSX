@@ -12,7 +12,7 @@ public:
 	NinjaTap(PluggingController& pluggingController, std::string name);
 
 	// Pluggable
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime time) override;
 
 	// JoystickDevice

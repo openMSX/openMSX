@@ -17,7 +17,7 @@ void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime /*time*/)
 	// do nothing
 }
 
-std::string_view DummyCassetteDevice::getDescription() const
+zstring_view DummyCassetteDevice::getDescription() const
 {
 	return {};
 }

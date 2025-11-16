@@ -33,7 +33,7 @@ public:
 	virtual void writeData(uint8_t data, EmuTime time) = 0;
 
 	// Pluggable
-	[[nodiscard]] std::string_view getClass() const final;
+	[[nodiscard]] zstring_view getClass() const final;
 };
 
 } // namespace openmsx

@@ -115,12 +115,12 @@ void CassettePort::setLaserdiscPlayer(LaserdiscPlayer *laserdiscPlayer_)
 }
 #endif
 
-std::string_view CassettePort::getDescription() const
+zstring_view CassettePort::getDescription() const
 {
 	return "MSX Cassette port";
 }
 
-std::string_view CassettePort::getClass() const
+zstring_view CassettePort::getClass() const
 {
 	return "Cassette Port";
 }

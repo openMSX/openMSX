@@ -138,7 +138,7 @@ void JoyMega::checkJoystickConfig(const TclObject& newValue)
 }
 
 // Pluggable
-std::string_view JoyMega::getName() const
+zstring_view JoyMega::getName() const
 {
 	switch (id) {
 		case 1: return "joymega1";
@@ -147,7 +147,7 @@ std::string_view JoyMega::getName() const
 	}
 }
 
-std::string_view JoyMega::getDescription() const
+zstring_view JoyMega::getDescription() const
 {
 	return description;
 }

@@ -8,7 +8,7 @@ namespace openmsx {
 class DummyAudioInputDevice final : public AudioInputDevice
 {
 public:
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
 	[[nodiscard]] int16_t readSample(EmuTime time) override;

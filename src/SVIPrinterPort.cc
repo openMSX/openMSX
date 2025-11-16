@@ -71,12 +71,12 @@ void SVIPrinterPort::writeData(uint8_t newData, EmuTime time)
 	}
 }
 
-std::string_view SVIPrinterPort::getDescription() const
+zstring_view SVIPrinterPort::getDescription() const
 {
 	return "Spectravideo SVI-328 Printer port";
 }
 
-std::string_view SVIPrinterPort::getClass() const
+zstring_view SVIPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

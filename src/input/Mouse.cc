@@ -96,12 +96,12 @@ Mouse::~Mouse()
 
 
 // Pluggable
-std::string_view Mouse::getName() const
+zstring_view Mouse::getName() const
 {
 	return "mouse";
 }
 
-std::string_view Mouse::getDescription() const
+zstring_view Mouse::getDescription() const
 {
 	return "MSX mouse";
 }

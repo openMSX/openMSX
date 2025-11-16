@@ -64,20 +64,23 @@ using namespace std::literals;
 // TODO: this description is not entirely accurate, but it is used
 // as an identifier for this audio device in e.g. Catapult. We should
 // use another way to identify audio devices A.S.A.P.!
-static constexpr static_string_view DESCRIPTION = "Cassetteplayer, use to read .cas or .wav files.";
+static constexpr zstring_view DESCRIPTION = "Cassetteplayer, use to read .cas or .wav files.";
 
 static constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
 static constexpr unsigned RECORD_FREQ = 44100;
 static constexpr double RECIP_RECORD_FREQ = 1.0 / RECORD_FREQ;
 static constexpr double OUTPUT_AMP = 60.0;
 
-static std::string_view getCassettePlayerName()
+static zstring_view getCassettePlayerName()
 {
 	return "cassetteplayer";
 }
 
 CassettePlayer::CassettePlayer(HardwareConfig& hwConf)
-	: ResampledSoundDevice(hwConf.getMotherBoard(), getCassettePlayerName(), DESCRIPTION, 1, DUMMY_INPUT_RATE, false)
+	: ResampledSoundDevice(
+		hwConf.getMotherBoard(), getCassettePlayerName(),
+		static_string_view{static_string_view::lifetime_ok_tag{}, DESCRIPTION},
+		1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())
@@ -607,12 +610,12 @@ void CassettePlayer::flushOutput()
 }
 
 
-std::string_view CassettePlayer::getName() const
+zstring_view CassettePlayer::getName() const
 {
 	return getCassettePlayerName();
 }
 
-std::string_view CassettePlayer::getDescription() const
+zstring_view CassettePlayer::getDescription() const
 {
 	return DESCRIPTION;
 }

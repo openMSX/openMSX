@@ -68,12 +68,12 @@ Trackball::~Trackball()
 
 
 // Pluggable
-std::string_view Trackball::getName() const
+zstring_view Trackball::getName() const
 {
 	return "trackball";
 }
 
-std::string_view Trackball::getDescription() const
+zstring_view Trackball::getDescription() const
 {
 	return "MSX Trackball";
 }

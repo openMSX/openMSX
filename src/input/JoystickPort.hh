@@ -29,8 +29,8 @@ public:
 	[[nodiscard]] JoystickDevice& getPluggedJoyDev() const;
 
 	// Connector
-	[[nodiscard]] std::string_view getDescription() const override;
-	[[nodiscard]] std::string_view getClass() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
+	[[nodiscard]] zstring_view getClass() const override;
 	void plug(Pluggable& device, EmuTime time) override;
 
 	[[nodiscard]] uint8_t read(EmuTime time) override;

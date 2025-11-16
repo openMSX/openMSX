@@ -19,12 +19,12 @@ MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
 {
 }
 
-std::string_view MidiOutConnector::getDescription() const
+zstring_view MidiOutConnector::getDescription() const
 {
 	return description;
 }
 
-std::string_view MidiOutConnector::getClass() const
+zstring_view MidiOutConnector::getClass() const
 {
 	return "midi out";
 }

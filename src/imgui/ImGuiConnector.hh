@@ -21,9 +21,10 @@ public:
 		VIEW,
 		SUBMENU
 	};
-	void showPluggables(PluggingController& pluggingController, Mode mode);
+	void showPluggables(PluggingController& controller, Mode mode);
+
 private:
-	void paintPluggableSelectables(const Connector& connector, const std::vector<std::unique_ptr<Pluggable>>& pluggables);
+	void paintPluggableSelectables(PluggingController& controller, const Connector& connector);
 };
 
 } // namespace openmsx

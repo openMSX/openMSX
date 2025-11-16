@@ -53,12 +53,12 @@ void PrinterPortLogger::unplugHelper(EmuTime /*time*/)
 	file.close();
 }
 
-std::string_view PrinterPortLogger::getName() const
+zstring_view PrinterPortLogger::getName() const
 {
 	return "logger";
 }
 
-std::string_view PrinterPortLogger::getDescription() const
+zstring_view PrinterPortLogger::getDescription() const
 {
 	return "Log everything that is sent to the printer port to a "
 	       "file. The filename can be set with the "

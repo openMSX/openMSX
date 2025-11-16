@@ -79,12 +79,12 @@ void MSXPrinterPort::writeData(uint8_t newData, EmuTime time)
 	}
 }
 
-std::string_view MSXPrinterPort::getDescription() const
+zstring_view MSXPrinterPort::getDescription() const
 {
 	return "MSX Printer port";
 }
 
-std::string_view MSXPrinterPort::getClass() const
+zstring_view MSXPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

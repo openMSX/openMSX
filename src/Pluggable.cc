@@ -14,7 +14,7 @@ Pluggable::Pluggable()
 	setConnector(nullptr);
 }
 
-std::string_view Pluggable::getName() const
+zstring_view Pluggable::getName() const
 {
 	return "";
 }
