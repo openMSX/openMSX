@@ -481,7 +481,7 @@ void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 {
 	auto viewMode = ViewMode::EDIT;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-	showSetupOverviewMachine(motherBoard, viewMode);
+	showSetupOverviewMachineEdit(motherBoard);
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
@@ -490,37 +490,13 @@ void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 
 void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode)
 {
-	using enum SetupDepth;
-
 	auto configName = motherBoard.getMachineName();
 	if (auto* info = findMachineInfo(configName)) {
 		if (viewMode != ViewMode::SAVE) {
-			if (viewMode == ViewMode::EDIT) {
-				im::TreeNodeWithoutID("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&] {
-					im::Table("##shared-table", 2, [&] {
-						ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
-						ImGui::TableSetupColumn("Value");
-						if (ImGui::TableNextColumn()) {
-							ImGui::TextUnformatted("Brand and model");
-						}
-						if (ImGui::TableNextColumn()) {
-							if (ImGui::Selectable(info->displayName.c_str())) {
-								showSelectMachine = true;
-							}
-						}
-						if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
-							im::ItemTooltip([&]{
-								printConfigInfo(*info);
-							});
-						}
-					});
-				});
-			} else {
-				ImGui::TextUnformatted(info->displayName);
-			}
+			ImGui::TextUnformatted(info->displayName);
 		}
-		if (viewMode != ViewMode::NO_CONTROLS && viewMode != ViewMode::EDIT) {
-			im::TreeNode(depthNodeNames[MACHINE].c_str(), [&]{
+		if (viewMode != ViewMode::NO_CONTROLS) {
+			im::TreeNode(depthNodeNames[SetupDepth::MACHINE].c_str(), [&]{
 				// alternatively, put this info in a tooltip instead of a collapsed TreeNode
 				printConfigInfo(*info);
 			});
@@ -529,6 +505,37 @@ void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMod
 		// machine config is gone... fallback: just show configName
 		showMachineWithoutInfo(configName);
 	}
+}
+
+void ImGuiMachine::showSetupOverviewMachineEdit(MSXMotherBoard& motherBoard)
+{
+	auto configName = motherBoard.getMachineName();
+	auto* info = findMachineInfo(configName);
+	if (!info) {
+		// machine config is gone... fallback: just show configName
+		showMachineWithoutInfo(configName);
+		return;
+	}
+
+	im::TreeNodeWithoutID("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&] {
+		im::Table("##shared-table", 2, [&] {
+			ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("Value");
+			if (ImGui::TableNextColumn()) {
+				ImGui::TextUnformatted("Brand and model");
+			}
+			if (ImGui::TableNextColumn()) {
+				if (ImGui::Selectable(info->displayName.c_str())) {
+					showSelectMachine = true;
+				}
+			}
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
+				im::ItemTooltip([&]{
+					printConfigInfo(*info);
+				});
+			}
+		});
+	});
 }
 
 void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
