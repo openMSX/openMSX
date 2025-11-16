@@ -455,7 +455,7 @@ void ImGuiMachine::showSetupOverviewView(MSXMotherBoard& motherBoard)
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
-	showSetupOverviewState(motherBoard, viewMode, flags);
+	showSetupOverviewState(motherBoard, flags);
 }
 void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 {
@@ -472,7 +472,7 @@ void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 		showSetupOverviewMedia(motherBoard, viewMode);
 	});
 	im::StyleColor(saveSetupDepth < SetupDepth::COMPLETE_STATE, ImGuiCol_Text, colorDisabled, [&]{
-		showSetupOverviewState(motherBoard, viewMode);
+		showSetupOverviewState(motherBoard);
 	});
 }
 void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
@@ -483,7 +483,7 @@ void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
-	showSetupOverviewState(motherBoard, viewMode, flags);
+	showSetupOverviewState(motherBoard, flags);
 }
 void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 {
@@ -493,7 +493,6 @@ void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
-	showSetupOverviewState(motherBoard, viewMode, flags);
 }
 
 void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode)
@@ -741,16 +740,13 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode 
 	});
 }
 
-void ImGuiMachine::showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+void ImGuiMachine::showSetupOverviewState(MSXMotherBoard& motherBoard, ImGuiTreeNodeFlags flags)
 {
-	if (viewMode != ViewMode::EDIT) {
-		auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble();
-		if (time > 0) {
-			// this is only useful if the time is not 0
-			im::TreeNode(depthNodeNames[SetupDepth::COMPLETE_STATE].c_str(), flags, [&]{
-				ImGui::StrCat("Machine time: ", formatTime(time));
-			});
-		}
+	if (auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble(); time > 0) {
+		// this is only useful if the time is not 0
+		im::TreeNode(depthNodeNames[SetupDepth::COMPLETE_STATE].c_str(), flags, [&]{
+			ImGui::StrCat("Machine time: ", formatTime(time));
+		});
 	}
 }
 

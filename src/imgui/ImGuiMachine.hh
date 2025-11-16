@@ -52,7 +52,7 @@ private:
 	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
 	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
 	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
-	void showSetupOverviewState(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
+	void showSetupOverviewState(MSXMotherBoard& motherBoard, ImGuiTreeNodeFlags flags = 0);
 	void loadPreviewSetup();
 	void showNonExistingPreview();
 
