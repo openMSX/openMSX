@@ -66,7 +66,9 @@ void ImGuiConnector::paintPluggableSelectables(const Connector& connector, const
 
 void ImGuiConnector::showPluggables(PluggingController& pluggingController, Mode mode)
 {
-	im::Table("table", 2, [&]{
+	im::Table("##shared-table", 2, [&]{
+		ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
+		ImGui::TableSetupColumn("Value");
 		const auto& pluggables = pluggingController.getPluggables();
 		for (const auto* connector : pluggingController.getConnectors()) {
 			if (ImGui::TableNextColumn()) { // connector
