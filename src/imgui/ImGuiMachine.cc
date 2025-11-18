@@ -329,7 +329,7 @@ void ImGuiMachine::showMenu(MSXMotherBoard* motherBoard)
 						}
 						im::ItemTooltip([&]{
 							if (previewSetup.motherBoard) {
-								showSetupOverviewNoControls(*previewSetup.motherBoard);
+								showSetupOverviewTooltip(*previewSetup.motherBoard);
 							} else {
 								showNonExistingPreview();
 							}
@@ -473,7 +473,7 @@ void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 		showSetupOverviewState(motherBoard);
 	});
 }
-void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
+void ImGuiMachine::showSetupOverviewTooltip(MSXMotherBoard& motherBoard)
 {
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet;
 	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
@@ -709,7 +709,6 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 								} else if (media.name.starts_with("cd")) {
 									manager.media->paintCDROMMenuContent(media.name, formattedMediaName, *target);
 								}
-
 							});
 						}
 					}
@@ -739,7 +738,7 @@ void ImGuiMachine::paint(MSXMotherBoard* motherBoard)
 		paintTestHardware();
 	}
 	if (showQuickSetupEditor) {
-	        ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
+		ImGui::SetNextWindowSize(ImVec2(0, 0)); // 0,0 will auto-size based on content
 		im::Window("Quick Setup Editor", &showQuickSetupEditor, [&]{
 			showSetupOverviewEdit(*motherBoard);
 		});

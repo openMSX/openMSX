@@ -45,7 +45,7 @@ private:
 	enum class Mode : uint8_t { VIEW, EDIT };
 	void showSetupOverviewView(MSXMotherBoard& motherBoard);
 	void showSetupOverviewSave(MSXMotherBoard& motherBoard);
-	void showSetupOverviewNoControls(MSXMotherBoard& motherBoard);
+	void showSetupOverviewTooltip(MSXMotherBoard& motherBoard);
 	void showSetupOverviewEdit(MSXMotherBoard& motherBoard);
 	void showSetupOverviewMachine(MachineInfo& info);
 	void showSetupOverviewMachineEdit(MachineInfo& info);
