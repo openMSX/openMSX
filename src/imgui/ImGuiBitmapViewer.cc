@@ -239,6 +239,9 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		im::Group([&]{
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("VDP settings");
+			auto pos = ImGui::GetCursorPos();
+			ImGui::Dummy(ImGui::CalcTextSize("Screen mode: non-bitmap"));
+			ImGui::SetCursorPos(pos);
 			im::Disabled(manualMode, [&]{
 				ImGui::AlignTextToFramePadding();
 				ImGui::StrCat("Screen mode: ", modeToStr(vdpMode));
