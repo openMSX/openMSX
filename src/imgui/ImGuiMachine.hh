@@ -90,6 +90,7 @@ private:
 
 	static constexpr auto persistentElements = std::tuple{
 		PersistentElement{"hideNonWorkingMachines", &ImGuiMachine::hideNonWorking},
+		PersistentElement{"showQuickSetupEditor", &ImGuiMachine::showQuickSetupEditor},
 		// manually handle "recentMachines"
 	};
 };
