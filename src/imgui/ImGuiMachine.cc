@@ -444,32 +444,30 @@ void ImGuiMachine::showNonExistingPreview()
 
 void ImGuiMachine::showSetupOverviewView(MSXMotherBoard& motherBoard)
 {
-	auto viewMode = ViewMode::VIEW;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
 		ImGui::TextUnformatted(info->displayName);
 		showSetupOverviewMachine(*info);
 	}
-	showSetupOverviewExtensions(motherBoard, viewMode, flags);
-	showSetupOverviewConnectors(motherBoard, viewMode, flags);
-	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	showSetupOverviewExtensions(motherBoard, Mode::VIEW, flags);
+	showSetupOverviewConnectors(motherBoard, Mode::VIEW, flags);
+	showSetupOverviewMedia(motherBoard, Mode::VIEW, flags);
 	showSetupOverviewState(motherBoard, flags);
 }
 void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 {
-	auto viewMode = ViewMode::SAVE;
 	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
 		showSetupOverviewMachine(*info);
 	}
 	auto colorDisabled = getColor(imColor::TEXT_DISABLED);
 	im::StyleColor(saveSetupDepth < SetupDepth::EXTENSIONS, ImGuiCol_Text, colorDisabled, [&]{
-		showSetupOverviewExtensions(motherBoard, viewMode);
+		showSetupOverviewExtensions(motherBoard, Mode::VIEW);
 	});
 	im::StyleColor(saveSetupDepth < SetupDepth::CONNECTORS, ImGuiCol_Text, colorDisabled, [&]{
-		showSetupOverviewConnectors(motherBoard, viewMode);
+		showSetupOverviewConnectors(motherBoard, Mode::VIEW);
 	});
 	im::StyleColor(saveSetupDepth < SetupDepth::MEDIA, ImGuiCol_Text, colorDisabled, [&]{
-		showSetupOverviewMedia(motherBoard, viewMode);
+		showSetupOverviewMedia(motherBoard, Mode::VIEW);
 	});
 	im::StyleColor(saveSetupDepth < SetupDepth::COMPLETE_STATE, ImGuiCol_Text, colorDisabled, [&]{
 		showSetupOverviewState(motherBoard);
@@ -477,26 +475,24 @@ void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 }
 void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
 {
-	auto viewMode = ViewMode::NO_CONTROLS;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet;
 	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
 		ImGui::TextUnformatted(info->displayName);
 	}
-	showSetupOverviewExtensions(motherBoard, viewMode, flags);
-	showSetupOverviewConnectors(motherBoard, viewMode, flags);
-	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	showSetupOverviewExtensions(motherBoard, Mode::VIEW, flags);
+	showSetupOverviewConnectors(motherBoard, Mode::VIEW, flags);
+	showSetupOverviewMedia(motherBoard, Mode::VIEW, flags);
 	showSetupOverviewState(motherBoard, flags);
 }
 void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 {
-	auto viewMode = ViewMode::EDIT;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
 		showSetupOverviewMachineEdit(*info);
 	}
-	showSetupOverviewExtensions(motherBoard, viewMode, flags);
-	showSetupOverviewConnectors(motherBoard, viewMode, flags);
-	showSetupOverviewMedia(motherBoard, viewMode, flags);
+	showSetupOverviewExtensions(motherBoard, Mode::EDIT, flags);
+	showSetupOverviewConnectors(motherBoard, Mode::EDIT, flags);
+	showSetupOverviewMedia(motherBoard, Mode::EDIT, flags);
 }
 
 void ImGuiMachine::showSetupOverviewMachine(MachineInfo& info)
@@ -530,7 +526,7 @@ void ImGuiMachine::showSetupOverviewMachineEdit(MachineInfo& info)
 	});
 }
 
-void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, Mode mode, ImGuiTreeNodeFlags flags)
 {
 	im::TreeNodeWithoutID(depthNodeNames[SetupDepth::EXTENSIONS].c_str(), flags, [&]{
 		const auto& slotManager = motherBoard.getSlotManager();
@@ -546,7 +542,7 @@ void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, View
 				}
 				if (ImGui::TableNextColumn()) {
 					const auto* config = slotManager.getConfigForSlot(i);
-					if (viewMode == ViewMode::EDIT) {
+					if (mode == Mode::EDIT) {
 						const std::string currentConfigName = config ?
 							(config->getType() == HardwareConfig::Type::EXTENSION ? manager.media->displayNameForExtension(config->getConfigName()) :
 							manager.media->displayNameForRom(std::string(config->getRomFilename()), true)) :
@@ -586,7 +582,7 @@ void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, View
 					}
 					if (ImGui::TableNextColumn()) {
 						auto displayName = manager.media->displayNameForExtension(ext->getConfigName());
-						if (viewMode == ViewMode::EDIT) {
+						if (mode == Mode::EDIT) {
 							im::Menu(displayName.c_str(), [&] {
 								if (ImGui::Button("Remove")) {
 									manager.executeDelayed(makeTclList("remove_extension", ext->getName()));
@@ -605,15 +601,15 @@ void ImGuiMachine::showSetupOverviewExtensions(MSXMotherBoard& motherBoard, View
 	});
 }
 
-void ImGuiMachine::showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+void ImGuiMachine::showSetupOverviewConnectors(MSXMotherBoard& motherBoard, Mode mode, ImGuiTreeNodeFlags flags)
 {
 	im::TreeNodeWithoutID(depthNodeNames[SetupDepth::CONNECTORS].c_str(), flags, [&]{
 		using enum ImGuiConnector::Mode;
-		manager.connector->showPluggables(motherBoard.getPluggingController(), viewMode == ViewMode::EDIT ? SUBMENU : VIEW);
+		manager.connector->showPluggables(motherBoard.getPluggingController(), mode == Mode::EDIT ? SUBMENU : VIEW);
 	});
 }
 
-void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags)
+void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode, ImGuiTreeNodeFlags flags)
 {
 	im::TreeNodeWithoutID(depthNodeNames[SetupDepth::MEDIA].c_str(), flags, [&]{
 		im::Table("##shared-table", 2, [&]{
@@ -660,7 +656,7 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode 
 							auto type = info.getOptionalDictValue(TclObject("type"));
 							if (type && type->getString() == "extension") {
 								auto displayName = manager.media->displayNameForExtension(targetStr);
-								if (viewMode == ViewMode::EDIT) {
+								if (mode == Mode::EDIT) {
 									im::Menu(strCat(displayName, "##", num).c_str(), [&] {
 										if (ImGui::Button("Remove")) {
 											const auto* config = slotManager.getConfigForSlot(num);
@@ -685,12 +681,12 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode 
 								}
 							}
 						}
-					} else if (media.name.starts_with("disk") || media.name.starts_with("cassette") || viewMode != ViewMode::EDIT) {
+					} else if (mode != Mode::EDIT || media.name.starts_with("disk") || media.name.starts_with("cassette")) {
 						if (ImGui::TableNextColumn()) {
-								ImGui::TextUnformatted(formatMediaName(media.name));
+							ImGui::TextUnformatted(formatMediaName(media.name));
 						}
 						if (ImGui::TableNextColumn()) {
-							if (viewMode == ViewMode::EDIT) {
+							if (mode == Mode::EDIT) {
 								if (ImGui::Selectable(strCat(FileOperations::getFilename(targetStr), "##", media.name).c_str(), false)) {
 									manager.media->showMediaWindow(media.name);
 								}
@@ -699,9 +695,7 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode 
 							}
 							simpleToolTip(targetStr);
 						}
-					}
-					// all next cases are the EDIT mode of the media which are not cart, disk or cassette....
-					else {
+					} else { // all next cases are the EDIT mode of the media which are not cart, disk or cassette....
 						auto formattedMediaName = formatMediaName(media.name);
 						if (ImGui::TableNextColumn()) {
 							ImGui::TextUnformatted(formattedMediaName);
