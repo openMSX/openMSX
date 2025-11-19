@@ -88,12 +88,12 @@ void MidiInCoreMIDI::unplugHelper(EmuTime /*time*/)
 	client = 0;
 }
 
-std::string_view MidiInCoreMIDI::getName() const
+zstring_view MidiInCoreMIDI::getName() const
 {
 	return name;
 }
 
-std::string_view MidiInCoreMIDI::getDescription() const
+zstring_view MidiInCoreMIDI::getDescription() const
 {
 	return "Receives MIDI events from an existing CoreMIDI source.";
 }
@@ -210,12 +210,12 @@ void MidiInCoreMIDIVirtual::unplugHelper(EmuTime /*time*/)
 	client = 0;
 }
 
-std::string_view MidiInCoreMIDIVirtual::getName() const
+zstring_view MidiInCoreMIDIVirtual::getName() const
 {
 	return "Virtual IN";
 }
 
-std::string_view MidiInCoreMIDIVirtual::getDescription() const
+zstring_view MidiInCoreMIDIVirtual::getDescription() const
 {
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }

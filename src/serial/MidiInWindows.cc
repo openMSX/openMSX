@@ -87,12 +87,12 @@ void MidiInWindows::unplugHelper(EmuTime /*time*/)
 	devIdx = unsigned(-1);
 }
 
-std::string_view MidiInWindows::getName() const
+zstring_view MidiInWindows::getName() const
 {
 	return name;
 }
 
-std::string_view MidiInWindows::getDescription() const
+zstring_view MidiInWindows::getDescription() const
 {
 	return desc;
 }

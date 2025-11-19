@@ -36,8 +36,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
-	[[nodiscard]] std::string_view getName() const override;
-	[[nodiscard]] std::string_view getDescription() const override;
+	[[nodiscard]] zstring_view getName() const override;
+	[[nodiscard]] zstring_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime time) override;
@@ -82,8 +82,8 @@ public:
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime time) override;
 	void unplugHelper(EmuTime time) override;
-	std::string_view getName() const override;
-	std::string_view getDescription() const override;
+	zstring_view getName() const override;
+	zstring_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime time) override;

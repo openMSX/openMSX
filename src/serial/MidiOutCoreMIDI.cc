@@ -96,12 +96,12 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime /*time*/)
 	client = 0;
 }
 
-std::string_view MidiOutCoreMIDI::getName() const
+zstring_view MidiOutCoreMIDI::getName() const
 {
 	return name;
 }
 
-std::string_view MidiOutCoreMIDI::getDescription() const
+zstring_view MidiOutCoreMIDI::getDescription() const
 {
 	return "Sends MIDI events to an existing CoreMIDI destination.";
 }
@@ -155,12 +155,12 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime /*time*/)
 	client = 0;
 }
 
-std::string_view MidiOutCoreMIDIVirtual::getName() const
+zstring_view MidiOutCoreMIDIVirtual::getName() const
 {
 	return "Virtual OUT";
 }
 
-std::string_view MidiOutCoreMIDIVirtual::getDescription() const
+zstring_view MidiOutCoreMIDIVirtual::getDescription() const
 {
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }
