@@ -35,11 +35,6 @@ using namespace std::literals;
 
 constexpr static std::string_view EMPTY = "(empty)";
 
-static void showMachineWithoutInfo(const std::string_view configName)
-{
-	ImGui::StrCat("Current machine: ", configName, " (can't load this machine config to show more info)");
-}
-
 namespace openmsx {
 
 static constexpr array_with_enum_index<SetupDepth, zstring_view> depthNodeNames = {
@@ -451,7 +446,10 @@ void ImGuiMachine::showSetupOverviewView(MSXMotherBoard& motherBoard)
 {
 	auto viewMode = ViewMode::VIEW;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-	showSetupOverviewMachine(motherBoard, viewMode);
+	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
+		ImGui::TextUnformatted(info->displayName);
+		showSetupOverviewMachine(*info);
+	}
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
@@ -460,7 +458,9 @@ void ImGuiMachine::showSetupOverviewView(MSXMotherBoard& motherBoard)
 void ImGuiMachine::showSetupOverviewSave(MSXMotherBoard& motherBoard)
 {
 	auto viewMode = ViewMode::SAVE;
-	showSetupOverviewMachine(motherBoard, viewMode);
+	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
+		showSetupOverviewMachine(*info);
+	}
 	auto colorDisabled = getColor(imColor::TEXT_DISABLED);
 	im::StyleColor(saveSetupDepth < SetupDepth::EXTENSIONS, ImGuiCol_Text, colorDisabled, [&]{
 		showSetupOverviewExtensions(motherBoard, viewMode);
@@ -479,7 +479,9 @@ void ImGuiMachine::showSetupOverviewNoControls(MSXMotherBoard& motherBoard)
 {
 	auto viewMode = ViewMode::NO_CONTROLS;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet;
-	showSetupOverviewMachine(motherBoard, viewMode);
+	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
+		ImGui::TextUnformatted(info->displayName);
+	}
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
@@ -489,41 +491,24 @@ void ImGuiMachine::showSetupOverviewEdit(MSXMotherBoard& motherBoard)
 {
 	auto viewMode = ViewMode::EDIT;
 	const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-	showSetupOverviewMachineEdit(motherBoard);
+	if (auto* info = findMachineInfo(motherBoard.getMachineName())) {
+		showSetupOverviewMachineEdit(*info);
+	}
 	showSetupOverviewExtensions(motherBoard, viewMode, flags);
 	showSetupOverviewConnectors(motherBoard, viewMode, flags);
 	showSetupOverviewMedia(motherBoard, viewMode, flags);
 }
 
-void ImGuiMachine::showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode)
+void ImGuiMachine::showSetupOverviewMachine(MachineInfo& info)
 {
-	auto configName = motherBoard.getMachineName();
-	if (auto* info = findMachineInfo(configName)) {
-		if (viewMode != ViewMode::SAVE) {
-			ImGui::TextUnformatted(info->displayName);
-		}
-		if (viewMode != ViewMode::NO_CONTROLS) {
-			im::TreeNode(depthNodeNames[SetupDepth::MACHINE].c_str(), [&]{
-				// alternatively, put this info in a tooltip instead of a collapsed TreeNode
-				printConfigInfo(*info);
-			});
-		}
-	} else {
-		// machine config is gone... fallback: just show configName
-		showMachineWithoutInfo(configName);
-	}
+	im::TreeNode(depthNodeNames[SetupDepth::MACHINE].c_str(), [&]{
+		// alternatively, put this info in a tooltip instead of a collapsed TreeNode
+		printConfigInfo(info);
+	});
 }
 
-void ImGuiMachine::showSetupOverviewMachineEdit(MSXMotherBoard& motherBoard)
+void ImGuiMachine::showSetupOverviewMachineEdit(MachineInfo& info)
 {
-	auto configName = motherBoard.getMachineName();
-	auto* info = findMachineInfo(configName);
-	if (!info) {
-		// machine config is gone... fallback: just show configName
-		showMachineWithoutInfo(configName);
-		return;
-	}
-
 	im::TreeNodeWithoutID("Machine", ImGuiTreeNodeFlags_DefaultOpen, [&] {
 		im::Table("##shared-table", 2, [&] {
 			ImGui::TableSetupColumn("Label", ImGuiTableColumnFlags_WidthFixed);
@@ -532,13 +517,13 @@ void ImGuiMachine::showSetupOverviewMachineEdit(MSXMotherBoard& motherBoard)
 				ImGui::TextUnformatted("Brand and model");
 			}
 			if (ImGui::TableNextColumn()) {
-				if (ImGui::Selectable(info->displayName.c_str())) {
+				if (ImGui::Selectable(info.displayName.c_str())) {
 					showSelectMachine = true;
 				}
 			}
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_Stationary)) {
 				im::ItemTooltip([&]{
-					printConfigInfo(*info);
+					printConfigInfo(info);
 				});
 			}
 		});
@@ -810,15 +795,11 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 
 		if (motherBoard) {
 			auto configName = motherBoard->getMachineName();
-			auto* info = findMachineInfo(configName);
-			if (info) {
+			if (auto* info = findMachineInfo(configName)) {
 				std::string display = strCat("Current machine: ", info->displayName);
 				im::TreeNode(display.c_str(), [&]{
 					printConfigInfo(*info);
 				});
-			} else {
-				// machine config is gone... fallback: just show configName
-				showMachineWithoutInfo(configName);
 			}
 			if (newMachineConfig.empty()) newMachineConfig = configName;
 			ImGui::Separator();

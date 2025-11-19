@@ -47,8 +47,8 @@ private:
 	void showSetupOverviewSave(MSXMotherBoard& motherBoard);
 	void showSetupOverviewNoControls(MSXMotherBoard& motherBoard);
 	void showSetupOverviewEdit(MSXMotherBoard& motherBoard);
-	void showSetupOverviewMachine(MSXMotherBoard& motherBoard, ViewMode viewMode);
-	void showSetupOverviewMachineEdit(MSXMotherBoard& motherBoard);
+	void showSetupOverviewMachine(MachineInfo& info);
+	void showSetupOverviewMachineEdit(MachineInfo& info);
 	void showSetupOverviewExtensions(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
 	void showSetupOverviewConnectors(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
 	void showSetupOverviewMedia(MSXMotherBoard& motherBoard, ViewMode viewMode, ImGuiTreeNodeFlags flags = 0);
