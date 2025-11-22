@@ -23,9 +23,10 @@ namespace openmsx {
 using namespace std::literals;
 
 static constexpr auto PIXELS_PER_LINE = VDP::TICKS_PER_LINE / 2;
-static constexpr auto VISIBLE_PIXELS_PER_LINE = 28 + 512 + 28;
+static constexpr auto VISIBLE_PIXELS_PER_LINE = 28 + 512 + 30;
+static_assert(VISIBLE_PIXELS_PER_LINE % 2 == 0, "must be even");
 static constexpr auto FIRST_VISIBLE_LINE = 3 + 13;
-static constexpr auto FIRST_VISIBLE_X = 102; // in pixels  = (100 + 102) / 2, with some rounding
+static constexpr auto FIRST_VISIBLE_X = (100 + 102) / 2;
 static constexpr auto PAL_LINES = 313; // TODO move to VDP
 static constexpr auto NTSC_LINES = 262;
 
@@ -65,21 +66,21 @@ static unsigned copyLine(const RawFrame& src, int openMsxLine, std::span<Pixel, 
 {
 	// About the source line:
 	// - OpenMSX renders lines of width 320 (or 640) pixels, but the real VDP
-	//   renders 14 (or 28) border pixels left and right plus 256 (or 512) display
+	//   renders 14/15 (or 28/30) border pixels left/right plus 256 (or 512) display
 	//   pixels.
 	// - This means the openMSX lines contains 18 (or 36) pixels too many on both sides.
 	// - With horizontal adjust there can be a shift between left and right border.
 	// About the destination line:
 	// - We want to display all 1368 cycles (corresponding to 684 pixels).
 	// - A line is subdivided in these parts:
-	//   *  100 cycles ( 25 or  51 pixels): sync
-	//   *  102 cycles ( 25 or  51 pixels): left erase
-	//   *   56 cycles ( 14 or  28 pixels): left border
-	//   * 1024 cycles (256 or 512 pixels): display area
-	//   *   59 cycles ( 14 or  28 pixels): right border
-	//   *   27 cycles (  8 or  14 pixels): right erase
-	// - We render 684 pixels, so skip 102 pixels, 28 border pixels, 512
-	//   display pixels, 28 border pixels, and 14 pixels remaining.
+	//   *  100 cycles ( 25    or  50   pixels): sync
+	//   *  102 cycles ( 25.5  or  51   pixels): left erase
+	//   *   56 cycles ( 14    or  28   pixels): left border
+	//   * 1024 cycles (256    or 512   pixels): display area
+	//   *   59 cycles ( 14.75 or  29.5 pixels): right border
+	//   *   27 cycles (  6.75 or  13.5 pixels): right erase
+	// - We render 684 pixels, so skip 101 pixels, 28 border pixels, 512
+	//   display pixels, 30 border pixels, and 13 pixels remaining.
 	int line = std::clamp(openMsxLine, 0, 239);
 	auto srcLine = src.getLineDirect(line);
 	auto width = src.getLineWidthDirect(line);
@@ -88,13 +89,13 @@ static unsigned copyLine(const RawFrame& src, int openMsxLine, std::span<Pixel, 
 		std::ranges::fill(dst, srcLine[0]);
 		break;
 	case 320:
-		for (size_t i = 0; i < (14 + 256 + 14); ++i) {
+		for (size_t i = 0; i < (VISIBLE_PIXELS_PER_LINE / 2); ++i) {
 			dst[2 * i + 0] = srcLine[i + 18];
 			dst[2 * i + 1] = srcLine[i + 18];
 		}
 		break;
 	case 640:
-		copy_to_range(subspan<28 + 512 + 28>(srcLine, 36), dst);
+		copy_to_range(subspan<VISIBLE_PIXELS_PER_LINE>(srcLine, 36), dst);
 		break;
 	default:
 		UNREACHABLE;
@@ -199,8 +200,14 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 
 	auto availSize = gl::vec2(ImGui::GetContentRegionAvail()) - gl::vec2(0.0f, ImGui::GetTextLineHeightWithSpacing());
 	auto reqSize = zoomedFullSize + gl::vec2(ImGui::GetStyle().ScrollbarSize);
+	gl::vec2 scrnPos;
+
+	static constexpr int numLinesMax = std::max(PAL_LINES, NTSC_LINES);
+	std::array<unsigned, numLinesMax> allLineWidths;
+	std::ranges::fill(allLineWidths, 1); // default to border width
+
 	im::Child("##display", min(availSize, reqSize), {}, ImGuiWindowFlags_HorizontalScrollbar, [&]{
-		auto scrnPos = ImGui::GetCursorScreenPos();
+		scrnPos = ImGui::GetCursorScreenPos();
 
 		auto makeAndBindTex = [&](gl::Texture& tex) {
 			if (!tex.get()) {
@@ -218,17 +225,17 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-		int checkerBoardSize = 8;
+		// align checkerboard pattern with MSX pixel (0,0) (when set-adjust is 0)
+		static constexpr float checkerBoardSize = 8.0f;
+		static constexpr gl::vec2 texOffset = gl::vec2{-1.0f, 10.0f} / (4.0f * checkerBoardSize);
 		ImGui::Image(checkerTex.getImGui(), zoomedFullSize,
-				{}, fullSize / (4.0f * float(checkerBoardSize)));
+		             texOffset, texOffset + fullSize / (4.0f * checkerBoardSize));
 
 		static constexpr int visibleLinesPal = 43 + 212 + 39;
 		static constexpr int visibleLinesNtsc = 43 + 212 + 39;
-		static constexpr int visibleLinesMax = std::max(visibleLinesPal, visibleLinesNtsc);
 		int numVisibleLines = pal ? visibleLinesPal : visibleLinesNtsc;
 		initPixelBuffer(numVisibleLines);
-		std::array<unsigned, visibleLinesMax> lineWidths_;
-		auto lineWidths = std::span(lineWidths_).subspan(0, numVisibleLines);
+		auto lineWidths = std::span(allLineWidths).subspan(FIRST_VISIBLE_LINE, numVisibleLines);
 		bool any320 = false;
 		bool any640 = false;
 		auto setWidth = [&](int i, unsigned width) {
@@ -257,7 +264,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 
 				int xx = (x - (100 + 102)) / 2;
 				if (wl <= 320) xx &= ~1; // round down to even
-				int n = std::clamp(xx, 0, 28 + 512 + 28);
+				int n = std::clamp(xx, 0, VISIBLE_PIXELS_PER_LINE);
 
 				copy_to_range(subspan(left, 0, n), dst.subspan(0, n));
 				copy_to_range(subspan(right, n),   dst.subspan(n));
@@ -268,7 +275,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		//  else to 320
 		int borderWidth = any640 && !any320 ? 640 : 320;
 		if (borderWidth == 320) any320 = true;
-		std::ranges::replace(lineWidths, 1, borderWidth);
+		std::ranges::replace(allLineWidths, 1, borderWidth);
 
 		makeAndBindTex(viewTex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, VISIBLE_PIXELS_PER_LINE, numVisibleLines, 0,
@@ -310,6 +317,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 			}
 			// middle line
 			int x1 = (x / 2) - FIRST_VISIBLE_X;
+			if (allLineWidths[y] == 320) x1 &= ~1; // round down to even
 			auto x2 = std::clamp(topLeft.x + float(zoom * x1), topLeft.x, bottomRight.x);
 			auto t2 = std::clamp(float(x1) / float(VISIBLE_PIXELS_PER_LINE), 0.0f, 1.0f);
 			auto middleVertexY1 = middleVertexY + float(2 * zoom);
@@ -376,11 +384,19 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		}
 
 		if (showBeam) {
-			gl::vec2 rasterBeamPos(float(x) * 0.5f, float(y) * 2.0f);
-			gl::vec2 zm = float(zoom) * gl::vec2(1.0f); // ?
-			auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.0f, 1.0f}) * zm;
+			auto xx = x / 2;
+			auto zx = 0.5f;
+			auto cx = 0.5f;
+			if (allLineWidths[y] == 320) {
+				xx = (xx + 1) & ~1; // round up to even
+				zx = 1.0f;
+				cx = 0.25f;
+			}
+			gl::vec2 rasterBeamPos(float(xx), float(y) * 2.0f);
+			auto thickness = float(zoom) * 0.5f;
+			auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{cx, 1.0f}) * float(zoom);
 			auto color = ImGui::ColorConvertFloat4ToU32(beamColor);
-			auto thickness = zm.y * 0.5f;
+			gl::vec2 zm = float(zoom) * gl::vec2(zx, 1.0f);
 			auto zm1 = 1.5f * zm;
 			auto zm3 = 3.5f * zm;
 			drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
@@ -391,7 +407,32 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		}
 	});
 	if (ImGui::IsItemHovered()) {
-		ImGui::TextUnformatted("TODO: show coordinates on hover");
+		auto [tx, vy] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / (gl::vec2(0.5f, 2.0f) * float(zoom)));
+		if (0 <= tx && tx < VDP::TICKS_PER_LINE &&
+		    0 <= vy && vy < numLines) {
+			int vx = (tx - vdp->getLeftSprites()) / 2;
+			int mx = vx;
+			int my = vy - vdp->getLineZero();
+			if (allLineWidths[vy] == 320) {
+				mx >>= 1; // note: NOT the same as 'mx / 2' for negative values
+				vx >>= 1;
+			}
+
+			auto dec3 = [&](int d) {
+				im::ScopedFont sf(manager.fontMono);
+				ImGui::SameLine(0.0f, 0.0f);
+				ImGui::Text("%3d", d);
+			};
+
+			ImGui::TextUnformatted("MSX coordinates: x="sv); dec3(mx);
+			ImGui::SameLine();
+			ImGui::TextUnformatted("y="sv); dec3(my);
+
+			ImGui::SameLine(0.0f, 20.0f);
+			ImGui::TextUnformatted("Absolute VDP coordinates: x="sv); dec3(vx);
+			ImGui::SameLine();
+			ImGui::TextUnformatted("line="sv); dec3(vy);
+		}
 	}
 }
 
