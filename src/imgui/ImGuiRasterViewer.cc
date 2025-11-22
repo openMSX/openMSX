@@ -25,7 +25,7 @@ using namespace std::literals;
 static constexpr auto PIXELS_PER_LINE = VDP::TICKS_PER_LINE / 2;
 static constexpr auto VISIBLE_PIXELS_PER_LINE = 28 + 512 + 28;
 static constexpr auto FIRST_VISIBLE_LINE = 3 + 13;
-static constexpr auto FIRST_VISIBLE_X = 102; // in pixels
+static constexpr auto FIRST_VISIBLE_X = 102; // in pixels  = (100 + 102) / 2, with some rounding
 static constexpr auto PAL_LINES = 313; // TODO move to VDP
 static constexpr auto NTSC_LINES = 262;
 
@@ -299,18 +299,40 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 			auto middleVertexY = scrnPos.y + float(2 * zoom * y);
 			auto middleTexY = float(y - FIRST_VISIBLE_LINE) / float(numVisibleLines);
 			Pixel opaque = 0xffffffff;
-			ImGui::AddImageRectMultiColor(
-				drawList, viewTex.getImGui(),
-				topLeft, gl::vec2{bottomRight.x, middleVertexY},
-				gl::vec2{0.0f, 0.0f}, gl::vec2{1.0f, middleTexY},
-				topColor, topColor, opaque, opaque);
-			// TODO split middle line
+
+			// top gradient
+			if (y != FIRST_VISIBLE_LINE) {
+				ImGui::AddImageRectMultiColor(
+					drawList, viewTex.getImGui(),
+					topLeft, gl::vec2{bottomRight.x, middleVertexY},
+					gl::vec2{0.0f, 0.0f}, gl::vec2{1.0f, middleTexY},
+					topColor, topColor, opaque, opaque);
+			}
+			// middle line
+			int x1 = (x / 2) - FIRST_VISIBLE_X;
+			auto x2 = std::clamp(topLeft.x + float(zoom * x1), topLeft.x, bottomRight.x);
+			auto t2 = std::clamp(float(x1) / float(VISIBLE_PIXELS_PER_LINE), 0.0f, 1.0f);
+			auto middleVertexY1 = middleVertexY + float(2 * zoom);
+			auto middleTexY1 = float((y + 1) - FIRST_VISIBLE_LINE) / float(numVisibleLines);
+			drawList->AddImage(
+				viewTex.getImGui(),
+				gl::vec2{topLeft.x, middleVertexY}, gl::vec2{x2, middleVertexY1},
+				gl::vec2{0.0f, middleTexY}, gl::vec2{t2, middleTexY1},
+				opaque);
 			Pixel transparent = colorForLine(y);
-			ImGui::AddImageRectMultiColor(
-				drawList, viewTex.getImGui(),
-				gl::vec2{topLeft.x, middleVertexY}, bottomRight,
-				gl::vec2{0.0f, middleTexY}, gl::vec2{1.0f, 1.0f},
-				transparent, transparent, bottomColor, bottomColor);
+			drawList->AddImage(
+				viewTex.getImGui(),
+				gl::vec2{x2, middleVertexY}, gl::vec2{bottomRight.x, middleVertexY1},
+				gl::vec2{t2, middleTexY}, gl::vec2{1.0f, middleTexY1},
+				transparent);
+			// bottom gradient
+			if (y != (bottomLine - 1)) {
+				ImGui::AddImageRectMultiColor(
+					drawList, viewTex.getImGui(),
+					gl::vec2{topLeft.x, middleVertexY1}, bottomRight,
+					gl::vec2{0.0f, middleTexY1}, gl::vec2{1.0f, 1.0f},
+					transparent, transparent, bottomColor, bottomColor);
+			}
 		}
 
 		if (showGrid) {
@@ -356,7 +378,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		if (showBeam) {
 			gl::vec2 rasterBeamPos(float(x) * 0.5f, float(y) * 2.0f);
 			gl::vec2 zm = float(zoom) * gl::vec2(1.0f); // ?
-			auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.5f}) * zm;
+			auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{0.0f, 1.0f}) * zm;
 			auto color = ImGui::ColorConvertFloat4ToU32(beamColor);
 			auto thickness = zm.y * 0.5f;
 			auto zm1 = 1.5f * zm;

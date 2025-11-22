@@ -33,7 +33,7 @@ private:
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
 	gl::vec4 beamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 	gl::vec4 fadeOutColor{0.0f, 0.0f, 0.0f, 0.75f}; // RGBA
-	int zoomSelect = 0;
+	int zoomSelect = 0; // +1 for actual zoom factor
 	bool showGrid = true;
 	bool showBeam = true;
 	bool showFadeOut = true;
