@@ -179,7 +179,7 @@ void ImGuiRasterViewer::paintSettings()
 	ImGui::Checkbox("Line IRQ", &showLineIrq);
 	ImGui::SameLine();
 	im::Disabled(!showLineIrq, [&]{
-		ImGui::ColorEdit4("VBlank color", lineIrqColor.data(),
+		ImGui::ColorEdit4("Line color", lineIrqColor.data(),
 			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 	});
 	HelpMarker("Shows the position where the line-IRQ will occur (when enabled)");
