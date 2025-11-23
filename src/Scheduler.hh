@@ -3,6 +3,8 @@
 
 #include "EmuTime.hh"
 #include "SchedulerQueue.hh"
+
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -101,7 +103,7 @@ private: // -> intended for Schedulable
 	/**
 	 * Is there a pending syncPoint for this device?
 	 */
-	[[nodiscard]] bool pendingSyncPoint(const Schedulable& device, EmuTime& result) const;
+	[[nodiscard]] std::optional<EmuTime> isPending(const Schedulable& device) const;
 
 private:
 	void scheduleHelper(EmuTime limit, EmuTime next);

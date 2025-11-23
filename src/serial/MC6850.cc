@@ -184,7 +184,7 @@ void MC6850::writeDataReg(uint8_t value, EmuTime time)
 	statusReg &= uint8_t(~STAT_TDRE);
 	txIRQ.reset();
 
-	if (syncTrans.pendingSyncPoint()) {
+	if (syncTrans.isPending()) {
 		// We're still sending the previous character, only
 		// buffer this one. Don't accept any further characters
 	} else {

@@ -5,7 +5,9 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
+
 #include <cassert>
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -63,6 +65,8 @@ public:
 	  * This is the same as getScheduler().getCurrentTime(). */
 	[[nodiscard]] EmuTime getCurrentTime() const;
 
+	[[nodiscard]] std::optional<EmuTime> isPending() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -96,8 +100,6 @@ protected:
 	void setSyncPoint(EmuTime timestamp);
 	bool removeSyncPoint();
 	void removeSyncPoints();
-	[[nodiscard]] bool pendingSyncPoint() const;
-	[[nodiscard]] bool pendingSyncPoint(EmuTime& result) const;
 
 private:
 	Scheduler& scheduler;

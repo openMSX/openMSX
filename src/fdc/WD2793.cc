@@ -329,7 +329,7 @@ uint8_t WD2793::peekDataReg(EmuTime time) const
 
 void WD2793::schedule(FSM state, EmuTime time)
 {
-	assert(!pendingSyncPoint());
+	assert(!isPending());
 	fsmState = state;
 	setSyncPoint(time);
 }

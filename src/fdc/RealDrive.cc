@@ -299,7 +299,7 @@ void RealDrive::setMotor(bool status, EmuTime time)
 			// Motor was already off, we're done.
 			return;
 		}
-		if (syncMotorTimeout.pendingSyncPoint()) {
+		if (syncMotorTimeout.isPending()) {
 			// We had already scheduled an action to turn the motor
 			// off, we're done.
 			return;

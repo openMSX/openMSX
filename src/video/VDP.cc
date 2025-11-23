@@ -1988,7 +1988,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	             "spriteChecker", *spriteChecker, // must come after displayMode
 	             "vram",          *vram); // must come after controlRegs and after spriteChecker
 	if constexpr (Archive::IS_LOADER) {
-		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
+		pendingCpuAccess = syncCpuVramAccess.isPending().has_value();
 		update(tooFastAccess);
 	}
 

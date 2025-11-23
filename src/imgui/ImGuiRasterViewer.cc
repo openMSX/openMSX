@@ -22,15 +22,12 @@ namespace openmsx {
 
 using namespace std::literals;
 
+using Pixel = uint32_t;
 static constexpr auto PIXELS_PER_LINE = VDP::TICKS_PER_LINE / 2;
 static constexpr auto VISIBLE_PIXELS_PER_LINE = 28 + 512 + 30;
 static_assert(VISIBLE_PIXELS_PER_LINE % 2 == 0, "must be even");
 static constexpr auto FIRST_VISIBLE_LINE = 3 + 13;
 static constexpr auto FIRST_VISIBLE_X = (100 + 102) / 2;
-static constexpr auto PAL_LINES = 313; // TODO move to VDP
-static constexpr auto NTSC_LINES = 262;
-
-using Pixel = uint32_t;
 
 ImGuiRasterViewer::ImGuiRasterViewer(ImGuiManager& manager_)
 	: ImGuiPart(manager_)
@@ -144,6 +141,15 @@ void ImGuiRasterViewer::paintSettings()
 	ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 	ImGui::SameLine();
 
+	ImGui::Checkbox("Fade out", &showFadeOut);
+	ImGui::SameLine();
+	im::Disabled(!showFadeOut, [&]{
+		ImGui::ColorEdit4("FadeOut color", fadeOutColor.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+	});
+	HelpMarker("Similar to the 'beam position': shows the current position "
+	           "of the CRT raster beam, but now by fading out 'older' colors");
+
 	ImGui::Checkbox("Beam position", &showBeam);
 	ImGui::SameLine();
 	im::Disabled(!showBeam, [&]{
@@ -158,14 +164,26 @@ void ImGuiRasterViewer::paintSettings()
 	ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
 	ImGui::SameLine();
 
-	ImGui::Checkbox("Fade out", &showFadeOut);
+	ImGui::Checkbox("VBlank IRQ", &showVblankIrq);
 	ImGui::SameLine();
-	im::Disabled(!showFadeOut, [&]{
-		ImGui::ColorEdit4("FadeOut color", fadeOutColor.data(),
+	im::Disabled(!showVblankIrq, [&]{
+		ImGui::ColorEdit4("VBlank color", vblankIrqColor.data(),
 			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 	});
-	HelpMarker("Similar to the 'beam position': shows the current position "
-	           "of the CRT raster beam, but now by fading out 'older' colors");
+	HelpMarker("Shows the position where the vblank-IRQ will occur (when enabled)");
+
+	ImGui::SameLine();
+	ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+	ImGui::SameLine();
+
+	ImGui::Checkbox("Line IRQ", &showLineIrq);
+	ImGui::SameLine();
+	im::Disabled(!showLineIrq, [&]{
+		ImGui::ColorEdit4("VBlank color", lineIrqColor.data(),
+			ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
+	});
+	HelpMarker("Shows the position where the line-IRQ will occur (when enabled)");
+
 }
 
 void ImGuiRasterViewer::paintDisplay(VDP* vdp)
@@ -177,9 +195,12 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 	assert(work->getHeight() == 240);
 	assert(last->getHeight() == 240);
 
-	int ticks = vdp->getTicksThisFrame(time);
-	int x = ticks % VDP::TICKS_PER_LINE;
-	int y = ticks / VDP::TICKS_PER_LINE;
+	auto timeToXY = [&](EmuTime t) -> std::pair<int, int> {
+		int ticks = vdp->getTicksThisFrame(t);
+		return {ticks % VDP::TICKS_PER_LINE,
+		        ticks / VDP::TICKS_PER_LINE};
+	};
+	auto [x, y] = timeToXY(time);
 
 	// Openmsx renders into a 240 line RawFrame (212 or 192 display + borders).
 	// That means:
@@ -192,7 +213,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 	// - In case of only 192 display lines, there are 20 more border lines,
 	//   10 above and 10 below.
 	bool pal = vdp->isPalTiming();
-	int numLines = pal ? PAL_LINES : NTSC_LINES;
+	int numLines = pal ? VDP::PAL_LINES : VDP::NTSC_LINES;
 
 	int zoom = zoomSelect + 1;
 	gl::vec2 fullSize{float(PIXELS_PER_LINE), float(2 * numLines)};
@@ -202,8 +223,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 	auto reqSize = zoomedFullSize + gl::vec2(ImGui::GetStyle().ScrollbarSize);
 	gl::vec2 scrnPos;
 
-	static constexpr int numLinesMax = std::max(PAL_LINES, NTSC_LINES);
-	std::array<unsigned, numLinesMax> allLineWidths;
+	std::array<unsigned, VDP::NUM_LINES_MAX> allLineWidths;
 	std::ranges::fill(allLineWidths, 1); // default to border width
 
 	im::Child("##display", min(availSize, reqSize), {}, ImGuiWindowFlags_HorizontalScrollbar, [&]{
@@ -232,7 +252,7 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		             texOffset, texOffset + fullSize / (4.0f * checkerBoardSize));
 
 		static constexpr int visibleLinesPal = 43 + 212 + 39;
-		static constexpr int visibleLinesNtsc = 43 + 212 + 39;
+		static constexpr int visibleLinesNtsc = 16 + 212 + 15;
 		int numVisibleLines = pal ? visibleLinesPal : visibleLinesNtsc;
 		initPixelBuffer(numVisibleLines);
 		auto lineWidths = std::span(allLineWidths).subspan(FIRST_VISIBLE_LINE, numVisibleLines);
@@ -384,38 +404,33 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 		}
 
 		if (showBeam) {
-			auto xx = x / 2;
-			auto zx = 0.5f;
-			auto cx = 0.5f;
-			if (allLineWidths[y] == 320) {
-				xx = (xx + 1) & ~1; // round up to even
-				zx = 1.0f;
-				cx = 0.25f;
+			drawCrosshair(x, y, beamColor, scrnPos, zoom, allLineWidths);
+		}
+		if (showVblankIrq) {
+			if (auto vTime = vdp->getVScanTime()) {
+				auto [vx, vy] = timeToXY(*vTime);
+				vy %= numLines;
+				drawCrosshair(vx, vy, vblankIrqColor, scrnPos, zoom, allLineWidths);
 			}
-			gl::vec2 rasterBeamPos(float(xx), float(y) * 2.0f);
-			auto thickness = float(zoom) * 0.5f;
-			auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{cx, 1.0f}) * float(zoom);
-			auto color = ImGui::ColorConvertFloat4ToU32(beamColor);
-			gl::vec2 zm = float(zoom) * gl::vec2(zx, 1.0f);
-			auto zm1 = 1.5f * zm;
-			auto zm3 = 3.5f * zm;
-			drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
-			drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
-			drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
-			drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
-			drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
+		}
+		if (showLineIrq) {
+			if (auto hTime = vdp->getHScanTime()) {
+				auto [hx, hy] = timeToXY(*hTime);
+				hy %= numLines;
+				drawCrosshair(hx, hy, lineIrqColor, scrnPos, zoom, allLineWidths);
+			}
 		}
 	});
 	if (ImGui::IsItemHovered()) {
 		auto [tx, vy] = trunc((gl::vec2(ImGui::GetIO().MousePos) - scrnPos) / (gl::vec2(0.5f, 2.0f) * float(zoom)));
 		if (0 <= tx && tx < VDP::TICKS_PER_LINE &&
 		    0 <= vy && vy < numLines) {
-			int vx = (tx - vdp->getLeftSprites()) / 2;
-			int mx = vx;
+			int vx = tx / 2;
+			int mx = (tx - vdp->getLeftSprites()) / 2;
 			int my = vy - vdp->getLineZero();
 			if (allLineWidths[vy] == 320) {
-				mx >>= 1; // note: NOT the same as 'mx / 2' for negative values
 				vx >>= 1;
+				mx >>= 1; // note: NOT the same as 'mx / 2' for negative values
 			}
 
 			auto dec3 = [&](int d) {
@@ -434,6 +449,33 @@ void ImGuiRasterViewer::paintDisplay(VDP* vdp)
 			ImGui::TextUnformatted("line="sv); dec3(vy);
 		}
 	}
+}
+
+void ImGuiRasterViewer::drawCrosshair(
+	int x, int y, gl::vec4 color_, gl::vec2 scrnPos, int zoom,
+	std::span<const unsigned, VDP::NUM_LINES_MAX> lineWidths)
+{
+	auto xx = x / 2;
+	auto zx = 0.5f;
+	auto cx = 0.5f;
+	if (lineWidths[y] == 320) {
+		xx = (xx + 1) & ~1; // round up to even
+		zx = 1.0f;
+		cx = 0.25f;
+	}
+	gl::vec2 rasterBeamPos(float(xx), float(y) * 2.0f);
+	auto thickness = float(zoom) * 0.5f;
+	auto center = scrnPos + (gl::vec2(rasterBeamPos) + gl::vec2{cx, 1.0f}) * float(zoom);
+	gl::vec2 zm = float(zoom) * gl::vec2(zx, 1.0f);
+	auto zm1 = 1.5f * zm;
+	auto zm3 = 3.5f * zm;
+	auto* drawList = ImGui::GetWindowDrawList();
+	auto color = ImGui::ColorConvertFloat4ToU32(color_);
+	drawList->AddRect(center - zm, center + zm, color, 0.0f, 0, thickness);
+	drawList->AddLine(center - gl::vec2{zm1.x, 0.0f}, center - gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center + gl::vec2{zm1.x, 0.0f}, center + gl::vec2{zm3.x, 0.0f}, color, thickness);
+	drawList->AddLine(center - gl::vec2{0.0f, zm1.y}, center - gl::vec2{0.0f, zm3.y}, color, thickness);
+	drawList->AddLine(center + gl::vec2{0.0f, zm1.y}, center + gl::vec2{0.0f, zm3.y}, color, thickness);
 }
 
 } // namespace openmsx

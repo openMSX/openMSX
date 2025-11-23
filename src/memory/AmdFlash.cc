@@ -737,10 +737,10 @@ void AmdFlash::scheduleEraseOperation(EmuTime time)
 		syncOperation.removeSyncPoint();
 		syncOperation.setSyncPoint(time + chip.erase.timerDuration);
 	} else if (std::ranges::any_of(erase.buffer, std::identity{})) {
-		assert(!syncOperation.pendingSyncPoint());
+		assert(!syncOperation.isPending());
 		syncOperation.setSyncPoint(time + chip.erase.duration);
 	} else {
-		assert(!syncOperation.pendingSyncPoint());
+		assert(!syncOperation.isPending());
 		syncOperation.setSyncPoint(time + chip.erase.minimumDuration);
 	}
 }
@@ -803,7 +803,7 @@ bool AmdFlash::checkCommandSuspend(EmuTime time)
 					syncOperation.removeSyncPoint();
 					execSuspend(time);
 				} else {
-					if (!syncSuspend.pendingSyncPoint()) {
+					if (!syncSuspend.isPending()) {
 						syncOperation.removeSyncPoint();
 						syncSuspend.setSyncPoint(time + chip.erase.suspendDuration);
 					}
@@ -813,7 +813,7 @@ bool AmdFlash::checkCommandSuspend(EmuTime time)
 	} else if (state == State::PROGRAM) {
 		if (chip.program.suspend) {
 			if (cmd[0].value == 0xB0 || (chip.program.enhancedSuspend && cmd[0].value == 0x51)) {
-				if (!syncSuspend.pendingSyncPoint()) {
+				if (!syncSuspend.isPending()) {
 					syncOperation.removeSyncPoint();
 					syncSuspend.setSyncPoint(time + chip.program.suspendDuration);
 				}
@@ -971,7 +971,7 @@ bool AmdFlash::checkCommandBufferProgram(EmuTime time)
 
 void AmdFlash::scheduleProgramOperation(EmuTime time)
 {
-	assert(!syncOperation.pendingSyncPoint());
+	assert(!syncOperation.isPending());
 	syncOperation.setSyncPoint(time + chip.program.duration);
 }
 

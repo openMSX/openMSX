@@ -37,15 +37,9 @@ void Schedulable::removeSyncPoints()
 	scheduler.removeSyncPoints(*this);
 }
 
-bool Schedulable::pendingSyncPoint() const
+std::optional<EmuTime> Schedulable::isPending() const
 {
-	auto dummy = EmuTime::dummy();
-	return scheduler.pendingSyncPoint(*this, dummy);
-}
-
-bool Schedulable::pendingSyncPoint(EmuTime& result) const
-{
-	return scheduler.pendingSyncPoint(*this, result);
+	return scheduler.isPending(*this);
 }
 
 EmuTime Schedulable::getCurrentTime() const

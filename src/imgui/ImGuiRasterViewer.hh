@@ -3,8 +3,12 @@
 
 #include "ImGuiPart.hh"
 
+#include "VDP.hh"
+
 #include "GLUtil.hh"
 #include "MemBuffer.hh"
+
+#include <span>
 
 namespace openmsx {
 
@@ -24,6 +28,9 @@ private:
 	void paintSettings();
 	void paintDisplay(VDP* vdp);
 	void initPixelBuffer(size_t lines);
+	void drawCrosshair(
+		int x, int y, gl::vec4 color, gl::vec2 scrnPos, int zoom,
+		std::span<const unsigned, VDP::NUM_LINES_MAX> lineWidths);
 
 public:
 	bool show = false;
@@ -31,12 +38,16 @@ public:
 private:
 	// settings
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
-	gl::vec4 beamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
 	gl::vec4 fadeOutColor{0.0f, 0.0f, 0.0f, 0.75f}; // RGBA
+	gl::vec4 beamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
+	gl::vec4 vblankIrqColor{1.0f, 1.0f, 0.0f, 0.8f}; // RGBA
+	gl::vec4 lineIrqColor{0.0f, 1.0f, 1.0f, 0.8f}; // RGBA
 	int zoomSelect = 0; // +1 for actual zoom factor
 	bool showGrid = true;
-	bool showBeam = true;
 	bool showFadeOut = true;
+	bool showBeam = true;
+	bool showVblankIrq = false;
+	bool showLineIrq = false;
 
 	MemBuffer<uint32_t> pixelBuffer;
 	gl::Texture viewTex{gl::Null{}};
@@ -45,14 +56,18 @@ private:
 	gl::Texture checkerTex{gl::Null{}};
 
 	static constexpr auto persistentElements = std::tuple{
-		PersistentElement{"show",         &ImGuiRasterViewer::show},
-		PersistentElement{"zoom",         &ImGuiRasterViewer::zoomSelect},
-		PersistentElement{"grid",         &ImGuiRasterViewer::showGrid},
-		PersistentElement{"beam",         &ImGuiRasterViewer::showBeam},
-		PersistentElement{"fadeOut",      &ImGuiRasterViewer::showFadeOut},
-		PersistentElement{"gridColor",    &ImGuiRasterViewer::gridColor},
-		PersistentElement{"beamColor",    &ImGuiRasterViewer::beamColor},
-		PersistentElement{"fadeOutColor", &ImGuiRasterViewer::fadeOutColor},
+		PersistentElement{"show",           &ImGuiRasterViewer::show},
+		PersistentElement{"zoom",           &ImGuiRasterViewer::zoomSelect},
+		PersistentElement{"grid",           &ImGuiRasterViewer::showGrid},
+		PersistentElement{"fadeOut",        &ImGuiRasterViewer::showFadeOut},
+		PersistentElement{"beam",           &ImGuiRasterViewer::showBeam},
+		PersistentElement{"vblankIrq",      &ImGuiRasterViewer::showVblankIrq},
+		PersistentElement{"lineIrq",        &ImGuiRasterViewer::showLineIrq},
+		PersistentElement{"gridColor",      &ImGuiRasterViewer::gridColor},
+		PersistentElement{"fadeOutColor",   &ImGuiRasterViewer::fadeOutColor},
+		PersistentElement{"beamColor",      &ImGuiRasterViewer::beamColor},
+		PersistentElement{"vblankIrqColor", &ImGuiRasterViewer::vblankIrqColor},
+		PersistentElement{"lineIrqColor",   &ImGuiRasterViewer::lineIrqColor},
 	};
 };
 

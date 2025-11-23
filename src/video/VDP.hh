@@ -76,6 +76,11 @@ public:
 	  */
 	static constexpr int TICKS_PER_LINE = 1368;
 
+	// Number of lines per frame.
+	static constexpr int PAL_LINES = 313;
+	static constexpr int NTSC_LINES = 262;
+	static constexpr int NUM_LINES_MAX = std::max(PAL_LINES, NTSC_LINES);
+
 	explicit VDP(const DeviceConfig& config);
 	~VDP() override;
 
@@ -530,6 +535,17 @@ public:
 		return frameStartTime.getTime();
 	}
 
+	/** For debugger only. Returns the moment in time a vblank-IRQ or
+	  * line-IRQ will occur. This can be this frame or the next. */
+	[[nodiscard]] std::optional<EmuTime> getVScanTime() const {
+		if (!(controlRegs[1] & 0x20)) return {};
+		return syncVScan.isPending();
+	}
+	[[nodiscard]] std::optional<EmuTime> getHScanTime() const {
+		if (!(controlRegs[0] & 0x10)) return {};
+		return syncHScan.isPending();
+	}
+
 	/** Gets the sprite size in pixels (8/16).
 	  */
 	[[nodiscard]] int getSpriteSize() const {
@@ -552,7 +568,7 @@ public:
 	/** Gets the number of lines per frame.
 	  */
 	[[nodiscard]] int getLinesPerFrame() const {
-		return palTiming ? 313 : 262;
+		return palTiming ? PAL_LINES : NTSC_LINES;
 	}
 
 	/** Gets the number of display lines per screen.
@@ -807,7 +823,6 @@ private:
 		explicit SyncBase(const VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
 		using Schedulable::removeSyncPoint;
 		using Schedulable::setSyncPoint;
-		using Schedulable::pendingSyncPoint;
 	protected:
 		~SyncBase() = default;
 	};
@@ -1327,7 +1342,7 @@ private:
 	  * variable indicates whether the pending request is read or write.
 	  */
 	bool cpuVramReqIsRead;
-	bool pendingCpuAccess; // always equal to pendingSyncPoint(CPU_VRAM_ACCESS)
+	bool pendingCpuAccess; // always equal to syncCpuVramAccess.isPending()
 
 	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?
 	  * This is determined by MXC (R#45, bit 6).

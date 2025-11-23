@@ -384,14 +384,14 @@ private:
 	/** Buffer containing the sprites that are visible on each
 	  * display line.
 	  */
-	std::array<std::array<SpriteInfo, 32 + 1>, 313> spriteBuffer; // +1 for sentinel
+	std::array<std::array<SpriteInfo, 32 + 1>, VDP::NUM_LINES_MAX> spriteBuffer; // +1 for sentinel
 
 	/** Buffer containing the number of sprites that are visible
 	  * on each display line.
 	  * In other words, spriteCount[i] is the number of sprites
 	  * in spriteBuffer[i].
 	  */
-	std::array<uint8_t, 313> spriteCount;
+	std::array<uint8_t, VDP::NUM_LINES_MAX> spriteCount;
 
 	/** Is current display mode planar or not?
 	  * TODO: Introduce separate update methods for planar/non-planar modes.

@@ -181,7 +181,7 @@ void YM2148::writeData(uint8_t value, EmuTime time)
 {
 	if (!(commandReg & CMD_TXEN)) return;
 
-	if (syncTrans.pendingSyncPoint()) {
+	if (syncTrans.isPending()) {
 		// We're still sending the previous character, only buffer
 		// this one. Don't accept any further characters.
 		txBuffer2 = value;

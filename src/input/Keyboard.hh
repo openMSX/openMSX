@@ -152,7 +152,7 @@ private:
 		KeyInserter(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
-		[[nodiscard]] bool isActive() const { return pendingSyncPoint(); }
+		[[nodiscard]] bool isActive() const { return isPending().has_value(); }
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
