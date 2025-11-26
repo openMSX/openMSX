@@ -218,8 +218,9 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 		ImGui::TableHeadersRow();
 		checkSort(symbolManager, symbols);
 
-		for (const auto& sym : symbols) {
-			if (FILTER_FILE && (sym.file(symbolManager) != file)) continue;
+		im::ListClipperID(symbols.size(), [&](int i) {
+			const auto& sym = symbols[i];
+			if (FILTER_FILE && (sym.file(symbolManager) != file)) return;
 
 			if (ImGui::TableNextColumn()) { // name
 				const auto& symName = sym.name(symbolManager);
@@ -254,7 +255,7 @@ void ImGuiSymbols::drawTable(MSXMotherBoard* motherBoard, const std::string& fil
 			if (!FILTER_FILE && ImGui::TableNextColumn()) { // file
 				ImGui::TextUnformatted(sym.file(symbolManager));
 			}
-		}
+		});
 	});
 }
 

@@ -285,6 +285,7 @@ inline void ID(std::string_view str, std::invocable<> auto next)
 	ID(begin, end, next);
 }
 
+// Note: consider using im::ListClipperID()
 inline void ID_for_range(std::integral auto count, std::invocable<int> auto next)
 {
 	for (auto i : xrange(narrow<int>(count))) {
