@@ -25,6 +25,7 @@
 #include "xrange.hh"
 
 #include <imgui.h>
+#include <imgui_stdlib.h>
 
 #include <cassert>
 #include <ranges>
@@ -52,12 +53,18 @@ void ImGuiSymbols::save(ImGuiTextBuffer& buf)
 		if (file.slot) {
 			buf.appendf("slotsubslot=%d\n", *file.slot);
 		}
+		if (file.segment) {
+			buf.appendf("segment=%d\n", *file.segment);
+		}
 	}
-	for (const auto& [file, error, type, slot] : fileError) {
+	for (const auto& [file, error, type, slot, segment] : fileError) {
 		buf.appendf("symbolfile=%s\n", file.c_str());
 		buf.appendf("symbolfiletype=%s\n", SymbolFile::toString(type).c_str());
 		if (slot) {
 			buf.appendf("slotsubslot=%d\n", *slot);
+		}
+		if (segment) {
+			buf.appendf("segment=%d\n", *segment);
 		}
 	}
 }
@@ -84,8 +91,14 @@ void ImGuiSymbols::loadLine(std::string_view name, zstring_view value)
 		}
 	} else if (name == "slotsubslot") {
 		if (!fileError.empty()) {
-			if (auto slot = StringOp::stringTo<int>(value)) {
+			if (auto slot = StringOp::stringTo<uint8_t>(value)) {
 				fileError.back().slot = slot;
+			}
+		}
+	} else if (name == "segment") {
+		if (!fileError.empty()) {
+			if (auto segment = StringOp::stringTo<uint16_t>(value)) {
+				fileError.back().segment = segment;
 			}
 		}
 	}
@@ -96,16 +109,18 @@ void ImGuiSymbols::loadEnd()
 	std::vector<FileInfo> tmp;
 	std::swap(tmp, fileError);
 	for (const auto& info : tmp) {
-		loadFile(info.filename, SymbolManager::LoadEmpty::ALLOWED, info.type, info.slot);
+		loadFile(info.filename, SymbolManager::LoadEmpty::ALLOWED, info.type, info.slot, info.segment);
 	}
 }
 
-void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot)
+void ImGuiSymbols::loadFile(
+	const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type,
+	std::optional<uint8_t> slot, std::optional<uint16_t> segment)
 {
 	auto& cliComm = manager.getCliComm();
 	auto it = std::ranges::find(fileError, filename, &FileInfo::filename);
 	try {
-		if (!symbolManager.reloadFile(filename, loadEmpty, type, slot)) {
+		if (!symbolManager.reloadFile(filename, loadEmpty, type, slot, segment)) {
 			cliComm.printWarning("Symbol file \"", filename,
 			                     "\" doesn't contain any symbols");
 		}
@@ -117,7 +132,7 @@ void ImGuiSymbols::loadFile(const std::string& filename, SymbolManager::LoadEmpt
 			it->error = e.getMessage(); // overwrite previous error
 			it->type = type;
 		} else {
-			fileError.emplace_back(filename, e.getMessage(), type, slot); // set error
+			fileError.emplace_back(filename, e.getMessage(), type, slot, segment); // set error
 		}
 	}
 }
@@ -272,14 +287,15 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 				SymbolManager::getFileFilters(),
 				[this](const std::string& filename) {
 					auto type = SymbolManager::getTypeForFilter(ImGuiOpenFile::getLastFilter());
-					loadFile(filename, SymbolManager::LoadEmpty::NOT_ALLOWED, type);
+					loadFile(filename, SymbolManager::LoadEmpty::NOT_ALLOWED, type, {}, {});
 				});
 		}
 
 		im::TreeNode("Symbols per file", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			std::optional<FileInfo> reloadAction;
 			std::string removeAction;
-			auto drawFile = [&](const std::string& filename, std::string_view error, SymbolFile::Type type, std::optional<int> slot) {
+			auto drawFile = [&](const std::string& filename, std::string_view error, SymbolFile::Type type,
+				            std::optional<int> slot, std::optional<uint16_t> segment) {
 				bool hasError = !error.empty();
 				auto* file = symbolManager.findFile(filename);
 				assert((file != nullptr) ^ hasError); // not both
@@ -291,6 +307,7 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 						}
 						im::StyleColor(ImGuiCol_Text, getColor(imColor::TEXT), [&]{
 							if (!hasError) {
+								// slot
 								auto arrowSize = ImGui::GetFrameHeight();
 								auto extra = arrowSize + 2.0f * style.FramePadding.x;
 								ImGui::SetNextItemWidth(ImGui::CalcTextSize("3-3").x + extra);
@@ -327,10 +344,26 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 									}
 								});
 								ImGui::SameLine();
+
+								// segment
+								if (!file->hasSegmentInfo) {
+									ImGui::SetNextItemWidth(ImGui::CalcTextSize("88888").x + 2.0f * style.FramePadding.x);
+									bool valid = (file->segmentStr == "-") || StringOp::stringTo<uint16_t>(file->segmentStr);
+									im::StyleColor(!valid, ImGuiCol_Text, getColor(imColor::ERROR), [&]{
+										if (ImGui::InputText("segment", &file->segmentStr)) {
+											auto seg = StringOp::stringTo<uint16_t>(file->segmentStr);
+											file->segment = seg;
+											for (auto& symbol : file->getSymbols()) {
+												symbol.segment = seg;
+											}
+										}
+									});
+									ImGui::SameLine();
+								}
 							}
 
 							if (ImGui::Button("Reload")) {
-								reloadAction.emplace(filename, std::string{}, type, slot);
+								reloadAction.emplace(filename, std::string{}, type, slot, segment);
 							}
 							ImGui::SameLine();
 							if (ImGui::Button("Remove")) {
@@ -345,16 +378,16 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 			};
 
 			for (const auto& file : symbolManager.getFiles()) {
-				drawFile(file.filename, {}, file.type, file.slot);
+				drawFile(file.filename, {}, file.type, file.slot, file.segment);
 			}
 			for (const auto& info : fileError) {
-				drawFile(info.filename, info.error, info.type, info.slot);
+				drawFile(info.filename, info.error, info.type, info.slot, info.segment);
 			}
 
 			// only make changes after the above loops (don't loop over changing collection)
 			if (reloadAction) {
 				loadFile(reloadAction->filename, SymbolManager::LoadEmpty::NOT_ALLOWED,
-				         reloadAction->type, reloadAction->slot);
+				         reloadAction->type, reloadAction->slot, reloadAction->segment);
 			}
 			if (!removeAction.empty()) {
 				symbolManager.removeFile(removeAction);
@@ -367,12 +400,12 @@ void ImGuiSymbols::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("All symbols", [&]{
 			if (ImGui::Button("Reload all")) {
 				auto tmp = to_vector(std::views::transform(symbolManager.getFiles(), [&](const auto& file) {
-					return FileInfo{file.filename, std::string{}, file.type, file.slot};
+					return FileInfo{file.filename, std::string{}, file.type, file.slot, file.segment};
 				}));
 				append(tmp, std::move(fileError));
 				fileError.clear();
 				for (const auto& info : tmp) {
-					loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type, info.slot);
+					loadFile(info.filename, SymbolManager::LoadEmpty::NOT_ALLOWED, info.type, info.slot, info.segment);
 				}
 			}
 			ImGui::SameLine();

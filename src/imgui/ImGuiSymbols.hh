@@ -5,8 +5,6 @@
 
 #include "SymbolManager.hh"
 
-#include "hash_map.hh"
-
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -31,7 +29,8 @@ public:
 		std::string filename;
 		std::string error;
 		SymbolFile::Type type;
-		std::optional<int> slot;
+		std::optional<uint8_t> slot;
+		std::optional<uint16_t> segment;
 	};
 
 	explicit ImGuiSymbols(ImGuiManager& manager);
@@ -48,7 +47,8 @@ public:
 	bool show = false;
 
 private:
-	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot = {});
+	void loadFile(const std::string& filename, SymbolManager::LoadEmpty loadEmpty, SymbolFile::Type type,
+	              std::optional<uint8_t> slot, std::optional<uint16_t> segment);
 
 	template<bool FILTER_FILE>
 	void drawTable(MSXMotherBoard* motherBoard, const std::string& file = {});

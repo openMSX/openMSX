@@ -9,6 +9,7 @@
 #include "narrow.hh"
 #include "static_vector.hh"
 #include "stl.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 
 #include <algorithm>
@@ -208,6 +209,7 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	 // Heuristic: if all segments in the symbol file are 0,
 	 // then assume the file contains no segment information.
 	if (anySegment) {
+		file.hasSegmentInfo = true;
 		for (auto& symbol: file.getSymbols()) {
 			if (!symbol.segment) symbol.segment = 0;
 		}
@@ -389,7 +391,9 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 	return result;
 }
 
-[[nodiscard]] SymbolFile SymbolManager::loadSymbolFile(const std::string& filename, SymbolFile::Type type, std::optional<uint8_t> slot)
+[[nodiscard]] SymbolFile SymbolManager::loadSymbolFile(
+	const std::string& filename, SymbolFile::Type type,
+	std::optional<uint8_t> slot, std::optional<uint16_t> segment)
 {
 	auto buf = File(filename).mmap<const char>();
 	std::string_view buffer(buf.data(), buf.size());
@@ -422,8 +426,13 @@ template std::optional<uint32_t> SymbolManager::parseValue<uint32_t>(std::string
 
 	// Update slot info for the file and each of its symbol
 	symbolFile.slot = slot;
+	symbolFile.segment = segment;
+	symbolFile.segmentStr = segment ? strCat(*segment) : std::string("-");
 	for (auto& symbol: symbolFile.getSymbols()) {
 		symbol.slot = slot;
+		if (!symbolFile.hasSegmentInfo) {
+			symbol.segment = segment;
+		}
 	}
 
 	return symbolFile;
@@ -447,9 +456,11 @@ void SymbolManager::refresh()
 	if (observer) observer->notifySymbolsChanged();
 }
 
-bool SymbolManager::reloadFile(const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type, std::optional<uint8_t> slot)
+bool SymbolManager::reloadFile(
+	const std::string& filename, LoadEmpty loadEmpty, SymbolFile::Type type,
+	std::optional<uint8_t> slot, std::optional<uint16_t> segment)
 {
-	auto file = loadSymbolFile(filename, type, slot); // might throw
+	auto file = loadSymbolFile(filename, type, slot, segment); // might throw
 	if (file.symbols.empty() && loadEmpty == LoadEmpty::NOT_ALLOWED) return false;
 
 	if (auto it = std::ranges::find(files, filename, &SymbolFile::filename);
