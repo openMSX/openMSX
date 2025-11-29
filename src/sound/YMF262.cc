@@ -617,7 +617,7 @@ void YMF262::advance()
 	unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 
 	++eg_cnt;
-	for (auto i : xrange(channel.size())) {
+	for (auto i : xrange(unsigned(channel.size()))) {
 		auto& ch = channel[i];
 		auto& ch2 = isExtended(i) ? getFirstOfPair(i) : ch;
 		for (auto& op : ch.slot) {

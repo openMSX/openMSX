@@ -96,7 +96,7 @@ inline void AddImageRectMultiColor(ImDrawList* draw_list, ImTextureRef tex_id,
 	const bool push_texture_id = tex_id != draw_list->_CmdHeader.TexRef;
 	if (push_texture_id) draw_list->PushTexture(tex_id);
 
-	ImDrawIdx idx = draw_list->_VtxCurrentIdx;
+	auto idx = ImDrawIdx(draw_list->_VtxCurrentIdx);
 	draw_list->PrimReserve(6, 4);
 
 	draw_list->PrimWriteIdx(ImDrawIdx(idx + 0));

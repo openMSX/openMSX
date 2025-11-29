@@ -1484,10 +1484,10 @@ static void RenderEject(gl::vec2 center, ImDrawList* drawList)
 {
 	float half = 0.4f * ImGui::GetTextLineHeight();
 	auto p1 = center + gl::vec2(0.0f, -half);
-	auto p2 = center + gl::vec2(-half, 0.5 * half);
-	auto p3 = center + gl::vec2(half, 0.5 * half);
+	auto p2 = center + gl::vec2(-half, 0.5f * half);
+	auto p3 = center + gl::vec2(half, 0.5f * half);
 	drawList->AddTriangleFilled(p1, p2, p3, getColor(imColor::TEXT));
-	drawList->AddRectFilled(p2 + gl::vec2(-0.1 * half, 0.4 * half), p3 + gl::vec2(0.1 * half, half), getColor(imColor::TEXT));
+	drawList->AddRectFilled(p2 + gl::vec2(-0.1f * half, 0.4f * half), p3 + gl::vec2(0.1f * half, half), getColor(imColor::TEXT));
 }
 
 void ImGuiMedia::cassetteMenu(CassettePlayer& cassettePlayer)

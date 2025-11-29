@@ -796,7 +796,7 @@ void MSXCPUInterface::peekSlottedMemBlock(unsigned address, std::span<uint8_t> o
 			copy_to_range(std::span{line + start, n}, output);
 		} else {
 			for (auto i : xrange(n)) {
-				output[i] = peekSlottedMem(address + i, time);
+				output[i] = peekSlottedMem(narrow<unsigned>(address + i), time);
 			}
 		}
 		output = output.subspan(n);
