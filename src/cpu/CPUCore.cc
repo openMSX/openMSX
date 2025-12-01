@@ -306,9 +306,7 @@ template<typename T> CPUCore<T>::CPUCore(
 	            "interrupt routine in EI mode).",
 	            0)
 	, IRQAccept(motherboard.getDebugger(), name + ".acceptIRQ",
-	            "This probe is only useful to set a breakpoint on (the value "
-		    "return by read is meaningless). The breakpoint gets triggered "
-		    "right after the CPU accepted an IRQ.")
+	            "This is a valueless (void) probe, it generates an event when the CPU accepts an IRQ.")
 	, freqLocked(
 		motherboard.getCommandController(), tmpStrCat(name, "_freq_locked"),
 	        "real (locked) or custom (unlocked) CPU frequency",

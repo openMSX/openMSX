@@ -52,6 +52,7 @@ class ImGuiSettings;
 class ImGuiSoundChip;
 class ImGuiSymbols;
 class ImGuiTools;
+class ImGuiTraceViewer;
 class ImGuiTrainer;
 class ImGuiVdpRegs;
 class ImGuiWatchExpr;
@@ -156,6 +157,7 @@ public:
 	std::unique_ptr<ImGuiBreakPoints> breakPoints;
 	std::unique_ptr<ImGuiSymbols> symbols;
 	std::unique_ptr<ImGuiWatchExpr> watchExpr;
+	std::unique_ptr<ImGuiTraceViewer> traceViewer;
 	std::unique_ptr<ImGuiVdpRegs> vdpRegs;
 	std::unique_ptr<ImGuiPalette> palette;
 	std::unique_ptr<ImGuiRasterViewer> rasterViewer;

@@ -627,6 +627,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.cc">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTraceViewer.cc">
+      <Filter>imgui</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.cc">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -2152,6 +2155,9 @@
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTools.hh">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTraceViewer.hh">
       <Filter>imgui</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\imgui\ImGuiTrainer.hh">

@@ -10,6 +10,7 @@
 #include "ImGuiPalette.hh"
 #include "ImGuiRasterViewer.hh"
 #include "ImGuiSpriteViewer.hh"
+#include "ImGuiTraceViewer.hh"
 #include "ImGuiSymbols.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiVdpRegs.hh"
@@ -267,6 +268,7 @@ void ImGuiDebugger::showMenu(MSXMotherBoard* motherBoard)
 		});
 		ImGui::MenuItem("Symbol manager", nullptr, &manager.symbols->show);
 		ImGui::MenuItem("Watch expression", nullptr, &manager.watchExpr->show);
+		ImGui::MenuItem("Probe/Trace viewer", nullptr, &manager.traceViewer->show);
 		ImGui::Separator();
 		if (ImGui::MenuItem("VDP bitmap viewer")) {
 			openOrCreate(manager, bitmapViewers);

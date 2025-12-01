@@ -23,6 +23,7 @@
 #include "ImGuiSoundChip.hh"
 #include "ImGuiSymbols.hh"
 #include "ImGuiTools.hh"
+#include "ImGuiTraceViewer.hh"
 #include "ImGuiTrainer.hh"
 #include "ImGuiUtils.hh"
 #include "ImGuiVdpRegs.hh"
@@ -170,6 +171,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	breakPoints = std::make_unique<ImGuiBreakPoints>(*this);
 	symbols = std::make_unique<ImGuiSymbols>(*this);
 	watchExpr = std::make_unique<ImGuiWatchExpr>(*this);
+	traceViewer = std::make_unique<ImGuiTraceViewer>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
 	rasterViewer = std::make_unique<ImGuiRasterViewer>(*this);
