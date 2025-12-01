@@ -286,6 +286,25 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 				});
 				ImGui::Checkbox("Name table overlay", &nameTableOverlay);
 
+				ImGui::Checkbox("Override color table", &overrideColorTable);
+				HelpMarker("Ignore the content of the color table and instead use this value for everything.\n"
+				           "Could be useful to visualize the patterns when the color table has the same value for fg and bg.");
+				const char* col0_15 = "0\0001\0002\0003\0004\0005\0006\0007\000"
+				                      "8\0009\00010\00011\00012\00013\00014\00015\000";
+				im::DisabledIndent(!overrideColorTable, [&]{
+					int fg = (overrideColorValue >> 4) & 0x0f;
+					int bg = (overrideColorValue >> 0) & 0x0f;
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+					if (ImGui::Combo("fg", &fg, col0_15)) {
+						overrideColorValue = (fg << 4) | bg;
+					}
+					ImGui::SetNextItemWidth(ImGui::GetFontSize() * 3.0f);
+					ImGui::SameLine();
+					if (ImGui::Combo("bg", &bg, col0_15)) {
+						overrideColorValue = (fg << 4) | bg;
+					}
+				});
+
 				ImGui::Separator();
 				ImGui::Checkbox("beam", &rasterBeam);
 				ImGui::SameLine();
@@ -317,6 +336,13 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		VramTable colTable(vram);
 		unsigned colReg = (manCol ? (manualColBase | (colMult(manualMode) - 1)) : vdp->getColorTableBase()) >> 6;
 		colTable.setRegister(colReg, 6);
+
+		VramTable colTable2 = colTable; // possible override
+		auto colorTabVal = uint8_t(overrideColorValue);
+		if (overrideColorTable) {
+			colTable2 = VramTable(std::span(&colorTabVal, 1));
+			colTable2.setRegister(0, 0);
+		}
 
 		VramTable namTable(vram);
 		unsigned namReg = (manNam ? (manualNamBase | (namMult(manualMode) - 1)) : vdp->getNameTableBase()) >> 10;
@@ -361,7 +387,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return {256,  64}; // SCR1, OTHER
 		}();
 		std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
-		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable, lines, pixels);
+		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable2, lines, pixels);
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}

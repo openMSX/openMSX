@@ -33,6 +33,7 @@ private:
 	std::string title;
 
 	int zoom = 0; // 0->1x, 1->2x, ..., 7->8x
+	int overrideColorValue = 0xf1;
 	bool overrideAll     = false;
 	bool overrideMode    = false;
 	bool overrideFgCol   = false;
@@ -47,6 +48,7 @@ private:
 	bool overrideColor0  = false;
 	bool grid = true;
 	bool nameTableOverlay = false;
+	bool overrideColorTable = false;
 	bool rasterBeam = false;
 	gl::vec4 gridColor{0.0f, 0.0f, 0.0f, 0.5f}; // RGBA
 	gl::vec4 rasterBeamColor{1.0f, 0.0f, 0.0f, 0.8f}; // RGBA
@@ -86,6 +88,8 @@ private:
 		PersistentElementMax{"zoom",            &ImGuiCharacter::zoom, 8},
 		PersistentElement   {"showGrid",        &ImGuiCharacter::grid},
 		PersistentElement   {"overlay",         &ImGuiCharacter::nameTableOverlay},
+		PersistentElement   {"overrideColorTable", &ImGuiCharacter::overrideColorTable},
+		PersistentElement   {"overrideColorValue", &ImGuiCharacter::overrideColorValue},
 		PersistentElement   {"showRasterBeam",  &ImGuiCharacter::rasterBeam},
 		PersistentElement   {"rasterBeamColor", &ImGuiCharacter::rasterBeamColor},
 		PersistentElement   {"gridColor",       &ImGuiCharacter::gridColor},
