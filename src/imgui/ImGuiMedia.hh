@@ -62,9 +62,9 @@ public:
 
 	static void printRomInfo(ImGuiManager& manager, const TclObject& mediaTopic, std::string_view filename, RomType romType);
 
-	void paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
-	void paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage);
-	void paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard);
+	void paintLaserDiscMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage);
+	void paintCDROMMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage);
+	void paintHardDiskMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard);
 
 public:
 	enum class SelectDiskType : int {
@@ -147,7 +147,7 @@ private:
 	void cassetteMenu(CassettePlayer& cassettePlayer);
 	void insertMedia(std::string_view mediaName, const MediaItem& item, bool delayed = true);
 	void paintCurrent(const TclObject& current, std::string_view type);
-	void paintRecent(const std::string& mediaName, ItemGroup& group,
+	void paintRecent(std::string_view mediaName, ItemGroup& group,
 		function_ref<std::string(const std::string&)> displayFunc = std::identity{},
 		const std::function<void(const std::string&)>& toolTip = {},
 		std::function<void()>* actionToSet = nullptr);

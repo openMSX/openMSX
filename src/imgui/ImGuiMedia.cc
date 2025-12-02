@@ -476,7 +476,7 @@ void ImGuiMedia::paintCurrent(const TclObject& current, std::string_view type)
 	ImGui::Separator();
 }
 
-void ImGuiMedia::paintRecent(const std::string& mediaName, ItemGroup& group,
+void ImGuiMedia::paintRecent(std::string_view mediaName, ItemGroup& group,
 		                      function_ref<std::string(const std::string&)> displayFunc,
 		                      const std::function<void(const std::string&)>& toolTip,
 				      std::function<void()>* actionToSet)
@@ -672,7 +672,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		for (auto i : xrange(HD::MAX_HD)) {
 			if (!(*hdInUse)[i]) continue;
 			hdName.back() = char('a' + i);
-			auto displayName = strCat("Hard Disk ", char('A' + i));
+			auto displayName = tmpStrCat("Hard Disk ", char('A' + i));
 			if (auto cmdResult = manager.execute(TclObject(hdName))) {
 				elementInGroup();
 				im::Menu(displayName.c_str(), [&]{
@@ -699,10 +699,10 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		endGroup();
 
 		// laserdisc
-		constexpr static std::string mediaSlotName = "laserdiscplayer";
+		static constexpr zstring_view mediaSlotName = "laserdiscplayer";
 		if (auto cmdResult = manager.execute(TclObject(mediaSlotName))) {
 			elementInGroup();
-			const static std::string displayName = "LaserDisc Player";
+			static constexpr zstring_view displayName = "LaserDisc Player";
 			im::Menu(displayName.c_str(), [&]{
 				paintLaserDiscMenuContent(mediaSlotName, displayName, cmdResult->getListIndex(interp, 1));
 			});
@@ -747,13 +747,13 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 	}
 }
 
-void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard)
+void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage, const MSXMotherBoard& motherBoard)
 {
 	paintCurrent(currentImage, "hard disk");
 	auto& group = hdMediaInfo[mediaSlotName.back() - 'a'];
 	if (ImGui::MenuItem("Select hard disk image...")) {
 		manager.openFile->selectFile(
-			"Select image for " + slotDisplayName,
+			strCat("Select image for ", slotDisplayName),
 			hdFilter(),
 			[this, &group, mediaSlotName](const auto& fn) {
 				switchHdAction = [this, &group, mediaSlotName, fn] {
@@ -771,7 +771,7 @@ void ImGuiMedia::paintHardDiskMenuContent(std::string_view mediaSlotName, const 
 	paintRecent(std::string(mediaSlotName), group, std::identity{}, {}, &switchHdAction);
 }
 
-void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
+void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage)
 {
 	paintCurrent(currentImage, "CDROM");
 	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
@@ -780,7 +780,7 @@ void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, const std
 	auto& group = cdMediaInfo[mediaSlotName.back() - 'a'];
 	if (ImGui::MenuItem("Insert CDROM image...")) {
 		manager.openFile->selectFile(
-			"Select CDROM image for " + slotDisplayName,
+			strCat("Select CDROM image for ", slotDisplayName),
 			cdFilter(),
 			[this, &group, mediaSlotName](const auto& fn) {
 				group.edit.name = fn;
@@ -791,7 +791,7 @@ void ImGuiMedia::paintCDROMMenuContent(std::string_view mediaSlotName, const std
 	paintRecent(std::string(mediaSlotName), group);
 }
 
-void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, const std::string& slotDisplayName, const TclObject& currentImage)
+void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, std::string_view slotDisplayName, const TclObject& currentImage)
 {
 	paintCurrent(currentImage, "laserdisc");
 	if (ImGui::MenuItem("Eject", nullptr, false, !currentImage.empty())) {
@@ -799,7 +799,7 @@ void ImGuiMedia::paintLaserDiscMenuContent(std::string_view mediaSlotName, const
 	}
 	if (ImGui::MenuItem("Insert LaserDisc image...")) {
 		manager.openFile->selectFile(
-				"Select LaserDisc image for " + slotDisplayName,
+				strCat("Select LaserDisc image for ", slotDisplayName),
 				buildFilter("LaserDisc images", std::array<std::string_view, 1>{"ogv"}),
 				[this, mediaSlotName](const auto& fn) {
 				laserdiscMediaInfo.edit.name = fn;
