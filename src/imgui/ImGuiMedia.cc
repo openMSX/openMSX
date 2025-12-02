@@ -699,7 +699,7 @@ void ImGuiMedia::showMenu(MSXMotherBoard* motherBoard)
 		endGroup();
 
 		// laserdisc
-		constexpr static std::string mediaSlotName = "laserdiscplayer";
+		const static std::string mediaSlotName = "laserdiscplayer";
 		if (auto cmdResult = manager.execute(TclObject(mediaSlotName))) {
 			elementInGroup();
 			const static std::string displayName = "LaserDisc Player";
