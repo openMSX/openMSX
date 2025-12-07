@@ -337,11 +337,10 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 		unsigned colReg = (manCol ? (manualColBase | (colMult(manualMode) - 1)) : vdp->getColorTableBase()) >> 6;
 		colTable.setRegister(colReg, 6);
 
-		VramTable colTable2 = colTable; // possible override
 		auto colorTabVal = uint8_t(overrideColorValue);
 		if (overrideColorTable) {
-			colTable2 = VramTable(std::span(&colorTabVal, 1));
-			colTable2.setRegister(0, 0);
+			colTable = VramTable(std::span(&colorTabVal, 1));
+			colTable.setRegister(0, 0);
 		}
 
 		VramTable namTable(vram);
@@ -387,7 +386,7 @@ void ImGuiCharacter::paint(MSXMotherBoard* motherBoard)
 			return {256,  64}; // SCR1, OTHER
 		}();
 		std::array<uint32_t, 256 * 256> pixels; // max size for SCR2
-		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable2, lines, pixels);
+		renderPatterns(mode, palette, fgCol, bgCol, fgBlink, bgBlink, patTable, colTable, lines, pixels);
 		if (!patternTex.get()) {
 			patternTex = gl::Texture(false, false); // no interpolation, no wrapping
 		}
