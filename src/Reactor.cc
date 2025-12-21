@@ -692,7 +692,7 @@ void Reactor::run()
 			// to also use a sleep/poll loop, with even shorter
 			// sleep periods as we use here. Maybe in future
 			// SDL implementations this will be improved.
-			eventDistributor->sleep(20 * 1000);
+			eventDistributor->sleep(8 * 1000); // 8ms
 		}
 	}
 }
