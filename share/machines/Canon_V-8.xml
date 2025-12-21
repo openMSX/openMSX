@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Canon</manufacturer>
     <code>V-8</code>
-    <release_year></release_year>
-    <description>Very compact and rather minimal MSX1 machine, with only 8kB RAM.</description>
+    <release_year>1985</release_year>
+    <description>Very compact and rather minimal MSX1 machine, with 16kB RAM and no printer port.</description>
     <type>MSX</type>
     <region>jp</region>
   </info>
