@@ -357,7 +357,7 @@ void Display::repaintImpl()
 
 	// TODO maybe revisit this later (and/or simplify other calls to repaintDelayed())
 	// This ensures a minimum framerate for ImGui
-	repaintDelayed(16 * 1000); // 60fps
+	repaintDelayed(40 * 1000); // 25fps
 }
 
 void Display::repaintImpl(OutputSurface& surface)
