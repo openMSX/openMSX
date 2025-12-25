@@ -5,6 +5,7 @@
 #include "Timer.hh"
 
 #include <cstdint>
+#include <optional>
 
 namespace openmsx {
 
@@ -27,6 +28,14 @@ public:
 				scheduleHelper(limit); // slow path not inlined
 			}
 		}
+	}
+
+	/** Get the next scheduled time point (absolute, in microseconds).
+	  * @return The earliest scheduled time, or nullopt if queue is empty.
+	  */
+	[[nodiscard]] std::optional<uint64_t> getNextTime() const {
+		return queue.empty() ? std::nullopt
+		                     : std::optional(queue.front().time);
 	}
 
 private:

@@ -4,9 +4,9 @@
 #include "Event.hh"
 
 #include <array>
-#include <condition_variable>
 #include <cstdint>
 #include <mutex>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -59,16 +59,11 @@ public:
 	/** This actually delivers the events. It may only be called from the
 	  * main loop in Reactor (and only from the main thread). Also see
 	  * the distributeEvent() method.
+	  * @param timeoutMs If provided, wait up to this many milliseconds for
+	  *        SDL events before processing. Used when emulation is blocked
+	  *        to avoid busy-waiting while remaining responsive to input.
 	  */
-	void deliverEvents();
-
-	/** Sleep for the specified amount of time, but return early when
-	  * (another thread) called the distributeEvent() method.
-	  * @param us Amount of time to sleep, in micro seconds.
-	  * @result true  if we return because time has passed
-	  *         false if we return because distributeEvent() was called
-	  */
-	bool sleep(unsigned us);
+	void deliverEvents(std::optional<int> timeoutMs = std::nullopt);
 
 private:
 	[[nodiscard]] bool isRegistered(EventType type, EventListener* listener) const;
@@ -85,8 +80,6 @@ private:
 	using EventQueue = std::vector<Event>;
 	EventQueue scheduledEvents;
 	std::mutex mutex; // lock data structures
-	std::mutex cvMutex; // lock condition_variable
-	std::condition_variable condition;
 };
 
 } // namespace openmsx
