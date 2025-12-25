@@ -616,6 +616,11 @@ void Reactor::enterMainLoop()
 		if (activeBoard) {
 			activeBoard->exitCPULoopAsync();
 		}
+		// Wake SDL_WaitEventTimeout() in case main thread is blocked
+		// waiting for events. SDL_PushEvent() is thread-safe.
+		SDL_Event wakeEvent{};
+		wakeEvent.type = SDL_USEREVENT;
+		SDL_PushEvent(&wakeEvent);
 	}
 }
 
@@ -676,23 +681,38 @@ void Reactor::powerOn()
 
 void Reactor::run()
 {
+	static constexpr int MAX_WAIT_MS = 8;
+
 	while (running) {
-		eventDistributor->deliverEvents();
-		bool blocked = (blockedCounter > 0) || !activeBoard;
-		if (!blocked) {
+		auto isBlocked = [&] { return (blockedCounter > 0) || !activeBoard; };
+		if (isBlocked) {
+			// Compute timeout, min of MAX_WAIT_MS and time until next
+			// RTScheduler event. This keeps UI responsive while avoiding
+			// busy-waiting when paused.
+			auto& rtScheduler = getRTScheduler();
+			int timeoutMs = MAX_WAIT_MS;
+			if (auto nextTime = rtScheduler.getNextTime()) {
+				auto now = Timer::getTime();
+				if (*nextTime > now) {
+					auto deltaUs = *nextTime - now;
+					auto deltaMs = static_cast<int>(deltaUs / 1000);
+					timeoutMs = std::min(timeoutMs, std::max(1, deltaMs));
+				} else {
+					// Already past due, don't wait
+					timeoutMs = 0;
+				}
+			}
+			eventDistributor->deliverEvents(timeoutMs);
+		} else {
+			eventDistributor->deliverEvents();
+		}
+
+		// Re-check. State may have changed during event processing
+		if (!isBlocked()) {
 			// copy shared_ptr to keep Board alive (e.g. in case of Tcl
 			// callbacks)
 			auto copy = activeBoard;
 			blocked = !copy->execute();
-		}
-		if (blocked) {
-			// At first sight a better alternative is to use the
-			// SDL_WaitEvent() function. Though when inspecting
-			// the implementation of that function, it turns out
-			// to also use a sleep/poll loop, with even shorter
-			// sleep periods as we use here. Maybe in future
-			// SDL implementations this will be improved.
-			eventDistributor->sleep(8 * 1000); // 8ms
 		}
 	}
 }

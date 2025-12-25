@@ -10,6 +10,7 @@
 #include <SDL.h>
 
 #include <cstdint>
+#include <optional>
 
 namespace openmsx {
 
@@ -37,7 +38,13 @@ public:
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
 	void updateGrab(bool grab);
 
-	void poll();
+	/** Poll for SDL events and dispatch them.
+	  * @param timeoutMs If provided, wait up to this many milliseconds for
+	  *        the first event using SDL_WaitEventTimeout(). Subsequent
+	  *        events in the same batch use SDL_PollEvent(). If nullopt,
+	  *        uses SDL_PollEvent() for all events (non-blocking).
+	  */
+	void poll(std::optional<int> timeoutMs = std::nullopt);
 
 	[[nodiscard]] JoystickManager& getJoystickManager() { return joystickManager; }
 

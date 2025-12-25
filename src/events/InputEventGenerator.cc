@@ -47,7 +47,7 @@ void InputEventGenerator::wait()
 	}
 }
 
-void InputEventGenerator::poll()
+void InputEventGenerator::poll(std::optional<int> timeoutMs)
 {
 	// Heuristic to emulate the old SDL1 behavior:
 	//
@@ -83,7 +83,23 @@ void InputEventGenerator::poll()
 	auto* curr = &event2;
 	bool pending = false;
 
-	while (SDL_PollEvent(curr)) {
+	// For the first event, optionally wait with timeout. This allows
+	// efficient blocking when the emulator is paused, waking immediately
+	// on any SDL event (mouse, keyboard, etc.) or on timeout.
+	auto getNextEvent = [&, firstEvent = true]() mutable -> bool {
+		if (firstEvent && timeoutMs) {
+			firstEvent = false;
+			return SDL_WaitEventTimeout(curr, *timeoutMs) == 1;
+		}
+		return SDL_PollEvent(curr) == 1;
+	};
+
+	while (getNextEvent()) {
+		// Ignore SDL_USEREVENT, used to wake SDL_WaitEventTimeout from other
+		// threads (see Reactor::enterMainLoop).
+		if (curr->type == SDL_USEREVENT) {
+			continue;
+		}
 		if (pending) {
 			pending = false;
 			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
