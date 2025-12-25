@@ -685,7 +685,7 @@ void Reactor::run()
 
 	while (running) {
 		auto isBlocked = [&] { return (blockedCounter > 0) || !activeBoard; };
-		if (isBlocked) {
+		if (isBlocked()) {
 			// Compute timeout, min of MAX_WAIT_MS and time until next
 			// RTScheduler event. This keeps UI responsive while avoiding
 			// busy-waiting when paused.
