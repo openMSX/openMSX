@@ -325,13 +325,13 @@ void SdCard::executeCommand()
 	}
 }
 
-static constexpr std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
+static constexpr auto modeInfo = std::to_array<enum_string<SdCard::Mode>>({
 	{ "COMMAND",     SdCard::Mode::COMMAND  },
 	{ "READ",        SdCard::Mode::READ },
 	{ "MULTI_READ",  SdCard::Mode::MULTI_READ },
 	{ "WRITE",       SdCard::Mode::WRITE },
-	{ "MULTI_WRITE", SdCard::Mode::MULTI_WRITE }
-};
+	{ "MULTI_WRITE", SdCard::Mode::MULTI_WRITE },
+});
 SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 
 template<typename Archive>

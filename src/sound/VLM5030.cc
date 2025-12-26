@@ -537,7 +537,7 @@ VLM5030::~VLM5030()
 	unregisterSound();
 }
 
-static constexpr std::initializer_list<enum_string<VLM5030::Phase>> phaseInfo = {
+static constexpr auto phaseInfo = std::to_array<enum_string<VLM5030::Phase>>({
 	{ "RESET", VLM5030::Phase::RESET },
 	{ "IDLE",  VLM5030::Phase::IDLE  },
 	{ "SETUP", VLM5030::Phase::SETUP },
@@ -545,7 +545,7 @@ static constexpr std::initializer_list<enum_string<VLM5030::Phase>> phaseInfo = 
 	{ "RUN",   VLM5030::Phase::RUN   },
 	{ "STOP",  VLM5030::Phase::STOP  },
 	{ "END",   VLM5030::Phase::END   },
-};
+});
 SERIALIZE_ENUM(VLM5030::Phase, phaseInfo);
 
 // version 1: initial version
