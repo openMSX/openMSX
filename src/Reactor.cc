@@ -682,10 +682,14 @@ void Reactor::powerOn()
 void Reactor::run()
 {
 	static constexpr int MAX_WAIT_MS = 8;
+	bool executionFailed = false;
 
 	while (running) {
-		auto isBlocked = [&] { return (blockedCounter > 0) || !activeBoard; };
+		auto isBlocked = [&] {
+			return executionFailed || (blockedCounter > 0) || !activeBoard;
+		};
 		if (isBlocked()) {
+			executionFailed = false;  // Reset when blocked by other conditions
 			// Compute timeout, min of MAX_WAIT_MS and time until next
 			// RTScheduler event. This keeps UI responsive while avoiding
 			// busy-waiting when paused.
@@ -712,7 +716,7 @@ void Reactor::run()
 			// copy shared_ptr to keep Board alive (e.g. in case of Tcl
 			// callbacks)
 			auto copy = activeBoard;
-			blocked = !copy->execute();
+			executionFailed = !copy->execute();
 		}
 	}
 }
