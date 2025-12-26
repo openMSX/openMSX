@@ -10,8 +10,8 @@
 
 #include <array>
 #include <cassert>
-#include <initializer_list>
 #include <memory>
+#include <span>
 #include <string>
 #include <type_traits>
 #include <variant>
@@ -115,9 +115,9 @@ template<typename T> struct enum_string {
 [[noreturn]] void enumError(std::string_view str);
 
 template<typename T>
-inline std::string_view toString(std::initializer_list<enum_string<T>> list, T t_)
+inline std::string_view toString(std::span<const enum_string<T>> list, T t_)
 {
-	for (auto& [str, t] : list) {
+	for (const auto& [str, t] : list) {
 		if (t == t_) return str;
 	}
 	assert(false);
@@ -125,23 +125,24 @@ inline std::string_view toString(std::initializer_list<enum_string<T>> list, T t
 }
 
 template<typename T>
-T fromString(std::initializer_list<enum_string<T>> list, std::string_view str_)
+T fromString(std::span<const enum_string<T>> list, std::string_view str_)
 {
-	for (auto& [str, t] : list) {
+	for (const auto& [str, t] : list) {
 		if (str == str_) return t;
 	}
 	enumError(str_); // does not return (throws)
 	return T(); // avoid warning
 }
 
-#define SERIALIZE_ENUM(TYPE,INFO) \
-template<> struct serialize_as_enum< TYPE > : std::true_type { \
-	serialize_as_enum() : info(INFO) {} \
-	std::initializer_list<enum_string< TYPE >> info; \
+#define SERIALIZE_ENUM(TYPE, INFO) \
+template<> struct serialize_as_enum<TYPE> : std::true_type { \
+	static constexpr std::span<const enum_string<TYPE>> info() { \
+		return INFO; \
+	} \
 };
 
 template<typename Archive, typename T, typename SaveAction>
-void saveEnum(std::initializer_list<enum_string<T>> list, T t, SaveAction save)
+void saveEnum(std::span<const enum_string<T>> list, T t, SaveAction save)
 {
 	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
 		save(toString(list, t));
@@ -151,7 +152,7 @@ void saveEnum(std::initializer_list<enum_string<T>> list, T t, SaveAction save)
 }
 
 template<typename Archive, typename T, typename LoadAction>
-void loadEnum(std::initializer_list<enum_string<T>> list, T& t, LoadAction load)
+void loadEnum(std::span<const enum_string<T>> list, T& t, LoadAction load)
 {
 	if constexpr (Archive::TRANSLATE_ENUM_TO_STRING) {
 		std::string str;
@@ -395,8 +396,7 @@ template<typename T> struct EnumSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/) const
 	{
-		serialize_as_enum<T> sae;
-		saveEnum<Archive>(sae.info, t,
+		saveEnum<Archive>(serialize_as_enum<T>::info(), t,
 			[&](const auto& s) { ar.save(s); });
 	}
 };
@@ -564,8 +564,8 @@ template<typename T> struct EnumLoader
 	{
 		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
-		serialize_as_enum<T> sae;
-		loadEnum<Archive>(sae.info, t, [&](auto& l) { ar.load(l); });
+		loadEnum<Archive>(serialize_as_enum<T>::info(), t,
+			[&](auto& l) { ar.load(l); });
 	}
 };
 
