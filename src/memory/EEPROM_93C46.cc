@@ -227,14 +227,14 @@ void EEPROM_93C46::execute_command(EmuTime time)
 	}
 }
 
-static constexpr std::initializer_list<enum_string<EEPROM_93C46::State>> stateInfo = {
+static constexpr auto stateInfo = std::to_array<enum_string<EEPROM_93C46::State>>({
 	{ "IN_RESET",           EEPROM_93C46::State::IN_RESET           },
 	{ "WAIT_FOR_START_BIT", EEPROM_93C46::State::WAIT_FOR_START_BIT },
 	{ "WAIT_FOR_COMMAND",   EEPROM_93C46::State::WAIT_FOR_COMMAND   },
 	{ "READING_DATA",       EEPROM_93C46::State::READING_DATA       },
 	{ "WAIT_FOR_WRITE",     EEPROM_93C46::State::WAIT_FOR_WRITE     },
 	{ "WAIT_FOR_WRITEALL",  EEPROM_93C46::State::WAIT_FOR_WRITE_ALL },
-};
+});
 SERIALIZE_ENUM(EEPROM_93C46::State, stateInfo);
 
 template<typename Archive>

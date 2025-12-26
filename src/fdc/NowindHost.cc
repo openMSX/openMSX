@@ -772,7 +772,7 @@ void NowindHost::callImage(const std::string& filename)
 }
 
 
-static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
+static constexpr auto stateInfo = std::to_array<enum_string<NowindHost::State>>({
 	{ "SYNC1",     NowindHost::State::SYNC1     },
 	{ "SYNC2",     NowindHost::State::SYNC2     },
 	{ "COMMAND",   NowindHost::State::COMMAND   },
@@ -780,7 +780,7 @@ static constexpr std::initializer_list<enum_string<NowindHost::State>> stateInfo
 	{ "DISKWRITE", NowindHost::State::DISKWRITE },
 	{ "DEVOPEN",   NowindHost::State::DEVOPEN   },
 	{ "IMAGE",     NowindHost::State::IMAGE     },
-};
+});
 SERIALIZE_ENUM(NowindHost::State, stateInfo);
 
 template<typename Archive>

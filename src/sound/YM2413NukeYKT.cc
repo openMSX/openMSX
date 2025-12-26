@@ -924,12 +924,12 @@ void YM2413::setSpeed(double speed)
 } // namespace YM2413NukeYKT
 
 
-static constexpr std::initializer_list<enum_string<YM2413NukeYKT::YM2413::EgState>> egStateInfo = {
+static constexpr auto egStateInfo = std::to_array<enum_string<YM2413NukeYKT::YM2413::EgState>>({
 	{ "attack",  YM2413NukeYKT::YM2413::EgState::attack },
 	{ "decay",   YM2413NukeYKT::YM2413::EgState::decay },
 	{ "sustain", YM2413NukeYKT::YM2413::EgState::sustain },
-	{ "release", YM2413NukeYKT::YM2413::EgState::release }
-};
+	{ "release", YM2413NukeYKT::YM2413::EgState::release },
+});
 SERIALIZE_ENUM(YM2413NukeYKT::YM2413::EgState, egStateInfo);
 
 namespace YM2413NukeYKT {

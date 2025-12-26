@@ -160,12 +160,12 @@ void DebugDevice::openOutput(std::string_view name)
 	}
 }
 
-static constexpr std::initializer_list<enum_string<DebugDevice::Mode>> debugModeInfo = {
+static constexpr auto debugModeInfo = std::to_array<enum_string<DebugDevice::Mode>>({
 	{ "OFF",        DebugDevice::Mode::OFF },
 	{ "SINGLEBYTE", DebugDevice::Mode::SINGLEBYTE },
 	{ "MULTIBYTE",  DebugDevice::Mode::MULTIBYTE },
-	{ "ASCII",      DebugDevice::Mode::ASCII }
-};
+	{ "ASCII",      DebugDevice::Mode::ASCII },
+});
 SERIALIZE_ENUM(DebugDevice::Mode, debugModeInfo);
 
 template<typename Archive>

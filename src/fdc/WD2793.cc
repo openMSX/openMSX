@@ -1076,7 +1076,7 @@ void WD2793::endCmd(EmuTime time)
 }
 
 
-static constexpr std::initializer_list<enum_string<WD2793::FSM>> fsmStateInfo = {
+static constexpr auto fsmStateInfo = std::to_array<enum_string<WD2793::FSM>>({
 	{ "NONE",              WD2793::FSM::NONE },
 	{ "SEEK",              WD2793::FSM::SEEK },
 	{ "TYPE2_LOADED",      WD2793::FSM::TYPE2_LOADED },
@@ -1094,7 +1094,7 @@ static constexpr std::initializer_list<enum_string<WD2793::FSM>> fsmStateInfo = 
 	// for bw-compat savestate
 	{ "TYPE2_WAIT_LOAD",   WD2793::FSM::TYPE2_LOADED }, // was FSM::TYPE2_WAIT_LOAD
 	{ "TYPE3_WAIT_LOAD",   WD2793::FSM::TYPE3_LOADED }, // was FSM::TYPE3_WAIT_LOAD
-};
+});
 SERIALIZE_ENUM(WD2793::FSM, fsmStateInfo);
 
 // version 1: initial version

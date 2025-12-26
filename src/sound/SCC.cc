@@ -543,11 +543,11 @@ void SCC::Debuggable::write(unsigned address, uint8_t value, EmuTime time)
 }
 
 
-static constexpr std::initializer_list<enum_string<SCC::Mode>> chipModeInfo = {
+static constexpr auto chipModeInfo = std::to_array<enum_string<SCC::Mode>>({
 	{ "Real",       SCC::Mode::Real       },
 	{ "Compatible", SCC::Mode::Compatible },
 	{ "Plus",       SCC::Mode::Plus   },
-};
+});
 SERIALIZE_ENUM(SCC::Mode, chipModeInfo);
 
 template<typename Archive>

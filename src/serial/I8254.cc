@@ -464,10 +464,10 @@ void Counter::advance(EmuTime time)
 }
 
 
-static constexpr std::initializer_list<enum_string<Counter::ByteOrder>> byteOrderInfo = {
+static constexpr auto byteOrderInfo = std::to_array<enum_string<Counter::ByteOrder>>({
 	{ "LOW",  Counter::ByteOrder::LOW  },
-	{ "HIGH", Counter::ByteOrder::HIGH }
-};
+	{ "HIGH", Counter::ByteOrder::HIGH },
+});
 SERIALIZE_ENUM(Counter::ByteOrder, byteOrderInfo);
 
 template<typename Archive>
