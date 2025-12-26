@@ -79,25 +79,23 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *
  * The serialize_as_enum class has the following members:
  *  - static bool value
- *      True iff this type must be serialized as an enum.
+ *      True if this type must be serialized as an enum.
  *      The fields below are only valid (even only present) if this variable
  *      is true.
- *  - std::string toString(T t)
- *      convert enum value to string
- *  - T fromString(const std::string& str)
- *      convert from string back to enum value
+ *  - static constexpr std::span<const enum_string<T>> info()
+ *      Returns a view over the enum-to-string mapping table.
  *
  * If the enum has all consecutive values, starting from zero (as is the case
  * if you don't explicitly mention the numeric values in the enum definition),
  * you can use the SERIALIZE_ENUM macro as a convenient way to define a
  * specialization of serialize_as_enum:
-
+ *
  * example:
  *    enum MyEnum { FOO, BAR };
- *    std::initializer_list<enum_string<MyEnum>> myEnumInfo = {
+ *    static constexpr auto myEnumInfo = std::to_array<enum_string<MyEnum>>({
  *          { "FOO", FOO },
  *          { "BAR", BAR },
- *    };
+ *    });
  *    SERIALIZE_ENUM(MyEnum, myEnumInfo);
  *
  * Note: when an enum definition evolves it has impact on the serialization,
