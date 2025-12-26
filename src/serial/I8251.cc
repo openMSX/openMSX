@@ -318,34 +318,34 @@ void I8251::execTrans(EmuTime time)
 }
 
 
-static constexpr std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBitsInfo = {
-		{ "5", SerialDataInterface::DataBits::D5 },
-		{ "6", SerialDataInterface::DataBits::D6 },
-		{ "7", SerialDataInterface::DataBits::D7 },
-		{ "8", SerialDataInterface::DataBits::D8 }
-};
+static constexpr auto dataBitsInfo = std::to_array<enum_string<SerialDataInterface::DataBits>>({
+	{ "5", SerialDataInterface::DataBits::D5 },
+	{ "6", SerialDataInterface::DataBits::D6 },
+	{ "7", SerialDataInterface::DataBits::D7 },
+	{ "8", SerialDataInterface::DataBits::D8 },
+});
 SERIALIZE_ENUM(SerialDataInterface::DataBits, dataBitsInfo);
 
-static constexpr std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBitsInfo = {
+static constexpr auto stopBitsInfo = std::to_array<enum_string<SerialDataInterface::StopBits>>({
 	{ "INVALID", SerialDataInterface::StopBits::INV },
 	{ "1",       SerialDataInterface::StopBits::S1   },
 	{ "1.5",     SerialDataInterface::StopBits::S1_5  },
-	{ "2",       SerialDataInterface::StopBits::S2   }
-};
+	{ "2",       SerialDataInterface::StopBits::S2   },
+});
 SERIALIZE_ENUM(SerialDataInterface::StopBits, stopBitsInfo);
 
-static constexpr std::initializer_list<enum_string<SerialDataInterface::Parity>> parityBitInfo = {
+static constexpr auto parityBitInfo = std::to_array<enum_string<SerialDataInterface::Parity>>({
 	{ "EVEN", SerialDataInterface::Parity::EVEN },
-	{ "ODD",  SerialDataInterface::Parity::ODD  }
-};
+	{ "ODD",  SerialDataInterface::Parity::ODD  },
+});
 SERIALIZE_ENUM(SerialDataInterface::Parity, parityBitInfo);
 
-static constexpr std::initializer_list<enum_string<I8251::CmdPhase>> cmdFazeInfo = {
+static constexpr auto cmdFazeInfo = std::to_array<enum_string<I8251::CmdPhase>>({
 	{ "MODE",  I8251::CmdPhase::MODE  },
 	{ "SYNC1", I8251::CmdPhase::SYNC1 },
 	{ "SYNC2", I8251::CmdPhase::SYNC2 },
-	{ "CMD",   I8251::CmdPhase::CMD   }
-};
+	{ "CMD",   I8251::CmdPhase::CMD   },
+});
 SERIALIZE_ENUM(I8251::CmdPhase, cmdFazeInfo);
 
 // version 1: initial version

@@ -1592,15 +1592,15 @@ std::span<const uint8_t, 64> YM2413::peekRegs() const
 
 } // namespace YM2413Okazaki
 
-static constexpr std::initializer_list<enum_string<YM2413Okazaki::Slot::EnvelopeState>> envelopeStateInfo = {
+static constexpr auto envelopeStateInfo = std::to_array<enum_string<YM2413Okazaki::Slot::EnvelopeState>>({
 	{ "ATTACK",  YM2413Okazaki::Slot::EnvelopeState::ATTACK  },
 	{ "DECAY",   YM2413Okazaki::Slot::EnvelopeState::DECAY   },
 	{ "SUSHOLD", YM2413Okazaki::Slot::EnvelopeState::SUSHOLD },
 	{ "SUSTAIN", YM2413Okazaki::Slot::EnvelopeState::SUSTAIN },
 	{ "RELEASE", YM2413Okazaki::Slot::EnvelopeState::RELEASE },
 	{ "SETTLE",  YM2413Okazaki::Slot::EnvelopeState::SETTLE  },
-	{ "FINISH",  YM2413Okazaki::Slot::EnvelopeState::FINISH  }
-};
+	{ "FINISH",  YM2413Okazaki::Slot::EnvelopeState::FINISH  },
+});
 SERIALIZE_ENUM(YM2413Okazaki::Slot::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Okazaki {

@@ -1277,14 +1277,14 @@ std::span<const uint8_t, 64> YM2413::peekRegs() const
 
 } // namespace YM2413Burczynski
 
-static constexpr std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
+static constexpr auto envelopeStateInfo = std::to_array<enum_string<YM2413Burczynski::Slot::EnvelopeState>>({
 	{ "DUMP",    YM2413Burczynski::Slot::EnvelopeState::DUMP    },
 	{ "ATTACK",  YM2413Burczynski::Slot::EnvelopeState::ATTACK  },
 	{ "DECAY",   YM2413Burczynski::Slot::EnvelopeState::DECAY   },
 	{ "SUSTAIN", YM2413Burczynski::Slot::EnvelopeState::SUSTAIN },
 	{ "RELEASE", YM2413Burczynski::Slot::EnvelopeState::RELEASE },
-	{ "OFF",     YM2413Burczynski::Slot::EnvelopeState::OFF     }
-};
+	{ "OFF",     YM2413Burczynski::Slot::EnvelopeState::OFF     },
+});
 SERIALIZE_ENUM(YM2413Burczynski::Slot::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Burczynski {

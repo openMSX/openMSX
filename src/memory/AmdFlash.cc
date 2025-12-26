@@ -1041,7 +1041,7 @@ void AmdFlash::execOperation(EmuTime time)
 	}
 }
 
-static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo = {
+static constexpr auto stateInfo = std::to_array<enum_string<AmdFlash::State>>({
 	{ "IDLE",         AmdFlash::State::READ },       // back compat with v3
 	{ "IDENT",        AmdFlash::State::AUTOSELECT }, // back compat with v3
 	{ "PRGERR",       AmdFlash::State::ERROR },      // back compat with v3
@@ -1052,8 +1052,8 @@ static constexpr std::initializer_list<enum_string<AmdFlash::State>> stateInfo =
 	{ "ERROR",        AmdFlash::State::ERROR },
 	{ "ERASE_SECTOR", AmdFlash::State::ERASE_SECTOR },
 	{ "ERASE_CHIP",   AmdFlash::State::ERASE_CHIP },
-	{ "PROGRAM",      AmdFlash::State::PROGRAM }
-};
+	{ "PROGRAM",      AmdFlash::State::PROGRAM },
+});
 SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 
 template<typename Archive>
