@@ -54,6 +54,8 @@ public:
 	[[nodiscard]] Interpreter& getInterpreter();
 	[[nodiscard]] std::vector<ImGuiWatchExpr::WatchExpr>& getWatchExprs() const;
 
+	[[nodiscard]] auto& getProbes() { return probes; }
+
 private:
 	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);
 	[[nodiscard]] ProbeBase& getProbe(std::string_view name);
@@ -145,14 +147,8 @@ private:
 		void symbolsLookup(std::span<const TclObject> tokens, TclObject& result);
 	} cmd;
 
-	struct NameFromProbe {
-		[[nodiscard]] const std::string& operator()(const ProbeBase* p) const {
-			return p->getName();
-		}
-	};
-
 	hash_map<std::string, Debuggable*, XXHasher> debuggables;
-	hash_set<ProbeBase*, NameFromProbe, XXHasher> probes;
+	std::vector<ProbeBase*> probes; // sorted on name
 	std::vector<std::unique_ptr<ProbeBreakPoint>> probeBreakPoints; // unordered
 	MSXCPU* cpu = nullptr;
 };

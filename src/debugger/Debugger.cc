@@ -77,20 +77,22 @@ Debuggable& Debugger::getDebuggable(std::string_view name)
 
 void Debugger::registerProbe(ProbeBase& probe)
 {
-	assert(!probes.contains(probe.getName()));
-	probes.insert_noDuplicateCheck(&probe);
+	auto it = std::ranges::lower_bound(probes, probe.getName(), {}, &ProbeBase::getName);
+	assert(it == probes.end() || (*it)->getName() != probe.getName()); // was not yet present
+	probes.insert(it, &probe);
 }
 
 void Debugger::unregisterProbe(ProbeBase& probe)
 {
-	assert(probes.contains(probe.getName()));
-	probes.erase(probe.getName());
+	auto it = std::ranges::lower_bound(probes, probe.getName(), {}, &ProbeBase::getName);
+	assert(it != probes.end() && (*it)->getName() == probe.getName());
+	probes.erase(it);
 }
 
 ProbeBase* Debugger::findProbe(std::string_view name)
 {
-	auto it = probes.find(name);
-	return (it != std::end(probes)) ? *it : nullptr;
+	auto it = std::ranges::lower_bound(probes, name, {}, &ProbeBase::getName);
+	return (it != probes.end() && (*it)->getName() == name) ? *it : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(std::string_view name)
@@ -989,8 +991,7 @@ void Debugger::Cmd::probe(std::span<const TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(std::span<const TclObject> /*tokens*/, TclObject& result)
 {
-	result.addListElements(std::views::transform(debugger().probes,
-		[](auto* p) { return p->getName(); }));
+	result.addListElements(std::views::transform(debugger().probes, &ProbeBase::getName));
 }
 void Debugger::Cmd::probeDesc(std::span<const TclObject> tokens, TclObject& result)
 {
@@ -1141,25 +1142,25 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 	constexpr auto generalHelp =
 		"debug <subcommand> [<arguments>]\n"
 		"  Possible subcommands are:\n"
-		"    list              returns a list of all debuggables\n"
-		"    desc              returns a description of this debuggable\n"
-		"    size              returns the size of this debuggable\n"
-		"    read              read a byte from a debuggable\n"
-		"    write             write a byte to a debuggable\n"
-		"    read_block        read a whole block at once\n"
-		"    write_block       write a whole block at once\n"
-		"    breakpoint        breakpoint related subcommands\n"
-		"    watchpoint        watchpoint related subcommands\n"
-		"    watchexpr         watch expression related subcommands\n"
-		"    condition         debug condition related subcommands\n"
-		"    probe             probe related subcommands\n"
-		"    cont              continue execution after break\n"
-		"    step              execute one instruction\n"
-		"    break             break CPU at current position\n"
-		"    breaked           query CPU breaked status\n"
-		"    disasm            disassemble instructions\n"
-		"    disasm_blob       disassemble a instruction in Tcl binary string\n"
-		"    symbols           manage debug symbols\n"
+		"    list         returns a list of all debuggables\n"
+		"    desc         returns a description of this debuggable\n"
+		"    size         returns the size of this debuggable\n"
+		"    read         read a byte from a debuggable\n"
+		"    write        write a byte to a debuggable\n"
+		"    read_block   read a whole block at once\n"
+		"    write_block  write a whole block at once\n"
+		"    breakpoint   breakpoint related subcommands\n"
+		"    watchpoint   watchpoint related subcommands\n"
+		"    watchexpr    watch expression related subcommands\n"
+		"    condition    debug condition related subcommands\n"
+		"    probe        probe related subcommands\n"
+		"    cont         continue execution after break\n"
+		"    step         execute one instruction\n"
+		"    break        break CPU at current position\n"
+		"    breaked      query CPU breaked status\n"
+		"    disasm       disassemble instructions\n"
+		"    disasm_blob  disassemble a instruction in Tcl binary string\n"
+		"    symbols      manage debug symbols\n"
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
 
@@ -1684,8 +1685,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 		if ((size == 4) && (tokens[1] == "probe") &&
 		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
 			completeString(tokens, std::views::transform(
-				debugger().probes,
-				[](auto* p) -> std::string_view { return p->getName(); }));
+				debugger().probes, &ProbeBase::getName));
 		} else if (tokens[1] == "breakpoint") {
 			if ((size == 4) && tokens[2] == one_of("remove"sv, "configure"sv)) {
 				completeString(tokens, getBreakPointIds());
