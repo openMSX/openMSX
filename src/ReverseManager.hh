@@ -70,7 +70,7 @@ public:
 	[[nodiscard]] double getCurrent() const;
 	[[nodiscard]] auto getSnapshotTimes() const {
 		return std::views::transform(history.chunks, [](auto& p) {
-			return (p.second.time - EmuTime::zero()).toDouble();
+			return p.second.time.toDouble();
 		});
 	}
 

@@ -720,7 +720,7 @@ void ImGuiMachine::showSetupOverviewMedia(MSXMotherBoard& motherBoard, Mode mode
 
 void ImGuiMachine::showSetupOverviewState(MSXMotherBoard& motherBoard, ImGuiTreeNodeFlags flags)
 {
-	if (auto time = (motherBoard.getCurrentTime() - EmuTime::zero()).toDouble(); time > 0) {
+	if (auto time = motherBoard.getCurrentTime().toDouble(); time > 0.0) {
 		// this is only useful if the time is not 0
 		im::TreeNode(depthNodeNames[SetupDepth::COMPLETE_STATE].c_str(), flags, [&]{
 			ImGui::StrCat("Machine time: ", formatTime(time));
@@ -766,7 +766,7 @@ void ImGuiMachine::paintSelectMachine(const MSXMotherBoard* motherBoard)
 							if (board) {
 								auto configName = board->getMachineName();
 								const auto* info = findMachineInfo(configName);
-								auto time = (board->getCurrentTime() - EmuTime::zero()).toDouble();
+								auto time = board->getCurrentTime().toDouble();
 								return strCat(info ? info->displayName : configName, " (", formatTime(time), ')');
 							} else {
 								return std::string(name);

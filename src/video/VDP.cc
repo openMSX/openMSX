@@ -1799,7 +1799,7 @@ VDP::FrameCountInfo::FrameCountInfo(VDP& vdp_)
 {
 }
 
-int VDP::FrameCountInfo::calc(const EmuTime& /*time*/) const
+int VDP::FrameCountInfo::calc(EmuTime /*time*/) const
 {
 	return vdp.frameCount;
 }
@@ -1815,7 +1815,7 @@ VDP::CycleInFrameInfo::CycleInFrameInfo(VDP& vdp_)
 {
 }
 
-int VDP::CycleInFrameInfo::calc(const EmuTime& time) const
+int VDP::CycleInFrameInfo::calc(EmuTime time) const
 {
 	return vdp.getTicksThisFrame(time);
 }
@@ -1833,7 +1833,7 @@ VDP::LineInFrameInfo::LineInFrameInfo(VDP& vdp_)
 {
 }
 
-int VDP::LineInFrameInfo::calc(const EmuTime& time) const
+int VDP::LineInFrameInfo::calc(EmuTime time) const
 {
 	return vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
 }
@@ -1851,7 +1851,7 @@ VDP::CycleInLineInfo::CycleInLineInfo(VDP& vdp_)
 {
 }
 
-int VDP::CycleInLineInfo::calc(const EmuTime& time) const
+int VDP::CycleInLineInfo::calc(EmuTime time) const
 {
 	return vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE;
 }
@@ -1868,7 +1868,7 @@ VDP::MsxYPosInfo::MsxYPosInfo(VDP& vdp_)
 {
 }
 
-int VDP::MsxYPosInfo::calc(const EmuTime& time) const
+int VDP::MsxYPosInfo::calc(EmuTime time) const
 {
 	return vdp.getMSXPos(time).y;
 }
@@ -1886,7 +1886,7 @@ VDP::MsxX256PosInfo::MsxX256PosInfo(VDP& vdp_)
 {
 }
 
-int VDP::MsxX256PosInfo::calc(const EmuTime& time) const
+int VDP::MsxX256PosInfo::calc(EmuTime time) const
 {
 	return vdp.getMSXPos(time).x / 2;
 }
@@ -1904,7 +1904,7 @@ VDP::MsxX512PosInfo::MsxX512PosInfo(VDP& vdp_)
 {
 }
 
-int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
+int VDP::MsxX512PosInfo::calc(EmuTime time) const
 {
 	return vdp.getMSXPos(time).x;
 }

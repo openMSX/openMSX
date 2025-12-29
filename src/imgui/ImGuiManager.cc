@@ -797,7 +797,7 @@ void ImGuiManager::drawStatusBar(MSXMotherBoard* motherBoard)
 
 			if (statusBarItemVisibilityTime) {
 				auto timeStr = motherBoard
-					? formatTime((motherBoard->getCurrentTime() - EmuTime::zero()).toDouble())
+					? formatTime(motherBoard->getCurrentTime().toDouble())
 					: formatTime(std::nullopt);
 				ImGui::RightAlignText(timeStr, formatTime(0));
 				simpleToolTip("time since MSX power on");

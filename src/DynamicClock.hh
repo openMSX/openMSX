@@ -140,8 +140,8 @@ public:
 
 	/** Set the duration of a clock tick. See also setFreq(). */
 	void setPeriod(EmuDuration period) {
-		assert(period.length() < (1ULL << 32));
-		divMod.setDivisor(uint32_t(period.length()));
+		assert(period.toUint64() < (1ULL << 32));
+		divMod.setDivisor(uint32_t(period.toUint64()));
 	}
 
 	/** Reset the clock to start ticking at the given time.

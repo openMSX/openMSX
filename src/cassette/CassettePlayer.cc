@@ -249,7 +249,7 @@ double CassettePlayer::getTapePos(EmuTime time)
 		// we record 8-bit mono, so bytes == samples
 		return (double(recordImage->getBytes()) + partialInterval) * RECIP_RECORD_FREQ;
 	} else {
-		return (tapePos - EmuTime::zero()).toDouble();
+		return tapePos.toDouble();
 	}
 }
 
@@ -265,7 +265,7 @@ void CassettePlayer::setTapePos(EmuTime time, double newPos)
 double CassettePlayer::getTapeLength(EmuTime time)
 {
 	if (playImage) {
-		return (playImage->getEndTime() - EmuTime::zero()).toDouble();
+		return playImage->getEndTime().toDouble();
 	} else if (getState() == State::RECORD) {
 		return getTapePos(time);
 	} else {

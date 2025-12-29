@@ -385,8 +385,7 @@ void MSXCPU::TimeInfoTopic::execute(
 	std::span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	const auto& cpu = OUTER(MSXCPU, timeInfo);
-	EmuDuration dur = cpu.getCurrentTime() - EmuTime::zero();
-	result = dur.toDouble();
+	result = cpu.getCurrentTime().toDouble();
 }
 
 std::string MSXCPU::TimeInfoTopic::help(std::span<const TclObject> /*tokens*/) const

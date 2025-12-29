@@ -214,17 +214,17 @@ double ReverseManager::getBegin() const
 {
 	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
 	                         : EmuTime::zero());
-	return (b - EmuTime::zero()).toDouble();
+	return b.toDouble();
 }
 double ReverseManager::getEnd() const
 {
 	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero());
-	return (end - EmuTime::zero()).toDouble();
+	return end.toDouble();
 }
 double ReverseManager::getCurrent() const
 {
 	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero());
-	return (current - EmuTime::zero()).toDouble();
+	return current.toDouble();
 }
 
 void ReverseManager::status(TclObject& result) const
@@ -238,7 +238,7 @@ void ReverseManager::status(TclObject& result) const
 
 	TclObject snapshots;
 	snapshots.addListElements(std::views::transform(history.chunks, [](auto& p) {
-		return (p.second.time - EmuTime::zero()).toDouble();
+		return p.second.time.toDouble();
 	}));
 	result.addDictKeyValue("snapshots", snapshots);
 
@@ -247,7 +247,7 @@ void ReverseManager::status(TclObject& result) const
 		++lastEvent;
 	}
 	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? (*lastEvent)->getTime() : EmuTime::zero());
-	result.addDictKeyValue("last_event", (le - EmuTime::zero()).toDouble());
+	result.addDictKeyValue("last_event", le.toDouble());
 }
 
 void ReverseManager::debugInfo(TclObject& result) const
@@ -258,8 +258,8 @@ void ReverseManager::debugInfo(TclObject& result) const
 	size_t totalSize = 0;
 	for (const auto& [idx, chunk] : history.chunks) {
 		strAppend(res, idx, ' ',
-		          (chunk.time - EmuTime::zero()).toDouble(), ' ',
-		          ((chunk.time - EmuTime::zero()).toDouble() / (getCurrentTime() - EmuTime::zero()).toDouble()) * 100, "%"
+		          chunk.time.toDouble(), ' ',
+		          (chunk.time.toDouble() / getCurrentTime().toDouble()) * 100, "%"
 		          " (", chunk.savestate.size(), ")"
 		          " (next event index: ", chunk.eventCount, ")\n");
 		totalSize += chunk.savestate.size();
@@ -318,9 +318,9 @@ void ReverseManager::goTo(EmuTime target, bool noVideo)
 }
 
 // this function is used below, but factored out, because it's already way too long
-static void reportProgress(Reactor& reactor, const EmuTime& targetTime, float fraction)
+static void reportProgress(Reactor& reactor, EmuTime targetTime, float fraction)
 {
-	double targetTimeDisp = (targetTime - EmuTime::zero()).toDouble();
+	double targetTimeDisp = targetTime.toDouble();
 	std::ostringstream sstr;
 	sstr << "Time warping to " <<
 		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<

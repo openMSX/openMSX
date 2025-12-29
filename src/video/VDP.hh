@@ -1103,7 +1103,7 @@ private:
 		void execute(std::span<const TclObject> tokens,
 		             TclObject& result) const override;
 		[[nodiscard]] std::string help(std::span<const TclObject> tokens) const override;
-		[[nodiscard]] virtual int calc(const EmuTime& time) const = 0;
+		[[nodiscard]] virtual int calc(EmuTime time) const = 0;
 	protected:
 		Info(VDP& vdp_, const std::string& name, std::string helpText_);
 		~Info() = default;
@@ -1113,37 +1113,37 @@ private:
 
 	struct FrameCountInfo final : Info {
 		explicit FrameCountInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} frameCountInfo;
 
 	struct CycleInFrameInfo final : Info {
 		explicit CycleInFrameInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} cycleInFrameInfo;
 
 	struct LineInFrameInfo final : Info {
 		explicit LineInFrameInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} lineInFrameInfo;
 
 	struct CycleInLineInfo final : Info {
 		explicit CycleInLineInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} cycleInLineInfo;
 
 	struct MsxYPosInfo final : Info {
 		explicit MsxYPosInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} msxYPosInfo;
 
 	struct MsxX256PosInfo final : Info {
 		explicit MsxX256PosInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} msxX256PosInfo;
 
 	struct MsxX512PosInfo final : Info {
 		explicit MsxX512PosInfo(VDP& vdp);
-		[[nodiscard]] int calc(const EmuTime& time) const override;
+		[[nodiscard]] int calc(EmuTime time) const override;
 	} msxX512PosInfo;
 
 	/** Renderer that converts this VDP's state into an image.

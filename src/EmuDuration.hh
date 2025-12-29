@@ -3,6 +3,7 @@
 
 #include "narrow.hh"
 #include "serialize.hh"
+
 #include <cassert>
 #include <concepts>
 #include <cstdint>
@@ -51,23 +52,27 @@ public:
 
 	// conversions
 	[[nodiscard]] constexpr double toDouble() const { return double(time) * RECIP_MAIN_FREQ; }
-	[[nodiscard]] constexpr uint64_t length() const { return time; }
+	[[nodiscard]] constexpr uint64_t toUint64() const { return time; }
 
 	// comparison operators
 	[[nodiscard]] constexpr auto operator<=>(const EmuDuration&) const = default;
 
 	// arithmetic operators
-	[[nodiscard]] constexpr friend EmuDuration operator%(const EmuDuration& l, const EmuDuration& r)
+	[[nodiscard]] constexpr friend EmuDuration operator%(EmuDuration l, EmuDuration r)
 		{ return EmuDuration(l.time % r.time); }
-	[[nodiscard]] constexpr friend EmuDuration operator+(const EmuDuration& l, const EmuDuration& r)
+	[[nodiscard]] constexpr friend EmuDuration operator+(EmuDuration l, EmuDuration r)
 		{ return EmuDuration(l.time + r.time); }
-	[[nodiscard]] constexpr friend EmuDuration operator*(const EmuDuration& l, uint64_t fact)
+	[[nodiscard]] constexpr friend EmuDuration operator-(EmuDuration l, EmuDuration r)
+		{ assert(l.time >= r.time); return EmuDuration(l.time - r.time); }
+	[[nodiscard]] constexpr friend EmuDuration operator*(EmuDuration l, std::integral auto fact)
 		{ return EmuDuration(l.time * fact); }
-	[[nodiscard]] constexpr friend EmuDuration operator/(const EmuDuration& l, unsigned fact)
+	[[nodiscard]] constexpr friend EmuDuration operator*(EmuDuration l, double fact)
+		{ return EmuDuration(narrow_cast<uint64_t>(narrow_cast<double>(l.time) * fact)); }
+	[[nodiscard]] constexpr friend EmuDuration operator/(EmuDuration l, unsigned fact)
 		{ return EmuDuration(l.time / fact); }
 	[[nodiscard]] constexpr EmuDuration divRoundUp(unsigned fact) const
 		{ return EmuDuration((time + fact - 1) / fact); }
-	[[nodiscard]] constexpr friend unsigned operator/(const EmuDuration& l, const EmuDuration& r)
+	[[nodiscard]] constexpr friend unsigned operator/(EmuDuration l, EmuDuration r)
 	{
 		uint64_t result = l.time / r.time;
 #ifdef DEBUG
@@ -137,9 +142,9 @@ template<std::unsigned_integral T> class EmuDurationCompactStorage
 {
 public:
 	explicit constexpr EmuDurationCompactStorage(EmuDuration e)
-		: time(T(e.length()))
+		: time(T(e.toUint64()))
 	{
-		assert(e.length() <= std::numeric_limits<T>::max());
+		assert(e.toUint64() <= std::numeric_limits<T>::max());
 	}
 
 	[[nodiscard]] explicit constexpr operator EmuDuration() const

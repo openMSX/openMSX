@@ -31,7 +31,7 @@ static constexpr EmuDuration d_(unsigned x)
 	assert(x <= maxLength);
 	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
 }
-using EDStorage = EmuDurationStorageFor<d_(maxLength).length()>;
+using EDStorage = EmuDurationStorageFor<d_(maxLength).toUint64()>;
 static constexpr EDStorage d(unsigned x) { return EDStorage{d_(x)}; }
 using A  = std::array<const EDStorage, 4>;
 using A2 = std::array<const A, 3>;

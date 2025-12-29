@@ -19,8 +19,8 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
 	, step([&]{ // calculate 'hostClock.getFreq() / getEmuClock().getFreq()', but with less rounding errors
-			uint64_t emuPeriod = input_.getEmuClock().getPeriod().length(); // unknown units
-			uint64_t hostPeriod = hostClock.getPeriod().length(); // unknown units, but same as above
+			uint64_t emuPeriod = input_.getEmuClock().getPeriod().toUint64(); // unknown units
+			uint64_t hostPeriod = hostClock.getPeriod().toUint64(); // unknown units, but same as above
 			return FP::roundRatioDown(narrow<unsigned>(emuPeriod),
 			                          narrow<unsigned>(hostPeriod));
 		}())
