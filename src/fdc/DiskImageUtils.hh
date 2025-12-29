@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cstdint>
+#include <ctime>
 #include <span>
 #include <string>
 #include <utility>

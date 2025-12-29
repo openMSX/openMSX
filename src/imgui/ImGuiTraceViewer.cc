@@ -57,11 +57,11 @@ static auto calcRulerTicks(double begin, double end, double n)
 
 	auto length = end - begin;
 	auto i = length / n;
-	auto magnitude = std::pow(10.0f, std::floor(std::log10(i)));
+	auto magnitude = std::pow(10.0, std::floor(std::log10(i)));
 	auto mantissa = i / magnitude;
-	auto snap = (mantissa >= 5.0f) ? 10.0f
-	          : (mantissa >= 2.0f) ?  5.0f
-	                               :  2.0f;
+	auto snap = (mantissa >= 5.0) ? 10.0
+	          : (mantissa >= 2.0) ?  5.0
+	                              :  2.0;
 	auto step = snap * magnitude;
 	auto first = std::floor(begin / step) * step;
 	return Result{.first = first, .step = step};
@@ -389,10 +389,10 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 			zoomToFit(minT, totalT);
 		}
 		if (menuItemWithShortcut(manager, "Zoom in", Shortcuts::ID::TRACE_ZOOM_IN)) {
-			doZoom(1.0f / 1.2f, 0.5f);
+			doZoom(1.0 / 1.2, 0.5);
 		}
 		if (menuItemWithShortcut(manager, "Zoom out", Shortcuts::ID::TRACE_ZOOM_OUT)) {
-			doZoom(1.2f, 0.5f);
+			doZoom(1.2, 0.5);
 		}
 		ImGui::Separator();
 
@@ -694,7 +694,7 @@ void ImGuiTraceViewer::zoomToFit(EmuTime minT, EmuDuration totalT)
 	viewDuration = totalT;
 }
 
-void ImGuiTraceViewer::doZoom(float factor, float xFract)
+void ImGuiTraceViewer::doZoom(double factor, double xFract)
 {
 	auto newDuration = std::max(viewDuration * factor, EmuDuration(100u));
 	auto realFactor = newDuration.div(viewDuration);
@@ -858,7 +858,7 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 			if (io.MouseWheel != 0.0f) {
 				auto mx = io.MousePos.x - (ImGui::GetCursorScreenPos().x + col0_width + splitterWidth); // mouse x inside graph window
 				auto xFract = mx / viewScreenWidth;
-				doZoom(std::pow(1.2f, -io.MouseWheel), xFract);
+				doZoom(std::pow(1.2, double(-io.MouseWheel)), double(xFract));
 				io.MouseWheel = 0.0f; // consume event
 			}
 		}
@@ -880,14 +880,14 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 
 	if (ButtonWithCustomRendering("##ZoomOut", size, false, RenderZoomOut) ||
 	    shortcuts.checkShortcut(TRACE_ZOOM_OUT)) {
-		doZoom(1.2f, 0.5f);
+		doZoom(1.2, 0.5);
 	}
 	toolTipWithShortcut(manager, "Zoom out", TRACE_ZOOM_OUT);
 	ImGui::SameLine();
 
 	if (ButtonWithCustomRendering("##ZoomIn", size, false, RenderZoomIn) ||
 	    shortcuts.checkShortcut(TRACE_ZOOM_IN)) {
-		doZoom(1.0f / 1.2f, 0.5f);
+		doZoom(1.0 / 1.2, 0.5);
 	}
 	toolTipWithShortcut(manager, "Zoom in", TRACE_ZOOM_IN);
 	ImGui::SameLine(0.0f, style.ItemSpacing.x * 2.0f);
@@ -1112,7 +1112,7 @@ void ImGuiTraceViewer::drawRuler(gl::vec2 size, const Convertor& convertor, EmuT
 	auto origin = timelineRelative ? selectedTime1.toDouble() : 0.0;
 	auto unitFactor = getUnitConversionFactor();
 	auto [labels, step] = timelineFormatter.calc(
-		from.toDouble() - origin, to.toDouble() - origin, numLabels, unitFactor);
+		from.toDouble() - origin, to.toDouble() - origin, double(numLabels), unitFactor);
 	auto minorStep = step * 0.1 / unitFactor;
 
 	auto* drawList = ImGui::GetWindowDrawList();
@@ -1188,7 +1188,7 @@ void ImGuiTraceViewer::drawGraphs(Traces traces, float rulerHeight, float rowHei
 		if (std::abs(scrollX - fakeScrollPos) > 0.5f) {
 			// user changed scroll position
 			auto dur = std::max(total1000, viewDuration);
-			viewStartTime = minT + (dur * (scrollX / convertor.viewScreenWidth));
+			viewStartTime = minT + (dur * double(scrollX / convertor.viewScreenWidth));
 		}
 
 		const auto& style = ImGui::GetStyle();

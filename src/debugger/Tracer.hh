@@ -25,7 +25,7 @@ public:
 		EmuTime time;
 		TraceValue value;
 	};
-	struct Trace : Observer<ProbeBase> {
+	struct Trace final : Observer<ProbeBase> {
 		// Format of values seen so far. Ordered from specific to general:
 		enum class Format : uint8_t { MONOSTATE = 0, BOOL = 1, INTEGER = 2, DOUBLE = 3, STRING = 4 };
 

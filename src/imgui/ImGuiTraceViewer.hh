@@ -56,7 +56,7 @@ private:
 	[[nodiscard]] double getUnitConversionFactor() const;
 
 	void zoomToFit(EmuTime minT, EmuDuration totalT);
-	void doZoom(float factor, float xFract);
+	void doZoom(double factor, double xFract);
 	void scrollTo(EmuTime time);
 	void gotoPrevPosEdge(Traces traces, EmuTime& selectedTime);
 	void gotoPrevNegEdge(Traces traces, EmuTime& selectedTime);
