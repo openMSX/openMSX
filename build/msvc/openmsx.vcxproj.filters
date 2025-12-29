@@ -267,6 +267,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\SymbolManager.cc">
       <Filter>debugger</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\debugger\Tracer.cc">
+      <Filter>debugger</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc">
       <Filter>events</Filter>
     </ClCompile>
@@ -1765,6 +1768,9 @@
       <Filter>debugger</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\debugger\SymbolManager.hh">
+      <Filter>debugger</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\debugger\Tracer.hh">
       <Filter>debugger</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh">

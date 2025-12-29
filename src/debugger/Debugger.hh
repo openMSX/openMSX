@@ -2,6 +2,7 @@
 #define DEBUGGER_HH
 
 #include "Probe.hh"
+#include "Tracer.hh"
 
 #include "ImGuiWatchExpr.hh"
 #include "RecordedCommand.hh"
@@ -55,6 +56,7 @@ public:
 	[[nodiscard]] std::vector<ImGuiWatchExpr::WatchExpr>& getWatchExprs() const;
 
 	[[nodiscard]] auto& getProbes() { return probes; }
+	[[nodiscard]] Tracer& getTracer() { return tracer; }
 
 private:
 	[[nodiscard]] Debuggable& getDebuggable(std::string_view name);
@@ -146,6 +148,9 @@ private:
 		void symbolsFiles(std::span<const TclObject> tokens, TclObject& result);
 		void symbolsLookup(std::span<const TclObject> tokens, TclObject& result);
 	} cmd;
+
+	Tracer tracer;
+	friend class Tracer;
 
 	hash_map<std::string, Debuggable*, XXHasher> debuggables;
 	std::vector<ProbeBase*> probes; // sorted on name

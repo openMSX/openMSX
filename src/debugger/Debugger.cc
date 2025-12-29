@@ -38,6 +38,7 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	, cmd(motherBoard.getCommandController(),
 	      motherBoard.getStateChangeDistributor(),
 	      motherBoard.getScheduler())
+	, tracer(*this)
 {
 }
 
@@ -80,10 +81,12 @@ void Debugger::registerProbe(ProbeBase& probe)
 	auto it = std::ranges::lower_bound(probes, probe.getName(), {}, &ProbeBase::getName);
 	assert(it == probes.end() || (*it)->getName() != probe.getName()); // was not yet present
 	probes.insert(it, &probe);
+	tracer.probeCreated(*this, probe);
 }
 
 void Debugger::unregisterProbe(ProbeBase& probe)
 {
+	tracer.probeRemoved(probe);
 	auto it = std::ranges::lower_bound(probes, probe.getName(), {}, &ProbeBase::getName);
 	assert(it != probes.end() && (*it)->getName() == probe.getName());
 	probes.erase(it);
@@ -174,6 +177,8 @@ void Debugger::transfer(Debugger& other)
 		}
 	}
 
+	tracer.transfer(other, *this);
+
 	// Breakpoints and conditions are (currently) global, so no need to
 	// copy those.
 }
@@ -249,7 +254,8 @@ void Debugger::Cmd::execute(
 		"remove_condition",  [&]{ removeCondition(tokens, result); },
 		"list_conditions",   [&]{ listConditions(tokens, result); },
 		"probe",             [&]{ probe(tokens, result); },
-		"symbols",           [&]{ symbols(tokens, result); });
+		"symbols",           [&]{ symbols(tokens, result); },
+		"trace",             [&]{ auto& d = debugger(); d.tracer.execute(d, tokens, result, time); });
 }
 
 void Debugger::Cmd::list(TclObject& result)
@@ -1161,6 +1167,7 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		"    disasm       disassemble instructions\n"
 		"    disasm_blob  disassemble a instruction in Tcl binary string\n"
 		"    symbols      manage debug symbols\n"
+		"    trace        trace related subcommands\n"
 		"  The arguments are specific for each subcommand.\n"
 		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
 
@@ -1589,6 +1596,8 @@ std::string Debugger::Cmd::help(std::span<const TclObject> tokens) const
 		return disasmBlobHelp;
 	} else if (tokens[1] == "symbols") {
 		return symbolsHelp;
+	} else if (tokens[1] == "trace") {
+		return debugger().tracer.help(tokens);
 	} else {
 		return unknownHelp;
 	}
@@ -1632,7 +1641,7 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 	};
 	static constexpr std::array otherCmds = {
 		"disasm"sv, "disasm_blob"sv, "set_bp"sv, "remove_bp"sv, "set_watchpoint"sv,
-		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv,
+		"remove_watchpoint"sv, "set_condition"sv, "remove_condition"sv, "trace"sv,
 		"probe"sv, "symbols"sv, "breakpoint"sv, "watchpoint"sv, "watchexpr"sv, "condition"sv,
 	};
 	static constexpr std::array types = {
@@ -1678,6 +1687,8 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 					"files"sv, "lookup"sv,
 				};
 				completeString(tokens, subCmds);
+			} else if (tokens[1] == "trace") {
+				debugger().tracer.tabCompletion(debugger(), tokens);
 			}
 		}
 		break;
@@ -1730,6 +1741,8 @@ void Debugger::Cmd::tabCompletion(std::vector<std::string>& tokens) const
 				};
 				completeString(tokens, properties);
 			}
+		} else if (tokens[1] == "trace") {
+			debugger().tracer.tabCompletion(debugger(), tokens);
 		}
 		break;
 	}

@@ -118,6 +118,7 @@ sources = files(
     'debugger/Probe.cc',
     'debugger/ProbeBreakPoint.cc',
     'debugger/SimpleDebuggable.cc',
+    'debugger/Tracer.cc',
     'events/AdhocCliCommParser.cc',
     'events/AfterCommand.cc',
     'events/BooleanInput.cc',

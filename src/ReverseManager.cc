@@ -531,7 +531,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 		}
 	}
 
-	// transfer watchpoints
+	// transfer debugger state (watchpoints, probes, traces)
 	newBoard.getDebugger().transfer(motherBoard.getDebugger());
 
 	// copy rerecord count

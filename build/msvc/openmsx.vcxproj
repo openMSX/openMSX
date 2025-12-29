@@ -395,6 +395,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\ProbeBreakPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\SymbolManager.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\debugger\Tracer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AfterCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\BooleanInput.cc" />
@@ -978,6 +979,7 @@
     <None Include="$(OpenMSXSrcDir)\debugger\ProbeBreakPoint.hh" />
     <None Include="$(OpenMSXSrcDir)\debugger\SimpleDebuggable.hh" />
     <None Include="$(OpenMSXSrcDir)\debugger\SymbolManager.hh" />
+    <None Include="$(OpenMSXSrcDir)\debugger\Tracer.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AfterCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\events\BooleanInput.hh" />
