@@ -78,6 +78,16 @@ int TclObject::getInt(Interpreter& interp_) const
 	return result;
 }
 
+int64_t TclObject::getInt64(Interpreter& interp_) const
+{
+	auto* interp = interp_.interp;
+	Tcl_WideInt result;
+	if (Tcl_GetWideIntFromObj(interp, obj, &result) != TCL_OK) {
+		throwException(interp);
+	}
+	return int64_t(result);
+}
+
 std::optional<int> TclObject::getOptionalInt() const
 {
 	int result;
@@ -85,6 +95,15 @@ std::optional<int> TclObject::getOptionalInt() const
 		return {};
 	}
 	return result;
+}
+
+std::optional<int64_t> TclObject::getOptionalInt64() const
+{
+	Tcl_WideInt result;
+	if (Tcl_GetWideIntFromObj(nullptr, obj, &result) != TCL_OK) {
+		return {};
+	}
+	return int64_t(result);
 }
 
 bool TclObject::getBoolean(Interpreter& interp_) const

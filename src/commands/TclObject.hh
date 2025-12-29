@@ -158,6 +158,7 @@ public:
 	// value getters
 	[[nodiscard]] zstring_view getString() const;
 	[[nodiscard]] int getInt      (Interpreter& interp) const;
+	[[nodiscard]] int64_t getInt64(Interpreter& interp) const;
 	[[nodiscard]] bool getBoolean (Interpreter& interp) const;
 	[[nodiscard]] float  getFloat (Interpreter& interp) const;
 	[[nodiscard]] double getDouble(Interpreter& interp) const;
@@ -174,6 +175,7 @@ public:
 	}
 	[[nodiscard]] std::optional<TclObject> getOptionalDictValue(const TclObject& key) const;
 	[[nodiscard]] std::optional<int> getOptionalInt() const;
+	[[nodiscard]] std::optional<int64_t> getOptionalInt64() const;
 	[[nodiscard]] std::optional<bool> getOptionalBool() const;
 	[[nodiscard]] std::optional<double> getOptionalDouble() const;
 	[[nodiscard]] std::optional<float> getOptionalFloat() const;
@@ -226,6 +228,12 @@ private:
 	[[nodiscard]] static Tcl_Obj* newObj(unsigned u) {
 		return Tcl_NewIntObj(narrow_cast<int>(u));
 	}
+	[[nodiscard]] static Tcl_Obj* newObj(int64_t i) {
+		return Tcl_NewWideIntObj(Tcl_WideInt(i));
+	}
+	[[nodiscard]] static Tcl_Obj* newObj(uint64_t u) {
+		return Tcl_NewWideIntObj(Tcl_WideInt(u));
+	}
 	[[nodiscard]] static Tcl_Obj* newObj(float f) {
 		return Tcl_NewDoubleObj(double(f));
 	}
@@ -256,6 +264,12 @@ private:
 	}
 	void assign(unsigned u) {
 		Tcl_SetIntObj(obj, narrow_cast<int>(u));
+	}
+	void assign(int64_t i) {
+		Tcl_SetWideIntObj(obj, Tcl_WideInt(i));
+	}
+	void assign(uint64_t u) {
+		Tcl_SetWideIntObj(obj, Tcl_WideInt(u));
 	}
 	void assign(float f) {
 		Tcl_SetDoubleObj(obj, double(f));
