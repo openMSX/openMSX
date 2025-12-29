@@ -242,6 +242,19 @@ namespace StringOp
 			}
 		}
 	}
+
+	template<std::floating_point T>
+	[[nodiscard]] std::optional<T> stringTo(std::string_view s)
+	{
+		T result{}; // dummy init
+		const char* b = s.data();
+		const char* e = s.data() + s.size();
+		if (auto [p, ec] = std::from_chars(b, e, result);
+		    (ec == std::errc{}) && (p == e)) {
+			return result;
+		}
+		return std::nullopt;
+	}
 }
 
 #endif
