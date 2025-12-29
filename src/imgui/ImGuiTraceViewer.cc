@@ -849,11 +849,17 @@ static void toolTipWithShortcut(ImGuiManager& manager, const char* text, Shortcu
 [[nodiscard]] static std::string formatDouble(double value)
 {
 	std::array<char, 32> buffer; // 24 should also be sufficient, small safety margin
+#if 0
+	// doesn't work yet in MacOS :(
 	auto [end, ec] = std::to_chars(
 		buffer.data(), buffer.data() + buffer.size(),
 		value, std::chars_format::general, 11);
 	assert(ec == std::errc{}); // should never fail if we pass a sufficiently large buffer
 	return std::string(buffer.data(), end - buffer.data());
+#endif
+	int len = snprintf(buffer.data(), buffer.size(), "%.17g", value);
+	assert(len > 0 && size_t(len) < buffer.size());
+	return std::string(buffer.data(), len);
 }
 
 void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewScreenWidth, Traces traces)
