@@ -58,6 +58,14 @@ TEST_CASE("strCat")
 		CHECK(strCat(hex_string(Digits{3}, i)) == "240");
 		CHECK(strCat(bin_string<16>(i)) == "1110001001000000");
 		CHECK(strCat(bin_string<8>(i)) == "01000000");
+		CHECK(strCat(bin_string(uint8_t(0))) == "0");
+		CHECK(strCat(bin_string(uint8_t(11))) == "1011");
+		CHECK(strCat(bin_string(uint8_t(131))) == "10000011");
+		CHECK(strCat(bin_string(int8_t(11))) == "1011");
+		CHECK(strCat(bin_string(int8_t(-11))) == "11110101");
+		CHECK(strCat(bin_string(1234)) == "10011010010");
+		CHECK(strCat(bin_string(uint64_t(123))) == "1111011");
+		CHECK(strCat(bin_string(int64_t(-123))) == "1111111111111111111111111111111111111111111111111111111110000101");
 		CHECK(strCat(dec_string<8>(i)) == "  123456");
 		CHECK(strCat(dec_string<6>(i)) == "123456");
 		CHECK(strCat(dec_string<4>(i)) == "3456");

@@ -439,6 +439,45 @@ private:
 	T t;
 };
 
+// Format an integral as a binary value (variable width).
+template<std::integral T> struct ConcatBinIntegral
+{
+	explicit ConcatBinIntegral(T t) {
+		using U = std::make_unsigned_t<T>;
+		U u = static_cast<U>(t);
+
+		char* p = buf.data() + buf.size();
+		if (u == 0) {
+			*--p = '0';
+		} else {
+			do {
+				*--p = static_cast<char>((u & 1) + '0');
+				u >>= 1;
+			} while (u);
+		}
+
+		n = static_cast<uint8_t>(buf.data() + buf.size() - p);
+	}
+
+	[[nodiscard]] size_t size() const { return n; }
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		const char* start = buf.data() + buf.size() - n;
+		std::memcpy(dst, start, n);
+		return dst + n;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const ConcatBinIntegral& v)
+	{
+		const char* start = v.buf.data() + v.buf.size() - v.n;
+		return os.write(start, v.n);
+	}
+
+private:
+	std::array<char, sizeof(T) * 8> buf{};
+	uint8_t n = 0;
+};
 
 // Prints a number of spaces (without constructing a temporary string).
 struct ConcatSpaces
@@ -614,6 +653,12 @@ template<size_t N, HexCase Case, std::integral T>
 
 template<size_t N, std::integral T>
 [[nodiscard]] inline auto makeConcatUnit(const ConcatFixedWidthBinIntegral<N, T>& t)
+{
+	return t;
+}
+
+template<std::integral T>
+[[nodiscard]] inline auto makeConcatUnit(const ConcatBinIntegral<T>& t)
 {
 	return t;
 }
@@ -797,6 +842,12 @@ template<size_t N, std::integral T>
 [[nodiscard]] inline auto bin_string(T t)
 {
 	return strCatImpl::ConcatFixedWidthBinIntegral<N, T>{t};
+}
+
+template<std::integral T>
+[[nodiscard]] inline auto bin_string(T t)
+{
+	return strCatImpl::ConcatBinIntegral<T>{t};
 }
 
 template<size_t N, std::integral T>
