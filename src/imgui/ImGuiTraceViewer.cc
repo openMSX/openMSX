@@ -293,10 +293,16 @@ static void drawEventsBool(
 			return std::string_view(tmpBuf.data(), end - tmpBuf.data());
 		},
 		[&](double d) {
+		#if 0
+			// doesn't work yet in MacOS :(
 			auto [end, ec] = std::to_chars(tmpBuf.data(), tmpBuf.data() + tmpBuf.size(),
 			                               d, std::chars_format::general);
 			assert(ec == std::errc{}); // should never fail (for sufficiently large buffer)
 			return std::string_view(tmpBuf.data(), end - tmpBuf.data());
+		#endif
+			int len = snprintf(tmpBuf.data(), tmpBuf.size(), "%.17g", d);
+			assert(len > 0 && size_t(len) < tmpBuf.size());
+			return std::string_view(tmpBuf.data(), len);
 		},
 		[](std::string_view s) {
 			return s;
