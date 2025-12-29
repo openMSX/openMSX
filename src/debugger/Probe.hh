@@ -1,11 +1,14 @@
 #ifndef PROBE_HH
 #define PROBE_HH
 
+#include "TclObject.hh"
+#include "TraceValue.hh"
+
 #include "Subject.hh"
 #include "static_string_view.hh"
-#include "strCat.hh"
 
 #include <string>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -21,7 +24,8 @@ public:
 
 	[[nodiscard]] const std::string& getName() const { return name; }
 	[[nodiscard]] std::string_view getDescription() const { return description; }
-	[[nodiscard]] virtual std::string getValue() const = 0;
+	[[nodiscard]] virtual TclObject getValue() const = 0;
+	[[nodiscard]] virtual TraceValue getTraceValue() const = 0;
 
 protected:
 	ProbeBase(Debugger& debugger, std::string name,
@@ -54,7 +58,8 @@ public:
 	}
 
 private:
-	[[nodiscard]] std::string getValue() const override;
+	[[nodiscard]] TclObject getValue() const override;
+	[[nodiscard]] TraceValue getTraceValue() const override;
 
 	T value;
 };
@@ -68,9 +73,24 @@ Probe<T>::Probe(Debugger& debugger_, std::string name_,
 }
 
 template<typename T>
-std::string Probe<T>::getValue() const
+TclObject Probe<T>::getValue() const
 {
-	return strCat(value);
+	return TclObject(value);
+}
+
+template<typename T>
+TraceValue Probe<T>::getTraceValue() const
+{
+	// Note: T=void is handled by full specialization below
+	if constexpr (std::is_same_v<T, bool>) {
+		return TraceValue{uint64_t(value)};
+	} else if constexpr (std::is_integral_v<T>) {
+		return TraceValue{uint64_t(value)};
+	} else if constexpr (std::is_floating_point_v<T>) {
+		return TraceValue{double(value)};
+	} else {
+		return TraceValue{zstring_view(value)};
+	}
 }
 
 // specialization for void
@@ -81,7 +101,8 @@ public:
 	void signal() const;
 
 private:
-	[[nodiscard]] std::string getValue() const override;
+	[[nodiscard]] TclObject getValue() const override;
+	[[nodiscard]] TraceValue getTraceValue() const override;
 };
 
 } // namespace openmsx

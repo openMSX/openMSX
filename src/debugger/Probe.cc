@@ -30,9 +30,14 @@ void Probe<void>::signal() const
 	notify();
 }
 
-std::string Probe<void>::getValue() const
+TclObject Probe<void>::getValue() const
 {
 	return {};
+}
+
+TraceValue Probe<void>::getTraceValue() const
+{
+	return TraceValue{std::monostate{}};
 }
 
 } // namespace openmsx
