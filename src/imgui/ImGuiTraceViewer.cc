@@ -282,7 +282,7 @@ static void drawEventsBool(
 	                DrawCoarse{drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
 }
 
-[[nodiscard]] static std::string_view formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf)
+[[nodiscard]] std::string_view ImGuiTraceViewer::formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf)
 {
 	return value.visit(overloaded{
 		[](std::monostate) {
@@ -350,7 +350,7 @@ static void drawEventsValue(
 			drawList->AddPolyline(points.data(), 6, color, ImDrawFlags_Closed, thickness);
 			drawList->PushClipRect(tl, br, true);
 			std::array<char, 32> tmpBuf;
-			auto valueStr = formatTraceValue(event.value, tmpBuf);
+			auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
 			auto textX = std::max(xf0 + h5, topLeft.x);
 			drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
 			drawList->PopClipRect();
@@ -373,7 +373,7 @@ static bool menuItemWithShortcut(ImGuiManager& manager, const char* label, Short
 	}
 }
 
-void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer, Traces traces)
+void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer)
 {
 	im::Menu("File", [&]{
 		ImGui::MenuItem("Select probes and traces", nullptr, &showSelect);
@@ -435,25 +435,25 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 		simpleToolTip("Place via left-mouse-click on the graph.");
 		im::Indent([&]{
 			if (menuItemWithShortcut(manager, "Next edge", Shortcuts::ID::TRACE_NEXT_EDGE)) {
-				gotoNextEdge(traces, selectedTime1);
+				gotoNextEdge(selectedTime1);
 			}
 			if (menuItemWithShortcut(manager, "Next positive edge", Shortcuts::ID::TRACE_NEXT_POS_EDGE)) {
-				gotoNextPosEdge(traces, selectedTime1);
+				gotoNextPosEdge(selectedTime1);
 			}
 			simpleToolTip(pos_text);
 			if (menuItemWithShortcut(manager, "Next negative edge", Shortcuts::ID::TRACE_NEXT_NEG_EDGE)) {
-				gotoNextNegEdge(traces, selectedTime1);
+				gotoNextNegEdge(selectedTime1);
 			}
 			simpleToolTip(neg_text);
 			if (menuItemWithShortcut(manager, "Previous edge", Shortcuts::ID::TRACE_PREV_EDGE)) {
-				gotoPrevEdge(traces, selectedTime1);
+				gotoPrevEdge(selectedTime1);
 			}
 			if (menuItemWithShortcut(manager, "Previous positive edge", Shortcuts::ID::TRACE_PREV_POS_EDGE)) {
-				gotoPrevPosEdge(traces, selectedTime1);
+				gotoPrevPosEdge(selectedTime1);
 			}
 			simpleToolTip(pos_text);
 			if (menuItemWithShortcut(manager, "Previous negative edge", Shortcuts::ID::TRACE_PREV_NEG_EDGE)) {
-				gotoPrevNegEdge(traces, selectedTime1);
+				gotoPrevNegEdge(selectedTime1);
 			}
 			simpleToolTip(neg_text);
 		});
@@ -463,25 +463,25 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 		simpleToolTip("Place via shift-left-mouse-click on the graph.");
 		im::Indent([&]{
 			if (menuItemWithShortcut(manager, "Next edge##alt", Shortcuts::ID::TRACE_ALT_NEXT_EDGE)) {
-				gotoNextEdge(traces, selectedTime2);
+				gotoNextEdge(selectedTime2);
 			}
 			if (menuItemWithShortcut(manager, "Next positive edge##alt", Shortcuts::ID::TRACE_ALT_NEXT_POS_EDGE)) {
-				gotoNextPosEdge(traces, selectedTime2);
+				gotoNextPosEdge(selectedTime2);
 			}
 			simpleToolTip(pos_text);
 			if (menuItemWithShortcut(manager, "Next negative edge##alt", Shortcuts::ID::TRACE_ALT_NEXT_NEG_EDGE)) {
-				gotoNextNegEdge(traces, selectedTime2);
+				gotoNextNegEdge(selectedTime2);
 			}
 			simpleToolTip(neg_text);
 			if (menuItemWithShortcut(manager, "Previous edge##alt", Shortcuts::ID::TRACE_ALT_PREV_EDGE)) {
-				gotoPrevEdge(traces, selectedTime2);
+				gotoPrevEdge(selectedTime2);
 			}
 			if (menuItemWithShortcut(manager, "Previous positive edge##alt", Shortcuts::ID::TRACE_ALT_PREV_POS_EDGE)) {
-				gotoPrevPosEdge(traces, selectedTime2);
+				gotoPrevPosEdge(selectedTime2);
 			}
 			simpleToolTip(pos_text);
 			if (menuItemWithShortcut(manager, "Previous negative edge##alt", Shortcuts::ID::TRACE_ALT_PREV_NEG_EDGE)) {
-				gotoPrevNegEdge(traces, selectedTime2);
+				gotoPrevNegEdge(selectedTime2);
 			}
 			simpleToolTip(neg_text);
 		});
@@ -760,7 +760,7 @@ void ImGuiTraceViewer::scrollTo(EmuTime time)
 	return std::to_address(it);
 }
 
-void ImGuiTraceViewer::gotoPrevNegEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoPrevNegEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		auto time = selectedTime;
@@ -775,7 +775,7 @@ void ImGuiTraceViewer::gotoPrevNegEdge(Traces traces, EmuTime& selectedTime)
 	}
 }
 
-void ImGuiTraceViewer::gotoPrevPosEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoPrevPosEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		auto time = selectedTime;
@@ -790,7 +790,7 @@ void ImGuiTraceViewer::gotoPrevPosEdge(Traces traces, EmuTime& selectedTime)
 	}
 }
 
-void ImGuiTraceViewer::gotoPrevEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoPrevEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		if (const auto* event = findStrictlySmaller(*trace, selectedTime)) {
@@ -800,7 +800,7 @@ void ImGuiTraceViewer::gotoPrevEdge(Traces traces, EmuTime& selectedTime)
 	}
 }
 
-void ImGuiTraceViewer::gotoNextEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoNextEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		if (const auto* event = findStrictlyBigger(*trace, selectedTime)) {
@@ -810,7 +810,7 @@ void ImGuiTraceViewer::gotoNextEdge(Traces traces, EmuTime& selectedTime)
 	}
 }
 
-void ImGuiTraceViewer::gotoNextNegEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoNextNegEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		auto time = selectedTime;
@@ -825,7 +825,7 @@ void ImGuiTraceViewer::gotoNextNegEdge(Traces traces, EmuTime& selectedTime)
 	}
 }
 
-void ImGuiTraceViewer::gotoNextPosEdge(Traces traces, EmuTime& selectedTime)
+void ImGuiTraceViewer::gotoNextPosEdge(EmuTime& selectedTime)
 {
 	if (const auto* trace = getTrace(traces, selectedRow)) {
 		auto time = selectedTime;
@@ -866,7 +866,7 @@ static void toolTipWithShortcut(ImGuiManager& manager, const char* text, Shortcu
 	return std::string(buffer.data(), len);
 }
 
-void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewScreenWidth, Traces traces)
+void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewScreenWidth)
 {
 	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)) {
 		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl)) {
@@ -913,14 +913,14 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 	                     Shortcuts::ID ID, Shortcuts::ID altID,
 	                     auto renderFunc, auto action) {
 		if (ButtonWithCustomRendering(label, size, false, renderFunc)) {
-			std::invoke(action, this, traces, shift ? selectedTime2 : selectedTime1);
+			std::invoke(action, this, shift ? selectedTime2 : selectedTime1);
 		}
 		toolTipWithShortcut(manager, tooltip, shift ? altID : ID);
 		if (shortcuts.checkShortcut(ID)) {
-			std::invoke(action, this, traces, selectedTime1);
+			std::invoke(action, this, selectedTime1);
 		}
 		if (shortcuts.checkShortcut(altID)) {
-			std::invoke(action, this, traces, selectedTime2);
+			std::invoke(action, this, selectedTime2);
 		}
 	};
 	gotoStuff("##PrevNegEdge", "Goto previous negative edge",
@@ -1006,7 +1006,7 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 	});
 }
 
-void ImGuiTraceViewer::drawNames(Traces traces, float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger)
+void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger)
 {
 	int windowFlags = ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoScrollWithMouse
@@ -1171,7 +1171,7 @@ static EmuTime snapToEvent(float mouseX, auto convertor, std::span<const Tracer:
 	return (dist < convertor.deltaXtoDuration(h5)) ? it->time : time;
 }
 
-void ImGuiTraceViewer::drawGraphs(Traces traces, float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
+void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
                                   EmuTime minT, EmuTime maxT, EmuTime now)
 {
 	if        (ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_LeftArrow, ImGuiInputFlags_Repeat)) {
@@ -1288,14 +1288,15 @@ void ImGuiTraceViewer::drawGraphs(Traces traces, float rulerHeight, float rowHei
 
 void ImGuiTraceViewer::paint(MSXMotherBoard* motherBoard)
 {
-	if (!show || !motherBoard) return;
+	if (!motherBoard) return;
 
-	ImGui::SetNextWindowSize(gl::vec2{68, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
-	int flags = showMenuBar ? ImGuiWindowFlags_MenuBar : 0;
-	im::Window("Probe/Trace Viewer", &show, flags, [&] {
-		paintMain(*motherBoard);
-	});
-
+	if (show) {
+		ImGui::SetNextWindowSize(gl::vec2{68, 29} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
+		int flags = showMenuBar ? ImGuiWindowFlags_MenuBar : 0;
+		im::Window("Probe/Trace Viewer", &show, flags, [&] {
+			paintMain(*motherBoard);
+		});
+	}
 	if (showSelect) {
 		ImGui::SetNextWindowSize(gl::vec2{18, 27} * ImGui::GetFontSize(), ImGuiCond_FirstUseEver);
 		im::Window("Select probes and traces", &showSelect, [&] {
@@ -1310,10 +1311,16 @@ void ImGuiTraceViewer::paint(MSXMotherBoard* motherBoard)
 	}
 }
 
-void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
+const std::vector<Tracer::Trace*>& ImGuiTraceViewer::getTraces(MSXMotherBoard& motherBoard)
 {
 	auto& debugger = motherBoard.getDebugger();
 	auto& tracer = debugger.getTracer();
+	calcTraces(tracer);
+	return traces;
+}
+
+void ImGuiTraceViewer::calcTraces(Tracer& tracer)
+{
 	const auto& allTraces = tracer.getTraces();
 
 	for (const auto& trace : allTraces) {
@@ -1325,8 +1332,7 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 			}
 		}
 	}
-	std::vector<Tracer::Trace*> traces;
-	traces.reserve(selectedTraces.size());
+	traces.clear();
 	for (const auto& sel : selectedTraces) {
 		if (allUserTraces || sel.selected) {
 			if (auto it = std::ranges::find(allTraces, sel.name, &Tracer::Trace::name);
@@ -1335,6 +1341,13 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 			}
 		}
 	}
+}
+
+void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
+{
+	auto& debugger = motherBoard.getDebugger();
+	auto& tracer = debugger.getTracer();
+	calcTraces(tracer);
 
 	if (ImGui::Shortcut(ImGuiKey_UpArrow, ImGuiInputFlags_Repeat)) {
 		if (selectedRow > 0) --selectedRow;
@@ -1367,10 +1380,10 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 
 	if (showMenuBar) {
 		im::MenuBar([&]{
-			drawMenuBar(minT, totalT, tracer, traces);
+			drawMenuBar(minT, totalT, tracer);
 		});
 	}
-	drawToolBar(minT, totalT, viewScreenWidth, traces);
+	drawToolBar(minT, totalT, viewScreenWidth);
 	ImGui::Separator();
 
 	const auto& io = ImGui::GetIO();
@@ -1381,17 +1394,17 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 	auto mouseRow = static_cast<int>(mouseY / rowHeight);
 	if (mouseRow < 0 || mouseRow >= int(traces.size())) mouseRow = -1;
 
-	drawNames(traces, rulerHeight, rowHeight, mouseRow, debugger);
+	drawNames(rulerHeight, rowHeight, mouseRow, debugger);
 	drawSplitter(splitterWidth);
 	Convertor convertor{viewStartTime, viewDuration, viewScreenWidth};
-	drawGraphs(traces, rulerHeight, rowHeight, mouseRow, convertor, minT, maxT, now);
+	drawGraphs(rulerHeight, rowHeight, mouseRow, convertor, minT, maxT, now);
 }
 
 void ImGuiTraceViewer::paintSelect(MSXMotherBoard& motherBoard)
 {
 	auto& debugger = motherBoard.getDebugger();
 	auto& tracer = debugger.getTracer();
-	const auto& traces = tracer.getTraces();
+	const auto& allTraces = tracer.getTraces();
 
 	const auto& style = ImGui::GetStyle();
 	auto rightSpace = ImGui::CalcTextSize("(?)").x + style.ItemSpacing.x;
@@ -1403,7 +1416,7 @@ void ImGuiTraceViewer::paintSelect(MSXMotherBoard& motherBoard)
 		im::ListClipper(allProbes.size(), [&](int i) {
 			const auto& probe = *allProbes[i];
 			const auto& name = probe.getName();
-			bool selected = contains(traces, name, &Tracer::Trace::name);
+			bool selected = contains(allTraces, name, &Tracer::Trace::name);
 			if (ImGui::Checkbox(name.c_str(), &selected)) {
 				if (selected) {
 					tracer.selectProbe(debugger, name);
@@ -1436,10 +1449,9 @@ void ImGuiTraceViewer::paintSelect(MSXMotherBoard& motherBoard)
 	}
 	im::DisabledIndent(allUserTraces, [&]{
 		im::Child("##traces", {-rightSpace, boxHeight}, ImGuiChildFlags_Borders, [&]{
-			const auto& allTraces = tracer.getTraces();
 			std::vector<zstring_view> userTraceNames;
 			userTraceNames.reserve(allTraces.size());
-			for (const auto& trace : traces) {
+			for (const auto& trace : allTraces) {
 				if (trace->isUserTrace()) {
 					userTraceNames.emplace_back(trace->name);
 				}

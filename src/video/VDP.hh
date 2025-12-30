@@ -530,7 +530,9 @@ public:
 	[[nodiscard]] int getTicksThisFrame(EmuTime time) const {
 		return narrow<int>(frameStartTime.getTicksTill_fast(time));
 	}
-
+	[[nodiscard]] EmuTime getTimeInFrame(int ticks) const {
+		return frameStartTime + ticks;
+	}
 	[[nodiscard]] EmuTime getFrameStartTime() const {
 		return frameStartTime.getTime();
 	}
@@ -582,6 +584,12 @@ public:
 	  */
 	[[nodiscard]] int getTicksPerFrame() const {
 		return getLinesPerFrame() * TICKS_PER_LINE;
+	}
+
+	/** Gets the duration of a single frame (PAL or NTSC).
+	 */
+	[[nodiscard]] EmuDuration getFrameDuration() const {
+		return VDPClock::duration(getTicksPerFrame());
 	}
 
 	/** Is the given timestamp inside the current frame?

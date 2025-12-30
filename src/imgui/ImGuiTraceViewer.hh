@@ -47,30 +47,35 @@ public:
 	void loadLine(std::string_view name, zstring_view value) override;
 	void paint(MSXMotherBoard* motherBoard) override;
 
+	[[nodiscard]] const std::vector<Tracer::Trace*>& getTraces(MSXMotherBoard& motherBoard);
+	[[nodiscard]] EmuTime getMarker(int i) const { return i ? selectedTime2 : selectedTime1; }
+	void setMarker(int i, EmuTime t) { (i ? selectedTime2 : selectedTime1) = t; }
+	[[nodiscard]] static std::string_view formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf);
+
 public:
 	bool show = false;
+	bool showSelect = false;
 
 private:
-	using Traces = std::span<Tracer::Trace*>;
-
+	void calcTraces(Tracer& tracer);
 	[[nodiscard]] double getUnitConversionFactor() const;
 
 	void zoomToFit(EmuTime minT, EmuDuration totalT);
 	void doZoom(double factor, double xFract);
 	void scrollTo(EmuTime time);
-	void gotoPrevPosEdge(Traces traces, EmuTime& selectedTime);
-	void gotoPrevNegEdge(Traces traces, EmuTime& selectedTime);
-	void gotoPrevEdge   (Traces traces, EmuTime& selectedTime);
-	void gotoNextEdge   (Traces traces, EmuTime& selectedTime);
-	void gotoNextPosEdge(Traces traces, EmuTime& selectedTime);
-	void gotoNextNegEdge(Traces traces, EmuTime& selectedTime);
+	void gotoPrevPosEdge(EmuTime& selectedTime);
+	void gotoPrevNegEdge(EmuTime& selectedTime);
+	void gotoPrevEdge   (EmuTime& selectedTime);
+	void gotoNextEdge   (EmuTime& selectedTime);
+	void gotoNextPosEdge(EmuTime& selectedTime);
+	void gotoNextNegEdge(EmuTime& selectedTime);
 
-	void drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer, Traces traces);
-	void drawToolBar(EmuTime minT, EmuDuration totalT, float graphWidth, Traces traces);
-	void drawNames(Traces traces, float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger);
+	void drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer);
+	void drawToolBar(EmuTime minT, EmuDuration totalT, float graphWidth);
+	void drawNames(float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger);
 	void drawSplitter(float width);
 	void drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to, EmuTime now);
-	void drawGraphs(Traces traces, float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
+	void drawGraphs(float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
 	                EmuTime minT, EmuTime maxT, EmuTime now);
 
 	void paintMain(MSXMotherBoard& motherBoard);
@@ -78,6 +83,7 @@ private:
 	void paintHelp();
 
 private:
+	std::vector<Tracer::Trace*> traces; // recalculated each frame, but can be queried by ImGuiRasterViewer
 	TimelineFormatter timelineFormatter;
 	EmuTime viewStartTime = EmuTime::zero();
 	EmuDuration viewDuration = EmuDuration::sec(1.0);
@@ -114,7 +120,6 @@ private:
 	bool timelineStart = false;
 	bool timelineStop = false;
 
-	bool showSelect = false;
 	bool showMenuBar = true;
 
 	enum class HelpSection : uint8_t{

@@ -174,7 +174,7 @@ ImGuiManager::ImGuiManager(Reactor& reactor_)
 	traceViewer = std::make_unique<ImGuiTraceViewer>(*this);
 	vdpRegs = std::make_unique<ImGuiVdpRegs>(*this);
 	palette = std::make_unique<ImGuiPalette>(*this);
-	rasterViewer = std::make_unique<ImGuiRasterViewer>(*this);
+	rasterViewer = std::make_unique<ImGuiRasterViewer>(*this, *traceViewer);
 	osdIcons = std::make_unique<ImGuiOsdIcons>(*this);
 	openFile = std::make_unique<ImGuiOpenFile>(*this);
 	trainer = std::make_unique<ImGuiTrainer>(*this);
