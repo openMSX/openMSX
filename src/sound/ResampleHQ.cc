@@ -14,6 +14,7 @@
 #include "ResampledSoundDevice.hh"
 
 #include "FixedPoint.hh"
+#include "Math.hh"
 #include "MemBuffer.hh"
 #include "aligned.hh"
 #include "narrow.hh"
@@ -254,7 +255,7 @@ static constexpr std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
 static void calcPermute(double ratio, std::span<int16_t, HALF_TAB_LEN> permute)
 {
 	double r2 = ratio * N;
-	double fract = r2 - floor(r2);
+	double fract = Math::fract(r2);
 	auto step = narrow_cast<unsigned>(floor(r2));
 	bool incr = [&] {
 		if (fract > 0.5) {

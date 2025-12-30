@@ -23,6 +23,15 @@ inline constexpr double ln2  = std::numbers::ln2_v <double>;
 inline constexpr double ln10 = std::numbers::ln10_v<double>;
 inline constexpr double pi   = std::numbers::pi_v  <double>;
 
+/** GLSL fract() function,  https://registry.khronos.org/OpenGL-Refpages/gl4/html/fract.xhtml
+ * Return the fractional part of the input, result is in [0, 1).
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T fract(T x) noexcept
+{
+	return x - std::floor(x);
+}
+
 /** Returns the smallest number of the form 2^n-1 that is greater or equal
   * to the given number.
   * The resulting number has the same number of leading zeros as the input,

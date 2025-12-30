@@ -5,6 +5,7 @@
 
 #include "Reactor.hh"
 
+#include "Math.hh"
 #include "StringOp.hh"
 #include "circular_buffer.hh"
 #include "fast_log2.hh"
@@ -156,6 +157,30 @@ void simpleToolTip(std::invocable<> auto descFunc)
 }
 
 void HelpMarker(std::string_view desc, float spacing = -1.0f);
+
+// Generate a distinct color for each given index.
+// Obviously the more colors you request, the less distinct each color pair will be.
+// The initial color (for index=0) can be tuned with the 'h0' and 'v0' parameters.
+[[nodiscard]] inline std::tuple<float, float, float> generateDistinctColor(
+	unsigned index,
+	float h0 = 0.0f, // Hue start offset [0, 1)
+	unsigned v0 = 0) // Brightness phase offset [0, 2]
+{
+	// Hue: low-discrepancy sequence, wrapped to [0, 1)
+	constexpr float phi = 0.6180339887498948482f; // golden ratio conjugate  (sqrt(5) - 1) / 2
+	auto h = Math::fract(h0 + float(index) * phi);
+
+	// Saturation
+	constexpr float s = 0.65f;
+
+	// Value (brightness) levels
+	constexpr std::array v_levels = {0.90f, 0.75f, 0.60f};
+	auto v = v_levels[(index + v0) % v_levels.size()];
+
+	float r, g, b;
+	ImGui::ColorConvertHSVtoRGB(h, s, v, r, g, b);
+	return {r, g, b};
+}
 
 inline bool ButtonWithCustomRendering(
 	const char* label, gl::vec2 size, bool pressed,
