@@ -350,7 +350,7 @@ static void drawEventsValue(
 			drawList->PushClipRect(tl, br, true);
 			std::array<char, 32> tmpBuf;
 			auto valueStr = formatTraceValue(event.value, tmpBuf);
-			auto textX = std::max(xf0 + h5, topLeft.x + ImGui::GetScrollX());
+			auto textX = std::max(xf0 + h5, topLeft.x);
 			drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
 			drawList->PopClipRect();
 		} else {
