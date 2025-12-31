@@ -69,7 +69,7 @@ private:
 	void drawToolBar(EmuTime minT, EmuDuration totalT, float graphWidth, Traces traces);
 	void drawNames(Traces traces, float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger);
 	void drawSplitter(float width);
-	void drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to);
+	void drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to, EmuTime now);
 	void drawGraphs(Traces traces, float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,
 	                EmuTime minT, EmuTime maxT, EmuTime now);
 
@@ -92,7 +92,7 @@ private:
 		MILLI_SECONDS,
 		MICRO_SECONDS,
 		CYCLES,
-		NUM, // must be last
+		NUM_UNITS // must be last
 	};
 	int units = Units::SECONDS;
 
@@ -103,7 +103,14 @@ private:
 	std::vector<SelectedTrace> selectedTraces;
 	bool allUserTraces = true;
 
-	bool timelineRelative = false;
+	enum Origin : int {
+		ZERO,
+		PRIMARY,
+		SECONDARY,
+		NOW,
+		NUM_ORIGIN // must be last
+	};
+	int timelineOrigin = Origin::ZERO;
 	bool timelineStart = false;
 	bool timelineStop = false;
 
@@ -124,9 +131,9 @@ private:
 		PersistentElement   {"show",             &ImGuiTraceViewer::show},
 		PersistentElement   {"showSelect",       &ImGuiTraceViewer::showSelect},
 		PersistentElement   {"showMenuBar",      &ImGuiTraceViewer::showMenuBar},
-		PersistentElementMax{"units",            &ImGuiTraceViewer::units, Units::NUM},
+		PersistentElementMax{"units",            &ImGuiTraceViewer::units, Units::NUM_UNITS},
 		PersistentElement   {"allUserTraces",    &ImGuiTraceViewer::allUserTraces},
-		PersistentElement   {"timelineRelative", &ImGuiTraceViewer::timelineRelative},
+		PersistentElementMax{"timelineOrigin",   &ImGuiTraceViewer::timelineOrigin, Origin::NUM_ORIGIN},
 		PersistentElement   {"timelineStart",    &ImGuiTraceViewer::timelineStart},
 		PersistentElement   {"timelineStop",     &ImGuiTraceViewer::timelineStop},
 	};

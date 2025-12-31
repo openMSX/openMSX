@@ -10,6 +10,7 @@
 #include "MSXMotherBoard.hh"
 
 #include "find_closest.h"
+#include "one_of.hh"
 #include "timeline.hh"
 
 #include "imgui_stdlib.h"
@@ -405,11 +406,14 @@ void ImGuiTraceViewer::drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tra
 		ImGui::TextUnformatted("Timeline:");
 		im::Indent([&]{
 			im::Menu("origin", [&]{
-				if (ImGui::RadioButton("MSX boot", !timelineRelative)) timelineRelative = false;
+				ImGui::RadioButton("MSX boot", &timelineOrigin, Origin::ZERO);
 				simpleToolTip("Absolute time since MSX boot");
-				if (ImGui::RadioButton("Primary marker", timelineRelative)) timelineRelative = true;
+				ImGui::RadioButton("Primary marker", &timelineOrigin, Origin::PRIMARY);
 				simpleToolTip("Relative to primary marker");
-				// TODO relative to current time
+				ImGui::RadioButton("Secondary marker", &timelineOrigin, Origin::SECONDARY);
+				simpleToolTip("Relative to secondary marker");
+				ImGui::RadioButton("Current time", &timelineOrigin, Origin::NOW);
+				simpleToolTip("Relative to current emulation time");
 			});
 			im::Menu("start", [&]{
 				if (ImGui::RadioButton("MSX boot", !timelineStart)) timelineStart = false;
@@ -950,7 +954,7 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 	ImGui::SameLine(0.0f, style.ItemSpacing.x * 2.0f);
 
 	auto unitFactor = getUnitConversionFactor();
-	if (!timelineRelative) {
+	if (timelineOrigin == one_of(Origin::ZERO, Origin::NOW)) {
 		ImGui::TextUnformatted("prim."sv);
 		simpleToolTip("Primary marker (green). Place via left-mouse-click on the graph.");
 		ImGui::SameLine();
@@ -994,7 +998,7 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 		"sec (seconds)", "ms (milliseconds)", "\u00b5s (microseconds)", "cycles (Z80 @3.57MHz)",
 	};
 	im::Combo("##units", shortUnitNames[units], [&]{
-		for (int i = 0; i < Units::NUM; ++i) {
+		for (int i = 0; i < Units::NUM_UNITS; ++i) {
 			if (ImGui::Selectable(longUnitNames[i])) {
 				units = i;
 			}
@@ -1117,11 +1121,19 @@ void ImGuiTraceViewer::drawSplitter(float width)
 	ImGui::SameLine(0.0f, 0.0f);
 }
 
-void ImGuiTraceViewer::drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to)
+void ImGuiTraceViewer::drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to, EmuTime now)
 {
 	auto labelSize = ImGui::CalcTextSize("0123456789"sv);
 	auto numLabels = size.x / labelSize.x;
-	auto origin = timelineRelative ? selectedTime1.toDouble() : 0.0;
+	auto origin = [&]{
+		switch (timelineOrigin) {
+		default:
+		case Origin::ZERO:      return 0.0;
+	        case Origin::PRIMARY:   return selectedTime1.toDouble();
+		case Origin::SECONDARY: return selectedTime2.toDouble();
+		case Origin::NOW:       return now.toDouble();
+		}
+	}();
 	auto unitFactor = getUnitConversionFactor();
 	auto [labels, step] = timelineFormatter.calc(
 		from.toDouble() - origin, to.toDouble() - origin, double(numLabels), unitFactor);
@@ -1209,7 +1221,7 @@ void ImGuiTraceViewer::drawGraphs(Traces traces, float rulerHeight, float rowHei
 		auto t0 = convertor.xToTime(0.0f);
 		auto t1 = convertor.xToTime(convertor.viewScreenWidth);
 
-		drawRuler({convertor.viewScreenWidth, rulerHeight}, convertor, t0, t1);
+		drawRuler({convertor.viewScreenWidth, rulerHeight}, convertor, t0, t1, now);
 		ImGui::Dummy({10.0f, rulerHeight});
 
 		auto* drawList = ImGui::GetWindowDrawList();
