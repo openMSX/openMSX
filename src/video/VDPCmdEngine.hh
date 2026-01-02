@@ -253,6 +253,12 @@ private:
 	BooleanSetting cmdTraceSetting;
 	TclCallback cmdInProgressCallback;
 
+	struct CmdProbe final : ProbeBase {
+		CmdProbe(Debugger& debugger, std::string name);
+		[[nodiscard]] TclObject getValue() const override;
+		[[nodiscard]] TraceValue getTraceValue() const override;
+		void signal() { notify(); }
+	} cmdProbe;
 	Probe<bool> executingProbe;
 
 	/** Time at which the next vram access slot is available.

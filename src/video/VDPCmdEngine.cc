@@ -725,7 +725,7 @@ using TNotOp = TransparentOp<NotOp>;
 void VDPCmdEngine::setStatusChangeTime(EmuTime t)
 {
 	statusChangeTime = t;
-	if ((t != EmuTime::infinity()) && executingProbe.anyObservers()) {
+	if ((t != EmuTime::infinity()) && (executingProbe.anyObservers() || cmdProbe.anyObservers())) {
 		vdp.scheduleCmdSync(t);
 	}
 }
@@ -1785,6 +1785,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 		"detected while the previous command is still in progress.",
 		"",
 		Setting::Save::YES)
+	, cmdProbe(vdp_.getMotherBoard().getDebugger(), strCat(vdp.getName(), '.', "command"))
 	, executingProbe(
 		vdp_.getMotherBoard().getDebugger(),
 		strCat(vdp.getName(), '.', "commandExecuting"),
@@ -1959,6 +1960,7 @@ void VDPCmdEngine::executeCommand(EmuTime time)
 	// Start command.
 	status |= CE;
 	executingProbe = true;
+	cmdProbe.signal(); // must be after executingProbe
 
 	switch ((scrMode << 4) | (CMD >> 4)) {
 	case 0x00: case 0x10: case 0x20: case 0x30: case 0x40:
@@ -2612,6 +2614,7 @@ void VDPCmdEngine::commandDone(EmuTime time)
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= ~CE;
 	executingProbe = false;
+	cmdProbe.signal(); // must be after executingProbe
 	CMD = 0;
 	setStatusChangeTime(EmuTime::infinity());
 	vram.cmdReadWindow.disable(time);
@@ -2702,10 +2705,10 @@ VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::Cm
 	};
 	const char* logOp = logOps[r.cmd & 15];
 
-	auto printRect = [&](std::string_view s, const static_vector<Rect, 2>& r, auto... args) {
+	auto printRect = [&](std::string_view s, const static_vector<Rect, 2>& rct, auto... args) {
 		// front/back for the (unlikely) case of vertical wrapping
-		strAppend(result.str, s, '(', r.front().p1.x, ',', r.front().p1.y, ")"
-		                        "-(", r.back ().p2.x, ',', r.back().p2.y, ')', args...);
+		strAppend(result.str, s, '(', rct.front().p1.x, ',', rct.front().p1.y, ")"
+		                        "-(", rct.back ().p2.x, ',', rct.back().p2.y, ')', args...);
 	};
 	switch (r.cmd >> 4) {
 	case 0: case 1: case 2: case 3:
@@ -2773,6 +2776,29 @@ VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::Cm
 		UNREACHABLE;
 	}
 	return result;
+}
+
+VDPCmdEngine::CmdProbe::CmdProbe(Debugger& debugger_, std::string name_)
+	: ProbeBase(debugger_, std::move(name_), "String representation of the currently executing command")
+{
+}
+
+TclObject VDPCmdEngine::CmdProbe::getValue() const
+{
+	auto& engine = OUTER(VDPCmdEngine, cmdProbe);
+	if (!engine.executingProbe) return TclObject{};
+	auto regs = engine.getLastCommand();
+	auto formatted = VDPCmdEngine::formatCommand(regs, engine.scrMode);
+	return TclObject{formatted.str};
+}
+
+TraceValue VDPCmdEngine::CmdProbe::getTraceValue() const
+{
+	auto& engine = OUTER(VDPCmdEngine, cmdProbe);
+	if (!engine.executingProbe) return TraceValue{std::monostate{}};
+	auto regs = engine.getLastCommand();
+	auto formatted = VDPCmdEngine::formatCommand(regs, engine.scrMode);
+	return TraceValue{formatted.str};
 }
 
 // version 1: initial version
