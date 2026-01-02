@@ -338,24 +338,28 @@ static void drawEventsValue(
 
 		auto tl = gl::vec2{xf0, y0};
 		auto br = gl::vec2{xf1, y1};
-		if (auto maxWidth = x1 - x0 - 2.0f * h5; maxWidth > 0.0f) {
-			std::array<ImVec2, 6> points = {
-				gl::vec2{xf1 - h5, y0},
-				gl::vec2{xf0 + h5, y0},
-				gl::vec2{xf0,      y2},
-				gl::vec2{xf0 + h5, y1},
-				gl::vec2{xf1 - h5, y1},
-				gl::vec2{xf1,      y2},
-			};
-			drawList->AddPolyline(points.data(), 6, color, ImDrawFlags_Closed, thickness);
-			drawList->PushClipRect(tl, br, true);
-			std::array<char, 32> tmpBuf;
-			auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
-			auto textX = std::max(xf0 + h5, topLeft.x);
-			drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
-			drawList->PopClipRect();
+		if (event.value.holds_alternative<std::monostate>()) {
+			drawList->AddLine({xf0, y2}, {xf1, y2}, color, thickness);
 		} else {
-			drawList->AddRect(tl, br, color, {}, {}, thickness);
+			if (auto maxWidth = x1 - x0 - 2.0f * h5; maxWidth > 0.0f) {
+				std::array<ImVec2, 6> points = {
+					gl::vec2{xf1 - h5, y0},
+					gl::vec2{xf0 + h5, y0},
+					gl::vec2{xf0,      y2},
+					gl::vec2{xf0 + h5, y1},
+					gl::vec2{xf1 - h5, y1},
+					gl::vec2{xf1,      y2},
+				};
+				drawList->AddPolyline(points.data(), 6, color, ImDrawFlags_Closed, thickness);
+				drawList->PushClipRect(tl, br, true);
+				std::array<char, 32> tmpBuf;
+				auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
+				auto textX = std::max(xf0 + h5, topLeft.x);
+				drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
+				drawList->PopClipRect();
+			} else {
+				drawList->AddRect(tl, br, color, {}, {}, thickness);
+			}
 		}
 	};
 	processTimeline(events, maxT, convertor, drawDetailed,
