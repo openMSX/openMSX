@@ -78,39 +78,44 @@ void processTimeline(
 	Time endTime,
 	const Mapper& mapper,
 	std::invocable<float, float, const Event&> auto onDetailed,
-	std::invocable<float, float> auto onCoarse,
+	std::invocable<float, float, typename std::span<const Event>::const_iterator, typename std::span<const Event>::const_iterator> auto onCoarse,
 	float threshold = 1.0)
 {
 	if (events.empty()) return;
 
 	std::optional<float> coarseStart; // start of current coarse region
-	auto flushCoarse = [&](float endPixel) {
+	decltype(events.begin()) coarseBeginIt;
+	auto flushCoarse = [&](float endPixel, auto endIt) {
 		if (coarseStart) {
-			onCoarse(*coarseStart, endPixel);
+			onCoarse(*coarseStart, endPixel, coarseBeginIt, endIt);
 			coarseStart = {};
+			coarseBeginIt = {};
 		}
 	};
 
-	auto currentEvent = events.begin();
-	auto currentPixel = mapper.timeToX(currentEvent->time);
-	while (currentEvent != events.end()) {
+	auto currentIt = events.begin();
+	auto currentPixel = mapper.timeToX(currentIt->time);
+	while (currentIt != events.end()) {
 		// get next time (either next event or endTime)
-		const auto nextEvent = std::next(currentEvent);
-		const auto nextTimestamp = (nextEvent != events.end())
-		                           ? nextEvent->time
-		                           : endTime;
+		const auto nextIt = std::next(currentIt);
+		const auto nextTimestamp = (nextIt != events.end())
+		                         ? nextIt->time
+		                         : endTime;
 		const auto nextPixel = mapper.timeToX(nextTimestamp);
 		const auto spacing = nextPixel - currentPixel; // event spans [currentPixel, nextPixel)
 
 		if (spacing > threshold) {
 			// DETAILED: flush pending coarse region first
-			flushCoarse(currentPixel);
-			onDetailed(currentPixel, nextPixel, *currentEvent);
-			currentEvent = nextEvent; // reuse for next iteration
+			flushCoarse(currentPixel, nextIt);
+			onDetailed(currentPixel, nextPixel, *currentIt);
+			currentIt = nextIt; // reuse for next iteration
 			currentPixel = nextPixel;
 		} else {
 			// COARSE: start/continue coarse region
-			if (!coarseStart) coarseStart = currentPixel;
+			if (!coarseStart) {
+				coarseStart = currentPixel;
+				coarseBeginIt = currentIt;
+			}
 
 			// binary search: jump to next integer pixel boundary
 			const auto targetPixel = std::floor(currentPixel) + 1.0f;
@@ -119,20 +124,20 @@ void processTimeline(
 			// Find last event at or before the next pixel boundary.
 			// upper_bound gives first event > targetTime, then back up one.
 			// Important: Start from next event to ensure we make progress.
-			if (auto it = std::ranges::upper_bound(nextEvent, events.end(), targetTime, {}, &Event::time);
-			    it != nextEvent) {
-				currentEvent = std::prev(it);
-				currentPixel = mapper.timeToX(currentEvent->time);
+			if (auto it = std::ranges::upper_bound(nextIt, events.end(), targetTime, {}, &Event::time);
+			    it != nextIt) {
+				currentIt = std::prev(it);
+				currentPixel = mapper.timeToX(currentIt->time);
 			} else {
 				// no more events in this pixel, jump to next event
-				currentEvent = nextEvent;
+				currentIt = nextIt;
 				currentPixel = nextPixel;
 			}
 		}
 	}
 
 	// flush final coarse region if any
-	flushCoarse(currentPixel); // at this point: currentPixel == mapper.timeToX(endTime)
+	flushCoarse(currentPixel, currentIt); // at this point: currentPixel == mapper.timeToX(endTime)
 }
 
 } // namespace openmsx

@@ -17,24 +17,21 @@
 //   element is returned.
 // * The absolute distance between that element and the requested value. When
 //   the range is empty the distance is unspecified.
-template<std::ranges::bidirectional_range Range, typename T,
+template<std::bidirectional_iterator I, std::sentinel_for<I> S, typename T,
          typename Compare = std::ranges::less, typename Proj = std::identity>
 [[nodiscard]] constexpr auto find_closest(
-	Range&& range, const T& value, Compare comp = {}, Proj proj = {})
+	I first, S last, const T& value, Compare comp = {}, Proj proj = {})
 {
-	using Ref = std::ranges::range_reference_t<Range>;
+	using Ref = std::iter_reference_t<I>;
 	using Key = std::remove_cvref_t<std::invoke_result_t<Proj&, Ref>>;
 	using LeftDiff = std::remove_cvref_t<decltype(std::declval<Key>() - std::declval<T>())>;
 	using RightDiff = std::remove_cvref_t<decltype(std::declval<T>() - std::declval<Key>())>;
 	static_assert(std::is_same_v<LeftDiff, RightDiff>,
 	              "find_closest() requires symmetric subtraction results.");
 	using Diff = LeftDiff;
-	using Iterator = std::ranges::iterator_t<Range>;
-	using Result = std::pair<Iterator, Diff>;
+	using Result = std::pair<I, Diff>;
 
-	auto first = std::ranges::begin(range);
-	auto last = std::ranges::end(range);
-	auto it = std::ranges::lower_bound(range, value, comp, proj);
+	auto it = std::ranges::lower_bound(first, last, value, comp, proj);
 
 	if (it == first) {
 		if (it == last) return Result{last, Diff{}};
@@ -50,6 +47,16 @@ template<std::ranges::bidirectional_range Range, typename T,
 	auto distCurr = std::invoke(proj, *it) - value;
 	return (distPrev <= distCurr) ? Result{prev, distPrev}
 	                              : Result{it, distCurr};
+}
+
+template<std::ranges::bidirectional_range Range, typename T,
+         typename Compare = std::ranges::less, typename Proj = std::identity>
+[[nodiscard]] constexpr auto find_closest(
+	Range&& range, const T& value, Compare comp = {}, Proj proj = {})
+{
+	auto first = std::ranges::begin(range);
+	auto last = std::ranges::end(range);
+	return find_closest(first, last, value, comp, proj);
 }
 
 #endif

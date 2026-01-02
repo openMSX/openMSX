@@ -1,6 +1,8 @@
 #include "catch.hpp"
 #include "timeline.hh"
 
+#include "strCat.hh"
+
 #include <vector>
 
 struct Event {
@@ -27,7 +29,8 @@ struct DrawCall {
 	enum Type { DETAILED, COARSE } type;
 	float fromX;
 	float toX;
-	int eventValue; // only for DETAILED
+	int value1;
+	int value2 = -1; // only for COARSE
 
 	bool operator==(const DrawCall& other) const {
 		if (type != other.type) return false;
@@ -35,10 +38,26 @@ struct DrawCall {
 		constexpr float eps = 0.01f;
 		if (std::abs(fromX - other.fromX) > eps) return false;
 		if (std::abs(toX - other.toX) > eps) return false;
-		if (type == DETAILED && eventValue != other.eventValue) return false;
+		if (value1 != other.value1) return false;
+		if (value2 != other.value2) return false;
 		return true;
 	}
 };
+namespace Catch {
+template<> struct StringMaker<DrawCall> {
+	static std::string convert(const DrawCall& c)
+	{
+		return strCat(
+			"DrawCall{"
+			" type=", (c.type == DrawCall::DETAILED ? "detailed" : "coarse"),
+			" fromX=", c.fromX,
+			" toX=", c.toX,
+			" value1=", c.value1,
+			" value2=", c.value2,
+			" }");
+	}
+};
+}
 
 // helper to run algorithm and capture calls
 static std::vector<DrawCall> runAlgorithm(
@@ -48,15 +67,16 @@ static std::vector<DrawCall> runAlgorithm(
 	float threshold = 1.0f)
 {
 	std::vector<DrawCall> calls;
+	auto span = std::span<const Event>(events);
 
 	auto onDetailed = [&](float fromX, float toX, const Event& event) {
 		calls.push_back({DrawCall::DETAILED, fromX, toX, event.value});
 	};
-	auto onCoarse = [&](float fromX, float toX) {
-		calls.push_back({DrawCall::COARSE, fromX, toX, -1});
+	auto onCoarse = [&](float fromX, float toX, auto first, auto last) {
+		calls.push_back({DrawCall::COARSE, fromX, toX, first->value, (last != span.end() ? last->value : -1)});
 	};
 
-	openmsx::processTimeline(std::span<const Event>(events), endTime, mapper, onDetailed, onCoarse, threshold);
+	openmsx::processTimeline(span, endTime, mapper, onDetailed, onCoarse, threshold);
 	return calls;
 }
 
@@ -85,7 +105,7 @@ TEST_CASE("Timeline processing algorithm - basic scenarios", "[timeline]") {
 	SECTION("all coarse - dense cluster") {
 		auto calls = runAlgorithm({{10.1, 1}, {10.3, 2}, {10.5, 3}, {10.7, 4}, {10.9, 5}, {20.0, 6}}, 25.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.1f, 10.9f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.1f, 10.9f, 1, 6});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 10.9f, 20.0f, 5});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 20.0f, 25.0f, 6});
 	}
@@ -93,10 +113,10 @@ TEST_CASE("Timeline processing algorithm - basic scenarios", "[timeline]") {
 	SECTION("mixed pattern") {
 		auto calls = runAlgorithm({{5.1, 1}, {5.3, 2}, {5.5, 3}, {10.0, 4}, {20.1, 5}, {20.3, 6}, {20.6, 7}, {30.0, 8}}, 35.0);
 		REQUIRE(calls.size() == 6);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 5.1f, 5.5f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 5.1f, 5.5f, 1, 4});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 5.5f, 10.0f, 3});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 10.0f, 20.1f, 4});
-		CHECK(calls[3] == DrawCall{DrawCall::COARSE, 20.1f, 20.6f, -1});
+		CHECK(calls[3] == DrawCall{DrawCall::COARSE, 20.1f, 20.6f, 5, 8});
 		CHECK(calls[4] == DrawCall{DrawCall::DETAILED, 20.6f, 30.0f, 7});
 		CHECK(calls[5] == DrawCall{DrawCall::DETAILED, 30.0f, 35.0f, 8});
 	}
@@ -107,14 +127,14 @@ TEST_CASE("Timeline - threshold boundary behavior", "[timeline][threshold]") {
 	SECTION("spacing exactly = 1.0 (aligned) -> coarse") {
 		auto calls = runAlgorithm({{10.0, 1}, {11.0, 2}, {12.0, 3}, {13.0, 4}}, 20.0);
 		REQUIRE(calls.size() == 2);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 13.0f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 13.0f, 1, -1});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 13.0f, 20.0f, 4});
 	}
 
 	SECTION("spacing exactly = 1.0 (non-aligned) -> coarse") {
 		auto calls = runAlgorithm({{10.3, 1}, {11.3, 2}, {12.3, 3}, {13.3, 4}}, 20.0);
 		REQUIRE(calls.size() == 2);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.3f, 13.3f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.3f, 13.3f, 1, -1});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 13.3f, 20.0f, 4});
 	}
 
@@ -130,7 +150,7 @@ TEST_CASE("Timeline - threshold boundary behavior", "[timeline][threshold]") {
 	SECTION("custom threshold = 2.0") {
 		auto calls = runAlgorithm({{10.0, 1}, {11.5, 2}, {13.0, 3}, {16.0, 4}}, 20.0, SimpleMapper(1.0), 2.0f);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 13.0f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 13.0f, 1, 4});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 13.0f, 16.0f, 3});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 16.0f, 20.0f, 4});
 	}
@@ -138,7 +158,7 @@ TEST_CASE("Timeline - threshold boundary behavior", "[timeline][threshold]") {
 	SECTION("two very close events (spacing = 0.01)") {
 		auto calls = runAlgorithm({{7.51, 1}, {7.52, 2}, {15.0, 3}}, 20.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 7.51f, 7.52f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 7.51f, 7.52f, 1, 3});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 7.52f, 15.0f, 2});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 15.0f, 20.0f, 3});
 	}
@@ -146,7 +166,7 @@ TEST_CASE("Timeline - threshold boundary behavior", "[timeline][threshold]") {
 	SECTION("multiple events at exact same time (spacing = 0)") {
 		auto calls = runAlgorithm({{10.0, 1}, {10.0, 2}, {10.0, 3}, {15.0, 4}}, 20.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 10.0f, -1});  // zero-width
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 10.0f, 1, 4});  // zero-width
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 10.0f, 15.0f, 3});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 15.0f, 20.0f, 4});
 	}
@@ -163,7 +183,7 @@ TEST_CASE("Timeline - dense clusters (binary search)", "[timeline][performance]"
 
 		auto calls = runAlgorithm(events, 15.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 5.01f, 5.15f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 5.01f, 5.15f, 1, 16});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 5.15f, 10.0f, 15});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 10.0f, 15.0f, 16});
 	}
@@ -177,7 +197,7 @@ TEST_CASE("Timeline - dense clusters (binary search)", "[timeline][performance]"
 
 		auto calls = runAlgorithm(events, 25.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 11.98f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 11.98f, 100, 200});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 11.98f, 20.0f, 199});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 20.0f, 25.0f, 200});
 	}
@@ -188,7 +208,7 @@ TEST_CASE("Timeline - dense clusters (binary search)", "[timeline][performance]"
 			 {9.96, 6}, {9.97, 7}, {9.98, 8}, {9.99, 9}, {15.0, 10}},
 			20.0);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 9.91f, 9.99f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 9.91f, 9.99f, 1, 10});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 9.99f, 15.0f, 9});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 15.0f, 20.0f, 10});
 	}
@@ -200,14 +220,14 @@ TEST_CASE("Timeline - edge cases", "[timeline][edge]") {
 		auto calls = runAlgorithm({{5.0, 1}, {10.1, 2}, {10.2, 3}, {10.3, 4}, {10.4, 5}}, 10.5);
 		REQUIRE(calls.size() == 2);
 		CHECK(calls[0] == DrawCall{DrawCall::DETAILED, 5.0f, 10.1f, 1});
-		CHECK(calls[1] == DrawCall{DrawCall::COARSE, 10.1f, 10.5f, -1});
+		CHECK(calls[1] == DrawCall{DrawCall::COARSE, 10.1f, 10.5f, 2, -1});
 	}
 
 	SECTION("dense cluster at very end of timeline") {
 		auto calls = runAlgorithm({{5.0, 1}, {99.1, 2}, {99.2, 3}, {99.3, 4}, {99.4, 5}, {99.5, 6}}, 99.6);
 		REQUIRE(calls.size() == 2);
 		CHECK(calls[0] == DrawCall{DrawCall::DETAILED, 5.0f, 99.1f, 1});
-		CHECK(calls[1] == DrawCall{DrawCall::COARSE, 99.1f, 99.6f, -1});
+		CHECK(calls[1] == DrawCall{DrawCall::COARSE, 99.1f, 99.6f, 2, -1});
 	}
 
 	SECTION("endTimeequals last event time") {
@@ -215,13 +235,13 @@ TEST_CASE("Timeline - edge cases", "[timeline][edge]") {
 		REQUIRE(calls.size() == 3);
 		CHECK(calls[0] == DrawCall{DrawCall::DETAILED, 10.0f, 15.5f, 1});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 15.5f, 23.7f, 2});
-		CHECK(calls[2] == DrawCall{DrawCall::COARSE, 23.7f, 23.7f, -1});  // zero-width
+		CHECK(calls[2] == DrawCall{DrawCall::COARSE, 23.7f, 23.7f, 3, -1});  // zero-width
 	}
 
 	SECTION("fractional endTime") {
 		auto calls = runAlgorithm({{14.1, 1}, {14.9, 2}, {23.6, 3}}, 30.27);
 		REQUIRE(calls.size() == 3);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 14.1f, 14.9f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 14.1f, 14.9f, 1, 3});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 14.9f, 23.6f, 2});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 23.6f, 30.27f, 3});
 	}
@@ -235,14 +255,14 @@ TEST_CASE("Timeline - zoom behavior", "[timeline][zoom]") {
 	SECTION("zoom 1x (identity) - events 0.1 apart -> coarse") {
 		auto calls = runAlgorithm(events, endTime, SimpleMapper(1.0));
 		REQUIRE(calls.size() == 2);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 10.4f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.0f, 10.4f, 1, -1});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 10.4f, 15.0f, 5});
 	}
 
 	SECTION("zoom 2x - spacing becomes 0.2 pixels -> still coarse") {
 		auto calls = runAlgorithm(events, endTime, SimpleMapper(2.0));
 		REQUIRE(calls.size() == 2);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 20.0f, 20.8f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 20.0f, 20.8f, 1, -1});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 20.8f, 30.0f, 5});
 	}
 
@@ -259,7 +279,7 @@ TEST_CASE("Timeline - zoom behavior", "[timeline][zoom]") {
 	SECTION("zoom 0.01x (zoom out) - everything in same pixel -> single coarse") {
 		auto calls = runAlgorithm(events, endTime, SimpleMapper(0.01));
 		REQUIRE(calls.size() == 1);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 0.1f, 0.15f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 0.1f, 0.15f, 1, -1});
 	}
 }
 
@@ -272,13 +292,13 @@ TEST_CASE("Timeline - complex realistic scenarios", "[timeline][integration]") {
 			 {50.1, 9}, {50.2, 10}, {60.0, 11}},
 			70.0);
 		REQUIRE(calls.size() == 9);
-		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.1f, 10.3f, -1});
+		CHECK(calls[0] == DrawCall{DrawCall::COARSE, 10.1f, 10.3f, 1, 4});
 		CHECK(calls[1] == DrawCall{DrawCall::DETAILED, 10.3f, 20.0f, 3});
 		CHECK(calls[2] == DrawCall{DrawCall::DETAILED, 20.0f, 30.1f, 4});
-		CHECK(calls[3] == DrawCall{DrawCall::COARSE, 30.1f, 30.3f, -1});
+		CHECK(calls[3] == DrawCall{DrawCall::COARSE, 30.1f, 30.3f, 5, 8});
 		CHECK(calls[4] == DrawCall{DrawCall::DETAILED, 30.3f, 40.0f, 7});
 		CHECK(calls[5] == DrawCall{DrawCall::DETAILED, 40.0f, 50.1f, 8});
-		CHECK(calls[6] == DrawCall{DrawCall::COARSE, 50.1f, 50.2f, -1});
+		CHECK(calls[6] == DrawCall{DrawCall::COARSE, 50.1f, 50.2f, 9, 11});
 		CHECK(calls[7] == DrawCall{DrawCall::DETAILED, 50.2f, 60.0f, 10});
 		CHECK(calls[8] == DrawCall{DrawCall::DETAILED, 60.0f, 70.0f, 11});
 	}

@@ -174,6 +174,7 @@ static void drawText(ImDrawList* drawList, gl::vec2 pos, ImU32 color, std::strin
 }
 
 struct DrawCoarse {
+	const Convertor* convertor;
 	ImDrawList* drawList;
 	float x;
 	float y0, y1;
@@ -181,17 +182,29 @@ struct DrawCoarse {
 	ImU32 colorHover;
 	bool rowHovered;
 
-	void operator()(float x0, float x1) const {
+	void operator()(float x0, float x1, auto first, auto last) const {
 		auto xf0 = std::floor(x0 + x);
 		auto xf1 = std::floor(x1 + x + 1.0f);
 		drawList->AddRectFilled({xf0, y0}, {xf1, y1}, colorNormal);
 
-		if (rowHovered) {
-			auto mouseX = ImGui::GetIO().MousePos.x;
-			if (x0 <= mouseX && mouseX < x1) {
-				drawList->AddLine({mouseX, y0}, {mouseX, y1}, colorHover, 2.0f);
-			}
+		if (!rowHovered) return;
+		auto mouseX = ImGui::GetIO().MousePos.x - x;
+		if (mouseX < x0 || x1 <= mouseX) return;
+		drawList->AddLine({mouseX, y0}, {mouseX, y1}, colorHover, 2.0f);
+
+		if (!convertor) return;
+		auto [it, _] = find_closest(
+			first, last, convertor->xToTime(mouseX), {}, &Tracer::Event::time);
+		if (it == last) return;
+		if (it->value.template holds_alternative<std::monostate>()) {
+			++it; // 2nd try
+			if (it == last) return;
 		}
+		std::array<char, 32> tmpBuf;
+		auto valueStr = ImGuiTraceViewer::formatTraceValue(it->value, tmpBuf);
+		im::Tooltip([&]{
+			ImGui::TextUnformatted(valueStr);
+		});
 	}
 };
 
@@ -238,7 +251,7 @@ static void drawEventsVoid(
 		drawList->AddLine({x0, y0}, {x0, y1}, color, thickness);
 	};
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
 }
 
 static void drawEventsBool(
@@ -279,7 +292,7 @@ static void drawEventsBool(
 		yp = y;
 	};
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
 }
 
 [[nodiscard]] std::string_view ImGuiTraceViewer::formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf)
@@ -341,6 +354,8 @@ static void drawEventsValue(
 		if (event.value.holds_alternative<std::monostate>()) {
 			drawList->AddLine({xf0, y2}, {xf1, y2}, color, thickness);
 		} else {
+			std::array<char, 32> tmpBuf;
+			auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
 			if (auto maxWidth = x1 - x0 - 2.0f * h5; maxWidth > 0.0f) {
 				std::array<ImVec2, 6> points = {
 					gl::vec2{xf1 - h5, y0},
@@ -352,18 +367,21 @@ static void drawEventsValue(
 				};
 				drawList->AddPolyline(points.data(), 6, color, ImDrawFlags_Closed, thickness);
 				drawList->PushClipRect(tl, br, true);
-				std::array<char, 32> tmpBuf;
-				auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
 				auto textX = std::max(xf0 + h5, topLeft.x);
 				drawText(drawList, gl::vec2{textX, y0 + style.FramePadding.y}, colorText, valueStr);
 				drawList->PopClipRect();
 			} else {
 				drawList->AddRect(tl, br, color, {}, {}, thickness);
 			}
+			if (hover) {
+				im::Tooltip([&]{
+					ImGui::TextUnformatted(valueStr);
+				});
+			}
 		}
 	};
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{&convertor, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
 }
 
 static bool menuItemWithShortcut(ImGuiManager& manager, const char* label, Shortcuts::ID id, bool* p_selected = nullptr)
