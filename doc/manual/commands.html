@@ -590,7 +590,7 @@
 
   <h3><a id="debug">debug</a></h3>
 
-  <p>This command provides access to the debugger functionality of openMSX. It's meant to be used by an external debugger (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). The general format of the debug command is:</p>
+  <p>This command provides access to the debugger functionality of openMSX. It can be used by an external debugger (see also <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>), but openMSX has since evolved to include its own debugger. The general format of the debug command is:</p>
 
   <p><code>debug &lt;subcommand&gt; [&lt;extra arguments&gt;]</code></p>
 
@@ -687,9 +687,16 @@
     </tr>
 
     <tr>
+      <td><code>debug symbols &lt;subcommand&gt;</code></td>
+      <td>Manage debug symbols.<br />
+      openMSX also provides a shortcut to access debug symbol addresses via Tcl dictionary <code>$::sym(&lt;symbol-name&gt;)</code>.
+    </tr>
+
+    <tr>
       <td><code>debug disasm [&lt;addr&gt;]</code></td>
       <td>Disassemble instructions at PC or given address</td>
     </tr>
+
   </table>
 
   <p>This command is much better documented in openMSX itself. Type <code>help debug</code> or <code>help debug &lt;subcommand&gt;</code> for more detailed help.</p>
@@ -716,6 +723,8 @@
          <code>debug probe set_bp z80.pendingIRQ</code></li>
       <li>break when register HL has the value 1234:<br/>
          <code>debug condition create {[reg hl] == 1234}</code></li>
+      <li>list the contents of all symbol files previously loaded by the Symbol Manager or by the <code>debug symbols load</code> subcommand:<br/>
+         <code>debug symbols lookup</code></li>
     </ul>
   </div>
 
