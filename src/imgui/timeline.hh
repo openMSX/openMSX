@@ -78,7 +78,7 @@ void processTimeline(
 	Time endTime,
 	const Mapper& mapper,
 	std::invocable<float, float, const Event&> auto onDetailed,
-	std::invocable<float, float, typename std::span<const Event>::const_iterator, typename std::span<const Event>::const_iterator> auto onCoarse,
+	std::invocable<float, float, typename std::span<const Event>::iterator, typename std::span<const Event>::iterator> auto onCoarse,
 	float threshold = 1.0)
 {
 	if (events.empty()) return;
