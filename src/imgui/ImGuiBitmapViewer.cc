@@ -16,75 +16,8 @@
 namespace openmsx {
 
 using namespace std::literals;
-
-// Take VDPCmdEngine info like {sx,sy} (or {dx,dy}), {nx,ny}, ...
-// And turn that into a rectangle that's properly clipped horizontally for the
-// given screen mode. Taking into account pixel vs byte mode.
-
-// Usually this returns just 1 retangle, but in case of vertical wrapping this
-// can be split over two (disjunct) rectangles. In that case the order in which
-// the VDP handles these rectangles (via 'diy') is preserved.
-//
-// Also within a single rectangle the VDP order (via 'dix' and 'diy') is
-// preserved. So start at corner 'p1', end at corner 'p2'.
-//
-// Both start and end points of the rectangle(s) are inclusive.
-static_vector<Rect, 2> rectFromVdpCmd(
-	int x, int y, // either sx,sy or dx,dy
-	int nx, int ny,
-	bool dix, bool diy,
-	ImGuiBitmapViewer::ScrnMode screenMode,
-	bool byteMode) // Lxxx or Hxxx command
-{
-	const auto [width, height, pixelsPerByte] = [&] {
-		switch (screenMode) {
-		using enum ImGuiBitmapViewer::ScrnMode;
-		case SCR5: return std::tuple{256, 1024, 2};
-		case SCR6: return std::tuple{512, 1024, 4};
-		case SCR7: return std::tuple{512,  512, 2};
-		default:   return std::tuple{256,  512, 1}; // screen 8, 11, 12  (and fallback for non-bitmap)
-		}
-	}();
-
-	// clamp/wrap start-point
-	x = std::clamp(x, 0, width - 1); // Clamp to border. This is different from the real VDP behavior.
-	                            // But for debugging it's visually less confusing??
-	y &= (height - 1); // wrap around
-
-	if (nx <= 0) nx = width;
-	if (ny <= 0) ny = height;
-	if (byteMode) { // round to byte positions
-		auto mask = ~(pixelsPerByte - 1);
-		x &= mask;
-		nx &= mask;
-	}
-	nx -= 1; // because coordinates are inclusive
-	ny -= 1;
-
-	// horizontally clamp to left/right border
-	auto endX = std::clamp(x + (dix ? -nx : nx), 0, width - 1);
-
-	// but vertically wrap around, possibly that splits the rectangle in two parts
-	if (diy) {
-		auto endY = y - ny;
-		if (endY >= 0) {
-			return {Rect{Point{x, y}, Point{endX, endY}}};
-		} else {
-			return {Rect{Point{x, y}, Point{endX, 0}},
-			        Rect{Point{x, height - 1},
-			             Point{endX, endY & (height - 1)}}};
-		}
-	} else {
-		auto endY = (y + ny);
-		if (endY < height) {
-			return {Rect{Point{x, y}, Point{endX, endY}}};
-		} else {
-			return {Rect{Point{x, y}, Point{endX, height - 1}},
-			        Rect{Point{x, 0},
-			             Point{endX, endY & (height - 1)}}};
-		}
-	}
-}
+using Point = VDPCmdEngine::Point;
+using Rect = VDPCmdEngine::Rect;
 
 // Given a VDPCmdEngine-rectangle and a point, split that rectangle in a 'done'
 // and a 'todo' part.
@@ -112,7 +45,11 @@ static_vector<Rect, 2> rectFromVdpCmd(
 // The order of the sub-rectangles in the output is no longer guaranteed to be
 // in VDP command processing order, and for drawing the overlay that doesn't
 // matter.
-DoneTodo splitRect(const Rect& r, int x, int y)
+// TODO unittest
+struct DoneTodo {
+	static_vector<Rect, 2> done, todo;
+};
+[[nodiscard]] static DoneTodo splitRect(const Rect& r, int x, int y)
 {
 	DoneTodo result;
 	auto& done = result.done;
@@ -354,26 +291,8 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 		auto& cmdEngine = vdp->getCmdEngine();
 		bool inProgress = cmdEngine.commandInProgress(motherBoard->getCurrentTime());
 
-		auto [sx, sy, dx, dy, nx, ny, col, arg, cmdReg] = cmdEngine.getLastCommand();
-		auto cmd = cmdReg >> 4;
-		bool dix = arg & VDPCmdEngine::DIX;
-		bool diy = arg & VDPCmdEngine::DIY;
-		bool byteMode = cmd >= 12; // hmmv, hmmm, ymmm, hmmc
-
-		// only calculate src/dst rect when needed for the command
-		std::optional<static_vector<Rect, 2>> srcRect;
-		std::optional<static_vector<Rect, 2>> dstRect;
-		if (cmd == one_of(9, 10, 13)) { // lmmm, lmcm, hmmm
-			srcRect = rectFromVdpCmd(sx, sy, nx, ny, dix, diy, ScrnMode(mode), byteMode);
-		}
-		if (cmd == one_of(8, 9, 11, 12, 13, 15)) { // lmmv, lmmm, lmmc, hmmv, hmmm, hmmc
-			dstRect = rectFromVdpCmd(dx, dy, nx, ny, dix, diy, ScrnMode(mode), byteMode);
-		}
-		if (cmd == 14) { // ymmm
-			// different from normal: NO 'sx', and NO 'nx'
-			srcRect = rectFromVdpCmd(dx, sy, 512, ny, dix, diy, ScrnMode(mode), byteMode);
-			dstRect = rectFromVdpCmd(dx, dy, 512, ny, dix, diy, ScrnMode(mode), byteMode);
-		}
+		auto regs = cmdEngine.getLastCommand();
+		auto formatted = VDPCmdEngine::formatCommand(regs, mode);
 
 		im::TreeNode("Show VDP block command overlay", [&]{
 			ImGui::RadioButton("never", &showCmdOverlay, 0);
@@ -432,88 +351,7 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			// * The textual representation for commands that wrap around the top/bottom border is
 			//   ambiguous (but the drawn overlay should be fine).
 			im::DisabledIndent(!inProgress, [&]{
-				static constexpr std::array<const char*, 16> logOps = {
-					"",     ",AND", ",OR", ",XOR", ",NOT", "","","",
-					",TIMP",",TAND",",TOR",",TXOR",",TNOT","","",""
-				};
-				const char* logOp = logOps[cmdReg & 15];
-				auto printRect = [](std::string_view s, std::optional<static_vector<Rect, 2>>& r) {
-					assert(r);
-					ImGui::TextUnformatted(s);
-					ImGui::SameLine(0.0f, 0.0f);
-					ImGui::Text("(%d,%d)-(%d,%d)",
-						r->front().p1.x, // front/back for the (unlikely) case of vertical wrapping
-						r->front().p1.y,
-						r->back().p2.x,
-						r->back().p2.y);
-				};
-				auto printSrcDstRect = [&](std::string_view c) {
-					printRect(c, srcRect);
-					ImGui::SameLine(0.0f, 0.0f);
-					printRect(" TO ", dstRect);
-				};
-				auto printCol = [&]{
-					ImGui::SameLine(0.0f, 0.0f);
-					ImGui::Text(",%d", col);
-				};
-				auto printLogOp = [&]{
-					ImGui::SameLine(0.0f, 0.0f);
-					ImGui::TextUnformatted(logOp);
-				};
-				switch (cmd) {
-				case 0: case 1: case 2: case 3:
-					ImGui::TextUnformatted("ABORT"sv);
-					break;
-				case 4:
-					ImGui::Text("POINT (%d,%d)", sx, sy);
-					break;
-				case 5:
-					ImGui::Text("PSET (%d,%d),%d%s", dx, dy, col, logOp);
-					break;
-				case 6:
-					ImGui::Text("SRCH (%d,%d) %s %d", sx, sy,
-					            ((arg & VDPCmdEngine::EQ) ? "==" : "!="), col);
-					break;
-				case 7: {
-					auto nx2 = nx; auto ny2 = ny;
-					if (arg & VDPCmdEngine::MAJ) std::swap(nx2, ny2);
-					auto x = int(sx) + (dix ? -int(nx2) : int(nx2));
-					auto y = int(sy) + (diy ? -int(ny2) : int(ny2));
-					ImGui::Text("LINE (%d,%d)-(%d,%d),%d%s", sx, sy, x, y, col, logOp);
-					break;
-				}
-				case 8:
-					printRect("LMMV ", dstRect);
-					printCol();
-					printLogOp();
-					break;
-				case 9:
-					printSrcDstRect("LMMM ");
-					printLogOp();
-					break;
-				case 10:
-					printRect("LMCM ", srcRect);
-					break;
-				case 11:
-					printRect("LMMC ", dstRect);
-					printLogOp();
-					break;
-				case 12:
-					printRect("HMMV ", dstRect);
-					printCol();
-					break;
-				case 13:
-					printSrcDstRect("HMMM ");
-					break;
-				case 14:
-					printSrcDstRect("YMMM ");
-					break;
-				case 15:
-					printRect("HMMC ", dstRect);
-					break;
-				default:
-					UNREACHABLE;
-				}
+				ImGui::TextUnformatted(formatted.str);
 			});
 		});
 
@@ -598,13 +436,13 @@ void ImGuiBitmapViewer::paint(MSXMotherBoard* motherBoard)
 			};
 			if ((showCmdOverlay == 2) || ((showCmdOverlay == 1) && inProgress)) {
 				auto [sx2, sy2, dx2, dy2] = cmdEngine.getInprogressPosition();
-				if (srcRect) {
-					drawOverlay(*srcRect, sx2, sy2,
+				if (formatted.srcRect) {
+					drawOverlay(*formatted.srcRect, sx2, sy2,
 					            ImGui::ColorConvertFloat4ToU32(colorSrcDone),
 					            ImGui::ColorConvertFloat4ToU32(colorSrcTodo));
 				}
-				if (dstRect) {
-					drawOverlay(*dstRect, dx2, dy2,
+				if (formatted.dstRect) {
+					drawOverlay(*formatted.dstRect, dx2, dy2,
 					            ImGui::ColorConvertFloat4ToU32(colorDstDone),
 					            ImGui::ColorConvertFloat4ToU32(colorDstTodo));
 				}

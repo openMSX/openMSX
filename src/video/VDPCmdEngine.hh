@@ -8,15 +8,16 @@
 #include "Probe.hh"
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
+#include "static_vector.hh"
 
 #include <cstdint>
+#include <optional>
 
 namespace openmsx {
 
 class VDPVRAM;
 class DisplayMode;
 class CommandController;
-
 
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
@@ -143,11 +144,30 @@ public:
 	/** Get the register-values for the last executed (or still in progress)
 	 * command. For debugging purposes only.
 	 */
-	auto getLastCommand() const {
-		return std::tuple{
-			lastSX, lastSY, lastDX, lastDY, lastNX, lastNY,
-			lastCOL, lastARG, lastCMD};
+	struct CmdRegs {
+		int sx, sy, dx, dy, nx, ny;
+		uint8_t col, arg, cmd;
+	};
+	CmdRegs getLastCommand() const {
+		return {
+			.sx = lastSX, .sy = lastSY,
+			.dx = lastDX, .dy = lastDY,
+			.nx = lastNX, .ny = lastNY,
+			.col = lastCOL, .arg = lastARG, .cmd = lastCMD
+		};
 	}
+
+	using Point = gl::ivec2;
+	struct Rect {
+		Point p1, p2;
+	};
+	struct FormatCmdResult {
+		std::optional<static_vector<Rect, 2>> srcRect;
+		std::optional<static_vector<Rect, 2>> dstRect;
+		std::string str;
+	};
+	[[nodiscard]] static FormatCmdResult formatCommand(const CmdRegs& r, int mode);
+
 	/** Get the (source and destination) X/Y coordinates of the currently
 	  * executing command. For debugging purposes only.
 	  */

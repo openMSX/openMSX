@@ -5,7 +5,6 @@
 
 #include "GLUtil.hh"
 #include "gl_vec.hh"
-#include "static_vector.hh"
 
 #include <cstdint>
 #include <optional>
@@ -17,7 +16,7 @@ namespace openmsx {
 class ImGuiBitmapViewer final : public ImGuiPart
 {
 public:
-	enum ScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER };
+	enum ScrnMode : int { SCR5, SCR6, SCR7, SCR8, SCR11, SCR12, OTHER }; // must be in sync with VDPCmdEngine 'scrnMode'
 
 public:
 	ImGuiBitmapViewer(ImGuiManager& manager_, size_t index);
@@ -84,20 +83,6 @@ private:
 		PersistentElement   {"colorDstTodo",   &ImGuiBitmapViewer::colorDstTodo}
 	};
 };
-
-using Point = gl::ivec2;
-struct Rect {
-	Point p1, p2;
-};
-struct DoneTodo {
-	static_vector<Rect, 2> done, todo;
-};
-
-// TODO write a unittest for these 2 functions.
-static_vector<Rect, 2> rectFromVdpCmd(
-	int x, int y, int nx, int ny,
-	bool dix, bool diy, ImGuiBitmapViewer::ScrnMode screenMode, bool byteMode);
-DoneTodo splitRect(const Rect& r, int x, int y);
 
 } // namespace openmsx
 

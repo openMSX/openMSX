@@ -2618,6 +2618,162 @@ void VDPCmdEngine::commandDone(EmuTime time)
 	vram.cmdWriteWindow.disable(time);
 }
 
+// Take VDPCmdEngine info like {sx,sy} (or {dx,dy}), {nx,ny}, ...
+// And turn that into a rectangle that's properly clipped horizontally for the
+// given screen mode. Taking into account pixel vs byte mode.
+
+// Usually this returns just 1 retangle, but in case of vertical wrapping this
+// can be split over two (disjunct) rectangles. In that case the order in which
+// the VDP handles these rectangles (via 'diy') is preserved.
+//
+// Also within a single rectangle the VDP order (via 'dix' and 'diy') is
+// preserved. So start at corner 'p1', end at corner 'p2'.
+//
+// Both start and end points of the rectangle(s) are inclusive.
+// TODO unittest
+[[nodiscard]] static static_vector<VDPCmdEngine::Rect, 2> rectFromVdpCmd(
+	int x, int y, // either sx,sy or dx,dy
+	int nx, int ny,
+	bool dix, bool diy,
+	int screenMode,
+	bool byteMode) // Lxxx or Hxxx command
+{
+	const auto [width, height, pixelsPerByte] = [&]{
+		switch (screenMode) {
+		case 0:  return std::tuple{256, 1024, 2}; // screen 5
+		case 1:  return std::tuple{512, 1024, 4}; // screen 6
+		case 2:  return std::tuple{512,  512, 2}; // screen 7
+		default: return std::tuple{256,  512, 1}; // screen 8, 11, 12  (and fallback for non-bitmap)
+		}
+	}();
+
+	// clamp/wrap start-point
+	x = std::clamp(x, 0, width - 1); // Clamp to border. This is different from the real VDP behavior.
+	                            // But for debugging it's visually less confusing??
+	y &= (height - 1); // wrap around
+
+	if (nx <= 0) nx = width;
+	if (ny <= 0) ny = height;
+	if (byteMode) { // round to byte positions
+		auto mask = ~(pixelsPerByte - 1);
+		x &= mask;
+		nx &= mask;
+	}
+	nx -= 1; // because coordinates are inclusive
+	ny -= 1;
+
+	// horizontally clamp to left/right border
+	auto endX = std::clamp(x + (dix ? -nx : nx), 0, width - 1);
+
+	// but vertically wrap around, possibly that splits the rectangle in two parts
+	using Point = VDPCmdEngine::Point;
+	using Rect = VDPCmdEngine::Rect;
+	if (diy) {
+		auto endY = y - ny;
+		if (endY >= 0) {
+			return {Rect{Point{x, y}, Point{endX, endY}}};
+		} else {
+			return {Rect{Point{x, y}, Point{endX, 0}},
+			        Rect{Point{x, height - 1},
+			             Point{endX, endY & (height - 1)}}};
+		}
+	} else {
+		auto endY = (y + ny);
+		if (endY < height) {
+			return {Rect{Point{x, y}, Point{endX, endY}}};
+		} else {
+			return {Rect{Point{x, y}, Point{endX, height - 1}},
+			        Rect{Point{x, 0},
+			             Point{endX, endY & (height - 1)}}};
+		}
+	}
+}
+
+VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::CmdRegs& r, int mode)
+{
+	FormatCmdResult result;
+
+	bool dix = r.arg & VDPCmdEngine::DIX;
+	bool diy = r.arg & VDPCmdEngine::DIY;
+
+	static constexpr std::array<const char*, 16> logOps = {
+		"",     ",AND", ",OR", ",XOR", ",NOT", "","","",
+		",TIMP",",TAND",",TOR",",TXOR",",TNOT","","",""
+	};
+	const char* logOp = logOps[r.cmd & 15];
+
+	auto printRect = [&](std::string_view s, const static_vector<Rect, 2>& r, auto... args) {
+		// front/back for the (unlikely) case of vertical wrapping
+		strAppend(result.str, s, '(', r.front().p1.x, ',', r.front().p1.y, ")"
+		                        "-(", r.back ().p2.x, ',', r.back().p2.y, ')', args...);
+	};
+	switch (r.cmd >> 4) {
+	case 0: case 1: case 2: case 3:
+		result.str = "ABORT"sv;
+		break;
+	case 4:
+		result.str = strCat("POINT (", r.sx, ',', r.sy, ')');
+		break;
+	case 5:
+		result.str = strCat("PSET (", r.dx, ',', r.dy, "),", r.col, logOp);
+		break;
+	case 6:
+		result.str = strCat("SRCH (", r.sx, ',', r.sy, ") ",
+		                    ((r.arg & VDPCmdEngine::EQ) ? "== " : "!= "), r.col);
+		break;
+	case 7: {
+		auto nx2 = r.nx; auto ny2 = r.ny;
+		if (r.arg & VDPCmdEngine::MAJ) std::swap(nx2, ny2);
+		auto x = int(r.sx) + (dix ? -int(nx2) : int(nx2));
+		auto y = int(r.sy) + (diy ? -int(ny2) : int(ny2));
+		result.str = strCat("LINE (", r.sx, ',', r.sy, ")"
+		                        "-(",    x, ',',    y, "),", r.col, logOp);
+		break;
+	}
+	case 8:
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, false);
+		printRect("LMMV ", *result.dstRect, ',', r.col, logOp);
+		break;
+	case 9:
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, false);
+		result.srcRect = rectFromVdpCmd(r.sx, r.sy, r.nx, r.ny, dix, diy, mode, false);
+		printRect("LMMM ", *result.srcRect);
+		printRect(" TO ", *result.dstRect, logOp);
+		break;
+	case 10:
+		result.srcRect = rectFromVdpCmd(r.sx, r.sy, r.nx, r.ny, dix, diy, mode, false);
+		printRect("LMCM ", *result.srcRect);
+		break;
+	case 11:
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, false);
+		printRect("LMMC ", *result.dstRect, logOp);
+		break;
+	case 12:
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, true);
+		printRect("HMMV ", *result.dstRect, ',', r.col);
+		break;
+	case 13:
+		result.srcRect = rectFromVdpCmd(r.sx, r.sy, r.nx, r.ny, dix, diy, mode, true);
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, true);
+		printRect("HMMM ", *result.srcRect);
+		printRect(" TO ", *result.dstRect);
+		break;
+	case 14:
+		// different from normal: NO 'sx', and NO 'nx'
+		result.srcRect = rectFromVdpCmd(r.dx, r.sy, 512, r.ny, dix, diy, mode, true);
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, 512, r.ny, dix, diy, mode, true);
+		printRect("YMMM", *result.srcRect);
+		printRect(" TO ", *result.dstRect);
+		break;
+	case 15:
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, true);
+		printRect("HMMC ", *result.dstRect);
+		break;
+	default:
+		UNREACHABLE;
+	}
+	return result;
+}
 
 // version 1: initial version
 // version 2: replaced member 'Clock<> clock' with 'EmuTime time'
