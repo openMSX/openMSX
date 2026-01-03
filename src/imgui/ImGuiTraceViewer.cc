@@ -774,7 +774,7 @@ void ImGuiTraceViewer::scrollTo(EmuTime time)
 	}
 }
 
-[[nodiscard]] static const Tracer::Trace* getTrace(Traces traces, int selectedRow)
+[[nodiscard]] static Tracer::Trace* getTrace(Traces traces, int selectedRow)
 {
 	if (selectedRow < 0 || selectedRow >= int(traces.size())) return nullptr;
 	return traces[selectedRow];
@@ -1076,14 +1076,12 @@ void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRo
 
 		std::optional<int> dragUp;
 		std::optional<int> dragDown;
+		bool openContext = false;
 		drawList->PushClipRect(clipMin, clipMax);
 		auto colorText = getColor(imColor::TEXT);
 		im::ListClipper(traces.size(), -1, rowHeight, [&](int row) {
 			auto tl = clipMin + gl::vec2{0.0f, float(row) * rowHeight};
 			bool rowHovered = hovered && (row == mouseRow);
-			if (rowHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-				selectedRow = row;
-			}
 			if (auto color = rowHovered           ? std::optional<ImU32>(ImGui::GetColorU32(ImGuiCol_HeaderHovered))
 			               : (row == selectedRow) ? std::optional<ImU32>(ImGui::GetColorU32(ImGuiCol_Header))
 			                                      : std::optional<ImU32>{}) {
@@ -1104,6 +1102,13 @@ void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRo
 				} else if (dy < -dist) {
 					dragUp = row;
 				}
+			}
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				selectedRow = row;
+			}
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				selectedRow = row;
+				openContext = true;
 			}
 			simpleToolTip(trace->description);
 		});
@@ -1126,6 +1131,33 @@ void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRo
 			doSwap(*dragDown, *dragDown + 1);
 			if (selectedRow == *dragDown) ++selectedRow;
 		}
+
+		if (openContext) ImGui::OpenPopup("names-context");
+		im::Popup("names-context", [&]{
+			auto* trace = getTrace(traces, selectedRow);
+			if (!trace) {
+				ImGui::CloseCurrentPopup();
+				return;
+			}
+			if (trace->getType() == Tracer::Trace::Type::INTEGER) {
+				im::Menu("Format", [&]{
+					using enum Tracer::Trace::Format;
+					auto format = trace->getFormat();
+					if (ImGui::RadioButton("Binary",      format == BIN)) trace->setFormat(BIN);
+					if (ImGui::RadioButton("Decimal",     format == DEC)) trace->setFormat(DEC);
+					if (ImGui::RadioButton("Hexadecimal", format == HEX)) trace->setFormat(HEX);
+				});
+				ImGui::Separator();
+			}
+			if (ImGui::MenuItem("Clear")) {
+				trace->clear();
+			}
+			if (ImGui::MenuItem("Clear all")) {
+				for (auto* tr : traces) {
+					tr->clear();
+				}
+			}
+		});
 	});
 }
 

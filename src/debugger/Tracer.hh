@@ -35,6 +35,7 @@ public:
 		explicit Trace(std::string name_) : name(std::move(name_)) {}
 
 		void addEvent(EmuTime t, TraceValue v, bool merge);
+		void clear();
 		void attachProbe(Debugger& debugger, ProbeBase& probe);
 		void detachProbe(ProbeBase& probe);
 		void update(const ProbeBase& subject) noexcept override;
@@ -42,6 +43,7 @@ public:
 		[[nodiscard]] bool isBool() const { return type == Type::BOOL; }
 		[[nodiscard]] Type getType() const { return type; }
 		[[nodiscard]] Format getFormat() const { return format; }
+		void setFormat(Format f) { format = f; }
 		[[nodiscard]] bool isProbe() const { return motherBoard != nullptr; }
 		[[nodiscard]] bool isUserTrace() const { return !isProbe(); }
 

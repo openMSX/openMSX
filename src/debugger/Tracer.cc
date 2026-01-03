@@ -49,6 +49,11 @@ void Tracer::Trace::addEvent(EmuTime t, TraceValue v, bool merge)
 	events.emplace_back(t, std::move(v));
 }
 
+void Tracer::Trace::clear()
+{
+	events.clear();
+}
+
 void Tracer::Trace::attachProbe(Debugger& debugger, ProbeBase& probe)
 {
 	probe.attach(*this);
