@@ -26,25 +26,31 @@ public:
 		TraceValue value;
 	};
 	struct Trace final : Observer<ProbeBase> {
-		// Format of values seen so far. Ordered from specific to general:
-		enum class Format : uint8_t { MONOSTATE = 0, BOOL = 1, INTEGER = 2, DOUBLE = 3, STRING = 4 };
+		// Type of values seen so far. Ordered from specific to general:
+		enum class Type : uint8_t { MONOSTATE = 0, BOOL = 1, INTEGER = 2, DOUBLE = 3, STRING = 4 };
+
+		// Format, only relevant for Type::INTEGER
+		enum class Format : uint8_t { BIN, DEC, HEX };
 
 		explicit Trace(std::string name_) : name(std::move(name_)) {}
 
-		void addEvent(EmuTime t, TraceValue v);
+		void addEvent(EmuTime t, TraceValue v, bool merge);
 		void attachProbe(Debugger& debugger, ProbeBase& probe);
 		void detachProbe(ProbeBase& probe);
 		void update(const ProbeBase& subject) noexcept override;
 
-		[[nodiscard]] bool isBool() const { return format == Format::BOOL; }
+		[[nodiscard]] bool isBool() const { return type == Type::BOOL; }
+		[[nodiscard]] Type getType() const { return type; }
 		[[nodiscard]] Format getFormat() const { return format; }
 		[[nodiscard]] bool isProbe() const { return motherBoard != nullptr; }
 		[[nodiscard]] bool isUserTrace() const { return !isProbe(); }
 
 		std::string name;
+		std::string description;
 		std::vector<Event> events;
 		MSXMotherBoard* motherBoard = nullptr; // non-nullptr if attached to a Probe
-		Format format = Format::MONOSTATE;
+		Type type = Type::MONOSTATE;
+		Format format = Format::DEC;
 	};
 
 public:
@@ -60,6 +66,7 @@ public:
 	[[nodiscard]] std::string help(std::span<const TclObject> tokens) const;
 
 	[[nodiscard]] const auto& getTraces() const { return traces; }
+	[[nodiscard]] Trace* findTrace(std::string_view name);
 	void probeCreated(Debugger& debugger, ProbeBase& probe);
 	void probeRemoved(ProbeBase& probe);
 	void selectProbe  (Debugger& debugger, std::string_view name);
@@ -71,7 +78,6 @@ public:
 
 private:
 	[[nodiscard]] Trace& getOrCreateTrace(Debugger& debugger, std::string_view name);
-	[[nodiscard]] Trace* findTrace(std::string_view name);
 	void add  (Debugger& debugger, std::span<const TclObject> tokens, TclObject& result, EmuTime time);
 	void list (Command& cmd, std::span<const TclObject> tokens, TclObject& result);
 	void drop (Debugger& debugger, std::span<const TclObject> tokens, TclObject& result);

@@ -92,6 +92,20 @@ public:
 	TraceValue& operator=(uint64_t x)         { set_u64(x); return *this; }
 	TraceValue& operator=(double d)           { set_double(d); return *this; }
 
+	bool operator==(const TraceValue& other) const {
+		 // must be the same type, e.g. integer 123 and string "123" don't match
+		if (tag() != other.tag()) return false;
+
+		switch (tag()) {
+		case Tag::SSO:
+		case Tag::HeapStr:   return get_string() == other.get_string();
+		case Tag::Monostate: return true;
+		case Tag::U64:       return get_u64()    == other.get_u64();
+		case Tag::Double:    return get_double() == other.get_double();
+		default: std::unreachable();
+		}
+	}
+
 	[[nodiscard]] size_t index() const { return std::to_underlying(tag()); }
 
 	template<typename T> [[nodiscard]] bool holds_alternative() const = delete;

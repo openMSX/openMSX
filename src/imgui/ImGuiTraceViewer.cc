@@ -180,6 +180,7 @@ struct DrawCoarse {
 	float y0, y1;
 	ImU32 colorNormal;
 	ImU32 colorHover;
+	Tracer::Trace::Format format;
 	bool rowHovered;
 
 	void operator()(float x0, float x1, auto first, auto last) const {
@@ -200,8 +201,8 @@ struct DrawCoarse {
 			++it; // 2nd try
 			if (it == last) return;
 		}
-		std::array<char, 32> tmpBuf;
-		auto valueStr = ImGuiTraceViewer::formatTraceValue(it->value, tmpBuf);
+		std::array<char, 64> tmpBuf;
+		auto valueStr = ImGuiTraceViewer::formatTraceValue(it->value, tmpBuf, format);
 		im::Tooltip([&]{
 			ImGui::TextUnformatted(valueStr);
 		});
@@ -250,8 +251,9 @@ static void drawEventsVoid(
 		drawList->AddPolyline(points.data(), narrow<int>(points.size()), color, 0, thickness);
 		drawList->AddLine({x0, y0}, {x0, y1}, color, thickness);
 	};
+	auto dummyFormat = Tracer::Trace::Format::DEC;
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, dummyFormat, rowHovered});
 }
 
 static void drawEventsBool(
@@ -291,20 +293,40 @@ static void drawEventsBool(
 
 		yp = y;
 	};
+	auto dummyFormat = Tracer::Trace::Format::DEC;
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{nullptr, drawList, topLeft.x, y0, y1, colorNormal, colorHover, dummyFormat, rowHovered});
 }
 
-[[nodiscard]] std::string_view ImGuiTraceViewer::formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf)
+[[nodiscard]] std::string_view ImGuiTraceViewer::formatTraceValue(const TraceValue& value, std::span<char, 64> tmpBuf,
+                                                                  Tracer::Trace::Format format)
 {
 	return value.visit(overloaded{
 		[](std::monostate) {
 			return std::string_view{};
 		},
 		[&](uint64_t i) {
-			auto [end, ec] = std::to_chars(tmpBuf.data(), tmpBuf.data() + tmpBuf.size(), i);
-			assert(ec == std::errc{}); // should never fail (for sufficiently large buffer)
-			return std::string_view(tmpBuf.data(), end - tmpBuf.data());
+			switch (format) {
+			using enum Tracer::Trace::Format;
+			case BIN: {
+				auto bin = bin_string(i);
+				auto* begin = tmpBuf.data();
+				auto* end = bin.copy(begin);
+				return std::string_view(begin, end);
+			}
+			default:
+			case DEC: {
+				auto [end, ec] = std::to_chars(tmpBuf.data(), tmpBuf.data() + tmpBuf.size(), i);
+				assert(ec == std::errc{}); // should never fail (for sufficiently large buffer)
+				return std::string_view(tmpBuf.data(), end - tmpBuf.data());
+			}
+			case HEX: {
+				auto hex = hex_string(i);
+				auto* begin = tmpBuf.data();
+				auto* end = hex.copy(begin);
+				return std::string_view(begin, end);
+			}
+			}
 		},
 		[&](double d) {
 		#if 0
@@ -325,7 +347,8 @@ static void drawEventsBool(
 }
 
 static void drawEventsValue(
-	gl::vec2 topLeft, const Convertor& convertor, EmuTime maxT, Events events, bool rowHovered)
+	gl::vec2 topLeft, const Convertor& convertor, EmuTime maxT, Events events, bool rowHovered,
+	Tracer::Trace::Format format)
 {
 	auto* drawList = ImGui::GetWindowDrawList();
 	const auto& style = ImGui::GetStyle();
@@ -354,8 +377,8 @@ static void drawEventsValue(
 		if (event.value.holds_alternative<std::monostate>()) {
 			drawList->AddLine({xf0, y2}, {xf1, y2}, color, thickness);
 		} else {
-			std::array<char, 32> tmpBuf;
-			auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf);
+			std::array<char, 64> tmpBuf;
+			auto valueStr = ImGuiTraceViewer::formatTraceValue(event.value, tmpBuf, format);
 			if (auto maxWidth = x1 - x0 - 2.0f * h5; maxWidth > 0.0f) {
 				std::array<ImVec2, 6> points = {
 					gl::vec2{xf1 - h5, y0},
@@ -381,7 +404,7 @@ static void drawEventsValue(
 		}
 	};
 	processTimeline(events, maxT, convertor, drawDetailed,
-	                DrawCoarse{&convertor, drawList, topLeft.x, y0, y1, colorNormal, colorHover, rowHovered});
+	                DrawCoarse{&convertor, drawList, topLeft.x, y0, y1, colorNormal, colorHover, format, rowHovered});
 }
 
 static bool menuItemWithShortcut(ImGuiManager& manager, const char* label, Shortcuts::ID id, bool* p_selected = nullptr)
@@ -1028,7 +1051,7 @@ void ImGuiTraceViewer::drawToolBar(EmuTime minT, EmuDuration totalT, float viewS
 	});
 }
 
-void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger)
+void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRow)
 {
 	int windowFlags = ImGuiWindowFlags_NoScrollbar
 			| ImGuiWindowFlags_NoScrollWithMouse
@@ -1082,15 +1105,7 @@ void ImGuiTraceViewer::drawNames(float rulerHeight, float rowHeight, int mouseRo
 					dragUp = row;
 				}
 			}
-			if (!trace->isUserTrace()) { // a probe
-				simpleToolTip([&]{
-					if (auto probe = debugger.findProbe(name)) {
-						return probe->getDescription();
-					} else {
-						return ""sv;
-					}
-				});
-			}
+			simpleToolTip(trace->description);
 		});
 		drawList->PopClipRect();
 
@@ -1279,15 +1294,15 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 				drawList->AddRectFilled(tl, {clipMax.x, tl.y + rowHeight}, *color);
 			}
 			tl.y += style.ItemSpacing.y;
-			switch (trace.getFormat()) {
-			case Tracer::Trace::Format::MONOSTATE:
+			switch (trace.getType()) {
+			case Tracer::Trace::Type::MONOSTATE:
 				drawEventsVoid(tl, convertor, maxT, visibleEvents, rowHovered);
 				break;
-			case Tracer::Trace::Format::BOOL:
+			case Tracer::Trace::Type::BOOL:
 				drawEventsBool(tl, convertor, maxT, visibleEvents, rowHovered);
 				break;
 			default:
-				drawEventsValue(tl, convertor, maxT, visibleEvents, rowHovered);
+				drawEventsValue(tl, convertor, maxT, visibleEvents, rowHovered, trace.getFormat());
 			}
 		});
 		auto drawLine = [&](EmuTime t, ImU32 color) {
@@ -1416,7 +1431,7 @@ void ImGuiTraceViewer::paintMain(MSXMotherBoard& motherBoard)
 	auto mouseRow = static_cast<int>(mouseY / rowHeight);
 	if (mouseRow < 0 || mouseRow >= int(traces.size())) mouseRow = -1;
 
-	drawNames(rulerHeight, rowHeight, mouseRow, debugger);
+	drawNames(rulerHeight, rowHeight, mouseRow);
 	drawSplitter(splitterWidth);
 	Convertor convertor{viewStartTime, viewDuration, viewScreenWidth};
 	drawGraphs(rulerHeight, rowHeight, mouseRow, convertor, minT, maxT, now);
@@ -1497,7 +1512,10 @@ void ImGuiTraceViewer::paintSelect(MSXMotherBoard& motherBoard)
 						}
 					}
 				}
-				// TODO tooltip if we extend 'debug trace add' with '-description'
+				simpleToolTip([&]{
+					auto* trace = tracer.findTrace(name); assert(trace);
+					return trace->description;
+				});
 			});
 		});
 		HelpMarker(

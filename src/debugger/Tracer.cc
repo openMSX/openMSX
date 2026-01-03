@@ -3,9 +3,11 @@
 #include "Debugger.hh"
 #include "ProbeBreakPoint.hh"
 
+#include "Interpreter.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
 #include "StateChangeDistributor.hh"
+#include "TclArgParser.hh"
 
 #include "Date.hh"
 #include "one_of.hh"
@@ -28,17 +30,22 @@ Tracer::~Tracer()
 	stateChangeDistributor.unregisterListener(*this);
 }
 
-void Tracer::Trace::addEvent(EmuTime t, TraceValue v)
+void Tracer::Trace::addEvent(EmuTime t, TraceValue v, bool merge)
 {
 	assert(events.empty() || t >= events.back().time);
-	using enum Format;
+
+	if (merge && !events.empty() && (events.back().value == v)) {
+		return;
+	}
+
+	using enum Type;
 	auto valueFormat = v.visit(overloaded{
 		[](std::monostate)   { return MONOSTATE; },
 		[](uint64_t u)       { return (u == one_of(0ull, 1ull)) ? BOOL : INTEGER; },
 		[](double)           { return DOUBLE; },
 		[](std::string_view) { return STRING; }
 	});
-	format = std::max(format, valueFormat);
+	type = std::max(type, valueFormat);
 	events.emplace_back(t, std::move(v));
 }
 
@@ -46,12 +53,14 @@ void Tracer::Trace::attachProbe(Debugger& debugger, ProbeBase& probe)
 {
 	probe.attach(*this);
 	motherBoard = &debugger.getMotherBoard();
+	description = probe.getDescription();
 }
 
 void Tracer::Trace::detachProbe(ProbeBase& probe)
 {
 	probe.detach(*this);
 	motherBoard = nullptr;
+	description.clear();
 }
 
 void Tracer::Trace::update(const ProbeBase& subject) noexcept
@@ -60,7 +69,7 @@ void Tracer::Trace::update(const ProbeBase& subject) noexcept
 	if (motherBoard->getReverseManager().isReplaying()) {
 		return;
 	}
-	addEvent(motherBoard->getCurrentTime(), subject.getTraceValue());
+	addEvent(motherBoard->getCurrentTime(), subject.getTraceValue(), false);
 }
 
 void Tracer::probeCreated(Debugger& debugger, ProbeBase& probe)
@@ -126,8 +135,7 @@ Tracer::Trace& Tracer::getOrCreateTrace(Debugger& debugger, std::string_view nam
 		}
 	}();
 	if (auto* probe = debugger.findProbe(name)) {
-		probe->attach(*trace);
-		trace->motherBoard = &debugger.getMotherBoard();
+		trace->attachProbe(debugger, *probe);
 	}
 	return *trace;
 }
@@ -155,16 +163,53 @@ void Tracer::add(Debugger& debugger, std::span<const TclObject> tokens, TclObjec
 		return;
 	}
 
-	// TODO "-type <string|int|double|bool|void>"
-	// TODO "-description ..."
+	std::optional<std::string_view> description;
+	std::optional<std::string_view> type;
+	std::optional<std::string_view> format;
+	bool merge = false;
+	std::array info = {
+		valueArg("-description", description),
+		valueArg("-type", type),
+		valueArg("-format", format),
+		flagArg("-merge", merge),
+	};
 	auto& cmd = debugger.cmd;
-	cmd.checkNumArgs(tokens, Completer::Between{4, 5}, "name ?value?");
-	Trace& trace = getOrCreateTrace(debugger, tokens[3].getString());
+	auto& interp = cmd.getInterpreter();
+	auto arguments = parseTclArgs(interp, tokens.subspan(3), info);
+	if (arguments.size() != one_of(size_t(1), size_t(2))) {
+		interp.wrongNumArgs(3, tokens, "name ?value?");
+	}
+
+	Trace& trace = getOrCreateTrace(debugger, arguments[0].getString());
+	if (description) {
+		trace.description = *description;
+	}
+	if (type) {
+		using enum Tracer::Trace::Type;
+		if      (*type == "void")   trace.type = MONOSTATE;
+		else if (*type == "bool")   trace.type = BOOL;
+		else if (*type == "int")    trace.type = INTEGER;
+		else if (*type == "double") trace.type = DOUBLE;
+		else if (*type == "string") trace.type = STRING;
+		else throw CommandException(
+			"Invalid value for -type: ", *type,
+			", must be one of void, bool, int, double, string");
+	}
+	if (format) {
+		using enum Tracer::Trace::Format;
+		if      (*format == "bin") trace.format = BIN;
+		else if (*format == "dec") trace.format = DEC;
+		else if (*format == "hex") trace.format = HEX;
+		else throw CommandException(
+			"Invalid value for -format: ", *format,
+			", must be one of bin, dec, hex");
+	}
+
 	TraceValue value = [&]{
-		if (tokens.size() < 5) {
+		if (arguments.size() < 2) {
 			return TraceValue{std::monostate{}};
 		}
-		const auto& val = tokens[4];
+		const auto& val = arguments[1];
 		if (auto i = val.getOptionalInt()) {
 			return TraceValue{uint64_t(*i)};
 		} else if (auto i64 = val.getOptionalInt64()) {
@@ -175,7 +220,7 @@ void Tracer::add(Debugger& debugger, std::span<const TclObject> tokens, TclObjec
 			return TraceValue{val.getString()};
 		}
 	}();
-	trace.addEvent(time, std::move(value));
+	trace.addEvent(time, std::move(value), merge);
 }
 
 [[nodiscard]] static TclObject toTclObject(const TraceValue& value)
@@ -275,15 +320,24 @@ void Tracer::tabCompletion(const Debugger& debugger, std::vector<std::string>& t
 		"  Type 'help debug trace <subcommand>' for help about a specific subcommand.\n";
 
 	constexpr auto addHelp =
-		"debug trace add <name> ?<value>?\n"
+		"debug trace add <name> [<value>] [-merge] [-description <text>] [-type <t>] [-format <f>]\n"
 		"  Add a new trace data point to the trace with the given name.\n"
 		"  If the trace does not exist yet, it will be created.\n"
 		"  The timestamp of the data point is the current emulation time.\n"
 		"  The optional value can be an integer, a floating point number,\n"
-		"  or a string. If no value is given, a void value is used.\n";
+		"  or a string. If no value is given, a void value is used.\n"
+		"\n"
+		"  There are also a few flags that influence the behavior:\n"
+		"  * -merge: ignore consecutive equal values\n"
+		"  * -description <text>: gives a description for this trace\n"
+		"  * -type <t>: must be one of: void, bool, int, double, string\n"
+		"               E.g. this ensures that a string like '1' is not accidentally interpreted as a bool\n"
+		"  * -format <f>: must be one of: bin, dec, hex\n"
+		"                 only relevant for type=int\n"
+		"  The latter 3 options are typically only used once. The first is typically repeated on every invocation.";
 
 	constexpr auto listHelp =
-		"debug trace list ?<name>?\n"
+		"debug trace list [<name>]\n"
 		"  Without arguments, list the names of all created traces.\n"
 		"  With a name argument, list all data points of the given trace.\n"
 		"  Each data point consists of a timestamp and a value.\n"
@@ -291,7 +345,7 @@ void Tracer::tabCompletion(const Debugger& debugger, std::vector<std::string>& t
 		"  Data points are listed in chronological order.\n";
 
 	constexpr auto dropHelp =
-		"debug trace drop ?<name>?\n"
+		"debug trace drop [<name>]\n"
 		"  Without arguments, drop all traces and their data points.\n"
 		"  With a name argument, drop only the trace with the given name.\n";
 
@@ -346,8 +400,8 @@ void Tracer::exportVCD(zstring_view filename)
 	for (size_t i = 0; i < traces.size(); ++i) {
 		const auto& t = *traces[i];
 		os << "$var ";
-		switch (t.getFormat()) {
-			using enum Tracer::Trace::Format;
+		switch (t.getType()) {
+			using enum Tracer::Trace::Type;
 			case MONOSTATE: os << "event 1";    break;
 			case BOOL:      os << "wire 1";     break;
 			case INTEGER:   os << "integer 64"; break;
@@ -379,9 +433,9 @@ void Tracer::exportVCD(zstring_view filename)
 	};
 
 	// helper: emit a value for given trace format. For events, 'flag' selects 1 (true) or 0 (false).
-	auto emitValue = [&](Tracer::Trace::Format fmt, size_t id, const TraceValue& val, bool flag) {
-		switch (fmt) {
-		using enum Tracer::Trace::Format;
+	auto emitValue = [&](Tracer::Trace::Type type, size_t id, const TraceValue& val, bool flag) {
+		switch (type) {
+		using enum Tracer::Trace::Type;
 		case MONOSTATE:
 			os << (flag ? '1' : '0') << 't' << id << '\n';
 			break;
@@ -430,7 +484,7 @@ void Tracer::exportVCD(zstring_view filename)
 			uint64_t firstNs = t.events.front().time.toUint64();
 			if (firstNs == 0) initVal = t.events.front().value;
 		}
-		emitValue(t.getFormat(), i, initVal, false);
+		emitValue(t.getType(), i, initVal, false);
 	}
 	os << "$end\n";
 
@@ -447,7 +501,7 @@ void Tracer::exportVCD(zstring_view filename)
 		size_t pos = idx[tr];
 		const auto& t = *traces[tr];
 		const auto& val = t.events[pos].value;
-		emitValue(t.getFormat(), tr, val, true);
+		emitValue(t.getType(), tr, val, true);
 
 		// advance index and push next event for this trace
 		++idx[tr];

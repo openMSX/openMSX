@@ -50,7 +50,8 @@ public:
 	[[nodiscard]] const std::vector<Tracer::Trace*>& getTraces(MSXMotherBoard& motherBoard);
 	[[nodiscard]] EmuTime getMarker(int i) const { return i ? selectedTime2 : selectedTime1; }
 	void setMarker(int i, EmuTime t) { (i ? selectedTime2 : selectedTime1) = t; }
-	[[nodiscard]] static std::string_view formatTraceValue(const TraceValue& value, std::span<char, 32> tmpBuf);
+	[[nodiscard]] static std::string_view formatTraceValue(const TraceValue& value, std::span<char, 64> tmpBuf,
+	                                                       Tracer::Trace::Format format);
 
 public:
 	bool show = false;
@@ -72,7 +73,7 @@ private:
 
 	void drawMenuBar(EmuTime minT, EmuDuration totalT, Tracer& tracer);
 	void drawToolBar(EmuTime minT, EmuDuration totalT, float graphWidth);
-	void drawNames(float rulerHeight, float rowHeight, int mouseRow, Debugger& debugger);
+	void drawNames(float rulerHeight, float rowHeight, int mouseRow);
 	void drawSplitter(float width);
 	void drawRuler(gl::vec2 size, const Convertor& convertor, EmuTime from, EmuTime to, EmuTime now);
 	void drawGraphs(float rulerHeight, float rowHeight, int mouseRow, const Convertor& convertor,

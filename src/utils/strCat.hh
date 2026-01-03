@@ -407,6 +407,49 @@ private:
 	T t;
 };
 
+// Format an integral as a hexadecimal value (variable width)
+template<HexCase Case, std::integral T> struct ConcatHexIntegral
+{
+	explicit ConcatHexIntegral(T t)
+	{
+		using U = std::make_unsigned_t<T>;
+		U u = static_cast<U>(t);
+
+		char* p = buf.data() + buf.size();
+		if (u == 0) {
+			*--p = '0';
+		} else {
+			static constexpr char A = (Case == HexCase::lower) ? 'a' : 'A';
+			do {
+				auto d = u & 15;
+				*--p = (d < 10) ? static_cast<char>(d + '0')
+						: static_cast<char>(d - 10 + A);
+				u >>= 4;
+			} while (u);
+		}
+
+		n = static_cast<uint8_t>(buf.data() + buf.size() - p);
+	}
+
+	[[nodiscard]] size_t size() const { return n; }
+
+	[[nodiscard]] char* copy(char* dst) const
+	{
+		const char* start = buf.data() + buf.size() - n;
+		std::memcpy(dst, start, n);
+		return dst + n;
+	}
+
+	friend std::ostream& operator<<(std::ostream& os, const ConcatHexIntegral& v)
+	{
+		const char* start = v.buf.data() + v.buf.size() - v.n;
+		return os.write(start, v.n);
+	}
+private:
+	std::array<char, sizeof(T) * 2> buf{};
+	uint8_t n = 0;
+};
+
 // Format an integral as a binary value with a fixed number of characters.
 // This fixed width means it either adds leading zeros or truncates the result
 // (it keeps the rightmost digits).
@@ -836,6 +879,12 @@ template<size_t N, HexCase Case = HexCase::lower, std::integral T>
 [[nodiscard]] inline auto hex_string(T t)
 {
 	return strCatImpl::ConcatFixedWidthHexIntegral<N, Case, T>{t};
+}
+
+template<HexCase Case = HexCase::lower, std::integral T>
+[[nodiscard]] inline auto hex_string(T t)
+{
+	return strCatImpl::ConcatHexIntegral<Case, T>{t};
 }
 
 template<size_t N, std::integral T>
