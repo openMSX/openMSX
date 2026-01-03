@@ -1,5 +1,7 @@
 namespace eval trace {
 
+# vdpcmdtrace
+
 user_setting create boolean vdpcmdtrace "VDP command tracing on/off" false
 
 proc trace_vdpcmd {} {
@@ -22,4 +24,4 @@ proc setting_changed {name1 name2 op} {
 trace add variable ::vdpcmdtrace "write" [namespace code setting_changed]
 setting_changed ::vdpcmdtrace {} write
 
-}
+} ;# namespace eval trace
