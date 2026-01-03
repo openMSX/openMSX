@@ -1773,10 +1773,6 @@ void VDPCmdEngine::executeHmmc(EmuTime limit)
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, cmdTraceSetting(
-		commandController, vdp_.getName() == "VDP" ? "vdpcmdtrace" :
-		vdp_.getName() + " vdpcmdtrace", "VDP command tracing on/off",
-		false)
 	, cmdInProgressCallback(
 		commandController, vdp_.getName() == "VDP" ?
 		"vdpcmdinprogress_callback" : vdp_.getName() +
@@ -1952,10 +1948,6 @@ void VDPCmdEngine::executeCommand(EmuTime time)
 	lastDX = DX; lastDY = DY;
 	lastNX = NX; lastNY = NY;
 	lastCOL = COL; lastARG = ARG; lastCMD = CMD;
-
-	if (cmdTraceSetting.getBoolean()) {
-		reportVdpCommand();
-	}
 
 	// Start command.
 	status |= CE;
@@ -2591,24 +2583,6 @@ void VDPCmdEngine::sync2(EmuTime time)
 	}
 }
 
-void VDPCmdEngine::reportVdpCommand() const
-{
-	static constexpr std::array<std::string_view, 16> COMMANDS = {
-		" ABRT"," ????"," ????"," ????","POINT"," PSET"," SRCH"," LINE",
-		" LMMV"," LMMM"," LMCM"," LMMC"," HMMV"," HMMM"," YMMM"," HMMC"
-	};
-	static constexpr std::array<std::string_view, 16> OPS = {
-		"IMP ","AND ","OR  ","XOR ","NOT ","NOP ","NOP ","NOP ",
-		"TIMP","TAND","TOR ","TXOR","TNOT","NOP ","NOP ","NOP "
-	};
-
-	std::cerr << "VDPCmd " << COMMANDS[CMD >> 4] << '-' << OPS[CMD & 15]
-		<<  '(' << int(SX) << ',' << int(SY) << ")->("
-		        << int(DX) << ',' << int(DY) << ")," << int(COL)
-		<< " [" << ((ARG & DIX) ? -int(NX) : int(NX))
-		<<  ',' << ((ARG & DIY) ? -int(NY) : int(NY)) << "]\n";
-}
-
 void VDPCmdEngine::commandDone(EmuTime time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
@@ -2727,9 +2701,9 @@ VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::Cm
 	case 7: {
 		auto nx2 = r.nx; auto ny2 = r.ny;
 		if (r.arg & VDPCmdEngine::MAJ) std::swap(nx2, ny2);
-		auto x = int(r.sx) + (dix ? -int(nx2) : int(nx2));
-		auto y = int(r.sy) + (diy ? -int(ny2) : int(ny2));
-		result.str = strCat("LINE (", r.sx, ',', r.sy, ")"
+		auto x = int(r.dx) + (dix ? -int(nx2) : int(nx2));
+		auto y = int(r.dy) + (diy ? -int(ny2) : int(ny2));
+		result.str = strCat("LINE (", r.dx, ',', r.dy, ")"
 		                        "-(",    x, ',',    y, "),", r.col, logOp);
 		break;
 	}
@@ -2738,8 +2712,8 @@ VDPCmdEngine::FormatCmdResult VDPCmdEngine::formatCommand(const VDPCmdEngine::Cm
 		printRect("LMMV ", *result.dstRect, ',', r.col, logOp);
 		break;
 	case 9:
-		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, false);
 		result.srcRect = rectFromVdpCmd(r.sx, r.sy, r.nx, r.ny, dix, diy, mode, false);
+		result.dstRect = rectFromVdpCmd(r.dx, r.dy, r.nx, r.ny, dix, diy, mode, false);
 		printRect("LMMM ", *result.srcRect);
 		printRect(" TO ", *result.dstRect, logOp);
 		break;

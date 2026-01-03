@@ -238,19 +238,12 @@ private:
 	  */
 	void commandDone(EmuTime time);
 
-	/** Report the VDP command specified in the registers.
-	  */
-	void reportVdpCommand() const;
-
 private:
 	/** The VDP this command engine is part of.
 	  */
 	VDP& vdp;
 	VDPVRAM& vram;
 
-	/** Only call reportVdpCommand() when this setting is turned on
-	  */
-	BooleanSetting cmdTraceSetting;
 	TclCallback cmdInProgressCallback;
 
 	struct CmdProbe final : ProbeBase {
