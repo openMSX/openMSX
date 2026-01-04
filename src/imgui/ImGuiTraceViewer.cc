@@ -906,7 +906,7 @@ static void toolTipWithShortcut(ImGuiManager& manager, const char* text, Shortcu
 	assert(ec == std::errc{}); // should never fail if we pass a sufficiently large buffer
 	return std::string(buffer.data(), end - buffer.data());
 #endif
-	int len = snprintf(buffer.data(), buffer.size(), "%.17g", value);
+	int len = snprintf(buffer.data(), buffer.size(), "%.11g", value);
 	assert(len > 0 && size_t(len) < buffer.size());
 	return std::string(buffer.data(), len);
 }
@@ -1270,6 +1270,8 @@ void ImGuiTraceViewer::drawGraphs(float rulerHeight, float rowHeight, int mouseR
 	}();
 	float fakeScrollWidth = scrollWidth * convertor.viewScreenWidth;
 	float fakeScrollPos = scrollPos * convertor.viewScreenWidth;
+	// make sure it's always possible to scroll to the future (scrollbar is never in the rightmost position)
+	fakeScrollWidth = std::max(fakeScrollWidth, fakeScrollPos + convertor.viewScreenWidth + 5);
 	ImGui::SetNextWindowContentSize({fakeScrollWidth, rulerHeight + rowHeight * float(traces.size())});
 	ImGui::SetNextWindowScroll({fakeScrollPos, scrollY});
 
