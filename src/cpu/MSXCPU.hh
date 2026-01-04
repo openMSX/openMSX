@@ -178,7 +178,6 @@ private:
 
 private:
 	MSXMotherBoard& motherboard;
-	BooleanSetting traceSetting;
 	TclCallback diHaltCallback;
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr

@@ -25,21 +25,16 @@ namespace openmsx {
 
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
-	, traceSetting(
-		motherboard.getCommandController(), "cputrace",
-		"CPU tracing on/off", false, Setting::Save::NO)
 	, diHaltCallback(
 		motherboard.getCommandController(), "di_halt_callback",
 		"Tcl proc called when the CPU executed a DI/HALT sequence",
 		"default_di_halt_callback",
 		Setting::Save::YES) // user must be able to override
 	, z80(std::make_unique<CPUCore<Z80TYPE>>(
-		motherboard, "z80", traceSetting,
-		diHaltCallback, EmuTime::zero()))
+		motherboard, "z80", diHaltCallback, EmuTime::zero()))
 	, r800(motherboard.isTurboR()
 		? std::make_unique<CPUCore<R800TYPE>>(
-			motherboard, "r800", traceSetting,
-			diHaltCallback, EmuTime::zero())
+			motherboard, "r800", diHaltCallback, EmuTime::zero())
 		: nullptr)
 	, timeInfo(motherboard.getMachineInfoCommand())
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
@@ -51,7 +46,6 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 {
 	motherboard.getDebugger().setCPU(this);
 	motherboard.getScheduler().setCPU(this);
-	traceSetting.attach(*this);
 
 	z80->freqLocked.attach(*this);
 	z80->freqValue.attach(*this);
@@ -64,7 +58,6 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 
 MSXCPU::~MSXCPU()
 {
-	traceSetting.detach(*this);
 	z80->freqLocked.detach(*this);
 	z80->freqValue.detach(*this);
 	if (r800) {

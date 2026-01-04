@@ -56,7 +56,6 @@ class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
-	        const BooleanSetting& traceSetting,
 	        TclCallback& diHaltCallback, EmuTime time);
 
 	void setInterface(MSXCPUInterface* interface_) { interface = interface_; }
@@ -143,7 +142,6 @@ private:
 	Scheduler& scheduler;
 	MSXCPUInterface* interface = nullptr;
 
-	const BooleanSetting& traceSetting;
 	TclCallback& diHaltCallback;
 
 	Probe<int> IRQStatus;
@@ -167,17 +165,10 @@ private:
 
 	std::atomic<bool> exitLoop = false;
 
-	/** In sync with traceSetting.getBoolean(). */
-	bool tracingEnabled;
-
 	/** An NMOS Z80 and a CMOS Z80 behave slightly differently */
 	const bool isCMOS;
 
 private:
-	inline void cpuTracePre();
-	inline void cpuTracePost();
-	void cpuTracePost_slow();
-
 	inline uint8_t READ_PORT(uint16_t port, unsigned cc);
 	inline void WRITE_PORT(uint16_t port, uint8_t value, unsigned cc);
 

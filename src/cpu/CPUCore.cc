@@ -274,12 +274,6 @@ static constexpr Table initTables()
 
 static constexpr Table table = initTables();
 
-// Global variable, because it should be shared between Z80 and R800.
-// It must not be shared between the CPUs of different MSX machines, but
-// the (logical) lifetime of this variable cannot overlap between execution
-// of two MSX machines.
-static uint16_t start_pc;
-
 // conditions
 struct CondC  { bool operator()(uint8_t f) const { return  (f & C_FLAG) != 0; } };
 struct CondNC { bool operator()(uint8_t f) const { return !(f & C_FLAG); } };
@@ -293,13 +287,11 @@ struct CondTrue { bool operator()(uint8_t /*f*/) const { return true; } };
 
 template<typename T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const std::string& name,
-		const BooleanSetting& traceSetting_,
 		TclCallback& diHaltCallback_, EmuTime time)
 	: CPURegs(T::IS_R800)
 	, T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
-	, traceSetting(traceSetting_)
 	, diHaltCallback(diHaltCallback_)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
 	            "Non-zero if there are pending IRQs (thus CPU would enter "
@@ -316,7 +308,6 @@ template<typename T> CPUCore<T>::CPUCore(
 		"custom CPU frequency (only valid when unlocked)",
 		T::CLOCK_FREQ, 1000000, 1000000000)
 	, freq(T::CLOCK_FREQ)
-	, tracingEnabled(traceSetting.getBoolean())
 	, isCMOS(motherboard.hasToshibaEngine())  // Toshiba MSX-ENGINEs embed a CMOS Z80
 {
 	static_assert(!std::is_polymorphic_v<CPUCore<T>>,
@@ -510,8 +501,6 @@ template<typename T> void CPUCore<T>::update(const Setting& setting) noexcept
 		doSetFreq();
 	} else if (&setting == &freqValue) {
 		doSetFreq();
-	} else if (&setting == &traceSetting) {
-		tracingEnabled = traceSetting.getBoolean();
 	}
 }
 
@@ -2429,35 +2418,6 @@ xx_cb: {
 	}
 }
 
-template<typename T> inline void CPUCore<T>::cpuTracePre()
-{
-	start_pc = getPC();
-}
-template<typename T> inline void CPUCore<T>::cpuTracePost()
-{
-	if (tracingEnabled) [[unlikely]] {
-		cpuTracePost_slow();
-	}
-}
-template<typename T> void CPUCore<T>::cpuTracePost_slow()
-{
-	std::array<uint8_t, 4> opBuf;
-	std::string dasmOutput;
-	dasm(*interface, start_pc, opBuf, dasmOutput, T::getTimeFast());
-	dasmOutput.resize(19, ' '); // alternative: print fixed-size field
-	std::cout << strCat(hex_string<4>(start_pc),
-	                    " : ", dasmOutput,
-	                    " AF=", hex_string<4>(getAF()),
-	                    " BC=", hex_string<4>(getBC()),
-	                    " DE=", hex_string<4>(getDE()),
-	                    " HL=", hex_string<4>(getHL()),
-	                    " IX=", hex_string<4>(getIX()),
-	                    " IY=", hex_string<4>(getIY()),
-	                    " SP=", hex_string<4>(getSP()),
-	                    '\n')
-	          << std::flush;
-}
-
 template<typename T> ExecIRQ CPUCore<T>::getExecIRQ() const
 {
 	if (nmiEdge) [[unlikely]] return ExecIRQ::NMI;
@@ -2509,7 +2469,6 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 		incR(narrow_cast<uint8_t>(T::advanceHalt(T::HALT_STATES, scheduler.getNext())));
 		setSlowInstructions();
 	} else {
-		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
 		endInstruction();
@@ -2528,7 +2487,6 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 				T::add(1);
 			}
 		}
-		cpuTracePost();
 	}
 }
 
@@ -2557,8 +2515,7 @@ template<typename T> void CPUCore<T>::execute2(bool fastForward)
 	// Note: we call scheduler _after_ executing the instruction and before
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
-	if (fastForward ||
-	    (!interface->anyBreakPoints() && !tracingEnabled)) {
+	if (fastForward || !interface->anyBreakPoints()) {
 		// fast path, no breakpoints, no tracing
 		do {
 			if (slowInstructions) {
@@ -2583,11 +2540,9 @@ template<typename T> void CPUCore<T>::execute2(bool fastForward)
 	} else {
 		do {
 			if (slowInstructions == 0) {
-				cpuTracePre();
 				assert(T::limitReached()); // only one instruction
 				executeInstructions();
 				endInstruction();
-				cpuTracePost();
 			} else {
 				--slowInstructions;
 				executeSlow(getExecIRQ());
