@@ -473,7 +473,9 @@ void ImGuiSpriteViewer::paint(MSXMotherBoard* motherBoard)
 		im::TreeNode("Sprite attributes", ImGuiTreeNodeFlags_DefaultOpen, [&]{
 			auto zoomSize = float(zm * size);
 			auto fullSize = zoomSize * gl::vec2(8, 4);
-			im::Child("##attrib", {0, fullSize.y}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
+			auto hoverY = 3.0f * (ImGui::GetTextLineHeight() - 1.0f)
+			            + float(3 * zm) * float(size);
+			im::Child("##attrib", {0, std::max(fullSize.y, hoverY)}, 0, ImGuiWindowFlags_HorizontalScrollbar, [&]{
 				if (mode == 0) {
 					ImGui::TextUnformatted("No sprites in this screen mode"sv);
 				} else {
